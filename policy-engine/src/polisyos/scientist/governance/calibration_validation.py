@@ -14,7 +14,9 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -28,8 +30,11 @@ from polisyos.data_forge.read_api.ukraine import (
     UkraineJSONSnapshotProvenance,
     read_ukraine_json_snapshot,
 )
-from polisyos.ir.analytics.backtest import BacktestReport, load_backtest_report
-from polisyos.ir.analytics.interference import InterferenceCertificate, NetworkInterferenceReport
+from polisyos.ir import BacktestReport, load_backtest_report
+from polisyos.ir.analytics.interference import (
+    InterferenceCertificate,
+    NetworkInterferenceReport,
+)
 from polisyos.ir.analytics.transportability import TransportabilityResult
 from polisyos.ir.observation.bundles import BacktestPlanBundle
 from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
@@ -64,7 +69,7 @@ _S1_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT = {
 def _s1_source_json_snapshot_model_type(consumer_contract: str) -> Any | None:
     """Resolve only the source models declared by the existing D3 and D4 readers."""
     if consumer_contract == "scientist.d3.household_candidate_basis":
-        from polisyos.data_forge.domains.ukraine.manifests import (
+        from polisyos.data_forge.read_api.ukraine import (
             HouseholdDiagnosticPanelBasis,
         )
 
@@ -158,11 +163,16 @@ def _candidate_source_input_edge_status(
             try:
                 store.get_manifest_by_profile(*selected)
             except Exception:
-                return "unavailable", f"candidate_source_manifest_profile_unavailable:{role}"
+                return (
+                    "unavailable",
+                    f"candidate_source_manifest_profile_unavailable:{role}",
+                )
             resolved_views.add(selected)
     if unselected_profiles:
-        return "not_established", "candidate_source_manifest_profile_not_selected:" + ",".join(
-            sorted(unselected_profiles)
+        return (
+            "not_established",
+            "candidate_source_manifest_profile_not_selected:"
+            + ",".join(sorted(unselected_profiles)),
         )
     return "available", None
 
@@ -208,7 +218,10 @@ def _source_json_snapshot_input_status(
     for contract, role in _S1_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT.items():
         provenance = reads[contract]
         if provenance.consumer_contract != contract:
-            return "unavailable", f"source_json_snapshot_consumer_contract_mismatch:{contract}"
+            return (
+                "unavailable",
+                f"source_json_snapshot_consumer_contract_mismatch:{contract}",
+            )
         if (
             provenance.profile_status == "declared_unknown_candidate"
             or provenance.schema_validation_provenance != "recomputed"
@@ -222,20 +235,29 @@ def _source_json_snapshot_input_status(
                 and provenance.source_materialization != "raw_snapshot_candidate"
             )
         ):
-            return "unavailable", f"source_json_snapshot_profile_not_admitted:{contract}"
+            return (
+                "unavailable",
+                f"source_json_snapshot_profile_not_admitted:{contract}",
+            )
         if (
             provenance.artifact_kind != "data_forge.ukraine.stage_output_snapshot"
             or provenance.artifact_ref.kind != provenance.artifact_kind
             or provenance.artifact_ref.media_type != "application/json"
             or provenance.media_type != "application/json"
         ):
-            return "unavailable", f"source_json_snapshot_artifact_profile_mismatch:{contract}"
+            return (
+                "unavailable",
+                f"source_json_snapshot_artifact_profile_mismatch:{contract}",
+            )
         if (
             provenance.artifact_ref.manifest_profile_sha256
             != provenance.selected_manifest_profile_sha256
             or provenance.artifact_ref.manifest_profile_sha256 is None
         ):
-            return "unavailable", f"source_json_snapshot_selected_profile_mismatch:{contract}"
+            return (
+                "unavailable",
+                f"source_json_snapshot_selected_profile_mismatch:{contract}",
+            )
         selected_ids.add(str(provenance.artifact_ref.artifact_id))
         matches = _input_edges_for_role(inputs, role)
         if len(matches) != 1:
@@ -248,7 +270,10 @@ def _source_json_snapshot_input_status(
             source_manifest = store.get_manifest(provenance.artifact_ref)
             source_bytes = store.get_bytes(provenance.artifact_ref)
         except Exception:
-            return "unavailable", f"source_json_snapshot_source_artifact_unavailable:{contract}"
+            return (
+                "unavailable",
+                f"source_json_snapshot_source_artifact_unavailable:{contract}",
+            )
         source_schema = source_manifest.artifact_schema
         if (
             source_manifest.kind != provenance.artifact_kind
@@ -260,10 +285,16 @@ def _source_json_snapshot_input_status(
             or (None if source_schema is None else source_schema.version)
             != provenance.schema_version
         ):
-            return "unavailable", f"source_json_snapshot_source_manifest_mismatch:{contract}"
+            return (
+                "unavailable",
+                f"source_json_snapshot_source_manifest_mismatch:{contract}",
+            )
         model_type = _s1_source_json_snapshot_model_type(contract)
         if model_type is None:
-            return "not_established", f"source_json_snapshot_reader_not_registered:{contract}"
+            return (
+                "not_established",
+                f"source_json_snapshot_reader_not_registered:{contract}",
+            )
         try:
             recomputed_read = read_ukraine_json_snapshot(
                 store,
@@ -276,9 +307,15 @@ def _source_json_snapshot_input_status(
                 model_type=model_type,
             )
         except Exception:
-            return "unavailable", f"source_json_snapshot_contract_validation_failed:{contract}"
+            return (
+                "unavailable",
+                f"source_json_snapshot_contract_validation_failed:{contract}",
+            )
         if recomputed_read.provenance != provenance:
-            return "unavailable", f"source_json_snapshot_recomputed_provenance_mismatch:{contract}"
+            return (
+                "unavailable",
+                f"source_json_snapshot_recomputed_provenance_mismatch:{contract}",
+            )
     if len(selected_ids) != len(_S1_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT):
         return "unavailable", "source_json_snapshot_artifacts_not_distinct"
     return "available", None
@@ -682,7 +719,10 @@ class CalibrationValidationRunner:
                 selected_validation_role=selected_roles[1],
                 selected_holdout_role=selected_roles[2],
                 source_json_snapshot_reads=dict(bundle.source_json_snapshot_reads),
-                metadata={"blocked_reason": "c5a_short_circuited", **dict(bundle.metadata)},
+                metadata={
+                    "blocked_reason": "c5a_short_circuited",
+                    **dict(bundle.metadata),
+                },
             )
             blocked = self._attach_accountability_artifact(
                 bundle_input=bundle,
@@ -741,7 +781,10 @@ class CalibrationValidationRunner:
         backtest_matrix = self._backtest_runner.run(
             bundle.backtest_plan_bundles,
             inputs=artifact_inputs,
-            metadata={"run_id": bundle.run_id, "selected_split_roles": selected_role_payload},
+            metadata={
+                "run_id": bundle.run_id,
+                "selected_split_roles": selected_role_payload,
+            },
         )
         baseline_metrics = (
             dict(bundle.baseline_metrics)
@@ -878,7 +921,9 @@ class CalibrationValidationLessonPublisher:
             LessonKind,
             LessonTrustLevel,
         )
-        from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
+        from polisyos.scientist.methods.search.transfer_context import (
+            resolve_transfer_context,
+        )
 
         registry = bundle_input.lesson_registry
         if registry is None or not hasattr(registry, "record_local"):
@@ -1013,7 +1058,7 @@ def load_calibration_validation_bundle(
         ) = _source_json_snapshot_input_status(
             store, bundle.source_json_snapshot_reads, manifest.inputs
         )
-        report_edges = _input_edges_for_role(manifest.inputs, "backtest_report")
+        _input_edges_for_role(manifest.inputs, "backtest_report")
     except Exception:
         bundle._fresh_backtest_report_status = "unavailable"
         bundle._fresh_backtest_report_reason = "c5b_manifest_unavailable"

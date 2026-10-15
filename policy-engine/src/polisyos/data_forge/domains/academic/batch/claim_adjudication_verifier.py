@@ -108,7 +108,12 @@ class _Receipt(_Strict):
 
     @model_validator(mode="after")
     def _selected_views(self) -> _Receipt:
-        refs = [self.candidate_ref, self.evaluation_ref, self.benchmark_ref, self.observations_ref]
+        refs = [
+            self.candidate_ref,
+            self.evaluation_ref,
+            self.benchmark_ref,
+            self.observations_ref,
+        ]
         if self.benchmark_suite_ref is not None:
             refs.append(self.benchmark_suite_ref)
         if self.raw_input_ref is not None:
@@ -182,7 +187,11 @@ class _RunObservations(_Strict):
 
 def _canonical(value: object) -> bytes:
     return json.dumps(
-        value, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False
+        value,
+        sort_keys=True,
+        ensure_ascii=False,
+        separators=(",", ":"),
+        allow_nan=False,
     ).encode()
 
 
@@ -896,10 +905,10 @@ class ClaimAdjudicationVerifier:
         ):
             raise ValueError("claim_adjudication_execution_receipt_binding_mismatch")
         from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
-            _validate_input_batch,
+            validate_claim_adjudication_input_batch,
         )
 
-        raw = _validate_input_batch(self._store, raw_input_ref)
+        raw = validate_claim_adjudication_input_batch(self._store, raw_input_ref)
         observed = _RunObservations.model_validate(self._load(execution.observations_ref))
         if (
             not same_selected_artifact_ref(observed.raw_input_ref, raw_input_ref)

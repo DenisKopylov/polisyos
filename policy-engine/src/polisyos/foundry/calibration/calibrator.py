@@ -22,10 +22,13 @@ import numpy as np
 import optax
 from jax.flatten_util import ravel_pytree
 
-from polisyos.core.artifacts import ArtifactStore, input_ref_from_artifact_ref
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef, ArtifactStore, input_ref_from_artifact_ref
 from polisyos.core.contracts.foundry import ExecPlan, ProgramGraph
-from polisyos.core.observability import get_metrics, get_tracer, is_hpc_observability_enabled
+from polisyos.core.observability import (
+    get_metrics,
+    get_tracer,
+    is_hpc_observability_enabled,
+)
 from polisyos.foundry.calibration.auxiliary import AuxLossComponent
 from polisyos.foundry.calibration.bijectors import (
     from_unconstrained,
@@ -45,7 +48,11 @@ from polisyos.foundry.calibration.measurement import (
     MeasurementAwareLossAdapter,
     MeasurementAwareLossConfig,
 )
-from polisyos.foundry.calibration.preflight import fetch_targets, prepare_targets, resolve_steps
+from polisyos.foundry.calibration.preflight import (
+    fetch_targets,
+    prepare_targets,
+    resolve_steps,
+)
 from polisyos.foundry.calibration.pure_executor import (
     StaticBundle,
     apply_trainable_values,
@@ -776,7 +783,9 @@ class Calibrator:
             if any(t.fabric_query is not None for t in targets):
                 if self.inputs.udf_engine is not None or self.inputs.target_fetcher is not None:
                     fetched = fetch_targets(
-                        cfg, udf_engine=self.inputs.udf_engine, fetcher=self.inputs.target_fetcher
+                        cfg,
+                        udf_engine=self.inputs.udf_engine,
+                        fetcher=self.inputs.target_fetcher,
                     )
                     raw_targets = {**fetched, **raw_targets}
             steps = resolve_steps(cfg, raw_targets)
@@ -828,9 +837,7 @@ class Calibrator:
                         "Coverage mask must match target shape: "
                         f"target={aligned_targets[target_id].shape}, coverage={coverage.shape}"
                     )
-                observed_mask = (coverage > 0.0) & jnp.isfinite(
-                    aligned_targets[target_id]
-                )
+                observed_mask = (coverage > 0.0) & jnp.isfinite(aligned_targets[target_id])
                 labels = measurement_bundle.split_label.get(target_id)
                 if labels is None:
                     training_mask = jnp.ones_like(observed_mask, dtype=bool)
@@ -893,9 +900,7 @@ class Calibrator:
                 if not measurement_support[target_id]:
                     diagnostics.append(f"no_effective_support:{target_id}")
             if not any(measurement_support.values()):
-                raise ValueError(
-                    "Calibration blocked: no_effective_support for any target"
-                )
+                raise ValueError("Calibration blocked: no_effective_support for any target")
 
         loss_configs = {t.target_id: t.loss for t in targets}
         target_ids = [t.target_id for t in targets]
@@ -1040,7 +1045,10 @@ class Calibrator:
                 if not measurement_enabled:
                     losses.append(
                         compute_base_loss(
-                            predicted, aligned_targets[target.target_id], cfg_loss, scale
+                            predicted,
+                            aligned_targets[target.target_id],
+                            cfg_loss,
+                            scale,
                         )
                     )
                     continue
@@ -1068,9 +1076,7 @@ class Calibrator:
                     ),
                     config=measurement_config,
                 )
-                sample_quality = adapted.get(
-                    "sample_quality_weight", adapted["effective_weight"]
-                )
+                sample_quality = adapted.get("sample_quality_weight", adapted["effective_weight"])
                 losses.append(
                     reduce_weighted_loss(
                         pointwise,
@@ -1117,13 +1123,15 @@ class Calibrator:
             constraint_penalty = _constraint_penalty(traces)
             prior_penalty = _prior_penalty(theta_groups)
             aux_penalty = _aux_penalty(traces)
-            total = (
-                total
-                + constraint_penalty
-                + prior_penalty
-                + aux_penalty
+            total = total + constraint_penalty + prior_penalty + aux_penalty
+            return (
+                total,
+                base_vec,
+                traces,
+                constraint_penalty,
+                prior_penalty,
+                aux_penalty,
             )
-            return total, base_vec, traces, constraint_penalty, prior_penalty, aux_penalty
 
         def _tree_is_finite(tree: Any) -> jnp.ndarray:
             leaves = jax.tree_util.tree_leaves(tree)
@@ -1158,7 +1166,15 @@ class Calibrator:
             new_u = optax.apply_updates(u_state, updates)
             grad_norm = optax.global_norm(grads)
             grads_finite = _tree_is_finite(grads)
-            return new_u, weights_state, new_opt_state, loss_val, aux, grad_norm, grads_finite
+            return (
+                new_u,
+                weights_state,
+                new_opt_state,
+                loss_val,
+                aux,
+                grad_norm,
+                grads_finite,
+            )
 
         def _grad_norms_from_jac(jac_tree: Any, eps: float) -> jnp.ndarray:
             leaves = jax.tree_util.tree_leaves(jac_tree)
@@ -1259,11 +1275,7 @@ class Calibrator:
                 base_vec = _base_vec_from_traces(
                     traces_local,
                 )
-                total = (
-                    jnp.sum(base_vec * weights_vec)
-                    if base_vec.size
-                    else jnp.array(0.0)
-                )
+                total = jnp.sum(base_vec * weights_vec) if base_vec.size else jnp.array(0.0)
                 total = (
                     total
                     + _constraint_penalty(traces_local)
@@ -1414,14 +1426,17 @@ class Calibrator:
             # the historical state with those same final weights so the two
             # objectives remain comparable.
             final_step_idx = jnp.array(0, dtype=jnp.int32)
-            candidate_forward: tuple[
-                jnp.ndarray,
-                jnp.ndarray,
-                Mapping[str, jnp.ndarray],
-                jnp.ndarray,
-                jnp.ndarray,
-                jnp.ndarray,
-            ] | None = None
+            candidate_forward: (
+                tuple[
+                    jnp.ndarray,
+                    jnp.ndarray,
+                    Mapping[str, jnp.ndarray],
+                    jnp.ndarray,
+                    jnp.ndarray,
+                    jnp.ndarray,
+                ]
+                | None
+            ) = None
             candidate_loss = float("inf")
             try:
                 candidate_forward = _forward_evaluation(
@@ -1439,14 +1454,17 @@ class Calibrator:
                 equal_nan=True,
             )
             baseline_loss = best_eval_loss
-            baseline_forward: tuple[
-                jnp.ndarray,
-                jnp.ndarray,
-                Mapping[str, jnp.ndarray],
-                jnp.ndarray,
-                jnp.ndarray,
-                jnp.ndarray,
-            ] | None = None
+            baseline_forward: (
+                tuple[
+                    jnp.ndarray,
+                    jnp.ndarray,
+                    Mapping[str, jnp.ndarray],
+                    jnp.ndarray,
+                    jnp.ndarray,
+                    jnp.ndarray,
+                ]
+                | None
+            ) = None
             if np.isfinite(best_eval_loss) and (
                 not weights_comparable or cfg.seed_strategy == "step"
             ):
@@ -1467,12 +1485,8 @@ class Calibrator:
                 candidate_loss=candidate_loss,
                 candidate_state=u_state,
             )
-            candidate_selected = (
-                np.isfinite(candidate_loss)
-                and (
-                    not np.isfinite(baseline_loss)
-                    or candidate_loss < baseline_loss
-                )
+            candidate_selected = np.isfinite(candidate_loss) and (
+                not np.isfinite(baseline_loss) or candidate_loss < baseline_loss
             )
             run_u_state = selected_state
             run_weights_state = weights_state
@@ -1490,11 +1504,9 @@ class Calibrator:
                     run_identifiability,
                     hessian_diags,
                     run_hessian_key,
-                ) = (
-                    _compute_run_hessian_summary(
-                        theta_groups_run,
-                        run_weights_state,
-                    )
+                ) = _compute_run_hessian_summary(
+                    theta_groups_run,
+                    run_weights_state,
                 )
                 _ms_diagnostics.extend(hessian_diags)
             multi_start_runs.append(
@@ -1652,6 +1664,7 @@ class Calibrator:
                     identifiability_report = selected_run.get("identifiability")
                     diagnostics.append("Hessian reused from selected start")
                 else:
+
                     def _loss_from_flat(flat_params: jnp.ndarray) -> jnp.ndarray:
                         theta_groups = unravel_theta(flat_params)
                         theta = _expand_group_values(theta_groups)
@@ -1668,9 +1681,7 @@ class Calibrator:
                             traces_local,
                         )
                         total = (
-                            jnp.sum(base_vec * weights_state)
-                            if base_vec.size
-                            else jnp.array(0.0)
+                            jnp.sum(base_vec * weights_state) if base_vec.size else jnp.array(0.0)
                         )
                         total = (
                             total
@@ -1767,11 +1778,9 @@ class Calibrator:
                     for group_idx, group in enumerate(groups)
                     for handle_idx in group.handle_indices
                 }
-                complete_handle_map = (
-                    set(group_by_handle) == set(range(len(final_bundle.trainables)))
-                    and len(group_by_handle)
-                    == sum(len(group.handle_indices) for group in groups)
-                )
+                complete_handle_map = set(group_by_handle) == set(
+                    range(len(final_bundle.trainables))
+                ) and len(group_by_handle) == sum(len(group.handle_indices) for group in groups)
                 if not complete_handle_map:
                     diagnostics.append("coordinate_projection_incomplete_unassigned_fields")
                     coordinate_projection_status = "incomplete"

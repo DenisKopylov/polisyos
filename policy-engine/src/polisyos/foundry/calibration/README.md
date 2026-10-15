@@ -4,7 +4,7 @@
 targets while keeping a strict boundary between synthetic runtime dynamics and
 measurement-aware loss adaptation.
 
-- Last updated: 2026-10-12
+- Last updated: 2026-10-15
 
 Generic calibration diagnostics, recalibration helpers, and validation-report
 adapters live in the shared `polisyos.calibration` package. This package owns
@@ -42,6 +42,8 @@ diagnostics into uncertainty envelopes or post-fit evidence.
 | `Calibrator.run_and_persist(store)` | Runs a config snapshot once and persists its typed report with that exact config edge. |
 | `CalibratorInputs`             | Bundles graph, exec plan, targets, registries, and optional measurement bundle inputs.    |
 | `CalibrationReport`            | Persisted fit result with metrics, history, and fit quality.                              |
+| `CalibrationCoordinateProjection` | Typed calibration coordinate projection from the report owner.                         |
+| `persist_posterior_summary_from_method_evidence()` | Persists the existing candidate-only summary from source-bound method evidence. |
 | `MeasurementAwareTarget`       | Observation-aware target contract.                                                        |
 | `MeasurementAwareLossConfig`   | Controls lag, censoring, regime, and shock discounts.                                     |
 | `compute_effective_weight()`   | Combines trust, coverage, lag, censoring, and shock metadata into effective loss weights. |

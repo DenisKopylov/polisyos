@@ -17,12 +17,16 @@ __all__ = [
     "ChangeProposalRef",
     "ComplianceDelta",
     "ComplianceTransition",
+    "ConstraintSeverity",
     "HierarchicalPolicySearchPlan",
     "InterventionKnobDictionaryEntry",
     "InterventionKnobSpec",
+    "LegalConstraint",
     "LegalEvaluationRequest",
     "LegalKnowledgeGraph",
     "LegalReportRef",
+    "LegalToDAGMapping",
+    "LegalToDAGMappingType",
     "LexBenchmarkOutcome",
     "LexError",
     "LexFabricEvidencePath",
@@ -69,6 +73,22 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ChangeProposalRef": ("polisyos.core.contracts.lex", "ChangeProposalRef"),
     "LegalEvaluationRequest": ("polisyos.core.contracts.lex", "LegalEvaluationRequest"),
     "LegalReportRef": ("polisyos.core.contracts.lex", "LegalReportRef"),
+    "ConstraintSeverity": (
+        "polisyos.lex.legal_evaluation.transport_constraints",
+        "ConstraintSeverity",
+    ),
+    "LegalConstraint": (
+        "polisyos.lex.legal_evaluation.transport_constraints",
+        "LegalConstraint",
+    ),
+    "LegalToDAGMapping": (
+        "polisyos.lex.legal_evaluation.transport_constraints",
+        "LegalToDAGMapping",
+    ),
+    "LegalToDAGMappingType": (
+        "polisyos.lex.legal_evaluation.transport_constraints",
+        "LegalToDAGMappingType",
+    ),
     # api
     "assemble_norm_pack": ("polisyos.lex.api", "assemble_norm_pack"),
     "build_legal_authority_report": (
@@ -129,7 +149,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.lex.intervention_artifacts",
         "LexInterventionMapEntry",
     ),
-    "LexInterventionCompiler": ("polisyos.lex.interventions", "LexInterventionCompiler"),
+    "LexInterventionCompiler": (
+        "polisyos.lex.interventions",
+        "LexInterventionCompiler",
+    ),
     "LexPolicyBundleInput": (
         "polisyos.lex.intervention_artifacts",
         "LexPolicyBundleInput",

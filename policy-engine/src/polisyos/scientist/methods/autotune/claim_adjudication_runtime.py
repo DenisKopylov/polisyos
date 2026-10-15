@@ -17,13 +17,11 @@ from polisyos.core.artifacts import (
     SchemaInfo,
 )
 from polisyos.core.canon import CanonSpec
-from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
+from polisyos.data_forge.read_api.academic import (
+    ClaimAdjudicationVerifier,
     require_selected_artifact_ref,
     same_selected_artifact_ref,
     selected_artifact_ref_for_input,
-)
-from polisyos.data_forge.read_api.academic import (
-    ClaimAdjudicationVerifier,
 )
 from polisyos.data_forge.read_api.academic import (
     claim_policy_publishable as _policy_publishable,
@@ -287,11 +285,11 @@ class ClaimAdjudicationRuntime:
 
     def _load_input(self, raw_input_ref: ArtifactRef) -> ClaimAdjudicationInputBatch:
         """Reuse the producer's exact-profile and source-lineage validation."""
-        from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
-            _validate_input_batch,
+        from polisyos.data_forge.read_api.academic import (
+            validate_claim_adjudication_input_batch,
         )
 
-        return _validate_input_batch(self._store, raw_input_ref)
+        return validate_claim_adjudication_input_batch(self._store, raw_input_ref)
 
     async def _adjudicate_item(
         self,

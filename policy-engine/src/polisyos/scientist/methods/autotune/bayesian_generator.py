@@ -12,21 +12,23 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import ArtifactID
-from polisyos.core.artifacts.manifest import (
+from polisyos.core.artifacts import (
+    ArtifactID,
     ArtifactRef,
-    InputRef,
+    ArtifactWriteOptions,
+    FileSystemCAS,
     ProducerInfo,
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.scientist.methods.search.strategies.space import (
     SearchSpace as NativeSearchSpace,
 )
-from polisyos.scientist.methods.search.strategies.types import ParameterBounds, ParameterType
+from polisyos.scientist.methods.search.strategies.types import (
+    ParameterBounds,
+    ParameterType,
+)
 
 from .models import (
     BayesianSourceProfile,
@@ -949,7 +951,8 @@ class BayesianCandidateGenerator:
                 normalized = tuple(self._search_space.normalize(params))
             except (TypeError, ValueError):
                 logger.warning(
-                    "Skipping history entry %s: candidate params cannot be normalized", idx
+                    "Skipping history entry %s: candidate params cannot be normalized",
+                    idx,
                 )
                 continue
 
@@ -1160,7 +1163,9 @@ def benchmark_to_evaluation(
         params_normalized=params_normalized,
         objectives=[
             ObjectiveValue(
-                name=primary_metric, raw_value=scalar, direction=OptimizationDirection.MINIMIZE
+                name=primary_metric,
+                raw_value=scalar,
+                direction=OptimizationDirection.MINIMIZE,
             )
         ],
         scalar_score=scalar,

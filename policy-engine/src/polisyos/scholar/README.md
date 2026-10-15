@@ -58,3 +58,5 @@ global search exhaustion, or absence of relevant knowledge.
 - Last updated: 2026-10-10
 - The package tree remains organized around `discover/` and `orchestrator/`, with freshness helpers living at the top level.
 - Package exports continue to provide the scholar service facade and the staged error types.
+
+## Evidence Validation Facade\n\nThe root facade exports `SourceSnippet`, `WebEvidenceBundle`, `validate_source_snippet_spans`, and `validate_web_evidence_source_binding`. The same Scholar validators remain the evidence-admissibility predicates used by Scientist consumers; moving their imports does not replace exact source-byte and span verification with shape checks.

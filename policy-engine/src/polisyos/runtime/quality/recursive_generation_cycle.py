@@ -31,7 +31,9 @@ from polisyos.pdc import (
     gy_artifact_self_identity_projection,
     gy_content_hash,
 )
-from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextHandoff
+from polisyos.runtime.quality.candidate_simulation import (
+    CandidateSimulationContextHandoff,
+)
 from polisyos.runtime.quality.cycle_substrate import (
     ConfiguredCandidateSimulationContextAdmissionOwner,
     CycleSubstrateContextArtifactOwner,
@@ -84,7 +86,9 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
     from polisyos.core.contracts import CatalogRunProfile
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
-    from polisyos.runtime.quality.data_forge_binding import MeasurementRootExecutionBinding
+    from polisyos.runtime.quality.data_forge_binding import (
+        MeasurementRootExecutionBinding,
+    )
     from polisyos.runtime.quality.evaluation_safety import EvalSafetyVerifierPort
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
@@ -304,7 +308,9 @@ class RecursiveN4ChildProfileBindingV1(_StrictModel):
 
     @model_validator(mode="after")
     def _bind_child_profile(self) -> RecursiveN4ChildProfileBindingV1:
-        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+        from polisyos.runtime.quality.cycle_substrate import (
+            cycle_job_design_problem_ref,
+        )
 
         if (
             self.node_ref == self.parent_ref
@@ -359,7 +365,9 @@ class RecursiveN4ChildProfileSetV1(_StrictModel):
 
     @model_validator(mode="after")
     def _bind_complete_family(self) -> RecursiveN4ChildProfileSetV1:
-        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+        from polisyos.runtime.quality.cycle_substrate import (
+            cycle_job_design_problem_ref,
+        )
 
         scope = (self.job_id, self.run_id, self.tenant_id, self.cell_id)
         if (
@@ -526,8 +534,12 @@ class RecursiveLeafContextOwner:
         """
         if self._generic_admission_owner is None or self._verified_nl_job_scope is None:
             raise RecursiveGenerationCycleError("recursive_generic_admission_owner_missing")
-        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
-        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+        from polisyos.runtime.quality.cycle_substrate import (
+            cycle_job_design_problem_ref,
+        )
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+        )
 
         if type(source_repository) is not GenerationSourceRepository:
             raise RecursiveGenerationCycleError("recursive_generic_source_repository_untyped")
@@ -718,7 +730,7 @@ class RecursiveLeafContextOwner:
     def persist(self, capsule: RecursiveLeafContextCapsule) -> CASArtifactRef:
         """Persist only after the actual job and profile owners reconcile inputs."""
         from polisyos.core import artifacts, canon
-        from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+        from polisyos.core.artifacts import ArtifactTenantContextInfo
 
         self.require_current(capsule)
         return self._store.put_json(
@@ -792,8 +804,7 @@ class RecursiveLeafContextOwner:
     ) -> RecursiveLeafContextCapsule:
         """Resolve historical CAS evidence and current configuration without an old lease."""
         from polisyos.core import artifacts
-        from polisyos.core.artifacts import load_core_json_artifact
-        from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+        from polisyos.core.artifacts import ArtifactTenantContextInfo, load_core_json_artifact
 
         if (
             ref.kind != "runtime.quality.recursive_leaf_context"
@@ -816,7 +827,8 @@ class RecursiveLeafContextOwner:
         manifest = self._store.get_manifest(ref)
         if manifest.inputs != [
             artifacts.InputRef(
-                artifact_id=capsule.handoff.context_job_ref.artifact_id, role="leaf_context_job"
+                artifact_id=capsule.handoff.context_job_ref.artifact_id,
+                role="leaf_context_job",
             )
         ] or manifest.tenant_context != ArtifactTenantContextInfo(
             tenant_id=expected_tenant_id, cell_id=expected_cell_id
@@ -848,7 +860,7 @@ class RecursiveLeafContextOwner:
     ) -> object:
         """Return the complete candidate-only family manifest projection."""
         from polisyos.core import artifacts
-        from polisyos.core.artifacts.manifest import (
+        from polisyos.core.artifacts import (
             ArtifactSameInputClosureInfo,
             ArtifactTenantContextInfo,
             input_ref_from_artifact_ref,
@@ -922,8 +934,12 @@ class RecursiveLeafContextOwner:
         """Persist the full child set only after source replay and all owner joins."""
         if self._generic_admission_owner is None or self._verified_nl_job_scope is None:
             raise RecursiveGenerationCycleError("recursive_generic_admission_owner_missing")
-        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
-        from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+        from polisyos.runtime.quality.cycle_substrate import (
+            cycle_job_design_problem_ref,
+        )
+        from polisyos.runtime.quality.design_generation import (
+            derive_n4_candidate_child_problems,
+        )
 
         parent = self._generic_admission_owner.resolve_handoff(
             handoff=parent_handoff,
@@ -1070,8 +1086,12 @@ class RecursiveLeafContextOwner:
     ) -> RecursiveN4ChildProfileSetV1:
         """Resolve the exact persisted set against real source and historical owners."""
         from polisyos.core.artifacts import load_core_json_artifact
-        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
-        from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+        from polisyos.runtime.quality.cycle_substrate import (
+            cycle_job_design_problem_ref,
+        )
+        from polisyos.runtime.quality.design_generation import (
+            derive_n4_candidate_child_problems,
+        )
         from polisyos.runtime.quality.generation_source import (
             _has_owner_profile,
             _ref_selects_manifest,
@@ -1286,7 +1306,10 @@ class RecursiveLeafContextOwner:
             expected_parent_handoff=parent_handoff,
             source_repository=source_repository,
         )
-        row = next((item for item in family.children if item.node_ref == capsule.node_ref), None)
+        row = next(
+            (item for item in family.children if item.node_ref == capsule.node_ref),
+            None,
+        )
         if (
             row is None
             or row.problem != capsule.problem
@@ -1295,7 +1318,7 @@ class RecursiveLeafContextOwner:
         ):
             raise RecursiveGenerationCycleError("recursive_generic_capsule_family_binding_mismatch")
         from polisyos.core import artifacts, canon
-        from polisyos.core.artifacts.manifest import (
+        from polisyos.core.artifacts import (
             ArtifactTenantContextInfo,
             input_ref_from_artifact_ref,
         )
@@ -1383,7 +1406,7 @@ class RecursiveLeafContextOwner:
                 load_core_json_artifact(self._store, capsule_ref, raw_payload_bytes=body)
             )
             manifest = self._store.get_manifest(capsule_ref)
-            from polisyos.core.artifacts.manifest import (
+            from polisyos.core.artifacts import (
                 ArtifactTenantContextInfo,
                 input_ref_from_artifact_ref,
             )
@@ -1679,7 +1702,9 @@ class RecursiveCycleNode(_StrictModel):
             ):
                 raise ValueError("recursive_parent_n5_request_result_binding_mismatch")
             if result.schema_version == "policyos.runtime.joint_simulation_horizon.v4":
-                from polisyos.runtime.quality.joint_simulation_horizon import _replication_seeds
+                from polisyos.runtime.quality.joint_simulation_horizon import (
+                    _replication_seeds,
+                )
 
                 if result.diagnostics.get(
                     "requested_replications"
@@ -2964,7 +2989,9 @@ class RecursiveGenerationCycleController:
             generic_parent_handoff is not None
         )
         if generic_identity:
-            from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+            from polisyos.runtime.quality.cycle_substrate import (
+                cycle_job_design_problem_ref,
+            )
 
             problem_refs_by_node = {
                 node_ref: cycle_job_design_problem_ref(problems_by_node[node_ref])
@@ -3144,7 +3171,10 @@ class RecursiveGenerationCycleController:
                     ),
                 }
                 capsule = RecursiveLeafContextCapsuleV2.model_validate(
-                    {**capsule_payload, "content_hash": gy_content_hash(capsule_payload)}
+                    {
+                        **capsule_payload,
+                        "content_hash": gy_content_hash(capsule_payload),
+                    }
                 )
                 capsule_ref = leaf_context_owner.persist_generic_capsule(
                     capsule,

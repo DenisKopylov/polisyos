@@ -20,19 +20,27 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 
 from polisyos.calibration import evaluate_continuous
 from polisyos.core.artifacts import FileSystemCAS, artifact_manifest_profile_sha256
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
-from polisyos.foundry.methods.artifacts import MethodArtifact, store_method_artifact
-from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.base import ComputeBackend
-from polisyos.foundry.methods.catalog.forecasting import ensure_forecasting_methods_registered
-from polisyos.foundry.methods.compiler.specialization import (
+from polisyos.foundry.methods import (
     BackendSpec,
+    ComputeBackend,
+    MethodArtifact,
+    MethodDispatcher,
+    MethodRegistry,
     ShapeSpec,
     Specialization,
     compute_static_params_hash,
+    ensure_forecasting_methods_registered,
+    store_method_artifact,
 )
-from polisyos.foundry.methods.selection.registry import MethodRegistry
+from polisyos.ir import (
+    ArtifactRefModel,
+    BacktestReportRef,
+    ForecastingUncertaintyBundleRef,
+)
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
     load_backtest_report,
@@ -53,11 +61,6 @@ from polisyos.ir.artifacts import (
     put_json_artifact,
 )
 from polisyos.ir.model_layer.canon import CanonSpec
-from polisyos.ir.registry.refs import (
-    ArtifactRefModel,
-    BacktestReportRef,
-    ForecastingUncertaintyBundleRef,
-)
 from polisyos.scientist.methods.backtesting.orchestrator import (
     BacktestOrchestrator,
     TrustScreeningMode,
@@ -395,11 +398,7 @@ def _resolve_spec_ref(
     profile and match its kind and media type before the owner reads bytes.
     """
 
-    selected_input = (
-        reference
-        if isinstance(reference, ArtifactRefModel)
-        else None
-    )
+    selected_input = reference if isinstance(reference, ArtifactRefModel) else None
     resolved_id = ArtifactID.model_validate(
         str(selected_input.artifact_id if selected_input is not None else reference)
     )
@@ -548,7 +547,10 @@ def _method_artifact(
         input_shapes=(
             (
                 "series",
-                ShapeSpec(shape=tuple(int(item) for item in train.shape), dtype=str(train.dtype)),
+                ShapeSpec(
+                    shape=tuple(int(item) for item in train.shape),
+                    dtype=str(train.dtype),
+                ),
             ),
         ),
         backend=BackendSpec(

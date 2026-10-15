@@ -25,6 +25,8 @@ __all__ = [
     "BudgetExhaustedError",
     "BudgetLedger",
     "BudgetLedgerMutation",
+    "BudgetLedgerProducerRecord",
+    "BudgetLedgerProducerRunBinding",
     "BudgetLedgerSnapshot",
     "BudgetLedgerWriter",
     "BudgetLimit",
@@ -119,38 +121,113 @@ __all__ = [
 ]
 
 _EXPORTS = {
-    "NodeOutputRule": ("polisyos.scientist.orchestration.engine.protocol", "NodeOutputRule"),
-    "OutputAwareNodeSpec": ("polisyos.scientist.orchestration.engine.protocol", "OutputAwareNodeSpec"),
-    "NodeOutputDisposition": ("polisyos.scientist.orchestration.engine.protocol", "NodeOutputDisposition"),
-    "NodeOutputRefusal": ("polisyos.scientist.orchestration.engine.protocol", "NodeOutputRefusal"),
-    "OutputAwareNodeOutcome": ("polisyos.scientist.orchestration.engine.protocol", "OutputAwareNodeOutcome"),
-    "decode_node_outcome": ("polisyos.scientist.orchestration.engine.protocol", "decode_node_outcome"),
+    "NodeOutputRule": (
+        "polisyos.scientist.orchestration.engine.protocol",
+        "NodeOutputRule",
+    ),
+    "OutputAwareNodeSpec": (
+        "polisyos.scientist.orchestration.engine.protocol",
+        "OutputAwareNodeSpec",
+    ),
+    "NodeOutputDisposition": (
+        "polisyos.scientist.orchestration.engine.protocol",
+        "NodeOutputDisposition",
+    ),
+    "NodeOutputRefusal": (
+        "polisyos.scientist.orchestration.engine.protocol",
+        "NodeOutputRefusal",
+    ),
+    "OutputAwareNodeOutcome": (
+        "polisyos.scientist.orchestration.engine.protocol",
+        "OutputAwareNodeOutcome",
+    ),
+    "decode_node_outcome": (
+        "polisyos.scientist.orchestration.engine.protocol",
+        "decode_node_outcome",
+    ),
     "Node": ("polisyos.scientist.orchestration.engine.protocol", "Node"),
     "NodeSpec": ("polisyos.scientist.orchestration.engine.protocol", "NodeSpec"),
     "NodeOutcome": ("polisyos.scientist.orchestration.engine.protocol", "NodeOutcome"),
     "NodeStatus": ("polisyos.scientist.orchestration.engine.protocol", "NodeStatus"),
     "NodeEvent": ("polisyos.scientist.orchestration.engine.protocol", "NodeEvent"),
     "NodeError": ("polisyos.scientist.orchestration.engine.protocol", "NodeError"),
-    "ExperimentState": ("polisyos.scientist.orchestration.engine.state", "ExperimentState"),
-    "WorkflowSpec": ("polisyos.scientist.orchestration.engine.workflow_spec", "WorkflowSpec"),
-    "NodeInvocation": ("polisyos.scientist.orchestration.engine.workflow_spec", "NodeInvocation"),
-    "NodeRegistry": ("polisyos.scientist.orchestration.engine.registry", "NodeRegistry"),
-    "discover_nodes": ("polisyos.scientist.orchestration.engine.registry", "discover_nodes"),
-    "AsyncWorkflowExecutor": ("polisyos.scientist.orchestration.engine.async_executor", "AsyncWorkflowExecutor"),
-    "WorkflowExecutor": ("polisyos.scientist.orchestration.engine.executor", "WorkflowExecutor"),
+    "ExperimentState": (
+        "polisyos.scientist.orchestration.engine.state",
+        "ExperimentState",
+    ),
+    "WorkflowSpec": (
+        "polisyos.scientist.orchestration.engine.workflow_spec",
+        "WorkflowSpec",
+    ),
+    "NodeInvocation": (
+        "polisyos.scientist.orchestration.engine.workflow_spec",
+        "NodeInvocation",
+    ),
+    "NodeRegistry": (
+        "polisyos.scientist.orchestration.engine.registry",
+        "NodeRegistry",
+    ),
+    "discover_nodes": (
+        "polisyos.scientist.orchestration.engine.registry",
+        "discover_nodes",
+    ),
+    "AsyncWorkflowExecutor": (
+        "polisyos.scientist.orchestration.engine.async_executor",
+        "AsyncWorkflowExecutor",
+    ),
+    "WorkflowExecutor": (
+        "polisyos.scientist.orchestration.engine.executor",
+        "WorkflowExecutor",
+    ),
     "EngineError": ("polisyos.scientist.orchestration.engine.errors", "EngineError"),
-    "WorkflowSpecError": ("polisyos.scientist.orchestration.engine.errors", "WorkflowSpecError"),
-    "UnknownNodeError": ("polisyos.scientist.orchestration.engine.errors", "UnknownNodeError"),
-    "DuplicateAliasError": ("polisyos.scientist.orchestration.engine.errors", "DuplicateAliasError"),
-    "MissingDependencyError": ("polisyos.scientist.orchestration.engine.errors", "MissingDependencyError"),
-    "CycleDetectedError": ("polisyos.scientist.orchestration.engine.errors", "CycleDetectedError"),
-    "NodeExecutionError": ("polisyos.scientist.orchestration.engine.errors", "NodeExecutionError"),
-    "NodeTimeoutError": ("polisyos.scientist.orchestration.engine.errors", "NodeTimeoutError"),
-    "RetryExhaustedError": ("polisyos.scientist.orchestration.engine.errors", "RetryExhaustedError"),
-    "CircuitBreakerOpenError": ("polisyos.scientist.orchestration.engine.errors", "CircuitBreakerOpenError"),
-    "WorkflowTimeoutError": ("polisyos.scientist.orchestration.engine.errors", "WorkflowTimeoutError"),
-    "CheckpointError": ("polisyos.scientist.orchestration.engine.checkpoint", "CheckpointError"),
-    "CheckpointNotFoundError": ("polisyos.scientist.orchestration.engine.checkpoint", "CheckpointNotFoundError"),
+    "WorkflowSpecError": (
+        "polisyos.scientist.orchestration.engine.errors",
+        "WorkflowSpecError",
+    ),
+    "UnknownNodeError": (
+        "polisyos.scientist.orchestration.engine.errors",
+        "UnknownNodeError",
+    ),
+    "DuplicateAliasError": (
+        "polisyos.scientist.orchestration.engine.errors",
+        "DuplicateAliasError",
+    ),
+    "MissingDependencyError": (
+        "polisyos.scientist.orchestration.engine.errors",
+        "MissingDependencyError",
+    ),
+    "CycleDetectedError": (
+        "polisyos.scientist.orchestration.engine.errors",
+        "CycleDetectedError",
+    ),
+    "NodeExecutionError": (
+        "polisyos.scientist.orchestration.engine.errors",
+        "NodeExecutionError",
+    ),
+    "NodeTimeoutError": (
+        "polisyos.scientist.orchestration.engine.errors",
+        "NodeTimeoutError",
+    ),
+    "RetryExhaustedError": (
+        "polisyos.scientist.orchestration.engine.errors",
+        "RetryExhaustedError",
+    ),
+    "CircuitBreakerOpenError": (
+        "polisyos.scientist.orchestration.engine.errors",
+        "CircuitBreakerOpenError",
+    ),
+    "WorkflowTimeoutError": (
+        "polisyos.scientist.orchestration.engine.errors",
+        "WorkflowTimeoutError",
+    ),
+    "CheckpointError": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "CheckpointError",
+    ),
+    "CheckpointNotFoundError": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "CheckpointNotFoundError",
+    ),
     "CheckpointCorruptedError": (
         "polisyos.scientist.orchestration.engine.checkpoint",
         "CheckpointCorruptedError",
@@ -159,17 +236,50 @@ _EXPORTS = {
         "polisyos.scientist.orchestration.engine.checkpoint",
         "CheckpointScopeMismatchError",
     ),
-    "WorkflowMismatchError": ("polisyos.scientist.orchestration.engine.checkpoint", "WorkflowMismatchError"),
-    "RunLockError": ("polisyos.scientist.orchestration.engine.checkpoint", "RunLockError"),
-    "CheckpointPolicy": ("polisyos.scientist.orchestration.engine.checkpoint", "CheckpointPolicy"),
-    "CheckpointMetadata": ("polisyos.scientist.orchestration.engine.checkpoint", "CheckpointMetadata"),
-    "CheckpointArtifact": ("polisyos.scientist.orchestration.engine.checkpoint", "CheckpointArtifact"),
-    "CheckpointHead": ("polisyos.scientist.orchestration.engine.checkpoint", "CheckpointHead"),
-    "CheckpointSnapshotMode": ("polisyos.scientist.orchestration.engine.checkpoint", "CheckpointSnapshotMode"),
-    "CheckpointWriteResult": ("polisyos.scientist.orchestration.engine.checkpoint", "CheckpointWriteResult"),
-    "CreatedCheckpoint": ("polisyos.scientist.orchestration.engine.checkpoint", "CreatedCheckpoint"),
-    "CASCheckpointHook": ("polisyos.scientist.orchestration.engine.checkpoint", "CASCheckpointHook"),
-    "CHECKPOINT_KIND": ("polisyos.scientist.orchestration.engine.checkpoint", "CHECKPOINT_KIND"),
+    "WorkflowMismatchError": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "WorkflowMismatchError",
+    ),
+    "RunLockError": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "RunLockError",
+    ),
+    "CheckpointPolicy": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "CheckpointPolicy",
+    ),
+    "CheckpointMetadata": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "CheckpointMetadata",
+    ),
+    "CheckpointArtifact": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "CheckpointArtifact",
+    ),
+    "CheckpointHead": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "CheckpointHead",
+    ),
+    "CheckpointSnapshotMode": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "CheckpointSnapshotMode",
+    ),
+    "CheckpointWriteResult": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "CheckpointWriteResult",
+    ),
+    "CreatedCheckpoint": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "CreatedCheckpoint",
+    ),
+    "CASCheckpointHook": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "CASCheckpointHook",
+    ),
+    "CHECKPOINT_KIND": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "CHECKPOINT_KIND",
+    ),
     "CHECKPOINT_SCHEMA_VERSION": (
         "polisyos.scientist.orchestration.engine.checkpoint",
         "CHECKPOINT_SCHEMA_VERSION",
@@ -186,7 +296,10 @@ _EXPORTS = {
         "polisyos.scientist.orchestration.engine.checkpoint",
         "normalize_checkpoint_policy",
     ),
-    "acquire_run_lock": ("polisyos.scientist.orchestration.engine.checkpoint", "acquire_run_lock"),
+    "acquire_run_lock": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "acquire_run_lock",
+    ),
     "materialize_checkpoint_state": (
         "polisyos.scientist.orchestration.engine.checkpoint",
         "materialize_checkpoint_state",
@@ -195,43 +308,108 @@ _EXPORTS = {
         "polisyos.scientist.orchestration.engine.checkpoint",
         "resolve_latest_checkpoint",
     ),
-    "resume_from_checkpoint": ("polisyos.scientist.orchestration.engine.checkpoint", "resume_from_checkpoint"),
+    "resume_from_checkpoint": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "resume_from_checkpoint",
+    ),
     "IDEMPOTENCY_CONTRACT_VERSION": (
         "polisyos.scientist.orchestration.engine.idempotency",
         "IDEMPOTENCY_CONTRACT_VERSION",
     ),
-    "compute_idempotency_key": ("polisyos.scientist.orchestration.engine.idempotency", "compute_idempotency_key"),
+    "compute_idempotency_key": (
+        "polisyos.scientist.orchestration.engine.idempotency",
+        "compute_idempotency_key",
+    ),
     "compute_idempotency_payload": (
         "polisyos.scientist.orchestration.engine.idempotency",
         "compute_idempotency_payload",
     ),
-    "extract_state_slice": ("polisyos.scientist.orchestration.engine.idempotency", "extract_state_slice"),
-    "NodeCacheEntry": ("polisyos.scientist.orchestration.engine.idempotency", "NodeCacheEntry"),
-    "NodeResultCache": ("polisyos.scientist.orchestration.engine.idempotency", "NodeResultCache"),
+    "extract_state_slice": (
+        "polisyos.scientist.orchestration.engine.idempotency",
+        "extract_state_slice",
+    ),
+    "NodeCacheEntry": (
+        "polisyos.scientist.orchestration.engine.idempotency",
+        "NodeCacheEntry",
+    ),
+    "NodeResultCache": (
+        "polisyos.scientist.orchestration.engine.idempotency",
+        "NodeResultCache",
+    ),
     "EngineMetricsCollector": (
         "polisyos.scientist.orchestration.engine.metrics_protocol",
         "EngineMetricsCollector",
     ),
-    "MetricsExporterHealth": ("polisyos.scientist.orchestration.engine.metrics", "MetricsExporterHealth"),
-    "NoopEngineMetrics": ("polisyos.scientist.orchestration.engine.metrics", "NoopEngineMetrics"),
-    "OTelEngineMetrics": ("polisyos.scientist.orchestration.engine.metrics", "OTelEngineMetrics"),
-    "TraceCorrelationRecord": ("polisyos.scientist.orchestration.engine.metrics", "TraceCorrelationRecord"),
-    "build_engine_metrics": ("polisyos.scientist.orchestration.engine.metrics", "build_engine_metrics"),
+    "MetricsExporterHealth": (
+        "polisyos.scientist.orchestration.engine.metrics",
+        "MetricsExporterHealth",
+    ),
+    "NoopEngineMetrics": (
+        "polisyos.scientist.orchestration.engine.metrics",
+        "NoopEngineMetrics",
+    ),
+    "OTelEngineMetrics": (
+        "polisyos.scientist.orchestration.engine.metrics",
+        "OTelEngineMetrics",
+    ),
+    "TraceCorrelationRecord": (
+        "polisyos.scientist.orchestration.engine.metrics",
+        "TraceCorrelationRecord",
+    ),
+    "build_engine_metrics": (
+        "polisyos.scientist.orchestration.engine.metrics",
+        "build_engine_metrics",
+    ),
     "get_metrics_exporter_health": (
         "polisyos.scientist.orchestration.engine.metrics",
         "get_metrics_exporter_health",
     ),
     "BudgetState": ("polisyos.scientist.orchestration.engine.budget", "BudgetState"),
     "BudgetLimit": ("polisyos.scientist.orchestration.engine.budget", "BudgetLimit"),
-    "BudgetExhaustedError": ("polisyos.scientist.orchestration.engine.budget", "BudgetExhaustedError"),
-    "BudgetMiddleware": ("polisyos.scientist.orchestration.engine.budget_middleware", "BudgetMiddleware"),
-    "BudgetLedger": ("polisyos.scientist.orchestration.engine.budget_ledger", "BudgetLedger"),
-    "BudgetLedgerWriter": ("polisyos.scientist.orchestration.engine.budget_ledger", "BudgetLedgerWriter"),
-    "BudgetLedgerMutation": ("polisyos.scientist.orchestration.engine.budget_ledger", "BudgetLedgerMutation"),
-    "BudgetLedgerSnapshot": ("polisyos.scientist.orchestration.engine.budget_ledger", "BudgetLedgerSnapshot"),
-    "FileBudgetLedger": ("polisyos.scientist.orchestration.engine.budget_ledger", "FileBudgetLedger"),
-    "CircuitBreaker": ("polisyos.scientist.orchestration.engine.circuit_breaker", "CircuitBreaker"),
-    "CircuitBreakerConfig": ("polisyos.scientist.orchestration.engine.circuit_breaker", "CircuitBreakerConfig"),
+    "BudgetExhaustedError": (
+        "polisyos.scientist.orchestration.engine.budget",
+        "BudgetExhaustedError",
+    ),
+    "BudgetMiddleware": (
+        "polisyos.scientist.orchestration.engine.budget_middleware",
+        "BudgetMiddleware",
+    ),
+    "BudgetLedger": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetLedger",
+    ),
+    "BudgetLedgerWriter": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetLedgerWriter",
+    ),
+    "BudgetLedgerMutation": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetLedgerMutation",
+    ),
+    "BudgetLedgerProducerRecord": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetLedgerProducerRecord",
+    ),
+    "BudgetLedgerProducerRunBinding": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetLedgerProducerRunBinding",
+    ),
+    "BudgetLedgerSnapshot": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "BudgetLedgerSnapshot",
+    ),
+    "FileBudgetLedger": (
+        "polisyos.scientist.orchestration.engine.budget_ledger",
+        "FileBudgetLedger",
+    ),
+    "CircuitBreaker": (
+        "polisyos.scientist.orchestration.engine.circuit_breaker",
+        "CircuitBreaker",
+    ),
+    "CircuitBreakerConfig": (
+        "polisyos.scientist.orchestration.engine.circuit_breaker",
+        "CircuitBreakerConfig",
+    ),
     "RollbackCompensationEvent": (
         "polisyos.scientist.orchestration.engine.compensation",
         "RollbackCompensationEvent",
@@ -240,36 +418,117 @@ _EXPORTS = {
         "polisyos.scientist.orchestration.engine.compensation",
         "RollbackCompensationHook",
     ),
-    "NodeCondition": ("polisyos.scientist.orchestration.engine.condition", "NodeCondition"),
-    "ConditionSyntaxError": ("polisyos.scientist.orchestration.engine.condition", "ConditionSyntaxError"),
-    "evaluate_condition": ("polisyos.scientist.orchestration.engine.condition", "evaluate_condition"),
-    "ConvergenceConfig": ("polisyos.scientist.orchestration.engine.convergence", "ConvergenceConfig"),
-    "ConvergenceDetector": ("polisyos.scientist.orchestration.engine.convergence", "ConvergenceDetector"),
-    "ConvergenceState": ("polisyos.scientist.orchestration.engine.convergence", "ConvergenceState"),
-    "ConvergenceStrategy": ("polisyos.scientist.orchestration.engine.convergence", "ConvergenceStrategy"),
+    "NodeCondition": (
+        "polisyos.scientist.orchestration.engine.condition",
+        "NodeCondition",
+    ),
+    "ConditionSyntaxError": (
+        "polisyos.scientist.orchestration.engine.condition",
+        "ConditionSyntaxError",
+    ),
+    "evaluate_condition": (
+        "polisyos.scientist.orchestration.engine.condition",
+        "evaluate_condition",
+    ),
+    "ConvergenceConfig": (
+        "polisyos.scientist.orchestration.engine.convergence",
+        "ConvergenceConfig",
+    ),
+    "ConvergenceDetector": (
+        "polisyos.scientist.orchestration.engine.convergence",
+        "ConvergenceDetector",
+    ),
+    "ConvergenceState": (
+        "polisyos.scientist.orchestration.engine.convergence",
+        "ConvergenceState",
+    ),
+    "ConvergenceStrategy": (
+        "polisyos.scientist.orchestration.engine.convergence",
+        "ConvergenceStrategy",
+    ),
     "FanOutConfig": ("polisyos.scientist.orchestration.engine.fan_out", "FanOutConfig"),
     "FanOutNode": ("polisyos.scientist.orchestration.engine.fan_out", "FanOutNode"),
     "FanOutResult": ("polisyos.scientist.orchestration.engine.fan_out", "FanOutResult"),
-    "MergeConflictPolicy": ("polisyos.scientist.orchestration.engine.fan_out", "MergeConflictPolicy"),
-    "StateMapping": ("polisyos.scientist.orchestration.engine.sub_workflow", "StateMapping"),
-    "SubWorkflowConfig": ("polisyos.scientist.orchestration.engine.sub_workflow", "SubWorkflowConfig"),
-    "SubWorkflowNode": ("polisyos.scientist.orchestration.engine.sub_workflow", "SubWorkflowNode"),
-    "WorkflowRunnerBackend": ("polisyos.scientist.orchestration.engine.runner", "WorkflowRunnerBackend"),
-    "RemoteNodeExecutor": ("polisyos.scientist.orchestration.engine.runner", "RemoteNodeExecutor"),
-    "WorkflowRunnerConfig": ("polisyos.scientist.orchestration.engine.runner", "WorkflowRunnerConfig"),
-    "build_workflow_runner": ("polisyos.scientist.orchestration.engine.runner", "build_workflow_runner"),
-    "ATTR_NODE_ID": ("polisyos.scientist.orchestration.engine.trace_attributes", "ATTR_NODE_ID"),
-    "ATTR_NODE_ALIAS": ("polisyos.scientist.orchestration.engine.trace_attributes", "ATTR_NODE_ALIAS"),
-    "ATTR_TIER_INDEX": ("polisyos.scientist.orchestration.engine.trace_attributes", "ATTR_TIER_INDEX"),
-    "ATTR_RETRY_COUNT": ("polisyos.scientist.orchestration.engine.trace_attributes", "ATTR_RETRY_COUNT"),
-    "ATTR_CACHE_HIT": ("polisyos.scientist.orchestration.engine.trace_attributes", "ATTR_CACHE_HIT"),
-    "ATTR_WORKFLOW_ID": ("polisyos.scientist.orchestration.engine.trace_attributes", "ATTR_WORKFLOW_ID"),
-    "ATTR_RUN_ID": ("polisyos.scientist.orchestration.engine.trace_attributes", "ATTR_RUN_ID"),
-    "ATTR_ERROR_POLICY": ("polisyos.scientist.orchestration.engine.trace_attributes", "ATTR_ERROR_POLICY"),
-    "ATTR_TENANT_ID": ("polisyos.scientist.orchestration.engine.trace_attributes", "ATTR_TENANT_ID"),
-    "ATTR_CELL_ID": ("polisyos.scientist.orchestration.engine.trace_attributes", "ATTR_CELL_ID"),
-    "ATTR_NODE_STATUS": ("polisyos.scientist.orchestration.engine.trace_attributes", "ATTR_NODE_STATUS"),
-    "ATTR_DURATION_MS": ("polisyos.scientist.orchestration.engine.trace_attributes", "ATTR_DURATION_MS"),
+    "MergeConflictPolicy": (
+        "polisyos.scientist.orchestration.engine.fan_out",
+        "MergeConflictPolicy",
+    ),
+    "StateMapping": (
+        "polisyos.scientist.orchestration.engine.sub_workflow",
+        "StateMapping",
+    ),
+    "SubWorkflowConfig": (
+        "polisyos.scientist.orchestration.engine.sub_workflow",
+        "SubWorkflowConfig",
+    ),
+    "SubWorkflowNode": (
+        "polisyos.scientist.orchestration.engine.sub_workflow",
+        "SubWorkflowNode",
+    ),
+    "WorkflowRunnerBackend": (
+        "polisyos.scientist.orchestration.engine.runner",
+        "WorkflowRunnerBackend",
+    ),
+    "RemoteNodeExecutor": (
+        "polisyos.scientist.orchestration.engine.runner",
+        "RemoteNodeExecutor",
+    ),
+    "WorkflowRunnerConfig": (
+        "polisyos.scientist.orchestration.engine.runner",
+        "WorkflowRunnerConfig",
+    ),
+    "build_workflow_runner": (
+        "polisyos.scientist.orchestration.engine.runner",
+        "build_workflow_runner",
+    ),
+    "ATTR_NODE_ID": (
+        "polisyos.scientist.orchestration.engine.trace_attributes",
+        "ATTR_NODE_ID",
+    ),
+    "ATTR_NODE_ALIAS": (
+        "polisyos.scientist.orchestration.engine.trace_attributes",
+        "ATTR_NODE_ALIAS",
+    ),
+    "ATTR_TIER_INDEX": (
+        "polisyos.scientist.orchestration.engine.trace_attributes",
+        "ATTR_TIER_INDEX",
+    ),
+    "ATTR_RETRY_COUNT": (
+        "polisyos.scientist.orchestration.engine.trace_attributes",
+        "ATTR_RETRY_COUNT",
+    ),
+    "ATTR_CACHE_HIT": (
+        "polisyos.scientist.orchestration.engine.trace_attributes",
+        "ATTR_CACHE_HIT",
+    ),
+    "ATTR_WORKFLOW_ID": (
+        "polisyos.scientist.orchestration.engine.trace_attributes",
+        "ATTR_WORKFLOW_ID",
+    ),
+    "ATTR_RUN_ID": (
+        "polisyos.scientist.orchestration.engine.trace_attributes",
+        "ATTR_RUN_ID",
+    ),
+    "ATTR_ERROR_POLICY": (
+        "polisyos.scientist.orchestration.engine.trace_attributes",
+        "ATTR_ERROR_POLICY",
+    ),
+    "ATTR_TENANT_ID": (
+        "polisyos.scientist.orchestration.engine.trace_attributes",
+        "ATTR_TENANT_ID",
+    ),
+    "ATTR_CELL_ID": (
+        "polisyos.scientist.orchestration.engine.trace_attributes",
+        "ATTR_CELL_ID",
+    ),
+    "ATTR_NODE_STATUS": (
+        "polisyos.scientist.orchestration.engine.trace_attributes",
+        "ATTR_NODE_STATUS",
+    ),
+    "ATTR_DURATION_MS": (
+        "polisyos.scientist.orchestration.engine.trace_attributes",
+        "ATTR_DURATION_MS",
+    ),
     "build_node_span_attributes": (
         "polisyos.scientist.orchestration.engine.trace_attributes",
         "build_node_span_attributes",

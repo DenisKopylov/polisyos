@@ -19,7 +19,7 @@ from typing import TYPE_CHECKING, Literal
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts.manifest import (
+from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactSameInputClosureInfo,
     ArtifactTenantContextInfo,
@@ -27,7 +27,9 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.pdc import gy_content_hash
-from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextInputs
+from polisyos.runtime.quality.candidate_simulation import (
+    CandidateSimulationContextInputs,
+)
 from polisyos.runtime.quality.cycle_substrate import (
     CycleSubstrateContext,
     CycleSubstrateContextArtifactOwner,
@@ -784,7 +786,10 @@ class GenericCycleSimulationAdmissionOwner:
             profile = GenericCycleSimulationProfileV1.model_validate(raw.model_dump(mode="python"))
             if profile.profile_id in by_id:
                 raise ValueError("generic_cycle_simulation_profile_id_duplicate")
-            selection_key = (profile.profile_selection_kind, profile.profile_selection_ref)
+            selection_key = (
+                profile.profile_selection_kind,
+                profile.profile_selection_ref,
+            )
             if selection_key in by_selection:
                 raise ValueError("generic_cycle_simulation_profile_selection_ambiguous")
             by_id[profile.profile_id] = profile
@@ -1260,7 +1265,11 @@ class GenericCycleSimulationAdmissionOwner:
                 "generic_cycle_simulation_handoff_binding_mismatch"
             )
         return GenericCycleSimulationContextHandoffV1.model_validate(
-            {**handoff.model_dump(mode="python"), "profile": profile, "context": resolved.context}
+            {
+                **handoff.model_dump(mode="python"),
+                "profile": profile,
+                "context": resolved.context,
+            }
         )
 
     def profile_selection_ref_for_handoff(
@@ -1340,6 +1349,7 @@ class GenericCycleSimulationAdmissionOwner:
     ) -> GenericCycleSimulationProfileV1:
         """Resolve the exact persisted server profile and its whole manifest scope."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         configured = self._profiles.get(expected_profile.profile_id)
         if configured != expected_profile:
             raise CycleSubstrateContextOwnerError(
@@ -1379,6 +1389,7 @@ class GenericCycleSimulationAdmissionOwner:
     ) -> GenericCycleSimulationProfileV1:
         """Verify a historical configured profile without claiming it is current."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         if type(expected_profile) is not GenericCycleSimulationProfileV1:
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_simulation_historical_profile_untyped"
@@ -1416,6 +1427,7 @@ class GenericCycleSimulationAdmissionOwner:
     ) -> GenericCycleSimulationChildProfileFamilyV1:
         """Resolve the whole current child-profile tuple against its parent lease."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         if type(parent_handoff) is not GenericCycleSimulationContextHandoffV1:
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_simulation_child_family_parent_untyped"
@@ -1595,7 +1607,8 @@ class GenericCycleSimulationAdmissionOwner:
                 )
             except (TypeError, ValueError) as exc:
                 raise CycleSubstrateContextOwnerError(
-                    "generic_cycle_simulation_historical_child_profile_invalid", str(exc)
+                    "generic_cycle_simulation_historical_child_profile_invalid",
+                    str(exc),
                 ) from exc
             child_profile = self.resolve_profile_historical(
                 member.profile_ref,
@@ -1652,6 +1665,7 @@ class GenericCycleSimulationAdmissionOwner:
         verified_nl_job_scope: VerifiedNLJobScope,
     ) -> ArtifactRef:
         from polisyos.core.artifacts import load_core_json_artifact
+
         self._require_scope(
             job_id=job_id,
             run_id=run_id,
@@ -1822,6 +1836,7 @@ class GenericCycleSimulationAdmissionOwner:
     ) -> GenericCycleSimulationN5InputV1:
         """Resolve exact selected N5 bytes and the complete owner manifest."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         if type(expected) is not GenericCycleSimulationN5InputV1:
             raise CycleSubstrateContextOwnerError("generic_cycle_simulation_n5_input_untyped")
         self._verify_json_artifact(ref, expected_kind=_N5_INPUT_KIND)
@@ -1856,6 +1871,7 @@ class GenericCycleSimulationAdmissionOwner:
     ) -> ArtifactRef:
         """Persist exact source, request, and result linkage as candidate-only data."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         self.resolve_n5_input(input_ref, expected=input_record)
         if status == "joint_simulated" and (result_ref is None or request_binding is None):
             raise CycleSubstrateContextOwnerError(
@@ -1954,6 +1970,7 @@ class GenericCycleSimulationAdmissionOwner:
     ) -> GenericCycleSimulationN5ExecutionRecord:
         """Resolve the complete selected result/input manifest and bytes."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         if type(expected) not in {
             GenericCycleSimulationN5ExecutionV1,
             GenericCycleSimulationN5ExecutionV2,
@@ -2023,7 +2040,9 @@ class GenericCycleSimulationAdmissionOwner:
                     raise CycleSubstrateContextOwnerError(
                         "generic_cycle_simulation_n5_execution_result_missing"
                     )
-                from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
+                from polisyos.runtime.quality.generation_cycle import (
+                    load_joint_simulation_result,
+                )
 
                 result = load_joint_simulation_result(
                     record.result_ref,
@@ -2071,7 +2090,9 @@ class GenericCycleSimulationAdmissionOwner:
         )
         from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
         from polisyos.runtime.quality.generation_cycle import JointSimulationPort
-        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+        )
 
         if (
             record.n4_source_ref != input_record.n4_source_ref
@@ -2270,7 +2291,9 @@ class GenericCycleSimulationAdmissionOwner:
             JointSimulationPort,
             _value_outcome_variable,
         )
-        from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            InterventionAtomBinding,
+        )
         from polisyos.runtime.quality.joint_simulation_horizon import EnginePlan
 
         if (
@@ -2356,7 +2379,8 @@ class GenericCycleSimulationAdmissionOwner:
         if record.n4_child_profile_set_ref is not None:
             inputs.append(
                 input_ref_from_artifact_ref(
-                    record.n4_child_profile_set_ref, role="recursive_n4_child_profile_set"
+                    record.n4_child_profile_set_ref,
+                    role="recursive_n4_child_profile_set",
                 )
             )
         return artifacts.ArtifactWriteOptions(
@@ -2406,7 +2430,8 @@ class GenericCycleSimulationAdmissionOwner:
         if record.n4_child_profile_set_ref is not None:
             inputs.append(
                 input_ref_from_artifact_ref(
-                    record.n4_child_profile_set_ref, role="recursive_n4_child_profile_set"
+                    record.n4_child_profile_set_ref,
+                    role="recursive_n4_child_profile_set",
                 )
             )
         return artifacts.ArtifactWriteOptions(
@@ -2491,8 +2516,8 @@ class GenericCycleSimulationAdmissionOwner:
     def _verify_default_ncm(self, ref: ArtifactRef) -> None:
         """Load only the WMR-default NCM view through the public Core→IR adapter."""
         from polisyos.core.artifacts import ensure_ir_artifact_store
+        from polisyos.ir import NCMSpecRef
         from polisyos.ir.analytics.ncm import load_ncm_spec
-        from polisyos.ir.registry.refs import NCMSpecRef
 
         typed = NCMSpecRef.model_validate(ref.model_dump(mode="python"))
         load_ncm_spec(ensure_ir_artifact_store(self._store), typed)
@@ -2538,7 +2563,8 @@ class GenericCycleSimulationAdmissionOwner:
                 family.parent_context_job_ref, role="parent_cycle_substrate_context_job"
             ),
             input_ref_from_artifact_ref(
-                family.parent_profile_ref, role="parent_generic_cycle_simulation_profile"
+                family.parent_profile_ref,
+                role="parent_generic_cycle_simulation_profile",
             ),
         ]
         inputs.extend(

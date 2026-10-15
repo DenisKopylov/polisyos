@@ -11,10 +11,7 @@ from typing import Any
 from uuid import NAMESPACE_URL, uuid5
 
 from polisyos.core import artifacts as core_artifacts
-from polisyos.core.artifacts.canonical_profile import (
-    read_core_json_artifact,
-    read_core_manifest_profile,
-)
+from polisyos.core.artifacts import read_core_json_artifact, read_core_manifest_profile
 from polisyos.core.artifacts.manifest import (
     ArtifactAuthorityInfo,
     ArtifactGovernanceInfo,
@@ -33,7 +30,9 @@ from polisyos.core.canon import (
     to_canonical_bytes,
 )
 from polisyos.runtime.http.services import _control_contracts as _contracts
-from polisyos.runtime.http.services.control.production_data import production_data_bundle_path
+from polisyos.runtime.http.services.control.production_data import (
+    production_data_bundle_path,
+)
 from polisyos.runtime.quality.attestation import (
     build_verified_attestation_record,
     serialize_attestation_record,
@@ -219,8 +218,7 @@ def write_authority_artifact(
     """Write a runtime authority artifact plus linked envelope/event records to CAS."""
 
     if requested_execution_profile is not None and (
-        not isinstance(requested_execution_profile, str)
-        or not requested_execution_profile.strip()
+        not isinstance(requested_execution_profile, str) or not requested_execution_profile.strip()
     ):
         raise ValueError("authority identity field 'requested_execution_profile' is invalid")
     if canon_spec is None:
@@ -768,11 +766,13 @@ def _existing_authority_result(
         envelope_verification = store.verify(envelope_ref)
         envelope_manifest = read_core_manifest_profile(store, envelope_ref)[0]
         envelope_payload = store.get_bytes(envelope_ref)
-        envelope = EvidenceAuthorityEnvelope.model_validate(read_core_json_artifact(
-                                                                store,
-                                                                envelope_ref,
-                                                                raw_payload_bytes=envelope_payload,
-                                                            ).value)
+        envelope = EvidenceAuthorityEnvelope.model_validate(
+            read_core_json_artifact(
+                store,
+                envelope_ref,
+                raw_payload_bytes=envelope_payload,
+            ).value
+        )
         expected_envelope_opts = _authority_envelope_write_options(
             opts,
             inputs=list(expected_context.manifest_inputs),

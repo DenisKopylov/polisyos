@@ -17,8 +17,9 @@ from polisyos.common.canonical_profile import (
 )
 from polisyos.common.logger import get_logger
 from polisyos.core import scan_secret_and_pii
-from polisyos.core.artifacts import ArtifactRef, artifact_manifest_profile_sha256
-from polisyos.core.artifacts.canonical_profile import (
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    artifact_manifest_profile_sha256,
     artifact_ref_for_manifest,
     read_core_json_artifact,
     read_core_manifest_profile,
@@ -58,8 +59,10 @@ _REDACTED_PREVIEW = "[REDACTED]"
 _MAX_PREDICTIVE_COVERAGE_SOURCE_BYTES = 2_000_000
 _PROFILED_PAYLOAD_NOT_LOADED = object()
 
+
 class _InspectorPayloadOverLimitError(Exception):
     """The exact selected payload exceeds a bounded diagnostic read."""
+
 
 logger = get_logger(__name__)
 
@@ -67,8 +70,6 @@ logger = get_logger(__name__)
 def _artifact_ref_for_manifest(manifest: ArtifactManifest) -> ArtifactRef:
     """Return the exact CAS view selected for an inspector operation."""
     return artifact_ref_for_manifest(manifest)
-
-
 
 
 def _read_inspector_semantic_json(
@@ -90,9 +91,7 @@ def _read_inspector_semantic_json(
         if declaration.status != "declared":
             raise CanonicalProfileRefusalError("canon_profile_not_verified")
         if content_hash(raw_payload_bytes) != selected_manifest.artifact_id.hex:
-            raise CanonicalProfileRefusalError(
-                "canon_profile_selected_payload_identity_mismatch"
-            )
+            raise CanonicalProfileRefusalError("canon_profile_selected_payload_identity_mismatch")
         if len(raw_payload_bytes) > max_payload_bytes:
             raise _InspectorPayloadOverLimitError
     profiled = read_core_json_artifact(
@@ -154,7 +153,12 @@ def _predictive_coverage_preview(
         "effective_time_status": "not_established",
         "counterfactual_credibility_status": "not_established",
         "causal_effect_status": "not_established",
-        "may_not_use_for": ["promotion", "publication", "policy_selection", "causal_effect_claim"],
+        "may_not_use_for": [
+            "promotion",
+            "publication",
+            "policy_selection",
+            "causal_effect_claim",
+        ],
     }
 
     def invalid(reason: str) -> PredictiveCoverageDiagnosticPreview:
@@ -726,7 +730,13 @@ class ArtifactInspectorService:
             return None
         except CanonicalProfileRefusalError:
             raise
-        except (OverflowError, RecursionError, TypeError, UnicodeDecodeError, ValueError):
+        except (
+            OverflowError,
+            RecursionError,
+            TypeError,
+            UnicodeDecodeError,
+            ValueError,
+        ):
             payload = None
         return _predictive_coverage_preview(
             payload,

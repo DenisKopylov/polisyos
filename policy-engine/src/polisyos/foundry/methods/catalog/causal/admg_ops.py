@@ -43,6 +43,7 @@ if TYPE_CHECKING:
 # Bounded content caches for canonical static graph profiles
 # ---------------------------------------------------------------------------
 
+
 class UnsupportedStaticADMGProfileError(ValueError):
     """A graph cannot enter the resolved static ADMG inference profile.
 
@@ -233,7 +234,10 @@ def canonical_causal_graph_snapshot(graph: CausalGraphModel) -> CausalGraphModel
     rebuilds from current stored fields; adjacency reuse happens only after the
     complete current snapshot passes the static profile and content-key checks.
     """
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel, _canonical_causal_graph
+    from polisyos.ir.analytics.causal_graph import (
+        CausalGraphModel,
+        _canonical_causal_graph,
+    )
 
     try:
         canonical = _canonical_causal_graph(graph)
@@ -308,22 +312,20 @@ def canonical_scalar_selection_diagram(diagram: Any) -> Any:
     returns a detached diagram whose graph and S-nodes are the exact values
     consumed by the transport identifier.
     """
+    from polisyos.ir import SelectionDiagram, SNode
     from polisyos.ir.analytics.causal_graph import (
         _canonical_model,
         _canonical_model_field_snapshot,
         _snapshot_canonical_value,
     )
     from polisyos.ir.analytics.context import ContextProfile
-    from polisyos.ir.analytics.transportability import SelectionDiagram, SNode
 
     try:
         fields = _canonical_model_field_snapshot(diagram, SelectionDiagram)
         fields["base_graph"] = _validate_static_id_graph(fields["base_graph"])
         fields["s_nodes"] = [_canonical_model(node, SNode) for node in fields["s_nodes"]]
         graph_nodes = set(fields["base_graph"].nodes)
-        unknown_targets = sorted(
-            {node.target_variable for node in fields["s_nodes"]} - graph_nodes
-        )
+        unknown_targets = sorted({node.target_variable for node in fields["s_nodes"]} - graph_nodes)
         if unknown_targets:
             raise InvalidCausalGraphProfileError(
                 "Unsupported static ADMG profile: S-node target(s) are absent from "
@@ -1226,7 +1228,12 @@ def augment_with_s_nodes(
     CausalGraphModel
         New graph with S-nodes and edges added (original is unchanged).
     """
-    from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
+    from polisyos.ir.analytics.causal_graph import (
+        CausalEdge,
+        CausalGraphModel,
+        EdgeMark,
+        GraphType,
+    )
 
     graph = _validate_static_admg(graph)
     existing_nodes = set(graph.nodes)
@@ -1291,8 +1298,7 @@ def s_reachable(
     # Build forward adjacency from the exact shared admitted snapshot.
     cached = _get_cached_adjacency(graph)
     fwd: dict[str, set[str]] = {
-        node: set(cached.fwd[node]) | set(cached.bi[node])
-        for node in cached.graph.nodes
+        node: set(cached.fwd[node]) | set(cached.bi[node]) for node in cached.graph.nodes
     }
 
     visited: set[str] = set()

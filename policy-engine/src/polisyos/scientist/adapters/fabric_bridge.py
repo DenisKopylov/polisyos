@@ -5,8 +5,8 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
+from polisyos.common import serialization as common_serialization
 from polisyos.common.logger import get_logger
-from polisyos.common.serialization import to_python_data
 from polisyos.core.artifacts import profile_bound_ref
 from polisyos.core.artifacts.manifest import (
     SchemaInfo,
@@ -118,6 +118,7 @@ class DefaultFabricPort:
             ValueError: If the request does not identify a dataset.
         """
         from polisyos.core.artifacts import load_core_json_artifact
+
         request_ref = profile_bound_ref(store, request_ref)
         payload = load_core_json_artifact(store, request_ref)
         query_request = _parse_query_request(payload)
@@ -173,9 +174,7 @@ class DefaultFabricPort:
 
         raw_warnings_ref = _persist_warnings(store, fetch_result)
         warnings_ref = (
-            profile_bound_ref(store, raw_warnings_ref)
-            if raw_warnings_ref is not None
-            else None
+            profile_bound_ref(store, raw_warnings_ref) if raw_warnings_ref is not None else None
         )
         evidence_ref = _coerce_evidence_ref(fetch_result)
         pii_scan_summary = (
@@ -233,7 +232,9 @@ class DefaultFabricPort:
         return DataSnapshotRef.model_validate(snapshot_ref.model_dump(mode="python"))
 
 
-def _parse_query_request(payload: object) -> QueryDataViewRequest | AnalyticsDataViewRequest:
+def _parse_query_request(
+    payload: object,
+) -> QueryDataViewRequest | AnalyticsDataViewRequest:
     try:
         return QueryDataViewRequest.model_validate(payload)
     except Exception as exc:
@@ -241,7 +242,9 @@ def _parse_query_request(payload: object) -> QueryDataViewRequest | AnalyticsDat
     return AnalyticsDataViewRequest.model_validate(payload)
 
 
-def _resolve_dataset_id(request: QueryDataViewRequest | AnalyticsDataViewRequest) -> str:
+def _resolve_dataset_id(
+    request: QueryDataViewRequest | AnalyticsDataViewRequest,
+) -> str:
     metrics = getattr(request, "metrics", []) or []
     for metric in metrics:
         metric_id = str(metric).strip()
@@ -491,9 +494,7 @@ def _columnar_records(value: ColumnarPayloadLike) -> list[dict[str, Any]]:
         raise TypeError("columnar records conversion must return a list")
     for index, row in enumerate(records):
         if not isinstance(row, dict) or list(row) != columns:
-            raise ValueError(
-                f"columnar row {index} does not preserve the declared column schema"
-            )
+            raise ValueError(f"columnar row {index} does not preserve the declared column schema")
     return records
 
 
@@ -502,7 +503,7 @@ def _jsonable(value: object) -> object:
         value = value.model_dump(mode="json")
     elif isinstance(value, ColumnarPayloadLike):
         value = _columnar_records(value)
-    return to_python_data(value, unsupported="error")
+    return common_serialization.to_python_data(value, unsupported="error")
 
 
 def _enforce_execution_tier(

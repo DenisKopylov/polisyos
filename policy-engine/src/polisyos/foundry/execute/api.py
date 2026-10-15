@@ -14,17 +14,14 @@ from dataclasses import dataclass
 import numpy as np
 from pydantic import BaseModel
 
+from polisyos.core.artifacts import RegistryBundlePayload, resolve_manifest_by_profile
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.protocol import (
-    _require_return_selected_profile_writer,
-    resolve_manifest_by_profile,
-)
-from polisyos.core.artifacts.registry import RegistryBundlePayload
+from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
@@ -93,7 +90,7 @@ from polisyos.foundry.feedback import (
     snapshot_from_vector,
     solve_fixed_point,
 )
-from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir import TrinityBundle
 
 
 @dataclass(frozen=True)
@@ -195,13 +192,22 @@ def _build_execution_input_basis(
     trinity_ref = graph.ir_ref
     trinity = _load_model(store, trinity_ref, TrinityBundle)
     candidate_ref = _selected_ref_from_edge(
-        store, trinity_ref, "policy_candidate", expected_kind="scientist.policy_design.candidate"
+        store,
+        trinity_ref,
+        "policy_candidate",
+        expected_kind="scientist.policy_design.candidate",
     )
     candidate_data_snapshot_ref = _selected_ref_from_edge(
-        store, candidate_ref, "world_model_data_snapshot", expected_kind="fabric.data_snapshot"
+        store,
+        candidate_ref,
+        "world_model_data_snapshot",
+        expected_kind="fabric.data_snapshot",
     )
     candidate_registry_bundle_ref = _selected_ref_from_edge(
-        store, candidate_ref, "world_model_registry", expected_kind="core.registry_bundle"
+        store,
+        candidate_ref,
+        "world_model_registry",
+        expected_kind="core.registry_bundle",
     )
     compile_registry_ref = _selected_ref_from_edge(
         store, graph_ref, "registry_bundle", expected_kind="core.registry_bundle"
@@ -368,7 +374,10 @@ def execute(store: FileSystemCAS, request: ExecuteRequest) -> ExecuteResult:
             ok=False,
             simulation_result_ref=None,
             derived_refs=[],
-            notes=[*execution_notes, f"max_steps_reached:{current_step}>={posture.max_steps}"],
+            notes=[
+                *execution_notes,
+                f"max_steps_reached:{current_step}>={posture.max_steps}",
+            ],
         )
     parameter_overrides: dict[str, dict[str, object]] | None = None
     parameter_override_inputs: list[InputRef] = []
@@ -656,7 +665,11 @@ def _execute_with_feedback(
             ok=False,
             simulation_result_ref=None,
             derived_refs=[],
-            notes=[*execution_notes, "feedback_mode:fixed_point", f"feedback_solve_failed:{exc}"],
+            notes=[
+                *execution_notes,
+                "feedback_mode:fixed_point",
+                f"feedback_solve_failed:{exc}",
+            ],
         )
     solved_feedback_state = snapshot_from_vector(
         prepared,
@@ -955,7 +968,11 @@ def _execute_with_feedback(
             ok=False,
             simulation_result_ref=None,
             derived_refs=derived_refs,
-            notes=[*execution_notes, "feedback_mode:fixed_point", *welfare_bound_failure_notes],
+            notes=[
+                *execution_notes,
+                "feedback_mode:fixed_point",
+                *welfare_bound_failure_notes,
+            ],
         )
 
     feedback_notes = [
@@ -1232,7 +1249,9 @@ def _persist_parameter_override_bundle(
     return ParameterOverrideBundleRef(artifact_id=ref.artifact_id)
 
 
-def _build_standard_derived_refs(exec_artifacts: ExecuteArtifacts) -> list[DerivedArtifact]:
+def _build_standard_derived_refs(
+    exec_artifacts: ExecuteArtifacts,
+) -> list[DerivedArtifact]:
     derived_refs = [
         DerivedArtifact(role="metrics", ref=exec_artifacts.metrics_ref),
         DerivedArtifact(role="state_delta", ref=exec_artifacts.state_delta_ref),

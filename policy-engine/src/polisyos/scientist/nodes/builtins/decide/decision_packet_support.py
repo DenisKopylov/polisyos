@@ -221,7 +221,7 @@ def _populate_optional_report_projections(
 ) -> None:
     """Load optional verification and policy-output reports into the packet."""
 
-    from polisyos.core.contracts.scientist import (
+    from polisyos.core.contracts import (
         SourceVerificationReportRef,
         VerifiedPolicyReportRef,
     )
@@ -305,7 +305,9 @@ def _populate_optional_report_projections(
     policy_bundle_ref = state.artifacts_index.get(ARTIFACT_POLICY_OUTPUT_BUNDLE_REF)
     if policy_bundle_ref is not None:
         try:
-            from polisyos.scientist.policy_design.output import load_policy_artifact_bundle
+            from polisyos.scientist.policy_design.output import (
+                load_policy_artifact_bundle,
+            )
 
             policy_bundle = load_policy_artifact_bundle(ctx.store, policy_bundle_ref)
             packet_payload["policy_output_bundle"] = {

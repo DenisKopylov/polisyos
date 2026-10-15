@@ -7,10 +7,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
-from polisyos.common.migrations import (
-    LinearMigrationProfile,
-    run_linear_migration,
-)
+from polisyos.common import migrations as common_migrations
 
 MigrationFn = Callable[[dict[str, Any]], dict[str, Any]]
 
@@ -278,7 +275,7 @@ def _apply_ir_step(
     )
 
 
-_IR_PROFILE = LinearMigrationProfile(
+_IR_PROFILE = common_migrations.LinearMigrationProfile(
     prepare=_prepare_ir_payload,
     no_op=lambda payload: payload,
     edge_target=_ir_edge_target,
@@ -294,7 +291,7 @@ def migrate_artifact(data: dict[str, Any], artifact: str, target_version: str) -
     it must match the registered edge; incompatible versions are errors rather
     than being silently overwritten.
     """
-    return run_linear_migration(
+    return common_migrations.run_linear_migration(
         data,
         artifact=artifact,
         target_version=target_version,

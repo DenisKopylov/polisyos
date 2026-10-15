@@ -32,3 +32,18 @@ __all__ = [
     "retry_async",
     "scan_secret_and_pii",
 ]
+
+# Exact owner routes added for the E02 deep-import migration.
+from polisyos.core.llm.response import (
+    normalize_llm_cost_evidence as normalize_llm_cost_evidence,
+)
+from polisyos.core.llm.settlement import (
+    LLMProducerEvent as LLMProducerEvent,
+)
+
+__all__.extend(
+    [
+        "LLMProducerEvent",
+        "normalize_llm_cost_evidence",
+    ]
+)

@@ -35,6 +35,7 @@ if TYPE_CHECKING:
         MethodDispatcher,
         estimate_method_execution_cost_usd,
     )
+    from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
     from polisyos.foundry.methods.backends.protocol import (
         MethodResult,
         MethodRunner,
@@ -62,6 +63,7 @@ __all__ = [
     "CircuitBreakerRegistry",
     "CircuitState",
     "MethodDispatcher",
+    "NumpyRunner",
     "MethodResult",
     "MethodRunner",
     "MethodTiming",
@@ -115,6 +117,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.backends.circuit_breaker",
         "CircuitState",
     ),
+    "NumpyRunner": ("polisyos.foundry.methods.backends.numpy_runner", "NumpyRunner"),
     "MethodDispatcher": (
         "polisyos.foundry.methods.backends.dispatch",
         "MethodDispatcher",

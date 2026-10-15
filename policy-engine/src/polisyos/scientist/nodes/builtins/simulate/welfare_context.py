@@ -10,24 +10,25 @@ from typing import Any, Literal
 
 import numpy as np
 
-from polisyos.common.logger import get_logger
+from polisyos.common import logger as common_logger
 from polisyos.core.artifacts import ArtifactRef
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.contracts import DataSnapshot
-from polisyos.core.contracts.foundry import (
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.contracts import (
+    DataSnapshot,
     EquilibriumMultiplicityReport,
     FeedbackSolveResult,
     Metrics,
     SimulationResult,
 )
-from polisyos.foundry.calibration.report import CalibrationReport
+from polisyos.foundry.calibration import CalibrationReport
+from polisyos.ir import ArtifactRefModel, DependenceStructureRef, UncertaintyEnvelopeRef
 from polisyos.ir.analytics import EquilibriumMultiplicityWelfareAnnotation
 from polisyos.ir.analytics.dependence_structure import load_dependence_structure
-from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, load_uncertainty_envelope
-from polisyos.ir.registry.refs import (
-    ArtifactRefModel,
-    DependenceStructureRef,
-    UncertaintyEnvelopeRef,
+from polisyos.ir.analytics.uncertainty import (
+    UncertaintyEnvelope,
+    load_uncertainty_envelope,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_CALIBRATION_REPORT_REF,
@@ -35,7 +36,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.policy_design.phase3 import ensure_social_weight_manifest_artifact
+from polisyos.scientist.policy_design.phase3 import (
+    ensure_social_weight_manifest_artifact,
+)
 
 from .welfare_ge import (
     _coerce_artifact_ref,
@@ -62,7 +65,7 @@ from .welfare_types import (
     _ResolvedWelfareContext,
 )
 
-logger = get_logger(__name__)
+logger = common_logger.get_logger(__name__)
 
 
 def _envelope_origin(
@@ -632,7 +635,10 @@ def _response_from_sequence(
         raise _fail_error(
             _ERROR_WELFARE_DIMENSION_MISMATCH,
             "welfare_metric_order length must match welfare_pe_response length",
-            details={"metric_order": len(metric_order), "pe_response": int(vector.shape[0])},
+            details={
+                "metric_order": len(metric_order),
+                "pe_response": int(vector.shape[0]),
+            },
         )
     labels = (
         tuple(f"component_{idx}" for idx in range(vector.shape[0]))

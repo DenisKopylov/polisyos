@@ -22,8 +22,8 @@ from pydantic import (
 from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
-from polisyos.core.security.quality_gates import (
+from polisyos.core.artifacts import read_core_json_artifact
+from polisyos.core.security import (
     SECURITY_ASSURANCE_ARTIFACT_KIND,
     SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
 )
@@ -1556,10 +1556,18 @@ def _strict_eval_safety_surface_payload(
         or set(boundary.may_not_use_for) != packet_denials
         or len(boundary.may_not_use_for) != len(packet_denials)
     ):
-        return True, projection_payload, "eval_safety_projection_boundary_binding_invalid"
+        return (
+            True,
+            projection_payload,
+            "eval_safety_projection_boundary_binding_invalid",
+        )
     surface_key = next((key for key in surfaces if key == surface), None)
     if surface_key is None:
-        return True, projection_payload, "eval_safety_projection_surface_binding_invalid"
+        return (
+            True,
+            projection_payload,
+            "eval_safety_projection_surface_binding_invalid",
+        )
     surface_identity = evaluation_safety_metrics_projection_identity(surface_key)
     surface_packet = surfaces[surface_key]
     effective_purpose = purpose if purpose is not None else _default_surface_purpose(surface)
@@ -1567,7 +1575,11 @@ def _strict_eval_safety_surface_payload(
         effective_purpose != surface_identity.purpose
         or surface_packet.purpose != surface_identity.purpose
     ):
-        return True, projection_payload, "eval_safety_projection_surface_binding_invalid"
+        return (
+            True,
+            projection_payload,
+            "eval_safety_projection_surface_binding_invalid",
+        )
     return True, projection_payload, None
 
 

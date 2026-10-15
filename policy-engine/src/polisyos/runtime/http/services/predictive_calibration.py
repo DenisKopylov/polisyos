@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.calibration.forecast_bridge import (
+from polisyos.calibration import (
     REFERENCE_PROFILES,
     EmpiricalCalibrationContext,
     EmpiricalCalibrationEvidenceRef,
@@ -28,17 +28,15 @@ from polisyos.core.artifacts import (
     artifact_ref_identity_key,
     ensure_ir_artifact_store,
 )
-from polisyos.core.canon import CanonSpec
-from polisyos.core.canon.canon_json import to_canonical_bytes
-from polisyos.core.contracts.fabric import DataSnapshotRef
-from polisyos.core.contracts.runtime import ApiMeta, RunDetails
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
+from polisyos.core.contracts import ApiMeta, DataSnapshotRef, RunDetails
+from polisyos.ir import ArtifactRefModel
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
     load_backtest_report,
     persist_backtest_report,
 )
 from polisyos.ir.artifacts import InputRef, normalize_artifact_ref, put_json_artifact
-from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.runtime.http.services.run_operation_idempotency import (
     RuntimeOperationIntentClaim,
     RuntimeOperationIntentKey,
@@ -46,7 +44,7 @@ from polisyos.runtime.http.services.run_operation_idempotency import (
 )
 from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
 from polisyos.runtime.quality.event_log import DiagnosticEventPayloadPolicy
-from polisyos.scientist.methods.backtesting.forecast_owner import (
+from polisyos.scientist.methods.backtesting import (
     CALIBRATION_RULE_ID,
     CalibrationRuleBinding,
     ForecastMethodParams,
@@ -57,9 +55,10 @@ from polisyos.scientist.methods.backtesting.forecast_owner import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.manifest import ArtifactManifest
-    from polisyos.core.artifacts.protocol import ArtifactStore
-    from polisyos.runtime.http.services.control_plane_store import ControlDiagnosticEventRecord
+    from polisyos.core.artifacts import ArtifactManifest, ArtifactStore
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlDiagnosticEventRecord,
+    )
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
 
 _ASSOCIATION_KIND = "runtime.predictive_calibration_association"
@@ -213,7 +212,8 @@ class PredictiveCalibrationAssociation(BaseModel):
     s10: PredictiveCalibrationS10Summary
     evidence_reason_codes: tuple[str, ...] = ()
     may_not_use_for: tuple[
-        Literal["promotion", "publication", "policy_selection", "causal_effect_claim"], ...
+        Literal["promotion", "publication", "policy_selection", "causal_effect_claim"],
+        ...,
     ] = ("promotion", "publication", "policy_selection", "causal_effect_claim")
     created_at: datetime
 
@@ -788,7 +788,9 @@ def _legacy_intent_event_id(run_id: str, intent_id: str) -> str:
     return f"evt_predictive_calibration_{digest[:32]}"
 
 
-def _operation_intent_store(event_log: _DiagnosticEventLog) -> RuntimeOperationIntentStore:
+def _operation_intent_store(
+    event_log: _DiagnosticEventLog,
+) -> RuntimeOperationIntentStore:
     """Return the durable owner only when the event log shares its transaction store."""
 
     owner = getattr(event_log, "_store", None)

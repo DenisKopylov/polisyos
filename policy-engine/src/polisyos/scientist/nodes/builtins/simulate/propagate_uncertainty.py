@@ -12,24 +12,34 @@ from typing import Any, Literal, Protocol, cast
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.components import (
+    Capability,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+)
 from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.contracts.foundry import Metrics, SimulationResult, SimulationResultRef
+from polisyos.core.contracts.foundry import (
+    Metrics,
+    SimulationResult,
+    SimulationResultRef,
+)
 from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher
 from polisyos.foundry.uncertainty.protocol import PropagationResult
-from polisyos.ir import ArtifactRefModel
+from polisyos.ir import ArtifactRefModel, get_json_artifact
 from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     load_uncertainty_envelope,
     persist_uncertainty_envelope,
 )
-from polisyos.ir.artifacts import get_json_artifact
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_PROPAGATION_REPORT_REF,
     ARTIFACT_SIMULATION_RESULT_REF,
@@ -49,7 +59,13 @@ from polisyos.scientist.orchestration.engine.state_branching import branch_state
 logger = get_logger(__name__)
 
 _PROPAGATION_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
-_PROPAGATION_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
+_PROPAGATION_LOAD_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
 _SENSITIVITY_MAPPING_PARAM = "propagation_sensitivity"
 
 
@@ -536,7 +552,8 @@ def _load_config(state: ExperimentState) -> PropagationConfig:
             return PropagationConfig.model_validate(raw)
         except _PROPAGATION_VALIDATION_ERRORS:
             logger.debug(
-                "Invalid propagation_config override; falling back to defaults", exc_info=True
+                "Invalid propagation_config override; falling back to defaults",
+                exc_info=True,
             )
 
     overrides: dict[str, Any] = {}

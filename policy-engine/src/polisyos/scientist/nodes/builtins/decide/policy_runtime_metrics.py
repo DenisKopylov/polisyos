@@ -9,11 +9,16 @@ from typing import TYPE_CHECKING, Any
 from pydantic import ValidationError
 
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
-from polisyos.foundry.methods.catalog.optimization.protocols import AmbiguityCertificate
+from polisyos.foundry.methods import AmbiguityCertificate
+from polisyos.ir import CrossGraphEvidenceProfile, TransportStatus
 from polisyos.ir.analytics import CausalEffectReport, DistributionalReport
-from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, TransportStatus
-from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope, UncertaintyType
-from polisyos.scientist.policy_design.objectives import _normalize_policy_evaluation_vector
+from polisyos.scientist.methods.search.uncertainty import (
+    UncertaintyEnvelope,
+    UncertaintyType,
+)
+from polisyos.scientist.policy_design.objectives import (
+    _normalize_policy_evaluation_vector,
+)
 
 if TYPE_CHECKING:
     from polisyos.scientist.governance.report import GovernanceReport
@@ -326,7 +331,9 @@ def _employment_signal_from_distribution(
     return float(sum(deltas) / max(len(deltas), 1))
 
 
-def _distributional_shift_penalty(distributional_report: DistributionalReport | None) -> float:
+def _distributional_shift_penalty(
+    distributional_report: DistributionalReport | None,
+) -> float:
     if distributional_report is None:
         return 0.0
     before = getattr(distributional_report, "overall_gini_before", None)
@@ -389,7 +396,8 @@ def _build_policy_simulation_results_impl(
     )
     welfare = float(
         metrics.get(
-            "welfare", _channel_higher_is_better(evaluation, "welfare", fallback=policy_value)
+            "welfare",
+            _channel_higher_is_better(evaluation, "welfare", fallback=policy_value),
         )
     )
     budget_pressure = float(metrics.get("budget_penalty", _budget_pressure(evaluation)))

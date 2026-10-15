@@ -35,7 +35,7 @@ resolve_linked_request_event = fabric_data_plane.resolve_linked_request_event
 OVERLAY_SCHEMA_VERSION = "polisyos.data_forge.acquisition_overlay.v2"
 _LEGACY_OVERLAY_SCHEMA_VERSION = "polisyos.data_forge.acquisition_overlay.v1"
 _PASSPORT_SCHEMA_VERSION = "polisyos.runtime.acquisition_admission_passport.v2"
-_LEGACY_PASSPORT_SCHEMA_VERSION = "polisyos.runtime.acquisition_admission_passport.v1"
+LEGACY_ADMISSION_PASSPORT_SCHEMA_VERSION = "polisyos.runtime.acquisition_admission_passport.v1"
 DEFAULT_ACQUISITION_OVERLAY_PATH = Path(
     "architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb"
 )
@@ -339,8 +339,8 @@ class AcquisitionDatasetRegistration(_StrictModel):
         return self
 
 
-class _LegacyAdmissionPassport(_StrictModel):
-    """Strict private decoder for the historical v1 passport surface.
+class LegacyAdmissionPassport(_StrictModel):
+    """Strict decoder for the historical v1 passport surface.
 
     A valid v1 row remains unresolved because it has no semantic stamp.  This
     decoder distinguishes that bounded historical case from arbitrary JSON
@@ -1092,6 +1092,241 @@ def _load_owner_record(
     return value, str(row[1])
 
 
+def _persist_native_membership_source_graph_to_cas(
+    *,
+    overlay_path: Path,
+    receipt: epoch_contract.AcquisitionNativeMembershipReceipt,
+    snapshot_payload: bytes,
+    artifact_store: _ArtifactStore,
+) -> None:
+    """Materialize every owner-authored member source before publishing its graph.
+
+    The membership receipt is a producer projection over owner rows. Its new
+    snapshot and member/passport/candidate nodes must be present in CAS before
+    consumers can resolve the receipt graph. This copies only byte-backed
+    records already persisted by the overlay owner and checks each identity
+    against that receipt; it does not mint external authority or scope facts.
+    """
+    if len(snapshot_payload) < 8:
+        raise OverlayAdmissionError("acquisition_owner_snapshot_frame_missing")
+    frame_size = int.from_bytes(snapshot_payload[:8], "big")
+    if frame_size != len(snapshot_payload) - 8:
+        raise OverlayAdmissionError("acquisition_owner_snapshot_frame_denominator_mismatch")
+    try:
+        snapshot = from_canonical_bytes(snapshot_payload[8:])
+    except (TypeError, ValueError) as exc:
+        raise OverlayAdmissionError("acquisition_owner_snapshot_frame_malformed") from exc
+    if (
+        not isinstance(snapshot, dict)
+        or set(snapshot) != {"schema_version", "rows"}
+        or snapshot.get("schema_version") != OVERLAY_SCHEMA_VERSION
+        or not isinstance(snapshot.get("rows"), list)
+    ):
+        raise OverlayAdmissionError("acquisition_owner_snapshot_not_typed_rows")
+    rows = snapshot["rows"]
+    assessments = {str(row.native_member_ref.artifact_id): row for row in receipt.assessments}
+    if (
+        len(rows) != receipt.declared_native_member_count
+        or len(assessments) != len(receipt.assessments)
+        or len(assessments) != len(rows)
+        or receipt.owner_source_snapshot_content_hash
+        != _semantic_content_hash(
+            domain="polisyos.epoch.acquisition-owner-snapshot.v1", value=snapshot
+        )
+    ):
+        raise OverlayAdmissionError("acquisition_owner_snapshot_denominator_mismatch")
+
+    source_nodes: list[tuple[ArtifactRef, str, BaseModel | dict[str, object], str]] = []
+    con = duckdb.connect(str(overlay_path), read_only=True)
+    try:
+        for source_row in rows:
+            if not isinstance(source_row, dict):
+                raise OverlayAdmissionError("acquisition_owner_row_not_mapping")
+            native_payload = epoch_contract.canonical_epoch_bytes(source_row)
+            native_frame = len(native_payload).to_bytes(8, "big") + native_payload
+            native_ref = _artifact_ref_for_payload(
+                payload=native_frame, kind="epoch.acquisition_native_member"
+            )
+            assessment = assessments.get(str(native_ref.artifact_id))
+            if (
+                assessment is None
+                or assessment.native_member_ref.kind != native_ref.kind
+                or assessment.native_member_ref.media_type != native_ref.media_type
+            ):
+                raise OverlayAdmissionError("acquisition_owner_row_assessment_mismatch")
+            owner_mapping, owner_hash = _load_owner_record(
+                con,
+                ref=assessment.native_member_ref,
+                expected_kind="epoch.acquisition_native_member",
+            )
+            if owner_mapping != source_row or owner_hash != assessment.native_member_content_hash:
+                raise OverlayAdmissionError("acquisition_owner_member_readback_drift")
+            source_nodes.append(
+                (
+                    assessment.native_member_ref,
+                    "epoch.acquisition_native_member",
+                    owner_mapping,
+                    assessment.native_member_content_hash,
+                )
+            )
+
+            passport_mapping: dict[str, object] | None = None
+            passport_ref_value = source_row.get("passport_ref")
+            if passport_ref_value is None:
+                if (
+                    assessment.passport_ref is not None
+                    or assessment.passport_content_hash is not None
+                ):
+                    raise OverlayAdmissionError("acquisition_owner_passport_reference_mismatch")
+            else:
+                passport_ref = ArtifactRef.model_validate(passport_ref_value)
+                observed_passport = source_row.get("observed_passport_json")
+                if not isinstance(observed_passport, str):
+                    raise OverlayAdmissionError("acquisition_owner_passport_json_missing")
+                try:
+                    passport_mapping = json.loads(observed_passport)
+                except json.JSONDecodeError as exc:
+                    raise OverlayAdmissionError(
+                        "acquisition_owner_passport_json_malformed"
+                    ) from exc
+                if not isinstance(passport_mapping, dict):
+                    raise OverlayAdmissionError("acquisition_owner_passport_not_mapping")
+                if source_row.get("observed_passport_content_hash") != (
+                    _overlay_statement_content_hash(passport_mapping)
+                ):
+                    raise OverlayAdmissionError("acquisition_owner_passport_content_hash_drift")
+                if (
+                    assessment.passport_ref is None
+                    or assessment.passport_content_hash is None
+                    or (
+                        str(passport_ref.artifact_id),
+                        passport_ref.kind,
+                        passport_ref.media_type,
+                    )
+                    != (
+                        str(assessment.passport_ref.artifact_id),
+                        assessment.passport_ref.kind,
+                        assessment.passport_ref.media_type,
+                    )
+                ):
+                    raise OverlayAdmissionError("acquisition_owner_passport_reference_mismatch")
+                stored_passport, stored_passport_hash = _load_external_statement_record(
+                    con,
+                    ref=assessment.passport_ref,
+                    expected_kind="epoch.acquisition_passport_snapshot",
+                )
+                if (
+                    stored_passport != passport_mapping
+                    or stored_passport_hash != assessment.passport_content_hash
+                ):
+                    raise OverlayAdmissionError("acquisition_owner_passport_readback_drift")
+                source_nodes.append(
+                    (
+                        assessment.passport_ref,
+                        "epoch.acquisition_passport_snapshot",
+                        stored_passport,
+                        assessment.passport_content_hash,
+                    )
+                )
+
+            if assessment.semantic_candidate_ref is None:
+                if assessment.semantic_candidate_content_hash is not None:
+                    raise OverlayAdmissionError("acquisition_owner_candidate_reference_mismatch")
+                continue
+            if assessment.semantic_candidate_content_hash is None or not isinstance(
+                passport_mapping, dict
+            ):
+                raise OverlayAdmissionError("acquisition_owner_candidate_reference_mismatch")
+            passport_candidate_ref = ArtifactRef.model_validate(
+                passport_mapping.get("semantic_boundary_candidate_ref")
+            )
+            if (
+                str(passport_candidate_ref.artifact_id)
+                != str(assessment.semantic_candidate_ref.artifact_id)
+                or passport_candidate_ref.kind != assessment.semantic_candidate_ref.kind
+                or passport_candidate_ref.media_type != assessment.semantic_candidate_ref.media_type
+                or passport_mapping.get("semantic_boundary_candidate_content_hash")
+                != assessment.semantic_candidate_content_hash
+            ):
+                raise OverlayAdmissionError("acquisition_owner_candidate_passport_drift")
+            candidate_mapping, owner_candidate_hash = _load_owner_record(
+                con,
+                ref=assessment.semantic_candidate_ref,
+                expected_kind="epoch.acquisition_semantic_boundary_candidate",
+            )
+            candidate_statement = (
+                epoch_contract.AcquisitionSemanticBoundaryCandidateStatement.model_validate(
+                    candidate_mapping
+                )
+            )
+            candidate = epoch_contract.AcquisitionSemanticBoundaryCandidate(
+                candidate_ref=assessment.semantic_candidate_ref,
+                candidate_content_hash=assessment.semantic_candidate_content_hash,
+                statement=candidate_statement,
+            )
+            if owner_candidate_hash != candidate.candidate_content_hash:
+                raise OverlayAdmissionError("acquisition_owner_candidate_content_hash_drift")
+            source_nodes.append(
+                (
+                    assessment.semantic_candidate_ref,
+                    "epoch.acquisition_semantic_boundary_candidate",
+                    candidate_statement,
+                    assessment.semantic_candidate_content_hash,
+                )
+            )
+    finally:
+        con.close()
+
+    semantic_domains = {
+        "epoch.acquisition_native_member": "polisyos.epoch.acquisition-native-member.v1",
+        "epoch.acquisition_semantic_boundary_candidate": (
+            "polisyos.epoch.acquisition-semantic-boundary-candidate.v1"
+        ),
+    }
+    for expected_ref, kind, value, expected_hash in source_nodes:
+        if kind == "epoch.acquisition_passport_snapshot":
+            selected_ref, observed_hash = _persist_external_statement(
+                artifact_store=artifact_store, value=value, kind=kind
+            )
+        else:
+            selected_ref, observed_hash = _persist_epoch_statement(
+                artifact_store=artifact_store,
+                value=value,
+                kind=kind,
+                domain=semantic_domains[kind],
+            )
+            if kind == "epoch.acquisition_semantic_boundary_candidate":
+                candidate_statement = (
+                    epoch_contract.AcquisitionSemanticBoundaryCandidateStatement.model_validate(
+                        value
+                    )
+                )
+                observed_hash = epoch_contract.acquisition_semantic_candidate_content_hash(
+                    candidate_statement
+                )
+        if (
+            str(selected_ref.artifact_id) != str(expected_ref.artifact_id)
+            or selected_ref.kind != expected_ref.kind
+            or selected_ref.media_type != expected_ref.media_type
+            or observed_hash != expected_hash
+        ):
+            raise OverlayAdmissionError("acquisition_owner_source_cas_copy_drift", kind)
+
+    selected_snapshot_ref, selected_snapshot_hash = _persist_epoch_statement(
+        artifact_store=artifact_store,
+        value=snapshot,
+        kind="epoch.acquisition_owner_snapshot",
+        domain="polisyos.epoch.acquisition-owner-snapshot.v1",
+    )
+    if (
+        str(selected_snapshot_ref.artifact_id) != str(receipt.owner_source_snapshot_ref.artifact_id)
+        or selected_snapshot_ref.kind != receipt.owner_source_snapshot_ref.kind
+        or selected_snapshot_ref.media_type != receipt.owner_source_snapshot_ref.media_type
+        or selected_snapshot_hash != receipt.owner_source_snapshot_content_hash
+    ):
+        raise OverlayAdmissionError("acquisition_owner_snapshot_cas_copy_drift")
+
+
 class CatalogAcquisitionOverlay:
     """Epoch transaction owner over a separate DuckDB acquisition overlay."""
 
@@ -1566,7 +1801,12 @@ class CatalogAcquisitionOverlay:
             passport_json = _model_json(passport)
             con.execute(
                 "INSERT INTO acquisition_passports VALUES (?, ?, ?, ?)",
-                [passport_id, epoch_id, content_sha256(passport_json), json.dumps(passport_json)],
+                [
+                    passport_id,
+                    epoch_id,
+                    content_sha256(passport_json),
+                    json.dumps(passport_json),
+                ],
             )
             _store_semantic_record(
                 con,
@@ -2085,7 +2325,9 @@ class CatalogAcquisitionOverlay:
                 [statement.epoch_id, statement.passport_id],
             ).fetchall()
             _reconcile_physical_epoch_members(
-                native, member_rows=member_rows, key_spec=_derive_baseline_primary_key_spec(native)
+                native,
+                member_rows=member_rows,
+                key_spec=_derive_baseline_primary_key_spec(native),
             )
             if sum(str(row[0]) == "ds_observations" for row in member_rows) != (
                 statement.admitted_observation_count
@@ -2122,7 +2364,9 @@ class CatalogAcquisitionOverlay:
         finally:
             native.close()
         member_keys, member_hash = _existing_member_denominator(
-            self.overlay_path, epoch_id=statement.epoch_id, passport_id=statement.passport_id
+            self.overlay_path,
+            epoch_id=statement.epoch_id,
+            passport_id=statement.passport_id,
         )
         if (
             member_keys != pending.native_member_keys
@@ -2260,11 +2504,11 @@ class CatalogAcquisitionOverlay:
                         field in passport_mapping for field in semantic_fields
                     )
                     if (
-                        passport_version == _LEGACY_PASSPORT_SCHEMA_VERSION
+                        passport_version == LEGACY_ADMISSION_PASSPORT_SCHEMA_VERSION
                         and not has_any_semantic_field
                     ):
                         try:
-                            _LegacyAdmissionPassport.model_validate(passport_mapping)
+                            LegacyAdmissionPassport.model_validate(passport_mapping)
                         except ValueError:
                             binding_status = "invalid"
                             query_disposition = "unresolved"
@@ -2505,7 +2749,10 @@ class CatalogAcquisitionOverlay:
         for row in current.assessments:
             if row.semantic_candidate_ref is None or row.semantic_candidate_content_hash is None:
                 continue
-            key = (str(row.semantic_candidate_ref.artifact_id), row.semantic_candidate_content_hash)
+            key = (
+                str(row.semantic_candidate_ref.artifact_id),
+                row.semantic_candidate_content_hash,
+            )
             identities[key] = epoch_contract.AcquisitionSemanticCandidateAssessment(
                 semantic_candidate_ref=row.semantic_candidate_ref,
                 semantic_candidate_content_hash=row.semantic_candidate_content_hash,
@@ -2536,7 +2783,10 @@ class CatalogAcquisitionOverlay:
                 disposition = "applicable"
                 failure_code = None
             identities[
-                (str(candidate.candidate_ref.artifact_id), candidate.candidate_content_hash)
+                (
+                    str(candidate.candidate_ref.artifact_id),
+                    candidate.candidate_content_hash,
+                )
             ] = epoch_contract.AcquisitionSemanticCandidateAssessment(
                 semantic_candidate_ref=candidate.candidate_ref,
                 semantic_candidate_content_hash=candidate.candidate_content_hash,
@@ -2730,6 +2980,15 @@ class CatalogAcquisitionOverlay:
         ):
             raise OverlayAdmissionError("pending_native_membership_drift")
         native = self.resolve_native_membership(query=query, candidate=None)
+        native_snapshot_payload = self.load_acquisition_owner_snapshot(
+            ref=native.owner_source_snapshot_ref
+        )
+        _persist_native_membership_source_graph_to_cas(
+            overlay_path=self.overlay_path,
+            receipt=native,
+            snapshot_payload=native_snapshot_payload,
+            artifact_store=artifact_store,
+        )
         native_ref, native_hash = _persist_epoch_statement(
             artifact_store=artifact_store,
             value=native,

@@ -11,7 +11,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.core import contracts
-from polisyos.core.artifacts.manifest import CanonInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.data_forge.domains.catalog.knowledge import overlay as overlay_module
@@ -21,6 +21,7 @@ from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     OverlayAdmissionError,
 )
 from polisyos.data_forge.read_api import catalog as catalog_read_api
+from polisyos.fabric.data_plane import content_sha256
 from polisyos.runtime.quality import semantic_epoch as semantic_epoch_runtime
 from polisyos.runtime.quality.acquisition_executor import (
     AdmissionStatus,
@@ -1770,6 +1771,21 @@ def test_real_admission_finalizer_reconciles_owner_and_selected_provenance_views
         scenario.store, admitted
     )
     assert selected_profiles is not None
+    selected_kinds = {kind for _, kind, _ in selected_profiles}
+    assert {
+        "epoch.semantic_facet_source.v1",
+        "epoch.coordinate.valid_effect.v1",
+        "epoch.coordinate.visibility_knowledge_cutoff.v1",
+        "epoch.coordinate.purpose_admission_cutoff.v1",
+        "epoch.acquisition_owner_snapshot",
+        "epoch.acquisition_native_membership",
+        "epoch.acquisition_native_member",
+        "epoch.acquisition_passport_snapshot",
+        "epoch.acquisition_semantic_boundary_candidate",
+        "epoch.acquisition_semantic_denominator_receipt",
+        "epoch.acquisition_semantic_projection_verification_receipt",
+        "epoch.acquisition_projection_verifier_provenance",
+    } <= selected_kinds
     passport_owner = contracts.epoch.load_verified_epoch_statement(
         store=scenario.store,
         ref=admitted.passport_ref,
@@ -1812,6 +1828,8 @@ def test_real_admission_finalizer_reconciles_owner_and_selected_provenance_views
         assert semantic_epoch_runtime._owner_reference_graph_matches_selected(
             selected_profiles, owner_projection, store=scenario.store
         )
+    assert content_sha256(passport_owner) == admitted.passport_content_hash
+    assert content_sha256(pending_owner) == admitted.pending_overlay_receipt_content_hash
     assert semantic_epoch_runtime._selected_ref_graph_matches_owner_projection(
         admitted.semantic_epoch_stamp, passport_owner["semantic_epoch_stamp"]
     )
@@ -1835,6 +1853,90 @@ def test_real_admission_finalizer_reconciles_owner_and_selected_provenance_views
     # appointed policy authority, so no positive epoch production is claimed.
     assert production.status == "not_established"
     assert production.failure_codes == ("policy_admission_missing",)
+
+
+def test_real_finalizer_refuses_passport_claim_drift_after_normal_owner_baseline(
+    tmp_path: Path,
+) -> None:
+    """A changed admitted passport claim is refused by recursive owner binding."""
+    scenario = _real_epoch_scenario(tmp_path)
+    admitted_ref = _emit_admitted_ref(scenario)
+    baseline = scenario.service.finalize_admitted_epoch(
+        prepared_epoch_ref=scenario.prepared.prepared_epoch_ref,
+        admitted_boundary_evidence_ref=admitted_ref,
+    )
+    assert baseline.status == "not_established"
+    assert baseline.failure_codes == ("policy_admission_missing",)
+
+    admitted_mapping = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted_ref,
+        expected_kind="epoch.admitted_acquisition_boundary_evidence",
+    )
+    admitted = contracts.epoch.AdmittedAcquisitionBoundaryEvidence.model_validate(admitted_mapping)
+    original_passport_bytes = scenario.store.get_bytes(admitted.passport_ref)
+    forged_hash = "sha256:" + "0" * 64
+    if forged_hash == admitted.passport_content_hash:
+        forged_hash = "sha256:" + "1" * 64
+    forged = admitted.model_copy(update={"passport_content_hash": forged_hash})
+    forged_ref, _ = overlay_module._persist_epoch_statement(
+        artifact_store=scenario.store,
+        value=forged,
+        kind="epoch.admitted_acquisition_boundary_evidence",
+        domain="polisyos.epoch.admitted-acquisition-boundary-evidence.v1",
+    )
+
+    production = scenario.service.finalize_admitted_epoch(
+        prepared_epoch_ref=scenario.prepared.prepared_epoch_ref,
+        admitted_boundary_evidence_ref=forged_ref,
+    )
+
+    # This field-only mutation is refused by the earlier recursive owner binding;
+    # it is not claimed as an isolated test of the later mapping-hash comparison.
+    assert production.status == "not_established"
+    assert production.failure_codes == ("epoch_scope_unresolved",)
+    assert scenario.store.get_bytes(admitted.passport_ref) == original_passport_bytes
+
+
+def test_real_finalizer_rejects_pending_hash_drift_after_normal_owner_baseline(
+    tmp_path: Path,
+) -> None:
+    """The selected pending statement hash is checked before policy refusal."""
+    scenario = _real_epoch_scenario(tmp_path)
+    admitted_ref = _emit_admitted_ref(scenario)
+    baseline = scenario.service.finalize_admitted_epoch(
+        prepared_epoch_ref=scenario.prepared.prepared_epoch_ref,
+        admitted_boundary_evidence_ref=admitted_ref,
+    )
+    assert baseline.status == "not_established"
+    assert baseline.failure_codes == ("policy_admission_missing",)
+
+    admitted_mapping = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted_ref,
+        expected_kind="epoch.admitted_acquisition_boundary_evidence",
+    )
+    admitted = contracts.epoch.AdmittedAcquisitionBoundaryEvidence.model_validate(admitted_mapping)
+    original_pending_bytes = scenario.store.get_bytes(admitted.pending_overlay_receipt_ref)
+    forged_hash = "sha256:" + "0" * 64
+    if forged_hash == admitted.pending_overlay_receipt_content_hash:
+        forged_hash = "sha256:" + "1" * 64
+    forged = admitted.model_copy(update={"pending_overlay_receipt_content_hash": forged_hash})
+    forged_ref, _ = overlay_module._persist_epoch_statement(
+        artifact_store=scenario.store,
+        value=forged,
+        kind="epoch.admitted_acquisition_boundary_evidence",
+        domain="polisyos.epoch.admitted-acquisition-boundary-evidence.v1",
+    )
+
+    production = scenario.service.finalize_admitted_epoch(
+        prepared_epoch_ref=scenario.prepared.prepared_epoch_ref,
+        admitted_boundary_evidence_ref=forged_ref,
+    )
+
+    assert production.status == "not_established"
+    assert production.failure_codes == ("epoch_scope_unresolved",)
+    assert scenario.store.get_bytes(admitted.pending_overlay_receipt_ref) == original_pending_bytes
 
 
 def test_fresh_admission_consumer_refuses_same_bytes_under_wrong_provenance_profile(
@@ -2280,3 +2382,50 @@ def test_catalog_snapshot_recomputes_passport_hash_when_owner_hashes_agree(tmp_p
         mutate_row=lambda _row: None,
         passport_hash=forged_hash,
     )
+
+
+def test_finalizer_fails_closed_when_a_selected_owner_snapshot_cannot_be_read(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The real finalizer refuses when one required owner graph node is absent."""
+    scenario = _real_epoch_scenario(tmp_path)
+    admitted_ref = _emit_admitted_ref(scenario)
+    admitted_mapping = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted_ref,
+        expected_kind="epoch.admitted_acquisition_boundary_evidence",
+    )
+    admitted = contracts.epoch.AdmittedAcquisitionBoundaryEvidence.model_validate(admitted_mapping)
+    native_mapping = contracts.epoch.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted.native_membership_receipt_ref,
+        expected_kind="epoch.acquisition_native_membership",
+    )
+    native = contracts.epoch.AcquisitionNativeMembershipReceipt.model_validate(native_mapping)
+    assert scenario.store.has(native.owner_source_snapshot_ref.artifact_id)
+    assert (
+        semantic_epoch_runtime._resolve_selected_reference_graph(scenario.store, admitted)
+        is not None
+    )
+    original_load = semantic_epoch_runtime._load_selected_acquisition_mapping
+
+    def hide_owner_snapshot(
+        store: object, ref: ArtifactRef, *, expected_kind: str
+    ) -> dict[str, object]:
+        if ref.kind == "epoch.acquisition_owner_snapshot":
+            raise FileNotFoundError("controlled missing owner snapshot")
+        return original_load(store, ref, expected_kind=expected_kind)
+
+    monkeypatch.setattr(
+        semantic_epoch_runtime, "_load_selected_acquisition_mapping", hide_owner_snapshot
+    )
+    assert (
+        semantic_epoch_runtime._resolve_selected_reference_graph(scenario.store, admitted) is None
+    )
+    receipt = scenario.service.finalize_admitted_epoch(
+        prepared_epoch_ref=scenario.prepared.prepared_epoch_ref,
+        admitted_boundary_evidence_ref=admitted_ref,
+    )
+
+    assert receipt.status == "not_established"
+    assert receipt.failure_codes == ("epoch_scope_unresolved",)

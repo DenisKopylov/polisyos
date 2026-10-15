@@ -8,8 +8,11 @@ from typing import Any, Literal
 import numpy as np
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core import registry as core_registry
 from polisyos.core.artifacts import (
+    ArtifactManifest,
     ArtifactRef,
+    ArtifactStore,
     FileSystemCAS,
     InputRef,
     PutOptions,
@@ -17,12 +20,11 @@ from polisyos.core.artifacts import (
     artifact_ref_identity_key,
     ensure_ir_artifact_store,
     input_ref_from_artifact_ref,
+    resolve_manifest_by_profile,
 )
-from polisyos.core.artifacts.manifest import ArtifactManifest
-from polisyos.core.artifacts.protocol import ArtifactStore, resolve_manifest_by_profile
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.contracts.foundry import (
+from polisyos.core.contracts import (
+    DataSnapshot,
     ExecPlan,
     FeedbackConfig,
     FoundryExecConfig,
@@ -35,10 +37,9 @@ from polisyos.core.contracts.foundry import (
     SimulationResult,
     StateDelta,
 )
-from polisyos.core.registry import load_registry_bundle_payload
-from polisyos.foundry.execute._internal.posture import resolve_execution_posture
-from polisyos.foundry.uncertainty.config import PropagationConfig
-from polisyos.ir import UncertaintyType
+from polisyos.foundry.execute import resolve_execution_posture
+from polisyos.foundry.uncertainty import PropagationConfig
+from polisyos.ir import TrinityBundle, UncertaintyType
 from polisyos.ir.analytics.welfare import (
     WelfareBundle,
     WelfareIntervalSemantics,
@@ -49,8 +50,11 @@ from polisyos.ir.analytics.welfare import (
     load_welfare_sample_bundle,
 )
 from polisyos.ir.artifacts import get_json_artifact
-from polisyos.ir.registry.refs import ArtifactRefModel, WelfareBundleRef, WelfareSampleBundleRef
-from polisyos.ir.trinity import TrinityBundle
+from polisyos.ir.registry.refs import (
+    ArtifactRefModel,
+    WelfareBundleRef,
+    WelfareSampleBundleRef,
+)
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 
@@ -222,7 +226,9 @@ class SearchUncertaintyObservation(BaseModel):
     envelope: UncertaintyEnvelope
 
 
-def search_uncertainty_observation_ref(payload: Mapping[str, object]) -> ArtifactRef | None:
+def search_uncertainty_observation_ref(
+    payload: Mapping[str, object],
+) -> ArtifactRef | None:
     """Read a native producer ref for later content-bound intake, without admission."""
     raw = payload.get("uncertainty_observation_ref")
     if raw is None:
@@ -326,20 +332,28 @@ class ExecutionSourceProjection(BaseModel):
     candidate_data_snapshot_ref: ArtifactRef
     execution_data_snapshot_ref: ArtifactRef
     candidate_to_execution_data_relation: Literal[
-        "same_selected_ref", "same_artifact_id_different_profile", "different_artifact_id"
+        "same_selected_ref",
+        "same_artifact_id_different_profile",
+        "different_artifact_id",
     ]
     candidate_registry_bundle_ref: ArtifactRef
     compile_registry_bundle_ref: ArtifactRef
     binding_registry_bundle_ref: ArtifactRef
     runtime_registry_bundle_ref: ArtifactRef
     candidate_to_compile_registry_relation: Literal[
-        "same_selected_ref", "same_artifact_id_different_profile", "different_artifact_id"
+        "same_selected_ref",
+        "same_artifact_id_different_profile",
+        "different_artifact_id",
     ]
     binding_to_runtime_registry_relation: Literal[
-        "same_selected_ref", "same_artifact_id_different_profile", "different_artifact_id"
+        "same_selected_ref",
+        "same_artifact_id_different_profile",
+        "different_artifact_id",
     ]
     compile_to_runtime_registry_relation: Literal[
-        "same_selected_ref", "same_artifact_id_different_profile", "different_artifact_id"
+        "same_selected_ref",
+        "same_artifact_id_different_profile",
+        "different_artifact_id",
     ]
 
 
@@ -855,7 +869,13 @@ def _recompute_execution_source(
     *,
     candidate_ref: ArtifactRef,
     welfare_manifest: ArtifactManifest,
-) -> tuple[ExecutionSourceProjection, ArtifactRef, ArtifactManifest, ArtifactRef, ArtifactManifest]:
+) -> tuple[
+    ExecutionSourceProjection,
+    ArtifactRef,
+    ArtifactManifest,
+    ArtifactRef,
+    ArtifactManifest,
+]:
     """Resolve every source boundary from the stored WelfareBundle to the Foundry call."""
     simulation_edge = _source_input_by_role(welfare_manifest, "simulation_result")
     simulation_ref, simulation_manifest = _source_manifest_for_edge(
@@ -886,10 +906,12 @@ def _recompute_execution_source(
         raise ValueError("source-bound risk execution basis was not produced with selected refs")
     if (
         not _source_refs_equal(
-            _source_core_ref(basis.exec_plan_ref), _source_core_ref(simulation_result.exec_plan_ref)
+            _source_core_ref(basis.exec_plan_ref),
+            _source_core_ref(simulation_result.exec_plan_ref),
         )
         or not _source_refs_equal(
-            _source_core_ref(basis.request.exec_plan_ref), _source_core_ref(basis.exec_plan_ref)
+            _source_core_ref(basis.request.exec_plan_ref),
+            _source_core_ref(basis.exec_plan_ref),
         )
         or not _source_refs_equal(
             _source_core_ref(basis.request.input_bindings_ref),
@@ -917,7 +939,10 @@ def _recompute_execution_source(
         )
     if not _source_refs_equal(
         _source_ref_from_parent_edge(
-            store, exec_plan_manifest, "program_graph", expected_kind="foundry.program_graph"
+            store,
+            exec_plan_manifest,
+            "program_graph",
+            expected_kind="foundry.program_graph",
         ),
         graph_ref,
     ):
@@ -950,7 +975,8 @@ def _recompute_execution_source(
     binding_manifest = _source_manifest(store, basis.input_bindings_ref)
     if (
         not _source_refs_equal(
-            _source_core_ref(bindings.data_snapshot_ref), _source_core_ref(basis.data_snapshot_ref)
+            _source_core_ref(bindings.data_snapshot_ref),
+            _source_core_ref(basis.data_snapshot_ref),
         )
         or not _source_refs_equal(
             _source_core_ref(bindings.bound_state_snapshot_ref),
@@ -994,7 +1020,7 @@ def _recompute_execution_source(
         (basis.compile_registry_ref, basis.compile_registry_members),
         (basis.runtime_registry_ref, basis.runtime_registry_members),
     ):
-        actual_members = load_registry_bundle_payload(store, registry_ref)
+        actual_members = core_registry.load_registry_bundle_payload(store, registry_ref)
         if actual_members != declared_members:
             raise ValueError(
                 "source-bound risk registry bundle payload differs from selected members"
@@ -1094,7 +1120,8 @@ def _recompute_execution_source(
     ):
         raise ValueError("source-bound risk basis candidate registry differs from candidate edge")
     if not _source_refs_equal(
-        _source_core_ref(basis.data_snapshot_ref), _source_core_ref(bindings.data_snapshot_ref)
+        _source_core_ref(basis.data_snapshot_ref),
+        _source_core_ref(bindings.data_snapshot_ref),
     ):
         raise ValueError("source-bound risk runtime DataSnapshot differs from bindings")
     for role, ref in (
@@ -1113,7 +1140,8 @@ def _recompute_execution_source(
     )
     delta = _source_typed_json_model(store, StateDelta, delta_ref)
     if not _source_refs_equal(
-        _source_core_ref(delta.base_ref), _source_core_ref(basis.base_state_snapshot_ref)
+        _source_core_ref(delta.base_ref),
+        _source_core_ref(basis.base_state_snapshot_ref),
     ):
         raise ValueError("source-bound risk StateDelta base differs from observed execution basis")
     if not _source_refs_equal(
@@ -1279,7 +1307,8 @@ def _build_source_bound_risk_observation(
     method_payload = get_json_artifact(ir_store, method_ref)
     method_config = PropagationConfig.model_validate(method_payload, strict=True)
     sample_bundle = load_welfare_sample_bundle(
-        ir_store, WelfareSampleBundleRef.model_validate(sample_ref.model_dump(mode="python"))
+        ir_store,
+        WelfareSampleBundleRef.model_validate(sample_ref.model_dump(mode="python")),
     )
     report_payload = get_json_artifact(ir_store, report_ref)
     if not isinstance(report_payload, Mapping):

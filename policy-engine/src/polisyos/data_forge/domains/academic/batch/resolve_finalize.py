@@ -9,7 +9,7 @@ from collections import Counter, defaultdict
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from polisyos.common.serialization import decode_json_object
+from polisyos.common import serialization as common_serialization
 from polisyos.data_forge.domains.academic.batch.article_extractor import _to_work_record
 from polisyos.data_forge.domains.academic.batch.claim_ids import stable_claim_id
 from polisyos.data_forge.domains.academic.batch.resolve_extract import _to_claim_row
@@ -35,10 +35,18 @@ if TYPE_CHECKING:
 
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 
-_TRANSIENT_ERROR_CLASSES = {"provider_http_429", "provider_http_5xx", "timeout", "empty_response"}
+_TRANSIENT_ERROR_CLASSES = {
+    "provider_http_429",
+    "provider_http_5xx",
+    "timeout",
+    "empty_response",
+}
 _PERMANENT_ERROR_PREFIXES = ("provider_http_4", "json_parse", "normalization_error")
 _UNIT_HINT_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
-    (re.compile(r"\b(percentage points?|pct points?|pp)\b", re.IGNORECASE), "percentage_points"),
+    (
+        re.compile(r"\b(percentage points?|pct points?|pp)\b", re.IGNORECASE),
+        "percentage_points",
+    ),
     (re.compile(r"\bbasis points?\b", re.IGNORECASE), "basis_points"),
     (re.compile(r"\bodds ratio\b", re.IGNORECASE), "odds_ratio"),
     (re.compile(r"\brisk ratio\b|\brelative risk\b", re.IGNORECASE), "risk_ratio"),
@@ -48,7 +56,8 @@ _UNIT_HINT_PATTERNS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\bcorrelation\b|\bcorr\b", re.IGNORECASE), "correlation_coefficient"),
     (
         re.compile(
-            r"\bstandardi[sz]ed effect\b|\bstandardi[sz]ed coefficient\b|\bbeta\b", re.IGNORECASE
+            r"\bstandardi[sz]ed effect\b|\bstandardi[sz]ed coefficient\b|\bbeta\b",
+            re.IGNORECASE,
         ),
         "standardized_effect",
     ),
@@ -120,7 +129,7 @@ def _load_selected_rows(path: Path) -> dict[str, dict[str, Any]]:
         for line_number, raw in enumerate(fh, start=1):
             if not raw.strip():
                 continue
-            row = decode_json_object(
+            row = common_serialization.decode_json_object(
                 raw,
                 source=f"{path}:{line_number}",
                 kind="selected-work JSONL row",
@@ -128,11 +137,11 @@ def _load_selected_rows(path: Path) -> dict[str, dict[str, Any]]:
             work_id = str(row.get("work_id") or "").strip()
             if not work_id:
                 raise ValueError(
-                    f"selected-work JSONL row at {path}:{line_number} "
-                    "has no non-empty 'work_id'"
+                    f"selected-work JSONL row at {path}:{line_number} has no non-empty 'work_id'"
                 )
             rows[work_id] = row
     return rows
+
 
 def _load_attempts(path: Path) -> dict[str, list[ArticleExtractionResult]]:
     grouped: dict[str, list[ArticleExtractionResult]] = defaultdict(list)
@@ -299,7 +308,9 @@ def _merge_parameters(rows: list[ArticleExtractionResult]) -> list[EvidenceParam
     return list(merged.values())
 
 
-def _merge_context_attributes(rows: list[ArticleExtractionResult]) -> list[ContextAttribute]:
+def _merge_context_attributes(
+    rows: list[ArticleExtractionResult],
+) -> list[ContextAttribute]:
     merged: dict[tuple[Any, ...], ContextAttribute] = {}
     for result in rows:
         for attribute in result.context_attributes:
@@ -327,7 +338,9 @@ def _merge_context_attributes(rows: list[ArticleExtractionResult]) -> list[Conte
     return list(merged.values())
 
 
-def _merge_moderation_edges(rows: list[ArticleExtractionResult]) -> list[ModerationEdge]:
+def _merge_moderation_edges(
+    rows: list[ArticleExtractionResult],
+) -> list[ModerationEdge]:
     merged: dict[tuple[Any, ...], ModerationEdge] = {}
     for result in rows:
         for edge in result.moderation_edges:
@@ -579,7 +592,9 @@ def _parameter_is_non_effect_statistic(parameter: EvidenceParameter) -> bool:
     return any(pattern.search(text) for pattern in _NON_EFFECT_STAT_PATTERNS)
 
 
-def _ambiguous_small_number_parameter_names(parameters: list[EvidenceParameter]) -> set[str]:
+def _ambiguous_small_number_parameter_names(
+    parameters: list[EvidenceParameter],
+) -> set[str]:
     grouped: dict[str, list[EvidenceParameter]] = defaultdict(list)
     for parameter in parameters:
         if parameter.parameter_type != ParameterType.QUANTITATIVE:
@@ -760,7 +775,9 @@ def _curated_numeric_rows(
     return rows
 
 
-def _strict_simulation_ready_rows(curated_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _strict_simulation_ready_rows(
+    curated_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     _STRONG_EVIDENCE_TYPES = {
         EvidenceStrength.RCT.value,
         EvidenceStrength.META_ANALYSIS.value,

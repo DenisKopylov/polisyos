@@ -7,10 +7,10 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.scholar.search import validate_source_snippet_spans
+from polisyos.scholar import validate_source_snippet_spans
 
 if TYPE_CHECKING:
-    from polisyos.scholar.search.models import SourceSnippet
+    from polisyos.scholar import SourceSnippet
 
 
 class SnippetLedgerEntry(BaseModel):

@@ -4,9 +4,16 @@ from __future__ import annotations
 
 from typing import Any
 
-from polisyos.common.logger import get_logger
+from polisyos.common import logger as common_logger
 from polisyos.core.artifacts import ArtifactRef
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.ir import (
+    CausalModelEnsembleRef,
+    EvidenceBundleRef,
+    KernelEstimatorSpecRef,
+)
 from polisyos.ir.analytics import CausalEffectReport
 from polisyos.ir.analytics.causal import (
     proof_bundle_from_transportability_result,
@@ -16,11 +23,6 @@ from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
 from polisyos.ir.analytics.evidence_bundle import load_causal_evidence_bundle
 from polisyos.ir.analytics.kernel_causal import load_kernel_estimator_spec
 from polisyos.ir.analytics.partial_identification import load_bounds_bundle
-from polisyos.ir.registry.refs import (
-    CausalModelEnsembleRef,
-    EvidenceBundleRef,
-    KernelEstimatorSpecRef,
-)
 from polisyos.scientist.nodes.builtins.decide.decision_packet.validation import (
     _DECISION_PACKET_LOAD_ERRORS,
     _record_decision_packet_section_degraded,
@@ -37,7 +39,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
-logger = get_logger(__name__)
+logger = common_logger.get_logger(__name__)
 
 
 def _build_causal_section(
@@ -140,6 +142,7 @@ def _populate_causal_report(
     packet_payload: dict[str, object] | None,
 ) -> None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     if report_ref is not None:
         try:
             report_obj = load_core_json_artifact(ctx.store, report_ref)
@@ -274,7 +277,9 @@ def _populate_decision_readiness(
 ) -> None:
     if readiness_ref is not None:
         try:
-            from polisyos.scientist.methods.search.readiness import load_decision_readiness_contract
+            from polisyos.scientist.methods.search.readiness import (
+                load_decision_readiness_contract,
+            )
 
             readiness = load_decision_readiness_contract(ctx.store, readiness_ref)
             payload["decision_readiness_level"] = readiness.readiness_level.value

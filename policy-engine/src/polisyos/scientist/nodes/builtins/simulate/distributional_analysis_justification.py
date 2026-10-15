@@ -8,11 +8,22 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import InputRef
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
-from polisyos.foundry.methods.catalog.causal.id_engine import (
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.foundry.methods.causal import (
+    CausalEngine,
     IdentificationResult,
     IdentificationStatus,
+)
+from polisyos.ir import (
+    CausalAssumptionCardRef,
+    CausalGraphModelRef,
+    DistributionalBoundsBundleRef,
+    DistributionalProofArtifactRef,
+    EstimandASTRef,
+    NegativeCertificateRef,
+    ProofBundleRef,
 )
 from polisyos.ir.analytics.causal import (
     ProofBundle,
@@ -31,20 +42,15 @@ from polisyos.ir.analytics.distributional import (
     persist_causal_assumption_card,
     persist_distributional_proof_artifact,
 )
-from polisyos.ir.analytics.estimand import DistributionLawQuery, EstimandAST, persist_estimand_ast
+from polisyos.ir.analytics.estimand import (
+    DistributionLawQuery,
+    EstimandAST,
+    persist_estimand_ast,
+)
 from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
     NegativeCertificate,
     persist_negative_certificate,
-)
-from polisyos.ir.registry.refs import (
-    CausalAssumptionCardRef,
-    CausalGraphModelRef,
-    DistributionalBoundsBundleRef,
-    DistributionalProofArtifactRef,
-    EstimandASTRef,
-    NegativeCertificateRef,
-    ProofBundleRef,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
@@ -53,8 +59,19 @@ from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _DISTRIBUTIONAL_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
-_DISTRIBUTIONAL_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
-_DISTRIBUTIONAL_EXECUTION_ERRORS = (RuntimeError, TypeError, ValueError, ValidationError)
+_DISTRIBUTIONAL_LOAD_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+_DISTRIBUTIONAL_EXECUTION_ERRORS = (
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
 
 _BASE_CAUSAL_ASSUMPTIONS = [
     "distributional_estimand_not_proof_kernel_identified",
@@ -135,7 +152,11 @@ def _causal_assumptions(
 
 
 def _resolve_distributional_treatment_variable(state: ExperimentState) -> str | None:
-    for key in ("distributional_treatment_variable", "query_treatment", "treatment_variable"):
+    for key in (
+        "distributional_treatment_variable",
+        "query_treatment",
+        "treatment_variable",
+    ):
         raw = state.params.get(key)
         if raw is None:
             continue
@@ -692,7 +713,10 @@ def _persist_distributional_proof_artifacts(
             inputs=[
                 *inputs,
                 *(
-                    InputRef(artifact_id=str(ref.artifact_id), role="distributional_bounds_bundle")
+                    InputRef(
+                        artifact_id=str(ref.artifact_id),
+                        role="distributional_bounds_bundle",
+                    )
                     for ref in bounds_refs
                 ),
             ],

@@ -9,7 +9,7 @@ from typing import Any
 
 from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.runtime.http.errors import bad_request, forbidden
 
 _CONTEXT_KIND = "runtime.production_approval.scorecard.v1"

@@ -14,7 +14,7 @@ from datetime import date
 
 import pandas as pd
 
-from polisyos.ir.model_layer.types import TimeFrequency
+from polisyos.ir import TimeFrequency
 
 # Kept as a compatibility surface for callers that used the old common.py
 # table.  Calendar-aware code below deliberately uses calendar.monthrange so

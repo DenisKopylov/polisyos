@@ -66,7 +66,7 @@ if TYPE_CHECKING:
         _RecordResult,
     )
     from polisyos.fabric.connectors.base import ConnectionHandle, SourceConnector
-    from polisyos.ir.connectors import FetchResult
+    from polisyos.ir import FetchResult
 
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
     resolve_core_sources_compatibility_binding,
@@ -455,7 +455,9 @@ def run_core_sources_ingest(config: DatasetBatchConfig) -> CoreSourcesIngestStat
     return run_coro_sync(run_core_sources_ingest_async(config))
 
 
-async def run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSourcesIngestStats:
+async def run_core_sources_ingest_async(
+    config: DatasetBatchConfig,
+) -> CoreSourcesIngestStats:
     """Async entrypoint for ingesting registry/observation data used by DatasetRegistry."""
     started_at = datetime.now(UTC).isoformat()
     __resolve_implementation_dependency("_prepare_core_output_resume", "validators")(config)
@@ -571,7 +573,9 @@ async def run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSourc
     return stats
 
 
-async def _run_core_sources_ingest_async(config: DatasetBatchConfig) -> CoreSourcesIngestStats:
+async def _run_core_sources_ingest_async(
+    config: DatasetBatchConfig,
+) -> CoreSourcesIngestStats:
     stats = CoreSourcesIngestStats()
     catalog_datasets: list[CatalogTransportDataset] = []
     catalog_alignments: list[VariableAlignment] = []
@@ -1014,7 +1018,10 @@ async def _ingest_catalog_observations_parallel(
                 "empty_ratio_by_source": {
                     source: round(
                         float(runtime_metrics.empty_by_source.get(source, 0))
-                        / max(float(runtime_metrics.completed_by_source.get(source, 0)), 1.0),
+                        / max(
+                            float(runtime_metrics.completed_by_source.get(source, 0)),
+                            1.0,
+                        ),
                         4,
                     )
                     for source in sorted(runtime_metrics.completed_by_source)
@@ -1224,7 +1231,8 @@ async def _ingest_catalog_observations_parallel(
                         con.execute("ROLLBACK")
                     except Exception:
                         logger.debug(
-                            "DuckDB rollback failed during observation writer flush", exc_info=True
+                            "DuckDB rollback failed during observation writer flush",
+                            exc_info=True,
                         )
                     raise
                 ack_pairs.extend(current_pairs)
@@ -2056,7 +2064,11 @@ async def _ingest_catalog_observations_legacy(
                         error=f"oversized_payload:{len(rows)}>{row_limit}",
                     )
                     _record_shard_result(
-                        config, result=result, completed=completed, failed=failed, deferred=deferred
+                        config,
+                        result=result,
+                        completed=completed,
+                        failed=failed,
+                        deferred=deferred,
                     )
                     _append_shard_result(
                         result=result,
@@ -2096,7 +2108,11 @@ async def _ingest_catalog_observations_legacy(
                     row_count=insert_stats.written,
                 )
                 _record_shard_result(
-                    config, result=result, completed=completed, failed=failed, deferred=deferred
+                    config,
+                    result=result,
+                    completed=completed,
+                    failed=failed,
+                    deferred=deferred,
                 )
                 _append_shard_result(
                     result=result,
@@ -2142,7 +2158,9 @@ async def _fetch_observation_rows_with_retries(
             shard.filters, ensure_ascii=False, sort_keys=True, separators=(",", ":")
         ),
         countries_json=json.dumps(
-            _shard_countries(shard, config=config), ensure_ascii=False, separators=(",", ":")
+            _shard_countries(shard, config=config),
+            ensure_ascii=False,
+            separators=(",", ":"),
         ),
         start_year=shard.start_year,
         end_year=shard.end_year,
@@ -2444,7 +2462,9 @@ async def _describe_observation_plan(
                     )
                 if (
                     _policy_str_attr(
-                        policy, "fallback_on_capability_failure", "plan_without_capability"
+                        policy,
+                        "fallback_on_capability_failure",
+                        "plan_without_capability",
                     )
                     == "plan_without_capability"
                 ):

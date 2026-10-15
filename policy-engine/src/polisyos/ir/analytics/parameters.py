@@ -6,14 +6,15 @@ from typing import TYPE_CHECKING, Literal, cast
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts.protocol import (
-    ArtifactStore as CoreArtifactStore,
-)
-from polisyos.core.artifacts.protocol import (
-    resolve_manifest_by_profile,
-)
+from polisyos.core.artifacts import ArtifactStore as CoreArtifactStore
+from polisyos.core.artifacts import resolve_manifest_by_profile
 from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import (
+    ArtifactStore,
+    InputRef,
+    get_json_artifact,
+    put_json_artifact,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
     ContextAdaptiveParameterBundleRef,

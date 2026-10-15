@@ -11,17 +11,30 @@ __all__ = [
     "ResolvedExecutionPosture",
     "SnapshotStateLayoutError",
     "execute",
+    "get_state_path",
+    "load_state_snapshot",
     "resolve_execution_posture",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
-    "ResolvedExecutionPosture": ("polisyos.foundry.execute.api", "ResolvedExecutionPosture"),
+    "ResolvedExecutionPosture": (
+        "polisyos.foundry.execute.api",
+        "ResolvedExecutionPosture",
+    ),
     "SnapshotStateLayoutError": (
         "polisyos.foundry.execute._internal.snapshots",
         "_SnapshotStateLayoutError",
     ),
     "execute": ("polisyos.foundry.execute.api", "execute"),
-    "resolve_execution_posture": ("polisyos.foundry.execute.api", "resolve_execution_posture"),
+    "get_state_path": ("polisyos.foundry.execute._internal.models", "get_state_path"),
+    "load_state_snapshot": (
+        "polisyos.foundry.execute._internal.snapshots",
+        "load_state_snapshot",
+    ),
+    "resolve_execution_posture": (
+        "polisyos.foundry.execute.api",
+        "resolve_execution_posture",
+    ),
 }
 
 

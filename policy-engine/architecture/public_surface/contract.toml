@@ -143,7 +143,7 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/common/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.common", "polisyos.common.config"]
+supported_entrypoints = ["polisyos.common", "polisyos.common.config", "polisyos.common.canonical", "polisyos.common.canonical_profile", "polisyos.common.hashing", "polisyos.common.migrations"]
 major_subsystem = false
 notes = "Shared helper boundary for config, logging, serialization, and migrations."
 
@@ -160,6 +160,8 @@ supported_entrypoints = [
   "polisyos.core.canon",
   "polisyos.core.components",
   "polisyos.core.contracts",
+  "polisyos.core.governance",
+  "polisyos.core.llm",
   "polisyos.core.observability",
   "polisyos.core.security",
   "polisyos.core.trace",
@@ -257,8 +259,17 @@ supported_entrypoints = [
   "polisyos.foundry",
   "polisyos.foundry.api",
   "polisyos.foundry.compile",
+  "polisyos.foundry.analysis",
+  "polisyos.foundry.api",
+  "polisyos.foundry.calibration",
+  "polisyos.foundry.compile",
+  "polisyos.foundry.data_plane",
   "polisyos.foundry.execute",
+  "polisyos.foundry.methods",
+  "polisyos.foundry.methods.backends",
+  "polisyos.foundry.methods.causal",
   "polisyos.foundry.uncertainty",
+  "polisyos.foundry.validation",
 ]
 major_subsystem = true
 notes = "Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml."
@@ -273,7 +284,9 @@ reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = [
   "polisyos.scientist",
   "polisyos.scientist.governance.continuous",
+  "polisyos.scientist.methods.backtesting",
   "polisyos.scientist.methods.research_dag",
+  "polisyos.scientist.orchestration.engine",
   "polisyos.scientist.replay",
   "polisyos.scientist.replay.deterministic",
   "polisyos.scientist.validation.policy_verified",

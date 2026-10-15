@@ -17,8 +17,14 @@ from polisyos.core.artifacts import (
     profile_bound_ref,
 )
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.components import (
+    Capability,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+)
 from polisyos.data_forge.read_api.academic import SKGQuery
+from polisyos.ir import CausalGraphModelRef
 from polisyos.ir.analytics.causal_graph import load_causal_graph_model
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.cross_graph import (
@@ -40,7 +46,6 @@ from polisyos.ir.analytics.cross_graph import (
     persist_cross_graph_evidence_profile,
 )
 from polisyos.ir.analytics.literature import load_literature_causal_prior
-from polisyos.ir.registry.refs import CausalGraphModelRef
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.cross_graph.feedback import (
     append_need_backlog,
@@ -337,7 +342,9 @@ class CompileCrossGraphEvidenceNode:
                     if literature_prior_ref is not None
                     else None
                 )
-                from polisyos.scientist.cross_graph.compiler import CrossGraphEvidenceCompiler
+                from polisyos.scientist.cross_graph.compiler import (
+                    CrossGraphEvidenceCompiler,
+                )
 
                 profile = CrossGraphEvidenceCompiler(config).compile(
                     bundle,
@@ -441,9 +448,7 @@ def _resolve_causal_graph(
     store = _ensure_ir_artifact_store(ctx.store)
     try:
         payload = ref.model_dump(mode="json") if hasattr(ref, "model_dump") else ref
-        selected_ref = profile_bound_ref(
-            store, CausalGraphModelRef.model_validate(payload)
-        )
+        selected_ref = profile_bound_ref(store, CausalGraphModelRef.model_validate(payload))
         graph = load_causal_graph_model(store, selected_ref)
     except _CROSS_GRAPH_RUNTIME_ERRORS as exc:
         raise _InvalidCausalGraphReference(
@@ -467,7 +472,9 @@ def _augment_with_graph_prior(
 
         graph_prior_ref = GraphPriorBundleRef.model_validate(ref.model_dump(mode="json"))
         bundle = load_graph_prior_bundle(ctx.store, graph_prior_ref)
-        source_identification = _source_verified_identification_rows(ctx.store, graph_prior_ref, bundle)
+        source_identification = _source_verified_identification_rows(
+            ctx.store, graph_prior_ref, bundle
+        )
     except _CROSS_GRAPH_IMPORT_RUNTIME_ERRORS as exc:
         diagnostics = [
             *profile.diagnostics,
@@ -691,9 +698,7 @@ def _hypothesis_identification_projection(
             limited = True
             continue
         payload = (
-            evidence.model_dump(mode="json")
-            if hasattr(evidence, "model_dump")
-            else dict(evidence)
+            evidence.model_dump(mode="json") if hasattr(evidence, "model_dump") else dict(evidence)
         )
         records.append({"hypothesis_id": hypothesis_id, **payload})
         graph_scope_status = payload.get("graph_derived_assumption_status")
@@ -918,7 +923,9 @@ def _resolve_source_identification_rows(
         raise _IdentificationSourceBindingFailure("source_manifest_time_invalid")
     if utility_report_manifest.created_at > graph_prior_manifest.created_at:
         raise _IdentificationSourceBindingFailure("source_manifest_time_order_invalid")
-    if any(manifest.created_at > utility_report_manifest.created_at for manifest in source_manifests):
+    if any(
+        manifest.created_at > utility_report_manifest.created_at for manifest in source_manifests
+    ):
         raise _IdentificationSourceBindingFailure("source_manifest_time_order_invalid")
 
     hypotheses: dict[str, Any] = {}
@@ -1002,8 +1009,8 @@ def _resolve_source_identification_rows(
         raw_graph_sha256 = _graph_basis_sha256(hypothesis.graph)
         report_graph = hypothesis.graph_for_analysis() or hypothesis.graph
         report_graph_sha256 = _graph_basis_sha256(report_graph)
-        expected_graph_derived_status, expected_graph_derived_scope = (
-            graph_derived_candidate_scope(hypothesis)
+        expected_graph_derived_status, expected_graph_derived_scope = graph_derived_candidate_scope(
+            hypothesis
         )
         if (
             score.graph_derived_assumption_status != expected_graph_derived_status
@@ -1014,8 +1021,7 @@ def _resolve_source_identification_rows(
             )
         source_projection = projection
         source_graph_mismatch = (
-            hypothesis_id in supported_hypothesis_ids
-            and raw_graph_sha256 != report_graph_sha256
+            hypothesis_id in supported_hypothesis_ids and raw_graph_sha256 != report_graph_sha256
         )
 
         snapshot = bundle.hypothesis_identification.get(hypothesis_id)
@@ -1032,8 +1038,7 @@ def _resolve_source_identification_rows(
             or snapshot.reasons != score.reasons
             or snapshot.warnings != score.warnings
             or snapshot.blocking_certificates != score.blocking_certificates
-            or snapshot.graph_derived_assumption_status
-            != score.graph_derived_assumption_status
+            or snapshot.graph_derived_assumption_status != score.graph_derived_assumption_status
             or snapshot.graph_derived_scope_of_falsification
             != score.graph_derived_scope_of_falsification
         ):
@@ -1068,9 +1073,7 @@ def _resolve_source_identification_rows(
                 else expected_graph_derived_status.value
             ),
             "graph_derived_scope_of_falsification": (
-                None
-                if expected_graph_derived_scope is None
-                else expected_graph_derived_scope.value
+                None if expected_graph_derived_scope is None else expected_graph_derived_scope.value
             ),
             "reported_identification_status": projection.identification_status,
             "verification_status": "not_established" if source_graph_mismatch else "recomputed",
@@ -1188,9 +1191,9 @@ def _require_graph_prior_source_projection(bundle: Any, expected: Any) -> None:
             raise _IdentificationSourceBindingFailure("graph_prior_source_projection_mismatch")
 
     for metadata_key in ("thresholds", "hypothesis_weights"):
-        if _canonical_payload_sha256(bundle.metadata.get(metadata_key)) != _canonical_payload_sha256(
-            expected.metadata.get(metadata_key)
-        ):
+        if _canonical_payload_sha256(
+            bundle.metadata.get(metadata_key)
+        ) != _canonical_payload_sha256(expected.metadata.get(metadata_key)):
             raise _IdentificationSourceBindingFailure("graph_prior_source_projection_mismatch")
 
 

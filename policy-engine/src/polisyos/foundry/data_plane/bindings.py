@@ -20,6 +20,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.common.serialization import to_python_data
+from polisyos.core.artifacts import resolve_manifest_by_profile
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
@@ -27,7 +28,6 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.protocol import resolve_manifest_by_profile
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import ValueOuterSet
@@ -320,9 +320,19 @@ def load_ukraine_foundry_intake(
             ) from exc
 
     contract_specs: tuple[tuple[str, str, str, type[Any]], ...] = (
-        ("d1_multiplex_network", "d1", "multiplex_network_data.json", MultiplexNetworkData),
+        (
+            "d1_multiplex_network",
+            "d1",
+            "multiplex_network_data.json",
+            MultiplexNetworkData,
+        ),
         ("d1_trade_network", "d1", "trade_network_data.json", NetworkData),
-        ("d1_trade_network_causal", "d1", "trade_network_causal_data.json", NetworkCausalData),
+        (
+            "d1_trade_network_causal",
+            "d1",
+            "trade_network_causal_data.json",
+            NetworkCausalData,
+        ),
         ("d1_distress_network", "d1", "distress_network_data.json", NetworkData),
         (
             "d1_distress_network_causal",
@@ -330,7 +340,12 @@ def load_ukraine_foundry_intake(
             "distress_network_causal_data.json",
             NetworkCausalData,
         ),
-        ("d1_public_service_network", "d1", "public_service_network_data.json", NetworkData),
+        (
+            "d1_public_service_network",
+            "d1",
+            "public_service_network_data.json",
+            NetworkData,
+        ),
         (
             "d1_public_service_network_causal",
             "d1",
@@ -343,11 +358,26 @@ def load_ukraine_foundry_intake(
             "panel_observational_contract.json",
             PanelObservationalData,
         ),
-        ("d2_dynamic_treatment", "d2", "dynamic_treatment_contract.json", DynamicTreatmentData),
-        ("d2_microsim_survey", "d2", "microsim_survey_contract_preview.json", SurveyMicroData),
+        (
+            "d2_dynamic_treatment",
+            "d2",
+            "dynamic_treatment_contract.json",
+            DynamicTreatmentData,
+        ),
+        (
+            "d2_microsim_survey",
+            "d2",
+            "microsim_survey_contract_preview.json",
+            SurveyMicroData,
+        ),
         ("d2_survival", "d2", "survival_contract.json", SurvivalData),
         ("d2_panel_econometric", "d2", "panel_econometric_contract.json", PanelData),
-        ("d3_microsim_survey", "d3", "microsim_survey_contract_v1.json", SurveyMicroData),
+        (
+            "d3_microsim_survey",
+            "d3",
+            "microsim_survey_contract_v1.json",
+            SurveyMicroData,
+        ),
     )
     method_contracts: dict[str, Any] = {}
     validated_contracts: dict[str, dict[str, str]] = {}

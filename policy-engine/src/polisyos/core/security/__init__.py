@@ -210,7 +210,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.core.security.tenant_context",
         "get_current_tenant_id_or_none",
     ),
-    "get_current_cell_id": ("polisyos.core.security.tenant_context", "get_current_cell_id"),
+    "get_current_cell_id": (
+        "polisyos.core.security.tenant_context",
+        "get_current_cell_id",
+    ),
     "get_current_access_scope_or_none": (
         "polisyos.core.security.tenant_context",
         "get_current_access_scope_or_none",
@@ -406,6 +409,27 @@ if TYPE_CHECKING:
     )
     from polisyos.core.security.tenant_quota import TenantQuotaLimits
 
+_EXPORTS.update(
+    {
+        "SECURITY_ASSURANCE_ARTIFACT_KIND": (
+            "polisyos.core.security.quality_gates",
+            "SECURITY_ASSURANCE_ARTIFACT_KIND",
+        ),
+        "SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE": (
+            "polisyos.core.security.quality_gates",
+            "SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE",
+        ),
+        "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME": (
+            "polisyos.core.security.quality_gates",
+            "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME",
+        ),
+        "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION": (
+            "polisyos.core.security.quality_gates",
+            "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION",
+        ),
+    }
+)
+
 __all__ = [
     "C3_CANONICAL_CODECS",
     "SECURITY_ASSURANCE_REPORT_REF_KEY",
@@ -529,3 +553,27 @@ def __getattr__(name: str) -> Any:
 
 def __dir__() -> list[str]:
     return sorted(set(globals()) | set(__all__))
+
+
+__all__.extend(
+    [
+        "SECURITY_ASSURANCE_ARTIFACT_KIND",
+        "SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE",
+        "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME",
+        "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION",
+    ]
+)
+
+if TYPE_CHECKING:
+    from polisyos.core.security.quality_gates import (
+        SECURITY_ASSURANCE_ARTIFACT_KIND as SECURITY_ASSURANCE_ARTIFACT_KIND,
+    )
+    from polisyos.core.security.quality_gates import (
+        SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE as SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
+    )
+    from polisyos.core.security.quality_gates import (
+        SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME as SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
+    )
+    from polisyos.core.security.quality_gates import (
+        SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION as SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
+    )

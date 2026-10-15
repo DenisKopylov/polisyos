@@ -8,10 +8,19 @@ from typing import Any
 import numpy as np
 from pydantic import ValidationError
 
-from polisyos.common.logger import get_logger
+from polisyos.common import logger as common_logger
 from polisyos.core.artifacts import ArtifactRef, InputRef
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.foundry.uncertainty import PropagationConfig
+from polisyos.ir import (
+    ArtifactRefModel,
+    DependenceStructureRef,
+    GEUncertaintyBundleRef,
+    UncertaintyEnvelopeRef,
+    WelfareSampleBundleRef,
+)
 from polisyos.ir.analytics import UncertaintyEnvelope
 from polisyos.ir.analytics.welfare import (
     ChannelDecompositionTargetKind,
@@ -22,17 +31,13 @@ from polisyos.ir.analytics.welfare import (
     build_channel_decomposition_ref,
     persist_welfare_sample_bundle,
 )
-from polisyos.ir.registry.refs import (
-    ArtifactRefModel,
-    DependenceStructureRef,
-    GEUncertaintyBundleRef,
-    UncertaintyEnvelopeRef,
-    WelfareSampleBundleRef,
-)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
-from .welfare_covariance import _calibration_lineage_inputs, _calibration_projection_report_metadata
+from .welfare_covariance import (
+    _calibration_lineage_inputs,
+    _calibration_projection_report_metadata,
+)
 from .welfare_draws import (
     _draw_outcome_provenance,
     _finite_difference_gradient,
@@ -61,7 +66,7 @@ from .welfare_types import (
     _ResolvedWelfareContext,
 )
 
-logger = get_logger(__name__)
+logger = common_logger.get_logger(__name__)
 
 
 def _load_propagation_config(state: ExperimentState) -> PropagationConfig:
@@ -144,7 +149,10 @@ def _build_robust_interval(
             else np.array(context.ge_context.point_multiplier, copy=True)
         )
         if context.ge_context.source_kind == "multiplier":
-            for param_name, (row_idx, col_idx) in context.ge_context.ge_entry_map.items():
+            for param_name, (
+                row_idx,
+                col_idx,
+            ) in context.ge_context.ge_entry_map.items():
                 env = input_envelopes.get(param_name)
                 if env is None:
                     continue
@@ -626,10 +634,16 @@ def _persist_welfare_mc_samples(
     }
     if complete:
         result_map = {
-            "welfare": {"point_estimate": summary["welfare_mean"], "draw_count": len(draws.welfare)}
+            "welfare": {
+                "point_estimate": summary["welfare_mean"],
+                "draw_count": len(draws.welfare),
+            }
         }
         alpha = max((1.0 - float(config.confidence_level)) / 2.0, 0.0)
-        interval = (float(np.quantile(values, alpha)), float(np.quantile(values, 1.0 - alpha)))
+        interval = (
+            float(np.quantile(values, alpha)),
+            float(np.quantile(values, 1.0 - alpha)),
+        )
     else:
         result_map = {
             "welfare": {

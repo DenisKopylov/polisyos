@@ -10,12 +10,17 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar
 import numpy as np
 from pydantic import BaseModel
 
-from polisyos.core.artifacts.canonical_profile import (
+from polisyos.core.artifacts import (
     artifact_ref_for_manifest,
     read_core_json_artifact,
     read_core_manifest_profile,
 )
-from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactManifest,
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import (
@@ -165,7 +170,10 @@ def classify_terminal_regime(
             residual_norm=fixed_residual,
             bounded=True,
             largest_lyapunov_exponent=largest_lyapunov_exponent,
-            notes=("positive_largest_lyapunov_exponent", "chaos_is_diagnostic_not_proof"),
+            notes=(
+                "positive_largest_lyapunov_exponent",
+                "chaos_is_diagnostic_not_proof",
+            ),
         )
 
     return TerminalRegime(
@@ -546,7 +554,10 @@ def build_feedback_attractor_analysis_result(
             unresolved_items=[] if feedback_result.converged else ["feedback_solve_not_converged"],
         ),
         provenance=AttractorAnalysisProvenance(
-            toolchain=["polisyos.foundry.feedback", "polisyos.foundry.analysis.attractors"],
+            toolchain=[
+                "polisyos.foundry.feedback",
+                "polisyos.foundry.analysis.attractors",
+            ],
             derived_from=_derived_from_refs(
                 model_ref=model_ref,
                 simulation_result_ref=simulation_result_ref,

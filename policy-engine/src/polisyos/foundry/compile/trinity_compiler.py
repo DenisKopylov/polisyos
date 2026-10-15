@@ -16,7 +16,11 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.compiler.report import CompileReport, put_compile_report, put_link_report
+from polisyos.core.compiler.report import (
+    CompileReport,
+    put_compile_report,
+    put_link_report,
+)
 from polisyos.core.contracts.foundry import (
     CompileRequest,
     CompileResult,
@@ -27,10 +31,13 @@ from polisyos.core.contracts.foundry import (
     ProgramGraphRef,
 )
 from polisyos.core.registry import load_registry_bundle_content
-from polisyos.foundry.compile.randomization import TREASURY_SALTS_PROFILE, build_treasury_plan
+from polisyos.foundry.compile.randomization import (
+    TREASURY_SALTS_PROFILE,
+    build_treasury_plan,
+)
 from polisyos.foundry.methods.cost_model import CostBudget, CostModel
 from polisyos.foundry.validation.conflict_checker import CompileTimeConflictChecker
-from polisyos.ir.kernel.slots import build_slot_layout
+from polisyos.ir import build_slot_layout
 from polisyos.ir.linker import link_trinity
 from polisyos.ir.linker.reports import LinkSeverity
 from polisyos.ir.registry.registry_fragments import RegistryBundle
@@ -236,7 +243,8 @@ def compile_trinity(store: FileSystemCAS, request: CompileRequest) -> CompileRes
             kind="foundry.treasury_plan",
             media_type="application/json",
             schema=SchemaInfo(
-                name="polisyos.foundry.TreasuryPlan", version=treasury_plan.schema_version
+                name="polisyos.foundry.TreasuryPlan",
+                version=treasury_plan.schema_version,
             ),
             inputs=[input_ref_from_artifact_ref(program_ref, role="program_graph")],
         ),

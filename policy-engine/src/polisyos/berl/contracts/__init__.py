@@ -22,6 +22,7 @@ from polisyos.berl.contracts.validation_rules import (
     ValidationThresholds,
     summarize_explanation_response,
     validate_explanation_bundle,
+    validate_persisted_explanation_bundle_payload,
 )
 
 __all__ = [
@@ -37,5 +38,6 @@ __all__ = [
     "generated_explanation_bundle_schema",
     "summarize_explanation_response",
     "validate_explanation_bundle",
+    "validate_persisted_explanation_bundle_payload",
     "write_explanation_bundle_schema",
 ]

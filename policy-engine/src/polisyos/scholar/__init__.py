@@ -30,6 +30,8 @@ __all__ = [
     "ScholarReconcileError",
     "ScholarService",
     "ScholarValidationError",
+    "SourceSnippet",
+    "WebEvidenceBundle",
     "build_scholar_academic_evidence_report",
     "build_scholar_academic_evidence_report_from_web_bundle",
     "build_scholar_spine_evidence_binding",
@@ -38,10 +40,22 @@ __all__ = [
     "sanitize_untrusted_text",
     "scholar_academic_evidence_required",
     "scholar_citation_from_fabric_decision_data",
+    "validate_source_snippet_spans",
+    "validate_web_evidence_source_binding",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ScholarService": ("polisyos.scholar.api", "ScholarService"),
+    "SourceSnippet": ("polisyos.scholar.search.models", "SourceSnippet"),
+    "WebEvidenceBundle": ("polisyos.scholar.search.models", "WebEvidenceBundle"),
+    "validate_source_snippet_spans": (
+        "polisyos.scholar.search",
+        "validate_source_snippet_spans",
+    ),
+    "validate_web_evidence_source_binding": (
+        "polisyos.scholar.search",
+        "validate_web_evidence_source_binding",
+    ),
     "enrich_topic": ("polisyos.scholar.api", "enrich_topic"),
     "ScholarAcquireError": ("polisyos.scholar.errors", "ScholarAcquireError"),
     "ScholarBundleError": ("polisyos.scholar.errors", "ScholarBundleError"),

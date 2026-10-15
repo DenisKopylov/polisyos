@@ -24,7 +24,7 @@ from pydantic import (
 from pydantic_core import to_jsonable_python
 
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts.manifest import (
+from polisyos.core.artifacts import (
     ArtifactSameInputClosureInfo,
     ArtifactTenantContextInfo,
 )
@@ -33,8 +33,8 @@ from polisyos.core.security import (
     get_current_cell_id,
     get_current_tenant_id_or_none,
 )
+from polisyos.ir import CausalGraphModelRef
 from polisyos.ir.artifacts.contracts import ArtifactID as IRArtifactID
-from polisyos.ir.registry.refs import CausalGraphModelRef
 from polisyos.pdc import WORLD_MODEL_RECORD_SCHEMA_V2_VERSION, gy_content_hash
 from polisyos.runtime.quality.design_problem import (
     DESIGN_PROBLEM_V1_SCHEMA_VERSION,
@@ -62,22 +62,14 @@ from polisyos.runtime.quality.world_model_record import (
 )
 
 CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION = "policyos.runtime.cycle_substrate_context.v1"
-CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA = (
-    "policyos.runtime.cycle_substrate_context_job_artifact.v1"
-)
+CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA = "policyos.runtime.cycle_substrate_context_job_artifact.v1"
 CYCLE_SUBSTRATE_CONTEXT_JOB_KIND = "runtime.quality.cycle_substrate_context_job"
 CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_VERSION = "1.0"
-CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA = (
-    "policyos.runtime.cycle_substrate_context_job_artifact.v2"
-)
+CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA = "policyos.runtime.cycle_substrate_context_job_artifact.v2"
 CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA_VERSION = "2.0"
-CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA = (
-    "policyos.runtime.cycle_substrate_context_job_artifact.v3"
-)
+CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA = "policyos.runtime.cycle_substrate_context_job_artifact.v3"
 CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA_VERSION = "3.0"
-CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA = (
-    "policyos.runtime.cycle_substrate_context_job_artifact.v4"
-)
+CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA = "policyos.runtime.cycle_substrate_context_job_artifact.v4"
 CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA_VERSION = "4.0"
 _HASH_PATTERN = r"^sha256:[0-9a-f]{64}$"
 _CONTEXT_JOB_CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
@@ -160,7 +152,9 @@ _CONTEXT_JOB_V1_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
         "runtime_hints",
     ),
     "polisyos.runtime.quality.design_problem.NLProvenance": (
-        "raw_request", "source_surface", "source_context"
+        "raw_request",
+        "source_surface",
+        "source_context",
     ),
     "polisyos.runtime.quality.design_problem.AuthorityProfile": (
         "requester_authority",
@@ -169,13 +163,25 @@ _CONTEXT_JOB_V1_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
         "authority_refs",
     ),
     "polisyos.runtime.quality.design_problem.JurisdictionTimeSemantics": (
-        "region", "valid_time", "as_of", "policy_time", "data_time", "time_semantics"
+        "region",
+        "valid_time",
+        "as_of",
+        "policy_time",
+        "data_time",
+        "time_semantics",
     ),
     "polisyos.ir.kernel.time_semantics.TimeSemantics": (
-        "frequency", "start_date", "step_count", "end_date", "notes"
+        "frequency",
+        "start_date",
+        "step_count",
+        "end_date",
+        "notes",
     ),
     "polisyos.runtime.quality.design_problem.DesignObjective": (
-        "objective_id", "description", "metric_id", "direction"
+        "objective_id",
+        "description",
+        "metric_id",
+        "direction",
     ),
     "polisyos.runtime.quality.design_problem.DesignConstraint": (
         "constraint_id",
@@ -186,20 +192,34 @@ _CONTEXT_JOB_V1_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
         "evidence_ref",
     ),
     "polisyos.runtime.quality.design_problem.DesignStakeholder": (
-        "stakeholder_id", "name", "role"
+        "stakeholder_id",
+        "name",
+        "role",
     ),
     "polisyos.runtime.quality.design_problem.OutcomeOfInterest": (
-        "target_variable", "metric_id", "estimand", "direction"
+        "target_variable",
+        "metric_id",
+        "estimand",
+        "direction",
     ),
     "polisyos.runtime.quality.design_problem.CandidateLeverSpace": (
-        "allowed_operator_kinds", "candidate_levers"
+        "allowed_operator_kinds",
+        "candidate_levers",
     ),
     "polisyos.runtime.quality.design_problem.CandidateLever": (
-        "lever_id", "operator_kind", "instrument", "target_slot"
+        "lever_id",
+        "operator_kind",
+        "instrument",
+        "target_slot",
     ),
     "polisyos.runtime.quality.design_problem.EvidenceAcquisitionNeeds": ("needs",),
     "polisyos.runtime.quality.design_problem.EvidenceNeed": (
-        "need_id", "question", "required_for", "status", "source_hint", "artifact_ref"
+        "need_id",
+        "question",
+        "required_for",
+        "status",
+        "source_hint",
+        "artifact_ref",
     ),
     "polisyos.runtime.quality.cycle_substrate.CycleSubstrateContext": (
         "schema_version",
@@ -376,7 +396,10 @@ _CONTEXT_JOB_V1_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
         "query_trace_refs",
     ),
     "polisyos.pdc._impl.world_model_record.SubstrateRegistryRef": (
-        "substrate_version_id", "content_hash", "registry_artifact_ref", "resolved_entries"
+        "substrate_version_id",
+        "content_hash",
+        "registry_artifact_ref",
+        "resolved_entries",
     ),
     "polisyos.pdc._impl.world_model_record.ResolvedSubstrateEntryRef": (
         "source_id",
@@ -393,7 +416,11 @@ _CONTEXT_JOB_V1_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
         "entry_content_hash",
     ),
     "polisyos.pdc._impl.world_model_record.PolicySlotBinding": (
-        "slot_id", "state_path", "unit", "entity_scope", "temporal_granularity"
+        "slot_id",
+        "state_path",
+        "unit",
+        "entity_scope",
+        "temporal_granularity",
     ),
     "polisyos.pdc._impl.world_model_record.WorldModelLimitations": (
         "unavailable_data",
@@ -446,7 +473,9 @@ _CONTEXT_JOB_V2_SUPPORTED_MODEL_VERSIONS: dict[str, frozenset[str]] = {
 }
 _CONTEXT_JOB_V2_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
     "polisyos.runtime.quality.design_problem.NLProvenance": (
-        "raw_request", "source_surface", "source_context"
+        "raw_request",
+        "source_surface",
+        "source_context",
     ),
     "polisyos.runtime.quality.design_problem.AuthorityProfile": (
         "requester_authority",
@@ -455,13 +484,25 @@ _CONTEXT_JOB_V2_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
         "authority_refs",
     ),
     "polisyos.runtime.quality.design_problem.JurisdictionTimeSemantics": (
-        "region", "valid_time", "as_of", "policy_time", "data_time", "time_semantics"
+        "region",
+        "valid_time",
+        "as_of",
+        "policy_time",
+        "data_time",
+        "time_semantics",
     ),
     "polisyos.ir.kernel.time_semantics.TimeSemantics": (
-        "frequency", "start_date", "step_count", "end_date", "notes"
+        "frequency",
+        "start_date",
+        "step_count",
+        "end_date",
+        "notes",
     ),
     "polisyos.runtime.quality.design_problem.DesignObjective": (
-        "objective_id", "description", "metric_id", "direction"
+        "objective_id",
+        "description",
+        "metric_id",
+        "direction",
     ),
     "polisyos.runtime.quality.design_problem.DesignConstraint": (
         "constraint_id",
@@ -472,20 +513,34 @@ _CONTEXT_JOB_V2_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
         "evidence_ref",
     ),
     "polisyos.runtime.quality.design_problem.DesignStakeholder": (
-        "stakeholder_id", "name", "role"
+        "stakeholder_id",
+        "name",
+        "role",
     ),
     "polisyos.runtime.quality.design_problem.OutcomeOfInterest": (
-        "target_variable", "metric_id", "estimand", "direction"
+        "target_variable",
+        "metric_id",
+        "estimand",
+        "direction",
     ),
     "polisyos.runtime.quality.design_problem.CandidateLeverSpace": (
-        "allowed_operator_kinds", "candidate_levers"
+        "allowed_operator_kinds",
+        "candidate_levers",
     ),
     "polisyos.runtime.quality.design_problem.CandidateLever": (
-        "lever_id", "operator_kind", "instrument", "target_slot"
+        "lever_id",
+        "operator_kind",
+        "instrument",
+        "target_slot",
     ),
     "polisyos.runtime.quality.design_problem.EvidenceAcquisitionNeeds": ("needs",),
     "polisyos.runtime.quality.design_problem.EvidenceNeed": (
-        "need_id", "question", "required_for", "status", "source_hint", "artifact_ref"
+        "need_id",
+        "question",
+        "required_for",
+        "status",
+        "source_hint",
+        "artifact_ref",
     ),
     "polisyos.runtime.quality.cycle_substrate.CycleSubstrateContext": (
         "schema_version",
@@ -662,7 +717,10 @@ _CONTEXT_JOB_V2_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
         "query_trace_refs",
     ),
     "polisyos.pdc._impl.world_model_record.SubstrateRegistryRef": (
-        "substrate_version_id", "content_hash", "registry_artifact_ref", "resolved_entries"
+        "substrate_version_id",
+        "content_hash",
+        "registry_artifact_ref",
+        "resolved_entries",
     ),
     "polisyos.pdc._impl.world_model_record.ResolvedSubstrateEntryRef": (
         "source_id",
@@ -679,7 +737,11 @@ _CONTEXT_JOB_V2_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
         "entry_content_hash",
     ),
     "polisyos.pdc._impl.world_model_record.PolicySlotBinding": (
-        "slot_id", "state_path", "unit", "entity_scope", "temporal_granularity"
+        "slot_id",
+        "state_path",
+        "unit",
+        "entity_scope",
+        "temporal_granularity",
     ),
     "polisyos.pdc._impl.world_model_record.WorldModelLimitations": (
         "unavailable_data",
@@ -711,6 +773,8 @@ _CONTEXT_JOB_V2_MODEL_FIELDS: dict[str, tuple[str, ...]] = {
         "content_hash",
     ),
 }
+
+
 class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -801,9 +865,7 @@ class CycleSubstrateContext(_StrictModel):
     intervention_substrate: InterventionSubstrateBundle | None = None
     candidate_levers: tuple[CandidateLeverEvidence, ...] = ()
     transport_context: TransportContextEvidence | None = None
-    authority_purpose: Literal["cycle_input_candidate_only"] = (
-        "cycle_input_candidate_only"
-    )
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
     may_not_use_for: tuple[str, ...]
     context_binding_hash: str = Field(..., pattern=_HASH_PATTERN)
     content_hash: str = Field(..., pattern=_HASH_PATTERN)
@@ -822,18 +884,13 @@ class CycleSubstrateContext(_StrictModel):
             raise ValueError("cycle_substrate_wmr_id_mismatch")
         if self.intervention_substrate is not None:
             try:
-                verify_intervention_substrate_bundle_content_hash(
-                    self.intervention_substrate
-                )
+                verify_intervention_substrate_bundle_content_hash(self.intervention_substrate)
             except InterventionSubstrateError as exc:
-                raise ValueError(
-                    "cycle_substrate_intervention_bundle_hash_mismatch"
-                ) from exc
+                raise ValueError("cycle_substrate_intervention_bundle_hash_mismatch") from exc
         registry_ref = self.world_model_record.substrate_registry_ref
         if (
             registry_ref.content_hash != self.substrate_registry.content_hash
-            or registry_ref.substrate_version_id
-            != self.substrate_registry.substrate_version_id
+            or registry_ref.substrate_version_id != self.substrate_registry.substrate_version_id
         ):
             raise ValueError("wmr_registry_content_mismatch")
         selected = tuple(self.selected_registry_entry_hashes)
@@ -847,37 +904,25 @@ class CycleSubstrateContext(_StrictModel):
         missing_registry = sorted(set(selected).difference(registry_by_hash))
         if missing_registry:
             raise ValueError(
-                "cycle_substrate_selected_entry_registry_unresolved:"
-                + ",".join(missing_registry)
+                "cycle_substrate_selected_entry_registry_unresolved:" + ",".join(missing_registry)
             )
-        wmr_hashes = [
-            entry.entry_content_hash for entry in registry_ref.resolved_entries
-        ]
+        wmr_hashes = [entry.entry_content_hash for entry in registry_ref.resolved_entries]
         if len(wmr_hashes) != len(set(wmr_hashes)):
-            raise ValueError(
-                "cycle_substrate_wmr_resolved_entry_hash_duplicate"
-            )
-        wmr_by_hash = {
-            entry.entry_content_hash: entry for entry in registry_ref.resolved_entries
-        }
+            raise ValueError("cycle_substrate_wmr_resolved_entry_hash_duplicate")
+        wmr_by_hash = {entry.entry_content_hash: entry for entry in registry_ref.resolved_entries}
         missing_wmr = sorted(set(selected).difference(wmr_by_hash))
         if missing_wmr:
             raise ValueError(
-                "cycle_substrate_selected_entry_wmr_unresolved:"
-                + ",".join(missing_wmr)
+                "cycle_substrate_selected_entry_wmr_unresolved:" + ",".join(missing_wmr)
             )
         for entry_hash in selected:
             registry_entry = registry_by_hash[entry_hash]
-            if (
-                wmr_by_hash[entry_hash].model_dump(mode="json")
-                != _resolved_substrate_entry_ref_from_registry_entry(
-                    registry_entry
-                ).model_dump(mode="json")
+            if wmr_by_hash[entry_hash].model_dump(
+                mode="json"
+            ) != _resolved_substrate_entry_ref_from_registry_entry(registry_entry).model_dump(
+                mode="json"
             ):
-                raise ValueError(
-                    "cycle_substrate_selected_entry_projection_mismatch:"
-                    + entry_hash
-                )
+                raise ValueError("cycle_substrate_selected_entry_projection_mismatch:" + entry_hash)
         expected_binding = cycle_substrate_context_binding_hash(
             design_problem_ref=self.design_problem_ref,
             domain=self.domain,
@@ -885,9 +930,7 @@ class CycleSubstrateContext(_StrictModel):
             substrate_registry_content_hash=self.substrate_registry_content_hash,
             world_model_record_id=self.world_model_record.world_model_record_id,
             world_model_record_content_hash=self.world_model_record_content_hash,
-            world_model_record_authority_status=(
-                self.world_model_record.authority_status
-            ),
+            world_model_record_authority_status=(self.world_model_record.authority_status),
             selected_registry_entry_hashes=selected,
         )
         if self.context_binding_hash != expected_binding:
@@ -900,10 +943,7 @@ class CycleSubstrateContext(_StrictModel):
             if candidate.selected_registry_entry_hash not in selected:
                 raise ValueError("candidate_selected_registry_entry_mismatch")
         if self.transport_context is not None:
-            if (
-                self.transport_context.context_binding_hash
-                != self.context_binding_hash
-            ):
+            if self.transport_context.context_binding_hash != self.context_binding_hash:
                 raise ValueError("transport_context_binding_mismatch")
             if (
                 self.transport_context.substrate_input_content_hash
@@ -949,9 +989,7 @@ class VerifiedNLJobScope(_StrictModel):
     worker lease and ambient tenant/cell before it writes or reads any bytes.
     """
 
-    authority_purpose: Literal["cycle_input_candidate_only"] = (
-        "cycle_input_candidate_only"
-    )
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
     admission_status: Literal["established"]
     intent_band: Literal["simulate_only_attempt"]
     canonical_mode: Literal["simulate_only"]
@@ -1022,12 +1060,10 @@ class CycleSubstrateContextJobArtifact(_StrictModel):
     authority receipt.
     """
 
-    schema_version: Literal[
-        "policyos.runtime.cycle_substrate_context_job_artifact.v1"
-    ] = CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA
-    authority_purpose: Literal["cycle_input_candidate_only"] = (
-        "cycle_input_candidate_only"
+    schema_version: Literal["policyos.runtime.cycle_substrate_context_job_artifact.v1"] = (
+        CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA
     )
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
     status: Literal["candidate_limited"] = "candidate_limited"
     profile_admission_status: Literal["not_established"] = "not_established"
     s8_status: Literal["blocked"] = "blocked"
@@ -1049,8 +1085,7 @@ class CycleSubstrateContextJobArtifact(_StrictModel):
         missing = _REQUIRED_CONTEXT_JOB_LIMITATIONS.difference(value)
         if missing:
             raise ValueError(
-                "cycle_substrate_context_job_limitation_missing:"
-                + ",".join(sorted(missing))
+                "cycle_substrate_context_job_limitation_missing:" + ",".join(sorted(missing))
             )
         return value
 
@@ -1086,12 +1121,10 @@ class CycleSubstrateContextJobArtifactV2(_StrictModel):
     candidate-only authority limitations.
     """
 
-    schema_version: Literal[
-        "policyos.runtime.cycle_substrate_context_job_artifact.v2"
-    ] = CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA
-    authority_purpose: Literal["cycle_input_candidate_only"] = (
-        "cycle_input_candidate_only"
+    schema_version: Literal["policyos.runtime.cycle_substrate_context_job_artifact.v2"] = (
+        CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA
     )
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
     status: Literal["candidate_limited"] = "candidate_limited"
     profile_admission_status: Literal["not_established"] = "not_established"
     s8_status: Literal["blocked"] = "blocked"
@@ -1113,8 +1146,7 @@ class CycleSubstrateContextJobArtifactV2(_StrictModel):
         missing = _REQUIRED_CONTEXT_JOB_LIMITATIONS.difference(value)
         if missing:
             raise ValueError(
-                "cycle_substrate_context_job_limitation_missing:"
-                + ",".join(sorted(missing))
+                "cycle_substrate_context_job_limitation_missing:" + ",".join(sorted(missing))
             )
         return value
 
@@ -1149,12 +1181,10 @@ class CycleSubstrateContextJobArtifactV2(_StrictModel):
 class CycleSubstrateContextJobArtifactV3(_StrictModel):
     """Version 3 handoff binding current v3 problems to WMRv2 exact views."""
 
-    schema_version: Literal[
-        "policyos.runtime.cycle_substrate_context_job_artifact.v3"
-    ] = CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA
-    authority_purpose: Literal["cycle_input_candidate_only"] = (
-        "cycle_input_candidate_only"
+    schema_version: Literal["policyos.runtime.cycle_substrate_context_job_artifact.v3"] = (
+        CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA
     )
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
     status: Literal["candidate_limited"] = "candidate_limited"
     profile_admission_status: Literal["not_established"] = "not_established"
     s8_status: Literal["blocked"] = "blocked"
@@ -1176,8 +1206,7 @@ class CycleSubstrateContextJobArtifactV3(_StrictModel):
         missing = _REQUIRED_CONTEXT_JOB_LIMITATIONS.difference(value)
         if missing:
             raise ValueError(
-                "cycle_substrate_context_job_limitation_missing:"
-                + ",".join(sorted(missing))
+                "cycle_substrate_context_job_limitation_missing:" + ",".join(sorted(missing))
             )
         return value
 
@@ -1216,12 +1245,10 @@ class CycleSubstrateContextJobArtifactV3(_StrictModel):
 class CycleSubstrateContextJobArtifactV4(_StrictModel):
     """Version 4 candidate handoff with a selected causal-graph CAS ref."""
 
-    schema_version: Literal[
-        "policyos.runtime.cycle_substrate_context_job_artifact.v4"
-    ] = CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA
-    authority_purpose: Literal["cycle_input_candidate_only"] = (
-        "cycle_input_candidate_only"
+    schema_version: Literal["policyos.runtime.cycle_substrate_context_job_artifact.v4"] = (
+        CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA
     )
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
     status: Literal["candidate_limited"] = "candidate_limited"
     profile_admission_status: Literal["not_established"] = "not_established"
     s8_status: Literal["blocked"] = "blocked"
@@ -1243,8 +1270,7 @@ class CycleSubstrateContextJobArtifactV4(_StrictModel):
         missing = _REQUIRED_CONTEXT_JOB_LIMITATIONS.difference(value)
         if missing:
             raise ValueError(
-                "cycle_substrate_context_job_limitation_missing:"
-                + ",".join(sorted(missing))
+                "cycle_substrate_context_job_limitation_missing:" + ",".join(sorted(missing))
             )
         return value
 
@@ -1343,9 +1369,7 @@ _CONTEXT_JOB_V2_EXACT_MODEL_FIELDS: dict[type[BaseModel], tuple[str, ...]] = {
     ),
 }
 _CONTEXT_JOB_V2_EXACT_MODEL_VERSIONS: dict[type[BaseModel], frozenset[str]] = {
-    CycleSubstrateContextJobArtifactV2: frozenset(
-        {CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA}
-    ),
+    CycleSubstrateContextJobArtifactV2: frozenset({CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA}),
     DesignProblem: frozenset({DESIGN_PROBLEM_V3_SCHEMA_VERSION}),
 }
 
@@ -1360,9 +1384,7 @@ _CONTEXT_JOB_V3_SUPPORTED_MODEL_VERSIONS = {
 _CONTEXT_JOB_V3_MODEL_FIELDS = {
     **_CONTEXT_JOB_V2_MODEL_FIELDS,
     "polisyos.pdc._impl.world_model_record.WorldModelRecord": (
-        *_CONTEXT_JOB_V2_MODEL_FIELDS[
-            "polisyos.pdc._impl.world_model_record.WorldModelRecord"
-        ],
+        *_CONTEXT_JOB_V2_MODEL_FIELDS["polisyos.pdc._impl.world_model_record.WorldModelRecord"],
         "artifact_views",
     ),
     "polisyos.pdc._impl.world_model_record.WorldModelArtifactViews": (
@@ -1404,19 +1426,13 @@ _CONTEXT_JOB_V3_EXACT_MODEL_FIELDS: dict[type[BaseModel], tuple[str, ...]] = {
 }
 _CONTEXT_JOB_V3_EXACT_MODEL_VERSIONS: dict[type[BaseModel], frozenset[str]] = {
     **_CONTEXT_JOB_V2_EXACT_MODEL_VERSIONS,
-    CycleSubstrateContextJobArtifactV3: frozenset(
-        {CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA}
-    ),
+    CycleSubstrateContextJobArtifactV3: frozenset({CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA}),
 }
-_CONTEXT_JOB_V3_ROOT_SCALAR_TYPES: frozenset[type[BaseModel]] = frozenset(
-    {artifacts.ArtifactID}
-)
+_CONTEXT_JOB_V3_ROOT_SCALAR_TYPES: frozenset[type[BaseModel]] = frozenset({artifacts.ArtifactID})
 
 # V4 snapshots the V3 WMRv2 field tree and adds only the typed graph selector.
 # V1/V2/V3 remain separate, unchanged serialization contracts.
-_CONTEXT_JOB_V4_SUPPORTED_MODEL_VERSIONS = dict(
-    _CONTEXT_JOB_V3_SUPPORTED_MODEL_VERSIONS
-)
+_CONTEXT_JOB_V4_SUPPORTED_MODEL_VERSIONS = dict(_CONTEXT_JOB_V3_SUPPORTED_MODEL_VERSIONS)
 _CONTEXT_JOB_V4_MODEL_FIELDS = {
     **_CONTEXT_JOB_V3_MODEL_FIELDS,
     "polisyos.runtime.quality.cycle_substrate.TransportContextEvidence": (
@@ -1453,13 +1469,9 @@ _CONTEXT_JOB_V4_EXACT_MODEL_FIELDS: dict[type[BaseModel], tuple[str, ...]] = {
 }
 _CONTEXT_JOB_V4_EXACT_MODEL_VERSIONS: dict[type[BaseModel], frozenset[str]] = {
     **_CONTEXT_JOB_V3_EXACT_MODEL_VERSIONS,
-    CycleSubstrateContextJobArtifactV4: frozenset(
-        {CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA}
-    ),
+    CycleSubstrateContextJobArtifactV4: frozenset({CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA}),
 }
-_CONTEXT_JOB_V4_ROOT_SCALAR_TYPES = _CONTEXT_JOB_V3_ROOT_SCALAR_TYPES | frozenset(
-    {IRArtifactID}
-)
+_CONTEXT_JOB_V4_ROOT_SCALAR_TYPES = _CONTEXT_JOB_V3_ROOT_SCALAR_TYPES | frozenset({IRArtifactID})
 
 
 def _validate_problem_world_match(
@@ -1470,17 +1482,11 @@ def _validate_problem_world_match(
 
     world = context.world_model_record
     if context.domain != problem.domain or world.policy_domain != problem.domain:
-        raise CycleSubstrateContextOwnerError(
-            "cycle_substrate_context_job_domain_mismatch"
-        )
+        raise CycleSubstrateContextOwnerError("cycle_substrate_context_job_domain_mismatch")
     if world.region_or_jurisdiction != problem.jurisdiction_time.region:
-        raise CycleSubstrateContextOwnerError(
-            "cycle_substrate_context_job_jurisdiction_mismatch"
-        )
+        raise CycleSubstrateContextOwnerError("cycle_substrate_context_job_jurisdiction_mismatch")
     world_slots = {binding.slot_id for binding in world.policy_slot_map}
-    problem_slots = {
-        lever.target_slot for lever in problem.candidate_lever_space.candidate_levers
-    }
+    problem_slots = {lever.target_slot for lever in problem.candidate_lever_space.candidate_levers}
     missing_slots = sorted(problem_slots.difference(world_slots))
     if missing_slots:
         raise CycleSubstrateContextOwnerError(
@@ -1538,10 +1544,7 @@ def _current_job_scope(
                 or admitted_scope.cell_id != cell_id
                 or (
                     access_scope is not None
-                    and (
-                        access_scope.tenant_id != tenant_id
-                        or access_scope.cell_id != cell_id
-                    )
+                    and (access_scope.tenant_id != tenant_id or access_scope.cell_id != cell_id)
                 )
             ):
                 raise CycleSubstrateContextOwnerError(
@@ -1606,10 +1609,7 @@ def _serialize_context_job_v1_value(value: object) -> object:
             )
         supported_versions = _CONTEXT_JOB_V1_SUPPORTED_MODEL_VERSIONS.get(model_name)
         nested_version = getattr(value, "schema_version", None)
-        if (
-            supported_versions is not None
-            and nested_version not in supported_versions
-        ):
+        if supported_versions is not None and nested_version not in supported_versions:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_v1_nested_schema_unsupported",
                 f"{model_name}: {nested_version}",
@@ -1619,10 +1619,7 @@ def _serialize_context_job_v1_value(value: object) -> object:
             for field_name in fields
         }
     if isinstance(value, Mapping):
-        return {
-            str(key): _serialize_context_job_v1_value(item)
-            for key, item in value.items()
-        }
+        return {str(key): _serialize_context_job_v1_value(item) for key, item in value.items()}
     if isinstance(value, (tuple, list)):
         return [_serialize_context_job_v1_value(item) for item in value]
     if isinstance(value, (set, frozenset)):
@@ -1658,10 +1655,7 @@ def _serialize_context_job_v2_value(value: object) -> object:
             for field_name in fields
         }
     if isinstance(value, Mapping):
-        return {
-            str(key): _serialize_context_job_v2_value(item)
-            for key, item in value.items()
-        }
+        return {str(key): _serialize_context_job_v2_value(item) for key, item in value.items()}
     if isinstance(value, (tuple, list)):
         return [_serialize_context_job_v2_value(item) for item in value]
     if isinstance(value, (set, frozenset)):
@@ -1709,10 +1703,7 @@ def _serialize_context_job_v3_value(value: object) -> object:
             for field_name in fields
         }
     if isinstance(value, Mapping):
-        return {
-            str(key): _serialize_context_job_v3_value(item)
-            for key, item in value.items()
-        }
+        return {str(key): _serialize_context_job_v3_value(item) for key, item in value.items()}
     if isinstance(value, (tuple, list)):
         return [_serialize_context_job_v3_value(item) for item in value]
     if isinstance(value, (set, frozenset)):
@@ -1758,10 +1749,7 @@ def _serialize_context_job_v4_value(value: object) -> object:
             for field_name in fields
         }
     if isinstance(value, Mapping):
-        return {
-            str(key): _serialize_context_job_v4_value(item)
-            for key, item in value.items()
-        }
+        return {str(key): _serialize_context_job_v4_value(item) for key, item in value.items()}
     if isinstance(value, (tuple, list)):
         return [_serialize_context_job_v4_value(item) for item in value]
     if isinstance(value, (set, frozenset)):
@@ -1787,25 +1775,19 @@ def _serialize_cycle_substrate_context_job_artifact(
     if schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA:
         if isinstance(artifact, BaseModel):
             return cast("dict[str, Any]", _serialize_context_job_v2_value(artifact))
-        fields = _CONTEXT_JOB_V2_EXACT_MODEL_FIELDS[
-            CycleSubstrateContextJobArtifactV2
-        ]
+        fields = _CONTEXT_JOB_V2_EXACT_MODEL_FIELDS[CycleSubstrateContextJobArtifactV2]
         values = {name: artifact[name] for name in fields if name in artifact}
         return cast("dict[str, Any]", _serialize_context_job_v2_value(values))
     if schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA:
         if isinstance(artifact, BaseModel):
             return cast("dict[str, Any]", _serialize_context_job_v3_value(artifact))
-        fields = _CONTEXT_JOB_V3_EXACT_MODEL_FIELDS[
-            CycleSubstrateContextJobArtifactV3
-        ]
+        fields = _CONTEXT_JOB_V3_EXACT_MODEL_FIELDS[CycleSubstrateContextJobArtifactV3]
         values = {name: artifact[name] for name in fields if name in artifact}
         return cast("dict[str, Any]", _serialize_context_job_v3_value(values))
     if schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA:
         if isinstance(artifact, BaseModel):
             return cast("dict[str, Any]", _serialize_context_job_v4_value(artifact))
-        fields = _CONTEXT_JOB_V4_EXACT_MODEL_FIELDS[
-            CycleSubstrateContextJobArtifactV4
-        ]
+        fields = _CONTEXT_JOB_V4_EXACT_MODEL_FIELDS[CycleSubstrateContextJobArtifactV4]
         values = {name: artifact[name] for name in fields if name in artifact}
         return cast("dict[str, Any]", _serialize_context_job_v4_value(values))
     if schema_version != CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA:
@@ -1965,9 +1947,7 @@ def generic_n4_child_profile_selection_ref(
     expected_semantic = require_hash(
         semantic_ref, "generic_cycle_child_profile_selection_semantic_ref_invalid"
     )
-    if not isinstance(source_atom_refs, Sequence) or isinstance(
-        source_atom_refs, (str, bytes)
-    ):
+    if not isinstance(source_atom_refs, Sequence) or isinstance(source_atom_refs, (str, bytes)):
         raise CycleSubstrateContextOwnerError(
             "generic_cycle_child_profile_selection_atom_refs_invalid"
         )
@@ -2001,9 +1981,7 @@ def generic_n4_child_profile_selection_ref(
         )
     projection_hints = projection.get("runtime_hints")
     if not isinstance(projection_hints, dict):
-        raise CycleSubstrateContextOwnerError(
-            "generic_cycle_child_profile_selection_hints_invalid"
-        )
+        raise CycleSubstrateContextOwnerError("generic_cycle_child_profile_selection_hints_invalid")
     projected_source = projection_hints.get("n4_candidate_child_source")
     if not isinstance(projected_source, dict):
         raise CycleSubstrateContextOwnerError(
@@ -2246,13 +2224,8 @@ class CycleSubstrateContextArtifactOwner:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_current_job_owner_unavailable"
             )
-        if (
-            verified_nl_job_scope is None
-            and get_current_access_scope_or_none() is None
-        ):
-            admission_reader = getattr(
-                self._control_store, "current_execution_job_admission", None
-            )
+        if verified_nl_job_scope is None and get_current_access_scope_or_none() is None:
+            admission_reader = getattr(self._control_store, "current_execution_job_admission", None)
             if not callable(admission_reader):
                 raise CycleSubstrateContextOwnerError(
                     "cycle_substrate_context_current_job_owner_unavailable"
@@ -2343,21 +2316,14 @@ class CycleSubstrateContextArtifactOwner:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_record_invalid", str(exc)
             ) from exc
-        if (
-            artifact.run_id != current_job.run_id
-            or artifact.job_id != current_job.job_id
-        ):
-            raise CycleSubstrateContextOwnerError(
-                "cycle_substrate_context_job_binding_mismatch"
-            )
+        if artifact.run_id != current_job.run_id or artifact.job_id != current_job.job_id:
+            raise CycleSubstrateContextOwnerError("cycle_substrate_context_job_binding_mismatch")
         if (
             artifact.tenant_id != tenant_id
             or artifact.cell_id != cell_id
             or artifact.design_problem_ref != expected_problem_ref
         ):
-            raise CycleSubstrateContextOwnerError(
-                "cycle_substrate_context_job_binding_mismatch"
-            )
+            raise CycleSubstrateContextOwnerError("cycle_substrate_context_job_binding_mismatch")
         if not _has_context_job_owner_profile(manifest, artifact):
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_owner_profile_mismatch"
@@ -2473,9 +2439,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
         profiles_by_config_ref = {
             candidate_simulation_profile_ref(profile): profile for profile in self._profiles
         }
-        declarations_by_profile: dict[
-            str, CandidateSimulationSyntheticModelDeclarationV1
-        ] = {}
+        declarations_by_profile: dict[str, CandidateSimulationSyntheticModelDeclarationV1] = {}
         for declaration in model_declarations:
             if type(declaration) is not CandidateSimulationSyntheticModelDeclarationV1:
                 raise TypeError("candidate_simulation_model_declaration_untyped")
@@ -2498,9 +2462,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
                 raise ValueError("candidate_simulation_model_profile_binding_mismatch")
             if checked_declaration.profile_config_ref in declarations_by_profile:
                 raise ValueError("candidate_simulation_model_profile_declaration_duplicate")
-            declarations_by_profile[checked_declaration.profile_config_ref] = (
-                checked_declaration
-            )
+            declarations_by_profile[checked_declaration.profile_config_ref] = checked_declaration
         if declarations_by_profile and store is None:
             raise ValueError("candidate_simulation_model_store_not_supplied")
         self._model_declarations = declarations_by_profile
@@ -2549,13 +2511,9 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
         )
 
         if self._store is None:
-            raise CycleSubstrateContextOwnerError(
-                "candidate_simulation_model_store_not_supplied"
-            )
+            raise CycleSubstrateContextOwnerError("candidate_simulation_model_store_not_supplied")
         try:
-            registry = SubstrateRegistry.model_validate(
-                substrate_registry.model_dump(mode="json")
-            )
+            registry = SubstrateRegistry.model_validate(substrate_registry.model_dump(mode="json"))
             views = world_model_artifact_views(world_model_record)
         except (AttributeError, TypeError, ValueError) as exc:
             raise CycleSubstrateContextOwnerError(
@@ -2571,22 +2529,16 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
                 "candidate_simulation_substrate_registry_binding_mismatch"
             )
 
-        entries_by_hash = {
-            entry.entry_content_hash: entry for entry in registry.entries
-        }
+        entries_by_hash = {entry.entry_content_hash: entry for entry in registry.entries}
         if len(entries_by_hash) != len(registry.entries):
             raise CycleSubstrateContextOwnerError(
                 "candidate_simulation_substrate_registry_entry_hash_ambiguous"
             )
         for resolved in wmr_registry.resolved_entries:
             entry = entries_by_hash.get(resolved.entry_content_hash)
-            if (
-                entry is None
-                or resolved.model_dump(mode="json")
-                != _resolved_substrate_entry_ref_from_registry_entry(
-                    entry
-                ).model_dump(mode="json")
-            ):
+            if entry is None or resolved.model_dump(
+                mode="json"
+            ) != _resolved_substrate_entry_ref_from_registry_entry(entry).model_dump(mode="json"):
                 raise CycleSubstrateContextOwnerError(
                     "candidate_simulation_substrate_registry_entry_mismatch",
                     resolved.entry_content_hash,
@@ -2639,14 +2591,9 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
                 raise ValueError("substrate registry view has an invalid owner selection")
             verification = self._store.verify(selected_ref)
             if not verification.ok:
-                raise ValueError(
-                    verification.error or "substrate registry CAS verification failed"
-                )
+                raise ValueError(verification.error or "substrate registry CAS verification failed")
             persisted_registry = load_substrate_registry(self._store, selected_ref)
-            if (
-                persisted_registry.model_dump(mode="json")
-                != registry.model_dump(mode="json")
-            ):
+            if persisted_registry.model_dump(mode="json") != registry.model_dump(mode="json"):
                 raise ValueError(
                     "persisted substrate registry differs from the configured registry"
                 )
@@ -2683,59 +2630,47 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             CandidateSimulationScenarioProfile,
             candidate_simulation_profile_ref,
         )
-        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+        )
         from polisyos.runtime.quality.world_model_record import (
             derive_candidate_scenario_world_model_record,
         )
 
         if type(problem) is not DesignProblem or type(world_model_record) is not WorldModelRecord:
-            raise CycleSubstrateContextOwnerError(
-                "candidate_acquisition_context_inputs_untyped"
-            )
+            raise CycleSubstrateContextOwnerError("candidate_acquisition_context_inputs_untyped")
         if not all(
             isinstance(value, str) and value.strip()
             for value in (job_id, run_id, tenant_id, cell_id, profile_selection_ref)
         ):
-            raise CycleSubstrateContextOwnerError(
-                "candidate_simulation_job_scope_not_established"
-            )
+            raise CycleSubstrateContextOwnerError("candidate_simulation_job_scope_not_established")
         required_blockers = {
             "source_time_not_established",
             "source_to_target_measurement_contract_not_established",
             "causal_coupling_not_established",
         }
-        if (
-            world_model_record.authority_status != "limited"
-            or not required_blockers.issubset(
-                set(world_model_record.limitations.admissibility_blockers)
-            )
+        if world_model_record.authority_status != "limited" or not required_blockers.issubset(
+            set(world_model_record.limitations.admissibility_blockers)
         ):
             raise CycleSubstrateContextOwnerError(
                 "candidate_acquisition_world_limitations_not_established"
             )
         configured = self.configured_profile_for_selection_ref(profile_selection_ref)
         if type(configured) is not CandidateSimulationScenarioProfile:
-            raise CycleSubstrateContextOwnerError(
-                "candidate_simulation_profile_untyped"
-            )
+            raise CycleSubstrateContextOwnerError("candidate_simulation_profile_untyped")
         _require_context_evidence_refreshable(
             candidate_levers=configured.context_inputs.candidate_levers,
             transport_context=configured.context_inputs.transport_context,
         )
         if self._store is None:
-            raise CycleSubstrateContextOwnerError(
-                "candidate_simulation_model_store_not_supplied"
-            )
+            raise CycleSubstrateContextOwnerError("candidate_simulation_model_store_not_supplied")
         original_profile_ref = candidate_simulation_profile_ref(configured)
         original_declaration = self._model_declarations.get(original_profile_ref)
         if original_declaration is None:
             raise CycleSubstrateContextOwnerError(
                 "candidate_simulation_acquisition_model_declaration_missing"
             )
-        if (
-            original_declaration.outcome_variable
-            != problem.outcome_of_interest.target_variable
-        ):
+        if original_declaration.outcome_variable != problem.outcome_of_interest.target_variable:
             raise CycleSubstrateContextOwnerError(
                 "candidate_simulation_acquisition_problem_outcome_mismatch"
             )
@@ -2750,21 +2685,18 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
                 "candidate_simulation_acquisition_profile_world_mismatch"
             )
 
-        from polisyos.foundry.data_plane.bindings import load_state_snapshot
-        from polisyos.foundry.execute.executor import get_state_path
-        from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+        from polisyos.foundry.execute import get_state_path, load_state_snapshot
+        from polisyos.runtime.quality.world_model_record import (
+            world_model_artifact_views,
+        )
 
-        state_ref = world_model_artifact_views(
-            world_model_record
-        ).bound_state_snapshot_ref
+        state_ref = world_model_artifact_views(world_model_record).bound_state_snapshot_ref
         if not self._store.verify(state_ref).ok:
             raise CycleSubstrateContextOwnerError(
                 "candidate_simulation_acquisition_state_snapshot_unverified"
             )
         state = load_state_snapshot(self._store, snapshot_ref=state_ref)
-        slot_bindings = {
-            binding.slot_id: binding for binding in world_model_record.policy_slot_map
-        }
+        slot_bindings = {binding.slot_id: binding for binding in world_model_record.policy_slot_map}
         target_binding = slot_bindings.get(original_declaration.target_world_slot)
         outcome_binding = slot_bindings.get(original_declaration.outcome_variable)
         if (
@@ -2807,8 +2739,8 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             refreshed_baseline[slot_id] = scalar
 
         profile_payload = configured.model_dump(mode="json")
-        profile_payload["context_inputs"]["world_model_record"] = (
-            world_model_record.model_dump(mode="json")
+        profile_payload["context_inputs"]["world_model_record"] = world_model_record.model_dump(
+            mode="json"
         )
         profile_payload["n5"]["baseline_state"] = refreshed_baseline
         profile_payload["content_hash"] = gy_content_hash(
@@ -2836,11 +2768,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             }
         )
         declaration_payload["content_hash"] = gy_content_hash(
-            {
-                key: value
-                for key, value in declaration_payload.items()
-                if key != "content_hash"
-            }
+            {key: value for key, value in declaration_payload.items() if key != "content_hash"}
         )
         declaration = type(original_declaration).model_validate(declaration_payload)
         substrate_registry_view_ref = self._candidate_world_model_substrate_registry_view(
@@ -2935,9 +2863,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             isinstance(value, str) and value.strip()
             for value in (job_id, run_id, tenant_id, cell_id)
         ):
-            raise CycleSubstrateContextOwnerError(
-                "candidate_simulation_job_scope_not_established"
-            )
+            raise CycleSubstrateContextOwnerError("candidate_simulation_job_scope_not_established")
         problem_ref = cycle_job_design_problem_ref(problem)
         profile_selection_ref = cycle_job_profile_selection_ref(problem)
         matches = tuple(
@@ -2964,21 +2890,15 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
                     "candidate_simulation_model_store_not_supplied"
                 )
             slot_units = {
-                item.slot_id: item.unit
-                for item in inputs.world_model_record.policy_slot_map
+                item.slot_id: item.unit for item in inputs.world_model_record.policy_slot_map
             }
-            if (
-                declaration.outcome_variable
-                != problem.outcome_of_interest.target_variable
-            ):
+            if declaration.outcome_variable != problem.outcome_of_interest.target_variable:
                 raise CycleSubstrateContextOwnerError(
                     "candidate_simulation_model_outcome_problem_mismatch"
                 )
             if (
-                slot_units.get(declaration.target_world_slot)
-                != declaration.target_unit_id
-                or slot_units.get(declaration.outcome_variable)
-                != declaration.outcome_unit_id
+                slot_units.get(declaration.target_world_slot) != declaration.target_unit_id
+                or slot_units.get(declaration.outcome_variable) != declaration.outcome_unit_id
             ):
                 raise CycleSubstrateContextOwnerError(
                     "candidate_simulation_model_unit_binding_mismatch"
@@ -2988,16 +2908,16 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
                 transport_context=inputs.transport_context,
             )
             from polisyos.ir.analytics.ncm import candidate_ncm_spec_from_declaration
-            from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+            from polisyos.runtime.quality.generation_source import (
+                GenerationSourceRepository,
+            )
             from polisyos.runtime.quality.world_model_record import (
                 derive_candidate_scenario_world_model_record,
             )
 
-            substrate_registry_view_ref = (
-                self._candidate_world_model_substrate_registry_view(
-                    world_model_record=inputs.world_model_record,
-                    substrate_registry=inputs.substrate_registry,
-                )
+            substrate_registry_view_ref = self._candidate_world_model_substrate_registry_view(
+                world_model_record=inputs.world_model_record,
+                substrate_registry=inputs.substrate_registry,
             )
             repository = GenerationSourceRepository(store=self._store)
             model_declaration_ref = repository.persist_candidate_model_declaration(
@@ -3093,9 +3013,7 @@ def cycle_substrate_context_binding_hash(
             "substrate_registry_content_hash": substrate_registry_content_hash,
             "world_model_record_id": world_model_record_id,
             "world_model_record_content_hash": world_model_record_content_hash,
-            "world_model_record_authority_status": (
-                world_model_record_authority_status
-            ),
+            "world_model_record_authority_status": (world_model_record_authority_status),
             "selected_registry_entry_hashes": sorted(
                 str(item) for item in selected_registry_entry_hashes
             ),
@@ -3118,9 +3036,7 @@ def cycle_substrate_context_content_hash(
         intervention_hash = intervention.model_dump(mode="json").get("content_hash")
     else:
         intervention_hash = (
-            intervention.get("content_hash")
-            if isinstance(intervention, Mapping)
-            else None
+            intervention.get("content_hash") if isinstance(intervention, Mapping) else None
         )
     candidate_rows = [
         item.model_dump(mode="json")
@@ -3139,9 +3055,7 @@ def cycle_substrate_context_content_hash(
         transport_payload = transport
     world_model_record = payload.get("world_model_record")
     if isinstance(world_model_record, BaseModel):
-        world_model_record_payload: Mapping[str, Any] = world_model_record.model_dump(
-            mode="json"
-        )
+        world_model_record_payload: Mapping[str, Any] = world_model_record.model_dump(mode="json")
     elif isinstance(world_model_record, Mapping):
         world_model_record_payload = world_model_record
     else:
@@ -3152,21 +3066,13 @@ def cycle_substrate_context_content_hash(
             "design_problem_ref": payload.get("design_problem_ref"),
             "domain": payload.get("domain"),
             "source_pack_content_hash": payload.get("source_pack_content_hash"),
-            "substrate_input_content_hash": payload.get(
-                "substrate_input_content_hash"
-            ),
-            "substrate_registry_content_hash": payload.get(
-                "substrate_registry_content_hash"
-            ),
+            "substrate_input_content_hash": payload.get("substrate_input_content_hash"),
+            "substrate_registry_content_hash": payload.get("substrate_registry_content_hash"),
             "selected_registry_entry_hashes": sorted(
                 payload.get("selected_registry_entry_hashes") or []
             ),
-            "world_model_record_content_hash": payload.get(
-                "world_model_record_content_hash"
-            ),
-            "world_model_record_id": world_model_record_payload.get(
-                "world_model_record_id"
-            ),
+            "world_model_record_content_hash": payload.get("world_model_record_content_hash"),
+            "world_model_record_id": world_model_record_payload.get("world_model_record_id"),
             "world_model_record_authority_status": world_model_record_payload.get(
                 "authority_status"
             ),
@@ -3235,13 +3141,9 @@ def revalidate_cycle_substrate_context(
 
     if context.intervention_substrate is not None:
         try:
-            verify_intervention_substrate_bundle_content_hash(
-                context.intervention_substrate
-            )
+            verify_intervention_substrate_bundle_content_hash(context.intervention_substrate)
         except InterventionSubstrateError as exc:
-            raise ValueError(
-                "cycle_substrate_intervention_bundle_hash_mismatch"
-            ) from exc
+            raise ValueError("cycle_substrate_intervention_bundle_hash_mismatch") from exc
     return CycleSubstrateContext.model_validate(context.model_dump(mode="python"))
 
 
@@ -3360,8 +3262,7 @@ def resolve_candidate_lever_world_identity(
         for candidate in verified.candidate_levers
         if candidate.lever_id == resolved_refusal.lever_id
         and candidate.instrument == resolved_refusal.instrument
-        and candidate.entry_content_hash
-        == resolved_refusal.candidate_entry_content_hash
+        and candidate.entry_content_hash == resolved_refusal.candidate_entry_content_hash
     )
     if len(matches) != 1:
         raise WorldModelRecordError(
@@ -3373,9 +3274,7 @@ def resolve_candidate_lever_world_identity(
         "context_binding_hash": resolved_refusal.context_binding_hash,
         "substrate_input_content_hash": resolved_refusal.substrate_input_content_hash,
         "substrate_registry_content_hash": resolved_refusal.substrate_registry_content_hash,
-        "world_model_record_content_hash": (
-            resolved_refusal.world_model_record_content_hash
-        ),
+        "world_model_record_content_hash": (resolved_refusal.world_model_record_content_hash),
         "selected_registry_entry_hash": resolved_refusal.selected_registry_entry_hash,
         "source_refs": resolved_refusal.source_refs,
     }
@@ -3415,13 +3314,8 @@ def resolve_world_model_atom_identity(
             "candidate atom does not resolve through InterventionAtomBinding",
         )
     try:
-        verified_atom = InterventionAtomBinding.model_validate(
-            atom.model_dump(mode="python")
-        )
-        if (
-            design_problem_ref is not None
-            and verified_atom.problem_frame_ref != design_problem_ref
-        ):
+        verified_atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
+        if design_problem_ref is not None and verified_atom.problem_frame_ref != design_problem_ref:
             raise WorldModelRecordError(
                 "world_identity_unresolved",
                 "candidate atom names another DesignProblem",
@@ -3439,8 +3333,7 @@ def resolve_world_model_atom_identity(
     expected_hash = expected_world_model_content_hash or world_model_record.content_hash
     if (
         resolved.world_model_record_id != world_model_record.world_model_record_id
-        or resolved.world_model_record_content_hash
-        != expected_hash
+        or resolved.world_model_record_content_hash != expected_hash
     ):
         raise WorldModelRecordError(
             "world_identity_unresolved",

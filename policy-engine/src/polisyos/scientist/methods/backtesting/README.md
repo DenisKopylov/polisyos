@@ -61,3 +61,5 @@ failed`; итоговый backtest report ссылается на этот ар�
   identity is retained in the result; matrix flattening is refused because it would change the
   bootstrap sampling unit. The B175 falsifier and focused verification are recorded in the E02 S3
   empirical handoff.
+
+## Predictive Calibration Owner Facade\n\nThe package root lazily exports `ForecastOwner` and its typed request/result contracts: `ForecastOwnerRequest`, `ForecastOwnerResult`, `CalibrationRuleBinding`, `ForecastMethodParams`, `ForecastTemporalRoles`, and `TrainHoldoutSplit`. `run_forecast_owner` delegates to the same owner class. The evidence is predictive-only and bridge-pending; it does not establish causal-effect authority, treatment assignment, or S10 promotion.

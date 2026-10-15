@@ -435,3 +435,5 @@ source authenticity or scientific output validity.
 ## Last Updated
 
 - Last updated: 2026-10-13
+
+## Cross-package Budget Runtime Facade\n\nRuntime consumers import the existing budget contracts through the `polisyos.scientist.orchestration.engine` facade: `BudgetLimit`, `BudgetMiddleware`, `FileBudgetLedger`, `BudgetLedgerProducerRecord`, and `BudgetLedgerProducerRunBinding`. These are same-object exports from the budget owners; run binding and persisted producer records still determine attribution and settlement semantics.

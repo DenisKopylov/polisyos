@@ -161,3 +161,7 @@ profile, resolves the typed selected manifest, and consumes the same selected pa
 Stores without this capability cannot prove profile absence and fail closed for semantic
 JSON reads. Existing `get_manifest_bytes` behavior remains unchanged for signature and
 compatibility callers.
+
+## Exact E02 cross-package routes
+
+Core governance and LLM entrypoints are supported as narrow owner facades. The `core.artifacts`, `core.contracts`, and `core.security` facades expose only the exact DTOs, protocol, and wire constants required by typed consumers. Their exports preserve the defining object; public route availability does not grant caller authority or producer attestation. `Common.canonical_profile` remains storage-agnostic, while Core canonical tags and refusal identity stay Core-owned.

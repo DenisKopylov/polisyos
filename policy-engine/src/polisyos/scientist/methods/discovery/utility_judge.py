@@ -16,15 +16,18 @@ from polisyos.foundry.methods.catalog.causal.id_engine import (
     IdentificationResult,
     IdentificationStatus,
 )
-from polisyos.foundry.methods.catalog.causal.transport_engine import solve_transportability
-from polisyos.ir.analytics.causal import CausalEffectReport, EstimationStatus
-from polisyos.ir.analytics.causal_discovery import (
-    AlgebraicAssumptionStatus,
-    AlgebraicFalsificationScope,
+from polisyos.foundry.methods.catalog.causal.transport_engine import (
+    solve_transportability,
 )
+from polisyos.ir import AlgebraicAssumptionStatus, AlgebraicFalsificationScope
+from polisyos.ir.analytics.causal import CausalEffectReport, EstimationStatus
 from polisyos.ir.analytics.causal_queries import CausalQuery
 from polisyos.ir.analytics.negative_certificate import NegativeCertificate
-from polisyos.ir.analytics.transportability import SelectionDiagram, SNode, TransportabilityStatus
+from polisyos.ir.analytics.transportability import (
+    SelectionDiagram,
+    SNode,
+    TransportabilityStatus,
+)
 from polisyos.scientist.methods.discovery.artifact_refs import profile_bound_written_ref
 from polisyos.scientist.methods.discovery.schema import (
     GraphHypothesis,
@@ -50,7 +53,13 @@ _DOWNSTREAM_UTILITY_REPORT_LEGACY_SCHEMA_VERSION = "1.1"
 # pinned field sets are the historical wire contract; current DTO growth must
 # not silently expand what the legacy reader accepts.
 _DOWNSTREAM_UTILITY_REPORT_V1_1_FIELDS = frozenset(
-    {"schema_version", "artifact_functions", "scores", "recommended_shortlist", "metadata"}
+    {
+        "schema_version",
+        "artifact_functions",
+        "scores",
+        "recommended_shortlist",
+        "metadata",
+    }
 )
 _HYPOTHESIS_UTILITY_SCORE_V1_1_FIELDS = frozenset(
     {
@@ -356,13 +365,16 @@ class DownstreamUtilityJudge:
         ident_warnings = list(identification.warnings)
         blocking = list(identification.blocking_certificates)
         algebraic_severity, algebraic_consistency = _algebraic_consistency(hypothesis)
-        graph_assumption_status, graph_falsification_scope = (
-            graph_derived_candidate_scope(hypothesis)
+        graph_assumption_status, graph_falsification_scope = graph_derived_candidate_scope(
+            hypothesis
         )
         graph_derived = graph_assumption_status is not None
         dispute_consistency = max(0.0, min(1.0, 1.0 - dispute_stats.disputed_edge_fraction))
         discovery_consistency_score = float(
-            max(0.0, min(1.0, (0.7 * algebraic_consistency) + (0.3 * dispute_consistency)))
+            max(
+                0.0,
+                min(1.0, (0.7 * algebraic_consistency) + (0.3 * dispute_consistency)),
+            )
         )
         summary = bundle.stability_report.summary_for(hypothesis.hypothesis_id)
         stability_score = _score_stability(summary)
@@ -481,10 +493,9 @@ def load_downstream_utility_report(
     """Load a manifest-bound current report or an exact bounded historical scorecard."""
     manifest = store.get_manifest(ref)
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
-    stored_version = _validate_downstream_utility_artifact_binding(
-        ref, manifest, payload
-    )
+    stored_version = _validate_downstream_utility_artifact_binding(ref, manifest, payload)
     if stored_version == _DOWNSTREAM_UTILITY_REPORT_LEGACY_SCHEMA_VERSION:
         payload = _adapt_historical_v1_1_utility_payload(payload)
     report = DownstreamUtilityReport.model_validate(payload)
@@ -537,7 +548,6 @@ def _disputed_edge_stats(
     return stats
 
 
-
 def graph_derived_candidate_scope(
     hypothesis: GraphHypothesis,
 ) -> tuple[AlgebraicAssumptionStatus | None, AlgebraicFalsificationScope | None]:
@@ -579,6 +589,7 @@ def graph_derived_candidate_scope(
             AlgebraicFalsificationScope.RANKING_ONLY,
         )
     return None, None
+
 
 def _algebraic_consistency(
     hypothesis: GraphHypothesis,

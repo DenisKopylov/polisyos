@@ -12,7 +12,11 @@ from polisyos.scholar.search.security import sanitize_untrusted_text
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
-    from polisyos.scholar.search.models import SourceMetadata, SourceSnippet, WebEvidenceBundle
+    from polisyos.scholar.search.models import (
+        SourceMetadata,
+        SourceSnippet,
+        WebEvidenceBundle,
+    )
 
 _RAW_PAGE_KIND = "scholar.web_fetch_payload"
 _RAW_PAGE_SCHEMA_NAME = "polisyos.scholar.web_fetch_payload"
@@ -213,9 +217,9 @@ def _resolve_source_text(
 
     selected_profile = raw_ref.manifest_profile_sha256 if raw_ref is not None else None
     if selected_profile is not None:
-        from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+        from polisyos.core.artifacts import artifact_manifest_profile_sha256
 
-        if ManifestLifecycle.profile_sha256(manifest) != selected_profile:
+        if artifact_manifest_profile_sha256(manifest) != selected_profile:
             violations.append(f"source_manifest_profile_mismatch:{source_identity}")
             return None, violations, warnings
 

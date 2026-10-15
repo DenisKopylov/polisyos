@@ -28,6 +28,8 @@ __all__ = [
     "GOVERNANCE_MONITOR_EVENT_KIND",
     "resolve_governance_monitor_event",
     "BudgetState",
+    "CritiqueReport",
+    "DraftResult",
     "ClaimLedgerCurrentHeadProjection",
     "ClaimLedgerOwnerPort",
     "ClaimLifecycleBridgeAdvanced",
@@ -109,6 +111,8 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "resolve_governance_monitor_event",
     ),
     "BudgetState": ("polisyos.scientist.orchestration.engine.budget", "BudgetState"),
+    "CritiqueReport": ("polisyos.scientist.agent.protocols", "CritiqueReport"),
+    "DraftResult": ("polisyos.scientist.agent.protocols", "DraftResult"),
     "ClaimLedgerCurrentHeadProjection": (
         "polisyos.scientist.evidence.claims.head_index",
         "ClaimLedgerCurrentHeadProjection",
@@ -125,8 +129,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.scientist.governance.continuous.lifecycle_bridge",
         "EpochClaimLifecycleBridgeService",
     ),
-    "ExperimentState": ("polisyos.scientist.orchestration.engine.state", "ExperimentState"),
-    "KnowledgeToolkit": ("polisyos.scientist.agent.knowledge_tools", "KnowledgeToolkit"),
+    "ExperimentState": (
+        "polisyos.scientist.orchestration.engine.state",
+        "ExperimentState",
+    ),
+    "KnowledgeToolkit": (
+        "polisyos.scientist.agent.knowledge_tools",
+        "KnowledgeToolkit",
+    ),
     "ScientistLegalBenchmarkRunner": (
         "polisyos.scientist.agent.knowledge_benchmark",
         "ScientistLegalBenchmarkRunner",
@@ -135,11 +145,17 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.scientist.agent.knowledge_benchmark",
         "ScientistRetrievalBenchmarkOutcome",
     ),
-    "ToolContractSummary": ("polisyos.scientist.agent.tool_contracts", "ToolContractSummary"),
+    "ToolContractSummary": (
+        "polisyos.scientist.agent.tool_contracts",
+        "ToolContractSummary",
+    ),
     "ToolDefinition": ("polisyos.scientist.agent.tools.schema", "ToolDefinition"),
     "ToolLoopResult": ("polisyos.scientist.agent.tools.tool_loop", "ToolLoopResult"),
     "ToolRegistry": ("polisyos.scientist.agent.tools.registry", "ToolRegistry"),
-    "build_governance_pipeline": ("polisyos.scientist.api", "build_governance_pipeline"),
+    "build_governance_pipeline": (
+        "polisyos.scientist.api",
+        "build_governance_pipeline",
+    ),
     "build_default_claim_ledger_owner": (
         "polisyos.scientist.evidence.claims.head_index",
         "build_default_claim_ledger_owner",

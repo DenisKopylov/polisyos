@@ -14,20 +14,32 @@ from polisyos.core.artifacts import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts import DiscoveryArtifactBundleRef, Metrics, PriorKnowledgeBundleRef
-from polisyos.foundry.methods.catalog.optimization.protocols import AmbiguityCertificate
+from polisyos.core.contracts import (
+    DiscoveryArtifactBundleRef,
+    Metrics,
+    PriorKnowledgeBundleRef,
+)
+from polisyos.foundry.methods import AmbiguityCertificate
 from polisyos.ir.analytics import CausalEffectReport
 from polisyos.ir.analytics.causal_discovery import LatentDiscoveryBundle
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
     load_cross_graph_evidence_profile,
 )
-from polisyos.ir.analytics.distributional import DistributionalReport, load_distributional_report
+from polisyos.ir.analytics.distributional import (
+    DistributionalReport,
+    load_distributional_report,
+)
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 from polisyos.scientist.governance.report import GovernanceReport
-from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
+from polisyos.scientist.methods.autotune.models import (
+    BenchmarkEvaluation,
+    BenchmarkSplit,
+)
 from polisyos.scientist.methods.discovery.output import (
     load_discovery_artifact_bundle,
     load_merged_latent_discovery_bundle,
@@ -42,7 +54,6 @@ from polisyos.scientist.methods.search.judge_stack import to_search_uncertainty_
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
     _POLICY_RUNTIME_LOAD_ERRORS,
     _POLICY_RUNTIME_VALIDATION_ERRORS,
-    _parse_ambiguity_certificate,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -55,10 +66,13 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_GOVERNANCE_REPORT_REF,
 )
 from polisyos.scientist.policy_design.schema import persist_policy_candidate_schema
-from polisyos.scientist.replay.verification import ReplayRegistry
 
 if TYPE_CHECKING:
-    from polisyos.pdc import EvalSafetyVerifierPort, EvaluationExecutionContext, WorldModelRecord
+    from polisyos.pdc import (
+        EvalSafetyVerifierPort,
+        EvaluationExecutionContext,
+        WorldModelRecord,
+    )
     from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
     from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
         LatentDiscoveryBundleResolution,
@@ -78,7 +92,7 @@ def _ensure_policy_candidate_ref_impl(
     candidate_ref: ArtifactRef | None,
 ) -> ArtifactRef:
     """Persist a selected candidate only from a typed candidate or selected Trinity source."""
-    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.ir import TrinityBundle
     from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
     source_ref: ArtifactRef | None = None
@@ -191,7 +205,10 @@ def _persist_funnel_executed_work_packet_impl(
             ),
             inputs=[
                 InputRef(artifact_id=packet.candidate_ref.artifact_id, role="candidate"),
-                InputRef(artifact_id=packet.source_result_ref.artifact_id, role="source_result"),
+                InputRef(
+                    artifact_id=packet.source_result_ref.artifact_id,
+                    role="source_result",
+                ),
             ],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -283,12 +300,18 @@ def _build_vulnerabilities_impl(
     governance_report: GovernanceReport | None,
 ) -> list[Any]:
     """Build vulnerabilities."""
-    from polisyos.scientist.methods.doe.stress_report import Vulnerability, VulnerabilityType
+    from polisyos.scientist.methods.doe.stress_report import (
+        Vulnerability,
+        VulnerabilityType,
+    )
 
     vulnerabilities: list[Vulnerability] = []
     if evaluation is not None:
         for name, channel in evaluation.hard_constraints.items():
-            if channel.status is None or str(channel.status) not in {"violated", "near_binding"}:
+            if channel.status is None or str(channel.status) not in {
+                "violated",
+                "near_binding",
+            }:
                 continue
             vulnerabilities.append(
                 Vulnerability(
@@ -679,7 +702,8 @@ def _resolve_effective_latent_discovery_bundle_for_state_impl(
     causal_report: CausalEffectReport | None,
     resolve_base: Callable[[ExecutionContext, ExperimentState], LatentDiscoveryBundleResolution],
     merge_proxy: Callable[
-        [LatentDiscoveryBundle | None, dict[str, Any] | None], LatentDiscoveryBundle | None
+        [LatentDiscoveryBundle | None, dict[str, Any] | None],
+        LatentDiscoveryBundle | None,
     ],
     resolution_factory: Callable[..., LatentDiscoveryBundleResolution],
 ) -> LatentDiscoveryBundleResolution:

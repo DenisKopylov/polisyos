@@ -5,22 +5,21 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping
 from statistics import NormalDist
-from typing import Any, cast
+from typing import Any
 
 import numpy as np
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.foundry.uncertainty import PropagationConfig
-from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
+from polisyos.ir import ArtifactRefModel, UncertaintyEnvelopeRef
+from polisyos.ir.analytics.uncertainty import (
+    UncertaintyEnvelope,
+    persist_uncertainty_envelope,
+)
 from polisyos.ir.analytics.welfare import (
     WelfareMethod,
-    WelfareSampleBundle,
-    persist_welfare_sample_bundle,
-)
-from polisyos.ir.registry.refs import (
-    ArtifactRefModel,
-    UncertaintyEnvelopeRef,
-    WelfareSampleBundleRef,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -37,21 +36,10 @@ from .welfare_covariance import (
 )
 from .welfare_draws import (
     _draw_outcome_provenance,
-    _DrawAttemptResult,
-    _evaluate_welfare_draw,
-    _evaluate_welfare_draw_attempt,
     _finite_difference_gradient,
-    _finite_difference_step,
-    _MonteCarloCounters,
     _MonteCarloDrawSet,
-    _raise_welfare_mc_execution_failure,
     _run_welfare_monte_carlo_draws,
-    _validate_welfare_draw_outputs,
-    _welfare_draw_failure_scope,
     _welfare_draw_set_is_complete,
-    _welfare_draw_terminal_outcome,
-    _welfare_execution_attempt,
-    _welfare_sampled_input_sha256,
 )
 from .welfare_ge import _invert_sampled_ge_operator
 from .welfare_reports import (
@@ -63,10 +51,8 @@ from .welfare_types import (
     _DEFAULT_CONDITION_THRESHOLD,
     _ERROR_INTERVAL_SEMANTICS_INVALID,
     _ERROR_MONTE_CARLO_NOT_CONVERGED,
-    _WELFARE_MC_MAX_EXECUTION_ATTEMPTS,
     _CalibrationCovarianceSource,
     _EnvelopeCollection,
-    _extract_std,
     _fail_error,
     _input_envelope_refs,
     _input_ref,
@@ -226,7 +212,10 @@ def _build_simulation_fn(
     ge_condition_number_threshold: float = _DEFAULT_CONDITION_THRESHOLD,
     sampled_ge_domain_error_factory: Any,
 ) -> tuple[
-    Any, dict[str, float], dict[str, UncertaintyEnvelope], dict[str, UncertaintyEnvelopeRef]
+    Any,
+    dict[str, float],
+    dict[str, UncertaintyEnvelope],
+    dict[str, UncertaintyEnvelopeRef],
 ]:
     nominal_params, used_envelopes, pe_refs = _resolve_simulation_envelopes(
         ctx, context=context, available_envelopes=available_envelopes
@@ -299,7 +288,10 @@ def _propagate_without_envelopes(
             requested_method=requested_method,
             method_used=method_used,
             limitation_code=calibration_source.issue_codes[0],
-            dependence_note={"strategy": "calibration_report", "reason": "no_envelopes"},
+            dependence_note={
+                "strategy": "calibration_report",
+                "reason": "no_envelopes",
+            },
         )
     report_ref = _persist_json_payload(
         ctx,
@@ -453,7 +445,12 @@ def _resolve_monte_carlo_sampling(
         )
     if empirical_sampler is not None:
         dependence_sampler = empirical_sampler.dependence_note
-    return dependence_sampler, coordinate_sampler, empirical_sampler, calibration_resolution
+    return (
+        dependence_sampler,
+        coordinate_sampler,
+        empirical_sampler,
+        calibration_resolution,
+    )
 
 
 def _propagate_monte_carlo(
@@ -487,7 +484,12 @@ def _propagate_monte_carlo(
     )
     if isinstance(sampling, _PropagationOutcome):
         return sampling
-    dependence_sampler, coordinate_sampler, empirical_sampler, calibration_resolution = sampling
+    (
+        dependence_sampler,
+        coordinate_sampler,
+        empirical_sampler,
+        calibration_resolution,
+    ) = sampling
     draws = _run_welfare_monte_carlo_draws(
         config,
         input_envelopes=input_envelopes,

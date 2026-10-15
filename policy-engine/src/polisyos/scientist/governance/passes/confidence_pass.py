@@ -7,17 +7,19 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.foundry import SimulationResult, SimulationResultRef
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
+from polisyos.ir import normalize_artifact_ref
 from polisyos.ir.analytics.uncertainty import (
     load_simulation_result_uncertainty_admission,
     load_uncertainty_envelope,
 )
-from polisyos.ir.artifacts import normalize_artifact_ref
 from polisyos.scientist.governance.accountability import resolve_governance_threshold
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
@@ -44,6 +46,7 @@ class ConfidencePass(ValidatorPass):
 
     def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
         from polisyos.core.artifacts import load_core_json_artifact
+
         issues: list[ComplianceIssue] = []
 
         causal_ref = _resolve_causal_envelope_ref(ctx.state)
@@ -223,7 +226,11 @@ class ConfidencePass(ValidatorPass):
                 issues.append(
                     ComplianceIssue(
                         pass_id=self.pass_id,
-                        path=["uncertainty_envelopes", str(metric_id), "confidence_interval"],
+                        path=[
+                            "uncertainty_envelopes",
+                            str(metric_id),
+                            "confidence_interval",
+                        ],
                         message=(
                             f"Metric '{metric_id}' CI ratio {ci_ratio:.3f} exceeds "
                             f"threshold {max_ci_ratio:.3f}"
@@ -238,7 +245,11 @@ class ConfidencePass(ValidatorPass):
                 issues.append(
                     ComplianceIssue(
                         pass_id=self.pass_id,
-                        path=["uncertainty_envelopes", str(metric_id), "confidence_interval"],
+                        path=[
+                            "uncertainty_envelopes",
+                            str(metric_id),
+                            "confidence_interval",
+                        ],
                         message=(
                             f"Metric '{metric_id}' CI width {ci_width:.6g} exceeds "
                             f"threshold {max_ci_abs:.6g}"

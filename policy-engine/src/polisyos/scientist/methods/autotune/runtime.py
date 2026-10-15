@@ -10,6 +10,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ValidationError
 
+from polisyos.core.artifacts import ArtifactWriteOptions
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
@@ -19,7 +20,6 @@ from polisyos.core.artifacts.manifest import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts import DataSnapshot
 from polisyos.scientist.compute.job_spec import JobKey, JobSpec
@@ -67,7 +67,9 @@ if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.budget_ledger import (
         BudgetLedgerProducerRunBinding,
     )
-    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine.budget_middleware import (
+        BudgetMiddleware,
+    )
 
     from .execution_work import MethodJobExecutionWorkPacket
 
@@ -708,7 +710,9 @@ class MethodJobBenchmarkEvaluator:
         raw_work = raw_result.get("bootstrap_execution")
         if raw_work is None:
             return None, "unavailable", "method_result_has_no_measured_bootstrap_work"
-        from polisyos.foundry.methods.catalog.causal.ci_backends import BootstrapExecutionWork
+        from polisyos.foundry.methods import (
+            BootstrapExecutionWork,
+        )
 
         try:
             work = BootstrapExecutionWork.model_validate(raw_work)
@@ -732,7 +736,11 @@ class MethodJobBenchmarkEvaluator:
                 job_spec.model_dump(mode="json", exclude_none=True)
             )
         except (OverflowError, TypeError, ValueError):
-            return None, "rejected", "method_work_packet_request_profile_unfingerprintable"
+            return (
+                None,
+                "rejected",
+                "method_work_packet_request_profile_unfingerprintable",
+            )
 
         try:
             packet = MethodJobExecutionWorkPacket(
@@ -768,8 +776,19 @@ class MethodJobBenchmarkEvaluator:
             return None, "unavailable", "method_work_packet_persistence_failed"
         try:
             read_method_job_execution_work_packet(store, packet_ref)
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError, ValidationError):
-            return packet_ref, "rejected", "persisted_method_work_packet_failed_fresh_admission"
+        except (
+            KeyError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+            ValidationError,
+        ):
+            return (
+                packet_ref,
+                "rejected",
+                "persisted_method_work_packet_failed_fresh_admission",
+            )
         return packet_ref, "available", None
 
 
@@ -1015,7 +1034,9 @@ def read_method_job_execution_work_packet(
     ):
         raise ValueError("method_work_packet_result_payload_unavailable")
     result_body = method_result["result"]
-    from polisyos.foundry.methods.catalog.causal.ci_backends import BootstrapExecutionWork
+    from polisyos.foundry.methods import (
+        BootstrapExecutionWork,
+    )
 
     observed_work = BootstrapExecutionWork.model_validate(result_body.get("bootstrap_execution"))
     packet_work = BootstrapExecutionWork.model_validate(packet.bootstrap_execution)
@@ -1408,7 +1429,14 @@ def _build_search_method_run_profile(
             )
             if data_sample_count is None:
                 return None
-        except (KeyError, OSError, RuntimeError, TypeError, ValueError, ValidationError):
+        except (
+            KeyError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+            ValidationError,
+        ):
             return None
     method_params_fingerprint = _search_source_fingerprint(dict(evaluator._method_params))
     if method_params_fingerprint is None:
@@ -1899,7 +1927,10 @@ def _verify_search_source_profile_receipt(
         if not _skip_fit_recomputation and receipt.get("fit_basis_ref") is not None:
             fit_basis_ref = ArtifactRef.model_validate(receipt["fit_basis_ref"])
             if not _search_source_manifest_input_matches(
-                evaluation_manifest, "search_gp_fit_basis", fit_basis_ref, require_profile=True
+                evaluation_manifest,
+                "search_gp_fit_basis",
+                fit_basis_ref,
+                require_profile=True,
             ):
                 return None
         return profile, receipt, candidate_ref
@@ -2072,7 +2103,11 @@ def _recompute_search_gp_fit_basis(
             ("training_evaluation", str(ref.artifact_id), ref.manifest_profile_sha256)
             for ref in source_refs
         ] + [
-            ("acquisition_evaluation", str(ref.artifact_id), ref.manifest_profile_sha256)
+            (
+                "acquisition_evaluation",
+                str(ref.artifact_id),
+                ref.manifest_profile_sha256,
+            )
             for ref in acquisition_refs
         ]
         actual_inputs = [

@@ -278,7 +278,7 @@ def produce_claim_adjudication_input(
     return input_ref
 
 
-def _validate_input_batch(
+def validate_claim_adjudication_input_batch(
     store: FileSystemCAS,
     ref: ArtifactRef,
 ) -> ClaimAdjudicationInputBatch:
@@ -386,7 +386,7 @@ def load_admitted_claim_adjudication_batch(
         or str(actual_inputs["evaluation"].artifact_id) != batch.evaluation_ref
     ):
         raise ValueError("claim-adjudication result lineage mismatch")
-    input_batch = _validate_input_batch(active_store, actual_inputs["raw_input"])
+    input_batch = validate_claim_adjudication_input_batch(active_store, actual_inputs["raw_input"])
     if batch.input_claim_ids != [item.claim_id for item in input_batch.items]:
         raise ValueError("claim-adjudication result denominator mismatch")
     active_verifier = verifier or ClaimAdjudicationVerifier(

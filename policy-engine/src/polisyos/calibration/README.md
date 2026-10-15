@@ -39,3 +39,5 @@ remain readable with their historical ID/role edge semantics; they are not upgra
 or relabeled as producer-selected profile lineage. A profile digest identifies a
 CAS manifest view; it does not establish completeness, semantic adequacy, producer
 authority, currentness, issuer, or causal/S10 authority.
+
+## Predictive Evidence Bridge\n\nThe root facade lazily exposes the neutral empirical evidence contract: `EmpiricalCalibrationContext`, `EmpiricalCalibrationEvidenceRef`, `EvidenceArtifactRef`, `REFERENCE_PROFILES`, and the load/persist/produce helpers. This bridge imports IR only when selected. Its evidence remains predictive-only: content binding and profile verification establish the selected view, not completeness, issuer authority, currentness, causal effects, or S10.

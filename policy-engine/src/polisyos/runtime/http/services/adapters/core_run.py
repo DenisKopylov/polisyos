@@ -11,10 +11,7 @@ from typing import TYPE_CHECKING, Any
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.canonical_profile import (
-    read_core_json_artifact,
-    read_core_manifest_profile,
-)
+from polisyos.core.artifacts import read_core_json_artifact, read_core_manifest_profile
 from polisyos.core.canon import content_hash
 from polisyos.core.run.context import recover_pending_run_finalize
 from polisyos.core.run.manifest import RunManifest as CoreRunManifest
@@ -88,9 +85,7 @@ def derive_core_run_dir(core_runs_root: Path, run_id: str) -> Path:
     return candidate
 
 
-def derive_control_job_core_run_id(
-    *, job_id: str, control_run_id: str, attempt: int
-) -> str:
+def derive_control_job_core_run_id(*, job_id: str, control_run_id: str, attempt: int) -> str:
     """Derive one collision-resistant Core identity for a leased control-job attempt.
 
     The control-plane run ID remains stable across retries. Core traces are
@@ -214,9 +209,7 @@ def load_terminal_core_run_source(
     trace_path = run_dir / "trace.jsonl"
     try:
         strict_lines = list(
-            _iter_strict_terminal_trace_lines(
-                trusted_root, run_id, read_attempts=read_attempts
-            )
+            _iter_strict_terminal_trace_lines(trusted_root, run_id, read_attempts=read_attempts)
         )
     except (OSError, UnicodeError, ValueError) as exc:
         raise ValueError("terminal Core run trace intake is invalid") from exc
@@ -227,9 +220,7 @@ def load_terminal_core_run_source(
     if not records:
         raise ValueError("terminal Core run trace is empty")
     started = [
-        record
-        for record in records
-        if record.phase == "core" and record.event == "RUN_STARTED"
+        record for record in records if record.phase == "core" and record.event == "RUN_STARTED"
     ]
     if len(started) != 1 or records[0] is not started[0]:
         raise ValueError("terminal Core run requires one leading RUN_STARTED owner fact")
@@ -246,9 +237,7 @@ def load_terminal_core_run_source(
         ):
             raise ValueError("terminal Core trace owner scope is ambiguous")
     finalized = [
-        record
-        for record in records
-        if record.phase == "core" and record.event == "RUN_FINALIZED"
+        record for record in records if record.phase == "core" and record.event == "RUN_FINALIZED"
     ]
     if len(finalized) != 1 or records[-1] is not finalized[0]:
         raise ValueError("terminal Core run requires one final RUN_FINALIZED fact")
@@ -354,24 +343,19 @@ def load_core_run(
             run_terminality = RunTerminality.NOT_ESTABLISHED
             terminality_conflicted = True
             continue
-        run_terminality, terminality_conflicted, finalized_without_fact = (
-            _admit_run_terminality(
-                record,
-                current=run_terminality,
-                conflicted=terminality_conflicted,
-                finalized_without_fact=finalized_without_fact,
-                warnings=warnings,
-            )
+        run_terminality, terminality_conflicted, finalized_without_fact = _admit_run_terminality(
+            record,
+            current=run_terminality,
+            conflicted=terminality_conflicted,
+            finalized_without_fact=finalized_without_fact,
+            warnings=warnings,
         )
         if record.phase != "core" or record.event != "RUN_FINALIZED":
             continue
         manifest_refs = [ref for ref in record.refs.outputs if ref.kind == _RUN_MANIFEST_KIND]
         if len(manifest_refs) == 1:
             latest_manifest_ref = manifest_refs[0]
-        if (
-            record.run_terminality is RunTerminality.TERMINAL
-            and not terminality_conflicted
-        ):
+        if record.run_terminality is RunTerminality.TERMINAL and not terminality_conflicted:
             candidate = _terminal_manifest_ref(record)
             if candidate is None or (
                 terminal_manifest_ref is not None and terminal_manifest_ref != candidate
@@ -388,9 +372,7 @@ def load_core_run(
         return None
 
     manifest_ref = (
-        terminal_manifest_ref
-        if run_terminality is RunTerminality.TERMINAL
-        else latest_manifest_ref
+        terminal_manifest_ref if run_terminality is RunTerminality.TERMINAL else latest_manifest_ref
     )
     if manifest_ref is None:
         if run_terminality is RunTerminality.TERMINAL:
@@ -563,11 +545,7 @@ def load_bound_terminal_manifest(
         raise ValueError("terminal run manifest bytes do not match the bound artifact id")
     payload = read_core_json_artifact(store, manifest_ref, raw_payload_bytes=manifest_bytes).value
     manifest = CoreRunManifest.model_validate(payload)
-    if (
-        manifest.run_id != run_id
-        or manifest.tenant_id != tenant_id
-        or manifest.cell_id != cell_id
-    ):
+    if manifest.run_id != run_id or manifest.tenant_id != tenant_id or manifest.cell_id != cell_id:
         raise ValueError("terminal run manifest owner identity mismatch")
     if artifact_manifest.producer != manifest.producer or artifact_manifest.env != manifest.env:
         raise ValueError("terminal run manifest producer provenance mismatch")
@@ -679,9 +657,7 @@ def _iter_strict_terminal_trace_lines(
         with os.fdopen(trace_fd, "r", encoding="utf-8") as handle:
             trace_fd = None
             if read_attempts is not None:
-                read_attempts.append(
-                    f"terminal_trace:{core_runs_root / run_id / 'trace.jsonl'}"
-                )
+                read_attempts.append(f"terminal_trace:{core_runs_root / run_id / 'trace.jsonl'}")
             for line in handle:
                 stripped = line.strip()
                 if stripped:

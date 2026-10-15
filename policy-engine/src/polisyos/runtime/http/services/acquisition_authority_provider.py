@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core import canon
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.runtime.http.deployment_security import (
     RuntimeDeploymentSecurity,
     require_factory_produced_deployment_security,
@@ -49,8 +49,12 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.services.acquisition_authority_configuration import (
         AcquisitionMandateSlot,
     )
-    from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
-    from polisyos.runtime.quality.agent_action_authority import ResolvedDelegationContract
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        VerifiedAcquisitionRouteClosure,
+    )
+    from polisyos.runtime.quality.agent_action_authority import (
+        ResolvedDelegationContract,
+    )
     from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
         DelegatedActionEnvelope,
         HumanDecisionRecord,
@@ -103,7 +107,10 @@ class ProductionAcquisitionAuthorityProvider:
                     slot.signing_slot.signer is not None,
                     "deterministic_admission_bundle:producer_missing",
                 ),
-                (slot.decision_signer is not None, "acquisition_decision_signer:producer_missing"),
+                (
+                    slot.decision_signer is not None,
+                    "acquisition_decision_signer:producer_missing",
+                ),
             )
             if not present
         )
@@ -145,7 +152,13 @@ class ProductionAcquisitionAuthorityProvider:
             (
                 row
                 for row in deployment.acquisition_authority.config.mandates
-                if (row.tenant_id, row.cell_id, row.run_id, row.route_id, row.resource_digest)
+                if (
+                    row.tenant_id,
+                    row.cell_id,
+                    row.run_id,
+                    row.route_id,
+                    row.resource_digest,
+                )
                 == (
                     closure.tenant_id,
                     closure.cell_id,
@@ -396,7 +409,9 @@ class ProductionAcquisitionAuthorityProvider:
         if decision.human_decision_record_ref is None or self._human_decisions is None:
             raise AgentActionAuthorityRecordingError("acquisition replay human custody missing")
         record = self._human_decisions.read_record(
-            decision.human_decision_record_ref, tenant_id=closure.tenant_id, run_id=closure.run_id
+            decision.human_decision_record_ref,
+            tenant_id=closure.tenant_id,
+            run_id=closure.run_id,
         )
         envelope = next(
             (

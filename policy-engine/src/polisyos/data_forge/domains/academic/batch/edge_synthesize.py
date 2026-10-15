@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 import duckdb
 
-from polisyos.common.serialization import decode_json_object
+from polisyos.common import serialization as common_serialization
 from polisyos.data_forge.domains.academic.batch._graph_staging import (
     DiskValues,
     GraphCapacityLimits,
@@ -28,7 +28,9 @@ from polisyos.data_forge.domains.academic.batch.graph_builder import (
 from polisyos.data_forge.domains.academic.knowledge.canonical_resolver import (
     ResolutionResult,
 )
-from polisyos.data_forge.domains.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
+from polisyos.data_forge.domains.academic.knowledge.canonical_seed import (
+    CANONICAL_VARIABLES,
+)
 from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     ArticleEvidence,
     aggregate_edge_confidence,
@@ -109,11 +111,15 @@ def _mention_maps(
     variable_counts = staging.values("variable_counts")
     try:
         variable_rows = query_rows(
-            con, "SELECT normalized_name, mention_count FROM ac_skg_variables", store=staging
+            con,
+            "SELECT normalized_name, mention_count FROM ac_skg_variables",
+            store=staging,
         )
     except duckdb.Error:
         variable_rows = query_rows(
-            con, "SELECT canonical_name, mention_count FROM ac_skg_variables", store=staging
+            con,
+            "SELECT canonical_name, mention_count FROM ac_skg_variables",
+            store=staging,
         )
     for row in variable_rows:
         if row and row[0]:
@@ -385,7 +391,9 @@ def _claim_source_basis(con: duckdb.DuckDBPyConnection, staging: StagingStore) -
     ):
         try:
             rows = query_rows(
-                con, f"SELECT {claim_col}, source_basis FROM {table_name}", store=staging
+                con,
+                f"SELECT {claim_col}, source_basis FROM {table_name}",
+                store=staging,
             )
         except duckdb.Error:
             continue
@@ -424,7 +432,11 @@ def run_edge_synthesize(
                 manifest_path=private,
                 stage="edge_synthesize",
                 status="ok",
-                metrics={"family_edges": 0, "review_queue": 0, **(source_provenance or {})},
+                metrics={
+                    "family_edges": 0,
+                    "review_queue": 0,
+                    **(source_provenance or {}),
+                },
                 artifacts=[],
                 started_at=started_at,
             ),
@@ -444,7 +456,9 @@ def run_edge_synthesize(
         )
         staging.reset()
         staging.track_outputs(
-            config.canonical_review_queue_path, config.edge_synthesis_report_path, stage_path
+            config.canonical_review_queue_path,
+            config.edge_synthesis_report_path,
+            stage_path,
         )
         staging.register_type(ArticleEvidence)
         staging.register_type(ResolutionResult)
@@ -472,11 +486,9 @@ def run_edge_synthesize(
             elif quality.strip() == "null":
                 exact_provenance[edge_key] = None
             else:
-                exact_provenance[edge_key] = decode_json_object(
+                exact_provenance[edge_key] = common_serialization.decode_json_object(
                     quality,
-                    source=(
-                        f"{config.db_path}:ac_skg_edges[{edge_key}].quality_signals_json"
-                    ),
+                    source=(f"{config.db_path}:ac_skg_edges[{edge_key}].quality_signals_json"),
                     kind="edge quality signals",
                 )
 
@@ -675,7 +687,10 @@ def run_edge_synthesize(
             )
             family_id = hash_edge_id(src_family, dst_family, direction)
             with pair_totals.edit(
-                (src_family, dst_family), dict, contribution_delta=0, contribution=family_id
+                (src_family, dst_family),
+                dict,
+                contribution_delta=0,
+                contribution=family_id,
             ) as pair_payload:
                 pair_payload["family_edge_ids"].add(family_id)
 
@@ -793,7 +808,9 @@ def run_edge_synthesize(
                         "source_provenance": output_provenance,
                     }
                     staging.check(
-                        "max_record_bytes", "canonical review row", staging.encoded_size(emitted)
+                        "max_record_bytes",
+                        "canonical review row",
+                        staging.encoded_size(emitted),
                     )
                     fh.write(json.dumps(emitted, ensure_ascii=False) + "\n")
         with staging.text_output(config.edge_synthesis_report_path) as fh:

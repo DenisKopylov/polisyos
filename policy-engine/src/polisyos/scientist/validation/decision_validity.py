@@ -19,11 +19,21 @@ from typing import TYPE_CHECKING, Any, Concatenate, TypeVar, cast
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.timestamps import to_iso_utc, utc_now
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    CanonInfo,
+    InputRef,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import (
+    CanonSpec,
+    content_hash,
+    from_canonical_bytes,
+    to_canonical_bytes,
+)
 from polisyos.core.contracts.decision_validity import (
     DecisionDependencyEvent,
     DecisionDependencyKind,
@@ -52,7 +62,9 @@ from polisyos.core.contracts.decision_validity import (
     PersistedEpochValidityBatchEvidence,
 )
 from polisyos.core.contracts.feedback import DecisionMonitoringContract
-from polisyos.scientist.orchestration.engine.operational_monitoring import get_operational_monitor
+from polisyos.scientist.orchestration.engine.operational_monitoring import (
+    get_operational_monitor,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
@@ -503,7 +515,11 @@ class NoEpochTransitionVerifier:
         requested_query_context_ref: str,
         expected_authority_purpose: str,
     ) -> EpochTransitionVerificationReceipt:
-        del transition_artifact_ref, requested_query_context_ref, expected_authority_purpose
+        del (
+            transition_artifact_ref,
+            requested_query_context_ref,
+            expected_authority_purpose,
+        )
         raise ValueError("verifier_not_configured")
 
 
@@ -1030,11 +1046,13 @@ class DecisionValidityService:
         try:
             report = self._store.verify(evidence.receipt_artifact_ref)
             raw = self._store.get_bytes(evidence.receipt_artifact_ref)
-            parsed = EpochValidityBatchReceipt.model_validate(read_core_json_artifact(
-                                                                  self._store,
-                                                                  evidence.receipt_artifact_ref,
-                                                                  raw_payload_bytes=raw,
-                                                              ).value)
+            parsed = EpochValidityBatchReceipt.model_validate(
+                read_core_json_artifact(
+                    self._store,
+                    evidence.receipt_artifact_ref,
+                    raw_payload_bytes=raw,
+                ).value
+            )
             completion_report = self._store.verify(parsed.completion_receipt_ref)
             completion_raw = self._store.get_bytes(parsed.completion_receipt_ref)
             completion = EpochValidityBatchCompletionStatement.model_validate(

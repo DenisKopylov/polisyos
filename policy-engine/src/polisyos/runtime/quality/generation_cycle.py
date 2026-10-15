@@ -52,24 +52,30 @@ from polisyos.core.artifacts import (
     ArtifactIntegrityError,
     ArtifactOwnershipError,
     ArtifactStore,
+    ArtifactTenantContextInfo,
     FileSystemCAS,
     PutOptions,
     SchemaInfo,
+    artifact_ref_identity_key,
+    read_core_json_artifact,
+    read_core_manifest_profile,
 )
 from polisyos.core.artifacts import (
     ArtifactRef as CASArtifactRef,
 )
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.artifacts.canonical_profile import (
-    read_core_json_artifact,
-    read_core_manifest_profile,
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
-from polisyos.core.artifacts.manifest import (
-    ArtifactTenantContextInfo,
-    artifact_ref_identity_key,
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
 )
-from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.canon import (
+    CanonSpec,
+    content_hash,
+    from_canonical_bytes,
+    to_canonical_bytes,
+)
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
     ValueOuterSet,
@@ -151,7 +157,9 @@ from polisyos.runtime.quality.generic_simulation_admission import (
     GenericCycleSimulationN5RequestBindingV1,
     GenericCycleSimulationN5RequestBindingV2,
 )
-from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
+from polisyos.runtime.quality.grounding_disposition_vocab import (
+    GroundingDispositionKind,
+)
 from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JOINT_SIMULATION_HORIZON_PAIRED_INTERACTION_UNCERTAINTY_SCHEMA_VERSION,
@@ -217,7 +225,7 @@ if TYPE_CHECKING:
         N9PromotionEvidenceBridgeRepository,
     )
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
-    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine import BudgetMiddleware
 
 _GENERATION_CYCLE_V3_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v3"
 _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v4"
@@ -2210,7 +2218,11 @@ class AcquisitionOverlayReentryReceipt(_StrictModel):
             if not isinstance(supplied, dict):
                 raise TypeError("historical_generation_payload_invalid")
             payload = supplied
-            for key in ("synthetic", "source_handoff_refs", "source_preservation_receipt"):
+            for key in (
+                "synthetic",
+                "source_handoff_refs",
+                "source_preservation_receipt",
+            ):
                 payload.pop(key, None)
         return payload
 
@@ -2550,7 +2562,10 @@ class GenerationCycleRun(_StrictModel):
             self.source_custody_limitation is not None
             and self.schema_version not in _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS
             and self.schema_version
-            not in {_GENERATION_CYCLE_V5_SCHEMA_VERSION, GENERATION_CYCLE_SCHEMA_VERSION}
+            not in {
+                _GENERATION_CYCLE_V5_SCHEMA_VERSION,
+                GENERATION_CYCLE_SCHEMA_VERSION,
+            }
         ):
             raise ValueError("generation_cycle_source_limitation_requires_v4")
         if (
@@ -2585,7 +2600,11 @@ class GenerationCycleRun(_StrictModel):
         elif self.schema_version == _GENERATION_CYCLE_V5_SCHEMA_VERSION:
             payload = _generation_cycle_v5_wire_projection(payload)
         if self.schema_version.endswith(".v1"):
-            for key in ("synthetic", "source_handoff_refs", "source_preservation_receipt"):
+            for key in (
+                "synthetic",
+                "source_handoff_refs",
+                "source_preservation_receipt",
+            ):
                 payload.pop(key, None)
         return payload
 
@@ -2718,7 +2737,10 @@ def _source_custody_authority_refusal(
         or receipt.expected_identity_count != receipt.retained_identity_count
         or receipt.expected_identity_digest != receipt.retained_identity_digest
     ):
-        return "generation_cycle_source_preservation_not_established", "receipt_incoherent"
+        return (
+            "generation_cycle_source_preservation_not_established",
+            "receipt_incoherent",
+        )
     if receipt.status == "drift" or (require_established and receipt.status != "strangled"):
         return "generation_cycle_source_preservation_not_established", receipt.status
     return None
@@ -3000,7 +3022,9 @@ class N4GenerationPort:
         if self._cycle_substrate_context is None:
             return _N4OwnerContextUnavailableResult()
         if self._prefetched_organ_run is not None:
-            from polisyos.runtime.quality.design_generation import DesignGenerationOrganRun
+            from polisyos.runtime.quality.design_generation import (
+                DesignGenerationOrganRun,
+            )
 
             organ_run = self._prefetched_organ_run
             self._prefetched_organ_run = None
@@ -3628,7 +3652,10 @@ class JointSimulationPort:
                     status="simulation_blocked",
                     authority_blockers=("n5_selected_program_state_not_bound",),
                     generic_n5_request_binding=generic_request_binding,
-                    diagnostics={"port": "N5", "reason": "n5_selected_program_state_not_bound"},
+                    diagnostics={
+                        "port": "N5",
+                        "reason": "n5_selected_program_state_not_bound",
+                    },
                     k_world_ref_before=request.world_model_record.content_hash,
                     k_world_ref_after=request.world_model_record.content_hash,
                     world_model_record=request.world_model_record,
@@ -3760,7 +3787,11 @@ class JointSimulationPort:
                         "merge_registry": None,
                     }
                 )
-        return request.model_copy(update={"engine_plan": tuple(plans)}), consumptions, failures
+        return (
+            request.model_copy(update={"engine_plan": tuple(plans)}),
+            consumptions,
+            failures,
+        )
 
     def _bound_program_plan(
         self,
@@ -3773,7 +3804,8 @@ class JointSimulationPort:
         if self._artifact_store is None:
             raise WorldModelRecordError("n5_runtime_store_not_established")
 
-        from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+        from polisyos.core import registry as core_registry
+        from polisyos.core.artifacts import artifact_ref_identity_key
         from polisyos.core.contracts import (
             ExecPlan,
             ExecPlanRef,
@@ -3783,9 +3815,8 @@ class JointSimulationPort:
             StateSnapshot,
             StateSnapshotRef,
         )
-        from polisyos.core.registry import load_registry_bundle_content
         from polisyos.foundry.data_plane import load_input_bindings
-        from polisyos.foundry.execute.executor import load_state_snapshot
+        from polisyos.foundry.execute import load_state_snapshot
         from polisyos.pdc import WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
         from polisyos.runtime.quality.world_model_record import (
             consume_world_model_record_for_simulation,
@@ -3995,7 +4026,7 @@ class JointSimulationPort:
         registry_ref = CASArtifactRef.model_validate(
             selected_world_views.registry_bundle_ref.model_dump(mode="python")
         )
-        registries = load_registry_bundle_content(self._artifact_store, registry_ref)
+        registries = core_registry.load_registry_bundle_content(self._artifact_store, registry_ref)
         slot_paths = tuple(
             dict.fromkeys(
                 binding.state_path
@@ -4109,7 +4140,9 @@ class JointSimulationPort:
         atoms = tuple(atom for atom in raw_atoms if atom is not None)
         if not atoms:
             raise WorldModelRecordError("joint_simulation_intervention_atoms_missing")
-        from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            InterventionAtomBinding,
+        )
 
         if any(not isinstance(atom, InterventionAtomBinding) for atom in atoms):
             raise WorldModelRecordError("joint_simulation_intervention_atom_not_canonical")
@@ -4203,9 +4236,15 @@ class JointSimulationPort:
             revalidate_cycle_substrate_context,
         )
         from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
-        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
-        from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
-        from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+        )
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            InterventionAtomBinding,
+        )
+        from polisyos.runtime.quality.world_model_record import (
+            world_model_artifact_views,
+        )
 
         owner = self._generic_cycle_simulation_admission_owner
         handoff = self._generic_cycle_simulation_handoff
@@ -4377,8 +4416,12 @@ class JointSimulationPort:
             N4CandidateScenarioProposalCandidate,
             ShadowGeneratedCandidate,
         )
-        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
-        from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+        )
+        from polisyos.runtime.quality.intervention_atom_binding import (
+            InterventionAtomBinding,
+        )
         from polisyos.runtime.quality.joint_simulation_horizon import EnginePlan
 
         if type(input_record) not in {
@@ -4652,8 +4695,8 @@ class JointSimulationPort:
     ) -> object:
         """Resolve an owner-provided NCM, refusing an absent model."""
 
+        from polisyos.ir import NCMSpecRef
         from polisyos.ir.analytics.ncm import load_ncm_spec
-        from polisyos.ir.registry.refs import NCMSpecRef
 
         refs = tuple(world_record.simulation_model_ref.ncm_refs)
         if selected_ncm_ref is not None:
@@ -4669,7 +4712,7 @@ class JointSimulationPort:
             store = self._artifact_store
             if store is None:
                 raise WorldModelRecordError("joint_simulation_ncm_store_not_established")
-            from polisyos.core.artifacts.manifest import artifact_ref_identity_key
+            from polisyos.core.artifacts import artifact_ref_identity_key
             from polisyos.pdc import WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
             from polisyos.runtime.quality.world_model_record import (
                 world_model_artifact_views,
@@ -4923,8 +4966,14 @@ class JointSimulationPort:
                 "problem.runtime_hints.world_model_record_ref",
                 _runtime_hint_optional(problem, "world_model_record_ref"),
             ),
-            ("candidate.world_model_record_ref", _object_get(candidate, "world_model_record_ref")),
-            ("candidate.atom.world_model_record_ref", _object_get(atom, "world_model_record_ref")),
+            (
+                "candidate.world_model_record_ref",
+                _object_get(candidate, "world_model_record_ref"),
+            ),
+            (
+                "candidate.atom.world_model_record_ref",
+                _object_get(atom, "world_model_record_ref"),
+            ),
             *additional_refs,
         )
         accepted = {
@@ -5494,7 +5543,9 @@ def _value_method_selection_inputs(
     """Project candidate selection config from a freshly verified bound context."""
     source = observation_to_contract_manifest
     if cycle_substrate_context is not None:
-        from polisyos.runtime.quality.cycle_substrate import revalidate_cycle_substrate_context
+        from polisyos.runtime.quality.cycle_substrate import (
+            revalidate_cycle_substrate_context,
+        )
 
         context = revalidate_cycle_substrate_context(cycle_substrate_context)
         bundle = context.intervention_substrate
@@ -6427,7 +6478,7 @@ def _generic_n5_canonical_port_issue(
         or set(vars(port._controller)) != {"_registry", "policy", "_settings"}
     ):
         return "generic_cycle_simulation_canonical_n5_controller_required"
-    from polisyos.foundry.methods.selection.registry import MethodRegistry
+    from polisyos.foundry.methods import MethodRegistry
     from polisyos.runtime.quality.joint_simulation_horizon import (
         JointSimulationControllerPolicy,
         _RuntimeSettings,
@@ -6490,7 +6541,9 @@ def _generic_n5_observation_refusal(
     if any(item is None for item in generic_refs):
         return "generic_cycle_simulation_projection_incomplete"
     try:
-        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+        from polisyos.runtime.quality.cycle_substrate import (
+            cycle_job_design_problem_ref,
+        )
         from polisyos.runtime.quality.generic_simulation_admission import (
             GenericCycleSimulationAdmissionOwner,
             GenericCycleSimulationN5ExecutionV2,
@@ -6855,7 +6908,9 @@ class GenerationCycleController:
             generic_cycle_simulation_child_selection=(generic_cycle_simulation_child_selection),
             generic_n4_child_profile_set_ref=generic_n4_child_profile_set_ref,
         )
-        from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
+        from polisyos.runtime.quality.substrate_registry import (
+            current_catalog_serving_source,
+        )
 
         active_source = current_catalog_serving_source()
         if catalog_serving_source is not None and catalog_serving_source is not active_source:
@@ -6885,7 +6940,9 @@ class GenerationCycleController:
         ):
             raise ValueError("production_epoch_dependencies_must_be_runtime_derived")
         if promotion_port is None:
-            from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
+            from polisyos.runtime.quality.promotion_sequence import (
+                CanonicalN9PromotionPort,
+            )
 
             source = (
                 promotion_runtime.promotion_evidence_source
@@ -7041,7 +7098,9 @@ class GenerationCycleController:
         )
 
     def _begin_source_run(self, run_id: str) -> None:
-        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+        )
         from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
 
         root = (self._repo_root or Path.cwd()).resolve()
@@ -7116,7 +7175,9 @@ class GenerationCycleController:
         if receipt is not None:
             self._source_issues.extend(receipt.issues)
 
-    def _source_preservation_receipt(self) -> GenerationSourcePreservationReceipt | None:
+    def _source_preservation_receipt(
+        self,
+    ) -> GenerationSourcePreservationReceipt | None:
         # Do not issue the v1 recomputation receipt when there is no owner store.
         # A persisted reason needs a separately versioned run field; `None` is
         # the current typed absence and must not imply that source bytes replayed.
@@ -8100,7 +8161,10 @@ class GenerationCycleController:
 
         return run_acquisition_closed_loop(
             run_id=f"n7-reentry:{problem.design_problem_id}:{cycle.cycle_index}",
-            acquisition_request={**acquisition_request, "cycle_index": cycle.cycle_index},
+            acquisition_request={
+                **acquisition_request,
+                "cycle_index": cycle.cycle_index,
+            },
             data_requirement_specs=tuple(specs),
             world_snapshot=world_snapshot,
             capability_requirement_resolutions=capability_resolutions,
@@ -8201,7 +8265,12 @@ class GenerationCycleController:
         if hinted is not None:
             return tuple(hinted), None
         families = _n7_required_data_families(problem, acquisition_request)
-        profile_aliases = ("scenario_profile", "pilot_profile", "scope_profile", "profile")
+        profile_aliases = (
+            "scenario_profile",
+            "pilot_profile",
+            "scope_profile",
+            "profile",
+        )
         raw_context = acquisition_request.get("context")
         context_profile_supplied = isinstance(raw_context, Mapping) and any(
             key in raw_context for key in ("scenario_profile", "pilot_profile", "scope_profile")
@@ -8290,7 +8359,10 @@ class GenerationCycleController:
             report = DataRequirementCompiler(
                 capability_resolver=self._n7_capability_resolver(problem),
             ).compile_for_scenario(scenario_payload)
-        except (ScenarioFamilyDeclarationInputError, ScenarioScopeProfileInputError) as exc:
+        except (
+            ScenarioFamilyDeclarationInputError,
+            ScenarioScopeProfileInputError,
+        ) as exc:
             raise GenerationCycleError(
                 (
                     "n7_family_declaration_invalid"
@@ -8317,7 +8389,11 @@ class GenerationCycleController:
         candidates = (
             problem.runtime_hints.get("n7_capability_resolver"),
             self._capability_resolver,
-            getattr(problem.runtime_hints.get("n7_owner_gateway"), "capability_resolver", None),
+            getattr(
+                problem.runtime_hints.get("n7_owner_gateway"),
+                "capability_resolver",
+                None,
+            ),
             getattr(self._acquisition_owner_gateway, "capability_resolver", None),
         )
         for candidate in candidates:
@@ -8953,7 +9029,9 @@ class GenerationCycleController:
             # Fetch/catalog refs are taken from the canonical route payload;
             # they are compared to the registry manifest below after reading
             # the MeasurementRoot payload from CAS.
-            from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootPayload
+            from polisyos.runtime.quality.data_forge_binding import (
+                FabricMeasurementRootPayload,
+            )
 
             root_payload_obj = FabricMeasurementRootPayload.model_validate(
                 load_core_json_artifact(store, measurement_payload_ref)
@@ -9026,7 +9104,9 @@ class GenerationCycleController:
                 "exactly one owner artifact may carry the ACQ-01 route",
             )
         owner_artifact = route_artifacts[0]
-        from polisyos.runtime.quality.acquisition_planner import AcquisitionOwnerArtifact
+        from polisyos.runtime.quality.acquisition_planner import (
+            AcquisitionOwnerArtifact,
+        )
 
         try:
             recomputed_owner = AcquisitionOwnerArtifact.from_payload(
@@ -9147,7 +9227,9 @@ class GenerationCycleController:
                 str(exc),
             ) from exc
 
-        from polisyos.runtime.quality.cycle_substrate import revalidate_cycle_substrate_context
+        from polisyos.runtime.quality.cycle_substrate import (
+            revalidate_cycle_substrate_context,
+        )
 
         prior_context = self._cycle_substrate_context
         if prior_context is None:
@@ -9331,7 +9413,9 @@ class GenerationCycleController:
                 "n7_receipt_current_context_replay_unavailable",
                 "Raw or changed N7 receipt requires replay before cycle re-entry.",
             )
-        from polisyos.runtime.quality.acquisition_planner import validate_acquisition_receipt
+        from polisyos.runtime.quality.acquisition_planner import (
+            validate_acquisition_receipt,
+        )
 
         receipt_issues = validate_acquisition_receipt(acquisition_receipt)
         if receipt_issues:
@@ -9739,7 +9823,9 @@ class GenerationCycleController:
                 ),
             )
         organ = result if isinstance(result, DesignGenerationOrganRun) else None
-        from polisyos.runtime.quality.generation_source import generation_source_synthetic
+        from polisyos.runtime.quality.generation_source import (
+            generation_source_synthetic,
+        )
 
         if (
             generation_source_synthetic(
@@ -9753,7 +9839,11 @@ class GenerationCycleController:
             result = organ.result
         owner_candidates = tuple(getattr(result, "candidates", ()) or ())
         self._source_expected_identities.extend(
-            (_problem_ref(state["problem"]), candidate.candidate_id, candidate.atom.content_hash)
+            (
+                _problem_ref(state["problem"]),
+                candidate.candidate_id,
+                candidate.atom.content_hash,
+            )
             for candidate in owner_candidates
             if isinstance(candidate, ShadowGeneratedCandidate)
         )
@@ -10065,7 +10155,9 @@ class GenerationCycleController:
             cycle_job_design_problem_ref,
         )
         from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
-        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+        )
 
         owner = self._generic_cycle_simulation_admission_owner
         handoff = self._generic_cycle_simulation_handoff
@@ -11855,7 +11947,9 @@ def _n7_substrate_registry(
         )
 
         require_catalog_source_registry_binding(
-            repo_root, cycle_substrate_context.substrate_registry, catalog_serving_source
+            repo_root,
+            cycle_substrate_context.substrate_registry,
+            catalog_serving_source,
         )
         return cycle_substrate_context.substrate_registry
     for key in ("substrate_registry", "s0_substrate_registry"):
@@ -11913,7 +12007,9 @@ def _n7_rederived_grounding_for_candidate(
     # prior canonical candidate below.
     if candidate_content_hash is None and prior_candidate is None:
         return row
-    from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+    )
 
     if _candidate_id(prior_candidate) != candidate_id:
         raise GenerationCycleError("n7_reentry_candidate_binding_mismatch")
@@ -12201,7 +12297,7 @@ def _load_value_data_profile_from_l1_dcat(
                 owner_access_ref=(f"{owner_access_ref}#activated-observation-projection"),
             )
         if normalized_scope_region:
-            from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
+            from polisyos.data_forge.read_api.catalog import (
                 iso2_to_iso3,
                 normalize_country_code,
             )
@@ -13170,7 +13266,14 @@ def _s10_loader_error_code(raw_ref: object | None, error: BaseException) -> str:
     message = str(error).lower()
     if any(
         token in message
-        for token in ("integrity", "digest", "hash", "schema", "media type", "content binding")
+        for token in (
+            "integrity",
+            "digest",
+            "hash",
+            "schema",
+            "media type",
+            "content binding",
+        )
     ):
         return "empirical_evidence_ref_integrity_mismatch"
     return "empirical_evidence_ref_unresolved"
@@ -13455,7 +13558,9 @@ def _build_real_s10_forecast_inputs(
 
 
 def _s10_calibration_evidence_from_report(report: object | None) -> dict[str, object]:
-    from polisyos.runtime.quality.design_axes.outcome_prediction import S10_FALSE_CLEAR_FIELDS
+    from polisyos.runtime.quality.design_axes.outcome_prediction import (
+        S10_FALSE_CLEAR_FIELDS,
+    )
 
     false_clear_counts = dict.fromkeys(S10_FALSE_CLEAR_FIELDS, 0)
     if report is None:
@@ -14301,13 +14406,13 @@ def _resolve_value_transport_run_basis(
     from polisyos.foundry.methods.catalog.causal.transport_engine import (
         solve_transportability,
     )
+    from polisyos.ir import TransportabilityResultRef
     from polisyos.ir.analytics.transportability import (
         SelectionDiagram,
         TransportabilityResult,
         TransportabilityStatus,
         load_transportability_result,
     )
-    from polisyos.ir.registry.refs import TransportabilityResultRef
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
 
     ir_store = ensure_ir_artifact_store(store)
@@ -14514,9 +14619,7 @@ def _resolve_owner_scope_region(
             owner_access_ref=owner_access_ref,
         )
     try:
-        from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
-            normalize_country_code,
-        )
+        from polisyos.data_forge.read_api.catalog import normalize_country_code
 
         country_code = normalize_country_code(raw_region)
     except Exception as exc:  # pragma: no cover - defensive owner-boundary guard.
@@ -15006,7 +15109,10 @@ def _value_revision_issue(value_port: ValuePortObservation | None) -> str | None
         return (
             value_port.authority_blockers[0] if value_port.authority_blockers else "value_blocked"
         )
-    if value_port.status == "value_ready" and value_port.decision_grade in {"blocked", "low"}:
+    if value_port.status == "value_ready" and value_port.decision_grade in {
+        "blocked",
+        "low",
+    }:
         return f"value_{value_port.decision_grade}"
     return None
 
@@ -16499,7 +16605,7 @@ def _value_canonical_json_object(payload: str, error_code: str) -> dict[str, Any
 
 
 def _value_estimand_spec_from_json(payload: str) -> object:
-    from polisyos.foundry.methods.components.consensus import EstimandSpec
+    from polisyos.foundry.methods import EstimandSpec
 
     raw = _value_json_object(payload, "value_owner_method_estimand_invalid")
     try:
@@ -16577,7 +16683,7 @@ def _value_profile_panel(
 ) -> object:
     import numpy as np
 
-    from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
+    from polisyos.foundry.methods.causal import PanelObservationalData
 
     if (
         profile.content_hash != assignment.profile_content_hash
@@ -16684,7 +16790,9 @@ def _value_owner_source_projection_intent(
     from polisyos.core.artifacts import ensure_ir_artifact_store
     from polisyos.ir.artifacts import put_json_artifact
     from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
-    from polisyos.runtime.quality.data_state_substrate import l1_dcat_variable_availability
+    from polisyos.runtime.quality.data_state_substrate import (
+        l1_dcat_variable_availability,
+    )
 
     if not isinstance(request, ValueOwnerSourceProjectionRequestV1):
         raise ValueError("value_owner_source_request_untyped")
@@ -16714,7 +16822,9 @@ def _value_owner_source_projection_intent(
         raise ValueError("value_owner_source_outcome_projection_conflict")
 
     repo_root = (gateway.repo_root or Path.cwd()).resolve()
-    from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
+    from polisyos.runtime.quality.substrate_registry import (
+        current_catalog_serving_source,
+    )
 
     active_catalog_source = current_catalog_serving_source()
     selected_overlay_path = gateway.catalog_overlay_path or (
@@ -16921,7 +17031,10 @@ def _value_source_profiles_from_store(
         edge
         for binding in assignment.role_profiles
         for edge in (
-            (binding.profile_ref, f"selected_source_profile:{binding.role}:{binding.variable_id}"),
+            (
+                binding.profile_ref,
+                f"selected_source_profile:{binding.role}:{binding.variable_id}",
+            ),
             (
                 binding.projection_ref,
                 f"selected_source_projection:{binding.role}:{binding.variable_id}",
@@ -16940,7 +17053,7 @@ def _value_source_observational_data(
     """Build exact complete-row HTE input from declared source-variable roles."""
     import numpy as np
 
-    from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
+    from polisyos.foundry.methods.causal import HTEObservationalData
 
     estimand = _value_estimand_spec_from_json(assignment.estimand_spec_json)
     role_by_variable = {item.variable_id: item.role for item in assignment.role_profiles}
@@ -17021,7 +17134,7 @@ def _value_source_bounds_bundle(
     assignment: ValueOwnerSourceVariableAssignmentV1,
 ) -> object:
     """Run the existing BoundsEngine with caller-declared finite outcome support."""
-    from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
+    from polisyos.foundry.methods.causal import BoundsEngineMethod
     from polisyos.ir.analytics.partial_identification import BoundMethod, BoundsBundle
 
     outcome = panel.outcome if hasattr(panel, "outcome") else panel["outcome"]
@@ -17060,7 +17173,9 @@ def _value_owner_reloaded_source_profiles(
 ) -> dict[str, ValueDataProfile]:
     """Re-resolve the selected projection profiles from the live L1 owner."""
     from polisyos import data_forge_read_api
-    from polisyos.runtime.quality.data_state_substrate import l1_dcat_variable_availability
+    from polisyos.runtime.quality.data_state_substrate import (
+        l1_dcat_variable_availability,
+    )
 
     raw_request = gateway.source_projection_request
     if not isinstance(raw_request, ValueOwnerSourceProjectionRequestV1):
@@ -17090,7 +17205,9 @@ def _value_owner_reloaded_source_profiles(
         raise ValueError("value_owner_source_fresh_context_mismatch")
     request_by_variable = {item.variable_id: item for item in request.variable_projections}
     repo_root = (gateway.repo_root or Path.cwd()).resolve()
-    from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
+    from polisyos.runtime.quality.substrate_registry import (
+        current_catalog_serving_source,
+    )
 
     active_catalog_source = current_catalog_serving_source()
     selected_overlay_path = gateway.catalog_overlay_path or (
@@ -17164,8 +17281,11 @@ def _produce_value_owner_method_run_basis(
     import hashlib
 
     from polisyos.core.artifacts import ensure_ir_artifact_store
-    from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
-    from polisyos.ir.analytics.causal import CausalEffectReport, persist_causal_effect_report
+    from polisyos.foundry.methods.backends import NumpyRunner
+    from polisyos.ir.analytics.causal import (
+        CausalEffectReport,
+        persist_causal_effect_report,
+    )
     from polisyos.ir.analytics.uncertainty import NativeValueEstimandBinding
     from polisyos.ir.artifacts import put_json_artifact
     from polisyos.ir.model_layer.canon import (
@@ -17274,7 +17394,9 @@ def _produce_value_owner_method_run_basis(
             "X": panel_payload["covariates"],
         }
     else:
-        from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
+        from polisyos.foundry.methods.causal import (
+            PanelObservationalData,
+        )
 
         runner_state = PanelObservationalData.model_validate(panel_payload)
     native_binding = NativeValueEstimandBinding.from_estimand(
@@ -17324,7 +17446,7 @@ def _produce_value_owner_method_run_basis(
     )
     request_ref = _value_artifact_ref(request_ref_raw)
 
-    from polisyos.foundry.methods.selection.registry import MethodRegistry
+    from polisyos.foundry.methods import MethodRegistry
 
     method_class = MethodRegistry.get_instance().get(selected_method_fqn)
     signature = getattr(method_class, "signature", None)
@@ -17518,7 +17640,11 @@ def _value_outer_set_from_owner_method_run_basis(
     import hashlib
 
     from polisyos.core.artifacts import ensure_ir_artifact_store
-    from polisyos.ir.analytics.causal import CausalEffectReport, load_causal_effect_report
+    from polisyos.ir import CausalEffectReportRef
+    from polisyos.ir.analytics.causal import (
+        CausalEffectReport,
+        load_causal_effect_report,
+    )
     from polisyos.ir.analytics.uncertainty import NativeValueEstimandBinding
     from polisyos.ir.model_layer.canon import (
         CanonSpec as IRCanonSpec,
@@ -17526,7 +17652,6 @@ def _value_outer_set_from_owner_method_run_basis(
     from polisyos.ir.model_layer.canon import (
         to_canonical_bytes as to_ir_canonical_bytes,
     )
-    from polisyos.ir.registry.refs import CausalEffectReportRef
 
     ir_store = ensure_ir_artifact_store(store)
     basis_ref = _value_artifact_ref(
@@ -17698,8 +17823,8 @@ def _value_outer_set_from_owner_method_run_basis(
     source_bounds_ref = None
     if isinstance(assignment, ValueOwnerSourceVariableAssignmentV1):
         from polisyos.core.artifacts import ensure_ir_artifact_store
-        from polisyos.foundry.methods.backends.numpy_runner import NumpyRunner
-        from polisyos.foundry.methods.selection.registry import MethodRegistry
+        from polisyos.foundry.methods import MethodRegistry
+        from polisyos.foundry.methods.backends import NumpyRunner
         from polisyos.ir.analytics.partial_identification import BoundsBundle
 
         report_metadata = dict(report.metadata)
@@ -17896,7 +18021,10 @@ def _value_outer_set_from_owner_method_run_basis(
     else:
         lower = assignment.fixture_identification_lower
         upper = assignment.fixture_identification_upper
-        assumptions = ("candidate_fixture_owner_assignment", "native_method_confidence_interval")
+        assumptions = (
+            "candidate_fixture_owner_assignment",
+            "native_method_confidence_interval",
+        )
         mode = "point" if lower == upper else "partial"
         scope_unit = profile.measurement_unit
     return ValueOuterSet.interval_box(

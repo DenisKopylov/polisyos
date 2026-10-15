@@ -9,7 +9,7 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.ir.kernel.base import SLOT_ID_PATTERN
+from polisyos.ir import SLOT_ID_PATTERN
 from polisyos.ir.kernel.time_semantics import TimeSemantics
 
 DESIGN_PROBLEM_SCHEMA_VERSION = "policyos.runtime.design_problem.v1"
@@ -61,9 +61,7 @@ def _add_versioned_target_slot_json_schema(schema: dict[str, Any]) -> None:
                             "candidate_levers": {
                                 "items": {
                                     "properties": {
-                                        "target_slot": {
-                                            "pattern": _LEGACY_TARGET_SLOT_PATTERN
-                                        }
+                                        "target_slot": {"pattern": _LEGACY_TARGET_SLOT_PATTERN}
                                     }
                                 }
                             }
@@ -78,21 +76,13 @@ def _add_versioned_target_slot_json_schema(schema: dict[str, Any]) -> None:
             "if": {
                 "not": {
                     "required": ["schema_version"],
-                    "properties": {
-                        "schema_version": {
-                            "const": DESIGN_PROBLEM_V3_SCHEMA_VERSION
-                        }
-                    },
+                    "properties": {"schema_version": {"const": DESIGN_PROBLEM_V3_SCHEMA_VERSION}},
                 },
             },
             "then": {
                 "properties": {
                     "outcome_of_interest": {
-                        "properties": {
-                            "target_variable": {
-                                "pattern": _LEGACY_TARGET_SLOT_PATTERN
-                            }
-                        }
+                        "properties": {"target_variable": {"pattern": _LEGACY_TARGET_SLOT_PATTERN}}
                     }
                 }
             },
@@ -445,7 +435,9 @@ class DesignProblem(_StrictModel):
     ) -> DesignProblem:
         """Build a DesignProblem from the runtime PolicyIntentEnvelope owner."""
 
-        from polisyos.runtime.quality.assurance_case import validate_policy_intent_envelope
+        from polisyos.runtime.quality.assurance_case import (
+            validate_policy_intent_envelope,
+        )
 
         intent = validate_policy_intent_envelope(envelope)
         projected = cls._from_projection_payload(
@@ -716,9 +708,7 @@ class DesignProblem(_StrictModel):
             affected_stakeholders=[item.name for item in self.stakeholders],
             constraints=[item.description for item in self.constraints],
             objectives=[item.description for item in self.objectives],
-            evidence_expectations=[
-                item.question for item in self.evidence_acquisition_needs.needs
-            ],
+            evidence_expectations=[item.question for item in self.evidence_acquisition_needs.needs],
             authoring_provenance={
                 "captured_by": "design_problem_bridge",
                 "source_surface": self.nl_provenance.source_surface,
@@ -835,7 +825,9 @@ class DesignProblem(_StrictModel):
     def to_policy_request_frame(self) -> object:
         """Project to the verified PolicyRequestFrame legal subflow surface."""
 
-        from polisyos.scientist.validation.policy_verified.models import PolicyRequestFrame
+        from polisyos.scientist.validation.policy_verified.models import (
+            PolicyRequestFrame,
+        )
 
         return PolicyRequestFrame(
             request_id=self.design_problem_id,
@@ -889,12 +881,13 @@ class DesignProblem(_StrictModel):
             "design_problem_id": self.design_problem_id,
             "policy_question": self.problem_statement,
             "jurisdiction": self.jurisdiction_time.region,
-            "causal_variables": [lever.target_slot, self.outcome_of_interest.target_variable],
+            "causal_variables": [
+                lever.target_slot,
+                self.outcome_of_interest.target_variable,
+            ],
             "outcome_of_interest": self.outcome_of_interest.model_dump(mode="json"),
             "candidate_lever_space": self.candidate_lever_space.model_dump(mode="json"),
-            "evidence_acquisition_needs": self.evidence_acquisition_needs.model_dump(
-                mode="json"
-            ),
+            "evidence_acquisition_needs": self.evidence_acquisition_needs.model_dump(mode="json"),
             "verification_required": bool(self.runtime_hints.get("verification_required")),
         }
         for key in (

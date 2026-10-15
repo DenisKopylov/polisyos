@@ -10,12 +10,14 @@ import numpy as np
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import InputRef
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.foundry.methods.catalog.causal.density_ratio import (
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.foundry.methods.causal import (
     ScalarOTDistributionalResult,
     compute_scalar_distributional_effect,
 )
-from polisyos.ir.analytics.distributional import (
+from polisyos.ir import (
     CouplingDiagnostics,
     DiscreteDistributionSummary,
     DistributionBin,
@@ -44,8 +46,19 @@ from polisyos.scientist.orchestration.engine.protocol import (
 )
 
 _DISTRIBUTIONAL_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
-_DISTRIBUTIONAL_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
-_DISTRIBUTIONAL_EXECUTION_ERRORS = (RuntimeError, TypeError, ValueError, ValidationError)
+_DISTRIBUTIONAL_LOAD_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+_DISTRIBUTIONAL_EXECUTION_ERRORS = (
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
 
 
 @dataclass(frozen=True)

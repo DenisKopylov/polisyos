@@ -8,7 +8,7 @@ from typing import Literal
 
 from pydantic import ValidationError
 
-from polisyos.core.errors import ErrorCategory, PolicyOSError
+from polisyos.core import errors as core_errors
 
 EXCEPTION_CHAIN_NODE_LIMIT = 64
 """Maximum distinct exceptions retained while classifying one failure."""
@@ -113,9 +113,9 @@ def classify_evaluation_failure(
         if isinstance(cause, global_types):
             scope: EvaluationFailureScope = "global"
             break
-        if isinstance(cause, PolicyOSError) and cause.category in {
-            ErrorCategory.FATAL,
-            ErrorCategory.VALIDATION,
+        if isinstance(cause, core_errors.PolicyOSError) and cause.category in {
+            core_errors.ErrorCategory.FATAL,
+            core_errors.ErrorCategory.VALIDATION,
         }:
             scope = "global"
             break
@@ -124,7 +124,10 @@ def classify_evaluation_failure(
             scope = "unknown"
         elif sample_domain_error_type is not None and isinstance(exc, sample_domain_error_type):
             scope = "sample_domain"
-        elif isinstance(exc, PolicyOSError) and exc.category is ErrorCategory.TRANSIENT:
+        elif (
+            isinstance(exc, core_errors.PolicyOSError)
+            and exc.category is core_errors.ErrorCategory.TRANSIENT
+        ):
             scope = "transient"
         else:
             scope = "unknown"

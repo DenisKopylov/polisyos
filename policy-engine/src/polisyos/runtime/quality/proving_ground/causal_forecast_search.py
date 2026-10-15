@@ -19,7 +19,7 @@ import duckdb
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.contracts import SearchCandidate, SearchFrontier
-from polisyos.data_forge.kernel.embeddings import (
+from polisyos.data_forge.read_api.catalog import (
     GENERATION_SELECTOR_FILENAME,
     embedding_generation_manifest,
     resolve_embedding_generation,
@@ -36,9 +36,7 @@ if TYPE_CHECKING:
 LAYER3_G2_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
 LAYER3_G2_RULE_VERSION = "policyos.layer3.g2.causal_forecast_search.v1"
 LAYER3_G2_SURFACE_ID = "layer3_g2_causal_forecast_audit_surface"
-LAYER3_G2_GENERATED_ARTIFACT_FAMILY_ID = (
-    "policy-design-case-layer3-g2-causal-forecast-artifacts"
-)
+LAYER3_G2_GENERATED_ARTIFACT_FAMILY_ID = "policy-design-case-layer3-g2-causal-forecast-artifacts"
 LAYER3_G2_W12D_GATE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g2_forecast_gate.v1"
 SKG_QUERY_API_ROUTE = "polisyos.data_forge.read_api.academic.SKGQuery"
 CANONICAL_L2_ROUTE = "scholar_knowledge.duckdb"
@@ -53,12 +51,10 @@ S10_CALIBRATION_BUILDER_REF = (
     "polisyos.runtime.quality.design_axes.outcome_prediction.build_forecast_calibration_record"
 )
 S10_AUTHORITY_ENVELOPE_BUILDER_REF = (
-    "polisyos.runtime.quality.design_axes.outcome_prediction."
-    "verify_prediction_authority_envelope"
+    "polisyos.runtime.quality.design_axes.outcome_prediction.verify_prediction_authority_envelope"
 )
 S10_INTEGRITY_SUMMARY_BUILDER_REF = (
-    "polisyos.runtime.quality.design_axes.outcome_prediction."
-    "summarize_forecast_support_integrity"
+    "polisyos.runtime.quality.design_axes.outcome_prediction.summarize_forecast_support_integrity"
 )
 ACADEMIC_RUNTIME_ROOT = Path("production_data/policyos_academic_runtime_slim_20260411T112032Z")
 ACADEMIC_INDEX_DIR = ACADEMIC_RUNTIME_ROOT / "academic"
@@ -897,9 +893,7 @@ class Layer3G2CausalForecastAuditSurface(_G2Model):
     surface_id: str = LAYER3_G2_SURFACE_ID
     record_id: str = "layer3-g2-causal-forecast-audit-surface"
     status: Literal["pass", "fail"] = "fail"
-    surface_audiences: tuple[str, ...] = Field(
-        default=("PUBLIC", "REVIEWER", "EXPERT", "MACHINE")
-    )
+    surface_audiences: tuple[str, ...] = Field(default=("PUBLIC", "REVIEWER", "EXPERT", "MACHINE"))
     public_forecast_tier_visibility: bool = False
     public_uncertainty_visibility: bool = False
     public_limitation_visibility: bool = False
@@ -1143,9 +1137,7 @@ def build_g2_l2_skg_index_coverage(repo_root: Path) -> Layer3G2L2SkgIndexCoverag
     return Layer3G2L2SkgIndexCoverageReport(
         status=status,
         db_path=(
-            db_path.relative_to(root).as_posix()
-            if _is_relative_to(db_path, root)
-            else str(db_path)
+            db_path.relative_to(root).as_posix() if _is_relative_to(db_path, root) else str(db_path)
         ),
         index_dir=index_dir.relative_to(root).as_posix()
         if _is_relative_to(index_dir, root)
@@ -1190,9 +1182,7 @@ def search_l2_skg_for_forecast_candidates(
     edge_records = evaluated_edge_records[: request.limit]
     rejected_edge_records = evaluated_edge_records[request.limit :]
     selected_refs = tuple(f"skg-edge://{record.edge_id}" for record in edge_records)
-    rejected_refs = tuple(
-        f"skg-edge://{record.edge_id}" for record in rejected_edge_records
-    )
+    rejected_refs = tuple(f"skg-edge://{record.edge_id}" for record in rejected_edge_records)
     trace_refs: list[str] = []
     traces: list[Layer3G2SkgQueryTrace] = []
 
@@ -1268,8 +1258,7 @@ def search_l2_skg_for_forecast_candidates(
 
     ledger = Layer3G2SearchLedger(
         ledger_id=(
-            "g2-skg-search-ledger:"
-            f"{_stable_id(request.request_id, request.cause, request.effect)}"
+            f"g2-skg-search-ledger:{_stable_id(request.request_id, request.cause, request.effect)}"
         ),
         event_type="selected_candidate" if selected_refs else "no_hit",
         request_ref=request.request_id,
@@ -1341,14 +1330,17 @@ def _g2_owner_frontier(
         "completeness_status": completeness_status,
         "incompleteness_reasons": incompleteness_reasons,
     }
-    replay_digest = "sha256:" + hashlib.sha256(
-        json.dumps(
-            replay_payload,
-            ensure_ascii=False,
-            sort_keys=True,
-            separators=(",", ":"),
-        ).encode("utf-8")
-    ).hexdigest()
+    replay_digest = (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                replay_payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+    )
     return SearchFrontier(
         request_ref=request.request_id,
         query_plan={
@@ -1483,11 +1475,7 @@ def build_g2_search_recall_freshness(
             "pass",
             "fail",
             "not_required_for_request",
-        ] = (
-            "pass"
-            if query_vector_producer_ref and query_vector_ref
-            else "fail"
-        )
+        ] = "pass" if query_vector_producer_ref and query_vector_ref else "fail"
         if hnsw_freshness_status == "fail":
             issue_codes.append("layer3_g2_stale_index_blocks_domain_ceiling")
         if hnsw_query_vector_producer_status == "fail":
@@ -1643,9 +1631,7 @@ def build_g2_search_engineering_quality_report(
     if search_result is None:
         has_predicates = eager_full_corpus_scan_count == 0 and unbounded_query_count == 0
         has_replay = eager_full_corpus_scan_count == 0 and unbounded_query_count == 0
-    duckdb_predicate_search_status: Literal["pass", "fail"] = (
-        "pass" if has_predicates else "fail"
-    )
+    duckdb_predicate_search_status: Literal["pass", "fail"] = "pass" if has_predicates else "fail"
     lazy_bounded_read_status: Literal["pass", "fail"] = (
         "pass"
         if eager_full_corpus_scan_count == 0
@@ -1670,8 +1656,7 @@ def build_g2_search_engineering_quality_report(
     )
     hnsw_index_backed_status: Literal["pass", "fail", "not_required_for_request"] = (
         "pass"
-        if hnsw_required
-        and hnsw_assets_exist
+        if hnsw_required and hnsw_assets_exist
         else "fail"
         if hnsw_required
         else "not_required_for_request"
@@ -1819,11 +1804,7 @@ def build_layer3_g2_bundle(repo_root: Path) -> Layer3G2Bundle:
     readiness_issue_codes = tuple(
         dict.fromkeys(
             (
-                *(
-                    code
-                    for binding in forecast_support_bindings
-                    for code in binding.issue_codes
-                ),
+                *(code for binding in forecast_support_bindings for code in binding.issue_codes),
                 *calibration.issue_codes,
             )
         )
@@ -1977,12 +1958,8 @@ def validate_g2_adapter_conformance(
     return Layer3G2ConformanceReport(
         status=status,
         conformance_status=status,
-        capability_reality_label="implemented"
-        if status == "pass"
-        else "semantic_test_missing",
-        closure_outcome="bounded_forecast_support"
-        if status == "pass"
-        else "conformance_failed",
+        capability_reality_label="implemented" if status == "pass" else "semantic_test_missing",
+        closure_outcome="bounded_forecast_support" if status == "pass" else "conformance_failed",
         conformance_checks=tuple(check_statuses),
         check_statuses=check_statuses,
         issue_codes=issue_codes,
@@ -2014,18 +1991,14 @@ def _validate_g2_conformance_acceptance_gates(
     concept_alignments = [
         _mapping(item) for item in _sequence(payload.get("concept_alignment_records"))
     ]
-    s10_bindings = [
-        _mapping(item) for item in _sequence(payload.get("s10_prerequisite_bindings"))
-    ]
+    s10_bindings = [_mapping(item) for item in _sequence(payload.get("s10_prerequisite_bindings"))]
     forecast_bindings = [
         _mapping(item) for item in _sequence(payload.get("forecast_support_bindings"))
     ]
     transport_declarations = [
         _mapping(item) for item in _sequence(payload.get("transport_limit_declarations"))
     ]
-    handoffs = [
-        _mapping(item) for item in _sequence(payload.get("grounded_forecast_handoffs"))
-    ]
+    handoffs = [_mapping(item) for item in _sequence(payload.get("grounded_forecast_handoffs"))]
     gate = _mapping(payload.get("w12d_consumer_gate"))
     surface = _mapping(payload.get("causal_forecast_audit_surface"))
     registry = _mapping(payload.get("adapter_contract_registry"))
@@ -2830,7 +2803,13 @@ def build_g2_foundry_method_registry_coverage(
     registry_payload = _foundry_registry_payload()
     family_counts = {
         family: int(registry_payload["family_method_counts"].get(family, 0))
-        for family in ("causal", "forecasting", "econometrics", "sensitivity", "validation")
+        for family in (
+            "causal",
+            "forecasting",
+            "econometrics",
+            "sensitivity",
+            "validation",
+        )
     }
     issue_codes: list[str] = []
     if not registry_payload["entries"]:
@@ -2846,9 +2825,7 @@ def build_g2_foundry_method_registry_coverage(
     status: Literal["pass", "fail"] = "pass" if not issue_codes else "fail"
     return Layer3G2FoundryMethodRegistryCoverageReport(
         status=status,
-        built_in_catalog_bootstrap_refs=tuple(
-            registry_payload["built_in_catalog_bootstrap_refs"]
-        ),
+        built_in_catalog_bootstrap_refs=tuple(registry_payload["built_in_catalog_bootstrap_refs"]),
         discovery_source_roots=tuple(registry_payload["discovery_source_roots"]),
         entry_point_groups=tuple(registry_payload["entry_point_groups"]),
         registered_method_count=len(registry_payload["entries"]),
@@ -2859,9 +2836,7 @@ def build_g2_foundry_method_registry_coverage(
         registry_version_ref=str(registry_payload["registry_version_ref"]),
         registry_stats=dict(registry_payload["registry_stats"]),
         freshness_status="pass" if status == "pass" else "fail",
-        discovery_refresh_status=(
-            "pass" if not registry_payload["discovery_errors"] else "fail"
-        ),
+        discovery_refresh_status=("pass" if not registry_payload["discovery_errors"] else "fail"),
         issue_codes=tuple(dict.fromkeys(issue_codes)),
     )
 
@@ -2958,8 +2933,7 @@ def build_g2_method_requirement_bindings(
 
     requirement = _build_g2_method_requirement_spec(request)
     catalog_candidates = [
-        _candidate_to_method_mapping(candidate)
-        for candidate in search_report.candidate_methods
+        _candidate_to_method_mapping(candidate) for candidate in search_report.candidate_methods
     ]
     candidates = [
         *catalog_candidates,
@@ -2995,9 +2969,7 @@ def build_g2_method_requirement_bindings(
         method_requirement_specs=(requirement.model_dump(mode="json"),),
         method_requirement_refs=(requirement.requirement_id,),
         selection_status="pass" if selection_report.get("status") == "pass" else "fail",
-        method_requirement_statuses=dict(
-            selection_report.get("method_requirement_statuses") or {}
-        ),
+        method_requirement_statuses=dict(selection_report.get("method_requirement_statuses") or {}),
         candidate_method_refs=tuple(
             _method_ref_from_mapping(method)
             for method in candidates
@@ -3193,9 +3165,7 @@ def build_g2_semantic_spine_bindings(
             producer_spine_views=tuple(views),
             producer_spine_binding_fields=dict(binding_fields),
             consumed_concept_spine_ref=str(
-                binding_fields.get("consumed_concept_spine_ref")
-                or concept_spine_ref
-                or ""
+                binding_fields.get("consumed_concept_spine_ref") or concept_spine_ref or ""
             )
             or None,
             consumed_jurisdiction_spine_ref=str(
@@ -3212,9 +3182,7 @@ def build_g2_semantic_spine_bindings(
             ),
             unit_refs=_string_tuple(binding_fields.get("unit_refs", unit_refs)),
             period_refs=_string_tuple(binding_fields.get("period_refs", period_refs)),
-            geography_refs=_string_tuple(
-                binding_fields.get("geography_refs", geography_refs)
-            ),
+            geography_refs=_string_tuple(binding_fields.get("geography_refs", geography_refs)),
             governed_namespace_refs=_string_tuple(governed_namespace_refs),
             reconciled_concept_statuses=dict(reconciled_concept_statuses or {}),
             producer_handshake_refs=_string_tuple(producer_handshake_refs),
@@ -3254,9 +3222,7 @@ def build_g2_concept_alignment_records(
     resolved_request = request or _default_g2_method_request()
     semantic = _mapping(semantic_spine_binding)
     issue_codes: list[str] = []
-    if semantic.get("status") != "pass" or not semantic.get(
-        "direct_semantic_grounding_allowed"
-    ):
+    if semantic.get("status") != "pass" or not semantic.get("direct_semantic_grounding_allowed"):
         issue_codes.append("layer3_g2_semantic_binding_spine_missing")
     if not (
         _string_tuple(source_contract_refs)
@@ -3275,9 +3241,7 @@ def build_g2_concept_alignment_records(
 
     status: Literal["pass", "fail"] = "fail" if issue_codes else "pass"
     if status == "pass" and alignment_status == "direct":
-        disposition: Literal["direct_grounding", "proxy_limited", "blocked"] = (
-            "direct_grounding"
-        )
+        disposition: Literal["direct_grounding", "proxy_limited", "blocked"] = "direct_grounding"
     elif status == "pass" and alignment_status == "proxy_only":
         disposition = "proxy_limited"
     else:
@@ -3405,16 +3369,8 @@ def build_g2_s10_prerequisite_bindings(
             [
                 *([s5_forecast_support_ref] if s5_forecast_support_ref else []),
                 *s6_refs,
-                *(
-                    [s8_value_choice_provenance_ref]
-                    if s8_value_choice_provenance_ref
-                    else []
-                ),
-                *(
-                    [s8_value_tradeoff_disclosure_ref]
-                    if s8_value_tradeoff_disclosure_ref
-                    else []
-                ),
+                *([s8_value_choice_provenance_ref] if s8_value_choice_provenance_ref else []),
+                *([s8_value_tradeoff_disclosure_ref] if s8_value_tradeoff_disclosure_ref else []),
             ]
         )
     )
@@ -3534,8 +3490,7 @@ def build_g2_forecast_support_bindings(
         str(search_refs["search_ledger_refs"]),
     )
     support_ref = (
-        f"pdc://layer3/g2/{_slug_token(resolved_request.case_id)}/"
-        f"forecast-support/{binding_key}"
+        f"pdc://layer3/g2/{_slug_token(resolved_request.case_id)}/forecast-support/{binding_key}"
     )
     adapter_ref = adapter_validation_ref or f"adapter-validation://g2/s10/{binding_key}"
     limitation_refs = list(_string_tuple(prereq.get("limitation_refs", ())))
@@ -3544,9 +3499,7 @@ def build_g2_forecast_support_bindings(
     )
     if search_refs["contested_edge_refs"]:
         issue_codes.append("layer3_g2_contested_edge_overclaimed")
-        limitation_refs.extend(
-            _g2_contested_limitation_refs(search_refs["contested_edge_refs"])
-        )
+        limitation_refs.extend(_g2_contested_limitation_refs(search_refs["contested_edge_refs"]))
     equilibrium_blocker_refs: tuple[str, ...] = ()
     if _g2_requires_calibrated_dynamics(prereq) and not calibrated_dynamics_producer_ref:
         equilibrium_blocker_refs = (
@@ -3651,9 +3604,7 @@ def build_g2_forecast_support_bindings(
         requested_adapter_maturity=requested_adapter_maturity,
     )
     if requested_adapter_maturity == "calibrated" and adapter_maturity != "calibrated":
-        issue_tuple = tuple(
-            dict.fromkeys([*issue_tuple, "layer3_g2_adapter_maturity_overclaim"])
-        )
+        issue_tuple = tuple(dict.fromkeys([*issue_tuple, "layer3_g2_adapter_maturity_overclaim"]))
         status = "fail"
     return (
         Layer3G2ForecastSupportBinding(
@@ -3685,9 +3636,7 @@ def build_g2_forecast_support_bindings(
             publish_blocker_refs=publish_blocker_refs,
             method_validity_refs=_string_tuple(prereq.get("method_validity_refs", ())),
             limitation_refs=tuple(dict.fromkeys(limitation_refs)),
-            uncertainty_interval_refs=_string_tuple(
-                prereq.get("uncertainty_interval_refs", ())
-            ),
+            uncertainty_interval_refs=_string_tuple(prereq.get("uncertainty_interval_refs", ())),
             search_ledger_refs=search_refs["search_ledger_refs"],
             requested_adapter_maturity=requested_adapter_maturity,
             adapter_maturity=adapter_maturity,
@@ -3776,8 +3725,7 @@ def build_g2_observable_calibration_report(
         for binding in bindings
     )
     all_bindings_calibrated = bool(bindings) and all(
-        binding.get("adapter_maturity") == ADAPTER_MATURITY_CALIBRATED
-        for binding in bindings
+        binding.get("adapter_maturity") == ADAPTER_MATURITY_CALIBRATED for binding in bindings
     )
     if calibration_maturity_requested and not all_bindings_calibrated:
         issue_codes.append("layer3_g2_adapter_maturity_overclaim")
@@ -3788,8 +3736,7 @@ def build_g2_observable_calibration_report(
     if status == "pass" and all_bindings_calibrated:
         adapter_maturity = ADAPTER_MATURITY_CALIBRATED
     elif any(
-        binding.get("adapter_maturity") == ADAPTER_MATURITY_FAIL_CLOSED
-        for binding in bindings
+        binding.get("adapter_maturity") == ADAPTER_MATURITY_FAIL_CLOSED for binding in bindings
     ):
         adapter_maturity = ADAPTER_MATURITY_FAIL_CLOSED
     else:
@@ -3813,9 +3760,7 @@ def build_g2_observable_calibration_report(
         observable_subset_calibration_numerator=numerator,
         observable_subset_calibration_pass_rate=pass_rate,
         calibration_threshold_ref=threshold_ref,
-        calibration_floor_passed=bool(
-            denominator and numerator == denominator and not issue_tuple
-        ),
+        calibration_floor_passed=bool(denominator and numerator == denominator and not issue_tuple),
         issue_codes=issue_tuple,
     )
 
@@ -3823,12 +3768,8 @@ def build_g2_observable_calibration_report(
 def build_g2_transport_limit_declarations(
     *,
     search_result: Layer3G2SkgSearchResult | Mapping[str, Any] | None = None,
-    forecast_support_bindings: Sequence[
-        Layer3G2ForecastSupportBinding | Mapping[str, Any]
-    ] = (),
-    method_validity_record: Layer3G2MethodValidityTransportRecord
-    | Mapping[str, Any]
-    | None = None,
+    forecast_support_bindings: Sequence[Layer3G2ForecastSupportBinding | Mapping[str, Any]] = (),
+    method_validity_record: Layer3G2MethodValidityTransportRecord | Mapping[str, Any] | None = None,
     jurisdiction_scope_ref: str | None = None,
     aggregation_scope_ref: str | None = None,
 ) -> tuple[Layer3G2TransportLimitDeclaration, ...]:
@@ -3854,16 +3795,12 @@ def build_g2_transport_limit_declarations(
         confidence_by_ref.update(
             {
                 str(key): float(value)
-                for key, value in _mapping(
-                    binding.get("skg_transport_confidence_by_ref")
-                ).items()
+                for key, value in _mapping(binding.get("skg_transport_confidence_by_ref")).items()
             }
         )
     limitation_refs = tuple(
         dict.fromkeys(
-            ref
-            for binding in bindings
-            for ref in _string_tuple(binding.get("limitation_refs", ()))
+            ref for binding in bindings for ref in _string_tuple(binding.get("limitation_refs", ()))
         )
     )
     uncertainty_refs = tuple(
@@ -3920,12 +3857,8 @@ def build_g2_transport_limit_declarations(
 
 def build_g2_grounded_forecast_handoffs(
     *,
-    forecast_support_bindings: Sequence[
-        Layer3G2ForecastSupportBinding | Mapping[str, Any]
-    ] = (),
-    concept_alignment_records: Sequence[
-        Layer3G2ConceptAlignmentRecord | Mapping[str, Any]
-    ] = (),
+    forecast_support_bindings: Sequence[Layer3G2ForecastSupportBinding | Mapping[str, Any]] = (),
+    concept_alignment_records: Sequence[Layer3G2ConceptAlignmentRecord | Mapping[str, Any]] = (),
     observable_calibration_report: Layer3G2ObservableCalibrationReport
     | Mapping[str, Any]
     | None = None,
@@ -3955,9 +3888,7 @@ def build_g2_grounded_forecast_handoffs(
         support = _mapping(binding.get("s10_forecast_support"))
         binding_ref = str(binding.get("binding_id") or "")
         support_ref = str(
-            binding.get("s10_forecast_support_ref")
-            or support.get("support_ref")
-            or ""
+            binding.get("s10_forecast_support_ref") or support.get("support_ref") or ""
         )
         concept_alignment_ref = str(binding.get("concept_alignment_ref") or "")
         alignment = alignment_by_ref.get(concept_alignment_ref, {})
@@ -4014,9 +3945,7 @@ def build_g2_grounded_forecast_handoffs(
                 forecast_support_binding_ref=binding_ref or None,
                 s10_forecast_support_ref=support_ref or None,
                 s10_forecast_tier=str(
-                    binding.get("s10_forecast_tier")
-                    or support.get("forecast_tier")
-                    or ""
+                    binding.get("s10_forecast_tier") or support.get("forecast_tier") or ""
                 )
                 or None,
                 concept_alignment_ref=concept_alignment_ref or None,
@@ -4038,13 +3967,9 @@ def build_g2_grounded_forecast_handoffs(
                 skg_edge_refs=_string_tuple(binding.get("skg_edge_refs", ())),
                 skg_claim_refs=_string_tuple(binding.get("skg_claim_refs", ())),
                 skg_parameter_refs=_string_tuple(binding.get("skg_parameter_refs", ())),
-                source_contract_replay_refs=tuple(
-                    ref for ref in (source_contract_ref,) if ref
-                ),
+                source_contract_replay_refs=tuple(ref for ref in (source_contract_ref,) if ref),
                 design_record_ledger_refs=tuple(
-                    ref
-                    for ref in (str(support.get("source_design_record_ref") or ""),)
-                    if ref
+                    ref for ref in (str(support.get("source_design_record_ref") or ""),) if ref
                 ),
                 adapter_maturity=str(binding.get("adapter_maturity") or "fail_closed"),  # type: ignore[arg-type]
                 g4_g5_readable_handoff_ref=handoff_id,
@@ -4070,21 +3995,19 @@ def build_g2_s10_forecast_posture(
     support = _mapping(binding_payload.get("s10_forecast_support"))
     authority_envelope = _mapping(binding_payload.get("authority_envelope"))
     support_ref = str(
-        binding_payload.get("s10_forecast_support_ref")
-        or support.get("support_ref")
-        or ""
+        binding_payload.get("s10_forecast_support_ref") or support.get("support_ref") or ""
     )
     calibration_ref = str(
-        binding_payload.get("calibration_record_ref")
-        or support.get("calibration_record_ref")
-        or ""
+        binding_payload.get("calibration_record_ref") or support.get("calibration_record_ref") or ""
     )
     method_validity_ref = str(
         support.get("method_validity_ref")
-        or _first_or_none(_refs_with_prefix(
-            _string_tuple(binding_payload.get("method_validity_refs", ())),
-            "method-validity://",
-        ))
+        or _first_or_none(
+            _refs_with_prefix(
+                _string_tuple(binding_payload.get("method_validity_refs", ())),
+                "method-validity://",
+            )
+        )
         or ""
     )
     authority_boundary = _mapping(support.get("authority_boundary")) or _mapping(
@@ -4093,9 +4016,7 @@ def build_g2_s10_forecast_posture(
     return Layer2S10ForecastPostureInput(
         forecast_support_ref=support_ref,
         forecast_tier=str(
-            binding_payload.get("s10_forecast_tier")
-            or support.get("forecast_tier")
-            or ""
+            binding_payload.get("s10_forecast_tier") or support.get("forecast_tier") or ""
         ),  # type: ignore[arg-type]
         forecast_authority_disposition_reason=str(
             support.get("forecast_authority_disposition_reason")
@@ -4113,9 +4034,7 @@ def build_g2_s10_forecast_posture(
         policy_context_ref=str(support.get("policy_context_ref") or ""),
         candidate_design_ref=str(support.get("candidate_design_ref") or ""),
         baseline_design_ref=str(support.get("baseline_design_ref") or ""),
-        alternative_design_refs=list(
-            _string_tuple(support.get("alternative_design_refs", ()))
-        ),
+        alternative_design_refs=list(_string_tuple(support.get("alternative_design_refs", ()))),
         prediction_horizon_ref=str(support.get("prediction_horizon_ref") or ""),
         observable_subset_ref=str(support.get("observable_subset_ref") or "") or None,
         uncertainty_interval_refs=list(
@@ -4127,27 +4046,16 @@ def build_g2_s10_forecast_posture(
         ),
         welfare_comparison_ref=str(support.get("welfare_comparison_ref") or "") or None,
         s5_forecast_support_ref=str(support.get("s5_forecast_support_ref") or ""),
-        s6_firewall_status_refs=list(
-            _string_tuple(support.get("s6_firewall_status_refs", ()))
-        ),
-        s8_value_choice_provenance_ref=str(
-            support.get("s8_value_choice_provenance_ref") or ""
-        ),
-        s8_value_tradeoff_disclosure_ref=str(
-            support.get("s8_value_tradeoff_disclosure_ref") or ""
-        ),
+        s6_firewall_status_refs=list(_string_tuple(support.get("s6_firewall_status_refs", ()))),
+        s8_value_choice_provenance_ref=str(support.get("s8_value_choice_provenance_ref") or ""),
+        s8_value_tradeoff_disclosure_ref=str(support.get("s8_value_tradeoff_disclosure_ref") or ""),
         source_contract_ref=str(support.get("source_contract_ref") or "") or None,
         method_validity_ref=method_validity_ref or None,
-        credible_evaluation_evidence_ref=str(
-            support.get("credible_evaluation_evidence_ref") or ""
-        )
+        credible_evaluation_evidence_ref=str(support.get("credible_evaluation_evidence_ref") or "")
         or None,
-        dynamic_equilibrium_check_ref=str(
-            support.get("dynamic_equilibrium_check_ref") or ""
-        )
+        dynamic_equilibrium_check_ref=str(support.get("dynamic_equilibrium_check_ref") or "")
         or None,
-        sensitivity_analysis_ref=str(support.get("sensitivity_analysis_ref") or "")
-        or None,
+        sensitivity_analysis_ref=str(support.get("sensitivity_analysis_ref") or "") or None,
         authority_boundary=dict(authority_boundary),
         may_not_use_for=list(
             _merge_g2_denials(
@@ -4164,9 +4072,7 @@ def build_g2_s10_forecast_posture(
 def build_g2_w12d_consumer_gate(
     *,
     forecast_postures: Sequence[Mapping[str, Any] | BaseModel] = (),
-    forecast_support_bindings: Sequence[
-        Layer3G2ForecastSupportBinding | Mapping[str, Any]
-    ] = (),
+    forecast_support_bindings: Sequence[Layer3G2ForecastSupportBinding | Mapping[str, Any]] = (),
     layer3_g1_grounding_gate_ref: str | None = None,
     full_s2_consumer_case_refs: Sequence[str] = (),
     lightweight_case_refs: Sequence[str] = (),
@@ -4262,11 +4168,7 @@ def build_g2_causal_forecast_audit_surface(
     ledgers = [_mapping(item) for item in _sequence(payload.get("l2_skg_search_ledgers"))]
     forecast_support_refs = _refs_from_records(bindings, "s10_forecast_support_ref")
     forecast_tiers = tuple(
-        dict.fromkeys(
-            ref
-            for ref in _refs_from_records(bindings, "s10_forecast_tier")
-            if ref
-        )
+        dict.fromkeys(ref for ref in _refs_from_records(bindings, "s10_forecast_tier") if ref)
     )
     uncertainty_refs = tuple(
         dict.fromkeys(
@@ -4343,17 +4245,12 @@ def build_g2_generated_artifact_registration_status(
         root / "architecture/policy_design_case/layer3_g2_adapter_contract_registry.toml"
     )
     generated_text = (
-        generated_toml_path.read_text(encoding="utf-8")
-        if generated_toml_path.exists()
-        else ""
+        generated_toml_path.read_text(encoding="utf-8") if generated_toml_path.exists() else ""
     )
-    missing_paths = tuple(
-        path for path in G2_EXPECTED_ARTIFACT_PATHS if not (root / path).exists()
-    )
+    missing_paths = tuple(path for path in G2_EXPECTED_ARTIFACT_PATHS if not (root / path).exists())
     issue_codes: list[str] = []
-    if (
-        LAYER3_G2_GENERATED_ARTIFACT_FAMILY_ID not in generated_text
-        or not all(path in generated_text for path in G2_EXPECTED_ARTIFACT_PATHS)
+    if LAYER3_G2_GENERATED_ARTIFACT_FAMILY_ID not in generated_text or not all(
+        path in generated_text for path in G2_EXPECTED_ARTIFACT_PATHS
     ):
         issue_codes.append("layer3_g2_generated_artifacts_family_missing")
     if not adapter_registry_path.exists():
@@ -4446,9 +4343,7 @@ def _validate_search_authority(
                     "Search ledgers are replay control-plane records only.",
                 )
             )
-        if "search_hit_as_authority" not in set(
-            _string_tuple(ledger.get("may_not_use_for", ()))
-        ):
+        if "search_hit_as_authority" not in set(_string_tuple(ledger.get("may_not_use_for", ()))):
             issues.append(
                 _issue(
                     "layer3_g2_search_ledger_authority_boundary_leak",
@@ -4621,9 +4516,10 @@ def _validate_search_recall_freshness(
                 "A recall miss blocks G2 domain-ceiling closeout.",
             )
         )
-    if recall.get("index_freshness_status") == "fail" or recall.get(
-        "hnsw_freshness_status"
-    ) == "fail":
+    if (
+        recall.get("index_freshness_status") == "fail"
+        or recall.get("hnsw_freshness_status") == "fail"
+    ):
         issues.append(
             _issue(
                 "layer3_g2_stale_index_blocks_domain_ceiling",
@@ -4704,9 +4600,7 @@ def _validate_foundry_method_registry_and_validity(
         may_not_use_for = set(_string_tuple(record.get("may_not_use_for", ())))
         may_not_use_for.update(_string_tuple(authority.get("may_not_use_for", ())))
         forbidden = set(G2_METHOD_REPORT_FORBIDDEN_AUTHORITY)
-        if authoritative_for.intersection(forbidden) or not forbidden.intersection(
-            may_not_use_for
-        ):
+        if authoritative_for.intersection(forbidden) or not forbidden.intersection(may_not_use_for):
             issues.append(
                 _issue(
                     "layer3_g2_foundry_method_report_authority_overclaim",
@@ -4722,9 +4616,10 @@ def _validate_task4_semantic_s10_forecast_bindings(
 ) -> None:
     for idx, binding_obj in enumerate(_sequence(payload.get("semantic_spine_bindings", ()))):
         binding = _mapping(binding_obj)
-        if binding.get("status") == "fail" or binding.get(
-            "capability_reality_label"
-        ) != "implemented":
+        if (
+            binding.get("status") == "fail"
+            or binding.get("capability_reality_label") != "implemented"
+        ):
             issues.append(
                 _issue(
                     "layer3_g2_semantic_binding_spine_missing",
@@ -4761,9 +4656,10 @@ def _validate_task4_semantic_s10_forecast_bindings(
                     "Proxy-only concept alignment must be disclosed and downgraded.",
                 )
             )
-        if alignment.get("alignment_status") in {"ambiguous", "conflict"} and alignment.get(
-            "direct_grounding_claimed"
-        ):
+        if alignment.get("alignment_status") in {
+            "ambiguous",
+            "conflict",
+        } and alignment.get("direct_grounding_claimed"):
             issues.append(
                 _issue(
                     "layer3_g2_ambiguous_alignment_overclaimed",
@@ -4830,9 +4726,10 @@ def _validate_task4_semantic_s10_forecast_bindings(
                     "Observable calibrated G2 support requires an S10 calibration record.",
                 )
             )
-        if requested in {"observable_calibrated", "transported_limited"} and not _string_tuple(
-            binding.get("uncertainty_interval_refs", ())
-        ):
+        if requested in {
+            "observable_calibrated",
+            "transported_limited",
+        } and not _string_tuple(binding.get("uncertainty_interval_refs", ())):
             issues.append(
                 _issue(
                     "layer3_g2_uncertainty_interval_missing",
@@ -4915,9 +4812,10 @@ def _validate_task5_calibration_transport_downgrades(
             )
 
     for idx, binding in enumerate(forecast_bindings):
-        if binding.get("requested_adapter_maturity") == "calibrated" and binding.get(
-            "adapter_maturity"
-        ) != "calibrated":
+        if (
+            binding.get("requested_adapter_maturity") == "calibrated"
+            and binding.get("adapter_maturity") != "calibrated"
+        ):
             issues.append(
                 _issue(
                     "layer3_g2_adapter_maturity_overclaim",
@@ -4947,9 +4845,7 @@ def _validate_task6_consumer_bridge_and_handoffs(
         for binding in bindings
         if binding.get("status") == "pass" and binding.get("s10_forecast_support_ref")
     }
-    handoffs = [
-        _mapping(item) for item in _sequence(payload.get("grounded_forecast_handoffs", ()))
-    ]
+    handoffs = [_mapping(item) for item in _sequence(payload.get("grounded_forecast_handoffs", ()))]
     if bindings and not handoffs:
         issues.append(
             _issue(
@@ -4982,7 +4878,11 @@ def _validate_task6_consumer_bridge_and_handoffs(
             or handoff.get("useful_design_credit_claimed") is True
             or authoritative_for
             & {"promotion_authority", "conversion_authority", "useful_design_credit"}
-            or not {"promotion_authority", "conversion_authority", "useful_design_credit"}
+            or not {
+                "promotion_authority",
+                "conversion_authority",
+                "useful_design_credit",
+            }
             <= may_not_use_for
         ):
             issues.append(
@@ -5020,8 +4920,7 @@ def _validate_task6_consumer_bridge_and_handoffs(
             "search_ceiling_repair_required",
         }
         if str(gate.get("status") or "") != "pass" and (
-            "layer3_g2_w12d_not_routed_closeout"
-            in _string_tuple(gate.get("issue_codes", ()))
+            "layer3_g2_w12d_not_routed_closeout" in _string_tuple(gate.get("issue_codes", ()))
         ):
             issues.append(
                 _issue(
@@ -5371,7 +5270,9 @@ def _method_ref_from_mapping(method: Mapping[str, Any]) -> str:
     return ""
 
 
-def _foundry_input_refs_from_methods(methods: Sequence[Mapping[str, Any]]) -> dict[str, str]:
+def _foundry_input_refs_from_methods(
+    methods: Sequence[Mapping[str, Any]],
+) -> dict[str, str]:
     for method in methods:
         refs = _mapping(method.get("input_refs"))
         if refs:
@@ -5382,8 +5283,7 @@ def _foundry_input_refs_from_methods(methods: Sequence[Mapping[str, Any]]) -> di
 def _g2_method_validity_issue_codes(report: Mapping[str, Any]) -> list[str]:
     issue_codes: list[str] = []
     foundry_codes = {
-        str(_mapping(issue).get("code", ""))
-        for issue in _sequence(report.get("issues", ()))
+        str(_mapping(issue).get("code", "")) for issue in _sequence(report.get("issues", ()))
     }
     if report.get("status") != "pass":
         issue_codes.append("layer3_g2_method_validity_missing")
@@ -5489,7 +5389,9 @@ def _g2_search_refs(
         if "ac_skg_contested_edges" in set(_string_tuple(trace.get("table_refs", ()))) or set(
             _string_tuple(trace.get("quality_flags", ()))
         ).intersection({"directional_conflict", "resolution:mixed"}):
-            contested_refs.extend(ref for ref in (*row_refs, *selected_refs) if ref.startswith("skg-edge://"))
+            contested_refs.extend(
+                ref for ref in (*row_refs, *selected_refs) if ref.startswith("skg-edge://")
+            )
         transport_refs = _refs_with_prefix(row_refs, "skg-transport://")
         for ref, confidence in zip(
             transport_refs,
@@ -5511,7 +5413,9 @@ def _g2_search_refs(
     }
 
 
-def _g2_publish_blockers_for_contested_edges(edge_refs: Sequence[str]) -> tuple[str, ...]:
+def _g2_publish_blockers_for_contested_edges(
+    edge_refs: Sequence[str],
+) -> tuple[str, ...]:
     return tuple(
         f"publish-blocker://layer3/g2/contested-edge/{ref.removeprefix('skg-edge://')}"
         for ref in _string_tuple(edge_refs)
@@ -5526,9 +5430,10 @@ def _g2_contested_limitation_refs(edge_refs: Sequence[str]) -> tuple[str, ...]:
 
 
 def _g2_requires_calibrated_dynamics(prereq: Mapping[str, Any]) -> bool:
-    return str(prereq.get("s5_base_origin", "")) == "equilibrium_contested" or str(
-        prereq.get("s5_support_label", "")
-    ) == "equilibrium_contested"
+    return (
+        str(prereq.get("s5_base_origin", "")) == "equilibrium_contested"
+        or str(prereq.get("s5_support_label", "")) == "equilibrium_contested"
+    )
 
 
 def _g2_adapter_maturity(
@@ -5538,9 +5443,11 @@ def _g2_adapter_maturity(
     authority_envelope: Mapping[str, Any],
     requested_adapter_maturity: AdapterMaturity | None,
 ) -> AdapterMaturity:
-    if _g2_calibration_is_passed(calibration_record) and _g2_authority_envelope_is_bounded(
-        authority_envelope
-    ) and not issue_codes:
+    if (
+        _g2_calibration_is_passed(calibration_record)
+        and _g2_authority_envelope_is_bounded(authority_envelope)
+        and not issue_codes
+    ):
         return "calibrated"
     if requested_adapter_maturity == "calibrated" or issue_codes:
         return "fail_closed"
@@ -5633,9 +5540,7 @@ def _g2_authority_envelope_is_bounded(authority_envelope: Mapping[str, Any]) -> 
 def _refs_from_records(records: Sequence[Mapping[str, Any]], key: str) -> tuple[str, ...]:
     return tuple(
         dict.fromkeys(
-            str(record.get(key))
-            for record in records
-            if record.get(key) not in (None, "")
+            str(record.get(key)) for record in records if record.get(key) not in (None, "")
         )
     )
 
@@ -5699,9 +5604,7 @@ def _g2_s10_support_payload(
         "s5_support_label": prereq.get("s5_support_label"),
         "s5_base_origin": prereq.get("s5_base_origin"),
         "s5_claim_scope": prereq.get("s5_claim_scope"),
-        "s6_firewall_status_refs": list(
-            _string_tuple(prereq.get("s6_firewall_status_refs", ()))
-        ),
+        "s6_firewall_status_refs": list(_string_tuple(prereq.get("s6_firewall_status_refs", ()))),
         "s6_limitation_refs": list(_string_tuple(prereq.get("s6_limitation_refs", ()))),
         "s8_value_choice_provenance_ref": prereq.get("s8_value_choice_provenance_ref"),
         "s8_value_tradeoff_disclosure_ref": prereq.get("s8_value_tradeoff_disclosure_ref"),
@@ -5713,9 +5616,7 @@ def _g2_s10_support_payload(
         "method_lineage_refs": list(_string_tuple(prereq.get("method_lineage_refs", ()))),
         "sensitivity_analysis_ref": prereq.get("sensitivity_analysis_ref"),
         "dynamic_equilibrium_check_ref": prereq.get("dynamic_equilibrium_check_ref"),
-        "equilibrium_caveat_refs": list(
-            _string_tuple(prereq.get("equilibrium_caveat_refs", ()))
-        ),
+        "equilibrium_caveat_refs": list(_string_tuple(prereq.get("equilibrium_caveat_refs", ()))),
         "strategic_response_caveat_refs": list(
             _string_tuple(prereq.get("strategic_response_caveat_refs", ()))
         ),
@@ -5724,9 +5625,7 @@ def _g2_s10_support_payload(
         ),
         "welfare_comparison_ref": prereq.get("welfare_comparison_ref"),
         "forecast_tier": requested_forecast_tier or "observable_calibrated",
-        "forecast_authority_disposition_reason": prereq.get(
-            "forecast_authority_disposition_reason"
-        )
+        "forecast_authority_disposition_reason": prereq.get("forecast_authority_disposition_reason")
         or "G2 translated bounded causal/forecast search through existing S10 support.",
         "method_family": method_family,
         "observable_subset_ref": prereq.get("observable_subset_ref"),
@@ -5841,9 +5740,7 @@ def _default_g2_method_request(
     repo_root: Path | None = None,
 ) -> Layer3G2CausalForecastRequest:
     root = REPO_ROOT if repo_root is None else Path(repo_root)
-    return Layer3G2CausalForecastRequest.model_validate(
-        build_g2_request_dict_from_data_home(root)
-    )
+    return Layer3G2CausalForecastRequest.model_validate(build_g2_request_dict_from_data_home(root))
 
 
 def _default_g2_runtime_method_candidate() -> dict[str, object]:
@@ -5961,7 +5858,10 @@ def _default_g2_concept_alignment_kwargs(
         "skg_cause_variable_ref": f"skg-variable://{request.cause}",
         "skg_effect_variable_ref": f"skg-variable://{request.effect}",
         "skg_parameter_refs": (),
-        "foundry_input_slot_refs": ("foundry-slot://treatment", "foundry-slot://panel-data"),
+        "foundry_input_slot_refs": (
+            "foundry-slot://treatment",
+            "foundry-slot://panel-data",
+        ),
         "foundry_output_slot_refs": ("foundry-slot://effect-estimate",),
         "s10_target_outcome_refs": (f"outcome://{G2_PINNED_CASE_ID}/{effect_ref}",),
         "alignment_status": "direct",
@@ -5990,9 +5890,7 @@ def _default_g2_s10_prerequisite_kwargs(
         "s6_firewall_status_refs": ("pdc://layer2/s6/ua-msme/measurability-adequacy",),
         "s6_limitation_refs": ("pdc://layer2/s6/ua-msme/strategic-response-limitation",),
         "s8_value_choice_provenance_ref": "pdc://layer2/s8/ua-msme/value-choice-provenance",
-        "s8_value_tradeoff_disclosure_ref": (
-            "pdc://layer2/s8/ua-msme/value-tradeoff-disclosure"
-        ),
+        "s8_value_tradeoff_disclosure_ref": ("pdc://layer2/s8/ua-msme/value-tradeoff-disclosure"),
         "source_contract_ref": _first_or_none(request.source_contract_refs),
         "method_validity_ref": "method-validity://foundry/causal/local",
         "sensitivity_analysis_ref": "sensitivity://ua-msme/affordable-loans",

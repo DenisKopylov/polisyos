@@ -2,41 +2,39 @@
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import Any
-
-from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.components import (
+    Capability,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+)
 from polisyos.core.contracts.foundry import Metrics, SimulationResult
 from polisyos.core.contracts.lex import LegalReport
-from polisyos.ir.analytics.distributional import DistributionalReport, load_distributional_report
+from polisyos.ir.analytics.distributional import (
+    DistributionalReport,
+    load_distributional_report,
+)
 from polisyos.ir.analytics.normative_arbitration import (
     ArbitrationOption,
-    HardConstraintAuditEntry,
     NormativeArbitrationResult,
     NormativeAuditStatus,
-    NormativeModelCompleteness,
     NormativeProvenance,
     OptionOutcomeMatrix,
-    PolicyOutcome,
     ResidualDissent,
-    RightsAuditEntry,
-    StakeholderUtilitySummary,
     TradeoffCertificate,
     persist_normative_arbitration_result,
 )
-from polisyos.ir.analytics.uncertainty import load_simulation_result_uncertainty_admission
 from polisyos.ir.artifacts import InputRef
 from polisyos.ir.governance.problem_frame import (
-    ConstraintSpec,
     NormativeArbitrationPolicy,
-    NormativeComparisonTarget,
     NormativeFrame,
     NormativeOutcomeChannel,
     ProblemFrame,
@@ -169,6 +167,7 @@ class RunNormativeArbitrationNode:
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         from polisyos.core.artifacts import load_core_json_artifact
+
         trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
         if trinity_ref is None:
             return NodeOutcome(
@@ -176,15 +175,14 @@ class RunNormativeArbitrationNode:
                 state=state,
                 events=[
                     NodeEvent(
-                        level="info", message="No trinity_bundle_ref; skip normative arbitration"
+                        level="info",
+                        message="No trinity_bundle_ref; skip normative arbitration",
                     )
                 ],
             )
 
         try:
-            trinity = TrinityBundle.model_validate(
-                load_core_json_artifact(ctx.store, trinity_ref)
-            )
+            trinity = TrinityBundle.model_validate(load_core_json_artifact(ctx.store, trinity_ref))
         except _NORMATIVE_ARTIFACT_ERRORS as exc:
             emit_degraded_path(
                 component="scientist.run_normative_arbitration",
@@ -410,6 +408,7 @@ class RunNormativeArbitrationNode:
 
 def _load_metrics(ctx: ExecutionContext, state: ExperimentState) -> Metrics | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
     if ref is None:
         return None
@@ -434,6 +433,7 @@ def _load_simulation_result(
     state: ExperimentState,
 ) -> SimulationResult | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     ref = state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
     if ref is None:
         return None
@@ -482,6 +482,7 @@ def _load_legal_report(
     state: ExperimentState,
 ) -> LegalReport | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     ref = state.reports_index.get(REPORT_LEGAL_REPORT_REF)
     if ref is None:
         return None
@@ -598,10 +599,16 @@ def _build_inputs(
     refs: list[InputRef] = []
     ref_map: tuple[tuple[str, ArtifactRef | None], ...] = (
         ("trinity_bundle", state.inputs.get(INPUT_TRINITY_BUNDLE_REF)),
-        ("distributional_report", state.artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_REPORT_REF)),
+        (
+            "distributional_report",
+            state.artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_REPORT_REF),
+        ),
         ("legal_report", state.reports_index.get(REPORT_LEGAL_REPORT_REF)),
         ("metrics", state.artifacts_index.get(ARTIFACT_METRICS_REF)),
-        ("simulation_result", state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)),
+        (
+            "simulation_result",
+            state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF),
+        ),
     )
     for role, ref in ref_map:
         if ref is not None:

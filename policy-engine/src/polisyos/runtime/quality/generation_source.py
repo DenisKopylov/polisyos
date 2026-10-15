@@ -16,24 +16,23 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.canonical_profile import (
-    CanonicalProfileRead,
-    read_core_json_artifact,
-    read_core_manifest_profile,
-)
-from polisyos.core.artifacts.manifest import (
+from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactSameInputClosureInfo,
     ArtifactTenantContextInfo,
     InputRef,
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
 from polisyos.core.contracts import AgentPipelineCostEvent
-from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
+from polisyos.data_forge.read_api.academic import (
     ConfidenceLayerVintage,
-    _confidence_layer_vintage_for_sha256,
+    confidence_layer_vintage_for_snapshot_digest,
 )
 from polisyos.ir import TrinityBundle
 from polisyos.pdc import gy_content_hash
@@ -50,7 +49,7 @@ from polisyos.runtime.quality.cycle_substrate import (
 from polisyos.runtime.quality.design_problem import DesignProblem
 
 if TYPE_CHECKING:
-    from polisyos.common.canonical_profile import CanonicalProfileStatus
+    from polisyos.common.canonical_profile import CanonicalProfileRead, CanonicalProfileStatus
     from polisyos.runtime.quality.credal_reference import CredalReference
     from polisyos.runtime.quality.generation_cycle import (
         CandidateSummary,
@@ -327,7 +326,9 @@ def _n4_candidate_proposal_v3_write_options(
     )
 
 
-def _has_n4_candidate_proposal_owner_profile(manifest: artifacts.ArtifactManifest) -> bool:
+def _has_n4_candidate_proposal_owner_profile(
+    manifest: artifacts.ArtifactManifest,
+) -> bool:
     return _has_owner_profile(manifest, _n4_candidate_proposal_write_options())
 
 
@@ -434,8 +435,7 @@ def _mark_canonical_profile_read[T](
     if isinstance(selector, ArtifactRef):
         artifact_id = profile_read.selected_artifact_id or str(selector.artifact_id)
         profile_sha256 = (
-            profile_read.selected_manifest_profile_sha256
-            or selector.manifest_profile_sha256
+            profile_read.selected_manifest_profile_sha256 or selector.manifest_profile_sha256
         )
     elif isinstance(selector, str):
         artifact_id = profile_read.selected_artifact_id or selector
@@ -525,7 +525,12 @@ class N4CandidateProposalRecord(_StrictModel):
             raise ValueError("n4_candidate_proposal_limitation_mismatch")
         if any(
             status != "not_run"
-            for status in (self.n5_status, self.n8_status, self.n9_status, self.s8_status)
+            for status in (
+                self.n5_status,
+                self.n8_status,
+                self.n9_status,
+                self.s8_status,
+            )
         ):
             raise ValueError("n4_candidate_proposal_crossed_unrun_stage")
         return self
@@ -830,7 +835,10 @@ class GenerationSourceHandoff(_StrictModel):
                 or source.proposal_id != expected_proposal["proposal_id"]
             ):
                 raise ValueError("generation_source_proposal_mismatch")
-            cg1, cg2 = source.grounding_relation_certificate, source.grounding_decision_certificate
+            cg1, cg2 = (
+                source.grounding_relation_certificate,
+                source.grounding_decision_certificate,
+            )
             if cg2.cg1_content_hash != cg1.content_hash or cg1.proposal_id != source.proposal_id:
                 raise ValueError("generation_source_certificate_binding_mismatch")
             if reference is not None and (
@@ -865,7 +873,9 @@ class GenerationSourceHandoff(_StrictModel):
         """Reuse the N9 full-reference replay owner, including every edge/hash check."""
         if self.credal_reference_payload is None:
             return None
-        from polisyos.runtime.quality.promotion_sequence import _CredalReferenceReplayRecord
+        from polisyos.runtime.quality.promotion_sequence import (
+            _CredalReferenceReplayRecord,
+        )
 
         return _CredalReferenceReplayRecord.model_validate(
             self.credal_reference_payload
@@ -883,7 +893,11 @@ class GenerationSourceHandoff(_StrictModel):
     def identities(self) -> tuple[Identity, ...]:
         """Enumerate the actual typed candidate denominator in this source artifact."""
         return tuple(
-            (self.generation_result.design_problem_ref, item.candidate_id, item.atom.content_hash)
+            (
+                self.generation_result.design_problem_ref,
+                item.candidate_id,
+                item.atom.content_hash,
+            )
             for item in self.generation_result.candidates
         )
 
@@ -1076,7 +1090,7 @@ class N4CandidateScenarioSourceRecordV1(_StrictModel):
         if self.l2_confidence_vintage is not None:
             if type(self.l2_confidence_vintage) is not ConfidenceLayerVintage:
                 raise ValueError("n4_candidate_scenario_l2_vintage_untyped")
-            owner_vintage = _confidence_layer_vintage_for_sha256(
+            owner_vintage = confidence_layer_vintage_for_snapshot_digest(
                 self.l2_confidence_vintage.snapshot_sha256
             )
             if (
@@ -1534,12 +1548,14 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_model_declaration_content_mismatch")
         try:
             record = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
-                    (profile_read := read_core_json_artifact(
+                (
+                    profile_read := read_core_json_artifact(
                         self.store,
                         ref,
                         raw_payload_bytes=body,
-                    )).value
-                )
+                    )
+                ).value
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("candidate_simulation_model_declaration_invalid") from exc
         if (
@@ -1583,7 +1599,7 @@ class GenerationSourceRepository:
         profile_content_hash: str,
     ) -> ArtifactRef:
         """Use the existing IR NCM serializer with the runtime's full input ref."""
-        from polisyos.ir.analytics.ncm import NCMSpec, persist_ncm_spec_selected_view
+        from polisyos.ir import NCMSpec, persist_ncm_spec_selected_view
 
         if type(ncm_spec) is not NCMSpec:
             raise TypeError("candidate_simulation_ncm_spec_untyped")
@@ -1684,12 +1700,14 @@ class GenerationSourceRepository:
             raise ValueError("n4_candidate_scenario_source_cas_content_mismatch")
         try:
             source = N4CandidateScenarioSourceRecordV2.model_validate(
-                    (profile_read := read_core_json_artifact(
+                (
+                    profile_read := read_core_json_artifact(
                         self.store,
                         ref,
                         raw_payload_bytes=body,
-                    )).value
-                )
+                    )
+                ).value
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("n4_candidate_scenario_source_v2_invalid") from exc
         if (
@@ -1780,7 +1798,7 @@ class GenerationSourceRepository:
             ncm_manifest, ncm_options
         ):
             raise ValueError("n4_candidate_scenario_source_v2_ncm_owner_profile_mismatch")
-        from polisyos.ir.analytics.ncm import (
+        from polisyos.ir import (
             candidate_ncm_spec_from_declaration,
             load_ncm_spec_selected_view,
         )
@@ -1888,12 +1906,14 @@ class GenerationSourceRepository:
             raise ValueError("n4_candidate_scenario_source_cas_content_mismatch")
         try:
             source = N4CandidateScenarioSourceRecordV3.model_validate(
-                    (profile_read := read_core_json_artifact(
+                (
+                    profile_read := read_core_json_artifact(
                         self.store,
                         ref,
                         raw_payload_bytes=body,
-                    )).value
-                )
+                    )
+                ).value
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("n4_candidate_scenario_source_v3_invalid") from exc
         if (
@@ -2145,12 +2165,14 @@ class GenerationSourceRepository:
             raise ValueError("n4_candidate_scenario_source_cas_content_mismatch")
         try:
             source = N4CandidateScenarioSourceRecordV1.model_validate(
-                    (profile_read := read_core_json_artifact(
+                (
+                    profile_read := read_core_json_artifact(
                         self.store,
                         ref,
                         raw_payload_bytes=body,
-                    )).value
-                )
+                    )
+                ).value
+            )
         except (TypeError, ValueError) as exc:
             raise ValueError("n4_candidate_scenario_source_record_invalid") from exc
         if (
@@ -2733,9 +2755,7 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_v2_cas_content_mismatch")
         try:
             payload = (
-                profile_read := read_core_json_artifact(
-                    self.store, ref, raw_payload_bytes=body
-                )
+                profile_read := read_core_json_artifact(self.store, ref, raw_payload_bytes=body)
             ).value
             if manifest.kind == _CANDIDATE_SIMULATION_INPUT_KIND:
                 record: object = CandidateSimulationN5InputV2.model_validate(payload)
@@ -2891,11 +2911,13 @@ class GenerationSourceRepository:
         ):
             raise ValueError("candidate_simulation_v2_input_manifest_mismatch")
         record = CandidateSimulationN5InputV2.model_validate(
-            (profile_read := read_core_json_artifact(
-                self.store,
-                ref,
-                raw_payload_bytes=body,
-            )).value
+            (
+                profile_read := read_core_json_artifact(
+                    self.store,
+                    ref,
+                    raw_payload_bytes=body,
+                )
+            ).value
         )
         options = _candidate_simulation_write_options(
             kind=_CANDIDATE_SIMULATION_INPUT_KIND,
@@ -2944,9 +2966,7 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_v3_cas_content_mismatch")
         try:
             payload = (
-                profile_read := read_core_json_artifact(
-                    self.store, ref, raw_payload_bytes=body
-                )
+                profile_read := read_core_json_artifact(self.store, ref, raw_payload_bytes=body)
             ).value
             if manifest.kind == _CANDIDATE_SIMULATION_INPUT_KIND:
                 record: object = CandidateSimulationN5InputV3.model_validate(payload)
@@ -3139,9 +3159,7 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_v4_cas_content_mismatch")
         try:
             payload = (
-                profile_read := read_core_json_artifact(
-                    self.store, ref, raw_payload_bytes=body
-                )
+                profile_read := read_core_json_artifact(self.store, ref, raw_payload_bytes=body)
             ).value
             if manifest.kind == _CANDIDATE_SIMULATION_INPUT_KIND:
                 record: object = CandidateSimulationN5InputV4.model_validate(payload)
@@ -3328,9 +3346,7 @@ class GenerationSourceRepository:
             raise ValueError("candidate_simulation_v5_cas_content_mismatch")
         try:
             payload = (
-                profile_read := read_core_json_artifact(
-                    self.store, ref, raw_payload_bytes=body
-                )
+                profile_read := read_core_json_artifact(self.store, ref, raw_payload_bytes=body)
             ).value
             if manifest.kind == _CANDIDATE_SIMULATION_INPUT_KIND:
                 record: object = CandidateSimulationN5InputV5.model_validate(payload)
@@ -3502,7 +3518,9 @@ class GenerationSourceRepository:
 
     def _load_candidate_simulation_input_v5(self, ref: ArtifactRef) -> object:
         """Resolve one exact V5 input and its upstream candidate source."""
-        from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
+        from polisyos.runtime.quality.candidate_simulation import (
+            CandidateSimulationN5InputV5,
+        )
 
         if not isinstance(ref, ArtifactRef):
             raise ValueError("candidate_simulation_v5_selected_ref_required")
@@ -3512,11 +3530,13 @@ class GenerationSourceRepository:
         body = self.store.get_bytes(ref)
         try:
             record = CandidateSimulationN5InputV5.model_validate(
-                (profile_read := read_core_json_artifact(
-                    self.store,
-                    ref,
-                    raw_payload_bytes=body,
-                )).value
+                (
+                    profile_read := read_core_json_artifact(
+                        self.store,
+                        ref,
+                        raw_payload_bytes=body,
+                    )
+                ).value
             )
         except (TypeError, ValueError) as exc:
             raise ValueError("candidate_simulation_v5_input_invalid") from exc
@@ -3556,11 +3576,13 @@ class GenerationSourceRepository:
         body = self.store.get_bytes(ref)
         try:
             record = CandidateSimulationN5InputV4.model_validate(
-                (profile_read := read_core_json_artifact(
-                    self.store,
-                    ref,
-                    raw_payload_bytes=body,
-                )).value
+                (
+                    profile_read := read_core_json_artifact(
+                        self.store,
+                        ref,
+                        raw_payload_bytes=body,
+                    )
+                ).value
             )
         except (TypeError, ValueError) as exc:
             raise ValueError("candidate_simulation_v4_input_invalid") from exc
@@ -3601,11 +3623,13 @@ class GenerationSourceRepository:
         if "sha256:" + hashlib.sha256(body).hexdigest() != str(ref.artifact_id):
             raise ValueError("candidate_simulation_v3_input_cas_content_mismatch")
         record = CandidateSimulationN5InputV3.model_validate(
-            (profile_read := read_core_json_artifact(
-                self.store,
-                ref,
-                raw_payload_bytes=body,
-            )).value
+            (
+                profile_read := read_core_json_artifact(
+                    self.store,
+                    ref,
+                    raw_payload_bytes=body,
+                )
+            ).value
         )
         if (
             manifest.kind != _CANDIDATE_SIMULATION_INPUT_KIND
@@ -4312,11 +4336,13 @@ class GenerationSourceRepository:
             raise ValueError("candidate_credal_source_attempt_cas_content_mismatch")
         try:
             record = CandidateCredalSourceAttemptV1.model_validate(
-                (profile_read := read_core_json_artifact(
-                    self.store,
-                    ref,
-                    raw_payload_bytes=body,
-                )).value
+                (
+                    profile_read := read_core_json_artifact(
+                        self.store,
+                        ref,
+                        raw_payload_bytes=body,
+                    )
+                ).value
             )
         except (TypeError, ValueError) as exc:
             raise ValueError("candidate_credal_source_attempt_payload_invalid") from exc
@@ -4444,7 +4470,9 @@ class GenerationSourceRepository:
         )
         parameter = n4._candidate_parameter_value(intervention, default=None)
         if context.intervention_substrate is not None and parameter is not None:
-            from polisyos.runtime.quality.promotion_sequence import _EffectObligationWriterInput
+            from polisyos.runtime.quality.promotion_sequence import (
+                _EffectObligationWriterInput,
+            )
 
             # Non-scalar parameters stay absent; no catalog value is substituted.
             with suppress(ValueError):
@@ -4490,7 +4518,9 @@ class GenerationSourceRepository:
         scope_synthetic: Literal[True] | None = None,
     ) -> GenerationSourcePreservationReceipt:
         """Re-read every persisted candidate and compare complete identity sets."""
-        from polisyos.runtime.quality.generation_cycle import GenerationSourcePreservationReceipt
+        from polisyos.runtime.quality.generation_cycle import (
+            GenerationSourcePreservationReceipt,
+        )
 
         issues = list(prior_issues)
         retained: list[Identity] = []

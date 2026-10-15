@@ -22,9 +22,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationContextHandoffV1,
     )
-    from polisyos.scientist.orchestration.engine.budget_ledger import (
-        BudgetLedgerProducerRunBinding,
-    )
+    from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
 
     from ..control_plane_store import (
         ControlJobExecutionAdmission,

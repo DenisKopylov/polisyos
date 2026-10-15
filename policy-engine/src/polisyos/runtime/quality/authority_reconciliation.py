@@ -6,14 +6,15 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, NoReturn, cast
 
 from polisyos.core import canon
-from polisyos.core.artifacts import VerificationReport, resolve_manifest_by_profile
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import (
+from polisyos.core.artifacts import (
     ArtifactAuthorityInfo,
     ArtifactManifest,
     ArtifactRef,
-    artifact_reference_parts,
+    VerificationReport,
+    resolve_manifest_by_profile,
 )
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import artifact_reference_parts
 from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_ARTIFACT_KIND,
     DIAGNOSTIC_EVENT_SCHEMA_NAME,
@@ -151,7 +152,10 @@ def _safe_failure_details(
         return {"error_kind": failure.error_kind}
     if isinstance(failure, VerificationReport):
         selected_id = _normalize_cas_ref(str(artifact_id)) if artifact_id is not None else None
-        verification: dict[str, Any] = {"status": "failed", "error_kind": "verification_failed"}
+        verification: dict[str, Any] = {
+            "status": "failed",
+            "error_kind": "verification_failed",
+        }
         if selected_id is not None:
             verification["artifact_id"] = str(selected_id)
         expected = _safe_sha256_hex(failure.expected_sha256_hex)
@@ -540,7 +544,9 @@ def reconcile_authority_ref(
     event_rows = _capture_event_rows(event_log, event_id=linked_event.event_id, limit=2)
     if event_rows.failure is not None:
         _fail_authority_event_log_read(
-            event_rows.failure, event_id=linked_event.event_id, operation="linked event lookup"
+            event_rows.failure,
+            event_id=linked_event.event_id,
+            operation="linked event lookup",
         )
     records = event_rows.value
     if len(records) != 1:

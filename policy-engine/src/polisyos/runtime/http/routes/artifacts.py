@@ -17,9 +17,9 @@ from polisyos.core.artifacts import (
     ArtifactOwnershipError,
     ArtifactRef,
     artifact_manifest_profile_sha256,
+    read_core_manifest_profile,
     resolve_manifest_by_profile,
 )
-from polisyos.core.artifacts.canonical_profile import read_core_manifest_profile
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.runtime import (
     ArtifactBatchRequest,
@@ -49,7 +49,12 @@ from polisyos.runtime.http.dependencies import (
     record_data_access_audit,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request, conflict, not_acceptable, not_found
+from polisyos.runtime.http.errors import (
+    bad_request,
+    conflict,
+    not_acceptable,
+    not_found,
+)
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.response_policies import (
     add_artifact_link_relations,
@@ -58,7 +63,9 @@ from polisyos.runtime.http.response_policies import (
     set_artifact_view_headers,
 )
 from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
-from polisyos.runtime.http.services.artifact_inspector import ArtifactSurfaceAdmissionError
+from polisyos.runtime.http.services.artifact_inspector import (
+    ArtifactSurfaceAdmissionError,
+)
 from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
 from polisyos.runtime.quality.authority import authority_surface_decision
 
@@ -1178,7 +1185,10 @@ if router is not None:
             request,
             resource_id=str(parsed_id),
             tenant_id=tenant_id,
-            metadata={"representation": "download", "manifest_profile_sha256": resolved_profile},
+            metadata={
+                "representation": "download",
+                "manifest_profile_sha256": resolved_profile,
+            },
         )
         return response
 

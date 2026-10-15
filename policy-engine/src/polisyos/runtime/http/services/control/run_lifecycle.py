@@ -15,12 +15,15 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.common.logger import get_logger
 from polisyos.core import artifacts, run
-from polisyos.core.artifacts.async_store import ensure_async_artifact_store
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.artifacts.canonical_profile import (
+from polisyos.core.artifacts import (
     artifact_ref_for_manifest,
     read_core_json_artifact,
     read_core_manifest_profile,
+)
+from polisyos.core.artifacts.async_store import ensure_async_artifact_store
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
 )
 from polisyos.core.artifacts.manifest import (
     ArtifactGovernanceInfo,
@@ -35,8 +38,12 @@ from polisyos.core.canon import (
     CanonSpec,
 )
 from polisyos.core.contracts import (
+    CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES,
     CapabilityDiscoveryRequest,
     CapabilityDiscoveryResponse,
+    ControlPreAdmissionAttemptEventInfo,
+    ControlPreAdmissionAttemptResponse,
+    ControlPreAdmissionOwnerBinding,
     SearchRequest,
 )
 from polisyos.core.contracts.control import (
@@ -78,12 +85,6 @@ from polisyos.core.contracts.control import (
     SourceProfileInfo,
     SourceProfilesListResponse,
     WorkflowRunRequest,
-)
-from polisyos.core.contracts.control_admission_attempt import (
-    CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES,
-    ControlPreAdmissionAttemptEventInfo,
-    ControlPreAdmissionAttemptResponse,
-    ControlPreAdmissionOwnerBinding,
 )
 from polisyos.core.contracts.decision_validity import (
     DecisionDependencyEvent,
@@ -214,7 +215,7 @@ from polisyos.scientist.governance.continuous import (
     PublishedSignatureCustodyWatcher,
     resolve_governance_monitor_event,
 )
-from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+from polisyos.scientist.orchestration.engine import BudgetMiddleware
 from polisyos.scientist.orchestration.llm.provider_verification import (
     ProviderPreflightReport,
     run_provider_preflight,
@@ -275,11 +276,8 @@ def _build_control_nl_producer_budget_reconciler(
     """Recompute run spend from the exact committed producer-event set before N6 spend."""
     from polisyos.runtime.quality.generation_cycle import GenerationCycleError
     from polisyos.scientist import BudgetState as CanonicalBudgetState
-    from polisyos.scientist.orchestration.engine.budget import BudgetLimit
-    from polisyos.scientist.orchestration.engine.budget_ledger import (
-        BudgetLedgerProducerRecord,
-    )
-    from polisyos.scientist.orchestration.engine.budget_ledger import (
+    from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRecord, BudgetLimit
+    from polisyos.scientist.orchestration.engine import (
         BudgetLedgerProducerRunBinding as CanonicalProducerRunBinding,
     )
 
@@ -575,10 +573,14 @@ if TYPE_CHECKING:
         _DesignProblemGatewayClient,
     )
     from polisyos.runtime.quality.cycle_substrate import VerifiedNLJobScope
-    from polisyos.runtime.quality.data_forge_binding import MeasurementRootExecutionBinding
+    from polisyos.runtime.quality.data_forge_binding import (
+        MeasurementRootExecutionBinding,
+    )
     from polisyos.runtime.quality.design_generation import GenerationUnderAResult
     from polisyos.runtime.quality.design_problem import DesignProblem
-    from polisyos.runtime.quality.epoch_certificate_issuance import DecisionPacketEpochIssuanceOwner
+    from polisyos.runtime.quality.epoch_certificate_issuance import (
+        DecisionPacketEpochIssuanceOwner,
+    )
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationAdmissionOwner,
         GenericCycleSimulationContextHandoffV1,
@@ -589,9 +591,7 @@ if TYPE_CHECKING:
         RecursiveLeafContextOwner,
     )
     from polisyos.scientist import BudgetState
-    from polisyos.scientist.orchestration.engine.budget_ledger import (
-        BudgetLedgerProducerRunBinding,
-    )
+    from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
 
     from ...step_up import StepUpReplayStore
     from ..control_registry_providers import ControlRegistryProviders
@@ -770,7 +770,13 @@ class AcquisitionRouteLoopAuthoritySink:
         if generations != tuple(range(1, len(heads) + 1)):
             raise ValueError("acquisition_action_generation_history_not_contiguous")
         if any(
-            (head.tenant_id, head.cell_id, head.run_id, head.source_job_id, head.route_id)
+            (
+                head.tenant_id,
+                head.cell_id,
+                head.run_id,
+                head.source_job_id,
+                head.route_id,
+            )
             != (tenant_id, cell_id, run_id, source_job_id, route_id)
             for head in heads
         ):
@@ -2386,7 +2392,9 @@ class ControlPlaneService(
         self._registry_providers = registry_providers
         self._catalog_run_profile = registry_providers.catalog_run_profile
         self._catalog_source_selection = registry_providers.catalog_source_selection
-        from polisyos.runtime.quality.substrate_registry import resolve_catalog_serving_source
+        from polisyos.runtime.quality.substrate_registry import (
+            resolve_catalog_serving_source,
+        )
 
         self._catalog_serving_source = resolve_catalog_serving_source(
             self._repo_root,
@@ -2584,7 +2592,9 @@ class ControlPlaneService(
                 graph = getattr(retrieval_service, "_dataset_catalog", None)
                 require_catalog_serving_graph_binding(graph, self._catalog_serving_source)
             self._retrieval = retrieval_service
-        from polisyos.runtime.quality.promotion_sequence import N9PromotionEvidenceBridgeRepository
+        from polisyos.runtime.quality.promotion_sequence import (
+            N9PromotionEvidenceBridgeRepository,
+        )
 
         self._evaluation_safety_promotion_sources = EvaluationSafetyPromotionSourceContext(
             slot=source_slot,
@@ -2658,7 +2668,9 @@ class ControlPlaneService(
             subject_ref=subject_ref
         )
 
-    def run_published_signature_custody_maintenance(self) -> PublishedSignatureCustodyResult:
+    def run_published_signature_custody_maintenance(
+        self,
+    ) -> PublishedSignatureCustodyResult:
         """Run the container-composed published-signature watcher without an HTTP request."""
 
         return self._published_signature_custody_watcher.scan_once()
@@ -2702,18 +2714,26 @@ class ControlPlaneService(
         from polisyos.runtime.http.services.control.generation_cycle import (
             compile_and_run_recursive_generation_cycle,
         )
-        from polisyos.runtime.quality.generation_source import GenerationSourceRepository
-        from polisyos.runtime.quality.substrate_registry import run_catalog_source_awaitable
+        from polisyos.runtime.quality.generation_source import (
+            GenerationSourceRepository,
+        )
+        from polisyos.runtime.quality.substrate_registry import (
+            run_catalog_source_awaitable,
+        )
 
         producer_budget_reconciler = None
         if producer_run_binding is not None:
             if producer_run_id != producer_run_binding.run_id:
-                from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+                from polisyos.runtime.quality.generation_cycle import (
+                    GenerationCycleError,
+                )
 
                 raise GenerationCycleError("control_nl_budget_run_id_binding_mismatch")
             settlement_store = self._llm_producer_settlement_store
             if settlement_store is None:
-                from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+                from polisyos.runtime.quality.generation_cycle import (
+                    GenerationCycleError,
+                )
 
                 raise GenerationCycleError("control_nl_budget_settlement_store_not_established")
             producer_budget_reconciler = _build_control_nl_producer_budget_reconciler(
@@ -3415,7 +3435,14 @@ class ControlPlaneService(
         scope_values = (
             (principal.subject, principal.tenant_id, principal.cell_id) if principal else ()
         )
-        scope_sentinels = {"unknown", "tenant-unknown", "cell-unknown", "anonymous", "none", "null"}
+        scope_sentinels = {
+            "unknown",
+            "tenant-unknown",
+            "cell-unknown",
+            "anonymous",
+            "none",
+            "null",
+        }
         if (
             principal is None
             or not principal.authenticated
@@ -3567,7 +3594,11 @@ class ControlPlaneService(
                         "run_id": record.run_id,
                         "compiled_run_ref": compiled_ref,
                     }
-                    if event != expected or (head.job_id, head.run_id, head.compiled_run_ref) != (
+                    if event != expected or (
+                        head.job_id,
+                        head.run_id,
+                        head.compiled_run_ref,
+                    ) != (
                         record.job_id,
                         record.run_id,
                         compiled_ref,
@@ -4611,7 +4642,7 @@ class ControlPlaneService(
         if requested_models and (
             on_pre_admission_attempt is not None or provider_preflight_required
         ):
-            from polisyos.scientist.orchestration.engine.budget_ledger import (
+            from polisyos.scientist.orchestration.engine import (
                 BudgetLedgerProducerRunBinding,
             )
 
@@ -5054,11 +5085,14 @@ class ControlPlaneService(
                 if pre_admission_attempt_id is not None
                 else None
             )
-            if current_attempt is not None and current_attempt.status in {"started", "settled"}:
+            if current_attempt is not None and current_attempt.status in {
+                "started",
+                "settled",
+            }:
                 refs: tuple[str, ...] = ()
                 observation: Literal["not_applicable", "complete", "unavailable"] = "unavailable"
                 if current_attempt.producer_run_binding is not None:
-                    from polisyos.scientist.orchestration.engine.budget_ledger import (
+                    from polisyos.scientist.orchestration.engine import (
                         BudgetLedgerProducerRunBinding,
                     )
 
@@ -5147,15 +5181,15 @@ class ControlPlaneService(
     ) -> IngestResponse:
         """Execute connector ingestion and return refs/status for produced artifacts."""
         from polisyos.core.artifacts import ArtifactOwnershipError
+        from polisyos.fabric import (
+            IngestionStoreBindingError,
+            TenantSidecarScope,
+        )
         from polisyos.fabric.ingestion import (
             ConnectorManifestSpec,
             DatasetFetchSpec,
             IngestionDependencies,
         )
-        from polisyos.fabric.ingestion.ingestion_providers import (
-            IngestionStoreBindingError,
-        )
-        from polisyos.fabric.storage.tenant_cas import TenantSidecarScope
         from polisyos.runtime.http.errors import forbidden
 
         datasets = [
@@ -5199,7 +5233,9 @@ class ControlPlaneService(
                 )
 
         if connection_profile_id:
-            from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+            from polisyos.fabric.connectors.profiles.resolver import (
+                resolve_connection_config,
+            )
 
             profile_reg = self._registry_providers.source_profiles
             profile = profile_reg.get(connection_profile_id)
@@ -5286,7 +5322,9 @@ class ControlPlaneService(
                     sidecar_scope=sidecar_scope,
                 )
             else:
-                from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
+                from polisyos.fabric.data_plane.orchestrator import (
+                    run_orchestrated_ingestion,
+                )
 
                 result = run_orchestrated_ingestion(
                     connector_manifest=manifest,
@@ -5354,9 +5392,9 @@ class ControlPlaneService(
         request_id: str | None = None,
     ) -> DataResolveResponse:
         """Resolve `DataNeed[]` into concrete fetch plans via the retrieval service."""
-        from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
         from polisyos.data_forge.read_api.catalog import (
             CatalogSelectionError,
+            validate_catalog_run_profile,
         )
 
         configured_profile = self._catalog_run_profile
@@ -5546,7 +5584,9 @@ class ControlPlaneService(
         data_snapshot_ref: str | None,
     ) -> str | None:
         """Resolve binding profile and persist rules as a CAS artifact."""
-        from polisyos.fabric.connectors.bindings.resolver import persist_binding_rules_artifact
+        from polisyos.fabric.connectors.bindings.resolver import (
+            persist_binding_rules_artifact,
+        )
 
         registry = self._registry_providers.binding_profiles
         profile = registry.get(binding_profile_id)

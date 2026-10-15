@@ -10,10 +10,10 @@ from typing import TYPE_CHECKING, Literal, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr
 
-from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
+from polisyos.core.artifacts import ArtifactManifest, ArtifactRef
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
 
 
 _STRESS_OUTCOME_BASIS_ARTIFACT_KIND = "scientist.stress_outcome_basis"
@@ -223,7 +223,11 @@ def _expected_adversarial_count(plan) -> int | None:
 
 
 def _resolution(
-    status, component_ids: list[str], reason_code: str, *, predicate_status="not_established"
+    status,
+    component_ids: list[str],
+    reason_code: str,
+    *,
+    predicate_status="not_established",
 ) -> StressScoreResolution:
     return StressScoreResolution(
         status=status,
@@ -329,11 +333,15 @@ def resolve_stress_score_components(
             expected_count = _expected_adversarial_count(plan)
             if expected_count is None:
                 return _resolution(
-                    "profile_mismatch", component_ids, "unsupported_adversarial_strategy"
+                    "profile_mismatch",
+                    component_ids,
+                    "unsupported_adversarial_strategy",
                 )
             if basis.adaptive_continuation:
                 return _resolution(
-                    "profile_mismatch", component_ids, "adaptive_continuation_not_finite"
+                    "profile_mismatch",
+                    component_ids,
+                    "adaptive_continuation_not_finite",
                 )
             if basis.expected_count != expected_count:
                 return _resolution("invalid", component_ids, "plan_denominator_mismatch")
@@ -365,7 +373,9 @@ def resolve_stress_score_components(
                 return _resolution("invalid", component_ids, "benchmark_evaluation_unreadable")
             if (
                 not _manifest_has_input(
-                    basis_manifest, basis.benchmark_evaluation_ref, role="benchmark_evaluation"
+                    basis_manifest,
+                    basis.benchmark_evaluation_ref,
+                    role="benchmark_evaluation",
                 )
                 or basis.candidate_ref is None
                 or not _manifest_has_input(
@@ -388,7 +398,10 @@ def resolve_stress_score_components(
                 return _resolution("invalid", component_ids, "phase_d4_evaluation_binding_mismatch")
             if executed:
                 fraction = sum(item.status == "passed" for item in executed) / len(executed)
-                for metrics in (evaluation.selection_metrics, evaluation.holdout_metrics):
+                for metrics in (
+                    evaluation.selection_metrics,
+                    evaluation.holdout_metrics,
+                ):
                     reported = metrics.get("challenge_pass_rate")
                     if (
                         type(reported) not in {int, float}

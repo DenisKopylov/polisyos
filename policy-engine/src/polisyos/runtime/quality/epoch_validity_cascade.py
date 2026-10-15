@@ -24,10 +24,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core import contracts as core_contracts
-from polisyos.core.contracts import EpochPerturbationClass
-from polisyos.core.contracts.c4_persisted_profiles import (
-    c4_framed_semantic_projection_digest,
-)
+from polisyos.core.contracts import EpochPerturbationClass, c4_framed_semantic_projection_digest
 from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import CandidateSummary
@@ -40,7 +37,9 @@ from polisyos.runtime.quality.semantic_epoch import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.runtime.quality.epoch_transition_origin import FileEpochTransitionOriginOwner
+    from polisyos.runtime.quality.epoch_transition_origin import (
+        FileEpochTransitionOriginOwner,
+    )
 
 ArtifactID = artifacts.ArtifactID
 ArtifactRef = artifacts.ArtifactRef
@@ -762,7 +761,11 @@ def resolve_owner_target_dispositions(
             *(event.authority_purpose for event in events),
             *(owner.authority_purpose for owner in owners),
         }
-        authority_choices = choices - {"annotation_only", "review_required", "contested"}
+        authority_choices = choices - {
+            "annotation_only",
+            "review_required",
+            "contested",
+        }
         if (
             "contested" in choices
             or len(authority_choices) > 1
@@ -1504,7 +1507,9 @@ class PersistedEpochPromotionQueryStatement(_StrictModel):
     qualification_result: core_contracts.chronology.NativeChronologyQualificationResult
 
     @model_validator(mode="after")
-    def _query_is_derived_from_owner_fields(self) -> PersistedEpochPromotionQueryStatement:
+    def _query_is_derived_from_owner_fields(
+        self,
+    ) -> PersistedEpochPromotionQueryStatement:
         expected = promotion_epoch_query(
             design_problem_binding_ref=self.design_problem_binding_ref,
             candidate=self.candidate,
@@ -2044,7 +2049,8 @@ class ArtifactPromotionOwnerQueryContextRepository:
                 code="historical_serialization_requires_current_owner_query",
             )
         if not isinstance(
-            verified, (PersistedPromotionOwnerQueryContext, PromotionOwnerQueryContextNonReceipt)
+            verified,
+            (PersistedPromotionOwnerQueryContext, PromotionOwnerQueryContextNonReceipt),
         ):
             return PromotionOwnerQueryContextNonReceipt(
                 status="rejected", code="promotion_query_context_binding_mismatch"

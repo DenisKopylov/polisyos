@@ -10,12 +10,16 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from polisyos.core.contracts import CatalogRunProfile
-    from polisyos.runtime.quality.capability_discovery import CapabilityDiscoveryProvider
+    from polisyos.runtime.quality.capability_discovery import (
+        CapabilityDiscoveryProvider,
+    )
     from polisyos.runtime.quality.capability_resolver import (
         CapabilityConformanceVerifier,
         CapabilityLiveOperationRegistry,
     )
-    from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourceSelection,
+    )
 
 
 class ConnectorRegistryLike(Protocol):
@@ -190,7 +194,9 @@ def _validate_catalog_source_selection(selection: object | None) -> None:
     """Reject selectors that are not the immutable runtime type."""
     if selection is None:
         return
-    from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourceSelection,
+    )
 
     if type(selection) is not CatalogServingSourceSelection:
         raise ValueError("catalog_source_selection_invalid")
@@ -202,7 +208,7 @@ def _validate_catalog_run_profile(profile: object | None) -> None:
         return
     if not isinstance(profile, str):
         raise ValueError("catalog_run_profile_invalid")
-    from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
+    from polisyos.data_forge.read_api.catalog import validate_catalog_run_profile
 
     validate_catalog_run_profile(profile)
 

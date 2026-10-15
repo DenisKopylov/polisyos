@@ -12,23 +12,32 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.ir.governance.policy_spec import PolicySearchLevel
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
 from polisyos.scientist.methods.search.contracts import ParetoViewProjection
-from polisyos.scientist.methods.search.controller import SearchIteration, SearchResult, SearchStatus
+from polisyos.scientist.methods.search.controller import (
+    SearchIteration,
+    SearchResult,
+    SearchStatus,
+)
 from polisyos.scientist.methods.search.lessons import (
     LessonCard,
     LessonKind,
     LessonRegistry,
     LessonTrustLevel,
 )
-from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.objective import (
+    ObjectiveValue,
+    OptimizationDirection,
+)
 from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry, ParetoView
 from polisyos.scientist.methods.search.stopping import MaxIterations
 from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
 from polisyos.scientist.methods.search.strategies.codec import _get_path, _set_path
-from polisyos.scientist.methods.search.strategies.multi_objective import MOBayesianOptimizer
+from polisyos.scientist.methods.search.strategies.multi_objective import (
+    MOBayesianOptimizer,
+)
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.transfer import RunFingerprint
 from polisyos.scientist.methods.search.strategies.types import (
@@ -38,7 +47,10 @@ from polisyos.scientist.methods.search.strategies.types import (
 )
 from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
-from polisyos.scientist.policy_design.critic import ConstraintCritic, ConstraintCriticInput
+from polisyos.scientist.policy_design.critic import (
+    ConstraintCritic,
+    ConstraintCriticInput,
+)
 from polisyos.scientist.policy_design.objectives import (
     ConstraintStatus,
     ObjectiveDirection,
@@ -295,7 +307,10 @@ class HierarchicalSearchCoordinator:
             )
             if structure_validator is not None and not structure_validator(seed.candidate):
                 seed = seed.model_copy(
-                    update={"accepted": False, "rejection_reason": "structure_validator_rejected"}
+                    update={
+                        "accepted": False,
+                        "rejection_reason": "structure_validator_rejected",
+                    }
                 )
             elif not critique.passed:
                 seed = seed.model_copy(
@@ -532,16 +547,19 @@ class HierarchicalSearchCoordinator:
         )
         context.setdefault("loop_id", loop_id)
         effective_stage_a = stage_a_evaluator or _always_pass_stage_a
-        transfer_initials, transfer_report, transfer_stage_a_count, transfer_stage_b_count = (
-            _reevaluate_candidate_only_transfer_seeds(
-                candidate_only_seed_evaluations or [],
-                spec=spec,
-                codec=codec,
-                context=context,
-                stage_a_evaluator=effective_stage_a,
-                stage_b_evaluator=stage_b_evaluator,
-                constraint_critic=self._constraint_critic,
-            )
+        (
+            transfer_initials,
+            transfer_report,
+            transfer_stage_a_count,
+            transfer_stage_b_count,
+        ) = _reevaluate_candidate_only_transfer_seeds(
+            candidate_only_seed_evaluations or [],
+            spec=spec,
+            codec=codec,
+            context=context,
+            stage_a_evaluator=effective_stage_a,
+            stage_b_evaluator=stage_b_evaluator,
+            constraint_critic=self._constraint_critic,
         )
         initial_evaluations.extend(transfer_initials)
         result = _run_blueprint_parameter_search(

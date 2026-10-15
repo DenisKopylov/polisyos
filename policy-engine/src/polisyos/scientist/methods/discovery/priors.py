@@ -9,12 +9,12 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts.scientist import GraphPriorBundleRef, PriorKnowledgeBundleRef
-from polisyos.ir.analytics import ClaimVocabularyAxisStatus
-from polisyos.ir.analytics.causal_discovery import (
-    AlgebraicAssumptionStatus,
-    AlgebraicFalsificationScope,
+from polisyos.core.contracts.scientist import (
+    GraphPriorBundleRef,
+    PriorKnowledgeBundleRef,
 )
+from polisyos.ir import AlgebraicAssumptionStatus, AlgebraicFalsificationScope
+from polisyos.ir.analytics import ClaimVocabularyAxisStatus
 from polisyos.ir.analytics.cross_graph import EvidenceSourceStatus
 from polisyos.scientist.methods.discovery.aggregator import (
     EdgeConfidenceEntry,
@@ -361,6 +361,7 @@ def load_graph_prior_bundle(
         raise ValueError("graph prior bundle manifest profile is missing")
     manifest = store.get_manifest(ref)
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     stored_version = _validate_graph_prior_artifact_binding(ref, manifest, payload)
     if stored_version == _GRAPH_PRIOR_BUNDLE_LEGACY_SCHEMA_VERSION:
@@ -405,10 +406,7 @@ def _validate_legacy_v1_1_graph_prior_payload(payload: dict[str, Any]) -> None:
     if type(evidence_rows) is not dict:
         raise ValueError("historical graph prior evidence must be an object")
     for evidence in evidence_rows.values():
-        if (
-            type(evidence) is not dict
-            or set(evidence) != _HYPOTHESIS_IDENTIFICATION_V1_1_FIELDS
-        ):
+        if type(evidence) is not dict or set(evidence) != _HYPOTHESIS_IDENTIFICATION_V1_1_FIELDS:
             raise ValueError("historical graph prior evidence does not match exact v1.1 fields")
 
 
@@ -425,7 +423,9 @@ def _validate_current_v1_2_graph_prior_payload(payload: dict[str, Any]) -> None:
             raise ValueError("current graph prior evidence is missing v1.2 scope fields")
 
 
-def _adapt_historical_v1_1_graph_prior_payload(payload: dict[str, Any]) -> dict[str, Any]:
+def _adapt_historical_v1_1_graph_prior_payload(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
     """Keep historical priors at v1.1 and explicitly limit them to routing."""
     adapted = dict(payload)
     adapted["artifact_functions"] = [ArtifactFunction.ROUTING.value]
@@ -460,13 +460,13 @@ def _strict_disputed_edge_fields(edge: DisputedEdge) -> dict[str, Any]:
     candidates = fields["candidate_edges"]
     if type(candidates) is not list:
         raise ValueError("disputed candidate edges must be a canonical list")
-    fields["candidate_edges"] = [
-        _strict_prior_edge_fields(candidate) for candidate in candidates
-    ]
+    fields["candidate_edges"] = [_strict_prior_edge_fields(candidate) for candidate in candidates]
     return fields
 
 
-def _revalidate_current_graph_prior_bundle(bundle: GraphPriorBundle) -> GraphPriorBundle:
+def _revalidate_current_graph_prior_bundle(
+    bundle: GraphPriorBundle,
+) -> GraphPriorBundle:
     """Rebuild declared nested fields from storage before current CAS mutation."""
     fields = _stored_model_fields(bundle, GraphPriorBundle)
     if fields["schema_version"] != GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION:
@@ -530,6 +530,7 @@ def load_prior_knowledge_bundle(
 ) -> PriorKnowledgeBundle:
     """Load prior knowledge bundle."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     return PriorKnowledgeBundle.model_validate(payload)
 

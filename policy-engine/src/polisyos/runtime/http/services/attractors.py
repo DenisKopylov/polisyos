@@ -6,10 +6,7 @@ from typing import TYPE_CHECKING, TypeVar
 
 from pydantic import BaseModel
 
-from polisyos.core.artifacts.canonical_profile import (
-    read_core_json_artifact,
-    read_core_manifest_profile,
-)
+from polisyos.core.artifacts import read_core_json_artifact, read_core_manifest_profile
 from polisyos.core.contracts.foundry import (
     AttractorAnalysisRequest,
     AttractorAnalysisResult,

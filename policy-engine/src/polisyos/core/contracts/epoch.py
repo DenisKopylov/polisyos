@@ -71,6 +71,21 @@ _CANONICAL_OWNER_ROW_KINDS = frozenset(
 _RAW_OWNER_SOURCE_KINDS = frozenset(
     {"l5.schema_regime_registry", "l5.schema_regime_scope_registry"}
 )
+_EPOCH_NATIVE_COORDINATE_ROLES = {
+    "epoch.coordinate.valid_effect.v1": "valid_effect",
+    "epoch.coordinate.visibility_knowledge_cutoff.v1": "visibility_knowledge_cutoff",
+    "epoch.coordinate.purpose_admission_cutoff.v1": "purpose_admission_cutoff",
+    "epoch.coordinate.valid-date.v1": "valid_effect",
+    "epoch.coordinate.knowledge-time.v1": "visibility_knowledge_cutoff",
+    "epoch.coordinate.admission-time.v1": "purpose_admission_cutoff",
+}
+_CONNECTOR_CACHE_DATA_MEDIA_TYPES = frozenset(
+    {
+        "application/vnd.polisyos.cached-result+application/json",
+        "application/vnd.polisyos.cached-result+application/parquet",
+        "application/vnd.polisyos.cached-result+application/pickle",
+    }
+)
 
 
 class AcquisitionArtifactCodec(NamedTuple):
@@ -78,9 +93,19 @@ class AcquisitionArtifactCodec(NamedTuple):
 
     media_type: str
     payload_format: Literal[
-        "epoch_frame", "canonical_json", "raw_json", "identity_token", "unresolved_reference"
+        "epoch_frame",
+        "canonical_json",
+        "raw_json",
+        "producer_json",
+        "connector_cache_payload",
+        "opaque_bytes",
+        "native_coordinate",
+        "identity_token",
+        "unresolved_reference",
     ]
     canon: CanonInfo | None
+    schema_name: str | None = None
+    schema_version: str | None = None
 
 
 _COORDINATE_PREFIX = b"polisyos.native-coordinate.v1\0"
@@ -154,13 +179,21 @@ def canonical_external_epoch_statement_bytes(
     return to_canonical_bytes(mapping, _EXTERNAL_STATEMENT_CANON)
 
 
-def acquisition_artifact_codec(kind: str) -> AcquisitionArtifactCodec | None:
-    """Return the registered source codec for an existing acquisition ref kind.
+def acquisition_artifact_codec(
+    kind: str, *, media_type: str | None = None
+) -> AcquisitionArtifactCodec | None:
+    """Return the exact registered source codec for an existing ref kind.
 
+    ``media_type`` is mandatory to resolve connector-cache payloads because the
+    producer supports three distinct inner encodings. Unknown variants refuse.
     Identity tokens are not evidence bytes. Unresolved references have no owner
-    byte resolver and therefore cannot satisfy a selected-evidence read.
+    byte resolver and cannot satisfy a selected-evidence read.
     """
     epoch_media = "application/vnd.polisyos.epoch+json"
+    if kind == "epoch.semantic_facet_source.v1":
+        if media_type not in (None, epoch_media):
+            return None
+        return AcquisitionArtifactCodec(epoch_media, "canonical_json", epoch_canon_info())
     if kind in _EXTERNAL_ACQUISITION_STATEMENT_KINDS:
         return AcquisitionArtifactCodec(
             epoch_media, "epoch_frame", external_epoch_statement_canon_info()
@@ -177,11 +210,54 @@ def acquisition_artifact_codec(kind: str) -> AcquisitionArtifactCodec | None:
         return AcquisitionArtifactCodec("application/json", "canonical_json", epoch_canon_info())
     if kind in _RAW_OWNER_SOURCE_KINDS:
         return AcquisitionArtifactCodec("application/json", "raw_json", None)
+    if kind == "fabric.acquisition.raw_evidence":
+        return AcquisitionArtifactCodec("application/json", "opaque_bytes", None)
+    if kind == "fabric.evidence_bundle":
+        return AcquisitionArtifactCodec(
+            "application/json",
+            "producer_json",
+            CanonInfo.from_spec(CanonSpec()),
+            "fabric.evidence_bundle",
+            "1.0",
+        )
+    if kind == "fabric.data_snapshot":
+        return AcquisitionArtifactCodec(
+            "application/json",
+            "producer_json",
+            CanonInfo.from_spec(CanonSpec(forbid_floats=False)),
+            "polisyos.core.DataSnapshot",
+            "0.2.0",
+        )
+    if kind == "fabric.quality_report":
+        return AcquisitionArtifactCodec(
+            "application/json",
+            "producer_json",
+            CanonInfo.from_spec(CanonSpec(forbid_floats=False)),
+            "polisyos.fabric.DataQualityReport",
+            "1.0",
+        )
+    if kind == "connector_cache.payload":
+        if media_type not in _CONNECTOR_CACHE_DATA_MEDIA_TYPES:
+            return None
+        return AcquisitionArtifactCodec(
+            media_type,
+            "connector_cache_payload",
+            None,
+            "fabric.connector_cache",
+            "1.0",
+        )
+    if kind in _EPOCH_NATIVE_COORDINATE_ROLES:
+        return AcquisitionArtifactCodec(epoch_media, "native_coordinate", None)
     if kind == "lex.document":
         return AcquisitionArtifactCodec("text/plain", "identity_token", None)
     if kind == "l5.schema_regime_scope_relation":
         return AcquisitionArtifactCodec("application/json", "unresolved_reference", None)
     return None
+
+
+def _acquisition_native_coordinate_role(kind: str) -> str | None:
+    """Return the exact registered temporal role for one epoch coordinate kind."""
+    return _EPOCH_NATIVE_COORDINATE_ROLES.get(kind)
 
 
 def acquisition_artifact_canon_info(kind: str) -> CanonInfo | None:

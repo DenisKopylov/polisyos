@@ -29,7 +29,10 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.ir import ArtifactRefModel, BacktestReportRef
 from polisyos.ir.analytics.backtest import BacktestReport, load_backtest_report
 from polisyos.ir.artifacts import (
     ArtifactID,
@@ -39,7 +42,6 @@ from polisyos.ir.artifacts import (
     put_json_artifact,
 )
 from polisyos.ir.model_layer.canon import CanonSpec
-from polisyos.ir.registry.refs import ArtifactRefModel, BacktestReportRef
 
 EmpiricalEvidenceKind = Literal["observed_interval_comparisons", "unavailable"]
 PredictiveAuthorityScope = Literal["predictive_only"]
@@ -1300,9 +1302,17 @@ def _binding_issues(
     required_report_fields = (
         ("method_ref", context.method_ref, "report_method_ref_missing"),
         ("method_version", context.method_version, "report_method_version_missing"),
-        ("rule_version_ref", context.rule_version_ref, "report_rule_version_ref_missing"),
+        (
+            "rule_version_ref",
+            context.rule_version_ref,
+            "report_rule_version_ref_missing",
+        ),
         ("estimand", context.estimand, "report_estimand_missing"),
-        ("authority_scope", PREDICTIVE_AUTHORITY_SCOPE, "report_authority_scope_missing"),
+        (
+            "authority_scope",
+            PREDICTIVE_AUTHORITY_SCOPE,
+            "report_authority_scope_missing",
+        ),
     )
     for field_name, expected, missing_code in required_report_fields:
         raw = metadata.get(field_name)

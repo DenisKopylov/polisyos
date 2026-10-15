@@ -6,6 +6,15 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
 from polisyos.data_forge.read_api.catalog import PStarZResult
+from polisyos.ir import (
+    DataGap,
+    SelectionDiagram,
+    SNode,
+    SNodeOrigin,
+    TransportabilityResult,
+    TransportabilityStatus,
+    TransportMode,
+)
 from polisyos.ir.analytics import CausalEffectReport, CausalGraphModel
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentCertificate,
@@ -21,16 +30,7 @@ from polisyos.ir.analytics.privacy_transportability import (
     TransportPrivacyContext,
     apply_transport_privacy_context,
 )
-from polisyos.ir.analytics.transportability import (
-    DataGap,
-    SelectionDiagram,
-    SNode,
-    SNodeOrigin,
-    TransportabilityResult,
-    TransportabilityStatus,
-    TransportMode,
-)
-from polisyos.lex.legal_evaluation.transport_constraints import (
+from polisyos.lex import (
     ConstraintSeverity,
     LegalConstraint,
     LegalToDAGMapping,
@@ -124,7 +124,14 @@ def _build_proxy_quantity_or_gap(
             condition_on=condition_on or {},
         )
         penalty = max(0.0, min(1.0, 1.0 - confidence))
-        return p_star, None, validity, penalty, requires_expert_review, expert_review_reasons
+        return (
+            p_star,
+            None,
+            validity,
+            penalty,
+            requires_expert_review,
+            expert_review_reasons,
+        )
 
     gap = DataGap(
         required_variable=variable,

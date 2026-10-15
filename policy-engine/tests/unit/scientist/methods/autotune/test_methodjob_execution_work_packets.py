@@ -17,9 +17,8 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.foundry.methods import MethodRegistry
+from polisyos.foundry.methods import BootstrapExecutionWork, MethodRegistry
 from polisyos.foundry.methods.catalog.causal import advanced_designs
-from polisyos.foundry.methods.catalog.causal.ci_backends import BootstrapExecutionWork
 from polisyos.foundry.methods.catalog.causal.nuisance_layer import TauFitResult
 from polisyos.scientist.compute import runner as compute_runner
 from polisyos.scientist.methods.autotune import (
@@ -116,7 +115,9 @@ def _reset_method_registry():
     MethodRegistry.reset_instance()
 
 
-def _persist_source_inputs(store: FileSystemCAS) -> tuple[ArtifactRef, ArtifactRef, ArtifactRef]:
+def _persist_source_inputs(
+    store: FileSystemCAS,
+) -> tuple[ArtifactRef, ArtifactRef, ArtifactRef]:
     n = 40
     x = np.linspace(-1.0, 1.0, n).reshape(-1, 1)
     treatment = np.asarray([0, 1] * (n // 2), dtype=float)
@@ -398,7 +399,8 @@ def test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness
                     persisted_evaluation.method_evidence_ref, role="method_evidence"
                 ),
                 input_ref_from_artifact_ref(
-                    persisted_evaluation.execution_work_packet_ref, role="execution_work_packet"
+                    persisted_evaluation.execution_work_packet_ref,
+                    role="execution_work_packet",
                 ),
             )
         }
@@ -563,7 +565,11 @@ def test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness
         method_fqn=advanced_designs.DRLearnerEstimator.signature.fqn,
         method_version=advanced_designs.DRLearnerEstimator.signature.version,
         candidate_input_bindings={},
-        data_snapshot_bindings={"X": "X", "treatment": "treatment", "outcome": "outcome"},
+        data_snapshot_bindings={
+            "X": "X",
+            "treatment": "treatment",
+            "outcome": "outcome",
+        },
         method_params={
             "capture_execution_work": True,
             "bootstrap_draws": 40,
@@ -690,7 +696,11 @@ def test_search_loop_rejects_score_after_source_bound_dispatch_swap(
         method_fqn=advanced_designs.DRLearnerEstimator.signature.fqn,
         method_version=advanced_designs.DRLearnerEstimator.signature.version,
         candidate_input_bindings={},
-        data_snapshot_bindings={"X": "X", "treatment": "treatment", "outcome": "outcome"},
+        data_snapshot_bindings={
+            "X": "X",
+            "treatment": "treatment",
+            "outcome": "outcome",
+        },
         method_params={
             "capture_execution_work": True,
             "bootstrap_draws": 40,
@@ -782,7 +792,11 @@ def test_search_loop_suppresses_unreconciled_source_bound_score(
         method_fqn=advanced_designs.DRLearnerEstimator.signature.fqn,
         method_version=advanced_designs.DRLearnerEstimator.signature.version,
         candidate_input_bindings={},
-        data_snapshot_bindings={"X": "X", "treatment": "treatment", "outcome": "outcome"},
+        data_snapshot_bindings={
+            "X": "X",
+            "treatment": "treatment",
+            "outcome": "outcome",
+        },
         method_params=method_params,
         split=BenchmarkSplit.SELECTION,
         seed=17,
@@ -875,7 +889,9 @@ def test_search_loop_suppresses_unreconciled_source_bound_score(
     os.environ.get("POLISYOS_RUN_NATIVE_METHODJOB_WORK") != "1",
     reason="native GP and DR MethodJob use the serialized numerical verification slot",
 )
-def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(tmp_path) -> None:
+def test_native_gp_methodjob_search_warm_start_fresh_reads_source_work(
+    tmp_path,
+) -> None:
     MethodRegistry.get_instance().register(advanced_designs.DRLearnerEstimator, override=True)
     store = FileSystemCAS(tmp_path / "cas")
     suite_ref, snapshot_ref = _persist_parameter_search_source_inputs(store)

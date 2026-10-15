@@ -22,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.common import logger as common_logger
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts.ownership import (
+from polisyos.core.artifacts import (
     OWNERSHIP_INDEX_FORMAT_POINTER_GENERATION_V1,
     OWNERSHIP_INDEX_SCHEMA_VERSION,
 )
@@ -2029,7 +2029,10 @@ class HumanDecisionService:
             run_id=run_id,
         )
         valid_from_candidates = (basis.valid_from, cast("datetime", record.valid_from))
-        valid_until_candidates = (basis.valid_until, cast("datetime", record.valid_until))
+        valid_until_candidates = (
+            basis.valid_until,
+            cast("datetime", record.valid_until),
+        )
         valid_from = max(valid_from_candidates)
         valid_until = min(valid_until_candidates)
         reservation = self._sink.get_reservation_generation(
@@ -2237,9 +2240,7 @@ class HumanDecisionService:
             raise HumanDecisionPersistenceError(
                 "production approval custody signature did not verify"
             )
-        loaded = ProductionApprovalPacket.model_validate(
-            self._sink.get_artifact_json(written_ref)
-        )
+        loaded = ProductionApprovalPacket.model_validate(self._sink.get_artifact_json(written_ref))
         if loaded != packet:
             raise HumanDecisionPersistenceError("production approval packet readback changed")
         report = self._sink.reconcile_authority_artifact(
@@ -3585,9 +3586,7 @@ class HumanDecisionService:
                 )
             )
         try:
-            model = model_type.model_validate(
-                self._sink.get_artifact_json(ref)
-            )
+            model = model_type.model_validate(self._sink.get_artifact_json(ref))
         except (TypeError, ValueError) as exc:
             raise _ResolutionIssueError(
                 _reason(
@@ -3690,7 +3689,9 @@ class HumanDecisionService:
     ) -> None:
         """Bind every consumed command field to the real pre-OPA body and exposure."""
         from polisyos.runtime.http.errors import RuntimeHTTPError
-        from polisyos.runtime.http.resource_binding import human_decision_create_from_bound_resource
+        from polisyos.runtime.http.resource_binding import (
+            human_decision_create_from_bound_resource,
+        )
 
         gate = command.gate_input
         self._require_bound_route_permission(
@@ -3924,7 +3925,15 @@ class HumanDecisionService:
     ) -> tuple[datetime | None, datetime | None]:
         if any(
             value is None
-            for value in (request, principal, separation, presentation, session, contract, source)
+            for value in (
+                request,
+                principal,
+                separation,
+                presentation,
+                session,
+                contract,
+                source,
+            )
         ):
             return None, None
         request = cast("HumanDecisionRequest", request)
@@ -4106,7 +4115,14 @@ class HumanDecisionService:
     ) -> tuple[HumanDecisionPredicateReceipt, ...]:
         if any(
             value is None
-            for value in (basis, request, principal, separation, presentation, gate_input.basis_ref)
+            for value in (
+                basis,
+                request,
+                principal,
+                separation,
+                presentation,
+                gate_input.basis_ref,
+            )
         ):
             return ()
         typed_request = cast("HumanDecisionRequest", request)

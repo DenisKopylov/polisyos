@@ -137,3 +137,5 @@ supplies complete-source admission and persistence through privileged compositio
 The root facade exposes these port/readback types, the existing Decision Validity
 owner and the exact governance-monitor reader. It exposes no completion minting
 operation. Empty authority/environment slots retain typed nonreceipts.
+
+## Candidate Protocol Facade\n\nThe root facade exports the existing typed `CritiqueReport` and `DraftResult` protocols for runtime consumers. Both are same-object aliases; a candidate protocol does not grant validation or publication authority.

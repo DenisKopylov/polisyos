@@ -10,11 +10,7 @@ from typing import TYPE_CHECKING, Literal
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts import ArtifactRef
-from polisyos.core.artifacts.canonical_profile import (
-    read_core_json_artifact,
-    read_core_manifest_profile,
-)
+from polisyos.core.artifacts import ArtifactRef, read_core_json_artifact, read_core_manifest_profile
 from polisyos.core.contracts import (
     AgentPipelineCostEvent,
     ControlJobResponse,
@@ -73,12 +69,16 @@ if TYPE_CHECKING:
         _DesignProblemGatewayClient,
         _SpanSupportVerifierClient,
     )
-    from polisyos.runtime.quality.confidence_ledger import N6DeploymentCurrentnessObservation
+    from polisyos.runtime.quality.confidence_ledger import (
+        N6DeploymentCurrentnessObservation,
+    )
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContext,
         VerifiedNLJobScope,
     )
-    from polisyos.runtime.quality.data_forge_binding import MeasurementRootExecutionBinding
+    from polisyos.runtime.quality.data_forge_binding import (
+        MeasurementRootExecutionBinding,
+    )
     from polisyos.runtime.quality.design_generation import (
         DesignGenerationOrganRun,
         GenerationUnderAResult,
@@ -98,7 +98,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
     from polisyos.scientist import BudgetState
-    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine import BudgetMiddleware
 
 COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION = (
     "policyos.runtime.http.compiled_recursive_generation_cycle.v1"
@@ -633,7 +633,9 @@ def _normative_generation_sources(
             if stored != payload:
                 raise P20NormativeChoiceError("p20_normative_compiled_leaf_mismatch")
         sources[node.node_ref] = NormativeGenerationBinding(
-            compiled_run_ref=compiled_run_ref, source_run_ref=source_ref, node_ref=node.node_ref
+            compiled_run_ref=compiled_run_ref,
+            source_run_ref=source_ref,
+            node_ref=node.node_ref,
         )
     if not sources:
         raise P20NormativeChoiceError("p20_normative_compiled_leaf_population_empty")
@@ -972,7 +974,9 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
             self.schema_version
             == COMPILED_RECURSIVE_GENERATION_CYCLE_GENERIC_PROFILE_SCHEMA_VERSION
         ):
-            from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+            from polisyos.runtime.quality.cycle_substrate import (
+                cycle_job_design_problem_ref,
+            )
 
             expected_problem_ref = cycle_job_design_problem_ref(self.design_problem)
         else:
@@ -981,7 +985,10 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
             raise ValueError("compiled_recursive_design_problem_hash_mismatch")
         if self.recursive_run.root_design_problem_ref != self.design_problem_ref:
             raise ValueError("compiled_recursive_run_problem_binding_mismatch")
-        producer_events = (*self.nl_preflight_cost_events, *self.n4_generation_cost_events)
+        producer_events = (
+            *self.nl_preflight_cost_events,
+            *self.n4_generation_cost_events,
+        )
         event_ids = tuple(event.event_id for event in producer_events)
         if len(event_ids) != len(set(event_ids)):
             raise ValueError("compiled_recursive_preflight_cost_event_duplicate")
@@ -1028,7 +1035,9 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
         has_generic_family = self.n4_child_profile_set_ref is not None
         has_credal_source_attempt = self.n4_credal_source_attempt_ref is not None
         if has_credal_source_attempt:
-            from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+            from polisyos.runtime.quality.cycle_substrate import (
+                cycle_job_profile_selection_ref,
+            )
 
             if (
                 self.generic_cycle_simulation_handoff is None
@@ -1159,7 +1168,10 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
         if (
             isinstance(
                 self.recursive_run,
-                (RecursiveGenerationCyclePartialRunV2, RecursiveGenerationCyclePartialRunV3),
+                (
+                    RecursiveGenerationCyclePartialRunV2,
+                    RecursiveGenerationCyclePartialRunV3,
+                ),
             )
             and self.open_world_risk_limitations
         ):
@@ -1642,7 +1654,9 @@ async def compile_and_run_recursive_generation_cycle(
         execution_intent_band_for_mode,
     )
     from polisyos.runtime.quality.evaluation_safety import EvaluationExecutionContext
-    from polisyos.runtime.quality.generation_cycle import FOUNDRY_VALUE_PORT_EVALUATOR_ID
+    from polisyos.runtime.quality.generation_cycle import (
+        FOUNDRY_VALUE_PORT_EVALUATOR_ID,
+    )
 
     if root_evaluation_context is not None and not isinstance(
         root_evaluation_context, EvaluationExecutionContext
@@ -2221,7 +2235,9 @@ async def compile_and_run_recursive_generation_cycle(
                     generic_n4_child_profile_status = "resolved"
                     generic_n4_child_profile_limitation_code = None
     if generic_cycle_simulation_handoff is not None:
-        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+        from polisyos.runtime.quality.cycle_substrate import (
+            cycle_job_design_problem_ref,
+        )
 
         problem_ref = cycle_job_design_problem_ref(problem)
     if cycle_substrate_context is None:
@@ -2364,7 +2380,9 @@ async def compile_and_run_recursive_generation_cycle(
         or generic_n4_child_profile_status == "resolved"
         or n4_recursive_source_ref is None
     ):
-        from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+        from polisyos.runtime.quality.design_generation import (
+            derive_n4_candidate_child_problems,
+        )
         from polisyos.runtime.quality.generation_cycle import N4GenerationPort
 
         if execution_intent != "simulate_only" or root_evaluation_context is not None:
@@ -2411,7 +2429,9 @@ async def compile_and_run_recursive_generation_cycle(
                     "generic_n4_child_profile_family_source_denominator_mismatch"
                 )
             family_rows = {row.node_ref: row for row in family.children}
-            from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+            from polisyos.runtime.quality.cycle_substrate import (
+                cycle_job_design_problem_ref,
+            )
 
             actual_children = {
                 "design-problem://"
@@ -2439,7 +2459,12 @@ async def compile_and_run_recursive_generation_cycle(
                     handoff is None
                     or handoff != row.handoff
                     or row.problem != child.problem
-                    or (handoff.job_id, handoff.run_id, handoff.tenant_id, handoff.cell_id)
+                    or (
+                        handoff.job_id,
+                        handoff.run_id,
+                        handoff.tenant_id,
+                        handoff.cell_id,
+                    )
                     != root_scope
                 ):
                     raise DesignProblemAuthorityError(
@@ -2484,7 +2509,12 @@ async def compile_and_run_recursive_generation_cycle(
                     raise DesignProblemAuthorityError(
                         "n4_recursive_child_configured_context_missing"
                     )
-                scope = (handoff.job_id, handoff.run_id, handoff.tenant_id, handoff.cell_id)
+                scope = (
+                    handoff.job_id,
+                    handoff.run_id,
+                    handoff.tenant_id,
+                    handoff.cell_id,
+                )
                 if root_scope is not None and scope != root_scope:
                     raise DesignProblemAuthorityError("n4_recursive_child_job_scope_mismatch")
                 problems_by_node[child_ref] = child.problem
@@ -2557,7 +2587,9 @@ async def compile_and_run_recursive_generation_cycle(
             raise DesignProblemAuthorityError(
                 "joint_interaction_candidate_parent_source_or_profile_not_established"
             )
-        from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+        from polisyos.runtime.quality.cycle_substrate import (
+            cycle_job_design_problem_ref,
+        )
         from polisyos.runtime.quality.design_generation import (
             derive_n4_candidate_child_problems,
         )

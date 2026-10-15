@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.protocol import ArtifactStore
@@ -53,8 +53,12 @@ from polisyos.scientist.feedback.utils import (
     _path_get,
     _within_range,
 )
-from polisyos.scientist.methods.autotune.calibration import apply_calibration_meta_overrides
-from polisyos.scientist.orchestration.engine.operational_monitoring import get_operational_monitor
+from polisyos.scientist.methods.autotune.calibration import (
+    apply_calibration_meta_overrides,
+)
+from polisyos.scientist.orchestration.engine.operational_monitoring import (
+    get_operational_monitor,
+)
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 

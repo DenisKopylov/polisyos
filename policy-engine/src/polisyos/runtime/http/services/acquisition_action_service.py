@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.canonical_profile import require_declared_profile
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.pdc import OperationClass, OperationContract, OperationInvocationRecord
 from polisyos.runtime.quality.acquisition_route_loop import (
     AcquisitionRouteClosureError,
@@ -224,7 +224,9 @@ class AcquisitionOwnerExecutionResult(BaseModel):
     action_phase_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
 
     @model_validator(mode="after")
-    def _world_commit_requires_active_owner_evidence(self) -> AcquisitionOwnerExecutionResult:
+    def _world_commit_requires_active_owner_evidence(
+        self,
+    ) -> AcquisitionOwnerExecutionResult:
         if self.disposition == "world_committed":
             if (
                 self.admitted_observation_delta <= 0
@@ -968,7 +970,11 @@ class AcquisitionActionService:
             ],
             cost_model={"cost_basis_hash": closure.cost_basis_hash},
             authority_transform={"kind": "preserves"},
-            failure_modes=["authority_refused", "owner_port_failed", "reentry_recovery_required"],
+            failure_modes=[
+                "authority_refused",
+                "owner_port_failed",
+                "reentry_recovery_required",
+            ],
             repair_options=[OperationClass.ESCALATE],
         )
         binding = agent_action_content_hash(
@@ -1005,7 +1011,11 @@ class AcquisitionActionService:
             budget_delta={"acquisition_actions": 1},
             status="started",
         )
-        return operation, invocation, AgentActionIntent(action_kind=ACQUISITION_ACTION_KIND)
+        return (
+            operation,
+            invocation,
+            AgentActionIntent(action_kind=ACQUISITION_ACTION_KIND),
+        )
 
     @staticmethod
     def _job_id(

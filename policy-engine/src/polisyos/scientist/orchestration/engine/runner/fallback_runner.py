@@ -19,9 +19,11 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.core.errors import ErrorCategory, PolicyOSError
+from polisyos.core import errors as core_errors
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.orchestration.engine.runner.local_runner import LocalWorkflowRunner
+from polisyos.scientist.orchestration.engine.runner.local_runner import (
+    LocalWorkflowRunner,
+)
 from polisyos.scientist.orchestration.engine.runner.protocol import RunnerHealth
 from polisyos.scientist.orchestration.engine.state_merge import MergeConflictPolicy
 
@@ -33,7 +35,7 @@ _PRIMARY_EXECUTION_ERRORS = (
     TypeError,
     ValidationError,
     ValueError,
-    PolicyOSError,
+    core_errors.PolicyOSError,
 )
 
 
@@ -62,10 +64,10 @@ _HealthSampleProvider = Callable[[], object]
 def _classify_health_probe_exception(exc: BaseException) -> HealthFailureDisposition:
     """Classify a probe exception using typed facts, never its message."""
 
-    if isinstance(exc, PolicyOSError):
+    if isinstance(exc, core_errors.PolicyOSError):
         return (
             HealthFailureDisposition.ALLOW
-            if exc.category == ErrorCategory.TRANSIENT
+            if exc.category == core_errors.ErrorCategory.TRANSIENT
             else HealthFailureDisposition.BLOCK
         )
     if isinstance(exc, (ConnectionError, TimeoutError)):

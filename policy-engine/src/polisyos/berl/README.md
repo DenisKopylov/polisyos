@@ -69,3 +69,5 @@ public `build_quality_scorecard` function beyond its facade re-export, so higher
 wiring remains `implemented_but_not_orchestrated`; this witness is not a production caller or
 currentness assertion. Conditional-law evidence remains `producer_missing`; a self-declared artifact
 ref does not admit a conditional profile.
+
+## Persisted Consumer Validation\n\n`validate_persisted_explanation_bundle_payload` is available from both `polisyos.berl` and `polisyos.berl.contracts`. It validates the raw supplied feature-dependence profile before model parsing and returns the established refusal result for malformed or unknown profiles; a reference or self-declared profile still cannot replace a verified law resolver.

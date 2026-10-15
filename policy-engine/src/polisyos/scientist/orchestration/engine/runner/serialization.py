@@ -32,7 +32,7 @@ from polisyos.scientist.orchestration.engine.error_semantics import emit_degrade
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 
 if TYPE_CHECKING:
-    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security import AccessScope
 
 try:
     import orjson
@@ -102,7 +102,9 @@ class NativeNodeOutcomeBatch:
         }
 
 
-def deserialize_outcome_batch(data_by_alias: dict[str, bytes]) -> NativeNodeOutcomeBatch:
+def deserialize_outcome_batch(
+    data_by_alias: dict[str, bytes],
+) -> NativeNodeOutcomeBatch:
     """Decode a complete batch through the canonical typed outcome boundary."""
     return NativeNodeOutcomeBatch(
         outcomes={alias: deserialize_outcome(data) for alias, data in data_by_alias.items()}
@@ -144,7 +146,9 @@ def _wire_model_types() -> dict[str, type[BaseModel]]:
             OutputAwareNodeOutcome,
         )
         from polisyos.scientist.orchestration.engine.state import ExperimentState
-        from polisyos.scientist.orchestration.engine.state_branching import StateMutation
+        from polisyos.scientist.orchestration.engine.state_branching import (
+            StateMutation,
+        )
 
         models = (
             ArtifactID,
@@ -573,7 +577,9 @@ def serialize_outcome(outcome: Any) -> bytes:
     """Serialize a node outcome and its private mutation journal, when present."""
     from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
     from polisyos.scientist.orchestration.engine.state import ExperimentState
-    from polisyos.scientist.orchestration.engine.state_branching import mutation_journal_for_state
+    from polisyos.scientist.orchestration.engine.state_branching import (
+        mutation_journal_for_state,
+    )
 
     if not isinstance(outcome, NodeOutcome):
         encoded = _encode_wire_value(outcome)
@@ -863,8 +869,7 @@ def _timeout_access_scope_from_wire(raw: Any) -> AccessScope | None:
     if type(raw) is not dict or set(raw) != _TIMEOUT_ACCESS_SCOPE_FIELDS:
         raise ValueError("timeout_worker_access_scope_shape_invalid")
 
-    from polisyos.core.security.access_scope import AccessScope
-    from polisyos.core.security.identity import PIIAccessLevel, PolicyOSRole
+    from polisyos.core.security import AccessScope, PIIAccessLevel, PolicyOSRole
 
     string_fields = (
         "tenant_id",
@@ -913,7 +918,7 @@ def _timeout_access_scope_to_wire(scope: AccessScope | None) -> dict[str, Any] |
     """Encode only an exact AccessScope whose full canonical form round-trips."""
     if scope is None:
         return None
-    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security import AccessScope
 
     if type(scope) is not AccessScope:
         raise ValueError("timeout_worker_access_scope_type_invalid")
@@ -934,17 +939,19 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
     import logging
     from pathlib import Path
 
-    from polisyos.core.artifacts import SigningConfig
-    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core import run as core_run
+    from polisyos.core.artifacts import ArtifactRef, SigningConfig
     from polisyos.core.artifacts.store import FileSystemCAS
-    from polisyos.core.observability import get_metrics, get_tracer, is_hpc_observability_enabled
-    from polisyos.core.run.context import RunContext
-    from polisyos.core.run.manifest import RunManifest
+    from polisyos.core.observability import (
+        get_metrics,
+        get_tracer,
+        is_hpc_observability_enabled,
+    )
     from polisyos.core.security import (
+        get_current_access_scope_or_none,
         get_current_cell_id,
         get_current_tenant_id_or_none,
     )
-    from polisyos.core.security.tenant_context import get_current_access_scope_or_none
     from polisyos.core.trace import JsonlTraceSink
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
@@ -954,9 +961,9 @@ def serialize_timeout_context(ctx: Any, *, expected_run_id: str) -> dict[str, An
     run = ctx.run
     if type(store) is not FileSystemCAS:
         raise ValueError("timeout_worker_filesystem_cas_required")
-    if type(run) is not RunContext:
+    if type(run) is not core_run.RunContext:
         raise ValueError("timeout_worker_run_context_required")
-    if type(run.run_manifest) is not RunManifest:
+    if type(run.run_manifest) is not core_run.RunManifest:
         raise ValueError("timeout_worker_run_manifest_required")
     if type(run.trace) is not JsonlTraceSink or run._audit_sink is not None:
         raise ValueError("timeout_worker_jsonl_trace_profile_required")

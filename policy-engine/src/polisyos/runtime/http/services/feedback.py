@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.core.contracts.feedback import (
     DecisionCompareReport,
     DecisionMonitoringContract,
@@ -18,15 +18,21 @@ from polisyos.core.contracts.foundry import (
     EquilibriumMultiplicityReport,
     FeedbackSolveResult,
 )
-from polisyos.core.contracts.runtime import RunCompareView, RunEquilibriaView, RunFeedbackView
+from polisyos.core.contracts.runtime import (
+    RunCompareView,
+    RunEquilibriaView,
+    RunFeedbackView,
+)
 from polisyos.core.run.context import new_run_id
 from polisyos.scientist.feedback.core import DecisionFeedbackService
-from polisyos.scientist.nodes.builtins.state_keys import INPUT_PARAMETER_OVERRIDE_BUNDLE_REF
+from polisyos.scientist.nodes.builtins.state_keys import (
+    INPUT_PARAMETER_OVERRIDE_BUNDLE_REF,
+)
 
 if TYPE_CHECKING:
     from pydantic import BaseModel
 
-    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts import ArtifactRef
     from polisyos.core.artifacts.protocol import ArtifactStore
 
     from .run_index import IndexedRunRecord, RunIndexService
@@ -291,9 +297,7 @@ class FeedbackService:
         except Exception:
             return None
 
-    def _load_json(
-        self, ref: ArtifactRef | str
-    ) -> Any:
+    def _load_json(self, ref: ArtifactRef | str) -> Any:
         return read_core_json_artifact(self._store, ref).value
 
     @staticmethod
@@ -305,10 +309,14 @@ class FeedbackService:
             return None
         value = feedback_loop.get(key)
         if isinstance(value, Mapping):
-            from polisyos.core.artifacts import ArtifactID
-            from polisyos.core.artifacts.manifest import ArtifactRef
+            from polisyos.core.artifacts import ArtifactID, ArtifactRef
 
-            ref_fields = {"artifact_id", "kind", "media_type", "manifest_profile_sha256"}
+            ref_fields = {
+                "artifact_id",
+                "kind",
+                "media_type",
+                "manifest_profile_sha256",
+            }
             present_ref_fields = ref_fields.intersection(value)
             if not present_ref_fields:
                 return None
@@ -317,9 +325,7 @@ class FeedbackService:
                     return str(ArtifactID.model_validate(value["artifact_id"]))
                 return ArtifactRef.model_validate(value)
             except (TypeError, ValueError) as exc:
-                raise CanonicalProfileRefusalError(
-                    "canon_profile_feedback_ref_invalid"
-                ) from exc
+                raise CanonicalProfileRefusalError("canon_profile_feedback_ref_invalid") from exc
         if isinstance(value, str):
             return value
         return None

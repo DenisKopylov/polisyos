@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.pdc import (
     S2_DESIGN_SEARCH_SCHEMA_VERSION,
     DesignRecordV0,

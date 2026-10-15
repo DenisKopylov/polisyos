@@ -19,10 +19,8 @@ from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
-    artifact_ref_identity_key,
-)
-from polisyos.core.artifacts.canonical_profile import (
     artifact_ref_for_manifest,
+    artifact_ref_identity_key,
     read_core_json_artifact,
     read_core_manifest_profile,
 )
@@ -118,7 +116,9 @@ from polisyos.runtime.http.services.channel_contracts import (
     RunsStreamTimeout,
     validate_runs_channel_data_event,
 )
-from polisyos.runtime.http.services.human_decision_contracts import HumanDecisionWriteContext
+from polisyos.runtime.http.services.human_decision_contracts import (
+    HumanDecisionWriteContext,
+)
 from polisyos.runtime.http.services.human_decisions import HumanDecisionPersistenceError
 from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
 from polisyos.runtime.http.services.predictive_calibration import (
@@ -135,7 +135,9 @@ from polisyos.runtime.http.services.run_paper_contracts import (
     RunPaperReplaySyntaxError,
     RunPaperSourceError,
 )
-from polisyos.runtime.http.services.run_paper_projection import RunPaperProjectionService
+from polisyos.runtime.http.services.run_paper_projection import (
+    RunPaperProjectionService,
+)
 from polisyos.runtime.http.step_up import (
     StepUpAssertionVerification,
     StepUpClass,
@@ -153,9 +155,11 @@ if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
     from fastapi.responses import StreamingResponse
 
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
-    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationN5InputV5,
+    )
 else:
     try:  # pragma: no cover - optional runtime dependency
         from fastapi import APIRouter, Depends, Query, Request, Response
@@ -448,13 +452,21 @@ def _candidate_acquisition_history_projection(
     if not heads:
         return (), "acquisition_action_history_not_observed"
 
-    from polisyos.core.artifacts import ArtifactID, ArtifactRef, artifact_ref_identity_key
+    from polisyos.core.artifacts import (
+        ArtifactID,
+        ArtifactRef,
+        artifact_ref_identity_key,
+    )
     from polisyos.runtime.quality.acquisition_route_loop import (
         AcquisitionRouteLoopReceipt,
         AcquisitionRoutePhaseReceipt,
     )
-    from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
-    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
+    from polisyos.runtime.quality.authority_reconciliation import (
+        reconcile_authority_ref,
+    )
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationN5InputV5,
+    )
     from polisyos.runtime.quality.generation_cycle import (
         AcquisitionOverlayReentryReceipt,
         _current_candidate_summaries,
@@ -1523,7 +1535,9 @@ def _candidate_simulation_projection(
             from polisyos.runtime.quality.cycle_substrate import (
                 cycle_job_profile_selection_ref,
             )
-            from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+            from polisyos.runtime.quality.generation_source import (
+                GenerationSourceRepository,
+            )
 
             input_ref = simulation.candidate_simulation_n5_input_ref
             input_manifest = read_core_manifest_profile(store, input_ref)[0]
@@ -1907,7 +1921,9 @@ def _candidate_simulation_projection(
                             str(child_row.n5_input_ref.artifact_id)
                         )
                         source_atom = getattr(
-                            getattr(lineage, "materialization", None), "derived_n5_atom", None
+                            getattr(lineage, "materialization", None),
+                            "derived_n5_atom",
+                            None,
                         )
                         if source_atom is None or len(child_row.atom_ids) != 1:
                             scope_failure = "parent_joint_child_atom_source_not_established"
@@ -1941,7 +1957,11 @@ def _candidate_simulation_projection(
                             if parent_atom.world_model_record_ref != request.world_model_record_ref:
                                 scope_failure = "parent_joint_atom_world_model_binding_mismatch"
                                 break
-                            matched_by_child[child_ref] = (child_row, source_atom, parent_atom)
+                            matched_by_child[child_ref] = (
+                                child_row,
+                                source_atom,
+                                parent_atom,
+                            )
                         if scope_failure is None and unmatched_parent_atoms:
                             scope_failure = "parent_joint_atom_child_denominator_mismatch"
                     if scope_failure is None:
@@ -2106,7 +2126,9 @@ def _parent_joint_candidate_selection_projection(
 
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
-    from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+    from polisyos.runtime.quality.design_generation import (
+        derive_n4_candidate_child_problems,
+    )
     from polisyos.runtime.quality.recursive_generation_cycle import (
         ParentJointCandidateSelectionV2,
     )
@@ -2313,7 +2335,9 @@ def _generic_cycle_simulation_projection(
         CycleSubstrateContextArtifactOwner,
         cycle_job_design_problem_ref,
     )
-    from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+    from polisyos.runtime.quality.design_generation import (
+        derive_n4_candidate_child_problems,
+    )
     from polisyos.runtime.quality.generation_cycle import (
         _joint_simulation_port_outcome,
         load_joint_simulation_result,
@@ -3572,7 +3596,11 @@ if router is not None:
             request,
             resource_id=scope.tenant_id,
             tenant_id=scope.tenant_id,
-            metadata={"count": len(runs), "cursor": page.cursor, "next_cursor": page.next_cursor},
+            metadata={
+                "count": len(runs),
+                "cursor": page.cursor,
+                "next_cursor": page.next_cursor,
+            },
         )
         return RunsListResponse(
             meta=build_meta(request, source_kinds=source_kinds),

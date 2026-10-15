@@ -2,89 +2,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
-from datetime import UTC, datetime
-from typing import Any
-
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.contracts.decision_validity import (
-    DecisionBasisSection,
-    DecisionDependencyKind,
-    DecisionDependencyRef,
-    DecisionTriggerSpec,
-    DecisionTriggerType,
-)
-from polisyos.core.contracts.distributional import DistributionalReportRef
-from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.contracts.foundry import SimulationResult
-from polisyos.core.contracts.scholar import FreshnessMetadata
-from polisyos.core.contracts.scientist import (
-    DecisionMonitoringContractRef,
-)
-from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
-from polisyos.ir.analytics.abm_bridge import load_abm_alignment_report
-from polisyos.ir.analytics.abstraction import load_abstraction_certificate
-from polisyos.ir.analytics.backtest import load_backtest_report
-from polisyos.ir.analytics.causal import CausalEffectReport
-from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
-from polisyos.ir.analytics.distributional import (
-    load_distributional_effect_bundle,
-    load_distributional_report,
-    load_ordinal_poverty_report,
-)
-from polisyos.ir.analytics.evidence_bundle import load_causal_evidence_bundle
-from polisyos.ir.analytics.hte import load_hte_result, load_policy_recommendation
-from polisyos.ir.analytics.kernel_causal import load_kernel_estimator_spec
 from polisyos.ir.analytics.metric_validation_report import (
     MetricValidationReport,
-)
-from polisyos.ir.analytics.normative_arbitration import (
-    NormativeArbitrationResult,
-    load_normative_arbitration_result,
-)
-from polisyos.ir.analytics.partial_identification import load_bounds_bundle
-from polisyos.ir.analytics.sensitivity import (
-    load_sensitivity_result,
-    persist_sensitivity_analysis_bundle,
-    sensitivity_analysis_bundle_from_result,
-)
-from polisyos.ir.analytics.strategic import (
-    load_mean_field_equilibrium_certificate,
-    load_mean_field_macro_simulation_config,
-    load_mean_field_perturbation_spec,
-    load_performative_shift_summary,
-    load_post_adaptation_policy_value_summary,
-    load_strategic_decomposition_failure_card,
-    load_strategic_response_bundle,
-    load_strategic_scm,
-)
-from polisyos.ir.analytics.uncertainty import (
-    load_simulation_result_uncertainty_admission,
-    load_uncertainty_envelope,
-)
-from polisyos.ir.analytics.welfare import (
-    load_channel_decomposition_artifact,
-    load_welfare_bundle,
-)
-from polisyos.ir.artifacts import normalize_artifact_ref
-from polisyos.ir.registry.refs import (
-    ABMAlignmentReportRef,
-    AbstractionCertificateRef,
-    CausalModelEnsembleRef,
-    CausalSensitivityResultRef,
-    DistributionalEffectBundleRef,
-    EvidenceBundleRef,
-    KernelEstimatorSpecRef,
-    NormativeArbitrationResultRef,
-    StrategicResponseBundleRef,
-    StrategicSCMRef,
-    WelfareBundleRef,
 )
 from polisyos.scholar.search.models import WebEvidenceBundle
 from polisyos.scientist.evidence.claims.head_index import (
@@ -92,17 +16,15 @@ from polisyos.scientist.evidence.claims.head_index import (
     PreparedClaimLedgerInitialization,
 )
 from polisyos.scientist.evidence.claims.lifecycle import CLAIM_LEDGER_V2_FLAG
-from polisyos.scientist.evidence.claims.projections import project_decision_packet_claims
+from polisyos.scientist.evidence.claims.projections import (
+    project_decision_packet_claims,
+)
 from polisyos.scientist.evidence.claims.readiness import summarize_ledger_readiness
 from polisyos.scientist.evidence.claims.validators import (
     is_claim_spine_enabled,
     is_feature_enabled,
 )
 from polisyos.scientist.evidence.safe_fetch import neutralize_instruction_markers
-from polisyos.scientist.feedback.core import (
-    DecisionFeedbackService,
-    build_monitoring_contract_from_packet,
-)
 from polisyos.scientist.governance.continuous.reports import load_validity_report
 from polisyos.scientist.governance.human_review.decisions import load_review_decision
 from polisyos.scientist.governance.human_review.oversight_policy import (
@@ -151,9 +73,6 @@ from polisyos.scientist.nodes.builtins.decide.decision_packet.outcome_sections i
 )
 from polisyos.scientist.nodes.builtins.decide.decision_packet.serialization import (
     _claim_source_artifact_refs,
-    _dedupe_dependency_refs,
-    _dependency_ref,
-    _load_json_payload_by_ref,
 )
 from polisyos.scientist.nodes.builtins.decide.decision_packet.strategic_sections import (
     _build_strategic_section,
@@ -165,68 +84,27 @@ from polisyos.scientist.nodes.builtins.decide.decision_packet.uncertainty_sectio
 )
 from polisyos.scientist.nodes.builtins.decide.decision_packet.validation import (
     _DECISION_PACKET_LOAD_ERRORS,
-    _collect_contract_warnings,
     _decision_packet_degraded,
-    _has_governance_issue_code,
-    _load_resolved_fidelity_level,
-    _nested_status,
     _record_decision_packet_section_degraded,
-    _summarize_governance_issues,
-)
-from polisyos.scientist.nodes.builtins.decide.decision_packet_support import (
-    _path_get,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
-    ARTIFACT_ABM_ALIGNMENT_REPORT_REF,
-    ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
-    ARTIFACT_BACKTEST_REPORT_REF,
-    ARTIFACT_BOUNDS_BUNDLE_REF,
-    ARTIFACT_CALIBRATION_VALIDATION_BUNDLE_REF,
-    ARTIFACT_CAUSAL_ENSEMBLE_REF,
-    ARTIFACT_CAUSAL_ENVELOPE_REF,
-    ARTIFACT_CAUSAL_METHOD_EVIDENCE_REF,
-    ARTIFACT_CAUSAL_REPORT_REF,
-    ARTIFACT_CAUSAL_VALIDITY_BUNDLE_REF,
     ARTIFACT_CLAIM_LEDGER_V2_REF,
     ARTIFACT_CLAIMS_REF,
     ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF,
     ARTIFACT_DECISION_READINESS_CONTRACT_REF,
-    ARTIFACT_DISTRIBUTIONAL_EFFECT_BUNDLE_REF,
-    ARTIFACT_DISTRIBUTIONAL_REPORT_REF,
-    ARTIFACT_ECONOMETRIC_ENVELOPE_REF,
-    ARTIFACT_ECONOMETRIC_EVIDENCE_REF,
-    ARTIFACT_ECONOMETRIC_RESULT_REF,
-    ARTIFACT_FINITE_STATE_ABSTRACTION_MAP_REF,
-    ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_HUMAN_REVIEW_DECISION_REF,
     ARTIFACT_HUMAN_REVIEW_PACKET_REF,
-    ARTIFACT_INPUT_BINDING_REPORT_REF,
-    ARTIFACT_METRICS_REF,
-    ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
-    ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_REISSUE_PACKET_REF,
-    ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF,
-    ARTIFACT_SENSITIVITY_RESULT_REF,
-    ARTIFACT_SIMULATION_RESULT_REF,
-    ARTIFACT_STRATEGIC_RESPONSE_BUNDLE_REF,
-    ARTIFACT_STRATEGIC_SCM_REF,
     ARTIFACT_VOI_RUN_REPORT_REF,
     ARTIFACT_WEB_EVIDENCE_BUNDLE_REF,
-    ARTIFACT_WELFARE_BUNDLE_REF,
     ARTIFACT_WITHDRAWAL_RECORD_REF,
-    INPUT_DATA_SNAPSHOT_REF,
-    INPUT_KNOWLEDGE_BUNDLE_REF,
-    INPUT_NORM_PACK_REF,
-    INPUT_RESEARCH_INTENT_REF,
     INPUT_TRINITY_BUNDLE_REF,
-    REPORT_LEGAL_REPORT_REF,
 )
 from polisyos.scientist.orchestration.engine.context import (
     ClaimCapableExecutionContext,
     ExecutionContext,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
 
 logger = get_logger(__name__)
 
@@ -412,6 +290,7 @@ def _build_web_evidence_section(
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     ref = artifacts_index.get(ARTIFACT_WEB_EVIDENCE_BUNDLE_REF)
     if ref is None:
         return None
@@ -609,6 +488,7 @@ def _build_policy_summary(
     state_inputs: dict[str, ArtifactRef],
 ) -> tuple[str, int]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     trinity_ref = state_inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return "N/A", 0

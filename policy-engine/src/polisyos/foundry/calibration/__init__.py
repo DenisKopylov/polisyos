@@ -43,6 +43,7 @@ from .identifiability import (
     load_identifiability_diagnostic_result,
 )
 from .report import (
+    CalibrationCoordinateProjection,
     CalibrationFitMetrics,
     CalibrationFitQuality,
     CalibrationReport,
@@ -58,7 +59,11 @@ from .robust_set_selector import (
     gaussian_parametric_radius,
     select_robust_set_size,
 )
-from .uncertainty_adapter import envelope_from_calibration_param, envelopes_from_calibration
+from .uncertainty_adapter import (
+    envelope_from_calibration_param,
+    envelopes_from_calibration,
+    persist_posterior_summary_from_method_evidence,
+)
 
 try:  # pragma: no cover - optional JAX dependency
     from .auxiliary import AuxLossComponent, InterferenceLossComponent
@@ -83,7 +88,12 @@ try:  # pragma: no cover - optional JAX dependency
     )
     from .multi_start import MultiStartResult, SingleRunResult
     from .pure_executor import StaticBundle, compile_program, run_pure_scan
-except (ImportError, ModuleNotFoundError, SyntaxError, IndentationError):  # pragma: no cover
+except (
+    ImportError,
+    ModuleNotFoundError,
+    SyntaxError,
+    IndentationError,
+):  # pragma: no cover
     Calibrator = None  # type: ignore[assignment]
     CalibratorInputs = None  # type: ignore[assignment]
     StaticBundle = None  # type: ignore[assignment]
@@ -118,6 +128,7 @@ __all__ = [
     "CITestThresholdPolicySet",
     "CalibrationFitMetrics",
     "CalibrationFitQuality",
+    "CalibrationCoordinateProjection",
     "CalibrationReport",
     "CalibrationSeriesComparison",
     "CalibrationTargetBundle",
@@ -171,6 +182,7 @@ __all__ = [
     "logit_bijector",
     "put_calibration_config",
     "put_calibration_report",
+    "persist_posterior_summary_from_method_evidence",
     "required_n_chi2",
     "required_n_kernel",
     "resolve_ci_threshold_policy",

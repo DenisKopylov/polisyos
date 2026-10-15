@@ -39,7 +39,10 @@ from polisyos.ir.analytics.interventions import (
 from polisyos.ir.governance import InterventionSpec, ScheduleSpec
 from polisyos.ir.linker import LinkedIntervention, link_trinity
 from polisyos.pdc import gy_content_hash
-from polisyos.runtime.quality.credal_reference import CredalReference, build_credal_reference
+from polisyos.runtime.quality.credal_reference import (
+    CredalReference,
+    build_credal_reference,
+)
 from polisyos.runtime.quality.grounding_active_controller import (
     GroundingActionCertificate,
     GroundingActiveController,
@@ -53,7 +56,9 @@ from polisyos.runtime.quality.grounding_bind import (
     GroundingBindGate,
     GroundingDecisionCertificate,
 )
-from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
+from polisyos.runtime.quality.grounding_disposition_vocab import (
+    GroundingDispositionKind,
+)
 from polisyos.runtime.quality.grounding_phrasing_defense import (
     GroundingPhrasingDefenseEngine,
     GroundingProxyGapRisk,
@@ -80,7 +85,13 @@ from polisyos.runtime.quality.intervention_substrate import (
     resolve_intervention_lever,
     resolve_observation_manifest_routes,
 )
-from polisyos.runtime.quality.world_model_record import resolve_intervention_atom_world_binding
+from polisyos.runtime.quality.world_model_record import (
+    resolve_intervention_atom_world_binding,
+)
+from polisyos.scientist import (
+    CritiqueReport,
+    DraftResult,
+)  # Pydantic resolves field types
 from polisyos.scientist.agent.critic import create_critic_agent
 from polisyos.scientist.agent.drafter_factory import create_drafter_agent
 from polisyos.scientist.agent.drafter_models import MultiPassConfig
@@ -88,13 +99,9 @@ from polisyos.scientist.agent.formalizer import (
     LLMFormalizerAgent,
     trinity_bundle_formalizer_generator_path,
 )
-from polisyos.scientist.agent.protocols import (  # Pydantic resolves field types
-    CritiqueReport,
-    DraftResult,
-)
 
 if TYPE_CHECKING:
-    from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
+    from polisyos.data_forge.read_api.academic import (
         ConfidenceLayerVintage,
     )
     from polisyos.runtime.quality.candidate_simulation import (
@@ -103,7 +110,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
-    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine import BudgetMiddleware
 
 DESIGN_GENERATION_SCHEMA_VERSION = "policyos.runtime.design_generation_under_a.v1"
 DESIGN_GENERATION_CONTRACT_SCHEMA_VERSION = (
@@ -1201,13 +1208,13 @@ def _recognized_confidence_layer_vintage(
         declared = payload.get("confidence_layer_vintage")
         if not isinstance(declared, dict):
             return None
-        from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
+        from polisyos.data_forge.read_api.academic import (
             ConfidenceLayerVintage,
-            _confidence_layer_vintage_for_sha256,
+            confidence_layer_vintage_for_snapshot_digest,
         )
 
         vintage = ConfidenceLayerVintage(**declared)
-        owner_vintage = _confidence_layer_vintage_for_sha256(vintage.snapshot_sha256)
+        owner_vintage = confidence_layer_vintage_for_snapshot_digest(vintage.snapshot_sha256)
         if owner_vintage is None:
             return None
         # The owner payload contains a tuple of layer DTOs, while the exact
@@ -1247,7 +1254,9 @@ def build_candidate_scenario_proposal_candidate(
         cycle_job_profile_selection_ref,
         revalidate_cycle_substrate_context,
     )
-    from polisyos.runtime.quality.design_problem import DesignProblem as DesignProblemModel
+    from polisyos.runtime.quality.design_problem import (
+        DesignProblem as DesignProblemModel,
+    )
     from polisyos.runtime.quality.intervention_substrate import (
         InterventionSubstrateBundle,
         _link_candidate_scenario_intervention,
@@ -1430,10 +1439,12 @@ async def _run_design_generation_under_a(
 
     owned_llm_client: object | None = None
     if llm_client is None:
-        from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
+        from polisyos.scientist.orchestration.llm.factory import (
+            create_traced_gateway_client,
+        )
 
         if producer_settlement_store is not None:
-            from polisyos.scientist.orchestration.engine.budget_middleware import (
+            from polisyos.scientist.orchestration.engine import (
                 BudgetMiddleware as BudgetMiddlewareType,
             )
 
@@ -2370,7 +2381,10 @@ def rank_shadow_candidates_with_graph_causal_surrogate(
         )
         overlap = len(target_tokens & _tokens(feature_text))
         route_bonus = min(0.25, 0.05 * len(routed_families))
-        score = min(1.0, 0.35 + route_bonus + 0.08 * len(atom.target_world_slots) + 0.04 * overlap)
+        score = min(
+            1.0,
+            0.35 + route_bonus + 0.08 * len(atom.target_world_slots) + 0.04 * overlap,
+        )
         rankings.append(
             SurrogateRanking(
                 candidate_id=candidate.candidate_id,
@@ -2924,7 +2938,9 @@ def _ast_call_name(call: ast.Call) -> str:
     return ""
 
 
-def firewall_issues_for_result(result: GenerationUnderAResult) -> tuple[dict[str, Any], ...]:
+def firewall_issues_for_result(
+    result: GenerationUnderAResult,
+) -> tuple[dict[str, Any], ...]:
     """Behaviorally validate N4's role separation and shadow-only output."""
 
     issues: list[dict[str, Any]] = []
@@ -3045,7 +3061,10 @@ def firewall_issues_for_result(result: GenerationUnderAResult) -> tuple[dict[str
                         "proposal_id": disposition.proposal_id,
                     }
                 )
-            if disposition.selected_relation not in {"exact", "certified-specialization"}:
+            if disposition.selected_relation not in {
+                "exact",
+                "certified-specialization",
+            }:
                 issues.append(
                     {
                         "code": "shadow_binding_without_identifying_grounding_relation",
@@ -3802,7 +3821,9 @@ def _owner_aliases_for_operator(
     return tuple(sorted(item for item in aliases if item and item != operator_kind))
 
 
-def _reference_atom_prompt_facts(reference: CredalReference) -> dict[str, dict[str, Any]]:
+def _reference_atom_prompt_facts(
+    reference: CredalReference,
+) -> dict[str, dict[str, Any]]:
     facts: dict[str, dict[str, Any]] = {}
     for atom in GroundingRelationEngine(reference).reference_atoms:
         signature = atom.signature
@@ -4240,7 +4261,12 @@ def _shadow_candidate_from_grounding(
         causal_context=context,
         world_model_record_ref=resolved_world_model_record_ref,
         producer_ref=f"{DESIGN_GENERATION_PRODUCER_REF}.generate_design_candidates_under_a",
-        provenance_refs=(bundle_ref, *prompt_hashes, cg1.content_hash, cg2.content_hash),
+        provenance_refs=(
+            bundle_ref,
+            *prompt_hashes,
+            cg1.content_hash,
+            cg2.content_hash,
+        ),
         operator_proof_type_map={operator_kind: "node"},
         mechanism_variable_map={operator_kind: target_slots},
         estimand_metric_id=design_problem.outcome_of_interest.metric_id,
@@ -4596,7 +4622,9 @@ def _draft_generator_path(
     return "model_generated"
 
 
-def _candidate_diversity_key(atom: InterventionAtomBinding) -> tuple[str, str, str, str]:
+def _candidate_diversity_key(
+    atom: InterventionAtomBinding,
+) -> tuple[str, str, str, str]:
     return (
         atom.operator_kind.trinity_kind,
         atom.target_selector.selector_content_ref,

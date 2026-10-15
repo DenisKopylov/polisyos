@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 
-from polisyos.common.async_tools import run_shared_executor_sync
+from polisyos.common import async_tools as common_async_tools
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import to_python_data
 from polisyos.core.artifacts.backends.config import (
@@ -30,7 +30,9 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.components import ENTRY_POINT_GROUP_FOUNDRY_METHODS
 from polisyos.core.components.bootstrap import build_components_index
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.components_bridge import bootstrap_method_registry_from_components
+from polisyos.foundry.methods.components_bridge import (
+    bootstrap_method_registry_from_components,
+)
 from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics import PosteriorPointRole, PosteriorSummaryRef
@@ -318,7 +320,7 @@ class MethodBackend:
                 seed=seed,
             )
 
-        method_result = run_shared_executor_sync(dispatch_with_observation)
+        method_result = common_async_tools.run_shared_executor_sync(dispatch_with_observation)
 
         result_payload = to_python_data(method_result.output, sort_keys=True)
         result_inputs: list[InputRef] = []
@@ -409,7 +411,7 @@ class MethodBackend:
 
         posterior_summary_refs: dict[PosteriorPointRole, PosteriorSummaryRef] = {}
         if has_posterior_draw_evidence:
-            from polisyos.foundry.calibration.uncertainty_adapter import (
+            from polisyos.foundry.calibration import (
                 persist_posterior_summary_from_method_evidence,
             )
 

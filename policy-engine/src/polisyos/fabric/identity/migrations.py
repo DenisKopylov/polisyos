@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from typing import Final
 
-from polisyos.common.migrations.base import ArtifactPayload, register_migration
+from polisyos.common import migrations as common_migrations
+from polisyos.common.migrations import ArtifactPayload
 
 MANIFEST_CURRENT_VERSION: Final[str] = "1.0"
 
@@ -25,7 +26,7 @@ def migrate_manifest_0_9_to_1_0(data: ArtifactPayload) -> ArtifactPayload:
 
 def register_manifest_migration() -> None:
     """Register the Fabric-owned manifest migration with Common's engine."""
-    register_migration("dataset_manifest", "0.9", "1.0")(
+    common_migrations.register_migration("dataset_manifest", "0.9", "1.0")(
         migrate_manifest_0_9_to_1_0
     )
 

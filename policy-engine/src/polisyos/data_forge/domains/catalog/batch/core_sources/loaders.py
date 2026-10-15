@@ -44,7 +44,7 @@ from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
 )
 from polisyos.data_forge.kernel.pipeline.manifests import write_raw_manifest
 from polisyos.data_forge.read_api.academic import CANONICAL_VARIABLES
-from polisyos.ir.connectors import FetchRequest
+from polisyos.ir import FetchRequest
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable, Iterable, Iterator, Mapping
@@ -60,7 +60,7 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.sources.eurostat import EurostatConnector
     from polisyos.fabric.connectors.sources.sdmx_source import SDMXSourceConnector
     from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
-    from polisyos.ir.connectors import FetchResult
+    from polisyos.ir import FetchResult
 
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
     resolve_core_sources_compatibility_binding,
@@ -302,7 +302,9 @@ def _load_wvs_registry() -> dict[str, dict[str, Any]]:
 
 
 @lru_cache(maxsize=1)
-def _load_wvs_registry_snapshot(snapshot: _MaterialFileSnapshot) -> dict[str, dict[str, Any]]:
+def _load_wvs_registry_snapshot(
+    snapshot: _MaterialFileSnapshot,
+) -> dict[str, dict[str, Any]]:
     if snapshot.raw is None:
         return {}
     try:
@@ -1199,7 +1201,8 @@ async def _materialize_uis_bulk_dataset(
         return {
             "normalized_path": normalized_path,
             "raw_path": next(
-                (raw_dir / Path(urlparse(url).path).name for url in sorted_links), page_path
+                (raw_dir / Path(urlparse(url).path).name for url in sorted_links),
+                page_path,
             ),
             "bulk_url": sorted_links[0],
             "row_count": _parquet_row_count(normalized_path),
@@ -1867,7 +1870,8 @@ async def _fetch_who_observations(
     end_year: int,
 ) -> list[dict[str, Any]]:
     iso3 = cast(
-        "Callable[[str], str]", __resolve_implementation_dependency("_to_iso3", "transformers")
+        "Callable[[str], str]",
+        __resolve_implementation_dependency("_to_iso3", "transformers"),
     )(country_code)
     url = f"https://ghoapi.azureedge.net/api/{indicator_id}"
     params = {
@@ -1908,7 +1912,8 @@ async def _fetch_uis_observations(
     params = {
         "indicator": indicator_id,
         "geoUnit": cast(
-            "Callable[[str], str]", __resolve_implementation_dependency("_to_iso3", "transformers")
+            "Callable[[str], str]",
+            __resolve_implementation_dependency("_to_iso3", "transformers"),
         )(country_code),
         "start": int(start_year),
         "end": int(end_year),

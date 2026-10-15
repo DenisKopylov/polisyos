@@ -863,7 +863,7 @@ _MODULE_SYMBOLS[".epoch"] = (
 _SUBMODULES = frozenset({"chronology", "epoch"})
 
 if TYPE_CHECKING:
-    from .backtest import BacktestReportRef
+    from .backtest import BacktestReportRef as BacktestReportRef
     from .c4_persisted_profiles import (
         C4_PERSISTED_PROFILE_SPECS,
         C4PersistedProfileSpec,
@@ -1192,7 +1192,9 @@ if TYPE_CHECKING:
         RuleBackend,
         RuleType,
     )
-    from .normative_arbitration import NormativeArbitrationResultRef
+    from .normative_arbitration import (
+        NormativeArbitrationResultRef,
+    )
     from .policy_design_case_projection import (
         POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION,
         RECOURSE_POINTER_SCHEMA_VERSION,
@@ -1470,6 +1472,27 @@ def __getattr__(name: str) -> Any:
 def __dir__() -> list[str]:
     return sorted(set(list(globals().keys()) + list(_LAZY_IMPORTS.keys())))
 
+
+_LAZY_IMPORTS.update(
+    {
+        "CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES": (
+            "polisyos.core.contracts.control_admission_attempt"
+        ),
+        "DataNeed": "polisyos.core.contracts.control",
+        "DecisionMonitoringContractRef": "polisyos.core.contracts.scientist",
+        "DecisionValidityEventRequest": "polisyos.core.contracts.control",
+        "FeedbackConfig": "polisyos.core.contracts.foundry",
+        "FeedbackSolveResult": "polisyos.core.contracts.foundry",
+        "NO_CALL_REASON_VALUES": "polisyos.core.contracts.control_admission_attempt",
+        "PRODUCER_CALL_STATE_VALUES": "polisyos.core.contracts.control_admission_attempt",
+        "ParameterOverrideBundle": "polisyos.core.contracts.foundry",
+        "PolicyFlags": "polisyos.core.contracts.control",
+        "SourceVerificationReportRef": "polisyos.core.contracts.scientist",
+        "VerifiedPolicyReportRef": "polisyos.core.contracts.scientist",
+        "c4_framed_semantic_projection_digest": "polisyos.core.contracts.c4_persisted_profiles",
+        "validate_producer_call_observation": "polisyos.core.contracts.control_admission_attempt",
+    }
+)
 
 __all__ = [
     *_CHRONOLOGY_EXPORTS,
@@ -2001,3 +2024,48 @@ __all__ = [
     "serialize_skip_blocker_record",
     "verify_scope_adjudication_candidate",
 ]
+
+__all__.extend(
+    [
+        "CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES",
+        "NO_CALL_REASON_VALUES",
+        "PRODUCER_CALL_STATE_VALUES",
+        "DataNeed",
+        "DecisionMonitoringContractRef",
+        "DecisionValidityEventRequest",
+        "FeedbackConfig",
+        "FeedbackSolveResult",
+        "ParameterOverrideBundle",
+        "PolicyFlags",
+        "SourceVerificationReportRef",
+        "VerifiedPolicyReportRef",
+        "c4_framed_semantic_projection_digest",
+        "validate_producer_call_observation",
+    ]
+)
+
+if TYPE_CHECKING:
+    from .c4_persisted_profiles import (
+        c4_framed_semantic_projection_digest,
+    )
+    from .control import (
+        DataNeed,
+        DecisionValidityEventRequest,
+        PolicyFlags,
+    )
+    from .control_admission_attempt import (
+        CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES,
+        NO_CALL_REASON_VALUES,
+        PRODUCER_CALL_STATE_VALUES,
+        validate_producer_call_observation,
+    )
+    from .foundry import (
+        FeedbackConfig,
+        FeedbackSolveResult,
+        ParameterOverrideBundle,
+    )
+    from .scientist import (
+        DecisionMonitoringContractRef,
+        SourceVerificationReportRef,
+        VerifiedPolicyReportRef,
+    )

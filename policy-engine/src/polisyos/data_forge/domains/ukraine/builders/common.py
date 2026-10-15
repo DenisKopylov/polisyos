@@ -16,8 +16,8 @@ from typing import TYPE_CHECKING, Any
 import numpy as np
 import pandas as pd
 
+import polisyos.ir.model_layer.types as _model_layer_types
 from polisyos.data_forge.domains.ukraine.adapters import _UKRAINE_OBLAST_CODE_MAP
-from polisyos.ir.model_layer import types as _model_layer_types
 
 from . import observation as _observation
 from .contracts import StageBuildResult as _StageBuildResult
@@ -357,38 +357,43 @@ def _sanitize_numeric_series(
         series = series.clip(upper=upper)
     return series
 
-_IO_COMPAT_NAMES = frozenset({
-    "_cas_put_json",
-    "_directory_file_size_gib",
-    "_json_default",
-    "_load_optional_source_frame",
-    "_load_source_frame",
-    "_manifest_path",
-    "_read_parquet_frame",
-    "_select_procurement_frame",
-    "_stage_dir",
-    "_stream_parquet_numeric_column_stats",
-    "_write_frame",
-    "_write_json",
-    "_write_npz",
-    "_write_protocol_json",
-})
-_BINDINGS_COMPAT_NAMES = frozenset({
-    "_augment_lookup_with_identity_bridge",
-    "_build_edr_identity_bridge",
-    "_build_synthetic_multiscale_payload",
-    "_build_unique_name_lookup",
-    "_extract_unresolved_identity_rows",
-    "_filter_identity_bridge_inputs",
-    "_int_env",
-    "_link_participants",
-    "_normalize_identity_key",
-    "_normalize_name_key",
-    "_participant_resolution_coverage",
-    "_resolve_agent_id",
-    "_resolve_agent_lookup",
-    "_validation_subset",
-})
+
+_IO_COMPAT_NAMES = frozenset(
+    {
+        "_cas_put_json",
+        "_directory_file_size_gib",
+        "_json_default",
+        "_load_optional_source_frame",
+        "_load_source_frame",
+        "_manifest_path",
+        "_read_parquet_frame",
+        "_select_procurement_frame",
+        "_stage_dir",
+        "_stream_parquet_numeric_column_stats",
+        "_write_frame",
+        "_write_json",
+        "_write_npz",
+        "_write_protocol_json",
+    }
+)
+_BINDINGS_COMPAT_NAMES = frozenset(
+    {
+        "_augment_lookup_with_identity_bridge",
+        "_build_edr_identity_bridge",
+        "_build_synthetic_multiscale_payload",
+        "_build_unique_name_lookup",
+        "_extract_unresolved_identity_rows",
+        "_filter_identity_bridge_inputs",
+        "_int_env",
+        "_link_participants",
+        "_normalize_identity_key",
+        "_normalize_name_key",
+        "_participant_resolution_coverage",
+        "_resolve_agent_id",
+        "_resolve_agent_lookup",
+        "_validation_subset",
+    }
+)
 
 
 def __getattr__(name: str) -> Any:

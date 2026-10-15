@@ -13,7 +13,7 @@ from polisyos.common.canonical_profile import (
     require_declared_profile,
 )
 from polisyos.core import artifacts  # Pydantic resolves the public DTO at runtime.
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.runtime.http.authorization import (
     ResourceBindingSource,
     ResourceBindingSpec,
@@ -159,7 +159,9 @@ def issue_public_decision_record(
     response: Response,
     ctx: Annotated[RuntimeApiContext, Depends(get_runtime_api_context)],
     publication_class: Literal[
-        "verification_report_only", "governed_public_record", "governed_public_record_candidate"
+        "verification_report_only",
+        "governed_public_record",
+        "governed_public_record_candidate",
     ] = "verification_report_only",
 ) -> PublicDecisionVerificationIssued | GovernedPublicRecordIssued | GovernedPublicRecordPrepared:
     """Resolve an owned run and invoke its explicitly selected publication owner.

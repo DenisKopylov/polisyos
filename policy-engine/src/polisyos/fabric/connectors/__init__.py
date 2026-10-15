@@ -90,7 +90,10 @@ from polisyos.fabric.connectors.pool import (
     PoolStats,
 )
 from polisyos.fabric.connectors.profiles import SourceProfileRegistry
-from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+from polisyos.fabric.connectors.profiles.resolver import (
+    resolve_connection_config,
+    resolve_execution_policy,
+)
 
 # Registry Architecture (Phase 2.2)
 from polisyos.fabric.connectors.registry import (
@@ -131,6 +134,7 @@ from polisyos.fabric.connectors.resilience import (
     with_rate_limit,
     with_retry,
 )
+from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
 from polisyos.fabric.connectors.sources.http_base import RawHTTPResponseObserver
 from polisyos.fabric.connectors.sources.world_bank import normalize_worldbank_records
 
@@ -233,6 +237,7 @@ __all__ = [
     "FetchError",
     "FetchRequest",
     "FetchResult",
+    "FileTabularConnector",
     "FreshnessResult",
     "FreshnessStatus",
     "HealthStatus",
@@ -300,6 +305,7 @@ __all__ = [
     # === Capability Utilities ===
     "requires_capability",
     "resolve_connection_config",
+    "resolve_execution_policy",
     "resolve_resilience_config",
     "validate_connector_governance_metadata",
     # === Validation Helpers ===

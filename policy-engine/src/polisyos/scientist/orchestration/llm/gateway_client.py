@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, Literal
 import aiohttp
 
 from polisyos.common.logger import get_logger
-from polisyos.core.llm.response import normalize_llm_cost_evidence
+from polisyos.core.llm import normalize_llm_cost_evidence
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 logger = get_logger(__name__)

@@ -4,7 +4,7 @@
 computations: ABI contracts, registry/discovery, DAG composition, backend
 dispatch, capability metadata, and the domain catalog under `catalog/`.
 
-- Last updated: 2026-10-07
+- Last updated: 2026-10-15
 
 ## Purpose
 
@@ -16,7 +16,11 @@ typed discovery, versioning, dispatch, and evidence.
 ## Where to Start
 
 - [api.py](api.py) and [__init__.py](__init__.py) for the exported facade and
-  stable imports.
+  stable imports. Cross-package consumers use exact lazy owner exports for
+  bootstrap work, forecasting registration, ambiguity contracts, mechanism
+  families, and ordinal poverty estimation.
+- [causal/README.md](causal/README.md) for the causal family facade; use
+  [backends/__init__.py](backends/__init__.py) for the lazy `NumpyRunner` route.
 - [backends/protocol.py](backends/protocol.py) for the Foundry-owned generic
   embedder implementation. Cross-package callers import its three public names
   from `polisyos.foundry`; backend package paths remain internal.
@@ -61,6 +65,11 @@ typed discovery, versioning, dispatch, and evidence.
 | `build_method_catalog_snapshot()`  | Captures immutable registry inventory for docs, CI, and release evidence. |
 | `build_method_capability_matrix()` | Produces machine-readable applicability/replay rows.                      |
 | `advise_methods()`                 | Ranks candidate methods for a planning query.                             |
+| `BootstrapExecutionWork`           | Typed bootstrap execution-work result consumed by Scientist packets.     |
+| `AmbiguityCertificate`              | Existing optimization-family ambiguity contract.                         |
+| `ensure_forecasting_methods_registered()` | Registers the existing forecasting family.                         |
+| `get_mechanism_family_spec()`       | Resolves a mechanism family from its canonical owner.                     |
+| `OrdinalMultidimensionalPovertyEstimator` | Existing ordinal poverty estimator.                                |
 
 ## Internal Layout
 

@@ -16,10 +16,12 @@ from polisyos.data_forge.domains.academic.batch.claim_adjudication_policy import
     claim_promotion_policy,
 )
 from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
-    _validate_input_batch,
     produce_claim_adjudication_input,
 )
 from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
+from polisyos.data_forge.read_api.academic import (
+    validate_claim_adjudication_input_batch,
+)
 from polisyos.ir.analytics.literature import (
     AdmittedClaimAdjudicationBatch,
     ArticleExtractionResult,
@@ -180,7 +182,9 @@ def _positive_candidate() -> dict[str, object]:
     }
 
 
-def test_raw_input_excludes_producer_publish_authority_and_freezes_bytes(tmp_path) -> None:
+def test_raw_input_excludes_producer_publish_authority_and_freezes_bytes(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     config, raw_ref = _input_ref(tmp_path, store)
     config.article_extraction_results_path.write_text("", encoding="utf-8")
@@ -211,7 +215,9 @@ async def test_missing_champion_blocks_without_emitting_result(tmp_path) -> None
 
 
 @pytest.mark.asyncio
-async def test_promoted_champion_executes_and_publishes_strong_fulltext(tmp_path) -> None:
+async def test_promoted_champion_executes_and_publishes_strong_fulltext(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     _, raw_ref = _input_ref(tmp_path, store)
@@ -378,7 +384,9 @@ async def test_tampered_raw_blob_is_rejected_before_execution(tmp_path) -> None:
 
 
 @pytest.mark.asyncio
-async def test_execution_result_cannot_be_presented_as_validity_evidence(tmp_path) -> None:
+async def test_execution_result_cannot_be_presented_as_validity_evidence(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
     _, raw_ref = _input_ref(tmp_path, store)
@@ -473,7 +481,9 @@ async def test_runtime_result_manifest_preserves_all_selected_claim_refs(tmp_pat
         assert selected_ref.manifest_profile_sha256 == ref.manifest_profile_sha256
 
 
-def test_raw_batch_binds_complete_extraction_and_retraction_source_profiles(tmp_path) -> None:
+def test_raw_batch_binds_complete_extraction_and_retraction_source_profiles(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snapshot")
     config.article_extraction_results_path.parent.mkdir(parents=True, exist_ok=True)
@@ -531,7 +541,7 @@ def test_raw_batch_binds_complete_extraction_and_retraction_source_profiles(tmp_
             == "polisyos.data_forge.domains.academic.batch.claim_adjudicator"
         )
         assert source_manifest.producer.version == "1.0"
-    _validate_input_batch(fresh_reader, raw_ref)
+    validate_claim_adjudication_input_batch(fresh_reader, raw_ref)
 
     body = from_canonical_bytes(fresh_reader.get_bytes(raw_ref.artifact_id))
     for role, edge in edges.items():
@@ -552,7 +562,7 @@ def test_raw_batch_binds_complete_extraction_and_retraction_source_profiles(tmp_
             return_selected_profile=True,
         )
         with pytest.raises(ValueError):
-            _validate_input_batch(fresh_reader, profileless_ref)
+            validate_claim_adjudication_input_batch(fresh_reader, profileless_ref)
 
         source_manifest = fresh_reader.get_manifest_by_profile(
             edge.artifact_id, edge.manifest_profile_sha256
@@ -592,4 +602,4 @@ def test_raw_batch_binds_complete_extraction_and_retraction_source_profiles(tmp_
             return_selected_profile=True,
         )
         with pytest.raises(ValueError, match=f"source profile mismatch:{role}"):
-            _validate_input_batch(fresh_reader, alternate_ref)
+            validate_claim_adjudication_input_batch(fresh_reader, alternate_ref)

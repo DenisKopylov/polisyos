@@ -8,10 +8,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from polisyos.core.artifacts.canonical_profile import (
-    read_core_json_artifact,
-    read_core_manifest_profile,
-)
+from polisyos.core.artifacts import read_core_json_artifact, read_core_manifest_profile
 from polisyos.core.contracts import ControlFailureEnvelope
 from polisyos.core.security import TenantContextNotSetError
 from polisyos.pdc import (
@@ -23,7 +20,9 @@ from polisyos.pdc import (
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactManifest, ArtifactRef
-    from polisyos.runtime.quality.data_forge_binding import MeasurementRootExecutionBinding
+    from polisyos.runtime.quality.data_forge_binding import (
+        MeasurementRootExecutionBinding,
+    )
     from polisyos.runtime.quality.workspace.loop import WorkspaceSearchExitContract
 
     from ..control_plane_store import (
@@ -254,7 +253,9 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
                 http_request_id=http_request_id,
             )
             raise _WorkflowExecutionNonAuthorityError(str(exc), progress=progress) from exc
-        from polisyos.runtime.quality.workspace.loop import workspace_exit_schema_version
+        from polisyos.runtime.quality.workspace.loop import (
+            workspace_exit_schema_version,
+        )
 
         authority_withheld_for_execution_scope = (
             execution_scope_status == "not_established" and contract.authority_boundary is not None

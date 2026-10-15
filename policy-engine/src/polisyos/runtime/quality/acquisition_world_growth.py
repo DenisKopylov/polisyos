@@ -48,7 +48,9 @@ from polisyos.runtime.quality.semantic_epoch import (
 from polisyos.scientist import BudgetState
 
 if TYPE_CHECKING:
-    from polisyos.runtime.quality.acquisition_route_loop import VerifiedAcquisitionRouteClosure
+    from polisyos.runtime.quality.acquisition_route_loop import (
+        VerifiedAcquisitionRouteClosure,
+    )
     from polisyos.runtime.quality.epoch_deployment import EpochDeployment
     from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
@@ -440,7 +442,7 @@ class AcquisitionWorldGrowthBridge:
         action_phase_ref: str,
     ) -> AcquisitionRoutePhaseReceipt:
         """Resolve the exact executing phase through the current durable action head."""
-        from polisyos.core.artifacts.canonical_profile import (
+        from polisyos.core.artifacts import (
             artifact_ref_for_manifest,
             read_core_json_artifact,
             read_core_manifest_profile,
@@ -630,11 +632,17 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("acquisition_action_outcome_receipt_scope_mismatch")
         pointer, current = self._read_action_selector(closure, selected, action_phase_ref)
         if current.state == "selected":
-            if (current.receipt_kind, current.receipt_ref) != (receipt_kind, receipt_ref):
+            if (current.receipt_kind, current.receipt_ref) != (
+                receipt_kind,
+                receipt_ref,
+            ):
                 raise ValueError("acquisition_action_outcome_replay_conflict")
             return
         if current.state == "prepared":
-            if (current.receipt_kind, current.receipt_ref) != (receipt_kind, receipt_ref):
+            if (current.receipt_kind, current.receipt_ref) != (
+                receipt_kind,
+                receipt_ref,
+            ):
                 raise ValueError("acquisition_action_outcome_replay_conflict")
             return
         self._write_action_selector(
@@ -669,7 +677,10 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("acquisition_action_outcome_receipt_scope_mismatch")
         pointer, current = self._read_action_selector(closure, selected, action_phase_ref)
         if current.state == "selected":
-            if (current.receipt_kind, current.receipt_ref) != (receipt_kind, receipt_ref):
+            if (current.receipt_kind, current.receipt_ref) != (
+                receipt_kind,
+                receipt_ref,
+            ):
                 raise ValueError("acquisition_action_outcome_replay_conflict")
             return
         self._write_action_selector(
@@ -829,9 +840,7 @@ class AcquisitionWorldGrowthBridge:
                 raise ValueError("acquisition_world_growth_receipt_missing")
             pointer_kind, selected_ref = self._read_outcome_pointer(pointer)
             if pointer_kind == _NO_GROWTH_KIND:
-                prior_no_growth, growth, admitted = self._verified_no_growth(
-                    closure, selected_ref
-                )
+                prior_no_growth, growth, admitted = self._verified_no_growth(closure, selected_ref)
                 growth_ref = prior_no_growth.growth_receipt_ref
             else:
                 growth_ref = selected_ref
@@ -877,7 +886,10 @@ class AcquisitionWorldGrowthBridge:
                 {**attempt.model_dump(mode="python"), "before": before}
             )
             rechecked_growth = self._finish_admission(
-                closure, measured_attempt, growth.activation, action_phase_ref=action_phase_ref
+                closure,
+                measured_attempt,
+                growth.activation,
+                action_phase_ref=action_phase_ref,
             )
             if rechecked_growth is not None:
                 raise ValueError("acquisition_duplicate_action_membership_grew")
@@ -958,7 +970,8 @@ class AcquisitionWorldGrowthBridge:
         closure: VerifiedAcquisitionRouteClosure,
         action_phase_ref: str | None = None,
     ) -> tuple[
-        tuple[str, ...], AcquisitionWorldGrowthReceipt | PersistedSemanticEpochProductionReceipt
+        tuple[str, ...],
+        AcquisitionWorldGrowthReceipt | PersistedSemanticEpochProductionReceipt,
     ]:
         """Admit original durable evidence under new authority, without another live fetch."""
         selected = self.selection(closure)
@@ -978,7 +991,10 @@ class AcquisitionWorldGrowthBridge:
             with fence.open("x") as stream:
                 stream.write(
                     json.dumps(
-                        {"action_phase_ref": action_phase_ref, "deferral_ref": deferral_ref},
+                        {
+                            "action_phase_ref": action_phase_ref,
+                            "deferral_ref": deferral_ref,
+                        },
                         sort_keys=True,
                     )
                     if action_phase_ref is not None
@@ -988,7 +1004,10 @@ class AcquisitionWorldGrowthBridge:
                 os.fsync(stream.fileno())
             self._sync_directory(fence.parent)
             result = self._admit_stored_attempt(
-                closure, deferral.attempt_ref, attempt, action_phase_ref=action_phase_ref
+                closure,
+                deferral.attempt_ref,
+                attempt,
+                action_phase_ref=action_phase_ref,
             )
             if isinstance(result, PersistedSemanticEpochProductionReceipt):
                 # The updated negative is durable before another action can be eligible.
@@ -1365,9 +1384,7 @@ class AcquisitionWorldGrowthBridge:
                     prepared, _admitted = self._verified_growth(closure, prepared_ref)
                     if prepared.action_phase_ref != action_phase_ref:
                         raise ValueError("acquisition_action_outcome_scope_mismatch")
-                self._write_pointer(
-                    route_pointer, prepared_ref, receipt_kind=prepared_kind
-                )
+                self._write_pointer(route_pointer, prepared_ref, receipt_kind=prepared_kind)
                 self._select_action_outcome(
                     closure, selected, action_phase_ref, prepared_kind, prepared_ref
                 )
@@ -1392,7 +1409,11 @@ class AcquisitionWorldGrowthBridge:
                             ),
                         )
                         return self._recover_selected_action_outcome(
-                            closure, selected, action_phase_ref, _NO_GROWTH_KIND, route_ref
+                            closure,
+                            selected,
+                            action_phase_ref,
+                            _NO_GROWTH_KIND,
+                            route_ref,
                         )
                 else:
                     growth = AcquisitionWorldGrowthReceipt.model_validate(
@@ -1431,9 +1452,7 @@ class AcquisitionWorldGrowthBridge:
                     # A previous route receipt is evidence for remeasurement only. It is
                     # never the result of this action generation.
                     remeasure_prior = True
-            fence = self._growth_pointer(selected, create=False).with_suffix(
-                ".admission.started"
-            )
+            fence = self._growth_pointer(selected, create=False).with_suffix(".admission.started")
             if fence.exists():
                 try:
                     fence_value = json.loads(fence.read_text())
@@ -1516,17 +1535,12 @@ class AcquisitionWorldGrowthBridge:
             raise ValueError("acquisition_world_growth_pointer_unverified")
         ref = value.get("receipt_ref")
         kind = value.get("receipt_kind", _GROWTH_KIND)
-        if (
-            not isinstance(ref, str)
-            or kind not in (_GROWTH_KIND, _NO_GROWTH_KIND)
-        ):
+        if not isinstance(ref, str) or kind not in (_GROWTH_KIND, _NO_GROWTH_KIND):
             raise ValueError("acquisition_world_growth_pointer_unverified")
         return kind, ref
 
     @staticmethod
-    def _write_pointer(
-        pointer: Path, ref: str, *, receipt_kind: str | None = None
-    ) -> None:
+    def _write_pointer(pointer: Path, ref: str, *, receipt_kind: str | None = None) -> None:
         value = {"receipt_ref": ref}
         if receipt_kind is not None:
             if receipt_kind not in (_GROWTH_KIND, _NO_GROWTH_KIND):
@@ -1594,9 +1608,7 @@ class AcquisitionWorldGrowthBridge:
             return _NO_GROWTH_KIND
         return _GROWTH_KIND
 
-    def _has_verified_admission_basis(
-        self, closure: VerifiedAcquisitionRouteClosure
-    ) -> bool:
+    def _has_verified_admission_basis(self, closure: VerifiedAcquisitionRouteClosure) -> bool:
         """Verify a prior native admission only as the baseline for another measurement.
 
         This predicate cannot project the prior result as the current action outcome. Public
@@ -1640,7 +1652,10 @@ class AcquisitionWorldGrowthBridge:
             if snapshot is None:
                 return "not_established", None
             phase, phase_ref = snapshot.executing_phase, snapshot.executing_phase_ref
-            selection, selection_ref = snapshot.selection_phase, snapshot.selection_phase_ref
+            selection, selection_ref = (
+                snapshot.selection_phase,
+                snapshot.selection_phase_ref,
+            )
             if phase is None or phase_ref is None or selection is None or selection_ref is None:
                 return "not_established", None
             if not self._action_phase_matches_closure(closure, selected, phase):
@@ -1664,8 +1679,7 @@ class AcquisitionWorldGrowthBridge:
                 or selection.predecessor_receipt_ref != phase_ref
                 or len(selection.owner_receipt_refs) != 1
                 or any(
-                    getattr(selection, field) != getattr(phase, field)
-                    for field in identity_fields
+                    getattr(selection, field) != getattr(phase, field) for field in identity_fields
                 )
             ):
                 raise ValueError("acquisition_action_selection_binding_mismatch")
@@ -1678,9 +1692,7 @@ class AcquisitionWorldGrowthBridge:
                 growth, _admitted = self._verified_growth(closure, outcome_ref)
                 if growth.action_phase_ref != phase_ref:
                     raise ValueError("acquisition_action_outcome_scope_mismatch")
-                status: Literal[
-                    "not_established", "no_growth", "admitted_delta"
-                ] = "admitted_delta"
+                status: Literal["not_established", "no_growth", "admitted_delta"] = "admitted_delta"
             elif outcome_kind == _NO_GROWTH_KIND:
                 no_growth, growth, _admitted = self._verified_no_growth(
                     closure, outcome_ref, require_route_pointer=False
@@ -1703,7 +1715,10 @@ class AcquisitionWorldGrowthBridge:
 
     def _verified_growth(
         self, closure: VerifiedAcquisitionRouteClosure, ref: str
-    ) -> tuple[AcquisitionWorldGrowthReceipt, data_forge_read_api.catalog.OverlayAdmissionReceipt]:
+    ) -> tuple[
+        AcquisitionWorldGrowthReceipt,
+        data_forge_read_api.catalog.OverlayAdmissionReceipt,
+    ]:
         growth = AcquisitionWorldGrowthReceipt.model_validate(self._read(ref, _GROWTH_KIND))
         if self.selection(closure) != growth.selection:
             raise ValueError("acquisition_world_growth_case_mismatch")
@@ -1796,8 +1811,7 @@ class AcquisitionWorldGrowthBridge:
             or attempt.owner_receipt_refs != growth.live_evidence_refs
             or admitted.passport_id != receipt.passport_id
             or admitted.passport_id != growth.passport_id
-            or admitted.admitted_observation_count
-            != receipt.observed_admitted_observation_count
+            or admitted.admitted_observation_count != receipt.observed_admitted_observation_count
             or receipt.before != receipt.after
         ):
             raise ValueError("acquisition_no_growth_attempt_binding_mismatch")
@@ -1816,24 +1830,27 @@ class AcquisitionWorldGrowthBridge:
             for row in current_state.epochs
         )
         current_selected = tuple(row for row in current if row.epoch_id == selected.epoch_id)
-        recorded_selected = tuple(
-            row for row in receipt.after if row.epoch_id == selected.epoch_id
-        )
-        if current_selected != recorded_selected or admitted_membership_delta(
-            before=receipt.before,
-            after=current,
-            epoch_id=selected.epoch_id,
-            passport_id=receipt.passport_id,
-        ) != 0:
+        recorded_selected = tuple(row for row in receipt.after if row.epoch_id == selected.epoch_id)
+        if (
+            current_selected != recorded_selected
+            or admitted_membership_delta(
+                before=receipt.before,
+                after=current,
+                epoch_id=selected.epoch_id,
+                passport_id=receipt.passport_id,
+            )
+            != 0
+        ):
             raise ValueError("acquisition_no_growth_membership_drift")
         return receipt, growth, admitted
 
     def _read(self, ref: str, kind: str) -> dict[str, Any]:
-        from polisyos.core.artifacts import load_core_json_artifact
-        from polisyos.core.artifacts.canonical_profile import (
+        from polisyos.core.artifacts import (
             artifact_ref_for_manifest,
+            load_core_json_artifact,
             read_core_manifest_profile,
         )
+
         payload = self.artifact_store.get_bytes(ref)
         manifest = read_core_manifest_profile(self.artifact_store, ref)[0]
         selected_ref = artifact_ref_for_manifest(manifest)
@@ -1853,10 +1870,7 @@ class AcquisitionWorldGrowthBridge:
             or (
                 kind in schema_names
                 and schema is not None
-                and (
-                    schema.name != schema_names[kind]
-                    or schema.version not in {"1.0", "1.1"}
-                )
+                and (schema.name != schema_names[kind] or schema.version not in {"1.0", "1.1"})
             )
         ):
             raise ValueError("acquisition_world_growth_receipt_unverified")
@@ -1879,6 +1893,7 @@ class AcquisitionWorldGrowthBridge:
     def resume(self, closure: VerifiedAcquisitionRouteClosure, refs: tuple[str, ...]) -> str:
         """Read verified native activation and enter the original case at the next cycle."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         _require_promotion_runtime_store_binding(self.promotion_runtime, self.artifact_store)
         growth_refs = tuple(
             ref for ref in refs if self.artifact_store.get_manifest(ref).kind == _GROWTH_KIND
@@ -2043,7 +2058,9 @@ class AcquisitionWorldGrowthBridge:
             build_acquired_observation_candidate_world,
             materialize_acquired_observation_snapshot,
         )
-        from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
+        from polisyos.runtime.quality.substrate_registry import (
+            persist_substrate_registry,
+        )
         from polisyos.runtime.quality.world_model_record import (
             world_model_artifact_views,
         )
@@ -2259,6 +2276,7 @@ class AcquisitionWorldGrowthBridge:
             from polisyos.runtime.quality.generation_cycle import (
                 validate_acquisition_overlay_continuation,
             )
+
             validate_acquisition_overlay_continuation(closure.generation_run, receipt)
 
     def _persist(

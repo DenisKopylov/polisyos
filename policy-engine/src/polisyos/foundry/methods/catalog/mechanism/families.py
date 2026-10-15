@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-from polisyos.ir.analytics.mechanism_design import (
+from polisyos.ir import (
     ICVerificationMode,
-    MechanismFamily,
     MechanismFamilySpec,
+)
+from polisyos.ir import (
+    MechanismDesignFamily as MechanismFamily,
 )
 
 _MECHANISM_FAMILY_SPECS: dict[str, MechanismFamilySpec] = {

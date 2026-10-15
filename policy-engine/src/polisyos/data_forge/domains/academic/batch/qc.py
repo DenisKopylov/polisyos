@@ -14,8 +14,8 @@ from typing import TYPE_CHECKING, Literal
 
 import duckdb
 
+from polisyos.common import serialization as common_serialization
 from polisyos.common.logger import get_logger
-from polisyos.common.serialization import decode_json_object
 from polisyos.data_forge.domains.academic.knowledge.canonical_seed import (
     CANONICAL_VARIABLES,
 )
@@ -189,7 +189,9 @@ def _load_json_object(
     required_fields: tuple[str, ...] = (),
 ) -> dict[str, object]:
     """Read a present JSON object without converting malformed content to absence."""
-    payload = decode_json_object(path.read_bytes(), source=str(path), kind=kind)
+    payload = common_serialization.decode_json_object(
+        path.read_bytes(), source=str(path), kind=kind
+    )
     _require_json_fields(payload, required_fields, source=str(path), kind=kind)
     return payload
 
@@ -206,7 +208,7 @@ def _iter_jsonl_objects(
             if not raw.strip():
                 continue
             source = f"{path}:{line_number}"
-            payload = decode_json_object(raw, source=source, kind=kind)
+            payload = common_serialization.decode_json_object(raw, source=source, kind=kind)
             _require_json_fields(payload, required_fields, source=source, kind=kind)
             yield payload
 

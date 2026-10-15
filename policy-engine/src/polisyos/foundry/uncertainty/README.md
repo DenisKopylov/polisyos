@@ -56,6 +56,8 @@ draw. Other errors propagate instead of producing a conditional partial distribu
 | `aggregate_envelopes()`         | Combines multiple envelopes into one.                     |
 | `compute_first_order_indices()` | Sensitivity helper for variance attribution.              |
 | `extract_std()`                 | Extracts scale from a typed parametric fit or legacy interval. |
+| Covariance reconciliation constants and builders | Lazy exact-owner exports for covariance construction, reconciliation, and singular-matrix handling. |
+| `EvaluationFailureClassification` and classifier | Bounded exception-graph classification and existing node/edge limits. |
 
 → Full reference: [docs/reference/foundry/index.md](../../../../docs/reference/foundry/index.md)
 
@@ -106,6 +108,6 @@ substitution is applied.
 
 ## Current State
 
-- Last updated: 2026-10-10
+- Last updated: 2026-10-15
 - Files: 13 Python files in this package
-- Exports: 18 names declared in `__all__`
+- Exports: 27 names declared in `__all__`

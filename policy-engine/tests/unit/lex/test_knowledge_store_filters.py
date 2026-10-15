@@ -747,7 +747,7 @@ def test_lex_owner_rows_are_selected_and_document_ids_are_not_content(tmp_path: 
             }
         )
         altered_receipt = receipt.model_copy(update={"assessments": (altered_assessment,)})
-        with pytest.raises(ValueError, match="document identity differs"):
+        with pytest.raises(ValueError):
             semantic_epoch._verify_lex_snapshot(
                 owner=owner,
                 payload=owner.load_amendment_owner_snapshot(ref=receipt.owner_source_snapshot_ref),

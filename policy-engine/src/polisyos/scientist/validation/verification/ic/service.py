@@ -11,7 +11,9 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.ic_verification import (
     ICNegativeCertificate,
@@ -23,7 +25,7 @@ from polisyos.core.contracts.ic_verification import (
     ICVerificationResult,
     IncentiveCompatibilityCertificate,
 )
-from polisyos.foundry.methods.catalog.mechanism.families import (
+from polisyos.foundry.methods import (
     get_mechanism_family_spec,
 )
 from polisyos.ir.analytics.mechanism_design import (
@@ -46,7 +48,12 @@ from polisyos.ir.analytics.mechanism_design import (
 from polisyos.ir.analytics.mechanism_design import (
     persist_incentive_compatibility_certificate as persist_mechanism_ic_certificate,
 )
-from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts import (
+    ArtifactStore,
+    InputRef,
+    get_json_artifact,
+    put_json_artifact,
+)
 from polisyos.ir.governance.game_design import (
     MechanismConstraintType,
     MechanismDesignConstraint,
@@ -164,6 +171,7 @@ def _resolve_policy_input(
     request: ICVerificationRequest,
 ) -> tuple[PolicySpec, str]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, request.input_ref)
     if request.input_ref.kind == "ir.trinity_bundle":
         bundle = TrinityBundle.model_validate(payload)
@@ -270,7 +278,11 @@ def _normalize_finite_mechanism(
                 values[(entry.player_id, entry.type_label, outcome_id)] = Fraction(value)
     else:
         for entry in utility_model.utility_table:
-            key = (entry.player_id, entry.true_type, _profile_key(entry.report_profile, players))
+            key = (
+                entry.player_id,
+                entry.true_type,
+                _profile_key(entry.report_profile, players),
+            )
             utilities[key] = Fraction(entry.utility)
         expected_size = sum(
             len(type_spaces[player_id]) * len(profile_keys) for player_id in players
@@ -494,7 +506,10 @@ def _find_finite_negative_witness(
                         checks += 1
                         other_profile = dict(zip(others, other_types, strict=True))
                         truthful_profile = {player_id: truthful_report, **other_profile}
-                        deviating_profile = {player_id: deviating_report, **other_profile}
+                        deviating_profile = {
+                            player_id: deviating_report,
+                            **other_profile,
+                        }
                         utility_truthful = _finite_utility(
                             mechanism,
                             player_id=player_id,
@@ -541,7 +556,10 @@ def _find_finite_negative_witness(
                     ):
                         checks += 1
                         truthful_profile = {player_id: truthful_report, **other_profile}
-                        deviating_profile = {player_id: deviating_report, **other_profile}
+                        deviating_profile = {
+                            player_id: deviating_report,
+                            **other_profile,
+                        }
                         utility_truthful = _finite_utility(
                             mechanism,
                             player_id=player_id,
@@ -764,7 +782,10 @@ def _evaluate_envelope_1d(
     request: ICVerificationRequest,
     *,
     input_digest: str,
-) -> tuple[ICVerificationReport, IncentiveCompatibilityCertificate | ICNegativeCertificate | None]:
+) -> tuple[
+    ICVerificationReport,
+    IncentiveCompatibilityCertificate | ICNegativeCertificate | None,
+]:
     semantic_property = mechanism.property_name
     if semantic_property in {
         MechanismConstraintType.BAYESIAN_IC.value,
@@ -1029,7 +1050,10 @@ def _cycmon_deviation_witness(
     checks = 0
     for true_label in mechanism.type_labels:
         truthful_utility = (
-            _dot(mechanism.coords_by_label[true_label], mechanism.allocation_by_label[true_label])
+            _dot(
+                mechanism.coords_by_label[true_label],
+                mechanism.allocation_by_label[true_label],
+            )
             - payments[true_label]
         )
         for report_label in mechanism.type_labels:
@@ -1066,7 +1090,10 @@ def _evaluate_cycmon_grid(
     request: ICVerificationRequest,
     *,
     input_digest: str,
-) -> tuple[ICVerificationReport, IncentiveCompatibilityCertificate | ICNegativeCertificate | None]:
+) -> tuple[
+    ICVerificationReport,
+    IncentiveCompatibilityCertificate | ICNegativeCertificate | None,
+]:
     semantic_property = mechanism.property_name
     if semantic_property in {
         MechanismConstraintType.BAYESIAN_IC.value,
@@ -1138,7 +1165,10 @@ def _evaluate_cycmon_grid(
         payments = explicit_payments
         utilities = {
             label: (
-                _dot(mechanism.coords_by_label[label], mechanism.allocation_by_label[label])
+                _dot(
+                    mechanism.coords_by_label[label],
+                    mechanism.allocation_by_label[label],
+                )
                 - payments[label]
             )
             for label in mechanism.type_labels
@@ -2187,7 +2217,14 @@ def verify_incentive_compatibility(
                 input_digest=input_digest,
                 semantics=semantics,
             )
-    except (KeyError, OSError, RuntimeError, TypeError, ValidationError, ValueError) as exc:
+    except (
+        KeyError,
+        OSError,
+        RuntimeError,
+        TypeError,
+        ValidationError,
+        ValueError,
+    ) as exc:
         digest = str(request.input_ref.artifact_id)
         report = ICVerificationReport(
             property=request.property,

@@ -64,6 +64,13 @@ _EXPORTS = {
     "UkraineSourceSummary": _UKRAINE_DOMAIN,
     "CalibrationBundleManifest": "polisyos.data_forge.domains.ukraine.manifests",
     "ReleaseManifest": "polisyos.data_forge.domains.ukraine.manifests",
+    "ArtifactRecord": "polisyos.data_forge.domains.ukraine.manifests",
+    "D5ReleaseHandoffRequest": "polisyos.data_forge.domains.ukraine.manifests",
+    "HouseholdDiagnosticPanelBasis": "polisyos.data_forge.domains.ukraine.manifests",
+    "NormalizedArtifactManifest": "polisyos.data_forge.domains.ukraine.manifests",
+    "SourceSnapshotManifest": "polisyos.data_forge.domains.ukraine.manifests",
+    "directory_tree_entries": "polisyos.data_forge.domains.ukraine.manifests",
+    "build_household_diagnostic_panel": "polisyos.data_forge.domains.ukraine.builders.demography",
     "RealBacktestBundleContract": "polisyos.data_forge.domains.ukraine.contracts",
     "compare_lex_pre_shard_summaries": _UKRAINE_DOMAIN,
     "compare_ukraine_shadow_bundles": _UKRAINE_DOMAIN,
@@ -106,8 +113,6 @@ _Sha256ContentHex = Annotated[
 
 class UkraineStageArtifactVerificationError(RuntimeError):
     """Raised when a Ukraine producer artifact cannot be content-bound fail closed."""
-
-
 
 
 UkraineJSONSnapshotStatus = Literal[
@@ -463,8 +468,8 @@ def load_verified_release_manifest_json[SnapshotT](
             raw_payload_bytes = store.get_bytes(receipt.manifest_ref)
         except Exception as exc:
             raise UkraineJSONSnapshotRefusalError(
-            "ukraine_snapshot_manifest_missing", str(exc)
-        ) from exc
+                "ukraine_snapshot_manifest_missing", str(exc)
+            ) from exc
     return read_ukraine_json_snapshot(
         store,
         receipt.manifest_ref,
@@ -641,9 +646,9 @@ class VerifiedUkraineReleaseArtifacts(BaseModel):
         "method_validity",
     )
     handoff_request: D5ReleaseHandoffRequest
-    handoff_snapshot_profile_status: UkraineJSONSnapshotStatus | Literal[
+    handoff_snapshot_profile_status: UkraineJSONSnapshotStatus | Literal["not_established"] = (
         "not_established"
-    ] = "not_established"
+    )
     bundle_contents: dict[str, dict[str, VerifiedUkraineReleaseArtifact]] = Field(
         default_factory=dict
     )
@@ -654,11 +659,9 @@ class VerifiedUkraineReleaseArtifacts(BaseModel):
         if self.manifest_ref.artifact_id.hex != self.manifest_sha256:
             raise ValueError("manifest_ref does not match the verified release manifest hash")
         versions_match = (
-            self.schema_version.endswith(".v1")
-            and self.verification_rule_version.endswith(".v1")
+            self.schema_version.endswith(".v1") and self.verification_rule_version.endswith(".v1")
         ) or (
-            self.schema_version.endswith(".v2")
-            and self.verification_rule_version.endswith(".v2")
+            self.schema_version.endswith(".v2") and self.verification_rule_version.endswith(".v2")
         )
         if not versions_match:
             raise ValueError("release admission receipt schema and rule versions must match")
@@ -712,7 +715,10 @@ def load_verified_stage_artifacts(
     Raises:
         UkraineStageArtifactVerificationError: If any admission check fails.
     """
-    from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord, BuildRunManifest
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        ArtifactRecord,
+        BuildRunManifest,
+    )
 
     root = allowed_root.resolve()
     resolved_manifest = _resolve_within_root(
@@ -793,7 +799,11 @@ def load_verified_stage_artifacts(
         return_selected_profile=True,
     )
     verified_outputs: dict[str, VerifiedUkraineStageArtifact] = {}
-    for output_name, (output_path, output_bytes, output_record) in validated_outputs.items():
+    for output_name, (
+        output_path,
+        output_bytes,
+        output_record,
+    ) in validated_outputs.items():
         content_ref = store.put_bytes(
             output_bytes,
             core_artifacts.PutOptions(
@@ -1189,9 +1199,7 @@ def load_demography_candidate_artifacts(
         required_outputs=("inventory.json",),
     )
     return load_demography_artifacts(
-        source=InventorySourceRequest(
-            kind="inventory", stage_receipt=receipt, store=store
-        )
+        source=InventorySourceRequest(kind="inventory", stage_receipt=receipt, store=store)
     )
 
 

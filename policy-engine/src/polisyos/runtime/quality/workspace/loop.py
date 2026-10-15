@@ -23,7 +23,10 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import scan_secret_and_pii
 from polisyos.core.artifacts import ArtifactStore, PutOptions
-from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+from polisyos.core.artifacts.backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
+)
 from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
 from polisyos.core.artifacts.manifest import (
     ProducerInfo,
@@ -151,7 +154,9 @@ from polisyos.scientist.orchestration.engine.context import (
     ClaimCapableExecutionContext,
 )
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.workflows.builder import build_registry_with_builtin_nodes
+from polisyos.scientist.orchestration.workflows.builder import (
+    build_registry_with_builtin_nodes,
+)
 
 if TYPE_CHECKING:
     from polisyos.pdc import Layer2S2DesignSearchInput
@@ -162,7 +167,11 @@ if TYPE_CHECKING:
 ACTIVE_WORKSPACE_OPERATIONS = frozenset(
     {OperationClass.BIND, OperationClass.ESTIMATE, OperationClass.VERIFY}
 )
-WORKSPACE_TRAJECTORY = (OperationClass.BIND, OperationClass.ESTIMATE, OperationClass.VERIFY)
+WORKSPACE_TRAJECTORY = (
+    OperationClass.BIND,
+    OperationClass.ESTIMATE,
+    OperationClass.VERIFY,
+)
 WORKSPACE_LOOP_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_loop.v1"
 WORKSPACE_ANYTIME_EXIT_RULE_VERSION = "policyos.gy.anytime_exit.v1"
 WORKSPACE_MEASUREMENT_STORE_MISSING_REASON = (
@@ -772,7 +781,10 @@ def _operation_discovery_evidence(operation_class: OperationClass) -> dict[str, 
     return {
         "source_kind": "pdc_contract_registry",
         "source_ref": f"polisyos.pdc.OperationClass.{operation_class.value}",
-        "source_lookup": {"owning_task": "future_phase", "registered_fail_closed": True},
+        "source_lookup": {
+            "owning_task": "future_phase",
+            "registered_fail_closed": True,
+        },
         "adapter_conformance": {
             "passed": True,
             "required_contract": "fail_closed_stub",
@@ -917,7 +929,10 @@ def build_workspace_operation_registry() -> OperationRegistry:
             contract=_operation_contract(
                 operation_id="slice0.bind.catalog",
                 operation_class=OperationClass.BIND,
-                authority_transform={"kind": "preserves", "rule_ref": "policyos.gy.authority.v1"},
+                authority_transform={
+                    "kind": "preserves",
+                    "rule_ref": "policyos.gy.authority.v1",
+                },
             ),
             executable=True,
             discovered_from=_engine_registry_source(OperationClass.BIND),
@@ -929,7 +944,10 @@ def build_workspace_operation_registry() -> OperationRegistry:
             contract=_operation_contract(
                 operation_id="slice0.estimate.measurement_summary",
                 operation_class=OperationClass.ESTIMATE,
-                authority_transform={"kind": "weakens", "rule_ref": "policyos.gy.authority.v1"},
+                authority_transform={
+                    "kind": "weakens",
+                    "rule_ref": "policyos.gy.authority.v1",
+                },
             ),
             executable=True,
             discovered_from=_engine_registry_source(OperationClass.ESTIMATE),
@@ -941,7 +959,10 @@ def build_workspace_operation_registry() -> OperationRegistry:
             contract=_operation_contract(
                 operation_id="slice0.verify.authority",
                 operation_class=OperationClass.VERIFY,
-                authority_transform={"kind": "unknown", "rule_ref": "policyos.gy.authority.v1"},
+                authority_transform={
+                    "kind": "unknown",
+                    "rule_ref": "policyos.gy.authority.v1",
+                },
             ),
             executable=True,
             discovered_from=_engine_registry_source(OperationClass.VERIFY),
@@ -953,7 +974,10 @@ def build_workspace_operation_registry() -> OperationRegistry:
             contract=_operation_contract(
                 operation_id="slice0.discover.stub",
                 operation_class=OperationClass.DISCOVER,
-                authority_transform={"kind": "unknown", "rule_ref": "policyos.gy.authority.v1"},
+                authority_transform={
+                    "kind": "unknown",
+                    "rule_ref": "policyos.gy.authority.v1",
+                },
             ),
             executable=False,
             discovered_from=_engine_registry_source(OperationClass.DISCOVER),
@@ -966,7 +990,10 @@ def build_workspace_operation_registry() -> OperationRegistry:
             contract=_operation_contract(
                 operation_id="slice0.acquire.costed_plan",
                 operation_class=OperationClass.ACQUIRE,
-                authority_transform={"kind": "weakens", "rule_ref": "policyos.gy.authority.v1"},
+                authority_transform={
+                    "kind": "weakens",
+                    "rule_ref": "policyos.gy.authority.v1",
+                },
             ),
             executable=False,
             discovered_from=_engine_registry_source(OperationClass.ACQUIRE),
@@ -982,7 +1009,10 @@ def build_workspace_operation_registry() -> OperationRegistry:
             contract=_operation_contract(
                 operation_id="slice0.refine.stub",
                 operation_class=OperationClass.REFINE,
-                authority_transform={"kind": "unknown", "rule_ref": "policyos.gy.authority.v1"},
+                authority_transform={
+                    "kind": "unknown",
+                    "rule_ref": "policyos.gy.authority.v1",
+                },
             ),
             executable=False,
             discovered_from=_engine_registry_source(OperationClass.REFINE),
@@ -995,7 +1025,10 @@ def build_workspace_operation_registry() -> OperationRegistry:
             contract=_operation_contract(
                 operation_id="slice0.lower.stub",
                 operation_class=OperationClass.LOWER,
-                authority_transform={"kind": "unknown", "rule_ref": "policyos.gy.authority.v1"},
+                authority_transform={
+                    "kind": "unknown",
+                    "rule_ref": "policyos.gy.authority.v1",
+                },
             ),
             executable=False,
             discovered_from=_engine_registry_source(OperationClass.LOWER),
@@ -1008,7 +1041,10 @@ def build_workspace_operation_registry() -> OperationRegistry:
             contract=_operation_contract(
                 operation_id="slice0.decompose.workspace_tree",
                 operation_class=OperationClass.DECOMPOSE,
-                authority_transform={"kind": "preserves", "rule_ref": "policyos.gy.authority.v1"},
+                authority_transform={
+                    "kind": "preserves",
+                    "rule_ref": "policyos.gy.authority.v1",
+                },
             ),
             executable=True,
             discovered_from=_engine_registry_source(OperationClass.DECOMPOSE),
@@ -1020,7 +1056,10 @@ def build_workspace_operation_registry() -> OperationRegistry:
             contract=_operation_contract(
                 operation_id="slice0.compose.certificate",
                 operation_class=OperationClass.COMPOSE,
-                authority_transform={"kind": "weakens", "rule_ref": "policyos.gy.authority.v1"},
+                authority_transform={
+                    "kind": "weakens",
+                    "rule_ref": "policyos.gy.authority.v1",
+                },
             ),
             executable=True,
             discovered_from=_engine_registry_source(OperationClass.COMPOSE),
@@ -1170,7 +1209,12 @@ def _verify_production_case_intake(
     candidate = WorkspaceFixtureManifest.model_validate(candidates[0])
     expected = {
         key: getattr(candidate, key)
-        for key in ("construct_scope_query", "jurisdiction", "population", "time_horizon")
+        for key in (
+            "construct_scope_query",
+            "jurisdiction",
+            "population",
+            "time_horizon",
+        )
     }
     expected["case_id"] = selection.case_id
     if (
@@ -1180,7 +1224,9 @@ def _verify_production_case_intake(
         raise WorkspaceInvariantError("production_case_original_scope_content_drift")
 
 
-def _production_catalog_sources(catalog: read_api.catalog.DatasetCatalogGraph) -> list[Any]:
+def _production_catalog_sources(
+    catalog: read_api.catalog.DatasetCatalogGraph,
+) -> list[Any]:
     return [
         value.model_dump(mode="json") if hasattr(value, "model_dump") else value
         for value in catalog.source_content_identities()
@@ -1459,7 +1505,10 @@ def resolve_production_case_admission(
     """
     request_artifact_id = _production_artifact_id(request_ref)
     request = _read_production_json(
-        store, request_ref, kind="gy.loop.proof.root", schema="polisyos.gy.loop.proof.root"
+        store,
+        request_ref,
+        kind="gy.loop.proof.root",
+        schema="polisyos.gy.loop.proof.root",
     )
     intake = ProductionCaseIntake.model_validate(request)
     if intake.model_dump(mode="json") != request:
@@ -1501,7 +1550,11 @@ def _production_diagnostic_put(
     if body.get("request_ref") != (_production_artifact_id(parents[0]) if parents else None):
         raise WorkspaceInvariantError("production_diagnostic_request_parent_drift")
     scan = scan_secret_and_pii(
-        body, scope="DAG bundles", artifact_ref_or_route=kind, redact=False, block_on_findings=True
+        body,
+        scope="DAG bundles",
+        artifact_ref_or_route=kind,
+        redact=False,
+        block_on_findings=True,
     )
     if scan.has_findings:
         raise WorkspaceInvariantError("production_diagnostic_secret_pii_refused")
@@ -1512,7 +1565,8 @@ def _production_diagnostic_put(
             media_type="application/json",
             schema=SchemaInfo(name=schema, version="1.0"),
             producer=ProducerInfo(
-                component="polisyos.runtime.quality.workspace.loop.production_case", version="1"
+                component="polisyos.runtime.quality.workspace.loop.production_case",
+                version="1",
             ),
             inputs=[_production_parent_input(parent) for parent in parents],
         ),
@@ -1567,7 +1621,10 @@ class WorkspaceLoop:
         self._phase2_method_readbacks: dict[
             int,
             tuple[
-                ArtifactRef, FoundryMethodOutputConsumer, FoundryConsumptionResult, ArtifactStore
+                ArtifactRef,
+                FoundryMethodOutputConsumer,
+                FoundryConsumptionResult,
+                ArtifactStore,
             ],
         ] = {}
         if catalog_graph is None:
@@ -1762,7 +1819,11 @@ class WorkspaceLoop:
             ],
             "edges": [
                 {"source": treatment, "target": outcome, "relation": "policy_effect"},
-                {"source": "baseline_firm_size", "target": outcome, "relation": "confounder"},
+                {
+                    "source": "baseline_firm_size",
+                    "target": outcome,
+                    "relation": "confounder",
+                },
             ],
         }
 
@@ -2215,7 +2276,11 @@ class WorkspaceLoop:
                 legacy_workflow_id_disposition=selection.legacy_workflow_id_disposition,
                 constraint_admission=constraint_admission,
             )
-        required_inputs = ["observational_data_ref", "causal_variables", "data_causal_graph"]
+        required_inputs = [
+            "observational_data_ref",
+            "causal_variables",
+            "data_causal_graph",
+        ]
         state_facts = {
             "observational_data_ref": state.observational_data_ref,
             "causal_variables": state.params.get("causal_variables"),
@@ -2366,7 +2431,9 @@ class WorkspaceLoop:
                             admission=constraint_admission,
                         )
                         constraint_blockers = _phase2_constraint_blockers(
-                            constraint_owner, constraint_admission, workspace_id=workspace_id
+                            constraint_owner,
+                            constraint_admission,
+                            workspace_id=workspace_id,
                         )
                         method_output_consumption_ref = foundry.persist_consumption(
                             store=foundry_store,
@@ -2461,7 +2528,10 @@ class WorkspaceLoop:
             raise WorkspaceInvariantError("production_case_requires_actual_cas")
         request_artifact_id = _production_artifact_id(request_ref)
         raw = _read_production_json(
-            store, request_ref, kind="gy.loop.proof.root", schema="polisyos.gy.loop.proof.root"
+            store,
+            request_ref,
+            kind="gy.loop.proof.root",
+            schema="polisyos.gy.loop.proof.root",
         )
         intake = ProductionCaseIntake.model_validate(raw)
         if intake.model_dump(mode="json") != raw:
@@ -2516,7 +2586,12 @@ class WorkspaceLoop:
                 obligation_id=f"obligation-production-{_slug(item.claim_id)}",
                 obligation_type="original_construct_evidence_admission",
                 raised_by={"artifact_ref": receipt_ref},
-                blocks=[{"claim_id": item.claim_id, "action": "publication_or_design_credit"}],
+                blocks=[
+                    {
+                        "claim_id": item.claim_id,
+                        "action": "publication_or_design_credit",
+                    }
+                ],
                 description=(
                     "An independent source-to-original-construct admission owner "
                     "and admitted scoped evidence are missing."
@@ -3365,10 +3440,8 @@ class WorkspaceLoop:
         manifest: WorkspaceFixtureManifest,
         dataset_envelope: ArtifactEnvelope,
     ) -> dict[str, Any]:
-        from polisyos.core.artifacts.canonical_profile import (
-            CanonicalProfileRefusalError,
-            load_core_json_artifact,
-        )
+        from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+        from polisyos.core.artifacts import load_core_json_artifact
 
         profile = dataset_envelope.payload_manifest_profile_sha256
         if profile is None:
@@ -3427,7 +3500,7 @@ class WorkspaceLoop:
                 "GY loop payload blocked by secret/PII scan: " + ",".join(scan.finding_kinds)
             )
         if binding is None or not binding.authority_eligible:
-            from polisyos.core.security.tenant_context import clear_tenant_context
+            from polisyos.core.security import clear_tenant_context
 
             with clear_tenant_context():
                 candidate_ref = self._artifact_store.put_json(
@@ -3449,7 +3522,9 @@ class WorkspaceLoop:
         job = admission.job
         tenant_id = scope.tenant_id
         cell_id = scope.cell_id
-        from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
+        from polisyos.runtime.http.services.control.artifacts import (
+            write_authority_artifact,
+        )
 
         result = write_authority_artifact(
             self._artifact_store,
@@ -3532,7 +3607,10 @@ class WorkspaceLoop:
             decision_grade="decision_admissible",
             evidence_basis=EvidenceBasis(
                 producer_roots=[producer_root],
-                method_refs=["slice0.bind.catalog", "slice0.estimate.measurement_summary"],
+                method_refs=[
+                    "slice0.bind.catalog",
+                    "slice0.estimate.measurement_summary",
+                ],
                 calibration_refs=[],
                 counterexamples_closed=[],
             ),
@@ -4223,7 +4301,9 @@ def _operation_contract(
     )
 
 
-def _formal_preconditions_for_operation(operation_class: OperationClass) -> list[dict[str, Any]]:
+def _formal_preconditions_for_operation(
+    operation_class: OperationClass,
+) -> list[dict[str, Any]]:
     predicates = {
         OperationClass.BIND: [
             {
@@ -4313,7 +4393,9 @@ def _formal_preconditions_for_operation(operation_class: OperationClass) -> list
     )
 
 
-def _producer_roots_from_exit(child_exit: WorkspaceSearchExitContract) -> list[ArtifactRef]:
+def _producer_roots_from_exit(
+    child_exit: WorkspaceSearchExitContract,
+) -> list[ArtifactRef]:
     roots: list[ArtifactRef] = []
     for envelope in child_exit.artifact_envelopes:
         roots.extend(envelope.producer_roots)

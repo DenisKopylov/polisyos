@@ -59,7 +59,7 @@ if TYPE_CHECKING:
         AcquisitionActionService,
     )
     from polisyos.runtime.http.services.human_decisions import HumanDecisionService
-    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine import BudgetMiddleware
 else:
     try:  # pragma: no cover - optional runtime dependency
         from fastapi import Request

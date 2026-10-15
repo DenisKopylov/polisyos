@@ -8,7 +8,9 @@ from typing import Any, ClassVar, Literal
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,
@@ -392,7 +394,10 @@ class StaticAgingSimulationEstimator:
         input_slots=frozenset(
             {
                 SlotSpec(
-                    "base_weights", SlotType.VECTOR, Unit("weight", "mass"), shape=("n_records",)
+                    "base_weights",
+                    SlotType.VECTOR,
+                    Unit("weight", "mass"),
+                    shape=("n_records",),
                 ),
                 SlotSpec(
                     "origin_state_index",
@@ -605,9 +610,7 @@ class StaticAgingSimulationEstimator:
         if source_evidence is not None:
             if not isinstance(source_evidence, Mapping):
                 raise TypeError("demography_source_evidence must be a mapping")
-            from polisyos.data_forge.domains.ukraine.demography.source_inventory import (
-                DemographySourceEvidence,
-            )
+            from polisyos.data_forge.read_api.ukraine import DemographySourceEvidence
 
             evidence = DemographySourceEvidence.model_validate(source_evidence)
             diagnostics["demography_source_evidence"] = evidence.model_dump(mode="json")

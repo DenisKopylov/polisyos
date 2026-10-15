@@ -22,7 +22,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.contracts import SearchCandidate, SearchLedger
 from polisyos.data_forge import read_api as data_forge_read_api
-from polisyos.data_forge.kernel.embeddings import (
+from polisyos.data_forge.read_api.catalog import (
     GENERATION_SELECTOR_FILENAME,
     embedding_generation_manifest,
     resolve_embedding_generation,
@@ -75,16 +75,16 @@ from polisyos.runtime.quality.proving_ground.status_decision_reducers import (
 
 if TYPE_CHECKING:
     from polisyos.runtime.quality.capability_authority import CapabilityBindingResult
-    from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityQuery
+    from polisyos.runtime.quality.capability_resolver import (
+        RequirementToCapabilityQuery,
+    )
     from polisyos.runtime.quality.hypothesis_ledger import HypothesisLedgerInput
 
 LAYER3_G1_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g1_substrate_grounding.v1"
 LAYER3_G1_RULE_VERSION = "policyos.layer3.g1.substrate_grounding_search.v1"
 LAYER3_G1_GATE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g1_grounding_gate.v1"
 POLICY_DESIGN_CASE_DIR = Path("architecture/policy_design_case")
-G1_STATUS_VOCABULARY_DELTA_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_gx_status_vocabulary_delta.json"
-)
+G1_STATUS_VOCABULARY_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gx_status_vocabulary_delta.json"
 G1_SUBSTRATE_DATA_BINDING_ADAPTER_ID = "layer3-substrate-data-binding-to-source-contract"
 G1_ACQUISITION_ADAPTER_ID = "layer3-fabric-acquisition-to-source-contract"
 G1_SUBSTRATE_SEARCH_ADAPTER_ID = "layer3-substrate-grounding-search"
@@ -1333,7 +1333,9 @@ def build_g1_search_engineering_quality_report(
     )
 
 
-def build_acquisition_grounding_adapter(repo_root: Path) -> list[AcquisitionGroundingRecord]:
+def build_acquisition_grounding_adapter(
+    repo_root: Path,
+) -> list[AcquisitionGroundingRecord]:
     """Build fail-closed acquisition/gap records for ungrounded constructs."""
 
     del repo_root
@@ -2493,7 +2495,9 @@ def _source_contract_records(
     }
 
 
-def _lineage_records(results: Sequence[Layer3G1SubstrateSearchResult]) -> dict[str, Any]:
+def _lineage_records(
+    results: Sequence[Layer3G1SubstrateSearchResult],
+) -> dict[str, Any]:
     records: list[dict[str, Any]] = []
     for result in results:
         if result.binding is None:
@@ -2878,7 +2882,12 @@ def _validate_search_ledgers(
                     "G1 search ledgers must carry replayable query text/hash.",
                 )
             )
-        if ledger.get("measurement_provenance") in {None, "", "self_attested", "not_measured"}:
+        if ledger.get("measurement_provenance") in {
+            None,
+            "",
+            "self_attested",
+            "not_measured",
+        }:
             issues.append(
                 _issue(
                     "layer3_g1_search_recall_not_measured",

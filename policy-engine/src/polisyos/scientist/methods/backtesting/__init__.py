@@ -40,6 +40,15 @@ __all__ = [
     "ChallengeCase",
     "ChallengeCaseResult",
     "ChallengeSuiteResult",
+    "CALIBRATION_RULE_ID",
+    "CalibrationRuleBinding",
+    "ForecastMethodParams",
+    "ForecastOwner",
+    "ForecastOwnerRequest",
+    "ForecastOwnerResult",
+    "ForecastTemporalRoles",
+    "TrainHoldoutSplit",
+    "run_forecast_owner",
     "CompositionReplayResult",
     "HistoricalValidationPlan",
     "MaskingStrategy",
@@ -60,8 +69,25 @@ __all__ = [
 
 def __getattr__(name: str) -> Any:
     """Resolve optional backtesting helpers on first access."""
+    if name in {
+        "CALIBRATION_RULE_ID",
+        "CalibrationRuleBinding",
+        "ForecastMethodParams",
+        "ForecastOwner",
+        "ForecastOwnerRequest",
+        "ForecastOwnerResult",
+        "ForecastTemporalRoles",
+        "TrainHoldoutSplit",
+        "run_forecast_owner",
+    }:
+        module = importlib.import_module("polisyos.scientist.methods.backtesting.forecast_owner")
+        value = getattr(module, name)
+        globals()[name] = value
+        return value
     if name in {"CompositionReplayResult", "replay_fragment_composition_case"}:
-        module = importlib.import_module("polisyos.scientist.methods.backtesting.composition_bridge")
+        module = importlib.import_module(
+            "polisyos.scientist.methods.backtesting.composition_bridge"
+        )
         value = getattr(module, name)
         globals()[name] = value
         return value

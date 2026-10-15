@@ -12,19 +12,15 @@ from typing import Any, Literal, cast
 
 import numpy as np
 
-from polisyos.core.errors import ErrorCategory, PolicyOSError
-from polisyos.foundry.uncertainty import PropagationConfig
-from polisyos.foundry.uncertainty.evaluation_failures import (
+from polisyos.core import errors as core_errors
+from polisyos.foundry.uncertainty import (
     EXCEPTION_CHAIN_EDGE_LIMIT,
     EXCEPTION_CHAIN_NODE_LIMIT,
     EvaluationFailureClassification,
+    PropagationConfig,
     classify_evaluation_failure,
 )
-from polisyos.ir.analytics.uncertainty import (
-    DistributionFamily,
-    PosteriorSamplesCarrier,
-    UncertaintyEnvelope,
-)
+from polisyos.ir import DistributionFamily, PosteriorSamplesCarrier, UncertaintyEnvelope
 
 from .welfare_types import (
     _ERROR_MONTE_CARLO_NOT_CONVERGED,
@@ -127,7 +123,8 @@ def _raise_welfare_mc_execution_failure(
                 "cause_chain_edge_limit": EXCEPTION_CHAIN_EDGE_LIMIT,
                 "declared_error_category": (
                     exc.category.value
-                    if isinstance(exc, PolicyOSError) and isinstance(exc.category, ErrorCategory)
+                    if isinstance(exc, core_errors.PolicyOSError)
+                    and isinstance(exc.category, core_errors.ErrorCategory)
                     else None
                 ),
             },
@@ -813,7 +810,10 @@ def _validate_monte_carlo_draw_counts(draws: _MonteCarloDrawSet) -> None:
         raise _fail_error(
             _ERROR_MONTE_CARLO_NOT_CONVERGED,
             "Welfare Monte Carlo draw counts are outside the requested denominator",
-            details={"requested_draw_count": requested, "attempted_draw_count": attempted},
+            details={
+                "requested_draw_count": requested,
+                "attempted_draw_count": attempted,
+            },
         )
     if (
         isinstance(simulation_attempts, bool)
@@ -838,7 +838,10 @@ def _validate_monte_carlo_draw_counts(draws: _MonteCarloDrawSet) -> None:
         raise _fail_error(
             _ERROR_MONTE_CARLO_NOT_CONVERGED,
             "Welfare Monte Carlo terminal outcomes do not cover attempted draws",
-            details={"attempted_draw_count": attempted, "terminal_outcome_count": len(outcomes)},
+            details={
+                "attempted_draw_count": attempted,
+                "terminal_outcome_count": len(outcomes),
+            },
         )
 
 
@@ -902,7 +905,10 @@ def _validate_monte_carlo_outcome_identity(
             raise _fail_error(
                 _ERROR_MONTE_CARLO_NOT_CONVERGED,
                 "Welfare Monte Carlo attempt identity does not match its sampled draw",
-                details={"draw_index": expected_draw_index, "attempt_number": attempt_number},
+                details={
+                    "draw_index": expected_draw_index,
+                    "attempt_number": attempt_number,
+                },
             )
     if validated_attempts[-1].get("outcome_code") != outcome_code:
         raise _fail_error(
@@ -981,19 +987,28 @@ def _validate_monte_carlo_values(
     ]
     component_dimensions = {
         len(row)
-        for rows in (draws.welfare_pe_component_draws, draws.welfare_total_component_draws)
+        for rows in (
+            draws.welfare_pe_component_draws,
+            draws.welfare_total_component_draws,
+        )
         for row in rows
     }
     try:
         component_values_finite = all(
             math.isfinite(float(value))
-            for rows in (draws.welfare_pe_component_draws, draws.welfare_total_component_draws)
+            for rows in (
+                draws.welfare_pe_component_draws,
+                draws.welfare_total_component_draws,
+            )
             for row in rows
             for value in row
         )
     except (TypeError, ValueError, OverflowError):
         component_values_finite = False
-    components_complete_or_absent = component_counts in ([0, 0], [successful, successful])
+    components_complete_or_absent = component_counts in (
+        [0, 0],
+        [successful, successful],
+    )
     component_shape_valid = not component_counts[0] or (
         len(component_dimensions) == 1 and next(iter(component_dimensions)) > 0
     )

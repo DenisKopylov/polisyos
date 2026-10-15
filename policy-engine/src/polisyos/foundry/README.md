@@ -5,7 +5,7 @@ CAS-backed execution plans, binds runtime state, executes patch-first program
 graphs, and hands off to methods, calibration, uncertainty, and agent-based
 simulation surfaces.
 
-- Last updated: 2026-09-08
+- Last updated: 2026-10-15
 
 ## Purpose
 
@@ -93,6 +93,12 @@ bind independently declared annotations to current entity content.
 Recognition is relative to the addressed source. Synthetic provenance remains
 explicit, and neither synthetic data nor an unverified authority reference grants
 legal authority.
+
+Cross-owner runtime imports use the exact Foundry owner facades: `data_plane`,
+`execute`, `methods`, `methods.backends`, `methods.causal`, `calibration`,
+`analysis`, `uncertainty`, and `validation`. These exports resolve to their
+canonical owner objects and preserve existing runtime semantics. The routes add
+no evidence, authority, or institutional claims.
 
 The stable package facade is intentionally small. If a workflow needs lower
 level helpers, start from the subpackage README for that area instead of

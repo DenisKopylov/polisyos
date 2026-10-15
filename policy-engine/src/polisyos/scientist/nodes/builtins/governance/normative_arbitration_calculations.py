@@ -10,22 +10,13 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.common.logger import get_logger
+from polisyos.common import logger as common_logger
 from polisyos.core.artifacts import ArtifactRef
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.contracts import Metrics, SimulationResult
-from polisyos.ir.analytics import DistributionalReport
-from polisyos.ir.analytics.normative_arbitration import (
-    ArbitrationOption,
-    HardConstraintAuditEntry,
-    NormativeAuditStatus,
-    NormativeModelCompleteness,
-    PolicyOutcome,
-    RightsAuditEntry,
-    StakeholderUtilitySummary,
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
-from polisyos.ir.analytics.uncertainty import load_simulation_result_uncertainty_admission
-from polisyos.ir.governance.problem_frame import (
+from polisyos.core.contracts import Metrics, SimulationResult
+from polisyos.ir import (
     ConstraintSpec,
     NormativeArbitrationPolicy,
     NormativeComparisonTarget,
@@ -36,10 +27,25 @@ from polisyos.ir.governance.problem_frame import (
     StakeholderSpec,
     UtilityDirection,
 )
+from polisyos.ir.analytics import DistributionalReport
+from polisyos.ir.analytics.normative_arbitration import (
+    ArbitrationOption,
+    HardConstraintAuditEntry,
+    NormativeAuditStatus,
+    NormativeModelCompleteness,
+    PolicyOutcome,
+    RightsAuditEntry,
+    StakeholderUtilitySummary,
+)
+from polisyos.ir.analytics.uncertainty import (
+    load_simulation_result_uncertainty_admission,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
-logger = get_logger("polisyos.scientist.nodes.builtins.governance.run_normative_arbitration")
+logger = common_logger.get_logger(
+    "polisyos.scientist.nodes.builtins.governance.run_normative_arbitration"
+)
 
 _NORMATIVE_ARTIFACT_ERRORS = (
     AttributeError,

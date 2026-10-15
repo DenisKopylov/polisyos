@@ -45,8 +45,14 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     ),
     "BackendSpec": ("polisyos.foundry.methods.compiler.specialization", "BackendSpec"),
     "BreakingChange": ("polisyos.foundry.methods.lifecycle.compat", "BreakingChange"),
-    "BreakingChangeError": ("polisyos.foundry.methods.lifecycle.compat", "BreakingChangeError"),
-    "CalibrationBattery": ("polisyos.foundry.methods.equivalence", "CalibrationBattery"),
+    "BreakingChangeError": (
+        "polisyos.foundry.methods.lifecycle.compat",
+        "BreakingChangeError",
+    ),
+    "CalibrationBattery": (
+        "polisyos.foundry.methods.equivalence",
+        "CalibrationBattery",
+    ),
     "CalibrationCase": ("polisyos.foundry.methods.equivalence", "CalibrationCase"),
     "CalibrationResult": ("polisyos.foundry.methods.equivalence", "CalibrationResult"),
     "ChainArtifact": ("polisyos.foundry.methods.artifacts", "ChainArtifact"),
@@ -62,9 +68,15 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "CompiledChainExecutor",
     ),
     "CompiledMethod": ("polisyos.foundry.methods.compiler", "CompiledMethod"),
-    "CompiledMethodChain": ("polisyos.foundry.methods.components.composer", "CompiledMethodChain"),
+    "CompiledMethodChain": (
+        "polisyos.foundry.methods.components.composer",
+        "CompiledMethodChain",
+    ),
     "ComparatorKind": ("polisyos.foundry.methods.equivalence", "ComparatorKind"),
-    "ConsensusTarget": ("polisyos.foundry.methods.components.consensus", "ConsensusTarget"),
+    "ConsensusTarget": (
+        "polisyos.foundry.methods.components.consensus",
+        "ConsensusTarget",
+    ),
     "ComplexityClass": ("polisyos.foundry.methods.base", "ComplexityClass"),
     "ComponentsBridgeError": (
         "polisyos.foundry.methods.components.bridge",
@@ -74,7 +86,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.components.bridge",
         "ComponentsBridgeReport",
     ),
-    "CompositionDAG": ("polisyos.foundry.methods.components.composer", "CompositionDAG"),
+    "CompositionDAG": (
+        "polisyos.foundry.methods.components.composer",
+        "CompositionDAG",
+    ),
     "ComputeBackend": ("polisyos.foundry.methods.base", "ComputeBackend"),
     "ContractViolationError": (
         "polisyos.foundry.methods.exceptions",
@@ -84,7 +99,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.equivalence",
         "CrossBackendEquivalenceCertificate",
     ),
-    "CrossMethodConsensus": ("polisyos.foundry.methods.components.consensus", "CrossMethodConsensus"),
+    "CrossMethodConsensus": (
+        "polisyos.foundry.methods.components.consensus",
+        "CrossMethodConsensus",
+    ),
     "CyclicDependencyError": (
         "polisyos.foundry.methods.exceptions",
         "CyclicDependencyError",
@@ -93,9 +111,18 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.discovery",
         "DISCOVERY_MODULE_PREFIX",
     ),
-    "DataCharacteristics": ("polisyos.foundry.methods.selection", "DataCharacteristics"),
-    "DeprecationAudit": ("polisyos.foundry.methods.lifecycle.deprecation", "DeprecationAudit"),
-    "DeprecationInfo": ("polisyos.foundry.methods.lifecycle.deprecation", "DeprecationInfo"),
+    "DataCharacteristics": (
+        "polisyos.foundry.methods.selection",
+        "DataCharacteristics",
+    ),
+    "DeprecationAudit": (
+        "polisyos.foundry.methods.lifecycle.deprecation",
+        "DeprecationAudit",
+    ),
+    "DeprecationInfo": (
+        "polisyos.foundry.methods.lifecycle.deprecation",
+        "DeprecationInfo",
+    ),
     "DeviceInfo": ("polisyos.foundry.methods.artifacts", "DeviceInfo"),
     "DimExpr": ("polisyos.foundry.methods.base", "DimExpr"),
     "DimVar": ("polisyos.foundry.methods.base", "DimVar"),
@@ -135,9 +162,15 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.equivalence",
         "EquivalenceVerificationReport",
     ),
-    "EquivalenceVerdict": ("polisyos.foundry.methods.equivalence", "EquivalenceVerdict"),
+    "EquivalenceVerdict": (
+        "polisyos.foundry.methods.equivalence",
+        "EquivalenceVerdict",
+    ),
     "ExecutionEvidence": ("polisyos.foundry.methods.artifacts", "ExecutionEvidence"),
-    "ExecutionKernel": ("polisyos.foundry.methods.compiler.plan_optimizer", "ExecutionKernel"),
+    "ExecutionKernel": (
+        "polisyos.foundry.methods.compiler.plan_optimizer",
+        "ExecutionKernel",
+    ),
     "ExecutionPlanOptimizer": (
         "polisyos.foundry.methods.compiler.plan_optimizer",
         "ExecutionPlanOptimizer",
@@ -149,7 +182,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     ),
     "FieldComparison": ("polisyos.foundry.methods.equivalence", "FieldComparison"),
     "FieldRequirement": ("polisyos.foundry.methods.equivalence", "FieldRequirement"),
-    "FieldToleranceSpec": ("polisyos.foundry.methods.equivalence", "FieldToleranceSpec"),
+    "FieldToleranceSpec": (
+        "polisyos.foundry.methods.equivalence",
+        "FieldToleranceSpec",
+    ),
     "FileSystemSource": ("polisyos.foundry.methods.discovery", "FileSystemSource"),
     "FoundryMethod": ("polisyos.foundry.methods.base", "FoundryMethod"),
     "FoundryMethodBase": ("polisyos.foundry.methods.base", "FoundryMethodBase"),
@@ -168,20 +204,29 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "LinkResult": ("polisyos.foundry.methods.components.linker", "LinkResult"),
     "LinkerConfig": ("polisyos.foundry.methods.components.linker", "LinkerConfig"),
     "MethodAdvisorQuery": ("polisyos.foundry.methods.selection", "MethodAdvisorQuery"),
-    "MethodAdvisorResult": ("polisyos.foundry.methods.selection", "MethodAdvisorResult"),
+    "MethodAdvisorResult": (
+        "polisyos.foundry.methods.selection",
+        "MethodAdvisorResult",
+    ),
     "MethodAlreadyRegisteredError": (
         "polisyos.foundry.methods.exceptions",
         "MethodAlreadyRegisteredError",
     ),
     "MethodArtifact": ("polisyos.foundry.methods.artifacts", "MethodArtifact"),
     "MethodCompiler": ("polisyos.foundry.methods.compiler", "MethodCompiler"),
-    "MethodComposer": ("polisyos.foundry.methods.components.composer", "MethodComposer"),
+    "MethodComposer": (
+        "polisyos.foundry.methods.components.composer",
+        "MethodComposer",
+    ),
     "MethodContractError": (
         "polisyos.foundry.methods.exceptions",
         "MethodContractError",
     ),
     "MethodContracts": ("polisyos.foundry.methods.base", "MethodContracts"),
-    "MethodCostModel": ("polisyos.foundry.methods.compiler.plan_optimizer", "MethodCostModel"),
+    "MethodCostModel": (
+        "polisyos.foundry.methods.compiler.plan_optimizer",
+        "MethodCostModel",
+    ),
     "MethodDefinitionError": (
         "polisyos.foundry.methods.exceptions",
         "MethodDefinitionError",
@@ -208,7 +253,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.components.consensus",
         "MisspecificationClassification",
     ),
-    "NotComparableYet": ("polisyos.foundry.methods.components.consensus", "NotComparableYet"),
+    "NotComparableYet": (
+        "polisyos.foundry.methods.components.consensus",
+        "NotComparableYet",
+    ),
     "MethodRunner": ("polisyos.foundry.methods.backends", "MethodRunner"),
     "MethodScoreTraceEntry": (
         "polisyos.foundry.methods.selection",
@@ -224,20 +272,35 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.backends",
         "estimate_method_execution_cost_usd",
     ),
-    "NodeSchedule": ("polisyos.foundry.methods.compiler.plan_optimizer", "NodeSchedule"),
-    "OptimizedPlan": ("polisyos.foundry.methods.compiler.plan_optimizer", "OptimizedPlan"),
+    "NodeSchedule": (
+        "polisyos.foundry.methods.compiler.plan_optimizer",
+        "NodeSchedule",
+    ),
+    "OptimizedPlan": (
+        "polisyos.foundry.methods.compiler.plan_optimizer",
+        "OptimizedPlan",
+    ),
     "ParameterSpec": ("polisyos.foundry.methods.base", "ParameterSpec"),
     "ParameterValidationError": (
         "polisyos.foundry.methods.exceptions",
         "ParameterValidationError",
     ),
-    "PairwiseDisagreement": ("polisyos.foundry.methods.components.consensus", "PairwiseDisagreement"),
+    "PairwiseDisagreement": (
+        "polisyos.foundry.methods.components.consensus",
+        "PairwiseDisagreement",
+    ),
     "PersistedEquivalenceArtifacts": (
         "polisyos.foundry.methods.equivalence",
         "PersistedEquivalenceArtifacts",
     ),
-    "PlanComplexityClass": ("polisyos.foundry.methods.compiler.plan_optimizer", "ComplexityClass"),
-    "RegistrySnapshot": ("polisyos.foundry.methods.selection.registry", "RegistrySnapshot"),
+    "PlanComplexityClass": (
+        "polisyos.foundry.methods.compiler.plan_optimizer",
+        "ComplexityClass",
+    ),
+    "RegistrySnapshot": (
+        "polisyos.foundry.methods.selection.registry",
+        "RegistrySnapshot",
+    ),
     "RegistrySnapshotEntry": (
         "polisyos.foundry.methods.selection.registry",
         "RegistrySnapshotEntry",
@@ -248,7 +311,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "ResolvedEquivalenceCertificate",
     ),
     "ResolutionError": ("polisyos.foundry.methods.exceptions", "ResolutionError"),
-    "ResolutionPolicy": ("polisyos.foundry.methods.selection.resolution", "ResolutionPolicy"),
+    "ResolutionPolicy": (
+        "polisyos.foundry.methods.selection.resolution",
+        "ResolutionPolicy",
+    ),
     "Shape": ("polisyos.foundry.methods.base", "Shape"),
     "ShapeAdapter": ("polisyos.foundry.methods.types.checker", "ShapeAdapter"),
     "ShapeAdapterKind": ("polisyos.foundry.methods.types.checker", "ShapeAdapterKind"),
@@ -275,14 +341,20 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "SlotType": ("polisyos.foundry.methods.base", "SlotType"),
     "SolverStatus": ("polisyos.foundry.methods.backends", "SolverStatus"),
     "SourceFingerprint": ("polisyos.foundry.methods.artifacts", "SourceFingerprint"),
-    "Specialization": ("polisyos.foundry.methods.compiler.specialization", "Specialization"),
+    "Specialization": (
+        "polisyos.foundry.methods.compiler.specialization",
+        "Specialization",
+    ),
     "TypeAdapter": ("polisyos.foundry.methods.types.checker", "TypeAdapter"),
     "TypeAdapterKind": ("polisyos.foundry.methods.types.checker", "TypeAdapterKind"),
     "Unit": ("polisyos.foundry.methods.base", "Unit"),
     "UnitAdapter": ("polisyos.foundry.methods.types.checker", "UnitAdapter"),
     "UnitAdapterKind": ("polisyos.foundry.methods.types.checker", "UnitAdapterKind"),
     "UnitMismatchError": ("polisyos.foundry.methods.exceptions", "UnitMismatchError"),
-    "VersionConstraint": ("polisyos.foundry.methods.selection.resolution", "VersionConstraint"),
+    "VersionConstraint": (
+        "polisyos.foundry.methods.selection.resolution",
+        "VersionConstraint",
+    ),
     "advise_methods": ("polisyos.foundry.methods.selection", "advise_methods"),
     "advise_methods_for_analyst": (
         "polisyos.foundry.methods.selection",
@@ -324,7 +396,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.catalog.snapshot",
         "build_method_catalog_snapshot",
     ),
-    "build_specialization": ("polisyos.foundry.methods.compiler.specialization", "build_specialization"),
+    "build_specialization": (
+        "polisyos.foundry.methods.compiler.specialization",
+        "build_specialization",
+    ),
     "calibrate_backend_pair": (
         "polisyos.foundry.methods.equivalence",
         "calibrate_backend_pair",
@@ -354,7 +429,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.equivalence",
         "compare_field_values",
     ),
-    "compare_versions": ("polisyos.foundry.methods.selection.resolution", "compare_versions"),
+    "compare_versions": (
+        "polisyos.foundry.methods.selection.resolution",
+        "compare_versions",
+    ),
     "compute_distributional_check": (
         "polisyos.foundry.methods.components.consensus",
         "compute_distributional_check",
@@ -375,12 +453,18 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.artifacts",
         "compute_source_fingerprint",
     ),
-    "compute_source_hash": ("polisyos.foundry.methods.artifacts", "compute_source_hash"),
+    "compute_source_hash": (
+        "polisyos.foundry.methods.artifacts",
+        "compute_source_hash",
+    ),
     "compute_static_params_hash": (
         "polisyos.foundry.methods.compiler.specialization",
         "compute_static_params_hash",
     ),
-    "deprecate_method": ("polisyos.foundry.methods.lifecycle.deprecation", "deprecate_method"),
+    "deprecate_method": (
+        "polisyos.foundry.methods.lifecycle.deprecation",
+        "deprecate_method",
+    ),
     "derive_field_tolerance_spec": (
         "polisyos.foundry.methods.equivalence",
         "derive_field_tolerance_spec",
@@ -408,14 +492,20 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "foundry_method": ("polisyos.foundry.methods.base", "foundry_method"),
     "get_global_cache": ("polisyos.foundry.methods.compiler", "get_global_cache"),
     "get_registry": ("polisyos.foundry.methods.selection.registry", "get_registry"),
-    "get_slot_schema": ("polisyos.foundry.methods.components.slot_schema", "get_slot_schema"),
+    "get_slot_schema": (
+        "polisyos.foundry.methods.components.slot_schema",
+        "get_slot_schema",
+    ),
     "is_foundry_method": ("polisyos.foundry.methods.discovery", "is_foundry_method"),
     "is_semantically_compatible": (
         "polisyos.foundry.methods.components.slot_schema",
         "is_semantically_compatible",
     ),
     "is_valid_semver": ("polisyos.foundry.methods.base", "is_valid_semver"),
-    "is_compatible_upgrade": ("polisyos.foundry.methods.selection.resolution", "is_compatible_upgrade"),
+    "is_compatible_upgrade": (
+        "polisyos.foundry.methods.selection.resolution",
+        "is_compatible_upgrade",
+    ),
     "link_methods": ("polisyos.foundry.methods.components.linker", "link_methods"),
     "load_equivalence_certificate": (
         "polisyos.foundry.methods.equivalence",
@@ -426,7 +516,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "method_selection_payload",
     ),
     "parse_fqn": ("polisyos.foundry.methods.base", "parse_fqn"),
-    "parse_pip_specifier": ("polisyos.foundry.methods.selection.resolution", "parse_pip_specifier"),
+    "parse_pip_specifier": (
+        "polisyos.foundry.methods.selection.resolution",
+        "parse_pip_specifier",
+    ),
     "persist_attested_equivalence_certificate": (
         "polisyos.foundry.methods.equivalence",
         "persist_attested_equivalence_certificate",
@@ -453,12 +546,18 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     ),
     "registry_scope": ("polisyos.foundry.methods.selection.registry", "registry_scope"),
     "reset_global_cache": ("polisyos.foundry.methods.compiler", "reset_global_cache"),
-    "resolve_by_specifier": ("polisyos.foundry.methods.selection.resolution", "resolve_by_specifier"),
+    "resolve_by_specifier": (
+        "polisyos.foundry.methods.selection.resolution",
+        "resolve_by_specifier",
+    ),
     "resolve_method_version": (
         "polisyos.foundry.methods.selection.resolution",
         "resolve_method_version",
     ),
-    "resolve_version": ("polisyos.foundry.methods.selection.resolution", "resolve_version"),
+    "resolve_version": (
+        "polisyos.foundry.methods.selection.resolution",
+        "resolve_version",
+    ),
     "runtime_envelope_from_results": (
         "polisyos.foundry.methods.equivalence",
         "runtime_envelope_from_results",
@@ -467,12 +566,18 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.compiler.specialization",
         "specialization_from_signature_and_state",
     ),
-    "store_chain_artifact": ("polisyos.foundry.methods.artifacts", "store_chain_artifact"),
+    "store_chain_artifact": (
+        "polisyos.foundry.methods.artifacts",
+        "store_chain_artifact",
+    ),
     "store_execution_evidence": (
         "polisyos.foundry.methods.artifacts",
         "store_execution_evidence",
     ),
-    "store_method_artifact": ("polisyos.foundry.methods.artifacts", "store_method_artifact"),
+    "store_method_artifact": (
+        "polisyos.foundry.methods.artifacts",
+        "store_method_artifact",
+    ),
     "select_value_method_for_problem": (
         "polisyos.foundry.methods.selection",
         "select_value_method_for_problem",
@@ -504,6 +609,26 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "verify_persisted_equivalence_certificate": (
         "polisyos.foundry.methods.equivalence",
         "verify_persisted_equivalence_certificate",
+    ),
+    "AmbiguityCertificate": (
+        "polisyos.foundry.methods.catalog.optimization.protocols",
+        "AmbiguityCertificate",
+    ),
+    "BootstrapExecutionWork": (
+        "polisyos.foundry.methods.catalog.causal.ci_backends",
+        "BootstrapExecutionWork",
+    ),
+    "OrdinalMultidimensionalPovertyEstimator": (
+        "polisyos.foundry.methods.catalog.distributional.poverty_advanced",
+        "OrdinalMultidimensionalPovertyEstimator",
+    ),
+    "ensure_forecasting_methods_registered": (
+        "polisyos.foundry.methods.catalog.forecasting",
+        "ensure_forecasting_methods_registered",
+    ),
+    "get_mechanism_family_spec": (
+        "polisyos.foundry.methods.catalog.mechanism.families",
+        "get_mechanism_family_spec",
     ),
 }
 

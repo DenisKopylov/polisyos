@@ -8,10 +8,12 @@ from dataclasses import dataclass
 from typing import Any
 
 from polisyos.core.artifacts import ArtifactRef, PutOptions, SchemaInfo
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import Metrics, SimulationResult, SimulationResultRef
-from polisyos.ir.analytics.welfare import (
+from polisyos.ir import (
     WelfareBundle,
     WelfareMethod,
     WelfareStatus,
@@ -99,7 +101,10 @@ def _skip_for_missing_simulation(state: ExperimentState) -> NodeOutcome:
         status="skip",
         state=state,
         events=[
-            NodeEvent(level="info", message="No simulation_result_ref; skip welfare propagation")
+            NodeEvent(
+                level="info",
+                message="No simulation_result_ref; skip welfare propagation",
+            )
         ],
     )
 
@@ -426,11 +431,17 @@ def _persist_welfare_run(
     ]
     if prepared.sim_result.execution_input_basis_ref is not None:
         simulation_result_inputs.append(
-            _input_ref(prepared.sim_result.execution_input_basis_ref, role="execution_input_basis")
+            _input_ref(
+                prepared.sim_result.execution_input_basis_ref,
+                role="execution_input_basis",
+            )
         )
     if prepared.sim_result.feedback_result_ref is not None:
         simulation_result_inputs.append(
-            _input_ref(prepared.sim_result.feedback_result_ref, role="artifact.feedback_result_ref")
+            _input_ref(
+                prepared.sim_result.feedback_result_ref,
+                role="artifact.feedback_result_ref",
+            )
         )
     updated_payload = ctx.store.put_json(
         updated_result,

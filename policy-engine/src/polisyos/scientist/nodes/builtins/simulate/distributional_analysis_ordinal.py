@@ -10,17 +10,17 @@ import numpy as np
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import InputRef
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.foundry.methods.catalog.distributional.poverty_advanced import (
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.foundry.methods import (
     OrdinalMultidimensionalPovertyEstimator,
 )
+from polisyos.ir import OrdinalPovertyReportRef
 from polisyos.ir.analytics.distributional import (
     OrdinalPovertyEstimate,
     OrdinalPovertyReport,
     persist_ordinal_poverty_report,
-)
-from polisyos.ir.registry.refs import (
-    OrdinalPovertyReportRef,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import (

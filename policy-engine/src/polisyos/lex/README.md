@@ -111,3 +111,5 @@ legal corpus or graph artifacts.
 `knowledge/multilingual_assurance.py` owns the candidate MAEP instrument. Its persisted finite
 comparison remains distinct from `normpack/legal_authority.py` competence and from legal benchmark
 readiness: W5-K06 scope, vacant holder and unsigned trust checks prevent equivalence issuance.
+
+## Typed Legal Constraint Facade\n\nThe stable root facade exports `ConstraintSeverity`, `LegalConstraint`, `LegalToDAGMapping`, and `LegalToDAGMappingType` from the existing legal constraint owner. These types preserve legal provenance and typed mapping outcomes; a mapped DAG reference alone does not attest law currentness, issuer authority, or legal sufficiency.

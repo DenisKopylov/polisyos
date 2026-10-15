@@ -7,14 +7,19 @@ from dataclasses import dataclass
 import numpy as np
 from pydantic import ValidationError
 
-from polisyos.foundry.analysis.distributional import (
+from polisyos.foundry.analysis import (
     build_geography_breakdown,
 )
 from polisyos.ir.analytics import (
     CohortDimension,
 )
 
-_DISTRIBUTIONAL_EXECUTION_ERRORS = (RuntimeError, TypeError, ValueError, ValidationError)
+_DISTRIBUTIONAL_EXECUTION_ERRORS = (
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
 
 _GEOGRAPHY_MIN_GROUP_SIZE = 10
 

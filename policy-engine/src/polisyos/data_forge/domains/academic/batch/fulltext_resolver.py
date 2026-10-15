@@ -14,8 +14,8 @@ from urllib.parse import quote, urljoin, urlparse
 
 import aiohttp
 
+from polisyos.common import serialization as common_serialization
 from polisyos.common.logger import get_logger
-from polisyos.common.serialization import decode_json_object
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 from polisyos.ir.analytics.literature import SourceBasis, TextQuality
 
@@ -466,10 +466,12 @@ def _extract_pdf_targets(html: str, base_url: str) -> list[str]:
             re.IGNORECASE,
         ),
         re.compile(
-            r"""<meta[^>]+property=["']og:pdf["'][^>]+content=["']([^"']+)["']""", re.IGNORECASE
+            r"""<meta[^>]+property=["']og:pdf["'][^>]+content=["']([^"']+)["']""",
+            re.IGNORECASE,
         ),
         re.compile(
-            r"""<link[^>]+type=["']application/pdf["'][^>]+href=["']([^"']+)["']""", re.IGNORECASE
+            r"""<link[^>]+type=["']application/pdf["'][^>]+href=["']([^"']+)["']""",
+            re.IGNORECASE,
         ),
         re.compile(r"""<a[^>]+href=["']([^"']+\.pdf(?:\?[^"']*)?)["']""", re.IGNORECASE),
         re.compile(
@@ -488,9 +490,13 @@ def _extract_pdf_targets(html: str, base_url: str) -> list[str]:
 
 def _extract_canonical_targets(html: str, base_url: str) -> list[str]:
     patterns = (
-        re.compile(r"""<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']""", re.IGNORECASE),
         re.compile(
-            r"""<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']""", re.IGNORECASE
+            r"""<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["']""",
+            re.IGNORECASE,
+        ),
+        re.compile(
+            r"""<meta[^>]+property=["']og:url["'][^>]+content=["']([^"']+)["']""",
+            re.IGNORECASE,
         ),
     )
     targets: list[str] = []
@@ -627,9 +633,7 @@ def _build_resolved_cache_row(work: dict[str, Any], result: FullTextFetchResult)
     }
 
 
-def _iter_jsonl_objects(
-    path: Path, *, kind: str
-) -> Iterator[tuple[int, dict[str, Any]]]:
+def _iter_jsonl_objects(path: Path, *, kind: str) -> Iterator[tuple[int, dict[str, Any]]]:
     """Yield each supplied nonblank object row with its source line number."""
     if not path.exists():
         return
@@ -637,10 +641,13 @@ def _iter_jsonl_objects(
         for line_number, raw in enumerate(fh, start=1):
             if not raw.strip():
                 continue
-            yield line_number, decode_json_object(
-                raw,
-                source=f"{path}:{line_number}",
-                kind=kind,
+            yield (
+                line_number,
+                common_serialization.decode_json_object(
+                    raw,
+                    source=f"{path}:{line_number}",
+                    kind=kind,
+                ),
             )
 
 
@@ -676,6 +683,7 @@ def _load_fulltext_metadata_cache(path: Path) -> dict[str, dict[str, Any]]:
             )
         cache[cache_key] = row
     return cache
+
 
 def _candidate_urls(work: dict[str, Any], *, max_candidates: int) -> list[_URLCandidate]:
     open_access = work.get("open_access") if isinstance(work.get("open_access"), dict) else {}
@@ -722,7 +730,9 @@ def _candidate_urls(work: dict[str, Any], *, max_candidates: int) -> list[_URLCa
         expect_pdf=True,
     )
     add(
-        primary_location.get("landing_page_url"), priority=4, source_kind="openalex_primary_landing"
+        primary_location.get("landing_page_url"),
+        priority=4,
+        source_kind="openalex_primary_landing",
     )
 
     for idx, location in enumerate(locations):
@@ -870,7 +880,11 @@ async def _query_unpaywall(
                     )
 
                     def add(
-                        url: str | None, *, priority: int, source_kind: str, expect_pdf: bool
+                        url: str | None,
+                        *,
+                        priority: int,
+                        source_kind: str,
+                        expect_pdf: bool,
                     ) -> None:
                         text = str(url or "").strip()
                         if not text:
@@ -1214,7 +1228,8 @@ async def _fetch_v3_legacy(
         total=max(3, int(total_timeout or 20)),
         connect=max(1, int(connect_timeout_seconds or 10)),
         sock_read=max(
-            1, int(read_timeout_seconds or max(3, int(total_timeout or timeout_seconds or 20)))
+            1,
+            int(read_timeout_seconds or max(3, int(total_timeout or timeout_seconds or 20))),
         ),
     )
     headers = {"User-Agent": "PolicyOS/1.0 (+academic extraction)"}
@@ -1363,7 +1378,8 @@ async def _fetch_v7_http_metadata(
         total=max(3, int(total_timeout or 20)),
         connect=max(1, int(connect_timeout_seconds or 10)),
         sock_read=max(
-            1, int(read_timeout_seconds or max(3, int(total_timeout or timeout_seconds or 20)))
+            1,
+            int(read_timeout_seconds or max(3, int(total_timeout or timeout_seconds or 20))),
         ),
     )
     headers = {"User-Agent": "PolicyOS/1.0 (+academic extraction)"}
@@ -1376,7 +1392,11 @@ async def _fetch_v7_http_metadata(
     metadata_cache_rows: list[dict[str, Any]] = []
 
     try:
-        metadata_candidates, metadata_attempts, new_cache_rows = await _resolve_metadata_candidates(
+        (
+            metadata_candidates,
+            metadata_attempts,
+            new_cache_rows,
+        ) = await _resolve_metadata_candidates(
             work,
             metadata_enabled=metadata_enabled,
             resolver_order=metadata_resolver_order,
@@ -1662,7 +1682,11 @@ async def fetch_full_text_result_for_work(
     session: aiohttp.ClientSession | None = None,
     acquisition_mode: str = "v3_legacy",
     metadata_resolvers_enabled: bool = True,
-    metadata_resolver_order: tuple[str, ...] = ("unpaywall", "crossref", "semanticscholar"),
+    metadata_resolver_order: tuple[str, ...] = (
+        "unpaywall",
+        "crossref",
+        "semanticscholar",
+    ),
     unpaywall_email: str = "",
     semantic_scholar_api_key: str = "",
     metadata_timeout_seconds: int = 20,
@@ -1724,7 +1748,9 @@ async def fetch_full_text_result_for_work(
     if resolved_cache is not None:
         _store_resolved_cache_row(resolved_cache, cache_row)
     return replace(
-        result, resolved_cache_row=cache_row, cache_key=str(cache_row.get("cache_key") or "")
+        result,
+        resolved_cache_row=cache_row,
+        cache_key=str(cache_row.get("cache_key") or ""),
     )
 
 

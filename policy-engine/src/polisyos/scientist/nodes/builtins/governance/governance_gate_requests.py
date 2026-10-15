@@ -10,9 +10,9 @@ from typing import Any
 
 from pydantic import BaseModel, ValidationError
 
-from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ArtifactID, ArtifactRef, SchemaInfo
-from polisyos.core.artifacts.registry import RegistryBundlePayload
+from polisyos.common import logger as common_logger
+from polisyos.core import registry as core_registry
+from polisyos.core.artifacts import ArtifactID, ArtifactRef, RegistryBundlePayload, SchemaInfo
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts import (
     DataSnapshot,
@@ -26,13 +26,14 @@ from polisyos.core.contracts import (
     StateSnapshotRef,
     TrinityBundleRef,
 )
-from polisyos.core.registry import load_registry_bundle_content
-from polisyos.ir import ArtifactRefModel, NormPack, TrinityBundle
-from polisyos.ir.governance.gate import (
+from polisyos.ir import (
     GATE_REQUEST_SCHEMA_VERSION,
+    ArtifactRefModel,
     GateContext,
     GatePriority,
     GateRequest,
+    NormPack,
+    TrinityBundle,
 )
 from polisyos.scholar import KnowledgeBundlePayloadV1
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -56,7 +57,7 @@ from polisyos.scientist.orchestration.engine.protocol import NodeEvent
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.kernel.gate_protocol import HumanGateProtocol
 
-logger = get_logger("polisyos.scientist.nodes.builtins.governance.run_governance")
+logger = common_logger.get_logger("polisyos.scientist.nodes.builtins.governance.run_governance")
 
 _GOVERNANCE_HELPER_ERRORS = (
     AttributeError,
@@ -350,6 +351,7 @@ def _policy_summary_from_state(
     state: ExperimentState,
 ) -> str | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return None
@@ -382,6 +384,7 @@ def _simulation_results_from_state(
     state: ExperimentState,
 ) -> dict[str, Any] | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
     if metrics_ref is None:
         return None
@@ -461,6 +464,7 @@ def _transport_summary_from_state(
     state: ExperimentState,
 ) -> dict[str, Any] | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     report_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if report_ref is None:
         status = state.params.get("transportability_status")
@@ -790,11 +794,10 @@ def _read_replay_payload(
     ref: ArtifactRef,
 ) -> tuple[BaseModel | None, str | None]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     try:
         manifest = ctx.store.get_manifest(ref)
-        payload = contract.payload_model.model_validate(
-            load_core_json_artifact(ctx.store, ref)
-        )
+        payload = contract.payload_model.model_validate(load_core_json_artifact(ctx.store, ref))
     except _GOVERNANCE_HELPER_ERRORS:
         return None, "unresolvable_ref_or_invalid_payload"
     if not _replay_schema_matches(contract, manifest.artifact_schema, payload):
@@ -803,7 +806,7 @@ def _read_replay_payload(
         try:
             # Existing Core loader resolves each member registry by its exact
             # typed ref and validates its actual content model.
-            load_registry_bundle_content(ctx.store, ref)
+            core_registry.load_registry_bundle_content(ctx.store, ref)
         except _GOVERNANCE_HELPER_ERRORS:
             return None, "invalid_bundle_content"
     return payload, None
@@ -907,6 +910,7 @@ def _resolve_cached_gate_request(
 ) -> tuple[GateRequest, ArtifactRef] | None:
     """Admit a cached request only when its persisted body matches current state."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     request = _parse_gate_request(raw_request)
     ref = _parse_gate_request_ref(raw_ref)
     if request is None or ref is None:

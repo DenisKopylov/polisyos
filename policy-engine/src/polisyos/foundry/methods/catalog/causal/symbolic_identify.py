@@ -6,7 +6,7 @@ import dataclasses
 import hashlib
 import json
 from collections.abc import Mapping
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
@@ -29,13 +29,13 @@ from polisyos.foundry.methods.catalog.causal.full_transport_bridge import (
     probe_backend_availability,
     profile_unknown_variables,
 )
+from polisyos.ir import DistributionDomain
 from polisyos.ir.analytics.causal import (
     ProofBundle,
     proof_bundle_from_identification_result,
     proof_bundle_from_transportability_result,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark
-from polisyos.ir.analytics.estimand import DistributionDomain
 from polisyos.ir.analytics.privacy_transportability import (
     TransportPrivacyContext,
     coerce_transport_privacy_context,
@@ -54,6 +54,9 @@ from .transport_engine import (
     solve_transportability,
     validate_scalar_graph_selection_diagram,
 )
+
+if TYPE_CHECKING:
+    from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult
 
 
 def _y0_available() -> tuple[bool, str | None]:
@@ -94,9 +97,15 @@ def _directed_edges(graph: CausalGraphModel) -> set[tuple[str, str]]:
 
 
 def _edge_direction(edge: CausalEdge) -> tuple[str, str] | None:
-    if edge.mark_src is EdgeMark.ARROW and edge.mark_dst in {EdgeMark.TAIL, EdgeMark.CIRCLE}:
+    if edge.mark_src is EdgeMark.ARROW and edge.mark_dst in {
+        EdgeMark.TAIL,
+        EdgeMark.CIRCLE,
+    }:
         return edge.dst, edge.src
-    if edge.mark_dst is EdgeMark.ARROW and edge.mark_src in {EdgeMark.TAIL, EdgeMark.CIRCLE}:
+    if edge.mark_dst is EdgeMark.ARROW and edge.mark_src in {
+        EdgeMark.TAIL,
+        EdgeMark.CIRCLE,
+    }:
         return edge.src, edge.dst
     if edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.TAIL:
         return None
@@ -173,7 +182,9 @@ def _proof_bundle_from_transport_result(result: TransportabilityResult) -> Proof
 
 def _profile_digest(profile: Any) -> str:
     payload = profile.model_dump(mode="json")
-    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode(
+        "utf-8"
+    )
     return hashlib.sha256(encoded).hexdigest()
 
 
@@ -224,7 +235,9 @@ def _y0_population_profile_limited_result(
     return result, proof
 
 
-def _expression_population_quantities(expression: Any) -> tuple[str, list[str], list[str], list[str]]:
+def _expression_population_quantities(
+    expression: Any,
+) -> tuple[str, list[str], list[str], list[str]]:
     """Extract exact Y0 text and typed quantity partitions from its expression tree."""
     from y0.dsl import Fraction, PopulationProbability, Probability, Product, Sum
 
@@ -295,7 +308,9 @@ def _run_y0_trso(
         "profile_origin": "consumer_asserted",
         "profile_input_state": profile_state,
         "surrogate_profile_sha256": _profile_digest(profile),
-        "surrogate_population_ids": [population.population_id for population in profile.populations],
+        "surrogate_population_ids": [
+            population.population_id for population in profile.populations
+        ],
         "gate_predicates": {
             "profile_declaration": "consumer_asserted",
             "profile_variables_belong_to_admitted_graph": "recomputed",
@@ -330,7 +345,9 @@ def _run_y0_trso(
             for population in profile.populations
         }
         surrogate_interventions = {
-            Variable(population.population_id): {Variable(name) for name in population.interventions}
+            Variable(population.population_id): {
+                Variable(name) for name in population.interventions
+            }
             for population in profile.populations
         }
         profile_metadata["backend_call_attempted"] = True
@@ -360,22 +377,30 @@ def _run_y0_trso(
                 diagram=diagram,
                 treatment=treatment,
                 outcome=outcome,
-                trace=[*trace, "y0_trso:api_called:identify_target_outcomes", f"y0_version:{version}"],
+                trace=[
+                    *trace,
+                    "y0_trso:api_called:identify_target_outcomes",
+                    f"y0_version:{version}",
+                ],
                 backend_name="y0",
                 reason="y0_trso_returned_no_expression",
                 metadata=profile_metadata,
             )
             return result, _proof_bundle_from_transport_result(result)
         try:
-            formula_text, source_quantities, target_quantities, sums = _expression_population_quantities(
-                expression
+            formula_text, source_quantities, target_quantities, sums = (
+                _expression_population_quantities(expression)
             )
         except (TypeError, ValueError) as exc:
             result = _unsupported_symbolic_result(
                 diagram=diagram,
                 treatment=treatment,
                 outcome=outcome,
-                trace=[*trace, "y0_trso:api_called:identify_target_outcomes", f"y0_version:{version}"],
+                trace=[
+                    *trace,
+                    "y0_trso:api_called:identify_target_outcomes",
+                    f"y0_version:{version}",
+                ],
                 backend_name="y0",
                 reason=f"y0_trso_expression_not_representable:{type(exc).__name__}",
                 metadata={
@@ -661,9 +686,7 @@ class SymbolicIdentify:
             symbolic_backend
         )
         trace = [f"symbolic_backend_order:{','.join(backend_order)}"]
-        raw_profile = params.get(
-            "surrogate_data_profile", Y0_SURROGATE_DATA_PROFILE_ABSENT
-        )
+        raw_profile = params.get("surrogate_data_profile", Y0_SURROGATE_DATA_PROFILE_ABSENT)
         if selected_backend == "y0":
             selected_trace = [*trace, "symbolic_backend_selected:y0"]
             if selection_diagram.s_nodes:
@@ -750,7 +773,10 @@ class SymbolicIdentify:
                 trace=prefixed_trace,
                 backend_name=None,
                 reason=reason,
-                metadata={"backend_call_established": False, "backend_requested": symbolic_backend},
+                metadata={
+                    "backend_call_established": False,
+                    "backend_requested": symbolic_backend,
+                },
             )
         proof_bundle = _proof_bundle_from_transport_result(result)
         return {
@@ -773,10 +799,7 @@ def _id_result_to_transport_result(
     version = id_result.algorithm_version or "id_v1"
     result_metadata = dict(id_result.metadata)
     identification_trace = list(id_result.trace)
-    if (
-        backend_id == "y0"
-        and result_metadata.get("backend_operation") == "identify_outcomes"
-    ):
+    if backend_id == "y0" and result_metadata.get("backend_operation") == "identify_outcomes":
         from polisyos.foundry.methods.catalog.causal.capabilities import (
             build_causal_capability_contract,
         )
@@ -878,7 +901,9 @@ def _id_result_to_transport_result(
         return TransportabilityResult(
             query=f"P*({outcome}|do({treatment}))",
             status=TransportabilityStatus.IDENTIFIED,
-            transport_mode=TransportMode.TRANSPORT_FORMULA if diagram.s_nodes else TransportMode.DIRECT,
+            transport_mode=TransportMode.TRANSPORT_FORMULA
+            if diagram.s_nodes
+            else TransportMode.DIRECT,
             transport_formula=formula,
             base_confidence=1.0,
             context_distance_penalty=context_penalty,
@@ -913,7 +938,10 @@ def _id_result_to_transport_result(
             final_confidence=0.0,
             unsupported_reason="hedge_certificate: " + cert.description,
             blocking_s_nodes=diagram.s_nodes,
-            metadata={**dict(id_result.metadata), "negative_identification_witness": "native_hedge"},
+            metadata={
+                **dict(id_result.metadata),
+                "negative_identification_witness": "native_hedge",
+            },
             **{key: value for key, value in common.items() if key != "metadata"},
         )
 
@@ -1023,7 +1051,13 @@ class SymbolicIdentifyV2:
             "TransportabilityResult. Falls back to v1 solver for PAG/CPDAG inputs."
         ),
         tags=frozenset(
-            {"causal", "transportability", "symbolic", "id-algorithm", "pearl-bareinboim"}
+            {
+                "causal",
+                "transportability",
+                "symbolic",
+                "id-algorithm",
+                "pearl-bareinboim",
+            }
         ),
         assumptions={
             "id_scope": "Full 7-step recursive ID for DAG/ADMG inputs (GraphType.DAG or PAG with ARROW/ARROW).",
@@ -1097,13 +1131,14 @@ class SymbolicIdentifyV2:
         if graph_admission_payload is not None:
             return graph_admission_payload
 
-        profile_raw = params.get(
-            "surrogate_data_profile", Y0_SURROGATE_DATA_PROFILE_ABSENT
-        )
+        profile_raw = params.get("surrogate_data_profile", Y0_SURROGATE_DATA_PROFILE_ABSENT)
         symbolic_backend = normalize_symbolic_backend_mode(params.get("symbolic_backend"))
         y0_requested = oracle == "y0" or symbolic_backend == "y0"
         profile_supplied = profile_raw is not Y0_SURROGATE_DATA_PROFILE_ABSENT
-        can_use_native = use_native and graph.graph_type in {GraphType.DAG, GraphType.PAG}
+        can_use_native = use_native and graph.graph_type in {
+            GraphType.DAG,
+            GraphType.PAG,
+        }
 
         if selection_diagram.s_nodes and (y0_requested or profile_supplied):
             if symbolic_backend == "r" and oracle != "y0":
@@ -1114,7 +1149,10 @@ class SymbolicIdentifyV2:
                     trace=["symbolic_backend_requested:r"],
                     backend_name=None,
                     reason="r_causaleffect_execution_adapter_not_implemented",
-                    metadata={"backend_requested": "r", "backend_call_established": False},
+                    metadata={
+                        "backend_requested": "r",
+                        "backend_call_established": False,
+                    },
                 )
                 proof_bundle = _proof_bundle_from_transport_result(limited)
                 return {
@@ -1127,7 +1165,10 @@ class SymbolicIdentifyV2:
                 treatment=query_treatment,
                 outcome=query_outcome,
                 raw_profile=profile_raw,
-                trace=["symbolic_backend_selected:y0", "transport_operation_requested:trso"],
+                trace=[
+                    "symbolic_backend_selected:y0",
+                    "transport_operation_requested:trso",
+                ],
             )
             return {
                 "transport_result": transport_result.model_dump(mode="json"),
@@ -1175,7 +1216,9 @@ class SymbolicIdentifyV2:
                     "proof_bundle": proof_bundle.model_dump(mode="json"),
                 }
                 if id_result.status is IdentificationStatus.HEDGE_FOUND:
-                    from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
+                    from polisyos.foundry.methods.catalog.causal.causal_engine import (
+                        CausalEngine,
+                    )
 
                     negative_certificate = CausalEngine()._hedge_to_negative_cert(id_result)
                     identification_proof = proof_bundle_from_identification_result(
@@ -1248,12 +1291,17 @@ class SymbolicIdentifyV2:
                 trace=trace,
                 backend_name=None,
                 reason=reason,
-                metadata={"backend_requested": symbolic_backend, "backend_call_established": False},
+                metadata={
+                    "backend_requested": symbolic_backend,
+                    "backend_call_established": False,
+                },
             )
             return {
                 "transport_result": limited.model_dump(mode="json"),
                 "estimand_ast": None,
-                "proof_bundle": _proof_bundle_from_transport_result(limited).model_dump(mode="json"),
+                "proof_bundle": _proof_bundle_from_transport_result(limited).model_dump(
+                    mode="json"
+                ),
             }
 
         result = solve_transportability(
@@ -1295,11 +1343,18 @@ def _resolve_transport_privacy_context(
     return None
 
 
-# Import deferred to avoid circular imports at module-load time
-from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult
-
 __all__ = [
     "SymbolicIdentify",
     "SymbolicIdentifyV2",
     "convert_graph_to_symbolic_repr",
 ]
+
+
+def __getattr__(name: str) -> Any:
+    """Resolve the compatibility result export without eager circular imports."""
+    if name != "IdentificationResult":
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationResult
+
+    globals()[name] = IdentificationResult
+    return IdentificationResult

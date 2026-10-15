@@ -5,19 +5,15 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any, get_args
 
-from polisyos.core.contracts.control import DataNeed
+from polisyos.core.contracts import DataNeed
 from polisyos.data_requirement import (
     CapabilityRequirementResolution,
     DataRequirementScope,
     DataRequirementSpec,
 )
 
-FABRIC_DATA_REQUIREMENT_BINDINGS_SCHEMA_VERSION = (
-    "policyos.fabric.data_requirement_bindings.v1"
-)
-CATALOG_DATA_NEED_PROJECTION_SCHEMA_VERSION = (
-    "policyos.fabric.catalog_data_need_projection.v1"
-)
+FABRIC_DATA_REQUIREMENT_BINDINGS_SCHEMA_VERSION = "policyos.fabric.data_requirement_bindings.v1"
+CATALOG_DATA_NEED_PROJECTION_SCHEMA_VERSION = "policyos.fabric.catalog_data_need_projection.v1"
 
 _CATALOG_REQUEST_ENVELOPE_FIELDS = frozenset(
     {
@@ -26,12 +22,10 @@ _CATALOG_REQUEST_ENVELOPE_FIELDS = frozenset(
         "catalog_request_context",
     }
 )
-_DEFAULT_SCOPE_GEOGRAPHIES = frozenset(
-    {"geography", "scenario_geography", "state_or_region"}
-)
+_DEFAULT_SCOPE_GEOGRAPHIES = frozenset({"geography", "scenario_geography", "state_or_region"})
 
 
-def _project_data_requirement_to_catalog_needs(
+def project_data_requirement_to_catalog_needs(
     *,
     compiled_requirement_spec: object,
 ) -> tuple[tuple[DataNeed, ...], dict[str, Any]]:
@@ -53,9 +47,7 @@ def _project_data_requirement_to_catalog_needs(
             fields=extra_fields,
         )
     typed_payload = {
-        field: payload[field]
-        for field in DataRequirementSpec.model_fields
-        if field in payload
+        field: payload[field] for field in DataRequirementSpec.model_fields if field in payload
     }
     try:
         requirement = DataRequirementSpec.model_validate(typed_payload)
@@ -89,10 +81,14 @@ def _project_data_requirement_to_catalog_needs(
     }
     unknown_profile_fields = sorted(set(profile) - profile_fields)
     raw_unrepresented_fields = profile.get("unrepresented_fields", ())
-    if not isinstance(raw_unrepresented_fields, Sequence) or isinstance(
-        raw_unrepresented_fields,
-        str | bytes | bytearray,
-    ) or any(not isinstance(item, str) or not item.strip() for item in raw_unrepresented_fields):
+    if (
+        not isinstance(raw_unrepresented_fields, Sequence)
+        or isinstance(
+            raw_unrepresented_fields,
+            str | bytes | bytearray,
+        )
+        or any(not isinstance(item, str) or not item.strip() for item in raw_unrepresented_fields)
+    ):
         return (), _catalog_projection_refusal(
             "scope_profile_unrepresented_fields_invalid",
             requirement_id=requirement.requirement_id,
@@ -202,9 +198,7 @@ def _project_data_requirement_to_catalog_needs(
         )
     profile_geography = _catalog_text(raw_profile_geography)
     spec_geography = requirement.scope.jurisdiction or requirement.scope.geography
-    profile_geography_is_generic = (
-        profile_geography.casefold() in _DEFAULT_SCOPE_GEOGRAPHIES
-    )
+    profile_geography_is_generic = profile_geography.casefold() in _DEFAULT_SCOPE_GEOGRAPHIES
     if (
         profile_geography
         and not profile_geography_is_generic
@@ -303,8 +297,7 @@ def _project_data_requirement_to_catalog_needs(
         )
     if budget_fields:
         zero_budget = any(
-            type(value) in {int, float} and float(value) == 0.0
-            for value in budget_fields.values()
+            type(value) in {int, float} and float(value) == 0.0 for value in budget_fields.values()
         )
         return (), _catalog_projection_refusal(
             "catalog_zero_budget_unrepresentable"
@@ -349,9 +342,7 @@ def _project_data_requirement_to_catalog_needs(
     }
     unrepresented = sorted(
         path
-        for path, value in _catalog_requirement_leaf_paths(
-            requirement.model_dump(mode="json")
-        )
+        for path, value in _catalog_requirement_leaf_paths(requirement.model_dump(mode="json"))
         if path not in mapped_paths and value not in (None, "", [], {})
     )
     limitations = ["catalog_resolution_is_candidate_only"]
@@ -502,14 +493,10 @@ def build_source_contract_requirement_bindings(
     capability_answered_requirements = {
         _text(row.get("requirement_id"))
         for row in capability_rows
-        if row.get("binding_status") in {"selected", "blocked"}
-        and _text(row.get("requirement_id"))
+        if row.get("binding_status") in {"selected", "blocked"} and _text(row.get("requirement_id"))
     }
     required_families = {
-        family.casefold()
-        for spec in specs
-        for family in spec.required_data_families
-        if family
+        family.casefold() for spec in specs for family in spec.required_data_families if family
     }
     matched_candidate_refs: set[str] = set()
     bindings: list[dict[str, Any]] = []
@@ -578,9 +565,7 @@ def _candidate_requirement_binding(
     candidate: Mapping[str, Any],
 ) -> dict[str, Any]:
     present_facets = set(candidate["present_facets"])
-    missing_facets = sorted(
-        facet for facet in spec.mandatory_facets if facet not in present_facets
-    )
+    missing_facets = sorted(facet for facet in spec.mandatory_facets if facet not in present_facets)
     validation = dict(candidate["source_contract_validation"])
     validation_status = _text(validation.get("status")).casefold()
     if not missing_facets and validation_status == "pass":
@@ -633,11 +618,7 @@ def _blocked_requirement_binding(
             "reason_code": "source_family_absent",
         },
         "rejected_candidate_source_families": sorted(
-            {
-                candidate["source_family"]
-                for candidate in candidates
-                if candidate["source_family"]
-            }
+            {candidate["source_family"] for candidate in candidates if candidate["source_family"]}
         ),
     }
 
@@ -678,25 +659,17 @@ def _capability_requirement_bindings(
             "capability_index_ref": _text(binding.get("capability_index_ref")) or None,
             "construct_registry_ref": _text(binding.get("construct_registry_ref")) or None,
             "authority_composition_rule_ref": _text(
-                binding.get("authority_composition_rule_ref")
-                or binding.get("rule_version_ref")
+                binding.get("authority_composition_rule_ref") or binding.get("rule_version_ref")
             )
             or None,
-            "authority_envelope_result": _text(binding.get("authority_envelope_result"))
-            or None,
+            "authority_envelope_result": _text(binding.get("authority_envelope_result")) or None,
             "authority_surface": "capability_graph",
             "source_assets": source_assets,
             "source_asset_refs": [
-                _text(asset.get("ref"))
-                for asset in source_assets
-                if _text(asset.get("ref"))
+                _text(asset.get("ref")) for asset in source_assets if _text(asset.get("ref"))
             ],
             "field_refs": sorted(
-                {
-                    field
-                    for asset in source_assets
-                    for field in _text_list(asset.get("fields"))
-                }
+                {field for asset in source_assets for field in _text_list(asset.get("fields"))}
             ),
             "rights_envelope": _payload(binding.get("rights_envelope")),
             "quality_score": _payload(binding.get("quality_score")),
@@ -745,19 +718,15 @@ def _capability_requirement_bindings(
                     or _source_family_for_binding(spec, binding),
                     "candidate_ref": rejected_ref or None,
                     "capability_ref": rejected_ref or None,
-                    "construct_ref": rejected.get("construct_ref")
-                    or binding.get("construct_ref"),
+                    "construct_ref": rejected.get("construct_ref") or binding.get("construct_ref"),
                     "capability_index_ref": binding.get("capability_index_ref"),
                     "construct_registry_ref": binding.get("construct_registry_ref"),
-                    "authority_composition_rule_ref": binding.get(
-                        "authority_composition_rule_ref"
-                    )
+                    "authority_composition_rule_ref": binding.get("authority_composition_rule_ref")
                     or binding.get("rule_version_ref"),
                     "binding_status": "rejected",
                     "reason_code": _text(rejected.get("rejection_reason"))
                     or "capability_rejected_alternative",
-                    "rejection_severity": _text(rejected.get("rejection_severity"))
-                    or "soft",
+                    "rejection_severity": _text(rejected.get("rejection_severity")) or "soft",
                     "authority_surface": "capability_graph",
                     "present_facets": [],
                     "missing_facets": [],
@@ -805,9 +774,7 @@ def _candidate(candidate: Mapping[str, Any]) -> dict[str, Any]:
         "source_family": _text(candidate.get("source_family")) or "unknown",
         "present_facets": _text_set(candidate.get("present_facets")),
         "source_contract_validation": (
-            dict(validation)
-            if isinstance(validation, Mapping)
-            else {"status": "pass"}
+            dict(validation) if isinstance(validation, Mapping) else {"status": "pass"}
         ),
     }
 
@@ -839,8 +806,7 @@ def _text_list(value: object) -> list[str]:
         return []
     values = (
         value
-        if isinstance(value, Sequence)
-        and not isinstance(value, str | bytes | bytearray)
+        if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray)
         else (value,)
     )
     result: list[str] = []
@@ -893,4 +859,5 @@ def _text(value: object) -> str:
 __all__ = [
     "FABRIC_DATA_REQUIREMENT_BINDINGS_SCHEMA_VERSION",
     "build_source_contract_requirement_bindings",
+    "project_data_requirement_to_catalog_needs",
 ]

@@ -424,7 +424,10 @@ def attach_identifiability_diagnostic_ref(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.SimulationResult", version="1.3"),
             inputs=[
-                InputRef(artifact_id=sim_ref.artifact_id, role="artifact.simulation_result_ref"),
+                InputRef(
+                    artifact_id=sim_ref.artifact_id,
+                    role="artifact.simulation_result_ref",
+                ),
                 InputRef(
                     artifact_id=diagnostic_ref.artifact_id,
                     role="artifact.identifiability_diagnostic_ref",
@@ -457,7 +460,10 @@ def attach_abm_identifiability_certificate_ref(
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.ir.ABMResult", version="1.0"),
             inputs=[
-                InputRef(artifact_id=sim_ref.artifact_id, role="artifact.simulation_result_ref"),
+                InputRef(
+                    artifact_id=sim_ref.artifact_id,
+                    role="artifact.simulation_result_ref",
+                ),
                 InputRef(
                     artifact_id=diagnostic_ref.artifact_id,
                     role="artifact.identifiability_diagnostic_ref",
@@ -794,7 +800,10 @@ def _profile_traces(
             intervals[name] = None
             boundary_hits[name] = False
         else:
-            intervals[name] = (float(grid[int(inside[0])]), float(grid[int(inside[-1])]))
+            intervals[name] = (
+                float(grid[int(inside[0])]),
+                float(grid[int(inside[-1])]),
+            )
             boundary_hits[name] = bool(int(inside[0]) == 0 or int(inside[-1]) == len(grid) - 1)
 
     return (
@@ -1142,7 +1151,9 @@ def _base_metadata(
     }
 
 
-def _infer_moment_classes(moment_names: Sequence[str]) -> tuple[IdentifiabilityMomentClass, ...]:
+def _infer_moment_classes(
+    moment_names: Sequence[str],
+) -> tuple[IdentifiabilityMomentClass, ...]:
     lowered = [name.lower() for name in moment_names]
     has_mean_variance = any(
         "mean" in name or "var" in name or "variance" in name for name in lowered
@@ -1164,6 +1175,7 @@ def _resolve_float_mapping(
     label: str,
 ) -> dict[str, float]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     if isinstance(bundle, ArtifactRef):
         payload = load_core_json_artifact(store, bundle)
         if isinstance(payload, Mapping) and isinstance(payload.get("values"), Mapping):
@@ -1191,6 +1203,7 @@ def _resolve_parameter_center(
     parameter_center: Mapping[str, Any] | ArtifactRef | None,
 ) -> dict[str, float]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     if parameter_center is None:
         manifest = store.get_manifest(simulation_result_ref)
         bundle_input = next(
@@ -1222,7 +1235,9 @@ def _resolve_parameter_center(
     return _resolve_float_mapping(store, parameter_center, label="parameter_center")
 
 
-def _flatten_parameter_overrides(overrides: Mapping[str, Mapping[str, Any]]) -> dict[str, float]:
+def _flatten_parameter_overrides(
+    overrides: Mapping[str, Mapping[str, Any]],
+) -> dict[str, float]:
     values: dict[str, float] = {}
     for node_id, node_values in overrides.items():
         for param_name, raw_value in node_values.items():
@@ -1320,6 +1335,7 @@ def _load_model[ModelT: BaseModel](
     model_cls: type[ModelT],
 ) -> ModelT:
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     return model_cls.model_validate(payload)
 
@@ -1397,6 +1413,7 @@ def _response_input_ref(store: FileSystemCAS, item: InputRef) -> ArtifactRef:
 def _response_snapshot_inputs(store: FileSystemCAS, ref: ArtifactRef) -> dict[str, ArtifactRef]:
     """Resolve the finite, maintained current StateSnapshot leaf contract."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     snapshot = StateSnapshot.model_validate(load_core_json_artifact(store, ref))
     manifest = store.get_manifest(ref)
     if snapshot.schema_version != "2.2" or manifest.artifact_schema != SchemaInfo(
@@ -1433,8 +1450,8 @@ def _response_context(
     names: tuple[str, ...],
     config: IdentifiabilityDiagnosticConfig,
 ) -> tuple[_ResponseBasis, SimulationResult, FoundryInputBindingsRef, FeedbackConfigRef | None]:
+    from polisyos.core import registry as core_registry
     from polisyos.core.artifacts import load_core_json_artifact
-    from polisyos.core.registry import load_registry_bundle_content, load_registry_bundle_payload
 
     if config.bootstrap_reps or config.profile_grid_size or not config.persist_sensitivity_matrix:
         raise ValueError("state response basis requires a persisted local Jacobian-only profile")
@@ -1455,9 +1472,7 @@ def _response_context(
     bindings_ref = FoundryInputBindingsRef.model_validate(
         _response_input_ref(store, item).model_dump(mode="python")
     )
-    bindings = FoundryInputBindings.model_validate(
-        load_core_json_artifact(store, bindings_ref)
-    )
+    bindings = FoundryInputBindings.model_validate(load_core_json_artifact(store, bindings_ref))
     feedback = _find_input(manifest.inputs, "input.feedback_config_ref")
     feedback_ref = (
         None
@@ -1468,8 +1483,10 @@ def _response_context(
     )
     plan = ExecPlan.model_validate(load_core_json_artifact(store, source.exec_plan_ref))
     program = ProgramGraph.model_validate(load_core_json_artifact(store, plan.program_ref))
-    registry = load_registry_bundle_content(store, bindings.registry_bundle_ref)
-    registry_payload = load_registry_bundle_payload(store, bindings.registry_bundle_ref)
+    registry = core_registry.load_registry_bundle_content(store, bindings.registry_bundle_ref)
+    registry_payload = core_registry.load_registry_bundle_payload(
+        store, bindings.registry_bundle_ref
+    )
     if registry.units_registry is None:
         raise ValueError("state response requires a units registry")
     refs: dict[str, ArtifactRef] = {
@@ -1548,13 +1565,17 @@ def _response_context(
 
 def _response_replay(store: FileSystemCAS, ref: ArtifactRef) -> SimulationResult:
     from polisyos.core.artifacts import load_core_json_artifact
+
     replay = SimulationResult.model_validate(load_core_json_artifact(store, ref))
     manifest = store.get_manifest(ref)
     updates = {}
     # Legacy SimulationResult fields may carry bare refs even when its native
     # manifest binds selected output views. Resolve the actual declared view;
     # never flatten a selector that the payload explicitly supplied.
-    for role, field in (("metrics", "metrics_ref"), ("state_snapshot", "state_snapshot_ref")):
+    for role, field in (
+        ("metrics", "metrics_ref"),
+        ("state_snapshot", "state_snapshot_ref"),
+    ):
         payload_ref = getattr(replay, field)
         matches = [item for item in manifest.inputs if item.role == role]
         if (
@@ -1688,10 +1709,16 @@ def _load_execute_response_matrix(
     The caller supplies the expected source, axes, units contract, and seed/config.
     """
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, matrix_ref)
     basis = _ResponseBasis.model_validate(payload.get("response_basis"))
     expected, source, bindings_ref, feedback_ref = _response_context(
-        store, source_ref, response_slots, parameter_center, tuple(response_slots), config
+        store,
+        source_ref,
+        response_slots,
+        parameter_center,
+        tuple(response_slots),
+        config,
     )
     # RESPONSE_BASIS_GUARD: retained-marker control removes this runtime predicate.
     if basis.model_copy(update={"replays": ()}).model_dump(mode="json") != expected.model_dump(
@@ -1742,9 +1769,7 @@ def _load_execute_response_matrix(
             mode="json"
         ) != record.request.model_dump(mode="json"):
             raise ValueError("response replay request identity mismatch")
-        request = ExecuteRequest.model_validate(
-            load_core_json_artifact(store, record.request.ref)
-        )
+        request = ExecuteRequest.model_validate(load_core_json_artifact(store, record.request.ref))
         expected_request = ExecuteRequest(
             exec_plan_ref=source.exec_plan_ref,
             input_bindings_ref=bindings_ref,

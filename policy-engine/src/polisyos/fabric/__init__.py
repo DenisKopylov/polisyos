@@ -26,6 +26,7 @@ __all__ = [
     "FabricDecisionDataResponse",
     "FabricFetchReceipt",
     "FieldSpec",
+    "IngestionStoreBindingError",
     "LineageRef",
     "ProcessingGuarantee",
     "ProcessingGuaranteeContract",
@@ -36,6 +37,7 @@ __all__ = [
     "SourceContract",
     "SourceContractRef",
     "TemporalRef",
+    "TenantSidecarScope",
     "TypedGap",
     "UnitRef",
     "WorldQueryError",
@@ -49,6 +51,7 @@ __all__ = [
     "fabric_fact_to_quantity_value",
     "fabric_get_data",
     "file_lock",
+    "project_data_requirement_to_catalog_needs",
     "query_claims",
     "query_events",
     "query_world_table",
@@ -118,7 +121,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "file_lock": ("polisyos.fabric.io.atomic", "file_lock"),
     "AccessRef": ("polisyos.fabric.evidence.decision_data", "AccessRef"),
     "AuthoredText": ("polisyos.fabric.evidence.decision_data", "AuthoredText"),
-    "FabricDecisionData": ("polisyos.fabric.evidence.decision_data", "FabricDecisionData"),
+    "FabricDecisionData": (
+        "polisyos.fabric.evidence.decision_data",
+        "FabricDecisionData",
+    ),
     "FabricDecisionDataCoverage": (
         "polisyos.fabric.evidence.decision_data",
         "FabricDecisionDataCoverage",
@@ -143,7 +149,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "LineageRef": ("polisyos.fabric.evidence.decision_data", "LineageRef"),
     "QualityRef": ("polisyos.fabric.evidence.decision_data", "QualityRef"),
     "ReplayRef": ("polisyos.fabric.evidence.decision_data", "ReplayRef"),
-    "SourceContractRef": ("polisyos.fabric.evidence.decision_data", "SourceContractRef"),
+    "SourceContractRef": (
+        "polisyos.fabric.evidence.decision_data",
+        "SourceContractRef",
+    ),
     "TemporalRef": ("polisyos.fabric.evidence.decision_data", "TemporalRef"),
     "TypedGap": ("polisyos.fabric.evidence.decision_data", "TypedGap"),
     "UnitRef": ("polisyos.fabric.evidence.decision_data", "UnitRef"),
@@ -189,13 +198,19 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "resolve_world_snapshot": ("polisyos.fabric.world.store", "resolve_world_snapshot"),
     "WorldQueryError": ("polisyos.fabric.world.query", "WorldQueryError"),
     "WorldQueryRequest": ("polisyos.fabric.world.query", "WorldQueryRequest"),
-    "ContractHashMismatchError": ("polisyos.fabric.catalog", "ContractHashMismatchError"),
+    "ContractHashMismatchError": (
+        "polisyos.fabric.catalog",
+        "ContractHashMismatchError",
+    ),
     "ContractNotFoundError": ("polisyos.fabric.catalog", "ContractNotFoundError"),
     "ContractValidationError": ("polisyos.fabric.catalog", "ContractValidationError"),
     "DataContract": ("polisyos.fabric.catalog", "DataContract"),
     "DataContractCollection": ("polisyos.fabric.catalog", "DataContractCollection"),
     "DataContractRegistry": ("polisyos.fabric.catalog", "DataContractRegistry"),
-    "DataContractSchemaBinding": ("polisyos.fabric.catalog", "DataContractSchemaBinding"),
+    "DataContractSchemaBinding": (
+        "polisyos.fabric.catalog",
+        "DataContractSchemaBinding",
+    ),
     "DataType": ("polisyos.fabric.catalog", "DataType"),
     "Granularity": ("polisyos.fabric.catalog", "Granularity"),
     "MetricBinding": ("polisyos.fabric.catalog", "MetricBinding"),
@@ -207,6 +222,18 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "build_source_contract_requirement_bindings": (
         "polisyos.fabric.catalog",
         "build_source_contract_requirement_bindings",
+    ),
+    "project_data_requirement_to_catalog_needs": (
+        "polisyos.fabric.catalog.data_requirement_adapter",
+        "project_data_requirement_to_catalog_needs",
+    ),
+    "IngestionStoreBindingError": (
+        "polisyos.fabric.ingestion.ingestion_providers",
+        "IngestionStoreBindingError",
+    ),
+    "TenantSidecarScope": (
+        "polisyos.fabric.storage.tenant_cas",
+        "TenantSidecarScope",
     ),
 }
 

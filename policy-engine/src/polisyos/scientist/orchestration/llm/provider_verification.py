@@ -21,8 +21,7 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.common.logger import get_logger
-from polisyos.core.llm.settlement import LLMProducerEvent
-from polisyos.core.llm.traced_client import TracedLLMClient
+from polisyos.core.llm import LLMProducerEvent, TracedLLMClient
 from polisyos.scholar.search.service import ScholarDeepSearchService
 from polisyos.scientist.orchestration.engine.budget_ledger import (
     BudgetLedgerProducerRecord,
@@ -241,7 +240,9 @@ def _is_preflight_digest(value: Any) -> bool:
     )
 
 
-def _preflight_event_from_reference(reference: Mapping[str, Any]) -> LLMProducerEvent | None:
+def _preflight_event_from_reference(
+    reference: Mapping[str, Any],
+) -> LLMProducerEvent | None:
     """Rebuild a typed producer payload before trusting a retained cache reference."""
     required = {
         "amount",
@@ -521,7 +522,8 @@ _PREFLIGHT_CACHE: dict[
     tuple[str, tuple[str, ...], str, str | None], tuple[float, ProviderPreflightReport]
 ] = {}
 _PREFLIGHT_COMPLETION_CACHE: dict[
-    tuple[str, tuple[str, ...], str, str | None], tuple[CachingLLMClient, dict[str, Any]]
+    tuple[str, tuple[str, ...], str, str | None],
+    tuple[CachingLLMClient, dict[str, Any]],
 ] = {}
 
 
@@ -980,7 +982,12 @@ async def run_provider_preflight(
             retryable=False,
             failure=failure,
         )
-    if os.getenv("POLISYOS_LLM_SIMULATION_MODE", "").strip().lower() in {"1", "true", "yes", "on"}:
+    if os.getenv("POLISYOS_LLM_SIMULATION_MODE", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }:
         return ProviderPreflightReport(
             status="skipped",
             provider=resolved_provider,
@@ -1345,7 +1352,9 @@ async def run_provider_preflight(
         if accounting_enabled
         else nullcontext()
     )
-    producer_completion_observation: Literal["not_started", "complete", "unavailable"] = "unavailable"
+    producer_completion_observation: Literal["not_started", "complete", "unavailable"] = (
+        "unavailable"
+    )
     try:
         started = time.perf_counter()
         with producer_scope:

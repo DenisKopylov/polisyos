@@ -21,7 +21,7 @@ from polisyos.data_forge.domains.catalog.batch.checkpoints import (
 )
 from polisyos.data_forge.domains.catalog.batch.config import (
     _producer_config_snapshot,
-    _profile_input_coverage_currentness,
+    profile_input_coverage_currentness,
 )
 from polisyos.data_forge.kernel.embeddings import embedding_generation_manifest
 from polisyos.data_forge.kernel.io.hashing import sha256_file
@@ -80,11 +80,7 @@ def _qc_previous_snapshot_context(
     siblings = []
     if parent.exists():
         siblings = sorted(
-            [
-                path
-                for path in parent.iterdir()
-                if path.is_dir() and (path / "datasets").exists()
-            ],
+            [path for path in parent.iterdir() if path.is_dir() and (path / "datasets").exists()],
             key=lambda item: (item.name, item.stat().st_mtime_ns),
         )
     selection = {
@@ -115,11 +111,7 @@ def _previous_snapshot_payloads(snapshot_root: Path) -> list[Path]:
         return payloads
     for source_dir in sorted(path for path in raw_root.iterdir() if path.is_dir()):
         manifest_path = _latest_manifest(source_dir)
-        manifest = (
-            load_json(manifest_path, default=None)
-            if manifest_path is not None
-            else None
-        )
+        manifest = load_json(manifest_path, default=None) if manifest_path is not None else None
         if isinstance(manifest, dict) and isinstance(manifest.get("payload"), str):
             payloads.append(Path(manifest["payload"]))
     return payloads
@@ -127,9 +119,7 @@ def _previous_snapshot_payloads(snapshot_root: Path) -> list[Path]:
 
 def _embedding_basis_is_established(basis: Mapping[str, object]) -> bool:
     config = basis.get("config")
-    return isinstance(config, Mapping) and config.get(
-        "encoder_asset_identity_state"
-    ) in {
+    return isinstance(config, Mapping) and config.get("encoder_asset_identity_state") in {
         "established",
         "not_required_empty",
     }
@@ -259,9 +249,7 @@ def _stage_input_basis(
         )
 
         if encoder_identity_override is None:
-            encoder_identity, encoder_identity_state = _encoder_identity_for_resume(
-                config
-            )
+            encoder_identity, encoder_identity_state = _encoder_identity_for_resume(config)
         else:
             encoder_identity, encoder_identity_state = (
                 encoder_identity_override,
@@ -309,9 +297,7 @@ def _stage_input_basis(
             "embedding_generation": generation_artifacts,
             "core_ingest_report": config.manifests_dir / "core_sources_ingest.json",
             "raw_source_artifacts": _files_under(config.raw_dir),
-            "observation_manifests": _files_under(
-                config.manifests_dir / "observations"
-            ),
+            "observation_manifests": _files_under(config.manifests_dir / "observations"),
             "observation_progress": [
                 config.manifests_dir / name
                 for name in (
@@ -348,9 +334,7 @@ def _stage_input_basis(
         if stage in {"benchmark", "qc", "publish"}:
             stage_state = load_json(config.stage_state_path, default={})
             core_state = (
-                stage_state.get("core_sources_ingest")
-                if isinstance(stage_state, dict)
-                else None
+                stage_state.get("core_sources_ingest") if isinstance(stage_state, dict) else None
             )
             settings["core_sources_ingest_stage_state"] = core_state
             if core_receipt_basis_member is None:
@@ -371,9 +355,7 @@ def _stage_input_basis(
                 else []
             )
             common_inputs["qc_previous_referenced_payloads"] = (
-                _previous_snapshot_payloads(previous_root)
-                if previous_root is not None
-                else []
+                _previous_snapshot_payloads(previous_root) if previous_root is not None else []
             )
         if stage == "benchmark":
             inputs = common_inputs
@@ -419,9 +401,7 @@ def _stage_outputs(config: DatasetBatchConfig, stage: str) -> list:
     return mapping.get(stage, [])
 
 
-def _stage_output_inventory(
-    config: DatasetBatchConfig, stage: str
-) -> dict[str, object]:
+def _stage_output_inventory(config: DatasetBatchConfig, stage: str) -> dict[str, object]:
     """Build the stage-specific output inventory used for a resume decision."""
     if stage == "harvest":
         receipt = _harvest_stage_receipt(config)
@@ -573,7 +553,7 @@ def _basis_profile_input_currentness(
     if not isinstance(producer_config, Mapping):
         return "malformed", None
     coverage_key = "resolved_profile_input_coverage"
-    return _profile_input_coverage_currentness(
+    return profile_input_coverage_currentness(
         producer_config.get(coverage_key),
         missing=coverage_key not in producer_config,
     )
@@ -605,10 +585,7 @@ def _should_skip_stage(config: DatasetBatchConfig, stage: str) -> bool:
             )
 
             core_receipt_state = _current_core_output_receipt_state(config)
-            if (
-                core_receipt_state.expected
-                and core_receipt_state.reconciled_receipt is None
-            ):
+            if core_receipt_state.expected and core_receipt_state.reconciled_receipt is None:
                 return False
             core_receipt_basis_member = core_receipt_state.basis_member()
         input_basis = _stage_input_basis(
@@ -638,9 +615,7 @@ def _should_skip_stage(config: DatasetBatchConfig, stage: str) -> bool:
             "empty_generation",
         }:
             return False
-        if stage in _NON_EMPTY_BOUND_STAGES and not _has_material_output(
-            output_inventory
-        ):
+        if stage in _NON_EMPTY_BOUND_STAGES and not _has_material_output(output_inventory):
             return False
         return stage_can_skip(
             config.stage_state_path,
@@ -719,7 +694,7 @@ def current_catalog_publish_receipt(
     """Recompute local producer currentness for one exact batch-owned database."""
     from polisyos.data_forge.domains.catalog.batch.config import (
         DatasetBatchConfig,
-        _parse_profile_input_coverage,
+        parse_profile_input_coverage,
     )
     from polisyos.data_forge.domains.catalog.batch.core_sources.validators import (
         _current_core_output_receipt_state,
@@ -742,13 +717,11 @@ def current_catalog_publish_receipt(
     basis = publish.get("input_basis")
     config_basis = basis.get("config") if isinstance(basis, dict) else None
     saved = (
-        config_basis.get("effective_producer_config")
-        if isinstance(config_basis, dict)
-        else None
+        config_basis.get("effective_producer_config") if isinstance(config_basis, dict) else None
     )
     if not isinstance(saved, dict):
         return {"state": "not_established", "reason": "publish_config_intent_absent"}
-    coverage_state, profile_coverage = _parse_profile_input_coverage(
+    coverage_state, profile_coverage = parse_profile_input_coverage(
         saved.get("resolved_profile_input_coverage"),
         missing="resolved_profile_input_coverage" not in saved,
     )
@@ -788,9 +761,7 @@ def current_catalog_publish_receipt(
                 "state": "not_established",
                 "reason": receipt.get("reason")
                 or "publish_profile_input_currentness_not_established",
-                "profile_input_coverage_state": receipt.get(
-                    "profile_input_coverage_state"
-                ),
+                "profile_input_coverage_state": receipt.get("profile_input_coverage_state"),
             }
         core = _current_core_output_receipt_state(config)
         if core.expected and core.reconciled_receipt is None:
@@ -803,11 +774,7 @@ def current_catalog_publish_receipt(
         db_input = inputs.get("graph_database") if isinstance(inputs, dict) else None
         records = db_input.get("records") if isinstance(db_input, dict) else None
         paths = db_input.get("paths") if isinstance(db_input, dict) else None
-        if (
-            not isinstance(records, list)
-            or len(records) != 1
-            or not isinstance(records[0], dict)
-        ):
+        if not isinstance(records, list) or len(records) != 1 or not isinstance(records[0], dict):
             return {
                 "state": "not_established",
                 "reason": "graph_database_record_unreadable",
@@ -864,9 +831,7 @@ def run_content_stage_with_receipt(
     receipts.  The complete input basis must remain unchanged across execution.
     """
     if stage not in {"benchmark", "qc", "publish"}:
-        raise ValueError(
-            f"standalone content receipt is unsupported for stage {stage!r}"
-        )
+        raise ValueError(f"standalone content receipt is unsupported for stage {stage!r}")
     initial_basis = _stage_input_basis(config, stage)
     if stage == "benchmark":
         from polisyos.data_forge.domains.catalog.batch.benchmark import run_benchmark
@@ -902,9 +867,7 @@ def _record_stage_completion(
 ) -> None:
     stage_metadata = dict(metadata or {})
     if stage == "harvest" and _harvest_stage_receipt(config) is None:
-        raise RuntimeError(
-            "cannot record a complete harvest without a reconciled source receipt"
-        )
+        raise RuntimeError("cannot record a complete harvest without a reconciled source receipt")
     if stage == "normalize" and _harvest_stage_receipt(config) is None:
         raise RuntimeError(
             "cannot record complete normalization without a complete harvest receipt"
@@ -935,9 +898,7 @@ def _record_stage_completion(
             else None
         )
         output_inventory = (
-            _stage_output_inventory(config, stage)
-            if stage in _CONTENT_BOUND_STAGES
-            else None
+            _stage_output_inventory(config, stage) if stage in _CONTENT_BOUND_STAGES else None
         )
     input_fingerprint = (
         str(input_basis["basis_digest"])
@@ -949,9 +910,7 @@ def _record_stage_completion(
         stage_metadata["currentness_state"] = (
             "current" if profile_state == "established" else "not_established"
         )
-        stage_metadata["currentness_reason"] = _profile_input_currentness_reason(
-            profile_state
-        )
+        stage_metadata["currentness_reason"] = _profile_input_currentness_reason(profile_state)
     save_stage_state(
         config.stage_state_path,
         stage=stage,
@@ -1004,13 +963,9 @@ async def run_dataset_pipeline(
                 stats.skipped_stages.append("harvest")
             else:
                 st = time.monotonic()
-                harvested = await harvest_sources(
-                    _uncached_content_stage_config(config)
-                )
+                harvested = await harvest_sources(_uncached_content_stage_config(config))
                 stats.stage_times["harvest"] = time.monotonic() - st
-                stats.metrics["harvest_records"] = sum(
-                    len(v) for v in harvested.values()
-                )
+                stats.metrics["harvest_records"] = sum(len(v) for v in harvested.values())
                 _record_stage_completion(
                     config,
                     "harvest",
@@ -1027,9 +982,7 @@ async def run_dataset_pipeline(
                         "normalize requires a complete receipt for every selected harvest source"
                     )
                 st = time.monotonic()
-                norm_counts = normalize_raw_sources(
-                    _uncached_content_stage_config(config)
-                )
+                norm_counts = normalize_raw_sources(_uncached_content_stage_config(config))
                 stats.stage_times["normalize"] = time.monotonic() - st
                 stats.metrics["normalized_records"] = sum(norm_counts.values())
                 _record_stage_completion(
@@ -1090,15 +1043,9 @@ async def run_dataset_pipeline(
                 stats.metrics["core_registry_datasets"] = cstats.registry_datasets
                 stats.metrics["core_variable_alignments"] = cstats.variable_alignments
                 stats.metrics["core_observations"] = cstats.observations
-                stats.metrics["core_observations_attempted"] = (
-                    cstats.observations_attempted
-                )
-                stats.metrics["core_observations_inserted"] = (
-                    cstats.observations_inserted
-                )
-                stats.metrics["core_observations_replaced"] = (
-                    cstats.observations_replaced
-                )
+                stats.metrics["core_observations_attempted"] = cstats.observations_attempted
+                stats.metrics["core_observations_inserted"] = cstats.observations_inserted
+                stats.metrics["core_observations_replaced"] = cstats.observations_replaced
                 stats.metrics["core_failures"] = cstats.failures
 
         # These stages share a DuckDB artifact, and core-source ingestion may
@@ -1107,9 +1054,7 @@ async def run_dataset_pipeline(
         # the exact persisted state that the next run will inspect.
         previous_state = load_json(config.stage_state_path, default={})
         for stage in sorted(deferred_graph_receipts):
-            saved = (
-                previous_state.get(stage) if isinstance(previous_state, dict) else None
-            )
+            saved = previous_state.get(stage) if isinstance(previous_state, dict) else None
             saved_metadata = saved.get("metadata") if isinstance(saved, dict) else None
             metadata = graph_receipt_metadata.get(
                 stage,
@@ -1126,9 +1071,7 @@ async def run_dataset_pipeline(
                 embedded = run_embed(config, thermal=thermal)
                 stats.stage_times["embed"] = time.monotonic() - st
                 stats.metrics["embedded"] = embedded
-                _record_stage_completion(
-                    config, "embed", metadata={"embedded": embedded}
-                )
+                _record_stage_completion(config, "embed", metadata={"embedded": embedded})
 
         if "benchmark" in config.stages:
             current_stage = "benchmark"

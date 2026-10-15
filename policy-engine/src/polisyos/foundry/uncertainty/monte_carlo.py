@@ -20,8 +20,8 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.common.logger import get_logger
-from polisyos.ir import ArtifactRefModel
-from polisyos.ir.analytics.posterior_summary import (
+from polisyos.ir import (
+    ArtifactRefModel,
     PosteriorPointRole,
     PosteriorSummaryV11,
     summarize_posterior_draw_artifact,
@@ -444,12 +444,18 @@ def _evaluate_posterior_outputs(
         raw_value = response[metric_id]
         if isinstance(raw_value, (bool, np.bool_)) or not isinstance(raw_value, Real):
             values[metric_id] = None
-            failures[metric_id] = (PosteriorPushforwardOutcomeCode.NON_NUMERIC_OUTPUT, None)
+            failures[metric_id] = (
+                PosteriorPushforwardOutcomeCode.NON_NUMERIC_OUTPUT,
+                None,
+            )
             continue
         value = float(raw_value)
         if not math.isfinite(value):
             values[metric_id] = None
-            failures[metric_id] = (PosteriorPushforwardOutcomeCode.NON_FINITE_OUTPUT, None)
+            failures[metric_id] = (
+                PosteriorPushforwardOutcomeCode.NON_FINITE_OUTPUT,
+                None,
+            )
             continue
         values[metric_id] = value
         failures[metric_id] = None
@@ -1261,7 +1267,10 @@ class MonteCarloPropagator:
                 value = float(result[mid])
             except (TypeError, ValueError, OverflowError) as exc:
                 parsed_values[mid] = float("nan")
-                failures[mid] = (_DrawOutcomeCode.NON_NUMERIC_OUTPUT, type(exc).__name__)
+                failures[mid] = (
+                    _DrawOutcomeCode.NON_NUMERIC_OUTPUT,
+                    type(exc).__name__,
+                )
                 continue
             if not math.isfinite(value):
                 parsed_values[mid] = float("nan")
@@ -1865,7 +1874,10 @@ class MonteCarloPropagator:
             u = np.clip(u, 1e-10, 1.0 - 1e-10)
             env = input_envelopes[name]
             point = float(env.point_estimate)
-            lo, hi = float(env.confidence_interval[0]), float(env.confidence_interval[1])
+            lo, hi = (
+                float(env.confidence_interval[0]),
+                float(env.confidence_interval[1]),
+            )
 
             if env.distribution_family == DistributionFamily.NORMAL:
                 fit = _normal_parametric_fit(env)
@@ -1928,7 +1940,6 @@ class MonteCarloPropagator:
     ) -> tuple[np.ndarray, dict[str, Any]]:
         method = state["method"]
         generated = int(state["generated"])
-        n_dims = int(state["n_dims"])
 
         if method == "halton":
             sampler = state["sampler"]

@@ -60,7 +60,9 @@ from polisyos.scientist.governance import (
     StrategicResponseRunner,
     build_family_eligibility_registry,
 )
-from polisyos.scientist.governance.blueprint_release import run_verified_ukraine_d5_release
+from polisyos.scientist.governance.blueprint_release import (
+    run_verified_ukraine_d5_release,
+)
 
 
 def test_ukraine_builder_reads_canonical_l5_registry_without_regime_literals() -> None:
@@ -370,7 +372,12 @@ def test_entity_scope_identity_uses_identity_columns_when_agent_id_missing() -> 
         display_name="Customs trade",
         stage_id=StageId.D1,
         normalized_artifact="trade_exposure_monthly.parquet",
-        required_columns=["source_agent_id", "target_agent_id", "trade_value", "period_id"],
+        required_columns=[
+            "source_agent_id",
+            "target_agent_id",
+            "trade_value",
+            "period_id",
+        ],
         observation_family=ObservationFamily.TRADE_EXPOSURE,
         entity_scope=EntityScope.AGENT,
         identity_columns=["source_agent_id", "target_agent_id"],
@@ -418,7 +425,9 @@ def test_build_synthetic_multiscale_payload_sanitizes_huge_cell_metrics() -> Non
     assert payload["cells"]["public_service_index"] == [1.0]
 
 
-def test_build_d4_stage_emits_only_a_purpose_limited_governance_handoff(tmp_path) -> None:
+def test_build_d4_stage_emits_only_a_purpose_limited_governance_handoff(
+    tmp_path,
+) -> None:
     config = build_default_pipeline_config(root=tmp_path / "ukraine")
     result = build_d4_stage(config)
 
@@ -442,7 +451,10 @@ def test_family_eligibility_registry_respects_signoff_waivers() -> None:
             "family": ["budget_flows", "procurement_flows"],
             "coverage_estimate": [0.97, 0.60],
             "measurement_bias_flag": [False, False],
-            "source_id": ["budget_transactions", "spending_contracts_procurement_proxy"],
+            "source_id": [
+                "budget_transactions",
+                "spending_contracts_procurement_proxy",
+            ],
             "identification_mode": ["point_identified", "proxy_identified"],
             "source_confidence_tier": ["validated", "validated"],
             "proxy_source_id": [None, "spending_contracts_procurement_proxy"],
@@ -714,14 +726,22 @@ def test_build_d3_stage_emits_labor_validation_artifacts(tmp_path) -> None:
             "pfu_debt",
             "arrears_panel_monthly.parquet",
             pd.DataFrame(
-                {"agent_id": ["agent::1"], "period_id": ["2025-12"], "debt_amount": [10.0]}
+                {
+                    "agent_id": ["agent::1"],
+                    "period_id": ["2025-12"],
+                    "debt_amount": [10.0],
+                }
             ),
         ),
         (
             "wage_arrears",
             "wage_arrears_panel_monthly.parquet",
             pd.DataFrame(
-                {"agent_id": ["agent::1"], "period_id": ["2025-12"], "arrears_amount": [5.0]}
+                {
+                    "agent_id": ["agent::1"],
+                    "period_id": ["2025-12"],
+                    "arrears_amount": [5.0],
+                }
             ),
         ),
         (
@@ -780,7 +800,9 @@ def test_build_d3_stage_emits_labor_validation_artifacts(tmp_path) -> None:
     assert report["overlap_rows"] >= 1
 
 
-def test_build_d5_stage_emits_only_a_purpose_limited_release_handoff_request(tmp_path) -> None:
+def test_build_d5_stage_emits_only_a_purpose_limited_release_handoff_request(
+    tmp_path,
+) -> None:
     config = build_default_pipeline_config(root=tmp_path / "ukraine")
     runtime_dir = config.build_root.runtime_dir / "d0_p0"
     d1_dir = config.build_root.runtime_dir / "d1"
@@ -978,9 +1000,7 @@ def test_d5_release_builder_has_no_lex_or_foundry_imports() -> None:
 
 def test_s1_d3_panel_binds_quarter_unit_and_contributors() -> None:
     """The candidate panel keeps quarter identity, row lineage and unknown coverage."""
-    from polisyos.data_forge.domains.ukraine.builders.demography import (
-        _build_household_diagnostic_panel,
-    )
+    from polisyos.data_forge.read_api.ukraine import build_household_diagnostic_panel
 
     source_id = "a" * 64
     source = pd.DataFrame(
@@ -993,7 +1013,7 @@ def test_s1_d3_panel_binds_quarter_unit_and_contributors() -> None:
             "record_hash": ["b" * 64, "c" * 64],
         }
     )
-    panel = _build_household_diagnostic_panel(source)
+    panel = build_household_diagnostic_panel(source)
     row = panel.iloc[0]
     assert row["observed_value"] == pytest.approx(100.0)
     assert row["time_grain"] == TimeFrequency.QUARTER.value
@@ -1005,6 +1025,6 @@ def test_s1_d3_panel_binds_quarter_unit_and_contributors() -> None:
     changed = source.copy()
     changed.loc[0, "record_hash"] = "d" * 64
     assert (
-        _build_household_diagnostic_panel(changed).iloc[0]["source_record_hashes"]
+        build_household_diagnostic_panel(changed).iloc[0]["source_record_hashes"]
         != row["source_record_hashes"]
     )

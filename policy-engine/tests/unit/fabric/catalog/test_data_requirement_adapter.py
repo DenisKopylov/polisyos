@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from polisyos.data_requirement import CapabilityRequirementResolution, DataRequirementSpec
+from polisyos.data_requirement import (
+    CapabilityRequirementResolution,
+    DataRequirementSpec,
+)
+from polisyos.fabric import project_data_requirement_to_catalog_needs
 from polisyos.fabric.catalog.data_requirement_adapter import (
-    _project_data_requirement_to_catalog_needs,
     build_source_contract_requirement_bindings,
 )
 
@@ -73,7 +76,9 @@ def test_unselected_extra_source_contract_is_context_only_and_matching_contract_
             {
                 "candidate_ref": "production_data:curated:credit:contract.credit",
                 "source_family": "credit_program_registry",
-                "present_facets": list(_spec("r", "c", ("credit_program_registry",)).mandatory_facets),
+                "present_facets": list(
+                    _spec("r", "c", ("credit_program_registry",)).mandatory_facets
+                ),
                 "source_contract_validation": {"status": "pass"},
             },
             {
@@ -152,19 +157,11 @@ def test_fabric_consumes_capability_binding_result_with_source_assets_and_reject
     )
 
     selected = next(
-        (
-            row
-            for row in report["source_contract_bindings"]
-            if row["binding_status"] == "selected"
-        ),
+        (row for row in report["source_contract_bindings"] if row["binding_status"] == "selected"),
         None,
     )
     rejected = next(
-        (
-            row
-            for row in report["source_contract_bindings"]
-            if row["binding_status"] == "rejected"
-        ),
+        (row for row in report["source_contract_bindings"] if row["binding_status"] == "rejected"),
         None,
     )
     assert selected is not None, "expected a selected source-contract binding"
@@ -203,9 +200,7 @@ def test_catalog_projection_refusal_preserves_unprofiled_typed_scope() -> None:
         families=("health_panel",),
     ).model_dump(mode="json")
 
-    needs, report = _project_data_requirement_to_catalog_needs(
-        compiled_requirement_spec=spec
-    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=spec)
 
     assert needs == ()
     assert report["disposition"] == "refused"
@@ -238,12 +233,8 @@ def test_catalog_projection_preserves_same_family_jurisdiction_and_interval() ->
             source_family=spec.required_data_families[0],
         )
         payload = spec.model_dump(mode="json")
-        payload["capability_requirement_resolutions"] = [
-            resolution.model_dump(mode="json")
-        ]
-        needs, report = _project_data_requirement_to_catalog_needs(
-            compiled_requirement_spec=payload
-        )
+        payload["capability_requirement_resolutions"] = [resolution.model_dump(mode="json")]
+        needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
 
         assert report["disposition"] == "candidate_only"
         assert report["authority_status"] == "not_established"
@@ -256,9 +247,7 @@ def test_catalog_projection_preserves_same_family_jurisdiction_and_interval() ->
         assert needs[0].time_end == end
         assert needs[0].granularity == "annual"
         assert needs[0].quality_min == spec.quality_minima.min_quality_score
-        assert "compiled_requirement_fields_not_enforced_by_catalog_query" in report[
-            "limitations"
-        ]
+        assert "compiled_requirement_fields_not_enforced_by_catalog_query" in report["limitations"]
         projected.append(needs[0].model_dump(mode="json"))
 
     assert projected[0] != projected[1]
@@ -276,9 +265,7 @@ def test_catalog_projection_refuses_unrepresentable_budget_and_availability() ->
         "budget_fields": {"cost_budget_usd": 0},
         "availability_fields": {},
     }
-    needs, report = _project_data_requirement_to_catalog_needs(
-        compiled_requirement_spec=spec
-    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=spec)
     assert needs == ()
     assert report["disposition"] == "refused"
     assert report["reason_codes"] == ["catalog_zero_budget_unrepresentable"]
@@ -287,9 +274,7 @@ def test_catalog_projection_refuses_unrepresentable_budget_and_availability() ->
         "budget_fields": {},
         "availability_fields": {"availability_filters": []},
     }
-    needs, report = _project_data_requirement_to_catalog_needs(
-        compiled_requirement_spec=spec
-    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=spec)
     assert needs == ()
     assert report["disposition"] == "refused"
     assert report["reason_codes"] == ["catalog_availability_filter_unrepresentable"]
@@ -305,9 +290,7 @@ def test_catalog_projection_refuses_unrepresentable_time_role() -> None:
     payload["scope"]["time_role"] = "valid_time"
     payload["metadata"]["scope_profile"]["time_role"] = "valid_time"
 
-    needs, report = _project_data_requirement_to_catalog_needs(
-        compiled_requirement_spec=payload
-    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
 
     assert needs == ()
     assert report["disposition"] == "refused"
@@ -323,9 +306,7 @@ def test_catalog_projection_refuses_interval_without_an_explicit_time_role() -> 
     ).model_dump(mode="json")
     payload["metadata"]["scope_profile"].pop("time_role")
 
-    needs, report = _project_data_requirement_to_catalog_needs(
-        compiled_requirement_spec=payload
-    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
 
     assert needs == ()
     assert report["disposition"] == "refused"
@@ -345,9 +326,7 @@ def test_catalog_projection_keeps_unbounded_time_role_unknown_as_candidate() -> 
         "end": None,
     }
 
-    needs, report = _project_data_requirement_to_catalog_needs(
-        compiled_requirement_spec=payload
-    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
 
     assert report["disposition"] == "candidate_only"
     assert report["authority_status"] == "not_established"
@@ -379,9 +358,7 @@ def test_catalog_projection_refuses_resolution_geography_and_interval_mismatch()
             ).model_dump(mode="json")
         ]
 
-        needs, report = _project_data_requirement_to_catalog_needs(
-            compiled_requirement_spec=payload
-        )
+        needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
 
         assert needs == ()
         assert report["disposition"] == "refused"
@@ -406,9 +383,7 @@ def test_catalog_projection_refuses_resolution_for_an_unrequested_construct() ->
         ).model_dump(mode="json")
     ]
 
-    needs, report = _project_data_requirement_to_catalog_needs(
-        compiled_requirement_spec=payload
-    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
 
     assert needs == ()
     assert report["disposition"] == "refused"
@@ -449,15 +424,11 @@ def test_catalog_projection_does_not_let_resolution_supply_missing_geography() -
         ).model_dump(mode="json")
     ]
 
-    needs, report = _project_data_requirement_to_catalog_needs(
-        compiled_requirement_spec=payload
-    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
 
     assert needs == ()
     assert report["disposition"] == "refused"
-    assert report["reason_codes"] == [
-        "capability_resolution_geography_not_bound_to_requirement"
-    ]
+    assert report["reason_codes"] == ["capability_resolution_geography_not_bound_to_requirement"]
 
 
 def test_catalog_projection_carries_unestablished_geography_without_defaulting() -> None:
@@ -471,9 +442,7 @@ def test_catalog_projection_carries_unestablished_geography_without_defaulting()
     payload["metadata"]["scope_profile"]["jurisdiction"] = None
     payload["metadata"]["scope_profile"]["time_window"] = {"start": None, "end": None}
 
-    needs, report = _project_data_requirement_to_catalog_needs(
-        compiled_requirement_spec=payload
-    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
 
     assert report["disposition"] == "candidate_only"
     assert report["source_scope"]["geography"] == "state_or_region"
@@ -491,9 +460,7 @@ def test_catalog_projection_derives_time_role_domain_from_requirement_schema() -
     ).model_dump(mode="json")
     payload["metadata"]["scope_profile"]["time_role"] = "unrecognized_time"
 
-    needs, report = _project_data_requirement_to_catalog_needs(
-        compiled_requirement_spec=payload
-    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=payload)
 
     assert needs == ()
     assert report["disposition"] == "refused"
@@ -508,9 +475,7 @@ def test_catalog_projection_refuses_missing_granularity_and_profile_mismatch() -
         end="2026-12-31",
     ).model_dump(mode="json")
     base["metadata"]["scope_profile"].pop("granularity")
-    needs, report = _project_data_requirement_to_catalog_needs(
-        compiled_requirement_spec=base
-    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=base)
     assert needs == ()
     assert report["reason_codes"] == ["catalog_granularity_not_established"]
 
@@ -521,9 +486,7 @@ def test_catalog_projection_refuses_missing_granularity_and_profile_mismatch() -
         end="2026-12-31",
     ).model_dump(mode="json")
     base["metadata"]["scope_profile"]["unrepresented_fields"] = ["scope.availability"]
-    needs, report = _project_data_requirement_to_catalog_needs(
-        compiled_requirement_spec=base
-    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=base)
     assert needs == ()
     assert report["reason_codes"] == ["scope_profile_fields_unrepresented"]
 
@@ -542,9 +505,7 @@ def test_catalog_projection_refuses_missing_granularity_and_profile_mismatch() -
             source_family="health_panel",
         ).model_dump(mode="json")
     ]
-    needs, report = _project_data_requirement_to_catalog_needs(
-        compiled_requirement_spec=base
-    )
+    needs, report = project_data_requirement_to_catalog_needs(compiled_requirement_spec=base)
     assert needs == ()
     assert report["reason_codes"] == ["capability_resolution_profile_mismatch"]
 

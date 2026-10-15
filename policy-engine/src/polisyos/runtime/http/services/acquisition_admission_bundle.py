@@ -13,7 +13,7 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING, Literal, Protocol
 
 from polisyos.core import artifacts
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.pdc import AuthorityBoundary, OperationContract, OperationInvocationRecord
 from polisyos.runtime.http.authorization import ResourceBindingSource
 from polisyos.runtime.http.permissions import RuntimePermission
@@ -22,7 +22,9 @@ from polisyos.runtime.http.resource_binding import (
     BoundAuthorizationResource,
     _digest_payload,
 )
-from polisyos.runtime.http.services.control.artifacts import write_runtime_authority_artifact
+from polisyos.runtime.http.services.control.artifacts import (
+    write_runtime_authority_artifact,
+)
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
     AGENT_ACTION_ADMISSION_ARTIFACT_KIND,
@@ -115,7 +117,9 @@ class AcquisitionAdmissionSigningSlot:
 
         return cls(signer=signer, verifier=verifier, signer_identity=signer_identity)
 
-    def require_configured(self) -> tuple[artifacts.Ed25519Signer, artifacts.Ed25519Verifier, str]:
+    def require_configured(
+        self,
+    ) -> tuple[artifacts.Ed25519Signer, artifacts.Ed25519Verifier, str]:
         """Return the complete signing tuple or fail before an artifact write."""
 
         if (
@@ -236,7 +240,10 @@ class AcquisitionAdmissionBundleProducer:
         read_back = read_core_json_artifact(self.artifact_store, result.cas_ref).value
         try:
             persisted_bundle = AgentActionAdmissionBundle.model_validate(read_back)
-        except (TypeError, ValueError) as exc:  # pragma: no cover - writer/readback invariant
+        except (
+            TypeError,
+            ValueError,
+        ) as exc:  # pragma: no cover - writer/readback invariant
             raise AcquisitionAdmissionBundleBlocked(
                 "acquisition_admission_readback_invalid"
             ) from exc
@@ -384,7 +391,11 @@ class AcquisitionAdmissionBundleProducer:
 def _admission_boundary() -> AuthorityBoundary:
     return AuthorityBoundary(
         authoritative_for=["agent_action_input_admission"],
-        may_not_use_for=["claim_evidence", "publication_authority", "promotion_authority"],
+        may_not_use_for=[
+            "claim_evidence",
+            "publication_authority",
+            "promotion_authority",
+        ],
         source_authority="deterministic_producer",
         posture="governed",
         rule_version_refs=[AGENT_ACTION_AUTHORITY_RULE_VERSION],

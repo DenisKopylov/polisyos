@@ -25,7 +25,9 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.common import serialization
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.data_requirement import CapabilityRequirementResolution
 from polisyos.pdc import (
     SearchTerminalKind,
@@ -42,8 +44,8 @@ from polisyos.runtime.quality.substrate_registry import (
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
-    from polisyos.data_forge.domains.catalog.selection import CatalogRunProfile
     from polisyos.data_forge.read_api import academic
+    from polisyos.data_forge.read_api.catalog import CatalogRunProfile
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.production_grounding_calibration import (
         ProductionCG2CalibrationSource,
@@ -58,7 +60,10 @@ _UNSPECIFIED_EMISSION_CONTEXT = object()
 
 def _canonical_model_bytes(model: BaseModel) -> bytes:
     return json.dumps(
-        model.model_dump(mode="json"), sort_keys=True, separators=(",", ":"), allow_nan=False
+        model.model_dump(mode="json"),
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
     ).encode()
 
 
@@ -70,7 +75,11 @@ def _seal_emission(model: BaseModel, registry: dict, context: object = None) -> 
         if current is not None and current[0] is reference:
             registry.pop(identity, None)
 
-    registry[identity] = (weakref.ref(model, release), _canonical_model_bytes(model), context)
+    registry[identity] = (
+        weakref.ref(model, release),
+        _canonical_model_bytes(model),
+        context,
+    )
 
 
 def _emission_is_sealed(
@@ -89,9 +98,9 @@ def _validated_catalog_run_profile(value: object | None) -> CatalogRunProfile | 
     """Validate caller-selected catalog scope without supplying a default."""
     if value is None:
         return None
-    from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
     from polisyos.data_forge.read_api.catalog import (
         CatalogSelectionError,
+        validate_catalog_run_profile,
     )
 
     if not isinstance(value, str):
@@ -108,7 +117,16 @@ ACQUISITION_PLANNER_GATE_LAYER = "acquisition_planner"
 ACQUISITION_PLANNER_GATE_PHASE = "evidence_acquisition_boundary"
 ACQUISITION_RECEIPT_SCHEMA_VERSION = "policyos.runtime.quality.acquisition_receipt.v1"
 ACQUISITION_RECEIPT_KIND = "runtime.quality.acquisition_receipt"
-ACQUISITION_FAMILY_DENOMINATOR = ("ID", "CERT", "COV", "HV", "HKG", "ADV", "AUD", "SAFE")
+ACQUISITION_FAMILY_DENOMINATOR = (
+    "ID",
+    "CERT",
+    "COV",
+    "HV",
+    "HKG",
+    "ADV",
+    "AUD",
+    "SAFE",
+)
 DEFAULT_ACQUISITION_TTL_SECONDS = 7 * 24 * 60 * 60
 
 _REPORT_KEYS = (
@@ -632,7 +650,9 @@ class AcquisitionRequirementGap(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def _validate_value_input_world_knowledge_metadata(self) -> AcquisitionRequirementGap:
+    def _validate_value_input_world_knowledge_metadata(
+        self,
+    ) -> AcquisitionRequirementGap:
         metadata = self.metadata
         if not (
             metadata.get("source") == _VALUE_INPUT_WORLD_KNOWLEDGE_SOURCE
@@ -1336,7 +1356,9 @@ class RealAcquisitionOwnerGateway:
         self._dataset_catalog_factory = dataset_catalog_factory
         self._retrieval_service_factory = retrieval_service_factory
         self._catalog_run_profile = _validated_catalog_run_profile(catalog_run_profile)
-        from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
+        from polisyos.runtime.quality.substrate_registry import (
+            current_catalog_serving_source,
+        )
 
         self._catalog_serving_source = catalog_serving_source or current_catalog_serving_source()
         self._captured_at = _utc(captured_at)
@@ -1375,9 +1397,7 @@ class RealAcquisitionOwnerGateway:
         from polisyos.core.contracts.control import DataResolveRequest
         from polisyos.data_forge.read_api import catalog as catalog_read_api
         from polisyos.data_requirement import DataRequirementSpec
-        from polisyos.fabric.catalog.data_requirement_adapter import (
-            _project_data_requirement_to_catalog_needs,
-        )
+        from polisyos.fabric import project_data_requirement_to_catalog_needs
         from polisyos.fabric.retrieval.service import RetrievalService
         from polisyos.runtime.quality.substrate_registry import (
             default_substrate_catalog_paths,
@@ -1385,7 +1405,7 @@ class RealAcquisitionOwnerGateway:
         )
 
         capture_fetches = _fabric_fetch_capture_enabled(spec)
-        data_needs, requirement_projection = _project_data_requirement_to_catalog_needs(
+        data_needs, requirement_projection = project_data_requirement_to_catalog_needs(
             compiled_requirement_spec=spec,
         )
         if requirement_projection.get("disposition") == "refused":
@@ -1477,7 +1497,13 @@ class RealAcquisitionOwnerGateway:
                         store=cast("ArtifactStore", service_store),
                         catalog=graph,
                     )
-                except (AttributeError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                except (
+                    AttributeError,
+                    OSError,
+                    RuntimeError,
+                    TypeError,
+                    ValueError,
+                ) as exc:
                     _LOGGER.warning("Fabric fetch capture refused: %s", exc)
                     return None
             else:
@@ -1554,7 +1580,9 @@ class RealAcquisitionOwnerGateway:
         from polisyos.runtime.quality.production_grounding_calibration import (
             ProductionCG2CalibrationSource,
         )
-        from polisyos.runtime.quality.substrate_registry import DEFAULT_L2_SCHOLAR_KG_PATH
+        from polisyos.runtime.quality.substrate_registry import (
+            DEFAULT_L2_SCHOLAR_KG_PATH,
+        )
 
         store = self._artifact_store
         if store is None:
@@ -1603,7 +1631,9 @@ class RealAcquisitionOwnerGateway:
             cost_usd=0.0,
         )
         _seal_emission(
-            artifact, _VERIFIED_SOURCE_EMISSIONS, (owner, _canonical_model_bytes(request))
+            artifact,
+            _VERIFIED_SOURCE_EMISSIONS,
+            (owner, _canonical_model_bytes(request)),
         )
         return artifact
 
@@ -1660,7 +1690,9 @@ class RealAcquisitionOwnerGateway:
 def _source_grounding_request(
     record: AcquisitionActionRecord, spec: Mapping[str, Any]
 ) -> SourceGroundingRequest:
-    from polisyos.runtime.quality.production_grounding_calibration import SourceGroundingRequest
+    from polisyos.runtime.quality.production_grounding_calibration import (
+        SourceGroundingRequest,
+    )
 
     context = spec.get("runtime_grounding_context")
     context = context if isinstance(context, Mapping) else {}
@@ -2203,8 +2235,7 @@ def run_acquisition_closed_loop(
         }
         if _owner_component_for_record(record, spec) == "fabric.retrieval":
             owner_spec["capability_requirement_resolutions"] = [
-                resolution.model_dump(mode="json")
-                for resolution in (resolution_rows or ())
+                resolution.model_dump(mode="json") for resolution in (resolution_rows or ())
             ]
             owner_spec["catalog_request_context"] = _n7_catalog_request_context(request)
         artifact = gateway.acquire(record=record, compiled_requirement_spec=owner_spec)
@@ -2540,7 +2571,9 @@ def acquisition_request_from_world_acquirable(
     }
 
 
-def acquisition_strangle_receipt(repo_root: Path | None = None) -> AcquisitionStrangleReceipt:
+def acquisition_strangle_receipt(
+    repo_root: Path | None = None,
+) -> AcquisitionStrangleReceipt:
     """Recompute the P28 strangle receipt over executable code paths."""
 
     root = (repo_root or Path(__file__).resolve().parents[4]).resolve()
@@ -2713,7 +2746,11 @@ def _project_owner_artifacts_into_world(
         if registry is not None and added_slots and registry != registry_before
         else world.world_ref
     )
-    no_delta_payload = {"before": world.world_ref, "added_slots": (), "artifact_hashes": ()}
+    no_delta_payload = {
+        "before": world.world_ref,
+        "added_slots": (),
+        "artifact_hashes": (),
+    }
     delta_hash = (
         registry.content_hash
         if registry is not None and added_slots and registry != registry_before
@@ -2745,7 +2782,9 @@ def _project_owner_artifacts_into_world(
     )
 
 
-def _substrate_registry_from_world(world: AcquisitionWorldSnapshot) -> SubstrateRegistry | None:
+def _substrate_registry_from_world(
+    world: AcquisitionWorldSnapshot,
+) -> SubstrateRegistry | None:
     if world.substrate_registry is None:
         return None
     return SubstrateRegistry.model_validate(world.substrate_registry)
@@ -2812,7 +2851,9 @@ def _n7_catalog_request_context(request: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def _owner_artifact_validation_issues(artifact: AcquisitionOwnerArtifact) -> tuple[str, ...]:
+def _owner_artifact_validation_issues(
+    artifact: AcquisitionOwnerArtifact,
+) -> tuple[str, ...]:
     issues: list[str] = []
     expected_hash = _stable_content_hash(artifact.payload)
     if not artifact.ingested:
@@ -2991,7 +3032,7 @@ def _validate_local_fabric_capture_route(
     """Prove that the bounded capture plan is an actual local file route."""
 
     from polisyos.data_forge.read_api import catalog as catalog_read_api
-    from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
+    from polisyos.fabric.connectors import FileTabularConnector
     from polisyos.fabric.retrieval.service import RetrievalService
 
     if not isinstance(service, RetrievalService):
@@ -3140,7 +3181,10 @@ def _captured_fabric_fetches(
             store,
             payload_ref,
             expected_kind="fabric.fetch_payload",
-            expected_media_types={"application/json", "application/vnd.apache.arrow.stream"},
+            expected_media_types={
+                "application/json",
+                "application/vnd.apache.arrow.stream",
+            },
         )
         receipt_manifest, receipt_bytes = _validate_fabric_capture_ref(
             store,
@@ -4145,7 +4189,9 @@ def _data_requirement_gap(payload: Mapping[str, Any]) -> AcquisitionRequirementG
     )
 
 
-def _legal_authority_requirement_gap(payload: Mapping[str, Any]) -> AcquisitionRequirementGap:
+def _legal_authority_requirement_gap(
+    payload: Mapping[str, Any],
+) -> AcquisitionRequirementGap:
     requirement_id = _requirement_id(payload)
     authority_types = _text_tuple(payload.get("authority_types"))
     instrument_classes = _text_tuple(payload.get("required_instrument_classes"))
@@ -4178,7 +4224,9 @@ def _legal_authority_requirement_gap(payload: Mapping[str, Any]) -> AcquisitionR
     )
 
 
-def _method_validity_requirement_gap(payload: Mapping[str, Any]) -> AcquisitionRequirementGap:
+def _method_validity_requirement_gap(
+    payload: Mapping[str, Any],
+) -> AcquisitionRequirementGap:
     requirement_id = _requirement_id(payload)
     method_families = _text_tuple(
         payload.get("required_method_families") or payload.get("method_expectations")
@@ -4225,7 +4273,9 @@ def _method_validity_requirement_gap(payload: Mapping[str, Any]) -> AcquisitionR
     )
 
 
-def _scholar_support_requirement_gap(payload: Mapping[str, Any]) -> AcquisitionRequirementGap:
+def _scholar_support_requirement_gap(
+    payload: Mapping[str, Any],
+) -> AcquisitionRequirementGap:
     requirement_id = _requirement_id(payload)
     authority_level = _authority_level_from_spec(payload)
     publication_tier = _optional_text(payload.get("required_publication_tier"))
@@ -4342,7 +4392,9 @@ def _compiled_requirement_gap(
     )
 
 
-def acquisition_report_inputs(report: AcquisitionPlannerReport) -> list[artifacts.InputRef]:
+def acquisition_report_inputs(
+    report: AcquisitionPlannerReport,
+) -> list[artifacts.InputRef]:
     """Build manifest lineage inputs for a persisted acquisition planner report."""
 
     inputs: list[artifacts.InputRef] = []
@@ -5229,7 +5281,9 @@ def _blocker_ref(gap: AcquisitionGap, disposition: AcquisitionDisposition) -> st
     return None
 
 
-def _record_status(disposition: AcquisitionDisposition) -> Literal["ready", "limited", "blocked"]:
+def _record_status(
+    disposition: AcquisitionDisposition,
+) -> Literal["ready", "limited", "blocked"]:
     if disposition is AcquisitionDisposition.CLOSEOUT_BLOCK:
         return "blocked"
     if disposition in {

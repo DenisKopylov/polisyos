@@ -10,7 +10,7 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.canon import CanonSpec, fingerprint
 
 # Imported lazily through _deps to keep module importable without optional stack.
@@ -29,9 +29,15 @@ from polisyos.scientist.methods.search.strategies._deps import (
     require_torch,
 )
 from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
-from polisyos.scientist.methods.search.strategies.errors import OptionalDependencyUnavailableError
-from polisyos.scientist.methods.search.strategies.resource_arbiter import ResourceArbiter
-from polisyos.scientist.methods.search.strategies.runtime import apply_torch_runtime_settings
+from polisyos.scientist.methods.search.strategies.errors import (
+    OptionalDependencyUnavailableError,
+)
+from polisyos.scientist.methods.search.strategies.resource_arbiter import (
+    ResourceArbiter,
+)
+from polisyos.scientist.methods.search.strategies.runtime import (
+    apply_torch_runtime_settings,
+)
 from polisyos.scientist.methods.search.strategies.types import (
     AcquisitionType,
     Evaluation,
@@ -496,7 +502,14 @@ class BayesianOptimizer(BaseSearchStrategy):
                     "state_dict": state_values,
                 }
             )
-        except (AttributeError, ImportError, RuntimeError, TypeError, ValueError, OverflowError):
+        except (
+            AttributeError,
+            ImportError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+            OverflowError,
+        ):
             return None
 
     def _fitted_model_matches_recorded_basis(self) -> bool:

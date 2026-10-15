@@ -1,0 +1,28 @@
+id = "2026-10-15-e02-exact-import-routes"
+title = "Route cross-owner imports through exact stable facades"
+type = "changed"
+component = "architecture"
+owner = "team-polisyos"
+summary = "Cross-owner imports now use exact same-object routes through narrow Core, IR, Scientist, BERL, calibration, Scholar, Lex, and Common facades. Direct routes preserve defining bindings and do not grant producer or authority claims."
+evidence = [
+  "architecture/public_surface/contract.toml",
+  "src/polisyos/common/README.md",
+  "src/polisyos/core/README.md",
+  "tests/unit/architecture/test_source50_core_common_route_identity.py",
+  "tests/unit/architecture/test_source50_remaining_owner_routes.py",
+  "src/polisyos/scientist/orchestration/engine/README.md",
+  "src/polisyos/scientist/methods/backtesting/README.md",
+  "src/polisyos/calibration/README.md",
+  "src/polisyos/berl/README.md",
+  "src/polisyos/scholar/README.md",
+  "src/polisyos/lex/README.md",
+]
+compatibility = "Additive package entrypoints and exact owner exports; Core and IR canonical tags, exception identities, schemas, status, and refusal behavior remain distinct."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.common.canonical, polisyos.common.canonical_profile, polisyos.common.hashing, polisyos.common.migrations, polisyos.core.governance, polisyos.core.llm, polisyos.scientist.orchestration.engine, polisyos.scientist.methods.backtesting, polisyos.lex; public_experimental: polisyos.calibration, polisyos.berl, polisyos.scholar"
+api = "Only names imported by the complete Core/Common route set are promoted. Runtime identity and consumer semantic proofs are required before G adjudication."
+limitations = "This proposal does not adjudicate owner-level public-surface status, production authority, or semantic behavior; 95 remaining Foundry and Data Forge/Fabric occurrences are handled in separate owner packets."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/common/README.md", "src/polisyos/core/README.md", "src/polisyos/scientist/README.md", "src/polisyos/scientist/orchestration/engine/README.md", "src/polisyos/scientist/methods/backtesting/README.md", "src/polisyos/calibration/README.md", "src/polisyos/berl/README.md", "src/polisyos/scholar/README.md", "src/polisyos/lex/README.md"]
+runbook_docs = []

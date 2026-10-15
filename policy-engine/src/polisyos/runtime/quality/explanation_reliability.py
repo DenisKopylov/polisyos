@@ -7,7 +7,7 @@ from dataclasses import dataclass, fields
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from polisyos.berl.contracts.validation_rules import ValidationThresholds
+    from polisyos.berl import ValidationThresholds
     from polisyos.core.artifacts import ArtifactStore
 
 _REQUIRES_BERL_KEYS = (
@@ -464,7 +464,11 @@ def _normalize_reliability_record(
 def _candidate_summary_fields(candidate_record: Mapping[str, Any]) -> dict[str, Any]:
     return {
         key: candidate_record[key]
-        for key in ("explanation_bundle", "empirical_bounds", "local_infidelity_diagnostics")
+        for key in (
+            "explanation_bundle",
+            "empirical_bounds",
+            "local_infidelity_diagnostics",
+        )
         if key in candidate_record
     }
 
@@ -575,7 +579,7 @@ def _load_selected_bundle_payload(
     if len(supplied) != 1:
         return None, None, "policy_design_warrant_berl_bundle_ref_invalid"
 
-    from polisyos.ir.registry.refs import ExplanationBundleRef
+    from polisyos.ir import ExplanationBundleRef
 
     raw_ref = supplied[0][1]
     try:
@@ -753,8 +757,8 @@ def _validate_bundle_record(
     evidence_ref: str | None,
 ) -> tuple[dict[str, Any], tuple[WarrantReliabilityIssue, ...]]:
     try:
-        from polisyos.berl import ValidationThresholds
-        from polisyos.berl.contracts.validation_rules import (
+        from polisyos.berl import (
+            ValidationThresholds,
             validate_persisted_explanation_bundle_payload,
         )
 

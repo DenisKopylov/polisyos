@@ -16,7 +16,7 @@ from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
 from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.pdc import (
     AuthorityBoundary,
     Layer2ReadinessModel,
@@ -47,7 +47,9 @@ from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     build_human_decision_request,
 )
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
-from polisyos.runtime.quality.memory_influence import memory_influence_claim_evidence_issues
+from polisyos.runtime.quality.memory_influence import (
+    memory_influence_claim_evidence_issues,
+)
 from polisyos.runtime.quality.prompt_tool_ledger import ModelAssistedStepLedger
 
 if TYPE_CHECKING:
@@ -585,8 +587,12 @@ class AgentActionAuthorityGateway:
                 HumanDecisionPA2GatewayAdapterInput,
                 HumanDecisionProductionGatewayAdapterInput,
             )
-            from polisyos.runtime.http.services.human_decisions import HumanDecisionService
-            from polisyos.runtime.quality.approval import ProductionApprovalPacketResolver
+            from polisyos.runtime.http.services.human_decisions import (
+                HumanDecisionService,
+            )
+            from polisyos.runtime.quality.approval import (
+                ProductionApprovalPacketResolver,
+            )
 
             has_pa2 = any(
                 type(adapter) is HumanDecisionPA2GatewayAdapterInput
@@ -617,7 +623,9 @@ class AgentActionAuthorityGateway:
                 if request_ref in self._human_decision_refs:
                     raise ValueError("human-decision request has ambiguous v1/v2 sources")
         elif human_decision_service is not None:
-            from polisyos.runtime.http.services.human_decisions import HumanDecisionService
+            from polisyos.runtime.http.services.human_decisions import (
+                HumanDecisionService,
+            )
 
             if type(human_decision_service) is not HumanDecisionService:
                 raise TypeError("human-decision service must be the concrete runtime type")

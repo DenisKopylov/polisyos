@@ -100,7 +100,7 @@ class DatasetBatchConfig:
         cls, snapshot: Mapping[str, object]
     ) -> DatasetBatchConfig | None:
         """Rehydrate complete saved producer intent without producer side effects."""
-        coverage_state, _profile_coverage = _parse_profile_input_coverage(
+        coverage_state, _profile_coverage = parse_profile_input_coverage(
             snapshot.get("resolved_profile_input_coverage"),
             missing="resolved_profile_input_coverage" not in snapshot,
         )
@@ -128,9 +128,7 @@ class DatasetBatchConfig:
             }
             if values.get("metrics_map_path") is None:
                 return None
-            values = _validate_dataset_batch_config_values(
-                values, allow_default_metrics_map=False
-            )
+            values = _validate_dataset_batch_config_values(values, allow_default_metrics_map=False)
             # Allocate only after strict decoding and the complete shared validator.
             config = object.__new__(cls)
             object.__setattr__(config, "stages", ALL_STAGES)
@@ -250,13 +248,7 @@ class DatasetBatchConfig:
     def resolved_active_countries(self) -> tuple[str, ...]:
         if self.active_countries:
             return tuple(
-                sorted(
-                    {
-                        item.strip().upper()
-                        for item in self.active_countries
-                        if item.strip()
-                    }
-                )
+                sorted({item.strip().upper() for item in self.active_countries if item.strip()})
             )
         return tuple(country_scope_members(self.country_scope))
 
@@ -266,9 +258,7 @@ class DatasetBatchConfig:
         start_value = int(start_year)
         end_value = int(end_year)
         if end_value < start_value:
-            raise ValueError(
-                "active_year_window must be ordered as (start_year, end_year)"
-            )
+            raise ValueError("active_year_window must be ordered as (start_year, end_year)")
         return start_value, end_value
 
     @property
@@ -281,9 +271,7 @@ class DatasetBatchConfig:
             return False
         try:
             selected_path = self.registry_path.resolve()
-            legacy_path = (
-                Path(__file__).resolve().parent / "source_registry.yaml"
-            ).resolve()
+            legacy_path = (Path(__file__).resolve().parent / "source_registry.yaml").resolve()
             return selected_path not in {
                 self.default_registry_path.resolve(),
                 legacy_path,
@@ -293,10 +281,7 @@ class DatasetBatchConfig:
 
     @property
     def is_sampled_run(self) -> bool:
-        return (
-            int(self.max_datasets_per_source) > 0
-            and int(self.max_datasets_per_source) < 100_000
-        )
+        return int(self.max_datasets_per_source) > 0 and int(self.max_datasets_per_source) < 100_000
 
     def __post_init__(self) -> None:
         unknown = set(self.stages) - ALL_STAGES
@@ -352,13 +337,10 @@ def _decode_config_snapshot_value(value: object, annotation: object) -> object:
         if len(value) != len(args):
             raise TypeError("persisted tuple length mismatch")
         return tuple(
-            _decode_config_snapshot_value(x, typ)
-            for x, typ in zip(value, args, strict=True)
+            _decode_config_snapshot_value(x, typ) for x, typ in zip(value, args, strict=True)
         )
     if origin is frozenset:
-        if not isinstance(value, (list, tuple, set, frozenset)) or isinstance(
-            value, str
-        ):
+        if not isinstance(value, (list, tuple, set, frozenset)) or isinstance(value, str):
             raise TypeError("persisted frozenset must be an array")
         return frozenset(_decode_config_snapshot_value(x, args[0]) for x in value)
     if annotation is bool:
@@ -401,9 +383,7 @@ def _validate_dataset_batch_config_values(
     registry_path = normalized.get("registry_path")
     if registry_path is not None and not isinstance(registry_path, Path):
         raise TypeError("registry_path must be a path or null")
-    registry = load_source_registry(
-        registry_path or default_catalog_source_registry_path()
-    )
+    registry = load_source_registry(registry_path or default_catalog_source_registry_path())
     if (
         normalized.get("date_start") or normalized.get("date_end")
     ) and run_profile != "rest_backfill":
@@ -447,8 +427,7 @@ def _producer_config_snapshot(config: DatasetBatchConfig) -> dict[str, object]:
             "resolved_active_countries": config.resolved_active_countries,
             "resolved_year_window": config.resolved_year_window,
             "resolved_metrics_map_path": config.resolved_metrics_map_path,
-            "resolved_registry_path": config.registry_path
-            or config.default_registry_path,
+            "resolved_registry_path": config.registry_path or config.default_registry_path,
             "uses_custom_registry": config.uses_custom_registry,
             "is_sampled_run": config.is_sampled_run,
             "producer_material_input_basis": _producer_material_input_basis(
@@ -552,7 +531,7 @@ def _runtime_profile_input_coverage() -> dict[str, object]:
     from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
         _resolve_profile_config,
     )
-    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+    from polisyos.fabric.connectors import SourceProfileRegistry
 
     coverage: dict[str, str] = {}
     profiles = SourceProfileRegistry.get_instance().list_all()
@@ -561,16 +540,14 @@ def _runtime_profile_input_coverage() -> dict[str, object]:
         excluded_input_present = bool(
             connection.headers or connection.auth_method or connection.auth_credentials
         )
-        coverage[profile.profile_id] = (
-            "excluded_present" if excluded_input_present else "none"
-        )
+        coverage[profile.profile_id] = "excluded_present" if excluded_input_present else "none"
     return {
         "schema_version": _PROFILE_INPUT_COVERAGE_SCHEMA_VERSION,
         "profiles": dict(sorted(coverage.items())),
     }
 
 
-def _parse_profile_input_coverage(
+def parse_profile_input_coverage(
     value: object, *, missing: bool = False
 ) -> tuple[str, dict[str, str] | None]:
     """Validate persisted coverage classifications; absent legacy data stays unknown."""
@@ -596,7 +573,7 @@ def _parse_profile_input_coverage(
     return "established", dict(sorted(normalized.items()))
 
 
-def _profile_input_coverage_currentness(
+def profile_input_coverage_currentness(
     value: object, *, missing: bool = False
 ) -> tuple[str, dict[str, str] | None]:
     """Classify whether excluded profile inputs are safe to call current.
@@ -604,7 +581,7 @@ def _profile_input_coverage_currentness(
     Header and credential values are deliberately never persisted. Their mere
     presence is therefore insufficient to prove two effective profiles equal.
     """
-    state, profiles = _parse_profile_input_coverage(value, missing=missing)
+    state, profiles = parse_profile_input_coverage(value, missing=missing)
     if state != "established" or profiles is None:
         return state, profiles
     if any(value == "excluded_present" for value in profiles.values()):
@@ -615,7 +592,7 @@ def _profile_input_coverage_currentness(
 def _runtime_profile_input_currentness() -> tuple[str, dict[str, str] | None]:
     """Recompute live profile coverage through the canonical resolver."""
     try:
-        return _profile_input_coverage_currentness(_runtime_profile_input_coverage())
+        return profile_input_coverage_currentness(_runtime_profile_input_coverage())
     except Exception:
         return "malformed", None
 
@@ -629,13 +606,14 @@ def _runtime_source_profile_payload() -> bytes:
     is separately content-bound in the producer basis. No values or digests of
     headers, credentials, or environment tokens are persisted.
     """
-    from polisyos.fabric.connectors import resolve_connection_config
-    from polisyos.fabric.connectors.profiles import SourceProfileRegistry
-    from polisyos.fabric.connectors.profiles.resolver import resolve_execution_policy
+    from polisyos.fabric.connectors import (
+        SourceProfileRegistry,
+        resolve_connection_config,
+        resolve_execution_policy,
+    )
 
     profiles = [
-        profile.model_copy(deep=True)
-        for profile in SourceProfileRegistry.get_instance().list_all()
+        profile.model_copy(deep=True) for profile in SourceProfileRegistry.get_instance().list_all()
     ]
     payload: list[dict[str, object]] = []
     for profile in profiles:
@@ -648,14 +626,12 @@ def _runtime_source_profile_payload() -> bytes:
                     for item in fields(connection)
                     if item.name not in {"headers", "auth_credentials"}
                 },
-                "execution_policy": resolve_execution_policy(profile).model_dump(
-                    mode="json"
-                ),
+                "execution_policy": resolve_execution_policy(profile).model_dump(mode="json"),
             }
         )
-    return json.dumps(
-        payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
-    ).encode("utf-8")
+    return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode(
+        "utf-8"
+    )
 
 
 def _signature_safe(value: object) -> object:

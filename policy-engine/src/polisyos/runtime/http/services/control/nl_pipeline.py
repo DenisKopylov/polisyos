@@ -19,7 +19,7 @@ from pydantic import BaseModel, ConfigDict, model_validator
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.core.canon import to_canonical_bytes
 from polisyos.core.contracts.control import (
     DataNeed,
@@ -121,7 +121,7 @@ def _cost_number(value: object) -> float | None:
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.manifest import ArtifactRef
-    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine import BudgetMiddleware
 
 
 class NaturalLanguagePipelineRefusalError(RuntimeError):
@@ -400,7 +400,10 @@ async def build_design_problem_from_nl_request(
                     },
                 }
             ],
-            tool_choice={"type": "function", "function": {"name": _DESIGN_PROBLEM_TOOL_NAME}},
+            tool_choice={
+                "type": "function",
+                "function": {"name": _DESIGN_PROBLEM_TOOL_NAME},
+            },
             temperature=0.0,
             max_tokens=_DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY.max_tokens,
         )
@@ -1371,7 +1374,9 @@ def _variant_failure_summary(variants: list[Mapping[str, Any]]) -> str:
     return "; ".join(parts)[:1000]
 
 
-def _model_variants_failure_envelope(variants: list[Mapping[str, Any]]) -> dict[str, Any]:
+def _model_variants_failure_envelope(
+    variants: list[Mapping[str, Any]],
+) -> dict[str, Any]:
     failures: list[dict[str, Any]] = []
     for variant in variants:
         if str(variant.get("status") or "").lower() != "failed":
@@ -1738,7 +1743,9 @@ def _artifact_ref_from_ref_payload(
     return ref
 
 
-def _foundry_method_report_ref_from_state_payload(value: Mapping[str, Any]) -> str | None:
+def _foundry_method_report_ref_from_state_payload(
+    value: Mapping[str, Any],
+) -> str | None:
     reports_index = value.get("reports_index")
     if isinstance(reports_index, Mapping):
         for key in ("foundry_method_report_ref", "foundry_method_report"):
@@ -2037,8 +2044,12 @@ class NaturalLanguageRunMixin:
                 build_final_policy_claims_report,
             )
             from polisyos.scientist.agent.pi import LLMPIAgent
-            from polisyos.scientist.evidence.source_quality import build_source_quality_report
-            from polisyos.scientist.orchestration.engine.iteration_state_machine import transition
+            from polisyos.scientist.evidence.source_quality import (
+                build_source_quality_report,
+            )
+            from polisyos.scientist.orchestration.engine.iteration_state_machine import (
+                transition,
+            )
             from polisyos.scientist.orchestration.llm.adjudication import (
                 build_model_variant_adjudication,
             )
@@ -2389,7 +2400,9 @@ class NaturalLanguageRunMixin:
                 loaded = _load_json_artifact_payload(variant.get("final_policy_claims_ref"))
                 return loaded or {}
 
-            def _claims_from_final_report(report: Mapping[str, Any]) -> list[dict[str, Any]]:
+            def _claims_from_final_report(
+                report: Mapping[str, Any],
+            ) -> list[dict[str, Any]]:
                 raw_claims = report.get("claims") or report.get("policy_claims") or []
                 if not isinstance(raw_claims, list):
                     return []
@@ -2742,7 +2755,10 @@ class NaturalLanguageRunMixin:
                         "assumptions": ["deterministic_scenario_contract"],
                         "uncertainty": {"status": "pass", "interval": [0.01, 0.07]},
                         "missingness": {"status": "pass", "missing_rate": 0.0},
-                        "sensitivity": {"status": "pass", "robustness": "deterministic"},
+                        "sensitivity": {
+                            "status": "pass",
+                            "robustness": "deterministic",
+                        },
                         "input_diagnostics": {
                             "sample_size": 240,
                             "min_required_sample_size": 30,
@@ -3302,7 +3318,9 @@ class NaturalLanguageRunMixin:
                         values.append(str(artifact_id))
                 return tuple(values)
 
-            def _runtime_quality_validation_status(report_payload: Mapping[str, Any]) -> str:
+            def _runtime_quality_validation_status(
+                report_payload: Mapping[str, Any],
+            ) -> str:
                 status = str(report_payload.get("status") or "").strip().casefold()
                 if status in {"pass", "passed", "ok", "match", "complete"}:
                     return "pass"
@@ -3312,7 +3330,9 @@ class NaturalLanguageRunMixin:
                     return "not_applicable"
                 return "fail"
 
-            def _runtime_quality_blocking_status(report_payload: Mapping[str, Any]) -> str:
+            def _runtime_quality_blocking_status(
+                report_payload: Mapping[str, Any],
+            ) -> str:
                 return (
                     "non_blocking"
                     if _runtime_quality_validation_status(report_payload) == "pass"
@@ -3765,9 +3785,9 @@ class NaturalLanguageRunMixin:
                 )
                 authority_envelope_ref = str(result.authority_envelope_ref.artifact_id)
                 authority_envelope = read_core_json_artifact(
-                                         store,
-                                         result.authority_envelope_ref,
-                                     ).value
+                    store,
+                    result.authority_envelope_ref,
+                ).value
                 event_summary = {
                     "event_name": f"{report_key}.persisted",
                     "event_type": "polisyos.runtime.diagnostic.cas_write.v1",
@@ -3982,7 +4002,10 @@ class NaturalLanguageRunMixin:
                         "domain_hint": domain_hint,
                     },
                 )
-                intent_ref, evidence_payload = await _persist_and_publish_runtime_quality_payload(
+                (
+                    intent_ref,
+                    evidence_payload,
+                ) = await _persist_and_publish_runtime_quality_payload(
                     report_key="policy_intent_envelope",
                     ref_key="policy_intent_envelope_ref",
                     report_payload=intent_payload,
@@ -4148,7 +4171,10 @@ class NaturalLanguageRunMixin:
                     literature_evidence_required=True,
                 )
                 ledger_payload["status"] = "pass"
-                ledger_ref, evidence_payload = await _persist_and_publish_runtime_quality_payload(
+                (
+                    ledger_ref,
+                    evidence_payload,
+                ) = await _persist_and_publish_runtime_quality_payload(
                     report_key="policy_design_capability_ledger",
                     ref_key="policy_design_capability_ledger_ref",
                     report_payload=ledger_payload,
@@ -4180,7 +4206,9 @@ class NaturalLanguageRunMixin:
                 )
                 return ledger_ref, ledger_payload, evidence_payload
 
-            def _policy_design_spine_terms(intent_payload: Mapping[str, Any]) -> list[str]:
+            def _policy_design_spine_terms(
+                intent_payload: Mapping[str, Any],
+            ) -> list[str]:
                 terms: list[str] = []
                 for key in (
                     "policy_problem",
@@ -4249,7 +4277,10 @@ class NaturalLanguageRunMixin:
                     raw_user_terms=_policy_design_spine_terms(intent_payload),
                     generated_at=datetime.now(UTC),
                 )
-                concept_ref, concept_evidence = await _persist_and_publish_runtime_quality_payload(
+                (
+                    concept_ref,
+                    concept_evidence,
+                ) = await _persist_and_publish_runtime_quality_payload(
                     report_key="policy_design_concept_spine",
                     ref_key="concept_spine_ref",
                     report_payload=concept_payload,
@@ -4389,7 +4420,10 @@ class NaturalLanguageRunMixin:
                 profile_payload = compile_policy_design_case_runtime_record_families(
                     profile_payload
                 )
-                profile_ref, evidence_payload = await _persist_and_publish_runtime_quality_payload(
+                (
+                    profile_ref,
+                    evidence_payload,
+                ) = await _persist_and_publish_runtime_quality_payload(
                     report_key="policy_design_case",
                     ref_key="policy_design_case_ref",
                     report_payload=profile_payload,
@@ -4534,7 +4568,10 @@ class NaturalLanguageRunMixin:
                         media_type="application/json",
                         schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
                         inputs=[
-                            InputRef(artifact_id=payload_ref.artifact_id, role="retrieval_payload"),
+                            InputRef(
+                                artifact_id=payload_ref.artifact_id,
+                                role="retrieval_payload",
+                            ),
                         ],
                     ),
                     canon_spec=CanonSpec(forbid_floats=False),
@@ -4630,7 +4667,8 @@ class NaturalLanguageRunMixin:
                             ),
                             inputs=[
                                 InputRef(
-                                    artifact_id=snapshot_ref.artifact_id, role="data_snapshot"
+                                    artifact_id=snapshot_ref.artifact_id,
+                                    role="data_snapshot",
                                 ),
                                 InputRef(
                                     artifact_id=fallback_snapshot_ref.artifact_id,
@@ -4800,7 +4838,10 @@ class NaturalLanguageRunMixin:
                                 artifact_id=payload_ref.artifact_id,
                                 role="production_data_payload",
                             ),
-                            InputRef(artifact_id=quality_ref.artifact_id, role="quality_report"),
+                            InputRef(
+                                artifact_id=quality_ref.artifact_id,
+                                role="quality_report",
+                            ),
                         ],
                     ),
                     canon_spec=CanonSpec(forbid_floats=False),
@@ -4831,7 +4872,10 @@ class NaturalLanguageRunMixin:
                     }
                 except ModuleNotFoundError:
                     fallback_state_ref = await async_store.put_json(
-                        {"source": "runtime_nl_production_data_materialization", "jax": "missing"},
+                        {
+                            "source": "runtime_nl_production_data_materialization",
+                            "jax": "missing",
+                        },
                         ArtifactWriteOptions(
                             kind="foundry.state_payload",
                             media_type="application/json",
@@ -5812,7 +5856,9 @@ class NaturalLanguageRunMixin:
                             )
                     elif resolve_outcome.fetch_plans:
 
-                        def _promotion_candidate_payload(item: object) -> dict[str, Any]:
+                        def _promotion_candidate_payload(
+                            item: object,
+                        ) -> dict[str, Any]:
                             if hasattr(item, "model_dump"):
                                 return dict(item.model_dump(mode="json"))
                             if isinstance(item, dict):
@@ -5949,7 +5995,13 @@ class NaturalLanguageRunMixin:
                             retrieval_context_payload["auto_data_source_refs"] = dict(
                                 auto_data_source_refs
                             )
-                        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+                        except (
+                            KeyError,
+                            OSError,
+                            RuntimeError,
+                            TypeError,
+                            ValueError,
+                        ) as exc:
                             notes.append(f"auto_materialization_failed:{exc}")
                             _append_step(
                                 agent="executor",
@@ -7662,9 +7714,9 @@ class NaturalLanguageRunMixin:
                         kind="scientist.workflow_report",
                     )
                     workflow_report = read_core_json_artifact(
-                                          self._artifact_store,
-                                          workflow_report_artifact_ref,
-                                      ).value
+                        self._artifact_store,
+                        workflow_report_artifact_ref,
+                    ).value
                     if isinstance(workflow_report, Mapping):
                         workflow_status = str(workflow_report.get("status") or "")
                         if workflow_status and workflow_status != "ok":
@@ -8232,14 +8284,12 @@ class NaturalLanguageRunMixin:
                     selected_variant["causal_statistical_validity"] = causal_statistical_validity
 
                     from polisyos.core.security import (
-                        SECURITY_ASSURANCE_REPORT_REF_KEY,
-                        build_security_assurance_report,
-                    )
-                    from polisyos.core.security.quality_gates import (
                         SECURITY_ASSURANCE_ARTIFACT_KIND,
                         SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE,
                         SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME,
                         SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION,
+                        SECURITY_ASSURANCE_REPORT_REF_KEY,
+                        build_security_assurance_report,
                     )
                     from polisyos.runtime.quality.human_review import (
                         build_human_review_calibration_report,

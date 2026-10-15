@@ -88,9 +88,7 @@ if TYPE_CHECKING:
         z_id_algorithm,
     )
 
-globals().update(
-    {name: getattr(_artifacts, name) for name in dir(_artifacts) if not name.startswith("__")}
-)
+globals().update({name: getattr(_artifacts, name) for name in _artifacts.__all__})
 
 
 def _sync_public_algorithm_overrides() -> None:

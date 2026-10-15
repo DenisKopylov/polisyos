@@ -17,7 +17,7 @@ from polisyos.core.artifacts import (
     input_ref_from_artifact_ref,
 )
 from polisyos.core.canon import CanonSpec, fingerprint
-from polisyos.foundry.methods.catalog.causal.ci_backends import BootstrapExecutionWork
+from polisyos.foundry.methods import BootstrapExecutionWork
 
 from .models import SearchMethodRunProfile
 

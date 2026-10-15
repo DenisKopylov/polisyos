@@ -27,7 +27,7 @@ from polisyos.ir.artifacts import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.ir.artifacts.contracts import ArtifactSelector
+    from polisyos.ir import ArtifactSelector
 
 from pydantic import ValidationError
 

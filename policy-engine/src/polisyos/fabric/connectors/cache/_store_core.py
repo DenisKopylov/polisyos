@@ -13,11 +13,14 @@ import time
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ArtifactID, PutOptions, SchemaInfo
-from polisyos.core.artifacts.protocol import RootedArtifactStore
+from polisyos.core.artifacts import ArtifactID, PutOptions, RootedArtifactStore, SchemaInfo
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
-from polisyos.fabric.security import DataClassification, RetentionScope, resolve_artifact_governance
+from polisyos.fabric.security import (
+    DataClassification,
+    RetentionScope,
+    resolve_artifact_governance,
+)
 
 from ._store_index import CacheIndex
 from ._store_models import (
@@ -121,7 +124,10 @@ class ConnectorCacheStore:
         try:
             with self._tracer.start_as_current_span(
                 FABRIC_TRACE_NAMES["cache_get"],
-                attributes={"cache.operation": "get", "cache.namespace": self._namespace},
+                attributes={
+                    "cache.operation": "get",
+                    "cache.namespace": self._namespace,
+                },
             ):
                 try:
                     entry = self._index.get_entry(cache_key)
@@ -195,7 +201,10 @@ class ConnectorCacheStore:
         try:
             with self._tracer.start_as_current_span(
                 FABRIC_TRACE_NAMES["cache_get"],
-                attributes={"cache.operation": "get_any", "cache.namespace": self._namespace},
+                attributes={
+                    "cache.operation": "get_any",
+                    "cache.namespace": self._namespace,
+                },
             ):
                 try:
                     entry = self._index.get_entry(cache_key)

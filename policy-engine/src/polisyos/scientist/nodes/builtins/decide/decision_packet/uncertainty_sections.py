@@ -5,13 +5,19 @@ from __future__ import annotations
 from collections.abc import Mapping
 
 from polisyos.core.artifacts import ArtifactID, ArtifactRef
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.contracts import DataSnapshot, SimulationResult, UncertaintyEnvelopeRef
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.contracts import (
+    DataSnapshot,
+    SimulationResult,
+    UncertaintyEnvelopeRef,
+)
+from polisyos.ir import normalize_artifact_ref
 from polisyos.ir.analytics.uncertainty import (
     load_simulation_result_uncertainty_admission,
     load_uncertainty_envelope,
 )
-from polisyos.ir.artifacts import normalize_artifact_ref
 from polisyos.scientist.nodes.builtins.decide.decision_packet.validation import (
     _DECISION_PACKET_LOAD_ERRORS,
     _record_decision_packet_section_degraded,
@@ -33,6 +39,7 @@ def _build_uncertainty_section(
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     envelope_refs: set[str] = set()
     legacy_bounds_refs: set[str] = set()
     output_envelope_refs: dict[str, str] = {}

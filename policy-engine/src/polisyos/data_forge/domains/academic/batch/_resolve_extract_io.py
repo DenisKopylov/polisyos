@@ -16,8 +16,8 @@ from typing import TYPE_CHECKING, Any, cast
 
 import aiohttp as aiohttp
 
+from polisyos.common import serialization as common_serialization
 from polisyos.common.logger import get_logger
-from polisyos.common.serialization import decode_json_object
 from polisyos.data_forge.domains.academic.batch._resolve_extract_contracts import (
     EligibilityDecision as EligibilityDecision,
 )
@@ -57,7 +57,9 @@ from polisyos.data_forge.domains.academic.batch.article_extractor import (
 from polisyos.data_forge.domains.academic.batch.article_extractor import (
     _to_work_record as _to_work_record,
 )
-from polisyos.data_forge.domains.academic.batch.claim_ids import stable_claim_id as stable_claim_id
+from polisyos.data_forge.domains.academic.batch.claim_ids import (
+    stable_claim_id as stable_claim_id,
+)
 from polisyos.data_forge.domains.academic.batch.context_classifier import (
     infer_context_from_article as infer_context_from_article,
 )
@@ -171,10 +173,12 @@ _DESIGN_TIERS: dict[str, int | None] = {
 _STRONG_METHOD_PATTERNS: dict[str, re.Pattern[str]] = {
     DesignFamily.RCT.value: re.compile(r"\b(randomi[sz]ed|random assignment|rct)\b", re.IGNORECASE),
     DesignFamily.IV.value: re.compile(
-        r"\b(instrumental variable|instrument\w*|2sls|tsls|first stage)\b", re.IGNORECASE
+        r"\b(instrumental variable|instrument\w*|2sls|tsls|first stage)\b",
+        re.IGNORECASE,
     ),
     DesignFamily.DID.value: re.compile(
-        r"\b(difference[- ]?in[- ]?differences?|\bdid\b|parallel trends)\b", re.IGNORECASE
+        r"\b(difference[- ]?in[- ]?differences?|\bdid\b|parallel trends)\b",
+        re.IGNORECASE,
     ),
     DesignFamily.RDD.value: re.compile(
         r"\b(regression discontinuity|\brdd\b|cutoff|threshold design)\b", re.IGNORECASE
@@ -183,20 +187,21 @@ _STRONG_METHOD_PATTERNS: dict[str, re.Pattern[str]] = {
         r"\b(synthetic control|synthetic counterfactual)\b", re.IGNORECASE
     ),
     DesignFamily.EVENT_STUDY.value: re.compile(
-        r"\b(event study|dynamic treatment effects|lead[s]? and lag[s]?)\b", re.IGNORECASE
+        r"\b(event study|dynamic treatment effects|lead[s]? and lag[s]?)\b",
+        re.IGNORECASE,
     ),
     DesignFamily.QUASI_EXPERIMENTAL_OTHER.value: re.compile(
         (
-            '\\b(natural experiment|quasi[- ]experimental|exogenous shock|policy d'
-            'iscontinuity|staggered adoption)\\b'
+            "\\b(natural experiment|quasi[- ]experimental|exogenous shock|policy d"
+            "iscontinuity|staggered adoption)\\b"
         ),
         re.IGNORECASE,
     ),
 }
 _DOWNGRADE_PATTERNS = re.compile(
     (
-        '\\b(correlation|associat(?:ion|ive)|cross[- ]sectional|ols only|ordinary least s'
-        'quares only|panel fixed effects only)\\b'
+        "\\b(correlation|associat(?:ion|ive)|cross[- ]sectional|ols only|ordinary least s"
+        "quares only|panel fixed effects only)\\b"
     ),
     re.IGNORECASE,
 )
@@ -226,13 +231,13 @@ def _has_downgrade_signal(text: str) -> bool:
 # necessary but not sufficient for causal identification.
 _STRONG_IDENTIFICATION_RE = re.compile(
     (
-        '\\b(randomi[sz]ed|random assignment|random lottery|field experiment|audit s'
-        'tudy|correspondence study|survey experiment|lab(?:oratory)? e'
-        'xperiment|encouragement design|instrumental v'
-        'ariable|2sls|tsls|difference.?in.?differences?|did\\b|regression d'
-        'iscontinuity|rdd\\b|synthetic control|event study|natural experiment|quasi[- ]'
-        'experimental|staggered adoption|staggered rollout|exogenous shock|propensity s'
-        'core|matching estimat\\w+|causal forest|bunching design)\\b'
+        "\\b(randomi[sz]ed|random assignment|random lottery|field experiment|audit s"
+        "tudy|correspondence study|survey experiment|lab(?:oratory)? e"
+        "xperiment|encouragement design|instrumental v"
+        "ariable|2sls|tsls|difference.?in.?differences?|did\\b|regression d"
+        "iscontinuity|rdd\\b|synthetic control|event study|natural experiment|quasi[- ]"
+        "experimental|staggered adoption|staggered rollout|exogenous shock|propensity s"
+        "core|matching estimat\\w+|causal forest|bunching design)\\b"
     ),
     re.IGNORECASE,
 )
@@ -255,12 +260,12 @@ _METHOD_ONLY_RE = re.compile(
 )
 _EMPIRICAL_DATA_RE = re.compile(
     (
-        '\\b(administrative data|registry data|register data|panel data|longitudinal d'
-        'ata|survey data|census data|microdata|matched employer[- ]employee|linked d'
-        'ata|transaction data|tax records?|firm-level data|household survey|personnel r'
-        'ecords?|field experiment|audit study|correspondence study|survey e'
-        'xperiment|lab(?:oratory)? experiment|natural experiment|quasi[- ]'
-        'experimental|policy reform|staggered adoption|staggered rollout)\\b'
+        "\\b(administrative data|registry data|register data|panel data|longitudinal d"
+        "ata|survey data|census data|microdata|matched employer[- ]employee|linked d"
+        "ata|transaction data|tax records?|firm-level data|household survey|personnel r"
+        "ecords?|field experiment|audit study|correspondence study|survey e"
+        "xperiment|lab(?:oratory)? experiment|natural experiment|quasi[- ]"
+        "experimental|policy reform|staggered adoption|staggered rollout)\\b"
     ),
     re.IGNORECASE,
 )
@@ -271,11 +276,11 @@ _ACCESS_SHELL_RE = re.compile(
 )
 _CONTEXT_CLASSIFICATION_RE = re.compile(
     (
-        '\\b(governance|institutional(?: q'
-        'uality)?|institutions?|historical|history|geograph(?:ic|ical)|regional|cross-cou'
-        'ntry|across countries|space and time|sustainable development|sdg|policy p'
-        'erspective|administrative burden|development finance|context(?:ual)?|country c'
-        'omparison)\\b'
+        "\\b(governance|institutional(?: q"
+        "uality)?|institutions?|historical|history|geograph(?:ic|ical)|regional|cross-cou"
+        "ntry|across countries|space and time|sustainable development|sdg|policy p"
+        "erspective|administrative burden|development finance|context(?:ual)?|country c"
+        "omparison)\\b"
     ),
     re.IGNORECASE,
 )
@@ -286,9 +291,9 @@ _HETEROGENEITY_CLASSIFICATION_RE = re.compile(
 )
 _RESULT_CUE_RE = re.compile(
     (
-        '\\b(we find|results show|effect on|impact o'
-        'n|increas\\w*|decreas\\w*|reduc\\w*|rais\\w*|improv\\w*|lead(?:s|ing)? t'
-        'o|caus(?:e|es|ed|ing))\\b'
+        "\\b(we find|results show|effect on|impact o"
+        "n|increas\\w*|decreas\\w*|reduc\\w*|rais\\w*|improv\\w*|lead(?:s|ing)? t"
+        "o|caus(?:e|es|ed|ing))\\b"
     ),
     re.IGNORECASE,
 )
@@ -304,10 +309,10 @@ _PRECISION_RESULT_CUE_RE = re.compile(
 )
 _DESCRIPTIVE_ONLY_RE = re.compile(
     (
-        '\\b(descriptive study|descriptive analysis|cross[- ]sectional non[- ]'
-        'analytic|frequency distribution|univariate analysis|bivariate analysis|most r'
-        'espondents|mostly good|mostly positive|prevalence|awareness level|knowledge l'
-        'evel|attitude level)\\b'
+        "\\b(descriptive study|descriptive analysis|cross[- ]sectional non[- ]"
+        "analytic|frequency distribution|univariate analysis|bivariate analysis|most r"
+        "espondents|mostly good|mostly positive|prevalence|awareness level|knowledge l"
+        "evel|attitude level)\\b"
     ),
     re.IGNORECASE,
 )
@@ -479,7 +484,9 @@ _UNIVERSAL_CANONICAL_VARS: tuple[str, ...] = (
 
 def _select_relevant_canonical_names(topic_display_names: list[str]) -> list[str]:
     """Select top-60 canonical names relevant to the work's topic(s)."""
-    from polisyos.data_forge.domains.academic.knowledge.canonical_seed import CANONICAL_VARIABLES
+    from polisyos.data_forge.domains.academic.knowledge.canonical_seed import (
+        CANONICAL_VARIABLES,
+    )
     from polisyos.data_forge.domains.academic.knowledge.runtime_canonical_registry import (
         RUNTIME_CANONICAL_REGISTRY,
     )
@@ -514,32 +521,33 @@ def _select_relevant_canonical_names(topic_display_names: list[str]) -> list[str
 
 
 _CONTEXT_EFFECT_ESTIMATE_RE = re.compile(
-    r"(?:^|[_\.])(multiplier|effect|impact|estimate|coefficient)(?:$|[_\.])", re.IGNORECASE
+    r"(?:^|[_\.])(multiplier|effect|impact|estimate|coefficient)(?:$|[_\.])",
+    re.IGNORECASE,
 )
 _CONTAMINATION_RE = re.compile(
-        '(?i)(accesses|citations|altmetric|explore all metrics|download pdf|view p'
-        'df|view abstract|cookie policy|accept cookies|cookie preferences|cookie c'
-        'onsent|manage cookies|we use cookies|all rights reserved|copyright \\'
-        'd{4}|doi\\.org/\\S+|https?://\\S{20,}|research output|journal c'
-        'ontributions|prodotti della ricerca|retrieved from https?://\\S+|institutional l'
-        'ogin|sign in to access|download citation|export citation|cite this a'
-        'rticle|published by ('
-        '?:springer|elsevier|wiley|taylor|sage|oxford|cambridge|mdpi|frontiers)|received:'
-        '?\\s*\\d{1,2}\\s+\\w+\\s+\\d{4}.*?accepted:?\\s*\\d{1,2}\\s+\\w+\\s+\\d{4}|open a'
-        'ccess\\s+this article is licensed|creative commons|supplementary ('
-        '?:materials?|information|data|file)|corresponding author|author c'
-        'ontributions|funding\\s+(?:information|statement|this (?:work|research|study) w'
-        'as)|declaration of (?:competing )?interests?|conflict of interest s'
-        'tatement|skip to (?:main content|content|navigation)|find a journal|publish w'
-        'ith us|track your research|saved research|search cart|advertisement log in|log i'
-        'n menu|aims and scope|submit manuscript|save article|view saved|similar content b'
-        'eing viewed by others|related articles?|explore related subjects|discover the l'
-        'atest|suggested using machine learning|full size i'
-        'mage|volume\\s+\\d+\\s*,?\\s*pages?\\s+\\d+|Published:\\s*\\d{1,2}\\s+\\w+\\s+\\d{4}|p'
-        'p\\.\\s*\\d+[–\\-]\\d+|orcid\\.org/\\d{4}|ORCID:\\s*orcid|institutional ('
-        '?:subscriptions?|access|repositor(?:y|ies))|subscribe to (?:this )'
-        '?journal|@article\\{|issn\\s*=\\s*\\"|publisher\\s*=\\s*\\"|language\\s*=\\s*\\"|TY\\s'
-        '+-\\s+JOUR|AU\\s+-\\s+|PY\\s+-\\s+|N2\\s+-\\s+)'
+    "(?i)(accesses|citations|altmetric|explore all metrics|download pdf|view p"
+    "df|view abstract|cookie policy|accept cookies|cookie preferences|cookie c"
+    "onsent|manage cookies|we use cookies|all rights reserved|copyright \\"
+    "d{4}|doi\\.org/\\S+|https?://\\S{20,}|research output|journal c"
+    "ontributions|prodotti della ricerca|retrieved from https?://\\S+|institutional l"
+    "ogin|sign in to access|download citation|export citation|cite this a"
+    "rticle|published by ("
+    "?:springer|elsevier|wiley|taylor|sage|oxford|cambridge|mdpi|frontiers)|received:"
+    "?\\s*\\d{1,2}\\s+\\w+\\s+\\d{4}.*?accepted:?\\s*\\d{1,2}\\s+\\w+\\s+\\d{4}|open a"
+    "ccess\\s+this article is licensed|creative commons|supplementary ("
+    "?:materials?|information|data|file)|corresponding author|author c"
+    "ontributions|funding\\s+(?:information|statement|this (?:work|research|study) w"
+    "as)|declaration of (?:competing )?interests?|conflict of interest s"
+    "tatement|skip to (?:main content|content|navigation)|find a journal|publish w"
+    "ith us|track your research|saved research|search cart|advertisement log in|log i"
+    "n menu|aims and scope|submit manuscript|save article|view saved|similar content b"
+    "eing viewed by others|related articles?|explore related subjects|discover the l"
+    "atest|suggested using machine learning|full size i"
+    "mage|volume\\s+\\d+\\s*,?\\s*pages?\\s+\\d+|Published:\\s*\\d{1,2}\\s+\\w+\\s+\\d{4}|p"
+    "p\\.\\s*\\d+[–\\-]\\d+|orcid\\.org/\\d{4}|ORCID:\\s*orcid|institutional ("
+    "?:subscriptions?|access|repositor(?:y|ies))|subscribe to (?:this )"
+    '?journal|@article\\{|issn\\s*=\\s*\\"|publisher\\s*=\\s*\\"|language\\s*=\\s*\\"|TY\\s'
+    "+-\\s+JOUR|AU\\s+-\\s+|PY\\s+-\\s+|N2\\s+-\\s+)"
 )
 _CLAIM_REF_TAG_RE = re.compile(r"\[CLAIM_ID:([^\]]+)\]")
 _CONTEXT_SOFT_REJECTION_REASONS = frozenset({"review_like", "missing_empirical_cues"})
@@ -765,8 +773,6 @@ _NUMERIC_UNITFUL_HINT_RE = re.compile(
 _VAR_SPLIT_RE = re.compile(r"[^a-z0-9]+")
 
 
-
-
 def _jsonl_append(path: Path, row: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "a", encoding="utf-8") as fh:
@@ -808,9 +814,7 @@ def _write_progress(path: Path, progress: dict[str, Any]) -> None:
 
 def _load_metadata_cache(path: Path) -> dict[str, dict[str, Any]]:
     cache: dict[str, dict[str, Any]] = {}
-    for _offset, _line_number, cache_key, row in _iter_keyed_jsonl_rows(
-        path, key="cache_key"
-    ):
+    for _offset, _line_number, cache_key, row in _iter_keyed_jsonl_rows(path, key="cache_key"):
         cache[cache_key] = row
     return cache
 
@@ -1184,6 +1188,8 @@ def _resolve_paper_kind(
 
 def _shared_vocabulary_text() -> str:
     return ", ".join(_SHARED_VOCABULARY_PREFIXES)
+
+
 def _percentile(values: list[float], q: float) -> float:
     if not values:
         return 0.0
@@ -1209,13 +1215,14 @@ def _decode_json_object(
             if line_number is not None
             else f"{path} at byte offset {offset}"
         )
-    payload = decode_json_object(raw, source=location, kind=kind)
+    payload = common_serialization.decode_json_object(raw, source=location, kind=kind)
     if key is None:
         return None, payload
     row_key = str(payload.get(key) or "").strip()
     if not row_key:
         raise ValueError(f"{kind} at {location} has no non-empty {key!r}")
     return row_key, payload
+
 
 def _iter_keyed_jsonl_rows(
     path: Path,
@@ -1351,6 +1358,7 @@ def _load_jsonl_grouped(
     for _offset, _line_number, row_key, payload in _iter_keyed_jsonl_rows(path, key=key):
         grouped[row_key].append(payload)
     return grouped
+
 
 def _load_doc_routing(path: Path) -> dict[str, dict[str, dict[str, Any]]]:
     by_work: dict[str, dict[str, dict[str, Any]]] = {}

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo
+from polisyos.core.artifacts import ArtifactTenantContextInfo
 from polisyos.runtime.http.services.control.generation_cycle import (
     N4CandidateProposalExecution,
     N4CandidateScenarioProposalOnlyExecution,
@@ -55,7 +55,9 @@ class ControlNLJobExecutionMixin:
     ):
         """Run the already-admitted compiler inside its producer binding scope."""
         from polisyos.common import async_tools
-        from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleBudget
+        from polisyos.runtime.quality.recursive_generation_cycle import (
+            RecursiveCycleBudget,
+        )
         from polisyos.scientist import BudgetState
 
         job = context.job
@@ -772,7 +774,9 @@ class ControlNLJobExecutionMixin:
         return
 
     def _complete_nl_simulation_result(
-        self, context: _ControlNLJobContext, compiled: CompiledRecursiveGenerationCycleRun
+        self,
+        context: _ControlNLJobContext,
+        compiled: CompiledRecursiveGenerationCycleRun,
     ) -> None:
         """Persist the simulate-only compiled result without normative publication."""
         job = context.job

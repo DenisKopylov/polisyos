@@ -11,14 +11,10 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 from pydantic import BaseModel, ConfigDict
 
 from polisyos.core import artifacts, registry, run
-from polisyos.core.artifacts import ArtifactRef
-from polisyos.core.artifacts.canonical_profile import (
-    read_core_json_artifact,
-    read_core_manifest_profile,
-)
+from polisyos.core.artifacts import ArtifactRef, read_core_json_artifact, read_core_manifest_profile
 from polisyos.core.canon import content_hash as canonical_content_hash
 from polisyos.core.canon import to_canonical_bytes
-from polisyos.core.contracts.control import DecisionValidityEventRequest, PolicyFlags
+from polisyos.core.contracts import DecisionValidityEventRequest, PolicyFlags
 from polisyos.core.security import clear_tenant_context, tenant_scope
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.services.adapters.core_run import (
@@ -33,7 +29,9 @@ from polisyos.runtime.http.services.control.evaluation_safety import (
     PersistedEvaluationSafetyAttempt,
     PersistedEvaluationSafetyProjection,
 )
-from polisyos.runtime.http.services.control.response_shapes import _decision_validity_dedupe_payload
+from polisyos.runtime.http.services.control.response_shapes import (
+    _decision_validity_dedupe_payload,
+)
 from polisyos.runtime.http.services.control.workspace_loop_transition import (
     _WorkflowExecutionNonAuthorityError,
 )
@@ -199,7 +197,10 @@ class ControlJobScopeAdmissionMixin:
         ).hex
 
     def _load_payload_ref(self, payload_ref: str, *, kind: str) -> dict[str, Any]:
-        from polisyos.core.artifacts import ArtifactRef, artifact_manifest_profile_sha256
+        from polisyos.core.artifacts import (
+            ArtifactRef,
+            artifact_manifest_profile_sha256,
+        )
 
         declared_ref = _make_artifact_ref(payload_ref, kind=kind)
         manifest = read_core_manifest_profile(self._artifact_store, declared_ref)[0]

@@ -7,8 +7,7 @@ from typing import Any, Literal, get_args
 
 from pydantic import AwareDatetime, BaseModel, Field, model_validator
 
-from polisyos.ir import ArtifactRefModel
-from polisyos.ir.artifacts import normalize_artifact_ref
+from polisyos.ir import ArtifactRefModel, normalize_artifact_ref
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
 from polisyos.runtime.quality.design_axes.coupling_composition import (  # noqa: TC001
     ForecastClaimScope,
@@ -697,7 +696,9 @@ def _apply_system_effect_requirements(payload: dict[str, object]) -> None:
     payload["forecast_tier"] = "simulation_only_advisory"
 
 
-def _derive_forecast_tier(payload: Mapping[str, object]) -> ForecastAuthorityDisposition:
+def _derive_forecast_tier(
+    payload: Mapping[str, object],
+) -> ForecastAuthorityDisposition:
     if payload.get("forecast_tier") == "blocked":
         return "blocked"
     base_origin = str(payload.get("s5_base_origin", ""))
@@ -873,7 +874,9 @@ def _merge_denials(values: object) -> list[str]:
     return merged
 
 
-def _as_forecast_support(value: ForecastSupport | Mapping[str, object]) -> ForecastSupport:
+def _as_forecast_support(
+    value: ForecastSupport | Mapping[str, object],
+) -> ForecastSupport:
     if isinstance(value, ForecastSupport):
         return value
     return ForecastSupport.model_validate(value)

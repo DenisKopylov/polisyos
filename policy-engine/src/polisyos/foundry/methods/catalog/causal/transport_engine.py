@@ -9,7 +9,7 @@ from typing import Any, Literal, Union, get_args, get_origin
 
 from pydantic import BaseModel, ValidationError
 
-from polisyos.ir.analytics.causal import ProofBundle
+from polisyos.ir import ProofBundle
 from polisyos.ir.analytics.causal_capabilities import (
     CausalBackendId,
     CausalCapabilityContract,
@@ -112,8 +112,8 @@ def solve_transportability(
         mode not in {"symbolic_y0", "full_auto"}
         and not selection_diagram.s_nodes
         and _should_use_probabilistic_pag_path(
-        selection_diagram=selection_diagram,
-        pag_identification_policy=pag_identification_policy,
+            selection_diagram=selection_diagram,
+            pag_identification_policy=pag_identification_policy,
         )
     ):
         pag_result = _run_simplified_legacy(
@@ -325,9 +325,7 @@ def _graph_admission_refusal_result(
         ),
     }
     lagged_count = (
-        _lagged_edge_count(selection_diagram.base_graph)
-        if selection_diagram is not None
-        else 0
+        _lagged_edge_count(selection_diagram.base_graph) if selection_diagram is not None else 0
     )
     temporal_penalty = (
         min(0.3, float(selection_diagram.context_distance) * 0.2)
@@ -348,9 +346,7 @@ def _graph_admission_refusal_result(
         unsupported_reason=reason,
         warnings=[warning_by_reason[reason]],
         source_graph_type=(
-            selection_diagram.base_graph.graph_type
-            if selection_diagram is not None
-            else None
+            selection_diagram.base_graph.graph_type if selection_diagram is not None else None
         ),
         source_graph_sha256=(
             graph_content_sha256(selection_diagram.base_graph)
@@ -432,8 +428,7 @@ def validate_scalar_graph_selection_diagram(
             return None, _finalize_transport_result(result, privacy_context=privacy_context)
         diagram_fields = object.__getattribute__(admitted_diagram, "__dict__")
         diagram_payload = {
-            field_name: diagram_fields[field_name]
-            for field_name in SelectionDiagram.model_fields
+            field_name: diagram_fields[field_name] for field_name in SelectionDiagram.model_fields
         }
         diagram_payload["base_graph"] = canonical_graph
         admitted_diagram = _snapshot_typed_model(
@@ -755,7 +750,9 @@ def scalar_graph_admission_refusal(
     return _finalize_transport_result(result, privacy_context=privacy_context)
 
 
-def scalar_graph_refusal_proof_bundle(result: TransportabilityResult) -> ProofBundle | None:
+def scalar_graph_refusal_proof_bundle(
+    result: TransportabilityResult,
+) -> ProofBundle | None:
     """Build the non-adjudicative proof projection for a graph-admission refusal."""
     if result.unsupported_reason not in _NON_ADJUDICATIVE_TRANSPORT_REFUSALS:
         return None
@@ -1354,10 +1351,16 @@ def _directed_edges(graph: Any) -> set[tuple[str, str]]:
     for edge in graph.edges:
         if not isinstance(edge, CausalEdge):
             continue
-        if edge.mark_src is EdgeMark.ARROW and edge.mark_dst in {EdgeMark.TAIL, EdgeMark.CIRCLE}:
+        if edge.mark_src is EdgeMark.ARROW and edge.mark_dst in {
+            EdgeMark.TAIL,
+            EdgeMark.CIRCLE,
+        }:
             directed.add((edge.dst, edge.src))
             continue
-        if edge.mark_dst is EdgeMark.ARROW and edge.mark_src in {EdgeMark.TAIL, EdgeMark.CIRCLE}:
+        if edge.mark_dst is EdgeMark.ARROW and edge.mark_src in {
+            EdgeMark.TAIL,
+            EdgeMark.CIRCLE,
+        }:
             directed.add((edge.src, edge.dst))
             continue
         if edge.mark_src is EdgeMark.TAIL and edge.mark_dst is EdgeMark.TAIL:

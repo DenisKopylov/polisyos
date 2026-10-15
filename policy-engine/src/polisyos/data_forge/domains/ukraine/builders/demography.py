@@ -18,7 +18,7 @@ from polisyos.data_forge.domains.ukraine.manifests import (
 )
 from polisyos.data_forge.domains.ukraine.models import PipelineConfig, StageId
 from polisyos.data_forge.kernel.io import ensure_dirs
-from polisyos.ir.model_layer.types import TimeFrequency
+from polisyos.ir import TimeFrequency
 from polisyos.ir.observation.contracts import (
     EntityScope,
     IdentificationMode,
@@ -111,7 +111,12 @@ def _aggregate_labor_micro_panel(labor: pd.DataFrame) -> pd.DataFrame:
 def _aggregate_household_income_panel(household: pd.DataFrame) -> pd.DataFrame:
     if household.empty:
         return pd.DataFrame(
-            columns=["region_code", "period_id", "household_income_mean", "household_weight_sum"]
+            columns=[
+                "region_code",
+                "period_id",
+                "household_income_mean",
+                "household_weight_sum",
+            ]
         )
     frame = household.copy()
     frame["region_code"] = _coerce_string_series(frame, "region_code", fill="00").map(
@@ -310,7 +315,7 @@ def _build_household_distribution_observation_panel(
     return observations[OBSERVATION_FRAME_COLUMNS]
 
 
-def _build_household_diagnostic_panel(household: pd.DataFrame) -> pd.DataFrame:
+def build_household_diagnostic_panel(household: pd.DataFrame) -> pd.DataFrame:
     """Aggregate only normalized, quarter-identified rows for candidate diagnostics."""
     columns = [
         "family",
@@ -448,7 +453,8 @@ def _build_household_diagnostic_basis(
 
 def _series_correlation(left: pd.Series, right: pd.Series) -> float:
     joined = pd.concat(
-        [pd.to_numeric(left, errors="coerce"), pd.to_numeric(right, errors="coerce")], axis=1
+        [pd.to_numeric(left, errors="coerce"), pd.to_numeric(right, errors="coerce")],
+        axis=1,
     ).dropna()
     if len(joined) < 2:
         return 0.0
@@ -699,11 +705,23 @@ def build_d3_stage(config: PipelineConfig) -> StageBuildResult:
     employment_service = _load_optional_source_frame(
         config,
         "employment_service",
-        columns=["agent_id", "region_code", "period_id", "employment_count", "vacancies"],
+        columns=[
+            "agent_id",
+            "region_code",
+            "period_id",
+            "employment_count",
+            "vacancies",
+        ],
     )
     if employment_service is None:
         employment_service = pd.DataFrame(
-            columns=["agent_id", "region_code", "period_id", "employment_count", "vacancies"]
+            columns=[
+                "agent_id",
+                "region_code",
+                "period_id",
+                "employment_count",
+                "vacancies",
+            ]
         )
     macro = _load_optional_source_frame(
         config,
@@ -793,7 +811,7 @@ def build_d3_stage(config: PipelineConfig) -> StageBuildResult:
         calibrated_household_cells,
     )
 
-    household_diagnostic_panel = _build_household_diagnostic_panel(household)
+    household_diagnostic_panel = build_household_diagnostic_panel(household)
     household_diagnostic_panel_path = stage_dir / "household_candidate_panel.parquet"
     outputs["household_candidate_panel.parquet"] = _write_frame(
         household_diagnostic_panel_path, household_diagnostic_panel

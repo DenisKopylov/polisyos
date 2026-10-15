@@ -1,6 +1,6 @@
 """Compatibility facade for IR-owned slot-layout helpers."""
 
-from polisyos.ir.kernel.slots import (
+from polisyos.ir import (
     SlotFamily,
     SlotFamilyManifest,
     SlotLayout,

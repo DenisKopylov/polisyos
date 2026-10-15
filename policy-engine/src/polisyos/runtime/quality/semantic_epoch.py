@@ -11,6 +11,7 @@ import hashlib
 import json
 from collections.abc import Mapping as MappingABC
 from collections.abc import Sequence as SequenceABC
+from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Literal, NoReturn, Protocol, Self, get_args, get_origin
 
@@ -122,6 +123,197 @@ def _artifact_ref_graph(value: object) -> tuple[ArtifactRef, ...]:
     return tuple(found)
 
 
+_EPOCH_COORDINATE_REF_FIELDS = (
+    ("valid_effect_coordinate_evidence_ref", "valid_effect_coordinate_ref", "valid_effect"),
+    (
+        "visibility_knowledge_cutoff_evidence_ref",
+        "visibility_knowledge_cutoff_ref",
+        "visibility_knowledge_cutoff",
+    ),
+    (
+        "purpose_admission_cutoff_evidence_ref",
+        "purpose_admission_cutoff_ref",
+        "purpose_admission_cutoff",
+    ),
+)
+
+
+def _epoch_coordinate_bindings(
+    value: object,
+) -> dict[tuple[str, str, str], tuple[str, str]]:
+    """Bind complete typed query refs to role digests; ignore digest-only projections."""
+    bindings: dict[tuple[str, str, str], tuple[str, str]] = {}
+    evidence_fields = frozenset(ref for ref, _, _ in _EPOCH_COORDINATE_REF_FIELDS)
+    digest_fields = frozenset(digest for _, digest, _ in _EPOCH_COORDINATE_REF_FIELDS)
+
+    def visit(item: object) -> None:
+        if isinstance(item, ArtifactRef):
+            return
+        if isinstance(item, BaseModel):
+            mapping = {name: getattr(item, name) for name in item.__class__.model_fields}
+        elif isinstance(item, MappingABC):
+            if {"artifact_id", "kind", "media_type"}.issubset(item):
+                return
+            mapping = item
+        else:
+            if isinstance(item, SequenceABC) and not isinstance(item, str | bytes | bytearray):
+                for nested in item:
+                    visit(nested)
+            return
+        present_refs = evidence_fields.intersection(mapping)
+        if present_refs:
+            if present_refs != evidence_fields or not digest_fields.issubset(mapping):
+                raise ValueError("epoch coordinate query lacks all typed role refs and digests")
+            query = EpochResolutionQuery.model_validate(mapping)
+            digests = tuple(mapping[digest] for _, digest, _ in _EPOCH_COORDINATE_REF_FIELDS)
+            expected_context = epoch_contract.epoch_query_context_ref(
+                family="epoch",
+                scope_bytes=query.scope_identity.identity_bytes,
+                authority_purpose=query.authority_purpose,
+                coordinate_refs=digests,
+            )
+            if query.requested_query_context_ref != expected_context:
+                raise ValueError("epoch coordinate query context differs from its role digests")
+            for ref_field, digest_field, role in _EPOCH_COORDINATE_REF_FIELDS:
+                ref = getattr(query, ref_field)
+                if epoch_contract._acquisition_native_coordinate_role(ref.kind) != role:
+                    raise ValueError("epoch coordinate query kind differs from its typed role")
+                identity = _selected_ref_identity(ref)
+                binding = (role, getattr(query, digest_field))
+                previous = bindings.setdefault(identity, binding)
+                if previous != binding:
+                    raise ValueError("epoch coordinate ref has conflicting role bindings")
+        for nested in mapping.values():
+            visit(nested)
+
+    visit(value)
+    return bindings
+
+
+def _codec_canon_spec(profile: artifacts.CanonInfo) -> canon.CanonSpec:
+    """Recreate the Core canonical settings declared by one exact manifest profile."""
+    return canon.CanonSpec(
+        name=profile.name,
+        version=profile.version,
+        forbid_floats=profile.forbid_floats,
+        forbid_nan_inf=profile.forbid_nan_inf,
+        exclude_none=profile.exclude_none,
+        max_depth=profile.max_depth,
+        sort_keys=profile.sort_keys,
+        separators=profile.separators,
+        ensure_ascii=profile.ensure_ascii,
+    )
+
+
+def _is_aware_datetime(value: object) -> bool:
+    """Return whether one producer timestamp carries a real timezone offset."""
+    return (
+        isinstance(value, datetime) and value.tzinfo is not None and value.utcoffset() is not None
+    )
+
+
+def _connector_cache_payload_mapping(payload: bytes, *, media_type: str) -> dict[str, object]:
+    """Read the serializer envelope without executing or decoding opaque payloads."""
+    prefix = "application/vnd.polisyos.cached-result+"
+    allowed_inner = {"application/json", "application/parquet", "application/pickle"}
+    if not media_type.startswith(prefix):
+        raise ValueError("connector cache outer media type is not registered")
+    inner_media_type = media_type[len(prefix) :]
+    if inner_media_type not in allowed_inner or media_type != prefix + inner_media_type:
+        raise ValueError("connector cache inner media type is not registered")
+    if len(payload) < 5:
+        raise ValueError("connector cache payload has no complete envelope")
+    envelope_size = int.from_bytes(payload[:4], "big")
+    envelope_end = 4 + envelope_size
+    if envelope_size == 0 or envelope_end >= len(payload):
+        raise ValueError("connector cache envelope or data payload is empty")
+    envelope_bytes = payload[4:envelope_end]
+    try:
+        envelope = canon.from_canonical_bytes(envelope_bytes)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("connector cache envelope is malformed") from exc
+    expected_keys = {
+        "schema_id",
+        "schema_version",
+        "version",
+        "fetched_at",
+        "source_updated_at",
+        "evidence_ref",
+        "completeness",
+        "quality_tier",
+        "quality_flags",
+        "row_count",
+        "data_media_type",
+        "has_more",
+        "next_page_token",
+        "total_count",
+        "fetch_duration_ms",
+        "bytes_transferred",
+        "resilience",
+        "pii_scan",
+    }
+    if (
+        not isinstance(envelope, dict)
+        or set(envelope) != expected_keys
+        or canon.to_canonical_bytes(envelope, canon.CanonSpec(forbid_floats=False))
+        != envelope_bytes
+    ):
+        raise ValueError("connector cache envelope differs from ResultSerializer v1")
+    if envelope["data_media_type"] != inner_media_type:
+        raise ValueError("connector cache envelope media differs from its manifest")
+    if (
+        type(envelope["schema_id"]) is not str
+        or not envelope["schema_id"]
+        or type(envelope["schema_version"]) is not str
+        or not _is_aware_datetime(envelope["fetched_at"])
+        or type(envelope["row_count"]) is not int
+        or envelope["row_count"] < 0
+        or type(envelope["has_more"]) is not bool
+        or type(envelope["quality_tier"]) is not int
+        or not isinstance(envelope["quality_flags"], list)
+        or any(type(flag) is not str for flag in envelope["quality_flags"])
+        or type(envelope["bytes_transferred"]) is not int
+        or envelope["bytes_transferred"] < 0
+        or type(envelope["fetch_duration_ms"]) not in {int, float}
+        or envelope["fetch_duration_ms"] < 0
+        or type(envelope["completeness"]) not in {int, float}
+        or not 0 <= envelope["completeness"] <= 1
+    ):
+        raise ValueError("connector cache envelope fields differ from FetchResult")
+    if envelope["source_updated_at"] is not None and not _is_aware_datetime(
+        envelope["source_updated_at"]
+    ):
+        raise ValueError("connector cache source update time is malformed")
+    if envelope["next_page_token"] is not None and type(envelope["next_page_token"]) is not str:
+        raise ValueError("connector cache pagination token is malformed")
+    if envelope["total_count"] is not None and type(envelope["total_count"]) is not int:
+        raise ValueError("connector cache total count is malformed")
+    if envelope["resilience"] is not None and not isinstance(envelope["resilience"], dict):
+        raise ValueError("connector cache resilience envelope is malformed")
+    if envelope["pii_scan"] is not None and not isinstance(envelope["pii_scan"], dict):
+        raise ValueError("connector cache PII envelope is malformed")
+    from polisyos.ir.connectors import DataVersion, QualityTier
+
+    _version = DataVersion.model_validate(envelope["version"])
+    QualityTier(envelope["quality_tier"])
+    if envelope["evidence_ref"] is not None:
+        contracts.EvidenceBundleRef.model_validate(envelope["evidence_ref"])
+    data_bytes = payload[envelope_end:]
+    if inner_media_type == "application/json":
+        decoded = canon.from_canonical_bytes(data_bytes)
+        if (
+            not isinstance(decoded, dict | list)
+            or canon.to_canonical_bytes(decoded, canon.CanonSpec(forbid_floats=False)) != data_bytes
+        ):
+            raise ValueError("connector cache JSON data differs from ResultSerializer")
+    elif inner_media_type == "application/parquet":
+        if not data_bytes.startswith(b"PAR1") or not data_bytes.endswith(b"PAR1"):
+            raise ValueError("connector cache Parquet framing differs from its media type")
+    elif len(data_bytes) <= 32:
+        raise ValueError("connector cache pickle envelope has no opaque payload")
+    return {str(key): value for key, value in envelope.items()}
+
+
 def _selected_ref_identity(ref: ArtifactRef) -> tuple[str, str, str]:
     return (str(ref.artifact_id), ref.kind, ref.media_type)
 
@@ -136,7 +328,7 @@ def _selected_ref_graph_profiles(value: object) -> dict[tuple[str, str, str], st
         return None
     profiles: dict[tuple[str, str, str], str] = {}
     for ref in refs:
-        codec = epoch_contract.acquisition_artifact_codec(ref.kind)
+        codec = epoch_contract.acquisition_artifact_codec(ref.kind, media_type=ref.media_type)
         if codec is not None and codec.payload_format == "identity_token":
             if codec.media_type != ref.media_type or ref.manifest_profile_sha256 is not None:
                 return None
@@ -155,7 +347,7 @@ def _load_selected_acquisition_mapping(
     store: ArtifactStore, ref: ArtifactRef, *, expected_kind: str
 ) -> dict[str, object]:
     """Resolve one selected acquisition payload through its registered byte codec."""
-    codec = epoch_contract.acquisition_artifact_codec(expected_kind)
+    codec = epoch_contract.acquisition_artifact_codec(expected_kind, media_type=ref.media_type)
     if (
         codec is None
         or ref.manifest_profile_sha256 is None
@@ -176,8 +368,21 @@ def _load_selected_acquisition_mapping(
         or getattr(manifest, "media_type", None) != codec.media_type
         or getattr(manifest, "canon", None) != codec.canon
         or artifacts.artifact_manifest_profile_sha256(manifest) != ref.manifest_profile_sha256
+        or (
+            codec.schema_name is not None
+            and (
+                getattr(getattr(manifest, "artifact_schema", None), "name", None)
+                != codec.schema_name
+                or getattr(getattr(manifest, "artifact_schema", None), "version", None)
+                != codec.schema_version
+            )
+        )
     ):
         raise ValueError("selected acquisition artifact manifest or bytes differ")
+    if codec.payload_format in {"opaque_bytes", "native_coordinate"}:
+        return {}
+    if codec.payload_format == "connector_cache_payload":
+        return _connector_cache_payload_mapping(payload, media_type=codec.media_type)
     if codec.payload_format == "epoch_frame":
         from polisyos.core.artifacts import load_core_json_frame_records
 
@@ -189,8 +394,12 @@ def _load_selected_acquisition_mapping(
             raise ValueError("selected acquisition artifact is not one mapping")
         return dict(records[0])
     try:
-        mapping = json.loads(payload)
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        mapping = (
+            from_canonical_bytes(payload)
+            if codec.payload_format == "producer_json"
+            else json.loads(payload)
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError) as exc:
         raise ValueError("selected owner JSON bytes are malformed") from exc
     if not isinstance(mapping, dict):
         raise ValueError("selected owner JSON artifact is not a mapping")
@@ -199,7 +408,13 @@ def _load_selected_acquisition_mapping(
         and epoch_contract.canonical_epoch_bytes(mapping) != payload
     ):
         raise ValueError("selected owner JSON differs from its declared canonical bytes")
-    if codec.payload_format not in {"canonical_json", "raw_json"}:
+    if codec.payload_format == "producer_json":
+        if (
+            codec.canon is None
+            or canon.to_canonical_bytes(mapping, _codec_canon_spec(codec.canon)) != payload
+        ):
+            raise ValueError("selected producer JSON differs from its declared canonical bytes")
+    elif codec.payload_format not in {"canonical_json", "raw_json"}:
         raise ValueError("selected acquisition payload format is unsupported")
     return {str(key): value for key, value in mapping.items()}
 
@@ -208,10 +423,19 @@ def _load_owner_projection_mapping(
     store: ArtifactStore, ref: ArtifactRef
 ) -> tuple[ArtifactRef, dict[str, object]]:
     """Resolve a profileless owner projection through its actual default manifest."""
-    codec = epoch_contract.acquisition_artifact_codec(ref.kind)
+    codec = epoch_contract.acquisition_artifact_codec(ref.kind, media_type=ref.media_type)
     if (
         codec is None
-        or codec.payload_format not in {"epoch_frame", "canonical_json", "raw_json"}
+        or codec.payload_format
+        not in {
+            "epoch_frame",
+            "canonical_json",
+            "raw_json",
+            "producer_json",
+            "connector_cache_payload",
+            "opaque_bytes",
+            "native_coordinate",
+        }
         or codec.media_type != ref.media_type
     ):
         raise ValueError("owner reference has no registered content resolver")
@@ -245,13 +469,18 @@ def _walk_verified_reference_graph(
     *,
     allow_profileless_roots: bool,
 ) -> dict[tuple[str, str, str], str] | None:
-    """Resolve every ref leaf and recursively walk each verified CAS payload."""
-    pending = [(ref, allow_profileless_roots) for ref in _artifact_ref_graph(value)]
+    """Resolve the whole selected CAS graph and bind every temporal leaf to a query."""
+    try:
+        coordinate_bindings = _epoch_coordinate_bindings(value)
+        pending = [(ref, allow_profileless_roots) for ref in _artifact_ref_graph(value)]
+    except TypeError, ValueError:
+        return None
     resolved: set[tuple[tuple[str, str, str], str]] = set()
+    coordinate_payloads: list[tuple[ArtifactRef, bytes]] = []
     try:
         while pending:
             ref, allow_profileless = pending.pop()
-            codec = epoch_contract.acquisition_artifact_codec(ref.kind)
+            codec = epoch_contract.acquisition_artifact_codec(ref.kind, media_type=ref.media_type)
             if codec is None or codec.media_type != ref.media_type:
                 return None
             if codec.payload_format == "identity_token":
@@ -295,7 +524,26 @@ def _walk_verified_reference_graph(
             if resolved_key in resolved:
                 continue
             resolved.add(resolved_key)
+            if codec.payload_format == "native_coordinate":
+                coordinate_payloads.append((selected_ref, store.get_bytes(selected_ref)))
+            for nested_identity, binding in _epoch_coordinate_bindings(mapping).items():
+                previous_binding = coordinate_bindings.setdefault(nested_identity, binding)
+                if previous_binding != binding:
+                    return None
             pending.extend((nested, True) for nested in _artifact_ref_graph(mapping))
+        for ref, payload in coordinate_payloads:
+            binding = coordinate_bindings.get(_selected_ref_identity(ref))
+            role = epoch_contract._acquisition_native_coordinate_role(ref.kind)
+            if binding is None or binding[0] != role:
+                return None
+            expected_digest = epoch_contract.native_coordinate_ref(
+                family="epoch",
+                role=role,
+                schema_profile=ref.kind,
+                coordinate_bytes=payload,
+            )
+            if expected_digest != binding[1]:
+                return None
     except Exception:
         return None
     return profiles
@@ -320,6 +568,81 @@ def _resolve_selected_reference_graph(
         dict(root_profiles),
         allow_profileless_roots=False,
     )
+
+
+def _live_source_candidate_graph_matches(
+    store: ArtifactStore,
+    candidate: epoch_contract.AcquisitionSemanticBoundaryCandidateStatement,
+    passport_mapping: MappingABC[str, object],
+) -> bool:
+    """Reconcile the v2 live passport with its actual Fabric producer graph."""
+    schema_version = passport_mapping.get("schema_version")
+    source_lane = passport_mapping.get("source_lane")
+    if schema_version != "polisyos.runtime.acquisition_admission_passport.v2":
+        return source_lane != "live_fetch"
+    try:
+        from polisyos.runtime.quality.acquisition_executor import (
+            PASSPORT_SCHEMA_VERSION,
+            AdmissionPassport,
+        )
+
+        if schema_version != PASSPORT_SCHEMA_VERSION:
+            return False
+        passport = AdmissionPassport.model_validate(passport_mapping)
+        if passport.source_lane != "live_fetch":
+            return passport.live_source_execution is None
+        live = passport.live_source_execution
+        if live is None:
+            return False
+        selected_snapshot_ref, snapshot_mapping = _load_owner_projection_mapping(
+            store, live.data_snapshot_ref
+        )
+        snapshot = contracts.DataSnapshot.model_validate(snapshot_mapping)
+        if snapshot.evidence_ref is None or snapshot.quality_report_ref is None:
+            return False
+        selected_bundle_ref, bundle_mapping = _load_owner_projection_mapping(
+            store, live.evidence_bundle_ref
+        )
+        bundle = contracts.EvidenceBundle.model_validate(bundle_mapping)
+        _selected_quality_ref, quality = _load_owner_projection_mapping(
+            store, snapshot.quality_report_ref
+        )
+        selected_data_ref, cache_envelope = _load_owner_projection_mapping(store, snapshot.data_ref)
+        return (
+            _selected_cas_ref_matches_owner_projection(
+                selected_snapshot_ref, live.data_snapshot_ref
+            )
+            and _selected_cas_ref_matches_owner_projection(
+                selected_bundle_ref, live.evidence_bundle_ref
+            )
+            and _selected_cas_ref_matches_owner_projection(
+                selected_bundle_ref, snapshot.evidence_ref
+            )
+            and _selected_cas_ref_matches_owner_projection(selected_data_ref, snapshot.data_ref)
+            and _selected_cas_ref_matches_owner_projection(
+                selected_data_ref, candidate.source_record_ref
+            )
+            and snapshot.data_ref.artifact_id == live.normalized_data_artifact_id
+            and candidate.source_record_content_hash == str(selected_data_ref.artifact_id)
+            and len(bundle.sources) == 1
+            and _selected_cas_ref_matches_owner_projection(selected_data_ref, bundle.sources[0])
+            and type(snapshot.stats.get("datasets_fetched")) is int
+            and snapshot.stats.get("datasets_fetched") == 1
+            and set(quality) == {"source", "datasets_count", "notes"}
+            and type(quality.get("source")) is str
+            and quality["source"].startswith("orchestrated_ingestion:")
+            and len(quality["source"]) > len("orchestrated_ingestion:")
+            and type(quality.get("datasets_count")) is int
+            and quality["datasets_count"] == snapshot.stats["datasets_fetched"]
+            and type(quality.get("notes")) is list
+            and quality["notes"] == bundle.notes
+            and all(type(note) is str for note in quality["notes"])
+            and isinstance(cache_envelope.get("version"), MappingABC)
+            and cache_envelope["version"].get("content_hash")
+            == live.normalized_result_content_sha256
+        )
+    except Exception:
+        return False
 
 
 def _owner_reference_graph_matches_selected(
@@ -2236,8 +2559,8 @@ def _catalog_passport_models(
 ) -> tuple[tuple[BaseModel, tuple[str, ...], dict[str, object], _CatalogAcquisitionOwnerRow], ...]:
     """Decode each current or historical passport with its owning strict schema."""
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
-        _LEGACY_PASSPORT_SCHEMA_VERSION,
-        _LegacyAdmissionPassport,
+        LEGACY_ADMISSION_PASSPORT_SCHEMA_VERSION,
+        LegacyAdmissionPassport,
     )
     from polisyos.runtime.quality.acquisition_executor import (
         PASSPORT_SCHEMA_VERSION,
@@ -2260,8 +2583,8 @@ def _catalog_passport_models(
         version = value.get("schema_version")
         if version == PASSPORT_SCHEMA_VERSION:
             passport = AdmissionPassport.model_validate(value)
-        elif version == _LEGACY_PASSPORT_SCHEMA_VERSION:
-            passport = _LegacyAdmissionPassport.model_validate(value)
+        elif version == LEGACY_ADMISSION_PASSPORT_SCHEMA_VERSION:
+            passport = LegacyAdmissionPassport.model_validate(value)
         else:
             raise ValueError("acquisition owner passport schema is not registered")
         decoded.append((passport, ("rows", "*", "observed_passport_json"), value, row))
@@ -2887,7 +3210,7 @@ class L5EpochBoundaryOwnerAdapter:
                 expected_kind="l5.schema_regime",
             )
             regime_inputs.append((assessment.regime_source_ref, source_payload))
-        _admit_owner_snapshot(
+        selected_owner_snapshot_ref = _admit_owner_snapshot(
             artifacts=self._artifacts,
             ref=receipt.owner_source_snapshot_ref,
             payload=snapshot,
@@ -2911,6 +3234,7 @@ class L5EpochBoundaryOwnerAdapter:
             store=self._artifacts,
             value=receipt,
             kind="l5.schema_regime_denominator_receipt",
+            return_selected_profile=True,
         )
         projection = self._owner.project_scoped_schema_regimes(receipt=receipt)
         _validate_owner_receipt_reference_graph(projection)
@@ -2919,7 +3243,7 @@ class L5EpochBoundaryOwnerAdapter:
                 receipt_ref, projection.denominator_receipt_ref
             )
             or not _selected_cas_ref_matches_owner_projection(
-                receipt.owner_source_snapshot_ref, projection.owner_source_snapshot_ref
+                selected_owner_snapshot_ref, projection.owner_source_snapshot_ref
             )
             or projection.denominator_receipt_ref.kind != "l5.schema_regime_denominator_receipt"
             or projection.owner_source_snapshot_ref != receipt.owner_source_snapshot_ref
@@ -2960,7 +3284,7 @@ class L5EpochBoundaryOwnerAdapter:
             owner_source_ref=registration.owner_source_ref,
             opaque_scope_binding_ref=registration.opaque_scope_binding_ref,
             requested_query_context_ref=owner_query.requested_query_context_ref,
-            owner_source_snapshot_ref=receipt.owner_source_snapshot_ref,
+            owner_source_snapshot_ref=selected_owner_snapshot_ref,
             owner_source_snapshot_content_hash=receipt.owner_source_snapshot_content_hash,
             denominator_receipt_ref=receipt_ref,
             denominator_receipt_content_hash=receipt_hash,
@@ -3367,8 +3691,6 @@ class ArtifactSemanticFacetProvider:
         owner_batches: tuple[EpochBoundaryOwnerBatch, ...],
         query: EpochResolutionQuery,
     ) -> tuple[SemanticFacetValue, ...]:
-        from polisyos.core.artifacts import load_core_json_artifact
-
         del owner_batches, query
         expected = tuple(row.source_binding_ref for row in registry.registrations)
         if set(expected) != set(self._source_refs):
@@ -3378,15 +3700,11 @@ class ArtifactSemanticFacetProvider:
             ref = self._source_refs[registration.source_binding_ref]
             if registration.source_binding_ref != str(ref.artifact_id):
                 raise ValueError("semantic facet source binding is not content-addressed")
-            report = self._artifacts.verify(ref)
-            raw = self._artifacts.get_bytes(ref)
-            if not report.ok or _raw_cas_hash(raw) != str(ref.artifact_id):
+            selected_ref, decoded = _load_owner_projection_mapping(self._artifacts, ref)
+            raw = self._artifacts.get_bytes(selected_ref)
+            if _raw_cas_hash(raw) != str(selected_ref.artifact_id):
                 raise ValueError("semantic facet source failed CAS verification")
-            try:
-                decoded = load_core_json_artifact(self._artifacts, ref, raw_payload_bytes=raw)
-            except UnicodeDecodeError, json.JSONDecodeError:
-                decoded = None
-            if isinstance(decoded, dict) and "semantic_value" in decoded:
+            if "semantic_value" in decoded:
                 semantic_bytes = epoch_contract.canonical_epoch_bytes(
                     {"semantic_value": decoded["semantic_value"]}
                 )
@@ -3400,7 +3718,7 @@ class ArtifactSemanticFacetProvider:
             values.append(
                 SemanticFacetValue(
                     facet_id=registration.facet_id,
-                    source_record_ref=ref,
+                    source_record_ref=selected_ref,
                     source_record_content_hash=_raw_cas_hash(raw),
                     semantic_value_hash=semantic_hash,
                     annotation_hash=_sha256(
@@ -4068,6 +4386,7 @@ class SemanticEpochService:
     ) -> PersistedSemanticEpochProductionReceipt:
         """Re-enumerate owner state and append only the admitted stable candidate."""
         from polisyos.core.artifacts import load_core_json_frame_records
+        from polisyos.fabric.data_plane import content_sha256
 
         self._require_resolution_components()
         prepared_for_failure: PreparedSemanticEpoch | None = None
@@ -4181,6 +4500,10 @@ class SemanticEpochService:
                 for owner_graph in owner_reference_graphs
             ):
                 raise ValueError("admitted acquisition owner reference graph differs")
+            if not _live_source_candidate_graph_matches(
+                self._artifact_store, candidate_statement, passport_mapping
+            ):
+                raise ValueError("admitted acquisition live source graph differs")
             if (
                 not any(
                     _selected_cas_ref_matches_owner_projection(
@@ -4251,14 +4574,8 @@ class SemanticEpochService:
                     ),
                     admitted.native_member_content_hash,
                 ),
-                (
-                    f"sha256:{hashlib.sha256(chronology_contract._split_framed_records(self._artifact_store.get_bytes(admitted.passport_ref))[0]).hexdigest()}",
-                    admitted.passport_content_hash,
-                ),
-                (
-                    f"sha256:{hashlib.sha256(chronology_contract._split_framed_records(self._artifact_store.get_bytes(admitted.pending_overlay_receipt_ref))[0]).hexdigest()}",
-                    admitted.pending_overlay_receipt_content_hash,
-                ),
+                (content_sha256(passport_mapping), admitted.passport_content_hash),
+                (content_sha256(pending_mapping), admitted.pending_overlay_receipt_content_hash),
                 (
                     _model_hash(
                         b"polisyos.epoch.acquisition-native-membership-receipt.v1\0",

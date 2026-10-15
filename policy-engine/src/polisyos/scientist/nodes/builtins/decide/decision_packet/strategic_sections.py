@@ -5,7 +5,10 @@ from __future__ import annotations
 from typing import Any
 
 from polisyos.core.artifacts import ArtifactRef
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.ir import StrategicResponseBundleRef, StrategicSCMRef
 from polisyos.ir.analytics.strategic import (
     load_mean_field_equilibrium_certificate,
     load_mean_field_macro_simulation_config,
@@ -16,7 +19,6 @@ from polisyos.ir.analytics.strategic import (
     load_strategic_response_bundle,
     load_strategic_scm,
 )
-from polisyos.ir.registry.refs import StrategicResponseBundleRef, StrategicSCMRef
 from polisyos.scientist.nodes.builtins.decide.decision_packet.validation import (
     _DECISION_PACKET_LOAD_ERRORS,
     _record_decision_packet_section_degraded,

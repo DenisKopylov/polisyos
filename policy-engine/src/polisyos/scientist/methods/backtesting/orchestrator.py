@@ -47,6 +47,7 @@ from polisyos.core.contracts import (
     SimulationResult,
     SimulationResultRef,
 )
+from polisyos.ir import BacktestReportRef
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
@@ -69,7 +70,6 @@ from polisyos.ir.artifacts import (
     put_json_artifact,
 )
 from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
-from polisyos.ir.registry.refs import BacktestReportRef
 from polisyos.scientist import run_experiment
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator
@@ -1087,9 +1087,12 @@ class BacktestOrchestrator:
                     continue
                 env_id = ArtifactID.model_validate(ref_payload["artifact_id"])
                 env_payload = admission.envelope.model_dump(mode="python", round_trip=True)
-                metadata_declared, confidence_level, interval_type, envelope_contract = (
-                    self._resolve_persisted_interval_metadata(env_payload)
-                )
+                (
+                    metadata_declared,
+                    confidence_level,
+                    interval_type,
+                    envelope_contract,
+                ) = self._resolve_persisted_interval_metadata(env_payload)
                 if metadata_declared:
                     envelope_metadata.append((confidence_level, interval_type))
                     assert envelope_contract is not None
@@ -1607,7 +1610,11 @@ class BacktestOrchestrator:
                     p_value=None if exact_zero else test_result.p_value,
                     reason=None if exact_zero else test_result.reason,
                     unresolved_assumptions=(
-                        ["residual_independence", "multiplicity_policy", "population_scope"]
+                        [
+                            "residual_independence",
+                            "multiplicity_policy",
+                            "population_scope",
+                        ]
                         if exact_zero
                         else [
                             "residual_independence",

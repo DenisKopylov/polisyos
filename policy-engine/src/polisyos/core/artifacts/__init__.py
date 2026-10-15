@@ -35,6 +35,9 @@ from .graph import (
 )
 from .ids import ArtifactID
 from .manifest import (
+    ArtifactAuthorityInfo as ArtifactAuthorityInfo,
+)
+from .manifest import (
     ArtifactGovernanceInfo,
     ArtifactManifest,
     ArtifactRef,
@@ -49,7 +52,22 @@ from .manifest import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
-from .ownership import ArtifactOwnershipError, ArtifactOwnershipIndex
+from .manifest import (
+    ArtifactSameInputClosureInfo as ArtifactSameInputClosureInfo,
+)
+from .manifest import (
+    ArtifactTenantContextInfo as ArtifactTenantContextInfo,
+)
+from .ownership import (
+    OWNERSHIP_INDEX_FORMAT_POINTER_GENERATION_V1 as OWNERSHIP_INDEX_FORMAT_POINTER_GENERATION_V1,
+)
+from .ownership import (
+    OWNERSHIP_INDEX_SCHEMA_VERSION as OWNERSHIP_INDEX_SCHEMA_VERSION,
+)
+from .ownership import (
+    ArtifactOwnershipError,
+    ArtifactOwnershipIndex,
+)
 from .protocol import (
     AUTHORITY_ENVELOPE_ARTIFACT_KIND,
     AUTHORITY_ENVELOPE_SCHEMA_NAME,
@@ -62,7 +80,11 @@ from .protocol import (
     resolve_authority_envelope_ref,
     resolve_manifest_by_profile,
 )
+from .protocol import (
+    RootedArtifactStore as RootedArtifactStore,
+)
 from .registry import RegistryBundle
+from .registry import RegistryBundlePayload as RegistryBundlePayload
 from .signing import (
     ArtifactSigner,
     ArtifactSigningResult,
@@ -80,7 +102,13 @@ from .signing import (
     compute_key_id,
     ensure_private_key_permissions,
 )
-from .store import FileSystemCAS, PutOptions
+from .store import (
+    ArtifactMemberReceipt as ArtifactMemberReceipt,
+)
+from .store import (
+    FileSystemCAS,
+    PutOptions,
+)
 from .write_contract import ArtifactWriteOptions
 
 if TYPE_CHECKING:
@@ -118,7 +146,9 @@ def __getattr__(name: str) -> Any:
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
-def artifact_manifest_profile_projection(manifest: ArtifactManifest) -> dict[str, object]:
+def artifact_manifest_profile_projection(
+    manifest: ArtifactManifest,
+) -> dict[str, object]:
     """Return the canonical, versioned CAS projection for a manifest view."""
     return ManifestLifecycle.profile_projection(manifest)
 
@@ -157,22 +187,27 @@ def expected_artifact_manifest_for_write(
     )
 
 
-
 __all__ = [
     "AUTHORITY_ENVELOPE_ARTIFACT_KIND",
     "AUTHORITY_ENVELOPE_SCHEMA_NAME",
     "AUTHORITY_ENVELOPE_SCHEMA_VERSION",
+    "OWNERSHIP_INDEX_FORMAT_POINTER_GENERATION_V1",
+    "OWNERSHIP_INDEX_SCHEMA_VERSION",
+    "ArtifactAuthorityInfo",
     "ArtifactGovernanceInfo",
     "ArtifactID",
     "ArtifactIntegrityError",
     "ArtifactManifest",
+    "ArtifactMemberReceipt",
     "ArtifactOwnershipError",
     "ArtifactOwnershipIndex",
     "ArtifactRef",
+    "ArtifactSameInputClosureInfo",
     "ArtifactSigner",
     "ArtifactSigningResult",
     "ArtifactStore",
     "ArtifactStoreConfig",
+    "ArtifactTenantContextInfo",
     "ArtifactVerifier",
     "ArtifactWriteOptions",
     "AsyncArtifactStore",
@@ -203,6 +238,8 @@ __all__ = [
     "PutOptions",
     "RawManifestBytesReader",
     "RegistryBundle",
+    "RegistryBundlePayload",
+    "RootedArtifactStore",
     "SchemaInfo",
     "SignatureStatement",
     "SignatureVerificationResult",

@@ -10,13 +10,21 @@ from polisyos.core.artifacts import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.contracts import (
+    DecisionMonitoringContractRef,
     DistributionalReportRef,
     SimulationResult,
     UncertaintyEnvelopeRef,
 )
-from polisyos.core.contracts.scientist import DecisionMonitoringContractRef
+from polisyos.ir import (
+    ABMAlignmentReportRef,
+    AbstractionCertificateRef,
+    DistributionalEffectBundleRef,
+    WelfareBundleRef,
+)
 from polisyos.ir.analytics.abm_bridge import load_abm_alignment_report
 from polisyos.ir.analytics.abstraction import load_abstraction_certificate
 from polisyos.ir.analytics.backtest import load_backtest_report
@@ -27,12 +35,9 @@ from polisyos.ir.analytics.distributional import (
 )
 from polisyos.ir.analytics.hte import load_hte_result, load_policy_recommendation
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.ir.analytics.welfare import load_channel_decomposition_artifact, load_welfare_bundle
-from polisyos.ir.registry.refs import (
-    ABMAlignmentReportRef,
-    AbstractionCertificateRef,
-    DistributionalEffectBundleRef,
-    WelfareBundleRef,
+from polisyos.ir.analytics.welfare import (
+    load_channel_decomposition_artifact,
+    load_welfare_bundle,
 )
 from polisyos.scientist.feedback.core import (
     DecisionFeedbackService,

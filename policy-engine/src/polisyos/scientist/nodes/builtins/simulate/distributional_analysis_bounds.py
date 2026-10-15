@@ -10,11 +10,14 @@ import numpy as np
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import InputRef
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.foundry.methods.catalog.causal.distributional_bounds import (
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.foundry.methods.causal import (
     POINTWISE_NON_UNIFORM_WARNING,
     DistributionalBoundsEngineMethod,
 )
+from polisyos.ir import DistributionalBoundsBundleRef, DistributionalDualCertificateRef
 from polisyos.ir.analytics.distributional import (
     DistributionalBoundsBundle,
     DistributionalBoundUniformity,
@@ -25,16 +28,23 @@ from polisyos.ir.analytics.distributional import (
     persist_distributional_bounds_bundle,
     persist_distributional_dual_certificate,
 )
-from polisyos.ir.registry.refs import (
-    DistributionalBoundsBundleRef,
-    DistributionalDualCertificateRef,
-)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _DISTRIBUTIONAL_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
-_DISTRIBUTIONAL_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
-_DISTRIBUTIONAL_EXECUTION_ERRORS = (RuntimeError, TypeError, ValueError, ValidationError)
+_DISTRIBUTIONAL_LOAD_ERRORS = (
+    OSError,
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
+_DISTRIBUTIONAL_EXECUTION_ERRORS = (
+    RuntimeError,
+    TypeError,
+    ValueError,
+    ValidationError,
+)
 
 
 @dataclass(frozen=True)

@@ -24,10 +24,8 @@ from polisyos.common.canonical_profile import (
     require_declared_profile,
 )
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts.canonical_profile import (
-    decode_core_json_payload,
-    read_core_json_artifact,
-)
+from polisyos.core.artifacts import read_core_json_artifact
+from polisyos.core.artifacts.canonical_profile import decode_core_json_payload
 from polisyos.runtime.http.services.public_decision_verification_contracts import (
     PUBLIC_VERIFICATION_PURPOSE,
     PUBLIC_VERIFICATION_RECORD_KIND,
@@ -94,7 +92,11 @@ class PublicDecisionVerificationTrustedKey:
 
 def _json_bytes(value: object) -> bytes:
     return json.dumps(
-        value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
     ).encode("utf-8")
 
 
@@ -403,7 +405,13 @@ class PublicDecisionVerificationService:
             document = _PUBLIC_DOCUMENT.validate_python(
                 require_declared_profile(profiled_document), strict=True
             )
-        except (OSError, TypeError, ValueError, RuntimeError, CanonicalProfileRefusalError):
+        except (
+            OSError,
+            TypeError,
+            ValueError,
+            RuntimeError,
+            CanonicalProfileRefusalError,
+        ):
             return self._nonreceipt(
                 record_id,
                 "public_document_binding_invalid",

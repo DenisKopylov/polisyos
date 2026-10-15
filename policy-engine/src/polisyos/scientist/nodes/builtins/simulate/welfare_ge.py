@@ -10,15 +10,18 @@ from typing import Any, Literal
 import numpy as np
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.ir import ArtifactRefModel, LeontiefIOBundle
-from polisyos.ir.analytics import GEUncertaintyBundleRef
-from polisyos.ir.analytics.welfare import (
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.ir import (
+    ArtifactRefModel,
     GEUncertaintyBundle,
     GEUncertaintyRepresentation,
+    LeontiefIOBundle,
     load_ge_uncertainty_bundle,
     persist_ge_uncertainty_bundle,
 )
+from polisyos.ir.analytics import GEUncertaintyBundleRef
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
 from .welfare_types import (
@@ -47,7 +50,11 @@ def _load_ge_uncertainty_inputs(
     size: int,
     ge_entry_map: dict[str, tuple[int, int]],
     diagnostics: dict[str, Any],
-) -> tuple[GEUncertaintyBundleRef | None, GEUncertaintyBundle | None, dict[str, tuple[int, int]]]:
+) -> tuple[
+    GEUncertaintyBundleRef | None,
+    GEUncertaintyBundle | None,
+    dict[str, tuple[int, int]],
+]:
     bundle_ref = _coerce_ge_uncertainty_ref(welfare_params.get("ge_uncertainty_ref"))
     if bundle_ref is None:
         return None, None, ge_entry_map
@@ -64,7 +71,10 @@ def _load_ge_uncertainty_inputs(
         raise _fail_error(
             _ERROR_WELFARE_DIMENSION_MISMATCH,
             "GE uncertainty bundle dimensions do not match welfare response size",
-            details={"multiplier_shape": list(bundle.multiplier_shape), "response_size": size},
+            details={
+                "multiplier_shape": list(bundle.multiplier_shape),
+                "response_size": size,
+            },
         )
     if not ge_entry_map and isinstance(bundle.metadata.get("entry_map"), dict):
         ge_entry_map = _coerce_entry_map(bundle.metadata["entry_map"])
@@ -134,7 +144,10 @@ def _resolve_ge_point_source(
         return point, source, source_kind, raw_ge_model_ref
     if bundle is not None and bundle.point_multiplier_ref is not None:
         point = _load_matrix_artifact(
-            ctx, bundle.point_multiplier_ref, expected_size=size, field_name="point_multiplier_ref"
+            ctx,
+            bundle.point_multiplier_ref,
+            expected_size=size,
+            field_name="point_multiplier_ref",
         )
         return point, point, "multiplier", bundle.point_multiplier_ref
     return None, None, "none", ge_model_ref
@@ -181,10 +194,16 @@ def _resolve_ge_bounds(
         )
     if bundle is not None and bundle.lower_multiplier_ref is not None:
         lower_multiplier = _load_matrix_artifact(
-            ctx, bundle.lower_multiplier_ref, expected_size=size, field_name="lower_multiplier_ref"
+            ctx,
+            bundle.lower_multiplier_ref,
+            expected_size=size,
+            field_name="lower_multiplier_ref",
         )
         upper_multiplier = _load_matrix_artifact(
-            ctx, bundle.upper_multiplier_ref, expected_size=size, field_name="upper_multiplier_ref"
+            ctx,
+            bundle.upper_multiplier_ref,
+            expected_size=size,
+            field_name="upper_multiplier_ref",
         )
         _validate_matrix_interval(
             lower_multiplier,
@@ -539,7 +558,12 @@ def _validate_entry_map(entry_map: Mapping[str, tuple[int, int]], *, size: int) 
             raise _fail_error(
                 _ERROR_WELFARE_DIMENSION_MISMATCH,
                 "welfare_ge_entry_map coordinates must lie within the GE matrix",
-                details={"param_name": param_name, "row": row_idx, "col": col_idx, "size": size},
+                details={
+                    "param_name": param_name,
+                    "row": row_idx,
+                    "col": col_idx,
+                    "size": size,
+                },
             )
 
 
@@ -604,7 +628,10 @@ def _invert_linear_operator(
         raise _fail_error(
             _ERROR_GE_OPERATOR_SINGULAR,
             "GE operator is singular or ill-conditioned",
-            details={"condition_number": condition_number, "threshold": condition_threshold},
+            details={
+                "condition_number": condition_number,
+                "threshold": condition_threshold,
+            },
         )
     try:
         inverse = np.linalg.inv(operator)

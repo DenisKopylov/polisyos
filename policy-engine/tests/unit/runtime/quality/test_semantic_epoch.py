@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from datetime import date
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +17,14 @@ from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     CatalogAcquisitionOverlay,
 )
 from polisyos.data_forge.read_api import catalog as catalog_read_api
+from polisyos.fabric.connectors.cache import ConnectorCacheStore, TTLPolicy
+from polisyos.ir.connectors import (
+    DataVersion,
+    FetchRequest,
+    FetchResult,
+    QualityTier,
+    VersionStrategy,
+)
 from polisyos.runtime.quality import chronology_qualification, substrate_registry
 from polisyos.runtime.quality import semantic_epoch as epoch
 from polisyos.runtime.quality.acquisition_executor import (
@@ -985,11 +993,21 @@ def test_production_acquisition_invokes_epoch_adapter_and_returns_policy_admissi
         opaque_scope_binding_ref=_digest("catalog-scope-binding"),
     )
     boundary_registry = epoch.build_boundary_registry((registration,))
+    facet_payload = epoch_contract.canonical_epoch_bytes({"semantic_value": "catalog-semantics"})
+    facet_ref = store.put_bytes(
+        facet_payload,
+        PutOptions(
+            kind="epoch.semantic_facet_source.v1",
+            media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
+        ),
+        return_selected_profile=True,
+    )
     facet_registry = epoch.build_facet_registry(
         (
             epoch.SemanticFacetRegistration(
                 facet_id="catalog-semantics",
-                source_binding_ref=_digest("catalog-facet-source"),
+                source_binding_ref=str(facet_ref.artifact_id),
             ),
         )
     )
@@ -1006,7 +1024,9 @@ def test_production_acquisition_invokes_epoch_adapter_and_returns_policy_admissi
             )
         },
         facet_registry=facet_registry,
-        facet_provider=_ResolvedFacetProvider(store),
+        facet_provider=epoch.ArtifactSemanticFacetProvider(
+            artifacts=store, source_refs={str(facet_ref.artifact_id): facet_ref}
+        ),
         history=history,
         artifact_store=store,
         qualification_consumer=(
@@ -1321,6 +1341,335 @@ def test_selected_epoch_reference_graph_resolves_transitive_owner_projections_an
     assert epoch._resolve_selected_reference_graph(corrupting_store, selected_graph) is None
 
 
+def test_selected_reference_graph_resolves_actual_admitted_and_persisted_candidate(
+    tmp_path: Path,
+) -> None:
+    """Digest-only DTO projections coexist with the persisted typed query."""
+    from tests._helpers.semantic_epoch_native import _real_epoch_scenario
+
+    scenario = _real_epoch_scenario(tmp_path)
+    admitted_ref = scenario.overlay.emit_admitted_boundary_evidence(
+        query=scenario.service.acquisition_owner_query(query=scenario.query),
+        passport=scenario.passport,
+        prepared_epoch=scenario.prepared,
+        boundary_candidate=scenario.candidate,
+        pending_receipt=scenario.pending,
+        artifact_store=scenario.store,
+    )
+    admitted_mapping = epoch_contract.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted_ref,
+        expected_kind="epoch.admitted_acquisition_boundary_evidence",
+    )
+    admitted = epoch_contract.AdmittedAcquisitionBoundaryEvidence.model_validate(admitted_mapping)
+    candidate_mapping = epoch_contract.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted.semantic_candidate_ref,
+        expected_kind="epoch.acquisition_semantic_boundary_candidate",
+    )
+    candidate = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement.model_validate(
+        candidate_mapping
+    )
+    assert epoch._epoch_coordinate_bindings(candidate) == {}
+    assert epoch._epoch_coordinate_bindings(admitted.semantic_epoch_stamp) == {}
+    selected_profiles = epoch._resolve_selected_reference_graph(scenario.store, admitted)
+    assert selected_profiles is not None
+    selected_kinds = {kind for _, kind, _ in selected_profiles}
+    assert {
+        "epoch.semantic_facet_source.v1",
+        "epoch.coordinate.valid_effect.v1",
+        "epoch.coordinate.visibility_knowledge_cutoff.v1",
+        "epoch.coordinate.purpose_admission_cutoff.v1",
+        "epoch.acquisition_owner_snapshot",
+        "epoch.acquisition_native_membership",
+        "epoch.acquisition_native_member",
+        "epoch.acquisition_passport_snapshot",
+        "epoch.acquisition_semantic_boundary_candidate",
+        "epoch.acquisition_semantic_denominator_receipt",
+        "epoch.acquisition_semantic_projection_verification_receipt",
+        "epoch.acquisition_projection_verifier_provenance",
+    } <= selected_kinds
+    facet_receipt_mapping = epoch_contract.load_verified_epoch_statement(
+        store=scenario.store,
+        ref=admitted.semantic_epoch_stamp.facet_denominator_receipt_ref,
+        expected_kind="epoch.facet_denominator_receipt",
+    )
+    facet_source_ref = ArtifactRef.model_validate(
+        facet_receipt_mapping["values"][0]["source_record_ref"]
+    )
+    assert (
+        epoch._resolve_selected_reference_graph(
+            scenario.store, facet_source_ref.model_copy(update={"media_type": "application/json"})
+        )
+        is None
+    )
+    assert (
+        epoch._resolve_selected_reference_graph(
+            scenario.store,
+            facet_source_ref.model_copy(update={"kind": "epoch.semantic_facet_source.v99"}),
+        )
+        is None
+    )
+    wrong_profile = "sha256:" + "0" * 64
+    if wrong_profile == facet_source_ref.manifest_profile_sha256:
+        wrong_profile = "sha256:" + "f" * 64
+    assert (
+        epoch._resolve_selected_reference_graph(
+            scenario.store,
+            facet_source_ref.model_copy(update={"manifest_profile_sha256": wrong_profile}),
+        )
+        is None
+    )
+
+    def select_query_refs(query: epoch.EpochResolutionQuery) -> epoch.EpochResolutionQuery:
+        updates: dict[str, object] = {}
+        for field in (
+            "valid_effect_coordinate_evidence_ref",
+            "visibility_knowledge_cutoff_evidence_ref",
+            "purpose_admission_cutoff_evidence_ref",
+        ):
+            ref = getattr(query, field)
+            manifest = scenario.store.get_manifest(ref)
+            updates[field] = ref.model_copy(
+                update={
+                    "manifest_profile_sha256": epoch.artifacts.artifact_manifest_profile_sha256(
+                        manifest
+                    )
+                }
+            )
+        return query.model_copy(update=updates)
+
+    legacy_query = select_query_refs(_query(scenario.store))
+    assert epoch._resolve_selected_reference_graph(scenario.store, legacy_query) is not None
+    selected_query = select_query_refs(scenario.query)
+    forged_digest = "sha256:" + "0" * 64
+    forged_context = epoch_contract.epoch_query_context_ref(
+        family="epoch",
+        scope_bytes=selected_query.scope_identity.identity_bytes,
+        authority_purpose=selected_query.authority_purpose,
+        coordinate_refs=(
+            forged_digest,
+            selected_query.visibility_knowledge_cutoff_ref,
+            selected_query.purpose_admission_cutoff_ref,
+        ),
+    )
+    forged_query = selected_query.model_copy(
+        update={
+            "valid_effect_coordinate_ref": forged_digest,
+            "requested_query_context_ref": forged_context,
+        }
+    )
+    assert epoch._resolve_selected_reference_graph(scenario.store, forged_query) is None
+
+    source_bytes = scenario.store.get_bytes(selected_query.valid_effect_coordinate_evidence_ref)
+    unknown_kind = "epoch.coordinate.unregistered.v1"
+    unknown_ref = scenario.store.put_bytes(
+        source_bytes,
+        PutOptions(
+            kind=unknown_kind,
+            media_type=selected_query.valid_effect_coordinate_evidence_ref.media_type,
+        ),
+        return_selected_profile=True,
+    )
+    unknown_digest = epoch_contract.native_coordinate_ref(
+        family="epoch",
+        role="valid_effect",
+        schema_profile=unknown_kind,
+        coordinate_bytes=source_bytes,
+    )
+    unknown_query = selected_query.model_copy(
+        update={
+            "valid_effect_coordinate_evidence_ref": unknown_ref,
+            "valid_effect_coordinate_ref": unknown_digest,
+            "requested_query_context_ref": epoch_contract.epoch_query_context_ref(
+                family="epoch",
+                scope_bytes=selected_query.scope_identity.identity_bytes,
+                authority_purpose=selected_query.authority_purpose,
+                coordinate_refs=(
+                    unknown_digest,
+                    selected_query.visibility_knowledge_cutoff_ref,
+                    selected_query.purpose_admission_cutoff_ref,
+                ),
+            ),
+        }
+    )
+    assert epoch._resolve_selected_reference_graph(scenario.store, unknown_query) is None
+
+
+def test_connector_cache_graph_uses_real_serializer_media_without_pickle_execution(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import pickle
+
+    import pandas as pd
+
+    store = FileSystemCAS(tmp_path / "connector-cache-graph-cas")
+    values = (
+        ({"rows": [{"value": 1.25}]}, "application/json"),
+        (pd.DataFrame({"value": [1.25]}), "application/parquet"),
+        ("opaque-cache-value", "application/pickle"),
+    )
+    forbidden_calls: list[bool] = []
+
+    def forbidden_loads(*args: object, **kwargs: object) -> object:
+        del args, kwargs
+        forbidden_calls.append(True)
+        raise AssertionError("selected graph must never execute pickle payloads")
+
+    monkeypatch.setattr(pickle, "loads", forbidden_loads)
+    for index, (data, inner_media_type) in enumerate(values):
+        now = datetime.now(UTC)
+        digest = _digest(f"connector-cache-source-{index}")
+        result = FetchResult(
+            data=data,
+            row_count=1,
+            schema_id="test.connector-cache-source",
+            schema_version="1.0",
+            version=DataVersion(
+                strategy=VersionStrategy.CONTENT_HASH,
+                value=digest,
+                timestamp=now,
+                content_hash=digest,
+            ),
+            fetched_at=now,
+            source_updated_at=now,
+            completeness=1.0,
+            quality_tier=QualityTier.GOLD,
+        )
+        request = FetchRequest(dataset_id=f"test.connector-cache-{index}")
+        with ConnectorCacheStore(store, TTLPolicy(ttl=timedelta(hours=1))) as cache:
+            metadata = cache.put(request, result, connector_id="test.connector")
+        assert metadata.payload_media_type == (
+            "application/vnd.polisyos.cached-result+" + inner_media_type
+        )
+        profileless = ArtifactRef(
+            artifact_id=metadata.payload_artifact_id,
+            kind="connector_cache.payload",
+            media_type=metadata.payload_media_type,
+        )
+        selected, envelope = epoch._load_owner_projection_mapping(store, profileless)
+        assert selected.manifest_profile_sha256 is not None
+        assert envelope["data_media_type"] == inner_media_type
+        assert envelope["fetched_at"] == now
+        assert envelope["source_updated_at"] == now
+        serialized = store.get_bytes(selected)
+        envelope_size = int.from_bytes(serialized[:4], "big")
+        envelope_end = 4 + envelope_size
+        serialized_envelope = epoch.canon.from_canonical_bytes(serialized[4:envelope_end])
+        assert isinstance(serialized_envelope, dict)
+        normalized_naive = epoch.canon.from_canonical_bytes(
+            epoch.canon.to_canonical_bytes(
+                datetime(2025, 1, 1), epoch.canon.CanonSpec(forbid_floats=False)
+            )
+        )
+        assert isinstance(normalized_naive, datetime)
+        assert normalized_naive.utcoffset() == timedelta(0)
+        for field_name, malformed_value, error_text in (
+            ("fetched_at", "not-a-datetime", "fields differ from FetchResult"),
+            ("source_updated_at", "not-a-datetime", "source update time is malformed"),
+        ):
+            malformed_envelope = serialized_envelope | {field_name: malformed_value}
+            malformed_bytes = epoch.canon.to_canonical_bytes(
+                malformed_envelope, epoch.canon.CanonSpec(forbid_floats=False)
+            )
+            malformed_payload = (
+                len(malformed_bytes).to_bytes(4, "big")
+                + malformed_bytes
+                + serialized[envelope_end:]
+            )
+            with pytest.raises(ValueError, match=error_text):
+                epoch._connector_cache_payload_mapping(
+                    malformed_payload, media_type=selected.media_type
+                )
+        manifest = store.get_manifest(selected)
+        assert manifest.artifact_schema.name == "fabric.connector_cache"
+        assert manifest.artifact_schema.version == "1.0"
+        assert epoch._resolve_selected_reference_graph(store, selected) is not None
+        serializer_media_types = (
+            "application/vnd.polisyos.cached-result+application/json",
+            "application/vnd.polisyos.cached-result+application/parquet",
+            "application/vnd.polisyos.cached-result+application/pickle",
+        )
+        other_media = next(
+            media for media in serializer_media_types if media != selected.media_type
+        )
+        assert (
+            epoch._resolve_selected_reference_graph(
+                store, selected.model_copy(update={"media_type": other_media})
+            )
+            is None
+        )
+        wrong_profile = "sha256:" + "0" * 64
+        if wrong_profile == selected.manifest_profile_sha256:
+            wrong_profile = "sha256:" + "f" * 64
+        assert (
+            epoch._resolve_selected_reference_graph(
+                store, selected.model_copy(update={"manifest_profile_sha256": wrong_profile})
+            )
+            is None
+        )
+        if index == 0:
+            manifest_for_schema = store.get_manifest(selected)
+            altered_schema = manifest_for_schema.artifact_schema.model_copy(
+                update={"version": "99.0"}
+            )
+            altered_manifest = manifest_for_schema.model_copy(
+                update={"artifact_schema": altered_schema}
+            )
+            altered_ref = selected.model_copy(
+                update={
+                    "manifest_profile_sha256": (
+                        epoch.artifacts.artifact_manifest_profile_sha256(altered_manifest)
+                    )
+                }
+            )
+
+            class AlteredSchemaView:
+                def __init__(
+                    self,
+                    delegate: FileSystemCAS,
+                    target_artifact_id: ArtifactID,
+                    replacement_manifest: Any,
+                ) -> None:
+                    self._delegate = delegate
+                    self._target_artifact_id = target_artifact_id
+                    self._replacement_manifest = replacement_manifest
+
+                def get_manifest(self, selector: ArtifactID | ArtifactRef) -> Any:
+                    if str(getattr(selector, "artifact_id", selector)) == str(
+                        self._target_artifact_id
+                    ):
+                        return self._replacement_manifest
+                    return self._delegate.get_manifest(selector)
+
+                def get_bytes(self, selector: ArtifactID | ArtifactRef) -> bytes:
+                    return self._delegate.get_bytes(selector)
+
+                def verify(self, selector: ArtifactID | ArtifactRef) -> Any:
+                    return self._delegate.verify(self._target_artifact_id)
+
+            altered_view = AlteredSchemaView(store, selected.artifact_id, altered_manifest)
+            assert epoch._resolve_selected_reference_graph(altered_view, altered_ref) is None
+        registered_codec = epoch_contract.acquisition_artifact_codec
+        monkeypatch.setattr(
+            epoch_contract,
+            "acquisition_artifact_codec",
+            lambda kind,
+            *,
+            media_type=None,
+            expected_kind=profileless.kind,
+            expected_media=profileless.media_type,
+            registered_codec=registered_codec: (
+                None
+                if kind == expected_kind and media_type == expected_media
+                else registered_codec(kind, media_type=media_type)
+            ),
+        )
+        assert epoch._resolve_selected_reference_graph(store, selected) is None
+        monkeypatch.setattr(epoch_contract, "acquisition_artifact_codec", registered_codec)
+    assert forbidden_calls == []
+
+
 def test_registered_codec_keeps_identity_tokens_and_unresolved_refs_distinct(
     tmp_path: Path,
 ) -> None:
@@ -1402,7 +1751,7 @@ def test_real_l5_owner_rows_and_registry_files_round_trip_through_cas(tmp_path: 
     owner = substrate_registry.load_l5_catalog_authority(
         substrate_registry.default_substrate_catalog_paths(repo_root)
     )
-    receipt, _ = substrate_registry.resolve_l5_schema_regime_projection(
+    receipt, projection = substrate_registry.resolve_l5_schema_regime_projection(
         owner,
         scope_identity_ref=owner.schema_regime_scope_relations[0].scope_identity_refs[0],
         valid_effect_value=date(2025, 1, 1),
@@ -1426,6 +1775,10 @@ def test_real_l5_owner_rows_and_registry_files_round_trip_through_cas(tmp_path: 
         key: dict(value) for key, value in sorted(owner.schema_regime_rows.items())
     }
     assert batch.declared_member_count == len(receipt.assessments)
+    assert batch.owner_source_snapshot_ref.manifest_profile_sha256 is not None
+    assert epoch._selected_cas_ref_matches_owner_projection(
+        batch.owner_source_snapshot_ref, projection.owner_source_snapshot_ref
+    )
     for source_ref, source_hash in (
         (receipt.regime_registry_ref, receipt.regime_registry_content_hash),
         (receipt.scope_registry_ref, receipt.scope_registry_content_hash),

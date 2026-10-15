@@ -8,6 +8,7 @@ from polisyos.berl.contracts.validation_rules import (
     ValidationThresholds,
     summarize_explanation_response,
     validate_explanation_bundle,
+    validate_persisted_explanation_bundle_payload,
 )
 from polisyos.berl.metrics.empirical_bounds import (
     EmpiricalBoundResult,
@@ -37,4 +38,5 @@ __all__ = [
     "persist_explanation_bundle",
     "summarize_explanation_response",
     "validate_explanation_bundle",
+    "validate_persisted_explanation_bundle_payload",
 ]

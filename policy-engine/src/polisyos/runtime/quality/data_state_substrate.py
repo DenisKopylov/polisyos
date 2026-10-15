@@ -312,7 +312,9 @@ def l1_dcat_variable_availability(
     if not variable:
         raise DataStateSubstrateError("l1_variable_empty")
     dcat_path = default_substrate_catalog_paths(repo_root).l1_dcat_path
-    from polisyos.runtime.quality.substrate_registry import current_catalog_serving_source
+    from polisyos.runtime.quality.substrate_registry import (
+        current_catalog_serving_source,
+    )
 
     catalog_source = current_catalog_serving_source()
     if not dcat_path.exists():
@@ -915,7 +917,7 @@ def build_acquired_observation_candidate_world(
     supplied transaction time only for the snapshot transaction.
     """
     from polisyos.core.artifacts import load_core_json_artifact
-    from polisyos.foundry.data_plane.bindings import load_input_bindings
+    from polisyos.foundry.data_plane import load_input_bindings
     from polisyos.ir.model_layer.model_spec import ModelSpec
 
     if transaction_time.tzinfo is None or transaction_time.utcoffset() is None:

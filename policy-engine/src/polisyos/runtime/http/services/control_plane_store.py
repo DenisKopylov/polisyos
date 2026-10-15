@@ -38,7 +38,7 @@ from polisyos.core.contracts.control import (
     ExecutionProfile,
     OperatorDiagnostic,
 )
-from polisyos.core.contracts.control_admission_attempt import (
+from polisyos.core.contracts import (
     CONTROL_PRE_ADMISSION_SETTLEMENT_REQUIRED_PROFILES,
     NO_CALL_REASON_VALUES,
     PRODUCER_CALL_STATE_VALUES,
@@ -47,7 +47,7 @@ from polisyos.core.contracts.control_admission_attempt import (
 from polisyos.core.contracts.runtime import ApiMeta
 
 if TYPE_CHECKING:
-    from polisyos.core.contracts.control_admission_attempt import (
+    from polisyos.core.contracts import (
         ControlPreAdmissionAttemptStatus,
         ProducerCallState,
         NoCallReason,
@@ -516,9 +516,15 @@ def _completion_failure_message(progress: Mapping[str, Any]) -> str | None:
         return failure_message or reason_code or "workflow failure cannot complete cleanly"
     if disposition and disposition.startswith("blocked_workflow_failure"):
         return failure_message or reason_code or disposition
-    if progress_state == "failed" and authority_result in {"repair_required", "blocked"}:
+    if progress_state == "failed" and authority_result in {
+        "repair_required",
+        "blocked",
+    }:
         return failure_message or reason_code or "failed progress cannot complete cleanly"
-    if runtime_state == "blocked" and authority_result in {"repair_required", "blocked"}:
+    if runtime_state == "blocked" and authority_result in {
+        "repair_required",
+        "blocked",
+    }:
         return failure_message or reason_code or "blocked progress cannot complete cleanly"
     if status in {"fail", "failed", "error"} and authority_result in {
         None,
@@ -772,7 +778,9 @@ def _enforce_runtime_quality_refs(
     return updated_gates, updated_failures
 
 
-def _blocking_failures_from_gates(gates: list[ControlQualityGate]) -> list[ControlQualityFailure]:
+def _blocking_failures_from_gates(
+    gates: list[ControlQualityGate],
+) -> list[ControlQualityFailure]:
     return [
         ControlQualityFailure(
             gate=gate.name,
@@ -1640,7 +1648,9 @@ class ControlPlaneStore:
             attempt=attempt,
         )
 
-    def _current_execution_running_job_proof(self) -> _ControlJobExecutionLifecycleProof:
+    def _current_execution_running_job_proof(
+        self,
+    ) -> _ControlJobExecutionLifecycleProof:
         """Reconcile the live worker lease with its latest persisted running event."""
         with self._job_transaction():
             bound = self._job_execution_fence.get()
@@ -2868,7 +2878,12 @@ class ControlPlaneStore:
         ):
             raise ValueError("control_pre_admission_idempotency_key_required")
         normalized_intent = json.loads(
-            json.dumps(dict(intent_binding), sort_keys=True, separators=(",", ":"), allow_nan=False)
+            json.dumps(
+                dict(intent_binding),
+                sort_keys=True,
+                separators=(",", ":"),
+                allow_nan=False,
+            )
         )
         expected_intent_keys = {
             "schema_version",
@@ -2905,7 +2920,14 @@ class ControlPlaneStore:
         tenant_id = normalized_intent.get("tenant_id")
         cell_id = normalized_intent.get("cell_id")
         actor_subject = normalized_intent.get("actor_subject")
-        scope_sentinels = {"unknown", "tenant-unknown", "cell-unknown", "anonymous", "none", "null"}
+        scope_sentinels = {
+            "unknown",
+            "tenant-unknown",
+            "cell-unknown",
+            "anonymous",
+            "none",
+            "null",
+        }
         if any(
             not isinstance(value, str)
             or not value
@@ -2933,7 +2955,14 @@ class ControlPlaneStore:
         )
         if normalized_binding is not None and (
             set(normalized_binding)
-            != {"schema_version", "run_id", "tenant_id", "cell_id", "profile_id", "control_job_id"}
+            != {
+                "schema_version",
+                "run_id",
+                "tenant_id",
+                "cell_id",
+                "profile_id",
+                "control_job_id",
+            }
             or normalized_binding.get("schema_version")
             != "polisyos.scientist.budget_ledger.producer_run_binding.v1"
             or normalized_binding.get("run_id") != run_id
@@ -3120,7 +3149,11 @@ class ControlPlaneStore:
                 or not normalized_refs
             ):
                 raise ValueError("control_pre_admission_settlement_evidence_incomplete")
-            if current == "started" and event_type in {"refused", "cancelled", "failed"}:
+            if current == "started" and event_type in {
+                "refused",
+                "cancelled",
+                "failed",
+            }:
                 safe_no_call_refusal = (
                     event_type == "refused" and producer_event_observation == "no_call"
                 )
@@ -3507,7 +3540,11 @@ class ControlPlaneStore:
                     or not event_refs
                 ):
                     raise RuntimeError("pre-admission settled event lacks complete refs")
-                if status == "started" and event.event_type in {"refused", "cancelled", "failed"}:
+                if status == "started" and event.event_type in {
+                    "refused",
+                    "cancelled",
+                    "failed",
+                }:
                     safe_no_call_refusal = (
                         event.event_type == "refused"
                         and event.producer_event_observation == "no_call"
@@ -4196,9 +4233,16 @@ class ControlPlaneStore:
                 (job_id,),
             )
             job = cur.fetchone()
-            if job is None or tuple(job) != (run_id, "natural_language_run", "completed"):
+            if job is None or tuple(job) != (
+                run_id,
+                "natural_language_run",
+                "completed",
+            ):
                 raise ValueError("normative_evidence_job_mismatch")
-            execute("SELECT progress_json FROM control_job_progress WHERE job_id = ?", (job_id,))
+            execute(
+                "SELECT progress_json FROM control_job_progress WHERE job_id = ?",
+                (job_id,),
+            )
             progress = cur.fetchone()
             if (
                 progress is None
@@ -4452,7 +4496,9 @@ class ControlPlaneStore:
         """Resolve this handler's exact completed attempt without granting a new lease."""
         return self._current_execution_completed_job_proof().record
 
-    def _current_execution_completed_job_proof(self) -> _ControlJobExecutionLifecycleProof:
+    def _current_execution_completed_job_proof(
+        self,
+    ) -> _ControlJobExecutionLifecycleProof:
         """Resolve the exact completed attempt and durable event under transaction."""
         with self._job_transaction(purpose="completed_proof"):
             return self._require_current_job_completion_proof()
@@ -4474,7 +4520,9 @@ class ControlPlaneStore:
         """Reconcile the bound attempt with its durable failure event under transaction."""
         return self._require_current_job_terminal_record(state="failed")
 
-    def _require_current_job_completion_proof(self) -> _ControlJobExecutionLifecycleProof:
+    def _require_current_job_completion_proof(
+        self,
+    ) -> _ControlJobExecutionLifecycleProof:
         """Return the exact completion source event and its bound worker attempt."""
         return self._require_current_job_terminal_proof(state="completed")
 
@@ -4794,7 +4842,14 @@ class ControlPlaneStore:
                 finished_at = ?, lease_owner = NULL, lease_expires_at = NULL, error_message = NULL
             WHERE {where}
             """,
-            ("completed", run_id, pipeline_id, capability_manifest_ref, _iso(now), *where_params),
+            (
+                "completed",
+                run_id,
+                pipeline_id,
+                capability_manifest_ref,
+                _iso(now),
+                *where_params,
+            ),
         )
         self._require_fenced_write(job_id=job_id, fence=fence, affected_rows=affected_rows)
         self._admit_terminal_publication(job_id=job_id, fence=fence, state="completed")
@@ -4863,7 +4918,13 @@ class ControlPlaneStore:
                 finished_at = ?, lease_owner = NULL, lease_expires_at = NULL, error_message = ?
             WHERE {where}
             """,
-            ("failed", capability_manifest_ref, _iso(now), error_message[:2000], *where_params),
+            (
+                "failed",
+                capability_manifest_ref,
+                _iso(now),
+                error_message[:2000],
+                *where_params,
+            ),
         )
         self._require_fenced_write(job_id=job_id, fence=fence, affected_rows=affected_rows)
         self._admit_terminal_publication(job_id=job_id, fence=fence, state="failed")

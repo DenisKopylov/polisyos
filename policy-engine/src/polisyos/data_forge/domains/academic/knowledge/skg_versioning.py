@@ -94,20 +94,23 @@ def confidence_layer_vintage(db_path: Path | str) -> ConfidenceLayerVintage | No
             digest = hashlib.file_digest(stream, "sha256").hexdigest()
         after = path.stat()
         if (before.st_ino, before.st_size, before.st_mtime_ns, before.st_ctime_ns) != (
-            after.st_ino, after.st_size, after.st_mtime_ns, after.st_ctime_ns
+            after.st_ino,
+            after.st_size,
+            after.st_mtime_ns,
+            after.st_ctime_ns,
         ):
             raise OSError("snapshot changed during vintage binding")
     except OSError as exc:
         raise ValueError("confidence_layer_vintage: ambiguous snapshot bytes") from exc
-    return _confidence_layer_vintage_for_sha256(digest)
+    return confidence_layer_vintage_for_snapshot_digest(digest)
 
 
-def _confidence_layer_vintage_for_sha256(
+def confidence_layer_vintage_for_snapshot_digest(
     digest: str,
 ) -> ConfidenceLayerVintage | None:
     """Classify a digest already recomputed by the source-byte owner.
 
-    This private helper lets a caller that already streamed the source bytes
+    This owner operation lets a caller that already streamed the source bytes
     reuse the established historical-snapshot rule without reopening and
     hashing the same database a second time.
     """

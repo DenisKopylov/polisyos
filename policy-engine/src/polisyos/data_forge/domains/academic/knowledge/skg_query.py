@@ -35,8 +35,8 @@ from polisyos.data_forge.domains.academic.knowledge.skg_store import (
 )
 from polisyos.data_forge.domains.academic.knowledge.skg_versioning import (
     ConfidenceLayerVintage,
-    _confidence_layer_vintage_for_sha256,
     confidence_layer_vintage,
+    confidence_layer_vintage_for_snapshot_digest,
     require_forwardable_confidence,
 )
 from polisyos.data_forge.domains.academic.knowledge.store import (
@@ -68,34 +68,35 @@ logger = get_logger(__name__)
 
 _PREPARED_READ_SCHEMA_VERSION = "academic.skg_source_binding.v2"
 _SKG_QUERY_VERSION = "skg-query-read.v3"
-_CREDAL_SOURCE_QUERY_BASIS = MappingProxyType({
-    "version": "SELECT MAX(version_id) FROM main.ac_skg_versions",
-    "variables": """
+_CREDAL_SOURCE_QUERY_BASIS = MappingProxyType(
+    {
+        "version": "SELECT MAX(version_id) FROM main.ac_skg_versions",
+        "variables": """
                 SELECT canonical_name, approved_canonical_name, is_approved_canonical,
                        resolution_method, resolution_confidence, mention_count,
                        parent_name, approved_parent_name
                 FROM main.ac_skg_variables
                 ORDER BY canonical_name
                 """,
-    "variable_synonyms": """
+        "variable_synonyms": """
                 SELECT synonym, canonical_name, method, confidence, approved
                 FROM main.ac_skg_variable_synonyms
                 ORDER BY synonym, canonical_name
                 """,
-    "causal_edges": """
+        "causal_edges": """
                 SELECT edge_id, src, dst, direction, n_articles, evidence_strength,
                        confidence, candidate_layer, quality_signals_json
                 FROM main.ac_skg_edges
                 ORDER BY edge_id
                 """,
-    "family_edges": """
+        "family_edges": """
                 SELECT family_edge_id, src_family, dst_family, direction, n_articles,
                        n_claims, evidence_strength, confidence, direction_histogram_json,
                        design_tier_histogram_json, candidate_layer, quality_signals_json
                 FROM main.ac_skg_family_edges
                 ORDER BY family_edge_id
                 """,
-    "moderation_edges": """
+        "moderation_edges": """
                 SELECT moderation_id, base_cause, base_effect, moderator, base_claim_id,
                        direction_of_mod, interaction_coeff, interaction_pvalue,
                        evidence_count, confidence, match_quality, alignment_source,
@@ -103,7 +104,7 @@ _CREDAL_SOURCE_QUERY_BASIS = MappingProxyType({
                 FROM main.ac_skg_moderation_edges
                 ORDER BY moderation_id
                 """,
-    "contested_edges": """
+        "contested_edges": """
                 SELECT contested_edge_id, src_family, dst_family, dominant_direction,
                        resolution_status, runtime_support, confidence, positive_weight,
                        negative_weight, mixed_weight, direction_histogram_json,
@@ -111,16 +112,17 @@ _CREDAL_SOURCE_QUERY_BASIS = MappingProxyType({
                 FROM main.ac_skg_contested_edges
                 ORDER BY contested_edge_id
                 """,
-    "causal_claim_results_v2": _CAUSAL_CLAIM_RESULTS_V2_QUERY,
-    "synthetic_column": """
+        "causal_claim_results_v2": _CAUSAL_CLAIM_RESULTS_V2_QUERY,
+        "synthetic_column": """
                 SELECT 1
                 FROM information_schema.columns
                 WHERE table_schema = 'main'
                   AND table_name = 'ac_causal_claims_raw'
                   AND column_name = 'synthetic'
                 """,
-    "synthetic_values": "SELECT synthetic FROM main.ac_causal_claims_raw ORDER BY synthetic",
-})
+        "synthetic_values": "SELECT synthetic FROM main.ac_causal_claims_raw ORDER BY synthetic",
+    }
+)
 
 
 def _file_sha256(path: Path) -> str:
@@ -469,7 +471,7 @@ class SKGQuery:
             source_file_identity = _source_file_identity(resolved_path)
             if source_file_identity != source_identity_after_hash or wal_path.exists():
                 raise ValueError("skg_prepared_read_source_changed_during_binding")
-            confidence_vintage = _confidence_layer_vintage_for_sha256(source_sha256)
+            confidence_vintage = confidence_layer_vintage_for_snapshot_digest(source_sha256)
 
             relation_rows = connection.execute(
                 "SELECT table_name FROM information_schema.tables "
@@ -718,7 +720,10 @@ class SKGQuery:
                                 }
                             )
                         ),
-                        transport_notes=(*candidate.transport_notes, "raw_parameter_fallback"),
+                        transport_notes=(
+                            *candidate.transport_notes,
+                            "raw_parameter_fallback",
+                        ),
                     )
                     for candidate in raw_candidates
                 ]
@@ -1501,7 +1506,8 @@ class SKGQuery:
                 conflict_flag=bool(existing.conflict_flag or row.conflict_flag),
                 quality_flags=quality_flags,
                 dominant_direction_agreement=min(
-                    existing.dominant_direction_agreement, row.dominant_direction_agreement
+                    existing.dominant_direction_agreement,
+                    row.dominant_direction_agreement,
                 ),
                 positive_weight=max(existing.positive_weight, row.positive_weight),
                 negative_weight=max(existing.negative_weight, row.negative_weight),
@@ -2059,7 +2065,9 @@ class SKGQuery:
         return token
 
     @staticmethod
-    def _candidate_priority(candidate: ParameterCandidate) -> tuple[float, float, float, int]:
+    def _candidate_priority(
+        candidate: ParameterCandidate,
+    ) -> tuple[float, float, float, int]:
         strength_weight = EVIDENCE_WEIGHTS.get(
             candidate.parameter.evidence_strength.value,
             EVIDENCE_WEIGHTS[EvidenceStrength.UNKNOWN.value],
@@ -3198,9 +3206,7 @@ class SKGQuery:
 class PreparedSKGReadSchemaError(ValueError):
     """Raised when a query in the prepared SKG read basis cannot bind."""
 
-    code: Literal["prepared_skg_read_query_basis_invalid"] = (
-        "prepared_skg_read_query_basis_invalid"
-    )
+    code: Literal["prepared_skg_read_query_basis_invalid"] = "prepared_skg_read_query_basis_invalid"
 
     def __init__(self, query_id: str) -> None:
         """Create a typed refusal for one fixed prepared-read query."""
@@ -3296,9 +3302,7 @@ class PreparedSKGRead:
             except duckdb.Error as exc:
                 raise PreparedSKGReadSchemaError(query_id) from exc
         try:
-            _preflight_causal_claim_results_v2(
-                cast("duckdb.DuckDBPyConnection", connection)
-            )
+            _preflight_causal_claim_results_v2(cast("duckdb.DuckDBPyConnection", connection))
         except ClaimTableSchemaError as exc:
             raise PreparedSKGReadSchemaError("causal_claim_results_v2") from exc
 
@@ -3311,9 +3315,7 @@ class PreparedSKGRead:
             raise ValueError("prepared_skg_read_version_changed_during_read")
 
         synthetic_column_present = (
-            connection.execute(
-                _CREDAL_SOURCE_QUERY_BASIS["synthetic_column"]
-            ).fetchone()
+            connection.execute(_CREDAL_SOURCE_QUERY_BASIS["synthetic_column"]).fetchone()
             is not None
         )
         if synthetic_column_present:
@@ -3326,9 +3328,7 @@ class PreparedSKGRead:
 
         variables = tuple(
             _CredalVariableRow(*row)
-            for row in connection.execute(
-                _CREDAL_SOURCE_QUERY_BASIS["variables"]
-            ).fetchall()
+            for row in connection.execute(_CREDAL_SOURCE_QUERY_BASIS["variables"]).fetchall()
         )
         variable_synonyms = tuple(
             _CredalSynonymRow(*row)
@@ -3338,27 +3338,19 @@ class PreparedSKGRead:
         )
         causal_edges = tuple(
             _CredalCausalEdgeRow(*row)
-            for row in connection.execute(
-                _CREDAL_SOURCE_QUERY_BASIS["causal_edges"]
-            ).fetchall()
+            for row in connection.execute(_CREDAL_SOURCE_QUERY_BASIS["causal_edges"]).fetchall()
         )
         family_edges = tuple(
             _CredalFamilyEdgeRow(*row)
-            for row in connection.execute(
-                _CREDAL_SOURCE_QUERY_BASIS["family_edges"]
-            ).fetchall()
+            for row in connection.execute(_CREDAL_SOURCE_QUERY_BASIS["family_edges"]).fetchall()
         )
         moderation_edges = tuple(
             _CredalModerationRow(*row)
-            for row in connection.execute(
-                _CREDAL_SOURCE_QUERY_BASIS["moderation_edges"]
-            ).fetchall()
+            for row in connection.execute(_CREDAL_SOURCE_QUERY_BASIS["moderation_edges"]).fetchall()
         )
         contested_edges = tuple(
             _CredalContestedEdgeRow(*row)
-            for row in connection.execute(
-                _CREDAL_SOURCE_QUERY_BASIS["contested_edges"]
-            ).fetchall()
+            for row in connection.execute(_CREDAL_SOURCE_QUERY_BASIS["contested_edges"]).fetchall()
         )
         causal_claim_results = tuple(
             iter_causal_claim_results_v2(cast("duckdb.DuckDBPyConnection", connection))

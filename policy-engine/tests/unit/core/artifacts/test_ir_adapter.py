@@ -26,10 +26,13 @@ from polisyos.core.artifacts.ir_adapter import (
 )
 from polisyos.core.artifacts.manifest import (
     ArtifactAuthorityInfo,
+    ArtifactEncryptionPolicyInfo,
     ArtifactGovernanceInfo,
+    ArtifactRetentionPolicyInfo,
     ArtifactSameInputClosureInfo,
     ArtifactTenantContextInfo,
     EnvInfo,
+    GitInfo,
     ProducerInfo,
     WarningRecord,
 )
@@ -51,6 +54,7 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec as CoreCanonSpec
 from polisyos.core.canon import CanonViolation as CoreCanonViolation
 from polisyos.core.canon import from_canonical_bytes as from_core_canonical_bytes
+from polisyos.core.components.ids import ComponentId
 from polisyos.core.contracts.scientist import FailureCardRef
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
@@ -1040,6 +1044,94 @@ def test_ir_adapter_refuses_malformed_supplied_mapping_options(tmp_path, invalid
 
     with pytest.raises((TypeError, ValueError)):
         ensure_ir_artifact_store(store).put_json({"value": 1}, invalid_options)
+
+    assert store.iter_artifact_ids() == []
+
+
+@pytest.mark.parametrize(
+    "nested_edge",
+    [
+        "producer.component",
+        "producer.git",
+        "inputs.artifact_id",
+        "governance.retention",
+        "governance.encryption",
+    ],
+)
+@pytest.mark.parametrize("construction", ["model_construct", "mutated_nested_model"])
+@pytest.mark.parametrize("carrier", ["mapping", "ir_typed", "core_typed"])
+def test_ir_adapter_refuses_invalid_nested_model_options_before_persisting(
+    tmp_path, nested_edge, construction, carrier
+) -> None:
+    """Every declared nested metadata-model edge is revalidated before CAS publication."""
+    if nested_edge == "producer.component":
+        if construction == "model_construct":
+            component = ComponentId.model_construct(root="invalid-component")
+        else:
+            component = ComponentId("polisyos.tests@1.0.0")
+            object.__setattr__(component, "root", "invalid-component")
+        option_name = "producer"
+        option_value = ProducerInfo(
+            component=component,
+            version="1.0.0",
+            git=None,
+        )
+    elif nested_edge == "producer.git":
+        if construction == "model_construct":
+            git = GitInfo.model_construct(commit=None, dirty=False)
+        else:
+            git = GitInfo(commit="a" * 40, dirty=False)
+            object.__setattr__(git, "commit", None)
+        option_name = "producer"
+        option_value = ProducerInfo(
+            component="polisyos.tests@1.0.0",
+            version="1.0.0",
+            git=git,
+        )
+    elif nested_edge == "inputs.artifact_id":
+        if construction == "model_construct":
+            artifact_id = CoreArtifactID.model_construct(root="invalid-artifact-id")
+        else:
+            artifact_id = CoreArtifactID("sha256:" + "a" * 64)
+            object.__setattr__(artifact_id, "root", "invalid-artifact-id")
+        option_name = "inputs"
+        option_value = [CoreInputRef(artifact_id=artifact_id, role="source")]
+    elif nested_edge == "governance.retention":
+        if construction == "model_construct":
+            retention = ArtifactRetentionPolicyInfo.model_construct(
+                scope="candidate", retention_days=-1
+            )
+        else:
+            retention = ArtifactRetentionPolicyInfo(scope="candidate", retention_days=1)
+            object.__setattr__(retention, "retention_days", -1)
+        option_name = "governance"
+        option_value = ArtifactGovernanceInfo(retention=retention)
+    else:
+        if construction == "model_construct":
+            encryption = ArtifactEncryptionPolicyInfo.model_construct(
+                mode="none", enforced="not-a-boolean", verified=False
+            )
+        else:
+            encryption = ArtifactEncryptionPolicyInfo(mode="none", enforced=True, verified=False)
+            object.__setattr__(encryption, "enforced", "not-a-boolean")
+        option_name = "governance"
+        option_value = ArtifactGovernanceInfo(encryption=encryption)
+
+    values = {
+        "kind": f"test.invalid-nested-model-{nested_edge}-{construction}-{carrier}",
+        "media_type": "application/json",
+        option_name: option_value,
+    }
+    if carrier == "mapping":
+        options = MappingProxyType(values)
+    elif carrier == "ir_typed":
+        options = StorePutOptions(**values)
+    else:
+        options = ArtifactWriteOptions(**values)
+
+    store = FileSystemCAS(tmp_path / f"{nested_edge}-{construction}-{carrier}")
+    with pytest.raises(TypeError, match=f"Invalid adapter option '{option_name}'"):
+        ensure_ir_artifact_store(store).put_json({"value": "must-not-be-persisted"}, options)
 
     assert store.iter_artifact_ids() == []
 

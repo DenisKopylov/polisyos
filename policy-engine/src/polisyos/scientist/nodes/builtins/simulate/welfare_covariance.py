@@ -8,23 +8,19 @@ from typing import Any
 import numpy as np
 
 from polisyos.core.artifacts import InputRef
-from polisyos.foundry.uncertainty.covariance import (
+from polisyos.foundry.uncertainty import (
     CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
     CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
     build_covariance_matrix,
     calibration_covariance_blocks_agree_v1,
     preserve_singular_covariance,
 )
+from polisyos.ir import ArtifactRefModel, DependenceStructureRef, UncertaintyEnvelopeRef
 from polisyos.ir.analytics import WelfareMethod
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     PosteriorSamplesCarrier,
     UncertaintyEnvelope,
-)
-from polisyos.ir.registry.refs import (
-    ArtifactRefModel,
-    DependenceStructureRef,
-    UncertaintyEnvelopeRef,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
@@ -124,7 +120,10 @@ def _project_calibration_coordinate_covariance(
             symmetry_rtol=CALIBRATION_COVARIANCE_RECONCILIATION_RTOL_V1,
             symmetry_atol=CALIBRATION_COVARIANCE_RECONCILIATION_ATOL_V1,
         )
-        if coordinate_covariance.shape != (len(coordinate_order), len(coordinate_order)):
+        if coordinate_covariance.shape != (
+            len(coordinate_order),
+            len(coordinate_order),
+        ):
             raise ValueError("coordinate covariance shape does not match coordinate order")
         if full_projection.shape != (
             len(calibration_source.field_order),
@@ -207,7 +206,11 @@ def _non_normal_covariance_pairs(
             if right_is_non_normal:
                 unsupported_fields.add(right_name)
             pairs.append(
-                {"left_field": left_name, "right_field": right_name, "covariance": covariance_value}
+                {
+                    "left_field": left_name,
+                    "right_field": right_name,
+                    "covariance": covariance_value,
+                }
             )
     return unsupported_fields, correlated_fields, pairs
 
@@ -295,7 +298,8 @@ def _calibration_external_overlap_reconciled(
     try:
         overlap_indices = [external_index[name] for name in overlap_fields]
         overlap_stds = np.asarray(
-            [_extract_std(input_envelopes[name]) for name in overlap_fields], dtype=np.float64
+            [_extract_std(input_envelopes[name]) for name in overlap_fields],
+            dtype=np.float64,
         )
         external_overlap = dependence_context.correlation_matrix[
             np.ix_(overlap_indices, overlap_indices)
@@ -994,7 +998,8 @@ def _build_parameter_covariance(
     input_envelopes: Mapping[str, UncertaintyEnvelope],
 ) -> tuple[np.ndarray, bool, dict[str, Any]]:
     stds = np.asarray(
-        [max(_extract_std(input_envelopes[name]), 1e-12) for name in param_names], dtype=np.float64
+        [max(_extract_std(input_envelopes[name]), 1e-12) for name in param_names],
+        dtype=np.float64,
     )
     covariance = np.diag(stds**2)
     note: dict[str, Any] = {

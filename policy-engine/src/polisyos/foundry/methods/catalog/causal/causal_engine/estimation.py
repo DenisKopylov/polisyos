@@ -39,9 +39,7 @@ if TYPE_CHECKING:
         resolve_dataset_context,
     )
 
-globals().update(
-    {name: getattr(_artifacts, name) for name in dir(_artifacts) if not name.startswith("__")}
-)
+globals().update({name: getattr(_artifacts, name) for name in _artifacts.__all__})
 
 
 class CausalEngineEstimationMixin:

@@ -6,13 +6,13 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.scholar.search import validate_web_evidence_source_binding
+from polisyos.scholar import validate_web_evidence_source_binding
 from polisyos.scientist.evidence.claim_support import validate_claim_support_links
 from polisyos.scientist.evidence.safe_fetch import detect_prompt_injection
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
-    from polisyos.scholar.search.models import WebEvidenceBundle
+    from polisyos.scholar import WebEvidenceBundle
 
 
 class EvidenceVerificationResult(BaseModel):

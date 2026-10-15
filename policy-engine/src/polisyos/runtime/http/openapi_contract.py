@@ -121,7 +121,11 @@ _LINEAGE_VIEW_SAMPLE = {
     "freshness": "current",
     "compact_summary": [
         {"kind": "source", "label": "fabric.data_snapshot", "id": _ARTIFACT_ID_SAMPLE},
-        {"kind": "result", "label": "scientist.decision_packet", "id": _ARTIFACT_ID_SAMPLE},
+        {
+            "kind": "result",
+            "label": "scientist.decision_packet",
+            "id": _ARTIFACT_ID_SAMPLE,
+        },
     ],
     "nodes": [
         {
@@ -321,7 +325,10 @@ _CYCLE_BOARD_COMPOSED_ABSENCE_SAMPLE = {
             "source_dependency_hash": None,
             "as_of": None,
             "freshness": None,
-            "authoritative_for": ["legacy_case_identity", "fixture_semantic_expectation"],
+            "authoritative_for": [
+                "legacy_case_identity",
+                "fixture_semantic_expectation",
+            ],
             "may_not_use_for": [
                 "public_claim",
                 "publication_authority",
@@ -362,7 +369,11 @@ _CYCLE_BOARD_COMPOSED_ABSENCE_SAMPLE = {
             "as_of": None,
             "freshness": None,
             "authoritative_for": [],
-            "may_not_use_for": ["per_row_movement", "row_enumeration", "exhaustiveness"],
+            "may_not_use_for": [
+                "per_row_movement",
+                "row_enumeration",
+                "exhaustiveness",
+            ],
             "absence_reason": "the optional N13b control-plane artifact is absent",
         },
         {
@@ -457,8 +468,14 @@ _CYCLE_BOARD_COMPOSED_ABSENCE_SAMPLE = {
 }
 
 _DEFAULT_PROBLEM_RESPONSES: dict[str, dict[str, str]] = {
-    "400": {"code": "bad_request", "description": "Malformed request payload or parameters."},
-    "401": {"code": "unauthorized", "description": "Authentication is required for this route."},
+    "400": {
+        "code": "bad_request",
+        "description": "Malformed request payload or parameters.",
+    },
+    "401": {
+        "code": "unauthorized",
+        "description": "Authentication is required for this route.",
+    },
     "403": {
         "code": "forbidden",
         "description": "Authenticated principal cannot access this resource.",
@@ -468,7 +485,10 @@ _DEFAULT_PROBLEM_RESPONSES: dict[str, dict[str, str]] = {
         "code": "not_acceptable",
         "description": "Requested representation is not supported for this resource.",
     },
-    "422": {"code": "request_validation_failed", "description": "Request validation failed."},
+    "422": {
+        "code": "request_validation_failed",
+        "description": "Request validation failed.",
+    },
     "500": {"code": "internal_error", "description": "Unexpected runtime API failure."},
 }
 
@@ -887,7 +907,10 @@ def _capability_discovery_example(
                     "authority_purpose": "review_capability_candidates",
                     "binding_ref": None,
                     "currentness_ref": None,
-                    "reason_codes": ["not_established", "owner_binding_producer_missing"],
+                    "reason_codes": [
+                        "not_established",
+                        "owner_binding_producer_missing",
+                    ],
                     "provenance_refs": ["policyos.ds10.capability_authority.v1"],
                     "time": time,
                 },
@@ -992,7 +1015,12 @@ def _epoch_staleness_example(*, fixture_only: bool) -> dict[str, Any]:
                     "Institutional appointment may occur after real-user deployment; "
                     "DS18 closes on useful typed refusal rendering."
                 ),
-                inspectable_capabilities=("history", "stale_bindings", "replay", "MACHINE"),
+                inspectable_capabilities=(
+                    "history",
+                    "stale_bindings",
+                    "replay",
+                    "MACHINE",
+                ),
             ),
         )
         limitations = (
@@ -1580,15 +1608,15 @@ def _predictive_coverage_diagnostic_success_examples() -> dict[str, Any]:
         CanonInfo,
         ManifestLifecycle,
         SchemaInfo,
-        expected_artifact_manifest_for_write,
-    )
-    from polisyos.core.artifacts.canonical_profile import (
         artifact_ref_for_manifest,
+        expected_artifact_manifest_for_write,
         read_core_json_artifact,
     )
     from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
     from polisyos.core.contracts.runtime import PredictiveCoverageDiagnosticPreview
-    from polisyos.runtime.http.services.artifact_inspector import _predictive_coverage_preview
+    from polisyos.runtime.http.services.artifact_inspector import (
+        _predictive_coverage_preview,
+    )
 
     fixture_canon_spec = CanonSpec(forbid_floats=False)
     fixture_payload = {
@@ -1755,9 +1783,7 @@ def _pre_admission_attempt_response_examples() -> dict[str, dict[str, Any]]:
     from contextlib import contextmanager
     from contextvars import ContextVar
 
-    from polisyos.core.contracts.control_admission_attempt import (
-        ControlPreAdmissionAttemptResponse,
-    )
+    from polisyos.core.contracts import ControlPreAdmissionAttemptResponse
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
     from polisyos.runtime.http.services.control.run_lifecycle import ControlPlaneService
     from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
@@ -2360,7 +2386,10 @@ def _success_json_schema_projection(
                         discriminator[subkey] = {
                             tag: {
                                 "$schema_target": _success_json_schema_reference_projection(
-                                    target, document=document, active_refs=active_refs, memo=memo
+                                    target,
+                                    document=document,
+                                    active_refs=active_refs,
+                                    memo=memo,
                                 )
                                 if isinstance(target, str)
                                 else _INVALID_SCHEMA_REFERENCE()
@@ -2410,11 +2439,11 @@ _SUCCESS_EXAMPLE_SETS_BY_OPERATION: dict[
 @lru_cache(maxsize=1)
 def _success_example_response_models() -> dict[str, Any]:
     """Return response DTOs that govern model-dispatched success examples."""
-    from polisyos.core.contracts.control_admission_attempt import (
-        ControlPreAdmissionAttemptResponse,
-    )
+    from polisyos.core.contracts import ControlPreAdmissionAttemptResponse
     from polisyos.core.contracts.runtime import PredictiveCoverageDiagnosticPreview
-    from polisyos.runtime.http.services.control.lex_search_profile import LexSearchProfileResponse
+    from polisyos.runtime.http.services.control.lex_search_profile import (
+        LexSearchProfileResponse,
+    )
     from polisyos.runtime.http.services.predictive_calibration import (
         PredictiveCalibrationResponse,
     )
@@ -2834,7 +2863,13 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
     },
     "list_runs": {
         "meta": _META_CORE_RUN,
-        "page": {"limit": 50, "cursor": None, "next_cursor": None, "count": 1, "total": 1},
+        "page": {
+            "limit": 50,
+            "cursor": None,
+            "next_cursor": None,
+            "count": 1,
+            "total": 1,
+        },
         "runs": [
             {
                 "run_id": _RUN_ID_SAMPLE,
@@ -3952,7 +3987,10 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
             },
             "inputs": [],
             "outputs": [
-                {"namespace": "polisyos.lineage", "name": "artifact:" + _ARTIFACT_ID_SAMPLE}
+                {
+                    "namespace": "polisyos.lineage",
+                    "name": "artifact:" + _ARTIFACT_ID_SAMPLE,
+                }
             ],
             "facets": {},
         },
@@ -4416,10 +4454,30 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
                         "details": {"overall_verdict": "refuted"},
                     },
                     "law": {"changed": False, "refs": {}, "summary": {}, "details": {}},
-                    "data": {"changed": False, "refs": {}, "summary": {}, "details": {}},
-                    "evidence": {"changed": False, "refs": {}, "summary": {}, "details": {}},
-                    "model": {"changed": False, "refs": {}, "summary": {}, "details": {}},
-                    "governance": {"changed": False, "refs": {}, "summary": {}, "details": {}},
+                    "data": {
+                        "changed": False,
+                        "refs": {},
+                        "summary": {},
+                        "details": {},
+                    },
+                    "evidence": {
+                        "changed": False,
+                        "refs": {},
+                        "summary": {},
+                        "details": {},
+                    },
+                    "model": {
+                        "changed": False,
+                        "refs": {},
+                        "summary": {},
+                        "details": {},
+                    },
+                    "governance": {
+                        "changed": False,
+                        "refs": {},
+                        "summary": {},
+                        "details": {},
+                    },
                 },
                 "root_cause": ["outcome"],
                 "notes": [],
@@ -4480,11 +4538,36 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[
                         "summary": {"changed_norm_ids": ["art.12"]},
                         "details": {"selected_policy_changed": False},
                     },
-                    "data": {"changed": False, "refs": {}, "summary": {}, "details": {}},
-                    "evidence": {"changed": False, "refs": {}, "summary": {}, "details": {}},
-                    "model": {"changed": False, "refs": {}, "summary": {}, "details": {}},
-                    "governance": {"changed": False, "refs": {}, "summary": {}, "details": {}},
-                    "outcome": {"changed": False, "refs": {}, "summary": {}, "details": {}},
+                    "data": {
+                        "changed": False,
+                        "refs": {},
+                        "summary": {},
+                        "details": {},
+                    },
+                    "evidence": {
+                        "changed": False,
+                        "refs": {},
+                        "summary": {},
+                        "details": {},
+                    },
+                    "model": {
+                        "changed": False,
+                        "refs": {},
+                        "summary": {},
+                        "details": {},
+                    },
+                    "governance": {
+                        "changed": False,
+                        "refs": {},
+                        "summary": {},
+                        "details": {},
+                    },
+                    "outcome": {
+                        "changed": False,
+                        "refs": {},
+                        "summary": {},
+                        "details": {},
+                    },
                 },
                 "root_cause": ["law"],
                 "notes": [],

@@ -12,8 +12,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 
-from polisyos.core.artifacts import FileSystemCAS, input_ref_from_artifact_ref
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts import FileSystemCAS, SchemaInfo, input_ref_from_artifact_ref
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.data_forge.domains.ukraine.manifests import (
     ArtifactRecord,
@@ -23,10 +22,14 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     _make_validation_finding,
     write_manifest,
 )
-from polisyos.data_forge.domains.ukraine.models import PipelineConfig, SourceConfig, StageId
+from polisyos.data_forge.domains.ukraine.models import (
+    PipelineConfig,
+    SourceConfig,
+    StageId,
+)
 from polisyos.data_forge.kernel.io import ensure_dirs, sha256_file
+from polisyos.ir import TimeFrequency
 from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, build_slot_family_manifest
-from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.bundles import (
     ContractCompatibilityTarget,
     ObservationContractArtifact,
@@ -264,12 +267,14 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
             resolved_columns=["source_agent_id", "target_agent_id"],
         )
     )
-    procurement_coverage_before, procurement_resolved_before, procurement_total_before = (
-        _participant_resolution_coverage(
-            prozorro_linked_initial,
-            raw_columns=["_buyer_agent_raw_id", "_supplier_agent_raw_id"],
-            resolved_columns=["buyer_agent_id", "supplier_agent_id"],
-        )
+    (
+        procurement_coverage_before,
+        procurement_resolved_before,
+        procurement_total_before,
+    ) = _participant_resolution_coverage(
+        prozorro_linked_initial,
+        raw_columns=["_buyer_agent_raw_id", "_supplier_agent_raw_id"],
+        resolved_columns=["buyer_agent_id", "supplier_agent_id"],
     )
     unresolved_identity_rows = pd.concat(
         [
@@ -1136,7 +1141,11 @@ def _entity_scope_identity(
 ) -> tuple[str | None, str | None, str | None, str | None]:
     entity_id = None
     entity_candidates: list[str] = []
-    for column in [source.entity_id_column or "agent_id", *source.identity_columns, "agent_id"]:
+    for column in [
+        source.entity_id_column or "agent_id",
+        *source.identity_columns,
+        "agent_id",
+    ]:
         if column and column not in entity_candidates:
             entity_candidates.append(column)
     for column in entity_candidates:
@@ -1598,7 +1607,8 @@ def _build_d2_contract_artifacts(
         "outcome": np.linspace(1.0, 1.5, n_units, dtype=float),
         "treatment_sequence": np.tile(np.asarray([[0, 1, 1]], dtype=int), (n_units, 1)),
         "covariate_sequence": np.tile(
-            np.asarray([[[0.1, 0.2], [0.3, 0.2], [0.4, 0.5]]], dtype=float), (n_units, 1, 1)
+            np.asarray([[[0.1, 0.2], [0.3, 0.2], [0.4, 0.5]]], dtype=float),
+            (n_units, 1, 1),
         ),
         "time_ids": np.asarray(["2025-01", "2025-02", "2025-03"], dtype=object),
         "variable_names": ["lagged_cashflow", "lagged_procurement"],
@@ -1742,7 +1752,10 @@ def _build_d2_contract_artifacts(
             {
                 "schema_version": "1.0",
                 "scenarios": [
-                    {"scenario_id": "macro_holdout", "family": ObservationFamily.MACRO_STATE.value}
+                    {
+                        "scenario_id": "macro_holdout",
+                        "family": ObservationFamily.MACRO_STATE.value,
+                    }
                 ],
             },
         )
@@ -1772,7 +1785,13 @@ def _build_d2_contract_artifacts(
         _write_json(
             stage_dir / "network_contract_bundle_v1.json",
             {
-                "layers": ["budget", "procurement", "trade", "distress", "public_service"],
+                "layers": [
+                    "budget",
+                    "procurement",
+                    "trade",
+                    "distress",
+                    "public_service",
+                ],
                 "contract_id": _NETWORK_CONTRACT_ID,
             },
         )
@@ -1781,7 +1800,13 @@ def _build_d2_contract_artifacts(
         _write_json(
             stage_dir / "network_causal_contract_bundle_v1.json",
             {
-                "layers": ["budget", "procurement", "trade", "distress", "public_service"],
+                "layers": [
+                    "budget",
+                    "procurement",
+                    "trade",
+                    "distress",
+                    "public_service",
+                ],
                 "contract_id": _NETWORK_CAUSAL_CONTRACT_ID,
             },
         )
@@ -1971,7 +1996,9 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
                 end_date=date(2022, 6, 30),
             ),
             ShockCalendarEntry(
-                shock_id="shock_fx_2022", start_date=date(2022, 3, 1), end_date=date(2022, 9, 30)
+                shock_id="shock_fx_2022",
+                start_date=date(2022, 3, 1),
+                end_date=date(2022, 9, 30),
             ),
             ShockCalendarEntry(
                 shock_id="shock_trade_2022",
@@ -2012,7 +2039,10 @@ def build_d2_stage(config: PipelineConfig) -> StageBuildResult:
         _write_json(stage_dir / "schema_regime_registry.json", schema_registry)
     )
     outputs["identification_mode_registry.json"] = ArtifactRecord.from_path(
-        _write_json(stage_dir / "identification_mode_registry.json", identification_mode_registry)
+        _write_json(
+            stage_dir / "identification_mode_registry.json",
+            identification_mode_registry,
+        )
     )
     outputs["regime_calendar.json"] = ArtifactRecord.from_path(
         _write_json(stage_dir / "regime_calendar.json", regime_calendar)

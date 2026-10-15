@@ -21,6 +21,8 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactManifest,
     ArtifactRef,
     ArtifactWriteOptions,
     AtomicFileDurabilityError,
@@ -30,13 +32,11 @@ from polisyos.core.artifacts import (
     fsync_directory,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactManifest
 from polisyos.data_forge.read_api.academic import SKGQuery
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.store import PutOptions
-    from polisyos.core.canon.canon_json import CanonSpec
+    from polisyos.core.artifacts import PutOptions
+    from polisyos.core.canon import CanonSpec
     from polisyos.data_forge.read_api.academic import PreparedSKGRead
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -138,7 +138,13 @@ class RetainedSKGSnapshot(BaseModel):
 
 
 def _file_identity(value: os.stat_result) -> tuple[int, int, int, int, int]:
-    return (value.st_dev, value.st_ino, value.st_size, value.st_mtime_ns, value.st_ctime_ns)
+    return (
+        value.st_dev,
+        value.st_ino,
+        value.st_size,
+        value.st_mtime_ns,
+        value.st_ctime_ns,
+    )
 
 
 def _write_options(kind: str, media_type: str) -> ArtifactWriteOptions:
@@ -221,7 +227,10 @@ def load_retained_skg_snapshot(
             or chunk_manifest.kind != _CHUNK_KIND
             or chunk_manifest.byte_size != chunk.byte_size
             or chunk_manifest.artifact_schema is None
-            or (chunk_manifest.artifact_schema.name, chunk_manifest.artifact_schema.version)
+            or (
+                chunk_manifest.artifact_schema.name,
+                chunk_manifest.artifact_schema.version,
+            )
             != (_CHUNK_KIND, _VERSION)
         ):
             raise RetainedSKGSnapshotError("retained_skg_chunk_type_mismatch")

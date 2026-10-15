@@ -8,11 +8,10 @@ from polisyos.core.artifacts import (
     InputRef,
     PutOptions,
     SchemaInfo,
-    input_ref_from_artifact_ref,
 )
 from polisyos.core.canon import CanonSpec
 from polisyos.foundry.validation import normalize_phase2_artifact_family
-from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, EvidenceSourceKind
+from polisyos.ir import CrossGraphEvidenceProfile, EvidenceSourceKind
 from polisyos.scientist.evidence.sources import build_path_source_status
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
@@ -42,7 +41,9 @@ from polisyos.scientist.methods.search.transfer_context import resolve_transfer_
 from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_engine import (
     _RuntimeSession,
 )
-from polisyos.scientist.nodes.builtins.decide.policy_runtime_state import maybe_artifact_ref
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_state import (
+    maybe_artifact_ref,
+)
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     load_benchmark_evaluation,
 )
@@ -787,7 +788,10 @@ def build_runtime_funnel_context(session: _RuntimeSession) -> None:
                 artifact_id=session.selection_vector_ref.artifact_id,
                 role="policy_evaluation",
             ),
-            InputRef(artifact_id=session.selection_ref.artifact_id, role="selection_evaluation"),
+            InputRef(
+                artifact_id=session.selection_ref.artifact_id,
+                role="selection_evaluation",
+            ),
         ],
     )
     funnel_context["promotion_evidence_bundle_ref"] = evidence_ref

@@ -10,14 +10,19 @@ from typing import TYPE_CHECKING, Any
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import (
-    ensure_ir_artifact_store as _ensure_ir_artifact_store,
-)
-from polisyos.core.artifacts import (
+    ArtifactRef,
     input_ref_from_artifact_ref,
     profile_bound_ref,
 )
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.components import (
+    Capability,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+)
 from polisyos.data_forge.read_api.academic import ParameterSelector, SKGQuery
 from polisyos.foundry.methods.catalog.causal.parameter_transfer import ParameterTransfer
 from polisyos.foundry.methods.catalog.causal.protocols import ParameterTransferData

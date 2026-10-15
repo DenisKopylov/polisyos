@@ -61,7 +61,7 @@ from polisyos.scientist.methods.search.stopping import (
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
-    from polisyos.core.llm.traced_client import TracedLLMClient
+    from polisyos.core.llm import TracedLLMClient
     from polisyos.core.observability import MetricsRegistry
     from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
     from polisyos.scientist.methods.search.strategies.transfer import (
@@ -1259,7 +1259,7 @@ class TracedLLMCandidateGenerator:
         binding: BudgetLedgerProducerRunBinding,
     ) -> None:
         """Verify the selected traced client, durable owner, key, and run binding."""
-        from polisyos.core.llm.traced_client import TracedLLMClient
+        from polisyos.core.llm import TracedLLMClient
         from polisyos.scientist.orchestration.engine.budget_ledger import (
             BudgetLedgerProducerRunBinding,
         )
@@ -1322,7 +1322,7 @@ class TracedLLMCandidateGenerator:
         context: dict[str, Any],
     ) -> dict[str, Any]:
         """Request one candidate and require a JSON object response."""
-        from polisyos.core.llm.response import extract_llm_response_data
+        from polisyos.core.llm import extract_llm_response_data
 
         request = {
             "history": _search_prompt_history(history),

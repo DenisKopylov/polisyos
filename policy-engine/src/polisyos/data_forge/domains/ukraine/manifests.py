@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.contracts.fabric import DataSnapshotRef
+from polisyos.core.contracts import DataSnapshotRef
 from polisyos.data_forge.domains.ukraine.models import StageId
 from polisyos.data_forge.kernel.io import sha256_file
 

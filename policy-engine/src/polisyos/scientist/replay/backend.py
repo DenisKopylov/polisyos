@@ -200,6 +200,7 @@ def load_dead_letter(
 ) -> DeadLetterRecord:
     """Load one persisted dead-letter artifact."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     try:
         manifest = store.get_manifest(artifact_id)
     except FileNotFoundError as exc:
@@ -293,7 +294,10 @@ async def replay_dead_letter(
     max_retries: int | None = None,
 ) -> Any:
     """Replay a dead-lettered node, binding any explicitly selected SKG snapshot first."""
-    from polisyos.scientist.orchestration.engine.retry import RetryPolicy, execute_with_retry_async
+    from polisyos.scientist.orchestration.engine.retry import (
+        RetryPolicy,
+        execute_with_retry_async,
+    )
 
     record = load_dead_letter(store, artifact_id)
     from polisyos.scientist.orchestration.engine.skg_snapshot import (
@@ -302,9 +306,9 @@ async def replay_dead_letter(
     )
 
     if SNAPSHOT_INPUT_KEY in state.inputs:
-        from polisyos.common.async_tools import run_blocking_async
+        from polisyos.common import async_tools as common_async_tools
 
-        state = await run_blocking_async(
+        state = await common_async_tools.run_blocking_async(
             bind_retained_skg_workflow_input,
             ctx,
             state,

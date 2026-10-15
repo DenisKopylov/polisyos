@@ -4,9 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from polisyos.common.logger import get_logger
+from polisyos.common import logger as common_logger
 from polisyos.core.artifacts import ArtifactRef, input_ref_from_artifact_ref
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.contracts import (
     DataSnapshot,
     DecisionBasisSection,
@@ -16,6 +18,7 @@ from polisyos.core.contracts import (
     DecisionTriggerType,
     FreshnessMetadata,
 )
+from polisyos.ir import CausalSensitivityResultRef, NormativeArbitrationResultRef
 from polisyos.ir.analytics.normative_arbitration import (
     NormativeArbitrationResult,
     load_normative_arbitration_result,
@@ -25,7 +28,6 @@ from polisyos.ir.analytics.sensitivity import (
     persist_sensitivity_analysis_bundle,
     sensitivity_analysis_bundle_from_result,
 )
-from polisyos.ir.registry.refs import CausalSensitivityResultRef, NormativeArbitrationResultRef
 from polisyos.scientist.nodes.builtins.decide.decision_packet.serialization import (
     _dedupe_dependency_refs,
     _dependency_ref,
@@ -59,7 +61,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
-logger = get_logger(__name__)
+logger = common_logger.get_logger(__name__)
 
 
 def _load_normative_arbitration(
@@ -77,7 +79,11 @@ def _load_normative_arbitration(
             NormativeArbitrationResultRef(artifact_id=ref.artifact_id),
         )
     except _DECISION_PACKET_LOAD_ERRORS as exc:
-        logger.debug("Failed to parse normative arbitration result from ref %s", ref, exc_info=True)
+        logger.debug(
+            "Failed to parse normative arbitration result from ref %s",
+            ref,
+            exc_info=True,
+        )
         _record_decision_packet_section_degraded(
             packet_payload,
             operation="load_normative_arbitration_result",
@@ -97,6 +103,7 @@ def _build_aux_artifact_section(
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     ref = artifacts_index.get(key)
     if ref is None:
         return None
@@ -127,6 +134,7 @@ def _build_sensitivity_section(
     packet_payload: dict[str, object] | None = None,
 ) -> dict[str, object] | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     canonical_ref = artifacts_index.get(ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF)
     if canonical_ref is not None:
         try:

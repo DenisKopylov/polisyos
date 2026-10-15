@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.common.logger import get_logger
+from polisyos.common import logger as common_logger
 from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
@@ -21,11 +21,14 @@ from polisyos.core.artifacts import (
 )
 from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.data_forge.read_api.catalog import DatasetRegistry, PStarZResult
-from polisyos.foundry.methods.catalog.causal.capabilities import (
+from polisyos.foundry.methods.causal import (
+    Y0_SURROGATE_DATA_PROFILE_ABSENT,
     build_causal_capability_contract,
 )
-from polisyos.foundry.methods.catalog.causal.full_transport_bridge import (
-    Y0_SURROGATE_DATA_PROFILE_ABSENT,
+from polisyos.ir import (
+    CausalCapabilityContractRef,
+    CausalGraphModelRef,
+    CausalModelEnsembleRef,
 )
 from polisyos.ir.analytics import CausalEffectReport
 from polisyos.ir.analytics.causal_capabilities import (
@@ -44,11 +47,6 @@ from polisyos.ir.analytics.privacy_transportability import (
     TransportPrivacyContext,
     coerce_transport_privacy_context,
 )
-from polisyos.ir.registry.refs import (
-    CausalCapabilityContractRef,
-    CausalGraphModelRef,
-    CausalModelEnsembleRef,
-)
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,
@@ -57,7 +55,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
-logger = get_logger("polisyos.scientist.nodes.builtins.causal.resolve_transport")
+logger = common_logger.get_logger("polisyos.scientist.nodes.builtins.causal.resolve_transport")
 
 _TRANSPORT_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
 _TRANSPORT_LOAD_ERRORS = (OSError, RuntimeError, TypeError, ValueError, ValidationError)
@@ -477,9 +475,7 @@ def _resolve_causal_graph(ctx: ExecutionContext, state: ExperimentState) -> Caus
         try:
             ensemble_ref = profile_bound_ref(
                 store,
-                CausalModelEnsembleRef.model_validate(
-                    ensemble_ref_raw.model_dump(mode="json")
-                ),
+                CausalModelEnsembleRef.model_validate(ensemble_ref_raw.model_dump(mode="json")),
             )
             ensemble = load_causal_model_ensemble(store, ensemble_ref)
             if ensemble.consensus_graph_ref is not None:

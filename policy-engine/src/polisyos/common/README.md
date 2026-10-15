@@ -52,10 +52,14 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
 
 ## Public API
 
-- Supported package entrypoint: `polisyos.common`
-- Lazy facade exports from `src/polisyos/common/__init__.py`:
+- Supported package entrypoints: `polisyos.common`, `polisyos.common.canonical`,
+  `polisyos.common.canonical_profile`, and `polisyos.common.hashing`.
+- The canonical modules are the shared mechanics and strict selected-profile
+  readers. They do not attest producer identity or authority; Core and IR keep
+  their own profile-specific tags, exceptions, and admission rules.
+- Lazy facade exports from `src/polisyos/common/__init__.py` remain:
   `async_tools`, `config`, `jax_env`, `logger`, `migrations`,
-  `serialization`, `timestamps`
+  `serialization`, `timestamps`.
 
 - Internal-but-frequently-touched helper: `env_parsing.py`; do not treat it as
   stable public surface without updating the facade and
@@ -65,8 +69,7 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
 
 - `__init__.py` owns the public lazy facade.
 - `serialization.py`, `timestamps.py`, and `async_tools.py` are the shared
-  helper surfaces used across packages. `canonical_profile.py` is an internal,
-  storage-agnostic helper: it parses the exact raw selected manifest, distinguishes
+  helper surfaces used across packages. `canonical_profile.py` is a supported, storage-agnostic helper: it parses the exact raw selected manifest, distinguishes
   a missing declaration from malformed-present data, and applies caller-supplied
   codecs to verify declared payload bytes. The caller keeps its own typed tags and
   exceptions. The helper establishes reader consistency only, not writer identity

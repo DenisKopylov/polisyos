@@ -39,9 +39,9 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts._integrity_ops import VerificationReport
     from polisyos.core.artifacts.protocol import ArtifactStore as CoreArtifactStore
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+    from polisyos.ir import ArtifactSelector
     from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
     from polisyos.ir.artifacts import StorePutOptions
-    from polisyos.ir.artifacts.contracts import ArtifactSelector
     from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 
 
@@ -67,10 +67,16 @@ def _coerce_payload(value: Any) -> dict[str, Any]:
 
 
 def _coerce_model(value: Any | None, model_type: type[Any], field_name: str) -> Any | None:
-    if value is None or isinstance(value, model_type):
-        return value
+    if value is None:
+        return None
     try:
-        return model_type.model_validate(_coerce_payload(value))
+        payload = (
+            _pydantic_option_payload(value, field_name)
+            if isinstance(value, BaseModel)
+            else _coerce_payload(value)
+        )
+        payload = _coerce_nested_model_values(payload, field_name)
+        return model_type.model_validate(payload)
     except (TypeError, ValueError) as exc:
         raise TypeError(f"Invalid adapter option {field_name!r}") from exc
 
@@ -105,6 +111,59 @@ def _pydantic_option_payload(value: BaseModel, field_name: str) -> dict[str, Any
         unexpected = ", ".join(sorted(unexpected_fields))
         raise TypeError(f"Invalid adapter option {field_name!r}: unexpected field(s) {unexpected}")
     return payload
+
+
+def _coerce_nested_model_values(value: Any, field_name: str) -> Any:
+    """Project nested Pydantic instances to raw values before model validation."""
+    return _coerce_nested_value(value, field_name, set())
+
+
+def _coerce_nested_value(value: Any, field_name: str, active_ids: set[int]) -> Any:
+    """Recursively remove prevalidated model instances from an option payload."""
+    if isinstance(value, BaseModel):
+        value_id = id(value)
+        if value_id in active_ids:
+            raise TypeError(f"Cyclic adapter option {field_name!r}")
+        active_ids.add(value_id)
+        try:
+            payload = _pydantic_option_payload(value, field_name)
+            if getattr(type(value), "__pydantic_root_model__", False) is True:
+                if "root" not in payload:
+                    return payload
+                root_value = _coerce_nested_value(payload["root"], field_name, active_ids)
+                return type(value).model_validate(root_value)
+            return {
+                name: _coerce_nested_value(item, field_name, active_ids)
+                for name, item in payload.items()
+            }
+        finally:
+            active_ids.remove(value_id)
+
+    if isinstance(value, Mapping):
+        value_id = id(value)
+        if value_id in active_ids:
+            raise TypeError(f"Cyclic adapter option {field_name!r}")
+        active_ids.add(value_id)
+        try:
+            return {
+                name: _coerce_nested_value(item, field_name, active_ids)
+                for name, item in value.items()
+            }
+        finally:
+            active_ids.remove(value_id)
+
+    if isinstance(value, (list, tuple)):
+        value_id = id(value)
+        if value_id in active_ids:
+            raise TypeError(f"Cyclic adapter option {field_name!r}")
+        active_ids.add(value_id)
+        try:
+            items = [_coerce_nested_value(item, field_name, active_ids) for item in value]
+            return tuple(items) if isinstance(value, tuple) else items
+        finally:
+            active_ids.remove(value_id)
+
+    return value
 
 
 def _coerce_canon_option(value: Any | None, field_name: str) -> CanonInfo | None:
@@ -432,19 +491,25 @@ class CoreToIRArtifactStoreAdapter:
 
 
 @overload
-def ensure_ir_artifact_store(store: CoreArtifactStore) -> CoreToIRArtifactStoreAdapter: ...
+def ensure_ir_artifact_store(
+    store: CoreArtifactStore,
+) -> CoreToIRArtifactStoreAdapter: ...
 
 
 @overload
 def ensure_ir_artifact_store(store: IRArtifactStore) -> IRArtifactStore: ...
 
 
-def ensure_ir_artifact_store(store: IRArtifactStore | CoreArtifactStore) -> IRArtifactStore:
+def ensure_ir_artifact_store(
+    store: IRArtifactStore | CoreArtifactStore,
+) -> IRArtifactStore:
     """Return an IR-compatible store, wrapping core stores when needed."""
 
     if isinstance(store, CoreToIRArtifactStoreAdapter):
         return store
-    from polisyos.core.artifacts.protocol import ArtifactStore as RuntimeCoreArtifactStore
+    from polisyos.core.artifacts.protocol import (
+        ArtifactStore as RuntimeCoreArtifactStore,
+    )
 
     if isinstance(store, RuntimeCoreArtifactStore) or _matches_core_store_protocol(store):
         return CoreToIRArtifactStoreAdapter(cast("CoreArtifactStore", store))
@@ -460,7 +525,9 @@ def _matches_core_store_protocol(store: Any) -> bool:
     the raw Core store into IR readers. Derive the required call surface from
     the Core protocol itself, then resolve those members dynamically.
     """
-    from polisyos.core.artifacts.protocol import ArtifactStore as RuntimeCoreArtifactStore
+    from polisyos.core.artifacts.protocol import (
+        ArtifactStore as RuntimeCoreArtifactStore,
+    )
 
     required_methods = tuple(
         name

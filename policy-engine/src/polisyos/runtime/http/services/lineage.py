@@ -9,8 +9,7 @@ from pathlib import Path
 from time import perf_counter
 from typing import TYPE_CHECKING, Any
 
-from polisyos.core.artifacts import ArtifactRef
-from polisyos.core.artifacts.canonical_profile import read_core_json_artifact
+from polisyos.core.artifacts import ArtifactRef, read_core_json_artifact
 from polisyos.core.artifacts.graph import NodeStatus, resolve_dependency_graph
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.canon import content_hash
@@ -113,8 +112,7 @@ class LineageService:
             return ArtifactLineageView(root_artifact_ids=[])
 
         root_ids = [
-            root.artifact_id if isinstance(root, ArtifactRef) else root
-            for root in artifact_ids
+            root.artifact_id if isinstance(root, ArtifactRef) else root for root in artifact_ids
         ]
         for root in artifact_ids:
             self._assert_surface_admission_allowed(
@@ -598,8 +596,7 @@ class LineageService:
             missing_authority_disposition="block" if enforce_missing_authority else "downgrade",
         )
         if decision.blocking or (
-            decision.visible_downgrade
-            and decision.reason != "authority_surface_signal_missing"
+            decision.visible_downgrade and decision.reason != "authority_surface_signal_missing"
         ):
             raise LineageSurfaceAdmissionError(decision)
 
@@ -874,7 +871,9 @@ def _source_contract_model_from_ref(
     return _source_contract_snapshot_by_id().get(source_contract.id)
 
 
-def _source_contract_from_payload(payload: Mapping[str, Any]) -> SourceContractRef | None:
+def _source_contract_from_payload(
+    payload: Mapping[str, Any],
+) -> SourceContractRef | None:
     direct = _source_contract_from_value(payload.get("source_contract"))
     if direct is not None:
         return direct

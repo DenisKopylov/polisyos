@@ -6,15 +6,21 @@ import importlib
 import importlib.metadata
 import inspect
 import re
-from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 if TYPE_CHECKING:
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+    from polisyos.ir import CausalGraphModel
 
 _VALID_SYMBOLIC_BACKEND_MODES: frozenset[str] = frozenset({"auto", "y0", "r", "full_auto"})
 
@@ -42,7 +48,9 @@ class _Y0PopulationDataProfile(BaseModel):
     def _validate_population_id(cls, value: str) -> str:
         value = value.strip()
         if not value or value == "pi*":
-            raise ValueError("population_id must be non-empty and cannot name the target population")
+            raise ValueError(
+                "population_id must be non-empty and cannot name the target population"
+            )
         return value
 
     @field_validator("outcomes", "interventions", mode="before")
@@ -196,12 +204,10 @@ def build_y0_graph(graph: CausalGraphModel) -> Any:
 
     variables = {name: Variable(name) for name in graph.nodes}
     directed = [
-        (variables[src], variables[dst])
-        for src, dst in sorted(extract_directed_edges(graph))
+        (variables[src], variables[dst]) for src, dst in sorted(extract_directed_edges(graph))
     ]
     bidirected = [
-        (variables[src], variables[dst])
-        for src, dst in sorted(extract_bidirected_edges(graph))
+        (variables[src], variables[dst]) for src, dst in sorted(extract_bidirected_edges(graph))
     ]
     return NxMixedGraph.from_edges(
         nodes=[variables[name] for name in graph.nodes],

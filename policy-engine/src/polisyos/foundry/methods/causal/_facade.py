@@ -224,6 +224,23 @@ from polisyos.foundry.methods.catalog.causal import (
     update_query_preservation_artifact_refs,
     update_query_preservation_cache,
 )
+from polisyos.foundry.methods.catalog.causal._id_contracts import (
+    IdentificationResult,
+    IdentificationStatus,
+)
+from polisyos.foundry.methods.catalog.causal.capabilities import (
+    build_causal_capability_contract,
+)
+from polisyos.foundry.methods.catalog.causal.density_ratio import (
+    ScalarOTDistributionalResult,
+    compute_scalar_distributional_effect,
+)
+from polisyos.foundry.methods.catalog.causal.distributional_bounds import (
+    POINTWISE_NON_UNIFORM_WARNING,
+)
+from polisyos.foundry.methods.catalog.causal.full_transport_bridge import (
+    Y0_SURROGATE_DATA_PROFILE_ABSENT,
+)
 
 __all__ = (
     "AIPWEstimator",
@@ -283,6 +300,8 @@ __all__ = (
     "GraphReconciliationData",
     "HTEObservationalData",
     "HybridSCMFit",
+    "IdentificationResult",
+    "IdentificationStatus",
     "IPWEstimator",
     "ImbensManskiBoundsEstimator",
     "InvariantDiscoveryFromRegimes",
@@ -314,6 +333,7 @@ __all__ = (
     "OptimizationBasedBoundsEstimator",
     "PCDiscovery",
     "PCMCIDiscovery",
+    "POINTWISE_NON_UNIFORM_WARNING",
     "PanelObservationalData",
     "ParallelTrendsCheck",
     "ParameterTransfer",
@@ -339,6 +359,7 @@ __all__ = (
     "SCMAdapter",
     "SCMFitData",
     "SCMQueryData",
+    "ScalarOTDistributionalResult",
     "SPDEEstimatorSpec",
     "SPDEGenerator",
     "SPDEMechanism",
@@ -388,6 +409,7 @@ __all__ = (
     "best_first_support_search",
     "branch_and_bound_over_supports",
     "build_block_stratified_network_causal_data",
+    "build_causal_capability_contract",
     "build_discrete_atlas",
     "build_piecewise_linear_fem_matrices",
     "build_solver_diagnostics",
@@ -448,4 +470,6 @@ __all__ = (
     "tv_decomposition",
     "update_query_preservation_artifact_refs",
     "update_query_preservation_cache",
+    "Y0_SURROGATE_DATA_PROFILE_ABSENT",
+    "compute_scalar_distributional_effect",
 )

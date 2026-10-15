@@ -156,6 +156,12 @@ if TYPE_CHECKING:
     from polisyos.data_forge.domains.catalog._resources import (
         catalog_default_resource_path as catalog_default_resource_path,
     )
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        parse_profile_input_coverage as parse_profile_input_coverage,
+    )
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        profile_input_coverage_currentness as profile_input_coverage_currentness,
+    )
     from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
         DEFAULT_ACQUISITION_AUTHORITY_PROVISION as DEFAULT_ACQUISITION_AUTHORITY_PROVISION,
     )
@@ -241,6 +247,9 @@ if TYPE_CHECKING:
         verify_local_source_rights as verify_local_source_rights,
     )
     from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
+        iso2_to_iso3 as iso2_to_iso3,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
         normalize_country_code as normalize_country_code,
     )
     from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
@@ -283,6 +292,9 @@ if TYPE_CHECKING:
         DEFAULT_ACQUISITION_OVERLAY_PATH as DEFAULT_ACQUISITION_OVERLAY_PATH,
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        LEGACY_ADMISSION_PASSPORT_SCHEMA_VERSION as LEGACY_ADMISSION_PASSPORT_SCHEMA_VERSION,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         AcquisitionDatasetRegistration as AcquisitionDatasetRegistration,
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
@@ -311,6 +323,9 @@ if TYPE_CHECKING:
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         CatalogAcquisitionStateProjection as CatalogAcquisitionStateProjection,
+    )
+    from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+        LegacyAdmissionPassport as LegacyAdmissionPassport,
     )
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         MetricFieldBinding as MetricFieldBinding,
@@ -414,8 +429,17 @@ if TYPE_CHECKING:
     from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
         score_variable_pair as score_variable_pair,
     )
+    from polisyos.data_forge.domains.catalog.selection import (
+        validate_catalog_run_profile as validate_catalog_run_profile,
+    )
+    from polisyos.data_forge.kernel.embeddings import (
+        GENERATION_SELECTOR_FILENAME as GENERATION_SELECTOR_FILENAME,
+    )
     from polisyos.data_forge.kernel.embeddings import (
         EmbeddingGenerationRef as EmbeddingGenerationRef,
+    )
+    from polisyos.data_forge.kernel.embeddings import (
+        embedding_generation_manifest as embedding_generation_manifest,
     )
     from polisyos.data_forge.kernel.embeddings import (
         embedding_generation_matches_encoder as embedding_generation_matches_encoder,
@@ -429,9 +453,17 @@ if TYPE_CHECKING:
 
 _CATALOG_DOMAIN = "polisyos.data_forge.domains.catalog"
 _EXPORTS = {
-    "normalize_country_code": (
-        "polisyos.data_forge.domains.catalog.knowledge.country_codes"
+    "normalize_country_code": ("polisyos.data_forge.domains.catalog.knowledge.country_codes"),
+    "iso2_to_iso3": "polisyos.data_forge.domains.catalog.knowledge.country_codes",
+    "validate_catalog_run_profile": "polisyos.data_forge.domains.catalog.selection",
+    "parse_profile_input_coverage": "polisyos.data_forge.domains.catalog.batch.config",
+    "profile_input_coverage_currentness": "polisyos.data_forge.domains.catalog.batch.config",
+    "GENERATION_SELECTOR_FILENAME": "polisyos.data_forge.kernel.embeddings",
+    "embedding_generation_manifest": "polisyos.data_forge.kernel.embeddings",
+    "LEGACY_ADMISSION_PASSPORT_SCHEMA_VERSION": (
+        "polisyos.data_forge.domains.catalog.knowledge.overlay"
     ),
+    "LegacyAdmissionPassport": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "CATALOG_BASE_SCHEMA_CONTRACTS": _CATALOG_DOMAIN,
     "CATALOG_BASE_SCHEMA_IDS": _CATALOG_DOMAIN,
     "CATALOG_ASSET_GROUP": _CATALOG_DOMAIN,
@@ -489,9 +521,7 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
     ),
     "DatasetCatalogStore": "polisyos.data_forge.domains.catalog.knowledge.store",
-    "DEFAULT_ACQUISITION_OVERLAY_PATH": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "DEFAULT_ACQUISITION_OVERLAY_PATH": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "DEFAULT_ACQUISITION_AUTHORITY_PROVISION": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
@@ -508,30 +538,20 @@ _EXPORTS = {
     "CatalogFetchBinding": "polisyos.data_forge.domains.catalog.knowledge.types",
     "CatalogFetchRequest": "polisyos.data_forge.domains.catalog.knowledge.types",
     "CatalogFetchResolution": "polisyos.data_forge.domains.catalog.knowledge.types",
-    "AcquisitionDatasetRegistration": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "AcquisitionDatasetRegistration": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "BaselineIdentity": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "BaselineMutationError": "polisyos.data_forge.domains.catalog.knowledge.overlay",
-    "CanonicalAcquisitionObservation": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "CanonicalAcquisitionObservation": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "CatalogAcquisitionOverlay": "polisyos.data_forge.domains.catalog.knowledge.overlay",
-    "CatalogAcquisitionEpochProjection": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
-    "CatalogAcquisitionEventProjection": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "CatalogAcquisitionEpochProjection": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
+    "CatalogAcquisitionEventProjection": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "ActivatedAcquisitionObservationProjection": (
         "polisyos.data_forge.domains.catalog.knowledge.overlay"
     ),
     "CatalogAcquisitionPassportProjection": (
         "polisyos.data_forge.domains.catalog.knowledge.overlay"
     ),
-    "CatalogAcquisitionStateProjection": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "CatalogAcquisitionStateProjection": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "AcquisitionAuthorityEntry": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
@@ -571,16 +591,12 @@ _EXPORTS = {
     "ResolvedAcquisitionAuthority": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
-    "ResolvedL5Trust": (
-        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
-    ),
+    "ResolvedL5Trust": ("polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"),
     "ResolvedLiveHarnessReceipt": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "MetricFieldBinding": "polisyos.data_forge.domains.catalog.knowledge.overlay",
-    "ObservationProvenanceClass": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "ObservationProvenanceClass": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "OverlayAdmissionError": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "OverlayAdmissionReceipt": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "PStarZResult": "polisyos.data_forge.domains.catalog.knowledge.types",
@@ -609,9 +625,7 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "build_metric_field_binding": "polisyos.data_forge.domains.catalog.knowledge.overlay",
-    "default_acquisition_overlay_path": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "default_acquisition_overlay_path": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "derive_catalog_unit_from_text": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
@@ -649,12 +663,8 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "open_catalog_read_session": "polisyos.data_forge.domains.catalog.knowledge.overlay",
-    "project_catalog_acquisition_state": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
-    "validate_overlay_admission_receipt": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "project_catalog_acquisition_state": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
+    "validate_overlay_admission_receipt": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "plan_catalog_source_stage_contracts": _CATALOG_DOMAIN,
     "plan_catalog_source_modules": _CATALOG_DOMAIN,
     "resolve_proxy": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",
@@ -679,9 +689,7 @@ _EXPORTS = {
 
 def __getattr__(name: str) -> object:
     """Lazily resolve catalog exports without importing domain internals at module import."""
-    return load_lazy_export(
-        name, exports=_EXPORTS, module_name=__name__, namespace=globals()
-    )
+    return load_lazy_export(name, exports=_EXPORTS, module_name=__name__, namespace=globals())
 
 
 def __dir__() -> list[str]:
@@ -719,9 +727,7 @@ def _catalog_graph_cache_key(*, kind: str, records: Sequence[object]) -> str:
     return digest.hexdigest()[:32]
 
 
-def _cached_catalog_graph_root(
-    *, cache_key: str, build: Callable[[Path], None]
-) -> Path:
+def _cached_catalog_graph_root(*, cache_key: str, build: Callable[[Path], None]) -> Path:
     """Return the content-addressed root for ``cache_key``, building it once.
 
     The graph is built into a staging directory and published with an atomic
@@ -1132,9 +1138,7 @@ def build_slice0_fixture_catalog_graph(graph_root: str | Path | None = None) -> 
         build(root)
     else:
         root = _cached_catalog_graph_root(
-            cache_key=_catalog_graph_cache_key(
-                kind="gy-slice0-fixture", records=records
-            ),
+            cache_key=_catalog_graph_cache_key(kind="gy-slice0-fixture", records=records),
             build=build,
         )
     return dataset_catalog_graph_cls(db_path=root / "catalog.duckdb", index_dir=root)
@@ -1160,15 +1164,11 @@ def build_production_data_contract_catalog_graph(
         if production_root is not None
         else _default_production_data_root()
     )
-    curated_root = (
-        source_root / "curated" if (source_root / "curated").exists() else source_root
-    )
+    curated_root = source_root / "curated" if (source_root / "curated").exists() else source_root
     contracts_payload = _read_catalog_json(curated_root / "data_contracts.json")
     bindings_payload = _read_catalog_json(curated_root / "source_bindings.json")
     generated_at = str(
-        contracts_payload.get("generated_at")
-        or bindings_payload.get("generated_at")
-        or ""
+        contracts_payload.get("generated_at") or bindings_payload.get("generated_at") or ""
     )
     contracts = {
         str(item.get("metric_id")): item
@@ -1200,9 +1200,7 @@ def build_production_data_contract_catalog_graph(
         build(root)
     else:
         root = _cached_catalog_graph_root(
-            cache_key=_catalog_graph_cache_key(
-                kind="production-data-contracts", records=records
-            ),
+            cache_key=_catalog_graph_cache_key(kind="production-data-contracts", records=records),
             build=build,
         )
     return dataset_catalog_graph_cls(db_path=root / "catalog.duckdb", index_dir=root)
@@ -1231,9 +1229,7 @@ def _production_contract_dataset_record(
     dimensions = [str(item) for item in contract.get("dimensions") or []]
     aliases = [str(item) for item in contract.get("aliases") or []]
     source_column = str(contract.get("source_column") or "").strip()
-    variables = [
-        item for item in dict.fromkeys([source_column, *dimensions, *aliases]) if item
-    ]
+    variables = [item for item in dict.fromkeys([source_column, *dimensions, *aliases]) if item]
     connector_slug = _catalog_slug(connector_id or "production")
     dataset_slug = _catalog_slug(dataset_id or metric_id)
     distribution_id = f"dist-production-{connector_slug}-{dataset_slug}"
@@ -1249,15 +1245,11 @@ def _production_contract_dataset_record(
             *aliases,
             *[str(item) for item in contract.get("tags") or []],
         ],
-        source=connector_id.split(".", maxsplit=1)[0]
-        if connector_id
-        else "production_data",
+        source=connector_id.split(".", maxsplit=1)[0] if connector_id else "production_data",
         source_portal=connector_id or "production_data",
         dataset_id=dataset_id,
         source_dataset_id=dataset_id,
-        execution_tier="transport_ready"
-        if connector_id == "worldbank.wdi"
-        else "fetchable",
+        execution_tier="transport_ready" if connector_id == "worldbank.wdi" else "fetchable",
         update_frequency=str(contract.get("granularity") or ""),
         last_updated=generated_at or None,
         license="production-data curated contract",

@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import hashlib
-from collections.abc import Callable, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -11,8 +10,15 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.components import (
+    Capability,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+)
 from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.data_forge.read_api.catalog import (
     DatasetRegistry,
@@ -21,20 +27,11 @@ from polisyos.data_forge.read_api.catalog import (
     resolve_proxy,
     validate_proxy,
 )
-from polisyos.foundry.methods.catalog.causal.capabilities import (
-    build_causal_capability_contract,
+from polisyos.foundry.methods.catalog.causal.transport_engine import (
+    solve_transportability,
 )
-from polisyos.foundry.methods.catalog.causal.full_transport_bridge import (
+from polisyos.foundry.methods.causal import (
     Y0_SURROGATE_DATA_PROFILE_ABSENT,
-)
-from polisyos.foundry.methods.catalog.causal.transport_engine import solve_transportability
-from polisyos.ir.analytics.alignment_certification import (
-    AlignmentCertificate,
-    AlignmentCertificateType,
-    AlignmentCertificationPolicy,
-    OuterObjectiveResult,
-    compute_outer_objective,
-    run_outer_search,
 )
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
@@ -43,13 +40,9 @@ from polisyos.ir.analytics.causal import (
 )
 from polisyos.ir.analytics.causal_capabilities import (
     CausalCapabilityContract,
-    load_causal_capability_contract,
-    persist_causal_capability_contract,
 )
-from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
-from polisyos.ir.analytics.causal_graph import CausalGraphModel, load_causal_graph_model
+from polisyos.ir.analytics.causal_graph import CausalGraphModel
 from polisyos.ir.analytics.context import ContextProfile
-from polisyos.ir.analytics.partial_identification import compute_manski_bounds
 from polisyos.ir.analytics.privacy_transportability import (
     TransportPrivacyContext,
 )
@@ -57,7 +50,6 @@ from polisyos.ir.analytics.transportability import (
     DataGap,
     SelectionDiagram,
     SNode,
-    SNodeOrigin,
     TransportabilityResult,
     TransportabilityStatus,
     TransportMode,
@@ -66,17 +58,12 @@ from polisyos.ir.analytics.transportability import (
 )
 from polisyos.ir.artifacts import InputRef
 from polisyos.ir.registry.refs import (
-    CausalCapabilityContractRef,
     CausalEffectReportRef,
-    CausalGraphModelRef,
-    CausalModelEnsembleRef,
 )
 from polisyos.lex.api import evaluate_transport_constraints
 from polisyos.lex.legal_evaluation.transport_constraints import (
-    ConstraintSeverity,
     LegalConstraint,
     LegalConstraintSet,
-    LegalToDAGMapping,
 )
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -107,22 +94,16 @@ from .transport_resolution_inputs import (
     _normalize_transport_solver_mode,
     _NullDatasetRegistry,
     _NullSKG,
-    _resolve_allow_degraded_transport,
     _resolve_causal_graph,
     _resolve_context_profile,
     _resolve_context_year,
     _resolve_or_build_capability_contract,
-    _resolve_pag_identification_policy,
-    _resolve_pag_max_dag_samples,
-    _resolve_pag_seed,
-    _resolve_pag_threshold,
     _resolve_query_outcome,
     _resolve_query_outcome_for_blocking,
     _resolve_query_treatment,
     _resolve_query_treatment_for_blocking,
     _resolve_transport_execution_inputs,
     _resolve_transport_privacy_context,
-    _resolve_transport_solver_mode,
     _resolve_treatment_value,
     _transport_execution_profile,
 )
@@ -138,8 +119,6 @@ from .transport_resolution_results import (
     _finalize_transport_loop_result,
     _invalid_transport_input_outcome,
     _legal_constraints_to_s_nodes,
-    _proxy_validity_score,
-    _suggest_data_collection,
 )
 
 logger = get_logger(__name__)
@@ -934,7 +913,10 @@ class RunTransportabilityNode:
             updated_report,
             inputs=[
                 InputRef(artifact_id=report_ref.artifact_id, role="causal_report_prev"),
-                InputRef(artifact_id=transport_ref.artifact_id, role="transportability_result"),
+                InputRef(
+                    artifact_id=transport_ref.artifact_id,
+                    role="transportability_result",
+                ),
             ],
         )
 
@@ -1037,7 +1019,10 @@ def _persist_blocking_transportability_result(
             updated_report,
             inputs=[
                 InputRef(artifact_id=report_ref.artifact_id, role="causal_report_prev"),
-                InputRef(artifact_id=transport_ref.artifact_id, role="transportability_result"),
+                InputRef(
+                    artifact_id=transport_ref.artifact_id,
+                    role="transportability_result",
+                ),
             ],
         )
         new_state.artifacts_index[ARTIFACT_CAUSAL_REPORT_REF] = updated_report_ref
@@ -1093,4 +1078,8 @@ def _build_skg_query(db_path: Any, index_dir: Any) -> SKGQuery | _NullSKG:
     return _build_skg_query_impl(db_path, index_dir, query_type=SKGQuery)
 
 
-__all__ = ["ResolutionState", "RunTransportabilityNode", "TransportabilityResolutionLoop"]
+__all__ = [
+    "ResolutionState",
+    "RunTransportabilityNode",
+    "TransportabilityResolutionLoop",
+]

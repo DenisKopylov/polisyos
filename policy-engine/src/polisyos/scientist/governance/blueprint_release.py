@@ -32,23 +32,21 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.governance.profiles import ValidationProfile
-from polisyos.data_forge.domains.ukraine.manifests import (
+from polisyos.data_forge.read_api.ukraine import (
+    REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
     ArtifactRecord,
     D5ReleaseHandoffRequest,
     HouseholdDiagnosticPanelBasis,
     NormalizedArtifactManifest,
-    SourceSnapshotManifest,
-    directory_tree_entries,
-)
-from polisyos.data_forge.read_api.ukraine import (
-    REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
     ReleaseManifest,
+    SourceSnapshotManifest,
     UkraineJSONSnapshotRefusalError,
     UkraineJSONSnapshotStatus,
     UkraineStageArtifactVerificationError,
     VerifiedUkraineReleaseArtifact,
     VerifiedUkraineReleaseArtifacts,
     VerifiedUkraineStageArtifacts,
+    directory_tree_entries,
     load_verified_release_artifact_bytes,
     load_verified_release_artifacts,
     load_verified_release_json_artifact,
@@ -816,7 +814,11 @@ class CalibrationRunRunner:
             SplitWindow(split_id=name, start=window["start"], end=window["end"])
             for name, window in splits.items()
         ]
-        selected_roles = (selected_training_role, selected_validation_role, selected_holdout_role)
+        selected_roles = (
+            selected_training_role,
+            selected_validation_role,
+            selected_holdout_role,
+        )
         if len(set(selected_roles)) != len(selected_roles):
             raise ValueError("selected training, validation and holdout roles must be distinct")
         missing_roles = [role for role in selected_roles if role not in split_windows]
@@ -969,7 +971,10 @@ class CalibrationRunRunner:
                 .to_numpy(dtype=float)
             )
             holdout_scores.append(
-                (family_name, _clip01(1.0 - _wmape(holdout_values, predicted, holdout_weights)))
+                (
+                    family_name,
+                    _clip01(1.0 - _wmape(holdout_values, predicted, holdout_weights)),
+                )
             )
         holdout_score = (
             float(np.mean([item[1] for item in holdout_scores])) if holdout_scores else None
@@ -1122,7 +1127,12 @@ class StrategicResponseRunner:
     ) -> StrategicResponseMetricsManifest:
         frame = observation_panel.copy()
         metrics: list[StrategicResponseChannelMetric] = []
-        for channel_id, intervention_kind, family, transmission_channels in self._channel_specs:
+        for (
+            channel_id,
+            intervention_kind,
+            family,
+            transmission_channels,
+        ) in self._channel_specs:
             family_frame = frame.loc[frame["family"].astype(str) == family.value].copy()
             if family_frame.empty:
                 continue
@@ -1331,7 +1341,11 @@ def build_required_backtest_bundles(
     selected_holdout_role: str = "test_2025",
 ) -> dict[BacktestKind, BacktestPlanBundle]:
     """Create required bundles from explicitly selected named split roles."""
-    selected_roles = (selected_training_role, selected_validation_role, selected_holdout_role)
+    selected_roles = (
+        selected_training_role,
+        selected_validation_role,
+        selected_holdout_role,
+    )
     if len(set(selected_roles)) != len(selected_roles):
         raise ValueError("selected training, validation and holdout roles must be distinct")
     missing_roles = [role for role in selected_roles if role not in splits]
@@ -1785,14 +1799,20 @@ def run_verified_ukraine_d4_governance(
         store=store,
         allowed_root=root,
         expected_stage="d2",
-        required_outputs=("observation_panel_monthly.parquet", "calibration_splits.json"),
+        required_outputs=(
+            "observation_panel_monthly.parquet",
+            "calibration_splits.json",
+        ),
     )
     d3_receipt = load_verified_stage_artifacts(
         manifests_dir / request.required_stage_manifests["d3"],
         store=store,
         allowed_root=root,
         expected_stage="d3",
-        required_outputs=("calibrated_household_cells.parquet", "labor_validation_panel.parquet"),
+        required_outputs=(
+            "calibrated_household_cells.parquet",
+            "labor_validation_panel.parquet",
+        ),
     )
     cohort_read = load_verified_stage_json_output(
         store,
@@ -2025,7 +2045,10 @@ def run_verified_ukraine_d4_candidate_diagnostic(
         store=store,
         allowed_root=root,
         expected_stage="d3",
-        required_outputs=("household_candidate_panel.parquet", "household_candidate_basis.json"),
+        required_outputs=(
+            "household_candidate_panel.parquet",
+            "household_candidate_basis.json",
+        ),
     )
     panel_output = d3_receipt.outputs["household_candidate_panel.parquet"]
     basis_output = d3_receipt.outputs["household_candidate_basis.json"]
@@ -2132,11 +2155,11 @@ def run_verified_ukraine_d4_candidate_diagnostic(
     ):
         raise UkraineStageArtifactVerificationError("normalized row lineage denominator mismatch")
 
-    from polisyos.data_forge.domains.ukraine.builders.demography import (
-        _build_household_diagnostic_panel,
+    from polisyos.data_forge.read_api.ukraine import (
+        build_household_diagnostic_panel,
     )
 
-    expected_panel = _build_household_diagnostic_panel(normalized_frame)
+    expected_panel = build_household_diagnostic_panel(normalized_frame)
     admitted_panel = pd.read_parquet(BytesIO(panel_bytes))
 
     def canonical_rows(frame: pd.DataFrame) -> object:
@@ -2171,7 +2194,11 @@ def run_verified_ukraine_d4_candidate_diagnostic(
         consumer_contract="scientist.d4.calibration_splits",
     )
     splits = splits_read.value_for_candidate()
-    required_roles = (selected_training_role, selected_validation_role, selected_holdout_role)
+    required_roles = (
+        selected_training_role,
+        selected_validation_role,
+        selected_holdout_role,
+    )
     if len(set(required_roles)) != len(required_roles):
         raise UkraineStageArtifactVerificationError("selected split roles must be distinct")
     missing_roles = [role for role in required_roles if role not in splits]
@@ -2242,7 +2269,10 @@ def run_verified_ukraine_d4_candidate_diagnostic(
             candidate_ref=candidate_ref,
             governance_report=CalibrationGovernanceReport(
                 verdict="human_gate",
-                metadata={"purpose": "candidate_diagnostic", "governance_not_run": True},
+                metadata={
+                    "purpose": "candidate_diagnostic",
+                    "governance_not_run": True,
+                },
             ),
             calibration_fit_score=champion.validation_composite_score,
             backtest_plan_bundles=bundles,
@@ -2276,7 +2306,12 @@ def run_verified_ukraine_d4_candidate_diagnostic(
                 "residual_independence": "not_established",
                 "multiplicity_policy": "not_established",
                 "eligible_for_promotion": False,
-                "may_not_use_for": ["signoff", "promotion", "publication", "population_claim"],
+                "may_not_use_for": [
+                    "signoff",
+                    "promotion",
+                    "publication",
+                    "population_claim",
+                ],
             },
         )
     )
@@ -2405,7 +2440,9 @@ def _require_release_bundle_artifact(
     return artifact
 
 
-def _build_d5_release_trinity(receipt: VerifiedUkraineReleaseArtifacts) -> TrinityBundle:
+def _build_d5_release_trinity(
+    receipt: VerifiedUkraineReleaseArtifacts,
+) -> TrinityBundle:
     """Build the Scientist-owned candidate evaluated by Foundry and postflight."""
 
     if receipt.handoff_snapshot_profile_status == "declared_unknown_candidate":
@@ -2510,7 +2547,11 @@ def _run_d4_release_predicate(
         selected_receipt_refs: dict[str, ArtifactRef] = {}
         selected_stage_receipts: dict[str, VerifiedUkraineStageArtifacts] = {}
         source_profile_statuses: dict[str, UkraineJSONSnapshotStatus] = {}
-        for stage_id, (consumer_contract, output_name, model_type) in source_specs.items():
+        for stage_id, (
+            consumer_contract,
+            output_name,
+            model_type,
+        ) in source_specs.items():
             raw_ref = producer_receipt_refs.get(stage_id)
             if not isinstance(raw_ref, dict):
                 raise ValueError(f"D4 validation bundle lacks its selected {stage_id} receipt ref")

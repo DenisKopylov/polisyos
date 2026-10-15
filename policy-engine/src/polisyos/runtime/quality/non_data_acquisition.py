@@ -42,7 +42,7 @@ from polisyos.runtime.quality.acquisition_planner import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.store import ArtifactMemberReceipt
+    from polisyos.core.artifacts import ArtifactMemberReceipt
 
 CENSUS_PATH = "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json"
 NON_DATA_PROJECTION_FAMILY = "architecture/policy_design_case/gy_aq1_non_data_projection"
@@ -202,9 +202,7 @@ class _ProjectionCAS(artifacts.FileSystemCAS):
         artifact_id: artifacts.ArtifactID | ArtifactRef | str,
     ) -> ArtifactManifest:
         try:
-            return ArtifactManifest.model_validate_json(
-                self._read_member(artifact_id, "manifest")
-            )
+            return ArtifactManifest.model_validate_json(self._read_member(artifact_id, "manifest"))
         except (OSError, ValueError):
             self.unresolved_dependency = True
             raise
@@ -393,7 +391,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Publish an explicitly supplied owner demand as a read-only DS15 refusal."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--governed-root", type=Path, default=os.environ.get("POLISYOS_GOVERNED_ARTIFACT_ROOT")
+        "--governed-root",
+        type=Path,
+        default=os.environ.get("POLISYOS_GOVERNED_ARTIFACT_ROOT"),
     )
     parser.add_argument("--request", type=Path, required=True)
     parser.add_argument("--gap", type=Path, required=True)
@@ -413,7 +413,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     sys.stdout.write(
         json.dumps(
-            {"bundle": NON_DATA_PROJECTION_BUNDLE_PATH, "receipt_ref": result.receipt.artifact_ref}
+            {
+                "bundle": NON_DATA_PROJECTION_BUNDLE_PATH,
+                "receipt_ref": result.receipt.artifact_ref,
+            }
         )
         + "\n"
     )

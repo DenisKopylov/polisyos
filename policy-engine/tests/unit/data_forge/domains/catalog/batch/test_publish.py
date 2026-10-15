@@ -128,9 +128,7 @@ def _write_qc_and_benchmark(
                             "source": "worldbank",
                             "status": source_status,
                             "ready": source_preflight
-                            >= READINESS_THRESHOLDS[
-                                "benchmark_source_preflight_ready_pct"
-                            ],
+                            >= READINESS_THRESHOLDS["benchmark_source_preflight_ready_pct"],
                         }
                     ]
                 },
@@ -179,16 +177,12 @@ def _build_publish_receipt_fixture(
 def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
-    config = DatasetBatchConfig(
-        snapshot_root=tmp_path / "snap", registry_path=registry_path
-    )
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
     _build_publish_fixture(config)
     config.merged_records_path.write_text(
         '{"title":"GDP per capita","description":"desc"}\n', encoding="utf-8"
     )
-    config.duplicates_report_path.write_text(
-        "dataset_id,duplicate_id\n", encoding="utf-8"
-    )
+    config.duplicates_report_path.write_text("dataset_id,duplicate_id\n", encoding="utf-8")
     _write_qc_and_benchmark(config)
 
     manifest_path = run_publish(config)
@@ -208,9 +202,7 @@ def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
 def test_run_publish_blocks_when_consumer_readiness_fails(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
-    config = DatasetBatchConfig(
-        snapshot_root=tmp_path / "snap", registry_path=registry_path
-    )
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
     _build_publish_fixture(config)
     _write_qc_and_benchmark(config, search=50.0)
 
@@ -225,9 +217,7 @@ def test_run_publish_blocks_when_consumer_readiness_fails(tmp_path) -> None:
 def test_run_publish_blocks_when_blocking_source_status_is_missing(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
-    config = DatasetBatchConfig(
-        snapshot_root=tmp_path / "snap", registry_path=registry_path
-    )
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
     _build_publish_fixture(config)
     with open(config.qc_report_path, "w", encoding="utf-8") as fh:
         json.dump(
@@ -266,9 +256,7 @@ def test_run_publish_blocks_when_blocking_source_status_is_missing(tmp_path) -> 
 def test_run_publish_allows_core_ready_snapshot(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
-    config = DatasetBatchConfig(
-        snapshot_root=tmp_path / "snap", registry_path=registry_path
-    )
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
     _build_publish_fixture(config)
     _write_qc_and_benchmark(config, evaluation_mode="core-ready")
 
@@ -288,9 +276,7 @@ def test_run_publish_allows_core_ready_snapshot(tmp_path) -> None:
 def test_run_publish_blocks_partial_eval_even_if_thresholds_pass(tmp_path) -> None:
     registry_path = tmp_path / "registry.yaml"
     _write_test_registry(registry_path)
-    config = DatasetBatchConfig(
-        snapshot_root=tmp_path / "snap", registry_path=registry_path
-    )
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snap", registry_path=registry_path)
     _build_publish_fixture(config)
     _write_qc_and_benchmark(config, evaluation_mode="partial-eval")
 
@@ -324,9 +310,7 @@ def test_publish_receipt_read_is_side_effect_free_and_detects_same_stat_drift(
         )
         is None
     )
-    assert (
-        ConfigType.from_producer_config_snapshot({**saved, "unexpected": True}) is None
-    )
+    assert ConfigType.from_producer_config_snapshot({**saved, "unexpected": True}) is None
 
     def fail(*_args, **_kwargs):
         raise AssertionError("read-only receipt attempted a write")
@@ -343,10 +327,7 @@ def test_publish_receipt_read_is_side_effect_free_and_detects_same_stat_drift(
     assert changed != original and len(changed) == len(original)
     registry_path.write_bytes(changed)
     os.utime(registry_path, ns=(stat.st_atime_ns, stat.st_mtime_ns))
-    assert (
-        json.loads(config.stage_state_path.read_text())["publish"]["status"]
-        == "complete"
-    )
+    assert json.loads(config.stage_state_path.read_text())["publish"]["status"] == "complete"
     assert current_catalog_publish_receipt(config.db_path)["state"] == "stale"
 
 
@@ -442,9 +423,7 @@ def test_profile_input_coverage_binds_presence_without_persisting_values(
     headerful_snapshot = _producer_config_snapshot(config)
     assert headerful_signature != no_input_signature
     assert (
-        headerful_snapshot["resolved_profile_input_coverage"]["profiles"][
-            "fixture_profile"
-        ]
+        headerful_snapshot["resolved_profile_input_coverage"]["profiles"]["fixture_profile"]
         == "excluded_present"
     )
     assert "fixture-only-header-value" not in repr(headerful_snapshot)
@@ -473,29 +452,29 @@ def test_profile_input_coverage_binds_presence_without_persisting_values(
     profiles.register(profile, override=True)
     assert config.run_signature == no_input_signature
 
-    from polisyos.data_forge.domains.catalog.batch.config import (
-        _parse_profile_input_coverage,
-        _profile_input_coverage_currentness,
+    from polisyos.data_forge.read_api.catalog import (
+        parse_profile_input_coverage,
+        profile_input_coverage_currentness,
     )
 
-    assert _profile_input_coverage_currentness(
+    assert profile_input_coverage_currentness(
         no_input_snapshot["resolved_profile_input_coverage"]
     ) == (
         "established",
         {"fixture_profile": "none"},
     )
-    assert _profile_input_coverage_currentness(
+    assert profile_input_coverage_currentness(
         headerful_snapshot["resolved_profile_input_coverage"]
     ) == (
         "not_established",
         {"fixture_profile": "excluded_present"},
     )
-    assert _profile_input_coverage_currentness(None, missing=True) == (
+    assert profile_input_coverage_currentness(None, missing=True) == (
         "legacy_unknown",
         None,
     )
-    assert _parse_profile_input_coverage(None, missing=True) == ("legacy_unknown", None)
-    assert _parse_profile_input_coverage(
+    assert parse_profile_input_coverage(None, missing=True) == ("legacy_unknown", None)
+    assert parse_profile_input_coverage(
         {
             "schema_version": "policyos.catalog.profile_input_coverage.v1",
             "profiles": {"fixture_profile": "unexpected"},
@@ -541,9 +520,7 @@ def test_current_publish_reader_keeps_legacy_or_malformed_coverage_unknown(
                 {
                     "publish": {
                         "status": "complete",
-                        "input_basis": {
-                            "config": {"effective_producer_config": config}
-                        },
+                        "input_basis": {"config": {"effective_producer_config": config}},
                     }
                 }
             ),

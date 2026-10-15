@@ -79,7 +79,7 @@ async def run_node_in_worker(
             ctx = _build_worker_context(context_meta)
         else:
             ctx = _build_timeout_worker_context(context_meta)
-            from polisyos.core.security.tenant_context import set_current_access_scope
+            from polisyos.core.security import set_current_access_scope
 
             access_scope_token = set_current_access_scope(ctx.run.access_scope)
             if ctx.run.run_manifest.run_id != state.run_id:
@@ -101,9 +101,9 @@ async def run_node_in_worker(
         )
 
         if SNAPSHOT_INPUT_KEY in state.inputs:
-            from polisyos.common.async_tools import run_blocking_async
+            from polisyos.common import async_tools as common_async_tools
 
-            state = await run_blocking_async(
+            state = await common_async_tools.run_blocking_async(
                 bind_retained_skg_workflow_input,
                 ctx,
                 state,
@@ -112,7 +112,10 @@ async def run_node_in_worker(
             )
 
         # Resolve and execute the node
-        from polisyos.scientist.orchestration.engine.registry import NodeRegistry, discover_nodes
+        from polisyos.scientist.orchestration.engine.registry import (
+            NodeRegistry,
+            discover_nodes,
+        )
 
         registry = NodeRegistry()
         if timeout_authority is None:
@@ -194,7 +197,7 @@ async def run_node_in_worker(
         return cast("bytes", serialize_outcome(completed))
     finally:
         if access_scope_token is not None:
-            from polisyos.core.security.tenant_context import reset_current_access_scope
+            from polisyos.core.security import reset_current_access_scope
 
             reset_current_access_scope(access_scope_token)
         if _token is not None:
@@ -262,7 +265,9 @@ def run_node_state_in_worker_sync(payload: dict[str, Any]) -> bytes:
     return asyncio.run(run_node_state_in_worker(payload))
 
 
-async def run_merge_checkpoint_tier_in_worker(payload: dict[str, Any]) -> dict[str, Any]:
+async def run_merge_checkpoint_tier_in_worker(
+    payload: dict[str, Any],
+) -> dict[str, Any]:
     """Merge one distributed tier and checkpoint when runtime metadata provides a hook."""
     context_meta: dict[str, Any] = payload.get("context_meta", {})
     trace_carrier: dict[str, str] = payload.get("trace_carrier", {})
@@ -281,12 +286,17 @@ async def run_merge_checkpoint_tier_in_worker(payload: dict[str, Any]) -> dict[s
         checkpoint_meta = payload.get("checkpoint_hook_meta")
         checkpoint_hook = restore_checkpoint_hook_from_runtime_metadata(checkpoint_meta)
 
-        from polisyos.scientist.orchestration.engine.registry import NodeRegistry, discover_nodes
+        from polisyos.scientist.orchestration.engine.registry import (
+            NodeRegistry,
+            discover_nodes,
+        )
         from polisyos.scientist.orchestration.engine.runner.distributed_tier import (
             merge_and_checkpoint_tier,
             seed_runner_cache,
         )
-        from polisyos.scientist.orchestration.engine.state_merge import MergeConflictPolicy
+        from polisyos.scientist.orchestration.engine.state_merge import (
+            MergeConflictPolicy,
+        )
         from polisyos.scientist.orchestration.engine.workflow_spec import WorkflowSpec
 
         workflow = WorkflowSpec.model_validate(payload["workflow_spec_json"])
@@ -401,12 +411,17 @@ def _build_worker_context(meta: dict[str, Any]) -> Any:
     import logging as _logging
     from pathlib import Path
 
-    from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
+    from polisyos.core.artifacts.backends.config import (
+        ArtifactStoreConfig,
+        build_artifact_store,
+    )
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
     from polisyos.core.run.context import RunContext
     from polisyos.scientist.evidence.claims import build_default_claim_ledger_owner
-    from polisyos.scientist.orchestration.engine.context import ClaimCapableExecutionContext
+    from polisyos.scientist.orchestration.engine.context import (
+        ClaimCapableExecutionContext,
+    )
 
     run_id = str(meta.get("run_id", "worker-run"))
     store_config_raw = meta.get("store_config")
@@ -549,11 +564,11 @@ def _build_worker_context(meta: dict[str, Any]) -> Any:
 
 def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
     """Reconstruct only the exact filesystem/run context admitted for timeout work."""
+    from polisyos.core import run as core_run
     from polisyos.core.artifacts import FileSystemCAS, SigningConfig
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.observability import is_hpc_observability_enabled
     from polisyos.core.run.context import RunContext
-    from polisyos.core.run.manifest import RunManifest
     from polisyos.core.trace import JsonlTraceSink
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
@@ -676,7 +691,7 @@ def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
         raise ValueError("timeout_worker_observability_setting_mismatch")
     try:
         signing_config = SigningConfig.model_validate(store_meta.get("signing_config"))
-        run_manifest = RunManifest.model_validate(run_meta.get("manifest"))
+        run_manifest = core_run.RunManifest.model_validate(run_meta.get("manifest"))
     except (TypeError, ValueError, ValidationError) as exc:
         raise ValueError("timeout_worker_context_model_invalid") from exc
     if run_manifest.tenant_id != run_meta.get("tenant_id") or run_manifest.cell_id != run_meta.get(

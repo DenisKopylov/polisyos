@@ -11,8 +11,9 @@ from pydantic import BaseModel, ConfigDict
 
 from polisyos.core import artifacts as core_artifacts
 from polisyos.core import canon
-from polisyos.core.artifacts import ArtifactID, ArtifactRef
-from polisyos.core.artifacts.canonical_profile import (
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactRef,
     read_core_json_artifact,
     read_core_manifest_profile,
 )
@@ -87,7 +88,9 @@ if TYPE_CHECKING:
         ValueGateReceipt,
     )
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
-    from polisyos.runtime.quality.promotion_sequence import N9PromotionEvidenceBridgeRepository
+    from polisyos.runtime.quality.promotion_sequence import (
+        N9PromotionEvidenceBridgeRepository,
+    )
     from polisyos.runtime.quality.semantic_epoch import (
         SemanticFacetDenominatorReceipt,
         SemanticFacetRegistry,
@@ -486,7 +489,8 @@ class EvaluationSafetyPersistenceService:
                     kind="runtime.eval_safety.promotion_source_resolution",
                     media_type="application/json",
                     schema=core_artifacts.SchemaInfo(
-                        name="polisyos.eval_safety.PromotionSourceResolution", version="1.0"
+                        name="polisyos.eval_safety.PromotionSourceResolution",
+                        version="1.0",
                     ),
                     producer=core_artifacts.ProducerInfo(
                         component=_PRODUCER_COMPONENT, version=_PRODUCER_VERSION
@@ -601,10 +605,10 @@ class EvaluationSafetyPersistenceService:
         ):
             raise ValueError("promotion_source_artifact_binding_mismatch")
         payload = read_core_json_artifact(
-                      self._artifact_store,
-                      selected_ref,
-                      raw_payload_bytes=raw,
-                  ).value
+            self._artifact_store,
+            selected_ref,
+            raw_payload_bytes=raw,
+        ).value
         if (
             schema_version == "1.0"
             and kind == "runtime.control_job_payload.natural_language_run"
@@ -655,7 +659,12 @@ class EvaluationSafetyPersistenceService:
         if not selected:
             return None, inputs_read, read_attempts, ["promotion_source_slot_empty"]
         if len(selected) != len(set(selected)):
-            return None, inputs_read, read_attempts, ["promotion_source_selection_ambiguous"]
+            return (
+                None,
+                inputs_read,
+                read_attempts,
+                ["promotion_source_selection_ambiguous"],
+            )
         for source_run_id in selected:
             try:
                 read_attempts.append(f"control_completed_job:{source_run_id}")
@@ -759,7 +768,10 @@ class EvaluationSafetyPersistenceService:
                                 read_attempts.append(f"generation_source_owner:{source_ref}")
                                 handoff = repository.load(source_ref, run_id=cycle.run_id)
                                 inputs_read.extend(
-                                    (f"cas_manifest:{source_ref}", f"cas_bytes:{source_ref}")
+                                    (
+                                        f"cas_manifest:{source_ref}",
+                                        f"cas_bytes:{source_ref}",
+                                    )
                                 )
                                 identity = (
                                     node.design_problem_ref,
@@ -892,7 +904,8 @@ class EvaluationSafetyPersistenceService:
                 semantic_hash=source.value.value_ref,
             )
             open_world_ref = near_miss_resolver_basis_reference(
-                owner.open_world_gate.vector_artifact_ref, record="open_world_risk_vector"
+                owner.open_world_gate.vector_artifact_ref,
+                record="open_world_risk_vector",
             )
             epoch_ref = near_miss_resolver_basis_reference(
                 owner.epoch_validity_projection.gate_receipt_ref,
@@ -1042,7 +1055,10 @@ class EvaluationSafetyPersistenceService:
             key="decision",
             payload=event.model_dump(mode="json"),
             context=context,
-            input_refs=(core.intake_ref, *((core.request_ref,) if core.request_ref else ())),
+            input_refs=(
+                core.intake_ref,
+                *((core.request_ref,) if core.request_ref else ()),
+            ),
             validation_status="pass" if event.safety.status == "passed" else "blocked",
             blocking_status=("non_blocking" if event.safety.status == "passed" else "blocking"),
         )
@@ -1197,9 +1213,9 @@ class EvaluationSafetyPersistenceService:
                     raise ValueError("eval_safety_decision_producer_mismatch")
                 reconciled.append((selected_ref, rebuilt))
                 event_authority = read_core_manifest_profile(
-                                      self._artifact_store,
-                                      typed_id,
-                                  )[0].authority
+                    self._artifact_store,
+                    typed_id,
+                )[0].authority
                 if event_authority is None:
                     raise ValueError("eval_safety_diagnostic_event_linkage_missing")
                 selected_event_ref = resolve_authority_diagnostic_event_ref(
@@ -1207,9 +1223,9 @@ class EvaluationSafetyPersistenceService:
                     event_authority,
                 )
                 event_manifest = read_core_manifest_profile(
-                                     self._artifact_store,
-                                     selected_event_ref,
-                                 )[0]
+                    self._artifact_store,
+                    selected_event_ref,
+                )[0]
                 event_refs.append(
                     EvalSafetyArtifactRef(
                         artifact_id=str(event_manifest.artifact_id),
@@ -1223,7 +1239,12 @@ class EvaluationSafetyPersistenceService:
                 )
                 if report.status != "pass":
                     raise ValueError("eval_safety_reconciliation_not_established")
-            except (AttributeError, AuthorityReconciliationError, TypeError, ValueError):
+            except (
+                AttributeError,
+                AuthorityReconciliationError,
+                TypeError,
+                ValueError,
+            ):
                 continue
         by_id: dict[str, list[tuple[EvalSafetyArtifactRef, EvaluationSafetyDecisionEvent]]] = {}
         for row in reconciled:
@@ -1864,9 +1885,9 @@ class EvaluationSafetyAdmissionVerifier:
         for artifact_id in self._persistence_service._artifact_store.iter_artifact_ids():
             typed_id = core_artifacts.ArtifactID.model_validate(artifact_id)
             manifest = read_core_manifest_profile(
-                           self._persistence_service._artifact_store,
-                           typed_id,
-                       )[0]
+                self._persistence_service._artifact_store,
+                typed_id,
+            )[0]
             schema = manifest.artifact_schema
             if (
                 manifest.kind != identity.kind

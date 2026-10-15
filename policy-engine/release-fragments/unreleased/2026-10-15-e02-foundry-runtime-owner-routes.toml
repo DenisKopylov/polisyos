@@ -1,0 +1,22 @@
+id = "2026-10-15-e02-foundry-runtime-owner-routes"
+title = "Route Foundry runtime imports through exact owner facades"
+type = "changed"
+component = "foundry"
+owner = "team-polisyos"
+summary = "Foundry runtime and Scientist consumers use existing execute, data-plane, methods, calibration, uncertainty, analysis, and validation facades. New exports resolve to exact canonical owner objects."
+evidence = [
+  "architecture/public_surface/contract.toml",
+  "src/polisyos/foundry/README.md",
+  "src/polisyos/foundry/methods/README.md",
+  "tests/unit/foundry/facade/test_runtime_capability_routes.py",
+  "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+]
+compatibility = "Additive Python facade exports; canonical owner identity, persisted artifact semantics, status, time, and authority behavior remain unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.foundry.analysis, polisyos.foundry.calibration, polisyos.foundry.data_plane, polisyos.foundry.methods, polisyos.foundry.methods.backends, polisyos.foundry.methods.causal, polisyos.foundry.validation"
+api = "Owner routes preserve exact objects and stay lazy where the existing facade is lazy. They add no producer, evidence authority, or institutional fact."
+limitations = "The virtual packet includes exact-owner identity checks and a persisted-consumer negative test; native runtime verification remains unrun for root closeout slots."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/foundry/README.md", "src/polisyos/foundry/methods/README.md"]
+runbook_docs = []

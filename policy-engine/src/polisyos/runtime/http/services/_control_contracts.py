@@ -11,6 +11,7 @@ from typing import Any, Literal, Protocol, cast, get_args
 from pydantic import BaseModel, ConfigDict
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.contracts import DataViewRequestRef
 from polisyos.core.contracts.control import (
     ControlJobKind,
     DataSourceBinding,
@@ -18,7 +19,6 @@ from polisyos.core.contracts.control import (
     RetrievalMode,
     WorkflowDataSourceBinding,
 )
-from polisyos.core.contracts.fabric import DataViewRequestRef
 from polisyos.core.contracts.runtime import ApiMeta
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 

@@ -289,6 +289,9 @@ def _get_json_artifact_with_bytes(
     return result.value, raw_bytes
 
 
+get_json_artifact_with_bytes = _get_json_artifact_with_bytes
+
+
 def get_json_artifact(store: ArtifactStore, artifact_id: ArtifactSelector) -> Any:
     """Read and return JSON after selected-profile and same-byte conformance checks."""
     value, _raw_bytes = _get_json_artifact_with_bytes(store, artifact_id)
@@ -302,6 +305,7 @@ def normalize_input_sequence(inputs: Sequence[Any] | None) -> list[InputRef]:
 
 __all__ = [
     "get_json_artifact",
+    "get_json_artifact_with_bytes",
     "normalize_input_sequence",
     "put_json_artifact",
 ]

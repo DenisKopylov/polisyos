@@ -19,10 +19,10 @@ from polisyos.common.canonical_profile import (
     require_declared_profile,
 )
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import resolve_manifest_by_profile
-from polisyos.core.artifacts.canonical_profile import (
+from polisyos.core.artifacts import (
     read_core_json_artifact,
     read_core_manifest_profile,
+    resolve_manifest_by_profile,
 )
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
@@ -56,18 +56,13 @@ from polisyos.core.contracts.runtime import (
     SimulationResultCandidateView,
 )
 from polisyos.core.trace import TraceRecord
+from polisyos.ir import ModelQueryDataViewRequest as QueryDataViewRequest
 from polisyos.ir.analytics import (
     DataViewRequest as AnalyticsDataViewRequest,
 )
 from polisyos.ir.artifacts.io import get_json_artifact as get_ir_json_artifact
 from polisyos.ir.model_layer.canon import CanonViolation
-from polisyos.ir.model_layer.queries import (
-    DataViewRequest as QueryDataViewRequest,
-)
-from polisyos.scientist.orchestration.engine.budget_ledger import (
-    BudgetLedgerProducerRunBinding,
-)
-from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding, BudgetMiddleware
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 if TYPE_CHECKING:
@@ -1008,7 +1003,13 @@ class DebugService:
                 return None, "llm_producer_control_job_owner_not_established"
             event_payload = store.get_job_created_event_payload(control_job_id)
             outbox_event = store.get_job_created_outbox_event(control_job_id)
-        except ControlJobExecutionAdmissionError, OSError, RuntimeError, TypeError, ValueError:
+        except (
+            ControlJobExecutionAdmissionError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ):
             return None, "llm_producer_control_job_owner_not_established"
 
         outbox_payload = getattr(outbox_event, "payload", None)
@@ -1319,7 +1320,8 @@ class DebugService:
             self._find_run_input_ref_by_kind(run, "fabric.evidence_bundle")
             or materialization_refs.get("evidence_bundle_ref")
             or _artifact_ref_from_string(
-                _as_str(packet_inputs.get("evidence_bundle_ref")), kind="fabric.evidence_bundle"
+                _as_str(packet_inputs.get("evidence_bundle_ref")),
+                kind="fabric.evidence_bundle",
             )
         )
         data_view_request_ref = None
@@ -1373,7 +1375,8 @@ class DebugService:
                 ),
                 _artifact_ref_from_string(
                     _path_get_as_str(
-                        decision_packet_payload, ("artifacts", "input_binding_report_ref")
+                        decision_packet_payload,
+                        ("artifacts", "input_binding_report_ref"),
                     ),
                     kind="foundry.input_binding_report",
                 ),
@@ -1987,7 +1990,13 @@ class DebugService:
             return None
         try:
             return self._store.get_manifest(ref)
-        except (FileNotFoundError, OSError, ValidationError, TypeError, ValueError) as exc:
+        except (
+            FileNotFoundError,
+            OSError,
+            ValidationError,
+            TypeError,
+            ValueError,
+        ) as exc:
             logger.debug("Failed to load manifest %s: %s", ref.artifact_id, exc)
             return None
 
@@ -2088,7 +2097,9 @@ def _state_ref_from_param(
     )
 
 
-def _workflow_report_nodes_by_alias(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+def _workflow_report_nodes_by_alias(
+    rows: list[dict[str, Any]],
+) -> dict[str, dict[str, Any]]:
     result: dict[str, dict[str, Any]] = {}
     for row in rows:
         alias = _as_str(row.get("alias"))
@@ -2122,7 +2133,9 @@ def _artifact_ids_from_report_node(row: dict[str, Any] | None) -> list[str]:
     return sorted(set(ids))
 
 
-def _simulation_result_ref_from_state_payload(payload: dict[str, Any]) -> ArtifactRef | None:
+def _simulation_result_ref_from_state_payload(
+    payload: dict[str, Any],
+) -> ArtifactRef | None:
     """Resolve the persisted simulation ref from a verified state payload."""
     artifacts_index = payload.get("artifacts_index")
     if not isinstance(artifacts_index, dict):
@@ -2163,7 +2176,9 @@ def _artifact_ref_matches_any(ref: ArtifactRef, candidates: tuple[ArtifactRef, .
     )
 
 
-def _workflow_edges_from_nodes(nodes: list[RunWorkflowNodeView]) -> list[RunWorkflowEdgeView]:
+def _workflow_edges_from_nodes(
+    nodes: list[RunWorkflowNodeView],
+) -> list[RunWorkflowEdgeView]:
     seen: set[tuple[str, str]] = set()
     edges: list[RunWorkflowEdgeView] = []
     aliases = {node.alias for node in nodes}
@@ -2234,7 +2249,9 @@ def _critical_path_duration_ms(nodes: list[RunWorkflowNodeView]) -> int | None:
     return max(durations, default=0)
 
 
-def _retrieval_from_state_payload(payload: dict[str, Any]) -> RetrievalTelemetryView | None:
+def _retrieval_from_state_payload(
+    payload: dict[str, Any],
+) -> RetrievalTelemetryView | None:
     params = payload.get("params")
     if not isinstance(params, dict):
         return None
@@ -2711,7 +2728,9 @@ def _agent_step_index(existing: list[AgentPipelineStep], target: AgentPipelineSt
     return None
 
 
-def _group_agent_steps_by_attempt(steps: list[AgentPipelineStep]) -> list[AgentPipelineAttempt]:
+def _group_agent_steps_by_attempt(
+    steps: list[AgentPipelineStep],
+) -> list[AgentPipelineAttempt]:
     grouped: dict[int, list[AgentPipelineStep]] = defaultdict(list)
     for step in steps:
         grouped[max(step.attempt, 1)].append(step)
@@ -2723,7 +2742,8 @@ def _group_agent_steps_by_attempt(steps: list[AgentPipelineStep]) -> list[AgentP
             key=lambda item: _agent_step_sort_key(item.timestamp),
         )
         started = next(
-            (item.timestamp for item in items if isinstance(item.timestamp, datetime)), None
+            (item.timestamp for item in items if isinstance(item.timestamp, datetime)),
+            None,
         )
         finished = next(
             (item.timestamp for item in reversed(items) if isinstance(item.timestamp, datetime)),
@@ -3165,7 +3185,14 @@ def _workflow_data_view_request_profile_origin(
         manifest = read_core_manifest_profile(store, payload_ref)[0]
         schema = manifest.artifact_schema
         payload = read_core_json_artifact(store, payload_ref).value
-    except FileNotFoundError, OSError, PermissionError, RuntimeError, TypeError, ValueError:
+    except (
+        FileNotFoundError,
+        OSError,
+        PermissionError,
+        RuntimeError,
+        TypeError,
+        ValueError,
+    ):
         return not_established
     if (
         not verification.ok
@@ -3413,7 +3440,9 @@ def _transport_summary_from_packet(payload: dict[str, Any]) -> dict[str, Any] | 
     return dict(transport) if isinstance(transport, dict) else None
 
 
-def _governance_links_from_payload(payload: dict[str, Any]) -> dict[str, ArtifactRef | None] | None:
+def _governance_links_from_payload(
+    payload: dict[str, Any],
+) -> dict[str, ArtifactRef | None] | None:
     links = payload.get("links")
     if not isinstance(links, dict):
         return None
@@ -3451,7 +3480,13 @@ def _agent_step_status(
 
 
 def _as_evaluator_verdict(value: Any) -> EvaluatorVerdict | None:
-    if value in {"APPROVE", "REPLAN_DATA", "REPLAN_METHOD", "REPLAN_PARAMS", "STOP_BUDGET"}:
+    if value in {
+        "APPROVE",
+        "REPLAN_DATA",
+        "REPLAN_METHOD",
+        "REPLAN_PARAMS",
+        "STOP_BUDGET",
+    }:
         return cast("EvaluatorVerdict", value)
     return None
 

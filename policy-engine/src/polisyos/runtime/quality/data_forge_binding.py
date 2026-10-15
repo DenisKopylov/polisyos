@@ -19,7 +19,11 @@ from polisyos.core import artifacts, canon, scan_secret_and_pii
 from polisyos.data_forge import read_api
 from polisyos.data_forge.read_api import OfficialSnapshotAnswer
 from polisyos.data_forge.read_api.surfaces import available_surfaces, surface_module
-from polisyos.data_requirement import DataQualityMinimums, DataRequirementScope, DataRequirementSpec
+from polisyos.data_requirement import (
+    DataQualityMinimums,
+    DataRequirementScope,
+    DataRequirementSpec,
+)
 from polisyos.fabric.retrieval.providers import (
     RetrievalProviders,
     resolve_retrieval_providers,
@@ -45,7 +49,9 @@ if TYPE_CHECKING:
     from polisyos.core.contracts import DataSnapshotRef
     from polisyos.data_forge.read_api.catalog import DatasetSearchResponse
     from polisyos.fabric.retrieval.custody import ResolvedFabricFetch
-    from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionAdmission
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobExecutionAdmission,
+    )
     from polisyos.runtime.quality.substrate_registry import (
         L5CatalogAuthority,
         MeasurementRootRegistryAdmission,
@@ -829,7 +835,7 @@ class MeasurementRootProducer:
             type(execution_scope_binding) is not MeasurementRootExecutionBinding
             or not execution_scope_binding.authority_eligible
         ):
-            from polisyos.core.security.tenant_context import clear_tenant_context
+            from polisyos.core.security import clear_tenant_context
 
             with clear_tenant_context():
                 candidate_ref = self._artifact_store.put_json(
@@ -842,7 +848,9 @@ class MeasurementRootProducer:
                 raise ValueError("measurement_root_selected_profile_missing")
             return str(candidate_ref.artifact_id), candidate_ref.manifest_profile_sha256
 
-        from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
+        from polisyos.runtime.http.services.control.artifacts import (
+            write_authority_artifact,
+        )
 
         opts, identity = _measurement_root_authority_configuration(
             payload,
@@ -1442,7 +1450,14 @@ def _validate_resolved_measurement_root_evidence(
         expected_catalog_ref = evidence.payload.catalog_binding_ref
     except FabricMeasurementRootBindingError:
         raise
-    except (AttributeError, KeyError, OSError, TypeError, ValueError, RuntimeError) as exc:
+    except (
+        AttributeError,
+        KeyError,
+        OSError,
+        TypeError,
+        ValueError,
+        RuntimeError,
+    ) as exc:
         raise FabricMeasurementRootBindingError("measurement_root_evidence_invalid") from exc
     if expected_envelope.model_dump(mode="json") != evidence.envelope.model_dump(mode="json"):
         raise FabricMeasurementRootBindingError("measurement_root_evidence_projection_mismatch")
@@ -3313,7 +3328,10 @@ def _claim_requirement_issues(
                     value=requirement_kind,
                 )
             )
-        if not authority_level or authority_level.casefold() in {"context", "context_only"}:
+        if not authority_level or authority_level.casefold() in {
+            "context",
+            "context_only",
+        }:
             issues.append(
                 DataForgeSnapshotBindingIssue(
                     code="data_forge_snapshot_claim_requirement_authority_level_missing",
@@ -3351,7 +3369,11 @@ def _claim_requirement_issues(
                 )
             )
         for ref in supported_by:
-            if _looks_local_path(ref) or ref.casefold() in {"dataset", "datasets", "bundle"}:
+            if _looks_local_path(ref) or ref.casefold() in {
+                "dataset",
+                "datasets",
+                "bundle",
+            }:
                 issues.append(
                     DataForgeSnapshotBindingIssue(
                         code="data_forge_snapshot_claim_requirement_broad_label",

@@ -9,9 +9,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.runtime.http.services.control.job_nl_context import _ControlNLJobContext
 from polisyos.runtime.quality.evaluation_modes import ExecutionIntentBand
-from polisyos.scientist.orchestration.engine.budget_ledger import (
-    BudgetLedgerProducerRunBinding,
-)
+from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding
 
 from ..control_plane_store import ControlJobLeaseLostError
 from .job_scope_admission import _NL_JOB_OWNER_CONTEXT_KEYS

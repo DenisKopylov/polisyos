@@ -9,8 +9,9 @@ from html import escape
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-from polisyos.core.artifacts import ArtifactManifest, artifact_manifest_profile_sha256
-from polisyos.core.artifacts.canonical_profile import (
+from polisyos.core.artifacts import (
+    ArtifactManifest,
+    artifact_manifest_profile_sha256,
     artifact_ref_for_manifest,
     read_core_json_artifact,
 )
@@ -132,9 +133,7 @@ class BureaucraticRenderingService:
             metadata={
                 "source_artifact_kind": manifest.kind,
                 "source_media_type": manifest.media_type,
-                "source_manifest_profile_sha256": artifact_manifest_profile_sha256(
-                    manifest
-                ),
+                "source_manifest_profile_sha256": artifact_manifest_profile_sha256(manifest),
                 "canon_read_status": canon_read_status,
                 "template_id": template.id,
                 "draft_disclaimer": DRAFT_WATERMARK,
@@ -176,9 +175,7 @@ class BureaucraticRenderingService:
                 "template_version": document.template.version,
                 "render_timestamp": document.render_timestamp.isoformat(),
                 "packet_hash": document.packet_hash,
-                "source_artifact_kind": document.metadata.get(
-                    "source_artifact_kind"
-                ),
+                "source_artifact_kind": document.metadata.get("source_artifact_kind"),
                 "source_media_type": document.metadata.get("source_media_type"),
                 "source_manifest_profile_sha256": document.metadata.get(
                     "source_manifest_profile_sha256"
@@ -527,8 +524,7 @@ def _authored_blocks(payload: dict[str, Any], *, packet_id: str) -> list[Bureauc
                         reviewed_by_human=bool(item_dict.get("reviewed_by_human")),
                     ),
                     provenance=[
-                        LineageCompactSummaryItem(kind="source", label=ref)
-                        for ref in source_refs
+                        LineageCompactSummaryItem(kind="source", label=ref) for ref in source_refs
                     ]
                     or [LineageCompactSummaryItem(kind="artifact", label=packet_id)],
                     raw_source_refs=source_refs or [packet_id],

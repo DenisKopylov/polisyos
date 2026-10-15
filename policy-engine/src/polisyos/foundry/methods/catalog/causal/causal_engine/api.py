@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 from polisyos.core.artifacts import ArtifactStore, ensure_ir_artifact_store
 
 if TYPE_CHECKING:
-    from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
+    from polisyos.ir import ArtifactStore as IRArtifactStore
 
 from . import artifacts as _artifacts
 from . import discovery as _discovery

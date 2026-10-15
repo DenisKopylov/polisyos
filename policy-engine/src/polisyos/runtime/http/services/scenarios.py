@@ -14,7 +14,7 @@ from pydantic import ValidationError
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core import artifacts
-from polisyos.core.artifacts.canonical_profile import (
+from polisyos.core.artifacts import (
     artifact_ref_for_manifest,
     read_core_json_artifact,
     read_core_manifest_profile,
@@ -1235,7 +1235,10 @@ def _delta_uncertainty(
     if actual_ci is None or counterfactual_ci is None:
         return None
     return QuantityUncertainty(
-        ci_95=(counterfactual_ci[0] - actual_ci[1], counterfactual_ci[1] - actual_ci[0]),
+        ci_95=(
+            counterfactual_ci[0] - actual_ci[1],
+            counterfactual_ci[1] - actual_ci[0],
+        ),
         method="simulation",
         identifiability="assumed",
         disputed=bool(

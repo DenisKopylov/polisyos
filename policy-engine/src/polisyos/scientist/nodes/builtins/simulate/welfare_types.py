@@ -10,20 +10,31 @@ import numpy as np
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import ArtifactRef, InputRef, PutOptions, SchemaInfo
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.canon import CanonSpec
-from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.foundry.calibration.report import CalibrationCoordinateProjection
+from polisyos.core.components import (
+    Capability,
+    ComponentId,
+    ComponentKind,
+    ComponentMetadata,
+)
+from polisyos.foundry.calibration import CalibrationCoordinateProjection
 from polisyos.foundry.uncertainty import extract_std as _extract_typed_std
-from polisyos.ir.analytics import DependenceStructure, UncertaintyEnvelope, WelfareMethod
-from polisyos.ir.artifacts import get_json_artifact
-from polisyos.ir.registry.refs import (
+from polisyos.ir import (
     ArtifactRefModel,
     DependenceStructureRef,
     GEUncertaintyBundleRef,
     UncertaintyEnvelopeRef,
     WelfareSampleBundleRef,
 )
+from polisyos.ir.analytics import (
+    DependenceStructure,
+    UncertaintyEnvelope,
+    WelfareMethod,
+)
+from polisyos.ir.artifacts import get_json_artifact
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
     ARTIFACT_WELFARE_BUNDLE_REF,

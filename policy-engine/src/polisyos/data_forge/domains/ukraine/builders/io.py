@@ -20,14 +20,21 @@ from pydantic import BaseModel
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord
-from polisyos.data_forge.domains.ukraine.models import BuildRootConfig, PipelineConfig, StageId
-from polisyos.data_forge.kernel.io import atomic_write_bytes, atomic_write_text, ensure_dirs
+from polisyos.data_forge.domains.ukraine.models import (
+    BuildRootConfig,
+    PipelineConfig,
+    StageId,
+)
+from polisyos.data_forge.kernel.io import (
+    atomic_write_bytes,
+    atomic_write_text,
+    ensure_dirs,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
-    from polisyos.core.artifacts import ArtifactRef, InputRef
-    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts import ArtifactRef, InputRef, SchemaInfo
 
 
 def _json_default(value: object) -> object:
@@ -214,7 +221,11 @@ def _select_procurement_frame(
     if spending_proxy is not None and spending_proxy.empty:
         warnings.append("procurement_source_empty:spending_contracts_procurement_proxy")
     warnings.append("procurement_source_selected:prozorro_full")
-    return _load_source_frame(config, "prozorro_full", columns=columns), "prozorro_full", warnings
+    return (
+        _load_source_frame(config, "prozorro_full", columns=columns),
+        "prozorro_full",
+        warnings,
+    )
 
 
 def _cas_put_json(

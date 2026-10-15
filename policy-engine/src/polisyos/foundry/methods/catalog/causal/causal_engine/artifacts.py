@@ -19,244 +19,557 @@ import hashlib
 import json
 import logging
 import uuid
-from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, Literal
+from datetime import (
+    UTC as UTC,
+)
+from datetime import (
+    datetime as datetime,
+)
+from typing import (
+    TYPE_CHECKING as TYPE_CHECKING,
+)
+from typing import (
+    Any as Any,
+)
+from typing import (
+    Literal as Literal,
+)
 
 import numpy as np
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-
-logger = logging.getLogger(__name__)
-
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.foundry.methods.catalog._phase1_artifacts import (
-    is_government_dataset,
-    resolve_dataset_context,
+    is_government_dataset as is_government_dataset,
+)
+from polisyos.foundry.methods.catalog._phase1_artifacts import (
+    resolve_dataset_context as resolve_dataset_context,
 )
 from polisyos.foundry.methods.catalog.causal._causal_engine_contracts import (
-    DataReadinessBlockedError,
+    DataReadinessBlockedError as DataReadinessBlockedError,
 )
 from polisyos.foundry.methods.catalog.causal.admg_ops import (
-    ancestors,
-    do_operator,
-    has_directed_cycle,
-    induced_subgraph,
+    ancestors as ancestors,
+)
+from polisyos.foundry.methods.catalog.causal.admg_ops import (
+    do_operator as do_operator,
+)
+from polisyos.foundry.methods.catalog.causal.admg_ops import (
+    has_directed_cycle as has_directed_cycle,
+)
+from polisyos.foundry.methods.catalog.causal.admg_ops import (
+    induced_subgraph as induced_subgraph,
 )
 from polisyos.foundry.methods.catalog.causal.cyclic_id import (
-    cyclic_id_algorithm,
-    well_posedness_check,
+    cyclic_id_algorithm as cyclic_id_algorithm,
+)
+from polisyos.foundry.methods.catalog.causal.cyclic_id import (
+    well_posedness_check as well_posedness_check,
 )
 from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
-    CyclicExecutionBlock,
-    ExecutorGraph,
-    ExecutorNode,
-    compile_estimand,
+    CyclicExecutionBlock as CyclicExecutionBlock,
+)
+from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
+    ExecutorGraph as ExecutorGraph,
+)
+from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
+    ExecutorNode as ExecutorNode,
+)
+from polisyos.foundry.methods.catalog.causal.estimand_compiler import (
+    compile_estimand as compile_estimand,
 )
 from polisyos.foundry.methods.catalog.causal.id_engine import (
-    CtfQuery,
-    IdentificationResult,
-    IdentificationStatus,
-    ProofStep,
-    conditional_intervention_id,
-    dynamic_intervention_id,
-    id_star_algorithm,
-    id_with_oracle_fallback,
-    idc_algorithm,
-    idc_star_algorithm,
-    multi_outcome_id,
-    mz_id_algorithm,
-    # Phase-5 additions
-    sid_algorithm,
-    tr_algorithm,
-    z_id_algorithm,
+    CtfQuery as CtfQuery,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    IdentificationResult as IdentificationResult,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    IdentificationStatus as IdentificationStatus,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    ProofStep as ProofStep,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    conditional_intervention_id as conditional_intervention_id,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    dynamic_intervention_id as dynamic_intervention_id,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    id_star_algorithm as id_star_algorithm,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    id_with_oracle_fallback as id_with_oracle_fallback,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    idc_algorithm as idc_algorithm,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    idc_star_algorithm as idc_star_algorithm,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    multi_outcome_id as multi_outcome_id,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    mz_id_algorithm as mz_id_algorithm,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    sid_algorithm as sid_algorithm,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    tr_algorithm as tr_algorithm,
+)
+from polisyos.foundry.methods.catalog.causal.id_engine import (
+    z_id_algorithm as z_id_algorithm,
 )
 from polisyos.foundry.methods.catalog.causal.local_independence_id import (
-    build_temporal_identification_certificate,
-    li_id_algorithm,
+    build_temporal_identification_certificate as build_temporal_identification_certificate,
+)
+from polisyos.foundry.methods.catalog.causal.local_independence_id import (
+    li_id_algorithm as li_id_algorithm,
 )
 from polisyos.foundry.methods.catalog.causal.proof_trace_composability import (
-    build_witness_index_from_proof_steps,
-    check_proof_trace_composability,
+    build_witness_index_from_proof_steps as build_witness_index_from_proof_steps,
+)
+from polisyos.foundry.methods.catalog.causal.proof_trace_composability import (
+    check_proof_trace_composability as check_proof_trace_composability,
 )
 from polisyos.foundry.methods.catalog.causal.proximal_identify import (
-    proximal_identify_v1,
-    proximal_spatial_identify_v1,
+    proximal_identify_v1 as proximal_identify_v1,
+)
+from polisyos.foundry.methods.catalog.causal.proximal_identify import (
+    proximal_spatial_identify_v1 as proximal_spatial_identify_v1,
 )
 from polisyos.foundry.methods.catalog.causal.schema_resolver import (
-    SchemaResolutionReport,
-    SchemaResolver,
+    SchemaResolutionReport as SchemaResolutionReport,
+)
+from polisyos.foundry.methods.catalog.causal.schema_resolver import (
+    SchemaResolver as SchemaResolver,
+)
+from polisyos.ir import (
+    ArtifactRefModel as ArtifactRefModel,
+)
+from polisyos.ir import (
+    ArtifactStore as ArtifactStore,
+)
+from polisyos.ir import (
+    BlockingType as BlockingType,
+)
+from polisyos.ir import (
+    BoundsBundle as BoundsBundle,
+)
+from polisyos.ir import (
+    CanonSpec as CanonSpec,
+)
+from polisyos.ir import (
+    CausalGraphModel as CausalGraphModel,
+)
+from polisyos.ir import (
+    CausalQuery as CausalQuery,
+)
+from polisyos.ir import (
+    DistributionLawQuery as DistributionLawQuery,
+)
+from polisyos.ir import (
+    EstimandAST as EstimandAST,
+)
+from polisyos.ir import (
+    EstimationStatus as EstimationStatus,
+)
+from polisyos.ir import (
+    InputRef as InputRef,
+)
+from polisyos.ir import (
+    InterventionQuery as InterventionQuery,
+)
+from polisyos.ir import (
+    NegativeCertificate as NegativeCertificate,
+)
+from polisyos.ir import (
+    ProofBundle as ProofBundle,
+)
+from polisyos.ir import (
+    QueryType as QueryType,
+)
+from polisyos.ir import (
+    SurveyQualityCertificateRef as SurveyQualityCertificateRef,
+)
+from polisyos.ir import (
+    persist_estimand_ast as persist_estimand_ast,
+)
+from polisyos.ir import (
+    persist_negative_certificate as persist_negative_certificate,
+)
+from polisyos.ir import (
+    persist_proof_bundle as persist_proof_bundle,
+)
+from polisyos.ir import (
+    proof_bundle_from_identification_result as proof_bundle_from_identification_result,
+)
+from polisyos.ir import (
+    proof_bundle_from_negative_certificate as proof_bundle_from_negative_certificate,
+)
+from polisyos.ir import (
+    put_json_artifact as put_json_artifact,
+)
+from polisyos.ir.analytics import (
+    EdgeMark as EdgeMark,
+)
+from polisyos.ir.analytics import (
+    GraphType as GraphType,
+)
+from polisyos.ir.analytics import (
+    InterventionCertificate as InterventionCertificate,
+)
+from polisyos.ir.analytics import (
+    JointDecisionCertificate as JointDecisionCertificate,
+)
+from polisyos.ir.analytics import (
+    RecoverabilityCertificate as RecoverabilityCertificate,
 )
 from polisyos.ir.analytics.causal import (
-    DataReadinessReport,
-    EstimationStatus,
-    ProofBundle,
-    build_data_readiness_report,
-    build_dynamic_proof_bundle,
-    persist_data_readiness_report,
-    persist_proof_bundle,
-    proof_bundle_from_identification_result,
-    proof_bundle_from_negative_certificate,
-    proof_bundle_from_proximal_certificate,
+    DataReadinessReport as DataReadinessReport,
 )
-from polisyos.ir.analytics.causal_graph import CausalGraphModel, EdgeMark, GraphType
-from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
-from polisyos.ir.analytics.dual_certificate import hydrate_bounds_bundle_with_dual_certificate
+from polisyos.ir.analytics.causal import (
+    build_data_readiness_report as build_data_readiness_report,
+)
+from polisyos.ir.analytics.causal import (
+    build_dynamic_proof_bundle as build_dynamic_proof_bundle,
+)
+from polisyos.ir.analytics.causal import (
+    persist_data_readiness_report as persist_data_readiness_report,
+)
+from polisyos.ir.analytics.causal import (
+    proof_bundle_from_proximal_certificate as proof_bundle_from_proximal_certificate,
+)
+from polisyos.ir.analytics.dual_certificate import (
+    hydrate_bounds_bundle_with_dual_certificate as hydrate_bounds_bundle_with_dual_certificate,
+)
 from polisyos.ir.analytics.dynamic_causal_semantics import (
-    DynamicReductionStatus,
-    DynamicScopeStatement,
-    DynamicSemanticsAttachment,
-    DynamicSemanticsFamily,
-    GraphicalMarkovCertificate,
-    GraphicalOracleKind,
-    InterventionKind,
-    InterventionScope,
-    LocalIndependenceAttachment,
-    SeparationClaim,
-    WellPosednessStatus,
-    WellPosednessWitness,
+    DynamicReductionStatus as DynamicReductionStatus,
+)
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    DynamicScopeStatement as DynamicScopeStatement,
+)
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    DynamicSemanticsAttachment as DynamicSemanticsAttachment,
+)
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    DynamicSemanticsFamily as DynamicSemanticsFamily,
+)
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    GraphicalMarkovCertificate as GraphicalMarkovCertificate,
+)
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    GraphicalOracleKind as GraphicalOracleKind,
+)
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    InterventionKind as InterventionKind,
+)
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    InterventionScope as InterventionScope,
+)
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    LocalIndependenceAttachment as LocalIndependenceAttachment,
+)
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    SeparationClaim as SeparationClaim,
+)
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    WellPosednessStatus as WellPosednessStatus,
+)
+from polisyos.ir.analytics.dynamic_causal_semantics import (
+    WellPosednessWitness as WellPosednessWitness,
 )
 from polisyos.ir.analytics.dynamic_regime import (
-    ContinuousTimeQuery,
-    DynamicTreatmentRegime,
-    EffectTrajectoryBundle,
-    InterventionInterpolationPolicy,
-    StrategicAdaptationMode,
-    TemporalIdentificationCertificate,
-    TemporalIdentificationTheoremFamily,
-    TemporalInterventionTrajectory,
-    TemporalQueryMode,
-    TemporalSamplingScheme,
-    load_temporal_intervention_trajectory,
-    persist_continuous_time_query,
-    persist_dynamic_treatment_regime,
-    persist_effect_trajectory_bundle,
-    persist_temporal_identification_certificate,
-    persist_temporal_intervention_trajectory,
+    ContinuousTimeQuery as ContinuousTimeQuery,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    DynamicTreatmentRegime as DynamicTreatmentRegime,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    EffectTrajectoryBundle as EffectTrajectoryBundle,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    InterventionInterpolationPolicy as InterventionInterpolationPolicy,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    StrategicAdaptationMode as StrategicAdaptationMode,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    TemporalIdentificationCertificate as TemporalIdentificationCertificate,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    TemporalIdentificationTheoremFamily as TemporalIdentificationTheoremFamily,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    TemporalInterventionTrajectory as TemporalInterventionTrajectory,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    TemporalQueryMode as TemporalQueryMode,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    TemporalSamplingScheme as TemporalSamplingScheme,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    load_temporal_intervention_trajectory as load_temporal_intervention_trajectory,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    persist_continuous_time_query as persist_continuous_time_query,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    persist_dynamic_treatment_regime as persist_dynamic_treatment_regime,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    persist_effect_trajectory_bundle as persist_effect_trajectory_bundle,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    persist_temporal_identification_certificate as persist_temporal_identification_certificate,
+)
+from polisyos.ir.analytics.dynamic_regime import (
+    persist_temporal_intervention_trajectory as persist_temporal_intervention_trajectory,
 )
 from polisyos.ir.analytics.estimand import (
-    DistributionLawQuery,
-    DistributionRef,
-    EdgeInterventionAssignment,
-    EdgeInterventionNode,
-    EstimandAST,
-    ModifiedTreatmentPolicyNode,
-    PathSpecificNode,
-    StochasticInterventionNode,
-    StochasticPolicy,
-    make_distribution_law_estimand,
-    persist_estimand_ast,
+    DistributionRef as DistributionRef,
+)
+from polisyos.ir.analytics.estimand import (
+    EdgeInterventionAssignment as EdgeInterventionAssignment,
+)
+from polisyos.ir.analytics.estimand import (
+    EdgeInterventionNode as EdgeInterventionNode,
+)
+from polisyos.ir.analytics.estimand import (
+    ModifiedTreatmentPolicyNode as ModifiedTreatmentPolicyNode,
+)
+from polisyos.ir.analytics.estimand import (
+    PathSpecificNode as PathSpecificNode,
+)
+from polisyos.ir.analytics.estimand import (
+    StochasticInterventionNode as StochasticInterventionNode,
+)
+from polisyos.ir.analytics.estimand import (
+    StochasticPolicy as StochasticPolicy,
+)
+from polisyos.ir.analytics.estimand import (
+    make_distribution_law_estimand as make_distribution_law_estimand,
 )
 from polisyos.ir.analytics.evidence_bundle import (
-    CompilationStep,
-    DataProvenance,
-    EstimationStep,
-    EvidenceBundle,
-    _fingerprint,
-    persist_causal_evidence_bundle,
+    CompilationStep as CompilationStep,
+)
+from polisyos.ir.analytics.evidence_bundle import (
+    DataProvenance as DataProvenance,
+)
+from polisyos.ir.analytics.evidence_bundle import (
+    EstimationStep as EstimationStep,
+)
+from polisyos.ir.analytics.evidence_bundle import (
+    EvidenceBundle as EvidenceBundle,
 )
 from polisyos.ir.analytics.evidence_bundle import (
     ProofStep as IRProofStep,
 )
+from polisyos.ir.analytics.evidence_bundle import (
+    _fingerprint as _fingerprint,
+)
+from polisyos.ir.analytics.evidence_bundle import (
+    persist_causal_evidence_bundle as persist_causal_evidence_bundle,
+)
 from polisyos.ir.analytics.frontier import (
-    FrontierSketch,
-    persist_frontier_sketch,
+    FrontierSketch as FrontierSketch,
+)
+from polisyos.ir.analytics.frontier import (
+    persist_frontier_sketch as persist_frontier_sketch,
 )
 from polisyos.ir.analytics.interventions import (
-    CompositeIntervention,
-    ConditionalIntervention,
-    ConditionalPolicy,
-    EdgeIntervention,
-    InterferenceIntervention,
-    InterventionCertificate,
-    InterventionFallback,
-    InterventionFallbackMode,
-    InterventionIdentificationStatus,
-    InterventionQuery,
-    ModifiedTreatmentPolicySpec,
-    MTPIntervention,
-    NodeIntervention,
-    PathIntervention,
-    QueryTarget,
-    QueryTargetKind,
-    StochasticIntervention,
-    StochasticPolicySpec,
-    TransportIntervention,
-    VariableAssignment,
-    build_intervention_certificate,
-    certificate_for_typecheck_failure,
-    check_intervention_composition,
-    persist_intervention_certificate,
-    persist_intervention_query,
-    render_intervention_query,
+    CompositeIntervention as CompositeIntervention,
+)
+from polisyos.ir.analytics.interventions import (
+    ConditionalIntervention as ConditionalIntervention,
+)
+from polisyos.ir.analytics.interventions import (
+    ConditionalPolicy as ConditionalPolicy,
+)
+from polisyos.ir.analytics.interventions import (
+    EdgeIntervention as EdgeIntervention,
+)
+from polisyos.ir.analytics.interventions import (
+    InterferenceIntervention as InterferenceIntervention,
+)
+from polisyos.ir.analytics.interventions import (
+    InterventionFallback as InterventionFallback,
+)
+from polisyos.ir.analytics.interventions import (
+    InterventionFallbackMode as InterventionFallbackMode,
+)
+from polisyos.ir.analytics.interventions import (
+    InterventionIdentificationStatus as InterventionIdentificationStatus,
+)
+from polisyos.ir.analytics.interventions import (
+    ModifiedTreatmentPolicySpec as ModifiedTreatmentPolicySpec,
+)
+from polisyos.ir.analytics.interventions import (
+    MTPIntervention as MTPIntervention,
+)
+from polisyos.ir.analytics.interventions import (
+    NodeIntervention as NodeIntervention,
+)
+from polisyos.ir.analytics.interventions import (
+    PathIntervention as PathIntervention,
+)
+from polisyos.ir.analytics.interventions import (
+    QueryTarget as QueryTarget,
+)
+from polisyos.ir.analytics.interventions import (
+    QueryTargetKind as QueryTargetKind,
+)
+from polisyos.ir.analytics.interventions import (
+    StochasticIntervention as StochasticIntervention,
+)
+from polisyos.ir.analytics.interventions import (
+    StochasticPolicySpec as StochasticPolicySpec,
+)
+from polisyos.ir.analytics.interventions import (
+    TransportIntervention as TransportIntervention,
+)
+from polisyos.ir.analytics.interventions import (
+    VariableAssignment as VariableAssignment,
+)
+from polisyos.ir.analytics.interventions import (
+    build_intervention_certificate as build_intervention_certificate,
+)
+from polisyos.ir.analytics.interventions import (
+    certificate_for_typecheck_failure as certificate_for_typecheck_failure,
+)
+from polisyos.ir.analytics.interventions import (
+    check_intervention_composition as check_intervention_composition,
+)
+from polisyos.ir.analytics.interventions import (
+    persist_intervention_certificate as persist_intervention_certificate,
+)
+from polisyos.ir.analytics.interventions import (
+    persist_intervention_query as persist_intervention_query,
+)
+from polisyos.ir.analytics.interventions import (
+    render_intervention_query as render_intervention_query,
 )
 from polisyos.ir.analytics.local_independence import (
-    CensoringInterventionSpec,
-    EliminabilityCheck,
-    EliminabilityStep,
-    IndependentCensoringCheck,
-    IntensityModelRequirement,
-    LocalIndependenceEdge,
-    LocalIndependenceGraphicalChecks,
-    LocalIndependenceGraphSpec,
-    LocalIndependenceIdentificationSpec,
-    LocalIndependenceRuntimeRequirements,
-    LocalIndependenceTarget,
-    LocalIndependenceWeightingCertificate,
-    TreatmentIntensityInterventionSpec,
-    persist_local_independence_weighting_certificate,
+    CensoringInterventionSpec as CensoringInterventionSpec,
+)
+from polisyos.ir.analytics.local_independence import (
+    EliminabilityCheck as EliminabilityCheck,
+)
+from polisyos.ir.analytics.local_independence import (
+    EliminabilityStep as EliminabilityStep,
+)
+from polisyos.ir.analytics.local_independence import (
+    IndependentCensoringCheck as IndependentCensoringCheck,
+)
+from polisyos.ir.analytics.local_independence import (
+    IntensityModelRequirement as IntensityModelRequirement,
+)
+from polisyos.ir.analytics.local_independence import (
+    LocalIndependenceEdge as LocalIndependenceEdge,
+)
+from polisyos.ir.analytics.local_independence import (
+    LocalIndependenceGraphicalChecks as LocalIndependenceGraphicalChecks,
+)
+from polisyos.ir.analytics.local_independence import (
+    LocalIndependenceGraphSpec as LocalIndependenceGraphSpec,
+)
+from polisyos.ir.analytics.local_independence import (
+    LocalIndependenceIdentificationSpec as LocalIndependenceIdentificationSpec,
+)
+from polisyos.ir.analytics.local_independence import (
+    LocalIndependenceRuntimeRequirements as LocalIndependenceRuntimeRequirements,
+)
+from polisyos.ir.analytics.local_independence import (
+    LocalIndependenceTarget as LocalIndependenceTarget,
+)
+from polisyos.ir.analytics.local_independence import (
+    LocalIndependenceWeightingCertificate as LocalIndependenceWeightingCertificate,
+)
+from polisyos.ir.analytics.local_independence import (
+    TreatmentIntensityInterventionSpec as TreatmentIntensityInterventionSpec,
+)
+from polisyos.ir.analytics.local_independence import (
+    persist_local_independence_weighting_certificate as persist_local_independence_weighting_certificate,
 )
 from polisyos.ir.analytics.negative_certificate import (
-    BlockingType,
-    EpistemicTier,
-    FallbackResult,
-    NegativeCertificate,
-    ParametricRescueResult,
-    persist_negative_certificate,
-    recovery_plan_from_negative_certificate,
+    EpistemicTier as EpistemicTier,
+)
+from polisyos.ir.analytics.negative_certificate import (
+    FallbackResult as FallbackResult,
+)
+from polisyos.ir.analytics.negative_certificate import (
+    ParametricRescueResult as ParametricRescueResult,
+)
+from polisyos.ir.analytics.negative_certificate import (
+    recovery_plan_from_negative_certificate as recovery_plan_from_negative_certificate,
 )
 from polisyos.ir.analytics.partial_identification import (
-    BoundsBundle,
-    bounds_bundle_from_partial_identification_result,
-    persist_bounds_bundle,
+    bounds_bundle_from_partial_identification_result as bounds_bundle_from_partial_identification_result,
+)
+from polisyos.ir.analytics.partial_identification import (
+    persist_bounds_bundle as persist_bounds_bundle,
 )
 from polisyos.ir.analytics.proof_composability import (
-    attach_proof_composability_to_proof_bundle,
-    persist_proof_composability_certificate,
-    persist_proof_witness_index,
+    attach_proof_composability_to_proof_bundle as attach_proof_composability_to_proof_bundle,
+)
+from polisyos.ir.analytics.proof_composability import (
+    persist_proof_composability_certificate as persist_proof_composability_certificate,
+)
+from polisyos.ir.analytics.proof_composability import (
+    persist_proof_witness_index as persist_proof_witness_index,
 )
 from polisyos.ir.analytics.proximal import (
-    BridgePlausibilityReport,
-    ProximalIdentificationCertificate,
-    ProxyAnnotation,
-    persist_bridge_plausibility_report,
-    persist_proximal_identification_certificate,
+    BridgePlausibilityReport as BridgePlausibilityReport,
+)
+from polisyos.ir.analytics.proximal import (
+    ProximalIdentificationCertificate as ProximalIdentificationCertificate,
+)
+from polisyos.ir.analytics.proximal import (
+    ProxyAnnotation as ProxyAnnotation,
+)
+from polisyos.ir.analytics.proximal import (
+    persist_bridge_plausibility_report as persist_bridge_plausibility_report,
+)
+from polisyos.ir.analytics.proximal import (
+    persist_proximal_identification_certificate as persist_proximal_identification_certificate,
 )
 from polisyos.ir.analytics.recoverability import (
-    JointDecisionCertificate,
-    RecoverabilityCertificate,
-    persist_joint_decision_certificate,
-    persist_recoverability_certificate,
+    persist_joint_decision_certificate as persist_joint_decision_certificate,
 )
-from polisyos.ir.analytics.survey_quality import load_survey_quality_certificate
-from polisyos.ir.artifacts import ArtifactStore, InputRef, put_json_artifact
-from polisyos.ir.governance.phase1 import (
-    build_phase1_gate_summary,
-    load_phase1_flagship_dataset_ids,
+from polisyos.ir.analytics.recoverability import (
+    persist_recoverability_certificate as persist_recoverability_certificate,
 )
-from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.analytics.survey_quality import (
+    load_survey_quality_certificate as load_survey_quality_certificate,
+)
+from polisyos.ir.governance import (
+    build_phase1_gate_summary as build_phase1_gate_summary,
+)
+from polisyos.ir.governance import (
+    load_phase1_flagship_dataset_ids as load_phase1_flagship_dataset_ids,
+)
 from polisyos.ir.registry.refs import (
-    ArtifactRefModel,
-    DynamicTreatmentRegimeRef,
-    SurveyQualityCertificateRef,
-    TemporalIdentificationCertificateRef,
-    TemporalInterventionTrajectoryRef,
+    DynamicTreatmentRegimeRef as DynamicTreatmentRegimeRef,
+)
+from polisyos.ir.registry.refs import (
+    TemporalIdentificationCertificateRef as TemporalIdentificationCertificateRef,
+)
+from polisyos.ir.registry.refs import (
+    TemporalInterventionTrajectoryRef as TemporalInterventionTrajectoryRef,
 )
 
 if TYPE_CHECKING:
     from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
     from polisyos.ir.analytics.dynamic_regime import GComputationResult
-    from polisyos.ir.analytics.mgraph import MGraphMetadata
     from polisyos.ir.analytics.proximal import ProximalMediationCertificate
     from polisyos.ir.analytics.recoverability import JointDecisionCertificate
+
+logger = logging.getLogger(__name__)
 
 
 def _infer_sample_size(
@@ -1107,7 +1420,12 @@ def _resolve_survey_quality_inputs(
         return None, None
 
     search_spaces: list[dict[str, Any]] = [data_dict]
-    for nested_key in ("metadata", "dataset_metadata", "source_metadata", "data_quality_report"):
+    for nested_key in (
+        "metadata",
+        "dataset_metadata",
+        "source_metadata",
+        "data_quality_report",
+    ):
         nested = data_dict.get(nested_key)
         if isinstance(nested, dict):
             search_spaces.append(nested)
@@ -1839,7 +2157,11 @@ def _linear_iv_effect(
     pz = z @ ztz_inv @ z.T
     xt_pz_x = x.T @ pz @ x
     if np.linalg.matrix_rank(xt_pz_x) < x.shape[1]:
-        return None, None, {"failure_reason": "projected treatment design is rank-deficient"}
+        return (
+            None,
+            None,
+            {"failure_reason": "projected treatment design is rank-deficient"},
+        )
 
     beta = np.linalg.pinv(xt_pz_x) @ (x.T @ pz @ y)
     estimate = float(beta[1])
@@ -2017,7 +2339,10 @@ def _wright_subgraph_spec(
     treatment: str,
     outcome: str,
 ) -> tuple[
-    tuple[str, ...] | None, tuple[tuple[str, str], ...], tuple[tuple[str, str], ...], list[str]
+    tuple[str, ...] | None,
+    tuple[tuple[str, str], ...],
+    tuple[tuple[str, str], ...],
+    list[str],
 ]:
     """Build the ancestor subgraph specification used by the general Wright solver."""
     directed_edges_all = tuple(
@@ -2343,7 +2668,9 @@ def _resolve_method_class(registry: Any, fqn_full: str) -> Any:
     except Exception:
         bare_fqn = fqn_full.split("@", 1)[0]
         if bare_fqn == "causal.structural.twin_network_query":
-            from polisyos.foundry.methods.catalog.causal.twin_network_query import TwinNetworkQuery
+            from polisyos.foundry.methods.catalog.causal.twin_network_query import (
+                TwinNetworkQuery,
+            )
 
             return TwinNetworkQuery
         if bare_fqn == "causal.structural.hybrid_scm_fit":
@@ -2625,7 +2952,9 @@ class CausalEngineArtifactsMixin:
         executor_graph:
             Compiled ExecutorGraph (for CompilationStep records).
         """
-        from polisyos.foundry.methods.catalog.causal.id_engine import _internal_proof_step_to_ir
+        from polisyos.foundry.methods.catalog.causal.id_engine import (
+            _internal_proof_step_to_ir,
+        )
 
         query_str = (
             _identification_query_str(identification_result)
@@ -2653,13 +2982,10 @@ class CausalEngineArtifactsMixin:
         twin_network_result_ref = None
         if self._artifact_store is not None:
             from polisyos.core.artifacts import artifact_manifest_profile_sha256
+            from polisyos.ir import TwinNetworkResult, persist_twin_network_result
             from polisyos.ir.analytics.structural_causal_model import (
                 StructuralCausalModelSpec,
                 persist_structural_causal_model_spec,
-            )
-            from polisyos.ir.analytics.twin_network import (
-                TwinNetworkResult,
-                persist_twin_network_result,
             )
 
             scm_spec = (report_dependencies or {}).get("scm_spec")
@@ -3278,7 +3604,9 @@ class CausalEngineArtifactsMixin:
         # -- 5.2: DiagnosticDashboardData --------------------------------
         dashboard_dict: dict[str, Any] | None = None
         try:
-            from polisyos.ir.analytics.diagnostic_dashboard import DiagnosticDashboardData
+            from polisyos.ir.analytics.diagnostic_dashboard import (
+                DiagnosticDashboardData,
+            )
 
             dashboard = DiagnosticDashboardData.from_node_outputs(
                 run_id=run_id,
@@ -3531,7 +3859,9 @@ class CausalEngineArtifactsMixin:
                 if readiness_update:
                     readiness_payload = readiness_payload.model_copy(update=readiness_update)
                 if resolved_dp_certificate is not None and readiness_payload.dp_distortion is None:
-                    from polisyos.ir.analytics.dp_robustness import apply_dp_readiness_gate
+                    from polisyos.ir.analytics.dp_robustness import (
+                        apply_dp_readiness_gate,
+                    )
 
                     readiness_payload = apply_dp_readiness_gate(
                         readiness_payload,
@@ -3558,7 +3888,9 @@ class CausalEngineArtifactsMixin:
                     inputs=negative_inputs,
                 )
             if resolved_kernel_spec is not None:
-                from polisyos.ir.analytics.kernel_causal import persist_kernel_estimator_spec
+                from polisyos.ir.analytics.kernel_causal import (
+                    persist_kernel_estimator_spec,
+                )
 
                 if proof_bundle_ref is not None and resolved_kernel_spec.proof_bundle_ref is None:
                     resolved_kernel_spec = resolved_kernel_spec.model_copy(
@@ -4111,7 +4443,9 @@ class CausalEngineArtifactsMixin:
                 return None, bundle, None
 
         # G4: validate query structure and KB feasibility before compiling
-        from polisyos.foundry.methods.catalog.causal.query_validator import CausalQueryValidator
+        from polisyos.foundry.methods.catalog.causal.query_validator import (
+            CausalQueryValidator,
+        )
 
         val_report = CausalQueryValidator().validate(
             graph, resolved_id_result.estimand_ast, self._kb
@@ -4932,4 +5266,258 @@ class CausalEngineArtifactsMixin:
         return trajectory
 
 
-__all__ = [name for name in globals() if not name.startswith("__")]
+__all__ = [
+    "dataclasses",
+    "hashlib",
+    "json",
+    "logging",
+    "uuid",
+    "UTC",
+    "datetime",
+    "TYPE_CHECKING",
+    "Any",
+    "Literal",
+    "np",
+    "_ensure_ir_artifact_store",
+    "logger",
+    "is_government_dataset",
+    "resolve_dataset_context",
+    "DataReadinessBlockedError",
+    "ancestors",
+    "do_operator",
+    "has_directed_cycle",
+    "induced_subgraph",
+    "cyclic_id_algorithm",
+    "well_posedness_check",
+    "CyclicExecutionBlock",
+    "ExecutorGraph",
+    "ExecutorNode",
+    "compile_estimand",
+    "CtfQuery",
+    "IdentificationResult",
+    "IdentificationStatus",
+    "ProofStep",
+    "conditional_intervention_id",
+    "dynamic_intervention_id",
+    "id_star_algorithm",
+    "id_with_oracle_fallback",
+    "idc_algorithm",
+    "idc_star_algorithm",
+    "multi_outcome_id",
+    "mz_id_algorithm",
+    "sid_algorithm",
+    "tr_algorithm",
+    "z_id_algorithm",
+    "build_temporal_identification_certificate",
+    "li_id_algorithm",
+    "build_witness_index_from_proof_steps",
+    "check_proof_trace_composability",
+    "proximal_identify_v1",
+    "proximal_spatial_identify_v1",
+    "SchemaResolutionReport",
+    "SchemaResolver",
+    "DataReadinessReport",
+    "EstimationStatus",
+    "ProofBundle",
+    "build_data_readiness_report",
+    "build_dynamic_proof_bundle",
+    "persist_data_readiness_report",
+    "persist_proof_bundle",
+    "proof_bundle_from_identification_result",
+    "proof_bundle_from_negative_certificate",
+    "proof_bundle_from_proximal_certificate",
+    "CausalGraphModel",
+    "EdgeMark",
+    "GraphType",
+    "CausalQuery",
+    "QueryType",
+    "hydrate_bounds_bundle_with_dual_certificate",
+    "DynamicReductionStatus",
+    "DynamicScopeStatement",
+    "DynamicSemanticsAttachment",
+    "DynamicSemanticsFamily",
+    "GraphicalMarkovCertificate",
+    "GraphicalOracleKind",
+    "InterventionKind",
+    "InterventionScope",
+    "LocalIndependenceAttachment",
+    "SeparationClaim",
+    "WellPosednessStatus",
+    "WellPosednessWitness",
+    "ContinuousTimeQuery",
+    "DynamicTreatmentRegime",
+    "EffectTrajectoryBundle",
+    "InterventionInterpolationPolicy",
+    "StrategicAdaptationMode",
+    "TemporalIdentificationCertificate",
+    "TemporalIdentificationTheoremFamily",
+    "TemporalInterventionTrajectory",
+    "TemporalQueryMode",
+    "TemporalSamplingScheme",
+    "load_temporal_intervention_trajectory",
+    "persist_continuous_time_query",
+    "persist_dynamic_treatment_regime",
+    "persist_effect_trajectory_bundle",
+    "persist_temporal_identification_certificate",
+    "persist_temporal_intervention_trajectory",
+    "DistributionLawQuery",
+    "DistributionRef",
+    "EdgeInterventionAssignment",
+    "EdgeInterventionNode",
+    "EstimandAST",
+    "ModifiedTreatmentPolicyNode",
+    "PathSpecificNode",
+    "StochasticInterventionNode",
+    "StochasticPolicy",
+    "make_distribution_law_estimand",
+    "persist_estimand_ast",
+    "CompilationStep",
+    "DataProvenance",
+    "EstimationStep",
+    "EvidenceBundle",
+    "_fingerprint",
+    "persist_causal_evidence_bundle",
+    "IRProofStep",
+    "FrontierSketch",
+    "persist_frontier_sketch",
+    "CompositeIntervention",
+    "ConditionalIntervention",
+    "ConditionalPolicy",
+    "EdgeIntervention",
+    "InterferenceIntervention",
+    "InterventionCertificate",
+    "InterventionFallback",
+    "InterventionFallbackMode",
+    "InterventionIdentificationStatus",
+    "InterventionQuery",
+    "ModifiedTreatmentPolicySpec",
+    "MTPIntervention",
+    "NodeIntervention",
+    "PathIntervention",
+    "QueryTarget",
+    "QueryTargetKind",
+    "StochasticIntervention",
+    "StochasticPolicySpec",
+    "TransportIntervention",
+    "VariableAssignment",
+    "build_intervention_certificate",
+    "certificate_for_typecheck_failure",
+    "check_intervention_composition",
+    "persist_intervention_certificate",
+    "persist_intervention_query",
+    "render_intervention_query",
+    "CensoringInterventionSpec",
+    "EliminabilityCheck",
+    "EliminabilityStep",
+    "IndependentCensoringCheck",
+    "IntensityModelRequirement",
+    "LocalIndependenceEdge",
+    "LocalIndependenceGraphicalChecks",
+    "LocalIndependenceGraphSpec",
+    "LocalIndependenceIdentificationSpec",
+    "LocalIndependenceRuntimeRequirements",
+    "LocalIndependenceTarget",
+    "LocalIndependenceWeightingCertificate",
+    "TreatmentIntensityInterventionSpec",
+    "persist_local_independence_weighting_certificate",
+    "BlockingType",
+    "EpistemicTier",
+    "FallbackResult",
+    "NegativeCertificate",
+    "ParametricRescueResult",
+    "persist_negative_certificate",
+    "recovery_plan_from_negative_certificate",
+    "BoundsBundle",
+    "bounds_bundle_from_partial_identification_result",
+    "persist_bounds_bundle",
+    "attach_proof_composability_to_proof_bundle",
+    "persist_proof_composability_certificate",
+    "persist_proof_witness_index",
+    "BridgePlausibilityReport",
+    "ProximalIdentificationCertificate",
+    "ProxyAnnotation",
+    "persist_bridge_plausibility_report",
+    "persist_proximal_identification_certificate",
+    "JointDecisionCertificate",
+    "RecoverabilityCertificate",
+    "persist_joint_decision_certificate",
+    "persist_recoverability_certificate",
+    "load_survey_quality_certificate",
+    "ArtifactStore",
+    "InputRef",
+    "put_json_artifact",
+    "build_phase1_gate_summary",
+    "load_phase1_flagship_dataset_ids",
+    "CanonSpec",
+    "ArtifactRefModel",
+    "DynamicTreatmentRegimeRef",
+    "SurveyQualityCertificateRef",
+    "TemporalIdentificationCertificateRef",
+    "TemporalInterventionTrajectoryRef",
+    "_infer_sample_size",
+    "_has_fallback_arrays",
+    "_coerce_aligned_vector",
+    "_coerce_aligned_covariates",
+    "_coerce_aligned_proxy_matrix",
+    "_coerce_aligned_square_matrix",
+    "_collect_proxy_matrix",
+    "_first_valid_square_matrix",
+    "_derive_proximal_bridge_state",
+    "_derive_spatial_proximal_bridge_state",
+    "_derive_proximal_mediation_state",
+    "_resolve_graph_outcome_support",
+    "_infer_proximal_path_target",
+    "_float_metrics_from_mapping",
+    "_unknown_data_readiness_report",
+    "_ensure_readiness_registry",
+    "_coerce_numeric_matrix",
+    "_coerce_binary_vector",
+    "_align_numeric_rows",
+    "_treatment_candidate_keys",
+    "_outcome_candidate_keys",
+    "_first_non_null",
+    "_derive_direct_positivity_state",
+    "_derive_direct_support_state",
+    "_execute_readiness_diagnostic",
+    "_run_direct_readiness_diagnostics",
+    "_extract_readiness_diagnostics",
+    "_resolve_survey_quality_inputs",
+    "_apply_government_phase1_requirements",
+    "_build_postrun_readiness_report",
+    "_resolve_missingness_assessment",
+    "_extract_recoverability_summary",
+    "_query_str_from_io",
+    "_coerce_mapping_like_data",
+    "_make_dummy_identification_result",
+    "_identification_query_str",
+    "_attach_proof_composability_certificate",
+    "_proof_composability_source_fragment_id",
+    "_proof_composability_interface_vars",
+    "_proof_composability_trace_hash",
+    "_prepare_executor_state",
+    "_build_positivity_diagnostic_payload",
+    "_build_support_mismatch_payload",
+    "_build_scm_fit_payload",
+    "_build_twin_network_payload",
+    "_first_observed_condition",
+    "_coerce_first_scalar",
+    "_is_binary_treatment_vector",
+    "_looks_discrete_vector",
+    "_singleton_query_name",
+    "_candidate_linear_instruments",
+    "_has_directed_path_avoiding",
+    "_extract_aligned_numeric_columns",
+    "_linear_iv_effect",
+    "_linear_iv_rescue_result",
+    "_wright_path_tracing_rescue_result",
+    "_wright_subgraph_spec",
+    "_topological_order_from_edges",
+    "_children_from_directed_edges",
+    "_enumerate_directed_paths",
+    "_solve_linear_path_system",
+    "_linear_total_effect",
+    "_linear_effect_standard_error",
+    "_wright_formula_string",
+    "_resolve_method_class",
+    "CausalEngineArtifactsMixin",
+]

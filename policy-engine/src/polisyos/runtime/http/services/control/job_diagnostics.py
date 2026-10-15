@@ -13,7 +13,7 @@ from typing import Any, Literal, cast
 from opentelemetry.context import attach, detach
 from pydantic import BaseModel, ConfigDict, model_validator
 
-from polisyos.common.logger import get_logger
+from polisyos.common import logger as common_logger
 from polisyos.core.security import AccessScope
 from polisyos.runtime.http.execution_policy import (
     ResolvedExecutionPolicy,
@@ -47,7 +47,7 @@ from .job_attempt_publication import (
     _build_control_execution_intent_binding,
 )
 
-logger = get_logger("polisyos.runtime.http.services.control.run_lifecycle")
+logger = common_logger.get_logger("polisyos.runtime.http.services.control.run_lifecycle")
 
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 _CONTROL_JOB_EXECUTION_BINDING_KEY = "control_job_execution_binding"
@@ -155,7 +155,14 @@ class ControlJobDiagnosticsMixin:
         else:
             raise TypeError("runtime_diagnostic_execution_scope_type_invalid")
 
-        sentinels = {"unknown", "tenant-unknown", "cell-unknown", "anonymous", "none", "null"}
+        sentinels = {
+            "unknown",
+            "tenant-unknown",
+            "cell-unknown",
+            "anonymous",
+            "none",
+            "null",
+        }
 
         def usable(value: object) -> bool:
             return (
@@ -519,7 +526,10 @@ class ControlJobDiagnosticsMixin:
             source_event_payload_sha256=source.payload_sha256,
             bound_job_record_refs=tuple(
                 ref
-                for ref in (proof.record.payload_ref, proof.record.capability_manifest_ref)
+                for ref in (
+                    proof.record.payload_ref,
+                    proof.record.capability_manifest_ref,
+                )
                 if ref is not None
             ),
         )
@@ -548,7 +558,14 @@ class ControlJobDiagnosticsMixin:
         cell_id = actor.get("cell_id")
         authenticated = actor.get("authenticated") is True
         roles_raw = actor.get("roles")
-        sentinel_values = {"unknown", "tenant-unknown", "cell-unknown", "anonymous", "none", "null"}
+        sentinel_values = {
+            "unknown",
+            "tenant-unknown",
+            "cell-unknown",
+            "anonymous",
+            "none",
+            "null",
+        }
 
         def established_text(value: object) -> bool:
             return (

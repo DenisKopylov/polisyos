@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "slice": "source51-quota",
+  "author_role": "local candidate author; independent G acceptance only",
+  "slice_base": "12f07bdf31a59be418f534fc3473482c73ef6290",
+  "candidate": "edf3f350d718cadecdba2d153a3135795327b378",
+  "candidate_tree": "58017f8c6bc313bc744a1ef238b66b3e3394c8cc",
+  "candidate_parents": [
+    "12f07bdf31a59be418f534fc3473482c73ef6290"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "sha256": "c8b1e960752f1f46bca1681c05a97ba45c49113f5c966cd1aed1ffdc7d7806cf",
+      "bytes": 13252
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab",
+      "bytes": 217661
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/quota_enforcer.py",
+      "sha256": "dafa638a2f9e7a66c3e40b240ea64f6efa7fe20fb2e5808828db590718658f1a",
+      "bytes": 8335
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/storage/tenant_cas.py",
+      "sha256": "5c24b5ad401dee087ee52fa0488d37b0dc6a241c11f0266bac2e70c84923e14c",
+      "bytes": 16477
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/storage/test_tenant_storage_quota_admission.py",
+      "sha256": "510a6f3b409de63f0ad87335c0ced373e88ac6645e039314d6ef8ecdc8955624",
+      "bytes": 16358
+    },
+    {
+      "path": "policy-engine/docs/reference/operations/cas-storage.md",
+      "sha256": "a75cbc9457211c68cad459f2550b53463f1d447a454603144575ec818a3c36e5",
+      "bytes": 7882
+    }
+  ],
+  "implementation_receipt_separate": true,
+  "receipt_commit_identity": null,
+  "final_source_freeze": false,
+  "closure_ids": [],
+  "formal_G_closures": [],
+  "closure_proposals": [
+    {
+      "id": "B148",
+      "occurrence": "B148#1",
+      "outcome": "limited_proposal",
+      "capability_label": "verification_missing",
+      "boundary": "Exact-member storage admission before publication across put/put_json/import/no-op/profile/sign-on-put, including competing OS processes and same-archive reuse; complete original B148 corruption/truncation/conflict/admission matrix and final composed consumers not established by these 19 cases.",
+      "evidence_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2140-source51-quota-concurrency-native-actual-root-20261015/command.json",
+          "sha256": "fcd5911fd7e210460d1f9778d78823578a6f24b9268d95ab7899648bd79c29ad",
+          "bytes": 2113585,
+          "availability": "retained local ignored RAW; absolute_root /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2142-source51-quota-removal-native-actual-root-20261015/command.json",
+          "sha256": "f057a8b094280a23dbc625246746b36380930bb2bd0789eeabe109b6197cd3b3",
+          "bytes": 2055294,
+          "availability": "retained local ignored RAW; absolute_root /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+        }
+      ],
+      "next_check": "Replay whole original B148 contour on final source/input/backend freeze; preserve invalid artifact bytes and owner state; independent G review/adjudication."
+    }
+  ],
+  "selected_input_profile_backend": {
+    "platform": "local macOS",
+    "runtime": "existing locked Python 3.14 unit profile",
+    "numerical": "cpu_single_thread; torch 2.10.0 intra/inter-op 1 (captured outputs)",
+    "input": "Controlled temporary tenant/CAS inputs with valid UUID, real selected-profile manifests, bytes/physical usage and previous visible refs; no production custody/currentness claim",
+    "native_environment": "Exact complete environment and deciding argv bound in each command.json"
+  },
+  "real_chain": [
+    "TenantScopedCAS caller enters shared quota mutation lock",
+    "FileSystemCAS materializes exact immutable destination members and computes storage delta",
+    "QuotaEnforcer refuses before any budget-overrun publication",
+    "Persisted archive/profile/blob state reopened through actual consumer",
+    "Tests compare real bytes, selected refs, previous owner state and concurrent process outcomes"
+  ],
+  "adversarial_controls": [
+    "Independent reviewer c9d2c2dc096fa0285cce5a300183359e98349788ec118b60171bd32ce696ac22",
+    "R2142 removes FileSystemCAS admission while preserving call sites/markers: real over-cap import becomes publicly readable (1692 bytes >843 cap), test fails intentionally",
+    "Valid tenant IDs, profile-only byte charge, pre-existing bytes, sign-on-put, cross-process budget competition and identical-archive reuse in R2140"
+  ],
+  "native_evidence": [
+    {
+      "purpose": "actual quota publication and OS-process concurrency positive",
+      "command": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=120);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print('operator_wall_budget_expired',file=sys.stderr);sys.exit(124)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-ra",
+        "--maxfail=0",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+        "tests/unit/fabric/storage/test_tenant_storage_quota_admission.py",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2115-source50-b148-quota-valid-tenant-prepared-20261015/test_b148_quota_valid_tenant.py::test_valid_tenant_block_quota_import_preserves_prior_readable_owner",
+        "tests/unit/core/artifacts/test_import_admission_noop.py::test_exact_same_owner_import_is_a_real_noop",
+        "tests/unit/remediation/test_cas_02.py::test_import_verifies_before_publication_and_preserves_prior_generation",
+        "tests/unit/remediation/test_cas_02.py::test_transfer_round_trip_preserves_each_selected_view_and_signature",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2140-source51-quota-concurrency-native-actual-root-20261015/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2140-source51-quota-concurrency-native-actual-root-20261015/junit.xml"
+      ],
+      "command_cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "source_head": "12f07bdf31a59be418f534fc3473482c73ef6290",
+      "wall_seconds": 4.049788624979556,
+      "exit_code": 0,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "19",
+        "time": "2.504",
+        "timestamp": "2026-10-15T03:58:28.424121+03:00",
+        "hostname": "MacBook-Air-Denis.local"
+      },
+      "full_input_count": 7725,
+      "source_stable": true,
+      "artifacts": {
+        "command.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2140-source51-quota-concurrency-native-actual-root-20261015/command.json",
+          "sha256": "fcd5911fd7e210460d1f9778d78823578a6f24b9268d95ab7899648bd79c29ad",
+          "bytes": 2113585,
+          "availability": "retained local ignored RAW; absolute_root /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+        },
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2140-source51-quota-concurrency-native-actual-root-20261015/stdout.txt",
+          "sha256": "8a898ac74cc1a88d43837c0b2c89901b1ffbdb6ea782d5ad5c1df754c08e33cf",
+          "bytes": 273,
+          "availability": "retained local ignored RAW; absolute_root /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2140-source51-quota-concurrency-native-actual-root-20261015/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "retained local ignored RAW; absolute_root /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2140-source51-quota-concurrency-native-actual-root-20261015/junit.xml",
+          "sha256": "931fa3ff192879022d7573bceef2c72f0ae0e8384c56304f1eddd80bb46fa5ab",
+          "bytes": 3505,
+          "availability": "retained local ignored RAW; absolute_root /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+        },
+        "module-origins.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2140-source51-quota-concurrency-native-actual-root-20261015/module-origins.json",
+          "sha256": "9842ed03ae08f3117098cba9f37d76be31095fbd495ebb48ffa11e1473417f5e",
+          "bytes": 21365,
+          "availability": "retained local ignored RAW; absolute_root /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+        }
+      }
+    },
+    {
+      "purpose": "intentional property-removal semantic red",
+      "command": [
+        ".venv/bin/python",
+        "-B",
+        "-c",
+        "import subprocess,sys;sys.exit(subprocess.run(sys.argv[1:],timeout=120).returncode)",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-ra",
+        "--maxfail=0",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+        "-p",
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+        "tests/unit/fabric/storage/test_tenant_storage_quota_admission.py::test_import_quota_refusal_precedes_first_final_member_and_preserves_prior_owner",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2142-source51-quota-removal-native-actual-root-20261015/fixtures",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2142-source51-quota-removal-native-actual-root-20261015/junit.xml"
+      ],
+      "command_cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "source_head": "12f07bdf31a59be418f534fc3473482c73ef6290",
+      "wall_seconds": 2.762087957933545,
+      "exit_code": 1,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "1",
+        "time": "0.965",
+        "timestamp": "2026-10-15T04:08:38.966169+03:00",
+        "hostname": "MacBook-Air-Denis.local"
+      },
+      "full_input_count": 7725,
+      "source_stable": true,
+      "artifacts": {
+        "command.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2142-source51-quota-removal-native-actual-root-20261015/command.json",
+          "sha256": "f057a8b094280a23dbc625246746b36380930bb2bd0789eeabe109b6197cd3b3",
+          "bytes": 2055294,
+          "availability": "retained local ignored RAW; absolute_root /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+        },
+        "stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2142-source51-quota-removal-native-actual-root-20261015/stdout.txt",
+          "sha256": "41359d46a88ab303c3f2a9cdb1cfe09af87e0c565d2549cc5f6d0091c436fe7d",
+          "bytes": 1303,
+          "availability": "retained local ignored RAW; absolute_root /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+        },
+        "stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2142-source51-quota-removal-native-actual-root-20261015/stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0,
+          "availability": "retained local ignored RAW; absolute_root /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+        },
+        "junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2142-source51-quota-removal-native-actual-root-20261015/junit.xml",
+          "sha256": "7b454a48ca2beb7cf40a381d908366168dadbac5ab3adf63783451c3deaf5a62",
+          "bytes": 1752,
+          "availability": "retained local ignored RAW; absolute_root /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+        },
+        "module-origins.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2142-source51-quota-removal-native-actual-root-20261015/module-origins.json",
+          "sha256": "a8dfcc1fa015f1def578938978684e5fe0b0e3add2d74f7e5290390634b3d9da",
+          "bytes": 21365,
+          "availability": "retained local ignored RAW; absolute_root /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+        }
+      }
+    }
+  ],
+  "source_bound_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2163-quota-implementation-boundary-root-20261015/committed-readback.json",
+    "sha256": "6ba4562b51abde09f33995a5307290ba03ae78aca479cb03ff1ab16646a6c57c"
+  },
+  "limitations": [
+    "Source evidence was measured at 12f HEAD with owned dirty composition; all six implementation bytes were checked against the actual native input frame where included, then read from edf3f350d committed branch. This receipt does not claim full repository or other dirty lanes accepted.",
+    "Full original B148 matrix, cross-tenant authority, copy-first supplemental removal and current installed archive/wheel/rebuilt-sdist consumers still require final replay.",
+    "Commit hook skipped Python checks; native deciding evidence is the retained actual pytest/control output, not hook success.",
+    "P41 inherited status not_established; no inherited-red exemption. Production law/issuer/currentness not supplied by controlled tenant inputs.",
+    "Global source/input/backend freeze, source-wide native gates and formal finding adjudication remain pending."
+  ],
+  "next_checks": [
+    "Complete original B148 consumer set after blocking source companions settle",
+    "Preserve and run copy-first CAS import removal controls",
+    "Read remote candidate SHA/tree after own-topic publication; integration/main publication remains G"
+  ]
+}

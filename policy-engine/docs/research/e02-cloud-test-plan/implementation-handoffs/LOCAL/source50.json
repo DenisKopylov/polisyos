@@ -1,0 +1,862 @@
+{
+  "schema_version": 1,
+  "slice": "source50",
+  "draft_status": "committed author candidate handoff; G acceptance and final source freeze remain pending",
+  "author_role": "local_candidate_author_not_G",
+  "slice_base": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+  "base_tree": "c55563207f1095a45d16ce8575bc2e64be186b9a",
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate": "12f07bdf31a59be418f534fc3473482c73ef6290",
+  "candidate_tree": "ee67409f5daf7a42f5ae2be930532f63311f90eb",
+  "candidate_parents": [
+    "6a046a225c4ac7fcb501e972f63ba3a79eca21b2"
+  ],
+  "candidate_binding_state": "Exact committed branch bytes independently read back by Root; subsequent Source51 B31 working-tree delta is separate and is not part of this slice.",
+  "base_source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2041-source49-consumer-frame-root-20261014/source-frame.json",
+    "sha256": "8220b94792710432b47eca8e00066a819a7d589884478cd24364a6622d66866c",
+    "bytes": 1562,
+    "availability": "local_preserved",
+    "head": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+    "tree": "c55563207f1095a45d16ce8575bc2e64be186b9a",
+    "parents": [
+      "fa5f03211395d20a3610b72f9fcd9196af98a1f5"
+    ]
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "sha256": "e95c7301b21a346ea50017b0c2ef6601f582eae86c0b25c2aeda06874589ffac",
+      "bytes": 256395
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+      "sha256": "a888044a73ef693acf0bb4fe5d3a4996400dfb31c8180b1a654f7fd9813c3520",
+      "bytes": 266275
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/README.md",
+      "sha256": "95b8f4ec2e0655d2ab3005cc741d71ba9720732d66d97e9b35ca9091db8faa06",
+      "bytes": 9376
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+      "sha256": "5076a239aa67ddde3d9f5508d1a696ae403bc5db68db91c13dfd4225c05ee980",
+      "bytes": 20213
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/scripts/canonicalize-runtime-client.test.mjs",
+      "sha256": "8999e86274c894df77c0f5d6dc01fec1ef05520d68258f2af39e6b79f684b836",
+      "bytes": 15752
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-can-options-mapping.toml",
+      "sha256": "6f865ed57672dea6126e5151f1188fc01e33e962f34262815fa995f68487dc0d",
+      "bytes": 4608
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-14-b31-selected-reference-graph.toml",
+      "sha256": "e189e04b8c5380c91c04d014ff18ac3428bd8e54302456ec5a828d97d0d658db",
+      "bytes": 4785
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/canonical_profile.py",
+      "sha256": "f06639a4f2bb772008721ae9b6ab1d8e881d6e2fb0218b9d2615ccfb3177216f",
+      "bytes": 12387
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "sha256": "df8ff249fc431c2e3d803e5230e30691aaa2dc302a8abdd4a188f13a41fceeb2",
+      "bytes": 20551
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "sha256": "7f8988ee5bc097cd58f3329a09bb199170e298fbff636c78b6816de3e1d61712",
+      "bytes": 65248
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/epoch.py",
+      "sha256": "dee3dcec2a1b828dde801421864cf83ae734c69f4957e13926e5b5130fb9f02e",
+      "bytes": 45392
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/README.md",
+      "sha256": "fcc078a7475e4563f4539a0756b96b3c07a8cb98f5aa68e0a25b2632c55d80fe",
+      "bytes": 6571
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+      "sha256": "1623dc4c84211ef0edb3b373c1629b32ef3f9b2f556af2cc7e241f66500df874",
+      "bytes": 210627
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "sha256": "4fe999432f8cd6cd3a240219b5b0e87785538c4c5ae780ba3e5801279c0de2c3",
+      "bytes": 12096
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "sha256": "11dd2f53089087ff5d109b2e64182104629ade457e01677588b7858ba609f112",
+      "bytes": 4151
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/README.md",
+      "sha256": "a6cda607627256668fc16749baed144ea4b06f4ce7d4cee25baedd1f7d35a339",
+      "bytes": 8298
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+      "sha256": "327b2b742373131c52ce633b256a09907e1e003b653defa43e73e84d5da9bf42",
+      "bytes": 68139
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+      "sha256": "1402aa526537e578f380d2e406fccd73351b6d01ff4a7d969773dd747355604f",
+      "bytes": 192063
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "sha256": "7b93b56d4c944e9481212ed1c86b944d1778d7eb9128e9ff63721af65a1c5466",
+      "bytes": 89508
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "sha256": "77cff9546611cfe83e7bda8d62d7ebdf16f3c742b1149cc9a23ca2e8d7c7b51b",
+      "bytes": 6002
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "sha256": "8cd056fde7b64825baa33c440ec0f05e96b2b12313355a4228e00279ce36e596",
+      "bytes": 4015
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "sha256": "949e5b5ed60eecb657f2a9f9c0b8866293e4c3dd80ec93cb139967ef81b50ef6",
+      "bytes": 68829
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+      "sha256": "1c9c7ee930934a6189be753f93a66808bc8c833b942be9edd4f9e1d86fc3c635",
+      "bytes": 91760
+    },
+    {
+      "path": "policy-engine/tests/unit/lex/test_knowledge_store_filters.py",
+      "sha256": "1d4b93ce7616debec11a0db81a15f42502ef96954495c0ce44414ea3e01a6454",
+      "bytes": 34851
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_acq_01.py",
+      "sha256": "1619c99898c85e0763c65464b2b7aa44a17e26f3ecad9246a9fbcf61ff9453f4",
+      "bytes": 93983
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_doe_03.py",
+      "sha256": "13f6d8549d933b03b22f0b33ef632583e695aab9bcb6608fe94d0df8a2cd71ca",
+      "bytes": 15344
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+      "sha256": "bb37860773a2ee606676d99c8096351f2d7c7547c177f60f0064cec42bbf19dc",
+      "bytes": 58605
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/doe/test_morris_geometry.py",
+      "sha256": "2ad6251bab8edda170952b994f99919f393be026e887b21333dc2e5010f7bdb8",
+      "bytes": 9584
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "sha256": "2ccbddf694f23546fb8b27262371e037ab344bd1f907d23bf1b83dd01ceedd4b",
+      "bytes": 412609
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "sha256": "bde3315fa8f88c3ea9517b44d636270f87b717dc8e2b58310db73479f4dfaf5f",
+      "bytes": 160338
+    },
+    {
+      "path": "policy-engine/docs/reference/generated-artifacts.md",
+      "sha256": "a5bf7ffd523b2a869e7b276ce0f6599079a35c856e4a32727e04c5732aebadeb",
+      "bytes": 269927
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "sha256": "f3ccbded030c28db92c4b6f1aa987f6fa3a33608467e7e8e9bf754f5e12ee8e8",
+      "bytes": 367732
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py",
+      "sha256": "bf5a97fedfd86ef38aa40aca5e83945b2f112b327bd52044ebe80fbd88ecc12b",
+      "bytes": 208425
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+      "sha256": "277b448253fa3cea7888d1fe233b23aef07e9ad32e46f5c4e55b5f02ac234b74",
+      "bytes": 318571
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closures": [],
+  "final_source_freeze": false,
+  "implementation_receipt_separate": true,
+  "receipt_commit_identity": "Not recorded inside this packet: fill only in a later actual commit readback receipt, never predict the receipt commit SHA.",
+  "authentic_production_currentness": "not_established",
+  "historical_closures": "Preserve the nine prior historical closure entries and B198 in the canonical denominator. This author candidate creates no formal G closure; closure_ids remains empty.",
+  "source_receipts": [
+    {
+      "id": "R2064",
+      "summary": "Reviewed candidate composition and actual readback for 28 changed path images; source-quality receipt reports 38 low-level checks exit 0 but runtime verification UNRUN.",
+      "artifacts": {
+        "composition.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2064-final-reviewed-code-root-20261014/composition.json@903445b50f0a6a555bf5e9528a86cc505a5379a1b5e7bf07cc6e177cfa51e5a0",
+        "application-readback.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2064-final-reviewed-code-root-20261014/application-readback.json@2d4754caff78ec884e29a51a44b45bc05038d03d4114bf118c6b53c455627175",
+        "net.patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2064-final-reviewed-code-root-20261014/net.patch@4f6f68321a84faa12ec1620ed7676cf3efd6985bafb6d729f2e992dcdfbf5501",
+        "root-quality-r1093.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2064-final-reviewed-code-root-20261014/root-quality-r1093.json@38cf510e31687cf55472151f2c07c1d02bfd8ea74b88c6f0078e0891a953c531"
+      }
+    },
+    {
+      "id": "R2065",
+      "summary": "Canonical architecture sync exit 0 with three expected generated source outputs and no formal closure IDs.",
+      "artifacts": {
+        "receipt.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2065-source50-canonical-architecture-sync-root-20261014/receipt.json@ff52791651b97dd67f7520ec39adb198c0abe2c6833cea1ccbdc6a961abaaf7d",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2065-source50-canonical-architecture-sync-root-20261014/stdout.txt@3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2065-source50-canonical-architecture-sync-root-20261014/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "R2079",
+      "summary": "Four applied/read-back B31 and ACQ test/source postimages; this does not remove the later R2081 whole-suite failures.",
+      "artifacts": {
+        "composition.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2079-source50-b31-acq-native-fixes-root-virtual-20261014/composition.json@b5bb92f3cff826dbeb86a7afaef0e38d158bffeb93cf58664ed46ffea3db8e04",
+        "application-readback.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2079-source50-b31-acq-native-fixes-root-virtual-20261014/application-readback.json@36e2f5ec1f985cf5b4332560a431e03bcbe440f7b7866401e71c28a6a0c9e562",
+        "net.patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2079-source50-b31-acq-native-fixes-root-virtual-20261014/net.patch@4dc96eea5b4a450ccec133bc42ae7053e67cd521d7d9be2dcb20fea88f2b2522",
+        "root-quality-r1093.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2079-source50-b31-acq-native-fixes-root-virtual-20261014/root-quality-r1093.json@a04ed55647108426c071d798835b201b76bf2abcd48cef940ef510f78582fc0e"
+      }
+    },
+    {
+      "id": "R2084",
+      "summary": "Three confidence-trust source postimages; six source-quality checks exit 0, runtime verification UNRUN.",
+      "artifacts": {
+        "composition.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2084-confidence-r2042-trust-root-addon-root-virtual-20261014/composition.json@7a5f0498174a72e94bcff34dd34e5ad678161c19e0473de967bf2edffe967fb1",
+        "application-readback.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2084-confidence-r2042-trust-root-addon-root-virtual-20261014/application-readback.json@7c074b7849dee4ec810a5ec3e096427cf3398d0b07178bef40c603feca4b32bd",
+        "net.patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2084-confidence-r2042-trust-root-addon-root-virtual-20261014/net.patch@7e5e07865ed104649bb3ab646d5e6467d1240e36f75cc41fe72077c19eea5862",
+        "root-quality-r1093.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2084-confidence-r2042-trust-root-addon-root-virtual-20261014/root-quality-r1093.json@0fcefbfe92d6ead1b746af5aeaf4d7f1defab9935d67a3c57fd0fc356cf754b1"
+      }
+    },
+    {
+      "id": "R2089",
+      "summary": "Two confidence collision/helper source postimages; four source-quality checks exit 0, runtime verification UNRUN.",
+      "artifacts": {
+        "composition.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2089-source50-confidence-collision-root-virtual-20261014/composition.json@573af0d218633732641bf29db2f6e57f8f022732ddefd60c1bd81179b7e666bd",
+        "application-readback.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2089-source50-confidence-collision-root-virtual-20261014/application-readback.json@da5f1dcb9aed329251af1c4a8ee5a7a819d2b104102c6c8d9cc55382a5490785",
+        "net.patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2089-source50-confidence-collision-root-virtual-20261014/net.patch@34c72108fe5f04699d68d997335531c96ae5382f78b9168e6c097820db0425e3",
+        "root-quality-r1093.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2089-source50-confidence-collision-root-virtual-20261014/root-quality-r1093.json@6e16133c14e96e1d90de4e2030628323263fb8e295de61678fea2d06add0648e"
+      }
+    },
+    {
+      "id": "R2102",
+      "summary": "One test-only coherent-CAS fixture postimage, now included in R2103 current manifest; two source-quality checks exit 0, runtime verification UNRUN.",
+      "artifacts": {
+        "composition.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2102-source50-confidence-coherent-cas-fixture-root-virtual-20261015/composition.json@0fb94cbbff29d74685c10afd88385bde0efe8e7e489212c52988c0519f1fc386",
+        "application-readback.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2102-source50-confidence-coherent-cas-fixture-root-virtual-20261015/application-readback.json@78aa0b722f62931606d3b603c4648e39fa7aa7bc48fb680640a37520ac3d2ea8",
+        "net.patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2102-source50-confidence-coherent-cas-fixture-root-virtual-20261015/net.patch@7c523d930ad2be144f5d37763ba7b8f8c1bb96b7f1bcaad19940abdedd9b9fd4",
+        "root-quality-r1093.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2102-source50-confidence-coherent-cas-fixture-root-virtual-20261015/root-quality-r1093.json@7bcac46ab74d0e6614f7f13eed5db38d07694b71b96d72b6ab15f0d4927d3c0f"
+      }
+    },
+    {
+      "id": "R2091",
+      "summary": "Superseded current-input manifest; exactly one of its 34 path hashes differs from R2103, the confidence-ledger test file.",
+      "artifacts": {
+        "manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2091-source50-confidence-collision-fixed-native-prepared-root-20261014/manifest.json@b31c1874c6693b6402bab9c831901048fbb0ca7d3306dfdd40369e811534f72d"
+      },
+      "superseded_by": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2103-source50-confidence-coherent-cas-native-prepared-root-20261015/manifest.json@f5889a12e487115ff4064af29bd227db72192caf36633525267fc1fbb7ff7364",
+      "changed_binding_paths": [
+        "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py"
+      ]
+    },
+    {
+      "id": "R2103",
+      "summary": "Latest prepared exact current input manifest; 34 unique path bindings. All 34 local current files independently read/hash matched at draft assembly. Candidate remains uncommitted and this manifest is not a final source freeze.",
+      "artifacts": {
+        "manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2103-source50-confidence-coherent-cas-native-prepared-root-20261015/manifest.json@f5889a12e487115ff4064af29bd227db72192caf36633525267fc1fbb7ff7364"
+      },
+      "binding_count": 34,
+      "current_file_matches": 34,
+      "current_file_mismatches": []
+    }
+  ],
+  "native_evidence": [
+    {
+      "id": "R2067",
+      "bundle": "r2067-source50-canon-morris-native-actual-root-20261014",
+      "verification_status": "PASS",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 0,
+      "wall_seconds": 7.448372457991354,
+      "complete_input_path_count": 7722,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 142,
+        "passed": 142,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": [],
+      "failed_node_count": 0,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2067-source50-canon-morris-native-actual-root-20261014/command.json@66224a1e760f66efada2b34052233d8246e5c44e35660e1f0cad57052944bbb0",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2067-source50-canon-morris-native-actual-root-20261014/stdout.txt@b9dbdc05be27dd1fb4bd717904768807590fbdac535fcacbd0166d996acad0da",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2067-source50-canon-morris-native-actual-root-20261014/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2067-source50-canon-morris-native-actual-root-20261014/progress.json@c34e77f42570a3e33b155adedd90cfdc1e9a757eba91cd172a4f4e118d7d26c0",
+        "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2067-source50-canon-morris-native-actual-root-20261014/module-origins.json@c5c35c623d7bc878889407d3dedf75b71512a653617534ea8f38169eda37b6f7",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2067-source50-canon-morris-native-actual-root-20261014/junit.xml@bc6973d7fc6f4d9744948bdd61799920dd3835dde0f1c1d542cd048f5a073fb6"
+      },
+      "interpretation": "Bounded CAN/Morris focused source suite; preserves 142 PASS as a subproperty.",
+      "source50_manifest_matches": 27
+    },
+    {
+      "id": "R2068",
+      "bundle": "r2068-source50-acq-module-native-actual-root-20261014",
+      "verification_status": "FAIL",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 1,
+      "wall_seconds": 40.58811129198875,
+      "complete_input_path_count": 7722,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 22,
+        "passed": 19,
+        "failed": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": [
+        "tests.unit.remediation.test_acq_01::test_n7_fallback_handoff_preserves_statement_domain_scope_and_resolver",
+        "tests.unit.remediation.test_acq_01::test_n7_run_recalculates_dependent_simulation_after_verified_owner_write",
+        "tests.unit.remediation.test_acq_01::test_n7_reentry_does_not_run_n5_from_registry_only_world_ref"
+      ],
+      "failed_node_count": 3,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2068-source50-acq-module-native-actual-root-20261014/command.json@4b090e490f0e42ea1184715598bbaa7c0bd4b7f8a566abfb70062f1b95e4cfdd",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2068-source50-acq-module-native-actual-root-20261014/stdout.txt@d35d70f89f5f8b2fcef5764cea1e8470b8bf5ab15020b00fb75b05f10468d661",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2068-source50-acq-module-native-actual-root-20261014/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2068-source50-acq-module-native-actual-root-20261014/progress.json@96731e0d0a9c18dcffc4a8bdbce5e09141b5d2fc6d4fa52c23e85b5b48a3d57c",
+        "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2068-source50-acq-module-native-actual-root-20261014/module-origins.json@85b8003dda6c75793a3e7a5b34028583698fd7264ffa902113c576d38276e669",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2068-source50-acq-module-native-actual-root-20261014/junit.xml@42ab33fad6211e835ab3a6f14b927f26ef10b34376ae25472f549068780e312c"
+      },
+      "interpretation": "Earlier ACQ01 suite result retained: 19 PASS and 3 FAIL before the R2079/R2082 successor.",
+      "source50_manifest_matches": 27
+    },
+    {
+      "id": "R2070",
+      "bundle": "r2070-source50-b31-native-actual-root-20261014",
+      "verification_status": "FAIL",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 1,
+      "wall_seconds": 53.074320708052255,
+      "complete_input_path_count": 7722,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 94,
+        "passed": 49,
+        "failed": 45,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": null,
+      "failed_node_count": 45,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2070-source50-b31-native-actual-root-20261014/command.json@a89b2c3fd25e067ed40301576280249e767bf0ee03edcd5377ed0f9316a29fee",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2070-source50-b31-native-actual-root-20261014/stdout.txt@5c7f949dd72f581ea6909d867ada74dd2bbbe6177e35c6f4828fcb904b705ecb",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2070-source50-b31-native-actual-root-20261014/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2070-source50-b31-native-actual-root-20261014/progress.json@f7179aa25a4dbefebc92fe4ccfaf893d04d46a57291a57546bf65387c829db13",
+        "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2070-source50-b31-native-actual-root-20261014/module-origins.json@b49353c7d91188b2bde35590dd70ce7fd39831babd2591c8cb88a2d556af9ffc",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2070-source50-b31-native-actual-root-20261014/junit.xml@a64371d45bd1e54f148a6ba4da3634ca442ab56cd921aaa21b8d624009a7f4b7"
+      },
+      "interpretation": "Earlier B31 suite result retained: 49 PASS and 45 FAIL before the source fixes.",
+      "source50_manifest_matches": 27
+    },
+    {
+      "id": "R2071",
+      "bundle": "r2071-source50-generator-node-native-actual-root-20261014",
+      "verification_status": "PASS",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 0,
+      "wall_seconds": 1.5251009999774396,
+      "complete_input_path_count": 5,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 10,
+        "passed": 10,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": [],
+      "failed_node_count": 0,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2071-source50-generator-node-native-actual-root-20261014/command.json@4f2b4d0aa229be36514eae0a563e57799fe00dd57d2dcf1c434abad9ec85d85b",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2071-source50-generator-node-native-actual-root-20261014/stdout.txt@d7f4fbb1c1807ca48e81fb97d8636fc10db441e6be5a3ef447f9513afcf55c2b",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2071-source50-generator-node-native-actual-root-20261014/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "interpretation": "Node canonicalizer suite: 10 PASS over a five-input source inventory; this is producer-side only.",
+      "source50_manifest_matches": null
+    },
+    {
+      "id": "R2081",
+      "bundle": "r2081-source50-b31-fixed-native-actual-root-20261014",
+      "verification_status": "FAIL",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 1,
+      "wall_seconds": 61.5557419169927,
+      "complete_input_path_count": 7722,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 94,
+        "passed": 90,
+        "failed": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": [
+        "tests.unit.data_forge.domains.catalog.knowledge.test_overlay::test_real_admission_finalizer_reconciles_owner_and_selected_provenance_views",
+        "tests.unit.lex.test_knowledge_store_filters::test_lex_owner_rows_are_selected_and_document_ids_are_not_content",
+        "tests.unit.runtime.quality.test_semantic_epoch::test_production_acquisition_invokes_epoch_adapter_and_returns_policy_admission_missing",
+        "tests.unit.runtime.quality.test_semantic_epoch::test_real_l5_owner_rows_and_registry_files_round_trip_through_cas"
+      ],
+      "failed_node_count": 4,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2081-source50-b31-fixed-native-actual-root-20261014/command.json@ee35cf9e3dee8b6afbb116f0297035916fcf136cface7d1bddb352f49b88257a",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2081-source50-b31-fixed-native-actual-root-20261014/stdout.txt@4a6f7b1b010986ba779e6c8faef77189fc41b3b43d8cef334e3594dda66c4057",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2081-source50-b31-fixed-native-actual-root-20261014/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2081-source50-b31-fixed-native-actual-root-20261014/progress.json@aa1350870debaee7d0813b2fe3bd98b7edad7c5af6b3ffb67078269e2a43afcd",
+        "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2081-source50-b31-fixed-native-actual-root-20261014/module-origins.json@2b1232b2ca7da4ffaa1b59b808d89fe792dea83a2b888e80e06dbf5e79ab84b9",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2081-source50-b31-fixed-native-actual-root-20261014/junit.xml@f82aca50cbbfdf1ae0875eb1a5e8e4e7a1d1f97799f244f4fdd56ca49abdf3f2"
+      },
+      "interpretation": "B31 actual native suite after R2079: 90 PASS, 4 FAIL; all four failures remain load-bearing.",
+      "source50_manifest_matches": 31
+    },
+    {
+      "id": "R2082",
+      "bundle": "r2082-source50-acq-fixed-native-actual-root-20261014",
+      "verification_status": "PASS",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 0,
+      "wall_seconds": 47.28646762506105,
+      "complete_input_path_count": 7722,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 22,
+        "passed": 22,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": [],
+      "failed_node_count": 0,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2082-source50-acq-fixed-native-actual-root-20261014/command.json@85c7a156d3ebf45a30b992f5d8e0271376abd82ab27f641aaf5015df045f5a14",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2082-source50-acq-fixed-native-actual-root-20261014/stdout.txt@c750a951cbe92439be605c7a45532b0b2672282604a8a87571f39c17430cba61",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2082-source50-acq-fixed-native-actual-root-20261014/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2082-source50-acq-fixed-native-actual-root-20261014/progress.json@b153511806482bc4600efa70e966b866eadd436c2089c357d52f3b96f580534f",
+        "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2082-source50-acq-fixed-native-actual-root-20261014/module-origins.json@ec8ac71617f1dab9b1792c1bd4df094d05df865386614ff6835446adda4a534d",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2082-source50-acq-fixed-native-actual-root-20261014/junit.xml@b335b5df5be6f79c3a3763151932662f1cdc54c95156f6efd0db4ab190876ae8"
+      },
+      "interpretation": "ACQ01 current focused suite after R2079: 22 PASS.",
+      "source50_manifest_matches": 31
+    },
+    {
+      "id": "R2092",
+      "bundle": "r2092-source50-confidence-collision-fixed-native-actual-root-20261014",
+      "verification_status": "FAIL",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 1,
+      "wall_seconds": 342.5728963330621,
+      "complete_input_path_count": 7722,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 11,
+        "passed": 9,
+        "failed": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": [
+        "tests.unit.runtime.quality.test_confidence_ledger::test_post_admission_rebased_contract_baseline_fails_before_prior_membership",
+        "tests.unit.runtime.quality.test_confidence_ledger::test_import_manifest_root_rebinding_can_hide_genuine_orphan_event"
+      ],
+      "failed_node_count": 2,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2092-source50-confidence-collision-fixed-native-actual-root-20261014/command.json@3af81bb1a5e7238eabb6b7b80bf6510136a25c0f3e202712d5f5adc0351820b8",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2092-source50-confidence-collision-fixed-native-actual-root-20261014/stdout.txt@b58dcd3cfbe95c336bf93934c691c07709d90162475ae359f44f60da3660b152",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2092-source50-confidence-collision-fixed-native-actual-root-20261014/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2092-source50-confidence-collision-fixed-native-actual-root-20261014/progress.json@f3976a05da50b2345f4113571718b7f08db0b6d748cca2fda7ac87bb348c6dd7",
+        "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2092-source50-confidence-collision-fixed-native-actual-root-20261014/module-origins.json@60a481efb437cd5c39b309e4590af375e69040d3131e2794abe9d8d1648ac4b6",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2092-source50-confidence-collision-fixed-native-actual-root-20261014/junit.xml@80390737ce5d4f0ba779679a449248c51a66f1be31e00c636406467c615120bc"
+      },
+      "interpretation": "Eleven-case confidence suite on superseded test image: 9 PASS, 2 FAIL; retain as history, do not treat as current full verification.",
+      "source50_manifest_matches": 33
+    },
+    {
+      "id": "R2097",
+      "bundle": "r2097-source50-confidence-fresh-caller-native-actual-root-20261015",
+      "verification_status": "ERROR",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 4,
+      "wall_seconds": 21.09840825002175,
+      "complete_input_path_count": 7722,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 0,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": [],
+      "failed_node_count": 0,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2097-source50-confidence-fresh-caller-native-actual-root-20261015/command.json@023dd0d4de719ab28e986fde0029d40f409407fdb2452fa7166d1fbabe94bb0f",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2097-source50-confidence-fresh-caller-native-actual-root-20261015/stdout.txt@93c3f76c397a97a82bef5767eace2298691feda826896dd653975b3bfdbb904a",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2097-source50-confidence-fresh-caller-native-actual-root-20261015/stderr.txt@69a173296e1160bff2a1669792cb1914138b77a0c167ecf35378da687fc81332",
+        "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2097-source50-confidence-fresh-caller-native-actual-root-20261015/progress.json@bce6f6c59ec37793c23fdc60fc7c882d512feded912f18ee226fa63b89c86ec6",
+        "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2097-source50-confidence-fresh-caller-native-actual-root-20261015/module-origins.json@9430e68b559541abd9d40b130eb686f14a7d5c65d05bb08f5ef16aa82660ca29",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2097-source50-confidence-fresh-caller-native-actual-root-20261015/junit.xml@c42d2edae54ca2733bb0c2d97e5e19e8c3f076c08c710652bc83832f309e80a0"
+      },
+      "interpretation": "No tests collected (exit 4): the old selected test name no longer exists; execution is not a property result.",
+      "source50_manifest_matches": 33
+    },
+    {
+      "id": "R2099",
+      "bundle": "r2099-source50-confidence-fresh-current-selectors-native-actual-root-20261015",
+      "verification_status": "FAIL",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 1,
+      "wall_seconds": 200.25785837508738,
+      "complete_input_path_count": 7722,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 2,
+        "passed": 0,
+        "failed": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": [
+        "tests.unit.runtime.quality.test_confidence_ledger::test_post_admission_rebased_contract_baseline_fails_before_prior_membership",
+        "tests.unit.runtime.quality.test_confidence_ledger::test_import_manifest_root_rebinding_cannot_hide_genuine_orphan_event_on_fresh_session"
+      ],
+      "failed_node_count": 2,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2099-source50-confidence-fresh-current-selectors-native-actual-root-20261015/command.json@252c42c79a32cbd9c5f7c98a4882b7ef2b598053b818b7d3b18bac7580f18d12",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2099-source50-confidence-fresh-current-selectors-native-actual-root-20261015/stdout.txt@5e59244e233b17a23d47da4ebc8f64b121794615ac9e888e2ca20b96bb4ed5b1",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2099-source50-confidence-fresh-current-selectors-native-actual-root-20261015/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2099-source50-confidence-fresh-current-selectors-native-actual-root-20261015/progress.json@ee621bfaee83b48b9478d7318cf429509c99d9ff75910a11153014aed5f19394",
+        "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2099-source50-confidence-fresh-current-selectors-native-actual-root-20261015/module-origins.json@94a37b27780c6ff54a8cc4046cb735caf35d6940de3004d0c2595723e15489f9",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2099-source50-confidence-fresh-current-selectors-native-actual-root-20261015/junit.xml@567599524d343b2774045a4eb48fec0418a041f09d897a55d22abf95ad1b50a4"
+      },
+      "interpretation": "Both selected tests failed with an invalid/dangling-view fixture; retain output but do not infer product behavior.",
+      "source50_manifest_matches": 33
+    },
+    {
+      "id": "R2104",
+      "bundle": "r2104-source50-confidence-coherent-cas-native-actual-root-20261015",
+      "verification_status": "FAIL",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 1,
+      "wall_seconds": 204.17174929194152,
+      "complete_input_path_count": 7722,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 2,
+        "passed": 1,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": [
+        "tests.unit.runtime.quality.test_confidence_ledger::test_import_manifest_root_rebinding_cannot_hide_genuine_orphan_event_on_fresh_session"
+      ],
+      "failed_node_count": 1,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2104-source50-confidence-coherent-cas-native-actual-root-20261015/command.json@f5420d31784b064eb18e4eace692d77d3035c7dbad4e40ce8d77acaa873493ac",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2104-source50-confidence-coherent-cas-native-actual-root-20261015/stdout.txt@ea949f336759188fd6ac6dc86f3d9bb37a70e460626683d5c011eb78cee9ee7b",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2104-source50-confidence-coherent-cas-native-actual-root-20261015/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2104-source50-confidence-coherent-cas-native-actual-root-20261015/progress.json@ee1f6376e298ed50eb395a0060cca8d586a544d604cc1a01b5b6f297d8461026",
+        "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2104-source50-confidence-coherent-cas-native-actual-root-20261015/module-origins.json@94a37b27780c6ff54a8cc4046cb735caf35d6940de3004d0c2595723e15489f9",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2104-source50-confidence-coherent-cas-native-actual-root-20261015/junit.xml@e4be4e663764870e0f3369ec3cd4b9073973626714b6788d8928e8b4a1a0fce9"
+      },
+      "interpretation": "Fresh-session currentness discriminator after manifest/registry/projections/defaults rebase: 1 PASS, 1 FAIL; not an authority-positive receipt.",
+      "source50_manifest_matches": 34
+    },
+    {
+      "id": "R2106",
+      "bundle": "r2106-source50-b148-whole-selected-consumers-native-actual-root-20261015",
+      "verification_status": "PASS",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 0,
+      "wall_seconds": 21.099543875083327,
+      "complete_input_path_count": 7722,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 70,
+        "passed": 70,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": [],
+      "failed_node_count": 0,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2106-source50-b148-whole-selected-consumers-native-actual-root-20261015/command.json@07f3613318a54e57b2789972f958a02bf99aae8059fe4589287ad8078db1cdce",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2106-source50-b148-whole-selected-consumers-native-actual-root-20261015/stdout.txt@7c080b31fe03c91948ce5f31cdba729abdb572c391d55dc8b78021ed8d6d77b7",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2106-source50-b148-whole-selected-consumers-native-actual-root-20261015/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2106-source50-b148-whole-selected-consumers-native-actual-root-20261015/progress.json@b76c9e572598d80c4a2ea9a36ad233bf1ca05cdfeac4a81e2a984658599bc5f4",
+        "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2106-source50-b148-whole-selected-consumers-native-actual-root-20261015/module-origins.json@fc60d152fefb30c3da08cf97319c3e1a9aeba7087baa36a9c62259420b2a1e8e",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2106-source50-b148-whole-selected-consumers-native-actual-root-20261015/junit.xml@1b76d2a87806cfbb16cb5bcdab05434b3007815205eff77782c7f4fee52ac3ba"
+      },
+      "interpretation": "Seventy selected B148 consumer definitions: 70 PASS; does not cover supplemental quota/integrity/removal boundaries.",
+      "source50_manifest_matches": 34
+    },
+    {
+      "id": "R2112",
+      "bundle": "r2112-source50-p38-real-cas-prototype-native-actual-root-20261015",
+      "verification_status": "PASS",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 0,
+      "wall_seconds": 3.2574985419632867,
+      "complete_input_path_count": 7725,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": [],
+      "failed_node_count": 0,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2112-source50-p38-real-cas-prototype-native-actual-root-20261015/command.json@183ca95d20f833002f03e01213894bcea84710a44217e8e8f0af8a5e44bfdcdf",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2112-source50-p38-real-cas-prototype-native-actual-root-20261015/stdout.txt@77d9d4ba557444063b74660d0be4370d54e6204d91889e9a661298ce2c3adea3",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2112-source50-p38-real-cas-prototype-native-actual-root-20261015/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2112-source50-p38-real-cas-prototype-native-actual-root-20261015/progress.json@e6e22a37631fd671a2fb097caf8c56090bb1fa66c3db849abb09e3026c64ff56",
+        "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2112-source50-p38-real-cas-prototype-native-actual-root-20261015/module-origins.json@5ebd3ffd0e49cc6a8f043aa4e2471b1d11acfa4bd4f7ca8e3428620a4a5d4c98",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2112-source50-p38-real-cas-prototype-native-actual-root-20261015/junit.xml@225752f98aa4abb038fa2437caf4af64cdb0959c35b56a75cb273673bba68401"
+      },
+      "interpretation": "Seven prototype cases PASS against an actual filesystem CAS witness in a raw helper path; product routing/full installed closure remains absent.",
+      "source50_manifest_matches": 34
+    },
+    {
+      "id": "R2114",
+      "bundle": "r2114-source50-b148-supplemental-native-actual-root-20261015",
+      "verification_status": "FAIL",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 1,
+      "wall_seconds": 3.263097207993269,
+      "complete_input_path_count": 7724,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 5,
+        "passed": 4,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": [
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.b148-source50-supplemental-import-property-probes-20261015.test_b148_supplemental_import_probes::test_tenant_scoped_import_quota_refuses_before_persisted_effect"
+      ],
+      "failed_node_count": 1,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2114-source50-b148-supplemental-native-actual-root-20261015/command.json@ce7a2f3dd1ffaf970809ba38d5c611f1f280bf4af6aba703d675603a0172b659",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2114-source50-b148-supplemental-native-actual-root-20261015/stdout.txt@0b51fc33a2fd20122a5d0c4a1e4cc2b2751529f9ba9d95a3e444d16ffc4878cd",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2114-source50-b148-supplemental-native-actual-root-20261015/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2114-source50-b148-supplemental-native-actual-root-20261015/progress.json@6c4c8278a8f2b75314ecddb7eb12ea1b0ee17e2ea667f48f036a94c7586c67d0",
+        "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2114-source50-b148-supplemental-native-actual-root-20261015/module-origins.json@806ee58ba869d52c196fb3133026c14217801dcc7f4d0a4c4b66b8b5ffc62887",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2114-source50-b148-supplemental-native-actual-root-20261015/junit.xml@513bc5beeffe63cee5ac0bbf9cc302f962195cb495131dea95dcdda91fa97d2d"
+      },
+      "interpretation": "Four supplemental probes PASS, one FAIL because invalid-tenant setup failed before the target quota property was reached.",
+      "source50_manifest_matches": 34
+    },
+    {
+      "id": "R2117",
+      "bundle": "r2117-source50-b148-valid-quota-native-actual-root-20261015",
+      "verification_status": "FAIL",
+      "head_at_execution": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+      "exit_code": 1,
+      "wall_seconds": 2.659388834028505,
+      "complete_input_path_count": 7724,
+      "input_images_equal_before_after": true,
+      "test_counts": {
+        "collected": 1,
+        "passed": 0,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failed_nodes": [
+        "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.r2115-source50-b148-quota-valid-tenant-prepared-20261015.test_b148_quota_valid_tenant::test_valid_tenant_block_quota_import_preserves_prior_readable_owner"
+      ],
+      "failed_node_count": 1,
+      "evidence": {
+        "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2117-source50-b148-valid-quota-native-actual-root-20261015/command.json@77109bcb78940335d6ebbcb72498bb5b206ff0f6e826a04b5b69ed78959d1278",
+        "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2117-source50-b148-valid-quota-native-actual-root-20261015/stdout.txt@2a4b9e9dd9767d55e4d3e68c9f11c98b394e4fedab0151d9e83c05188adaec42",
+        "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2117-source50-b148-valid-quota-native-actual-root-20261015/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2117-source50-b148-valid-quota-native-actual-root-20261015/progress.json@d502c738a74522bbc07a3c6bdcb31869489c47ffbd57d813b14121451a129af6",
+        "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2117-source50-b148-valid-quota-native-actual-root-20261015/module-origins.json@806ee58ba869d52c196fb3133026c14217801dcc7f4d0a4c4b66b8b5ffc62887",
+        "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2117-source50-b148-valid-quota-native-actual-root-20261015/junit.xml@9a3e6752e0625b20072842825309240bf8f2ceb5f23324e67528ef85ee981f8b"
+      },
+      "interpretation": "Valid-tenant quota case FAIL: quota check occurs after publication and a new artifact is visible; author-owned repair remains necessary.",
+      "source50_manifest_matches": 34
+    }
+  ],
+  "predecessor_boundaries": [
+    {
+      "id": "B13",
+      "whole_property_outcome": "limited",
+      "boundary": "Source48 records schema generation and drift checks, but its producer/consumer outputs are predecessor-source evidence; Source50 changes the canonicalizer and README, so current generated-client/dashboard consumer typechecks must be rerun.",
+      "predecessor_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source48.json@cd7a1f52bd25cde39d2aa69181c2850571e5d668fecacd7d64c380147a88002d",
+      "R2041_diagnostic": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2041-runtime-client-collision-native-verification-20261014/verification.json@72b856c1586e328b6938ef33304232e56a0dba71a6ac2d746a6424e77e2fea58",
+      "current_missing": "No current Source50 client+dashboard typecheck or full current canonicalizer/Prettier consumer chain is in the evidence set.",
+      "next_check": "Regenerate from current schema, run canonicalizer tests and formatting, compile the actual generated client and dashboard against current package dependencies, then perturb the schema-derived output and confirm the current drift gate fails."
+    },
+    {
+      "id": "LA-021",
+      "whole_property_outcome": "held",
+      "boundary": "Source48 R2025 six-case CAN/IR check recorded malformed present-Mapping coercion and persisted writer outputs refused by the reader. Source50 changes canonical profile and IR adapter paths; the 142-case CAN/Morris suite is bounded and does not replace the exact writer→persisted artifact→reader replay/removal proof.",
+      "predecessor_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source48.json@cd7a1f52bd25cde39d2aa69181c2850571e5d668fecacd7d64c380147a88002d",
+      "current_subproperty_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2067-source50-canon-morris-native-actual-root-20261014/junit.xml@bc6973d7fc6f4d9744948bdd61799920dd3835dde0f1c1d542cd048f5a073fb6",
+      "next_check": "Replay all six adversarial CAN/IR discriminator cases on the exact current 34-path candidate: malformed present mapping, persisted bad-tag/unsupported artifact, positive round trip, reader refusal, and deletion/removal; retain actual CAS bytes and consumer output."
+    }
+  ],
+  "proposal_states": [
+    {
+      "id": "N7/ACQ01",
+      "whole_property_outcome": "limited",
+      "verification_status": "PASS for 22 focused current ACQ01 tests; predecessor R2068 19 PASS/3 FAIL retained.",
+      "evidence_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2082-source50-acq-fixed-native-actual-root-20261014/junit.xml@b335b5df5be6f79c3a3763151932662f1cdc54c95156f6efd0db4ab190876ae8"
+      ],
+      "boundary": "The current ACQ module suite exercises N7 selection/re-entry behaviors. It does not, by itself, prove the cross-system producer→persisted artifact→real consumer chain or external production authority.",
+      "minimum_next_input": "One exact current acquisition input, selected owner readback, persisted artifact/CAS receipt, and downstream N5/N8 consumer output.",
+      "exact_next_check": "Run the real production acquisition path with a valid route and a negative production-scope route; verify the exact persisted owner receipt and downstream N5/N8 re-entry uses the selected owner result, under the final source manifest.",
+      "source_owner": "Root engineering candidate owner; G acceptance separate.",
+      "current_source_binding": {
+        "run_id": "R2082",
+        "full_latest_changed_path_matches": 31,
+        "latest_changed_path_count": 34,
+        "relevant_source_paths_match_exactly": true,
+        "relevant_paths": [
+          {
+            "path": "policy-engine/tests/unit/remediation/test_acq_01.py",
+            "sha256": "1619c99898c85e0763c65464b2b7aa44a17e26f3ecad9246a9fbcf61ff9453f4"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+            "sha256": "1402aa526537e578f380d2e406fccd73351b6d01ff4a7d969773dd747355604f"
+          },
+          {
+            "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+            "sha256": "bb37860773a2ee606676d99c8096351f2d7c7547c177f60f0064cec42bbf19dc"
+          }
+        ],
+        "limitation": "The remaining three changed-path images are outside this bounded ACQ01 source subset; do not describe the full 34-path candidate as fully revalidated by R2082."
+      }
+    },
+    {
+      "id": "B31",
+      "whole_property_outcome": "open",
+      "verification_status": "FAIL: R2081 current B31 suite is 90 PASS/4 FAIL; earlier R2070 was 49 PASS/45 FAIL. R2079 changed four companion source/test paths but did not close the whole suite.",
+      "evidence_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2081-source50-b31-fixed-native-actual-root-20261014/junit.xml@f82aca50cbbfdf1ae0875eb1a5e8e4e7a1d1f97799f244f4fdd56ca49abdf3f2"
+      ],
+      "failed_nodes": [
+        "test_real_admission_finalizer_reconciles_owner_and_selected_provenance_views",
+        "test_lex_owner_rows_are_selected_and_document_ids_are_not_content",
+        "test_production_acquisition_invokes_epoch_adapter_and_returns_policy_admission_missing",
+        "test_real_l5_owner_rows_and_registry_files_round_trip_through_cas"
+      ],
+      "boundary": "The selected-reference/semantic-epoch graph has substantial positive tests, but selected provenance reconciliation, lex owner selection, production acquisition adapter, and real L5/CAS round trip still fail at current R2081 inputs.",
+      "minimum_next_input": "Current cumulative B31 repair postimages plus complete 94-test input manifest and actual CAS/readback artifacts.",
+      "exact_next_check": "Finish the author-owned four failure classes, rebind a new full current manifest, rerun the full 94-case suite and inspect producer, CAS persistence, consumer readback, and removal cases; keep each failure row until its own node passes on matching bytes.",
+      "source_owner": "Root engineering candidate owner; all four failures are internal repair work."
+    },
+    {
+      "id": "R2042 confidence-ledger currentness boundary",
+      "whole_property_outcome": "open",
+      "verification_status": "FAIL: R2104 1 PASS/1 FAIL on latest prepared confidence test image. R2092 was 9 PASS/2 FAIL on an older test hash; R2097 collected zero (exit 4); R2099 failed both tests with dangling-view fixture; retain all outputs separately.",
+      "evidence_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2104-source50-confidence-coherent-cas-native-actual-root-20261015/junit.xml@e4be4e663764870e0f3369ec3cd4b9073973626714b6788d8928e8b4a1a0fce9"
+      ],
+      "failed_nodes": [
+        "test_import_manifest_root_rebinding_cannot_hide_genuine_orphan_event_on_fresh_session"
+      ],
+      "boundary": "The coherent-CAS R2104 falsifier proves a same-process data-baseline rebind admits a fresh verification-session revision-0 head over four genuine same-scope surviving events. It exercises _for_verification; canonical from_repo and protected N9 authority impact remain not_established.",
+      "minimum_next_input": "A complete source-derived admission prototype and unchanged R2104 falsifier, plus an isolated source-bound canonical from_repo consumer witness; independently custodied issuer/currentness inputs if G requires a stronger trust root.",
+      "exact_next_check": "Compare the complete source-derived contract/schema/version quantity with live runtime at admission, rerun the actual falsifier and full module, and separately exercise isolated from_repo; retain the trusted-process limitation and all historical FAILs.",
+      "source_owner": "Root engineering candidate owner; G trust-root decision is a separate pending decision."
+    },
+    {
+      "id": "B148",
+      "whole_property_outcome": "open",
+      "verification_status": "Mixed: R2106 70 PASS/0 FAIL selected-consumer suite; R2114 4 PASS/1 FAIL with invalid-tenant fixture failing before target property; R2117 valid-tenant quota case FAIL after publication with a new artifact visible.",
+      "evidence_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2106-source50-b148-whole-selected-consumers-native-actual-root-20261015/junit.xml@1b76d2a87806cfbb16cb5bcdab05434b3007815205eff77782c7f4fee52ac3ba",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2114-source50-b148-supplemental-native-actual-root-20261015/junit.xml@513bc5beeffe63cee5ac0bbf9cc302f962195cb495131dea95dcdda91fa97d2d",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2117-source50-b148-valid-quota-native-actual-root-20261015/junit.xml@9a3e6752e0625b20072842825309240bf8f2ceb5f23324e67528ef85ee981f8b"
+      ],
+      "boundary": "Selected import consumers pass, but valid tenant quota enforcement is after a visible persist effect; the invalid-tenant probe does not reach the target property. Supplemental integrity, concurrent import, quota, and removal probes remain incomplete.",
+      "minimum_next_input": "Valid and invalid tenant inputs, prior readable owner generation, exact CAS inventory, and an observable before/after artifact set.",
+      "exact_next_check": "Move quota admission before any publication effect; run invalid-tenant and over-quota refusal and valid-tenant pass with the prior owner still readable; assert no new blob/view/manifest is visible on refusal, then run integrity, concurrency, and removal falsifiers against the actual product route.",
+      "source_owner": "Root engineering candidate owner; this is an internal repair, not an external policy fact."
+    },
+    {
+      "id": "P38",
+      "whole_property_outcome": "limited",
+      "verification_status": "PASS for a 7-case real-filesystem CAS prototype.",
+      "evidence_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2112-source50-p38-real-cas-prototype-native-actual-root-20261015/junit.xml@225752f98aa4abb038fa2437caf4af64cdb0959c35b56a75cb273673bba68401"
+      ],
+      "boundary": "The witness runs through a raw helper path with 7,725 stable inputs; it does not establish product-route wiring or installed-package closure.",
+      "minimum_next_input": "Actual product gateway/source route and installed artifact import/reader context with full inventory.",
+      "exact_next_check": "Wire the same witness through the actual product CAS gateway and installed package, prove its consumer reads the persisted artifact and removal fails closed; keep raw prototype evidence as a witness only.",
+      "source_owner": "Root engineering candidate owner."
+    }
+  ],
+  "limitations": [
+    "Source50 implementation is committed at 12f07bdf31a59be418f534fc3473482c73ef6290 with exact 34-path bytes and parent/tree read back. It is an intermediate candidate, not a final composed freeze. Later Source51 B31 changes are separately evidenced.",
+    "R2104 remains 1 PASS/1 FAIL; R2081 remains 90 PASS/4 FAIL; R2117 shows a visible artifact after quota failure. No aggregate PASS closes any property.",
+    "R2097 is a selector failure with zero collected tests; R2099 is a dangling-view fixture failure; R2114 fails setup before its target quota property. These do not count as product-property absence or success.",
+    "The latest R2103 path manifest supersedes R2091. The only changed binding is tests/unit/runtime/quality/test_confidence_ledger.py; changed-path native evidence must be rebound after any further author edit.",
+    "No G approval, external fact, legal permission, custody, calibration, or production-currentness claim is made by this author packet."
+  ],
+  "next_checks": [
+    "Finish the active internal B31 and B148 repairs and create a new exact complete input manifest after source stabilizes.",
+    "Rerun the full B31 94-case native suite, the complete confidence-ledger module, the B148 valid/invalid quota and removal probes, and current generated-client plus dashboard compilation; preserve command/JUnit/stdout/stderr/module-origin/progress outputs with independent hashes.",
+    "Use the recorded committed Source50 identity and exact34-footprint readback for this slice. Any subsequent source delta needs its own implementation/receipt identity and affected replay; never replace this slice with a later candidate.",
+    "Keep G review and proposal trust-root decisions separate; do not add closures based on test counts, source-quality checks, or this handoff."
+  ],
+  "footprint_binding_validation": {
+    "status": "PASS_CONTENT_HASH_MATCH_ONLY",
+    "matched": 34,
+    "expected": 34,
+    "scope": "Read/hash verification of exact R2103 current input bindings; not a Git/index/final-freeze claim."
+  },
+  "native_input_binding_semantics": "source50_manifest_matches counts exact R2103 changed-path hashes in each captured run before-image. It is not a percentage score, or proof that other source/profile inputs match. Later Source51 deltas do not retroactively rebind these receipts.",
+  "postcommit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2118-source50-implementation-checkpoint-root-20261015/committed-readback.json",
+    "sha256": "f94aa4ad5b8c78361c956abfa9e892d34657a1f69df1ff91a351c762512246aa",
+    "availability": "local ignored RAW, retained",
+    "full_footprint_count": 34,
+    "exact_all_committed_bytes_match": true
+  },
+  "slice_input_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2103-source50-confidence-coherent-cas-native-prepared-root-20261015/manifest.json",
+    "sha256": "f5889a12e487115ff4064af29bd227db72192caf36633525267fc1fbb7ff7364",
+    "bytes": 5964,
+    "availability": "local_preserved",
+    "binding_count": 34,
+    "local_file_matches": 34,
+    "local_file_mismatches": []
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "slice": "source49",
+  "draft_status": "committed author candidate handoff; G acceptance and final source freeze remain pending",
+  "author_role": "local_candidate_author_not_G",
+  "slice_base": "fa5f03211395d20a3610b72f9fcd9196af98a1f5",
+  "candidate": "6a046a225c4ac7fcb501e972f63ba3a79eca21b2",
+  "candidate_tree": "c55563207f1095a45d16ce8575bc2e64be186b9a",
+  "candidate_parents": [
+    "fa5f03211395d20a3610b72f9fcd9196af98a1f5"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2041-source49-consumer-frame-root-20261014/source-frame.json",
+    "sha256": "8220b94792710432b47eca8e00066a819a7d589884478cd24364a6622d66866c",
+    "bytes": 1562,
+    "availability": "local_preserved",
+    "frame_status": "typedtrackedcleanpostcommit",
+    "index_tree": "c55563207f1095a45d16ce8575bc2e64be186b9a"
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+      "sha256": "3db1e6c0933a2ac1bfa30614b4de337f7f78b51a1447cd1c043244e6171e9d72",
+      "bytes": 262395
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_acq_01.py",
+      "sha256": "dc7e264eaa11698b4b3932fd02442d084e225121293cc12cf17029d418b77148",
+      "bytes": 85990
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closures": [],
+  "final_source_freeze": false,
+  "implementation_receipt_separate": true,
+  "receipt_commit_identity": "Not recorded inside this packet: later actual receipt commit readback only, never predict.",
+  "authentic_production_currentness": "not_established",
+  "historical_closures": "Preserve the nine historical closure entries and B198 in the canonical denominator; this slice adds no closure and makes no G closure claim.",
+  "source_evidence": {
+    "native": [
+      {
+        "id": "R2035",
+        "bundle": "r2035-source49-n9-native-actual-root-20261014",
+        "verification_status": "PASS",
+        "head_at_execution": "fa5f03211395d20a3610b72f9fcd9196af98a1f5",
+        "exit_code": 0,
+        "wall_seconds": 26.072979041025974,
+        "complete_input_path_count": 7723,
+        "input_images_equal_before_after": true,
+        "current_source_manifest_matches": null,
+        "test_counts": {
+          "collected": 5,
+          "passed": 5,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "failed_nodes": [],
+        "failed_node_count": 0,
+        "evidence": {
+          "command.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2035-source49-n9-native-actual-root-20261014/command.json@d0dbdc32e3f27aa25989c95bad1029a52586ae71797aa5734683b96a3e3d2995",
+          "stdout.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2035-source49-n9-native-actual-root-20261014/stdout.txt@f1478cc9fdf42ad321d7fba9c22c7917cb278810a3bf1fefcc9509447ef6c979",
+          "stderr.txt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2035-source49-n9-native-actual-root-20261014/stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "progress.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2035-source49-n9-native-actual-root-20261014/progress.json@2b5cd960d21429afb314af34c13f833117976058fdcd6a2c3a2b3d4bc63cc7d4",
+          "module-origins.json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2035-source49-n9-native-actual-root-20261014/module-origins.json@8aee4b5b5ffed9887e188dcb5c66a6926b1226a7c53e0e20cff21bcb90d0cc87",
+          "junit.xml": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2035-source49-n9-native-actual-root-20261014/junit.xml@ca4835140ee861b47dd9e4bc7a0a3b68c304a2ae4d08a039744f57524d85cc44"
+        },
+        "candidate_footprint_byte_match": true,
+        "tested_footprint_path_count": 2,
+        "note": "The command head predates the later commit readback; its complete 7,723-path before/after image is equal and both candidate footprint path hashes match the committed Source49 frame."
+      }
+    ],
+    "actual_source_frame_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2041-source49-consumer-frame-root-20261014/readback.json@4b532bf3c9c15f107f40508a35c424a226cd7b186ca565259ccb95785d246aef",
+    "source_frame_reason": "The R2041 frame supplies the actual committed 6a046a... head/tree/parent and exact two-path footprint; the R2035 test command had an older HEAD label but its full input image was stable and both footprint bytes matched."
+  },
+  "proposal_states": [
+    {
+      "id": "N7/ACQ01",
+      "whole_property_outcome": "limited",
+      "verification_status": "PASS for two focused ACQ01 cases; the three timestamp cases in the same command are unrelated to the two-file source footprint.",
+      "evidence_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2035-source49-n9-native-actual-root-20261014/junit.xml@ca4835140ee861b47dd9e4bc7a0a3b68c304a2ae4d08a039744f57524d85cc44"
+      ],
+      "boundary": "The retained cases cover the route-context helper refusing production scope with a valid route and a re-entry binding check. They do not prove the full acquisition producer-to-persisted-artifact-to-consumer chain or current production authority.",
+      "missing_capability": "verification_missing for the whole production chain; the receipt is a focused test of a helper and re-entry subproperty.",
+      "minimum_next_input": "Exact current acquisition request, owner context, generated artifact/readback, and the real production consumer path under one frozen source/input manifest.",
+      "exact_next_check": "Drive one valid and one production-scope-refused request through the real acquisition entry point, inspect the persisted artifact and downstream N5/N8 re-entry readback, and bind the complete input inventory and removal result.",
+      "source_owner": "Root engineering candidate owner; any G acceptance remains separate."
+    },
+    {
+      "id": "Q2 freeze-input audit helper",
+      "whole_property_outcome": "UNRUN",
+      "verification_status": "UNRUN: R2035 selected no test or invocation of the changed audit script.",
+      "evidence_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2041-source49-consumer-frame-root-20261014/source-frame.json@8220b94792710432b47eca8e00066a819a7d589884478cd24364a6622d66866c"
+      ],
+      "boundary": "The committed footprint includes the Q2 freeze input audit script, but the five collected cases are in ACQ01 and promotion-sequence tests.",
+      "missing_capability": "verification_missing for this changed script property.",
+      "minimum_next_input": "The script owner-defined CLI inputs plus a complete frozen source manifest and one present-file mutation.",
+      "exact_next_check": "Resolve the script invocation from its documented owner path, capture a valid audit result, then change one already-present manifest input byte and show the audit detects the altered image; retain command, inventory, stdout, stderr, and JUnit if applicable.",
+      "source_owner": "Root engineering candidate owner."
+    }
+  ],
+  "limitations": [
+    "The source frame is a real Source49 commit readback, but final source freeze and G acceptance are false/absent.",
+    "The command ran at the base HEAD label; candidate-byte binding comes from the complete unchanged input image and the exact two-path hash match, not the HEAD label alone.",
+    "No receipt establishes production custody, external authority, or authentic production currentness."
+  ],
+  "next_checks": [
+    "Exercise N7 through the real acquisition entry point and persisted artifact consumer, including positive and production-scope refusal cases.",
+    "Run a byte-change falsifier against the Q2 freeze audit script with its full input inventory.",
+    "Record actual G review/decision separately; keep closure_ids empty until a formal closeout names exact property and boundary."
+  ],
+  "candidate_binding_state": "Exact committed branch bytes independently read back by Root; subsequent Source51 B31 working-tree delta is separate and is not part of this slice."
+}

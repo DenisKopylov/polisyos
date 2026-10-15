@@ -62,7 +62,11 @@ from polisyos.scientist.methods.search.judge_stack import (
     PolicyPromotionResult,
     to_search_uncertainty_envelope,
 )
-from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
+from polisyos.scientist.methods.search.promotion_evidence import (
+    PromotionEvidenceBundle,
+    _PhaseD4ChallengeSourceBasis,
+    _PolicyRuntimeSelectionSourceBasis,
+)
 from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope, UncertaintyType
 from polisyos.scientist.nodes.builtins.decide import (
     policy_runtime_artifacts as _runtime_artifacts,
@@ -709,6 +713,45 @@ def load_governance_report_from_ref(
     return _runtime_artifacts._load_governance_report_from_ref_impl(ctx, ref)
 
 
+def _build_promotion_benchmark_source_basis(
+    *,
+    state: ExperimentState,
+    candidate_ref: ArtifactRef,
+    evaluation_vector: PolicyEvaluationVector,
+    evidence_bundle: PromotionEvidenceBundle,
+    promotion_context: Mapping[str, Any] | None,
+    expected_loop_id: str,
+) -> dict[str, _PolicyRuntimeSelectionSourceBasis | _PhaseD4ChallengeSourceBasis]:
+    """Recompute policy selection and bind D4 rotations to resolved outcome rows.
+
+    Registry membership alone does not establish a benchmark source. Hidden-holdout
+    references without an independently reconciled producer basis are omitted so the
+    protected admission check refuses them.
+    """
+    selection_projection = build_selection_benchmark_evaluation(
+        state=state,
+        candidate_ref=candidate_ref,
+        evaluation_vector=evaluation_vector,
+    )
+    if selection_projection.loop_id != expected_loop_id:
+        raise ValueError("PromotionEvidenceBundle policy selection belongs to another loop.")
+    source_basis: dict[str, _PolicyRuntimeSelectionSourceBasis | _PhaseD4ChallengeSourceBasis] = {
+        "selection_evaluation_ref": _PolicyRuntimeSelectionSourceBasis(
+            expected_evaluation=selection_projection
+        )
+    }
+    current_stress_report_ref = (promotion_context or {}).get("stress_test_report_ref")
+    if (
+        evidence_bundle.rotating_challenge_evaluation_refs
+        and current_stress_report_ref is not None
+        and current_stress_report_ref == evidence_bundle.stress_test_report_ref
+    ):
+        source_basis["rotating_challenge_evaluation_refs"] = _PhaseD4ChallengeSourceBasis(
+            stress_report_ref=current_stress_report_ref
+        )
+    return source_basis
+
+
 def run_promotion_with_evidence(
     *,
     ctx: ExecutionContext,
@@ -758,6 +801,14 @@ def run_promotion_with_evidence(
             "replay_bundle_ref": state.artifacts_index.get("replayable_audit_bundle_ref"),
             "governance_report_ref": state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF),
         },
+        source_basis_by_role=_build_promotion_benchmark_source_basis(
+            state=state,
+            candidate_ref=candidate_ref,
+            evaluation_vector=evaluation_vector,
+            evidence_bundle=evidence_bundle,
+            promotion_context=promotion_context,
+            expected_loop_id=expected_loop_id,
+        ),
     )
     missing = evidence_bundle.missing_required_refs(
         require_hidden_holdout=True,

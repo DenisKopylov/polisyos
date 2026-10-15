@@ -2453,16 +2453,22 @@ class SearchLoopRunner:
             projected_payload.pop("semantic", None)
         candidate = codec.decode(projected_payload)
         claim_selected_profile = spec.loop_id == "claim_adjudication"
+        method_job_selected_profile = isinstance(
+            spec.benchmark_evaluator,
+            MethodJobBenchmarkEvaluator,
+        )
         if claim_selected_profile and suite_ref.manifest_profile_sha256 is None:
             raise ValueError("claim_adjudication_selected_profile_required:benchmark_suite")
         candidate_ref = persist_mutation_artifact(
             self._store,
             cast("MutationArtifact", candidate),
             inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
-            return_selected_profile=claim_selected_profile,
+            return_selected_profile=claim_selected_profile or method_job_selected_profile,
         )
         if claim_selected_profile and candidate_ref.manifest_profile_sha256 is None:
             raise ValueError("claim_adjudication_selected_profile_required:candidate")
+        if method_job_selected_profile and candidate_ref.manifest_profile_sha256 is None:
+            raise ValueError("methodjob_selected_profile_required:candidate")
         evaluation_id = f"search-evaluation:{uuid4().hex}"
         evaluation_attempt_id = f"search-attempt:{uuid4().hex}"
         evaluation = spec.benchmark_evaluator.evaluate(

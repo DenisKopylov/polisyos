@@ -117,6 +117,8 @@ def _reset_method_registry():
 
 def _persist_source_inputs(
     store: FileSystemCAS,
+    *,
+    return_selected_profiles: bool = False,
 ) -> tuple[ArtifactRef, ArtifactRef, ArtifactRef]:
     n = 40
     x = np.linspace(-1.0, 1.0, n).reshape(-1, 1)
@@ -151,11 +153,13 @@ def _persist_source_inputs(
     suite_ref = persist_benchmark_suite(
         store,
         BenchmarkSuite(suite_id="b157_source_bound", kind="method_job"),
+        return_selected_profile=return_selected_profiles,
     )
     candidate_ref = persist_mutation_artifact(
         store,
         _DiagnosticCausalCandidate(loop_id="b157_diagnostic"),
-        inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+        return_selected_profile=return_selected_profiles,
     )
     return candidate_ref, suite_ref, snapshot_ref
 

@@ -14,11 +14,15 @@ from polisyos.scientist.methods.search.adversarial import (
     PlatformMetaEvaluationReport,
     persist_platform_meta_evaluation_report,
 )
+from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
 from polisyos.scientist.methods.search.calibration_report import (
     build_calibration_report,
     persist_funnel_calibration_report,
 )
-from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
+from polisyos.scientist.methods.search.promotion_evidence import (
+    PromotionEvidenceBundle,
+    _PolicyRuntimeSelectionSourceBasis,
+)
 from polisyos.scientist.policy_design.output import (
     ReplayableAuditBundle,
     persist_replayable_audit_bundle,
@@ -115,20 +119,6 @@ def test_promotion_evidence_bundle_validates_runtime_lineage(tmp_path) -> None:
         ),
         inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
     )
-    hidden_ref = persist_benchmark_evaluation(
-        store,
-        BenchmarkEvaluation(
-            loop_id="loop-a",
-            suite_id="policy_hidden_holdout",
-            candidate_ref=candidate_ref,
-            selection_metrics={"score": 0.9},
-            holdout_metrics={"score": 0.88},
-            sample_counts={BenchmarkSplit.HIDDEN_HOLDOUT.value: 8},
-            promotable=True,
-            runtime_split_type=BenchmarkSplit.HIDDEN_HOLDOUT,
-        ),
-        inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
-    )
     replay_ref = persist_replayable_audit_bundle(
         store,
         ReplayableAuditBundle(
@@ -167,7 +157,6 @@ def test_promotion_evidence_bundle_validates_runtime_lineage(tmp_path) -> None:
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
         selection_evaluation_ref=selection_ref,
-        hidden_holdout_evaluation_ref=hidden_ref,
         adversarial_meta_evaluation_ref=meta_ref,
         replay_bundle_ref=replay_ref,
         replay_verification_ref=replay_verification_ref,
@@ -182,11 +171,131 @@ def test_promotion_evidence_bundle_validates_runtime_lineage(tmp_path) -> None:
         expected_refs={
             "candidate_ref": candidate_ref,
             "selection_evaluation_ref": selection_ref,
-            "hidden_holdout_evaluation_ref": hidden_ref,
             "replay_bundle_ref": replay_ref,
             "governance_report_ref": governance_ref,
         },
+        source_basis_by_role={
+            "selection_evaluation_ref": _PolicyRuntimeSelectionSourceBasis(
+                expected_evaluation=BenchmarkEvaluation(
+                    loop_id="loop-a",
+                    suite_id="policy_selection",
+                    candidate_ref=candidate_ref,
+                    selection_metrics={"score": 0.9},
+                    holdout_metrics={"score": 0.9},
+                    sample_counts={BenchmarkSplit.SELECTION.value: 10},
+                    promotable=True,
+                    runtime_split_type=BenchmarkSplit.SELECTION,
+                )
+            ),
+        },
     )
+
+
+def test_protected_promotion_requires_a_trusted_benchmark_source_basis(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    candidate_ref = store.put_json(
+        {"candidate_id": "cand-1"},
+        PutOptions(
+            kind="scientist.policy_candidate_schema",
+            media_type="application/json",
+            schema=SchemaInfo(name="candidate", version="1.0"),
+        ),
+    )
+    selection_ref = persist_benchmark_evaluation(
+        store,
+        BenchmarkEvaluation(
+            loop_id="loop-a",
+            suite_id="policy_selection",
+            candidate_ref=candidate_ref,
+            selection_metrics={"score": 0.9},
+            holdout_metrics={"score": 0.9},
+            sample_counts={BenchmarkSplit.SELECTION.value: 100},
+            promotable=True,
+            runtime_split_type=BenchmarkSplit.SELECTION,
+        ),
+        inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+    )
+    bundle = PromotionEvidenceBundle(
+        run_id="run-a",
+        produced_by_run_id="run-a",
+        candidate_ref=candidate_ref,
+        selection_evaluation_ref=selection_ref,
+    )
+
+    with pytest.raises(ValueError, match="source basis"):
+        bundle.assert_runtime_compatible(
+            run_id="run-a",
+            store=store,
+            expected_loop_id="loop-a",
+        )
+
+
+def test_registry_backed_hidden_holdout_without_source_basis_is_refused(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    candidate_ref = store.put_json(
+        {"candidate_id": "cand-1"},
+        PutOptions(
+            kind="scientist.policy_candidate_schema",
+            media_type="application/json",
+            schema=SchemaInfo(name="candidate", version="1.0"),
+        ),
+    )
+    selection = BenchmarkEvaluation(
+        loop_id="loop-a",
+        suite_id="policy_selection",
+        candidate_ref=candidate_ref,
+        selection_metrics={"score": 0.9},
+        holdout_metrics={"score": 0.9},
+        sample_counts={BenchmarkSplit.SELECTION.value: 10},
+        promotable=True,
+        runtime_split_type=BenchmarkSplit.SELECTION,
+    )
+    selection_ref = persist_benchmark_evaluation(
+        store,
+        selection,
+        inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+    )
+    hidden_evaluation = BenchmarkEvaluation(
+        loop_id="loop-a",
+        suite_id="policy_hidden_holdout",
+        candidate_ref=candidate_ref,
+        selection_metrics={"score": 0.9},
+        holdout_metrics={"score": 0.88},
+        sample_counts={BenchmarkSplit.HIDDEN_HOLDOUT.value: 8},
+        promotable=True,
+        runtime_split_type=BenchmarkSplit.HIDDEN_HOLDOUT,
+    )
+    hidden_ref = persist_benchmark_evaluation(
+        store,
+        hidden_evaluation,
+        inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+    )
+    registry = BenchmarkRegistry(tmp_path / "search_registry" / "benchmarks")
+    registry.record_evaluation(hidden_evaluation, hidden_ref, run_id="run-a")
+    assert registry.get(
+        BenchmarkSplit.HIDDEN_HOLDOUT.value,
+        run_id="run-a",
+        loop_id="loop-a",
+    ) == [hidden_ref]
+    bundle = PromotionEvidenceBundle(
+        run_id="run-a",
+        produced_by_run_id="run-a",
+        candidate_ref=candidate_ref,
+        selection_evaluation_ref=selection_ref,
+        hidden_holdout_evaluation_ref=hidden_ref,
+    )
+
+    with pytest.raises(ValueError, match="hidden_holdout_evaluation_ref source basis is required"):
+        bundle.assert_runtime_compatible(
+            run_id="run-a",
+            store=store,
+            expected_loop_id="loop-a",
+            source_basis_by_role={
+                "selection_evaluation_ref": _PolicyRuntimeSelectionSourceBasis(
+                    expected_evaluation=selection
+                )
+            },
+        )
 
 
 def test_promotion_evidence_bundle_rejects_stale_replay_verification_ref(tmp_path) -> None:
@@ -246,20 +355,6 @@ def test_promotion_evidence_bundle_rejects_stale_replay_verification_ref(tmp_pat
         ),
         inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
     )
-    hidden_ref = persist_benchmark_evaluation(
-        store,
-        BenchmarkEvaluation(
-            loop_id="loop-a",
-            suite_id="policy_hidden",
-            candidate_ref=candidate_ref,
-            selection_metrics={"score": 0.9},
-            holdout_metrics={"score": 0.88},
-            sample_counts={BenchmarkSplit.HIDDEN_HOLDOUT.value: 8},
-            promotable=True,
-            runtime_split_type=BenchmarkSplit.HIDDEN_HOLDOUT,
-        ),
-        inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
-    )
     meta_ref = persist_platform_meta_evaluation_report(
         store,
         PlatformMetaEvaluationReport(
@@ -281,7 +376,6 @@ def test_promotion_evidence_bundle_rejects_stale_replay_verification_ref(tmp_pat
         produced_by_run_id="run-a",
         candidate_ref=candidate_ref,
         selection_evaluation_ref=selection_ref,
-        hidden_holdout_evaluation_ref=hidden_ref,
         adversarial_meta_evaluation_ref=meta_ref,
         replay_bundle_ref=replay_ref,
         replay_verification_ref=replay_verification_ref,
@@ -292,6 +386,21 @@ def test_promotion_evidence_bundle_rejects_stale_replay_verification_ref(tmp_pat
         bundle.assert_runtime_compatible(
             run_id="run-a",
             store=store,
+            expected_loop_id="loop-a",
+            source_basis_by_role={
+                "selection_evaluation_ref": _PolicyRuntimeSelectionSourceBasis(
+                    expected_evaluation=BenchmarkEvaluation(
+                        loop_id="loop-a",
+                        suite_id="policy_selection",
+                        candidate_ref=candidate_ref,
+                        selection_metrics={"score": 0.9},
+                        holdout_metrics={"score": 0.9},
+                        sample_counts={BenchmarkSplit.SELECTION.value: 10},
+                        promotable=True,
+                        runtime_split_type=BenchmarkSplit.SELECTION,
+                    )
+                ),
+            },
         )
 
 

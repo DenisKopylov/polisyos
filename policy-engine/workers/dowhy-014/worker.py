@@ -32,8 +32,7 @@ def _finite_numeric_array(value: object) -> NDArray[np.float64]:
 
     raw = np.asarray(value, dtype=object)
     if any(
-        isinstance(x, (bool, np.bool_))
-        or not isinstance(x, (int, float, np.integer, np.floating))
+        isinstance(x, (bool, np.bool_)) or not isinstance(x, (int, float, np.integer, np.floating))
         for x in raw.flat
     ):
         raise ValueError("finite numeric primitives required; no string/bool conversion")

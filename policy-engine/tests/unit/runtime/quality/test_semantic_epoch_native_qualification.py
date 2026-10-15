@@ -61,6 +61,23 @@ def test_real_epoch_finalization_activation_and_native_readback(tmp_path: Path) 
         authority=case.scenario.authority,
         epoch_deployment=case.deployment,
     )
+    production_manifest_ref = finalized.production.semantic_manifest_ref
+    assert production_manifest_ref is not None
+    selected_profile = production_manifest_ref.manifest_profile_sha256
+    assert selected_profile is not None
+    history = case.scenario.history.resolve_scope_history(
+        scope=case.scenario.query.scope_identity,
+        authority_purpose=case.scenario.query.authority_purpose,
+    )
+    matching_entries = tuple(
+        entry for entry in history.entries if entry.epoch_ref == finalized.production.epoch_ref
+    )
+    assert len(matching_entries) == 1
+    history_entry = matching_entries[0]
+    assert history_entry.manifest_ref == production_manifest_ref
+    assert history_entry.native_member_ref == production_manifest_ref
+    assert history_entry.manifest_ref.manifest_profile_sha256 == selected_profile
+    assert history_entry.native_member_ref.manifest_profile_sha256 == selected_profile
     assert resolved.admitted_observation_count == 2
     assert resolved.receipt_ref == finalized.activated.receipt_ref
     assert finalized.production.chronology_projection_ref is not None
@@ -164,9 +181,7 @@ def test_runtime_store_scope_retains_native_writer_after_consumer_construction(
     def observe_policy_store(owner, *, context, artifact_ref, role):
         if role == "admission" and artifact_ref == policy_admission_ref:
             observed_policy_stores.append(owner._store)
-        return original_verified_bytes(
-            owner, context=context, artifact_ref=artifact_ref, role=role
-        )
+        return original_verified_bytes(owner, context=context, artifact_ref=artifact_ref, role=role)
 
     monkeypatch.setattr(type(case.store), "put_bytes", record_put)
     monkeypatch.setattr(
@@ -237,9 +252,8 @@ def test_native_qualification_fails_when_scoped_policy_admission_read_is_denied(
 
         def get_bytes(self, artifact_id):
             observed_ref = getattr(artifact_id, "artifact_id", artifact_id)
-            if (
-                self.deny_policy_admission_reads
-                and str(observed_ref) == str(policy_admission_ref.artifact_id)
+            if self.deny_policy_admission_reads and str(observed_ref) == str(
+                policy_admission_ref.artifact_id
             ):
                 self.denied_reads.append(str(observed_ref))
                 raise PermissionError("runtime-bound policy admission read denied")
@@ -265,9 +279,7 @@ def test_native_qualification_fails_when_scoped_policy_admission_read_is_denied(
                 )
             finally:
                 denied_store.deny_policy_admission_reads = False
-        return original_verified_bytes(
-            owner, context=context, artifact_ref=artifact_ref, role=role
-        )
+        return original_verified_bytes(owner, context=context, artifact_ref=artifact_ref, role=role)
 
     monkeypatch.setattr(
         contract.ChronologyPredicatePolicyArtifacts,

@@ -4056,6 +4056,7 @@ class SemanticEpochService:
             store=self._artifact_store,
             value=manifest,
             kind="epoch.semantic_manifest",
+            return_selected_profile=True,
         )
         native_member_ref = manifest_ref
         current_history = self._history.resolve_scope_history(

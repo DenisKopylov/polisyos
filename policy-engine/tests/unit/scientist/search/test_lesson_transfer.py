@@ -6,10 +6,10 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pytest
-from polisyos.core.artifacts.canon import CanonSpec
 
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.security import (
     AccessScope,
     reset_current_access_scope,
@@ -143,7 +143,9 @@ def test_lesson_reader_refuses_path_body_mismatch_and_ambiguous_legacy(tmp_path)
     registry.record_local(_card(), context=source)
     path = registry._index_path_for_context(source)
     payload = json.loads(path.read_text())
+    payload["source_scope"]["tenant_kind"] = "unscoped"
     payload["source_scope"]["tenant_hash"] = None
+    payload["source_scope"]["tenant_scope_status"] = "declared_unscoped"
     path.write_text(json.dumps(payload))
     fresh = _registry(tmp_path)
     result = fresh.find_transfer_candidates(
@@ -163,7 +165,7 @@ def test_lesson_reader_refuses_path_body_mismatch_and_ambiguous_legacy(tmp_path)
             {"schema_version": "1.0", "task_family": "policy", "domain": "fiscal", "entries": []}
         )
     )
-    malformed_path = legacy._root / "v2" / "not-a-digest" / "index.json"
+    malformed_path = legacy._root / "v3" / "not-a-digest" / "index.json"
     malformed_path.parent.mkdir(parents=True)
     malformed_path.write_text("{}")
     result = legacy.find_transfer_candidates(
@@ -186,12 +188,16 @@ def test_resolve_transfer_context_preserves_explicit_none_and_rejects_empty_hash
     base = TransferContext(
         task_family="policy", domain="fiscal", run_id="base", tenant_hash="tenant-a"
     )
-    unscoped = resolve_transfer_context(
-        context={"transfer_context": base}, tenant_hash=None, tenant_hash_is_explicit=True
-    )
     inherited = resolve_transfer_context(context={"transfer_context": base})
-    assert unscoped.tenant_hash is None
     assert inherited.tenant_hash == "tenant-a"
+    with pytest.raises(TransferScopeRefusedError) as explicit_none_conflict:
+        resolve_transfer_context(
+            context={"transfer_context": base}, tenant_hash=None, tenant_hash_is_explicit=True
+        )
+    assert (
+        explicit_none_conflict.value.refusals[0].reason
+        is TransferScopeRefusalReason.REQUEST_TENANT_CONTEXT_MISMATCH
+    )
     with pytest.raises(TransferScopeRefusedError) as resolver_refusal:
         resolve_transfer_context(tenant_hash="", tenant_hash_is_explicit=True)
     assert (
@@ -414,6 +420,15 @@ def test_authenticated_cross_tenant_transfer_keeps_both_source_scopes(tmp_path) 
                 cross_tenant_opt_in=True,
             )
         )
+        denied = registry.find_transfer_candidates(
+            LessonQuery(task_family="policy", limit=10),
+            target_context=target.model_copy(update={"cross_tenant_opt_in": False}),
+        )
+        assert denied.candidates == []
+        assert any(
+            refusal.reason is TransferScopeRefusalReason.CROSS_TENANT_NOT_AUTHORIZED
+            for refusal in denied.scope_refusals
+        )
         bundle = registry.find_transfer_candidates(
             LessonQuery(task_family="policy", limit=10), target_context=target
         )
@@ -581,16 +596,15 @@ def test_resolve_transfer_context_preserves_typed_base_until_explicit_override()
         )
         assert resolved.cross_tenant_opt_in is True
 
-    overridden = resolve_transfer_context(
-        context={"transfer_context": base},
-        task_family="policy",
-        domain="health",
-    )
-
-    assert (overridden.task_family, overridden.domain, overridden.run_id) == (
-        "policy",
-        "health",
-        "run-base",
+    with pytest.raises(TransferScopeRefusedError) as explicit_scope_conflict:
+        resolve_transfer_context(
+            context={"transfer_context": base},
+            task_family="policy",
+            domain="health",
+        )
+    assert (
+        explicit_scope_conflict.value.refusals[0].reason
+        is TransferScopeRefusalReason.INVALID_REQUEST_SCOPE
     )
 
 
@@ -992,14 +1006,15 @@ def _put_card_with_manifest_schema(
     media_type: str = "application/json",
     schema_name: str = "polisyos.scientist.search.LessonCard",
 ) -> ArtifactRef:
-    return store.put_json(
-        card,
+    canon_spec = CanonSpec(forbid_floats=False)
+    return store.put_bytes(
+        to_canonical_bytes(card, canon_spec),
         PutOptions(
             kind=kind,
             media_type=media_type,
             schema=SchemaInfo(name=schema_name, version=schema_version),
+            canon=CanonInfo.from_spec(canon_spec),
         ),
-        canon_spec=CanonSpec(forbid_floats=False),
     )
 
 

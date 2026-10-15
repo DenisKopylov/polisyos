@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime, timedelta
+
+import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir import TypedFailureCard
@@ -11,6 +14,11 @@ from polisyos.scientist.methods.search.lessons import (
     LessonRegistry,
     LessonTrustLevel,
     lesson_from_failure_card,
+)
+from polisyos.scientist.methods.search.transfer_context import (
+    TransferContext,
+    TransferScopeRefusalReason,
+    TransferScopeRefusedError,
 )
 
 
@@ -133,3 +141,111 @@ def test_repeated_reads_do_not_restore_confidence_without_new_evidence(tmp_path)
         )
     )
     assert warm_strict == []
+
+
+def test_lesson_index_local_json_round_trips_required_nullable_source_scope(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    root = tmp_path / "search_registry" / "lessons"
+    source = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="source-run",
+        tenant_hash=None,
+    )
+    registry = LessonRegistry(root=root, store=store)
+    registry.record_local(
+        LessonCard(
+            kind=LessonKind.FAILURE,
+            summary="Unscoped source scope remains explicit.",
+            failure_type="scope_round_trip",
+            stage_name="test",
+            fidelity_level=1,
+            candidate_hash="round-trip",
+            source_run_id="source-run",
+        ),
+        context=source,
+    )
+
+    index_path = registry._index_path_for_context(source)
+    persisted_scope = json.loads(index_path.read_text(encoding="utf-8"))["source_scope"]
+    assert persisted_scope["tenant_kind"] == "unscoped"
+    assert "tenant_hash" in persisted_scope
+    assert persisted_scope["tenant_hash"] is None
+
+    fresh_registry = LessonRegistry(root=root, store=store)
+    reopened = fresh_registry.index_snapshot(context=source)
+    assert reopened.source_scope is not None
+    assert reopened.source_scope.tenant_hash is None
+    assert [entry.failure_type for entry in reopened.entries] == ["scope_round_trip"]
+
+
+def test_lesson_index_local_json_keeps_scoped_source_scope(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    root = tmp_path / "search_registry" / "lessons"
+    source = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="source-run",
+        tenant_hash="tenant-a",
+    )
+    registry = LessonRegistry(root=root, store=store)
+    registry.record_local(
+        LessonCard(
+            kind=LessonKind.FAILURE,
+            summary="Scoped source scope remains bound.",
+            failure_type="scope_round_trip",
+            stage_name="test",
+            fidelity_level=1,
+            candidate_hash="round-trip",
+            source_run_id="source-run",
+        ),
+        context=source,
+    )
+
+    fresh_registry = LessonRegistry(root=root, store=store)
+    reopened = fresh_registry.index_snapshot(context=source)
+    assert reopened.source_scope is not None
+    assert reopened.source_scope.tenant_kind == "tenant"
+    assert reopened.source_scope.tenant_hash == "tenant-a"
+
+
+def test_lesson_index_local_json_rejects_restored_null_omission(tmp_path, monkeypatch) -> None:
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    root = tmp_path / "search_registry" / "lessons"
+    source = TransferContext(
+        task_family="policy",
+        domain="fiscal",
+        run_id="source-run",
+        tenant_hash=None,
+    )
+    registry = LessonRegistry(root=root, store=store)
+
+    def write_without_required_null(snapshot, *, path) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(
+            snapshot.model_dump_json(indent=2, exclude_none=True),
+            encoding="utf-8",
+        )
+
+    monkeypatch.setattr(
+        LessonRegistry,
+        "_write_index_file",
+        staticmethod(write_without_required_null),
+    )
+    registry.record_local(
+        LessonCard(
+            kind=LessonKind.FAILURE,
+            summary="Restoring null omission loses required scope binding.",
+            failure_type="scope_round_trip",
+            stage_name="test",
+            fidelity_level=1,
+            candidate_hash="round-trip",
+            source_run_id="source-run",
+        ),
+        context=source,
+    )
+
+    fresh_registry = LessonRegistry(root=root, store=store)
+    with pytest.raises(TransferScopeRefusedError) as captured:
+        fresh_registry.index_snapshot(context=source)
+    assert captured.value.refusals[0].reason is TransferScopeRefusalReason.INVALID_SOURCE_BODY

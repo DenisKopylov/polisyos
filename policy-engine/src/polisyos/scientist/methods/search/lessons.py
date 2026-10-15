@@ -448,7 +448,7 @@ class LessonRegistry:
             # source_run_id describes the source card, not a declared target run.
             fallback_run_id=card.source_run_id if context is None else None,
         )
-        normalized_card = self._normalize_card(card, target_context=target)
+        normalized_card = self._normalize_card(card, resolved_context=target)
         card_ref = persist_lesson_card(self._store, normalized_card)
         snapshot = self.index_snapshot(context=target)
         signature = _normalized_signature(normalized_card)
@@ -738,7 +738,7 @@ class LessonRegistry:
                     continue
                 normalized = self._normalize_card(
                     card.model_copy(update={"provenance_weight": weight}),
-                    target_context=source_context,
+                    resolved_context=source_context,
                 )
                 matches.append((weight, entry.last_seen, normalized))
 
@@ -819,7 +819,7 @@ class LessonRegistry:
                     },
                 }
             ),
-            target_context=target_context,
+            resolved_context=target_context,
         )
         if query is not None and not self._matches_materialized_transfer(materialized, query):
             return None
@@ -1201,7 +1201,7 @@ class LessonRegistry:
                     )
                 ]
             )
-        normalized = self._normalize_card(card, target_context=source_context)
+        normalized = self._normalize_card(card, resolved_context=source_context)
         evidence_anchor = self._evidence_anchor(entry, normalized)
         age = max(timedelta(), now - evidence_anchor)
         trust_level = normalized.trust_level
@@ -1285,9 +1285,9 @@ class LessonRegistry:
         self,
         card: LessonCard,
         *,
-        target_context: TransferContext | None = None,
+        resolved_context: TransferContext | None = None,
     ) -> LessonCard:
-        if target_context is None:
+        if resolved_context is None:
             active_context = resolve_transfer_context(
                 task_family=card.task_family,
                 domain=card.domain,
@@ -1296,23 +1296,26 @@ class LessonRegistry:
                 tenant_hash_is_explicit=card.origin_tenant_hash is not None,
             )
         else:
-            # The card remains the source record; its run is not a target declaration.
-            active_context = resolve_transfer_context(transfer_context=target_context)
+            # Callers pass either a freshly resolved request context or a source
+            # scope whose path, body, index rows, and CAS card were verified at intake.
+            # Re-resolving a verified source against the live destination AccessScope
+            # would conflate the two owners during an authorized cross-tenant transfer.
+            active_context = resolved_context
         update: dict[str, Any] = {
             "task_family": (
                 active_context.task_family
-                if target_context is not None
+                if resolved_context is not None
                 else (card.task_family or active_context.task_family)
             ),
             "domain": (
                 active_context.domain
-                if target_context is not None
+                if resolved_context is not None
                 else (card.domain or active_context.domain)
             ),
             "origin_run_id": card.origin_run_id or card.source_run_id,
             "origin_domain": (
                 card.origin_domain
-                or (card.domain if target_context is None else active_context.domain)
+                or (card.domain if resolved_context is None else active_context.domain)
                 or active_context.domain
             ),
             "origin_tenant_hash": active_context.tenant_hash,
@@ -1455,7 +1458,7 @@ class LessonRegistry:
 
     @staticmethod
     def _write_index_file(snapshot: LessonIndexSnapshot, *, path: Path) -> None:
-        payload = snapshot.model_dump_json(indent=2, exclude_none=True).encode("utf-8")
+        payload = snapshot.model_dump_json(indent=2).encode("utf-8")
         path.parent.mkdir(parents=True, exist_ok=True)
         with NamedTemporaryFile(
             mode="wb",

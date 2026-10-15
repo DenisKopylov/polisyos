@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    CoreSourcesCompatibilityContext,
     ObservationPlan,
     ObservationShard,
+    bind_core_sources_compatibility_context,
 )
 from polisyos.data_forge.domains.catalog.batch.core_sources import transformers, validators
 from polisyos.fabric.connectors.base import DatasetCapabilitySnapshot
@@ -48,3 +50,58 @@ def test_core_sources_validators_keep_facade_compatibility() -> None:
     from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
 
     assert facade._year_windows(2020, 2020, 2) == [(2020, 2020)]
+
+
+def test_validator_chunker_uses_request_scoped_window_builder() -> None:
+    plan = ObservationPlan(
+        dataset_id="dataset",
+        source="worldbank",
+        raw_variable="value",
+        canonical_var="gdp",
+        connector_id="worldbank.wdi",
+        profile_id="worldbank_wdi",
+        request_dataset_id="NY.GDP.MKTP.CD",
+        default_filters={},
+        update_frequency="annual",
+    )
+    context = CoreSourcesCompatibilityContext(
+        {(validators.__name__, "_year_windows"): lambda *_args: []}
+    )
+    with bind_core_sources_compatibility_context(context):
+        requests = validators._chunked_observation_requests(
+            plan=plan,
+            filters=(),
+            source="worldbank",
+            start_year=2020,
+            end_year=2022,
+        )
+
+    assert requests == []
+
+
+def test_validator_chunker_uses_request_scoped_default_year_window() -> None:
+    plan = ObservationPlan(
+        dataset_id="dataset",
+        source="worldbank",
+        raw_variable="value",
+        canonical_var="gdp",
+        connector_id="worldbank.wdi",
+        profile_id="worldbank_wdi",
+        request_dataset_id="NY.GDP.MKTP.CD",
+        default_filters={},
+        update_frequency="annual",
+    )
+    context = CoreSourcesCompatibilityContext(
+        {(validators.__name__, "_DEFAULT_OBSERVATION_YEAR_WINDOW"): (2020, 2021)}
+    )
+
+    with bind_core_sources_compatibility_context(context):
+        requests = validators._chunked_observation_requests(
+            plan=plan,
+            filters=(),
+            source="worldbank",
+        )
+
+    assert [(request.date_start.year, request.date_end.year) for request in requests] == [
+        (2020, 2021)
+    ]

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import contextlib
 import gzip
 import io
 import json
@@ -7,15 +9,32 @@ import tempfile
 import time
 import zipfile
 from datetime import UTC, datetime
+from importlib import import_module
 from pathlib import Path
+from types import MappingProxyType
 
 import duckdb
 import pandas as pd
 import pytest
 
 from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as core_ingest
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    CoreSourcesCompatibilityContext,
+    ObservationShard,
+    bind_core_sources_compatibility_context,
+    current_core_sources_compatibility_context,
+)
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
-from polisyos.data_forge.domains.catalog.batch.core_sources import loaders, validators, writers
+from polisyos.data_forge.domains.catalog.batch.core_sources import (
+    api as core_api,
+)
+from polisyos.data_forge.domains.catalog.batch.core_sources import (
+    loaders,
+    registry,
+    transformers,
+    validators,
+    writers,
+)
 from polisyos.data_forge.domains.catalog.batch.core_sources_ingest import (
     ObservationPlan,
     _build_catalog_observation_plans,
@@ -73,6 +92,370 @@ def test_core_sources_facade_does_not_broadcast_new_globals_to_leaf_group(monkey
     assert "_dfi01_probe_only" not in loaders.__dict__
     assert "_dfi01_probe_only" not in validators.__dict__
     assert "_dfi01_probe_only" not in writers.__dict__
+
+
+@pytest.mark.parametrize(
+    "module",
+    [core_api, loaders, registry, transformers, validators, writers],
+    ids=["api", "loaders", "registry", "transformers", "validators", "writers"],
+)
+def test_owner_dependency_resolver_rejects_unregistered_importer_names(module, monkeypatch) -> None:
+    resolver = getattr(module, "__resolve_implementation_dependency")
+    sentinel = object()
+    imported: list[str] = []
+
+    def _record_import(module_name: str) -> object:
+        imported.append(module_name)
+        raise AssertionError(f"unregistered dependency attempted import: {module_name}")
+
+    monkeypatch.setattr(module, "import_module", _record_import)
+    context = CoreSourcesCompatibilityContext(
+        {(f"{module.__package__}.api", "import_module"): sentinel}
+    )
+
+    with (
+        bind_core_sources_compatibility_context(context),
+        pytest.raises(LookupError, match="unsupported"),
+    ):
+        resolver("import_module", "api", sentinel)
+
+    with pytest.raises(LookupError, match="unsupported"):
+        resolver("_ConnectorSessionCache", "unregistered_owner", sentinel)
+
+    assert imported == []
+
+
+def test_owner_proxy_declarations_build_the_immutable_runtime_registry() -> None:
+    for module in (core_api, loaders, registry, transformers, validators, writers):
+        bindings = module.__dict__["__OWNER_PROXY_BINDINGS"]
+        proxies = module.__dict__["__OWNER_BOUND_PROXIES"]
+
+        assert isinstance(bindings, MappingProxyType)
+        assert isinstance(proxies, MappingProxyType)
+        assert set(bindings) == set(proxies)
+        for binding_key, target in bindings.items():
+            owner, symbol = binding_key
+            target_module, target_symbol = target
+            assert target == (f"{module.__package__}.{owner}", symbol)
+            assert module.__dict__[symbol] is proxies[binding_key]
+            assert hasattr(import_module(target_module), target_symbol)
+
+
+@pytest.mark.parametrize(
+    "module",
+    [core_api, loaders, registry, transformers, validators, writers],
+    ids=["api", "loaders", "registry", "transformers", "validators", "writers"],
+)
+def test_owner_proxy_admission_refuses_a_removed_binding_before_context_or_import(
+    module, monkeypatch
+) -> None:
+    resolver = getattr(module, "__resolve_implementation_dependency")
+    bindings = module.__dict__["__OWNER_PROXY_BINDINGS"]
+    compatibility_bindings = module.__dict__["CORE_SOURCES_COMPATIBILITY_BINDINGS"]
+    binding_key = next(key for key in bindings if key not in compatibility_bindings)
+    target = bindings[binding_key]
+    marker = object()
+    remaining = MappingProxyType(
+        {key: value for key, value in bindings.items() if key != binding_key}
+    )
+    imported: list[str] = []
+
+    def _record_import(module_name: str) -> object:
+        imported.append(module_name)
+        raise AssertionError(f"removed dependency attempted import: {module_name}")
+
+    monkeypatch.setattr(module, "__OWNER_PROXY_BINDINGS", remaining)
+    monkeypatch.setattr(module, "import_module", _record_import)
+    context = CoreSourcesCompatibilityContext({target: marker})
+
+    with (
+        bind_core_sources_compatibility_context(context),
+        pytest.raises(LookupError, match="unsupported"),
+    ):
+        resolver(binding_key[1], binding_key[0], marker)
+
+    assert imported == []
+
+
+def test_parallel_api_ingest_uses_request_scoped_cache_factory_and_persists_isolated_results(
+    tmp_path: Path,
+) -> None:
+    entered: asyncio.Queue[str] = asyncio.Queue()
+    release = asyncio.Event()
+    cache_created: list[str] = []
+    cache_closed: list[str] = []
+    cache_types_seen: dict[str, list[type[object]]] = {"good": [], "failed": []}
+
+    def _cache_type(profile: str) -> type[writers._ConnectorSessionCache]:
+        class ProfileCache(writers._ConnectorSessionCache):
+            def __init__(self) -> None:
+                super().__init__()
+                cache_created.append(profile)
+
+            async def close(self) -> None:
+                cache_closed.append(profile)
+                await super().close()
+
+        return ProfileCache
+
+    def _fetch_for(profile: str):
+        async def _fetch(_shard, cache, *, config, **_kwargs):
+            cache_types_seen[profile].append(type(cache))
+            assert config.snapshot_root == tmp_path / profile
+            await entered.put(profile)
+            await release.wait()
+            if profile == "failed":
+                raise RuntimeError("controlled profile failure")
+            return [{"geo": "UA", "time_period": "2022", "value": 31.0}]
+
+        return _fetch
+
+    _cache_type_by_profile = {name: _cache_type(name) for name in ("good", "failed")}
+    configs = {
+        profile: DatasetBatchConfig(
+            snapshot_root=tmp_path / profile,
+            active_countries=("UA",),
+        )
+        for profile in ("good", "failed")
+    }
+    plans = {
+        profile: [
+            ObservationPlan(
+                dataset_id=f"worldbank-{profile}",
+                source="worldbank",
+                raw_variable="NY.GDP.PCAP.PP.CD",
+                canonical_var="gdp_per_capita",
+                connector_id="worldbank.wdi",
+                profile_id="worldbank_wdi",
+                request_dataset_id=f"NY.GDP.PCAP.PP.CD-{profile}",
+                default_filters={},
+                update_frequency="annual",
+            )
+        ]
+        for profile in ("good", "failed")
+    }
+
+    for config in configs.values():
+        with duckdb.connect(str(config.db_path)) as con:
+            _ensure_registry_tables(con)
+
+    async def _run_one(profile: str):
+        context = CoreSourcesCompatibilityContext(
+            {
+                (writers.__name__, "_ConnectorSessionCache"): _cache_type_by_profile[profile],
+                (core_api.__name__, "_fetch_observation_rows"): _fetch_for(profile),
+            }
+        )
+        with bind_core_sources_compatibility_context(context):
+            return await core_api._ingest_catalog_observations_parallel(
+                configs[profile].db_path,
+                plans[profile],
+                config=configs[profile],
+            )
+
+    async def _exercise():
+        tasks = [asyncio.create_task(_run_one(profile)) for profile in ("good", "failed")]
+        try:
+            async with asyncio.timeout(10):
+                started = {await entered.get(), await entered.get()}
+        except TimeoutError as exc:
+            release.set()
+            outcomes = await asyncio.gather(*tasks, return_exceptions=True)
+            raise AssertionError(f"ingest requests did not reach fetch: {outcomes!r}") from exc
+        assert started == {"good", "failed"}
+        release.set()
+        return await asyncio.gather(*tasks)
+
+    good_stats, failed_stats = asyncio.run(_exercise())
+
+    assert good_stats.failures == 0
+    assert good_stats.observations == 1
+    assert failed_stats.failures == 1
+    assert cache_created == ["good", "failed"]
+    assert cache_closed == ["good", "failed"]
+    assert cache_types_seen == {
+        profile: [_cache_type_by_profile[profile]] for profile in ("good", "failed")
+    }
+    assert current_core_sources_compatibility_context() is None
+    for profile, expected_count in (("good", 1), ("failed", 0)):
+        with duckdb.connect(str(configs[profile].db_path), read_only=True) as con:
+            assert (
+                con.execute("SELECT COUNT(*) FROM ds_observations").fetchone()[0] == expected_count
+            )
+
+
+def test_facade_and_canonical_api_keep_overlapping_dependency_profiles_isolated(
+    monkeypatch, tmp_path: Path
+) -> None:
+    entered: asyncio.Queue[str] = asyncio.Queue()
+    release = asyncio.Event()
+
+    def _fetch_for(profile: str):
+        async def _fetch(*_args, **_kwargs):
+            await entered.put(profile)
+            await release.wait()
+            artifact = tmp_path / profile / "receipt.json"
+            artifact.parent.mkdir(parents=True, exist_ok=True)
+            artifact.write_text(json.dumps({"profile": profile}), encoding="utf-8")
+            return [{"profile": profile, "path": str(artifact)}]
+
+        return _fetch
+
+    shared_default = _fetch_for("shared-default")
+    monkeypatch.setattr(core_api, "_fetch_observation_rows", shared_default)
+    facade_profile = _fetch_for("facade-profile")
+    api_profile = _fetch_for("api-profile")
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+    plan = ObservationPlan(
+        dataset_id="dataset",
+        source="worldbank",
+        raw_variable="value",
+        canonical_var="gdp",
+        connector_id="worldbank.wdi",
+        profile_id="worldbank_wdi",
+        request_dataset_id="NY.GDP.MKTP.CD",
+        default_filters={},
+        update_frequency="annual",
+    )
+    shard = ObservationShard(
+        shard_id="shard",
+        plan=plan,
+        country_code="UA",
+        start_year=2020,
+        end_year=2020,
+        filters={},
+    )
+    cache = writers._ConnectorSessionCache()
+
+    async def _via_facade():
+        context = CoreSourcesCompatibilityContext(
+            {(core_api.__name__, "_fetch_observation_rows"): facade_profile}
+        )
+        with bind_core_sources_compatibility_context(context):
+            delegate = core_ingest._fetch_observation_rows
+            return await delegate(shard, cache, config=config)
+
+    async def _via_canonical_api():
+        from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
+
+        context = CoreSourcesCompatibilityContext(
+            {(core_api.__name__, "_fetch_observation_rows"): api_profile}
+        )
+        with bind_core_sources_compatibility_context(context):
+            return await core_api._invoke_fetch_observation_rows(
+                shard,
+                cache,
+                config=config,
+                policy=SourceExecutionPolicy(profile_id="worldbank_wdi"),
+                budget_windows={},
+                state_lock=asyncio.Lock(),
+            )
+
+    async def _exercise() -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+        facade_task = asyncio.create_task(_via_facade())
+        api_task = asyncio.create_task(_via_canonical_api())
+        started = {await entered.get(), await entered.get()}
+        assert started == {"facade-profile", "api-profile"}
+        assert core_api._fetch_observation_rows is shared_default
+        release.set()
+        return await asyncio.gather(facade_task, api_task)
+
+    facade_rows, api_rows = asyncio.run(_exercise())
+
+    assert facade_rows[0]["profile"] == "facade-profile"
+    assert api_rows[0]["profile"] == "api-profile"
+    for profile in ("facade-profile", "api-profile"):
+        artifact = tmp_path / profile / "receipt.json"
+        assert json.loads(artifact.read_text(encoding="utf-8")) == {"profile": profile}
+    assert core_api._fetch_observation_rows is shared_default
+
+
+def test_cancelled_facade_scope_does_not_disturb_live_canonical_sibling(
+    monkeypatch, tmp_path: Path
+) -> None:
+    entered: asyncio.Queue[str] = asyncio.Queue()
+    release = asyncio.Event()
+
+    def _fetch_for(profile: str):
+        async def _fetch(*_args, **_kwargs):
+            await entered.put(profile)
+            await release.wait()
+            artifact = tmp_path / profile / "receipt.json"
+            artifact.parent.mkdir(parents=True, exist_ok=True)
+            artifact.write_text(json.dumps({"profile": profile}), encoding="utf-8")
+            return [{"profile": profile, "path": str(artifact)}]
+
+        return _fetch
+
+    shared_default = _fetch_for("shared-default")
+    monkeypatch.setattr(core_api, "_fetch_observation_rows", shared_default)
+    facade_profile = _fetch_for("cancelled-facade")
+    api_profile = _fetch_for("live-api")
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+    plan = ObservationPlan(
+        dataset_id="dataset",
+        source="worldbank",
+        raw_variable="value",
+        canonical_var="gdp",
+        connector_id="worldbank.wdi",
+        profile_id="worldbank_wdi",
+        request_dataset_id="NY.GDP.MKTP.CD",
+        default_filters={},
+        update_frequency="annual",
+    )
+    shard = ObservationShard(
+        shard_id="shard",
+        plan=plan,
+        country_code="UA",
+        start_year=2020,
+        end_year=2020,
+        filters={},
+    )
+    cache = writers._ConnectorSessionCache()
+
+    async def _via_facade():
+        context = CoreSourcesCompatibilityContext(
+            {(core_api.__name__, "_fetch_observation_rows"): facade_profile}
+        )
+        with bind_core_sources_compatibility_context(context):
+            return await core_ingest._fetch_observation_rows(shard, cache, config=config)
+
+    async def _via_api():
+        from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
+
+        context = CoreSourcesCompatibilityContext(
+            {(core_api.__name__, "_fetch_observation_rows"): api_profile}
+        )
+        with bind_core_sources_compatibility_context(context):
+            return await core_api._invoke_fetch_observation_rows(
+                shard,
+                cache,
+                config=config,
+                policy=SourceExecutionPolicy(profile_id="worldbank_wdi"),
+                budget_windows={},
+                state_lock=asyncio.Lock(),
+            )
+
+    async def _exercise() -> list[dict[str, str]]:
+        facade_task = asyncio.create_task(_via_facade())
+        api_task = asyncio.create_task(_via_api())
+        started = {await entered.get(), await entered.get()}
+        assert started == {"cancelled-facade", "live-api"}
+        facade_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await facade_task
+        assert core_api._fetch_observation_rows is shared_default
+        release.set()
+        return await api_task
+
+    api_rows = asyncio.run(_exercise())
+
+    assert api_rows[0]["profile"] == "live-api"
+    assert not (tmp_path / "cancelled-facade" / "receipt.json").exists()
+    assert json.loads((tmp_path / "live-api" / "receipt.json").read_text(encoding="utf-8")) == {
+        "profile": "live-api"
+    }
+    assert core_api._fetch_observation_rows is shared_default
 
 
 def test_core_sources_ingest_populates_registry_tables(monkeypatch) -> None:
@@ -438,6 +821,16 @@ def test_load_wvs_bulk_rows_aggregates_social_trust_as_weighted_share(monkeypatc
             "observation_grain": "country_survey_year_wave",
         },
     ]
+
+
+def test_restored_facade_delegate_does_not_reenter_itself(monkeypatch, tmp_path: Path) -> None:
+    with monkeypatch.context() as scoped:
+        scoped.setattr(core_ingest, "_load_wvs_bulk_rows", lambda _indicator: [])
+
+    monkeypatch.setattr(core_ingest, "_wvs_bulk_csv_path", lambda: tmp_path / "missing.csv")
+
+    with pytest.raises(RuntimeError, match="WVS bulk CSV is required"):
+        core_ingest._load_wvs_bulk_rows("A165")
 
 
 def test_iter_eurostat_bulk_records_streams_long_rows(tmp_path) -> None:

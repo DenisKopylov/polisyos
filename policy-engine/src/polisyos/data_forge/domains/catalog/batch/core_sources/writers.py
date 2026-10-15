@@ -11,12 +11,14 @@ from collections import OrderedDict
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar, cast
+from types import MappingProxyType
+from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar, cast, overload
 
 import duckdb
 
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    CORE_SOURCES_COMPATIBILITY_BINDINGS,
     CoreSourcesIngestStats,
     ObservationFetchKey,
     ObservationInsertStats,
@@ -24,6 +26,7 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
     ObservationShard,
     ObservationWriteItem,
     SupportSketch,
+    resolve_core_sources_compatibility_binding,
 )
 from polisyos.data_forge.domains.catalog.batch.checkpoints import write_json
 from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
@@ -46,7 +49,7 @@ from polisyos.fabric.connectors.sources.who import WHOConnector
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Iterable, Iterator
+    from collections.abc import Awaitable, Callable, Iterable, Iterator, Mapping
     from pathlib import Path
     from typing import Protocol
 
@@ -129,88 +132,187 @@ if TYPE_CHECKING:
             condition_json: str,
         ) -> str: ...
 
-    _resolve_profile_config: _ResolveProfileConfig
-    _existing_observation_ids: _ExistingObservationIds
-    _iter_chunked_values: _IterChunkedValues
-    _load_wvs_bulk_duckdb: _LoadWvsBulkDuckdb
-    _load_wvs_bulk_rows: _LoadWvsBulkRows
-    _merge_observation_stats: _MergeObservationStats
-    _records_from_payload: _RecordsFromPayload
-    _wvs_legacy_indicators: _WvsLegacyIndicators
-    _ensure_observation_index_compatibility: _EnsureObservationIndexCompatibility
-    _ensure_observation_provenance_columns: _EnsureObservationProvenanceColumns
-    _upsert_catalog_alignments: _UpsertCatalogAlignments
-    _normalize_observation_row: _NormalizeObservationRow
-    _observation_id: _ObservationId
 
 logger = get_logger(__name__)
 
-__OWNER_BOUND_PROXIES: dict[str, object] = {}
+# This finite declaration drives proxy creation, admission, and owner target identity.
+__OWNER_PROXY_BINDINGS: Mapping[tuple[str, str], tuple[str, str]] = MappingProxyType(
+    {
+        ("api", "_resolve_profile_config"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "_resolve_profile_config",
+        ),
+        ("loaders", "_existing_observation_ids"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_existing_observation_ids",
+        ),
+        ("loaders", "_iter_chunked_values"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_iter_chunked_values",
+        ),
+        ("loaders", "_load_wvs_bulk_duckdb"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_load_wvs_bulk_duckdb",
+        ),
+        ("loaders", "_load_wvs_bulk_rows"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_load_wvs_bulk_rows",
+        ),
+        ("loaders", "_merge_observation_stats"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_merge_observation_stats",
+        ),
+        ("loaders", "_records_from_payload"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_records_from_payload",
+        ),
+        ("loaders", "_wvs_legacy_indicators"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_wvs_legacy_indicators",
+        ),
+        ("registry", "_ensure_observation_index_compatibility"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.registry",
+            "_ensure_observation_index_compatibility",
+        ),
+        ("registry", "_ensure_observation_provenance_columns"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.registry",
+            "_ensure_observation_provenance_columns",
+        ),
+        ("registry", "_upsert_catalog_alignments"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.registry",
+            "_upsert_catalog_alignments",
+        ),
+        ("transformers", "_normalize_observation_row"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_normalize_observation_row",
+        ),
+        ("transformers", "_observation_id"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_observation_id",
+        ),
+    }
+)
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
 
 
-def __resolve_implementation_dependency(name: str, owner: str) -> object:
-    """Resolve a split-module dependency without facade-global injection."""
-    override = globals().get(name)
-    if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
-        return override
-    module = import_module(f"{__package__}.{owner}")
-    return getattr(module, name)
+@overload
+def __resolve_implementation_dependency[DependencyValueT](
+    name: str, owner: str, fallback: DependencyValueT
+) -> DependencyValueT: ...
 
 
-def __make_implementation_proxy(name: str, owner: str) -> Callable[_P, _R]:
-    """Create a lazy, owner-bound compatibility callable for a split module."""
+@overload
+def __resolve_implementation_dependency[DependencyValueT](
+    name: str, owner: str, *, fallback_type: Callable[[], DependencyValueT]
+) -> DependencyValueT: ...
 
-    def __proxy(*args: _P.args, **kwargs: _P.kwargs) -> _R:
-        target = cast("Callable[_P, _R]", __resolve_implementation_dependency(name, owner))
-        return target(*args, **kwargs)
+
+@overload
+def __resolve_implementation_dependency(name: str, owner: str) -> object: ...
+
+
+def __resolve_implementation_dependency(
+    name: str,
+    owner: str,
+    fallback: object = None,
+    *,
+    fallback_type: Callable[[], object] | None = None,
+) -> object:
+    """Resolve only source-declared owner dependencies.
+
+    ``fallback`` is a static type witness only. Context and developer override
+    values are not runtime-validated and must satisfy the owner contract.
+    """
+    binding_key = (owner, name)
+    if binding_key in CORE_SOURCES_COMPATIBILITY_BINDINGS:
+        target_module_name, target_name = CORE_SOURCES_COMPATIBILITY_BINDINGS[binding_key]
+    elif binding_key in __OWNER_PROXY_BINDINGS:
+        target_module_name, target_name = __OWNER_PROXY_BINDINGS[binding_key]
+    else:
+        raise LookupError(f"unsupported core-sources dependency binding: {binding_key!r}")
+
+    if binding_key in __OWNER_PROXY_BINDINGS:
+        proxy_module_name, proxy_target_name = __OWNER_PROXY_BINDINGS[binding_key]
+        if (target_module_name, target_name) != (proxy_module_name, proxy_target_name):
+            raise RuntimeError(f"inconsistent core-sources dependency binding: {binding_key!r}")
+
+    has_context_override, context_override = resolve_core_sources_compatibility_binding(
+        target_module_name, target_name
+    )
+    if has_context_override:
+        return cast("object", context_override)
+    if binding_key in __OWNER_PROXY_BINDINGS:
+        _proxy_module_name, proxy_target_name = __OWNER_PROXY_BINDINGS[binding_key]
+        override = globals().get(proxy_target_name)
+        if override is not None and override is not __OWNER_BOUND_PROXIES[binding_key]:
+            return override
+    module = import_module(target_module_name)
+    return getattr(module, target_name)
+
+
+def __build_implementation_proxy[**P, R](name: str, owner: str) -> Callable[P, R]:
+    """Build a lazy callable for one source-declared owner binding."""
+
+    def __proxy(*args: P.args, **kwargs: P.kwargs) -> R:
+        implementation = __resolve_implementation_dependency(name, owner)
+        return cast("Callable[P, R]", implementation)(*args, **kwargs)
 
     return __proxy
 
 
-for __dependency_name, __dependency_owner in (
-    ("_ensure_observation_index_compatibility", "registry"),
-    ("_ensure_observation_provenance_columns", "registry"),
-    ("_existing_observation_ids", "loaders"),
-    ("_iter_chunked_values", "loaders"),
-    ("_load_wvs_bulk_duckdb", "loaders"),
-    ("_load_wvs_bulk_rows", "loaders"),
-    ("_merge_observation_stats", "loaders"),
-    ("_normalize_observation_row", "transformers"),
-    ("_observation_id", "transformers"),
-    ("_records_from_payload", "loaders"),
-    ("_resolve_profile_config", "api"),
-    ("_upsert_catalog_alignments", "registry"),
-    ("_wvs_legacy_indicators", "loaders"),
-):
-    __proxy = __make_implementation_proxy(__dependency_name, __dependency_owner)
-    __OWNER_BOUND_PROXIES[__dependency_name] = __proxy
-    globals().setdefault(__dependency_name, __proxy)
+__OWNER_BOUND_PROXIES: Mapping[tuple[str, str], object] = MappingProxyType(
+    {
+        binding_key: __build_implementation_proxy(binding_key[1], binding_key[0])
+        for binding_key in __OWNER_PROXY_BINDINGS
+    }
+)
+for __binding_key, __implementation_proxy in __OWNER_BOUND_PROXIES.items():
+    __target_module, __target_name = __OWNER_PROXY_BINDINGS[__binding_key]
+    globals().setdefault(__target_name, __implementation_proxy)
 
-# Bind owner protocols to the exact objects installed by setdefault, preserving
-# the compatibility and monkeypatch seam.
-_resolve_profile_config = cast("_ResolveProfileConfig", globals()["_resolve_profile_config"])
-_existing_observation_ids = cast("_ExistingObservationIds", globals()["_existing_observation_ids"])
-_iter_chunked_values = cast("_IterChunkedValues", globals()["_iter_chunked_values"])
-_load_wvs_bulk_duckdb = cast("_LoadWvsBulkDuckdb", globals()["_load_wvs_bulk_duckdb"])
-_load_wvs_bulk_rows = cast("_LoadWvsBulkRows", globals()["_load_wvs_bulk_rows"])
-_merge_observation_stats = cast("_MergeObservationStats", globals()["_merge_observation_stats"])
-_records_from_payload = cast("_RecordsFromPayload", globals()["_records_from_payload"])
-_wvs_legacy_indicators = cast("_WvsLegacyIndicators", globals()["_wvs_legacy_indicators"])
-_ensure_observation_index_compatibility = cast(
-    "_EnsureObservationIndexCompatibility", globals()["_ensure_observation_index_compatibility"]
+_resolve_profile_config: _ResolveProfileConfig = cast(
+    "_ResolveProfileConfig", __OWNER_BOUND_PROXIES[("api", "_resolve_profile_config")]
 )
-_ensure_observation_provenance_columns = cast(
-    "_EnsureObservationProvenanceColumns", globals()["_ensure_observation_provenance_columns"]
+_existing_observation_ids: _ExistingObservationIds = cast(
+    "_ExistingObservationIds", __OWNER_BOUND_PROXIES[("loaders", "_existing_observation_ids")]
 )
-_upsert_catalog_alignments = cast(
-    "_UpsertCatalogAlignments", globals()["_upsert_catalog_alignments"]
+_iter_chunked_values: _IterChunkedValues = cast(
+    "_IterChunkedValues", __OWNER_BOUND_PROXIES[("loaders", "_iter_chunked_values")]
 )
-_normalize_observation_row = cast(
-    "_NormalizeObservationRow", globals()["_normalize_observation_row"]
+_load_wvs_bulk_duckdb: _LoadWvsBulkDuckdb = cast(
+    "_LoadWvsBulkDuckdb", __OWNER_BOUND_PROXIES[("loaders", "_load_wvs_bulk_duckdb")]
 )
-_observation_id = cast("_ObservationId", globals()["_observation_id"])
+_load_wvs_bulk_rows: _LoadWvsBulkRows = cast(
+    "_LoadWvsBulkRows", __OWNER_BOUND_PROXIES[("loaders", "_load_wvs_bulk_rows")]
+)
+_merge_observation_stats: _MergeObservationStats = cast(
+    "_MergeObservationStats", __OWNER_BOUND_PROXIES[("loaders", "_merge_observation_stats")]
+)
+_records_from_payload: _RecordsFromPayload = cast(
+    "_RecordsFromPayload", __OWNER_BOUND_PROXIES[("loaders", "_records_from_payload")]
+)
+_wvs_legacy_indicators: _WvsLegacyIndicators = cast(
+    "_WvsLegacyIndicators", __OWNER_BOUND_PROXIES[("loaders", "_wvs_legacy_indicators")]
+)
+_ensure_observation_index_compatibility: _EnsureObservationIndexCompatibility = cast(
+    "_EnsureObservationIndexCompatibility",
+    __OWNER_BOUND_PROXIES[("registry", "_ensure_observation_index_compatibility")],
+)
+_ensure_observation_provenance_columns: _EnsureObservationProvenanceColumns = cast(
+    "_EnsureObservationProvenanceColumns",
+    __OWNER_BOUND_PROXIES[("registry", "_ensure_observation_provenance_columns")],
+)
+_upsert_catalog_alignments: _UpsertCatalogAlignments = cast(
+    "_UpsertCatalogAlignments", __OWNER_BOUND_PROXIES[("registry", "_upsert_catalog_alignments")]
+)
+_normalize_observation_row: _NormalizeObservationRow = cast(
+    "_NormalizeObservationRow",
+    __OWNER_BOUND_PROXIES[("transformers", "_normalize_observation_row")],
+)
+_observation_id: _ObservationId = cast(
+    "_ObservationId", __OWNER_BOUND_PROXIES[("transformers", "_observation_id")]
+)
 
 
 _TRANSPORT_SOURCES = frozenset(
@@ -375,7 +477,10 @@ def _configure_observation_writer_connection(
     ]
     memory_limit = _observation_writer_memory_limit_bytes()
     if memory_limit > 0:
-        statements.append(f"SET memory_limit='{_format_duckdb_memory_limit(memory_limit)}'")
+        formatted_memory_limit = __resolve_implementation_dependency(
+            "_format_duckdb_memory_limit", "writers", _format_duckdb_memory_limit
+        )(memory_limit)
+        statements.append(f"SET memory_limit='{formatted_memory_limit}'")
     temp_dir = _observation_writer_temp_dir(db_path)
     temp_dir_sql = str(temp_dir).replace("'", "''")
     statements.append(f"SET temp_directory='{temp_dir_sql}'")
@@ -786,7 +891,12 @@ def _deserialize_support_sketch(payload: object) -> SupportSketch | None:
         start_year = int(raw_time_range[0])
         end_year = int(raw_time_range[1])
         return SupportSketch(
-            sketch_id=str(payload.get("sketch_id") or _support_sketch_id(plan)),
+            sketch_id=str(
+                payload.get("sketch_id")
+                or __resolve_implementation_dependency(
+                    "_support_sketch_id", "writers", _support_sketch_id
+                )(plan)
+            ),
             plan=plan,
             dataset_version=str(payload.get("dataset_version") or ""),
             supported_countries=tuple(
@@ -904,7 +1014,9 @@ def _infer_ilo_dimension_order(request_dataset_id: str) -> tuple[str, ...]:
 def _infer_dimension_order_for_plan(plan: ObservationPlan) -> tuple[str, ...]:
     source = str(plan.source or "").strip().lower()
     if source == "ilo":
-        return _infer_ilo_dimension_order(plan.request_dataset_id)
+        return __resolve_implementation_dependency(
+            "_infer_ilo_dimension_order", "writers", _infer_ilo_dimension_order
+        )(plan.request_dataset_id)
     return ()
 
 
@@ -918,7 +1030,11 @@ def _hydrate_support_sketch_dimension_orders(
     for key, sketch in sketches.items():
         dimension_order = _normalize_dimension_order(sketch.dimension_order)
         if not dimension_order:
-            snapshot = capability_snapshots.get(_capability_snapshot_cache_key(sketch.plan))
+            snapshot = capability_snapshots.get(
+                __resolve_implementation_dependency(
+                    "_capability_snapshot_cache_key", "writers", _capability_snapshot_cache_key
+                )(sketch.plan)
+            )
             dimension_order = _normalize_dimension_order(
                 snapshot.dimension_order if snapshot is not None else ()
             )
@@ -943,11 +1059,19 @@ def _hydrate_work_package_dimension_orders(
     for key, shard in work_packages.items():
         dimension_order = _normalize_dimension_order(shard.dimension_order)
         if not dimension_order:
-            sketch = support_sketches.get(_support_sketch_id(shard.plan))
+            sketch = support_sketches.get(
+                __resolve_implementation_dependency(
+                    "_support_sketch_id", "writers", _support_sketch_id
+                )(shard.plan)
+            )
             if sketch is not None:
                 dimension_order = _normalize_dimension_order(sketch.dimension_order)
         if not dimension_order:
-            snapshot = capability_snapshots.get(_capability_snapshot_cache_key(shard.plan))
+            snapshot = capability_snapshots.get(
+                __resolve_implementation_dependency(
+                    "_capability_snapshot_cache_key", "writers", _capability_snapshot_cache_key
+                )(shard.plan)
+            )
             dimension_order = _normalize_dimension_order(
                 snapshot.dimension_order if snapshot is not None else ()
             )
@@ -1024,7 +1148,11 @@ async def _legacy_ingest_observations(db_path: Path) -> CoreSourcesIngestStats:
                         )
                         _merge_observation_stats(
                             stats,
-                            _insert_generic_observations(
+                            __resolve_implementation_dependency(
+                                "_insert_generic_observations",
+                                "writers",
+                                _insert_generic_observations,
+                            )(
                                 con=con,
                                 plan=ObservationPlan(
                                     dataset_id="WB_WGI",
@@ -1059,7 +1187,11 @@ async def _legacy_ingest_observations(db_path: Path) -> CoreSourcesIngestStats:
                         )
                         _merge_observation_stats(
                             stats,
-                            _insert_generic_observations(
+                            __resolve_implementation_dependency(
+                                "_insert_generic_observations",
+                                "writers",
+                                _insert_generic_observations,
+                            )(
                                 con=con,
                                 plan=ObservationPlan(
                                     dataset_id="WB_WDI",
@@ -1105,7 +1237,11 @@ async def _legacy_ingest_observations(db_path: Path) -> CoreSourcesIngestStats:
                             continue
                         _merge_observation_stats(
                             stats,
-                            _insert_generic_observations(
+                            __resolve_implementation_dependency(
+                                "_insert_generic_observations",
+                                "writers",
+                                _insert_generic_observations,
+                            )(
                                 con=con,
                                 plan=ObservationPlan(
                                     dataset_id="WVS_W7",
@@ -1241,7 +1377,9 @@ def _insert_generic_observations(
     multi_slice_groups: dict[tuple[str, int | None], set[str]] = {}
     for row in rows:
         normalized = __resolve_implementation_dependency(
-            "_normalize_observation_row", "transformers"
+            "_normalize_observation_row",
+            "transformers",
+            fallback_type=lambda: _normalize_observation_row,
         )(row)
         if normalized is None:
             continue
@@ -1300,7 +1438,10 @@ def _insert_generic_observations(
         "ource_watermark=EXCLUDED.source_watermark, d"
         "ataset_version=EXCLUDED.dataset_version"
     )
-    for chunk in _iter_chunked_values(unique_rows.values(), _OBSERVATION_INSERT_BATCH_SIZE):
+    insert_batch_size = __resolve_implementation_dependency(
+        "_OBSERVATION_INSERT_BATCH_SIZE", "writers", _OBSERVATION_INSERT_BATCH_SIZE
+    )
+    for chunk in _iter_chunked_values(unique_rows.values(), insert_batch_size):
         con.executemany(
             insert_sql,
             chunk,

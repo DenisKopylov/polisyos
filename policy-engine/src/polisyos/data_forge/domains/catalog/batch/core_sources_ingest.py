@@ -17,10 +17,15 @@ if TYPE_CHECKING:
     from types import ModuleType
 
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
-    CatalogTransportDataset as CatalogTransportDataset,
+    CORE_SOURCES_COMPATIBILITY_BINDINGS,
+    CoreSourcesCompatibilityContext,
+    CoreSourcesIngestStats,
+    bind_core_sources_compatibility_context,
+    current_core_sources_compatibility_context,
+    resolve_core_sources_compatibility_binding,
 )
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
-    CoreSourcesIngestStats,
+    CatalogTransportDataset as CatalogTransportDataset,
 )
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
     ObservationFetchKey as ObservationFetchKey,
@@ -74,96 +79,19 @@ from polisyos.data_forge.domains.catalog.batch.core_sources import (
     writers as _writers,
 )
 
-# Only names still used by the compatibility window are exported.  Every
-# entry names its owning leaf; no module-global census or broadcast is used.
-_BINDINGS: dict[str, tuple[ModuleType, str]] = {}
-for _module, _names in (
-    (_writers, [
-        "_ConnectorSessionCache",
-        "_capability_snapshot_cache_key",
-        "_format_duckdb_memory_limit",
-        "_hydrate_support_sketch_dimension_orders",
-        "_hydrate_work_package_dimension_orders",
-        "_infer_ilo_dimension_order",
-        "_insert_generic_observations",
-        "_legacy_ingest_observations",
-        "_support_sketch_id",
-        "_upsert_legacy_registry_datasets",
-        "_upsert_seed_alignments",
-    ]),
-    (_validators, [
-        "_append_shard_result",
-        "_build_observation_shards",
-        "_chunked_observation_requests",
-        "_load_observation_checkpoint_state",
-        "_record_shard_result",
-        "_split_shard_for_retry_async",
-        "_store_shard_result",
-        "_year_windows",
-    ]),
-    (_loaders, [
-        "_bulk_country_values",
-        "_existing_observation_ids",
-        "_fetch_remote_bulk_rows",
-        "_filter_rows_by_series_constraints",
-        "_iter_eurostat_bulk_records",
-        "_iter_ilo_bulk_records",
-        "_iter_uis_bulk_records",
-        "_load_wvs_bulk_rows",
-        "_merge_observation_stats",
-        "_records_from_payload",
-        "_seed_alignments_path",
-        "_wvs_bulk_csv_path",
-    ]),
-    (_registry, [
-        "_build_catalog_alignments",
-        "_build_catalog_observation_plans",
-        "_build_support_sketches",
-        "_build_observation_shards_from_sketches",
-        "_ensure_registry_tables",
-        "_limit_observation_plans",
-        "_load_catalog_transport_datasets",
-        "_resolve_catalog_update_frequency",
-        "_upsert_catalog_alignments",
-    ]),
-    (_transformers, [
-        "_as_float",
-        "_as_int",
-        "_canonicalize_observation_request_filters",
-        "_eurostat_filters_for_country",
-        "_filters_to_tuple",
-        "_normalize_observation_row",
-        "_observation_id",
-        "_observation_payload_row_limit",
-        "_rewrite_sdmx_requests_with_dimension_key",
-        "_shard_countries",
-        "_to_iso3",
-    ]),
-    (_api, [
-        "_fetch_observation_rows",
-        "_ingest_catalog_observations",
-        "_ingest_catalog_observations_parallel",
-        "_run_core_sources_ingest_async",
-        "_resolve_profile_config",
-        "_resolve_source_execution_policy",
-        "_TRANSPORT_SOURCES",
-        "_OBSERVATION_INSERT_BATCH_SIZE",
-        "_DEFAULT_OBSERVATION_YEAR_WINDOW",
-    ]),
-):
-    _BINDINGS.update({name: (_module, name) for name in _names})
-
-# Selected imported names are part of the historical test seam as well.
-for _name in (
-    "asyncio",
-    "run_coro_sync",
-    "AsyncFetchLease",
-    "ConnectionConfig",
-    "DatasetCapabilitySnapshot",
-    "FetchRequest",
-    "SourceExecutionPolicy",
-):
-    _BINDINGS.setdefault(_name, (_api, _name))
+# The leaf contract module is the single source for the 67 supported names.
+# Keep the mapping here as concrete module objects for lazy exports and scoped
+# legacy overrides; do not discover arbitrary globals at runtime.
+_OWNER_MODULES: dict[str, ModuleType] = {
+    module.__name__: module
+    for module in (_writers, _validators, _loaders, _registry, _transformers, _api)
+}
+_BINDINGS: dict[str, tuple[ModuleType, str]] = {
+    facade_name: (_OWNER_MODULES[module_name], owner_name)
+    for (_owner_suffix, facade_name), (module_name, owner_name) in (
+        CORE_SOURCES_COMPATIBILITY_BINDINGS.items()
+    )
+}
 
 _COMPATIBILITY_CALLS = frozenset(
     {
@@ -180,28 +108,37 @@ _LOCAL_NAMES = frozenset(
     {"run_core_sources_ingest", "run_core_sources_ingest_async", "_sync_implementation_globals"}
 )
 
+_MISSING = object()
+_COMPATIBILITY_DELEGATE_DEFAULTS: dict[tuple[str, str], Any] = {}
+
 
 @contextmanager
 def _temporary_compatibility_overrides() -> Iterator[None]:
-    """Apply only explicitly supported facade overrides for one call."""
-    applied: list[tuple[ModuleType, str, Any]] = []
+    """Bind a per-call snapshot of explicit legacy facade overrides."""
+    current_context = current_core_sources_compatibility_context()
+    bindings = dict(current_context.bindings) if current_context is not None else {}
     for name, (module, owner_name) in _BINDINGS.items():
         if name in _LOCAL_NAMES or name not in globals():
             continue
         replacement = globals()[name]
-        current = getattr(module, owner_name, None)
-        if replacement is current:
+        current = getattr(module, owner_name, _MISSING)
+        binding = (module.__name__, owner_name)
+        if replacement is current or replacement is _COMPATIBILITY_DELEGATE_DEFAULTS.get(binding):
             continue
-        applied.append((module, owner_name, current))
-        setattr(module, owner_name, replacement)
-    try:
+        bindings[binding] = replacement
+    context = CoreSourcesCompatibilityContext(bindings)
+    with bind_core_sources_compatibility_context(context):
         yield
-    finally:
-        for module, owner_name, current in reversed(applied):
-            if current is None:
-                delattr(module, owner_name)
-            else:
-                setattr(module, owner_name, current)
+
+
+def _compatibility_target(name: str, target: Any) -> Any:
+    """Resolve a delegate target from the active invocation context when present."""
+    binding = _BINDINGS.get(name)
+    if binding is None:
+        return target
+    module, owner_name = binding
+    found, scoped_target = resolve_core_sources_compatibility_binding(module.__name__, owner_name)
+    return scoped_target if found else target
 
 
 def _compatibility_delegate(name: str, target: Any) -> Any:
@@ -213,14 +150,15 @@ def _compatibility_delegate(name: str, target: Any) -> Any:
         @wraps(target)
         async def _async_delegate(*args: Any, **kwargs: Any) -> Any:
             with _temporary_compatibility_overrides():
-                return await target(*args, **kwargs)
+                result = _compatibility_target(name, target)(*args, **kwargs)
+                return await result if inspect.isawaitable(result) else result
 
         return _async_delegate
 
     @wraps(target)
     def _delegate(*args: Any, **kwargs: Any) -> Any:
         with _temporary_compatibility_overrides():
-            return target(*args, **kwargs)
+            return _compatibility_target(name, target)(*args, **kwargs)
 
     return _delegate
 
@@ -233,7 +171,9 @@ def __getattr__(name: str) -> Any:
     module, owner_name = binding
     target = getattr(module, owner_name)
     if name in _COMPATIBILITY_CALLS:
-        return _compatibility_delegate(name, target)
+        delegate = _compatibility_delegate(name, target)
+        _COMPATIBILITY_DELEGATE_DEFAULTS[(module.__name__, owner_name)] = delegate
+        return delegate
     return target
 
 

@@ -11,11 +11,16 @@ from collections import OrderedDict
 from dataclasses import replace
 from datetime import UTC, datetime
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar, cast
+from types import MappingProxyType
+from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar, cast, overload
 
 import aiohttp
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    CORE_SOURCES_COMPATIBILITY_BINDINGS,
+    resolve_core_sources_compatibility_binding,
+)
 from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
     iso2_to_iso3,
     iso2_to_numeric,
@@ -29,17 +34,13 @@ from polisyos.fabric.connectors.base import (
 
 if TYPE_CHECKING:
     import asyncio
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable, Iterable, Mapping
 
     from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
         ObservationPlan,
         ObservationShard,
     )
     from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
-
-    _infer_ilo_dimension_order: Callable[[str], tuple[str, ...]]
-    _normalize_dimension_order: Callable[[Iterable[object] | None], tuple[str, ...]]
-    _records_from_payload: Callable[[object], list[dict[str, Any]]]
 
 logger = get_logger(__name__)
 
@@ -161,22 +162,72 @@ _ILO_INFERRED_DIMENSION_TOKENS: frozenset[str] = frozenset(
 )
 
 
-__OWNER_BOUND_PROXIES: dict[str, object] = {}
+# This finite declaration drives proxy creation, admission, and owner target identity.
+__OWNER_PROXY_BINDINGS: Mapping[tuple[str, str], tuple[str, str]] = MappingProxyType(
+    {
+        ("loaders", "_records_from_payload"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_records_from_payload",
+        ),
+        ("writers", "_infer_ilo_dimension_order"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_infer_ilo_dimension_order",
+        ),
+        ("writers", "_normalize_dimension_order"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_normalize_dimension_order",
+        ),
+    }
+)
 _P = ParamSpec("_P")
 _R = TypeVar("_R")
 
 
-def __resolve_implementation_dependency(name: str, owner: str) -> object:
-    """Resolve a split-module dependency without facade-global injection."""
-    override = globals().get(name)
-    if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
-        return override
-    module = import_module(f"{__package__}.{owner}")
-    return getattr(module, name)
+@overload
+def __resolve_implementation_dependency[DependencyValueT](
+    name: str, owner: str, fallback: DependencyValueT
+) -> DependencyValueT: ...
 
 
-def __make_implementation_proxy(name: str, owner: str) -> Callable[_P, _R]:
-    """Create a lazy, owner-bound compatibility callable for this module."""
+@overload
+def __resolve_implementation_dependency(name: str, owner: str) -> object: ...
+
+
+def __resolve_implementation_dependency(name: str, owner: str, fallback: object = None) -> object:
+    """Resolve only source-declared owner dependencies.
+
+    ``fallback`` is a static type witness only. Context and developer override
+    values are not runtime-validated and must satisfy the owner contract.
+    """
+    binding_key = (owner, name)
+    if binding_key in CORE_SOURCES_COMPATIBILITY_BINDINGS:
+        target_module_name, target_name = CORE_SOURCES_COMPATIBILITY_BINDINGS[binding_key]
+    elif binding_key in __OWNER_PROXY_BINDINGS:
+        target_module_name, target_name = __OWNER_PROXY_BINDINGS[binding_key]
+    else:
+        raise LookupError(f"unsupported core-sources dependency binding: {binding_key!r}")
+
+    if binding_key in __OWNER_PROXY_BINDINGS:
+        proxy_module_name, proxy_target_name = __OWNER_PROXY_BINDINGS[binding_key]
+        if (target_module_name, target_name) != (proxy_module_name, proxy_target_name):
+            raise RuntimeError(f"inconsistent core-sources dependency binding: {binding_key!r}")
+
+    has_context_override, context_override = resolve_core_sources_compatibility_binding(
+        target_module_name, target_name
+    )
+    if has_context_override:
+        return cast("object", context_override)
+    if binding_key in __OWNER_PROXY_BINDINGS:
+        _proxy_module_name, proxy_target_name = __OWNER_PROXY_BINDINGS[binding_key]
+        override = globals().get(proxy_target_name)
+        if override is not None and override is not __OWNER_BOUND_PROXIES[binding_key]:
+            return override
+    module = import_module(target_module_name)
+    return getattr(module, target_name)
+
+
+def __build_implementation_proxy(name: str, owner: str) -> Callable[_P, _R]:
+    """Build a lazy callable for one source-declared owner binding."""
 
     def __proxy(*args: _P.args, **kwargs: _P.kwargs) -> _R:
         target = cast("Callable[_P, _R]", __resolve_implementation_dependency(name, owner))
@@ -185,27 +236,28 @@ def __make_implementation_proxy(name: str, owner: str) -> Callable[_P, _R]:
     return __proxy
 
 
-def __bind_implementation_proxy(name: str, owner: str) -> Callable[_P, _R]:
-    """Bind a statically visible name to the existing lazy owner proxy."""
-    proxy = __make_implementation_proxy(name, owner)
-    __OWNER_BOUND_PROXIES[name] = proxy
-    return cast("Callable[_P, _R]", globals().setdefault(name, proxy))
-
-
-_infer_ilo_dimension_order = cast(
-    "Callable[[str], tuple[str, ...]]",
-    __bind_implementation_proxy("_infer_ilo_dimension_order", "writers"),
+__OWNER_BOUND_PROXIES: Mapping[tuple[str, str], object] = MappingProxyType(
+    {
+        binding_key: __build_implementation_proxy(binding_key[1], binding_key[0])
+        for binding_key in __OWNER_PROXY_BINDINGS
+    }
 )
-_normalize_dimension_order = cast(
-    "Callable[[Iterable[object] | None], tuple[str, ...]]",
-    __bind_implementation_proxy("_normalize_dimension_order", "writers"),
-)
-_records_from_payload = cast(
+for __binding_key, __implementation_proxy in __OWNER_BOUND_PROXIES.items():
+    __target_module, __target_name = __OWNER_PROXY_BINDINGS[__binding_key]
+    globals().setdefault(__target_name, __implementation_proxy)
+
+_records_from_payload: Callable[[object], list[dict[str, Any]]] = cast(
     "Callable[[object], list[dict[str, Any]]]",
-    __bind_implementation_proxy("_records_from_payload", "loaders"),
+    __OWNER_BOUND_PROXIES[("loaders", "_records_from_payload")],
 )
-
-
+_infer_ilo_dimension_order: Callable[[str], tuple[str, ...]] = cast(
+    "Callable[[str], tuple[str, ...]]",
+    __OWNER_BOUND_PROXIES[("writers", "_infer_ilo_dimension_order")],
+)
+_normalize_dimension_order: Callable[[Iterable[object] | None], tuple[str, ...]] = cast(
+    "Callable[[Iterable[object] | None], tuple[str, ...]]",
+    __OWNER_BOUND_PROXIES[("writers", "_normalize_dimension_order")],
+)
 
 
 def _normalize_observation_row(
@@ -237,8 +289,12 @@ def _normalize_observation_row(
     if not country_code:
         return None
 
-    survey_year = _as_int(payload.pop("survey_year", None) or payload.pop("SurveyYear", None))
-    wave = _as_int(payload.pop("wave", None) or payload.pop("Wave", None))
+    survey_year = __resolve_implementation_dependency("_as_int", "transformers", _as_int)(
+        payload.pop("survey_year", None) or payload.pop("SurveyYear", None)
+    )
+    wave = __resolve_implementation_dependency("_as_int", "transformers", _as_int)(
+        payload.pop("wave", None) or payload.pop("Wave", None)
+    )
 
     raw_year = (
         payload.pop("year", None)
@@ -274,7 +330,7 @@ def _normalize_observation_row(
             if "value" in key.lower():
                 raw_value = payload.pop(key)
                 break
-    value = _as_float(raw_value)
+    value = __resolve_implementation_dependency("_as_float", "transformers", _as_float)(raw_value)
     if value is None:
         return None
     # Reject NaN/Inf and obviously invalid years
@@ -316,7 +372,7 @@ async def _fetch_who_observations(
     start_year: int,
     end_year: int,
 ) -> list[dict[str, Any]]:
-    iso3 = _to_iso3(country_code)
+    iso3 = __resolve_implementation_dependency("_to_iso3", "transformers", _to_iso3)(country_code)
     url = f"https://ghoapi.azureedge.net/api/{indicator_id}"
     params = {
         "$filte\
@@ -355,7 +411,9 @@ async def _fetch_uis_observations(
     url = "https://api.uis.unesco.org/api/public/data/indicators"
     params = {
         "indicator": indicator_id,
-        "geoUnit": _to_iso3(country_code),
+        "geoUnit": __resolve_implementation_dependency("_to_iso3", "transformers", _to_iso3)(
+            country_code
+        ),
         "start": int(start_year),
         "end": int(end_year),
     }
@@ -385,7 +443,7 @@ async def _http_get_json(
 def _sdmx_filters_for_country(
     country_code: str, *, base_filters: dict[str, list[str]]
 ) -> dict[str, list[str]]:
-    iso3 = _to_iso3(country_code)
+    iso3 = __resolve_implementation_dependency("_to_iso3", "transformers", _to_iso3)(country_code)
     merged = {key: list(values) for key, values in (base_filters or {}).items()}
     for key, value in (
         ("geo", country_code),
@@ -404,7 +462,10 @@ def _sdmx_filters_for_countries(
 ) -> dict[str, list[str]]:
     merged = {key: list(values) for key, values in (base_filters or {}).items()}
     iso2_values = [str(value).strip().upper() for value in country_codes if str(value).strip()]
-    iso3_values = [_to_iso3(value) for value in iso2_values]
+    iso3_values = [
+        __resolve_implementation_dependency("_to_iso3", "transformers", _to_iso3)(value)
+        for value in iso2_values
+    ]
     if iso2_values:
         merged["geo"] = iso2_values
         merged["country"] = iso2_values
@@ -568,7 +629,9 @@ def _canonicalize_observation_request_filters(
         )
     for key in ("country", "geo"):
         geo_values.extend(
-            _to_iso3(str(value).strip().upper())
+            __resolve_implementation_dependency("_to_iso3", "transformers", _to_iso3)(
+                str(value).strip().upper()
+            )
             for value in canonical.get(key, [])
             if str(value).strip()
         )
@@ -674,7 +737,9 @@ def _filter_wvs_bulk_rows(
     filtered: list[dict[str, Any]] = []
     for row in rows:
         country = normalize_country_code(row.get("country_code"))
-        survey_year = _as_int(row.get("survey_year"))
+        survey_year = __resolve_implementation_dependency("_as_int", "transformers", _as_int)(
+            row.get("survey_year")
+        )
         if allowed and country not in allowed:
             continue
         if survey_year is None or survey_year < start_year or survey_year > end_year:
@@ -693,7 +758,7 @@ def _extract_year(value: object) -> int | None:
         return None
     match = re.search(r"(19|20)\d{2}", text)
     if not match:
-        return _as_int(text)
+        return __resolve_implementation_dependency("_as_int", "transformers", _as_int)(text)
     return int(match.group(0))
 
 

@@ -15,9 +15,293 @@ if TYPE_CHECKING:
     from datetime import datetime
 
 
+# Finite compatibility surface shared by the facade and the leaf resolvers.
+# The public facade name currently equals its owning leaf symbol; the key is
+# the complete owner/symbol pair and the value is its immutable resolution target.
+CORE_SOURCES_COMPATIBILITY_BINDINGS: Mapping[tuple[str, str], tuple[str, str]] = MappingProxyType(
+    {
+        ("writers", "_ConnectorSessionCache"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_ConnectorSessionCache",
+        ),
+        ("writers", "_capability_snapshot_cache_key"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_capability_snapshot_cache_key",
+        ),
+        ("writers", "_format_duckdb_memory_limit"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_format_duckdb_memory_limit",
+        ),
+        ("writers", "_hydrate_support_sketch_dimension_orders"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_hydrate_support_sketch_dimension_orders",
+        ),
+        ("writers", "_hydrate_work_package_dimension_orders"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_hydrate_work_package_dimension_orders",
+        ),
+        ("writers", "_infer_ilo_dimension_order"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_infer_ilo_dimension_order",
+        ),
+        ("writers", "_insert_generic_observations"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_insert_generic_observations",
+        ),
+        ("writers", "_legacy_ingest_observations"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_legacy_ingest_observations",
+        ),
+        ("writers", "_support_sketch_id"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_support_sketch_id",
+        ),
+        ("writers", "_upsert_legacy_registry_datasets"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_upsert_legacy_registry_datasets",
+        ),
+        ("writers", "_upsert_seed_alignments"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_upsert_seed_alignments",
+        ),
+        ("validators", "_append_shard_result"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_append_shard_result",
+        ),
+        ("validators", "_build_observation_shards"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_build_observation_shards",
+        ),
+        ("validators", "_chunked_observation_requests"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_chunked_observation_requests",
+        ),
+        ("validators", "_load_observation_checkpoint_state"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_load_observation_checkpoint_state",
+        ),
+        ("validators", "_record_shard_result"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_record_shard_result",
+        ),
+        ("validators", "_split_shard_for_retry_async"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_split_shard_for_retry_async",
+        ),
+        ("validators", "_store_shard_result"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_store_shard_result",
+        ),
+        ("validators", "_year_windows"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_year_windows",
+        ),
+        ("loaders", "_bulk_country_values"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_bulk_country_values",
+        ),
+        ("loaders", "_existing_observation_ids"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_existing_observation_ids",
+        ),
+        ("loaders", "_fetch_remote_bulk_rows"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_fetch_remote_bulk_rows",
+        ),
+        ("loaders", "_filter_rows_by_series_constraints"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_filter_rows_by_series_constraints",
+        ),
+        ("loaders", "_iter_eurostat_bulk_records"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_iter_eurostat_bulk_records",
+        ),
+        ("loaders", "_iter_ilo_bulk_records"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_iter_ilo_bulk_records",
+        ),
+        ("loaders", "_iter_uis_bulk_records"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_iter_uis_bulk_records",
+        ),
+        ("loaders", "_load_wvs_bulk_rows"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_load_wvs_bulk_rows",
+        ),
+        ("loaders", "_merge_observation_stats"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_merge_observation_stats",
+        ),
+        ("loaders", "_records_from_payload"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_records_from_payload",
+        ),
+        ("loaders", "_seed_alignments_path"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_seed_alignments_path",
+        ),
+        ("loaders", "_wvs_bulk_csv_path"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.loaders",
+            "_wvs_bulk_csv_path",
+        ),
+        ("registry", "_build_catalog_alignments"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.registry",
+            "_build_catalog_alignments",
+        ),
+        ("registry", "_build_catalog_observation_plans"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.registry",
+            "_build_catalog_observation_plans",
+        ),
+        ("registry", "_build_support_sketches"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.registry",
+            "_build_support_sketches",
+        ),
+        ("registry", "_build_observation_shards_from_sketches"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.registry",
+            "_build_observation_shards_from_sketches",
+        ),
+        ("registry", "_ensure_registry_tables"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.registry",
+            "_ensure_registry_tables",
+        ),
+        ("registry", "_limit_observation_plans"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.registry",
+            "_limit_observation_plans",
+        ),
+        ("registry", "_load_catalog_transport_datasets"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.registry",
+            "_load_catalog_transport_datasets",
+        ),
+        ("registry", "_resolve_catalog_update_frequency"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.registry",
+            "_resolve_catalog_update_frequency",
+        ),
+        ("registry", "_upsert_catalog_alignments"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.registry",
+            "_upsert_catalog_alignments",
+        ),
+        ("transformers", "_as_float"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_as_float",
+        ),
+        ("transformers", "_as_int"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_as_int",
+        ),
+        ("transformers", "_canonicalize_observation_request_filters"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_canonicalize_observation_request_filters",
+        ),
+        ("transformers", "_eurostat_filters_for_country"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_eurostat_filters_for_country",
+        ),
+        ("transformers", "_filters_to_tuple"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_filters_to_tuple",
+        ),
+        ("transformers", "_normalize_observation_row"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_normalize_observation_row",
+        ),
+        ("transformers", "_observation_id"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_observation_id",
+        ),
+        ("transformers", "_observation_payload_row_limit"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_observation_payload_row_limit",
+        ),
+        ("transformers", "_rewrite_sdmx_requests_with_dimension_key"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_rewrite_sdmx_requests_with_dimension_key",
+        ),
+        ("transformers", "_shard_countries"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_shard_countries",
+        ),
+        ("transformers", "_to_iso3"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_to_iso3",
+        ),
+        ("api", "_fetch_observation_rows"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "_fetch_observation_rows",
+        ),
+        ("api", "_ingest_catalog_observations"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "_ingest_catalog_observations",
+        ),
+        ("api", "_ingest_catalog_observations_parallel"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "_ingest_catalog_observations_parallel",
+        ),
+        ("api", "_run_core_sources_ingest_async"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "_run_core_sources_ingest_async",
+        ),
+        ("api", "_resolve_profile_config"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "_resolve_profile_config",
+        ),
+        ("api", "_resolve_source_execution_policy"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "_resolve_source_execution_policy",
+        ),
+        ("registry", "_TRANSPORT_SOURCES"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.registry",
+            "_TRANSPORT_SOURCES",
+        ),
+        ("writers", "_OBSERVATION_INSERT_BATCH_SIZE"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_OBSERVATION_INSERT_BATCH_SIZE",
+        ),
+        ("validators", "_DEFAULT_OBSERVATION_YEAR_WINDOW"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_DEFAULT_OBSERVATION_YEAR_WINDOW",
+        ),
+        ("api", "asyncio"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "asyncio",
+        ),
+        ("api", "run_coro_sync"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "run_coro_sync",
+        ),
+        ("api", "AsyncFetchLease"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "AsyncFetchLease",
+        ),
+        ("api", "ConnectionConfig"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "ConnectionConfig",
+        ),
+        ("api", "DatasetCapabilitySnapshot"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "DatasetCapabilitySnapshot",
+        ),
+        ("api", "FetchRequest"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "FetchRequest",
+        ),
+        ("api", "SourceExecutionPolicy"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "SourceExecutionPolicy",
+        ),
+    }
+)
+
+
 @dataclass(frozen=True, slots=True)
 class CoreSourcesCompatibilityContext:
-    """Immutable request-scoped bindings for the compatibility facade."""
+    """Immutable request-scoped bindings for the compatibility facade.
+
+    Construction copies and freezes the mapping and validates its keys. It does
+    not validate values against the owning module's callable or data contract;
+    compatibility overrides are a developer seam and must be substitution-
+    compatible with the owner binding. A malformed value may fail when the
+    consumer uses it. This context carries no authority or evidence predicate.
+    """
 
     bindings: Mapping[tuple[str, str], Any] = field(default_factory=dict)
 
@@ -56,6 +340,11 @@ def bind_core_sources_compatibility_context(
         yield
     finally:
         _CORE_SOURCES_COMPATIBILITY_CONTEXT.reset(token)
+
+
+def current_core_sources_compatibility_context() -> CoreSourcesCompatibilityContext | None:
+    """Return the immutable compatibility context active in this execution context."""
+    return _CORE_SOURCES_COMPATIBILITY_CONTEXT.get()
 
 
 def resolve_core_sources_compatibility_binding(module_name: str, name: str) -> tuple[bool, Any]:

@@ -8,7 +8,8 @@ import re
 from dataclasses import dataclass, fields
 from datetime import UTC, datetime
 from importlib import import_module
-from typing import TYPE_CHECKING, cast
+from types import MappingProxyType
+from typing import TYPE_CHECKING, cast, overload
 
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
@@ -39,7 +40,7 @@ from polisyos.data_forge.read_api.academic import CANONICAL_VARIABLES
 
 if TYPE_CHECKING:
     import asyncio
-    from collections.abc import Callable, Iterable
+    from collections.abc import Callable, Iterable, Mapping
     from pathlib import Path
 
     import duckdb
@@ -49,6 +50,7 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
 
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    CORE_SOURCES_COMPATIBILITY_BINDINGS,
     resolve_core_sources_compatibility_binding,
 )
 
@@ -212,83 +214,225 @@ _ILO_INFERRED_DIMENSION_TOKENS: frozenset[str] = frozenset(
 )
 
 
-__OWNER_BOUND_PROXIES: dict[str, object] = {}
+# This finite declaration drives proxy creation, admission, and owner target identity.
+__OWNER_PROXY_BINDINGS: Mapping[tuple[str, str], tuple[str, str]] = MappingProxyType(
+    {
+        ("api", "_policy_attr"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "_policy_attr",
+        ),
+        ("api", "_policy_bool_attr"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "_policy_bool_attr",
+        ),
+        ("api", "_policy_int_attr"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "_policy_int_attr",
+        ),
+        ("api", "_policy_optional_int_attr"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "_policy_optional_int_attr",
+        ),
+        ("api", "_policy_str_attr"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "_policy_str_attr",
+        ),
+        ("transformers", "_eurostat_filters_for_countries"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_eurostat_filters_for_countries",
+        ),
+        ("transformers", "_load_json_dict"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_load_json_dict",
+        ),
+        ("transformers", "_observation_countries"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_observation_countries",
+        ),
+        ("transformers", "_observation_frequency_rank"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_observation_frequency_rank",
+        ),
+        ("transformers", "_sdmx_filters_for_countries"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_sdmx_filters_for_countries",
+        ),
+        ("transformers", "_to_iso3"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_to_iso3",
+        ),
+        ("transformers", "_tokenize"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_tokenize",
+        ),
+        ("validators", "_capability_dimension_values"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_capability_dimension_values",
+        ),
+        ("validators", "_observation_shard_id"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_observation_shard_id",
+        ),
+        ("validators", "_observation_time_window_years"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_observation_time_window_years",
+        ),
+        ("validators", "_shard_prefers_async_fetch"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_shard_prefers_async_fetch",
+        ),
+        ("validators", "_year_windows"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.validators",
+            "_year_windows",
+        ),
+        ("writers", "_capability_snapshot_cache_key"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_capability_snapshot_cache_key",
+        ),
+        ("writers", "_infer_dimension_order_for_plan"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_infer_dimension_order_for_plan",
+        ),
+        ("writers", "_normalize_dimension_order"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_normalize_dimension_order",
+        ),
+        ("writers", "_support_sketch_id"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_support_sketch_id",
+        ),
+    }
+)
 
 
-def __resolve_implementation_dependency(name: str, owner: str) -> object:
-    """Resolve a split-module dependency without facade-global injection."""
+@overload
+def __resolve_implementation_dependency[DependencyValueT](
+    name: str, owner: str, fallback: DependencyValueT
+) -> DependencyValueT: ...
+
+
+@overload
+def __resolve_implementation_dependency(name: str, owner: str) -> object: ...
+
+
+def __resolve_implementation_dependency(name: str, owner: str, fallback: object = None) -> object:
+    """Resolve only source-declared owner dependencies.
+
+    ``fallback`` is a static type witness only. Context and developer override
+    values are not runtime-validated and must satisfy the owner contract.
+    """
+    binding_key = (owner, name)
+    if binding_key in CORE_SOURCES_COMPATIBILITY_BINDINGS:
+        target_module_name, target_name = CORE_SOURCES_COMPATIBILITY_BINDINGS[binding_key]
+    elif binding_key in __OWNER_PROXY_BINDINGS:
+        target_module_name, target_name = __OWNER_PROXY_BINDINGS[binding_key]
+    else:
+        raise LookupError(f"unsupported core-sources dependency binding: {binding_key!r}")
+
+    if binding_key in __OWNER_PROXY_BINDINGS:
+        proxy_module_name, proxy_target_name = __OWNER_PROXY_BINDINGS[binding_key]
+        if (target_module_name, target_name) != (proxy_module_name, proxy_target_name):
+            raise RuntimeError(f"inconsistent core-sources dependency binding: {binding_key!r}")
+
     has_context_override, context_override = resolve_core_sources_compatibility_binding(
-        f"{__package__}.{owner}", name
+        target_module_name, target_name
     )
     if has_context_override:
         return cast("object", context_override)
-    override = globals().get(name)
-    if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
-        return override
-    module = import_module(f"{__package__}.{owner}")
-    return cast("object", getattr(module, name))
+    if binding_key in __OWNER_PROXY_BINDINGS:
+        _proxy_module_name, proxy_target_name = __OWNER_PROXY_BINDINGS[binding_key]
+        override = globals().get(proxy_target_name)
+        if override is not None and override is not __OWNER_BOUND_PROXIES[binding_key]:
+            return override
+    module = import_module(target_module_name)
+    return getattr(module, target_name)
 
 
-def __make_implementation_proxy[**P, R](name: str, owner: str) -> Callable[P, R]:
-    """Create a lazy, owner-bound compatibility callable for this module."""
+def __build_implementation_proxy[**P, R](name: str, owner: str) -> Callable[P, R]:
+    """Build a lazy callable for one source-declared owner binding."""
 
     def __proxy(*args: P.args, **kwargs: P.kwargs) -> R:
         implementation = __resolve_implementation_dependency(name, owner)
         return cast("Callable[P, R]", implementation)(*args, **kwargs)
 
-    __OWNER_BOUND_PROXIES[name] = __proxy
-    return cast("Callable[P, R]", globals().setdefault(name, __proxy))
+    return __proxy
 
 
-_capability_dimension_values: Callable[..., object] = __make_implementation_proxy(
-    "_capability_dimension_values", "validators"
+__OWNER_BOUND_PROXIES: Mapping[tuple[str, str], object] = MappingProxyType(
+    {
+        binding_key: __build_implementation_proxy(binding_key[1], binding_key[0])
+        for binding_key in __OWNER_PROXY_BINDINGS
+    }
 )
-_capability_snapshot_cache_key: Callable[..., object] = __make_implementation_proxy(
-    "_capability_snapshot_cache_key", "writers"
+for __binding_key, __implementation_proxy in __OWNER_BOUND_PROXIES.items():
+    __target_module, __target_name = __OWNER_PROXY_BINDINGS[__binding_key]
+    globals().setdefault(__target_name, __implementation_proxy)
+
+
+_policy_attr: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("api", "_policy_attr")]
 )
-_eurostat_filters_for_countries: Callable[..., object] = __make_implementation_proxy(
-    "_eurostat_filters_for_countries", "transformers"
+_policy_bool_attr: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("api", "_policy_bool_attr")]
 )
-_infer_dimension_order_for_plan: Callable[..., object] = __make_implementation_proxy(
-    "_infer_dimension_order_for_plan", "writers"
+_policy_int_attr: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("api", "_policy_int_attr")]
 )
-_load_json_dict: Callable[..., object] = __make_implementation_proxy(
-    "_load_json_dict", "transformers"
+_policy_optional_int_attr: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("api", "_policy_optional_int_attr")]
 )
-_normalize_dimension_order: Callable[..., object] = __make_implementation_proxy(
-    "_normalize_dimension_order", "writers"
+_policy_str_attr: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("api", "_policy_str_attr")]
 )
-_observation_countries: Callable[..., object] = __make_implementation_proxy(
-    "_observation_countries", "transformers"
+_eurostat_filters_for_countries: Callable[..., object] = cast(
+    "Callable[..., object]",
+    __OWNER_BOUND_PROXIES[("transformers", "_eurostat_filters_for_countries")],
 )
-_observation_frequency_rank: Callable[..., object] = __make_implementation_proxy(
-    "_observation_frequency_rank", "transformers"
+_load_json_dict: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("transformers", "_load_json_dict")]
 )
-_observation_shard_id: Callable[..., object] = __make_implementation_proxy(
-    "_observation_shard_id", "validators"
+_observation_countries: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("transformers", "_observation_countries")]
 )
-_observation_time_window_years: Callable[..., object] = __make_implementation_proxy(
-    "_observation_time_window_years", "validators"
+_observation_frequency_rank: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("transformers", "_observation_frequency_rank")]
 )
-_policy_attr: Callable[..., object] = __make_implementation_proxy("_policy_attr", "api")
-_policy_bool_attr: Callable[..., object] = __make_implementation_proxy("_policy_bool_attr", "api")
-_policy_int_attr: Callable[..., object] = __make_implementation_proxy("_policy_int_attr", "api")
-_policy_optional_int_attr: Callable[..., object] = __make_implementation_proxy(
-    "_policy_optional_int_attr", "api"
+_sdmx_filters_for_countries: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("transformers", "_sdmx_filters_for_countries")]
 )
-_policy_str_attr: Callable[..., object] = __make_implementation_proxy("_policy_str_attr", "api")
-_sdmx_filters_for_countries: Callable[..., object] = __make_implementation_proxy(
-    "_sdmx_filters_for_countries", "transformers"
+_to_iso3: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("transformers", "_to_iso3")]
 )
-_shard_prefers_async_fetch: Callable[..., object] = __make_implementation_proxy(
-    "_shard_prefers_async_fetch", "validators"
+_tokenize: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("transformers", "_tokenize")]
 )
-_support_sketch_id: Callable[..., object] = __make_implementation_proxy(
-    "_support_sketch_id", "writers"
+_capability_dimension_values: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("validators", "_capability_dimension_values")]
 )
-_to_iso3: Callable[..., object] = __make_implementation_proxy("_to_iso3", "transformers")
-_tokenize: Callable[..., object] = __make_implementation_proxy("_tokenize", "transformers")
-_year_windows: Callable[..., object] = __make_implementation_proxy("_year_windows", "validators")
+_observation_shard_id: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("validators", "_observation_shard_id")]
+)
+_observation_time_window_years: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("validators", "_observation_time_window_years")]
+)
+_shard_prefers_async_fetch: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("validators", "_shard_prefers_async_fetch")]
+)
+_year_windows: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("validators", "_year_windows")]
+)
+_capability_snapshot_cache_key: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("writers", "_capability_snapshot_cache_key")]
+)
+_infer_dimension_order_for_plan: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("writers", "_infer_dimension_order_for_plan")]
+)
+_normalize_dimension_order: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("writers", "_normalize_dimension_order")]
+)
+_support_sketch_id: Callable[..., object] = cast(
+    "Callable[..., object]", __OWNER_BOUND_PROXIES[("writers", "_support_sketch_id")]
+)
 
 
 def _ensure_registry_tables(con: duckdb.DuckDBPyConnection) -> None:
@@ -405,6 +549,9 @@ def _load_catalog_transport_datasets(
     con: duckdb.DuckDBPyConnection,
     config: DatasetBatchConfig,
 ) -> list[CatalogTransportDataset]:
+    transport_sources = __resolve_implementation_dependency(
+        "_TRANSPORT_SOURCES", "registry", _TRANSPORT_SOURCES
+    )
     tables = {
         row[0]
         for row in con.execute(
@@ -451,7 +598,7 @@ def _load_catalog_transport_datasets(
     if config.promoted_sources:
         source_filter = sorted(set(config.promoted_sources))
     else:
-        source_filter = sorted(_TRANSPORT_SOURCES)
+        source_filter = sorted(transport_sources)
     source_specs = {
         str(spec.name or "").strip().lower(): spec for spec in config.load_registry().sources
     }
@@ -547,7 +694,11 @@ def _load_catalog_transport_datasets(
                 title=str(row[2] or ""),
                 description=str(row[3] or ""),
                 source_dataset_id=str(row[4] or ""),
-                update_frequency=_resolve_catalog_update_frequency(
+                update_frequency=__resolve_implementation_dependency(
+                    "_resolve_catalog_update_frequency",
+                    "registry",
+                    _resolve_catalog_update_frequency,
+                )(
                     source=source,
                     request_dataset_id=request_dataset_id,
                     title=str(row[2] or ""),
@@ -1330,6 +1481,9 @@ def _build_catalog_observation_plans(
     *,
     config: DatasetBatchConfig,
 ) -> list[ObservationPlan]:
+    transport_sources = __resolve_implementation_dependency(
+        "_TRANSPORT_SOURCES", "registry", _TRANSPORT_SOURCES
+    )
     by_dataset = {item.catalog_dataset_id: item for item in datasets}
     plans: list[ObservationPlan] = []
     seen: set[tuple[str, str, str]] = set()
@@ -1338,7 +1492,7 @@ def _build_catalog_observation_plans(
         dataset = by_dataset.get(alignment.dataset_id)
         if dataset is None:
             continue
-        if dataset.source not in _TRANSPORT_SOURCES:
+        if dataset.source not in transport_sources:
             continue
         if preflight_sources and dataset.source.lower() not in preflight_sources:
             continue
@@ -1370,7 +1524,9 @@ def _build_catalog_observation_plans(
                 dataset_version=request_dataset_id,
             )
         )
-    return _limit_observation_plans(plans, datasets, config=config)
+    return __resolve_implementation_dependency(
+        "_limit_observation_plans", "registry", _limit_observation_plans
+    )(plans, datasets, config=config)
 
 
 def _supports_observation_ingest(

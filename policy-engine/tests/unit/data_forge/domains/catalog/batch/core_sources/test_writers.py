@@ -3,12 +3,70 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
-from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import ObservationPlan
-from polisyos.data_forge.domains.catalog.batch.core_sources import transformers, writers
+import duckdb
+
+from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    CoreSourcesCompatibilityContext,
+    ObservationPlan,
+    bind_core_sources_compatibility_context,
+)
+from polisyos.data_forge.domains.catalog.batch.core_sources import (
+    loaders,
+    registry,
+    transformers,
+    writers,
+)
 
 
 def test_core_sources_writers_keep_memory_limit_formatting() -> None:
     assert writers._format_duckdb_memory_limit(1024 * 1024 * 1024) == "1024MB"
+
+
+def test_insert_generic_observations_uses_request_scoped_batch_size(monkeypatch) -> None:
+    connection = duckdb.connect(":memory:")
+    registry._ensure_registry_tables(connection)
+    chunk_lengths: list[int] = []
+    original_chunker = loaders._iter_chunked_values
+
+    def _record_chunks(values, chunk_size):
+        for chunk in original_chunker(values, chunk_size):
+            chunk_lengths.append(len(chunk))
+            yield chunk
+
+    monkeypatch.setattr(writers, "_iter_chunked_values", _record_chunks)
+    plan = ObservationPlan(
+        dataset_id="dataset",
+        source="worldbank",
+        raw_variable="value",
+        canonical_var="gdp",
+        connector_id="worldbank.wdi",
+        profile_id="worldbank_wdi",
+        request_dataset_id="NY.GDP.MKTP.CD",
+        default_filters={},
+        update_frequency="annual",
+    )
+    rows = [
+        {"country_code": "UA", "year": 2020, "value": float(index), "partner": f"P{index}"}
+        for index in range(5)
+    ]
+    context = CoreSourcesCompatibilityContext(
+        {(writers.__name__, "_OBSERVATION_INSERT_BATCH_SIZE"): 2}
+    )
+
+    try:
+        with bind_core_sources_compatibility_context(context):
+            stats = writers._insert_generic_observations(
+                con=connection,
+                plan=plan,
+                rows=rows,
+            )
+
+        assert chunk_lengths == [2, 2, 1]
+        assert stats.attempted == stats.inserted == 5
+        assert stats.replaced == 0
+        assert connection.execute("SELECT COUNT(*) FROM ds_observations").fetchone()[0] == 5
+    finally:
+        connection.close()
 
 
 def test_writer_resolves_transformer_dependency_without_facade_bootstrap(monkeypatch) -> None:
@@ -65,6 +123,30 @@ def test_core_sources_writers_keep_facade_compatibility() -> None:
     from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
 
     assert facade._format_duckdb_memory_limit(1536 * 1024 * 1024) == "1536MB"
+
+
+def test_writer_deserializer_uses_request_scoped_sketch_id_builder() -> None:
+    plan = ObservationPlan(
+        dataset_id="dataset",
+        source="who",
+        raw_variable="value",
+        canonical_var="health_outcomes",
+        connector_id="who.gho",
+        profile_id="who_gho",
+        request_dataset_id="indicator",
+        default_filters={},
+        update_frequency="annual",
+    )
+    payload = {"plan": writers._serialize_observation_plan(plan), "time_range": [2020, 2021]}
+    context = CoreSourcesCompatibilityContext(
+        {(writers.__name__, "_support_sketch_id"): lambda _plan: "request-sketch-id"}
+    )
+
+    with bind_core_sources_compatibility_context(context):
+        sketch = writers._deserialize_support_sketch(payload)
+
+    assert sketch is not None
+    assert sketch.sketch_id == "request-sketch-id"
 
 
 def test_connector_session_cache_uses_one_captured_effective_profile_set(

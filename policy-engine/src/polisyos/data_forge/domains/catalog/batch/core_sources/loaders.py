@@ -17,7 +17,16 @@ from functools import lru_cache
 from importlib import import_module
 from itertools import islice
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol, SupportsFloat, SupportsIndex, cast
+from types import MappingProxyType
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Protocol,
+    SupportsFloat,
+    SupportsIndex,
+    cast,
+    overload,
+)
 from urllib.parse import urlparse
 
 import aiohttp
@@ -63,30 +72,124 @@ if TYPE_CHECKING:
     from polisyos.ir import FetchResult
 
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+    CORE_SOURCES_COMPATIBILITY_BINDINGS,
     resolve_core_sources_compatibility_binding,
 )
 
 logger = get_logger(__name__)
 
-__OWNER_BOUND_PROXIES: dict[str, object] = {}
+# This finite declaration drives proxy creation, admission, and owner target identity.
+__OWNER_PROXY_BINDINGS: Mapping[tuple[str, str], tuple[str, str]] = MappingProxyType(
+    {
+        ("api", "_execute_source_fetch"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.api",
+            "_execute_source_fetch",
+        ),
+        ("transformers", "_as_float"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_as_float",
+        ),
+        ("transformers", "_as_int"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_as_int",
+        ),
+        ("transformers", "_country_to_numeric"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_country_to_numeric",
+        ),
+        ("transformers", "_extract_year"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_extract_year",
+        ),
+        ("transformers", "_filters_to_tuple"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_filters_to_tuple",
+        ),
+        ("transformers", "_load_json_dict"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_load_json_dict",
+        ),
+        ("transformers", "_normalize_country_code"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_normalize_country_code",
+        ),
+        ("transformers", "_normalize_observation_row"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_normalize_observation_row",
+        ),
+        ("transformers", "_shard_countries"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_shard_countries",
+        ),
+        ("transformers", "_to_iso3"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.transformers",
+            "_to_iso3",
+        ),
+        ("writers", "_WVSObservationAccumulator"): (
+            "polisyos.data_forge.domains.catalog.batch.core_sources.writers",
+            "_WVSObservationAccumulator",
+        ),
+    }
+)
 
 
-def __resolve_implementation_dependency(name: str, owner: str) -> object:
-    """Resolve a split-module dependency without facade-global injection."""
+@overload
+def __resolve_implementation_dependency[DependencyValueT](
+    name: str, owner: str, fallback: DependencyValueT
+) -> DependencyValueT: ...
+
+
+@overload
+def __resolve_implementation_dependency[DependencyValueT](
+    name: str, owner: str, *, fallback_type: Callable[[], DependencyValueT]
+) -> DependencyValueT: ...
+
+
+@overload
+def __resolve_implementation_dependency(name: str, owner: str) -> object: ...
+
+
+def __resolve_implementation_dependency(
+    name: str,
+    owner: str,
+    fallback: object = None,
+    *,
+    fallback_type: Callable[[], object] | None = None,
+) -> object:
+    """Resolve only source-declared owner dependencies.
+
+    ``fallback`` is a static type witness only. Context and developer override
+    values are not runtime-validated and must satisfy the owner contract.
+    """
+    binding_key = (owner, name)
+    if binding_key in CORE_SOURCES_COMPATIBILITY_BINDINGS:
+        target_module_name, target_name = CORE_SOURCES_COMPATIBILITY_BINDINGS[binding_key]
+    elif binding_key in __OWNER_PROXY_BINDINGS:
+        target_module_name, target_name = __OWNER_PROXY_BINDINGS[binding_key]
+    else:
+        raise LookupError(f"unsupported core-sources dependency binding: {binding_key!r}")
+
+    if binding_key in __OWNER_PROXY_BINDINGS:
+        proxy_module_name, proxy_target_name = __OWNER_PROXY_BINDINGS[binding_key]
+        if (target_module_name, target_name) != (proxy_module_name, proxy_target_name):
+            raise RuntimeError(f"inconsistent core-sources dependency binding: {binding_key!r}")
+
     has_context_override, context_override = resolve_core_sources_compatibility_binding(
-        f"{__package__}.{owner}", name
+        target_module_name, target_name
     )
     if has_context_override:
         return cast("object", context_override)
-    override = globals().get(name)
-    if override is not None and override is not __OWNER_BOUND_PROXIES.get(name):
-        return override
-    module = import_module(f"{__package__}.{owner}")
-    return cast("object", getattr(module, name))
+    if binding_key in __OWNER_PROXY_BINDINGS:
+        _proxy_module_name, proxy_target_name = __OWNER_PROXY_BINDINGS[binding_key]
+        override = globals().get(proxy_target_name)
+        if override is not None and override is not __OWNER_BOUND_PROXIES[binding_key]:
+            return override
+    module = import_module(target_module_name)
+    return getattr(module, target_name)
 
 
-def __make_implementation_proxy[**P, R](name: str, owner: str) -> Callable[P, R]:
-    """Create a lazy, owner-bound compatibility callable for a split module."""
+def __build_implementation_proxy[**P, R](name: str, owner: str) -> Callable[P, R]:
+    """Build a lazy callable for one source-declared owner binding."""
 
     def __proxy(*args: P.args, **kwargs: P.kwargs) -> R:
         implementation = __resolve_implementation_dependency(name, owner)
@@ -94,8 +197,18 @@ def __make_implementation_proxy[**P, R](name: str, owner: str) -> Callable[P, R]
             raise TypeError(f"Core-sources dependency is not callable: {owner}.{name}")
         return cast("Callable[P, R]", implementation)(*args, **kwargs)
 
-    __OWNER_BOUND_PROXIES[name] = __proxy
-    return cast("Callable[P, R]", globals().setdefault(name, __proxy))
+    return __proxy
+
+
+__OWNER_BOUND_PROXIES: Mapping[tuple[str, str], object] = MappingProxyType(
+    {
+        binding_key: __build_implementation_proxy(binding_key[1], binding_key[0])
+        for binding_key in __OWNER_PROXY_BINDINGS
+    }
+)
+for __binding_key, __implementation_proxy in __OWNER_BOUND_PROXIES.items():
+    __target_module, __target_name = __OWNER_PROXY_BINDINGS[__binding_key]
+    globals().setdefault(__target_name, __implementation_proxy)
 
 
 class _RecordResult(Protocol):
@@ -130,34 +243,48 @@ class _ShardCountries(Protocol):
     ) -> tuple[str, ...]: ...
 
 
-_WVSObservationAccumulator: Callable[[], _WVSObservationAccumulatorType] = (
-    __make_implementation_proxy("_WVSObservationAccumulator", "writers")
+_execute_source_fetch: _SourceFetch = cast(
+    "_SourceFetch", __OWNER_BOUND_PROXIES[("api", "_execute_source_fetch")]
 )
-_as_float: Callable[[object], float | None] = __make_implementation_proxy(
-    "_as_float", "transformers"
+_as_float: Callable[[object], float | None] = cast(
+    "Callable[[object], float | None]", __OWNER_BOUND_PROXIES[("transformers", "_as_float")]
 )
-_as_int: Callable[[object], int | None] = __make_implementation_proxy("_as_int", "transformers")
-_country_to_numeric: Callable[[str], str] = __make_implementation_proxy(
-    "_country_to_numeric", "transformers"
+_as_int: Callable[[object], int | None] = cast(
+    "Callable[[object], int | None]", __OWNER_BOUND_PROXIES[("transformers", "_as_int")]
 )
-_execute_source_fetch: _SourceFetch = __make_implementation_proxy("_execute_source_fetch", "api")
-_extract_year: Callable[[object], int | None] = __make_implementation_proxy(
-    "_extract_year", "transformers"
+_country_to_numeric: Callable[[str], str] = cast(
+    "Callable[[str], str]", __OWNER_BOUND_PROXIES[("transformers", "_country_to_numeric")]
 )
-_filters_to_tuple: Callable[[dict[str, list[str]]], tuple[tuple[str, tuple[str, ...]], ...]] = (
-    __make_implementation_proxy("_filters_to_tuple", "transformers")
+_extract_year: Callable[[object], int | None] = cast(
+    "Callable[[object], int | None]", __OWNER_BOUND_PROXIES[("transformers", "_extract_year")]
 )
-_load_json_dict: Callable[[object], dict[str, object]] = __make_implementation_proxy(
-    "_load_json_dict", "transformers"
+_filters_to_tuple: Callable[[dict[str, list[str]]], tuple[tuple[str, tuple[str, ...]], ...]] = cast(
+    "Callable[[dict[str, list[str]]], tuple[tuple[str, tuple[str, ...]], ...]]",
+    __OWNER_BOUND_PROXIES[("transformers", "_filters_to_tuple")],
 )
-_normalize_country_code: Callable[[object], str] = __make_implementation_proxy(
-    "_normalize_country_code", "transformers"
+_load_json_dict: Callable[[object], dict[str, object]] = cast(
+    "Callable[[object], dict[str, object]]",
+    __OWNER_BOUND_PROXIES[("transformers", "_load_json_dict")],
+)
+_normalize_country_code: Callable[[object], str] = cast(
+    "Callable[[object], str]", __OWNER_BOUND_PROXIES[("transformers", "_normalize_country_code")]
 )
 _normalize_observation_row: Callable[
     [dict[str, Any]], tuple[str, int | None, int | None, int | None, float, str] | None
-] = __make_implementation_proxy("_normalize_observation_row", "transformers")
-_shard_countries: _ShardCountries = __make_implementation_proxy("_shard_countries", "transformers")
-_to_iso3: Callable[[str], str] = __make_implementation_proxy("_to_iso3", "transformers")
+] = cast(
+    "Callable[[dict[str, Any]], tuple[str, int | None, int | None, int | None, float, str] | None]",
+    __OWNER_BOUND_PROXIES[("transformers", "_normalize_observation_row")],
+)
+_shard_countries: _ShardCountries = cast(
+    "_ShardCountries", __OWNER_BOUND_PROXIES[("transformers", "_shard_countries")]
+)
+_to_iso3: Callable[[str], str] = cast(
+    "Callable[[str], str]", __OWNER_BOUND_PROXIES[("transformers", "_to_iso3")]
+)
+_WVSObservationAccumulator: Callable[[], _WVSObservationAccumulatorType] = cast(
+    "Callable[[], _WVSObservationAccumulatorType]",
+    __OWNER_BOUND_PROXIES[("writers", "_WVSObservationAccumulator")],
+)
 # DuckDB accepts native integer literals; its 1.4 stubs omit that overload.
 _integer_sql_constant = cast("Callable[[int], duckdb.Expression]", duckdb.ConstantExpression)
 
@@ -366,7 +493,9 @@ def _load_wvs_bulk_duckdb(
     Returns ``{indicator_code: [aggregated_rows]}`` for all requested indicators.
     Uses DuckDB's columnar CSV reader for 10x speedup vs Python csv.DictReader.
     """
-    csv_path = _wvs_bulk_csv_path()
+    csv_path = __resolve_implementation_dependency(
+        "_wvs_bulk_csv_path", "loaders", _wvs_bulk_csv_path
+    )()
     if not csv_path.exists():
         raise RuntimeError(f"WVS bulk CSV is required: {csv_path}")
     if not indicators:
@@ -422,7 +551,9 @@ def _load_wvs_bulk_duckdb(
         fallback_result: dict[str, list[dict[str, Any]]] = {}
         for ind in indicators:
             try:
-                fallback_result[ind] = _load_wvs_bulk_rows(
+                fallback_result[ind] = __resolve_implementation_dependency(
+                    "_load_wvs_bulk_rows", "loaders", _load_wvs_bulk_rows
+                )(
                     ind,
                     country_scope=country_scope,
                     year_window=year_window,
@@ -1107,7 +1238,9 @@ async def _materialize_eurostat_bulk_dataset(
     )
     if not normalized_path.exists():
         row_count = _write_bulk_records_to_parquet(
-            records=_iter_eurostat_bulk_records(raw_path),
+            records=__resolve_implementation_dependency(
+                "_iter_eurostat_bulk_records", "loaders", _iter_eurostat_bulk_records
+            )(raw_path),
             normalized_path=normalized_path,
             table_name=f"bulk_eurostat_{_bulk_dataset_token(shard)}",
         )
@@ -1152,7 +1285,9 @@ async def _materialize_ilo_bulk_dataset(
     )
     if not normalized_path.exists():
         row_count = _write_bulk_records_to_parquet(
-            records=_iter_ilo_bulk_records(raw_path),
+            records=__resolve_implementation_dependency(
+                "_iter_ilo_bulk_records", "loaders", _iter_ilo_bulk_records
+            )(raw_path),
             normalized_path=normalized_path,
             table_name=f"bulk_ilo_{_bulk_dataset_token(shard)}",
         )
@@ -1221,7 +1356,9 @@ async def _materialize_uis_bulk_dataset(
             bytes_downloaded=int(download["bytes_downloaded"]),
         )
         row_count = _write_bulk_records_to_parquet(
-            records=_iter_uis_bulk_records(archive_path, dataset_id=shard.plan.request_dataset_id),
+            records=__resolve_implementation_dependency(
+                "_iter_uis_bulk_records", "loaders", _iter_uis_bulk_records
+            )(archive_path, dataset_id=shard.plan.request_dataset_id),
             normalized_path=normalized_path,
             table_name=f"bulk_uis_{_bulk_dataset_token(shard)}",
         )
@@ -1311,9 +1448,8 @@ def _bulk_country_values(source: str, country_codes: tuple[str, ...]) -> list[st
         return normalized
     if source == "ilo":
         return [
-            cast(
-                "Callable[[str], str]",
-                __resolve_implementation_dependency("_to_iso3", "transformers"),
+            __resolve_implementation_dependency(
+                "_to_iso3", "transformers", fallback_type=lambda: _to_iso3
             )(code)
             for code in normalized
         ]
@@ -1337,7 +1473,9 @@ def _bulk_query_rows(
     where: list[str] = []
     params: list[Any] = [str(normalized_path)]
     country_column = _bulk_country_column(source, lower_map)
-    country_values = _bulk_country_values(source, countries)
+    country_values = __resolve_implementation_dependency(
+        "_bulk_country_values", "loaders", _bulk_country_values
+    )(source, countries)
     if country_column and country_values:
         placeholders = ", ".join("?" for _ in country_values)
         where.append(
@@ -1362,7 +1500,9 @@ def _bulk_query_rows(
         sql += " WHERE " + " AND ".join(where)
     with duckdb.connect() as con:
         frame = con.execute(sql, params).df()
-    return _records_from_payload(frame)
+    return __resolve_implementation_dependency(
+        "_records_from_payload", "loaders", _records_from_payload
+    )(frame)
 
 
 def _bulk_equivalence_series_columns(source: str, path: Path) -> list[str]:
@@ -1399,7 +1539,9 @@ def _bulk_series_sample(
         sample_size = min(total_series, max(20, math.ceil(total_series * 0.01)))
         sample_size = min(sample_size, 200)
         frame = series.order("hash(" + hash_expr + ")").limit(sample_size).df()
-    return total_series, _records_from_payload(frame)
+    return total_series, __resolve_implementation_dependency(
+        "_records_from_payload", "loaders", _records_from_payload
+    )(frame)
 
 
 def _bulk_series_constraints(series: dict[str, Any]) -> dict[str, Any]:
@@ -1430,7 +1572,9 @@ def _bulk_query_series_rows(
         sql += " WHERE " + " AND ".join(where)
     with duckdb.connect() as con:
         frame = con.execute(sql, params).df()
-    return _records_from_payload(frame)
+    return __resolve_implementation_dependency(
+        "_records_from_payload", "loaders", _records_from_payload
+    )(frame)
 
 
 def _filter_rows_by_series_constraints(
@@ -1561,15 +1705,21 @@ async def _fetch_bulk_equivalence_api_rows(
         record_result=record_result,
         budget_wait_observer=budget_wait_observer,
     )
-    api_rows = _records_from_payload(result.data)
+    api_rows = __resolve_implementation_dependency(
+        "_records_from_payload", "loaders", _records_from_payload
+    )(result.data)
     if source == "unesco_uis":
         post_constraints = {
             key: value
             for key, value in series_constraints.items()
             if key in {"indicator_id", "country_code", "magnitude", "qualifier"}
         }
-        return _filter_rows_by_series_constraints(api_rows, constraints=post_constraints)
-    return _filter_rows_by_series_constraints(api_rows, constraints=series_constraints)
+        return __resolve_implementation_dependency(
+            "_filter_rows_by_series_constraints", "loaders", _filter_rows_by_series_constraints
+        )(api_rows, constraints=post_constraints)
+    return __resolve_implementation_dependency(
+        "_filter_rows_by_series_constraints", "loaders", _filter_rows_by_series_constraints
+    )(api_rows, constraints=series_constraints)
 
 
 def _bulk_equivalence_source_is_blocking(config: DatasetBatchConfig, source: str) -> bool:
@@ -1773,7 +1923,7 @@ def _load_wvs_bulk_rows(
     indicator = str(raw_variable or "").strip().upper()
     csv_path = cast(
         "Callable[[], Path]",
-        __resolve_implementation_dependency("_wvs_bulk_csv_path", "loaders"),
+        __resolve_implementation_dependency("_wvs_bulk_csv_path", "loaders", _wvs_bulk_csv_path),
     )()
     if not indicator:
         return []
@@ -1869,9 +2019,8 @@ async def _fetch_who_observations(
     start_year: int,
     end_year: int,
 ) -> list[dict[str, Any]]:
-    iso3 = cast(
-        "Callable[[str], str]",
-        __resolve_implementation_dependency("_to_iso3", "transformers"),
+    iso3 = __resolve_implementation_dependency(
+        "_to_iso3", "transformers", fallback_type=lambda: _to_iso3
     )(country_code)
     url = f"https://ghoapi.azureedge.net/api/{indicator_id}"
     params = {
@@ -1879,7 +2028,9 @@ async def _fetch_who_observations(
         f"and TimeDim le {int(end_year)}",
     }
     payload = await _http_get_json(url, params=params)
-    return _records_from_payload(payload)
+    return __resolve_implementation_dependency(
+        "_records_from_payload", "loaders", _records_from_payload
+    )(payload)
 
 
 async def _fetch_unpd_observations(
@@ -1898,7 +2049,9 @@ async def _fetch_unpd_observations(
         f"{indicator_id}/locations/{location_id}/start/{int(start_year)}/end/{int(end_year)}"
     )
     payload = await _http_get_json(url, headers={"Authorization": f"Bearer {token}"})
-    return _records_from_payload(payload)
+    return __resolve_implementation_dependency(
+        "_records_from_payload", "loaders", _records_from_payload
+    )(payload)
 
 
 async def _fetch_uis_observations(
@@ -1911,15 +2064,16 @@ async def _fetch_uis_observations(
     url = "https://api.uis.unesco.org/api/public/data/indicators"
     params = {
         "indicator": indicator_id,
-        "geoUnit": cast(
-            "Callable[[str], str]",
-            __resolve_implementation_dependency("_to_iso3", "transformers"),
+        "geoUnit": __resolve_implementation_dependency(
+            "_to_iso3", "transformers", fallback_type=lambda: _to_iso3
         )(country_code),
         "start": int(start_year),
         "end": int(end_year),
     }
     payload = await _http_get_json(url, params=params)
-    return _records_from_payload(payload)
+    return __resolve_implementation_dependency(
+        "_records_from_payload", "loaders", _records_from_payload
+    )(payload)
 
 
 async def _http_get_json(

@@ -12,7 +12,10 @@ import pytest
 from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
     CatalogTransportDataset,
+    CoreSourcesCompatibilityContext,
+    bind_core_sources_compatibility_context,
 )
+from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.core_sources import registry, schema
 from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
     AlignmentMethod,
@@ -23,6 +26,35 @@ from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
 def test_core_sources_registry_helpers_are_reexported() -> None:
     assert callable(registry._build_catalog_observation_plans)
     assert callable(facade._build_catalog_observation_plans)
+
+
+def test_registry_plan_builder_uses_request_scoped_limit_dependency(tmp_path) -> None:
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+    dataset = _catalog_transport_dataset()
+    alignment = VariableAlignment(
+        dataset_id=dataset.catalog_dataset_id,
+        dataset_var=dataset.request_dataset_id,
+        canonical_var="gdp",
+        method=AlignmentMethod.EXACT,
+        confidence=0.99,
+        evidence="seed_alignment",
+    )
+    observed: list[list[object]] = []
+
+    def _limit(plans, _datasets, *, config):
+        observed.append(list(plans))
+        assert config is not None
+        return []
+
+    context = CoreSourcesCompatibilityContext(
+        {(registry.__name__, "_limit_observation_plans"): _limit}
+    )
+    with bind_core_sources_compatibility_context(context):
+        result = registry._build_catalog_observation_plans([dataset], [alignment], config=config)
+
+    assert result == []
+    assert len(observed) == 1
+    assert len(observed[0]) == 1
 
 
 def _catalog_transport_dataset(
@@ -52,6 +84,31 @@ def _catalog_transport_dataset(
         request_dataset_id=request_dataset_id,
         default_filters={},
     )
+
+
+def test_catalog_plan_builder_uses_request_scoped_transport_source_owner(tmp_path) -> None:
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+    dataset = _catalog_transport_dataset()
+    alignment = VariableAlignment(
+        dataset_id=dataset.catalog_dataset_id,
+        dataset_var=dataset.request_dataset_id,
+        canonical_var="gdp",
+        method=AlignmentMethod.EXACT,
+        confidence=0.99,
+        evidence="seed_alignment",
+    )
+
+    assert (
+        len(registry._build_catalog_observation_plans([dataset], [alignment], config=config)) == 1
+    )
+
+    context = CoreSourcesCompatibilityContext(
+        {(registry.__name__, "_TRANSPORT_SOURCES"): frozenset()}
+    )
+    with bind_core_sources_compatibility_context(context):
+        plans = registry._build_catalog_observation_plans([dataset], [alignment], config=config)
+
+    assert plans == []
 
 
 def _bind_review_basis(

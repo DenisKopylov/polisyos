@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
@@ -139,3 +140,78 @@ def test_pipeline_uses_one_profile_snapshot_for_signature_and_core_consumer(
     assert len(signatures) == 3
     assert len(set(signatures)) == 1
     assert config.run_signature != signatures[0]
+
+
+def test_pipeline_carries_request_scoped_core_dependency_to_canonical_api(
+    tmp_path, monkeypatch
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+        CoreSourcesCompatibilityContext,
+        CoreSourcesIngestStats,
+        ObservationPlan,
+        ObservationShard,
+        bind_core_sources_compatibility_context,
+    )
+    from polisyos.data_forge.domains.catalog.batch.core_sources import api as core_api
+    from polisyos.fabric.connectors.profiles.models import SourceExecutionPolicy
+
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        stages=frozenset({"core_sources_ingest"}),
+    )
+    plan = ObservationPlan(
+        dataset_id="dataset",
+        source="worldbank",
+        raw_variable="value",
+        canonical_var="gdp",
+        connector_id="worldbank.wdi",
+        profile_id="worldbank_wdi",
+        request_dataset_id="NY.GDP.MKTP.CD",
+        default_filters={},
+        update_frequency="annual",
+    )
+    shard = ObservationShard(
+        shard_id="shard",
+        plan=plan,
+        country_code="UA",
+        start_year=2020,
+        end_year=2020,
+        filters={},
+    )
+    selected_profiles: list[str] = []
+
+    async def _scoped_fetch(*_args, **_kwargs):
+        selected_profiles.append("source-profile-a")
+        artifact = tmp_path / "producer" / "core-source.json"
+        artifact.parent.mkdir(parents=True, exist_ok=True)
+        artifact.write_text('{"profile":"source-profile-a"}', encoding="utf-8")
+        return [{"profile": "source-profile-a", "path": str(artifact)}]
+
+    async def _stage(received_config):
+        from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (
+            _ConnectorSessionCache,
+        )
+
+        rows = await core_api._invoke_fetch_observation_rows(
+            shard,
+            _ConnectorSessionCache(),
+            config=received_config,
+            policy=SourceExecutionPolicy(profile_id="worldbank_wdi"),
+            budget_windows={},
+            state_lock=asyncio.Lock(),
+        )
+        assert rows[0]["profile"] == "source-profile-a"
+        return CoreSourcesIngestStats(observations=len(rows))
+
+    monkeypatch.setattr(core_api, "_run_core_sources_ingest_stage", _stage)
+    context = CoreSourcesCompatibilityContext(
+        {(core_api.__name__, "_fetch_observation_rows"): _scoped_fetch}
+    )
+    with bind_core_sources_compatibility_context(context):
+        stats = run_dataset_pipeline_sync(config)
+
+    assert stats.metrics["core_observations"] == 1
+    assert selected_profiles == ["source-profile-a"]
+    assert (tmp_path / "producer" / "core-source.json").read_text(encoding="utf-8") == (
+        '{"profile":"source-profile-a"}'
+    )

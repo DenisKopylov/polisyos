@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.scientist.governance.human_review import (
+    human_review_section,
+    human_review_status,
+    review_decision_summary,
+    validate_human_reviewed_readiness,
+)
 from polisyos.scientist.governance.human_review.audit import signature_for_decision
-from polisyos.scientist.governance.human_review.decisions import human_review_status
 from polisyos.scientist.governance.human_review.models import (
     HumanReviewDecision,
     HumanReviewStatus,
@@ -10,7 +15,6 @@ from polisyos.scientist.governance.human_review.models import (
 )
 from polisyos.scientist.governance.human_review.oversight_policy import (
     evaluate_human_review_requirement,
-    validate_human_reviewed_readiness,
 )
 from polisyos.scientist.governance.human_review.packets import build_review_packet
 
@@ -58,7 +62,7 @@ def test_human_reviewed_readiness_without_review_ref_is_blocked() -> None:
     assert result.violations == ["human_reviewed_readiness_without_review_ref"]
 
 
-def test_two_person_verification_requires_distinct_approvals() -> None:
+def test_raw_two_person_approvals_do_not_establish_release_authority() -> None:
     packet = build_review_packet(
         run_id="run_1",
         risk_tier="public_sector_high",
@@ -66,18 +70,18 @@ def test_two_person_verification_requires_distinct_approvals() -> None:
     )
 
     assert human_review_status([_approve(packet.packet_id, "a")], packet=packet) is (
-        HumanReviewStatus.PENDING
+        HumanReviewStatus.LEGACY_MISSING
     )
     assert (
         human_review_status(
             [_approve(packet.packet_id, "a"), _approve(packet.packet_id, "b")],
             packet=packet,
         )
-        is HumanReviewStatus.APPROVED
+        is HumanReviewStatus.LEGACY_MISSING
     )
 
 
-def test_reject_rerun_interrupt_and_override_have_explicit_release_statuses() -> None:
+def test_raw_review_actions_do_not_change_release_status() -> None:
     packet = build_review_packet(run_id="run_1")
     reject = HumanReviewDecision(
         decision_id="decision_reject",
@@ -130,10 +134,10 @@ def test_reject_rerun_interrupt_and_override_have_explicit_release_statuses() ->
         ),
     )
 
-    assert human_review_status([reject], packet=packet) is HumanReviewStatus.REJECTED
-    assert human_review_status([rerun], packet=packet) is HumanReviewStatus.RERUN_REQUESTED
-    assert human_review_status([interrupt], packet=packet) is HumanReviewStatus.INTERRUPTED
-    assert human_review_status([override], packet=packet) is HumanReviewStatus.OVERRIDDEN
+    assert human_review_status([reject], packet=packet) is HumanReviewStatus.LEGACY_MISSING
+    assert human_review_status([rerun], packet=packet) is HumanReviewStatus.LEGACY_MISSING
+    assert human_review_status([interrupt], packet=packet) is HumanReviewStatus.LEGACY_MISSING
+    assert human_review_status([override], packet=packet) is HumanReviewStatus.LEGACY_MISSING
 
 
 def test_required_review_with_explanation_insufficient_decision_blocks_release() -> None:
@@ -165,5 +169,86 @@ def test_required_review_with_explanation_insufficient_decision_blocks_release()
     )
 
     assert result.passed is False
-    assert result.human_review_status is HumanReviewStatus.EXPLANATION_INSUFFICIENT
-    assert result.violations == ["human_review_not_release_approved:explanation_insufficient"]
+    assert result.human_review_status is HumanReviewStatus.LEGACY_MISSING
+    assert result.violations == ["human_review_admission_not_established"]
+
+
+def test_raw_approve_with_refs_cannot_satisfy_protected_readiness() -> None:
+    packet = build_review_packet(run_id="run_1")
+    requirement = evaluate_human_review_requirement(
+        params={"require_human_review_for_publication": True}
+    )
+    result = validate_human_reviewed_readiness(
+        {"recommendation": "Publish."},
+        review_packet_ref=_ref("a"),
+        review_decision_ref=_ref("b", kind="scientist.human_review_decision"),
+        decisions=[_approve(packet.packet_id, "reviewer_a")],
+        packet=packet,
+        requirement=requirement,
+    )
+
+    assert result.passed is False
+    assert result.human_review_status is HumanReviewStatus.LEGACY_MISSING
+    assert result.violations == ["human_review_admission_not_established"]
+
+
+def test_public_readiness_claim_requires_admission_without_requirement_argument() -> None:
+    packet = build_review_packet(run_id="run_1")
+    decision = _approve(packet.packet_id, "reviewer_a")
+
+    result = validate_human_reviewed_readiness(
+        {"readiness": "human_reviewed", "recommendation": "Publish."},
+        review_packet_ref=_ref("a"),
+        review_decision_ref=_ref("b", kind="scientist.human_review_decision"),
+        decisions=[decision],
+        packet=packet,
+    )
+
+    assert result.passed is False
+    assert result.human_review_status is HumanReviewStatus.LEGACY_MISSING
+    assert result.violations == ["human_review_admission_not_established"]
+
+
+def test_candidate_approval_is_not_projected_as_approved() -> None:
+    packet = build_review_packet(run_id="run_1")
+    decision = _approve(packet.packet_id, "reviewer_a")
+    review_packet_ref = _ref("a")
+    review_decision_ref = _ref("b", kind="scientist.human_review_decision")
+    requirement = evaluate_human_review_requirement(
+        params={"require_human_review_for_publication": True}
+    )
+
+    section = human_review_section(
+        requirement=requirement,
+        review_packet_ref=review_packet_ref,
+        review_decision_ref=review_decision_ref,
+        decisions=[decision],
+        packet=packet,
+    )
+    summary = review_decision_summary(
+        [decision],
+        packet=packet,
+        review_packet_ref=review_packet_ref,
+        review_decision_ref=review_decision_ref,
+    )
+    readiness = validate_human_reviewed_readiness(
+        {"recommendation": "Publish."},
+        review_packet_ref=review_packet_ref,
+        review_decision_ref=review_decision_ref,
+        decisions=[decision],
+        packet=packet,
+        requirement=requirement,
+    )
+    status = human_review_status(
+        [decision],
+        packet=packet,
+        review_packet_ref=review_packet_ref,
+        review_decision_ref=review_decision_ref,
+    )
+
+    assert section["status"] == "legacy_missing"
+    assert section["custody_status"] == "not_established"
+    assert summary["status"] == "legacy_missing"
+    assert readiness.passed is False
+    assert readiness.human_review_status is HumanReviewStatus.LEGACY_MISSING
+    assert status is HumanReviewStatus.LEGACY_MISSING

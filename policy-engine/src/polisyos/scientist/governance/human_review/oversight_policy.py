@@ -10,6 +10,10 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.scientist.governance.human_review.admission import (
+    HumanReviewAdmission,
+    HumanReviewAdmissionStatus,
+)
 from polisyos.scientist.governance.human_review.decisions import human_review_status
 from polisyos.scientist.governance.human_review.models import (
     HumanReviewDecision,
@@ -106,8 +110,7 @@ def evaluate_human_review_requirement(
         risk_tier=risk_tier,
         reasons=sorted(set(reasons)),
         required_reviewer_count=required_reviewer_count,
-        reviewer_independence_required=high_risk_independence
-        or required_reviewer_count > 1,
+        reviewer_independence_required=high_risk_independence or required_reviewer_count > 1,
         separation_of_duty_required=high_risk_independence,
         minimum_time_spent_seconds=300 if high_risk_independence else 0,
         require_change_request_or_dissent=high_risk_independence,
@@ -130,38 +133,75 @@ def validate_human_reviewed_readiness(
     decisions: list[HumanReviewDecision] | None = None,
     packet: HumanReviewPacket | None = None,
     requirement: HumanReviewRequirement | None = None,
+    admission: HumanReviewAdmission | None = None,
 ) -> HumanReviewValidationResult:
-    """Reject readiness claims that say `human_reviewed` without review refs."""
+    """Reject readiness claims unless review evidence is admitted from CAS."""
 
     violations: list[str] = []
     claims_human_reviewed = _payload_claims_human_reviewed(payload)
     has_review_ref = review_packet_ref is not None or review_decision_ref is not None
+    selected_review_packet_ref = _typed_artifact_ref(review_packet_ref)
+    selected_review_decision_ref = _typed_artifact_ref(review_decision_ref)
+    admission_matches_selected_refs = admission is not None and admission.binds(
+        review_packet_ref=selected_review_packet_ref,
+        review_decision_ref=selected_review_decision_ref,
+    )
+    admitted_decisions = (
+        [admission.decision]
+        if admission_matches_selected_refs
+        and admission is not None
+        and admission.decision is not None
+        else []
+    )
+    admitted_packet = (
+        admission.review_packet
+        if admission_matches_selected_refs and admission is not None
+        else None
+    )
     status = (
         human_review_status(
-            decisions or [],
-            packet=packet,
+            admitted_decisions,
+            packet=admitted_packet,
+            admission=admission,
+            review_packet_ref=selected_review_packet_ref,
+            review_decision_ref=selected_review_decision_ref,
             required_reviewer_count=(
                 max(
                     requirement.required_reviewer_count if requirement is not None else 1,
-                    packet.required_reviewer_count if packet is not None else 1,
+                    admitted_packet.required_reviewer_count if admitted_packet is not None else 1,
                 )
             ),
         )
-        if decisions is not None
+        if admission_matches_selected_refs
         else HumanReviewStatus.LEGACY_MISSING
     )
     if claims_human_reviewed and not has_review_ref:
         violations.append("human_reviewed_readiness_without_review_ref")
-    if requirement is not None and requirement.required:
-        if review_packet_ref is None:
+    policy_requires_review = requirement is not None and requirement.required
+    review_required = claims_human_reviewed or policy_requires_review
+    if review_required:
+        if (
+            requirement is not None
+            and requirement.required
+            and requirement.minimum_time_spent_seconds > 0
+        ):
+            violations.append("review_duration_evidence_not_established")
+        if review_packet_ref is None and (policy_requires_review or has_review_ref):
             violations.append("missing_human_review_packet_ref")
-        if review_decision_ref is None:
+        if review_decision_ref is None and (policy_requires_review or has_review_ref):
             violations.append("missing_human_review_decision_ref")
-        elif decisions is not None and status not in {
-            HumanReviewStatus.APPROVED,
-            HumanReviewStatus.OVERRIDDEN,
-        }:
-            violations.append(f"human_review_not_release_approved:{status.value}")
+        if review_packet_ref is not None and review_decision_ref is not None:
+            if not admission_matches_selected_refs:
+                admission_status = (
+                    admission.public_status
+                    if admission is not None
+                    else HumanReviewAdmissionStatus.NOT_ESTABLISHED
+                )
+                violations.append(f"human_review_admission_{admission_status.value}")
+                if admission is not None:
+                    violations.extend(admission.projection()["violations"])
+            elif status not in {HumanReviewStatus.APPROVED, HumanReviewStatus.OVERRIDDEN}:
+                violations.append(f"human_review_not_release_approved:{status.value}")
     blocked = bool(violations)
     return HumanReviewValidationResult(
         passed=not blocked,
@@ -171,9 +211,8 @@ def validate_human_reviewed_readiness(
         metadata={
             "claims_human_reviewed": claims_human_reviewed,
             "has_review_ref": has_review_ref,
-            "requirement": None
-            if requirement is None
-            else requirement.model_dump(mode="json"),
+            "requirement": None if requirement is None else requirement.model_dump(mode="json"),
+            "review_admission": None if admission is None else admission.projection(),
         },
     )
 
@@ -185,26 +224,59 @@ def human_review_section(
     review_decision_ref: ArtifactRef | str | None = None,
     decisions: list[HumanReviewDecision] | None = None,
     packet: HumanReviewPacket | None = None,
+    admission: HumanReviewAdmission | None = None,
 ) -> dict[str, Any]:
     """Build a decision-packet/governance-safe human-review section."""
 
+    selected_review_packet_ref = _typed_artifact_ref(review_packet_ref)
+    selected_review_decision_ref = _typed_artifact_ref(review_decision_ref)
+    admission_matches_selected_refs = admission is not None and admission.binds(
+        review_packet_ref=selected_review_packet_ref,
+        review_decision_ref=selected_review_decision_ref,
+    )
+    admitted_decisions = (
+        [admission.decision]
+        if admission_matches_selected_refs
+        and admission is not None
+        and admission.decision is not None
+        else []
+    )
+    admitted_packet = (
+        admission.review_packet
+        if admission_matches_selected_refs and admission is not None
+        else None
+    )
     status = (
         human_review_status(
-            decisions or [],
-            packet=packet,
+            admitted_decisions,
+            packet=admitted_packet,
+            admission=admission,
+            review_packet_ref=selected_review_packet_ref,
+            review_decision_ref=selected_review_decision_ref,
             required_reviewer_count=max(
                 requirement.required_reviewer_count,
-                packet.required_reviewer_count if packet is not None else 1,
+                admitted_packet.required_reviewer_count if admitted_packet is not None else 1,
             ),
         )
-        if decisions is not None
+        if admission_matches_selected_refs
         else HumanReviewStatus.LEGACY_MISSING
         if requirement.required
         else HumanReviewStatus.NOT_REQUIRED
     )
+    custody_violations = admission.projection()["violations"] if admission is not None else []
+    if requirement.required and requirement.minimum_time_spent_seconds > 0:
+        custody_violations.append("review_duration_evidence_not_established")
     return {
         "required": requirement.required,
         "status": status.value,
+        "custody_status": (
+            admission.public_status.value
+            if admission is not None
+            else "not_established"
+            if requirement.required
+            else "not_required"
+        ),
+        "custody_violations": sorted(set(custody_violations)),
         "risk_tier": requirement.risk_tier.value,
         "required_reviewer_count": requirement.required_reviewer_count,
         "reasons": list(requirement.reasons),
@@ -319,7 +391,7 @@ def _feature_enabled(params: Mapping[str, Any], flag_name: str, *, default: bool
     return default
 
 
-def _truthy(value: Any, *, default: bool) -> bool:
+def _truthy(value: object, *, default: bool) -> bool:
     if isinstance(value, bool):
         return value
     if value is None:
@@ -338,3 +410,9 @@ def _ref_text(ref: ArtifactRef | str | None) -> str | None:
     if isinstance(ref, ArtifactRef):
         return str(ref.artifact_id)
     return str(ref)
+
+
+def _typed_artifact_ref(ref: ArtifactRef | str | None) -> ArtifactRef | None:
+    """Return a selected CAS ref only when the caller supplied its typed form."""
+
+    return ref if isinstance(ref, ArtifactRef) else None

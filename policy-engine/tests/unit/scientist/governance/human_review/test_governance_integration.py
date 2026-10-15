@@ -68,7 +68,7 @@ def test_governance_report_links_include_review_packet_and_decision_refs() -> No
     )
 
     assert updated.links.human_review_decision_ref == decision_ref
-    assert "human_review_status:approved" in updated.notes
+    assert "human_review_status:legacy_missing" in updated.notes
 
 
 def test_run_governance_includes_review_refs_from_state(tmp_path) -> None:

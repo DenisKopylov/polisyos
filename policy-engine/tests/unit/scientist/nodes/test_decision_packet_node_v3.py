@@ -264,7 +264,12 @@ def test_build_decision_packet_node_emits_v3_payload_and_manifest_inputs(tmp_pat
     )
     governance_ref = store.put_json(
         GovernanceReport(verdict="approve", issues=[]),
-        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+        PutOptions(
+            kind="scientist.governance_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
+        ),
+        return_selected_profile=True,
     )
     research_dag_ref = store.put_json(
         {
@@ -668,9 +673,7 @@ def test_build_decision_packet_includes_metric_validation_projection(tmp_path) -
     ]
 
 
-def test_build_decision_packet_records_degraded_paths_for_invalid_metrics_and_governance(
-    tmp_path,
-) -> None:
+def test_build_decision_packet_records_degraded_paths_for_invalid_metrics(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_packet_degraded")
@@ -692,11 +695,6 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_metrics_and_go
         ["invalid"],
         PutOptions(kind="foundry.metrics", media_type="application/json"),
     )
-    governance_ref = store.put_json(
-        ["invalid"],
-        PutOptions(kind="scientist.governance_report", media_type="application/json"),
-    )
-
     state = ExperimentState(
         run_id="R_packet_degraded",
         inputs={
@@ -705,7 +703,6 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_metrics_and_go
             INPUT_DATA_SNAPSHOT_REF: data_snapshot_ref,
         },
         artifacts_index={ARTIFACT_METRICS_REF: metrics_ref},
-        reports_index={REPORT_GOVERNANCE_REPORT_REF: governance_ref},
     )
 
     outcome = BuildDecisionPacketNode().execute(ctx, state)
@@ -716,15 +713,13 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_metrics_and_go
     assert payload["governance"] is None
     assert degraded_reasons == {
         "decision_basis_data_snapshot_validate_failed",
-        "governance_report_load_failed",
         "metrics_load_failed",
         "uncertainty_data_snapshot_load_failed",
     }
-    assert payload["diagnostics_summary"]["degraded_path_count"] == 3
+    assert payload["diagnostics_summary"]["degraded_path_count"] == 2
     assert payload["diagnostics_summary"]["has_degraded_paths"] is True
     assert payload["analysis_limits"]["decision_packet_degraded"] is True
     assert any(note.startswith("metrics_load_failed:") for note in payload["notes"])
-    assert any(note.startswith("governance_report_load_failed:") for note in payload["notes"])
 
 
 def test_build_decision_packet_records_degraded_paths_for_invalid_decision_basis_quality_report(
@@ -819,14 +814,19 @@ def test_build_decision_packet_surfaces_legal_links_and_contract_warnings(tmp_pa
     change_proposal_ref = ChangeProposalRef(artifact_id=change_proposal_artifact.artifact_id)
     governance_ref = store.put_json(
         GovernanceReport(
-            verdict="human_gate",
+            verdict="approve",
             issues=[],
             links=GovernanceReportLinks(
                 legal_report_ref=legal_report_ref,
                 change_proposal_ref=change_proposal_ref,
             ),
         ),
-        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+        PutOptions(
+            kind="scientist.governance_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
+        ),
+        return_selected_profile=True,
     )
     link_report_ref = put_link_report(
         store,
@@ -952,7 +952,12 @@ def test_build_decision_packet_includes_tradeoff_certificate_and_normative_valid
     )
     governance_ref = store.put_json(
         GovernanceReport(verdict="approve", issues=[]),
-        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+        PutOptions(
+            kind="scientist.governance_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
+        ),
+        return_selected_profile=True,
     )
     normative_ref = persist_normative_arbitration_result(
         _ensure_ir_artifact_store(store),
@@ -1057,7 +1062,12 @@ def test_build_decision_packet_rejects_incomplete_serious_contract(tmp_path) -> 
     )
     governance_ref = store.put_json(
         GovernanceReport(verdict="approve", issues=[]),
-        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+        PutOptions(
+            kind="scientist.governance_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
+        ),
+        return_selected_profile=True,
     )
 
     state = ExperimentState(
@@ -1112,7 +1122,12 @@ def test_build_decision_packet_records_degraded_paths_for_invalid_normative_arbi
     )
     governance_ref = store.put_json(
         GovernanceReport(verdict="approve", issues=[]),
-        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+        PutOptions(
+            kind="scientist.governance_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
+        ),
+        return_selected_profile=True,
     )
     invalid_normative_ref = store.put_json(
         ["invalid"],
@@ -1190,7 +1205,12 @@ def test_build_decision_packet_accepts_complete_serious_contract(tmp_path) -> No
     )
     governance_ref = store.put_json(
         GovernanceReport(verdict="approve", issues=[]),
-        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+        PutOptions(
+            kind="scientist.governance_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
+        ),
+        return_selected_profile=True,
     )
     normative_ref = persist_normative_arbitration_result(
         _ensure_ir_artifact_store(store),

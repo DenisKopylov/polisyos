@@ -1,16 +1,31 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import replace
+from typing import TYPE_CHECKING
 
+import pytest
+
+import polisyos.scientist.nodes.builtins.decide.decision_packet.enrichment as decision_packet_enrichment
 from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier, KeyPair
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.scientist.governance.human_review.admission import (
+    HumanReviewAdmissionStatus,
+    resolve_human_review_admission,
+)
 from polisyos.scientist.governance.human_review.audit import signature_for_decision
 from polisyos.scientist.governance.human_review.decisions import persist_review_decision
-from polisyos.scientist.governance.human_review.models import HumanReviewDecision, ReviewAction
+from polisyos.scientist.governance.human_review.models import (
+    HumanReviewDecision,
+    ReviewAction,
+    ReviewAssignment,
+    ReviewAssignmentStatus,
+    ReviewRiskTier,
+)
 from polisyos.scientist.governance.human_review.packets import (
     build_review_packet,
     persist_review_packet,
@@ -20,6 +35,7 @@ from polisyos.scientist.nodes.builtins.decide.build_decision_packet import (
     BuildDecisionPacketNode,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_DECISION_PACKET_REF,
     ARTIFACT_HUMAN_REVIEW_DECISION_REF,
     ARTIFACT_HUMAN_REVIEW_PACKET_REF,
     ARTIFACT_METRICS_REF,
@@ -30,6 +46,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def _ctx_and_state(
@@ -70,7 +89,12 @@ def _ctx_and_state(
     )
     governance_ref = store.put_json(
         governance_report or GovernanceReport(verdict="approve", issues=[]),
-        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+        PutOptions(
+            kind="scientist.governance_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
+        ),
+        return_selected_profile=True,
     )
     state = ExperimentState(
         run_id="R_human_review",
@@ -129,14 +153,15 @@ def test_decision_packet_requires_review_refs_when_governance_is_human_gate(
     ]
 
 
-def test_decision_packet_includes_approved_human_review_refs(tmp_path) -> None:
+def test_decision_packet_does_not_admit_unsigned_unassigned_human_review(tmp_path) -> None:
     store, ctx, state = _ctx_and_state(
         tmp_path,
-        params={"require_human_review_for_publication": True},
+        params={"require_human_review_for_publication": True, "risk_tier": "high"},
     )
     packet = build_review_packet(
         run_id=state.run_id,
         decision_payload={"policy_summary": {"title": "Policy"}},
+        risk_tier="high",
     )
     packet_ref = persist_review_packet(store, packet)
     decision = HumanReviewDecision(
@@ -158,9 +183,197 @@ def test_decision_packet_includes_approved_human_review_refs(tmp_path) -> None:
 
     outcome = BuildDecisionPacketNode().execute(ctx, state)
 
-    assert outcome.status == "ok"
-    payload = from_canonical_bytes(store.get_bytes(outcome.artifacts[0].artifact_id))
-    assert payload["human_review"]["required"] is True
-    assert payload["human_review"]["status"] == "approved"
-    assert payload["artifacts"][ARTIFACT_HUMAN_REVIEW_PACKET_REF] == str(packet_ref.artifact_id)
-    assert payload["artifacts"][ARTIFACT_HUMAN_REVIEW_DECISION_REF] == str(decision_ref.artifact_id)
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "human_review_validation_failed"
+    assert "human_review_admission_not_established" in outcome.error.details["violations"]
+
+
+@pytest.mark.parametrize(
+    ("runtime_risk_tier", "risk_tier_mismatch"),
+    [("high", False), ("low", True), (None, True)],
+)
+def test_fully_bound_signed_candidate_still_requires_institutional_review_custody(
+    tmp_path: Path,
+    runtime_risk_tier: str | None,
+    risk_tier_mismatch: bool,
+) -> None:
+    params: dict[str, object] = {"require_human_review_for_publication": True}
+    if runtime_risk_tier is not None:
+        params["risk_tier"] = runtime_risk_tier
+    store, ctx, state = _ctx_and_state(
+        tmp_path,
+        params=params,
+    )
+    state.execution_profile = "profile_human_review"
+    decision_packet_ref = store.put_json(
+        {
+            "schema_version": "3.4",
+            "run_id": state.run_id,
+            "runtime_contracts": {"execution_profile": state.execution_profile},
+        },
+        PutOptions(
+            kind="scientist.decision_packet",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.DecisionPacket", version="3.4"),
+        ),
+        return_selected_profile=True,
+    )
+    packet = build_review_packet(
+        run_id=state.run_id,
+        risk_tier="high",
+        decision_packet_ref=decision_packet_ref,
+    )
+    assignment = ReviewAssignment(
+        assignment_id="assignment_1",
+        packet_id=packet.packet_id,
+        reviewer_id="reviewer_a",
+        status=ReviewAssignmentStatus.COMPLETED,
+    )
+    packet = packet.model_copy(update={"assignments": [assignment]})
+    packet_ref = persist_review_packet(store, packet)
+    decision_ref = persist_review_decision(
+        store,
+        HumanReviewDecision(
+            decision_id="decision_1",
+            packet_id=packet.packet_id,
+            run_id=state.run_id,
+            reviewer_id="reviewer_a",
+            action=ReviewAction.APPROVE,
+            rationale="Candidate reviewer approved the selected policy run.",
+            signature=signature_for_decision(
+                reviewer_id="reviewer_a",
+                attestation="I reviewed the selected decision packet.",
+            ),
+            packet_ref=packet_ref,
+        ),
+    )
+    key_pair = KeyPair.generate()
+    store.sign_artifact(
+        decision_ref,
+        Ed25519Signer(key_pair.private_key),
+        signer_identity="reviewer_a",
+    )
+    state.artifacts_index[ARTIFACT_DECISION_PACKET_REF] = decision_packet_ref
+    state.artifacts_index[ARTIFACT_HUMAN_REVIEW_PACKET_REF] = packet_ref
+    state.artifacts_index[ARTIFACT_HUMAN_REVIEW_DECISION_REF] = decision_ref
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "human_review_validation_failed"
+    violations = outcome.error.details["violations"]
+    assert "reviewer_appointment_authority_not_established" in violations
+    assert "review_decision_currentness_not_established" in violations
+    assert ("review_duration_evidence_not_established" in violations) is (
+        runtime_risk_tier == "high"
+    )
+    assert ("human_review_risk_tier_binding_mismatch" in violations) is risk_tier_mismatch
+    assert outcome.error.details["human_review_status"] != "approved"
+    assert not outcome.artifacts
+    assert "human_review_admission_not_established" in violations
+    assert "human_review_subject_ref_mismatch" not in violations
+    assert "reviewed_decision_execution_profile_mismatch" not in violations
+
+
+def test_copied_admitted_diagnostic_cannot_promote_real_decision_packet_node(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, ctx, state = _ctx_and_state(
+        tmp_path,
+        params={"require_human_review_for_publication": True, "risk_tier": "high"},
+    )
+    state.execution_profile = "profile_human_review"
+    decision_packet_ref = store.put_json(
+        {
+            "schema_version": "3.4",
+            "run_id": state.run_id,
+            "runtime_contracts": {"execution_profile": state.execution_profile},
+        },
+        PutOptions(
+            kind="scientist.decision_packet",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.DecisionPacket", version="3.4"),
+        ),
+        return_selected_profile=True,
+    )
+    packet = build_review_packet(
+        run_id=state.run_id,
+        risk_tier="high",
+        decision_packet_ref=decision_packet_ref,
+    )
+    assignment = ReviewAssignment(
+        assignment_id="assignment_1",
+        packet_id=packet.packet_id,
+        reviewer_id="reviewer_a",
+        status=ReviewAssignmentStatus.COMPLETED,
+    )
+    packet = packet.model_copy(update={"assignments": [assignment]})
+    packet_ref = persist_review_packet(store, packet)
+    decision_ref = persist_review_decision(
+        store,
+        HumanReviewDecision(
+            decision_id="decision_1",
+            packet_id=packet.packet_id,
+            run_id=state.run_id,
+            reviewer_id="reviewer_a",
+            action=ReviewAction.APPROVE,
+            rationale="Signed candidate for copied-result control.",
+            signature=signature_for_decision(
+                reviewer_id="reviewer_a",
+                attestation="I reviewed the selected decision packet.",
+            ),
+            packet_ref=packet_ref,
+        ),
+    )
+    key_pair = KeyPair.generate()
+    store.sign_artifact(
+        decision_ref,
+        Ed25519Signer(key_pair.private_key),
+        signer_identity="reviewer_a",
+    )
+    verifier = Ed25519Verifier(strict_identity=True)
+    verifier.add_trusted_key(key_pair.public_key, identity="reviewer_a")
+    state.artifacts_index[ARTIFACT_DECISION_PACKET_REF] = decision_packet_ref
+    state.artifacts_index[ARTIFACT_HUMAN_REVIEW_PACKET_REF] = packet_ref
+    state.artifacts_index[ARTIFACT_HUMAN_REVIEW_DECISION_REF] = decision_ref
+
+    admission = resolve_human_review_admission(
+        store,
+        review_packet_ref=packet_ref,
+        review_decision_ref=decision_ref,
+        decision_packet_ref=decision_packet_ref,
+        run_id=state.run_id,
+        context_run_id=ctx.run.run_manifest.run_id,
+        execution_profile=state.execution_profile,
+        minimum_time_spent_seconds=300,
+        expected_risk_tier=ReviewRiskTier.HIGH,
+        verifier=verifier,
+    )
+    assert admission.signature_verification is not None
+    assert admission.signature_verification.status.value == "valid"
+    forged = replace(
+        admission,
+        status=HumanReviewAdmissionStatus.ADMITTED,
+        violations=(),
+    )
+    monkeypatch.setattr(
+        decision_packet_enrichment,
+        "resolve_human_review_admission",
+        lambda *_args, **_kwargs: forged,
+    )
+
+    outcome = BuildDecisionPacketNode().execute(ctx, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "human_review_validation_failed"
+    assert outcome.error.details["human_review_status"] != "approved"
+    assert "human_review_admission_not_established" in outcome.error.details["violations"]
+    assert "reviewer_appointment_authority_not_established" in outcome.error.details["violations"]
+    assert "review_decision_currentness_not_established" in outcome.error.details["violations"]
+    assert "review_duration_source_not_established" in outcome.error.details["violations"]
+    assert "review_duration_evidence_not_established" in outcome.error.details["violations"]
+    assert not outcome.artifacts

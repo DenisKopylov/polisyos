@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     input_ref_from_artifact_ref,
-)
-from polisyos.ir.analytics.metric_validation_report import (
-    MetricValidationReport,
 )
 from polisyos.scholar.search.models import WebEvidenceBundle
 from polisyos.scientist.evidence.claims.head_index import (
@@ -26,14 +25,14 @@ from polisyos.scientist.evidence.claims.validators import (
 )
 from polisyos.scientist.evidence.safe_fetch import neutralize_instruction_markers
 from polisyos.scientist.governance.continuous.reports import load_validity_report
-from polisyos.scientist.governance.human_review.decisions import load_review_decision
+from polisyos.scientist.governance.human_review.admission import (
+    resolve_human_review_admission,
+)
 from polisyos.scientist.governance.human_review.oversight_policy import (
     evaluate_human_review_requirement,
     human_review_section,
     validate_human_reviewed_readiness,
 )
-from polisyos.scientist.governance.human_review.packets import load_review_packet
-from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.search.voi_scheduler import load_voi_run_report
 from polisyos.scientist.nodes.builtins.decide._decision_packet_contracts import (
     _ClaimLedgerAttachment,
@@ -91,6 +90,7 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CLAIM_LEDGER_V2_REF,
     ARTIFACT_CLAIMS_REF,
     ARTIFACT_CONTINUOUS_GOVERNANCE_REPORT_REF,
+    ARTIFACT_DECISION_PACKET_REF,
     ARTIFACT_DECISION_READINESS_CONTRACT_REF,
     ARTIFACT_HUMAN_REVIEW_DECISION_REF,
     ARTIFACT_HUMAN_REVIEW_PACKET_REF,
@@ -104,7 +104,14 @@ from polisyos.scientist.orchestration.engine.context import (
     ClaimCapableExecutionContext,
     ExecutionContext,
 )
-from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.metric_validation_report import MetricValidationReport
+    from polisyos.scientist.governance.human_review.oversight_policy import (
+        HumanReviewValidationResult,
+    )
+    from polisyos.scientist.governance.report import GovernanceReport
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 logger = get_logger(__name__)
 
@@ -129,49 +136,36 @@ def _attach_human_review_projection(
     packet_payload: dict[str, object],
     *,
     governance_report: GovernanceReport | None = None,
-):
+) -> HumanReviewValidationResult:
     """Attach Phase 1.6 human-review status and validate release claims."""
 
     review_packet_ref = state.artifacts_index.get(ARTIFACT_HUMAN_REVIEW_PACKET_REF)
     review_decision_ref = state.artifacts_index.get(ARTIFACT_HUMAN_REVIEW_DECISION_REF)
-    review_packet = None
-    review_decisions = None
-    if review_packet_ref is not None:
-        try:
-            review_packet = load_review_packet(ctx.store, review_packet_ref)
-        except _DECISION_PACKET_LOAD_ERRORS as exc:
-            _record_decision_packet_section_degraded(
-                packet_payload,
-                operation="load_human_review_packet",
-                reason="human_review_packet_load_failed",
-                exc=exc,
-                ref=review_packet_ref,
-                artifact_key=ARTIFACT_HUMAN_REVIEW_PACKET_REF,
-            )
-    if review_decision_ref is not None:
-        try:
-            review_decisions = [load_review_decision(ctx.store, review_decision_ref)]
-        except _DECISION_PACKET_LOAD_ERRORS as exc:
-            review_decisions = []
-            _record_decision_packet_section_degraded(
-                packet_payload,
-                operation="load_human_review_decision",
-                reason="human_review_decision_load_failed",
-                exc=exc,
-                ref=review_decision_ref,
-                artifact_key=ARTIFACT_HUMAN_REVIEW_DECISION_REF,
-            )
     requirement = evaluate_human_review_requirement(
         params=state.params,
         governance_report=governance_report,
         packet_payload=packet_payload,
     )
+    admission = resolve_human_review_admission(
+        ctx.store,
+        review_packet_ref=review_packet_ref,
+        review_decision_ref=review_decision_ref,
+        decision_packet_ref=state.artifacts_index.get(ARTIFACT_DECISION_PACKET_REF),
+        run_id=state.run_id,
+        context_run_id=ctx.run.run_manifest.run_id,
+        execution_profile=state.execution_profile,
+        minimum_time_spent_seconds=requirement.minimum_time_spent_seconds,
+        expected_risk_tier=requirement.risk_tier,
+    )
+    review_packet = admission.review_packet
+    review_decisions = [admission.decision] if admission.decision is not None else []
     packet_payload["human_review"] = human_review_section(
         requirement=requirement,
         review_packet_ref=review_packet_ref,
         review_decision_ref=review_decision_ref,
         decisions=review_decisions,
         packet=review_packet,
+        admission=admission,
     )
     validation = validate_human_reviewed_readiness(
         packet_payload,
@@ -180,6 +174,7 @@ def _attach_human_review_projection(
         decisions=review_decisions,
         packet=review_packet,
         requirement=requirement,
+        admission=admission,
     )
     packet_payload["human_review_validation"] = validation.model_dump(mode="json")
     artifacts = packet_payload.get("artifacts")
@@ -246,7 +241,7 @@ def _attach_claim_ledger_to_packet(
 
     prepared = claim_owner.prepare_initial_ledger(
         base_claims_ref=claims_ref,
-        source_artifact_refs=source_refs,
+        source_artifact_refs=tuple(source_refs),
     )
     if isinstance(prepared, ClaimLedgerIssuanceNonReceipt):
         packet_payload["claim_ledger_status"] = "not_established"
@@ -261,9 +256,8 @@ def _attach_claim_ledger_to_packet(
     claim_ledger_v2_ref = prepared.initial_ledger_ref
     packet_payload["claim_ledger_v2_ref"] = str(claim_ledger_v2_ref.artifact_id)
     packet_payload["claim_ledger_status"] = "prepared_not_current"
-    if isinstance(artifacts, dict):
-        if claim_ledger_v2_ref is not None:
-            artifacts[ARTIFACT_CLAIM_LEDGER_V2_REF] = str(claim_ledger_v2_ref.artifact_id)
+    if isinstance(artifacts, dict) and claim_ledger_v2_ref is not None:
+        artifacts[ARTIFACT_CLAIM_LEDGER_V2_REF] = str(claim_ledger_v2_ref.artifact_id)
     return _ClaimLedgerAttachment(
         claims_ref=claims_ref,
         claim_ledger_v2_ref=claim_ledger_v2_ref,

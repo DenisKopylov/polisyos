@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
-from typing import Any
+from typing import TYPE_CHECKING, Any, Protocol
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -14,6 +13,27 @@ from polisyos.scientist.governance.human_review.models import (
     HumanReviewStatus,
     ReviewAction,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+
+class _ReviewAdmissionEvidence(Protocol):
+    """Structural type for resolver output consumed by this status projector."""
+
+    @property
+    def decision(self) -> HumanReviewDecision | None: ...
+
+    @property
+    def review_packet(self) -> HumanReviewPacket | None: ...
+
+    def binds(
+        self,
+        *,
+        review_packet_ref: ArtifactRef | None,
+        review_decision_ref: ArtifactRef | None,
+    ) -> bool: ...
+
 
 HUMAN_REVIEW_DECISION_KIND = "scientist.human_review_decision"
 HUMAN_REVIEW_DECISION_SCHEMA_NAME = "polisyos.scientist.governance.human_review.HumanReviewDecision"
@@ -89,12 +109,31 @@ def human_review_status(
     *,
     packet: HumanReviewPacket | None = None,
     required_reviewer_count: int | None = None,
+    admission: _ReviewAdmissionEvidence | None = None,
+    review_packet_ref: ArtifactRef | None = None,
+    review_decision_ref: ArtifactRef | None = None,
 ) -> HumanReviewStatus:
-    """Aggregate reviewer decisions into an operational release status."""
+    """Aggregate only decisions admitted from the exact selected CAS refs.
+
+    Raw decision DTOs remain candidate inputs. In particular, an ``APPROVE``
+    action cannot produce the public ``APPROVED`` status without a resolver
+    result bound to the selected review-packet and decision artifacts.
+    """
 
     decision_list = list(decisions)
-    if not decision_list:
+    from polisyos.scientist.governance.human_review.admission import (
+        HumanReviewAdmission,
+    )
+
+    if not isinstance(admission, HumanReviewAdmission) or not admission.binds(
+        review_packet_ref=review_packet_ref,
+        review_decision_ref=review_decision_ref,
+    ):
+        return HumanReviewStatus.LEGACY_MISSING if decision_list else HumanReviewStatus.PENDING
+    if admission.decision is None or admission.review_packet is None:
         return HumanReviewStatus.PENDING
+    decision_list = [admission.decision]
+    packet = admission.review_packet
     actions = [decision.action for decision in decision_list]
     if ReviewAction.INTERRUPT_RELEASE in actions:
         return HumanReviewStatus.INTERRUPTED
@@ -123,11 +162,20 @@ def review_decision_summary(
     decisions: Iterable[HumanReviewDecision],
     *,
     packet: HumanReviewPacket | None = None,
+    admission: _ReviewAdmissionEvidence | None = None,
+    review_packet_ref: ArtifactRef | None = None,
+    review_decision_ref: ArtifactRef | None = None,
 ) -> dict[str, Any]:
     """Return a governance/decision-packet safe summary of review decisions."""
 
     decision_list = list(decisions)
-    status = human_review_status(decision_list, packet=packet)
+    status = human_review_status(
+        decision_list,
+        packet=packet,
+        admission=admission,
+        review_packet_ref=review_packet_ref,
+        review_decision_ref=review_decision_ref,
+    )
     return {
         "status": status.value,
         "decision_count": len(decision_list),

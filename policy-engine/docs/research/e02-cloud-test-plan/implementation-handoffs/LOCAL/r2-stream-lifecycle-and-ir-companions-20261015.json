@@ -1,0 +1,553 @@
+{
+  "consumer_and_limits": {
+    "cancellation_and_physical_close": "If unregister_async/shutdown_async is cancelled while waiting for a startup ticket, startup stays shielded and the invalidated lease/pending exact pool remain fenced; the lifecycle caller must retry cleanup. Physical close is claimed only after close_all succeeds. No automatic background retry after caller cancellation is claimed.",
+    "in_repo_production_caller": "The in-repo production path found is stream_dataset in src/polisyos/fabric/data_plane/streaming.py, which uses StreamingSourceSession.create and the registry-resolving route.",
+    "legacy_caller_boundary": "The direct StreamingSourceSession constructor remains callable for compatibility. In-repo direct construction appears in tests; without an explicit registry it coordinates ownership only through the supplied pool, as the constructor documents. External callers were not censused; no per-registry admission claim applies to registry-less direct construction.",
+    "removal_control": "The independent review states that the prior P29 physical-close property-removal/no-op probe failed as expected. That deletion probe was not rerun in the fresh type follow-up; this is cited as reviewer evidence, not a new command receipt.",
+    "scope_limit": "This slice does not establish all 13 Prepared B contours, all E02 findings, external issuer/custody/currentness, production deployment, full repository SOTA, or formal G acceptance/adjudication."
+  },
+  "formal_findings": {
+    "author_role": "candidate source author, not G acceptance/adjudicator",
+    "closure_ids": [],
+    "proposed_closure_ids": []
+  },
+  "historical_references": {
+    "ir_decision_refs": [
+      {
+        "commit": "42d31bf7099bf4b651a9c04735f5b5955fce25b5",
+        "git_blob": "3b8ecf68ff7d42f5868c5530c230804891e80b71",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/ir-artifact-ref-mapping-interface.json",
+        "sha256": "a4eb230e7497e7a43f05a271a0b590eed0902eefc91045f80c7ac83c1e225c8e"
+      },
+      {
+        "commit": "42d31bf7099bf4b651a9c04735f5b5955fce25b5",
+        "git_blob": "b170951fd27ed21665551352b2b5f78317247668",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/ir-artifact-observation-types-20261015.json",
+        "sha256": "ed73a5d952f6089c52301d7f921cd01756912d1697600f64b5b0bbdb9f8c9c55"
+      },
+      {
+        "commit": "42d31bf7099bf4b651a9c04735f5b5955fce25b5",
+        "git_blob": "fe52f2f0c0897c8cfe8bc364bcba2a74d8bc30aa",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/ir-uncertainty-loading-types-20261015.json",
+        "sha256": "78f2acb876a92d1bdc2cbcd9a3badd1eaffb55a4a95cec8d89196bb5f5025589"
+      }
+    ],
+    "ir_refs_decision_status": "IR ArtifactRefModel Mapping/BaseModel decision is proposed_for_G and has no formal closures; its refs.py contract is outside this 28-path footprint and is not treated as accepted or inherited.",
+    "ir_refs_mapping_decision_commit": "42d31bf7099bf4b651a9c04735f5b5955fce25b5",
+    "prior_ir_review": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-kernel-independent-20261015/review.md",
+      "scope": "The five IR companion source postimages were checked against this prior review; the former UnitSpec hold is separately handled by the 7106 ancestor repair and current 17-test run. No P41 inherited exemption is claimed.",
+      "sha256": "5f3e989ec9d7ea7589dafd07c2beebf13066dd2b512f847a86d890548d5f1f25"
+    },
+    "prior_unit_spec_generic_repair": {
+      "ancestor_of_source_commit": true,
+      "commit": "7106c0a5926d901a27f0a7c676b2629047f89af0",
+      "paths": [
+        {
+          "commit": "7106c0a5926d901a27f0a7c676b2629047f89af0",
+          "git_blob": "b6cdaf4c59d5e952a2afb4eccd7d89203988516f",
+          "path": "policy-engine/src/polisyos/ir/kernel/units.py",
+          "sha256": "f060c028e64ba4320c5f78f3899bacd0971b3aa49c285dcb1b89218c52c1ea47"
+        },
+        {
+          "commit": "7106c0a5926d901a27f0a7c676b2629047f89af0",
+          "git_blob": "f04bec609a0931f72cdad93a8f88ff462bcfee10",
+          "path": "policy-engine/tests/unit/ir/mirror_contracts/test_units.py",
+          "sha256": "0b9b82892d954a29334d45ee52fd697f2c9a1f77f7f532ea05a88bdbb2749412"
+        }
+      ]
+    }
+  },
+  "implementation": {
+    "IR_companion": "Five IR source paths plus one shared-validation test are committed here. The UnitSpec generic default repair is in ancestor 7106c0a5926d901a27f0a7c676b2629047f89af0 and is excluded from this 28-path footprint.",
+    "R2_property": "A registry-bearing stream session reserves the logical (connector,dataset,partition) owner and exact pool before subscribe can acquire a physical handle. Startup tickets fence the await boundary; unregister/shutdown invalidates and drains startup against that exact pool; pending cleanup and ownership are released only after close_all succeeds.",
+    "typed_boundary": "Registered connector factories retain the SourceConnector class contract. SourceConnectorInstance remains runtime-checkable; SourceConnectorValue is the generic raw-instance-or-wrapper result type. The shared async-iterator resolver accepts both supported producer forms."
+  },
+  "receipt_refs": {
+    "independent_findings": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r2-kernel-final-companions-independent-20261015/findings.md",
+      "sha256": "82d40fe1d89edeccb6aa1b1664c3c566b92d36a65b40b388f63dcb4ae27cd3c8"
+    },
+    "ir_kernel_prior_review": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-kernel-independent-20261015/review.md",
+      "sha256": "5f3e989ec9d7ea7589dafd07c2beebf13066dd2b512f847a86d890548d5f1f25"
+    },
+    "r2_22_path_manifest": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r2-native-type-gate-20261015/r2-22-path-exact-slice-manifest.json",
+      "sha256": "2e215a6ad863f7e91a37f242d2f244bc90d23cce5617cdcc083faa8e5a108bd1"
+    },
+    "r2_root_source_readback": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/r2-kernel-source-readback.json",
+      "sha256": "1a6d542c45324d5d35d225a591743bdbeda73dc5f071bdd74de7fbf48e152995"
+    },
+    "r2_root_source_request": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/r2-kernel-source-request.json",
+      "sha256": "fe97582c4e091b8ae30d7fa4c86555ef41bbcd3ac942d6cf204595a23cfa57eb"
+    },
+    "r2_type_coverage_summary": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r2-native-type-gate-20261015/r2-native-type-gate-coverage-summary.json",
+      "sha256": "f2435cea590dcef46b10af376ad17927b03f64749c95e235055f51a01fc87c2b"
+    }
+  },
+  "schema": "policyos.e02.r2_stream_lifecycle_ir_companions.handoff.v1",
+  "slice": {
+    "branch": "codex/e02-unified-local-20261009",
+    "expected_parent": "606f499c9c2608111a5339f13d01f90673abf88e",
+    "footprint_counts": {
+      "IR_companion_source": 5,
+      "IR_companion_tests": 1,
+      "R2_source": 15,
+      "R2_tests": 7,
+      "total": 28
+    },
+    "name": "R2 registry stream lifecycle and compatible IR companions",
+    "r2_slice_base": "db51beb76163cfce795645d9b2be0ae8805228b0",
+    "source_commit": {
+      "parents": "606f499c9c2608111a5339f13d01f90673abf88e",
+      "sha": "b3a448ec971588c2644e9cd21970ca753b8e361f",
+      "subject": "fix(fabric): preserve typed stream ownership and IR schema companions",
+      "tree": "31d3c2890736025d4c43f93045281f428d657589"
+    },
+    "source_commit_footprint": [
+      {
+        "git_blob": "9f7792969bcf6f72be1b4102c4f76bd7310e2fcd",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/connectors/__init__.py",
+        "role": "source",
+        "sha256": "2bd456876e3f75e12c51e40cc6c95506d331716556e314eb6a82795f5ce30dac",
+        "status": "M"
+      },
+      {
+        "git_blob": "c81fc49c40809062a2a62d7afeb688261134a35d",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/connectors/_async_iterators.py",
+        "role": "source",
+        "sha256": "13b6df5c28853140fdf7699e56b0fc4e134edea2da09816567ead756dd055ad8",
+        "status": "A"
+      },
+      {
+        "git_blob": "b4d2c78ba053e70955416470dce8fe9afc328d59",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/connectors/_components_bootstrap.py",
+        "role": "source",
+        "sha256": "962aec54f3a0253b0a9a5d6396a13d7964d4ab1affddbdd4cca430865aef1d38",
+        "status": "A"
+      },
+      {
+        "git_blob": "1e4d720d35a0d8006564c53e7dcc2c709b04bdde",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "role": "source",
+        "sha256": "d03db212c434d9924a9dfdde8e1c863d21e19783a215c466e634148ce671fc01",
+        "status": "M"
+      },
+      {
+        "git_blob": "e95a2a668ed9e5fb29b4b28758088036c23ee818",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/connectors/_registry_models.py",
+        "role": "source",
+        "sha256": "19130e6738d9d08dc7e308993f37df2de387072734be5b54d38d25a2821773fb",
+        "status": "M"
+      },
+      {
+        "git_blob": "9490bbcb5661c740a6da47cd0812757963f47156",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/connectors/base.py",
+        "role": "source",
+        "sha256": "f5754ea9be67ab1a89effaaecc09dba68fd710d30c4809dbb8e3bcfae5805d99",
+        "status": "M"
+      },
+      {
+        "git_blob": "c2541105ace7a15ba141726d749dab98422a5ca5",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/proxy.py",
+        "role": "source",
+        "sha256": "fe8608ce99061b7e26be28aa951aacf9e1d81339f92377c5a085bf033b769581",
+        "status": "M"
+      },
+      {
+        "git_blob": "5f0e86d71ba39b62921a8f058063fee5431bb28c",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/connectors/capabilities.py",
+        "role": "source",
+        "sha256": "7cf380d8268522324b59d4c412f9dc9e7dbdf0fffe8d0fef3e1290ad6ceec762",
+        "status": "M"
+      },
+      {
+        "git_blob": "838b51adea8db2a316fda15b21d5116e035a926a",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/connectors/components_bridge.py",
+        "role": "source",
+        "sha256": "2682e06528241c89941aad19402907d614f08bcda98a3bf4947b20d4d44f01a3",
+        "status": "M"
+      },
+      {
+        "git_blob": "cf7b6c820797fd4634aaa93a72ed7e04dca18c0c",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/connectors/contracts/validation_middleware.py",
+        "role": "source",
+        "sha256": "24720f06d6db3475767737086b9f6cd2e3a448e01895fa72217603401ea62363",
+        "status": "M"
+      },
+      {
+        "git_blob": "c296c534ba56d8f4e4da2fb29dc3cf7479c8c8f1",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/connectors/pool.py",
+        "role": "source",
+        "sha256": "e88d1c23d2d8538a8c7acea2d8e54d2bfd3f40214d7be5473361a76012f43d87",
+        "status": "M"
+      },
+      {
+        "git_blob": "7ec298c9c4c9bcded7540e00ffa76da8b648351c",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+        "role": "source",
+        "sha256": "ab7d8efcf593c8cc41bd22f18df5936781f566be5d1b522f51c05aef413b6913",
+        "status": "M"
+      },
+      {
+        "git_blob": "503b0e78a27d563abefc8cc455f0debd8c8172d9",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/data_plane/__init__.py",
+        "role": "source",
+        "sha256": "b224d207ebcdf2721e379b8d51bbe724b2f451c49c72f4e911761a89a74a4df8",
+        "status": "M"
+      },
+      {
+        "git_blob": "59a6df80b1a89f3c23f8a1cd6b8107c7b3d60ca0",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+        "role": "source",
+        "sha256": "c3ac7464df74fc6c8478267bfedb90121d3ea9ed3d947dbb98d212c784941599",
+        "status": "M"
+      },
+      {
+        "git_blob": "b17f68fa5156ee19a601dfe6e7c81322240f9964",
+        "group": "R2",
+        "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "role": "source",
+        "sha256": "c8f8fc915f5590d10ac4fd67aef751fff6b66b2f8d4e7613ad460f46d25a0e30",
+        "status": "M"
+      },
+      {
+        "git_blob": "8a85a51269b3f7fd3b0e18781642650477685803",
+        "group": "IR_companion",
+        "path": "policy-engine/src/polisyos/ir/_internal/validation.py",
+        "role": "source",
+        "sha256": "acc4dd4a92b877b7d63240d35e4db606383fd0cb64e2db9bfb66d7b4dc97face",
+        "status": "M"
+      },
+      {
+        "git_blob": "9b6088005464388007a8f0f93a3c16a14ee23449",
+        "group": "IR_companion",
+        "path": "policy-engine/src/polisyos/ir/connectors/__init__.py",
+        "role": "source",
+        "sha256": "0dd3e001be9f544b9b35aae8cc403a115130b7ca6977036b3d28c784f69bcea3",
+        "status": "M"
+      },
+      {
+        "git_blob": "21b0f0990c95b482a7c590e7e40a7e135e6ff47d",
+        "group": "IR_companion",
+        "path": "policy-engine/src/polisyos/ir/kernel/merge_rules.py",
+        "role": "source",
+        "sha256": "fab66db4b801cdfda17cf8bc6c0f04c71eb983998a30ef75dbb66d843144d572",
+        "status": "M"
+      },
+      {
+        "git_blob": "7d16561f4020d8b3b6aa483d88ffb3074a454c23",
+        "group": "IR_companion",
+        "path": "policy-engine/src/polisyos/ir/kernel/metrics.py",
+        "role": "source",
+        "sha256": "95021b068bbf25c784556db0163a3c2bdabbb63659a2179acc44fbbcb7ffe65c",
+        "status": "M"
+      },
+      {
+        "git_blob": "99c5e671d4a0a9d40f78c65685d15dd8ff76cbe2",
+        "group": "IR_companion",
+        "path": "policy-engine/src/polisyos/ir/model_layer/predicate.py",
+        "role": "source",
+        "sha256": "e24297f9463b643d3647b1a9b8000e2c4adf4de22d47492a2a837ede20d759ef",
+        "status": "M"
+      },
+      {
+        "git_blob": "90355be555a3877a033ffeb362f704f529af31c5",
+        "group": "R2",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_components_bridge.py",
+        "role": "test",
+        "sha256": "5c2f317007f318992248cb5d1f13b8ee3169a2fb24e39aa85de3371048fb781c",
+        "status": "M"
+      },
+      {
+        "git_blob": "33c827ef1586018ac7bee79516e48577fc1aa30e",
+        "group": "R2",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "role": "test",
+        "sha256": "8c234237f005d8c6613dc3d5e5dabdaec51e2ef67073306e6226ebc7c86d869b",
+        "status": "M"
+      },
+      {
+        "git_blob": "32b3a46b253d7acc33f06ae7df2effc5cc2d68e3",
+        "group": "R2",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "role": "test",
+        "sha256": "04186d84582fc88aeefe55e0fb6e28461c5fcd256fcd9210c48a09a4e3fd7a65",
+        "status": "M"
+      },
+      {
+        "git_blob": "31e3667108e978ab9737d991f66cf63e653efc66",
+        "group": "R2",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py",
+        "role": "test",
+        "sha256": "bb98b819370e7a3f2b533dcb9024933ec81ab4d0a219d44021508014dc36117c",
+        "status": "M"
+      },
+      {
+        "git_blob": "e68a656d65a129f3fb98f5007c0c0caf9f2104e7",
+        "group": "R2",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py",
+        "role": "test",
+        "sha256": "3bb2b8c5e3b413787685114dcca9fa4d469d5ba8688be87aaaab030f52cc9baf",
+        "status": "M"
+      },
+      {
+        "git_blob": "be734d52fd6981f278d79625b38a8d9de43ae327",
+        "group": "R2",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "role": "test",
+        "sha256": "6a89c59bb444fe093568e695304e44899a2e34ebc599788c16157270679a67bf",
+        "status": "M"
+      },
+      {
+        "git_blob": "0027e5f493f99ea0d4b49f034fe937263063fcd7",
+        "group": "R2",
+        "path": "policy-engine/tests/unit/fabric/test_semantic_group_imports.py",
+        "role": "test",
+        "sha256": "36b7f41bdb23a0b1b45bae3eb7b82ec9094318603859d794ba6f20171a2267c4",
+        "status": "M"
+      },
+      {
+        "git_blob": "c7fe06628ec9b10ef5c296a746c39f172988b74b",
+        "group": "IR_companion",
+        "path": "policy-engine/tests/unit/ir/test_shared_validation_helpers.py",
+        "role": "test",
+        "sha256": "df34d912ff9a0765765ddc879901319295c62794abccff77a80faf8107b092cd",
+        "status": "A"
+      }
+    ],
+    "source_commit_readback": "git show -s and git diff-tree were read from the committed object; path hashes below come from committed blobs, not the unstaged worktree."
+  },
+  "verification": {
+    "independent_review": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r2-kernel-final-companions-independent-20261015/findings.md",
+      "sha256": "82d40fe1d89edeccb6aa1b1664c3c566b92d36a65b40b388f63dcb4ae27cd3c8",
+      "verdict": "scoped GO for R2 typed-test delta and IR-kernel companion; not full-repository typing/SOTA or G acceptance."
+    },
+    "ir_units_and_shared_validation": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r2-kernel-final-companions-independent-20261015/ir-unit-and-helper.xml",
+        "tests/unit/ir/mirror_contracts/test_units.py",
+        "tests/unit/ir/test_shared_validation_helpers.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "junit": null,
+      "manifest": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r2-kernel-final-companions-independent-20261015/ir-unit-and-helper-command.json",
+        "sha256": "6179ea7b4360539911e43f09ecb0096bc481041d255fef41439c33b2eb73abe4"
+      },
+      "result": "PASS: 17 tests, 0 failures, 0 errors, 0 skips; covers UnitSpec runtime enum/schema compatibility and shared validation helper consumers.",
+      "stderr": null,
+      "stdout": null
+    },
+    "profile": {
+      "environment": "existing policy-engine/.venv; no dependency install or production input used",
+      "platform": "macOS arm64",
+      "python": "CPython 3.14.3"
+    },
+    "r2_and_ir_ruff28": {
+      "checks": [
+        {
+          "argv": [
+            "policy-engine/.venv/bin/python",
+            "-m",
+            "ruff",
+            "check",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/src/polisyos/fabric/connectors/__init__.py",
+            "policy-engine/src/polisyos/fabric/connectors/_async_iterators.py",
+            "policy-engine/src/polisyos/fabric/connectors/_components_bootstrap.py",
+            "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+            "policy-engine/src/polisyos/fabric/connectors/_registry_models.py",
+            "policy-engine/src/polisyos/fabric/connectors/base.py",
+            "policy-engine/src/polisyos/fabric/connectors/cache/proxy.py",
+            "policy-engine/src/polisyos/fabric/connectors/capabilities.py",
+            "policy-engine/src/polisyos/fabric/connectors/components_bridge.py",
+            "policy-engine/src/polisyos/fabric/connectors/contracts/validation_middleware.py",
+            "policy-engine/src/polisyos/fabric/connectors/pool.py",
+            "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+            "policy-engine/src/polisyos/fabric/data_plane/__init__.py",
+            "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+            "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+            "policy-engine/tests/unit/fabric/connectors/test_components_bridge.py",
+            "policy-engine/tests/unit/fabric/connectors/test_protocol_compliance.py",
+            "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+            "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py",
+            "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py",
+            "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+            "policy-engine/tests/unit/fabric/test_semantic_group_imports.py",
+            "policy-engine/src/polisyos/ir/_internal/validation.py",
+            "policy-engine/src/polisyos/ir/kernel/metrics.py",
+            "policy-engine/src/polisyos/ir/kernel/merge_rules.py",
+            "policy-engine/src/polisyos/ir/model_layer/predicate.py",
+            "policy-engine/src/polisyos/ir/connectors/__init__.py",
+            "policy-engine/tests/unit/ir/test_shared_validation_helpers.py"
+          ],
+          "exit_code": 0,
+          "output": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/r2-kernel-check.stdout.txt",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+          }
+        },
+        {
+          "argv": [
+            "policy-engine/.venv/bin/python",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/src/polisyos/fabric/connectors/__init__.py",
+            "policy-engine/src/polisyos/fabric/connectors/_async_iterators.py",
+            "policy-engine/src/polisyos/fabric/connectors/_components_bootstrap.py",
+            "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+            "policy-engine/src/polisyos/fabric/connectors/_registry_models.py",
+            "policy-engine/src/polisyos/fabric/connectors/base.py",
+            "policy-engine/src/polisyos/fabric/connectors/cache/proxy.py",
+            "policy-engine/src/polisyos/fabric/connectors/capabilities.py",
+            "policy-engine/src/polisyos/fabric/connectors/components_bridge.py",
+            "policy-engine/src/polisyos/fabric/connectors/contracts/validation_middleware.py",
+            "policy-engine/src/polisyos/fabric/connectors/pool.py",
+            "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+            "policy-engine/src/polisyos/fabric/data_plane/__init__.py",
+            "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+            "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+            "policy-engine/tests/unit/fabric/connectors/test_components_bridge.py",
+            "policy-engine/tests/unit/fabric/connectors/test_protocol_compliance.py",
+            "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+            "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py",
+            "policy-engine/tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py",
+            "policy-engine/tests/unit/fabric/data_plane/test_streaming_runtime.py",
+            "policy-engine/tests/unit/fabric/test_semantic_group_imports.py",
+            "policy-engine/src/polisyos/ir/_internal/validation.py",
+            "policy-engine/src/polisyos/ir/kernel/metrics.py",
+            "policy-engine/src/polisyos/ir/kernel/merge_rules.py",
+            "policy-engine/src/polisyos/ir/model_layer/predicate.py",
+            "policy-engine/src/polisyos/ir/connectors/__init__.py",
+            "policy-engine/tests/unit/ir/test_shared_validation_helpers.py"
+          ],
+          "exit_code": 0,
+          "output": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/r2-kernel-format.stdout.txt",
+            "sha256": "2bcbe8e6e763d11737554aa861ef6606aea9d87114a002aa9bd426ec920674cf"
+          }
+        }
+      ],
+      "command_manifest": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/r2-kernel-source-request.json",
+        "sha256": "fe97582c4e091b8ae30d7fa4c86555ef41bbcd3ac942d6cf204595a23cfa57eb"
+      },
+      "result": "PASS on exact 28 committed paths; Ruff uses architecture/tooling/ruff/workspace_root.toml."
+    },
+    "r2_canonical_basedpyright": {
+      "argv": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "workspace",
+        "core-runtime-basedpyright",
+        "src/polisyos/fabric/connectors/__init__.py",
+        "src/polisyos/fabric/connectors/_async_iterators.py",
+        "src/polisyos/fabric/connectors/_components_bootstrap.py",
+        "src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "src/polisyos/fabric/connectors/_registry_models.py",
+        "src/polisyos/fabric/connectors/base.py",
+        "src/polisyos/fabric/connectors/cache/proxy.py",
+        "src/polisyos/fabric/connectors/capabilities.py",
+        "src/polisyos/fabric/connectors/components_bridge.py",
+        "src/polisyos/fabric/connectors/contracts/validation_middleware.py",
+        "src/polisyos/fabric/connectors/pool.py",
+        "src/polisyos/fabric/connectors/registry_core_parts.py",
+        "src/polisyos/fabric/data_plane/__init__.py",
+        "src/polisyos/fabric/data_plane/modes.py",
+        "src/polisyos/fabric/data_plane/streaming.py",
+        "tests/unit/fabric/connectors/test_components_bridge.py",
+        "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "tests/unit/fabric/connectors/test_registry.py",
+        "tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py",
+        "tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py",
+        "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "tests/unit/fabric/test_semantic_group_imports.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "junit": null,
+      "manifest": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r2-native-type-gate-20261015/current-all22-type-command.json",
+        "sha256": "64c2056b60f00247ef317fd2db98113df1e632f2032a21e1ef959edb3d5866ad"
+      },
+      "result": "PASS: exact 22 R2 source/test paths, 0 errors, 299 warnings. The seven test files are explicit supplemental paths because basedpyright.toml includes source roots, not tests.",
+      "stderr": null,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r2-native-type-gate-20261015/current-all22-type.txt",
+        "sha256": "0bee5915c5595f002d45621c6dc19b3fb84e4c8358c8ff0782d141d3a7b3584c"
+      }
+    },
+    "r2_seven_tests": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r2-kernel-final-companions-independent-20261015/r2-seven-modules.xml",
+        "tests/unit/fabric/connectors/test_components_bridge.py",
+        "tests/unit/fabric/connectors/test_protocol_compliance.py",
+        "tests/unit/fabric/connectors/test_registry.py",
+        "tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py",
+        "tests/unit/fabric/data_plane/test_stream_pool_physical_cleanup_oracle.py",
+        "tests/unit/fabric/data_plane/test_streaming_runtime.py",
+        "tests/unit/fabric/test_semantic_group_imports.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r2-kernel-final-companions-independent-20261015/r2-seven-modules.xml",
+        "sha256": "0e393104325c55da6b085620a017c446350955d6cbe88bfc38e4119cd0793a01"
+      },
+      "manifest": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r2-kernel-final-companions-independent-20261015/r2-seven-modules-command.json",
+        "sha256": "3931dc471aabd8c381a2bcf734f6e238fe545a86d16c401f5c4b57ab3bc89e34"
+      },
+      "result": "PASS: 258 tests, 0 failures, 0 errors, 0 skips; fresh independent JUnit receipt.",
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r2-kernel-final-companions-independent-20261015/r2-seven-modules.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r2-kernel-final-companions-independent-20261015/r2-seven-modules.stdout.txt",
+        "sha256": "eb430034d04485a3a169ac0f1654a83316a678f133388e2380a1195639b34031"
+      }
+    },
+    "r2_type_gate_detail": {
+      "all22": "0 errors / 299 warnings",
+      "bare_default_comparison_source15": "0 errors / 1143 warnings, exit 1 without project/baseline flags; not repository gate.",
+      "source15": "0 errors / 188 warnings",
+      "test7": "0 errors / 111 warnings"
+    }
+  }
+}

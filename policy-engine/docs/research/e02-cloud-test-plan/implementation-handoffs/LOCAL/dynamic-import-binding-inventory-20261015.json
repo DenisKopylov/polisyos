@@ -1,0 +1,109 @@
+{
+  "receipt_id": "E02-DX0-DYNAMIC-IMPORT-BINDING-INVENTORY-2026-10-15",
+  "kind": "source-bound two-path inventory completeness handoff to G",
+  "status": "source committed; independent delta GO; global registry gate and formal E02 adjudication pending",
+  "source_slice": {
+    "branch": "codex/e02-unified-local-20261009",
+    "base": {
+      "commit": "9c1f71df6fa177e951a32b33790ea9219372a1c2",
+      "tree_at_commit": "767a89372e70629c52f47682209b128a9f939372"
+    },
+    "candidate": {
+      "commit": "2c08961903c44f92daf762048e37e2ac79abf6ac",
+      "tree": "b4a2b2e9efbce668007674a700d6fac87b2ba8da",
+      "parents": [
+        "9c1f71df6fa177e951a32b33790ea9219372a1c2"
+      ]
+    },
+    "changed_paths_from_base": [
+      {
+        "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+        "sha256": "881d3b471320dd78c1c2be7792db5dd61d5c57c268d26ecd07fe66e743f678fd",
+        "git_blob": "0f13d26137dcf74e4217f927ff9c5b13343febab"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+        "sha256": "2684c801b26f58d3014e85f765d25d61d1514c9398d19f414166afd3aac6584c",
+        "git_blob": "13acc047bb5eb1db864c89d1a3f161d69bfbe3ea"
+      }
+    ],
+    "slice_scope": "The commit changes exactly the scanner and its mirrored repository-quality test. The shared checkout has other dirty E02 work; this is not a global source freeze."
+  },
+  "behavioral_property": "Every Python source under each declared nonignored dynamic-import root is inventoried or the validator reports incomplete input.",
+  "real_chain": {
+    "input": "_dynamic_source_paths('src', 'tools', 'apps', 'packages') enumerates selected roots; any nonignored symlink directory, unsafe root, inspection failure, or traversal error is a typed incomplete-inventory refusal.",
+    "producer": "collect_dynamic_imports parses selected Python sources and derives static dynamic-import callsite rows.",
+    "persisted_contract": {
+      "path": "policy-engine/architecture/imports/dynamic.toml",
+      "sha256": "822fdeadc564f8e36f3ce1d45efbe9991f9365b23b91907ecd5ec6d3e7df0d49",
+      "git_blob": "bae4f7502173b1c2dbd6752df62b7876a570e181"
+    },
+    "bridge_and_consumer": "validate_dynamic_imports compares collector rows with architecture/imports/dynamic.toml and resolves declared allowlist targets; run_all_gates includes validate_dynamic_imports() as the dynamic_imports_gate.",
+    "surface": "decomposition-preflight quality-gate findings and repository-quality pytest; this is an architecture/DevX gate, not a product runtime import authority claim."
+  },
+  "review_and_deciding_evidence": {
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-final2-independent-20261015/review.json",
+      "sha256": "004bc2308f2caf2371805ba481644a8cc43efeb4ac2c3311e30abb453e1f679b",
+      "verdict": "GO for the two-path inventory-completeness delta; no formal closures."
+    },
+    "current_candidate_source_binding": {
+      "scanner_sha256": "881d3b471320dd78c1c2be7792db5dd61d5c57c268d26ecd07fe66e743f678fd",
+      "test_sha256": "2684c801b26f58d3014e85f765d25d61d1514c9398d19f414166afd3aac6584c",
+      "reviewed_head": "9c1f71df6fa177e951a32b33790ea9219372a1c2",
+      "commit_blobs_match_reviewed_sha256": true,
+      "review_base_tree": "767a89372e70629c52f47682209b128a9f939372"
+    },
+    "symlink_matrix": {
+      "result": "20 passed, 144 deselected in 0.22s",
+      "command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-final2-independent-20261015/symlink-matrix.command.json@b6a2030eb322633d4eb8901b7aeb1c9f611466f60f9b94f9316fab1498aa24f6",
+      "full_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-final2-independent-20261015/symlink-matrix.stdout.txt@eba9fb412b1bd842c2fd8a1c6e95c56a56cad395f74e9b8a268d7dccc972125e"
+    },
+    "ignored_matrix": {
+      "result": "36/36 excluded across the 9 named exclusions and all 4 roots.",
+      "command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-final2-independent-20261015/ignored-exclusion-matrix.command.json@b5ae00803a5552c078421ac97c0d6500a603cddceca09a292c8bca037e3830ea",
+      "full_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-final2-independent-20261015/ignored-exclusion-matrix.stdout.txt@6754d3f99c5b91c527bd4427faf5ec9420f0605cb2d6d79da994e0c11f5605fa"
+    },
+    "validator_removal_control": {
+      "result": "Current validator reports incomplete; removing the directory-completeness guard makes the same hidden import return no findings.",
+      "command": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-final2-independent-20261015/removal-control.command.json@7ceb8dad0c18e04e2cf8abd860437628a9bde365e527f9ea01ea78dca98e548f",
+      "full_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-final2-independent-20261015/removal-control.stdout.txt@5981c84dbcbc800eba593ab4c5e754d40ad1b531dfa1ab5eafb466f6cde268d2"
+    },
+    "native_lint_and_diff": {
+      "ruff_check": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-final2-independent-20261015/ruff-check.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "ruff_format_check": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-final2-independent-20261015/ruff-format.stdout.txt@3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "git_diff_check": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-final2-independent-20261015/diff-check.command.json@567f5629708295100d9246915eb042932247ccc769bb336889c041660b3883ff"
+    },
+    "supporting_prior_author_suite": {
+      "reported": "66 passed, 98 deselected in 158.06s",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-final-companion-20261015/dynamic-import-full-focused.stdout.txt@13f945c607bd0fa3717b76a322d8600da2a99ef99a7821888a46e4b142a3a504",
+      "binding_limit": "Not accepted as an exact-current-source receipt; associated source-path manifest binds older c4533693…/159faa36… bytes."
+    }
+  },
+  "historical_global_gate": {
+    "result": "197 FAIL; historical only",
+    "source_head": "7106c0a5926d901a27f0a7c676b2629047f89af0",
+    "scanner_sha256": "c6356f219ca5313c123689320fb1e44b55ca4338d1b0c63e0847c112fdc720fc",
+    "test_sha256": "4df83a1b49104d34e1a39d126b571156522014010646bd822f8605fe5cecd92b",
+    "old_pathset_status": "Not established for a later/final freeze; the 3222/3223 counts are not current denominator evidence."
+  },
+  "current_global_gate_and_limitations": {
+    "full_registry_gate": "UNRUN for committed source; wait for one composed E02 source freeze and exact complete selected-pathset hash.",
+    "registry": {
+      "path": "policy-engine/architecture/imports/dynamic.toml",
+      "sha256": "822fdeadc564f8e36f3ce1d45efbe9991f9365b23b91907ecd5ec6d3e7df0d49",
+      "git_blob": "bae4f7502173b1c2dbd6752df62b7876a570e181"
+    },
+    "accepted_contract": {
+      "path": "policy-engine/docs/adr/repository-structure-0141-dynamic-import-registry.md",
+      "sha256": "cbb43a805103b3dc484469e43ae37a1c9dd706285cfb99ba07ef0409a36ea745",
+      "git_blob": "e42fb33779d5f82eb14c4664359e5c33c1799b72"
+    },
+    "review_authority": "The architecture review header remains expired (reviewed 2026-05-06, expiry 2026-08-04). No authorized issuer or fresh review event is evidenced; no waiver, renewal, or owner approval is authored here.",
+    "scanner_boundary": "Static lexical/value-origin analysis only. Arbitrary runtime-generated imports remain outside the guarantee. The previously recorded PEP 695 shadowing overcount remains a bounded limitation and was not the scope of the final2 symlink delta review.",
+    "source_owner_dispositions": "127 missing and 70 stale row counts are historical; no current row counts, owner decisions, or allowlist approvals are asserted."
+  },
+  "decision_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/dynamic-import-registry-reconciliation-20261015.json",
+  "formal_closures": [],
+  "next_check": "G independently accepts the exact committed source slice. At the composed E02 freeze, hash the complete selected Python pathset and rerun the supported-venv/native registry gate; route all current row dispositions and any review-header renewal through the existing ADR authority path."
+}

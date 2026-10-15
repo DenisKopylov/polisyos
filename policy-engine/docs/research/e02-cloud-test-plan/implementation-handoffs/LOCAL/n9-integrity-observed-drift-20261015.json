@@ -4,9 +4,13 @@
   "unit": "LOCAL",
   "branch": "codex/e02-unified-local-20261009",
   "slice_base_sha": "d0c379349432af51ac33174d57903e64b427bb01",
-  "implementation_commits": ["cf5913cddd96070526744f14140172369926ebfc"],
+  "implementation_commits": [
+    "cf5913cddd96070526744f14140172369926ebfc"
+  ],
   "candidate_tree_sha": "148823dec134d66cc25e111978bd92c59addf8aa",
-  "parents": ["d0c379349432af51ac33174d57903e64b427bb01"],
+  "parents": [
+    "d0c379349432af51ac33174d57903e64b427bb01"
+  ],
   "candidate_scope": "Exact two-file implementation slice only; not the final composed E02 source freeze.",
   "closure_ids": [],
   "proposal_ids": [],
@@ -189,7 +193,14 @@
     }
   ],
   "pattern_pass_and_P40": {
-    "patterns": ["P05", "P29", "P32", "P37", "P38", "P40"],
+    "patterns": [
+      "P05",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P40"
+    ],
     "P40_bucket": "Same identity-observation/poison class, one level deeper: distinguish an unestablished snapshot from a positively observed different identity. Refuse the current operation without durable poison for unavailable evidence; preserve terminal poison for actual drift.",
     "falsifiers": [
       "Transient read failure after quick-fence change plus exact source recovery must refuse that operation but allow fresh healthy admission.",
@@ -201,5 +212,14 @@
     "The earlier independent reviewer interrupted a nine-case subset after five cases; it exited KeyboardInterrupt and is not a passing receipt.",
     "After R2 shared-companion integration, freeze actual source/profile/input bytes, rebind the entire closure, rerun transient-versus-observed-drift controls and the required composed N9 consumer wave, then obtain G independent review and adjudication.",
     "Do not infer custody, external authority, deployment currentness, or publication readiness from the local synthetic fixture."
-  ]
+  ],
+  "later_committed_closure_rebinding": {
+    "source_commit": "b3a448ec971588c2644e9cd21970ca753b8e361f",
+    "tree": "31d3c2890736025d4c43f93045281f428d657589",
+    "complete_manifest_entries": 103,
+    "exact_git_blob_matches": 103,
+    "audit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/n9-committed-closure-rebind.json@da88cdec69eefef9138c248238494537a2234a4e43634df910238d999195fe21",
+    "meaning": "All 103 deciding input bytes exist in this later source commit, including the three former IR overlays. The retained paired runtime output is reused only for those identical inputs/property.",
+    "limits": "Later changes intersecting this full input set require affected-evidence review/replay; no live production, final E02 freeze, or G acceptance follows."
+  }
 }

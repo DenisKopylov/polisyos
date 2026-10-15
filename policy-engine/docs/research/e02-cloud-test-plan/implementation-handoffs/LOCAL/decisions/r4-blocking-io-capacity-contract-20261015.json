@@ -1,0 +1,278 @@
+{
+  "schema": "polisyos.e02.r4-blocking-io-capacity-decision.v1",
+  "title": "R4/B56 resource denominator for Runtime blocking I/O",
+  "decision_status": "proposed_for_independent_G_adjudication",
+  "formal_closure_ids": [],
+  "author_role": "local candidate author; not G acceptance or integration publication",
+  "decision_question": "Does B56's specified shared capacity include every Runtime blocking-I/O operation, or does it bound scientific method/fold work while Runtime I/O has its own explicitly bounded process capacity?",
+  "authority_and_scope": {
+    "authority": "candidate",
+    "authority_source": "No external issuer, production workload, law, or institutional authority is claimed. G retains independent code acceptance and formal finding adjudication.",
+    "time_scope": "source-bound local diagnostic on 2026-10-15; no live production currentness claim",
+    "workload_scope": "The R4 fixture is a portable deterministic two-study synthetic workload. It is not a qualifying production workload.",
+    "surface_scope": "Runtime internal blocking dependency guards and their process executor; no public API, authorization, or policy-status semantics are changed by this packet."
+  },
+  "source_identity": {
+    "candidate_branch": "codex/e02-unified-local-20261009",
+    "packet_creation_head": "b3a448ec971588c2644e9cd21970ca753b8e361f",
+    "packet_creation_tree": "31d3c2890736025d4c43f93045281f428d657589",
+    "r4_diagnostic_head": "db51beb76163cfce795645d9b2be0ae8805228b0",
+    "r4_diagnostic_tree": "439226c5ca24ea2a84d7dc5004e22c2cc7a3fdc2",
+    "r4_diagnostic_parent": "cf5913cddd96070526744f14140172369926ebfc",
+    "r4_test_overlay_sha256": "5ac0d552ec873a487162d0021cb57ba1f4918f1629bb0c116bc40b46d1cca538",
+    "r4_test_overlay_was_uncommitted_at_run": true,
+    "same_runtime_guard_and_cas_sources_at_r4_run_and_profile": {
+      "policy-engine/src/polisyos/runtime/http/resilience.py": "4f2791d3fd6fbb698e65f4e3fff437959fc3c22a2acea4a196de225014cf8ea8",
+      "policy-engine/src/polisyos/common/async_tools.py": "9620d5610fdc2a49a2f4f40f62d49f55e1f2e00cefc6f48826a08f94ff076280",
+      "policy-engine/src/polisyos/core/artifacts/store.py": "f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab",
+      "policy-engine/src/polisyos/core/canon/canon_json.py": "14626d965f82d04bedb8c57291fa230f3ab181c450e546a1d6ab5767825f93da"
+    },
+    "full_r4_route_hash_inventory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-competing-workload-20261015/assessment.json@9a88471d0b018448e0477168d81c8634adde229a8d09515f161d3e48a01e274e"
+  },
+  "original_criterion": {
+    "finding": "B56",
+    "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/tmle-selected-consumer-20261006/original-cards/B56.md",
+    "source_sha256": "5b45e8c8b6ace1a66b9acdd9be541750cfac8c10558f6b21c6f6ec122743e77b",
+    "relevant_spans": [
+      {
+        "lines": "5",
+        "text": "The example is 15 fold workers per fit and 60 theoretical workers from four simultaneous fits; the card explicitly calls this capacity arithmetic, not observed CPU load or measured slowdown."
+      },
+      {
+        "lines": "9",
+        "text": "The recommended first route is existing max_parallel_folds passed from the actual study resource, and the card says a new cluster scheduler is unnecessary."
+      },
+      {
+        "lines": "11",
+        "text": "If shared admission is needed, avoid a cycle where outer work occupies every resource while waiting for inner tasks on the same resource."
+      },
+      {
+        "lines": "13",
+        "text": "For a specified shared resource, bound the sum of admitted work, preserve folds/repeats/results/provenance, and measure elapsed time, peak memory, active workers, and waiting."
+      },
+      {
+        "lines": "15",
+        "text": "The card describes composition/configuration, not a proven defect in one run or a universal fixed capacity."
+      }
+    ],
+    "denominator_reading": "The text ties the resource to fit/fold admission, but never defines its denominator as every Runtime blocking-I/O thread. Reading B56 as the scientific method/fold budget is the closest fit to its max_parallel_folds recommendation; extending it to all CAS/control-store work is a new resource-boundary decision for G, not a fact established by the card.",
+    "status": "candidate_interpretation_only; G_choice_required"
+  },
+  "observed_r4_failure": {
+    "profile": {
+      "capacity": 1,
+      "revision": "r4-native-method-cap-1-v1",
+      "authority": "candidate",
+      "cas_call_timeout_seconds": 1.5,
+      "timeout_semantics": "BlockingDependencyGuard submits to the configured executor and then calls future.result(timeout=1.5); this is an end-to-end submit/queue/service deadline."
+    },
+    "workload": "Two isolated Runtime/CAS roots; actual ControlWorker, RunLifecycle, run_experiment, causal node, MethodBackend, dispatcher, TMLE fold path, and FileSystemCAS writes. 240-row paired synthetic HTE inputs, seeds 811/812; 3 folds x 2 repeats per study. The causal safety admission gate was bypassed only to isolate B56 admission; no safety/promotion claim is made.",
+    "two_timeouts": [
+      {
+        "observer_operation_id": "cas-1274",
+        "run_id": "R_2dfedf3c92a7e3ff",
+        "job_id": "3a0a06e5ea4d473080eace2b736788a6",
+        "operation": "FileSystemCAS.put_json",
+        "caller_elapsed_ms": 1507.126,
+        "queue_wait_ms": 841.537,
+        "service_elapsed_ms": 863.966,
+        "queue_plus_service_ms": 1705.503,
+        "operation_outcome_after_caller_timeout": "ok",
+        "late_completion_after_caller_return_ms": 198.377,
+        "nested_guard_attempt": false
+      },
+      {
+        "observer_operation_id": "cas-1275",
+        "run_id": "R_75e52bd0483c84d6",
+        "job_id": "56de0c44b83e4a4d9cd24a6d66f84154",
+        "operation": "FileSystemCAS.put_json",
+        "caller_elapsed_ms": 1507.808,
+        "queue_wait_ms": 855.283,
+        "service_elapsed_ms": 869.012,
+        "queue_plus_service_ms": 1724.295,
+        "operation_outcome_after_caller_timeout": "ok",
+        "late_completion_after_caller_return_ms": 216.487,
+        "nested_guard_attempt": false
+      }
+    ],
+    "interpretation": "Both callers timed out on queue plus service; the actual writes completed later. The observed caller failure is neither nested self-wait nor a CAS operation failure. The R4 child failed before terminal control-job/result readback, so all 12 folds, complete results, provenance, and fresh GETs remain not_established.",
+    "exact_payload_profile_limitation": "cas-1274/cas-1275 are observer operation IDs, not ArtifactRefs. The diagnostic intentionally retained operation name/timing/thread/executor state but not put_json arguments, canonical payload size/hash, or artifact reference. The pytest temp root recorded in stdout no longer exists. Therefore an exact cProfile of those two failed payloads cannot be reconstructed from retained evidence; profiling a surrogate as if it were exact would be false.",
+    "complete_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-competing-workload-20261015/postfreeze-cas-diagnostic-20261015/cap-1-configured.stdout.txt",
+        "sha256": "8e4a5acefd83241a539ee545e932a4b686d09320d988052dcb25a0965517d108",
+        "bytes": 2719591
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-competing-workload-20261015/postfreeze-cas-diagnostic-20261015/outer.stdout.txt",
+        "sha256": "a41ddeefa5f80ce68d314dcbbc0863d647571424390145ab8bc02929bd035e11",
+        "bytes": 4365
+      }
+    ],
+    "not_run": [
+      "R4 cap-2 profile",
+      "R4 bridge-removal profile",
+      "complete fold/result/provenance/fresh-readback closeout"
+    ]
+  },
+  "last_ordinary_engineering_investigation": {
+    "question": "Could a generic CAS redundant-work optimization remove enough service time to make both queued calls fit the unchanged 1.5-second deadline under the existing shared capacity?",
+    "actual_source_observation": {
+      "put_json_calls_to_canonicalization": "policy-engine/src/polisyos/core/artifacts/store.py:2951-2952 calls to_canonical_bytes(obj, spec) and then calls the same _validate_core_json_payload_conformance(data, spec) again. to_canonical_bytes itself performs this conformance validation at policy-engine/src/polisyos/core/canon/canon_json.py:67-75.",
+      "property_to_preserve": "Canonical/profile refusal and exact bytes remain authoritative. The in-memory probe removed only the repeated store-module validation call; to_canonical_bytes' own conformance validation remained active, and the actual FileSystemCAS transaction, owner checks, manifest publication, and verify remained active.",
+      "path_hashes": {
+        "policy-engine/src/polisyos/core/artifacts/store.py": "f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab",
+        "policy-engine/src/polisyos/core/canon/canon_json.py": "14626d965f82d04bedb8c57291fa230f3ab181c450e546a1d6ab5767825f93da"
+      }
+    },
+    "bounded_actual_profile": {
+      "input": "Exact paired 240-row HTE observational-data generator and ArtifactWriteOptions/CAS profile from test_r4_shared_study_admission.py:417-440, seeds 811/812; one fresh filesystem CAS root per study; no injected delay and no concurrent workload.",
+      "guard_profile": "Actual BlockingDependencyGuard over the shared executor, capacity 1 revision r4-native-method-cap-1-v1; unchanged 1.5-second deadline.",
+      "baseline_guard_elapsed_ms_under_cprofile": [
+        37.678,
+        37.425
+      ],
+      "single_validation_guard_elapsed_ms_under_cprofile": [
+        28.442,
+        28.288
+      ],
+      "canonical_payload_bytes": [
+        42355,
+        42359
+      ],
+      "paired_artifact_ids_equal_baseline_vs_probe": true,
+      "verify_ok_for_all_four_writes": true,
+      "interpretation": "The in-memory one-repeat probe reduced this 42 KB input write by about 24.4-24.5% under cProfile, with identical ArtifactIDs and successful verification. It is a real no-delay FileSystemCAS/guard profile, but not the timed output payloads and not a concurrent R4 proof. On this input it saves about 9 ms, far below the roughly 198-216 ms caller overrun; unknown timed payload size/content prevents extrapolating that ratio to cas-1274/1275. It therefore does not establish that redundant-work removal alone can fix R4.",
+      "full_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-cas-putjson-profile-20261015/profile.stdout.txt",
+        "sha256": "6847db9e1bd00af0107eaf31d75fef02039e08aab33b500edb6ee303cae9b73f",
+        "stderr_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-cas-putjson-profile-20261015/profile.stderr.txt",
+        "stderr_sha256": "d29fe324f1e0a1fe6987ae9899672e5831ba0238aea87faec5a32891561a594d",
+        "probe_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-cas-putjson-profile-20261015/cas_profile_probe.py",
+        "probe_sha256": "3be09c12c65213e6b77ca0e8ab747cb3b7691d4c4a8b2ec99d7b346955945401"
+      }
+    },
+    "engineering_conclusion": "Keep the duplicate-validation removal as a small source-level candidate for separate review because it preserves the validation performed by to_canonical_bytes. Do not use this 42 KB profile to explain or close the 0.86-second service hotspot. To decide whether it suffices, instrument cProfile around the exact two actual put_json callables in a new source-frozen R4 diagnostic and retain only safe aggregate timing/profile metadata; if the optimization cannot bring both complete callers below 1.5 seconds while retaining all artifacts, it is not the capacity solution. No source change was made in this investigation."
+  },
+  "decision_options": [
+    {
+      "id": "aggregate_blocking_runtime_capacity",
+      "meaning": "The B56 shared-cap denominator includes scientific work plus every Runtime blocking CAS/control-store operation on the process shared executor.",
+      "current_deadline": "Preserve the 1.5-second submit-through-service call deadline.",
+      "benefits": [
+        "One physical worker-cap invariant; no additional runtime thread vector.",
+        "Matches current executor wiring and makes the total worker count easy to measure."
+      ],
+      "costs_and_open_questions": [
+        "A cap-1 caller can be behind another method or blocking operation; the observed two calls exceed 1.5 seconds even though their CAS operations succeed later.",
+        "The only identified no-semantics micro-optimization is not shown to recover the required 198-216 ms on the actual payloads.",
+        "Must show cap-1 work waits without lost/failed jobs and preserve every fold/result; otherwise document a specific bounded residual rather than claiming B56 closure."
+      ],
+      "status": "unselected; G choice required"
+    },
+    {
+      "id": "compute_capacity_plus_bounded_runtime_io_vector",
+      "meaning": "B56 capacity governs method/fold compute admission; Runtime blocking I/O receives a distinct, explicitly bounded, process-scoped capacity profile with one owner shared by all relevant Runtime guards.",
+      "current_deadline": "Preserve the 1.5-second end-to-end CAS and control-store deadlines; do not split queue/service budgets.",
+      "benefits": [
+        "Matches B56's concrete max_parallel_folds/current-study-resource route while making I/O concurrency explicit instead of silently unbounded.",
+        "Lets I/O progress while compute workers are occupied, without claiming a production-capacity value."
+      ],
+      "costs_and_open_questions": [
+        "Total process workers may exceed the B56 compute cap; that is a new explicit resource-vector semantics requiring G's choice.",
+        "For this particular pair of independent ~0.86-second writes, a one-worker I/O pool would still serialize the second call past 1.5 seconds; two simultaneous I/O slots are a minimum experiment for this paired case, not a default or production capacity recommendation.",
+        "The process owner must share one profile across 2+ Runtime instances and all CAS/control-store guards, bound backlog, preserve tenant/context propagation, and define cancellation, late completion, shutdown, and same-pool reentrancy behavior.",
+        "The existing CAS and control-store *_EXECUTOR_MAX_WORKERS settings are passed alongside get_shared_executor(); they do not create dedicated pools in the current builders. Turning them into per-guard pools would multiply capacity and is not acceptable."
+      ],
+      "status": "locally recommended interpretation; requires G decision before implementation"
+    },
+    {
+      "id": "change_timeout_budget",
+      "meaning": "Increase the total deadline or split queue-wait and service budgets.",
+      "current_deadline": "Would change the current 1.5-second max-call behavior documented for Runtime CAS.",
+      "benefits": [
+        "Could let queued operations finish without adding worker capacity."
+      ],
+      "costs_and_open_questions": [
+        "Changes timeout/504 behavior and may retain requests past the existing bound.",
+        "Does not fix the measured capacity queue and can hide a nested-wait cycle; needs a separately owned SLO/authority decision."
+      ],
+      "status": "not recommended absent an explicit G decision; not implemented"
+    }
+  ],
+  "minimum_g_choice": "Decide whether B56's shared resource denominator means compute/fold admission only or all Runtime blocking I/O calls. If compute/fold only, authorize a named bounded process Runtime-I/O profile while preserving 1.5-second total guard deadlines. If aggregate, retain a single pool and require an exact-payload profile plus a cap-1 falsifier before claiming the CAS optimization solves the issue.",
+  "candidate_recommendation": {
+    "choice": "Interpret B56 as method/fold compute capacity and prototype a separate bounded process-scoped Runtime I/O profile, while retaining the current 1.5-second end-to-end deadlines.",
+    "basis": "The original B56 recommendation routes max_parallel_folds from the actual study resource; it does not explicitly include CAS/control-store I/O. Current source implementation reuses one executor for those unrelated blocking calls, which is a wiring choice rather than clear B56 criterion text.",
+    "status": "proposal_only; not accepted; do not report formal B56 closure"
+  },
+  "migration_if_G_selects_vector": {
+    "typed_contract": "Add a candidate-only, process-scoped RuntimeBlockingIoProfile with positive bounded capacity and required revision; preserve SharedExecutorProfile as the method/fold compute profile. Conflicting process configuration fails closed.",
+    "owner_lifecycle": "One process owner is shared by all CAS/control-store guards across Runtime instances; per-Runtime close must not shut down a sibling's pool. Explicit shutdown occurs only at the process owner boundary.",
+    "boundedness": "Bound both running I/O calls and pending submissions; over-cap wait/rejection is typed, visible, and cannot silently drop CAS operations. Preserve tenant/contextvars. Same-pool reentry and cancelled-but-running writes receive explicit behavior.",
+    "existing_configuration": "Resolve the presently ineffective CAS/control-store *_EXECUTOR_MAX_WORKERS settings into one typed profile or deprecate them explicitly; never instantiate one pool per guard. No environment-only or per-Runtime capacity multiplication.",
+    "deadline_and_status": "Keep existing 1.5-second total call timeout. A timed-out write remains a possibly-late durable operation; caller status and subsequent durable readback must remain explicit.",
+    "source_lease": [
+      "policy-engine/src/polisyos/runtime/http/resilience.py",
+      "policy-engine/src/polisyos/runtime/http/dependencies.py",
+      "policy-engine/src/polisyos/runtime/http/container.py",
+      "policy-engine/src/polisyos/common/async_tools.py",
+      "policy-engine/tests/unit/runtime/http/test_resilience_guards.py",
+      "policy-engine/tests/unit/runtime/http/test_shared_executor_composition.py",
+      "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+      "policy-engine/docs/reference/operations/cas-storage.md"
+    ],
+    "no_new_claim": "No production capacity/currentness, causal workload adequacy, or external authority claim follows from the synthetic profile."
+  },
+  "required_falsifiers_before_any_r4_proposal_advancement": [
+    "Source-freeze the exact selected implementation, all tests/facades/config/docs companions, and all affected runtime/profile hashes before the expensive wave.",
+    "Capture cProfile of the exact two slow put_json operations with privacy-safe size/type/phase counters and no payloads; compare an in-memory or source-level duplicate-validation removal while keeping to_canonical_bytes and manifest/content checks intact. Decide whether it alone puts both calls under 1.5 seconds; otherwise reject it as sufficient.",
+    "Run one composed source-bound R4 cap-1, cap-2, and bridge-removal wave after independent review: actual physical compute/I/O active peaks and full queue roster; no nested self-wait; bounded pending queue; cancellation/late completion behavior; all 12 folds with seeds/provenance; both control jobs terminal; results/evidence read through fresh CAS instances; exact output equality and removal behavior.",
+    "Test 2+ Runtime instances sharing one bounded process I/O owner, multiple CAS proxies, sibling usability after one Runtime closes, profile conflict rejection, timeout with service-only delay, and control-store contention or a named bounded residual.",
+    "Keep the profile candidate-only; do not claim this local synthetic witness establishes a production workload or any institutional capacity authorization."
+  ],
+  "pattern_pass": {
+    "relevant_register_ids": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P08",
+      "P12",
+      "P29",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "anti_pattern_found": "The generic Runtime shared executor currently combines compute admission and blocking storage guards; the guard's 1.5s timer measures queue plus service. A CAS worker env field suggests independent capacity although the builder passes the canonical shared executor. This is a boundary/measurement mismatch, not evidence of an external authority fact.",
+    "target_pattern": "Name each capacity denominator, use one typed process owner per bounded resource, measure actual admitted/queued work, preserve status for late writes, and verify the real consumer path with removal and complete output readback.",
+    "capability_state": "R4 is verification_missing for complete cap-1/cap-2/removal readback; a capacity-vector contract is decision_pending, not a new accepted capability."
+  },
+  "reuse_and_extension_scan": {
+    "current_process_capacity_owner": {
+      "source": "policy-engine/src/polisyos/common/async_tools.py",
+      "source_sha256": "9620d5610fdc2a49a2f4f40f62d49f55e1f2e00cefc6f48826a08f94ff076280",
+      "finding": "A process-scoped SharedExecutorProfile and shared executor already exist and are reused by CAS and control-store guards. There is no separate bounded Runtime I/O pool/profile to reuse. Its capacity is generic executor capacity, currently shared with MethodBackend compute."
+    },
+    "existing_cas_reuse": {
+      "source": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "source_sha256": "f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab",
+      "finding": "FileSystemCAS already hashes content and is idempotent/content-addressed. Existing blob reuse still validates the stored bytes and current input ownership/manifest transaction; it does not provide cross-root write coalescing. The two R4 Runtime instances have isolated CAS roots, so a shared-cache shortcut would change ownership/durability boundaries and is not a safe reuse path."
+    },
+    "cache_route": {
+      "source": "policy-engine/src/polisyos/core/artifacts/backends/caching_store.py",
+      "finding": "The existing caching artifact adapter wraps object-backed S3/GCS stores; R4 uses independent local FileSystemCAS roots. This cache is not on the measured path and cannot be presumed to remove the calls."
+    },
+    "smallest_candidate_without_new_capacity_semantics": {
+      "change": "Remove only the second Core conformance round-trip in FileSystemCAS.put_json after to_canonical_bytes has already validated those exact bytes against the same CanonSpec; keep canonicalization refusal, content hash, input-owner checks, manifest generation/validation, durable transaction, and verify unchanged.",
+      "source_lease": [
+        "policy-engine/src/polisyos/core/artifacts/store.py",
+        "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+        "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py"
+      ],
+      "status": "unimplemented source candidate; only the ignored in-memory microprobe was run",
+      "falsifier": "The exact operation cProfile shows the duplicated pass contributes less than the measured caller overrun, or the source-level removal fails canonical malformed-input/refusal, selected-profile, ownership, and persisted-byte drift controls. In either case it cannot be claimed as the R4 capacity fix."
+    }
+  }
+}

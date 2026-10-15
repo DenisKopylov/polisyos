@@ -1,0 +1,662 @@
+{
+  "alternatives": [
+    {
+      "benefits": [
+        "Argparse itself owns required groups, type conversion, choices, abbreviations, errors, and actual option acceptance.",
+        "No import/execution for metadata, no source-AST parser emulator, no second parse, and no process-global monkeypatch.",
+        "Mode roles are explicit and validated against actions registered on the actual parser."
+      ],
+      "costs": [
+        "Call-site change in the 42 current GY CLI modules.",
+        "Helper must fail closed on unsupported/custom actions, invalid or ambiguous metadata, non-neutral defaults, repeated parse, parse failure, and calls that bypass the helper."
+      ],
+      "description": "At each current GY parse site, call parse_args_for_timing(parser, args, mode_options=(...)). The helper forwards to the real parser exactly once, then uses the successfully returned Namespace and the explicit option-role contract to select a mode. A ContextVar bound by run_timed_entrypoint carries one invocation-local parse observation to the final record.",
+      "name": "actual single parse plus explicit typed per-parser mode options",
+      "status": "recommended"
+    },
+    {
+      "description": "The RAW prototype showed feasibility using the current group/store_true convention, but automatic classification can treat every Boolean or parser field as an operation. It also relies on private argparse action collections and does not supply the owner-approved explicit command-vocabulary contract.",
+      "name": "inspect live argparse action/group internals to infer operational roles",
+      "status": "not_selected"
+    },
+    {
+      "description": "Callbacks are explicit but duplicate dispatch semantics across 42 validators unless each dispatch is refactored into a shared selector.",
+      "name": "per-parser resolver callbacks",
+      "status": "not_selected"
+    },
+    {
+      "description": "Would repeat the same P40 ladder and keep a static proxy at the actual parser-validity boundary.",
+      "name": "extend static source grammar",
+      "status": "rejected"
+    },
+    {
+      "description": "Would introduce cross-invocation side effects, execute command code for metadata, or alter parser work and error behavior.",
+      "name": "global argparse patch, metadata import/execution, or double parse",
+      "status": "rejected"
+    }
+  ],
+  "authority_and_status": {
+    "data_authority": "No external law, issuer, custody, production-currentness, or other authority fact is inferred.",
+    "decision_authority": "G retains independent code acceptance, integration publication, and formal finding adjudication.",
+    "source_status": "candidate implementation proposal; no formal closure claimed"
+  },
+  "current_mode_option_census": {
+    "context_option_count": 110,
+    "derivation": "Generated from the complete current _direct_cli_options() source census in policy-engine/tests/repo_quality/tools/test_timing.py before edits.",
+    "operational_option_count": 132,
+    "per_script_mode_options": {
+      "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_contract.py": [
+        "--check",
+        "--corrupt-field-drift-check",
+        "--rederive-audit",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_executor.py": [
+        "--check-acceptance-authority",
+        "--check-acceptance-case",
+        "--check-acceptance-execution",
+        "--check-acceptance-fallback",
+        "--check-acceptance-inputs",
+        "--check-d6-metadata-evidence",
+        "--check-d6-route-owners",
+        "--check-metadata-evidence",
+        "--check-reentry",
+        "--check-resumption-owners",
+        "--check-target-owners",
+        "--execute-acceptance-deflator",
+        "--execute-d6-metadata",
+        "--execute-live",
+        "--execute-metadata",
+        "--write-acceptance-authority",
+        "--write-acceptance-case",
+        "--write-acceptance-execution",
+        "--write-acceptance-fallback",
+        "--write-acceptance-inputs",
+        "--write-d6-metadata-evidence",
+        "--write-d6-route-owners",
+        "--write-metadata-evidence",
+        "--write-reentry",
+        "--write-resumption-owners",
+        "--write-target-owners"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_agent_workflow_event_backing_audit.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_capability_coverage_matrix.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_catalog_fetch_audit.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_composition_artifacts.py": [
+        "--check",
+        "--corrupt-field-drift-check",
+        "--source-flip-mutations",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py": [
+        "--check",
+        "--cold-rederive",
+        "--corrupt-field-drift-check",
+        "--rederive-audit",
+        "--source-flip-mutations",
+        "--warm-closeout",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_connector_family_truth_audit.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_data_requirement_compiler_audit.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py": [
+        "--check",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py": [
+        "--capture-proof-runs",
+        "--characterize-compiler",
+        "--characterize-compiler-capabilities",
+        "--characterize-compiler-structured",
+        "--check",
+        "--corrupt-field-drift-check",
+        "--rederive-audit",
+        "--source-flip-mutations",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_design_generation_contract.py": [
+        "--check",
+        "--corrupt-field-drift-check",
+        "--rederive-audit",
+        "--source-flip-mutations",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_design_problem_contract.py": [
+        "--check",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_engine_census.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py": [
+        "--check",
+        "--corrupt-field-drift-check",
+        "--rederive-audit",
+        "--source-flip-mutations"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_foundry_breadth_audit.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py": [
+        "--check"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_contract.py": [
+        "--check",
+        "--corrupt-field-drift-check",
+        "--rederive-audit",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py": [
+        "--check",
+        "--corrupt-field-drift-check"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py": [
+        "--check",
+        "--source-flip-mutations",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py": [
+        "--check",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py": [
+        "--check",
+        "--corrupt-field-drift-check",
+        "--rederive-audit",
+        "--source-flip-mutations",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_knowledge_substrate_contract.py": [
+        "--check",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_lex_frontier_root_cause_audit.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py": [
+        "--check",
+        "--corrupt-field-drift-check",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py": [
+        "--check",
+        "--corrupt-field-drift-check",
+        "--rederive-audit",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py": [
+        "--capture-live-journal",
+        "--check",
+        "--corrupt-field-drift-check",
+        "--source-flip-mutations",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py": [
+        "--check",
+        "--corrupt-field-drift-check",
+        "--rederive",
+        "--source-flip-mutations",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_openalex_artifacts.py": [
+        "--check",
+        "--corrupt-field-drift-check",
+        "--write",
+        "--write-real-accuracy"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_p0_coverage_audit.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_p1_substrate_authority_audit.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_p2_semantic_evidence_quality_audit.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_phase2_artifacts.py": [
+        "--check",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_promotion_contract.py": [
+        "--check",
+        "--corrupt-field-drift-check",
+        "--rederive-audit",
+        "--source-flip-mutations",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_runtime_surface_audit.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_second_domain_pack.py": [
+        "--accept-stage1-n4-journal",
+        "--candidate-dir",
+        "--capture-stage1-n4",
+        "--check",
+        "--corrupt-field-drift-check",
+        "--measure-write-transition",
+        "--rederive-audit",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_source_contract_admissibility_audit.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_substrate_package_capability_inventory.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_value_gate_contract.py": [
+        "--candidate-reissue-catalog-provenance",
+        "--check",
+        "--check-catalog-provenance",
+        "--check-dependency-discriminant",
+        "--corrupt-field-drift-check",
+        "--rederive-audit",
+        "--reissue-catalog-provenance",
+        "--source-flip-mutations",
+        "--write",
+        "--write-dependency-discriminant"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py": [
+        "--check",
+        "--write"
+      ],
+      "policy-engine/tools/quality/validation/check_layer3_gy_workflow_mode_truth_audit.py": [],
+      "policy-engine/tools/quality/validation/check_layer3_gy_world_model_record_contract.py": [
+        "--check",
+        "--write"
+      ]
+    },
+    "required_value_mode_options": [
+      "--candidate-dir",
+      "--accept-stage1-n4-journal"
+    ],
+    "script_count": 42
+  },
+  "formal_closure_ids": [],
+  "formal_g_acceptance": null,
+  "kind": "e02_g_decision_proposal",
+  "migration": {
+    "callsite_rule": "Replace the one existing parse_args call in every census member with parse_args_for_timing and the mechanically derived literal mode_options tuple. For direct build_parser().parse_args(...) calls, bind/build the parser exactly once as the helper argument.",
+    "companion_paths": [
+      "LOCAL/decisions/native-timing-actual-parse-contract-20261015.json"
+    ],
+    "excluded_unless_new_evidence_requires_change": [
+      "policy-engine/tools/quality/timing_budgets.json"
+    ],
+    "mechanism_paths": [
+      "policy-engine/tools/lib/timing.py",
+      "policy-engine/tests/repo_quality/tools/test_timing.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_executor.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_agent_workflow_event_backing_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_capability_coverage_matrix.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_catalog_fetch_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_composition_artifacts.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_connector_family_truth_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_data_requirement_compiler_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_design_generation_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_design_problem_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_engine_census.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_foundry_breadth_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_knowledge_substrate_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_lex_frontier_root_cause_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_openalex_artifacts.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_p0_coverage_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_p1_substrate_authority_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_p2_semantic_evidence_quality_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_phase2_artifacts.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_promotion_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_runtime_surface_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_second_domain_pack.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_source_contract_admissibility_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_substrate_package_capability_inventory.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_workflow_mode_truth_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_world_model_record_contract.py"
+    ],
+    "public_cli_behavior": "Preserve default flags, argv forwarding, parsed Namespace use, output bytes, actual parser errors/SystemExit, and execution branches. The only intended visible delta is timing telemetry: impossible or unverified invocations no longer receive a false concrete/default mode.",
+    "test_requirements": [
+      "Actual valid and invalid required-group invocations.",
+      "Synthetic actual argparse --check positive; real production required-mode failure controls; successful production default-mode CLI smoke; interrupted real production --check metadata witness is not a validator pass.",
+      "Missing value, invalid choices/types, mode default=True/equal-value default, unsupported custom Action, repeated call, uninstrumented call, and a dead-but-present helper call remain unknown where not provable.",
+      "Complete 42-source test verifies one helper route per source and exact metadata against the full operational-option census; runtime controls verify zero executed helper observations remain unknown.",
+      "Removal falsifier removes actual requiredness/action while retaining names/markers and confirms the behavioral gate detects the changed parser behavior."
+    ]
+  },
+  "prior_frozen_v19_hashes": {
+    "policy-engine/tests/repo_quality/tools/test_timing.py": "a6080966168838237beaa6e5c92563db45262f5a1bc2c4e9f0f0ad90b1cc3892",
+    "policy-engine/tools/lib/timing.py": "fe97fe511ddd720c81c73edca50d8fc289c098132d98967c55e063561bd4cb1e",
+    "policy-engine/tools/quality/timing_budgets.json": "dc614ea0958402ff1131ecfd4b6ed27d58870188caea33ee43cd164eb5fb8adb"
+  },
+  "property_and_divergence": {
+    "complete_denominator": "42 Python files matching policy-engine/tools/quality/validation/check_layer3_gy_*.py; independent review finds five required mode groups.",
+    "current_proxy": "The frozen V19 resolver statically derives declared option grammar and classifies argv without executing the actual parser.",
+    "divergent_cases": [
+      "confidence_ledger with empty argv exits 2 because a required mutually-exclusive mode is absent, while timing reports mode=default.",
+      "epoch_chronology with only --expected-source-freeze unused-source-freeze.json exits 2 because a required mode group is absent, while timing reports mode=default."
+    ],
+    "independent_evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-timing-straightline-independent-final-20261015/review.md@c05c59ca94e07d35ac7bc0a9da009d284113f2599b11acc50c042558a7385a2d",
+    "pattern_bucket": "P38 proxy gate; P40 same class one level deeper after conditional-declaration parser-surface escape.",
+    "property": "A recorded CLI mode must describe a mode admitted by the actual parser for that invocation."
+  },
+  "proposal_id": "native-timing-actual-parse-contract-20261015",
+  "proposed_contract": {
+    "api": "parse_args_for_timing(parser, args=None, *, mode_options: tuple[str, ...]) -> argparse.Namespace",
+    "authority": "Recorded mode is parsed request telemetry only. It is not proof of successful operation, action execution, authority, or capability closure.",
+    "execution": "Call parser.parse_args(args) exactly once. Return its real Namespace unchanged on success and propagate its original SystemExit on failure.",
+    "mode_option_contract": "mode_options is a complete explicit tuple of canonical declared long options representing operational command vocabulary for that CLI. It is not an authority claim and does not prove that the corresponding body branch ran.",
+    "parse_observation": "run_timed_entrypoint installs an invocation-local ContextVar. The helper records actual successful Namespace and selected mode only on the first successful helper parse. run_timed_entrypoint reads the observation when emitting timing telemetry and then resets the context.",
+    "runtime_admission": "For each listed option, exactly one registered actual argparse Action must match; option/destination must be unambiguous; supported action type and neutral default must be established; actual parsed namespace must select at most one. Mode label is the declared long option without the -- prefix, never a destination-name or prefix inference.",
+    "unknown": "Emit unknown mode and output format when parse fails, mode metadata is missing/malformed/unregistered/ambiguous, action type is unsupported/custom, a selected field has non-neutral or indistinguishable default, multiple modes are selected, parser helper is called repeatedly, or the entrypoint bypasses the helper."
+  },
+  "prototype": {
+    "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-argparse-prototype-20261015/prototype.stdout.txt@42c7cd0a298fceb8cfaad9bfe1f1981128baf43845a01d45a25c41da0c0f3eac",
+    "design_notes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-argparse-prototype-20261015/design-options.md@2b4d1a03827015a025775f9dfb3e909ab46cfcbe2d18ca32e8851507c4542a8d",
+    "limits": "Prototype is feasibility evidence only. It used live argparse group/action internals and does not implement the owner-approved explicit mode_options API.",
+    "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-argparse-prototype-20261015/prototype.py@8fac74e30e1706b4eeab3f03f56315b51e4c2d7eda7865c574bc0384cf161831"
+  },
+  "source_entry": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "b3a448ec971588c2644e9cd21970ca753b8e361f",
+    "tree": "31d3c2890736025d4c43f93045281f428d657589",
+    "parents": [
+      "606f499c9c2608111a5339f13d01f90673abf88e"
+    ],
+    "status": "Actual timing slice base; V19 source was subsequently delivered as commit 9c1f71df6fa177e951a32b33790ea9219372a1c2. The original cf5913 pathwise baseline is preserved below.",
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "original_pathwise_baseline": {
+      "commit": "cf5913cddd96070526744f14140172369926ebfc",
+      "tree": "148823dec134d66cc25e111978bd92c59addf8aa",
+      "parents": [
+        "d0c379349432af51ac33174d57903e64b427bb01"
+      ],
+      "qualification": "Ancestor of the actual slice base. Exact comparison over the complete 45-path V19 footprint found zero byte changes from cf5913 to b3a448e; intervening root commits are disjoint for this footprint."
+    }
+  },
+  "status": "proposal_pending_independent_g_acceptance",
+  "time_and_sequence": {
+    "estimate": "The actual-parser implementation is complete; focused and full current timing-module verification are complete; independent delta review returned GO. The remaining composed/native closeout is owned by root and is not claimed or estimated here. These notes are status, not a formal G acceptance.",
+    "order": [
+      "Record the narrow actual-parse contract proposal and alternatives for independent G review.",
+      "Implement the shared actual single-parse helper and behavioral controls for required-group failures, dead helper markers, context options, value-taking actions, and unsupported or ambiguous inputs.",
+      "Wire the 42 current GY parsers against the complete per-parser operational-option census.",
+      "Canonical-format all 42 parser sources; verify exact AST and node-count parity.",
+      "Freeze source/config bytes and obtain independent delta review (GO).",
+      "Run the complete current timing test collection once after freeze; JUnit reports 111/111 passed.",
+      "Root owns the remaining native/composed closeout; no formal finding closure is proposed here."
+    ]
+  },
+  "implementation_verification": {
+    "status": "source commit 9c1f71df6fa177e951a32b33790ea9219372a1c2; independent final delta review GO; full timing module JUnit 111/111; no formal closure claimed",
+    "source_freeze_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/source-freeze.json@eedd19ffe833f35a4c6499fb61e4d55bf10c998f45ddffc0f2dd31fd80bc0631",
+    "mechanism_paths": [
+      "policy-engine/tools/lib/timing.py",
+      "policy-engine/tests/repo_quality/tools/test_timing.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_executor.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_agent_workflow_event_backing_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_capability_coverage_matrix.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_catalog_fetch_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_composition_artifacts.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_connector_family_truth_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_data_requirement_compiler_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_design_generation_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_design_problem_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_engine_census.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_foundry_breadth_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_knowledge_substrate_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_lex_frontier_root_cause_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_openalex_artifacts.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_p0_coverage_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_p1_substrate_authority_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_p2_semantic_evidence_quality_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_phase2_artifacts.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_promotion_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_runtime_surface_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_second_domain_pack.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_source_contract_admissibility_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_substrate_package_capability_inventory.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_workflow_mode_truth_audit.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_world_model_record_contract.py"
+    ],
+    "contract": "run_timed_entrypoint binds one invocation-local ContextVar. parse_args_for_timing calls the actual ArgumentParser once, requires an explicit mode_options tuple, classifies only the successfully returned Namespace, and returns unknown on unsupported parser/action, malformed or unregistered option roles, non-neutral defaults, parser errors, argv divergence, repeated parse/action writes, or multiple selected modes. It does not claim that the selected action executed or confers authority.",
+    "callsite_census": {
+      "gy_parser_count": 42,
+      "operational_option_count": 132,
+      "context_option_count": 110,
+      "result": "all 42 callsites match the complete per-script mode_options mapping and have no direct parse_args/parse_known_args calls"
+    },
+    "deciding_outputs": {
+      "focused_actual_parser_tests": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/focused-actual-parser-tests-final.stdout.json@98ce6466ba098a05997389e36602460313fb8e93ce465aa6e4e8d52075efe732",
+      "ruff_and_changed_range_checks": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/ruff-deciding-summary-final.json@9e39f176d7b4d13bcbe164a90b49b6573cb7bb4d6165bc310d92c077090827e5",
+      "whole_file_format_boundary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/whole-file-format-boundary.json@1bb1ffdc004fab5074f9231683c91100a6e047bfa228ac305dad07d65619e43e",
+      "production_parser_metadata_attempts": [
+        {
+          "command": "system Python 3.14, real `check_layer3_gy_generated_public_lifecycle_audit.py --check --json`",
+          "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/production-generated-lifecycle-check.stdout.json@2aeeaa213b47b3cda3867bbde37b4a9ee4a25cf8fe0d9210ed9702434186e2cd",
+          "telemetry": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/production-generated-lifecycle-check.timing.jsonl@bd842027e27515b32dfc1378db37883f1c2606cc211d38e66001fe307e5363e4",
+          "result": "validator rejected wrong interpreter; telemetry records mode=check, output_format=json, status=failed; not a successful check"
+        },
+        {
+          "command": "project .venv Python, real `check_layer3_gy_generated_public_lifecycle_audit.py --check --json`",
+          "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/production-generated-lifecycle-check-project-venv.stdout.json@1d1ac8e7f5360ad996c64e23509059d46c53c6877e542021e3eec15b29db4e71",
+          "telemetry": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/production-generated-lifecycle-check-project-venv.timing.jsonl@9038d373eaf9498f27652c0248432127159dfeb24c1464de1574473400e62aeb",
+          "result": "interrupted after ~90.47s; process returncode -2, telemetry records mode=check, output_format=json, status=failed; no validator pass"
+        }
+      ],
+      "ruff_and_format_checks": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/post-format-verification.json@4f1cdd172e77ae730db0031a656501f42fda01249ac02d3dcc6db82dd681e163",
+      "ruff_formatter_run": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/ruff-format-42.stdout.json@4b85896653ecc548c726a4ca0dba2358b254e8e1a27b2a20f9c1c6c57b2f8dc8",
+      "pre_format_ast": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/pre-format-ast.json@b482036ba7444e64335ae99f382084c86913cccf4f47dd28ea58c6b9ba082f1a",
+      "post_format_ast": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/post-format-ast.json@a81c059cca4c5a7a37b08d86462c3cdb9d431c18c01afa477810afeda6b25533",
+      "ast_parity": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/ast-parity.json@16806f8d424b03f6aa7bf23afca5a86e52caddc24d62e5b58dfbcc5763c7be8e",
+      "full_timing_module": {
+        "command": "PYTHONPATH=. .venv/bin/python -m pytest -q tests/repo_quality/tools/test_timing.py --junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/timing-module-full.junit.xml",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "returncode": 0,
+        "elapsed_seconds": 35.781,
+        "junit_counts": {
+          "tests": 111,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/timing-module-full.stdout.txt@e9e93bf6ce99e361311c2f70ba62d9ecf3e7ce0c72664f23da96aebf4f90392e",
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/timing-module-full.junit.xml@2bf703427b96995a132159bfbc653c3c59766bc94dfd5ebd852efd198187b92c",
+        "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/timing-module-full.command.json@3ead4ca47402b232757a9dffee068791e08dee6d37d43712a64cfe0a5612ea59"
+      },
+      "atlas_python_governance_measurement": "UNRUN; exact current two-test workload: uv run --frozen --extra test --with 'jsonschema>=4.25' python -m pytest architecture/atlas_surfaces/test_frontend_disposition_register.py architecture/atlas_surfaces/test_status_retirement_inventory.py -q"
+    },
+    "results": {
+      "focused_pytest": "18 passed; actual parser success/failure probes include production required-mode failures, a successful production default-mode CLI smoke, and a synthetic check-mode positive; the dead-helper marker-retention control proves zero observed parses remain unknown",
+      "ruff_check": "PASS for timing.py, test_timing.py, and all 42 validator sources",
+      "format": "PASS for timing.py and test_timing.py; each of the 42 parser-call ranges passed Ruff format --check --range",
+      "native_repo_and_composed_closeout_waves": "UNRUN; root owns the remaining native/composed closeout.",
+      "production_successful_check_mode": "No successful production check was obtained. The actual production lifecycle --check invocation parsed mode=check but was interrupted and recorded status=failed; metadata witness only, not a validator pass.",
+      "independent_delta_review": "Final independent review GO at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-independent-review-20261015/final-delta-review.md@996fc66564af3710ac58331250db35300681723c4139083ea91662334a67f429; source review is not G acceptance or finding closure.",
+      "canonical_ruff_format": "PASS; canonical Ruff formatter applied to all 42 GY validators (30 reformatted, 12 already canonical); full format --check passed 42/42.",
+      "ast_semantic_parity": "PASS; pre/post formatter AST hashes and node counts match for 42/42 files; helper API and mode_options are unchanged.",
+      "compileall": "PASS for all 44 mechanism files",
+      "full_timing_test_module": "RUN ONCE after formatting; current complete pytest collection is 111 tests; JUnit 111 passed, 0 failures, 0 errors, 0 skipped; exit 0 in 35.781s. The earlier 123 figure was a stale expected-count estimate from a prior static-resolver test iteration, not the current test denominator. No count-only tests or repeat run were added.",
+      "full_timing_module_junit": {
+        "tests": 111,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 35.781,
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/timing-module-full.stdout.txt@e9e93bf6ce99e361311c2f70ba62d9ecf3e7ce0c72664f23da96aebf4f90392e",
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/timing-module-full.junit.xml@2bf703427b96995a132159bfbc653c3c59766bc94dfd5ebd852efd198187b92c",
+        "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/timing-module-full.command.json@3ead4ca47402b232757a9dffee068791e08dee6d37d43712a64cfe0a5612ea59"
+      },
+      "replaced_static_proxy_tests": {
+        "test_canonical_direct_run_records_action_lane_and_output_format": [
+          "test_actual_parser_result_drives_mode_and_output_format"
+        ],
+        "test_direct_context_options_do_not_invent_an_action_mode": [
+          "test_context_option_is_default_and_abbreviation_uses_argparse_result",
+          "test_direct_gy_guard_persists_json_output_without_inventing_action_mode"
+        ],
+        "test_direct_action_classification_ignores_json_presentation_flag": [
+          "test_actual_parser_result_drives_mode_and_output_format",
+          "test_direct_gy_guard_persists_json_output_without_inventing_action_mode"
+        ],
+        "test_value_taking_action_precedes_later_context_options": [
+          "test_value_taking_modes_use_the_actual_path_action"
+        ],
+        "test_mode_classifier_covers_every_current_gy_argparse_surface": [
+          "test_mode_contract_is_wired_to_the_complete_current_gy_option_census",
+          "test_real_required_gy_mode_groups_record_unknown_on_parse_failure",
+          "test_dead_helper_call_does_not_classify_a_direct_runtime_parse"
+        ]
+      },
+      "replaced_static_proxy_tests_note": "The five previous argv/static-classifier assertions were removed. Their replacements use actual argparse acceptance and returned namespaces, real required production parser groups, live production context/JSON behavior, actual value-taking actions, and a complete 42-script role census; independent delta review also exercised ambiguous abbreviations, missing values, invalid formats, and dead-helper marker retention.",
+      "timing_budget_companion_delta": {
+        "path": "policy-engine/tools/quality/timing_budgets.json",
+        "sha256": "dc614ea0958402ff1131ecfd4b6ed27d58870188caea33ee43cd164eb5fb8adb",
+        "changes_against_candidate_HEAD": [
+          "owner-validator:default source_refs moved from DEBT-REGISTER.md:324 to :507; the source citation points to the matching closed row at line 507 in the current register",
+          "atlas.python-governance:default source digests for both declared tests and its node_map_digest refreshed to current exact workload identity"
+        ],
+        "unchanged_owner_sample_fields": [
+          "samples_ms=[92000.0]",
+          "measured_p95_ms=92000.0",
+          "recommended_timeout_ms=184000.0",
+          "sample_admission_predicate=manual_journal_excerpt:v1",
+          "regime=serialized"
+        ],
+        "authority_limit": "The 92-second owner-validator value remains a manually journal-cited historical timing sample; the row has no workload_identity and the manual_journal_excerpt predicate is not a recomputed current runtime receipt. This edit does not claim fresh timing or validator success.",
+        "atlas_sample_state": "No sample is admitted for the Atlas pytest row (samples_ms=[], measured_p95_ms=null); only its exact workload identity digests changed.",
+        "current_register_citation": {
+          "path": "policy-engine/docs/plans/active/DEBT-REGISTER.md",
+          "line": 507,
+          "sha256": "133bf46f5835a73e117bcfde31edd87b98a5514c364a23b74926278c9f883f6e"
+        }
+      },
+      "atlas_python_governance_measurement": {
+        "status": "UNRUN in this V19 leaf; current workload identity is refreshed but no fresh terminal timing receipt was appended for this exact two-test command.",
+        "command": "uv run --frozen --extra test --with 'jsonschema>=4.25' python -m pytest architecture/atlas_surfaces/test_frontend_disposition_register.py architecture/atlas_surfaces/test_status_retirement_inventory.py -q",
+        "identity": "Current source digests and node_map_digest are in the frozen policy-engine/tools/quality/timing_budgets.json companion; samples_ms remains empty and measured_p95_ms remains null.",
+        "boundary": "UNRUN by this V19 leaf; samples_ms remains empty and measured_p95_ms remains null. This exact two-test workload is distinct from the 111-test timing-module run and remains for root scheduling."
+      },
+      "committed_source_verification": {
+        "commit": "9c1f71df6fa177e951a32b33790ea9219372a1c2",
+        "tree": "767a89372e70629c52f47682209b128a9f939372",
+        "parents": [
+          "b3a448ec971588c2644e9cd21970ca753b8e361f"
+        ],
+        "changed_paths": 45,
+        "footprint": "44 mechanism files plus one required configuration companion; commit path set equals the frozen 45-path footprint exactly.",
+        "committed_blobs": "45/45 committed blobs match final_source_sha256; worktree has no changes in those 45 paths.",
+        "slice_base": "b3a448ec971588c2644e9cd21970ca753b8e361f",
+        "pathwise_baseline": "cf5913cddd96070526744f14140172369926ebfc",
+        "baseline_result": "cf5913c is an ancestor of b3a448e; all 45 footprint paths are byte-identical between them, so intervening root commits are disjoint for this slice."
+      }
+    },
+    "format_scope_note": "Canonical Ruff format ran over all 42 GY validators (30 changed, 12 already canonical). AST SHA-256 and node counts match for all 42 before/after. Full format check, Ruff lint, and compileall passed over the 44 mechanism files; the helper API and parser mode-option tuples did not change during formatting.",
+    "formal_closure_ids": [],
+    "configuration_companion_paths": [
+      "policy-engine/tools/quality/timing_budgets.json"
+    ],
+    "final_source_sha256": {
+      "policy-engine/tools/lib/timing.py": "4f8bac210fa4bd5b12526af3494a48596d0e3eacf01ca1e8d37c4ea2869b30c3",
+      "policy-engine/tests/repo_quality/tools/test_timing.py": "e21731653e5eb0a1335687de850cfd1ed73b9c879bf6facf1c64a52739a873df",
+      "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_contract.py": "9855fa6b75c23ecb26da8f0713cbe66753da33c1c0a1bedb9107987bcfd7b6f2",
+      "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_executor.py": "88d6d669ab700d0e411e63c37c3506d4c5607dd2e25ce2f8af5bc12cae4d2329",
+      "policy-engine/tools/quality/validation/check_layer3_gy_agent_workflow_event_backing_audit.py": "70bba362e4be7ae3122eaae9cda3296f3e566692a89d6c9d58e61a50e697abb5",
+      "policy-engine/tools/quality/validation/check_layer3_gy_capability_coverage_matrix.py": "9f2a801043573def7f80d1c84537d5edcf7eb6405200198757f92561f0a74df6",
+      "policy-engine/tools/quality/validation/check_layer3_gy_catalog_fetch_audit.py": "782495d0bc7f6270a3c6c9920933987526548633b9b7f5320c1091879c587fd6",
+      "policy-engine/tools/quality/validation/check_layer3_gy_composition_artifacts.py": "2498e4abea73d32c101efc632bd70b7ef0f1d9fce37dff28c848df075ca7c9bf",
+      "policy-engine/tools/quality/validation/check_layer3_gy_confidence_ledger.py": "31bb76a22ca85a08c4954ccbc7f220028573b25760131d3e15cf327fcae52e18",
+      "policy-engine/tools/quality/validation/check_layer3_gy_connector_family_truth_audit.py": "4701675c20a434be0336cce135f07dfc78116ec8959916a3d8bbeb97221a5178",
+      "policy-engine/tools/quality/validation/check_layer3_gy_data_requirement_compiler_audit.py": "2167d7a71aaaf1946dcd1acd8cf21246cef4ac0d748f00060d8542480cc2044b",
+      "policy-engine/tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py": "517e62f0793c89b3e7c948afd7f3e5512e9617d9b91a0eea0258cd6f8bc54d52",
+      "policy-engine/tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py": "335ddea11eb88ec371ebbe686d7e01f964e7f90e42c4a90168ce8dcfb37724b9",
+      "policy-engine/tools/quality/validation/check_layer3_gy_design_generation_contract.py": "fee9f11596335ebabb5c98be494d127b27426f7225de9342990f2195236ede6b",
+      "policy-engine/tools/quality/validation/check_layer3_gy_design_problem_contract.py": "5e4c78e8d5f8319e4407057fb6d7e2ba965ca37ed9ec77aa527e67e37f0338c5",
+      "policy-engine/tools/quality/validation/check_layer3_gy_engine_census.py": "c5d00851561a77a133e00ab898deb8378f684917b694522e76684f29a7848d58",
+      "policy-engine/tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py": "920c3ba3e4fbb4bdcb385cae130c288cd5b5527d59ca895fbfadbf05ef4ef6cc",
+      "policy-engine/tools/quality/validation/check_layer3_gy_foundry_breadth_audit.py": "3b7b8a22aa1d3bfe09269cfbe868e8974cb6cd5fc00c9e17ed41a345c44d7b9a",
+      "policy-engine/tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py": "c038e9f95bf73757858acc5eccfc0613fcb1cd819930dd390e4b82c7d41ce5f5",
+      "policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_contract.py": "50b80cf0c1a0f28cdb5291c67b8f4fb1adccfaa406e7d260c2e18786a9c52848",
+      "policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py": "0e6962500a21fe384ba6e91787e709c6fb8be8a6dfc4741259254c3e95034ad8",
+      "policy-engine/tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py": "c01e47355e93223508401bee85845368f3c5b7d94773778b0e022712e009aea7",
+      "policy-engine/tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py": "d32edbd873af2d5fa339ea890ab480ed9ccd912612080ceff96cade833932cd6",
+      "policy-engine/tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py": "435ce5a435eea846655883c9bad12e774828ca5a08823fa6532fa067e64933d5",
+      "policy-engine/tools/quality/validation/check_layer3_gy_knowledge_substrate_contract.py": "c11fcacebdae5595b8f7b2dc90326fa0ad678a687995254cb57175ea3dd116c7",
+      "policy-engine/tools/quality/validation/check_layer3_gy_lex_frontier_root_cause_audit.py": "4b76dca4b55d22a5996ed73ee6e2aec23d88ba7eca341664f848b85cde29cb85",
+      "policy-engine/tools/quality/validation/check_layer3_gy_loop_artifacts.py": "ef36bf06d60b48a551cd8ab6a004af4c98ed418541630e635ab3abfdf29236b1",
+      "policy-engine/tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py": "360a837c448d1f3f6ecadf0fc17e40321a4a510e1196f085649d7395c2b7e75b",
+      "policy-engine/tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py": "4cd2063644839438276c49fc4678f9ae8fcdae9e2d1565318f9e8ec4ffd02d39",
+      "policy-engine/tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py": "c8d532be4ff110312b5c0e446385b992f4ab513c44e18a005905a9f40dd305ea",
+      "policy-engine/tools/quality/validation/check_layer3_gy_openalex_artifacts.py": "314d4aaacd5300987072461aef33ef2e78ebaab3929ffebddbb0db14210478a2",
+      "policy-engine/tools/quality/validation/check_layer3_gy_p0_coverage_audit.py": "e8282b843bbb076582205b595c2d5f2671e597b9d91e825cc618ea24837dd694",
+      "policy-engine/tools/quality/validation/check_layer3_gy_p1_substrate_authority_audit.py": "629bff8d8c49ee91f8ae645c7e42805ff4f59366e02dd829f7dec4079b51ce53",
+      "policy-engine/tools/quality/validation/check_layer3_gy_p2_semantic_evidence_quality_audit.py": "2e7c7eab9dd9ed00b58bb34087491c65b2ef79e21710930e3179c61f10b7d503",
+      "policy-engine/tools/quality/validation/check_layer3_gy_phase2_artifacts.py": "c4d5c00a55c65661849f54042fa36971e886d3533e1ab3905ec9b2f8174bf97a",
+      "policy-engine/tools/quality/validation/check_layer3_gy_promotion_contract.py": "c6c008cbc858ac8157425df3681f636530c2d57df2b206d573bcef65f469c379",
+      "policy-engine/tools/quality/validation/check_layer3_gy_runtime_surface_audit.py": "66aeb7732a5f28ff83378bb5b5fadaf258e40b02b877630293a67e95f2329a86",
+      "policy-engine/tools/quality/validation/check_layer3_gy_second_domain_pack.py": "dc42331444c090fd09d4dcca078670f76abfd77c774e8aaeab0921d3a73aa21d",
+      "policy-engine/tools/quality/validation/check_layer3_gy_source_contract_admissibility_audit.py": "4b997dcfcdef32cb50fa12e66851bd11132d038c7cc5fedfd027282195df7141",
+      "policy-engine/tools/quality/validation/check_layer3_gy_substrate_package_capability_inventory.py": "7e8c8d5505d040920bd95c748ec4598a5c7ae77573b5ab35db71077b4f29f6cf",
+      "policy-engine/tools/quality/validation/check_layer3_gy_value_gate_contract.py": "9c257a1e4abda8a3ae14e0e56342879eb0da9c4529b81d2339b6803b582a04fe",
+      "policy-engine/tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py": "9c9ca84e02164a1c64fc93c6b06e5521dd073a2cad574dfa8bd6fe3eea56bc13",
+      "policy-engine/tools/quality/validation/check_layer3_gy_workflow_mode_truth_audit.py": "6fe0d72afc27b8624fd852af9fc39b12d02e6da18f621ce392f9936ac600eb06",
+      "policy-engine/tools/quality/validation/check_layer3_gy_world_model_record_contract.py": "aa42df64a6af95f79990d1448ad20246f2a91debde1ee56160a30df09ac36ece",
+      "policy-engine/tools/quality/timing_budgets.json": "dc614ea0958402ff1131ecfd4b6ed27d58870188caea33ee43cd164eb5fb8adb"
+    },
+    "candidate_freeze": {
+      "branch": "codex/e02-unified-local-20261009",
+      "commit": "9c1f71df6fa177e951a32b33790ea9219372a1c2",
+      "head": "9c1f71df6fa177e951a32b33790ea9219372a1c2",
+      "tree": "767a89372e70629c52f47682209b128a9f939372",
+      "parents": [
+        "b3a448ec971588c2644e9cd21970ca753b8e361f"
+      ],
+      "slice_base_commit": "b3a448ec971588c2644e9cd21970ca753b8e361f",
+      "slice_base_tree": "31d3c2890736025d4c43f93045281f428d657589",
+      "original_pathwise_baseline": "cf5913cddd96070526744f14140172369926ebfc",
+      "source_freeze_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-20261015/source-freeze.json@eedd19ffe833f35a4c6499fb61e4d55bf10c998f45ddffc0f2dd31fd80bc0631",
+      "source_bytes_match_reviewed_freeze": true,
+      "committed_blob_verification": {
+        "verified": 45,
+        "expected": 45,
+        "result": "PASS"
+      },
+      "commit_footprint": {
+        "changed_paths": 45,
+        "mechanism_paths": 44,
+        "configuration_companions": 1,
+        "exact_match_to_frozen_path_set": true
+      },
+      "pathwise_baseline_qualification": {
+        "cf5913_ancestor_of_b3a448e": true,
+        "paths_unchanged_cf5913_to_b3a448e": 45,
+        "paths_checked": 45,
+        "result": "PASS"
+      },
+      "current_worktree_status_for_footprint": "clean; exact 45 committed path bytes match the frozen map"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-independent-review-20261015/final-delta-review.md",
+      "sha256": "996fc66564af3710ac58331250db35300681723c4139083ea91662334a67f429",
+      "verdict": "GO for root to commit this frozen timing delta and continue integrated review; not G acceptance, publication, or formal finding closure"
+    },
+    "prior_independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-actual-parse-independent-review-20261015/review.md",
+      "sha256": "b6c53f9fd14be5122b4a11bb4091634f60c47c4baac3cecf59d05bbb60356c77",
+      "verdict": "GO for the earlier actual-parser source delta before final formatting and integrated review"
+    }
+  },
+  "delivery_status": "Source code commit delivered; root owns the separate receipt commit. No future receipt SHA is recorded."
+}

@@ -1,0 +1,288 @@
+{
+  "decision_id": "E02-DX0-DYNAMIC-IMPORT-REGISTRY-RECONCILIATION-2026-10-15",
+  "packet_type": "G source-and-contract decision request",
+  "status": "G_DECISION_PENDING",
+  "formal_adjudication": "not_performed",
+  "closure_ids": [],
+  "scope": {
+    "e02_routes": [
+      "DX0 native repository gates",
+      "LA-033 dynamic-import registry gate"
+    ],
+    "contract": "ADR-RSR-0141; architecture/imports/dynamic.toml",
+    "decision_boundary": "Reconcile current statically collected dynamic-import callsites and stale registry records under the accepted contract; resolve whether any contract amendment is needed for empty allowlists. G retains independent code acceptance and formal adjudication."
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": "9c1f71df6fa177e951a32b33790ea9219372a1c2",
+    "commit": "2c08961903c44f92daf762048e37e2ac79abf6ac",
+    "tree": "b4a2b2e9efbce668007674a700d6fac87b2ba8da",
+    "parents": [
+      "9c1f71df6fa177e951a32b33790ea9219372a1c2"
+    ],
+    "changed_paths_from_slice_base": [
+      "policy-engine/tools/quality/validation/decomposition_preflight.py",
+      "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py"
+    ],
+    "scanner": {
+      "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+      "sha256": "881d3b471320dd78c1c2be7792db5dd61d5c57c268d26ecd07fe66e743f678fd",
+      "git_blob": "0f13d26137dcf74e4217f927ff9c5b13343febab"
+    },
+    "scanner_test": {
+      "path": "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+      "sha256": "2684c801b26f58d3014e85f765d25d61d1514c9398d19f414166afd3aac6584c",
+      "git_blob": "13acc047bb5eb1db864c89d1a3f161d69bfbe3ea"
+    },
+    "registry": {
+      "path": "policy-engine/architecture/imports/dynamic.toml",
+      "sha256": "822fdeadc564f8e36f3ce1d45efbe9991f9365b23b91907ecd5ec6d3e7df0d49",
+      "git_blob": "bae4f7502173b1c2dbd6752df62b7876a570e181"
+    },
+    "adr": {
+      "path": "policy-engine/docs/adr/repository-structure-0141-dynamic-import-registry.md",
+      "sha256": "cbb43a805103b3dc484469e43ae37a1c9dd706285cfb99ba07ef0409a36ea745",
+      "git_blob": "e42fb33779d5f82eb14c4664359e5c33c1799b72"
+    },
+    "pattern_register": {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "sha256": "adbe8a4edb53de63dd82b7a0a25e6b1d3777fd66d171b8de1bbcb0a0cf20b7ca",
+      "git_blob": "63b6267a5fa988e0d789ff0d13f290d3f448a697"
+    },
+    "checkout_state": "This two-path slice is committed. The shared checkout remains dirty with other E02 work; this commit is not a global source freeze or a full-source replay receipt.",
+    "review_binding": "The independent final2 review used HEAD 9c1f71df6fa177e951a32b33790ea9219372a1c2 and recorded these same source SHA-256 values in its modified working tree. The commit contains byte-identical path contents; see the exact source blob ids above.",
+    "slice_base_tree": "767a89372e70629c52f47682209b128a9f939372"
+  },
+  "source_census": {
+    "denominator": {
+      "scope": "_dynamic_source_paths('src','tools','apps','packages')",
+      "suffix": ".py",
+      "total": 3222,
+      "roots": {
+        "src": 2765,
+        "tools": 452,
+        "apps": 5,
+        "packages": 0
+      },
+      "exclusions": [
+        ".git",
+        "caches",
+        ".venv",
+        "node_modules"
+      ],
+      "followlinks": false
+    },
+    "pathset_sha256": null,
+    "status": "The 3222-file denominator and prior attempted 3223-path scan are historical observations tied to the old source frame. A complete atomic pathset/hash for the committed scanner and the composed E02 source freeze is not established; do not reuse those counts as current.",
+    "failed_replay_output": "source manifest ready 3223 files; collector complete 307 rows; AssertionError: source path set or bytes changed during collector scan",
+    "current_freeze": {
+      "status": "NOT_ESTABLISHED",
+      "pathset_sha256": null,
+      "next_check": "After the composed source freeze, enumerate all declared roots and hash the complete selected Python path set atomically, then run the full supported-venv/native registry gate against that exact source frame."
+    }
+  },
+  "recorded_gate_result": {
+    "state": "HISTORICAL_FAIL",
+    "finding_count": 197,
+    "canonical_collector_rows": 307,
+    "registered_rows": 250,
+    "missing_current_signatures": 127,
+    "stale_signatures": 70,
+    "field_or_header_findings": 0,
+    "unresolved_allowed_target_findings_in_supported_venv": 0,
+    "run_environment": "policy-engine/.venv; a system-Python attempt was excluded because its importlib.util.find_spec could not resolve two valid modules",
+    "native_gate_status": "Historical FAIL: 197 findings on the older scanner/test source frame recorded under historical_gate_source_frame. The native full registry gate for commit 2c08961903c44f92daf762048e37e2ac79abf6ac is UNRUN pending complete source freeze; the old result is not current candidate status or a formal closure.",
+    "current_source_binding": "Not applicable: this result is bound to the historical scanner SHA c6356f219ca5313c123689320fb1e44b55ca4338d1b0c63e0847c112fdc720fc and test SHA 4df83a1b49104d34e1a39d126b571156522014010646bd822f8605fe5cecd92b."
+  },
+  "reconciliation": {
+    "missing_rows": {
+      "total": 127,
+      "candidate_same_source_call_pattern_line_correlations": 62,
+      "unmatched_current_signatures": 65,
+      "nonempty_scanner_allowlists_resolved_in_venv": 39,
+      "empty_allowlists_review_required": 88,
+      "owner_routing_counts": {
+        "team-architecture": {
+          "total": 82,
+          "empty": 53,
+          "nonempty": 29
+        },
+        "team-devx": {
+          "total": 5,
+          "empty": 5,
+          "nonempty": 0
+        },
+        "team-foundry": {
+          "total": 23,
+          "empty": 20,
+          "nonempty": 3
+        },
+        "team-frontend": {
+          "total": 1,
+          "empty": 0,
+          "nonempty": 1
+        },
+        "team-scientist": {
+          "total": 16,
+          "empty": 10,
+          "nonempty": 6
+        }
+      }
+    },
+    "stale_rows": {
+      "total": 70,
+      "candidate_same_source_call_pattern_line_correlations": 62,
+      "unmatched_stale_signatures": 8
+    },
+    "correlation_limit": "The 62 candidates match (source_file, call, pattern) at different line numbers; duplicate same-triple callsites can make that ambiguous. They are not call-node identity or owner approval. Do not silently pair/remove/approve by correlation alone.",
+    "allowlist_limit": "The 39 nonempty targets resolve in this local venv, which establishes import resolution only. The 88 empty lists remain review-required; path-derived owner tags route work and are not attestations.",
+    "status": "Historical source-derived counts only; bound to the old complete 307-row collector input and historical scanner/test hashes. No current row totals or owner dispositions are asserted for the committed scanner.",
+    "source_binding": {
+      "scanner_sha256": "c6356f219ca5313c123689320fb1e44b55ca4338d1b0c63e0847c112fdc720fc",
+      "test_sha256": "4df83a1b49104d34e1a39d126b571156522014010646bd822f8605fe5cecd92b",
+      "head": "7106c0a5926d901a27f0a7c676b2629047f89af0"
+    }
+  },
+  "existing_contract_and_authority": {
+    "reuse": "ADR-RSR-0141 is the accepted contract and canonical collector/renderer/validator already exists. It allows empty allowed_targets for plugin/user-supplied patterns but requires inventory and owner tag; the registry notes unresolved plugin slots require dated owner review. Each row needs owner, target or allowed_targets, verifier, and notes.",
+    "review_header": {
+      "review_owner": "team-architecture",
+      "reviewed_at": "2026-05-06",
+      "review_expires": "2026-08-04",
+      "status_as_of": "expired on 2026-10-15"
+    },
+    "issuer": "No named authorized human issuer or fresh review event is evidenced. The owner team label does not authenticate an issuer. Do not invent an issuer or renew by date-only edit.",
+    "separate_gates": "The row inventory comparison and external review/expiry are separate. A green row comparison cannot renew review authority; preserving the existing header leaves the expiry gate red until the authorized review is actually performed and recorded."
+  },
+  "options": [
+    {
+      "id": "A",
+      "name": "Routine candidate-correlated line migration",
+      "action": "After owner confirmation, render only the 62 candidate line/id moves, preserving semantic fields/header.",
+      "benefit": "Smallest migration for confirmed coordinate-only drift.",
+      "residual": "Correlation is not call-node identity; 65 missing and 8 stale unmatched rows, 88 empty allowlists, and expired review remain."
+    },
+    {
+      "id": "B",
+      "name": "Full owner-led callsite and allowlist-contract review (recommended)",
+      "action": "Under ADR-RSR-0141, disposition the historical 127 missing and 70 stale rows with routed source owners; rerun against a complete frozen source pathset before treating any row total as current. Confirm call intent, target/allowlist, verifier, and notes; explicitly review all historically observed 88 empty lists; review extension points/patterns/targets/verifiers before any fresh review header.",
+      "benefit": "Separates exact inventory migration from owner authority and expiry review.",
+      "residual": "Gate remains FAIL until source decisions and rerun. Any new empty-list semantics needs a separate contract decision."
+    },
+    {
+      "id": "C",
+      "name": "Eliminate unsupported dynamic-import paths",
+      "action": "Remove only owner-proven dead callsites or replace them with an existing explicit loader; verify each consumer.",
+      "benefit": "Reduces edges only where code is obsolete.",
+      "residual": "Blanket removal may break lazy backends, plugin/entry-point discovery, fixtures, and runtime loading. No evidence says the 127 historically observed paths are dead."
+    }
+  ],
+  "recommendation": {
+    "choice": "B under the existing ADR first; ask for a separate narrow contract decision only if owners show current empty-list semantics are insufficient.",
+    "migration": "After owner decisions, render from a frozen full collector, review every row field, preserve the header until an authorized issuer supplies review evidence/date/expiry, then rerun supported-venv and native expiry/import gates with a full pathset hash. Keep receipts separate."
+  },
+  "prototype_and_falsifier": {
+    "property": "Removing a registered row while leaving the rest of the registry unchanged must cause the actual validator to report that current call as unregistered.",
+    "method": "Imported the frozen scanner file; reconstructed the complete 307-row canonical input from the retained full inventory plus current 250-row registry; monkeypatched only the collector input and in-memory registry reader. Compared the actual validator output against the retained complete 197-finding run, then removed one exact [[pattern]] block in memory while retaining every other byte.",
+    "result": "PASS: exact baseline reproduced at 197; after one row removal, 198 findings; delta is exactly one 'dynamic import call is not registered' finding for ('apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py', 35, 'importlib.import_module', '_helpers.runtime_http').",
+    "complete_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-registry-reconciliation-20261015/in-memory-registry-row-removal-probe.json@aadc5c74936e93824cfb196b552f36e6a2104035ea1ea8756ddef0c0eb1017c9",
+    "limitation": "This validator property probe reuses the retained complete canonical source rows; it is not a new full source walk or proof of the later/current pathset.",
+    "source_binding": "Historical registry-row removal falsifier against the prior retained canonical collector input; it is not a current full-source census or a current global registry result."
+  },
+  "bounded_scanner_residual": {
+    "p40_bucket": "Same lexical/value-origin class; bounded residual; no case-patch ladder.",
+    "statement": "PEP 695 runtime bounds/defaults/constraints are traversed and tested. In an annotation/class-base scope, a type-parameter named importlib shadows the imported module: static scan inventories math, while runtime raises AttributeError on TypeVar.import_module. This is a bounded overcount, not a missed real call.",
+    "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-independent-pep695-final-20261015/scope-edge.py@0e6d3d9892304fd46a11a5dbca8c9ef8e8101b281d9380b3d54fb441f55dd745; policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-independent-pep695-final-20261015/scope-edge.stdout.txt@64507c93f0ace4f461148af7a6db5dcbcd05ef1720b59e389c2f14e80bad6d01. Earlier omission probe: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-independent-conservation-20261015/type-parameter-bound-probe.json@48032230e8ce514cd93d4c67e971cf357f8f69809d9c897c04749bee9a015bf4. The final2 review was scoped to symlink completeness and did not re-adjudicate this previously recorded overcount limitation.",
+    "smallest_closing_capability": "Compiler/scope-aware evaluation of PEP 695 annotation and class-base binding/evaluation. The current scanner is static lexical/provenance analysis and has no such evaluator; any extension needs shadowed/unshadowed falsifiers and typed refusal for unsupported carriers.",
+    "next_check": "Keep the limitation explicit. Reopen source only for an omitted real importer or G GO to widen under P40."
+  },
+  "gate_predicates_and_divergence": {
+    "P37": {
+      "recomputed": [
+        "registry signatures and row fields against the captured collector output",
+        "allowed target import resolution in the selected local .venv"
+      ],
+      "not_established": [
+        "atomic pathset hash for the later/current source freeze",
+        "authority/authenticity of owner approval",
+        "freshness or issuer identity of the expired review header"
+      ],
+      "institutionally_supplied": [
+        "source-owner intent for each path",
+        "team-architecture review and any new expiry"
+      ]
+    },
+    "P38": {
+      "property": "All dynamic-import edges represented by the declared scanner language in the selected source set are registered with exact row fields.",
+      "implementation": "The validator compares complete AST collector signatures and fields to dynamic.toml and resolves nonempty allowed targets. A historical run on the older source frame was red with 197 findings. The committed scanner native gate is UNRUN pending a complete composed-source pathset and replay. It does not establish arbitrary runtime-generated imports, and PEP 695 scope shadowing can overcount as described above.",
+      "divergent_case": "A type-parameter name shadows importlib; the static row says import_module('math'), but runtime lookup fails on TypeVar. Keep this as bounded limitation, not a green statement about all Python runtime loading."
+    }
+  },
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P35",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "anti_patterns": "Trusting markers or owner tags; counting without a complete denominator; confusing declaration with authority; treating line correlation as call identity; patch ladders.",
+    "target": "Use generic collector/renderer/validator plus full path denominator and row-removal falsifier; source owner intent and review issuance remain external.",
+    "acceptance": "G/owners dispose every missing/stale row, an authorized current review is recorded, a frozen complete-pathset replay is green, and removing one row fails closed."
+  },
+  "g_question": "After a complete current-source freeze and replay, will G route the current missing and stale rows to their source owners under ADR-RSR-0141 and require explicit review of each empty allowlist? The 127 missing, 70 stale, and 88 empty-allowlist counts in this packet are historical observations from the prior source frame, not current totals. Will G require a named authorized team-architecture issuer to review active extension points/patterns/targets/verifiers before any review-header renewal? If G considers empty-allowlist semantics insufficient, which narrow contract change should be proposed separately?",
+  "owners_and_next_checks": {
+    "decision_owner": "G for independent source/contract acceptance and adjudication; team-architecture for registry review. Path-derived row tags only route questions.",
+    "minimum_external_input": "Source-owner decisions per row; named authorized issuer and review evidence/date/expiry for header. No issuer is evidenced.",
+    "independent_work_while_pending": "The committed scanner/test slice fails closed for nonignored directory symlinks; G has an independent GO on that delta only. No dynamic.toml edit, blanket empty-allowlist approval, header renewal, or formal closure is included.",
+    "next_check": "After owner decisions, capture one stable full Python path manifest/hash at the composed source freeze, render only authorized dispositions, preserve the expired header until an actual authorized review event, then rerun the supported-venv and native gates against that exact source frame. G alone records formal closures."
+  },
+  "evidence": {
+    "inventory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-registry-reconciliation-20261015/inventory.json@5ee1edc4488d881348ae2a3063eb2fd13f6a899d3b290f86053f37d8788344bd",
+    "complete_validator_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-registry-reconciliation-20261015/venv-validator.json@faddb380c64e6c6a431a74f7e6dda6bd86307de87534f907949ea0de71c434da",
+    "current_source_completeness_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-final2-independent-20261015/review.json@004bc2308f2caf2371805ba481644a8cc43efeb4ac2c3311e30abb453e1f679b"
+  },
+  "historical_gate_source_frame": {
+    "head_at_deciding_full_validator": "7106c0a5926d901a27f0a7c676b2629047f89af0",
+    "head_at_packet_authoring": "d0c379349432af51ac33174d57903e64b427bb01",
+    "scanner": {
+      "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+      "sha256": "c6356f219ca5313c123689320fb1e44b55ca4338d1b0c63e0847c112fdc720fc"
+    },
+    "scanner_test": {
+      "path": "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+      "sha256": "4df83a1b49104d34e1a39d126b571156522014010646bd822f8605fe5cecd92b"
+    },
+    "registry": {
+      "path": "policy-engine/architecture/imports/dynamic.toml",
+      "sha256": "822fdeadc564f8e36f3ce1d45efbe9991f9365b23b91907ecd5ec6d3e7df0d49"
+    },
+    "head_trees": {
+      "7106c0a5926d901a27f0a7c676b2629047f89af0": "91689d6a82c604ee5375dd2d7f8ac7f26db9dc26",
+      "d0c379349432af51ac33174d57903e64b427bb01": "4713b77d5e06aa654c3e9286289c40833ca6f926"
+    },
+    "classification": "Historical source binding for the retained 197-finding full-registry run; it predates the committed scanner/test slice below."
+  },
+  "source_completeness_falsifier": {
+    "property": "Every Python source under each declared nonignored dynamic-import root is inventoried or the validator reports incomplete input.",
+    "source_binding": {
+      "commit": "2c08961903c44f92daf762048e37e2ac79abf6ac",
+      "tree": "b4a2b2e9efbce668007674a700d6fac87b2ba8da",
+      "scanner_sha256": "881d3b471320dd78c1c2be7792db5dd61d5c57c268d26ecd07fe66e743f678fd",
+      "test_sha256": "2684c801b26f58d3014e85f765d25d61d1514c9398d19f414166afd3aac6584c"
+    },
+    "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-dynamic-import-final2-independent-20261015/review.json@004bc2308f2caf2371805ba481644a8cc43efeb4ac2c3311e30abb453e1f679b",
+    "verdict": "GO for the two-path source-inventory completeness delta only; no formal closure.",
+    "deciding_results": "Independent public-validator matrix: 20 passed/144 deselected; 36/36 explicit ignored-name/root cases remained excluded; current validator removal control turns the same hidden importer into false green when the completeness guard is removed. Exact command and full outputs are in the linked independent review and the tracked inventory receipt.",
+    "prior_author_suite_caveat": "The 66-pass author run is supporting only: its source-path manifest binds earlier c4533693…/159faa36… bytes. Do not report it as exact-current-source evidence.",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/dynamic-import-binding-inventory-20261015.json"
+  },
+  "current_native_gate": {
+    "state": "UNRUN_PENDING_COMPOSED_SOURCE_FREEZE",
+    "source_commit": "2c08961903c44f92daf762048e37e2ac79abf6ac",
+    "full_pathset_hash": null,
+    "global_dynamic_import_registry_replay": "Not run for this committed scanner; old 197-finding result remains historical.",
+    "required_next_check": "Freeze the complete composed E02 source and selected Python pathset; rerun the supported-venv validator and native expiry/import gates, retaining full deciding output and any skipped backends."
+  },
+  "current_binding_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/dynamic-import-binding-inventory-20261015.json"
+}

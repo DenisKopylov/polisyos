@@ -4,12 +4,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, SupportsFloat, SupportsIndex
 
 from ._lazy import lazy_dir, load_lazy_export
 
 if TYPE_CHECKING:
     import duckdb
+
+    from polisyos.data_forge.domains.legal.runtime_material import (
+        LegalRuntimeMaterialOwner as LegalRuntimeMaterialOwner,
+    )
 
 _LEGAL_DOMAIN = "polisyos.data_forge.domains.legal"
 _EXPORTS = {
@@ -205,6 +209,17 @@ def _select_sql(*, available_columns: set[str]) -> str:
     return ", ".join(selected)
 
 
+def _confidence_as_float(value: object) -> float:
+    """Preserve the read API's ``float(value or 0.0)`` DuckDB scalar behavior."""
+    if not value:
+        return 0.0
+    if isinstance(value, (str, bytes, bytearray, SupportsFloat, SupportsIndex)):
+        return float(value)
+    raise TypeError(
+        f"float() argument must be a string or a real number, not '{type(value).__name__}'"
+    )
+
+
 def _to_legal_graph_fact(row: tuple[object, ...]) -> LegalKnowledgeGraphFact:
     return LegalKnowledgeGraphFact(
         fact_id=str(row[0] or ""),
@@ -212,7 +227,7 @@ def _to_legal_graph_fact(row: tuple[object, ...]) -> LegalKnowledgeGraphFact:
         predicate=str(row[2] or ""),
         object_name=str(row[3] or ""),
         fact_text=str(row[4] or ""),
-        confidence=float(row[5] or 0.0),
+        confidence=_confidence_as_float(row[5]),
         norm_type=str(row[6] or ""),
         action_canon=str(row[7] or ""),
         norm_type_canon=str(row[8] or ""),
@@ -229,4 +244,4 @@ def _to_legal_graph_fact(row: tuple[object, ...]) -> LegalKnowledgeGraphFact:
     )
 
 
-__all__ = sorted((*_EXPORTS, "LegalKnowledgeGraphFact", "search_legal_knowledge_graph"))
+__all__: list[str] = sorted((*_EXPORTS, "LegalKnowledgeGraphFact", "search_legal_knowledge_graph"))

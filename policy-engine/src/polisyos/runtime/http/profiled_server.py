@@ -15,7 +15,7 @@ from polisyos.runtime.http.container import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.data_forge.domains.legal.runtime_material import LegalRuntimeMaterialOwner
+    from polisyos.data_forge.read_api.legal import LegalRuntimeMaterialOwner
 
 
 def create_profiled_runtime_api_app(

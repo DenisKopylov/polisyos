@@ -171,11 +171,11 @@ def _runtime_server(
                     log_file.flush()
                     pytest.fail(f"Runtime server exited {return_code}: {log_path.read_text()}")
                 try:
-                    response = _http_json(f"{base_url}/api/v1/health")
+                    response = _http_json(f"{base_url}/ready")
                 except (httpx.HTTPError, TimeoutError, OSError):
                     time.sleep(0.2)
                     continue
-                if response.get("service") == "runtime_api_v1":
+                if response.get("status") == "ready":
                     break
             else:
                 log_file.flush()
@@ -236,7 +236,7 @@ def test_ordinary_legal_cli_generation_is_served_by_fresh_profiled_api(
         },
     )
 
-    output_root = tmp_path / "producer-output"
+    output_root = receipt_root / "producer-output"
     output_root.mkdir()
     db_path = output_root / "lex_knowledge_graph.duckdb"
     _prepare_graph_database(db_path)
@@ -255,8 +255,23 @@ def test_ordinary_legal_cli_generation_is_served_by_fresh_profiled_api(
             "OPENBLAS_NUM_THREADS": "1",
             "VECLIB_MAXIMUM_THREADS": "1",
             "PYTHONDONTWRITEBYTECODE": "1",
+            "POLISYOS_EXECUTION_PROFILE": "dev",
+            "POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY": "true",
+            "POLISYOS_OTEL_ENABLED": "false",
         }
     )
+    otlp_environment_variables = (
+        "OTEL_EXPORTER_OTLP_ENDPOINT",
+        "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT",
+        "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT",
+        "OTEL_EXPORTER_OTLP_LOGS_ENDPOINT",
+        "OTEL_EXPORTER_OTLP_HEADERS",
+        "OTEL_EXPORTER_OTLP_TRACES_HEADERS",
+        "OTEL_EXPORTER_OTLP_METRICS_HEADERS",
+        "OTEL_EXPORTER_OTLP_LOGS_HEADERS",
+    )
+    for variable_name in otlp_environment_variables:
+        env.pop(variable_name, None)
     _write_json(
         receipt_root,
         "selected-environment.json",
@@ -272,8 +287,12 @@ def test_ordinary_legal_cli_generation_is_served_by_fresh_profiled_api(
                 "VECLIB_MAXIMUM_THREADS",
                 "PYTHONDONTWRITEBYTECODE",
                 "PYTHONPATH",
+                "POLISYOS_EXECUTION_PROFILE",
+                "POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY",
+                "POLISYOS_OTEL_ENABLED",
             )
-        },
+        }
+        | {"otlp_environment_variables_unset": list(otlp_environment_variables)},
     )
     producer_command = [
         str(python),
@@ -323,13 +342,55 @@ def test_ordinary_legal_cli_generation_is_served_by_fresh_profiled_api(
         f"stdout:\n{producer.stdout}\nstderr:\n{producer.stderr}"
     )
 
+    anonymous_env = dict(env)
+    anonymous_env.pop("POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY", None)
+    with _runtime_server(
+        python=python,
+        env=anonymous_env,
+        output_root=receipt_root / "anonymous-server-state",
+        log_path=receipt_root / "anonymous-server.log",
+        profile_root=PROFILE_ROOT,
+    ) as anonymous_base_url:
+        anonymous_responses = (
+            (
+                "search-profile",
+                httpx.get(
+                    f"{anonymous_base_url}/api/v1/control/lex/search-profile",
+                    params={"output_dir": str(output_root)},
+                    timeout=10,
+                ),
+            ),
+            (
+                "search",
+                httpx.post(
+                    f"{anonymous_base_url}/api/v1/control/lex/search",
+                    json={
+                        "query": "state tax budget",
+                        "top_k": 5,
+                        "output_dir": str(output_root),
+                    },
+                    timeout=10,
+                ),
+            ),
+        )
+        for name, response in anonymous_responses:
+            body = response.json()
+            assert isinstance(body, dict)
+            _write_json(
+                receipt_root,
+                f"anonymous-{name}.json",
+                {"status_code": response.status_code, "body": body},
+            )
+            assert response.status_code == 401, body
+            assert body.get("code") == "missing_access_scope", body
+
     profile_url = (
         f"/api/v1/control/lex/search-profile?{urlencode({'output_dir': str(output_root)})}"
     )
     with _runtime_server(
         python=python,
         env=env,
-        output_root=tmp_path / "profiled-server-state",
+        output_root=receipt_root / "profiled-server-state",
         log_path=receipt_root / "profiled-server.log",
         profile_root=PROFILE_ROOT,
     ) as base_url:
@@ -368,7 +429,7 @@ def test_ordinary_legal_cli_generation_is_served_by_fresh_profiled_api(
     with _runtime_server(
         python=python,
         env=env,
-        output_root=tmp_path / "profileless-server-state",
+        output_root=receipt_root / "profileless-server-state",
         log_path=receipt_root / "profileless-server.log",
         profile_root=None,
     ) as base_url:

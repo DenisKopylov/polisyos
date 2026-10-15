@@ -3,21 +3,23 @@ title = "Register documented Fabric and IR child APIs"
 type = "changed"
 component = "architecture"
 owner = "team-architecture"
-summary = "The public-surface contract recognizes the documented Fabric and IR child APIs without changing runtime exports."
+summary = "The public-surface contract recognizes the documented Fabric and IR child APIs. The Fabric data-plane facade also resolves query_world_table to the canonical world-query function."
 evidence = [
   "architecture/public_surface/contract.toml",
   "src/polisyos/fabric/README.md",
   "src/polisyos/fabric/data_plane/README.md",
+  "src/polisyos/fabric/data_plane/__init__.py",
+  "tests/unit/fabric/data_plane/test_raw_result_sink.py",
   "docs/reference/fabric/connectors.md",
   "src/polisyos/ir/governance/README.md",
   "src/polisyos/ir/observation/README.md",
   "src/polisyos/ir/analytics/README.md",
   "docs/reference/ir/schema-catalog.md",
 ]
-compatibility = "Additive support declarations for existing, documented child-module import paths. The runtime facade exports and object identities are unchanged."
+compatibility = "This fragment covers the supported documented child-module paths and the additive query_world_table binding from polisyos.fabric.data_plane to the canonical polisyos.fabric.world.query function. It makes no claim about compatibility of other runtime exports."
 surface_classification = "public_stable: polisyos.fabric and polisyos.ir"
-api = "The contract records polisyos.fabric.connectors, polisyos.fabric.data_plane, polisyos.ir.governance, polisyos.ir.observation, and polisyos.ir.analytics.calibration_diagnostics as supported child entrypoints."
-limitations = "Candidate source classification only; public_surface_inventory_reviewed remains false until canonical generation and independent review."
+api = "The contract records polisyos.fabric.connectors, polisyos.fabric.data_plane, polisyos.ir.governance, polisyos.ir.observation, and polisyos.ir.analytics.calibration_diagnostics as supported child entrypoints. The data-plane facade exports query_world_table as the same object provided by polisyos.fabric.world.query."
+limitations = "The scoped local review covers the Fabric facade binding and identity test, not a complete runtime export inventory or authenticated/G acceptance. The fragment-level public_surface_inventory_reviewed flag remains false."
 public_surface_inventory_reviewed = false
 
 [[compatibility_change]]
@@ -28,8 +30,9 @@ surface = "public_stable: polisyos.fabric.connectors and polisyos.fabric.data_pl
 owner = "team-architecture"
 version_owner = "team-polisyos"
 deprecation_window = "not_applicable"
-release_note = "The supported Fabric surface includes its documented connector and data-plane child modules."
+release_note = "The supported Fabric surface includes its documented connector and data-plane child modules; data-plane query_world_table resolves to the canonical world-query function."
 generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
 
 [[compatibility_change]]
 id = "e02-ir-documented-child-entrypoints"
@@ -41,3 +44,4 @@ version_owner = "team-polisyos"
 deprecation_window = "not_applicable"
 release_note = "The supported IR surface includes its documented governance, observation, and calibration-diagnostics child modules."
 generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true

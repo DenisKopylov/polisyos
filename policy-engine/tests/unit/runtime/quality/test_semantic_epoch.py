@@ -1585,6 +1585,8 @@ def test_connector_cache_graph_uses_real_serializer_media_without_pickle_executi
         assert manifest.artifact_schema.name == "fabric.connector_cache"
         assert manifest.artifact_schema.version == "1.0"
         assert epoch._resolve_selected_reference_graph(store, selected) is not None
+        fabricated_prefix = selected.model_copy(update={"kind": "fabric.connector_cache.payload"})
+        assert epoch._resolve_selected_reference_graph(store, fabricated_prefix) is None
         serializer_media_types = (
             "application/vnd.polisyos.cached-result+application/json",
             "application/vnd.polisyos.cached-result+application/parquet",

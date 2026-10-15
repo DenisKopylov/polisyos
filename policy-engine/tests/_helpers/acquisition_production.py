@@ -42,6 +42,11 @@ from polisyos.fabric.connectors import (
     SourceProfileRegistry,
     resolve_connection_config,
 )
+from polisyos.fabric.connectors.cache.store import (
+    CACHE_PAYLOAD_KIND,
+    CACHE_SCHEMA_NAME,
+    CACHE_SCHEMA_VERSION,
+)
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 from polisyos.fabric.data_plane import content_sha256
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
@@ -1110,8 +1115,9 @@ class _OrchestratedWorldBankStub:
         data_ref = store.put_bytes(
             serialized,
             ArtifactWriteOptions(
-                kind="fabric.connector_cache.payload",
+                kind=CACHE_PAYLOAD_KIND,
                 media_type=media_type,
+                schema=SchemaInfo(name=CACHE_SCHEMA_NAME, version=CACHE_SCHEMA_VERSION),
             ),
         )
         evidence_ref = persist_evidence_bundle(

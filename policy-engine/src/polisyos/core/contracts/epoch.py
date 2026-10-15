@@ -100,12 +100,16 @@ class AcquisitionArtifactCodec(NamedTuple):
         "connector_cache_payload",
         "opaque_bytes",
         "native_coordinate",
+        "full_prefix_bundle",
+        "full_prefix_verification",
+        "native_projection",
         "identity_token",
         "unresolved_reference",
     ]
     canon: CanonInfo | None
     schema_name: str | None = None
     schema_version: str | None = None
+    require_schema_absent: bool = False
 
 
 _COORDINATE_PREFIX = b"polisyos.native-coordinate.v1\0"
@@ -203,6 +207,37 @@ def acquisition_artifact_codec(
             "application/vnd.polisyos.epoch-production-receipt+json",
             "epoch_frame",
             epoch_canon_info(),
+        )
+    if kind == "epoch.history_append_receipt":
+        return AcquisitionArtifactCodec(
+            epoch_media,
+            "epoch_frame",
+            epoch_canon_info(),
+            require_schema_absent=True,
+        )
+    if kind == "core.chronology.full_prefix.bundle":
+        return AcquisitionArtifactCodec(
+            "application/octet-stream",
+            "full_prefix_bundle",
+            epoch_canon_info(),
+            "polisyos.chronology.FullPrefixBundle",
+            "1",
+        )
+    if kind == "core.chronology.full_prefix.verification_result":
+        return AcquisitionArtifactCodec(
+            "application/octet-stream",
+            "full_prefix_verification",
+            epoch_canon_info(),
+            "polisyos.chronology.FullPrefixVerificationResult",
+            "1",
+        )
+    if kind == "core.chronology.native_projection":
+        return AcquisitionArtifactCodec(
+            "application/octet-stream",
+            "native_projection",
+            epoch_canon_info(),
+            "polisyos.chronology.NativeProjection",
+            "1",
         )
     if kind in _EPOCH_ACQUISITION_ARTIFACT_KINDS:
         return AcquisitionArtifactCodec(epoch_media, "epoch_frame", epoch_canon_info())
@@ -1147,6 +1182,45 @@ class SemanticEpochProductionReceiptStatement(_EpochModel):
         return self
 
 
+class SemanticEpochHistoryAppendReceiptStatement(_EpochModel):
+    """Exact profileless history-owner receipt wire statement.
+
+    This DTO validates only the bytes emitted by the native append owner. It
+    does not assert that the recorded heads remain current or that the append
+    was institutionally authorized.
+    """
+
+    schema_version: Literal["polisyos.epoch.history-append-receipt.v1"]
+    status: Literal["appended", "idempotent"]
+    manifest_ref: ArtifactRef
+    epoch_ref: Digest
+    expected_head_refs: tuple[Digest, ...]
+    resulting_head_refs: tuple[Digest, ...]
+    resulting_history_snapshot_ref: ArtifactRef
+    resulting_history_snapshot_content_hash: Digest
+
+    @model_validator(mode="after")
+    def _bind_append_projection(self) -> Self:
+        if (
+            self.manifest_ref.kind != "epoch.semantic_manifest"
+            or self.manifest_ref.media_type != "application/vnd.polisyos.epoch+json"
+        ):
+            raise ValueError("history append receipt manifest profile differs")
+        if (
+            self.resulting_history_snapshot_ref.kind != "epoch.scope_history"
+            or self.resulting_history_snapshot_ref.media_type
+            != "application/vnd.polisyos.epoch+json"
+        ):
+            raise ValueError("history append receipt snapshot profile differs")
+        if str(self.resulting_history_snapshot_ref.artifact_id) != (
+            self.resulting_history_snapshot_content_hash
+        ):
+            raise ValueError("history append snapshot hash differs from its CAS identity")
+        if self.epoch_ref not in self.resulting_head_refs:
+            raise ValueError("successful history append does not contain its resulting epoch head")
+        return self
+
+
 __all__ = [
     "AcquisitionArtifactCodec",
     "AcquisitionBoundaryResolutionQuery",
@@ -1171,6 +1245,7 @@ __all__ = [
     "OverlayNativeMemberKey",
     "PendingOverlayAdmissionStatement",
     "ScopedSchemaRegimeProjection",
+    "SemanticEpochHistoryAppendReceiptStatement",
     "SemanticEpochProductionReceiptStatement",
     "SemanticEpochStamp",
     "acquisition_artifact_canon_info",

@@ -6629,7 +6629,14 @@ def test_n8_source_profile_rejects_unprojected_query_row_set(
     tmp_path: Path,
 ) -> None:
     "An extra physical row cannot join a complete active owner projection."
+    from dataclasses import replace
+
     from polisyos.runtime.quality import generation_cycle as gc
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourcePaths,
+        catalog_serving_source_scope,
+        default_substrate_catalog_paths,
+    )
     from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
 
     source_rows = [
@@ -6686,7 +6693,24 @@ def test_n8_source_profile_rejects_unprojected_query_row_set(
     assert projection.predicate_provenance == "recomputed"
     assert unprojected["observation_id"] not in projected_ids
 
-    with pytest.raises(gc.ValueOwnerAccessError) as refusal:
+    substrate_paths = replace(
+        default_substrate_catalog_paths(fixture.repo_root),
+        l1_dcat_path=fixture.baseline_path,
+    )
+    catalog_source = CatalogServingSourcePaths(
+        repo_root=fixture.repo_root,
+        snapshot_root=fixture.baseline_path.parent,
+        database_path=fixture.baseline_path,
+        index_dir=fixture.repo_root / "index",
+        overlay_path=fixture.overlay_path,
+        catalog_run_profile=None,
+        selection_basis="explicit_path_candidate_only",
+        substrate_paths=substrate_paths,
+    )
+    with (
+        catalog_serving_source_scope(catalog_source),
+        pytest.raises(gc.ValueOwnerAccessError) as refusal,
+    ):
         gc._load_value_data_profile_from_l1_dcat(
             repo_root=fixture.repo_root,
             outcome="avg_income",

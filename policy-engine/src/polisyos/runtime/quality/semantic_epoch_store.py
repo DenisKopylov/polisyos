@@ -168,6 +168,7 @@ class FileSemanticEpochHistoryRepository:
 
     def _manifest(self, manifest_ref: ArtifactRef) -> tuple[SemanticEpochManifest, bytes]:
         from polisyos.core.artifacts import load_core_json_frame_records
+
         report = self._artifacts.verify(manifest_ref)
         raw = self._artifacts.get_bytes(manifest_ref)
         manifest = self._artifacts.get_manifest(manifest_ref)
@@ -374,7 +375,7 @@ class FileSemanticEpochHistoryRepository:
             ArtifactWriteOptions(
                 kind="epoch.scope_history",
                 media_type="application/vnd.polisyos.epoch+json",
-            canon=epoch_contract.epoch_canon_info(),
+                canon=epoch_contract.epoch_canon_info(),
             ),
         )
         if str(snapshot_ref.artifact_id) != snapshot_hash:
@@ -395,9 +396,35 @@ class FileSemanticEpochHistoryRepository:
             ArtifactWriteOptions(
                 kind="epoch.history_append_receipt",
                 media_type="application/vnd.polisyos.epoch+json",
-            canon=epoch_contract.epoch_canon_info(),
+                canon=epoch_contract.epoch_canon_info(),
             ),
         )
+        receipt_report = self._artifacts.verify(receipt_ref)
+        receipt_readback = self._artifacts.get_bytes(receipt_ref)
+        receipt_manifest = self._artifacts.get_manifest(receipt_ref)
+        receipt_frames = chronology_contract._split_framed_records(receipt_readback)
+        if (
+            not receipt_report.ok
+            or receipt_readback != raw
+            or _sha256(receipt_readback) != str(receipt_ref.artifact_id)
+            or receipt_manifest.artifact_id != receipt_ref.artifact_id
+            or receipt_manifest.kind != "epoch.history_append_receipt"
+            or receipt_manifest.media_type != "application/vnd.polisyos.epoch+json"
+            or receipt_manifest.artifact_schema is not None
+            or receipt_manifest.canon != epoch_contract.epoch_canon_info()
+            or len(receipt_frames) != 1
+        ):
+            raise RuntimeError("history append receipt CAS/profile readback differs")
+        decoded = json.loads(receipt_frames[0])
+        if not isinstance(decoded, dict):
+            raise RuntimeError("history append receipt readback is not a mapping")
+        epoch_contract.SemanticEpochHistoryAppendReceiptStatement.model_validate(decoded)
+        if epoch_contract.canonical_epoch_bytes(decoded) != receipt_frames[
+            0
+        ] or epoch_contract.canonical_epoch_bytes(decoded) != epoch_contract.canonical_epoch_bytes(
+            statement
+        ):
+            raise RuntimeError("history append receipt DTO differs after CAS readback")
         return EpochHistoryAppendReceipt(
             status=status,
             manifest_ref=manifest_ref,
@@ -440,7 +467,7 @@ class FileSemanticEpochHistoryRepository:
             ArtifactWriteOptions(
                 kind="epoch.scope_history",
                 media_type="application/vnd.polisyos.epoch+json",
-            canon=epoch_contract.epoch_canon_info(),
+                canon=epoch_contract.epoch_canon_info(),
             ),
         )
         return EpochScopeHistory(

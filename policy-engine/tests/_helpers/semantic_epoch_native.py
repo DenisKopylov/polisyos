@@ -275,6 +275,7 @@ def sign_native_epoch_scenario(
     tmp_path: Path,
     *,
     custodian: NativeEpochFixtureCustodian | None = None,
+    prior_admission_refs: tuple[artifacts.ArtifactRef, ...] = (),
 ) -> SimpleNamespace:
     """Bind a separately signed native policy to an actual prepared epoch basis."""
     store = scenario.store
@@ -385,6 +386,14 @@ def sign_native_epoch_scenario(
         signing_profile_ref=owner_ref,
         signer_provenance_ref=owner_ref,
     )
+    admission_refs: list[artifacts.ArtifactRef] = []
+    seen_admission_ref_keys: set[tuple[str, str, str, str | None]] = set()
+    for admission_ref in (*prior_admission_refs, signed.evidence.evidence_record_ref):
+        admission_ref_key = artifacts.artifact_ref_identity_key(admission_ref)
+        if admission_ref_key in seen_admission_ref_keys:
+            continue
+        seen_admission_ref_keys.add(admission_ref_key)
+        admission_refs.append(admission_ref)
     config = EpochDeploymentConfig(
         evidence_cas_root=store.root,
         native_epoch_history_root=scenario.history._root,
@@ -395,7 +404,7 @@ def sign_native_epoch_scenario(
                 roles=custodian.issuer_roles,
             ),
         ),
-        predicate_policy_admission_refs=(signed.evidence.evidence_record_ref,),
+        predicate_policy_admission_refs=tuple(admission_refs),
     )
     deployment = build_semantic_epoch_native_deployment(config)
     owner = deployment._state().chronology_policy_owner
@@ -1274,6 +1283,7 @@ def make_native_multivariable_active_projections(
         tmp_path / "native-epoch-owner",
     )
     projections: dict[str, object] = {}
+    prior_admission_refs: list[artifacts.ArtifactRef] = []
     for epoch_id, entry in enumerate(entries, start=1):
         resolved = authority.resolve(entry.entry_id)
         attempt_id = f"n8-multivariable-owner-{epoch_id:02d}"
@@ -1356,7 +1366,9 @@ def make_native_multivariable_active_projections(
             scenario,
             tmp_path / f"policy-{epoch_id:02d}",
             custodian=fixture_custodian,
+            prior_admission_refs=tuple(prior_admission_refs),
         )
+        prior_admission_refs.append(native_case.signed.evidence.evidence_record_ref)
         finalized = finalize_native_epoch_case(native_case)
         projections[entry.target_variable] = overlay.read_activated_semantic_epoch_observations(
             receipt_ref=finalized.activated.receipt_ref,
@@ -1373,4 +1385,5 @@ def make_native_multivariable_active_projections(
         overlay=overlay,
         projections=projections,
         entries=entries,
+        native_service=native_case.service,
     )

@@ -67,6 +67,7 @@ def _persist_manifest(
         ArtifactWriteOptions(
             kind="epoch.semantic_manifest",
             media_type="application/vnd.polisyos.epoch+json",
+            canon=epoch_contract.epoch_canon_info(),
         ),
     )
 

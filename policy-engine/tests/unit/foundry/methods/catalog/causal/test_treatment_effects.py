@@ -10,6 +10,12 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../../src"))
 
+from polisyos.core.observability import DeterminismTier
+from polisyos.foundry.methods.backends.protocol import (
+    MethodResult,
+    MethodTiming,
+    ReproducibilityInfo,
+)
 from polisyos.foundry.methods.catalog.causal._common import bootstrap_ci
 from polisyos.foundry.methods.catalog.causal.tmle_core import (
     ATENuisanceBundle,
@@ -23,6 +29,14 @@ from polisyos.foundry.methods.catalog.causal.treatment_effects import (
     IPWEstimator,
     TMLEEstimator,
 )
+from polisyos.foundry.methods.components.consensus import EstimandSpec
+from polisyos.foundry.methods.components.value_evidence import (
+    MethodValueRefusal,
+    project_method_value_evidence,
+    resolve_method_value_projection_capabilities,
+)
+from polisyos.ir.analytics.causal import CausalEffectReport
+from polisyos.ir.analytics.uncertainty import NativeValueEstimandBinding
 
 
 def _make_state(n: int = 180, seed: int = 7) -> dict[str, np.ndarray]:
@@ -91,6 +105,115 @@ def test_aipw_emits_bootstrap_eif_contract_and_diagnostics():
     assert inner["selection_manifest"]["selection_objective"] == "causal_risk"
     assert inner["selection_manifest"]["tested_propensity_backends"]
     assert inner["selection_manifest"]["tested_outcome_backends"]
+
+
+def test_aipw_pure_step_emits_native_causal_report_from_its_result() -> None:
+    state = _make_state()
+    params = _params()
+
+    output = AIPWEstimator.pure_step(state, params)
+
+    report = output["report"]
+    native = output["result"]
+    assert isinstance(report, CausalEffectReport)
+    assert report.method.value == "aipw"
+    assert report.point_estimate == native["ate"]
+    assert report.confidence_interval == (native["ci_lower"], native["ci_upper"])
+    assert report.sample_size == native["n_obs"]
+    assert report.metadata["gate_eligible"] is False
+
+
+@pytest.mark.parametrize("method", [AIPWEstimator, TMLEEstimator])
+def test_native_causal_report_slot_resolves_its_owner_capability(method) -> None:
+    capabilities = resolve_method_value_projection_capabilities(
+        method_cls=method,
+        method_signature=method.signature,
+    )
+
+    assert len(capabilities) == 1
+    capability = capabilities[0]
+    assert capability.output_slot == "report"
+    assert capability.contract_id == "ir.causal_effect_report.v1"
+    assert capability.owner_module == "polisyos.ir.analytics.causal"
+    assert capability.owner_qualname == "CausalEffectReport"
+
+
+@pytest.mark.parametrize("method", [AIPWEstimator, TMLEEstimator])
+def test_native_causal_candidate_projection_stays_non_gating_for_generic_evidence(method) -> None:
+    rng = np.random.default_rng(73)
+    n = 240
+    covariate = rng.normal(size=n)
+    treatment = rng.binomial(1, 0.5, size=n).astype(float)
+    outcome = rng.binomial(
+        1,
+        np.clip(0.25 + 0.05 * np.sign(covariate) + 0.30 * treatment, 0.05, 0.95),
+    ).astype(float)
+    state = {
+        "X": covariate[:, None],
+        "treatment": treatment,
+        "outcome": outcome,
+    }
+    params = {
+        "propensity_backend": "logistic",
+        "outcome_backend": "linear",
+        "calibration_mode": "none",
+        "outcome_scaling": "raw",
+        "crossfit_folds": 3,
+        "n_repeats": 1,
+        "random_seed": 18,
+        "ci_mode": "wald",
+        "inference_profile": "regular_iid",
+        "coverage_guard": "off",
+        "max_parallel_folds": 0,
+    }
+    estimand = EstimandSpec(
+        query_id="synthetic-native-causal-report",
+        estimand_id="ATE",
+        outcome="outcome",
+        treatment_or_exposure="treatment",
+        covariates_or_conditioning=("covariate",),
+        adjustment_set=("covariate",),
+        population="synthetic_probe",
+        unit="binary",
+        target_role="causal",
+    )
+
+    output = method.pure_step(state, params)
+    report = output["report"]
+    binding = NativeValueEstimandBinding.from_estimand(
+        estimand=estimand,
+        native_contract_id=CausalEffectReport.contract_id,
+        producer_method_fqn=method.signature.fqn,
+        projection_input_content_hash="sha256:" + "a" * 64,
+    )
+    direct_projection = report.to_value_uncertainty(
+        estimand=estimand,
+        projection_binding=binding,
+    )
+    method_result = MethodResult(
+        output=output,
+        slot_outputs=output,
+        timing=MethodTiming(wall_time_ms=1.0),
+        reproducibility=ReproducibilityInfo(
+            backend=method.signature.backend,
+            determinism_tier=DeterminismTier.LIBRARY_DETERMINISTIC,
+            seed=18,
+        ),
+    )
+
+    refusal = project_method_value_evidence(
+        method_signature=method.signature,
+        method_result=method_result,
+        estimand=estimand,
+        selected_output_slot="report",
+        projection_binding=binding,
+    )
+
+    assert isinstance(report, CausalEffectReport)
+    assert report.status.value == "success"
+    assert direct_projection is not None and direct_projection.gate_eligible is False
+    assert isinstance(refusal, MethodValueRefusal)
+    assert refusal.reason_code == "method_uncertainty_not_gate_eligible"
 
 
 def test_aipw_nondefault_confidence_request_is_limited_at_native_fixed_level() -> None:

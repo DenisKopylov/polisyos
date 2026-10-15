@@ -428,7 +428,19 @@ def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
             return NodeOutcome(status="ok", state=state, artifacts=[ref])
 
     node = StudyNode()
-    monkeypatch.setattr(registry, "discover_nodes", lambda actual: actual.register(node))
+
+    def discover_test_node(
+        actual,
+        *,
+        components_index=None,
+        include_entry_points=True,
+        include_builtin_nodes=True,
+        include_dev_scan=True,
+    ):
+        actual.register(node)
+        return registry.NodeBootstrapReport(registered=[str(node.spec.metadata.component_id)])
+
+    monkeypatch.setattr(registry, "discover_nodes", discover_test_node)
 
     async def run():
         nonlocal active, peak
@@ -591,7 +603,19 @@ def test_failed_native_study_releases_shared_pool_slot_for_waiting_study(
             return NodeOutcome(status="ok", state=state, artifacts=[ref])
 
     node = StudyNode()
-    monkeypatch.setattr(registry, "discover_nodes", lambda actual: actual.register(node))
+
+    def discover_test_node(
+        actual,
+        *,
+        components_index=None,
+        include_entry_points=True,
+        include_builtin_nodes=True,
+        include_dev_scan=True,
+    ):
+        actual.register(node)
+        return registry.NodeBootstrapReport(registered=[str(node.spec.metadata.component_id)])
+
+    monkeypatch.setattr(registry, "discover_nodes", discover_test_node)
 
     async def run() -> None:
         nonlocal active, peak

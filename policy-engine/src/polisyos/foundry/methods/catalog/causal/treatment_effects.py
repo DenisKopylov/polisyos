@@ -39,6 +39,15 @@ def _result_slot() -> frozenset[SlotSpec]:
     return frozenset({SlotSpec("result", SlotType.SCALAR, Unit("result", "json"))})
 
 
+def _causal_report_slot() -> SlotSpec:
+    return SlotSpec.for_output_contract(
+        "report",
+        SlotType.SCALAR,
+        Unit("report", "json"),
+        output_contract=CausalEffectReport,
+    )
+
+
 def _treatment_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
@@ -107,7 +116,7 @@ class AIPWEstimator:
         namespace="",
         version="0.0.0",
         input_slots=_treatment_slots(),
-        output_slots=_result_slot(),
+        output_slots=_result_slot() | frozenset({_causal_report_slot()}),
         parameters=(
             ParameterSpec(name="estimation_backend", default="custom"),
             ParameterSpec(name="direct_model_type", default="linear"),
@@ -162,29 +171,29 @@ class AIPWEstimator:
         ):
             inference_limitations.append("unsupported_confidence_level_request")
 
-        return {
-            "result": {
-                "ate": fit_result.ate,
-                "standard_error": fit_result.standard_error,
-                "t_statistic": fit_result.ate / max(fit_result.standard_error, 1e-12),
-                "ci_lower": fit_result.ci_lower,
-                "ci_upper": fit_result.ci_upper,
-                "interval_method": fit_result.interval_method,
-                "eif_mean": fit_result.eif_mean,
-                "eif_standard_deviation": fit_result.eif_standard_deviation,
-                "n_treated": int(np.sum(T > 0.5)),
-                "n_control": int(np.sum(T <= 0.5)),
-                "n_obs": len(Y),
-                "n_trimmed": int(np.sum(~nuisance.trim_mask)),
-                **payload,
-                "status": "limited" if inference_limitations else "candidate",
-                "confidence_level": _AIPW_FIXED_CONFIDENCE_LEVEL,
-                "inference_profile": nuisance.contract.inference_profile,
-                "inference_limitations": inference_limitations,
-                "gate_eligible": False,
-                "assumption_basis": "consumer_asserted",
-            }
+        result = {
+            "ate": fit_result.ate,
+            "standard_error": fit_result.standard_error,
+            "t_statistic": fit_result.ate / max(fit_result.standard_error, 1e-12),
+            "ci_lower": fit_result.ci_lower,
+            "ci_upper": fit_result.ci_upper,
+            "interval_method": fit_result.interval_method,
+            "eif_mean": fit_result.eif_mean,
+            "eif_standard_deviation": fit_result.eif_standard_deviation,
+            "n_treated": int(np.sum(T > 0.5)),
+            "n_control": int(np.sum(T <= 0.5)),
+            "n_obs": len(Y),
+            "n_trimmed": int(np.sum(~nuisance.trim_mask)),
+            **payload,
+            "status": "limited" if inference_limitations else "candidate",
+            "confidence_level": _AIPW_FIXED_CONFIDENCE_LEVEL,
+            "inference_profile": nuisance.contract.inference_profile,
+            "inference_limitations": inference_limitations,
+            "gate_eligible": False,
+            "assumption_basis": "consumer_asserted",
         }
+        report = AIPWEstimator.report_from_result(data=state, params=params, result=result)
+        return {"result": result, "report": report}
 
     @staticmethod
     def report_from_result(
@@ -328,7 +337,7 @@ class TMLEEstimator:
         output_slots=frozenset(
             {
                 *_result_slot(),
-                SlotSpec("report", SlotType.SCALAR, Unit("report", "json")),
+                _causal_report_slot(),
                 SlotSpec("envelope", SlotType.SCALAR, Unit("uncertainty", "json")),
             }
         ),

@@ -16,14 +16,22 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.foundry.methods.catalog.causal import tmle_core as core
 from polisyos.foundry.methods.catalog.causal.protocols import HTEObservationalData
-from polisyos.foundry.methods.catalog.causal.treatment_effects import TMLEEstimator
+from polisyos.foundry.methods.catalog.causal.treatment_effects import (
+    AIPWEstimator,
+    TMLEEstimator,
+)
+from polisyos.foundry.methods.components.consensus import EstimandSpec
 from polisyos.foundry.methods.components.io import dematerialize_method_output
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
     EstimationStatus,
 )
-from polisyos.ir.analytics.uncertainty import IntervalSemantics, UncertaintyEnvelope
+from polisyos.ir.analytics.uncertainty import (
+    IntervalSemantics,
+    NativeValueEstimandBinding,
+    UncertaintyEnvelope,
+)
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
 
@@ -67,7 +75,12 @@ def _legacy(data: HTEObservationalData) -> dict[str, np.ndarray]:
     return {"X": x, "treatment": data.treatment, "outcome": data.outcome}
 
 
-def _run(tmp_path, data: HTEObservationalData, params: dict[str, object]):
+def _run(
+    tmp_path,
+    data: HTEObservationalData,
+    params: dict[str, object],
+    method_cls=TMLEEstimator,
+):
     store = FileSystemCAS(tmp_path / "cas")
     source = store.put_json(
         data.model_dump(mode="json"),
@@ -77,7 +90,7 @@ def _run(tmp_path, data: HTEObservationalData, params: dict[str, object]):
     job = run_job(
         JobSpec(
             job_kind="method",
-            method_fqn=TMLEEstimator.signature.fqn,
+            method_fqn=method_cls.signature.fqn,
             method_params=params,
             seed=18,
             input_refs={"causal_observational_data": source},
@@ -181,6 +194,49 @@ def test_real_configured_method_job_projects_exact_native_eif_and_cas_reader(
     assert mapped["result"] is legacy["result"]
     assert mapped["report"] is legacy["report"]
     assert mapped["envelope"] is legacy["envelope"]
+
+
+def test_aipw_method_job_reopens_native_report_for_non_gating_candidate_projection(
+    tmp_path,
+) -> None:
+    data = _data()
+    saved, job = _run(
+        tmp_path,
+        data,
+        {"confidence_level": 0.95},
+        method_cls=AIPWEstimator,
+    )
+    fresh = FileSystemCAS(tmp_path / "cas")
+    reopened = from_canonical_bytes(fresh.get_bytes(job.method_result_ref))
+    native = reopened["result"]
+    report = CausalEffectReport.model_validate(reopened["report"])
+
+    estimand = EstimandSpec(
+        query_id="aipw-method-job-cas-reader",
+        estimand_id="ATE",
+        outcome="outcome",
+        treatment_or_exposure="treatment",
+        covariates_or_conditioning=("w",),
+        adjustment_set=("w",),
+        population="synthetic_probe",
+        unit="binary",
+        target_role="causal",
+    )
+    binding = NativeValueEstimandBinding.from_estimand(
+        estimand=estimand,
+        native_contract_id=CausalEffectReport.contract_id,
+        producer_method_fqn=AIPWEstimator.signature.fqn,
+        projection_input_content_hash="sha256:" + "b" * 64,
+    )
+    candidate = report.to_value_uncertainty(estimand=estimand, projection_binding=binding)
+
+    assert reopened == saved
+    assert report.method is CausalMethod.AIPW
+    assert report.status is EstimationStatus.SUCCESS
+    assert report.point_estimate == native["ate"]
+    assert report.confidence_interval == (native["ci_lower"], native["ci_upper"])
+    assert report.metadata["gate_eligible"] is False
+    assert candidate is not None and candidate.gate_eligible is False
 
 
 def test_typed_confounders_preserve_complete_native_adjustment_basis(

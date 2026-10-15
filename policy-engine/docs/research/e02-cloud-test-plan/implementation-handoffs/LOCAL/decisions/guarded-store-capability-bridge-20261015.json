@@ -1,0 +1,388 @@
+{
+  "schema_version": "1.0",
+  "decision_id": "guarded-store-capability-bridge-20261015",
+  "title": "Resolve guarded CAS handles against source-derived runtime protocol requirements",
+  "status": "frozen_source_pending_independent_delta_review_and_root_commit",
+  "decision_scope": "E02 local structural bridge for the existing CoreJSONArtifactStore and IndexedArtifactStore contracts; no producer, authority, canonical-profile, persistence, or scientific-contract change",
+  "source_frame": {
+    "repository": "polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "base_commit": "75e1e60fb11738397074baff21872dcb91d18a0c",
+    "base_tree": "63cc8f13211938ffba98ff0da3dbb2d5f9628e28",
+    "independent_ro_report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-cas-runtime-protocol-20261015/report.json@5810d3ee59bc7b1533877e9e848341e871ffad3cd47777f98129f4476dffbe2b",
+    "prototype": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-cas-structural-bridge-20261015/prototype.py@894bbcfc6ea294bd467428dbadaddcc3619c23639cdf5465225b94d399f6e8b4",
+    "prototype_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-cas-structural-bridge-20261015/prototype.stdout.txt@0fa1b392dfc943b2f910765193ada4e14f513a293c18832125e95d2207dedd8e",
+    "prototype_design": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-cas-structural-bridge-20261015/design.json@1eb8876e3be5698edf84249df66433691a19e946a864405b0b6598ba7711efe6",
+    "base_parent": "7b23055ad0457ac312296e35e08d46731461335a",
+    "candidate_git_commit": null,
+    "candidate_state": "Uncommitted source/test overlay frozen by exact blob hashes; root owns source commit. No future candidate SHA is claimed.",
+    "source_freeze_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r28/final-source-test-freeze-and-verification.json@a8355d32a182dbf5fa2daae9686b298e8ac0c30488dba81983a4fd1b957a4ea4",
+    "observed_head_after_verification": "44e852948104f7d9a34242fdc6b3cfbcfebad6e9",
+    "observed_head_tree_after_verification": "c10dbaaa49876574166723f2958b03359fb0e4e9"
+  },
+  "finding_classification": {
+    "p40_bucket": "same guarded-dynamic-wrapper/runtime-Protocol class, one level deeper: static isinstance rejects a dynamic proxy even though its call surface delegates through the guard. Widen one generic source-derived member bridge across every audited consumer; do not add consumer-specific proxy checks.",
+    "related_patterns": [
+      "P31",
+      "P32",
+      "P38"
+    ],
+    "property": "A store is admitted to a semantic Core JSON reader or rooted CDC quarantine path only when the source-declared protocol surface is resolvable on the exact handle and the actual operation continues through the guarded handle.",
+    "current_divergence": "CoreJSONArtifactStore and IndexedArtifactStore are runtime-checkable Protocols, but isinstance uses statically declared attributes. GuardedDependencyProxy implements dynamic __getattr__, so the current static gate returns false before the actual guarded calls. Separately, CoreToIRArtifactStoreAdapter declares get_raw_manifest_bytes while delegating lazily; its static shape cannot prove its underlying store has that stronger reader."
+  },
+  "source_contract": {
+    "core_protocol": "CoreJSONArtifactStore inherits ArtifactStore and RawManifestBytesReader. Derive public members over the full Protocol MRO; do not copy a member registry.",
+    "actual_core_read_order": "core/artifacts/canonical_profile.py:read_core_manifest_profile calls get_raw_manifest_bytes, then get_manifest; read_core_json_artifact calls get_bytes only after selected manifest/profile validation. CoreJSON requires get_raw_manifest_bytes; IR get_manifest_bytes is a distinct adapter surface and is not the Core reader predicate.",
+    "indexed_protocol": "fabric/data_plane/quarantine.py:IndexedArtifactStore declares root plus its store methods; streaming uses it only to permit rooted mutable quarantine-index persistence after a breaking CDC schema change.",
+    "authority_scope": "No external issuer, institutional appointment, custody, law, permission, or currentness input is consumed or asserted. This bridge makes no authority claim; it preserves existing guarded calls and typed refusal behavior."
+  },
+  "reuse_options": {
+    "selected": "Generalize the existing dynamic member discovery seam in core/artifacts/ir_adapter.py into one generic resolver. Derive requirements from source Protocol classes and inherited bases; resolve attributes dynamically, require callable where the source member is a method, retain annotation/property members as required-present, and use it in the existing adapter path and the audited CoreJSON/IndexedArtifactStore gates. Keep the original GuardedDependencyProxy and selected ArtifactRef unchanged.",
+    "alternatives": [
+      {
+        "option": "Remove or bypass the dependency guard",
+        "decision": "reject",
+        "reason": "Drops the established timeout/breaker boundary around every CAS operation and changes runtime behavior beyond this structural mismatch."
+      },
+      {
+        "option": "Add static forwarding methods to GuardedDependencyProxy",
+        "decision": "defer",
+        "reason": "Broadens the generic runtime wrapper contract and duplicates method maintenance; one source-derived resolver addresses all declared Protocol members without coupling the wrapper to each CAS protocol."
+      },
+      {
+        "option": "Patch each CoreJSON/CDC caller or hand-maintain method name lists",
+        "decision": "reject",
+        "reason": "Repeats the P31 instance ladder and can omit inherited/future Protocol members or sibling callers."
+      },
+      {
+        "option": "Treat CoreToIRArtifactStoreAdapter's static CoreJSON shape as sufficient",
+        "decision": "reject",
+        "reason": "Its raw-reader method delegates lazily and can conceal a base-only wrapped store. The underlying raw reader must be resolvable; otherwise the actual raw-read stage must refuse before typed manifest/payload access."
+      }
+    ]
+  },
+  "invariants_and_migration": [
+    "Do not unwrap, replace, mutate, or spoof GuardedDependencyProxy; do not assign __class__ or substitute a Protocol-shaped fake.",
+    "Do not change CoreJSON/IndexedArtifactStore declarations or public exports. Keep selected-profile refs/options on the existing APIs.",
+    "The source-derived member set includes inherited public callables and public annotated/property members; no local copied list or protocol-name spelling branch at consumers.",
+    "An absent required member fails before payload reads. A guard denial on a present method propagates as an operational failure and is never converted to capability absence/default.",
+    "The CoreToIR adapter itself is not evidence that its underlying owner exposes raw-manifest bytes. Direct base-only and adapter-over-base-only controls refuse; actual semantic reads still invoke get_raw_manifest_bytes first and validate exact selected sidecar bytes.",
+    "IndexedArtifactStore remains tied to the same rooted local CAS/index path already selected by the ingestion service; a missing root/member cannot complete CDC quarantine or silently fall through as success.",
+    "No data migration is required. Existing concrete stores remain compatible; dynamic wrappers gain the same existing capability when they forward the complete declared interface."
+  ],
+  "exact_lease": {
+    "source_paths": [
+      "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "policy-engine/src/polisyos/core/registry/loader.py",
+      "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+      "policy-engine/src/polisyos/foundry/execute/_internal/models/__init__.py",
+      "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+      "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+      "policy-engine/src/polisyos/scientist/governance/preflight.py"
+    ],
+    "test_paths": [
+      "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+      "policy-engine/tests/unit/scientist/governance/test_validation_pipeline.py",
+      "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+      "policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py",
+      "policy-engine/tests/unit/runtime/quality/test_substrate_registry.py",
+      "policy-engine/tests/unit/runtime/quality/test_world_model_record.py"
+    ],
+    "mandatory_companion": "This decision packet; exact 18-path source/test and output manifest; final focused pytest and canonical Ruff receipts.",
+    "root_commit_owner": "root",
+    "other_owner_paths_excluded": [
+      "scientist node/linker and governance-caller paths owned by V3",
+      "Core contracts/epoch and public generated inventory reserved by root",
+      "R3 semantic-epoch paths",
+      "C05 decision-packet replay paths"
+    ]
+  },
+  "acceptance_and_falsifiers": {
+    "behavioral_positives": [
+      "Public registry materialization succeeds from an actual guarded CAS and demonstrates get_raw_manifest_bytes, get_manifest, and get_bytes all execute through the guard while preserving the selected profile.",
+      "WorldModelRecord construction uses the same guarded CoreJSON path and persists/readbacks its expected outputs.",
+      "A controlled public streaming run with an incompatible breaking schema change reaches rooted quarantine using the guarded handle, writes the quarantine artifact and mutable index under the exact service CAS root, and reports quarantined rows."
+    ],
+    "negative_controls": [
+      "Missing raw manifest capability, including a base-only store and its CoreToIR adapter, refuses before payload access.",
+      "A guard denial at get_raw_manifest_bytes fails before get_manifest/get_bytes; it is not treated as missing capability or as fallback absence.",
+      "Selected-profile input uses the exact requested profile; wrong or unheld profile is refused by the existing canonical reader.",
+      "Missing inherited protocol method/root leaves the consumer refused; CDC cannot produce a green quarantined outcome or unindexed successful record.",
+      "Removing the behavioral bridge while keeping Protocol declarations leaves these public path tests red (P29 removal control)."
+    ],
+    "bounded_residual": "Runtime member presence is a structural precondition, not a claim that an arbitrary implementation honors its return contract. Existing canonical read code validates bytes, selected manifest/profile, and payload identity at use. No stronger backend trust contract is introduced here.",
+    "next_check": "Independent reviewer must read the exact final 18-path source/test blob frame and r27 deciding outputs. After review, root may create/read back the source commit; a separate receipt follows. G acceptance, publication, and adjudication remain pending. The canonical Ruff whole-18 run and focused 22-case run pass; the locked ad-hoc BasedPyright source run remains red and is not a native full-gate receipt.",
+    "typecheck_status": {
+      "status": "FAIL",
+      "scope": "Locked ad-hoc BasedPyright diagnostic over the exact ten source files in the final source freeze; not the canonical full repository type gate.",
+      "diagnostics": {
+        "errors": 63,
+        "warnings": 12,
+        "notes": 0
+      },
+      "classification": "P41 not_established: no exact slice-base replay/disjointness proof. Do not call the red inherited or green.",
+      "baseline_sha256_before_and_after": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+      "source_hashes_match_final_freeze": true,
+      "command_record": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r17/basedpyright.run.json@d72cdf8d786d21fe705de56e12d2988f9d276945549669f69cb1ce59d74a4c19",
+      "full_output": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r17/basedpyright.stdout.txt@9305088672c70d7e753e5316685c1ecd20a5fa3a598246aa1c02c77f811bf03a",
+      "native_gate": "UNRUN; no native typecheck PASS is claimed.",
+      "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r17/basedpyright.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "canonical_ruff_status": {
+      "status": "PASS",
+      "path_denominator": {
+        "source_files": 10,
+        "test_files": 8,
+        "total_files": 18
+      },
+      "commands": [
+        {
+          "name": "format",
+          "argv": [
+            "policy-engine/.venv/bin/python",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/src/polisyos/core/artifacts/protocol.py",
+            "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+            "policy-engine/src/polisyos/core/registry/loader.py",
+            "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+            "policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+            "policy-engine/src/polisyos/foundry/execute/_internal/models/__init__.py",
+            "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+            "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+            "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+            "policy-engine/src/polisyos/scientist/governance/preflight.py",
+            "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+            "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+            "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+            "policy-engine/tests/unit/scientist/governance/test_validation_pipeline.py",
+            "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+            "policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py",
+            "policy-engine/tests/unit/runtime/quality/test_substrate_registry.py",
+            "policy-engine/tests/unit/runtime/quality/test_world_model_record.py"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "exit_code": 0,
+          "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/format.stdout.txt@c4fd3f494556e5e7cf4355131a1080dbdcf0bbf09664638af9984db197ad88c0",
+          "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/format.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "exit_record": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/format.exit.txt@9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "name": "imports",
+          "argv": [
+            "policy-engine/.venv/bin/python",
+            "-m",
+            "ruff",
+            "check",
+            "--select",
+            "I",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/src/polisyos/core/artifacts/protocol.py",
+            "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+            "policy-engine/src/polisyos/core/registry/loader.py",
+            "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+            "policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+            "policy-engine/src/polisyos/foundry/execute/_internal/models/__init__.py",
+            "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+            "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+            "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+            "policy-engine/src/polisyos/scientist/governance/preflight.py",
+            "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+            "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+            "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+            "policy-engine/tests/unit/scientist/governance/test_validation_pipeline.py",
+            "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+            "policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py",
+            "policy-engine/tests/unit/runtime/quality/test_substrate_registry.py",
+            "policy-engine/tests/unit/runtime/quality/test_world_model_record.py"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "exit_code": 0,
+          "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/imports.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/imports.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "exit_record": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/imports.exit.txt@9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "name": "full-check",
+          "argv": [
+            "policy-engine/.venv/bin/python",
+            "-m",
+            "ruff",
+            "check",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/src/polisyos/core/artifacts/protocol.py",
+            "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+            "policy-engine/src/polisyos/core/registry/loader.py",
+            "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+            "policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+            "policy-engine/src/polisyos/foundry/execute/_internal/models/__init__.py",
+            "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+            "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+            "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+            "policy-engine/src/polisyos/scientist/governance/preflight.py",
+            "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+            "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+            "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+            "policy-engine/tests/unit/scientist/governance/test_validation_pipeline.py",
+            "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+            "policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py",
+            "policy-engine/tests/unit/runtime/quality/test_substrate_registry.py",
+            "policy-engine/tests/unit/runtime/quality/test_world_model_record.py"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "exit_code": 0,
+          "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/full-check.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/full-check.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "exit_record": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/full-check.exit.txt@9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "name": "diff-check",
+          "argv": [
+            "git",
+            "diff",
+            "--check",
+            "--",
+            "policy-engine/src/polisyos/core/artifacts/protocol.py",
+            "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+            "policy-engine/src/polisyos/core/registry/loader.py",
+            "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+            "policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+            "policy-engine/src/polisyos/foundry/execute/_internal/models/__init__.py",
+            "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+            "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+            "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+            "policy-engine/src/polisyos/scientist/governance/preflight.py",
+            "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+            "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+            "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+            "policy-engine/tests/unit/scientist/governance/test_validation_pipeline.py",
+            "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+            "policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py",
+            "policy-engine/tests/unit/runtime/quality/test_substrate_registry.py",
+            "policy-engine/tests/unit/runtime/quality/test_world_model_record.py"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "exit_code": 0,
+          "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/diff-check.stdout.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/diff-check.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "exit_record": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/diff-check.exit.txt@9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        }
+      ],
+      "manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r28/final-source-test-freeze-and-verification.json@a8355d32a182dbf5fa2daae9686b298e8ac0c30488dba81983a4fd1b957a4ea4"
+    },
+    "focused_test_status": {
+      "status": "PASS",
+      "path_denominator": {
+        "requested_nodes": 20,
+        "actual_cases": 22
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/core/artifacts/test_artifact_store_protocol.py::test_runtime_protocol_matcher_uses_inherited_members_on_the_same_dynamic_handle",
+        "tests/unit/core/artifacts/test_ir_adapter.py::test_runtime_protocol_bridge_derives_inherited_and_annotated_members",
+        "tests/unit/core/artifacts/test_ir_adapter.py::test_static_ir_adapter_cannot_launder_missing_core_json_reader",
+        "tests/unit/core/artifacts/test_selected_profile_core_json.py::test_registry_consumer_reads_selected_cas_views_through_guarded_proxy",
+        "tests/unit/core/artifacts/test_selected_profile_core_json.py::test_guarded_raw_reader_denial_is_not_reclassified_as_missing_capability",
+        "tests/unit/runtime/quality/test_world_model_record.py::test_world_model_record_build_and_readback_use_guarded_core_json_handle",
+        "tests/unit/runtime/quality/test_world_model_record.py::test_wmr_builder_refuses_store_without_raw_manifest_reader_before_io",
+        "tests/unit/scientist/governance/test_validation_pipeline.py::test_preflight_store_builder_requires_raw_manifest_reader",
+        "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py::test_guarded_cas_runs_cdc_quarantine_on_exact_root_and_refuses_rootless_proxy",
+        "tests/unit/foundry/runtime/test_executor_snapshots.py::test_guarded_tenant_scoped_snapshot_put_claims_new_blob_and_denies_foreign_read",
+        "tests/unit/foundry/runtime/test_executor_snapshots.py::test_state_snapshot_2_2_readback_rejects_manifest_lineage_mismatch",
+        "tests/unit/foundry/runtime/test_executor_snapshots.py::test_state_snapshot_2_2_readback_rejects_manifest_schema_mismatch",
+        "tests/unit/foundry/runtime/test_executor_snapshots.py::test_legacy_state_blob_profile_mismatch_gets_tenant_owned_view",
+        "tests/unit/runtime/quality/test_substrate_registry.py::test_substrate_registry_loader_reads_the_selected_manifest_view",
+        "tests/unit/runtime/quality/test_world_model_record.py::test_wmr_loader_rejects_sibling_substrate_registry_manifest_view",
+        "tests/unit/runtime/quality/test_world_model_record.py::test_wmr_v2_persists_selected_views_before_record_persistence",
+        "tests/unit/core/artifacts/test_selected_profile_core_json.py::test_core_json_missing_profile_is_refused_before_selected_semantics",
+        "tests/unit/core/artifacts/test_selected_profile_core_json.py::test_core_json_present_malformed_profile_is_not_treated_as_absent",
+        "tests/unit/core/artifacts/test_selected_profile_core_json.py::test_typed_core_reader_refuses_wrong_shape_and_selected_byte_drift",
+        "tests/unit/core/artifacts/test_selected_profile_core_json.py::test_selected_core_reader_refuses_nonnormal_reserved_tags_before_typed_adapter"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r25/focused-pytest.stdout.txt@0fabe1cc91144bbf0ef02168987f2ee45e29be16fc21bd8b97bae40633591894",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r25/focused-pytest.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_test_changed_during_run": false
+    }
+  },
+  "implementation_delivery": {
+    "source_paths": [
+      "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "policy-engine/src/polisyos/core/registry/loader.py",
+      "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+      "policy-engine/src/polisyos/foundry/execute/_internal/models/__init__.py",
+      "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+      "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+      "policy-engine/src/polisyos/scientist/governance/preflight.py"
+    ],
+    "test_paths": [
+      "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+      "policy-engine/tests/unit/scientist/governance/test_validation_pipeline.py",
+      "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+      "policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py",
+      "policy-engine/tests/unit/runtime/quality/test_substrate_registry.py",
+      "policy-engine/tests/unit/runtime/quality/test_world_model_record.py"
+    ],
+    "source_sha256": {
+      "policy-engine/src/polisyos/core/artifacts/protocol.py": "06a727c201770bf33b2c6ab05b07b7715251218758f0ec88189c247ceb2464d3",
+      "policy-engine/src/polisyos/core/artifacts/ir_adapter.py": "d53664b18a4270dc903945f1c9107fe29eef1c70cc0de6a98bade996a66b152f",
+      "policy-engine/src/polisyos/core/registry/loader.py": "1bd0a57ec85616cf6be8bcf8cf28a0fb62d86fc29539ff91380d803038d17152",
+      "policy-engine/src/polisyos/fabric/data_plane/streaming.py": "429f8bdaccce5df6e817443e1fd739f6e8c4bc6b9607accc156a2a345468ade7",
+      "policy-engine/src/polisyos/foundry/data_plane/bindings.py": "f850487c34d7e9fcfe3b0b2807d3b33ac979ed96b08c640a84f2e5bcc5c296de",
+      "policy-engine/src/polisyos/foundry/execute/_internal/models/__init__.py": "51c55a53886146d1addaf044274248cea1aad0bec957a5786033ded178dff198",
+      "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py": "9c61274c6fe03836bb8835741c48aebddce56436e8fc42d99e87ded3232eb714",
+      "policy-engine/src/polisyos/runtime/quality/substrate_registry.py": "904e88b350cfdae482c792ea64e86528241ed1affdbf2ad5acc33d4d02eb0170",
+      "policy-engine/src/polisyos/runtime/quality/world_model_record.py": "f8c1993e702cab9f46d19f31a538618713ab047e9b12b9c31b61991243ca43a9",
+      "policy-engine/src/polisyos/scientist/governance/preflight.py": "3874eaf19d95d9af879047cd5a0b1db79ef55dfdfff624ab2de083c0c23ebd6d"
+    },
+    "test_sha256": {
+      "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py": "937945eb58fbfbd698c83b8c78075570833b27cc7780af6d11f22b70c944eda9",
+      "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py": "56d88b241197048a07ccf56e570afd13b2826146ad4afe45e6dc5b66ca051cbb",
+      "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py": "c04ec676dab5cd7b7057902131a858af49ab1e6fdca9bfa8bf71bb01c7ce17d2",
+      "policy-engine/tests/unit/scientist/governance/test_validation_pipeline.py": "2b92c255134f1e9bf8a3d4d43e990ce57954fdda132f7baaf6af5a7c64f6e851",
+      "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py": "24ba31d1c2c854462a2269bd516d77d7dc53ef71372c43946e47246b0ab21a46",
+      "policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py": "e95ee53f08a58fad7e5893f663453e7660d93f6e96adbd390a27134aa7a48e76",
+      "policy-engine/tests/unit/runtime/quality/test_substrate_registry.py": "ac153cbf28972b3704ab77598e557991261872ea83501fe67ae1976148975533",
+      "policy-engine/tests/unit/runtime/quality/test_world_model_record.py": "9a43668af8d07b9e1a5e90dca442708aa68851cf81e465a9c74d753ab65bb232"
+    },
+    "behavioral_scope": [
+      "Generic runtime protocol member resolution derives inherited/public requirements from the source Protocol class, preserves the exact GuardedDependencyProxy identity, and leaves each semantic operation on the guarded handle.",
+      "Public registry materialization and WorldModelRecord build/readback use guarded CoreJSON reads, including raw selected manifest, typed manifest, selected profile, and payload access.",
+      "Public streaming path uses the guarded rooted CAS for CDC quarantine and mutable quarantine-index persistence; missing root/capability refuses, while guard denial propagates.",
+      "CoreToIR and Foundry selected-profile binding type contracts preserve the stronger raw-manifest requirement and selected owner/profile lineage; no authority, persistence, or scientific contract was broadened."
+    ],
+    "verification_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r28/final-source-test-freeze-and-verification.json@a8355d32a182dbf5fa2daae9686b298e8ac0c30488dba81983a4fd1b957a4ea4",
+    "source_freeze_state": {
+      "observed_head": "44e852948104f7d9a34242fdc6b3cfbcfebad6e9",
+      "observed_head_tree": "c10dbaaa49876574166723f2958b03359fb0e4e9",
+      "candidate_commit": null,
+      "commit_owner": "root",
+      "source_test_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r28/final-source-test-freeze-and-verification.json@a8355d32a182dbf5fa2daae9686b298e8ac0c30488dba81983a4fd1b957a4ea4",
+      "source_test_manifest_sha256": "a8355d32a182dbf5fa2daae9686b298e8ac0c30488dba81983a4fd1b957a4ea4"
+    }
+  },
+  "independent_review": {
+    "status": "pending for final exact 18-path freeze",
+    "rule": "Earlier narrower review evidence is not widened to the final 18-path union; root will assign a distinct reviewer. No G acceptance or formal closure is asserted."
+  }
+}

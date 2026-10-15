@@ -330,7 +330,7 @@
     "author_worktree_test_frame": {
       "out_of_lease_companion": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
       "worktree_sha256": "41d0570baa2e84b059f32a7210acf2ccbecd808736f9863eab18c99ab2d54226",
-      "delivered_tree_sha256": "64f508f343805f13eaa1572fd9e4000d9cd0387e7db36d0c01d665af23bed5b"
+      "delivered_tree_sha256": "64f508f343805f13eaa1572fd9e4000d9cd0387e7db36d0c01d665af23bed5b0"
     },
     "classification": "R4 delta code/test receipts and independent GO remain valid for the nine exact changed blobs and bounded controls; a complete test replay on the exact delivered whole tree is not established. No product claim depends on promoting protected readiness.",
     "next_check": "Re-run affected integration modules and controls on the exact composed candidate tree when root performs the canonical source freeze."

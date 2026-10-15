@@ -2,10 +2,10 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "e4979449809de2c836014cf20033a0fce90afa73",
-    "tree": "34cb50e5ac5ecc987ef6a97cb7777cfdc6176e06",
+    "head": "74ea317ab55da4f1a9ae124a6fa40310ce87e56d",
+    "tree": "f7c90af844484394293f302626e090122f7d3313",
     "parents": [
-      "4b25c8b55dc9ad4a01b2d59dc3345b19c62bbf21"
+      "b3b0b8a371ccbf62100d1ea04adba135e717bed8"
     ],
     "source_freeze": false,
     "dirty_active_source": "Disjoint author work remains outside committed component boundaries. Exact final source/input/backend composition is not yet frozen."
@@ -34,7 +34,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decision-human-review-custody-20261015.json",
-      "sha256": "7335b6e824872c96b59aec03d5143641c2f512ac8a8cc9a1c1b0d7eb390726f7"
+      "sha256": "10d5ad67a5ef4a3c96a21b0938b69a8a1eff31ee5dcdfc36c6df2d26d3b2e062"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/scorecard-raw-override-boundary-implementation-r2-20261015.json",
@@ -115,6 +115,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json",
       "sha256": "fdfc3585d6e2742cf6e9975ae7ac046b15e38b5a33cff257b3dd41418b32468d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase6-canonical-source-flow-delivery-20261015.json",
+      "sha256": "1485884c855b616c89c242ac492d5f74a687b748656c2c159e83b1d50d28243e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/guarded-core-consumer-delivery-20261015.json",
+      "sha256": "41075973258e40657427ad54a12a54e65b962767f387473d0c7a1819c6ead8c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/guarded-store-capability-bridge-20261015.json",
+      "sha256": "fda760838f168c45add5bd0d8dd6c123983514f032733726947b264bf175fb27"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -142,7 +154,7 @@
     "C05generic92+6 tests pass but actual selection-vs-L4 replay-subject join is held pending producer reissue.",
     "LA038108tests pass in prior scope; actual four dependency-class resolver bypasses remain under repair.",
     "Grounding quote-span subproperty independently bounded GO; actual persisted normative SPO still lacks independent relation evidence, and trust markers skew the raw quality denominator. Relation/status and full-denominator repairs active; encoder wave remains UNRUN.",
-    "GuardedCoreprotocol complete18-path candidate under final canonical Ruff verification; ad-hoc type63errors/12warnings is not a native-gate receipt and no P41inheritance is asserted.",
+    "GuardedCore19-path reviewed union delivered in18changed-path source commit; independent22+4cases and wrong-profile control pass. Ad-hoc type63errors/12warnings remains red, native/installed UNRUN, no P41inheritance asserted.",
     "External institutional issuer/custody/currentness, qualifying production workload, law/refinement and causal calibration are not created by these physical receipts."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",

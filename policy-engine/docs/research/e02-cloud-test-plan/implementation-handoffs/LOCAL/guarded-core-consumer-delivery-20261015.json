@@ -1,0 +1,276 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Guarded CoreJSON artifact capability bridge across actual consumers",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": {
+      "commit": "b3b0b8a371ccbf62100d1ea04adba135e717bed8",
+      "tree": "fad620f439dc797d3af3af25d5ee6a08f5e82f5e",
+      "parents": [
+        "44e852948104f7d9a34242fdc6b3cfbcfebad6e9"
+      ]
+    },
+    "candidate": {
+      "commit": "74ea317ab55da4f1a9ae124a6fa40310ce87e56d",
+      "tree": "f7c90af844484394293f302626e090122f7d3313",
+      "parents": [
+        "b3b0b8a371ccbf62100d1ea04adba135e717bed8"
+      ]
+    },
+    "readback_verified": true,
+    "history": "Ordinary append-only source commit. No unstage/reset/history replacement; an expected19-path reviewed footprint contained one already-unchanged input, so exact commit has18 changed paths.",
+    "p41": "not_established; no inherited-red claim."
+  },
+  "source_test_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "sha256": "d53664b18a4270dc903945f1c9107fe29eef1c70cc0de6a98bade996a66b152f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "sha256": "06a727c201770bf33b2c6ab05b07b7715251218758f0ec88189c247ceb2464d3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/registry/loader.py",
+      "sha256": "1bd0a57ec85616cf6be8bcf8cf28a0fb62d86fc29539ff91380d803038d17152"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "sha256": "429f8bdaccce5df6e817443e1fd739f6e8c4bc6b9607accc156a2a345468ade7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/data_plane/bindings.py",
+      "sha256": "f850487c34d7e9fcfe3b0b2807d3b33ac979ed96b08c640a84f2e5bcc5c296de"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/_internal/models/__init__.py",
+      "sha256": "51c55a53886146d1addaf044274248cea1aad0bec957a5786033ded178dff198"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+      "sha256": "9c61274c6fe03836bb8835741c48aebddce56436e8fc42d99e87ded3232eb714"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "sha256": "904e88b350cfdae482c792ea64e86528241ed1affdbf2ad5acc33d4d02eb0170"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+      "sha256": "f8c1993e702cab9f46d19f31a538618713ab047e9b12b9c31b61991243ca43a9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/governance/preflight.py",
+      "sha256": "3874eaf19d95d9af879047cd5a0b1db79ef55dfdfff624ab2de083c0c23ebd6d"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "sha256": "937945eb58fbfbd698c83b8c78075570833b27cc7780af6d11f22b70c944eda9"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "sha256": "56d88b241197048a07ccf56e570afd13b2826146ad4afe45e6dc5b66ca051cbb"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+      "sha256": "c04ec676dab5cd7b7057902131a858af49ab1e6fdca9bfa8bf71bb01c7ce17d2"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py",
+      "sha256": "24ba31d1c2c854462a2269bd516d77d7dc53ef71372c43946e47246b0ab21a46"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/data_plane/test_bindings_multiscale.py",
+      "sha256": "5432396562d4aa421d5e44ebdfb2d48e9092e86556b5800d782a9882d19f346a"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/runtime/test_executor_snapshots.py",
+      "sha256": "e95ee53f08a58fad7e5893f663453e7660d93f6e96adbd390a27134aa7a48e76"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_substrate_registry.py",
+      "sha256": "ac153cbf28972b3704ab77598e557991261872ea83501fe67ae1976148975533"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_world_model_record.py",
+      "sha256": "9a43668af8d07b9e1a5e90dca442708aa68851cf81e465a9c74d753ab65bb232"
+    }
+  ],
+  "reviewed_unchanged_inputs": [
+    {
+      "path": "policy-engine/tests/unit/scientist/governance/test_validation_pipeline.py",
+      "sha256": "2b92c255134f1e9bf8a3d4d43e990ce57954fdda132f7baaf6af5a7c64f6e851"
+    }
+  ],
+  "reviewed_path_denominator": {
+    "source": 10,
+    "tests": 9,
+    "changed_commit_paths": 18,
+    "unchanged_review_input": 1
+  },
+  "selected_input_profile_backend": "OWN .venv; tenant-scoped FileSystemCAS/guarded proxy and selected manifest/profile fixtures; no production authority facts.",
+  "real_chain": "Generic source-derived inherited Protocol requirements on the same guarded handle→Core/IR adapter owner raw-reader check→selected CAS→registry/WMR/preflight/CDC/Foundry persisted state and fresh readback. Guard denials and missing owner capability refuse before payload I/O.",
+  "patterns": {
+    "classification": "same capability-presence class one level deeper, not a new class",
+    "falsifier": "The base-only adapter test retains the facade declaration but removes the owner raw reader and confirms refusal before payload I/O; guarded denial test confirms a present-but-denied operation is not reclassified as absent.",
+    "reason": "The adapter facade falsely advertising the stronger raw-reader surface is the same dynamic capability boundary; the generic source-derived matcher and owner check cover it for the current consumers.",
+    "residual": "No additional per-consumer matcher is indicated by this bounded review. Full repo/native composition remains a separate gate."
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/independent-review-r28/independent-review.json",
+    "sha256": "6fec09971828fc37a1b56b733df8951a8021287fdeed6707b31575519efa510b"
+  },
+  "source_freeze_and_commands": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r28/final-source-test-freeze-and-verification.json",
+    "sha256": "a8355d32a182dbf5fa2daae9686b298e8ac0c30488dba81983a4fd1b957a4ea4"
+  },
+  "complete_deciding_outputs": {
+    "ad_hoc_type_diagnostic": {
+      "native_full_gate": "UNRUN",
+      "p41": "not_established; no exact slice-base replay/disjointness proof",
+      "receipt": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r17/basedpyright.run.json",
+        "sha256": "d72cdf8d786d21fe705de56e12d2988f9d276945549669f69cb1ce59d74a4c19"
+      },
+      "status": "FAIL ad-hoc diagnostic; not canonical full-native type gate",
+      "stderr": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r17/basedpyright.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r17/basedpyright.stdout.txt",
+        "sha256": "9305088672c70d7e753e5316685c1ecd20a5fa3a598246aa1c02c77f811bf03a"
+      },
+      "summary": "63 errors, 12 warnings, 0 notes"
+    },
+    "independent_core_consumer_replay": {
+      "command": "Source-bound Python 3.14 venv with PYTHONPATH=src; pytest -q for the 20 node IDs copied from the frozen manifest, with JUnit output retained.",
+      "junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/independent-review-r28/focused.junit.xml@30419d691e50b9ada0b5862c606bca84a2d53545ac6fcd6229f41ab4e201f7f5",
+      "module_origin": "own policy-engine/src/polisyos; venv sys.prefix asserted by runner",
+      "result": {
+        "actual_cases": 22,
+        "errors": 0,
+        "exit_code": 0,
+        "failures": 0,
+        "skips": 0
+      },
+      "runner": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/independent-review-r28/run_focused.py@57b9d8e459fe1ea8cf477a80bc61076f1ebab69d78dd4e264e0bbd8373d595e0",
+      "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/independent-review-r28/focused.stdout.txt@1e7c8400d41f59e41c321e7d745f743d7c09b9399452748813881a9fa5dd9b86"
+    },
+    "ruff": {
+      "canonical_workspace_root_commands": [
+        {
+          "exit_code": 0,
+          "name": "format",
+          "outputs": {
+            "exit": {
+              "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/format.exit.txt",
+              "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+            },
+            "stderr": {
+              "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/format.stderr.txt",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/format.stdout.txt",
+              "sha256": "c4fd3f494556e5e7cf4355131a1080dbdcf0bbf09664638af9984db197ad88c0"
+            }
+          }
+        },
+        {
+          "exit_code": 0,
+          "name": "imports",
+          "outputs": {
+            "exit": {
+              "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/imports.exit.txt",
+              "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+            },
+            "stderr": {
+              "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/imports.stderr.txt",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/imports.stdout.txt",
+              "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+            }
+          }
+        },
+        {
+          "exit_code": 0,
+          "name": "full-check",
+          "outputs": {
+            "exit": {
+              "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/full-check.exit.txt",
+              "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+            },
+            "stderr": {
+              "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/full-check.stderr.txt",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/full-check.stdout.txt",
+              "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+            }
+          }
+        },
+        {
+          "exit_code": 0,
+          "name": "diff-check",
+          "outputs": {
+            "exit": {
+              "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/diff-check.exit.txt",
+              "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+            },
+            "stderr": {
+              "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/diff-check.stderr.txt",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stdout": {
+              "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/protocol-repair-r26/diff-check.stdout.txt",
+              "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      ],
+      "output_hashes_independently_rechecked": true
+    },
+    "supplementary_foundry_binding_replay": {
+      "note": "The changed companion test file was not in the original 18-path manifest and should be included in the larger slice denominator/handoff.",
+      "path_outside_18_path_frame": "tests/unit/foundry/data_plane/test_bindings_multiscale.py@5432396562d4aa421d5e44ebdfb2d48e9092e86556b5800d782a9882d19f346a",
+      "result": {
+        "actual_cases": 4,
+        "errors": 0,
+        "exit_code": 0,
+        "failures": 0,
+        "skips": 0
+      },
+      "ruff_and_diff_check": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/independent-review-r28/v3-binding-ruff.json@8f00491a4c48bb61268f995b3c6bb8736bfb5059ff9711f68f6302122b8ab829",
+      "source_and_test_hashes_unchanged_during_run": true,
+      "source_path": "src/polisyos/foundry/data_plane/bindings.py@f850487c34d7e9fcfe3b0b2807d3b33ac979ed96b08c640a84f2e5bcc5c296de",
+      "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/independent-review-r28/v3-data-snapshot-lineage-focused.stdout.txt@d7a2c2320776308e4db391b5b665603d45fefd85c6a13e4a13f540e53f5de1d3"
+    },
+    "wrong_nested_profile_control": {
+      "result": "PASS: child bytes held constant while parent lineage selected another manifest profile; consumer raised the expected profile mismatch.",
+      "source_and_test_hashes_unchanged_during_run": true,
+      "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/guarded-store-capability-bridge-20261015/independent-review-r28/v3-wrong-nested-profile.stdout.txt@81d3202301e9656892d46b98ca61730424c67333d007e1f76ee62adfe59d8a7a"
+    }
+  },
+  "decision": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/guarded-store-capability-bridge-20261015.json",
+    "sha256": "fda760838f168c45add5bd0d8dd6c123983514f032733726947b264bf175fb27"
+  },
+  "proposals": [
+    {
+      "outcome": "bounded_verified",
+      "property": "Dynamic CoreJSON capability presence, same-handle operation and selected consumer readback in reviewed paths."
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "limits": [
+    "The 22-case replay is focused and does not establish the complete repository SOTA/native gate.",
+    "No wheel/sdist consumer or full native verification wave was run in this review.",
+    "The supplementary Foundry binding test is a 19th changed path outside the 18-path frame and must be carried into the composed slice receipt by its owner.",
+    "The frozen packet reports a failing ad-hoc BasedPyright run (63 errors, 12 warnings, 0 notes) over the 10 source paths. It is explicitly not the canonical full-native gate; that gate is UNRUN and P41 is not established."
+  ],
+  "next_check": "Rebind full V3 composition including selected DataSnapshot companions and source dependencies, then native SOTA and exact installed wheel/rebuilt-sdist consumers after final freeze. G retains acceptance/publication/adjudication."
+}

@@ -1,0 +1,148 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Canonical read-API routes and generic source-owned import capability flows",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "composition_slice_base": {
+      "commit": "5c5aba7258a35ec769a39378c2e881a85461c897",
+      "tree": "446bba7d2b4ab3818d728508b02d273b93ab0e16",
+      "parents": [
+        "8c1cd1cbccb0606f42ace814b1e1e3d63e1d5c4c"
+      ]
+    },
+    "application_parent": {
+      "commit": "44e852948104f7d9a34242fdc6b3cfbcfebad6e9",
+      "tree": "c10dbaaa49876574166723f2958b03359fb0e4e9",
+      "parents": [
+        "e4979449809de2c836014cf20033a0fce90afa73"
+      ]
+    },
+    "candidate": {
+      "commit": "b3b0b8a371ccbf62100d1ea04adba135e717bed8",
+      "tree": "fad620f439dc797d3af3af25d5ee6a08f5e82f5e",
+      "parents": [
+        "44e852948104f7d9a34242fdc6b3cfbcfebad6e9"
+      ]
+    },
+    "readback_verified": true,
+    "p41": "not_established; no inherited-red claim, exact whole gate denominator/disjointness not proven."
+  },
+  "source_test_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/_ukraine_release_contracts.py",
+      "sha256": "a088002f98671b8f6ca003f41ad85de65b8b2981954a67fe000d9809ca8adb72"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/manifests.py",
+      "sha256": "6b13307fa999830949169b7081dcac376377f1e8a739d85bf8d52f94224ef350"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+      "sha256": "81f0d1e1fb47e38ea7ff667fb3f28cbfd74d4289d534d1b0194a792be7bc4cc0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/README.md",
+      "sha256": "30d493ab78c540cdda0325017a2872dd0dc0eb570a789ee52f2ec6bfd62d0873"
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/__init__.py",
+      "sha256": "61f96a17d38e0acd96391fb6370bdb6c4d2a9792ceb38ad76d0eedcc6638ec6f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+      "sha256": "2cfaf497064a9a63ba5d684b5777e9eee972d9c6a39df4a353f8db8faaf40941"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+      "sha256": "7afba75871691f0cdfbe1997222c24fec38afc60c7e6f26fd901b403d2484e97"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "sha256": "5b7cb9f150decefeb3fffc4615d77210a9a4bcab11a7c78b5151df1b0835d40e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+      "sha256": "a1afc568776795d0f1c018c1beb255d7e7dfdcbf856eb383fe7b61e51cb8d643"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+      "sha256": "9f0935198b78db227916a85f9fd8099090c7c0a3c6c7b2b465bca3769562c63e"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/read_api/test_ukraine_stage_artifacts.py",
+      "sha256": "289e3bfe6a9cfea6273bfe5e9eacd36269461f8f3249364bad9e68443f525301"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+      "sha256": "557c821d74d1047ad9c06317ad446aab89806eb84cc1a3d942312c75c0fdc9c7"
+    },
+    {
+      "path": "policy-engine/tests/unit/lex/knowledge/test_public_facade.py",
+      "sha256": "f60a21275e6f131b2b4f9e88e05f2afe51f4cae4a209f6070114ce305e59d4b6"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+      "sha256": "8cb14f9c6c519887a026def5a334025e01f100c525ae64a8069ac21eb2f1b6b9"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_design_generation.py",
+      "sha256": "c9ab4ad2262208db2438d76edfb480fd482794c3d3bd189e1939e081f52521b1"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_intervention_substrate.py",
+      "sha256": "ef5b7ab879a7aa016ec506b7397ffd108201330c6171ad564f41ad4d8ea5b5c5"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+      "sha256": "c12c4396a2c01077a982dbcb98a687f36d24b46eb523f9a6ce789ac3f56b7884"
+    }
+  ],
+  "selected_input_profile_backend": "OWN Python3.14 .venv and current source-owned AST; controlled temp CAS and neutral Ukraine release DTOs. No production or external-authority inputs.",
+  "real_chain": "Existing Ukraine release producer→neutral strict frozen DTOs→typed selected read API; Lex canonical read-only facade→runtime consumers; dynamic capability acquisition→typed source AST sink entries/refusals→architecture gate consumer.",
+  "patterns": {
+    "P29_P32_P37_P38": "Source-owned capability provenance and actual typed readers replace marker/name proxies; opaque/unsupported flows stay non-green.",
+    "P40": "Reflection aliases/containers/escapes are same capability-provenance class deeper; generic scanner reused rather than per-function sink lists."
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-source-companion-review-20261015/review.json",
+      "sha256": "cd2dd89c3ecaed2af6be4d798b757a3c8dcc834dccea5191e384ef31079da315"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-source-scanner-independent-review-20261015/independent-review.json",
+      "sha256": "60a1073dcf424ef770c8829c258e9e81e26132eff1dd8babf5d41eb2b8a863c1"
+    }
+  ],
+  "review_scope_reconciliation": "Original15-path product freeze has14 unchanged source/test/doc paths independently GO; shared Phase6 test superseded and independently covered with generic scanner/architecture mirror as a separate3-path mechanism. Union17, not18.",
+  "source_bound_command_and_complete_deciding_output": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-source-union-manifest-20261015/manifest.json",
+      "sha256": "6281cd4768fdd8e1031c9b9e59bf1dcb06d7036f5d8b5af85912af83df0e1d2e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-source-union-manifest-20261015/root-canonical/verification.json",
+      "sha256": "33cb3ec7807f473c0b2f1356bb99c4a2f0441e2c0b2048480e62f5e6eb02c8f0"
+    }
+  ],
+  "decisions": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json",
+      "sha256": "fdfc3585d6e2742cf6e9975ae7ac046b15e38b5a33cff257b3dd41418b32468d"
+    }
+  ],
+  "proposals": [
+    {
+      "outcome": "bounded_verified",
+      "property": "Reviewed product read-API paths and source-owned/reflection capability flow mechanism only."
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "limits": [
+    "Overall Phase6 source gate HOLD. Retained architecture79P5FAIL andPhase642P2FAIL are historical scoped outputs; full329-source gate UNRUN on this composition.",
+    "Six actual source/API adapter routes remain unresolved, including the registered Fabric dependency resolver being repaired in a separate lane.",
+    "Arbitrary callback parameters/unmodeled callable factories are not a source-owned capability proof; unknown is not_established, not proof of absence.",
+    "No native SOTA, installed wheel/rebuilt-sdist consumer, scientific/authority/production or G acceptance claim."
+  ],
+  "next_check": "Finish actual source adapter/registered resolver contracts or deliver exact G semantics choices; freeze composed source/input/backend, canonical regeneration and behavioral removals, then full Phase6/native/installed consumer replay."
+}

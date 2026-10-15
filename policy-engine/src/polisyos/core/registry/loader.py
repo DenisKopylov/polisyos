@@ -5,8 +5,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
 from polisyos.core.artifacts.registry import RegistryBundle, RegistryBundlePayload
 from polisyos.ir.kernel import (
     ConstraintRegistry,
@@ -22,7 +24,12 @@ from polisyos.ir.kernel import (
 if TYPE_CHECKING:
     from pydantic import BaseModel
 
-    from polisyos.core.artifacts.protocol import ArtifactStore
+
+def _require_core_json_reader(store: ArtifactStore) -> CoreJSONArtifactStore:
+    """Narrow the minimal store ABI before any semantic registry read."""
+    if not isinstance(store, CoreJSONArtifactStore):
+        raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable")
+    return store
 
 
 def _artifact_id(value: ArtifactRef | ArtifactID | str) -> ArtifactID:
@@ -49,11 +56,12 @@ def _artifact_ref(
 
 
 def _load_model[ModelT: BaseModel](
-    store: ArtifactStore,
+    store: CoreJSONArtifactStore,
     ref: ArtifactRef | ArtifactID | str,
     model_cls: type[ModelT],
 ) -> ModelT:
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, _store_read_ref(ref))
     return model_cls.model_validate(payload)
 
@@ -73,22 +81,32 @@ class RegistryBundleContent:
     trust_registry: TrustRegistry | None
 
 
+def _load_registry_bundle_payload_core_json(
+    store: CoreJSONArtifactStore,
+    bundle_ref: ArtifactRef | ArtifactID | str,
+) -> RegistryBundlePayload:
+    """Load a bundle payload after the public boundary has checked its reader."""
+    from polisyos.core.artifacts import load_core_json_artifact
+
+    payload = load_core_json_artifact(store, _store_read_ref(bundle_ref))
+    return RegistryBundlePayload.model_validate(payload)
+
+
 def load_registry_bundle_payload(
     store: ArtifactStore,
     bundle_ref: ArtifactRef | ArtifactID | str,
 ) -> RegistryBundlePayload:
     """Load only the bundle payload graph without dereferencing member registries."""
-    from polisyos.core.artifacts import load_core_json_artifact
-    payload = load_core_json_artifact(store, _store_read_ref(bundle_ref))
-    return RegistryBundlePayload.model_validate(payload)
+    core_json_store = _require_core_json_reader(store)
+    return _load_registry_bundle_payload_core_json(core_json_store, bundle_ref)
 
 
-def load_registry_bundle(
-    store: ArtifactStore,
+def _load_registry_bundle_core_json(
+    store: CoreJSONArtifactStore,
     bundle_ref: ArtifactRef | ArtifactID | str,
 ) -> RegistryBundle:
-    """Load the bundle payload and normalize the bundle reference ABI."""
-    payload = load_registry_bundle_payload(store, bundle_ref)
+    """Load and normalize a bundle after the public boundary checked its reader."""
+    payload = _load_registry_bundle_payload_core_json(store, bundle_ref)
     ref = _artifact_ref(
         bundle_ref,
         kind="core.registry_bundle",
@@ -97,30 +115,44 @@ def load_registry_bundle(
     return RegistryBundle(bundle_ref=ref, **payload.model_dump())
 
 
+def load_registry_bundle(
+    store: ArtifactStore,
+    bundle_ref: ArtifactRef | ArtifactID | str,
+) -> RegistryBundle:
+    """Load the bundle payload and normalize the bundle reference ABI."""
+    core_json_store = _require_core_json_reader(store)
+    return _load_registry_bundle_core_json(core_json_store, bundle_ref)
+
+
 def load_registry_bundle_content(
     store: ArtifactStore,
     bundle_ref: ArtifactRef | ArtifactID | str,
 ) -> RegistryBundleContent:
     """Load a bundle and materialize all referenced registry objects from CAS."""
-    bundle = load_registry_bundle(store, bundle_ref)
-    slot_registry = _load_model(store, bundle.slot_registry, SlotRegistry)
-    merge_registry = _load_model(store, bundle.merge_registry, MergeRuleRegistry)
-    mechanism_registry = _load_model(store, bundle.mechanism_registry, MechanismTypeRegistry)
-    constraint_registry = _load_model(store, bundle.constraint_registry, ConstraintRegistry)
+    core_json_store = _require_core_json_reader(store)
+    bundle = _load_registry_bundle_core_json(core_json_store, bundle_ref)
+    slot_registry = _load_model(core_json_store, bundle.slot_registry, SlotRegistry)
+    merge_registry = _load_model(core_json_store, bundle.merge_registry, MergeRuleRegistry)
+    mechanism_registry = _load_model(
+        core_json_store, bundle.mechanism_registry, MechanismTypeRegistry
+    )
+    constraint_registry = _load_model(
+        core_json_store, bundle.constraint_registry, ConstraintRegistry
+    )
     selector_field_registry = None
     if bundle.selector_field_registry is not None:
         selector_field_registry = _load_model(
-            store, bundle.selector_field_registry, SelectorFieldRegistry
+            core_json_store, bundle.selector_field_registry, SelectorFieldRegistry
         )
     metric_registry = None
     if bundle.metric_registry is not None:
-        metric_registry = _load_model(store, bundle.metric_registry, MetricRegistry)
+        metric_registry = _load_model(core_json_store, bundle.metric_registry, MetricRegistry)
     units_registry = None
     if bundle.units_registry is not None:
-        units_registry = _load_model(store, bundle.units_registry, UnitsRegistry)
+        units_registry = _load_model(core_json_store, bundle.units_registry, UnitsRegistry)
     trust_registry = None
     if bundle.trust_registry is not None:
-        trust_registry = _load_model(store, bundle.trust_registry, TrustRegistry)
+        trust_registry = _load_model(core_json_store, bundle.trust_registry, TrustRegistry)
     return RegistryBundleContent(
         bundle_ref=bundle.bundle_ref,
         slot_registry=slot_registry,

@@ -231,6 +231,7 @@ def test_preflight_checks_accept_injected_store_factory(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
+    from polisyos.core.artifacts import CoreJSONArtifactStore
     from polisyos.scientist.governance import preflight_checks
     from polisyos.scientist.governance.profiles import ValidationProfile
 
@@ -250,10 +251,13 @@ def test_preflight_checks_accept_injected_store_factory(
         _unexpected,
     )
 
+    def store_factory(_cas_root: Path) -> CoreJSONArtifactStore:
+        return store
+
     updated_state, gate_request = preflight_checks(
         state,
         ValidationProfile.mvp(),
-        store_factory=lambda _: store,
+        store_factory=store_factory,
     )
 
     assert gate_request is None
@@ -289,16 +293,53 @@ def test_preflight_registry_bundle_load_emits_degraded_path(
     assert degraded_calls[0]["reason"] == "registry_bundle_unreadable"
 
 
+def test_preflight_store_builder_requires_raw_manifest_reader(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts import ArtifactStore, CoreJSONArtifactStore
+    from polisyos.scientist.governance import preflight as preflight_module
+
+    methods = {
+        name: (lambda *_args, **_kwargs: None)
+        for name in (
+            "has",
+            "get_bytes",
+            "get_manifest",
+            "put_bytes",
+            "put_json",
+            "verify",
+            "iter_artifact_ids",
+        )
+    }
+    weak_store = type("StoreWithoutRawManifestReader", (), methods)()
+    assert isinstance(weak_store, ArtifactStore)
+    assert not isinstance(weak_store, CoreJSONArtifactStore)
+
+    monkeypatch.setattr(
+        preflight_module,
+        "build_artifact_store",
+        lambda _config: weak_store,
+    )
+
+    with pytest.raises(
+        TypeError,
+        match="artifact_store_core_json_manifest_reader_unsupported",
+    ):
+        preflight_module._build_store(tmp_path / "cas")
+
+
 def test_preflight_registry_helpers_accept_injected_store_factory(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
+    from polisyos.core.artifacts import CoreJSONArtifactStore
     from polisyos.scientist.governance import preflight as preflight_module
 
     store = FileSystemCAS(tmp_path / ".polisyos")
     store_factory_calls: list[Path] = []
 
-    def _store_factory(cas_root: Path) -> FileSystemCAS:
+    def _store_factory(cas_root: Path) -> CoreJSONArtifactStore:
         store_factory_calls.append(cas_root)
         return store
 

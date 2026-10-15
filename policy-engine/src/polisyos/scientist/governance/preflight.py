@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
+from polisyos.core.artifacts import CoreJSONArtifactStore
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.governance.passes.base import IssueSeverity, PassContext
 from polisyos.core.governance.profiles import ValidationProfile
@@ -22,8 +23,6 @@ _PREFLIGHT_LOAD_ERRORS = (AttributeError, OSError, RuntimeError, TypeError, Valu
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from polisyos.core.artifacts.protocol import ArtifactStore
-
     from .pipeline import ValidationPipeline
 
 
@@ -35,18 +34,18 @@ def build_default_pipeline() -> ValidationPipeline:
 DEFAULT_PIPELINE = build_default_pipeline()
 
 
-def _build_store(cas_root: Path) -> ArtifactStore:
-    return cast(
-        "ArtifactStore",
-        build_artifact_store(ArtifactStoreConfig(root=str(cas_root))),
-    )
+def _build_store(cas_root: Path) -> CoreJSONArtifactStore:
+    store = build_artifact_store(ArtifactStoreConfig(root=str(cas_root)))
+    if not isinstance(store, CoreJSONArtifactStore):
+        raise TypeError("artifact_store_core_json_manifest_reader_unsupported")
+    return store
 
 
 def preflight_checks(
     state: dict[str, Any],
     profile: ValidationProfile | None = None,
     *,
-    store_factory: Callable[[Path], ArtifactStore] | None = None,
+    store_factory: Callable[[Path], CoreJSONArtifactStore] | None = None,
 ) -> tuple[dict[str, Any], GateRequest | None]:
     """
     Pre-flight governance with configurable validation profile.
@@ -139,7 +138,7 @@ def _cas_root(state: dict[str, Any]) -> Path:
 def _ensure_registry_bundle(
     state: dict[str, Any],
     *,
-    store_factory: Callable[[Path], ArtifactStore] | None = None,
+    store_factory: Callable[[Path], CoreJSONArtifactStore] | None = None,
 ) -> dict[str, Any]:
     if state.get("registry_bundle_ref"):
         return state
@@ -170,7 +169,7 @@ def _load_registry_bundle(
     state: dict[str, Any],
     policy: TrinityBundle | None,
     *,
-    store_factory: Callable[[Path], ArtifactStore] | None = None,
+    store_factory: Callable[[Path], CoreJSONArtifactStore] | None = None,
 ) -> object | None:
     bundle_id = _resolve_registry_bundle_id(state, policy)
     if not bundle_id:

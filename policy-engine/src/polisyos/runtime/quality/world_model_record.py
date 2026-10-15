@@ -25,6 +25,7 @@ from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
     ArtifactStore,
+    CoreJSONArtifactStore,
     FileSystemCAS,
     InputRef,
     PutOptions,
@@ -118,20 +119,13 @@ def derive_candidate_scenario_world_model_record(
         raise WorldModelRecordError("candidate_scenario_ncm_view_invalid")
 
     try:
-        selected_ncm_ref = ArtifactRef(
-            **ncm_artifact_ref.model_dump(mode="python")
-        )
+        selected_ncm_ref = ArtifactRef(**ncm_artifact_ref.model_dump(mode="python"))
         canonical_declaration_hash = str(ArtifactID(declaration_content_hash))
         if canonical_declaration_hash != declaration_content_hash:
             raise ValueError("candidate declaration hash is not canonical")
     except (TypeError, ValueError) as exc:
-        raise WorldModelRecordError(
-            "candidate_scenario_ncm_view_invalid", str(exc)
-        ) from exc
-    if (
-        selected_ncm_ref.kind != "ir.ncm_spec"
-        or selected_ncm_ref.media_type != "application/json"
-    ):
+        raise WorldModelRecordError("candidate_scenario_ncm_view_invalid", str(exc)) from exc
+    if selected_ncm_ref.kind != "ir.ncm_spec" or selected_ncm_ref.media_type != "application/json":
         raise WorldModelRecordError(
             "candidate_scenario_ncm_view_invalid",
             "expected an owner-issued JSON ir.ncm_spec ref",
@@ -149,9 +143,7 @@ def derive_candidate_scenario_world_model_record(
     try:
         base_views = world_model_artifact_views(base_record)
     except (TypeError, ValueError) as exc:
-        raise WorldModelRecordError(
-            "candidate_scenario_wmr_basis_views_invalid", str(exc)
-        ) from exc
+        raise WorldModelRecordError("candidate_scenario_wmr_basis_views_invalid", str(exc)) from exc
 
     selected_registry_view: ArtifactRef | None = None
     if substrate_registry_view_ref is not None:
@@ -173,14 +165,10 @@ def derive_candidate_scenario_world_model_record(
                 "expected an owner-selected JSON substrate-registry ref",
             )
         existing_registry_view = base_views.substrate_registry_ref
-        if (
-            existing_registry_view is not None
-            and artifact_ref_identity_key(existing_registry_view)
-            != artifact_ref_identity_key(selected_registry_view)
-        ):
-            raise WorldModelRecordError(
-                "candidate_scenario_substrate_registry_view_conflict"
-            )
+        if existing_registry_view is not None and artifact_ref_identity_key(
+            existing_registry_view
+        ) != artifact_ref_identity_key(selected_registry_view):
+            raise WorldModelRecordError("candidate_scenario_substrate_registry_view_conflict")
 
     selected_views: list[ArtifactRef] = []
     seen_view_identities: set[tuple[str, str, str, str | None]] = set()
@@ -204,9 +192,7 @@ def derive_candidate_scenario_world_model_record(
             }
         )
     except (TypeError, ValueError) as exc:
-        raise WorldModelRecordError(
-            "candidate_scenario_ncm_view_invalid", str(exc)
-        ) from exc
+        raise WorldModelRecordError("candidate_scenario_ncm_view_invalid", str(exc)) from exc
 
     model_ref = base_record.simulation_model_ref.model_copy(
         update={
@@ -245,8 +231,7 @@ def derive_candidate_scenario_world_model_record(
             )
         if (
             previous_registry_locator is not None
-            and data_forge_binding_ref.provenance_manifest_ref
-            == previous_registry_locator
+            and data_forge_binding_ref.provenance_manifest_ref == previous_registry_locator
         ):
             data_forge_binding_ref = data_forge_binding_ref.model_copy(
                 update={"provenance_manifest_ref": selected_registry_id}
@@ -281,9 +266,7 @@ def derive_candidate_scenario_world_model_record(
     try:
         return WorldModelRecord.model_validate(payload)
     except (TypeError, ValueError) as exc:
-        raise WorldModelRecordError(
-            "candidate_scenario_wmr_invalid", str(exc)
-        ) from exc
+        raise WorldModelRecordError("candidate_scenario_wmr_invalid", str(exc)) from exc
 
 
 class _StrictModel(BaseModel):
@@ -452,8 +435,7 @@ def world_model_artifact_views(record: WorldModelRecord) -> WorldModelArtifactVi
             for value in simulation.program_graph_refs
         ),
         ncm_refs=tuple(
-            _view_ref_for_id(value, kind="ir.ncm_spec")
-            for value in simulation.ncm_refs
+            _view_ref_for_id(value, kind="ir.ncm_spec") for value in simulation.ncm_refs
         ),
     )
 
@@ -555,6 +537,11 @@ def build_world_model_record(
             "model_spec_registry_bundle_missing",
             "ModelSpec must name the registry bundle used by Foundry binding",
         )
+    if not isinstance(store, CoreJSONArtifactStore):
+        raise WorldModelRecordError(
+            "world_model_store_core_json_reader_unsupported",
+            "WMR construction requires the selected raw-manifest reader capability",
+        )
     effective_limitations = limitations or WorldModelLimitations()
     if candidate_only and not effective_limitations.admissibility_blockers:
         raise WorldModelRecordError("candidate_only_wmr_requires_admissibility_blocker")
@@ -593,8 +580,7 @@ def build_world_model_record(
         skg_causal_prior_ref=skg_causal_prior_ref,
         allow_candidate_skg_source_mismatch=(
             candidate_only
-            and "causal_coupling_not_established"
-            in effective_limitations.admissibility_blockers
+            and "causal_coupling_not_established" in effective_limitations.admissibility_blockers
         ),
     )
 
@@ -652,12 +638,10 @@ def build_world_model_record(
     selected_graph_views = tuple(program_graph_view_refs or ())
     selected_ncm_views = tuple(ncm_view_refs or ())
     graph_views = selected_graph_views or tuple(
-        _view_ref_for_id(value, kind="foundry.program_graph")
-        for value in program_graph_refs
+        _view_ref_for_id(value, kind="foundry.program_graph") for value in program_graph_refs
     )
     ncm_views = selected_ncm_views or tuple(
-        _view_ref_for_id(value, kind="ir.ncm_spec")
-        for value in ncm_refs
+        _view_ref_for_id(value, kind="ir.ncm_spec") for value in ncm_refs
     )
     if tuple(str(ref.artifact_id) for ref in graph_views) != tuple(program_graph_refs):
         raise WorldModelRecordError("world_model_program_graph_view_id_mismatch")
@@ -671,10 +655,7 @@ def build_world_model_record(
         "artifact.bound_state_snapshot_ref": input_bindings.bound_state_snapshot_ref,
         "artifact.input_binding_report_ref": input_bindings.input_binding_report_ref,
         "input.substrate_registry_ref": substrate_registry_view_ref,
-        **{
-            f"input.program_graph_refs.{index}": ref
-            for index, ref in enumerate(graph_views)
-        },
+        **{f"input.program_graph_refs.{index}": ref for index, ref in enumerate(graph_views)},
         **{f"input.ncm_refs.{index}": ref for index, ref in enumerate(ncm_views)},
     }
     use_v2_views = (
@@ -912,7 +893,7 @@ def resolve_intervention_atom_world_binding(
 
 
 def persist_world_model_record(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     record: WorldModelRecord,
     *,
     inputs: Sequence[InputRef] | None = None,
@@ -927,8 +908,9 @@ def persist_world_model_record(
                 role=role,
                 manifest_profile_sha256=manifest_profile_sha256,
             )
-            for artifact_id, role, manifest_profile_sha256
-            in _world_model_record_manifest_inputs(validated)
+            for artifact_id, role, manifest_profile_sha256 in _world_model_record_manifest_inputs(
+                validated
+            )
         ]
         if inputs is None
         else list(inputs)
@@ -1019,9 +1001,7 @@ def _world_model_record_manifest_inputs(
         (ref, f"input.program_graph_refs.{index}")
         for index, ref in enumerate(views.program_graph_refs)
     )
-    expected.extend(
-        (ref, f"input.ncm_refs.{index}") for index, ref in enumerate(views.ncm_refs)
-    )
+    expected.extend((ref, f"input.ncm_refs.{index}") for index, ref in enumerate(views.ncm_refs))
     return tuple(
         sorted(
             (
@@ -1360,10 +1340,7 @@ def _load_substrate_registry_artifact_ref(
 
     try:
         if isinstance(ref, ArtifactRef):
-            if (
-                ref.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND
-                or ref.media_type != "application/json"
-            ):
+            if ref.kind != SUBSTRATE_REGISTRY_ARTIFACT_KIND or ref.media_type != "application/json":
                 raise ValueError("substrate registry artifact kind or media type is invalid")
             artifact_id = ArtifactID.model_validate(str(ref.artifact_id))
             profile_sha256 = ref.manifest_profile_sha256
@@ -1486,10 +1463,10 @@ def _resolve_substrate_registry_ref(
             else None
         ),
         resolved_entries=tuple(
-            _resolved_substrate_entry_ref_from_registry_entry(entry)
-            for entry in unique.values()
+            _resolved_substrate_entry_ref_from_registry_entry(entry) for entry in unique.values()
         ),
     )
+
 
 def _parse_skg_snapshot_ref(raw_ref: str) -> _ParsedSkgSnapshotRef:
     prefix = "duckdb://"

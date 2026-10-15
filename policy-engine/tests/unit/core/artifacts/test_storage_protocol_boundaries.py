@@ -2,15 +2,25 @@ from __future__ import annotations
 
 import ast
 from pathlib import Path
-from typing import TYPE_CHECKING
 
+import pytest
+
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core.artifacts import ArtifactStore, VerificationReport
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef, IntegrityInfo
-from polisyos.core.artifacts.registry import RegistryBundlePayload
-from polisyos.core.canon import content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.core.artifacts.protocol import CoreJSONArtifactStore
+from polisyos.core.artifacts.registry import RegistryBundle, RegistryBundlePayload
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.compiler.report import CompileReport, put_compile_report, put_link_report
 from polisyos.core.registry.builder import build_registry_bundle
-from polisyos.core.registry.loader import load_registry_bundle, load_registry_bundle_content
+from polisyos.core.registry.loader import (
+    load_registry_bundle,
+    load_registry_bundle_content,
+    load_registry_bundle_payload,
+)
 from polisyos.ir.kernel import (
     DEFAULT_CONSTRAINT_REGISTRY,
     DEFAULT_MECHANISM_REGISTRY,
@@ -21,11 +31,6 @@ from polisyos.ir.kernel import (
     DEFAULT_UNITS_REGISTRY,
 )
 from polisyos.ir.linker import LinkIssue, LinkIssueCode, LinkReport, LinkSeverity
-
-if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
-    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 PROTOCOL_BOUNDARY_FILES = (
@@ -44,6 +49,8 @@ class RecordingArtifactStore:
         self._payloads: dict[str, bytes] = {}
         self._manifests: dict[str, ArtifactManifest] = {}
         self.write_kinds: list[str] = []
+        self.payload_reads = 0
+        self.operations: list[str] = []
 
     @staticmethod
     def _artifact_key(artifact_id: ArtifactID | ArtifactRef | str) -> str:
@@ -57,22 +64,37 @@ class RecordingArtifactStore:
         return str(normalized_id)
 
     def has(self, artifact_id: ArtifactID | ArtifactRef | str) -> bool:
+        self.operations.append("has")
         return self._artifact_key(artifact_id) in self._payloads
 
     def get_bytes(self, artifact_id: ArtifactID | ArtifactRef | str) -> bytes:
+        self.operations.append("get_bytes")
+        self.payload_reads += 1
         return self._payloads[self._artifact_key(artifact_id)]
 
     def get_manifest(self, artifact_id: ArtifactID | ArtifactRef | str) -> ArtifactManifest:
+        self.operations.append("get_manifest")
         return self._manifests[self._artifact_key(artifact_id)]
 
-    def put_bytes(self, data: bytes, opts: ArtifactWriteOptions) -> ArtifactRef:
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        self.operations.append("put_bytes")
+        if type(return_selected_profile) is not bool:
+            raise TypeError("return_selected_profile must be a bool")
+        if return_selected_profile:
+            raise NotImplementedError("recording_store_profile_selection_unsupported")
         artifact_id = ArtifactID.from_sha256_hex(content_hash(data))
         manifest = ArtifactManifest(
             artifact_id=artifact_id,
             kind=opts.kind,
             media_type=opts.media_type,
             byte_size=len(data),
-            schema=opts.schema,
+            artifact_schema=opts.schema,
             canon=opts.canon,
             inputs=list(opts.inputs or []),
             producer=opts.producer,
@@ -92,14 +114,29 @@ class RecordingArtifactStore:
         self,
         obj: object,
         opts: ArtifactWriteOptions,
-        canon_spec=None,
+        canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:
-        return self.put_bytes(to_canonical_bytes(obj, canon_spec), opts)
+        self.operations.append("put_json")
+        if type(return_selected_profile) is not bool:
+            raise TypeError("return_selected_profile must be a bool")
+        if return_selected_profile:
+            raise NotImplementedError("recording_store_profile_selection_unsupported")
+        return self.put_bytes(
+            to_canonical_bytes(obj, canon_spec),
+            opts,
+            return_selected_profile=return_selected_profile,
+        )
 
-    def verify(self, artifact_id: ArtifactID):  # pragma: no cover - not used in these tests
+    def verify(
+        self, artifact_id: ArtifactID | ArtifactRef
+    ) -> VerificationReport:  # pragma: no cover - not used in these tests
+        self.operations.append("verify")
         raise NotImplementedError
 
     def iter_artifact_ids(self) -> list[ArtifactID]:
+        self.operations.append("iter_artifact_ids")
         return [ArtifactID.model_validate(value) for value in self._payloads]
 
 
@@ -150,11 +187,8 @@ def test_compiler_report_helpers_accept_protocol_store() -> None:
     assert store.get_manifest(compile_ref.artifact_id).kind == "compiler.compile_report"
 
 
-def test_registry_bundle_build_and_load_work_with_protocol_store() -> None:
-    recording_store = RecordingArtifactStore()
-    store: ArtifactStore = recording_store
-
-    bundle = build_registry_bundle(
+def _build_default_registry_bundle(store: ArtifactStore) -> RegistryBundle:
+    return build_registry_bundle(
         store,
         slot_registry=DEFAULT_SLOT_REGISTRY,
         merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
@@ -165,6 +199,12 @@ def test_registry_bundle_build_and_load_work_with_protocol_store() -> None:
         units_registry=DEFAULT_UNITS_REGISTRY,
     )
 
+
+def test_registry_bundle_writer_accepts_minimal_protocol_store() -> None:
+    recording_store = RecordingArtifactStore()
+    store: ArtifactStore = recording_store
+    bundle = _build_default_registry_bundle(store)
+
     bundle_artifact_id = bundle.bundle_ref.artifact_id
     for artifact_reference in (
         bundle.bundle_ref,
@@ -174,15 +214,133 @@ def test_registry_bundle_build_and_load_work_with_protocol_store() -> None:
         assert recording_store.has(artifact_reference)
         assert recording_store.get_bytes(artifact_reference)
         assert recording_store.get_manifest(artifact_reference).artifact_id == bundle_artifact_id
+    assert "core.registry_bundle" in recording_store.write_kinds
 
-    loaded_bundle = load_registry_bundle(store, bundle.bundle_ref)
-    loaded_content = load_registry_bundle_content(store, bundle.bundle_ref)
+
+def test_registry_bundle_load_refuses_without_raw_manifest_before_payload_read() -> None:
+    recording_store = RecordingArtifactStore()
+    ref = recording_store.put_json(
+        {},
+        ArtifactWriteOptions(kind="core.registry_bundle", media_type="application/json"),
+    )
+    recording_store.operations.clear()
+    store: ArtifactStore = recording_store
+
+    for loader in (
+        lambda: load_registry_bundle_payload(store, ref),
+        lambda: load_registry_bundle(store, ref),
+        lambda: load_registry_bundle_content(store, ref),
+    ):
+        with pytest.raises(
+            CanonicalProfileRefusalError,
+            match="canon_profile_raw_manifest_unavailable",
+        ):
+            loader()
+        assert recording_store.operations == []
+
+    assert recording_store.payload_reads == 0
+
+
+def test_registry_bundle_public_facade_refuses_opaque_sibling_store_before_io(
+    tmp_path: Path,
+) -> None:
+    """An opaque minimal store cannot enter semantic loading through the lazy facade."""
+    from polisyos.core import registry as registry_facade
+
+    backing_store = FileSystemCAS(tmp_path / ".polisyos")
+    bundle = _build_default_registry_bundle(backing_store)
+
+    class OpaqueStoreWithoutRawManifestReader:
+        def __init__(self, delegate: FileSystemCAS) -> None:
+            self.delegate = delegate
+            self.calls: list[str] = []
+
+        def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:
+            self.calls.append("has")
+            return self.delegate.has(artifact_id)
+
+        def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes:
+            self.calls.append("get_bytes")
+            return self.delegate.get_bytes(artifact_id)
+
+        def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest:
+            self.calls.append("get_manifest")
+            return self.delegate.get_manifest(artifact_id)
+
+        def put_bytes(
+            self,
+            data: bytes,
+            opts: ArtifactWriteOptions,
+            *,
+            return_selected_profile: bool = False,
+        ) -> ArtifactRef:
+            self.calls.append("put_bytes")
+            return self.delegate.put_bytes(
+                data,
+                opts,
+                return_selected_profile=return_selected_profile,
+            )
+
+        def put_json(
+            self,
+            obj: object,
+            opts: ArtifactWriteOptions,
+            canon_spec: CanonSpec | None = None,
+            *,
+            return_selected_profile: bool = False,
+        ) -> ArtifactRef:
+            self.calls.append("put_json")
+            return self.delegate.put_json(
+                obj,
+                opts,
+                canon_spec,
+                return_selected_profile=return_selected_profile,
+            )
+
+        def verify(self, artifact_id: ArtifactID | ArtifactRef) -> VerificationReport:
+            self.calls.append("verify")
+            return self.delegate.verify(artifact_id)
+
+        def iter_artifact_ids(self) -> list[ArtifactID]:
+            self.calls.append("iter_artifact_ids")
+            return self.delegate.iter_artifact_ids()
+
+    opaque = OpaqueStoreWithoutRawManifestReader(backing_store)
+    store: ArtifactStore = opaque
+    assert isinstance(opaque, ArtifactStore)
+    assert not isinstance(opaque, CoreJSONArtifactStore)
+
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_raw_manifest_unavailable",
+    ):
+        registry_facade.load_registry_bundle_content(store, bundle.bundle_ref)
+
+    assert opaque.calls == []
+
+
+def test_registry_bundle_build_and_load_use_persisted_profiled_cas_bytes(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    bundle = _build_default_registry_bundle(store)
+    bundle_artifact_id = bundle.bundle_ref.artifact_id
+    for artifact_reference in (
+        bundle.bundle_ref,
+        bundle_artifact_id,
+        str(bundle_artifact_id),
+    ):
+        assert store.has(artifact_reference)
+        assert store.get_bytes(artifact_reference)
+        assert store.get_manifest(artifact_reference).artifact_id == bundle_artifact_id
+
+    fresh_store: CoreJSONArtifactStore = FileSystemCAS(store.root)
+    loaded_bundle = load_registry_bundle(fresh_store, bundle.bundle_ref)
+    loaded_content = load_registry_bundle_content(fresh_store, bundle.bundle_ref)
     payload = RegistryBundlePayload.model_validate(
-        from_canonical_bytes(store.get_bytes(bundle.bundle_ref.artifact_id))
+        from_canonical_bytes(fresh_store.get_bytes(bundle.bundle_ref.artifact_id))
     )
 
     assert loaded_bundle.bundle_ref == bundle.bundle_ref
     assert loaded_content.slot_registry.model_dump() == DEFAULT_SLOT_REGISTRY.model_dump()
     assert loaded_content.merge_registry.model_dump() == DEFAULT_MERGE_RULE_REGISTRY.model_dump()
     assert payload.slot_registry == bundle.slot_registry
-    assert "core.registry_bundle" in store.write_kinds
+    assert fresh_store.get_raw_manifest_bytes(bundle.bundle_ref.artifact_id)

@@ -172,6 +172,17 @@ class ArtifactStore(Protocol):
         ...
 
 
+@runtime_checkable
+class CoreJSONArtifactStore(ArtifactStore, RawManifestBytesReader, Protocol):
+    """Store with the raw-manifest capability required for semantic Core JSON reads.
+
+    ``ArtifactStore`` remains the minimal producer and storage contract. Readers
+    that admit Core JSON against its declared canonical profile require this
+    stronger boundary so they can inspect the exact persisted manifest bytes
+    before reading or validating the payload.
+    """
+
+
 class ProfileAddressedManifestStore(Protocol):
     """Optional store capability for resolving a selected view without its kind."""
 

@@ -3,10 +3,12 @@ from __future__ import annotations
 import json
 from decimal import Decimal
 from pathlib import Path
+from typing import NoReturn
 
 import duckdb
 import pytest
 
+from polisyos.core.artifacts import ArtifactStore, CoreJSONArtifactStore
 from polisyos.core.artifacts.manifest import SchemaInfo, WarningRecord
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -678,9 +680,7 @@ def test_candidate_scenario_wmr_projection_keeps_limited_uncalibrated_model(
     with pytest.raises(WorldModelRecordError, match="ncm_view_invalid"):
         derive_candidate_scenario_world_model_record(
             base_record,
-            ncm_artifact_ref=selected_ncm_ref.model_copy(
-                update={"kind": "core.registry_bundle"}
-            ),
+            ncm_artifact_ref=selected_ncm_ref.model_copy(update={"kind": "core.registry_bundle"}),
             declaration_content_hash=declaration_hash,
         )
     legacy_ncm_base = rehash_record(
@@ -695,6 +695,7 @@ def test_candidate_scenario_wmr_projection_keeps_limited_uncalibrated_model(
             ncm_artifact_ref=selected_ncm_ref,
             declaration_content_hash=declaration_hash,
         )
+
 
 def _build_record_with_substrate_registry_ref(
     tmp_path: Path,
@@ -828,7 +829,9 @@ def _atom_for_record(record: WorldModelRecord):
         target_region_ids=["UA-30"],
     )
     bundle = TrinityBundle(
-        problem_frame=ProblemFrame(problem_id="problem_ua_msme_credit", domain=ProblemDomain.FISCAL),
+        problem_frame=ProblemFrame(
+            problem_id="problem_ua_msme_credit", domain=ProblemDomain.FISCAL
+        ),
         policy_spec=PolicySpec(
             policy_id="policy_ua_msme_credit",
             problem_frame_ref="sha256:" + "a" * 64,
@@ -895,9 +898,7 @@ def test_world_model_record_builds_bound_global_state_and_executes_smoke(tmp_pat
     assert built.record.world_model_record_id.startswith("world_model_record_")
     assert built.record.content_hash.startswith("sha256:")
     assert built.record.branch_mode is BranchMode.OBSERVED
-    assert built.record.substrate_registry_ref.substrate_version_id.startswith(
-        "substrate_version_"
-    )
+    assert built.record.substrate_registry_ref.substrate_version_id.startswith("substrate_version_")
     assert built.record.substrate_registry_ref.resolved_entries[0].family_id == (
         "firm_fundamentals"
     )
@@ -992,6 +993,7 @@ def test_world_model_record_manifest_and_readback_bind_exact_registry_cas_input(
 ) -> None:
     store, built, persisted_registry_ref = _build_record_with_substrate_registry_ref(tmp_path)
 
+    assert isinstance(store, CoreJSONArtifactStore)
     read_back = load_world_model_record(store, built.record_ref)
     persisted_registry = load_substrate_registry(store, persisted_registry_ref)
     manifest = store.get_manifest(built.record_ref.artifact_id)
@@ -1023,9 +1025,76 @@ def test_world_model_record_manifest_and_readback_bind_exact_registry_cas_input(
         == persisted_registry_ref.manifest_profile_sha256
     )
     assert (
-        registry_edges[0].manifest_profile_sha256
-        == selected_registry_view.manifest_profile_sha256
+        registry_edges[0].manifest_profile_sha256 == selected_registry_view.manifest_profile_sha256
     )
+
+
+def test_wmr_builder_refuses_store_without_raw_manifest_reader_before_io(
+    tmp_path: Path,
+) -> None:
+    """WMR semantic loading refuses before reading or writing through a weak store."""
+
+    class StoreWithoutRawManifestReader:
+        def __init__(self) -> None:
+            self.calls: list[str] = []
+
+        def _unexpected(self, name: str) -> NoReturn:
+            self.calls.append(name)
+            raise AssertionError(f"unexpected ArtifactStore access: {name}")
+
+        def has(self, *args: object, **kwargs: object) -> NoReturn:
+            self._unexpected("has")
+
+        def get_bytes(self, *args: object, **kwargs: object) -> NoReturn:
+            self._unexpected("get_bytes")
+
+        def get_manifest(self, *args: object, **kwargs: object) -> NoReturn:
+            self._unexpected("get_manifest")
+
+        def put_bytes(self, *args: object, **kwargs: object) -> NoReturn:
+            self._unexpected("put_bytes")
+
+        def put_json(self, *args: object, **kwargs: object) -> NoReturn:
+            self._unexpected("put_json")
+
+        def verify(self, *args: object, **kwargs: object) -> NoReturn:
+            self._unexpected("verify")
+
+        def iter_artifact_ids(self, *args: object, **kwargs: object) -> NoReturn:
+            self._unexpected("iter_artifact_ids")
+
+    backing_store = FileSystemCAS(tmp_path / "cas")
+    data_snapshot_ref = _data_snapshot_ref(backing_store)
+    registry_bundle = build_default_registry_bundle(backing_store)
+    model_spec = _model_spec(data_snapshot_ref, registry_bundle.bundle_ref)
+    weak_store = StoreWithoutRawManifestReader()
+
+    assert isinstance(weak_store, ArtifactStore)
+    assert not isinstance(weak_store, CoreJSONArtifactStore)
+    with pytest.raises(
+        WorldModelRecordError,
+        match="world_model_store_core_json_reader_unsupported",
+    ):
+        build_world_model_record(
+            weak_store,
+            fabric_world_ref=_fabric_ref(tmp_path),
+            data_forge_snapshot_binding_path=tmp_path / "unread-binding.json",
+            data_snapshot_ref=data_snapshot_ref,
+            model_spec=model_spec,
+            skg_causal_prior_ref=_skg_ref(tmp_path),
+            substrate_registry=_substrate_registry(),
+            region_or_jurisdiction="UA-30",
+            population_scope="wartime_msme",
+            policy_domain="fiscal_credit",
+            valid_time_scope="2026-05-24/2026-12-31",
+            tx_time_scope="2026-05-24T12:00:00+00:00",
+            resolution="firm_month",
+            branch_mode=BranchMode.OBSERVED,
+            policy_slot_ids=("agents.income",),
+            producer_ref="test.world_model_record_builder",
+        )
+
+    assert weak_store.calls == []
 
 
 def test_wmr_loader_rejects_sibling_substrate_registry_manifest_view(
@@ -1060,10 +1129,7 @@ def test_wmr_loader_rejects_sibling_substrate_registry_manifest_view(
     )
     assert sibling_ref.artifact_id == selected_registry_ref.artifact_id
     assert sibling_ref.manifest_profile_sha256 is not None
-    assert (
-        sibling_ref.manifest_profile_sha256
-        != selected_registry_view.manifest_profile_sha256
-    )
+    assert sibling_ref.manifest_profile_sha256 != selected_registry_view.manifest_profile_sha256
     assert load_substrate_registry(store, sibling_ref) == load_substrate_registry(
         store, selected_registry_view
     )
@@ -1203,9 +1269,7 @@ def test_world_model_record_consumes_free_grow_registered_substrate(tmp_path: Pa
     assert built.record.substrate_registry_ref.resolved_entries[0].source_id == (
         "acquisition:test_future_source"
     )
-    assert built.record.substrate_registry_ref.resolved_entries[0].trust_tier == (
-        "weak_anchor"
-    )
+    assert built.record.substrate_registry_ref.resolved_entries[0].trust_tier == ("weak_anchor")
 
 
 def test_world_model_record_rejects_unresolved_fabric_world_snapshot(tmp_path: Path) -> None:
@@ -1530,9 +1594,7 @@ def test_wmr_v2_persists_selected_views_before_record_persistence(
     else:
         actual_selected_ref = built.record.artifact_views.bound_state_snapshot_ref
         selected_ref = actual_selected_ref
-    assert actual_selected_ref.manifest_profile_sha256 == (
-        selected_ref.manifest_profile_sha256
-    )
+    assert actual_selected_ref.manifest_profile_sha256 == (selected_ref.manifest_profile_sha256)
     assert load_world_model_record(store, built.record_ref) == built.record
     binding_writes = [item for item in writes if item[0] == "foundry.input_bindings"]
     assert len(binding_writes) == 1
@@ -1540,18 +1602,13 @@ def test_wmr_v2_persists_selected_views_before_record_persistence(
     bindings = binding_writes[0][1]
     if selected_boundary == "data_snapshot":
         actual_selected_ref = bindings.data_snapshot_ref
-        assert actual_selected_ref.manifest_profile_sha256 == (
-            selected_ref.manifest_profile_sha256
-        )
+        assert actual_selected_ref.manifest_profile_sha256 == (selected_ref.manifest_profile_sha256)
     else:
         actual_selected_ref = bindings.bound_state_snapshot_ref
         assert actual_selected_ref.manifest_profile_sha256 is not None
         selected_ref = actual_selected_ref
     assert any(item[0] == "foundry.input_binding_report" for item in writes)
-    assert any(
-        item[0] == world_model_module.WORLD_MODEL_RECORD_ARTIFACT_KIND
-        for item in writes
-    )
+    assert any(item[0] == world_model_module.WORLD_MODEL_RECORD_ARTIFACT_KIND for item in writes)
     binding_inputs = store.get_manifest(binding_ref).inputs
     assert any(
         item.role == selected_role
@@ -1644,9 +1701,7 @@ def test_wmr_loader_rejects_sibling_n5_views_when_markers_are_rehashed(
     assert built.record.artifact_views.ncm_refs == (ncm_default,)
     assert load_world_model_record(store, built.record_ref) == built.record
 
-    sibling_graph_ref = ArtifactRef.model_validate(
-        graph_sibling.model_dump(mode="python")
-    )
+    sibling_graph_ref = ArtifactRef.model_validate(graph_sibling.model_dump(mode="python"))
     sibling_ncm_ref = ArtifactRef.model_validate(ncm_sibling.model_dump(mode="python"))
     changed_views = WorldModelArtifactViews.model_validate(
         {

@@ -16,7 +16,7 @@ import stat
 import subprocess
 import sys
 import time as _time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
@@ -84,9 +84,6 @@ from polisyos.scientist.orchestration.engine.runner._activity_worker import (
     run_node_in_worker_sync,
 )
 from polisyos.scientist.orchestration.engine.runner.serialization import (
-    deserialize_outcome,
-    serialize_context_meta,
-    serialize_state,
     serialize_timeout_context,
 )
 from polisyos.scientist.orchestration.engine.skg_snapshot import (
@@ -156,6 +153,36 @@ def _captured(tmp_path: Path) -> tuple[Path, FileSystemCAS, ArtifactRef]:
     return source, store, ref
 
 
+def _intercept_cas_put_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+    store: FileSystemCAS,
+    *,
+    after_write: Callable[[], None] | None = None,
+) -> list[ArtifactWriteOptions]:
+    """Observe real CAS byte writes while forwarding the selected-profile option."""
+    original = store.put_bytes
+    observed: list[ArtifactWriteOptions] = []
+
+    def intercept(
+        payload: bytes,
+        options: ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
+        ref = original(
+            payload,
+            options,
+            return_selected_profile=return_selected_profile,
+        )
+        observed.append(options)
+        if after_write is not None:
+            after_write()
+        return ref
+
+    monkeypatch.setattr(store, "put_bytes", intercept)
+    return observed
+
+
 def test_capture_selects_actual_manifest_profiles_for_descriptor_and_chunks(tmp_path: Path) -> None:
     _, store, ref = _captured(tmp_path)
     snapshot = load_retained_skg_snapshot(store, ref)
@@ -209,11 +236,11 @@ def test_attempt_facade_persists_selected_source_for_a_fresh_reader(tmp_path: Pa
         replay.close()
     assert replay._closed is True
 
-    before = set(store.iter_artifact_ids())
+    before = tuple(sorted(str(artifact_id) for artifact_id in store.iter_artifact_ids()))
     authority.revoke()
     with pytest.raises(retry_module._AttemptWriteDeniedError):
         facade.put_bytes(b"late-write", object(), return_selected_profile=True)
-    assert set(store.iter_artifact_ids()) == before
+    assert tuple(sorted(str(artifact_id) for artifact_id in store.iter_artifact_ids())) == before
 
 
 def test_named_but_inert_selected_profile_writer_is_refused(tmp_path: Path) -> None:
@@ -309,7 +336,9 @@ def test_descriptor_with_malformed_present_profile_refuses_before_payload_read(
         raw_manifest = json.loads(
             original_raw_reader(selector, manifest_profile_sha256=manifest_profile_sha256)
         )
-        raw_manifest["canon"] = {"name": 7}
+        canon = raw_manifest.get("canon")
+        assert isinstance(canon, dict)
+        canon["name"] = 7
         return json.dumps(raw_manifest, sort_keys=True, separators=(",", ":")).encode()
 
     def record_payload_read(*args: Any, **kwargs: Any) -> bytes:
@@ -318,7 +347,7 @@ def test_descriptor_with_malformed_present_profile_refuses_before_payload_read(
 
     monkeypatch.setattr(store, "get_raw_manifest_bytes", malformed_raw_manifest)
     monkeypatch.setattr(store, "get_bytes", record_payload_read)
-    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_raw_manifest_invalid"):
+    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_invalid"):
         load_retained_skg_snapshot(store, ref)
     assert payload_reads == []
 
@@ -439,17 +468,10 @@ def test_exact_existing_descriptor_does_not_write_source_again(
 ) -> None:
     source, store, ref = _captured(tmp_path)
     prepared = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
-    calls: list[str] = []
-    original = store.put_bytes
-
-    def observed_put(payload: bytes, options: ArtifactWriteOptions) -> ArtifactRef:
-        calls.append(options.kind)
-        return original(payload, options)
-
-    monkeypatch.setattr(store, "put_bytes", observed_put)
+    writes = _intercept_cas_put_bytes(monkeypatch, store)
     try:
         assert retain_prepared_skg_read(store, prepared, existing_ref=ref) == ref
-        assert calls == []
+        assert writes == []
         assert _value(prepared) == 1.25
     finally:
         prepared.close()
@@ -464,18 +486,15 @@ def test_capture_refuses_actual_source_generation_replacement(
     _seed(replacement, 9.75)
     store = FileSystemCAS(tmp_path / "cas", ownership_enforced=False)
     prepared = SKGQuery.prepare_read(db_path=source, index_dir=tmp_path)
-    original = store.put_bytes
     replaced = False
 
-    def replace_during_capture(payload: bytes, options: ArtifactWriteOptions) -> ArtifactRef:
+    def replace_source_after_write() -> None:
         nonlocal replaced
-        ref = original(payload, options)
         if not replaced:
             replaced = True
             os.replace(replacement, source)
-        return ref
 
-    monkeypatch.setattr(store, "put_bytes", replace_during_capture)
+    _intercept_cas_put_bytes(monkeypatch, store, after_write=replace_source_after_write)
     try:
         with pytest.raises(RetainedSKGSnapshotError):
             retain_prepared_skg_read(store, prepared)
@@ -603,6 +622,60 @@ def _workflow_fixture(
     return source, store, run, ctx, state, ref
 
 
+def _spawn_timeout_payload(task: Any) -> dict[str, Any]:
+    """Build the exact worker payload from a parent-issued dispatch task."""
+    return {
+        "node_id": task.node_id,
+        "alias": task.alias,
+        "params": task.params,
+        "state_bytes": task.state_bytes,
+        "trace_carrier": task.trace_carrier,
+        "timeout_s": task.timeout_s,
+        "max_retries": 0,
+        "context_meta": task.context_meta,
+        "worker_invocation_id": task.worker_invocation_id,
+        "worker_dispatch_sha256": task.worker_dispatch_sha256,
+    }
+
+
+async def _run_bound_worker(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    worker_entry: Literal["async", "sync"] = "async",
+    timeout_authority: tuple[Any, float] | None = None,
+) -> NodeOutcome:
+    """Run the current staged-receipt route using a real parent dispatch binding."""
+    task = retry_module._build_spawn_timeout_task(
+        ResolveParametersNode(),
+        ctx,
+        state,
+        alias="resolve",
+        dispatch_params={},
+    )
+    payload = _spawn_timeout_payload(task)
+    if timeout_authority is not None:
+        receipt = await run_node_in_worker(payload, timeout_authority=timeout_authority)
+    elif worker_entry == "async":
+        receipt = await run_node_in_worker(payload, parent_receipt=True)
+    else:
+        receipt = await asyncio.to_thread(run_node_in_worker_sync, payload, parent_receipt=True)
+    owner_snapshot_ref = ctx.run._owner_snapshot_ref
+    invocation_id = task.worker_invocation_id
+    dispatch_sha256 = task.worker_dispatch_sha256
+    assert owner_snapshot_ref is not None
+    assert isinstance(invocation_id, str)
+    assert isinstance(dispatch_sha256, str)
+    return retry_module._admit_worker_execution_receipt(
+        ctx,
+        receipt,
+        invocation_id=invocation_id,
+        expected_dispatch=dispatch_sha256,
+        owner_snapshot_ref=owner_snapshot_ref,
+        expected_run_id=state.run_id,
+    )
+
+
 def _put_dead_letter(store: FileSystemCAS, *, run_id: str) -> ArtifactRef:
     return store.put_json(
         {
@@ -670,23 +743,7 @@ async def test_shared_worker_intake_reads_selected_cas_source_before_retry(
         finally:
             live.close()
 
-        payload = {
-            "node_id": "scientist.node_resolve_parameters@1.0.0",
-            "alias": "resolve",
-            "params": {},
-            "state_bytes": serialize_state(replay_state),
-            "trace_carrier": {},
-            "timeout_s": None,
-            "max_retries": 0,
-            "context_meta": serialize_context_meta(
-                ctx, workflow_id="retained-skg-worker", runner_backend="portable-test"
-            ),
-        }
-        if worker_entry == "async":
-            outcome_bytes = await run_node_in_worker(payload)
-        else:
-            outcome_bytes = await asyncio.to_thread(run_node_in_worker_sync, payload)
-        outcome = deserialize_outcome(outcome_bytes)
+        outcome = await _run_bound_worker(ctx, replay_state, worker_entry=worker_entry)
 
         assert outcome.status == "ok"
         bundle_ref = outcome.state.artifacts_index[ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF]
@@ -811,7 +868,6 @@ async def test_timeout_worker_installs_persisted_scope_for_node_execution(
             _source, _store, _run, ctx, state, _selected_ref = _workflow_fixture(
                 tmp_path, access_scope=scope
             )
-            context_meta = serialize_timeout_context(ctx, expected_run_id=state.run_id)
         observations: list[tuple[AccessScope | None, AccessScope | None]] = []
 
         async def inspect_scope(_node, worker_ctx, worker_state, **_kwargs):
@@ -819,23 +875,15 @@ async def test_timeout_worker_installs_persisted_scope_for_node_execution(
             return NodeOutcome(status="ok", state=worker_state)
 
         monkeypatch.setattr(retry_module, "execute_with_retry_async", inspect_scope)
-        payload = {
-            "node_id": "scientist.node_resolve_parameters@1.0.0",
-            "alias": "resolve",
-            "params": {},
-            "state_bytes": serialize_state(ExperimentState(run_id=state.run_id)),
-            "trace_carrier": {},
-            "timeout_s": None,
-            "max_retries": 0,
-            "context_meta": context_meta,
-        }
+        worker_state = ExperimentState(run_id=state.run_id)
         with _access_scope_context(None):
-            outcome_bytes = await run_node_in_worker(
-                payload,
+            outcome = await _run_bound_worker(
+                ctx,
+                worker_state,
                 timeout_authority=(None, _time.monotonic() + 30.0),
             )
             assert get_current_access_scope_or_none() is None
-        assert deserialize_outcome(outcome_bytes).status == "ok"
+        assert outcome.status == "ok"
         assert observations == [(scope, scope)]
 
 
@@ -878,20 +926,8 @@ async def test_shared_worker_intake_refuses_tampered_snapshot_without_live_path(
         damaged = bytes([original[0] ^ 1]) + original[1:]
         materialized.write_bytes(damaged)
 
-        payload = {
-            "node_id": "scientist.node_resolve_parameters@1.0.0",
-            "alias": "resolve",
-            "params": {},
-            "state_bytes": serialize_state(replay_state),
-            "trace_carrier": {},
-            "timeout_s": None,
-            "max_retries": 0,
-            "context_meta": serialize_context_meta(
-                ctx, workflow_id="retained-skg-worker", runner_backend="portable-test"
-            ),
-        }
         with pytest.raises(RetainedSKGSnapshotError, match="materialization_digest"):
-            await run_node_in_worker(payload)
+            await _run_bound_worker(ctx, replay_state)
         assert materialized.read_bytes() == damaged
         assert not (snapshot_dir / f"{snapshot.source_sha256}.duckdb-wal").exists()
 
@@ -1699,6 +1735,7 @@ def test_spawn_timeout_reaps_worker_and_reports_unresolved_group_truthfully(
                 retry_policy=RetryPolicy(),
                 timeout_s=0.001,
                 alias="resolve",
+                dispatch_params={},
             )
 
         assert len(worker_groups) == 1
@@ -1731,6 +1768,7 @@ def test_spawn_timeout_worker_cannot_write_cas_after_parent_revocation(
             ctx,
             state,
             alias="resolve-late-write-probe",
+            dispatch_params={},
         )
         baseline_files = {
             path.relative_to(store.root) for path in store.root.rglob("*") if path.is_file()
@@ -1867,6 +1905,7 @@ def test_spawn_timeout_refuses_unsupported_inputs_without_process_or_thread_fall
                 retry_policy=RetryPolicy(),
                 timeout_s=30.0,
                 alias="unsupported-timeout-input",
+                dispatch_params={},
             )
 
         assert refusal.value.code == "node.timeout_worker_unsupported"

@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import errno
+import hashlib
 import json
 import os
 import secrets
 import stat
 import threading
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol, cast
@@ -20,13 +21,22 @@ from polisyos.common.serialization import fast_json_dumps
 
 from ..artifacts import ManifestLifecycle
 from ..artifacts._atomic_write import AtomicFileWriter
-from ..artifacts.manifest import ArtifactRef, CanonInfo, EnvInfo, InputRef, ProducerInfo, SchemaInfo
+from ..artifacts.manifest import (
+    ArtifactManifest,
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    CanonInfo,
+    EnvInfo,
+    InputRef,
+    ProducerInfo,
+    SchemaInfo,
+)
 from ..artifacts.protocol import _require_return_selected_profile_writer
 from ..artifacts.write_contract import ArtifactWriteOptions
 from ..canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from ..trace import RunTerminality
 from ..trace.record import TraceRecord, TraceRefs
-from ..trace.sink import JsonlTraceSink, TraceSink
+from ..trace.sink import BatchTraceSink, JsonlTraceSink, TraceSink
 from .manifest import RunManifest, RunOwnerSnapshot
 
 if TYPE_CHECKING:
@@ -205,6 +215,7 @@ class _AuditTraceSink(Protocol):
 
 
 def _run_manifest_write_options(run_manifest: RunManifest) -> ArtifactWriteOptions:
+    tenant_context = _run_manifest_tenant_context(run_manifest)
     return ArtifactWriteOptions(
         kind="core.run_manifest",
         media_type="application/json",
@@ -217,12 +228,14 @@ def _run_manifest_write_options(run_manifest: RunManifest) -> ArtifactWriteOptio
                 role="registry_bundle",
             )
         ],
+        tenant_context=tenant_context,
     )
 
 
 def _run_owner_snapshot_write_options(
     snapshot: RunOwnerSnapshot,
 ) -> ArtifactWriteOptions:
+    tenant_context = _run_manifest_tenant_context(snapshot.run_manifest)
     inputs = [
         InputRef(
             artifact_id=snapshot.run_manifest.registry_bundle.artifact_id,
@@ -250,7 +263,58 @@ def _run_owner_snapshot_write_options(
         env=snapshot.run_manifest.env,
         inputs=inputs,
         canon=CanonInfo.from_spec(canon),
+        tenant_context=tenant_context,
     )
+
+
+def _run_manifest_tenant_context(
+    run_manifest: RunManifest,
+) -> ArtifactTenantContextInfo | None:
+    """Derive the artifact tenant profile only from durable run-owner fields."""
+    if run_manifest.tenant_id is None:
+        if run_manifest.cell_id is not None:
+            raise _FinalizeRecoveryError("run_owner_tenant_context_owner_invalid")
+        return None
+    return ArtifactTenantContextInfo(
+        tenant_id=run_manifest.tenant_id,
+        cell_id=run_manifest.cell_id,
+    )
+
+
+def _owner_profile_options_for_persisted_manifest(
+    store: ArtifactStore,
+    *,
+    ref: ArtifactRef,
+    manifest: ArtifactManifest,
+    options: ArtifactWriteOptions,
+    mismatch_code: str,
+) -> ArtifactWriteOptions:
+    """Match a selected artifact profile to its payload-bound run owner.
+
+    A selected pre-tenant profile can be replayed only when the exact raw,
+    canonical manifest sidecar is available and binds the selected profile.
+    Current profiles must carry the tenant context derived from the payload.
+    """
+    expected_context = options.tenant_context
+    if manifest.tenant_context == expected_context:
+        return options
+    if expected_context is None or manifest.tenant_context is not None:
+        raise _FinalizeRecoveryError(mismatch_code)
+    profile_sha256 = ref.manifest_profile_sha256
+    raw_reader = getattr(store, "get_raw_manifest_bytes", None)
+    if profile_sha256 is None or not callable(raw_reader):
+        raise _FinalizeRecoveryError(f"{mismatch_code}_legacy_profile_not_proven")
+    try:
+        raw_manifest = raw_reader(ref, manifest_profile_sha256=profile_sha256)
+    except (OSError, TypeError, ValueError, KeyError) as exc:
+        raise _FinalizeRecoveryError(f"{mismatch_code}_legacy_profile_unavailable") from exc
+    if (
+        type(raw_manifest) is not bytes
+        or raw_manifest != ManifestLifecycle.to_bytes(manifest)
+        or ManifestLifecycle.profile_sha256(manifest) != profile_sha256
+    ):
+        raise _FinalizeRecoveryError(f"{mismatch_code}_legacy_profile_mismatch")
+    return replace(options, tenant_context=None)
 
 
 def _access_scope_sha256(access_scope: AccessScope | None) -> str | None:
@@ -326,12 +390,19 @@ def _validate_run_owner_snapshot_ref(
         ):
             raise _FinalizeRecoveryError("run_resume_owner_snapshot_content_mismatch")
         options = _run_owner_snapshot_write_options(snapshot)
+        profile_options = _owner_profile_options_for_persisted_manifest(
+            store,
+            ref=ref,
+            manifest=artifact_manifest,
+            options=options,
+            mismatch_code="run_resume_owner_snapshot_tenant_context_mismatch",
+        )
         ManifestLifecycle.validate_profile(
             artifact_manifest,
             data_size=len(payload),
-            opts=options,
+            opts=profile_options,
         )
-        if artifact_manifest.inputs != options.inputs:
+        if artifact_manifest.inputs != profile_options.inputs:
             raise _FinalizeRecoveryError("run_resume_owner_snapshot_lineage_mismatch")
         registry_ref = snapshot.run_manifest.registry_bundle
         if require_registry_profile and registry_ref.manifest_profile_sha256 is None:
@@ -361,6 +432,7 @@ def _read_incomplete_run_trace(
     run_dir: Path,
     *,
     run_id: str,
+    allow_incomplete_worker_invocation_id: str | None = None,
 ) -> tuple[list[TraceRecord], TraceRecord]:
     if os.path.lexists(_finalize_journal_path(run_dir)):
         raise _FinalizeRecoveryError("run_resume_finalize_journal_conflict")
@@ -406,7 +478,165 @@ def _read_incomplete_run_trace(
             or (record.phase == "core" and record.event == "RUN_FINALIZED")
         ):
             raise _FinalizeRecoveryError("run_resume_trace_not_incomplete")
+    _validate_worker_receipt_history(
+        records,
+        allow_incomplete_invocation_id=allow_incomplete_worker_invocation_id,
+    )
     return records, owner
+
+
+def _worker_trace_digest(records: Sequence[TraceRecord]) -> str:
+    """Hash the exact JSONL bytes used for one parent-admitted worker event set."""
+    digest = hashlib.sha256()
+    for record in records:
+        digest.update(record.model_dump_json(exclude_none=True).encode("utf-8"))
+        digest.update(b"\n")
+    return digest.hexdigest()
+
+
+def _validate_worker_receipt_history(
+    records: Sequence[TraceRecord],
+    *,
+    allow_incomplete_invocation_id: str | None = None,
+) -> None:
+    """Verify durable worker receipt markers against their exact event bodies.
+
+    A JSONL append can leave a complete-record prefix. Only the live parent
+    admission path may reconcile that prefix, and it must present the exact
+    still-pending dispatch. Resume and finalization reject it because they do
+    not possess the worker's original receipt.
+    """
+    grouped: dict[str, list[TraceRecord]] = {}
+    for record in records:
+        invocation_id = record.worker_invocation_id
+        dispatch_digest = record.worker_dispatch_sha256
+        has_receipt_fields = (
+            invocation_id is not None
+            or dispatch_digest is not None
+            or record.worker_receipt_phase is not None
+            or record.worker_receipt_count is not None
+            or record.worker_receipt_sha256 is not None
+        )
+        if not has_receipt_fields:
+            continue
+        if invocation_id is None or dispatch_digest is None:
+            raise _FinalizeRecoveryError("worker_receipt_dispatch_binding_invalid")
+        grouped.setdefault(invocation_id, []).append(record)
+
+    for invocation_id, receipt_records in grouped.items():
+        started = [record for record in receipt_records if record.worker_receipt_phase == "started"]
+        completed = [
+            record for record in receipt_records if record.worker_receipt_phase == "completed"
+        ]
+        if len(started) != 1 or len(completed) > 1:
+            raise _FinalizeRecoveryError("worker_receipt_marker_conflict")
+        start_marker = started[0]
+        if (
+            receipt_records[0] is not start_marker
+            or start_marker.phase != "core"
+            or start_marker.event != "WORKER_INVOCATION_STARTED"
+            or start_marker.run_terminality is not None
+            or start_marker.worker_receipt_count is None
+            or start_marker.worker_receipt_sha256 is None
+            or len(start_marker.refs.inputs) != 1
+            or start_marker.refs.outputs
+        ):
+            raise _FinalizeRecoveryError("worker_receipt_start_marker_invalid")
+
+        events = [record for record in receipt_records if record.worker_receipt_phase is None]
+        for record in receipt_records:
+            if (
+                record.worker_invocation_id != invocation_id
+                or record.worker_dispatch_sha256 != start_marker.worker_dispatch_sha256
+                or record.worker_receipt_count not in {None, start_marker.worker_receipt_count}
+                or record.worker_receipt_sha256 not in {None, start_marker.worker_receipt_sha256}
+            ):
+                raise _FinalizeRecoveryError("worker_receipt_marker_binding_mismatch")
+        if any(record.worker_receipt_phase == "started" for record in events):
+            raise _FinalizeRecoveryError("worker_receipt_marker_conflict")
+        for record in events:
+            if record.run_terminality is not None:
+                raise _FinalizeRecoveryError("worker_receipt_event_authority_invalid")
+
+        if completed:
+            completed_marker = completed[0]
+            if (
+                receipt_records[-1] is not completed_marker
+                or completed_marker.phase != "core"
+                or completed_marker.event != "WORKER_INVOCATION_COMPLETED"
+                or completed_marker.run_terminality is not None
+                or completed_marker.refs.inputs != start_marker.refs.inputs
+                or completed_marker.refs.outputs
+                or completed_marker.worker_receipt_count != start_marker.worker_receipt_count
+                or completed_marker.worker_receipt_sha256 != start_marker.worker_receipt_sha256
+                or len(events) != start_marker.worker_receipt_count
+                or _worker_trace_digest(events) != start_marker.worker_receipt_sha256
+            ):
+                raise _FinalizeRecoveryError("worker_receipt_completed_body_mismatch")
+        elif invocation_id != allow_incomplete_invocation_id:
+            raise _FinalizeRecoveryError("worker_receipt_incomplete")
+        elif len(events) > start_marker.worker_receipt_count:
+            raise _FinalizeRecoveryError("worker_receipt_prefix_count_mismatch")
+
+
+_WORKER_MANIFEST_UPDATE_FIELDS = frozenset(
+    {
+        "execution_profile",
+        "control_job_id",
+        "capability_manifest_ref",
+        "environment_manifest_ref",
+        "sbom_ref",
+        "tee_attestation_ref",
+    }
+)
+_WORKER_RUN_OPERATION_EVENTS = frozenset(
+    {"RUN_INPUT_ADDED", "RUN_OUTPUT_ADDED", "RUN_CONTEXT_SNAPSHOT"}
+)
+
+
+def _apply_worker_run_operation(
+    store: ArtifactStore,
+    *,
+    manifest: RunManifest,
+    owner_snapshot_ref: ArtifactRef,
+    access_scope_sha256: str | None,
+    record: TraceRecord,
+) -> tuple[RunManifest, ArtifactRef]:
+    """Apply one typed worker-emitted RunContext operation to a candidate state."""
+    if record.event == "RUN_INPUT_ADDED":
+        if record.phase != "core" or len(record.refs.inputs) != 1 or record.refs.outputs:
+            raise _FinalizeRecoveryError("worker_merge_input_operation_invalid")
+        manifest.inputs.append(record.refs.inputs[0])
+        return manifest, owner_snapshot_ref
+    if record.event == "RUN_OUTPUT_ADDED":
+        if record.phase != "core" or record.refs.inputs or len(record.refs.outputs) != 1:
+            raise _FinalizeRecoveryError("worker_merge_output_operation_invalid")
+        manifest.outputs.append(record.refs.outputs[0])
+        return manifest, owner_snapshot_ref
+    if record.event != "RUN_CONTEXT_SNAPSHOT":
+        return manifest, owner_snapshot_ref
+    if record.phase != "core" or record.refs.inputs or len(record.refs.outputs) != 1:
+        raise _FinalizeRecoveryError("worker_merge_snapshot_operation_invalid")
+    next_owner_ref = record.refs.outputs[0]
+    try:
+        snapshot = _validate_run_owner_snapshot_ref(
+            store,
+            next_owner_ref,
+            require_registry_profile=False,
+        )
+    except _FinalizeRecoveryError as exc:
+        raise _FinalizeRecoveryError("worker_merge_snapshot_operation_unverified") from exc
+    if (
+        snapshot.previous_snapshot_ref != owner_snapshot_ref
+        or snapshot.access_scope_sha256 != access_scope_sha256
+    ):
+        raise _FinalizeRecoveryError("worker_merge_snapshot_operation_chain_mismatch")
+    current = manifest.model_dump(mode="python", by_alias=True, exclude_none=False)
+    updated = snapshot.run_manifest.model_dump(mode="python", by_alias=True, exclude_none=False)
+    changed_fields = {name for name in current if current[name] != updated[name]}
+    if not changed_fields or changed_fields - _WORKER_MANIFEST_UPDATE_FIELDS:
+        raise _FinalizeRecoveryError("worker_merge_snapshot_operation_fields_invalid")
+    return snapshot.run_manifest.model_copy(deep=True), next_owner_ref
 
 
 def _run_owner_snapshot_chain(
@@ -414,6 +644,7 @@ def _run_owner_snapshot_chain(
     *,
     records: list[TraceRecord],
     started: TraceRecord,
+    allow_incomplete_worker_invocation_id: str | None = None,
 ) -> tuple[RunOwnerSnapshot, ArtifactRef, int]:
     if started.refs.inputs or len(started.refs.outputs) != 1:
         raise _FinalizeRecoveryError("run_resume_owner_snapshot_ref_invalid")
@@ -440,6 +671,13 @@ def _run_owner_snapshot_chain(
     outputs: list[ArtifactRef] = []
     last_snapshot_index = 0
     for index, record in enumerate(records[1:], start=1):
+        if (
+            allow_incomplete_worker_invocation_id is not None
+            and record.worker_invocation_id == allow_incomplete_worker_invocation_id
+        ):
+            if record.worker_receipt_phase == "started" and record.refs.inputs != [owner_ref]:
+                raise _FinalizeRecoveryError("run_resume_worker_receipt_owner_mismatch")
+            continue
         if record.event == "RUN_INPUT_ADDED":
             if record.phase != "core" or len(record.refs.inputs) != 1 or record.refs.outputs:
                 raise _FinalizeRecoveryError("run_resume_input_event_invalid")
@@ -568,6 +806,7 @@ def _trace_terminal_run_finalized_ref(
             or record.cell_id != owner.cell_id
         ):
             raise _FinalizeRecoveryError("run_finalize_trace_owner_scope_mismatch")
+    _validate_worker_receipt_history(records)
 
     finalized = [
         record for record in records if record.phase == "core" and record.event == "RUN_FINALIZED"
@@ -605,7 +844,10 @@ def _validate_terminal_run_manifest_ref(
     if (
         run_ref.kind != options.kind
         or run_ref.media_type != options.media_type
-        or (require_selected_profile and run_ref.manifest_profile_sha256 is None)
+        or (
+            (require_selected_profile or options.tenant_context is not None)
+            and run_ref.manifest_profile_sha256 is None
+        )
     ):
         raise _FinalizeRecoveryError("run_finalize_manifest_ref_contract_mismatch")
 
@@ -628,6 +870,13 @@ def _validate_terminal_run_manifest_ref(
     ):
         raise _FinalizeRecoveryError("run_finalize_manifest_journal_binding_mismatch")
     try:
+        profile_options = _owner_profile_options_for_persisted_manifest(
+            store,
+            ref=run_ref,
+            manifest=artifact_manifest,
+            options=profile_options,
+            mismatch_code="run_finalize_manifest_tenant_context_mismatch",
+        )
         ManifestLifecycle.validate_profile(
             artifact_manifest,
             data_size=len(manifest_bytes),
@@ -646,7 +895,7 @@ def _trace_run_started_identity(trace_path: Path) -> _RunOwnerIdentity | None:
             continue
         try:
             record = TraceRecord.model_validate_json(line)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return None
         if record.phase == "core" and record.event == "RUN_STARTED":
             if record.run_terminality not in {None, RunTerminality.NON_TERMINAL}:
@@ -797,6 +1046,25 @@ def recover_pending_run_finalize(store: ArtifactStore, run_dir: Path) -> Artifac
         return _recover_pending_run_finalize_locked(store, run_dir)
 
 
+def _read_run_trace_bytes(path: Path, *, failure_code: str) -> bytes:
+    """Read one regular trace file without following a replaced path."""
+    nofollow = getattr(os, "O_NOFOLLOW", 0)
+    if not nofollow:
+        raise _FinalizeRecoveryError(failure_code)
+    flags = os.O_RDONLY | nofollow | getattr(os, "O_CLOEXEC", 0)
+    try:
+        descriptor = os.open(path, flags)
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            os.close(descriptor)
+            raise _FinalizeRecoveryError(failure_code)
+        with os.fdopen(descriptor, "rb") as handle:
+            return handle.read()
+    except _FinalizeRecoveryError:
+        raise
+    except OSError as exc:
+        raise _FinalizeRecoveryError(failure_code) from exc
+
+
 def new_run_id() -> str:
     """New run ID helper."""
     return "R_" + secrets.token_hex(8)
@@ -818,10 +1086,48 @@ class RunContext:
     _owner_snapshot_ref: ArtifactRef | None = None
     _closed: bool = False
     _suspended: bool = False
+    _worker_receipt_recovery_required: bool = False
+    _worker_receipt_recovery_invocation_id: str | None = None
+    _worker_merge_lock: threading.RLock = field(
+        default_factory=threading.RLock,
+        repr=False,
+        compare=False,
+    )
 
     @property
     def trace_path(self) -> Path | None:
         return self._trace_path
+
+    @contextmanager
+    def _parent_state_transition_lease(self, *, run_scoped: bool = True) -> Iterator[None]:
+        """Serialize one parent's state transition and its durable trace effects.
+
+        The instance lock protects in-memory lifecycle state. The run-scoped
+        lease extends the same ordering across threads and processes that may
+        recover or finalize this run for lifecycle/owner transitions. Ordinary
+        event and input/output mutations use the same instance lock while the
+        active-run lease excludes other process writers. Always acquire in this
+        order; callers that already hold the transition must call their private
+        ``*_locked`` body instead of nesting the public transition.
+        """
+        with self._worker_merge_lock:
+            if not run_scoped or self._trace_path is None:
+                yield
+            else:
+                with _run_finalize_lease(self._trace_path.parent):
+                    yield
+
+    def _require_worker_receipt_reconciled(self, *, invocation_id: str | None = None) -> None:
+        """Reject unrelated mutations while an appended receipt awaits reconciliation."""
+        if (
+            self._worker_receipt_recovery_required
+            and invocation_id != self._worker_receipt_recovery_invocation_id
+        ):
+            raise _FinalizeRecoveryError("worker_receipt_recovery_required")
+
+    def _mark_worker_receipt_recovery_required(self, invocation_id: str) -> None:
+        self._worker_receipt_recovery_required = True
+        self._worker_receipt_recovery_invocation_id = invocation_id
 
     def _validate_timeout_worker_owner_binding(self) -> None:
         """Prove the timeout worker's scope against this run's selected owner snapshot."""
@@ -963,19 +1269,72 @@ class RunContext:
         producer: ProducerInfo | None,
         env: EnvInfo | None,
         access_scope: AccessScope | None,
+        allow_incomplete_worker_invocation_id: str | None = None,
     ) -> RunContext:
-        """Resume one owner-bound incomplete run without emitting another RUN_STARTED."""
+        """Resume one owner-bound incomplete run without emitting another RUN_STARTED.
+
+        ``allow_incomplete_worker_invocation_id`` is reserved for a parent
+        retrying the exact staged worker receipt whose prefix was durably
+        appended before a writer interruption. Its source owner must still be
+        the current verified manifest snapshot; its partial operations are
+        excluded from reconstruction until ``merge_worker_events`` verifies
+        and completes the same receipt.
+        """
         _require_return_selected_profile_writer(store, "put_json")
         run_dir = run_dir.resolve(strict=True)
+        if allow_incomplete_worker_invocation_id is not None and (
+            type(allow_incomplete_worker_invocation_id) is not str
+            or len(allow_incomplete_worker_invocation_id) != 64
+            or any(
+                character not in "0123456789abcdef"
+                for character in allow_incomplete_worker_invocation_id
+            )
+        ):
+            raise _FinalizeRecoveryError("run_resume_worker_invocation_id_invalid")
         active_lease = _RunExecutionLease(run_dir)
         active_lease.acquire()
         try:
-            records, started = _read_incomplete_run_trace(run_dir, run_id=run_id)
+            records, started = _read_incomplete_run_trace(
+                run_dir,
+                run_id=run_id,
+                allow_incomplete_worker_invocation_id=allow_incomplete_worker_invocation_id,
+            )
             snapshot, owner_ref, last_snapshot_index = _run_owner_snapshot_chain(
                 store,
                 records=records,
                 started=started,
+                allow_incomplete_worker_invocation_id=allow_incomplete_worker_invocation_id,
             )
+            if allow_incomplete_worker_invocation_id is not None:
+                receipt_records = [
+                    record
+                    for record in records
+                    if record.worker_invocation_id == allow_incomplete_worker_invocation_id
+                ]
+                if (
+                    not receipt_records
+                    or not any(
+                        record.worker_receipt_phase == "started" for record in receipt_records
+                    )
+                    or any(record.worker_receipt_phase == "completed" for record in receipt_records)
+                ):
+                    raise _FinalizeRecoveryError("run_resume_worker_receipt_not_incomplete")
+                first_receipt_index = min(
+                    index
+                    for index, record in enumerate(records)
+                    if record.worker_invocation_id == allow_incomplete_worker_invocation_id
+                )
+                for record in records[first_receipt_index + 1 :]:
+                    if record.worker_invocation_id == allow_incomplete_worker_invocation_id:
+                        continue
+                    if (
+                        record.phase != "core"
+                        or record.event != "RUN_RESUMED"
+                        or record.run_terminality is not None
+                        or record.refs.inputs != [owner_ref]
+                        or record.refs.outputs
+                    ):
+                        raise _FinalizeRecoveryError("run_resume_worker_receipt_not_trace_suffix")
             manifest = snapshot.run_manifest.model_copy(deep=True)
             if (
                 manifest.registry_bundle != registry_bundle
@@ -999,6 +1358,11 @@ class RunContext:
             inputs = list(manifest.inputs)
             outputs = list(manifest.outputs)
             for record in records[last_snapshot_index + 1 :]:
+                if (
+                    allow_incomplete_worker_invocation_id is not None
+                    and record.worker_invocation_id == allow_incomplete_worker_invocation_id
+                ):
+                    continue
                 if record.event == "RUN_INPUT_ADDED":
                     inputs.extend(record.refs.inputs)
                 elif record.event == "RUN_OUTPUT_ADDED":
@@ -1029,6 +1393,8 @@ class RunContext:
                 "RUN_RESUMED",
                 inputs=[owner_ref],
             )
+            if allow_incomplete_worker_invocation_id is not None:
+                ctx._mark_worker_receipt_recovery_required(allow_incomplete_worker_invocation_id)
             active_lease = None
             return ctx
         finally:
@@ -1050,50 +1416,55 @@ class RunContext:
 
     def update_manifest(self, **changes: object) -> None:
         """Persist an allowlisted run-provenance update before execution continues."""
-        allowed = {
-            "execution_profile",
-            "control_job_id",
-            "capability_manifest_ref",
-            "environment_manifest_ref",
-            "sbom_ref",
-            "tee_attestation_ref",
-        }
-        if not changes or set(changes) - allowed:
-            raise ValueError("run_manifest_update_fields_invalid")
-        if self._closed or self._owner_snapshot_ref is None:
-            raise _FinalizeRecoveryError("run_manifest_update_owner_not_active")
-        payload = self.run_manifest.model_dump(mode="python")
-        payload.update(changes)
-        updated = RunManifest.model_validate(payload)
-        if updated == self.run_manifest:
-            return
-        owner_ref = _persist_run_owner_snapshot(
-            self.store,
-            run_manifest=updated,
-            access_scope_sha256=_access_scope_sha256(self.access_scope),
-            previous_snapshot_ref=self._owner_snapshot_ref,
-        )
-        self._emit_record(
-            "core",
-            "RUN_CONTEXT_SNAPSHOT",
-            outputs=[owner_ref],
-        )
-        self.run_manifest = updated
-        self._owner_snapshot_ref = owner_ref
+        with self._parent_state_transition_lease():
+            allowed = {
+                "execution_profile",
+                "control_job_id",
+                "capability_manifest_ref",
+                "environment_manifest_ref",
+                "sbom_ref",
+                "tee_attestation_ref",
+            }
+            if not changes or set(changes) - allowed:
+                raise ValueError("run_manifest_update_fields_invalid")
+            self._require_worker_receipt_reconciled()
+            if self._closed or self._suspended or self._owner_snapshot_ref is None:
+                raise _FinalizeRecoveryError("run_manifest_update_owner_not_active")
+            payload = self.run_manifest.model_dump(mode="python")
+            payload.update(changes)
+            updated = RunManifest.model_validate(payload)
+            if updated == self.run_manifest:
+                return
+            owner_ref = _persist_run_owner_snapshot(
+                self.store,
+                run_manifest=updated,
+                access_scope_sha256=_access_scope_sha256(self.access_scope),
+                previous_snapshot_ref=self._owner_snapshot_ref,
+            )
+            self._emit_record(
+                "core",
+                "RUN_CONTEXT_SNAPSHOT",
+                outputs=[owner_ref],
+            )
+            self.run_manifest = updated
+            self._owner_snapshot_ref = owner_ref
 
     def suspend_for_resume(self) -> None:
         """Release this writer without finalizing so a new context can explicitly resume."""
-        if self._active_lease is None:
-            return
-        if self._trace_path is None:
-            raise _FinalizeRecoveryError("run_suspend_trace_not_established")
-        run_dir = self._trace_path.parent
-        with _run_finalize_lease(run_dir):
+        with self._parent_state_transition_lease():
             if self._active_lease is None:
                 return
+            if self._trace_path is None:
+                raise _FinalizeRecoveryError("run_suspend_trace_not_established")
+            run_dir = self._trace_path.parent
             _read_incomplete_run_trace(
                 run_dir,
                 run_id=self.run_manifest.run_id,
+                allow_incomplete_worker_invocation_id=(
+                    self._worker_receipt_recovery_invocation_id
+                    if self._worker_receipt_recovery_required
+                    else None
+                ),
             )
             self._suspended = True
             self._closed = True
@@ -1114,13 +1485,281 @@ class RunContext:
         outputs: list[ArtifactRef] | None = None,
         metrics: dict[str, float | int] | None = None,
     ) -> None:
-        self._emit_record(
-            phase,
-            event,
-            inputs=inputs,
-            outputs=outputs,
-            metrics=metrics,
+        with self._parent_state_transition_lease(run_scoped=False):
+            self._emit_record(
+                phase,
+                event,
+                inputs=inputs,
+                outputs=outputs,
+                metrics=metrics,
+            )
+
+    def merge_worker_events(
+        self,
+        *,
+        invocation_id: str,
+        dispatch_sha256: str,
+        owner_snapshot_ref: ArtifactRef,
+        records: Sequence[TraceRecord],
+    ) -> None:
+        """Serialize admission of an exact parent-dispatched worker receipt."""
+        with self._parent_state_transition_lease():
+            self._merge_worker_events_locked(
+                invocation_id=invocation_id,
+                dispatch_sha256=dispatch_sha256,
+                owner_snapshot_ref=owner_snapshot_ref,
+                records=records,
+            )
+
+    def _merge_worker_events_locked(
+        self,
+        *,
+        invocation_id: str,
+        dispatch_sha256: str,
+        owner_snapshot_ref: ArtifactRef,
+        records: Sequence[TraceRecord],
+    ) -> None:
+        """Admit one exact staged worker event set through the active parent writer.
+
+        Worker events are candidate execution evidence. This method binds them
+        to the exact parent dispatch and current run owner, resolves and verifies
+        their artifact refs, applies the narrow RunContext input/output/snapshot
+        operations emitted by those events, and records the result through the
+        parent's canonical sink and optional audit sink. It does not grant
+        worker lifecycle authority.
+        """
+        if (
+            self._closed
+            or self._suspended
+            or self._active_lease is None
+            or self._trace_path is None
+        ):
+            raise _FinalizeRecoveryError("worker_merge_parent_run_not_active")
+        trace_path = self._trace_path
+        if trace_path is None:
+            raise _FinalizeRecoveryError("worker_merge_parent_run_not_active")
+        if not isinstance(self.trace, BatchTraceSink):
+            raise _FinalizeRecoveryError("worker_merge_batch_trace_sink_required")
+        if (
+            type(invocation_id) is not str
+            or len(invocation_id) != 64
+            or any(character not in "0123456789abcdef" for character in invocation_id)
+        ):
+            raise _FinalizeRecoveryError("worker_merge_invocation_id_invalid")
+        if (
+            type(dispatch_sha256) is not str
+            or len(dispatch_sha256) != 64
+            or any(character not in "0123456789abcdef" for character in dispatch_sha256)
+        ):
+            raise _FinalizeRecoveryError("worker_merge_dispatch_digest_invalid")
+        self._require_worker_receipt_reconciled(invocation_id=invocation_id)
+        if (
+            type(owner_snapshot_ref) is not ArtifactRef
+            or owner_snapshot_ref != self._owner_snapshot_ref
+        ):
+            raise _FinalizeRecoveryError("worker_merge_owner_snapshot_stale")
+        self._validate_timeout_worker_owner_binding()
+
+        try:
+            source_records = list(records)
+        except TypeError as exc:
+            raise _FinalizeRecoveryError("worker_merge_records_invalid") from exc
+        admitted_records: list[TraceRecord] = []
+        for record in source_records:
+            if type(record) is not TraceRecord:
+                raise _FinalizeRecoveryError("worker_merge_record_type_invalid")
+            if (
+                record.run_id != self.run_manifest.run_id
+                or record.tenant_id != self.tenant_id
+                or record.cell_id != self.cell_id
+                or record.run_terminality is not None
+                or (
+                    record.event.startswith("RUN_")
+                    and record.event not in _WORKER_RUN_OPERATION_EVENTS
+                )
+                or record.worker_invocation_id is not None
+                or record.worker_dispatch_sha256 is not None
+                or record.worker_receipt_phase is not None
+                or record.worker_receipt_count is not None
+                or record.worker_receipt_sha256 is not None
+            ):
+                raise _FinalizeRecoveryError("worker_merge_record_scope_or_authority_invalid")
+            for ref in [*record.refs.inputs, *record.refs.outputs]:
+                if type(ref) is not ArtifactRef or ref.manifest_profile_sha256 is None:
+                    raise _FinalizeRecoveryError("worker_merge_artifact_profile_required")
+                try:
+                    verification = self.store.verify(ref)
+                except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                    raise _FinalizeRecoveryError(
+                        "worker_merge_artifact_verification_failed"
+                    ) from exc
+                if not verification.ok:
+                    raise _FinalizeRecoveryError("worker_merge_artifact_verification_failed")
+            try:
+                payload = record.model_dump(mode="python", exclude_none=False)
+                payload["worker_invocation_id"] = invocation_id
+                payload["worker_dispatch_sha256"] = dispatch_sha256
+                admitted_records.append(TraceRecord.model_validate(payload))
+            except (TypeError, ValueError) as exc:
+                raise _FinalizeRecoveryError("worker_merge_record_invalid") from exc
+
+        trace_records, _started = _read_incomplete_run_trace(
+            self._trace_path.parent,
+            run_id=self.run_manifest.run_id,
+            allow_incomplete_worker_invocation_id=invocation_id,
         )
+        receipt_records = [
+            record for record in trace_records if record.worker_invocation_id == invocation_id
+        ]
+        started_markers = [
+            record for record in receipt_records if record.worker_receipt_phase == "started"
+        ]
+        completed_markers = [
+            record for record in receipt_records if record.worker_receipt_phase == "completed"
+        ]
+        if completed_markers:
+            raise _FinalizeRecoveryError("worker_receipt_replay_refused")
+        if len(started_markers) > 1:
+            raise _FinalizeRecoveryError("worker_receipt_start_marker_conflict")
+
+        digest = _worker_trace_digest(admitted_records)
+        if started_markers:
+            started_marker = started_markers[0]
+            if (
+                receipt_records[0] is not started_marker
+                or started_marker.phase != "core"
+                or started_marker.event != "WORKER_INVOCATION_STARTED"
+                or started_marker.worker_receipt_count != len(admitted_records)
+                or started_marker.worker_receipt_sha256 != digest
+                or started_marker.worker_dispatch_sha256 != dispatch_sha256
+                or started_marker.refs.inputs != [owner_snapshot_ref]
+                or started_marker.refs.outputs
+                or started_marker.run_terminality is not None
+            ):
+                raise _FinalizeRecoveryError("worker_receipt_prefix_binding_mismatch")
+            existing_events = [
+                record for record in receipt_records if record.worker_receipt_phase is None
+            ]
+            if len(existing_events) > len(admitted_records) or any(
+                existing.model_dump_json(exclude_none=True)
+                != expected.model_dump_json(exclude_none=True)
+                for existing, expected in zip(
+                    existing_events,
+                    admitted_records,
+                    strict=False,
+                )
+            ):
+                raise _FinalizeRecoveryError("worker_receipt_prefix_conflict")
+            pending_records = admitted_records[len(existing_events) :]
+        elif receipt_records:
+            raise _FinalizeRecoveryError("worker_receipt_orphan_record")
+        else:
+            start_marker = TraceRecord(
+                run_id=self.run_manifest.run_id,
+                phase="core",
+                event="WORKER_INVOCATION_STARTED",
+                tenant_id=self.tenant_id,
+                cell_id=self.cell_id,
+                refs=TraceRefs(inputs=[owner_snapshot_ref]),
+                worker_invocation_id=invocation_id,
+                worker_dispatch_sha256=dispatch_sha256,
+                worker_receipt_phase="started",
+                worker_receipt_count=len(admitted_records),
+                worker_receipt_sha256=digest,
+            )
+            pending_records = [start_marker, *admitted_records]
+
+        completed_marker = TraceRecord(
+            run_id=self.run_manifest.run_id,
+            phase="core",
+            event="WORKER_INVOCATION_COMPLETED",
+            tenant_id=self.tenant_id,
+            cell_id=self.cell_id,
+            refs=TraceRefs(inputs=[owner_snapshot_ref]),
+            worker_invocation_id=invocation_id,
+            worker_dispatch_sha256=dispatch_sha256,
+            worker_receipt_phase="completed",
+            worker_receipt_count=len(admitted_records),
+            worker_receipt_sha256=digest,
+        )
+        candidate_manifest = self.run_manifest.model_copy(deep=True)
+        candidate_owner_ref = self._owner_snapshot_ref
+        if candidate_owner_ref is None:
+            raise _FinalizeRecoveryError("worker_merge_owner_snapshot_stale")
+        scope_digest = _access_scope_sha256(self.access_scope)
+        for record in admitted_records:
+            candidate_manifest, candidate_owner_ref = _apply_worker_run_operation(
+                self.store,
+                manifest=candidate_manifest,
+                owner_snapshot_ref=candidate_owner_ref,
+                access_scope_sha256=scope_digest,
+                record=record,
+            )
+
+        records_to_emit = [*pending_records, completed_marker]
+        for record in records_to_emit:
+            for ref in [*record.refs.inputs, *record.refs.outputs]:
+                self._record_ref_owner(ref, writer=f"RunContext.merge_worker_events:{record.event}")
+
+        trace_before = _read_run_trace_bytes(
+            trace_path,
+            failure_code="worker_merge_trace_before_append_unreadable",
+        )
+        expected_suffix = "".join(
+            f"{record.model_dump_json(exclude_none=True)}\n" for record in records_to_emit
+        ).encode("utf-8")
+        try:
+            self.trace.emit_many(records_to_emit)
+        except Exception:
+            try:
+                trace_after_error = _read_run_trace_bytes(
+                    trace_path,
+                    failure_code="worker_merge_trace_readback_failed",
+                )
+            except _FinalizeRecoveryError:
+                self._mark_worker_receipt_recovery_required(invocation_id)
+            else:
+                if trace_after_error != trace_before:
+                    self._mark_worker_receipt_recovery_required(invocation_id)
+            raise
+        try:
+            trace_after = _read_run_trace_bytes(
+                trace_path,
+                failure_code="worker_merge_trace_readback_failed",
+            )
+        except _FinalizeRecoveryError as exc:
+            self._mark_worker_receipt_recovery_required(invocation_id)
+            raise _FinalizeRecoveryError("worker_merge_trace_readback_failed") from exc
+        if (
+            not trace_after.startswith(trace_before)
+            or trace_after[len(trace_before) :] != expected_suffix
+        ):
+            if trace_after != trace_before:
+                self._mark_worker_receipt_recovery_required(invocation_id)
+            raise _FinalizeRecoveryError("worker_merge_trace_readback_mismatch")
+        try:
+            _read_incomplete_run_trace(
+                trace_path.parent,
+                run_id=self.run_manifest.run_id,
+            )
+        except _FinalizeRecoveryError as exc:
+            self._mark_worker_receipt_recovery_required(invocation_id)
+            raise _FinalizeRecoveryError("worker_merge_trace_readback_failed") from exc
+        self._worker_receipt_recovery_required = False
+        self._worker_receipt_recovery_invocation_id = None
+        self.run_manifest = candidate_manifest
+        self._owner_snapshot_ref = candidate_owner_ref
+
+        for record in records_to_emit:
+            if self._audit_sink is not None:
+                try:
+                    self._audit_sink.emit(record)
+                except Exception as exc:  # optional fanout follows canonical trace persistence
+                    logger.warning(
+                        "Optional audit trace emit failed for run %s: %s",
+                        record.run_id,
+                        exc,
+                    )
 
     def _emit_record(
         self,
@@ -1133,6 +1772,7 @@ class RunContext:
         metrics: dict[str, float | int] | None = None,
         ts: datetime | None = None,
     ) -> None:
+        self._require_worker_receipt_reconciled()
         if self._closed:
             raise _FinalizeRecoveryError("run_context_writer_closed")
         for ref in [*(inputs or []), *(outputs or [])]:
@@ -1156,12 +1796,20 @@ class RunContext:
                 logger.warning("Optional audit trace emit failed for run %s: %s", rec.run_id, exc)
 
     def add_input(self, ref: ArtifactRef) -> None:
-        self.run_manifest.inputs.append(ref)
-        self.emit("core", "RUN_INPUT_ADDED", inputs=[ref])
+        with self._parent_state_transition_lease(run_scoped=False):
+            if self._closed or self._suspended:
+                raise _FinalizeRecoveryError("run_context_writer_closed")
+            self._require_worker_receipt_reconciled()
+            self._emit_record("core", "RUN_INPUT_ADDED", inputs=[ref])
+            self.run_manifest.inputs.append(ref)
 
     def add_output(self, ref: ArtifactRef) -> None:
-        self.run_manifest.outputs.append(ref)
-        self.emit("core", "RUN_OUTPUT_ADDED", outputs=[ref])
+        with self._parent_state_transition_lease(run_scoped=False):
+            if self._closed or self._suspended:
+                raise _FinalizeRecoveryError("run_context_writer_closed")
+            self._require_worker_receipt_reconciled()
+            self._emit_record("core", "RUN_OUTPUT_ADDED", outputs=[ref])
+            self.run_manifest.outputs.append(ref)
 
     def finalize(
         self,
@@ -1169,21 +1817,24 @@ class RunContext:
         *,
         errors: list[dict[str, object]] | None = None,
     ) -> ArtifactRef:
-        if self._suspended:
-            raise _FinalizeRecoveryError("run_context_suspended")
-        run_dir = self._trace_path.parent if self._trace_path is not None else None
-        try:
-            if run_dir is None:
-                return self._finalize_locked(run_dir, status=status, errors=errors)
-            with _run_finalize_lease(run_dir):
+        with self._worker_merge_lock:
+            run_dir = self._trace_path.parent if self._trace_path is not None else None
+            try:
                 if self._suspended:
                     raise _FinalizeRecoveryError("run_context_suspended")
-                return self._finalize_locked(run_dir, status=status, errors=errors)
-        finally:
-            self._closed = True
-            if self._active_lease is not None:
-                self._active_lease.release()
-                self._active_lease = None
+                if self._worker_receipt_recovery_required:
+                    raise _FinalizeRecoveryError("worker_receipt_incomplete")
+                if run_dir is None:
+                    return self._finalize_locked(run_dir, status=status, errors=errors)
+                with _run_finalize_lease(run_dir):
+                    if self._suspended:
+                        raise _FinalizeRecoveryError("run_context_suspended")
+                    return self._finalize_locked(run_dir, status=status, errors=errors)
+            finally:
+                self._closed = True
+                if self._active_lease is not None:
+                    self._active_lease.release()
+                    self._active_lease = None
 
     def _finalize_locked(
         self,

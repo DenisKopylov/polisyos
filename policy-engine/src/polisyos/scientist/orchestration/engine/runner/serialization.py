@@ -25,14 +25,16 @@ from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, Any, Literal
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.common.logger import get_logger
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.security import AccessScope
+    from polisyos.core.trace.record import TraceRecord
 
 try:
     import orjson
@@ -74,6 +76,27 @@ _WIRE_DATE = "date"
 _WIRE_DATETIME = "datetime"
 NATIVE_NODE_OUTCOME_STATUS_CONTRACT = "native_node_outcome_v1"
 _OUTCOME_MUTATION_WIRE_SCHEMA = "polisyos.scientist.node_outcome.mutations.v1"
+_WORKER_EXECUTION_WIRE_SCHEMA = "polisyos.scientist.worker_execution_receipt.v1"
+
+
+class _WorkerExecutionEnvelope(BaseModel):
+    """Strict result envelope for one parent-dispatched staged worker run."""
+
+    model_config = ConfigDict(extra="forbid", strict=True)
+
+    wire_schema: Literal["polisyos.scientist.worker_execution_receipt.v1"]
+    invocation_id: str = Field(pattern=r"^[0-9a-f]{64}$")
+    dispatch_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    owner_snapshot_ref: dict[str, Any]
+    records: list[dict[str, Any]]
+    outcome_b64: str | None = None
+    error_payload: dict[str, Any] | None = None
+
+    @model_validator(mode="after")
+    def _validate_result_kind(self) -> _WorkerExecutionEnvelope:
+        if (self.outcome_b64 is None) == (self.error_payload is None):
+            raise ValueError("worker receipt must contain exactly one result kind")
+        return self
 
 
 @dataclass(frozen=True)
@@ -293,6 +316,123 @@ def _encode_wire_value(
             seen.remove(value_id)
 
     raise TypeError(f"Unsupported type on runner wire: {type(value).__name__}")
+
+
+def worker_dispatch_sha256(
+    *,
+    node_id: str,
+    alias: str,
+    params: Mapping[str, Any],
+    state_bytes: bytes,
+    trace_carrier: Mapping[str, str],
+    timeout_s: float | None,
+    max_retries: int,
+    context_meta: Mapping[str, Any],
+) -> str:
+    """Digest the complete typed worker execution payload, excluding receipt fields."""
+    import json
+
+    if type(state_bytes) is not bytes:
+        raise TypeError("Worker dispatch state must be bytes")
+    if type(max_retries) is not int or max_retries < 0:
+        raise ValueError("Worker dispatch retry count is invalid")
+    payload = {
+        "wire_schema": "polisyos.scientist.worker_dispatch.v1",
+        "node_id": node_id,
+        "alias": alias,
+        "params": _encode_wire_value(dict(params)),
+        "state_sha256": hashlib.sha256(state_bytes).hexdigest(),
+        "trace_carrier": _encode_wire_value(dict(trace_carrier)),
+        "timeout_s": timeout_s,
+        "max_retries": max_retries,
+        "context_meta": _encode_wire_value(dict(context_meta)),
+    }
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def serialize_worker_execution_receipt(
+    *,
+    outcome_bytes: bytes | None = None,
+    error_payload: dict[str, Any] | None = None,
+    invocation_id: str,
+    dispatch_sha256: str,
+    owner_snapshot_ref: ArtifactRef,
+    records: list[TraceRecord],
+) -> bytes:
+    """Encode one timeout worker outcome with its staged RunContext receipt."""
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.trace.record import TraceRecord
+
+    if type(owner_snapshot_ref) is not ArtifactRef:
+        raise TypeError("Worker receipt owner snapshot must be an ArtifactRef")
+    if any(type(record) is not TraceRecord for record in records):
+        raise TypeError("Worker receipt events must be TraceRecord values")
+    envelope = _WorkerExecutionEnvelope(
+        wire_schema=_WORKER_EXECUTION_WIRE_SCHEMA,
+        invocation_id=invocation_id,
+        dispatch_sha256=dispatch_sha256,
+        owner_snapshot_ref=owner_snapshot_ref.model_dump(
+            mode="json",
+            by_alias=True,
+            exclude_none=False,
+        ),
+        records=[
+            record.model_dump(mode="json", by_alias=True, exclude_none=False) for record in records
+        ],
+        outcome_b64=(
+            base64.b64encode(outcome_bytes).decode("ascii") if outcome_bytes is not None else None
+        ),
+        error_payload=error_payload,
+    )
+    return _dumps(envelope.model_dump(mode="json", by_alias=True, exclude_none=False))
+
+
+def deserialize_worker_execution_receipt(
+    data: bytes,
+) -> tuple[bytes | None, dict[str, Any] | None, str, str, ArtifactRef, list[TraceRecord]]:
+    """Decode and strictly validate one timeout worker execution receipt."""
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.trace.record import TraceRecord
+
+    try:
+        raw = _loads(_coerce_wire_bytes(data))
+        envelope = _WorkerExecutionEnvelope.model_validate(raw)
+        owner_ref = ArtifactRef.model_validate(envelope.owner_snapshot_ref)
+        if (
+            owner_ref.model_dump(mode="json", by_alias=True, exclude_none=False)
+            != envelope.owner_snapshot_ref
+        ):
+            raise DeserializationError("Worker receipt owner reference is noncanonical")
+        records: list[TraceRecord] = []
+        for item in envelope.records:
+            record = TraceRecord.model_validate(item)
+            if record.model_dump(mode="json", by_alias=True, exclude_none=False) != item:
+                raise DeserializationError("Worker receipt trace record is noncanonical")
+            records.append(record)
+        outcome_bytes = (
+            base64.b64decode(envelope.outcome_b64.encode("ascii"), validate=True)
+            if envelope.outcome_b64 is not None
+            else None
+        )
+    except DeserializationError:
+        raise
+    except (binascii.Error, UnicodeError, *_SERIALIZATION_ERRORS) as exc:
+        raise DeserializationError(f"Malformed worker execution receipt: {exc}") from exc
+    return (
+        outcome_bytes,
+        envelope.error_payload,
+        envelope.invocation_id,
+        envelope.dispatch_sha256,
+        owner_ref,
+        records,
+    )
 
 
 def _decode_wire_tag(value: Mapping[str, Any], *, depth: int) -> Any:

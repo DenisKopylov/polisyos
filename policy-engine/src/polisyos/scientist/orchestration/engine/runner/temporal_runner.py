@@ -68,6 +68,21 @@ _TEMPORAL_TRANSIENT_STATUS_NAMES = frozenset(
 )
 
 
+class TemporalParentRunReceiptUnavailable(RuntimeError):
+    """Typed refusal for Temporal dispatch without parent-owned run receipts."""
+
+    code = "temporal_parent_run_receipt_route_unavailable"
+
+
+def _require_temporal_parent_receipt_route(ctx: Any) -> None:
+    """Refuse dispatch when a live parent run would be independently recreated."""
+    if getattr(ctx, "run", None) is not None:
+        raise TemporalParentRunReceiptUnavailable(
+            "Temporal execution with a parent RunContext requires staged worker receipts "
+            "and a serialized parent admission route."
+        )
+
+
 def _temporal_probe_disposition(exc: BaseException) -> HealthFailureDisposition:
     """Classify Temporal probe failures from typed RPC status, not text."""
 
@@ -446,6 +461,7 @@ class TemporalWorkflowRunner:
         )
         from polisyos.scientist.orchestration.engine.topo import topo_sort_tiers
 
+        _require_temporal_parent_receipt_route(ctx)
         client = await self._get_client()
         ctx_meta = serialize_context_meta(
             ctx,

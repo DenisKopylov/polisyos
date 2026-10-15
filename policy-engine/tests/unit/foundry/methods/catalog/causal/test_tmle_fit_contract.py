@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
+import secrets
 import threading
 from dataclasses import fields, replace
 
@@ -43,6 +45,58 @@ def _params(**changes: object) -> dict[str, object]:
 def _isolated_cache(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(core, "_SHARED_NUISANCE_CACHE", {})
     monkeypatch.setattr(core, "_SHARED_NUISANCE_CACHE_ORDER", [])
+
+
+def _start_pool_parent_context(store, bundle, run_id: str):
+    from polisyos.core.run.context import RunContext
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+
+    run = RunContext.start(
+        store=store,
+        registry_bundle=bundle.bundle_ref,
+        run_id=run_id,
+        run_dir=store.root / "runs" / run_id,
+        tenant_id=store._tenant_id,
+        cell_id=store._cell_id,
+    )
+    return ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger(f"test.tmle_pool.{run_id}"),
+    )
+
+
+def _bound_pool_task(node, alias: str, state, parent_context, *, priority: int = 0):
+    from polisyos.scientist.orchestration.engine.runner.serialization import (
+        serialize_state,
+        serialize_timeout_context,
+        worker_dispatch_sha256,
+    )
+    from polisyos.scientist.orchestration.engine.runner.worker_pool import NodeTask
+
+    state_bytes = serialize_state(state)
+    context_meta = serialize_timeout_context(parent_context, expected_run_id=state.run_id)
+    dispatch = {
+        "node_id": str(node.spec.metadata.component_id),
+        "alias": alias,
+        "params": {},
+        "state_bytes": state_bytes,
+        "trace_carrier": {},
+        "timeout_s": None,
+        "max_retries": 0,
+        "context_meta": context_meta,
+    }
+    return NodeTask(
+        node_id=dispatch["node_id"],
+        alias=alias,
+        params={},
+        state_bytes=state_bytes,
+        trace_carrier={},
+        context_meta=context_meta,
+        priority=priority,
+        worker_invocation_id=secrets.token_hex(32),
+        worker_dispatch_sha256=worker_dispatch_sha256(**dispatch),
+    )
 
 
 def test_native_cold_warm_rebind_and_reader_isolation(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -330,14 +384,12 @@ def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
     from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
     from polisyos.core.canon import CanonSpec
     from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.security import tenant_scope
     from polisyos.scientist.orchestration.engine import registry
     from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
     from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
-    from polisyos.scientist.orchestration.engine.runner.serialization import (
-        deserialize_outcome,
-        serialize_state,
-    )
-    from polisyos.scientist.orchestration.engine.runner.worker_pool import NodeTask
+    from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_outcome
     from polisyos.scientist.orchestration.engine.state import ExperimentState
 
     release = threading.Event()
@@ -369,8 +421,10 @@ def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
                 result,
                 PutOptions(kind="test.tmle_result", media_type="application/json"),
                 canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
             )
             state.artifacts_index["tmle_result"] = ref
+            ctx.run.add_output(ref)
             return NodeOutcome(status="ok", state=state, artifacts=[ref])
 
     node = StudyNode()
@@ -380,6 +434,8 @@ def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
         nonlocal active, peak
         loop = asyncio.get_running_loop()
         admitted = asyncio.Event()
+        tenant_id = "tenant-tmle-local-pool"
+        cell_id = "cell-tmle-local-pool"
 
         def observe(**kwargs):
             nonlocal active, peak
@@ -397,53 +453,76 @@ def test_native_studies_wait_in_actual_worker_pool_without_nested_fold_fanout(
                     active -= 1
 
         monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
-        pool = LocalWorkerPool(max_workers=budget)
-        try:
-            futures = []
-            for study in range(4):
-                state = ExperimentState(run_id=f"study-{study}", params={"study_seed": study + 71})
-                futures.append(
-                    await pool.submit(
-                        NodeTask(
-                            node_id=str(node.spec.metadata.component_id),
-                            alias=f"study-{study}",
-                            params={},
-                            state_bytes=serialize_state(state),
-                            trace_carrier={},
-                            context_meta={
-                                "run_id": state.run_id,
-                                "store_backend": "filesystem",
-                                "store_root": str(tmp_path / "cas"),
-                            },
-                        )
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            store = FileSystemCAS(
+                tmp_path / "cas",
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            bundle = build_default_registry_bundle(store, return_selected_profile=True)
+            pool = LocalWorkerPool(max_workers=budget)
+            parent_contexts = []
+            try:
+                futures = []
+                for study in range(4):
+                    state = ExperimentState(
+                        run_id=f"study-{study}",
+                        params={"study_seed": study + 71},
                     )
+                    parent_context = _start_pool_parent_context(store, bundle, state.run_id)
+                    parent_contexts.append(parent_context)
+                    task = _bound_pool_task(node, f"study-{study}", state, parent_context)
+                    futures.append(await pool.submit_with_parent_context(task, parent_context))
+                await asyncio.wait_for(admitted.wait(), timeout=20)
+                capacity = await pool.current_capacity()
+                assert capacity.active_tasks == budget
+                assert capacity.queue_depth == 4 - budget
+                assert peak == budget
+                release.set()
+                results = await asyncio.wait_for(asyncio.gather(*futures), timeout=60)
+                assert len(calls) == 24  # all 4 studies × 2 repeats × 3 folds actually executed
+                assert peak <= budget
+                reader = FileSystemCAS(
+                    tmp_path / "cas",
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
                 )
-            await asyncio.wait_for(admitted.wait(), timeout=20)
-            capacity = await pool.current_capacity()
-            assert capacity.active_tasks == budget
-            assert capacity.queue_depth == 4 - budget
-            assert peak == budget
-            release.set()
-            results = await asyncio.wait_for(asyncio.gather(*futures), timeout=60)
-            assert len(calls) == 24  # all 4 studies × 2 repeats × 3 folds actually executed
-            assert peak <= budget
-            reader = FileSystemCAS(tmp_path / "cas")
-            for result_bytes in results:
-                outcome = deserialize_outcome(result_bytes)
-                assert outcome.status == "ok"
-                ref = ArtifactRef.model_validate(outcome.state.artifacts_index["tmle_result"])
-                payload = json.loads(reader.get_bytes(ref))
-                assert payload["targeting_summary"]["converged"]
-                for repeat in payload["nuisance_diagnostics"]["split_manifest"]:
-                    held_out = [i for fold in repeat["folds"] for i in fold["test_indices"]]
-                    assert sorted(held_out) == list(range(120))
-                assert (
-                    payload["nuisance_diagnostics"]["execution_policy"]["effective_fold_workers"]
-                    == 1
-                )
-        finally:
-            release.set()
-            await pool.shutdown()
+                for result_bytes, parent_context in zip(results, parent_contexts, strict=True):
+                    outcome = deserialize_outcome(result_bytes)
+                    assert outcome.status == "ok"
+                    ref = ArtifactRef.model_validate(outcome.state.artifacts_index["tmle_result"])
+                    payload = json.loads(reader.get_bytes(ref))
+                    assert payload["targeting_summary"]["converged"]
+                    assert ref in parent_context.run.run_manifest.outputs
+                    assert parent_context.run.trace_path is not None
+                    trace = [
+                        json.loads(line)
+                        for line in parent_context.run.trace_path.read_text(
+                            encoding="utf-8"
+                        ).splitlines()
+                    ]
+                    assert sum(item["event"] == "RUN_STARTED" for item in trace) == 1
+                    assert sum(item["event"] == "RUN_OUTPUT_ADDED" for item in trace) == 1
+                    assert sum(item["event"] == "WORKER_INVOCATION_STARTED" for item in trace) == 1
+                    assert (
+                        sum(item["event"] == "WORKER_INVOCATION_COMPLETED" for item in trace) == 1
+                    )
+                    for repeat in payload["nuisance_diagnostics"]["split_manifest"]:
+                        held_out = [i for fold in repeat["folds"] for i in fold["test_indices"]]
+                        assert sorted(held_out) == list(range(120))
+                    assert (
+                        payload["nuisance_diagnostics"]["execution_policy"][
+                            "effective_fold_workers"
+                        ]
+                        == 1
+                    )
+            finally:
+                release.set()
+                await pool.shutdown()
+                for parent_context in parent_contexts:
+                    run_context = parent_context.run
+                    if not run_context._closed and not run_context._suspended:
+                        run_context.suspend_for_resume()
 
     asyncio.run(run())
 
@@ -457,14 +536,12 @@ def test_failed_native_study_releases_shared_pool_slot_for_waiting_study(
     from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
     from polisyos.core.canon import CanonSpec
     from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.security import tenant_scope
     from polisyos.scientist.orchestration.engine import registry
     from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
     from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
-    from polisyos.scientist.orchestration.engine.runner.serialization import (
-        deserialize_outcome,
-        serialize_state,
-    )
-    from polisyos.scientist.orchestration.engine.runner.worker_pool import NodeTask
+    from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_outcome
     from polisyos.scientist.orchestration.engine.state import ExperimentState
 
     with pytest.raises(ValueError, match="max_workers must be >= 1"):
@@ -507,8 +584,10 @@ def test_failed_native_study_releases_shared_pool_slot_for_waiting_study(
                 result,
                 PutOptions(kind="test.tmle_result", media_type="application/json"),
                 canon_spec=CanonSpec(forbid_floats=False),
+                return_selected_profile=True,
             )
             state.artifacts_index["tmle_result"] = ref
+            ctx.run.add_output(ref)
             return NodeOutcome(status="ok", state=state, artifacts=[ref])
 
     node = StudyNode()
@@ -518,6 +597,8 @@ def test_failed_native_study_releases_shared_pool_slot_for_waiting_study(
         nonlocal active, peak
         loop = asyncio.get_running_loop()
         failed_fold = asyncio.Event()
+        tenant_id = "tenant-tmle-pool-failure"
+        cell_id = "cell-tmle-pool-failure"
 
         def observe(**kwargs):
             nonlocal active, peak
@@ -536,78 +617,107 @@ def test_failed_native_study_releases_shared_pool_slot_for_waiting_study(
                     active -= 1
 
         monkeypatch.setattr(core, "_fit_crossfit_fold", observe)
-        pool = LocalWorkerPool(max_workers=1)
-        try:
-            tasks = []
-            for run_id, seed, fail_after_fit, priority in (
-                ("study-fails", 71, True, 1),
-                ("study-survives", 72, False, 0),
-            ):
-                state = ExperimentState(
-                    run_id=run_id,
-                    params={"study_seed": seed, "fail_after_fit": fail_after_fit},
-                )
-                tasks.append(
-                    await pool.submit(
-                        NodeTask(
-                            node_id=str(node.spec.metadata.component_id),
-                            alias=run_id,
-                            params={},
-                            state_bytes=serialize_state(state),
-                            trace_carrier={},
-                            context_meta={
-                                "run_id": run_id,
-                                "store_backend": "filesystem",
-                                "store_root": str(tmp_path / "cas"),
-                            },
-                            priority=priority,
-                        )
-                    )
-                )
-
-            await asyncio.wait_for(failed_fold.wait(), timeout=20)
-            capacity = await pool.current_capacity()
-            assert capacity.total_workers == 1
-            assert capacity.active_tasks == 1
-            assert capacity.queue_depth == 1
-            release_failed_fold.set()
-
-            with pytest.raises(RuntimeError, match="study failed after all native folds"):
-                await asyncio.wait_for(tasks[0], timeout=60)
-            surviving_bytes = await asyncio.wait_for(tasks[1], timeout=60)
-            capacity = await pool.current_capacity()
-            assert capacity.active_tasks == 0
-            assert capacity.queue_depth == 0
-            assert peak == 1
-
-            expected = [(18, fold) for fold in range(3)] + [(1015, fold) for fold in range(3)]
-            by_study = {
-                run_id: [(seed, fold) for observed_id, seed, fold in calls if observed_id == run_id]
-                for run_id in ("study-fails", "study-survives")
-            }
-            assert by_study == {"study-fails": expected, "study-survives": expected}
-            assert len(calls) == 12
-
-            outcome = deserialize_outcome(surviving_bytes)
-            assert outcome.status == "ok"
-            assert outcome.state.run_id == "study-survives"
-            ref = ArtifactRef.model_validate(outcome.state.artifacts_index["tmle_result"])
-            payload = json.loads(FileSystemCAS(tmp_path / "cas").get_bytes(ref))
-            assert payload["targeting_summary"]["converged"]
-            splits = payload["nuisance_diagnostics"]["split_manifest"]
-            assert [(repeat["seed"], [fold["fold"] for fold in repeat["folds"]]) for repeat in splits] == [
-                (18, [0, 1, 2]),
-                (1015, [0, 1, 2]),
-            ]
-            for repeat in splits:
-                held_out = [index for fold in repeat["folds"] for index in fold["test_indices"]]
-                assert sorted(held_out) == list(range(120))
-            assert (
-                payload["nuisance_diagnostics"]["execution_policy"]["effective_fold_workers"]
-                == 1
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            store = FileSystemCAS(
+                tmp_path / "cas",
+                tenant_id=tenant_id,
+                cell_id=cell_id,
             )
-        finally:
-            release_failed_fold.set()
-            await pool.shutdown()
+            bundle = build_default_registry_bundle(store, return_selected_profile=True)
+            pool = LocalWorkerPool(max_workers=1)
+            parent_contexts = {}
+            try:
+                tasks = []
+                for run_id, seed, fail_after_fit, priority in (
+                    ("study-fails", 71, True, 1),
+                    ("study-survives", 72, False, 0),
+                ):
+                    state = ExperimentState(
+                        run_id=run_id,
+                        params={"study_seed": seed, "fail_after_fit": fail_after_fit},
+                    )
+                    parent_context = _start_pool_parent_context(store, bundle, run_id)
+                    parent_contexts[run_id] = parent_context
+                    task = _bound_pool_task(
+                        node,
+                        run_id,
+                        state,
+                        parent_context,
+                        priority=priority,
+                    )
+                    tasks.append(await pool.submit_with_parent_context(task, parent_context))
+
+                await asyncio.wait_for(failed_fold.wait(), timeout=20)
+                capacity = await pool.current_capacity()
+                assert capacity.total_workers == 1
+                assert capacity.active_tasks == 1
+                assert capacity.queue_depth == 1
+                release_failed_fold.set()
+
+                with pytest.raises(RuntimeError, match="study failed after all native folds"):
+                    await asyncio.wait_for(tasks[0], timeout=60)
+                surviving_bytes = await asyncio.wait_for(tasks[1], timeout=60)
+                capacity = await pool.current_capacity()
+                assert capacity.active_tasks == 0
+                assert capacity.queue_depth == 0
+                assert peak == 1
+
+                expected = [(18, fold) for fold in range(3)] + [(1015, fold) for fold in range(3)]
+                by_study = {
+                    run_id: [
+                        (seed, fold) for observed_id, seed, fold in calls if observed_id == run_id
+                    ]
+                    for run_id in ("study-fails", "study-survives")
+                }
+                assert by_study == {"study-fails": expected, "study-survives": expected}
+                assert len(calls) == 12
+
+                outcome = deserialize_outcome(surviving_bytes)
+                assert outcome.status == "ok"
+                assert outcome.state.run_id == "study-survives"
+                ref = ArtifactRef.model_validate(outcome.state.artifacts_index["tmle_result"])
+                reader = FileSystemCAS(
+                    tmp_path / "cas",
+                    tenant_id=tenant_id,
+                    cell_id=cell_id,
+                )
+                payload = json.loads(reader.get_bytes(ref))
+                assert payload["targeting_summary"]["converged"]
+                assert ref in parent_contexts["study-survives"].run.run_manifest.outputs
+                for run_id, parent_context in parent_contexts.items():
+                    assert parent_context.run.trace_path is not None
+                    trace = [
+                        json.loads(line)
+                        for line in parent_context.run.trace_path.read_text(
+                            encoding="utf-8"
+                        ).splitlines()
+                    ]
+                    assert sum(item["event"] == "RUN_STARTED" for item in trace) == 1
+                    assert sum(item["event"] == "WORKER_INVOCATION_STARTED" for item in trace) == 1
+                    assert (
+                        sum(item["event"] == "WORKER_INVOCATION_COMPLETED" for item in trace) == 1
+                    )
+                    assert sum(item["event"] == "RUN_OUTPUT_ADDED" for item in trace) == int(
+                        run_id == "study-survives"
+                    )
+                splits = payload["nuisance_diagnostics"]["split_manifest"]
+                assert [
+                    (repeat["seed"], [fold["fold"] for fold in repeat["folds"]])
+                    for repeat in splits
+                ] == [(18, [0, 1, 2]), (1015, [0, 1, 2])]
+                for repeat in splits:
+                    held_out = [index for fold in repeat["folds"] for index in fold["test_indices"]]
+                    assert sorted(held_out) == list(range(120))
+                assert (
+                    payload["nuisance_diagnostics"]["execution_policy"]["effective_fold_workers"]
+                    == 1
+                )
+            finally:
+                release_failed_fold.set()
+                await pool.shutdown()
+                for parent_context in parent_contexts.values():
+                    run_context = parent_context.run
+                    if not run_context._closed and not run_context._suspended:
+                        run_context.suspend_for_resume()
 
     asyncio.run(run())

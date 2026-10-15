@@ -79,6 +79,184 @@ class TestLocalWorkerPool:
         assert cap.active_tasks == 0
         assert cap.queue_depth == 0
 
+    def test_parent_receipt_route_merges_staged_run_events(self, tmp_path, monkeypatch) -> None:
+        """A bound local task returns through the caller's active RunContext writer."""
+        import logging
+        from dataclasses import replace
+
+        from polisyos.core.artifacts.manifest import SchemaInfo
+        from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+        from polisyos.core.components import (
+            Capability,
+            ComponentId,
+            ComponentKind,
+            ComponentMetadata,
+        )
+        from polisyos.core.registry import build_default_registry_bundle
+        from polisyos.core.run.context import RunContext
+        from polisyos.core.security import tenant_scope
+        from polisyos.core.trace.record import TraceRecord
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
+        from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
+        from polisyos.scientist.orchestration.engine.runner.serialization import (
+            serialize_state,
+            serialize_timeout_context,
+            worker_dispatch_sha256,
+        )
+        from polisyos.scientist.orchestration.engine.state import ExperimentState
+
+        tenant_id = "tenant-local-parent-receipt"
+        cell_id = "cell-local-parent-receipt"
+        run_id = "R_local_parent_receipt"
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            store = FileSystemCAS(
+                tmp_path / "cas",
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            bundle = build_default_registry_bundle(
+                store,
+                return_selected_profile=True,
+            )
+            run = RunContext.start(
+                store=store,
+                registry_bundle=bundle.bundle_ref,
+                run_id=run_id,
+                run_dir=store.root / "runs" / run_id,
+                tenant_id=tenant_id,
+                cell_id=cell_id,
+            )
+            parent_context = ExecutionContext(
+                store=store,
+                run=run,
+                logger=logging.getLogger("test.local_parent_receipt"),
+            )
+            input_ref = store.put_json(
+                {"input": "worker"},
+                PutOptions(
+                    kind="scientist.test.local_parent_input",
+                    media_type="application/json",
+                    schema=SchemaInfo(name="scientist.test.LocalParentInput", version="1.0"),
+                ),
+                return_selected_profile=True,
+            )
+
+            class ReceiptNode:
+                spec = NodeSpec(
+                    metadata=ComponentMetadata(
+                        component_id=ComponentId.parse("scientist.test.local_parent@1.0.0"),
+                        kind=ComponentKind.SCIENTIST_NODE,
+                        abi_targets={"world_abi": "1.x"},
+                        capabilities=Capability.SCIENTIST_NODE,
+                        display_name="Local parent receipt test",
+                        description="Exercises the worker receipt consumer route.",
+                    ),
+                    state_reads=["params"],
+                    state_writes=["params"],
+                )
+
+                def execute(self, worker_context, worker_state):
+                    worker_context.run.emit(
+                        "scientist.node.local-parent-receipt",
+                        "NODE_LOCAL_PARENT_RECEIPT_EMITTED",
+                    )
+                    worker_context.run.add_input(input_ref)
+                    worker_state.params["worker_value"] = "from-worker"
+                    return NodeOutcome(status="ok", state=worker_state, events=[], artifacts=[])
+
+            node = ReceiptNode()
+            from polisyos.scientist.orchestration.engine import registry as registry_module
+
+            monkeypatch.setattr(
+                registry_module,
+                "discover_nodes",
+                lambda actual, **_kwargs: actual.register(node),
+            )
+            state_bytes = serialize_state(ExperimentState(run_id=run_id))
+            context_meta = serialize_timeout_context(parent_context, expected_run_id=run_id)
+            dispatch = {
+                "node_id": str(node.spec.metadata.component_id),
+                "alias": "local-parent-receipt",
+                "params": {},
+                "state_bytes": state_bytes,
+                "trace_carrier": {},
+                "timeout_s": None,
+                "max_retries": 0,
+                "context_meta": context_meta,
+            }
+            task = _make_task(
+                **{key: value for key, value in dispatch.items() if key != "max_retries"},
+                worker_invocation_id="a" * 64,
+                worker_dispatch_sha256=worker_dispatch_sha256(**dispatch),
+            )
+            pool = LocalWorkerPool(max_workers=1)
+            from polisyos.scientist.orchestration.engine.runner.task_router import TaskRouter
+
+            router = TaskRouter({"cpu": pool})
+            assert run.trace_path is not None
+            before_dispatch = run.trace_path.read_bytes()
+
+            async def _run() -> bytes:
+                with pytest.raises(
+                    ValueError,
+                    match="worker_task_parent_dispatch_binding_invalid",
+                ):
+                    await pool.submit_with_parent_context(
+                        replace(task, params={"tampered": True}),
+                        parent_context,
+                    )
+                with pytest.raises(
+                    ValueError,
+                    match="worker_task_parent_receipt_timeout_unsupported",
+                ):
+                    await pool.submit_with_parent_context(
+                        replace(task, timeout_s=1.0),
+                        parent_context,
+                    )
+                assert run.trace_path.read_bytes() == before_dispatch
+                with pytest.raises(
+                    RuntimeError, match="worker_task_parent_receipt_context_required"
+                ):
+                    await router.submit(task)
+                result = await router.submit_with_parent_context(task, parent_context)
+                await pool.shutdown()
+                return result
+
+            try:
+                result_bytes = asyncio.run(_run())
+                from polisyos.scientist.orchestration.engine.runner.serialization import (
+                    deserialize_outcome,
+                )
+
+                outcome = deserialize_outcome(result_bytes)
+                assert outcome.status == "ok"
+                assert outcome.state.params["worker_value"] == "from-worker"
+                assert input_ref in run.run_manifest.inputs
+                assert run.trace_path is not None
+                trace = [
+                    TraceRecord.model_validate_json(line)
+                    for line in run.trace_path.read_text(encoding="utf-8").splitlines()
+                ]
+                assert sum(record.event == "RUN_STARTED" for record in trace) == 1
+                assert (
+                    sum(record.event == "NODE_LOCAL_PARENT_RECEIPT_EMITTED" for record in trace)
+                    == 1
+                )
+                assert sum(record.event == "WORKER_INVOCATION_STARTED" for record in trace) == 1
+                assert sum(record.event == "WORKER_INVOCATION_COMPLETED" for record in trace) == 1
+                assert all(
+                    record.worker_invocation_id == "a" * 64
+                    for record in trace
+                    if record.event.startswith("WORKER_INVOCATION_")
+                    or record.event == "NODE_LOCAL_PARENT_RECEIPT_EMITTED"
+                    or record.event == "RUN_INPUT_ADDED"
+                )
+                run._validate_timeout_worker_owner_binding()
+            finally:
+                if not run._closed and not run._suspended:
+                    run.suspend_for_resume()
+
     def test_scale_to_changes_capacity(self) -> None:
         from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
 
@@ -210,7 +388,6 @@ class TestLocalWorkerPool:
                     await future
 
         asyncio.run(_test())
-
 
     def test_unlisted_worker_exceptions_settle_future_and_release_queued_sibling(self) -> None:
         from polisyos.scientist.orchestration.engine.errors import RetryExhaustedError

@@ -9,13 +9,17 @@ from __future__ import annotations
 
 import itertools
 import logging
-from typing import Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from polisyos.scientist.orchestration.engine.runner.worker_pool import (
     NodeTask,
+    ParentReceiptWorkerPool,
     PoolCapacity,
     WorkerPool,
 )
+
+if TYPE_CHECKING:
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
 _logger = logging.getLogger(__name__)
 
@@ -153,7 +157,22 @@ class TaskRouter:
 
     async def submit(self, task: NodeTask) -> bytes:
         """Route *task* to the best pool and await its result."""
+        if task.worker_invocation_id is not None or task.worker_dispatch_sha256 is not None:
+            raise RuntimeError("worker_task_parent_receipt_context_required")
         pool_name = await self.route(task)
         pool = self._pools[pool_name]
         future = await pool.submit(task)
+        return await future
+
+    async def submit_with_parent_context(
+        self,
+        task: NodeTask,
+        parent_context: ExecutionContext,
+    ) -> bytes:
+        """Route a source-bound task through a pool that admits parent receipts."""
+        pool_name = await self.route(task)
+        pool = self._pools[pool_name]
+        if not isinstance(pool, ParentReceiptWorkerPool):
+            raise RuntimeError("worker_pool_parent_receipt_admission_unsupported")
+        future = await pool.submit_with_parent_context(task, parent_context)
         return await future

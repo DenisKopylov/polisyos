@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import secrets
 from typing import Any
 
 from pydantic import ValidationError
@@ -43,9 +44,14 @@ from polisyos.scientist.orchestration.engine.runner.fallback_runner import (
 )
 from polisyos.scientist.orchestration.engine.runner.protocol import RunnerHealth
 from polisyos.scientist.orchestration.engine.runner.serialization import (
+    deserialize_outcome,
     deserialize_state,
+    deserialize_worker_execution_receipt,
     serialize_context_meta,
+    serialize_outcome,
     serialize_state,
+    serialize_timeout_context,
+    worker_dispatch_sha256,
 )
 from polisyos.scientist.orchestration.engine.state_merge import MergeConflictPolicy
 
@@ -94,11 +100,15 @@ if _HAS_RAY:
         state_bytes: bytes,
         trace_carrier: dict[str, str],
         timeout_s: float | None,
+        max_retries: int,
         context_meta: dict[str, Any],
+        worker_context_meta: dict[str, Any],
+        worker_invocation_id: str,
+        worker_dispatch_sha256: str,
     ) -> bytes:
         """Execute a single scientist node as a Ray remote task.
 
-        Returns serialised ``NodeOutcome`` bytes.
+        Returns one source-bound staged execution receipt for host admission.
         """
         from polisyos.scientist.orchestration.engine.runner._activity_worker import (
             run_node_in_worker_sync,
@@ -111,9 +121,12 @@ if _HAS_RAY:
             "state_bytes": state_bytes,
             "trace_carrier": trace_carrier,
             "timeout_s": timeout_s,
-            "context_meta": context_meta,
+            "max_retries": max_retries,
+            "context_meta": worker_context_meta,
+            "worker_invocation_id": worker_invocation_id,
+            "worker_dispatch_sha256": worker_dispatch_sha256,
         }
-        return run_node_in_worker_sync(payload)
+        return run_node_in_worker_sync(payload, parent_receipt=True)
 
     @ray.remote
     def merge_checkpoint_tier_task(payload: dict[str, Any]) -> dict[str, Any]:
@@ -264,25 +277,53 @@ class RayWorkflowRunner:
             tier_state_bytes = state_bytes
             tier_results: dict[str, bytes] = {}
             for offset in range(0, len(tier), effective_max_parallelism):
+                # Ray task workers receive a strict source-bound snapshot of the
+                # live host run. The older context metadata remains available
+                # only to the store-only checkpoint task below.
+                worker_context_meta = serialize_timeout_context(
+                    ctx,
+                    expected_run_id=state.run_id,
+                )
+                worker_context_meta["workflow_id"] = workflow.workflow_id
                 futures = []
                 chunk_aliases: list[str] = []
+                dispatches: dict[str, tuple[str, str, Any]] = {}
                 for alias in tier[offset : offset + effective_max_parallelism]:
                     inv = invocations[alias]
+                    if inv.timeout_s is not None:
+                        raise ValueError("ray_parent_receipt_timeout_unsupported")
                     carrier = _inject_trace_carrier()
+                    max_retries = inv.retry.max_retries if inv.retry is not None else 0
+                    invocation_id = secrets.token_hex(32)
+                    dispatch_digest = worker_dispatch_sha256(
+                        node_id=str(inv.node_id),
+                        alias=alias,
+                        params=inv.params or {},
+                        state_bytes=tier_state_bytes,
+                        trace_carrier=carrier,
+                        timeout_s=None,
+                        max_retries=max_retries,
+                        context_meta=worker_context_meta,
+                    )
+                    dispatches[alias] = (
+                        invocation_id,
+                        dispatch_digest,
+                        ctx.run._owner_snapshot_ref,
+                    )
 
                     task_ref = execute_node_task
-                    if inv.timeout_s is not None:
-                        task_ref = execute_node_task.options(
-                            timeout=inv.timeout_s,
-                        )
                     future = task_ref.remote(
                         node_id=str(inv.node_id),
                         alias=alias,
                         params=inv.params or {},
                         state_bytes=tier_state_bytes,
                         trace_carrier=carrier,
-                        timeout_s=inv.timeout_s,
+                        timeout_s=None,
+                        max_retries=max_retries,
                         context_meta=ctx_meta,
+                        worker_context_meta=worker_context_meta,
+                        worker_invocation_id=invocation_id,
+                        worker_dispatch_sha256=dispatch_digest,
                     )
                     futures.append(future)
                     chunk_aliases.append(alias)
@@ -292,10 +333,83 @@ class RayWorkflowRunner:
                     *[asyncio.wrap_future(f.future()) for f in futures],
                     return_exceptions=True,
                 )
-                for alias, item in zip(chunk_aliases, results, strict=False):
-                    if not isinstance(item, BaseException):
-                        tier_results[alias] = item
+                # Decode and bind every returned receipt before the first parent
+                # write. A snapshot update changes the owner's source ref; with
+                # multiple sibling receipts, admit that one last and refuse
+                # multiple independently-created snapshots as a whole chunk.
+                from polisyos.scientist.orchestration.engine.retry import (
+                    _admit_worker_execution_receipt,
+                    _worker_node_error,
+                )
+
+                receipt_items: list[tuple[str, bytes, tuple[str, str, Any], list[Any]]] = []
                 exceptions = [item for item in results if isinstance(item, BaseException)]
+                for alias, item in zip(chunk_aliases, results, strict=False):
+                    if isinstance(item, BaseException):
+                        continue
+                    try:
+                        (
+                            outcome_bytes,
+                            _error_payload,
+                            receipt_invocation_id,
+                            receipt_dispatch,
+                            receipt_owner_ref,
+                            records,
+                        ) = deserialize_worker_execution_receipt(item)
+                        invocation_id, expected_dispatch, owner_ref = dispatches[alias]
+                        if (
+                            receipt_invocation_id != invocation_id
+                            or receipt_dispatch != expected_dispatch
+                            or receipt_owner_ref != owner_ref
+                        ):
+                            raise ValueError("ray_worker_receipt_binding_mismatch")
+                        if outcome_bytes is not None:
+                            outcome = deserialize_outcome(outcome_bytes)
+                            if outcome.state.run_id != state.run_id:
+                                raise ValueError("ray_worker_outcome_run_binding_mismatch")
+                        if _error_payload is not None:
+                            if not isinstance(_error_payload, dict):
+                                raise ValueError("ray_worker_error_payload_invalid")
+                            _worker_node_error(
+                                _error_payload,
+                                expected_run_id=state.run_id,
+                            )
+                        if outcome_bytes is None and _error_payload is None:
+                            raise ValueError("ray_worker_receipt_result_missing")
+                    except (TypeError, ValueError) as exc:
+                        raise RuntimeError("ray_worker_receipt_invalid") from exc
+                    receipt_items.append((alias, item, dispatches[alias], records))
+
+                snapshot_receipts = [
+                    entry
+                    for entry in receipt_items
+                    if any(record.event == "RUN_CONTEXT_SNAPSHOT" for record in entry[3])
+                ]
+                if len(snapshot_receipts) > 1:
+                    raise RuntimeError("ray_worker_sibling_snapshot_conflict")
+                if snapshot_receipts:
+                    receipt_items = [
+                        entry for entry in receipt_items if entry not in snapshot_receipts
+                    ] + snapshot_receipts
+
+                receipt_errors: list[BaseException] = []
+                for alias, item, dispatch, _records in receipt_items:
+                    invocation_id, expected_dispatch, owner_ref = dispatch
+                    try:
+                        outcome = _admit_worker_execution_receipt(
+                            ctx,
+                            item,
+                            invocation_id=invocation_id,
+                            expected_dispatch=expected_dispatch,
+                            owner_snapshot_ref=owner_ref,
+                            expected_run_id=state.run_id,
+                        )
+                    except Exception as exc:
+                        receipt_errors.append(exc)
+                        continue
+                    tier_results[alias] = serialize_outcome(outcome)
+
+                exceptions.extend(receipt_errors)
                 for exc in exceptions:
                     from polisyos.scientist.orchestration.engine.runner.error_classifier import (
                         classify_remote_error,

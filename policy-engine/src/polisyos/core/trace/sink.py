@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import os
 import threading
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from polisyos.common.logger import get_logger
 
@@ -20,6 +21,13 @@ class TraceSink(Protocol):
     def emit(self, rec: TraceRecord) -> None: ...
 
 
+@runtime_checkable
+class BatchTraceSink(TraceSink, Protocol):
+    """Trace sink that accepts a serialized batch under one sink-owned lock."""
+
+    def emit_many(self, records: Sequence[TraceRecord]) -> None: ...
+
+
 class JsonlTraceSink:
     """Jsonl trace sink public type."""
 
@@ -29,10 +37,21 @@ class JsonlTraceSink:
         self._lock = threading.Lock()
 
     def emit(self, rec: TraceRecord) -> None:
-        line = rec.model_dump_json(exclude_none=True)
+        self.emit_many([rec])
+
+    def emit_many(self, records: Sequence[TraceRecord]) -> None:
+        """Append a batch under one sink-owned lock and fsync the file.
+
+        A write or fsync failure can leave a prefix in the file. Callers that
+        need crash recovery must bind and reconcile that prefix themselves.
+        """
+        if not records:
+            return
+        payload = "".join(f"{record.model_dump_json(exclude_none=True)}\n" for record in records)
         with self._lock, open(self.path, "a", encoding="utf-8") as f:
-            f.write(line)
-            f.write("\n")
+            written = f.write(payload)
+            if written != len(payload):
+                raise OSError("trace batch append incomplete")
             f.flush()
             os.fsync(f.fileno())
 

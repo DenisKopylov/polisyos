@@ -369,6 +369,7 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     controlled_candidate_gateway: Any,
+    served_worker_phase_probe: Any,
 ) -> None:
     """Replay the unchanged three-proposal capture through ordinary POST and fresh GET."""
     pytest.importorskip("fastapi.testclient")

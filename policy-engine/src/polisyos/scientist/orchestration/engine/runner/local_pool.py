@@ -6,11 +6,15 @@ import asyncio
 import heapq
 import logging
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Any
 
 from polisyos.scientist.orchestration.engine.runner.worker_pool import (
     NodeTask,
     PoolCapacity,
 )
+
+if TYPE_CHECKING:
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
 _logger = logging.getLogger(__name__)
 
@@ -23,6 +27,8 @@ class _QueuedSubmission:
     submission_order: int
     task: NodeTask = field(compare=False)
     future: asyncio.Future[bytes] = field(compare=False)
+    parent_context: Any | None = field(compare=False, default=None)
+    receipt_payload: dict[str, Any] | None = field(compare=False, default=None)
 
 
 class LocalWorkerPool:
@@ -50,23 +56,68 @@ class LocalWorkerPool:
         Worker exceptions are delivered on the returned future. Cancelling that
         future does not stop an already running worker or release its slot early.
         """
+        if task.worker_invocation_id is not None or task.worker_dispatch_sha256 is not None:
+            raise RuntimeError("worker_task_parent_receipt_context_required")
+        return await self._submit(task, parent_context=None, receipt_payload=None)
+
+    async def submit_with_parent_context(
+        self,
+        task: NodeTask,
+        parent_context: ExecutionContext,
+    ) -> asyncio.Future[bytes]:
+        """Submit a bound task and admit its staged receipt through the live parent run.
+
+        This source-bound local route currently accepts untimed ``NodeTask`` values.
+        Timed work must use an execution backend with a supported owned-process
+        boundary; the worker pool does not convert cancellation into that proof.
+        """
+        receipt_payload = _prepare_parent_receipt(task, parent_context)
+        return await self._submit(
+            task,
+            parent_context=parent_context,
+            receipt_payload=receipt_payload,
+        )
+
+    async def _submit(
+        self,
+        task: NodeTask,
+        *,
+        parent_context: Any | None,
+        receipt_payload: dict[str, Any] | None,
+    ) -> asyncio.Future[bytes]:
         if self._shutdown:
             raise RuntimeError("Pool is shut down")
 
         loop = asyncio.get_running_loop()
         future: asyncio.Future[bytes] = loop.create_future()
 
-        runner_task = asyncio.create_task(self._run_task(task, future))
+        runner_task = asyncio.create_task(
+            self._run_task(
+                task,
+                future,
+                parent_context=parent_context,
+                receipt_payload=receipt_payload,
+            )
+        )
         self._runner_tasks.add(runner_task)
         runner_task.add_done_callback(self._runner_tasks.discard)
         return future
 
-    async def _run_task(self, task: NodeTask, future: asyncio.Future[bytes]) -> None:
+    async def _run_task(
+        self,
+        task: NodeTask,
+        future: asyncio.Future[bytes],
+        *,
+        parent_context: Any | None,
+        receipt_payload: dict[str, Any] | None,
+    ) -> None:
         submission = _QueuedSubmission(
             sort_priority=-int(task.priority),
             submission_order=self._submission_order,
             task=task,
             future=future,
+            parent_context=parent_context,
+            receipt_payload=receipt_payload,
         )
         self._submission_order += 1
         active = False
@@ -98,7 +149,15 @@ class LocalWorkerPool:
                 "context_meta": task.context_meta,
             }
 
-            if task.timeout_s is not None:
+            if parent_context is not None:
+                if receipt_payload is None:
+                    raise RuntimeError("worker_task_parent_receipt_dispatch_missing")
+                result = await _run_parent_receipt_task(
+                    payload,
+                    parent_context=parent_context,
+                    receipt_payload=receipt_payload,
+                )
+            elif task.timeout_s is not None:
                 result = await asyncio.wait_for(
                     run_node_in_worker(payload),
                     timeout=task.timeout_s,
@@ -174,3 +233,105 @@ class LocalWorkerPool:
         for task in list(self._runner_tasks):
             task.cancel()
         await asyncio.gather(*list(self._runner_tasks), return_exceptions=True)
+
+
+def _prepare_parent_receipt(task: NodeTask, parent_context: Any) -> dict[str, Any]:
+    """Validate and freeze the exact local worker dispatch against its parent."""
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.run.context import RunContext
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.runner.serialization import (
+        deserialize_state,
+        serialize_timeout_context,
+        worker_dispatch_sha256,
+    )
+
+    if type(parent_context) is not ExecutionContext:
+        raise ValueError("worker_task_parent_execution_context_unsupported")
+    if task.timeout_s is not None:
+        raise ValueError("worker_task_parent_receipt_timeout_unsupported")
+    if type(task.context_meta) is not dict:
+        raise ValueError("worker_task_parent_receipt_context_invalid")
+    run = parent_context.run
+    if (
+        type(run) is not RunContext
+        or run._active_lease is None
+        or run._closed
+        or run._suspended
+        or run._trace_path is None
+        or run._owner_snapshot_ref is None
+    ):
+        raise ValueError("worker_task_parent_run_not_active")
+    try:
+        state = deserialize_state(task.state_bytes)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("worker_task_parent_receipt_state_invalid") from exc
+    if state.run_id != run.run_manifest.run_id:
+        raise ValueError("worker_task_parent_run_id_mismatch")
+    try:
+        expected_context = serialize_timeout_context(
+            parent_context,
+            expected_run_id=state.run_id,
+        )
+    except (TypeError, ValueError) as exc:
+        raise ValueError("worker_task_parent_receipt_context_unsupported") from exc
+    if task.context_meta != expected_context:
+        raise ValueError("worker_task_parent_receipt_context_mismatch")
+    expected_dispatch = worker_dispatch_sha256(
+        node_id=task.node_id,
+        alias=task.alias,
+        params=task.params,
+        state_bytes=task.state_bytes,
+        trace_carrier=task.trace_carrier,
+        timeout_s=task.timeout_s,
+        max_retries=0,
+        context_meta=task.context_meta,
+    )
+    if (
+        type(task.worker_invocation_id) is not str
+        or len(task.worker_invocation_id) != 64
+        or any(character not in "0123456789abcdef" for character in task.worker_invocation_id)
+        or task.worker_dispatch_sha256 != expected_dispatch
+    ):
+        raise ValueError("worker_task_parent_dispatch_binding_invalid")
+    if type(run._owner_snapshot_ref) is not ArtifactRef:
+        raise ValueError("worker_task_parent_owner_snapshot_invalid")
+    run._validate_timeout_worker_owner_binding()
+    return {
+        "invocation_id": task.worker_invocation_id,
+        "dispatch_sha256": expected_dispatch,
+        "owner_snapshot_ref": run._owner_snapshot_ref,
+        "run_id": state.run_id,
+    }
+
+
+async def _run_parent_receipt_task(
+    payload: dict[str, Any],
+    *,
+    parent_context: Any,
+    receipt_payload: dict[str, Any],
+) -> bytes:
+    """Run one staged task and admit its returned events through the parent writer."""
+    from polisyos.scientist.orchestration.engine.retry import (
+        _admit_worker_execution_receipt,
+    )
+    from polisyos.scientist.orchestration.engine.runner._activity_worker import (
+        run_node_in_worker,
+    )
+    from polisyos.scientist.orchestration.engine.runner.serialization import serialize_outcome
+
+    payload = {
+        **payload,
+        "worker_invocation_id": receipt_payload["invocation_id"],
+        "worker_dispatch_sha256": receipt_payload["dispatch_sha256"],
+    }
+    worker_receipt = await run_node_in_worker(payload, parent_receipt=True)
+    outcome = _admit_worker_execution_receipt(
+        parent_context,
+        worker_receipt,
+        invocation_id=receipt_payload["invocation_id"],
+        expected_dispatch=receipt_payload["dispatch_sha256"],
+        owner_snapshot_ref=receipt_payload["owner_snapshot_ref"],
+        expected_run_id=receipt_payload["run_id"],
+    )
+    return serialize_outcome(outcome)

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import concurrent.futures
+import json
 import logging
 from pathlib import Path
 from types import SimpleNamespace
@@ -11,6 +12,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.core.security import tenant_scope
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     resolve_latest_checkpoint,
@@ -23,10 +25,6 @@ from polisyos.scientist.orchestration.engine.runner import (
 )
 from polisyos.scientist.orchestration.engine.runner import ray_runner as ray_runner_module
 from polisyos.scientist.orchestration.engine.runner.ray_runner import RayWorkflowRunner
-from polisyos.scientist.orchestration.engine.runner.serialization import (
-    deserialize_state,
-    serialize_outcome,
-)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
@@ -94,6 +92,43 @@ class RayFinalizeNode:
             new_state.params.get("right", 0)
         )
         return NodeOutcome(status="ok", state=new_state)
+
+
+class RaySkipNode:
+    _spec = NodeSpec(
+        metadata=_meta("scientist.node_ray_skip@1.0.0", "RaySkip"),
+        state_writes=["params.left"],
+    )
+
+    @property
+    def spec(self) -> NodeSpec:
+        return self._spec
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        del ctx
+        new_state = state.model_copy(deep=True)
+        new_state.params["left"] = True
+        return NodeOutcome(status="skip", state=new_state)
+
+
+class RaySnapshotNode:
+    _spec = NodeSpec(
+        metadata=_meta("scientist.node_ray_snapshot@1.0.0", "RaySnapshot"),
+    )
+
+    @property
+    def spec(self) -> NodeSpec:
+        return self._spec
+
+    def __init__(self, profile: str = "base") -> None:
+        self.profile = profile
+
+    def bind(self, params: dict[str, object]) -> RaySnapshotNode:
+        return RaySnapshotNode(profile=str(params["profile"]))
+
+    def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
+        ctx.run.update_manifest(execution_profile=self.profile)
+        return NodeOutcome(status="ok", state=state)
 
 
 def _workflow() -> WorkflowSpec:
@@ -183,7 +218,7 @@ async def test_ray_runner_executes_remote_checkpoint_merge_task(
     registry.register(RayLeftNode())
     registry.register(RayRightNode())
 
-    def _discover_nodes(registry: NodeRegistry) -> None:
+    def _discover_nodes(registry: NodeRegistry, **_kwargs: object) -> None:
         registry.register(RayLeftNode())
         registry.register(RayRightNode())
         registry.register(RayFinalizeNode())
@@ -191,18 +226,25 @@ async def test_ray_runner_executes_remote_checkpoint_merge_task(
     merge_calls: list[list[str]] = []
 
     def _execute_node_remote(**payload):
-        worker_state = deserialize_state(payload["state_bytes"])
-        updated_state = worker_state.model_copy(deep=True)
-        alias = str(payload["alias"])
-        if alias == "left":
-            updated_state.params["left"] = 1
-        elif alias == "right":
-            updated_state.params["right"] = 2
-        elif alias == "final":
-            updated_state.params["final"] = int(updated_state.params.get("left", 0)) + int(
-                updated_state.params.get("right", 0)
+        worker_payload = {
+            key: payload[key]
+            for key in (
+                "node_id",
+                "alias",
+                "params",
+                "state_bytes",
+                "trace_carrier",
+                "timeout_s",
+                "max_retries",
+                "worker_invocation_id",
+                "worker_dispatch_sha256",
             )
-        return serialize_outcome(NodeOutcome(status="ok", state=updated_state))
+        }
+        worker_payload["context_meta"] = payload["worker_context_meta"]
+        return activity_worker_module.run_node_in_worker_sync(
+            worker_payload,
+            parent_receipt=True,
+        )
 
     def _merge_tier_remote(payload: dict[str, object]) -> dict[str, object]:
         merge_calls.append(list(payload["tier_aliases"]))  # type: ignore[index]
@@ -225,13 +267,14 @@ async def test_ray_runner_executes_remote_checkpoint_merge_task(
         raising=False,
     )
 
-    result = await runner.execute_workflow(
-        workflow,
-        state,
-        ctx,
-        NodeRegistry(),
-        checkpoint_hook=hook,
-    )
+    with tenant_scope(None, tenant_id="test-ray-tenant", cell_id=None):
+        result = await runner.execute_workflow(
+            workflow,
+            state,
+            ctx,
+            NodeRegistry(),
+            checkpoint_hook=hook,
+        )
 
     assert result.report.status == "ok"
     assert [node.status for node in result.report.nodes] == ["ok", "ok", "ok"]
@@ -247,6 +290,12 @@ async def test_ray_runner_executes_remote_checkpoint_merge_task(
     assert checkpoint_artifact.metadata.completed_nodes == ["left", "right", "final"]
     assert checkpoint_artifact.state is not None
     assert checkpoint_artifact.state["params"]["final"] == 3
+    records = [
+        json.loads(line) for line in ctx.run.trace_path.read_text(encoding="utf-8").splitlines()
+    ]
+    assert sum(record["event"] == "WORKER_INVOCATION_STARTED" for record in records) == 3
+    assert sum(record["event"] == "WORKER_INVOCATION_COMPLETED" for record in records) == 3
+    assert sum(record["event"] == "RUN_STARTED" for record in records) == 1
 
 
 @pytest.mark.asyncio
@@ -272,7 +321,7 @@ async def test_ray_no_checkpoint_branch_preserves_skip_without_merging_its_state
         nodes=[
             NodeInvocation(
                 alias="skipped",
-                node_id=ComponentId.parse("scientist.node_ray_left@1.0.0"),
+                node_id=ComponentId.parse("scientist.node_ray_skip@1.0.0"),
             ),
             NodeInvocation(
                 alias="accepted",
@@ -293,16 +342,38 @@ async def test_ray_no_checkpoint_branch_preserves_skip_without_merging_its_state
     registry.register(RayLeftNode())
     registry.register(RayRightNode())
 
-    def _run_node_remote(**payload):
-        worker_state = deserialize_state(payload["state_bytes"])
-        if payload["alias"] == "skipped":
-            node_state = worker_state.model_copy(deep=True)
-            node_state.params["left"] = True
-            return serialize_outcome(NodeOutcome(status="skip", state=node_state))
-        node_state = worker_state.model_copy(deep=True)
-        node_state.params["right"] = True
-        return serialize_outcome(NodeOutcome(status="ok", state=node_state))
+    registry.register(RaySkipNode())
 
+    def _discover_nodes(registry: NodeRegistry, **_kwargs: object) -> None:
+        registry.register(RayLeftNode())
+        registry.register(RayRightNode())
+        registry.register(RaySkipNode())
+
+    def _run_node_remote(**payload):
+        worker_payload = {
+            key: payload[key]
+            for key in (
+                "node_id",
+                "alias",
+                "params",
+                "state_bytes",
+                "trace_carrier",
+                "timeout_s",
+                "max_retries",
+                "worker_invocation_id",
+                "worker_dispatch_sha256",
+            )
+        }
+        worker_payload["context_meta"] = payload["worker_context_meta"]
+        return activity_worker_module.run_node_in_worker_sync(
+            worker_payload,
+            parent_receipt=True,
+        )
+
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.engine.registry.discover_nodes",
+        _discover_nodes,
+    )
     monkeypatch.setattr(
         ray_runner_module,
         "execute_node_task",
@@ -310,7 +381,8 @@ async def test_ray_no_checkpoint_branch_preserves_skip_without_merging_its_state
         raising=False,
     )
 
-    result = await runner.execute_workflow(workflow, state, ctx, registry)
+    with tenant_scope(None, tenant_id="test-ray-tenant", cell_id=None):
+        result = await runner.execute_workflow(workflow, state, ctx, registry)
 
     assert result.report.status == "ok"
     assert {record.alias: record.status for record in result.report.nodes} == {
@@ -318,7 +390,189 @@ async def test_ray_no_checkpoint_branch_preserves_skip_without_merging_its_state
         "accepted": "ok",
     }
     assert result.report.nodes[0].skip_blocker is not None
-    assert result.state.params == {"right": True}
+    assert result.state.params == {"right": 2}
+
+
+@pytest.mark.asyncio
+async def test_ray_refuses_timeout_before_dispatch_without_receipt_parent(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(ray_runner_module, "_HAS_RAY", True)
+    monkeypatch.setattr(
+        ray_runner_module,
+        "ray",
+        SimpleNamespace(is_initialized=lambda: True, init=lambda **kwargs: None),
+        raising=False,
+    )
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_ray_timeout_refused"
+    ctx, bundle_ref = _context(store, run_id)
+    workflow = WorkflowSpec(
+        workflow_id="wf_ray_timeout_refused",
+        required_binds=["run_id"],
+        nodes=[
+            NodeInvocation(
+                alias="slow",
+                node_id=ComponentId.parse("scientist.node_ray_left@1.0.0"),
+                timeout_s=1.0,
+            )
+        ],
+    )
+    state = ExperimentState(run_id=run_id, inputs={"registry_bundle_ref": bundle_ref})
+    runner = RayWorkflowRunner(address="ray://unused", namespace="test")
+    monkeypatch.setattr(runner, "_ensure_init", lambda: None)
+
+    def _must_not_dispatch(**_payload: object) -> None:
+        raise AssertionError("timeout refusal must precede remote dispatch")
+
+    monkeypatch.setattr(
+        ray_runner_module,
+        "execute_node_task",
+        _FakeTask(_must_not_dispatch),
+        raising=False,
+    )
+    with tenant_scope(None, tenant_id="test-ray-tenant", cell_id=None):
+        with pytest.raises(ValueError, match="ray_parent_receipt_timeout_unsupported"):
+            await runner.execute_workflow(workflow, state, ctx, NodeRegistry())
+
+    records = [
+        json.loads(line) for line in ctx.run.trace_path.read_text(encoding="utf-8").splitlines()
+    ]
+    assert [record["event"] for record in records] == ["RUN_STARTED"]
+
+
+@pytest.mark.asyncio
+async def test_ray_refuses_production_claim_context_until_ports_are_transportable(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.scientist.orchestration.workflows.builder import build_execution_context
+
+    monkeypatch.setattr(ray_runner_module, "_HAS_RAY", True)
+    monkeypatch.setattr(
+        ray_runner_module,
+        "ray",
+        SimpleNamespace(is_initialized=lambda: True, init=lambda **kwargs: None),
+        raising=False,
+    )
+    store = FileSystemCAS(tmp_path)
+    bundle = build_default_registry_bundle(store)
+    run_id = "R_ray_production_context_held"
+    workflow = _workflow()
+    runner = RayWorkflowRunner(address="ray://unused", namespace="test")
+    monkeypatch.setattr(runner, "_ensure_init", lambda: None)
+
+    def _must_not_dispatch(**_payload: object) -> None:
+        raise AssertionError("unsupported execution-context ports must refuse before dispatch")
+
+    monkeypatch.setattr(
+        ray_runner_module,
+        "execute_node_task",
+        _FakeTask(_must_not_dispatch),
+        raising=False,
+    )
+    with tenant_scope(None, tenant_id="test-ray-tenant", cell_id=None):
+        ctx = build_execution_context(store, bundle.bundle_ref, run_id=run_id)
+        try:
+            with pytest.raises(ValueError, match="timeout_worker_unsupported_execution_context"):
+                await runner.execute_workflow(
+                    workflow,
+                    ExperimentState(
+                        run_id=run_id, inputs={"registry_bundle_ref": bundle.bundle_ref}
+                    ),
+                    ctx,
+                    NodeRegistry(),
+                )
+            records = [
+                json.loads(line)
+                for line in ctx.run.trace_path.read_text(encoding="utf-8").splitlines()
+            ]
+            assert [record["event"] for record in records] == ["RUN_STARTED"]
+        finally:
+            ctx.run.finalize()
+
+
+@pytest.mark.asyncio
+async def test_ray_refuses_conflicting_sibling_snapshots_before_parent_trace_write(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(ray_runner_module, "_HAS_RAY", True)
+    monkeypatch.setattr(
+        ray_runner_module,
+        "ray",
+        SimpleNamespace(is_initialized=lambda: True, init=lambda **kwargs: None),
+        raising=False,
+    )
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_ray_snapshot_siblings"
+    ctx, bundle_ref = _context(store, run_id)
+    workflow = WorkflowSpec(
+        workflow_id="wf_ray_snapshot_siblings",
+        required_binds=["run_id"],
+        nodes=[
+            NodeInvocation(
+                alias="left",
+                node_id=ComponentId.parse("scientist.node_ray_snapshot@1.0.0"),
+                params={"profile": "left-profile"},
+            ),
+            NodeInvocation(
+                alias="right",
+                node_id=ComponentId.parse("scientist.node_ray_snapshot@1.0.0"),
+                params={"profile": "right-profile"},
+            ),
+        ],
+    )
+    state = ExperimentState(run_id=run_id, inputs={"registry_bundle_ref": bundle_ref})
+    runner = RayWorkflowRunner(address="ray://unused", namespace="test", max_parallelism=2)
+    monkeypatch.setattr(runner, "_ensure_init", lambda: None)
+    parent_owner_ref = ctx.run._owner_snapshot_ref
+
+    def _discover_nodes(registry: NodeRegistry, **_kwargs: object) -> None:
+        registry.register(RaySnapshotNode())
+
+    def _execute_node_remote(**payload):
+        worker_payload = {
+            key: payload[key]
+            for key in (
+                "node_id",
+                "alias",
+                "params",
+                "state_bytes",
+                "trace_carrier",
+                "timeout_s",
+                "max_retries",
+                "worker_invocation_id",
+                "worker_dispatch_sha256",
+            )
+        }
+        worker_payload["context_meta"] = payload["worker_context_meta"]
+        return activity_worker_module.run_node_in_worker_sync(
+            worker_payload,
+            parent_receipt=True,
+        )
+
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.engine.registry.discover_nodes",
+        _discover_nodes,
+    )
+    monkeypatch.setattr(
+        ray_runner_module,
+        "execute_node_task",
+        _FakeTask(_execute_node_remote),
+        raising=False,
+    )
+
+    with tenant_scope(None, tenant_id="test-ray-tenant", cell_id=None):
+        with pytest.raises(RuntimeError, match="ray_worker_sibling_snapshot_conflict"):
+            await runner.execute_workflow(workflow, state, ctx, NodeRegistry())
+
+    records = [
+        json.loads(line) for line in ctx.run.trace_path.read_text(encoding="utf-8").splitlines()
+    ]
+    assert [record["event"] for record in records] == ["RUN_STARTED"]
+    assert ctx.run._owner_snapshot_ref == parent_owner_ref
 
 
 def test_ray_runner_inject_trace_carrier_records_degraded_path_on_runtime_error(

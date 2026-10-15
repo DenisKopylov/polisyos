@@ -1532,6 +1532,7 @@ class WorkflowExecutor:
                             retry_policy=retry_policy,
                             timeout_s=inv.timeout_s,
                             alias=alias,
+                            dispatch_params=inv.params or {},
                         )
                         outcome = NodeOutcome.model_validate(raw_outcome)
                     except NodeTimeoutError as exc:

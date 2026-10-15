@@ -1323,6 +1323,92 @@ def test_fork_transport_drains_small_and_large_outcomes(ctx, state, mode, payloa
     assert result.state.params["payload"] == "x" * payload_size
 
 
+@pytest.mark.skipif(
+    retry_module._timeout_worker_start_method() != "fork",
+    reason="native Linux fork worker unavailable",
+)
+def test_linux_fork_receipt_stages_trace_and_parent_admits_run_operations(tmp_path) -> None:
+    """An inherited worker returns exact trace and RunContext operations to its parent."""
+    from polisyos.core.artifacts.manifest import SchemaInfo
+    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+    from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.trace.record import TraceRecord
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+
+    store = FileSystemCAS(tmp_path / "cas")
+    bundle = build_default_registry_bundle(store)
+    run = RunContext.start(
+        store=store,
+        registry_bundle=bundle.bundle_ref,
+        run_id="R_linux_fork_receipt",
+    )
+    context = ExecutionContext(store=store, run=run, logger=MagicMock())
+    input_ref = store.put_json(
+        {"kind": "fork-worker-input", "value": 1},
+        PutOptions(
+            kind="scientist.test.fork_worker_input",
+            media_type="application/json",
+            schema=SchemaInfo(name="scientist.test.ForkWorkerInput", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    assert input_ref.manifest_profile_sha256 is not None
+    assert store.verify(input_ref).ok
+    parent_pid = os.getpid()
+
+    class ReceiptNode:
+        spec = NodeSpec(
+            metadata=ComponentMetadata(
+                component_id=ComponentId.parse("scientist.test.fork_receipt@1.0.0"),
+                kind=ComponentKind.SCIENTIST_NODE,
+                abi_targets={"world_abi": "1.x"},
+                capabilities=Capability.SCIENTIST_NODE,
+                display_name="Fork receipt test",
+                description="Exercises parent-admitted worker events.",
+            ),
+            state_reads=["params"],
+            state_writes=["params"],
+        )
+
+        def execute(self, worker_context, worker_state):
+            assert os.getpid() != parent_pid
+            worker_context.run.emit(
+                "scientist.node.fork-receipt",
+                "NODE_FORK_RECEIPT_EMITTED",
+                metrics={"worker_pid": os.getpid()},
+            )
+            worker_context.run.add_input(input_ref)
+            worker_state.params["fork_worker_pid"] = os.getpid()
+            return _ok_outcome(worker_state)
+
+    result = execute_with_retry_sync(
+        ReceiptNode(),
+        context,
+        ExperimentState(run_id="R_linux_fork_receipt"),
+        retry_policy=RetryPolicy(),
+        timeout_s=3.0,
+        alias="fork-receipt",
+        dispatch_params={"source": "invocation"},
+    )
+
+    assert result.status == "ok"
+    assert result.state.params["fork_worker_pid"] != parent_pid
+    assert input_ref in run.run_manifest.inputs
+    records = [
+        TraceRecord.model_validate_json(line) for line in run.trace_path.read_text().splitlines()
+    ]
+    worker_event = next(record for record in records if record.event == "NODE_FORK_RECEIPT_EMITTED")
+    assert worker_event.metrics["worker_pid"] == result.state.params["fork_worker_pid"]
+    assert sum(record.event == "WORKER_INVOCATION_STARTED" for record in records) == 1
+    assert sum(record.event == "WORKER_INVOCATION_COMPLETED" for record in records) == 1
+    receipt_ids = {
+        record.worker_invocation_id for record in records if record.worker_invocation_id is not None
+    }
+    assert len(receipt_ids) == 1
+
+
 class _BrokenResultQueue:
     """A result channel that fails every send; success must never be fabricated."""
 

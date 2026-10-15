@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import multiprocessing
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
@@ -9,15 +10,24 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef, CanonInfo, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    ArtifactTenantContextInfo,
+    CanonInfo,
+    ProducerInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.audit import AuditPackageAssembler
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.run import context as run_context
 from polisyos.core.run.context import RunContext
 from polisyos.core.run.manifest import RunOwnerSnapshot
 from polisyos.core.security.access_scope import AccessScope
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.core.trace import RunTerminality, TraceRecord
+from polisyos.core.trace.record import TraceRefs
 from polisyos.runtime.http.services.adapters.core_run import load_core_run
 
 if TYPE_CHECKING:
@@ -116,6 +126,7 @@ def _wait_for_lease_event(
     other_than: str | None = None,
 ) -> tuple[int, str, str]:
     """Wait for a positive observed phase, retaining every event read."""
+
     def _matches(event: tuple[int, str, str]) -> bool:
         return (
             event[2] == phase
@@ -224,6 +235,7 @@ def _recover_in_process(
         store = FileSystemCAS(Path(store_root))
         original_scan = run_context._trace_terminal_run_finalized_ref
         if bypass_lease:
+
             def _without_lease(_run_dir: Path) -> AbstractContextManager[None]:
                 return nullcontext()
 
@@ -323,6 +335,7 @@ def _recover_in_process(
             "worker_done",
         )
 
+
 def _assert_core_and_audit_reopen(
     store: FileSystemCAS,
     run_dir: Path,
@@ -347,9 +360,7 @@ def _assert_core_and_audit_reopen(
     return core.manifest_ref
 
 
-def _bootstrap_registry_bundle(
-    store: FileSystemCAS, *, selected_profile: bool = False
-):
+def _bootstrap_registry_bundle(store: FileSystemCAS, *, selected_profile: bool = False):
     slot_ref = store.put_json(
         {"slots": {}},
         PutOptions(kind="core.registry.slots", media_type="application/json"),
@@ -384,6 +395,26 @@ def _bootstrap_registry_bundle(
         return_selected_profile=selected_profile,
     )
     return bundle_ref
+
+
+def _write_selected_manifest_view_for_test(
+    store: FileSystemCAS,
+    ref: ArtifactRef,
+    options: ArtifactWriteOptions,
+) -> ArtifactRef:
+    """Materialize an adversarial selected view directly in the temporary test CAS."""
+    payload = store.get_bytes(ref)
+    manifest = run_context.ManifestLifecycle.build(
+        artifact_id=ref.artifact_id,
+        data=payload,
+        sha=hashlib.sha256(payload).hexdigest(),
+        opts=options,
+    )
+    profile_sha256 = run_context.ManifestLifecycle.profile_sha256(manifest)
+    path = store._layout.view_manifest_path(ref.artifact_id, profile_sha256)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(run_context.ManifestLifecycle.to_bytes(manifest))
+    return ref.model_copy(update={"manifest_profile_sha256": profile_sha256})
 
 
 def test_run_context_emits_trace_and_writes_run_manifest(
@@ -432,9 +463,7 @@ def test_run_context_emits_trace_and_writes_run_manifest(
     assert '"trace_ref"' in run_manifest
     assert len(_terminal_records(run_dir)) == 1
     terminal_ref = next(
-        ref
-        for ref in _terminal_records(run_dir)[0].refs.outputs
-        if ref.kind == "core.run_manifest"
+        ref for ref in _terminal_records(run_dir)[0].refs.outputs if ref.kind == "core.run_manifest"
     )
     assert terminal_ref == run_ref
     assert (run_dir / ".finalize-journal.json").exists() is False
@@ -848,6 +877,7 @@ def test_finalize_and_reader_recovery_share_one_run_lease(
     )
     assert strict_ref == finalized_ref
 
+
 def test_concurrent_repeat_finalize_returns_the_same_terminal_ref(
     store: FileSystemCAS,
     tmp_path: Path,
@@ -944,7 +974,6 @@ def test_run_context_finalize_recovery_repairs_pending_manifest(
     assert recovered_manifest.kind == "core.run_manifest"
     assert journal_path.exists() is False
     assert "RUN_FINALIZED" in (run_dir / "trace.jsonl").read_text(encoding="utf-8")
-
 
 
 def _run_context_with_output(
@@ -1209,7 +1238,9 @@ def test_recovery_refuses_conflicting_terminal_history_without_writes(
 
     assert writes == []
     assert (ctx.trace_path.parent / ".finalize-journal.json").exists()
-    assert len(_terminal_records(ctx.trace_path.parent)) == (2 if conflict == "duplicate-terminal" else 1)
+    assert len(_terminal_records(ctx.trace_path.parent)) == (
+        2 if conflict == "duplicate-terminal" else 1
+    )
 
 
 def test_recovery_rejects_same_content_id_with_conflicting_manifest_profile(
@@ -1291,7 +1322,6 @@ def test_recovery_refuses_terminal_event_when_cas_proof_is_deleted(
     assert writes == []
     assert (ctx.trace_path.parent / ".finalize-journal.json").exists()
     assert len(_terminal_records(ctx.trace_path.parent)) == 1
-
 
 
 def test_core_loader_refuses_terminal_manifest_bytes_that_disagree_with_journal(
@@ -1516,9 +1546,7 @@ def test_incomplete_resume_requires_the_exact_selected_owner_snapshot(
     if damage == "ownerless":
         owner.refs.outputs = []
     elif damage == "profileless":
-        owner.refs.outputs = [
-            owner_ref.model_copy(update={"manifest_profile_sha256": None})
-        ]
+        owner.refs.outputs = [owner_ref.model_copy(update={"manifest_profile_sha256": None})]
     elif damage == "deleted-bytes":
         blob_path, _manifest_path = store._paths(owner_ref.artifact_id)
         blob_path.unlink()
@@ -1586,13 +1614,9 @@ def test_incomplete_resume_rejects_changed_owner_inputs(
             update={"manifest_profile_sha256": "sha256:" + replacement * 64}
         )
     elif mismatch == "producer":
-        resume_producer = producer.model_copy(
-            update={"version": f"{producer.version}-different"}
-        )
+        resume_producer = producer.model_copy(update={"version": f"{producer.version}-different"})
     elif mismatch == "environment":
-        resume_env = env_info.model_copy(
-            update={"platform": f"{env_info.platform}-different"}
-        )
+        resume_env = env_info.model_copy(update={"platform": f"{env_info.platform}-different"})
     else:
         resume_scope = AccessScope.for_service(
             tenant_id=scope.tenant_id,
@@ -1720,6 +1744,976 @@ def test_start_refuses_a_second_start_but_allows_explicit_resume(
     assert len(_terminal_records(run_dir)) == 1
 
 
+def test_tenant_run_snapshot_resume_and_terminal_profiles_keep_manifest_owner(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    tenant_id = "tenant-run-owner-profile"
+    cell_id = "cell-run-owner-profile"
+    scope = AccessScope.for_service(
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        spiffe_id="spiffe://policyos/run-owner-profile",
+    )
+    tenant_store = store.for_tenant(tenant_id, cell_id)
+    run_id = "R_tenant_owner_profile_replay"
+    run_dir = tmp_path / "runs" / run_id
+
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        bundle_ref = _bootstrap_registry_bundle(tenant_store, selected_profile=True)
+        run = RunContext.start(
+            tenant_store,
+            bundle_ref,
+            producer=producer,
+            env=env_info,
+            run_dir=run_dir,
+            run_id=run_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            access_scope=scope,
+        )
+        first_owner_ref = run._owner_snapshot_ref
+        assert first_owner_ref is not None
+        expected_context = ArtifactTenantContextInfo(tenant_id=tenant_id, cell_id=cell_id)
+        assert tenant_store.get_manifest(first_owner_ref).tenant_context == expected_context
+
+        run.update_manifest(execution_profile="tenant-bound")
+        updated_owner_ref = run._owner_snapshot_ref
+        assert updated_owner_ref is not None
+        assert tenant_store.get_manifest(updated_owner_ref).tenant_context == expected_context
+        run.suspend_for_resume()
+
+        resumed = RunContext.resume(
+            tenant_store,
+            run_id=run_id,
+            run_dir=run_dir,
+            registry_bundle=bundle_ref,
+            producer=producer,
+            env=env_info,
+            access_scope=scope,
+        )
+        assert resumed.run_manifest.execution_profile == "tenant-bound"
+        resumed_owner_ref = resumed._owner_snapshot_ref
+        assert resumed_owner_ref is not None
+        assert tenant_store.get_manifest(resumed_owner_ref).tenant_context == expected_context
+        terminal_ref = resumed.finalize(status="ok")
+        assert tenant_store.get_manifest(terminal_ref).tenant_context == expected_context
+        with pytest.raises(
+            run_context._FinalizeRecoveryError,
+            match="run_finalize_manifest_ref_contract_mismatch",
+        ):
+            run_context._validate_terminal_run_manifest_ref(
+                tenant_store,
+                run_manifest=resumed.run_manifest,
+                run_ref=terminal_ref.model_copy(update={"manifest_profile_sha256": None}),
+                require_selected_profile=False,
+            )
+
+    terminal_records = _terminal_records(run_dir)
+    assert len(terminal_records) == 1
+    assert terminal_records[0].refs.outputs == [terminal_ref]
+
+
+@pytest.mark.parametrize(
+    ("run_tenant_id", "run_cell_id", "stored_tenant_id", "stored_cell_id"),
+    [
+        ("tenant-owner", "cell-owner", "tenant-other", "cell-owner"),
+        ("tenant-owner", "cell-owner", "tenant-owner", "cell-other"),
+        (None, None, "tenant-unclaimed", "cell-unclaimed"),
+    ],
+)
+def test_owner_snapshot_refuses_supplied_tenant_profile_that_disagrees_with_run_owner(
+    run_tenant_id: str | None,
+    run_cell_id: str | None,
+    stored_tenant_id: str,
+    stored_cell_id: str,
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = f"R_owner_profile_mismatch_{stored_tenant_id}_{stored_cell_id}"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=tmp_path / "runs" / run_id,
+        run_id=run_id,
+        tenant_id=run_tenant_id,
+        cell_id=run_cell_id,
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    snapshot = run_context._validate_run_owner_snapshot_ref(store, owner_ref)
+    options = run_context._run_owner_snapshot_write_options(snapshot)
+    wrong_profile_ref = _write_selected_manifest_view_for_test(
+        store,
+        owner_ref,
+        replace(
+            options,
+            tenant_context=ArtifactTenantContextInfo(
+                tenant_id=stored_tenant_id,
+                cell_id=stored_cell_id,
+            ),
+        ),
+    )
+
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="run_resume_owner_snapshot_tenant_context_mismatch",
+    ):
+        run_context._validate_run_owner_snapshot_ref(store, wrong_profile_ref)
+    run.suspend_for_resume()
+
+
+def test_owner_snapshot_accepts_only_exact_selected_legacy_profile_without_tenant_context(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_owner_snapshot_legacy_profile"
+    scope = AccessScope.for_service(
+        tenant_id="tenant-legacy-owner",
+        cell_id="cell-legacy-owner",
+        spiffe_id="spiffe://policyos/legacy-owner",
+    )
+    run_dir = tmp_path / "runs" / run_id
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+        tenant_id=scope.tenant_id,
+        cell_id=scope.cell_id,
+        access_scope=scope,
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    snapshot = run_context._validate_run_owner_snapshot_ref(store, owner_ref)
+    legacy_options = replace(
+        run_context._run_owner_snapshot_write_options(snapshot),
+        tenant_context=None,
+    )
+    legacy_ref = _write_selected_manifest_view_for_test(
+        store,
+        owner_ref,
+        legacy_options,
+    )
+    assert legacy_ref.manifest_profile_sha256 is not None
+    assert store.get_manifest(legacy_ref).tenant_context is None
+    assert run_context._validate_run_owner_snapshot_ref(store, legacy_ref) == snapshot
+
+    trace_path = run_dir / "trace.jsonl"
+    start_record = TraceRecord.model_validate_json(trace_path.read_text(encoding="utf-8"))
+    start_record = start_record.model_copy(
+        update={
+            "refs": TraceRefs(
+                inputs=start_record.refs.inputs,
+                outputs=[legacy_ref],
+            )
+        }
+    )
+    trace_path.write_text(start_record.model_dump_json(exclude_none=True) + "\n", encoding="utf-8")
+    run.suspend_for_resume()
+    resumed = RunContext.resume(
+        store,
+        run_id=run_id,
+        run_dir=run_dir,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        access_scope=scope,
+    )
+    assert resumed.run_manifest.tenant_id == scope.tenant_id
+    terminal_ref = resumed.finalize(status="ok")
+    assert store.get_manifest(terminal_ref).tenant_context == ArtifactTenantContextInfo(
+        tenant_id=scope.tenant_id,
+        cell_id=scope.cell_id,
+    )
+
+    profileless_ref = legacy_ref.model_copy(update={"manifest_profile_sha256": None})
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="run_resume_owner_snapshot_ref_invalid",
+    ):
+        run_context._validate_run_owner_snapshot_ref(store, profileless_ref)
+    monkeypatch.setattr(FileSystemCAS, "get_raw_manifest_bytes", None)
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="run_resume_owner_snapshot_tenant_context_mismatch_legacy_profile_not_proven",
+    ):
+        run_context._validate_run_owner_snapshot_ref(store, legacy_ref)
+    monkeypatch.undo()
+
+    legacy_view_path = store._layout.view_manifest_path(
+        legacy_ref.artifact_id,
+        legacy_ref.manifest_profile_sha256,
+    )
+    legacy_view_path.write_bytes(legacy_view_path.read_bytes() + b" ")
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="run_resume_owner_snapshot_tenant_context_mismatch_legacy_profile_mismatch",
+    ):
+        run_context._validate_run_owner_snapshot_ref(store, legacy_ref)
+
+
+def test_worker_trace_receipt_merges_once_through_parent_context(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_dir = tmp_path / "runs" / "R_worker_receipt_merge"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id="R_worker_receipt_merge",
+    )
+    output_ref = store.put_json(
+        {"candidate": "worker output"},
+        PutOptions(kind="core.worker_candidate", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    event = TraceRecord(
+        run_id=run.run_manifest.run_id,
+        phase="worker",
+        event="NODE_OUTPUT_CANDIDATE",
+        tenant_id=run.tenant_id,
+        cell_id=run.cell_id,
+        refs={"outputs": [output_ref]},
+    )
+    before = (run_dir / "trace.jsonl").read_bytes()
+    invocation_id = "a" * 64
+
+    run.merge_worker_events(
+        invocation_id=invocation_id,
+        dispatch_sha256="1" * 64,
+        owner_snapshot_ref=owner_ref,
+        records=[event],
+    )
+
+    records = [
+        TraceRecord.model_validate_json(line)
+        for line in (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert [record.event for record in records[1:]] == [
+        "WORKER_INVOCATION_STARTED",
+        "NODE_OUTPUT_CANDIDATE",
+        "WORKER_INVOCATION_COMPLETED",
+    ]
+    assert records[1].worker_invocation_id == invocation_id
+    assert records[2].worker_invocation_id == invocation_id
+    assert records[3].worker_invocation_id == invocation_id
+    assert records[1].worker_dispatch_sha256 == "1" * 64
+    assert records[2].worker_dispatch_sha256 == "1" * 64
+    assert records[3].worker_dispatch_sha256 == "1" * 64
+    assert records[2].ts == event.ts
+    assert records[1].refs.inputs == [owner_ref]
+    assert records[1].worker_receipt_count == 1
+    assert store.verify(output_ref).ok
+    assert (run_dir / "trace.jsonl").read_bytes() != before
+
+    after = (run_dir / "trace.jsonl").read_bytes()
+    with pytest.raises(run_context._FinalizeRecoveryError, match="worker_receipt_replay"):
+        run.merge_worker_events(
+            invocation_id=invocation_id,
+            dispatch_sha256="1" * 64,
+            owner_snapshot_ref=owner_ref,
+            records=[event],
+        )
+    assert (run_dir / "trace.jsonl").read_bytes() == after
+    run.suspend_for_resume()
+
+
+def test_worker_receipt_applies_verified_run_manifest_and_io_operations(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_dir = tmp_path / "runs" / "R_worker_manifest_operations"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id="R_worker_manifest_operations",
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    input_ref = store.put_json(
+        {"source": "worker input"},
+        PutOptions(kind="core.worker_input", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    output_ref = store.put_json(
+        {"source": "worker output"},
+        PutOptions(kind="core.worker_output", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    worker_manifest = run.run_manifest.model_copy(deep=True)
+    worker_manifest.execution_profile = "candidate-profile"
+    updated_owner_ref = run_context._persist_run_owner_snapshot(
+        store,
+        run_manifest=worker_manifest,
+        access_scope_sha256=run_context._access_scope_sha256(run.access_scope),
+        previous_snapshot_ref=owner_ref,
+    )
+    records = [
+        TraceRecord(
+            run_id=run.run_manifest.run_id,
+            phase="core",
+            event="RUN_CONTEXT_SNAPSHOT",
+            tenant_id=run.tenant_id,
+            cell_id=run.cell_id,
+            refs={"outputs": [updated_owner_ref]},
+        ),
+        TraceRecord(
+            run_id=run.run_manifest.run_id,
+            phase="core",
+            event="RUN_INPUT_ADDED",
+            tenant_id=run.tenant_id,
+            cell_id=run.cell_id,
+            refs={"inputs": [input_ref]},
+        ),
+        TraceRecord(
+            run_id=run.run_manifest.run_id,
+            phase="core",
+            event="RUN_OUTPUT_ADDED",
+            tenant_id=run.tenant_id,
+            cell_id=run.cell_id,
+            refs={"outputs": [output_ref]},
+        ),
+    ]
+
+    run.merge_worker_events(
+        invocation_id="f" * 64,
+        dispatch_sha256="6" * 64,
+        owner_snapshot_ref=owner_ref,
+        records=records,
+    )
+
+    assert run.run_manifest.execution_profile == "candidate-profile"
+    assert run.run_manifest.inputs[-1] == input_ref
+    assert run.run_manifest.outputs[-1] == output_ref
+    assert run._owner_snapshot_ref == updated_owner_ref
+    durable = [
+        TraceRecord.model_validate_json(line)
+        for line in (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert [record.event for record in durable[-5:]] == [
+        "WORKER_INVOCATION_STARTED",
+        "RUN_CONTEXT_SNAPSHOT",
+        "RUN_INPUT_ADDED",
+        "RUN_OUTPUT_ADDED",
+        "WORKER_INVOCATION_COMPLETED",
+    ]
+    assert durable[-3].refs.inputs == [input_ref]
+    assert durable[-2].refs.outputs == [output_ref]
+    run.suspend_for_resume()
+
+
+def test_worker_receipt_recovers_typed_operation_prefix_without_reapplying_effects(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_dir = tmp_path / "runs" / "R_worker_operation_prefix"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id="R_worker_operation_prefix",
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    input_ref = store.put_json(
+        {"source": "worker input"},
+        PutOptions(kind="core.worker_input", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    worker_manifest = run.run_manifest.model_copy(deep=True)
+    worker_manifest.execution_profile = "worker-profile-after-prefix"
+    updated_owner_ref = run_context._persist_run_owner_snapshot(
+        store,
+        run_manifest=worker_manifest,
+        access_scope_sha256=run_context._access_scope_sha256(run.access_scope),
+        previous_snapshot_ref=owner_ref,
+    )
+    events = [
+        TraceRecord(
+            run_id=run.run_manifest.run_id,
+            phase="core",
+            event="RUN_CONTEXT_SNAPSHOT",
+            tenant_id=run.tenant_id,
+            cell_id=run.cell_id,
+            refs={"outputs": [updated_owner_ref]},
+        ),
+        TraceRecord(
+            run_id=run.run_manifest.run_id,
+            phase="core",
+            event="RUN_INPUT_ADDED",
+            tenant_id=run.tenant_id,
+            cell_id=run.cell_id,
+            refs={"inputs": [input_ref]},
+        ),
+    ]
+    sink = run.trace
+    emit_many = sink.emit_many
+
+    def _append_typed_prefix(records) -> None:
+        emit_many(records[:3])
+        raise OSError("simulated crash after typed operation prefix")
+
+    monkeypatch.setattr(sink, "emit_many", _append_typed_prefix)
+    with pytest.raises(OSError, match="typed operation prefix"):
+        run.merge_worker_events(
+            invocation_id="7" * 64,
+            dispatch_sha256="8" * 64,
+            owner_snapshot_ref=owner_ref,
+            records=events,
+        )
+    durable_prefix = (run_dir / "trace.jsonl").read_bytes()
+    assert run.run_manifest.execution_profile is None
+    assert input_ref not in run.run_manifest.inputs
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="worker_receipt_prefix_binding_mismatch",
+    ):
+        run.merge_worker_events(
+            invocation_id="7" * 64,
+            dispatch_sha256="9" * 64,
+            owner_snapshot_ref=owner_ref,
+            records=events,
+        )
+    assert (run_dir / "trace.jsonl").read_bytes() == durable_prefix
+    monkeypatch.setattr(sink, "emit_many", emit_many)
+
+    run.merge_worker_events(
+        invocation_id="7" * 64,
+        dispatch_sha256="8" * 64,
+        owner_snapshot_ref=owner_ref,
+        records=events,
+    )
+
+    assert run.run_manifest.execution_profile == "worker-profile-after-prefix"
+    assert run.run_manifest.inputs.count(input_ref) == 1
+    durable = [
+        TraceRecord.model_validate_json(line)
+        for line in (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert sum(record.event == "RUN_CONTEXT_SNAPSHOT" for record in durable) == 1
+    assert sum(record.event == "RUN_INPUT_ADDED" for record in durable) == 1
+    assert sum(record.event == "WORKER_INVOCATION_COMPLETED" for record in durable) == 1
+    run.suspend_for_resume()
+
+
+def test_worker_trace_receipt_recovers_only_an_exact_complete_record_prefix(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_dir = tmp_path / "runs" / "R_worker_receipt_prefix"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id="R_worker_receipt_prefix",
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    events = [
+        TraceRecord(
+            run_id=run.run_manifest.run_id,
+            phase="worker",
+            event=f"candidate_{index}",
+            tenant_id=run.tenant_id,
+            cell_id=run.cell_id,
+        )
+        for index in range(2)
+    ]
+    sink = run.trace
+    emit_many = sink.emit_many
+
+    def _append_only_prefix(records) -> None:
+        emit_many(records[:2])
+        raise OSError("simulated crash after a complete JSONL record prefix")
+
+    monkeypatch.setattr(sink, "emit_many", _append_only_prefix)
+    with pytest.raises(OSError, match="simulated crash"):
+        run.merge_worker_events(
+            invocation_id="b" * 64,
+            dispatch_sha256="2" * 64,
+            owner_snapshot_ref=owner_ref,
+            records=events,
+        )
+    prefix = (run_dir / "trace.jsonl").read_bytes()
+    monkeypatch.setattr(sink, "emit_many", emit_many)
+
+    run.merge_worker_events(
+        invocation_id="b" * 64,
+        dispatch_sha256="2" * 64,
+        owner_snapshot_ref=owner_ref,
+        records=events,
+    )
+
+    records = [
+        TraceRecord.model_validate_json(line)
+        for line in (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert sum(record.event == "WORKER_INVOCATION_STARTED" for record in records) == 1
+    assert sum(record.event == "candidate_0" for record in records) == 1
+    assert sum(record.event == "candidate_1" for record in records) == 1
+    assert sum(record.event == "WORKER_INVOCATION_COMPLETED" for record in records) == 1
+    assert (run_dir / "trace.jsonl").read_bytes().startswith(prefix)
+    run.suspend_for_resume()
+
+
+def test_incomplete_worker_receipt_refuses_resume_and_finalization(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_worker_incomplete_resume_refusal"
+    run_dir = tmp_path / "runs" / run_id
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    events = [
+        TraceRecord(
+            run_id=run_id,
+            phase="worker",
+            event="candidate",
+            tenant_id=run.tenant_id,
+            cell_id=run.cell_id,
+        )
+    ]
+    sink = run.trace
+    emit_many = sink.emit_many
+
+    def _append_start_only(records) -> None:
+        emit_many(records[:1])
+        raise OSError("simulated crash after receipt start")
+
+    monkeypatch.setattr(sink, "emit_many", _append_start_only)
+    with pytest.raises(OSError, match="receipt start"):
+        run.merge_worker_events(
+            invocation_id="9" * 64,
+            dispatch_sha256="a" * 64,
+            owner_snapshot_ref=owner_ref,
+            records=events,
+        )
+    before = (run_dir / "trace.jsonl").read_bytes()
+
+    with pytest.raises(run_context._FinalizeRecoveryError, match="worker_receipt_incomplete"):
+        run.finalize(status="ok")
+
+    assert (run_dir / "trace.jsonl").read_bytes() == before
+    assert not store.root.joinpath("runs", run_id, "finalized.json").exists()
+    with pytest.raises(run_context._FinalizeRecoveryError, match="worker_receipt_incomplete"):
+        RunContext.resume(
+            store,
+            run_id=run_id,
+            run_dir=run_dir,
+            registry_bundle=bundle_ref,
+            producer=producer,
+            env=env_info,
+            access_scope=None,
+        )
+    assert (run_dir / "trace.jsonl").read_bytes() == before
+
+
+def test_resume_recovers_exact_incomplete_worker_prefix_without_double_applying_manifest_ops(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_worker_resume_prefix_recovery"
+    run_dir = tmp_path / "runs" / run_id
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    input_ref = store.put_json(
+        {"source": "worker input"},
+        PutOptions(kind="core.worker_input", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    worker_manifest = run.run_manifest.model_copy(deep=True)
+    worker_manifest.execution_profile = "resumed-worker-profile"
+    updated_owner_ref = run_context._persist_run_owner_snapshot(
+        store,
+        run_manifest=worker_manifest,
+        access_scope_sha256=run_context._access_scope_sha256(run.access_scope),
+        previous_snapshot_ref=owner_ref,
+    )
+    events = [
+        TraceRecord(
+            run_id=run_id,
+            phase="core",
+            event="RUN_CONTEXT_SNAPSHOT",
+            tenant_id=run.tenant_id,
+            cell_id=run.cell_id,
+            refs={"outputs": [updated_owner_ref]},
+        ),
+        TraceRecord(
+            run_id=run_id,
+            phase="core",
+            event="RUN_INPUT_ADDED",
+            tenant_id=run.tenant_id,
+            cell_id=run.cell_id,
+            refs={"inputs": [input_ref]},
+        ),
+    ]
+    invocation_id = "e" * 64
+    dispatch_digest = "f" * 64
+    sink = run.trace
+    emit_many = sink.emit_many
+
+    def _append_complete_snapshot_prefix(records) -> None:
+        emit_many(records[:2])
+        raise OSError("simulated worker writer crash after snapshot prefix")
+
+    monkeypatch.setattr(sink, "emit_many", _append_complete_snapshot_prefix)
+    with pytest.raises(OSError, match="snapshot prefix"):
+        run.merge_worker_events(
+            invocation_id=invocation_id,
+            dispatch_sha256=dispatch_digest,
+            owner_snapshot_ref=owner_ref,
+            records=events,
+        )
+    prefix = (run_dir / "trace.jsonl").read_bytes()
+
+    # Model process death: OS releases the lease, but no lifecycle cleanup or
+    # trace repair ran in the crashed writer.
+    assert run._active_lease is not None
+    run._active_lease.release()
+    run._active_lease = None
+    run._closed = True
+    run._suspended = True
+
+    with pytest.raises(run_context._FinalizeRecoveryError, match="worker_receipt_incomplete"):
+        RunContext.resume(
+            store,
+            run_id=run_id,
+            run_dir=run_dir,
+            registry_bundle=bundle_ref,
+            producer=producer,
+            env=env_info,
+            access_scope=None,
+            allow_incomplete_worker_invocation_id="1" * 64,
+        )
+    assert (run_dir / "trace.jsonl").read_bytes() == prefix
+
+    resumed = RunContext.resume(
+        store,
+        run_id=run_id,
+        run_dir=run_dir,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        access_scope=None,
+        allow_incomplete_worker_invocation_id=invocation_id,
+    )
+    assert resumed._owner_snapshot_ref == owner_ref
+    assert resumed.run_manifest.execution_profile is None
+    assert input_ref not in resumed.run_manifest.inputs
+
+    resumed.merge_worker_events(
+        invocation_id=invocation_id,
+        dispatch_sha256=dispatch_digest,
+        owner_snapshot_ref=owner_ref,
+        records=events,
+    )
+    assert resumed.run_manifest.execution_profile == "resumed-worker-profile"
+    assert resumed.run_manifest.inputs.count(input_ref) == 1
+    assert resumed._owner_snapshot_ref == updated_owner_ref
+    records = [
+        TraceRecord.model_validate_json(line)
+        for line in (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert sum(record.event == "RUN_CONTEXT_SNAPSHOT" for record in records) == 1
+    assert sum(record.event == "RUN_INPUT_ADDED" for record in records) == 1
+    assert sum(record.event == "WORKER_INVOCATION_STARTED" for record in records) == 1
+    assert sum(record.event == "WORKER_INVOCATION_COMPLETED" for record in records) == 1
+    assert (run_dir / "trace.jsonl").read_bytes().startswith(prefix)
+    resumed.suspend_for_resume()
+
+
+def test_completed_worker_receipt_resume_checks_exact_event_body(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_worker_receipt_body_binding"
+    run_dir = tmp_path / "runs" / run_id
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    event = TraceRecord(
+        run_id=run_id,
+        phase="worker",
+        event="candidate_original",
+        tenant_id=run.tenant_id,
+        cell_id=run.cell_id,
+    )
+    run.merge_worker_events(
+        invocation_id="b" * 64,
+        dispatch_sha256="c" * 64,
+        owner_snapshot_ref=owner_ref,
+        records=[event],
+    )
+    run.suspend_for_resume()
+
+    trace_path = run_dir / "trace.jsonl"
+    records = [
+        TraceRecord.model_validate_json(line)
+        for line in trace_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    event_index = next(
+        index for index, record in enumerate(records) if record.event == "candidate_original"
+    )
+    records[event_index] = records[event_index].model_copy(update={"event": "candidate_tampered"})
+    trace_path.write_text(
+        "".join(f"{record.model_dump_json(exclude_none=True)}\n" for record in records),
+        encoding="utf-8",
+    )
+    before = trace_path.read_bytes()
+
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="worker_receipt_completed_body_mismatch",
+    ):
+        RunContext.resume(
+            store,
+            run_id=run_id,
+            run_dir=run_dir,
+            registry_bundle=bundle_ref,
+            producer=producer,
+            env=env_info,
+            access_scope=None,
+        )
+
+    assert trace_path.read_bytes() == before
+
+
+def test_worker_trace_receipt_concurrent_replay_is_admitted_once(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_dir = tmp_path / "runs" / "R_worker_receipt_concurrent_replay"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id="R_worker_receipt_concurrent_replay",
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    event = TraceRecord(
+        run_id=run.run_manifest.run_id,
+        phase="worker",
+        event="candidate",
+        tenant_id=run.tenant_id,
+        cell_id=run.cell_id,
+    )
+
+    def _merge() -> str:
+        try:
+            run.merge_worker_events(
+                invocation_id="e" * 64,
+                dispatch_sha256="5" * 64,
+                owner_snapshot_ref=owner_ref,
+                records=[event],
+            )
+        except run_context._FinalizeRecoveryError as exc:
+            return str(exc)
+        return "accepted"
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        outcomes = list(pool.map(lambda _index: _merge(), range(2)))
+
+    assert outcomes.count("accepted") == 1
+    assert outcomes.count("worker_receipt_replay_refused") == 1
+    records = [
+        TraceRecord.model_validate_json(line)
+        for line in (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert sum(record.event == "candidate" for record in records) == 1
+    assert sum(record.event == "WORKER_INVOCATION_STARTED" for record in records) == 1
+    assert sum(record.event == "WORKER_INVOCATION_COMPLETED" for record in records) == 1
+    run.suspend_for_resume()
+
+
+@pytest.mark.parametrize(
+    ("tail", "reason"),
+    [
+        (b'{"partial":\xff', "run_resume_trace_unreadable"),
+        (b'{"partial":', "run_resume_trace_record_invalid"),
+    ],
+)
+def test_worker_trace_receipt_refuses_malformed_tail_without_mutation(
+    tail: bytes,
+    reason: str,
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_dir = tmp_path / "runs" / "R_worker_receipt_malformed_tail"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id="R_worker_receipt_malformed_tail",
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    trace_path = run_dir / "trace.jsonl"
+    with trace_path.open("ab") as handle:
+        handle.write(tail)
+    before = trace_path.read_bytes()
+
+    with pytest.raises(run_context._FinalizeRecoveryError, match=reason):
+        run.merge_worker_events(
+            invocation_id="c" * 64,
+            dispatch_sha256="3" * 64,
+            owner_snapshot_ref=owner_ref,
+            records=[],
+        )
+
+    assert trace_path.read_bytes() == before
+    assert run._active_lease is not None
+    run._active_lease.release()
+    run._active_lease = None
+    run._closed = True
+
+
+@pytest.mark.parametrize("damage", ["stale_owner", "lifecycle_event"])
+def test_worker_trace_receipt_refuses_stale_or_lifecycle_input_without_mutation(
+    damage: str,
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_dir = tmp_path / "runs" / f"R_worker_receipt_{damage}"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=f"R_worker_receipt_{damage}",
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    if damage == "stale_owner":
+        run.update_manifest(execution_profile="updated-after-dispatch")
+        records = [
+            TraceRecord(
+                run_id=run.run_manifest.run_id,
+                phase="worker",
+                event="candidate",
+                tenant_id=run.tenant_id,
+                cell_id=run.cell_id,
+            )
+        ]
+        expected = "worker_merge_owner_snapshot_stale"
+    else:
+        records = [
+            TraceRecord(
+                run_id=run.run_manifest.run_id,
+                phase="worker",
+                event="RUN_FINALIZED",
+                tenant_id=run.tenant_id,
+                cell_id=run.cell_id,
+            )
+        ]
+        expected = "worker_merge_record_scope_or_authority_invalid"
+    before = (run_dir / "trace.jsonl").read_bytes()
+
+    with pytest.raises(run_context._FinalizeRecoveryError, match=expected):
+        run.merge_worker_events(
+            invocation_id="d" * 64,
+            dispatch_sha256="4" * 64,
+            owner_snapshot_ref=owner_ref,
+            records=records,
+        )
+
+    assert (run_dir / "trace.jsonl").read_bytes() == before
+    run.suspend_for_resume()
 
 
 def test_start_requires_selected_profile_writer_before_creating_run_state(
@@ -1824,3 +2818,475 @@ def test_resume_refuses_an_already_terminal_owner_snapshot(
         )
 
     assert trace_path.read_bytes() == before
+
+
+def _worker_manifest_snapshot_event(
+    run: RunContext,
+    store: FileSystemCAS,
+    *,
+    execution_profile: str,
+) -> tuple[ArtifactRef, list[TraceRecord]]:
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    worker_manifest = run.run_manifest.model_copy(deep=True)
+    worker_manifest.execution_profile = execution_profile
+    next_owner_ref = run_context._persist_run_owner_snapshot(
+        store,
+        run_manifest=worker_manifest,
+        access_scope_sha256=run_context._access_scope_sha256(run.access_scope),
+        previous_snapshot_ref=owner_ref,
+    )
+    return owner_ref, [
+        TraceRecord(
+            run_id=run.run_manifest.run_id,
+            phase="core",
+            event="RUN_CONTEXT_SNAPSHOT",
+            tenant_id=run.tenant_id,
+            cell_id=run.cell_id,
+            refs={"outputs": [next_owner_ref]},
+        )
+    ]
+
+
+def test_worker_merge_wins_run_state_lease_before_manifest_update(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_dir = tmp_path / "runs" / "R_worker_merge_update_order"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id="R_worker_merge_update_order",
+    )
+    owner_ref, records = _worker_manifest_snapshot_event(
+        run,
+        store,
+        execution_profile="worker-profile",
+    )
+    original_emit_many = run.trace.emit_many
+    merge_append_entered = Event()
+    allow_merge_append = Event()
+    update_entered = Event()
+    update_persist_entered = Event()
+    original_persist = run_context._persist_run_owner_snapshot
+
+    def _observe_parent_update_persist(*args, **kwargs):
+        if kwargs["run_manifest"].execution_profile == "parent-profile":
+            update_persist_entered.set()
+        return original_persist(*args, **kwargs)
+
+    def _pause_worker_batch(batch) -> None:
+        if any(record.worker_receipt_phase == "started" for record in batch):
+            merge_append_entered.set()
+            if not allow_merge_append.wait(timeout=10):
+                raise TimeoutError("test did not release worker batch append")
+        original_emit_many(batch)
+
+    def _update_manifest() -> None:
+        update_entered.set()
+        run.update_manifest(execution_profile="parent-profile")
+
+    monkeypatch.setattr(run.trace, "emit_many", _pause_worker_batch)
+    monkeypatch.setattr(
+        run_context,
+        "_persist_run_owner_snapshot",
+        _observe_parent_update_persist,
+    )
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        merge = executor.submit(
+            run.merge_worker_events,
+            invocation_id="1" * 64,
+            dispatch_sha256="2" * 64,
+            owner_snapshot_ref=owner_ref,
+            records=records,
+        )
+        assert merge_append_entered.wait(timeout=10)
+        update = executor.submit(_update_manifest)
+        try:
+            assert update_entered.wait(timeout=10)
+            assert not update_persist_entered.wait(timeout=0.5), (
+                "manifest update persisted while worker admission held the parent lease"
+            )
+            assert not update.done(), "manifest update crossed the active worker admission"
+        finally:
+            allow_merge_append.set()
+        merge.result(timeout=10)
+        update.result(timeout=10)
+
+    assert run.run_manifest.execution_profile == "parent-profile"
+    current_snapshot = run_context._validate_run_owner_snapshot_ref(
+        store,
+        run._owner_snapshot_ref,
+        require_registry_profile=False,
+    )
+    assert current_snapshot.previous_snapshot_ref is not None
+    worker_snapshot = run_context._validate_run_owner_snapshot_ref(
+        store,
+        current_snapshot.previous_snapshot_ref,
+        require_registry_profile=False,
+    )
+    assert worker_snapshot.run_manifest.execution_profile == "worker-profile"
+    durable = [
+        TraceRecord.model_validate_json(line)
+        for line in (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert durable.index(
+        next(r for r in durable if r.event == "WORKER_INVOCATION_COMPLETED")
+    ) < max(index for index, record in enumerate(durable) if record.event == "RUN_CONTEXT_SNAPSHOT")
+    run.suspend_for_resume()
+
+
+def test_manifest_update_wins_run_state_lease_and_refuses_stale_worker_dispatch(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_dir = tmp_path / "runs" / "R_update_worker_merge_order"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id="R_update_worker_merge_order",
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    event = TraceRecord(
+        run_id=run.run_manifest.run_id,
+        phase="worker",
+        event="candidate_after_dispatch",
+        tenant_id=run.tenant_id,
+        cell_id=run.cell_id,
+    )
+    original_persist = run_context._persist_run_owner_snapshot
+    snapshot_persisted = Event()
+    allow_update_to_publish = Event()
+    merge_attempted = Event()
+
+    def _pause_snapshot_persist(*args, **kwargs):
+        result = original_persist(*args, **kwargs)
+        snapshot_persisted.set()
+        if not allow_update_to_publish.wait(timeout=10):
+            raise TimeoutError("test did not release manifest update")
+        return result
+
+    def _merge() -> str:
+        merge_attempted.set()
+        try:
+            run.merge_worker_events(
+                invocation_id="3" * 64,
+                dispatch_sha256="4" * 64,
+                owner_snapshot_ref=owner_ref,
+                records=[event],
+            )
+        except run_context._FinalizeRecoveryError as exc:
+            return str(exc)
+        return "accepted"
+
+    monkeypatch.setattr(run_context, "_persist_run_owner_snapshot", _pause_snapshot_persist)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        update = executor.submit(run.update_manifest, execution_profile="parent-wins")
+        assert snapshot_persisted.wait(timeout=10)
+        merge = executor.submit(_merge)
+        try:
+            assert merge_attempted.wait(timeout=10)
+            Event().wait(timeout=0.1)
+            assert not merge.done(), "stale worker dispatch crossed the owner update"
+        finally:
+            allow_update_to_publish.set()
+        update.result(timeout=10)
+        assert merge.result(timeout=10) == "worker_merge_owner_snapshot_stale"
+
+    assert run.run_manifest.execution_profile == "parent-wins"
+    trace_after_update = (run_dir / "trace.jsonl").read_bytes()
+    assert b"candidate_after_dispatch" not in trace_after_update
+    run.suspend_for_resume()
+
+
+def test_finalize_wins_run_state_lease_and_refuses_late_worker_dispatch(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_dir = tmp_path / "runs" / "R_finalize_worker_merge_order"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id="R_finalize_worker_merge_order",
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    event = TraceRecord(
+        run_id=run.run_manifest.run_id,
+        phase="worker",
+        event="candidate_after_terminal",
+        tenant_id=run.tenant_id,
+        cell_id=run.cell_id,
+    )
+    original_emit_many = run.trace.emit_many
+    terminal_append_entered = Event()
+    allow_terminal_append = Event()
+    merge_attempted = Event()
+
+    def _pause_terminal_batch(batch) -> None:
+        if any(record.event == "RUN_FINALIZED" for record in batch):
+            terminal_append_entered.set()
+            if not allow_terminal_append.wait(timeout=10):
+                raise TimeoutError("test did not release finalization append")
+        original_emit_many(batch)
+
+    def _merge() -> str:
+        merge_attempted.set()
+        try:
+            run.merge_worker_events(
+                invocation_id="5" * 64,
+                dispatch_sha256="6" * 64,
+                owner_snapshot_ref=owner_ref,
+                records=[event],
+            )
+        except run_context._FinalizeRecoveryError as exc:
+            return str(exc)
+        return "accepted"
+
+    monkeypatch.setattr(run.trace, "emit_many", _pause_terminal_batch)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        finalize = executor.submit(run.finalize, status="ok")
+        assert terminal_append_entered.wait(timeout=10)
+        merge = executor.submit(_merge)
+        try:
+            assert merge_attempted.wait(timeout=10)
+            Event().wait(timeout=0.1)
+            assert not merge.done(), "worker admission crossed terminal finalization"
+        finally:
+            allow_terminal_append.set()
+        finalize.result(timeout=10)
+        assert merge.result(timeout=10) == "worker_merge_parent_run_not_active"
+
+    durable = [
+        TraceRecord.model_validate_json(line)
+        for line in (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert durable[-1].event == "RUN_FINALIZED"
+    assert not any(record.event == "candidate_after_terminal" for record in durable)
+
+
+def test_suspend_wins_run_state_lease_and_refuses_late_worker_dispatch(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_dir = tmp_path / "runs" / "R_suspend_worker_merge_order"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id="R_suspend_worker_merge_order",
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    event = TraceRecord(
+        run_id=run.run_manifest.run_id,
+        phase="worker",
+        event="candidate_after_suspend",
+        tenant_id=run.tenant_id,
+        cell_id=run.cell_id,
+    )
+    original_read = run_context._read_incomplete_run_trace
+    suspend_read_entered = Event()
+    allow_suspend_read = Event()
+    merge_attempted = Event()
+    read_count = 0
+
+    def _pause_suspend_read(run_dir_arg, **kwargs):
+        nonlocal read_count
+        read_count += 1
+        if read_count == 1:
+            suspend_read_entered.set()
+            if not allow_suspend_read.wait(timeout=10):
+                raise TimeoutError("test did not release suspension")
+        return original_read(run_dir_arg, **kwargs)
+
+    def _merge() -> str:
+        merge_attempted.set()
+        try:
+            run.merge_worker_events(
+                invocation_id="b" * 64,
+                dispatch_sha256="c" * 64,
+                owner_snapshot_ref=owner_ref,
+                records=[event],
+            )
+        except run_context._FinalizeRecoveryError as exc:
+            return str(exc)
+        return "accepted"
+
+    monkeypatch.setattr(run_context, "_read_incomplete_run_trace", _pause_suspend_read)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        suspend = executor.submit(run.suspend_for_resume)
+        assert suspend_read_entered.wait(timeout=10)
+        merge = executor.submit(_merge)
+        try:
+            assert merge_attempted.wait(timeout=10)
+            Event().wait(timeout=0.1)
+            assert not merge.done(), "worker admission crossed run suspension"
+        finally:
+            allow_suspend_read.set()
+        suspend.result(timeout=10)
+        assert merge.result(timeout=10) == "worker_merge_parent_run_not_active"
+
+    durable = [
+        TraceRecord.model_validate_json(line)
+        for line in (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert not any(record.event == "candidate_after_suspend" for record in durable)
+    assert not any(record.event == "WORKER_INVOCATION_STARTED" for record in durable)
+
+
+def test_worker_merge_requires_exact_durable_batch_readback(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_dir = tmp_path / "runs" / "R_worker_merge_readback"
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id="R_worker_merge_readback",
+    )
+    owner_ref = run._owner_snapshot_ref
+    assert owner_ref is not None
+    event = TraceRecord(
+        run_id=run.run_manifest.run_id,
+        phase="worker",
+        event="candidate_without_durable_append",
+        tenant_id=run.tenant_id,
+        cell_id=run.cell_id,
+    )
+    before_trace = (run_dir / "trace.jsonl").read_bytes()
+    before_manifest = run.run_manifest.model_copy(deep=True)
+    before_owner = run._owner_snapshot_ref
+    monkeypatch.setattr(run.trace, "emit_many", lambda _records: None)
+
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="worker_merge_trace_readback_mismatch",
+    ):
+        run.merge_worker_events(
+            invocation_id="7" * 64,
+            dispatch_sha256="8" * 64,
+            owner_snapshot_ref=owner_ref,
+            records=[event],
+        )
+
+    assert (run_dir / "trace.jsonl").read_bytes() == before_trace
+    assert run.run_manifest == before_manifest
+    assert run._owner_snapshot_ref == before_owner
+    run.suspend_for_resume()
+
+
+def test_worker_merge_readback_failure_preserves_receipt_for_exact_resume_recovery(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_worker_merge_readback_recovery"
+    run_dir = tmp_path / "runs" / run_id
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+    )
+    owner_ref, records = _worker_manifest_snapshot_event(
+        run,
+        store,
+        execution_profile="replayed-worker-profile",
+    )
+    original_read = run_context._read_incomplete_run_trace
+    read_count = 0
+
+    # The first read validates existing trace state; fail the second, after the
+    # canonical batch append, to model a reader that cannot confirm the append.
+    def _fail_post_append_read(run_dir_arg, **kwargs):
+        nonlocal read_count
+        read_count += 1
+        if read_count == 2:
+            raise run_context._FinalizeRecoveryError("simulated_worker_readback_failure")
+        return original_read(run_dir_arg, **kwargs)
+
+    monkeypatch.setattr(run_context, "_read_incomplete_run_trace", _fail_post_append_read)
+    original_manifest = run.run_manifest.model_copy(deep=True)
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="worker_merge_trace_readback_failed",
+    ):
+        run.merge_worker_events(
+            invocation_id="9" * 64,
+            dispatch_sha256="a" * 64,
+            owner_snapshot_ref=owner_ref,
+            records=records,
+        )
+
+    durable = [
+        TraceRecord.model_validate_json(line)
+        for line in (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    assert [record.event for record in durable[-3:]] == [
+        "WORKER_INVOCATION_STARTED",
+        "RUN_CONTEXT_SNAPSHOT",
+        "WORKER_INVOCATION_COMPLETED",
+    ]
+    assert run.run_manifest == original_manifest
+    assert run._owner_snapshot_ref == owner_ref
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="worker_receipt_recovery_required",
+    ):
+        run.update_manifest(execution_profile="must-wait-for-resume")
+
+    monkeypatch.setattr(run_context, "_read_incomplete_run_trace", original_read)
+    run.suspend_for_resume()
+    resumed = RunContext.resume(
+        store,
+        run_id=run_id,
+        run_dir=run_dir,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        access_scope=None,
+    )
+    assert resumed.run_manifest.execution_profile == "replayed-worker-profile"
+    assert resumed._owner_snapshot_ref == records[0].refs.outputs[0]
+    resumed.suspend_for_resume()

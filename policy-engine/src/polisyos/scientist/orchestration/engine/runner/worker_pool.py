@@ -9,9 +9,12 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass, field
-from typing import Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict
+
+if TYPE_CHECKING:
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
 type JsonValue = str | int | float | bool | None | dict[str, Any] | list[Any]
 
@@ -39,6 +42,8 @@ class NodeTask:
     resource_requirements: ResourceRequirements | None = None
     priority: int = 0
     queue_weight: float = 1.0
+    worker_invocation_id: str | None = None
+    worker_dispatch_sha256: str | None = None
 
 
 class PoolCapacity(BaseModel):
@@ -70,4 +75,17 @@ class WorkerPool(Protocol):
 
     async def shutdown(self, graceful: bool = True) -> None:  # pragma: no cover - protocol
         """Shutdown the pool, optionally waiting for in-flight tasks."""
+        ...
+
+
+@runtime_checkable
+class ParentReceiptWorkerPool(WorkerPool, Protocol):
+    """Worker pool that admits source-bound results through a live caller context."""
+
+    async def submit_with_parent_context(
+        self,
+        task: NodeTask,
+        parent_context: ExecutionContext,
+    ) -> asyncio.Future[bytes]:  # pragma: no cover - protocol
+        """Submit a bound task and return its parent-admitted outcome bytes."""
         ...

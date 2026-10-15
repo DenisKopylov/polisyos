@@ -121,3 +121,11 @@ class TestTaskRouter:
     def test_empty_pools_raises(self) -> None:
         with pytest.raises(ValueError, match="at least one pool"):
             TaskRouter({})
+
+    def test_parent_receipt_route_refuses_pool_without_consumer(self) -> None:
+        router = TaskRouter({"cpu": _mock_pool()})
+        with pytest.raises(
+            RuntimeError,
+            match="worker_pool_parent_receipt_admission_unsupported",
+        ):
+            asyncio.run(router.submit_with_parent_context(_make_task(), object()))

@@ -1948,6 +1948,7 @@ class AsyncWorkflowExecutor:
                     deadline_monotonic=cache_deadline,
                     alias=alias,
                     retry_stats=retry_stats,
+                    dispatch_params=inv.params or {},
                 )
                 outcome = NodeOutcome.model_validate(raw_outcome)
                 self._guard_workflow_admission(operation=f"node.{alias}", execution_state="unknown")

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, cast
 
@@ -21,6 +22,8 @@ from polisyos.scientist.orchestration.engine.runner.serialization import (
     deserialize_state,
     serialize_outcome,
     serialize_state,
+    serialize_worker_execution_receipt,
+    worker_dispatch_sha256,
 )
 from polisyos.scientist.orchestration.engine.runner.worker_pool import NodeTask
 
@@ -32,10 +35,43 @@ _METRICS_INIT_ERRORS = (AttributeError, OSError, RuntimeError, TypeError, ValueE
 _TIMEOUT_CONTEXT_WIRE_SCHEMA = "polisyos.scientist.timeout_context.v2"
 
 
+class _StagedWorkerTraceSink:
+    """Collect worker events in memory for parent admission after execution."""
+
+    def __init__(self) -> None:
+        self.records: list[Any] = []
+
+    def emit(self, rec: Any) -> None:
+        from polisyos.core.trace.record import TraceRecord
+
+        if type(rec) is not TraceRecord:
+            raise TypeError("timeout worker trace records must be typed")
+        self.records.append(rec.model_copy(deep=True))
+
+    def emit_many(self, records: Sequence[Any]) -> None:
+        """Stage a typed batch in order without touching the parent writer."""
+        staged = list(records)
+        from polisyos.core.trace.record import TraceRecord
+
+        if any(type(record) is not TraceRecord for record in staged):
+            raise TypeError("timeout worker trace records must be typed")
+        self.records.extend(record.model_copy(deep=True) for record in staged)
+
+    def close(self) -> None:
+        raise ValueError("timeout_worker_run_lifecycle_not_owned")
+
+
+def _timeout_worker_lifecycle_refusal(*args: Any, **kwargs: Any) -> None:
+    """Refuse worker lifecycle transitions; only the parent owns run finality."""
+    del args, kwargs
+    raise ValueError("timeout_worker_run_lifecycle_not_owned")
+
+
 async def run_node_in_worker(
     payload: dict[str, Any],
     *,
     timeout_authority: tuple[Any, float] | None = None,
+    parent_receipt: bool = False,
 ) -> bytes:
     """Execute one node and return its typed, serialised outcome.
 
@@ -59,6 +95,58 @@ async def run_node_in_worker(
     trace_carrier: dict[str, str] = payload.get("trace_carrier", {})
     timeout_s: float | None = payload.get("timeout_s")
     context_meta: dict[str, Any] = payload.get("context_meta", {})
+    receipt_invocation_id: str | None = None
+    receipt_dispatch_sha256: str | None = None
+    receipt_owner_snapshot_ref: Any = None
+    staged_trace: _StagedWorkerTraceSink | None = None
+    receipt_requested = timeout_authority is not None or parent_receipt
+    if timeout_authority is not None and parent_receipt:
+        raise ValueError("worker_receipt_mode_conflict")
+    if receipt_requested:
+        receipt_invocation_id = payload.get("worker_invocation_id")
+        receipt_dispatch_sha256 = payload.get("worker_dispatch_sha256")
+        if (
+            not isinstance(receipt_invocation_id, str)
+            or len(receipt_invocation_id) != 64
+            or not isinstance(receipt_dispatch_sha256, str)
+            or len(receipt_dispatch_sha256) != 64
+        ):
+            raise ValueError("timeout_worker_receipt_binding_required")
+        expected_dispatch = worker_dispatch_sha256(
+            node_id=node_id,
+            alias=alias,
+            params=params,
+            state_bytes=state_bytes,
+            trace_carrier=trace_carrier,
+            timeout_s=timeout_s,
+            max_retries=payload.get("max_retries", 0),
+            context_meta=context_meta,
+        )
+        if expected_dispatch != receipt_dispatch_sha256:
+            raise ValueError("timeout_worker_dispatch_digest_mismatch")
+
+    tenant_scope_manager = None
+    if parent_receipt:
+        tenant_scope_meta = context_meta.get("tenant_scope")
+        if (
+            not isinstance(tenant_scope_meta, dict)
+            or set(tenant_scope_meta) != {"tenant_id", "cell_id"}
+            or not isinstance(tenant_scope_meta.get("tenant_id"), str)
+            or not tenant_scope_meta["tenant_id"].strip()
+            or (
+                tenant_scope_meta.get("cell_id") is not None
+                and not isinstance(tenant_scope_meta.get("cell_id"), str)
+            )
+        ):
+            raise ValueError("worker_receipt_tenant_scope_invalid")
+        from polisyos.core.security import tenant_scope
+
+        tenant_scope_manager = tenant_scope(
+            None,
+            tenant_id=tenant_scope_meta["tenant_id"],
+            cell_id=tenant_scope_meta["cell_id"],
+        )
+        tenant_scope_manager.__enter__()
 
     # Reconstruct state
     state = deserialize_state(state_bytes)
@@ -72,28 +160,35 @@ async def run_node_in_worker(
     )
 
     try:
-        # Timeout workers use a strict local context wire and share the
-        # parent's revocable write authority. Distributed workers retain their
-        # established reconstruction contract.
-        if timeout_authority is None:
+        # Parent-receipt workers use the strict source-bound context wire and
+        # stage all run events. Legacy distributed workers retain their
+        # reconstruction contract until their caller adopts this receipt API.
+        if not receipt_requested:
             ctx = _build_worker_context(context_meta)
         else:
             ctx = _build_timeout_worker_context(context_meta)
+            staged_trace = ctx.run.trace
+            receipt_owner_snapshot_ref = ctx.run._owner_snapshot_ref
+            if not isinstance(staged_trace, _StagedWorkerTraceSink):
+                raise ValueError("timeout_worker_staged_trace_required")
+            if receipt_owner_snapshot_ref is None:
+                raise ValueError("timeout_worker_owner_snapshot_required")
             from polisyos.core.security import set_current_access_scope
 
             access_scope_token = set_current_access_scope(ctx.run.access_scope)
             if ctx.run.run_manifest.run_id != state.run_id:
                 raise ValueError("timeout_worker_run_id_mismatch")
-            from polisyos.scientist.orchestration.engine.retry import (
-                _AttemptAuthority,
-                _build_attempt_context,
-            )
+            if timeout_authority is not None:
+                from polisyos.scientist.orchestration.engine.retry import (
+                    _AttemptAuthority,
+                    _build_attempt_context,
+                )
 
-            authority = _AttemptAuthority(
-                timeout_authority[1],
-                shared_active=timeout_authority[0],
-            )
-            ctx = _build_attempt_context(ctx, authority)
+                authority = _AttemptAuthority(
+                    timeout_authority[1],
+                    shared_active=timeout_authority[0],
+                )
+                ctx = _build_attempt_context(ctx, authority)
 
         from polisyos.scientist.orchestration.engine.skg_snapshot import (
             SNAPSHOT_INPUT_KEY,
@@ -118,7 +213,7 @@ async def run_node_in_worker(
         )
 
         registry = NodeRegistry()
-        if timeout_authority is None:
+        if not receipt_requested:
             discover_nodes(registry)
         else:
             discover_nodes(
@@ -165,11 +260,22 @@ async def run_node_in_worker(
             context_meta=context_meta,
         )
 
-        if tracer is not None:
-            with tracer.start_as_current_span(
-                f"scientist.node.{alias}",
-                attributes=span_attrs,
-            ):
+        try:
+            if tracer is not None:
+                with tracer.start_as_current_span(
+                    f"scientist.node.{alias}",
+                    attributes=span_attrs,
+                ):
+                    outcome = await execute_with_retry_async(
+                        node,
+                        ctx,
+                        state,
+                        retry_policy=retry_policy,
+                        timeout_s=timeout_s,
+                        alias=alias,
+                        dispatch_params=params,
+                    )
+            else:
                 outcome = await execute_with_retry_async(
                     node,
                     ctx,
@@ -177,15 +283,26 @@ async def run_node_in_worker(
                     retry_policy=retry_policy,
                     timeout_s=timeout_s,
                     alias=alias,
+                    dispatch_params=params,
                 )
-        else:
-            outcome = await execute_with_retry_async(
-                node,
-                ctx,
-                state,
-                retry_policy=retry_policy,
-                timeout_s=timeout_s,
-                alias=alias,
+        except Exception as exc:
+            if not receipt_requested:
+                raise
+            from polisyos.scientist.orchestration.engine.retry import _worker_error_payload
+
+            if (
+                receipt_invocation_id is None
+                or receipt_dispatch_sha256 is None
+                or receipt_owner_snapshot_ref is None
+                or staged_trace is None
+            ):
+                raise ValueError("timeout_worker_receipt_binding_required") from exc
+            return serialize_worker_execution_receipt(
+                error_payload=_worker_error_payload(exc),
+                invocation_id=receipt_invocation_id,
+                dispatch_sha256=receipt_dispatch_sha256,
+                owner_snapshot_ref=receipt_owner_snapshot_ref,
+                records=staged_trace.records,
             )
 
         completed = outcome.model_copy(
@@ -194,23 +311,43 @@ async def run_node_in_worker(
                 "artifacts": _completed_producer_value(outcome.artifacts),
             }
         )
-        return cast("bytes", serialize_outcome(completed))
-    finally:
-        if access_scope_token is not None:
-            from polisyos.core.security import reset_current_access_scope
-
-            reset_current_access_scope(access_scope_token)
-        if _token is not None:
-            _detach_parent_trace_context(
-                _token,
-                context_meta=context_meta,
-                operation="detach_trace_context",
+        outcome_bytes = cast("bytes", serialize_outcome(completed))
+        if receipt_requested:
+            if (
+                receipt_invocation_id is None
+                or receipt_dispatch_sha256 is None
+                or receipt_owner_snapshot_ref is None
+                or staged_trace is None
+            ):
+                raise ValueError("timeout_worker_receipt_binding_required")
+            return serialize_worker_execution_receipt(
+                outcome_bytes=outcome_bytes,
+                invocation_id=receipt_invocation_id,
+                dispatch_sha256=receipt_dispatch_sha256,
+                owner_snapshot_ref=receipt_owner_snapshot_ref,
+                records=staged_trace.records,
             )
+        return outcome_bytes
+    finally:
+        try:
+            if access_scope_token is not None:
+                from polisyos.core.security import reset_current_access_scope
+
+                reset_current_access_scope(access_scope_token)
+            if _token is not None:
+                _detach_parent_trace_context(
+                    _token,
+                    context_meta=context_meta,
+                    operation="detach_trace_context",
+                )
+        finally:
+            if tenant_scope_manager is not None:
+                tenant_scope_manager.__exit__(None, None, None)
 
 
-def run_node_in_worker_sync(payload: dict[str, Any]) -> bytes:
+def run_node_in_worker_sync(payload: dict[str, Any], *, parent_receipt: bool = False) -> bytes:
     """Synchronous wrapper for Ray remote tasks."""
-    return asyncio.run(run_node_in_worker(payload))
+    return asyncio.run(run_node_in_worker(payload, parent_receipt=parent_receipt))
 
 
 def run_node_task_in_timeout_worker_sync(
@@ -243,7 +380,29 @@ def run_node_task_in_timeout_worker_sync(
         "timeout_s": None,
         "max_retries": 0,
         "context_meta": task.context_meta,
+        "worker_invocation_id": task.worker_invocation_id,
+        "worker_dispatch_sha256": task.worker_dispatch_sha256,
     }
+    from polisyos.scientist.orchestration.engine.runner.serialization import (
+        worker_dispatch_sha256,
+    )
+
+    actual_dispatch = worker_dispatch_sha256(
+        node_id=task.node_id,
+        alias=task.alias,
+        params=task.params,
+        state_bytes=task.state_bytes,
+        trace_carrier=task.trace_carrier,
+        timeout_s=None,
+        max_retries=0,
+        context_meta=task.context_meta,
+    )
+    if (
+        not isinstance(task.worker_invocation_id, str)
+        or len(task.worker_invocation_id) != 64
+        or task.worker_dispatch_sha256 != actual_dispatch
+    ):
+        raise ValueError("timeout_worker_dispatch_digest_mismatch")
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         return asyncio.run(
             run_node_in_worker(
@@ -310,7 +469,7 @@ async def run_merge_checkpoint_tier_in_worker(
 
         cache = None
         if checkpoint_meta is not None:
-            ctx = _build_worker_context(context_meta)
+            store = _build_worker_context(context_meta, store_only=True)
             seed_refs = []
             if isinstance(checkpoint_meta, dict):
                 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -334,7 +493,7 @@ async def run_merge_checkpoint_tier_in_worker(
                         )
                         continue
             cache = seed_runner_cache(
-                store=ctx.store,
+                store=store,
                 run_id=str(context_meta.get("run_id") or "worker-run"),
                 checkpoint_cache_seed_refs=seed_refs,
                 logger=_logger,
@@ -378,11 +537,12 @@ def run_merge_checkpoint_tier_in_worker_sync(payload: dict[str, Any]) -> dict[st
     return asyncio.run(run_merge_checkpoint_tier_in_worker(payload))
 
 
-def _build_worker_context(meta: dict[str, Any]) -> Any:
+def _build_worker_context(meta: dict[str, Any], *, store_only: bool = False) -> Any:
     """Build a minimal ``ExecutionContext`` for a remote worker.
 
     The worker creates its own artifact store, logger, and run context
-    from the metadata shipped in the payload.
+    from the metadata shipped in the payload. Store-only consumers stop before
+    claiming a RunContext lifecycle or appending a new RUN_STARTED event.
     """
     from polisyos.scientist.orchestration.engine.checkpoint import (
         CheckpointScopeMismatchError,
@@ -484,6 +644,8 @@ def _build_worker_context(meta: dict[str, Any]) -> Any:
             "distributed worker store backend cannot enforce tenant ownership"
         )
     store = build_artifact_store(store_config, tenant_id=tenant_id, cell_id=cell_id)
+    if store_only:
+        return store
     metrics = None
     try:
         from polisyos.scientist.orchestration.engine.metrics import build_engine_metrics
@@ -569,7 +731,6 @@ def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.observability import is_hpc_observability_enabled
     from polisyos.core.run.context import RunContext
-    from polisyos.core.trace import JsonlTraceSink
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
     if set(meta) != {
@@ -718,9 +879,10 @@ def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
     )
     if store._hpc_enabled != hpc_observability_enabled:
         raise ValueError("timeout_worker_observability_setting_mismatch")
+    staged_trace = _StagedWorkerTraceSink()
     run = RunContext(
         store=store,
-        trace=JsonlTraceSink(trace_path),
+        trace=staged_trace,
         run_manifest=run_manifest,
         _trace_path=trace_path,
         _audit_sink=None,
@@ -729,6 +891,9 @@ def _build_timeout_worker_context(meta: dict[str, Any]) -> Any:
         access_scope=access_scope,
         _owner_snapshot_ref=owner_snapshot_ref,
     )
+    run._record_ref_owner = lambda ref, *, writer: None
+    run.finalize = _timeout_worker_lifecycle_refusal
+    run.suspend_for_resume = _timeout_worker_lifecycle_refusal
     run._validate_timeout_worker_owner_binding()
     return ExecutionContext(
         store=store,

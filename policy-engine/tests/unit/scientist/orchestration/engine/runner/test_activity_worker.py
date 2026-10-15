@@ -28,6 +28,7 @@ from polisyos.core.contracts.skip_blockers import SkippedNodeBlocker
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.core.trace.record import TraceRecord
 from polisyos.foundry.methods.causal import PanelObservationalData
 from polisyos.ir.analytics.causal_graph import (
     CausalGraphModel,
@@ -59,22 +60,30 @@ from polisyos.scientist.orchestration.engine.protocol import (
 )
 from polisyos.scientist.orchestration.engine.retry import (
     RetryPolicy,
+    _AttemptAuthority,
+    _build_attempt_context,
     execute_with_retry_sync,
 )
 from polisyos.scientist.orchestration.engine.runner import (
     _activity_worker as activity_worker_module,
 )
 from polisyos.scientist.orchestration.engine.runner._activity_worker import (
+    _build_timeout_worker_context,
     _build_worker_context,
     _restore_parent_trace_context,
     run_merge_checkpoint_tier_in_worker,
     run_node_in_worker,
 )
 from polisyos.scientist.orchestration.engine.runner.serialization import (
+    DeserializationError,
     deserialize_outcome,
     deserialize_state,
+    deserialize_worker_execution_receipt,
     serialize_outcome,
     serialize_state,
+    serialize_timeout_context,
+    serialize_worker_execution_receipt,
+    worker_dispatch_sha256,
 )
 from polisyos.scientist.orchestration.engine.runner.state_merge import merge_tier_outcomes
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -138,6 +147,153 @@ def test_build_worker_context_bootstraps_registry_bundle_when_missing() -> None:
     assert ctx.metrics is None or len(ctx.metrics.recent_trace_correlations()) == 1
     assert isinstance(ctx, ClaimCapableExecutionContext)
     assert ctx.claim_ledger_owner is not None
+
+
+def test_timeout_worker_stages_run_events_and_refuses_parent_lifecycle(
+    tmp_path: Path,
+) -> None:
+    tenant_id = "tenant-timeout-stage"
+    cell_id = "cell-timeout-stage"
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        store = FileSystemCAS(tmp_path / "timeout-stage-cas", tenant_id=tenant_id, cell_id=cell_id)
+        registry_bundle = build_default_registry_bundle(
+            store,
+            return_selected_profile=True,
+        ).bundle_ref
+        parent_run = RunContext.start(
+            store=store,
+            registry_bundle=registry_bundle,
+            run_id="R_timeout_stage",
+            run_dir=store.root / "runs" / "R_timeout_stage",
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+        )
+        parent_ctx = ExecutionContext(
+            store=store,
+            run=parent_run,
+            logger=logging.getLogger("test.timeout_worker_staging"),
+        )
+        attempt_ctx = _build_attempt_context(parent_ctx, _AttemptAuthority())
+        with pytest.raises(ValueError, match="timeout_worker_filesystem_cas_required"):
+            serialize_timeout_context(
+                attempt_ctx,
+                expected_run_id=parent_run.run_manifest.run_id,
+            )
+
+        class DerivedExecutionContext(ExecutionContext):
+            pass
+
+        derived_ctx = DerivedExecutionContext(
+            store=store,
+            run=parent_run,
+            logger=logging.getLogger("test.timeout_worker_derived_context"),
+        )
+        with pytest.raises(ValueError, match="timeout_worker_unsupported_execution_context"):
+            serialize_timeout_context(
+                derived_ctx,
+                expected_run_id=parent_run.run_manifest.run_id,
+            )
+        context_meta = serialize_timeout_context(
+            parent_ctx, expected_run_id=parent_run.run_manifest.run_id
+        )
+        worker_ctx = _build_timeout_worker_context(context_meta)
+        trace_path = parent_run.trace_path
+        assert trace_path is not None
+        before = trace_path.read_bytes()
+
+        worker_ctx.run.emit("worker", "candidate_event")
+        worker_ctx.run.update_manifest(execution_profile="worker-candidate-profile")
+
+        assert trace_path.read_bytes() == before
+        assert [record.event for record in worker_ctx.run.trace.records] == [
+            "candidate_event",
+            "RUN_CONTEXT_SNAPSHOT",
+        ]
+        assert worker_ctx.run.run_manifest.execution_profile == "worker-candidate-profile"
+        assert parent_run.run_manifest.execution_profile is None
+        with pytest.raises(ValueError, match="timeout_worker_run_lifecycle_not_owned"):
+            worker_ctx.run.finalize()
+        with pytest.raises(ValueError, match="timeout_worker_run_lifecycle_not_owned"):
+            worker_ctx.run.suspend_for_resume()
+        assert trace_path.read_bytes() == before
+        parent_run.suspend_for_resume()
+
+
+def test_timeout_worker_dispatch_digest_rejects_changed_params_before_context(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    state_bytes = serialize_state(ExperimentState(run_id="R_dispatch_binding"))
+    payload = {
+        "node_id": "scientist.node_resolve_parameters@1.0.0",
+        "alias": "resolve",
+        "params": {"mode": "original"},
+        "state_bytes": state_bytes,
+        "trace_carrier": {},
+        "timeout_s": None,
+        "max_retries": 0,
+        "context_meta": {},
+        "worker_invocation_id": "a" * 64,
+    }
+    payload["worker_dispatch_sha256"] = worker_dispatch_sha256(
+        node_id=payload["node_id"],
+        alias=payload["alias"],
+        params=payload["params"],
+        state_bytes=state_bytes,
+        trace_carrier=payload["trace_carrier"],
+        timeout_s=None,
+        max_retries=0,
+        context_meta=payload["context_meta"],
+    )
+    payload["params"] = {"mode": "tampered"}
+    monkeypatch.setattr(
+        activity_worker_module,
+        "_build_timeout_worker_context",
+        lambda _meta: pytest.fail("dispatch mismatch must fail before context reconstruction"),
+    )
+
+    with pytest.raises(ValueError, match="timeout_worker_dispatch_digest_mismatch"):
+        asyncio.run(run_node_in_worker(payload, timeout_authority=(True, 1e20)))
+
+
+def test_worker_execution_receipt_retains_typed_failure_and_rejects_extra_fields() -> None:
+    owner_ref = _artifact_ref("worker-owner")
+    event = TraceRecord(run_id="R_receipt_error", phase="worker", event="candidate")
+    payload = serialize_worker_execution_receipt(
+        error_payload={
+            "message": "ValueError: candidate failure",
+            "category": "fatal",
+            "code": "worker.candidate_failure",
+        },
+        invocation_id="b" * 64,
+        dispatch_sha256="c" * 64,
+        owner_snapshot_ref=owner_ref,
+        records=[event],
+    )
+
+    (
+        outcome_bytes,
+        error_payload,
+        invocation_id,
+        dispatch_digest,
+        decoded_owner_ref,
+        records,
+    ) = deserialize_worker_execution_receipt(payload)
+
+    assert outcome_bytes is None
+    assert error_payload == {
+        "message": "ValueError: candidate failure",
+        "category": "fatal",
+        "code": "worker.candidate_failure",
+    }
+    assert invocation_id == "b" * 64
+    assert dispatch_digest == "c" * 64
+    assert decoded_owner_ref == owner_ref
+    assert records == [event]
+
+    malformed = json.loads(payload)
+    malformed["unadmitted"] = True
+    with pytest.raises(DeserializationError, match="Malformed worker execution receipt"):
+        deserialize_worker_execution_receipt(json.dumps(malformed).encode("utf-8"))
 
 
 def test_non_simulation_worker_without_eval_safety_port_fails_closed(
@@ -789,6 +945,29 @@ def test_canonical_timeout_worker_replays_operations_into_changed_receiver(
                 retry_policy=RetryPolicy(max_retries=0),
                 timeout_s=30.0,
                 alias="resolve",
+                dispatch_params={},
+            )
+            assert run.trace_path is not None
+            durable_trace = [
+                json.loads(line)
+                for line in run.trace_path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            assert sum(item["event"] == "RUN_STARTED" for item in durable_trace) == 1
+            assert sum(item["event"] == "WORKER_INVOCATION_STARTED" for item in durable_trace) == 1
+            assert (
+                sum(item["event"] == "WORKER_INVOCATION_COMPLETED" for item in durable_trace) == 1
+            )
+            receipt_ids = {
+                item.get("worker_invocation_id")
+                for item in durable_trace
+                if item.get("worker_invocation_id") is not None
+            }
+            assert len(receipt_ids) == 1
+            assert all(
+                item.get("worker_dispatch_sha256") is not None
+                for item in durable_trace
+                if item.get("worker_invocation_id") in receipt_ids
             )
             assert outcome.status == "ok"
             assert outcome.state.run_id == run_id
@@ -1045,9 +1224,10 @@ def test_run_merge_checkpoint_tier_in_worker_restores_checkpoint_contract(
     monkeypatch,
 ) -> None:
     store = FileSystemCAS(tmp_path)
+    checkpoint_run_dir = tmp_path / "runs" / "R_worker_merge"
     hook = CASCheckpointHook(
         store=store,
-        run_dir=tmp_path / "runs" / "R_worker_merge",
+        run_dir=checkpoint_run_dir,
         checkpoint_policy="strict",
     )
     checkpoint_meta = hook.export_runtime_metadata()
@@ -1071,10 +1251,15 @@ def test_run_merge_checkpoint_tier_in_worker_restores_checkpoint_contract(
     def _discover_nodes(registry) -> None:
         registry.register(PolicyOutputNode())
 
+    def _deny_run_context_start(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("checkpoint-only worker must not claim a RunContext lifecycle")
+
     monkeypatch.setattr(
         "polisyos.scientist.orchestration.engine.registry.discover_nodes",
         _discover_nodes,
     )
+    monkeypatch.setattr(RunContext, "start", _deny_run_context_start)
 
     result = asyncio.run(
         run_merge_checkpoint_tier_in_worker(
@@ -1105,6 +1290,7 @@ def test_run_merge_checkpoint_tier_in_worker_restores_checkpoint_contract(
     assert result["checkpoint_hook_meta"]["sequence_start"] == 1
     resolved = resolve_latest_checkpoint(store, "R_worker_merge")
     assert resolved is not None
+    assert not (checkpoint_run_dir / "trace.jsonl").exists()
 
 
 @pytest.mark.parametrize(

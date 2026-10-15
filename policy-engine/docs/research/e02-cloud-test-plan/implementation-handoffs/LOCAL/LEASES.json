@@ -905,4 +905,316 @@
     "root_reserved": "LEASES; generated/schema/config/lock publication; sequential epoch codec companion; exact source/input/backend freeze; receipts/proposals and remote readback.",
     "authority": "No new formal G closures. Independent component GO and author proposals do not adjudicate canonical 282 IDs /291 occurrences; history including B198 preserved."
   }
+,
+  "coordination_epoch_20261015_7b23055a": {
+    "as_of_candidate_commit": "7b23055ad0457ac312296e35e08d46731461335a",
+    "supersedes_prior_current_labels": "Earlier epochs remain historical. Exact current author freezes and the following disjoint leases govern subsequent writes.",
+    "source_implementation_boundaries": {
+      "checkpoint": "5d1429a2433c3c7c7012dd056ddff61803710bc1",
+      "aipw_tmle": "9d1b5fa90c2677e447689e671733793cc9bacb3c",
+      "legal_entrypoints": "7b23055ad0457ac312296e35e08d46731461335a"
+    },
+    "commit_owner": "root only; no staging or commits by agents; source and deciding receipts separate",
+    "active_writers": {
+      "v3_acquisition_actual_post_author": {
+        "existing_scope": "original 27-path selected-owner freeze plus RetrievalSummary producer/gate/API/NL/debug and mandatory companion tests; full union freeze required",
+        "additional_paths": [
+          "src/polisyos/core/contracts/__init__.py",
+          "src/polisyos/runtime/http/services/debug.py",
+          "tests/unit/runtime/http/test_debug_api.py",
+          "tests/unit/core/contracts/test_e02_installed_composition.py",
+          "tests/unit/data_forge/domains/catalog/knowledge/test_acquisition_authority.py",
+          "tests/performance/test_runtime_hot_paths.py"
+        ],
+        "boundary": "Preserve complete selected refs and immutable job execution scope. Unassessed retrieval remains candidate-only; strict gate blocks. control/artifacts.py remains root-reserved pending independent lifecycle diagnosis."
+      },
+      "r3_r4_monetary_workload_oracle": {
+        "paths": [
+          "tests/unit/runtime/quality/test_semantic_epoch.py"
+        ],
+        "boundary": "Selected RetrievalSummary graph behavior only. N8 modality diagnosis read-only; root owns epoch.py."
+      },
+      "architecture_remaining_route_oracle": {
+        "paths": "Only existing E02/e02 release-fragments/unreleased TOMLs identified in the complete 60-error release-gate diagnosis; exclude committed Legal profile fragment",
+        "boundary": "Surgical source-backed metadata and truthful compatibility taxonomy. No blind reviewed flags, fabricated owners, compatible status without proof, or gate relaxation."
+      }
+    },
+    "frozen_pending_independent_review": {
+      "c05_governance_replay": "original 18 plus new 6 JudgeStack/readiness/phase2 paths; combine complete 24-path source freeze",
+      "benchmark_selected_profile": "original four plus repair four, two overlapping; complete six-path union, profileless protected admission held",
+      "phase6_gate": "finite-map r4 gate frozen; overflow/unknown-target same-class escape under independent diagnosis; no further per-case edits authorized"
+    },
+    "read_only_agents": "Four exact original-criterion partitions 73/73/73/72 cover all 291 occurrence identities. Other independent reviewers use shared source and ignored RAW; no children or duplicate environments.",
+    "root_reserved": [
+      "LEASES.json",
+      "src/polisyos/core/contracts/epoch.py",
+      "src/polisyos/runtime/http/services/control/artifacts.py",
+      "architecture/public_surface/contract.toml",
+      "architecture/public_surface/inventory.json",
+      "docs/reference/public-surface.md",
+      "all generated/schema/config/lock outputs and final source/input/backend freeze"
+    ],
+    "resource_limits": "Two heavy Mac slots, one numerical thread per process. Cached-model Legal CLI-to-HTTP owns slot 1; one existing Linux worker slot. Read-only/probes/linters may run concurrently. No extra environments/source copies.",
+    "authority": "No new formal G closures. Component GO and author proposals remain bounded; canonical 282 IDs /291 occurrences and B198 history unchanged."
+  },
+  "coordination_epoch_20261015_83b32596": {
+    "as_of_candidate_commit": "83b3259671b70cfdb3e6b10830a7878412a95db4",
+    "as_of_candidate_tree": "b3c64543522c942928dc5d6beb5385eb995be1ae",
+    "supersedes_prior_current_labels": "Prior epochs and source frames remain historical. This epoch records exact disjoint active leases; it is not a global source freeze.",
+    "commit_owner": "root only; ordinary append-only source commits and separate receipt commits, exact path and remote readback; active source writers stop only for a named short commit barrier",
+    "published_own_topic": "83b3259671b70cfdb3e6b10830a7878412a95db4; remote SHA/tree and all 13 changed path bytes verified, G checkpoint 93d6aa62a8d236667fdf322a5fc17962523b185e unchanged",
+    "active_writers": {
+      "v3_acquisition_actual_post_author": {
+        "existing_scope": "Original selected-owner 27 plus RetrievalSummary and mandatory API/DTO/NL/debug companions; full union freeze still required",
+        "delta_paths": [
+          "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+          "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+          "src/polisyos/foundry/data_plane/bindings.py",
+          "tests/unit/foundry/data_plane/test_bindings_multiscale.py"
+        ],
+        "boundary": "Same selected nested-reference/parent-lineage class widened across every present DataSnapshot ArtifactRef and normative report inputs. Full producer role census first; malformed supplied refs never default. Preserve profileless historical candidate boundaries without producer attestation."
+      },
+      "c05_c12_current_composition_oracle": {
+        "existing_scope": "Original 18 plus JudgeStack/readiness/phase2 and shared full replay-context producer/verifier; current union 28 plus required genuine-producer fixture companions",
+        "delta_paths": [
+          "src/polisyos/scientist/policy_design/output.py",
+          "src/polisyos/scientist/replay/verification.py",
+          "src/polisyos/scientist/methods/search/judge_stack.py",
+          "src/polisyos/scientist/methods/search/promotion_evidence.py",
+          "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+          "tests/unit/foundry/validation/test_phase2_judge_stack.py"
+        ],
+        "boundary": "Complete schema-derived nested ref/context reconciliation at actual protected consumers, exact selected candidate/evaluation/run and report edges; missing context is typed limitation. No external calibration or issuer semantics."
+      },
+      "fabric_pool_cleanup_author": {
+        "paths": [
+          "src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+          "src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+          "src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+          "src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+          "src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+          "src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+          "src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+          "src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py"
+        ],
+        "mandatory_tests": "Nine mirrored owner/facade/contracts/pipeline modules; all six owners and all 67 compatibility bindings are the property denominator",
+        "boundary": "Immutable per-invocation ContextVar snapshot, no leaf global mutation; wrapper identity by object, async/nested/thread/cancel isolation. Existing developer override substitution assumption is explicit, not validated authority evidence. Type diagnostics require full-file/base reasoning, not added-line green."
+      },
+      "ir_small_analytics_types_author": {
+        "paths": [
+          "src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+          "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+        ],
+        "path_qualification": "Exact owner/mirror read from a4448b7c readonly diagnosis; public read_api/ukraine.py excluded because B61 owns its active unrelated delta",
+        "boundary": "Close mutable alias class for readonly projection using existing helpers/defensive snapshot while preserving actual JSON/list consumers. Constructor/payload/nested/dict alias controls plus real producer to Foundry route; no production data writes."
+      },
+      "v5_v6_join_systemic_oracle": {
+        "paths": [
+          "src/polisyos/scientist/methods/autotune/models.py",
+          "src/polisyos/scientist/methods/autotune/runtime.py",
+          "src/polisyos/scientist/methods/autotune/registry.py",
+          "tests/unit/scientist/autotune/test_work_packets.py",
+          "tests/unit/scientist/autotune/test_registry_and_runner.py"
+        ],
+        "mandatory_companion": "One mirrored integration module and tracked decision/receipt; ClaimGold source paths require exact mandatory-path report before edits",
+        "boundary": "Actual ordinary MethodJob producer to selected suite/evaluation CAS to fresh ChampionRegistry, immutable call-derived intent and actually consumed source bytes. No diagnostic packet authority, no qualifying gold/adjudication/holdout invention; C05 promotion_evidence excluded."
+      },
+      "architecture_remaining_route_oracle": {
+        "paths": "Existing 13 E02 release TOMLs plus causal-y0-api-adapter/stress-score-selected-source-manifests only after actual plane classification, and truthful restored Fabric binding companion if needed",
+        "boundary": "26-row independent review reconciliation by exact hashes; GO only in reviewed scope, never whole-fragment blessing of held siblings. No new taxonomy/waiver/expiry/issuer or public static gate relaxation."
+      },
+      "q2_linux_installed_plan_oracle": {
+        "paths": [
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-final-wave-run-contract-20261015.json"
+        ],
+        "boundary": "Only three verified extra-prefix locator corrections; source/backend freeze fields stay null, no expensive wave or invented Linux denominator."
+      },
+      "full_occurrence_property_audit_2": {
+        "paths": [
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-proposal-report-20261015.json"
+        ],
+        "boundary": "Append independent recommendation and exact B06 rebind while preserving all 291 occurrences/282 IDs/127 bundles, historical 198 proposals/9 closures/B198 and original partition frames. Also independent LA038 reviewer once author freezes."
+      }
+    },
+    "frozen_pending_independent_review": {
+      "guarded_core_cas": "Nine paths from raw/guarded-store-capability-bridge-20261015/source-freeze-manifest.json @6a6a285d4bf3397300c1bfcf723a5cc37212d5cca1cb81ab4cea28857b16d14f; native_v19 independent; no author edits",
+      "pareto_nullable_snapshot": "pareto_registry.py @866562ac87e6a2d09ff6c995fc65754dd174d96490532fdfeeee50a2018e357a and new test @a097feab38916e1ff3b343385231d6d8c51aeb985b8ea963a9f453a12edb171f; ir_observation independent; source author S1 frozen",
+      "phase6_complete_sink_gate": "test_phase6_read_api_consolidation.py @1b1d64c60191e2764682a34e346b42073fb229af33d27ed84615d7b3bc0cf655; ir_temporal independent. Four actual producer routes remain non-green; dynamic_import author researches behavioral API adapters read-only.",
+      "n8_generation": "generation_cycle.py @4d3181679789503bf8dd993f20cb9ac4e54139c0e778e4334adc0b15038907c1 and test_value_gate.py @627dc34b631c49070f4d73fa5218f2b47310c6317a92de10179c4e4167f17d95; no product soundness-tier bypass. RAW candidate prototype and S0-K06/estimand decision packet only.",
+      "retrieval_summary_epoch": "Root epoch.py @64528b1c015d8311b790eaabd5b570db05e5a8935e80bfe625fc569568e2276a; R3 semantic_epoch.py @641184cc3fab3b5ae5d2d014cd055c5b98df6aa3f92a1126310060fbf5ace7e2 and mirrored test @28275c5db2daa20882644f477e43f9188761811aa049710ddad9aa2f3b7fa1c1; native_c2_independent review",
+      "public_surface": "Root contract duplicate removal and canonical inventory/doc renderer plus contract-derived runtime export test; Q2 independent read-only; static purity semantics is a separate tracked G decision, not waived"
+    },
+    "root_reserved": [
+      "LEASES.json",
+      "src/polisyos/core/contracts/epoch.py",
+      "src/polisyos/runtime/http/services/control/artifacts.py",
+      "architecture/public_surface/contract.toml",
+      "architecture/public_surface/inventory.json",
+      "docs/reference/public-surface.md",
+      "generated/schema/config/lock outputs; final source/input/backend freeze; source and receipt commits"
+    ],
+    "resource_limits": "Two heavy Mac slots, one numerical thread per process. Legal query-only durable-generation replay slot1; R3 numerical prototype complete, no new wave before review. One existing Linux worker reused, no source/environment duplication. Disk 50 GiB free; no cleanup scan above18 GiB.",
+    "authority": "Author candidate source and local independent reviews only; no new formal G closure, source acceptance, integration publication or adjudication. Global closeout remains G."
+  },
+  "coordination_epoch_20261015_816d47ee": {
+    "as_of_candidate_commit": "816d47eee62b28906904373bc21229c73ce64327",
+    "as_of_candidate_tree": "24244ea0e08c784d21e318090dbe0ada898b665e",
+    "status": "Active disjoint write leases and frozen independent-review boundaries; no global source freeze",
+    "supersedes": "Prior epochs remain historical. Only listed deltas extend the preceding 83b32596 epoch. Root remains sole stager/committer.",
+    "active_lease_deltas": {
+      "v3_acquisition_actual_post_author": {
+        "additional_paths": [
+          "src/polisyos/core/contracts/fabric.py",
+          "src/polisyos/foundry/_quickstart.py",
+          "tests/unit/foundry/facade/test_quickstart.py"
+        ],
+        "boundary": "DataSnapshot schema-derived nested ref roles and genuine selected child producer edge. V3 remains sole bindings.py writer until behavior freeze; root or V3 then serially applies separately prepared minimal protocol annotation patch."
+      },
+      "dynamic_import_binding_author": {
+        "additional_paths": [
+          "src/polisyos/core/artifacts/protocol.py",
+          "src/polisyos/foundry/execute/_internal/snapshots/__init__.py",
+          "src/polisyos/foundry/execute/_internal/models/__init__.py",
+          "src/polisyos/runtime/quality/substrate_registry.py",
+          "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+          "tests/unit/foundry/data_plane/test_bindings.py",
+          "tests/unit/foundry/runtime/test_executor_snapshots.py",
+          "tests/unit/runtime/quality/test_substrate_registry.py"
+        ],
+        "existing_scope": "Reopened guarded Core nine-path freeze after independent d1748e type-contract HOLD",
+        "shared_path_rule": "NO direct bindings.py writes while V3 owns it. Annotation-only patch prepared in RAW, serialized after V3 behavior freeze.",
+        "boundary": "Use existing minimal ArtifactStore/CoreJSON protocols across complete helper chain, preserve proxy identity and fail-before-I/O, relocate generic protocol matcher to owned Core internal module without flat facade export expansion. No casts/Any/ignore expansion."
+      },
+      "can_whole_profile_current_oracle": {
+        "paths": [
+          "src/polisyos/data_forge/domains/legal/batch/postprocess.py",
+          "src/polisyos/data_forge/domains/legal/batch/graph_builder.py",
+          "tests/unit/data_forge/legal_batch/test_postprocess_grounding.py",
+          "tests/unit/data_forge/legal_batch/test_graph_builder_grounding_boundary.py",
+          "tests/integration/data_forge_runtime/test_legal_grounding_query_consumers.py",
+          "release-fragments/unreleased/2026-10-15-e02-source-bound-legal-grounding.toml"
+        ],
+        "boundary": "One whole-span source-grounding recomputation at optional producer and unconditional persistence intake. Supplied labels/offsets are candidate assertions. No fuzzy-prefix legal grounding, no institutional law/custody/currentness invented. No further encoder run before batched review/freeze."
+      },
+      "s1_s3_semantic_failure_oracle": {
+        "paths": [
+          "tests/unit/scientist/search/test_pareto_transfer.py",
+          "tests/unit/scientist/search/test_voi_scheduler.py"
+        ],
+        "boundary": "Real scoped RED then test-input contract companions: valid matching transfer context reaches numeric guard; valid different tenant reaches path mismatch; malformed tenant-null still invalid. Source-bound historical v1 may remain unassessed; unbound history still refuses. Pareto source frozen at delivered816d; PhaseB test belongs to C05."
+      },
+      "architecture_remaining_route_oracle": {
+        "additional_scope": "Exact15-TOML proposal f9f399ca plus corrections to stale limitations and LOCAL/release-inventory-local-review-attestation-20261015.json; current source hash rebind required",
+        "boundary": "Only independently reviewed API row scope; held siblings never blessed, static purity/native gates remain separate; CAN legal grounding fragment is a distinct writer path."
+      }
+    },
+    "frozen_reviews": {
+      "c05": "28-path a111a11a3cb40c02ab6b45b1cd11917dda67b8225c5ff5d1aa8410ded3467789; API independent review, actual harness/transitive inputs also captured",
+      "la038": "17-path9878d930 final freeze; full_occurrence_property_audit_2 independent; full type gate non-green despite39 errors resolved/zero introduced",
+      "demography": "Source d3b836f50e7297cf3de4a2b15dcf0356e1f58bcc7b3d1b64f74d542359ec53bf and mirror9aaa45e43123442202feca4de2e7b8a50a9d4793e270b07e42a0f4fa03d63d80; Q2 independent;30focused and selected strictMyPy pass, no global closure",
+      "generation": "4d318/627dc unchanged, NativeC2dead independent mechanics and B06rebind; N8 soundness/estimand packet remains G choice, RAW bypass not product green",
+      "phase6": "1b1d64 gate remains held for same capability-reference omission class; new capability scanner reuse design is RAW research only, no tracked gate change yet"
+    },
+    "semantic_epoch": "R3 reopens semantic_epoch.py and mirrored test after 0e3bdd source/role graph HOLD. Must distinguish arbitrary orchestrator source label from connector identity; exact source/request basis or declared limitation, not prefix or equal self-assertions. Core epoch codec remains root-frozen64528.",
+    "root_reserved": "All staging/commits/push of own topic; exact source/input/backend freeze; generated/schema/config/lock and public-surface outputs; G branch never authored/published by root.",
+    "authority": "All source delivery and independent local API/code reviews are candidate proposals. Formal G closures remain empty. Canonical291occurrences/282IDs/127bundles and historical B198 preserved."
+  },
+  "coordination_epoch_20261015_4b25c8b5": {
+    "as_of_candidate_commit": "4b25c8b55dc9ad4a01b2d59dc3345b19c62bbf21",
+    "as_of_candidate_tree": "c48eb6a15d4ac4f933af9a64a059871d7f2d6260",
+    "known_root_source_advances": [
+      "816d47eee62b28906904373bc21229c73ce64327",
+      "ee21224e88ecbf154215e63bfbe05845fd5a5308",
+      "4b25c8b55dc9ad4a01b2d59dc3345b19c62bbf21"
+    ],
+    "commit_hook_resource": "lefthook fail_on_changes observes the whole worktree. Brief global tracked-write barrier is required for ordinary commits; read-only tests and ignored RAW remain parallel. Previous staged-only attempt refused without changing its two expected staged blobs; ordinary retry under barrier succeeded. No reset/rebase/unstage used.",
+    "lease_deltas": {
+      "c05_c12_current_composition_oracle": {
+        "additional_paths": [
+          "src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py",
+          "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+          "src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py",
+          "src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py",
+          "tests/unit/scientist/nodes/builtins/decide/test_run_policy_blueprint_runtime.py"
+        ],
+        "existing_paths": "policy_design/output.py and test_promotion_evidence.py reopened within prior28; one focused mirror/integration permitted if needed",
+        "boundary": "Same replay subject-context class: preserve selection bundle/report, produce/reverify a new current L4-bound bundle/report and carry exact refs through actual promotion/finalization/state/history. Strict protected verifier remains unchanged. Real local ProductionPolicyEvaluationBackend route or explicit typed external-input limit; no substituted L4/promoter positive."
+      },
+      "b61_exact_writer_runtime_author": {
+        "paths": [
+          "tools/quality/validation/decomposition_preflight.py",
+          "tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+          "tests/unit/data_forge/test_phase6_read_api_consolidation.py"
+        ],
+        "boundary": "Reuse single existing capability scanner and typed AST sink nodes, generic reflective acquisition/escape => non-green; keep public row shape and per-root target budgets. No source execution/new interpreter/site allowlist. Four real target-route adapters remain separate RO work."
+      },
+      "v5_v6_join_systemic_oracle": {
+        "additional_paths": [
+          "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py"
+        ],
+        "boundary": "Conditional actual input closure. Dataset-dependent method requires exact selected suite/snapshot/data; method-only route derived from actual complete signature/JobSpec/candidate values, not fake zero-dataset or caller mode. Explicit method version mismatch refuses; unspecified version resolved once before immutable request. Selected canonical suite profile required at protected registry in both modes."
+      },
+      "can_whole_profile_current_oracle": {
+        "additional_paths": [
+          "tests/integration/data_forge_runtime/test_legal_runtime_material_entrypoints.py"
+        ],
+        "boundary": "Actual source-grounded controlled fixture through provisions/grounder/graph producer, one normative and one false-quote candidate; 120-second HTTP helper budget from measured24s. Producer CLI retains measured longer budget; no encoder wave before independent freeze/review."
+      },
+      "fabric_pool_cleanup_author": {
+        "existing_scope": "Reopen prior8src9tests after actual4dependency classes bypass evidence573b738edc3a",
+        "boundary": "Whole67binding actual consumer reads/constructor routes, real owner constants rather than unused API copies. Shared ContextVar resolver invariant, no leaf globals; actual concurrent deterministic connector→DuckDB counts/rows/cleanup control required for broader claim."
+      }
+    },
+    "frozen_review_ready": {
+      "demography": "Two paths source7173f64b3e24afecd43fa1d92d2478fbd2fd888bbe86ac8e6622439c76850068/testd93f544fd37e98473e750ab72539a17c8849f7a60174a939d50b814ea9d4a146; Q2 independent03fd4f9432de6bfda8c374bfd00ff66d0a79fb59448b9fd8aefd0d319f4dc611 boundedGO,48tests+18numericcontrols+strictMyPy+canonicalRuff. No live production fact."
+    },
+    "authority": "This is coordination and local component delivery only. No final source/input/backend freeze or new formal G closure; G remains independent code acceptance, integration publisher and finding adjudicator."
+  },
+  "coordination_epoch_20261015_post_4b25_review": {
+    "as_of_candidate_commit": "4b25c8b55dc9ad4a01b2d59dc3345b19c62bbf21",
+    "authority": "Existing-contract engineering repairs and candidate evidence only. No formal G closures or final source/input/backend freeze.",
+    "lease_deltas": {
+      "v5_v6_join_systemic_oracle": {
+        "additional_paths": [
+          "src/polisyos/scientist/compute/runner.py",
+          "src/polisyos/scientist/methods/autotune/execution_work.py"
+        ],
+        "mandatory_companions": "Existing registry/runner, work-packet, V5 search mirror tests and original integration mirror in current author union. Resolve signature/version before execution; immutable actual dispatch evidence separate from scientific parameters; 1.1 vector wire preserved, 1.2 scalar/zero-slot only."
+      },
+      "r3_r4_monetary_workload_oracle": {
+        "paths": [
+          "src/polisyos/runtime/quality/semantic_epoch.py",
+          "tests/unit/runtime/quality/test_semantic_epoch.py"
+        ],
+        "boundary": "Source display labels remain descriptive consumer assertions, never connector identity. Generic schema-derived exact parent ref/profile/role reconciliation across all present DataSnapshot refs. Real selected data/evidence/execution chain is identity; counts consistency and notes freshly resolved. Core epoch codec stays root-frozen."
+      },
+      "can_whole_profile_current_oracle": {
+        "additional_paths": [
+          "src/polisyos/data_forge/domains/legal/contracts.py",
+          "src/polisyos/data_forge/domains/legal/batch/quality_report.py",
+          "src/polisyos/data_forge/domains/legal/batch/pipeline_helpers.py",
+          "src/polisyos/data_forge/domains/legal/batch/pipeline.py",
+          "src/polisyos/data_forge/domains/legal/batch/qc.py",
+          "tests/unit/data_forge/legal_batch/test_quality_report.py",
+          "tests/unit/data_forge/legal_batch/test_quality_report_gate_metrics.py",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/legal-source-relation-and-candidate-serving-20261015.json"
+        ],
+        "existing_paths": "Postprocess/graph owners, grounding unit/integration and I4 entrypoint tests, source-bound grounding release companion; one pipeline route mirror mandatory if needed.",
+        "boundary": "Keep exact quote evidence distinct from claim-to-source relation. Without qualified independent relation evidence all current LLM SPO remains existing search_candidate. No new verifier, law, issuer or normative positive invented. Quality full-statement denominator global/family/subtype cannot depend on raw trust marker. HTTP/DTO candidate serving semantics goes in G decision packet, no route change."
+      },
+      "dynamic_import_binding_author": {
+        "additional_paths": [
+          "tests/unit/foundry/runtime/test_executor_snapshots.py",
+          "tests/unit/runtime/quality/test_substrate_registry.py"
+        ],
+        "boundary": "Sequential handoff of test companions for canonical I001 ordering only. Preserve full current other deltas. Replace 18-path source/test freeze after one focused replay; binding behavior already handed off from V3."
+      }
+    },
+    "current_independent_reviews": {
+      "semantic_epoch": "Native C2 independent on source85b4ef6d740edad25853fbe9f1b62a9e84efe727056aa2e5ea0b095efc1eab7f/test392994818a004f5460dff81052dc5b927146d6ca7c7ce8e752d59ff0aee25d81.",
+      "phase6": "Temporal independent on new three-path generic capability scanner; actual unresolved source adapters remain non-green.",
+      "demography": "Q2 r3 review03fd4f9432de6bfda8c374bfd00ff66d0a79fb59448b9fd8aefd0d319f4dc611; source7173/testd93f frozen ready for root ordinary source commit."
+    },
+    "resources": "Two heavy Mac slots, one numerical thread/process; read-only/light checks parallel. Ordinary commits serialize global tracked writes because lefthook fail_on_changes observes all worktree bytes. RAW/read-only execution continues. Disk50GiB, no cleanup census."
+  }
 }

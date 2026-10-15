@@ -1,0 +1,269 @@
+{
+  "receipt_id": "chronology-epoch-native-owner-bridge-20261015",
+  "document_type": "local_implementation_handoff",
+  "status": "implementation_committed; bounded independent reviews GO; external owner inputs remain held",
+  "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+  "branch": "codex/e02-unified-local-20261009",
+  "scope": {
+    "queue_slice": "R3 chronology-to-epoch owner bridge, with controlled N8 source-projection witnesses",
+    "purpose": "Resolve and content-bind persisted native chronology projections through the existing owner qualification consumer before the epoch graph reader accepts the corresponding production receipt.",
+    "formal_finding_ids": [],
+    "closure_ids": [],
+    "closure_proposals": [],
+    "proposal_boundary": "This component handoff assigns no formal finding IDs and makes no closure proposal. Q0/G must bind each exact original occurrence before any finding-level proposal."
+  },
+  "source_observations": {
+    "initial_slice_observation_5c5_separate": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "5c5aba7258a35ec769a39378c2e881a85461c897",
+      "tree": "446bba7d2b4ab3818d728508b02d273b93ab0e16",
+      "parents": [
+        "8c1cd1cbccb0606f42ace814b1e1e3d63e1d5c4c"
+      ],
+      "commit_message": "fix: retain Scholar selected profiles through prior provenance",
+      "role": "Historical initial workspace observation only. It is not the candidate source commit, not the source-slice commit base, and does not make the later implementation present in this tree."
+    },
+    "candidate_worktree_freeze_before_replay": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "a4c10b32e7aaf02bab42ac6fe4a79a048f5c52cf",
+      "tree": "50dc8a5ed3fa63d00448632655afdb97f9ee9f2b",
+      "parents": [
+        "e8f37c7178e0c5c69508fbe785992c63000e4606"
+      ],
+      "candidate_source_frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/r3-composed-plus-n8-9path-pre-source-frame-20261015.json",
+      "candidate_source_frame_sha256": "1ecb078139b67f2d9f2885407249be71d2bdc1b2075bc5f5243589d5d88dad84",
+      "post_replay_source_frame_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/r3-composed-plus-n8-9path-post-source-frame-20261015.json",
+      "post_replay_source_frame_sha256": "1ecb078139b67f2d9f2885407249be71d2bdc1b2075bc5f5243589d5d88dad84",
+      "note": "The frame records HEAD/tree separately from the nine candidate working-tree file hashes. Those frozen file bytes were then committed as 8513eaeca9327b08985bdad20dd33f8d1f5cee08."
+    },
+    "committed_source": {
+      "commit": "8513eaeca9327b08985bdad20dd33f8d1f5cee08",
+      "tree": "466acf94fac0cc550da338789fe4f7f65a9ac222",
+      "parents": [
+        "a4c10b32e7aaf02bab42ac6fe4a79a048f5c52cf"
+      ],
+      "message": "fix(runtime): verify chronology qualifications before epoch activation",
+      "published_on_candidate_branch": true,
+      "source_paths_unchanged_at_handoff": true
+    },
+    "current_workspace_observation": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "9e5077d89d08fc3aa507c9ddcaa7d0bb6769b2bf",
+      "tree": "a36f7cd7007729226afa25e494a558a79d123e94",
+      "parents": [
+        "1c052c8f5c00229e1402ddcb3090a0c485e57fbb"
+      ],
+      "intervening_commits_after_source": [
+        {
+          "commit": "230b11ff4b858fbf84c4ea19b3337c59b3d88cb5",
+          "tree": "fe9f85d83fbbe102ad4d6432c834079379280461",
+          "parent": "8513eaeca9327b08985bdad20dd33f8d1f5cee08"
+        },
+        {
+          "commit": "1c052c8f5c00229e1402ddcb3090a0c485e57fbb",
+          "tree": "f94697eb2c2eab903430e91daf553b27074cc1ac",
+          "parent": "230b11ff4b858fbf84c4ea19b3337c59b3d88cb5"
+        },
+        {
+          "commit": "9e5077d89d08fc3aa507c9ddcaa7d0bb6769b2bf",
+          "tree": "a36f7cd7007729226afa25e494a558a79d123e94",
+          "parent": "1c052c8f5c00229e1402ddcb3090a0c485e57fbb"
+        }
+      ],
+      "branch_tracking": "origin/codex/e02-unified-local-20261009 at the same HEAD",
+      "worktree_state": "shared worktree contains other uncommitted paths; this handoff changed no product source, and all nine owned source/test paths still match the committed source SHA-256 values below"
+    }
+  },
+  "implementation": {
+    "mechanism": "The epoch graph reader resolves the selected chronology projection and related persisted refs, verifies the full-prefix bundle/proof/member frames, then reuses the existing native chronology qualification consumer against current owner history. It accepts the projection only when the fresh qualification, reconciliation, proof result, projection statement, and selected CAS ref match the persisted chain. The owner callback is a private service-bound dependency, not a caller-supplied boolean or self-labelled capability.",
+    "preserved": [
+      "No chronology law, issuer authority, custody, production currentness, or external permission is synthesized.",
+      "Profileless historical references remain reader-materialized and do not become producer-attested selected-profile claims.",
+      "Epoch history append and production receipt wire data remain canonical and content-bound; the additive chronology projection does not rewrite old history.",
+      "Ambiguous distinct policy admissions continue to fail closed in either ordering."
+    ],
+    "capability_boundary": {
+      "contract": "Typed epoch production/history receipt and native chronology projection contracts are connected to the existing chronology and CAS owner APIs.",
+      "producer_artifact_bridge_consumer": "Controlled source-bound fixtures produce/persist the chronology evidence; the epoch reader resolves and requalifies the exact projection before accepting the receipt.",
+      "verification": "Composed semantic-epoch/store/bridge suite plus selected-profile source-projection positives and wrong-rowset, altered owner-receipt, and ambiguous-admission refusals are retained below.",
+      "authority": "Controlled fixture behavior only. Institutional authority, external law, custody, and production currentness remain not_established.",
+      "held_capability": "L5 relation_provenance_ref b35 remains unresolved and the local L5 relation row-to-CAS/consumer bridge remains bridge_missing; see the separate D-L5-b35 decision packet."
+    }
+  },
+  "source_and_test_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/epoch.py",
+      "sha256": "5652f78306e8d7b083ad864f5c2c552ddc3a0957beebbf0a60e0782883b93942",
+      "git_blob_at_source_commit": "cdeb75c4373312b6c6c465f2355993c8f712a52f",
+      "role": "Typed persisted epoch chronology projection and receipt contract companion"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+      "sha256": "4e19b2b81902347268bd4444cde2f81196ee81082bd24ad064443017fd35a759",
+      "git_blob_at_source_commit": "41c1f00cdc1508564a456006b79e548397ee47ec",
+      "role": "Generic selected-ref graph codecs, full-prefix/projection replay, fresh owner qualification, and persisted-chain reconciliation"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch_store.py",
+      "sha256": "b84b5151aaf703e968d9d855b8c414bad8e4daf06a62c01eade2c66533fb8c77",
+      "git_blob_at_source_commit": "c3a7cc684f0773d9c0c50e1e2a8b83abf68bdacc",
+      "role": "Canonical persisted receipt/history codec and selected-owner readback companion"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/acquisition_production.py",
+      "sha256": "93452c23deffbadf852773cf6f1f436317702f46d0e2725ff371e8aed4aff637",
+      "git_blob_at_source_commit": "a2b14af1444f3f3d0cdb393f9eb68502a862ed3b",
+      "role": "Mandatory cache ABI fixture companion: use the actual cache payload kind/schema rather than a fabricated prefix"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/semantic_epoch_native.py",
+      "sha256": "689d1079493a07cdff489454634cf6bd220594d1ba16c0450dc72f1b88b747ab",
+      "git_blob_at_source_commit": "47b9a928bf0ac60350cb6ac99f8162abfba6b692",
+      "role": "Controlled owner-qualification service and exact-reference appointment test helper"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+      "sha256": "12be958ca6d0dcfe3b7bde58407c193eb45470499a9a33ae04d9a370bfa8cba7",
+      "git_blob_at_source_commit": "893847e860c052c2e706dceb9fb2514a9608fdb7",
+      "role": "Mandatory cache ABI wrong-kind negative control retaining the authentic producer positive"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_chronology_bridge.py",
+      "sha256": "e130a5ebfc3d44ab9096c916856d4b47853f9895518029fb1b06fb2a0876768e",
+      "git_blob_at_source_commit": "40d165c6174a329b215a4657ee345a97830b3342",
+      "role": "Actual chronology codec/owner-chain integration and altered owner receipt ref refusal"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_store.py",
+      "sha256": "73d3cb61abc2264b0c8ba657c1db611b4d041b59fb5ef4d61e18631b338dff26",
+      "git_blob_at_source_commit": "0d8de6a2aa9814944135ca60a676e376c6bf71ac",
+      "role": "History append receipt/current-head and persisted snapshot behavior"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "sha256": "27bb85f8dfafef416ea2ce8ea90ff81fd0c43005bb8d2e80c25c955d6b557ef4",
+      "git_blob_at_source_commit": "b5ad14fe93de6b7e1030cd687ba05a58b9010290",
+      "role": "N8 selected-source profile and unprojected physical rowset refusal"
+    }
+  ],
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-independent-review-20261015/review.md",
+      "sha256": "6681fa76356f4c50a5199a5ff2c80e2ee1db4aee3774e704f5f311d1491f89d4",
+      "scope": "Original chronology-to-epoch source review; six-path frame at the separate 5c5 historical observation",
+      "verdict": "GO for bounded source delta",
+      "limits": "Controlled fixture only; previous actual appointment-repeat path was not reached at that review cut; no formal closure proposed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/independent-r3-exact-ref-dedupe-review-20261015.json",
+      "sha256": "7c899697479f5f1b666d1fbfcf258ad537470c0744b3771e633f3ca55293fea3",
+      "scope": "Selected exact ArtifactRef deduplication and controlled fixture source binding",
+      "verdict": "GO"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/independent-r3-exact-ref-dedupe-review-r2-20261015.json",
+      "sha256": "1063640beb90d8dd8078d5fa2c37e07c6da8a8e203afcc12e6846ab5e86d9d66",
+      "scope": "Delta review of exact-ref fixture deduplication with source-bound catalog selection and ambiguity controls",
+      "verdict": "GO"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-abi-fixture-independent-20261015/review.json",
+      "sha256": "15c106fbcb4faf325cc6fb3c58524f45144a1644384662455f2a1e88fb97d718",
+      "scope": "Two mandatory cache ABI test/fixture companions against the actual cache payload contract",
+      "verdict": "GO_SCOPED",
+      "limits": "Fixture matches production payload serialization/kind/schema but does not exercise ConnectorCacheStore index, TTL, or resolved governance lifecycle"
+    }
+  ],
+  "verification": {
+    "composed_9_path_replay": {
+      "cwd": "policy-engine",
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest tests/unit/runtime/quality/test_semantic_epoch.py tests/unit/runtime/quality/test_semantic_epoch_store.py tests/unit/runtime/quality/test_semantic_epoch_chronology_bridge.py tests/unit/runtime/quality/test_value_gate.py::test_n8_source_profile_rejects_unprojected_query_row_set -q --tb=short --junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/r3-composed-plus-n8-9path.junit.xml",
+      "exit_code": 0,
+      "result": {
+        "tests": 31,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "process_elapsed_seconds": 52.503,
+        "junit_suite_seconds": 47.842
+      },
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/r3-composed-plus-n8-9path-command-20261015.txt",
+        "sha256": "9dcaacf9e2ab05d1e569e5b8b522cbaf73779dfaf55ecab948e48dd59512b4c1"
+      },
+      "full_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/r3-composed-plus-n8-9path-full-stdout-20261015.txt",
+        "sha256": "1b8f208de3636df279448e40805982570c4351601ce5723301928feea7d343cf",
+        "note": "Quiet pytest emitted progress only; the JUnit file is the complete per-test deciding output."
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/r3-composed-plus-n8-9path.junit.xml",
+        "sha256": "e500fc9f7b2705089ff11cd04f15b229f2672887ffbb5dfec72c1f5792d0903a"
+      },
+      "result_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/r3-composed-plus-n8-9path-result-20261015.json",
+        "sha256": "51521a4e66bf422db9755d9a01331ade5b04c3c31ffeea3ff4622a1d25882bd7"
+      },
+      "source_and_head_unchanged_during_replay": true,
+      "scope_note": "This 9-path replay supersedes the earlier 7-path progress-only run for current composed evidence. The earlier replay remains historical because it did not bind the two mandatory cache ABI companion hashes."
+    },
+    "controlled_3_variable_source_profile_positive": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/n8-three-variable-fresh-profile-positive-r2-20261015.txt",
+      "sha256": "84b7174cd6054ab7559c61cbb504d98877581c60a0b58a66744cd00b81801368",
+      "result": "All three source projections active and recomputed, 200 observations each; fresh selected explicit-path candidate profile contains 200 rows. Treatment assignment remains owner_assignment_unresolved.",
+      "input_boundary": "Controlled synthetic local source/catalog fixture; not a production-serving instance or institutional input."
+    },
+    "controlled_n8_unprojected_rowset_negative": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/n8-three-variable-fresh-rowset-refusal-20261015.txt",
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+      "test_result": "PASS: one test passed",
+      "property_result": "The selected-source consumer refuses an additional unprojected physical row with active_observation_projection_rowset_mismatch."
+    },
+    "distinct_admission_ambiguity_both_orders": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/n8-distinct-admission-ambiguity-probe-r2.stdout.txt",
+      "sha256": "09c47f133d1d8081593501d6e84322d1e5b8454aa54c681048eed3cca66354ce",
+      "result": "Two distinct signed admission refs and distinct policy refs/hashes, with the same selection key and request context, remain policy_admission_ambiguous in both forward and reverse order."
+    },
+    "same_admission_reappointment_selected_ref_positive": {
+      "probe_script": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/n8-repeat-exact-admission-selected-ref-probe-r5-20261015.py",
+        "sha256": "47b9eee99d6f70f79016ebc6969757ef6499a05da1ef95748966e565d3f241fb"
+      },
+      "result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/n8-repeat-exact-admission-selected-ref-r5-20261015.json",
+        "sha256": "4e1459b91fd88eb4d214a6e2766ff3bd8f8ad2d66b6a7d364ca8575e03d684cd"
+      },
+      "full_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/n8-repeat-exact-admission-selected-ref-r5-stdout-20261015.txt",
+        "sha256": "362b7ccf6c59a5ce4c301f477dec6cdcde7b6258590797bd47ad1ee5019c6493"
+      },
+      "result_summary": "The exact same signed admission ArtifactRef was requested twice and reused; a fresh selected-profile read and fresh owner qualification matched the persisted projection/receipt chain; the persisted production-receipt graph resolved.",
+      "fixture_limit": "Controlled synthetic native epoch only. No external issuer, law, custody, production appointment, or currentness is established."
+    },
+    "original_5c5_epoch_scope_refusal": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-chronology-epoch-owned-bridge-20261015/native-projection-boundary-trace.stdout.txt",
+      "sha256": "745f8484c42fd4dfe9acd88040f01d69bbe3771809cf4275168ae65df97a5a29",
+      "result": "Historical controlled trace refused finalize_admitted_epoch with epoch_scope_unresolved before a positive append. It is retained as a separate initial-observation output, not represented as a current positive or external-input failure."
+    }
+  },
+  "held_external_and_source_boundaries": {
+    "l5_b35": {
+      "decision_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decision-l5-b35.json",
+      "decision_packet_sha256": "697bd988c569eb77dbba8dbd8f8a8b517a4d9cd0932022bb66dd5f5c586f36f2",
+      "status": "decision_pending_fail_closed",
+      "capability_labels": [
+        "bridge_missing",
+        "artifact_missing"
+      ],
+      "unestablished": "The target meaning/source of relation_provenance_ref artifact_id sha256:b35defc2e3214b6baf41ed33e2fff808639059cb0f0ba31d56125765e74548ca; exact external payload/issuer/schema/custody/currentness; row-to-CAS consumer bridge.",
+      "required_next_input_or_choice": "Named source/owner supplies exact bytes and versioned contract, or G/owner explicitly selects a local/legacy interpretation while preserving fail-closed semantics and a separate local content identity."
+    },
+    "global_authority_boundary": "The local fixture and computed hashes prove only controlled byte/contract behavior. They do not create or attest external law, permission, issuer identity, custody, production workload, institutional appointment, or currentness."
+  },
+  "remaining_checks": [
+    "G must independently review the exact committed source tree and adjudicate original findings/occurrences; this author handoff is not G acceptance.",
+    "Resolve or explicitly keep held the separate L5 b35 source/meaning and required local owner bridge; do not change its bytes or infer issuer/currentness.",
+    "Any later source delta touching these nine paths invalidates the relevant source-bound evidence and requires a new reviewed freeze and composed replay."
+  ],
+  "git_actions": "Source implementation commit 8513eaeca9327b08985bdad20dd33f8d1f5cee08 was already committed and published on the candidate branch. This handoff is a separate doc-only file; no source changes, staging, or commit were made for this packet."
+}

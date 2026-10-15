@@ -1,0 +1,70 @@
+{
+  "authority_boundary": "This proves only an internal fail-closed runtime refusal path. External owner authority/currentness, subject and estimand identity, owner-derived treatment assignment, identification/calibration validity, native uncertainty, and production-eligible S10 consumption remain outside this receipt.",
+  "disposition": {
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "future_own_receipt": "None is claimed; this handoff adds no test execution beyond the already referenced independent review receipt.",
+    "future_receipt_claim": "No future or separate runtime receipt is imported as evidence for this slice.",
+    "original_B31": "OPEN / NOT ESTABLISHED; no formal closure is proposed.",
+    "scoped_runtime_review": "GO for the current typed-refusal projection boundary and its focused tests."
+  },
+  "independent_review": {
+    "focused_command": ".venv/bin/python -B -m pytest -q -ra -o addopts= -p no:cacheprovider --import-mode=importlib tests/unit/runtime/quality/test_value_gate.py::test_value_port_preserves_typed_method_run_owner_refusal tests/unit/runtime/quality/test_value_gate.py::test_value_port_surfaces_typed_owner_measurement_unit_refusal tests/unit/runtime/quality/test_value_gate.py::test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition",
+    "full_stdout": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-value-owner-independent-review-20261015/focused-tests.stdout.txt",
+      "sha256": "74c61548962f636f45c246c33fe67dfbb08d7d1d36a4926b3a2e238ab185e35f"
+    },
+    "report_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-value-owner-independent-review-20261015/review.json",
+    "report_sha256": "e36959ed3a324f3da334339e639f4d710ec6c223c7abd4b4f7eac3183b82b124",
+    "result": "10 passed, 1 warning in 60.22s",
+    "warning": "The invocation disabled pytest cacheprovider, making project cache_dir an unknown config option; this is harness-only."
+  },
+  "later_readback_context": {
+    "commit": "a4c10b32e7aaf02bab42ac6fe4a79a048f5c52cf",
+    "note": "Later receipt commit and dirty worktree were observed separately; this handoff remains pinned to source_frame above. No branch state was changed.",
+    "parent": "e8f37c7178e0c5c69508fbe785992c63000e4606",
+    "tree": "50dc8a5ed3fa63d00448632655afdb97f9ee9f2b"
+  },
+  "original_slice_observation": {
+    "author_packet": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-value-owner-failure-20261015/r3-pending-identity-packet.json",
+      "sha256": "d9d349673140b7084f52b836badac834bfd84c3a4b39cc47b68df9e993c3706a"
+    },
+    "commit": "5c5aba7258a35ec769a39378c2e881a85461c897",
+    "relationship": "Original author observation only. It is separate from both the source delivery frame and this independent current 10-test review.",
+    "tree": "446bba7d2b4ab3818d728508b02d273b93ab0e16"
+  },
+  "pattern_pass": {
+    "P29": "Behavioral tests exercise the real local owner loader/Foundry port and assert blocked output/no value, not marker presence.",
+    "P31": "Same typed owner-refusal class is handled at one shared boundary projection, not patched per refusal instance.",
+    "P32": "The gate discriminates on the exception type; matching an error-code string alone does not impersonate typed evidence.",
+    "P40": "SAME_CLASS_ONE_LEVEL_DEEPER; this slice widens the shared parser and mapping mechanism over the bounded unit-input class. The separate unreached N8 setup is not converted into a per-case patch or a B31 closure."
+  },
+  "receipt_id": "b31-typed-value-owner-refusal-20261015",
+  "scope": "Internal runtime typed owner-refusal behavior only; this receipt does not close original B31.",
+  "source_frame": {
+    "commit": "e8f37c7178e0c5c69508fbe785992c63000e4606",
+    "parent": "7f9bba8298081bb1c21e3c657561a2141994c98c",
+    "review_binding": "The two source/test paths below are read from this committed source frame; this is not a clean-worktree claim.",
+    "tree": "cba27165364cf92e46ffcaaeacfe8fdd898239d4"
+  },
+  "source_paths": [
+    {
+      "git_blob": "824b35cfa03f418c42a6197091f05909fbf854a0",
+      "mechanism": "One shared private parser/unit resolver classifies missing, conflicting, malformed JSON, wrong object shape, and wrong unit type; the loader maps these to typed ValueOwnerAccessError codes with owner provenance and actionable next-input detail. The shared projection helper preserves typed owner failures at initial profile, run-intent, and run-basis/fresh-reader exception boundaries. No unit conversion, calibration, or authority is minted.",
+      "path": "src/polisyos/runtime/quality/generation_cycle.py",
+      "sha256": "781f1eec37bcf1ef74256a8402ce428031ae5a463bcb43808379b3a6beca9e7e"
+    },
+    {
+      "behavior": "Real L1 DCAT fixture to FoundryValuePort refusal cases cover absent/blank/empty/malformed/wrong-shape/wrong-type/conflicting units. A typed ValueOwnerAccessError and a plain ValueError with the same code text produce different boundary outcomes. A valid profile with no owner-derived treatment assignment still blocks and yields an acquisition requirement.",
+      "git_blob": "7edace5dd0d0cc346e22dd16c4c279a5031ee788",
+      "path": "tests/unit/runtime/quality/test_value_gate.py",
+      "sha256": "db10510af99cbc01d1acc32d0a43a598357f174d524572181338ca5b7d9355ce"
+    }
+  ],
+  "third_catch_runtime": {
+    "later_frame": "A later R3 three-variable-row refusal belongs to a separate newer frame and is not evidence for this source slice or this 10-test review.",
+    "reason": "The existing N8 source-projection control stops during its separate setup before those assertions, as recorded in the original observation packet.",
+    "status_at_this_review": "UNREACHED; no runtime claim is made for the run-basis/fresh-reader catch."
+  }
+}

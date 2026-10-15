@@ -1,0 +1,132 @@
+{
+  "schema_version": "policyos.e02.local-design-packet.v1",
+  "decision_id": "public-surface-static-purity-vs-runtime-verification-20261015",
+  "purpose": "Candidate architecture decision for independent G review. This packet records evidence and a choice; it is not a code acceptance, waiver, formal finding closure, or permission to change the guard before the owner decision.",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "75e1e60fb11738397074baff21872dcb91d18a0c",
+    "tree_at_review": "63cc8f13211938ffba98ff0da3dbb2d5f9628e28",
+    "parent": "7b23055ad0457ac312296e35e08d46731461335a",
+    "note": "Shared checkout was dirty and other authorized writers were active. This is path-digest-bound evidence, not a clean final source freeze."
+  },
+  "question_for_g": "Does public-surface completeness mean that exports are statically derivable from the current pure-declaration grammar, or that the source-declared API is proven usable by a controlled runtime consumer?",
+  "owner_and_authority": {
+    "contract_owner": "team-architecture",
+    "formal_adjudicator": "G",
+    "author_role": "local candidate author; not an independent acceptor",
+    "external_authority_or_expiry_issuer": "not applicable; no issuer, blanket waiver, expiry, or clock shift is proposed"
+  },
+  "pattern_pass": {
+    "patterns": [
+      "P38",
+      "P29",
+      "P32"
+    ],
+    "bucket": "Same public-export completeness gate, one level deeper: the static resolver treats package/parent initializer imports as part of the purity proof even when they do not alter the finite export declaration.",
+    "target": "Keep unknown distinct from empty and retain adversarial/effectful-import refusal. Resolve the contract boundary before changing the gate.",
+    "capability_status": "The inventory/runtime verification relationship is unresolved; no formal public-surface closure is claimed."
+  },
+  "observed_property_and_divergence": {
+    "product_property": "Inventory and release checks should identify supported public entrypoints and their usable export surface.",
+    "current_gate_predicate": "Every export count must be derivable by the finite static grammar after all imported modules and package initializers pass the no-execution/passive-binding audit.",
+    "divergent_case": "The current polisyos.common facade declares seven runtime exports and implements lazy __getattr__ with importlib. The static inventory marks that entrypoint incomplete, while the controlled runtime consumer resolves declared names. The full current denominator has 67 unique supported entrypoints and 5,300 runtime-declared names resolving, while the direct static evaluator reports 67 unresolved entrypoints and 67 incomplete_exports violations.",
+    "prototype": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/public-surface-native-gate-systemic-20261015/parent-importlib-p38-prototype.json",
+      "sha256": "d8e1c84565ed3dcab24ea0296e9c05412c021a3531941d05297c4bc08060c159",
+      "stdout_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/public-surface-native-gate-systemic-20261015/parent-importlib-p38-prototype.stdout.txt",
+      "stdout_sha256": "77d075d6b9fe3e5ea67a6712d7ac5d5d42eabf4aaef16ad36bb5b4392f533a39",
+      "result": "In a controlled package with literal __all__, an otherwise unused parent importlib import changes static resolution from complete to unknown while an actual subprocess import returns the same export/value before and after its removal. This isolates the dependency-slice divergence; it does not establish arbitrary import safety."
+    }
+  },
+  "source_and_gate_evidence": {
+    "tracked_inputs": {
+      "architecture/public_surface/contract.toml": "87f24939839c452064f752c2031ddaae473c82b96484105d4818e690d0338e9f",
+      "architecture/public_surface/inventory.json": "e28add8c2aabd842e556a2a6717afc8f0aaf9210724e4d4893a43961e7ef80e5",
+      "docs/reference/public-surface.md": "5884fc9920a81844121ad412048d03ce2d36cc0adf82c1b47c4825b3d1011dc9",
+      "tools/devx/architecture/guardrails.py": "575f9b75a23ad7da49dec3b823f1ee7910828b7b7f2b54d72a766f17e841a897",
+      "architecture/gates/repository_sota.toml": "b049b8f7d27ec1af17c0d024da86f2c4ab846a24c05a654448f1eb02cbc0baf1",
+      "tools/devx/workspace/repository_sota_closeout.py": "b997674f203fd58e5051926634458360b70a3863db2ed307b5f5e153b360c1e6",
+      "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py": "7748591b128e0fa999c21c10f52dc67f6bddc50030206fed9ec3c55eb9b334e6",
+      "tests/repo_quality/architecture/test_public_surface_export_resolution.py": "c2e8500bd394c18437dd1e086f8842f96c2dba4e48901347de2878af8cd0ec58",
+      "src/polisyos/common/__init__.py": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080"
+    },
+    "gate_loci": [
+      "guardrails.py:_StaticExportResolver (1181-1187): source-only finite grammar; no execution",
+      "guardrails.py:_import_source (1541-1555): rejects external imports, including stdlib, while loading parent/package source",
+      "guardrails.py:_audit_statement (1686-1736): rejects unsupported import-time/effectful constructs",
+      "guardrails.py:_entrypoint_inventory (1876-1940): unresolved remains distinct from empty exports",
+      "guardrails.py:_check_public_surface_contracts (3400-3455): unresolved export_count becomes incomplete_exports"
+    ],
+    "current_static_census": {
+      "raw_receipt": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/public-surface-native-gate-systemic-20261015/current-static-inventory-census.receipt.json",
+      "sha256": "22d52c6adbc96357a6c0d7207f75d93c972d9f56a785748fabeb430a38593a51",
+      "denominator": {
+        "package_rows": 20,
+        "unique_supported_entrypoints": 67,
+        "supported_entrypoint_occurrences": 67,
+        "unresolved_rows": 67,
+        "incomplete_exports_violations": 67,
+        "reason_classes": 25
+      },
+      "result_scope": "Direct invocation of the current inventory builder and public-surface contract evaluator; not a full native SOTA run."
+    },
+    "runtime_and_removal_controls": {
+      "runtime_receipt": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/public-surface-canonical-application-20261015/application.json",
+      "runtime_receipt_sha256": "8607470121c780da46e84be575e5cf2f6968baf4bbf4d865ef9a631f300b5fbd",
+      "runtime_junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/public-surface-canonical-application-20261015/runtime-and-drift.junit.xml",
+      "runtime_junit_sha256": "938d609200601b1e993f8a328efb90086dc689eccd698d28f5b3f9001f8ccdce",
+      "runtime_result": "2 tests passed; current in-tree consumer checked 67 unique entrypoints and resolved 5,300 runtime-declared names. This is not an installed-wheel/sdist receipt and does not prove every name's owner identity or absence of extra unlisted attributes.",
+      "marker_retaining_removal_control": "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py:186-295; altering/removing a supported export while retaining facade markers produces generated inventory drift. The existing effectful owner/__getattr__ controls in test_public_surface_export_resolution.py:509-569,652-691 refuse unsafe inference."
+    }
+  },
+  "native_gate_status": {
+    "public_surface_row": {
+      "owner": "team-architecture",
+      "mode": "fail_closed",
+      "command": "uv run polisyos-tools architecture guardrails check",
+      "source_evaluator": "FAIL: current direct evaluator reports 67 incomplete_exports violations.",
+      "native_sota_row": "not_established: this review did not run the exact native SOTA command on a final freeze."
+    },
+    "generated_drift_row": {
+      "command": "uv run polisyos-tools architecture guardrails check --all-generated-checks",
+      "status": "not_established: generated inventory and reference docs are current changed inputs; their focused drift tests do not substitute for the native SOTA row."
+    },
+    "closeout": "No full native SOTA wave or installed-wheel/sdist consumer was run by this review. Neither row has a waiver or a closure proposal."
+  },
+  "options_for_g": [
+    {
+      "name": "Ratify static-purity requirement",
+      "reuse_first": "Keep the existing source-only resolver and hard gate.",
+      "impact": "Migrate supported facades and all required dependency surfaces to the admitted pure-declaration grammar. The migration spans the current 67-entrypoint denominator; actual effort and deadline are not estimated. The public-surface row remains red until the native command passes.",
+      "risk": "Strong no-execution property; broad facade and dependent API changes may be substantial."
+    },
+    {
+      "name": "Extend the existing static dependency-slice resolver",
+      "reuse_first": "Retain the current static resolver, but derive a generic, bounded dependency slice for export declarations instead of treating every parent/import effect as export evidence.",
+      "impact": "Prototype on a lazy facade and a dynamic/computed __all__ facade; preserve unknown for unsupported declarations and all effectful-owner/callback controls. Static correctness and future grammar maintenance remain the main cost.",
+      "risk": "A broader parser/effect model can grow without bound and must not become an importlib-name whitelist."
+    },
+    {
+      "name": "Separate static declarations from runtime verification (candidate recommendation)",
+      "reuse_first": "Keep extraction non-executing; report finite statically declared names separately from verified runtime exports. Use the existing runtime consumer as the behavioral side of the contract.",
+      "impact": "At the chosen source freeze, compare generated declared names with runtime module.__all__, resolve every getattr, and verify mapped owner bindings. Keep non-finite declarations unknown. Run source tests plus exact installed wheel and rebuilt sdist consumers in the frozen supported profile.",
+      "risk": "Requires G/architecture acceptance of the declaration-versus-runtime split; declaration alone must never yield a native pass."
+    },
+    {
+      "name": "Use runtime introspection to generate the inventory",
+      "reuse_first": "No existing safe isolated runtime generator was evidenced in this review.",
+      "impact": "Would execute all imported entrypoint code and become interpreter/backend/environment dependent; would need a supported sandbox and exact artifact-origin binding.",
+      "risk": "No tested isolation contract is available; do not adopt absent a separate architecture/security decision."
+    }
+  ],
+  "recommended_candidate": "Option 3, only after G and team-architecture accept the semantics. Do not edit guardrails, classify unknown as empty, or weaken a gate before that choice.",
+  "next_check_after_choice": [
+    "Record the G/architecture choice and affected migration set; do not infer an expiry issuer or blanket waiver.",
+    "Prototype one lazy facade and one computed/dynamic __all__ facade against exact names, actual getattr, and owner mapping; retain current mutation/callback/effectful-import negatives.",
+    "Prove removal/change of an export fails while surface markers remain, and prove a runtime owner mismatch fails; also corrupt a generated inventory field and require the canonical --check to fail.",
+    "Freeze the complete 67-entrypoint source/profile denominator; regenerate and check inventory/docs; run exact source, installed-wheel, and rebuilt-sdist consumers with origin checks.",
+    "Run the exact public-surface and generated-drift SOTA rows, then the complete required native SOTA wave once on the resulting freeze. Record FAIL, ERROR, SKIP, and UNRUN separately."
+  ],
+  "formal_closure_ids": [],
+  "formal_acceptance": "none; independent G adjudication remains required"
+}

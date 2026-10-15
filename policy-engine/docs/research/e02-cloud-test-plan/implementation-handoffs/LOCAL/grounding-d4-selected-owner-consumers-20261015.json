@@ -1,0 +1,177 @@
+{
+  "format": "e02-local-implementation-handoff/v1",
+  "kind": "source_handoff",
+  "slice": "grounding-d4-selected-owner-consumers",
+  "observed_repository_state": {
+    "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "a4c10b32e7aaf02bab42ac6fe4a79a048f5c52cf",
+    "upstream_head": "a4c10b32e7aaf02bab42ac6fe4a79a048f5c52cf",
+    "worktree": "dirty outside this slice; all five source/test paths below are clean relative to HEAD and match candidate bytes",
+    "candidate_is_ancestor_of_head": true
+  },
+  "source": {
+    "base": {
+      "commit": "92074009c670f90496f1e45460c8f379fbcee470",
+      "tree": "3291267d0488846c63db3f3f4b8bed3a0c2c15af",
+      "parents": [
+        "5c5aba7258a35ec769a39378c2e881a85461c897"
+      ]
+    },
+    "candidate": {
+      "commit": "7f9bba8298081bb1c21e3c657561a2141994c98c",
+      "tree": "d7680de5fa15472c6d1a9964dc11b28a3de455a3",
+      "parents": [
+        "92074009c670f90496f1e45460c8f379fbcee470"
+      ],
+      "subject": "fix(governance): verify persisted grounding and D4 source profiles"
+    },
+    "changed_files": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_risk.py",
+        "blob": "9f8b3833c9de975f42daf46b298f9beae43dbdad",
+        "sha256": "6d46a71f63cac03bf26969a6645d2369f83daca02a41520e62c98d55298a3b8e",
+        "bytes": 18862,
+        "working_tree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/governance/blueprint_release.py",
+        "blob": "bc2cf57a0eb42977562c766a2d40ae7c4bb0edaf",
+        "sha256": "1dfe672824af45585de4ccb8c7031a6de40462caf2e76148937400886e4f8da3",
+        "bytes": 136817,
+        "working_tree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+        "blob": "ee1a6b68fb3a4a59bae3c7932e7d61a101e75879",
+        "sha256": "3a2f89f0c81ebd2801a4a40884b96c110d676f3dbe4f3def83a1c38d3201915a",
+        "bytes": 51939,
+        "working_tree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_grounding_risk.py",
+        "blob": "2b78a353b7f5a08a529cbe0515a2fef7975c9fc2",
+        "sha256": "0df356415408638a2f8ab391aba6c677aa1735178e04aad3ef4dd0b4713354c8",
+        "bytes": 19449,
+        "working_tree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/governance/test_blueprint_release.py",
+        "blob": "feb66b0fcd3a760db0024403e227f0b26ab44827",
+        "sha256": "2b7361aef843bcd761f673fb416a0eab1cf767f92696307e736a2387a0972515",
+        "bytes": 73507,
+        "working_tree_matches_candidate": true
+      }
+    ],
+    "readback": "Candidate tree, parent, paths, Git blob IDs and file byte hashes were read from Git. All five working-tree files match candidate blobs."
+  },
+  "dependency_pins_observed_at_head": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/owned_json.py",
+      "sha256": "9d06198e8db627491716d39b527fbce78fd99fbf68397fe486e37e972074244a",
+      "working_tree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "sha256": "6d56dcd7042227ce00d617b0698eae26c263eaef72934dda06d911575b4aefae",
+      "working_tree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+      "sha256": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34",
+      "working_tree_matches_head": true
+    }
+  ],
+  "author_freeze": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-consumer-freeze-independent-20261015/grounding-d4-final-freeze-receipt.json",
+    "sha256": "c164d47d5bfc939963d3853bf8a33360ea6a02b524897b27031b2e9fe573c0c2",
+    "captured_base": "5c5aba7258a35ec769a39378c2e881a85461c897",
+    "source_commit_at_freeze": null,
+    "note": "Freeze was captured before the parent-controlled commits and names all five source hashes now in candidate 7f9bba8. The verification input set also mentions lessons.py and test_lessons.py; these are verification context, not part of this five-file source footprint."
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/grounding5-independent-review-20261015/report.json",
+    "sha256": "32bb93aa6c5b6c7f1ff375fecb081c72445ce9bba07f75802253c58bbf1adc56",
+    "review_base_head": "5c5aba7258a35ec769a39378c2e881a85461c897",
+    "reviewed_exact_five_input_hashes_match_candidate": true,
+    "verdict": "GO_SCOPED",
+    "formal_closure_ids": [],
+    "scope_note": "The reviewer reports exact five-file frozen-slice review from its recorded base; it does not claim a whole-composition final replay or G acceptance."
+  },
+  "capability_chain": {
+    "grounding_admission": "GroundingBindGate reaches GroundingRunBudget._admit only after relation/calibration checks. The path writes a run-scoped immutable CAS event with Core owner profile, run/binding identity, sequence and predecessor; replay reloads persisted events and recomputes binding, chain order, uniqueness, cap, head and currentness signals.",
+    "d4_consumer": "D4 receipt writer requests selected profile. Release reloads the persisted validation bundle and exact receipt refs, requires selected manifest-profile digests, checks the finite declared producer-owner ABI and schema/payload mapping plus stage identity, then loads typed outputs.",
+    "time_axis_consumer": "The reviewed Backtest diagnostic path derives dates from actual period_start values, sorts and validates the full axis, resolves the intervention index against that axis and returns a typed gap for invalid, duplicate, ambiguous or unresolved dates.",
+    "surface": "Runtime Gate/replay and D4 release/calibration consumers are exercised in unit/integration-style tests. This is not proof of the full Ukraine D3/D4/D5 producer chain or an external public API/dashboard acceptance."
+  },
+  "semantic_controls": [
+    "Grounding CAS tests cover fresh replay, restart/missing head, admission cap, refusal, event owner profile, binding ancestry and foreign same-byte owner metadata.",
+    "With owner validation removed, the same wrong-media event is consumed by generic typed decoding and replay changes to current with admission_count=1; the removal probe exposes the gate property.",
+    "D4 fresh-CAS reopen refuses four same-payload foreign kind/media/schema-name/schema-version profiles. Removing the D4 owner gate allows the counterfeit receipt to be consumed, reaching the downstream limitation.",
+    "Backtest time-axis tests use reversed real observations and verify complete sorted history/intervention index; malformed, duplicate, nonmonotonic and ambiguous dates yield a typed gap."
+  ],
+  "verification_outputs": {
+    "author": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-consumer-freeze-independent-20261015/pytest-final-four-modules-v5.stdout.txt",
+        "sha256": "302c481d0476715670506a6664542c2cdca3bcb6f6be63ec67b5ba0dde493cf4",
+        "result": "71 test cases passed across four selected modules"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-consumer-freeze-independent-20261015/pytest-grounding-7.stdout.txt",
+        "sha256": "83a1593c5b5783693fe3006d1f6597bcb4f3a5968f23b59481ee09a0477f910a",
+        "result": "7 focused grounding admission tests passed"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-consumer-freeze-independent-20261015/pytest-d4-6.stdout.txt",
+        "sha256": "700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24",
+        "result": "6 focused D4 receipt tests passed"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-consumer-freeze-independent-20261015/ruff-check-final-v2.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "result": "Ruff passed on changed paths and adjacent Lesson verification files"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-consumer-freeze-independent-20261015/ruff-format-final-v2.stdout.txt",
+        "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985",
+        "result": "eight files already formatted"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-consumer-freeze-independent-20261015/git-diff-check-final-v2.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result": "empty output; no whitespace errors"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-consumer-freeze-independent-20261015/generic-owner-removal-causal-probe.stdout.txt",
+        "sha256": "c1e28c21eea21293b978dd4362fbfa384954f6df9df89ad7fe078412ce60b4b0",
+        "result": "expected failing removal control: D5 release fails with generic typed reader after the owner gate is removed"
+      }
+    ],
+    "independent_review_report_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/grounding5-independent-review-20261015/report.json",
+        "sha256": "32bb93aa6c5b6c7f1ff375fecb081c72445ce9bba07f75802253c58bbf1adc56",
+        "result": "review report records Grounding and D4 focused results, exact inputs, limitations and scoped verdict; no separate reviewer stdout files were present in this raw directory"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-consumer-freeze-independent-20261015/grounding-d4-final-freeze-receipt.json",
+        "sha256": "c164d47d5bfc939963d3853bf8a33360ea6a02b524897b27031b2e9fe573c0c2",
+        "result": "complete author verification argv, exit codes, outputs and hashes"
+      }
+    ]
+  },
+  "limits_and_next_checks": [
+    "A matching D4 owner profile is declared-byte ABI conformance only; it does not authenticate the producer or establish institutional authority, admissibility, custody or currentness.",
+    "Profileless D0/D2/D4 raw snapshot remains not_established; D4 does not promote it from matching shape/profile. The valid controlled fixture reaches a separate source-profile limitation.",
+    "The independent report's `base_head` is 5c5aba..., before Ground5's parent Policy4 commit; only the exact five reviewed input hashes and the reported slice checks are portable evidence here. Run the final composed replay against the chosen source/input freeze.",
+    "The full Ukraine D3/D4/D5 producer chain and downstream public consumer remain to be demonstrated with genuine source/custody inputs; do not infer these facts from controlled fixtures.",
+    "Reconcile the exact original finding criteria and update per-ID proposals only after composed replay and G adjudication."
+  ],
+  "proposal": {
+    "disposition": "propose bounded source-level GO for Grounding admission replay, D4 selected-profile conformance, and tested date-axis diagnostics only; external facts and original finding mapping remain for G",
+    "closure_ids": [],
+    "formal_closure_ids": []
+  },
+  "authoritative_external_facts_claimed": []
+}

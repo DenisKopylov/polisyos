@@ -1,0 +1,53 @@
+{
+  "record_type": "bounded_implementation_delivery",
+  "source": {
+    "candidate": "ee21224e88ecbf154215e63bfbe05845fd5a5308",
+    "tree": "5849411fa96d41a8a17718d3ffc1eebcbbad98ca",
+    "parents": [
+      "816d47eee62b28906904373bc21229c73ce64327"
+    ],
+    "slice_base": "816d47eee62b28906904373bc21229c73ce64327",
+    "branch": "codex/e02-unified-local-20261009",
+    "footprint": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "sha256": "4d3181679789503bf8dd993f20cb9ac4e54139c0e778e4334adc0b15038907c1"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+        "sha256": "627dc34b631c49070f4d73fa5218f2b47310c6317a92de10179c4e4167f17d95"
+      }
+    ]
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-generation2-independent-review-20261015/independent-review.json",
+    "sha256": "346b695f08df256e30b97f96705a88ca4cdbd61b5b89e75ae41c7ce7a3b70034"
+  },
+  "scope": "Three invalid root-facade shadow imports removed in favor of the existing public module binding; fresh reader compares seed against loaded typed execution receipt, whose seed is also bound to request and immutable intent. Test companion corrects DTO field, numeric canonicalization, and explicit candidate-hint modality.",
+  "chain": "selected source profiles -> immutable method request -> actual method report/execution receipt CAS -> fresh owner reader -> recomputed seed/backend/fingerprint and candidate ValueOuterSet",
+  "input_backend_profile": "Controlled source projection and existing AIPW runner; full input/profile/runtime limitations remain in original prototype and N8 decision packet. No production causal/currentness fact.",
+  "deciding_receipts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b06-current-rebind-r2-20261015/rebind-result.json",
+      "sha256": "6469d71ed9447a797d9d4366181ad185821d93b97359065f4a383b5b3ce1b775"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n8-soundness-candidate-prototype-20261015/post-seed-n8-candidate-prototype-verification.json",
+      "sha256": "1d8cf25e239d153b28bfc6d54a11e97dd2cfd7b620145b939792df60d09a2def"
+    }
+  ],
+  "deciding_output_boundary": "B06 exact source7+3 controls pass. N8 candidate prototype1 passed only with a RAW-only in-process soundness-helper substitution; this is not normal product PASS. Full deciding stdout/JUnit/run commands are pinned by the referenced manifests.",
+  "test_semantics": "real_panel negative tests existing declared candidate-hint advisor route; it does not independently infer modality from source rows. All authority blockers remain.",
+  "decision_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/n8-bounds-soundness-candidate-projection-20261015.md",
+    "sha256": "39c06f73c1e0e3a6ed02bdc9dad672a500b215393da84b7a5f0facb5997ac9b4"
+  },
+  "remaining_verification": [
+    "Normal N8 candidate route still refuses the current soundness tier; do not bypass it in source.",
+    "Exact arbitrary estimand identity ATE versus operator type ate remains unresolved; no case normalization.",
+    "No scientific qualification, protected value authority, or whole B31 closure follows. Final native/composed source freeze remains pending."
+  ],
+  "proposal_status": "mechanical_source_delta_delivered; N8 semantics held",
+  "closure_ids": [],
+  "next_check": "G disposition of narrow candidate projection and typed estimand relation, then actual normal producer-to-fresh-consumer replay and all tier/authority falsifiers. Independent full closeout remains G."
+}

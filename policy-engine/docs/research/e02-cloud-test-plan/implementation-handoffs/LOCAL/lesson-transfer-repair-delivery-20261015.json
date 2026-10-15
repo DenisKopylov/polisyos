@@ -1,0 +1,92 @@
+{
+  "schema": "policyos.lesson_transfer_repair_delivery.v1",
+  "delivery_id": "lesson-transfer-repair-delivery-20261015",
+  "status": "three_path_source_committed_with_one_contract_question_open",
+  "source_commit": {
+    "commit": "230b11ff4b858fbf84c4ea19b3337c59b3d88cb5",
+    "tree": "fe9f85d83fbbe102ad4d6432c834079379280461",
+    "parent": "8513eaeca9327b08985bdad20dd33f8d1f5cee08",
+    "branch": "codex/e02-unified-local-20261009",
+    "current_head_at_delivery": "7b23055ad0457ac312296e35e08d46731461335a",
+    "readback": "The source commit is on the current branch. The exact three scoped paths match between the source commit and current HEAD; unrelated parallel worktree edits are outside this handoff."
+  },
+  "scoped_git_blobs": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "git_blob_at_source_commit": "024df49cb6f0fb571b80f11e38095456172946fa",
+      "sha256": "59fb56fba4c20beeed734dd668389a18ad80cd3d50ae5db5ba5e1a0b9c9fdb3a",
+      "role": "Preserve the already-resolved, verified source TransferContext at authorized lesson normalization sites; retain required nullable tenant_hash on ordinary local-index writes."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "git_blob_at_source_commit": "6b96ca08887cb8e9be538f574f5541864df0a450",
+      "sha256": "1fde806158294ded4c9d1ba60493584c5129336d06a0d6b7bdf13af35e1e0551",
+      "role": "Transfer admission/source scope tests, valid fixture ABI, authorized cross-tenant positive, and explicit denial controls."
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "git_blob_at_source_commit": "c47ecb4dd16430783c844d5a79dd45ed682d25c9",
+      "sha256": "f1eb3a802bbbeabe051350db92aa46da4cf0877ea885ca9702497ff948b9e968",
+      "role": "Fresh local index reopen preserves required nullable source scope; scoped positive and restored-null-omission refusal controls."
+    }
+  ],
+  "precommit_freeze": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/lesson-transfer-repair-freeze-20261015.json",
+    "sha256": "179f3bbf9282e2eaf39b34d2fad716b5da73b94edac0f61d734ac21194121f4d",
+    "note": "Retained as the original source/test freeze. This delivery binds its exact file hashes to source commit 230b11ff and adds the final decision/test disposition below."
+  },
+  "change_summary": [
+    "The normalized card consumes the exact validated source scope supplied by the intake path rather than re-resolving that source under the destination's live AccessScope.",
+    "The authenticated source-A to target-B cross-tenant route still requires the explicit opt-in and retains a refusal control when opt-in is false.",
+    "Local index JSON now retains the required nullable tenant_hash field; a fresh registry reopen preserves both unscoped and scoped source contexts, while a writer that omits the required null is refused."
+  ],
+  "verification": {
+    "full_two_module_run": {
+      "command": "cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/search/test_lesson_transfer.py tests/unit/scientist/search/test_lessons.py",
+      "result": "76 passed, 1 failed in 6.31s; exact full output retained.",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-transfer-scope-repairs-20261015/pytest-two-modules-final-with-summary.stdout.txt",
+      "output_sha256": "b885e3399b0ba99d9c1ddcc71d8312f0755ad6161495229ca93faaee8bee09fd",
+      "remaining_failure": "tests/unit/scientist/search/test_lesson_transfer.py::test_local_aggregate_distinguishes_unknown_from_declared_unscoped"
+    },
+    "focused_approved_controls": {
+      "result": "5 selected tests passed.",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-transfer-scope-repairs-20261015/approved-contract-controls-final.stdout.txt",
+      "output_sha256": "4d2df7a96ce4a667da3ccf295f2d16c728a65ed0e861a3baa919f7bb469b02b5"
+    },
+    "mixed_source_discriminator": {
+      "command": "Inline Python using the actual LessonRegistry and FileSystemCAS: eligible source alone, then the same eligible source plus a distinct unknown-scope source, then the high-level query.",
+      "result": "Eligible-only returns one candidate without refusals. Adding the distinct unknown-scope source returns zero candidates plus TENANT_SCOPE_UNKNOWN. query_with_transfer raises the typed TENANT_SCOPE_UNKNOWN refusal.",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-transfer-scope-repairs-20261015/mixed-source-candidate-discriminator.stdout.txt",
+      "output_sha256": "a9183c34e2f16ea31df46f43a03e2f9186354c2013148ee27980e305b9e14ac0"
+    },
+    "style": {
+      "ruff_check": "PASS; output SHA-256 82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18.",
+      "ruff_format_check": "PASS; output SHA-256 eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd.",
+      "scoped_git_diff_check": "PASS; empty output."
+    }
+  },
+  "open_G_decision": {
+    "decision_packet_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decision-transfer-partial-source-scope-20261015.json",
+    "decision_packet_sha256": "f9176307cbd5463e1d721009b295cda6ff82f125ba554696fef8af9acb866afc",
+    "G_status": "not_adjudicated",
+    "G_choice": null,
+    "bounded_interim_behavior": "Preserve current fail-closed behavior: the raw bundle suppresses all candidates when any blocking scope refusal is present, and query_with_transfer raises TENANT_SCOPE_UNKNOWN.",
+    "unresolved_contract": "The typed raw result has candidates and scope_refusals but no completeness or partial-result status. The contract has not decided whether an eligible candidate from one source may be exposed alongside an unrelated unknown-scope refusal.",
+    "authority": "No source-ownership or external-authority claim is made. Path/body digest binding does not establish independent source authority. No formal closure is proposed."
+  },
+  "remaining_test_finding": {
+    "test": "tests/unit/scientist/search/test_lesson_transfer.py::test_local_aggregate_distinguishes_unknown_from_declared_unscoped",
+    "precise_fixture_boundary": "The declared-unscoped record is in the target-local namespace. Transfer scanning skips the exact target index path, so that record is not a transfer candidate; the separate unknown source emits TENANT_SCOPE_UNKNOWN and current code suppresses candidates.",
+    "separate_eligible_plus_unknown_scenario": "A distinct eligible declared-unscoped source returns one candidate alone; when a distinct unknown-scope source is also scanned, the raw result has zero candidates plus TENANT_SCOPE_UNKNOWN. The high-level query raises the refusal.",
+    "disposition": "Keep the 1 failure visible. Do not rewrite its expectation or relax the all-or-nothing behavior until G selects the raw-result contract and a versioned completeness/partial status is defined if needed.",
+    "P41": "Not established as inherited; no exact pre-slice baseline replay with a complete zero-intersection input denominator is claimed."
+  },
+  "failure_register": {
+    "P29": "Fresh registry reopen and actual mixed-source behavior are exercised, including fail-closed and removal controls.",
+    "P37": "The mixed-source decision depends on source/target compatibility recomputed during scan; completeness of the external source universe is not established.",
+    "P38": "Current implementation suppresses all candidates on any blocking unknown-scope refusal; the distinct-source control demonstrates the boundary where the result contract matters.",
+    "P40": "This raw partial-result/completeness question is distinct from the fixed source-context revalidation class. It remains a decision item, not an instance patch."
+  },
+  "evidence_bounds": "This handoff covers exactly the three committed source/test blobs and the cited test/style outputs. It does not claim G acceptance, source-set completeness, external authority, inherited-failure classification, or broader suite closure.",
+  "git_delivery": "Source commit was read back on the current branch. No source changes, staging, or commits were made for this delivery handoff."
+}

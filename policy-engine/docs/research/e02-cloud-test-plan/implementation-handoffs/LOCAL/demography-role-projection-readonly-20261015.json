@@ -1,0 +1,122 @@
+{
+  "schema_version": "e02.local-implementation-handoff.v1",
+  "task": "Deep read-only contract for Ukraine DemographyRoleProjection",
+  "source_frame": {
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "product_root": "policy-engine",
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base_commit": "83b3259671b70cfdb3e6b10830a7878412a95db4",
+    "candidate_context_head": "816d47eee62b28906904373bc21229c73ce64327",
+    "candidate_context_tree": "24244ea0e08c784d21e318090dbe0ada898b665e",
+    "candidate_context_parents": ["83b3259671b70cfdb3e6b10830a7878412a95db4"],
+    "candidate_source_commit": null,
+    "candidate_source_tree": null,
+    "note": "The candidate code/test bytes below are currently in the working tree. The candidate fields remain null until the ordinary source commit is created and read back."
+  },
+  "write_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+      "sha256": "9bbc88abb70745f5d14e3dc299ad0929c87ab3ab3c1bec989dd8b149445cdf82",
+      "role": "mechanism owner"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+      "sha256": "21f785d485463398a2c91e8d5ff123eea8bf54b0ac71a701c9a9585ad5e8c327",
+      "role": "behavioral and producer-consumer companion"
+    }
+  ],
+  "problem_and_repair": {
+    "q2_reference": {
+      "partition": 3,
+      "global_row": 19,
+      "change_id": "ukraine-demography-inventory-read-api",
+      "historical_review": "R211 corrected value equality but did not establish deep immutability or detached mutable copies.",
+      "bucket": "P40 SAME_CLASS_DEEPER: nested values, payload exposure, constructor aliases, and mapping-derived copies violate the existing projection read-only promise."
+    },
+    "contract": "Mapping reads remain ordinary JSON dict/list/scalar values; payload and __getitem__ return detached deep copies. dict(projection) and dict(projection.items()) remain recursively mutable caller copies. Input payload mutations after construction do not alter the projection. Evidence stays attached and unchanged.",
+    "mechanism": "DemographyRoleProjection captures a private recursive JSON snapshot on construction. Public payload access and __getitem__ return detached copies; iteration exposes only validated string keys; equality compares the private snapshot. Dataclass field names, constructor argument order, repr/asdict/replace behavior, mapping equality, and unhashability were checked.",
+    "alternatives": [
+      "Chosen: owner-local recursive defensive snapshot and detached reads. This preserves ordinary dict/list caller semantics and avoids cross-domain coupling.",
+      "Rejected: MappingProxyType or frozen dataclass alone, which leaves nested mutable aliases.",
+      "Rejected: private IR frozen-container helpers, because this public API promises dict(projection) as a mutable copy and should not depend on another domain's private implementation."
+    ],
+    "authority_boundary": "No authority, currentness, semantic-completeness, or admissibility is inferred. Candidate evidence remains candidate_only; authority/currentness/semantic-completeness remain not_established."
+  },
+  "consumer_denominator": {
+    "query": "rg -l 'DemographyRoleProjection|load_reconciled_targets|load_transition_priors|load_donor_pool' src/polisyos tests",
+    "counts": {"source_python": 4, "source_readme": 1, "tests_python": 5, "total_files": 10},
+    "files": [
+      "src/polisyos/data_forge/read_api/ukraine.py",
+      "src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+      "src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+      "src/polisyos/data_forge/domains/ukraine/__init__.py",
+      "src/polisyos/data_forge/domains/ukraine/demography/README.md",
+      "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+      "tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+      "tests/unit/data_forge/domains/ukraine/test_import_topology.py",
+      "tests/unit/data_forge/test_phase5_ukraine_scaffolding.py",
+      "tests/unit/remediation/test_udf_05.py"
+    ],
+    "executed_source_consumer_query": "rg -l 'UkraineDemographyArtifacts|build_static_aging_state|StaticAgingSimulationEstimator|DemographyRoleProjection|load_reconciled_targets|load_transition_priors|load_donor_pool' src/polisyos -g '*.py'",
+    "executed_source_consumer_count": 8,
+    "executed_source_consumer_files": [
+      "src/polisyos/data_forge/read_api/ukraine.py",
+      "src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+      "src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+      "src/polisyos/data_forge/domains/ukraine/static_aging.py",
+      "src/polisyos/data_forge/domains/ukraine/__init__.py",
+      "src/polisyos/foundry/methods/catalog/simulation/demography.py",
+      "src/polisyos/foundry/methods/catalog/simulation/_registry_boot.py",
+      "src/polisyos/foundry/methods/catalog/simulation/__init__.py"
+    ],
+    "surface_trace": "The real candidate test builds a demography_source_inventory stage, resolves verified stage receipt and FileSystemCAS inputs, reads all three role projections, mutates detached copies, performs fresh target and aggregate reads, then builds static-aging state and executes StaticAgingSimulationEstimator.pure_step. Projection is not passed directly to Foundry; the typed aggregate is the consumer bridge."
+  },
+  "verification": {
+    "profile": "Local candidate .venv; candidate fixture stage/CAS is temporary test data. The test bypasses server/prior-stage gates via explicit test monkeypatches and makes no production-runtime claim.",
+    "red": [
+      {
+        "command": ".venv/bin/python -m pytest -q tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_candidate_reaches_all_real_readers_and_foundry",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-readonly-implementation-20261015/red.stdout.txt@6ad55b94cf8e8c679b9a19b1004a6a8cea5c0f56ccd462763549279d2ee3cb85",
+        "result": "FAIL before implementation: caller mutation through payload/nested Mapping aliases changed later projection reads."
+      },
+      {
+        "command": ".venv/bin/python -m pytest -q tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_historical_role_projection_detaches_nested_mutable_values",
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-readonly-implementation-20261015/historical-red.stdout.txt@3185e301e215c96c5a25407b96da5e90b0a96377a025f7ed6334969ae7d67531",
+        "result": "FAIL before implementation: mutation through payload changed the historical projection."
+      }
+    ],
+    "focused_tests": {
+      "command": ".venv/bin/python -m pytest -q tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-readonly-implementation-20261015/focused-tests-final3.stdout.txt@b71db6006ecc410f6085db2500759568a2da5d0cdf2fd3f7165307654085abe2",
+      "result": "PASS; 29 tests, including candidate producer/CAS/fresh-reader/aggregate/Foundry route and historical fixture mutation controls."
+    },
+    "canonical_ruff": {
+      "command": "policy-engine/.venv/bin/python -m ruff format --check --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py && policy-engine/.venv/bin/python -m ruff check --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-readonly-implementation-20261015/ruff-final3.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "result": "PASS with canonical workspace-root config and repository-root path context."
+    },
+    "strict_mypy": {
+      "command": ".venv/bin/python -m mypy --config-file mypy.ini src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-readonly-implementation-20261015/mypy-final3.stdout.txt@da2c1ab7b2c5e5c9b393871ccd04e4af31b308f1c7ab60d07e8dc0f9f0461150",
+      "result": "FAIL: six current diagnostics remain at source lines 213-215, 252, 650, and 1018, outside the new snapshot helper. They were not replayed on the slice base, so the red is not classified as inherited (P41 not_established)."
+    },
+    "dataclass_compatibility": {
+      "command": "PYTHONPATH=src .venv/bin/python (temporary fixture probe for dataclasses.fields/asdict/replace)",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-readonly-implementation-20261015/dataclass-compatibility.stdout.txt@83cb13cf4d62662740594dce9f6962340e740770c4ed7183636590266d9ec4d9",
+      "result": "PASS: field names remain role/payload/evidence; asdict and replace preserve detached payload/equality."
+    },
+    "formatter_ast_control": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-readonly-20261015/format-equivalence-final.json@2751bf9db0ad536377c4e4cbc365e39c4e8814eeb468512646d61f7e6e994139",
+    "production_bytes": "No production manifests, release descriptors, CAS objects, or source bytes were edited. Historical fixture bytes were compared before and after the mutation test; fresh reads retained original values."
+  },
+  "limits_and_next_check": {
+    "proposed_status_for_independent_review": "implemented; propose Q2 row 19 source-level read-only property verified for this candidate, pending independent Q2 review and G adjudication",
+    "formal_closures": [],
+    "author_claimed_closed_ids": [],
+    "remaining": [
+      "Independent reviewer should inspect the exact two frozen path hashes and decide whether the public projection contract is satisfied.",
+      "G retains formal compatibility and finding adjudication. No production authority/currentness or source authenticity is established by this test.",
+      "The targeted strict MyPy command remains red; no claim of full source-file typing or native-green status is made."
+    ],
+    "post-freeze": "No source change after the final source/test hashes above. Candidate commit/tree remain unset until the root ordinary commit is read back."
+  }
+}

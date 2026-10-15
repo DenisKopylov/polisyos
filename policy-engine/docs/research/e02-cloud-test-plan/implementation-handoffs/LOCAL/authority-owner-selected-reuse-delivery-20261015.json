@@ -1,0 +1,79 @@
+{
+  "record_type": "implementation_delivery_receipt",
+  "scope": "Idempotent verified authority owner writer returns its exact selected manifest ref",
+  "source": {
+    "candidate": "83b3259671b70cfdb3e6b10830a7878412a95db4",
+    "tree": "b3c64543522c942928dc5d6beb5385eb995be1ae",
+    "parents": [
+      "a3cbde0404d7025ab410bf1c1f0224b7d849ad09"
+    ],
+    "slice_base": "a3cbde0404d7025ab410bf1c1f0224b7d849ad09",
+    "branch": "codex/e02-unified-local-20261009",
+    "changed_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py",
+        "sha256": "a47345636486e0d96998d1baaad9c5c9d6beeaaadc9af744756935d94dbe6685"
+      }
+    ],
+    "readback": "Every changed path SHA was recomputed from git show of the candidate commit; no future receipt commit is referenced."
+  },
+  "unchanged_mandatory_test": {
+    "path": "policy-engine/tests/unit/runtime/quality/test_authority_reconciliation.py",
+    "sha256": "771550967b13b8da873debeba8713031487c4277d4322bc39dedb8a561e88780",
+    "verified_from_candidate_commit": true
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/authority-owner-selected-reuse-20261015/independent-review-r1.json",
+    "sha256": "42e65bc3ed27757d72002677c4d27b478f67268dd9d90b81df45b0c990d563eb"
+  },
+  "deciding_run": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/authority-owner-selected-reuse-20261015/independent-review-r1.run.json",
+    "sha256": "43fdf62881b7f88f823ee6c5234e8090a66227592ade3a8ce834c60c4666557a"
+  },
+  "deciding_outputs": {
+    "run_json": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/authority-owner-selected-reuse-20261015/independent-review-r1.run.json",
+      "sha256": "43fdf62881b7f88f823ee6c5234e8090a66227592ade3a8ce834c60c4666557a"
+    },
+    "stdout": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/authority-owner-selected-reuse-20261015/independent-review-r1.stdout.txt",
+      "sha256": "30494ec20df75e520828c1915b7975ffa04c350f541c36258fb556ca983055b0"
+    },
+    "junit": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/authority-owner-selected-reuse-20261015/independent-review-r1.junit.xml",
+      "sha256": "0b28fab66517ae3c91dcdc4e97d613a3eba7e9fdda155d10d0236d95d5131995"
+    },
+    "result": "3 passed, 0 failed, 0 errors, 0 skipped; runner elapsed 16.781 seconds (JUnit test time 12.947 seconds).",
+    "tests": [
+      "test_runtime_authority_writer_reuses_existing_cas_only_after_reconciliation",
+      "test_runtime_authority_writer_refuses_distinct_matching_authority_profiles",
+      "test_runtime_authority_writer_preserves_selected_envelope_profile_and_lineage"
+    ],
+    "warning": "Pytest emitted an existing unknown config option warning for cache_dir; this did not affect exit status or test results."
+  },
+  "full_footprint": "One source file changed; unchanged existing owning tests are explicitly pinned. This receipt is separate from implementation; no new DTO/config/lock/generator/resource bytes.",
+  "input_backend_profile": "Controlled FileSystemCAS with bare inventory alias and selected-profile view of the same writer result; selected envelope/event lineage and actual local identity contexts.",
+  "chain": "Authority writer -> existing full identity/envelope/event/attestation/profile/lineage reconciliation -> artifact_ref_for_manifest from reconciled manifest -> idempotent retry consumer.",
+  "predicate_boundary": {
+    "required": "Idempotent retry of the same verified authority identity returns the same exact selected manifest-profile ref regardless of whether inventory exposes it as an ArtifactID default alias or an explicit profiled ArtifactRef; genuinely distinct matching authority profiles remain ambiguous and refuse.",
+    "predicate": "The existing artifact payload, authority envelope, diagnostic event, writer attestation, canonical profile, lineage, and caller identity context all pass current full reconciliation before the stored result ref is returned.",
+    "p38": "No divergence found in this one-file delta: returned profile is derived from the reconciled manifest itself; inventory selector spelling does not substitute for profile identity."
+  },
+  "adversarial_and_removal": [
+    "Same-identity retry has actual CAS inventory containing both a bare ArtifactID alias and an exact profiled ArtifactRef; the retry must equal the original result and event count stays one.",
+    "Input, tenant, cell, run, job, trace/span, execution-profile, phase/time, closure, governance, event, and related context mutations refuse.",
+    "Two distinct authority manifest profiles that independently match the same CAS identity remain ambiguous; inventory and event log remain unchanged.",
+    "Selected envelope/event lineage and explicit source profile remain verified."
+  ],
+  "proposal_status": "bounded_source_delta_delivered_pending_G_acceptance",
+  "closure_ids": [],
+  "proposal_ids": [],
+  "limitations": [
+    "Shared tree was not globally frozen.",
+    "Only the three targeted owning tests were freshly run; this is not a full R27/module/native-wave receipt.",
+    "No external issuer, appointment, or production-currentness fact is asserted.",
+    "Adjacent NL policy-intent retry/rebind route remains separately unresolved and is not covered by this source delta.",
+    "Current actual NL nested DataSnapshot/normative-report routes remain a separate active mechanism; no NL or whole R27 closure follows from these three owner tests."
+  ],
+  "next_check": "Rebind genuine ordinary NL same-identity retry after NL/Foundry full nested-reference repair, with fresh API receipt and final source freeze. External issuer/currentness facts remain separately held."
+}

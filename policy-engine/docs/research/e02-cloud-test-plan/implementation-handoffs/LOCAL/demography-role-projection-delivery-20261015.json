@@ -1,0 +1,123 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Detached read-only Demography role projections with finite JSON admission",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": {
+      "commit": "83b3259671b70cfdb3e6b10830a7878412a95db4",
+      "tree": "b3c64543522c942928dc5d6beb5385eb995be1ae",
+      "parents": [
+        "a3cbde0404d7025ab410bf1c1f0224b7d849ad09"
+      ]
+    },
+    "application_parent": {
+      "commit": "4b25c8b55dc9ad4a01b2d59dc3345b19c62bbf21",
+      "tree": "c48eb6a15d4ac4f933af9a64a059871d7f2d6260",
+      "parents": [
+        "ee21224e88ecbf154215e63bfbe05845fd5a5308"
+      ]
+    },
+    "candidate": {
+      "commit": "e4979449809de2c836014cf20033a0fce90afa73",
+      "tree": "34cb50e5ac5ecc987ef6a97cb7777cfdc6176e06",
+      "parents": [
+        "4b25c8b55dc9ad4a01b2d59dc3345b19c62bbf21"
+      ]
+    },
+    "readback_verified": true,
+    "note": "Two-path ordinary source commit; all other active dirty lanes excluded. Source commit and this receipt are separate boundaries."
+  },
+  "source_test_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+      "sha256": "7173f64b3e24afecd43fa1d92d2478fbd2fd888bbe86ac8e6622439c76850068"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+      "sha256": "d93f544fd37e98473e750ab72539a17c8849f7a60174a939d50b814ea9d4a146"
+    }
+  ],
+  "property": "Constructor inputs and every exposed nested payload/mapping read are detached mutable JSON copies of one private captured snapshot. Recursive nonfinite numbers refuse at intake; finite numbers and signed zero retain values. Existing role/payload/evidence constructor, mapping equality and wire schemas remain.",
+  "pattern_pass": {
+    "mutable_aliases": "P40 SAME_CLASS_DEEPER; close complete nested-alias quantity.",
+    "nonfinite": "P40 NEW_CLASS; shared recursive admission rejects non-JSON numeric values.",
+    "authority": "P05/P29/P32/P37: controlled candidate data and real consumer behavior do not establish source authenticity, production currentness or institutional authority."
+  },
+  "selected_input_profile_backend": "OWN local .venv; temporary demography inventory stage and FileSystemCAS; server/prior-stage gates explicitly patched in controlled fixture. No production bytes edited.",
+  "real_chain": {
+    "test": "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_candidate_reaches_all_real_readers_and_foundry",
+    "behavior": "The controlled fixture creates and persists a demography_source_inventory stage, reads its verified stage receipt and FileSystemCAS members, exercises all three role projections, mutates caller copies, performs fresh and aggregate reads, then reaches build_static_aging_state and StaticAgingSimulationEstimator.pure_step.",
+    "removal_witness": "The pre-repair alias red is retained at implementation-handoffs/LOCAL/raw/resume-demography-role-projection-readonly-implementation-20261015/red.stdout.txt@6ad55b94cf8e8c679b9a19b1004a6a8cea5c0f56ccd462763549279d2ee3cb85. The pre-repair r3 numeric red shows all nine non-finite variants admitted at raw/resume-demography-role-projection-nonfinite-20261015/red.stdout.txt@85d603c4c8bb9bbd1b78816ac55c072d0efddbe628b8547f35cbe3a216ae7b37."
+  },
+  "source_bound_verification": {
+    "real_consumer_and_removal": {
+      "test": "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py::test_inventory_candidate_reaches_all_real_readers_and_foundry",
+      "behavior": "The controlled fixture creates and persists a demography_source_inventory stage, reads its verified stage receipt and FileSystemCAS members, exercises all three role projections, mutates caller copies, performs fresh and aggregate reads, then reaches build_static_aging_state and StaticAgingSimulationEstimator.pure_step.",
+      "removal_witness": "The pre-repair alias red is retained at implementation-handoffs/LOCAL/raw/resume-demography-role-projection-readonly-implementation-20261015/red.stdout.txt@6ad55b94cf8e8c679b9a19b1004a6a8cea5c0f56ccd462763549279d2ee3cb85. The pre-repair r3 numeric red shows all nine non-finite variants admitted at raw/resume-demography-role-projection-nonfinite-20261015/red.stdout.txt@85d603c4c8bb9bbd1b78816ac55c072d0efddbe628b8547f35cbe3a216ae7b37."
+    },
+    "finite_controls": {
+      "tests": [
+        "test_role_projection_rejects_nonfinite_json_numbers_at_every_depth: NaN, +infinity, -infinity at direct, list, and nested-dict depths",
+        "test_role_projection_preserves_finite_json_numbers_at_every_depth: 1.25, +0.0, -0.0 at the same depths, serialized with allow_nan=False"
+      ],
+      "independent_targeted_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/demography-role-projection-independent-r2-20261015/r3-independent-finite-controls.stdout.txt@769f78c4b1bf2f95c41e2082a397340919f80416cb54323cceefa00bf6cf0b11",
+      "result": "18 passed, exit 0."
+    },
+    "public_constructor_probe": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/demography-role-projection-independent-r2-20261015/nonfinite-json-probe.txt@a5399b6184689e65dcda4695738ad474dc47ab568c33e27217c107128708829d",
+      "result": "The direct public constructor rejected a nested NaN with the expected finite-JSON ValueError. Probe exit 1 is the expected refusal."
+    },
+    "focused_suite": {
+      "command_from_policy_engine": ".venv/bin/python -B -m pytest -q -ra -o addopts= --import-mode=importlib --junitxml=<raw>/r3-independent-final.junit.xml tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/demography-role-projection-independent-r2-20261015/r3-independent-final.stdout.txt@62574b90fb2ef5297ed429264526ff2580670a47416517eb30b2e77bd2f41aaf",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/demography-role-projection-independent-r2-20261015/r3-independent-final.junit.xml@055ad877a5e996ba2144e9828b2d6b3658a935e0cbd3ef0f1d78e58077b0acf1",
+      "result": "48 passed in 5.23s, exit 0; source and test hashes matched the frozen values before and after."
+    },
+    "typing": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/demography-role-projection-independent-r2-20261015/r3-independent-mypy.stdout.txt@5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "result": "Strict MyPy, no incremental cache: no issues in the selected source file, exit 0."
+    },
+    "lint_and_format": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/demography-role-projection-independent-r2-20261015/r3-independent-ruff.stdout.txt@f3248628f03b3d0a928e68546110a114be245447916bd8f99798f084731918b4",
+      "result": "Canonical workspace-root Ruff format/check on both exact paths: pass, exit 0."
+    }
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/demography-role-projection-independent-r2-20261015/r3-independent-review.json",
+    "sha256": "03fd4f9432de6bfda8c374bfd00ff66d0a79fb59448b9fd8aefd0d319f4dc611",
+    "verdict": "GO_BOUNDED",
+    "reviewed_scope": "Current source-level read-only DemographyRoleProjection property: detached mutable payload views and recursively valid JSON-number admission."
+  },
+  "historical_author_frames": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/demography-role-projection-readonly-20261015.json",
+      "sha256": "78c8f3e9bb17c683a607f5eb8669e3561e1cedc111564356cf0e1f95ebf170ee",
+      "role": "Historical author frame retained; candidate commit fields in that frame were deliberately null."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/demography-role-projection-readonly-r2-20261015.json",
+      "sha256": "7c86bb12d88d2e0942223f56d1e3f352756aacfb1f6b190f9699e58893abe30e",
+      "role": "Historical author frame retained; candidate commit fields in that frame were deliberately null."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/demography-role-projection-readonly-r3-20261015.json",
+      "sha256": "004c18432a32ea39fbe986acbb9c7053875f74e489c296852426a39287d0bae5",
+      "role": "Historical author frame retained; candidate commit fields in that frame were deliberately null."
+    }
+  ],
+  "proposals": [
+    {
+      "surface": "Q2 partition3 row19 ukraine-demography-inventory-read-api",
+      "outcome": "bounded_verified",
+      "criterion": "Detached read-only projection and finite JSON admission only; independent G decision pending."
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "limitations": [
+    "The candidate producer/consumer chain is a controlled temporary fixture; server and prior-stage gates are monkeypatched in this unit test. It is not a live production receipt.",
+    "The projection is passed to Foundry through the typed aggregate bridge, not directly.",
+    "This review does not establish source authenticity, custody, authority, currentness, calibration, admissibility, global source freeze, or G formal acceptance."
+  ],
+  "next_check": "Rebind final composed source/input/backend freeze; run installed wheel/rebuilt-sdist consumer partition and native gates once. G retains code acceptance, integration publication and finding adjudication."
+}

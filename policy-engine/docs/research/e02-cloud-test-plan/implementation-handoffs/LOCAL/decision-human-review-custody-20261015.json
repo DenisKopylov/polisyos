@@ -1,0 +1,338 @@
+{
+  "decision_id": "human-review-custody-and-risk-binding-20261015",
+  "purpose": "G review packet for the HumanReview admission, public projection, and risk-tier binding slice. This is a design/evidence packet, not a source receipt or a formal closure.",
+  "source_binding": {
+    "state": "R4 source is committed and published as candidate commit 1c052c8f5c00229e1402ddcb3090a0c485e57fbb; all nine changed Git blobs were read back and match the frozen hashes. Independent review is GO for the R4 delta only. This is not G acceptance or formal adjudication.",
+    "git_operations": "Root committed and published the candidate source commit; this author did not run Git mutations. Root owns the separate receipt commit. The exact source frame and changed-blob readback are recorded below.",
+    "changed_path_count": 9,
+    "changed_paths": [
+      {
+        "path": "src/polisyos/scientist/governance/human_review/admission.py",
+        "sha256": "4a16f1782937c4d2c601929ff255c8da927b3ce425f8347d7d004a2bf2152356"
+      },
+      {
+        "path": "src/polisyos/scientist/governance/human_review/decisions.py",
+        "sha256": "571b01f3dad00bee04b74dc007ec43cc6f50d8e81826354810b40fc78f56f395"
+      },
+      {
+        "path": "src/polisyos/scientist/governance/human_review/oversight_policy.py",
+        "sha256": "16a459be13e80a581f628074b5d03a180ae2e0e64454c1dd6d6bbefedaa88f03"
+      },
+      {
+        "path": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+        "sha256": "ce08174342ce07720ece948fe11e17f5f1cd594ac32d69023e6bb1a1cbaa0a98"
+      },
+      {
+        "path": "tests/unit/scientist/governance/human_review/test_admission.py",
+        "sha256": "7bb522808d54d8d1647e91e4ff8cad30b54883a1adab0928247bda6bf9db6cb3"
+      },
+      {
+        "path": "tests/unit/scientist/governance/human_review/test_decision_packet_integration.py",
+        "sha256": "d2bdc42224acbca64d636239adc757c791a60cce633dc807cdc76588781db5e1"
+      },
+      {
+        "path": "tests/unit/scientist/governance/human_review/test_oversight_policy.py",
+        "sha256": "9d7473320668ac5a9d40e4e2546d0f406a21e8b683340c3baa7338b936d19786"
+      },
+      {
+        "path": "tests/unit/scientist/governance/human_review/test_governance_integration.py",
+        "sha256": "cbcc082f9d9218979920c5eb08aa4c772597976d1a2bc730d728ae1d8e58eef7"
+      },
+      {
+        "path": "tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
+        "sha256": "1d51d620cd01b52a64aae87372780fabe0fcc537e5cf642b631a8d7192867a86"
+      }
+    ],
+    "complete_review_denominators": {
+      "source": {
+        "file_count": 11,
+        "pathset_sha256": "361c36198a68ad000f984742328fb531da642de5888743566623b027069c5c8b",
+        "pathset_encoding": "sorted repository-relative paths joined by LF with a final LF",
+        "paths": [
+          "src/polisyos/scientist/governance/human_review/__init__.py",
+          "src/polisyos/scientist/governance/human_review/admission.py",
+          "src/polisyos/scientist/governance/human_review/audit.py",
+          "src/polisyos/scientist/governance/human_review/decisions.py",
+          "src/polisyos/scientist/governance/human_review/effectiveness.py",
+          "src/polisyos/scientist/governance/human_review/models.py",
+          "src/polisyos/scientist/governance/human_review/oversight_policy.py",
+          "src/polisyos/scientist/governance/human_review/packets.py",
+          "src/polisyos/scientist/governance/human_review/queue.py",
+          "src/polisyos/scientist/governance/human_review/voi_escalation.py",
+          "src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py"
+        ]
+      },
+      "tests": {
+        "file_count": 10,
+        "pathset_sha256": "bec60734f7b793fcc677fd0de3998b45555179b366b331d150826cf334a996a5",
+        "pathset_encoding": "sorted repository-relative paths joined by LF with a final LF",
+        "paths": [
+          "tests/unit/scientist/governance/human_review/test_admission.py",
+          "tests/unit/scientist/governance/human_review/test_decision_packet_integration.py",
+          "tests/unit/scientist/governance/human_review/test_effectiveness.py",
+          "tests/unit/scientist/governance/human_review/test_governance_integration.py",
+          "tests/unit/scientist/governance/human_review/test_models.py",
+          "tests/unit/scientist/governance/human_review/test_oversight_policy.py",
+          "tests/unit/scientist/governance/human_review/test_persistence.py",
+          "tests/unit/scientist/governance/human_review/test_queue.py",
+          "tests/unit/scientist/governance/human_review/test_voi_escalation.py",
+          "tests/unit/scientist/nodes/test_decision_packet_node_v3.py"
+        ]
+      }
+    },
+    "concurrent_companion": {
+      "path": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+      "owner": "C05 author",
+      "out_of_lease": true,
+      "delivery_parent_and_commit_blob_sha256": "64f508f343805f13eaa1572fd9e4000d9cd0387e7db36d0c01d665af23bed5b0",
+      "author_test_worktree_blob_sha256": "41d0570baa2e84b059f32a7210acf2ccbecd808736f9863eab18c99ab2d54226",
+      "relevance": "The supplied-invalid GovernanceReport owner/profile intake is a concurrent C05 companion used by the integrated node tests. Its blob in the delivered source commit and parent is 64f508f..., while this author test worktree still contained 41d0570.... Thus the author test receipt does not establish a full replay against the exact delivered commit tree. This path is outside the nine-path lease; do not alter it in this handoff.",
+      "next_check": "If exact composed-tree verification is required for the source freeze, replay the affected five modules and adversarial controls with the delivered C05 companion blob, then bind that output to the exact source tree."
+    },
+    "prior_content_freeze": {
+      "path": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/decision-human-review-custody-r3-pre-duration-diagnostic.json",
+      "sha256": "bd638af2e3a93761a83651129d730be576a96028d8f3f77b05fbdd310ae15e7f",
+      "note": "Exact R3 packet preserved before repairing the second-level loss of requirement-specific duration diagnostics."
+    },
+    "delta_from_r1": {
+      "scope": "Ruff I001 import ordering only in test_decision_packet_integration.py and test_decision_packet_node_v3.py; no runtime behavior changes.",
+      "review_state": "R2 superseded R1 content hashes; R3 and then R4 supersede those freezes. Independent review is requested against exact R4 path hashes and deciding output bytes."
+    },
+    "delta_from_r2": {
+      "finding": "The independent reviewer reproduced that dataclasses.replace(held_admission, status=ADMITTED, violations=()) preserved the shared exposed seal and enabled public approved/readiness-passed projection.",
+      "bucket": "Same HumanReview admission integrity class at a deeper copy/constructor boundary (P40).",
+      "change": "Removed the module-global seal as an authority signal. Current source has no authenticated reviewer appointment/currentness input, so `is_admitted` remains false for all copied, directly constructed, and resolver diagnostic objects. All public authority projections are effectively not_established and include missing external facts; the candidate result status is exposed separately as candidate_status. No issuer or positive authority was fabricated."
+    },
+    "author_turn_delta": {
+      "source_paths": [
+        "src/polisyos/scientist/governance/human_review/admission.py",
+        "src/polisyos/scientist/governance/human_review/oversight_policy.py"
+      ],
+      "test_paths": [
+        "tests/unit/scientist/governance/human_review/test_admission.py",
+        "tests/unit/scientist/governance/human_review/test_decision_packet_integration.py"
+      ],
+      "scope": "Make duration-source absence invariant under copied/directly constructed admission diagnostics and make public readiness/section projections restate missing duration evidence only when the actual required minimum is positive. Added 300-second and zero-threshold public consumer controls; authority remains fail-closed."
+    },
+    "source_freeze_manifest": {
+      "freeze_id": "human-review-admission-duration-diagnostic-r4",
+      "exact_changed_path_count": 9,
+      "source_review_denominator": "11 files; complete path list and pathset hash are recorded under complete_review_denominators.source.",
+      "test_review_denominator": "10 files; complete path list and pathset hash are recorded under complete_review_denominators.tests.",
+      "source_and_test_hashes": "Recorded under source_binding.changed_paths.",
+      "focused_module_output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-delta-pytest-final.stdout.txt@66f249ce4559d9e0af03df31b1a01cbee876c38963cfd1568a2c082fc445d8df",
+      "falsifier_output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-adversarial-probe-final.stdout.txt@bb77620e1fa3199bb6dae532c5896a4336db77d8c9c49ae3d8492cb3c0bda181",
+      "canonical_quality_gates": "Canonical Ruff check/format pass all nine exact paths; locked four-source BasedPyright has 0 errors and unchanged private baseline.",
+      "independent_review": "Independent R4 delta review is GO, bound to the nine changed-path hashes and six bounded controls. It is not a full-package or G acceptance. Full report, exact control output, and freeze verification are cited in verification.independent_r4_delta_review. The exact composed delivered-tree test frame remains limited by concurrent_companion.",
+      "delivery_commit": "1c052c8f5c00229e1402ddcb3090a0c485e57fbb",
+      "delivery_tree": "f94697eb2c2eab903430e91daf553b27074cc1ac",
+      "delivery_parent": "230b11ff4b858fbf84c4ea19b3337c59b3d88cb5",
+      "git_blob_readback": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/source-delivery-blob-readback-r4.json@23747b8e864bfe6b6dc9faa369b9f8cc55faab382100bf87778182f788511094"
+    },
+    "delta_from_r3": {
+      "finding": "The independent reviewer confirmed the copied ADMITTED diagnostic remains blocked (no authority escape), but dataclasses.replace(..., violations=()) removed the 300-second review-duration unknown from the public projection.",
+      "bucket": "Same fail-closed projection completeness class at a deeper diagnostic boundary (P40); the authority status remained not_established and readiness remained blocked.",
+      "change": "Added review_duration_source_not_established to the fixed custody limitations. The requirement-specific review_duration_evidence_not_established remains conditional on an actual required positive duration threshold and is reconstructed by public consumers from that requirement even when copied candidate violations are empty. A zero-threshold requirement now reports that no duration source exists without claiming duration evidence is required.",
+      "external_authority": "Still absent. No appointment, currentness, issuer, or duration evidence is fabricated; protected readiness cannot pass."
+    },
+    "delivery_source_frame": {
+      "commit": "1c052c8f5c00229e1402ddcb3090a0c485e57fbb",
+      "tree": "f94697eb2c2eab903430e91daf553b27074cc1ac",
+      "parents": [
+        "230b11ff4b858fbf84c4ea19b3337c59b3d88cb5"
+      ],
+      "publication": "published candidate source; not G-accepted",
+      "git_blob_readback": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/source-delivery-blob-readback-r4.json@23747b8e864bfe6b6dc9faa369b9f8cc55faab382100bf87778182f788511094",
+      "verification": "The source commit/tree/parent identity matches the requested frame. All 9 changed-path blobs match the packet and worktree bytes; 4 are source files and 5 are test files.",
+      "formal_closure_ids": []
+    }
+  },
+  "proposal": {
+    "proposed_contract": "HumanReviewDecision.APPROVE remains candidate input. No result status, caller-provided violations, dataclass copy, or direct construction grants protected approval. The current intake has no authenticated reviewer appointment/currentness evidence, so effective public HumanReview status is not_established and protected readiness cannot pass. A missing duration source is always disclosed; review_duration_evidence_not_established is asserted only when the actual required minimum is positive. Risk-tier mismatch remains a typed candidate rejection.",
+    "status": "Candidate source commit 1c052c8f5c00229e1402ddcb3090a0c485e57fbb published; R4 independent delta review GO. Full composed source-tree verification and G global acceptance/formal adjudication remain pending.",
+    "formal_closure_ids": [],
+    "capability_label": "verification_missing",
+    "label_reason": "The selected evidence, consumer/node bridge, and R4 duration projection are implemented with focused tests and a scoped independent GO. Exact composed-tree verification is not established due to the concurrent builder.py worktree/blob difference. Authenticated appointment/currentness/issuer and any required duration evidence remain unavailable. All public protected projections stay held; no local synthetic positive is claimed."
+  },
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P05",
+      "P01",
+      "P02",
+      "P32",
+      "P37",
+      "P38"
+    ],
+    "anti_pattern_found": "Raw APPROVE decisions, profile/schema-shaped objects, caller-controlled assignment fields, or risk-tier defaults could otherwise be projected as approval without a single resolved and content-bound intake.",
+    "target_pattern": "Use the selected HumanReview resolver for exact candidate evidence binding, while deriving every public status/readiness projection from the effective fail-closed result. Candidate status fields never grant protected authority; appointment/currentness and duration-source absence remain explicit, and requirement-specific duration evidence is recomputed from the actual consumer requirement.",
+    "acceptance_signal": "The public decision-packet node fails without authenticated custody; raw candidate decisions never project APPROVED; mismatched selected risk tier is rejected; no new persisted schema or self-attested issuer is introduced."
+  },
+  "alternatives": [
+    {
+      "option": "reuse-only",
+      "assessment": "Keep existing HumanReview DTOs, persistence helpers, and CAS signatures unchanged and call the existing status projector.",
+      "reason_not_selected": "The existing projector accepted raw decisions independently of exact selected evidence and did not bind the decision to the currently selected subject/profile or institutional custody."
+    },
+    {
+      "option": "extend-existing-selected",
+      "assessment": "Extend the existing resolver over selected CAS refs and signatures for candidate binding, while keeping all existing status, readiness, and decision-packet surfaces fail-closed until authenticated appointment and currentness inputs exist; bind candidate risk tier to the runtime requirement.",
+      "reason_selected": "Closes the complete consumer class without adding a persisted model, schema, issuer, or parallel authority service."
+    },
+    {
+      "option": "consolidate-all-human-review-workflows",
+      "assessment": "Unify queue assignment, operational workflow, signatures, and public readiness behind a larger service.",
+      "reason_deferred": "Would broaden the slice without providing the missing institutional appointment/currentness source. Existing workflow producer and schema can be wired later once that source is named."
+    },
+    {
+      "option": "build-new-authority-service",
+      "assessment": "Create a new sovereign reviewer appointment and review-currentness authority.",
+      "reason_rejected": "This would invent external authority and custody semantics that PolicyOS does not own. Required external issuer, retention, and time/currentness rules are not supplied."
+    }
+  ],
+  "implementation_and_migration": {
+    "implementation": [
+      "Resolve selected packet, decision, and DecisionPacket CAS refs; verify ABI/profile and content; bind run, subject, execution profile, candidate assignment, role, completion, and expected risk tier.",
+      "Use the existing CAS Ed25519 verification API when a scoped verifier is supplied. A locally valid signature is still not institutional appointment or currentness.",
+      "Treat HumanReviewAdmission status and violations as candidate diagnostics, never as authority. The current resolver has no appointment/currentness source; is_admitted therefore remains false and binds cannot authorize.",
+      "Project effective status as not_established with explicit missing appointment/currentness/issuer and duration-source facts. Preserve resolver status separately as candidate_status. Direct construction and dataclasses.replace do not change effective status or readiness; consumers restore duration-evidence unknown only when the actual required minimum is positive.",
+      "Required readiness and DecisionPacket node emission fail closed on these projections. Raw DTOs remain candidates, including when requirement is omitted but payload claims human_reviewed readiness.",
+      "At node intake, high packet with low/default runtime risk remains rejected with human_review_risk_tier_binding_mismatch.",
+      "Malformed supplied GovernanceReport fails through the concurrent C05 builder intake fix; valid fixtures use the writer schema and selected profile."
+    ],
+    "migration": "Existing producers must write the selected profile and preserve the same run/subject/profile/risk tier in the HumanReview packet and runtime requirement. Legacy/profileless content can be read where the existing loader permits it, but cannot be promoted without exact current selected refs. No blanket grandfathering is proposed.",
+    "compatibility": "No persisted DTO/schema, function signature, or export changes. Candidate status remains available for diagnostics under the explicitly non-authoritative candidate_status label; public status now reflects the supported authority boundary.",
+    "time_and_status": "Public status remains NOT_ESTABLISHED under current source support. The duration source itself is not_established for every candidate; review_duration_evidence_not_established applies only when a required minimum is positive. High-risk policy retains its 300-second minimum; no observed duration or TTL is invented."
+  },
+  "authority_and_inputs": {
+    "local_cas_signature": "A direct resolver test verifies a synthetic Ed25519-signed CAS decision with a test key and still receives NOT_ESTABLISHED. The public node fixture also signs the selected decision artifact, but the node has no configured reviewer verifier, so signature verification itself remains not_established on that path.",
+    "reviewer_appointment_and_assignment_issuer": "not_established; packet assignment fields are candidate data and do not appoint a reviewer",
+    "decision_currentness": "not_established; no authenticated currentness source or institutional epoch input is supplied",
+    "review_duration": "The duration source is not_established. When the actual required minimum is positive (the existing high-risk policy uses 300 seconds), required duration evidence is also not_established. A required zero-second minimum does not acquire a duration evidence violation merely because the source is absent.",
+    "risk_tier_basis": "The current requirement is computed from runtime params/governance policy and defaults to medium when no risk input is present. The selected packet's risk is not authority. Any disagreement, including high versus low or defaulted medium, is rejected at node intake; an external authoritative risk classifier remains out of scope and not established.",
+    "external_production_inputs": "None read or claimed; all positive-shaped evidence is synthetic local CAS data."
+  },
+  "prototype_and_falsifiers": {
+    "local_prototype": "A synthetic DecisionPacket node case uses selected subject/profile-bound HumanReview evidence, completed candidate assignment, APPROVE, and a locally signed CAS artifact. A copied result with status=ADMITTED and violations=() remains not_established across public status, section, readiness, and the real node; node fails without output artifacts. With a required 300-second minimum, the public section/readiness/node retain duration-evidence-not-established after the copy. A required zero-second minimum discloses the missing duration source but does not claim required duration evidence. High/high, high/low, and high/default risk contexts remain held or rejected as specified.",
+    "risk_probe": {
+      "command_record": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/risk-tier-public-node-probe-seal-fix.command.json@7c7c06c5a270b8fc4f270e448fd5bb67f22a044ff22672d59c8489f01d69171b",
+      "output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/risk-tier-public-node-probe-seal-fix.stdout.txt@9f1af67b7cd8e1975c016d94f209258a316f3121cc274d7b8ecae372a4f2ba35",
+      "result": "3 passed: high/high remains held for external custody; high/low and high/default risk bindings fail; public node emits no artifacts."
+    },
+    "removal_control": "Remove the current fail-closed `is_admitted`/effective public-status invariant while leaving candidate status markers in place. The direct constructor, dataclasses.replace, and real-node tests must fail by projecting approved/readiness passed; any such green is a falsifier. External authority facts are absent; no positive test was fabricated.",
+    "scope_residual": "The resolver cannot prove who institutionally appointed the reviewer, whether that assignment remains current, or any observed duration. Those facts remain not_established; a source absence does not become a positive.",
+    "admission_bypass_control": {
+      "command_record": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/admission-seal-bypass-controls-r2.command.json@58df7db64ff25b72254f82d8be19d40f6095caf49289a9ca628e5b5c8fdfc2ce",
+      "output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/admission-seal-bypass-controls-r2.stdout.txt@bd6a6378fa0000f3b258d96357391fa023fb5160dc825bd2733213535375da7c",
+      "result": "2 passed: a real signed-CAS resolver object copied with ADMITTED/empty violations and a direct ADMITTED-shaped constructor cannot promote public projectors or the DecisionPacket node."
+    },
+    "duration_diagnostic_control": {
+      "finding": "Copied 300-second admission diagnostics stayed blocked but dropped the requirement-specific duration unknown.",
+      "falsifier": "For required minimum 300 seconds, remove resolver violations via dataclasses.replace; public section, readiness, and node must still report review_duration_evidence_not_established. For required minimum zero, the source-level limitation remains but the evidence-required violation must be absent.",
+      "coverage": "The final six-test adversarial output includes copied/direct constructor projections, real node, 300s case, low/default cases, and required-zero guard."
+    }
+  },
+  "verification": {
+    "four_module_pytest_r4": {
+      "command_record": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-delta-pytest-final.command.json@c126df7d68e76772e71fd594fe5e9612421700ce498a39717edc0bf67f6c3eab",
+      "output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-delta-pytest-final.stdout.txt@66f249ce4559d9e0af03df31b1a01cbee876c38963cfd1568a2c082fc445d8df",
+      "exit_code": 0,
+      "result": "54 passed across admission, oversight policy, decision-packet integration, and DecisionPacket node v3; one existing Pydantic serializer warning in the S1 C5B node test."
+    },
+    "governance_integration_r4": {
+      "command_record": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-governance-integration-final.command.json@8a3be8f666b02dc88044d14574334ef6cadf774e8b29bb591c2ba3825d769334",
+      "output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-governance-integration-final.stdout.txt@35d6d0c75a75543ce977617155ef77913891cdf7db575585e2e00683bac4cade",
+      "exit_code": 0,
+      "result": "2 passed; this completes the fifth previously selected module against the R4 code. The runs are separate; no single five-module R4 command is claimed."
+    },
+    "duration_diagnostic_adversarial_controls_r4": {
+      "command_record": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-adversarial-probe-final.command.json@e75120ca8448bacdc16db93a98e8fc6dd8b3e9160a9feba7a5d1846ab2947b40",
+      "output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-adversarial-probe-final.stdout.txt@bb77620e1fa3199bb6dae532c5896a4336db77d8c9c49ae3d8492cb3c0bda181",
+      "exit_code": 0,
+      "result": "6 passed: copied/direct constructor held; real DecisionPacket node remains blocked and reports missing 300s evidence; high, low, and default-risk cases behave correctly; required-zero guard omits the evidence-required violation while keeping source absence."
+    },
+    "ruff_check_r4": {
+      "command_record": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-ruff-check-frozen.command.json@4c2148fbd1ac43716bb074fa71ef31c997b1f1b83fa466a117600f40e442d253",
+      "output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-ruff-check-frozen.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "exit_code": 0,
+      "result": "PASS on all nine exact paths with the canonical root config."
+    },
+    "ruff_format_r4": {
+      "command_record": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-ruff-format-frozen.command.json@3d8a8fa1551650f55341a905f492955ddae1c4de8b191dbf4032a62a55bf815f",
+      "output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-ruff-format-frozen.stdout.txt@2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8",
+      "exit_code": 0,
+      "result": "9 files already formatted under canonical root config."
+    },
+    "basedpyright_locked_r4": {
+      "command_record": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-delta-basedpyright-canonical.command.json@eafdb211a23139fd70e7337c1cdf26fb17f32124d896a4244906ee78fe799229",
+      "output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-delta-basedpyright-canonical.stdout.txt@b0c9ad191ebefb0171e8cd141680b5ba22286479e0dc552ddcd1f84fa744dda4",
+      "exit_code": 0,
+      "result": "0 errors, 36 pre-existing private-import warnings on the canonical four-source slice. The private baseline SHA stayed 8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af before and after."
+    },
+    "superseded_basedpyright_two_source_subset": {
+      "command_record": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-delta-basedpyright-final.command.json@4c4869f39f3273c022bcad4b2ae9d062fe14ae6535de2cd7357b46ab7d57d556",
+      "output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-delta-basedpyright-final.stdout.txt@56882e01cb80173ef053c4096e4ee43e3123a15f5c0a06715f96988d48fbd91c",
+      "exit_record": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/duration-source-delta-basedpyright-final.stderr.txt@40236b59a80a7a011f81c6feba1863e719023dbb108b870e03f0c9767c753642",
+      "exit_code": 3,
+      "classification": "Not a product diagnostic: the locked baseline belongs to the prior four-source scope, while this first attempt included only two sources; BasedPyright reported 0 errors but refused the changed baseline inventory (1122 fewer baseline entries). Re-running the canonical four-source scope above passed without changing the baseline."
+    },
+    "superseded_wrong_cwd_ruff_nonreceipt": {
+      "prior_packet_result": "The R1 packet recorded 628 test diagnostics from Ruff invoked with a config path relative to policy-engine; that invocation did not use the canonical root config and was not a valid gate receipt.",
+      "canonical_reproduction": "At repository root, exact canonical config and all nine exact paths produced only three I001 import-order diagnostics; after import-only repair, the canonical all-nine gate passes.",
+      "historical_output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/ruff-all-nine-final.json@8ececec58b4ae8e062a126f5410bf1a866f2d64d707c6ef18d485c8ea8c03746",
+      "first_canonical_command_record": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/root-canonical-ruff-all-nine-command.json@eb370af088cb9d04d021c44a61d8ab641ec4f3f5441178fb29e6ef11f90f5eb6",
+      "first_canonical_stdout": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/root-canonical-ruff-all-nine.stdout.txt@789ad57ebbebef047b136897d62983ed1b6f215fa24bd2a91c1922ef07fff416",
+      "invalid_initial_invocation": {
+        "output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/ruff-all-nine-final.json@8ececec58b4ae8e062a126f5410bf1a866f2d64d707c6ef18d485c8ea8c03746",
+        "exit_record": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/ruff-all-nine-final.exit@85acfd2e79dd47df07d214334642196301332f72d792b52068cdfd8898755409",
+        "result": "FAIL exit 1 with 628 diagnostics from the wrong-CWD invocation. This is a historical non-receipt, not a current red; the canonical root invocation on the exact nine paths passes.",
+        "classification": "historical non-receipt; wrong working directory resolved the Ruff config incorrectly and is superseded by the canonical root invocation below."
+      },
+      "current_canonical_result": "PASS, exit 0 on the exact nine-path R3 freeze with canonical root config; command record and complete stdout are cited by ruff_all_nine_root_canonical."
+    },
+    "superseded_assertion_mismatch_during_r3_fix": {
+      "output": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/five-module-pytest-seal-fix-final.stdout.txt@7a9fd3a8e8e4a2595b92aa7646234253dacf49784f87e9738f956942d3629496",
+      "exit_record": "The first test pass after the projection change found two expectations still requiring `human_review_admission_rejected`; effective public status is now consistently `not_established` while typed risk-mismatch violations remain. Updated assertion and rerun passed."
+    },
+    "independent_r4_delta_review": {
+      "report": "implementation-handoffs/LOCAL/raw/resume-human-review-r4-independent-20261015/report.md@cdc0195f6e97df6be328fdc3063e72d832ab26b9ffd075cd99d32a0b0c4e49fc",
+      "verdict": "GO for R4 duration-diagnostic delta only; not a full-package review, G acceptance, or formal closure.",
+      "review_freeze_verification": "implementation-handoffs/LOCAL/raw/resume-human-review-r4-independent-20261015/freeze-verification.json@666e0740d65d6529acdd344e780f3081aae23333245f3b9caba20d466df95185",
+      "independent_controls_command": "implementation-handoffs/LOCAL/raw/resume-human-review-r4-independent-20261015/duration-controls.command.json@9f49fe24f7219bb1d87a74b181947970a05a8cef4001ae06397443f40da35738",
+      "independent_controls_output": "implementation-handoffs/LOCAL/raw/resume-human-review-r4-independent-20261015/duration-controls.stdout.txt@d0b62da89681bd69d3ef119404d00dcce887c4199877b0ffe8bd01e10d9b3342",
+      "control_count": 6,
+      "control_scope": "Copied and direct-constructor diagnostics; real DecisionPacket node path; high-, low-, and default-risk cases; zero-duration-requirement guard. Reviewer reports 6 passed.",
+      "review_scope_limit": "Reviewer verified all nine changed-path hashes and complete 11-source/10-test denominators, and reran the bounded controls. The report does not bind the out-of-lease builder.py blob in the test environment to the delivered source commit; exact whole-tree replay therefore remains not_established.",
+      "authority_boundary": "External appointment, reviewer currentness, issuer, and required observed-duration inputs remain unavailable; public protected status remains not_established."
+    },
+    "delivery_git_blob_readback_r4": "implementation-handoffs/LOCAL/raw/human-review-custody-20261015/source-delivery-blob-readback-r4.json@23747b8e864bfe6b6dc9faa369b9f8cc55faab382100bf87778182f788511094",
+    "author_full_scope_r4": {
+      "changed_path_count": 9,
+      "changed_source_path_count": 4,
+      "changed_test_path_count": 5,
+      "complete_source_review_denominator": "11 files; pathset hash 361c36198a68ad000f984742328fb531da642de5888743566623b027069c5c8b",
+      "complete_test_review_denominator": "10 files; pathset hash bec60734f7b793fcc677fd0de3998b45555179b366b331d150826cf334a996a5",
+      "path_hashes": "All nine changed path SHA-256 values are listed under source_binding.changed_paths and verified against commit 1c052c8f5c00229e1402ddcb3090a0c485e57fbb.",
+      "source_tree_execution_qualification": "Focused author tests and independent controls are retained as R4 receipts, but the author worktree builder.py blob differed from the delivered commit blob; no full five-module run on the exact delivered source tree is claimed."
+    }
+  },
+  "remaining_g_choice_and_next_check": {
+    "smallest_missing_input": "An authenticated institutional reviewer assignment record binding issuer, reviewer identity/role, selected review packet, run, subject, execution profile, and currentness/validity time; plus an authoritative risk-tier source if runtime policy inputs are not the accepted basis; observed duration evidence when the existing policy threshold applies.",
+    "owner": "No issuer or source owner is identified in current local inputs. G must identify the external owner or keep the protected positive held; this author does not appoint one.",
+    "next_check": "For source verification, run the affected five modules and duration adversarial controls on the exact delivered tree including the delivered C05 builder.py blob, then bind the output to that commit/tree. For the protected positive, G must identify the external issuer/source owner and provide authentic appointment/currentness evidence plus observed duration evidence where the existing positive threshold applies. Integrate only through the current resolver/consumer boundary; until those inputs exist, retain effective NOT_ESTABLISHED and do not claim capability closure."
+  },
+  "test_execution_frame": {
+    "exact_delivery_source": {
+      "commit": "1c052c8f5c00229e1402ddcb3090a0c485e57fbb",
+      "tree": "f94697eb2c2eab903430e91daf553b27074cc1ac",
+      "parent": "230b11ff4b858fbf84c4ea19b3337c59b3d88cb5",
+      "changed_blobs_verified": 9
+    },
+    "author_worktree_test_frame": {
+      "out_of_lease_companion": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+      "worktree_sha256": "41d0570baa2e84b059f32a7210acf2ccbecd808736f9863eab18c99ab2d54226",
+      "delivered_tree_sha256": "64f508f343805f13eaa1572fd9e4000d9cd0387e7db36d0c01d665af23bed5b"
+    },
+    "classification": "R4 delta code/test receipts and independent GO remain valid for the nine exact changed blobs and bounded controls; a complete test replay on the exact delivered whole tree is not established. No product claim depends on promoting protected readiness.",
+    "next_check": "Re-run affected integration modules and controls on the exact composed candidate tree when root performs the canonical source freeze."
+  }
+}

@@ -1,0 +1,781 @@
+{
+  "all_input_hashes": {
+    "la029_route_and_helpers": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/la029-ukops-linux-lifecycle-readiness-20261011.md",
+        "purpose": "separate finite LA-029 Linux/C7 route contract and boundaries",
+        "sha256": "6125f4b45ead7071dd6bbe3da364404e2b86536b781883799e3693a5c968b8fa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/README.md",
+        "purpose": "existing isolated Linux profile inventory",
+        "sha256": "71c3c192a9b232da5ac727d8e79e00c1c3d56c2197cd286dac258a47e6572d44"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/final-wave-readiness.md",
+        "purpose": "existing profile setup/readiness notes; re-read at launch",
+        "sha256": "4d03625cd18c98106f35c2a7ef0065a4161ea6c114fad1b740e9ff1e946a0d48"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/la029-ukops-lifecycle/run_ukops_gate.py",
+        "purpose": "Linux finite-process harness for LA-029 C7 modes",
+        "sha256": "1bb0a55d93ffc2f7f86b5057f021559a7d6debcf69fe71f4a98447b1c24a5176"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/la029-ukops-lifecycle/read_gate_consumer.py",
+        "purpose": "fresh-process typed gate and D1 consumer readback",
+        "sha256": "4333a140ff68427b5df22b4874e495550724e7ee0db3abd9bad51785d63e4e83"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/la029-ukops-lifecycle/uv",
+        "purpose": "guarded child wrapper for exact C7 argv and environment",
+        "sha256": "d0431b7f3241cabb6b07c038c5e84044163b3b8f3acd6726af6ec6bd54dcd16e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/la029-ukops-lifecycle/instrumentation/sitecustomize.py",
+        "purpose": "child Popen stream/PID/CWD/argv/environment observation",
+        "sha256": "ab781e2ccbded58cb99ec7b0e843ed2385fcc3f2af06d03268a3bf2eee4591f6"
+      }
+    ],
+    "profile_availability_evidence": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/profile-receipt.json",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "a9b2b9e1f02de39839698f2311f3d62e126483ca93bbe83404df5f6c55fa89b6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/worker-current-profile.stdout.txt",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "71e6d5290ce5b2ea6d4e86deea4e71322dcf02d4a5d4ad4d991dcf4203f7ba1e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/worker-identity.stdout.txt",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "80d0cb76706235cf54ec495ac0bc624ee54d050fc5a268c8836aec18df2b2eb4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/worker-list.stdout.txt",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "7cc45c3d87cf8895e6e65c72c4b1aa78e3b8f8f50b28d5434b54283f0718b4fb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/worker-resources.stdout.txt",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "1c751584b60ff5e01c2cf7dca0427c8c87038659ff2a23910c556eff2a763ffb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/profile-1501-retry.stdout.txt",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "3a6278a895951a02105c257975a4d2cb98077e0c303237f7fbbc1ea97e423e9a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/profile-1501-retry.stderr.txt",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "9f5cc15cf61d2a197934adcdf30647725ffa94315c2c1c209962f695ad5643a4"
+      }
+    ],
+    "project_and_worker_lock_hashes": {
+      "policy-engine/uv.lock": "9d200a0789f50fccb533ddbb66a39453b04de8f22e653d34a62c35125c20a120",
+      "policy-engine/workers/dowhy-014/.python-version": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+      "policy-engine/workers/dowhy-014/pyproject.toml": "42a9b776bc0688624cc9b4dd31a19451da2e32a641a0891ad27b3a30ac0e1d0a",
+      "policy-engine/workers/dowhy-014/uv.lock": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a"
+    },
+    "q2_and_legacy_plan": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-recipe.md",
+        "purpose": "current source-audit and installed-wave recipe",
+        "sha256": "f0b87e517eed60cfea94296fe13d990255031b219eff73340df86367e20d3155"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json",
+        "purpose": "current declared primary selector and asset manifest",
+        "sha256": "f4af62a3d6d25a3aa9c9c9ebf87fba3e016a261f0ad083cf8fc97bc091d95efd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "purpose": "source-derived collection/resource/manifest prepare+check helper",
+        "sha256": "a888044a73ef693acf0bb4fe5d3a4996400dfb31c8180b1a654f7fd9813c3520"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+        "purpose": "primary build, installed-origin, asset-byte and consumer runner",
+        "sha256": "fccc857d538f198a44bdc1c69379f5e17678e8ba62141c90d451aae49d74e832"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py",
+        "purpose": "reviewed sequential primary runner with runtime-derived timeout policy",
+        "sha256": "69d8a483aa204f8d9d8e0979063a0be1501dbdb0f5fe8eb0a2b886ccc7b4c0f1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental_run.py",
+        "purpose": "content-bound six-selector supplemental installed consumer runner",
+        "sha256": "551e19ce6bb601400588641a22047ca885d9a4ba8ce4518c7b1a90045db57e09"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental-manifest.json",
+        "purpose": "current pre-freeze supplemental declaration; its primary pins are stale and must be regenerated",
+        "sha256": "1acd43fa91682ca2d8eb8441f8da558d65e2920eb951e01fa693b562c4e9a5a7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/timeout-plan-v3-current1ab7-20261011.md",
+        "purpose": "historical launch plan, superseded for future launch only",
+        "sha256": "4805c14999116d61457b8b358053ca9e86c40244e445b87640fb4b5729d740e8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/q2_static_preflight.py",
+        "purpose": "historical read-only preflight script; not a launch or acceptance gate",
+        "sha256": "3dc29795f1358c628021d68adaf5962fdc5f2d3588cd90eadd9fdfca0a388e77"
+      }
+    ],
+    "rule": "Immediately before launch, recompute and compare every input path/hash in this section; any drift requires a new reviewed run contract and/or new source-audit freeze."
+  },
+  "authoring_observation_utc": "2026-10-15T16:20:38Z",
+  "availability_and_retention": {
+    "current_run_directory_readback_utc": "2026-10-15T16:15:26Z",
+    "current_run_directory_state": {
+      "meaning": "No current Q2 execution/prepare/check output was present in those named directories at readback; earlier historical probes do not count as current receipts.",
+      "primary_runs": "absent",
+      "source_freeze_checks": "absent",
+      "source_freezes": "absent",
+      "supplemental_runs": "absent"
+    },
+    "live_worker_snapshot": {
+      "as_of_utc": "2026-10-15T16:12:37Z",
+      "container_running": true,
+      "load_average": "0.00 0.00 0.00",
+      "memory_current_bytes": 1731801088,
+      "memory_limit_bytes": 2306867200,
+      "not_a_capacity_guarantee": true,
+      "oom_events": 0,
+      "scratch_free_gib": 4.8,
+      "scratch_total_gib": 12,
+      "snapshot_source": "Read-only Docker inspect/exec output in authoring session plus same-day RAW receipts below."
+    },
+    "raw_availability_evidence": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/profile-receipt.json",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "a9b2b9e1f02de39839698f2311f3d62e126483ca93bbe83404df5f6c55fa89b6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/worker-current-profile.stdout.txt",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "71e6d5290ce5b2ea6d4e86deea4e71322dcf02d4a5d4ad4d991dcf4203f7ba1e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/worker-identity.stdout.txt",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "80d0cb76706235cf54ec495ac0bc624ee54d050fc5a268c8836aec18df2b2eb4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/worker-list.stdout.txt",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "7cc45c3d87cf8895e6e65c72c4b1aa78e3b8f8f50b28d5434b54283f0718b4fb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/worker-resources.stdout.txt",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "1c751584b60ff5e01c2cf7dca0427c8c87038659ff2a23910c556eff2a763ffb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/profile-1501-retry.stdout.txt",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "3a6278a895951a02105c257975a4d2cb98077e0c303237f7fbbc1ea97e423e9a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/profile-1501-retry.stderr.txt",
+        "purpose": "retained RAW worker availability/profile outcome evidence; historical same-day snapshot",
+        "sha256": "9f5cc15cf61d2a197934adcdf30647725ffa94315c2c1c209962f695ad5643a4"
+      }
+    ],
+    "retained_outputs_policy": "Use unique ignored RAW run roots. Preserve full deciding output, stdout/stderr, JUnit, selected ID reports, asset byte hashes, origins, and failed outputs. Do not cleanup or delete artifacts in this execution contract."
+  },
+  "candidate_branch_and_worker_transport": {
+    "candidate_branch": "codex/e02-unified-local-20261009",
+    "docker_wrapper": "docker_e02() { COLIMA_HOME=/Users/deniskopylov/.colima-e02-local DOCKER_CONFIG=/Users/deniskopylov/.docker-e02-local /opt/homebrew/bin/docker --context colima-e02-local \"$@\"; }",
+    "existing_worker_branch": "codex/e02-unified-local-20261009",
+    "existing_worker_head_observed": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+    "existing_worker_repo": "/workspace/polisyos",
+    "existing_worker_status_observed": "clean attached branch at observation time",
+    "existing_worker_tree_observed": "5db8751ff5f26d7c649906582c4f84bc4accdf9a",
+    "transfer_command_template": "set -euo pipefail\ndocker_e02() { COLIMA_HOME=/Users/deniskopylov/.colima-e02-local DOCKER_CONFIG=/Users/deniskopylov/.docker-e02-local /opt/homebrew/bin/docker --context colima-e02-local \"$@\"; }\nREPO=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos\nWORKER=e02-local-worker-provision\nCHECKOUT=/workspace/polisyos\nFINAL_SOURCE_SHA=<root-supplied-full-frozen-sha>\nBUNDLE=\"$REPO/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/transfer-$FINAL_SOURCE_SHA.bundle\"\nWORKER_HEAD=$(docker_e02 exec \"$WORKER\" git -C \"$CHECKOUT\" rev-parse HEAD)\ntest \"$(docker_e02 exec \"$WORKER\" git -C \"$CHECKOUT\" branch --show-current)\" = codex/e02-unified-local-20261009\ntest -z \"$(docker_e02 exec \"$WORKER\" git -C \"$CHECKOUT\" status --porcelain=v1)\"\ngit -C \"$REPO\" merge-base --is-ancestor \"$WORKER_HEAD\" \"$FINAL_SOURCE_SHA\"\ngit -C \"$REPO\" bundle create \"$BUNDLE\" \"$FINAL_SOURCE_SHA\" \"^$WORKER_HEAD\"\ndocker_e02 cp \"$BUNDLE\" \"$WORKER:/scratch/e02-final-source.bundle\"\ndocker_e02 exec \"$WORKER\" git -C \"$CHECKOUT\" bundle verify /scratch/e02-final-source.bundle\ndocker_e02 exec \"$WORKER\" git -C \"$CHECKOUT\" fetch --no-tags /scratch/e02-final-source.bundle \"$FINAL_SOURCE_SHA\"\ndocker_e02 exec \"$WORKER\" git -C \"$CHECKOUT\" merge --ff-only FETCH_HEAD\ntest \"$(docker_e02 exec \"$WORKER\" git -C \"$CHECKOUT\" rev-parse HEAD)\" = \"$FINAL_SOURCE_SHA\"\ntest -z \"$(docker_e02 exec \"$WORKER\" git -C \"$CHECKOUT\" status --porcelain=v1)\"\ndocker_e02 exec \"$WORKER\" git -C \"$CHECKOUT\" rev-parse \"HEAD^{tree}\"",
+    "transport_policy": "Keep the existing single worker checkout and its branch. Once the exact frozen candidate commit is available and the current worker HEAD is freshly read, require worker HEAD to be an ancestor of the final candidate. Create one minimal incremental Git bundle excluding that worker HEAD, transfer only the bundle, fetch it inside the existing repository, and advance with ordinary git merge --ff-only. Re-read branch, status, exact HEAD, and tree after the merge. If the ancestry or cleanliness precondition fails, stop and preserve the current branch; do not create a checkout/branch, switch HEAD, reset, rebase, cherry-pick, or copy an environment."
+  },
+  "candidate_checkout_observation_not_freeze": {
+    "branch": "codex/e02-unified-local-20261009",
+    "clean": false,
+    "head": "a4c10b32e7aaf02bab42ac6fe4a79a048f5c52cf",
+    "meaning": "Mutable author checkout observation only. It is not a release source identity and cannot be supplied to the launcher.",
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "tracked_changed_path_count": 88,
+    "tree": "50dc8a5ed3fa63d00448632655afdb97f9ee9f2b",
+    "untracked_path_count": 5403
+  },
+  "contract_status": "prepared_not_launchable",
+  "final_gate": {
+    "formal_closeout": "This JSON defines execution only. It sets no closure_ids and does not adjudicate any original E02 finding. Q2/LA-029 results must be presented to G for independent acceptance and formal finding status.",
+    "required_sequence": [
+      "all source/tool/resource/documentation changes are in ordinary commits on the existing candidate branch",
+      "source branch attached and clean; exact full source SHA/tree/parents read back",
+      "independent source review receipts complete",
+      "source-audit prepare completed; generated proposals reconciled and committed; final exact-source check passes",
+      "source manifest inputs, primary 135 count/digest, 15 test pins, 11 exact resource bytes, supplemental six selectors and runner pin all re-read/hash-matched",
+      "existing worker re-read healthy/clean and fast-forwarded with no new checkout/branch/environment copy",
+      "fresh scratch/inode/memory review and one heavy-slot reservation",
+      "root authorizes the exact Q2 or LA-029 execution wave"
+    ]
+  },
+  "launch_block": "Do not start source collection, build, install, primary/supplemental tests, or LA-029 C7 until the final candidate source is committed/read back clean, the exact source SHA/tree are supplied, independent reviews are complete, source-audit prepare/check pass on the same exact source, final manifest/resource pins are frozen, and the existing worker/profile is freshly re-read. All source-freeze values below are deliberately null.",
+  "locked_environment_inputs": {
+    "dowhy_worker_lock": {
+      "dowhy": "0.14",
+      "path": "policy-engine/workers/dowhy-014/uv.lock",
+      "python": "3.12",
+      "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a"
+    },
+    "dowhy_worker_pyproject": {
+      "path": "policy-engine/workers/dowhy-014/pyproject.toml",
+      "sha256": "42a9b776bc0688624cc9b4dd31a19451da2e32a641a0891ad27b3a30ac0e1d0a"
+    },
+    "dowhy_worker_python_version_file": {
+      "path": "policy-engine/workers/dowhy-014/.python-version",
+      "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d"
+    },
+    "environment_policy": "Use the already-provisioned locked worker profiles. No environment copy. Do not run uv sync or install dependencies into either long-lived profile. Runner-created single build-tools venv and one isolated installed-consumer venv are part of its verified protocol and reused across all three wheel profiles.",
+    "root_project_lock": {
+      "path": "policy-engine/uv.lock",
+      "python": "==3.14.*",
+      "sha256": "9d200a0789f50fccb533ddbb66a39453b04de8f22e653d34a62c35125c20a120"
+    }
+  },
+  "primary_wave": {
+    "artifact_build_sequence": [
+      "git archive <full frozen SHA> -- policy-engine; hash stream and extract once",
+      "uv build --offline --no-build-isolation --python <one build-tools Python> --wheel --sdist --out-dir <run>/dist-source",
+      "uv build --offline --no-build-isolation --python <one build-tools Python> --wheel --out-dir <run>/dist-sdist",
+      "OUT_DIR=<run>/gcp-archive UPLOAD=0 PYTHON_BIN=<build-tools-python> bash <frozen-product>/ops/cloud/gcp/package_repo.sh",
+      "uv build --offline --no-build-isolation --python <one build-tools Python> --wheel --out-dir <run>/dist-gcp",
+      "uv pip install --offline --reinstall --no-deps --python <one installed-env Python> <each wheel in sequence>",
+      "<isolated installed-env Python> -I -m pytest <manifest-derived exact IDs, importlib mode, unit confcutdir>"
+    ],
+    "command_template": "docker_e02 exec --workdir /workspace/polisyos -e UV_PROJECT_ENVIRONMENT=/scratch/root-venv -e UV_NO_SYNC=1 -e UV_FROZEN=1 e02-local-worker-provision /scratch/root-venv/bin/python3.14 /workspace/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py --repo /workspace/polisyos --source-sha $FINAL_SOURCE_SHA --source-tree $FINAL_SOURCE_TREE --manifest /workspace/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json --manifest-sha256 $FINAL_PRIMARY_MANIFEST_SHA256 --app-python /scratch/root-venv/bin/python3.14 --worker-python /scratch/dowhy-venv/bin/python3.12 --output-root $NEW_ABSENT_RUNS_ROOT",
+    "installed_byte_and_reader_checks": [
+      "For all 11 frozen asset rows, recompute exact bytes and SHA-256 in the frozen source tree, source sdist, GCP package archive, source wheel, rebuilt-sdist wheel, rebuilt-GCP-archive wheel, and each profile's installed purelib.",
+      "Assert the exact installed target path is in that profile's purelib and run the packaged catalog and digest-domain real default readers; verify worker profile bytes are consumed by the actual installed worker bridge.",
+      "Capture complete selected pytest stdout/stderr even on failure or timeout; reconcile collected node IDs and JUnit executed IDs to the full manifest, with zero skips, failures, errors, undeclared GCP sibling files, or checkout/test paths on sys.path."
+    ],
+    "order": [
+      "source-wheel",
+      "rebuilt-sdist-wheel",
+      "rebuilt-gcp-archive-wheel"
+    ],
+    "timeout_policy": "Current timeout driver is the authority for profile timeouts: first profile has no inherited timeout; each later profile uses ceil(2 × immediately preceding successfully completed profile consumer wall time). Do not reuse the old timeout plan or invent a fixed timeout."
+  },
+  "purpose": "P39 mandatory execution companion for final Q2/Linux closeout; this does not replace source freeze, execution receipts, or G adjudication.",
+  "schema": "policyos.e02.q2_final_wave_run_contract.v1",
+  "scope": {
+    "denominator_boundaries": {
+      "current_contract_denominator": "135 primary selectors per installed profile, plus 6 supplemental selectors per installed profile after primary pass",
+      "la029_c7": "Separate finite Linux gate route with three tests in the actual C7 integration module; it is not included in 135+6.",
+      "linux71": "No current Q2 manifest supplies a Linux71 selector set; do not infer or report a 71-case denominator.",
+      "native_sota": {
+        "complete_child_input_denominator": "UNRUN / not established; children select or scan dynamic repository paths and there is no current full native input-path ledger. The R948 545 postimages and R398 6202 broad-pytest hash map are not the SOTA gate input denominator.",
+        "conditional_children": 1,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/r975-native-sota-row-execution-readiness-20261013.json",
+        "reported_rows": 13,
+        "sha256": "0b5022a0e333a12d2d8ccefa392fd7c639ada1d5659a65ef42c3e4922bebd494",
+        "state_in_that_preparation": "UNRUN/UNRUN_CURRENT; separate from Q2 installed consumers and not a runtime receipt.",
+        "unconditional_children": 20
+      }
+    },
+    "force_include_resources": {
+      "assets": [
+        {
+          "archive": "policy-engine/data/dataset_catalog/seed_variable_alignments.yaml",
+          "bytes": 1309,
+          "sha256": "cb1daa3237ff58d8c875571ff2459a55c5182c3a4f13a076497a517f9a8740d8",
+          "source": "data/dataset_catalog/seed_variable_alignments.yaml",
+          "status": "manifest declaration; final source audit and installed byte receipts must recompute",
+          "wheel": "polisyos/data_forge/domains/catalog/_resources/seed_variable_alignments.yaml"
+        },
+        {
+          "archive": "policy-engine/data/dataset_catalog/proxy_metric_alignments.yaml",
+          "bytes": 293,
+          "sha256": "4c6c04bb99ea566b061c7b2d23540d22f8eb7c043067585a7e9b93ccaf87388b",
+          "source": "data/dataset_catalog/proxy_metric_alignments.yaml",
+          "status": "manifest declaration; final source audit and installed byte receipts must recompute",
+          "wheel": "polisyos/data_forge/domains/catalog/_resources/proxy_metric_alignments.yaml"
+        },
+        {
+          "archive": "policy-engine/data/dataset_catalog/wvs_indicator_registry.yaml",
+          "bytes": 160329,
+          "sha256": "dabbadf04fdbf6c4658a720a6af5b63a60c69727b2350c0424368691399e413d",
+          "source": "data/dataset_catalog/wvs_indicator_registry.yaml",
+          "status": "manifest declaration; final source audit and installed byte receipts must recompute",
+          "wheel": "polisyos/data_forge/domains/catalog/_resources/wvs_indicator_registry.yaml"
+        },
+        {
+          "archive": "policy-engine/data/dataset_catalog/metrics_map.yaml",
+          "bytes": 2163,
+          "sha256": "0877e6521e4dd66dbc2c08010367c79f672c37a8b6b30e68f47b10135f680266",
+          "source": "data/dataset_catalog/metrics_map.yaml",
+          "status": "manifest declaration; final source audit and installed byte receipts must recompute",
+          "wheel": "polisyos/data_forge/domains/catalog/_resources/metrics_map.yaml"
+        },
+        {
+          "archive": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+          "bytes": 38632,
+          "sha256": "186078f2cd5c24cdef007449109d5667f60f4f7949c9b663026e5658e538bb5b",
+          "source": "architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+          "status": "manifest declaration; final source audit and installed byte receipts must recompute",
+          "wheel": "polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml"
+        },
+        {
+          "archive": "policy-engine/workers/dowhy-014/worker.py",
+          "bytes": 10652,
+          "sha256": "27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253",
+          "source": "workers/dowhy-014/worker.py",
+          "status": "manifest declaration; final source audit and installed byte receipts must recompute",
+          "wheel": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/worker.py"
+        },
+        {
+          "archive": "policy-engine/workers/dowhy-014/protocol.py",
+          "bytes": 4704,
+          "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239",
+          "source": "workers/dowhy-014/protocol.py",
+          "status": "manifest declaration; final source audit and installed byte receipts must recompute",
+          "wheel": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/protocol.py"
+        },
+        {
+          "archive": "policy-engine/workers/dowhy-014/pyproject.toml",
+          "bytes": 379,
+          "sha256": "df7ceb44d49f3e1befdf470a26cdff8146c91343dac13fb2f41f9fff97f94447",
+          "source": "workers/dowhy-014/pyproject.toml",
+          "status": "manifest declaration; final source audit and installed byte receipts must recompute",
+          "wheel": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/pyproject.toml"
+        },
+        {
+          "archive": "policy-engine/workers/dowhy-014/uv.lock",
+          "bytes": 98340,
+          "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a",
+          "source": "workers/dowhy-014/uv.lock",
+          "status": "manifest declaration; final source audit and installed byte receipts must recompute",
+          "wheel": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/uv.lock"
+        },
+        {
+          "archive": "policy-engine/workers/dowhy-014/.python-version",
+          "bytes": 5,
+          "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d",
+          "source": "workers/dowhy-014/.python-version",
+          "status": "manifest declaration; final source audit and installed byte receipts must recompute",
+          "wheel": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/.python-version"
+        },
+        {
+          "archive": "policy-engine/workers/dowhy-014/README.md",
+          "bytes": 4934,
+          "sha256": "fc4b60aecff0f52a19866c17da419ac4583de6fe09d74b424f8f9908f795f198",
+          "source": "workers/dowhy-014/README.md",
+          "status": "manifest declaration; final source audit and installed byte receipts must recompute",
+          "wheel": "polisyos/foundry/methods/catalog/causal/_dowhy_profile/README.md"
+        }
+      ],
+      "count": 11,
+      "proof_rule": "The runner must verify exact byte length and SHA-256 of every row in frozen source, source sdist, GCP archive, each of the three built wheels, and the installed purelib, and execute the packaged resource/default-reader probes. Build success or archive presence alone is not proof."
+    },
+    "primary_manifest": {
+      "actual_consumer_requirements": {
+        "all_original_q2_case_ids_present_per_profile": true,
+        "editable_source_path_or_test_path_on_sys_path": false,
+        "polisyos_and_tools_origins_under_installed_prefix": true,
+        "profiles": [
+          "source-wheel",
+          "rebuilt-sdist-wheel",
+          "rebuilt-gcp-archive-wheel"
+        ],
+        "pytest_errors": 0,
+        "pytest_failures": 0,
+        "pytest_skips": 0,
+        "undeclared_selected_directory_siblings": 0,
+        "wheel_asset_bytes_checked_per_profile": 11
+      },
+      "additional_consumer_routes": {
+        "b148_cli_replay_refused_import_report": {
+          "selectors": [
+            "test_replay_export_json_reports_refused_bundle_import"
+          ],
+          "test_path": "tests/unit/core/components/test_cli_replay.py"
+        },
+        "can_gcs_store": {
+          "selectors": [
+            "test_gcs_store_refuses_canon_spec_mismatch_before_upload"
+          ],
+          "test_path": "tests/unit/core/artifacts/backends/test_gcs_store.py"
+        },
+        "can_ir_adapter_and_filesystem": {
+          "selectors": [
+            "test_ir_adapter_refuses_canon_spec_mismatch_before_persisting",
+            "test_ir_adapter_accepts_typed_ir_canon_info_option",
+            "test_file_system_put_json_refuses_canon_spec_mismatch_before_persisting"
+          ],
+          "test_path": "tests/unit/core/artifacts/test_ir_adapter.py"
+        },
+        "can_s3_store": {
+          "selectors": [
+            "test_s3_store_refuses_canon_spec_mismatch_before_upload"
+          ],
+          "test_path": "tests/unit/core/artifacts/backends/test_s3_store.py"
+        },
+        "can_tenant_scoped_cas": {
+          "selectors": [
+            "test_tenant_scoped_cas_refuses_profile_mismatch_before_serializing"
+          ],
+          "test_path": "tests/unit/fabric/data_plane/test_scale_out.py"
+        },
+        "canonical_bridge_and_worker": {
+          "fixture_paths": {
+            "dowhy": "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+            "gcm": "tests/unit/foundry/methods/catalog/causal/test_gcm_backend_contract.py"
+          },
+          "selectors": [
+            "test_public_canonical_helpers_and_pure_report_factory_identity",
+            "test_real_installed_method_job_factory_and_fresh_reader_with_asset_removal",
+            "test_installed_true_gcm_job_and_scientist_source_bound_interval_consumer"
+          ],
+          "test_path": "tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+          "worker_python": "CPython 3.12 with DoWhy 0.14 from the frozen workers/dowhy-014/uv.lock"
+        },
+        "core_contracts_catalog_run_profile_identity": {
+          "selectors": [
+            "test_catalog_run_profile_is_exported_from_core_contracts_facade"
+          ],
+          "test_path": "tests/repo_quality/architecture/test_public_surface_export_resolution.py"
+        },
+        "dependency_profile": {
+          "selectors": [
+            "test_runtime_cutoff_predicate_is_one_sided_and_cutoff_specific",
+            "test_novel_profile_resolves_from_toml_without_code_change",
+            "test_cross_object_admission_or_reconciliation_mismatch_is_schema_invalid",
+            "test_unknown_authority_dto_field_fails_strict_parse",
+            "test_canonical_store_blob_manifest_or_signature_corruption_fails_before_parse",
+            "test_missing_unreadable_or_corrupt_digest_registry_returns_source_not_established"
+          ],
+          "test_path": "tests/unit/foundry/methods/test_dependency_profile.py"
+        },
+        "la029_ukraine_installed_gate_no_checkout": {
+          "selectors": [
+            "test_installed_wheel_without_checkout_reports_gate_unavailable"
+          ],
+          "test_path": "tests/unit/data_forge/domains/ukraine/test_installed_wheel_no_checkout.py"
+        },
+        "read_api_country_normalizer": {
+          "selectors": [
+            "test_country_normalizer_is_exported_by_catalog_read_api"
+          ],
+          "test_path": "tests/unit/data_forge/read_api/test_catalog_graph_builders.py"
+        }
+      },
+      "complete_id_set_location": "Exact full ID array is in the byte-hash-bound manifest above; source-audit prepare/check must derive and reconcile actual source collection and final IDs before launch.",
+      "declared_unique_selected_node_count": 135,
+      "historic_baselines": {
+        "named_91_plus_nine_subset_count": 100,
+        "original_q2_case_count": 91,
+        "role": "Preserved historical subsets only; neither changes the current 135-ID denominator."
+      },
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json",
+      "profiles": [
+        "source-wheel",
+        "rebuilt-sdist-wheel",
+        "rebuilt-gcp-archive-wheel"
+      ],
+      "schema_version": 1,
+      "selected_node_ids_sha256": "4f273e803d60fafd84a3901357cbf9e80c4beb4af5f2aa7dfae1697f39342d1d",
+      "selected_node_ids_sha256_algorithm": "sha256 of sorted unique UTF-8 node IDs joined with LF and one trailing LF",
+      "sha256_at_authoring": "f4af62a3d6d25a3aa9c9c9ebf87fba3e016a261f0ad083cf8fc97bc091d95efd",
+      "source_file_sha256_pins": [
+        {
+          "declared_sha256": "668d45112a45648f89a548746688b24f54ffe8513f5dd48d136d7cd72b0fb9cb",
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-default-resource-final-20261007/test_installed_catalog_defaults.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "5bc483ddc2ff56b75d5b5766ead17b34b92adb5e10bb1777fe1baa52e77085c5",
+          "path": "tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "4d682418d34bfa116af14c2214f84a04f6ceae4c5867cd708bb353213c09be0e",
+          "path": "tests/unit/core/artifacts/backends/test_gcs_store.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "63f4534629714897b91f092beddc724d606e75971a74fb5d434c4ad27c01b3df",
+          "path": "tests/unit/core/artifacts/backends/test_s3_store.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "d341750b85a9ae219e5330fd45b49cc40c75d17de6b7b1662cb5a738ef804fad",
+          "path": "tests/unit/core/artifacts/test_ir_adapter.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "3939b4a97e39b957ae859b7dd9e0e1176c24db763427fd19ac04301570c8533e",
+          "path": "tests/unit/core/components/test_cli_replay.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "9932d3cbc12e0b84b998d419fca7859c829e425a753d8b8abb7100344c82b8b1",
+          "path": "tests/unit/data_forge/domains/ukraine/test_installed_wheel_no_checkout.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "6493a8ecfe49e718839387940aadea42d4c0c38b594425291b4fb8009dbaa343",
+          "path": "tests/unit/data_forge/read_api/test_catalog_graph_builders.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "dcb11465ccefc17c41e4f0a9494c567239c1ad41c67e396b1fb1f568aebbe023",
+          "path": "tests/unit/fabric/data_plane/test_scale_out.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "f6640533c5821ab4257bff177b3e5536e37cd881a25e11175ea681829e408a63",
+          "path": "tests/unit/foundry/methods/catalog/causal/test_graph_reconciliation.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "b8f9227a18737490a539a70cbace221344a72e4935c6f28d9a7f35b65dc40f42",
+          "path": "tests/unit/foundry/methods/catalog/causal/test_installed_worker_profile.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "3435b4dd3df4d31546ea260d149764d67856c1a57ee25e20bd30583ddf1eb3ce",
+          "path": "tests/unit/foundry/methods/test_dependency_profile.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "5afa97d7291b3d31116205136fa4a63c20bb20a441e9a1b57bb13223686df770",
+          "path": "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "7582073c6d5806e62a56c53740900be69cbf3dede414fb10762aed7e5d258b3e",
+          "path": "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+          "status": "manifest declaration; final source audit must recompute"
+        },
+        {
+          "declared_sha256": "37df9399ff0acc0d0fa845af9f9eaa81614163ae74a88c23a14ea49b1bfd4dfc",
+          "path": "tests/unit/scientist/nodes/builtins/causal/test_reconcile_causal_graph.py",
+          "status": "manifest declaration; final source audit must recompute"
+        }
+      ],
+      "source_test_file_pin_count": 15
+    },
+    "supplemental_manifest": {
+      "current_declared_primary_manifest_sha256": "086abec2e167c20e45362d51e926050954467010ce2eb186443056a0b7239366",
+      "current_declared_runner_sha256": "a64bab2a692e9f3a88b0693887a430aa3ee2f78e2ca4fa847ed5871ec0c7a3b0",
+      "current_manifest_sha256": "f4af62a3d6d25a3aa9c9c9ebf87fba3e016a261f0ad083cf8fc97bc091d95efd",
+      "current_runner_sha256": "fccc857d538f198a44bdc1c69379f5e17678e8ba62141c90d451aae49d74e832",
+      "expected_supplemental_node_count": 6,
+      "path_at_authoring": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental-manifest.json",
+      "rule": "Current supplemental bytes are preparation input only. Use the exact latest proposed-supplemental-manifest.json and hash from the final source-audit prepare/check; do not reuse this stale binding for launch.",
+      "selectors": [
+        "test_public_surface_entrypoints_resolve_declared_exports",
+        "test_workflow_request_rejects_wrong_typed_intake_ref_kind_or_media_type",
+        "test_gate_request_selected_replay_requirement_is_versioned",
+        "test_cas_nondefault_manifest_profile_round_trips_through_fresh_reader",
+        "test_small_monte_carlo_report_is_consumed_from_fresh_cas",
+        "test_scholar_raw_source_binding_survives_fresh_cas_read_and_rejects_invented_quote"
+      ],
+      "sha256_at_authoring": "1acd43fa91682ca2d8eb8441f8da558d65e2920eb951e01fa693b562c4e9a5a7",
+      "stale_bindings_at_authoring": true,
+      "test_path": "tests/unit/core/contracts/test_e02_installed_composition.py"
+    }
+  },
+  "separate_la029_ukops_linux_c7_route": {
+    "authority_limit": "Do not call this a listener lifecycle result. LA-029 closure/formal decision remains for G.",
+    "command_template": "docker_e02 exec e02-local-worker-provision /scratch/root-venv/bin/python -B /scratch/e02-la029/harness/run_ukops_gate.py --mode $MODE --git-root /workspace/polisyos --source-root /workspace/polisyos/policy-engine --freeze-sha $FINAL_SOURCE_SHA --freeze-tree $FINAL_SOURCE_TREE --attempt-root /scratch/e02-la029/$FINAL_SOURCE_SHA/$UNIQUE_ATTEMPT --helpers-root /scratch/e02-la029/harness --root-venv /scratch/root-venv --real-uv /usr/local/bin/uv --timeout-seconds $MEASURED_APPROVED_C7_TIMEOUT",
+    "expected_invalid_root": "Typed unavailable, passed=false, skipped=false, no child command; fresh reader returns blocked_by_part_a_gate and D1 is blocked before source materialization.",
+    "expected_no_marker": "Real native server-only guard emits the exact refusal before artifact root or C7 child.",
+    "expected_positive": "The real C7 module reports 3 passed and 0 skipped; persisted gate bytes/size/digest match typed BuildRunManifest; fresh reader consumes passed gate and D1 persists blocked_by_previous_stage because D0 is absent.",
+    "helper_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/la029-ukops-lifecycle/run_ukops_gate.py",
+        "purpose": "Linux-only process runner",
+        "sha256": "1bb0a55d93ffc2f7f86b5057f021559a7d6debcf69fe71f4a98447b1c24a5176"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/la029-ukops-lifecycle/uv",
+        "purpose": "exact child command guard/observer",
+        "sha256": "d0431b7f3241cabb6b07c038c5e84044163b3b8f3acd6726af6ec6bd54dcd16e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/la029-ukops-lifecycle/instrumentation/sitecustomize.py",
+        "purpose": "Popen full stream and child identity observer",
+        "sha256": "ab781e2ccbded58cb99ec7b0e843ed2385fcc3f2af06d03268a3bf2eee4591f6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/raw/la029-ukops-lifecycle/read_gate_consumer.py",
+        "purpose": "fresh process content-bound typed gate/D1 consumer",
+        "sha256": "4333a140ff68427b5df22b4874e495550724e7ee0db3abd9bad51785d63e4e83"
+      }
+    ],
+    "mode_sequence": [
+      "no-marker",
+      "invalid-root",
+      "positive"
+    ],
+    "reader_command_template": "docker_e02 exec -e POLISYOS_SERVER_EXECUTION=1 -e PYTHONDONTWRITEBYTECODE=1 -e PYTHONPATH=/workspace/polisyos/policy-engine:/workspace/polisyos/policy-engine/src e02-local-worker-provision /scratch/root-venv/bin/python -B /scratch/e02-la029/harness/read_gate_consumer.py --build-root /scratch/e02-la029/$FINAL_SOURCE_SHA/$UNIQUE_ATTEMPT/build --source-root /workspace/polisyos/policy-engine --expected-status $EXPECTED_STATUS",
+    "rebind": "Helper hashes above are current inputs, not final freeze claims. Re-read all four and final UKOPS product/test source hashes at the frozen source. Copy only these four small harness files into scratch after root authorizes the LA-029 slot; verify all four copied hashes. Do not mount host or production data.",
+    "runbook": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/la029-ukops-linux-lifecycle-readiness-20261011.md",
+      "purpose": "exact finite route, controls, and lifecycle boundary",
+      "sha256": "6125f4b45ead7071dd6bbe3da364404e2b86536b781883799e3693a5c968b8fa"
+    },
+    "scope": "Finite Ops validate-part-a -> actual C7 synthetic producer -> persisted PartAGateManifest/BuildRunManifest -> fresh typed gate/D1 consumer. It is separate from installed no-checkout selector in the 135 set and is not listener start/stop/restart evidence or formal closure.",
+    "timeout_seconds": null
+  },
+  "source_audit": {
+    "check_command_template": "\"$APP_PYTHON\" -B \"$AUDIT\" check --repo \"$REPO\" --source-sha \"$FINAL_SOURCE_SHA\" --source-tree \"$FINAL_SOURCE_TREE\" --python \"$APP_PYTHON\" --collection-timeout-seconds \"$MEASURED_SOURCE_COLLECTION_TIMEOUT_SECONDS\" --output-root \"$NEW_ABSENT_CHECK_ROOT\" --supplemental-manifest \"$LATEST_PROPOSED_SUPPLEMENT\" --supplemental-manifest-sha256 \"$LATEST_PROPOSED_SUPPLEMENT_SHA256\"",
+    "current_state": "not_run",
+    "helper": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+      "purpose": "current source-derived audit helper",
+      "sha256": "a888044a73ef693acf0bb4fe5d3a4996400dfb31c8180b1a654f7fd9813c3520"
+    },
+    "host_interpreter": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "host_interpreter_observed": "Python 3.14.3",
+    "initial_supplement_input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental-manifest.json",
+    "prepare_check_sequence": [
+      "Run prepare only after all product, test, resource, manifest, recipe, and required documentation companions are committed and the exact source SHA/tree are read back from the clean attached candidate branch.",
+      "Review all 15 actual source pins, complete actual selector collection, all 11 source resource byte rows, candidate primary/supplement proposals, timeout-driver patch, and capsule bindings. Never make the manifest green by hand-editing expected hashes.",
+      "If any source-derived primary/supplement/driver bytes must change, commit the exact reviewed proposal as a normal source commit, read back the new SHA/tree, and repeat prepare using the newest supplemental proposal.",
+      "When stable, run check against the same exact source SHA/tree, same committed primary manifest, and exact latest proposed supplemental file path+SHA. Require source_preflight_exact, exact actual collection/object binding, capsule bindings current, and zero runner limitations.",
+      "Any source, recipe, helper, manifest, or proposal byte change after prepare invalidates affected evidence and requires new source SHA/tree plus prepare/check. The final manifest and all command/tool hashes are read back before launch."
+    ],
+    "prepare_command_template": "\"$APP_PYTHON\" -B \"$AUDIT\" prepare --repo \"$REPO\" --source-sha \"$FINAL_SOURCE_SHA\" --source-tree \"$FINAL_SOURCE_TREE\" --python \"$APP_PYTHON\" --collection-timeout-seconds \"$MEASURED_SOURCE_COLLECTION_TIMEOUT_SECONDS\" --output-root \"$NEW_ABSENT_PREPARE_ROOT\" --supplemental-manifest \"$SUPPLEMENTAL_INPUT\" --supplemental-manifest-sha256 \"$SUPPLEMENTAL_INPUT_SHA256\"",
+    "required_check_status": "source_preflight_exact, source object and actual collection reconciled, capsule bindings current, no limitations",
+    "required_prepare_status": "review proposals; prepare alone is not launch authority",
+    "source_collection_timeout_seconds": null
+  },
+  "source_freeze": {
+    "check_receipt_path": null,
+    "check_receipt_sha256": null,
+    "final_collection_timeout_seconds": null,
+    "final_primary_manifest_path": null,
+    "final_primary_manifest_sha256": null,
+    "final_supplemental_manifest_path": null,
+    "final_supplemental_manifest_sha256": null,
+    "launch_authorization": null,
+    "prepare_receipt_path": null,
+    "prepare_receipt_sha256": null,
+    "review_receipts": null,
+    "source_branch": "codex/e02-unified-local-20261009",
+    "source_clean_attached_status": null,
+    "source_commit_sha": null,
+    "source_parents": null,
+    "source_tree_sha": null
+  },
+  "supersedes": {
+    "old_timeout_plan": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/timeout-plan-v3-current1ab7-20261011.md",
+    "old_timeout_plan_sha256": "4805c14999116d61457b8b358053ca9e86c40244e445b87640fb4b5729d740e8",
+    "reason": "The older plan pins prior primary manifest/runner/timeout-driver objects and a prior timeout basis. Preserve its file and results as historical evidence; never launch from its old pins.",
+    "status": "historical_unmodified; superseded as the future launch contract only"
+  },
+  "supplemental_wave": {
+    "acceptance": "All six exact source-derived selector IDs are collected and executed against the same three installed profiles, bound to the exact passing primary receipt/manifests/source SHA+tree; zero skip/fail/error. Retain full streams/JUnit and all per-profile receipts.",
+    "command_template": "docker_e02 exec e02-local-worker-provision mkdir -p /scratch/e02-q2/$FINAL_SOURCE_SHA && docker_e02 cp \"$LATEST_PROPOSED_SUPPLEMENT\" \"e02-local-worker-provision:/scratch/e02-q2/$FINAL_SOURCE_SHA/supplemental-manifest.json\" && test \"$(docker_e02 exec e02-local-worker-provision sha256sum /scratch/e02-q2/$FINAL_SOURCE_SHA/supplemental-manifest.json | awk '{print $1}')\" = \"$FINAL_SUPPLEMENTAL_MANIFEST_SHA256\" && docker_e02 exec --workdir /workspace/polisyos -e UV_PROJECT_ENVIRONMENT=/scratch/root-venv -e UV_NO_SYNC=1 -e UV_FROZEN=1 e02-local-worker-provision /scratch/root-venv/bin/python3.14 /workspace/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/supplemental_run.py --repo /workspace/polisyos --source-sha \"$FINAL_SOURCE_SHA\" --source-tree \"$FINAL_SOURCE_TREE\" --primary-manifest /workspace/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-manifest.json --primary-manifest-sha256 \"$FINAL_PRIMARY_MANIFEST_SHA256\" --supplemental-manifest /scratch/e02-q2/$FINAL_SOURCE_SHA/supplemental-manifest.json --supplemental-manifest-sha256 \"$FINAL_SUPPLEMENTAL_MANIFEST_SHA256\" --primary-run \"$PRIMARY_RUN\" --output-root \"$NEW_ABSENT_SUPPLEMENTAL_ROOT\"",
+    "count": 6,
+    "manifest_transfer": "Copy the exact latest source-audit proposed supplemental manifest to a new worker scratch path, hash it there, and pass that exact path+SHA; the existing manifest currently binds an older primary runner/manifest and is not launchable.",
+    "run_only_after_primary_status": "pass",
+    "selectors": [
+      "test_public_surface_entrypoints_resolve_declared_exports",
+      "test_workflow_request_rejects_wrong_typed_intake_ref_kind_or_media_type",
+      "test_gate_request_selected_replay_requirement_is_versioned",
+      "test_cas_nondefault_manifest_profile_round_trips_through_fresh_reader",
+      "test_small_monte_carlo_report_is_consumed_from_fresh_cas",
+      "test_scholar_raw_source_binding_survives_fresh_cas_read_and_rejects_invented_quote"
+    ]
+  },
+  "worker": {
+    "environment": {
+      "COLIMA_HOME": "/Users/deniskopylov/.colima-e02-local",
+      "DOCKER_CONFIG": "/Users/deniskopylov/.docker-e02-local",
+      "container_id": "88c8824b3970ef929473daf73cda2e50083b2035f5b725071acf8a829fa5b0c6",
+      "container_name": "e02-local-worker-provision",
+      "cpu_count": 2,
+      "current_live_readback": {
+        "capacity_caveat": "Point-in-time availability only, not a final capacity guarantee. Re-read immediately before each serialized heavy wave.",
+        "cgroup_memory": {
+          "current_bytes": 1731801088,
+          "limit_bytes": 2306867200,
+          "oom_events": 0
+        },
+        "load_average_1_5_15": "0.00 0.00 0.00",
+        "observed_at_utc": "2026-10-15T16:12:37Z",
+        "running": true,
+        "scratch": {
+          "available_gib": 4.8,
+          "free_inodes": 635906,
+          "total_gib": 12,
+          "use_percent": 58,
+          "used_gib": 6.4
+        },
+        "worker_branch": "codex/e02-unified-local-20261009",
+        "worker_head": "226cedb822e6e242d861ea8c903c9b396375dd0e",
+        "worker_tree": "5db8751ff5f26d7c649906582c4f84bc4accdf9a",
+        "working_tree_clean": true
+      },
+      "docker_binary": "/opt/homebrew/bin/docker",
+      "docker_context": "colima-e02-local",
+      "existing_scratch_interpreters": {
+        "app": {
+          "path": "/scratch/root-venv/bin/python3.14",
+          "version": "3.14.0"
+        },
+        "worker": {
+          "path": "/scratch/dowhy-venv/bin/python3.12",
+          "version": "3.12.12"
+        }
+      },
+      "host_or_production_mounts": 0,
+      "image": "ghcr.io/astral-sh/uv@sha256:dc53af52cf658aa04401244105cd63b25a7dfd42a6c5125683710b553d8d263f",
+      "memory_limit_bytes": 2306867200,
+      "mounts": [
+        "/opt/uv-python (named volume)",
+        "/root/.cache/uv (named volume)",
+        "/scratch (named volume)"
+      ],
+      "observed_packages_at_1501_utc": {
+        "app": {
+          "checked_distributions": 162,
+          "hatchling": "1.27.0",
+          "pytest": "9.0.2",
+          "uv_pip_check": "PASS"
+        },
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/profile-1501-retry.stdout.txt",
+        "uv": "0.9.21",
+        "worker": {
+          "checked_distributions": 52,
+          "dowhy": "0.14",
+          "pytest": "9.0.2",
+          "uv_pip_check": "PASS"
+        }
+      },
+      "platform": "Linux/aarch64",
+      "recheck_command_template": "docker_e02 inspect --format '{{.Id}} {{.Config.Image}} {{.State.Status}} {{.HostConfig.Memory}} {{range .Mounts}}{{.Destination}}:{{.Type}}:{{.RW}} {{end}}' e02-local-worker-provision && docker_e02 exec e02-local-worker-provision sh -lc 'date -u +%Y-%m-%dT%H:%M:%SZ; uname -m; df -h /scratch; df -i /scratch; cat /sys/fs/cgroup/memory.current; cat /sys/fs/cgroup/memory.max; cat /sys/fs/cgroup/memory.events; cat /proc/loadavg; git -C /workspace/polisyos status -sb; git -C /workspace/polisyos rev-parse HEAD; git -C /workspace/polisyos rev-parse \"HEAD^{tree}\"; /usr/local/bin/uv --version; /scratch/root-venv/bin/python3.14 --version; /scratch/root-venv/bin/python3.14 -B -c \"import hatchling, pytest, lifelines; print(hatchling.__version__, pytest.__version__, lifelines.__version__)\"; /scratch/dowhy-venv/bin/python3.12 --version; /usr/local/bin/uv pip check --python /scratch/root-venv/bin/python3.14; /usr/local/bin/uv pip check --python /scratch/dowhy-venv/bin/python3.12'",
+      "run_state": {
+        "primary_runs_directory_exists_at_2026_10_15T16_15_26Z": false,
+        "q2_status": "UNRUN at this readback",
+        "source_freeze_check_directory_exists": false,
+        "source_freeze_prepare_directory_exists": false,
+        "supplemental_runs_directory_exists": false
+      }
+    },
+    "scratch_and_compute_policy": [
+      "Use one heavy worker slot; do not overlap Q2 packaging/installed tests and the separate LA-029 positive C7 run.",
+      "Recipe's prior scratch estimate was about 1.5 GiB with an already-provisioned worker profile, but GCP archive size/platform overhead was unmeasured. Current 4.8 GiB free does not guarantee future sufficiency.",
+      "Before each heavy wave, re-read free disk, inode capacity, cgroup memory/events, worker branch cleanliness, and exact package profiles. Do not delete artifacts or install/copy another dependency environment to make capacity appear sufficient.",
+      "Keep complete deciding stdout/stderr, JUnit, source-collection IDs, asset-byte receipts, origin proof, build artifacts, and failure outputs in unique ignored run directories. No automatic cleanup."
+    ]
+  }
+}

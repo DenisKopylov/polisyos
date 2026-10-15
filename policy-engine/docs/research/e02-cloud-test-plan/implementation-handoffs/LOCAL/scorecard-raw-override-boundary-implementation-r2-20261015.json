@@ -1,0 +1,120 @@
+{
+  "schema_version": "policyos.e02.local-implementation-receipt.v1",
+  "receipt_id": "scorecard-raw-override-boundary-implementation-r2-20261015",
+  "purpose": "Final R2 handoff after committing the candidate-only source fix and producer-backed performance-only fixture, with independent scoped review.",
+  "raw_evidence_root": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/scorecard-raw-override-boundary-implementation-r2-20261015",
+  "slice": {
+    "base_revision": "92074009c670f90496f1e45460c8f379fbcee470",
+    "head_observed_at_freeze": "9e5077d89d08fc3aa507c9ddcaa7d0bb6769b2bf",
+    "source_commit": {
+      "commit": "9e5077d89d08fc3aa507c9ddcaa7d0bb6769b2bf",
+      "tree": "a36f7cd7007729226afa25e494a558a79d123e94",
+      "parent": "1c052c8f5c00229e1402ddcb3090a0c485e57fbb",
+      "git_blob_ids": {
+        "src/polisyos/runtime/quality/scorecard.py": "26118f9047998e37dec62c27119a794175fca48f",
+        "tests/unit/runtime/quality/test_scorecard.py": "4f3191eb401b54f4035576cd5fd1c4504e3f0ec0"
+      },
+      "published_by": "root"
+    },
+    "source_paths": [
+      "src/polisyos/runtime/quality/scorecard.py",
+      "tests/unit/runtime/quality/test_scorecard.py"
+    ],
+    "source_hashes_sha256": {
+      "r1": {
+        "src/polisyos/runtime/quality/scorecard.py": "f4db3c4fbdae6a27718b7ec713e6849bdc38a0b773a1c2111fb8ffc8bbec51f2",
+        "tests/unit/runtime/quality/test_scorecard.py": "810f5e87e938ee77b9076ba52007b05015dc3a0e7f57cb58c1e03a3e1df94bba"
+      },
+      "r2": {
+        "src/polisyos/runtime/quality/scorecard.py": "f4db3c4fbdae6a27718b7ec713e6849bdc38a0b773a1c2111fb8ffc8bbec51f2",
+        "tests/unit/runtime/quality/test_scorecard.py": "a2e93a2c679eb624bea7529ce558eb31d71ce618760f6edeaa2d5b3ad50086fd"
+      }
+    },
+    "delta_scope": "Only the test import list and test_runtime_quality_scorecard_requires_override_for_performance_budget_failure fixture changed after R1. The fixture now uses complete_quality_evidence() and complete_job_payload() from tests._helpers.hds_quality, with helper-matched job/run identity and a performance failure supplied through details. Source hash is unchanged."
+  },
+  "fixture_basis": {
+    "producer": "complete_quality_evidence() invokes the existing build_security_assurance_report producer, binds the runtime owner ref, and supplies matching diagnostic evidence. complete_job_payload() supplies the runtime refs and diagnostic event. This is controlled test evidence, not an external or institutional fact.",
+    "expected_property": "With quality evidence passing and serious performance failing, the scorecard remains quality=pass, performance=fail, approval_state=override_required, missing_override=true, with reason performance_budget_failed.",
+    "preserved_assertions": [
+      "quality_status == pass",
+      "performance_status == fail",
+      "approval_state == override_required",
+      "approval_eligibility.requires_override is true",
+      "approval_eligibility.missing_override is true",
+      "approval_eligibility.reasons == [performance_budget_failed]"
+    ]
+  },
+  "preserved_prepublication_packet": {
+    "path": "LOCAL/raw/scorecard-raw-override-boundary-implementation-r2-20261015/receipt-r2-prepublication-b91fe78a955e.json",
+    "sha256": "b91fe78a955e824874f3d954f3ed07dba7791223d79641f8c8d29449df64a5bd",
+    "purpose": "Immutable copy of the exact R2 receipt reviewed independently before post-commit metadata was added."
+  },
+  "independent_review": {
+    "report": "LOCAL/raw/scorecard2-independent-review-20261015/review.json",
+    "report_sha256": "1e1474c9d3e245012ce8d7b650b555ca1f4db6e08498e9f0e0908bf4956ffe94",
+    "verdict": "GO_SCOPED_SLICE_ONLY",
+    "reviewed_packet_sha256": "b91fe78a955e824874f3d954f3ed07dba7791223d79641f8c8d29449df64a5bd",
+    "selector_outputs": [
+      {
+        "selector": "test_runtime_quality_scorecard_keeps_raw_override_markers_candidate_only",
+        "result": "1 passed",
+        "path": "LOCAL/raw/scorecard2-independent-review-20261015/marker-refreeze.stdout.txt",
+        "sha256": "ab6ce81de6b53f0227375b3b316e736aaff3f6eb46aea5387fa51f96727bcc92"
+      },
+      {
+        "selector": "test_runtime_quality_scorecard_requires_override_for_performance_budget_failure",
+        "result": "1 passed",
+        "path": "LOCAL/raw/scorecard2-independent-review-20261015/performance-only-refreeze.stdout.txt",
+        "sha256": "59943a7d2b255233769e942229b505baea985a6a69156c2ec4700708d547fe22"
+      }
+    ]
+  },
+  "verification": {
+    "focused_selectors": {
+      "command": ".venv/bin/python -B -m pytest -q -ra -o addopts= --import-mode=importlib --junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/scorecard-raw-override-boundary-implementation-r2-20261015/scorecard-two-selectors.junit.xml tests/unit/runtime/quality/test_scorecard.py::test_runtime_quality_scorecard_requires_override_for_performance_budget_failure tests/unit/runtime/quality/test_scorecard.py::test_runtime_quality_scorecard_keeps_raw_override_markers_candidate_only",
+      "result": "2 passed",
+      "stdout": "LOCAL/raw/scorecard-raw-override-boundary-implementation-r2-20261015/scorecard-two-selectors.stdout.txt",
+      "stdout_sha256": "faaa3502c567c4e51498baa029cac467915772fed4ba946f6a41b9c157770ede",
+      "junit": "LOCAL/raw/scorecard-raw-override-boundary-implementation-r2-20261015/scorecard-two-selectors.junit.xml",
+      "junit_sha256": "76ce95a71e1467711d0391b6fd2cd12d9869df9bd85ae42b80de2ea7ce78b546",
+      "junit_counts": {"tests": 2, "failures": 0, "errors": 0, "skipped": 0}
+    },
+    "ruff_check": {
+      "command": ".venv/bin/python -B -m ruff check src/polisyos/runtime/quality/scorecard.py tests/unit/runtime/quality/test_scorecard.py",
+      "result": "All checks passed",
+      "output": "LOCAL/raw/scorecard-raw-override-boundary-implementation-r2-20261015/ruff-check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "ruff_format": {
+      "command": ".venv/bin/python -B -m ruff format --check src/polisyos/runtime/quality/scorecard.py tests/unit/runtime/quality/test_scorecard.py",
+      "result": "2 files already formatted",
+      "output": "LOCAL/raw/scorecard-raw-override-boundary-implementation-r2-20261015/ruff-format.stdout.txt",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    "diff_check": "git diff --check -- src/polisyos/runtime/quality/scorecard.py tests/unit/runtime/quality/test_scorecard.py passed with no output."
+  },
+  "boundary": {
+    "scorecard_source": "Committed as source frame 9e5077d; raw job/run markers remain candidate-only and cannot set accepted=true.",
+    "candidate_chain": "Raw job/run fields -> _override_candidate legacy-channel presence detector -> _override_evidence emits candidate/false or missing/false -> _approval_readiness consumes accepted only -> scorecard projection. The marker-retaining test exercises nested job/run channels and top-level aliases against the actual scorecard builder.",
+    "typed_production_chain": "POST /api/v1/runs/{run_id}/production-approval -> step-up/authz subject binding and client-signature rejection -> ProductionApprovalPacketResolver resolves the selected scorecard, production basis, and human decision record -> typed packet builder recomputes blockers -> owner persistence. This separate route/resolver was not changed; the controlled packet test confirms the raw markers do not alter its blocked decision/reasons.",
+    "production_approval": "ProductionApprovalOverrideRequest, its resolver, route, and typed packet behavior are unchanged. HumanReview is not asserted as equivalent to a Scorecard override authority.",
+    "capability_labels": {
+      "candidate_only_scorecard_boundary": "implemented_but_not_orchestrated; semantic test present",
+      "distinct_typed_scorecard_override": "absent/unallocated"
+    },
+    "not_established": [
+      "A distinct authoritative scorecard override producer or contract.",
+      "External reviewer appointment/currentness or issuer authority.",
+      "A production build_quality_scorecard caller."
+    ],
+    "next_check": "A G decision must identify whether Scorecard override is a distinct typed T2 contract and name its authoritative producer/resolver and selected context. Until then raw markers remain candidate-only; any approved follow-on must test producer-to-persisted-artifact-to-consumer behavior and fail closed on missing issuer/currentness/time evidence.",
+    "formal_closure_ids": []
+  },
+  "delivery": {
+    "source_and_test_committed_by_root": true,
+    "receipt_staged_or_committed_by_author": false,
+    "test_fixture_frozen": true,
+    "source_frozen_at_r1_hash": true,
+    "formal_closure_ids": []
+  }
+}

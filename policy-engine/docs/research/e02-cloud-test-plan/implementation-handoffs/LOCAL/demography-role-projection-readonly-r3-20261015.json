@@ -1,0 +1,80 @@
+{
+  "schema_version": "e02.local-implementation-handoff.v1",
+  "task": "DemographyRoleProjection finite JSON value admission (r3 delta)",
+  "supersedes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/demography-role-projection-readonly-r2-20261015.json@7c86bb12d88d2e0942223f56d1e3f352756aacfb1f6b190f9699e58893abe30e",
+  "source_frame": {
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "product_root": "policy-engine",
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base_commit": "83b3259671b70cfdb3e6b10830a7878412a95db4",
+    "candidate_context_head": "816d47eee62b28906904373bc21229c73ce64327",
+    "candidate_context_tree": "24244ea0e08c784d21e318090dbe0ada898b665e",
+    "candidate_context_parents": [
+      "83b3259671b70cfdb3e6b10830a7878412a95db4"
+    ],
+    "candidate_source_commit": null,
+    "candidate_source_tree": null,
+    "note": "r3 candidate bytes are in the working tree. Candidate commit/tree remain null until the root ordinary source commit is created and read back; r2 remains immutable."
+  },
+  "review_finding": {
+    "q2_reference": {
+      "partition": 3,
+      "global_row": 19,
+      "change_id": "ukraine-demography-inventory-read-api"
+    },
+    "bucket": "P40 NEW_CLASS: strict JSON snapshot admission accepted NaN and infinities even though adjacent canonical JSON encoding rejects non-finite numbers.",
+    "red": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-nonfinite-20261015/red.stdout.txt@85d603c4c8bb9bbd1b78816ac55c072d0efddbe628b8547f35cbe3a216ae7b37",
+    "property": "Projection construction rejects non-finite floats at every recursive depth using the existing invalid-JSON ValueError contract; finite values, including positive and negative zero, are preserved without normalization."
+  },
+  "write_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+      "sha256": "7173f64b3e24afecd43fa1d92d2478fbd2fd888bbe86ac8e6622439c76850068",
+      "role": "shared recursive JSON-value validator"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+      "sha256": "d93f544fd37e98473e750ab72539a17c8849f7a60174a939d50b814ea9d4a146",
+      "role": "constructor-level direct/list/object negative and finite controls"
+    }
+  ],
+  "repair": {
+    "mechanism": "The shared recursive snapshot helper now rejects every non-finite built-in float via math.isfinite before accepting the scalar. This covers constructor intake and all recursive copies/views through one owner mechanism.",
+    "error": "ValueError with explicit finite-JSON-number diagnostic, consistent with the existing canonical serializer allow_nan=False behavior.",
+    "controls": "9 negative cases cover NaN, +infinity, and -infinity at direct payload field, list element, and nested object value. 9 positive controls cover a finite positive float, +0.0, and -0.0 at the same depths; JSON serialization confirms values/sign are preserved.",
+    "non_changes": "No normalization/defaults, wire/schema changes, public constructor/data-field changes, scientific/status/authority changes, or production bytes changed."
+  },
+  "verification": {
+    "targeted_red_green": {
+      "red": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-nonfinite-20261015/red.stdout.txt@85d603c4c8bb9bbd1b78816ac55c072d0efddbe628b8547f35cbe3a216ae7b37",
+      "green": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-nonfinite-20261015/targeted-green.stdout.txt@91cb203db7cf3653bde2716cc8938030044f303b2160213fa75fd3e22f31a7c4",
+      "result": "RED showed all 9 non-finite cases were admitted; then all 18 new negative/positive controls passed."
+    },
+    "focused_suite": {
+      "command": "From policy-engine: .venv/bin/python -m pytest -q tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-nonfinite-20261015/focused-suite.stdout.txt@4edd9eda2cf1f38ee340ceceb82fdab59f0ef001b90f9084f1f2821c2be41679",
+      "result": "PASS; 48 tests, preserving the prior 30 source/artifact tests plus the 18 finite-value boundary controls."
+    },
+    "strict_mypy": {
+      "command": "From policy-engine: .venv/bin/python -m mypy --config-file mypy.ini src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-nonfinite-20261015/mypy.stdout.txt@bfbc22e77c5cdb79d1dc92d1ad03fc54dfe88e1d60d6611d6c9d9bcd8fc55078",
+      "result": "PASS; no issues in the selected source file."
+    },
+    "canonical_ruff": {
+      "command": "From repository root, canonical workspace_root.toml format --check and check on the exact two leased files.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-nonfinite-20261015/ruff.stdout.txt@58061c24001392e2eb75ccedba43f538a690dfe0e3b568a490c5af886e81c9d8",
+      "result": "PASS; both files formatted and Ruff clean."
+    },
+    "diff_check": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-demography-role-projection-nonfinite-20261015/diff-check.stdout.txt@84bb0e45699e5ce9cfd8658f7b30f926bb31b3e4009e0eeb9cc908b1ba850cd9"
+  },
+  "limits_and_next_check": {
+    "proposed_status_for_independent_review": "implemented; propose Q2 partition 3 global row 19 JSON-number admission property for this r3 source candidate, pending immediate delta-only independent review and G adjudication",
+    "formal_closures": [],
+    "author_claimed_closed_ids": [],
+    "remaining": [
+      "Independent Q2 reviewer should inspect the exact r3 source/test bytes and decide this NEW_CLASS delta.",
+      "G retains formal compatibility and finding adjudication; this candidate test does not establish source authenticity, production currentness, authority, or admissibility."
+    ],
+    "post_freeze": "No source/test edits after the hashes above. Candidate commit/tree remain unset; root owns source and receipt commits."
+  }
+}

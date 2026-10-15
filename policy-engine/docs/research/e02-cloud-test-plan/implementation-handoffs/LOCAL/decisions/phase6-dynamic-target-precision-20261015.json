@@ -1,0 +1,543 @@
+{
+  "record_type": "g_decision_packet",
+  "decision_id": "PHASE6-DYNAMIC-TARGET-PRECISION-20261015",
+  "title": "Bounded dynamic import target analysis must preserve uncertainty through composition",
+  "status": "author_proposal_pending_independent_review",
+  "author_role": "candidate-source author; not G code acceptor, integration publisher, or finding adjudicator",
+  "date": "2026-10-15",
+  "closure_ids": [],
+  "formal_findings": {
+    "affected_original_finding_ids": [],
+    "closure_ids": [],
+    "note": "This packet proposes a verification-mechanism repair. It records no formal E02 finding closure and grants no import authority."
+  },
+  "source_context": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head_at_packet_authoring": "7b23055ad0457ac312296e35e08d46731461335a",
+    "head_tree_at_packet_authoring": "960e14f8f58d106e937d3c34e60e06a807757656",
+    "parent": "not independently recorded in this packet; source is uncommitted shared candidate worktree",
+    "whole_worktree_status": "Shared candidate worktree is dirty with parallel authorized E02 work. This proposal is limited to the Phase 6 read API consolidation test gate and this tracked decision. No source/test change was present in this proposed mechanism at authoring; no stage or commit performed.",
+    "gate_path": "policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+    "gate_sha256_at_packet_authoring": "43d863cad149ce05662bf57178ff264996494eb65e84d6e08df5db1e75ba9048",
+    "candidate_commit": null,
+    "independent_review": null,
+    "head_at_final_focused_test": "75e1e60fb11738397074baff21872dcb91d18a0c",
+    "head_tree_at_final_focused_test": "63cc8f13211938ffba98ff0da3dbb2d5f9628e28",
+    "head_parent_at_final_focused_test": "7b23055ad0457ac312296e35e08d46731461335a",
+    "branch_at_final_focused_test": "codex/e02-unified-local-20261009",
+    "gate_sha256_at_final_focused_test": "c89333a8ae865e038c237707f3ab13bbc963f5617bec5744ea6921d64e78bb5a",
+    "current_gate_scope": "One existing test module only. No product route or architecture contract edits. Shared worktree remains dirty with separately authorized E02 work; the changed test bytes are this gate author’s uncommitted source.",
+    "analysis_inputs_read_back_after_focused_tests": [
+      {
+        "path": "policy-engine/architecture/imports/contracts.toml",
+        "sha256": "104a3ade87eacb7d2b5727eb20d85012b26ef7b8e1abdda14df275e89191cf79"
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/contract.toml",
+        "sha256": "87f24939839c452064f752c2031ddaae473c82b96484105d4818e690d0338e9f",
+        "status": "shared E02 worktree modification; focused tests read this current file, whose delta removes duplicate supported_entrypoints values foundry.api and foundry.compile"
+      },
+      {
+        "path": "policy-engine/architecture/imports/dynamic.toml",
+        "sha256": "822fdeadc564f8e36f3ce1d45efbe9991f9365b23b91907ecd5ec6d3e7df0d49"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+        "sha256": "881d3b471320dd78c1c2be7792db5dd61d5c57c268d26ecd07fe66e743f678fd"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+        "sha256": "1b1d64c60191e2764682a34e346b42073fb229af33d27ed84615d7b3bc0cf655",
+        "status": "Current final formatted test-gate bytes for the generic call-reachability batch; no product source changed in this batch."
+      }
+    ],
+    "historical_public_surface_contract_blob_commit": "69ca76e1666f15681497feb6a8bbb812ddf7721d",
+    "head_at_call_reachability_diagnostic": "75e1e60fb11738397074baff21872dcb91d18a0c",
+    "head_tree_at_call_reachability_diagnostic": "63cc8f13211938ffba98ff0da3dbb2d5f9628e28",
+    "head_parent_at_call_reachability_diagnostic": "7b23055ad0457ac312296e35e08d46731461335a",
+    "branch_at_call_reachability_diagnostic": "codex/e02-unified-local-20261009",
+    "gate_sha256_after_generic_sink_accounting_and_ruff": "1b1d64c60191e2764682a34e346b42073fb229af33d27ed84615d7b3bc0cf655",
+    "call_reachability_diagnostic_input_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/source-before.json@f1aa180eb1b3f2e003b1feabe3af0752224d02b157987f051d4dc26b6ff5213c",
+    "call_reachability_diagnostic_input_binding_limit": "The recorded 332-entry before/after map contains all 329 runtime Python files, architecture/imports/policy.toml, public_surface/contract.toml, and the test gate. The helper also reads architecture/imports/contracts.toml, which was not bracketed in this diagnostic manifest. Its contemporaneous readback is recorded earlier in analysis_inputs_read_back_after_focused_tests, but this run is diagnostic, not a complete immutable input receipt.",
+    "head_at_packet_update": "83b3259671b70cfdb3e6b10830a7878412a95db4",
+    "head_tree_at_packet_update": "b3c64543522c942928dc5d6beb5385eb995be1ae",
+    "head_parent_at_packet_update": "a3cbde0404d7025ab410bf1c1f0224b7d849ad09",
+    "branch_at_packet_update": "codex/e02-unified-local-20261009",
+    "packet_update_source_note": "The reachability discriminator and 18-case focused tests ran on HEAD 75e1e60fb11738397074baff21872dcb91d18a0c. Root then committed disjoint E02 paths; current HEAD is 83b3259671b70cfdb3e6b10830a7878412a95db4. The gate file bytes are unchanged at SHA 1b1d64c60191e2764682a34e346b42073fb229af33d27ed84615d7b3bc0cf655. No final runtime replay was run after those source changes.",
+    "current_import_contract_readback_after_diagnostic": {
+      "path": "policy-engine/architecture/imports/contracts.toml",
+      "sha256": "104a3ade87eacb7d2b5727eb20d85012b26ef7b8e1abdda14df275e89191cf79",
+      "note": "This input was omitted from the diagnostic before/after manifest; current readback only, not a time-bracketed diagnostic input."
+    },
+    "post_diagnostic_source_delta": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/post-root-commit-source-delta.json@d3d2c340b2f8ebdcf97e5d456b668d7c49e89fb9fb0e59ce015226ed150fe303"
+  },
+  "question_for_g": "Does the bounded abstract domain plus generic AST sink reconciliation satisfy the Phase 6 dynamic-import gate obligation for recognized importlib and builtins import sinks? This candidate proves that unsupported/unvisited recognized sinks become unresolved, but the current diagnostic source scan still has four unresolved sinks (confidence closure, design generation, and both SKG helper imports); full source adapter coverage and final source-bound replay remain open.",
+  "property_and_divergence": {
+    "property": "For each recognized dynamic-import sink reached by the static source analysis, report every target proved to violate the current Data Forge import contract or Lex knowledge public-surface contract; report unresolved when any successful import target cannot be completely resolved or proved disjoint from those forbidden routes.",
+    "current_implementation_proxy": "A finite set of at most 64 exact strings plus a separate boolean taint flag; over-limit joins, concatenation, mapping construction, f-string truncation, and unmodeled expressions can discard target strings and taint independently.",
+    "divergent_cases": [
+      "A 65-entry route map builds each target from 'polisyos.' + 'data_forge.domains.private.module_i'; the oversized-map branch loses assembled target evidence and the gate returns no violation.",
+      "A 64-entry version of that map used with .get(route_name, 'external.safe') produces 65 candidates; the join discards exact strings and taint, again returning no violation.",
+      "A wholly unknown import parameter and a fixed safe runtime prefix with an unknown suffix must differ: the former cannot be declared clean; the latter is proved disjoint from forbidden namespaces when the fixed prefix is structurally disjoint.",
+      "An all-external over-limit map is clean only when its summarized prefix proves every candidate external; cardinality alone or absence of a Data Forge marker is insufficient."
+    ],
+    "gate_evidence_boundary": "The gate is source analysis, not an external-authority decision. A static proof of route containment is recomputed from source and versioned contracts; unknown/overflow/unsupported inputs are not_established and must not produce a clean result."
+  },
+  "pattern_pass": {
+    "relevant_register_ids": [
+      "P29",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "existing_antipatterns": [
+      "P38: proxying forbidden-route analysis on a finite exact-string cap and detached taint bit instead of the complete possible sink targets.",
+      "P40: repeated same-class escapes at constructor, join, concatenation, and sink boundaries; the current batch widens one bounded abstract-domain mechanism rather than repairing individual syntax sites.",
+      "P29: a clean test result is only useful if the real gate executes it and the removal/renaming controls preserve the semantic failure."
+    ],
+    "target_pattern": "Extend the existing finite AST resolver with a bounded, explicit domain whose precision loss is represented and propagated; derive policy classification from current import/public-surface contracts, and fail unresolved when that domain cannot prove a sink safe.",
+    "missing_capability_labels_before_change": [
+      "verification_missing"
+    ],
+    "acceptance_signal": "Focused behavior tests exercise the gate against fragmented 65-entry and 64-plus-default private maps, unknown parameter, safe fixed prefix with unknown child, safe external prefix, alias/registry renaming and removal controls. Overflow/unsupported precision loss yields a typed unresolved finding, never an empty clean result."
+  },
+  "alternatives": [
+    {
+      "option": "Reuse existing dynamic import registry and import-linter contracts without changing the resolver",
+      "disposition": "rejected_as_sufficient_fix",
+      "reason": "The import-linter contract defines forbidden module families and facade exceptions for syntactic imports, and the dynamic registry catalogs/selects dynamic-import source sites. Neither resolves concrete values flowing through mappings, concatenation, defaults, or runtime prefixes; both leave the demonstrated consumer-side false-green intact. Reuse remains mandatory for policy inputs and inventory context."
+    },
+    {
+      "option": "Extend the existing AST finite-value resolver with explicit finite / proved-prefix / unknown(reason) values",
+      "disposition": "recommended",
+      "reason": "The gate already owns source parsing, alias resolution, bounded flow, dynamic import callsites, and contract-derived route checks. A domain extension preserves that path and source-of-truth policy while carrying uncertainty across maps, joins, concatenation, f-strings, collections, loops, recursion/depth and unsupported expressions."
+    },
+    {
+      "option": "Consolidate into a new general architecture/import analyzer or import-linter plugin",
+      "disposition": "deferred",
+      "reason": "That would move a narrow path-sensitive consumer property into a broader mechanism without changing the decisive requirement: sound target-domain propagation at dynamic sinks. It adds integration and migration surface before the existing resolver's minimal fix has been tested."
+    },
+    {
+      "option": "Build a general Python interpreter or execute target source to discover imports",
+      "disposition": "rejected",
+      "reason": "Arbitrary source execution is unsafe and unnecessary; it cannot safely model conditional runtime authority and increases complexity. The candidate uses bounded abstract evaluation only, with explicit unknown on unsupported behavior."
+    }
+  ],
+  "proposed_domain": {
+    "states": {
+      "finite": "Complete exact finite strings/structured values within the configured mechanism bound; no omitted alternatives.",
+      "proved_prefix": "Complete language of strings constrained to a proved common prefix (or a bounded finite set of prefixes), with the proof propagated soundly through every modeled operation. It may be clean only if every value in the entire prefix language is disjoint from forbidden routes, using the contract-derived namespace boundaries.",
+      "unknown": "Top or partial information carrying one or more explicit reasons, including finite union/map/sequence budget overflow, concatenation/f-string expansion loss, unsupported operation or expression, unknown input, recursive/depth budget, incomplete mapping, and unsupported iteration. Unknown is preserved through later operations and blocks a clean sink result unless a safe prefix proves disjointness."
+    },
+    "boundedness": {
+      "finite_cardinality_limit": 64,
+      "depth_limit": 12,
+      "no_arbitrary_execution": true,
+      "no_site_or_symbol_name_allowlists": true,
+      "overflow_rule": "No truncation or silent None/False conversion. Preserve exact candidates when within bounds; otherwise compute only sound prefix/shape summaries and attach an unknown reason. If no sound summary exists, return unknown."
+    },
+    "modeled_composition": [
+      "String concatenation and f-string formatting preserve a sound prefix; exact cross-products stay finite under the cap, and overflow becomes summarized/unknown.",
+      "Mappings over the cap retain a sound joined value summary; unknown-key subscript/get unions all possible stored values and applicable defaults, carrying missing-key and unknown-key uncertainty.",
+      "Sequences over the cap retain a sound joined element/tuple-column summary for loop and unpack flow; unsupported shape loses precision explicitly.",
+      "Branches, returns, function arguments, aliases and bounded loops join domains without clearing unknown reasons.",
+      "Depth exhaustion, recursive call, unsupported expression, and unmodeled sink target are explicit unknown outcomes rather than untainted unknown values."
+    ],
+    "sink_rule": "A dynamic-import sink is clean only if its entire possible successful string-target language is proved disjoint from contract-derived forbidden namespaces, or every value is a currently supported public facade route. A wholly unknown target, an unknown Data Forge-derived target, a prefix that can complete into a forbidden namespace, or a precision-loss reason without a disjointness proof is unresolved/non-green.",
+    "safe_prefix_rule": "A fixed prefix such as a source module under polisyos.runtime.* followed by an unknown child is clean only if namespace overlap analysis proves no completion can enter a forbidden namespace. A prefix equal to, beneath, or still capable of completing to a forbidden contract prefix is not clean.",
+    "external_map_rule": "External-only over-limit values may be clean when a sound common-prefix domain proves all possible values outside forbidden contract namespaces; no external exception is inferred from missing taint or discarded strings.",
+    "policy_sources": [
+      "policy-engine/architecture/imports/contracts.toml@104a3ade87eacb7d2b5727eb20d85012b26ef7b8e1abdda14df275e89191cf79",
+    "policy-engine/architecture/public_surface/contract.toml@87f24939839c452064f752c2031ddaae473c82b96484105d4818e690d0338e9f",
+      "policy-engine/architecture/imports/dynamic.toml@822fdeadc564f8e36f3ce1d45efbe9991f9365b23b91907ecd5ec6d3e7df0d49",
+      "policy-engine/tools/quality/validation/decomposition_preflight.py@881d3b471320dd78c1c2be7792db5dd61d5c57c268d26ecd07fe66e743f678fd"
+    ],
+    "authority_status_time": "No issuer, permission, custody, currentness, or external authority is inferred. Route policy is read from current versioned architecture contracts during analysis; the gate's source/test revision is separately pinned in receipts. The result is verification evidence only, not an E02 closure or publication."
+  },
+  "adversarial_matrix": {
+    "source_evidence": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-gate-property-review-20261015/after-generic-resolver/finite-map-r4/overflow-fragmented-map-probe-r2/fragmented-overflow.py@1c4d4e3e8fc89b6793e9663097848cdbae1aeb6d8081e47e646d87db2a6d49d7",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-gate-property-review-20261015/after-generic-resolver/finite-map-r4/overflow-fragmented-map-probe-r2/fragmented-bounded.py@4ac7edc60ed3ff042c4e71be12db977dcc89684332d24a825caf10c7ac21da4c"
+    ],
+    "deciding_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-gate-property-review-20261015/after-generic-resolver/finite-map-r4/overflow-fragmented-map-probe-r2/deciding-output.json@cfa393635091d4dbfea47755eeeb7953a46317f6030f928568458a47c0d7b598",
+    "required_controls": [
+      "Fragmented 65-map private targets: must report violation or unresolved at import sink.",
+      "Fragmented 64-map plus external .get default: must report violation or unresolved.",
+      "65 safe external map: may be clean only with sound all-external prefix proof.",
+      "Unknown full import parameter: unresolved/non-green.",
+      "Fixed safe runtime prefix plus unknown child: clean only when disjointness is proved.",
+      "Rename local map/function/registry symbols without changing target flow: same result.",
+      "Remove/replace a mapped forbidden target while preserving registrations and markers: gate follows resulting complete target domain; the original failure must disappear only when no forbidden target remains.",
+      "Unknown-key map lookup, missing key, join overflow, concatenation overflow, f-string overflow, loop over-limit, recursion/depth, unsupported expression: explicit unknown reason survives to sink unless a proved disjoint prefix applies.",
+      "A single over-budget callable root must remain unresolved at its own sink while a separate small callable root is still analyzed and resolves its external target; a root budget must not starve unrelated later roots.",
+      "An over-limit loop and an over-limit joined f-string preserve unknown/private target summaries rather than dropping them.",
+      "Full-AST recognized dynamic-import sink inventory: each sink is reconciled to an exact target, an analyzed safe domain, or an explicit unresolved reason; unsupported/unvisited sinks cannot vanish as an empty result.",
+      "Generator, list, set, and dict comprehension sinks, lambda-body sinks, function-default sinks, and alias-helper paths through unsupported expressions remain unresolved when the bounded evaluator does not visit them.",
+      "The inventory includes source-alias calls and keyword name= targets; a recognized call with no target expression is unresolved rather than omitted."
+    ]
+  },
+  "bounded_residuals": [
+    {
+      "class": "dynamic targets sourced from confidence import closure or IR catalog objects",
+      "status": "not_established / non-green; no source-derived adapter in this candidate",
+      "reason": "The diagnostic runtime scan still reports confidence_ledger.py:6412 as unknown_target:loop_sequence_unknown,tuple_unpack_unknown,unknown_parameter. The gate now reports this as unresolved rather than clean. A source-derived adapter remains unimplemented; no whitelist or relabel is permitted.",
+      "smallest_next_check": "After current candidate source freeze and the coordinated CAN source fix, derive all targets from the actual _resolve_authority_import_closure(repo_root, __name__) producer and bind that result to its caller/sink. Verify public and forbidden target insertion/removal through the same classifier. Do not use a module-name allowlist.",
+      "source_routes": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+          "sha256": "ec3fee240173aaea2b4c7f83105eb55d42158ac743f0645fc7a99f1ebdfefc5c",
+          "source_locations": [
+            "5786: _resolve_authority_import_closure",
+            "5904: _derived_authority_import_closure",
+            "6405: _import_authority_closure_modules",
+            "9009: import-time closure assignment and consumer"
+          ]
+        }
+      ]
+    },
+    {
+      "class": "Python constructs outside the bounded abstract evaluator or sink discovery",
+      "status": "recognized dynamic sinks are AST-inventoried; unsupported/unvisited sinks are unresolved/non-green",
+      "reason": "The resolver now inventories every AST Call recognized by its importlib/__import__ alias model and reconciles the full sink set with analyzed sinks. Unsupported constructs (including generator/list/set/dict comprehensions, lambda bodies and defaults) that are not evaluated produce unknown_target:unvisited_sink_analysis instead of disappearing as []. This does not resolve all arguments or prove an unrestricted Python call graph; unresolved is retained.",
+      "smallest_next_check": "Independently review source-alias recognition and full AST sink reconciliation, then run removal/rename controls against the final source freeze. Continue to hold actual confidence and IR catalog source adapters until an exact source-of-truth adapter lease."
+    },
+    {
+      "class": "IR catalog dynamic import targets produced by catalog objects",
+      "status": "not_established / non-green; source-derived adapter not implemented",
+      "reason": "The diagnostic runtime scan reports both helper imports unresolved at lines 4735 and 4755; generic AST accounting now exposes the generator-contained calls instead of omitting them. The actual `get_ir_schema_catalog()` producer output is still an observation, not a proof. A separate source-derived adapter remains required.",
+      "smallest_next_check": "With a separate source-adapter lease, derive the complete module set from the canonical catalog API, prove its construction is deterministic and complete for the analyzed source revision, then exercise private insertion, public removal, and sink binding. A typed module field alone is not proof of the whole catalog contents.",
+      "source_routes": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py",
+          "sha256": "e0a8910b4d5d6459330c94d7b095f0d0ce78d2229470938bc09a4b2bbd9e9f18",
+          "source_locations": [
+            "1050-1059: get_ir_schema_catalog result filtered to analytics and mapped inside GeneratorExp",
+            "4664-4690: mapper takes entry.module into both dynamic helper calls",
+            "4732-4768: _persistence_helper_refs and _producer_refs dynamically import module_name"
+          ]
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/schemas/catalog.py",
+          "sha256": "2e7b465db1eb09a27830fe38f94c1cbf48caeec3f183c08876cadd0783c94985",
+          "source_locations": [
+            "234-268: get_ir_schema_catalog builds the complete type catalog",
+            "266-277: _import_ir_modules walks package modules and excludes .ddl.",
+            "279-290: _collect_type_symbols requires __module__ equality and polisyos.ir prefix",
+            "IRTypeInfo.module is annotated str at line 100 and is populated from obj.__module__"
+          ]
+        }
+      ],
+      "current_controlled_source_bound_api_probe": {
+        "command": "PYTHONPATH=policy-engine/src policy-engine/.venv/bin/python -c get_ir_schema_catalog() and summarize catalog.types filtered by entry.section == analytics",
+        "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/ir-catalog-owner-api-current.json@7e1267e51a7cbfbc7084170db0b9754ed92a24ca03a6bbf3cbdcf007530f3377",
+        "observed": "1,616 total IR type entries; 998 analytics entries; 92 distinct current module strings; all current values begin with polisyos.ir",
+        "interpretation": "This is a current controlled source-instance output of the canonical producer, not an authority fact or a static proof. The plain str field and this one output do not establish future completeness. The consumer still needs a source-bound bridge and private-value insertion/removal controls."
+      },
+      "runtime_observed_locations": [
+        "policy-engine/src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py:4735",
+        "policy-engine/src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py:4755"
+      ]
+    },
+    {
+      "class": "unsupported comprehension/generator expression hides an interprocedural dynamic-import sink",
+      "status": "false-clean repaired at generic sink-accounting boundary; exact source consumers remain unresolved/non-green",
+      "reason": "The prior unvisited-sink false-clean was reproduced RED before this batch and now returns unknown_target:unvisited_sink_analysis. New tests prove recognized sinks in a generator plus helper, list/set/dict comprehensions, lambda body, and function default are accounted even when the abstract evaluator does not traverse those AST forms. The real runtime scanner now reports three SKG/design-generation sink call sites unresolved; no source-derived adapter or external authority is inferred.",
+      "smallest_next_check": "Review the generic sink inventory and alias resolution, then use an exact separate source-adapter lease to bind the actual catalog/owner producers to these consumers. No function-name exemption or literal owner list.",
+      "falsifier_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/generator-sink-falsifier/consumer.py@5695d07de45d35974937a23482f933ef6b12f71cbac09401a443d88c4cce18ea",
+      "falsifier_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/generator-sink-falsifier/deciding-output-r2.json@fbadd66097ca1a023e775cfcc7771a6170fb337e51ea23c829e6ac5a38e67383",
+      "real_consumer_source": {
+        "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py",
+        "sha256": "e0a8910b4d5d6459330c94d7b095f0d0ce78d2229470938bc09a4b2bbd9e9f18",
+        "locations": [
+          "1053-1059: rows.extend(_catalog_entry_from_ir_type(entry) for entry in catalog.types if entry.section == \"analytics\")",
+          "4664-4690: mapper passes entry.module into both import helpers",
+          "4732-4768: helpers consume module_name at importlib.import_module"
+        ]
+      }
+    }
+  ],
+  "implementation_status": {
+    "status": "generic_ast_sink_accounting_written_uncommitted; 18_dynamic_gate_tests_and_2_reachability_discriminators_pass; runtime_source_gate_remains_non_green_with_4_unresolved_sinks",
+    "authorized_tracked_paths": [
+      "policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json"
+    ],
+    "raw_artifacts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/red-focused.stdout.txt",
+        "sha256": "08a768c9b1b147fdf8cb51dd47ae5e757171659ffbb22771c535b8f1d4a868d4",
+        "result": "RED discriminator: fragmented 65-entry composed private map incorrectly produced no violation before the abstract-domain extension."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/dynamic-focused-final.stdout.txt",
+        "sha256": "ecf57d762b443151696ef4727347520d0d5715719bac1e0cd93caddf627ffa61",
+        "result": "16 selected dynamic-import gate tests passed on current gate source."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/root-budget-regression.stdout.txt",
+        "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+        "result": "Independent-root budget regression passed: the over-budget private root is unresolved; the later small external root remains resolved."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/ruff-check-final.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "result": "Ruff check passed for the leased test file."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/ruff-format-final.stdout.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "result": "Ruff format check passed for the leased test file."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/phase6-module-final.stdout.txt",
+        "sha256": "c70b48c0ce98ecb1eeed9af5ee5f18bf9299aa6d46e3eea0b69956fd4c6ddf48",
+        "result": "Superseded pre-per-root-budget full module result: 27 passed, 1 failed; expected confidence unknown plus 18 unintended shared-budget reports. Not a current-source receipt and not used as a capability claim."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/generator-sink-falsifier/consumer.py",
+        "sha256": "5695d07de45d35974937a23482f933ef6b12f71cbac09401a443d88c4cce18ea",
+        "result": "Minimal renamed-helper source fixture reproduces an interprocedural sink nested in a generator expression."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/generator-sink-falsifier/deciding-output-r2.json",
+        "sha256": "fbadd66097ca1a023e775cfcc7771a6170fb337e51ea23c829e6ac5a38e67383",
+        "result": "False-clean: resolver returned targets=[] and unresolved=[] for an unknown/private source module flowing to a dynamic import sink."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/unvisited-sink-red.stdout.txt",
+        "sha256": "c1489a5495b8fbcac64e0bcd7bfe0f28d0617a21d79d5862c94ab8c096f2a934",
+        "result": "New TDD RED: nested dynamic sink inside the renamed helper/comprehension produced no unresolved entry before generic sink reconciliation."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/reachability-discriminators.stdout.txt",
+        "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+        "result": "Both unvisited-sink AST discriminators pass: nested generator/helper and generator/list/set/dict comprehensions, lambda, and default-expression sinks each remain explicitly unresolved."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/reachability-discriminators-summary.json",
+        "sha256": "c7209aa7eed731724ca8cdd7c319434a304a4dd564e968f29387e5d228a41435",
+        "result": "Bounded command, exit code, test hash before/after, and output hash for the two discriminator tests."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/dynamic-focused.stdout.txt",
+        "sha256": "341d5dca33250b815baddbafb6001e174c20bf1716bb74f3d612e77777db8938",
+        "result": "18 selected dynamic-import gate tests passed on final formatted gate bytes."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/dynamic-focused-summary.json",
+        "sha256": "2a66bb80881cccea6837b106161ba5f700768404d595e8be8cf2d28a5eb35185",
+        "result": "Command, test hash before/after, exit code, and output hash for the 18-case focused run."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "result": "Ruff check passed for the leased test file."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/ruff-format-check.stdout.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "result": "Ruff format --check passed after formatting the leased test file."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/ruff-summary.json",
+        "sha256": "9d38ef9531478953e4ff0fc7583a2a2e9d87dde55452d92abba8b0c156d91cb3",
+        "result": "Both exact Ruff commands exited 0."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/stdout.txt",
+        "sha256": "b333f4760495770669b055f88888287280483a0f3af72c561087e7e90272900d",
+        "result": "Full diagnostic runtime-source gate output: 4 unresolved sinks across 329 runtime Python files; exit 1. Not a green receipt."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/run-summary.json",
+        "sha256": "bca870bba65ccb8d6929a2e23bb324b851e582564131ff9aef5a9a0bea258a09",
+        "result": "Diagnostic command, runtime-file count, before/after manifest hash, output hashes, and stability record. Input manifest omission is disclosed above."
+      },
+      {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/post-root-commit-source-delta.json",
+        "sha256": "d3d2c340b2f8ebdcf97e5d456b668d7c49e89fb9fb0e59ce015226ed150fe303",
+        "result": "Post-diagnostic comparison against the 332-entry input map. The two runtime source paths and test formatting changed after the scan; imports/contracts.toml was separately bound at current readback but not time-bracketed in the diagnostic."
+      }
+    ],
+    "commands": [
+      "policy-engine/.venv/bin/python -m pytest policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py -k dynamic_import_gate -q",
+      "policy-engine/.venv/bin/python -m pytest policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py -k budgets_independent_callable_roots -q",
+      "policy-engine/.venv/bin/python -m ruff check policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+      "policy-engine/.venv/bin/python -m ruff format --check policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+      "policy-engine/.venv/bin/python -m pytest policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py -k \"accounts_for_sinks_nested_in_unsupported_expressions or reconciles_comprehension_lambda_and_default_sinks\" -q",
+      "policy-engine/.venv/bin/python -m pytest policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py -k dynamic_import_gate -q",
+      "policy-engine/.venv/bin/python -m pytest policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py -k runtime_sources_do_not_reference_blocked_read_internals_dynamically -q",
+      "policy-engine/.venv/bin/python -m ruff check policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+      "policy-engine/.venv/bin/python -m ruff format --check policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py"
+    ],
+    "full_module_status": "The full 28-test module was not rerun on final current source. A focused runtime-source gate diagnostic walked 329 runtime Python files at HEAD 75e and returned four unresolved sinks (exit 1), so it was not green. The diagnostic manifest omitted architecture/imports/contracts.toml, and a post-run comparison found two runtime files changed in subsequent root commits (`runtime/http/services/control/nl_pipeline.py` and `runtime/quality/generation_cycle.py`). This output is historical diagnostic evidence only; no final source-bound receipt exists. Final replay remains deferred until shared source freeze and independent review.",
+    "notes": "This batch only changes the Phase 6 test gate and its decision record. It makes recognized AST dynamic-import sinks explicit: exact target, evaluated safe domain, or unresolved reason. Unsupported or unvisited calls no longer disappear as []. No product routes, generated artifacts, public contracts, or architecture configuration changed. Author evidence only; independent review and G acceptance remain pending. No stage or commit performed. Root committed disjoint paths after the diagnostic; current branch state is recorded in source_context.head_at_packet_update. The runtime-source scan is explicitly not the final replay.",
+    "current_test_input_note": "The 18-case dynamic-import test selection and two reachability discriminators passed on HEAD 75e, with gate bytes SHA 1b1d64c60191e2764682a34e346b42073fb229af33d27ed84615d7b3bc0cf655. Root advanced HEAD to 83b with disjoint commits and the gate-file bytes remain unchanged. The runtime scan diagnostic is superseded by subsequent source changes and has an incomplete contract manifest; the four routes remain held, not closed."
+  },
+  "call_reachability_batch": {
+    "status": "implemented_in_leased_gate_file; uncommitted; independent delta review pending",
+    "gate_source": "policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py@1b1d64c60191e2764682a34e346b42073fb229af33d27ed84615d7b3bc0cf655",
+    "mechanism": "Build a full-AST inventory of calls recognized by the importlib.import_module and builtin __import__ alias resolver. Record exact literal targets immediately; analyze reachable calls through the existing bounded evaluator; record explicit missing-target/analysis-limit/evaluation reasons; reconcile every inventory sink not visited as unknown_target:unvisited_sink_analysis. Keyword name= targets use the same resolver. This is a conservative sink-accounting mechanism, not a full Python interpreter or a complete product call-graph proof.",
+    "tdd": {
+      "red_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/unvisited-sink-red.stdout.txt@c1489a5495b8fbcac64e0bcd7bfe0f28d0617a21d79d5862c94ab8c096f2a934",
+      "green_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/reachability-discriminators.stdout.txt@99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+      "result": "The renamed helper under GeneratorExp returned []/[] before the fix; after the fix the two discriminator tests pass with every recognized dynamic sink reported unresolved."
+    },
+    "focused_tests": {
+      "dynamic_import_gate": "18 passed",
+      "reachability_discriminators": "2 passed",
+      "ruff_check": "pass",
+      "ruff_format_check": "pass"
+    },
+    "runtime_scan_diagnostic": {
+      "command": "policy-engine/.venv/bin/python -m pytest policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py -k runtime_sources_do_not_reference_blocked_read_internals_dynamically -q",
+      "returncode": 1,
+      "runtime_python_files_walked": 329,
+      "reported_unresolved": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+          "line": 6412,
+          "reason": "unknown_target:loop_sequence_unknown,tuple_unpack_unknown,unknown_parameter"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+          "line": 4723,
+          "reason": "unknown_target:unvisited_sink_analysis"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py",
+          "line": 4735,
+          "reason": "unknown_target:unvisited_sink_analysis"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py",
+          "line": 4755,
+          "reason": "unknown_target:unvisited_sink_analysis"
+        }
+      ],
+      "full_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/stdout.txt@b333f4760495770669b055f88888287280483a0f3af72c561087e7e90272900d",
+      "run_summary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/run-summary.json@bca870bba65ccb8d6929a2e23bb324b851e582564131ff9aef5a9a0bea258a09",
+      "input_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/source-before.json@f1aa180eb1b3f2e003b1feabe3af0752224d02b157987f051d4dc26b6ff5213c",
+      "input_limit": "The before/after manifest remained identical during the run and included 329 runtime .py files, architecture/imports/policy.toml, public_surface/contract.toml, and the test gate. It omitted architecture/imports/contracts.toml, which the test helper reads. Therefore this is diagnostic evidence only, not the final source-bound receipt.",
+      "source_changed_during_run": [],
+      "superseded_by_shared_source_changes": true,
+      "post_diagnostic_source_delta": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-dynamic-target-precision-20261015/call-reachability-freeze-r1/post-root-commit-source-delta.json@d3d2c340b2f8ebdcf97e5d456b668d7c49e89fb9fb0e59ce015226ed150fe303",
+      "final_status": "Diagnostic only; not source-bound and not current after root commits. All four observed routes remain explicitly held/non-green for source-derived adapter work."
+    },
+    "decision": {
+      "closure_ids": [],
+      "formal_closure_claimed": false,
+      "next": "Independent delta review of the frozen gate mechanism; source-derived adapters for confidence closure, design-generation owner refs, and the two SKG catalog helper imports; then corrected input-bound replay on the final shared freeze."
+    },
+    "p40_bucket": "Same class one level deeper: a recognized dynamic-import sink or its target path could be omitted by unsupported AST/call-reachability constructs. The batch widens the existing resolver to a full-AST sink inventory plus explicit reconciliation; no site-name or helper-name exception was added."
+  },
+  "capability_source_batch": {
+    "status": "candidate_mechanism_implemented_uncommitted; independent_delta_review_pending; source_route_and_runtime_inventory_remain_non_green",
+    "p40_bucket": "Same dynamic-import capability/provenance class, one level deeper: the sink inventory and bounded evaluator must account for importer capabilities obtained through reflection and any lost dataflow; this batch adds capability-origin modeling and explicit unknown outcomes, not a per-site exemption.",
+    "candidate_source_context": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "4b25c8b55dc9ad4a01b2d59dc3345b19c62bbf21",
+      "tree": "c48eb6a15d4ac4f933af9a64a059871d7f2d6260",
+      "source_paths": [
+        {
+          "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+          "sha256": "c12c4396a2c01077a982dbcb98a687f36d24b46eb523f9a6ce789ac3f56b7884"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+          "sha256": "9f0935198b78db227916a85f9fd8099090c7c0a3c6c7b2b465bca3769562c63e"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+          "sha256": "557c821d74d1047ad9c06317ad446aab89806eb84cc1a3d942312c75c0fdc9c7"
+        }
+      ],
+      "shared_worktree": "Other E02 paths are concurrently modified. These hashes identify this candidate batch only; no source-freeze or full-replay claim is made."
+    },
+    "mechanism": {
+      "summary": "The existing bounded source analyzer now tracks importer/reflection capability provenance through source aliases and closed namespace/mapping operations, plus finite bounded map, sequence, string composition, and comprehension dataflow. Exact recognized dynamic-import AST sink identities are inventoried and reconciled; unsupported, escaped, ambiguous, over-budget, or unvisited capability flows become explicit unresolved results. No target source is executed.",
+      "limits": "Not a general Python interpreter, runtime monkeypatch proof, or arbitrary call-graph proof. A source route is clean only when the complete bounded domain proves an allowed/disjoint target. No site-name whitelist or absent-strings-is-safe rule is used."
+    },
+    "verification": {
+      "commands_and_results": [
+        {
+          "command": "python3 -m pytest -vv tests/unit/data_forge/test_phase6_read_api_consolidation.py -k dynamic_import",
+          "result": "32 passed, 12 deselected",
+          "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-capability-extension-20261015/post-format-r3/phase6-dynamic-import-tests.stdout.txt@5ca169cd8a06a06eae1237f1df1f6ec0f85ae6424e4099d7e60ee71734dd1f6"
+        },
+        {
+          "command": "python3 -m pytest -vv tests/repo_quality/architecture/test_decomposition_preflight_gates.py -k 'dynamic_import_collector or dynamic_import_scanner'",
+          "result": "28 passed, 153 deselected",
+          "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-capability-extension-20261015/post-format-r3/architecture-scanner-focused.stdout.txt@30e4a14ccc31877d4cbb1accd6db60abbab5a4a2011f86ebb6079c2461bce39b"
+        },
+        {
+          "command": "python3 -m pytest -vv tests/repo_quality/architecture/test_decomposition_preflight_gates.py -k dynamic_import",
+          "result": "79 passed, 5 failed, 97 deselected; all five failures fail closed on the actual core_sources/api.py globals mapping lookup at line 244; not a green gate.",
+          "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-capability-extension-20261015/post-format-r3/architecture-dynamic-import-all.stdout.txt@c03d6f24418b0de688b5833f98bc3aa6d448a2ba426604c1022727d43f3eebd9"
+        },
+        {
+          "command": "python3 -m pytest -vv tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+          "result": "42 passed, 2 failed in 29.66s; both failures expose unresolved real runtime importer/provenance routes listed below.",
+          "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-capability-extension-20261015/post-format-r3/phase6-unit-module-full.stdout.txt@951a07641710f7c7ddc07d07e12f1686977f2e897a61dd621aab8f0dd3669ff3"
+        },
+        {
+          "command": "python3 -m ruff check tools/quality/validation/decomposition_preflight.py tests/repo_quality/architecture/test_decomposition_preflight_gates.py tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+          "result": "pass",
+          "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-capability-extension-20261015/post-format-r3/ruff-check.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        {
+          "command": "python3 -m ruff format --check tools/quality/validation/decomposition_preflight.py tests/repo_quality/architecture/test_decomposition_preflight_gates.py tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+          "result": "pass",
+          "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-capability-extension-20261015/post-format-r3/ruff-format.stdout.txt@eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+        }
+      ],
+      "full_gate_status": "The complete 329-runtime-file replay is deferred until the shared source freeze and independent review. Focused tests are not global capability or native-green evidence."
+    },
+    "known_real_residuals": [
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+        "sha256_at_observation": "4168be08d3aa13d0a1031a8f45ae7f7135d617a92d148f875bfe61a5531ab1ba",
+        "locations": [
+          "244: override = globals().get(name)",
+          "247: import_module(f\"{__package__}.{owner}\")"
+        ],
+        "issue": "The unbounded name parameter can select an importer from module globals or fall through to an import. The analyzer reports unresolved importer provenance. The product-file owner is coordinating a closed source-owned dependency-key/value registry; no whitelist, approved authority, or native green is claimed.",
+        "falsifier": "An unknown name such as import_module and malformed/unregistered keys must not select arbitrary globals; all actual owner/key dependency routes must continue to resolve from the closed binding source."
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/api.py",
+        "location": "24",
+        "status": "unresolved dynamic importer binding; no closure proposed"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+        "location": "123",
+        "status": "computed reflection with unresolved importer provenance; no closure proposed"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+        "location": "5246",
+        "status": "reflective mapping lookup with unresolved importer provenance; source-derived authority import closure adapter not implemented"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+        "location": "4723",
+        "status": "recognized dynamic-import sink remains unvisited/unknown"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py",
+        "locations": [
+          "4735",
+          "4755"
+        ],
+        "status": "recognized dynamic-import sinks remain unvisited/unknown; typed IR catalog field alone is not a content-bound source-derived adapter"
+      }
+    ],
+    "authority_and_disposition": {
+      "closure_ids": [],
+      "formal_closure_claimed": false,
+      "g_acceptance": "pending independent source review and G adjudication",
+      "next": "Wait for the source-owned API dependency-registry change and its bounded adversarial tests; after the shared source freeze, rerun the exact architecture mirror, complete Phase6 denominator and removal controls once. Separately lease and prove the confidence-closure and IR-catalog source adapters; unresolved routes remain non-green."
+    }
+  }
+}

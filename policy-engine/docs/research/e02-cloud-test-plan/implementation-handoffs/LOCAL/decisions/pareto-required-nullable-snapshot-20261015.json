@@ -1,0 +1,253 @@
+{
+  "record_type": "local_implementation_decision",
+  "decision_id": "PARETO-REQUIRED-NULLABLE-SNAPSHOT-20261015",
+  "title": "Preserve required nullable fields in persisted Pareto snapshots",
+  "status": "candidate_implemented_pending_independent_review",
+  "author_role": "local candidate author; parent owns commit; independent code acceptance and formal finding adjudication remain with G",
+  "formal_findings": {
+    "affected_original_finding_ids": [],
+    "closure_ids": [],
+    "note": "This packet records a local persistence contract repair. It proposes no formal E02 finding closure and does not adjudicate any original finding."
+  },
+  "source_context": {
+    "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "product_root": "policy-engine",
+    "branch": "codex/e02-unified-local-20261009",
+    "head_at_packet_authoring": "83b3259671b70cfdb3e6b10830a7878412a95db4",
+    "head_tree_at_packet_authoring": "b3c64543522c942928dc5d6beb5385eb995be1ae",
+    "head_parent": "a3cbde0404d7025ab410bf1c1f0224b7d849ad09",
+    "source_candidate_commit": null,
+    "worktree_status": "Shared candidate worktree remains dirty with independent parallel E02 lanes. This author changed only the exact source and test paths listed below plus this decision packet. No staging or commit was performed."
+  },
+  "issue": {
+    "repair_bucket": "same_P40_required_nullable_persistence_class_widened_to_shared_local_and_catalog_writer",
+    "property": "For every required nullable field in a typed Pareto snapshot, persisted JSON must carry the key with a JSON null when the model value is None; missing and explicit null remain distinct inputs.",
+    "pre_repair_behavior": "The shared non-v1 snapshot writer used model_dump_json(exclude_none=True). TransferSourceScope.tenant_hash is required but nullable, so an unscoped source emitted a body without tenant_hash. A fresh ParetoRegistrySnapshot validation rejected that body as Field required; a second update failed while reloading the first persisted snapshot. The same writer serves per-loop snapshots and catalog snapshots.",
+    "root_cause": "A serialization option intended to omit nulls erased a required semantic null. This is a producer-to-artifact contract defect, not a missing-data defaulting problem.",
+    "current_candidate_behavior": "The common _write_json funnel uses Pydantic JSON serialization with its default include-null behavior for non-v1 snapshots. Local and catalog writers both pass through that funnel. The existing schema-1.0 historical projection remains byte-for-byte on its explicit historical serializer. The catalog consumer converts malformed persisted snapshot refusals into the existing typed scope_refusals result instead of leaking TransferScopeRefusedError to callers.",
+    "divergent_case": "A producer persists an unscoped source with tenant_hash=None. Before the repair, the JSON omitted tenant_hash and fresh model validation rejected it; after the repair, the exact key is present with null, fresh read succeeds, and a subsequent update and catalog consumer work. If the key is removed manually, the strict reader still refuses INVALID_SOURCE_BODY.",
+    "consumer_surface": "ParetoRegistry.get_snapshot reloads local JSON; update performs read-modify-write; get_seed_bundle reloads catalog JSON and exposes typed scope refusals. The test exercises these real persisted consumers, not constructors alone.",
+    "scope_census": {
+      "script_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/census.py",
+      "script_sha256": "3f4280b6fa23beedfd89a1762943289398c587bdca2fef2ca4460de02022751d",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/census.stdout.txt",
+      "output_sha256": "6e72f31d9e8ea62176e92edf9ed15b98e650c77f5972271e2c9153a72ee9acec",
+      "denominator": "5,807 Python files under src/polisyos and tests; AST census found ParetoRegistrySnapshot references in 8 files and one production persistence funnel used by both local and catalog writers. Recursive typed-model graph census found one required-nullable field, TransferSourceScope.tenant_hash. This census describes the current tree only."
+    }
+  },
+  "engineering_decision": {
+    "selected": "Use the existing shared snapshot writer with default Pydantic JSON serialization for every non-v1 version; keep the schema-1.0 historical payload projection unchanged.",
+    "alternatives_considered": [
+      {
+        "option": "Default missing tenant_hash to null during loading",
+        "disposition": "rejected",
+        "reason": "It would conflate omitted malformed input with an explicitly persisted null and weaken the strict reader contract."
+      },
+      {
+        "option": "Special-case tenant_hash in the Pareto writer or reader",
+        "disposition": "rejected",
+        "reason": "It patches the sampled field rather than the shared typed serialization invariant and would miss the same class in another required nullable model field."
+      },
+      {
+        "option": "Add a custom recursive required-nullable serializer while excluding optional nulls",
+        "disposition": "not selected",
+        "reason": "The existing typed Pydantic serializer already preserves the whole model faithfully and the current AST/type-model census found one required-nullable field. A bespoke recursion layer adds complexity and risks diverging from nested-model serialization."
+      }
+    ],
+    "wire_impact": "Non-v1 snapshot JSON now retains explicit nulls, including optional null-valued fields that the previous writer omitted. The current model parser accepts those fields; schema versions and public DTOs are unchanged. Historical schema-1.0 bytes remain pinned by an exact-byte test.",
+    "migration_or_external_authority": "No external law, issuer, custody fact, or new status semantics are involved. Existing persisted snapshots whose required field was omitted remain malformed and are refused; there is no silent migration or default."
+  },
+  "source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+      "sha256": "866562ac87e6a2d09ff6c995fc65754dd174d96490532fdfeeee50a2018e357a",
+      "role": "shared local/catalog writer and catalog consumer typed-refusal boundary"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_pareto_registry_serialization.py",
+      "sha256": "a097feab38916e1ff3b343385231d6d8c51aeb985b8ea963a9f453a12edb171f",
+      "role": "real update/persist/fresh-read/reupdate/catalog consumer, malformed-field refusal, tenant mismatch, and historical v1 exact bytes"
+    }
+  ],
+  "mandatory_companions": {
+    "decision_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/pareto-required-nullable-snapshot-20261015.json",
+    "additional_config_schema_generator_lock_or_resource_paths": [],
+    "note": "The decision packet and raw evidence are companions, not mechanism paths. No configuration, public schema, generated artifact, or lockfile change is part of this slice."
+  },
+  "evidence": {
+    "pre_repair_reproduction": {
+      "script_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-pareto-cause-r1-20261015/reproduce.py",
+      "script_sha256": "24a1e3767d8e819139b16cd4badde3d71e69b549ad1416f88ae0a6775267cb0f",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-pareto-cause-r1-20261015/reproduce.stdout.txt",
+      "output_sha256": "14f71e8e9e2ad0cfcc5dbce2ba5f692f7a95d41e1e3ed40c9c3cb2bcb22f749d",
+      "result": "Actual persisted local snapshot omitted source_scope.tenant_hash; direct fresh validation reported Field required, and the existing update consumer failed while reloading that snapshot."
+    },
+    "red_controls": [
+      {
+        "command": ".venv/bin/python -B -m pytest -q tests/unit/scientist/search/test_pareto_registry_serialization.py::test_registry_round_trips_required_nullable_scope_for_local_and_catalog",
+        "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/red.stdout.txt",
+        "output_sha256": "4d7964e191fa690f9e42e0d1f314e939cd7a8c81403a49296dc1ce4b861a1cf1",
+        "result": "1 failed before source repair because the actual local writer omitted the required nullable tenant_hash key."
+      },
+      {
+        "command": ".venv/bin/python -B -m pytest -q tests/unit/scientist/search/test_pareto_registry_serialization.py::test_catalog_reader_returns_invalid_body_refusal_for_missing_required_nullable_field",
+        "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/catalog-red.stdout.txt",
+        "output_sha256": "b3c637593ebf9e3d372d0ca4c3cd0dad362bba27ea0e116af8fca7992949479f",
+        "result": "1 failed before the catalog consumer catch; _load_snapshot correctly raised typed INVALID_SOURCE_BODY, but get_seed_bundle leaked the refusal exception rather than returning its scope_refusals result."
+      }
+    ],
+    "focused_final": {
+      "command": ".venv/bin/python -B -m pytest -q tests/unit/scientist/search/test_pareto_registry_serialization.py --junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/serialization-final.junit.xml",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/serialization-final.stdout.txt",
+      "stdout_sha256": "4d2df7a96ce4a667da3ccf295f2d16c728a65ed0e861a3baa919f7bb469b02b5",
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/serialization-final.junit.xml",
+      "junit_sha256": "effa0364adeb4a001c01e3bb312dd25f06dea1c73673f9032012f28ddaca576f",
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "covered_cases": [
+        "real local update -> persisted explicit null -> fresh typed read -> second update -> re-read",
+        "real catalog persistence -> fresh get_seed_bundle consumer",
+        "missing required nullable field refuses as INVALID_SOURCE_BODY",
+        "mismatched tenant remains refused",
+        "present tenant hash round-trips",
+        "historical v1 bytes unchanged"
+      ]
+    },
+    "bounded_composed_replay": {
+      "command": ".venv/bin/python -B -m pytest -q tests/unit/scientist/search/test_pareto_registry_serialization.py tests/unit/scientist/search/test_phase_b_policy_runtime.py tests/unit/scientist/search/test_pareto_transfer.py tests/unit/scientist/search/test_voi_scheduler.py --junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/composed-pareto-tests.junit.xml",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/composed-pareto-tests-final.stdout.txt",
+      "stdout_sha256": "ddb2efd13a393c9d9549022382be9a281be9692c839dc7d4cdc535d36f526f75",
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/composed-pareto-tests.junit.xml",
+      "junit_sha256": "0ecf98e4373ae8ba500495190a6e3995c58b4c48ce7554b40e9b9d2b3b13bc31",
+      "counts": {
+        "tests": 87,
+        "failures": 18,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failure_disposition": "This composed run has broader shared-worktree failures. They are not called inherited because P41 baseline/disjoint-input evidence was not established, and they are not counted as failures of the focused implementation proof. See exact JUnit for all 18 cases.",
+      "failed_cases": [
+        {
+          "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+          "name": "test_promotion_coordinator_persists_readiness_and_requires_canonical_n9",
+          "message": "ValueError: replay_verification_candidate_selected_profile_required"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+          "name": "test_missing_prior_knowledge_caps_readiness_before_canonical_n9_refusal",
+          "message": "ValueError: replay_verification_candidate_selected_profile_required"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+          "name": "test_synthetic_runtime_caps_readiness_and_blocks_promotion",
+          "message": "ValueError: replay_verification_candidate_selected_profile_required"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+          "name": "test_phase2_closure_summary_flows_through_promotion_runtime",
+          "message": "ValueError: replay_verification_candidate_selected_profile_required"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+          "name": "test_phase2_closure_summary_flows_through_promotion_runtime_via_env_report",
+          "message": "ValueError: replay_verification_candidate_selected_profile_required"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+          "name": "test_latent_bundle_forces_research_only_cap_and_human_gate",
+          "message": "ValueError: replay_verification_candidate_selected_profile_required"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+          "name": "test_promoted_latent_bundle_maps_to_bounds_claim_mode_in_runtime",
+          "message": "ValueError: replay_verification_candidate_selected_profile_required"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+          "name": "test_unreadable_latent_bundle_resolution_is_rejected_and_caps_readiness",
+          "message": "ValueError: replay_verification_candidate_selected_profile_required"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+          "name": "test_ref_only_data_readiness_warn_caps_readiness",
+          "message": "ValueError: replay_verification_candidate_selected_profile_required"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+          "name": "test_dp_bounds_only_metadata_is_surfaced_in_readiness_contract",
+          "message": "ValueError: replay_verification_candidate_selected_profile_required"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+          "name": "test_promotion_coordinator_publishes_canonical_n9_refusal_to_voi_scheduler",
+          "message": "ValueError: replay_verification_candidate_selected_profile_required"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_phase_b_policy_runtime",
+          "name": "test_typed_objective_reaches_best_frontier_and_candidate_transfer_only_when_valid",
+          "message": "AssertionError: assert {'candidate_i...n': 'fiscal'}} == {'candidate_i...'candidate_b'}"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_pareto_transfer",
+          "name": "test_versioned_pareto_scope_keeps_none_global_and_foreign_distinct",
+          "message": "pydantic_core._pydantic_core.ValidationError: 1 validation error for TransferContext"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_pareto_transfer",
+          "name": "test_pareto_fresh_reader_refuses_path_body_mismatch_and_legacy_namespace",
+          "message": "AssertionError: assert <TransferScopeRefusalReason.INVALID_SOURCE_BODY: 'invalid_source_body'> is <TransferScopeRefusalReason.PATH_BODY_MISMATCH: 'path_body_scope_mismatch'>"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_pareto_transfer",
+          "name": "test_registry_refuses_non_finite_metrics_before_persisted_json[nan]",
+          "message": "polisyos.scientist.methods.search.transfer_context.TransferScopeRefusedError: transfer source scope could not be established"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_pareto_transfer",
+          "name": "test_registry_refuses_non_finite_metrics_before_persisted_json[positive-infinity]",
+          "message": "polisyos.scientist.methods.search.transfer_context.TransferScopeRefusedError: transfer source scope could not be established"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_pareto_transfer",
+          "name": "test_registry_refuses_non_finite_metrics_before_persisted_json[negative-infinity]",
+          "message": "polisyos.scientist.methods.search.transfer_context.TransferScopeRefusedError: transfer source scope could not be established"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_voi_scheduler",
+          "name": "test_historical_registry_frontier_stays_unassessed_through_voi_scheduler",
+          "message": "polisyos.scientist.methods.search.transfer_context.TransferScopeRefusedError: transfer source scope could not be established"
+        }
+      ]
+    },
+    "quality_checks": [
+      {
+        "command": ".venv/bin/python -m ruff check src/polisyos/scientist/methods/search/pareto_registry.py tests/unit/scientist/search/test_pareto_registry_serialization.py",
+        "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/ruff-final.stdout.txt",
+        "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "result": "PASS"
+      },
+      {
+        "command": ".venv/bin/python -m ruff format --check src/polisyos/scientist/methods/search/pareto_registry.py tests/unit/scientist/search/test_pareto_registry_serialization.py",
+        "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/format-final.stdout.txt",
+        "output_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "result": "PASS"
+      },
+      {
+        "command": "git diff --check -- src/polisyos/scientist/methods/search/pareto_registry.py tests/unit/scientist/search/test_pareto_registry_serialization.py",
+        "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/diffcheck-final.stdout.txt",
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result": "PASS"
+      }
+    ]
+  },
+  "remaining_limits": [
+    "The full E02 consumer denominator and global SOTA status are outside this Pareto slice.",
+    "The composed 87-test slice has 18 failures in parallel/shared paths; rerun/adjudicate from the correct exact slice base before any P41 inheritance claim. The focused 5-test mechanism module passes.",
+    "A separate existing path/body test mutates tenant_hash to null while retaining tenant_kind=tenant and expects PATH_BODY_MISMATCH; that payload is structurally invalid and currently receives INVALID_SOURCE_BODY. Its test module is frozen to another owner and was not changed."
+  ],
+  "next_check": "Independent review of the exact source/test/decision bytes, then parent-owned implementation commit and separate receipt bound to its actual SHA. G retains formal closure adjudication."
+}

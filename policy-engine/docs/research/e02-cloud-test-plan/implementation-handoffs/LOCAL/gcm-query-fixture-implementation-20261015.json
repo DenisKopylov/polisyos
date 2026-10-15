@@ -1,0 +1,195 @@
+{
+  "record_type": "local_implementation_handoff",
+  "handoff_id": "GCM-QUERY-SOURCE-BOUND-FIXTURE-20261015",
+  "title": "Exercise GCM query semantics with a real persisted HybridSCMFit producer fixture",
+  "status": "candidate_source_delivered_independent_review_go",
+  "author_role": "local candidate author; independent reviewer is separate; G acceptance and formal adjudication remain outstanding",
+  "formal_findings": {
+    "affected_original_finding_ids": [],
+    "closure_ids": [],
+    "proposal_ids": [],
+    "note": "B224/B225 test evidence is recorded as a bounded proposal input only. No whole-finding, external-evidence, or G formal closure is claimed."
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "base": {
+      "commit": "01dcda4cf35c166fd30577d0acd174b26c85b423",
+      "tree": "f7c2bb7265e18d2ad3ebc4adbf5bb0dc3560e297",
+      "parents": [
+        "b0f15e3b71af33529b6cd5b11075e5c14c0006e5"
+      ],
+      "subject": "fix(fabric): resolve the declared world query from the public facade"
+    },
+    "candidate": {
+      "commit": "a3cbde0404d7025ab410bf1c1f0224b7d849ad09",
+      "tree": "683006852ce2913e9172cdd49a0db28fcabad342",
+      "parents": [
+        "01dcda4cf35c166fd30577d0acd174b26c85b423"
+      ],
+      "subject": "test(causal): bind query fixtures to real persisted Linux GCM fits"
+    },
+    "candidate_tree_readback_verified": true,
+    "current_worktree_head_at_handoff": "83b3259671b70cfdb3e6b10830a7878412a95db4",
+    "current_worktree_tree_at_handoff": "b3c64543522c942928dc5d6beb5385eb995be1ae",
+    "current_worktree_note": "Candidate contains only the test module change. The source/test paths were read back from the candidate commit. Shared worktree is dirty in parallel lanes; those changes are not included."
+  },
+  "property_and_behavior": {
+    "property": "GCMQuery must run over a fitted SCM whose training payload and fit provenance come from the actual persisted selected GCMFit producer route. The fixture must not self-label an unfitted schema 1.2 model as fitted.",
+    "pre_repair": "The shared _simple_scm fixture constructed a schema-1.2 model with fit_method=gcm but no graph source disposition or GCM training provenance. Three selectors failed during fixture validation before reaching GCMQuery, so they provided no evidence for B224/B225.",
+    "candidate_behavior": "The test module creates 400 synthetic observations, CAS-writes SCMFitData, registers the HybridSCMFit method, invokes run_job with the actual source ArtifactRef inside causal_worker_execution_context, reloads canonical method-result bytes into StructuralCausalModelSpec, validates source graph disposition/training row hash/fit provenance through validate_persisted_gcm_spec, then uses the persisted fitted model in query tests.",
+    "real_chain": [
+      "synthetic controlled DGP and SCMFitData source payload",
+      "CAS persistence and source ArtifactRef",
+      "MethodRegistry HybridSCMFit and run_job dispatch to the selected DoWhy worker",
+      "canonical persisted method result reloaded into StructuralCausalModelSpec and source-bound validation",
+      "GCMQuery consumer asserts intervention/counterfactual/soft-law behavior and active-node set"
+    ],
+    "behavioral_controls": [
+      "Atomic do(X=2) yields E[Y] approximately 7 for the declared synthetic DGP; active ancestor W remains and disconnected Z is pruned unless full trace is requested.",
+      "Conditioned counterfactual retains its declared behavior.",
+      "Shifted and truncated soft interventions use the declared stochastic laws.",
+      "Malformed stochastic-law input is refused by the query path.",
+      "Unsupported post-nonlinear mechanism surfaces fallback warning.",
+      "512 draws from truncnorm(0,1,8,10) stay strictly inside the interval and are unique, checking against endpoint clipping/atoms."
+    ],
+    "divergent_case": "A constructor-only or self-labeled schema-1.2 model fails graph-source/provenance validation before query execution. The new tests exercise the producer, persisted selected bytes, and consumer, while direct invalid source input still refuses.",
+    "class_limits": "This synthetic fixture validates software query semantics only. It does not prove real-world causal identification, calibration, qualifying production workload, policy efficacy, or institutional authority."
+  },
+  "source_footprint": [
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+      "sha256": "11fec42fb2c9fa710f39eb4416370c98115948b47baba5978390ae623c9547f4",
+      "role": "replaces invalid synthetic fit fixture with source-bound HybridSCMFit fixture and exercises GCMQuery semantics"
+    }
+  ],
+  "supporting_existing_sources": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py",
+      "sha256": "f9a826aa9659d261153aaa577b417041cb14748afd888d500935d0d39bc87a87",
+      "role": "unchanged producer/consumer/runtime dependency"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py",
+      "sha256": "93e2e3d18b740d8d67c6e3e6e15850b804c9295b953f06b61f1f03c005428af0",
+      "role": "unchanged producer/consumer/runtime dependency"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "sha256": "a1b573b19bf23dd303c69d788dced317ae10614fbaf546e56193e2299faeb50d",
+      "role": "unchanged producer/consumer/runtime dependency"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "sha256": "098f407bd507cf80e6c4ef0423a2dacb0781ac68fce8ffa387bfe5aab96e6cee",
+      "role": "unchanged producer/consumer/runtime dependency"
+    }
+  ],
+  "selected_profile": {
+    "app_python": "Python 3.14.0 at /scratch/root-venv/bin/python3.14",
+    "worker_python": "Python 3.12.12 at /scratch/dowhy-venv/bin/python",
+    "dowhy": "0.14",
+    "worker_profile_files": [
+      {
+        "path": "policy-engine/workers/dowhy-014/worker.py",
+        "sha256": "1e5d09d5956fd2bff6e79efb38b53d065e91dbf6aa54c76fefc72576dc54a97d"
+      },
+      {
+        "path": "policy-engine/workers/dowhy-014/protocol.py",
+        "sha256": "1a1d09c47883728c8fc8cf4d9ec8eb200340a5fadd28d531c6edd2be0d75c239"
+      },
+      {
+        "path": "policy-engine/workers/dowhy-014/uv.lock",
+        "sha256": "c33e8f99180bb587b49c9473d40258502532bfbd0d6e792d6d31e5d545f71f3a"
+      },
+      {
+        "path": "policy-engine/workers/dowhy-014/pyproject.toml",
+        "sha256": "42a9b776bc0688624cc9b4dd31a19451da2e32a641a0891ad27b3a30ac0e1d0a"
+      },
+      {
+        "path": "policy-engine/workers/dowhy-014/.python-version",
+        "sha256": "7b55f8e67b5623c4bef3fa691288da9437d79d3aba156de48d481db32ac7d16d"
+      }
+    ],
+    "availability_note": "The Python 3.14 app environment lacks DoWhy, while the selected Python 3.12 worker environment has DoWhy 0.14. The actual HybridSCMFit worker route passed. The optional parity test is skipped only because DoWhy is not importable in the app interpreter."
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-gcm-query-independent-review-20261015/assessment.json",
+    "sha256": "b7e28d6eedc9a7753326be58840a46adf0099de07ce9a7b5bc973f196cfb614c",
+    "verdict": "GO for the reviewed source-bound GCM/query fixture boundary; this is not a full product or external-evidence closure",
+    "review_frame": {
+      "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "head": "75e1e60fb11738397074baff21872dcb91d18a0c",
+      "target": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py@11fec42fb2c9fa710f39eb4416370c98115948b47baba5978390ae623c9547f4"
+    },
+    "exact_test_sha256": "11fec42fb2c9fa710f39eb4416370c98115948b47baba5978390ae623c9547f4",
+    "production_sources_unchanged": {
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_query.py": "f9a826aa9659d261153aaa577b417041cb14748afd888d500935d0d39bc87a87",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/gcm_fit.py": "93e2e3d18b740d8d67c6e3e6e15850b804c9295b953f06b61f1f03c005428af0",
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py": "a1b573b19bf23dd303c69d788dced317ae10614fbaf546e56193e2299faeb50d",
+      "policy-engine/src/polisyos/scientist/compute/runner.py": "098f407bd507cf80e6c4ef0423a2dacb0781ac68fce8ffa387bfe5aab96e6cee"
+    },
+    "scope": "Independent review is for the exact test bytes and query/fixture boundary only; it is not a full product review or formal finding acceptance."
+  },
+  "evidence": {
+    "original_red": {
+      "command": ".venv/bin/python -B -m pytest -q tests/unit/foundry/methods/catalog/causal/test_gcm_query.py::test_gcm_query_interventional_atomic tests/unit/foundry/methods/catalog/causal/test_gcm_query.py::test_gcm_query_shifted_and_truncated_soft_interventions tests/unit/foundry/methods/catalog/causal/test_gcm_query.py::test_gcm_query_rejects_malformed_stochastic_law",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/whole-property-audit-partitions-20261015/part3_gcm_focused_pytest_current7b.stdout.txt",
+      "output_sha256": "7dc530152257680c7e12296dcda9ea0d18376d2704eb8018575e86be53df9f19",
+      "result": "3 failures before GCMQuery; all failed at schema-1.2 fitted fixture graph-source-disposition validation. This is the fixture deficiency the candidate repairs."
+    },
+    "linux_full_module": {
+      "command_record": "The retained full-module r3 receipt does not include exact argv; it is recorded as the complete test module run in the selected Linux source-bound profile. No argv is reconstructed here.",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s1-gcm-query-fixture-20261015/linux-full-module-r3.stdout.txt",
+      "output_sha256": "624a5abe0a8ee9286569a5d044d0ea184d254157a0f8042b78f8f1c995d665a5",
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s1-gcm-query-fixture-20261015/linux-full-module-r3.junit.xml",
+      "junit_sha256": "5b6c1a866f91bb230e74b2153239dbe9e3a2c4836682211497bb4f9150b73a2f",
+      "result": "7 passed, 1 skipped in 9.34s; skip is optional DoWhy parity because the Python 3.14 app interpreter does not import DoWhy.",
+      "test_counts": {
+        "tests": 8,
+        "passed": 7,
+        "skipped": 1,
+        "failed": 0,
+        "errors": 0
+      }
+    },
+    "independent_b224": {
+      "command": "env COLIMA_HOME=/Users/deniskopylov/.colima-e02-local DOCKER_CONFIG=/Users/deniskopylov/.docker-e02-local docker --context colima-e02-local exec --workdir /workspace/polisyos/policy-engine --env PYTHONPATH=/workspace/polisyos/policy-engine/src --env E02_TEST_DOWHY_WORKER_PYTHON=/scratch/dowhy-venv/bin/python --env OPENBLAS_NUM_THREADS=1 --env OMP_NUM_THREADS=1 --env MKL_NUM_THREADS=1 --env NUMEXPR_NUM_THREADS=1 e02-local-worker-provision /scratch/root-venv/bin/python3.14 -m pytest -q -s /scratch/e02-gcm-fixture/test_gcm_query.py::test_gcm_query_atomic_intervention_keeps_active_ancestor_and_prunes_sibling",
+      "result": "1 passed in 13.09s; actual HybridSCMFit method dispatch succeeded and the worker-produced persisted fit was consumed by GCMQuery",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s1-gcm-query-fixture-20261015/independent-b224-active-ancestor-r1.stdout.txt@4a1394e7172f5357a871fc6257e03cb85f5202f3de52a68f17912c9bb6ffd093"
+    },
+    "postguard_b224": {
+      "result": "1 passed in 7.37s",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s1-gcm-query-fixture-20261015/linux-postguard-b224.stdout.txt@18383b44f4fa2645c997de8c5f08ba6f411fe60f1e200a860e6e37979490189a"
+    },
+    "host_platform_and_malformed_configuration_controls": {
+      "kind": "host guard controls",
+      "results": {
+        "no configured worker on non-Linux": "6 source-bound query cases skip; optional DoWhy parity independently skips if DoWhy is not importable; fallback-warning case still runs",
+        "explicit missing worker path": "hard fixture error, not skip",
+        "explicit unusable Darwin worker": "worker refusal/assertion failure, not skip"
+      },
+      "stdout_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s1-gcm-query-fixture-20261015/host-darwin-profile-guard-r2.stdout.txt@6ef5ace7a8d166276bc5a2cf6bff737a88434499b5fd06f6273f0525b5d05f11",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s1-gcm-query-fixture-20261015/host-explicit-missing-worker.stdout.txt@3df4e3ff8129a9fda3990b3ca243a5da652cd4d814b658ab7ea531173ee304ce",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s1-gcm-query-fixture-20261015/host-explicit-darwin-worker-refusal.stdout.txt@c48562a1318054f6d519a5ec705be65d2b834e47a20bdfb6b949b97f41cf63b9"
+      ]
+    },
+    "quality_check": {
+      "command": "git diff --check -- policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+      "result": "passed",
+      "output_reference": {
+        "kind": "diff whitespace check",
+        "command": "git diff --check -- policy-engine/tests/unit/foundry/methods/catalog/causal/test_gcm_query.py",
+        "result": "passed"
+      }
+    }
+  },
+  "known_limitations": [
+    "DGP and training data are synthetic and establish no real-world identification, empirical calibration, or policy claim.",
+    "No C7 or LA029 evidence is exercised or implied.",
+    "Optional DoWhy parity is skipped under the app Python 3.14 environment; the selected Python 3.12 DoWhy 0.14 worker producer path and actual GCMQuery consumer passed.",
+    "Manual/unfitted synthetic fallback and optional-parity SCM fixtures still label node mechanisms DATA_FITTED. The independent reviewer marks this a separate fixture provenance-label inconsistency, nonblocking for the source-bound fitted_scm path, and not repaired by this test-only change.",
+    "The complete module run is bounded semantic test evidence, not a full backend suite or E02 finding closure."
+  ],
+  "next_check": "Use the exact committed test bytes and source-bound Linux worker receipt in the composed S1/S3 closeout; G retains formal adjudication."
+}

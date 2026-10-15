@@ -1,0 +1,132 @@
+{
+  "record_type": "local_implementation_handoff",
+  "handoff_id": "FABRIC-QUERY-WORLD-TABLE-FACADE-20261015",
+  "title": "Restore the canonical world-table query on the Fabric data-plane facade",
+  "status": "candidate_source_delivered_independent_delta_go",
+  "author_role": "local candidate author; independent review is separate; G acceptance and formal adjudication remain outstanding",
+  "formal_findings": {
+    "affected_original_finding_ids": [],
+    "closure_ids": [],
+    "proposal_ids": [],
+    "note": "This two-path public-facade repair claims no whole-export inventory closure and no formal E02 finding closure."
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "base": {
+      "commit": "b0f15e3b71af33529b6cd5b11075e5c14c0006e5",
+      "tree": "03db1afe9f9b6c6b2162485c4fad3d3f4a755a76",
+      "parents": [
+        "75e1e60fb11738397074baff21872dcb91d18a0c"
+      ],
+      "subject": "fix(legal): preserve public owner typing and authenticated durable witness"
+    },
+    "candidate": {
+      "commit": "01dcda4cf35c166fd30577d0acd174b26c85b423",
+      "tree": "f7c2bb7265e18d2ad3ebc4adbf5bb0dc3560e297",
+      "parents": [
+        "b0f15e3b71af33529b6cd5b11075e5c14c0006e5"
+      ],
+      "subject": "fix(fabric): resolve the declared world query from the public facade"
+    },
+    "candidate_tree_readback_verified": true,
+    "current_worktree_head_at_handoff": "83b3259671b70cfdb3e6b10830a7878412a95db4",
+    "current_worktree_tree_at_handoff": "b3c64543522c942928dc5d6beb5385eb995be1ae",
+    "current_worktree_note": "Shared worktree has parallel dirty lanes. The two delivered paths were independently read from the candidate commit and match current bytes; unrelated dirty orchestrator/source changes are outside this commit and outside the review."
+  },
+  "problem_and_behavior": {
+    "property": "Every symbol already declared by the lazy data-plane facade should resolve to its canonical owner through the facade when the symbol is listed in __all__.",
+    "before": "The existing __all__ declared query_world_table, but _LAZY_IMPORTS had no binding. The public facade therefore failed to provide that canonical runtime attribute.",
+    "after": "The lazy-import table maps query_world_table to polisyos.fabric.world.query.query_world_table. Existing resolver behavior returns and caches the identical canonical function object.",
+    "actual_surface": "polisyos.fabric.data_plane.query_world_table, the package public import facade.",
+    "test_property": "The mirrored test asserts the name is exported and facade access returns the exact canonical owner object by identity.",
+    "bounded_divergence": "This repairs one real route in the cited facade surface. It does not prove runtime completeness for all 67 exports, public-surface static inventory correctness, all import-order combinations, or broader Fabric capability closure.",
+    "related_scope": "The independent reviewer observed a separate dirty retrieval-summary edit in the current orchestrator; the exercised facade test path disables snapshot construction or fails before it. That unrelated delta is not approved by this handoff."
+  },
+  "source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/__init__.py",
+      "sha256": "fb459a6b4b9aaf49815936aa591062910bffa27d7d150a52ae7716f8d8dacbe1",
+      "role": "adds canonical lazy-import owner binding"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_raw_result_sink.py",
+      "sha256": "e83201136424e9196d957be61c8323d728841f8667aa239db122f300913e7634",
+      "role": "behavioral facade identity test; also contains one formatter-only line-wrap change in an existing fake helper"
+    }
+  ],
+  "supporting_existing_owner": {
+    "path": "policy-engine/src/polisyos/fabric/world/query.py",
+    "sha256": "eb8aa6704eaf94d6fe64bbfa8e7fb7c9f2b7db0bcc1288db0577a113ef616208",
+    "role": "canonical implementation returned by the facade; unchanged in candidate commit"
+  },
+  "evidence": {
+    "author_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-query-world-table-facade-20261015/receipt-r2.json",
+      "sha256": "7b5d7c37eeb30e79de86a758e4c814e67c77715aa623d3f3a2f477df5251974d",
+      "finding": "Ruff format changed only test helper wrapping; AST equivalence was recorded. Source/test byte hashes match candidate commit."
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-query-world-table-facade-20261015/independent-review-r1.json",
+      "sha256": "1d505f1a8de3ec36dd06fb91236e2d2dcf319f769b8352df26f60b669637f2f8",
+      "review_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "75e1e60fb11738397074baff21872dcb91d18a0c",
+        "parent": "7b23055ad0457ac312296e35e08d46731461335a",
+        "slice_base_from_author_receipt": "7b23055ad0457ac312296e35e08d46731461335a",
+        "tree": "63cc8f13211938ffba98ff0da3dbb2d5f9628e28"
+      },
+      "verdict": "GO_FOR_THE_TWO_PATH_FACADE_DELTA",
+      "review_scope": "The pre-existing __all__ already declares query_world_table, while _LAZY_IMPORTS lacked a binding. Adding its exact canonical owner route lets __getattr__ return and cache the identical polisyos.fabric.world.query.query_world_table object; this repairs the one actual runtime-export probe failure in the cited 67-entry census.",
+      "formal_g_acceptance": "none",
+      "limitations": "This is one facade binding and focused unit evidence only. It does not establish 67-entry runtime export completeness, public-surface static-inventory health, or G acceptance.",
+      "exact_sources_match_candidate": true
+    },
+    "deciding_test": {
+      "command": [
+        "PYTHONPATH=src",
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/fabric/data_plane/test_raw_result_sink.py",
+        "-q",
+        "--tb=short",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-query-world-table-facade-20261015/independent-review-r1.junit.xml"
+      ],
+      "cwd": "policy-engine",
+      "exit_code": 0,
+      "result": "4 passed; 0 skipped",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-query-world-table-facade-20261015/independent-review-r1.stdout.txt",
+        "sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-query-world-table-facade-20261015/independent-review-r1.junit.xml",
+        "sha256": "99e848db661f7f5993b639dd352400f4f72e3e7b22823180ea080ab061a32e65"
+      },
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "quality": {
+      "ruff_check": {
+        "result": "All checks passed!",
+        "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-query-world-table-facade-20261015/ruff-r2.stdout.txt",
+        "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "format_check": {
+        "result": "2 files already formatted",
+        "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-query-world-table-facade-20261015/ruff-format-r2.stdout.txt",
+        "stdout_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      },
+      "ast_equivalence": {
+        "result": "same AST after ignoring source locations",
+        "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-query-world-table-facade-20261015/ast-equivalence-r2.stdout.txt",
+        "stdout_sha256": "3f3229adf5dfc1842760e05e4c11be2df672764f2a359c44a3babc58c058a8c1"
+      }
+    }
+  },
+  "capability_disposition": {
+    "candidate_claim": "The canonical query is now reachable through this declared facade route.",
+    "whole_capability_state": "Not assessed by this slice. Runtime 67-entry completeness and complete Fabric producer/artifact/bridge/consumer behavior remain outside this two-path repair.",
+    "formal_closure_ids": []
+  },
+  "next_check": "G may independently accept or reject the exact two-path commit and decide whether wider public-surface claims need their own runtime inventory evidence."
+}

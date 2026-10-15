@@ -1,0 +1,113 @@
+{
+  "record_type": "implementation_delivery_receipt",
+  "scope": "Shared non-v1 Pareto snapshot serialization and catalog typed-refusal consumer",
+  "source": {
+    "candidate": "816d47eee62b28906904373bc21229c73ce64327",
+    "tree": "24244ea0e08c784d21e318090dbe0ada898b665e",
+    "parents": [
+      "83b3259671b70cfdb3e6b10830a7878412a95db4"
+    ],
+    "slice_base": "83b3259671b70cfdb3e6b10830a7878412a95db4",
+    "branch": "codex/e02-unified-local-20261009",
+    "changed_footprint": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "sha256": "866562ac87e6a2d09ff6c995fc65754dd174d96490532fdfeeee50a2018e357a"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/test_pareto_registry_serialization.py",
+        "sha256": "a097feab38916e1ff3b343385231d6d8c51aeb985b8ea963a9f453a12edb171f"
+      }
+    ],
+    "readback": "Every changed path SHA was recomputed from git show of the candidate commit; no future receipt commit is referenced."
+  },
+  "decision_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/pareto-required-nullable-snapshot-20261015.json",
+    "sha256": "10678946a668f3da31cafe57886108afe198b272dd4e7905bee64335cd917fca"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto2-independent-review-20261015/independent-review.json",
+    "sha256": "ff90b315193565b682da8a4aad7d8b38f379fbfe77c6313f787c9cc9483d2b22"
+  },
+  "full_footprint": "Two changed source/test paths listed in source.changed_footprint; decision and this delivery receipt are mandatory documentation companions. No schema/config/lock/generator/resource bytes changed.",
+  "input_backend_profile": "Controlled local per-loop and catalog registry JSON; candidate non-v1/v2/v3 typed snapshots and explicitly separate historical schema1.0 bytes; no production payload read.",
+  "chain": "Real ParetoRegistry.update -> shared _write_json -> persisted local/catalog JSON -> fresh get_snapshot/get_seed_bundle -> second update or typed scope_refusals.",
+  "property": "Required nullable fields remain present as JSON null; absent required input remains malformed. Generic Pydantic serialization serves both writers, not a tenant_hash special case.",
+  "deciding_verification": {
+    "author_focused": {
+      "command": ".venv/bin/python -B -m pytest -q tests/unit/scientist/search/test_pareto_registry_serialization.py --junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/serialization-final.junit.xml",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/serialization-final.stdout.txt",
+      "stdout_sha256": "4d2df7a96ce4a667da3ccf295f2d16c728a65ed0e861a3baa919f7bb469b02b5",
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/serialization-final.junit.xml",
+      "junit_sha256": "effa0364adeb4a001c01e3bb312dd25f06dea1c73673f9032012f28ddaca576f",
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "covered_cases": [
+        "real local update -> persisted explicit null -> fresh typed read -> second update -> re-read",
+        "real catalog persistence -> fresh get_seed_bundle consumer",
+        "missing required nullable field refuses as INVALID_SOURCE_BODY",
+        "mismatched tenant remains refused",
+        "present tenant hash round-trips",
+        "historical v1 bytes unchanged"
+      ]
+    },
+    "independent_focused": {
+      "candidate_source_diff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto2-independent-review-20261015/candidate-source-diff.txt",
+        "sha256": "1e33e34ee3909864b436cecb93304c84fcc68ef6a78f0fd3bab931f6ca15e939"
+      },
+      "command": ".venv/bin/python -B -m pytest -q tests/unit/scientist/search/test_pareto_registry_serialization.py --junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto2-independent-review-20261015/focused.junit.xml",
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 5
+      },
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto2-independent-review-20261015/focused.junit.xml",
+        "sha256": "c418cc4d4d2309f5462b539a3799261aa75e5d08d8db1043c99b65b2b9fd42dc"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto2-independent-review-20261015/focused.stdout.txt",
+        "sha256": "4d2df7a96ce4a667da3ccf295f2d16c728a65ed0e861a3baa919f7bb469b02b5"
+      }
+    },
+    "static_outputs": [
+      {
+        "command": ".venv/bin/python -m ruff check src/polisyos/scientist/methods/search/pareto_registry.py tests/unit/scientist/search/test_pareto_registry_serialization.py",
+        "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/ruff-final.stdout.txt",
+        "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "result": "PASS"
+      },
+      {
+        "command": ".venv/bin/python -m ruff format --check src/polisyos/scientist/methods/search/pareto_registry.py tests/unit/scientist/search/test_pareto_registry_serialization.py",
+        "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/format-final.stdout.txt",
+        "output_sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "result": "PASS"
+      },
+      {
+        "command": "git diff --check -- src/polisyos/scientist/methods/search/pareto_registry.py tests/unit/scientist/search/test_pareto_registry_serialization.py",
+        "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-required-nullable-census-20261015/diffcheck-final.stdout.txt",
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result": "PASS"
+      }
+    ]
+  },
+  "adversarial_and_removal": "Actual pre-repair local roundtrip RED and catalog malformed-body leak RED are retained in decision packet. Current missing required field and wrong tenant remain refused; schema1.0 exact bytes pinned.",
+  "proposal_status": "bounded_implementation_delivered_pending_G_acceptance",
+  "closure_ids": [],
+  "proposal_ids": [],
+  "limitations": [
+    "Independent five-test result is not the full E02 consumer denominator or native SOTA green.",
+    "The prior87-test command failed18 cases; full deciding output and case classifications are retained. P41 not_established, none called inherited. C05 subsequently repaired its own selected-profile/fixture cases; that is a different source frame.",
+    "Default non-v1 serialization also retains optional known null fields. Current typed readers accept them; external older-reader compatibility is not established.",
+    "Remaining original Pareto transfer/scheduler criteria are being checked in separate mandatory test companions; no automatic finding closure."
+  ],
+  "next_check": "Independently review any later companion delta, then final source/input/backend freeze and composed replay. G alone accepts code and adjudicates findings."
+}

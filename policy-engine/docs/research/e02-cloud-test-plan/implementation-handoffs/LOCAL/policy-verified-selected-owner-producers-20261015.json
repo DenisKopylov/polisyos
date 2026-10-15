@@ -1,0 +1,196 @@
+{
+  "format": "e02-local-implementation-handoff/v1",
+  "kind": "source_handoff",
+  "slice": "policy-verified-selected-owner-producers",
+  "observed_repository_state": {
+    "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "a4c10b32e7aaf02bab42ac6fe4a79a048f5c52cf",
+    "upstream_head": "a4c10b32e7aaf02bab42ac6fe4a79a048f5c52cf",
+    "worktree": "dirty outside this slice; all four source/test paths below are clean relative to HEAD and match candidate bytes",
+    "candidate_is_ancestor_of_head": true
+  },
+  "source": {
+    "base": {
+      "commit": "5c5aba7258a35ec769a39378c2e881a85461c897",
+      "tree": "446bba7d2b4ab3818d728508b02d273b93ab0e16",
+      "parents": [
+        "8c1cd1cbccb0606f42ace814b1e1e3d63e1d5c4c"
+      ]
+    },
+    "candidate": {
+      "commit": "92074009c670f90496f1e45460c8f379fbcee470",
+      "tree": "3291267d0488846c63db3f3f4b8bed3a0c2c15af",
+      "parents": [
+        "5c5aba7258a35ec769a39378c2e881a85461c897"
+      ],
+      "subject": "fix(policy-verified): bind producers and readers to selected owner profiles"
+    },
+    "changed_files": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/validation/policy_verified/models.py",
+        "blob": "b9791b2aa5775f215e17e2517e37f537413e298e",
+        "sha256": "a3d9565397950a436783fa484d052806d29f16e09b0f07f9a0986c96c5886aef",
+        "bytes": 18101,
+        "working_tree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/validation/test_policy_verified_model_owner_admission.py",
+        "blob": "2bdd8b8715a34112097019584e45b4e3056b8a42",
+        "sha256": "bac142648b02428c72b1a46d1948fe56d3cd89707c4860ad877aa7a2debb9607",
+        "bytes": 7926,
+        "working_tree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/policy_design/test_policy_verified_nodes.py",
+        "blob": "82ab5f81f9a7cafe101c96286b11c601551e15f6",
+        "sha256": "11ad315afbfed3399f30cbf92cde9fef0e6b9a75506deccaf9916a7ca96a35dc",
+        "bytes": 29005,
+        "working_tree_matches_candidate": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/policy_design/test_policy_verified_workflow_e2e.py",
+        "blob": "a92fd053111d352b02fe470ac99042403628f653",
+        "sha256": "6b14ba58a058ac909f801510cfbc0ac30df309c6bd78de1d8d61f82d5137878e",
+        "bytes": 10875,
+        "working_tree_matches_candidate": true
+      }
+    ],
+    "readback": "Candidate tree, parents, changed paths, Git blob IDs, byte lengths and SHA-256 values were read from Git; each working-tree file hash matches the candidate object."
+  },
+  "dependency_pins_observed_at_head": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/owned_json.py",
+      "sha256": "9d06198e8db627491716d39b527fbce78fd99fbf68397fe486e37e972074244a",
+      "working_tree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "sha256": "6d56dcd7042227ce00d617b0698eae26c263eaef72934dda06d911575b4aefae",
+      "working_tree_matches_head": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+      "sha256": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34",
+      "working_tree_matches_head": true
+    }
+  ],
+  "author_freeze": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-research-20261015/four-path-source-freeze.json",
+    "sha256": "8a57e64335b28c195d439bf21b80015a2b3c0aababae9232eaca3c001eb7f18e",
+    "captured_base": "5c5aba7258a35ec769a39378c2e881a85461c897",
+    "source_commit_at_freeze": null,
+    "note": "Freeze preceded the parent-controlled source commit; all four frozen hashes match the candidate commit and current working-tree bytes."
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-independent-review-20261015/report.json",
+    "sha256": "85c1f55bd50cc67e240725144b49d698104177d8d9230e8d4e46e4ae236a9ef8",
+    "review_head": "5c5aba7258a35ec769a39378c2e881a85461c897",
+    "review_tree": "446bba7d2b4ab3818d728508b02d273b93ab0e16",
+    "verdict": "GO, bounded to three explicitly-owned Core JSON model families",
+    "reviewed_paths_match_candidate": true,
+    "formal_closure_ids": [],
+    "scope_note": "Independent review is over the four exact frozen files and the recorded overlays/checks; it is not G acceptance or a whole-composition closeout."
+  },
+  "capability_chain": {
+    "contract_and_profiles": "Fixed module-level CoreArtifactOwnerProfile values define LegalCandidatePack (schema/payload versions 1.0 and 1.1), SourceVerificationReport 1.0, and VerifiedPolicyReport 1.0 owner ABI relations.",
+    "producer": "Three persist_* functions pass their selected profile into the shared model persistence path. Shared defaults remain profileless for non-owned model families.",
+    "artifact_and_bridge": "Canonical JSON bytes and selected manifest/profile are persisted in CAS. Readers reopen the selected manifest and exact artifact, bind selected manifest profile and payload schema_version, and verify owner kind/media/schema plus exact InputRef lineage.",
+    "consumer": "Three load_* paths validate the selected owner profile before returning the strict model. Product callsites include planning, verification, source-gap review, and decision-packet consumption.",
+    "verification_and_surface": "Focused workflow/decision-packet tests use persisted artifacts and fresh FileSystemCAS reopen. Existing product consumer paths are exercised; no independent public API/dashboard acceptance is claimed."
+  },
+  "semantic_controls": [
+    "Fresh-CAS readback selects the expected manifest profile and exact producer input edges before typed load.",
+    "Twelve same-byte counterfeit owner metadata cases spanning kind, media type, schema name and schema version are refused.",
+    "Removal control bypassing owner validation accepts all twelve counterfeits while their markers/bytes remain; this demonstrates the owner gate is load-bearing.",
+    "Compatibility probe confirms the finite LegalCandidatePack 1.0/1.1 mapping and that a non-owned LegalSourcePack retains the shared profileless default."
+  ],
+  "verification_outputs": {
+    "author": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-research-20261015/pytest-four-path-final.log",
+        "sha256": "c3cc80b1e29067515cbbec44744ee4df7ed414e4ab5cb1aca1e2ae0a5a9260c8",
+        "result": "30 focused tests passed; two upstream Torch/Python 3.14 deprecation warnings"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-research-20261015/ruff-four-path-final.log",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "result": "Ruff passed"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-research-20261015/ruff-format-four-path-final.log",
+        "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de",
+        "result": "four files formatted"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-research-20261015/mypy-four-path-final.log",
+        "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+        "result": "mypy success on models.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-research-20261015/property-removal-probe.log",
+        "sha256": "95f1b17303422348ced1e03989d50d3ad5862fec316ed4e370429cc9970fede5",
+        "result": "the owner-gate removal mutant accepted all 12 same-byte counterfeit profiles"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-research-20261015/profile-version-and-compatibility-probe.log",
+        "sha256": "643d7b55f9af47f0992abb86a3b5f36d7ceb6dced055c27560543aeb3b7fcc2f",
+        "result": "finite version compatibility and non-owned profileless behavior observed"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-research-20261015/pytest-focused-profile-lineage.log",
+        "sha256": "ecf57d762b443151696ef4727347520d0d5715719bac1e0cd93caddf627ffa61",
+        "result": "additional focused lineage cases passed"
+      }
+    ],
+    "independent_review": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-independent-review-20261015/pytest-independent-r2.log",
+        "sha256": "37764ca87d82b14df861625b968bb2da9fd6ec0cdc327b76c27e4c81a2147357",
+        "result": "30 focused cases passed; two upstream Torch/Python 3.14 deprecation warnings"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-independent-review-20261015/property-removal-independent.log",
+        "sha256": "244936375a2efb3e2a269d95a2ca3aa88eba103fac4059657f64071cbab829e3",
+        "result": "expected falsifier: all twelve counterfeit cases fail after owner-gate removal"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-independent-review-20261015/ruff-independent.log",
+        "sha256": "a34794bcc1aa96094c44aa7b5a910d179b310b3082df16fccfda411f83456d40",
+        "result": "156 diagnostics from invocation-root/config-glob mismatch; not attributed to product source"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-independent-review-20261015/ruff-independent-rootcwd.log",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "result": "correct repository-root Ruff invocation passed"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-independent-review-20261015/ruff-format-independent-rootcwd.log",
+        "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de",
+        "result": "four files already formatted"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-independent-review-20261015/mypy-independent.log",
+        "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+        "result": "mypy success on models.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-policy-verified-model-owner-independent-review-20261015/diff-check-independent.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result": "empty output; no whitespace errors"
+      }
+    ]
+  },
+  "limits_and_next_checks": [
+    "Selected owner ABI and manifest-profile conformance are not legal truth, issuer permission, producer authenticity, custody, currentness, admissibility, or formal authority.",
+    "Historical bare ArtifactRef behavior is specifically a reference with no manifest_profile_sha256 while the stored selected manifest still has CanonInfo. It does not demonstrate a stored manifest with CanonInfo absent; generic reading refuses absent CanonInfo.",
+    "Rerun the exact focused consumer chain against the final composed source/input freeze and review the affected original finding criteria individually; this slice is not whole-system acceptance.",
+    "Keep the separate Core owner helper dependency pinned/reviewed at its observed bytes; do not infer later working-tree or profile changes from this snapshot."
+  ],
+  "proposal": {
+    "disposition": "propose bounded source-level GO for the three named model families only; independent G mapping against each original criterion remains pending",
+    "closure_ids": [],
+    "formal_closure_ids": []
+  },
+  "authoritative_external_facts_claimed": []
+}

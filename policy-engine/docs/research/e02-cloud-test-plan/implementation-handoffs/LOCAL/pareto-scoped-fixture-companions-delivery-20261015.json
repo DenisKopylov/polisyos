@@ -1,0 +1,48 @@
+{
+  "record_type": "test_companion_delivery",
+  "source": {
+    "candidate": "4b25c8b55dc9ad4a01b2d59dc3345b19c62bbf21",
+    "tree": "c48eb6a15d4ac4f933af9a64a059871d7f2d6260",
+    "parents": [
+      "ee21224e88ecbf154215e63bfbe05845fd5a5308"
+    ],
+    "slice_base": "ee21224e88ecbf154215e63bfbe05845fd5a5308",
+    "footprint": [
+      {
+        "path": "policy-engine/tests/unit/scientist/search/test_pareto_transfer.py",
+        "sha256": "66fb921f515bff401557bbd6e4914dabdcf571a4a67b811fc8a01ab1b0ac0682"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py",
+        "sha256": "bd66ed80bb4fcf9a3509c78470f3270afa0364cb36bbef9e5ffda7a4a26677b6"
+      }
+    ]
+  },
+  "product_source_commit": "816d47eee62b28906904373bc21229c73ce64327",
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-authorized-test-companions-independent-20261015/independent-review.md",
+    "sha256": "2470c3e9b5e4a30c20f54c8746fcb997f257eb6149f30289f4ad594306ff194c"
+  },
+  "deciding_commands_and_outputs": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pareto-authorized-test-companions-independent-20261015/commands.json",
+    "sha256": "a5842fecd8c6188caad5d7acfc23f369bebd4f72ed9b8836d7976ceb48a98f62"
+  },
+  "scope": "Two existing fixture modules now reach intended readers and numeric guards with valid explicit context; no product contract or admission rule weakened.",
+  "input_backend_profile": "Controlled scoped registry JSON and source-bound schema1.0-shaped record; no inferred source binding for old unbound history.",
+  "chain": "Actual registry write/fresh read/update -> catalog and VOI projection -> typed refusal or limited unassessed/unranked candidate.",
+  "deciding_result": "Author38PASS and independent38PASS, zero fail/error/skip. Six original RED cases retained under RAW/pareto-authorized-test-companions-20261015.",
+  "controls": [
+    "Empty tenant explicitly refuses; valid partition cardinality excludes malformed identity.",
+    "Different valid tenant reaches path/body mismatch; null hash with tenant kind remains INVALID_SOURCE_BODY.",
+    "Nonfinite updates retain matching valid tenant context so actual numeric guard is exercised.",
+    "Explicitly bound v1-shaped read remains legacy_limited and unranked; no-scope v1 still SOURCE_BINDING_MISSING."
+  ],
+  "limitations": [
+    "An explicitly bound v1-shaped fixture does not prove a pre-binding historical producer emitted source_scope.",
+    "C05-owned PhaseB tests and production semantics were not changed.",
+    "Full native gates and final original whole-property verification remain separate."
+  ],
+  "closure_ids": [],
+  "proposal_status": "test_companions_delivered_pending_G_acceptance",
+  "next_check": "Final composed source replay and original occurrence-bound acceptance; G retains adjudication."
+}

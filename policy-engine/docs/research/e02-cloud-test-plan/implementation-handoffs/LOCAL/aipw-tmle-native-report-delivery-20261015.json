@@ -1,0 +1,89 @@
+{
+  "schema": "policyos.aipw_tmle_native_report_delivery.v1",
+  "delivery_id": "aipw-tmle-native-report-delivery-20261015",
+  "status": "committed_scoped_candidate_projection_independently_reviewed",
+  "source_commit": {
+    "commit": "9d1b5fa90c2677e447689e671733793cc9bacb3c",
+    "tree": "2e4b072f1694e4ae1de0fb683039840b5f3faa50",
+    "parent": "5d1429a2433c3c7c7012dd056ddff61803710bc1",
+    "current_branch": "codex/e02-unified-local-20261009",
+    "current_head_at_delivery": "7b23055ad0457ac312296e35e08d46731461335a",
+    "readback": "The source commit is on the current branch. All four scoped paths are byte-identical between the source commit and current HEAD; unrelated parallel worktree edits remain outside this evidence frame."
+  },
+  "scoped_git_blobs": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/treatment_effects.py",
+      "git_blob_at_source_commit": "18dfda08673f322a021d0d2313f97c00112b33bb",
+      "sha256": "83c101402001d6eb4890b8a5740c6fba2d8fde10905f143ae1416760352133dc",
+      "role": "Shared CausalEffectReport output-slot owner; AIPW emits the actual report from its unchanged native result; TMLE's existing report slot uses the same owner declaration."
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py",
+      "git_blob_at_source_commit": "c723b043acb05739e46819421c189f5590a83829",
+      "sha256": "9c31c739ef8d7ae3077d62daef0c505a3bd1d24a920038d957afb1179619c45f",
+      "role": "Real producer output, owner-capability resolver, candidate projection, and generic MethodValueEvidence refusal controls for both methods."
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py",
+      "git_blob_at_source_commit": "bfcdb926812f41bdd85d9d3ef4698c07c1f1a86f",
+      "sha256": "0dd02251c4d7476761e5475fb6eea67a4c412e87c315b2087682291c57f71bf1",
+      "role": "Two test registry doubles now accept the actual discover_nodes keyword signature while keeping the fixture node as the only registered method."
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py",
+      "git_blob_at_source_commit": "f6ef950ed7b126214ac47dc2335cf43bf36cbc01",
+      "sha256": "8d83dc23f00a31d0127ea871e481548255bb565ce7e64409ac9d5d8005050436",
+      "role": "Real AIPW MethodJob write, fresh CAS reopen, and non-gating report projection; existing real TMLE MethodJob/CAS/fresh-reader path."
+    }
+  ],
+  "preserved_precommit_receipt": {
+    "original_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/aipw-tmle-native-report-producer-20261015.json",
+    "original_sha256": "c8224037c49b075a6672e1d1b8b1cb5793f5ece0b6ccadee14173e8479235c5e",
+    "byte_copy_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-aipw-tmle-delivery-20261015/original-aipw-tmle-native-report-producer-20261015.json",
+    "byte_copy_sha256": "c8224037c49b075a6672e1d1b8b1cb5793f5ece0b6ccadee14173e8479235c5e",
+    "byte_copy_is_gitignored_raw": true
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-aipw-tmle-independent-review-20261015/assessment.json",
+    "sha256": "ee490fb61ea01f6b2321e481b9605697da7bf60694fb5c2bf16113aee5268a27",
+    "verdict": "GO for the scoped owner-backed candidate projection and non-gating controls; not a G acceptance, authority finding, or N8 bridge closure.",
+    "independent_test_result": "6 passed; full output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-aipw-tmle-independent-review-20261015/focused-independent.stdout.txt (SHA-256 700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24).",
+    "independent_style_result": "Ruff check, format check, and diff check passed; output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-aipw-tmle-independent-review-20261015/style-independent.stdout.txt (SHA-256 d0de13207c40d034bf9a2d59bc5bcda933c3012d2d142212c990d8a7aae67541)."
+  },
+  "author_verification": {
+    "focused_three_module_command": "cd policy-engine && OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONPATH=src .venv/bin/python -m pytest tests/unit/foundry/methods/catalog/causal/test_treatment_effects.py tests/unit/foundry/methods/catalog/causal/test_tmle_fit_contract.py tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py -q",
+    "focused_three_module_result": "PASS, exit 0; exact output retained at policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-aipw-tmle-native-report-producer-20261015/final-focused-three-modules.stdout.txt (SHA-256 ec055756592c1bb329da72c4e5089f85afc5e27d0c065575c1f11962c207f5b1).",
+    "style_result": "Ruff check and format check passed on the four scoped paths; git diff --check was clean.",
+    "input_frames": [
+      "AIPW Job test uses the committed controlled HTE fixture and only its declared confidence_level parameter, persists the native MethodJob output, then reopens the saved result through a new FileSystemCAS reader before projection.",
+      "TMLE Job test uses the existing controlled 600-observation randomized DGP and verifies the real method-result CAS artifact and fresh reader.",
+      "Both methods' direct projection remains contract_only_nonproduction and gate_eligible=false; the generic MethodValueEvidence control refuses method_uncertainty_not_gate_eligible."
+    ],
+    "n8_boundary": {
+      "result": "A separate read-only N8 source-projection test blocks AIPW and TMLE before method execution with value_method_required_data_modality_unavailable.",
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-aipw-tmle-native-report-producer-20261015/n8-owner-projection.stdout.txt",
+      "output_sha256": "c3061a860d288e56b78cae4b88ea181847c25abcdd1e96e5a9150c13969bac2f",
+      "attribution": "Not established from a pre-change slice base. The R3 owner now holds the separate modality diagnosis."
+    }
+  },
+  "capability_boundary": {
+    "verified": [
+      "Typed CausalEffectReport output ownership resolves from each method's live signature.",
+      "AIPW and TMLE native reports can produce a candidate statistical interval after actual production and CAS readback.",
+      "Generic MethodValueEvidence continues to reject these reports as gate evidence."
+    ],
+    "not_established": [
+      "The blocked N8 orchestration route from source projection through the method run and consumer.",
+      "Production value authority, causal identification, or any G closure.",
+      "Full-suite, full-catalog, or other method-family coverage beyond the cited four Git blobs and test commands."
+    ]
+  },
+  "failure_register": {
+    "P29": "Behavioral producer, resolver, persistence, and consumer tests are cited.",
+    "P37": "The owner capability derives from the typed output contract rather than report self-attestation.",
+    "P38": "The original selector measured the absence of an owner-bound report slot; the patch binds the existing report producer to that slot. The generic gate remains a separately exercised boundary.",
+    "P40": "One shared slot-owner mechanism addresses the same class across AIPW and TMLE.",
+    "P41": "The N8 modality failure is retained without labeling it inherited or introduced by this source commit."
+  },
+  "git_delivery": "Source commit was read back on the current branch. No source changes, staging, or commits were made for this delivery handoff."
+}

@@ -1,0 +1,150 @@
+{
+  "record_type": "intermediate_candidate_delivery_index",
+  "observed_source_branch": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "e4979449809de2c836014cf20033a0fce90afa73",
+    "tree": "34cb50e5ac5ecc987ef6a97cb7777cfdc6176e06",
+    "parents": [
+      "4b25c8b55dc9ad4a01b2d59dc3345b19c62bbf21"
+    ],
+    "source_freeze": false,
+    "dirty_active_source": "Disjoint author work remains outside committed component boundaries. Exact final source/input/backend composition is not yet frozen."
+  },
+  "G_checkpoint_last_remote_verified": {
+    "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "receipt": "raw/resume-candidate-push-83b3259671b7-20261015/remote-readback.json",
+    "meaning": "Published G checkpoint read only; not authorship and not automatic acceptance of later changes."
+  },
+  "component_receipts_and_decision_packets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/policy-verified-selected-owner-producers-20261015.json",
+      "sha256": "fadd723e3a86130e291e3cc556a32c02a22c336d590bf4472428685a4f74aeb1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/grounding-d4-selected-owner-consumers-20261015.json",
+      "sha256": "c79ae18519fcd66d3d2497a7083213718ab1503b45007775fc7a0efdb1b02dca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b31-typed-value-owner-refusal-20261015.json",
+      "sha256": "8bf625f204377876754c3a8eb531ed9d0418f73e480bad86934f23fc5544f6b6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/chronology-epoch-native-owner-bridge-20261015.json",
+      "sha256": "e9ad41bf30f5b6783e9dd543a19e8109d653b14c8a6fa9eebfd9e6af89f3bc75"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decision-human-review-custody-20261015.json",
+      "sha256": "7335b6e824872c96b59aec03d5143641c2f512ac8a8cc9a1c1b0d7eb390726f7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/scorecard-raw-override-boundary-implementation-r2-20261015.json",
+      "sha256": "b5d9aadf65f4ea092fbf950e99db59a603c143c2bd614710330590d647241964"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/aipw-tmle-native-report-delivery-20261015.json",
+      "sha256": "398bc5bb7858477c54f75fa145b7ee8d7e5136f05d63d446fc628c142e3a6652"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/lesson-transfer-repair-delivery-20261015.json",
+      "sha256": "d7e76391c9c6a614f4d8929709e73f27d9a5eb19015bb44ed9d29c64855be5ce"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/fabric-query-world-table-facade-implementation-20261015.json",
+      "sha256": "3e5c4dad74aea5e88a296ad24f13c0df2547c2aaf123c07dd40972eb3578a5ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/gcm-query-fixture-implementation-20261015.json",
+      "sha256": "b9552c934233767a0494b3ae8e090699b38a21c8c2f680f4f9de810543179682"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/authority-owner-selected-reuse-delivery-20261015.json",
+      "sha256": "0c74cde7061bb130562ae75b42c784798a01007fad1af5f395ae3eb2403bbb94"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/pareto-required-nullable-snapshot-delivery-20261015.json",
+      "sha256": "ed69b35fcba07ebd9b30a72956e92eca46163a7c679a6475c823fad822a5e4ff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r3-generation-reader-mechanics-delivery-20261015.json",
+      "sha256": "8d6b369633d4045e897d2a5b7ca4d4dad0e99e12d444d526555d0c35400488a3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/pareto-scoped-fixture-companions-delivery-20261015.json",
+      "sha256": "d36e03f3151f734b2c7872a8c24aa25ad5a082643ad89d151238e6e4faf11893"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-final-wave-run-contract-20261015.json",
+      "sha256": "393eb9141942e84fd924c1576b1924a2da4e7d9f301dbc9e5a901da2dba2bfa4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-proposal-report-20261015.json",
+      "sha256": "aac9615dd380f5474fd878ea8a6681d35c71450f1a50233f3c407308fd32f931"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "sha256": "8210a658eaaa67f3a0cab98b0ffb3fa1733520588e1085fa96adfaaef893c0ce"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
+      "sha256": "315640c92dbd8f0a2356c8aca0918ed03499c6e078184bcded6570017a1145c1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/n8-bounds-soundness-candidate-projection-20261015.md",
+      "sha256": "39c06f73c1e0e3a6ed02bdc9dad672a500b215393da84b7a5f0facb5997ac9b4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/pareto-required-nullable-snapshot-20261015.json",
+      "sha256": "10678946a668f3da31cafe57886108afe198b272dd4e7905bee64335cd917fca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/demography-role-projection-readonly-20261015.json",
+      "sha256": "78c8f3e9bb17c683a607f5eb8669e3561e1cedc111564356cf0e1f95ebf170ee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/demography-role-projection-readonly-r2-20261015.json",
+      "sha256": "7c86bb12d88d2e0942223f56d1e3f352756aacfb1f6b190f9699e58893abe30e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/demography-role-projection-readonly-r3-20261015.json",
+      "sha256": "004c18432a32ea39fbe986acbb9c7053875f74e489c296852426a39287d0bae5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/demography-role-projection-delivery-20261015.json",
+      "sha256": "67a7b803f23b5a9e66706da1776228673787b1f80ea248cb3435e0410cee8eea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json",
+      "sha256": "fdfc3585d6e2742cf6e9975ae7ac046b15e38b5a33cff257b3dd41418b32468d"
+    }
+  ],
+  "canonical_denominator_recomputed": {
+    "occurrences": 291,
+    "unique_finding_ids": 282,
+    "all_primary_and_companion_bundles": 127
+  },
+  "proposal_boundaries": {
+    "formal_G_closure_ids": [],
+    "historical_ledger_closed_occurrences": 9,
+    "historical_author_proposed_closed": {
+      "finding_ids": 198,
+      "occurrences": 202,
+      "formal_G_closure": false
+    },
+    "current_report_role": "All291 rows preserve exact original source/span/hash and individual next checks. Original partition proposals and later12-row independent reconciliation are distinct, not additive closures. Report is intermediate, not final current-source acceptance.",
+    "B198": "Historical decision retained; current candidate original criterion still not formally adjudicated."
+  },
+  "known_current_composition_limits": [
+    "Chronology/test_value_gate and decision builder receipts refer to their exact historical source frames; later deltas are not silently covered.",
+    "Q2 has135primary+6supplemental/15sourcepins/11assets but remains prepared_not_launchable; freeze/prepare/check/source manifest fields unset. Three bad locators were repaired, eight stale source pins and two stale resource pins require final rebind.",
+    "Public-surface runtime checks are bounded to67declaredentrypoints and5300declarednames; static inventory grammar remains unresolved, canonical inventory/docs/deep-import outputs currently drift. No gate waiver or complete symbol-inventory claim.",
+    "Full release gate most recent255TOMLs exits1 with16contract errors. Additional source changes and local row attestations remain outside this index.",
+    "R3N8 normal scientific candidate route still refuses soundness/estimand relationship; RAW-only bypass is not productPASS.",
+    "C05generic92+6 tests pass but actual selection-vs-L4 replay-subject join is held pending producer reissue.",
+    "LA038108tests pass in prior scope; actual four dependency-class resolver bypasses remain under repair.",
+    "Grounding quote-span subproperty independently bounded GO; actual persisted normative SPO still lacks independent relation evidence, and trust markers skew the raw quality denominator. Relation/status and full-denominator repairs active; encoder wave remains UNRUN.",
+    "GuardedCoreprotocol complete18-path candidate under final canonical Ruff verification; ad-hoc type63errors/12warnings is not a native-gate receipt and no P41inheritance is asserted.",
+    "External institutional issuer/custody/currentness, qualifying production workload, law/refinement and causal calibration are not created by these physical receipts."
+  ],
+  "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
+  "next_check": "Finish executable producer/caller companion queue, independent delta reviews, commit source boundaries, explicit source/input/backend freeze, canonical regeneration/drift controls, one composed replay and authentic read-only closeout. G remains final code acceptance/integration publisher/finding adjudicator."
+}

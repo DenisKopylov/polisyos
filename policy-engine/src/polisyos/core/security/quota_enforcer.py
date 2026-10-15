@@ -127,6 +127,17 @@ class QuotaEnforcer:
                 self._limits.max_storage_bytes,
             )
 
+    def reconcile_storage_usage(self, actual_bytes: int) -> None:
+        """Set storage usage from the trusted materialized-CAS census.
+
+        This method updates accounting only; it deliberately does not perform a
+        post-publication quota check. Writers must call ``check_storage_delta``
+        with their complete exact plan before publishing any final member.
+        """
+        if type(actual_bytes) is not int or actual_bytes < 0:
+            raise QuotaAccountingError("actual_bytes must be a non-negative integer")
+        self._state.storage_bytes_used = actual_bytes
+
     def record_llm_spend(self, amount: Decimal) -> None:
         """Record LLM spend and enforce daily limit."""
         self._state.maybe_reset_daily()

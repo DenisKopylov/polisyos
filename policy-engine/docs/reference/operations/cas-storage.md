@@ -96,7 +96,16 @@ namespaces.
 
 - Tenant roots resolve to `<root>/tenants/<tenant_id>`.
 - Tenant IDs are validated before a scoped root is created.
-- Storage usage is tracked against `TenantQuotaRegistry`.
+- Storage usage is reconciled from regular files in `artifacts/sha256` and
+  admitted from the exact absent blob, manifest-view, and signature members
+  before publication. Imports admit their complete member set once before the
+  first final member is written; an exact existing no-op has zero storage delta.
+- A tenant-root lock serializes independent wrapper instances while each writer
+  recomputes the materialized baseline. Staging files and ownership transaction
+  journals are control state and are outside this storage-byte measure.
+- `put_bytes`, canonical `put_json`, import, and sign-on-put use the same
+  admission boundary. The public artifact-store protocol and on-disk member ABI
+  stay unchanged.
 - `resolve_cas_store(...)` returns the shared store when `tenant_id` is absent
   and a `TenantScopedCAS` wrapper when `tenant_id` is provided.
 

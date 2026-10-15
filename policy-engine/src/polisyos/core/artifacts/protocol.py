@@ -14,10 +14,14 @@ from __future__ import annotations
 
 import inspect
 import re
+from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+    from pathlib import PurePosixPath
+
     from polisyos.core.canon.canon_json import CanonSpec
 
     from ._integrity_ops import VerificationReport
@@ -30,6 +34,23 @@ if TYPE_CHECKING:
 AUTHORITY_ENVELOPE_ARTIFACT_KIND = "runtime_quality.evidence_authority_envelope"
 AUTHORITY_ENVELOPE_SCHEMA_NAME = "runtime_quality.evidence_authority_envelope"
 AUTHORITY_ENVELOPE_SCHEMA_VERSION = "1.0.0"
+
+
+@dataclass(frozen=True, slots=True)
+class _CASStorageMember:
+    """One content-bound final CAS file planned before publication."""
+
+    relative_path: PurePosixPath
+    sha256: str
+    byte_size: int
+
+
+class _CASStorageAdmission(Protocol):
+    """Private tenant-wrapper hook for exact, batch storage quota admission."""
+
+    def admit(self, members: Sequence[_CASStorageMember]) -> None:
+        """Admit the complete set of new immutable CAS files before publication."""
+        ...
 
 
 def _validate_return_selected_profile(value: bool) -> bool:

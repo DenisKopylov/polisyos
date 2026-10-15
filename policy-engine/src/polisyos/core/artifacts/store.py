@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from functools import wraps
 from inspect import signature
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from types import UnionType
 from typing import (
     TYPE_CHECKING,
@@ -147,7 +147,7 @@ from .ownership import (
     ArtifactTransactionPendingError,
     _ArtifactTransactionLease,
 )
-from .protocol import _validate_return_selected_profile
+from .protocol import _CASStorageAdmission, _CASStorageMember, _validate_return_selected_profile
 from .signing import (
     BulkSigningReport,
     BulkVerificationReport,
@@ -624,6 +624,7 @@ class FileSystemCAS:
         self._signing_config = signing_config or SigningConfig.from_env()
         self._default_signer: Ed25519Signer | None = None
         self._signer_lock = threading.Lock()
+        self._storage_admission: _CASStorageAdmission | None = None
         self._tenant_id = tenant_id
         self._cell_id = cell_id
         self._ownership_enforced = (
@@ -1327,6 +1328,91 @@ class FileSystemCAS:
                 self._default_signer = load_signer_from_config(self._signing_config)
         return self._default_signer
 
+    def _storage_member(
+        self,
+        path: Path,
+        *,
+        sha256: str,
+        byte_size: int,
+    ) -> _CASStorageMember:
+        """Bind a planned final member to this store root and exact content size."""
+        try:
+            relative = PurePosixPath(path.relative_to(self.root).as_posix())
+        except ValueError as exc:
+            raise ArtifactIntegrityError("CAS quota member escaped its root") from exc
+        return _CASStorageMember(
+            relative_path=relative,
+            sha256=sha256.removeprefix("sha256:"),
+            byte_size=byte_size,
+        )
+
+    def _admit_storage_members(self, members: list[_CASStorageMember]) -> None:
+        """Ask the active tenant wrapper to admit one exact final-member batch."""
+        if self._storage_admission is None:
+            return
+        unique: dict[PurePosixPath, _CASStorageMember] = {}
+        for member in members:
+            previous = unique.get(member.relative_path)
+            if previous is not None and previous != member:
+                raise ArtifactIntegrityError("CAS quota plan contains conflicting final members")
+            unique[member.relative_path] = member
+        self._storage_admission.admit(tuple(unique.values()))
+
+    def _prepare_sign_on_put(
+        self,
+        artifact_ref: ArtifactRef,
+        *,
+        data: bytes,
+        manifest_bytes: bytes,
+    ) -> tuple[DetachedSignature | None, Exception | None]:
+        """Prepare the sign-on-put sidecar before tenant quota admission."""
+        config = self._signing_config
+        if self._storage_admission is None or not (config.enabled and config.sign_on_put):
+            return None, None
+        try:
+            artifact_id, profile_sha256, _reference = _artifact_reference(artifact_ref)
+            signature_path = self._sig_path(artifact_id, profile_sha256)
+            if signature_path.exists():
+                return None, None
+            signer = self._ensure_default_signer()
+            signature = signer.sign(
+                artifact_id,
+                data,
+                manifest_bytes,
+                signer_identity=config.default_identity,
+            )
+            return signature, None
+        except Exception as exc:
+            return None, exc
+
+    def _finish_sign_on_put(
+        self,
+        artifact_ref: ArtifactRef,
+        signature: DetachedSignature | None,
+        signing_error: Exception | None,
+    ) -> None:
+        """Keep legacy signing errors while reusing the pre-admitted signature bytes."""
+        if self._storage_admission is None:
+            self._maybe_sign_on_put(artifact_ref)
+            return
+        if signing_error is not None:
+            self._raise_signing_error(signing_error)
+        if signature is None:
+            self._maybe_sign_on_put(artifact_ref)
+            return
+        try:
+            self.put_signature(artifact_ref, signature)
+        except Exception as exc:
+            self._raise_signing_error(exc)
+
+    def _raise_signing_error(self, exc: Exception) -> None:
+        """Apply the existing sign-on-put error policy after primary publication."""
+        if self._signing_config.sign_on_put_policy.strip().lower() == "warn":
+            raise SigningError(
+                f"Artifact write completed but sign_on_put failed under warn policy: {exc}"
+            ) from exc
+        raise SigningError(f"Failed to sign artifact on put: {exc}") from exc
+
     def _maybe_sign_on_put(self, artifact_ref: ArtifactRef) -> None:
         config = self._signing_config
         if not (config.enabled and config.sign_on_put):
@@ -1376,7 +1462,7 @@ class FileSystemCAS:
         if ref is not None and exists:
             try:
                 self.get_manifest(ref)
-            except (FileNotFoundError, ValueError, ArtifactOwnershipError):
+            except FileNotFoundError, ValueError, ArtifactOwnershipError:
                 exists = False
         if self._hpc_enabled and self._metrics:
             if exists and self._metrics.artifact_cache_hits_total:
@@ -2220,8 +2306,9 @@ class FileSystemCAS:
         sha: str,
         owner: _ResolvedOwner | None,
         lease: _ArtifactTransactionLease,
-    ) -> tuple[bool, str | None, str]:
-        """Resume an exact write and return both compatibility and selected profiles."""
+        return_selected_profile: bool,
+    ) -> tuple[bool, str | None, str, DetachedSignature | None, Exception | None]:
+        """Resume an exact write and return its profile and pre-admitted signature."""
         if (
             intent["schema_version"]
             not in {
@@ -2301,6 +2388,64 @@ class FileSystemCAS:
             raise ArtifactTransactionPendingError(artifact_id, surface="artifact")
 
         blob_path, default_manifest_path = self._paths(artifact_id)
+        if default_spec is None or default_spec["manifest_profile_sha256"] != profile_sha256:
+            reference_profile = profile_sha256
+        else:
+            reference_profile = None
+        selected_ref_profile = profile_sha256 if return_selected_profile else reference_profile
+        signing_ref = ArtifactRef(
+            artifact_id=artifact_id,
+            kind=opts.kind,
+            media_type=opts.media_type,
+            manifest_profile_sha256=selected_ref_profile,
+        )
+        signing_manifest_path = self._manifest_path_for_ref(artifact_id, selected_ref_profile)
+        signing_manifest_bytes = (
+            signing_manifest_path.read_bytes()
+            if signing_manifest_path.is_file()
+            else manifest_bytes
+        )
+        prepared_signature, signing_error = self._prepare_sign_on_put(
+            signing_ref,
+            data=data,
+            manifest_bytes=signing_manifest_bytes,
+        )
+        storage_members = [
+            self._storage_member(
+                blob_path,
+                sha256=sha,
+                byte_size=len(data),
+            )
+        ]
+        for spec in views:
+            final_path = (
+                default_manifest_path
+                if spec["selector"] == "default"
+                else self._layout.view_manifest_path(artifact_id, profile_sha256)
+            )
+            storage_members.append(
+                self._storage_member(
+                    final_path,
+                    sha256=str(spec["manifest_sha256"]),
+                    byte_size=len(manifest_bytes),
+                )
+            )
+        if prepared_signature is not None:
+            signature_bytes = prepared_signature.model_dump_json(
+                by_alias=True,
+                exclude_none=True,
+                indent=2,
+            ).encode("utf-8")
+            signature_path = self._sig_path(artifact_id, selected_ref_profile)
+            storage_members.append(
+                self._storage_member(
+                    signature_path,
+                    sha256=hashlib.sha256(signature_bytes).hexdigest(),
+                    byte_size=len(signature_bytes),
+                )
+            )
+        self._admit_storage_members(storage_members)
+
         blob_stage = (
             self._ensure_transaction_stage(
                 operation_id=intent["operation_id"],
@@ -2367,11 +2512,13 @@ class FileSystemCAS:
         self._ownership_index.remove_transaction_intent(artifact_id, lease=lease)
         self._remove_transaction_stage(intent["operation_id"])
 
-        if default_spec is None or default_spec["manifest_profile_sha256"] != profile_sha256:
-            reference_profile = profile_sha256
-        else:
-            reference_profile = None
-        return intent["blob_stage"] is None, reference_profile, profile_sha256
+        return (
+            intent["blob_stage"] is None,
+            reference_profile,
+            profile_sha256,
+            prepared_signature,
+            signing_error,
+        )
 
     def _put_blob_and_manifest_once(
         self,
@@ -2380,8 +2527,9 @@ class FileSystemCAS:
         opts: PutOptions,
         aid: ArtifactID,
         sha: str,
-    ) -> tuple[bool, str | None, str]:
-        """Publish one blob/view and return its exact computed selected profile."""
+        return_selected_profile: bool,
+    ) -> tuple[bool, str | None, str, DetachedSignature | None, Exception | None]:
+        """Publish one blob/view and return its profiles and pre-admitted signature."""
         blob_path, default_manifest_path = self._paths(aid)
         with self._coordinator.artifact_lease(aid, exclusive=True) as lease:
             # Input ownership is mutable owner-generation state. Re-evaluate it
@@ -2413,11 +2561,12 @@ class FileSystemCAS:
                         sha=sha,
                         owner=owner,
                         lease=lease,
+                        return_selected_profile=return_selected_profile,
                     )
             self._ownership_index.require_no_pending_transaction(aid)
             self._require_unclaimed_target_if_unscoped(aid, operation="write")
-            self._prepare_import_destination(blob_path, member=blob_path.name)
-            self._prepare_import_destination(
+            self._validate_import_destination(blob_path, member=blob_path.name)
+            self._validate_import_destination(
                 default_manifest_path,
                 member=default_manifest_path.name,
             )
@@ -2458,7 +2607,7 @@ class FileSystemCAS:
                 default_profile_sha256 = self._manifests.profile_sha256(default_manifest)
 
             view_path = self._layout.view_manifest_path(aid, profile_sha256)
-            self._prepare_import_destination(view_path, member=view_path.name)
+            self._validate_import_destination(view_path, member=view_path.name)
             view_bytes: bytes | None = None
             if view_path.exists():
                 view_bytes = view_path.read_bytes()
@@ -2545,6 +2694,73 @@ class FileSystemCAS:
                 "request_sha256": "",
             }
             intent["request_sha256"] = self._ownership_index._transaction_request_digest(intent)
+            if skip_default_manifest:
+                reference_profile = profile_sha256
+            elif default_profile_sha256 is None:
+                reference_profile = None
+            else:
+                reference_profile = (
+                    profile_sha256 if profile_sha256 != default_profile_sha256 else None
+                )
+            selected_ref_profile = profile_sha256 if return_selected_profile else reference_profile
+            signing_ref = ArtifactRef(
+                artifact_id=aid,
+                kind=opts.kind,
+                media_type=opts.media_type,
+                manifest_profile_sha256=selected_ref_profile,
+            )
+            if selected_ref_profile is None and default_bytes is not None:
+                signing_manifest_bytes = default_bytes
+            elif selected_ref_profile == profile_sha256 and view_bytes is not None:
+                signing_manifest_bytes = view_bytes
+            else:
+                signing_manifest_bytes = manifest_bytes
+            prepared_signature, signing_error = self._prepare_sign_on_put(
+                signing_ref,
+                data=data,
+                manifest_bytes=signing_manifest_bytes,
+            )
+            storage_members: list[_CASStorageMember] = []
+            if not blob_preexisted:
+                storage_members.append(
+                    self._storage_member(blob_path, sha256=sha, byte_size=len(data))
+                )
+            if will_create_default:
+                storage_members.append(
+                    self._storage_member(
+                        default_manifest_path,
+                        sha256=hashlib.sha256(manifest_bytes).hexdigest(),
+                        byte_size=len(manifest_bytes),
+                    )
+                )
+            if will_create_view:
+                storage_members.append(
+                    self._storage_member(
+                        view_path,
+                        sha256=hashlib.sha256(manifest_bytes).hexdigest(),
+                        byte_size=len(manifest_bytes),
+                    )
+                )
+            if prepared_signature is not None:
+                signature_bytes = prepared_signature.model_dump_json(
+                    by_alias=True,
+                    exclude_none=True,
+                    indent=2,
+                ).encode("utf-8")
+                signature_path = self._sig_path(aid, selected_ref_profile)
+                storage_members.append(
+                    self._storage_member(
+                        signature_path,
+                        sha256=hashlib.sha256(signature_bytes).hexdigest(),
+                        byte_size=len(signature_bytes),
+                    )
+                )
+            self._admit_storage_members(storage_members)
+            for path in (blob_path, default_manifest_path, view_path):
+                self._prepare_import_destination(
+                    path,
+                    member=path.relative_to(self.root).as_posix(),
+                )
             self._ownership_index.write_transaction_intent(aid, intent, lease=lease)
 
             try:
@@ -2605,15 +2821,13 @@ class FileSystemCAS:
                 # Keep the durable pending intent; visible state is never rolled back.
                 raise
 
-            if skip_default_manifest:
-                reference_profile = profile_sha256
-            elif default_profile_sha256 is None:
-                reference_profile = None
-            else:
-                reference_profile = (
-                    profile_sha256 if profile_sha256 != default_profile_sha256 else None
-                )
-            return blob_preexisted, reference_profile, profile_sha256
+            return (
+                blob_preexisted,
+                reference_profile,
+                profile_sha256,
+                prepared_signature,
+                signing_error,
+            )
 
     def put_bytes(
         self,
@@ -2634,8 +2848,18 @@ class FileSystemCAS:
         self._require_input_owners(opts)
 
         if not self._hpc_enabled or self._tracer is None:
-            _deduplicated, default_ref_profile, selected_profile = self._put_blob_and_manifest_once(
-                data=data, opts=opts, aid=aid, sha=sha
+            (
+                _deduplicated,
+                default_ref_profile,
+                selected_profile,
+                prepared_signature,
+                signing_error,
+            ) = self._put_blob_and_manifest_once(
+                data=data,
+                opts=opts,
+                aid=aid,
+                sha=sha,
+                return_selected_profile=return_selected_profile,
             )
             ref = ArtifactRef(
                 artifact_id=aid,
@@ -2645,7 +2869,7 @@ class FileSystemCAS:
                     selected_profile if return_selected_profile else default_ref_profile
                 ),
             )
-            self._maybe_sign_on_put(ref)
+            self._finish_sign_on_put(ref, prepared_signature, signing_error)
             return ref
 
         short_id = f"{aid.hex[:16]}..."
@@ -2660,11 +2884,18 @@ class FileSystemCAS:
             },
         ) as span:
             start = time.perf_counter()
-            deduplicated, default_ref_profile, selected_profile = self._put_blob_and_manifest_once(
+            (
+                deduplicated,
+                default_ref_profile,
+                selected_profile,
+                prepared_signature,
+                signing_error,
+            ) = self._put_blob_and_manifest_once(
                 data=data,
                 opts=opts,
                 aid=aid,
                 sha=sha,
+                return_selected_profile=return_selected_profile,
             )
 
             duration = time.perf_counter() - start
@@ -2702,7 +2933,7 @@ class FileSystemCAS:
                     selected_profile if return_selected_profile else default_ref_profile
                 ),
             )
-            self._maybe_sign_on_put(ref)
+            self._finish_sign_on_put(ref, prepared_signature, signing_error)
             return ref
 
     def put_json(
@@ -2831,6 +3062,28 @@ class FileSystemCAS:
             actual_sha256_hex=actual_sha,
             byte_size=byte_size,
         )
+
+    def _validate_import_destination(self, path: Path, *, member: str) -> None:
+        """Validate a final member path without creating directories or files."""
+        if self.root.is_symlink():
+            raise ArtifactIntegrityError("CAS root must not be a symlink")
+        try:
+            relative = path.relative_to(self.root)
+        except ValueError as exc:
+            raise ArtifactIntegrityError(f"CAS member escapes root: {member}") from exc
+
+        current = self.root
+        for component in relative.parts[:-1]:
+            current = current / component
+            if current.is_symlink():
+                raise ArtifactIntegrityError(f"CAS member crosses a symlink: {member}")
+            if current.exists() and not current.is_dir():
+                raise ArtifactIntegrityError(f"CAS member parent is not a directory: {member}")
+
+        if path.is_symlink():
+            raise ArtifactIntegrityError(f"CAS member must not be a symlink: {member}")
+        if path.exists() and not path.is_file():
+            raise ArtifactIntegrityError(f"CAS member is not a regular file: {member}")
 
     def _prepare_import_destination(self, path: Path, *, member: str) -> None:
         """Create safe parent components and reject symlinked CAS paths."""
@@ -3473,6 +3726,7 @@ class FileSystemCAS:
                 "artifact_id": artifact_id,
                 "blob_source": blob_source,
                 "blob_sha256": f"sha256:{blob_sha}",
+                "blob_size": blob_size,
                 "source_views": source_views,
                 "members": artifact_members,
             }
@@ -3513,6 +3767,133 @@ class FileSystemCAS:
                         owner,
                     )
             self._require_import_input_owners(source_by_artifact, owner)
+
+            storage_members: list[_CASStorageMember] = []
+            for artifact_id in artifact_ids:
+                self._require_unclaimed_target_if_unscoped(artifact_id, operation="import")
+                source_info = source_by_artifact[artifact_id.hex]
+                blob_path, default_manifest_path = self._paths(artifact_id)
+                self._validate_import_destination(blob_path, member=blob_path.name)
+                if blob_path.exists():
+                    if _file_content_hash(blob_path) != artifact_id.hex:
+                        raise ArtifactIntegrityError(
+                            f"Existing CAS blob conflicts for {artifact_id}"
+                        )
+                else:
+                    storage_members.append(
+                        self._storage_member(
+                            blob_path,
+                            sha256=source_info["blob_sha256"],
+                            byte_size=source_info["blob_size"],
+                        )
+                    )
+
+                has_claims = (
+                    self._ownership_enforced
+                    and self._ownership_index.has_any_tenant_claim(artifact_id)
+                )
+                default_owned = bool(
+                    owner is not None
+                    and self._ownership_index.is_owned_by(
+                        artifact_id,
+                        tenant_id=owner["tenant_id"],
+                        cell_id=owner["cell_id"],
+                    )
+                )
+                default_existing_profile: str | None = None
+                if default_manifest_path.exists():
+                    self._validate_import_destination(
+                        default_manifest_path,
+                        member=default_manifest_path.name,
+                    )
+                    existing_default = ArtifactManifest.model_validate_json(
+                        default_manifest_path.read_bytes()
+                    )
+                    _validate_manifest_identity(artifact_id, existing_default)
+                    default_existing_profile = self._manifests.profile_sha256(existing_default)
+
+                for source_view in source_info["source_views"]:
+                    profile_sha256 = source_view["profile"]
+                    is_source_default = source_view["member"].endswith(
+                        f"{artifact_id.hex}.manifest.json"
+                    )
+                    can_use_default = (
+                        is_source_default
+                        and (default_owned or not has_claims)
+                        and (
+                            default_existing_profile is None
+                            or default_existing_profile == profile_sha256
+                        )
+                    )
+                    target_paths = [default_manifest_path] if can_use_default else []
+                    selected_view_path = self._layout.view_manifest_path(
+                        artifact_id, profile_sha256
+                    )
+                    if not can_use_default or is_source_default:
+                        target_paths.append(selected_view_path)
+
+                    for target_path in target_paths:
+                        self._validate_import_destination(
+                            target_path,
+                            member=target_path.relative_to(self.root).as_posix(),
+                        )
+                        if target_path.exists():
+                            target_manifest_bytes = target_path.read_bytes()
+                            target_manifest = ArtifactManifest.model_validate_json(
+                                target_manifest_bytes
+                            )
+                            _validate_manifest_identity(artifact_id, target_manifest)
+                            if self._manifests.profile_sha256(target_manifest) != profile_sha256:
+                                raise ArtifactIntegrityError(
+                                    f"Existing manifest profile conflicts for {artifact_id}"
+                                )
+                        else:
+                            target_manifest_bytes = source_view["manifest_data"]
+                            storage_members.append(
+                                self._storage_member(
+                                    target_path,
+                                    sha256=hashlib.sha256(target_manifest_bytes).hexdigest(),
+                                    byte_size=len(target_manifest_bytes),
+                                )
+                            )
+
+                        signature_bytes = source_view["signature_data"]
+                        if signature_bytes is None:
+                            continue
+                        signature = DetachedSignature.model_validate_json(signature_bytes)
+                        if (
+                            signature.statement.manifest_sha256
+                            != hashlib.sha256(target_manifest_bytes).hexdigest()
+                        ):
+                            raise ArtifactIntegrityError(
+                                f"Imported signature does not bind selected view {artifact_id}"
+                            )
+                        selector = (
+                            "default" if target_path == default_manifest_path else profile_sha256
+                        )
+                        signature_path = self._sig_path(
+                            artifact_id,
+                            None if selector == "default" else profile_sha256,
+                        )
+                        self._validate_import_destination(
+                            signature_path,
+                            member=signature_path.relative_to(self.root).as_posix(),
+                        )
+                        if signature_path.exists():
+                            if signature_path.read_bytes() != signature_bytes:
+                                raise ArtifactIntegrityError(
+                                    f"Existing signature conflicts for {artifact_id}"
+                                )
+                        else:
+                            storage_members.append(
+                                self._storage_member(
+                                    signature_path,
+                                    sha256=hashlib.sha256(signature_bytes).hexdigest(),
+                                    byte_size=len(signature_bytes),
+                                )
+                            )
+
+            self._admit_storage_members(storage_members)
 
             for artifact_id in artifact_ids:
                 self._require_unclaimed_target_if_unscoped(artifact_id, operation="import")

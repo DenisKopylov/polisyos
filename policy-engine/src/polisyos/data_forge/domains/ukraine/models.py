@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import Enum, StrEnum
 from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -16,7 +16,7 @@ from polisyos.ir.observation.contracts import (
 )
 
 
-class StageId(str, Enum):
+class StageId(StrEnum):
     """Stable stage identifiers used by the Ukraine data orchestrator."""
 
     BOOTSTRAP_SERVER = "bootstrap_server"
@@ -30,6 +30,12 @@ class StageId(str, Enum):
     DEMOGRAPHY_SOURCE_INVENTORY = "demography_source_inventory"
     FULL = "full"
     RELEASE = "release"
+
+    def __str__(self) -> str:
+        return Enum.__str__(self)
+
+    def __format__(self, format_spec: str) -> str:
+        return Enum.__format__(self, format_spec)
 
 
 class ResourceBudget(BaseModel):
@@ -374,6 +380,8 @@ def _default_stage_configs() -> dict[str, StageConfig]:
                 "corrected_firm_panels.parquet",
                 "survival_hazard_estimates.parquet",
                 "calibrated_household_cells.parquet",
+                "household_candidate_panel.parquet",
+                "household_candidate_basis.json",
                 "labor_validation_panel.parquet",
                 "labor_market_corrected_panel.parquet",
                 "labor_bias_validation.json",

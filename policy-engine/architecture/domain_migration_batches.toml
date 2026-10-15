@@ -65,19 +65,13 @@ owner = "team-data-forge"
 risk_class = "H"
 status = "complete"
 compatibility_status = "removed_after_shim_sunset"
-source_paths = [
-  "src/polisyos/lex/batch",
-  "src/polisyos/lex/corpus",
-]
+source_paths = ["src/polisyos/lex/batch", "src/polisyos/lex/corpus"]
 target_paths = [
   "src/polisyos/data_forge/domains/legal/batch",
   "src/polisyos/data_forge/domains/legal/corpus",
   "src/polisyos/data_forge/read_api/legal.py",
 ]
-public_facades = [
-  "polisyos.lex",
-  "polisyos.data_forge.read_api.legal",
-]
+public_facades = ["polisyos.lex", "polisyos.data_forge.read_api.legal"]
 entrypoints = [
   "python -m polisyos.data_forge.domains.legal.batch",
   "tools/ops_runners/cloud/run_lex_from_manifest.py",
@@ -107,7 +101,7 @@ target_paths = [
   "src/polisyos/data_forge/read_api/ukraine.py",
 ]
 public_facades = ["polisyos.data_forge.read_api.ukraine"]
-entrypoints = ["ukraine-data = polisyos.data_forge.domains.ukraine.cli:main"]
+entrypoints = ["ukraine-data = tools.ops_runners.ukraine_data_cli:main"]
 shim_ids = []
 evidence_paths = [
   "tests/_data/data_forge/ukraine_shadow/baseline",
@@ -126,10 +120,7 @@ owner = "team-data-forge"
 risk_class = "M"
 status = "complete"
 compatibility_status = "removed_after_shim_sunset"
-source_paths = [
-  "src/polisyos/batch_common",
-  "src/polisyos/batch_snapshot",
-]
+source_paths = ["src/polisyos/batch_common", "src/polisyos/batch_snapshot"]
 target_paths = [
   "src/polisyos/data_forge/kernel/io",
   "src/polisyos/data_forge/kernel/pipeline",
@@ -163,10 +154,7 @@ source_paths = [
   "src/polisyos/lex/normpack",
   "src/polisyos/lex/simulator",
 ]
-target_paths = [
-  "src/polisyos/lex/__init__.py",
-  "src/polisyos/lex/api.py",
-]
+target_paths = ["src/polisyos/lex/__init__.py", "src/polisyos/lex/api.py"]
 public_facades = ["polisyos.lex"]
 entrypoints = ["polisyos.lex"]
 shim_ids = []
@@ -218,14 +206,14 @@ source_paths = [
   "src/polisyos/scholar/search",
   "src/polisyos/scholar/orchestrator",
 ]
-target_paths = [
-  "src/polisyos/scholar/__init__.py",
-  "src/polisyos/scholar/api.py",
-]
+target_paths = ["src/polisyos/scholar/__init__.py", "src/polisyos/scholar/api.py"]
 public_facades = ["polisyos.scholar"]
 entrypoints = ["polisyos.scholar.enrich_topic", "polisyos.scholar.ScholarService"]
 shim_ids = []
-evidence_paths = ["tests/unit/scholar", "tests/unit/scientist/evidence/test_scholar_search_tools.py"]
+evidence_paths = [
+  "tests/unit/scholar",
+  "tests/unit/scientist/evidence/test_scholar_search_tools.py",
+]
 acceptance_tests = [
   "tests/unit/scholar/test_api_web_bootstrap.py",
   "tests/unit/scholar/search/test_service_jobs_tools.py",
@@ -245,10 +233,7 @@ source_paths = [
   "src/polisyos/scientist/nodes",
   "src/polisyos/scientist/governance",
 ]
-target_paths = [
-  "src/polisyos/scientist/__init__.py",
-  "src/polisyos/scientist/api.py",
-]
+target_paths = ["src/polisyos/scientist/__init__.py", "src/polisyos/scientist/api.py"]
 public_facades = ["polisyos.scientist"]
 entrypoints = ["polisyos.scientist.run_experiment"]
 shim_ids = []

@@ -1,0 +1,27 @@
+id = "2026-10-15-e02-ukraine-ops-entrypoint"
+title = "Wire the Ukraine Part B console through Ops composition"
+type = "fixed"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "The existing ukraine-data console script now supplies the Ops-owned orchestrator factory to the Ukraine domain CLI."
+evidence = [
+  "architecture/domain_migration_batches.toml",
+  "pyproject.toml",
+  "tools/ops_runners/ukraine_data/README.md",
+  "docs/migration/ukraine-data-ops-entrypoint.md",
+  "tests/unit/data_forge/domains/ukraine/test_cli.py",
+  "tests/unit/remediation/test_udf_04.py",
+]
+compatibility = "The existing ukraine-data command and parser remain in place; the separate polisyos-tools ukraine_data command group is unchanged. Direct calls to the domain CLI must provide an explicit orchestrator_factory."
+change_class = "tooling"
+surface_classification = "public_tool_cli"
+migration = "Use the existing ukraine-data console script for the Part B server workflow. Keep artifact --root separate from repository --workspace-root; omitted workspace root resolves to the process working directory."
+api = "The existing ukraine-data project script resolves to tools.ops_runners.ukraine_data_cli:main; its domain CLI parser and command set are unchanged."
+limitations = "The focused macOS suite does not verify the Linux installed-wheel path or the C7 server lifecycle; both remain open for independent acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = [
+  "tools/ops_runners/ukraine_data/README.md",
+  "docs/migration/ukraine-data-ops-entrypoint.md",
+]
+runbook_docs = []

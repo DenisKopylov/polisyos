@@ -5,6 +5,8 @@ import importlib
 import tomllib
 from pathlib import Path
 
+from tools.quality.lint.lint_imports import read_exceptions
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 ACTIVE_DATA_FORGE_SHIM_IDS: set[str] = set()
 DELETED_DATA_FORGE_SHIM_IDS = {
@@ -48,7 +50,9 @@ def test_phase8_migrated_consumers_do_not_import_removed_shims() -> None:
         "tools/ops_runners/ukraine_data/build_spending_contracts_procurement_proxy.py": (
             "polisyos.ukraine_data",
         ),
-        "tools/ops_runners/ukraine_data/build_edr_identity_seed_candidates.py": ("polisyos.ukraine_data",),
+        "tools/ops_runners/ukraine_data/build_edr_identity_seed_candidates.py": (
+            "polisyos.ukraine_data",
+        ),
     }
 
     violations: list[str] = []
@@ -64,10 +68,8 @@ def test_phase8_migrated_consumers_do_not_import_removed_shims() -> None:
 
 def test_phase8_obsolete_import_exceptions_are_removed() -> None:
     exception_ids = {
-        item["id"]
-        for item in tomllib.loads(
-            (REPO_ROOT / "architecture" / "imports" / "exceptions.toml").read_text(encoding="utf-8")
-        )["exception"]
+        exception.exception_id
+        for exception in read_exceptions(REPO_ROOT / "architecture" / "imports" / "exceptions.toml")
     }
     registry_text = (REPO_ROOT / "architecture" / "imports" / "exceptions.md").read_text(
         encoding="utf-8"
@@ -105,9 +107,7 @@ def test_phase8_release_and_rollback_notes_cover_deleted_data_forge_shims() -> N
 
 def test_phase8_complexity_exceptions_have_no_data_forge_legacy_god_files() -> None:
     complexity = tomllib.loads(
-        (REPO_ROOT / "architecture" / "exceptions" / "complexity.toml").read_text(
-            encoding="utf-8"
-        )
+        (REPO_ROOT / "architecture" / "exceptions" / "complexity.toml").read_text(encoding="utf-8")
     )
     exception_paths = {item["path"] for item in complexity.get("exception", [])}
     old_data_forge_paths = {
@@ -124,7 +124,7 @@ def test_phase8_complexity_exceptions_have_no_data_forge_legacy_god_files() -> N
 def test_phase8_ukraine_console_entrypoint_targets_data_forge() -> None:
     project = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]
 
-    assert project["scripts"]["ukraine-data"] == "polisyos.data_forge.domains.ukraine.cli:main"
+    assert project["scripts"]["ukraine-data"] == "tools.ops_runners.ukraine_data_cli:main"
 
 
 def test_phase8_fabric_and_foundry_use_data_forge_read_api_only() -> None:
@@ -152,7 +152,9 @@ def test_phase8_external_live_consumers_are_migrated_to_data_forge() -> None:
         *_imports_under("src/polisyos/ir/analytics", ("polisyos.datasets",)),
         *_imports_under("src/polisyos/foundry", ("polisyos.academic",)),
         *_imports_under("tools/ops_runners/cloud", ("polisyos.academic", "polisyos.datasets")),
-        *_imports_under("tools/ops_runners/ukraine_data", ("polisyos.lex.batch", "polisyos.lex.corpus")),
+        *_imports_under(
+            "tools/ops_runners/ukraine_data", ("polisyos.lex.batch", "polisyos.lex.corpus")
+        ),
         *_imports_under(
             "tools/research/benchmarks/lex", ("polisyos.lex.batch", "polisyos.lex.corpus")
         ),

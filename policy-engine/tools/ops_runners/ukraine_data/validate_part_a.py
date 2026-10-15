@@ -25,6 +25,7 @@ from polisyos.data_forge.domains.ukraine.server import (
 from polisyos.data_forge.domains.ukraine.server import (
     run_part_a_gate as _run_gate_with_runner,
 )
+from tools.ops_runners.ukraine_data.server_bootstrap import resolve_workspace_root
 
 if TYPE_CHECKING:
     from polisyos.data_forge.domains.ukraine.models import PipelineConfig, ServerConfig
@@ -102,7 +103,7 @@ def build_orchestrator(
 
     return UkraineDataOrchestrator(
         config,
-        workspace_root=workspace_root,
+        workspace_root=resolve_workspace_root(workspace_root),
         part_a_gate_runner=run_part_a_gate,
     )
 

@@ -42,11 +42,10 @@ from polisyos.data_forge.domains.ukraine.resources import (
 )
 from polisyos.data_forge.domains.ukraine.server import (
     BootstrapScriptRenderer,
+    OpsCompositionRequiredError,
     PartAGateRunner,
     ServerCapabilityProbe,
     assert_server_execution_allowed,
-    build_bootstrap_script,
-    probe_local_server_capabilities,
     run_part_a_gate,
 )
 from polisyos.data_forge.kernel.io import ensure_dirs
@@ -86,28 +85,6 @@ def load_pipeline_config(
     return payload
 
 
-def _discover_workspace_root() -> Path | None:
-    """Find the checked-out product root for source-tree execution.
-
-    A wheel installation intentionally has no repository checkout.  Returning
-    ``None`` there lets the Part A gate emit a typed ``unavailable`` result
-    instead of guessing from a package directory's parent depth.
-    """
-
-    module_source = Path(__file__).resolve()
-    for candidate in module_source.parents:
-        source_package = (candidate / "src" / "polisyos").resolve()
-        if not source_package.is_dir():
-            continue
-        try:
-            module_source.relative_to(source_package)
-        except ValueError:
-            continue
-        if (candidate / "pyproject.toml").is_file():
-            return candidate.resolve()
-    return None
-
-
 class UkraineDataOrchestrator:
     """Server-only, resumable orchestration facade for Part B stages."""
 
@@ -125,7 +102,7 @@ class UkraineDataOrchestrator:
         if repo_root is not None and workspace_root is not None and repo_root != workspace_root:
             raise ValueError("repo_root and workspace_root must refer to the same path")
         self.config = config or build_default_pipeline_config()
-        self.workspace_root = workspace_root or repo_root or _discover_workspace_root()
+        self.workspace_root = workspace_root if workspace_root is not None else repo_root
         # ``repo_root`` remains a compatibility alias for existing callers and
         # receipts; new composition code should use the explicit name.
         self.repo_root = self.workspace_root
@@ -157,20 +134,26 @@ class UkraineDataOrchestrator:
         return self.config.build_root.logs_dir / "bootstrap_server.sh"
 
     def write_bootstrap_script(self) -> Path:
+        if self.bootstrap_script_renderer is None:
+            raise OpsCompositionRequiredError(
+                "Bootstrap commands require an Ops-owned renderer callback."
+            )
         self.ensure_layout()
         path = self.bootstrap_script_path()
-        renderer = self.bootstrap_script_renderer or build_bootstrap_script
         path.write_text(
-            renderer(self.config.server, self.config.build_root),
+            self.bootstrap_script_renderer(self.config.server, self.config.build_root),
             encoding="utf-8",
         )
         path.chmod(0o755)
         return path
 
     def write_server_capability_manifest(self) -> Path:
+        if self.server_capability_probe is None:
+            raise OpsCompositionRequiredError(
+                "Server capability probes require an Ops-owned callback."
+            )
         self.ensure_layout()
-        probe = self.server_capability_probe or probe_local_server_capabilities
-        payload = probe(self.config.server)
+        payload = self.server_capability_probe(self.config.server)
         return write_manifest(self.config.build_root.capability_manifest_path, payload)
 
     def _write_server_env_file(self) -> Path:
@@ -413,6 +396,14 @@ class UkraineDataOrchestrator:
 
     def bootstrap_server(self, *, write_capabilities: bool = True) -> StageRunSummary:
         assert_server_execution_allowed(self.config.server)
+        if self.bootstrap_script_renderer is None:
+            raise OpsCompositionRequiredError(
+                "Bootstrap commands require an Ops-owned renderer callback."
+            )
+        if write_capabilities and self.server_capability_probe is None:
+            raise OpsCompositionRequiredError(
+                "Server capability probes require an Ops-owned callback."
+            )
         self.ensure_layout()
         tracker = ResourceTracker(self.config.build_root.root)
         started_at = utc_now_iso()

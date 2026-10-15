@@ -48,10 +48,10 @@ def test_installed_wheel_without_checkout_reports_gate_unavailable(
 
     monkeypatch.setattr(orchestrator, "__file__", str(fake_module))
     assert server.is_repository_checkout(fake_root) is True
-    assert orchestrator._discover_workspace_root() is None
+    assert orchestrator.UkraineDataOrchestrator().workspace_root is None
     fake_c7.unlink()
     assert server.is_repository_checkout(fake_root) is False
-    assert orchestrator._discover_workspace_root() is None
+    assert orchestrator.UkraineDataOrchestrator().workspace_root is None
 
     scripts = Path(sysconfig.get_path("scripts"))
     entrypoint = scripts / "ukraine-data"

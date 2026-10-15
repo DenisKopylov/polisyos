@@ -13,6 +13,30 @@ polisyos-tools ukraine_data --help
 polisyos-tools ukraine_data pre-shard-lex-corpus --help
 ```
 
+## Part B server workflow
+
+The existing `ukraine-data` project console script is the Part B server-workflow
+entry point. Its `pyproject.toml` target is
+`tools.ops_runners.ukraine_data_cli:main`, which composes the domain CLI with
+the Ops-owned orchestrator factory in `server_bootstrap.py`. The separate
+`polisyos-tools ukraine_data ...` command group above remains the separate
+registered Ops-tool surface, including its own bootstrap and gate commands.
+
+The `ukraine-data` CLI keeps the domain parser's existing `--config`, `--root`,
+and `--workspace-root` options and subcommands. `--root` overrides the
+artifact/build root; when omitted, the pipeline configuration uses its
+`production_data/ukraine_part_b` default. `--workspace-root` selects the
+repository checkout used by repository-only server gates. The Ops composition
+resolves an omitted workspace root to the process working directory. It is
+distinct from the artifact root and is not inferred from the module path. If no
+usable checkout is available, the gate records a typed `unavailable` result.
+
+Server provisioning and subprocess execution stay in this Ops directory. The
+domain CLI requires an explicit typed `orchestrator_factory` when called
+directly; the installed `ukraine-data` console script supplies that factory.
+The workflow retains its server-only policy. A macOS focused test run does not
+verify the Linux installed-wheel path or the C7 server lifecycle gate.
+
 Operational rules:
 
 - Preserve source null/missing semantics in generated manifests and contract

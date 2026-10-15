@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import pickle
 from pathlib import Path
 
 import pandas as pd
@@ -17,27 +18,70 @@ from polisyos.data_forge.domains.ukraine.manifests import (
     load_manifest,
     write_manifest,
 )
-from polisyos.data_forge.domains.ukraine.models import StageId, build_default_pipeline_config
+from polisyos.data_forge.domains.ukraine.models import (
+    StageConfig,
+    StageId,
+    build_default_pipeline_config,
+)
 from polisyos.data_forge.domains.ukraine.orchestrator import (
     UkraineDataOrchestrator,
-    _discover_workspace_root,
+)
+from polisyos.data_forge.domains.ukraine.server import OpsCompositionRequiredError
+from tools.ops_runners.ukraine_data.server_bootstrap import (
+    build_orchestrator as build_ops_orchestrator,
 )
 
 
-def test_source_checkout_default_discovers_canonical_product_root() -> None:
-    """Source execution discovers a root that contains this module's real origin."""
+def test_stage_id_str_enum_preserves_python_and_pydantic_contract() -> None:
+    for stage_id in StageId:
+        assert str(stage_id) == f"StageId.{stage_id.name}"
+        assert format(stage_id) == str(stage_id)
+        assert format(stage_id, ">24") == format(f"StageId.{stage_id.name}", ">24")
+        assert repr(stage_id) == f"<StageId.{stage_id.name}: {stage_id.value!r}>"
+        assert stage_id.value == str(stage_id.value) == stage_id
+        assert json.dumps(stage_id) == json.dumps(stage_id.value)
+        assert StageConfig(stage_id=stage_id).stage_id is stage_id
 
-    module_source = Path(_discover_workspace_root.__code__.co_filename).resolve()
-    source_roots = [
-        source_root
-        for source_root in module_source.parents
-        if source_root.name == "src"
-        and module_source.is_relative_to((source_root / "polisyos").resolve())
-    ]
-    assert len(source_roots) == 1
-    product_root = source_roots[0].parent
-    assert (product_root / "pyproject.toml").is_file()
-    assert _discover_workspace_root() == product_root
+    schema = StageConfig.model_json_schema()
+    assert schema["$defs"]["StageId"] == {
+        "description": "Stable stage identifiers used by the Ukraine data orchestrator.",
+        "enum": [
+            "bootstrap_server",
+            "validate_part_a",
+            "d0_p0",
+            "d1",
+            "d2",
+            "d3",
+            "d4",
+            "d5",
+            "demography_source_inventory",
+            "full",
+            "release",
+        ],
+        "title": "StageId",
+        "type": "string",
+    }
+    assert schema["properties"]["stage_id"] == {"$ref": "#/$defs/StageId"}
+    assert schema["properties"]["required_previous_stages"]["items"] == {"$ref": "#/$defs/StageId"}
+
+    legacy_d3_pickle = bytes.fromhex(
+        "80059543000000000000008c2a706f6c6973796f732e646174615f666f7267652e"
+        "646f6d61696e732e756b7261696e652e6d6f64656c73948c0753746167654964"
+        "9493948c02643394859452942e"
+    )
+    assert pickle.dumps(StageId.D3) == legacy_d3_pickle
+
+
+def test_domain_orchestrator_requires_explicit_workspace_root(tmp_path: Path) -> None:
+    """Domain composition never infers a repository from its source location."""
+
+    config = build_default_pipeline_config(root=tmp_path / "ukraine")
+    implicit = UkraineDataOrchestrator(config)
+    explicit_root = tmp_path / "checkout"
+    explicit = UkraineDataOrchestrator(config, workspace_root=explicit_root)
+
+    assert implicit.workspace_root is None
+    assert explicit.workspace_root == explicit_root
 
 
 def test_bootstrap_server_writes_expected_outputs(tmp_path: Path) -> None:
@@ -45,7 +89,7 @@ def test_bootstrap_server_writes_expected_outputs(tmp_path: Path) -> None:
     config.server.require_server_for_build = False
     config.server.storage_root = tmp_path / "server-root"
     config.server.workdir = tmp_path / "repo"
-    orchestrator = UkraineDataOrchestrator(config)
+    orchestrator = build_ops_orchestrator(config, tmp_path / "checkout")
 
     summary = orchestrator.bootstrap_server(write_capabilities=True)
 
@@ -54,6 +98,15 @@ def test_bootstrap_server_writes_expected_outputs(tmp_path: Path) -> None:
     assert config.server.env_path in output_paths
     assert orchestrator.bootstrap_script_path() in output_paths
     assert config.build_root.capability_manifest_path in output_paths
+
+
+def test_domain_bootstrap_requires_ops_renderer(tmp_path: Path) -> None:
+    config = build_default_pipeline_config(root=tmp_path / "ukraine")
+    config.server.require_server_for_build = False
+    orchestrator = UkraineDataOrchestrator(config)
+
+    with pytest.raises(OpsCompositionRequiredError, match="Ops-owned"):
+        orchestrator.write_bootstrap_script()
 
 
 def test_build_stage_blocks_when_part_a_gate_is_missing(tmp_path: Path) -> None:
@@ -261,6 +314,7 @@ def test_d3_registry_route_preserves_explicit_period_outputs(tmp_path: Path) -> 
     expected_semantic_sha256 = {
         "calibrated_household_cells.parquet": "d0aca476693e1180fd4f81fa182e4208377c13f78f59cbe351929e6c2602dc04",
         "corrected_firm_panels.parquet": "ef2964cd876a0660ca411165f33f5c5c14f174a142a5e2f8f58e67b97d3109a9",
+        "household_candidate_panel.parquet": "a5a74bc544e1a26f72ca1b90a1fef402fda0567a2d3ab4eb2163db05d2e94ab1",
         "labor_bias_validation.json": "abeabf94970543d130eaa952d69b433dd542f1e09ed8583a252b979390431d11",
         "labor_market_corrected_panel.parquet": "6132b2c3be315159799cf16d58055a37ca04a55e92a8c2b583fcd1114787fa86",
         "labor_validation_panel.parquet": "eb4e0bed773648d3ed767e7381600e7d7d60285dc5202ed84d85c39e64d8af11",
@@ -270,27 +324,63 @@ def test_d3_registry_route_preserves_explicit_period_outputs(tmp_path: Path) -> 
         "microsim_survey_contract_v1.json": "dbdfae5bc4fda952c95cff1e069dd7fede732fc91987ba4adacccba2b658c3bd",
         "survival_hazard_estimates.parquet": "8ddb27b4eeba11e0c7dc985933359155a85fa9fb9c84d69059935ca7060df12c",
     }
-    assert set(outputs) == set(expected_semantic_sha256)
+    assert set(outputs) == set(expected_semantic_sha256) | {"household_candidate_basis.json"}
     for record in persisted.outputs:
         path = Path(record.path)
         assert path.is_file()
         assert hashlib.sha256(path.read_bytes()).hexdigest() == record.sha256
         assert path.stat().st_size == record.size_bytes
-        if path.suffix == ".parquet":
-            semantic = (
-                pd.read_parquet(path)
-                .to_json(orient="split", date_format="iso", double_precision=12)
-                .encode()
+        if path.name in expected_semantic_sha256:
+            if path.suffix == ".parquet":
+                semantic = (
+                    pd.read_parquet(path)
+                    .to_json(orient="split", date_format="iso", double_precision=12)
+                    .encode()
+                )
+            else:
+                semantic = json.dumps(
+                    json.loads(path.read_text(encoding="utf-8")),
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode()
+            assert hashlib.sha256(semantic).hexdigest() == expected_semantic_sha256[path.name], (
+                path.name
             )
-        else:
-            semantic = json.dumps(
-                json.loads(path.read_text(encoding="utf-8")),
-                sort_keys=True,
-                separators=(",", ":"),
-            ).encode()
-        assert hashlib.sha256(semantic).hexdigest() == expected_semantic_sha256[path.name], (
-            path.name
-        )
+
+    candidate_panel = pd.read_parquet(outputs["household_candidate_panel.parquet"].path)
+    assert list(candidate_panel.columns) == [
+        "family",
+        "metric_id",
+        "region_code",
+        "quarter_id",
+        "period_start",
+        "period_end",
+        "time_grain",
+        "observed_value",
+        "unit",
+        "source_snapshot_id",
+        "source_record_hashes",
+        "contributor_count",
+        "population_coverage",
+        "custody",
+        "currentness",
+    ]
+    assert candidate_panel.empty
+    candidate_basis = json.loads(
+        Path(outputs["household_candidate_basis.json"].path).read_text(encoding="utf-8")
+    )
+    assert candidate_basis["status"] == "incomplete"
+    assert candidate_basis["source_row_count"] == 2
+    assert candidate_basis["source_record_hashes"] == []
+    assert (
+        candidate_basis["panel_artifact"]["path"]
+        == outputs["household_candidate_panel.parquet"].path
+    )
+    assert candidate_basis["panel_artifact"]["row_count"] == 0
+    assert (
+        candidate_basis["panel_artifact"]["sha256"]
+        == outputs["household_candidate_panel.parquet"].sha256
+    )
 
     after = {
         p.relative_to(config.build_root.root)
@@ -307,6 +397,8 @@ def test_d3_registry_route_preserves_explicit_period_outputs(tmp_path: Path) -> 
         "calibration/d3/lesson_registry_seed_v1.json",
         "calibration/d3/microsim_survey_contract_v1.json",
         "calibration/d3/survival_hazard_estimates.parquet",
+        "calibration/d3/household_candidate_panel.parquet",
+        "calibration/d3/household_candidate_basis.json",
         "manifests/build_run_d3.json",
         "manifests/land_cadastre/skipped_source_manifest.json",
         "manifests/land_cadastre_skipped_source_manifest.json",

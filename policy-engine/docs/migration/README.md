@@ -19,6 +19,9 @@ not supply it.
 - [TrinityBundle-only migration guide](phase4_trinity_only.md) documents the
   Phase 4 migration away from legacy surface IR. The guide itself does not
   establish the current runtime state.
+- [Ukraine Part B Ops composition](ukraine-data-ops-entrypoint.md) records the
+  candidate `ukraine-data` console composition, caller boundary, and the Linux
+  installed-wheel/C7 verification that remains open.
 
 ## Dated archive
 

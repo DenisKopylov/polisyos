@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Annotated, Literal
+from typing import Annotated, Generic, Literal, TypeVar
 
 from pydantic import Field, model_validator
 
@@ -21,19 +21,32 @@ class UnitKind(str, Enum):
     GENERIC = "generic"
 
 
+UnitKindT = TypeVar(
+    "UnitKindT",
+    UnitKind,
+    Literal["money"],
+    Literal["rate"],
+    Literal["count"],
+    Literal["duration"],
+    Literal["dimensionless"],
+    Literal["generic"],
+    default=UnitKind,
+)
+
+
 class UnitRef(KernelModel):
     """Reference a unit-registry entry from another kernel or IR contract."""
 
     unit_id: str = Field(..., pattern=ID_PATTERN)
 
 
-class UnitSpec(KernelModel):
+class UnitSpec(KernelModel, Generic[UnitKindT]):
     """Unit spec data model."""
 
-    kind: UnitKind
+    kind: UnitKindT
 
 
-class MoneyUnit(UnitSpec):
+class MoneyUnit(UnitSpec[Literal["money"]]):
     """Money unit public type."""
 
     kind: Literal["money"] = "money"
@@ -42,35 +55,35 @@ class MoneyUnit(UnitSpec):
     price_base: str | None = Field(None, max_length=64)
 
 
-class RateUnit(UnitSpec):
+class RateUnit(UnitSpec[Literal["rate"]]):
     """Rate unit public type."""
 
     kind: Literal["rate"] = "rate"
     base: Literal["ratio", "percent"] = "ratio"
 
 
-class CountUnit(UnitSpec):
+class CountUnit(UnitSpec[Literal["count"]]):
     """Count unit public type."""
 
     kind: Literal["count"] = "count"
     label: str | None = Field(None, max_length=64)
 
 
-class DurationUnit(UnitSpec):
+class DurationUnit(UnitSpec[Literal["duration"]]):
     """Duration unit public type."""
 
     kind: Literal["duration"] = "duration"
     unit: Literal["step", "day", "month", "quarter", "year"] = "step"
 
 
-class DimensionlessUnit(UnitSpec):
+class DimensionlessUnit(UnitSpec[Literal["dimensionless"]]):
     """Dimensionless unit public type."""
 
     kind: Literal["dimensionless"] = "dimensionless"
     label: str | None = Field(None, max_length=64)
 
 
-class GenericUnit(UnitSpec):
+class GenericUnit(UnitSpec[Literal["generic"]]):
     """Generic unit public type."""
 
     kind: Literal["generic"] = "generic"

@@ -217,6 +217,47 @@ def test_run_job_method_flow_records_finite_float_dispatch_and_adapter(
     assert adapter["method_params"] == method_params
 
 
+def test_dispatch_capture_is_separate_from_scientific_method_params(tmp_path) -> None:
+    registry = MethodRegistry.get_instance()
+    registry.register(_MethodJobIncrement, override=True)
+    cas = FileSystemCAS(tmp_path)
+    input_ref = cas.put_json(
+        [1, 2],
+        PutOptions(
+            kind="tests.input",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.Input", version="0.1.0"),
+        ),
+    )
+    spec = JobSpec(
+        job_kind="method",
+        method_fqn=_MethodJobIncrement.signature.fqn,
+        input_refs={"state": input_ref},
+        method_params={"delta": 2},
+    )
+
+    uncaptured = run_job(spec, cas_root=tmp_path)
+    captured = run_job(spec, cas_root=tmp_path, capture_dispatch_binding=True)
+
+    assert uncaptured.method_evidence_ref is not None
+    assert captured.method_evidence_ref is not None
+    assert uncaptured.job_key == captured.job_key == JobKey.from_spec(spec)
+    ordinary_evidence = from_canonical_bytes(
+        cas.get_bytes(uncaptured.method_evidence_ref.artifact_id)
+    )
+    captured_evidence = from_canonical_bytes(
+        cas.get_bytes(captured.method_evidence_ref.artifact_id)
+    )
+    assert "method_dispatch_binding_status" not in ordinary_evidence
+    assert captured_evidence["method_dispatch_binding_status"] == "recomputed"
+    binding = captured_evidence["method_dispatch_binding"]
+    assert binding["method_params_fingerprint"] == fingerprint(
+        {"delta": 2}, canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True)
+    )
+    assert "capture_dispatch_binding" not in binding
+    assert "capture_execution_work" not in spec.method_params
+
+
 @pytest.mark.parametrize(
     "non_finite",
     [

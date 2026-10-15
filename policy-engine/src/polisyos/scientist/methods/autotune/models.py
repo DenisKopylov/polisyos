@@ -17,6 +17,7 @@ from pydantic import (
     model_serializer,
 )
 
+from polisyos.core.artifacts import validate_core_model_json_artifact
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
@@ -29,6 +30,7 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import fingerprint
 from polisyos.core.canon.canon_json import CanonSpec
+from polisyos.core.contracts import DataSnapshot
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
@@ -154,7 +156,26 @@ class BenchmarkSuite(_PydanticBaseModel):
     kind: str = Field(default="generic", min_length=1, max_length=128)
     dataset_path: str | None = None
     split_manifest_path: str | None = None
+    data_snapshot_ref: ArtifactRef | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    @model_serializer(mode="wrap")
+    def _serialize_legacy_suite_shape(
+        self,
+        handler: SerializerFunctionWrapHandler,
+    ) -> dict[str, Any]:
+        """Keep historical suite bytes when no source snapshot is selected."""
+        raw_payload = handler(self)
+        if not isinstance(raw_payload, dict):
+            raise TypeError("benchmark suite serializer must return an object")
+        payload: dict[str, Any] = {}
+        for key, value in raw_payload.items():
+            if not isinstance(key, str):
+                raise TypeError("benchmark suite serializer keys must be strings")
+            payload[key] = value
+        if self.data_snapshot_ref is None:
+            payload.pop("data_snapshot_ref", None)
+        return payload
 
 
 class BayesianSourceProfile(_PydanticBaseModel):
@@ -643,7 +664,14 @@ class PromotionPolicy(_PydanticBaseModel):
     @model_serializer(mode="wrap")
     def _serialize_canonical_policy(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
         """Preserve the historical policy shape while retaining explicit units."""
-        payload = handler(self)
+        serialized: object = handler(self)
+        if not isinstance(serialized, dict):
+            raise TypeError("PromotionPolicy serializer must return an object")
+        payload: dict[str, Any] = {}
+        for key, value in serialized.items():
+            if not isinstance(key, str):
+                raise TypeError("PromotionPolicy serializer keys must be strings")
+            payload[key] = value
         if self.unit is None:
             payload.pop("unit", None)
         return payload
@@ -755,14 +783,11 @@ def default_search_registry_root() -> Path:
 
 def default_store(root: Path | None = None) -> ArtifactStore:
     """Construct the default autotune artifact store from the storage factory boundary."""
-    return cast(
-        "ArtifactStore",
-        build_artifact_store(
-            ArtifactStoreConfig(
-                backend="filesystem",
-                root=str(root or default_cas_root()),
-            )
-        ),
+    return build_artifact_store(
+        ArtifactStoreConfig(
+            backend="filesystem",
+            root=str(root or default_cas_root()),
+        )
     )
 
 
@@ -807,13 +832,9 @@ def persist_mutation_artifact(
                 version=artifact.artifact_version,
             ),
             inputs=list(inputs or []),
-            producer=(
-                ProducerInfo(
-                    component="polisyos.scientist.methods.autotune.mutation_artifact",
-                    version="1.0",
-                )
-                if artifact.loop_id == "claim_adjudication"
-                else None
+            producer=ProducerInfo(
+                component="polisyos.scientist.methods.autotune.mutation_artifact",
+                version="1.0",
             ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -831,6 +852,52 @@ def persist_benchmark_suite(
     return_selected_profile: bool = False,
 ) -> ArtifactRef:
     """Persist a benchmark suite and retain a protected producer's selected view."""
+    method_job_suite = suite.kind == "method_job"
+    snapshot_ref = suite.data_snapshot_ref
+    method_job_data_bound = snapshot_ref is not None
+    if snapshot_ref is not None:
+        if not method_job_suite:
+            raise ValueError("methodjob_suite_source_kind_mismatch")
+        if suite.suite_version != "2.0":
+            raise ValueError("methodjob_suite_source_schema_version_mismatch")
+        if (
+            snapshot_ref.kind != "fabric.data_snapshot"
+            or snapshot_ref.media_type != "application/json"
+            or snapshot_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("methodjob_suite_selected_snapshot_required")
+        snapshot_manifest = store.get_manifest(snapshot_ref)
+        snapshot = validate_core_model_json_artifact(DataSnapshot, store, snapshot_ref)
+        if (
+            snapshot_manifest.kind != "fabric.data_snapshot"
+            or snapshot_manifest.media_type != "application/json"
+            or snapshot_manifest.artifact_schema is None
+            or snapshot_manifest.artifact_schema.name != DataSnapshot.ARTIFACT_SCHEMA_NAME
+            or snapshot_manifest.artifact_schema.version != DataSnapshot.ARTIFACT_SCHEMA_VERSION
+            or not isinstance(snapshot, DataSnapshot)
+            or snapshot.data_ref.manifest_profile_sha256 is None
+            or len(snapshot_manifest.inputs) != 1
+            or snapshot_manifest.inputs[0]
+            != input_ref_from_artifact_ref(snapshot.data_ref, role="data_ref")
+        ):
+            raise ValueError("methodjob_suite_snapshot_data_binding_mismatch")
+        suite_inputs = list(inputs or [])
+        existing_snapshot_edges = [item for item in suite_inputs if item.role == "data_snapshot"]
+        expected_snapshot_edge = input_ref_from_artifact_ref(snapshot_ref, role="data_snapshot")
+        if existing_snapshot_edges and (
+            len(existing_snapshot_edges) != 1
+            or existing_snapshot_edges[0] != expected_snapshot_edge
+        ):
+            raise ValueError("methodjob_suite_snapshot_input_mismatch")
+        if not existing_snapshot_edges:
+            suite_inputs.append(expected_snapshot_edge)
+    else:
+        suite_inputs = list(inputs or [])
+        if method_job_suite:
+            if suite.suite_version != "1.0":
+                raise ValueError("methodjob_suite_source_snapshot_required")
+            if any(item.role in {"data_snapshot", "data"} for item in suite_inputs):
+                raise ValueError("methodjob_suite_unselected_data_source")
     return store.put_json(
         suite,
         ArtifactWriteOptions(
@@ -840,18 +907,20 @@ def persist_benchmark_suite(
                 name="polisyos.scientist.methods.autotune.BenchmarkSuite",
                 version=suite.suite_version,
             ),
-            inputs=list(inputs or []),
+            inputs=suite_inputs,
             producer=(
                 ProducerInfo(
                     component="polisyos.scientist.methods.autotune.benchmark_suite",
-                    version="1.0",
+                    version="2.0" if method_job_data_bound else "1.0",
                 )
-                if suite.kind == "claim_adjudication"
+                if method_job_suite or suite.kind == "claim_adjudication"
                 else None
             ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
-        return_selected_profile=(return_selected_profile or suite.kind == "claim_adjudication"),
+        return_selected_profile=(
+            return_selected_profile or method_job_suite or suite.kind == "claim_adjudication"
+        ),
     )
 
 
@@ -902,15 +971,15 @@ def _benchmark_evaluation_input_refs(
             raise ValueError("benchmark_evaluation_fit_basis_ref_invalid") from exc
 
     for role, ref in bindings.items():
-        edges = [(index, item) for index, item in enumerate(merged) if item.role == role]
-        if len(edges) > 1:
+        edge_bindings = [(index, item) for index, item in enumerate(merged) if item.role == role]
+        if len(edge_bindings) > 1:
             raise ValueError(f"benchmark_evaluation_duplicate_input_role:{role}")
         if ref is None:
-            if protected and edges:
+            if protected and edge_bindings:
                 selected_suite_edge = (
                     role == "benchmark_suite"
-                    and len(edges) == 1
-                    and edges[0][1].manifest_profile_sha256 is not None
+                    and len(edge_bindings) == 1
+                    and edge_bindings[0][1].manifest_profile_sha256 is not None
                 )
                 if not selected_suite_edge:
                     raise ValueError(f"claim_adjudication_unbound_input_role:{role}")
@@ -918,10 +987,10 @@ def _benchmark_evaluation_input_refs(
         if protected and ref.manifest_profile_sha256 is None:
             raise ValueError(f"claim_adjudication_selected_profile_required:{role}")
         expected = input_ref_from_artifact_ref(ref, role=role)
-        if not edges:
+        if not edge_bindings:
             merged.append(expected)
             continue
-        index, existing = edges[0]
+        index, existing = edge_bindings[0]
         if existing.artifact_id != expected.artifact_id:
             raise ValueError(f"benchmark_evaluation_input_binding_mismatch:{role}")
         if protected and existing != expected:
@@ -937,8 +1006,8 @@ def _benchmark_evaluation_input_refs(
 
     if protected:
         for role in ("candidate", "benchmark_suite"):
-            edges = [item for item in merged if item.role == role]
-            if len(edges) != 1 or edges[0].manifest_profile_sha256 is None:
+            role_edges = [item for item in merged if item.role == role]
+            if len(role_edges) != 1 or role_edges[0].manifest_profile_sha256 is None:
                 raise ValueError(f"claim_adjudication_selected_profile_required:{role}")
         for role in (
             "method_result",
@@ -947,9 +1016,9 @@ def _benchmark_evaluation_input_refs(
             "search_gp_fit_basis",
         ):
             ref = bindings.get(role)
-            edges = [item for item in merged if item.role == role]
+            role_edges = [item for item in merged if item.role == role]
             if ref is not None and (
-                len(edges) != 1 or edges[0] != input_ref_from_artifact_ref(ref, role=role)
+                len(role_edges) != 1 or role_edges[0] != input_ref_from_artifact_ref(ref, role=role)
             ):
                 raise ValueError(f"claim_adjudication_input_profile_mismatch:{role}")
     return merged

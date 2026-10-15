@@ -10,6 +10,7 @@ from pydantic import ConfigDict, Field
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,
+    ProducerInfo,
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
@@ -54,9 +55,11 @@ from polisyos.scientist.methods.autotune.models import (
     load_json_artifact,
     load_model_artifact,
 )
+from polisyos.scientist.methods.autotune.registry import _methodjob_source_admission_failure
 from polisyos.scientist.methods.autotune.runtime import (
     MethodJobBenchmarkEvaluator,
     PydanticMutationCodec,
+    SequenceCandidateGenerator,
     _build_search_method_run_profile,
     _method_request_matches_search_run_profile,
     _persist_search_benchmark_evaluation,
@@ -101,6 +104,35 @@ class _V5ScoreMethod:
     @staticmethod
     def pure_step(state: Any, params: dict[str, Any]) -> dict[str, float]:
         return {"score": float(state["value"]) + float(params.get("offset", 0.0))}
+
+
+class _V5MechanicalAdmissionScoreMethod(_V5ScoreMethod):
+    """Controlled test producer for the candidate-to-registry wiring only."""
+
+    signature: ClassVar[MethodSignature] = replace(
+        _V5ScoreMethod.signature,
+        name="v5_mechanical_admission_score",
+    )
+
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "score": float(state["value"]) + float(params.get("offset", 0.0)),
+            "sample_counts": {"selection": 1},
+        }
+
+
+class _V5NoInputScoreMethod(_V5ScoreMethod):
+    signature: ClassVar[MethodSignature] = replace(
+        _V5ScoreMethod.signature,
+        name="v5_no_input_score",
+        input_slots=frozenset(),
+    )
+
+    @staticmethod
+    def pure_step(state: Any, params: dict[str, Any]) -> dict[str, float]:
+        del state, params
+        return {"score": 0.5}
 
 
 class _V5ScoreMethodV2(_V5ScoreMethod):
@@ -181,18 +213,273 @@ def _persist_inputs(store: FileSystemCAS) -> tuple[ArtifactRef, ArtifactRef]:
     return candidate_ref, suite_ref
 
 
-def test_search_profile_readers_require_selected_data_snapshot_owner_schema(tmp_path) -> None:
+def test_method_only_job_computes_candidate_but_holds_unverified_promotion(tmp_path) -> None:
+    """Persisted dispatch facts remain candidate evidence without executor custody."""
+    MethodRegistry.get_instance().register(_V5MechanicalAdmissionScoreMethod, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(
+            suite_id="v5_method_only_suite",
+            suite_version="1.0",
+            kind="method_job",
+        ),
+    )
+    assert suite_ref.manifest_profile_sha256 is not None
+    suite_manifest = store.get_manifest(suite_ref)
+    assert suite_manifest.inputs == []
+
+    registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+    spec = SearchLoopSpec(
+        loop_id="v5_search",
+        mutation_codec=PydanticMutationCodec(_V5Mutation),
+        candidate_generator=BayesianCandidateGenerator(
+            SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
+            n_initial=2,
+            seed=20261015,
+        ),
+        benchmark_evaluator=MethodJobBenchmarkEvaluator(
+            method_fqn=_V5MechanicalAdmissionScoreMethod.signature.fqn,
+            candidate_input_bindings={"value": "value"},
+            split=BenchmarkSplit.SELECTION,
+        ),
+        promotion_policy=_policy(),
+    )
+    result = SearchLoopRunner(store=store, registry=registry).run(
+        spec,
+        suite_ref=suite_ref,
+        initial_candidate={"loop_id": "v5_search", "value": 0.4},
+        max_iterations=1,
+    )
+    stage_b = result.history[0].stage_b_result
+    assert stage_b is not None
+    evaluation_ref = _selected_evaluation_ref(stage_b)
+    reader = FileSystemCAS(tmp_path / "cas")
+    evaluation = load_model_artifact(reader, evaluation_ref, BenchmarkEvaluation)
+    assert isinstance(evaluation, BenchmarkEvaluation)
+    assert evaluation.status == "measured_candidate", evaluation.notes
+    assert evaluation.selection_metrics["score"] == 0.4
+    assert "methodjob_execution_provenance_not_established" in evaluation.notes
+    assert evaluation.method_result_ref is not None
+    assert evaluation.method_evidence_ref is not None
+    method_evidence = load_json_artifact(reader, evaluation.method_evidence_ref)
+    assert isinstance(method_evidence, dict)
+    dispatch_binding = method_evidence["method_dispatch_binding"]
+    assert dispatch_binding["schema_version"] == "1.2"
+    assert dispatch_binding["input_state_fingerprints"]["value"]["shape"] == []
+    candidate_manifest = reader.get_manifest(evaluation.candidate_ref)
+    assert candidate_manifest.producer is not None
+    assert candidate_manifest.producer.component == (
+        "polisyos.scientist.methods.autotune.mutation_artifact"
+    )
+    request_basis = evaluation.metadata["method_request_basis"]
+    assert request_basis["data_snapshot_bindings"] == {}
+    assert (
+        request_basis["job_spec"]["method_version"]
+        == _V5MechanicalAdmissionScoreMethod.signature.version
+    )
+    assert (
+        registry._promotion_binding_failure(
+            loop_id="v5_search",
+            candidate_ref=evaluation.candidate_ref,
+            evaluation=evaluation,
+            evaluation_ref=evaluation_ref,
+            policy=_policy(),
+            suite_ref=suite_ref,
+        )
+        == "methodjob_execution_provenance_not_established"
+    )
+    decision = stage_b["feedback"]["promotion_decision"]
+    assert decision["promoted"] is False
+    assert decision["reason"] == "methodjob_execution_provenance_not_established"
+    assert registry.get("v5_search") is None
+
+    incomplete_basis = dict(request_basis)
+    incomplete_basis["candidate_input_bindings"] = {}
+    incomplete = evaluation.model_copy(
+        update={
+            "metadata": {
+                **evaluation.metadata,
+                "method_request_basis": incomplete_basis,
+            }
+        }
+    )
+    incomplete_ref = persist_benchmark_evaluation(
+        reader,
+        incomplete,
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+        return_selected_profile=True,
+    )
+    assert (
+        registry._promotion_binding_failure(
+            loop_id="v5_search",
+            candidate_ref=evaluation.candidate_ref,
+            evaluation=incomplete,
+            evaluation_ref=incomplete_ref,
+            policy=_policy(),
+            suite_ref=suite_ref,
+        )
+        == "methodjob_input_slot_binding_mismatch"
+    )
+
+
+@pytest.mark.parametrize("foreign_property", ["producer", "suite_edge"])
+def test_same_bytes_foreign_candidate_source_is_held_by_actual_methodjob_admission(
+    tmp_path, foreign_property: str
+) -> None:
     _register_method()
     store = FileSystemCAS(tmp_path / "cas")
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="v5_snapshot_schema_suite", kind="method_job"),
+        BenchmarkSuite(
+            suite_id="v5_foreign_candidate_suite",
+            suite_version="1.0",
+            kind="method_job",
+        ),
     )
-    candidate_ref = persist_mutation_artifact(
+    candidate = _V5Mutation(value=0.4)
+    suite_edge = input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")
+    canonical_ref = persist_mutation_artifact(
         store,
-        _V5Mutation(value=0.25),
-        inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+        candidate,
+        inputs=[suite_edge],
+        return_selected_profile=True,
     )
+    foreign_ref = store.put_json(
+        candidate,
+        ArtifactWriteOptions(
+            kind=f"scientist.autotune.{candidate.loop_id}.candidate",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=f"polisyos.scientist.methods.autotune.{candidate.__class__.__name__}",
+                version=candidate.artifact_version,
+            ),
+            producer=(
+                ProducerInfo(component="tests.foreign_mutation_writer", version="1.0")
+                if foreign_property == "producer"
+                else ProducerInfo(
+                    component="polisyos.scientist.methods.autotune.mutation_artifact",
+                    version="1.0",
+                )
+            ),
+            inputs=([suite_edge] if foreign_property == "producer" else []),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert foreign_ref.artifact_id == canonical_ref.artifact_id
+    assert foreign_ref.manifest_profile_sha256 is not None
+    assert canonical_ref.manifest_profile_sha256 is not None
+    assert foreign_ref.manifest_profile_sha256 != canonical_ref.manifest_profile_sha256
+
+    evaluation = MethodJobBenchmarkEvaluator(
+        method_fqn=_V5ScoreMethod.signature.fqn,
+        candidate_input_bindings={"value": "value"},
+        split=BenchmarkSplit.SELECTION,
+    ).evaluate(
+        foreign_ref,
+        suite_ref,
+        {"store": store, "policy": _policy(), "loop_id": "v5_search"},
+    )
+    assert evaluation.method_result_ref is not None
+    assert evaluation.method_evidence_ref is not None
+    evaluation_ref = persist_benchmark_evaluation(
+        store,
+        evaluation,
+        inputs=[suite_edge],
+        return_selected_profile=True,
+    )
+    assert (
+        _methodjob_source_admission_failure(
+            store=store,
+            candidate_ref=foreign_ref,
+            evaluation_ref=evaluation_ref,
+            evaluation=evaluation,
+            suite_ref=suite_ref,
+            policy=_policy(),
+        )
+        == "methodjob_candidate_source_manifest_mismatch"
+    )
+
+    reason = ChampionRegistry(store=store)._promotion_binding_failure(
+        loop_id="v5_search",
+        candidate_ref=foreign_ref,
+        evaluation=evaluation,
+        evaluation_ref=evaluation_ref,
+        policy=_policy(),
+        suite_ref=suite_ref,
+    )
+
+    expected_consumer_reason = (
+        "suite_basis_mismatch"
+        if foreign_property == "suite_edge"
+        else "methodjob_candidate_source_manifest_mismatch"
+    )
+    assert reason == expected_consumer_reason
+
+
+def test_method_with_zero_registered_input_slots_binds_empty_dispatch_basis(tmp_path) -> None:
+    MethodRegistry.get_instance().register(_V5NoInputScoreMethod, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(
+            suite_id="v5_zero_input_suite",
+            suite_version="1.0",
+            kind="method_job",
+        ),
+    )
+    registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
+    candidate = _V5Mutation(value=0.4)
+    spec = SearchLoopSpec(
+        loop_id="v5_search",
+        mutation_codec=PydanticMutationCodec(_V5Mutation),
+        candidate_generator=SequenceCandidateGenerator([candidate]),
+        benchmark_evaluator=MethodJobBenchmarkEvaluator(
+            method_fqn=_V5NoInputScoreMethod.signature.fqn,
+            candidate_input_bindings={},
+            split=BenchmarkSplit.SELECTION,
+        ),
+        promotion_policy=_policy(),
+    )
+
+    result = SearchLoopRunner(store=store, registry=registry).run(
+        spec,
+        suite_ref=suite_ref,
+        initial_candidate=candidate.model_dump(mode="json"),
+        max_iterations=1,
+    )
+
+    stage_b = result.history[0].stage_b_result
+    assert stage_b is not None
+    evaluation_ref = _selected_evaluation_ref(stage_b)
+    reader = FileSystemCAS(tmp_path / "cas")
+    evaluation = load_model_artifact(reader, evaluation_ref, BenchmarkEvaluation)
+    assert isinstance(evaluation, BenchmarkEvaluation)
+    assert evaluation.status == "measured_candidate", evaluation.notes
+    assert evaluation.promotable is False
+    assert evaluation.method_evidence_ref is not None
+    evidence = load_json_artifact(reader, evaluation.method_evidence_ref)
+    assert isinstance(evidence, dict)
+    dispatch_binding = evidence["method_dispatch_binding"]
+    assert dispatch_binding["schema_version"] == "1.2"
+    assert dispatch_binding["input_state_fingerprints"] == {}
+    assert (
+        registry._promotion_binding_failure(
+            loop_id="v5_search",
+            candidate_ref=evaluation.candidate_ref,
+            evaluation=evaluation,
+            evaluation_ref=evaluation_ref,
+            policy=_policy(),
+            suite_ref=suite_ref,
+        )
+        == "methodjob_execution_provenance_not_established"
+    )
+
+
+def test_search_profile_readers_require_selected_data_snapshot_owner_schema(tmp_path) -> None:
+    _register_method()
+    store = FileSystemCAS(tmp_path / "cas")
     data_ref = store.put_json(
         {"X": [[0.1], [0.2]]},
         ArtifactWriteOptions(
@@ -222,6 +509,20 @@ def test_search_profile_readers_require_selected_data_snapshot_owner_schema(tmp_
 
     valid_snapshot_ref = persist_snapshot(DataSnapshot.ARTIFACT_SCHEMA_VERSION)
     foreign_schema_snapshot_ref = persist_snapshot("9.0")
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(
+            suite_id="v5_snapshot_schema_suite",
+            suite_version="2.0",
+            kind="method_job",
+            data_snapshot_ref=valid_snapshot_ref,
+        ),
+    )
+    candidate_ref = persist_mutation_artifact(
+        store,
+        _V5Mutation(value=0.25),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
+    )
     evaluator = MethodJobBenchmarkEvaluator(
         method_fqn=_V5ScoreMethod.signature.fqn,
         method_version=_V5ScoreMethod.signature.version,

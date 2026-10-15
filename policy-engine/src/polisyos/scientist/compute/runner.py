@@ -248,7 +248,9 @@ class MethodBackend:
         method_params: Mapping[str, Any],
         seed: int,
         input_refs: Mapping[str, ArtifactRef] | None = None,
+        capture_dispatch_binding: bool = False,
     ) -> ExecutionResult:
+        """Run one Method and optionally record the observed dispatch binding."""
         store = self._store_factory(cas_root)
         registry = self._registry_provider()
         resolved_name = method_fqn
@@ -279,7 +281,7 @@ class MethodBackend:
 
         def dispatch_with_observation() -> Any:
             nonlocal dispatch_binding, dispatch_binding_status
-            if method_params.get("capture_execution_work") is True:
+            if capture_dispatch_binding or method_params.get("capture_execution_work") is True:
                 from polisyos.scientist.methods.autotune.execution_work import (
                     MethodDispatchBinding,
                     _fingerprint_method_request_material,
@@ -289,8 +291,17 @@ class MethodBackend:
                 try:
                     if not isinstance(input_state, Mapping):
                         raise ValueError("dispatch input state is not a slot mapping")
+                    input_state_fingerprints = {
+                        name: fingerprint_method_input_value(value)
+                        for name, value in sorted(input_state.items())
+                    }
                     binding = MethodDispatchBinding(
-                        schema_version="1.1",
+                        schema_version=(
+                            "1.2"
+                            if not input_state_fingerprints
+                            or any(not value.shape for value in input_state_fingerprints.values())
+                            else "1.1"
+                        ),
                         method_fqn=signature.fqn,
                         method_version=signature.version,
                         method_seed=seed,
@@ -302,10 +313,7 @@ class MethodBackend:
                             name: store.get_manifest(ref).artifact_schema
                             for name, ref in sorted((input_refs or {}).items())
                         },
-                        input_state_fingerprints={
-                            name: fingerprint_method_input_value(value)
-                            for name, value in sorted(input_state.items())
-                        },
+                        input_state_fingerprints=input_state_fingerprints,
                     )
                 except (OSError, TypeError, ValueError):
                     dispatch_binding_status = "not_established"
@@ -740,6 +748,7 @@ def _run_method_job(
     backend: MethodBackend,
     adapter_warnings: list[str] | None = None,
     store_factory: Callable[[Path], ArtifactStore] | None = None,
+    capture_dispatch_binding: bool = False,
 ) -> JobResult:
     issues: list[dict[str, Any]] = []
     if cas_root is None:
@@ -794,6 +803,7 @@ def _run_method_job(
             method_params=spec.method_params,
             seed=spec.seed,
             input_refs=spec.input_refs,
+            capture_dispatch_binding=capture_dispatch_binding,
         )
     except _RUNNER_DEGRADED_ERRORS as exc:
         return JobResult(
@@ -834,9 +844,14 @@ def run_job(
     method_runtime_providers: MethodRuntimeProviders | None = None,
     method_registry_provider: Callable[[], MethodRegistry] | None = None,
     method_dispatcher_provider: Callable[[], MethodDispatcher] | None = None,
+    capture_dispatch_binding: bool = False,
 ) -> JobResult:
-    """
-    Execute a job spec via either legacy program flow or method flow.
+    """Execute a job spec through the legacy program or Method flow.
+
+    Args:
+        capture_dispatch_binding: Record the actual Method request and input-slot state in
+            execution evidence. This call-level option is separate from scientific method
+            parameters and does not change the JobSpec-derived JobKey.
     """
     job_key = JobKey.from_spec(spec)
 
@@ -864,6 +879,7 @@ def run_job(
             backend=method_backend,
             adapter_warnings=adapter_warnings,
             store_factory=store_factory,
+            capture_dispatch_binding=capture_dispatch_binding,
         )
 
     legacy_backend = (

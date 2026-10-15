@@ -3,8 +3,10 @@ from __future__ import annotations
 import importlib.util
 import sys
 from pathlib import Path
+from typing import Any, ClassVar
 
 import pytest
+from pydantic import ConfigDict
 
 from polisyos.core.artifacts import ArtifactWriteOptions, ProducerInfo
 from polisyos.core.artifacts.manifest import (
@@ -15,18 +17,36 @@ from polisyos.core.artifacts.manifest import (
 )
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import CanonSpec
-from polisyos.foundry.methods import MethodRegistry
+from polisyos.core.contracts import DataSnapshot
+from polisyos.foundry.methods import (
+    ComplexityClass,
+    ComputeBackend,
+    FidelityLevel,
+    MethodMetadata,
+    MethodRegistry,
+    MethodSignature,
+    ParameterSpec,
+    SlotSpec,
+    SlotType,
+    Unit,
+)
 from polisyos.scientist.methods.autotune import (
     BenchmarkEvaluation,
     BenchmarkSplit,
+    BenchmarkSuite,
     ChampionRegistry,
     MetricDirection,
+    MutationArtifact,
     PromotionPolicy,
     SearchLoopSpec,
+    load_json_artifact,
     load_model_artifact,
     persist_benchmark_evaluation,
+    persist_benchmark_suite,
 )
+from polisyos.scientist.methods.autotune.registry import _methodjob_suite_source_data_ref
 from polisyos.scientist.methods.autotune.runtime import (
+    MethodJobBenchmarkEvaluator,
     PydanticMutationCodec,
     SearchLoopRunner,
     SequenceCandidateGenerator,
@@ -76,6 +96,287 @@ assert _D4_HELPER_SPEC is not None and _D4_HELPER_SPEC.loader is not None
 _d4_helpers = importlib.util.module_from_spec(_D4_HELPER_SPEC)
 sys.modules[_D4_HELPER_SPEC.name] = _d4_helpers
 _D4_HELPER_SPEC.loader.exec_module(_d4_helpers)
+
+
+class _MethodJobSourceCandidate(MutationArtifact):
+    model_config = ConfigDict(extra="forbid")
+
+    loop_id: str = "methodjob_source_route"
+
+
+class _ControlledSourceMethod:
+    signature: ClassVar[MethodSignature] = MethodSignature(
+        name="source_score",
+        namespace="tests.e02",
+        version="1.0.0",
+        input_slots=frozenset({SlotSpec("outcome", SlotType.VECTOR, Unit("outcome", "value"))}),
+        output_slots=frozenset({SlotSpec("result", SlotType.SCALAR, Unit("result", "json"))}),
+        parameters=(ParameterSpec(name="capture_execution_work", default=False),),
+        fidelity=FidelityLevel.LOW,
+        complexity=ComplexityClass.O_1,
+        backend=ComputeBackend.NUMPY,
+        supports_jit=False,
+        supports_vmap=False,
+        supports_grad=False,
+    )
+    metadata: ClassVar[MethodMetadata] = MethodMetadata(
+        description="Controlled engineering fixture for MethodJob source admission"
+    )
+
+    @staticmethod
+    def pure_step(state: Any, params: Any) -> dict[str, Any]:
+        del params
+        values = state["outcome"]
+        count = len(values)
+        return {
+            "result": {
+                "score": sum(float(value) for value in values) / count,
+                "sample_counts": {"selection": count},
+                "metric_units": {"score": "fixture-value"},
+                "guardrails": {"fixture_source_nonempty": count > 0},
+                "n_obs": count,
+            }
+        }
+
+
+@pytest.mark.integration
+def test_methodjob_source_suite_keeps_candidate_scores_without_executor_custody(
+    tmp_path,
+) -> None:
+    MethodRegistry.reset_instance()
+    method_registry = MethodRegistry.get_instance()
+    method_registry.register(_ControlledSourceMethod, override=True)
+    store_root = tmp_path / "cas"
+    store = FileSystemCAS(store_root)
+    data_ref = store.put_json(
+        {"outcome": [1.0, 2.0, 3.0, 4.0]},
+        ArtifactWriteOptions(
+            kind="scientist.method_dataset",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.MethodDataset", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    snapshot_ref = store.put_json(
+        DataSnapshot(data_ref=data_ref),
+        ArtifactWriteOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            inputs=[input_ref_from_artifact_ref(data_ref, role="data_ref")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    suite_ref = persist_benchmark_suite(
+        store,
+        BenchmarkSuite(
+            suite_id="controlled-methodjob-source",
+            suite_version="2.0",
+            kind="method_job",
+            data_snapshot_ref=snapshot_ref,
+        ),
+        return_selected_profile=True,
+    )
+    suite_manifest = store.get_manifest(suite_ref)
+    assert suite_ref.manifest_profile_sha256 is not None
+    assert suite_manifest.producer == ProducerInfo(
+        component="polisyos.scientist.methods.autotune.benchmark_suite",
+        version="2.0",
+    )
+    assert suite_manifest.inputs == [
+        input_ref_from_artifact_ref(snapshot_ref, role="data_snapshot")
+    ]
+
+    policy = PromotionPolicy(
+        loop_id="methodjob_source_route",
+        primary_metric="score",
+        unit="fixture-value",
+        direction=MetricDirection.MAXIMIZE,
+        compare_split=BenchmarkSplit.SELECTION,
+        min_sample_count=1,
+        required_guardrails=["fixture_source_nonempty"],
+    )
+    spec = SearchLoopSpec(
+        loop_id=policy.loop_id,
+        mutation_codec=PydanticMutationCodec(_MethodJobSourceCandidate),
+        candidate_generator=SequenceCandidateGenerator([_MethodJobSourceCandidate()]),
+        benchmark_evaluator=MethodJobBenchmarkEvaluator(
+            method_fqn=_ControlledSourceMethod.signature.fqn,
+            method_version=_ControlledSourceMethod.signature.version,
+            candidate_input_bindings={},
+            data_snapshot_bindings={"outcome": "outcome"},
+            method_params={"capture_execution_work": True},
+            split=BenchmarkSplit.SELECTION,
+            seed=19,
+        ),
+        promotion_policy=policy,
+    )
+    registry_root = tmp_path / "registry"
+    search = SearchLoopRunner(
+        store=store,
+        registry=ChampionRegistry(root=registry_root, store=store),
+    ).run(
+        spec,
+        suite_ref=suite_ref,
+        context={"data_snapshot_ref": snapshot_ref},
+        max_iterations=1,
+    )
+    stage_b = search.history[0].stage_b_result
+    assert stage_b is not None
+    evaluation_ref = ArtifactRef.model_validate(stage_b["metadata"]["evaluation_artifact_ref"])
+    fresh_reader = FileSystemCAS(store_root)
+    evaluation = load_model_artifact(fresh_reader, evaluation_ref, BenchmarkEvaluation)
+    assert isinstance(evaluation, BenchmarkEvaluation)
+    evidence = load_json_artifact(fresh_reader, evaluation.method_evidence_ref)
+    assert isinstance(evidence, dict)
+    assert evidence["method_dispatch_binding_status"] == "recomputed"
+    assert evaluation.execution_work_packet_status == "rejected"
+    assert evaluation.status == "measured_candidate"
+    assert evaluation.promotable is False
+    assert evaluation.selection_metrics == {"score": 2.5}
+    assert "methodjob_execution_provenance_not_established" in evaluation.notes
+    assert stage_b["simulation_results"]["score"] == 2.5
+    promotion = stage_b["feedback"]["promotion_decision"]
+    assert stage_b["feedback"]["verdict"] == "REJECT"
+    assert promotion["promoted"] is False
+    assert promotion["reason"] == "methodjob_execution_provenance_not_established"
+    assert ChampionRegistry(root=registry_root, store=fresh_reader).get(policy.loop_id) is None
+
+    suite_payload = load_model_artifact(fresh_reader, suite_ref, BenchmarkSuite)
+    assert isinstance(suite_payload, BenchmarkSuite)
+    foreign_suite_ref = fresh_reader.put_bytes(
+        fresh_reader.get_bytes(suite_ref),
+        ArtifactWriteOptions(
+            kind=suite_manifest.kind,
+            media_type=suite_manifest.media_type,
+            schema=suite_manifest.artifact_schema,
+            producer=ProducerInfo(component="tests.foreign_suite_writer", version="1.0"),
+            inputs=list(suite_manifest.inputs),
+        ),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="methodjob_suite_source_manifest_mismatch"):
+        _methodjob_suite_source_data_ref(
+            fresh_reader,
+            foreign_suite_ref,
+            suite_payload,
+        )
+
+    alternate_snapshot_ref = fresh_reader.put_json(
+        DataSnapshot(data_ref=data_ref, notes=["different selected snapshot view"]),
+        ArtifactWriteOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            inputs=[input_ref_from_artifact_ref(data_ref, role="data_ref")],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    wrong_edge_suite_ref = fresh_reader.put_bytes(
+        fresh_reader.get_bytes(suite_ref),
+        ArtifactWriteOptions(
+            kind=suite_manifest.kind,
+            media_type=suite_manifest.media_type,
+            schema=suite_manifest.artifact_schema,
+            producer=suite_manifest.producer,
+            inputs=[
+                input_ref_from_artifact_ref(
+                    alternate_snapshot_ref,
+                    role="data_snapshot",
+                )
+            ],
+        ),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="methodjob_suite_source_manifest_mismatch"):
+        _methodjob_suite_source_data_ref(
+            fresh_reader,
+            wrong_edge_suite_ref,
+            suite_payload,
+        )
+
+    original_evidence_manifest = fresh_reader.get_manifest(evaluation.method_evidence_ref)
+    altered_evidence = dict(evidence)
+    altered_binding = dict(evidence["method_dispatch_binding"])
+    altered_slots = dict(altered_binding["input_state_fingerprints"])
+    altered_outcome = dict(altered_slots["outcome"])
+    altered_outcome["sha256"] = "f" * 64
+    altered_slots["outcome"] = altered_outcome
+    altered_binding["input_state_fingerprints"] = altered_slots
+    altered_evidence["method_dispatch_binding"] = altered_binding
+    altered_evidence_ref = fresh_reader.put_json(
+        altered_evidence,
+        ArtifactWriteOptions(
+            kind=original_evidence_manifest.kind,
+            media_type=original_evidence_manifest.media_type,
+            schema=original_evidence_manifest.artifact_schema,
+            producer=original_evidence_manifest.producer,
+            inputs=list(original_evidence_manifest.inputs),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    altered_evaluation = evaluation.model_copy(update={"method_evidence_ref": altered_evidence_ref})
+    altered_evaluation_ref = persist_benchmark_evaluation(
+        fresh_reader,
+        altered_evaluation,
+        inputs=[
+            input_ref_from_artifact_ref(evaluation.candidate_ref, role="candidate"),
+            input_ref_from_artifact_ref(suite_ref, role="benchmark_suite"),
+            input_ref_from_artifact_ref(evaluation.method_result_ref, role="method_result"),
+            input_ref_from_artifact_ref(altered_evidence_ref, role="method_evidence"),
+        ],
+        return_selected_profile=True,
+    )
+    refusal = ChampionRegistry(root=registry_root, store=fresh_reader).consider_promotion(
+        policy.loop_id,
+        evaluation.candidate_ref,
+        altered_evaluation_ref,
+        policy,
+        suite_ref=suite_ref,
+    )
+    assert refusal.promoted is False
+    assert refusal.reason == "methodjob_dispatch_source_mismatch"
+
+    marker_only_evidence = dict(evidence)
+    marker_only_evidence.pop("method_dispatch_binding")
+    marker_only_evidence_ref = fresh_reader.put_json(
+        marker_only_evidence,
+        ArtifactWriteOptions(
+            kind=original_evidence_manifest.kind,
+            media_type=original_evidence_manifest.media_type,
+            schema=original_evidence_manifest.artifact_schema,
+            producer=original_evidence_manifest.producer,
+            inputs=list(original_evidence_manifest.inputs),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    marker_only_evaluation_ref = persist_benchmark_evaluation(
+        fresh_reader,
+        evaluation.model_copy(update={"method_evidence_ref": marker_only_evidence_ref}),
+        inputs=[
+            input_ref_from_artifact_ref(evaluation.candidate_ref, role="candidate"),
+            input_ref_from_artifact_ref(suite_ref, role="benchmark_suite"),
+            input_ref_from_artifact_ref(evaluation.method_result_ref, role="method_result"),
+            input_ref_from_artifact_ref(marker_only_evidence_ref, role="method_evidence"),
+        ],
+        return_selected_profile=True,
+    )
+    marker_only_refusal = ChampionRegistry(
+        root=registry_root, store=fresh_reader
+    ).consider_promotion(
+        policy.loop_id,
+        evaluation.candidate_ref,
+        marker_only_evaluation_ref,
+        policy,
+        suite_ref=suite_ref,
+    )
+    assert marker_only_refusal.promoted is False
+    assert marker_only_refusal.reason == "methodjob_dispatch_binding_invalid"
 
 
 def _promotion_basis(run_id: str, candidate_ref: ArtifactRef, suite_ref: ArtifactRef):
@@ -272,7 +573,7 @@ def test_real_v1_and_v2_methodjob_sources_are_content_bound_before_promotion(tmp
     )
     assert legacy_v1_evaluation.execution_work_packet_ref is not None
     assert candidate_ref.manifest_profile_sha256 is None
-    assert suite_ref.manifest_profile_sha256 is None
+    assert suite_ref.manifest_profile_sha256 is not None
     assert legacy_v1_evaluation.candidate_ref.manifest_profile_sha256 is None
     assert legacy_v1_ref.manifest_profile_sha256 is None
     legacy_v1_packet = _helpers.read_method_job_execution_work_packet(
@@ -281,7 +582,7 @@ def test_real_v1_and_v2_methodjob_sources_are_content_bound_before_promotion(tmp
     )
     assert legacy_v1_packet.run_id == v1_run_id
     assert legacy_v1_packet.candidate_ref.manifest_profile_sha256 is None
-    assert legacy_v1_packet.benchmark_suite_ref.manifest_profile_sha256 is None
+    assert legacy_v1_packet.benchmark_suite_ref.manifest_profile_sha256 is not None
 
     # A profileless reference is not a portable owner identity. Reopen the actual
     # producer closure in fresh receiver CASes whose default candidate/suite views

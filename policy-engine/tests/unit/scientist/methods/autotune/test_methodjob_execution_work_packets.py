@@ -89,6 +89,44 @@ def test_method_request_fingerprint_accepts_only_finite_floats_and_preserves_int
             _fingerprint_method_request_material({"clip": non_finite})
 
 
+def test_dispatch_input_fingerprint_preserves_scalar_shape_and_value() -> None:
+    scalar = fingerprint_method_input_value(0.4)
+    vector = fingerprint_method_input_value(np.asarray([0.4]))
+
+    assert scalar.shape == []
+    assert vector.shape == [1]
+    assert scalar.dtype == vector.dtype
+    assert scalar.sha256 == vector.sha256
+    big_endian_scalar = fingerprint_method_input_value(np.asarray(0.4, dtype=">f8"))
+    big_endian_vector = fingerprint_method_input_value(np.asarray([0.4], dtype=">f8"))
+    assert big_endian_scalar == scalar
+    assert big_endian_vector == vector
+    with pytest.raises(ValueError, match="non-object array"):
+        fingerprint_method_input_value(np.asarray([object()], dtype=object))
+
+    scalar_binding = {
+        "schema_version": "1.2",
+        "method_fqn": "tests.method",
+        "method_version": "1.0.0",
+        "method_seed": 17,
+        "method_params_fingerprint": "a" * 64,
+        "input_refs": {},
+        "input_schemas": {},
+        "input_state_fingerprints": {"value": scalar.model_dump(mode="json")},
+    }
+    assert MethodDispatchBinding.model_validate(scalar_binding).schema_version == "1.2"
+    vector_binding = {
+        **scalar_binding,
+        "input_state_fingerprints": {"value": vector.model_dump(mode="json")},
+    }
+    with pytest.raises(ValueError, match="schema 1.2"):
+        MethodDispatchBinding.model_validate(vector_binding)
+    with pytest.raises(ValueError, match="schema 1.1"):
+        MethodDispatchBinding.model_validate({**scalar_binding, "schema_version": "1.1"})
+    with pytest.raises(ValueError, match="non-negative"):
+        type(scalar).model_validate({**scalar.model_dump(), "shape": [-1]})
+
+
 class _MethodJobVectorIndex:
     dim = 1
 
@@ -152,8 +190,13 @@ def _persist_source_inputs(
     )
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="b157_source_bound", kind="method_job"),
-        return_selected_profile=return_selected_profiles,
+        BenchmarkSuite(
+            suite_id="b157_source_bound",
+            suite_version="2.0",
+            kind="method_job",
+            data_snapshot_ref=snapshot_ref,
+        ),
+        return_selected_profile=True,
     )
     candidate_ref = persist_mutation_artifact(
         store,
@@ -209,7 +252,12 @@ def _persist_parameter_search_source_inputs(
     )
     suite_ref = persist_benchmark_suite(
         store,
-        BenchmarkSuite(suite_id="b157_parameter_search_source_bound", kind="method_job"),
+        BenchmarkSuite(
+            suite_id="b157_parameter_search_source_bound",
+            suite_version="2.0",
+            kind="method_job",
+            data_snapshot_ref=snapshot_ref,
+        ),
     )
     return suite_ref, snapshot_ref
 
@@ -329,6 +377,19 @@ def test_methodjob_refuses_data_snapshot_with_foreign_owner_schema(
         canon_spec=CanonSpec(forbid_floats=False),
         return_selected_profile=True,
     )
+    with pytest.raises(
+        ValueError,
+        match="canon_profile_typed_artifact_schema_version_unsupported",
+    ):
+        persist_benchmark_suite(
+            store,
+            BenchmarkSuite(
+                suite_id="invalid_methodjob_source",
+                suite_version="2.0",
+                kind="method_job",
+                data_snapshot_ref=foreign_schema_snapshot_ref,
+            ),
+        )
 
     evaluation = _evaluate(
         store=store,
@@ -342,8 +403,7 @@ def test_methodjob_refuses_data_snapshot_with_foreign_owner_schema(
 
     assert evaluation.status == "data_snapshot_unavailable"
     assert any(
-        "canon_profile_typed_artifact_schema_version_unsupported" in note
-        for note in evaluation.notes
+        "methodjob_context_snapshot_does_not_match_suite" in note for note in evaluation.notes
     ), evaluation.notes
 
 
@@ -673,10 +733,15 @@ def test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness
     assert isinstance(source_data, dict)
     run_job = compute_runner.run_job
 
-    def _swap_dispatched_x(spec, *, cas_root, method_state):
+    def _swap_dispatched_x(spec, *, cas_root, method_state, capture_dispatch_binding=False):
         swapped_state = dict(method_state)
         swapped_state["X"] = source_data["X_alternative"]
-        return run_job(spec, cas_root=cas_root, method_state=swapped_state)
+        return run_job(
+            spec,
+            cas_root=cas_root,
+            method_state=swapped_state,
+            capture_dispatch_binding=capture_dispatch_binding,
+        )
 
     monkeypatch.setattr(compute_runner, "run_job", _swap_dispatched_x)
     swapped_input_evaluation = _evaluate(
@@ -727,10 +792,15 @@ def test_search_loop_rejects_score_after_source_bound_dispatch_swap(
     assert isinstance(source_data, dict)
     run_job = compute_runner.run_job
 
-    def _swap_dispatched_x(spec, *, cas_root, method_state):
+    def _swap_dispatched_x(spec, *, cas_root, method_state, capture_dispatch_binding=False):
         swapped_state = dict(method_state)
         swapped_state["X"] = source_data["X_alternative"]
-        return run_job(spec, cas_root=cas_root, method_state=swapped_state)
+        return run_job(
+            spec,
+            cas_root=cas_root,
+            method_state=swapped_state,
+            capture_dispatch_binding=capture_dispatch_binding,
+        )
 
     monkeypatch.setattr(compute_runner, "run_job", _swap_dispatched_x)
     evaluator = MethodJobBenchmarkEvaluator(
@@ -811,7 +881,7 @@ def test_search_loop_rejects_score_after_source_bound_dispatch_swap(
         "capture_disabled",
     ],
 )
-def test_search_loop_suppresses_unreconciled_source_bound_score(
+def test_search_loop_uses_execution_evidence_not_diagnostic_packet_as_admission(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
     failure_mode: str,
@@ -912,16 +982,21 @@ def test_search_loop_suppresses_unreconciled_source_bound_score(
         BenchmarkEvaluation,
     )
     assert isinstance(evaluation, BenchmarkEvaluation)
-    assert evaluation.execution_work_packet_status == "rejected"
+    if failure_mode in {"capture_omitted", "capture_disabled"}:
+        assert evaluation.status == "measured_candidate"
+        assert "ate" in stage_b["simulation_results"]
+        assert evaluation.execution_work_packet_status == "unavailable"
+        return
+    if failure_mode in {"missing_packet", "unreadable_packet"}:
+        assert evaluation.status == "measured_candidate"
+        assert "ate" in stage_b["simulation_results"]
+        assert evaluation.execution_work_packet_status == (
+            "unavailable" if failure_mode == "missing_packet" else "available"
+        )
+        return
+
     assert evaluation.promotable is False
-    assert evaluation.status == "source_work_packet_rejected"
-    expected_note = {
-        "missing_packet": "test_removed_packet_ref",
-        "capture_omitted": "method_work_capture_not_enabled",
-        "capture_disabled": "method_work_capture_not_enabled",
-    }.get(failure_mode)
-    if expected_note is not None:
-        assert evaluation.execution_work_packet_note == expected_note
+    assert evaluation.status == "methodjob_source_rejected"
     assert "ate" not in stage_b["simulation_results"]
     assert stage_b["feedback"]["promotion_decision"]["promoted"] is False
 

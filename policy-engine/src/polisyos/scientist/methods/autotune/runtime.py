@@ -61,7 +61,13 @@ from .models import (
     persist_benchmark_evaluation,
     persist_mutation_artifact,
 )
-from .registry import ChampionRegistry
+from .registry import (
+    ChampionRegistry,
+    _methodjob_execution_provenance_failure,
+    _methodjob_method_inputs_only_basis,
+    _methodjob_source_admission_failure,
+    _methodjob_suite_source_data_ref,
+)
 
 if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.budget_ledger import (
@@ -239,10 +245,6 @@ class MethodJobBenchmarkEvaluator:
         if not method_fqn.strip():
             raise ValueError("method_fqn must be non-empty")
         resolved_data_bindings = dict(data_snapshot_bindings or {})
-        if not candidate_input_bindings and not resolved_data_bindings:
-            raise ValueError(
-                "candidate_input_bindings or data_snapshot_bindings must name method inputs"
-            )
         if set(candidate_input_bindings) & set(resolved_data_bindings):
             raise ValueError("candidate and DataSnapshot input bindings must not overlap")
         if split not in {BenchmarkSplit.SELECTION, BenchmarkSplit.HOLDOUT}:
@@ -278,6 +280,28 @@ class MethodJobBenchmarkEvaluator:
         """Require admission whenever the MethodJob consumes DataSnapshot slots."""
         return bool(self._data_snapshot_bindings)
 
+    def _resolve_method_signature(self) -> Any | None:
+        """Freeze the exact registered method version before building a request."""
+        from polisyos.foundry.methods import MethodNotFoundError, MethodRegistry
+
+        try:
+            method_class = MethodRegistry.get_instance().get(
+                self._method_fqn,
+                version=self._method_version,
+            )
+        except MethodNotFoundError:
+            return None
+        signature = method_class.signature
+        if self._method_fqn.rsplit("@", 1)[0] != signature.fqn.rsplit("@", 1)[0]:
+            return None
+        if "@" in self._method_fqn and signature.fqn != self._method_fqn:
+            return None
+        if self._method_version is not None and signature.version != self._method_version:
+            return None
+        self._method_fqn = signature.fqn
+        self._method_version = signature.version
+        return signature
+
     def evaluate(
         self,
         candidate_ref: ArtifactRef,
@@ -303,6 +327,8 @@ class MethodJobBenchmarkEvaluator:
 
         candidate = load_json_artifact(store, candidate_ref)
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
+        if not isinstance(suite, BenchmarkSuite):
+            raise TypeError("MethodJob suite payload has an unexpected type")
         if not isinstance(candidate, Mapping):
             raise TypeError("candidate artifact must contain an object")
         if candidate.get("loop_id") != loop_id:
@@ -312,6 +338,67 @@ class MethodJobBenchmarkEvaluator:
                 candidate_ref=candidate_ref,
                 split=self._split,
                 status="candidate_loop_mismatch",
+            )
+
+        signature = self._resolve_method_signature()
+        if signature is None:
+            return self._empty_evaluation(
+                loop_id=loop_id,
+                suite=suite,
+                candidate_ref=candidate_ref,
+                split=self._split,
+                status="method_signature_unavailable",
+            )
+
+        try:
+            data_ref = _methodjob_suite_source_data_ref(store, suite_ref, suite)
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError, ValidationError) as exc:
+            return self._empty_evaluation(
+                loop_id=loop_id,
+                suite=suite,
+                candidate_ref=candidate_ref,
+                split=self._split,
+                status="benchmark_suite_source_unavailable",
+                notes=[str(exc)],
+            )
+        data_snapshot_ref = suite.data_snapshot_ref
+        raw_snapshot_ref = context.get("data_snapshot_ref")
+        if raw_snapshot_ref is not None:
+            try:
+                context_snapshot_ref = (
+                    raw_snapshot_ref
+                    if isinstance(raw_snapshot_ref, ArtifactRef)
+                    else ArtifactRef.model_validate(raw_snapshot_ref)
+                )
+            except (TypeError, ValueError, ValidationError) as exc:
+                return self._empty_evaluation(
+                    loop_id=loop_id,
+                    suite=suite,
+                    candidate_ref=candidate_ref,
+                    split=self._split,
+                    status="data_snapshot_unavailable",
+                    notes=[str(exc)],
+                )
+            if context_snapshot_ref != data_snapshot_ref:
+                return self._empty_evaluation(
+                    loop_id=loop_id,
+                    suite=suite,
+                    candidate_ref=candidate_ref,
+                    split=self._split,
+                    status="data_snapshot_unavailable",
+                    notes=["methodjob_context_snapshot_does_not_match_suite"],
+                )
+
+        input_slots = {slot.name for slot in signature.input_slots}
+        if set(self._candidate_input_bindings) | set(
+            self._data_snapshot_bindings
+        ) != input_slots or set(self._candidate_input_bindings) & set(self._data_snapshot_bindings):
+            return self._empty_evaluation(
+                loop_id=loop_id,
+                suite=suite,
+                candidate_ref=candidate_ref,
+                split=self._split,
+                status="method_input_binding_mismatch",
             )
 
         method_state: dict[str, Any] = {}
@@ -327,26 +414,19 @@ class MethodJobBenchmarkEvaluator:
                 )
             method_state[slot_name] = candidate[candidate_field]
 
-        data_snapshot_ref: ArtifactRef | None = None
-        data_ref: ArtifactRef | None = None
         data_payload: Mapping[str, Any] | None = None
         if self._data_snapshot_bindings:
             try:
-                raw_snapshot_ref = context.get("data_snapshot_ref")
-                data_snapshot_ref = (
-                    raw_snapshot_ref
-                    if isinstance(raw_snapshot_ref, ArtifactRef)
-                    else ArtifactRef.model_validate(raw_snapshot_ref)
-                )
-                if data_snapshot_ref.kind != "fabric.data_snapshot":
-                    raise ValueError("data_snapshot_ref_kind_mismatch")
+                if data_snapshot_ref is None or data_ref is None:
+                    raise ValueError("methodjob_suite_source_snapshot_unavailable")
                 snapshot_manifest = store.get_manifest(data_snapshot_ref)
                 if snapshot_manifest.kind != "fabric.data_snapshot":
                     raise ValueError("data_snapshot_manifest_kind_mismatch")
                 snapshot = validate_core_model_json_artifact(DataSnapshot, store, data_snapshot_ref)
                 if not isinstance(snapshot, DataSnapshot):
                     raise TypeError("data_snapshot_payload_unavailable")
-                data_ref = snapshot.data_ref
+                if snapshot.data_ref != data_ref:
+                    raise ValueError("methodjob_suite_snapshot_data_reference_mismatch")
                 snapshot_input_ids = {
                     (item.role, str(item.artifact_id)) for item in snapshot_manifest.inputs
                 }
@@ -369,6 +449,15 @@ class MethodJobBenchmarkEvaluator:
                     status="data_snapshot_unavailable",
                     notes=[str(exc)],
                 )
+        elif data_snapshot_ref is not None or data_ref is not None:
+            return self._empty_evaluation(
+                loop_id=loop_id,
+                suite=suite,
+                candidate_ref=candidate_ref,
+                split=self._split,
+                status="data_snapshot_unavailable",
+                notes=["methodjob_suite_data_source_binding_mismatch"],
+            )
 
         configured_seed = context.get("method_job_seed", self._seed)
         if isinstance(configured_seed, bool) or not isinstance(configured_seed, int):
@@ -472,6 +561,7 @@ class MethodJobBenchmarkEvaluator:
             spec,
             cas_root=cas_root,
             method_state=method_state,
+            capture_dispatch_binding=True,
         )
 
         refs = {
@@ -511,6 +601,77 @@ class MethodJobBenchmarkEvaluator:
                 metadata=base_metadata,
                 refs=refs,
             )
+
+        if job_result.method_evidence_ref is None:
+            return self._empty_evaluation(
+                loop_id=loop_id,
+                suite=suite,
+                candidate_ref=candidate_ref,
+                split=self._split,
+                status="method_dispatch_binding_unavailable",
+                metadata=base_metadata,
+                refs=refs,
+            )
+        dispatch_evidence = load_json_artifact(fresh_reader, job_result.method_evidence_ref)
+        if not isinstance(dispatch_evidence, Mapping):
+            return self._empty_evaluation(
+                loop_id=loop_id,
+                suite=suite,
+                candidate_ref=candidate_ref,
+                split=self._split,
+                status="method_dispatch_binding_unavailable",
+                metadata=base_metadata,
+                refs=refs,
+            )
+        try:
+            from .execution_work import MethodDispatchBinding
+
+            dispatch_binding = MethodDispatchBinding.model_validate(
+                dispatch_evidence.get("method_dispatch_binding")
+            )
+        except (TypeError, ValueError, ValidationError) as exc:
+            return self._empty_evaluation(
+                loop_id=loop_id,
+                suite=suite,
+                candidate_ref=candidate_ref,
+                split=self._split,
+                status="method_dispatch_binding_unavailable",
+                notes=[str(exc)],
+                metadata=base_metadata,
+                refs=refs,
+            )
+        if dispatch_evidence.get("method_dispatch_binding_status") != "recomputed":
+            return self._empty_evaluation(
+                loop_id=loop_id,
+                suite=suite,
+                candidate_ref=candidate_ref,
+                split=self._split,
+                status="method_dispatch_binding_unavailable",
+                metadata=base_metadata,
+                refs=refs,
+            )
+        if not self._data_snapshot_bindings:
+            try:
+                method_request_basis["method_inputs_only_basis"] = (
+                    _methodjob_method_inputs_only_basis(
+                        signature=signature,
+                        job_spec=spec,
+                        candidate_bindings=self._candidate_input_bindings,
+                        source_state=method_state,
+                        dispatch_binding=dispatch_binding,
+                    )
+                )
+            except (OverflowError, TypeError, ValueError) as exc:
+                return self._empty_evaluation(
+                    loop_id=loop_id,
+                    suite=suite,
+                    candidate_ref=candidate_ref,
+                    split=self._split,
+                    status="method_dispatch_binding_unavailable",
+                    notes=[str(exc)],
+                    metadata=base_metadata,
+                    refs=refs,
+                )
 
         execution_work_ref, execution_work_status, execution_work_note = (
             self._persist_execution_work_packet(
@@ -586,13 +747,13 @@ class MethodJobBenchmarkEvaluator:
 
         metric_mapping = {policy.primary_metric: metric_value}
         metric_counts = sample_counts.get(self._split.value, 0)
-        promotable = (
+        metric_promotable = (
             metric_counts > 0
             and metric_counts >= policy.min_sample_count
             and self._split == policy.compare_split
             and all(guardrails.get(name) is True for name in policy.required_guardrails)
         )
-        return BenchmarkEvaluation(
+        evaluation = BenchmarkEvaluation(
             loop_id=loop_id,
             suite_id=suite.suite_id,
             suite_version=suite.suite_version,
@@ -607,12 +768,24 @@ class MethodJobBenchmarkEvaluator:
             holdout_metrics=(metric_mapping if self._split == BenchmarkSplit.HOLDOUT else {}),
             sample_counts=sample_counts,
             guardrails=guardrails,
-            promotable=promotable,
+            promotable=metric_promotable,
             status="measured_candidate",
             notes=["MethodJob output is candidate-grade measurement."],
             runtime_split_type=self._split,
             metadata=metadata,
         )
+        provenance_failure = _methodjob_execution_provenance_failure(
+            evaluation=evaluation,
+            suite_ref=suite_ref,
+        )
+        if provenance_failure is not None:
+            return evaluation.model_copy(
+                update={
+                    "promotable": False,
+                    "notes": [*evaluation.notes, provenance_failure],
+                }
+            )
+        return evaluation
 
     @staticmethod
     def _sample_counts(value: Any) -> dict[str, int]:
@@ -1404,12 +1577,28 @@ def _build_search_method_run_profile(
     data_sample_count: int | None = None
     if evaluator._data_snapshot_bindings:
         try:
-            data_snapshot_ref = ArtifactRef.model_validate(context.get("data_snapshot_ref"))
+            suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
+            if not isinstance(suite, BenchmarkSuite):
+                return None
+            data_snapshot_ref = suite.data_snapshot_ref
+            data_ref = _methodjob_suite_source_data_ref(store, suite_ref, suite)
+            if data_snapshot_ref is None or data_ref is None:
+                return None
+            raw_context_snapshot_ref = context.get("data_snapshot_ref")
+            if raw_context_snapshot_ref is not None:
+                context_snapshot_ref = (
+                    raw_context_snapshot_ref
+                    if isinstance(raw_context_snapshot_ref, ArtifactRef)
+                    else ArtifactRef.model_validate(raw_context_snapshot_ref)
+                )
+                if context_snapshot_ref != data_snapshot_ref:
+                    return None
             if data_snapshot_ref.manifest_profile_sha256 is None:
                 return None
             snapshot_manifest = store.get_manifest(data_snapshot_ref)
             snapshot = validate_core_model_json_artifact(DataSnapshot, store, data_snapshot_ref)
-            data_ref = ArtifactRef.model_validate(snapshot.data_ref)
+            if snapshot.data_ref != data_ref:
+                return None
             if data_ref.manifest_profile_sha256 is None:
                 return None
             if (
@@ -2352,6 +2541,8 @@ class SearchLoopRunner:
             runtime_context["run_id"] = producer_run_binding.run_id
         else:
             runtime_context.setdefault("run_id", f"search-run:{uuid4().hex}")
+        if isinstance(spec.benchmark_evaluator, MethodJobBenchmarkEvaluator):
+            spec.benchmark_evaluator._resolve_method_signature()
         set_search_run_context = getattr(generator, "set_search_run_context", None)
         if callable(set_search_run_context):
             set_search_run_context(search_context)
@@ -2639,20 +2830,44 @@ class SearchLoopRunner:
                     }
                 )
         benchmark_evaluator = spec.benchmark_evaluator
-        source_bound_work_expected = (
+        methodjob_admission_failure: str | None = None
+        methodjob_execution_provenance_failure: str | None = None
+        if (
             isinstance(benchmark_evaluator, MethodJobBenchmarkEvaluator)
-            and benchmark_evaluator.requires_source_bound_execution_work_packet
-        )
+            and evaluation.status == "measured_candidate"
+        ):
+            try:
+                methodjob_admission_failure = _methodjob_source_admission_failure(
+                    store=self._store,
+                    candidate_ref=candidate_ref,
+                    evaluation_ref=None,
+                    evaluation=evaluation,
+                    suite_ref=suite_ref,
+                    policy=spec.promotion_policy,
+                )
+            except (
+                KeyError,
+                OSError,
+                OverflowError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ):
+                methodjob_admission_failure = "methodjob_source_admission_check_failed"
+            if methodjob_admission_failure is None:
+                methodjob_execution_provenance_failure = _methodjob_execution_provenance_failure(
+                    evaluation=evaluation,
+                    suite_ref=suite_ref,
+                )
         packet_admission_failure: str | None = None
-        if source_bound_work_expected or evaluation.execution_work_packet_status == "available":
+        if (
+            not isinstance(benchmark_evaluator, MethodJobBenchmarkEvaluator)
+            and evaluation.execution_work_packet_status == "available"
+        ):
             packet_admission_failure = _search_work_packet_admission_failure(
                 store=self._store,
                 evaluation=evaluation,
-                evaluator=(
-                    benchmark_evaluator
-                    if isinstance(benchmark_evaluator, MethodJobBenchmarkEvaluator)
-                    else None
-                ),
+                evaluator=None,
                 candidate_ref=candidate_ref,
                 suite_ref=suite_ref,
                 policy=spec.promotion_policy,
@@ -2662,9 +2877,17 @@ class SearchLoopRunner:
                 evaluation_attempt_id=evaluation_attempt_id,
             )
         source_profile_conflict = evaluation.status == "source_profile_conflict"
-        search_source_rejected = packet_admission_failure is not None or source_profile_conflict
+        search_source_rejected = (
+            methodjob_admission_failure is not None
+            or packet_admission_failure is not None
+            or source_profile_conflict
+        )
         if search_source_rejected:
-            rejected_note = packet_admission_failure or "search_source_profile_conflict"
+            rejected_note = (
+                methodjob_admission_failure
+                or packet_admission_failure
+                or "search_source_profile_conflict"
+            )
             rejected_update: dict[str, Any] = {
                 "selection_metrics": {
                     name: value
@@ -2678,9 +2901,13 @@ class SearchLoopRunner:
                 },
                 "promotable": False,
                 "status": (
-                    "source_work_packet_rejected"
-                    if packet_admission_failure is not None
-                    else evaluation.status
+                    "methodjob_source_rejected"
+                    if methodjob_admission_failure is not None
+                    else (
+                        "source_work_packet_rejected"
+                        if packet_admission_failure is not None
+                        else evaluation.status
+                    )
                 ),
                 "guardrails": {
                     **evaluation.guardrails,
@@ -2696,6 +2923,16 @@ class SearchLoopRunner:
                     }
                 )
             evaluation = evaluation.model_copy(update=rejected_update)
+        elif methodjob_execution_provenance_failure is not None:
+            methodjob_notes = list(evaluation.notes)
+            if methodjob_execution_provenance_failure not in methodjob_notes:
+                methodjob_notes.append(methodjob_execution_provenance_failure)
+            evaluation = evaluation.model_copy(
+                update={
+                    "promotable": False,
+                    "notes": methodjob_notes,
+                }
+            )
         primary_value = evaluation.primary_value(
             split=spec.promotion_policy.compare_split,
             metric=spec.promotion_policy.primary_metric,
@@ -2758,7 +2995,7 @@ class SearchLoopRunner:
         return {
             "simulation_results": simulation_results,
             "feedback": {
-                "verdict": "APPROVE" if evaluation.promotable else "REJECT",
+                "verdict": "APPROVE" if decision.promoted else "REJECT",
                 "promotion_decision": decision.model_dump(mode="json"),
                 "guardrails": dict(evaluation.guardrails),
                 "status": evaluation.status,

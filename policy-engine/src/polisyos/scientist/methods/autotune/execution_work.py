@@ -42,8 +42,14 @@ class MethodInputValueFingerprint(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
     dtype: str = Field(min_length=1, max_length=32)
-    shape: list[int] = Field(min_length=1)
+    shape: list[int] = Field(min_length=0)
     sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_shape(self) -> MethodInputValueFingerprint:
+        if any(dimension < 0 for dimension in self.shape):
+            raise ValueError("method input dimensions must be non-negative")
+        return self
 
 
 class MethodDispatchBinding(BaseModel):
@@ -51,7 +57,7 @@ class MethodDispatchBinding(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    schema_version: Literal["1.1"] = "1.1"
+    schema_version: Literal["1.1", "1.2"] = "1.1"
     method_fqn: str = Field(min_length=1, max_length=256)
     method_version: str | None = Field(default=None, max_length=64)
     method_seed: int = Field(strict=True)
@@ -62,25 +68,34 @@ class MethodDispatchBinding(BaseModel):
 
     @model_validator(mode="after")
     def _validate_dispatch_inputs(self) -> MethodDispatchBinding:
-        if (
-            not self.input_refs
-            or set(self.input_refs) != set(self.input_schemas)
-            or not self.input_state_fingerprints
-        ):
+        if set(self.input_refs) != set(self.input_schemas):
             raise ValueError("dispatch binding requires matched refs, schemas, and slots")
+        if self.schema_version == "1.1" and (
+            not self.input_refs
+            or not self.input_state_fingerprints
+            or any(not value.shape for value in self.input_state_fingerprints.values())
+        ):
+            raise ValueError("dispatch binding schema 1.1 requires non-scalar input slots")
+        if (
+            self.schema_version == "1.2"
+            and self.input_state_fingerprints
+            and all(value.shape for value in self.input_state_fingerprints.values())
+        ):
+            raise ValueError("dispatch binding schema 1.2 requires scalar or empty slots")
         return self
 
 
 def fingerprint_method_input_value(value: Any) -> MethodInputValueFingerprint:
     """Fingerprint a numeric or fixed-width array using canonical shape and bytes."""
     array = np.asarray(value)
-    if array.ndim == 0 or array.dtype.hasobject:
-        raise ValueError("method input must be a non-scalar, non-object array")
+    if array.dtype.hasobject:
+        raise ValueError("method input must be a non-object array")
+    original_shape = [int(dimension) for dimension in array.shape]
     canonical_dtype = array.dtype.newbyteorder("<")
     canonical_array = np.ascontiguousarray(array.astype(canonical_dtype, copy=False))
     return MethodInputValueFingerprint(
         dtype=canonical_dtype.str,
-        shape=[int(dimension) for dimension in canonical_array.shape],
+        shape=original_shape,
         sha256=hashlib.sha256(canonical_array.tobytes(order="C")).hexdigest(),
     )
 

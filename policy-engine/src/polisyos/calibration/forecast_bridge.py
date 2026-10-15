@@ -30,8 +30,18 @@ from pydantic import (
 )
 
 from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256 as _artifact_manifest_profile_sha256,
+)
+from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
+from polisyos.core.artifacts import (
+    resolve_manifest_by_profile as _resolve_manifest_by_profile,
+)
+from polisyos.core.artifacts.ir_adapter import (
+    CoreToIRArtifactStoreAdapter as _CoreToIRArtifactStoreAdapter,
+)
+from polisyos.core.artifacts.manifest import ArtifactManifest as _CoreArtifactManifest
 from polisyos.ir import ArtifactRefModel, BacktestReportRef
 from polisyos.ir.analytics.backtest import BacktestReport, load_backtest_report
 from polisyos.ir.artifacts import (
@@ -130,6 +140,43 @@ REFERENCE_PROFILES: dict[str, tuple[str, str, str]] = {
         "ir.calibration.method_lineage",
         "polisyos.calibration.method_lineage",
         "1.0",
+    ),
+}
+
+# Every context role is backed by one exact set of role-labelled source edges
+# on both the report manifest and the role artifact manifest. Keep this table
+# aligned with the producer's `_persist_evidence_role_refs` contract: the
+# consumer compares persisted edges; it does not infer source roles from
+# payload names or caller declarations.
+REFERENCE_SOURCE_INPUT_ROLES: dict[str, tuple[str, ...]] = {
+    "scope_binding": ("candidate_source", "model_spec", "policy_spec", "calibration_rule"),
+    "calibration_threshold": ("calibration_rule",),
+    "observed_outcome": ("observed_source",),
+    "prediction": ("uncertainty_bundle",),
+    "evaluation_design": ("training_slice",),
+    "credible_evaluation": ("candidate_source",),
+    "source_lineage": ("candidate_source", "observed_source"),
+    "method_lineage": ("method_artifact", "calibration_rule"),
+}
+
+_REFERENCE_EMBEDDED_SOURCE_REFS: dict[str, tuple[tuple[str, str], ...]] = {
+    "observed_outcome": (("observed_source_ref", "observed_source"),),
+    "prediction": (("uncertainty_bundle_ref", "uncertainty_bundle"),),
+    "evaluation_design": (("training_slice_ref", "training_slice"),),
+    "source_lineage": (
+        ("candidate_source_ref", "candidate_source"),
+        ("observed_source_ref", "observed_source"),
+    ),
+    "method_lineage": (
+        ("method_artifact_ref", "method_artifact"),
+        ("calibration_rule_ref", "calibration_rule"),
+    ),
+}
+
+_REFERENCE_EMBEDDED_SOURCE_IDS: dict[str, tuple[tuple[str, str], ...]] = {
+    "scope_binding": (
+        ("binding.model_spec_ref", "model_spec"),
+        ("binding.policy_spec_ref", "policy_spec"),
     ),
 }
 
@@ -1001,7 +1048,166 @@ def _context_reference_issues(
             context,
         )
     )
+    if require_selected_profiles:
+        issues.extend(
+            _role_source_lineage_issues(
+                store,
+                input_edges,
+                context,
+                payloads,
+            )
+        )
     return _dedupe(issues), {role: tuple(values) for role, values in payloads.items()}
+
+
+def _role_source_lineage_issues(
+    store: ArtifactStore,
+    report_edges: Sequence[tuple[str, str, str | None]],
+    context: EmpiricalCalibrationContext,
+    payloads: Mapping[str, Sequence[object]],
+) -> tuple[str, ...]:
+    """Bind every selected role artifact to its exact, resolved report sources."""
+
+    issues: list[str] = []
+    context_refs = _context_refs(context)
+    refs_by_role: dict[str, list[EvidenceArtifactRef]] = {}
+    for role, ref in context_refs:
+        refs_by_role.setdefault(role, []).append(ref)
+    report_edges_by_role: dict[str, list[tuple[str, str, str | None]]] = {}
+    for edge in report_edges:
+        report_edges_by_role.setdefault(edge[1], []).append(edge)
+
+    duplicate_context_refs = len(
+        {(str(ref.artifact_id), role, ref.manifest_profile_sha256) for role, ref in context_refs}
+    ) != len(context_refs)
+    if duplicate_context_refs:
+        issues.append("reference_source_lineage_duplicate_role_reference")
+
+    for role, ref in context_refs:
+        expected_source_roles = REFERENCE_SOURCE_INPUT_ROLES.get(role)
+        if expected_source_roles is None:
+            issues.append(f"reference_source_lineage_not_established:{role}")
+            continue
+
+        role_has_issue = False
+        selected_sources: dict[str, tuple[str, str, str]] = {}
+        resolved_manifests: dict[str, Mapping[str, object]] = {}
+        for source_role in expected_source_roles:
+            candidates = report_edges_by_role.get(source_role, [])
+            if len(candidates) != 1:
+                role_has_issue = True
+                continue
+            artifact_id, _role, profile = candidates[0]
+            if profile is None:
+                role_has_issue = True
+                continue
+            selected_edge = (artifact_id, source_role, profile)
+            selected_sources[source_role] = selected_edge
+            try:
+                manifest = _resolve_report_source_manifest(store, artifact_id, profile)
+            except (FileNotFoundError, OSError, TypeError, ValueError):
+                role_has_issue = True
+                continue
+            resolved_manifests[source_role] = manifest
+
+        try:
+            actual_child_edges = _manifest_input_edges(
+                store,
+                _store_selector_for_ref(ref),
+            )
+        except (FileNotFoundError, OSError, TypeError, ValueError):
+            role_has_issue = True
+            actual_child_edges = ()
+
+        expected_child_edges = tuple(
+            selected_sources[source_role]
+            for source_role in expected_source_roles
+            if source_role in selected_sources
+        )
+        if (
+            len(expected_child_edges) != len(expected_source_roles)
+            or len(actual_child_edges) != len(set(actual_child_edges))
+            or sorted(actual_child_edges) != sorted(expected_child_edges)
+        ):
+            role_has_issue = True
+
+        role_refs = refs_by_role[role]
+        role_payloads = payloads.get(role, ())
+        try:
+            payload_index = role_refs.index(ref)
+        except ValueError:
+            payload_index = len(role_payloads)
+        payload = role_payloads[payload_index] if payload_index < len(role_payloads) else None
+        if payload is not None:
+            for payload_path, source_role in _REFERENCE_EMBEDDED_SOURCE_REFS.get(role, ()):
+                raw_ref = _lookup_identity(payload, payload_path)
+                try:
+                    embedded_ref = ArtifactRefModel.model_validate(raw_ref)
+                except (TypeError, ValueError):
+                    role_has_issue = True
+                    continue
+                expected_edge = selected_sources.get(source_role)
+                source_manifest = resolved_manifests.get(source_role)
+                if (
+                    expected_edge is None
+                    or source_manifest is None
+                    or str(embedded_ref.artifact_id) != expected_edge[0]
+                    or embedded_ref.manifest_profile_sha256 != expected_edge[2]
+                    or embedded_ref.kind != _field(source_manifest, "kind")
+                    or embedded_ref.media_type != _field(source_manifest, "media_type")
+                ):
+                    role_has_issue = True
+
+            for payload_path, source_role in _REFERENCE_EMBEDDED_SOURCE_IDS.get(role, ()):
+                raw_artifact_id = _lookup_identity(payload, payload_path)
+                expected_edge = selected_sources.get(source_role)
+                if (
+                    not isinstance(raw_artifact_id, str)
+                    or expected_edge is None
+                    or raw_artifact_id != expected_edge[0]
+                ):
+                    role_has_issue = True
+
+        if role_has_issue:
+            issues.append(f"reference_source_lineage_not_established:{role}")
+
+    return _dedupe(issues)
+
+
+def _resolve_report_source_manifest(
+    store: ArtifactStore,
+    artifact_id: str,
+    manifest_profile_sha256: str,
+) -> Mapping[str, object]:
+    """Resolve and content-bind a source manifest through the caller's store API."""
+
+    ir_store = _ensure_ir_artifact_store(store)
+    if isinstance(ir_store, _CoreToIRArtifactStoreAdapter):
+        manifest = _resolve_manifest_by_profile(
+            ir_store.store,
+            artifact_id,
+            manifest_profile_sha256,
+        )
+        return _as_mapping(manifest)
+
+    manifest = _CoreArtifactManifest.model_validate(ir_store.get_manifest(artifact_id))
+    if str(manifest.artifact_id) != artifact_id:
+        raise ValueError("selected source manifest artifact ID mismatch")
+    if _artifact_manifest_profile_sha256(manifest) != manifest_profile_sha256:
+        raise TypeError("artifact store cannot resolve the selected source profile")
+    manifest_payload = _as_mapping(manifest)
+    data = ir_store.get_bytes(artifact_id)
+    actual_sha = hashlib.sha256(data).hexdigest()
+    expected_sha = artifact_id.split(":", 1)[1]
+    integrity = _as_mapping(_field(manifest_payload, "integrity"))
+    if actual_sha != expected_sha or _field(integrity, "sha256") != actual_sha:
+        raise ValueError("source artifact content binding mismatch")
+    byte_size = _field(manifest_payload, "byte_size")
+    if byte_size is not None and (
+        isinstance(byte_size, bool) or not isinstance(byte_size, int) or byte_size != len(data)
+    ):
+        raise ValueError("source artifact manifest byte size mismatch")
+    return manifest_payload
 
 
 def _report_input_edges(

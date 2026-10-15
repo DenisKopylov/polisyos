@@ -19,8 +19,13 @@ from typing import Any
 
 import pytest
 
-from polisyos.core.artifacts import FileSystemCAS, PutOptions
+from polisyos.core.artifacts import (
+    FileSystemCAS,
+    PutOptions,
+    artifact_manifest_profile_sha256,
+)
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ProducerInfo
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
@@ -33,8 +38,8 @@ from polisyos.ir.artifacts import InputRef, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import BacktestReportRef
 
-MODEL_REF = "model://frc02/ets/v1"
-POLICY_REF = "policy://frc02/ets/v1"
+MODEL_REF = "sha256:dc96283b7f8a412385637de39011772aa012ecbfa4349f3398418a5c0d353f1b"
+POLICY_REF = "sha256:ba89388849ea2b84dc5677aa95cdc804c7d0dc49f45ed9c86b28d67ea6ba4bb7"
 ESTIMAND = "predictive_interval_coverage"
 METHOD_REF = "forecasting.univariate.exponential_smoothing"
 METHOD_VERSION = "1.0.0"
@@ -146,6 +151,7 @@ def _persist_context_ref(
     identity_path: str = "identity",
     binding: Mapping[str, object] | None = None,
     payload_fields: Mapping[str, object] | None = None,
+    inputs: tuple[InputRef, ...] = (),
 ) -> dict[str, str]:
     """Persist one role-profiled, report-bound context artifact."""
 
@@ -167,6 +173,7 @@ def _persist_context_ref(
         kind=kind,
         schema_name=schema_name,
         schema_version=schema_version,
+        inputs=list(inputs),
         return_selected_profile=True,
     )
     ref.update(
@@ -181,12 +188,56 @@ def _persist_context_ref(
     return ref
 
 
+def _persist_source_refs(store: FileSystemCAS) -> dict[str, dict[str, str]]:
+    """Persist deterministic source blobs for the selected-profile lineage fixtures."""
+
+    source_kinds = {
+        "candidate_source": "ir.candidate_scenario_source",
+        "model_spec": "ir.model_spec",
+        "policy_spec": "ir.policy_spec",
+        "calibration_rule": "ir.calibration_rule",
+        "observed_source": "fabric.data_snapshot",
+        "uncertainty_bundle": "ir.forecasting_uncertainty_bundle",
+        "training_slice": "ir.training_slice",
+        "method_artifact": "ir.method_artifact",
+    }
+    ir_store = _ensure_ir_artifact_store(store)
+    return {
+        role: put_json_artifact(
+            ir_store,
+            {"source_role": role},
+            kind=kind,
+            schema_name=f"frc02.test.{role}",
+            schema_version="1.0",
+            return_selected_profile=True,
+        )
+        for role, kind in source_kinds.items()
+    }
+
+
+def _source_inputs(
+    source_refs: Mapping[str, Mapping[str, str]],
+    roles: tuple[str, ...],
+) -> tuple[InputRef, ...]:
+    """Build exact selected-profile source edges in the producer's declared order."""
+
+    return tuple(
+        InputRef(
+            artifact_id=source_refs[role]["artifact_id"],
+            role=role,
+            manifest_profile_sha256=source_refs[role]["manifest_profile_sha256"],
+        )
+        for role in roles
+    )
+
+
 def _persist_context_refs(
     store: FileSystemCAS,
     *,
     report_id: str,
     model_ref: str,
     policy_ref: str,
+    source_refs: Mapping[str, Mapping[str, str]],
     threshold: float = 0.5,
 ) -> dict[str, dict[str, str]]:
     """Persist the complete neutral context required by the producer."""
@@ -209,6 +260,9 @@ def _persist_context_refs(
             identity=report_id,
             identity_path="report_id",
             binding=binding,
+            inputs=_source_inputs(
+                source_refs, _bridge().REFERENCE_SOURCE_INPUT_ROLES["scope_binding"]
+            ),
         ),
         "calibration_threshold": _persist_context_ref(
             store,
@@ -216,42 +270,82 @@ def _persist_context_refs(
             report_id=report_id,
             identity=f"threshold://frc02/{threshold:.2f}",
             payload_fields={"threshold": Decimal(f"{threshold:.2f}")},
+            inputs=_source_inputs(
+                source_refs,
+                _bridge().REFERENCE_SOURCE_INPUT_ROLES["calibration_threshold"],
+            ),
         ),
         "observed_outcome": _persist_context_ref(
             store,
             role="observed_outcome",
             report_id=report_id,
             identity="observation://frc02/held-out/v1",
+            payload_fields={"observed_source_ref": source_refs["observed_source"]},
+            inputs=_source_inputs(
+                source_refs,
+                _bridge().REFERENCE_SOURCE_INPUT_ROLES["observed_outcome"],
+            ),
         ),
         "prediction": _persist_context_ref(
             store,
             role="prediction",
             report_id=report_id,
             identity="prediction://frc02/held-out/v1",
+            payload_fields={"uncertainty_bundle_ref": source_refs["uncertainty_bundle"]},
+            inputs=_source_inputs(
+                source_refs,
+                _bridge().REFERENCE_SOURCE_INPUT_ROLES["prediction"],
+            ),
         ),
         "evaluation_design": _persist_context_ref(
             store,
             role="evaluation_design",
             report_id=report_id,
             identity="evaluation://frc02/rolling-origin/v1",
+            payload_fields={"training_slice_ref": source_refs["training_slice"]},
+            inputs=_source_inputs(
+                source_refs,
+                _bridge().REFERENCE_SOURCE_INPUT_ROLES["evaluation_design"],
+            ),
         ),
         "credible_evaluation": _persist_context_ref(
             store,
             role="credible_evaluation",
             report_id=report_id,
             identity="evaluation-evidence://frc02/v1",
+            payload_fields={"credibility_status": "not_established"},
+            inputs=_source_inputs(
+                source_refs,
+                _bridge().REFERENCE_SOURCE_INPUT_ROLES["credible_evaluation"],
+            ),
         ),
         "source_lineage": _persist_context_ref(
             store,
             role="source_lineage",
             report_id=report_id,
             identity="source://frc02/panel/v1",
+            payload_fields={
+                "candidate_source_ref": source_refs["candidate_source"],
+                "observed_source_ref": source_refs["observed_source"],
+            },
+            inputs=_source_inputs(
+                source_refs,
+                _bridge().REFERENCE_SOURCE_INPUT_ROLES["source_lineage"],
+            ),
         ),
         "method_lineage": _persist_context_ref(
             store,
             role="method_lineage",
             report_id=report_id,
             identity="method-lineage://frc02/ets/v1",
+            payload_fields={
+                "method_artifact_ref": source_refs["method_artifact"],
+                "calibration_rule_ref": source_refs["calibration_rule"],
+            },
+            inputs=_source_inputs(
+                source_refs,
+                _bridge().REFERENCE_SOURCE_INPUT_ROLES["method_lineage"],
+            ),
         ),
     }
     return refs
@@ -268,6 +362,7 @@ def _persist_report_into_store(
     """Persist a report whose interval observations can be recomputed exactly."""
 
     report_id = f"frc02-bridge-{label}"
+    source_refs = _persist_source_refs(store)
     comparisons: list[OutcomeComparison] = []
     for index, observed_hit in enumerate(observations):
         y_pred = 10.0 + index
@@ -318,8 +413,8 @@ def _persist_report_into_store(
         interval_type="prediction",
     )
     metadata: dict[str, object] = {
-        "model_spec_ref": MODEL_REF,
-        "policy_spec_ref": POLICY_REF,
+        "model_spec_ref": source_refs["model_spec"]["artifact_id"],
+        "policy_spec_ref": source_refs["policy_spec"]["artifact_id"],
         "method_ref": METHOD_REF,
         "method_version": METHOD_VERSION,
         "rule_version_ref": RULE_VERSION_REF,
@@ -334,8 +429,8 @@ def _persist_report_into_store(
     report = BacktestReport(
         schema_version="1.0",
         report_id=report_id,
-        model_spec_ref=MODEL_REF,
-        policy_spec_ref=POLICY_REF,
+        model_spec_ref=source_refs["model_spec"]["artifact_id"],
+        policy_spec_ref=source_refs["policy_spec"]["artifact_id"],
         scenarios=[scenario],
         overall_coverage_probability=numerator / denominator if denominator else None,
         n_scenarios=1,
@@ -345,8 +440,9 @@ def _persist_report_into_store(
     refs = _persist_context_refs(
         store,
         report_id=report_id,
-        model_ref=MODEL_REF,
-        policy_ref=POLICY_REF,
+        model_ref=source_refs["model_spec"]["artifact_id"],
+        policy_ref=source_refs["policy_spec"]["artifact_id"],
+        source_refs=source_refs,
         threshold=threshold,
     )
     inputs = [
@@ -357,6 +453,17 @@ def _persist_report_into_store(
         )
         for role, ref in refs.items()
     ]
+    source_role_inputs = _source_inputs(
+        source_refs,
+        tuple(
+            dict.fromkeys(
+                source_role
+                for source_roles in _bridge().REFERENCE_SOURCE_INPUT_ROLES.values()
+                for source_role in source_roles
+            )
+        ),
+    )
+    inputs.extend(source_role_inputs)
     report_ref = persist_backtest_report(_ensure_ir_artifact_store(store), report, inputs=inputs)
     persisted = load_backtest_report(_ensure_ir_artifact_store(store), report_ref)
     return report_ref, persisted, refs
@@ -783,6 +890,24 @@ def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_
     assert set(refs) == set(REFERENCE_PROFILES)
     assert all(ref.get("manifest_profile_sha256") for ref in refs.values())
     bridge = _bridge()
+    report_manifest = _ensure_ir_artifact_store(store).get_manifest(report_ref)
+    for role, source_roles in bridge.REFERENCE_SOURCE_INPUT_ROLES.items():
+        selected_role = refs[role]
+        role_manifest = store.get_manifest_by_profile(
+            selected_role["artifact_id"],
+            selected_role["manifest_profile_sha256"],
+        )
+        actual_source_edges = tuple(
+            (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+            for item in role_manifest.inputs
+        )
+        expected_source_edges = tuple(
+            (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+            for item in report_manifest.inputs
+            if item.role in source_roles
+        )
+        assert len(expected_source_edges) == len(source_roles)
+        assert sorted(actual_source_edges) == sorted(expected_source_edges)
     evidence = bridge.produce_empirical_calibration_evidence(
         store,
         report_ref,
@@ -812,6 +937,344 @@ def test_persisted_backtest_report_readback_produces_neutral_empirical_interval_
     evidence_ref = bridge.persist_empirical_calibration_evidence(store, evidence)
     readback = bridge.load_empirical_calibration_evidence(store, evidence_ref)
     assert readback == evidence
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        pytest.param("missing", id="missing"),
+        pytest.param("foreign_id", id="foreign_id"),
+        pytest.param("wrong_role", id="wrong_role"),
+        pytest.param("wrong_profile", id="wrong_profile"),
+        pytest.param("duplicate", id="duplicate"),
+        pytest.param("extra", id="extra"),
+        pytest.param("embedded_foreign_ref", id="embedded_foreign_ref"),
+        pytest.param("embedded_wrong_profile", id="embedded_wrong_profile"),
+    ],
+)
+def test_selected_role_profile_requires_exact_child_source_edges(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    """A role artifact cannot replace its selected report-to-source edges."""
+
+    store, report_ref, _persisted, refs = _persist_report(
+        tmp_path,
+        label=f"child-source-edge-{mutation}",
+        observations=(True, True),
+    )
+    bridge = _bridge()
+    selected_role = refs["observed_outcome"]
+    report_manifest = _ensure_ir_artifact_store(store).get_manifest(report_ref)
+    observed_source_edge = next(
+        item for item in report_manifest.inputs if item.role == "observed_source"
+    )
+    candidate_source_edge = next(
+        item for item in report_manifest.inputs if item.role == "candidate_source"
+    )
+    assert observed_source_edge.manifest_profile_sha256 is not None
+    assert candidate_source_edge.manifest_profile_sha256 is not None
+    source_role_payload = bridge.get_json_artifact(
+        _ensure_ir_artifact_store(store),
+        selected_role["artifact_id"],
+    )
+    expected_source_input = InputRef.model_validate(observed_source_edge.model_dump(mode="python"))
+    payload_to_write: Mapping[str, object] = source_role_payload
+    if mutation == "missing":
+        child_inputs: list[InputRef] = []
+    elif mutation == "foreign_id":
+        child_inputs = [
+            InputRef(
+                artifact_id=candidate_source_edge.artifact_id,
+                role="observed_source",
+                manifest_profile_sha256=candidate_source_edge.manifest_profile_sha256,
+            )
+        ]
+    elif mutation == "wrong_role":
+        child_inputs = [expected_source_input.model_copy(update={"role": "candidate_source"})]
+    elif mutation == "wrong_profile":
+        child_inputs = [
+            expected_source_input.model_copy(
+                update={"manifest_profile_sha256": f"sha256:{'f' * 64}"}
+            )
+        ]
+    elif mutation == "duplicate":
+        child_inputs = [expected_source_input, expected_source_input]
+    elif mutation == "embedded_foreign_ref":
+        candidate_manifest = store.get_manifest_by_profile(
+            candidate_source_edge.artifact_id,
+            candidate_source_edge.manifest_profile_sha256,
+        )
+        payload_to_write = {
+            **source_role_payload,
+            "observed_source_ref": {
+                "artifact_id": str(candidate_source_edge.artifact_id),
+                "kind": candidate_manifest.kind,
+                "media_type": candidate_manifest.media_type,
+                "manifest_profile_sha256": candidate_source_edge.manifest_profile_sha256,
+            },
+        }
+        child_inputs = [expected_source_input]
+    elif mutation == "embedded_wrong_profile":
+        payload_to_write = {
+            **source_role_payload,
+            "observed_source_ref": {
+                **source_role_payload["observed_source_ref"],
+                "manifest_profile_sha256": f"sha256:{'f' * 64}",
+            },
+        }
+        child_inputs = [expected_source_input]
+    else:
+        child_inputs = [
+            expected_source_input,
+            InputRef.model_validate(candidate_source_edge.model_dump(mode="python")),
+        ]
+    empty_child_ref = put_json_artifact(
+        _ensure_ir_artifact_store(store),
+        payload_to_write,
+        kind=selected_role["kind"],
+        schema_name=selected_role["schema_name"],
+        schema_version=selected_role["schema_version"],
+        inputs=child_inputs,
+        return_selected_profile=True,
+    )
+    if mutation.startswith("embedded_"):
+        assert empty_child_ref["artifact_id"] != selected_role["artifact_id"]
+    else:
+        assert empty_child_ref["artifact_id"] == selected_role["artifact_id"]
+    if not mutation.startswith("embedded_"):
+        assert (
+            empty_child_ref["manifest_profile_sha256"] != selected_role["manifest_profile_sha256"]
+        )
+
+    report_inputs = [
+        InputRef.model_validate(item.model_dump(mode="python")) for item in report_manifest.inputs
+    ]
+    report_inputs = [
+        InputRef(
+            artifact_id=empty_child_ref["artifact_id"],
+            role=item.role,
+            manifest_profile_sha256=empty_child_ref["manifest_profile_sha256"],
+        )
+        if item.role == "observed_outcome" and str(item.artifact_id) == selected_role["artifact_id"]
+        else item
+        for item in report_inputs
+    ]
+    selected_report_ref = persist_backtest_report(
+        _ensure_ir_artifact_store(store),
+        _persisted,
+        inputs=report_inputs,
+    )
+    empty_role_refs = {role: dict(ref) for role, ref in refs.items()}
+    empty_role_refs["observed_outcome"]["artifact_id"] = empty_child_ref["artifact_id"]
+    empty_role_refs["observed_outcome"]["manifest_profile_sha256"] = empty_child_ref[
+        "manifest_profile_sha256"
+    ]
+
+    evidence = bridge.produce_empirical_calibration_evidence(
+        store,
+        selected_report_ref,
+        context=_context(empty_role_refs),
+    )
+
+    assert "reference_source_lineage_not_established:observed_outcome" in evidence.failure_codes
+    assert evidence.context_bound is False
+    assert evidence.usable_for_calibration is False
+
+
+@pytest.mark.parametrize(
+    "role",
+    [
+        pytest.param("scope_binding", id="scope_binding"),
+        pytest.param("calibration_threshold", id="calibration_threshold"),
+        pytest.param("observed_outcome", id="observed_outcome"),
+        pytest.param("prediction", id="prediction"),
+        pytest.param("evaluation_design", id="evaluation_design"),
+        pytest.param("credible_evaluation", id="credible_evaluation"),
+        pytest.param("source_lineage", id="source_lineage"),
+        pytest.param("method_lineage", id="method_lineage"),
+    ],
+)
+def test_every_selected_role_requires_its_complete_source_edge_set(
+    tmp_path: Path,
+    role: str,
+) -> None:
+    """Every one of the eight context roles fails when a required source edge is absent."""
+
+    store, report_ref, report, refs = _persist_report(
+        tmp_path,
+        label=f"missing-role-source-edge-{role}",
+        observations=(True, True),
+    )
+    bridge = _bridge()
+    expected_roles = bridge.REFERENCE_SOURCE_INPUT_ROLES[role]
+    selected_role = refs[role]
+    role_manifest = store.get_manifest_by_profile(
+        selected_role["artifact_id"],
+        selected_role["manifest_profile_sha256"],
+    )
+    role_payload = bridge.get_json_artifact(
+        _ensure_ir_artifact_store(store),
+        selected_role["artifact_id"],
+    )
+    original_child_edges = [
+        InputRef.model_validate(item.model_dump(mode="python")) for item in role_manifest.inputs
+    ]
+    assert len(original_child_edges) == len(expected_roles)
+    mutated_child_edges = original_child_edges[1:]
+    assert len(mutated_child_edges) == len(expected_roles) - 1
+    mutated_role_ref = put_json_artifact(
+        _ensure_ir_artifact_store(store),
+        role_payload,
+        kind=role_manifest.kind,
+        schema_name=role_manifest.artifact_schema.name,
+        schema_version=role_manifest.artifact_schema.version,
+        inputs=mutated_child_edges,
+        return_selected_profile=True,
+    )
+    assert mutated_role_ref["artifact_id"] == selected_role["artifact_id"]
+    assert mutated_role_ref["manifest_profile_sha256"] != selected_role["manifest_profile_sha256"]
+
+    report_manifest = _ensure_ir_artifact_store(store).get_manifest(report_ref)
+    report_inputs = [
+        InputRef.model_validate(item.model_dump(mode="python")) for item in report_manifest.inputs
+    ]
+    selected_report_ref = persist_backtest_report(
+        _ensure_ir_artifact_store(store),
+        report,
+        inputs=[
+            InputRef(
+                artifact_id=mutated_role_ref["artifact_id"],
+                role=item.role,
+                manifest_profile_sha256=mutated_role_ref["manifest_profile_sha256"],
+            )
+            if item.role == role and str(item.artifact_id) == selected_role["artifact_id"]
+            else item
+            for item in report_inputs
+        ],
+    )
+    mutated_refs = {name: dict(ref) for name, ref in refs.items()}
+    mutated_refs[role]["manifest_profile_sha256"] = mutated_role_ref["manifest_profile_sha256"]
+
+    evidence = bridge.produce_empirical_calibration_evidence(
+        store,
+        selected_report_ref,
+        context=_context(mutated_refs),
+    )
+
+    assert f"reference_source_lineage_not_established:{role}" in evidence.failure_codes
+    assert evidence.context_bound is False
+    assert evidence.usable_for_calibration is False
+
+
+@pytest.mark.parametrize(
+    ("role", "payload_path", "source_role"),
+    [
+        ("scope_binding", "binding.model_spec_ref", "model_spec"),
+        ("scope_binding", "binding.policy_spec_ref", "policy_spec"),
+        ("observed_outcome", "observed_source_ref", "observed_source"),
+        ("prediction", "uncertainty_bundle_ref", "uncertainty_bundle"),
+        ("evaluation_design", "training_slice_ref", "training_slice"),
+        ("source_lineage", "candidate_source_ref", "candidate_source"),
+        ("source_lineage", "observed_source_ref", "observed_source"),
+        ("method_lineage", "method_artifact_ref", "method_artifact"),
+        ("method_lineage", "calibration_rule_ref", "calibration_rule"),
+    ],
+)
+def test_embedded_source_reference_must_match_selected_child_edge(
+    tmp_path: Path,
+    role: str,
+    payload_path: str,
+    source_role: str,
+) -> None:
+    """Embedded source IDs cannot disagree with their resolved role manifest edges."""
+
+    store, report_ref, report, refs = _persist_report(
+        tmp_path,
+        label=f"embedded-source-{role}-{source_role}",
+        observations=(True, True),
+    )
+    selected_role = refs[role]
+    bridge = _bridge()
+    report_manifest = _ensure_ir_artifact_store(store).get_manifest(report_ref)
+    role_manifest = store.get_manifest_by_profile(
+        selected_role["artifact_id"],
+        selected_role["manifest_profile_sha256"],
+    )
+    child_inputs = [
+        InputRef.model_validate(item.model_dump(mode="python")) for item in role_manifest.inputs
+    ]
+    parent_source_edges = [item for item in report_manifest.inputs if item.role == source_role]
+    assert len(parent_source_edges) == 1
+    selected_source_edge = parent_source_edges[0]
+    foreign_source_edge = next(
+        item
+        for item in report_manifest.inputs
+        if item.role != source_role and item.artifact_id != selected_source_edge.artifact_id
+    )
+    foreign_manifest = store.get_manifest_by_profile(
+        foreign_source_edge.artifact_id,
+        foreign_source_edge.manifest_profile_sha256,
+    )
+    payload = dict(
+        bridge.get_json_artifact(
+            _ensure_ir_artifact_store(store),
+            selected_role["artifact_id"],
+        )
+    )
+    if payload_path.startswith("binding."):
+        binding = dict(payload["binding"])
+        binding[payload_path.removeprefix("binding.")] = str(foreign_source_edge.artifact_id)
+        payload["binding"] = binding
+    else:
+        payload[payload_path] = {
+            "artifact_id": str(foreign_source_edge.artifact_id),
+            "kind": foreign_manifest.kind,
+            "media_type": foreign_manifest.media_type,
+            "manifest_profile_sha256": foreign_source_edge.manifest_profile_sha256,
+        }
+    mutated_role_ref = put_json_artifact(
+        _ensure_ir_artifact_store(store),
+        payload,
+        kind=selected_role["kind"],
+        schema_name=selected_role["schema_name"],
+        schema_version=selected_role["schema_version"],
+        inputs=child_inputs,
+        return_selected_profile=True,
+    )
+    assert mutated_role_ref["artifact_id"] != selected_role["artifact_id"]
+
+    report_inputs = [
+        InputRef.model_validate(item.model_dump(mode="python")) for item in report_manifest.inputs
+    ]
+    report_inputs = [
+        InputRef(
+            artifact_id=mutated_role_ref["artifact_id"],
+            role=item.role,
+            manifest_profile_sha256=mutated_role_ref["manifest_profile_sha256"],
+        )
+        if item.role == role and str(item.artifact_id) == selected_role["artifact_id"]
+        else item
+        for item in report_inputs
+    ]
+    selected_report_ref = persist_backtest_report(
+        _ensure_ir_artifact_store(store),
+        report,
+        inputs=report_inputs,
+    )
+    mutated_refs = {name: dict(ref) for name, ref in refs.items()}
+    mutated_refs[role]["artifact_id"] = mutated_role_ref["artifact_id"]
+    mutated_refs[role]["manifest_profile_sha256"] = mutated_role_ref["manifest_profile_sha256"]
+
+    evidence = bridge.produce_empirical_calibration_evidence(
+        store,
+        selected_report_ref,
+        context=_context(mutated_refs),
+    )
+
+    assert f"reference_source_lineage_not_established:{role}" in evidence.failure_codes
+    assert evidence.context_bound is False
+    assert evidence.usable_for_calibration is False
 
 
 def test_observed_comparisons_change_empirical_admission_with_same_nominal_confidence(
@@ -1162,6 +1625,63 @@ def test_forged_report_manifest_or_content_binding_is_refused_before_persistence
         store,
         lambda: bridge.persist_empirical_calibration_evidence(store, forged_evidence),
     )
+
+
+def test_pure_ir_default_only_source_manifest_must_match_requested_artifact_id(
+    tmp_path: Path,
+) -> None:
+    """The minimal IR fallback binds the returned selected manifest to its requested ID."""
+
+    store, report_ref, _persisted, _refs = _persist_report(
+        tmp_path,
+        label="pure-ir-source-manifest-id",
+        observations=(True,),
+    )
+    bridge = _bridge()
+    ir_store = _ensure_ir_artifact_store(store)
+    requested_id = str(report_ref.artifact_id)
+    default_manifest = ir_store.get_manifest(report_ref)
+    default_profile = artifact_manifest_profile_sha256(default_manifest)
+    default_only_store = _StoreOverride(store, manifest=default_manifest)
+
+    resolved = bridge._resolve_report_source_manifest(
+        default_only_store,
+        requested_id,
+        default_profile,
+    )
+    assert str(resolved["artifact_id"]) == requested_id
+
+    data = ir_store.get_bytes(report_ref)
+    alternate_profile_ref = store.put_bytes(
+        data,
+        PutOptions(
+            kind=default_manifest.kind,
+            media_type=default_manifest.media_type,
+            schema=default_manifest.artifact_schema,
+            producer=ProducerInfo(component="test.pure-ir-alternate-profile", version="1.0"),
+            inputs=default_manifest.inputs,
+        ),
+        return_selected_profile=True,
+    )
+    assert str(alternate_profile_ref.artifact_id) == requested_id
+    assert alternate_profile_ref.manifest_profile_sha256 != default_profile
+    with pytest.raises(TypeError, match="cannot resolve the selected source profile"):
+        bridge._resolve_report_source_manifest(
+            default_only_store,
+            requested_id,
+            alternate_profile_ref.manifest_profile_sha256,
+        )
+
+    forged_id = ArtifactID.model_validate("sha256:" + "0" * 64)
+    assert str(forged_id) != requested_id
+    forged_manifest = default_manifest.model_copy(update={"artifact_id": forged_id})
+    assert artifact_manifest_profile_sha256(forged_manifest) == default_profile
+    with pytest.raises(ValueError, match="manifest artifact ID"):
+        bridge._resolve_report_source_manifest(
+            _StoreOverride(store, manifest=forged_manifest),
+            requested_id,
+            default_profile,
+        )
 
 
 def test_forged_context_scope_bytes_and_threshold_manifest_fail_before_cas_write(

@@ -4209,6 +4209,7 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
     from typing import cast
 
     from polisyos.calibration.forecast_bridge import (
+        REFERENCE_SOURCE_INPUT_ROLES,
         EmpiricalCalibrationEvidenceRef,
         load_empirical_calibration_evidence,
     )
@@ -4251,6 +4252,35 @@ async def test_predictive_calibration_post_event_reopen_get_and_exact_intent_ret
         assert evidence.report_ref.manifest_profile_sha256 is not None
         assert report.metadata["run_binding"]["run_id"] == core_run_id
         assert report.metadata["run_binding"]["intent_id"] == stored_association["intent_id"]
+
+        role_refs = (
+            ("scope_binding", evidence.scope_binding_ref),
+            ("calibration_threshold", evidence.calibration_threshold_ref),
+            ("observed_outcome", evidence.observed_outcome_ref),
+            ("prediction", evidence.prediction_ref),
+            ("evaluation_design", evidence.evaluation_design_ref),
+            ("credible_evaluation", evidence.credible_evaluation_evidence_ref),
+            *(("source_lineage", ref) for ref in evidence.source_lineage_refs),
+            *(("method_lineage", ref) for ref in evidence.method_lineage_refs),
+        )
+        parent_manifest = ir_store.get_manifest(report_ref)
+        for role, source_roles in REFERENCE_SOURCE_INPUT_ROLES.items():
+            selected_refs = [ref for candidate_role, ref in role_refs if candidate_role == role]
+            assert len(selected_refs) == 1
+            role_ref = selected_refs[0]
+            assert role_ref is not None
+            role_manifest = ir_store.get_manifest(role_ref)
+            actual_edges = tuple(
+                (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+                for item in role_manifest.inputs
+            )
+            expected_edges = tuple(
+                (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+                for item in parent_manifest.inputs
+                if item.role in source_roles
+            )
+            assert len(expected_edges) == len(source_roles)
+            assert sorted(actual_edges) == sorted(expected_edges)
 
     captured_inputs: list[ArtifactRef] = []
 

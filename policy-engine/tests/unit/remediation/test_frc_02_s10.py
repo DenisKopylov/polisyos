@@ -37,8 +37,8 @@ from polisyos.ir.artifacts import InputRef, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec, from_canonical_bytes
 from polisyos.ir.registry.refs import BacktestReportRef
 
-MODEL_REF = "model://frc02/ets/v1"
-POLICY_REF = "policy://frc02/ets/v1"
+MODEL_REF = "sha256:dc96283b7f8a412385637de39011772aa012ecbfa4349f3398418a5c0d353f1b"
+POLICY_REF = "sha256:ba89388849ea2b84dc5677aa95cdc804c7d0dc49f45ed9c86b28d67ea6ba4bb7"
 ESTIMAND = "predictive_interval_coverage"
 METHOD_REF = "forecasting.univariate.exponential_smoothing"
 METHOD_FQN = "forecasting.univariate.exponential_smoothing@1.0.0"
@@ -113,6 +113,7 @@ def _persist_context_ref(
     identity_path: str = "identity",
     binding: Mapping[str, object] | None = None,
     payload_fields: Mapping[str, object] | None = None,
+    inputs: tuple[InputRef, ...] = (),
 ) -> dict[str, str]:
     """Persist one role-profiled, report-bound context artifact."""
 
@@ -134,6 +135,7 @@ def _persist_context_ref(
         kind=kind,
         schema_name=schema_name,
         schema_version=schema_version,
+        inputs=list(inputs),
         return_selected_profile=True,
     )
     ref.update(
@@ -148,6 +150,49 @@ def _persist_context_ref(
     return ref
 
 
+def _persist_source_refs(store: FileSystemCAS) -> dict[str, dict[str, str]]:
+    """Persist deterministic source blobs for selected-profile lineage fixtures."""
+
+    source_kinds = {
+        "candidate_source": "ir.candidate_scenario_source",
+        "model_spec": "ir.model_spec",
+        "policy_spec": "ir.policy_spec",
+        "calibration_rule": "ir.calibration_rule",
+        "observed_source": "fabric.data_snapshot",
+        "uncertainty_bundle": "ir.forecasting_uncertainty_bundle",
+        "training_slice": "ir.training_slice",
+        "method_artifact": "ir.method_artifact",
+    }
+    ir_store = _ensure_ir_artifact_store(store)
+    return {
+        role: put_json_artifact(
+            ir_store,
+            {"source_role": role},
+            kind=kind,
+            schema_name=f"frc02.test.{role}",
+            schema_version="1.0",
+            return_selected_profile=True,
+        )
+        for role, kind in source_kinds.items()
+    }
+
+
+def _source_inputs(
+    source_refs: Mapping[str, Mapping[str, str]],
+    roles: tuple[str, ...],
+) -> tuple[InputRef, ...]:
+    """Build exact selected-profile source edges in the producer's declared order."""
+
+    return tuple(
+        InputRef(
+            artifact_id=source_refs[role]["artifact_id"],
+            role=role,
+            manifest_profile_sha256=source_refs[role]["manifest_profile_sha256"],
+        )
+        for role in roles
+    )
+
+
 def _persist_context_refs(
     store: FileSystemCAS,
     *,
@@ -155,6 +200,7 @@ def _persist_context_refs(
     method_ref: str,
     method_version: str,
     rule_version_ref: str,
+    source_refs: Mapping[str, Mapping[str, str]],
     threshold: float,
 ) -> dict[str, dict[str, str]]:
     """Persist the complete neutral context required by the producer."""
@@ -169,30 +215,79 @@ def _persist_context_refs(
         "rule_version_ref": rule_version_ref,
         "calibration_threshold": f"{threshold:.2f}",
     }
-    specs: tuple[tuple[str, str, str, Mapping[str, object] | None], ...] = (
-        ("scope_binding", report_id, "report_id", binding),
+    bridge = _bridge()
+    specs: tuple[tuple[str, str, str, Mapping[str, object] | None, tuple[InputRef, ...]], ...] = (
+        (
+            "scope_binding",
+            report_id,
+            "report_id",
+            binding,
+            _source_inputs(source_refs, bridge.REFERENCE_SOURCE_INPUT_ROLES["scope_binding"]),
+        ),
         (
             "calibration_threshold",
             f"threshold://frc02/{threshold:.2f}",
             "identity",
             {"threshold": Decimal(f"{threshold:.2f}")},
+            _source_inputs(
+                source_refs,
+                bridge.REFERENCE_SOURCE_INPUT_ROLES["calibration_threshold"],
+            ),
         ),
-        ("observed_outcome", "observation://frc02/held-out/v1", "identity", None),
-        ("prediction", "prediction://frc02/held-out/v1", "identity", None),
+        (
+            "observed_outcome",
+            "observation://frc02/held-out/v1",
+            "identity",
+            {"observed_source_ref": source_refs["observed_source"]},
+            _source_inputs(source_refs, bridge.REFERENCE_SOURCE_INPUT_ROLES["observed_outcome"]),
+        ),
+        (
+            "prediction",
+            "prediction://frc02/held-out/v1",
+            "identity",
+            {"uncertainty_bundle_ref": source_refs["uncertainty_bundle"]},
+            _source_inputs(source_refs, bridge.REFERENCE_SOURCE_INPUT_ROLES["prediction"]),
+        ),
         (
             "evaluation_design",
             "evaluation://frc02/rolling-origin/v1",
             "identity",
-            None,
+            {"training_slice_ref": source_refs["training_slice"]},
+            _source_inputs(
+                source_refs,
+                bridge.REFERENCE_SOURCE_INPUT_ROLES["evaluation_design"],
+            ),
         ),
         (
             "credible_evaluation",
             "evaluation-evidence://frc02/v1",
             "identity",
-            None,
+            {"credibility_status": "not_established"},
+            _source_inputs(
+                source_refs,
+                bridge.REFERENCE_SOURCE_INPUT_ROLES["credible_evaluation"],
+            ),
         ),
-        ("source_lineage", "source://frc02/panel/v1", "identity", None),
-        ("method_lineage", "method-lineage://frc02/ets/v1", "identity", None),
+        (
+            "source_lineage",
+            "source://frc02/panel/v1",
+            "identity",
+            {
+                "candidate_source_ref": source_refs["candidate_source"],
+                "observed_source_ref": source_refs["observed_source"],
+            },
+            _source_inputs(source_refs, bridge.REFERENCE_SOURCE_INPUT_ROLES["source_lineage"]),
+        ),
+        (
+            "method_lineage",
+            "method-lineage://frc02/ets/v1",
+            "identity",
+            {
+                "method_artifact_ref": source_refs["method_artifact"],
+                "calibration_rule_ref": source_refs["calibration_rule"],
+            },
+            _source_inputs(source_refs, bridge.REFERENCE_SOURCE_INPUT_ROLES["method_lineage"]),
+        ),
     )
     return {
         role: _persist_context_ref(
@@ -203,8 +298,9 @@ def _persist_context_refs(
             identity_path=identity_path,
             binding=(payload_fields if role == "scope_binding" else None),
             payload_fields=(payload_fields if role != "scope_binding" else None),
+            inputs=source_inputs,
         )
-        for role, identity, identity_path, payload_fields in specs
+        for role, identity, identity_path, payload_fields, source_inputs in specs
     }
 
 
@@ -224,6 +320,7 @@ def _persist_report(
 
     store = FileSystemCAS(tmp_path / f"frc02-s10-{label}-cas")
     report_id = f"frc02-s10-{label}"
+    source_refs = _persist_source_refs(store)
     comparisons: list[OutcomeComparison] = []
     for index, observed_hit in enumerate(observations):
         y_pred = 10.0 + index
@@ -268,15 +365,15 @@ def _persist_report(
     report = BacktestReport(
         schema_version="1.0",
         report_id=report_id,
-        model_spec_ref=MODEL_REF,
-        policy_spec_ref=POLICY_REF,
+        model_spec_ref=source_refs["model_spec"]["artifact_id"],
+        policy_spec_ref=source_refs["policy_spec"]["artifact_id"],
         scenarios=[scenario],
         overall_coverage_probability=numerator / denominator if denominator else None,
         n_scenarios=1,
         n_metrics_evaluated=requested,
         metadata={
-            "model_spec_ref": MODEL_REF,
-            "policy_spec_ref": POLICY_REF,
+            "model_spec_ref": source_refs["model_spec"]["artifact_id"],
+            "policy_spec_ref": source_refs["policy_spec"]["artifact_id"],
             "method_ref": method_ref,
             "method_version": method_version,
             "rule_version_ref": rule_version_ref,
@@ -294,6 +391,7 @@ def _persist_report(
         method_ref=method_ref,
         method_version=method_version,
         rule_version_ref=rule_version_ref,
+        source_refs=source_refs,
         threshold=threshold,
     )
     temporal_roles = _temporal_roles()
@@ -327,7 +425,19 @@ def _persist_report(
                 manifest_profile_sha256=ref["manifest_profile_sha256"],
             )
             for role, ref in refs.items()
-        ],
+        ]
+        + list(
+            _source_inputs(
+                source_refs,
+                tuple(
+                    dict.fromkeys(
+                        source_role
+                        for source_roles in _bridge().REFERENCE_SOURCE_INPUT_ROLES.values()
+                        for source_role in source_roles
+                    )
+                ),
+            )
+        ),
     )
     load_backtest_report(_ensure_ir_artifact_store(store), report_ref)
     return store, report_ref, refs

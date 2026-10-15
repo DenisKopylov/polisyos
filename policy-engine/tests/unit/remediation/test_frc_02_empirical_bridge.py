@@ -13,10 +13,11 @@ from pathlib import Path
 import pytest
 
 from polisyos.calibration.forecast_bridge import (
+    REFERENCE_SOURCE_INPUT_ROLES,
     persist_empirical_calibration_evidence,
     produce_empirical_calibration_evidence,
 )
-from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.artifacts import FileSystemCAS, resolve_manifest_by_profile
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.ir.analytics.backtest import (
     load_backtest_report,
@@ -29,6 +30,17 @@ from tests.unit.remediation.test_frc_02_s10 import (
     _context,
     _persist_report,
 )
+
+_OWNER_SOURCE_ROLE_MAP = {
+    "scope_binding": ("candidate_source", "model_spec", "policy_spec", "calibration_rule"),
+    "calibration_threshold": ("calibration_rule",),
+    "observed_outcome": ("observed_source",),
+    "prediction": ("uncertainty_bundle",),
+    "evaluation_design": ("training_slice",),
+    "credible_evaluation": ("candidate_source",),
+    "source_lineage": ("candidate_source", "observed_source"),
+    "method_lineage": ("method_artifact", "calibration_rule"),
+}
 
 
 def test_real_forecast_owner_bridge_recomputes_holdout_but_refuses_unbound_persistence(
@@ -218,22 +230,17 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
 ) -> None:
     """Supplemental refs compose without replacing owner edges or granting credibility."""
 
-    from decimal import Decimal
     from types import SimpleNamespace
 
-    from polisyos.calibration.forecast_bridge import (
-        EmpiricalCalibrationContext,
-        EvidenceArtifactRef,
-        load_empirical_calibration_evidence,
+    from polisyos.calibration.forecast_bridge import load_empirical_calibration_evidence
+    from polisyos.runtime.http.services.predictive_calibration import (
+        _build_empirical_context,
+        _persist_evidence_role_refs,
     )
     from tests.unit.remediation.test_frc_02_owner import _spec
     from tests.unit.remediation.test_frc_02_s10 import (
-        ESTIMAND,
-        METHOD_REF,
-        METHOD_VERSION,
         RULE_VERSION_REF,
         _method_result,
-        _persist_context_ref,
         _produce_forecast_inputs,
     )
 
@@ -245,80 +252,84 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
     threshold = 0.01
     model_id = str(model_ref.artifact_id)
     policy_id = str(policy_ref.artifact_id)
-    binding = {
-        "report_id": report_id,
-        "model_spec_ref": model_id,
-        "policy_spec_ref": policy_id,
-        "estimand": ESTIMAND,
-        "method_ref": METHOD_REF,
-        "method_version": METHOD_VERSION,
-        "rule_version_ref": RULE_VERSION_REF,
-        "calibration_threshold": f"{threshold:.2f}",
-    }
-    context_specs = (
-        ("scope_binding", report_id, "report_id", None, binding),
-        (
-            "calibration_threshold",
-            "threshold://owner-composition/0.01",
-            "identity",
-            {"threshold": Decimal(f"{threshold:.2f}")},
-            None,
-        ),
-        ("observed_outcome", "observation://owner-composition/held-out/v1", "identity", None, None),
-        ("prediction", "prediction://owner-composition/held-out/v1", "identity", None, None),
-        (
-            "evaluation_design",
-            "evaluation://owner-composition/rolling-origin/v1",
-            "identity",
-            None,
-            None,
-        ),
-        (
-            "credible_evaluation",
-            "evaluation-evidence://owner-composition/v1",
-            "identity",
-            None,
-            None,
-        ),
-        ("source_lineage", "source://owner-composition/panel/v1", "identity", None, None),
-        ("method_lineage", "method-lineage://owner-composition/ets/v1", "identity", None, None),
-    )
-    context_refs: dict[str, dict[str, str]] = {}
-    for role, identity, identity_path, payload_fields, role_binding in context_specs:
-        context_refs[role] = _persist_context_ref(
-            store,
-            role=role,
-            report_id=report_id,
-            identity=identity,
-            identity_path=identity_path,
-            binding=role_binding,
-            payload_fields=payload_fields,
-        )
-    supplemental_inputs = tuple(
-        InputRef(
-            artifact_id=ref["artifact_id"],
-            role=role,
-            manifest_profile_sha256=ref["manifest_profile_sha256"],
-        )
-        for role, ref in context_refs.items()
-    )
     request = _request(
         _source(store, training=[float(value) for value in range(10, 20)], holdout=[20, 21, 22]),
         rule_ref,
         report_id=report_id,
         model_spec_ref=model_id,
         policy_spec_ref=policy_id,
-        manifest_inputs=supplemental_inputs,
         train_end=10,
         horizon=3,
     )
 
     owner_result = ForecastOwner(store).run(request)
-    report = load_backtest_report(
-        _ensure_ir_artifact_store(store), owner_result.backtest_report_ref
+    ir_store = _ensure_ir_artifact_store(store)
+    preliminary_report = load_backtest_report(ir_store, owner_result.backtest_report_ref)
+    candidate_source_ref = _spec(
+        store,
+        kind="ir.candidate_scenario_source",
+        spec_id="owner-bridge-candidate-source",
     )
-    manifest = _ensure_ir_artifact_store(store).get_manifest(owner_result.backtest_report_ref)
-    manifest_payload = manifest.model_dump(mode="json")
+    context_refs = _persist_evidence_role_refs(
+        store=store,
+        report_id=report_id,
+        threshold=threshold,
+        model_spec_ref=model_ref,
+        policy_spec_ref=policy_ref,
+        candidate_source_ref=candidate_source_ref,
+        observed_source_ref=owner_result.observed_source_ref,
+        training_slice_ref=owner_result.training_slice_ref,
+        uncertainty_bundle_ref=owner_result.uncertainty_bundle_ref,
+        method_artifact_ref=owner_result.method_artifact_ref,
+        calibration_rule_ref=owner_result.calibration_rule_ref,
+    )
+    assert REFERENCE_SOURCE_INPUT_ROLES == _OWNER_SOURCE_ROLE_MAP
+    owner_manifest = ir_store.get_manifest(owner_result.backtest_report_ref)
+    report_inputs = [
+        InputRef.model_validate(item.model_dump(mode="python")) for item in owner_manifest.inputs
+    ]
+    report_inputs.append(
+        InputRef(
+            artifact_id=candidate_source_ref.artifact_id,
+            role="candidate_source",
+            manifest_profile_sha256=candidate_source_ref.manifest_profile_sha256,
+        )
+    )
+    report_inputs.extend(
+        InputRef(
+            artifact_id=ref.artifact_id,
+            role=role,
+            manifest_profile_sha256=ref.manifest_profile_sha256,
+        )
+        for role, ref in context_refs.items()
+    )
+    selected_report_ref = persist_backtest_report(
+        ir_store,
+        preliminary_report,
+        inputs=report_inputs,
+    )
+    selected_report_manifest = ir_store.get_manifest(selected_report_ref)
+    for role, source_roles in _OWNER_SOURCE_ROLE_MAP.items():
+        selected_role = context_refs[role]
+        assert selected_role.manifest_profile_sha256 is not None
+        role_manifest = resolve_manifest_by_profile(
+            ir_store,
+            selected_role.artifact_id,
+            selected_role.manifest_profile_sha256,
+        )
+        actual_source_edges = tuple(
+            (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+            for item in role_manifest.inputs
+        )
+        expected_source_edges = tuple(
+            (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+            for item in selected_report_manifest.inputs
+            if item.role in source_roles
+        )
+        assert len(expected_source_edges) == len(source_roles)
+        assert sorted(actual_source_edges) == sorted(expected_source_edges)
+    report = load_backtest_report(ir_store, selected_report_ref)
+    manifest_payload = ir_store.get_manifest(selected_report_ref).model_dump(mode="json")
     report_edges = {
         (
             str(item["artifact_id"]),
@@ -337,45 +348,27 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
         "calibration_diagnostics",
         "model_spec",
         "policy_spec",
+        "candidate_source",
     } <= {role for _artifact_id, role, _profile in report_edges}
     assert {
-        (str(ref["artifact_id"]), role, ref["manifest_profile_sha256"])
+        (str(ref.artifact_id), role, ref.manifest_profile_sha256)
         for role, ref in context_refs.items()
     } <= report_edges
     assert all(profile is not None for _artifact_id, _role, profile in report_edges)
 
-    def typed_ref(role: str) -> EvidenceArtifactRef:
-        return EvidenceArtifactRef.model_validate(context_refs[role])
-
-    context = EmpiricalCalibrationContext(
-        model_spec_ref=model_id,
-        policy_spec_ref=policy_id,
-        estimand=ESTIMAND,
-        method_ref=METHOD_REF,
-        method_version=METHOD_VERSION,
-        rule_version_ref=RULE_VERSION_REF,
-        calibration_threshold=threshold,
-        scope_binding_ref=typed_ref("scope_binding"),
-        calibration_threshold_ref=typed_ref("calibration_threshold"),
-        observed_outcome_ref=typed_ref("observed_outcome"),
-        prediction_ref=typed_ref("prediction"),
-        evaluation_design_ref=typed_ref("evaluation_design"),
-        credible_evaluation_evidence_ref=typed_ref("credible_evaluation"),
-        source_lineage_refs=(typed_ref("source_lineage"),),
-        method_lineage_refs=(typed_ref("method_lineage"),),
-        data_valid_time=request.temporal_roles.data_valid_time,
-        calibration_window_start=request.temporal_roles.calibration_window_start,
-        calibration_window_end=request.temporal_roles.calibration_window_end,
-        policy_effective_time=request.temporal_roles.policy_effective_time,
-        prediction_time=request.temporal_roles.prediction_time,
-        observation_time=request.temporal_roles.observation_time,
+    context = _build_empirical_context(
+        context_refs,
+        model_spec_ref=owner_result.model_spec_ref,
+        policy_spec_ref=owner_result.policy_spec_ref,
+        threshold=threshold,
+        temporal_roles=request.temporal_roles,
     )
     evidence = produce_empirical_calibration_evidence(
         store,
-        owner_result.backtest_report_ref,
+        selected_report_ref,
         context=context,
     )
-    assert evidence.report_ref == owner_result.backtest_report_ref
+    assert evidence.report_ref == selected_report_ref
     assert evidence.context_bound is True
     assert evidence.usable_for_calibration is True
     assert evidence.failure_codes == ()
@@ -390,7 +383,7 @@ def test_real_forecast_owner_cas_bridge_reopen_reaches_limited_s10_candidate(
 
     credible_payload = get_json_artifact(
         _ensure_ir_artifact_store(store),
-        context_refs["credible_evaluation"]["artifact_id"],
+        context_refs["credible_evaluation"].artifact_id,
     )
     assert "issuer" not in credible_payload
     assert "signature" not in credible_payload

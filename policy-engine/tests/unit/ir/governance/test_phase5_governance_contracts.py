@@ -35,11 +35,18 @@ from polisyos.ir.governance.selector_expr import (
     SelectorTemporalPredicate,
 )
 from polisyos.ir.governance.temporal_logic import (
+    TemporalAll,
+    TemporalAny,
     TemporalAtom,
+    TemporalBinaryFormula,
+    TemporalBinaryOperator,
     TemporalBoundedFormula,
     TemporalEvaluationScope,
     TemporalExecutionSemantics,
     TemporalLogicFamily,
+    TemporalNot,
+    TemporalPathFormula,
+    TemporalPathQuantifier,
     TemporalPolicyConstraint,
     TemporalUnaryFormula,
     TemporalUnaryOperator,
@@ -214,6 +221,169 @@ def test_temporal_policy_constraint_rejects_family_semantics_mismatch() -> None:
                 clause=TemporalAtom(proposition_id="is_compliant"),
             ),
         )
+
+
+def _temporal_atom_mapping(proposition_id: str) -> dict[str, str]:
+    return {"kind": "atom", "proposition_id": proposition_id}
+
+
+def _mtl_constraint_mapping(formula: dict[str, object]) -> dict[str, object]:
+    return {
+        "constraint_id": "mapped_temporal_constraint",
+        "logic_family": "mtl",
+        "execution_semantics": "windowed_trace",
+        "evaluation_scope": "compliance_trace",
+        "finite_horizon": 6,
+        "formula": formula,
+    }
+
+
+def test_temporal_walkers_preserve_discriminated_mapping_branches() -> None:
+    formula_mapping: dict[str, object] = {
+        "kind": "all_of",
+        "clauses": [
+            {
+                "kind": "not",
+                "clause": _temporal_atom_mapping("not_atom"),
+            },
+            {
+                "kind": "any_of",
+                "clauses": [
+                    {
+                        "kind": "unary",
+                        "operator": "eventually",
+                        "clause": _temporal_atom_mapping("unary_atom"),
+                    },
+                    {
+                        "kind": "binary",
+                        "operator": "implies",
+                        "left": _temporal_atom_mapping("binary_left"),
+                        "right": {
+                            "kind": "bounded",
+                            "operator": "until",
+                            "lower_bound": 1,
+                            "upper_bound": 4,
+                            "left": _temporal_atom_mapping("until_left"),
+                            "right": _temporal_atom_mapping("until_right"),
+                        },
+                    },
+                ],
+            },
+            {
+                "kind": "bounded",
+                "operator": "always",
+                "upper_bound": 4,
+                "clause": _temporal_atom_mapping("bounded_atom"),
+            },
+        ],
+    }
+
+    constraint = TemporalPolicyConstraint.model_validate(_mtl_constraint_mapping(formula_mapping))
+
+    assert isinstance(constraint.formula, TemporalAll)
+    assert isinstance(constraint.formula.clauses[0], TemporalNot)
+    disjunction = constraint.formula.clauses[1]
+    assert isinstance(disjunction, TemporalAny)
+    assert isinstance(disjunction.clauses[0], TemporalUnaryFormula)
+    implication = disjunction.clauses[1]
+    assert isinstance(implication, TemporalBinaryFormula)
+    assert implication.operator is TemporalBinaryOperator.IMPLIES
+    assert isinstance(implication.right, TemporalBoundedFormula)
+    assert isinstance(constraint.formula.clauses[2], TemporalBoundedFormula)
+
+    with pytest.raises(
+        ValueError,
+        match="bounded temporal operators are only allowed for MTL",
+    ):
+        TemporalPolicyConstraint.model_validate(
+            {
+                "constraint_id": "nested_bounded_ltl",
+                "logic_family": "ltl",
+                "execution_semantics": "finite_trace",
+                "evaluation_scope": "compliance_trace",
+                "formula": formula_mapping,
+            }
+        )
+
+
+def test_temporal_formula_depth_limit_uses_recursive_typed_children() -> None:
+    formula: dict[str, object] = _temporal_atom_mapping("depth_atom")
+    for _ in range(23):
+        formula = {"kind": "not", "clause": formula}
+
+    at_limit = TemporalPolicyConstraint.model_validate(
+        {
+            "constraint_id": "temporal_depth_at_limit",
+            "logic_family": "ltl",
+            "execution_semantics": "finite_trace",
+            "evaluation_scope": "compliance_trace",
+            "formula": formula,
+        }
+    )
+    assert isinstance(at_limit.formula, TemporalNot)
+
+    too_deep = {"kind": "not", "clause": formula}
+    with pytest.raises(ValueError, match="temporal formula depth 25 exceeds limit 24"):
+        TemporalPolicyConstraint.model_validate(
+            {
+                "constraint_id": "temporal_depth_over_limit",
+                "logic_family": "ltl",
+                "execution_semantics": "finite_trace",
+                "evaluation_scope": "compliance_trace",
+                "formula": too_deep,
+            }
+        )
+
+
+def test_temporal_formula_node_limit_counts_nested_siblings() -> None:
+    groups = [
+        {
+            "kind": "all_of",
+            "clauses": [
+                _temporal_atom_mapping(f"group_{group}_atom_{item}")
+                for item in range(30 if group == 3 else 31)
+            ],
+        }
+        for group in range(4)
+    ]
+    at_limit_formula: dict[str, object] = {"kind": "all_of", "clauses": groups}
+    at_limit = TemporalPolicyConstraint.model_validate(_mtl_constraint_mapping(at_limit_formula))
+    assert isinstance(at_limit.formula, TemporalAll)
+
+    over_limit_formula: dict[str, object] = {
+        "kind": "all_of",
+        "clauses": [
+            *groups,
+            _temporal_atom_mapping("extra_node"),
+        ],
+    }
+    with pytest.raises(ValueError, match="temporal formula nodes 129 exceeds limit 128"):
+        TemporalPolicyConstraint.model_validate(_mtl_constraint_mapping(over_limit_formula))
+
+
+def test_ctl_path_quantifier_is_counted_through_mapping_children() -> None:
+    constraint = TemporalPolicyConstraint.model_validate(
+        {
+            "constraint_id": "mapped_ctl_path",
+            "logic_family": "ctl",
+            "execution_semantics": "branching_tree",
+            "evaluation_scope": "branching_forecast",
+            "formula": {
+                "kind": "all_of",
+                "clauses": [
+                    {
+                        "kind": "path",
+                        "quantifier": "for_all_paths",
+                        "clause": _temporal_atom_mapping("ctl_atom"),
+                    }
+                ],
+            },
+        }
+    )
+    assert isinstance(constraint.formula, TemporalAll)
+    path_formula = constraint.formula.clauses[0]
+    assert isinstance(path_formula, TemporalPathFormula)
+    assert path_formula.quantifier is TemporalPathQuantifier.FOR_ALL_PATHS
 
 
 def test_selector_temporal_predicate_requires_bounds_for_windowed_operator() -> None:

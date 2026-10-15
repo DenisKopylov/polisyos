@@ -45,7 +45,7 @@ class _IRLegacyModuleAliasLoader(importlib.abc.Loader):
         _warn_ir_legacy_import(self._alias_fqn, self._target_fqn)
         module = importlib.import_module(self._target_fqn)
         if self._package_alias and not hasattr(module, "__path__"):
-            module.__path__ = []  # type: ignore[attr-defined]
+            module.__path__ = []
         sys.modules[spec.name] = module
         return module
 
@@ -67,7 +67,7 @@ class _IRLegacyAggregateLoader(importlib.abc.Loader):
             "polisyos.ir.loading.citations for citation refs."
         )
         module.__package__ = spec.name
-        module.__path__ = []  # type: ignore[attr-defined]
+        module.__path__ = []
 
         exported_names: set[str] = set()
         for target_fqn in self._target_fqns:
@@ -97,8 +97,8 @@ class _IRLegacyModuleAliasFinder(importlib.abc.MetaPathFinder):
             target_fqns = _IR_LEGACY_AGGREGATE_MODULES.get(fullname)
             if target_fqns is None:
                 return None
-            loader = _IRLegacyAggregateLoader(fullname, target_fqns)
-            spec = importlib.machinery.ModuleSpec(fullname, loader, is_package=True)
+            aggregate_loader = _IRLegacyAggregateLoader(fullname, target_fqns)
+            spec = importlib.machinery.ModuleSpec(fullname, aggregate_loader, is_package=True)
             spec.submodule_search_locations = []
             return spec
         else:

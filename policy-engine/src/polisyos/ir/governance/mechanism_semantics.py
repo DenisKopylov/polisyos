@@ -168,20 +168,20 @@ class MechanismPriorSpec(KernelModel):
                 key_fn=lambda item: item.player_id,
                 label="exact prior player_id",
             )
-            for entry in self.player_priors:
-                if not entry.probabilities:
+            for player_prior in self.player_priors:
+                if not player_prior.probabilities:
                     raise ValueError(
-                        f"independent_exact prior for '{entry.player_id}' requires probabilities"
+                        f"independent_exact prior for '{player_prior.player_id}' requires probabilities"
                     )
                 total = Fraction(0)
-                for value in entry.probabilities.values():
+                for value in player_prior.probabilities.values():
                     probability = Fraction(value)
                     if probability < 0:
                         raise ValueError("exact prior probabilities must be non-negative")
                     total += probability
                 if total != 1:
                     raise ValueError(
-                        f"independent_exact prior for '{entry.player_id}' must sum to 1"
+                        f"independent_exact prior for '{player_prior.player_id}' must sum to 1"
                     )
             return self
 
@@ -191,12 +191,12 @@ class MechanismPriorSpec(KernelModel):
             raise ValueError("joint_exact_table prior cannot declare player_priors")
         total = Fraction(0)
         seen: set[tuple[tuple[str, str], ...]] = set()
-        for entry in self.joint_support:
-            probability = Fraction(entry.probability)
+        for joint_entry in self.joint_support:
+            probability = Fraction(joint_entry.probability)
             if probability < 0:
                 raise ValueError("joint_exact_table probabilities must be non-negative")
             total += probability
-            key = tuple(sorted(entry.type_profile.items()))
+            key = tuple(sorted(joint_entry.type_profile.items()))
             if key in seen:
                 raise ValueError("joint_exact_table cannot repeat the same type_profile")
             seen.add(key)
@@ -291,11 +291,11 @@ class CycMonGridSemanticsSpec(KernelModel):
         alloc_dim = len(self.allocation_points[0].allocation)
         if type_dim != alloc_dim:
             raise ValueError("cycmon_grid requires allocation vectors to match type dimension")
-        for point in self.type_points:
-            if len(point.coords) != type_dim:
+        for type_point in self.type_points:
+            if len(type_point.coords) != type_dim:
                 raise ValueError("cycmon_grid type_points must share the same dimension")
-        for point in self.allocation_points:
-            if len(point.allocation) != alloc_dim:
+        for allocation_point in self.allocation_points:
+            if len(allocation_point.allocation) != alloc_dim:
                 raise ValueError("cycmon_grid allocation_points must share the same dimension")
         if (
             self.normalization_type_label is not None
@@ -341,8 +341,8 @@ class MechanismSemanticsSpec(KernelModel):
                 label="mechanism outcome_id",
             )
             seen_profiles: set[tuple[tuple[str, str], ...]] = set()
-            for entry in self.allocation_rule:
-                key = tuple(sorted(entry.report_profile.items()))
+            for allocation_entry in self.allocation_rule:
+                key = tuple(sorted(allocation_entry.report_profile.items()))
                 if key in seen_profiles:
                     raise ValueError("allocation_rule cannot repeat the same report_profile")
                 seen_profiles.add(key)
@@ -453,21 +453,21 @@ class MechanismSemanticsSpec(KernelModel):
                     f"{sorted(unknown_players)}"
                 )
 
-        for entry in self.allocation_rule:
-            if set(entry.report_profile) != player_set:
+        for allocation_entry in self.allocation_rule:
+            if set(allocation_entry.report_profile) != player_set:
                 raise ValueError(
                     "allocation_rule report_profile must name every player exactly once"
                 )
-            if entry.outcome_id not in outcome_ids:
+            if allocation_entry.outcome_id not in outcome_ids:
                 raise ValueError(
-                    f"allocation_rule references unknown outcome_id '{entry.outcome_id}'"
+                    f"allocation_rule references unknown outcome_id '{allocation_entry.outcome_id}'"
                 )
-            unknown_payers = set(entry.payments_by_player) - player_set
+            unknown_payers = set(allocation_entry.payments_by_player) - player_set
             if unknown_payers:
                 raise ValueError(
                     f"allocation_rule payments reference unknown players {sorted(unknown_payers)}"
                 )
-            for player_id, report_label in entry.report_profile.items():
+            for player_id, report_label in allocation_entry.report_profile.items():
                 if report_label not in action_spaces[player_id]:
                     raise ValueError(
                         f"allocation_rule report_profile for '{player_id}' uses undeclared "
@@ -477,37 +477,37 @@ class MechanismSemanticsSpec(KernelModel):
         if self.utility_model is None:
             raise ValueError("utility_model is required when allocation_rule is provided")
         if self.utility_model.kind is MechanismUtilityModelKind.QUASI_LINEAR_SCALAR:
-            for entry in self.utility_model.value_table:
-                if entry.player_id not in player_set:
+            for value_entry in self.utility_model.value_table:
+                if value_entry.player_id not in player_set:
                     raise ValueError(
-                        f"value_table references unknown player_id '{entry.player_id}'"
+                        f"value_table references unknown player_id '{value_entry.player_id}'"
                     )
-                if entry.type_label not in type_spaces[entry.player_id]:
+                if value_entry.type_label not in type_spaces[value_entry.player_id]:
                     raise ValueError(
-                        f"value_table for '{entry.player_id}' references unknown type "
-                        f"'{entry.type_label}'"
+                        f"value_table for '{value_entry.player_id}' references unknown type "
+                        f"'{value_entry.type_label}'"
                     )
-                unknown_outcomes = set(entry.outcome_values) - outcome_ids
+                unknown_outcomes = set(value_entry.outcome_values) - outcome_ids
                 if unknown_outcomes:
                     raise ValueError(
                         f"value_table references unknown outcome_ids {sorted(unknown_outcomes)}"
                     )
         else:
-            for entry in self.utility_model.utility_table:
-                if entry.player_id not in player_set:
+            for utility_entry in self.utility_model.utility_table:
+                if utility_entry.player_id not in player_set:
                     raise ValueError(
-                        f"utility_table references unknown player_id '{entry.player_id}'"
+                        f"utility_table references unknown player_id '{utility_entry.player_id}'"
                     )
-                if entry.true_type not in type_spaces[entry.player_id]:
+                if utility_entry.true_type not in type_spaces[utility_entry.player_id]:
                     raise ValueError(
-                        f"utility_table for '{entry.player_id}' references unknown type "
-                        f"'{entry.true_type}'"
+                        f"utility_table for '{utility_entry.player_id}' references unknown type "
+                        f"'{utility_entry.true_type}'"
                     )
-                if set(entry.report_profile) != player_set:
+                if set(utility_entry.report_profile) != player_set:
                     raise ValueError(
                         "utility_table report_profile must name every player exactly once"
                     )
-                for player_id, report_label in entry.report_profile.items():
+                for player_id, report_label in utility_entry.report_profile.items():
                     if report_label not in action_spaces[player_id]:
                         raise ValueError(
                             f"utility_table report_profile for '{player_id}' uses undeclared "
@@ -515,21 +515,21 @@ class MechanismSemanticsSpec(KernelModel):
                         )
 
         if self.prior is not None and self.prior.kind is MechanismPriorKind.INDEPENDENT_EXACT:
-            if {entry.player_id for entry in self.prior.player_priors} != player_set:
+            if {prior.player_id for prior in self.prior.player_priors} != player_set:
                 raise ValueError("independent_exact prior must name every player exactly once")
-            for entry in self.prior.player_priors:
-                if set(entry.probabilities) != set(type_spaces[entry.player_id]):
+            for player_prior in self.prior.player_priors:
+                if set(player_prior.probabilities) != set(type_spaces[player_prior.player_id]):
                     raise ValueError(
-                        f"independent_exact prior for '{entry.player_id}' must match the declared "
+                        f"independent_exact prior for '{player_prior.player_id}' must match the declared "
                         "type labels exactly"
                     )
         if self.prior is not None and self.prior.kind is MechanismPriorKind.JOINT_EXACT_TABLE:
-            for entry in self.prior.joint_support:
-                if set(entry.type_profile) != player_set:
+            for joint_entry in self.prior.joint_support:
+                if set(joint_entry.type_profile) != player_set:
                     raise ValueError(
                         "joint_exact_table prior type_profile must name every player exactly once"
                     )
-                for player_id, type_label in entry.type_profile.items():
+                for player_id, type_label in joint_entry.type_profile.items():
                     if type_label not in type_spaces[player_id]:
                         raise ValueError(
                             f"joint_exact_table prior for '{player_id}' uses undeclared type "

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, Annotated, Literal, cast
+from typing import TYPE_CHECKING, Annotated, Literal, assert_never
 
 from pydantic import Field, model_validator
 
@@ -267,92 +267,84 @@ class TemporalPolicyConstraint(KernelModel):
 
 
 def _temporal_formula_stats(node: TemporalLogicExpr | None) -> tuple[int, int, int]:
-    kind = getattr(node, "kind", None)
-    if kind == "atom":
+    if node is None:
         return 1, 1, 0
-    if kind == "not":
-        formula = cast(TemporalNot, node)
-        depth, nodes, paths = _temporal_formula_stats(formula.clause)
+    if isinstance(node, TemporalAtom):
+        return 1, 1, 0
+    if isinstance(node, TemporalNot):
+        depth, nodes, paths = _temporal_formula_stats(node.clause)
         return depth + 1, nodes + 1, paths
-    if kind in {"all_of", "any_of"}:
-        formula = cast(TemporalAll | TemporalAny, node)
-        child_stats = [_temporal_formula_stats(clause) for clause in formula.clauses]
+    if isinstance(node, (TemporalAll, TemporalAny)):
+        child_stats = [_temporal_formula_stats(clause) for clause in node.clauses]
         depth = max(stat[0] for stat in child_stats) + 1
         nodes = sum(stat[1] for stat in child_stats) + 1
         paths = sum(stat[2] for stat in child_stats)
         return depth, nodes, paths
-    if kind == "unary":
-        formula = cast(TemporalUnaryFormula, node)
-        depth, nodes, paths = _temporal_formula_stats(formula.clause)
+    if isinstance(node, TemporalUnaryFormula):
+        depth, nodes, paths = _temporal_formula_stats(node.clause)
         return depth + 1, nodes + 1, paths
-    if kind == "binary":
-        formula = cast(TemporalBinaryFormula, node)
-        left_depth, left_nodes, left_paths = _temporal_formula_stats(formula.left)
-        right_depth, right_nodes, right_paths = _temporal_formula_stats(formula.right)
+    if isinstance(node, TemporalBinaryFormula):
+        left_depth, left_nodes, left_paths = _temporal_formula_stats(node.left)
+        right_depth, right_nodes, right_paths = _temporal_formula_stats(node.right)
         return (
             max(left_depth, right_depth) + 1,
             left_nodes + right_nodes + 1,
             left_paths + right_paths,
         )
-    if kind == "bounded":
-        formula = cast(TemporalBoundedFormula, node)
-        if formula.operator == "until":
-            left_depth, left_nodes, left_paths = _temporal_formula_stats(formula.left)
-            right_depth, right_nodes, right_paths = _temporal_formula_stats(formula.right)
+    if isinstance(node, TemporalBoundedFormula):
+        if node.operator == "until":
+            left_depth, left_nodes, left_paths = _temporal_formula_stats(node.left)
+            right_depth, right_nodes, right_paths = _temporal_formula_stats(node.right)
             return (
                 max(left_depth, right_depth) + 1,
                 left_nodes + right_nodes + 1,
                 left_paths + right_paths,
             )
-        depth, nodes, paths = _temporal_formula_stats(formula.clause)
+        depth, nodes, paths = _temporal_formula_stats(node.clause)
         return depth + 1, nodes + 1, paths
-    if kind == "path":
-        formula = cast(TemporalPathFormula, node)
-        depth, nodes, paths = _temporal_formula_stats(formula.clause)
+    if isinstance(node, TemporalPathFormula):
+        depth, nodes, paths = _temporal_formula_stats(node.clause)
         return depth + 1, nodes + 1, paths + 1
-    return 1, 1, 0
+    assert_never(node)
 
 
 def _validate_formula_family(
     node: TemporalLogicExpr | None,
     family: TemporalLogicFamily,
 ) -> None:
-    kind = getattr(node, "kind", None)
-    if kind == "atom":
+    if node is None:
         return
-    if kind == "bounded":
-        formula = cast(TemporalBoundedFormula, node)
+    if isinstance(node, TemporalAtom):
+        return
+    if isinstance(node, TemporalBoundedFormula):
         if family is not TemporalLogicFamily.MTL:
             raise ValueError("bounded temporal operators are only allowed for MTL")
-        if formula.operator == "until":
-            _validate_formula_family(formula.left, family)
-            _validate_formula_family(formula.right, family)
+        if node.operator == "until":
+            _validate_formula_family(node.left, family)
+            _validate_formula_family(node.right, family)
         else:
-            _validate_formula_family(formula.clause, family)
+            _validate_formula_family(node.clause, family)
         return
-    if kind == "path":
-        formula = cast(TemporalPathFormula, node)
+    if isinstance(node, TemporalPathFormula):
         if family is not TemporalLogicFamily.CTL:
             raise ValueError("path quantifiers are only allowed for CTL")
-        _validate_formula_family(formula.clause, family)
+        _validate_formula_family(node.clause, family)
         return
-    if kind == "not":
-        formula = cast(TemporalNot, node)
-        _validate_formula_family(formula.clause, family)
+    if isinstance(node, TemporalNot):
+        _validate_formula_family(node.clause, family)
         return
-    if kind in {"all_of", "any_of"}:
-        formula = cast(TemporalAll | TemporalAny, node)
-        for clause in formula.clauses:
+    if isinstance(node, (TemporalAll, TemporalAny)):
+        for clause in node.clauses:
             _validate_formula_family(clause, family)
         return
-    if kind == "unary":
-        formula = cast(TemporalUnaryFormula, node)
-        _validate_formula_family(formula.clause, family)
+    if isinstance(node, TemporalUnaryFormula):
+        _validate_formula_family(node.clause, family)
         return
-    if kind == "binary":
-        formula = cast(TemporalBinaryFormula, node)
-        _validate_formula_family(formula.left, family)
-        _validate_formula_family(formula.right, family)
+    if isinstance(node, TemporalBinaryFormula):
+        _validate_formula_family(node.left, family)
+        _validate_formula_family(node.right, family)
+        return
+    assert_never(node)
 
 
 __all__ = [

@@ -592,17 +592,17 @@ def natural_dependencies(expr: InterventionExpr) -> tuple[str, ...]:
             for assignment in step.assignments:
                 deps.update(assignment.history_vars)
         elif isinstance(step, StochasticIntervention):
-            for policy in step.policies:
-                deps.update(policy.conditioning_vars)
+            for stochastic_policy in step.policies:
+                deps.update(stochastic_policy.conditioning_vars)
         elif isinstance(step, MTPIntervention):
-            for policy in step.policies:
-                deps.add(policy.natural_treatment)
-                deps.update(policy.covariates)
+            for mtp_policy in step.policies:
+                deps.add(mtp_policy.natural_treatment)
+                deps.update(mtp_policy.covariates)
         elif isinstance(step, PathIntervention):
             deps.update(step.natural_value_vars)
         elif isinstance(step, InterferenceIntervention):
-            for policy in step.policies:
-                deps.update(policy.exposure_vars)
+            for interference_policy in step.policies:
+                deps.update(interference_policy.exposure_vars)
     return tuple(sorted(deps))
 
 
@@ -1106,7 +1106,7 @@ def build_intervention_certificate(
     plan = identification_plan_for_intervention(query.intervention)
     estimand_payload = (
         estimand_ast.model_dump(mode="json")
-        if hasattr(estimand_ast, "model_dump")
+        if isinstance(estimand_ast, EstimandAST)
         else estimand_ast
     )
     return InterventionCertificate(

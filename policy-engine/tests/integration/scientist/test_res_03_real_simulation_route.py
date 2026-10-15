@@ -403,10 +403,12 @@ def _build_workflow() -> WorkflowSpec:
     }
     selected = [node for node in base.nodes if node.alias in pre_simulation_aliases]
     assert {node.alias for node in selected} == pre_simulation_aliases
-    # The bounded witness exercises CompileFoundryNode's real strict linker.
-    # The standalone LinkTrinityNode is omitted because both nodes persist the
-    # same deterministic report with incompatible CAS input-role profiles; the
-    # default-workflow ownership conflict is tracked separately from RES-03.
+    # This reduced-DAG witness exercises CompileFoundryNode's real strict linker
+    # while isolating RES-03 from the full default-workflow route. It omits the
+    # standalone LinkTrinityNode; the earlier CAS-conflict explanation was not
+    # reproduced: both writers succeeded with the same report ID and payload,
+    # but returned distinct manifest-selected views. This test is not evidence
+    # for the 23-node default workflow, which has a separate route test.
     selected = [
         (
             node.model_copy(

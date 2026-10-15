@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from polisyos.core.artifacts import CanonInfo, PutOptions, SchemaInfo
+from polisyos.core.artifacts import (
+    CanonInfo,
+    PutOptions,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemFrame
@@ -10,6 +15,7 @@ from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TRINITY_BUNDLE_SCHEMA_VERSION, TrinityBundle
 from polisyos.scientist.nodes.builtins.compile.link_trinity import LinkTrinityNode
 from polisyos.scientist.nodes.builtins.state_keys import (
+    INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_LINK_REPORT_REF,
 )
@@ -34,12 +40,21 @@ def test_link_success(execution_context, minimal_state, artifact_ref_factory):
         patch(f"{_mod}.load_registry_bundle_content", return_value=MagicMock()),
         patch(f"{_mod}.RegistryBundle", return_value=MagicMock()),
         patch(f"{_mod}.link_trinity", return_value=(MagicMock(), mock_link_report)),
-        patch(f"{_mod}.put_link_report", return_value=link_report_ref),
+        patch(f"{_mod}.put_link_report", return_value=link_report_ref) as put_report,
     ):
         outcome = LinkTrinityNode().execute(execution_context, state)
 
     assert outcome.status == "ok"
     assert REPORT_LINK_REPORT_REF in outcome.state.reports_index
+    put_report.assert_called_once()
+    assert put_report.call_args.kwargs["inputs"] == [
+        input_ref_from_artifact_ref(trinity_ref, role="ir"),
+        input_ref_from_artifact_ref(
+            state.inputs[INPUT_REGISTRY_BUNDLE_REF],
+            role="registry_bundle",
+        ),
+    ]
+    assert put_report.call_args.kwargs["return_selected_profile"] is True
 
 
 def test_link_missing_refs(execution_context, minimal_state):

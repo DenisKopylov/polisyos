@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import time
 from pathlib import Path
 from typing import Any
 
@@ -35,10 +36,7 @@ from polisyos.scientist.orchestration.engine.checkpoint import (
     load_checkpoint,
     load_checkpoint_head,
 )
-from tests._helpers.control_worker import (
-    dispatch_one_control_job,
-    stop_embedded_control_worker,
-)
+from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
 from tests._helpers.runtime_http import _runtime_api_request
 
 pytest_plugins = ("tests._helpers.runtime_http",)
@@ -108,7 +106,9 @@ def test_ordinary_post_worker_fabric_cas_and_fresh_get_keep_selected_profile(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     service = runtime_api_env["app"].state._control_service
-    stop_embedded_control_worker(service)
+    worker = service._worker
+    assert worker is not None
+    assert worker._thread is not None and worker._thread.is_alive()
     store = service._artifact_store
     database = tmp_path / "workflow-post-input.sqlite"
     with sqlite3.connect(database) as connection:
@@ -166,13 +166,17 @@ def test_ordinary_post_worker_fabric_cas_and_fresh_get_keep_selected_profile(
         assert bound_trinity["kind"] == "ir.trinity_bundle"
         assert bound_trinity["media_type"] == "application/json"
 
-        dispatch_one_control_job(
-            store=service._control_store,
-            handler=service._process_control_job,
-            expected_job_id=job_id,
-        )
+        deadline = time.monotonic() + 90.0
         finished = service._control_store.get_job(job_id)
+        while (
+            finished is not None
+            and finished.state in {"pending", "running"}
+            and time.monotonic() < deadline
+        ):
+            time.sleep(0.1)
+            finished = service._control_store.get_job(job_id)
         assert finished is not None and finished.state == "completed"
+        assert worker._thread is not None and worker._thread.is_alive()
         evidence = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/evidence-context")
         assert evidence.status_code == 200, evidence.text
         context = evidence.json()["context"]
@@ -264,10 +268,25 @@ def test_ordinary_post_worker_fabric_cas_and_fresh_get_keep_selected_profile(
             runtime_api_env, store, report_refs["link_report_ref"]
         )
         link_report = LinkReport.model_validate(link_payload)
+        assert link_ref.manifest_profile_sha256 is not None
         assert link_report.model_dump(mode="json") == link_payload
         assert link_report.ok is True
         _assert_manifest_input(link_manifest, "ir", trinity_ref)
         _assert_manifest_input(link_manifest, "registry_bundle", registry_ref)
+
+        def _node_link_output(alias: str) -> ArtifactRef:
+            matches = [
+                ArtifactRef.model_validate(output)
+                for record in node_records
+                if record["phase"] == f"scientist.node.{alias}" and record["event"] == "NODE_OK"
+                for output in record.get("refs", {}).get("outputs", [])
+                if output.get("kind") == "compiler.link_report"
+            ]
+            assert len(matches) == 1
+            return matches[0]
+
+        assert _node_link_output("link_trinity") == link_ref
+        assert _node_link_output("compile_foundry") == link_ref
 
         compile_ref, compile_payload, compile_manifest = _load_verified_artifact_payload(
             runtime_api_env, store, report_refs["compile_report_ref"]
@@ -303,6 +322,12 @@ def test_ordinary_post_worker_fabric_cas_and_fresh_get_keep_selected_profile(
             if record.get("event") in {"NODE_OK", "NODE_SKIP", "NODE_FAIL"}
             and str(record.get("phase", "")).startswith("scientist.node.")
         ]
+        default_aliases = {invocation.alias for invocation in default_workflow_spec().nodes}
+        recorded_aliases = {
+            record["phase"].removeprefix("scientist.node.") for record in node_records
+        }
+        assert len(default_aliases) == 23
+        assert recorded_aliases == default_aliases
         successful_nodes = {
             record["phase"].removeprefix("scientist.node.")
             for record in node_records

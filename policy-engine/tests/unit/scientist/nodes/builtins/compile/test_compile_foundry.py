@@ -36,6 +36,9 @@ def test_compile_success_with_mock_foundry(execution_context, minimal_state, art
     assert outcome.status == "ok"
     assert REPORT_COMPILE_REPORT_REF in outcome.state.reports_index
     assert ARTIFACT_EXEC_PLAN_REF in outcome.state.artifacts_index
+    mock_foundry.compile.assert_called_once()
+    request = mock_foundry.compile.call_args.args[1]
+    assert request.return_selected_profile is True
 
 
 def test_compile_missing_inputs(execution_context, minimal_state):

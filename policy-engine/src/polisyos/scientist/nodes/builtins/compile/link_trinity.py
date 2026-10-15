@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any
 
-from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts import input_ref_from_artifact_ref
 from polisyos.core.compiler.report import put_link_report
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import load_registry_bundle_content
@@ -114,8 +114,8 @@ class LinkTrinityNode:
         )
 
         link_inputs = [
-            InputRef(artifact_id=trinity_ref.artifact_id, role="trinity_bundle"),
-            InputRef(artifact_id=registry_ref.artifact_id, role="registry_bundle"),
+            input_ref_from_artifact_ref(trinity_ref, role="ir"),
+            input_ref_from_artifact_ref(registry_ref, role="registry_bundle"),
         ]
         _, link_report = link_trinity(
             bundle,
@@ -123,7 +123,12 @@ class LinkTrinityNode:
             allow_extra_params=self.allow_extra_params,
             strict=self.strict,
         )
-        link_report_ref = put_link_report(ctx.store, link_report, inputs=link_inputs)
+        link_report_ref = put_link_report(
+            ctx.store,
+            link_report,
+            inputs=link_inputs,
+            return_selected_profile=True,
+        )
 
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
         new_state.reports_index[REPORT_LINK_REPORT_REF] = link_report_ref

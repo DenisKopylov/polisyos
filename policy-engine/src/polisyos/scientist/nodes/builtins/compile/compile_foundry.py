@@ -135,6 +135,7 @@ class CompileFoundryNode:
             registry_bundle_ref=registry_ref,
             compile_config=self.compile_config,
             validation_flags=self.validation_flags,
+            return_selected_profile=True,
         )
 
         result = ctx.foundry.compile(ctx.store, request)

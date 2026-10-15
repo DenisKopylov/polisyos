@@ -1,0 +1,234 @@
+{
+  "schema": "polisyos.e02.v3_route_set_decision_packet.v1",
+  "status": "author_proposal_pending_independent_review",
+  "decision_id": "V3-CURRENT-ROUTE-SET-20261015",
+  "date": "2026-10-15",
+  "author_role": "candidate-source author; not G code acceptor or finding adjudicator",
+  "closure_ids": [],
+  "source_snapshot": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "d9ef35a0736fc6d98b0a2801595433d0d9833703",
+    "tree": "611dffa5649432393cc8e1d926c9618c4fa8f6a9",
+    "parent": "fa689651901c5c5b00d629c646c65c8f6141996d",
+    "entry_baseline": "4bef78b9cb4d81d3d8c0b5b4f7e971a23751bb23",
+    "note": "HEAD advanced through planned root IR/docs work. Listed V3 source/test files match the earlier 4bef78 replay hashes. The shared worktree has other agents' edits; this packet does not stage or claim them.",
+    "file_sha256": {
+      "policy-engine/src/polisyos/runtime/quality/acquisition_route_loop.py": "a45850ea6bc18dd0872bfad40691308faa4b74120d5c3f184097989f7d1bdef4",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "683880fa32d9e0578285a0bd96b76dc1f999478fd7f53eecd2d375511d57b925",
+      "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py": "26d97090a81a17848b1607d4b889ba4a4ef143dc44f0994ea76889e8750365c3",
+      "policy-engine/src/polisyos/runtime/http/services/acquisition_action_service.py": "71e543e0200600abb6f66479f3db9deb48306b65e100ac77c66154f86a16d737",
+      "policy-engine/src/polisyos/runtime/quality/acquisition_world_growth.py": "a0b8525e27d830cfd91cb7c100b05b6955b13ffca4ebc9de490aea3d87854397",
+      "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py": "1b82863839391df9897a3d0a2977ae35996367be91c956221e7011febd0f60b2"
+    }
+  },
+  "question_for_g": "Does original V3 require two distinct positive acquisition-route selections for the same candidate within one source-run history, or is a second distinct-route positive a stronger route-multiplicity criterion?",
+  "original_task": {
+    "id": "V3",
+    "pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V3",
+    "depends": [
+      "BOOT0",
+      "S1"
+    ],
+    "original_exit_exact": "admitted content change->samecandidateWMR/N5/history; ID/write-time-only control no reissue; REQ/ACQ separate",
+    "scope_read": "One positively admitted content-changing N7 acquisition re-evaluates the same candidate and persists its new occurrence/history; an ID/write-time-only change is the negative. REQ and ACQ are separate occurrences. The task text does not say two distinct routes or two positive admissions."
+  },
+  "original_criteria_occurrences": [
+    {
+      "finding_id": "B09",
+      "occurrence": 1,
+      "bundle": "CYC-03",
+      "source": "B_r19 original at policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md, git ref 198076863e143dea9f89f02734b13d50dae3eed5, lines 301-312, block sha256 62b0ba80257fe40aee4e48fda73caf00a617fa55d29c54693185e6996b0ce64c",
+      "criterion": "Same candidate with new real data is reevaluated; same inputs under a new name do not loop. Progress is actual consumed objects and step purpose, not a new timestamp/UUID. Check transition, later validator, occurrence identity, and original/revised task binding.",
+      "coverage": "closure-decisions/coverage.json#/findings/8",
+      "historical_status": "open",
+      "capability_label": "producer_missing",
+      "proposal": "hold open pending source-bound served positive, ID/time-only no-reissue negative, same-candidate history, and fresh reader",
+      "original_excerpt_exact": "**Экономное расширение:** разрешать повтор при изменении существенного исследовательского основания: данных, связанной модели, применимого метода, исправленного ограничения или явно разрешённой проверки устойчивости. Прогресс определяется фактически потреблёнными объектами и целью шага, не новым timestamp/UUID. Отдельно ограничиваются технические retries и повторения измерений.\n\n**Критерий:** тот же кандидат с новыми реальными данными переоценивается; тот же кандидат на тех же входах под новым именем не запускается бесконечно. Обновляются и переход, и последующий валидатор. Проверяется идентичность occurrence и привязка к исходной/пересмотренной задаче."
+    },
+    {
+      "finding_id": "B12",
+      "occurrence": 1,
+      "bundle": "ACQ-01",
+      "source": "B_r19 original at policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md, git ref 198076863e143dea9f89f02734b13d50dae3eed5, lines 337-348, block sha256 06171b3b04ee5503cea6193347c3299e0016b1f54a96564e3dc5e439feb85798",
+      "criterion": "Verified plan -> permission/budget -> existing job -> owner admission -> reentry -> dependent recalculation. New data must be received, accepted, and change the dependent calculation; plan, unconfirmed response, or URL is not world growth.",
+      "coverage": "closure-decisions/coverage.json#/findings/11",
+      "historical_status": "partial",
+      "capability_label": "producer_missing",
+      "proposal": "hold open pending actual owner-admitted content changing WMR/N5; route count alone is not evidence",
+      "original_excerpt_exact": "**Экономное расширение:** проверенный план → проверка уже имеющихся разрешений и бюджета → существующий job → принятие данных владельцем → существующий re-entry → повтор зависимого расчёта. Начать с одного действительно разрешённого семейства, а не полной автономии по всем источникам.\n\n**Критерий:** новые данные реально получены, приняты и изменяют зависимый расчёт. План, неподтверждённый ответ или новый URL не считаются world growth. Пробел лицензии, метода, соответствия или полномочия не переклассифицируется в нехватку строк."
+    },
+    {
+      "finding_id": "B27",
+      "occurrence": 1,
+      "bundle": "CYC-03",
+      "source": "B_r19 original at policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md, git ref 198076863e143dea9f89f02734b13d50dae3eed5, lines 537-550, block sha256 052dfe6a01330cee3d1975a69adaed578a7c1d3259c9c9889c09ce9e867ecc44",
+      "criterion": "Separate stable research-task identity from execution-state version or reissue its linked context. A permitted second iteration keeps coherent context; a changed subject/population/model cannot reuse old evidence; verify both requests in common saved history.",
+      "coverage": "closure-decisions/coverage.json#/findings/22",
+      "historical_status": "partial",
+      "capability_label": "producer_missing",
+      "proposal": "hold open pending served second iteration, coherent context/history, and changed-subject/model controls",
+      "original_excerpt_exact": "**Минимальное расширение.** Разделить постоянную идентичность исследовательской задачи и версию состояния её исполнения либо перевыпускать связанный context при пересмотре. Поддержать явный переход с указанием изменённых оснований. Не просто отключать проверку равенства.\n\n**Проверка результата.** Допустимая вторая итерация получает согласованный context и проходит; изменение предмета, популяции либо модели не переиспользует старые доказательные привязки. Проверить исходный и пересмотренный запрос в общей сохранённой истории."
+    },
+    {
+      "finding_id": "B28",
+      "occurrence": 1,
+      "bundle": "CYC-03",
+      "source": "B_r19 original at policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md, git ref 198076863e143dea9f89f02734b13d50dae3eed5, lines 551-564, block sha256 24bde0d2e6c00856b28cf4cc5bc1be23c22e6395760df1a5c615bc74ab99b343",
+      "criterion": "Use per-iteration occurrence identity separately from candidate identity. Preserve both versions, one current frontier, correct downstream binding, and no blind dedupe.",
+      "coverage": "closure-decisions/coverage.json#/findings/23",
+      "historical_status": "partial",
+      "capability_label": "verification_missing",
+      "proposal": "hold open pending two data-version occurrences, unique current frontier, downstream binding to the new occurrence",
+      "original_excerpt_exact": "**Минимальное расширение.** Использовать существующую идентичность появления кандидата в конкретной итерации, отдельно от предметной идентичности кандидата. История сохраняет все появления; текущий фронт показывает однозначно выбранную актуальную версию. Согласовать ссылки и привязку promotion.\n\n**Проверка результата.** Один кандидат на двух версиях данных представлен без потери истории и без дубликатов текущего фронта. Итог второй попытки не присваивается первой. Проверить, что downstream получает нужную occurrence."
+    },
+    {
+      "finding_id": "LA-046",
+      "occurrence": 1,
+      "acceptance_occurrence": "REQ-01",
+      "bundle": "REQ-01",
+      "source": "LA_r09 original at policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md, git ref 198076863e143dea9f89f02734b13d50dae3eed5, lines 3034-3068, block sha256 bcbccbb69a90ac55f3de6d43c9a602749b53e0c5728baa94e1417e94d1bccd38",
+      "criterion": "Separately test named pilot profile; another jurisdiction with same generic geography; explicit annual window at a different date; same content/different opaque IDs; negation; empty/explicit construct frontier; resolver behavior; text and request mapping. Compare full query, construct causes, and result role. No N7 acquisition is required for REQ.",
+      "coverage": "closure-decisions/coverage.json#/findings/270/criterion_refs/0",
+      "historical_status": "partial",
+      "capability_label": "verification_missing",
+      "proposal": "keep independent I4 request-compilation check; no cross-closure from ACQ",
+      "original_excerpt_exact": "**Приёмка.** Один явный исторический пилот; другая jurisdiction с теми же generic geography labels; явное годовое окно другой даты; идентичное содержание с разными opaque IDs; отрицание темы; пустой и явный construct frontier; отсутствующий optional/required resolver; mapping с `text` и `request`. Сравнивать полный query, причины получения construct и разрешённую роль результата, а не только число specs. Изменение интерпретации оформлять как версию правила, отдельно от relocation."
+    },
+    {
+      "finding_id": "LA-046",
+      "occurrence": 2,
+      "acceptance_occurrence": "ACQ-01",
+      "bundle": "ACQ-01",
+      "source": "Same LA_r09 source span and hash as REQ-01; this is a separate canonical acceptance occurrence.",
+      "criterion": "Actual owner-admitted N7 input changes WMR; a recording resolver or plan alone is insufficient. REQ-01 does not close ACQ-01 and vice versa.",
+      "coverage": "closure-decisions/coverage.json#/findings/270/criterion_refs/1",
+      "historical_status": "partial",
+      "capability_label": "verification_missing",
+      "proposal": "hold open pending independent N7-to-WMR positive",
+      "original_excerpt_exact": "**Приёмка.** Один явный исторический пилот; другая jurisdiction с теми же generic geography labels; явное годовое окно другой даты; идентичное содержание с разными opaque IDs; отрицание темы; пустой и явный construct frontier; отсутствующий optional/required resolver; mapping с `text` и `request`. Сравнивать полный query, причины получения construct и разрешённую роль результата, а не только число specs. Изменение интерпретации оформлять как версию правила, отдельно от relocation.",
+      "coverage_occurrence_overlay_exact": "Keep two acceptance occurrences for the same LA-046 source block/hash: ACQ-01 requires actual admitted N7 inputs to alter WMR (a recording resolver is insufficient); REQ-01 separately tests the generic compiler against an explicit named pilot profile, opaque scenario IDs, text/request, declared scope/date/jurisdiction, and negation. Neither occurrence closes the other; REQ-01 does not require N7 acquisition."
+    }
+  ],
+  "historical_context": {
+    "connected_plan": "integration/connected-closeout-plan-2026-10-08/03-delivery-plan.md:29 calls for one admitted changed row to alter same-candidate WMR, reissue N5, preserve old/new refs, and reject UUID/order/write-time-only; LA-046 REQ and ACQ are separate.",
+    "input_deferral": "integration/connected-closeout-plan-2026-10-08/06-inputs-and-deferrals.md:10 asks for two scoped source versions (substantive and identity-only) and one permitted acquisition result, not two positive routes.",
+    "prior_decision": "LOCAL/decisions/v3-same-candidate-companion.md proposes generation-2 positive and generation-3 no-growth; it is unapplied/untested, not evidence.",
+    "formal_status": "All rows remain not_adjudicated. Historical decisions, including B198, are unchanged."
+  },
+  "current_mechanism": {
+    "resolver": "acquisition_route_loop.py:392-399, 487-508, 509-535 documents the sole closure, refuses unless exactly one costed cycle and one planner record exist, recomputes current-schedule cost, and derives route_id from tenant/cell/run/source-job/compiled-ref/problem/planner-run/record/cost hash.",
+    "producer": "generation_cycle.py around 2008-2035 persists a singular cost_basis_record and requires exactly one planner record per cycle requirement; N7 around 8200-8218 attaches cost only for one record and one missing distribution. Multi-record per-cycle mapping is unsupported.",
+    "selection": "acquisition_action_service.py _resolve around 809-833 does not take route_id; mutation around 926-938 computes job identity with requested route_id but resolves the sole route before comparing route IDs.",
+    "reusable_bridge": "acquisition_world_growth.py:146-161 and 418-426 already supports a tuple of exact selections joined by tenant/cell/run/route_id; reuse it after the source resolver can enumerate/select routes.",
+    "authority_history": "A verified costed route is not permission, owner admission, custody, freshness/current mandate, or publication authority. Only owner admission enables N7 content to alter WMR. If multi-route is approved, isolate each route's history and bind candidate occurrence to route_id plus candidate identity/content and source occurrence; never select first or dedupe by candidate ID."
+  },
+  "served_replay": {
+    "artifact": "LOCAL/raw/resume-v3-acq-20261015/served-current-r1/run.json",
+    "command": ".venv/bin/python -m pytest -c pytest.ini -vv -s --durations=20 tests/integration/core_runtime/test_acquisition_authority_served.py::test_served_acquisition_selects_committed_human_authority_and_reopens_worker",
+    "started_utc": "2026-10-15T08:15:08.008332Z",
+    "wall_seconds": 600.6214495409513,
+    "timeout_seconds": 600,
+    "timed_out": true,
+    "exit_code": -15,
+    "pytest_phase": "collection completed, test node shown; no setup/call completion",
+    "stdout_sha256": "8e52c5a18b8528126caa1c0e6d26ca59cc74b2bb0700841c897a4f6fab1b0215",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "source_stability": "All V3 source hashes before and after match.",
+    "interpretation": "TIMEOUT; property UNRUN. No thread stacks/phase were captured. This is not a product FAIL, OOM finding, or diagnosed hang.",
+    "next_diagnostic": "After independent packet review only, wrap pytest.main with faulthandler.dump_traceback_later(60, repeat=True), pytest phase-hook logging, full stdout/stderr and child/process-state capture. Gather periodic stacks before another timeout; this packet itself does not authorize a rerun.",
+    "diagnostic_runner": {
+      "path": "LOCAL/raw/resume-v3-acq-20261015/run_served_diagnostic.py",
+      "sha256": "06b983afb4950cf212779972932621246aed378e19a2ff3fd6ff682da07b01f0",
+      "command_when_scheduled": "python3 -B policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v3-acq-20261015/run_served_diagnostic.py",
+      "execution_status": "prepared and syntax-checked only; test not run"
+    }
+  },
+  "two_positive_route_scope": {
+    "original_property": "One content-changing positive and one identity-only negative plus occurrence/history/downstream binding; no original text requires two costed routes.",
+    "stronger_property": "A second positive from another route tests route-set enumeration and explicit sibling route_id selection.",
+    "p40_bucket": "SAME_CLASS_DEEPER: this widens the same source-driven acquisition/reentry class to sibling-route multiplicity. If claimed mandatory for an existing row, G should resolve the interpretation once; no per-instance patch.",
+    "recommendation": "Preserve original V3 scope; treat route multiplicity as a separately approved extension. No finding is proposed closed while composed served evidence is TIMEOUT/UNRUN."
+  },
+  "alternatives_reuse_extend_consolidate_build": [
+    {
+      "name": "Reuse singleton resolver and route-keyed bridge",
+      "approach": "Prove one actual admitted changed-content positive, an ID/time-only negative, separate REQ/ACQ checks, and fresh reader.",
+      "impact": "Matches original V3; no schema migration or history reinterpretation; does not establish sibling route selection. No new authority/currentness claim."
+    },
+    {
+      "name": "Extend route set and route_id plumbing",
+      "approach": "Only if G approves multiplicity: enumerate costed cycles from one exact compiled source run. Narrow compatible mode requires one planner action and independently recomputed cost per cycle; derive one route ID per source/record/cost tuple. Pass requested route_id through resolver/read/mutation. Preserve exact singleton ID/behavior; multi-route without known route_id refuses. For multiple planner records per cycle, persist typed per-record costs keyed by acquisition_id; never pair by position.",
+      "companions": [
+        "producer and persisted typed cost basis",
+        "route set and route_id on resolver/read/mutation DTOs",
+        "route-keyed history/occurrence binding",
+        "current schedule/source revalidation",
+        "missing/ambiguous/stale/corrupt refusal",
+        "fresh GET and sibling isolation",
+        "canonical schema/generator validators if artifact changes"
+      ],
+      "migration": "Old artifacts remain singleton. No history rewrite. Unsupported multi-record cycles refuse until a new source artifact is generated.",
+      "authority_time": "Route remains source-verified only. Owner admission/current mandate stay separate. Revalidate schedule on selection; one route's admission cannot make sibling current."
+    },
+    {
+      "name": "Consolidate into immutable derived route-set artifact",
+      "approach": "Emit source-ref-bound route-set index for list/read/selection; current resolver verifies it and refuses stale index.",
+      "impact": "Reusable for consumers, but adds derived artifact invalidation and freshness surface. Index is never source of truth or authority; versioned projection, old artifacts unchanged."
+    },
+    {
+      "name": "Build generic cross-run route registry",
+      "approach": "New registry for routes across producer types and runs.",
+      "impact": "Not justified by V3 evidence; expands scope/governance gravity and creates new authority, ownership, staleness, and history contracts. Not recommended."
+    }
+  ],
+  "prototype_falsifier": {
+    "scope": "Small design-only model, not PolicyOS runtime evidence.",
+    "source": "LOCAL/raw/resume-v3-acq-20261015/route-set-prototype/prototype.py",
+    "source_sha256": "c20b6c7ffd84e431753abe5b4435632d50516a982242fed45e3caeb8885ee706",
+    "stdout": "LOCAL/raw/resume-v3-acq-20261015/route-set-prototype/stdout.txt",
+    "stdout_sha256": "4e9ca23fdcd5fc0064d51d13fc167a2297b0cc5ce1006997ca0aed244f8abc48",
+    "command": "python3 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v3-acq-20261015/route-set-prototype/prototype.py",
+    "observed": [
+      "singleton without ID resolves",
+      "explicit ID selects route B",
+      "multi-route without ID/unknown ID refuse",
+      "wrong cost record/distribution/stale schedule refuse"
+    ],
+    "runtime_falsifier_if_approved": "From one completed source run persist two costed routes for same candidate. Select B by route_id and prove B's own source, owner receipt, history and occurrence. Missing/corrupt ID refuses. B admission changes only B's correct WMR/N5; A and prior history stay unchanged. ID/time-only change produces no new source/WMR/N5. Remove route selection while retaining DTO markers and require the multi-route test to fail."
+  },
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P12",
+      "P38",
+      "P40"
+    ],
+    "risks": "Singleton producer/resolver; costed route confused with owner authority/currentness; candidate ID confused with occurrence; route_id presence is proxy if resolver cannot choose the referenced source; multiplicity is same class deeper.",
+    "target": "Recompute source, planner record, cost, schedule and route_id; keep owner admission, occurrence, WMR/N5, history and fresh reader as separate typed steps.",
+    "missing_labels": [
+      "multiple-route producer_missing",
+      "sibling route consumer_missing",
+      "composed served verification_missing"
+    ],
+    "acceptance": "Real POST, admitted content, exact persisted route/history, same-candidate new occurrence only on material change, ID/time-only no-op, sibling isolation, corruption/removal controls, fresh GET."
+  },
+  "g_recommendation": {
+    "choice": "Interpret original V3 as one content-changing positive plus one ID/time-only negative, keeping REQ/ACQ separate. Treat second distinct-route positive as a stronger follow-on unless G identifies original wording that requires it.",
+    "basis": "TASKS original_exit and B09/B12/B27/B28 specify material change, candidate reentry, occurrence/context/history and a negative identity-only control, not two positive routes. Extending it requires architecture and data-contract companions.",
+    "proposal_only": true,
+    "requested_action": "Confirm original V3 interpretation, or explicitly commission route-set extension and its acceptance boundary."
+  },
+  "next_checks": [
+    "Independent review this packet against exact original source and implementation paths; classify two positives as original or stronger.",
+    "After review/source freeze, add repeated faulthandler dumps and phase logging, then rerun the served test with full output and process-state capture.",
+    "Use persisted source artifacts to prove original single-route positive/negative. If G approves multiplicity, implement only the chosen route-set contract.",
+    "Run content positive, ID/time-only negative, history/occurrence, separate LA-046 REQ and ACQ, corruption/removal controls and authenticated fresh GET on frozen candidate.",
+    "Keep separate evidence/proposal entries for B09, B12, B27, B28, LA-046/REQ-01, and LA-046/ACQ-01; G performs formal adjudication."
+  ]
+}

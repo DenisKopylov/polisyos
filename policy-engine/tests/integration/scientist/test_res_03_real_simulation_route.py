@@ -36,6 +36,7 @@ from polisyos.core.contracts.foundry import (
     FoundryInputBindingRule,
     SimulationResult,
 )
+from polisyos.core.contracts.runtime import RuntimeApiProblem
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.fabric.connectors.base import ConnectionConfig
@@ -67,6 +68,7 @@ from polisyos.scientist.orchestration.workflows.builder import (
     build_registry_with_builtin_nodes,
 )
 from polisyos.scientist.orchestration.workflows.default import default_workflow_spec
+from tests._helpers.control_worker import stop_embedded_control_worker
 
 pytestmark = pytest.mark.integration
 
@@ -136,6 +138,8 @@ class _TenantScopedCAS(FileSystemCAS):
         obj: object,
         opts: PutOptions,
         canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:
         tenant_context = getattr(opts, "tenant_context", None) or ArtifactTenantContextInfo(
             tenant_id=_TENANT_ID,
@@ -145,6 +149,7 @@ class _TenantScopedCAS(FileSystemCAS):
             obj,
             _coerce_put_options(opts, tenant_context=tenant_context),
             canon_spec,
+            return_selected_profile=return_selected_profile,
         )
 
     def put_json_unscoped(
@@ -187,9 +192,11 @@ class _TenantScopedCAS(FileSystemCAS):
 
 def _assert_authority_surface_conflict(response: Any) -> None:
     assert response.status_code == 409, response.text
-    payload = response.json()
-    assert payload["code"] == "authority_surface_admission_blocked"
-    decision = payload["authority_surface_decision"]
+    problem = RuntimeApiProblem.model_validate_json(response.content, strict=True)
+    assert problem.status == problem.status_code == 409
+    assert problem.code == "authority_surface_admission_blocked"
+    assert problem.extensions is not None
+    decision = problem.extensions["authority_surface_decision"]
     assert decision["reason"] == "authority_surface_signal_missing"
     assert decision["blocking"] is True
     assert decision["visible_downgrade"] is True
@@ -445,7 +452,6 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
 ) -> None:
     """Persist a real simulation, then expose the later failure and invalidation."""
     store = _TenantScopedCAS(tmp_path / "cas", tenant_id=_TENANT_ID, cell_id=_CELL_ID)
-    run_id = "R_res03_real_route"
 
     with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):
         registry_bundle = build_default_registry_bundle(store)
@@ -462,8 +468,56 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
                 ),
             ),
         )
+        app = create_runtime_api_app(
+            cas_root=store.root,
+            core_runs_root=store.root / "runs",
+            allow_unscoped_artifacts=True,
+            allow_fixture_identity=True,
+            enable_security_middlewares=False,
+        )
+        client_lifecycle = ExitStack()
+        request.addfinalizer(client_lifecycle.close)
+        client = client_lifecycle.enter_context(TestClient(app, raise_server_exceptions=False))
+        control_service = app.state._control_service
+        stop_embedded_control_worker(control_service)
+        launch_response = client.post(
+            "/api/v1/control/runs",
+            json={
+                "data_source": {
+                    "data_view_request_ref": data_view_request_ref.model_dump(mode="json")
+                },
+                "trinity_bundle_ref": str(trinity_ref.artifact_id),
+                "params": {"workflow_id": "scientist_default"},
+            },
+        )
+        assert launch_response.status_code == 200, launch_response.text
+        launch = launch_response.json()
+        run_id = launch["run_id"]
+        control_job_id = launch["job_id"]
+        admitted_job = control_service._control_store.get_job(control_job_id)
+        assert admitted_job is not None
+        assert admitted_job.run_id == run_id
+        assert admitted_job.kind == "workflow_run"
+        assert admitted_job.payload_ref is not None
+        admitted_payload = control_service._load_payload_ref(
+            admitted_job.payload_ref,
+            kind="runtime.control_job_payload.workflow_run",
+        )
+        admitted_request_ref = ArtifactRef.model_validate(
+            admitted_payload["state_payload"]["inputs"]["data_view_request_ref"]
+        )
+        assert _artifact_ref_contract_identity(admitted_request_ref) == (
+            _artifact_ref_contract_identity(data_view_request_ref)
+        )
+        assert admitted_payload["data_view_request_intent"]["profile_origin"] == ("caller_selected")
+        created_outbox_event = control_service._control_store.get_job_created_outbox_event(
+            control_job_id
+        )
+        assert created_outbox_event.topic == "control.job.created"
+        assert created_outbox_event.run_id == run_id
         state = ExperimentState(
             run_id=run_id,
+            control_job_id=control_job_id,
             inputs={
                 "trinity_bundle_ref": trinity_ref,
                 "registry_bundle_ref": registry_bundle.bundle_ref,
@@ -507,6 +561,10 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
             run_id=run_id,
             foundry=DefaultFoundryPort(),
         )
+        # This fixture runs a custom failing-sibling DAG through the low-level
+        # executor, so persist the real admitted job backlink that the normal
+        # workflow launcher propagates before execution.
+        ctx.run.update_manifest(control_job_id=control_job_id)
         result = WorkflowExecutor(ctx, registry).execute(_build_workflow(), state)
 
     records = {record.alias: record for record in result.report.nodes}
@@ -567,16 +625,6 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
         "state_snapshot",
     } <= input_roles
 
-    app = create_runtime_api_app(
-        cas_root=store.root,
-        core_runs_root=store.root / "runs",
-        allow_unscoped_artifacts=True,
-        allow_fixture_identity=True,
-        enable_security_middlewares=False,
-    )
-    client_lifecycle = ExitStack()
-    request.addfinalizer(client_lifecycle.close)
-    client = client_lifecycle.enter_context(TestClient(app, raise_server_exceptions=False))
     run_details_response = client.get(f"/api/v1/runs/{run_id}")
     run_summaries_response = client.get("/api/v1/runs", params={"q": run_id})
     workflow_response = client.get(f"/api/v1/runs/{run_id}/workflow")
@@ -585,14 +633,11 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
     evidence_context = evidence_context_response.json()["context"]
     assert _artifact_ref_contract_identity(
         ArtifactRef.model_validate(evidence_context["data_snapshot_ref"])
-    ) == (
-        _artifact_ref_contract_identity(data_snapshot_ref)
-    )
+    ) == (_artifact_ref_contract_identity(data_snapshot_ref))
     assert _artifact_ref_contract_identity(
         ArtifactRef.model_validate(evidence_context["data_view_request_ref"])
-    ) == (
-        _artifact_ref_contract_identity(data_view_request_ref)
-    )
+    ) == (_artifact_ref_contract_identity(data_view_request_ref))
+    assert evidence_context["data_view_request_profile_status"] == "caller_selected_profile"
     assert not any(
         warning.startswith("data_view_request_") for warning in evidence_context["warnings"]
     )
@@ -1033,18 +1078,15 @@ def test_res_03_real_simulation_later_failure_reaches_user_route(
     assert run_details_response.status_code == 200, run_details_response.text
     run_details = run_details_response.json()["run"]
     assert run_details["run_id"] == run_id
+    assert run_details["control_job_id"] == control_job_id
     # Preserve terminal failure; the completed simulation remains independently readable.
     assert run_details["status"] == "fail"
     assert run_details["has_workflow_report"] is True
-    assert run_details["workflow_report_ref"]["artifact_id"] == str(
-        workflow_report_ref.artifact_id
-    )
+    assert run_details["workflow_report_ref"]["artifact_id"] == str(workflow_report_ref.artifact_id)
 
     assert run_summaries_response.status_code == 200, run_summaries_response.text
     run_summaries = [
-        summary
-        for summary in run_summaries_response.json()["runs"]
-        if summary["run_id"] == run_id
+        summary for summary in run_summaries_response.json()["runs"] if summary["run_id"] == run_id
     ]
     assert len(run_summaries) == 1
     assert run_summaries[0]["status"] == "fail"
@@ -1150,9 +1192,7 @@ def test_sql_dataframe_source_binds_into_a_real_foundry_state(tmp_path) -> None:
     finally:
         registry.shutdown()
 
-    snapshot = DataSnapshot.model_validate(
-        from_canonical_bytes(store.get_bytes(data_snapshot_ref))
-    )
+    snapshot = DataSnapshot.model_validate(from_canonical_bytes(store.get_bytes(data_snapshot_ref)))
     records = from_canonical_bytes(store.get_bytes(snapshot.data_ref))
     snapshot_manifest = store.get_manifest(data_snapshot_ref)
     request_edges = [

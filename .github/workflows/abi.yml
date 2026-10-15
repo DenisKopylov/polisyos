@@ -173,6 +173,15 @@ jobs:
       - name: Check tool config split drift
         run: uv run polisyos-tools workspace tool-configs --check
 
+      - name: Lint authored Python and repository files
+        run: uv run polisyos-tools workspace lint-fast --skip-frontend
+
+      - name: Check authored formatting
+        run: uv run polisyos-tools workspace format-check --skip-frontend --skip-rego
+
+      - name: Check benchmark surface
+        run: uv run polisyos-tools workspace benchmark-surfaces
+
       - name: Run fast unit suite
         run: uv run pytest -m "not integration and not benchmark" --ignore=tests/unit/runtime/http
 

@@ -6,19 +6,20 @@ producer, R2 whole-object consumer, and canonical proposal emitter. It derives
 the source set from file opens during the complete build and consumer controls;
 it does not claim candidate execution, semantic alignment, or formal closure.
 """
+
 from __future__ import annotations
 
 import argparse
 import collections
 import copy
 import hashlib
-import importlib.util
 import inspect
 import json
 import marshal
 import os
 import platform
 import re
+import shutil
 import stat
 import subprocess
 import sys
@@ -26,11 +27,21 @@ import sysconfig
 import types
 from collections.abc import Mapping
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
+
+
+def _git_executable() -> str:
+    """Resolve Git once per process without relying on a partial PATH command."""
+    executable = shutil.which("git")
+    if executable is None:
+        raise RuntimeError("git executable is not available on PATH")
+    return str(Path(executable).resolve(strict=True))
 
 
 LOCAL = Path("policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL")
-R3_COMPANION = LOCAL / "raw/q0-full-report-registration-author-r3-20261012/registration-companion.py"
+R3_COMPANION = (
+    LOCAL / "raw/q0-full-report-registration-author-r3-20261012/registration-companion.py"
+)
 R7_DIR = LOCAL / "raw/q0-full-report-registration-author-r7-20261012"
 DEFAULT_REPORT = R7_DIR / "generated-full-report-r7.json"
 DEFAULT_CONTROLS = R7_DIR / "generated-consumer-controls-r7.json"
@@ -45,7 +56,7 @@ class ReadClosureError(ValueError):
     """Raised when runtime reads and their source bindings do not agree."""
 
 
-def stable_json(value: Any) -> bytes:
+def stable_json(value: object) -> bytes:
     """Return deterministic, human-readable JSON bytes."""
     return (json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
@@ -69,30 +80,58 @@ def repo_root() -> Path:
     raise ReadClosureError("repository root not found")
 
 
+def _run_git(
+    root: Path, *args: str, text: bool = False
+) -> subprocess.CompletedProcess[str | bytes]:
+    """Run an allowlisted read-only Git query without a shell."""
+    readonly_commands = {"--version", "ls-tree", "cat-file", "rev-parse", "merge-base"}
+    command = args[1] if args[:1] == ("--literal-pathspecs",) and len(args) > 1 else args[0]
+    if command not in readonly_commands or any("\0" in arg for arg in args):
+        raise ReadClosureError("Git helper accepts only NUL-free, read-only query arguments")
+    # S603: the executable is resolved absolutely and the command family above is read-only.
+    return subprocess.run(  # noqa: S603
+        [_git_executable(), *args],
+        cwd=root,
+        text=text,
+        capture_output=True,
+        check=False,
+        shell=False,
+    )
+
+
 def git(root: Path, *args: str) -> str:
     """Run a read-only Git query and preserve its failure details."""
-    result = subprocess.run(["git", *args], cwd=root, text=True, capture_output=True, check=False)
+    result = _run_git(root, *args, text=True)
     if result.returncode:
         raise ReadClosureError(f"git {' '.join(args)} failed: {result.stderr.strip()}")
     return result.stdout.strip()
 
 
-def source_import(name: str, path: Path) -> Any:
+def source_import(name: str, path: Path) -> object:
     """Import repository code from source bytes without Python bytecode caches."""
     raw = path.read_bytes()
     module = types.ModuleType(name)
     module.__file__ = str(path.resolve())
     module.__package__ = name.rpartition(".")[0]
     sys.modules[name] = module
-    exec(compile(raw, module.__file__, "exec"), module.__dict__)
+    # S102: execute the exact source bytes that the read trace is meant to observe.
+    exec(compile(raw, module.__file__, "exec"), module.__dict__)  # noqa: S102
     return module
 
 
 class RuntimeReadTrace:
     """Capture repository opens and completed child-process results during one build."""
 
-    _WRITE_BITS = getattr(os, "O_WRONLY", 1) | getattr(os, "O_RDWR", 2) | getattr(os, "O_CREAT", 0) | getattr(os, "O_TRUNC", 0) | getattr(os, "O_APPEND", 0)
-    _PROCESS_EVENTS = {"os.system", "os.exec", "os.posix_spawn", "os.spawn"}
+    _WRITE_BITS = (
+        getattr(os, "O_WRONLY", 1)
+        | getattr(os, "O_RDWR", 2)
+        | getattr(os, "O_CREAT", 0)
+        | getattr(os, "O_TRUNC", 0)
+        | getattr(os, "O_APPEND", 0)
+    )
+    _PROCESS_EVENTS: ClassVar[frozenset[str]] = frozenset(
+        {"os.system", "os.exec", "os.posix_spawn", "os.spawn"}
+    )
 
     def __init__(self, root: Path) -> None:
         self.root = root.resolve()
@@ -121,7 +160,7 @@ class RuntimeReadTrace:
         self._enabled = False
 
     @staticmethod
-    def _mode_is_write(mode: Any, flags: Any) -> bool:
+    def _mode_is_write(mode: object, flags: object) -> bool:
         if isinstance(mode, str) and any(char in mode for char in "wax+"):
             return True
         return isinstance(flags, int) and bool(flags & RuntimeReadTrace._WRITE_BITS)
@@ -135,15 +174,21 @@ class RuntimeReadTrace:
                 relative = Path(filename).resolve().relative_to(self.root).as_posix()
             except (OSError, ValueError):
                 relative = None
-            item = {"path": relative or filename, "line": frame.f_lineno, "function": frame.f_code.co_name}
+            item = {
+                "path": relative or filename,
+                "line": frame.f_lineno,
+                "function": frame.f_code.co_name,
+            }
             if fallback is None:
                 fallback = item
-            if relative is not None and not relative.startswith("policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-report-registration-author-r7-20261012/"):
+            if relative is not None and not relative.startswith(
+                "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q0-full-report-registration-author-r7-20261012/"
+            ):
                 return item
             frame = frame.f_back
         return fallback or {"path": "<unknown>", "line": 0, "function": "<unknown>"}
 
-    def _path(self, value: Any) -> Path | None:
+    def _path(self, value: object) -> Path | None:
         if not isinstance(value, (str, bytes, os.PathLike)):
             return None
         try:
@@ -166,7 +211,9 @@ class RuntimeReadTrace:
         try:
             self._audit_impl(event, args)
         except BaseException as exc:
-            self.audit_errors.append({"event": event, "error_type": type(exc).__name__, "callsite": self._callsite()})
+            self.audit_errors.append(
+                {"event": event, "error_type": type(exc).__name__, "callsite": self._callsite()}
+            )
 
     def _audit_impl(self, event: str, args: tuple[Any, ...]) -> None:
         if event == "subprocess.Popen":
@@ -180,7 +227,9 @@ class RuntimeReadTrace:
             if candidate is not None:
                 relative = self._relative(candidate)
                 if relative is not None:
-                    item = self.writes.setdefault(relative, {"first_callsite": self._callsite(), "opens": 0})
+                    item = self.writes.setdefault(
+                        relative, {"first_callsite": self._callsite(), "opens": 0}
+                    )
                     item["kind"] = "symlink_created_during_run"
                     item["target_argument_sha256"] = sha256(os.fsencode(args[0]))
             return
@@ -201,7 +250,16 @@ class RuntimeReadTrace:
                 is_runtime = False
             category = "python_runtime" if is_runtime else "external_or_temporary"
             key = f"{category}:{candidate.name}"
-            item = self.external.setdefault(key, {"category": category, "basename": candidate.name, "first_callsite": callsite, "read_opens": 0, "write_opens": 0})
+            item = self.external.setdefault(
+                key,
+                {
+                    "category": category,
+                    "basename": candidate.name,
+                    "first_callsite": callsite,
+                    "read_opens": 0,
+                    "write_opens": 0,
+                },
+            )
             item["write_opens" if write else "read_opens"] += 1
             self.events[(category, "write" if write else "read")] += 1
             return
@@ -223,7 +281,15 @@ class RuntimeReadTrace:
             return
         if info is not None and stat.S_ISLNK(info.st_mode):
             target_text = os.readlink(candidate)
-            item = self.reads.setdefault(lexical_rel, {"first_callsite": callsite, "read_opens": 0, "filesystem_kind": "symlink", "symlink_target": target_text})
+            item = self.reads.setdefault(
+                lexical_rel,
+                {
+                    "first_callsite": callsite,
+                    "read_opens": 0,
+                    "filesystem_kind": "symlink",
+                    "symlink_target": target_text,
+                },
+            )
             item["read_opens"] += 1
             self.symlink_reads.add(lexical_rel)
             self.events[("repository_symlink", "read")] += 1
@@ -232,32 +298,59 @@ class RuntimeReadTrace:
                 target_rel = self._relative(resolved)
             except (OSError, ValueError) as exc:
                 target_rel = None
-                self.unbound_symlinks.append({"path": lexical_rel, "target": target_text, "error_type": type(exc).__name__, "callsite": callsite})
+                self.unbound_symlinks.append(
+                    {
+                        "path": lexical_rel,
+                        "target": target_text,
+                        "error_type": type(exc).__name__,
+                        "callsite": callsite,
+                    }
+                )
             if target_rel is not None and target_rel != lexical_rel:
-                row = self.reads.setdefault(target_rel, {"first_callsite": callsite, "read_opens": 0, "symlink_target_for": lexical_rel})
+                row = self.reads.setdefault(
+                    target_rel,
+                    {
+                        "first_callsite": callsite,
+                        "read_opens": 0,
+                        "symlink_target_for": lexical_rel,
+                    },
+                )
                 row["read_opens"] += 1
             return
         if info is None:
-            item = self.missing_open_attempts.setdefault(lexical_rel, {"first_callsite": callsite, "attempts": 0})
+            item = self.missing_open_attempts.setdefault(
+                lexical_rel, {"first_callsite": callsite, "attempts": 0}
+            )
             item["attempts"] += 1
             self.events[("repository_open_attempt", "missing_at_observation")] += 1
             return
         if not stat.S_ISREG(info.st_mode):
-            item = self.nonregular_reads.setdefault(lexical_rel, {"first_callsite": callsite, "opens": 0, "mode": stat.S_IFMT(info.st_mode)})
+            item = self.nonregular_reads.setdefault(
+                lexical_rel,
+                {"first_callsite": callsite, "opens": 0, "mode": stat.S_IFMT(info.st_mode)},
+            )
             item["opens"] += 1
             self.events[("repository_nonregular", "read")] += 1
             return
-        item = self.reads.setdefault(lexical_rel, {"first_callsite": callsite, "read_opens": 0, "filesystem_kind": "regular"})
+        item = self.reads.setdefault(
+            lexical_rel, {"first_callsite": callsite, "read_opens": 0, "filesystem_kind": "regular"}
+        )
         item["read_opens"] += 1
         self.events[("repository_file", "read")] += 1
 
     @staticmethod
     def _normalize_text(value: str) -> str:
-        value = re.sub(r"\.ignored-raw-parent-symlink-self-check-[^/]+", "<parent-symlink-self-check-temp>", value)
-        value = re.sub(r"\.ignored-raw-symlink-self-check-[^/]+", "<symlink-self-check-temp>", value)
+        value = re.sub(
+            r"\.ignored-raw-parent-symlink-self-check-[^/]+",
+            "<parent-symlink-self-check-temp>",
+            value,
+        )
+        value = re.sub(
+            r"\.ignored-raw-symlink-self-check-[^/]+", "<symlink-self-check-temp>", value
+        )
         return value
 
-    def _normalize_command(self, value: Any) -> str:
+    def _normalize_command(self, value: object) -> str:
         text = os.fsdecode(value)
         candidate = Path(text)
         if candidate.is_absolute():
@@ -283,10 +376,14 @@ class RuntimeReadTrace:
         try:
             if sys.platform == "darwin":
                 import fcntl
+
                 raw = fcntl.fcntl(descriptor, fcntl.F_GETPATH, b"\0" * 1023)
                 path = raw.split(b"\0", 1)[0].decode("utf-8", errors="surrogateescape")
             else:
-                for proc_path in (Path(f"/proc/self/fd/{descriptor}"), Path(f"/dev/fd/{descriptor}")):
+                for proc_path in (
+                    Path(f"/proc/self/fd/{descriptor}"),
+                    Path(f"/dev/fd/{descriptor}"),
+                ):
                     try:
                         path = os.readlink(proc_path)
                         break
@@ -296,14 +393,24 @@ class RuntimeReadTrace:
             path = None
         if path is not None:
             candidate = Path(path)
-            relative = self._relative(candidate if candidate.is_absolute() else Path.cwd() / candidate)
+            relative = self._relative(
+                candidate if candidate.is_absolute() else Path.cwd() / candidate
+            )
             identity["path"] = relative or "<outside-repository>"
         else:
             identity["path"] = None
-        return {"descriptor_identity": identity, "resolution": "metadata_only_consumed_bytes_unobserved"}
+        return {
+            "descriptor_identity": identity,
+            "resolution": "metadata_only_consumed_bytes_unobserved",
+        }
 
     def _stdin_constructor(
-        self, value: Any, *, provided: bool, form: str, sealed_omission: bool,
+        self,
+        value: object,
+        *,
+        provided: bool,
+        form: str,
+        sealed_omission: bool,
     ) -> dict[str, Any]:
         """Classify effective stdin after binding against the captured real Popen signature."""
         if sealed_omission:
@@ -334,11 +441,31 @@ class RuntimeReadTrace:
                 "bytes_binding": "unobserved_external_stream",
             }
         if isinstance(value, int) and value == subprocess.PIPE:
-            return {"argument": "stdin_pipe", "source_argument_presence": "explicit", "argument_form": form, "effective_value": "PIPE", "origin": "managed_pipe", "bytes_binding": "communicate_or_stream_observation"}
+            return {
+                "argument": "stdin_pipe",
+                "source_argument_presence": "explicit",
+                "argument_form": form,
+                "effective_value": "PIPE",
+                "origin": "managed_pipe",
+                "bytes_binding": "communicate_or_stream_observation",
+            }
         if isinstance(value, int) and value == subprocess.DEVNULL:
-            return {"argument": "explicit_devnull", "source_argument_presence": "explicit", "argument_form": form, "effective_value": "DEVNULL", "origin": "known_empty_device", "bytes_binding": "no_child_source_bytes"}
+            return {
+                "argument": "explicit_devnull",
+                "source_argument_presence": "explicit",
+                "argument_form": form,
+                "effective_value": "DEVNULL",
+                "origin": "known_empty_device",
+                "bytes_binding": "no_child_source_bytes",
+            }
         if isinstance(value, int) and value == subprocess.STDOUT:
-            return {"argument": "stdout_alias", "source_argument_presence": "explicit", "argument_form": form, "origin": "invalid_or_runtime_rejected", "bytes_binding": "not_established"}
+            return {
+                "argument": "stdout_alias",
+                "source_argument_presence": "explicit",
+                "argument_form": form,
+                "origin": "invalid_or_runtime_rejected",
+                "bytes_binding": "not_established",
+            }
         if isinstance(value, int):
             return {
                 "argument": "integer_descriptor",
@@ -358,7 +485,9 @@ class RuntimeReadTrace:
                     "source_argument_presence": "explicit",
                     "argument_form": form,
                     "origin": "file_object_unresolved",
-                    "name": self._normalize_text(os.fspath(value.name)) if isinstance(getattr(value, "name", None), (str, bytes, os.PathLike)) else None,
+                    "name": self._normalize_text(os.fspath(value.name))
+                    if isinstance(getattr(value, "name", None), (str, bytes, os.PathLike))
+                    else None,
                     "descriptor_error": type(exc).__name__,
                     "bytes_binding": "unobserved_external_stream",
                 }
@@ -389,7 +518,7 @@ class RuntimeReadTrace:
             "bytes_binding": "not_established",
         }
 
-    def _invocation_value(self, name: str, value: Any) -> tuple[dict[str, Any], bool]:
+    def _invocation_value(self, name: str, value: object) -> tuple[dict[str, object], bool]:
         """Return a content-safe canonical description of one effective Popen parameter."""
         if value is None:
             return {"kind": "none"}, True
@@ -407,60 +536,115 @@ class RuntimeReadTrace:
             return {"kind": "path", "value": self._normalize_command(os.fspath(value))}, True
         if isinstance(value, Mapping):
             if name == "env":
-                entries = sorted((str(key), sha256(os.fsencode(item))) for key, item in value.items())
-                return {"kind": "environment_mapping", "entries": len(entries), "sha256": sha256(stable_json(entries))}, True
-            entries = sorted((str(key), self._invocation_value(str(key), item)[0]) for key, item in value.items())
-            return {"kind": "mapping", "entries": len(entries), "sha256": sha256(stable_json(entries))}, True
+                entries = sorted(
+                    (str(key), sha256(os.fsencode(item))) for key, item in value.items()
+                )
+                return {
+                    "kind": "environment_mapping",
+                    "entries": len(entries),
+                    "sha256": sha256(stable_json(entries)),
+                }, True
+            entries = sorted(
+                (str(key), self._invocation_value(str(key), item)[0]) for key, item in value.items()
+            )
+            return {
+                "kind": "mapping",
+                "entries": len(entries),
+                "sha256": sha256(stable_json(entries)),
+            }, True
         if isinstance(value, (list, tuple)):
             children = [self._invocation_value(name, item)[0] for item in value]
-            return {"kind": type(value).__name__, "items": len(children), "sha256": sha256(stable_json(children))}, True
+            return {
+                "kind": type(value).__name__,
+                "items": len(children),
+                "sha256": sha256(stable_json(children)),
+            }, True
         if isinstance(value, (set, frozenset)):
             children = [self._invocation_value(name, item)[0] for item in value]
             children.sort(key=stable_json)
-            return {"kind": type(value).__name__, "items": len(children), "sha256": sha256(stable_json(children))}, True
+            return {
+                "kind": type(value).__name__,
+                "items": len(children),
+                "sha256": sha256(stable_json(children)),
+            }, True
         if callable(value):
             code = getattr(value, "__code__", None)
             closure = getattr(value, "__closure__", None)
             if code is None:
-                return {"kind": "callable", "type": f"{type(value).__module__}.{type(value).__qualname__}", "complete": False}, False
+                return {
+                    "kind": "callable",
+                    "type": f"{type(value).__module__}.{type(value).__qualname__}",
+                    "complete": False,
+                }, False
             code_hash = sha256(marshal.dumps(code))
             complete = not closure
             return {
-                "kind": "callable", "module": getattr(value, "__module__", None),
-                "qualname": getattr(value, "__qualname__", None), "code_sha256": code_hash,
-                "closure_cells": len(closure or ()), "complete": complete,
+                "kind": "callable",
+                "module": getattr(value, "__module__", None),
+                "qualname": getattr(value, "__qualname__", None),
+                "code_sha256": code_hash,
+                "closure_cells": len(closure or ()),
+                "complete": complete,
             }, complete
         fileno = getattr(value, "fileno", None)
         if callable(fileno):
             try:
                 descriptor = int(fileno())
             except (OSError, TypeError, ValueError) as exc:
-                return {"kind": "file_object", "type": f"{type(value).__module__}.{type(value).__qualname__}", "resolution": type(exc).__name__}, False
+                return {
+                    "kind": "file_object",
+                    "type": f"{type(value).__module__}.{type(value).__qualname__}",
+                    "resolution": type(exc).__name__,
+                }, False
             return {
-                "kind": "file_object", "type": f"{type(value).__module__}.{type(value).__qualname__}",
+                "kind": "file_object",
+                "type": f"{type(value).__module__}.{type(value).__qualname__}",
                 **self._descriptor_origin(descriptor),
             }, True
-        return {"kind": "opaque", "type": f"{type(value).__module__}.{type(value).__qualname__}"}, False
+        return {
+            "kind": "opaque",
+            "type": f"{type(value).__module__}.{type(value).__qualname__}",
+        }, False
 
     def _popen_binding(
-        self, original: Any, instance: Any, args: tuple[Any, ...], kwargs: dict[str, Any],
+        self,
+        original: object,
+        instance: object,
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
     ) -> dict[str, Any]:
-        """Bind against the captured real Popen signature, then seal only an omitted stdin default."""
+        "Bind against the captured real Popen signature, then seal only an omitted stdin default."
         if original is not self._original_popen:
-            return {"status": "unbound", "error": "constructor_is_not_captured_real_popen", "call_kwargs": kwargs}
+            return {
+                "status": "unbound",
+                "error": "constructor_is_not_captured_real_popen",
+                "call_kwargs": kwargs,
+            }
         signature = self._original_popen_signature
         if signature is None:
-            return {"status": "unbound", "error": "captured_real_popen_signature_unavailable", "call_kwargs": kwargs}
+            return {
+                "status": "unbound",
+                "error": "captured_real_popen_signature_unavailable",
+                "call_kwargs": kwargs,
+            }
         try:
             bound = signature.bind(instance, *args, **kwargs)
         except TypeError as exc:
-            return {"status": "unbound", "error": f"signature_bind:{type(exc).__name__}", "call_kwargs": kwargs}
+            return {
+                "status": "unbound",
+                "error": f"signature_bind:{type(exc).__name__}",
+                "call_kwargs": kwargs,
+            }
         explicit = set(bound.arguments) - {"self"}
         forms: dict[str, str] = {}
         positional_names = [
-            parameter.name for parameter in signature.parameters.values()
-            if parameter.name != "self" and parameter.kind in {
-                inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            parameter.name
+            for parameter in signature.parameters.values()
+            if parameter.name != "self"
+            and parameter.kind
+            in {
+                inspect.Parameter.POSITIONAL_ONLY,
+                inspect.Parameter.POSITIONAL_OR_KEYWORD,
             }
         ]
         for index, name in enumerate(positional_names):
@@ -472,7 +656,8 @@ class RuntimeReadTrace:
                 forms[name] = "omitted_default"
         for parameter in signature.parameters.values():
             if parameter.name == "self" or parameter.kind not in {
-                inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                inspect.Parameter.POSITIONAL_ONLY,
+                inspect.Parameter.POSITIONAL_OR_KEYWORD,
             }:
                 forms[parameter.name] = "keyword" if parameter.name in kwargs else "omitted_default"
         bound.apply_defaults()
@@ -482,7 +667,11 @@ class RuntimeReadTrace:
         call_kwargs = dict(kwargs)
         if sealed_omission:
             if "stdin" not in signature.parameters or forms.get("stdin") != "omitted_default":
-                return {"status": "unbound", "error": "cannot_safely_seal_signature_stdin_default", "call_kwargs": kwargs}
+                return {
+                    "status": "unbound",
+                    "error": "cannot_safely_seal_signature_stdin_default",
+                    "call_kwargs": kwargs,
+                }
             effective["stdin"] = subprocess.DEVNULL
             call_kwargs["stdin"] = subprocess.DEVNULL
         parameter_bindings: dict[str, Any] = {}
@@ -490,18 +679,44 @@ class RuntimeReadTrace:
         for name, value in effective.items():
             if name == "stdin":
                 description = self._stdin_constructor(
-                    value, provided=stdin_provided, form=forms.get(name, "unknown"), sealed_omission=sealed_omission,
+                    value,
+                    provided=stdin_provided,
+                    form=forms.get(name, "unknown"),
+                    sealed_omission=sealed_omission,
                 )
-                complete = description.get("origin") not in {"unclassified_constructor_stdin", "file_object_unresolved", "invalid_or_runtime_rejected"}
+                complete = description.get("origin") not in {
+                    "unclassified_constructor_stdin",
+                    "file_object_unresolved",
+                    "invalid_or_runtime_rejected",
+                }
                 kind = "stdin_origin"
             elif name in {"stdout", "stderr"} and isinstance(value, int):
-                description = {"kind": "stream_constant", "value": {0: "STDIN", 1: "STDOUT", 2: "STDERR", subprocess.PIPE: "PIPE", subprocess.DEVNULL: "DEVNULL", subprocess.STDOUT: "STDOUT"}.get(value, "descriptor"), "descriptor": value if value not in {subprocess.PIPE, subprocess.DEVNULL, subprocess.STDOUT} else None}
+                description = {
+                    "kind": "stream_constant",
+                    "value": {
+                        0: "STDIN",
+                        1: "STDOUT",
+                        2: "STDERR",
+                        subprocess.PIPE: "PIPE",
+                        subprocess.DEVNULL: "DEVNULL",
+                        subprocess.STDOUT: "STDOUT",
+                    }.get(value, "descriptor"),
+                    "descriptor": value
+                    if value not in {subprocess.PIPE, subprocess.DEVNULL, subprocess.STDOUT}
+                    else None,
+                }
                 if description["value"] == "descriptor":
                     description.update(self._descriptor_origin(value))
                 complete, kind = True, "stream_destination"
             elif name == "env" and value is None:
-                inherited = sorted((key, sha256(os.fsencode(item))) for key, item in os.environ.items())
-                description = {"kind": "inherited_environment", "entries": len(inherited), "sha256": sha256(stable_json(inherited))}
+                inherited = sorted(
+                    (key, sha256(os.fsencode(item))) for key, item in os.environ.items()
+                )
+                description = {
+                    "kind": "inherited_environment",
+                    "entries": len(inherited),
+                    "sha256": sha256(stable_json(inherited)),
+                }
                 complete, kind = True, "environment"
             else:
                 description, complete = self._invocation_value(name, value)
@@ -509,7 +724,9 @@ class RuntimeReadTrace:
             if not complete:
                 unsupported.append(name)
             parameter_bindings[name] = {
-                "argument_form": forms.get(name, "keyword" if name in explicit else "omitted_default"),
+                "argument_form": forms.get(
+                    name, "keyword" if name in explicit else "omitted_default"
+                ),
                 "explicit": name in explicit,
                 "kind": kind,
                 "value_sha256": sha256(stable_json(description)),
@@ -531,35 +748,67 @@ class RuntimeReadTrace:
             "effective": effective,
         }
 
-    def _communicate_input(self, value: Any, *, provided: bool, stream: Any, text_mode: bool) -> dict[str, Any]:
+    def _communicate_input(
+        self, value: object, *, provided: bool, stream: object, text_mode: bool
+    ) -> dict[str, Any]:
         """Bind exact bytes supplied through communicate(input=...), without retaining them."""
         if not provided:
-            return {"argument_presence": "omitted", "python_type": None, "capture": "no_argument", "bytes": None, "sha256": None}
+            return {
+                "argument_presence": "omitted",
+                "python_type": None,
+                "capture": "no_argument",
+                "bytes": None,
+                "sha256": None,
+            }
         if value is None:
-            return {"argument_presence": "explicit", "python_type": "NoneType", "capture": "explicit_none", "bytes": None, "sha256": None}
+            return {
+                "argument_presence": "explicit",
+                "python_type": "NoneType",
+                "capture": "explicit_none",
+                "bytes": None,
+                "sha256": None,
+            }
         if isinstance(value, str):
             if not text_mode or stream is None:
                 return {
-                    "argument_presence": "explicit", "python_type": "str", "capture": "unsupported_text_without_text_pipe",
-                    "bytes": None, "sha256": None,
+                    "argument_presence": "explicit",
+                    "python_type": "str",
+                    "capture": "unsupported_text_without_text_pipe",
+                    "bytes": None,
+                    "sha256": None,
                 }
             encoding = getattr(stream, "encoding", None)
             errors = getattr(stream, "errors", None)
             if not encoding:
                 return {
-                    "argument_presence": "explicit", "python_type": "str", "capture": "unsupported_missing_encoding",
-                    "encoding": encoding, "errors": errors, "bytes": None, "sha256": None,
+                    "argument_presence": "explicit",
+                    "python_type": "str",
+                    "capture": "unsupported_missing_encoding",
+                    "encoding": encoding,
+                    "errors": errors,
+                    "bytes": None,
+                    "sha256": None,
                 }
             try:
                 raw = value.encode(encoding, errors or "strict")
             except (LookupError, UnicodeError) as exc:
                 return {
-                    "argument_presence": "explicit", "python_type": "str", "capture": f"encoding_error:{type(exc).__name__}",
-                    "encoding": encoding, "errors": errors, "bytes": None, "sha256": None,
+                    "argument_presence": "explicit",
+                    "python_type": "str",
+                    "capture": f"encoding_error:{type(exc).__name__}",
+                    "encoding": encoding,
+                    "errors": errors,
+                    "bytes": None,
+                    "sha256": None,
                 }
             return {
-                "argument_presence": "explicit", "python_type": "str", "capture": "text_encoded_as_subprocess_input",
-                "encoding": encoding, "errors": errors or "strict", "bytes": len(raw), "sha256": sha256(raw),
+                "argument_presence": "explicit",
+                "python_type": "str",
+                "capture": "text_encoded_as_subprocess_input",
+                "encoding": encoding,
+                "errors": errors or "strict",
+                "bytes": len(raw),
+                "sha256": sha256(raw),
             }
         if isinstance(value, bytes):
             raw = value
@@ -572,15 +821,21 @@ class RuntimeReadTrace:
             python_type = "memoryview"
         else:
             return {
-                "argument_presence": "explicit", "python_type": type(value).__name__, "capture": "unsupported_input_type",
-                "bytes": None, "sha256": None,
+                "argument_presence": "explicit",
+                "python_type": type(value).__name__,
+                "capture": "unsupported_input_type",
+                "bytes": None,
+                "sha256": None,
             }
         return {
-            "argument_presence": "explicit", "python_type": python_type, "capture": "exact_argument_bytes",
-            "bytes": len(raw), "sha256": sha256(raw),
+            "argument_presence": "explicit",
+            "python_type": python_type,
+            "capture": "exact_argument_bytes",
+            "bytes": len(raw),
+            "sha256": sha256(raw),
         }
 
-    def _stream_write(self, stream: Any, value: Any) -> dict[str, Any]:
+    def _stream_write(self, stream: object, value: object) -> dict[str, object]:
         """Summarize a direct Popen.stdin.write argument before it reaches the pipe."""
         if isinstance(value, bytes):
             raw, python_type, capture = value, "bytes", "exact_argument_bytes"
@@ -592,42 +847,78 @@ class RuntimeReadTrace:
             encoding = getattr(stream, "encoding", None)
             errors = getattr(stream, "errors", None)
             if not encoding:
-                return {"python_type": "str", "capture": "unsupported_missing_encoding", "bytes": None, "sha256": None}
+                return {
+                    "python_type": "str",
+                    "capture": "unsupported_missing_encoding",
+                    "bytes": None,
+                    "sha256": None,
+                }
             try:
                 raw = value.encode(encoding, errors or "strict")
             except (LookupError, UnicodeError) as exc:
-                return {"python_type": "str", "capture": f"encoding_error:{type(exc).__name__}", "bytes": None, "sha256": None}
+                return {
+                    "python_type": "str",
+                    "capture": f"encoding_error:{type(exc).__name__}",
+                    "bytes": None,
+                    "sha256": None,
+                }
             python_type, capture = "str", "encoded_argument_newline_translation_not_observed"
         else:
-            return {"python_type": type(value).__name__, "capture": "unsupported_stream_write_type", "bytes": None, "sha256": None}
+            return {
+                "python_type": type(value).__name__,
+                "capture": "unsupported_stream_write_type",
+                "bytes": None,
+                "sha256": None,
+            }
         return {
-            "python_type": python_type, "capture": capture, "bytes": len(raw), "sha256": sha256(raw),
+            "python_type": python_type,
+            "capture": capture,
+            "bytes": len(raw),
+            "sha256": sha256(raw),
             "encoding": getattr(stream, "encoding", None) if isinstance(value, str) else None,
             "errors": getattr(stream, "errors", None) if isinstance(value, str) else None,
         }
 
     def _process_context(
-        self, binding: dict[str, Any], args: tuple[Any, ...], kwargs: dict[str, Any],
+        self,
+        binding: dict[str, Any],
+        args: tuple[Any, ...],
+        kwargs: dict[str, Any],
     ) -> dict[str, Any]:
         """Project process fields from the captured real Popen signature binding."""
         if binding.get("status") == "bound":
             effective = binding["effective"]
             provided = "stdin" in binding["explicit_parameters"]
             constructor = self._stdin_constructor(
-                effective.get("stdin"), provided=provided,
+                effective.get("stdin"),
+                provided=provided,
                 form=binding.get("stdin_argument_form", "unknown"),
                 sealed_omission=bool(binding.get("stdin_default_sealed")),
             )
-            invocation = {key: value for key, value in binding.items() if key not in {"call_kwargs", "effective"}}
+            invocation = {
+                key: value
+                for key, value in binding.items()
+                if key not in {"call_kwargs", "effective"}
+            }
         else:
             effective = {
                 "args": args[0] if args else kwargs.get("args", "<unknown>"),
                 **kwargs,
             }
-            constructor = self._stdin_constructor(None, provided=False, form="unknown", sealed_omission=False)
-            invocation = {key: value for key, value in binding.items() if key not in {"call_kwargs", "effective"}}
+            constructor = self._stdin_constructor(
+                None, provided=False, form="unknown", sealed_omission=False
+            )
+            invocation = {
+                key: value
+                for key, value in binding.items()
+                if key not in {"call_kwargs", "effective"}
+            }
         command = effective.get("args", "<unknown>")
-        argv = [self._normalize_command(value) for value in command] if isinstance(command, (list, tuple)) else [self._normalize_command(command)]
+        argv = (
+            [self._normalize_command(value) for value in command]
+            if isinstance(command, (list, tuple))
+            else [self._normalize_command(command)]
+        )
         cwd = effective.get("cwd")
         cwd_path = Path.cwd() if cwd is None else self._path(cwd)
         cwd_rel = None if cwd_path is None else self._relative(cwd_path)
@@ -636,36 +927,64 @@ class RuntimeReadTrace:
         git_environment = {
             key: {
                 "value_sha256": sha256(os.fsencode(value)),
-                "value": value if key in {"GIT_PAGER", "GIT_NO_REPLACE_OBJECTS", "GIT_CONFIG_NOSYSTEM"} else None,
+                "value": value
+                if key in {"GIT_PAGER", "GIT_NO_REPLACE_OBJECTS", "GIT_CONFIG_NOSYSTEM"}
+                else None,
             }
-            for key, value in sorted(effective_env.items()) if key.startswith("GIT_")
+            for key, value in sorted(effective_env.items())
+            if key.startswith("GIT_")
         }
         return {
-            "argv": argv, "cwd": cwd_rel if cwd_rel is not None else "<outside-repository>",
-            "shell": bool(effective.get("shell", False)), "git_environment": git_environment,
+            "argv": argv,
+            "cwd": cwd_rel if cwd_rel is not None else "<outside-repository>",
+            "shell": bool(effective.get("shell", False)),
+            "git_environment": git_environment,
             "stdout_is_pipe": effective.get("stdout") == subprocess.PIPE,
             "stderr_is_pipe": effective.get("stderr") == subprocess.PIPE,
-            "text_mode": bool(effective.get("text") or effective.get("universal_newlines") or effective.get("encoding") or effective.get("errors")),
+            "text_mode": bool(
+                effective.get("text")
+                or effective.get("universal_newlines")
+                or effective.get("encoding")
+                or effective.get("errors")
+            ),
             "stdin_constructor": constructor,
             "popen_invocation": invocation,
         }
 
     def _record_process(
-        self, context: dict[str, Any], returncode: int | None, stdout: Any, stderr: Any,
-        observation: str, stdin_observation: dict[str, Any] | None = None,
+        self,
+        context: dict[str, Any],
+        returncode: int | None,
+        stdout: object,
+        stderr: object,
+        observation: str,
+        stdin_observation: dict[str, Any] | None = None,
     ) -> None:
-        def output_record(value: Any, *, was_pipe: bool) -> dict[str, Any]:
+        def output_record(value: object, *, was_pipe: bool) -> dict[str, object]:
             if value is None:
                 return {"capture": "not_returned", "bytes": None, "sha256": None, "pipe": was_pipe}
             raw = value.encode("utf-8") if isinstance(value, str) else bytes(value)
-            return {"capture": "text_decoded" if isinstance(value, str) else "raw_bytes", "bytes": len(raw), "sha256": sha256(raw), "pipe": was_pipe}
+            return {
+                "capture": "text_decoded" if isinstance(value, str) else "raw_bytes",
+                "bytes": len(raw),
+                "sha256": sha256(raw),
+                "pipe": was_pipe,
+            }
+
         row_context = {key: value for key, value in context.items() if key != "stdin_constructor"}
         row = {
-            **row_context, "returncode": returncode, "stdout": output_record(stdout, was_pipe=context["stdout_is_pipe"]),
-            "stderr": output_record(stderr, was_pipe=context["stderr_is_pipe"]), "observation": observation,
-            "stdin": stdin_observation or {
-                "constructor": context["stdin_constructor"], "communicate_inputs": [], "direct_stream_writes": [],
-                "descriptor_escape": False, "stream_status": "process_launch_failed_before_stream_observation",
+            **row_context,
+            "returncode": returncode,
+            "stdout": output_record(stdout, was_pipe=context["stdout_is_pipe"]),
+            "stderr": output_record(stderr, was_pipe=context["stderr_is_pipe"]),
+            "observation": observation,
+            "stdin": stdin_observation
+            or {
+                "constructor": context["stdin_constructor"],
+                "communicate_inputs": [],
+                "direct_stream_writes": [],
+                "descriptor_escape": False,
+                "stream_status": "process_launch_failed_before_stream_observation",
             },
         }
         key = sha256(stable_json(row))
@@ -691,6 +1010,7 @@ class RuntimeReadTrace:
         def fd_path(descriptor: int) -> Path:
             if sys.platform == "darwin":
                 import fcntl
+
                 raw = fcntl.fcntl(descriptor, fcntl.F_GETPATH, b"\0" * 1023)
                 name = raw.split(b"\0", 1)[0].decode("utf-8", errors="surrogateescape")
                 return Path(name)
@@ -701,7 +1021,9 @@ class RuntimeReadTrace:
                     continue
             raise ReadClosureError("cannot resolve relative os.open dir_fd")
 
-        def captured_os_open(path: Any, flags: int, mode: int = 0o777, *, dir_fd: int | None = None) -> int:
+        def captured_os_open(
+            path: object, flags: int, mode: int = 0o777, *, dir_fd: int | None = None
+        ) -> int:
             old_pending = trace._pending_osopen_path
             try:
                 candidate = Path(os.fsdecode(path))
@@ -710,14 +1032,18 @@ class RuntimeReadTrace:
                 elif not candidate.is_absolute():
                     candidate = Path.cwd() / candidate
                 trace._pending_osopen_path = Path(os.path.abspath(candidate))
-                return original_os_open(path, flags, mode, dir_fd=dir_fd) if dir_fd is not None else original_os_open(path, flags, mode)
+                return (
+                    original_os_open(path, flags, mode, dir_fd=dir_fd)
+                    if dir_fd is not None
+                    else original_os_open(path, flags, mode)
+                )
             finally:
                 trace._pending_osopen_path = old_pending
 
         os.open = captured_os_open
 
         class CapturingPopen(original):
-            def __init__(self, *args: Any, **kwargs: Any) -> None:
+            def __init__(self, *args: object, **kwargs: object) -> None:
                 binding = trace._popen_binding(original, self, args, kwargs)
                 self._q0_context = trace._process_context(binding, args, kwargs)
                 actual_kwargs = binding.get("call_kwargs", kwargs)
@@ -735,29 +1061,40 @@ class RuntimeReadTrace:
                 try:
                     super().__init__(*args, **actual_kwargs)
                 except BaseException as exc:
-                    trace._record_process(self._q0_context, None, None, None, f"launch_error:{type(exc).__name__}")
+                    trace._record_process(
+                        self._q0_context, None, None, None, f"launch_error:{type(exc).__name__}"
+                    )
                     self._q0_recorded = True
                     raise
-                if self.stdin is not None and self._q0_context["stdin_constructor"]["origin"] == "managed_pipe":
+                if (
+                    self.stdin is not None
+                    and self._q0_context["stdin_constructor"]["origin"] == "managed_pipe"
+                ):
                     underlying_stdin = self.stdin
                     try:
                         self._q0_stdin_fd = int(underlying_stdin.fileno())
                         trace._stdin_fd_owners[self._q0_stdin_fd] = self
                         self.stdin = self.ObservedStdin(underlying_stdin, self)
-                        self._q0_stdin_observation["stream_status"] = "python_stream_writes_observed; raw_fd_escape_is_residual"
+                        self._q0_stdin_observation["stream_status"] = (
+                            "python_stream_writes_observed; raw_fd_escape_is_residual"
+                        )
                     except (OSError, TypeError, ValueError) as exc:
-                        self._q0_stdin_observation["stream_status"] = f"managed_pipe_stream_unresolved:{type(exc).__name__}"
+                        self._q0_stdin_observation["stream_status"] = (
+                            f"managed_pipe_stream_unresolved:{type(exc).__name__}"
+                        )
 
             class ObservedStdin:
                 """Proxy child stdin so direct Python stream writes enter the result row."""
 
-                def __init__(self, stream: Any, owner: Any) -> None:
+                def __init__(self, stream: object, owner: object) -> None:
                     self._stream = stream
                     self._owner = owner
 
-                def write(self, value: Any) -> Any:
+                def write(self, value: object) -> object:
                     row = trace._stream_write(self._stream, value)
-                    row["ordinal"] = len(self._owner._q0_stdin_observation["direct_stream_writes"]) + 1
+                    row["ordinal"] = (
+                        len(self._owner._q0_stdin_observation["direct_stream_writes"]) + 1
+                    )
                     try:
                         result = self._stream.write(value)
                     except BaseException as exc:
@@ -772,49 +1109,77 @@ class RuntimeReadTrace:
                 def fileno(self) -> int:
                     if not self._owner._q0_in_communicate:
                         self._owner._q0_stdin_observation["descriptor_escape"] = True
-                        self._owner._q0_stdin_observation["descriptor_escape_operations"].append("fileno")
+                        self._owner._q0_stdin_observation["descriptor_escape_operations"].append(
+                            "fileno"
+                        )
                     return int(self._stream.fileno())
 
-                def __getattr__(self, name: str) -> Any:
+                def __getattr__(self, name: str) -> object:
                     if name in {"raw", "buffer", "detach"} and not self._owner._q0_in_communicate:
                         self._owner._q0_stdin_observation["descriptor_escape"] = True
-                        self._owner._q0_stdin_observation["descriptor_escape_operations"].append(name)
+                        self._owner._q0_stdin_observation["descriptor_escape_operations"].append(
+                            name
+                        )
                     return getattr(self._stream, name)
 
-                def close(self) -> Any:
+                def close(self) -> object:
                     try:
                         return self._stream.close()
                     finally:
                         owner_fd = self._owner._q0_stdin_fd
-                        if owner_fd is not None and trace._stdin_fd_owners.get(owner_fd) is self._owner:
+                        if (
+                            owner_fd is not None
+                            and trace._stdin_fd_owners.get(owner_fd) is self._owner
+                        ):
                             trace._stdin_fd_owners.pop(owner_fd, None)
 
-                def __enter__(self) -> Any:
+                def __enter__(self) -> object:
                     return self
 
-                def __exit__(self, *args: Any) -> Any:
+                def __exit__(self, *args: object) -> object:
                     return self._stream.__exit__(*args)
 
-            def _q0_finish(self, stdout: Any = None, stderr: Any = None, observation: str = "wait_without_capture") -> None:
+            def _q0_finish(
+                self,
+                stdout: object = None,
+                stderr: object = None,
+                observation: str = "wait_without_capture",
+            ) -> None:
                 if self._q0_recorded:
                     return
-                if self._q0_stdin_fd is not None and trace._stdin_fd_owners.get(self._q0_stdin_fd) is self:
+                if (
+                    self._q0_stdin_fd is not None
+                    and trace._stdin_fd_owners.get(self._q0_stdin_fd) is self
+                ):
                     trace._stdin_fd_owners.pop(self._q0_stdin_fd, None)
-                self._q0_stdin_observation["stream_closed_at_record"] = bool(getattr(self.stdin, "closed", True)) if self.stdin is not None else True
+                self._q0_stdin_observation["stream_closed_at_record"] = (
+                    bool(getattr(self.stdin, "closed", True)) if self.stdin is not None else True
+                )
                 trace._record_process(
-                    self._q0_context, self.returncode, stdout, stderr, observation, self._q0_stdin_observation,
+                    self._q0_context,
+                    self.returncode,
+                    stdout,
+                    stderr,
+                    observation,
+                    self._q0_stdin_observation,
                 )
                 self._q0_recorded = True
 
-            def communicate(self, *args: Any, **kwargs: Any) -> Any:
+            def communicate(self, *args: object, **kwargs: object) -> object:
                 input_provided = bool(args) or "input" in kwargs
                 input_value = args[0] if args else kwargs.get("input")
                 input_row = trace._communicate_input(
-                    input_value, provided=input_provided, stream=self.stdin, text_mode=bool(getattr(self, "text_mode", False)),
+                    input_value,
+                    provided=input_provided,
+                    stream=self.stdin,
+                    text_mode=bool(getattr(self, "text_mode", False)),
                 )
-                input_row["constructor_origin"] = self._q0_stdin_observation["constructor"]["origin"]
+                input_row["constructor_origin"] = self._q0_stdin_observation["constructor"][
+                    "origin"
+                ]
                 input_row["transmission"] = (
-                    "communicate_pipe" if self._q0_stdin_observation["constructor"]["origin"] == "managed_pipe"
+                    "communicate_pipe"
+                    if self._q0_stdin_observation["constructor"]["origin"] == "managed_pipe"
                     else "not_proven_transmitted_to_child"
                 )
                 self._q0_stdin_observation["communicate_inputs"].append(input_row)
@@ -830,13 +1195,13 @@ class RuntimeReadTrace:
                 self._q0_finish(stdout, stderr, "communicate_complete")
                 return output
 
-            def wait(self, *args: Any, **kwargs: Any) -> Any:
+            def wait(self, *args: object, **kwargs: object) -> object:
                 result = super().wait(*args, **kwargs)
                 if not self._q0_in_communicate:
                     self._q0_finish(None, None, "wait_without_captured_result")
                 return result
 
-            def poll(self) -> Any:
+            def poll(self) -> object:
                 result = super().poll()
                 if result is not None and not self._q0_in_communicate:
                     self._q0_finish(None, None, "poll_without_captured_result")
@@ -858,8 +1223,8 @@ class RuntimeReadTrace:
         result: set[str] = set()
         for path in self.reads:
             if path in self.writes:
-                candidate = self.root / path
-                probe = subprocess.run(["git", "ls-tree", "-z", "HEAD", "--", path], cwd=self.root, capture_output=True, check=False)
+                self.root / path
+                probe = _run_git(self.root, "ls-tree", "-z", "HEAD", "--", path)
                 if not probe.stdout:
                     continue
             result.add(path)
@@ -873,28 +1238,51 @@ class RuntimeReadTrace:
         """Return bounded read diagnostics without storing source payloads."""
         return {
             "schema": "policyos.e02.q0_runtime_read_trace.r7.v1",
-            "scope": "full report build and R2 controls; filesystem opens and child results bind to the effective parameter set from inspect.signature.bind on captured real Popen; only truly omitted stdin is sealed to DEVNULL; explicit inherited/file-descriptor stdin and low-level stream escapes remain explicit residuals",
-            "repository_source_reads": [{"path": path, **self.reads[path]} for path in source_paths],
+            "scope": (
+                "full report build and R2 controls; filesystem opens and child "
+                "results bind to the effective parameter set from "
+                "inspect.signature.bind on captured real Popen; only truly omitted "
+                "stdin is sealed to DEVNULL; explicit inherited/file-descriptor stdin "
+                "and low-level stream escapes remain explicit residuals"
+            ),
+            "repository_source_reads": [
+                {"path": path, **self.reads[path]} for path in source_paths
+            ],
             "repository_source_read_count": len(source_paths),
             "repository_directory_open_counts": dict(sorted(self.directories.items())),
-            "repository_write_events": [{"path": path, **self.writes[path]} for path in sorted(self.writes)],
-            "repository_nonregular_reads": [{"path": path, **self.nonregular_reads[path]} for path in sorted(self.nonregular_reads)],
-            "repository_missing_open_attempts": [{"path": path, **self.missing_open_attempts[path]} for path in sorted(self.missing_open_attempts)],
+            "repository_write_events": [
+                {"path": path, **self.writes[path]} for path in sorted(self.writes)
+            ],
+            "repository_nonregular_reads": [
+                {"path": path, **self.nonregular_reads[path]}
+                for path in sorted(self.nonregular_reads)
+            ],
+            "repository_missing_open_attempts": [
+                {"path": path, **self.missing_open_attempts[path]}
+                for path in sorted(self.missing_open_attempts)
+            ],
             "repository_symlink_reads": sorted(self.symlink_reads),
             "unbound_symlink_targets": self.unbound_symlinks,
             "child_process_audit_event_count": self.audit_process_event_count,
             "child_process_result_groups": self.process_rows(),
-            "child_process_result_invocation_count": sum(row["calls"] for row in self.process_results.values()),
+            "child_process_result_invocation_count": sum(
+                row["calls"] for row in self.process_results.values()
+            ),
             "unsupported_process_events": self.unsupported_process_events,
             "audit_callback_errors": self.audit_errors,
-            "outside_repository_open_summary": [self.external[key] for key in sorted(self.external)],
-            "event_class_counts": {f"{scope}:{operation}": count for (scope, operation), count in sorted(self.events.items())},
+            "outside_repository_open_summary": [
+                self.external[key] for key in sorted(self.external)
+            ],
+            "event_class_counts": {
+                f"{scope}:{operation}": count
+                for (scope, operation), count in sorted(self.events.items())
+            },
         }
 
 
 def _git_bytes(root: Path, *args: str) -> bytes:
     """Run a read-only Git query and return exact stdout bytes."""
-    result = subprocess.run(["git", *args], cwd=root, capture_output=True, check=False)
+    result = _run_git(root, *args)
     if result.returncode:
         detail = result.stderr.decode("utf-8", errors="replace").strip()
         raise ReadClosureError(f"git {' '.join(args)} failed: {detail}")
@@ -937,40 +1325,81 @@ def _filesystem_record(root: Path, commit: str, relative: str, *, strict: bool) 
     if entry is None:
         require(not strict, f"source is not present in committed HEAD: {relative}")
         return {
-            "path": relative, "filesystem_kind": filesystem_kind, "bytes": len(raw),
-            "sha256": sha256(raw), "filesystem_mode_octal": filesystem_mode,
-            "git_tree_mode": None, "git_object_type": None, "git_object_id": None,
-            "source_commit": None, "availability": "local_readback_only_untracked",
+            "path": relative,
+            "filesystem_kind": filesystem_kind,
+            "bytes": len(raw),
+            "sha256": sha256(raw),
+            "filesystem_mode_octal": filesystem_mode,
+            "git_tree_mode": None,
+            "git_object_type": None,
+            "git_object_id": None,
+            "source_commit": None,
+            "availability": "local_readback_only_untracked",
         }
     git_mode, git_type, object_id = entry
-    expected_mode = "120000" if filesystem_kind == "symlink" else ("100755" if info.st_mode & 0o111 else "100644")
+    expected_mode = (
+        "120000"
+        if filesystem_kind == "symlink"
+        else ("100755" if info.st_mode & 0o111 else "100644")
+    )
     object_type = "commit" if git_mode == "160000" else ("tree" if git_type == "tree" else "blob")
     git_raw = _git_bytes(root, "cat-file", object_type, object_id)
     exact = raw == git_raw and git_mode == expected_mode
     if strict:
         require(exact, f"filesystem bytes or mode differ from committed HEAD: {relative}")
     return {
-        "path": relative, "filesystem_kind": filesystem_kind, "bytes": len(raw),
-        "sha256": sha256(raw), "filesystem_mode_octal": filesystem_mode,
-        "git_tree_mode": git_mode, "git_object_type": object_type, "git_object_id": object_id,
+        "path": relative,
+        "filesystem_kind": filesystem_kind,
+        "bytes": len(raw),
+        "sha256": sha256(raw),
+        "filesystem_mode_octal": filesystem_mode,
+        "git_tree_mode": git_mode,
+        "git_object_type": object_type,
+        "git_object_id": object_id,
         "source_commit": commit,
-        "availability": "committed_HEAD_exact_bytes_and_mode" if exact else "local_readback_only_dirty_against_HEAD",
+        "availability": "committed_HEAD_exact_bytes_and_mode"
+        if exact
+        else "local_readback_only_dirty_against_HEAD",
     }
 
 
-def bind_source_paths(root: Path, commit: str, paths: set[str], *, strict: bool) -> list[dict[str, Any]]:
+def bind_source_paths(
+    root: Path, commit: str, paths: set[str], *, strict: bool
+) -> list[dict[str, Any]]:
     """Bind every recomputed filesystem path, including symlink object bytes."""
     records = []
     for relative in sorted(paths):
         try:
             records.append(_filesystem_record(root, commit, relative, strict=strict))
         except Exception as exc:
-            records.append({"path": relative, "availability": "unavailable_or_nonregular", "binding_error": f"{type(exc).__name__}: {exc}"})
+            records.append(
+                {
+                    "path": relative,
+                    "availability": "unavailable_or_nonregular",
+                    "binding_error": f"{type(exc).__name__}: {exc}",
+                }
+            )
     return records
 
 
 def _git_command(argv: list[str]) -> str | None:
-    commands = {"show", "cat-file", "rev-parse", "ls-tree", "diff", "status", "log", "rev-list", "merge-base", "grep", "blame", "archive", "hash-object", "check-ignore", "ls-files"}
+    commands = {
+        "show",
+        "cat-file",
+        "rev-parse",
+        "ls-tree",
+        "diff",
+        "status",
+        "log",
+        "rev-list",
+        "merge-base",
+        "grep",
+        "blame",
+        "archive",
+        "hash-object",
+        "check-ignore",
+        "ls-files",
+    }
     return next((item for item in argv[1:] if item in commands), None)
 
 
@@ -989,7 +1418,9 @@ def _git_path_refs(process_rows: list[dict[str, Any]]) -> set[tuple[str, str]]:
     return refs
 
 
-def _resolve_git_path_refs(root: Path, head: str, process_rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[str]]:
+def _resolve_git_path_refs(
+    root: Path, head: str, process_rows: list[dict[str, Any]]
+) -> tuple[list[dict[str, Any]], list[str]]:
     """Bind every observed commit:path to availability, mode, blob, and bytes hash."""
     refs = _git_path_refs(process_rows)
     records: list[dict[str, Any]] = []
@@ -1007,17 +1438,26 @@ def _resolve_git_path_refs(root: Path, head: str, process_rows: list[dict[str, A
         attempts = process_by_ref[(requested_commit, path)]
         successful_attempts = [row for row in attempts if row.get("returncode") == 0]
         if attempts and not successful_attempts:
-            records.append({
-                "requested_commit": requested_commit, "path": path,
-                "lookup_status": "negative_lookup_result_recorded",
-                "object_available_in_local_git_database": False,
-                "observed_process_result_count": sum(row["calls"] for row in attempts),
-                "process_result_sha256s": [sha256(stable_json(row)) for row in attempts],
-                "qualification": "failed lookup is captured as a result, not misrepresented as source bytes",
-            })
+            records.append(
+                {
+                    "requested_commit": requested_commit,
+                    "path": path,
+                    "lookup_status": "negative_lookup_result_recorded",
+                    "object_available_in_local_git_database": False,
+                    "observed_process_result_count": sum(row["calls"] for row in attempts),
+                    "process_result_sha256s": [sha256(stable_json(row)) for row in attempts],
+                    "qualification": (
+                        "failed lookup is captured as a result, not misrepresented as source bytes"
+                    ),
+                }
+            )
             continue
         try:
-            resolved = _git_bytes(root, "rev-parse", "--verify", f"{requested_commit}^{{commit}}").decode("ascii").strip()
+            resolved = (
+                _git_bytes(root, "rev-parse", "--verify", f"{requested_commit}^{{commit}}")
+                .decode("ascii")
+                .strip()
+            )
             if not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", resolved):
                 raise ReadClosureError("Git did not return a full commit object id")
             entry = _tree_entry(root, resolved, path)
@@ -1026,14 +1466,15 @@ def _resolve_git_path_refs(root: Path, head: str, process_rows: list[dict[str, A
             mode, kind, object_id = entry
             object_type = "commit" if mode == "160000" else ("tree" if kind == "tree" else "blob")
             raw = _git_bytes(root, "cat-file", object_type, object_id)
-            ancestor = subprocess.run(["git", "merge-base", "--is-ancestor", resolved, head], cwd=root, capture_output=True, check=False)
+            ancestor = _run_git(root, "merge-base", "--is-ancestor", resolved, head)
             if ancestor.returncode not in (0, 1):
                 raise ReadClosureError("Git could not establish source commit reachability")
             content_results = []
             ref_token = f"{requested_commit}:{path}"
             candidates = list(process_by_ref[(requested_commit, path)])
             candidates.extend(
-                process for process in process_rows
+                process
+                for process in process_rows
                 if _git_command(process["argv"]) == "cat-file" and object_id in process["argv"]
             )
             for process in candidates:
@@ -1042,35 +1483,62 @@ def _resolve_git_path_refs(root: Path, head: str, process_rows: list[dict[str, A
                 if command in {"show", "cat-file"} and stdout.get("capture") == "raw_bytes":
                     exact = stdout.get("bytes") == len(raw) and stdout.get("sha256") == sha256(raw)
                     if exact:
-                        content_results.append({
-                            "command": command,
-                            "process_result_sha256": sha256(stable_json(process)),
-                            "stdout_sha256": stdout["sha256"],
-                            "stdout_bytes": stdout["bytes"],
-                        })
+                        content_results.append(
+                            {
+                                "command": command,
+                                "process_result_sha256": sha256(stable_json(process)),
+                                "stdout_sha256": stdout["sha256"],
+                                "stdout_bytes": stdout["bytes"],
+                            }
+                        )
                     elif command == "show" and ref_token in process["argv"]:
-                        issues.append(f"git show output did not equal resolved object bytes: {ref_token}")
-            records.append({
-                "requested_commit": requested_commit, "resolved_commit": resolved, "path": path,
-                "git_tree_mode": mode, "git_object_type": object_type, "git_object_id": object_id,
-                "bytes": len(raw), "sha256": sha256(raw),
-                "object_available_in_local_git_database": True,
-                "source_commit_is_ancestor_of_report_HEAD": ancestor.returncode == 0,
-                "observed_process_result_count": sum(row["calls"] for row in process_by_ref[(requested_commit, path)]),
-                "matched_exact_content_result_count": len(content_results),
-                "matched_exact_content_results": content_results,
-            })
+                        issues.append(
+                            f"git show output did not equal resolved object bytes: {ref_token}"
+                        )
+            records.append(
+                {
+                    "requested_commit": requested_commit,
+                    "resolved_commit": resolved,
+                    "path": path,
+                    "git_tree_mode": mode,
+                    "git_object_type": object_type,
+                    "git_object_id": object_id,
+                    "bytes": len(raw),
+                    "sha256": sha256(raw),
+                    "object_available_in_local_git_database": True,
+                    "source_commit_is_ancestor_of_report_HEAD": ancestor.returncode == 0,
+                    "observed_process_result_count": sum(
+                        row["calls"] for row in process_by_ref[(requested_commit, path)]
+                    ),
+                    "matched_exact_content_result_count": len(content_results),
+                    "matched_exact_content_results": content_results,
+                }
+            )
         except Exception as exc:
-            issues.append(f"cannot bind Git object reference {requested_commit}:{path}: {type(exc).__name__}: {exc}")
-            records.append({
-                "requested_commit": requested_commit, "path": path,
-                "object_available_in_local_git_database": False,
-                "binding_error": f"{type(exc).__name__}: {exc}",
-            })
+            issues.append(
+                f"cannot bind Git object reference "
+                f"{requested_commit}"
+                f":"
+                f"{path}"
+                f": "
+                f"{type(exc).__name__}"
+                f": "
+                f"{exc}"
+            )
+            records.append(
+                {
+                    "requested_commit": requested_commit,
+                    "path": path,
+                    "object_available_in_local_git_database": False,
+                    "binding_error": f"{type(exc).__name__}: {exc}",
+                }
+            )
     return records, issues
 
 
-def _git_content_object_reads(root: Path, process_rows: list[dict[str, Any]], path_refs: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[str]]:
+def _git_content_object_reads(
+    root: Path, process_rows: list[dict[str, Any]], path_refs: list[dict[str, Any]]
+) -> tuple[list[dict[str, Any]], list[str]]:
     """Bind object-only cat-file results when no commit:path reference was passed."""
     by_oid = {row.get("git_object_id"): row for row in path_refs if row.get("git_object_id")}
     records: dict[str, dict[str, Any]] = {}
@@ -1079,7 +1547,10 @@ def _git_content_object_reads(root: Path, process_rows: list[dict[str, Any]], pa
         argv = process["argv"]
         if not argv or Path(argv[0]).name != "git" or _git_command(argv) != "cat-file":
             continue
-        if process["stdout"].get("capture") != "raw_bytes" or process["stdout"].get("bytes", 0) == 0:
+        if (
+            process["stdout"].get("capture") != "raw_bytes"
+            or process["stdout"].get("bytes", 0) == 0
+        ):
             continue
         object_ids = [arg for arg in argv if re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", arg)]
         for object_id in object_ids:
@@ -1088,27 +1559,46 @@ def _git_content_object_reads(root: Path, process_rows: list[dict[str, Any]], pa
             try:
                 object_type = _git_bytes(root, "cat-file", "-t", object_id).decode("ascii").strip()
                 raw = _git_bytes(root, "cat-file", object_type, object_id)
-                exact = len(raw) == process["stdout"]["bytes"] and sha256(raw) == process["stdout"]["sha256"]
+                exact = (
+                    len(raw) == process["stdout"]["bytes"]
+                    and sha256(raw) == process["stdout"]["sha256"]
+                )
                 if not exact:
-                    issues.append(f"captured cat-file output was not exact Git object bytes: {object_id}")
+                    issues.append(
+                        f"captured cat-file output was not exact Git object bytes: {object_id}"
+                    )
                 records[object_id] = {
-                    "git_object_id": object_id, "git_object_type": object_type,
-                    "bytes": len(raw), "sha256": sha256(raw),
-                    "object_available_in_local_git_database": True, "path_binding": None,
+                    "git_object_id": object_id,
+                    "git_object_type": object_type,
+                    "bytes": len(raw),
+                    "sha256": sha256(raw),
+                    "object_available_in_local_git_database": True,
+                    "path_binding": None,
                     "matched_exact_content_result_count": 1 if exact else 0,
                     "observed_process_result_sha256": sha256(stable_json(process)),
                 }
             except Exception as exc:
-                issues.append(f"cannot bind Git object-only read {object_id}: {type(exc).__name__}: {exc}")
-                records[object_id] = {"git_object_id": object_id, "object_available_in_local_git_database": False, "binding_error": f"{type(exc).__name__}: {exc}"}
+                issues.append(
+                    f"cannot bind Git object-only read {object_id}: {type(exc).__name__}: {exc}"
+                )
+                records[object_id] = {
+                    "git_object_id": object_id,
+                    "object_available_in_local_git_database": False,
+                    "binding_error": f"{type(exc).__name__}: {exc}",
+                }
     return [records[key] for key in sorted(records)], issues
 
 
 def validate_closure_records(
-    observed_paths: set[str], expected_paths: set[str], expected_records: list[dict[str, Any]],
-    actual_records: list[dict[str, Any]], expected_processes: list[dict[str, Any]],
-    actual_processes: list[dict[str, Any]], expected_git_refs: list[dict[str, Any]],
-    actual_git_refs: list[dict[str, Any]], expected_object_reads: list[dict[str, Any]],
+    observed_paths: set[str],
+    expected_paths: set[str],
+    expected_records: list[dict[str, Any]],
+    actual_records: list[dict[str, Any]],
+    expected_processes: list[dict[str, Any]],
+    actual_processes: list[dict[str, Any]],
+    expected_git_refs: list[dict[str, Any]],
+    actual_git_refs: list[dict[str, Any]],
+    expected_object_reads: list[dict[str, Any]],
     actual_object_reads: list[dict[str, Any]],
 ) -> list[str]:
     """Compare complete live filesystem and Git-result closures."""
@@ -1121,14 +1611,19 @@ def validate_closure_records(
         ("Git path references", expected_git_refs, actual_git_refs),
         ("Git object-only reads", expected_object_reads, actual_object_reads),
     ):
-        if sorted(stable_json(row) for row in expected) != sorted(stable_json(row) for row in actual):
+        if sorted(stable_json(row) for row in expected) != sorted(
+            stable_json(row) for row in actual
+        ):
             issues.append(f"{label} differ from independently recomputed live rows")
     return issues
 
 
 def source_closure_controls(
-    paths: set[str], file_records: list[dict[str, Any]], process_rows: list[dict[str, Any]],
-    git_refs: list[dict[str, Any]], object_reads: list[dict[str, Any]],
+    paths: set[str],
+    file_records: list[dict[str, Any]],
+    process_rows: list[dict[str, Any]],
+    git_refs: list[dict[str, Any]],
+    object_reads: list[dict[str, Any]],
 ) -> dict[str, Any]:
     """Falsify every live input row and identity field with generic row comparison."""
     groups = [file_records, process_rows, git_refs, object_reads]
@@ -1143,21 +1638,44 @@ def source_closure_controls(
     for row in process_rows:
         binding = row.get("popen_invocation")
         if not isinstance(binding, dict) or binding.get("status") != "bound":
-            raise ReadClosureError("actual process row has no successful real-Popen signature binding")
-        if binding.get("signature_sha256") != actual_signature_hash or binding.get("signature") != actual_signature_text:
-            raise ReadClosureError("process row was not bound to the currently captured real Popen signature")
+            raise ReadClosureError(
+                "actual process row has no successful real-Popen signature binding"
+            )
+        if (
+            binding.get("signature_sha256") != actual_signature_hash
+            or binding.get("signature") != actual_signature_text
+        ):
+            raise ReadClosureError(
+                "process row was not bound to the currently captured real Popen signature"
+            )
         if binding.get("signature_parameters") != actual_parameter_names:
-            raise ReadClosureError("process row omitted or reordered a real Popen signature parameter")
+            raise ReadClosureError(
+                "process row omitted or reordered a real Popen signature parameter"
+            )
         if list(binding.get("effective_parameter_bindings", {})) != actual_parameter_names:
-            raise ReadClosureError("process row lacks an effective binding for every real Popen parameter")
+            raise ReadClosureError(
+                "process row lacks an effective binding for every real Popen parameter"
+            )
         stdin = row.get("stdin", {})
         constructor = stdin.get("constructor", {}) if isinstance(stdin, dict) else {}
         if binding.get("stdin_was_omitted"):
-            if not binding.get("stdin_default_sealed") or constructor.get("origin") != "known_empty_device" or constructor.get("source_argument_presence") != "omitted" or constructor.get("effective_value") != "DEVNULL":
-                raise ReadClosureError("omitted real-Popen stdin did not reach the child as the recorded DEVNULL seal")
+            if (
+                not binding.get("stdin_default_sealed")
+                or constructor.get("origin") != "known_empty_device"
+                or constructor.get("source_argument_presence") != "omitted"
+                or constructor.get("effective_value") != "DEVNULL"
+            ):
+                raise ReadClosureError(
+                    "omitted real-Popen stdin did not reach the child as the recorded DEVNULL seal"
+                )
             omitted_stdin_sealed += 1
-        elif binding.get("stdin_default_sealed") or constructor.get("source_argument_presence") != "explicit":
-            raise ReadClosureError("explicit real-Popen stdin was collapsed into an omission or synthetic default")
+        elif (
+            binding.get("stdin_default_sealed")
+            or constructor.get("source_argument_presence") != "explicit"
+        ):
+            raise ReadClosureError(
+                "explicit real-Popen stdin was collapsed into an omission or synthetic default"
+            )
         if binding.get("stdin_argument_form") == "positional":
             positional_stdin += 1
         if constructor.get("argument") == "explicit_none":
@@ -1165,14 +1683,27 @@ def source_closure_controls(
 
     def validator_issues(actual_groups: list[list[dict[str, Any]]]) -> list[str]:
         return validate_closure_records(
-            paths, paths, file_records, actual_groups[0], process_rows, actual_groups[1],
-            git_refs, actual_groups[2], object_reads, actual_groups[3],
+            paths,
+            paths,
+            file_records,
+            actual_groups[0],
+            process_rows,
+            actual_groups[1],
+            git_refs,
+            actual_groups[2],
+            object_reads,
+            actual_groups[3],
         )
 
-    def replace_row(index: int, old_row: dict[str, Any], new_row: dict[str, Any] | None) -> list[dict[str, Any]]:
+    def replace_row(
+        index: int, old_row: dict[str, Any], new_row: dict[str, Any] | None
+    ) -> list[dict[str, Any]]:
         changed = list(groups[index])
         old_bytes = stable_json(old_row)
-        row_index = next((position for position, row in enumerate(changed) if stable_json(row) == old_bytes), None)
+        row_index = next(
+            (position for position, row in enumerate(changed) if stable_json(row) == old_bytes),
+            None,
+        )
         if row_index is None:
             raise ReadClosureError(f"source closure control could not locate {labels[index]} row")
         if new_row is None:
@@ -1185,10 +1716,14 @@ def source_closure_controls(
         actual = [list(rows) for rows in groups]
         actual[index] = changed_rows
         if not validator_issues(actual):
-            raise ReadClosureError(f"actual closure validator accepted {label} with status markers intact")
+            raise ReadClosureError(
+                f"actual closure validator accepted {label} with status markers intact"
+            )
 
     removals = {}
-    for index, label in enumerate(("filesystem", "child_process_result", "git_path_reference", "git_object_only_read")):
+    for index, label in enumerate(
+        ("filesystem", "child_process_result", "git_path_reference", "git_object_only_read")
+    ):
         rejected = 0
         for row in groups[index]:
             must_reject(index, replace_row(index, row, None), f"{label} row removal")
@@ -1196,7 +1731,9 @@ def source_closure_controls(
         removals[label] = {"probes": rejected, "rejected": rejected}
 
     field_counts: collections.Counter[str] = collections.Counter()
-    for index, (group_name, rows) in enumerate(zip(("filesystem", "child_process", "git_path", "git_object"), groups)):
+    for index, (group_name, rows) in enumerate(
+        zip(("filesystem", "child_process", "git_path", "git_object"), groups, strict=False)
+    ):
         for row in rows:
             for field, value in row.items():
                 mutated = copy.deepcopy(row)
@@ -1214,7 +1751,9 @@ def source_closure_controls(
                     mutated[field] = {**value, "corrupt": True}
                 else:
                     continue
-                must_reject(index, replace_row(index, row, mutated), f"{group_name}.{field} mutation")
+                must_reject(
+                    index, replace_row(index, row, mutated), f"{group_name}.{field} mutation"
+                )
                 field_counts[f"{group_name}.{field}"] += 1
 
     process_hash_mutations = 0
@@ -1233,15 +1772,27 @@ def source_closure_controls(
             mutated = copy.deepcopy(row)
             binding_value = mutated["popen_invocation"]["effective_parameter_bindings"][name]
             binding_value["value_sha256"] = "f" * 64
-            must_reject(1, replace_row(1, row, mutated), f"real Popen {name} binding mutation with markers intact")
+            must_reject(
+                1,
+                replace_row(1, row, mutated),
+                f"real Popen {name} binding mutation with markers intact",
+            )
             parameter_binding_mutations += 1
             mutated = copy.deepcopy(row)
             mutated["popen_invocation"]["effective_parameter_bindings"].pop(name)
-            must_reject(1, replace_row(1, row, mutated), f"real Popen {name} binding removal with markers intact")
+            must_reject(
+                1,
+                replace_row(1, row, mutated),
+                f"real Popen {name} binding removal with markers intact",
+            )
             parameter_binding_removals += 1
         mutated = copy.deepcopy(row)
         mutated.pop("popen_invocation")
-        must_reject(1, replace_row(1, row, mutated), "real Popen invocation binding removal with process markers intact")
+        must_reject(
+            1,
+            replace_row(1, row, mutated),
+            "real Popen invocation binding removal with process markers intact",
+        )
         invocation_binding_removals += 1
 
     removed_stdin_bindings = 0
@@ -1260,16 +1811,19 @@ def source_closure_controls(
         if input_row.get("bytes") is not None and input_row.get("sha256") is not None
     ]
     if not input_rows:
-        raise ReadClosureError("actual process-input controls require at least one byte-bound communicate input")
+        raise ReadClosureError(
+            "actual process-input controls require at least one byte-bound communicate input"
+        )
     process_row, input_row = input_rows[0]
     mutated = copy.deepcopy(process_row)
-    changed = next(
-        item for item in mutated["stdin"]["communicate_inputs"]
-        if item == input_row
-    )
+    changed = next(item for item in mutated["stdin"]["communicate_inputs"] if item == input_row)
     changed["bytes"] = changed["bytes"] + 1
     changed["sha256"] = "f" * 64
-    must_reject(1, replace_row(1, process_row, mutated), "different stdin bytes with argv/result markers unchanged")
+    must_reject(
+        1,
+        replace_row(1, process_row, mutated),
+        "different stdin bytes with argv/result markers unchanged",
+    )
     changed_input_bytes += 1
 
     return {
@@ -1277,10 +1831,19 @@ def source_closure_controls(
         "status": "PASS",
         "remove_one_row_keep_markers": removals,
         "bound_row_field_mutations": dict(sorted(field_counts.items())),
-        "process_stdout_hash_mutations": {"probes": process_hash_mutations, "rejected": process_hash_mutations},
+        "process_stdout_hash_mutations": {
+            "probes": process_hash_mutations,
+            "rejected": process_hash_mutations,
+        },
         "process_input_binding_controls": {
-            "remove_stdin_binding_keep_process_markers": {"probes": removed_stdin_bindings, "rejected": removed_stdin_bindings},
-            "different_input_same_argv_returncode_stdout_stderr": {"probes": 1, "rejected": changed_input_bytes},
+            "remove_stdin_binding_keep_process_markers": {
+                "probes": removed_stdin_bindings,
+                "rejected": removed_stdin_bindings,
+            },
+            "different_input_same_argv_returncode_stdout_stderr": {
+                "probes": 1,
+                "rejected": changed_input_bytes,
+            },
         },
         "popen_signature_binding_controls": {
             "status": "PASS",
@@ -1291,20 +1854,41 @@ def source_closure_controls(
             "omitted_stdin_default_sealed_groups": omitted_stdin_sealed,
             "explicit_none_stdin_groups": explicit_none_stdin,
             "positional_stdin_groups": positional_stdin,
-            "effective_parameter_mutations_keep_markers": {"probes": parameter_binding_mutations, "rejected": parameter_binding_mutations},
-            "effective_parameter_removals_keep_markers": {"probes": parameter_binding_removals, "rejected": parameter_binding_removals},
-            "invocation_binding_removals_keep_process_markers": {"probes": invocation_binding_removals, "rejected": invocation_binding_removals},
+            "effective_parameter_mutations_keep_markers": {
+                "probes": parameter_binding_mutations,
+                "rejected": parameter_binding_mutations,
+            },
+            "effective_parameter_removals_keep_markers": {
+                "probes": parameter_binding_removals,
+                "rejected": parameter_binding_removals,
+            },
+            "invocation_binding_removals_keep_process_markers": {
+                "probes": invocation_binding_removals,
+                "rejected": invocation_binding_removals,
+            },
         },
-        "property": "the comparator binds every effective Popen parameter through inspect.signature.bind on the captured real constructor; the controls derive parameter names from that actual signature and falsify every effective parameter hash while process status markers remain intact; omitted stdin defaults are sealed to DEVNULL, while explicit stdin origins and observed input bytes remain separately bound",
+        "property": (
+            "the comparator binds every effective Popen parameter through "
+            "inspect.signature.bind on the captured real constructor; the "
+            "controls derive parameter names from that actual signature and "
+            "falsify every effective parameter hash while process status markers "
+            "remain intact; omitted stdin defaults are sealed to DEVNULL, while "
+            "explicit stdin origins and observed input bytes remain separately "
+            "bound"
+        ),
     }
 
 
 def environment_profile(root: Path, modules_before_trace: frozenset[str]) -> dict[str, Any]:
     """Describe the runtime needed to interpret source code without vendoring stdlib."""
-    version = subprocess.run(["git", "--version"], cwd=root, text=True, capture_output=True, check=False)
+    version = _run_git(root, "--version", text=True)
     modules: dict[str, dict[str, str]] = {}
     stdlib = Path(sysconfig.get_paths().get("stdlib", "/nonexistent")).resolve()
-    site_roots = [Path(value).resolve() for key, value in sysconfig.get_paths().items() if "purelib" in key or "platlib" in key]
+    site_roots = [
+        Path(value).resolve()
+        for key, value in sysconfig.get_paths().items()
+        if "purelib" in key or "platlib" in key
+    ]
     for name, module in sorted(sys.modules.items()):
         origin = getattr(module, "__file__", None)
         if not origin:
@@ -1327,7 +1911,9 @@ def environment_profile(root: Path, modules_before_trace: frozenset[str]) -> dic
             if any(_is_relative_to(resolved, site) for site in site_roots):
                 category = "third_party_site_package"
         modules[name] = {"origin": str(resolved), "category": category}
-    imported_during_run = {name: row for name, row in modules.items() if name not in modules_before_trace}
+    imported_during_run = {
+        name: row for name, row in modules.items() if name not in modules_before_trace
+    }
     return {
         "python_implementation": platform.python_implementation(),
         "python_version": sys.version,
@@ -1343,12 +1929,18 @@ def environment_profile(root: Path, modules_before_trace: frozenset[str]) -> dic
             row["category"] == "third_party_site_package" and name in modules_before_trace
             for name, row in modules.items()
         ),
-        "third_party_module_count": sum(row["category"] == "third_party_site_package" for row in imported_during_run.values()),
+        "third_party_module_count": sum(
+            row["category"] == "third_party_site_package" for row in imported_during_run.values()
+        ),
         "unbound_external_module_count": sum(
             row["category"] == "external_import_origin" for row in imported_during_run.values()
         ),
         "modules_imported_during_report_build": imported_during_run,
-        "qualification": "runtime identity only; no standard-library source files copied or hashed; any third-party imports require a separate pinned runtime dependency record",
+        "qualification": (
+            "runtime identity only; no standard-library source files copied or "
+            "hashed; any third-party imports require a separate pinned runtime "
+            "dependency record"
+        ),
     }
 
 
@@ -1360,7 +1952,9 @@ def _is_relative_to(path: Path, root: Path) -> bool:
         return False
 
 
-def collect_report(root: Path, trace: RuntimeReadTrace) -> tuple[dict[str, Any], bytes, dict[str, Any]]:
+def collect_report(
+    root: Path, trace: RuntimeReadTrace
+) -> tuple[dict[str, Any], bytes, dict[str, Any]]:
     """Build the full report through R3/R1/R2 under the installed read audit."""
     r3_path = root / R3_COMPANION
     # R3's helper originally delegates its remaining code imports to spec.loader,
@@ -1376,14 +1970,18 @@ def collect_report(root: Path, trace: RuntimeReadTrace) -> tuple[dict[str, Any],
     r3.__package__ = ""
     sys.modules[r3.__name__] = r3
     r3.import_source = source_import
-    exec(compile(patched_source, r3.__file__, "exec"), r3.__dict__)
+    # S102: patched_source is constructed from the pinned R3 source bytes in this verifier.
+    exec(compile(patched_source, r3.__file__, "exec"), r3.__dict__)  # noqa: S102
     r3.import_path = source_import
     report_raw, controls_raw, receipt = r3.build_registered_report(root, strict=False)
     packet = json.loads(report_raw)
-    controls = json.loads(controls_raw)
+    json.loads(controls_raw)
     if packet["registration"]["candidate_evaluation"] != "UNRUN for all 291 occurrences":
         raise ReadClosureError("candidate evaluation state changed during report composition")
-    if packet["registration"]["criterion_owner_alignment"] != "not_established for all 291 occurrences; scoped owner assertion remains separate":
+    if (
+        packet["registration"]["criterion_owner_alignment"]
+        != "not_established for all 291 occurrences; scoped owner assertion remains separate"
+    ):
         raise ReadClosureError("criterion/owner alignment was promoted during report composition")
     return packet, controls_raw, receipt
 
@@ -1406,7 +2004,12 @@ def _process_stdin_residuals(process_rows: list[dict[str, Any]]) -> list[str]:
             unresolved_popen_bindings += 1
         elif invocation.get("unsupported_parameter_bindings"):
             unsupported_popen_parameters += len(invocation["unsupported_parameter_bindings"])
-        if isinstance(invocation, dict) and invocation.get("status") == "bound" and invocation.get("stdin_was_omitted") and not invocation.get("stdin_default_sealed"):
+        if (
+            isinstance(invocation, dict)
+            and invocation.get("status") == "bound"
+            and invocation.get("stdin_was_omitted")
+            and not invocation.get("stdin_default_sealed")
+        ):
             unsealed_omitted_stdin += 1
         stdin = row.get("stdin")
         if not isinstance(stdin, dict):
@@ -1418,10 +2021,16 @@ def _process_stdin_residuals(process_rows: list[dict[str, Any]]) -> list[str]:
             unbound_origins[origin] += 1
         if stdin.get("descriptor_escape"):
             fd_escapes += 1
-        if origin == "managed_pipe" and not str(stdin.get("stream_status", "")).startswith("python_stream_writes_observed"):
+        if origin == "managed_pipe" and not str(stdin.get("stream_status", "")).startswith(
+            "python_stream_writes_observed"
+        ):
             unresolved_pipes += 1
         for item in stdin.get("communicate_inputs", []):
-            if item.get("capture") in {"unsupported_input_type", "unsupported_text_without_text_pipe", "unsupported_missing_encoding"} or str(item.get("capture", "")).startswith("encoding_error:"):
+            if item.get("capture") in {
+                "unsupported_input_type",
+                "unsupported_text_without_text_pipe",
+                "unsupported_missing_encoding",
+            } or str(item.get("capture", "")).startswith("encoding_error:"):
                 unsupported_inputs += 1
             if item.get("bytes") is not None and item.get("transmission") != "communicate_pipe":
                 unsupported_inputs += 1
@@ -1436,23 +2045,59 @@ def _process_stdin_residuals(process_rows: list[dict[str, Any]]) -> list[str]:
     if missing_bindings:
         issues.append(f"child stdin binding absent for {missing_bindings} process result groups")
     if unresolved_popen_bindings:
-        issues.append(f"actual Popen invocation could not bind to captured real signature for {unresolved_popen_bindings} process result groups")
+        issues.append(
+            f"actual Popen invocation could not bind to captured real signature "
+            f"for "
+            f"{unresolved_popen_bindings}"
+            f" process result groups"
+        )
     if unsupported_popen_parameters:
-        issues.append(f"effective Popen parameter value could not be source-described: {unsupported_popen_parameters} bindings")
+        issues.append(
+            f"effective Popen parameter value could not be source-described: "
+            f"{unsupported_popen_parameters}"
+            f" bindings"
+        )
     if unsealed_omitted_stdin:
-        issues.append(f"omitted Popen stdin default was not sealed to DEVNULL for {unsealed_omitted_stdin} process result groups")
+        issues.append(
+            f"omitted Popen stdin default was not sealed to DEVNULL for "
+            f"{unsealed_omitted_stdin}"
+            f" process result groups"
+        )
     if unbound_origins:
-        issues.append(f"child constructor stdin origin not byte-bound: {dict(sorted(unbound_origins.items()))}")
+        issues.append(
+            f"child constructor stdin origin not byte-bound: "
+            f"{dict(sorted(unbound_origins.items()))}"
+        )
     if unsupported_inputs:
-        issues.append(f"communicate input not byte-bound or not transmitted through a captured pipe: {unsupported_inputs} rows")
+        issues.append(
+            f"communicate input not byte-bound or not transmitted through a "
+            f"captured pipe: "
+            f"{unsupported_inputs}"
+            f" rows"
+        )
     if fd_escapes:
-        issues.append(f"managed child stdin descriptor escaped the Python stream observer: {fd_escapes} process result groups")
+        issues.append(
+            f"managed child stdin descriptor escaped the Python stream observer: "
+            f"{fd_escapes}"
+            f" process result groups"
+        )
     if unsupported_stream_writes:
-        issues.append(f"direct child stdin stream writes lack exact bytes: {unsupported_stream_writes} writes")
+        issues.append(
+            f"direct child stdin stream writes lack exact bytes: {unsupported_stream_writes} writes"
+        )
     if partial_stream_writes:
-        issues.append(f"direct child stdin stream write accepted only a partial argument: {partial_stream_writes} writes")
+        issues.append(
+            f"direct child stdin stream write accepted only a partial argument: "
+            f"{partial_stream_writes}"
+            f" writes"
+        )
     if unresolved_pipes:
-        issues.append(f"managed child stdin pipe stream could not be wrapped for exact write observation: {unresolved_pipes} process result groups")
+        issues.append(
+            f"managed child stdin pipe stream could not be wrapped for exact write "
+            f"observation: "
+            f"{unresolved_pipes}"
+            f" process result groups"
+        )
     return issues
 
 
@@ -1477,67 +2122,110 @@ def build_r7(root: Path, *, strict: bool, controls_path: Path) -> dict[str, Any]
         raise ReadClosureError("executing tool source is outside repository") from exc
     source_paths = trace.source_paths()
     source_paths.add(self_rel)
-    trace.reads.setdefault(self_rel, {
-        "first_callsite": {"path": self_rel, "line": 1, "function": "<executing_tool_source>"},
-        "read_opens": 0,
-        "filesystem_kind": "executing_tool_source",
-    })
+    trace.reads.setdefault(
+        self_rel,
+        {
+            "first_callsite": {"path": self_rel, "line": 1, "function": "<executing_tool_source>"},
+            "read_opens": 0,
+            "filesystem_kind": "executing_tool_source",
+        },
+    )
     records = bind_source_paths(root, end_head, source_paths, strict=False)
     if {row["path"] for row in records} != source_paths:
-        raise ReadClosureError("filesystem source bindings do not match the exact observed path set")
+        raise ReadClosureError(
+            "filesystem source bindings do not match the exact observed path set"
+        )
     process_rows = trace.process_rows()
     result_count = sum(row["calls"] for row in process_rows)
     strict_issues: list[str] = []
     if trace.audit_errors:
         strict_issues.append(f"audit callback failures: {trace.audit_errors[:3]}")
     if trace.unsupported_process_events:
-        strict_issues.append(f"unsupported process launch events: {trace.unsupported_process_events[:3]}")
+        strict_issues.append(
+            f"unsupported process launch events: {trace.unsupported_process_events[:3]}"
+        )
     if trace.audit_process_event_count != result_count:
-        strict_issues.append(f"process audit/result invocation mismatch: audit={trace.audit_process_event_count}; results={result_count}")
+        strict_issues.append(
+            f"process audit/result invocation mismatch: audit="
+            f"{trace.audit_process_event_count}"
+            f"; results="
+            f"{result_count}"
+        )
     for row in process_rows:
         if row["shell"]:
             strict_issues.append("shell-mediated child process has no argv source classification")
             break
         if row["stdout_is_pipe"] and row["observation"] != "communicate_complete":
-            strict_issues.append(f"child stdout pipe result was not completely observed: {row['observation']}")
+            strict_issues.append(
+                f"child stdout pipe result was not completely observed: {row['observation']}"
+            )
             break
     strict_issues.extend(_process_stdin_residuals(process_rows))
     if trace.unbound_symlinks:
         strict_issues.append(f"unbound symlink targets: {trace.unbound_symlinks[:3]}")
-    generated_nonregular = {path for path in trace.nonregular_reads if path in trace.writes and not (root / path).exists()}
+    generated_nonregular = {
+        path
+        for path in trace.nonregular_reads
+        if path in trace.writes and not (root / path).exists()
+    }
     unknown_nonregular = sorted(set(trace.nonregular_reads) - generated_nonregular)
     if unknown_nonregular:
-        strict_issues.append(f"non-regular repository reads are not source-bound: {unknown_nonregular[:8]}")
+        strict_issues.append(
+            f"non-regular repository reads are not source-bound: {unknown_nonregular[:8]}"
+        )
     for row in records:
         if row.get("availability") != "committed_HEAD_exact_bytes_and_mode":
-            strict_issues.append(f"filesystem source is not committed byte/mode exact: {row['path']} ({row.get('availability')})")
+            strict_issues.append(
+                f"filesystem source is not committed byte/mode exact: "
+                f"{row['path']}"
+                f" ("
+                f"{row.get('availability')}"
+                f")"
+            )
     git_refs, git_ref_issues = _resolve_git_path_refs(root, end_head, process_rows)
     object_reads, object_read_issues = _git_content_object_reads(root, process_rows, git_refs)
     strict_issues.extend(git_ref_issues)
     strict_issues.extend(object_read_issues)
     matched_result_hashes = {
         item["process_result_sha256"]
-        for ref in git_refs for item in ref.get("matched_exact_content_results", [])
+        for ref in git_refs
+        for item in ref.get("matched_exact_content_results", [])
     }
     matched_result_hashes.update(row.get("observed_process_result_sha256") for row in object_reads)
     unclassified_content = []
     for row in process_rows:
         if not row["argv"] or Path(row["argv"][0]).name != "git":
             continue
-        if _git_command(row["argv"]) in {"show", "cat-file", "archive"} and row["stdout"].get("bytes", 0):
-            metadata_show = _git_command(row["argv"]) == "show" and "-s" in row["argv"] and any(arg.startswith("--format=") for arg in row["argv"])
+        if _git_command(row["argv"]) in {"show", "cat-file", "archive"} and row["stdout"].get(
+            "bytes", 0
+        ):
+            metadata_show = (
+                _git_command(row["argv"]) == "show"
+                and "-s" in row["argv"]
+                and any(arg.startswith("--format=") for arg in row["argv"])
+            )
             if not metadata_show and sha256(stable_json(row)) not in matched_result_hashes:
                 unclassified_content.append(sha256(stable_json(row)))
     if unclassified_content:
-        strict_issues.append(f"Git content-result groups lack an exact path/object binding: {unclassified_content[:4]}")
+        strict_issues.append(
+            f"Git content-result groups lack an exact path/object binding: "
+            f"{unclassified_content[:4]}"
+        )
     environment = environment_profile(root, trace.modules_before_trace)
     if environment["third_party_module_count"] or environment["unbound_external_module_count"]:
-        strict_issues.append("non-standard-library modules imported during the build lack a pinned runtime dependency record")
+        strict_issues.append(
+            "non-standard-library modules imported during the build lack a pinned "
+            "runtime dependency record"
+        )
     object_format = _git_bytes(root, "rev-parse", "--show-object-format").decode("ascii").strip()
-    closure_controls = source_closure_controls(source_paths, records, process_rows, git_refs, object_reads)
+    closure_controls = source_closure_controls(
+        source_paths, records, process_rows, git_refs, object_reads
+    )
     closure = {
         "schema": "policyos.e02.q0_runtime_source_read_closure.r7.v1",
-        "status": "SOURCE_BOUND_CURRENT_HEAD" if not strict_issues else "LOCAL_READBACK_ONLY_NOT_SOURCE_REGISTERED",
+        "status": "SOURCE_BOUND_CURRENT_HEAD"
+        if not strict_issues
+        else "LOCAL_READBACK_ONLY_NOT_SOURCE_REGISTERED",
         "source_commit": end_head,
         "source_tree": end_tree,
         "git_object_format": object_format,
@@ -1546,14 +2234,27 @@ def build_r7(root: Path, *, strict: bool, controls_path: Path) -> dict[str, Any]
         "git_process_result_invocation_count": result_count,
         "git_path_reference_count": len(git_refs),
         "git_object_only_read_count": len(object_reads),
-        "read_property": "complete observed filesystem source opens and child-process results, including effective parameters bound from the captured real Popen signature, exact communicate input arguments, and observed Python-stream stdin writes; only a truly omitted stdin default is sealed to DEVNULL, while explicit inherited/file/descriptor streams and descriptor escapes remain fail-closed residuals; Git commit:path references carry resolved commit, path, mode, object id, availability, reachability, byte count and SHA-256, with no payload copies",
+        "read_property": (
+            "complete observed filesystem source opens and child-process results, "
+            "including effective parameters bound from the captured real Popen "
+            "signature, exact communicate input arguments, and observed "
+            "Python-stream stdin writes; only a truly omitted stdin default is "
+            "sealed to DEVNULL, while explicit inherited/file/descriptor streams "
+            "and descriptor escapes remain fail-closed residuals; Git commit:path "
+            "references carry resolved commit, path, mode, object id, "
+            "availability, reachability, byte count and SHA-256, with no payload "
+            "copies"
+        ),
         "environment_profile": environment,
         "files": records,
         "git_process_results": process_rows,
         "git_path_references": git_refs,
         "git_object_only_reads": object_reads,
         "strict_admission_issues": strict_issues,
-        "qualification": "source-read closure only; outcomes remain UNRUN, whole-criterion alignment remains not_established, formal G remains not_adjudicated",
+        "qualification": (
+            "source-read closure only; outcomes remain UNRUN, whole-criterion "
+            "alignment remains not_established, formal G remains not_adjudicated"
+        ),
     }
     closure_raw = stable_json(closure)
     closure_sha = sha256(closure_raw)
@@ -1568,59 +2269,94 @@ def build_r7(root: Path, *, strict: bool, controls_path: Path) -> dict[str, Any]
     trace_raw = stable_json(trace_json)
     snapshot = packet["registration"]["source_snapshot"]
     snapshot["source_snapshot_status_before_r7"] = snapshot["status"]
-    snapshot["status"] = "committed_source_read_closure_not_final_freeze" if not strict_issues else "local_readback_only_prototype_snapshot"
+    snapshot["status"] = (
+        "committed_source_read_closure_not_final_freeze"
+        if not strict_issues
+        else "local_readback_only_prototype_snapshot"
+    )
     snapshot["files"] = records
     snapshot["runtime_read_closure"] = {
-        "path": MANIFEST_PATH.as_posix(), "sha256": closure_sha,
-        "filesystem_source_count": len(records), "git_path_reference_count": len(git_refs),
-        "trace_path": TRACE_PATH.as_posix(), "trace_sha256": sha256(trace_raw),
+        "path": MANIFEST_PATH.as_posix(),
+        "sha256": closure_sha,
+        "filesystem_source_count": len(records),
+        "git_path_reference_count": len(git_refs),
+        "trace_path": TRACE_PATH.as_posix(),
+        "trace_sha256": sha256(trace_raw),
         "property": closure["read_property"],
     }
     packet["registration"]["source_read_closure_r7"] = {
-        "status": closure["status"], "manifest_path": MANIFEST_PATH.as_posix(),
-        "manifest_sha256": closure_sha, "trace_path": TRACE_PATH.as_posix(),
-        "trace_sha256": sha256(trace_raw), "filesystem_source_count": len(records),
-        "git_process_result_group_count": len(process_rows), "git_path_reference_count": len(git_refs),
+        "status": closure["status"],
+        "manifest_path": MANIFEST_PATH.as_posix(),
+        "manifest_sha256": closure_sha,
+        "trace_path": TRACE_PATH.as_posix(),
+        "trace_sha256": sha256(trace_raw),
+        "filesystem_source_count": len(records),
+        "git_process_result_group_count": len(process_rows),
+        "git_path_reference_count": len(git_refs),
         "git_object_only_read_count": len(object_reads),
         "candidate_registered_tool_target": PROPOSED_REGISTERED_TOOL.as_posix(),
         "candidate_tool_source_currently_executed": self_rel,
         "candidate_tool_target_preimage": "ABSENT_VERIFIED; root retains source writer authority",
-        "environment_profile": environment, "strict_admission_issues": strict_issues,
-        "qualification": "R7 dual-plane source-read closure prototype; no row is promoted to a current result or closure",
+        "environment_profile": environment,
+        "strict_admission_issues": strict_issues,
+        "qualification": (
+            "R7 dual-plane source-read closure prototype; no row is promoted to a "
+            "current result or closure"
+        ),
     }
     packet["registration"]["candidate_evaluation"] = "UNRUN for all 291 occurrences"
-    packet["registration"]["criterion_owner_alignment"] = "not_established for all 291 occurrences; scoped owner assertion remains separate"
+    packet["registration"]["criterion_owner_alignment"] = (
+        "not_established for all 291 occurrences; scoped owner assertion remains separate"
+    )
     packet["registration"]["formal_G"] = "not_adjudicated"
     packet["registration"]["formal_closure_ids"] = []
     controls = json.loads(controls_raw)
     controls["source_read_closure_r7"] = closure_controls
     controls["source_read_closure_admission"] = {
         "status": "PASS" if not strict_issues else "RED_SOURCE_INPUTS_NOT_REGISTERED",
-        "filesystem_source_count": len(records), "git_process_result_group_count": len(process_rows),
-        "git_path_reference_count": len(git_refs), "git_object_only_read_count": len(object_reads),
-        "strict_issue_count": len(strict_issues), "strict_issues": strict_issues,
-        "property": "live filesystem plus captured Git result closure, not registry fields or status markers",
+        "filesystem_source_count": len(records),
+        "git_process_result_group_count": len(process_rows),
+        "git_path_reference_count": len(git_refs),
+        "git_object_only_read_count": len(object_reads),
+        "strict_issue_count": len(strict_issues),
+        "strict_issues": strict_issues,
+        "property": (
+            "live filesystem plus captured Git result closure, not registry "
+            "fields or status markers"
+        ),
     }
     controls_raw = stable_json(controls)
     packet["registration_controls_ref"] = {
         "schema": controls["schema"],
         "path": controls_path.as_posix(),
         "sha256": sha256(controls_raw),
-        "qualification": "paired control output from this exact regeneration; source and semantic status remain separately qualified",
+        "qualification": (
+            "paired control output from this exact regeneration; source and "
+            "semantic status remain separately qualified"
+        ),
     }
-    require(packet["registration_controls_ref"]["sha256"] == sha256(controls_raw), "report control pointer does not bind the exact paired controls bytes")
+    require(
+        packet["registration_controls_ref"]["sha256"] == sha256(controls_raw),
+        "report control pointer does not bind the exact paired controls bytes",
+    )
     report_raw = stable_json(packet)
     check = {
         "schema": "policyos.e02.q0_runtime_source_read_closure_check.r7.v1",
-        "status": "PASS_LOCAL_BEHAVIORAL_CONTROLS_SOURCE_ADMISSION_RED" if strict_issues else "PASS_SOURCE_READ_CLOSURE",
-        "source_commit": end_head, "source_tree": end_tree,
-        "report_sha256": sha256(report_raw), "controls_sha256": sha256(controls_raw),
+        "status": "PASS_LOCAL_BEHAVIORAL_CONTROLS_SOURCE_ADMISSION_RED"
+        if strict_issues
+        else "PASS_SOURCE_READ_CLOSURE",
+        "source_commit": end_head,
+        "source_tree": end_tree,
+        "report_sha256": sha256(report_raw),
+        "controls_sha256": sha256(controls_raw),
         "paired_controls_pointer": {
             "path": packet["registration_controls_ref"]["path"],
             "sha256": packet["registration_controls_ref"]["sha256"],
-            "matches_control_bytes": packet["registration_controls_ref"]["sha256"] == sha256(controls_raw),
+            "matches_control_bytes": packet["registration_controls_ref"]["sha256"]
+            == sha256(controls_raw),
         },
-        "closure_manifest_sha256": closure_sha, "trace_sha256": sha256(trace_raw),
+        "closure_manifest_sha256": closure_sha,
+        "trace_sha256": sha256(trace_raw),
         "report_denominator": {
             "finding_ids": packet["denominator"]["finding_ids"],
             "canonical_occurrences": packet["denominator"]["canonical_occurrences"],
@@ -1628,21 +2364,30 @@ def build_r7(root: Path, *, strict: bool, controls_path: Path) -> dict[str, Any]
             "expanded_occurrence_routes": packet["denominator"]["expanded_occurrence_route_refs"],
         },
         "status_preservation": {
-            "historical_source_author_closed_ids": r3_receipt["historical_source_author_closed_ids"],
+            "historical_source_author_closed_ids": r3_receipt[
+                "historical_source_author_closed_ids"
+            ],
             "candidate_states": {"UNRUN": 291},
             "criterion_owner_alignment": "not_established for all 291 occurrences",
-            "formal_G": "not_adjudicated", "formal_closure_ids": [],
+            "formal_G": "not_adjudicated",
+            "formal_closure_ids": [],
         },
         "source_read_admission_issues": strict_issues,
-        "qualification": "local report build plus dual-plane source closure controls; semantic outcomes remain unadjudicated",
+        "qualification": (
+            "local report build plus dual-plane source closure controls; semantic "
+            "outcomes remain unadjudicated"
+        ),
     }
     return {
-        "report": report_raw, "controls": controls_raw, "trace": trace_raw,
-        "manifest": closure_raw, "check": stable_json(check), "receipt": r3_receipt,
-        "closure": closure, "strict_issues": strict_issues,
+        "report": report_raw,
+        "controls": controls_raw,
+        "trace": trace_raw,
+        "manifest": closure_raw,
+        "check": stable_json(check),
+        "receipt": r3_receipt,
+        "closure": closure,
+        "strict_issues": strict_issues,
     }
-
-
 
 
 def write_new(root: Path, path: Path, raw: bytes, *, replace_local: bool = False) -> None:
@@ -1661,22 +2406,44 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     modes = parser.add_mutually_exclusive_group(required=True)
     modes.add_argument("--emit", action="store_true", help="write report and controls")
-    modes.add_argument("--check", action="store_true", help="recompute and compare report and controls")
-    modes.add_argument("--self-check", action="store_true", help="run local controls without claiming source registration")
+    modes.add_argument(
+        "--check", action="store_true", help="recompute and compare report and controls"
+    )
+    modes.add_argument(
+        "--self-check",
+        action="store_true",
+        help="run local controls without claiming source registration",
+    )
     parser.add_argument("--output", type=Path, help="new report path inside LOCAL/crosswalk")
-    parser.add_argument("--controls-output", type=Path, help="new controls path inside LOCAL/crosswalk")
-    parser.add_argument("--self-check-artifact-dir", type=Path, help="new raw output directory for this immutable self-check")
+    parser.add_argument(
+        "--controls-output", type=Path, help="new controls path inside LOCAL/crosswalk"
+    )
+    parser.add_argument(
+        "--self-check-artifact-dir",
+        type=Path,
+        help="new raw output directory for this immutable self-check",
+    )
     args = parser.parse_args(argv)
     root = repo_root()
     if args.self_check:
         artifact_dir = args.self_check_artifact_dir or R7_DIR
-        require(not artifact_dir.is_absolute(), "self-check artifact directory must be repository-relative")
+        require(
+            not artifact_dir.is_absolute(),
+            "self-check artifact directory must be repository-relative",
+        )
         artifact_full = root / artifact_dir
-        require(not artifact_full.exists() and not artifact_full.is_symlink(), "self-check artifact directory already exists")
+        require(
+            not artifact_full.exists() and not artifact_full.is_symlink(),
+            "self-check artifact directory already exists",
+        )
         try:
-            artifact_full.parent.resolve(strict=True).relative_to((root / R7_DIR).resolve(strict=True))
+            artifact_full.parent.resolve(strict=True).relative_to(
+                (root / R7_DIR).resolve(strict=True)
+            )
         except (OSError, ValueError) as exc:
-            raise ReadClosureError("self-check outputs must remain inside the R7 raw lease") from exc
+            raise ReadClosureError(
+                "self-check outputs must remain inside the R7 raw lease"
+            ) from exc
         global DEFAULT_REPORT, DEFAULT_CONTROLS, TRACE_PATH, MANIFEST_PATH, CHECK_PATH
         DEFAULT_REPORT = artifact_dir / "generated-full-report.json"
         DEFAULT_CONTROLS = artifact_dir / "generated-consumer-controls.json"
@@ -1695,18 +2462,36 @@ def main(argv: list[str] | None = None) -> int:
         )
         for path, raw in outputs:
             write_new(root, path, raw, replace_local=False)
-        print(json.dumps({
-            "schema": "policyos.e02.q0_full_report_registration_r7_self_check.v1",
-            "status": "PASS_LOCAL_CONTROLS_SOURCE_ADMISSION_RED" if result["strict_issues"] else "PASS_SOURCE_READ_CLOSURE",
-            "report_path": DEFAULT_REPORT.as_posix(), "report_sha256": sha256(result["report"]),
-            "controls_path": DEFAULT_CONTROLS.as_posix(), "controls_sha256": sha256(result["controls"]),
-            "trace_path": TRACE_PATH.as_posix(), "trace_sha256": sha256(result["trace"]),
-            "manifest_path": MANIFEST_PATH.as_posix(), "manifest_sha256": sha256(result["manifest"]),
-            "filesystem_source_count": result["closure"]["filesystem_source_count"],
-            "git_path_reference_count": result["closure"]["git_path_reference_count"],
-            "strict_admission_issues": result["strict_issues"],
-            "qualification": "virtual R7 source-closure candidate; not registered, not final freeze, no semantic status promoted",
-        }, ensure_ascii=False, indent=2))
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "schema": "policyos.e02.q0_full_report_registration_r7_self_check.v1",
+                    "status": (
+                        "PASS_LOCAL_CONTROLS_SOURCE_ADMISSION_RED"
+                        if result["strict_issues"]
+                        else "PASS_SOURCE_READ_CLOSURE"
+                    ),
+                    "report_path": DEFAULT_REPORT.as_posix(),
+                    "report_sha256": sha256(result["report"]),
+                    "controls_path": DEFAULT_CONTROLS.as_posix(),
+                    "controls_sha256": sha256(result["controls"]),
+                    "trace_path": TRACE_PATH.as_posix(),
+                    "trace_sha256": sha256(result["trace"]),
+                    "manifest_path": MANIFEST_PATH.as_posix(),
+                    "manifest_sha256": sha256(result["manifest"]),
+                    "filesystem_source_count": result["closure"]["filesystem_source_count"],
+                    "git_path_reference_count": result["closure"]["git_path_reference_count"],
+                    "strict_admission_issues": result["strict_issues"],
+                    "qualification": (
+                        "virtual R7 source-closure candidate; not registered, not final freeze, "
+                        "no semantic status promoted"
+                    ),
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n"
+        )
         return 0
     if args.output is None or args.controls_output is None:
         raise ReadClosureError("--output and --controls-output are required for --emit/--check")
@@ -1714,34 +2499,62 @@ def main(argv: list[str] | None = None) -> int:
     for relative in (args.output, args.controls_output):
         require(not relative.is_absolute(), "output paths must be repository-relative")
         full = root / relative
-        require(full.parent.is_dir() and not full.parent.is_symlink(), f"output parent must exist and not be symlink: {relative}")
+        require(
+            full.parent.is_dir() and not full.parent.is_symlink(),
+            f"output parent must exist and not be symlink: {relative}",
+        )
         try:
-            full.parent.resolve(strict=True).relative_to((root / LOCAL / "crosswalk").resolve(strict=True))
+            full.parent.resolve(strict=True).relative_to(
+                (root / LOCAL / "crosswalk").resolve(strict=True)
+            )
         except (OSError, ValueError) as exc:
             raise ReadClosureError("outputs must be inside LOCAL/crosswalk") from exc
         absolute.append(full)
     require(absolute[0] != absolute[1], "report and controls output paths must differ")
     if result["strict_issues"]:
-        print(json.dumps({
-            "status": "RED_SOURCE_INPUTS_NOT_REGISTERED",
-            "source_commit": result["closure"]["source_commit"],
-            "source_tree": result["closure"]["source_tree"],
-            "strict_issues": result["strict_issues"],
-        }, ensure_ascii=False, indent=2))
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "status": "RED_SOURCE_INPUTS_NOT_REGISTERED",
+                    "source_commit": result["closure"]["source_commit"],
+                    "source_tree": result["closure"]["source_tree"],
+                    "strict_issues": result["strict_issues"],
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n"
+        )
         return 1
     expected = {absolute[0]: result["report"], absolute[1]: result["controls"]}
     if args.emit:
-        require(all(not path.exists() and not path.is_symlink() for path in expected), "--emit refuses to overwrite existing report files")
+        require(
+            all(not path.exists() and not path.is_symlink() for path in expected),
+            "--emit refuses to overwrite existing report files",
+        )
         for path, raw in expected.items():
             path.write_bytes(raw)
     for path, raw in expected.items():
-        require(path.is_file() and not path.is_symlink() and path.read_bytes() == raw, f"generated report byte drift: {path.relative_to(root)}")
-    print(json.dumps({
-        "status": "PASS_SOURCE_READ_CLOSURE", "source_commit": result["closure"]["source_commit"],
-        "source_tree": result["closure"]["source_tree"], "report_sha256": sha256(result["report"]),
-        "controls_sha256": sha256(result["controls"]), "source_file_count": result["closure"]["filesystem_source_count"],
-        "git_path_reference_count": result["closure"]["git_path_reference_count"],
-    }, ensure_ascii=False, indent=2))
+        require(
+            path.is_file() and not path.is_symlink() and path.read_bytes() == raw,
+            f"generated report byte drift: {path.relative_to(root)}",
+        )
+    sys.stdout.write(
+        json.dumps(
+            {
+                "status": "PASS_SOURCE_READ_CLOSURE",
+                "source_commit": result["closure"]["source_commit"],
+                "source_tree": result["closure"]["source_tree"],
+                "report_sha256": sha256(result["report"]),
+                "controls_sha256": sha256(result["controls"]),
+                "source_file_count": result["closure"]["filesystem_source_count"],
+                "git_path_reference_count": result["closure"]["git_path_reference_count"],
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n"
+    )
     return 0
 
 

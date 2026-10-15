@@ -58,8 +58,9 @@ def test_python_consumer_invokes_the_typed_outcome_runner(
 
     outcome = adapter._ds18_time_semantics_coverage_projection(node)
 
-    assert outcome == _established_outcome()  # noqa: S101 - behavioral contract
-    assert (  # noqa: S101 - fixed process boundary
+    assert outcome == _established_outcome()  # behavioral contract
+
+    assert (  # fixed process boundary
         calls
         == [
             (
@@ -103,8 +104,9 @@ def test_python_consumer_preserves_not_established_raw_evidence(
 
     admitted = adapter._ds18_time_semantics_coverage_projection(Path("/fixed/node"))
 
-    assert admitted == outcome  # noqa: S101 - raw envelope is preserved
-    assert adapter._ds18_outcome_limitation(admitted) == (  # noqa: S101
+    assert admitted == outcome  # raw envelope is preserved
+
+    assert adapter._ds18_outcome_limitation(admitted) == (
         "The DS18 execution outcome is not established (checker_exit_nonzero)."
     )
 
@@ -207,4 +209,4 @@ def test_python_consumer_does_not_echo_runner_stderr(
         match=r"typed DS18 execution-outcome runner failed \(9\)$",
     ) as raised:
         adapter._ds18_time_semantics_coverage_projection(Path("/fixed/node"))
-    assert "secret" not in str(raised.value)  # noqa: S101 - raw stderr stays opaque
+    assert "secret" not in str(raised.value)  # raw stderr stays opaque

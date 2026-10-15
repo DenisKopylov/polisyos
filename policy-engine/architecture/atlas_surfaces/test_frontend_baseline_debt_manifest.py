@@ -12,14 +12,11 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-
 ATLAS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = ATLAS_DIR.parents[1]
 CHECKER_PATH = ATLAS_DIR / "check_frontend_disposition_register.py"
 MANIFEST_PATH = ATLAS_DIR / "frontend-baseline-debt-manifest.json"
-ARCHITECTURE_SCRIPT = (
-    REPO_ROOT / "apps/runtime-dashboard/scripts/check-architecture.mjs"
-)
+ARCHITECTURE_SCRIPT = REPO_ROOT / "apps/runtime-dashboard/scripts/check-architecture.mjs"
 
 _SPEC = importlib.util.spec_from_file_location("frontend_debt_checker", CHECKER_PATH)
 if _SPEC is None or _SPEC.loader is None:  # pragma: no cover - import bootstrap guard
@@ -59,8 +56,7 @@ def _always_null_c07_scalar_bytes() -> bytes:
 
 
 def _write_json(value: object) -> Path:
-    handle = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
-    with handle:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as handle:
         json.dump(value, handle)
     return Path(handle.name)
 
@@ -100,16 +96,12 @@ def _c16_resolved_manifest() -> dict[str, object]:
                     "assertion_line",
                     "assertion_anchor",
                 ],
-                "sha256": (
-                    "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
-                ),
+                "sha256": ("4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"),
             },
             "debt_classes": [],
             "receipt_provenance": {
                 "receipt_kind": "whole_suite_vitest_json",
-                "producer_revision": (
-                    "97d0c620836a3e6d33c347a1f7f563aaa9177d0c"
-                ),
+                "producer_revision": ("97d0c620836a3e6d33c347a1f7f563aaa9177d0c"),
                 "entry_revision": "41a2020d5c2097c30c94807737ba6d3a80323d2e",
                 "source_delta_sha256": (
                     "800225190d7a47f68b585db206d6b634bd1c7787ab27bb9c5b8e8e1f5fc2bf8a"
@@ -123,19 +115,13 @@ def _c16_resolved_manifest() -> dict[str, object]:
                 "raw_receipt_availability": "not_persisted_in_repository",
                 "source_refs": [
                     {
-                        "path": (
-                            "docs/plans/active/atlas-slices/"
-                            "DS6-evidence-workflow.md"
-                        ),
+                        "path": ("docs/plans/active/atlas-slices/DS6-evidence-workflow.md"),
                         "content_sha256": (
                             "8339ef3b2a4c12220e0e205cb66fd5626fe1e81eebdf9cec3aafb7861c34cdad"
                         ),
                     },
                     {
-                        "path": (
-                            "docs/plans/active/atlas-slices/"
-                            "DS6-evidence-workflow-journal.md"
-                        ),
+                        "path": ("docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"),
                         "content_sha256": (
                             "70bd0986b2b1c1d78e2e9e7e507d5f3f592ede12ccf15b27705d0da24a472eae"
                         ),
@@ -172,9 +158,7 @@ def _c03_open_manifest() -> dict[str, object]:
                 "assertion_line",
                 "assertion_anchor",
             ],
-            "sha256": (
-                "533b0f74d085c34acb3b3dbbffd8a8fa056b023e1b96f93a464902682a9b94dd"
-            ),
+            "sha256": ("533b0f74d085c34acb3b3dbbffd8a8fa056b023e1b96f93a464902682a9b94dd"),
         },
         "debt_classes": [
             {
@@ -189,9 +173,7 @@ def _c03_open_manifest() -> dict[str, object]:
                 "failure_count": 3,
                 "failures": [
                     {
-                        "test_file": (
-                            "apps/runtime-dashboard/src/shared/i18n/parity.test.ts"
-                        ),
+                        "test_file": ("apps/runtime-dashboard/src/shared/i18n/parity.test.ts"),
                         "test_name": (
                             "locale catalogs > marks all count-sensitive "
                             f"{locale} messages with ICU plural syntax or an "
@@ -279,13 +261,13 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         manifest = _manifest()
         lint = manifest["lint"]
 
-        self.assertIn("immutable_origin", lint)
-        self.assertEqual(lint["immutable_origin"]["error_count"], 75)
-        self.assertEqual(lint["immutable_origin"]["source_file_count"], 22)
-        self.assertEqual(lint["error_count"], 0)
-        self.assertEqual(lint["source_file_count"], 0)
-        self.assertEqual(len(lint["resolutions"]), 75)
-        self.assertEqual(checker.validate_baseline_manifest(manifest), [])
+        assert "immutable_origin" in lint
+        assert lint["immutable_origin"]["error_count"] == 75
+        assert lint["immutable_origin"]["source_file_count"] == 22
+        assert lint["error_count"] == 0
+        assert lint["source_file_count"] == 0
+        assert len(lint["resolutions"]) == 75
+        assert checker.validate_baseline_manifest(manifest) == []
 
     def test_vitest_accepts_the_exact_open_or_c16_resolved_lifecycle(self) -> None:
         _expect_equal([], checker.validate_baseline_manifest(_c03_open_manifest()))
@@ -320,8 +302,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         for label, source_ref in {
             "plan": "policy-engine/docs/plans/active/atlas-slices/DS6-evidence-workflow.md",
             "journal": (
-                "policy-engine/docs/plans/active/atlas-slices/"
-                "DS6-evidence-workflow-journal.md"
+                "policy-engine/docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
             ),
         }.items():
             result = subprocess.run(  # noqa: S603 - fixed test fixture revision
@@ -367,9 +348,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         if not callable(validator):
             return
 
-        provenance = copy.deepcopy(
-            _c16_resolved_manifest()["vitest"]["receipt_provenance"]
-        )
+        provenance = copy.deepcopy(_c16_resolved_manifest()["vitest"]["receipt_provenance"])
         validator(provenance)
         for field in ("entry_revision", "source_delta_sha256"):
             with self.subTest(field=field):
@@ -383,9 +362,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
     def test_vitest_resolved_lifecycle_rejects_mixed_or_unmeasured_receipts(self) -> None:
         corruptions = {
-            "open_disposition": lambda vitest: vitest.__setitem__(
-                "disposition", "rebind_pending"
-            ),
+            "open_disposition": lambda vitest: vitest.__setitem__("disposition", "rebind_pending"),
             "nonzero_exit": lambda vitest: vitest.__setitem__("exit_code", 1),
             "nonempty_debt": lambda vitest: vitest.__setitem__(
                 "debt_classes",
@@ -400,12 +377,8 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
             "changed_vitest_duration": lambda vitest: vitest.__setitem__(
                 "vitest_duration_seconds", 512.0
             ),
-            "changed_file_total": lambda vitest: vitest["test_files"].__setitem__(
-                "total", 318
-            ),
-            "changed_test_total": lambda vitest: vitest["tests"].__setitem__(
-                "total", 984
-            ),
+            "changed_file_total": lambda vitest: vitest["test_files"].__setitem__("total", 318),
+            "changed_test_total": lambda vitest: vitest["tests"].__setitem__("total", 984),
             "nonempty_failure_hash": lambda vitest: vitest["failure_set"].__setitem__(
                 "sha256", "0" * 64
             ),
@@ -421,9 +394,9 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
     def test_vitest_schema_rejects_a_changed_open_signature(self) -> None:
         mutation = _c03_open_manifest()
-        mutation["vitest"]["debt_classes"][0]["failures"][0][
-            "assertion_anchor"
-        ] = "fabricated anchor"
+        mutation["vitest"]["debt_classes"][0]["failures"][0]["assertion_anchor"] = (
+            "fabricated anchor"
+        )
         _expect_true(
             checker._schema_errors(mutation, checker.BASELINE_SCHEMA_PATH),
             "standalone baseline schema admitted a changed C03 anchor",
@@ -444,9 +417,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
             with self.subTest(label=label):
                 receipt_path = _write_json(raw)
                 _expect_true(
-                    checker.compare_vitest_results(
-                        _c16_resolved_manifest(), receipt_path
-                    ),
+                    checker.compare_vitest_results(_c16_resolved_manifest(), receipt_path),
                     f"resolved comparator admitted {label} receipt",
                 )
 
@@ -488,9 +459,9 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
                     "assertion_anchor": "changed",
                 }
             ),
-            "changed_signature": lambda manifest: manifest["vitest"]["debt_classes"][
+            "changed_signature": lambda manifest: manifest["vitest"]["debt_classes"][0]["failures"][
                 0
-            ]["failures"][0].__setitem__("assertion_anchor", "changed"),
+            ].__setitem__("assertion_anchor", "changed"),
         }.items():
             with self.subTest(label=label):
                 mutation = _c03_open_manifest()
@@ -515,15 +486,8 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         open_lines = json.dumps(
             _c03_open_manifest()["vitest"], indent=2, ensure_ascii=False
         ).splitlines()
-        open_member = open_lines[0] + "\n" + "\n".join(
-            "  " + line for line in open_lines[1:]
-        )
-        open_source = (
-            source[:source_start]
-            + '  "vitest": '
-            + open_member
-            + source[source_suffix:]
-        )
+        open_member = open_lines[0] + "\n" + "\n".join("  " + line for line in open_lines[1:])
+        open_source = source[:source_start] + '  "vitest": ' + open_member + source[source_suffix:]
 
         candidate = producer(open_source)
         _expect_equal(_c16_resolved_manifest(), json.loads(candidate))
@@ -542,7 +506,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn("lint_partition_missing_identity", errors)
+        assert "lint_partition_missing_identity" in errors
 
     def test_lint_partition_rejects_an_active_and_resolved_duplicate(self) -> None:
         mutation = copy.deepcopy(_manifest())
@@ -553,7 +517,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn("lint_partition_overlap", errors)
+        assert "lint_partition_overlap" in errors
 
     def test_lint_origin_rejects_a_moved_identity_even_when_counts_hold(self) -> None:
         mutation = copy.deepcopy(_manifest())
@@ -561,7 +525,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn("lint_origin_identity_set_hash_drift", errors)
+        assert "lint_origin_identity_set_hash_drift" in errors
 
     def test_lint_resolution_rejects_a_fabricated_reference(self) -> None:
         mutation = copy.deepcopy(_manifest())
@@ -571,18 +535,16 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertTrue(
-            any(error.startswith("lint_resolution_reference_path_missing:") for error in errors),
-            errors,
-        )
+        assert any(
+            error.startswith("lint_resolution_reference_path_missing:") for error in errors
+        ), errors
 
     def test_c06_quantity_resolution_rejects_an_unrelated_existing_test(self) -> None:
         mutation = copy.deepcopy(_manifest())
         resolution = next(
             row
             for row in mutation["lint"]["resolutions"]
-            if row["cluster_id"] == "C06"
-            and row["classification"] == "quantity_enveloped"
+            if row["cluster_id"] == "C06" and row["classification"] == "quantity_enveloped"
         )
         resolution["closure_test_ref"] = (
             "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
@@ -590,11 +552,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn(
-            "lint_c06_semantic_closure_drift:"
-            + resolution["origin_identity_sha256"],
-            errors,
-        )
+        assert "lint_c06_semantic_closure_drift:" + resolution["origin_identity_sha256"] in errors
 
     def test_c06_removed_authority_guess_requires_its_behavioral_negative(self) -> None:
         mutation = copy.deepcopy(_manifest())
@@ -612,63 +570,46 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn(
-            "lint_c06_semantic_closure_drift:"
-            + resolution["origin_identity_sha256"],
-            errors,
-        )
+        assert "lint_c06_semantic_closure_drift:" + resolution["origin_identity_sha256"] in errors
 
     def test_c06_reclassifies_the_removed_readiness_fallbacks(self) -> None:
         manifest = _manifest()
-        resolutions = [
-            row
-            for row in manifest["lint"]["resolutions"]
-            if row["cluster_id"] == "C06"
-        ]
+        resolutions = [row for row in manifest["lint"]["resolutions"] if row["cluster_id"] == "C06"]
 
-        self.assertEqual(
-            {"quantity_enveloped": 8, "authority_guess_removed": 9, "collection_control": 2, "parser_control": 1},
-            dict(checker.Counter(row["classification"] for row in resolutions)),
-        )
+        assert dict(checker.Counter(row["classification"] for row in resolutions)) == {
+            "quantity_enveloped": 8,
+            "authority_guess_removed": 9,
+            "collection_control": 2,
+            "parser_control": 1,
+        }
         by_origin = {row["origin_identity_sha256"]: row for row in resolutions}
         for origin_id in (
             "4159737e7aac6623c40d68894cff3363d4532f1378c48141c463396799d768a9",
             "4b9c4586ac6aa14f97e0b28129e18894fd948ff2f8239740a24a4648b8df690b",
         ):
-            self.assertEqual(by_origin[origin_id]["classification"], "authority_guess_removed")
+            assert by_origin[origin_id]["classification"] == "authority_guess_removed"
 
     def test_c07_chart_resolution_classifications_are_exact_and_content_bound(self) -> None:
         manifest = _manifest()
-        resolutions = [
-            row
-            for row in manifest["lint"]["resolutions"]
-            if row["cluster_id"] == "C07"
-        ]
+        resolutions = [row for row in manifest["lint"]["resolutions"] if row["cluster_id"] == "C07"]
 
-        self.assertEqual(
-            {
-                "layout_geometry": 33,
-                "quantity_semantics": 4,
-            },
-            dict(checker.Counter(row["classification"] for row in resolutions)),
-        )
-        self.assertTrue(
-            all(
-                row["semantic_kind"]
-                == (
-                    "decision_bearing"
-                    if row["classification"] == "quantity_semantics"
-                    else "non_authority_control"
-                )
-                for row in resolutions
+        assert dict(checker.Counter(row["classification"] for row in resolutions)) == {
+            "layout_geometry": 33,
+            "quantity_semantics": 4,
+        }
+        assert all(
+            row["semantic_kind"]
+            == (
+                "decision_bearing"
+                if row["classification"] == "quantity_semantics"
+                else "non_authority_control"
             )
+            for row in resolutions
         )
-        self.assertTrue(
-            all(
-                row["closure_test_ref"]
-                == "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.test.tsx"
-                for row in resolutions
-            )
+        assert all(
+            row["closure_test_ref"]
+            == "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.test.tsx"
+            for row in resolutions
         )
 
     def test_c07_chart_resolution_rejects_semantic_kind_laundering(self) -> None:
@@ -676,14 +617,13 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         resolution = next(
             row
             for row in mutation["lint"]["resolutions"]
-            if row["cluster_id"] == "C07"
-            and row["classification"] == "quantity_semantics"
+            if row["cluster_id"] == "C07" and row["classification"] == "quantity_semantics"
         )
         resolution["semantic_kind"] = "non_authority_control"
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn("lint_c07_semantic_kind_drift", errors)
+        assert "lint_c07_semantic_kind_drift" in errors
 
     def test_c08_non_authority_classifications_are_exact_and_content_bound(
         self,
@@ -691,22 +631,17 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         manifest = _manifest()
         resolutions = [row for row in manifest["lint"]["resolutions"] if row["cluster_id"] == "C08"]
 
-        self.assertEqual(
-            {
-                "interaction_control": 3,
-                "layout_geometry": 5,
-                "motion_geometry": 9,
-                "operational_request_control": 1,
-            },
-            dict(checker.Counter(row["classification"] for row in resolutions)),
-        )
-        self.assertTrue(all(row["semantic_kind"] == "non_authority_control" for row in resolutions))
-        self.assertTrue(
-            all(
-                row["closure_test_ref"]
-                == "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
-                for row in resolutions
-            )
+        assert dict(checker.Counter(row["classification"] for row in resolutions)) == {
+            "interaction_control": 3,
+            "layout_geometry": 5,
+            "motion_geometry": 9,
+            "operational_request_control": 1,
+        }
+        assert all(row["semantic_kind"] == "non_authority_control" for row in resolutions)
+        assert all(
+            row["closure_test_ref"]
+            == "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+            for row in resolutions
         )
 
     def test_c08_rejects_classification_laundering(self) -> None:
@@ -718,7 +653,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn("lint_c08_resolution_classification_drift", errors)
+        assert "lint_c08_resolution_classification_drift" in errors
 
     def test_c08_rejects_semantic_kind_laundering(self) -> None:
         mutation = copy.deepcopy(_manifest())
@@ -729,7 +664,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn("lint_c08_semantic_kind_drift", errors)
+        assert "lint_c08_semantic_kind_drift" in errors
 
     def test_c08_rejects_a_marker_only_closure(self) -> None:
         mutation = copy.deepcopy(_manifest())
@@ -742,10 +677,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn(
-            "lint_c08_semantic_closure_drift:" + resolution["origin_identity_sha256"],
-            errors,
-        )
+        assert "lint_c08_semantic_closure_drift:" + resolution["origin_identity_sha256"] in errors
 
     def test_c08_requires_the_canonical_numeric_adapter(self) -> None:
         mutation = copy.deepcopy(_manifest())
@@ -760,10 +692,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn(
-            "lint_c08_semantic_adapter_drift:" + resolution["origin_identity_sha256"],
-            errors,
-        )
+        assert "lint_c08_semantic_adapter_drift:" + resolution["origin_identity_sha256"] in errors
 
     def test_resolution_content_bindings_cover_exact_derived_roles_and_live_bytes(
         self,
@@ -772,7 +701,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(manifest)
 
-        self.assertEqual(errors, [])
+        assert errors == []
         c07_closure = next(
             row
             for row in manifest["lint"]["resolution_content_bindings"]
@@ -780,7 +709,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
             and row["path"]
             == "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.test.tsx"
         )
-        self.assertEqual(c07_closure["roles"], ["closure_test", "consumer"])
+        assert c07_closure["roles"] == ["closure_test", "consumer"]
 
     def test_resolution_content_bindings_reject_a_removed_binding(self) -> None:
         mutation = _manifest()
@@ -788,10 +717,9 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn(
-            "lint_resolution_content_binding_missing:"
-            f"{removed['cluster_id']}:{removed['path']}",
-            errors,
+        assert (
+            f"lint_resolution_content_binding_missing:{removed['cluster_id']}:{removed['path']}"
+            in errors
         )
 
     def test_resolution_content_bindings_reject_role_laundering(self) -> None:
@@ -805,10 +733,9 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn(
-            "lint_resolution_content_binding_role_drift:"
-            f"{binding['cluster_id']}:{binding['path']}",
-            errors,
+        assert (
+            f"lint_resolution_content_binding_role_drift:{binding['cluster_id']}:{binding['path']}"
+            in errors
         )
 
     def test_resolution_content_bindings_reject_duplicate_cluster_path(self) -> None:
@@ -819,10 +746,9 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn(
+        assert (
             "lint_resolution_content_binding_duplicate:"
-            f"{duplicate['cluster_id']}:{duplicate['path']}",
-            errors,
+            f"{duplicate['cluster_id']}:{duplicate['path']}" in errors
         )
 
     def test_resolution_content_bindings_reject_an_extra_cluster_path(self) -> None:
@@ -839,10 +765,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn(
-            f"lint_resolution_content_binding_extra:C07:{path}",
-            errors,
-        )
+        assert f"lint_resolution_content_binding_extra:C07:{path}" in errors
 
     def test_resolution_content_binding_detects_marker_preserving_scalar_corruption(
         self,
@@ -855,10 +778,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
             source_bytes_override={path: _always_null_c07_scalar_bytes()},
         )
 
-        self.assertIn(
-            f"lint_resolution_content_hash_drift:C07:{path}",
-            errors,
-        )
+        assert f"lint_resolution_content_hash_drift:C07:{path}" in errors
 
     def test_lint_comparator_requires_the_exact_active_set(self) -> None:
         manifest = _manifest()
@@ -887,107 +807,82 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         self.addCleanup(exact_path.unlink)
         self.addCleanup(fabricated_path.unlink)
 
-        self.assertEqual(checker.compare_lint_results(manifest, exact_path), [])
+        assert checker.compare_lint_results(manifest, exact_path) == []
         errors = checker.compare_lint_results(manifest, fabricated_path)
-        self.assertTrue(
-            any(error.startswith("lint_new_diagnostic:") for error in errors),
-            errors,
-        )
+        assert any(error.startswith("lint_new_diagnostic:") for error in errors), errors
 
     def test_architecture_origin_active_and_resolved_form_an_exact_partition(self) -> None:
         manifest = _manifest()
         architecture = manifest["architecture"]
 
-        self.assertEqual(architecture["immutable_origin"]["violation_count"], 36)
-        self.assertEqual(architecture["disposition"], "resolved")
-        self.assertEqual(architecture["exit_code"], 0)
-        self.assertEqual(architecture["violation_count"], 0)
-        self.assertEqual(architecture["source_file_count"], 0)
-        self.assertEqual(
-            architecture["identity_set_sha256"], checker._canonical_sha256([])
-        )
-        self.assertEqual(architecture["violations"], [])
-        self.assertEqual(len(architecture["resolutions"]), 36)
-        self.assertEqual(
-            sum(
-                resolution["cluster_id"] == "C09"
-                for resolution in architecture["resolutions"]
-            ),
-            7,
+        assert architecture["immutable_origin"]["violation_count"] == 36
+        assert architecture["disposition"] == "resolved"
+        assert architecture["exit_code"] == 0
+        assert architecture["violation_count"] == 0
+        assert architecture["source_file_count"] == 0
+        assert architecture["identity_set_sha256"] == checker._canonical_sha256([])
+        assert architecture["violations"] == []
+        assert len(architecture["resolutions"]) == 36
+        assert (
+            sum(resolution["cluster_id"] == "C09" for resolution in architecture["resolutions"])
+            == 7
         )
         c10_resolutions = [
             resolution
             for resolution in architecture["resolutions"]
             if resolution["cluster_id"] == "C10"
         ]
-        self.assertEqual(len(c10_resolutions), 1)
-        self.assertEqual(
-            c10_resolutions[0]["origin_identity"]["source_path"],
-            "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.tsx",
+        assert len(c10_resolutions) == 1
+        assert (
+            c10_resolutions[0]["origin_identity"]["source_path"]
+            == "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.tsx"
         )
-        self.assertEqual(
-            c10_resolutions[0]["closure_test_ref"],
-            "apps/runtime-dashboard/src/shared/ui/authored-text/authoredTextArchitecture.test.ts",
+        assert (
+            c10_resolutions[0]["closure_test_ref"]
+            == "apps/runtime-dashboard/src/shared/ui/authored-text/authoredTextArchitecture.test.ts"
         )
         c11_resolutions = [
             resolution
             for resolution in architecture["resolutions"]
             if resolution["cluster_id"] == "C11"
         ]
-        self.assertEqual(len(c11_resolutions), 9)
-        self.assertEqual(
-            {
-                "apps/runtime-dashboard/src/shared/charts/UncertaintyDisplay.tsx",
-                "apps/runtime-dashboard/src/shared/charts/uncertainty-rendering.ts",
-                "apps/runtime-dashboard/src/shared/ui/trust-view/HashChip.tsx",
-                "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.test.tsx",
-                "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
-                "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
-                "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewToggle.test.tsx",
-                "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewToggle.tsx",
-            },
-            {
-                resolution["origin_identity"]["source_path"]
-                for resolution in c11_resolutions
-            },
-        )
-        self.assertTrue(
-            all(
-                resolution["classification"] == "shared_dependency_inverted"
-                and resolution["closure_test_ref"]
-                == "apps/runtime-dashboard/src/shared/ui/trust-view/trustViewArchitecture.test.ts"
-                for resolution in c11_resolutions
-            )
+        assert len(c11_resolutions) == 9
+        assert {
+            "apps/runtime-dashboard/src/shared/charts/UncertaintyDisplay.tsx",
+            "apps/runtime-dashboard/src/shared/charts/uncertainty-rendering.ts",
+            "apps/runtime-dashboard/src/shared/ui/trust-view/HashChip.tsx",
+            "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+            "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+            "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewToggle.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewToggle.tsx",
+        } == {resolution["origin_identity"]["source_path"] for resolution in c11_resolutions}
+        assert all(
+            resolution["classification"] == "shared_dependency_inverted"
+            and resolution["closure_test_ref"]
+            == "apps/runtime-dashboard/src/shared/ui/trust-view/trustViewArchitecture.test.ts"
+            for resolution in c11_resolutions
         )
         c18_resolution = next(
             resolution
             for resolution in architecture["resolutions"]
             if resolution["cluster_id"] == "C18"
         )
-        self.assertEqual(c18_resolution["classification"], "feature_public_barrel")
-        self.assertEqual(
-            c18_resolution["origin_identity"],
-            {
-                "source_path": "apps/runtime-dashboard/src/app/workspaces.ts",
-                "source_content_sha256": (
-                    "df8e3785d0baa2e30af4cf68567c2fe33dc736adfc0babd64d268241e1bfc4b3"
-                ),
-                "line": 9,
-                "specifier": "@/features/runs/api/useRunsSample",
-                "resolved_target_path": (
-                    "apps/runtime-dashboard/src/features/runs/api/useRunsSample.ts"
-                ),
-                "rule_id": "app-no-feature-internals",
-                "message": (
-                    "app layer can import features only through their public index.ts barrel."
-                ),
-                "display": (
-                    "src/app/workspaces.ts:9 -> @/features/runs/api/useRunsSample :: "
-                    "app layer can import features only through their public index.ts barrel."
-                ),
-            },
-        )
-        self.assertEqual(checker.validate_baseline_manifest(manifest), [])
+        assert c18_resolution["classification"] == "feature_public_barrel"
+        assert c18_resolution["origin_identity"] == {
+            "source_path": "apps/runtime-dashboard/src/app/workspaces.ts",
+            ("source_content_sha256"): (
+                "df8e3785d0baa2e30af4cf68567c2fe33dc736adfc0babd64d268241e1bfc4b3"
+            ),
+            "line": 9,
+            "specifier": "@/features/runs/api/useRunsSample",
+            "resolved_target_path": "apps/runtime-dashboard/src/features/runs/api/useRunsSample.ts",
+            "rule_id": "app-no-feature-internals",
+            "message": "app layer can import features only through their public index.ts barrel.",
+            "display": "src/app/workspaces.ts:9 -> @/features/runs/api/useRunsSample :: "
+            "app layer can import features only through their public index.ts barrel.",
+        }
+        assert checker.validate_baseline_manifest(manifest) == []
 
     def test_architecture_partition_rejects_a_missing_resolution(self) -> None:
         mutation = copy.deepcopy(_manifest())
@@ -995,7 +890,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn("architecture_partition_missing_identity", errors)
+        assert "architecture_partition_missing_identity" in errors
 
     def test_architecture_origin_rejects_rewritten_producer_provenance(
         self,
@@ -1005,7 +900,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertIn("architecture_immutable_origin_anchor_drift", errors)
+        assert "architecture_immutable_origin_anchor_drift" in errors
 
     def test_architecture_comparator_rejects_the_revived_c18_edge_from_zero(
         self,
@@ -1017,39 +912,26 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
             if resolution["cluster_id"] == "C18"
         )
         empty_path = _write_json({"violations": []})
-        revived_path = _write_json(
-            {"violations": [c18_resolution["origin_identity"]]}
-        )
+        revived_path = _write_json({"violations": [c18_resolution["origin_identity"]]})
         self.addCleanup(empty_path.unlink)
         self.addCleanup(revived_path.unlink)
 
-        self.assertEqual(
-            checker.compare_architecture_results(manifest, empty_path),
-            [],
-        )
+        assert checker.compare_architecture_results(manifest, empty_path) == []
         errors = checker.compare_architecture_results(manifest, revived_path)
-        self.assertTrue(
-            any(error.startswith("architecture_new_violation:") for error in errors),
-            errors,
-        )
+        assert any(error.startswith("architecture_new_violation:") for error in errors), errors
 
     def test_architecture_c18_rejects_shared_dependency_classification(
         self,
     ) -> None:
         mutation = copy.deepcopy(_manifest())
         resolution = next(
-            row
-            for row in mutation["architecture"]["resolutions"]
-            if row["cluster_id"] == "C18"
+            row for row in mutation["architecture"]["resolutions"] if row["cluster_id"] == "C18"
         )
         resolution["classification"] = "shared_dependency_inverted"
 
         errors = checker.validate_baseline_manifest(mutation)
 
-        self.assertTrue(
-            any("feature_public_barrel" in error for error in errors),
-            errors,
-        )
+        assert any("feature_public_barrel" in error for error in errors), errors
 
     def test_architecture_non_c18_rejects_feature_public_barrel_classification(
         self,
@@ -1066,41 +948,38 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
                 errors = checker.validate_baseline_manifest(mutation)
 
-                self.assertTrue(
-                    any("shared_dependency_inverted" in error for error in errors),
-                    errors,
-                )
+                assert any("shared_dependency_inverted" in error for error in errors), errors
 
     def test_architecture_json_and_human_modes_share_one_producer(self) -> None:
-        json_run = subprocess.run(
-            ["node", str(ARCHITECTURE_SCRIPT), "--format=json"],
+        json_run = subprocess.run(  # noqa: S603 - fixed Node checker path and mode args; shell=False
+            [checker._resolve_executable("node"), str(ARCHITECTURE_SCRIPT), "--format=json"],
             cwd=REPO_ROOT / "apps/runtime-dashboard",
             check=False,
             capture_output=True,
             text=True,
         )
-        self.assertTrue(json_run.stdout.strip())
+        assert json_run.stdout.strip()
         payload = json.loads(json_run.stdout)
         violations = payload["violations"]
-        self.assertEqual(json_run.returncode, 0 if not violations else 1)
+        assert json_run.returncode == (0 if not violations else 1)
 
-        human_run = subprocess.run(
-            ["node", str(ARCHITECTURE_SCRIPT)],
+        human_run = subprocess.run(  # noqa: S603 - fixed Node checker path and mode args; shell=False
+            [checker._resolve_executable("node"), str(ARCHITECTURE_SCRIPT)],
             cwd=REPO_ROOT / "apps/runtime-dashboard",
             check=False,
             capture_output=True,
             text=True,
         )
-        self.assertEqual(human_run.returncode, json_run.returncode)
+        assert human_run.returncode == json_run.returncode
         for violation in violations:
-            self.assertIn(f"- {violation['display']}", human_run.stderr)
+            assert f"- {violation['display']}" in human_run.stderr
 
     def test_lifecycle_corruption_probes_all_fail_closed(self) -> None:
         manifest = _manifest()
 
-        self.assertEqual(checker._baseline_corruption_probes(manifest), [])
+        assert checker._baseline_corruption_probes(manifest) == []
 
-    def test_lifecycle_corruption_probes_still_reject_marker_preserving_property_removal_when_the_hash_is_laundered(
+    def test_marker_preserving_removal_rejects_hash_laundering(
         self,
     ) -> None:
         manifest = _manifest()
@@ -1110,16 +989,11 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
             for row in manifest["lint"]["resolution_content_bindings"]
             if row["cluster_id"] == "C07" and row["path"] == path
         )
-        binding["sha256"] = hashlib.sha256(
-            _always_null_c07_scalar_bytes()
-        ).hexdigest()
+        binding["sha256"] = hashlib.sha256(_always_null_c07_scalar_bytes()).hexdigest()
 
         escaped = checker._baseline_corruption_probes(manifest)
 
-        self.assertNotIn(
-            "lint-c07-scalar-property-removed-markers-retained",
-            escaped,
-        )
+        assert "lint-c07-scalar-property-removed-markers-retained" not in escaped
 
 
 if __name__ == "__main__":

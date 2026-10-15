@@ -5,11 +5,13 @@ from __future__ import annotations
 
 import argparse
 
-from ._common import run_command
+from ._common import CommandSpec, run_command
 from ._repo_hygiene import (
     AUTHORED_PYTHON_FORMAT_SCOPE,
     REGO_SCOPE,
+    current_python_files,
     ensure_executable,
+    evidence_python_files,
     frontend_npm_runs,
     pre_commit_hook,
     uv_run,
@@ -36,16 +38,31 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _authored_python_ruff_format_check() -> CommandSpec:
+    """Build the formatter check from the complete authored Python role union."""
+
+    python_files = current_python_files(AUTHORED_PYTHON_FORMAT_SCOPE)
+    return uv_run("ruff format --check", "ruff", "format", "--check", *python_files)
+
+
+def _evidence_python_ruff_format_check() -> CommandSpec:
+    """Build the formatter check for the complete indexed E02 evidence role."""
+
+    python_files = evidence_python_files()
+    return uv_run(
+        "ruff format --check current E02 evidence Python role",
+        "ruff",
+        "format",
+        "--check",
+        *python_files,
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     commands = [
-        uv_run(
-            "ruff format --check",
-            "ruff",
-            "format",
-            "--check",
-            *AUTHORED_PYTHON_FORMAT_SCOPE,
-        ),
+        _authored_python_ruff_format_check(),
+        _evidence_python_ruff_format_check(),
         pre_commit_hook("shfmt", label="shfmt authored shell"),
         pre_commit_hook("taplo-format", label="taplo format check"),
     ]

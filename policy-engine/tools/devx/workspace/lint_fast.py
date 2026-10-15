@@ -8,8 +8,10 @@ import argparse
 from ._common import CommandSpec, run_command
 from ._repo_hygiene import (
     AUTHORED_PYTHON_LINT_SCOPE,
-    PHASE8_LIMITED_PYTHON_RUFF_EXCLUDES,
+    PHASE8_LIMITED_PYTHON_SCOPE,
+    current_python_files,
     ensure_executable,
+    evidence_python_files,
     frontend_npm_runs,
     pre_commit_hook,
     uv_run,
@@ -37,26 +39,27 @@ def _build_parser() -> argparse.ArgumentParser:
 
 
 def _authored_python_ruff_check() -> CommandSpec:
-    """Build the strict authored-Python Ruff check with path-rooted Phase 8 exclusions."""
+    """Build the strict authored-Python Ruff check from current source files."""
 
-    phase8_excludes = tuple(
-        arg
-        for pattern in PHASE8_LIMITED_PYTHON_RUFF_EXCLUDES
-        for arg in ("--extend-exclude", pattern)
+    python_files = current_python_files(
+        AUTHORED_PYTHON_LINT_SCOPE,
+        exclude_roots=PHASE8_LIMITED_PYTHON_SCOPE,
     )
-    return uv_run(
-        "ruff check",
-        "ruff",
-        "check",
-        *phase8_excludes,
-        *AUTHORED_PYTHON_LINT_SCOPE,
-    )
+    return uv_run("ruff check", "ruff", "check", *python_files)
+
+
+def _evidence_python_ruff_check() -> CommandSpec:
+    """Build the Ruff check for the complete indexed E02 evidence role."""
+
+    python_files = evidence_python_files()
+    return uv_run("ruff check current E02 evidence Python role", "ruff", "check", *python_files)
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     commands = [
         _authored_python_ruff_check(),
+        _evidence_python_ruff_check(),
         pre_commit_hook("yamllint", label="yamllint authored YAML"),
         pre_commit_hook("shellcheck", label="shellcheck authored shell"),
         pre_commit_hook("actionlint", label="actionlint workflows"),

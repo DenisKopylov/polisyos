@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib
 import inspect
+import os
 import shlex
 import subprocess
 import sys
@@ -12,6 +13,8 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
 from typing import Any
+
+from .fs import active_secure_output_root
 
 _SHELL_CONTROL_SNIPPETS = ("&&", "||", ";", "|", "`", "$(", "<", ">", "\n", "\r")
 
@@ -118,8 +121,23 @@ def run_command(
     tokens = tuple(str(part) for part in argv)
     if allowed_prefixes is not None:
         validate_command_prefix(tokens, allowed_prefixes=allowed_prefixes)
+    output_root = active_secure_output_root()
+    if output_root is None:
+        process_env = dict(env) if env is not None else None
+        return subprocess.run(list(tokens), cwd=cwd, env=process_env, **kwargs)
+
+    if os.name != "posix":
+        raise OSError("secure output scope requires POSIX descriptor inheritance")
+    process_env = dict(os.environ) if env is None else dict(env)
+    process_env.update(output_root.inherited_scope_environment())
+    inherited_fds = set(kwargs.pop("pass_fds", ()))
+    inherited_fds.add(output_root.descriptor)
     return subprocess.run(
-        list(tokens), cwd=cwd, env=dict(env) if env is not None else None, **kwargs
+        list(tokens),
+        cwd=cwd,
+        env=process_env,
+        pass_fds=tuple(sorted(inherited_fds)),
+        **kwargs,
     )
 
 

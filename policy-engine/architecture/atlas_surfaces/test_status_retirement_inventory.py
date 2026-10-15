@@ -67,25 +67,14 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         inventory, debt = _artifacts()
         scan = checker._scan()
 
-        self.assertEqual(36, scan["sourceDenominators"]["atlasUiProduction"])
-        self.assertNotIn("unauthorizedStatusOwners", scan)
-        self.assertNotIn("unauthorizedStatusSinks", scan)
-        self.assertIsInstance(scan["authoritySinkDeclarations"], list)
-        self.assertEqual(
-            {
-                "current_authored": 12,
-                "ds1_rows": 47,
-                "semantic_retirement_debt": 0,
-            },
-            {
-                key: checker._summary(inventory, debt)[key]
-                for key in (
-                    "current_authored",
-                    "ds1_rows",
-                    "semantic_retirement_debt",
-                )
-            },
-        )
+        assert scan["sourceDenominators"]["atlasUiProduction"] == 36
+        assert "unauthorizedStatusOwners" not in scan
+        assert "unauthorizedStatusSinks" not in scan
+        assert isinstance(scan["authoritySinkDeclarations"], list)
+        assert {
+            key: checker._summary(inventory, debt)[key]
+            for key in ("current_authored", "ds1_rows", "semantic_retirement_debt")
+        } == {"current_authored": 12, "ds1_rows": 47, "semantic_retirement_debt": 0}
 
     def test_command_gate_rejects_an_incomplete_generated_receipt_population(
         self,
@@ -126,7 +115,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 )
             },
         )
-        self.assertIn("local_authority_restatement:EvidencePosture", errors)
+        assert "local_authority_restatement:EvidencePosture" in errors
 
     def test_rejects_an_inline_authority_synonym(self) -> None:
         inventory, debt = _artifacts()
@@ -139,7 +128,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 )
             },
         )
-        self.assertIn("unregistered_status_definition:inlineAuthority.ts:verdict", errors)
+        assert "unregistered_status_definition:inlineAuthority.ts:verdict" in errors
 
     def test_rejects_a_present_but_fake_generated_import(self) -> None:
         inventory, debt = _artifacts()
@@ -155,7 +144,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 )
             },
         )
-        self.assertIn("local_authority_restatement:LocalDispute", errors)
+        assert "local_authority_restatement:LocalDispute" in errors
 
     def test_rejects_a_sibling_interaction_consumer_in_an_authority_slot(self) -> None:
         inventory, debt = _artifacts()
@@ -167,11 +156,11 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                     "import { createInteractionState, presentAuthority } "
                     'from "./statusOwnership";\n'
                     'const transport = createInteractionState("ready", "transport");\n'
-                    'presentAuthority(transport);\n'
+                    "presentAuthority(transport);\n"
                 )
             },
         )
-        self.assertIn("interaction_state_reaches_authority_slot:siblingConsumer.ts", errors)
+        assert "interaction_state_reaches_authority_slot:siblingConsumer.ts" in errors
 
     def test_rejects_missing_duplicate_and_unknown_ds1_joins(self) -> None:
         inventory, debt = _artifacts()
@@ -186,29 +175,24 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 else:
                     entries[-1]["unit_id"] = "status-unknown-c05-probe"
                 errors = checker.validate_inventory(mutation, debt, live_probes=False)
-                self.assertTrue(
-                    any(error.startswith("ds1_status_join_") for error in errors),
-                    errors,
-                )
+                assert any(error.startswith("ds1_status_join_") for error in errors), errors
 
     def test_rejects_an_invalid_target_cluster(self) -> None:
         inventory, debt = _artifacts()
         mutation = copy.deepcopy(inventory)
         mutation["entries"][0]["target_cluster"] = "C20"
         errors = checker.validate_inventory(mutation, debt, live_probes=False)
-        self.assertTrue(any("target_cluster" in error for error in errors), errors)
+        assert any("target_cluster" in error for error in errors), errors
 
     def test_rejects_interaction_without_a_compile_barrier(self) -> None:
         inventory, debt = _artifacts()
         mutation = copy.deepcopy(inventory)
         row = next(
-            entry
-            for entry in mutation["entries"]
-            if entry["classification"] == "interaction_state"
+            entry for entry in mutation["entries"] if entry["classification"] == "interaction_state"
         )
         row.pop("authority_slot_barrier_ref")
         errors = checker.validate_inventory(mutation, debt, live_probes=False)
-        self.assertTrue(any("authority_slot_barrier_ref" in error for error in errors), errors)
+        assert any("authority_slot_barrier_ref" in error for error in errors), errors
 
     def test_schema_admits_continuous_c21_through_c23_targets(self) -> None:
         inventory, debt = _artifacts()
@@ -222,17 +206,12 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                     if entry["candidate_id"] == row["candidate_id"]
                 )
                 mutation_row["target_cluster"] = target
-                errors = checker.validate_inventory(
-                    mutation, debt, live_probes=False
-                )
-                self.assertFalse(
-                    any(
-                        error.startswith("schema:status-retirement-inventory:")
-                        and "target_cluster" in error
-                        for error in errors
-                    ),
-                    errors,
-                )
+                errors = checker.validate_inventory(mutation, debt, live_probes=False)
+                assert not any(
+                    error.startswith("schema:status-retirement-inventory:")
+                    and "target_cluster" in error
+                    for error in errors
+                ), errors
 
     def test_c21_records_the_exact_thirteen_and_leaves_exactly_six_for_c22(
         self,
@@ -240,42 +219,29 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         inventory, debt = _artifacts()
         rows = inventory["semantic_exemptions"]
 
-        self.assertEqual(
-            C21_INTERACTION_IDS | C21_RETIRED_IDS,
-            {
-                row["candidate_id"]
-                for row in rows
-                if row["target_cluster"] == "C21"
-            },
+        assert {
+            row["candidate_id"] for row in rows if row["target_cluster"] == "C21"
+        } == C21_INTERACTION_IDS | C21_RETIRED_IDS
+        assert {
+            row["candidate_id"]
+            for row in rows
+            if row["target_cluster"] in checker.C22_SUBCLUSTER_IDS
+        } == C22_REMAINDER_IDS
+        assert not any(row["target_cluster"] == "C23" for row in rows), (
+            "C23 owns behavioral containment, not a definition row"
         )
-        self.assertEqual(
-            C22_REMAINDER_IDS,
-            {
-                row["candidate_id"]
-                for row in rows
-                if row["target_cluster"] in checker.C22_SUBCLUSTER_IDS
-            },
+        assert all(
+            row["disposition"] == "interaction_state"
+            for row in rows
+            if row["candidate_id"] in C21_INTERACTION_IDS
         )
-        self.assertFalse(
-            any(row["target_cluster"] == "C23" for row in rows),
-            "C23 owns behavioral containment, not a definition row",
+        assert all(
+            row["current_definition_state"] == "retired"
+            for row in rows
+            if row["candidate_id"] in C21_RETIRED_IDS
         )
-        self.assertTrue(
-            all(
-                row["disposition"] == "interaction_state"
-                for row in rows
-                if row["candidate_id"] in C21_INTERACTION_IDS
-            )
-        )
-        self.assertTrue(
-            all(
-                row["current_definition_state"] == "retired"
-                for row in rows
-                if row["candidate_id"] in C21_RETIRED_IDS
-            )
-        )
-        self.assertEqual(58, len(rows))
-        self.assertEqual(47, inventory["denominators"]["ds1_rows"])
+        assert len(rows) == 58
+        assert inventory["denominators"]["ds1_rows"] == 47
         live_c22_rows = {
             row["candidate_id"]
             for row in rows
@@ -283,10 +249,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             and row["disposition"] == "retirement_debt"
             and row["current_definition_state"] == "present"
         }
-        self.assertEqual(
-            len(live_c22_rows),
-            checker._summary(inventory, debt)["semantic_retirement_debt"],
-        )
+        assert len(live_c22_rows) == checker._summary(inventory, debt)["semantic_retirement_debt"]
 
     def test_c22_subcluster_partition_is_exact(self) -> None:
         inventory, debt = _artifacts()
@@ -302,29 +265,21 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 }
             ),
         }
-        self.assertEqual(expected, getattr(checker, "C22_SUBCLUSTER_IDS", {}))
+        assert expected == getattr(checker, "C22_SUBCLUSTER_IDS", {})
         rows = inventory["semantic_exemptions"]
         for cluster, candidate_ids in expected.items():
             with self.subTest(cluster=cluster):
-                self.assertEqual(
-                    candidate_ids,
-                    {
-                        row["candidate_id"]
-                        for row in rows
-                        if row["target_cluster"] == cluster
-                    },
-                )
-        self.assertFalse(any(row["target_cluster"] == "C22" for row in rows))
-        self.assertFalse(any(row["target_cluster"] == "C23" for row in rows))
+                assert candidate_ids == {
+                    row["candidate_id"] for row in rows if row["target_cluster"] == cluster
+                }
+        assert not any(row["target_cluster"] == "C22" for row in rows)
+        assert not any(row["target_cluster"] == "C23" for row in rows)
         live_partition_rows = sum(
             row["current_definition_state"] == "present"
             for row in rows
             if row["target_cluster"] in expected
         )
-        self.assertEqual(
-            live_partition_rows,
-            checker._summary(inventory, debt)["semantic_retirement_debt"],
-        )
+        assert live_partition_rows == checker._summary(inventory, debt)["semantic_retirement_debt"]
 
     def test_c22_remainder_retirement_requires_absent_definition_and_evidence(
         self,
@@ -336,7 +291,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             if entry["candidate_id"] == "semantic-status-run-badge-kind"
         )
 
-        self.assertEqual("retired", row["current_definition_state"])
+        assert row["current_definition_state"] == "retired"
         retired_c22_rows = sum(
             entry["target_cluster"] in checker.C22_SUBCLUSTER_IDS
             and entry["disposition"] == "retirement_debt"
@@ -345,13 +300,13 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             and bool(entry.get("verification_refs"))
             for entry in inventory["semantic_exemptions"]
         )
-        self.assertEqual(
-            inventory["denominators"]["current_total"] - retired_c22_rows,
-            checker._summary(inventory, _debt)["current_authored"],
+        assert (
+            inventory["denominators"]["current_total"] - retired_c22_rows
+            == checker._summary(inventory, _debt)["current_authored"]
         )
-        self.assertNotIn(
-            "c22_remainder_disposition_drift:semantic-status-run-badge-kind",
-            checker._validate_c21_partition(inventory),
+        assert (
+            "c22_remainder_disposition_drift:semantic-status-run-badge-kind"
+            not in checker._validate_c21_partition(inventory)
         )
 
         missing_evidence = copy.deepcopy(inventory)
@@ -361,31 +316,26 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             if entry["candidate_id"] == row["candidate_id"]
         )
         missing_evidence_row.pop("protected_source_paths")
-        self.assertIn(
-            "c22_remainder_disposition_drift:semantic-status-run-badge-kind",
-            checker._validate_c21_partition(missing_evidence),
+        assert (
+            "c22_remainder_disposition_drift:semantic-status-run-badge-kind"
+            in checker._validate_c21_partition(missing_evidence)
         )
 
         revived_source = {
             row["source_span"]["path"]: (
-                'export type RunBadgeKind = "ok" | "fail" | "warn" '
-                '| "unknown";\n'
+                'export type RunBadgeKind = "ok" | "fail" | "warn" | "unknown";\n'
             )
         }
-        self.assertIn(
-            "retired_semantic_definition_survives:semantic-status-run-badge-kind",
-            checker._validate_source_overrides(inventory, revived_source),
+        assert (
+            "retired_semantic_definition_survives:semantic-status-run-badge-kind"
+            in checker._validate_source_overrides(inventory, revived_source)
         )
 
     def test_authored_summary_uses_lifecycle_state_not_candidate_ids(self) -> None:
         inventory, debt = _artifacts()
         baseline = checker._summary(inventory, debt)["current_authored"]
         synthetic = copy.deepcopy(
-            next(
-                row
-                for row in inventory["semantic_exemptions"]
-                if row["target_cluster"] == "C22d"
-            )
+            next(row for row in inventory["semantic_exemptions"] if row["target_cluster"] == "C22d")
         )
         synthetic["candidate_id"] = "semantic-synthetic-future-retirement"
         synthetic["current_definition_state"] = "retired"
@@ -394,11 +344,8 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         ]
         inventory["semantic_exemptions"].append(synthetic)
 
-        self.assertNotIn(synthetic["candidate_id"], checker.C22_REMAINDER_IDS)
-        self.assertEqual(
-            baseline - 1,
-            checker._summary(inventory, debt)["current_authored"],
-        )
+        assert synthetic["candidate_id"] not in checker.C22_REMAINDER_IDS
+        assert baseline - 1 == checker._summary(inventory, debt)["current_authored"]
 
     def test_every_retired_semantic_row_drives_generic_revival_protection(
         self,
@@ -420,11 +367,10 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 "paths": sorted(row["protected_source_paths"]),
             }
             for row in mutation["semantic_exemptions"]
-            if row["current_definition_state"] == "retired"
-            and row.get("protected_source_paths")
+            if row["current_definition_state"] == "retired" and row.get("protected_source_paths")
         ]
 
-        self.assertEqual(expected, checker._protected_semantic_definitions(mutation))
+        assert expected == checker._protected_semantic_definitions(mutation)
 
     def test_c22_behavioral_scanner_rejects_record_map_conditional_synonym_and_fake_owner_import(
         self,
@@ -477,7 +423,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             'import { Badge } from "@polisyos/atlas-ui";\n'
         )
         classifier = (
-            "function project(value: RunSummary[\"status\"]) {\n"
+            'function project(value: RunSummary["status"]) {\n'
             "  return value === 'settled' ? 'stable' : value === 'waiting' ? "
             "'watching' : value === 'denied' ? 'limited' : 'opaque';\n"
             "}\n"
@@ -490,44 +436,44 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 + "  if (value === 'b') return 'fail';\n"
                 + "  if (value === 'c') return 'warn';\n"
                 + "  return 'unknown';\n}\n"
-                + "export const Probe = ({ status }: { status: RunSummary[\"status\"] }) "
+                + 'export const Probe = ({ status }: { status: RunSummary["status"] }) '
                 + "=> <Badge kind={renamed(status) as never}>x</Badge>;\n"
             ),
             paths["record-map"]: (
                 owner_imports
                 + "const TONES: Record<string, string> = { settled: 'stable', "
                 + "waiting: 'watching', denied: 'limited' };\n"
-                + "function project(value: RunSummary[\"status\"]) { "
+                + 'function project(value: RunSummary["status"]) { '
                 + "return TONES[value] ?? 'opaque'; }\n"
-                + "export const Probe = ({ status }: { status: RunSummary[\"status\"] }) "
+                + 'export const Probe = ({ status }: { status: RunSummary["status"] }) '
                 + "=> <Badge kind={project(status) as never}>x</Badge>;\n"
             ),
             paths["conditional"]: (
                 owner_imports
-                + "function project(value: RunSummary[\"status\"]) {\n"
+                + 'function project(value: RunSummary["status"]) {\n'
                 + "  return value === 'settled' ? 'stable' : value === 'waiting' ? "
                 + "'watching' : value === 'denied' ? 'limited' : 'opaque';\n}\n"
-                + "export const Probe = ({ status }: { status: RunSummary[\"status\"] }) "
+                + 'export const Probe = ({ status }: { status: RunSummary["status"] }) '
                 + "=> <Badge kind={project(status) as never}>x</Badge>;\n"
             ),
             paths["badge-variable"]: (
                 owner_imports
                 + classifier
-                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + 'export function Probe({ status }: { status: RunSummary["status"] }) {\n'
                 + "  const clothing = project(status);\n"
                 + "  return <Badge kind={clothing as never}>x</Badge>;\n}\n"
             ),
             paths["visual-class"]: (
                 owner_imports
                 + classifier
-                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + 'export function Probe({ status }: { status: RunSummary["status"] }) {\n'
                 + "  const clothing = project(status);\n"
                 + "  return <span className={clothing}>x</span>;\n}\n"
             ),
             paths["terminal-branch"]: (
                 owner_imports
                 + classifier
-                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + 'export function Probe({ status }: { status: RunSummary["status"] }) {\n'
                 + "  const terminal = project(status);\n"
                 + "  if (terminal) return <button>stop</button>;\n"
                 + "  return null;\n}\n"
@@ -535,84 +481,82 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             paths["polling-branch"]: (
                 owner_imports
                 + classifier
-                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + 'export function Probe({ status }: { status: RunSummary["status"] }) {\n'
                 + "  const polling = project(status);\n"
                 + "  return polling ? <span>stop polling</span> : <span>poll</span>;\n}\n"
             ),
             paths["completed-action"]: (
                 owner_imports
                 + classifier
-                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + 'export function Probe({ status }: { status: RunSummary["status"] }) {\n'
                 + "  const completed = project(status);\n"
                 + "  return <button disabled={!completed}>open result</button>;\n}\n"
             ),
             paths["sibling-helper"]: (
                 'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
-                + "export function sibling(value: RunSummary[\"status\"]) {\n"
+                + 'export function sibling(value: RunSummary["status"]) {\n'
                 + "  return value === 'settled' ? 'stable' : 'opaque';\n}\n"
             ),
             paths["sibling-consumer"]: (
                 'import { Badge } from "@polisyos/atlas-ui";\n'
                 + 'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
                 + 'import { sibling } from "./c22-sibling-helper";\n'
-                + "export const Probe = ({ status }: { status: RunSummary[\"status\"] }) "
+                + 'export const Probe = ({ status }: { status: RunSummary["status"] }) '
                 + "=> <Badge kind={sibling(status) as never}>x</Badge>;\n"
             ),
-            paths["fake-owner"]: (
-                "export interface RunSummary { status: string }\n"
-            ),
+            paths["fake-owner"]: ("export interface RunSummary { status: string }\n"),
             paths["fake-consumer"]: (
                 'import { Badge } from "@polisyos/atlas-ui";\n'
                 + 'import type { RunSummary } from "./c22-fake-owner";\n'
-                + "function project(value: RunSummary[\"status\"]) {\n"
+                + 'function project(value: RunSummary["status"]) {\n'
                 + "  return value === 'settled' ? 'stable' : 'opaque';\n}\n"
-                + "export const Probe = ({ status }: { status: RunSummary[\"status\"] }) "
+                + 'export const Probe = ({ status }: { status: RunSummary["status"] }) '
                 + "=> <Badge kind={project(status) as never}>x</Badge>;\n"
             ),
             paths["fake-badge-tone"]: (
                 'import type { RunWorkflowNodeView } from "@polisyos/runtime-api-client";\n'
                 + 'import { Badge } from "@polisyos/atlas-ui";\n'
                 + "type BadgeTone = 'stable' | 'opaque';\n"
-                + "function project(value: RunWorkflowNodeView[\"status\"]): BadgeTone {\n"
+                + 'function project(value: RunWorkflowNodeView["status"]): BadgeTone {\n'
                 + "  return value === 'ok' ? 'stable' : 'opaque';\n}\n"
                 + "export const Probe = "
-                + "({ status }: { status: RunWorkflowNodeView[\"status\"] }) "
+                + '({ status }: { status: RunWorkflowNodeView["status"] }) '
                 + "=> <Badge kind={project(status) as never}>x</Badge>;\n"
             ),
             paths["unresolved-owner"]: (
                 'import type { MissingOwner } from "@missing/owner";\n'
                 + 'import { Badge, type BadgeTone } from "@polisyos/atlas-ui";\n'
-                + "function project(value: MissingOwner[\"state\"]): BadgeTone {\n"
+                + 'function project(value: MissingOwner["state"]): BadgeTone {\n'
                 + "  return value === 'settled' ? 'ok' : 'neutral';\n}\n"
                 + "export const Probe = "
-                + "({ value }: { value: MissingOwner[\"state\"] }) "
+                + '({ value }: { value: MissingOwner["state"] }) '
                 + "=> <Badge kind={project(value)}>x</Badge>;\n"
             ),
             paths["helper-only"]: (
                 'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
-                + "export function project(value: RunSummary[\"status\"]) {\n"
+                + 'export function project(value: RunSummary["status"]) {\n'
                 + "  return value === 'settled' ? 'stable' : 'opaque';\n}\n"
             ),
             paths["inline-owner"]: (
                 'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
                 + 'import { Badge } from "@polisyos/atlas-ui";\n'
                 + "export const Probe = "
-                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + '({ status }: { status: RunSummary["status"] }) => '
                 + "<Badge kind={(status === 'settled' ? 'ok' : 'neutral') as never}>"
                 + "x</Badge>;\n"
             ),
             paths["object-helper-spread"]: (
                 owner_imports
-                + "function project(value: RunSummary[\"status\"]) {\n"
+                + 'function project(value: RunSummary["status"]) {\n'
                 + "  return { kind: value === 'settled' ? 'stable' : 'opaque' };\n}\n"
-                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + 'export function Probe({ status }: { status: RunSummary["status"] }) {\n'
                 + "  const clothing = project(status);\n"
                 + "  return <Badge {...(clothing as never)}>x</Badge>;\n}\n"
             ),
             paths["property-assignment-read"]: (
                 owner_imports
                 + classifier
-                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + 'export function Probe({ status }: { status: RunSummary["status"] }) {\n'
                 + "  const props: { kind?: string } = {};\n"
                 + "  props.kind = project(status);\n"
                 + "  return <Badge kind={props.kind as never}>x</Badge>;\n}\n"
@@ -620,41 +564,41 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             paths["property-assignment-spread"]: (
                 owner_imports
                 + classifier
-                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + 'export function Probe({ status }: { status: RunSummary["status"] }) {\n'
                 + "  const props: { kind?: string } = {};\n"
                 + "  props.kind = project(status);\n"
                 + "  return <Badge {...(props as never)}>x</Badge>;\n}\n"
             ),
             paths["non-jsx-lifecycle"]: (
                 'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
-                + "function guessedTerminal(value: RunSummary[\"status\"]) {\n"
+                + 'function guessedTerminal(value: RunSummary["status"]) {\n'
                 + "  return value === 'settled';\n}\n"
-                + "export function refetchInterval(status: RunSummary[\"status\"]) {\n"
+                + 'export function refetchInterval(status: RunSummary["status"]) {\n'
                 + "  return guessedTerminal(status) ? false : 1000;\n}\n"
             ),
             paths["boolean-wrapper"]: (
                 owner_imports
                 + classifier
                 + "export const Probe = "
-                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + '({ status }: { status: RunSummary["status"] }) => '
                 + "<button disabled={Boolean(project(status))}>open</button>;\n"
             ),
             paths["direct-owner-clothing"]: (
                 owner_imports
                 + "export const Probe = "
-                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + '({ status }: { status: RunSummary["status"] }) => '
                 + "<Badge kind={status as never}>x</Badge>;\n"
             ),
             paths["identity-owner-clothing"]: (
                 owner_imports
                 + "function identity<T>(value: T): T { return value; }\n"
                 + "export const Probe = "
-                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + '({ status }: { status: RunSummary["status"] }) => '
                 + "<Badge kind={identity(status) as never}>x</Badge>;\n"
             ),
             paths["aliased-owner-clothing"]: (
                 owner_imports
-                + "type RunStatus = RunSummary[\"status\"];\n"
+                + 'type RunStatus = RunSummary["status"];\n'
                 + "function project(value: RunStatus) {\n"
                 + "  return value === 'settled' ? 'stable' : 'opaque';\n}\n"
                 + "export const Probe = ({ status }: { status: RunStatus }) => "
@@ -662,7 +606,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             ),
             paths["object-owner-clothing"]: (
                 owner_imports
-                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + 'export function Probe({ status }: { status: RunSummary["status"] }) {\n'
                 + "  const envelope = { value: status };\n"
                 + "  return <Badge kind={envelope.value as never}>x</Badge>;\n}\n"
             ),
@@ -671,7 +615,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 + classifier
                 + "const alias = project;\n"
                 + "export const Probe = "
-                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + '({ status }: { status: RunSummary["status"] }) => '
                 + "<Badge kind={alias(status) as never}>x</Badge>;\n"
             ),
             paths["object-function-alias-clothing"]: (
@@ -679,33 +623,31 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 + classifier
                 + "const adapters = { project };\n"
                 + "export const Probe = "
-                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + '({ status }: { status: RunSummary["status"] }) => '
                 + "<Badge kind={adapters.project(status) as never}>x</Badge>;\n"
             ),
             paths["object-owner-spread"]: (
                 owner_imports
-                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + 'export function Probe({ status }: { status: RunSummary["status"] }) {\n'
                 + "  const props = { kind: status };\n"
                 + "  return <Badge {...(props as never)}>x</Badge>;\n}\n"
             ),
             paths["inline-owner-spread"]: (
                 owner_imports
                 + "export const Probe = "
-                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + '({ status }: { status: RunSummary["status"] }) => '
                 + "<Badge {...({ kind: status } as never)}>x</Badge>;\n"
             ),
         }
 
         scan = checker._scan(overrides, inventory=mutation)
-        rejected_paths = {
-            revival["path"] for revival in scan.get("protectedRevivals", [])
-        }
+        rejected_paths = {revival["path"] for revival in scan.get("protectedRevivals", [])}
         expected_consumers = {
             path
             for name, path in paths.items()
             if name not in {"sibling-helper", "fake-owner", "helper-only"}
         }
-        self.assertEqual(expected_consumers, rejected_paths)
+        assert expected_consumers == rejected_paths
 
     def test_c22_behavioral_scanner_allows_generated_indexed_owner_types_and_badge_tone(
         self,
@@ -719,32 +661,22 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         )
         row["current_definition_state"] = "retired"
         source_path = (
-            "apps/runtime-dashboard/src/features/runs/domain/"
-            "c22-generated-owner-positive.tsx"
+            "apps/runtime-dashboard/src/features/runs/domain/c22-generated-owner-positive.tsx"
         )
         raw_path = (
-            "apps/runtime-dashboard/src/features/runs/domain/"
-            "c22-raw-owner-label-positive.tsx"
+            "apps/runtime-dashboard/src/features/runs/domain/c22-raw-owner-label-positive.tsx"
         )
-        layout_path = (
-            "apps/runtime-dashboard/src/features/runs/domain/"
-            "c22-layout-positive.tsx"
-        )
+        layout_path = "apps/runtime-dashboard/src/features/runs/domain/c22-layout-positive.tsx"
         constant_path = (
-            "apps/runtime-dashboard/src/features/runs/domain/"
-            "c22-constant-helper-positive.tsx"
+            "apps/runtime-dashboard/src/features/runs/domain/c22-constant-helper-positive.tsx"
         )
-        logging_path = (
-            "apps/runtime-dashboard/src/features/runs/domain/"
-            "c22-logging-positive.tsx"
-        )
+        logging_path = "apps/runtime-dashboard/src/features/runs/domain/c22-logging-positive.tsx"
         observation_assignment_path = (
             "apps/runtime-dashboard/src/features/runs/domain/"
             "c22-observation-assignment-positive.tsx"
         )
         children_spread_path = (
-            "apps/runtime-dashboard/src/features/runs/domain/"
-            "c22-children-spread-positive.tsx"
+            "apps/runtime-dashboard/src/features/runs/domain/c22-children-spread-positive.tsx"
         )
         row["protected_source_paths"] = [
             source_path,
@@ -758,22 +690,22 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         source = (
             'import type { RunWorkflowNodeView } from "@polisyos/runtime-api-client";\n'
             'import { Badge, type BadgeTone } from "@polisyos/atlas-ui";\n'
-            "const TONES: Record<RunWorkflowNodeView[\"status\"], BadgeTone> = {\n"
+            'const TONES: Record<RunWorkflowNodeView["status"], BadgeTone> = {\n'
             "  ok: 'ok', skip: 'neutral', fail: 'fail', unknown: 'neutral',\n"
             "};\n"
-            "function tone(status: RunWorkflowNodeView[\"status\"]): BadgeTone {\n"
+            'function tone(status: RunWorkflowNodeView["status"]): BadgeTone {\n'
             "  return TONES[status];\n"
             "}\n"
             "export const Probe = "
-            "({ status }: { status: RunWorkflowNodeView[\"status\"] }) => "
+            '({ status }: { status: RunWorkflowNodeView["status"] }) => '
             "<Badge kind={tone(status)}>x</Badge>;\n"
         )
 
         raw_source = (
             'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
-            "function raw(value: RunSummary[\"status\"]) { return value; }\n"
+            'function raw(value: RunSummary["status"]) { return value; }\n'
             "export const Probe = "
-            "({ status }: { status: RunSummary[\"status\"] }) => "
+            '({ status }: { status: RunSummary["status"] }) => '
             "<code>{raw(status)}</code>;\n"
         )
         layout_source = (
@@ -788,7 +720,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         constant_source = (
             'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
             'import { Badge } from "@polisyos/atlas-ui";\n'
-            "function project(value: RunSummary[\"status\"]) {\n"
+            'function project(value: RunSummary["status"]) {\n'
             "  return value === 'settled' ? 'stable' : 'opaque';\n"
             "}\n"
             "export const Probe = () => "
@@ -796,14 +728,14 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         )
         logging_source = (
             'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
-            "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+            'export function Probe({ status }: { status: RunSummary["status"] }) {\n'
             "  if (status === 'settled') console.debug(status);\n"
             "  return <span>static</span>;\n"
             "}\n"
         )
         observation_assignment_source = (
             'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
-            "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+            'export function Probe({ status }: { status: RunSummary["status"] }) {\n'
             "  let observed = '';\n"
             "  if (status === 'settled') observed = status;\n"
             "  console.debug(observed);\n"
@@ -812,7 +744,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         )
         children_spread_source = (
             'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
-            "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+            'export function Probe({ status }: { status: RunSummary["status"] }) {\n'
             "  const props = { children: status };\n"
             "  return <code {...props} />;\n"
             "}\n"
@@ -830,7 +762,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             inventory=mutation,
         )
 
-        self.assertEqual([], scan.get("protectedRevivals", []))
+        assert scan.get("protectedRevivals", []) == []
 
     def test_rejects_semantic_interaction_state_without_an_authority_barrier(
         self,
@@ -846,9 +778,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
 
         errors = checker.validate_inventory(mutation, debt, live_probes=False)
 
-        self.assertTrue(
-            any("authority_slot_barrier_ref" in error for error in errors), errors
-        )
+        assert any("authority_slot_barrier_ref" in error for error in errors), errors
 
     def test_inventory_generated_c21_revival_variants_fail_closed(self) -> None:
         inventory, debt = _artifacts()
@@ -871,9 +801,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             "reordered_reformatted_union": (
                 f"export type OpaqueVocabulary =\n  | {reversed_union};\n"
             ),
-            "inline_reconstruction": (
-                f"export interface Probe {{ mode: {literal_union}; }}\n"
-            ),
+            "inline_reconstruction": (f"export interface Probe {{ mode: {literal_union}; }}\n"),
             "const_reconstruction": (
                 f"export const OPAQUE_VOCABULARY = [{literal_array}] as const;\n"
             ),
@@ -886,10 +814,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             ),
             "sibling_consumer_reclassification": (
                 "export const PRESENTATION = {\n"
-                + "\n".join(
-                    f"  value{index}: {member!r},"
-                    for index, member in enumerate(members)
-                )
+                + "\n".join(f"  value{index}: {member!r}," for index, member in enumerate(members))
                 + "\n} as const;\n"
             ),
         }
@@ -902,14 +827,11 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                     source_overrides={source_path: source},
                     live_probes=False,
                 )
-                self.assertTrue(
-                    any(
-                        error.startswith("retired_semantic_definition_survives:")
-                        or error.startswith("unregistered_semantic_definition:")
-                        for error in errors
-                    ),
-                    errors,
-                )
+                assert any(
+                    error.startswith("retired_semantic_definition_survives:")
+                    or error.startswith("unregistered_semantic_definition:")
+                    for error in errors
+                ), errors
 
     def test_inventory_generated_c21_synonym_helper_revival_fails_closed(
         self,
@@ -921,24 +843,15 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             if entry["candidate_id"] == "semantic-types-confidence-level"
         )
         source_path = next(
-            path
-            for path in row["protected_source_paths"]
-            if path.endswith("FrequencyDots.tsx")
+            path for path in row["protected_source_paths"] if path.endswith("FrequencyDots.tsx")
         )
         label_pool = ("strong", "moderate", "weak", "opaque")
-        labels = [
-            label_pool[index] for index, _ in enumerate(row["literal_members"])
-        ]
+        labels = [label_pool[index] for index, _ in enumerate(row["literal_members"])]
         branches = "".join(
             f"  if (value > {8 - index * 3} / 10) return {label!r};\n"
             for index, label in enumerate(labels[:-1])
         )
-        classifier = (
-            "function choose(value: number) {\n"
-            f"{branches}"
-            f"  return {labels[-1]!r};\n"
-            "}\n"
-        )
+        classifier = f"function choose(value: number) {{\n{branches}  return {labels[-1]!r};\n}}\n"
         revivals = {
             "direct": (
                 f"{classifier}"
@@ -971,15 +884,11 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             ),
             "object_indirected_labels": (
                 "const labels = {\n"
-                + ",\n".join(
-                    f"  value{index}: {label!r}"
-                    for index, label in enumerate(labels)
-                )
+                + ",\n".join(f"  value{index}: {label!r}" for index, label in enumerate(labels))
                 + "\n};\n"
                 "function choose(value: number) {\n"
                 + "".join(
-                    f"  if (value > {8 - index * 3} / 10) "
-                    f"return labels.value{index};\n"
+                    f"  if (value > {8 - index * 3} / 10) return labels.value{index};\n"
                     for index in range(len(labels) - 1)
                 )
                 + f"  return labels.value{len(labels) - 1};\n"
@@ -1031,9 +940,8 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                     source_overrides={source_path: source},
                     live_probes=False,
                 )
-                self.assertIn(
-                    "retired_semantic_definition_survives:semantic-types-confidence-level",
-                    errors,
+                assert (
+                    "retired_semantic_definition_survives:semantic-types-confidence-level" in errors
                 )
 
         responsive_layout = (
@@ -1052,13 +960,9 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             source_overrides={source_path: responsive_layout},
             live_probes=False,
         )
-        self.assertFalse(
-            any(
-                error.startswith("retired_semantic_definition_survives:")
-                for error in layout_errors
-            ),
-            layout_errors,
-        )
+        assert not any(
+            error.startswith("retired_semantic_definition_survives:") for error in layout_errors
+        ), layout_errors
 
     def test_source_flip_rejects_every_protected_c21_retired_owner(self) -> None:
         inventory, debt = _artifacts()
@@ -1067,31 +971,25 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             for row in inventory["semantic_exemptions"]
             if row["candidate_id"] in C21_RETIRED_IDS
         ]
-        self.assertEqual(C21_RETIRED_IDS, {row["candidate_id"] for row in rows})
+        assert {row["candidate_id"] for row in rows} == C21_RETIRED_IDS
 
         for row in rows:
             with self.subTest(candidate_id=row["candidate_id"]):
                 members = list(row["literal_members"])
                 literal_array = ", ".join(repr(member) for member in members)
-                source = (
-                    "export const REVIVED_VOCABULARY = "
-                    f"[{literal_array}] as const;\n"
-                )
+                source = f"export const REVIVED_VOCABULARY = [{literal_array}] as const;\n"
                 errors = checker.validate_inventory(
                     inventory,
                     debt,
                     source_overrides={row["source_span"]["path"]: source},
                     live_probes=False,
                 )
-                self.assertTrue(
-                    f"retired_semantic_definition_survives:{row['candidate_id']}"
-                    in errors
+                assert (
+                    f"retired_semantic_definition_survives:{row['candidate_id']}" in errors
                     or any(
-                        error.startswith("unregistered_semantic_definition:")
-                        for error in errors
-                    ),
-                    errors,
-                )
+                        error.startswith("unregistered_semantic_definition:") for error in errors
+                    )
+                ), errors
 
     def test_rejects_a_removed_row_whose_source_survives(self) -> None:
         inventory, debt = _artifacts()
@@ -1105,7 +1003,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.ts"
         )
         errors = checker.validate_inventory(mutation, debt)
-        self.assertIn("removed_source_survives:status-collaboration-session", errors)
+        assert "removed_source_survives:status-collaboration-session" in errors
 
     def test_allows_a_retired_definition_when_its_owner_file_remains(self) -> None:
         inventory, _debt = _artifacts()
@@ -1116,11 +1014,11 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         )
 
         source = Path(row["source_span"]["path"])
-        self.assertEqual("retired", row["current_definition_state"])
-        self.assertTrue((checker.REPO_ROOT / source).exists())
+        assert row["current_definition_state"] == "retired"
+        assert (checker.REPO_ROOT / source).exists()
         errors = checker._validate_live_scan(inventory, checker._scan())
 
-        self.assertEqual([], errors)
+        assert errors == []
 
     def test_rejects_a_revived_retired_semantic_definition(self) -> None:
         inventory, debt = _artifacts()
@@ -1129,7 +1027,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             for entry in inventory["semantic_exemptions"]
             if entry["candidate_id"] == "semantic-lineage-freshness"
         )
-        self.assertEqual("retired", row["current_definition_state"])
+        assert row["current_definition_state"] == "retired"
         errors = checker.validate_inventory(
             inventory,
             debt,
@@ -1140,30 +1038,21 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             },
         )
 
-        self.assertIn(
-            "unregistered_status_definition:quantity.types.ts:LineageFreshness",
-            errors,
-        )
+        assert "unregistered_status_definition:quantity.types.ts:LineageFreshness" in errors
 
     def test_rejects_same_set_binding_to_the_wrong_generated_field(self) -> None:
         inventory, debt = _artifacts()
         mutation = copy.deepcopy(inventory)
-        row = next(
-            entry
-            for entry in mutation["entries"]
-            if entry["unit_id"] == "status-scenario"
-        )
+        row = next(entry for entry in mutation["entries"] if entry["unit_id"] == "status-scenario")
         row["owner_type"]["query"] = 'VerificationMetadata["verification_status"]'
         errors = checker.validate_inventory(mutation, debt, live_probes=False)
-        self.assertIn("generated_query_drift:status-scenario", errors)
+        assert "generated_query_drift:status-scenario" in errors
 
     def test_rejects_a_self_consistent_anchor_that_misstates_the_local_source_owner(self) -> None:
         inventory, debt = _artifacts()
         mutation = copy.deepcopy(inventory)
         row = next(
-            entry
-            for entry in mutation["entries"]
-            if entry["unit_id"] == "status-verification"
+            entry for entry in mutation["entries"] if entry["unit_id"] == "status-verification"
         )
         row["owner_type"]["query"] = 'VerificationMetadata["verification_status"]'
         row["generated_anchor"].update(
@@ -1177,34 +1066,27 @@ class StatusRetirementInventoryTests(unittest.TestCase):
 
         errors = checker.validate_inventory(mutation, debt, live_probes=False)
 
-        self.assertIn("generated_source_binding_drift:status-verification", errors)
+        assert "generated_source_binding_drift:status-verification" in errors
 
     def test_rejects_denominator_drift_but_lines_only_navigate(self) -> None:
         inventory, debt = _artifacts()
         denominator_mutation = copy.deepcopy(inventory)
         denominator_mutation["denominators"]["current_total"] = 47
         errors = checker.validate_inventory(denominator_mutation, debt, live_probes=False)
-        self.assertIn("current_denominator_drift", errors)
+        assert "current_denominator_drift" in errors
 
         anchor_mutation = copy.deepcopy(inventory)
         row = next(
-            entry
-            for entry in anchor_mutation["entries"]
-            if entry["unit_id"] == "status-scenario"
+            entry for entry in anchor_mutation["entries"] if entry["unit_id"] == "status-scenario"
         )
         row["generated_anchor"]["canonical_line"] = 1
         row["generated_anchor"]["schema_line"] = 1
         errors = checker.validate_inventory(anchor_mutation, debt, live_probes=False)
-        self.assertFalse(
-            any(error.startswith("generated_anchor_drift:") for error in errors),
-            errors,
-        )
+        assert not any(error.startswith("generated_anchor_drift:") for error in errors), errors
 
         identity_mutation = copy.deepcopy(inventory)
         identity_row = next(
-            entry
-            for entry in identity_mutation["entries"]
-            if entry["unit_id"] == "status-scenario"
+            entry for entry in identity_mutation["entries"] if entry["unit_id"] == "status-scenario"
         )
         anchor = identity_row["generated_anchor"]
         anchor["canonical_identity"], anchor["schema_identity"] = (
@@ -1212,10 +1094,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             anchor["canonical_identity"],
         )
         errors = checker.validate_inventory(identity_mutation, debt, live_probes=False)
-        self.assertTrue(
-            any(error.startswith("anchor_identity_slot_drift:") for error in errors),
-            errors,
-        )
+        assert any(error.startswith("anchor_identity_slot_drift:") for error in errors), errors
 
         hidden_navigation_mutation = copy.deepcopy(inventory)
         hidden_row = next(
@@ -1226,9 +1105,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         encoded_identity = hidden_row["generated_anchor"]["schema_identity"]
         source_path, encoded_payload = encoded_identity.split("#ts-identity=", 1)
         payload = json.loads(
-            base64.urlsafe_b64decode(
-                encoded_payload + "=" * (-len(encoded_payload) % 4)
-            )
+            base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
         )
         payload["navigation_hint"] = hidden_row["generated_anchor"]["schema_line"]
         hidden_row["generated_anchor"]["schema_identity"] = (
@@ -1240,15 +1117,8 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             .decode("ascii")
             .rstrip("=")
         )
-        errors = checker.validate_inventory(
-            hidden_navigation_mutation, debt, live_probes=False
-        )
-        self.assertTrue(
-            any(
-                "typescript_reference_identity_invalid" in error for error in errors
-            ),
-            errors,
-        )
+        errors = checker.validate_inventory(hidden_navigation_mutation, debt, live_probes=False)
+        assert any("typescript_reference_identity_invalid" in error for error in errors), errors
 
     def test_generated_anchor_accepts_only_retired_historical_source_absence(self) -> None:
         inventory, debt = _artifacts()
@@ -1257,10 +1127,10 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             for entry in inventory["entries"]
             if entry["unit_id"] == "status-inline-readiness-gate"
         )
-        self.assertEqual("retired", historical["current_definition_state"])
-        self.assertNotIn(
-            "generated_source_missing:status-inline-readiness-gate",
-            checker.validate_inventory(inventory, debt, live_probes=False),
+        assert historical["current_definition_state"] == "retired"
+        assert (
+            "generated_source_missing:status-inline-readiness-gate"
+            not in checker.validate_inventory(inventory, debt, live_probes=False)
         )
 
         mutation = copy.deepcopy(inventory)
@@ -1272,7 +1142,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         row["current_definition_state"] = "present"
         errors = checker.validate_inventory(mutation, debt, live_probes=False)
 
-        self.assertIn("generated_source_missing:status-inline-readiness-gate", errors)
+        assert "generated_source_missing:status-inline-readiness-gate" in errors
 
     def test_rejects_a_fourth_waist_row_or_non_ds5_owner(self) -> None:
         inventory, debt = _artifacts()
@@ -1280,12 +1150,12 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         fourth["entries"].append(copy.deepcopy(fourth["entries"][0]))
         fourth["entries"][-1]["debt_id"] = "ds4-waist-fourth-probe"
         errors = checker.validate_inventory(inventory, fourth, live_probes=False)
-        self.assertIn("waist_debt_count:4", errors)
+        assert "waist_debt_count:4" in errors
 
         wrong_owner = copy.deepcopy(debt)
         wrong_owner["entries"][0]["owner"] = "DS4"
         errors = checker.validate_inventory(inventory, wrong_owner, live_probes=False)
-        self.assertIn("waist_debt_owner:ds4-waist-cgf-disposition", errors)
+        assert "waist_debt_owner:ds4-waist-cgf-disposition" in errors
 
     def test_public_inventory_validation_consumes_waist_semantic_errors(self) -> None:
         """The public status gate cannot bypass the waist semantic consumer."""
@@ -1302,7 +1172,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 live_probes=False,
             )
 
-        self.assertIn(sentinel, errors)
+        assert sentinel in errors
         waist_validator.assert_called_once_with(debt)
 
     def test_waist_anchors_bind_each_present_generated_construct(self) -> None:
@@ -1310,9 +1180,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         _inventory, debt = _artifacts()
         canonical_path = "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
         types_path = "packages/runtime-api-client/types.ts"
-        canonical_source = (checker.REPO_ROOT / canonical_path).read_text(
-            encoding="utf-8"
-        )
+        canonical_source = (checker.REPO_ROOT / canonical_path).read_text(encoding="utf-8")
         types_source = (checker.REPO_ROOT / types_path).read_text(encoding="utf-8")
 
         with tempfile.TemporaryDirectory() as directory:
@@ -1328,7 +1196,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 (root / types_path).write_text(types, encoding="utf-8")
                 return checker._validate_waist_debt(artifact, repo_root=root)
 
-            self.assertEqual([], waist_errors())
+            assert waist_errors() == []
 
             navigation_only = copy.deepcopy(debt)
             for row in navigation_only["entries"]:
@@ -1336,43 +1204,35 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 for field in ("canonical_line", "schema_line"):
                     if field in anchor:
                         anchor[field] += 10_000
-            self.assertEqual([], waist_errors(artifact=navigation_only))
+            assert waist_errors(artifact=navigation_only) == []
 
             renamed = canonical_source.replace(
                 "export type GenerationCycleDispositionPayload =",
                 "export type RenamedGenerationCycleDispositionPayload =",
                 1,
             )
-            self.assertTrue(
-                any(
-                    "typescript_reference_binding_missing_or_renamed" in error
-                    for error in waist_errors(canonical=renamed)
-                )
+            assert any(
+                "typescript_reference_binding_missing_or_renamed" in error
+                for error in waist_errors(canonical=renamed)
             )
 
-            content_drift = types_source.replace(
-                "bridge_artifacts:", "bridge_receipts:", 1
-            )
-            self.assertTrue(
-                any(
-                    "typescript_reference_content_drift" in error
-                    for error in waist_errors(types=content_drift)
-                )
+            content_drift = types_source.replace("bridge_artifacts:", "bridge_receipts:", 1)
+            assert any(
+                "typescript_reference_content_drift" in error
+                for error in waist_errors(types=content_drift)
             )
 
             comment_only = canonical_source + "\n// DecisionGrade stays owner-generated.\n"
-            self.assertEqual([], waist_errors(canonical=comment_only))
+            assert waist_errors(canonical=comment_only) == []
 
             renamed_decision_grade = canonical_source.replace(
                 "export type DecisionGrade =",
                 "export type RenamedDecisionGrade =",
                 1,
             )
-            self.assertTrue(
-                any(
-                    "typescript_reference_binding_missing_or_renamed" in error
-                    for error in waist_errors(canonical=renamed_decision_grade)
-                )
+            assert any(
+                "typescript_reference_binding_missing_or_renamed" in error
+                for error in waist_errors(canonical=renamed_decision_grade)
             )
 
             decision_grade_drift = types_source.replace(
@@ -1380,11 +1240,9 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 '"advisory_admissible" | "decision_admissible" | "review_required";',
                 1,
             )
-            self.assertTrue(
-                any(
-                    "typescript_reference_content_drift" in error
-                    for error in waist_errors(types=decision_grade_drift)
-                )
+            assert any(
+                "typescript_reference_content_drift" in error
+                for error in waist_errors(types=decision_grade_drift)
             )
 
     def test_rejects_an_unregistered_semantic_union_outside_the_status_denominator(self) -> None:
@@ -1400,10 +1258,9 @@ class StatusRetirementInventoryTests(unittest.TestCase):
 
         errors = checker.validate_inventory(mutation, debt)
 
-        self.assertIn(
-            "unregistered_semantic_definition:"
-            + removed["source_span"]["declaration_name"],
-            errors,
+        assert (
+            "unregistered_semantic_definition:" + removed["source_span"]["declaration_name"]
+            in errors
         )
 
     def test_decision_grade_presentation_is_a_content_bound_non_status_taxonomy(
@@ -1412,10 +1269,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         """Admit the owner-derived map without treating it as frontend authority."""
         inventory, _debt = _artifacts()
         scan = checker._scan()
-        finding = (
-            "unregistered_semantic_definition:"
-            "decisionGradePresentationByOwnerGrade"
-        )
+        finding = "unregistered_semantic_definition:decisionGradePresentationByOwnerGrade"
 
         self.assertNotIn(  # noqa: PT009
             finding, checker._validate_semantic_candidates(inventory, scan)
@@ -1423,8 +1277,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         row = next(
             candidate
             for candidate in inventory["semantic_exemptions"]
-            if candidate["candidate_id"]
-            == "semantic-decision-grade-presentation"
+            if candidate["candidate_id"] == "semantic-decision-grade-presentation"
         )
         self.assertEqual("non_status_taxonomy", row["disposition"])  # noqa: PT009
         self.assertTrue(row["does_not_change_ds1_denominator"])  # noqa: PT009
@@ -1434,8 +1287,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             next(
                 candidate
                 for candidate in missing["semantic_exemptions"]
-                if candidate["candidate_id"]
-                == "semantic-decision-grade-presentation"
+                if candidate["candidate_id"] == "semantic-decision-grade-presentation"
             )
         )
         self.assertIn(  # noqa: PT009
@@ -1446,8 +1298,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         drifted_row = next(
             candidate
             for candidate in drifted["semantic_exemptions"]
-            if candidate["candidate_id"]
-            == "semantic-decision-grade-presentation"
+            if candidate["candidate_id"] == "semantic-decision-grade-presentation"
         )
         drifted_row["literal_members"] = ["unsupported"]
         self.assertIn(  # noqa: PT009
@@ -1472,9 +1323,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             fact.get("declarationName") or fact.get("fieldName")
             for fact in scan["authorityCandidates"]
         }
-        self.assertEqual(
-            {"ConfidenceLadderRung", "RunBadgeKind", "severity"}, candidates
-        )
+        assert {"ConfidenceLadderRung", "RunBadgeKind", "severity"} == candidates
 
     def test_scan_rejects_authority_like_function_and_method_return_unions(
         self,
@@ -1497,14 +1346,8 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             live_probes=False,
         )
 
-        self.assertIn(
-            "unregistered_semantic_definition:projectionVerdict",
-            errors,
-        )
-        self.assertIn(
-            "unregistered_semantic_definition:authorityTone",
-            errors,
-        )
+        assert "unregistered_semantic_definition:projectionVerdict" in errors
+        assert "unregistered_semantic_definition:authorityTone" in errors
 
     def test_live_scan_rejects_an_interaction_state_reaching_an_authority_slot(
         self,
@@ -1520,7 +1363,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
 
         errors = checker._validate_live_scan(inventory, scan)
 
-        self.assertIn("interaction_state_reaches_authority_slot:liveLeak.ts", errors)
+        assert "interaction_state_reaches_authority_slot:liveLeak.ts" in errors
 
     def test_scan_rejects_a_nullable_semantic_string_vocabulary(self) -> None:
         inventory, debt = _artifacts()
@@ -1536,10 +1379,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             live_probes=False,
         )
 
-        self.assertIn(
-            "unregistered_status_definition:nullableGrade.ts:DecisionGrade",
-            errors,
-        )
+        assert "unregistered_status_definition:nullableGrade.ts:DecisionGrade" in errors
 
     def test_scan_rejects_an_as_const_semantic_vocabulary(self) -> None:
         inventory, debt = _artifacts()
@@ -1549,17 +1389,13 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             debt,
             source_overrides={
                 "apps/runtime-dashboard/src/shared/lib/domain/gradeVocabulary.ts": (
-                    "export const DecisionGradeVocabulary = "
-                    '["pass", "fail"] as const;\n'
+                    'export const DecisionGradeVocabulary = ["pass", "fail"] as const;\n'
                 )
             },
             live_probes=False,
         )
 
-        self.assertIn(
-            "unregistered_semantic_definition:DecisionGradeVocabulary",
-            errors,
-        )
+        assert "unregistered_semantic_definition:DecisionGradeVocabulary" in errors
 
     def test_scan_rejects_aliased_interaction_factory_and_authority_sink(self) -> None:
         inventory, debt = _artifacts()
@@ -1579,10 +1415,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             live_probes=False,
         )
 
-        self.assertIn(
-            "interaction_state_reaches_authority_slot:aliasedLeak.ts",
-            errors,
-        )
+        assert "interaction_state_reaches_authority_slot:aliasedLeak.ts" in errors
 
     def test_scan_rejects_an_interaction_state_returned_by_a_helper(self) -> None:
         inventory, debt = _artifacts()
@@ -1603,23 +1436,16 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             live_probes=False,
         )
 
-        self.assertIn(
-            "interaction_state_reaches_authority_slot:helperLeak.ts",
-            errors,
-        )
+        assert "interaction_state_reaches_authority_slot:helperLeak.ts" in errors
 
     def test_summary_counts_only_live_semantic_retirement_debt(self) -> None:
         inventory, debt = _artifacts()
         expected = sum(
-            row["disposition"] == "retirement_debt"
-            and row["current_definition_state"] == "present"
+            row["disposition"] == "retirement_debt" and row["current_definition_state"] == "present"
             for row in inventory["semantic_exemptions"]
         )
 
-        self.assertEqual(
-            expected,
-            checker._summary(inventory, debt)["semantic_retirement_debt"],
-        )
+        assert expected == checker._summary(inventory, debt)["semantic_retirement_debt"]
 
 
 if __name__ == "__main__":  # pragma: no cover

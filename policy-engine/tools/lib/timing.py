@@ -18,12 +18,45 @@ from inspect import signature
 from pathlib import Path, PurePosixPath
 from statistics import fmean
 
-from .fs import atomic_write_text
+from .fs import (
+    SecureOutputRoot,
+    active_secure_output_root,
+    atomic_write_text,
+    bind_secure_output_root,
+)
 from .runner import ToolSpec
 
 DEFAULT_TIMING_LOG_ENV = "POLISYOS_TOOLS_TIMING_LOG"
 DEFAULT_TIMING_RETENTION_ENV = "POLISYOS_TOOLS_TIMING_RETENTION"
 DEFAULT_TIMING_REGIME_ENV = "POLISYOS_TOOLS_TIMING_REGIME"
+
+
+@contextmanager
+def bind_cli_output_scope(output_root: SecureOutputRoot) -> Iterator[SecureOutputRoot]:
+    """Bind CLI reports and timing sinks to one native output lifecycle.
+
+    The native run owns its timing log and lock below the admitted root. Existing
+    caller environment values are restored after the producer returns.
+    """
+    timing_log = output_root.root / ".polisyos-tools" / "timing.jsonl"
+    lock_path = timing_log.with_name(f".{timing_log.name}.lock")
+    output_root.ensure_directory(timing_log.parent)
+    output_root.claim_shared_leaf(timing_log)
+    output_root.claim_shared_leaf(lock_path)
+    scope_environment = output_root.inherited_scope_environment()
+    scope_environment[DEFAULT_TIMING_LOG_ENV] = str(timing_log)
+    previous = {key: os.environ.get(key) for key in scope_environment}
+    try:
+        os.environ.update(scope_environment)
+        with bind_secure_output_root(output_root):
+            yield output_root
+    finally:
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
+
 
 # This log is diagnostic evidence, not scratch: it is the only thing that distinguishes a slow
 # environment from a producer regression, and a budget derived without it is a guess paid for by
@@ -241,7 +274,7 @@ def load_healthy_terminal_declarations(
     for path in sorted(root.rglob("*.py")):
         try:
             source = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
+        except OSError, UnicodeDecodeError:
             continue
         if HEALTHY_TERMINAL_DECLARATION_NAME not in source:
             continue
@@ -350,9 +383,7 @@ class PytestWorkloadIdentity:
 def pytest_node_map_digest(node_ids_by_path: Mapping[str, Sequence[str]]) -> str:
     """Hash a complete ordered path-to-pytest-node map without a scalar denominator."""
 
-    canonical = {
-        path: list(node_ids_by_path[path]) for path in sorted(node_ids_by_path)
-    }
+    canonical = {path: list(node_ids_by_path[path]) for path in sorted(node_ids_by_path)}
     encoded = json.dumps(
         canonical,
         ensure_ascii=False,
@@ -373,8 +404,7 @@ def _validate_pytest_workload_identity(identity: PytestWorkloadIdentity) -> None
     if (
         not expected_paths
         or any(
-            not _is_safe_relative_path(path) or not path.endswith(".py")
-            for path in expected_paths
+            not _is_safe_relative_path(path) or not path.endswith(".py") for path in expected_paths
         )
         or len(expected_paths) != len(set(expected_paths))
     ):
@@ -389,9 +419,8 @@ def _validate_pytest_workload_identity(identity: PytestWorkloadIdentity) -> None
     ):
         raise ValueError("pytest workload identity must digest every selected source exactly once")
     source_digest_paths = tuple(path for path, _ in source_digest_entries)
-    if (
-        len(source_digest_paths) != len(set(source_digest_paths))
-        or set(source_digest_paths) != set(expected_paths)
+    if len(source_digest_paths) != len(set(source_digest_paths)) or set(source_digest_paths) != set(
+        expected_paths
     ):
         raise ValueError("pytest workload identity must digest every selected source exactly once")
     if not isinstance(identity.pytest_version, str) or not identity.pytest_version.strip():
@@ -635,10 +664,15 @@ def _coerce_record(payload: dict[str, object]) -> ToolRunRecord:
 
 
 def read_timing_records(path: Path) -> list[ToolRunRecord]:
-    if not path.exists():
-        return []
+    output_root = active_secure_output_root()
+    if output_root is None:
+        if not path.exists():
+            return []
+        raw_text = path.read_text(encoding="utf-8")
+    else:
+        raw_text = output_root.read_owned_text(path, encoding="utf-8")
     records: list[ToolRunRecord] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
+    for line in raw_text.splitlines():
         rendered = line.strip()
         if not rendered:
             continue
@@ -656,9 +690,14 @@ def read_timing_records(path: Path) -> list[ToolRunRecord]:
 
 
 def append_timing_record(path: Path, record: ToolRunRecord) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
+    output_root = active_secure_output_root()
     lock_path = path.with_name(f".{path.name}.lock")
-    with lock_path.open("a+b") as lock_handle:
+    if output_root is None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        lock_handle = lock_path.open("a+b")
+    else:
+        lock_handle = output_root.open_owned_binary(lock_path)
+    with lock_handle:
         fcntl.flock(lock_handle.fileno(), fcntl.LOCK_EX)
         try:
             records = read_timing_records(path)
@@ -829,9 +868,7 @@ def _timing_budget_lane_from_data(payload: object) -> TimingBudgetLane:
         measured_p95_ms=measured_p95_ms,
         recommended_timeout_ms=recommended_timeout_ms,
         source_refs=tuple(source_refs_data),
-        workload_identity=_pytest_workload_identity_from_data(
-            payload.get("workload_identity")
-        ),
+        workload_identity=_pytest_workload_identity_from_data(payload.get("workload_identity")),
         sample_admission_predicate=predicate,
         regime=regime,
         ceiling_is_declared=not samples_ms,

@@ -55,8 +55,17 @@ Excluded from bulk sweeps:
 
 - Python
   Canonical tools: `ruff check`, `ruff format`, `mypy`, `basedpyright`.
-  Current policy: `ruff` is repo-wide for authored Python. `mypy` and
-  `basedpyright` stay curated/ratcheted. Phase 3 serializes the base package
+  Current policy: the generated root Ruff config excludes Phase 8 benchmark/research
+  sources and historical evidence snapshots; those are routed to their own native
+  commands. The three workspace routes enumerate current tracked and nonignored
+  `.py`/`.pyi` files from their declared role roots and pass explicit paths to Ruff.
+  The evidence role also includes the tracked Q2 packaging consumer subtree under
+  `LOCAL/q2-packaging/raw`; other ignored raw snapshots stay excluded. Empty role
+  selection fails closed. `ruff check .` is a discovery audit, not a substitute for
+  these composed scopes. Atlas source-check tests use an exact
+`architecture/atlas_surfaces/test_*.py` S101 allowance because their assertions are
+semantic probes; sibling scripts remain checked. `mypy` and `basedpyright` stay
+  curated/ratcheted. Phase 3 serializes the base package
   foundation as `common -> ir -> core` and exposes it through
   `workspace python-base-mypy` and `workspace python-base-basedpyright`.
 
@@ -145,14 +154,15 @@ ratchet entry in this status board and
 | Status | Directory Surface | Gate Contract | Notes |
 | ------ | ----------------- | ------------- | ----- |
 | green | `docs/**`, top-level authored Markdown, package READMEs | `workspace docs-style` | `docs/archive/**` remains excluded from authored markdown waves. |
-| green | Python formatting across authored scope | `workspace format-check` / `ruff format --check` | Formatting includes product, tests, tools, benchmarks, schemas, scripts, examples, and root helpers. |
+| in scope | Python formatting across authored scope | `workspace format-check` / `ruff format --check` | Covers product, tests, tools, architecture, applications, nested worker/oracle packages, benchmarks, schemas, examples, and root helpers; active evidence scripts have an explicit scope. |
 | green | `src/polisyos/common`, `src/polisyos/ir`, `src/polisyos/core` | `workspace python-base-mypy`, `workspace python-base-basedpyright` | Base layers stay serial and ratcheted by explicit mypy/basedpyright ledgers. |
 | green | `src/polisyos/runtime`, `tests/unit/runtime` | `workspace runtime-surface` | Runtime API/client drift is part of the owning surface. |
 | green | frontend workspaces | `corepack pnpm -C policy-engine lint`, `corepack pnpm -C policy-engine typecheck`, and workspace-local architecture gates | Covers dashboard, runtime API client, reference shell, and CLI. |
 | ratcheted | `src/polisyos/calibration`, `src/polisyos/foundry/agent_sim/world` | `workspace lint-fast` with explicit Ruff per-file ignores | Historical annotation/import-line debt is ledgered in `pyproject.toml`. |
 | ratcheted | `tools/lib`, `tools/devx/**`, `tools/ops_runners/**`, `tools/quality/**`, root helper scripts | `workspace lint-fast` with explicit Ruff per-file ignores | Existing command/script debt is visible as directory-level ratchet entries, not global ignores. |
 | ratcheted | `tests/**` support and smoke suites | `workspace lint-fast` with test-specific Ruff policy | Tests keep looser security/assert/type-import policy while source surfaces tighten first. |
-| phase8-limited | `benchmarks/**`, `tools/research/benchmarks/**`, `tools/research/demos/**`, `tools/research/**` | `workspace benchmark-surfaces` | Uses the Phase 8 limited Python/shell/YAML contract; nested `benchmarks` directories under `src/polisyos` or `tests` remain in `lint-fast`. |
+| phase8-limited | `benchmarks/**`, `tools/research/**` | `workspace benchmark-surfaces` | Uses the Phase 8 limited Python/shell/YAML contract; its explicit paths remain linted even though default root discovery excludes this separate rule profile. |
+| evidence-tools | Current E02 handoff/plan scripts and named research census tools | `workspace lint-fast` and `workspace format-check` | Exact role roots live in `tools/devx/workspace/_repo_hygiene.py`; archived handoff copies and journal probes remain preserved as evidence, outside executable-source Ruff. |
 | pending | Full removal of Ruff ratchet entries | Directory-by-directory owner work | New debt must be added only as a named ratchet entry with owner context. |
 
 ## Mypy Policy
@@ -229,7 +239,8 @@ normalize `policy-engine/` paths to the Git root before invoking hooks, so the
 same config works from local scripts and CI:
 
 - trailing whitespace and EOF hygiene
-- `ruff` + `ruff-format` on changed Python files
+- `ruff` on changed strict-source and maintained evidence Python; `ruff-format` on changed Python,
+  including Phase 8. Phase 8 lint runs through `workspace benchmark-surfaces` in CI and local gates.
 - `markdownlint-cli2` on changed authored markdown
 - `check-yaml` + `yamllint` on changed plain YAML (Helm `templates/**` and chart tests stay chart-aware)
 - `shfmt` + `shellcheck` on changed shell scripts

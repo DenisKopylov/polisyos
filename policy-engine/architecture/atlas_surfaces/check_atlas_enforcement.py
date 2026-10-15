@@ -25,6 +25,19 @@ import yaml
 
 from tools.lib.fs import measure_file_reads, measured_read_text
 
+
+def _resolve_executable(command: str) -> str:
+    """Resolve a configured executable once without changing PATH lookup order."""
+    resolved = shutil.which(command)
+    return str(Path(resolved).resolve()) if resolved is not None else command
+
+
+def _emit_cli(value: object, *, stderr: bool = False) -> None:
+    """Write one print-compatible CLI value and its default trailing newline."""
+    stream = sys.stderr if stderr else sys.stdout
+    stream.write(str(value) + "\n")
+
+
 ATLAS_DIR = Path(__file__).resolve().parent
 STATUS_CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
 DISPOSITION_CHECKER_PATH = ATLAS_DIR / "check_frontend_disposition_register.py"
@@ -34,9 +47,7 @@ QUERY_CACHE_POLICY_REGISTER_PATH = ATLAS_DIR / "query-cache-policy-register.json
 QUERY_CACHE_POLICY_SCHEMA_PATH = ATLAS_DIR / "query-cache-policy-register.schema.json"
 SLICE_SCOPE_OBLIGATIONS_PATH = ATLAS_DIR / "slice-scope-obligations.json"
 SLICE_SCOPE_OBLIGATIONS_SCHEMA_PATH = ATLAS_DIR / "slice-scope-obligations.schema.json"
-AUTHORITY_SEMANTIC_COPY_PATH = (
-    "apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.ts"
-)
+AUTHORITY_SEMANTIC_COPY_PATH = "apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.ts"
 GENERATED_RUNTIME_TYPES_PATH = ATLAS_DIR.parents[1] / "packages/runtime-api-client/types.ts"
 
 _CAPABILITY_DISCOVERY_RENDER_PROBE = r"""
@@ -869,8 +880,10 @@ const checker = program.getTypeChecker();
 const issuer = program.getSourceFile(request.issuerPath);
 const file = node => node.getSourceFile().fileName;
 const sameFile = (node, path) => Boolean(node) && file(node) === path;
-""" "const statement = (name, guard) => issuer.statements.find("
-"node => guard(node) && node.name?.text === name);" """
+"""
+    "const statement = (name, guard) => issuer.statements.find("
+    "node => guard(node) && node.name?.text === name);"
+    """
 const typeAlias = name => statement(name, ts.isTypeAliasDeclaration);
 const functionDecl = name => statement(name, ts.isFunctionDeclaration);
 const variableDecl = name => {
@@ -882,8 +895,10 @@ const variableDecl = name => {
   }
 };
 const moduleSymbol = checker.getSymbolAtLocation(issuer);
-""" "const exports = moduleSymbol ? checker.getExportsOfModule(moduleSymbol)"
-".map(symbol => symbol.getName()).sort() : [];" """
+"""
+    "const exports = moduleSymbol ? checker.getExportsOfModule(moduleSymbol)"
+    ".map(symbol => symbol.getName()).sort() : [];"
+    """
 const brand = variableDecl("authoritySemanticCopyBrand");
 const store = variableDecl("issuedAuthoritySemanticCopies");
 const issuerFactory = functionDecl("issueAuthoritySemanticCopy");
@@ -892,25 +907,35 @@ const closedFactory = functionDecl("presentSemanticCopy");
 const tokenAlias = typeAlias("MayNotUseForOwnerToken");
 const returnSymbol = factory?.type && ts.isTypeReferenceNode(factory.type)
   ? checker.getSymbolAtLocation(factory.type.typeName) : undefined;
-""" "const parameterSymbol = factory?.parameters[0]?.type && "
-"ts.isTypeReferenceNode(factory.parameters[0].type)" """
+"""
+    "const parameterSymbol = factory?.parameters[0]?.type && "
+    "ts.isTypeReferenceNode(factory.parameters[0].type)"
+    """
   ? checker.getSymbolAtLocation(factory.parameters[0].type.typeName) : undefined;
 const tokenObject = tokenAlias?.type && ts.isIndexedAccessTypeNode(tokenAlias.type)
-""" "  && ts.isIndexedAccessTypeNode(tokenAlias.type.objectType) ? "
-"tokenAlias.type.objectType.objectType : undefined;" """
+"""
+    "  && ts.isIndexedAccessTypeNode(tokenAlias.type.objectType) ? "
+    "tokenAlias.type.objectType.objectType : undefined;"
+    """
 let generatedSymbol = tokenObject && ts.isTypeReferenceNode(tokenObject)
   ? checker.getSymbolAtLocation(tokenObject.typeName) : undefined;
-""" "if (generatedSymbol && generatedSymbol.flags & ts.SymbolFlags.Alias) "
-"generatedSymbol = checker.getAliasedSymbol(generatedSymbol);" """
+"""
+    "if (generatedSymbol && generatedSymbol.flags & ts.SymbolFlags.Alias) "
+    "generatedSymbol = checker.getAliasedSymbol(generatedSymbol);"
+    """
 const generatedType = tokenObject ? checker.getTypeAtLocation(tokenObject) : undefined;
-""" "const field = generatedType ? checker.getPropertyOfType(generatedType, "
-"\"may_not_use_for\") : undefined;" """
+"""
+    "const field = generatedType ? checker.getPropertyOfType(generatedType, "
+    '"may_not_use_for") : undefined;'
+    """
 const storeSymbol = store ? checker.getSymbolAtLocation(store.name) : undefined;
 const localDeclaration = (functionNode, name) => {
   let found;
   function visit(node) {
-""" "    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && "
-"node.name.text === name) found = node;" """
+"""
+    "    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && "
+    "node.name.text === name) found = node;"
+    """
     ts.forEachChild(node, visit);
   }
   if (functionNode) ts.forEachChild(functionNode.body, visit);
@@ -918,14 +943,18 @@ const localDeclaration = (functionNode, name) => {
 };
 const issued = localDeclaration(issuerFactory, "issued");
 const issuedSymbol = issued ? checker.getSymbolAtLocation(issued.name) : undefined;
-""" "const sameIssued = node => Boolean(ts.isIdentifier(node) && "
-"checker.getSymbolAtLocation(node) === issuedSymbol);" """
+"""
+    "const sameIssued = node => Boolean(ts.isIdentifier(node) && "
+    "checker.getSymbolAtLocation(node) === issuedSymbol);"
+    """
 const standardMember = (call, expectedName) => {
   if (!ts.isCallExpression(call) || !ts.isPropertyAccessExpression(call.expression)) return false;
   const member = checker.getSymbolAtLocation(call.expression.name);
-""" "  return Boolean(member?.getName() === expectedName && "
-"member.valueDeclaration && file(member.valueDeclaration).includes("
-"\"/typescript/lib/\"));" """
+"""
+    "  return Boolean(member?.getName() === expectedName && "
+    "member.valueDeclaration && file(member.valueDeclaration).includes("
+    '"/typescript/lib/"));'
+    """
 };
 const initializedFrozen = Boolean(issued && standardMember(issued.initializer, "freeze"));
 let addedIssued = false;
@@ -935,36 +964,50 @@ let returnCount = 0;
 function inspectConstruction(node) {
   if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
     const receiver = checker.getSymbolAtLocation(node.expression.expression);
-""" "    if (receiver === storeSymbol && standardMember(node, \"add\") && "
-"sameIssued(node.arguments[0])) addedIssued = true;" """
+"""
+    '    if (receiver === storeSymbol && standardMember(node, "add") && '
+    "sameIssued(node.arguments[0])) addedIssued = true;"
+    """
   }
   if (ts.isReturnStatement(node)) {
     returnCount += 1;
     if (sameIssued(node.expression)) returnedIssued = true;
   }
-""" "  if (ts.isBinaryExpression(node) && node.operatorToken.kind === "
-"ts.SyntaxKind.EqualsToken && sameIssued(node.left)) reassignedIssued = true;" """
+"""
+    "  if (ts.isBinaryExpression(node) && node.operatorToken.kind === "
+    "ts.SyntaxKind.EqualsToken && sameIssued(node.left)) reassignedIssued = true;"
+    """
   ts.forEachChild(node, inspectConstruction);
 }
 if (issuerFactory) inspectConstruction(issuerFactory.body);
-""" "const canonicalConstruction = initializedFrozen && addedIssued && "
-"returnedIssued && returnCount === 1 && !reassignedIssued;" """
-""" "const aliasDeclarations = symbol => symbol ? symbol.declarations.map("
-"declaration => file(declaration)).sort() : [];" """
+"""
+    "const canonicalConstruction = initializedFrozen && addedIssued && "
+    "returnedIssued && returnCount === 1 && !reassignedIssued;"
+    """
+"""
+    "const aliasDeclarations = symbol => symbol ? symbol.declarations.map("
+    "declaration => file(declaration)).sort() : [];"
+    """
 process.stdout.write(JSON.stringify({
-""" "  compilerDiagnostics: ts.getPreEmitDiagnostics(program).filter("
-"diagnostic => diagnostic.file?.fileName === request.issuerPath)"
-".map(diagnostic => diagnostic.code)," """
+"""
+    "  compilerDiagnostics: ts.getPreEmitDiagnostics(program).filter("
+    "diagnostic => diagnostic.file?.fileName === request.issuerPath)"
+    ".map(diagnostic => diagnostic.code),"
+    """
   exports,
-""" "  brandPrivateUnique: Boolean(brand && brand.type && "
-"ts.isTypeOperatorNode(brand.type) && brand.type.operator === "
-"ts.SyntaxKind.UniqueKeyword && !issuer.statements.some(node => node === "
-"brand.parent?.parent && ts.getCombinedModifierFlags(node) & "
-"ts.ModifierFlags.Export))," """
+"""
+    "  brandPrivateUnique: Boolean(brand && brand.type && "
+    "ts.isTypeOperatorNode(brand.type) && brand.type.operator === "
+    "ts.SyntaxKind.UniqueKeyword && !issuer.statements.some(node => node === "
+    "brand.parent?.parent && ts.getCombinedModifierFlags(node) & "
+    "ts.ModifierFlags.Export)),"
+    """
   brandPath: brand ? file(brand) : null,
-""" "  storePrivate: Boolean(store && !issuer.statements.some(node => "
-"node === store.parent?.parent && ts.getCombinedModifierFlags(node) & "
-"ts.ModifierFlags.Export))," """
+"""
+    "  storePrivate: Boolean(store && !issuer.statements.some(node => "
+    "node === store.parent?.parent && ts.getCombinedModifierFlags(node) & "
+    "ts.ModifierFlags.Export)),"
+    """
   canonicalConstruction,
   factoryReturnDeclarations: aliasDeclarations(returnSymbol),
   factoryParameterDeclarations: aliasDeclarations(parameterSymbol),
@@ -1386,9 +1429,7 @@ AUTHORITY_ESCAPE_EXEMPTIONS: tuple[AuthorityEscapeExemption, ...] = (
 AUTHORITY_PATH_EXPECTED_COUNT = 17
 CAPABILITY_DISCOVERY_OWNER_PATH = "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts"
 CAPABILITY_DISCOVERY_ISSUER_CALLS = 5
-QUERY_CACHE_POLICY_TARGET_PATH = (
-    "apps/runtime-dashboard/src/api/governedQueryPolicy.ts"
-)
+QUERY_CACHE_POLICY_TARGET_PATH = "apps/runtime-dashboard/src/api/governedQueryPolicy.ts"
 QUERY_CACHE_POLICY_DENOMINATORS = {
     "query_key_owners": 43,
     "constructions": 66,
@@ -1931,9 +1972,7 @@ def _python_feature_contributors(
             if target_path and exported:
                 target_scope = trees[target_path]
                 if _python_lookup_binding(target_path, target_scope, exported, trees) is None:
-                    contributors.add(
-                        f"unresolved_manifest_features:{root_ref}:{qualified}"
-                    )
+                    contributors.add(f"unresolved_manifest_features:{root_ref}:{qualified}")
                 else:
                     contributors.update(
                         _python_feature_contributors(
@@ -2353,7 +2392,8 @@ def _query_cache_policy_identity_matches(
     target: Mapping[str, Any],
 ) -> bool:
     """Return whether one direct-site row is the immutable governed target."""
-    def matches(value: Any, expected: Any) -> bool:
+
+    def matches(value: object, expected: object) -> bool:
         if isinstance(expected, Mapping):
             return isinstance(value, Mapping) and all(
                 key in value and matches(value[key], nested_expected)
@@ -2375,9 +2415,7 @@ def _query_cache_policy_target_identity_errors(
     """Require exactly one source-bound governed row and all other rows as debt."""
     at_target_path = [row for row in identity_rows if row.get("path") == target["path"]]
     exact = [row for row in identity_rows if _query_cache_policy_identity_matches(row, target)]
-    governed = [
-        row for row in rows if row.get("classification") == "governed_wrapper"
-    ]
+    governed = [row for row in rows if row.get("classification") == "governed_wrapper"]
     debt = [row for row in rows if row.get("classification") == "legacy_direct_debt"]
     errors: list[str] = []
     if len(at_target_path) != 1 or len(exact) != 1:
@@ -2546,17 +2584,13 @@ def _persistence_construction_errors(
                 "site_fingerprint": factory_call.get("siteSha256"),
             }
         )
-    live_factory_ids = [
-        str(row.get("factory_site_id")) for row in normalized_factories
-    ]
+    live_factory_ids = [str(row.get("factory_site_id")) for row in normalized_factories]
     errors.extend(
         f"persistence_authority_factory_duplicate:{factory_id}"
         for factory_id, count in Counter(live_factory_ids).items()
         if count > 1
     )
-    live_factories = {
-        str(row.get("factory_site_id")): row for row in normalized_factories
-    }
+    live_factories = {str(row.get("factory_site_id")): row for row in normalized_factories}
     governed_factory_rows = census.get("authority_factory_receipts")
     governed_factories = (
         {
@@ -2594,9 +2628,7 @@ def _persistence_construction_errors(
     return sorted(set(errors))
 
 
-def _offline_queue_errors(
-    scan: Mapping[str, Any], *, enforce_denominator: bool
-) -> list[str]:
+def _offline_queue_errors(scan: Mapping[str, Any], *, enforce_denominator: bool) -> list[str]:
     """Reject any durable authority-action replay while retaining composer drafts."""
     facts = scan.get("offlineQueueFacts")
     if not isinstance(facts, Mapping):
@@ -2612,7 +2644,10 @@ def _offline_queue_errors(
         return ["offline_queue_facts_invalid"]
 
     errors: list[str] = []
-    if enforce_denominator and facts.get("productionFiles") != OFFLINE_QUEUE_PRODUCTION_SOURCE_COUNT:
+    if (
+        enforce_denominator
+        and facts.get("productionFiles") != OFFLINE_QUEUE_PRODUCTION_SOURCE_COUNT
+    ):
         errors.append("offline_queue_production_source_denominator_drift")
     for table, prefix in (
         ("authorityActionKinds", "offline_queue_authority_action_kind"),
@@ -2923,9 +2958,7 @@ def _enforcement_scan(
     if not isinstance(scan.get("offlineQueueFacts"), Mapping):
         raise RuntimeError("status TypeScript scan returned invalid offlineQueueFacts")
     if not isinstance(scan.get("persistenceConstructionFacts"), Mapping):
-        raise RuntimeError(
-            "status TypeScript scan returned invalid persistenceConstructionFacts"
-        )
+        raise RuntimeError("status TypeScript scan returned invalid persistenceConstructionFacts")
     if not isinstance(scan.get("authzDecisionFacts"), Mapping):
         raise RuntimeError("status TypeScript scan returned invalid authzDecisionFacts")
     return scan
@@ -2966,14 +2999,12 @@ def _authz_default_allow_errors(scan: Mapping[str, Any]) -> list[str]:
     for identity, count in sorted((live - expected).items()):
         path, kind, fingerprint = identity
         errors.extend(
-            f"authz_default_allow_unclassified:{path}:{kind}:{fingerprint}"
-            for _ in range(count)
+            f"authz_default_allow_unclassified:{path}:{kind}:{fingerprint}" for _ in range(count)
         )
     for identity, count in sorted((expected - live).items()):
         path, kind, fingerprint = identity
         errors.extend(
-            f"authz_default_allow_deferred_drift:{path}:{kind}:{fingerprint}"
-            for _ in range(count)
+            f"authz_default_allow_deferred_drift:{path}:{kind}:{fingerprint}" for _ in range(count)
         )
     return errors
 
@@ -3086,8 +3117,8 @@ def _semantic_copy_declaration_facts(
     """Run a bounded TypeScript declaration proof over the exact issuer and DTO."""
     issuer_path = status_checker.REPO_ROOT / AUTHORITY_SEMANTIC_COPY_PATH
     try:
-        completed = subprocess.run(
-            ["node", "-e", _SEMANTIC_COPY_DECLARATION_PROBE],
+        completed = subprocess.run(  # noqa: S603 - fixed Node probe; JSON inputs use stdin; shell=False
+            [_resolve_executable("node"), "-e", _SEMANTIC_COPY_DECLARATION_PROBE],
             cwd=status_checker.REPO_ROOT / "apps/runtime-dashboard",
             input=json.dumps(
                 {
@@ -3158,7 +3189,7 @@ def _authority_semantic_copy_errors(
 
     copies = registry.get("copies")
     if not isinstance(copies, list):
-        return sorted(set([*errors, "authority_semantic_copy_rows_invalid"]))
+        return sorted({*errors, "authority_semantic_copy_rows_invalid"})
     if registry.get("capability_state") != "consumer_missing":
         errors.append("authority_semantic_copy_capability_state_drift")
 
@@ -3185,9 +3216,10 @@ def _authority_semantic_copy_errors(
             errors.append("authority_semantic_copy_strength_upgrade")
         output = copy_row.get("reviewed_output")
         content_hash = copy_row.get("content_sha256")
-        if not isinstance(output, str) or content_hash != "sha256:" + hashlib.sha256(
-            output.encode("utf-8")
-        ).hexdigest():
+        if (
+            not isinstance(output, str)
+            or content_hash != "sha256:" + hashlib.sha256(output.encode("utf-8")).hexdigest()
+        ):
             errors.append("authority_semantic_copy_content_hash_drift")
         if copy_row.get("active") is True:
             key = (
@@ -3201,8 +3233,8 @@ def _authority_semantic_copy_errors(
         if review.get("status") == "accepted":
             accepted_receipts += 1
         elif review.get("status") == "verification_missing":
-            expected_scope = "authority-copy." + str(copy_row.get("locale")) + "." + str(
-                copy_row.get("scope")
+            expected_scope = (
+                "authority-copy." + str(copy_row.get("locale")) + "." + str(copy_row.get("scope"))
             )
             if (
                 review.get("reviewer_identity") != "external-reviewer:unreceived"
@@ -3218,9 +3250,9 @@ def _authority_semantic_copy_errors(
 def _authority_semantic_copy_runtime_errors() -> list[str]:
     """Execute the issuer's real runtime witnesses without modeling value flow."""
     try:
-        completed = subprocess.run(
+        completed = subprocess.run(  # noqa: S603 - resolved toolchain; fixed pnpm test argv; shell=False
             [
-                "corepack",
+                _resolve_executable("corepack"),
                 "pnpm",
                 "exec",
                 "vitest",
@@ -3245,9 +3277,9 @@ def _authority_semantic_copy_runtime_errors() -> list[str]:
 def _authority_local_state_runtime_errors() -> list[str]:
     """Execute the scoped local-state envelope witnesses through the real dashboard runtime."""
     try:
-        completed = subprocess.run(
+        completed = subprocess.run(  # noqa: S603 - resolved toolchain; fixed pnpm test argv; shell=False
             [
-                "corepack",
+                _resolve_executable("corepack"),
                 "pnpm",
                 "exec",
                 "vitest",
@@ -3290,9 +3322,7 @@ def _tracked_atlas_plan_paths() -> tuple[Path, ...]:
 def _yaml_frontmatter(path: Path) -> Mapping[str, Any] | None:
     """Parse one complete YAML frontmatter block, if the Markdown document has one."""
     source = measured_read_text(path, encoding="utf-8")
-    match = re.match(
-        r"\A---[ \t]*\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|\Z)", source, re.DOTALL
-    )
+    match = re.match(r"\A---[ \t]*\r?\n(.*?)\r?\n---[ \t]*(?:\r?\n|\Z)", source, re.DOTALL)
     if match is None:
         if re.match(r"\A---[ \t]*\r?\n", source):
             raise ValueError("unterminated YAML frontmatter")
@@ -3311,8 +3341,9 @@ def validate_slice_scope_obligations(
 ) -> list[str]:
     """Validate admitted acknowledgements and disclose the unmeasured ownership plane."""
     scope: dict[str, Any] = {
-        "selector": ("complete YAML frontmatter with exact type: slice-plan "
-                     "and manifest target slice"),
+        "selector": (
+            "complete YAML frontmatter with exact type: slice-plan and manifest target slice"
+        ),
         "manifest_input": "supplied_mapping"
         if manifest is not None
         else str(SLICE_SCOPE_OBLIGATIONS_PATH),
@@ -3550,7 +3581,7 @@ def _run_architecture_json(
 ) -> tuple[list[str], dict[str, Any]]:
     """Execute one real architecture engine and parse its structured packet."""
     try:
-        completed = subprocess.run(
+        completed = subprocess.run(  # noqa: S603 - private fixed engine table; argv list; shell=False
             command,
             cwd=cwd,
             check=False,
@@ -3650,17 +3681,12 @@ def _architecture_packet_facts(
             for row in custom_violations
         )
         custom_rules = sorted(
-            str(row.get("rule_id"))
-            for row in custom_violations
-            if isinstance(row, Mapping)
+            str(row.get("rule_id")) for row in custom_violations if isinstance(row, Mapping)
         )
         if not custom_rows_valid:
             errors.append("architecture_engine_violation_invalid:dashboard-custom")
         custom_source_files = custom.get("sourceFiles")
-        if (
-            type(custom_source_files) is not int
-            or custom_source_files <= 0
-        ):
+        if type(custom_source_files) is not int or custom_source_files <= 0:
             errors.append("architecture_engine_source_count_invalid:dashboard-custom")
         expected_custom_return = 1 if custom_violations else 0
         if (
@@ -3678,9 +3704,7 @@ def _architecture_packet_facts(
     dependency_summary = dependency.get("summary")
     dependency_modules = dependency.get("modules")
     dependency_violations = (
-        dependency_summary.get("violations")
-        if isinstance(dependency_summary, Mapping)
-        else None
+        dependency_summary.get("violations") if isinstance(dependency_summary, Mapping) else None
     )
     if (
         not isinstance(dependency_summary, Mapping)
@@ -3701,15 +3725,12 @@ def _architecture_packet_facts(
         dependency_rules = sorted(
             str(rule.get("name"))
             for row in dependency_violations
-            if isinstance(row, Mapping)
-            and isinstance((rule := row.get("rule")), Mapping)
+            if isinstance(row, Mapping) and isinstance((rule := row.get("rule")), Mapping)
         )
         if not dependency_rows_valid:
             errors.append("architecture_engine_violation_invalid:dependency-cruiser")
         module_sources = [
-            module.get("source")
-            for module in dependency_modules
-            if isinstance(module, Mapping)
+            module.get("source") for module in dependency_modules if isinstance(module, Mapping)
         ]
         dependency_containers_valid = all(
             isinstance(module, Mapping)
@@ -3748,12 +3769,8 @@ def _architecture_packet_facts(
             or reported_errors < 0
             or reported_errors != len(dependency_violations)
         ):
-            errors.append(
-                "architecture_engine_reported_error_count_invalid:dependency-cruiser"
-            )
-        if type(dependency.get("returnCode")) is not int or dependency.get(
-            "returnCode"
-        ) != 0:
+            errors.append("architecture_engine_reported_error_count_invalid:dependency-cruiser")
+        if type(dependency.get("returnCode")) is not int or dependency.get("returnCode") != 0:
             errors.append("architecture_engine_return_code_invalid:dependency-cruiser")
         facts["dependency-cruiser"] = {
             "return_code": dependency.get("returnCode"),
@@ -3779,9 +3796,7 @@ def _architecture_packet_facts(
             for row in atlas_violations
         )
         atlas_rules = sorted(
-            str(row.get("rule_id"))
-            for row in atlas_violations
-            if isinstance(row, Mapping)
+            str(row.get("rule_id")) for row in atlas_violations if isinstance(row, Mapping)
         )
         if not atlas_rows_valid:
             errors.append("architecture_engine_violation_invalid:atlas-ui")
@@ -3868,21 +3883,17 @@ def _populate_architecture_fixture(
     write(
         dashboard_root / "src/app/state/store.ts",
         f'{prefix}import {{ provider }} from "../providers/provider";\n'
-        + (
-            "export const store = provider;"
-            if illegal
-            else "export const store = 'store';"
-        ),
+        + ("export const store = provider;" if illegal else "export const store = 'store';"),
     )
     write(
         dashboard_root / "src/cycle/a.ts",
         f'{prefix}import {{ b }} from "./b";\n'
-        + ('export const a = b;' if illegal else 'export const a = "a";'),
+        + ("export const a = b;" if illegal else 'export const a = "a";'),
     )
     write(
         dashboard_root / "src/cycle/b.ts",
         f'{prefix}import {{ a }} from "./a";\n'
-        + ('export const b = a;' if illegal else 'export const b = "b";'),
+        + ("export const b = a;" if illegal else 'export const b = "b";'),
     )
     write(
         atlas_source_root / "index.ts",
@@ -3960,8 +3971,7 @@ def _architecture_recurrence_errors() -> tuple[list[str], dict[str, Any]]:
             "dependency-cruiser": 11,
         }
         if {
-            engine_id: facts.get("source_files")
-            for engine_id, facts in red.items()
+            engine_id: facts.get("source_files") for engine_id, facts in red.items()
         } != expected_source_files:
             errors.append("architecture_corruption_discovery_drift")
         if red.get("dashboard-custom", {}).get("return_code") != 1:
@@ -3990,12 +4000,8 @@ def _architecture_recurrence_errors() -> tuple[list[str], dict[str, Any]]:
         if benign.get("dependency-cruiser", {}).get("reported_errors") != 0:
             errors.append("architecture_benign_graph_red:dependency-cruiser-summary")
 
-    corruption_rejected = not any(
-        error.startswith("architecture_corruption_") for error in errors
-    )
-    benign_accepted = not any(
-        error.startswith("architecture_benign_") for error in errors
-    )
+    corruption_rejected = not any(error.startswith("architecture_corruption_") for error in errors)
+    benign_accepted = not any(error.startswith("architecture_benign_") for error in errors)
     return sorted(set(errors)), {
         "live": live,
         "corruption": red,
@@ -4123,8 +4129,7 @@ def _corruption_probes(
         }
     )
     if scan.get("overrideDiagnostics") or not any(
-        "available_manifest_invalid" in error
-        for error in _capability_discovery_errors(scan)
+        "available_manifest_invalid" in error for error in _capability_discovery_errors(scan)
     ):
         escaped.append("capability-discovery-loading-enabled")
 
@@ -4152,9 +4157,11 @@ def _corruption_probes(
             + "\n",
         }
     )
-    if _capability_discovery_errors(scan) or [
-        item.get("code") for item in scan.get("overrideDiagnostics", [])
-    ] != [2322] or not any(error.endswith(":TS2322") for error in errors):
+    if (
+        _capability_discovery_errors(scan)
+        or [item.get("code") for item in scan.get("overrideDiagnostics", [])] != [2322]
+        or not any(error.endswith(":TS2322") for error in errors)
+    ):
         escaped.append("capability-discovery-benign-and-brand")
 
     python_probe_dir = "src/polisyos/runtime/http/services/control"
@@ -4494,14 +4501,13 @@ def _corruption_probes(
     ):
         escaped.append("query-cache-policy-register")
 
-    query_target_source = (
-        status_checker.REPO_ROOT / QUERY_CACHE_POLICY_TARGET_PATH
-    ).read_text(encoding="utf-8")
+    query_target_source = (status_checker.REPO_ROOT / QUERY_CACHE_POLICY_TARGET_PATH).read_text(
+        encoding="utf-8"
+    )
     query_source_corruptions = (
         query_target_source.replace(
             "  const query = useQuery(options);",
-            "  const duplicateQuery = useQuery(options);\n"
-            "  const query = useQuery(options);",
+            "  const duplicateQuery = useQuery(options);\n  const query = useQuery(options);",
             1,
         ),
         query_target_source.replace(
@@ -4669,9 +4675,7 @@ def _summary(scan: Mapping[str, Any]) -> dict[str, Any]:
             offline_queue_facts.get("authorityActionKinds", [])
         ),
         "offline_queue_mutation_stores": len(offline_queue_facts.get("mutationStores", [])),
-        "offline_queue_replay_declarations": len(
-            offline_queue_facts.get("replayDeclarations", [])
-        ),
+        "offline_queue_replay_declarations": len(offline_queue_facts.get("replayDeclarations", [])),
         "current_authored_statuses": status_summary["current_authored"],
         "ds1_status_rows": status_summary["ds1_rows"],
         "semantic_retirement_debt": status_summary["semantic_retirement_debt"],
@@ -4686,9 +4690,16 @@ def _run_main(argv: Sequence[str] | None, scope_measurement: dict[str, Any]) -> 
     parser.add_argument("--write-query-cache-policy-register", action="store_true")
     args = parser.parse_args(argv)
     errors, scan = validate_enforcement()
-    scope_measurement.update(scan.get("sliceScopeMeasurement", {
-        "unresolved_by_construction": ["Scope receipt unavailable from enforcement producer"],
-    }))
+    scope_measurement.update(
+        scan.get(
+            "sliceScopeMeasurement",
+            {
+                "unresolved_by_construction": [
+                    "Scope receipt unavailable from enforcement producer"
+                ],
+            },
+        )
+    )
     if args.write_query_cache_policy_register:
         try:
             _write_query_cache_policy_register(scan)
@@ -4698,7 +4709,7 @@ def _run_main(argv: Sequence[str] | None, scope_measurement: dict[str, Any]) -> 
     errors.extend(architecture_errors)
     if errors:
         for error in errors:
-            print(error, file=sys.stderr)
+            _emit_cli(error, stderr=True)
         return 1
     if args.corruption_probes:
         escaped = _corruption_probes(
@@ -4706,12 +4717,12 @@ def _run_main(argv: Sequence[str] | None, scope_measurement: dict[str, Any]) -> 
             architecture_receipt=architecture_receipt,
         )
         if escaped:
-            print("corruption probes escaped: " + ", ".join(escaped), file=sys.stderr)
+            _emit_cli("corruption probes escaped: " + ", ".join(escaped), stderr=True)
             return 1
-        print("Atlas enforcement corruption probes: PASS")
+        _emit_cli("Atlas enforcement corruption probes: PASS")
     summary = _summary(scan)
     summary["architecture_recurrence"] = architecture_receipt
-    print(json.dumps(summary, indent=2, sort_keys=True))
+    _emit_cli(json.dumps(summary, indent=2, sort_keys=True))
     return 0
 
 

@@ -84,10 +84,19 @@ rejects duplicate IDs, malformed routes, and unresolved handlers.
 | `uv run polisyos-tools workspace verify --backend-only --skip-doctor`                                                   | Прогнать быстрый backend-only gate после локальных правок.                            | `conceptual` (может занять заметное время)  |
 | `uv run polisyos-tools workspace ci-parity --skip-browser`                                                              | Прогнать umbrella parity pass с docs checks по умолчанию.                             | `conceptual` (тяжёлый агрегирующий gate)    |
 
-`lint-fast` keeps every authored Python file under `src/polisyos/**` and
-`tests/**` in its normal Ruff scope. Its Phase 8 exclusions are rooted at their
-workspace paths, so nested directories named `benchmarks` remain linted there;
-the separate `benchmark-surfaces` gate owns the declared Phase 8 roots.
+`lint-fast` uses the generated root Ruff policy for authored product, test,
+tooling, architecture, application, and nested worker/oracle Python. The active
+E02 evidence-script roots receive the same full Ruff rule set through an
+explicit file-set oracle. That oracle derives its maintained source set from
+the Git index (`git ls-files --cached`), so staged source files are included
+while historical untracked handoff and review records remain preserved outside
+the CI source role. It also admits the tracked Q2 packaging consumer subtree
+under `LOCAL/q2-packaging/raw`; other ignored raw snapshots remain outside the
+role. Empty selections fail closed. Phase 8 exclusions are rooted at their
+workspace paths, so nested
+`benchmarks` under `src/polisyos` or `tests` remain in the strict scope; the
+separate `benchmark-surfaces` gate owns top-level `benchmarks/**` and
+`tools/research/**`. CI composes both commands with `format-check`.
 
 ## Test And Verification
 

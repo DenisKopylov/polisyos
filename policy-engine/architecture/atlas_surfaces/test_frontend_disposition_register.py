@@ -32,20 +32,15 @@ def test_ds10_capability_discovery_roots_are_exactly_adjudicated() -> None:
     entries = {row["unit_id"]: row for row in data["entries"]}
     errors: list[str] = []
     checker._validate_ds10_capability_discovery_roots(entries, errors)
-    assert errors == []  # noqa: S101
-    assert len(data["ds8_strangle_coverage"]["assignments"]) == 217  # noqa: S101
+    assert errors == []
+    assert len(data["ds8_strangle_coverage"]["assignments"]) == 217
     successor_refs = {
         ref
         for unit_id in checker.DS10_CAPABILITY_DISCOVERY_ROOTS
         for ref in entries[unit_id].get("successor", {}).get("consumer_refs", [])
     }
-    assert all(  # noqa: S101
-        (checker.REPO_ROOT / ref).is_file() for ref in successor_refs
-    )
-    assert (  # noqa: S101
-        "apps/runtime-dashboard/src/api/hooks/useDataCatalogSearch.ts"
-        not in successor_refs
-    )
+    assert all((checker.REPO_ROOT / ref).is_file() for ref in successor_refs)
+    assert "apps/runtime-dashboard/src/api/hooks/useDataCatalogSearch.ts" not in successor_refs
 
 
 @pytest.mark.parametrize(
@@ -67,13 +62,13 @@ def test_ds10_capability_discovery_roots_reject_governance_binding_drift(
     target: dict[str, object] = corrupted["route-knowledge"]
     for field in field_path[:-1]:
         nested = target[field]
-        assert isinstance(nested, dict)  # noqa: S101
+        assert isinstance(nested, dict)
         target = nested
     target[field_path[-1]] = replacement
 
     errors: list[str] = []
     checker._validate_ds10_capability_discovery_roots(corrupted, errors)
-    assert errors != []  # noqa: S101
+    assert errors != []
 
 
 def test_ds10_writer_emits_five_rebind_five_use_as_is_and_preserves_217_assignments() -> None:
@@ -102,57 +97,52 @@ def test_ds10_writer_emits_five_rebind_five_use_as_is_and_preserves_217_assignme
         opening_text = opening_text[:start] + replacement + opening_text[end:]
 
     candidate = checker._ds10_capability_discovery_candidate_text(opening_text)
-    assert (  # noqa: S101
-        checker._ds10_capability_discovery_candidate_text(candidate) == candidate
-    )
+    assert checker._ds10_capability_discovery_candidate_text(candidate) == candidate
     data = json.loads(candidate)
     ds10 = [row for row in data["entries"] if row["owner_slice"] == "DS10"]
-    assert Counter(row["strangle_status"] for row in ds10) == {  # noqa: S101
+    assert Counter(row["strangle_status"] for row in ds10) == {
         "not_applicable": 5,
         "strangled": 5,
     }
-    assert Counter(row["disposition"] for row in ds10) == {  # noqa: S101
+    assert Counter(row["disposition"] for row in ds10) == {
         "rebind_pending": 5,
         "use_as_is": 5,
     }
-    assert len(data["ds8_strangle_coverage"]["assignments"]) == 217  # noqa: S101
+    assert len(data["ds8_strangle_coverage"]["assignments"]) == 217
 
     corrupted = copy.deepcopy(data)
-    corrupted["ds8_strangle_coverage"]["assignments"][0][
-        "disposition"
-    ] = "new_in_slice"
+    corrupted["ds8_strangle_coverage"]["assignments"][0]["disposition"] = "new_in_slice"
     with pytest.raises(ValueError, match="DS10 writer rejected DS8 drift"):
-        checker._ds10_capability_discovery_candidate_text(
-            json.dumps(corrupted, indent=2) + "\n"
-        )
+        checker._ds10_capability_discovery_candidate_text(json.dumps(corrupted, indent=2) + "\n")
 
 
 def test_ds10_authority_badge_partition_tracks_candidate_grade_surfaces() -> None:
     """Bind every DS10 Badge move without treating candidate clothing as authority."""
     scan = checker._authority_presentation_scan()
 
-    assert checker._badge_classification_errors(scan) == []  # noqa: S101
-    assert checker.AUTHORITY_PRESENTATION_COUNTS["badge_total"] == 172  # noqa: S101
-    assert checker.AUTHORITY_PRESENTATION_COUNTS["badge_benign"] == 107  # noqa: S101
-    assert checker.BENIGN_BADGE_CLASS_COUNTS == {  # noqa: S101
+    assert checker._badge_classification_errors(scan) == []
+    assert checker.AUTHORITY_PRESENTATION_COUNTS["badge_total"] == 172
+    assert checker.AUTHORITY_PRESENTATION_COUNTS["badge_benign"] == 107
+    assert checker.BENIGN_BADGE_CLASS_COUNTS == {
         "interaction_or_editor_state": 14,
         "transport_or_runtime_health": 22,
         "workflow_or_lifecycle_display_without_terminality_inference": 28,
         "layout_or_counts": 19,
         "opaque_metadata_or_taxonomy": 24,
     }
-    assert checker.DS10_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS[  # noqa: S101
-        "dfc72b6a2459a5f1bbae0f083d12aa72bfbd5bf7fbc428729b36504914a27c71"
-    ] == "benign:transport_or_runtime_health"
+    assert (
+        checker.DS10_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS[
+            "dfc72b6a2459a5f1bbae0f083d12aa72bfbd5bf7fbc428729b36504914a27c71"
+        ]
+        == "benign:transport_or_runtime_health"
+    )
 
 
 def test_ds15_authority_badges_bind_rendered_semantics_not_badge_markers() -> None:
     """Adjudicate every DS15 badge and reject an active-state copy upgrade."""
     scan = checker._authority_presentation_scan()
-    assert checker._badge_classification_errors(scan) == []  # noqa: S101
-    assert Counter(  # noqa: S101
-        checker.DS15_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS.values()
-    ) == {
+    assert checker._badge_classification_errors(scan) == []
+    assert Counter(checker.DS15_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS.values()) == {
         "debt:badge-acquisition-boundary-status": 6,
         "benign:interaction_or_editor_state": 1,
         "benign:opaque_metadata_or_taxonomy": 2,
@@ -161,38 +151,32 @@ def test_ds15_authority_badges_bind_rendered_semantics_not_badge_markers() -> No
     }
 
     passport_path = (
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "AcquisitionPassportPanel.tsx"
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionPassportPanel.tsx"
     )
-    sites = [
-        site
-        for site in scan["badgeSites"]
-        if site["path"] == passport_path
-    ]
-    assert len(sites) == 1  # noqa: S101
-    identities = checker._authority_badge_live_identity_by_location(
-        scan["badgeSites"]
-    )
+    sites = [site for site in scan["badgeSites"] if site["path"] == passport_path]
+    assert len(sites) == 1
+    identities = checker._authority_badge_live_identity_by_location(scan["badgeSites"])
     identity = checker._typescript_reference_identity_record(
         identities[checker._site_location(sites[0])]
     )
     source = (checker.REPO_ROOT / passport_path).read_text(encoding="utf-8")
     original = "{qualification.status}"
-    assert original in source  # noqa: S101
+    assert original in source
     upgraded = source.replace(
         original,
         '{qualification.status === "not_established" ? "active" : qualification.status}',
         1,
     )
-    assert checker._validate_typescript_reference_identity(  # noqa: S101
-        identity,
-        {passport_path: upgraded},
-    ) == []
+    assert (
+        checker._validate_typescript_reference_identity(
+            identity,
+            {passport_path: upgraded},
+        )
+        == []
+    )
 
     request = {
-        "authorityPathDescriptors": (
-            checker._ds11_trust_presentation_path_descriptors()
-        ),
+        "authorityPathDescriptors": (checker._ds11_trust_presentation_path_descriptors()),
         "authorityPropDescriptors": checker._authority_prop_descriptors(),
         "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
         "sourceOverrides": {passport_path: upgraded},
@@ -200,24 +184,20 @@ def test_ds15_authority_badges_bind_rendered_semantics_not_badge_markers() -> No
     mutated = checker.status_checker._scan_json(
         json.dumps(request, sort_keys=True, separators=(",", ":"))
     )
-    assert len(mutated["badgeSites"]) == 1  # noqa: S101
+    assert len(mutated["badgeSites"]) == 1
     complete_mutation = copy.deepcopy(scan)
     complete_mutation["badgeSites"] = [
-        mutated["badgeSites"][0]
-        if site["path"] == passport_path
-        else site
+        mutated["badgeSites"][0] if site["path"] == passport_path else site
         for site in scan["badgeSites"]
     ]
     errors = checker._badge_classification_errors(complete_mutation)
-    assert len(errors) == 1  # noqa: S101
-    assert errors[0].startswith("authority_badge_partition_hash_drift:")  # noqa: S101
+    assert len(errors) == 1
+    assert errors[0].startswith("authority_badge_partition_hash_drift:")
 
 
 def test_ds15_register_transition_binds_query_consumer_and_preserves_peers() -> None:
     """Admit DS15 evidence without upgrading its bounded external non-closure."""
-    historical = _register_text_at(
-        "fb06e4942b1daad7cab32c106740c89693fe5975"
-    )
+    historical = _register_text_at("fb06e4942b1daad7cab32c106740c89693fe5975")
     _old_start, _old_end, historical_entry = checker._json_entry_object_span(
         historical,
         checker.C11B_QUERY_MEMORY_ROOT_ID,
@@ -235,40 +215,29 @@ def test_ds15_register_transition_binds_query_consumer_and_preserves_peers() -> 
     readiness = checker.DS1_PATH.read_bytes()
     candidate = checker._ds15_acquisition_routes_candidate_text(original)
 
-    assert candidate != original  # noqa: S101
-    assert candidate == current  # noqa: S101
-    assert (  # noqa: S101
-        checker._ds15_acquisition_routes_candidate_text(candidate) == candidate
-    )
-    assert (  # noqa: S101
-        checker._ds15_acquisition_routes_preservation_errors(original, candidate)
-        == []
-    )
-    assert checker.DS1_PATH.read_bytes() == readiness  # noqa: S101
+    assert candidate != original
+    assert candidate == current
+    assert checker._ds15_acquisition_routes_candidate_text(candidate) == candidate
+    assert checker._ds15_acquisition_routes_preservation_errors(original, candidate) == []
+    assert checker.DS1_PATH.read_bytes() == readiness
 
     data = json.loads(candidate)
     entry = next(
-        row
-        for row in data["entries"]
-        if row["unit_id"] == checker.C11B_QUERY_MEMORY_ROOT_ID
+        row for row in data["entries"] if row["unit_id"] == checker.C11B_QUERY_MEMORY_ROOT_ID
     )
-    assert (  # noqa: S101
-        entry["successor"]["consumer_refs"]
-        == checker.DS15_QUERY_MEMORY_SUCCESSOR_REFS
+    assert entry["successor"]["consumer_refs"] == checker.DS15_QUERY_MEMORY_SUCCESSOR_REFS
+    findings = {row["finding_id"]: row for row in data["supplemental_findings"]}
+    ds15_finding = findings["authority-presentation-badge-acquisition-boundary-status"]
+    assert ds15_finding["owner_slice"] == "DS15"
+    assert ds15_finding["authority_sink"]["consumer_count"] == 6
+    assert (
+        checker._ds15_acquisition_routes_candidate_errors(
+            data,
+            report_parity=False,
+        )
+        == []
     )
-    findings = {
-        row["finding_id"]: row for row in data["supplemental_findings"]
-    }
-    ds15_finding = findings[
-        "authority-presentation-badge-acquisition-boundary-status"
-    ]
-    assert ds15_finding["owner_slice"] == "DS15"  # noqa: S101
-    assert ds15_finding["authority_sink"]["consumer_count"] == 6  # noqa: S101
-    assert checker._ds15_acquisition_routes_candidate_errors(  # noqa: S101
-        data,
-        report_parity=False,
-    ) == []
-    assert checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES == {}  # noqa: S101
+    assert checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES == {}
 
     missing_consumer = copy.deepcopy(data)
     mutated_entry = next(
@@ -283,15 +252,13 @@ def test_ds15_register_transition_binds_query_consumer_and_preserves_peers() -> 
         missing_consumer,
         report_parity=False,
     )
-    assert "c11b_query_memory_root_drift:successor.consumer_refs" in errors  # noqa: S101
+    assert "c11b_query_memory_root_drift:successor.consumer_refs" in errors
 
 
 def test_ds10_baseline_candidate_reanchors_only_owned_source_bytes() -> None:
     """Refresh only the four lint-resolution receipts whose producers DS10 changed."""
     original = checker.BASELINE_PATH.read_text(encoding="utf-8")
-    assert (  # noqa: S101
-        checker._ds10_baseline_manifest_candidate_text(original) == original
-    )
+    assert checker._ds10_baseline_manifest_candidate_text(original) == original
 
     opening_data = json.loads(original)
     for row in opening_data["lint"]["resolution_content_bindings"]:
@@ -299,9 +266,7 @@ def test_ds10_baseline_candidate_reanchors_only_owned_source_bytes() -> None:
             row["sha256"] = "0" * 64
     opening = json.dumps(opening_data, indent=2) + "\n"
     candidate = checker._ds10_baseline_manifest_candidate_text(opening)
-    assert (  # noqa: S101
-        checker._ds10_baseline_manifest_candidate_text(candidate) == candidate
-    )
+    assert checker._ds10_baseline_manifest_candidate_text(candidate) == candidate
 
     original_rows = {
         (row["cluster_id"], row["path"]): row
@@ -311,65 +276,56 @@ def test_ds10_baseline_candidate_reanchors_only_owned_source_bytes() -> None:
         (row["cluster_id"], row["path"]): row
         for row in json.loads(candidate)["lint"]["resolution_content_bindings"]
     }
-    changed = {
-        key for key in original_rows if original_rows[key] != candidate_rows[key]
-    }
-    assert changed == checker.DS10_BASELINE_CONTENT_REANCHORS  # noqa: S101
-    assert checker.validate_baseline_manifest(  # noqa: S101
-        json.loads(candidate), verify_source_bytes=True
-    ) == []
+    changed = {key for key in original_rows if original_rows[key] != candidate_rows[key]}
+    assert changed == checker.DS10_BASELINE_CONTENT_REANCHORS
+    assert checker.validate_baseline_manifest(json.loads(candidate), verify_source_bytes=True) == []
 
 
 def test_ds10_protected_signing_census_adds_the_complete_stable_identity_set() -> None:
     """Refresh the omitted live signer without rewriting peer censuses."""
     original = REGISTER_PATH.read_text(encoding="utf-8")
     candidate = checker._ds10_protected_signing_census_candidate_text(original)
-    assert (  # noqa: S101
-        checker._ds10_protected_signing_census_candidate_text(candidate)
-        == candidate
-    )
+    assert checker._ds10_protected_signing_census_candidate_text(candidate) == candidate
 
     before = json.loads(original)
     after = json.loads(candidate)
-    before_censuses = {
-        row["census_id"]: row for row in before.pop("reference_censuses")
-    }
-    after_censuses = {
-        row["census_id"]: row for row in after.pop("reference_censuses")
-    }
-    assert before == after  # noqa: S101
+    before_censuses = {row["census_id"]: row for row in before.pop("reference_censuses")}
+    after_censuses = {row["census_id"]: row for row in after.pop("reference_censuses")}
+    assert before == after
     census_id = "census-browser-signing-protected-live"
     before_censuses.pop(census_id)
     refreshed = after_censuses.pop(census_id)
-    assert before_censuses == after_censuses  # noqa: S101
+    assert before_censuses == after_censuses
     probe = refreshed["probes"][0]
-    assert probe["expected_count"] == 31  # noqa: S101
-    assert len(probe["observed_refs"]) == 31  # noqa: S101
-    assert all(  # noqa: S101
-        "#ts-identity=" in ref for ref in probe["observed_refs"]
-    )
+    assert probe["expected_count"] == 31
+    assert len(probe["observed_refs"]) == 31
+    assert all("#ts-identity=" in ref for ref in probe["observed_refs"])
     observed = checker._recompute_probe(probe)
-    assert checker._probe_observation_matches_stored_mode(  # noqa: S101
-        probe["observed_refs"], observed
-    ) == (True, None)
+    assert checker._probe_observation_matches_stored_mode(probe["observed_refs"], observed) == (
+        True,
+        None,
+    )
 
 
 def test_ds10_query_key_evidence_identity_binds_the_current_owner() -> None:
     """Keep the existing query-key owner receipt current after generic search growth."""
     source_path = "apps/runtime-dashboard/src/api/queryKeys.ts"
     source = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
-    assert checker._validate_typescript_reference_identity(  # noqa: S101
-        {"encoded_identity": checker.DS10_QUERY_KEYS_IDENTITY},
-        {source_path: source},
-    ) == []
+    assert (
+        checker._validate_typescript_reference_identity(
+            {"encoded_identity": checker.DS10_QUERY_KEYS_IDENTITY},
+            {source_path: source},
+        )
+        == []
+    )
 
 
 def test_ds10_writer_requires_current_c13_receipt_and_retires_the_nonclosure() -> None:
     """Close the exact residual while keeping its historical text non-admissible."""
     retired = checker.DS10_RETIRED_EXTERNAL_REGISTER_NONCLOSURES[0]
-    assert checker.DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES == ()  # noqa: S101
-    assert checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES == {}  # noqa: S101
-    assert checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES == {}  # noqa: S101
+    assert checker.DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES == ()
+    assert checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES == {}
+    assert checker.DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES == {}
     receipt = checker._c13_independent_print_receipt()
     source_bytes = {
         str(row["path"]): (checker.REPO_ROOT / str(row["path"])).read_bytes()
@@ -382,48 +338,36 @@ def test_ds10_writer_requires_current_c13_receipt_and_retires_the_nonclosure() -
     admitted, admission_errors = checker._ds10_c13_external_nonclosure_admission(
         [], source_bytes=source_bytes, producer_bytes=producer_bytes
     )
-    assert admitted == ()  # noqa: S101
-    assert admission_errors == []  # noqa: S101
+    assert admitted == ()
+    assert admission_errors == []
 
-    incomplete, incomplete_errors = (
-        checker._ds10_c13_external_nonclosure_admission([], source_bytes={})
+    incomplete, incomplete_errors = checker._ds10_c13_external_nonclosure_admission(
+        [], source_bytes={}
     )
-    assert incomplete == ()  # noqa: S101
-    assert incomplete_errors == [  # noqa: S101
-        "ds10_c13_external_source_binding_census_drift"
-    ]
+    assert incomplete == ()
+    assert incomplete_errors == ["ds10_c13_external_source_binding_census_drift"]
     producer_ref = checker.C13_PRODUCER_REFS[0]
     producer_bytes[producer_ref] += b"\nproducer drift"
-    producer_rejected, producer_errors = (
-        checker._ds10_c13_external_nonclosure_admission(
-            [],
-            source_bytes=source_bytes,
-            producer_bytes=producer_bytes,
-        )
+    producer_rejected, producer_errors = checker._ds10_c13_external_nonclosure_admission(
+        [],
+        source_bytes=source_bytes,
+        producer_bytes=producer_bytes,
     )
-    assert producer_rejected == ()  # noqa: S101
-    assert producer_errors == [  # noqa: S101
-        "ds10_c13_unexposed_current_evidence_drift"
-    ]
+    assert producer_rejected == ()
+    assert producer_errors == ["ds10_c13_unexposed_current_evidence_drift"]
     source_bytes[checker.C13_SOURCE_REFS[0]] += b"\ncurrent drift"
     rejected, rejection_errors = checker._ds10_c13_external_nonclosure_admission(
         [],
         source_bytes=source_bytes,
     )
-    assert rejected == ()  # noqa: S101
-    assert rejection_errors == [  # noqa: S101
-        "ds10_c13_unexposed_current_evidence_drift"
-    ]
-    retired_admitted, retired_errors = (
-        checker._ds10_c13_external_nonclosure_admission([retired])
-    )
-    assert retired_admitted == ()  # noqa: S101
-    assert retired_errors == []  # noqa: S101
-    assert checker._ds10_blocking_register_errors([retired]) == [retired]  # noqa: S101
+    assert rejected == ()
+    assert rejection_errors == ["ds10_c13_unexposed_current_evidence_drift"]
+    retired_admitted, retired_errors = checker._ds10_c13_external_nonclosure_admission([retired])
+    assert retired_admitted == ()
+    assert retired_errors == []
+    assert checker._ds10_blocking_register_errors([retired]) == [retired]
     with pytest.raises(ValueError, match="undeclared external register error"):
-        checker._ds10_blocking_register_errors(
-            [retired], admitted_external_errors=[retired]
-        )
+        checker._ds10_blocking_register_errors([retired], admitted_external_errors=[retired])
 
 
 _SPEC = importlib.util.spec_from_file_location("frontend_disposition_checker", CHECKER_PATH)
@@ -489,9 +433,7 @@ def _ds18_synthetic_constants(path_ref: str, test_ref: str) -> ExitStack:
             {},
         )
     )
-    stack.enter_context(
-        mock.patch.object(checker, "DS18_TIME_SEMANTICS_DIRECT_FILES", set())
-    )
+    stack.enter_context(mock.patch.object(checker, "DS18_TIME_SEMANTICS_DIRECT_FILES", set()))
     stack.enter_context(
         mock.patch.object(
             checker,
@@ -499,9 +441,7 @@ def _ds18_synthetic_constants(path_ref: str, test_ref: str) -> ExitStack:
             {},
         )
     )
-    stack.enter_context(
-        mock.patch.object(checker, "DS18_TIME_SEMANTICS_ROOT_INHERITANCE", {})
-    )
+    stack.enter_context(mock.patch.object(checker, "DS18_TIME_SEMANTICS_ROOT_INHERITANCE", {}))
     stack.enter_context(
         mock.patch.object(
             checker,
@@ -522,9 +462,7 @@ def _ds18_synthetic_constants(path_ref: str, test_ref: str) -> ExitStack:
     return stack
 
 
-_REGISTER_RELATIVE_PATH = (
-    "architecture/atlas_surfaces/frontend-disposition-register.json"
-)
+_REGISTER_RELATIVE_PATH = "architecture/atlas_surfaces/frontend-disposition-register.json"
 
 
 def _git_text(commit: str, relative_path: str) -> str:
@@ -554,11 +492,9 @@ def _c13_evidence_snapshot(
         for row in [*receipt["source_bindings"], *receipt["producer_bindings"]]
     }
     producer = receipt["environment_probe_producer"]
-    historical_bytes[checker.REPO_ROOT / str(producer["path"])] = (
-        checker._c03_git_bytes(
-            "show",
-            f"{checker.C13_EVIDENCE_REVISION}:policy-engine/{producer['path']}",
-        )
+    historical_bytes[checker.REPO_ROOT / str(producer["path"])] = checker._c03_git_bytes(
+        "show",
+        f"{checker.C13_EVIDENCE_REVISION}:policy-engine/{producer['path']}",
     )
     historical_bytes.update(extra or {})
     original_read_bytes = Path.read_bytes
@@ -573,10 +509,7 @@ def _c13_evidence_snapshot(
 
 def _supplemental_rows(text: str) -> dict[str, dict[str, object]]:
     """Index supplemental rows from a controlled register preimage."""
-    return {
-        str(row["finding_id"]): row
-        for row in json.loads(text)["supplemental_findings"]
-    }
+    return {str(row["finding_id"]): row for row in json.loads(text)["supplemental_findings"]}
 
 
 def _without_supplemental_rows(text: str, finding_ids: set[str]) -> str:
@@ -711,10 +644,10 @@ class PersistenceConstructionCensusTests(unittest.TestCase):
             checker._validate_storage_construction_census(mutation, errors)
             return errors
 
-        self.assertEqual([], errors_for(data))
-        self.assertEqual(
-            "institutionally_supplied",
-            data["storage_construction_census"]["semantic_class_provenance"],
+        assert errors_for(data) == []
+        assert (
+            data["storage_construction_census"]["semantic_class_provenance"]
+            == "institutionally_supplied"
         )
         sites = data["storage_construction_census"]["sites"]
 
@@ -729,9 +662,9 @@ class PersistenceConstructionCensusTests(unittest.TestCase):
         )
 
         fingerprint = copy.deepcopy(data)
-        fingerprint["storage_construction_census"]["sites"][0][
-            "source_fingerprint"
-        ] = "sha256:" + "0" * 64
+        fingerprint["storage_construction_census"]["sites"][0]["source_fingerprint"] = (
+            "sha256:" + "0" * 64
+        )
         corruptions["source-fingerprint"] = (
             fingerprint,
             "storage_construction_source_fingerprint_drift:",
@@ -766,9 +699,9 @@ class PersistenceConstructionCensusTests(unittest.TestCase):
         )
 
         factory_source = copy.deepcopy(data)
-        factory_source["storage_construction_census"][
-            "authority_factory_receipts"
-        ][0]["source_fingerprint"] = "sha256:" + "0" * 64
+        factory_source["storage_construction_census"]["authority_factory_receipts"][0][
+            "source_fingerprint"
+        ] = "sha256:" + "0" * 64
         corruptions["factory-source"] = (
             factory_source,
             "storage_construction_factory_source_fingerprint_drift:",
@@ -802,18 +735,18 @@ class PersistenceConstructionCensusTests(unittest.TestCase):
         )
 
         resolved_api = copy.deepcopy(data)
-        resolved_api["storage_construction_census"]["sites"][0][
-            "resolved_api_declaration"
-        ] = "typescript/lib/lib.dom.d.ts::Storage.clear"
+        resolved_api["storage_construction_census"]["sites"][0]["resolved_api_declaration"] = (
+            "typescript/lib/lib.dom.d.ts::Storage.clear"
+        )
         corruptions["resolved-api-digest"] = (
             resolved_api,
             "storage_construction_rows_digest_drift",
         )
 
         site_fingerprint = copy.deepcopy(data)
-        site_fingerprint["storage_construction_census"]["sites"][0][
-            "site_fingerprint"
-        ] = "sha256:" + "0" * 64
+        site_fingerprint["storage_construction_census"]["sites"][0]["site_fingerprint"] = (
+            "sha256:" + "0" * 64
+        )
         corruptions["site-fingerprint-digest"] = (
             site_fingerprint,
             "storage_construction_rows_digest_drift",
@@ -852,80 +785,63 @@ class PersistenceConstructionCensusTests(unittest.TestCase):
             "storage_construction_store_owner_missing:",
         )
 
-        self.assertEqual(36, len(sites))
-        self.assertEqual(
-            {"interaction_benign": 22, "scoped_authority": 14},
-            dict(Counter(row["classification"] for row in sites)),
-        )
+        assert len(sites) == 36
+        assert dict(Counter(row["classification"] for row in sites)) == {
+            "interaction_benign": 22,
+            "scoped_authority": 14,
+        }
         flag_rows = [
             row
             for row in sites
             if row["path"] == "apps/runtime-dashboard/src/shared/lib/featureFlags.ts"
         ]
-        self.assertEqual(4, len(flag_rows))
-        self.assertTrue(
-            all(
-                row["classification"] == "interaction_benign"
-                and row["benign_reason"] == "rollout_exposure_control"
-                for row in flag_rows
-            ),
-            flag_rows,
-        )
-        self.assertEqual(10, len(data["reference_censuses"]))
-        self.assertEqual(
-            {
-                "deleted": 19,
-                "rebind_pending": 184,
-                "retire_disposition": 25,
-                "use_as_is": 17,
-                "wire_disposition": 16,
-            },
-            dict(Counter(row["disposition"] for row in data["entries"])),
-        )
-        self.assertEqual(
-            {"not_applicable": 58, "pending": 149, "strangled": 54},
-            dict(Counter(row["strangle_status"] for row in data["entries"])),
-        )
+        assert len(flag_rows) == 4
+        assert all(
+            row["classification"] == "interaction_benign"
+            and row["benign_reason"] == "rollout_exposure_control"
+            for row in flag_rows
+        ), flag_rows
+        assert len(data["reference_censuses"]) == 10
+        assert dict(Counter(row["disposition"] for row in data["entries"])) == {
+            "deleted": 19,
+            "rebind_pending": 184,
+            "retire_disposition": 25,
+            "use_as_is": 17,
+            "wire_disposition": 16,
+        }
+        assert dict(Counter(row["strangle_status"] for row in data["entries"])) == {
+            "not_applicable": 58,
+            "pending": 149,
+            "strangled": 54,
+        }
         projection = checker._report_projection(data)
-        self.assertIn("### Persistence construction census", projection)
-        self.assertIn("authority flow `not_established`", projection)
-        self.assertIn("Declared bounded residual:", projection)
-        self.assertEqual(36, projection.count("| `storage-site-"))
-        self.assertEqual(
-            data["storage_construction_census"],
-            checker.build_seed_register()["storage_construction_census"],
+        assert "### Persistence construction census" in projection
+        assert "authority flow `not_established`" in projection
+        assert "Declared bounded residual:" in projection
+        assert projection.count("| `storage-site-") == 36
+        assert (
+            data["storage_construction_census"]
+            == checker.build_seed_register()["storage_construction_census"]
         )
         entries = {row["unit_id"]: row for row in data["entries"]}
-        self.assertEqual(
-            ("use_as_is", "not_applicable"),
-            (
-                entries["cache-local-storage-state"]["disposition"],
-                entries["cache-local-storage-state"]["strangle_status"],
-            ),
-        )
-        self.assertEqual(
-            ("deleted", "strangled", "census-review-attention-delete"),
-            (
-                entries["cache-review-attention"]["disposition"],
-                entries["cache-review-attention"]["strangle_status"],
-                entries["cache-review-attention"]["reference_census_id"],
-            ),
-        )
+        assert (
+            entries["cache-local-storage-state"]["disposition"],
+            entries["cache-local-storage-state"]["strangle_status"],
+        ) == ("use_as_is", "not_applicable")
+        assert (
+            entries["cache-review-attention"]["disposition"],
+            entries["cache-review-attention"]["strangle_status"],
+            entries["cache-review-attention"]["reference_census_id"],
+        ) == ("deleted", "strangled", "census-review-attention-delete")
         for label, (mutation, expected_prefix) in corruptions.items():
             with self.subTest(corruption=label):
-                self.assertTrue(
-                    any(
-                        error == expected_prefix or error.startswith(expected_prefix)
-                        for error in errors_for(mutation)
-                    ),
-                    errors_for(mutation),
-                )
+                assert any(
+                    error == expected_prefix or error.startswith(expected_prefix)
+                    for error in errors_for(mutation)
+                ), errors_for(mutation)
 
     def test_review_attention_import_census_covers_static_barrel_and_dynamic(self) -> None:
-        target = (
-            "apps/runtime-dashboard/src/features/runs/domain/"
-            "publicSectorReadiness.ts"
-        )
+        target = "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
         sources = {
             "apps/runtime-dashboard/src/features/probe/direct.ts": (
                 'import * as readiness from "@/features/runs/domain/'
@@ -938,8 +854,7 @@ class PersistenceConstructionCensusTests(unittest.TestCase):
                 'void import("../runs/domain/publicSectorReadiness");\n'
             ),
             "apps/runtime-dashboard/src/features/probe/composed.ts": (
-                'void import("../runs/domain/publicSectorReadiness")'
-                '.then((module) => module);\n'
+                'void import("../runs/domain/publicSectorReadiness").then((module) => module);\n'
             ),
             "apps/runtime-dashboard/src/features/probe/unrelated.ts": (
                 'import "@/features/other/publicSectorReadiness";\n'
@@ -951,17 +866,13 @@ class PersistenceConstructionCensusTests(unittest.TestCase):
                 'import "@/features/runs/domain/sub/publicSectorReadiness";\n'
             ),
         }
-        self.assertEqual(
-            [
-                "apps/runtime-dashboard/src/features/probe/barrel.ts:1",
-                "apps/runtime-dashboard/src/features/probe/composed.ts:1",
-                "apps/runtime-dashboard/src/features/probe/direct.ts:1",
-                "apps/runtime-dashboard/src/features/probe/dynamic.ts:1",
-            ],
-            checker._typescript_import_matches([target], [], sources=sources),
-        )
-        self.assertEqual(
-            [],
+        assert checker._typescript_import_matches([target], [], sources=sources) == [
+            "apps/runtime-dashboard/src/features/probe/barrel.ts:1",
+            "apps/runtime-dashboard/src/features/probe/composed.ts:1",
+            "apps/runtime-dashboard/src/features/probe/direct.ts:1",
+            "apps/runtime-dashboard/src/features/probe/dynamic.ts:1",
+        ]
+        assert (
             checker._typescript_import_matches(
                 [target],
                 [
@@ -971,7 +882,8 @@ class PersistenceConstructionCensusTests(unittest.TestCase):
                     "apps/runtime-dashboard/scripts",
                     "packages",
                 ],
-            ),
+            )
+            == []
         )
 
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
@@ -983,28 +895,23 @@ class PersistenceConstructionCensusTests(unittest.TestCase):
         def read_with_resurrection(path: Path, *args: object, **kwargs: object) -> str:
             text = original_read_text(path, *args, **kwargs)
             if path == injected_path:
-                return (
-                    'import "@/features/runs/domain/publicSectorReadiness";\n'
-                    + text
-                )
+                return 'import "@/features/runs/domain/publicSectorReadiness";\n' + text
             return text
 
-        with mock.patch.object(Path, "read_text", autospec=True, side_effect=read_with_resurrection):
+        with mock.patch.object(
+            Path, "read_text", autospec=True, side_effect=read_with_resurrection
+        ):
             errors = checker.validate_register(
                 data,
                 live_probes=True,
                 report_parity=False,
             )
-        self.assertTrue(
-            any(
-                error.startswith(
-                    "census_observation_drift:census-review-attention-delete:"
-                    "typescript_import_census"
-                )
-                for error in errors
-            ),
-            errors,
-        )
+        assert any(
+            error.startswith(
+                "census_observation_drift:census-review-attention-delete:typescript_import_census"
+            )
+            for error in errors
+        ), errors
 
 
 class UiPrimitivesMixedReceiptTests(unittest.TestCase):
@@ -1029,7 +936,7 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
             report_parity=False,
         )
 
-        self.assertIn("ui_primitives_receipt_wrong_root:route-app-layout", errors)
+        assert "ui_primitives_receipt_wrong_root:route-app-layout" in errors
 
     def test_live_receipt_is_bound_only_to_ui_primitives_root(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
@@ -1037,7 +944,7 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
             row["unit_id"] for row in data["entries"] if "aggregate_disposition_receipt" in row
         ]
 
-        self.assertEqual(receipt_rows, ["ui-primitives-root"])
+        assert receipt_rows == ["ui-primitives-root"]
 
     def test_rejects_retired_count_drift_against_member_decisions(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
@@ -1051,7 +958,7 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
             report_parity=False,
         )
 
-        self.assertIn("ui_primitives_receipt_count_drift:retired", errors)
+        assert "ui_primitives_receipt_count_drift:retired" in errors
 
     def test_rejects_a_revived_retired_app_owner(self) -> None:
         errors = checker._ui_primitives_source_state_errors(
@@ -1072,7 +979,7 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
             production_consumers=[],
         )
 
-        self.assertIn("ui_primitives_retired_owner_revived:DropdownMenu", errors)
+        assert "ui_primitives_retired_owner_revived:DropdownMenu" in errors
 
     def test_rejects_a_package_only_resurrection(self) -> None:
         errors = checker._ui_primitives_source_state_errors(
@@ -1092,7 +999,7 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
             production_consumers=[],
         )
 
-        self.assertIn("ui_primitives_package_counterpart_without_consumer:Separator", errors)
+        assert "ui_primitives_package_counterpart_without_consumer:Separator" in errors
 
     def test_rejects_valid_looking_resurrection_blob_drift(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
@@ -1108,9 +1015,9 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
             report_parity=False,
         )
 
-        self.assertIn(
-            "ui_primitives_anchor_blob_drift:apps/runtime-dashboard/src/shared/ui/DropdownMenu.tsx",
-            errors,
+        assert (
+            "ui_primitives_anchor_blob_drift:apps/runtime-dashboard/src/shared/ui/DropdownMenu.tsx"
+            in errors
         )
 
     def test_derives_consumers_across_every_required_import_form(self) -> None:
@@ -1137,17 +1044,14 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
 
         observed = checker._ui_primitive_consumers_from_sources(sources)
 
-        self.assertEqual(
-            observed,
-            [
-                "apps/runtime-dashboard/src/features/barrel.tsx:1",
-                "apps/runtime-dashboard/src/features/direct.tsx:1",
-                "apps/runtime-dashboard/src/features/dynamic.tsx:1",
-                "apps/runtime-dashboard/src/features/namespace.tsx:1",
-                "apps/runtime-dashboard/src/shared/ui/ScrollArea.tsx:1",
-                "apps/runtime-dashboard/src/shared/ui/compounds/relative.tsx:1",
-            ],
-        )
+        assert observed == [
+            "apps/runtime-dashboard/src/features/barrel.tsx:1",
+            "apps/runtime-dashboard/src/features/direct.tsx:1",
+            "apps/runtime-dashboard/src/features/dynamic.tsx:1",
+            "apps/runtime-dashboard/src/features/namespace.tsx:1",
+            "apps/runtime-dashboard/src/shared/ui/ScrollArea.tsx:1",
+            "apps/runtime-dashboard/src/shared/ui/compounds/relative.tsx:1",
+        ]
 
     def test_ignores_comments_strings_and_type_only_imports(self) -> None:
         sources = {
@@ -1160,7 +1064,7 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
 
         observed = checker._ui_primitive_consumers_from_sources(sources)
 
-        self.assertEqual(observed, [])
+        assert observed == []
 
     def test_tracks_reexports_and_precise_dynamic_barrel_members(self) -> None:
         sources = {
@@ -1188,15 +1092,12 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
 
         observed = checker._ui_primitive_consumers_from_sources(sources)
 
-        self.assertEqual(
-            observed,
-            [
-                "apps/runtime-dashboard/src/features/dynamicDestructure.ts:1",
-                "apps/runtime-dashboard/src/features/dynamicNamespace.ts:1",
-                "apps/runtime-dashboard/src/features/namespaceExport.ts:1",
-                "apps/runtime-dashboard/src/features/reexport.ts:1",
-            ],
-        )
+        assert observed == [
+            "apps/runtime-dashboard/src/features/dynamicDestructure.ts:1",
+            "apps/runtime-dashboard/src/features/dynamicNamespace.ts:1",
+            "apps/runtime-dashboard/src/features/namespaceExport.ts:1",
+            "apps/runtime-dashboard/src/features/reexport.ts:1",
+        ]
 
     def test_tracks_computed_namespace_and_dynamic_promise_access(self) -> None:
         sources = {
@@ -1214,14 +1115,11 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
 
         observed = checker._ui_primitive_consumers_from_sources(sources)
 
-        self.assertEqual(
-            observed,
-            [
-                "apps/runtime-dashboard/src/features/computed.tsx:1",
-                "apps/runtime-dashboard/src/features/promise.ts:1",
-                "apps/runtime-dashboard/src/features/twoStepPromise.ts:1",
-            ],
-        )
+        assert observed == [
+            "apps/runtime-dashboard/src/features/computed.tsx:1",
+            "apps/runtime-dashboard/src/features/promise.ts:1",
+            "apps/runtime-dashboard/src/features/twoStepPromise.ts:1",
+        ]
 
     def test_finds_retired_symbols_in_differently_named_owner_modules(self) -> None:
         sources = {
@@ -1237,14 +1135,11 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
 
         observed = checker._ui_primitive_owner_refs_from_sources(sources)
 
-        self.assertEqual(
-            observed,
-            {
-                "DropdownMenu": ["apps/runtime-dashboard/src/shared/ui/Overlay.tsx:2"],
-                "Separator": ["packages/atlas-ui/src/primitives/Layout.tsx:1"],
-                "Sheet": ["apps/runtime-dashboard/src/shared/ui/Overlay.tsx:3"],
-            },
-        )
+        assert observed == {
+            "DropdownMenu": ["apps/runtime-dashboard/src/shared/ui/Overlay.tsx:2"],
+            "Separator": ["packages/atlas-ui/src/primitives/Layout.tsx:1"],
+            "Sheet": ["apps/runtime-dashboard/src/shared/ui/Overlay.tsx:3"],
+        }
 
     def test_rejects_a_retired_symbol_from_a_differently_named_owner(self) -> None:
         errors = checker._ui_primitives_source_state_errors(
@@ -1268,10 +1163,9 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
             },
         )
 
-        self.assertIn(
+        assert (
             "ui_primitives_retired_symbol_revived:DropdownMenu:"
-            "apps/runtime-dashboard/src/shared/ui/Overlay.tsx:2",
-            errors,
+            "apps/runtime-dashboard/src/shared/ui/Overlay.tsx:2" in errors
         )
 
     def test_requires_a_used_value_import_for_successor_evidence(self) -> None:
@@ -1306,13 +1200,10 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
 
         observed = checker._atlas_ui_value_consumer_refs_from_sources(sources)
 
-        self.assertEqual(
-            observed,
-            [
-                "apps/runtime-dashboard/src/features/namespace.tsx:1",
-                "apps/runtime-dashboard/src/features/used.tsx:1",
-            ],
-        )
+        assert observed == [
+            "apps/runtime-dashboard/src/features/namespace.tsx:1",
+            "apps/runtime-dashboard/src/features/used.tsx:1",
+        ]
 
     def test_rejects_marker_only_successor_references(self) -> None:
         sources = {
@@ -1326,13 +1217,10 @@ class UiPrimitivesMixedReceiptTests(unittest.TestCase):
 
         errors = checker._ui_primitives_successor_evidence_errors(list(sources), sources=sources)
 
-        self.assertEqual(
-            errors,
-            [
-                "ui_primitives_successor_live_consumer_missing",
-                "ui_primitives_successor_test_consumer_missing",
-            ],
-        )
+        assert errors == [
+            "ui_primitives_successor_live_consumer_missing",
+            "ui_primitives_successor_test_consumer_missing",
+        ]
 
 
 class C15CompoundReceiptTests(unittest.TestCase):
@@ -1340,24 +1228,22 @@ class C15CompoundReceiptTests(unittest.TestCase):
 
     def test_rejects_inert_value_mentions_as_live_consumption(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
-        entry = next(
-            row for row in data["entries"] if row["unit_id"] == checker.C15_ROOT_ID
-        )
+        entry = next(row for row in data["entries"] if row["unit_id"] == checker.C15_ROOT_ID)
         ds2 = json.loads(checker.DS2_PATH.read_text(encoding="utf-8"))
         marker_only_sources = {
             "apps/runtime-dashboard/src/features/marker.tsx": (
-                'import { JsonPreview, VirtualList, VirtualTable } '
+                "import { JsonPreview, VirtualList, VirtualTable } "
                 'from "@polisyos/atlas-ui";\n'
                 "void JsonPreview;\n"
                 "const componentMarkers = [VirtualList, VirtualTable];\n"
             ),
             "packages/atlas-ui/src/compounds/owners.tsx": (
-                'import { JsonPreview, VirtualList, VirtualTable } '
+                "import { JsonPreview, VirtualList, VirtualTable } "
                 'from "@polisyos/atlas-ui";\n'
                 "void JsonPreview; void VirtualList; void VirtualTable;\n"
             ),
             "packages/atlas-ui/tests/compoundComponents.test.tsx": (
-                'import { JsonPreview, VirtualList, VirtualTable } '
+                "import { JsonPreview, VirtualList, VirtualTable } "
                 'from "@polisyos/atlas-ui";\n'
                 "void JsonPreview; void VirtualList; void VirtualTable;\n"
             ),
@@ -1376,18 +1262,14 @@ class C15CompoundReceiptTests(unittest.TestCase):
                 live_probes=True,
             )
 
-        assert [
-            error for error in errors if "production_consumer_missing" in error
-        ] == [
+        assert [error for error in errors if "production_consumer_missing" in error] == [
             "ui_compounds_root_production_consumer_missing:JsonPreview",
             "ui_compounds_root_production_consumer_missing:VirtualList",
             "ui_compounds_root_production_consumer_missing:VirtualTable",
         ]
 
     def test_accepts_current_live_jsx_consumers(self) -> None:
-        sources = checker._typescript_production_sources(
-            ["apps/runtime-dashboard/src"]
-        )
+        sources = checker._typescript_production_sources(["apps/runtime-dashboard/src"])
 
         errors = checker._c15_migrated_consumer_errors(sources)
 
@@ -1434,9 +1316,8 @@ class C16PatternReceiptTests(unittest.TestCase):
     """Prove the mixed pattern receipt requires real consumers and one owner."""
 
     def test_rejects_removal_of_either_direct_live_production_import(self) -> None:
-        self.assertTrue(
-            hasattr(checker, "_c16_pattern_source_state_errors"),
-            "C16 checker must recompute pattern ownership and consumption",
+        assert hasattr(checker, "_c16_pattern_source_state_errors"), (
+            "C16 checker must recompute pattern ownership and consumption"
         )
         if not hasattr(checker, "_c16_pattern_source_state_errors"):
             return
@@ -1455,13 +1336,13 @@ class C16PatternReceiptTests(unittest.TestCase):
             *checker.C16_REQUIRED_PATHS,
         }
 
-        self.assertEqual(
+        assert (
             checker._c16_pattern_source_state_errors(
                 sources=sources,
                 existing_paths=expected_paths,
                 atlas_exports={"DetailLayout", "FilterPanel"},
-            ),
-            [],
+            )
+            == []
         )
         for removed_path, missing_component in (
             (
@@ -1473,23 +1354,20 @@ class C16PatternReceiptTests(unittest.TestCase):
                 "FilterPanel",
             ),
         ):
-            reduced_sources = {
-                path: text for path, text in sources.items() if path != removed_path
-            }
+            reduced_sources = {path: text for path, text in sources.items() if path != removed_path}
 
-            self.assertIn(
-                f"ui_patterns_production_consumer_missing:{missing_component}",
-                checker._c16_pattern_source_state_errors(
+            assert (
+                f"ui_patterns_production_consumer_missing:{missing_component}"
+                in checker._c16_pattern_source_state_errors(
                     sources=reduced_sources,
                     existing_paths=expected_paths,
                     atlas_exports={"DetailLayout", "FilterPanel"},
-                ),
+                )
             )
 
     def test_rejects_searchable_list_promotion_without_production_consumer(self) -> None:
-        self.assertTrue(
-            hasattr(checker, "_c16_pattern_source_state_errors"),
-            "C16 checker must reject speculative SearchableList promotion",
+        assert hasattr(checker, "_c16_pattern_source_state_errors"), (
+            "C16 checker must reject speculative SearchableList promotion"
         )
         if not hasattr(checker, "_c16_pattern_source_state_errors"):
             return
@@ -1509,13 +1387,13 @@ class C16PatternReceiptTests(unittest.TestCase):
             "packages/atlas-ui/src/patterns/SearchableList.tsx",
         }
 
-        self.assertIn(
-            "ui_patterns_searchable_list_promoted_without_consumer",
-            checker._c16_pattern_source_state_errors(
+        assert (
+            "ui_patterns_searchable_list_promoted_without_consumer"
+            in checker._c16_pattern_source_state_errors(
                 sources=sources,
                 existing_paths=promoted_paths,
                 atlas_exports={"DetailLayout", "FilterPanel", "SearchableList"},
-            ),
+            )
         )
 
 
@@ -1523,9 +1401,8 @@ class C17ResponsiveReceiptTests(unittest.TestCase):
     """Prove the responsive receipt stays bounded to generated runtime parity."""
 
     def test_requires_the_exact_live_use_as_is_receipt(self) -> None:
-        self.assertTrue(
-            hasattr(checker, "_validate_c17_responsive_receipt"),
-            "C17 checker must bind the exact responsive use_as_is receipt",
+        assert hasattr(checker, "_validate_c17_responsive_receipt"), (
+            "C17 checker must bind the exact responsive use_as_is receipt"
         )
         if not hasattr(checker, "_validate_c17_responsive_receipt"):
             return
@@ -1544,12 +1421,11 @@ class C17ResponsiveReceiptTests(unittest.TestCase):
             live_probes=True,
         )
 
-        self.assertEqual(errors, [])
+        assert errors == []
 
     def test_rejects_taxonomy_admission_or_a_false_ds6_evidence_claim(self) -> None:
-        self.assertTrue(
-            hasattr(checker, "_validate_c17_responsive_receipt"),
-            "C17 checker must preserve rejected and DS6-gated evidence boundaries",
+        assert hasattr(checker, "_validate_c17_responsive_receipt"), (
+            "C17 checker must preserve rejected and DS6-gated evidence boundaries"
         )
         if not hasattr(checker, "_validate_c17_responsive_receipt"):
             return
@@ -1574,13 +1450,11 @@ class C17ResponsiveReceiptTests(unittest.TestCase):
             taxonomy_errors,
             live_probes=False,
         )
-        self.assertIn("ui_responsive_rejected_taxonomy_drift", taxonomy_errors)
+        assert "ui_responsive_rejected_taxonomy_drift" in taxonomy_errors
 
         false_ds6_evidence = copy.deepcopy(ds2)
         print_row = next(
-            row
-            for row in false_ds6_evidence["entries"]
-            if row["id"] == "responsive-print-export"
+            row for row in false_ds6_evidence["entries"] if row["id"] == "responsive-print-export"
         )
         print_row["authority"]["may_not_use_for"].remove(
             "claiming browser or manual assistive-technology evidence"
@@ -1593,9 +1467,8 @@ class C17ResponsiveReceiptTests(unittest.TestCase):
             evidence_errors,
             live_probes=False,
         )
-        self.assertIn(
-            "ui_responsive_ds6_evidence_boundary_drift:responsive-print-export",
-            evidence_errors,
+        assert (
+            "ui_responsive_ds6_evidence_boundary_drift:responsive-print-export" in evidence_errors
         )
 
 
@@ -1603,12 +1476,12 @@ class ProducerBindingDebtTests(unittest.TestCase):
     """Prove producer-binding debt is descriptor-derived and fail closed."""
 
     finding_id = "run-lifecycle-terminal-fact"
-    capability_states = [
+    capability_states: ClassVar[list[str]] = [
         "consumer_missing",
         "surface_missing",
         "semantic_test_missing",
     ]
-    evidence_refs = [
+    evidence_refs: ClassVar[list[str]] = [
         "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865",
         "packages/runtime-api-client/types.ts:9240",
         "packages/runtime-api-client/types.ts:9258",
@@ -1669,21 +1542,19 @@ class ProducerBindingDebtTests(unittest.TestCase):
         self,
     ) -> None:
         producer = self._producer_row()
-        self.assertEqual([], self._supplemental_schema_messages(producer))
+        assert self._supplemental_schema_messages(producer) == []
 
         for field in ("capability_states", "closure_signal"):
             with self.subTest(missing=field):
                 mutation = copy.deepcopy(producer)
                 mutation.pop(field)
-                self.assertTrue(self._supplemental_schema_messages(mutation))
+                assert self._supplemental_schema_messages(mutation)
 
         repaired = copy.deepcopy(producer)
         repaired["repair_commit"] = "a" * 40
-        self.assertTrue(self._supplemental_schema_messages(repaired))
+        assert self._supplemental_schema_messages(repaired)
 
-        ordinary = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))[
-            "supplemental_findings"
-        ][0]
+        ordinary = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))["supplemental_findings"][0]
         for field, value in (
             ("capability_states", list(self.capability_states)),
             ("closure_signal", producer["closure_signal"]),
@@ -1691,7 +1562,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
             with self.subTest(forbidden=field):
                 mutation = copy.deepcopy(ordinary)
                 mutation[field] = value
-                self.assertTrue(self._supplemental_schema_messages(mutation))
+                assert self._supplemental_schema_messages(mutation)
 
     def test_capability_state_vocabulary_matches_the_failure_register(self) -> None:
         register_text = (
@@ -1710,9 +1581,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
             "semantic_test_missing",
         ]
         observed = [
-            line.split("`", 2)[1]
-            for line in register_text.splitlines()
-            if line.startswith("| `")
+            line.split("`", 2)[1] for line in register_text.splitlines() if line.startswith("| `")
         ][: len(expected)]
         schema = json.loads(checker.SCHEMA_PATH.read_text(encoding="utf-8"))
         supplemental = schema["$defs"]["supplementalFinding"]
@@ -1723,32 +1592,29 @@ class ProducerBindingDebtTests(unittest.TestCase):
             .get("enum", [])
         )
 
-        self.assertEqual(expected, observed)
-        self.assertEqual(expected, schema_states)
+        assert expected == observed
+        assert expected == schema_states
 
     def test_producer_binding_debts_are_derived_from_descriptors(self) -> None:
         descriptors = getattr(checker, "PRODUCER_BINDING_DEBT_DESCRIPTORS", {})
-        self.assertEqual(
-            {
-                self.finding_id,
-                "authority-issuer-generated-semantic-id-coverage",
-                "authority-issuer-parity-operand-binding",
-                "producer-binding-readiness-scientific-depth",
-                "raw-transport-denominator-drift",
-                "semantic-copy-issuer-panel-consumer-deferral",
-                "c06-cgf-public-vocabulary-producer-debt",
-                "c06-decision-grade-generated-contract-debt",
-                "c08b-auth-session-revision-producer-debt",
-                "c07b-dashboard-generated-client-single-owner-debt",
-            },
-            set(descriptors),
-        )
-        self.assertEqual(
+        assert {
+            self.finding_id,
+            "authority-issuer-generated-semantic-id-coverage",
+            "authority-issuer-parity-operand-binding",
+            "producer-binding-readiness-scientific-depth",
+            "raw-transport-denominator-drift",
+            "semantic-copy-issuer-panel-consumer-deferral",
+            "c06-cgf-public-vocabulary-producer-debt",
+            "c06-decision-grade-generated-contract-debt",
+            "c08b-auth-session-revision-producer-debt",
+            "c07b-dashboard-generated-client-single-owner-debt",
+        } == set(descriptors)
+        assert (
             checker.BASE_EXPECTED_FINDING_IDS
             | set(checker.GOVERNED_DEBT_DESCRIPTORS)
             | set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS)
-            | set(checker.DS11_TRUST_PRESENTATION_FINDING_IDS),
-            checker.EXPECTED_FINDING_IDS,
+            | set(checker.DS11_TRUST_PRESENTATION_FINDING_IDS)
+            == checker.EXPECTED_FINDING_IDS
         )
 
     def test_c07b_dashboard_generated_client_debt_binds_single_owner_strangle(self) -> None:
@@ -1773,15 +1639,12 @@ class ProducerBindingDebtTests(unittest.TestCase):
         canonical_imports = [
             fact
             for fact in import_facts
-            if fact["resolved_module"]
-            == "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
+            if fact["resolved_module"] == "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
         ]
         non_test_local_imports = [
             fact for fact in local_imports if not str(fact["path"]).endswith("validators.test.ts")
         ]
-        local_receipts = {
-            f"{fact['path']}:{fact['line']}" for fact in local_imports
-        }
+        local_receipts = {f"{fact['path']}:{fact['line']}" for fact in local_imports}
         non_test_local_receipts = {
             f"{fact['path']}:{fact['line']}" for fact in non_test_local_imports
         }
@@ -1838,9 +1701,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "imports directly use @polisyos/runtime-api-client."
             ),
         }
-        expected["evidence_refs"] = self._migrated_descriptor_refs(
-            expected["evidence_refs"]
-        )
+        expected["evidence_refs"] = self._migrated_descriptor_refs(expected["evidence_refs"])
         self.assertEqual(  # noqa: PT009
             expected, checker.PRODUCER_BINDING_DEBT_DESCRIPTORS.get(finding_id)
         )
@@ -1875,11 +1736,9 @@ class ProducerBindingDebtTests(unittest.TestCase):
     def test_c14a_local_state_envelope_owner_debt_binds_absent_producer_contract(self) -> None:
         """Close C14a only after the real local-state witness succeeds."""
         finding_id = "c14a-local-state-envelope-owner-debt"
-        self.assertNotIn(finding_id, checker.PRODUCER_BINDING_DEBT_DESCRIPTORS)
+        assert finding_id not in checker.PRODUCER_BINDING_DEBT_DESCRIPTORS
         current_text = REGISTER_PATH.read_text(encoding="utf-8")
-        historical_text = _register_text_at(
-            "bc9421163f6c4ee961db26e9cbeb142a25608a21"
-        )
+        historical_text = _register_text_at("bc9421163f6c4ee961db26e9cbeb142a25608a21")
         self.assertIn(  # noqa: PT009
             finding_id, _supplemental_rows(historical_text)
         )
@@ -1900,9 +1759,8 @@ class ProducerBindingDebtTests(unittest.TestCase):
             refreshed_text,
             checker._refresh_supplemental_findings_text(refreshed_text),
         )
-        self.assertEqual(
-            0,
-            subprocess.run(
+        assert (
+            subprocess.run(  # noqa: S603 - current interpreter runs fixed unittest id; shell=False
                 [
                     sys.executable,
                     "-m",
@@ -1913,19 +1771,19 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 ],
                 cwd=checker.REPO_ROOT,
                 check=False,
-            ).returncode,
+            ).returncode
+            == 0
         )
 
     def test_capability_discovery_debt_is_closed_when_direct_syntax_rule_is_live(self) -> None:
         """A landed C04b mechanism must remove its deferred producer-binding row."""
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
-        self.assertNotIn(
-            "capability-discovery-construction-lint-debt",
-            {row["finding_id"] for row in data["supplemental_findings"]},
-        )
-        self.assertNotIn(
-            "capability-discovery-construction-lint-debt",
-            checker.PRODUCER_BINDING_DEBT_DESCRIPTORS,
+        assert "capability-discovery-construction-lint-debt" not in {
+            row["finding_id"] for row in data["supplemental_findings"]
+        }
+        assert (
+            "capability-discovery-construction-lint-debt"
+            not in checker.PRODUCER_BINDING_DEBT_DESCRIPTORS
         )
 
     def test_c06_waist_owner_debts_bind_remaining_independent_planes(self) -> None:
@@ -1936,23 +1794,18 @@ class ProducerBindingDebtTests(unittest.TestCase):
         }
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         descriptors = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS
-        rows = {
-            str(row["finding_id"]): row for row in data["supplemental_findings"]
-        }
+        rows = {str(row["finding_id"]): row for row in data["supplemental_findings"]}
         benign = descriptors["run-lifecycle-terminal-fact"]
-        self.assertEqual("DS7", benign["owner_slice"])
+        assert benign["owner_slice"] == "DS7"
         for finding_id, successor in expected.items():
             with self.subTest(finding_id=finding_id):
                 descriptor = descriptors[finding_id]
-                self.assertIn(successor, str(descriptor["rationale"]))
-                self.assertEqual(
-                    {
-                        "finding_id": finding_id,
-                        **descriptor,
-                        "decision_date": checker.DECISION_DATE,
-                    },
-                    rows[finding_id],
-                )
+                assert successor in str(descriptor["rationale"])
+                assert {
+                    "finding_id": finding_id,
+                    **descriptor,
+                    "decision_date": checker.DECISION_DATE,
+                } == rows[finding_id]
                 for field, replacement in (
                     ("finding_kind", "baseline_test_debt"),
                     ("owner_slice", "DS4"),
@@ -1968,9 +1821,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
                     errors = checker.validate_register(
                         mutation, live_probes=False, report_parity=False
                     )
-                    self.assertIn(
-                        f"producer_binding_debt_drift:{finding_id}:{field}", errors
-                    )
+                    assert f"producer_binding_debt_drift:{finding_id}:{field}" in errors
                 mutation = copy.deepcopy(data)
                 target = next(
                     row
@@ -1978,29 +1829,22 @@ class ProducerBindingDebtTests(unittest.TestCase):
                     if row["finding_id"] == finding_id
                 )
                 target.pop("closure_signal")
-                errors = checker.validate_register(
-                    mutation, live_probes=False, report_parity=False
-                )
-                self.assertTrue(errors)
+                errors = checker.validate_register(mutation, live_probes=False, report_parity=False)
+                assert errors
 
-        generated = {
-            row["finding_id"]: row for row in checker._supplemental_findings()
-        }
+        generated = {row["finding_id"]: row for row in checker._supplemental_findings()}
         expected = self._producer_row()
-        self.assertEqual(expected, generated[self.finding_id])
-        self.assertEqual(
-            {key: expected[key] for key in descriptors[self.finding_id]},
-            descriptors[self.finding_id],
-        )
+        assert expected == generated[self.finding_id]
+        assert {key: expected[key] for key in descriptors[self.finding_id]} == descriptors[
+            self.finding_id
+        ]
 
     def test_c11b_cache_posture_debt_closes_after_typed_consumer(self) -> None:
         """Retire the C06 debt once C11a/C11b issue and render cache posture."""
         finding_id = "c06-queryobserver-cache-posture-artifact-debt"
-        self.assertNotIn(finding_id, checker.PRODUCER_BINDING_DEBT_DESCRIPTORS)
+        assert finding_id not in checker.PRODUCER_BINDING_DEBT_DESCRIPTORS
         current_text = REGISTER_PATH.read_text(encoding="utf-8")
-        historical_text = _register_text_at(
-            "8f59d4c4c93c0d88a9baa6c02ebab7ed08f148ec"
-        )
+        historical_text = _register_text_at("8f59d4c4c93c0d88a9baa6c02ebab7ed08f148ec")
         self.assertIn(  # noqa: PT009
             finding_id, _supplemental_rows(historical_text)
         )
@@ -2026,15 +1870,13 @@ class ProducerBindingDebtTests(unittest.TestCase):
         """Reject a generic root flip that omits the owner, debt, or live consumer."""
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         entry = next(
-            row
-            for row in data["entries"]
-            if row["unit_id"] == checker.C11B_QUERY_MEMORY_ROOT_ID
+            row for row in data["entries"] if row["unit_id"] == checker.C11B_QUERY_MEMORY_ROOT_ID
         )
         baseline_errors: list[str] = []
         checker._validate_c11b_query_memory_root(
             {checker.C11B_QUERY_MEMORY_ROOT_ID: entry}, baseline_errors
         )
-        self.assertEqual([], baseline_errors)
+        assert baseline_errors == []
 
         mutations = {
             "disposition": lambda row: row.__setitem__("disposition", "use_as_is"),
@@ -2060,16 +1902,12 @@ class ProducerBindingDebtTests(unittest.TestCase):
                     if row["unit_id"] == checker.C11B_QUERY_MEMORY_ROOT_ID
                 )
                 mutate(target)
-                errors = checker.validate_register(
-                    mutation, live_probes=False, report_parity=False
-                )
-                self.assertIn(f"c11b_query_memory_root_drift:{field}", errors)
+                errors = checker.validate_register(mutation, live_probes=False, report_parity=False)
+                assert f"c11b_query_memory_root_drift:{field}" in errors
 
     def test_c11b_query_memory_root_writer_is_surgical_and_idempotent(self) -> None:
         """Produce the exact owner transition without rewriting adjacent bytes."""
-        original = _register_text_at(
-            "8f59d4c4c93c0d88a9baa6c02ebab7ed08f148ec"
-        )
+        original = _register_text_at("8f59d4c4c93c0d88a9baa6c02ebab7ed08f148ec")
 
         def entry_span(text: str) -> tuple[int, int]:
             needle = f'"unit_id": "{checker.C11B_QUERY_MEMORY_ROOT_ID}"'
@@ -2081,19 +1919,14 @@ class ProducerBindingDebtTests(unittest.TestCase):
         transitioned = checker._c11b_query_memory_transition_text(original)
         before_start, before_end = entry_span(original)
         after_start, after_end = entry_span(transitioned)
-        self.assertEqual(original[:before_start], transitioned[:after_start])
-        self.assertEqual(original[before_end:], transitioned[after_end:])
-        self.assertEqual(
-            transitioned,
-            checker._c11b_query_memory_transition_text(transitioned),
-        )
+        assert original[:before_start] == transitioned[:after_start]
+        assert original[before_end:] == transitioned[after_end:]
+        assert transitioned == checker._c11b_query_memory_transition_text(transitioned)
 
         data = json.loads(transitioned)
         before = json.loads(original)
         before_entry = next(
-            row
-            for row in before["entries"]
-            if row["unit_id"] == checker.C11B_QUERY_MEMORY_ROOT_ID
+            row for row in before["entries"] if row["unit_id"] == checker.C11B_QUERY_MEMORY_ROOT_ID
         )
         self.assertEqual(  # noqa: PT009
             "pending", before_entry["strangle_status"]
@@ -2110,7 +1943,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
             },
             errors,
         )
-        self.assertEqual([], errors)
+        assert errors == []
 
     def test_auth_session_revision_debt_binds_generated_auth_me_contract(self) -> None:
         """The missing identity revision stays a producer contract debt."""
@@ -2150,9 +1983,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "tenant/user-switch corruption fails"
             ),
         }
-        expected["evidence_refs"] = self._migrated_descriptor_refs(
-            expected["evidence_refs"]
-        )
+        expected["evidence_refs"] = self._migrated_descriptor_refs(expected["evidence_refs"])
 
         source_paths = {
             "runtime": "src/polisyos/runtime/http/routes/auth.py",
@@ -2208,9 +2039,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 errors.add("generated_auth_me_revision_present")
 
             fetch_body = brace_block(candidate["hook"], "async function fetchAuthMe")
-            options_body = brace_block(
-                candidate["hook"], "export function authMeQueryOptions"
-            )
+            options_body = brace_block(candidate["hook"], "export function authMeQueryOptions")
             if 'buildRuntimeApiUrl("/api/v1/auth/me")' not in fetch_body:
                 errors.add("auth_me_hook_route_missing")
             if "authMeSchema.parse(payload)" not in fetch_body:
@@ -2233,7 +2062,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
         self.assertEqual([], sorted(absence_errors(sources)))  # noqa: PT009
         generated_lookalike = dict(sources)
         generated_lookalike["generated"] += (
-            '\nexport type SyntheticAuthMeResponse = { auth_session_revision: string };\n'
+            "\nexport type SyntheticAuthMeResponse = { auth_session_revision: string };\n"
         )
         self.assertEqual([], sorted(absence_errors(generated_lookalike)))  # noqa: PT009
 
@@ -2301,9 +2130,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
 
         mutated = copy.deepcopy(data)
         target = next(
-            item
-            for item in mutated["supplemental_findings"]
-            if item["finding_id"] == finding_id
+            item for item in mutated["supplemental_findings"] if item["finding_id"] == finding_id
         )
         target["capability_states"] = ["surface_missing"]
         errors = checker.validate_register(mutated, live_probes=False, report_parity=False)
@@ -2323,7 +2150,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
         closure_command = expected["closure_signal"].split(" exits 0", 1)[0]
         self.assertNotEqual(  # noqa: PT009
             0,
-            subprocess.run(
+            subprocess.run(  # noqa: S602 - shell syntax is the checked-in closure-signal contract under test
                 closure_command,
                 cwd=checker.REPO_ROOT,
                 shell=True,
@@ -2336,42 +2163,33 @@ class ProducerBindingDebtTests(unittest.TestCase):
         descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[
             "semantic-copy-issuer-panel-consumer-deferral"
         ]
-        self.assertNotIn("producer_missing", descriptor["capability_states"])
-        self.assertEqual(
-            [
-                "bridge_missing",
-                "consumer_missing",
-                "verification_missing",
-                "semantic_test_missing",
-            ],
-            descriptor["capability_states"],
-        )
+        assert "producer_missing" not in descriptor["capability_states"]
+        assert descriptor["capability_states"] == [
+            "bridge_missing",
+            "consumer_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ]
 
     def test_readiness_scientific_debt_is_derived_from_one_descriptor(self) -> None:
         finding_id = "producer-binding-readiness-scientific-depth"
         descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id]
-        generated = {
-            row["finding_id"]: row for row in checker._supplemental_findings()
-        }
+        generated = {row["finding_id"]: row for row in checker._supplemental_findings()}
 
-        self.assertEqual(
-            {
-                "finding_id": finding_id,
-                **descriptor,
-                "decision_date": checker.DECISION_DATE,
-            },
-            generated[finding_id],
-        )
+        assert {
+            "finding_id": finding_id,
+            **descriptor,
+            "decision_date": checker.DECISION_DATE,
+        } == generated[finding_id]
 
     def test_supplemental_refresh_preserves_terminal_history_and_changes_only_the_derived_set(
         self,
     ) -> None:
-        original_text = _register_text_at(
-            "c393090ab35c242b03314cd2095d195c4e188fc3"
-        )
+        original_text = _register_text_at("c393090ab35c242b03314cd2095d195c4e188fc3")
         locate = getattr(checker, "_supplemental_section", None)
         refresh = getattr(checker, "_refresh_supplemental_findings_text", None)
-        self.assertTrue(callable(locate) and callable(refresh))
+        assert callable(locate)
+        assert callable(refresh)
         if not callable(locate) or not callable(refresh):
             return
 
@@ -2379,28 +2197,20 @@ class ProducerBindingDebtTests(unittest.TestCase):
         refreshed_text = refresh(original_text)
         self.assertNotEqual(original_text, refreshed_text)  # noqa: PT009
         refreshed_start, refreshed_end, refreshed_objects = locate(refreshed_text)
-        self.assertEqual(refreshed_text, refresh(refreshed_text))
-        self.assertEqual(
-            original_text[: original_start + 1],
-            refreshed_text[: refreshed_start + 1],
-        )
-        self.assertEqual(original_text[original_end:], refreshed_text[refreshed_end:])
+        assert refreshed_text == refresh(refreshed_text)
+        assert original_text[: original_start + 1] == refreshed_text[: refreshed_start + 1]
+        assert original_text[original_end:] == refreshed_text[refreshed_end:]
         descriptor_ids = checker._surgical_supplemental_finding_ids(original_text)
-        refreshed_descriptor_ids = checker._surgical_supplemental_finding_ids(
-            refreshed_text
-        )
-        self.assertEqual(
-            [
-                object_text
-                for finding_id, object_text in original_objects
-                if finding_id not in descriptor_ids
-            ],
-            [
-                object_text
-                for finding_id, object_text in refreshed_objects
-                if finding_id not in refreshed_descriptor_ids
-            ],
-        )
+        refreshed_descriptor_ids = checker._surgical_supplemental_finding_ids(refreshed_text)
+        assert [
+            object_text
+            for finding_id, object_text in original_objects
+            if finding_id not in descriptor_ids
+        ] == [
+            object_text
+            for finding_id, object_text in refreshed_objects
+            if finding_id not in refreshed_descriptor_ids
+        ]
         before = json.loads(original_text)
         refreshed = json.loads(refreshed_text)
         generated_descriptors = {
@@ -2413,44 +2223,26 @@ class ProducerBindingDebtTests(unittest.TestCase):
             for row in refreshed["supplemental_findings"]
             if row["finding_id"] in descriptor_ids
         }
-        self.assertEqual(set(generated_descriptors), set(refreshed_descriptors))
+        assert set(generated_descriptors) == set(refreshed_descriptors)
         for finding_id, generated in generated_descriptors.items():
             with self.subTest(finding_id=finding_id):
                 if finding_id in checker.AUTHORITY_PRESENTATION_DEBT_SPECS:
-                    self.assertEqual(
-                        checker._authority_row_semantic_value(generated),
-                        checker._authority_row_semantic_value(
-                            refreshed_descriptors[finding_id]
-                        ),
-                    )
+                    assert checker._authority_row_semantic_value(
+                        generated
+                    ) == checker._authority_row_semantic_value(refreshed_descriptors[finding_id])
                 else:
-                    self.assertEqual(
-                        generated,
-                        refreshed_descriptors[finding_id],
-                    )
+                    assert generated == refreshed_descriptors[finding_id]
         for field in sorted(set(before) - {"supplemental_findings"}):
             with self.subTest(field=field):
-                self.assertEqual(before[field], refreshed[field])
-        self.assertEqual(
-            19,
-            sum(
-                row["disposition"] == "deleted"
-                for row in refreshed["entries"]
-            ),
-        )
-        self.assertEqual(
-            len(before["reference_censuses"]),
-            len(refreshed["reference_censuses"]),
-        )
+                assert before[field] == refreshed[field]
+        assert sum(row["disposition"] == "deleted" for row in refreshed["entries"]) == 19
+        assert len(before["reference_censuses"]) == len(refreshed["reference_censuses"])
 
     def test_rejects_run_lifecycle_terminal_debt_drift_in_every_governed_field(
         self,
     ) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
-        self.assertIn(
-            self.finding_id,
-            {row["finding_id"] for row in data["supplemental_findings"]},
-        )
+        assert self.finding_id in {row["finding_id"] for row in data["supplemental_findings"]}
         mutations = {
             "finding_id": self.finding_id + "-drift",
             "finding_kind": "baseline_test_debt",
@@ -2476,10 +2268,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
                     live_probes=False,
                     report_parity=False,
                 )
-                self.assertIn(
-                    f"producer_binding_debt_drift:{self.finding_id}:{field}",
-                    errors,
-                )
+                assert f"producer_binding_debt_drift:{self.finding_id}:{field}" in errors
 
     def test_rejects_readiness_scientific_debt_drift_in_every_governed_field(
         self,
@@ -2501,9 +2290,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
                     live_probes=False,
                     report_parity=False,
                 )
-                self.assertIn(
-                    f"producer_binding_debt_drift:{finding_id}:{field}", errors
-                )
+                assert f"producer_binding_debt_drift:{finding_id}:{field}" in errors
 
     def test_report_projects_capability_states_and_closure_signal(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
@@ -2512,29 +2299,24 @@ class ProducerBindingDebtTests(unittest.TestCase):
         producer_lines = [
             line for line in projection.splitlines() if f"`{self.finding_id}`" in line
         ]
-        self.assertEqual(1, len(producer_lines))
+        assert len(producer_lines) == 1
         producer_line = producer_lines[0]
         ordinary_line = next(
-            line
-            for line in projection.splitlines()
-            if "`baseline-test-i18n-count-debt`" in line
+            line for line in projection.splitlines() if "`baseline-test-i18n-count-debt`" in line
         )
 
-        self.assertIn("Capability states", projection)
-        self.assertIn("Closure signal", projection)
-        self.assertIn(
-            "`consumer_missing`, `surface_missing`, `semantic_test_missing`",
-            producer_line,
-        )
-        self.assertIn(str(self._producer_row()["closure_signal"]), producer_line)
-        self.assertIn("| — | — |", ordinary_line)
+        assert "Capability states" in projection
+        assert "Closure signal" in projection
+        assert "`consumer_missing`, `surface_missing`, `semantic_test_missing`" in producer_line
+        assert str(self._producer_row()["closure_signal"]) in producer_line
+        assert "| — | — |" in ordinary_line
         readiness_line = next(
             line
             for line in projection.splitlines()
             if "`producer-binding-readiness-scientific-depth`" in line
         )
-        self.assertIn("`artifact_missing`", readiness_line)
-        self.assertIn("registered typed refusal", readiness_line)
+        assert "`artifact_missing`" in readiness_line
+        assert "registered typed refusal" in readiness_line
 
 
 class DS6RegisterTransitionTests(unittest.TestCase):
@@ -2625,9 +2407,7 @@ class DS6RegisterTransitionTests(unittest.TestCase):
     def test_c04_source_registry_rejects_semantic_drift_not_text_layout(
         self,
     ) -> None:
-        source = checker.C04_RENDERED_CONTRAST_SOURCE_PATH.read_text(
-            encoding="utf-8"
-        )
+        source = checker.C04_RENDERED_CONTRAST_SOURCE_PATH.read_text(encoding="utf-8")
         reformatted = source.replace(
             'sourceId: "badge-neutral",',
             'sourceId:\n      "badge-neutral",',
@@ -2643,12 +2423,7 @@ class DS6RegisterTransitionTests(unittest.TestCase):
         third_start = source.index('  {\n    sourceId: "provenance-mini-graph"')
         first_row = source[first_start:second_start]
         second_row = source[second_start:third_start]
-        reordered = (
-            source[:first_start]
-            + second_row
-            + first_row
-            + source[third_start:]
-        )
+        reordered = source[:first_start] + second_row + first_row + source[third_start:]
         namespace_wrapped = source.replace(
             "export const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
             "export namespace Hidden {\nexport const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
@@ -2659,20 +2434,14 @@ class DS6RegisterTransitionTests(unittest.TestCase):
         registry_literal = source[registry_start:registry_end]
 
         corruptions = {
-            "renamed": source.replace(
-                'sourceId: "badge-neutral"', 'sourceId: "badge"', 1
-            ),
+            "renamed": source.replace('sourceId: "badge-neutral"', 'sourceId: "badge"', 1),
             "duplicate": source.replace(
                 'sourceId: "provenance-popover"',
                 'sourceId: "badge-neutral"',
                 1,
             ),
-            "wrong-cluster": source.replace(
-                'ownerCluster: "C01"', 'ownerCluster: "C14"', 1
-            ),
-            "wrong-component": source.replace(
-                'component: "Badge"', 'component: "Text"', 1
-            ),
+            "wrong-cluster": source.replace('ownerCluster: "C01"', 'ownerCluster: "C14"', 1),
+            "wrong-component": source.replace('component: "Badge"', 'component: "Text"', 1),
             "wrong-selector": source.replace(
                 '[data-opaque-contrast-source="badge-neutral"]',
                 '[data-opaque-contrast-source="badge"]',
@@ -2709,8 +2478,7 @@ class DS6RegisterTransitionTests(unittest.TestCase):
                 1,
             ),
             "duplicate-binding": (
-                source
-                + "\nexport const OPAQUE_BACKGROUND_CONTRAST_SOURCES = [] as const;\n"
+                source + "\nexport const OPAQUE_BACKGROUND_CONTRAST_SOURCES = [] as const;\n"
             ),
             "missing-source": source[:first_start] + source[second_start:],
             "reordered": reordered,
@@ -2728,32 +2496,26 @@ class DS6RegisterTransitionTests(unittest.TestCase):
                 1,
             ),
             "runtime-mutation": (
-                source
-                + "\n;(OPAQUE_BACKGROUND_CONTRAST_SOURCES as unknown as "
+                source + "\n;(OPAQUE_BACKGROUND_CONTRAST_SOURCES as unknown as "
                 "Array<unknown>).pop();\n"
             ),
             "esm-only-runtime-mutation": (
-                source
-                + '\nif (!("module" in globalThis)) {\n'
+                source + '\nif (!("module" in globalThis)) {\n'
                 "  ;(OPAQUE_BACKGROUND_CONTRAST_SOURCES as unknown as "
                 "Array<unknown>).pop();\n}\n"
             ),
             "conflicting-export-alias": (
-                source
-                + "\nconst forgedRegistry = OPAQUE_BACKGROUND_CONTRAST_SOURCES;\n"
+                source + "\nconst forgedRegistry = OPAQUE_BACKGROUND_CONTRAST_SOURCES;\n"
                 "export { forgedRegistry as OPAQUE_BACKGROUND_CONTRAST_SOURCES };\n"
             ),
             "alternate-export-alias": (
-                source
-                + "\nexport { OPAQUE_BACKGROUND_CONTRAST_SOURCES as SECOND_NAME };\n"
+                source + "\nexport { OPAQUE_BACKGROUND_CONTRAST_SOURCES as SECOND_NAME };\n"
             ),
             "default-export-alias": (
-                source
-                + "\nexport { OPAQUE_BACKGROUND_CONTRAST_SOURCES as default };\n"
+                source + "\nexport { OPAQUE_BACKGROUND_CONTRAST_SOURCES as default };\n"
             ),
             "unused-dynamic-import": (
-                source
-                + '\nexport async function unused() { return import("./invented"); }\n'
+                source + '\nexport async function unused() { return import("./invented"); }\n'
             ),
             "commonjs-export-forgery": (
                 source
@@ -2765,8 +2527,7 @@ class DS6RegisterTransitionTests(unittest.TestCase):
                 + ";\n"
             ),
             "transitive-map-mutation": (
-                source
-                + '\n;(SOURCE_BY_ID.get("badge-neutral") as any).sourceId = "forged";\n'
+                source + '\n;(SOURCE_BY_ID.get("badge-neutral") as any).sourceId = "forged";\n'
             ),
             "return-line-terminator": source.replace(
                 "return false;",
@@ -2809,9 +2570,7 @@ class DS6RegisterTransitionTests(unittest.TestCase):
         self.assertEqual(  # noqa: PT009 - unittest suite
             {
                 "receipt_kind": "landed_opaque_storybook_release",
-                "producer_revision": (
-                    "97d0c620836a3e6d33c347a1f7f563aaa9177d0c"
-                ),
+                "producer_revision": ("97d0c620836a3e6d33c347a1f7f563aaa9177d0c"),
                 "entry_revision": "41a2020d5c2097c30c94807737ba6d3a80323d2e",
                 "source_delta_sha256": (
                     "800225190d7a47f68b585db206d6b634bd1c7787ab27bb9c5b8e8e1f5fc2bf8a"
@@ -2830,16 +2589,12 @@ class DS6RegisterTransitionTests(unittest.TestCase):
                     "incomplete_count": 3,
                     "color_contrast_incomplete_count": 1,
                     "source_attribution": "unattributed",
-                    "denominator_membership": (
-                        "outside_custom_source_observations"
-                    ),
+                    "denominator_membership": ("outside_custom_source_observations"),
                 },
                 "raw_receipt": {
                     "format": "storybook_json",
                     "bytes": 163320,
-                    "sha256": (
-                        "a608e9b606e50b75bef602136e0f9b0c47406dfedf0f68888b792b781e99eafa"
-                    ),
+                    "sha256": ("a608e9b606e50b75bef602136e0f9b0c47406dfedf0f68888b792b781e99eafa"),
                     "availability": "not_persisted_in_repository",
                 },
                 "source_registry_sha256": (
@@ -2856,9 +2611,7 @@ class DS6RegisterTransitionTests(unittest.TestCase):
                         "path": source_ref,
                         "content_sha256": source_sha256,
                     }
-                    for source_ref, source_sha256 in (
-                        checker.C03_RECEIPT_SOURCE_SHA256.items()
-                    )
+                    for source_ref, source_sha256 in (checker.C03_RECEIPT_SOURCE_SHA256.items())
                 ],
             },
             receipt,
@@ -2876,17 +2629,14 @@ class DS6RegisterTransitionTests(unittest.TestCase):
         stored = next(
             finding
             for finding in checker._supplemental_findings()
-            if finding["finding_id"]
-            == "baseline-test-a11y-rendered-contrast-incomplete-debt"
+            if finding["finding_id"] == "baseline-test-a11y-rendered-contrast-incomplete-debt"
         )
         self.assertEqual(expected_row, stored)  # noqa: PT009 - unittest suite
 
     def test_c06_receipt_and_current_evidence_drift_fail_closed(self) -> None:
         revision = "97d0c620836a3e6d33c347a1f7f563aaa9177d0c"
         plan_ref = "docs/plans/active/atlas-slices/DS6-evidence-workflow.md"
-        journal_ref = (
-            "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
-        )
+        journal_ref = "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
         plan_text = checker._c03_git_text(
             "show",
             f"{revision}:policy-engine/{plan_ref}",
@@ -2981,8 +2731,7 @@ class DS6RegisterTransitionTests(unittest.TestCase):
     def test_c06_transition_is_surgical_idempotent_and_rejects_bypass(self) -> None:
         finding_id = "baseline-test-a11y-rendered-contrast-incomplete-debt"
         register_ref = (
-            "policy-engine/architecture/atlas_surfaces/"
-            "frontend-disposition-register.json"
+            "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json"
         )
         open_text = checker._c03_git_text(
             "show",
@@ -2995,17 +2744,13 @@ class DS6RegisterTransitionTests(unittest.TestCase):
         )
 
         _open_start, _open_end, open_rows = checker._supplemental_section(open_text)
-        _repaired_start, _repaired_end, repaired_rows = checker._supplemental_section(
-            repaired_text
-        )
+        _repaired_start, _repaired_end, repaired_rows = checker._supplemental_section(repaired_text)
         self.assertEqual(  # noqa: PT009 - unittest suite
             [row for row in open_rows if row[0] != finding_id],
             [row for row in repaired_rows if row[0] != finding_id],
         )
         open_row = json.loads(next(row for row in open_rows if row[0] == finding_id)[1])
-        repaired_row = json.loads(
-            next(row for row in repaired_rows if row[0] == finding_id)[1]
-        )
+        repaired_row = json.loads(next(row for row in repaired_rows if row[0] == finding_id)[1])
         self.assertEqual(  # noqa: PT009 - unittest suite
             checker._c04_rendered_contrast_finding(),
             open_row,
@@ -3020,9 +2765,7 @@ class DS6RegisterTransitionTests(unittest.TestCase):
         ):
             checker._refresh_supplemental_findings_text(open_text)
 
-        _section_start, section_end, spans = checker._supplemental_section_spans(
-            open_text
-        )
+        _section_start, section_end, spans = checker._supplemental_section_spans(open_text)
         target = next(span for span in spans if span[0] == finding_id)
 
         def replace_target(row: dict[str, object]) -> str:
@@ -3094,9 +2837,12 @@ class DS6RegisterTransitionTests(unittest.TestCase):
             "--print-c21b-authority-partition-hashes",
         )
         for print_flag in print_flags:
-            with self.subTest(print_flag=print_flag), mock.patch(
-                "sys.stdout",
-                new=io.StringIO(),
+            with (
+                self.subTest(print_flag=print_flag),
+                mock.patch(
+                    "sys.stdout",
+                    new=io.StringIO(),
+                ),
             ):
                 self.assertEqual(  # noqa: PT009 - unittest suite
                     1,
@@ -3121,11 +2867,7 @@ class DS6RegisterTransitionTests(unittest.TestCase):
         if not callable(validator):
             raise AssertionError("DS6 transition-row validator is missing")
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
-        stored = [
-            row
-            for row in data["supplemental_findings"]
-            if row["finding_id"] == finding_id
-        ]
+        stored = [row for row in data["supplemental_findings"] if row["finding_id"] == finding_id]
         self.assertEqual(1, len(stored))  # noqa: PT009 - unittest suite
         corruptions = {
             "finding_id": finding_id + "-drift",
@@ -3170,9 +2912,7 @@ class DS6RegisterTransitionTests(unittest.TestCase):
             "missing": {
                 **data,
                 "supplemental_findings": [
-                    row
-                    for row in data["supplemental_findings"]
-                    if row["finding_id"] != finding_id
+                    row for row in data["supplemental_findings"] if row["finding_id"] != finding_id
                 ],
             },
             "duplicate": {
@@ -3211,30 +2951,27 @@ class DS6RegisterTransitionTests(unittest.TestCase):
             )
 
         expected = {
-                "finding_id": "baseline-test-i18n-count-debt",
-                "finding_kind": "baseline_test_debt",
-                "disposition": "rebind_pending",
-                "status": "repaired",
-                "evidence_refs": [
-                    "architecture/atlas_surfaces/"
-                    "frontend-baseline-debt-manifest.json#tests/i18n-count"
-                ],
-                "owner_slice": "DS6",
-                "decision_date": "2026-07-17",
-                "repair_commit": "97d0c620836a3e6d33c347a1f7f563aaa9177d0c",
-                "rationale": (
-                    "The governed Vitest lifecycle admits exactly the three historical DS6 "
-                    "count-message identities while open or the C16 full-suite empty "
-                    "failure set when repaired."
-                ),
-            }
+            "finding_id": "baseline-test-i18n-count-debt",
+            "finding_kind": "baseline_test_debt",
+            "disposition": "rebind_pending",
+            "status": "repaired",
+            "evidence_refs": [
+                "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#tests/i18n-count"
+            ],
+            "owner_slice": "DS6",
+            "decision_date": "2026-07-17",
+            "repair_commit": "97d0c620836a3e6d33c347a1f7f563aaa9177d0c",
+            "rationale": (
+                "The governed Vitest lifecycle admits exactly the three historical DS6 "
+                "count-message identities while open or the C16 full-suite empty "
+                "failure set when repaired."
+            ),
+        }
         if row != expected:
             raise AssertionError(f"C03 row drift: {row!r}")
 
     def test_c03_stored_row_rejects_drift_in_every_governed_field(self) -> None:
-        validator = getattr(
-            checker, "_validate_ds6_register_transition_findings", None
-        )
+        validator = getattr(checker, "_validate_ds6_register_transition_findings", None)
         if not callable(validator):
             raise AssertionError("DS6 transition-row validator is missing")
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
@@ -3349,8 +3086,7 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
             mutation["test_titles"] = titles
             with self.subTest(name=name):
                 self._require(
-                    "test_title_population"
-                    in checker._c13_receipt_shape_errors(mutation)
+                    "test_title_population" in checker._c13_receipt_shape_errors(mutation)
                 )
 
     def test_current_source_byte_drift_invalidates_the_receipt(self) -> None:
@@ -3399,10 +3135,7 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
             mutation = copy.deepcopy(receipt)
             mutation["producer_bindings"] = producers
             with self.subTest(name=name):
-                self._require(
-                    "producer_population"
-                    in checker._c13_receipt_shape_errors(mutation)
-                )
+                self._require("producer_population" in checker._c13_receipt_shape_errors(mutation))
 
     def test_raw_playwright_and_environment_artifacts_are_the_receipt(self) -> None:
         receipt = checker._c13_independent_print_receipt()
@@ -3421,9 +3154,7 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
             b"unrelated passing test                            ",
             1,
         )
-        receipt["raw_artifacts"][0]["sha256"] = hashlib.sha256(
-            artifacts[result_path]
-        ).hexdigest()
+        receipt["raw_artifacts"][0]["sha256"] = hashlib.sha256(artifacts[result_path]).hexdigest()
         with pytest.raises(ValueError, match="C13 raw execution rejected"):
             checker._c13_raw_execution_receipt(receipt, artifacts=artifacts)
 
@@ -3439,15 +3170,14 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
         with _c13_evidence_snapshot(receipt):
             candidate = checker._c13_print_transition_text(original, receipt=receipt)
             self._require(
-                candidate
-                == checker._c13_print_transition_text(candidate, receipt=receipt)
+                candidate == checker._c13_print_transition_text(candidate, receipt=receipt)
             )
             expected_closed_entry = checker._c13_print_closed_entry(receipt)
-        _original_start, _original_end, original_row = (
-            checker._json_entry_object_span(original, "adjacent-print-export")
+        _original_start, _original_end, original_row = checker._json_entry_object_span(
+            original, "adjacent-print-export"
         )
-        _candidate_start, _candidate_end, candidate_row = (
-            checker._json_entry_object_span(candidate, "adjacent-print-export")
+        _candidate_start, _candidate_end, candidate_row = checker._json_entry_object_span(
+            candidate, "adjacent-print-export"
         )
         self._require(original_row == checker._c13_print_open_entry())
         self._require(candidate_row == expected_closed_entry)
@@ -3481,11 +3211,7 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
                 (closed, "disposition", "use_as_is"),
             ):
                 data = json.loads(source)
-                row = next(
-                    r
-                    for r in data["entries"]
-                    if r["unit_id"] == "adjacent-print-export"
-                )
+                row = next(r for r in data["entries"] if r["unit_id"] == "adjacent-print-export")
                 row[field] = value
                 mutation = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
                 with (
@@ -3522,9 +3248,9 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
         original = json.loads(original_text)
         candidate = json.loads(candidate_text)
         expected = copy.deepcopy(original)
-        expected["sources"]["ds19"]["sha256"] = "sha256:" + hashlib.sha256(
-            register_candidate.encode("utf-8")
-        ).hexdigest()
+        expected["sources"]["ds19"]["sha256"] = (
+            "sha256:" + hashlib.sha256(register_candidate.encode("utf-8")).hexdigest()
+        )
         self._require(candidate == expected)
         self._require(
             checker._c13_status_candidate_errors(
@@ -3562,8 +3288,7 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
             diagnostics = checker.status_checker.validate_inventory(candidate, debt)
         self._require(
             "inventory_source_hash_drift:"
-            "architecture/atlas_surfaces/frontend-disposition-register.json"
-            not in diagnostics
+            "architecture/atlas_surfaces/frontend-disposition-register.json" not in diagnostics
         )
 
 
@@ -3572,54 +3297,43 @@ class RawTransportDriftTests(unittest.TestCase):
 
     def test_raw_transport_drift_row_binds_historical_and_live_census(self) -> None:
         descriptor = checker._raw_transport_drift_descriptor()
-        self.assertEqual("raw-transport-denominator-drift", descriptor["finding_id"])
+        assert descriptor["finding_id"] == "raw-transport-denominator-drift"
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         row = next(
             item
             for item in data["supplemental_findings"]
             if item["finding_id"] == descriptor["finding_id"]
         )
-        self.assertEqual(descriptor, row)
+        assert descriptor == row
 
-        sources = checker._typescript_production_sources(
-            checker.RAW_TRANSPORT_SCAN_ROOTS
-        )
+        sources = checker._typescript_production_sources(checker.RAW_TRANSPORT_SCAN_ROOTS)
         observed = checker._direct_transport_census_from_sources(sources)
-        self.assertEqual(
-            {
-                "fetch_calls": 5,
-                "fetch_production_file_count": 3,
-                "direct_constructor_count": 7,
-                "direct_constructor_production_file_count": 5,
-                "kind_counts": {"fetch": 5, "EventSource": 1, "WebSocket": 1},
-            },
-            {
-                "fetch_calls": observed["kind_counts"]["fetch"],
-                "fetch_production_file_count": observed["fetch_production_file_count"],
-                "direct_constructor_count": observed["direct_constructor_count"],
-                "direct_constructor_production_file_count": observed["production_file_count"],
-                "kind_counts": observed["kind_counts"],
-            },
-        )
+        assert {
+            "fetch_calls": observed["kind_counts"]["fetch"],
+            "fetch_production_file_count": observed["fetch_production_file_count"],
+            "direct_constructor_count": observed["direct_constructor_count"],
+            "direct_constructor_production_file_count": observed["production_file_count"],
+            "kind_counts": observed["kind_counts"],
+        } == {
+            "fetch_calls": 5,
+            "fetch_production_file_count": 3,
+            "direct_constructor_count": 7,
+            "direct_constructor_production_file_count": 5,
+            "kind_counts": {"fetch": 5, "EventSource": 1, "WebSocket": 1},
+        }
         census_errors: list[str] = []
         checker._validate_producer_binding_debt_findings(data, census_errors)
-        checker._validate_raw_transport_drift(
-            data, census_errors, sources=sources
-        )
-        self.assertEqual([], census_errors)
+        checker._validate_raw_transport_drift(data, census_errors, sources=sources)
+        assert census_errors == []
 
         for label, mutate in (
             (
                 "historical-fetch-denominator",
-                lambda receipt: receipt["historical_ds1"].__setitem__(
-                    "raw_fetch_calls", 8
-                ),
+                lambda receipt: receipt["historical_ds1"].__setitem__("raw_fetch_calls", 8),
             ),
             (
                 "historical-file-denominator",
-                lambda receipt: receipt["historical_ds1"].__setitem__(
-                    "production_file_count", 4
-                ),
+                lambda receipt: receipt["historical_ds1"].__setitem__("production_file_count", 4),
             ),
             (
                 "live-fetch-denominator",
@@ -3680,10 +3394,9 @@ class RawTransportDriftTests(unittest.TestCase):
                 mutate(target["raw_transport_receipt"])
                 errors: list[str] = []
                 checker._validate_producer_binding_debt_findings(mutation, errors)
-                self.assertIn(
+                assert (
                     "producer_binding_debt_drift:"
-                    "raw-transport-denominator-drift:raw_transport_receipt",
-                    errors,
+                    "raw-transport-denominator-drift:raw_transport_receipt" in errors
                 )
 
         for field, value in (
@@ -3701,10 +3414,8 @@ class RawTransportDriftTests(unittest.TestCase):
                 target[field] = value
                 errors = []
                 checker._validate_producer_binding_debt_findings(mutation, errors)
-                self.assertIn(
-                    "producer_binding_debt_drift:"
-                    f"raw-transport-denominator-drift:{field}",
-                    errors,
+                assert (
+                    f"producer_binding_debt_drift:raw-transport-denominator-drift:{field}" in errors
                 )
 
         for field in ("owner_slice", "capability_states", "closure_signal"):
@@ -3718,7 +3429,7 @@ class RawTransportDriftTests(unittest.TestCase):
                 target.pop(field)
                 errors = []
                 checker._validate_producer_binding_debt_findings(mutation, errors)
-                self.assertTrue(errors)
+                assert errors
 
         benign_sources = {
             **sources,
@@ -3726,7 +3437,7 @@ class RawTransportDriftTests(unittest.TestCase):
                 "const control = { fetch: () => undefined };\nvoid control.fetch();\n"
             ),
         }
-        self.assertEqual(observed, checker._direct_transport_census_from_sources(benign_sources))
+        assert observed == checker._direct_transport_census_from_sources(benign_sources)
         for label, mutated_sources in (
             (
                 "added",
@@ -3760,17 +3471,10 @@ class RawTransportDriftTests(unittest.TestCase):
         ):
             with self.subTest(direct_constructor=label):
                 errors = []
-                checker._validate_raw_transport_drift(
-                    data, errors, sources=mutated_sources
-                )
-                self.assertIn(
-                    "raw_transport_live_direct_constructor_census_drift",
-                    errors,
-                )
+                checker._validate_raw_transport_drift(data, errors, sources=mutated_sources)
+                assert "raw_transport_live_direct_constructor_census_drift" in errors
 
-        predecessor_text = _register_text_at(
-            "e69d95423da6b0e81b05d6cc1c68e1409d338763"
-        )
+        predecessor_text = _register_text_at("e69d95423da6b0e81b05d6cc1c68e1409d338763")
         self.assertNotIn(  # noqa: PT009
             checker.RAW_TRANSPORT_DRIFT_FINDING_ID,
             _supplemental_rows(predecessor_text),
@@ -3793,37 +3497,21 @@ class RawTransportDriftTests(unittest.TestCase):
                 checker.RAW_TRANSPORT_DRIFT_FINDING_ID,
                 _supplemental_rows(refreshed_text),
             )
-            self.assertEqual(
-                refreshed_text,
-                checker._refresh_supplemental_findings_text(refreshed_text),
-            )
-        original_start, original_end, original_rows = checker._supplemental_section(
-            original_text
-        )
+            assert refreshed_text == checker._refresh_supplemental_findings_text(refreshed_text)
+        original_start, original_end, original_rows = checker._supplemental_section(original_text)
         refreshed_start, refreshed_end, refreshed_rows = checker._supplemental_section(
             refreshed_text
         )
-        self.assertEqual(
-            original_text[: original_start + 1], refreshed_text[: refreshed_start + 1]
-        )
-        self.assertEqual(original_text[original_end:], refreshed_text[refreshed_end:])
+        assert original_text[: original_start + 1] == refreshed_text[: refreshed_start + 1]
+        assert original_text[original_end:] == refreshed_text[refreshed_end:]
         generated_ids = checker._surgical_supplemental_finding_ids(original_text)
-        refreshed_generated_ids = checker._surgical_supplemental_finding_ids(
-            refreshed_text
-        )
-        self.assertEqual(
-            [text for finding_id, text in original_rows if finding_id not in generated_ids],
-            [
-                text
-                for finding_id, text in refreshed_rows
-                if finding_id not in refreshed_generated_ids
-            ],
-        )
+        refreshed_generated_ids = checker._surgical_supplemental_finding_ids(refreshed_text)
+        assert [text for finding_id, text in original_rows if finding_id not in generated_ids] == [
+            text for finding_id, text in refreshed_rows if finding_id not in refreshed_generated_ids
+        ]
 
     def test_raw_transport_drift_decision_date_is_c03a_specific(self) -> None:
-        self.assertEqual(
-            "2026-08-08", checker._raw_transport_drift_descriptor()["decision_date"]
-        )
+        assert checker._raw_transport_drift_descriptor()["decision_date"] == "2026-08-08"
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         mutation = copy.deepcopy(data)
         row = next(
@@ -3832,23 +3520,18 @@ class RawTransportDriftTests(unittest.TestCase):
             if item["finding_id"] == checker.RAW_TRANSPORT_DRIFT_FINDING_ID
         )
         row["decision_date"] = checker.DECISION_DATE
-        self.assertIn(
-            "supplemental_decision_date_drift:raw-transport-denominator-drift",
-            checker.validate_register(
-                mutation, live_probes=False, report_parity=False
-            ),
+        assert (
+            "supplemental_decision_date_drift:raw-transport-denominator-drift"
+            in checker.validate_register(mutation, live_probes=False, report_parity=False)
         )
 
     def test_raw_transport_drift_closure_signal_is_executable_c03b_receipt(self) -> None:
         signal = checker._raw_transport_drift_descriptor()["closure_signal"]
-        self.assertIn(
-            "test_direct_authority_transport_requires_typed_purpose_factory",
-            signal,
-        )
-        self.assertIn("exits 0", signal)
-        self.assertIn("7/5", signal)
-        self.assertIn("exit nonzero", signal)
-        result = subprocess.run(
+        assert "test_direct_authority_transport_requires_typed_purpose_factory" in signal
+        assert "exits 0" in signal
+        assert "7/5" in signal
+        assert "exit nonzero" in signal
+        result = subprocess.run(  # noqa: S602 - shell syntax is the checked-in executable receipt under test
             signal,
             shell=True,
             cwd=ATLAS_DIR.parent.parent,
@@ -3856,16 +3539,16 @@ class RawTransportDriftTests(unittest.TestCase):
             check=False,
             text=True,
         )
-        self.assertEqual(3, result.returncode, result.stderr)
-        self.assertEqual("", result.stderr)
-        self.assertNotIn("AttributeError", result.stderr)
+        assert result.returncode == 3, result.stderr
+        assert result.stderr == ""
+        assert "AttributeError" not in result.stderr
 
     def test_raw_transport_debt_closure_requires_lint_and_drift_corruption(self) -> None:
         """Require both named C03b test identities to execute and pass."""
 
         class OwnerPass(unittest.TestCase):
             def test_direct_authority_transport_requires_typed_purpose_factory(self) -> None:
-                self.assertTrue(True)
+                assert True
 
         class OwnerFail(unittest.TestCase):
             def test_direct_authority_transport_requires_typed_purpose_factory(self) -> None:
@@ -3873,7 +3556,7 @@ class RawTransportDriftTests(unittest.TestCase):
 
         class DriftPass(unittest.TestCase):
             def test_raw_transport_drift_row_binds_historical_and_live_census(self) -> None:
-                self.assertTrue(True)
+                assert True
 
         class DriftFail(unittest.TestCase):
             def test_raw_transport_drift_row_binds_historical_and_live_census(self) -> None:
@@ -3883,14 +3566,14 @@ class RawTransportDriftTests(unittest.TestCase):
         owner_method = "test_direct_authority_transport_requires_typed_purpose_factory"
         drift_method = "test_raw_transport_drift_row_binds_historical_and_live_census"
 
-        self.assertEqual(3, closure(None, owner_method, DriftPass, drift_method))
-        self.assertEqual(3, closure(OwnerPass, "missing_owner_method", DriftPass, drift_method))
-        self.assertEqual(4, closure(OwnerPass, owner_method, None, drift_method))
-        self.assertEqual(4, closure(OwnerPass, owner_method, DriftPass, "missing_drift_method"))
-        self.assertEqual(1, closure(OwnerFail, owner_method, DriftPass, drift_method))
+        assert closure(None, owner_method, DriftPass, drift_method) == 3
+        assert closure(OwnerPass, "missing_owner_method", DriftPass, drift_method) == 3
+        assert closure(OwnerPass, owner_method, None, drift_method) == 4
+        assert closure(OwnerPass, owner_method, DriftPass, "missing_drift_method") == 4
+        assert closure(OwnerFail, owner_method, DriftPass, drift_method) == 1
         # A named drift marker without running its failing method must stay red.
-        self.assertEqual(1, closure(OwnerPass, owner_method, DriftFail, drift_method))
-        self.assertEqual(0, closure(OwnerPass, owner_method, DriftPass, drift_method))
+        assert closure(OwnerPass, owner_method, DriftFail, drift_method) == 1
+        assert closure(OwnerPass, owner_method, DriftPass, drift_method) == 0
 
     def test_raw_transport_receipt_schema_requires_id_and_producer_kind(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
@@ -3903,10 +3586,8 @@ class RawTransportDriftTests(unittest.TestCase):
         mutation["finding_kind"] = "baseline_test_debt"
         mutation.pop("capability_states")
         mutation.pop("closure_signal")
-        self.assertTrue(
-            checker._schema_errors(
-                {**data, "supplemental_findings": [mutation]}, checker.SCHEMA_PATH
-            )
+        assert checker._schema_errors(
+            {**data, "supplemental_findings": [mutation]}, checker.SCHEMA_PATH
         )
 
     def test_raw_transport_writer_preservation_oracle_rejects_full_reserialization(self) -> None:
@@ -3923,27 +3604,18 @@ class RawTransportDriftTests(unittest.TestCase):
             1,
         )
         refreshed = checker._refresh_supplemental_findings_text(noncanonical)
-        self.assertEqual(
-            [],
-            checker._raw_transport_writer_preservation_errors(noncanonical, refreshed),
+        assert checker._raw_transport_writer_preservation_errors(noncanonical, refreshed) == []
+        full_reserialized = (
+            json.dumps(json.loads(noncanonical), indent=2, ensure_ascii=False) + "\n"
         )
-        full_reserialized = json.dumps(
-            json.loads(noncanonical), indent=2, ensure_ascii=False
-        ) + "\n"
-        self.assertTrue(
-            checker._raw_transport_writer_preservation_errors(
-                noncanonical, full_reserialized
-            )
-        )
+        assert checker._raw_transport_writer_preservation_errors(noncanonical, full_reserialized)
         outside_section_mutant = refreshed.replace(
             '\t"seeded_negative_lifecycle": [',
             '  "seeded_negative_lifecycle": [',
             1,
         )
-        self.assertTrue(
-            checker._raw_transport_writer_preservation_errors(
-                noncanonical, outside_section_mutant
-            )
+        assert checker._raw_transport_writer_preservation_errors(
+            noncanonical, outside_section_mutant
         )
 
 
@@ -3992,8 +3664,7 @@ class IntegrateContractDebtTests(unittest.TestCase):
             "run attempt; filesystem mtime is observation time only"
         ),
         "runtime_novelty_behavior": (
-            "novel owner status or projection values fail closed as explicit "
-            "unrecognized"
+            "novel owner status or projection values fail closed as explicit unrecognized"
         ),
         "executable_owner_side_closure_signal": (
             "uv run python tools/quality/validation/"
@@ -4033,9 +3704,7 @@ class IntegrateContractDebtTests(unittest.TestCase):
                 "The G4 owner publishes only reduced reference projections; DS5 may not "
                 "invent or route the complete eight-field audience projection."
             ),
-            "closure_signal": cls.integrate_contract[
-                "executable_owner_side_closure_signal"
-            ],
+            "closure_signal": cls.integrate_contract["executable_owner_side_closure_signal"],
             "decision_date": "2026-08-02",
         }
 
@@ -4044,7 +3713,7 @@ class IntegrateContractDebtTests(unittest.TestCase):
     ) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         data["supplemental_findings"] = [self._row()]
-        self.assertEqual([], checker._schema_errors(data, checker.SCHEMA_PATH))
+        assert checker._schema_errors(data, checker.SCHEMA_PATH) == []
 
         for field in (
             "owner_team",
@@ -4055,33 +3724,27 @@ class IntegrateContractDebtTests(unittest.TestCase):
             with self.subTest(missing=field):
                 mutation = copy.deepcopy(data)
                 mutation["supplemental_findings"][0].pop(field)
-                self.assertTrue(checker._schema_errors(mutation, checker.SCHEMA_PATH))
+                assert checker._schema_errors(mutation, checker.SCHEMA_PATH)
 
         for field in self.integrate_contract:
             with self.subTest(contract_field=field):
                 mutation = copy.deepcopy(data)
-                mutation["supplemental_findings"][0]["integrate_contract"].pop(
-                    field
-                )
-                self.assertTrue(checker._schema_errors(mutation, checker.SCHEMA_PATH))
+                mutation["supplemental_findings"][0]["integrate_contract"].pop(field)
+                assert checker._schema_errors(mutation, checker.SCHEMA_PATH)
 
         wrong_owner = copy.deepcopy(data)
         wrong_owner["supplemental_findings"][0]["owner_team"] = "DS5"
-        self.assertTrue(checker._schema_errors(wrong_owner, checker.SCHEMA_PATH))
+        assert checker._schema_errors(wrong_owner, checker.SCHEMA_PATH)
 
     def test_g4_integrate_debt_is_descriptor_bound_and_corruption_rejected(
         self,
     ) -> None:
         descriptors = checker.INTEGRATE_DEBT_DESCRIPTORS
-        self.assertEqual({self.finding_id}, set(descriptors))
-        self.assertEqual(
-            self._row(), checker.GOVERNED_DEBT_DESCRIPTORS[self.finding_id]
-        )
+        assert {self.finding_id} == set(descriptors)
+        assert self._row() == checker.GOVERNED_DEBT_DESCRIPTORS[self.finding_id]
 
-        generated = {
-            row["finding_id"]: row for row in checker._supplemental_findings()
-        }
-        self.assertEqual(self._row(), generated[self.finding_id])
+        generated = {row["finding_id"]: row for row in checker._supplemental_findings()}
+        assert self._row() == generated[self.finding_id]
 
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         for field in ("owner_team", "capability_states", "integrate_contract"):
@@ -4099,10 +3762,7 @@ class IntegrateContractDebtTests(unittest.TestCase):
                     live_probes=False,
                     report_parity=False,
                 )
-                self.assertIn(
-                    f"integrate_contract_debt_drift:{self.finding_id}:{field}",
-                    errors,
-                )
+                assert f"integrate_contract_debt_drift:{self.finding_id}:{field}" in errors
 
 
 class AuthorityPresentationCensusTests(unittest.TestCase):
@@ -4115,56 +3775,40 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         scan = checker._authority_presentation_scan()
         rows = checker._authority_presentation_rows(scan)
 
-        self.assertEqual(35, len(rows))
-        self.assertEqual(
-            9,
-            sum(
-                row.get("authority_sink", {}).get("sink_kind") == "prop_boundary"
-                for row in rows
-            ),
+        assert len(rows) == 35
+        assert (
+            sum(row.get("authority_sink", {}).get("sink_kind") == "prop_boundary" for row in rows)
+            == 9
         )
-        self.assertEqual(
-            25,
+        assert (
             sum(
-                row.get("authority_sink", {}).get("sink_kind")
-                == "direct_badge_group"
+                row.get("authority_sink", {}).get("sink_kind") == "direct_badge_group"
                 for row in rows
-            ),
+            )
+            == 25
         )
         absence = next(
             row
             for row in rows
-            if row["finding_id"]
-            == "authority-presentation-badge-evidence-source-freshness"
+            if row["finding_id"] == "authority-presentation-badge-evidence-source-freshness"
         )
-        self.assertEqual(
-            {
-                "sink_kind": "direct_badge_group",
-                "descriptor_id": "badge-evidence-source-freshness",
-                "consumer_count": 0,
-                "predicate_provenance": "recomputed",
-                "reason": "no_live_consumer_sites",
-            },
-            absence["authority_sink_absence"],
-        )
-        self.assertNotIn("authority_sink", absence)
-        self.assertEqual("open_debt", absence["status"])
-        self.assertEqual("DS8", absence["owner_slice"])
-        self.assertEqual(
-            [
-                "producer_missing",
-                "bridge_missing",
-                "consumer_missing",
-                "semantic_test_missing",
-            ],
-            absence["capability_states"],
-        )
-        self.assertEqual(
-            [],
-            checker._authority_presentation_errors(
-                data, live_probes=True, scan=scan
-            ),
-        )
+        assert absence["authority_sink_absence"] == {
+            "sink_kind": "direct_badge_group",
+            "descriptor_id": "badge-evidence-source-freshness",
+            "consumer_count": 0,
+            "predicate_provenance": "recomputed",
+            "reason": "no_live_consumer_sites",
+        }
+        assert "authority_sink" not in absence
+        assert absence["status"] == "open_debt"
+        assert absence["owner_slice"] == "DS8"
+        assert absence["capability_states"] == [
+            "producer_missing",
+            "bridge_missing",
+            "consumer_missing",
+            "semantic_test_missing",
+        ]
+        assert checker._authority_presentation_errors(data, live_probes=True, scan=scan) == []
 
         for field, value in (
             ("consumer_count", 1),
@@ -4179,17 +3823,12 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
                     if row["finding_id"] == absence["finding_id"]
                 )
                 stored["authority_sink_absence"][field] = value
-                self.assertIn(
-                    "authority_presentation_debt_drift:"
-                    + absence["finding_id"]
-                    + ":authority_sink_absence",
-                    checker._authority_presentation_errors(
-                        mutation, live_probes=False, scan=scan
-                    ),
+                assert "authority_presentation_debt_drift:" + absence[
+                    "finding_id"
+                ] + ":authority_sink_absence" in checker._authority_presentation_errors(
+                    mutation, live_probes=False, scan=scan
                 )
-                self.assertTrue(
-                    checker._schema_errors(mutation, checker.SCHEMA_PATH)
-                )
+                assert checker._schema_errors(mutation, checker.SCHEMA_PATH)
 
         both = copy.deepcopy(data)
         stored_absence = next(
@@ -4205,7 +3844,7 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
                 and row["authority_sink"]["sink_kind"] == "direct_badge_group"
             )
         )
-        self.assertTrue(checker._schema_errors(both, checker.SCHEMA_PATH))
+        assert checker._schema_errors(both, checker.SCHEMA_PATH)
 
     def test_authority_debt_corruptions_fail_closed(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
@@ -4214,9 +3853,7 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
 
         missing = copy.deepcopy(data)
         missing["supplemental_findings"] = [
-            row
-            for row in missing["supplemental_findings"]
-            if row["finding_id"] != finding_id
+            row for row in missing["supplemental_findings"] if row["finding_id"] != finding_id
         ]
         corruptions["finding_id"] = missing
 
@@ -4232,13 +3869,9 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
 
         moved = copy.deepcopy(data)
         row = next(
-            item
-            for item in moved["supplemental_findings"]
-            if item["finding_id"] == finding_id
+            item for item in moved["supplemental_findings"] if item["finding_id"] == finding_id
         )
-        row["authority_sink"]["consumer_sites"][0]["site_sha256"] = (
-            "sha256:" + "0" * 64
-        )
+        row["authority_sink"]["consumer_sites"][0]["site_sha256"] = "sha256:" + "0" * 64
         corruptions["authority_sink"] = moved
 
         navigation_only_move = copy.deepcopy(data)
@@ -4248,39 +3881,25 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             if item["finding_id"] == finding_id
         )
         row["authority_sink"]["consumer_sites"][0]["line"] += 1
-        self.assertEqual(
-            [],
-            checker._authority_presentation_errors(
-                navigation_only_move, live_probes=False
-            ),
-        )
+        assert checker._authority_presentation_errors(navigation_only_move, live_probes=False) == []
 
         navigation_only_reorder = copy.deepcopy(data)
         row = next(
             item
             for item in navigation_only_reorder["supplemental_findings"]
-            if item["finding_id"]
-            == "authority-presentation-badge-compound-decision-grade"
+            if item["finding_id"] == "authority-presentation-badge-compound-decision-grade"
         )
         row["authority_sink"]["consumer_sites"].reverse()
         for receipt in row["authority_sink"]["consumer_sites"]:
             receipt["line"] += 100
-        self.assertEqual(
-            [],
-            checker._authority_presentation_errors(
-                navigation_only_reorder, live_probes=False
-            ),
+        assert (
+            checker._authority_presentation_errors(navigation_only_reorder, live_probes=False) == []
         )
 
         for field, mutation in corruptions.items():
             with self.subTest(field=field):
-                errors = checker._authority_presentation_errors(
-                    mutation, live_probes=False
-                )
-                self.assertIn(
-                    f"authority_presentation_debt_drift:{finding_id}:{field}",
-                    errors,
-                )
+                errors = checker._authority_presentation_errors(mutation, live_probes=False)
+                assert f"authority_presentation_debt_drift:{finding_id}:{field}" in errors
 
     def test_ds11_trust_presentation_writer_is_exact_idempotent_and_forgery_closed(
         self,
@@ -4288,21 +3907,15 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         """C04 may replace only its two pinned preimages with semantic receipts."""
         opening = _register_text_at("52182fe26")
         scan = checker._authority_presentation_scan()
-        self.assertEqual([], checker._ds11_trust_presentation_semantic_errors(scan))
+        assert checker._ds11_trust_presentation_semantic_errors(scan) == []
 
         candidate = checker._ds11_trust_presentation_transition_text(
             opening,
             scan=scan,
         )
-        self.assertNotEqual(opening, candidate)
-        self.assertEqual(
-            candidate,
-            checker._ds11_trust_presentation_transition_text(candidate, scan=scan),
-        )
-        self.assertEqual(
-            [],
-            checker._ds11_trust_presentation_preservation_errors(opening, candidate),
-        )
+        assert opening != candidate
+        assert candidate == checker._ds11_trust_presentation_transition_text(candidate, scan=scan)
+        assert checker._ds11_trust_presentation_preservation_errors(opening, candidate) == []
         opening_report = _git_text(
             "52182fe26",
             "docs/reference/frontend/atlas-frontend-disposition-register.md",
@@ -4312,14 +3925,9 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             opening_register_text=opening,
             candidate_register_text=candidate,
         )
-        self.assertNotEqual(opening_report, candidate_report)
-        self.assertEqual(
-            candidate_report,
-            checker._ds11_trust_presentation_report_transition_text(
-                candidate_report,
-                opening_register_text=opening,
-                candidate_register_text=candidate,
-            ),
+        assert opening_report != candidate_report
+        assert candidate_report == checker._ds11_trust_presentation_report_transition_text(
+            candidate_report, opening_register_text=opening, candidate_register_text=candidate
         )
         candidate_data = json.loads(candidate)
         target_rows = {
@@ -4327,43 +3935,31 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             for row in candidate_data["supplemental_findings"]
             if row["finding_id"] in checker.DS11_TRUST_PRESENTATION_FINDING_IDS
         }
-        self.assertEqual(
-            set(checker.DS11_TRUST_PRESENTATION_FINDING_IDS), set(target_rows)
-        )
-        self.assertTrue(all(row["status"] == "repaired" for row in target_rows.values()))
-        self.assertEqual(
-            [],
-            checker._ds11_trust_presentation_candidate_errors(
-                candidate_data,
-                report_parity=False,
-            ),
+        assert set(checker.DS11_TRUST_PRESENTATION_FINDING_IDS) == set(target_rows)
+        assert all(row["status"] == "repaired" for row in target_rows.values())
+        assert (
+            checker._ds11_trust_presentation_candidate_errors(candidate_data, report_parity=False)
+            == []
         )
         forged_target = copy.deepcopy(candidate_data)
         forged_target_row = next(
             row
             for row in forged_target["supplemental_findings"]
-            if row["finding_id"]
-            == sorted(checker.DS11_TRUST_PRESENTATION_FINDING_IDS)[0]
+            if row["finding_id"] == sorted(checker.DS11_TRUST_PRESENTATION_FINDING_IDS)[0]
         )
         forged_target_row["status"] = "open_debt"
-        assert checker._ds11_trust_presentation_candidate_errors(  # noqa: S101
+        assert checker._ds11_trust_presentation_candidate_errors(
             forged_target,
             report_parity=False,
         )
 
-        def replace_target(
-            text: str, finding_id: str, replacement: dict[str, object]
-        ) -> str:
+        def replace_target(text: str, finding_id: str, replacement: dict[str, object]) -> str:
             _start, _end, spans = checker._supplemental_section_spans(text)
             start, end = next(
-                (start, end)
-                for candidate_id, start, end in spans
-                if candidate_id == finding_id
+                (start, end) for candidate_id, start, end in spans if candidate_id == finding_id
             )
             return (
-                text[:start]
-                + checker._render_supplemental_finding(replacement)
-                + text[end + 1 :]
+                text[:start] + checker._render_supplemental_finding(replacement) + text[end + 1 :]
             )
 
         opening_rows = {
@@ -4383,17 +3979,16 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             current_predecessor,
             scan=scan,
         )
-        self.assertEqual(current, current_candidate)
-        self.assertEqual(
-            [],
+        assert current == current_candidate
+        assert (
             checker._ds11_trust_presentation_candidate_errors(
-                json.loads(current_candidate),
-                report_parity=False,
-            ),
+                json.loads(current_candidate), report_parity=False
+            )
+            == []
         )
 
         target_id = sorted(checker.DS11_TRUST_PRESENTATION_FINDING_IDS)[0]
-        with self.assertRaisesRegex(ValueError, "target cardinality"):
+        with pytest.raises(ValueError, match="target cardinality"):
             checker._ds11_trust_presentation_transition_text(
                 checker._remove_supplemental_finding_text(opening, target_id),
                 scan=scan,
@@ -4401,9 +3996,7 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
 
         _start, array_end, spans = checker._supplemental_section_spans(opening)
         target_start, target_end = next(
-            (start, end)
-            for candidate_id, start, end in spans
-            if candidate_id == target_id
+            (start, end) for candidate_id, start, end in spans if candidate_id == target_id
         )
         duplicated = (
             opening[:array_end]
@@ -4411,7 +4004,7 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             + opening[target_start : target_end + 1]
             + opening[array_end:]
         )
-        with self.assertRaisesRegex(ValueError, "target cardinality"):
+        with pytest.raises(ValueError, match="target cardinality"):
             checker._ds11_trust_presentation_transition_text(duplicated, scan=scan)
 
         opening_data = json.loads(opening)
@@ -4423,39 +4016,37 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             )
         )
         restamped["decision_date"] = "2026-08-27"
-        with self.assertRaisesRegex(ValueError, "predecessor restamp"):
+        with pytest.raises(ValueError, match="predecessor restamp"):
             checker._ds11_trust_presentation_transition_text(
                 replace_target(opening, target_id, restamped),
                 scan=scan,
             )
 
-        with self.assertRaisesRegex(ValueError, "predecessor restamp"):
+        with pytest.raises(ValueError, match="predecessor restamp"):
             checker._ds11_trust_presentation_transition_text(
                 replace_target(opening, target_id, target_rows[target_id]),
                 scan=scan,
             )
 
         report_target = sorted(checker.DS11_TRUST_PRESENTATION_FINDING_IDS)[0]
-        report_start, report_end, report_row = (
-            checker._ds11_trust_presentation_report_row_span(
-                opening_report,
-                report_target,
-            )
+        report_start, report_end, report_row = checker._ds11_trust_presentation_report_row_span(
+            opening_report,
+            report_target,
         )
         forged_report = (
             opening_report[:report_start]
             + report_row.replace("`open_debt`", "`repaired`", 1)
             + opening_report[report_end:]
         )
-        with self.assertRaisesRegex(ValueError, "report transition rejected:predecessor"):
+        with pytest.raises(ValueError, match="report transition rejected:predecessor"):
             checker._ds11_trust_presentation_report_transition_text(
                 forged_report,
                 opening_register_text=opening,
                 candidate_register_text=candidate,
             )
 
-        _candidate_start, _candidate_end, candidate_spans = (
-            checker._supplemental_section_spans(candidate)
+        _candidate_start, _candidate_end, candidate_spans = checker._supplemental_section_spans(
+            candidate
         )
         peer_start, peer_end = next(
             (start, end)
@@ -4467,28 +4058,22 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             + candidate[peer_start : peer_end + 1].replace('"rationale":', '"rationale" :', 1)
             + candidate[peer_end + 1 :]
         )
-        self.assertEqual(
-            ["ds11_trust_presentation_peer_drift"],
-            checker._ds11_trust_presentation_preservation_errors(
-                candidate,
-                peer_mutated,
-            ),
-        )
+        assert checker._ds11_trust_presentation_preservation_errors(candidate, peer_mutated) == [
+            "ds11_trust_presentation_peer_drift"
+        ]
 
         forged_peer = copy.deepcopy(candidate_data)
         peer_row = next(
             row
             for row in forged_peer["supplemental_findings"]
-            if row["finding_id"]
-            == "authority-presentation-prop-control-approval-readiness"
+            if row["finding_id"] == "authority-presentation-prop-control-approval-readiness"
         )
         peer_row["status"] = "repaired"
         peer_row.pop("capability_states")
         peer_row.pop("closure_signal")
         schema_errors = checker._schema_errors(forged_peer, checker.SCHEMA_PATH)
-        self.assertTrue(
-            any("prop-control-approval-readiness" in error for error in schema_errors),
-            schema_errors,
+        assert any("prop-control-approval-readiness" in error for error in schema_errors), (
+            schema_errors
         )
 
     def test_ds11_trust_presentation_semantics_bind_exact_mechanism_paths(
@@ -4501,25 +4086,21 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             for row in scan["authorityPathFiles"]
             if checker._ds11_is_production_dashboard_source(row["path"])
         }
-        self.assertEqual(
-            set(checker.DS11_C04_MECHANISM_PATHS),
-            production_paths,
-        )
+        assert set(checker.DS11_C04_MECHANISM_PATHS) == production_paths
         production_calls = [
             row
             for row in scan["authorityIssuerFacts"]["directCalls"]
             if checker._ds11_is_production_dashboard_source(str(row["path"]))
         ]
-        self.assertEqual(
-            Counter(checker.DS11_C04_ISSUER_CALLERS),
-            Counter(str(row["path"]) for row in production_calls),
+        assert Counter(checker.DS11_C04_ISSUER_CALLERS) == Counter(
+            str(row["path"]) for row in production_calls
         )
 
         missing = copy.deepcopy(scan)
         missing["authorityPathFiles"] = missing["authorityPathFiles"][1:]
-        self.assertIn(
-            "ds11_trust_presentation_mechanism_path_drift",
-            checker._ds11_trust_presentation_semantic_errors(missing),
+        assert (
+            "ds11_trust_presentation_mechanism_path_drift"
+            in checker._ds11_trust_presentation_semantic_errors(missing)
         )
 
     def test_ds11_trust_presentation_scanner_rejects_indirect_issuer_access(
@@ -4552,9 +4133,7 @@ const ds11StoredIssuerProbe = [issueTrustPresentation];
 void ds11StoredIssuerProbe;
 """
         request = {
-            "authorityPathDescriptors": (
-                checker._ds11_trust_presentation_path_descriptors()
-            ),
+            "authorityPathDescriptors": (checker._ds11_trust_presentation_path_descriptors()),
             "authorityPropDescriptors": checker._authority_prop_descriptors(),
             "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
             "includeDashboardProgramRoots": True,
@@ -4569,42 +4148,32 @@ void ds11StoredIssuerProbe;
             if row["path"] == source_path
         ]
 
-        self.assertEqual(
-            {
-                "alias",
-                "dynamic_import",
-                "namespace_import",
-                "reexport",
-                "require",
-                "value_reference",
-            },
-            {row["kind"] for row in accesses},
-        )
-        self.assertEqual(
-            2,
-            sum(row["kind"] == "reexport" for row in accesses),
-        )
-        self.assertIn(
-            "ds11_trust_presentation_unsafe_module_access",
-            checker._ds11_trust_presentation_semantic_errors(scan),
+        assert {
+            "alias",
+            "dynamic_import",
+            "namespace_import",
+            "reexport",
+            "require",
+            "value_reference",
+        } == {row["kind"] for row in accesses}
+        assert sum(row["kind"] == "reexport" for row in accesses) == 2
+        assert (
+            "ds11_trust_presentation_unsafe_module_access"
+            in checker._ds11_trust_presentation_semantic_errors(scan)
         )
 
     def test_ds11_trust_presentation_rejects_extra_direct_call_in_owned_path(
         self,
     ) -> None:
         """An eighth mechanism path cannot hide a fifth production issuer call."""
-        source_path = (
-            "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx"
-        )
+        source_path = "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx"
         source = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
         source += """
 import { issueTrustPresentation } from "./trust-glyphs";
 void (issueTrustPresentation)(null);
 """
         request = {
-            "authorityPathDescriptors": (
-                checker._ds11_trust_presentation_path_descriptors()
-            ),
+            "authorityPathDescriptors": (checker._ds11_trust_presentation_path_descriptors()),
             "authorityPropDescriptors": checker._authority_prop_descriptors(),
             "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
             "includeDashboardProgramRoots": True,
@@ -4614,16 +4183,13 @@ void (issueTrustPresentation)(null);
             json.dumps(request, sort_keys=True, separators=(",", ":"))
         )
 
-        self.assertEqual(
-            1,
-            sum(
-                row["path"] == source_path
-                for row in scan["authorityIssuerFacts"]["directCalls"]
-            ),
+        assert (
+            sum(row["path"] == source_path for row in scan["authorityIssuerFacts"]["directCalls"])
+            == 1
         )
-        self.assertIn(
-            "ds11_trust_presentation_issuer_caller_drift",
-            checker._ds11_trust_presentation_semantic_errors(scan),
+        assert (
+            "ds11_trust_presentation_issuer_caller_drift"
+            in checker._ds11_trust_presentation_semantic_errors(scan)
         )
 
     def test_ds11_trust_presentation_rejects_every_runtime_module_acquisition(
@@ -4647,9 +4213,7 @@ void import("./trust-glyphs");
 void require("./trust-glyphs");
 """
         request = {
-            "authorityPathDescriptors": (
-                checker._ds11_trust_presentation_path_descriptors()
-            ),
+            "authorityPathDescriptors": (checker._ds11_trust_presentation_path_descriptors()),
             "authorityPropDescriptors": checker._authority_prop_descriptors(),
             "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
             "includeDashboardProgramRoots": True,
@@ -4659,25 +4223,22 @@ void require("./trust-glyphs");
             json.dumps(request, sort_keys=True, separators=(",", ":"))
         )
 
-        self.assertEqual(
-            Counter(
-                {
-                    "alias": 1,
-                    "default_import": 1,
-                    "dynamic_import": 1,
-                    "import_equals": 1,
-                    "named_import": 1,
-                    "namespace_import": 1,
-                    "reexport": 4,
-                    "require": 1,
-                    "side_effect_import": 1,
-                }
-            ),
-            Counter(
-                row["kind"]
-                for row in scan["authorityIssuerFacts"]["moduleAccesses"]
-                if row["path"] == source_path
-            ),
+        assert Counter(
+            {
+                "alias": 1,
+                "default_import": 1,
+                "dynamic_import": 1,
+                "import_equals": 1,
+                "named_import": 1,
+                "namespace_import": 1,
+                "reexport": 4,
+                "require": 1,
+                "side_effect_import": 1,
+            }
+        ) == Counter(
+            row["kind"]
+            for row in scan["authorityIssuerFacts"]["moduleAccesses"]
+            if row["path"] == source_path
         )
 
     def test_ds11_trust_presentation_admits_erased_type_only_module_forms(
@@ -4698,9 +4259,7 @@ export { type TrustPresentationData } from "./trust-glyphs";
 import type DS11TrustEquals = require("./trust-glyphs");
 """
         request = {
-            "authorityPathDescriptors": (
-                checker._ds11_trust_presentation_path_descriptors()
-            ),
+            "authorityPathDescriptors": (checker._ds11_trust_presentation_path_descriptors()),
             "authorityPropDescriptors": checker._authority_prop_descriptors(),
             "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
             "includeDashboardProgramRoots": True,
@@ -4710,14 +4269,11 @@ import type DS11TrustEquals = require("./trust-glyphs");
             json.dumps(request, sort_keys=True, separators=(",", ":"))
         )
 
-        self.assertEqual(
-            [],
-            [
-                row
-                for row in scan["authorityIssuerFacts"]["moduleAccesses"]
-                if row["path"] == source_path
-            ],
-        )
+        assert [
+            row
+            for row in scan["authorityIssuerFacts"]["moduleAccesses"]
+            if row["path"] == source_path
+        ] == []
 
     def test_ds11_trust_presentation_issuer_receipt_is_content_bound(
         self,
@@ -4730,13 +4286,10 @@ import type DS11TrustEquals = require("./trust-glyphs");
             if row["path"] == checker.DS11_TRUST_GLYPHS_PATH
         )
         issuer_ref = (
-            f"{checker.DS11_TRUST_GLYPHS_PATH}#content-sha256="
-            f"{issuer_module['sourceSha256']}"
+            f"{checker.DS11_TRUST_GLYPHS_PATH}#content-sha256={issuer_module['sourceSha256']}"
         )
         expected_rows = checker._ds11_trust_presentation_rows(scan)
-        self.assertTrue(
-            all(issuer_ref in row["evidence_refs"] for row in expected_rows)
-        )
+        assert all(issuer_ref in row["evidence_refs"] for row in expected_rows)
 
         e3df_register = _git_text(
             "e3df33744",
@@ -4746,19 +4299,12 @@ import type DS11TrustEquals = require("./trust-glyphs");
             e3df_register,
             scan=scan,
         )
-        self.assertNotEqual(e3df_register, candidate)
-        self.assertEqual(
-            candidate,
-            checker._ds11_trust_presentation_transition_text(candidate, scan=scan),
-        )
+        assert e3df_register != candidate
+        assert candidate == checker._ds11_trust_presentation_transition_text(candidate, scan=scan)
 
-        source = (checker.REPO_ROOT / checker.DS11_TRUST_GLYPHS_PATH).read_text(
-            encoding="utf-8"
-        )
+        source = (checker.REPO_ROOT / checker.DS11_TRUST_GLYPHS_PATH).read_text(encoding="utf-8")
         request = {
-            "authorityPathDescriptors": (
-                checker._ds11_trust_presentation_path_descriptors()
-            ),
+            "authorityPathDescriptors": (checker._ds11_trust_presentation_path_descriptors()),
             "authorityPropDescriptors": checker._authority_prop_descriptors(),
             "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
             "includeDashboardProgramRoots": True,
@@ -4777,9 +4323,7 @@ import type DS11TrustEquals = require("./trust-glyphs");
             if row["path"] == checker.DS11_TRUST_GLYPHS_PATH
         )
         complete_mutated_scan = copy.deepcopy(scan)
-        complete_mutated_scan["authorityIssuerFacts"]["modules"] = [
-            mutated_module
-        ]
+        complete_mutated_scan["authorityIssuerFacts"]["modules"] = [mutated_module]
         errors: list[str] = []
         checker._validate_ds11_trust_presentation_transition_findings(
             json.loads(candidate),
@@ -4787,21 +4331,16 @@ import type DS11TrustEquals = require("./trust-glyphs");
             scan=complete_mutated_scan,
         )
 
-        self.assertEqual(
-            {
-                "ds11_trust_presentation_transition_drift:" + finding_id
-                for finding_id in checker.DS11_TRUST_PRESENTATION_FINDING_IDS
-            },
-            set(errors),
-        )
+        assert {
+            "ds11_trust_presentation_transition_drift:" + finding_id
+            for finding_id in checker.DS11_TRUST_PRESENTATION_FINDING_IDS
+        } == set(errors)
 
     def test_semantic_copy_debt_uses_simple_panel_only_closure_signal(self) -> None:
         finding_id = "semantic-copy-issuer-panel-consumer-deferral"
         descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id]
         row = next(
-            item
-            for item in checker._supplemental_findings()
-            if item["finding_id"] == finding_id
+            item for item in checker._supplemental_findings() if item["finding_id"] == finding_id
         )
         assert row == {
             "finding_id": finding_id,
@@ -4828,20 +4367,19 @@ import type DS11TrustEquals = require("./trust-glyphs");
         )
         classifications[debt_location] = "benign:interaction_state"
         errors = checker._badge_classification_errors(scan, classifications)
-        self.assertTrue(
-            any(error.startswith("authority_badge_reclassification:") for error in errors),
-            errors,
+        assert any(error.startswith("authority_badge_reclassification:") for error in errors), (
+            errors
         )
 
     def test_authority_configuration_keys_are_c21a_identities(self) -> None:
         """Finite Badge/prop classification keys must not encode navigation lines."""
-        self.assertTrue(checker.AUTHORITY_BADGE_CLASSIFICATIONS)
-        self.assertTrue(checker.AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
+        assert checker.AUTHORITY_BADGE_CLASSIFICATIONS
+        assert checker.AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
         for identity in [
             *checker.AUTHORITY_BADGE_CLASSIFICATIONS,
             *checker.AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
         ]:
-            self.assertRegex(identity, r"^[a-f0-9]{64}$")
+            assert re.search(r"^[a-f0-9]{64}$", identity)
 
     def test_authority_identity_denominators_preserve_shared_prop_declaration(self) -> None:
         """P35: the one shared DecisionCard declaration is multiplicity, not overwrite."""
@@ -4849,37 +4387,39 @@ import type DS11TrustEquals = require("./trust-glyphs");
         badge = checker.AUTHORITY_BADGE_CLASSIFICATIONS
         prop = checker.AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
         prop_records = [record for records in prop.values() for record in records]
-        self.assertEqual(172, len(badge))
-        self.assertEqual(172, len(set(badge)))
-        self.assertEqual(70, len(prop_records))
-        self.assertEqual(69, len(prop))
+        assert len(badge) == 172
+        assert len(set(badge)) == 172
+        assert len(prop_records) == 70
+        assert len(prop) == 69
         shared = [records for records in prop.values() if len(records) == 2]
-        self.assertEqual(
-            [[
-                {"descriptor_id": "prop-decision-card-confidence", "classification": "debt", "role": "component_declaration"},
-                {"descriptor_id": "prop-decision-card-verdict", "classification": "debt", "role": "component_declaration"},
-            ]],
-            [sorted(records, key=lambda record: record["descriptor_id"]) for records in shared],
-        )
+        assert [
+            sorted(records, key=lambda record: record["descriptor_id"]) for records in shared
+        ] == [
+            [
+                {
+                    "descriptor_id": "prop-decision-card-confidence",
+                    "classification": "debt",
+                    "role": "component_declaration",
+                },
+                {
+                    "descriptor_id": "prop-decision-card-verdict",
+                    "classification": "debt",
+                    "role": "component_declaration",
+                },
+            ]
+        ]
 
         classifications = copy.deepcopy(checker.AUTHORITY_BADGE_CLASSIFICATIONS)
         classifications.pop(next(iter(classifications)))
         errors = checker._badge_classification_errors(scan, classifications)
-        self.assertTrue(
-            any(error.startswith("authority_badge_unclassified:") for error in errors),
-            errors,
-        )
+        assert any(error.startswith("authority_badge_unclassified:") for error in errors), errors
 
         fingerprint_drift = copy.deepcopy(scan)
         site = fingerprint_drift["badgeSites"][0]
         site["siteSha256"] = "sha256:" + "0" * 64
         errors = checker._badge_classification_errors(fingerprint_drift)
-        self.assertTrue(
-            any(
-                error.startswith("authority_badge_partition_hash_drift:")
-                for error in errors
-            ),
-            errors,
+        assert any(error.startswith("authority_badge_partition_hash_drift:") for error in errors), (
+            errors
         )
 
         prop_fingerprint_drift = copy.deepcopy(scan)
@@ -4894,15 +4434,9 @@ import type DS11TrustEquals = require("./trust-glyphs");
             if item["descriptorId"] == benign_prop_id
         )
         prop_fact["propDeclarationSha256"] = "sha256:" + "0" * 64
-        errors = checker._authority_prop_classification_errors(
-            prop_fingerprint_drift
-        )
-        self.assertTrue(
-            any(
-                error.startswith("authority_prop_partition_hash_drift:")
-                for error in errors
-            ),
-            errors,
+        errors = checker._authority_prop_classification_errors(prop_fingerprint_drift)
+        assert any(error.startswith("authority_prop_partition_hash_drift:") for error in errors), (
+            errors
         )
 
     def test_cycle_board_strangle_reanchors_authority_presentations(self) -> None:
@@ -4921,63 +4455,35 @@ import type DS11TrustEquals = require("./trust-glyphs");
                 strict=True,
             )
         )
-        cycle_board_path = (
-            "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx"
-        )
+        cycle_board_path = "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx"
         expected = {
             (cycle_board_path, 88): "debt:badge-governed-projection-availability",
             (cycle_board_path, 146): "benign:opaque_metadata_or_taxonomy",
             (cycle_board_path, 521): "debt:badge-governed-projection-availability",
         }
-        self.assertEqual(
-            expected,
-            {
-                location: checker.AUTHORITY_BADGE_CLASSIFICATIONS[
-                    key_by_location[location]
-                ]
-                for location in expected
-            },
-        )
-        self.assertFalse(
-            any(
-                str(site["path"]).endswith("/RunExplainabilityPanel.tsx")
-                for site in sites
-            )
-        )
+        assert expected == {
+            location: checker.AUTHORITY_BADGE_CLASSIFICATIONS[key_by_location[location]]
+            for location in expected
+        }
+        assert not any(str(site["path"]).endswith("/RunExplainabilityPanel.tsx") for site in sites)
         grouped = checker._authority_badge_sites_by_debt_group(scan)
-        self.assertEqual(
-            [(cycle_board_path, 88), (cycle_board_path, 521)],
-            sorted(
-                (str(site["path"]), int(site["line"]))
-                for site in grouped["badge-governed-projection-availability"]
-            ),
+        assert [(cycle_board_path, 88), (cycle_board_path, 521)] == sorted(
+            (str(site["path"]), int(site["line"]))
+            for site in grouped["badge-governed-projection-availability"]
         )
 
-        props = {
-            str(fact["descriptorId"]): fact
-            for fact in scan["authorityPropCensus"]
-        }
-        self.assertNotIn("prop-time-semantics-freshness", props)
-        self.assertEqual(
-            [(cycle_board_path, 525)],
-            [
-                (str(site["path"]), int(site["line"]))
-                for site in props["prop-data-freshness"]["consumerSites"]
-            ],
-        )
-        self.assertEqual(
-            3,
-            len(props["prop-authority-badge-presentation"]["consumerSites"]),
-        )
-        self.assertEqual(
-            1,
-            len(props["prop-envelope-authority-purpose"]["consumerSites"]),
-        )
+        props = {str(fact["descriptorId"]): fact for fact in scan["authorityPropCensus"]}
+        assert "prop-time-semantics-freshness" not in props
+        assert [(cycle_board_path, 525)] == [
+            (str(site["path"]), int(site["line"]))
+            for site in props["prop-data-freshness"]["consumerSites"]
+        ]
+        assert len(props["prop-authority-badge-presentation"]["consumerSites"]) == 3
+        assert len(props["prop-envelope-authority-purpose"]["consumerSites"]) == 1
 
     def test_new_direct_badge_site_is_unclassified_until_adjudicated(self) -> None:
         probe_path = (
-            "apps/runtime-dashboard/src/shared/lib/domain/"
-            "unclassifiedAuthorityBadgeProbe.tsx"
+            "apps/runtime-dashboard/src/shared/lib/domain/unclassifiedAuthorityBadgeProbe.tsx"
         )
         probe_source = (
             'import { Badge } from "@polisyos/atlas-ui";\n'
@@ -4990,28 +4496,20 @@ import type DS11TrustEquals = require("./trust-glyphs");
         target_path = checker.REPO_ROOT / probe_path
         original_read_text = Path.read_text
 
-        def read_text_override(
-            path: Path, *args: object, **kwargs: object
-        ) -> str:
+        def read_text_override(path: Path, *args: object, **kwargs: object) -> str:
             if path == target_path:
                 return probe_source
             return original_read_text(path, *args, **kwargs)
 
         with mock.patch.object(Path, "read_text", new=read_text_override):
             errors = checker._badge_classification_errors(scan)
-        self.assertTrue(
-            any(
-                error.startswith(f"authority_badge_unclassified:{probe_path}:")
-                for error in errors
-            ),
-            errors,
-        )
+        assert any(
+            error.startswith(f"authority_badge_unclassified:{probe_path}:") for error in errors
+        ), errors
 
     def test_c01a_dates_and_writer_preserve_accepted_history(self) -> None:
         finding_ids = set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS)
-        predecessor_text = _register_text_at(
-            "24e66b44ce930c6c85b71af742a9941a3a334bb4"
-        )
+        predecessor_text = _register_text_at("24e66b44ce930c6c85b71af742a9941a3a334bb4")
         self.assertTrue(finding_ids)  # noqa: PT009
         self.assertTrue(  # noqa: PT009
             finding_ids.isdisjoint(_supplemental_rows(predecessor_text))
@@ -5027,35 +4525,28 @@ import type DS11TrustEquals = require("./trust-glyphs");
             finding_ids,
             finding_ids & set(_supplemental_rows(refreshed)),
         )
-        self.assertEqual(refreshed, checker._refresh_supplemental_findings_text(refreshed))
+        assert refreshed == checker._refresh_supplemental_findings_text(refreshed)
         before = json.loads(original_text)
         after = json.loads(refreshed)
         new_ids = checker._surgical_supplemental_finding_ids(original_text)
         refreshed_new_ids = checker._surgical_supplemental_finding_ids(refreshed)
 
-        self.assertEqual(
-            {
-                row["finding_id"]: row["decision_date"]
-                for row in before["supplemental_findings"]
-                if row["finding_id"] not in new_ids
-            },
-            {
-                row["finding_id"]: row["decision_date"]
+        assert {
+            row["finding_id"]: row["decision_date"]
+            for row in before["supplemental_findings"]
+            if row["finding_id"] not in new_ids
+        } == {
+            row["finding_id"]: row["decision_date"]
+            for row in after["supplemental_findings"]
+            if row["finding_id"] not in refreshed_new_ids
+        }
+        assert dict(
+            Counter(
+                row["decision_date"]
                 for row in after["supplemental_findings"]
-                if row["finding_id"] not in refreshed_new_ids
-            },
-        )
-        self.assertEqual(
-            {"2026-08-02": 30, "2026-08-24": 5},
-            dict(
-                Counter(
-                    row["decision_date"]
-                    for row in after["supplemental_findings"]
-                    if row["finding_id"]
-                    in checker.AUTHORITY_PRESENTATION_DEBT_SPECS
-                )
-            ),
-        )
+                if row["finding_id"] in checker.AUTHORITY_PRESENTATION_DEBT_SPECS
+            )
+        ) == {"2026-08-02": 30, "2026-08-24": 5}
 
     def test_writer_removes_only_retired_authority_presentation_rows(self) -> None:
         original_text = REGISTER_PATH.read_text(encoding="utf-8")
@@ -5066,20 +4557,17 @@ import type DS11TrustEquals = require("./trust-glyphs");
             for finding_id, row_text in original_rows
             if finding_id not in refresh_owned_ids
         ]
-        self.assertTrue(accepted_rows)
+        assert accepted_rows
 
         source_row = next(
             json.loads(row_text)
             for _finding_id, row_text in original_rows
-            if json.loads(row_text).get("finding_kind")
-            == "authority_presentation_debt"
+            if json.loads(row_text).get("finding_kind") == "authority_presentation_debt"
         )
         retired_id = "authority-presentation-retired-writer-probe"
         retired_row = copy.deepcopy(source_row)
         retired_row["finding_id"] = retired_id
-        _array_start, _array_end, spans = checker._supplemental_section_spans(
-            original_text
-        )
+        _array_start, _array_end, spans = checker._supplemental_section_spans(original_text)
         insertion_at = spans[-1][2] + 1
         with_retired_row = (
             original_text[:insertion_at]
@@ -5087,26 +4575,18 @@ import type DS11TrustEquals = require("./trust-glyphs");
             + checker._render_supplemental_finding(retired_row)
             + original_text[insertion_at:]
         )
-        self.assertIn(
-            retired_id,
-            checker._surgical_supplemental_finding_ids(with_retired_row),
-        )
+        assert retired_id in checker._surgical_supplemental_finding_ids(with_retired_row)
 
         refreshed = checker._refresh_supplemental_findings_text(with_retired_row)
-        self.assertEqual(original_text, refreshed)
-        self.assertEqual(refreshed, checker._refresh_supplemental_findings_text(refreshed))
-        _refreshed_start, _refreshed_end, refreshed_rows = (
-            checker._supplemental_section(refreshed)
-        )
+        assert original_text == refreshed
+        assert refreshed == checker._refresh_supplemental_findings_text(refreshed)
+        _refreshed_start, _refreshed_end, refreshed_rows = checker._supplemental_section(refreshed)
         refreshed_rows_by_id = dict(refreshed_rows)
-        self.assertNotIn(retired_id, refreshed_rows_by_id)
-        self.assertEqual(
-            accepted_rows,
-            [
-                (finding_id, refreshed_rows_by_id[finding_id])
-                for finding_id, _row_text in accepted_rows
-            ],
-        )
+        assert retired_id not in refreshed_rows_by_id
+        assert accepted_rows == [
+            (finding_id, refreshed_rows_by_id[finding_id])
+            for finding_id, _row_text in accepted_rows
+        ]
 
     def test_duplicate_ids_and_decision_date_rewrites_fail_closed(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
@@ -5115,27 +4595,15 @@ import type DS11TrustEquals = require("./trust-glyphs");
         duplicate["supplemental_findings"].append(
             copy.deepcopy(duplicate["supplemental_findings"][0])
         )
-        self.assertIn(
-            "duplicate_supplemental_finding_id",
-            checker.validate_register(
-                duplicate,
-                live_probes=False,
-                schema=False,
-                report_parity=False,
-            ),
+        assert "duplicate_supplemental_finding_id" in checker.validate_register(
+            duplicate, live_probes=False, schema=False, report_parity=False
         )
 
         old_row = copy.deepcopy(data)
         old_id = old_row["supplemental_findings"][0]["finding_id"]
         old_row["supplemental_findings"][0]["decision_date"] = "2026-08-02"
-        self.assertIn(
-            f"supplemental_decision_date_drift:{old_id}",
-            checker.validate_register(
-                old_row,
-                live_probes=False,
-                schema=False,
-                report_parity=False,
-            ),
+        assert f"supplemental_decision_date_drift:{old_id}" in checker.validate_register(
+            old_row, live_probes=False, schema=False, report_parity=False
         )
 
         authority = copy.deepcopy(data)
@@ -5145,14 +4613,10 @@ import type DS11TrustEquals = require("./trust-glyphs");
             if row["finding_kind"] == "authority_presentation_debt"
         )
         authority_row["decision_date"] = "2026-07-17"
-        self.assertIn(
-            "supplemental_decision_date_drift:" + authority_row["finding_id"],
-            checker.validate_register(
-                authority,
-                live_probes=False,
-                schema=False,
-                report_parity=False,
-            ),
+        assert "supplemental_decision_date_drift:" + authority_row[
+            "finding_id"
+        ] in checker.validate_register(
+            authority, live_probes=False, schema=False, report_parity=False
         )
 
 
@@ -5183,9 +4647,9 @@ export async function publishDecision( input:string )
   return `${label}:${input.trim()}` }
 """
 
-        self.assertEqual(
-            self._identity(original)["encoded_identity"],
-            self._identity(moved_and_reformatted)["encoded_identity"],
+        assert (
+            self._identity(original)["encoded_identity"]
+            == self._identity(moved_and_reformatted)["encoded_identity"]
         )
 
     def test_symbol_rename_emits_named_binding_missing_or_renamed_code(self) -> None:
@@ -5194,12 +4658,11 @@ export async function publishDecision( input:string )
         )
         renamed_source = "export async function publishRenamed(input: string) { return input; }\n"
 
-        self.assertIn(
-            "typescript_reference_binding_missing_or_renamed",
-            checker._validate_typescript_reference_identity(
-                reference,
-                {self._SOURCE_PATH: renamed_source},
-            ),
+        assert (
+            "typescript_reference_binding_missing_or_renamed"
+            in checker._validate_typescript_reference_identity(
+                reference, {self._SOURCE_PATH: renamed_source}
+            )
         )
 
     def test_construct_rewrite_emits_named_content_drift_code(self) -> None:
@@ -5210,12 +4673,11 @@ export async function publishDecision( input:string )
             "export async function publishDecision(input: string) { return input.toUpperCase(); }\n"
         )
 
-        self.assertIn(
-            "typescript_reference_content_drift",
-            checker._validate_typescript_reference_identity(
-                reference,
-                {self._SOURCE_PATH: rewritten_source},
-            ),
+        assert (
+            "typescript_reference_content_drift"
+            in checker._validate_typescript_reference_identity(
+                reference, {self._SOURCE_PATH: rewritten_source}
+            )
         )
 
     def test_import_binding_uses_the_canonical_import_construct(self) -> None:
@@ -5227,27 +4689,25 @@ export async function publishDecision( input:string )
             discriminator="components",
         )
 
-        self.assertEqual([], checker._validate_typescript_reference_identity(reference, {self._SOURCE_PATH: source}))
-        self.assertTrue(
-            reference["encoded_identity"].startswith(self._SOURCE_PATH + "#ts-identity=")
+        assert (
+            checker._validate_typescript_reference_identity(reference, {self._SOURCE_PATH: source})
+            == []
         )
+        assert reference["encoded_identity"].startswith(self._SOURCE_PATH + "#ts-identity=")
         _path, _separator, encoded_payload = reference["encoded_identity"].partition(
             "#ts-identity="
         )
         payload = json.loads(
             base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
         )
-        self.assertTrue(
-            any(
-                "apps/runtime-dashboard/src/api/types.ts" in chain_entry
-                for chain_entry in payload["declaration_chain"]
-            ),
-            payload,
-        )
-        self.assertIn("resolved:components", payload["declaration_chain"])
-        self.assertIn(
-            "declaration:apps/runtime-dashboard/src/api/types.ts:InterfaceDeclaration",
-            payload["declaration_chain"],
+        assert any(
+            "apps/runtime-dashboard/src/api/types.ts" in chain_entry
+            for chain_entry in payload["declaration_chain"]
+        ), payload
+        assert "resolved:components" in payload["declaration_chain"]
+        assert (
+            "declaration:apps/runtime-dashboard/src/api/types.ts:InterfaceDeclaration"
+            in payload["declaration_chain"]
         )
 
     def test_import_binding_fails_closed_when_the_target_export_is_renamed(self) -> None:
@@ -5261,12 +4721,11 @@ export async function publishDecision( input:string )
             discriminator="published",
         )
 
-        self.assertIn(
-            "typescript_reference_binding_missing_or_renamed",
-            checker._validate_typescript_reference_identity(
-                reference,
-                {source_path: source, target_path: "export const renamed = 1;\n"},
-            ),
+        assert (
+            "typescript_reference_binding_missing_or_renamed"
+            in checker._validate_typescript_reference_identity(
+                reference, {source_path: source, target_path: "export const renamed = 1;\n"}
+            )
         )
 
     def test_jsx_opening_and_attribute_selectors_preserve_role_specific_identity(self) -> None:
@@ -5288,8 +4747,10 @@ export async function publishDecision( input:string )
             discriminator="tone",
         )
 
-        self.assertEqual([], checker._validate_typescript_reference_identity(opening, {source_path: source}))
-        self.assertEqual([], checker._validate_typescript_reference_identity(attribute, {source_path: source}))
+        assert checker._validate_typescript_reference_identity(opening, {source_path: source}) == []
+        assert (
+            checker._validate_typescript_reference_identity(attribute, {source_path: source}) == []
+        )
 
     def test_unique_content_relocates_after_a_navigation_selected_sibling_is_removed(self) -> None:
         source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
@@ -5314,15 +4775,14 @@ export async function publishDecision( input:string )
 }
 """
 
-        self.assertEqual(
-            [],
-            checker._validate_typescript_reference_identity(reference, {source_path: moved}),
+        assert (
+            checker._validate_typescript_reference_identity(reference, {source_path: moved}) == []
         )
-        self.assertNotIn("navigation_hint", reference["encoded_identity"])
+        assert "navigation_hint" not in reference["encoded_identity"]
 
     def test_duplicate_canonical_candidates_are_ambiguous_after_relocation(self) -> None:
         source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
-        one_badge = "export function Surface() { return <Badge tone=\"warning\" />; }\n"
+        one_badge = 'export function Surface() { return <Badge tone="warning" />; }\n'
         duplicated_badges = """export function Surface() {
   return <><Badge tone=\"warning\" /><Badge tone=\"warning\" /></>;
 }
@@ -5334,14 +4794,13 @@ export async function publishDecision( input:string )
             discriminator="Badge",
         )
 
-        self.assertEqual(
-            ["typescript_reference_binding_ambiguous"],
-            checker._validate_typescript_reference_identity(reference, {source_path: duplicated_badges}),
-        )
+        assert checker._validate_typescript_reference_identity(
+            reference, {source_path: duplicated_badges}
+        ) == ["typescript_reference_binding_ambiguous"]
 
     def test_unique_bound_content_relocates_past_a_distinct_sibling(self) -> None:
         source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
-        one_badge = "export function Surface() { return <Badge tone=\"warning\" />; }\n"
+        one_badge = 'export function Surface() { return <Badge tone="warning" />; }\n'
         second_distinct_badge = """export function Surface() {
   return <><Badge tone=\"warning\" /><Badge tone=\"neutral\" /></>;
 }
@@ -5353,12 +4812,11 @@ export async function publishDecision( input:string )
             discriminator="Badge",
         )
 
-        self.assertEqual(
-            [],
+        assert (
             checker._validate_typescript_reference_identity(
-                reference,
-                {source_path: second_distinct_badge},
-            ),
+                reference, {source_path: second_distinct_badge}
+            )
+            == []
         )
 
     def test_unknown_identity_payload_version_fails_closed(self) -> None:
@@ -5374,13 +4832,14 @@ export async function publishDecision( input:string )
             + "#ts-identity="
             + base64.urlsafe_b64encode(
                 json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
-            ).decode("ascii").rstrip("=")
+            )
+            .decode("ascii")
+            .rstrip("=")
         )
 
-        self.assertEqual(
-            ["typescript_reference_identity_invalid"],
-            checker._validate_typescript_reference_identity(reference, {self._SOURCE_PATH: source}),
-        )
+        assert checker._validate_typescript_reference_identity(
+            reference, {self._SOURCE_PATH: source}
+        ) == ["typescript_reference_identity_invalid"]
 
     def test_malformed_or_forged_identity_payload_fails_closed_without_raising(self) -> None:
         source = "export async function publishDecision(input: string) { return input; }\n"
@@ -5393,9 +4852,13 @@ export async function publishDecision( input:string )
         )
         forged_role = dict(payload)
         forged_role["role"] = "forged_role"
-        forged_payload = base64.urlsafe_b64encode(
-            json.dumps(forged_role, sort_keys=True, separators=(",", ":")).encode("utf-8")
-        ).decode("ascii").rstrip("=")
+        forged_payload = (
+            base64.urlsafe_b64encode(
+                json.dumps(forged_role, sort_keys=True, separators=(",", ":")).encode("utf-8")
+            )
+            .decode("ascii")
+            .rstrip("=")
+        )
 
         for encoded_identity in (
             None,
@@ -5403,13 +4866,9 @@ export async function publishDecision( input:string )
             path_prefix + "#ts-identity=" + forged_payload,
         ):
             with self.subTest(encoded_identity=encoded_identity):
-                self.assertEqual(
-                    ["typescript_reference_identity_invalid"],
-                    checker._validate_typescript_reference_identity(
-                        {"encoded_identity": encoded_identity},
-                        {self._SOURCE_PATH: source},
-                    ),
-                )
+                assert checker._validate_typescript_reference_identity(
+                    {"encoded_identity": encoded_identity}, {self._SOURCE_PATH: source}
+                ) == ["typescript_reference_identity_invalid"]
 
     def test_call_and_string_literal_roles_bind_enclosing_declarations(self) -> None:
         source = """type RunSummary = {
@@ -5453,18 +4912,20 @@ function publish(summary: RunSummary) {
             type_property_reference,
             object_property_reference,
         ):
-            self.assertEqual(
-                [],
-                checker._validate_typescript_reference_identity(reference, {self._SOURCE_PATH: source}),
+            assert (
+                checker._validate_typescript_reference_identity(
+                    reference, {self._SOURCE_PATH: source}
+                )
+                == []
             )
-        self.assertNotIn("navigation_hint", type_property_reference["encoded_identity"])
+        assert "navigation_hint" not in type_property_reference["encoded_identity"]
 
     def test_c13a_delete_composer_draft_identity_replays_across_line_move(self) -> None:
         """Replay the intended C13a binding across its true line-90 to line-13 move."""
         source_path = "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts"
-        historical = subprocess.run(
+        historical = subprocess.run(  # noqa: S603 - fixed git show commit/path; shell=False
             [
-                "git",
+                checker._resolve_executable("git"),
                 "show",
                 "653f12d08^:policy-engine/" + source_path,
             ],
@@ -5474,8 +4935,8 @@ function publish(summary: RunSummary) {
             text=True,
             timeout=10,
         ).stdout
-        current = subprocess.run(
-            ["git", "show", "653f12d08:policy-engine/" + source_path],
+        current = subprocess.run(  # noqa: S603 - fixed git show commit/path; shell=False
+            [checker._resolve_executable("git"), "show", "653f12d08:policy-engine/" + source_path],
             cwd=checker.REPO_ROOT.parent,
             check=True,
             capture_output=True,
@@ -5506,8 +4967,8 @@ function publish(summary: RunSummary) {
             sort_keys=True,
         ).encode("utf-8")
 
-        self.assertEqual(historical_identity, current_identity)
-        self.assertEqual(historical_rendering, current_rendering)
+        assert historical_identity == current_identity
+        assert historical_rendering == current_rendering
 
     def test_c08_content_baselines_remain_whole_file_hashes(self) -> None:
         source = "export async function publishDecision(input: string) { return input; }\n"
@@ -5520,13 +4981,11 @@ function publish(summary: RunSummary) {
 
         reference = self._identity(source)
 
-        self.assertNotIn("source_content_sha256", reference)
-        self.assertIn(
-            "lint_resolution_content_hash_drift:C08:" + c08_binding["path"],
-            checker._resolution_content_binding_errors(
-                baseline["lint"],
-                source_bytes_override={c08_binding["path"]: b"C08 whole-file drift"},
-            ),
+        assert "source_content_sha256" not in reference
+        assert "lint_resolution_content_hash_drift:C08:" + c08_binding[
+            "path"
+        ] in checker._resolution_content_binding_errors(
+            baseline["lint"], source_bytes_override={c08_binding["path"]: b"C08 whole-file drift"}
         )
 
     def test_batch_resolver_builds_multiple_direct_bindings_from_one_snapshot(self) -> None:
@@ -5536,12 +4995,20 @@ function publish(summary: RunSummary) {
         facts = checker._typescript_reference_construct_facts_batch(
             {source_path: source},
             [
-                {"sourcePath": source_path, "role": "variable_declaration", "discriminator": "first"},
-                {"sourcePath": source_path, "role": "variable_declaration", "discriminator": "second"},
+                {
+                    "sourcePath": source_path,
+                    "role": "variable_declaration",
+                    "discriminator": "first",
+                },
+                {
+                    "sourcePath": source_path,
+                    "role": "variable_declaration",
+                    "discriminator": "second",
+                },
             ],
         )
-        self.assertEqual(["first", "second"], [row["matches"][0]["discriminator"] for row in facts])
-        self.assertEqual([1, 1], [row["programCreateCount"] for row in facts])
+        assert [row["matches"][0]["discriminator"] for row in facts] == ["first", "second"]
+        assert [row["programCreateCount"] for row in facts] == [1, 1]
 
     def test_batch_resolver_uses_one_typescript_program_for_many_requests(self) -> None:
         """C21b cannot regress to one compiler process per identity request."""
@@ -5551,11 +5018,19 @@ function publish(summary: RunSummary) {
             checker._typescript_reference_construct_facts_batch(
                 {source_path: source},
                 [
-                    {"sourcePath": source_path, "role": "variable_declaration", "discriminator": "first"},
-                    {"sourcePath": source_path, "role": "variable_declaration", "discriminator": "second"},
+                    {
+                        "sourcePath": source_path,
+                        "role": "variable_declaration",
+                        "discriminator": "first",
+                    },
+                    {
+                        "sourcePath": source_path,
+                        "role": "variable_declaration",
+                        "discriminator": "second",
+                    },
                 ],
             )
-        self.assertEqual(1, run.call_count)
+        assert run.call_count == 1
 
     def test_type_property_creation_anchor_uses_syntax_start_not_trivia_span(self) -> None:
         """Adjacent inline prop trivia cannot make the line-3 `tone` anchor ambiguous."""
@@ -5568,12 +5043,18 @@ function publish(summary: RunSummary) {
 """
         facts = checker._typescript_reference_construct_facts_batch(
             {source_path: source},
-            [{"sourcePath": source_path, "role": "type_property", "discriminator": "__creation_anchor__"}],
+            [
+                {
+                    "sourcePath": source_path,
+                    "role": "type_property",
+                    "discriminator": "__creation_anchor__",
+                }
+            ],
         )[0]
         matches = checker._typescript_reference_anchor_matches(
             facts, {"path": source_path, "line": 3, "role": "type_property"}
         )
-        self.assertEqual(["Atlas.tone"], [match["discriminator"] for match in matches])
+        assert [match["discriminator"] for match in matches] == ["Atlas.tone"]
 
     def test_type_property_and_jsx_attribute_identities_survive_a_line_move(self) -> None:
         """Authority prop declaration and use gates bind syntax, not navigation."""
@@ -5587,21 +5068,28 @@ type Props = { tone: \"accent\" | \"default\" };
 export function Badge({ tone }: Props) { return <span tone={tone} />; }
 """
         prop = checker._typescript_reference_identity(
-            {source_path: original}, source_path=source_path, role="type_property", discriminator="Props.tone"
+            {source_path: original},
+            source_path=source_path,
+            role="type_property",
+            discriminator="Props.tone",
         )
         attribute = checker._typescript_reference_identity(
-            {source_path: original}, source_path=source_path, role="jsx_attribute", discriminator="tone"
+            {source_path: original},
+            source_path=source_path,
+            role="jsx_attribute",
+            discriminator="tone",
         )
-        self.assertEqual([], checker._validate_typescript_reference_identity(prop, {source_path: moved}))
-        self.assertEqual([], checker._validate_typescript_reference_identity(attribute, {source_path: moved}))
+        assert checker._validate_typescript_reference_identity(prop, {source_path: moved}) == []
+        assert (
+            checker._validate_typescript_reference_identity(attribute, {source_path: moved}) == []
+        )
 
     def test_generated_schema_property_is_owner_qualified_and_fails_closed(self) -> None:
         """Generated fields bind their schema owner, content, and unique resolution."""
         source_path = "packages/runtime-api-client/types.ts"
         source = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
         discriminator = (
-            "components.schemas."
-            "polisyos__core__contracts__runtime__LineageRef-Output.status"
+            "components.schemas.polisyos__core__contracts__runtime__LineageRef-Output.status"
         )
         owner_facts = checker._typescript_reference_construct_facts(
             {source_path: source},
@@ -5609,7 +5097,7 @@ export function Badge({ tone }: Props) { return <span tone={tone} />; }
             role="generated_schema_property",
             discriminator=discriminator,
         )
-        assert len(owner_facts["matches"]) == 1  # noqa: S101
+        assert len(owner_facts["matches"]) == 1
         target_match = owner_facts["matches"][0]
         navigation_line = target_match["startLine"]
         legacy_identity = checker._typescript_reference_identity(
@@ -5623,9 +5111,7 @@ export function Badge({ tone }: Props) { return <span tone={tone} />; }
             "encoded_identity"
         ].partition("#ts-identity=")
         legacy_payload = json.loads(
-            base64.urlsafe_b64decode(
-                legacy_encoded + "=" * (-len(legacy_encoded) % 4)
-            )
+            base64.urlsafe_b64decode(legacy_encoded + "=" * (-len(legacy_encoded) % 4))
         )
         legacy_facts = checker._typescript_reference_construct_facts(
             {source_path: source},
@@ -5637,23 +5123,16 @@ export function Badge({ tone }: Props) { return <span tone={tone} />; }
             match
             for match in legacy_facts["matches"]
             if match["declarationChain"] == legacy_payload["declaration_chain"]
-            and match["normalizedTokensSha256"]
-            == legacy_payload["normalized_tokens_sha256"]
+            and match["normalizedTokensSha256"] == legacy_payload["normalized_tokens_sha256"]
         ]
         expected_candidates = {
             "components.schemas.LineageGraphView.status",
             "components.schemas.LineageRef-Input.status",
             "components.schemas.QuantityCoverageEntry.status",
-            (
-                "components.schemas."
-                "polisyos__core__contracts__runtime__LineageRef-Output.status"
-            ),
-            (
-                "components.schemas."
-                "polisyos__fabric__evidence__decision_data__LineageRef.status"
-            ),
+            ("components.schemas.polisyos__core__contracts__runtime__LineageRef-Output.status"),
+            ("components.schemas.polisyos__fabric__evidence__decision_data__LineageRef.status"),
         }
-        assert {  # noqa: S101
+        assert {
             match["generatedSchemaProperty"] for match in relocation_candidates
         } == expected_candidates
 
@@ -5664,16 +5143,12 @@ export function Badge({ tone }: Props) { return <span tone={tone} />; }
             discriminator=discriminator,
             navigation_hint=navigation_line,
         )
-        _prefix, _marker, encoded = identity["encoded_identity"].partition(
-            "#ts-identity="
-        )
-        payload = json.loads(
-            base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4))
-        )
-        assert payload["version"] == 1  # noqa: S101
-        assert payload["role"] == "generated_schema_property"  # noqa: S101
-        assert not any("line" in key for key in payload)  # noqa: S101
-        assert "navigation_hint" not in identity["encoded_identity"]  # noqa: S101
+        _prefix, _marker, encoded = identity["encoded_identity"].partition("#ts-identity=")
+        payload = json.loads(base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4)))
+        assert payload["version"] == 1
+        assert payload["role"] == "generated_schema_property"
+        assert not any("line" in key for key in payload)
+        assert "navigation_hint" not in identity["encoded_identity"]
 
         lines = source.splitlines(keepends=True)
         target_index = navigation_line - 1
@@ -5681,19 +5156,13 @@ export function Badge({ tone }: Props) { return <span tone={tone} />; }
         owner_index = next(
             index
             for index in range(target_index - 1, -1, -1)
-            if '"polisyos__core__contracts__runtime__LineageRef-Output": {'
-            in lines[index]
+            if '"polisyos__core__contracts__runtime__LineageRef-Output": {' in lines[index]
         )
         moved_lines = list(lines)
         moved_status = moved_lines.pop(target_index)
         moved_lines.insert(owner_index + 1, moved_status)
         moved = "\n" + "".join(moved_lines)
-        assert (  # noqa: S101
-            checker._validate_typescript_reference_identity(
-                identity, {source_path: moved}
-            )
-            == []
-        )
+        assert checker._validate_typescript_reference_identity(identity, {source_path: moved}) == []
 
         def replace_target_line(replacement: str) -> str:
             changed = list(lines)
@@ -5703,21 +5172,19 @@ export function Badge({ tone }: Props) { return <span tone={tone} />; }
         renamed = replace_target_line(target_line.replace("status:", "state:"))
         removed = replace_target_line("")
         for mutation in (renamed, removed):
-            assert checker._validate_typescript_reference_identity(  # noqa: S101
+            assert checker._validate_typescript_reference_identity(
                 identity, {source_path: mutation}
             ) == ["typescript_reference_binding_missing_or_renamed"]
 
-        drifted = replace_target_line(
-            target_line.replace('"untraced"', '"unknown"')
-        )
-        assert checker._validate_typescript_reference_identity(  # noqa: S101
+        drifted = replace_target_line(target_line.replace('"untraced"', '"unknown"'))
+        assert checker._validate_typescript_reference_identity(
             identity, {source_path: drifted}
         ) == ["typescript_reference_content_drift"]
 
         duplicated_lines = list(lines)
         duplicated_lines.insert(target_index + 1, target_line)
         duplicated = "".join(duplicated_lines)
-        assert checker._validate_typescript_reference_identity(  # noqa: S101
+        assert checker._validate_typescript_reference_identity(
             identity, {source_path: duplicated}
         ) == ["typescript_reference_binding_ambiguous"]
 
@@ -5734,34 +5201,38 @@ const route = \"/public/decisions/:signedId\";
 const packet = buildSignedPublicDecisionPacket();
 """
         call = checker._typescript_reference_identity(
-            {source_path: original}, source_path=source_path, role="call_expression", discriminator="buildSignedPublicDecisionPacket"
+            {source_path: original},
+            source_path=source_path,
+            role="call_expression",
+            discriminator="buildSignedPublicDecisionPacket",
         )
         route = checker._typescript_reference_identity(
-            {source_path: original}, source_path=source_path, role="string_literal", discriminator="/public/decisions/:signedId"
+            {source_path: original},
+            source_path=source_path,
+            role="string_literal",
+            discriminator="/public/decisions/:signedId",
         )
-        self.assertEqual([], checker._validate_typescript_reference_identity(call, {source_path: moved}))
-        self.assertEqual([], checker._validate_typescript_reference_identity(route, {source_path: moved}))
-        self.assertEqual(
-            ["typescript_reference_binding_missing_or_renamed"],
-            checker._validate_typescript_reference_identity(
-                call,
-                {source_path: moved.replace("buildSignedPublicDecisionPacket", "renamedPacket")},
-            ),
-        )
-        self.assertEqual(
-            ["typescript_reference_binding_missing_or_renamed"],
-            checker._validate_typescript_reference_identity(
-                route,
-                {source_path: moved.replace("public/decisions/:signedId", "public/decisions/:rewritten")},
-            ),
-        )
-        self.assertEqual(
-            ["typescript_reference_content_drift"],
-            checker._validate_typescript_reference_identity(
-                call,
-                {source_path: moved.replace("buildSignedPublicDecisionPacket();", "buildSignedPublicDecisionPacket(2);")},
-            ),
-        )
+        assert checker._validate_typescript_reference_identity(call, {source_path: moved}) == []
+        assert checker._validate_typescript_reference_identity(route, {source_path: moved}) == []
+        assert checker._validate_typescript_reference_identity(
+            call, {source_path: moved.replace("buildSignedPublicDecisionPacket", "renamedPacket")}
+        ) == ["typescript_reference_binding_missing_or_renamed"]
+        assert checker._validate_typescript_reference_identity(
+            route,
+            {
+                source_path: moved.replace(
+                    "public/decisions/:signedId", "public/decisions/:rewritten"
+                )
+            },
+        ) == ["typescript_reference_binding_missing_or_renamed"]
+        assert checker._validate_typescript_reference_identity(
+            call,
+            {
+                source_path: moved.replace(
+                    "buildSignedPublicDecisionPacket();", "buildSignedPublicDecisionPacket(2);"
+                )
+            },
+        ) == ["typescript_reference_content_drift"]
 
     def test_same_named_variable_calls_keep_distinct_structural_bindings(self) -> None:
         """Sibling call sites cannot collapse merely because their local name repeats."""
@@ -5778,21 +5249,26 @@ it("second", () => {
 });
 """
         first = checker._typescript_reference_identity(
-            {source_path: source}, source_path=source_path, role="call_expression", discriminator="buildSignedPublicDecisionPacket", navigation_hint=4
+            {source_path: source},
+            source_path=source_path,
+            role="call_expression",
+            discriminator="buildSignedPublicDecisionPacket",
+            navigation_hint=4,
         )
         second = checker._typescript_reference_identity(
-            {source_path: source}, source_path=source_path, role="call_expression", discriminator="buildSignedPublicDecisionPacket", navigation_hint=8
+            {source_path: source},
+            source_path=source_path,
+            role="call_expression",
+            discriminator="buildSignedPublicDecisionPacket",
+            navigation_hint=8,
         )
-        self.assertNotEqual(first["encoded_identity"], second["encoded_identity"])
-        self.assertEqual([], checker._validate_typescript_reference_identity(first, {source_path: source}))
-        self.assertEqual([], checker._validate_typescript_reference_identity(second, {source_path: source}))
+        assert first["encoded_identity"] != second["encoded_identity"]
+        assert checker._validate_typescript_reference_identity(first, {source_path: source}) == []
+        assert checker._validate_typescript_reference_identity(second, {source_path: source}) == []
 
     def test_c21d_real_composer_move_relocates_unique_badges_and_keeps_reds(self) -> None:
         """Replay the seven Badge moves that stopped C13b-R6, including all reds."""
-        source_path = (
-            "apps/runtime-dashboard/src/features/composer/routes/"
-            "ComposerModeSections.tsx"
-        )
+        source_path = "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx"
 
         def historical_source(commit: str) -> str:
             return subprocess.run(  # noqa: S603
@@ -5836,9 +5312,7 @@ it("second", () => {
             for original_line, moved_line in shifts.items()
         }
         original_keys = checker._typescript_reference_hybrid_keys(list(identities.values()))
-        moved_keys = checker._typescript_reference_hybrid_keys(
-            list(moved_identities.values())
-        )
+        moved_keys = checker._typescript_reference_hybrid_keys(list(moved_identities.values()))
         self.assertEqual(original_keys, moved_keys)  # noqa: PT009
         self.assertTrue(  # noqa: PT009
             set(original_keys) <= set(checker.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
@@ -5850,8 +5324,7 @@ it("second", () => {
             discriminator="Badge",
         )
         moved_lines_by_chain = {
-            tuple(match["declarationChain"]): match["startLine"]
-            for match in moved_facts["matches"]
+            tuple(match["declarationChain"]): match["startLine"] for match in moved_facts["matches"]
         }
         self.assertEqual(  # noqa: PT009
             shifts,
@@ -5864,11 +5337,9 @@ it("second", () => {
         )
         for original_line, identity in identities.items():
             with self.subTest(original_line=original_line):
-                self.assertEqual(
-                    [],
-                    checker._validate_typescript_reference_identity(
-                        identity, {source_path: moved}
-                    ),
+                assert (
+                    checker._validate_typescript_reference_identity(identity, {source_path: moved})
+                    == []
                 )
 
         target_line = shifts[1220]
@@ -5890,50 +5361,32 @@ it("second", () => {
             "</Badge>", "</RenamedBadge>", 1
         )
         renamed = "".join(renamed_lines)
-        self.assertEqual(
-            ["typescript_reference_binding_missing_or_renamed"],
-            checker._validate_typescript_reference_identity(
-                identities[1220], {source_path: renamed}
-            ),
-        )
+        assert checker._validate_typescript_reference_identity(
+            identities[1220], {source_path: renamed}
+        ) == ["typescript_reference_binding_missing_or_renamed"]
 
         rewritten = replace_target_line(
             moved,
             "<Badge",
             '<Badge data-c21d-content="changed"',
         )
-        self.assertEqual(
-            ["typescript_reference_content_drift"],
-            checker._validate_typescript_reference_identity(
-                identities[1220], {source_path: rewritten}
-            ),
-        )
+        assert checker._validate_typescript_reference_identity(
+            identities[1220], {source_path: rewritten}
+        ) == ["typescript_reference_content_drift"]
 
         lines = moved.splitlines(keepends=True)
         closing_index = next(
-            index
-            for index in range(target_line, len(lines))
-            if "</Badge>" in lines[index]
+            index for index in range(target_line, len(lines)) if "</Badge>" in lines[index]
         )
         badge_block = lines[target_line - 1 : closing_index + 1]
-        ambiguous = "".join(
-            lines[: closing_index + 1]
-            + badge_block
-            + lines[closing_index + 1 :]
-        )
-        self.assertEqual(
-            ["typescript_reference_binding_ambiguous"],
-            checker._validate_typescript_reference_identity(
-                identities[1220], {source_path: ambiguous}
-            ),
-        )
+        ambiguous = "".join(lines[: closing_index + 1] + badge_block + lines[closing_index + 1 :])
+        assert checker._validate_typescript_reference_identity(
+            identities[1220], {source_path: ambiguous}
+        ) == ["typescript_reference_binding_ambiguous"]
 
     def test_c21d_governed_batch_gate_replays_real_composer_move_and_reds(self) -> None:
         """The production batch gate, not only its standalone helper, owns relocation."""
-        source_path = (
-            "apps/runtime-dashboard/src/features/composer/routes/"
-            "ComposerModeSections.tsx"
-        )
+        source_path = "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx"
 
         def historical_source(commit: str) -> str:
             return subprocess.run(  # noqa: S603
@@ -5972,9 +5425,7 @@ it("second", () => {
         original_read_text = Path.read_text
 
         def governed_errors(source: str) -> list[str]:
-            def read_text_override(
-                path: Path, *args: object, **kwargs: object
-            ) -> str:
+            def read_text_override(path: Path, *args: object, **kwargs: object) -> str:
                 if path == target_path:
                     return source
                 return original_read_text(path, *args, **kwargs)
@@ -6001,10 +5452,7 @@ it("second", () => {
             "</Badge>", "</RenamedBadge>", 1
         )
         self.assertEqual(  # noqa: PT009
-            [
-                "typescript_reference_binding_missing_or_renamed:"
-                + target_reference
-            ],
+            ["typescript_reference_binding_missing_or_renamed:" + target_reference],
             governed_errors("".join(renamed_lines)),
         )
 
@@ -6020,16 +5468,10 @@ it("second", () => {
 
         lines = moved.splitlines(keepends=True)
         closing_index = next(
-            index
-            for index in range(target_line, len(lines))
-            if "</Badge>" in lines[index]
+            index for index in range(target_line, len(lines)) if "</Badge>" in lines[index]
         )
         badge_block = lines[target_line - 1 : closing_index + 1]
-        ambiguous = "".join(
-            lines[: closing_index + 1]
-            + badge_block
-            + lines[closing_index + 1 :]
-        )
+        ambiguous = "".join(lines[: closing_index + 1] + badge_block + lines[closing_index + 1 :])
         self.assertEqual(  # noqa: PT009
             ["typescript_reference_binding_ambiguous:" + target_reference],
             governed_errors(ambiguous),
@@ -6083,10 +5525,7 @@ it("second", () => {
             self.assertNotIn("prop_declaration_line", specification)  # noqa: PT009
             self.assertNotIn("uses", specification)  # noqa: PT009
             self.assertTrue(  # noqa: PT009
-                all(
-                    isinstance(path, str)
-                    for path in specification["consumer_paths"]
-                )
+                all(isinstance(path, str) for path in specification["consumer_paths"])
             )
         self.assertEqual(26, len(checker.AUTHORITY_BADGE_DEBT_SPECS))  # noqa: PT009
         for specification in checker.AUTHORITY_BADGE_DEBT_SPECS.values():
@@ -6194,8 +5633,8 @@ it("second", () => {
             separators=(",", ":"),
         ).encode("utf-8")
 
-        assert len(identity_references) == 143  # noqa: S101
-        assert hashlib.sha256(encoded).hexdigest() == (  # noqa: S101
+        assert len(identity_references) == 143
+        assert hashlib.sha256(encoded).hexdigest() == (
             "6c0d327298bfa700900b1cf767960b3b076ce3ca5abf30c2421ac450aa5e6c8d"
         )
 
@@ -6207,9 +5646,7 @@ it("second", () => {
 
         def authority_row(document: dict[str, object]) -> dict[str, object]:
             return next(
-                row
-                for row in document["supplemental_findings"]
-                if row["finding_id"] == finding_id
+                row for row in document["supplemental_findings"] if row["finding_id"] == finding_id
             )
 
         original = authority_row(data)
@@ -6241,9 +5678,7 @@ it("second", () => {
             )
         )
         assert_authority_sink_red(
-            lambda sink: sink["consumer_sites"][0].__setitem__(
-                "site_sha256", "sha256:" + "0" * 64
-            )
+            lambda sink: sink["consumer_sites"][0].__setitem__("site_sha256", "sha256:" + "0" * 64)
         )
         assert_authority_sink_red(lambda sink: sink["consumer_sites"].pop())
         assert_authority_sink_red(
@@ -6281,9 +5716,7 @@ it("second", () => {
             if fact["descriptorId"] == descriptor_id
         )
         declaration_path = specification["component_declaration_path"]
-        declaration_source = (checker.REPO_ROOT / declaration_path).read_text(
-            encoding="utf-8"
-        )
+        declaration_source = (checker.REPO_ROOT / declaration_path).read_text(encoding="utf-8")
         declaration = checker._typescript_reference_identity(
             {declaration_path: declaration_source},
             source_path=declaration_path,
@@ -6292,39 +5725,28 @@ it("second", () => {
             navigation_hint=live_fact["propDeclarationLine"],
         )
         declaration_digest = checker._typescript_reference_hybrid_keys([declaration])[0]
-        self.assertIn(
-            declaration_digest,
-            checker.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
-        )
-        self.assertEqual(
-            [],
+        assert declaration_digest in checker.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
+        assert (
             checker._validate_typescript_reference_identity(
                 declaration, {declaration_path: "\n" + declaration_source}
-            ),
+            )
+            == []
         )
         rewritten = declaration_source.replace(
             'tone?: "default" | "rail";',
             'tone?: "default" | "rail" | "changed";',
             1,
         )
-        self.assertEqual(
-            ["typescript_reference_content_drift"],
-            checker._validate_typescript_reference_identity(
-                declaration, {declaration_path: rewritten}
-            ),
-        )
+        assert checker._validate_typescript_reference_identity(
+            declaration, {declaration_path: rewritten}
+        ) == ["typescript_reference_content_drift"]
         renamed = declaration_source.replace("tone?:", "renamedTone?:", 1)
-        self.assertEqual(
-            ["typescript_reference_binding_missing_or_renamed"],
-            checker._validate_typescript_reference_identity(
-                declaration, {declaration_path: renamed}
-            ),
-        )
+        assert checker._validate_typescript_reference_identity(
+            declaration, {declaration_path: renamed}
+        ) == ["typescript_reference_binding_missing_or_renamed"]
 
         use_path = specification["consumer_paths"][0]
-        live_use = next(
-            site for site in live_fact["consumerSites"] if site["path"] == use_path
-        )
+        live_use = next(site for site in live_fact["consumerSites"] if site["path"] == use_path)
         use_source = (checker.REPO_ROOT / use_path).read_text(encoding="utf-8")
         use = checker._typescript_reference_identity(
             {use_path: use_source},
@@ -6333,11 +5755,9 @@ it("second", () => {
             discriminator="tone",
             navigation_hint=live_use["line"],
         )
-        self.assertEqual(
-            [],
-            checker._validate_typescript_reference_identity(
-                use, {use_path: "\n" + use_source}
-            ),
+        assert (
+            checker._validate_typescript_reference_identity(use, {use_path: "\n" + use_source})
+            == []
         )
 
 
@@ -6374,12 +5794,9 @@ class StructuredReferenceIdentityTests(unittest.TestCase):
             selector="/entries[debt_id=target]",
         )
 
-        self.assertEqual(first, second)
-        self.assertEqual(
-            [],
-            checker._validate_structured_reference_identity(
-                first, {self._JSON_PATH: moved}
-            ),
+        assert first == second
+        assert (
+            checker._validate_structured_reference_identity(first, {self._JSON_PATH: moved}) == []
         )
 
     def test_toml_format_and_table_move_preserve_identity(self) -> None:
@@ -6413,12 +5830,9 @@ id = "target"
             selector="/family[id=target]/outputs",
         )
 
-        self.assertEqual(first, second)
-        self.assertEqual(
-            [],
-            checker._validate_structured_reference_identity(
-                first, {self._TOML_PATH: moved}
-            ),
+        assert first == second
+        assert (
+            checker._validate_structured_reference_identity(first, {self._TOML_PATH: moved}) == []
         )
 
     def test_selector_missing_duplicate_content_drift_and_benign_sibling(self) -> None:
@@ -6467,19 +5881,16 @@ id = "target"
         }
         for name, (source, code) in cases.items():
             with self.subTest(name=name):
-                self.assertEqual(
-                    [code],
-                    checker._validate_structured_reference_identity(
-                        reference, {self._JSON_PATH: source}
-                    ),
+                assert [code] == checker._validate_structured_reference_identity(
+                    reference, {self._JSON_PATH: source}
                 )
 
         benign_sibling_change = original.replace('"control"', '"changed"', 1)
-        self.assertEqual(
-            [],
+        assert (
             checker._validate_structured_reference_identity(
                 reference, {self._JSON_PATH: benign_sibling_change}
-            ),
+            )
+            == []
         )
 
     def test_unsupported_adapter_and_malformed_payload_fail_closed(self) -> None:
@@ -6497,16 +5908,13 @@ id = "target"
             base64.urlsafe_b64decode(payload_text + "=" * (-len(payload_text) % 4))
         )
         payload["format_adapter"] = "yaml"
-        def encoded(
-            value: dict[str, object], *, prefix: str = path
-        ) -> dict[str, str]:
+
+        def encoded(value: dict[str, object], *, prefix: str = path) -> dict[str, str]:
             return {
                 "encoded_identity": prefix
                 + "#structured-identity="
                 + base64.urlsafe_b64encode(
-                    json.dumps(
-                        value, sort_keys=True, separators=(",", ":")
-                    ).encode("utf-8")
+                    json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
                 )
                 .decode("ascii")
                 .rstrip("=")
@@ -6514,12 +5922,9 @@ id = "target"
 
         unsupported = encoded(payload)
 
-        self.assertEqual(
-            ["structured_reference_format_unsupported"],
-            checker._validate_structured_reference_identity(
-                unsupported, {self._JSON_PATH: source}
-            ),
-        )
+        assert checker._validate_structured_reference_identity(
+            unsupported, {self._JSON_PATH: source}
+        ) == ["structured_reference_format_unsupported"]
 
         payload["format_adapter"] = "json"
         version = dict(payload, version=2)
@@ -6532,26 +5937,15 @@ id = "target"
         )
         for malformed in malformed_cases:
             with self.subTest(malformed=malformed):
-                self.assertEqual(
-                    ["structured_reference_identity_invalid"],
-                    checker._validate_structured_reference_identity(
-                        malformed, {self._JSON_PATH: source}
-                    ),
-                )
-        self.assertEqual(
-            ["structured_reference_format_path_mismatch"],
-            checker._validate_structured_reference_identity(
-                encoded(path_mismatch, prefix=self._TOML_PATH),
-                {self._TOML_PATH: source},
-            ),
-        )
-        self.assertEqual(
-            ["structured_reference_identity_invalid"],
-            checker._validate_structured_reference_identity(
-                {"encoded_identity": path + "#structured-identity=%%%"},
-                {self._JSON_PATH: source},
-            ),
-        )
+                assert checker._validate_structured_reference_identity(
+                    malformed, {self._JSON_PATH: source}
+                ) == ["structured_reference_identity_invalid"]
+        assert checker._validate_structured_reference_identity(
+            encoded(path_mismatch, prefix=self._TOML_PATH), {self._TOML_PATH: source}
+        ) == ["structured_reference_format_path_mismatch"]
+        assert checker._validate_structured_reference_identity(
+            {"encoded_identity": path + "#structured-identity=%%%"}, {self._JSON_PATH: source}
+        ) == ["structured_reference_identity_invalid"]
 
         duplicated_payload = (
             '{"format_adapter":"json","format_adapter":"toml",'
@@ -6561,21 +5955,16 @@ id = "target"
             + self._JSON_PATH
             + '","version":1}'
         )
-        self.assertEqual(
-            ["structured_reference_identity_invalid"],
-            checker._validate_structured_reference_identity(
-                {
-                    "encoded_identity": path
-                    + "#structured-identity="
-                    + base64.urlsafe_b64encode(
-                        duplicated_payload.encode("utf-8")
-                    )
-                    .decode("ascii")
-                    .rstrip("=")
-                },
-                {self._JSON_PATH: source},
-            ),
-        )
+        assert checker._validate_structured_reference_identity(
+            {
+                "encoded_identity": path
+                + "#structured-identity="
+                + base64.urlsafe_b64encode(duplicated_payload.encode("utf-8"))
+                .decode("ascii")
+                .rstrip("=")
+            },
+            {self._JSON_PATH: source},
+        ) == ["structured_reference_identity_invalid"]
 
         invalid_source_paths = (
             checker.REGISTER_PATH.resolve().as_posix(),
@@ -6589,27 +5978,14 @@ id = "target"
                 prefix=invalid_source_path,
             )
             with self.subTest(invalid_source_path=invalid_source_path):
-                self.assertEqual(
-                    ["structured_reference_source_path_invalid"],
-                    checker._validate_structured_reference_identity(
-                        invalid_reference,
-                        {invalid_source_path: source},
-                    ),
-                )
+                assert checker._validate_structured_reference_identity(
+                    invalid_reference, {invalid_source_path: source}
+                ) == ["structured_reference_source_path_invalid"]
                 encoded_identity = invalid_reference["encoded_identity"]
-                self.assertEqual(
-                    [
-                        "structured_reference_source_path_invalid:"
-                        + encoded_identity
-                    ],
-                    checker._structured_identity_reference_errors(
-                        [encoded_identity]
-                    ),
-                )
-                with self.assertRaisesRegex(
-                    ValueError,
-                    "structured_reference_source_path_invalid",
-                ):
+                assert [
+                    "structured_reference_source_path_invalid:" + encoded_identity
+                ] == checker._structured_identity_reference_errors([encoded_identity])
+                with pytest.raises(ValueError, match="structured_reference_source_path_invalid"):
                     checker._structured_reference_identity(
                         {invalid_source_path: source},
                         source_path=invalid_source_path,
@@ -6637,18 +6013,14 @@ id = "target"
         }
 
         identities = checker._c21c_structured_identity_literals()
-        self.assertEqual(set(expected_hashes), set(identities))
+        assert set(expected_hashes) == set(identities)
         for legacy_reference, encoded_identity in identities.items():
             _path, payload_text = encoded_identity.split("#structured-identity=", 1)
             payload = json.loads(
-                base64.urlsafe_b64decode(
-                    payload_text + "=" * (-len(payload_text) % 4)
-                )
+                base64.urlsafe_b64decode(payload_text + "=" * (-len(payload_text) % 4))
             )
-            self.assertEqual(
-                expected_hashes[legacy_reference],
-                payload["normalized_value_sha256"],
-                legacy_reference,
+            assert expected_hashes[legacy_reference] == payload["normalized_value_sha256"], (
+                legacy_reference
             )
         descriptor_references = [
             reference
@@ -6656,18 +6028,17 @@ id = "target"
             for reference in descriptor["evidence_refs"]
             if "#structured-identity=" in reference
         ]
-        self.assertEqual(
-            set(checker._C21C_FROZEN_STRUCTURED_IDENTITIES.values()),
-            set(descriptor_references),
+        assert set(checker._C21C_FROZEN_STRUCTURED_IDENTITIES.values()) == set(
+            descriptor_references
         )
-        self.assertEqual(5, len(descriptor_references))
+        assert len(descriptor_references) == 5
 
 
 class DS5LineAddressCensusTests(unittest.TestCase):
     """Derive DS5-LINE-ADDRESS-01 denominators from the live register owners."""
 
     _LINE_REFERENCE_RE = re.compile(r"^(.*?):\d+(?::\d+)?$")
-    _BOUNDS_ONLY_REFS = {
+    _BOUNDS_ONLY_REFS: ClassVar[set[str]] = {
         "apps/runtime-dashboard/src/shared/lib/a11yAudit.ts:71",
         "apps/runtime-dashboard/src/shared/i18n/messages/icu-messages.ts:1",
         "apps/runtime-dashboard/src/sw.ts:3",
@@ -6691,35 +6062,45 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         """Make every DS5 line-address denominator fail by its named audit key."""
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         references = self._live_references(data)
-        line_references = [reference for reference in references if self._LINE_REFERENCE_RE.match(reference)]
+        line_references = [
+            reference for reference in references if self._LINE_REFERENCE_RE.match(reference)
+        ]
         extension_counts: dict[str, tuple[int, int]] = {}
         for extension in ("TSX", "TS", "PY", "JSON", "MD", "TOML"):
             extension_references = [
                 reference
                 for reference in line_references
-                if Path(self._LINE_REFERENCE_RE.match(reference).group(1)).suffix == "." + extension.lower()
+                if Path(self._LINE_REFERENCE_RE.match(reference).group(1)).suffix
+                == "." + extension.lower()
             ]
             extension_counts[extension] = (
                 len(extension_references),
-                len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in extension_references}),
+                len(
+                    {
+                        self._LINE_REFERENCE_RE.match(reference).group(1)
+                        for reference in extension_references
+                    }
+                ),
             )
 
-        self.assertEqual(261, len(references), "ds5_line_address_total_reference_drift")
-        self.assertEqual(12, len(line_references), "ds5_line_address_line_reference_drift")
-        self.assertEqual(
-            10,
-            len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in line_references}),
-            "ds5_line_address_line_file_drift",
-        )
-        self.assertEqual(
-            {"TSX": (0, 0), "TS": (6, 4), "PY": (4, 4), "JSON": (0, 0), "MD": (2, 2), "TOML": (0, 0)},
-            extension_counts,
-            "ds5_line_address_extension_partition_drift",
-        )
-        self.assertEqual(
-            self._BOUNDS_ONLY_REFS,
-            set(line_references) & self._BOUNDS_ONLY_REFS,
-            "ds5_line_address_bounds_navigation_drift",
+        assert len(references) == 261, "ds5_line_address_total_reference_drift"
+        assert len(line_references) == 12, "ds5_line_address_line_reference_drift"
+        assert (
+            len(
+                {self._LINE_REFERENCE_RE.match(reference).group(1) for reference in line_references}
+            )
+            == 10
+        ), "ds5_line_address_line_file_drift"
+        assert extension_counts == {
+            "TSX": (0, 0),
+            "TS": (6, 4),
+            "PY": (4, 4),
+            "JSON": (0, 0),
+            "MD": (2, 2),
+            "TOML": (0, 0),
+        }, "ds5_line_address_extension_partition_drift"
+        assert set(line_references) & self._BOUNDS_ONLY_REFS == self._BOUNDS_ONLY_REFS, (
+            "ds5_line_address_bounds_navigation_drift"
         )
         navigation_references = [
             reference
@@ -6728,30 +6109,21 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             in {".ts", ".py", ".md"}
         ]
         c21c_structured_references = [
-            reference
-            for reference in references
-            if "#structured-identity=" in reference
+            reference for reference in references if "#structured-identity=" in reference
         ]
-        self.assertEqual(
-            12,
-            len(navigation_references),
-            "ds5_line_address_navigation_reference_drift",
+        assert len(navigation_references) == 12, "ds5_line_address_navigation_reference_drift"
+        assert len(c21c_structured_references) == 5, (
+            "ds5_line_address_c21c_structured_reference_drift"
         )
-        self.assertEqual(
-            5,
-            len(c21c_structured_references),
-            "ds5_line_address_c21c_structured_reference_drift",
-        )
-        self.assertEqual(
-            4,
+        assert (
             len(
                 {
                     reference.split("#structured-identity=", 1)[0]
                     for reference in c21c_structured_references
                 }
-            ),
-            "ds5_line_address_c21c_structured_file_drift",
-        )
+            )
+            == 4
+        ), "ds5_line_address_c21c_structured_file_drift"
 
         observed_line_references = [
             reference
@@ -6774,39 +6146,30 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             for reference in finding["evidence_refs"]
             if self._LINE_REFERENCE_RE.match(reference)
         ]
-        self.assertEqual(0, len(observed_line_references), "ds5_line_address_observed_line_drift")
-        self.assertEqual(
-            0,
-            len(authority_evidence_line_references),
-            "ds5_line_address_authority_evidence_line_drift",
+        assert len(observed_line_references) == 0, "ds5_line_address_observed_line_drift"
+        assert len(authority_evidence_line_references) == 0, (
+            "ds5_line_address_authority_evidence_line_drift"
         )
-        self.assertEqual(
-            12,
-            len(descriptor_evidence_line_references),
-            "ds5_line_address_descriptor_evidence_line_drift",
+        assert len(descriptor_evidence_line_references) == 12, (
+            "ds5_line_address_descriptor_evidence_line_drift"
         )
-        identity_references = [reference for reference in references if "#ts-identity=" in reference]
-        self.assertEqual(155, len(identity_references), "ds5_c21b_identity_reference_drift")
+        identity_references = [
+            reference for reference in references if "#ts-identity=" in reference
+        ]
+        assert len(identity_references) == 155, "ds5_c21b_identity_reference_drift"
         identity_payloads = [
-            json.loads(
-                base64.urlsafe_b64decode(
-                    payload + "=" * (-len(payload) % 4)
-                )
-            )
+            json.loads(base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)))
             for _path, payload in (
-                reference.split("#ts-identity=", 1)
-                for reference in identity_references
+                reference.split("#ts-identity=", 1) for reference in identity_references
             )
         ]
-        self.assertEqual(
-            155,
+        assert (
             sum(
-                isinstance(payload.get("discriminator"), str)
-                and bool(payload["discriminator"])
+                isinstance(payload.get("discriminator"), str) and bool(payload["discriminator"])
                 for payload in identity_payloads
-            ),
-            "ds5_c21b_identity_discriminator_drift",
-        )
+            )
+            == 155
+        ), "ds5_c21b_identity_discriminator_drift"
         observed_identities = [
             reference
             for census in data["reference_censuses"]
@@ -6828,9 +6191,9 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             for reference in finding["evidence_refs"]
             if "#ts-identity=" in reference
         ]
-        self.assertEqual(28, len(observed_identities), "ds5_c21b_observed_identity_drift")
-        self.assertEqual(118, len(authority_identities), "ds5_c21b_authority_identity_drift")
-        self.assertEqual(9, len(descriptor_identities), "ds5_c21b_descriptor_identity_drift")
+        assert len(observed_identities) == 28, "ds5_c21b_observed_identity_drift"
+        assert len(authority_identities) == 118, "ds5_c21b_authority_identity_drift"
+        assert len(descriptor_identities) == 9, "ds5_c21b_descriptor_identity_drift"
         structured_descriptor_identities = [
             reference
             for finding in data["supplemental_findings"]
@@ -6838,16 +6201,10 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             for reference in finding["evidence_refs"]
             if "#structured-identity=" in reference
         ]
-        self.assertEqual(
-            5,
-            len(structured_descriptor_identities),
-            "ds5_c21c_descriptor_identity_drift",
-        )
-        self.assertEqual(
-            set(checker._C21C_FROZEN_STRUCTURED_IDENTITIES.values()),
-            set(structured_descriptor_identities),
-            "ds5_c21c_descriptor_identity_set_drift",
-        )
+        assert len(structured_descriptor_identities) == 5, "ds5_c21c_descriptor_identity_drift"
+        assert set(checker._C21C_FROZEN_STRUCTURED_IDENTITIES.values()) == set(
+            structured_descriptor_identities
+        ), "ds5_c21c_descriptor_identity_set_drift"
 
         authority_rows = [
             finding for finding in data["supplemental_findings"] if "authority_sink" in finding
@@ -6855,16 +6212,18 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         receipt_slots: list[tuple[str, int]] = []
         for row in authority_rows:
             sink = row["authority_sink"]
-            receipt_slots.append((sink["component_declaration"]["path"], sink["component_declaration"]["line"]))
+            receipt_slots.append(
+                (sink["component_declaration"]["path"], sink["component_declaration"]["line"])
+            )
             if "prop_declaration" in sink:
-                receipt_slots.append((sink["prop_declaration"]["path"], sink["prop_declaration"]["line"]))
+                receipt_slots.append(
+                    (sink["prop_declaration"]["path"], sink["prop_declaration"]["line"])
+                )
             receipt_slots.extend((site["path"], site["line"]) for site in sink["consumer_sites"])
-        self.assertEqual(39, len(authority_rows), "ds5_line_address_authority_row_drift")
-        self.assertEqual(130, len(receipt_slots), "ds5_line_address_nested_slot_drift")
-        self.assertEqual(
-            36,
-            len({path for path, _line in receipt_slots}),
-            "ds5_line_address_nested_file_drift",
+        assert len(authority_rows) == 39, "ds5_line_address_authority_row_drift"
+        assert len(receipt_slots) == 130, "ds5_line_address_nested_slot_drift"
+        assert len({path for path, _line in receipt_slots}) == 36, (
+            "ds5_line_address_nested_file_drift"
         )
 
     def test_c21b_migrates_every_gated_typescript_reference_to_identity(self) -> None:
@@ -6879,7 +6238,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             and reference not in self._BOUNDS_ONLY_REFS
         ]
 
-        self.assertEqual([], legacy_gated_ts, "ds5_c21b_legacy_gated_typescript_reference")
+        assert legacy_gated_ts == [], "ds5_c21b_legacy_gated_typescript_reference"
 
     def test_c21b_surgical_writer_is_idempotent_on_migrated_register(self) -> None:
         """Migrate the exact pre-C21b register against its matching source tree."""
@@ -6900,46 +6259,40 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             twice = checker._c21b_surgical_identity_text(once)
 
         self.assertNotEqual(original, once)  # noqa: PT009
-        self.assertEqual(once, twice)
-        self.assertEqual(baseline_before, checker.BASELINE_PATH.read_bytes())
+        assert once == twice
+        assert baseline_before == checker.BASELINE_PATH.read_bytes()
         migrated = json.loads(once)
         for census in migrated["reference_censuses"]:
             for probe in census["probes"]:
                 observed_refs = probe["observed_refs"]
-                self.assertEqual(
-                    len(observed_refs),
-                    len(set(observed_refs)),
-                    f"ds5_c21b_observed_identity_duplicate:{census['census_id']}:{probe['kind']}",
+                assert len(observed_refs) == len(set(observed_refs)), (
+                    f"ds5_c21b_observed_identity_duplicate:{census['census_id']}:{probe['kind']}"
                 )
-        self.assertEqual(
-            (28, 118, 6),
-            (
-                sum(
-                    "#ts-identity=" in reference
-                    for census in migrated["reference_censuses"]
-                    for probe in census["probes"]
-                    for reference in probe["observed_refs"]
-                ),
-                sum(
-                    "#ts-identity=" in reference
-                    for finding in migrated["supplemental_findings"]
-                    if "authority_sink" in finding
-                    for reference in finding["evidence_refs"]
-                ),
-                sum(
-                    "#ts-identity=" in reference
-                    for finding in migrated["supplemental_findings"]
-                    if "authority_sink" not in finding
-                    for reference in finding["evidence_refs"]
-                ),
-            ),
-        )
-        self.assertEqual(
-            6,
+        assert (
             sum(
-                reference in self._BOUNDS_ONLY_REFS
-                for reference in self._live_references(migrated)
+                "#ts-identity=" in reference
+                for census in migrated["reference_censuses"]
+                for probe in census["probes"]
+                for reference in probe["observed_refs"]
             ),
+            sum(
+                "#ts-identity=" in reference
+                for finding in migrated["supplemental_findings"]
+                if "authority_sink" in finding
+                for reference in finding["evidence_refs"]
+            ),
+            sum(
+                "#ts-identity=" in reference
+                for finding in migrated["supplemental_findings"]
+                if "authority_sink" not in finding
+                for reference in finding["evidence_refs"]
+            ),
+        ) == (28, 118, 6)
+        assert (
+            sum(
+                reference in self._BOUNDS_ONLY_REFS for reference in self._live_references(migrated)
+            )
+            == 6
         )
         current = REGISTER_PATH.read_text(encoding="utf-8")
         self.assertEqual(  # noqa: PT009
@@ -6951,10 +6304,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         errors = checker.validate_register(data, live_probes=True, report_parity=False)
         probe_suffix = "census-browser-signing-protected-live:reference_count"
-        self.assertEqual(
-            [],
-            [error for error in errors if error.endswith(probe_suffix)],
-        )
+        assert [error for error in errors if error.endswith(probe_suffix)] == []
 
     def test_c21b_protected_probe_retains_hybrid_identity_multiplicity(self) -> None:
         """A duplicated protected construct remains drift even when its content relocates."""
@@ -6984,14 +6334,8 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             )
 
         probe_suffix = "census-browser-signing-protected-live:reference_count"
-        self.assertIn(
-            "census_observation_drift:" + probe_suffix,
-            errors,
-        )
-        self.assertIn(
-            "census_expected_count_drift:" + probe_suffix,
-            errors,
-        )
+        assert "census_observation_drift:" + probe_suffix in errors
+        assert "census_expected_count_drift:" + probe_suffix in errors
 
     def test_c21b_probe_mode_preserves_legacy_and_fails_closed_on_invalid_modes(self) -> None:
         """Legacy equality stays exact while mixed and unmappable identity probes fail closed."""
@@ -7003,36 +6347,24 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         )
         identity_reference = census["probes"][0]["observed_refs"][0]
 
-        self.assertEqual(
-            (True, None),
-            checker._probe_observation_matches_stored_mode(
-                ["apps/runtime-dashboard/src/example.ts:1"],
-                ["apps/runtime-dashboard/src/example.ts:1"],
-            ),
+        assert checker._probe_observation_matches_stored_mode(
+            ["apps/runtime-dashboard/src/example.ts:1"], ["apps/runtime-dashboard/src/example.ts:1"]
+        ) == (True, None)
+        assert checker._probe_observation_matches_stored_mode(
+            ["apps/runtime-dashboard/src/example.ts:1"], ["apps/runtime-dashboard/src/example.ts:2"]
+        ) == (False, None)
+        assert checker._probe_observation_matches_stored_mode(
+            [identity_reference, "apps/runtime-dashboard/src/example.ts:1"],
+            ["apps/runtime-dashboard/src/example.ts:1"],
+        ) == (
+            None,
+            "census_identity_mode_mixed",
         )
-        self.assertEqual(
-            (False, None),
-            checker._probe_observation_matches_stored_mode(
-                ["apps/runtime-dashboard/src/example.ts:1"],
-                ["apps/runtime-dashboard/src/example.ts:2"],
-            ),
-        )
-        self.assertEqual(
-            (None, "census_identity_mode_mixed"),
-            checker._probe_observation_matches_stored_mode(
-                [identity_reference, "apps/runtime-dashboard/src/example.ts:1"],
-                ["apps/runtime-dashboard/src/example.ts:1"],
-            ),
-        )
-        self.assertEqual(
-            (
-                None,
-                "census_identity_observation_unmappable:README.md:1",
-            ),
-            checker._probe_observation_matches_stored_mode(
-                [identity_reference],
-                ["README.md:1"],
-            ),
+        assert checker._probe_observation_matches_stored_mode(
+            [identity_reference], ["README.md:1"]
+        ) == (
+            None,
+            "census_identity_observation_unmappable:README.md:1",
         )
 
     def test_c21b_real_gate_ignores_moved_construct_and_rejects_rename(self) -> None:
@@ -7044,7 +6376,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             for reference in self._live_references(data)
             if reference.startswith(f"{source_path}#ts-identity=")
         ]
-        self.assertEqual(1, len(stored_references))
+        assert len(stored_references) == 1
         stored_reference = stored_references[0]
 
         target_path = checker.REPO_ROOT / source_path
@@ -7073,7 +6405,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
   return authMeSchema.parse(payload);
 }
 """
-        self.assertEqual(1, original.count(block))
+        assert original.count(block) == 1
         without_block = original.replace(block, "", 1)
         insertion = without_block.index("export const FALLBACK_AUTH_ME")
         moved = without_block[:insertion] + block + "\n" + without_block[insertion:]
@@ -7085,9 +6417,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         original_read_text = Path.read_text
 
         def validate_with_source(source: str) -> list[str]:
-            def read_text_override(
-                path: Path, *args: object, **kwargs: object
-            ) -> str:
+            def read_text_override(path: Path, *args: object, **kwargs: object) -> str:
                 if path == target_path:
                     return source
                 return original_read_text(path, *args, **kwargs)
@@ -7099,20 +6429,14 @@ class DS5LineAddressCensusTests(unittest.TestCase):
                     report_parity=False,
                 )
 
-        self.assertEqual([], validate_with_source(moved))
-        self.assertEqual(
-            [
-                "typescript_reference_binding_missing_or_renamed:"
-                + stored_reference
-            ],
-            validate_with_source(renamed),
-        )
+        assert validate_with_source(moved) == []
+        assert [
+            "typescript_reference_binding_missing_or_renamed:" + stored_reference
+        ] == validate_with_source(renamed)
 
     def test_c21c_surgical_writer_is_idempotent_with_navigation_residual(self) -> None:
         """The governed writer leaves only the 12 declared navigation lines."""
-        predecessor = _register_text_at(
-            "ceccb074658240e1161aa8d85e5f2707dd2d698b"
-        )
+        predecessor = _register_text_at("ceccb074658240e1161aa8d85e5f2707dd2d698b")
         predecessor_references = set(self._live_references(json.loads(predecessor)))
         original = REGISTER_PATH.read_text(encoding="utf-8")
         historical_aliases = {
@@ -7123,9 +6447,10 @@ class DS5LineAddressCensusTests(unittest.TestCase):
                 "apps/runtime-dashboard/package.json:166"
             ),
         }
-        for legacy_reference, structured_identity in (
-            checker._C21C_FROZEN_STRUCTURED_IDENTITIES.items()
-        ):
+        for (
+            legacy_reference,
+            structured_identity,
+        ) in checker._C21C_FROZEN_STRUCTURED_IDENTITIES.items():
             self.assertIn(  # noqa: PT009
                 historical_aliases.get(legacy_reference, legacy_reference),
                 predecessor_references,
@@ -7142,25 +6467,16 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         self.assertEqual(  # noqa: PT009
             REGISTER_PATH.read_text(encoding="utf-8"), once
         )
-        self.assertEqual(once, twice)
+        assert once == twice
         data = json.loads(once)
         references = self._live_references(data)
-        structured = [
-            reference
-            for reference in references
-            if "#structured-identity=" in reference
-        ]
+        structured = [reference for reference in references if "#structured-identity=" in reference]
         remaining_lines = [
-            reference
-            for reference in references
-            if self._LINE_REFERENCE_RE.match(reference)
+            reference for reference in references if self._LINE_REFERENCE_RE.match(reference)
         ]
-        self.assertEqual(
-            set(checker._C21C_FROZEN_STRUCTURED_IDENTITIES.values()),
-            set(structured),
-        )
-        self.assertEqual(5, len(structured))
-        self.assertEqual(12, len(remaining_lines))
+        assert set(checker._C21C_FROZEN_STRUCTURED_IDENTITIES.values()) == set(structured)
+        assert len(structured) == 5
+        assert len(remaining_lines) == 12
 
     def test_c21c_real_gate_ignores_json_move_but_rejects_rename_and_content(
         self,
@@ -7173,7 +6489,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             for reference in self._live_references(data)
             if reference.startswith(f"{source_path}#structured-identity=")
         ]
-        self.assertEqual(2, len(stored_references))
+        assert len(stored_references) == 2
         selected_reference = next(
             reference
             for reference in stored_references
@@ -7181,11 +6497,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             in json.loads(
                 base64.urlsafe_b64decode(
                     reference.split("#structured-identity=", 1)[1]
-                    + "="
-                    * (
-                        -len(reference.split("#structured-identity=", 1)[1])
-                        % 4
-                    )
+                    + "=" * (-len(reference.split("#structured-identity=", 1)[1]) % 4)
                 )
             )["selector"]
         )
@@ -7193,64 +6505,41 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         original = json.loads(target_path.read_text(encoding="utf-8"))
         moved_data = copy.deepcopy(original)
         moved_data["entries"] = list(reversed(moved_data["entries"]))
-        moved = json.dumps(
-            moved_data, sort_keys=True, indent=4, ensure_ascii=False
-        ) + "\n"
+        moved = json.dumps(moved_data, sort_keys=True, indent=4, ensure_ascii=False) + "\n"
         renamed_data = copy.deepcopy(moved_data)
         renamed_row = next(
-            row
-            for row in renamed_data["entries"]
-            if row["debt_id"] == "ds4-waist-cgf-disposition"
+            row for row in renamed_data["entries"] if row["debt_id"] == "ds4-waist-cgf-disposition"
         )
         renamed_row["debt_id"] = "renamed-cgf-disposition"
-        renamed = json.dumps(
-            renamed_data, sort_keys=True, indent=4, ensure_ascii=False
-        ) + "\n"
+        renamed = json.dumps(renamed_data, sort_keys=True, indent=4, ensure_ascii=False) + "\n"
         changed_data = copy.deepcopy(moved_data)
         changed_row = next(
-            row
-            for row in changed_data["entries"]
-            if row["debt_id"] == "ds4-waist-cgf-disposition"
+            row for row in changed_data["entries"] if row["debt_id"] == "ds4-waist-cgf-disposition"
         )
         changed_row["closure_truth"] += " Rewritten."
-        changed = json.dumps(
-            changed_data, sort_keys=True, indent=4, ensure_ascii=False
-        ) + "\n"
+        changed = json.dumps(changed_data, sort_keys=True, indent=4, ensure_ascii=False) + "\n"
         original_read_text = Path.read_text
 
         def validate_with_source(source: str) -> list[str]:
-            def read_text_override(
-                path: Path, *args: object, **kwargs: object
-            ) -> str:
+            def read_text_override(path: Path, *args: object, **kwargs: object) -> str:
                 if path == target_path:
                     return source
                 return original_read_text(path, *args, **kwargs)
 
             with mock.patch.object(Path, "read_text", new=read_text_override):
-                return checker.validate_register(
-                    data, live_probes=False, report_parity=False
-                )
+                return checker.validate_register(data, live_probes=False, report_parity=False)
 
-        self.assertEqual([], validate_with_source(moved))
-        self.assertEqual(
-            [
-                "structured_reference_selector_missing_or_renamed:"
-                + selected_reference
-            ],
-            [
-                error
-                for error in validate_with_source(renamed)
-                if error.startswith("structured_reference_")
-            ],
-        )
-        self.assertEqual(
-            ["structured_reference_content_drift:" + selected_reference],
-            [
-                error
-                for error in validate_with_source(changed)
-                if error.startswith("structured_reference_")
-            ],
-        )
+        assert validate_with_source(moved) == []
+        assert ["structured_reference_selector_missing_or_renamed:" + selected_reference] == [
+            error
+            for error in validate_with_source(renamed)
+            if error.startswith("structured_reference_")
+        ]
+        assert ["structured_reference_content_drift:" + selected_reference] == [
+            error
+            for error in validate_with_source(changed)
+            if error.startswith("structured_reference_")
+        ]
 
 
 class DS8StrangleCoverageTests(unittest.TestCase):
@@ -7269,85 +6558,64 @@ class DS8StrangleCoverageTests(unittest.TestCase):
 
     def test_complete_denominator_and_assignments_are_exact(self) -> None:
         coverage = self.coverage
-        self.assertEqual("independently_reconciled", coverage["predicate_provenance"])
-        self.assertFalse(coverage["family_complete"])
-        self.assertEqual(
-            {"files": 207, "physical_lines": 38544},
-            coverage["baseline"]["all"],
-        )
-        self.assertEqual(
-            {"files": 145, "physical_lines": 26502},
-            coverage["baseline"]["production"],
-        )
-        self.assertEqual(
-            {"files": 57, "physical_lines": 11575},
-            coverage["baseline"]["tests"],
-        )
-        self.assertEqual(
-            {"files": 5, "physical_lines": 467},
-            coverage["baseline"]["stories"],
-        )
+        assert coverage["predicate_provenance"] == "independently_reconciled"
+        assert not coverage["family_complete"]
+        assert coverage["baseline"]["all"] == {"files": 207, "physical_lines": 38544}
+        assert coverage["baseline"]["production"] == {"files": 145, "physical_lines": 26502}
+        assert coverage["baseline"]["tests"] == {"files": 57, "physical_lines": 11575}
+        assert coverage["baseline"]["stories"] == {"files": 5, "physical_lines": 467}
         assignments = coverage["assignments"]
         paths = [row["path"] for row in assignments]
-        self.assertEqual(len(paths), len(set(paths)))
-        self.assertEqual(217, len(paths))
+        assert len(paths) == len(set(paths))
+        assert len(paths) == 217
         dispositions = Counter(row["disposition"] for row in assignments)
-        self.assertEqual(8, dispositions["in_scope"])
-        self.assertEqual(137, dispositions["surface_out_of_scope"])
-        self.assertEqual(57, dispositions["verification_companion"])
-        self.assertEqual(5, dispositions["retained"])
-        self.assertEqual(10, dispositions["new_in_slice"])
-        deferred = [
-            row
-            for row in assignments
-            if row["disposition"] == "surface_out_of_scope"
-        ]
-        self.assertTrue(deferred)
-        self.assertTrue(
-            all(
-                row["owner_team"] == "team-design"
-                and row["capability_state"] == "surface_out_of_scope"
-                and row["exit_condition"]
-                == "approved_named_successor_slice_moves_row"
-                and row["successor_slice"] is None
-                for row in deferred
-            )
+        assert dispositions["in_scope"] == 8
+        assert dispositions["surface_out_of_scope"] == 137
+        assert dispositions["verification_companion"] == 57
+        assert dispositions["retained"] == 5
+        assert dispositions["new_in_slice"] == 10
+        deferred = [row for row in assignments if row["disposition"] == "surface_out_of_scope"]
+        assert deferred
+        assert all(
+            row["owner_team"] == "team-design"
+            and row["capability_state"] == "surface_out_of_scope"
+            and row["exit_condition"] == "approved_named_successor_slice_moves_row"
+            and row["successor_slice"] is None
+            for row in deferred
         )
-        self.assertEqual(
-            [],
+        assert (
             checker.validate_ds8_strangle_coverage(
                 coverage,
                 expected_baseline_commit=self.BASE_COMMIT,
                 expected_source_commit=self.SOURCE_COMMIT,
-            ),
+            )
+            == []
         )
 
     def test_generic_walk_rejects_missing_duplicate_stale_and_nonexistent(self) -> None:
-        self.assertEqual(
-            [],
+        assert (
             checker.ds8_strangle_corruption_probes(
                 self.coverage,
                 expected_baseline_commit=self.BASE_COMMIT,
                 expected_source_commit=self.SOURCE_COMMIT,
-            ),
+            )
+            == []
         )
 
     def test_writer_rechecks_bytes_but_persistent_gate_tracks_path_roles(self) -> None:
         poisoned = dict(checker._ds8_live_sources())
         target = next(iter(poisoned))
         poisoned[target] += b"// post-census drift\n"
-        with mock.patch.object(
-            checker, "_ds8_live_sources", return_value=poisoned
-        ):
-            self.assertEqual(
-                [],
+        with mock.patch.object(checker, "_ds8_live_sources", return_value=poisoned):
+            assert (
                 checker.validate_ds8_strangle_coverage(
                     self.coverage,
                     expected_baseline_commit=self.BASE_COMMIT,
                     expected_source_commit=self.SOURCE_COMMIT,
-                ),
+                )
+                == []
             )
-            with self.assertRaisesRegex(ValueError, "byte reconciliation failed"):
+            with pytest.raises(ValueError, match="byte reconciliation failed"):
                 checker.build_ds8_strangle_coverage(
                     baseline_commit=self.BASE_COMMIT,
                     source_commit=self.SOURCE_COMMIT,
@@ -7356,41 +6624,28 @@ class DS8StrangleCoverageTests(unittest.TestCase):
 
     def test_reconciled_later_lane_paths_do_not_enter_ds8_coverage(self) -> None:
         live = checker._ds8_live_sources()
-        ds16_path = (
-            "apps/runtime-dashboard/src/features/runs/export/authorityValueTwin.ts"
-        )
-        self.assertIn(ds16_path, live)
-        self.assertNotIn(
-            ds16_path,
-            {row["path"] for row in self.coverage["assignments"]},
-        )
+        ds16_path = "apps/runtime-dashboard/src/features/runs/export/authorityValueTwin.ts"
+        assert ds16_path in live
+        assert ds16_path not in {row["path"] for row in self.coverage["assignments"]}
         downstream_tree = {
             **live,
             "apps/runtime-dashboard/src/features/runs/downstream-only.ts": b"",
         }
         downstream_tree.pop(next(iter(self.coverage["assignments"]))["path"])
-        with mock.patch.object(
-            checker, "_ds8_live_sources", return_value=downstream_tree
-        ):
-            self.assertEqual(
-                [],
+        with mock.patch.object(checker, "_ds8_live_sources", return_value=downstream_tree):
+            assert (
                 checker.validate_ds8_strangle_coverage(
                     self.coverage,
                     expected_baseline_commit=self.BASE_COMMIT,
                     expected_source_commit=self.SOURCE_COMMIT,
                 )
+                == []
             )
 
     def test_writer_head_is_distinct_from_ds8_coverage_source(self) -> None:
-        self.assertEqual(self.SOURCE_COMMIT, checker.DS8_STRANGLE_SOURCE_COMMIT)
-        self.assertEqual(
-            self.WRITER_HEAD_COMMIT,
-            checker.DS8_STRANGLE_WRITER_HEAD_COMMIT,
-        )
-        self.assertNotEqual(
-            checker.DS8_STRANGLE_SOURCE_COMMIT,
-            checker.DS8_STRANGLE_WRITER_HEAD_COMMIT,
-        )
+        assert self.SOURCE_COMMIT == checker.DS8_STRANGLE_SOURCE_COMMIT
+        assert self.WRITER_HEAD_COMMIT == checker.DS8_STRANGLE_WRITER_HEAD_COMMIT
+        assert checker.DS8_STRANGLE_SOURCE_COMMIT != checker.DS8_STRANGLE_WRITER_HEAD_COMMIT
 
         def git_text(*arguments: str) -> str:
             if arguments == ("symbolic-ref", "-q", "HEAD"):
@@ -7400,10 +6655,13 @@ class DS8StrangleCoverageTests(unittest.TestCase):
             raise AssertionError(arguments)
 
         completed = mock.Mock(returncode=0, stdout="")
-        with mock.patch.object(checker, "_ds8_git_text", side_effect=git_text), mock.patch.object(
-            checker.subprocess,
-            "run",
-            side_effect=(completed, completed, completed),
+        with (
+            mock.patch.object(checker, "_ds8_git_text", side_effect=git_text),
+            mock.patch.object(
+                checker.subprocess,
+                "run",
+                side_effect=(completed, completed, completed),
+            ),
         ):
             checker._ds8_writer_fence()
 
@@ -7419,9 +6677,7 @@ class DS8StrangleCoverageTests(unittest.TestCase):
             f"{self.WRITER_HEAD_COMMIT}:{prefix}"
             "architecture/atlas_surfaces/status-retirement-inventory.json",
         )
-        refreshed_register = checker._refresh_supplemental_findings_text(
-            opening_register
-        )
+        refreshed_register = checker._refresh_supplemental_findings_text(opening_register)
         register_candidate = checker._ds8_register_candidate_text(
             refreshed_register,
             self.coverage,
@@ -7430,20 +6686,15 @@ class DS8StrangleCoverageTests(unittest.TestCase):
             opening_status,
             register_bytes=register_candidate.encode("utf-8"),
         )
-        self.assertEqual(
-            checker.STATUS_INVENTORY_PATH.read_text(encoding="utf-8"),
-            candidate,
-        )
+        assert checker.STATUS_INVENTORY_PATH.read_text(encoding="utf-8") == candidate
         opening = json.loads(opening_status)
         parsed = json.loads(candidate)
         expected = copy.deepcopy(opening)
-        expected["sources"]["ds19"]["sha256"] = parsed["sources"]["ds19"][
-            "sha256"
-        ]
+        expected["sources"]["ds19"]["sha256"] = parsed["sources"]["ds19"]["sha256"]
         for key in ("canonical_sha256", "types_sha256"):
-            expected["sources"]["generated_client"][key] = parsed["sources"][
-                "generated_client"
-            ][key]
+            expected["sources"]["generated_client"][key] = parsed["sources"]["generated_client"][
+                key
+            ]
         expected_status_row = next(
             entry
             for entry in expected["entries"]
@@ -7455,16 +6706,16 @@ class DS8StrangleCoverageTests(unittest.TestCase):
             if entry["path"].endswith("/DataIntelligencePanel.tsx")
         )
         expected_consumer["line"] = 1212
-        self.assertEqual(expected, parsed)
+        assert expected == parsed
 
         generated = parsed["sources"]["generated_client"]
-        self.assertEqual(
-            checker._sha256(checker.REPO_ROOT / generated["canonical_path"]),
-            generated["canonical_sha256"],
+        assert (
+            checker._sha256(checker.REPO_ROOT / generated["canonical_path"])
+            == generated["canonical_sha256"]
         )
-        self.assertEqual(
-            checker._sha256(checker.REPO_ROOT / generated["types_path"]),
-            generated["types_sha256"],
+        assert (
+            checker._sha256(checker.REPO_ROOT / generated["types_path"])
+            == generated["types_sha256"]
         )
         row = next(
             entry
@@ -7476,23 +6727,20 @@ class DS8StrangleCoverageTests(unittest.TestCase):
             for entry in row["consumers"]
             if entry["path"].endswith("/DataIntelligencePanel.tsx")
         )
-        self.assertEqual(1212, consumer["line"])
-        self.assertEqual(387, checker._status_line_leaf_count(parsed))
-        self.assertEqual(30, checker._string_leaf_count(parsed, "#ts-identity="))
-        self.assertEqual(
-            [],
+        assert consumer["line"] == 1212
+        assert checker._status_line_leaf_count(parsed) == 387
+        assert checker._string_leaf_count(parsed, "#ts-identity=") == 30
+        assert (
             checker._ds8_status_candidate_errors(
-                parsed,
-                register_bytes=register_candidate.encode("utf-8"),
-            ),
+                parsed, register_bytes=register_candidate.encode("utf-8")
+            )
+            == []
         )
         debt = checker.status_checker._load_json(  # type: ignore[attr-defined]
             checker.status_checker.WAIST_DEBT_PATH
         )
         original_status_sha256 = checker.status_checker._sha256  # type: ignore[attr-defined]
-        opening_register_hash = checker._ds8_digest(
-            opening_register.encode("utf-8")
-        )
+        opening_register_hash = checker._ds8_digest(opening_register.encode("utf-8"))
 
         def opening_sha256(path: Path) -> str:
             if path == checker.status_checker.DS19_PATH:
@@ -7513,24 +6761,20 @@ class DS8StrangleCoverageTests(unittest.TestCase):
             debt,
         )
         owned_opening_diagnostics = [
-            "inventory_source_hash_drift:packages/runtime-api-client/"
-            "canonicalRuntimeApiClient.ts",
+            "inventory_source_hash_drift:packages/runtime-api-client/canonicalRuntimeApiClient.ts",
             "inventory_source_hash_drift:packages/runtime-api-client/types.ts",
             "status_consumers_drift:status-inline-review-surface",
         ]
-        self.assertEqual(
-            Counter([*candidate_diagnostics, *owned_opening_diagnostics]),
-            Counter(opening_diagnostics),
+        assert Counter([*candidate_diagnostics, *owned_opening_diagnostics]) == Counter(
+            opening_diagnostics
         )
-        self.assertEqual(16, len(opening_diagnostics))
-        self.assertEqual(13, len(candidate_diagnostics))
-        receipt = "".join(
-            f"{diagnostic}\n" for diagnostic in candidate_diagnostics
-        ).encode()
-        self.assertEqual(887, len(receipt))
-        self.assertEqual(
-            "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9",
-            hashlib.sha256(receipt).hexdigest(),
+        assert len(opening_diagnostics) == 16
+        assert len(candidate_diagnostics) == 13
+        receipt = "".join(f"{diagnostic}\n" for diagnostic in candidate_diagnostics).encode()
+        assert len(receipt) == 887
+        assert (
+            hashlib.sha256(receipt).hexdigest()
+            == "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9"
         )
 
     def test_companion_baseline_candidate_reanchors_only_three_source_bytes(
@@ -7545,10 +6789,7 @@ class DS8StrangleCoverageTests(unittest.TestCase):
             ),
         )
         candidate = checker._ds8_baseline_manifest_candidate_text(original)
-        self.assertEqual(
-            candidate,
-            checker._ds8_baseline_manifest_candidate_text(candidate),
-        )
+        assert candidate == checker._ds8_baseline_manifest_candidate_text(candidate)
         original_data = json.loads(original)
         candidate_data = json.loads(candidate)
         original_rows = {
@@ -7559,51 +6800,42 @@ class DS8StrangleCoverageTests(unittest.TestCase):
             (row["cluster_id"], row["path"]): row
             for row in candidate_data["lint"]["resolution_content_bindings"]
         }
-        changed = {
-            key
-            for key in original_rows
-            if original_rows[key] != candidate_rows[key]
-        }
-        self.assertEqual(checker.DS8_BASELINE_CONTENT_REANCHORS, changed)
+        changed = {key for key in original_rows if original_rows[key] != candidate_rows[key]}
+        assert changed == checker.DS8_BASELINE_CONTENT_REANCHORS
         for key in changed:
             row = candidate_rows[key]
-            self.assertEqual(
-                hashlib.sha256((checker.REPO_ROOT / row["path"]).read_bytes()).hexdigest(),
-                row["sha256"],
+            assert (
+                hashlib.sha256((checker.REPO_ROOT / row["path"]).read_bytes()).hexdigest()
+                == row["sha256"]
             )
-        self.assertEqual([], checker.validate_baseline_manifest(candidate_data))
+        assert checker.validate_baseline_manifest(candidate_data) == []
 
     def test_companion_reference_reanchors_resolve_without_peer_drift(self) -> None:
         original = _register_text_at(self.WRITER_HEAD_COMMIT)
         refreshed = checker._refresh_supplemental_findings_text(original)
         self.assertNotEqual(original, refreshed)  # noqa: PT009
         original_rows = {
-            row["finding_id"]: row
-            for row in json.loads(original)["supplemental_findings"]
+            row["finding_id"]: row for row in json.loads(original)["supplemental_findings"]
         }
         refreshed_rows = {
-            row["finding_id"]: row
-            for row in json.loads(refreshed)["supplemental_findings"]
+            row["finding_id"]: row for row in json.loads(refreshed)["supplemental_findings"]
         }
         for finding_id, source_path in checker.DS8_COMPANION_REFERENCE_PATHS.items():
             before = original_rows[finding_id]
             after = refreshed_rows[finding_id]
-            self.assertEqual(
-                {**before, "evidence_refs": after["evidence_refs"]},
-                after,
-            )
+            assert {**before, "evidence_refs": after["evidence_refs"]} == after
             references = [
                 reference
                 for reference in after["evidence_refs"]
                 if reference.startswith(source_path + "#")
             ]
-            self.assertEqual(1, len(references))
+            assert len(references) == 1
             errors = (
                 checker._typescript_identity_reference_errors(references)
                 if "#ts-identity=" in references[0]
                 else checker._structured_identity_reference_errors(references)
             )
-            self.assertEqual([], errors)
+            assert errors == []
         self.assertEqual(  # noqa: PT009
             refreshed,
             checker._refresh_supplemental_findings_text(refreshed),
@@ -7620,28 +6852,23 @@ class DS8StrangleCoverageTests(unittest.TestCase):
         )
         once = checker._ds8_register_candidate_text(original, self.coverage)
         twice = checker._ds8_register_candidate_text(once, self.coverage)
-        self.assertEqual(once, twice)
+        assert once == twice
         parsed = json.loads(once)
-        self.assertEqual("1.1", parsed["schema_version"])
+        assert parsed["schema_version"] == "1.1"
         self.assertEqual(  # noqa: PT009
             "1.0", parsed["storage_construction_census"]["schema_version"]
         )
         original_data = json.loads(original)
         parsed.pop("ds8_strangle_coverage")
         parsed["schema_version"] = original_data["schema_version"]
-        self.assertEqual(original_data, parsed)
+        assert original_data == parsed
 
     def test_failure_atomic_writer_succeeds_idempotently_and_rolls_back(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            paths = [
-                root / name
-                for name in ("register", "report", "status", "baseline")
-            ]
+            paths = [root / name for name in ("register", "report", "status", "baseline")]
             originals = {path: f"old-{index}\n" for index, path in enumerate(paths)}
-            candidates = {
-                path: f"new-{index}\n" for index, path in enumerate(paths)
-            }
+            candidates = {path: f"new-{index}\n" for index, path in enumerate(paths)}
             for path, content in originals.items():
                 path.write_text(content, encoding="utf-8")
                 path.chmod(0o640)
@@ -7653,18 +6880,11 @@ class DS8StrangleCoverageTests(unittest.TestCase):
                     if path.read_text(encoding="utf-8") != expected
                 ]
 
-            checker._failure_atomic_write_texts(
-                candidates, validate_after=validate_new
-            )
-            checker._failure_atomic_write_texts(
-                candidates, validate_after=validate_new
-            )
-            self.assertEqual(
-                candidates,
-                {path: path.read_text(encoding="utf-8") for path in paths},
-            )
-            self.assertTrue(all((path.stat().st_mode & 0o777) == 0o640 for path in paths))
-            self.assertEqual([], list(root.glob(".*.tmp")))
+            checker._failure_atomic_write_texts(candidates, validate_after=validate_new)
+            checker._failure_atomic_write_texts(candidates, validate_after=validate_new)
+            assert candidates == {path: path.read_text(encoding="utf-8") for path in paths}
+            assert all(path.stat().st_mode & 511 == 416 for path in paths)
+            assert list(root.glob(".*.tmp")) == []
 
             for path, content in originals.items():
                 path.write_text(content, encoding="utf-8")
@@ -7678,16 +6898,13 @@ class DS8StrangleCoverageTests(unittest.TestCase):
                     raise OSError("injected fourth promotion failure")
                 real_replace(source, target)
 
-            with mock.patch.object(checker.os, "replace", side_effect=fail_fourth):
-                with self.assertRaisesRegex(OSError, "fourth promotion"):
-                    checker._failure_atomic_write_texts(
-                        candidates, validate_after=validate_new
-                    )
-            self.assertEqual(
-                originals,
-                {path: path.read_text(encoding="utf-8") for path in paths},
-            )
-            self.assertEqual([], list(root.glob(".*.tmp")))
+            with (
+                mock.patch.object(checker.os, "replace", side_effect=fail_fourth),
+                pytest.raises(OSError, match="fourth promotion"),
+            ):
+                checker._failure_atomic_write_texts(candidates, validate_after=validate_new)
+            assert originals == {path: path.read_text(encoding="utf-8") for path in paths}
+            assert list(root.glob(".*.tmp")) == []
 
             for path, content in originals.items():
                 path.write_text(content, encoding="utf-8")
@@ -7701,31 +6918,27 @@ class DS8StrangleCoverageTests(unittest.TestCase):
                     raise OSError("injected post-replace fsync failure")
                 real_fsync(path)
 
-            with mock.patch.object(
-                checker,
-                "_fsync_directory",
-                side_effect=fail_fourth_fsync,
+            with (
+                mock.patch.object(
+                    checker,
+                    "_fsync_directory",
+                    side_effect=fail_fourth_fsync,
+                ),
+                pytest.raises(OSError, match="post-replace fsync"),
             ):
-                with self.assertRaisesRegex(OSError, "post-replace fsync"):
-                    checker._failure_atomic_write_texts(
-                        candidates,
-                        validate_after=validate_new,
-                    )
-            self.assertEqual(
-                originals,
-                {path: path.read_text(encoding="utf-8") for path in paths},
-            )
-            self.assertEqual([], list(root.glob(".*.tmp")))
+                checker._failure_atomic_write_texts(
+                    candidates,
+                    validate_after=validate_new,
+                )
+            assert originals == {path: path.read_text(encoding="utf-8") for path in paths}
+            assert list(root.glob(".*.tmp")) == []
 
     def test_staging_and_pre_promote_failures_leave_no_residue(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            paths = [
-                root / name
-                for name in ("register", "report", "status", "baseline")
-            ]
-            originals = {path: "old\n" for path in paths}
-            candidates = {path: "new\n" for path in paths}
+            paths = [root / name for name in ("register", "report", "status", "baseline")]
+            originals = dict.fromkeys(paths, "old\n")
+            candidates = dict.fromkeys(paths, "new\n")
             for path in paths:
                 path.write_text(originals[path], encoding="utf-8")
             real_stage = checker._stage_same_directory
@@ -7738,37 +6951,32 @@ class DS8StrangleCoverageTests(unittest.TestCase):
                     raise OSError("injected staging failure")
                 return real_stage(path, payload)
 
-            with mock.patch.object(
-                checker, "_stage_same_directory", side_effect=fail_second_stage
+            with (
+                mock.patch.object(checker, "_stage_same_directory", side_effect=fail_second_stage),
+                pytest.raises(OSError, match="staging failure"),
             ):
-                with self.assertRaisesRegex(OSError, "staging failure"):
-                    checker._failure_atomic_write_texts(
-                        candidates, validate_after=lambda: []
-                    )
-            self.assertEqual([], list(root.glob(".*.tmp")))
-            self.assertEqual(
-                originals,
-                {path: path.read_text(encoding="utf-8") for path in paths},
-            )
-            with mock.patch.object(checker.os, "replace") as replace:
-                with self.assertRaisesRegex(ValueError, "pre-promote"):
-                    checker._failure_atomic_write_texts(
-                        candidates,
-                        validate_after=lambda: [],
-                        pre_promote=lambda: (_ for _ in ()).throw(
-                            ValueError("pre-promote fence")
-                        ),
-                    )
+                checker._failure_atomic_write_texts(candidates, validate_after=lambda: [])
+            assert list(root.glob(".*.tmp")) == []
+            assert originals == {path: path.read_text(encoding="utf-8") for path in paths}
+            with (
+                mock.patch.object(checker.os, "replace") as replace,
+                pytest.raises(ValueError, match="pre-promote"),
+            ):
+                checker._failure_atomic_write_texts(
+                    candidates,
+                    validate_after=lambda: [],
+                    pre_promote=lambda: (_ for _ in ()).throw(ValueError("pre-promote fence")),
+                )
             replace.assert_not_called()
-            self.assertEqual([], list(root.glob(".*.tmp")))
+            assert list(root.glob(".*.tmp")) == []
 
     def test_complete_row_projection_is_reported(self) -> None:
         projection = checker._ds8_strangle_report_projection(self.coverage)
-        self.assertIn("**145**", projection)
-        self.assertIn("**8**", projection)
-        self.assertIn("**137**", projection)
+        assert "**145**" in projection
+        assert "**8**" in projection
+        assert "**137**" in projection
         for row in self.coverage["assignments"]:
-            self.assertEqual(1, projection.count(f"`{row['path']}`"))
+            assert projection.count(f"`{row['path']}`") == 1
 
 
 class DS8BPostFreezeTransitionTests(unittest.TestCase):
@@ -7779,9 +6987,9 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
-        cls.historical = json.loads(
-            REGISTER_PATH.read_text(encoding="utf-8")
-        )["ds8_strangle_coverage"]
+        cls.historical = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))[
+            "ds8_strangle_coverage"
+        ]
         cls.transition = checker.build_ds8b_post_freeze_transition(
             baseline_commit=cls.BASE_COMMIT,
             source_commit=cls.SOURCE_COMMIT,
@@ -7790,32 +6998,21 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
 
     def test_complete_delta_and_historical_binding_are_exact(self) -> None:
         transition = self.transition
-        assert transition["transition_complete"]  # noqa: S101
-        assert transition["changed_existing_path_count"] == 1  # noqa: S101
-        assert transition["new_path_count"] == 5  # noqa: S101
-        assert transition["transition_path_count"] == 6  # noqa: S101
-        assert (  # noqa: S101
-            transition["historical_binding"]["assignment_count"] == 217
-        )
-        assert (  # noqa: S101
-            transition["historical_binding"]["deferred_count"] == 137
-        )
-        assert [  # noqa: S101
-            row["path"] for row in transition["assignments"]
-        ] == [
-            "apps/runtime-dashboard/src/features/runs/api/"
-            "useCaseInspection.test.tsx",
+        assert transition["transition_complete"]
+        assert transition["changed_existing_path_count"] == 1
+        assert transition["new_path_count"] == 5
+        assert transition["transition_path_count"] == 6
+        assert transition["historical_binding"]["assignment_count"] == 217
+        assert transition["historical_binding"]["deferred_count"] == 137
+        assert [row["path"] for row in transition["assignments"]] == [
+            "apps/runtime-dashboard/src/features/runs/api/useCaseInspection.test.tsx",
             "apps/runtime-dashboard/src/features/runs/api/useCaseInspection.ts",
-            "apps/runtime-dashboard/src/features/runs/routes/"
-            "CaseWorkspacePage.parity.test.tsx",
-            "apps/runtime-dashboard/src/features/runs/routes/"
-            "CaseWorkspacePage.test.tsx",
-            "apps/runtime-dashboard/src/features/runs/routes/"
-            "CaseWorkspacePage.tsx",
-            "apps/runtime-dashboard/src/features/runs/routes/"
-            "CycleBoardConsumerCensus.test.ts",
+            "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.parity.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
+            "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts",
         ]
-        assert not checker.validate_ds8b_post_freeze_transition(  # noqa: S101
+        assert not checker.validate_ds8b_post_freeze_transition(
             transition,
             self.historical,
             expected_baseline_commit=self.BASE_COMMIT,
@@ -7823,7 +7020,7 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
         )
 
     def test_generic_walk_rejects_all_required_corruptions(self) -> None:
-        assert not checker.ds8b_post_freeze_corruption_probes(  # noqa: S101
+        assert not checker.ds8b_post_freeze_corruption_probes(
             self.transition,
             self.historical,
             expected_baseline_commit=self.BASE_COMMIT,
@@ -7841,25 +7038,23 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
         original_history = copy.deepcopy(base_data["ds8_strangle_coverage"])
         once = checker._ds8b_register_candidate_text(base_register, self.transition)
         twice = checker._ds8b_register_candidate_text(once, self.transition)
-        assert once == twice  # noqa: S101
+        assert once == twice
         parsed = json.loads(once)
-        assert parsed["schema_version"] == "1.2"  # noqa: S101
-        assert (  # noqa: S101
-            parsed["ds8_strangle_coverage"] == original_history
-        )
-        assert not checker._historical_register_projection_schema_errors(  # noqa: S101
+        assert parsed["schema_version"] == "1.2"
+        assert parsed["ds8_strangle_coverage"] == original_history
+        assert not checker._historical_register_projection_schema_errors(
             parsed,
             top_level_fields=("ds8b_post_freeze_transition",),
         )
         malformed = copy.deepcopy(parsed)
         malformed["ds8b_post_freeze_transition"] = {}
-        assert checker._historical_register_projection_schema_errors(  # noqa: S101
+        assert checker._historical_register_projection_schema_errors(
             malformed,
             top_level_fields=("ds8b_post_freeze_transition",),
         )
         parsed.pop("ds8b_post_freeze_transition")
         parsed["schema_version"] = base_data["schema_version"]
-        assert parsed == base_data  # noqa: S101
+        assert parsed == base_data
 
     def test_writer_live_fence_rejects_post_freeze_source_drift(self) -> None:
         poisoned = dict(checker._ds8_live_sources())
@@ -7920,22 +7115,16 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
         generated["canonical_sha256"] = checker._sha256(
             checker.REPO_ROOT / generated["canonical_path"]
         )
-        generated["types_sha256"] = checker._sha256(
-            checker.REPO_ROOT / generated["types_path"]
-        )
-        assert status_candidate == expected  # noqa: S101
-        assert not checker._ds8_status_candidate_errors(  # noqa: S101
+        generated["types_sha256"] = checker._sha256(checker.REPO_ROOT / generated["types_path"])
+        assert status_candidate == expected
+        assert not checker._ds8_status_candidate_errors(
             status_candidate,
             register_bytes=register_candidate.encode("utf-8"),
         )
 
-        debt = checker.status_checker._load_json(
-            checker.status_checker.WAIST_DEBT_PATH
-        )
+        debt = checker.status_checker._load_json(checker.status_checker.WAIST_DEBT_PATH)
         original_status_sha256 = checker.status_checker._sha256
-        opening_register_hash = checker._ds8_digest(
-            opening_register.encode("utf-8")
-        )
+        opening_register_hash = checker._ds8_digest(opening_register.encode("utf-8"))
 
         def opening_sha256(path: Path) -> str:
             if path == checker.status_checker.DS19_PATH:
@@ -7952,20 +7141,19 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
             checker._load_json(checker.STATUS_INVENTORY_PATH), debt
         )
         regeneration_drifts = {
-            "inventory_source_hash_drift:packages/runtime-api-client/"
-            "canonicalRuntimeApiClient.ts",
+            "inventory_source_hash_drift:packages/runtime-api-client/canonicalRuntimeApiClient.ts",
             "inventory_source_hash_drift:packages/runtime-api-client/types.ts",
         }
-        assert regeneration_drifts <= set(opening)  # noqa: S101
-        assert regeneration_drifts <= set(live)  # noqa: S101
-        assert Counter(opening) == Counter(live)  # noqa: S101
+        assert regeneration_drifts <= set(opening)
+        assert regeneration_drifts <= set(live)
+        assert Counter(opening) == Counter(live)
 
     def test_complete_transition_projection_is_reported(self) -> None:
         projection = checker._ds8b_transition_report_projection(self.transition)
-        assert "**217 rows**" in projection  # noqa: S101
-        assert "**137 deferrals**" in projection  # noqa: S101
+        assert "**217 rows**" in projection
+        assert "**137 deferrals**" in projection
         for row in self.transition["assignments"]:
-            assert projection.count(f"`{row['path']}`") == 1  # noqa: S101
+            assert projection.count(f"`{row['path']}`") == 1
 
 
 class DS9C07AdjudicationTests(unittest.TestCase):
@@ -8021,7 +7209,7 @@ class DS9C07AdjudicationTests(unittest.TestCase):
             pre_promote: object,
         ) -> None:
             del validate_after
-            assert callable(pre_promote)  # noqa: S101
+            assert callable(pre_promote)
             pre_promote()
             captured.update(candidates)
 
@@ -8030,9 +7218,7 @@ class DS9C07AdjudicationTests(unittest.TestCase):
             checker.REPORT_PATH: checker.render_report(json.loads(original)),
         }
         opening_status = checker._load_json(checker.STATUS_INVENTORY_PATH)
-        opening_status["sources"]["ds19"]["sha256"] = checker._ds8_digest(
-            original.encode("utf-8")
-        )
+        opening_status["sources"]["ds19"]["sha256"] = checker._ds8_digest(original.encode("utf-8"))
         opening_texts[checker.STATUS_INVENTORY_PATH] = (
             json.dumps(opening_status, indent=2, ensure_ascii=False) + "\n"
         )
@@ -8087,12 +7273,8 @@ class DS9C07AdjudicationTests(unittest.TestCase):
             "storage_construction_census",
         )
         anchor = '"semantic_class_provenance":'
-        anchor_end = (
-            candidate.index(anchor, storage_start, storage_end) + len(anchor)
-        )
-        unrelated_storage_byte = (
-            candidate[:anchor_end] + " " + candidate[anchor_end:]
-        )
+        anchor_end = candidate.index(anchor, storage_start, storage_end) + len(anchor)
+        unrelated_storage_byte = candidate[:anchor_end] + " " + candidate[anchor_end:]
         self.assertTrue(  # noqa: PT009
             checker._ds9_c07_preservation_errors(
                 original,
@@ -8116,20 +7298,16 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
     @staticmethod
     def _legacy_non_anchor_source_fields(current: str) -> str:
         """Build a legacy-key fixture without changing any stored values."""
-        coverage_start, coverage_end, _coverage = (
-            checker._json_top_level_object_span(
-                current, "ds18_time_semantics_coverage"
-            )
+        coverage_start, coverage_end, _coverage = checker._json_top_level_object_span(
+            current, "ds18_time_semantics_coverage"
         )
         files_start, files_end, _files = checker._json_field_value_span(
             current,
             field="files",
             within=(coverage_start, coverage_end),
         )
-        surface_start, surface_end, _surface = (
-            checker._json_top_level_object_span(
-                current, checker.DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
-            )
+        surface_start, surface_end, _surface = checker._json_top_level_object_span(
+            current, checker.DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
         )
         roles_start, roles_end, _roles = checker._json_field_value_span(
             current,
@@ -8147,9 +7325,7 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
             (
                 roles_start,
                 roles_end,
-                current[roles_start:roles_end].replace(
-                    '"source_row":', '"line":'
-                ),
+                current[roles_start:roles_end].replace('"source_row":', '"line":'),
             ),
         ]
         legacy = current
@@ -8180,10 +7356,8 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
         """Rename false binding keys without rewriting peer or lineage bytes."""
         current = REGISTER_PATH.read_text(encoding="utf-8")
         original = self._legacy_non_anchor_source_fields(current)
-        coverage_start, coverage_end, opening_coverage = (
-            checker._json_top_level_object_span(
-                original, "ds18_time_semantics_coverage"
-            )
+        coverage_start, coverage_end, opening_coverage = checker._json_top_level_object_span(
+            original, "ds18_time_semantics_coverage"
         )
         _files_start, _files_end, opening_files = checker._json_field_value_span(
             original,
@@ -8191,31 +7365,23 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
             within=(coverage_start, coverage_end),
         )
         expected_renamed = sum(
-            "component_identity" in root
-            for row in opening_files
-            for root in row["roots"]
+            "component_identity" in root for row in opening_files for root in row["roots"]
         )
         expected_source_lines = sum(
             "line" in root for row in opening_files for root in row["roots"]
         )
-        opening_roles = json.loads(original)[
-            checker.DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
-        ]["roles"]
-        expected_ds17_source_lines = sum(
-            "line" in role["declaration"] for role in opening_roles
-        )
+        opening_roles = json.loads(original)[checker.DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD][
+            "roles"
+        ]
+        expected_ds17_source_lines = sum("line" in role["declaration"] for role in opening_roles)
         self.assertGreater(expected_renamed, 0)  # noqa: PT009
         self.assertEqual(expected_renamed, expected_source_lines)  # noqa: PT009
         self.assertEqual(6, expected_ds17_source_lines)  # noqa: PT009
 
-        candidate, renamed = checker._non_anchor_source_fields_candidate_text(
-            original
-        )
+        candidate, renamed = checker._non_anchor_source_fields_candidate_text(original)
 
         candidate_coverage_start, candidate_coverage_end, candidate_coverage = (
-            checker._json_top_level_object_span(
-                candidate, "ds18_time_semantics_coverage"
-            )
+            checker._json_top_level_object_span(candidate, "ds18_time_semantics_coverage")
         )
         _candidate_files_start, _candidate_files_end, candidate_files = (
             checker._json_field_value_span(
@@ -8248,16 +7414,13 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
         )
         self.assertTrue(  # noqa: PT009
             all(
-                "source_row" in role["declaration"]
-                and "line" not in role["declaration"]
-                for role in json.loads(candidate)[
-                    checker.DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
-                ]["roles"]
+                "source_row" in role["declaration"] and "line" not in role["declaration"]
+                for role in json.loads(candidate)[checker.DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD][
+                    "roles"
+                ]
             )
         )
-        repeated, repeated_renamed = (
-            checker._non_anchor_source_fields_candidate_text(candidate)
-        )
+        repeated, repeated_renamed = checker._non_anchor_source_fields_candidate_text(candidate)
         self.assertEqual(candidate, repeated)  # noqa: PT009
         self.assertEqual(  # noqa: PT009
             {
@@ -8313,9 +7476,7 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
                 )
                 self.assertEqual(  # noqa: PT009
                     1,
-                    checker.main(
-                        ["--migrate-non-anchor-source-fields", "--check"]
-                    ),
+                    checker.main(["--migrate-non-anchor-source-fields", "--check"]),
                 )
                 self.assertEqual(  # noqa: PT009
                     migrated, target.read_text(encoding="utf-8")
@@ -8339,8 +7500,7 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
         checker._validate_ds18_time_semantics_coverage(missing_file, file_errors)
         self.assertTrue(  # noqa: PT009
             any(
-                "ds18_time_semantics_landing_slice_reconciliation_required"
-                in error
+                "ds18_time_semantics_landing_slice_reconciliation_required" in error
                 for error in file_errors
             )
         )
@@ -8379,7 +7539,7 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
 
     def test_post_freeze_root_is_the_landing_slices_red(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
-        assert (  # noqa: S101
+        assert (
             data["ds18_time_semantics_coverage"]["frontend_freeze_commit"]
             == "3011c9584a0327661c8f5a9b695a1769ddb64385"
         )
@@ -8423,10 +7583,7 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
         self,
     ) -> None:
         """Each reviewed direct root binds its own selector, bytes, and proof."""
-        path_ref = (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "AcquisitionRouteDetail.tsx"
-        )
+        path_ref = "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx"
         structural_test_ref = (
             "apps/runtime-dashboard/src/features/runs/components/"
             "AcquisitionRouteDetail.structural.test.tsx"
@@ -8637,13 +7794,7 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
             mock.patch.object(
                 checker,
                 "DS18_TIME_SEMANTICS_ROOT_INHERITANCE",
-                {
-                    path_ref: {
-                        ("Decision", 0, root_hash): (
-                            (path_ref, "Decision", 0, root_hash),
-                        )
-                    }
-                },
+                {path_ref: {("Decision", 0, root_hash): ((path_ref, "Decision", 0, root_hash),)}},
             ),
             pytest.raises(ValueError, match="already a direct decision root"),
         ):
@@ -8776,28 +7927,19 @@ class Ds18TimeSemanticsCoverageTests(unittest.TestCase):
 class Ds17ConfidenceLedgerRiskSpendRegistrationTests(unittest.TestCase):
     """Bind the DS17 surface to executable sources, tests, and DS18 roots."""
 
-    OPENING_REVISION: ClassVar[str] = (
-        "4f6b0ae802bd2bde5ba63512250737bdb4a664f0"
-    )
+    OPENING_REVISION: ClassVar[str] = "4f6b0ae802bd2bde5ba63512250737bdb4a664f0"
     DS17_PATHS: ClassVar[set[str]] = {
         "apps/runtime-dashboard/src/api/queryKeys.ts",
-        "apps/runtime-dashboard/src/features/runs/api/"
-        "useConfidenceLedgerRiskSpend.ts",
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "ConditionalDeltaFigure.tsx",
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "ConfidenceLedgerRiskSpend.tsx",
-        "apps/runtime-dashboard/src/features/runs/domain/"
-        "confidenceLedgerRiskSpend.ts",
-        "apps/runtime-dashboard/src/features/runs/export/"
-        "confidenceLedgerRiskSpendTwin.ts",
+        "apps/runtime-dashboard/src/features/runs/api/useConfidenceLedgerRiskSpend.ts",
+        "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+        "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
+        "apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.ts",
+        "apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.ts",
         "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
     }
     DIRECT_PATHS: ClassVar[set[str]] = {
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "ConditionalDeltaFigure.tsx",
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "ConfidenceLedgerRiskSpend.tsx",
+        "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx",
+        "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx",
         "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
     }
 
@@ -8828,9 +7970,7 @@ class Ds17ConfidenceLedgerRiskSpendRegistrationTests(unittest.TestCase):
                     "policyos.runtime.confidence_ledger_risk_spend_packet.v1"
                 ),
                 "projection_id": "confidence-ledger-risk-spend",
-                "projection_rule_version": (
-                    "policyos.runtime.confidence_ledger_risk_spend.v1"
-                ),
+                "projection_rule_version": ("policyos.runtime.confidence_ledger_risk_spend.v1"),
                 "protected_action": "protected-action://ds17/review-risk-spend",
                 "specialized_query_identity": [
                     "runtime",
@@ -8840,8 +7980,7 @@ class Ds17ConfidenceLedgerRiskSpendRegistrationTests(unittest.TestCase):
                     {"representation": "specialized-v1"},
                 ],
                 "stable_address": (
-                    "/api/v1/exports/governed-projections/"
-                    "confidence-ledger-risk-spend"
+                    "/api/v1/exports/governed-projections/confidence-ledger-risk-spend"
                 ),
             },
             block["governed_scope"],
@@ -8884,9 +8023,7 @@ class Ds17ConfidenceLedgerRiskSpendRegistrationTests(unittest.TestCase):
             "role_source": lambda value: value["roles"][0]["source"].__setitem__(
                 "sha256", "sha256:" + "0" * 64
             ),
-            "edge": lambda value: value["edges"][0].__setitem__(
-                "to_role", "panel"
-            ),
+            "edge": lambda value: value["edges"][0].__setitem__("to_role", "panel"),
             "role_manifest": lambda value: value.__setitem__(
                 "role_manifest_sha256", "sha256:" + "0" * 64
             ),
@@ -8905,19 +8042,14 @@ class Ds17ConfidenceLedgerRiskSpendRegistrationTests(unittest.TestCase):
             with self.subTest(label=label):
                 corrupted = copy.deepcopy(block)
                 mutate(corrupted)
-                candidate = {
-                    "ds17_confidence_ledger_risk_spend_surface": corrupted
-                }
+                candidate = {"ds17_confidence_ledger_risk_spend_surface": corrupted}
                 mutation_errors: list[str] = []
                 checker._validate_ds17_confidence_ledger_risk_spend_surface(
                     candidate,
                     mutation_errors,
                 )
                 self.assertTrue(  # noqa: PT009
-                    any(
-                        expected_fragments[label] in error
-                        for error in mutation_errors
-                    ),
+                    any(expected_fragments[label] in error for error in mutation_errors),
                     mutation_errors,
                 )
 
@@ -8947,10 +8079,7 @@ class Ds17ConfidenceLedgerRiskSpendRegistrationTests(unittest.TestCase):
         self,
     ) -> None:
         """The governed projection must call the validator, not merely import it."""
-        path_ref = (
-            "apps/runtime-dashboard/src/features/runs/api/"
-            "useConfidenceLedgerRiskSpend.ts"
-        )
+        path_ref = "apps/runtime-dashboard/src/features/runs/api/useConfidenceLedgerRiskSpend.ts"
         source = (checker.REPO_ROOT / path_ref).read_text(encoding="utf-8")
         original = "return evaluateConfidenceLedgerProtectedQuery({"
         bypass = "return bypassConfidenceLedgerProtectedQuery({"
@@ -8971,8 +8100,7 @@ class Ds17ConfidenceLedgerRiskSpendRegistrationTests(unittest.TestCase):
     ) -> None:
         """An imported role name outside a test execution is not evidence."""
         path_ref = (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "ConditionalDeltaFigure.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx"
         )
         scan = checker._ds17_typescript_surface_scan_uncached(
             {
@@ -8998,8 +8126,7 @@ void ConditionalDeltaFigure;
     ) -> None:
         """Panel render and twin call must share one root-dataflow path."""
         path_ref = (
-            "apps/runtime-dashboard/src/features/runs/export/"
-            "confidenceLedgerRiskSpendTwin.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.test.tsx"
         )
         scan = checker._ds17_typescript_surface_scan_uncached(
             {
@@ -9031,8 +8158,7 @@ it("keeps the panel and twin inputs unrelated", () => {
     ) -> None:
         """Runtime aliases bind, while a shadowed alias fails closed."""
         path_ref = (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "ConditionalDeltaFigure.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx"
         )
         alias_source = """
 import { render } from "@testing-library/react";
@@ -9042,9 +8168,7 @@ it("renders the imported role alias", () => {
   render(<Figure packet={null as never} row={null as never} />);
 });
 """
-        alias_scan = checker._ds17_typescript_surface_scan_uncached(
-            {path_ref: alias_source}
-        )
+        alias_scan = checker._ds17_typescript_surface_scan_uncached({path_ref: alias_source})
         with mock.patch.object(
             checker,
             "_ds17_typescript_surface_scan",
@@ -9055,7 +8179,7 @@ it("renders the imported role alias", () => {
         shadowed_scan = checker._ds17_typescript_surface_scan_uncached(
             {
                 path_ref: alias_source.replace(
-                    'render(<Figure packet={null as never} row={null as never} />);',
+                    "render(<Figure packet={null as never} row={null as never} />);",
                     "const Figure = () => null;\n  render(<Figure />);",
                 )
             }
@@ -9102,8 +8226,7 @@ it("renders the imported role alias", () => {
     ) -> None:
         """Alias-aware dataflow joins the rendered panel root to the twin."""
         path_ref = (
-            "apps/runtime-dashboard/src/features/runs/export/"
-            "confidenceLedgerRiskSpendTwin.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.test.tsx"
         )
         scan = checker._ds17_typescript_surface_scan_uncached(
             {
@@ -9137,8 +8260,7 @@ it("passes the rendered panel root to the twin", () => {
     ) -> None:
         """Only tests registered by reachable active module code may execute."""
         path_ref = (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "ConditionalDeltaFigure.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx"
         )
         imports = """
 import { render } from "@testing-library/react";
@@ -9150,16 +8272,12 @@ it("renders the role", () => {
 });
 """
         witnesses = {
-            "statically_dead_module_branch": (
-                f"{imports}\nif (false) {{{render_test}}}\n"
-            ),
+            "statically_dead_module_branch": (f"{imports}\nif (false) {{{render_test}}}\n"),
             "nested_under_skipped_test": (
-                f'{imports}\nit.skip("disabled parent", () => {{'
-                f"{render_test}}});\n"
+                f'{imports}\nit.skip("disabled parent", () => {{{render_test}}});\n'
             ),
             "nested_under_skipped_suite": (
-                f'{imports}\ndescribe.skip("disabled suite", () => {{'
-                f"{render_test}}});\n"
+                f'{imports}\ndescribe.skip("disabled suite", () => {{{render_test}}});\n'
             ),
             "inside_uncalled_registration_function": (
                 f"{imports}\nfunction registerRoleTest() {{{render_test}}}\n"
@@ -9169,9 +8287,7 @@ it("renders the role", () => {
 
         for label, source in witnesses.items():
             with self.subTest(label=label):
-                scan = checker._ds17_typescript_surface_scan_uncached(
-                    {path_ref: source}
-                )
+                scan = checker._ds17_typescript_surface_scan_uncached({path_ref: source})
                 with (
                     mock.patch.object(
                         checker,
@@ -9187,8 +8303,7 @@ it("renders the role", () => {
     ) -> None:
         """Reachable suites and called helpers register executable tests."""
         path_ref = (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "ConditionalDeltaFigure.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx"
         )
         imports = """
 import { render } from "@testing-library/react";
@@ -9200,20 +8315,15 @@ it("renders the role", () => {
 });
 """
         sources = {
-            "reachable_suite": (
-                f'{imports}\ndescribe("active suite", () => {{{render_test}}});\n'
-            ),
+            "reachable_suite": (f'{imports}\ndescribe("active suite", () => {{{render_test}}});\n'),
             "called_registration_helper": (
-                f"{imports}\nfunction registerRoleTest() {{{render_test}}}\n"
-                "registerRoleTest();\n"
+                f"{imports}\nfunction registerRoleTest() {{{render_test}}}\nregisterRoleTest();\n"
             ),
         }
 
         for label, source in sources.items():
             with self.subTest(label=label):
-                scan = checker._ds17_typescript_surface_scan_uncached(
-                    {path_ref: source}
-                )
+                scan = checker._ds17_typescript_surface_scan_uncached({path_ref: source})
                 with mock.patch.object(
                     checker,
                     "_ds17_typescript_surface_scan",
@@ -9226,8 +8336,7 @@ it("renders the role", () => {
     ) -> None:
         """Only registration arms with statically proven reachability count."""
         path_ref = (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "ConditionalDeltaFigure.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx"
         )
         imports = """
 import { render } from "@testing-library/react";
@@ -9246,29 +8355,16 @@ import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
             "short_circuited_and": f"0 && {test_call};",
             "short_circuited_or": f"1 || {test_call};",
             "dead_conditional_arm": f"0 ? {test_call} : 1;",
-            "const_bound_falsey": (
-                f"const enabled = 0;\nif (enabled) {{ {test_call}; }}"
-            ),
+            "const_bound_falsey": (f"const enabled = 0;\nif (enabled) {{ {test_call}; }}"),
             "unknown_dynamic_guard": (
-                "declare const enabled: boolean;\n"
-                f"if (enabled) {{ {test_call}; }}"
+                f"declare const enabled: boolean;\nif (enabled) {{ {test_call}; }}"
             ),
-            "environment_comparison": (
-                "if (process.env.ENABLED === \"true\") { "
-                f"{test_call}; }}"
-            ),
+            "environment_comparison": (f'if (process.env.ENABLED === "true") {{ {test_call}; }}'),
             "boolean_environment_binding": (
-                "const enabled = Boolean(process.env.ENABLED);\n"
-                f"if (enabled) {{ {test_call}; }}"
+                f"const enabled = Boolean(process.env.ENABLED);\nif (enabled) {{ {test_call}; }}"
             ),
-            "unknown_conditional": (
-                "declare const enabled: boolean;\n"
-                f"enabled ? {test_call} : 1;"
-            ),
-            "unknown_and": (
-                "declare const enabled: boolean;\n"
-                f"enabled && {test_call};"
-            ),
+            "unknown_conditional": (f"declare const enabled: boolean;\nenabled ? {test_call} : 1;"),
+            "unknown_and": (f"declare const enabled: boolean;\nenabled && {test_call};"),
         }
 
         for label, body in witnesses.items():
@@ -9291,8 +8387,7 @@ import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
     ) -> None:
         """Provably selected truthy and short-circuit arms still register."""
         path_ref = (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "ConditionalDeltaFigure.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx"
         )
         imports = """
 import { render } from "@testing-library/react";
@@ -9308,9 +8403,7 @@ import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
             "reachable_and": f"1 && {test_call};",
             "reachable_or": f"0 || {test_call};",
             "reachable_conditional_arm": f"1 ? {test_call} : 0;",
-            "const_bound_truthy": (
-                f"const enabled = 1;\nif (enabled) {{ {test_call}; }}"
-            ),
+            "const_bound_truthy": (f"const enabled = 1;\nif (enabled) {{ {test_call}; }}"),
             "called_helper_static_argument": (
                 f"function registerRoleTest(enabled: boolean) {{\n"
                 f"  if (enabled) {{ {test_call}; }}\n"
@@ -9343,16 +8436,13 @@ import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
     ) -> None:
         """The same reachability lattice governs an active test's body."""
         path_ref = (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "ConditionalDeltaFigure.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx"
         )
         imports = """
 import { render } from "@testing-library/react";
 import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
 """
-        role_call = (
-            "render(<Figure packet={null as never} row={null as never} />)"
-        )
+        role_call = "render(<Figure packet={null as never} row={null as never} />)"
         witnesses = {
             "numeric_zero_if": f"if (0) {{ {role_call}; }}",
             "empty_string_if": f'if ("") {{ {role_call}; }}',
@@ -9363,40 +8453,22 @@ import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
             "short_circuited_and": f"0 && {role_call};",
             "short_circuited_or": f"1 || {role_call};",
             "dead_conditional_arm": f"0 ? {role_call} : 1;",
-            "const_bound_falsey": (
-                f"const enabled = 0;\nif (enabled) {{ {role_call}; }}"
-            ),
+            "const_bound_falsey": (f"const enabled = 0;\nif (enabled) {{ {role_call}; }}"),
             "unknown_dynamic_guard": (
-                "declare const enabled: boolean;\n"
-                f"if (enabled) {{ {role_call}; }}"
+                f"declare const enabled: boolean;\nif (enabled) {{ {role_call}; }}"
             ),
-            "environment_comparison": (
-                "if (process.env.ENABLED === \"true\") { "
-                f"{role_call}; }}"
-            ),
+            "environment_comparison": (f'if (process.env.ENABLED === "true") {{ {role_call}; }}'),
             "boolean_environment_binding": (
-                "const enabled = Boolean(process.env.ENABLED);\n"
-                f"if (enabled) {{ {role_call}; }}"
+                f"const enabled = Boolean(process.env.ENABLED);\nif (enabled) {{ {role_call}; }}"
             ),
-            "unknown_conditional": (
-                "declare const enabled: boolean;\n"
-                f"enabled ? {role_call} : 1;"
-            ),
-            "unknown_and": (
-                "declare const enabled: boolean;\n"
-                f"enabled && {role_call};"
-            ),
+            "unknown_conditional": (f"declare const enabled: boolean;\nenabled ? {role_call} : 1;"),
+            "unknown_and": (f"declare const enabled: boolean;\nenabled && {role_call};"),
         }
 
         for label, body in witnesses.items():
             with self.subTest(label=label):
-                source = (
-                    f'{imports}\nit("guards the role", () => {{\n'
-                    f"{body}\n}});\n"
-                )
-                scan = checker._ds17_typescript_surface_scan_uncached(
-                    {path_ref: source}
-                )
+                source = f'{imports}\nit("guards the role", () => {{\n{body}\n}});\n'
+                scan = checker._ds17_typescript_surface_scan_uncached({path_ref: source})
                 with (
                     mock.patch.object(
                         checker,
@@ -9412,8 +8484,7 @@ import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
     ) -> None:
         """Reference operands never borrow host-AST coercion in either phase."""
         path_ref = (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "ConditionalDeltaFigure.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx"
         )
         imports = """
 import { render } from "@testing-library/react";
@@ -9422,9 +8493,7 @@ import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
         test_call = """it("renders the role", () => {
   render(<Figure packet={null as never} row={null as never} />);
 })"""
-        role_call = (
-            "render(<Figure packet={null as never} row={null as never} />)"
-        )
+        role_call = "render(<Figure packet={null as never} row={null as never} />)"
         expressions = {
             "empty_array_concatenation": "[] + []",
             "empty_array_inequality": "[] != false",
@@ -9465,8 +8534,7 @@ import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
     ) -> None:
         """Direct object truthiness stays provable without object coercion."""
         path_ref = (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "ConditionalDeltaFigure.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx"
         )
         imports = """
 import { render } from "@testing-library/react";
@@ -9475,26 +8543,18 @@ import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
         test_call = """it("renders the role", () => {
   render(<Figure packet={null as never} row={null as never} />);
 })"""
-        role_call = (
-            "render(<Figure packet={null as never} row={null as never} />)"
-        )
+        role_call = "render(<Figure packet={null as never} row={null as never} />)"
         sources = {
             "array_if": f"if ([]) {{ {test_call}; }}",
             "object_if": f"if ({{}}) {{ {test_call}; }}",
-            "const_array_if": (
-                f"const enabled = [];\nif (enabled) {{ {test_call}; }}"
-            ),
+            "const_array_if": (f"const enabled = [];\nif (enabled) {{ {test_call}; }}"),
             "array_and": f"[] && {test_call};",
             "object_conditional": f"({{}}) ? {test_call} : 0;",
             "active_test_array_if": (
-                'it("guards the role", () => {\n'
-                f"  if ([]) {{ {role_call}; }}\n"
-                "});"
+                f'it("guards the role", () => {{\n  if ([]) {{ {role_call}; }}\n}});'
             ),
             "active_test_object_if": (
-                'it("guards the role", () => {\n'
-                f"  if ({{}}) {{ {role_call}; }}\n"
-                "});"
+                f'it("guards the role", () => {{\n  if ({{}}) {{ {role_call}; }}\n}});'
             ),
         }
 
@@ -9515,8 +8575,7 @@ import { ConditionalDeltaFigure as Figure } from "./ConditionalDeltaFigure";
     ) -> None:
         """An unproved runtime predicate cannot authorize the twin edge."""
         path_ref = (
-            "apps/runtime-dashboard/src/features/runs/export/"
-            "confidenceLedgerRiskSpendTwin.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.test.tsx"
         )
         scan = checker._ds17_typescript_surface_scan_uncached(
             {
@@ -9553,9 +8612,7 @@ it("guards the otherwise connected edge", () => {
         """The three owner roots admit every other current same-file root."""
         scan = checker._ds18_time_semantics_scan()
         coverage = checker._build_ds18_time_semantics_coverage(scan)
-        files = [
-            row for row in coverage["files"] if row["path"] in self.DIRECT_PATHS
-        ]
+        files = [row for row in coverage["files"] if row["path"] in self.DIRECT_PATHS]
         roots = [root for row in files for root in row["roots"]]
         classes = Counter(
             (
@@ -9579,12 +8636,8 @@ it("guards the otherwise connected edge", () => {
     ) -> None:
         """Any foreign row, seed, or peer-block movement is a writer failure."""
         opening_text = _register_text_at(self.OPENING_REVISION)
-        candidate_text = checker._ds17_confidence_ledger_risk_spend_candidate_text(
-            opening_text
-        )
-        repeated = checker._ds17_confidence_ledger_risk_spend_candidate_text(
-            candidate_text
-        )
+        candidate_text = checker._ds17_confidence_ledger_risk_spend_candidate_text(opening_text)
+        repeated = checker._ds17_confidence_ledger_risk_spend_candidate_text(candidate_text)
         self.assertEqual(candidate_text, repeated)  # noqa: PT009
 
         opening = json.loads(opening_text)
@@ -9596,9 +8649,7 @@ it("guards the otherwise connected edge", () => {
             "ds17_confidence_ledger_risk_spend_surface", candidate
         )
         peer_opening = {
-            key: value
-            for key, value in opening.items()
-            if key != "ds18_time_semantics_coverage"
+            key: value for key, value in opening.items() if key != "ds18_time_semantics_coverage"
         }
         peer_candidate = {
             key: value
@@ -9661,7 +8712,7 @@ it("guards the otherwise connected edge", () => {
             if row["path"] not in checker.DS17_CONFIDENCE_LEDGER_DS18_PATHS
         )
         foreign_target["source_sha256"] = "sha256:" + "1" * 64
-        with self.assertRaisesRegex(ValueError, "DS17 DS18 foreign row drift"):
+        with pytest.raises(ValueError, match="DS17 DS18 foreign row drift"):
             checker._ds17_surgical_ds18_coverage(opening, foreign)
 
         missing = copy.deepcopy(opening)
@@ -9670,7 +8721,7 @@ it("guards the otherwise connected edge", () => {
             for row in missing["files"]
             if row["path"] != checker.DS17_CONFIDENCE_LEDGER_PANEL_PATH
         ]
-        with self.assertRaisesRegex(ValueError, "DS17 DS18 authorized row missing"):
+        with pytest.raises(ValueError, match="DS17 DS18 authorized row missing"):
             checker._ds17_surgical_ds18_coverage(opening, missing)
 
     def test_historical_ds18_validator_still_replays_the_opening_receipt(
@@ -9685,16 +8736,12 @@ it("guards the otherwise connected edge", () => {
             "component_name": "component_identity",
             "epoch_context_read_count": "epoch_context_read_count",
             "epoch_semantics_prop_count": "epoch_semantics_prop_count",
-            "epoch_semantics_provider_render_count": (
-                "epoch_semantics_provider_render_count"
-            ),
+            "epoch_semantics_provider_render_count": ("epoch_semantics_provider_render_count"),
             "kind": "kind",
             "source_row": "line",
             "root_id": "root_id",
             "root_source_sha256": "root_source_sha256",
-            "time_semantics_label_render_count": (
-                "time_semantics_label_render_count"
-            ),
+            "time_semantics_label_render_count": ("time_semantics_label_render_count"),
         }
         frozen_scan = {
             "source_root": coverage["source_root"],
@@ -9734,26 +8781,16 @@ it("guards the otherwise connected edge", () => {
                 REGISTER_PATH.read_text(encoding="utf-8")
             )
         )
-        candidate["ds17_confidence_ledger_risk_spend_surface"]["edges"][0][
-            "to_role"
-        ] = "panel"
+        candidate["ds17_confidence_ledger_risk_spend_surface"]["edges"][0]["to_role"] = "panel"
 
         with (
-            mock.patch.object(
-                checker, "_validate_producer_binding_debt_findings"
-            ),
+            mock.patch.object(checker, "_validate_producer_binding_debt_findings"),
             mock.patch.object(checker, "_validate_integrate_contract_debt_findings"),
-            mock.patch.object(
-                checker, "_authority_presentation_errors", return_value=[]
-            ),
+            mock.patch.object(checker, "_authority_presentation_errors", return_value=[]),
             mock.patch.object(checker, "_supplemental_findings", return_value=[]),
             mock.patch.object(checker, "_validate_ds6_register_transition_findings"),
-            mock.patch.object(
-                checker, "_validate_ds11_trust_presentation_transition_findings"
-            ),
-            mock.patch.object(
-                checker, "_schema_errors", return_value=["schema:test-stop"]
-            ),
+            mock.patch.object(checker, "_validate_ds11_trust_presentation_transition_findings"),
+            mock.patch.object(checker, "_schema_errors", return_value=["schema:test-stop"]),
         ):
             errors = checker.validate_register(
                 candidate,

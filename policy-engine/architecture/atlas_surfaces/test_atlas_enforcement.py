@@ -36,10 +36,11 @@ _SPEC.loader.exec_module(checker)
 _FRONTEND_DISPOSITION_SPEC = importlib.util.spec_from_file_location(
     "frontend_disposition_checker", FRONTEND_DISPOSITION_CHECKER_PATH
 )
-if _FRONTEND_DISPOSITION_SPEC is None or _FRONTEND_DISPOSITION_SPEC.loader is None:  # pragma: no cover
+if (
+    _FRONTEND_DISPOSITION_SPEC is None or _FRONTEND_DISPOSITION_SPEC.loader is None
+):  # pragma: no cover
     raise RuntimeError(
-        "Unable to import frontend disposition checker from "
-        f"{FRONTEND_DISPOSITION_CHECKER_PATH}"
+        f"Unable to import frontend disposition checker from {FRONTEND_DISPOSITION_CHECKER_PATH}"
     )
 frontend_disposition_checker = importlib.util.module_from_spec(_FRONTEND_DISPOSITION_SPEC)
 _FRONTEND_DISPOSITION_SPEC.loader.exec_module(frontend_disposition_checker)
@@ -135,9 +136,7 @@ class AtlasEnforcementTests(unittest.TestCase):
                 ]
             },
             "marker_only": {"residual_inputs_acknowledged": True},
-            "non_string_member": {
-                "atlas_residual_inputs": [{}, *required_inputs[1:]]
-            },
+            "non_string_member": {"atlas_residual_inputs": [{}, *required_inputs[1:]]},
         }
         with tempfile.TemporaryDirectory() as temp_dir:
             for label, additions in variants.items():
@@ -157,10 +156,7 @@ class AtlasEnforcementTests(unittest.TestCase):
                     )
                     self.assertTrue(errors, label)  # noqa: PT009
                     self.assertTrue(  # noqa: PT009
-                        any(
-                            error.startswith("slice_scope_obligation_inputs_")
-                            for error in errors
-                        ),
+                        any(error.startswith("slice_scope_obligation_inputs_") for error in errors),
                         errors,
                     )
 
@@ -203,9 +199,7 @@ class AtlasEnforcementTests(unittest.TestCase):
                         {
                             "type": "slice-plan",
                             "slice": manifest["target_slices"][0],
-                            "atlas_residual_inputs": mutated_manifest[
-                                "atlas_residual_inputs"
-                            ],
+                            "atlas_residual_inputs": mutated_manifest["atlas_residual_inputs"],
                         },
                     )
                 ],
@@ -213,9 +207,7 @@ class AtlasEnforcementTests(unittest.TestCase):
 
         self.assertTrue(  # noqa: PT009
             any(
-                error.startswith(
-                    "schema:slice-scope-obligations:atlas_residual_inputs.0:"
-                )
+                error.startswith("schema:slice-scope-obligations:atlas_residual_inputs.0:")
                 for error in errors
             ),
             errors,
@@ -269,8 +261,7 @@ class AtlasEnforcementTests(unittest.TestCase):
         self.assertTrue(  # noqa: PT009
             any(
                 error.startswith(
-                    "slice_scope_obligation_inputs_missing:"
-                    f"{manifest['target_slices'][-1]}:"
+                    f"slice_scope_obligation_inputs_missing:{manifest['target_slices'][-1]}:"
                 )
                 for error in errors
             ),
@@ -284,20 +275,12 @@ class AtlasEnforcementTests(unittest.TestCase):
             patch.object(checker, "_enforcement_scan", return_value={}),
             patch.object(checker, "_generated_owner_receipt", return_value={}),
             patch.object(checker, "_override_diagnostic_errors", return_value=[]),
-            patch.object(
-                checker, "_capability_discovery_live_sources", return_value=({}, {})
-            ),
-            patch.object(
-                checker, "control_capability_manifest_contributors", return_value=()
-            ),
-            patch.object(
-                checker, "check_capability_discovery_result_boundary", return_value=[]
-            ),
+            patch.object(checker, "_capability_discovery_live_sources", return_value=({}, {})),
+            patch.object(checker, "control_capability_manifest_contributors", return_value=()),
+            patch.object(checker, "check_capability_discovery_result_boundary", return_value=[]),
             patch.object(checker, "_authority_escape_errors", return_value=[]),
             patch.object(checker, "_capability_discovery_errors", return_value=[]),
-            patch.object(
-                checker, "validate_slice_scope_obligations", return_value=[scope_error]
-            ),
+            patch.object(checker, "validate_slice_scope_obligations", return_value=[scope_error]),
             patch.object(checker, "_authz_default_allow_errors", return_value=[]),
             patch.object(checker, "_query_cache_policy_errors", return_value=[]),
             patch.object(checker, "_offline_queue_errors", return_value=[]),
@@ -322,59 +305,45 @@ class AtlasEnforcementTests(unittest.TestCase):
         self,
     ) -> None:
         """Bind the phased N010 default set to the real decision API imports."""
-        inventory = checker.status_checker._load_json(
-            checker.status_checker.INVENTORY_PATH
-        )
+        inventory = checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH)
         live_scan = checker._enforcement_scan(
             None,
             inventory=inventory,
             validate_override_diagnostics=False,
         )
-        self.assertEqual([], checker._authz_default_allow_errors(live_scan))
+        assert checker._authz_default_allow_errors(live_scan) == []
         facts = live_scan["authzDecisionFacts"]
-        self.assertEqual([], facts["defaultAllowSites"])
-        self.assertEqual((), checker.C09B_DEFERRED_AUTHZ_DEFAULTS)
+        assert facts["defaultAllowSites"] == []
+        assert checker.C09B_DEFERRED_AUTHZ_DEFAULTS == ()
 
-        workspace_path = (
-            "apps/runtime-dashboard/src/app/routes/WorkspaceBoundary.tsx"
-        )
-        workspace_source = (
-            checker.status_checker.REPO_ROOT / workspace_path
-        ).read_text(
+        workspace_path = "apps/runtime-dashboard/src/app/routes/WorkspaceBoundary.tsx"
+        workspace_source = (checker.status_checker.REPO_ROOT / workspace_path).read_text(
             encoding="utf-8"
         )
         safe = (
-            'const workspaceAllowed =\n'
+            "const workspaceAllowed =\n"
             '    authzDecision.kind === "verified" &&\n'
             "    authzDecision.isWorkspaceAllowed(workspaceKey);"
         )
         unsafe = (
-            'const workspaceAllowed =\n'
+            "const workspaceAllowed =\n"
             '    authzDecision.kind === "verified"\n'
             "      ? authzDecision.isWorkspaceAllowed(workspaceKey)\n"
             "      : true;"
         )
-        self.assertIn(safe, workspace_source)
+        assert safe in workspace_source
         unsafe_scan = checker._enforcement_scan(
             {workspace_path: workspace_source.replace(safe, unsafe, 1)},
             inventory=inventory,
             validate_override_diagnostics=True,
             include_dashboard_program_roots=True,
         )
-        self.assertTrue(
-            any(
-                error.startswith(
-                    "authz_default_allow_unclassified:"
-                    f"{workspace_path}:conditional_true:"
-                )
-                for error in checker._authz_default_allow_errors(unsafe_scan)
-            ),
-            checker._authz_default_allow_errors(unsafe_scan),
-        )
+        assert any(
+            error.startswith(f"authz_default_allow_unclassified:{workspace_path}:conditional_true:")
+            for error in checker._authz_default_allow_errors(unsafe_scan)
+        ), checker._authz_default_allow_errors(unsafe_scan)
 
-        lookalike_path = (
-            "apps/runtime-dashboard/src/shared/lib/authzDecisionLookalike.ts"
-        )
+        lookalike_path = "apps/runtime-dashboard/src/shared/lib/authzDecisionLookalike.ts"
         lookalike_scan = checker._enforcement_scan(
             {
                 lookalike_path: (
@@ -387,18 +356,12 @@ class AtlasEnforcementTests(unittest.TestCase):
             validate_override_diagnostics=True,
             include_dashboard_program_roots=True,
         )
-        self.assertFalse(
-            any(
-                site["path"] == lookalike_path
-                for site in lookalike_scan["authzDecisionFacts"][
-                    "defaultAllowSites"
-                ]
-            )
+        assert not any(
+            site["path"] == lookalike_path
+            for site in lookalike_scan["authzDecisionFacts"]["defaultAllowSites"]
         )
 
-        bounded_path = (
-            "apps/runtime-dashboard/src/shared/lib/authzDecisionBoundedSyntax.ts"
-        )
+        bounded_path = "apps/runtime-dashboard/src/shared/lib/authzDecisionBoundedSyntax.ts"
         bounded_scan = checker._enforcement_scan(
             {
                 bounded_path: (
@@ -422,10 +385,10 @@ class AtlasEnforcementTests(unittest.TestCase):
                     "  ({ can: () => undefined, marker: useMaybeAuthz() }).can() ?? true;\n"
                     "const safe = useMaybeAuthz();\n"
                     'export const falseDefault = safe?.can("runs.launch") ?? false;\n'
-                    "export const explicitTruthTable = safe?.can(\"runs.launch\")\n"
+                    'export const explicitTruthTable = safe?.can("runs.launch")\n'
                     "  ? true\n"
                     "  : false;\n"
-                    "const indirect = () => useMaybeAuthz()?.can(\"runs.launch\");\n"
+                    'const indirect = () => useMaybeAuthz()?.can("runs.launch");\n'
                     "export const declaredResidual = indirect() ?? true;\n"
                 )
             },
@@ -438,32 +401,26 @@ class AtlasEnforcementTests(unittest.TestCase):
             for site in bounded_scan["authzDecisionFacts"]["defaultAllowSites"]
             if site["path"] == bounded_path
         ]
-        self.assertEqual(
-            {"conditional_true": 1, "nullish_true": 4},
-            {
-                kind: sum(site["kind"] == kind for site in bounded_sites)
-                for kind in {site["kind"] for site in bounded_sites}
-            },
-        )
-        self.assertEqual(
-            checker.C09A_AUTHZ_DIRECT_SYNTAX_RESIDUAL,
-            bounded_scan["authzDecisionFacts"]["residual"],
+        assert {
+            kind: sum(site["kind"] == kind for site in bounded_sites)
+            for kind in {site["kind"] for site in bounded_sites}
+        } == {"conditional_true": 1, "nullish_true": 4}
+        assert (
+            bounded_scan["authzDecisionFacts"]["residual"]
+            == checker.C09A_AUTHZ_DIRECT_SYNTAX_RESIDUAL
         )
         bounded_errors = checker._authz_default_allow_errors(bounded_scan)
-        self.assertEqual(
-            5,
+        assert (
             sum(
-                error.startswith(
-                    f"authz_default_allow_unclassified:{bounded_path}:"
-                )
+                error.startswith(f"authz_default_allow_unclassified:{bounded_path}:")
                 for error in bounded_errors
-            ),
-            bounded_errors,
-        )
+            )
+            == 5
+        ), bounded_errors
 
     def test_raw_local_state_envelope_cannot_be_issued_or_written(self) -> None:
         """Execute the scoped local-state runtime witness instead of grepping it."""
-        self.assertEqual([], checker._authority_local_state_runtime_errors())
+        assert checker._authority_local_state_runtime_errors() == []
 
     def test_query_policy_splits_wrapper_construction_from_feature_producer(self) -> None:
         """Bind C12b construction to the wrapper while retaining the feature producer."""
@@ -485,25 +442,23 @@ class AtlasEnforcementTests(unittest.TestCase):
 
     def test_offline_queue_type_rejects_authority_action_kind(self) -> None:
         """Keep composer-only drafts from becoming a replayable authority channel."""
-        self.assertTrue(
-            checker._offline_queue_errors(
-                {
-                    "offlineQueueFacts": {
-                        "authorityActionKinds": [
-                            {
-                                "kind": "publication.reissue",
-                                "path": "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts",
-                            }
-                        ],
-                        "composerDbImports": [],
-                        "mutationStores": [],
-                        "optimisticAuthorityProjections": [],
-                        "productionFiles": 587,
-                        "replayDeclarations": [],
-                    }
-                },
-                enforce_denominator=True,
-            )
+        assert checker._offline_queue_errors(
+            {
+                "offlineQueueFacts": {
+                    "authorityActionKinds": [
+                        {
+                            "kind": "publication.reissue",
+                            "path": "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts",
+                        }
+                    ],
+                    "composerDbImports": [],
+                    "mutationStores": [],
+                    "optimisticAuthorityProjections": [],
+                    "productionFiles": 587,
+                    "replayDeclarations": [],
+                }
+            },
+            enforce_denominator=True,
         )
         inventory = checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH)
         scan = checker._enforcement_scan(
@@ -511,31 +466,27 @@ class AtlasEnforcementTests(unittest.TestCase):
             inventory=inventory,
             validate_override_diagnostics=False,
         )
-        self.assertEqual(
-            [],
-            checker._offline_queue_errors(scan, enforce_denominator=True),
-        )
+        assert checker._offline_queue_errors(scan, enforce_denominator=True) == []
 
         facts = scan["offlineQueueFacts"]
-        self.assertEqual(588, facts["productionFiles"])
-        self.assertEqual([], facts["authorityActionKinds"])
-        self.assertEqual([], facts["mutationStores"])
-        self.assertEqual([], facts["replayDeclarations"])
-        self.assertEqual([], facts["optimisticAuthorityProjections"])
-        self.assertEqual(
-            [
-                {
-                    "bindings": [
-                        "deleteComposerDraftRecord",
-                        "loadComposerDraftRecord",
-                        "saveComposerDraftRecord",
-                    ],
-                    "path": "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts",
-                    "targetPath": checker.COMPOSER_DRAFT_DB_PATH,
-                }
-            ],
-            facts["composerDbImports"],
-        )
+        assert facts["productionFiles"] == 588
+        assert facts["authorityActionKinds"] == []
+        assert facts["mutationStores"] == []
+        assert facts["replayDeclarations"] == []
+        assert facts["optimisticAuthorityProjections"] == []
+        assert facts["composerDbImports"] == [
+            {
+                "bindings": [
+                    "deleteComposerDraftRecord",
+                    "loadComposerDraftRecord",
+                    "saveComposerDraftRecord",
+                ],
+                ("path"): (
+                    "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts"
+                ),
+                "targetPath": checker.COMPOSER_DRAFT_DB_PATH,
+            }
+        ]
 
         def merge_overrides(overrides: dict[str, str]) -> dict[str, Any]:
             override_scan = checker._enforcement_scan(
@@ -543,7 +494,7 @@ class AtlasEnforcementTests(unittest.TestCase):
                 inventory=checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH),
                 validate_override_diagnostics=True,
             )
-            self.assertEqual([], override_scan["overrideDiagnostics"], override_scan)
+            assert override_scan["overrideDiagnostics"] == [], override_scan
             merged = copy.deepcopy(scan)
             for table in (
                 "authorityActionKinds",
@@ -597,40 +548,29 @@ class AtlasEnforcementTests(unittest.TestCase):
                 ),
                 optimistic_projection_path: (
                     'import type { QueryClient } from "@tanstack/react-query";\n'
-                    'import { applyOptimisticPromotionDecision } from "@/api/hooks/usePromotionDecision";\n'
-                    "export function projectQueuedApproval(client: QueryClient) {\n"
-                    '  applyOptimisticPromotionDecision(client, "promotion-1", "approved");\n'
-                    "}\n"
+                    "import { applyOptimisticPromotionDecision } from "
+                    '"@/api/hooks/usePromotionDecision";\nexport function '
+                    "projectQueuedApproval(client: QueryClient) {\n  "
+                    'applyOptimisticPromotionDecision(client, "promotion-1", '
+                    '"approved");\n}\n'
                 ),
             }
         )
         corrupted_facts = corrupted_scan["offlineQueueFacts"]
-        self.assertEqual(
-            ["approval.publish | publication.reissue | reissue.approval"],
-            [row["kind"] for row in corrupted_facts["authorityActionKinds"]],
-        )
-        self.assertEqual(
-            [db_path],
-            [row["path"] for row in corrupted_facts["mutationStores"]],
-        )
-        self.assertEqual(
-            [checker.COMPOSER_DRAFT_ADAPTER_PATH, authority_import_path],
-            [row["path"] for row in corrupted_facts["composerDbImports"]],
-        )
-        self.assertEqual(
-            [optimistic_projection_path],
-            [row["path"] for row in corrupted_facts["optimisticAuthorityProjections"]],
-        )
-        self.assertEqual(
-            [checker.COMPOSER_DRAFT_DB_PATH, replay_path, replay_path],
-            [row["path"] for row in corrupted_facts["replayDeclarations"]],
-        )
-        self.assertTrue(
-            checker._offline_queue_errors(
-                corrupted_scan,
-                enforce_denominator=True,
-            )
-        )
+        assert [row["kind"] for row in corrupted_facts["authorityActionKinds"]] == [
+            "approval.publish | publication.reissue | reissue.approval"
+        ]
+        assert [db_path] == [row["path"] for row in corrupted_facts["mutationStores"]]
+        assert [checker.COMPOSER_DRAFT_ADAPTER_PATH, authority_import_path] == [
+            row["path"] for row in corrupted_facts["composerDbImports"]
+        ]
+        assert [optimistic_projection_path] == [
+            row["path"] for row in corrupted_facts["optimisticAuthorityProjections"]
+        ]
+        assert [checker.COMPOSER_DRAFT_DB_PATH, replay_path, replay_path] == [
+            row["path"] for row in corrupted_facts["replayDeclarations"]
+        ]
+        assert checker._offline_queue_errors(corrupted_scan, enforce_denominator=True)
 
     def test_offline_queue_denominator_tracks_scanned_production_sources(self) -> None:
         """Bind the queue facts and denominator to one live TypeScript source set."""
@@ -640,10 +580,7 @@ class AtlasEnforcementTests(unittest.TestCase):
             inventory=inventory,
             validate_override_diagnostics=False,
         )
-        test_path = (
-            "apps/runtime-dashboard/src/shared/lib/domain/"
-            "offlineQueueDenominator.test.ts"
-        )
+        test_path = "apps/runtime-dashboard/src/shared/lib/domain/offlineQueueDenominator.test.ts"
         production_path = test_path.replace(".test.ts", ".ts")
         queue_declaration = 'export type QueueActionKind = "publication.reissue";\n'
         test_source_scan = checker._enforcement_scan(
@@ -715,9 +652,7 @@ class AtlasEnforcementTests(unittest.TestCase):
         """Require C13a terminal rows to carry a fresh zero-consumer receipt."""
         data = json.loads(
             frontend_disposition_checker._refresh_supplemental_findings_text(
-                frontend_disposition_checker.REGISTER_PATH.read_text(
-                    encoding="utf-8"
-                )
+                frontend_disposition_checker.REGISTER_PATH.read_text(encoding="utf-8")
             )
         )
         unit_ids = {
@@ -725,38 +660,25 @@ class AtlasEnforcementTests(unittest.TestCase):
             "status-inline-queued-promotion",
             "offline-queue-promotion-decision",
         }
-        rows = {
-            row["unit_id"]: row
-            for row in data["entries"]
-            if row["unit_id"] in unit_ids
-        }
-        self.assertEqual(unit_ids, set(rows))
-        self.assertTrue(
-            all(
-                row["disposition"] == "deleted"
-                and row["strangle_status"] == "strangled"
-                and row["reference_census_id"] == "census-c13a-authority-replay-delete"
-                for row in rows.values()
-            ),
-            rows,
-        )
+        rows = {row["unit_id"]: row for row in data["entries"] if row["unit_id"] in unit_ids}
+        assert unit_ids == set(rows)
+        assert all(
+            row["disposition"] == "deleted"
+            and row["strangle_status"] == "strangled"
+            and row["reference_census_id"] == "census-c13a-authority-replay-delete"
+            for row in rows.values()
+        ), rows
         census = next(
             row
             for row in data["reference_censuses"]
             if row["census_id"] == "census-c13a-authority-replay-delete"
         )
-        self.assertEqual("zero_consumers", census["result"])
-        self.assertEqual(unit_ids, set(census["covers_unit_ids"]))
+        assert census["result"] == "zero_consumers"
+        assert unit_ids == set(census["covers_unit_ids"])
         for probe in census["probes"]:
-            self.assertEqual([], frontend_disposition_checker._recompute_probe(probe))
+            assert frontend_disposition_checker._recompute_probe(probe) == []
 
-        self.assertEqual(
-            [],
-            frontend_disposition_checker.validate_register(
-                data,
-                report_parity=False,
-            ),
-        )
+        assert frontend_disposition_checker.validate_register(data, report_parity=False) == []
 
     def _validate(
         self,
@@ -780,33 +702,36 @@ class AtlasEnforcementTests(unittest.TestCase):
     def test_capability_discovery_direct_syntax_reports_enclosure_residual(self) -> None:
         """Make the bounded scanner's non-flow residual explicit."""
         summary = checker._summary({})
-        self.assertEqual(
-            "indirect enclosure identity, including nested same-name functions, is outside "
-            "the direct-syntax/construction-site rule",
-            summary["capability_discovery_residual"],
+        assert (
+            summary["capability_discovery_residual"]
+            == "indirect enclosure identity, including nested same-name functions, is outside "
+            "the direct-syntax/construction-site rule"
         )
-        capability_source = (checker.status_checker.REPO_ROOT / CAPABILITIES_PATH).read_text(
-            encoding="utf-8"
-        ).replace(
-            "  return discoverCapabilities(useCapabilities());",
-            "  function discoverCapabilities(\n"
-            "    query: UseQueryResult<CapabilityManifestResponse>,\n"
-            "  ): CapabilityDiscovery {\n"
-            "    if (!query.data) {\n"
-            "      return issueCapabilityDiscovery({ reason: \"missing_data\", state: \"unavailable\" });\n"
-            "    }\n"
-            "    return issueCapabilityDiscovery({ manifest: query.data, state: \"available\" });\n"
-            "  }\n"
-            "  return discoverCapabilities(useCapabilities());",
-            1,
+        capability_source = (
+            (checker.status_checker.REPO_ROOT / CAPABILITIES_PATH)
+            .read_text(encoding="utf-8")
+            .replace(
+                "  return discoverCapabilities(useCapabilities());",
+                (
+                    "  function discoverCapabilities(\n    query: "
+                    "UseQueryResult<CapabilityManifestResponse>,\n  ): "
+                    "CapabilityDiscovery {\n    if (!query.data) {\n      return "
+                    'issueCapabilityDiscovery({ reason: "missing_data", state: '
+                    '"unavailable" });\n    }\n    return '
+                    "issueCapabilityDiscovery({ manifest: query.data, state: "
+                    '"available" });\n  }\n  return '
+                    "discoverCapabilities(useCapabilities());"
+                ),
+                1,
+            )
         )
         _errors, scan = self._validate(
             ATLAS_EXPORTS,
             ts_source("export {}"),
             extra_sources={CAPABILITIES_PATH: capability_source},
         )
-        self.assertEqual([], scan["overrideDiagnostics"])
-        self.assertEqual([], checker._capability_discovery_errors(scan))
+        assert scan["overrideDiagnostics"] == []
+        assert checker._capability_discovery_errors(scan) == []
 
     def test_capability_discovery_reviewer_syntax_witnesses_fail(self) -> None:
         """Reject direct owner-query syntax, leaving indirect enclosure as a residual."""
@@ -827,7 +752,7 @@ class AtlasEnforcementTests(unittest.TestCase):
                 "function discoverCapabilities(",
                 "namespace Local {\n"
                 "  export type CapabilityManifestResponse =\n"
-                "    components[\"schemas\"][\"CapabilityManifestResponse\"] & {};\n"
+                '    components["schemas"]["CapabilityManifestResponse"] & {};\n'
                 "}\n\nfunction discoverCapabilities(",
                 1,
             ).replace(
@@ -837,26 +762,38 @@ class AtlasEnforcementTests(unittest.TestCase):
             ),
             "local_parameter": capability_source.replace(
                 "export function useCapabilityManifestAvailability(): CapabilityDiscovery {",
-                "function issueLocalManifest(\n  local: CapabilityManifestResponse,\n): CapabilityDiscovery {\n"
-                "  return issueCapabilityDiscovery({ manifest: local, state: \"available\" });\n}\n\n"
-                "export function useCapabilityManifestAvailability(): CapabilityDiscovery {",
+                (
+                    "function issueLocalManifest(\n  local: "
+                    "CapabilityManifestResponse,\n): CapabilityDiscovery {\n  "
+                    "return issueCapabilityDiscovery({ manifest: local, state: "
+                    '"available" });\n}\n\nexport function '
+                    "useCapabilityManifestAvailability(): CapabilityDiscovery {"
+                ),
                 1,
             ),
             "helper_wrapped_query": capability_source.replace(
                 "function discoverCapabilities(",
-                "function wrapManifest(manifest: CapabilityManifestResponse): CapabilityManifestResponse {\n"
-                "  return manifest;\n}\n\nfunction discoverCapabilities(",
+                (
+                    "function wrapManifest(manifest: "
+                    "CapabilityManifestResponse): CapabilityManifestResponse {\n "
+                    " return manifest;\n}\n\nfunction discoverCapabilities("
+                ),
                 1,
             ).replace(
                 'return issueCapabilityDiscovery({ manifest: query.data, state: "available" });',
-                "return issueCapabilityDiscovery({\n  manifest: wrapManifest(query.data),\n  state: \"available\",\n});",
+                (
+                    "return issueCapabilityDiscovery({\n  manifest: "
+                    'wrapManifest(query.data),\n  state: "available",\n});'
+                ),
                 1,
             ),
             "loading_available": capability_source.replace(
                 "if (query.isLoading) {",
-                "if (Boolean(query.isLoading) && query.data) {\n"
-                '    return issueCapabilityDiscovery({ manifest: query.data, state: "available" });\n'
-                "  }\n  if (query.isLoading) {",
+                (
+                    "if (Boolean(query.isLoading) && query.data) {\n    return "
+                    "issueCapabilityDiscovery({ manifest: query.data, state: "
+                    '"available" });\n  }\n  if (query.isLoading) {'
+                ),
                 1,
             ),
             "wrapped_query_data": capability_source.replace(
@@ -874,14 +811,11 @@ class AtlasEnforcementTests(unittest.TestCase):
                     ts_source("export {}"),
                     extra_sources={CAPABILITIES_PATH: source},
                 )
-                self.assertEqual([], scan["overrideDiagnostics"])
-                self.assertTrue(
-                    any(
-                        "available_manifest_invalid" in error
-                        for error in checker._capability_discovery_errors(scan)
-                    ),
-                    scan,
-                )
+                assert scan["overrideDiagnostics"] == []
+                assert any(
+                    "available_manifest_invalid" in error
+                    for error in checker._capability_discovery_errors(scan)
+                ), scan
 
         valid_packet = {
             "capabilityDiscoveryFacts": {
@@ -900,16 +834,17 @@ class AtlasEnforcementTests(unittest.TestCase):
                 "featureLiterals": [],
             }
         }
-        self.assertEqual(
-            [],
-            checker._capability_discovery_errors(valid_packet, enforce_denominator=True),
-        )
+        assert checker._capability_discovery_errors(valid_packet, enforce_denominator=True) == []
 
     def test_authored_capability_discovery_construction_fails(self) -> None:
         """Reject direct issuer/literal syntax while retaining bounded controls."""
-        capability_source = (checker.status_checker.REPO_ROOT / CAPABILITIES_PATH).read_text(
-            encoding="utf-8"
-        ).replace("function issueCapabilityDiscovery(", "export function issueCapabilityDiscovery(")
+        capability_source = (
+            (checker.status_checker.REPO_ROOT / CAPABILITIES_PATH)
+            .read_text(encoding="utf-8")
+            .replace(
+                "function issueCapabilityDiscovery(", "export function issueCapabilityDiscovery("
+            )
+        )
         external_issuer = ts_source(
             """
             import { issueCapabilityDiscovery } from "@/api/hooks/useCapabilities";
@@ -953,15 +888,12 @@ class AtlasEnforcementTests(unittest.TestCase):
         )
         _errors, scan = self._validate(ATLAS_EXPORTS, feature_probe)
         feature_errors = checker._capability_discovery_errors(scan)
-        self.assertEqual(3, len(scan["capabilityDiscoveryFacts"]["featureLiterals"]))
-        self.assertEqual(3, len(feature_errors), feature_errors)
-        self.assertTrue(
-            all(
-                error.startswith("capability_discovery_feature_literal_authored:")
-                for error in feature_errors
-            ),
-            feature_errors,
-        )
+        assert len(scan["capabilityDiscoveryFacts"]["featureLiterals"]) == 3
+        assert len(feature_errors) == 3, feature_errors
+        assert all(
+            error.startswith("capability_discovery_feature_literal_authored:")
+            for error in feature_errors
+        ), feature_errors
 
         loading_enabled = capability_source.replace(
             "if (query.isLoading) {",
@@ -975,13 +907,10 @@ class AtlasEnforcementTests(unittest.TestCase):
             ts_source("export {}"),
             extra_sources={CAPABILITIES_PATH: loading_enabled},
         )
-        self.assertTrue(
-            any(
-                "available_manifest_invalid" in error
-                for error in checker._capability_discovery_errors(scan)
-            ),
-            scan,
-        )
+        assert any(
+            "available_manifest_invalid" in error
+            for error in checker._capability_discovery_errors(scan)
+        ), scan
 
         benign_probe = ts_source(
             """
@@ -996,9 +925,9 @@ class AtlasEnforcementTests(unittest.TestCase):
             """
         )
         errors, scan = self._validate(ATLAS_EXPORTS, benign_probe)
-        self.assertEqual([], checker._capability_discovery_errors(scan))
-        self.assertEqual([2322], [item["code"] for item in scan["overrideDiagnostics"]])
-        self.assertTrue(any(error.endswith(":TS2322") for error in errors), errors)
+        assert checker._capability_discovery_errors(scan) == []
+        assert [item["code"] for item in scan["overrideDiagnostics"]] == [2322]
+        assert any(error.endswith(":TS2322") for error in errors), errors
 
         valid_packet = {
             "capabilityDiscoveryFacts": {
@@ -1010,14 +939,29 @@ class AtlasEnforcementTests(unittest.TestCase):
         malformed_packets = (
             {},
             {"capabilityDiscoveryFacts": {}},
-            {"capabilityDiscoveryFacts": {**valid_packet["capabilityDiscoveryFacts"], "productionFiles": 0}},
-            {"capabilityDiscoveryFacts": {**valid_packet["capabilityDiscoveryFacts"], "issuerCalls": {}}},
-            {"capabilityDiscoveryFacts": {**valid_packet["capabilityDiscoveryFacts"], "featureLiterals": {}}},
+            {
+                "capabilityDiscoveryFacts": {
+                    **valid_packet["capabilityDiscoveryFacts"],
+                    "productionFiles": 0,
+                }
+            },
+            {
+                "capabilityDiscoveryFacts": {
+                    **valid_packet["capabilityDiscoveryFacts"],
+                    "issuerCalls": {},
+                }
+            },
+            {
+                "capabilityDiscoveryFacts": {
+                    **valid_packet["capabilityDiscoveryFacts"],
+                    "featureLiterals": {},
+                }
+            },
         )
-        self.assertEqual([], checker._capability_discovery_errors(valid_packet))
+        assert checker._capability_discovery_errors(valid_packet) == []
         for packet in malformed_packets:
             with self.subTest(packet=packet):
-                self.assertTrue(checker._capability_discovery_errors(packet))
+                assert checker._capability_discovery_errors(packet)
 
     def test_ds10_python_manifest_strangle_resolves_import_and_module_aliases(self) -> None:
         """Reject direct feature constructors only when they feed manifest features."""
@@ -1227,9 +1171,7 @@ class AtlasEnforcementTests(unittest.TestCase):
     def test_ds10_generic_render_boundary_follows_real_picker_consumers(self) -> None:
         """Reject a hook consumer and its helper without treating fixed chrome as discovery."""
         hook_path = "apps/runtime-dashboard/src/api/hooks/useCapabilitySearch.ts"
-        consumer_path = (
-            "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx"
-        )
+        consumer_path = "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx"
         rows_path = "apps/runtime-dashboard/src/features/commandPalette/pickerRows.ts"
         generated_ref = "capability:command-palette:hardcoded"
         errors = checker.check_capability_discovery_result_boundary(
@@ -1291,15 +1233,13 @@ class AtlasEnforcementTests(unittest.TestCase):
         )
         self.assertTrue(  # noqa: PT009
             any(
-                rows_path in error and error.endswith(":authored_resource_kind")
-                for error in errors
+                rows_path in error and error.endswith(":authored_resource_kind") for error in errors
             ),
             errors,
         )
         self.assertTrue(  # noqa: PT009
             any(
-                rows_path in error and error.endswith(":authored_result_array")
-                for error in errors
+                rows_path in error and error.endswith(":authored_result_array") for error in errors
             ),
             errors,
         )
@@ -1707,8 +1647,7 @@ class AtlasEnforcementTests(unittest.TestCase):
     def test_ds10_generic_render_boundary_derives_result_id_from_row_provenance(self) -> None:
         """Reject row IDs by result origin/type across callbacks, aliases, and destructuring."""
         render_path = (
-            "apps/runtime-dashboard/src/features/evidence/components/"
-            "CapabilityDiscoveryPanel.tsx"
+            "apps/runtime-dashboard/src/features/evidence/components/CapabilityDiscoveryPanel.tsx"
         )
         errors = checker.check_capability_discovery_result_boundary(
             {
@@ -1743,8 +1682,7 @@ class AtlasEnforcementTests(unittest.TestCase):
     ) -> None:
         """Accept renamed UI ID branches and runtime values on semantic result rows."""
         render_path = (
-            "apps/runtime-dashboard/src/features/evidence/components/"
-            "CapabilityDiscoveryPanel.tsx"
+            "apps/runtime-dashboard/src/features/evidence/components/CapabilityDiscoveryPanel.tsx"
         )
         errors = checker.check_capability_discovery_result_boundary(
             {
@@ -1772,10 +1710,7 @@ class AtlasEnforcementTests(unittest.TestCase):
                 (
                     "apps/runtime-dashboard/src/features/evidence/components/"
                     "CapabilityDiscoveryRuntimeValues.ts"
-                ): (
-                    "declare function deriveKind(): string;\n"
-                    "export const kind = deriveKind();\n"
-                ),
+                ): ("declare function deriveKind(): string;\nexport const kind = deriveKind();\n"),
             }
         )
 
@@ -1824,8 +1759,7 @@ class AtlasEnforcementTests(unittest.TestCase):
                 errors = checker.check_capability_discovery_result_boundary(sources)
                 self.assertTrue(  # noqa: PT009
                     any(
-                        root_path in error
-                        and error.endswith(":unresolved_semantic_value")
+                        root_path in error and error.endswith(":unresolved_semantic_value")
                         for error in errors
                     ),
                     errors,
@@ -1864,8 +1798,7 @@ class AtlasEnforcementTests(unittest.TestCase):
     ) -> None:
         """Accept a11y object IDs and data-driven branch values outside authored rows."""
         render_path = (
-            "apps/runtime-dashboard/src/features/evidence/components/"
-            "CapabilityDiscoveryPanel.tsx"
+            "apps/runtime-dashboard/src/features/evidence/components/CapabilityDiscoveryPanel.tsx"
         )
         errors = checker.check_capability_discovery_result_boundary(
             {
@@ -1898,8 +1831,7 @@ class AtlasEnforcementTests(unittest.TestCase):
     def test_ds10_generic_render_boundary_keeps_result_id_branch_semantic(self) -> None:
         """Reject a literal result ID without treating every plain object ID as semantic."""
         render_path = (
-            "apps/runtime-dashboard/src/features/evidence/components/"
-            "CapabilityDiscoveryPanel.tsx"
+            "apps/runtime-dashboard/src/features/evidence/components/CapabilityDiscoveryPanel.tsx"
         )
         errors = checker.check_capability_discovery_result_boundary(
             {
@@ -1972,47 +1904,24 @@ class AtlasEnforcementTests(unittest.TestCase):
     def test_real_illegal_edges_fail_custom_and_dependency_engines(self) -> None:
         errors, receipt = checker._architecture_recurrence_errors()
 
-        self.assertEqual([], errors)
-        self.assertEqual(
-            {
-                "app-no-feature-internals",
-                "app-state-no-app-providers",
-                "shared-no-app-or-features",
-            },
-            set(receipt["corruption"]["dashboard-custom"]["violation_rules"]),
+        assert errors == []
+        assert {
+            "app-no-feature-internals",
+            "app-state-no-app-providers",
+            "shared-no-app-or-features",
+        } == set(receipt["corruption"]["dashboard-custom"]["violation_rules"])
+        assert {"app-no-feature-internals", "no-circular", "shared-no-app-or-features"} == set(
+            receipt["corruption"]["dependency-cruiser"]["violation_rules"]
         )
-        self.assertEqual(
-            {
-                "app-no-feature-internals",
-                "no-circular",
-                "shared-no-app-or-features",
-            },
-            set(receipt["corruption"]["dependency-cruiser"]["violation_rules"]),
-        )
-        self.assertEqual(
-            ["atlas-forbidden-import"],
-            receipt["corruption"]["atlas-ui"]["violation_rules"],
-        )
-        self.assertEqual(
-            {
-                "atlas-ui": 3,
-                "dashboard-custom": 11,
-                "dependency-cruiser": 11,
-            },
-            {
-                engine_id: facts["source_files"]
-                for engine_id, facts in receipt["corruption"].items()
-            },
-        )
-        self.assertEqual(
-            [],
-            [
-                engine_id
-                for engine_id, facts in receipt["benign"].items()
-                if facts.get("violation_rules", facts.get("violations"))
-                or facts["return_code"] != 0
-            ],
-        )
+        assert receipt["corruption"]["atlas-ui"]["violation_rules"] == ["atlas-forbidden-import"]
+        assert {
+            engine_id: facts["source_files"] for engine_id, facts in receipt["corruption"].items()
+        } == {"atlas-ui": 3, "dashboard-custom": 11, "dependency-cruiser": 11}
+        assert [
+            engine_id
+            for engine_id, facts in receipt["benign"].items()
+            if facts.get("violation_rules", facts.get("violations")) or facts["return_code"] != 0
+        ] == []
 
     def test_architecture_receipts_reject_malformed_consumed_fields(self) -> None:
         errors, _facts = checker._architecture_packet_facts(
@@ -2037,14 +1946,11 @@ class AtlasEnforcementTests(unittest.TestCase):
             }
         )
 
-        self.assertEqual(
-            {
-                "architecture_engine_reported_error_count_invalid:dependency-cruiser",
-                "architecture_engine_source_count_invalid:atlas-ui",
-                "architecture_engine_source_count_invalid:dashboard-custom",
-            },
-            set(errors),
-        )
+        assert {
+            "architecture_engine_reported_error_count_invalid:dependency-cruiser",
+            "architecture_engine_source_count_invalid:atlas-ui",
+            "architecture_engine_source_count_invalid:dashboard-custom",
+        } == set(errors)
 
     def test_architecture_receipts_validate_each_consumed_field(self) -> None:
         valid_packets = {
@@ -2147,22 +2053,19 @@ class AtlasEnforcementTests(unittest.TestCase):
                     target = target[key]
                 target[path[-1]] = value
                 errors, _facts = checker._architecture_packet_facts(packets)
-                self.assertIn(expected_error, errors)
+                assert expected_error in errors
 
     def test_lint_enforcement_executes_the_three_architecture_engines(self) -> None:
         output = StringIO()
         with redirect_stdout(output):
             exit_code = checker.main(["--check"])
 
-        self.assertEqual(0, exit_code)
+        assert exit_code == 0
         packet = json.loads(output.getvalue())
         receipt = packet["architecture_recurrence"]
-        self.assertEqual(
-            {"atlas-ui", "dashboard-custom", "dependency-cruiser"},
-            set(receipt["live"]),
-        )
-        self.assertTrue(receipt["corruption_witnesses_rejected"])
-        self.assertTrue(receipt["benign_graphs_accepted"])
+        assert {"atlas-ui", "dashboard-custom", "dependency-cruiser"} == set(receipt["live"])
+        assert receipt["corruption_witnesses_rejected"]
+        assert receipt["benign_graphs_accepted"]
 
     def test_enforcement_scan_exposes_only_retained_local_facts(self) -> None:
         errors, scan = self._validate(
@@ -2177,10 +2080,10 @@ class AtlasEnforcementTests(unittest.TestCase):
             ),
         )
 
-        self.assertEqual([], errors)
-        self.assertNotIn("unauthorizedStatusOwners", scan)
-        self.assertNotIn("unauthorizedStatusSinks", scan)
-        self.assertIn("authoritySinkDeclarations", scan)
+        assert errors == []
+        assert "unauthorizedStatusOwners" not in scan
+        assert "unauthorizedStatusSinks" not in scan
+        assert "authoritySinkDeclarations" in scan
 
     def test_persistence_construction_census_is_source_complete_and_bounded(self) -> None:
         """Bind direct constructions while refusing an owner-instance flow claim."""
@@ -2194,51 +2097,29 @@ class AtlasEnforcementTests(unittest.TestCase):
             validate_override_diagnostics=False,
         )
         facts = live_scan["persistenceConstructionFacts"]
-        self.assertEqual(574, facts["productionSourceCount"])
-        self.assertEqual(36, len(facts["sites"]))
-        self.assertEqual(15, len({row["path"] for row in facts["sites"]}))
-        self.assertEqual(
-            {"indexed_db": 5, "web_storage": 26, "zustand": 5},
-            facts["apiCounts"],
-        )
-        self.assertIn("indirect storage value-flow remains not_established", facts["residual"])
+        assert facts["productionSourceCount"] == 574
+        assert len(facts["sites"]) == 36
+        assert len({row["path"] for row in facts["sites"]}) == 15
+        assert facts["apiCounts"] == {"indexed_db": 5, "web_storage": 26, "zustand": 5}
+        assert "indirect storage value-flow remains not_established" in facts["residual"]
         census = register["storage_construction_census"]
-        self.assertEqual("recomputed", census["direct_construction_provenance"])
-        self.assertEqual(
-            "institutionally_supplied", census["semantic_class_provenance"]
-        )
-        self.assertEqual("not_established", census["authority_flow_provenance"])
-        self.assertEqual("absent/unallocated", census["authority_flow_capability_status"])
-        self.assertIn("provider()", census["authority_flow_falsifier"])
-        self.assertIn("interprocedural", census["authority_flow_required_capability"])
-        self.assertTrue(
-            all("authorityBinding" not in row for row in facts["sites"]), facts["sites"]
-        )
-        self.assertTrue(
-            all("classification" not in row for row in facts["sites"]), facts["sites"]
-        )
-        self.assertTrue(
-            all("authority_binding" not in row for row in census["sites"]),
-            census["sites"],
-        )
+        assert census["direct_construction_provenance"] == "recomputed"
+        assert census["semantic_class_provenance"] == "institutionally_supplied"
+        assert census["authority_flow_provenance"] == "not_established"
+        assert census["authority_flow_capability_status"] == "absent/unallocated"
+        assert "provider()" in census["authority_flow_falsifier"]
+        assert "interprocedural" in census["authority_flow_required_capability"]
+        assert all("authorityBinding" not in row for row in facts["sites"]), facts["sites"]
+        assert all("classification" not in row for row in facts["sites"]), facts["sites"]
+        assert all("authority_binding" not in row for row in census["sites"]), census["sites"]
         factory_ids = {
-            factory_call["factorySiteId"]
-            for factory_call in facts["authorityFactoryCalls"]
+            factory_call["factorySiteId"] for factory_call in facts["authorityFactoryCalls"]
         }
-        self.assertEqual(
-            9,
-            len(factory_ids),
-        )
-        self.assertEqual(
-            {row["siteId"] for row in facts["sites"]},
-            {
-                row["site_id"]
-                for row in register["storage_construction_census"]["sites"]
-            },
-        )
-        self.assertEqual(
-            [], checker._persistence_construction_errors(live_scan, register=register)
-        )
+        assert len(factory_ids) == 9
+        assert {row["siteId"] for row in facts["sites"]} == {
+            row["site_id"] for row in register["storage_construction_census"]["sites"]
+        }
+        assert checker._persistence_construction_errors(live_scan, register=register) == []
         first_site = register["storage_construction_census"]["sites"][0]
         for field, value, expected_prefix in (
             ("operation", "clear", "persistence_operation_drift:"),
@@ -2264,21 +2145,18 @@ class AtlasEnforcementTests(unittest.TestCase):
                 mutation_errors = checker._persistence_construction_errors(
                     live_scan, register=mutation
                 )
-                self.assertTrue(
-                    any(error.startswith(expected_prefix) for error in mutation_errors),
-                    mutation_errors,
+                assert any(error.startswith(expected_prefix) for error in mutation_errors), (
+                    mutation_errors
                 )
 
         factory_mutation = copy.deepcopy(register)
-        factory_mutation["storage_construction_census"][
-            "authority_factory_receipts"
-        ][0]["site_fingerprint"] = "sha256:" + "0" * 64
-        self.assertTrue(
-            any(
-                error.startswith("persistence_authority_factory_drift:")
-                for error in checker._persistence_construction_errors(
-                    live_scan, register=factory_mutation
-                )
+        factory_mutation["storage_construction_census"]["authority_factory_receipts"][0][
+            "site_fingerprint"
+        ] = "sha256:" + "0" * 64
+        assert any(
+            error.startswith("persistence_authority_factory_drift:")
+            for error in checker._persistence_construction_errors(
+                live_scan, register=factory_mutation
             )
         )
 
@@ -2289,7 +2167,7 @@ class AtlasEnforcementTests(unittest.TestCase):
                 validate_override_diagnostics=True,
                 include_dashboard_program_roots=True,
             )
-            self.assertEqual([], scan["overrideDiagnostics"], scan)
+            assert scan["overrideDiagnostics"] == [], scan
             return scan
 
         direct_path = "apps/runtime-dashboard/src/shared/lib/domain/storageCensusProbe.ts"
@@ -2302,29 +2180,20 @@ class AtlasEnforcementTests(unittest.TestCase):
             }
             """,
         )
-        self.assertEqual(
-            [direct_path],
-            [
-                row["path"]
-                for row in direct_scan["persistenceConstructionFacts"]["sites"]
-                if row["path"] == direct_path
-            ],
-        )
+        assert [direct_path] == [
+            row["path"]
+            for row in direct_scan["persistenceConstructionFacts"]["sites"]
+            if row["path"] == direct_path
+        ]
         direct_rows = [
             row
             for row in direct_scan["persistenceConstructionFacts"]["sites"]
             if row["path"] == direct_path
         ]
-        direct_errors = checker._persistence_construction_errors(
-            direct_scan, register=register
-        )
-        self.assertTrue(
-            all(
-                f"persistence_unregistered_site:{row['siteId']}" in direct_errors
-                for row in direct_rows
-            ),
-            direct_errors,
-        )
+        direct_errors = checker._persistence_construction_errors(direct_scan, register=register)
+        assert all(
+            f"persistence_unregistered_site:{row['siteId']}" in direct_errors for row in direct_rows
+        ), direct_errors
 
         lookalike_path = "apps/runtime-dashboard/src/shared/lib/domain/storageLookalikeProbe.ts"
         lookalike_scan = override_scan(
@@ -2336,17 +2205,12 @@ class AtlasEnforcementTests(unittest.TestCase):
             }
             """,
         )
-        self.assertEqual(
-            [],
-            [
-                row
-                for row in lookalike_scan["persistenceConstructionFacts"]["sites"]
-                if row["path"] == lookalike_path
-            ],
-        )
-        set_control_path = (
-            "apps/runtime-dashboard/src/shared/lib/domain/storageSetControl.ts"
-        )
+        assert [
+            row
+            for row in lookalike_scan["persistenceConstructionFacts"]["sites"]
+            if row["path"] == lookalike_path
+        ] == []
+        set_control_path = "apps/runtime-dashboard/src/shared/lib/domain/storageSetControl.ts"
         set_control_scan = override_scan(
             set_control_path,
             """
@@ -2357,14 +2221,11 @@ class AtlasEnforcementTests(unittest.TestCase):
             real.add("candidate");
             """,
         )
-        self.assertEqual(
-            [],
-            [
-                row
-                for row in set_control_scan["persistenceConstructionFacts"]["sites"]
-                if row["path"] == set_control_path
-            ],
-        )
+        assert [
+            row
+            for row in set_control_scan["persistenceConstructionFacts"]["sites"]
+            if row["path"] == set_control_path
+        ] == []
 
         alias_path = "apps/runtime-dashboard/src/shared/lib/domain/storageAliasProbe.ts"
         alias_scan = override_scan(
@@ -2383,15 +2244,17 @@ class AtlasEnforcementTests(unittest.TestCase):
             for row in alias_scan["persistenceConstructionFacts"]["sites"]
             if row["path"] == alias_path
         ]
-        self.assertEqual(
-            ["acquire", "getItem", "removeItem", "setItem"],
-            sorted(row["operation"] for row in alias_rows),
-        )
+        assert sorted(row["operation"] for row in alias_rows) == [
+            "acquire",
+            "getItem",
+            "removeItem",
+            "setItem",
+        ]
 
         authority_path = "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts"
-        authority_source = (
-            checker.status_checker.REPO_ROOT / authority_path
-        ).read_text(encoding="utf-8")
+        authority_source = (checker.status_checker.REPO_ROOT / authority_path).read_text(
+            encoding="utf-8"
+        )
         authority_scan = checker._enforcement_scan(
             {
                 authority_path: authority_source
@@ -2409,16 +2272,15 @@ class AtlasEnforcementTests(unittest.TestCase):
         raw_authority_rows = [
             row
             for row in authority_scan["persistenceConstructionFacts"]["sites"]
-            if row["path"] == authority_path
-            and row["siteId"] not in authority_live_ids
+            if row["path"] == authority_path and row["siteId"] not in authority_live_ids
         ]
-        self.assertEqual(1, len(raw_authority_rows))
+        assert len(raw_authority_rows) == 1
         raw_authority_errors = checker._persistence_construction_errors(
             authority_scan, register=register
         )
-        self.assertIn(
-            f"persistence_unregistered_site:{raw_authority_rows[0]['siteId']}",
-            raw_authority_errors,
+        assert (
+            f"persistence_unregistered_site:{raw_authority_rows[0]['siteId']}"
+            in raw_authority_errors
         )
 
         for label, source, operations in (
@@ -2467,29 +2329,19 @@ class AtlasEnforcementTests(unittest.TestCase):
                     for row in limitation_scan["persistenceConstructionFacts"]["sites"]
                     if row["path"] == limitation_path
                 ]
-                self.assertEqual(
-                    operations,
-                    {row["operation"] for row in limitation_rows},
-                )
-                self.assertTrue(
-                    all("authorityBinding" not in row for row in limitation_rows),
-                    limitation_rows,
+                assert operations == {row["operation"] for row in limitation_rows}
+                assert all("authorityBinding" not in row for row in limitation_rows), (
+                    limitation_rows
                 )
                 limitation_errors = checker._persistence_construction_errors(
                     limitation_scan, register=register
                 )
-                self.assertTrue(
-                    all(
-                        f"persistence_unregistered_site:{row['siteId']}"
-                        in limitation_errors
-                        for row in limitation_rows
-                    ),
-                    limitation_errors,
-                )
+                assert all(
+                    f"persistence_unregistered_site:{row['siteId']}" in limitation_errors
+                    for row in limitation_rows
+                ), limitation_errors
 
-        review_path = (
-            "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
-        )
+        review_path = "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
         review_scan = override_scan(
             review_path,
             """
@@ -2501,31 +2353,25 @@ class AtlasEnforcementTests(unittest.TestCase):
             }
             """,
         )
-        self.assertEqual(
-            2,
+        assert (
             len(
                 [
                     row
                     for row in review_scan["persistenceConstructionFacts"]["sites"]
                     if row["path"] == review_path
                 ]
-            ),
+            )
+            == 2
         )
         review_rows = [
             row
             for row in review_scan["persistenceConstructionFacts"]["sites"]
             if row["path"] == review_path
         ]
-        review_errors = checker._persistence_construction_errors(
-            review_scan, register=register
-        )
-        self.assertTrue(
-            all(
-                f"persistence_unregistered_site:{row['siteId']}" in review_errors
-                for row in review_rows
-            ),
-            review_errors,
-        )
+        review_errors = checker._persistence_construction_errors(review_scan, register=register)
+        assert all(
+            f"persistence_unregistered_site:{row['siteId']}" in review_errors for row in review_rows
+        ), review_errors
 
         feature_path = "apps/runtime-dashboard/src/shared/lib/featureFlags.ts"
         feature_source = (checker.status_checker.REPO_ROOT / feature_path).read_text(
@@ -2537,13 +2383,10 @@ class AtlasEnforcementTests(unittest.TestCase):
             validate_override_diagnostics=False,
             include_dashboard_program_roots=True,
         )
-        moved_errors = checker._persistence_construction_errors(
-            moved_scan, register=register
-        )
-        self.assertTrue(
-            any(error.startswith("persistence_source_fingerprint_drift:") for error in moved_errors),
-            moved_errors,
-        )
+        moved_errors = checker._persistence_construction_errors(moved_scan, register=register)
+        assert any(
+            error.startswith("persistence_source_fingerprint_drift:") for error in moved_errors
+        ), moved_errors
 
         benign_path = "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts"
         registered_benign = [
@@ -2551,35 +2394,29 @@ class AtlasEnforcementTests(unittest.TestCase):
             for row in register["storage_construction_census"]["sites"]
             if row["path"] == benign_path
         ]
-        self.assertEqual(6, len(registered_benign))
-        self.assertEqual(
-            {"interaction_benign"},
-            {row["classification"] for row in registered_benign},
-        )
+        assert len(registered_benign) == 6
+        assert {"interaction_benign"} == {row["classification"] for row in registered_benign}
         for row in registered_benign:
-            self.assertNotIn("owner_slice", row)
-            self.assertNotIn("capability_states", row)
-            self.assertNotIn("closure_signal", row)
+            assert "owner_slice" not in row
+            assert "capability_states" not in row
+            assert "closure_signal" not in row
 
     def test_query_construction_and_producer_censuses_are_source_complete(self) -> None:
         """Reject source construction drift rather than inferring option-value flow."""
         errors, scan = checker.validate_enforcement(enforce_authority_escapes=False)
-        self.assertEqual([], errors)
-        self.assertEqual(
-            [],
-            checker._query_cache_policy_errors(scan, enforce_denominator=True),
-        )
+        assert errors == []
+        assert checker._query_cache_policy_errors(scan, enforce_denominator=True) == []
         facts = scan["queryCachePolicyFacts"]
-        self.assertEqual(43, len(facts["queryKeyOwners"]))
-        self.assertEqual(66, len(facts["constructions"]))
-        self.assertEqual(42, len(facts["producers"]))
+        assert len(facts["queryKeyOwners"]) == 43
+        assert len(facts["constructions"]) == 66
+        assert len(facts["producers"]) == 42
 
         target_rows = [
             row
             for row in facts["constructions"]
             if row["path"] == checker.QUERY_CACHE_POLICY_TARGET_PATH
         ]
-        self.assertEqual(1, len(target_rows))
+        assert len(target_rows) == 1
         non_target_row = next(
             row
             for row in facts["constructions"]
@@ -2635,12 +2472,10 @@ class AtlasEnforcementTests(unittest.TestCase):
             with self.subTest(label=label):
                 mutated_scan = copy.deepcopy(scan)
                 corrupt(mutated_scan)
-                self.assertTrue(
-                    checker._query_cache_policy_errors(
-                        mutated_scan,
-                        enforce_denominator=True,
-                        registry=checker._query_cache_policy_register_from_scan(mutated_scan),
-                    )
+                assert checker._query_cache_policy_errors(
+                    mutated_scan,
+                    enforce_denominator=True,
+                    registry=checker._query_cache_policy_register_from_scan(mutated_scan),
                 )
 
         target_producer_rows = [
@@ -2648,34 +2483,34 @@ class AtlasEnforcementTests(unittest.TestCase):
             for row in facts["producers"]
             if row["path"] == checker.QUERY_CACHE_POLICY_GOVERNED_PRODUCER["path"]
         ]
-        self.assertEqual(1, len(target_producer_rows))
+        assert len(target_producer_rows) == 1
         non_target_producer = next(
             row
             for row in facts["producers"]
             if row["path"] != checker.QUERY_CACHE_POLICY_GOVERNED_PRODUCER["path"]
         )
         target_producer_identity_corruptions = {
-            "duplicate_target_producer_path": lambda value: value[
-                "queryCachePolicyFacts"
-            ]["producers"].__setitem__(
+            "duplicate_target_producer_path": lambda value: value["queryCachePolicyFacts"][
+                "producers"
+            ].__setitem__(
                 facts["producers"].index(non_target_producer),
                 {
                     **copy.deepcopy(non_target_producer),
                     "path": checker.QUERY_CACHE_POLICY_GOVERNED_PRODUCER["path"],
                 },
             ),
-            "missing_target_producer_identity": lambda value: value[
-                "queryCachePolicyFacts"
-            ]["producers"].__setitem__(
+            "missing_target_producer_identity": lambda value: value["queryCachePolicyFacts"][
+                "producers"
+            ].__setitem__(
                 facts["producers"].index(target_producer_rows[0]),
                 {
                     **copy.deepcopy(target_producer_rows[0]),
                     "path": non_target_producer["path"],
                 },
             ),
-            "wrong_target_producer_declaration": lambda value: value[
-                "queryCachePolicyFacts"
-            ]["producers"].__setitem__(
+            "wrong_target_producer_declaration": lambda value: value["queryCachePolicyFacts"][
+                "producers"
+            ].__setitem__(
                 facts["producers"].index(target_producer_rows[0]),
                 {
                     **copy.deepcopy(target_producer_rows[0]),
@@ -2690,12 +2525,10 @@ class AtlasEnforcementTests(unittest.TestCase):
             with self.subTest(label=label):
                 mutated_scan = copy.deepcopy(scan)
                 corrupt(mutated_scan)
-                self.assertTrue(
-                    checker._query_cache_policy_errors(
-                        mutated_scan,
-                        enforce_denominator=True,
-                        registry=checker._query_cache_policy_register_from_scan(mutated_scan),
-                    )
+                assert checker._query_cache_policy_errors(
+                    mutated_scan,
+                    enforce_denominator=True,
+                    registry=checker._query_cache_policy_register_from_scan(mutated_scan),
                 )
 
         target_source = (
@@ -2726,9 +2559,7 @@ class AtlasEnforcementTests(unittest.TestCase):
                     row for row in override_facts[table] if row["path"] == override_path
                 ]
                 merged_facts[table] = [
-                    row
-                    for row in merged_facts[table]
-                    if row["path"] != override_path
+                    row for row in merged_facts[table] if row["path"] != override_path
                 ] + copy.deepcopy(override_rows)
             return merged
 
@@ -2743,24 +2574,16 @@ class AtlasEnforcementTests(unittest.TestCase):
             )
         )
         newline_register = checker._query_cache_policy_register_from_scan(newline_scan)
-        self.assertEqual(
-            [],
+        assert (
             checker._query_cache_policy_errors(
-                newline_scan,
-                enforce_denominator=True,
-                registry=newline_register,
-            ),
+                newline_scan, enforce_denominator=True, registry=newline_register
+            )
+            == []
         )
-        self.assertEqual(
-            {"governed_wrapper": 1, "legacy_direct_debt": 65},
-            {
-                label: sum(
-                    row["classification"] == label
-                    for row in newline_register["constructions"]
-                )
-                for label in ("governed_wrapper", "legacy_direct_debt")
-            },
-        )
+        assert {
+            label: sum(row["classification"] == label for row in newline_register["constructions"])
+            for label in ("governed_wrapper", "legacy_direct_debt")
+        } == {"governed_wrapper": 1, "legacy_direct_debt": 65}
 
         added_call_scan = merge_target_override(
             target_source.replace(
@@ -2771,15 +2594,13 @@ class AtlasEnforcementTests(unittest.TestCase):
                 1,
             )
         )
-        self.assertEqual(67, len(added_call_scan["queryCachePolicyFacts"]["constructions"]))
-        self.assertTrue(
-            any(
-                row["path"] == checker.QUERY_CACHE_POLICY_TARGET_PATH
-                and row["optionsResolution"] == "referenced"
-                for row in added_call_scan["queryCachePolicyFacts"]["constructions"]
-            )
+        assert len(added_call_scan["queryCachePolicyFacts"]["constructions"]) == 67
+        assert any(
+            row["path"] == checker.QUERY_CACHE_POLICY_TARGET_PATH
+            and row["optionsResolution"] == "referenced"
+            for row in added_call_scan["queryCachePolicyFacts"]["constructions"]
         )
-        self.assertTrue(checker._query_cache_policy_errors(added_call_scan, enforce_denominator=True))
+        assert checker._query_cache_policy_errors(added_call_scan, enforce_denominator=True)
 
         target_factory_source_corruptions = {
             "moved": target_source.replace(
@@ -2798,12 +2619,10 @@ class AtlasEnforcementTests(unittest.TestCase):
         for label, source in target_factory_source_corruptions.items():
             with self.subTest(label=label):
                 source_scan = merge_target_override(source)
-                self.assertTrue(
-                    checker._query_cache_policy_errors(
-                        source_scan,
-                        enforce_denominator=True,
-                        registry=checker._query_cache_policy_register_from_scan(source_scan),
-                    )
+                assert checker._query_cache_policy_errors(
+                    source_scan,
+                    enforce_denominator=True,
+                    registry=checker._query_cache_policy_register_from_scan(source_scan),
                 )
 
         producer_path = checker.QUERY_CACHE_POLICY_GOVERNED_PRODUCER["path"]
@@ -2832,17 +2651,10 @@ class AtlasEnforcementTests(unittest.TestCase):
                 1,
             )
         )
-        self.assertTrue(
-            checker._query_cache_policy_errors(
-                source_sha_flip_scan,
-                enforce_denominator=True,
-            )
-        )
+        assert checker._query_cache_policy_errors(source_sha_flip_scan, enforce_denominator=True)
 
         health_path = "apps/runtime-dashboard/src/api/hooks/useHealth.ts"
-        health_source = (checker.status_checker.REPO_ROOT / health_path).read_text(
-            encoding="utf-8"
-        )
+        health_source = (checker.status_checker.REPO_ROOT / health_path).read_text(encoding="utf-8")
         inline_to_referenced = merge_override(
             health_path,
             health_source.replace(
@@ -2885,15 +2697,8 @@ class AtlasEnforcementTests(unittest.TestCase):
                     for row in transition_scan["queryCachePolicyFacts"]["constructions"]
                     if row["path"] == health_path
                 ]
-                self.assertTrue(
-                    any(row["optionsResolution"] == expected_resolution for row in health_rows)
-                )
-                self.assertTrue(
-                    checker._query_cache_policy_errors(
-                        transition_scan,
-                        enforce_denominator=True,
-                    )
-                )
+                assert any(row["optionsResolution"] == expected_resolution for row in health_rows)
+                assert checker._query_cache_policy_errors(transition_scan, enforce_denominator=True)
 
         local_query_lookalike = ts_source(
             """
@@ -2908,8 +2713,8 @@ class AtlasEnforcementTests(unittest.TestCase):
             inventory=checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH),
             validate_override_diagnostics=True,
         )
-        self.assertEqual([], lookalike_scan["queryCachePolicyFacts"]["constructions"])
-        self.assertEqual([], lookalike_scan["queryCachePolicyFacts"]["producers"])
+        assert lookalike_scan["queryCachePolicyFacts"]["constructions"] == []
+        assert lookalike_scan["queryCachePolicyFacts"]["producers"] == []
 
         benign_query_syntax = ts_source(
             """
@@ -2934,8 +2739,8 @@ class AtlasEnforcementTests(unittest.TestCase):
             inventory=checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH),
             validate_override_diagnostics=True,
         )
-        self.assertEqual([], benign_scan["queryCachePolicyFacts"]["constructions"])
-        self.assertEqual([], benign_scan["queryCachePolicyFacts"]["producers"])
+        assert benign_scan["queryCachePolicyFacts"]["constructions"] == []
+        assert benign_scan["queryCachePolicyFacts"]["producers"] == []
 
         spread_bearing_query_syntax = ts_source(
             """
@@ -2961,12 +2766,12 @@ class AtlasEnforcementTests(unittest.TestCase):
             inventory=checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH),
             validate_override_diagnostics=True,
         )
-        self.assertEqual(1, len(spread_scan["queryCachePolicyFacts"]["constructions"]))
-        self.assertEqual(
-            "referenced",
-            spread_scan["queryCachePolicyFacts"]["constructions"][0]["optionsResolution"],
+        assert len(spread_scan["queryCachePolicyFacts"]["constructions"]) == 1
+        assert (
+            spread_scan["queryCachePolicyFacts"]["constructions"][0]["optionsResolution"]
+            == "referenced"
         )
-        self.assertEqual([], spread_scan["queryCachePolicyFacts"]["producers"])
+        assert spread_scan["queryCachePolicyFacts"]["producers"] == []
 
         spread_without_query_fn = ts_source(
             """
@@ -2984,10 +2789,12 @@ class AtlasEnforcementTests(unittest.TestCase):
             inventory=checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH),
             validate_override_diagnostics=True,
         )
-        self.assertEqual(1, len(no_query_fn_spread_scan["queryCachePolicyFacts"]["constructions"]))
-        self.assertEqual(
-            "referenced",
-            no_query_fn_spread_scan["queryCachePolicyFacts"]["constructions"][0]["optionsResolution"],
+        assert len(no_query_fn_spread_scan["queryCachePolicyFacts"]["constructions"]) == 1
+        assert (
+            no_query_fn_spread_scan["queryCachePolicyFacts"]["constructions"][0][
+                "optionsResolution"
+            ]
+            == "referenced"
         )
 
         generated_lookalike_path = "apps/runtime-dashboard/src/api/generated/query.ts"
@@ -3014,11 +2821,8 @@ class AtlasEnforcementTests(unittest.TestCase):
             inventory=checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH),
             validate_override_diagnostics=True,
         )
-        self.assertEqual(
-            [],
-            generated_lookalike_scan["queryCachePolicyFacts"]["constructions"],
-        )
-        self.assertEqual([], generated_lookalike_scan["queryCachePolicyFacts"]["producers"])
+        assert generated_lookalike_scan["queryCachePolicyFacts"]["constructions"] == []
+        assert generated_lookalike_scan["queryCachePolicyFacts"]["producers"] == []
 
         register = checker.status_checker._load_json(checker.QUERY_CACHE_POLICY_REGISTER_PATH)
         corruptions = {
@@ -3043,22 +2847,18 @@ class AtlasEnforcementTests(unittest.TestCase):
             with self.subTest(label=label):
                 mutated = copy.deepcopy(register)
                 corrupt(mutated)
-                self.assertTrue(
-                    checker._query_cache_policy_errors(
-                        scan,
-                        enforce_denominator=True,
-                        registry=mutated,
-                    )
+                assert checker._query_cache_policy_errors(
+                    scan, enforce_denominator=True, registry=mutated
                 )
 
     def test_query_construction_options_resolution_is_required_and_nonsemantic(self) -> None:
         """Require every call census row to state only inline or referenced options."""
         errors, scan = checker.validate_enforcement(enforce_authority_escapes=False)
-        self.assertEqual([], errors)
+        assert errors == []
         facts = scan["queryCachePolicyFacts"]
         resolutions = [row["optionsResolution"] for row in facts["constructions"]]
-        self.assertEqual(66, len(resolutions))
-        self.assertEqual({"inline", "referenced"}, set(resolutions))
+        assert len(resolutions) == 66
+        assert {"inline", "referenced"} == set(resolutions)
 
         register = checker.status_checker._load_json(checker.QUERY_CACHE_POLICY_REGISTER_PATH)
         for label, mutate in {
@@ -3070,24 +2870,18 @@ class AtlasEnforcementTests(unittest.TestCase):
             with self.subTest(label=label):
                 corrupted = copy.deepcopy(register)
                 mutate(corrupted)
-                self.assertTrue(
-                    checker._query_cache_policy_errors(
-                        scan,
-                        enforce_denominator=True,
-                        registry=corrupted,
-                    )
+                assert checker._query_cache_policy_errors(
+                    scan, enforce_denominator=True, registry=corrupted
                 )
 
         referenced_call = copy.deepcopy(facts["constructions"][0])
         referenced_call["optionsResolution"] = "referenced"
         enlarged = copy.deepcopy(scan)
         enlarged["queryCachePolicyFacts"]["constructions"].append(referenced_call)
-        self.assertTrue(
-            checker._query_cache_policy_errors(
-                enlarged,
-                enforce_denominator=True,
-                registry=checker._query_cache_policy_register_from_scan(enlarged),
-            )
+        assert checker._query_cache_policy_errors(
+            enlarged,
+            enforce_denominator=True,
+            registry=checker._query_cache_policy_register_from_scan(enlarged),
         )
 
     def test_full_corruption_probes_exercise_removed_query_producer(self) -> None:
@@ -3111,10 +2905,10 @@ class AtlasEnforcementTests(unittest.TestCase):
 
         checker._query_cache_policy_errors = observe_removed_producer
         try:
-            self.assertEqual([], checker._corruption_probes())
+            assert checker._corruption_probes() == []
         finally:
             checker._query_cache_policy_errors = original
-        self.assertEqual(1, len(removed_producer_registries))
+        assert len(removed_producer_registries) == 1
 
     def test_ds5_closure_corruption_sweep_covers_every_governed_property(
         self,
@@ -3148,13 +2942,11 @@ class AtlasEnforcementTests(unittest.TestCase):
                 stderr = StringIO()
                 with redirect_stdout(stdout), redirect_stderr(stderr):
                     exit_code = owner.main(argv)
-                self.assertEqual(
-                    0,
-                    exit_code,
-                    f"{label}\nstdout={stdout.getvalue()}\nstderr={stderr.getvalue()}",
+                assert exit_code == 0, (
+                    f"{label}\nstdout={stdout.getvalue()}\nstderr={stderr.getvalue()}"
                 )
 
-        def escaped_corruption(*_args: Any, **_kwargs: Any) -> list[str]:
+        def escaped_corruption(*_args: object, **_kwargs: object) -> list[str]:
             return ["c20-synthetic-escape"]
 
         for label, owner, argv in witnesses:
@@ -3168,11 +2960,8 @@ class AtlasEnforcementTests(unittest.TestCase):
                         exit_code = owner.main(argv)
                 finally:
                     owner._corruption_probes = original
-                self.assertEqual(1, exit_code)
-                self.assertIn(
-                    "corruption probes escaped: c20-synthetic-escape",
-                    stderr.getvalue(),
-                )
+                assert exit_code == 1
+                assert "corruption probes escaped: c20-synthetic-escape" in stderr.getvalue()
 
     def test_authority_sink_census_resolves_real_atlas_prop_declarations(
         self,
@@ -3205,30 +2994,15 @@ class AtlasEnforcementTests(unittest.TestCase):
             ),
         )
 
-        self.assertEqual([], errors)
+        assert errors == []
         pairs = {
             (row["componentDeclarationPath"], row["prop"])
             for row in scan["authoritySinkDeclarations"]
         }
-        self.assertIn(
-            (
-                "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
-                "presentation",
-            ),
-            pairs,
-        )
-        self.assertIn(
-            ("packages/atlas-ui/src/primitives/Button.tsx", "disabled"),
-            pairs,
-        )
-        self.assertIn(
-            (
-                "packages/atlas-ui/src/primitives/SegmentedControl.tsx",
-                "disabled",
-            ),
-            pairs,
-        )
-        self.assertFalse(any("packageOwnerProbe" in path for path, _prop in pairs))
+        assert ("packages/atlas-ui/src/primitives/AuthorityBadge.tsx", "presentation") in pairs
+        assert ("packages/atlas-ui/src/primitives/Button.tsx", "disabled") in pairs
+        assert ("packages/atlas-ui/src/primitives/SegmentedControl.tsx", "disabled") in pairs
+        assert not any("packageOwnerProbe" in path for path, _prop in pairs)
 
     def test_authority_sink_census_does_not_invent_absent_props(self) -> None:
         errors, scan = self._validate(
@@ -3241,12 +3015,10 @@ class AtlasEnforcementTests(unittest.TestCase):
             ),
         )
 
-        self.assertEqual([], errors)
-        self.assertFalse(
-            any(
-                row["componentDeclarationPath"].endswith("/Button.tsx")
-                for row in scan["authoritySinkDeclarations"]
-            )
+        assert errors == []
+        assert not any(
+            row["componentDeclarationPath"].endswith("/Button.tsx")
+            for row in scan["authoritySinkDeclarations"]
         )
 
     def test_generated_owner_receipt_and_status_bridge_are_content_bound(
@@ -3256,34 +3028,19 @@ class AtlasEnforcementTests(unittest.TestCase):
         inventory = checker.status_checker._load_json(checker.status_checker.INVENTORY_PATH)
         generated = inventory["sources"]["generated_client"]
 
-        self.assertEqual([], errors)
-        self.assertEqual(
-            {
-                key: generated[key]
-                for key in (
-                    "canonical_path",
-                    "types_path",
-                    "canonical_sha256",
-                    "types_sha256",
-                )
-            },
-            scan["generatedOwnerReceipt"],
-        )
-        self.assertEqual(
-            {
-                "current_authored_statuses": 12,
-                "ds1_status_rows": 47,
-                "semantic_retirement_debt": 0,
-            },
-            {
-                key: checker._summary(scan)[key]
-                for key in (
-                    "current_authored_statuses",
-                    "ds1_status_rows",
-                    "semantic_retirement_debt",
-                )
-            },
-        )
+        assert errors == []
+        assert {
+            key: generated[key]
+            for key in ("canonical_path", "types_path", "canonical_sha256", "types_sha256")
+        } == scan["generatedOwnerReceipt"]
+        assert {
+            key: checker._summary(scan)[key]
+            for key in ("current_authored_statuses", "ds1_status_rows", "semantic_retirement_debt")
+        } == {
+            "current_authored_statuses": 12,
+            "ds1_status_rows": 47,
+            "semantic_retirement_debt": 0,
+        }
 
     def test_authority_issuer_requires_generated_exhaustiveness_and_runtime_novelty(
         self,
@@ -3291,20 +3048,16 @@ class AtlasEnforcementTests(unittest.TestCase):
         errors, scan = checker.validate_enforcement()
         facts = scan.get("authorityIssuerFacts")
 
-        self.assertEqual([], errors)
-        self.assertIsInstance(facts, dict)
-        self.assertEqual([], checker._authority_issuer_errors(scan))
-        self.assertEqual(2, len(facts["modules"]))
-        self.assertEqual(3, len(facts["brands"]))
-        self.assertEqual(5, len(facts["factories"]))
-        self.assertEqual(3, len(facts["stores"]))
-        self.assertEqual(3, len(facts["privateConstructors"]))
-        self.assertEqual(
-            {
-                "createOpaqueAuthorityPresentation",
-                "createOperatorProjectionPresentation",
-            },
-            set(facts["unrecognizedNeutralFactories"]),
+        assert errors == []
+        assert isinstance(facts, dict)
+        assert checker._authority_issuer_errors(scan) == []
+        assert len(facts["modules"]) == 2
+        assert len(facts["brands"]) == 3
+        assert len(facts["factories"]) == 5
+        assert len(facts["stores"]) == 3
+        assert len(facts["privateConstructors"]) == 3
+        assert {"createOpaqueAuthorityPresentation", "createOperatorProjectionPresentation"} == set(
+            facts["unrecognizedNeutralFactories"]
         )
 
     def test_authority_semantic_copy_registry_rejects_identity_bound_corruptions(self) -> None:
@@ -3314,13 +3067,11 @@ class AtlasEnforcementTests(unittest.TestCase):
         )
         generated_types = checker.GENERATED_RUNTIME_TYPES_PATH.read_text(encoding="utf-8")
 
-        self.assertEqual(
-            [],
+        assert (
             checker._authority_semantic_copy_errors(
-                registry=registry,
-                source=source,
-                generated_types=generated_types,
-            ),
+                registry=registry, source=source, generated_types=generated_types
+            )
+            == []
         )
         corruptions = {
             "class_upgrade": lambda data: data["copies"][0].__setitem__("strength", "strong"),
@@ -3339,12 +3090,8 @@ class AtlasEnforcementTests(unittest.TestCase):
             with self.subTest(label=label):
                 corrupted = copy.deepcopy(registry)
                 mutate(corrupted)
-                self.assertTrue(
-                    checker._authority_semantic_copy_errors(
-                        registry=corrupted,
-                        source=source,
-                        generated_types=generated_types,
-                    )
+                assert checker._authority_semantic_copy_errors(
+                    registry=corrupted, source=source, generated_types=generated_types
                 )
 
         lookalike = source.replace(
@@ -3352,13 +3099,11 @@ class AtlasEnforcementTests(unittest.TestCase):
             'string /* AvailableGovernedProjectionPacket["may_not_use_for"][number] */',
             1,
         )
-        self.assertIn(
-            "authority_semantic_copy_declaration_identity_drift",
-            checker._authority_semantic_copy_errors(
-                registry=registry,
-                source=lookalike,
-                generated_types=generated_types,
-            ),
+        assert (
+            "authority_semantic_copy_declaration_identity_drift"
+            in checker._authority_semantic_copy_errors(
+                registry=registry, source=lookalike, generated_types=generated_types
+            )
         )
 
         marker_preserving_bypasses = {
@@ -3387,25 +3132,19 @@ class AtlasEnforcementTests(unittest.TestCase):
         }
         for label, corrupted_source in marker_preserving_bypasses.items():
             with self.subTest(label=label):
-                self.assertTrue(
-                    checker._authority_semantic_copy_errors(
-                        registry=registry,
-                        source=corrupted_source,
-                        generated_types=generated_types,
-                    )
+                assert checker._authority_semantic_copy_errors(
+                    registry=registry, source=corrupted_source, generated_types=generated_types
                 )
 
         same_words_different_ids = copy.deepcopy(registry)
         alternate = copy.deepcopy(same_words_different_ids["copies"][0])
         alternate["semantic_id"] = "phase34.harm.risk.limited.alternate"
         same_words_different_ids["copies"].append(alternate)
-        self.assertEqual(
-            [],
+        assert (
             checker._authority_semantic_copy_errors(
-                registry=same_words_different_ids,
-                source=source,
-                generated_types=generated_types,
-            ),
+                registry=same_words_different_ids, source=source, generated_types=generated_types
+            )
+            == []
         )
 
     def test_authority_issuer_corruptions_fail_closed(self) -> None:
@@ -3691,15 +3430,12 @@ class AtlasEnforcementTests(unittest.TestCase):
                     },
                     enforce_authority_escapes=False,
                 )
-                self.assertEqual([], errors)
+                assert errors == []
                 issuer_errors = checker._authority_issuer_errors(scan)
-                self.assertTrue(
-                    any(
-                        error == expected_error or error.startswith(expected_error + ":")
-                        for error in issuer_errors
-                    ),
-                    issuer_errors,
-                )
+                assert any(
+                    error == expected_error or error.startswith(expected_error + ":")
+                    for error in issuer_errors
+                ), issuer_errors
 
         evidence_corruptions = {
             "unused-governed-membership-marker": (
@@ -3742,15 +3478,12 @@ class AtlasEnforcementTests(unittest.TestCase):
                     },
                     enforce_authority_escapes=False,
                 )
-                self.assertEqual([], errors)
+                assert errors == []
                 issuer_errors = checker._authority_issuer_errors(scan)
-                self.assertTrue(
-                    any(
-                        error == expected_error or error.startswith(expected_error + ":")
-                        for error in issuer_errors
-                    ),
-                    issuer_errors,
-                )
+                assert any(
+                    error == expected_error or error.startswith(expected_error + ":")
+                    for error in issuer_errors
+                ), issuer_errors
 
         benign_source = source.replace(
             "type OperatorDiagnosticOwner =",
@@ -3765,8 +3498,8 @@ class AtlasEnforcementTests(unittest.TestCase):
             },
             enforce_authority_escapes=False,
         )
-        self.assertEqual([], errors)
-        self.assertEqual([], checker._authority_issuer_errors(benign_scan))
+        assert errors == []
+        assert checker._authority_issuer_errors(benign_scan) == []
 
     def test_ds5_override_gate_rejects_invalid_witnesses(self) -> None:
         errors, scan = self._validate(
@@ -3784,11 +3517,11 @@ class AtlasEnforcementTests(unittest.TestCase):
         )
 
         diagnostics = scan.get("overrideDiagnostics", [])
-        self.assertEqual(1, len(diagnostics))
-        self.assertEqual(PROBE_PATH, diagnostics[0]["path"])
-        self.assertEqual(2322, diagnostics[0]["code"])
-        self.assertIn("not assignable", diagnostics[0]["message"])
-        self.assertTrue(any(error.endswith(":TS2322") for error in errors), errors)
+        assert len(diagnostics) == 1
+        assert diagnostics[0]["path"] == PROBE_PATH
+        assert diagnostics[0]["code"] == 2322
+        assert "not assignable" in diagnostics[0]["message"]
+        assert any(error.endswith(":TS2322") for error in errors), errors
 
     def test_structural_authority_lookalike_is_not_an_issued_brand(self) -> None:
         errors, scan = self._validate(
@@ -3808,8 +3541,8 @@ class AtlasEnforcementTests(unittest.TestCase):
             ),
         )
 
-        self.assertEqual([2741], [item["code"] for item in scan["overrideDiagnostics"]])
-        self.assertTrue(any(error.endswith(":TS2741") for error in errors), errors)
+        assert [item["code"] for item in scan["overrideDiagnostics"]] == [2741]
+        assert any(error.endswith(":TS2741") for error in errors), errors
 
     def test_branded_props_reject_raw_values_and_caller_clothing(self) -> None:
         fixtures = {
@@ -3881,9 +3614,9 @@ class AtlasEnforcementTests(unittest.TestCase):
             with self.subTest(label=label):
                 errors, scan = self._validate(ATLAS_EXPORTS, ts_source(fixture))
                 diagnostics = scan.get("overrideDiagnostics", [])
-                self.assertEqual([2322], [item["code"] for item in diagnostics])
-                self.assertEqual(1, len(errors), errors)
-                self.assertTrue(errors[0].endswith(":TS2322"), errors)
+                assert [item["code"] for item in diagnostics] == [2322]
+                assert len(errors) == 1, errors
+                assert errors[0].endswith(":TS2322"), errors
 
     def test_authority_paths_reject_unregistered_type_escape_hatches(self) -> None:
         corruptions = {
@@ -4006,15 +3739,11 @@ class AtlasEnforcementTests(unittest.TestCase):
                     enforce_authority_escapes=True,
                     extra_sources={TYPE_SHAPES_PATH: AUTHORITY_ESCAPE_TYPES},
                 )
-                self.assertFalse(
-                    any(error.startswith("invalid_source_override:") for error in errors),
-                    errors,
+                assert not any(error.startswith("invalid_source_override:") for error in errors), (
+                    errors
                 )
-                self.assertTrue(
-                    any(error.startswith("authority_escape_") for error in errors),
-                    errors,
-                )
-                self.assertEqual([], scan.get("overrideDiagnostics", []), errors)
+                assert any(error.startswith("authority_escape_") for error in errors), errors
+                assert scan.get("overrideDiagnostics", []) == [], errors
 
     def test_authority_escape_lint_keeps_safe_resolved_types_benign(self) -> None:
         errors, scan = self._validate(
@@ -4038,11 +3767,8 @@ class AtlasEnforcementTests(unittest.TestCase):
             extra_sources={TYPE_SHAPES_PATH: AUTHORITY_ESCAPE_TYPES},
         )
 
-        self.assertEqual([], scan.get("overrideDiagnostics", []), errors)
-        self.assertFalse(
-            any(error.startswith("authority_escape_") for error in errors),
-            errors,
-        )
+        assert scan.get("overrideDiagnostics", []) == [], errors
+        assert not any(error.startswith("authority_escape_") for error in errors), errors
 
     def test_authority_escape_lint_bounds_external_generic_expansion(self) -> None:
         errors, scan = self._validate(
@@ -4070,24 +3796,18 @@ class AtlasEnforcementTests(unittest.TestCase):
             enforce_authority_escapes=True,
         )
 
-        self.assertEqual([], scan.get("overrideDiagnostics", []), errors)
+        assert scan.get("overrideDiagnostics", []) == [], errors
         safety = {
             str(site.get("target")): str(site.get("safety"))
             for site in scan["authorityEscapeSites"]
             if site.get("construct") == "satisfies"
         }
-        self.assertEqual(
-            "unrelated_conformance",
-            safety['z.ZodType<{ payload: string }, { payload: string }>']
+        assert (
+            safety["z.ZodType<{ payload: string }, { payload: string }>"] == "unrelated_conformance"
         )
-        self.assertEqual(
-            "unsafe_widening",
-            safety['z.ZodType<{ payload: unknown }, { payload: unknown }>']
-        )
-        self.assertEqual(
-            1,
-            sum(error.startswith("authority_escape_unregistered:") for error in errors),
-            errors,
+        assert safety["z.ZodType<{ payload: unknown }, { payload: unknown }>"] == "unsafe_widening"
+        assert sum(error.startswith("authority_escape_unregistered:") for error in errors) == 1, (
+            errors
         )
 
     def test_authority_paths_reject_compiler_recognized_nocheck(self) -> None:
@@ -4105,15 +3825,11 @@ class AtlasEnforcementTests(unittest.TestCase):
             enforce_authority_escapes=True,
         )
 
-        self.assertEqual([], scan.get("overrideDiagnostics", []), errors)
-        self.assertTrue(
-            any(site.get("construct") == "ts_nocheck" for site in scan["authorityEscapeSites"]),
-            scan["authorityEscapeSites"],
-        )
-        self.assertTrue(
-            any(error.startswith("authority_escape_unregistered:") for error in errors),
-            errors,
-        )
+        assert scan.get("overrideDiagnostics", []) == [], errors
+        assert any(
+            site.get("construct") == "ts_nocheck" for site in scan["authorityEscapeSites"]
+        ), scan["authorityEscapeSites"]
+        assert any(error.startswith("authority_escape_unregistered:") for error in errors), errors
 
     def test_authority_directive_lint_ignores_benign_prose(self) -> None:
         errors, scan = self._validate(
@@ -4131,14 +3847,11 @@ class AtlasEnforcementTests(unittest.TestCase):
             enforce_authority_escapes=True,
         )
 
-        self.assertEqual([], errors)
-        self.assertFalse(
-            any(
-                site.get("construct") in {"ts_ignore", "ts_expect_error"}
-                for site in scan["authorityEscapeSites"]
-            ),
-            scan["authorityEscapeSites"],
-        )
+        assert errors == []
+        assert not any(
+            site.get("construct") in {"ts_ignore", "ts_expect_error"}
+            for site in scan["authorityEscapeSites"]
+        ), scan["authorityEscapeSites"]
 
     def test_authority_path_derives_static_namespace_element_access(self) -> None:
         for access in ('"AuthorityBadge"', "`AuthorityBadge`"):
@@ -4157,22 +3870,16 @@ class AtlasEnforcementTests(unittest.TestCase):
                     enforce_authority_escapes=True,
                 )
 
-                self.assertEqual([], scan.get("overrideDiagnostics", []), errors)
-                self.assertTrue(
-                    any(row["path"] == PROBE_PATH for row in scan["authorityPathFiles"]),
-                    scan["authorityPathFiles"],
-                )
-                self.assertTrue(
-                    any(
-                        site.get("construct") == "explicit_any"
-                        for site in scan["authorityEscapeSites"]
-                    ),
-                    scan["authorityEscapeSites"],
-                )
-                self.assertTrue(
-                    any(error.startswith("authority_escape_unregistered:") for error in errors),
-                    errors,
-                )
+                assert scan.get("overrideDiagnostics", []) == [], errors
+                assert any(row["path"] == PROBE_PATH for row in scan["authorityPathFiles"]), scan[
+                    "authorityPathFiles"
+                ]
+                assert any(
+                    site.get("construct") == "explicit_any" for site in scan["authorityEscapeSites"]
+                ), scan["authorityEscapeSites"]
+                assert any(
+                    error.startswith("authority_escape_unregistered:") for error in errors
+                ), errors
 
     def test_authority_paths_reject_angle_bracket_assertion(self) -> None:
         errors, scan = self._validate(
@@ -4189,15 +3896,11 @@ class AtlasEnforcementTests(unittest.TestCase):
             probe_path=TS_PROBE_PATH,
         )
 
-        self.assertEqual([], scan.get("overrideDiagnostics", []), errors)
-        self.assertTrue(
-            any(site.get("construct") == "type_assertion" for site in scan["authorityEscapeSites"]),
-            scan["authorityEscapeSites"],
-        )
-        self.assertTrue(
-            any(error.startswith("authority_escape_unregistered:") for error in errors),
-            errors,
-        )
+        assert scan.get("overrideDiagnostics", []) == [], errors
+        assert any(
+            site.get("construct") == "type_assertion" for site in scan["authorityEscapeSites"]
+        ), scan["authorityEscapeSites"]
+        assert any(error.startswith("authority_escape_unregistered:") for error in errors), errors
 
     def test_authority_escape_lint_keeps_generated_conformance_benign(self) -> None:
         errors, _scan = self._validate(
@@ -4222,10 +3925,7 @@ class AtlasEnforcementTests(unittest.TestCase):
             enforce_authority_escapes=True,
         )
 
-        self.assertFalse(
-            any(error.startswith("authority_escape_") for error in errors),
-            errors,
-        )
+        assert not any(error.startswith("authority_escape_") for error in errors), errors
 
     def test_authority_path_derivation_ignores_unrelated_namespace_use(self) -> None:
         errors, scan = self._validate(
@@ -4241,16 +3941,13 @@ class AtlasEnforcementTests(unittest.TestCase):
             enforce_authority_escapes=True,
         )
 
-        self.assertFalse(any(row["path"] == PROBE_PATH for row in scan["authorityPathFiles"]))
-        self.assertFalse(
-            any(error.startswith("authority_escape_") for error in errors),
-            errors,
-        )
+        assert not any(row["path"] == PROBE_PATH for row in scan["authorityPathFiles"])
+        assert not any(error.startswith("authority_escape_") for error in errors), errors
 
     def test_authority_escape_exemptions_are_exact_owned_and_current(self) -> None:
         errors, scan = checker.validate_enforcement(enforce_authority_escapes=False)
-        self.assertEqual([], errors)
-        self.assertEqual([], checker._authority_escape_errors(scan))
+        assert errors == []
+        assert checker._authority_escape_errors(scan) == []
 
         current = checker.AUTHORITY_ESCAPE_EXEMPTIONS[0]
         mutations = {
@@ -4266,10 +3963,9 @@ class AtlasEnforcementTests(unittest.TestCase):
                     scan,
                     exemptions=(mutation, *checker.AUTHORITY_ESCAPE_EXEMPTIONS[1:]),
                 )
-                self.assertTrue(mutation_errors, label)
-                self.assertTrue(
-                    any(current.exemption_id in error for error in mutation_errors),
-                    mutation_errors,
+                assert mutation_errors, label
+                assert any(current.exemption_id in error for error in mutation_errors), (
+                    mutation_errors
                 )
 
 

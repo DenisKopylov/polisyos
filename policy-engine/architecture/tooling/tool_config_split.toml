@@ -47,6 +47,25 @@ per_file_ignore_fragments = [
 [ruff.product_root_settings]
 cache-dir = "_cache/ruff"
 src = [".", "src"]
+# Historical evidence snapshots and E02 evidence tools use explicit consumers below.
+# Phase 8 research and benchmark paths are owned by workspace benchmark-surfaces.
+extend-exclude = [
+  "docs/archive/**",
+  "docs/research/e02-cloud-test-plan/implementation-handoffs/**",
+  "docs/research/e02-cloud-test-plan/integration/**",
+  "docs/research/e02-cloud-test-plan/closure-decisions/**",
+  "docs/research/e02-cloud-test-plan/execution-organization/**",
+  "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/**",
+  "docs/research/e02-cloud-test-plan/full-run/**",
+  "docs/research/e02-cloud-test-plan/results/**",
+  "docs/research/e02-cloud-test-plan/verification/**",
+  "docs/plans/active/agent-packages/**",
+  "docs/research/policy-operations/**",
+  "docs/superpowers/journals/**",
+  "docs/superpowers/research/**",
+  "benchmarks/**",
+  "tools/research/**",
+]
 
 [mkdocs]
 root_config = "mkdocs.yml"

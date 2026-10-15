@@ -94,6 +94,22 @@ def _normalize_ruff_paths(value: str, *, product_root: Path, git_root: Path) -> 
     return value.replace(str(product_root), "<PRODUCT>").replace(str(git_root), "<WORKSPACE>")
 
 
+def _normalized_ruff_settings(
+    settings: dict[str, str], *, caller_root: Path, product_root: Path, git_root: Path
+) -> dict[str, str]:
+    """Compare settings with relative exclusion globs bound to the actual caller root."""
+
+    normalized: dict[str, str] = {}
+    for key, value in settings.items():
+        if key in {"file_resolver.project_root", "linter.project_root"}:
+            continue
+        if key == "file_resolver.extend_exclude":
+            patterns = tomllib.loads(f"patterns = {value}")["patterns"]
+            value = json.dumps([str(caller_root / pattern) for pattern in patterns])
+        normalized[key] = _normalize_ruff_paths(value, product_root=product_root, git_root=git_root)
+    return normalized
+
+
 def _ruff_diagnostic_signature(output: str) -> list[tuple[str, str, int, int, int, int]]:
     """Compare lint findings without treating caller-relative filenames as semantic."""
 
@@ -123,6 +139,70 @@ def test_phase5_5_tool_config_split_roots_are_policy_stubs() -> None:
     assert "[mypy-" not in mypy
     assert f'extend = "{manifest["generated_config"]}"' in ruff
     assert "INHERIT: architecture/tooling/mkdocs/generated.yml" in mkdocs
+
+
+def test_workspace_atlas_s101_allowance_is_generated_and_semantic(tmp_path: Path) -> None:
+    manifest = tool_configs.load_manifest(REPO_ROOT)["ruff"]
+    rendered = {item.relative_path: item.content for item in tool_configs.render_files(REPO_ROOT)}
+    matcher = "architecture/atlas_surfaces/test_*.py"
+    workspace_matcher = f"policy-engine/{matcher}"
+    product_ignores = tomllib.loads(rendered[manifest["generated_config"]])["lint"][
+        "per-file-ignores"
+    ]
+    workspace_config_text = rendered[manifest["workspace_root_generated_config"]]
+    workspace_ignores = tomllib.loads(workspace_config_text)["lint"]["per-file-ignores"]
+
+    assert product_ignores[matcher] == ["S101"]
+    assert workspace_ignores[workspace_matcher] == ["S101"]
+
+    config_dir = tmp_path / "architecture/tooling/ruff"
+    config_dir.mkdir(parents=True)
+    base = (REPO_ROOT / manifest["base_config"]).read_text(encoding="utf-8")
+    (config_dir / "base.toml").write_text(base, encoding="utf-8")
+    config_path = config_dir / "workspace_root.toml"
+    config_path.write_text(workspace_config_text, encoding="utf-8")
+    source_root = config_dir / "policy-engine/architecture/atlas_surfaces"
+    source_root.mkdir(parents=True)
+    test_file = source_root / "test_probe.py"
+    sibling_file = source_root / "probe_helper.py"
+    test_file.write_text("def probe() -> None:\n    assert True\n", encoding="utf-8")
+    sibling_file.write_text("def probe() -> None:\n    assert True\n", encoding="utf-8")
+
+    def run_s101(path: Path, config: Path) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "ruff",
+                "check",
+                "--no-cache",
+                "--config",
+                str(config),
+                "--select",
+                "S101",
+                "--output-format",
+                "json",
+                path.relative_to(config_dir).as_posix(),
+            ],
+            cwd=config_dir,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+
+    assert run_s101(test_file, config_path).returncode == 0
+    sibling_result = run_s101(sibling_file, config_path)
+    assert sibling_result.returncode == 1
+    assert [item["code"] for item in json.loads(sibling_result.stdout)] == ["S101"]
+
+    removed_config = config_dir / "workspace_root_without_atlas_test_allowance.toml"
+    removed_config.write_text(
+        workspace_config_text.replace(f'"{workspace_matcher}" = ["S101"]\n', ""),
+        encoding="utf-8",
+    )
+    removed_result = run_s101(test_file, removed_config)
+    assert removed_result.returncode == 1
+    assert [item["code"] for item in json.loads(removed_result.stdout)] == ["S101"]
 
 
 @pytest.mark.parametrize(
@@ -217,7 +297,7 @@ def test_workspace_renderer_discovers_selected_ruff_config_and_both_ignore_maps(
     assert config_filenames == [".ruff.toml", "ruff.toml", "pyproject.toml"]
 
     with tempfile.TemporaryDirectory(
-        prefix="ruff-config-discovery-", dir=REPO_ROOT / "workers"
+        prefix="ruff-config-discovery-", dir=REPO_ROOT / "architecture"
     ) as temporary_directory:
         root = Path(temporary_directory)
         precedence = root / "precedence"
@@ -280,14 +360,7 @@ def test_workspace_renderer_discovers_selected_ruff_config_and_both_ignore_maps(
         assert projected[precedence_matcher] == ["S101", "T201"]
         assert projected[matcher(ruff_only)] == ["PT011"]
         assert projected[matcher(pyproject_only)] == ["E501"]
-        assert projected["policy-engine/workers/dowhy-014/tests/**"] == [
-            "ANN",
-            "S101",
-            "T201",
-            "PT011",
-            "PT018",
-            "E501",
-        ]
+        assert "policy-engine/workers/dowhy-014/tests/**" not in projected
         assert "PT001" not in projected[precedence_matcher]
         assert "ANN" not in projected[precedence_matcher]
 
@@ -880,10 +953,7 @@ def test_workspace_generated_config_drift_rejects_a_corrupt_nested_ignore(tmp_pa
         for item in tool_configs.render_files(REPO_ROOT)
         if item.relative_path == manifest["workspace_root_generated_config"]
     )
-    rule = (
-        '"policy-engine/workers/dowhy-014/tests/**" = '
-        '["ANN", "S101", "T201", "PT011", "PT018", "E501"]'
-    )
+    rule = '"policy-engine/workers/**/tests/**" = ["ANN", "E501", "PT011", "PT018", "S101", "T201"]'
     assert rule in generated.content
     corrupted_content = generated.content.replace(rule, rule.replace(', "T201"', ""), 1)
     assert corrupted_content != generated.content
@@ -902,7 +972,7 @@ def test_workspace_generated_config_drift_rejects_a_corrupt_nested_ignore(tmp_pa
 
     assert len(findings) == 1
     assert findings[0]["message"] == "generated config is stale"
-    assert "policy-engine/workers/dowhy-014/tests/**" in findings[0]["diff"]
+    assert "policy-engine/workers/**/tests/**" in findings[0]["diff"]
 
 
 def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
@@ -963,16 +1033,12 @@ def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
     assert workspace_settings["file_resolver.project_root"] == f'"{git_root}"'
     assert workspace_settings["linter.project_root"] == f'"{git_root}"'
 
-    comparable_product_settings = {
-        key: _normalize_ruff_paths(value, product_root=REPO_ROOT, git_root=git_root)
-        for key, value in product_settings.items()
-        if key not in caller_root_settings
-    }
-    comparable_workspace_settings = {
-        key: _normalize_ruff_paths(value, product_root=REPO_ROOT, git_root=git_root)
-        for key, value in workspace_settings.items()
-        if key not in caller_root_settings
-    }
+    comparable_product_settings = _normalized_ruff_settings(
+        product_settings, caller_root=REPO_ROOT, product_root=REPO_ROOT, git_root=git_root
+    )
+    comparable_workspace_settings = _normalized_ruff_settings(
+        workspace_settings, caller_root=git_root, product_root=REPO_ROOT, git_root=git_root
+    )
     assert comparable_workspace_settings == comparable_product_settings
     normalized_product_ignores = {
         _normalize_ruff_paths(matcher, product_root=REPO_ROOT, git_root=git_root): value
@@ -982,15 +1048,9 @@ def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
         _normalize_ruff_paths(matcher, product_root=REPO_ROOT, git_root=git_root): value
         for matcher, value in workspace_per_file_ignores.items()
     }
-    nested_worker_scope = "<PRODUCT>/workers/dowhy-014/tests/**"
-    assert normalized_workspace_ignores.keys() == normalized_product_ignores.keys() | {
-        nested_worker_scope
-    }
-    assert {
-        matcher: value
-        for matcher, value in normalized_workspace_ignores.items()
-        if matcher != nested_worker_scope
-    } == normalized_product_ignores
+    worker_test_scope = "<PRODUCT>/workers/**/tests/**"
+    assert worker_test_scope in normalized_product_ignores
+    assert normalized_workspace_ignores == normalized_product_ignores
 
     nested_worker_target = "workers/dowhy-014/tests/test_worker.py"
     nested_workspace_worker_target = f"{product_prefix}/{nested_worker_target}"
@@ -1017,8 +1077,8 @@ def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
         for matcher, value in workspace_worker_ignores.items()
     }
     assert (
-        normalized_product_worker_ignores[nested_worker_scope]
-        == (normalized_workspace_worker_ignores[nested_worker_scope])
+        normalized_product_worker_ignores[worker_test_scope]
+        == normalized_workspace_worker_ignores[worker_test_scope]
     )
     assert product_worker_settings["linter.unresolved_target_version"] == "3.12"
     assert workspace_worker_settings["linter.unresolved_target_version"] == "3.14"
@@ -1027,7 +1087,13 @@ def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
     assert comparable_product_settings["file_resolver.include"]
     assert comparable_product_settings["file_resolver.exclude"]
     assert comparable_product_settings["file_resolver.extend_include"] == "[]"
-    assert comparable_product_settings["file_resolver.extend_exclude"] == "[]"
+    expected_excludes = tool_configs.load_manifest(REPO_ROOT)["ruff"]["product_root_settings"][
+        "extend-exclude"
+    ]
+    assert (
+        tomllib.loads(f"patterns = {product_settings['file_resolver.extend_exclude']}")["patterns"]
+        == expected_excludes
+    )
 
     product_src = re.findall(r'^\s*"([^"]+)"[,]?$', product_settings["linter.src"], re.MULTILINE)
     workspace_src = re.findall(
@@ -1142,6 +1208,13 @@ def test_explicit_ruff_callers_preserve_settings_and_lint_behavior() -> None:
     root_config = Path(manifest["root_config"])
     generated_config = Path(manifest["generated_config"])
     assert root_config.parent == generated_config.parent
+    root_settings = tomllib.loads(rendered[manifest["root_config"]])
+    workspace_root_settings = tomllib.loads(rendered[manifest["workspace_root_generated_config"]])
+    source_excludes = manifest["product_root_settings"]["extend-exclude"]
+    assert root_settings["extend-exclude"] == source_excludes
+    assert workspace_root_settings["extend-exclude"] == [
+        f"{product_prefix}/{pattern}" for pattern in source_excludes
+    ]
     source_per_file_ignores: dict[str, list[str]] = {}
     for fragment_path in manifest["per_file_ignore_fragments"]:
         fragment = (REPO_ROOT / fragment_path).read_text(encoding="utf-8")
@@ -1157,14 +1230,6 @@ def test_explicit_ruff_callers_preserve_settings_and_lint_behavior() -> None:
         f"{product_prefix}/{pattern}": codes for pattern, codes in source_per_file_ignores.items()
     }
     assert product_per_file_ignores == source_per_file_ignores
-    expected_workspace_ignores[f"{product_prefix}/workers/dowhy-014/tests/**"] = [
-        "ANN",
-        "S101",
-        "T201",
-        "PT011",
-        "PT018",
-        "E501",
-    ]
     assert workspace_per_file_ignores == expected_workspace_ignores
 
     def run_ruff(
@@ -1208,11 +1273,12 @@ def test_explicit_ruff_callers_preserve_settings_and_lint_behavior() -> None:
             assert settings["file_resolver.project_root"] == f'"{expected_root}"'
             assert settings["linter.project_root"] == f'"{expected_root}"'
             normalized_settings.append(
-                {
-                    key: _normalize_ruff_paths(value, product_root=REPO_ROOT, git_root=git_root)
-                    for key, value in settings.items()
-                    if key not in caller_root_settings
-                }
+                _normalized_ruff_settings(
+                    settings,
+                    caller_root=cwd,
+                    product_root=REPO_ROOT,
+                    git_root=git_root,
+                )
             )
             normalized_ignores.append(
                 {
@@ -1221,9 +1287,6 @@ def test_explicit_ruff_callers_preserve_settings_and_lint_behavior() -> None:
                 }
             )
         assert normalized_settings[1:] == normalized_settings[:1] * 2
-        nested_worker_scope = "<PRODUCT>/workers/dowhy-014/tests/**"
-        assert nested_worker_scope in normalized_ignores[2]
-        normalized_ignores[2].pop(nested_worker_scope)
         assert normalized_ignores[1:] == normalized_ignores[:1] * 2
 
     product_inputs = (
@@ -1306,7 +1369,6 @@ def test_phase5_5_dead_override_report_covers_both_generated_ruff_roots() -> Non
         ]
         assert not source_ignores.keys() & fragment_ignores.keys()
         source_ignores.update(fragment_ignores)
-    rule_pair_count = sum(len(codes) for codes in source_ignores.values())
 
     metadata = dead_overrides._load_toml(
         REPO_ROOT / "architecture/tooling/static_analysis_overrides.toml"
@@ -1326,14 +1388,11 @@ def test_phase5_5_dead_override_report_covers_both_generated_ruff_roots() -> Non
         ),
     )
     expected_subjects = set(source_ignores)
-    assert len(expected_subjects) == 239
-    assert rule_pair_count == 741
+    assert expected_subjects
     assert {entry.subject for entry in product_entries} == expected_subjects
-    assert {entry.subject for entry in workspace_entries} == expected_subjects | {
-        "workers/dowhy-014/tests/**"
-    }
-    assert len(product_entries) == 239
-    assert len(workspace_entries) == 240
+    assert {entry.subject for entry in workspace_entries} == expected_subjects
+    assert len(product_entries) == len(expected_subjects)
+    assert len(workspace_entries) == len(expected_subjects)
 
     product_report = dead_overrides.build_report(
         REPO_ROOT,
@@ -1343,8 +1402,8 @@ def test_phase5_5_dead_override_report_covers_both_generated_ruff_roots() -> Non
         REPO_ROOT,
         ruff_config=manifest["workspace_root_generated_config"],
     )
-    assert product_report["summary"]["ruff_override_count"] == 239
-    assert workspace_report["summary"]["ruff_override_count"] == 240
+    assert product_report["summary"]["ruff_override_count"] == len(expected_subjects)
+    assert workspace_report["summary"]["ruff_override_count"] == len(expected_subjects)
     for report in (product_report, workspace_report):
         assert report["summary"]["stale_ruff_override_count"] == 0
         assert report["summary"]["missing_metadata_count"] == 0

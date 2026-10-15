@@ -5,8 +5,14 @@ from __future__ import annotations
 
 import argparse
 
-from ._common import run_command
-from ._repo_hygiene import BENCHMARK_RESEARCH_SCOPE, expand_files, pre_commit_hook, uv_run
+from ._common import CommandSpec, run_command
+from ._repo_hygiene import (
+    BENCHMARK_RESEARCH_SCOPE,
+    current_python_files,
+    expand_files,
+    pre_commit_hook,
+    uv_run,
+)
 
 _PHASE8_RUFF_SELECT = "E,F,I,UP"
 _PHASE8_RUFF_IGNORE = "E402,E501"
@@ -22,6 +28,35 @@ def _build_parser() -> argparse.ArgumentParser:
     )
 
 
+def _phase8_ruff_check() -> CommandSpec:
+    """Build the Phase 8 Ruff check from its complete current Python file set."""
+
+    python_files = current_python_files(BENCHMARK_RESEARCH_SCOPE)
+    return uv_run(
+        "ruff check benchmark/research authored Python",
+        "ruff",
+        "check",
+        "--select",
+        _PHASE8_RUFF_SELECT,
+        "--ignore",
+        _PHASE8_RUFF_IGNORE,
+        *python_files,
+    )
+
+
+def _phase8_ruff_format_check() -> CommandSpec:
+    """Build the Phase 8 formatter check from its complete current Python file set."""
+
+    python_files = current_python_files(BENCHMARK_RESEARCH_SCOPE)
+    return uv_run(
+        "ruff format --check benchmark/research authored Python",
+        "ruff",
+        "format",
+        "--check",
+        *python_files,
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     _build_parser().parse_args(argv)
 
@@ -29,23 +64,8 @@ def main(argv: list[str] | None = None) -> int:
     yaml_files = expand_files(BENCHMARK_RESEARCH_SCOPE, suffixes=(".yaml", ".yml"))
 
     commands = [
-        uv_run(
-            "ruff check benchmark/research authored Python",
-            "ruff",
-            "check",
-            "--select",
-            _PHASE8_RUFF_SELECT,
-            "--ignore",
-            _PHASE8_RUFF_IGNORE,
-            *BENCHMARK_RESEARCH_SCOPE,
-        ),
-        uv_run(
-            "ruff format --check benchmark/research authored Python",
-            "ruff",
-            "format",
-            "--check",
-            *BENCHMARK_RESEARCH_SCOPE,
-        ),
+        _phase8_ruff_check(),
+        _phase8_ruff_format_check(),
     ]
 
     if shell_files:

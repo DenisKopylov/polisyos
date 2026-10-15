@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """Reproduce the R1270 complete source/test/dashboard file census."""
+
 from __future__ import annotations
 
 import ast
-import json
 from pathlib import Path
 
 HERE = Path(__file__).resolve()
 PRODUCT = next(
-    parent for parent in HERE.parents
-    if (parent / "src/polisyos").is_dir()
-    and (parent / "apps/runtime-dashboard/src").is_dir()
+    parent
+    for parent in HERE.parents
+    if (parent / "src/polisyos").is_dir() and (parent / "apps/runtime-dashboard/src").is_dir()
 )
 
 SETS = {
@@ -43,10 +43,7 @@ summary: dict[str, object] = {
     ],
 }
 for label, (base, suffixes) in SETS.items():
-    paths = sorted(
-        path for path in base.rglob("*")
-        if path.is_file() and path.suffix in suffixes
-    )
+    paths = sorted(path for path in base.rglob("*") if path.is_file() and path.suffix in suffixes)
     summary["sets"][label] = {"root": str(base), "count": len(paths)}
     if label != "product_py":
         continue
@@ -64,8 +61,10 @@ for label, (base, suffixes) in SETS.items():
                 continue
             function = node.func
             name = (
-                function.id if isinstance(function, ast.Name)
-                else function.attr if isinstance(function, ast.Attribute)
+                function.id
+                if isinstance(function, ast.Name)
+                else function.attr
+                if isinstance(function, ast.Attribute)
                 else None
             )
             if name in calls:
@@ -75,5 +74,3 @@ for label, (base, suffixes) in SETS.items():
             calls[name]["files"] += 1
     summary["product_py_ast_syntax_errors"] = syntax_errors
     summary["direct_lexical_calls"] = calls
-
-print(json.dumps(summary, indent=2, sort_keys=True))

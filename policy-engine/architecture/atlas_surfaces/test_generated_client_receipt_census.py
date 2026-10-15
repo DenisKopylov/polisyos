@@ -1,4 +1,5 @@
-# ruff: noqa: S101 - behavioral tests use assertions as their failure boundary
+# behavioral tests use assertions as their failure boundary
+
 """Behavioral tests for the generated-client receipt denominator census."""
 
 from __future__ import annotations
@@ -21,9 +22,7 @@ IDENTITY_CHECKER_PATH = ATLAS_DIR / "check_frontend_disposition_register.py"
 def _load_census() -> object:
     if not CENSUS_PATH.exists():
         raise AssertionError("generated-client receipt census module is missing")
-    spec = importlib.util.spec_from_file_location(
-        "generated_client_receipt_census", CENSUS_PATH
-    )
+    spec = importlib.util.spec_from_file_location("generated_client_receipt_census", CENSUS_PATH)
     if spec is None or spec.loader is None:  # pragma: no cover - import bootstrap guard
         raise AssertionError(f"Unable to import receipt census from {CENSUS_PATH}")
     module = importlib.util.module_from_spec(spec)
@@ -36,9 +35,7 @@ def _load_identity_checker() -> object:
         "generated_client_identity_checker", IDENTITY_CHECKER_PATH
     )
     if spec is None or spec.loader is None:  # pragma: no cover - import bootstrap guard
-        raise AssertionError(
-            f"Unable to import identity checker from {IDENTITY_CHECKER_PATH}"
-        )
+        raise AssertionError(f"Unable to import identity checker from {IDENTITY_CHECKER_PATH}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -71,9 +68,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
     def test_non_anchor_source_records_do_not_claim_client_bindings(self) -> None:
         """Neutral DS18/DS17 source facts stay visible without becoming anchors."""
         census = _load_census()
-        artifact_path = (
-            "architecture/atlas_surfaces/frontend-disposition-register.json"
-        )
+        artifact_path = "architecture/atlas_surfaces/frontend-disposition-register.json"
         document = json.loads((REPO_ROOT / artifact_path).read_text(encoding="utf-8"))
         roots = [
             root
@@ -90,8 +85,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         pointer_prefix = "/ds18_time_semantics_coverage/files/"
         assert len(roots) == 759
         assert not any(
-            binding["pointer"].startswith(pointer_prefix)
-            for binding in result.independent.values()
+            binding["pointer"].startswith(pointer_prefix) for binding in result.independent.values()
         )
         assert not any(pointer_prefix in error for error in result.errors)
         assert result.errors == []
@@ -219,10 +213,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
                 "third",
             ),
         ]
-        assert (
-            sum(len(binding["line_bindings"]) for binding in report["bindings"])
-            == 6
-        )
+        assert sum(len(binding["line_bindings"]) for binding in report["bindings"]) == 6
         assert report["navigation_references"] == [
             {
                 "artifact_path": "architecture/navigation.json",
@@ -268,9 +259,9 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             )
 
         assert (
-                "anchor_population_mismatch:architecture/future.json:"
-                "/future_binding:primary=absent:independent=present"
-            ) in report["errors"]
+            "anchor_population_mismatch:architecture/future.json:"
+            "/future_binding:primary=absent:independent=present"
+        ) in report["errors"]
 
     def test_identity_mode_consumes_owner_qualified_role_and_rejects_mixed_mode(
         self,
@@ -284,8 +275,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         types_source = (REPO_ROOT / types).read_text(encoding="utf-8")
         symbol = "PolisyosCoreContractsRuntimeLineageRefOutput"
         discriminator = (
-            "components.schemas."
-            "polisyos__core__contracts__runtime__LineageRef-Output.status"
+            "components.schemas.polisyos__core__contracts__runtime__LineageRef-Output.status"
         )
         canonical_identity = identity_checker._typescript_reference_identity(
             {canonical: canonical_source},
@@ -302,9 +292,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         canonical_match = canonical_facts["matches"][0]
         canonical_lines = canonical_source.splitlines(keepends=True)
         alias_block = "".join(
-            canonical_lines[
-                canonical_match["startLine"] - 1 : canonical_match["endLine"]
-            ]
+            canonical_lines[canonical_match["startLine"] - 1 : canonical_match["endLine"]]
         )
         schema_identity = identity_checker._typescript_reference_identity(
             {types: types_source},
@@ -359,18 +347,17 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
                     candidate_paths=(Path("architecture/status.json"),),
                 )
 
-            report = report_for(
-                [{"unit_id": "identity", "generated_anchor": identity_anchor}]
-            )
+            report = report_for([{"unit_id": "identity", "generated_anchor": identity_anchor}])
             assert report["errors"] == []
             assert report["summary"]["identity_bindings"] == 2
             assert report["summary"]["legacy_line_bindings"] == 0
             assert report["summary"]["navigation_line_hints"] == 2
             binding = report["bindings"][0]
             assert binding["binding_mode"] == "identity"
-            assert {
-                item["role"] for item in binding["identity_bindings"]
-            } == {"exported_declaration", "generated_schema_property"}
+            assert {item["role"] for item in binding["identity_bindings"]} == {
+                "exported_declaration",
+                "generated_schema_property",
+            }
 
             moved_types = "\n" + types_source
             (root / types).write_text(moved_types, encoding="utf-8")
@@ -384,9 +371,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
                 changed[target_index] = replacement
                 return "".join(changed)
 
-            renamed_types = replace_target_line(
-                target_line.replace("status:", "state:")
-            )
+            renamed_types = replace_target_line(target_line.replace("status:", "state:"))
             (root / types).write_text(renamed_types, encoding="utf-8")
             renamed_report = report_for(
                 [{"unit_id": "identity", "generated_anchor": identity_anchor}]
@@ -396,16 +381,13 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
                 for error in renamed_report["errors"]
             )
 
-            content_drift = replace_target_line(
-                target_line.replace('"untraced"', '"unknown"')
-            )
+            content_drift = replace_target_line(target_line.replace('"untraced"', '"unknown"'))
             (root / types).write_text(content_drift, encoding="utf-8")
             content_report = report_for(
                 [{"unit_id": "identity", "generated_anchor": identity_anchor}]
             )
             assert any(
-                "typescript_reference_content_drift" in error
-                for error in content_report["errors"]
+                "typescript_reference_content_drift" in error for error in content_report["errors"]
             )
 
             duplicated_lines = list(type_lines)
@@ -440,45 +422,30 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
                 [{"unit_id": "swapped", "generated_anchor": swapped_anchor}]
             )
             assert any(
-                error.endswith(":canonical:source_path")
-                for error in swapped_report["errors"]
+                error.endswith(":canonical:source_path") for error in swapped_report["errors"]
             )
 
             wrong_anchor = dict(identity_anchor)
-            wrong_anchor["canonical_identity"] = (
-                identity_checker._typescript_reference_identity(
-                    {canonical: canonical_source},
-                    source_path=canonical,
-                    role="exported_declaration",
-                    discriminator="RunWorkflowNodeView",
-                )["encoded_identity"]
-            )
-            wrong_anchor["schema_identity"] = (
-                identity_checker._typescript_reference_identity(
-                    {types: types_source},
-                    source_path=types,
-                    role="generated_schema_property",
-                    discriminator="components.schemas.ScenarioRef.status",
-                )["encoded_identity"]
-            )
-            wrong_report = report_for(
-                [{"unit_id": "wrong", "generated_anchor": wrong_anchor}]
-            )
-            assert any(
-                error.endswith(":canonical:construct")
-                for error in wrong_report["errors"]
-            )
-            assert any(
-                error.endswith(":schema:construct")
-                for error in wrong_report["errors"]
-            )
+            wrong_anchor["canonical_identity"] = identity_checker._typescript_reference_identity(
+                {canonical: canonical_source},
+                source_path=canonical,
+                role="exported_declaration",
+                discriminator="RunWorkflowNodeView",
+            )["encoded_identity"]
+            wrong_anchor["schema_identity"] = identity_checker._typescript_reference_identity(
+                {types: types_source},
+                source_path=types,
+                role="generated_schema_property",
+                discriminator="components.schemas.ScenarioRef.status",
+            )["encoded_identity"]
+            wrong_report = report_for([{"unit_id": "wrong", "generated_anchor": wrong_anchor}])
+            assert any(error.endswith(":canonical:construct") for error in wrong_report["errors"])
+            assert any(error.endswith(":schema:construct") for error in wrong_report["errors"])
 
             extra_anchor = dict(identity_anchor)
             extra_anchor["extra_line"] = 1
             extra_anchor["extra_identity"] = canonical_identity
-            extra_report = report_for(
-                [{"unit_id": "extra", "generated_anchor": extra_anchor}]
-            )
+            extra_report = report_for([{"unit_id": "extra", "generated_anchor": extra_anchor}])
             assert any(
                 error.startswith("anchor_identity_slot_set_drift:")
                 for error in extra_report["errors"]
@@ -497,10 +464,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
                     },
                 ]
             )
-            assert (
-                "anchor_identity_mode_mixed:architecture/status.json"
-                in mixed_report["errors"]
-            )
+            assert "anchor_identity_mode_mixed:architecture/status.json" in mixed_report["errors"]
 
             (root / types).unlink()
             missing_source_report = report_for(
@@ -512,9 +476,10 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             )
 
             (root / types).write_text(types_source, encoding="utf-8")
-            assert report_for(
-                [{"unit_id": "identity", "generated_anchor": identity_anchor}]
-            )["errors"] == []
+            assert (
+                report_for([{"unit_id": "identity", "generated_anchor": identity_anchor}])["errors"]
+                == []
+            )
             subprocess.run(  # noqa: S603 - fixed system git executable
                 ["/usr/bin/git", "init", "-q", str(root)],
                 check=True,
@@ -561,11 +526,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         types = "generated/types.ts"
         canonical_source = 'export type DecisionGrade = "a" | "b";\n'
         types_source = (
-            "export interface components {\n"
-            "  schemas: {\n"
-            '    DecisionGrade: "a" | "b";\n'
-            "  };\n"
-            "}\n"
+            'export interface components {\n  schemas: {\n    DecisionGrade: "a" | "b";\n  };\n}\n'
         )
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -584,9 +545,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
                                 "debt_id": "decision-grade",
                                 "generated_client_anchor": {
                                     "anchor_kind": "missing_export",
-                                    "absence_scope": (
-                                        "canonical_module_exports_and_schema_owners"
-                                    ),
+                                    "absence_scope": ("canonical_module_exports_and_schema_owners"),
                                     "canonical_path": canonical,
                                     "types_path": types,
                                     "symbol": "DecisionGrade",
@@ -647,9 +606,12 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
 
             assert changed["canonical_identity"] != first["canonical_identity"]
             assert changed["schema_identity"] != first["schema_identity"]
-            assert json.loads(artifact_path.read_text(encoding="utf-8"))["entries"][0][
-                "generated_client_anchor"
-            ] == changed
+            assert (
+                json.loads(artifact_path.read_text(encoding="utf-8"))["entries"][0][
+                    "generated_client_anchor"
+                ]
+                == changed
+            )
 
     def test_missing_export_recomputes_ast_absence_without_a_construct_identity(
         self,
@@ -660,9 +622,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         canonical = "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
         types = "packages/runtime-api-client/types.ts"
         bridge = "packages/runtime-api-client/bridge.ts"
-        canonical_source = (
-            'export type Present = components["schemas"]["Present"];\n'
-        )
+        canonical_source = 'export type Present = components["schemas"]["Present"];\n'
         types_source = (
             "export interface components {\n"
             "  schemas: {\n"
@@ -747,65 +707,46 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             assert moved["errors"] == []
 
             comment_and_string = report_for(
-                canonical_source
-                + '\nconst note = "DecisionGrade"; // DecisionGrade is absent\n',
+                canonical_source + '\nconst note = "DecisionGrade"; // DecisionGrade is absent\n',
                 types_source + "\n// DecisionGrade is absent\n",
             )
             assert comment_and_string["errors"] == []
 
-            direct = report_for(
-                canonical_source + "\nexport type DecisionGrade = string;\n"
-            )
-            assert any(
-                error.endswith(":canonical:DecisionGrade")
-                for error in direct["errors"]
-            )
+            direct = report_for(canonical_source + "\nexport type DecisionGrade = string;\n")
+            assert any(error.endswith(":canonical:DecisionGrade") for error in direct["errors"])
 
             reexport = report_for(
                 canonical_source + '\nexport { DecisionGrade } from "./types.js";\n',
                 types_source + "\nexport type DecisionGrade = string;\n",
             )
+            assert any(error.endswith(":canonical:DecisionGrade") for error in reexport["errors"])
+
+            unresolved_star = report_for(canonical_source + '\nexport * from "./missing.js";\n')
             assert any(
-                error.endswith(":canonical:DecisionGrade")
-                for error in reexport["errors"]
+                "canonical_reexport_unresolved" in error for error in unresolved_star["errors"]
             )
 
-            unresolved_star = report_for(
-                canonical_source + '\nexport * from "./missing.js";\n'
+            malformed_dependency = identity_checker._typescript_generated_client_absence_facts(
+                {
+                    canonical: canonical_source + '\nexport * from "./bridge.js";\n',
+                    types: types_source,
+                    bridge: "export type Other = ;\n",
+                },
+                canonical_path=canonical,
+                types_path=types,
             )
             assert any(
-                "canonical_reexport_unresolved" in error
-                for error in unresolved_star["errors"]
+                "source_invalid:dependency:" in error for error in malformed_dependency["errors"]
             )
 
-            malformed_dependency = (
-                identity_checker._typescript_generated_client_absence_facts(
-                    {
-                        canonical: canonical_source
-                        + '\nexport * from "./bridge.js";\n',
-                        types: types_source,
-                        bridge: "export type Other = ;\n",
-                    },
-                    canonical_path=canonical,
-                    types_path=types,
-                )
-            )
-            assert any(
-                "source_invalid:dependency:" in error
-                for error in malformed_dependency["errors"]
-            )
-
-            script_dependency = (
-                identity_checker._typescript_generated_client_absence_facts(
-                    {
-                        canonical: canonical_source
-                        + '\nexport * from "./bridge.js";\n',
-                        types: types_source,
-                        bridge: "type Other = string;\n",
-                    },
-                    canonical_path=canonical,
-                    types_path=types,
-                )
+            script_dependency = identity_checker._typescript_generated_client_absence_facts(
+                {
+                    canonical: canonical_source + '\nexport * from "./bridge.js";\n',
+                    types: types_source,
+                    bridge: "type Other = string;\n",
+                },
+                canonical_path=canonical,
+                types_path=types,
             )
             assert any(
                 "canonical_reexport_target_scope_missing" in error
@@ -814,8 +755,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
 
             script_mode = report_for("type LocalOnly = string;\n")
             assert any(
-                error.endswith(":canonical")
-                and "anchor_absence_scope_missing" in error
+                error.endswith(":canonical") and "anchor_absence_scope_missing" in error
                 for error in script_mode["errors"]
             )
 
@@ -825,10 +765,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
                     "    Present: { value: string };\n    DecisionGrade: string;",
                 )
             )
-            assert any(
-                error.endswith(":schema:DecisionGrade")
-                for error in schema_owner["errors"]
-            )
+            assert any(error.endswith(":schema:DecisionGrade") for error in schema_owner["errors"])
 
             computed_schema_owner = report_for(
                 types_text=types_source.replace(
@@ -837,8 +774,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
                 )
             )
             assert any(
-                error.endswith(":schema:DecisionGrade")
-                for error in computed_schema_owner["errors"]
+                error.endswith(":schema:DecisionGrade") for error in computed_schema_owner["errors"]
             )
 
             unsupported_schema_scope = report_for(
@@ -855,10 +791,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             missing_scope = report_for(
                 types_text="export interface components { parameters: never; }\n"
             )
-            assert any(
-                "anchor_absence_scope_missing" in error
-                for error in missing_scope["errors"]
-            )
+            assert any("anchor_absence_scope_missing" in error for error in missing_scope["errors"])
 
     def test_live_denominator_reconciles_without_remembered_artifact_paths(
         self,
@@ -872,10 +805,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             report["summary"]["primary_anchor_records"]
             == report["summary"]["independent_anchor_records"]
         )
-        assert (
-            report["summary"]["line_bindings"]
-            == report["summary"]["independent_line_bindings"]
-        )
+        assert report["summary"]["line_bindings"] == report["summary"]["independent_line_bindings"]
         status = [
             binding
             for binding in report["bindings"]
@@ -908,9 +838,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
                     "architecture/atlas_surfaces/status-retirement-inventory.json",
                 )
             ),
-            artifact_path=(
-                "architecture/atlas_surfaces/status-retirement-inventory.json"
-            ),
+            artifact_path=("architecture/atlas_surfaces/status-retirement-inventory.json"),
             target_paths=(
                 "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
                 "packages/runtime-api-client/types.ts",
@@ -919,9 +847,10 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         assert before.identity_bindings == 0
         assert before.legacy_line_bindings == 30
         assert before.navigation_line_hints == 0
-        assert sum(
-            len(binding["identity_bindings"]) for binding in status
-        ) - before.identity_bindings == before.legacy_line_bindings
+        assert (
+            sum(len(binding["identity_bindings"]) for binding in status) - before.identity_bindings
+            == before.legacy_line_bindings
+        )
         waist_before = census._document_anchor_census(
             json.loads(
                 _git_blob(
@@ -929,9 +858,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
                     "architecture/atlas_surfaces/ds4-waist-debt-register.json",
                 )
             ),
-            artifact_path=(
-                "architecture/atlas_surfaces/ds4-waist-debt-register.json"
-            ),
+            artifact_path=("architecture/atlas_surfaces/ds4-waist-debt-register.json"),
             target_paths=(
                 "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
                 "packages/runtime-api-client/types.ts",
@@ -947,9 +874,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         assert report["summary"]["legacy_line_bindings"] == 0
         assert report["summary"]["navigation_line_hints"] == 36
         candidate_population = report["candidate_population"]
-        assert candidate_population["total"] == sum(
-            candidate_population["by_suffix"].values()
-        )
+        assert candidate_population["total"] == sum(candidate_population["by_suffix"].values())
         assert candidate_population["by_suffix"][".json"] > 0
         assert candidate_population["by_suffix"][".toml"] > 0
         assert len(candidate_population["path_sha256"]) == 64
@@ -966,12 +891,9 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         present = [
             row["generated_client_anchor"]
             for row in waist["entries"]
-            if row["generated_client_anchor"]["anchor_kind"]
-            == "present_projection"
+            if row["generated_client_anchor"]["anchor_kind"] == "present_projection"
         ]
-        historical_present = [
-            anchor for anchor in present if anchor["symbol"] != "DecisionGrade"
-        ]
+        historical_present = [anchor for anchor in present if anchor["symbol"] != "DecisionGrade"]
         references = [
             anchor[key]
             for anchor in historical_present
@@ -987,9 +909,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             canonical_path: (REPO_ROOT / canonical_path).read_text(encoding="utf-8"),
             types_path: (REPO_ROOT / types_path).read_text(encoding="utf-8"),
         }
-        decision_grade = next(
-            anchor for anchor in present if anchor["symbol"] == "DecisionGrade"
-        )
+        decision_grade = next(anchor for anchor in present if anchor["symbol"] == "DecisionGrade")
         for slot, role, discriminator in (
             ("canonical", "exported_declaration", "DecisionGrade"),
             ("schema", "type_property", "components.DecisionGrade"),
@@ -1003,10 +923,13 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             )
             assert len(facts["matches"]) == 1
             assert decision_grade[f"{slot}_line"] == facts["matches"][0]["startLine"]
-            assert identity_checker._validate_typescript_reference_identity(
-                {"encoded_identity": identity},
-                current_sources,
-            ) == []
+            assert (
+                identity_checker._validate_typescript_reference_identity(
+                    {"encoded_identity": identity},
+                    current_sources,
+                )
+                == []
+            )
 
         def sources_at(revision: str) -> dict[str, str]:
             return {
@@ -1032,11 +955,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             return [
                 error
                 for payload, fact in zip(payloads, facts, strict=True)
-                if (
-                    error := identity_checker._typescript_reference_match_error(
-                        payload, fact
-                    )
-                )
+                if (error := identity_checker._typescript_reference_match_error(payload, fact))
                 is not None
             ]
 
@@ -1089,15 +1008,10 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             old_line = sources_at("d17ecd36e")[canonical_path].splitlines()[
                 old_missing[coordinate] - 1
             ]
-            moved_line = task6_sources[canonical_path].splitlines()[
-                old_missing[coordinate] - 1
-            ]
+            moved_line = task6_sources[canonical_path].splitlines()[old_missing[coordinate] - 1]
             assert old_line != moved_line
         legacy_absence_verdicts = [
-            all(
-                "DecisionGrade" not in source
-                for source in sources_at(revision).values()
-            )
+            all("DecisionGrade" not in source for source in sources_at(revision).values())
             for revision in ("d17ecd36e", "fea50aadd")
         ]
         assert legacy_absence_verdicts == [True, True]
@@ -1112,9 +1026,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         )
         canonical_match = canonical_facts["matches"][0]
         canonical_lines = task6_sources[canonical_path].splitlines(keepends=True)
-        del canonical_lines[
-            int(canonical_match["startLine"]) - 1 : int(canonical_match["endLine"])
-        ]
+        del canonical_lines[int(canonical_match["startLine"]) - 1 : int(canonical_match["endLine"])]
         assert identity_checker._validate_typescript_reference_identity(
             {"encoded_identity": canonical_reference},
             {canonical_path: "".join(canonical_lines)},
@@ -1179,10 +1091,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
 
         assert len(anchors) == 15
         assert len(references) == 30
-        assert all(
-            not any("line" in str(key).lower() for key in payload)
-            for payload in payloads
-        )
+        assert all(not any("line" in str(key).lower() for key in payload) for payload in payloads)
 
         def sources_at(revision: str) -> dict[str, str]:
             return {
@@ -1210,11 +1119,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             return [
                 error
                 for payload, facts in zip(payloads, facts_at(revision), strict=True)
-                if (
-                    error := identity_checker._typescript_reference_match_error(
-                        payload, facts
-                    )
-                )
+                if (error := identity_checker._typescript_reference_match_error(payload, facts))
                 is not None
             ]
 
@@ -1231,16 +1136,14 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             canonical_line = task6_sources[canonical_path].splitlines()[
                 anchor["canonical_line"] - 1
             ]
-            schema_line = task6_sources[schema_path].splitlines()[
-                anchor["schema_line"] - 1
-            ]
+            schema_line = task6_sources[schema_path].splitlines()[anchor["schema_line"] - 1]
             legacy_results.extend(
                 [
-                    f'export type {anchor["export_symbol"]}' in canonical_line,
+                    f"export type {anchor['export_symbol']}" in canonical_line,
                     (
-                        f'{anchor["field"]}:'
+                        f"{anchor['field']}:"
                         if anchor.get("field")
-                        else f'{anchor["export_symbol"]}:'
+                        else f"{anchor['export_symbol']}:"
                     )
                     in schema_line,
                 ]
@@ -1294,9 +1197,7 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
 
         renamed = changed_schema(target_line.replace("status:", "state:"))
         removed = changed_schema("")
-        content_changed = changed_schema(
-            target_line.replace('"untraced"', '"unknown"')
-        )
+        content_changed = changed_schema(target_line.replace('"untraced"', '"unknown"'))
         assert identity_checker._validate_typescript_reference_identity(
             {"encoded_identity": lineage_identity}, renamed
         ) == ["typescript_reference_binding_missing_or_renamed"]

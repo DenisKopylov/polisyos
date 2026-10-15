@@ -9,9 +9,9 @@ import importlib.util
 import json
 import math
 import os
+import re
 import shutil
 import stat
-import re
 import sys
 import time
 from datetime import UTC, datetime
@@ -129,8 +129,7 @@ def _read_regular_without_symlink_components(
             raise SupplementalError(f"{label} changed while being read: {path}")
 
         cursor = Path(path.anchor)
-        component_index = 0
-        for component in parts:
+        for component_index, component in enumerate(parts):
             cursor = cursor / component
             observed = cursor.lstat()
             if stat.S_ISLNK(observed.st_mode):
@@ -144,7 +143,6 @@ def _read_regular_without_symlink_components(
                     raise SupplementalError(f"{label} path changed while being read: {cursor}")
             elif file_signature(observed) != file_signature(before):
                 raise SupplementalError(f"{label} path changed while being read: {cursor}")
-            component_index += 1
         if path.resolve(strict=True) != path:
             raise SupplementalError(f"{label} path does not resolve to its supplied path: {path}")
         return path, data
@@ -195,7 +193,10 @@ def load_primary_runner(expected_sha256: str) -> ModuleType:
     before_sha256 = sha256_file(PRIMARY_RUNNER_PATH)
     if before_sha256 != expected_sha256:
         raise SupplementalError(
-            f"primary runner hash differs from the selected supplement: expected={expected_sha256} actual={before_sha256}"
+            f"primary runner hash differs from the selected supplement: expected="
+            f"{expected_sha256}"
+            f" actual="
+            f"{before_sha256}"
         )
     spec = importlib.util.spec_from_file_location("q2_primary_runner", PRIMARY_RUNNER_PATH)
     if spec is None or spec.loader is None:
@@ -401,7 +402,6 @@ def suite_node_ids(product: Path, manifest: dict[str, Any]) -> set[str]:
         raise SupplementalError(
             "supplemental selected-node digest differs from its complete ID list"
         )
-    group = {"test_path": test_path, "selectors": selectors}
     resolved: set[str] = set()
     for selector in selectors:
         stem = f"{test_path}::{selector}"
@@ -561,7 +561,8 @@ def require_exact_resource_count(value: object, actual_count: int) -> None:
     """Require the manifest count to be an exact positive integer matching content."""
     if actual_count < 1 or not exact_nonbool_count_matches(value, actual_count):
         raise SupplementalError(
-            "primary manifest resource count must be an exact positive integer matching the full resource list"
+            "primary manifest resource count must be an exact positive integer "
+            "matching the full resource list"
         )
 
 

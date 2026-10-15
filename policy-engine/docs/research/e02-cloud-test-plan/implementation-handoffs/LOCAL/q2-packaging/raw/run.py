@@ -19,9 +19,19 @@ import tarfile
 import tomllib
 import zipfile
 from datetime import UTC, datetime
+from functools import partial
 from pathlib import Path, PurePosixPath
 from typing import Any
-import xml.etree.ElementTree as ET
+
+from defusedxml import ElementTree as SafeET
+
+
+def _git_executable() -> str:
+    """Resolve Git once per process without relying on a partial PATH command."""
+    executable = shutil.which("git")
+    if executable is None:
+        raise RuntimeError("git executable is not available on PATH")
+    return str(Path(executable).resolve(strict=True))
 
 
 HERE = Path(__file__).resolve().parent
@@ -40,11 +50,22 @@ FORBIDDEN_ARCHIVE_SIBLING_ROOTS = (
 INSTALLED_ORIGIN_GATE_PATH = HERE / "installed_origin_gate_r4.py"
 INSTALLED_ORIGIN_GATE_SHA256 = "8acde537d5588648e042384f38e18359e6b3a103d03e8af79fca226989ae6872"
 HATCHLING_INPUT_INVENTORY_PATH = HERE / "hatchling-1.27.0-input-inventory-r3.json"
-HATCHLING_INPUT_INVENTORY_SHA256 = "e4a2ca880e1b0240650a5520e6ac2007791450afc70bd5ead6255ffd2b4cb61b"
+HATCHLING_INPUT_INVENTORY_SHA256 = (
+    "e4a2ca880e1b0240650a5520e6ac2007791450afc70bd5ead6255ffd2b4cb61b"
+)
 
 
-class WaveFailure(RuntimeError):
+class WaveFailure(RuntimeError):  # noqa: N818 - its class name is part of the Q2 receipt wire format.
     """Raised when a required frozen-wave invariant is not established."""
+
+
+WaveFailureError = WaveFailure
+
+
+def _failure_receipt_text(error: BaseException) -> str:
+    """Render the established exception class name and message for Q2 receipts."""
+
+    return f"{type(error).__name__}: {error}"
 
 
 def exact_nonbool_count_matches(value: object, expected: object) -> bool:
@@ -73,7 +94,7 @@ def json_values_match_exactly(actual: object, expected: object) -> bool:
 class HashingReader:
     """A read-only stream wrapper which hashes bytes consumed by tarfile."""
 
-    def __init__(self, stream: Any) -> None:
+    def __init__(self, stream: object) -> None:
         self.stream = stream
         self.digest = hashlib.sha256()
         self.bytes_read = 0
@@ -92,18 +113,21 @@ def sha256_bytes(data: bytes) -> str:
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as stream:
-        for block in iter(lambda: stream.read(1024 * 1024), b""):
+        for block in iter(partial(stream.read, 1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
 
 
 def load_installed_origin_gate() -> tuple[bytes, dict[str, Any]]:
     """Load the hash-bound stdlib gate for build preflight and isolated proof."""
-    gate_bytes = _read_regular_without_symlink_components(INSTALLED_ORIGIN_GATE_PATH, "Q2 installed-origin gate")[1]
+    gate_bytes = _read_regular_without_symlink_components(
+        INSTALLED_ORIGIN_GATE_PATH, "Q2 installed-origin gate"
+    )[1]
     if sha256_bytes(gate_bytes) != INSTALLED_ORIGIN_GATE_SHA256:
         raise WaveFailure("Q2 installed-origin gate source differs from its frozen hash")
     namespace: dict[str, Any] = {"__name__": "e02_q2_installed_origin_gate_r3"}
-    exec(compile(gate_bytes, str(INSTALLED_ORIGIN_GATE_PATH), "exec"), namespace)
+    # S102: gate_bytes are hash-checked against the frozen installed-origin gate before evaluation.
+    exec(compile(gate_bytes, str(INSTALLED_ORIGIN_GATE_PATH), "exec"), namespace)  # noqa: S102
     return gate_bytes, namespace
 
 
@@ -183,8 +207,7 @@ def _read_regular_without_symlink_components(
             raise WaveFailure(f"{label} changed while being read: {path}")
 
         cursor = Path(path.anchor)
-        component_index = 0
-        for component in parts:
+        for component_index, component in enumerate(parts):
             cursor = cursor / component
             observed = cursor.lstat()
             if stat.S_ISLNK(observed.st_mode):
@@ -198,7 +221,6 @@ def _read_regular_without_symlink_components(
                     raise WaveFailure(f"{label} path changed while being read: {cursor}")
             elif file_signature(observed) != file_signature(before):
                 raise WaveFailure(f"{label} path changed while being read: {cursor}")
-            component_index += 1
         if path.resolve(strict=True) != path:
             raise WaveFailure(f"{label} path does not resolve to its supplied path: {path}")
         return path, data
@@ -244,7 +266,7 @@ def load_verified_json_file(
     return path, value, actual_sha256
 
 
-def json_write(path: Path, value: Any) -> None:
+def json_write(path: Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
@@ -260,6 +282,8 @@ def run_command(
     timeout_seconds: float | None = None,
 ) -> subprocess.CompletedProcess[str]:
     """Run a command while retaining complete stdout/stderr, including on timeout."""
+    if not argv or not Path(argv[0]).is_absolute() or not Path(argv[0]).is_file():
+        raise WaveFailure("consumer command must start with an existing absolute executable")
     log_stem.parent.mkdir(parents=True, exist_ok=True)
     stdout_path = log_stem.with_suffix(".stdout.txt")
     stderr_path = log_stem.with_suffix(".stderr.txt")
@@ -267,7 +291,8 @@ def run_command(
     try:
         if stream_output:
             with stdout_path.open("wb") as stdout_stream, stderr_path.open("wb") as stderr_stream:
-                raw_result = subprocess.run(
+                # S603: frozen consumer argv is explicit; shell execution is disabled.
+                raw_result = subprocess.run(  # noqa: S603
                     argv,
                     cwd=cwd,
                     env=env,
@@ -283,7 +308,8 @@ def run_command(
                 stderr_path.read_text(encoding="utf-8", errors="replace"),
             )
         else:
-            result = subprocess.run(
+            # S603: frozen consumer argv is explicit; shell execution is disabled.
+            result = subprocess.run(  # noqa: S603
                 argv,
                 cwd=cwd,
                 env=env,
@@ -374,8 +400,16 @@ def require_absolute_file(value: str, label: str) -> Path:
 
 
 def git_text(repo: Path, *args: str) -> str:
-    result = subprocess.run(
-        ["git", "-C", str(repo), *args], capture_output=True, text=True, check=False
+    readonly_commands = {"rev-parse", "symbolic-ref", "status"}
+    if not args or args[0] not in readonly_commands or any("\0" in arg for arg in args):
+        raise WaveFailure("Git helper accepts only NUL-free read-only metadata queries")
+    # S603: absolute Git is constrained to read-only metadata queries and receives separate argv.
+    result = subprocess.run(  # noqa: S603
+        [_git_executable(), "-C", str(repo), *args],
+        capture_output=True,
+        text=True,
+        check=False,
+        shell=False,
     )
     if result.returncode:
         raise WaveFailure(f"git {' '.join(args)} failed: {result.stderr.strip()}")
@@ -395,7 +429,10 @@ def frozen_source_preflight(repo: Path, source_sha: str, source_tree: str) -> No
     actual_tree = git_text(repo, "rev-parse", f"{source_sha}^{{tree}}")
     if actual_tree != source_tree:
         raise WaveFailure(
-            f"commit tree differs from supplied freeze: actual={actual_tree}, supplied={source_tree}"
+            f"commit tree differs from supplied freeze: actual="
+            f"{actual_tree}"
+            f", supplied="
+            f"{source_tree}"
         )
     if git_text(repo, "symbolic-ref", "-q", "HEAD") == "":
         raise WaveFailure("frozen source checkout is detached; attach the intended branch first")
@@ -416,9 +453,15 @@ def extract_git_archive(
 ) -> dict[str, Any]:
     """Extract the selected committed product without storing a second full tar."""
     destination.mkdir(parents=True, exist_ok=False)
-    command = ["git", "-C", str(repo), "archive", source_sha, "--", REQUIRED_PRODUCT]
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    assert process.stdout is not None and process.stderr is not None
+    command = [_git_executable(), "-C", str(repo), "archive", source_sha, "--", REQUIRED_PRODUCT]
+    # S603: this reads one immutable archive with absolute Git and no shell.
+    process = subprocess.Popen(  # noqa: S603
+        command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False
+    )
+    if not (process.stdout is not None):
+        raise AssertionError()
+    if not (process.stderr is not None):
+        raise AssertionError()
     reader = HashingReader(process.stdout)
     member_count = 0
     file_count = 0
@@ -708,7 +751,7 @@ def product_root_from_sdist(
             hardlinked = False
             try:
                 with stream, temporary.open("wb") as output:
-                    for block in iter(lambda: stream.read(1024 * 1024), b""):
+                    for block in iter(partial(stream.read, 1024 * 1024), b""):
                         digest.update(block)
                         output.write(block)
                 original = source_product / tail
@@ -765,7 +808,7 @@ def product_root_from_gcp(archive_path: Path, destination: Path, source_product:
             hardlinked = False
             try:
                 with stream, temporary.open("wb") as output:
-                    for block in iter(lambda: stream.read(1024 * 1024), b""):
+                    for block in iter(partial(stream.read, 1024 * 1024), b""):
                         digest.update(block)
                         output.write(block)
                 original = source_product / tail
@@ -812,10 +855,14 @@ def run_build(
     wheel_path = one_matching_file(output, "*.whl") if wheel else None
     sdist_path = one_matching_file(output, "*.tar.gz") if sdist else None
     if wheel and sdist:
-        assert wheel_path and sdist_path
+        if not (wheel_path):
+            raise AssertionError()
+        if not (sdist_path):
+            raise AssertionError()
         return wheel_path, sdist_path
     if wheel:
-        assert wheel_path
+        if not (wheel_path):
+            raise AssertionError()
         return wheel_path
     if sdist_path:
         return sdist_path
@@ -830,8 +877,11 @@ def interpreter_info(python: Path, *, log_dir: Path, name: str) -> dict[str, Any
         "'base_executable': sys._base_executable, 'prefix': sys.prefix, "
         "'purelib': sysconfig.get_paths()['purelib']}))"
     )
-    result = subprocess.run(
-        [str(python), "-S", "-c", code],
+    if not python.is_absolute() or not python.is_file():
+        raise WaveFailure("interpreter inspection requires an absolute existing Python executable")
+    # S603: executable is the validated Python path and code is a constant inspection probe.
+    result = subprocess.run(  # noqa: S603
+        [str(python.resolve()), "-S", "-c", code],
         env=clean_child_env(),
         capture_output=True,
         text=True,
@@ -892,15 +942,15 @@ def configure_build_env(
     if tuple(purelib.glob("*.pth")):
         raise WaveFailure("build tools venv contains a .pth file; refusing to execute it")
     sitecustomize = (
-        "from pathlib import Path\n"
-        "import sys\n"
-        f"_q2_dependency_site = Path({str(app_dependency_site)!r}).resolve()\n"
-        "if not _q2_dependency_site.is_dir():\n"
-        "    raise RuntimeError(f'Q2 dependency site is missing: {_q2_dependency_site}')\n"
-        "_q2_dependency_text = str(_q2_dependency_site)\n"
-        "if _q2_dependency_text in sys.path:\n"
-        "    raise RuntimeError('Q2 dependency site was already processed; editable .pth injection is forbidden')\n"
-        "sys.path.append(_q2_dependency_text)\n"
+        f"from pathlib import Path\nimport sys\n_q2_dependency_site = Path("
+        f"{str(app_dependency_site)!r}"
+        f").resolve()\nif not _q2_dependency_site.is_dir():\n    raise "
+        f"RuntimeError(f'Q2 dependency site is missing: "
+        f"{{_q2_dependency_site}}')\n_q2_dependency_text = "
+        f"str(_q2_dependency_site)\nif _q2_dependency_text in sys.path:\n    "
+        f"raise RuntimeError('Q2 dependency site was already processed; "
+        f"editable .pth injection is forbidden')\n"
+        f"sys.path.append(_q2_dependency_text)\n"
     )
     (purelib / "sitecustomize.py").write_text(sitecustomize, encoding="utf-8")
     proof = run_command(
@@ -973,76 +1023,74 @@ def configure_installed_env(
         raise WaveFailure("verified installed-origin gate bytes changed before venv setup")
     gate_module_path = purelib / "q2_installed_origin_gate.py"
     if gate_module_path.exists() or gate_module_path.is_symlink():
-        raise WaveFailure(f"unexpected file already occupies the installed-origin helper path: {gate_module_path}")
+        raise WaveFailure(
+            f"unexpected file already occupies the installed-origin helper path: {gate_module_path}"
+        )
     try:
         gate_module_path.write_bytes(origin_gate_source)
     except OSError as error:
-        raise WaveFailure(f"cannot materialize the verified installed-origin helper: {gate_module_path}") from error
+        raise WaveFailure(
+            f"cannot materialize the verified installed-origin helper: {gate_module_path}"
+        ) from error
     if gate_module_path.read_bytes() != origin_gate_source:
         raise WaveFailure("installed-origin helper readback differs from the verified gate bytes")
     if not app_dependency_site.is_dir():
         raise WaveFailure(f"locked dependency site is missing: {app_dependency_site}")
     sitecustomize = (
-        "from pathlib import Path\n"
-        "import sys\n"
-        f"_q2_dependency_site = Path({str(app_dependency_site)!r}).resolve()\n"
-        "if not _q2_dependency_site.is_dir():\n"
-        "    raise RuntimeError(f'Q2 dependency site is missing: {_q2_dependency_site}')\n"
-        "_q2_dependency_text = str(_q2_dependency_site)\n"
-        "if _q2_dependency_text in sys.path:\n"
-        "    raise RuntimeError('Q2 dependency site was already processed; editable .pth injection is forbidden')\n"
-        "sys.path.append(_q2_dependency_text)\n"
+        f"from pathlib import Path\nimport sys\n_q2_dependency_site = Path("
+        f"{str(app_dependency_site)!r}"
+        f").resolve()\nif not _q2_dependency_site.is_dir():\n    raise "
+        f"RuntimeError(f'Q2 dependency site is missing: "
+        f"{{_q2_dependency_site}}')\n_q2_dependency_text = "
+        f"str(_q2_dependency_site)\nif _q2_dependency_text in sys.path:\n    "
+        f"raise RuntimeError('Q2 dependency site was already processed; "
+        f"editable .pth injection is forbidden')\n"
+        f"sys.path.append(_q2_dependency_text)\n"
     )
     (purelib / "sitecustomize.py").write_text(sitecustomize, encoding="utf-8")
-    origin_plugin = """from __future__ import annotations
-import json, os, sys, sysconfig
-from pathlib import Path
-import pytest
-import q2_installed_origin_gate
-
-_REPORTED_PURELIB = Path(sysconfig.get_paths()["purelib"])
-_CANONICAL_PURELIB = _REPORTED_PURELIB.resolve(strict=True)
-
-def _under(path, root):
-    try:
-        Path(path).resolve().relative_to(Path(root).resolve())
-        return True
-    except (OSError, ValueError):
-        return False
-
-def pytest_collection_finish(session):
-    out = Path(os.environ["E02_NODEIDS_REPORT"])
-    out.write_text(json.dumps(sorted(item.nodeid for item in session.items), indent=2) + "\\n")
-
-def pytest_sessionfinish(session, exitstatus):
-    purelib_reported = _REPORTED_PURELIB
-    purelib = _CANONICAL_PURELIB
-    dependency_site = Path(os.environ["E02_DEPENDENCY_SITE"]).resolve()
-    source = Path(os.environ["E02_SOURCE_ROOT"]).resolve()
-    live_product = Path(os.environ["E02_LIVE_PRODUCT_ROOT"]).resolve()
-    forbidden_roots = [source, live_product]
-    forbidden_sys_path = [p for p in sys.path if p and any(_under(p, root) for root in forbidden_roots)]
-    origins, errors = q2_installed_origin_gate.verify_loaded_module_origins(
-        purelib_reported, sys.modules.copy()
+    origin_plugin = (
+        "from __future__ import annotations\nimport json, os, sys, sysconfig\n"
+        "from pathlib import Path\nimport pytest\nimport "
+        "q2_installed_origin_gate\n\n_REPORTED_PURELIB = "
+        'Path(sysconfig.get_paths()["purelib"])\n_CANONICAL_PURELIB = '
+        "_REPORTED_PURELIB.resolve(strict=True)\n\ndef _under(path, root):\n    "
+        "try:\n        Path(path).resolve().relative_to(Path(root).resolve())\n "
+        "       return True\n    except (OSError, ValueError):\n        return "
+        "False\n\ndef pytest_collection_finish(session):\n    out = "
+        'Path(os.environ["E02_NODEIDS_REPORT"])\n    '
+        "out.write_text(json.dumps(sorted(item.nodeid for item in "
+        'session.items), indent=2) + "\\n")\n\ndef pytest_sessionfinish(session, '
+        "exitstatus):\n    purelib_reported = _REPORTED_PURELIB\n    purelib = "
+        "_CANONICAL_PURELIB\n    dependency_site = "
+        'Path(os.environ["E02_DEPENDENCY_SITE"]).resolve()\n    source = '
+        'Path(os.environ["E02_SOURCE_ROOT"]).resolve()\n    live_product = '
+        'Path(os.environ["E02_LIVE_PRODUCT_ROOT"]).resolve()\n    '
+        "forbidden_roots = [source, live_product]\n    forbidden_sys_path = [p "
+        "for p in sys.path if p and any(_under(p, root) for root in "
+        "forbidden_roots)]\n    origins, errors = "
+        "q2_installed_origin_gate.verify_loaded_module_origins(\n        "
+        'purelib_reported, sys.modules.copy()\n    )\n    if "polisyos" not in '
+        'origins:\n        errors.append({"module": "polisyos", "reason": '
+        '"installed package root was not imported"})\n    if '
+        'forbidden_sys_path:\n        errors.append({"sys_path": '
+        'forbidden_sys_path, "reason": "source or test path injected"})\n    '
+        "normalized_sys_path = [str(Path(path).resolve()) for path in "
+        "sys.path]\n    try:\n        installed_index = "
+        "normalized_sys_path.index(str(purelib))\n        dependency_index = "
+        "normalized_sys_path.index(str(dependency_site))\n        if "
+        "installed_index >= dependency_index:\n            "
+        'errors.append({"sys_path": normalized_sys_path, "reason": "installed '
+        'site does not precede dependency site"})\n    except ValueError:\n     '
+        '   errors.append({"sys_path": normalized_sys_path, "reason": '
+        '"installed/dependency site missing"})\n    report = {"verified": not '
+        'errors, "purelib_reported": str(purelib_reported), "purelib": '
+        'str(purelib), "sys_path": sys.path, "origins": origins, "errors": '
+        'errors}\n    Path(os.environ["E02_ORIGIN_REPORT"]).write_text(json.du'
+        'mps(report, indent=2, sort_keys=True) + "\\n")\n    if errors:\n        '
+        'print("Q2 installed-origin proof failed: " + json.dumps(errors, '
+        "sort_keys=True), file=sys.stderr)\n        session.exitstatus = "
+        "pytest.ExitCode.TESTS_FAILED\n"
     )
-    if "polisyos" not in origins:
-        errors.append({"module": "polisyos", "reason": "installed package root was not imported"})
-    if forbidden_sys_path:
-        errors.append({"sys_path": forbidden_sys_path, "reason": "source or test path injected"})
-    normalized_sys_path = [str(Path(path).resolve()) for path in sys.path]
-    try:
-        installed_index = normalized_sys_path.index(str(purelib))
-        dependency_index = normalized_sys_path.index(str(dependency_site))
-        if installed_index >= dependency_index:
-            errors.append({"sys_path": normalized_sys_path, "reason": "installed site does not precede dependency site"})
-    except ValueError:
-        errors.append({"sys_path": normalized_sys_path, "reason": "installed/dependency site missing"})
-    report = {"verified": not errors, "purelib_reported": str(purelib_reported), "purelib": str(purelib), "sys_path": sys.path, "origins": origins, "errors": errors}
-    Path(os.environ["E02_ORIGIN_REPORT"]).write_text(json.dumps(report, indent=2, sort_keys=True) + "\\n")
-    if errors:
-        print("Q2 installed-origin proof failed: " + json.dumps(errors, sort_keys=True), file=sys.stderr)
-        session.exitstatus = pytest.ExitCode.TESTS_FAILED
-"""
     (purelib / "q2_installed_origin_plugin.py").write_text(origin_plugin, encoding="utf-8")
     json_write(
         run_root / "installed-env-config.json",
@@ -1075,93 +1123,91 @@ def installed_runtime_proof(
     expected = {
         asset["wheel"]: {"bytes": asset["bytes"], "sha256": asset["sha256"]} for asset in assets
     }
-    code = origin_gate_source.decode("utf-8") + "\n" + """import hashlib, importlib, importlib.metadata, json, os, sys, sysconfig
-from pathlib import Path
-from typing import get_args
-purelib_reported=Path(sysconfig.get_paths()["purelib"])
-purelib=purelib_reported.resolve()
-prefix=Path(sys.prefix).resolve()
-source=Path(os.environ["E02_SOURCE_ROOT"]).resolve()
-live_product=Path(os.environ["E02_LIVE_PRODUCT_ROOT"]).resolve()
-dependency_site=Path(os.environ["E02_DEPENDENCY_SITE"]).resolve()
-forbidden_roots=(source,live_product)
-assert purelib.is_relative_to(prefix)
-assert sys.flags.isolated
-assert not os.environ.get("PYTHONPATH")
-assert not any(p and any(Path(p).resolve()==root or Path(p).resolve().is_relative_to(root) for root in forbidden_roots) for p in sys.path)
-normalized_sys_path=[Path(p).resolve() for p in sys.path]
-assert normalized_sys_path.index(purelib)<normalized_sys_path.index(dependency_site),sys.path
-assets=json.loads(Path(os.environ["E02_ASSET_EXPECTED_JSON"]).read_text())
-profile=os.environ["E02_PROFILE_NAME"]
-import polisyos, tools
-from polisyos.data_forge.domains.catalog import _resources
-from polisyos.foundry.methods.catalog import dependency_authority
-from polisyos.foundry.methods.catalog.causal import _dowhy_worker
-module_origins,module_origin_errors=verify_loaded_module_origins(purelib_reported,sys.modules.copy())
-assert module_origins
-assert not module_origin_errors,module_origin_errors
-assert {"polisyos","tools"} <= set(module_origins),module_origins
-def resolve_selected_installed_readers(
-    profile: str,
-    purelib: Path,
-    assets: dict[str, dict[str, Any]],
-    resources_module: Any,
-    authority_module: Any,
-    worker_module: Any,
-) -> dict[str, Path]:
-    # Resolve every typed reader and bind it to the selected installed targets.
-    if not profile:
-        raise AssertionError("installed profile label is required")
-    catalog_targets = {
-        target.rsplit("/", 1)[-1]: target
-        for target in assets
-        if target.startswith("polisyos/data_forge/domains/catalog/_resources/")
-    }
-    catalog_names = tuple(get_args(resources_module.CatalogDefaultResource))
-    assert set(catalog_targets) == set(catalog_names), (profile, catalog_targets, catalog_names)
-    reader_paths: dict[str, Path] = {}
-    for name in catalog_names:
-        actual = Path(resources_module.catalog_default_resource_path(name)).resolve(strict=True)
-        expected_path = (purelib / catalog_targets[name]).resolve(strict=True)
-        assert actual == expected_path, (profile, name, actual, expected_path)
-        reader_paths[f"{profile}:catalog-default:{name}"] = actual
-    registry_path = Path(authority_module._DIGEST_REGISTRY_PATH).resolve(strict=True)
-    packaged_registry_path = Path(authority_module._PACKAGED_DIGEST_REGISTRY_PATH).resolve(strict=True)
-    assert registry_path == packaged_registry_path, (profile, registry_path, packaged_registry_path)
-    registry = authority_module.load_digest_domain_registry(registry_path)
-    assert registry.statement.domains, profile
-    registry_target = "polisyos/foundry/methods/catalog/_resources/method_catalog_dependency_digest_domains.toml"
-    expected_registry = (purelib / registry_target).resolve(strict=True)
-    assert registry_path == expected_registry, (profile, registry_path, expected_registry)
-    reader_paths[f"{profile}:dependency-authority:digest-registry"] = registry_path
-    profile_targets = [target for target in assets if "/_dowhy_profile/" in target]
-    assert profile_targets, profile
-    profile_dirs = {(purelib / Path(target).parent).resolve(strict=True) for target in profile_targets}
-    assert len(profile_dirs) == 1, (profile, profile_dirs)
-    worker_directory = Path(worker_module._worker_directory()).resolve(strict=True)
-    expected_worker_directory = next(iter(profile_dirs))
-    assert worker_directory == expected_worker_directory, (profile, worker_directory, expected_worker_directory)
-    reader_paths[f"{profile}:dowhy-worker:profile-directory"] = worker_directory
-    return reader_paths
-
-
-def verify_selected_installed_resources(
-    profile: str,
-    purelib: Path,
-    assets: dict[str, dict[str, Any]],
-    resources_module: Any,
-    authority_module: Any,
-    worker_module: Any,
-) -> tuple[dict[str, dict[str, Any]], dict[str, str]]:
-    # Verify the whole manifest and every canonical reader result at one boundary.
-    reader_paths = resolve_selected_installed_readers(
-        profile, purelib, assets, resources_module, authority_module, worker_module
+    code = (
+        origin_gate_source.decode("utf-8")
+        + "\n"
+        + (
+            "import hashlib, importlib, importlib.metadata, json, os, sys, "
+            "sysconfig\nfrom pathlib import Path\nfrom typing import get_args\n"
+            'purelib_reported=Path(sysconfig.get_paths()["purelib"])\n'
+            "purelib=purelib_reported.resolve()\nprefix=Path(sys.prefix).resolve()\n"
+            'source=Path(os.environ["E02_SOURCE_ROOT"]).resolve()\n'
+            'live_product=Path(os.environ["E02_LIVE_PRODUCT_ROOT"]).resolve()\n'
+            'dependency_site=Path(os.environ["E02_DEPENDENCY_SITE"]).resolve()\n'
+            "forbidden_roots=(source,live_product)\nassert "
+            "purelib.is_relative_to(prefix)\nassert sys.flags.isolated\nassert not "
+            'os.environ.get("PYTHONPATH")\nassert not any(p and '
+            "any(Path(p).resolve()==root or Path(p).resolve().is_relative_to(root"
+            ") for root in forbidden_roots) for p in sys.path)\n"
+            "normalized_sys_path=[Path(p).resolve() for p in sys.path]\nassert "
+            "normalized_sys_path.index(purelib)<normalized_sys_path.index(depende"
+            'ncy_site),sys.path\nassets=json.loads(Path(os.environ["E02_ASSET_EXPE'
+            'CTED_JSON"]).read_text())\nprofile=os.environ["E02_PROFILE_NAME"]\n'
+            "import polisyos, tools\nfrom polisyos.data_forge.domains.catalog "
+            "import _resources\nfrom polisyos.foundry.methods.catalog import "
+            "dependency_authority\nfrom polisyos.foundry.methods.catalog.causal "
+            "import _dowhy_worker\nmodule_origins,module_origin_errors=verify_load"
+            "ed_module_origins(purelib_reported,sys.modules.copy())\nassert "
+            "module_origins\nassert not module_origin_errors,module_origin_errors\n"
+            'assert {"polisyos","tools"} <= set(module_origins),module_origins\n'
+            "def resolve_selected_installed_readers(\n    profile: str,\n    "
+            "purelib: Path,\n    assets: dict[str, dict[str, Any]],\n    "
+            "resources_module: Any,\n    authority_module: Any,\n    worker_module: "
+            "Any,\n) -> dict[str, Path]:\n    # Resolve every typed reader and bind "
+            "it to the selected installed targets.\n    if not profile:\n        "
+            'raise AssertionError("installed profile label is required")\n    '
+            'catalog_targets = {\n        target.rsplit("/", 1)[-1]: target\n       '
+            ' for target in assets\n        if target.startswith("polisyos/data_fo'
+            'rge/domains/catalog/_resources/")\n    }\n    catalog_names = '
+            "tuple(get_args(resources_module.CatalogDefaultResource))\n    assert "
+            "set(catalog_targets) == set(catalog_names), (profile, "
+            "catalog_targets, catalog_names)\n    reader_paths: dict[str, Path] = "
+            "{}\n    for name in catalog_names:\n        actual = "
+            "Path(resources_module.catalog_default_resource_path(name)).resolve(s"
+            "trict=True)\n        expected_path = (purelib / "
+            "catalog_targets[name]).resolve(strict=True)\n        assert actual == "
+            "expected_path, (profile, name, actual, expected_path)\n        "
+            'reader_paths[f"{profile}:catalog-default:{name}"] = actual\n    '
+            "registry_path = Path(authority_module._DIGEST_REGISTRY_PATH).resolve"
+            "(strict=True)\n    packaged_registry_path = "
+            "Path(authority_module._PACKAGED_DIGEST_REGISTRY_PATH).resolve(strict"
+            "=True)\n    assert registry_path == packaged_registry_path, (profile, "
+            "registry_path, packaged_registry_path)\n    registry = "
+            "authority_module.load_digest_domain_registry(registry_path)\n    "
+            "assert registry.statement.domains, profile\n    registry_target = "
+            '"polisyos/foundry/methods/catalog/_resources/method_catalog_dependen'
+            'cy_digest_domains.toml"\n    expected_registry = (purelib / '
+            "registry_target).resolve(strict=True)\n    assert registry_path == "
+            "expected_registry, (profile, registry_path, expected_registry)\n    "
+            'reader_paths[f"{profile}:dependency-authority:digest-registry"] = '
+            "registry_path\n    profile_targets = [target for target in assets if "
+            '"/_dowhy_profile/" in target]\n    assert profile_targets, profile\n   '
+            " profile_dirs = {(purelib / Path(target).parent).resolve(strict=True"
+            ") for target in profile_targets}\n    assert len(profile_dirs) == 1, "
+            "(profile, profile_dirs)\n    worker_directory = "
+            "Path(worker_module._worker_directory()).resolve(strict=True)\n    "
+            "expected_worker_directory = next(iter(profile_dirs))\n    assert "
+            "worker_directory == expected_worker_directory, (profile, "
+            "worker_directory, expected_worker_directory)\n    "
+            'reader_paths[f"{profile}:dowhy-worker:profile-directory"] = '
+            "worker_directory\n    return reader_paths\n\n\ndef "
+            "verify_selected_installed_resources(\n    profile: str,\n    purelib: "
+            "Path,\n    assets: dict[str, dict[str, Any]],\n    resources_module: "
+            "Any,\n    authority_module: Any,\n    worker_module: Any,\n) -> "
+            "tuple[dict[str, dict[str, Any]], dict[str, str]]:\n    # Verify the "
+            "whole manifest and every canonical reader result at one boundary.\n   "
+            " reader_paths = resolve_selected_installed_readers(\n        profile, "
+            "purelib, assets, resources_module, authority_module, worker_module\n  "
+            "  )\n    return verify_installed_resources(purelib, assets, "
+            "reader_paths)\n\nasset_rows,reader_rows=verify_selected_installed_reso"
+            "urces(profile,purelib,assets,_resources,dependency_authority,_dowhy_"
+            'worker)\nprint(json.dumps({"python":sys.version,"prefix":str(prefix),'
+            '"purelib_reported":str(purelib_reported),"purelib":str(purelib),"pol'
+            'icyos_origin":str(Path(polisyos.__file__)),"tools_origin":str(Path(t'
+            'ools.__file__)),"module_origins":module_origins,"assets":asset_rows,'
+            '"reader_paths":reader_rows,"profile":profile},sort_keys=True))\n'
+        )
     )
-    return verify_installed_resources(purelib, assets, reader_paths)
-
-asset_rows,reader_rows=verify_selected_installed_resources(profile,purelib,assets,_resources,dependency_authority,_dowhy_worker)
-print(json.dumps({"python":sys.version,"prefix":str(prefix),"purelib_reported":str(purelib_reported),"purelib":str(purelib),"policyos_origin":str(Path(polisyos.__file__)),"tools_origin":str(Path(tools.__file__)),"module_origins":module_origins,"assets":asset_rows,"reader_paths":reader_rows,"profile":profile},sort_keys=True))
-"""
     child_env = clean_child_env()
     child_env.update(
         {
@@ -1207,7 +1253,7 @@ def baseline_node_ids(source_product: Path, manifest: dict[str, Any]) -> set[str
         raise WaveFailure(
             "tracked original Q2 JUnit baseline checksum changed; reconcile before running"
         )
-    root = ET.fromstring(gzip.decompress(compressed))
+    root = SafeET.fromstring(gzip.decompress(compressed))
     rows = list(root.iter("testcase"))
     if not exact_nonbool_count_matches(
         manifest["original_q2_suite"].get("baseline_case_count"), len(rows)
@@ -1220,7 +1266,7 @@ def baseline_node_ids(source_product: Path, manifest: dict[str, Any]) -> set[str
             test_path = manifest["original_q2_suite"]["test_paths"][-1]
         else:
             dotted = classname.split(".")
-            test_path = "/".join(dotted[:-1] + [dotted[-1] + ".py"])
+            test_path = "/".join([*dotted[:-1], dotted[-1] + ".py"])
         if not any(
             test_path == candidate for candidate in manifest["original_q2_suite"]["test_paths"]
         ):
@@ -1697,7 +1743,7 @@ def verify_transitive_test_bindings(
                     f"selected test {test_path}::{test_name} loads a fixture inline; "
                     "the loader-to-callable binding is not statically resolvable"
                 )
-            for scope_name, scope in closure.items():
+            for _scope_name, scope in closure.items():
                 variables: dict[str, str] = {}
                 loader_calls = [
                     node
@@ -1723,9 +1769,12 @@ def verify_transitive_test_bindings(
                             targets.extend(
                                 target.id for target in node.targets if isinstance(target, ast.Name)
                             )
-                        elif isinstance(node, ast.AnnAssign) and node.value is call:
-                            if isinstance(node.target, ast.Name):
-                                targets.append(node.target.id)
+                        elif (
+                            isinstance(node, ast.AnnAssign)
+                            and node.value is call
+                            and isinstance(node.target, ast.Name)
+                        ):
+                            targets.append(node.target.id)
                     if len(targets) != 1:
                         raise WaveFailure(
                             f"selected fixture module in {test_path}::{test_name} must bind to "
@@ -1773,7 +1822,13 @@ def verify_transitive_test_bindings(
             candidates = functions.get(callback_name, [])
             if len(candidates) != 1:
                 raise WaveFailure(
-                    f"fixture callback {kind}.{callback_name} from {test_path} is absent or ambiguous"
+                    f"fixture callback "
+                    f"{kind}"
+                    f"."
+                    f"{callback_name}"
+                    f" from "
+                    f"{test_path}"
+                    f" is absent or ambiguous"
                 )
             _verify_call_arity(
                 call,
@@ -1849,7 +1904,7 @@ def pytest_arguments(
 
 
 def junit_node_ids(junit_path: Path, original_doc_path: str) -> tuple[set[str], dict[str, int]]:
-    root = ET.parse(junit_path).getroot()
+    root = SafeET.parse(junit_path).getroot()
     cases = list(root.iter("testcase"))
     node_ids: set[str] = set()
     counts = {"tests": len(cases), "skipped": 0, "failures": 0, "errors": 0}
@@ -1859,7 +1914,7 @@ def junit_node_ids(junit_path: Path, original_doc_path: str) -> tuple[set[str], 
             path = original_doc_path
         else:
             dotted = classname.split(".")
-            path = "/".join(dotted[:-1] + [dotted[-1] + ".py"])
+            path = "/".join([*dotted[:-1], dotted[-1] + ".py"])
         node_ids.add(f"{path}::{case.attrib['name']}")
         counts["skipped"] += case.find("skipped") is not None
         counts["failures"] += case.find("failure") is not None
@@ -1941,7 +1996,9 @@ def verify_consumer_run(
         "junit_path": str(junit_path),
         "origin_proof_path": str(origin_path),
         "process_output": {
-            "capture_mode": "pytest -s; complete child/test stdout and stderr captured by run_command",
+            "capture_mode": (
+                "pytest -s; complete child/test stdout and stderr captured by run_command"
+            ),
             "stdout_path": str(stdout_path),
             "stdout_bytes": stdout_path.stat().st_size,
             "stdout_sha256": sha256_file(stdout_path),
@@ -1968,8 +2025,9 @@ def run_worker_profile(
     else:
         if platform.system() != "Linux":
             raise WaveFailure(
-                "worker provisioning is limited to Linux; supply an existing Linux worker interpreter "
-                "or run this frozen wave on the supported Linux worker"
+                "worker provisioning is limited to Linux; supply an existing Linux "
+                "worker interpreter or run this frozen wave on the supported Linux "
+                "worker"
             )
         worker_env = run_root / "worker-profile-env"
         worker_env.mkdir(parents=True, exist_ok=False)
@@ -1994,8 +2052,8 @@ def run_worker_profile(
             )
             if online.returncode:
                 raise WaveFailure(
-                    "locked worker profile failed both offline setup and the online locked fallback; "
-                    "both complete logs are retained"
+                    "locked worker profile failed both offline setup and the online "
+                    "locked fallback; both complete logs are retained"
                 )
         python = worker_env / ".venv" / "bin" / "python"
         if not python.is_file():
@@ -2076,7 +2134,8 @@ def run_wave(args: argparse.Namespace) -> Path:
             )
         if app_info["hatchling"] != "1.27.0":
             raise WaveFailure(
-                f"frozen app build environment must retain Hatchling 1.27.0, got {app_info['hatchling']}"
+                f"frozen app build environment must retain Hatchling 1.27.0, got "
+                f"{app_info['hatchling']}"
             )
         base_python = require_absolute_file(app_info["base_executable"], "app base Python")
         dependency_site = Path(app_info["purelib"]).resolve()
@@ -2084,7 +2143,9 @@ def run_wave(args: argparse.Namespace) -> Path:
         receipt["app_build_interpreter"] = app_info
         origin_gate_source, origin_gate_namespace = load_installed_origin_gate()
         receipt["installed_origin_gate_sha256"] = INSTALLED_ORIGIN_GATE_SHA256
-        receipt["hatchling_input_snapshot"] = origin_gate_namespace["verify_hatchling_distribution"](
+        receipt["hatchling_input_snapshot"] = origin_gate_namespace[
+            "verify_hatchling_distribution"
+        ](
             dependency_site,
             Path(app_info["prefix"]),
             HATCHLING_INPUT_INVENTORY_PATH,
@@ -2149,7 +2210,8 @@ def run_wave(args: argparse.Namespace) -> Path:
             log_dir=run_root / "logs",
             env=env,
         )
-        assert isinstance(source_build, tuple)
+        if not (isinstance(source_build, tuple)):
+            raise AssertionError()
         source_wheel, source_sdist = source_build
         source_wheel_receipt = verify_wheel(source_wheel, assets)
         sdist_receipt = verify_tar_assets(
@@ -2174,7 +2236,8 @@ def run_wave(args: argparse.Namespace) -> Path:
             log_dir=run_root / "logs",
             env=env,
         )
-        assert isinstance(sdist_wheel, Path)
+        if not (isinstance(sdist_wheel, Path)):
+            raise AssertionError()
         sdist_wheel_receipt = verify_wheel(sdist_wheel, assets)
 
         gcp_output = run_root / "gcp-archive"
@@ -2211,7 +2274,8 @@ def run_wave(args: argparse.Namespace) -> Path:
             log_dir=run_root / "logs",
             env=env,
         )
-        assert isinstance(gcp_wheel, Path)
+        if not (isinstance(gcp_wheel, Path)):
+            raise AssertionError()
         gcp_wheel_receipt = verify_wheel(gcp_wheel, assets)
 
         worker_python, worker_info = run_worker_profile(
@@ -2355,13 +2419,13 @@ def run_wave(args: argparse.Namespace) -> Path:
         return run_root
     except BaseException as error:
         receipt["status"] = "failed"
-        receipt["failure"] = f"{type(error).__name__}: {error}"
+        receipt["failure"] = _failure_receipt_text(error)
         receipt["finished_utc"] = datetime.now(UTC).isoformat()
         json_write(receipt_path, receipt)
         raise
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo", required=True, help="attached, clean repository root")
     parser.add_argument("--source-sha", required=True, help="actual full SHA of the frozen commit")
@@ -2379,13 +2443,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-root", help="optional new-run parent; defaults to this ignored LOCAL raw/runs"
     )
-    return parser.parse_args()
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Run the installed wave and preserve its machine- and human-readable status."""
+
+    try:
+        completed_run = run_wave(parse_args(argv))
+    except (OSError, WaveFailure, KeyError, ValueError, json.JSONDecodeError) as error:
+        sys.stderr.write(f"Q2 frozen installed wave failed: {error}\n")
+        return 1
+    sys.stdout.write(f"Q2 frozen installed wave passed: {completed_run}\n")
+    return 0
 
 
 if __name__ == "__main__":
-    try:
-        completed_run = run_wave(parse_args())
-    except (OSError, WaveFailure, KeyError, ValueError, json.JSONDecodeError) as error:
-        print(f"Q2 frozen installed wave failed: {error}", file=sys.stderr)
-        raise SystemExit(1) from error
-    print(f"Q2 frozen installed wave passed: {completed_run}")
+    raise SystemExit(main())

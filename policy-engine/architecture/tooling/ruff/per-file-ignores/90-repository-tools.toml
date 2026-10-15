@@ -67,3 +67,8 @@
 "tools/registry.py" = ["E501"]
 "tools/*" = ["T201"]
 "tools/**" = ["T201"]
+
+# Atlas and E02 semantic-probe assertions are allowed only in genuine test modules.
+"architecture/atlas_surfaces/test_*.py" = ["S101"]
+"docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/**/test_*.py" = ["S101"]
+"workers/**/tests/**" = ["ANN", "E501", "PT011", "PT018", "S101", "T201"]

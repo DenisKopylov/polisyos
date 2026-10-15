@@ -7,17 +7,54 @@ import hashlib
 import importlib.util
 import json
 import os
-import pytest
+import shutil
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 import unittest
-import zipfile
 import xml.etree.ElementTree as ET
+import zipfile
 from pathlib import Path
-from typing import Any
+from types import SimpleNamespace
+from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
+
+if TYPE_CHECKING:
+    from types import ModuleType
+
+
+import pytest
+from defusedxml import ElementTree as SafeET
+
+
+def _git_executable() -> str:
+    """Resolve Git once per process without relying on a partial PATH command."""
+    executable = shutil.which("git")
+    if executable is None:
+        raise RuntimeError("git executable is not available on PATH")
+    return str(Path(executable).resolve(strict=True))
+
+
+def _run_test_process(
+    argv: list[str],
+    *,
+    check: bool = True,
+    timeout: float | None = None,
+) -> subprocess.CompletedProcess[str]:
+    """Run only Git metadata or a source-local Python control without a shell."""
+    if not argv or argv[0] not in {_git_executable(), sys.executable}:
+        raise RuntimeError("test child executable is outside the Git/Python allowlist")
+    # S603: fixed absolute Git/Python executables, explicit argv, no shell, and local test source.
+    return subprocess.run(  # noqa: S603
+        argv,
+        capture_output=True,
+        check=check,
+        text=True,
+        timeout=timeout,
+        shell=False,
+    )
 
 
 HERE = Path(__file__).resolve().parent
@@ -30,7 +67,7 @@ spec.loader.exec_module(driver)
 TERMINAL_EVIDENCE_RECEIPTS: dict[str, Any] = {}
 
 
-def _load_sibling_module(module_name: str, path: Path) -> Any:
+def _load_sibling_module(module_name: str, path: Path) -> ModuleType:
     sibling_spec = importlib.util.spec_from_file_location(module_name, path)
     if sibling_spec is None or sibling_spec.loader is None:
         raise RuntimeError(f"cannot load Q2 test module: {path}")
@@ -50,11 +87,8 @@ audit_api = _load_sibling_module(
 
 def test_audit_recomputes_frozen_resource_hashes_from_the_checkout() -> None:
     repo = Path.cwd()
-    source_sha = subprocess.run(
-        ["git", "-C", str(repo), "rev-parse", "HEAD"],
-        capture_output=True,
-        check=True,
-        text=True,
+    source_sha = _run_test_process(
+        [_git_executable(), "-C", str(repo), "rev-parse", "HEAD"]
     ).stdout.strip()
     assets, receipt = audit_api.asset_rows_from_config(repo, source_sha, {})
     assert assets
@@ -66,11 +100,8 @@ def test_freeze_audit_binds_supplemental_sources_and_linux_capture_hook(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     repo = Path.cwd().resolve()
-    source_sha = subprocess.run(
-        ["git", "-C", str(repo), "rev-parse", "HEAD"],
-        capture_output=True,
-        check=True,
-        text=True,
+    source_sha = _run_test_process(
+        [_git_executable(), "-C", str(repo), "rev-parse", "HEAD"]
     ).stdout.strip()
     supplemental_runner = (HERE / "supplemental_run.py").read_bytes()
     supplemental_manifest = (HERE / "supplemental-manifest.json").read_bytes()
@@ -115,11 +146,8 @@ def test_freeze_audit_refuses_missing_tracked_supplemental_manifest(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     repo = Path.cwd().resolve()
-    source_sha = subprocess.run(
-        ["git", "-C", str(repo), "rev-parse", "HEAD"],
-        capture_output=True,
-        check=True,
-        text=True,
+    source_sha = _run_test_process(
+        [_git_executable(), "-C", str(repo), "rev-parse", "HEAD"]
     ).stdout.strip()
     supplemental_runner = (HERE / "supplemental_run.py").read_bytes()
     supplemental_manifest_rel = f"{audit_api.HANDOFF_REL}/raw/supplemental-manifest.json"
@@ -149,11 +177,8 @@ def test_freeze_audit_refuses_missing_tracked_linux_capture_hook(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     repo = Path.cwd().resolve()
-    source_sha = subprocess.run(
-        ["git", "-C", str(repo), "rev-parse", "HEAD"],
-        capture_output=True,
-        check=True,
-        text=True,
+    source_sha = _run_test_process(
+        [_git_executable(), "-C", str(repo), "rev-parse", "HEAD"]
     ).stdout.strip()
     originals = audit_api.read_commit_blob
 
@@ -238,7 +263,7 @@ def test_supplemental_resource_count_rejects_float_and_boolean_counterfeits() ->
             supplemental_api.require_exact_resource_count(counterfeit, 11)
 
 
-def load_reviewed_runner():
+def load_reviewed_runner() -> ModuleType:
     manifest_path = HERE.parent / "installed-wave-manifest.json"
     manifest_sha256 = hashlib.sha256(manifest_path.read_bytes()).hexdigest()
     return driver._load_reviewed_runner(HERE / "timeout_driver.py", manifest_path, manifest_sha256)
@@ -288,15 +313,17 @@ def _manifest() -> dict[str, Any]:
 
 
 class SyntheticRunner:
-    class WaveFailure(RuntimeError):
+    class WaveFailure(RuntimeError):  # noqa: N818 - fixtures preserve the serialized error class.
         pass
+
+    WaveFailureError = WaveFailure
 
     def __init__(self, *, timeout_profile: str | None = None) -> None:
         self.calls: list[dict[str, Any]] = []
         self.timeout_profile = timeout_profile
 
     @staticmethod
-    def json_write(path: Path, value: Any) -> None:
+    def json_write(path: Path, value: object) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
@@ -345,7 +372,7 @@ class SyntheticRunner:
 
     @staticmethod
     def junit_node_ids(junit_path: Path, original_doc_path: str) -> tuple[set[str], dict[str, int]]:
-        root = ET.parse(junit_path).getroot()
+        root = SafeET.parse(junit_path).getroot()
         ids: set[str] = set()
         counts = {"tests": 0, "skipped": 0, "failures": 0, "errors": 0}
         for case in root.iter("testcase"):
@@ -354,7 +381,7 @@ class SyntheticRunner:
             path = (
                 original_doc_path
                 if classname == "test_installed_catalog_defaults"
-                else ("/".join(dotted[:-1] + [dotted[-1] + ".py"]))
+                else ("/".join([*dotted[:-1], dotted[-1] + ".py"]))
             )
             ids.add(f"{path}::{case.attrib['name']}")
             counts["tests"] += 1
@@ -500,7 +527,7 @@ class TimeoutDriverTests(unittest.TestCase):
         self.runner = SyntheticRunner()
         self.manifest = _manifest()
 
-    def call_profile(self, state: dict[str, Any], profile: str) -> Any:
+    def call_profile(self, state: dict[str, object], profile: str) -> object:
         output = self.run_root / "consumer-runs" / profile
         output.mkdir(parents=True, exist_ok=True)
         return self.runner.run_command(
@@ -534,7 +561,7 @@ class TimeoutDriverTests(unittest.TestCase):
                 "rebuilt-gcp-archive-wheel",
                 timeout_seconds=5,
             )
-        self.assertEqual([call["timeout_seconds"] for call in self.runner.calls], [None, 4, 5])
+        assert [call["timeout_seconds"] for call in self.runner.calls] == [None, 4, 5]
         if not all(call["stream_output"] for call in self.runner.calls):
             raise AssertionError("consumer commands did not retain direct stream output")
         if not state["profiles"][1]["predecessor_validation"][
@@ -557,20 +584,20 @@ class TimeoutDriverTests(unittest.TestCase):
             status="passed",
             failure=None,
         )
-        self.assertEqual(sidecar, self.run_root / "timeout-calibration.json")
+        assert sidecar == self.run_root / "timeout-calibration.json"
         sidecar_record = json.loads(sidecar.read_text(encoding="utf-8"))
-        self.assertEqual(sidecar_record["status"], "passed")
+        assert sidecar_record["status"] == "passed"
         for profile in sidecar_record["profiles"]:
-            self.assertEqual(profile["terminal_evidence_verification"]["status"], "verified")
-            self.assertTrue(driver.verify_terminal_command_evidence(profile["terminal_evidence"]))
+            assert profile["terminal_evidence_verification"]["status"] == "verified"
+            assert driver.verify_terminal_command_evidence(profile["terminal_evidence"])
         TERMINAL_EVIDENCE_RECEIPTS["successful_profiles_sidecar"] = {
             "path": str(sidecar),
             "sha256": hashlib.sha256(sidecar.read_bytes()).hexdigest(),
         }
         sidecar_content = sidecar.read_text(encoding="utf-8")
-        self.assertNotIn("synthetic stdout", sidecar_content)
-        self.assertIn('"stdout"', sidecar_content)
-        self.assertIn('"command_record"', sidecar_content)
+        assert "synthetic stdout" not in sidecar_content
+        assert '"stdout"' in sidecar_content
+        assert '"command_record"' in sidecar_content
 
     def test_failed_prior_junit_blocks_next_profile(self) -> None:
         state = driver.install_adaptive_run_command(self.runner, self.manifest)
@@ -583,9 +610,9 @@ class TimeoutDriverTests(unittest.TestCase):
             failing_junit=True,
         )
         before = len(self.runner.calls)
-        with self.assertRaises(self.runner.WaveFailure):
+        with pytest.raises(self.runner.WaveFailure):
             self.call_profile(state, "rebuilt-sdist-wheel")
-        self.assertEqual(len(self.runner.calls), before)
+        assert len(self.runner.calls) == before
 
     def test_wrong_node_set_with_current_suite_count_blocks_next_profile(self) -> None:
         state = driver.install_adaptive_run_command(self.runner, self.manifest)
@@ -595,9 +622,9 @@ class TimeoutDriverTests(unittest.TestCase):
         ids.add("tests/additional.py::test_unselected_impostor")
         write_profile_receipt(self.runner, self.manifest, self.run_root, "source-wheel", ids=ids)
         before = len(self.runner.calls)
-        with self.assertRaises(self.runner.WaveFailure):
+        with pytest.raises(self.runner.WaveFailure):
             self.call_profile(state, "rebuilt-sdist-wheel")
-        self.assertEqual(len(self.runner.calls), before)
+        assert len(self.runner.calls) == before
         if len(ids) != len(self.manifest["current_primary_suite"]["selected_node_ids"]):
             raise AssertionError("wrong-ID probe did not preserve the selected-set count")
 
@@ -642,14 +669,14 @@ class TimeoutDriverTests(unittest.TestCase):
         with patch.object(driver.time, "monotonic", side_effect=lambda: next(ticks)):
             self.call_profile(state, "source-wheel")
             write_profile_receipt(self.runner, self.manifest, self.run_root, "source-wheel")
-            with self.assertRaises(self.runner.WaveFailure):
+            with pytest.raises(self.runner.WaveFailure):
                 self.call_profile(state, "rebuilt-sdist-wheel")
-        self.assertEqual([call["timeout_seconds"] for call in self.runner.calls], [None, 2])
+        assert [call["timeout_seconds"] for call in self.runner.calls] == [None, 2]
         timed_out = state["profiles"][-1]
-        self.assertEqual(timed_out["outcome"], "timed_out")
-        self.assertTrue(Path(timed_out["stdout_path"]).is_file())
-        self.assertTrue(Path(timed_out["stderr_path"]).is_file())
-        self.assertTrue(driver.verify_terminal_command_evidence(timed_out["terminal_evidence"]))
+        assert timed_out["outcome"] == "timed_out"
+        assert Path(timed_out["stdout_path"]).is_file()
+        assert Path(timed_out["stderr_path"]).is_file()
+        assert driver.verify_terminal_command_evidence(timed_out["terminal_evidence"])
         manifest_path = self.run_root / "manifest.json"
         manifest_path.write_text(json.dumps(self.manifest, sort_keys=True) + "\n", encoding="utf-8")
         sidecar = driver._write_calibration_sidecar(
@@ -667,10 +694,10 @@ class TimeoutDriverTests(unittest.TestCase):
             failure="synthetic timeout",
         )
         sidecar_record = json.loads(sidecar.read_text(encoding="utf-8"))
-        self.assertEqual(sidecar_record["status"], "failed")
-        self.assertEqual(sidecar_record["profiles"][-1]["outcome"], "timed_out")
-        self.assertEqual(
-            sidecar_record["profiles"][-1]["terminal_evidence_verification"]["status"], "verified"
+        assert sidecar_record["status"] == "failed"
+        assert sidecar_record["profiles"][-1]["outcome"] == "timed_out"
+        assert (
+            sidecar_record["profiles"][-1]["terminal_evidence_verification"]["status"] == "verified"
         )
         TERMINAL_EVIDENCE_RECEIPTS["timed_out_profile_sidecar"] = {
             "path": str(sidecar),
@@ -684,7 +711,7 @@ class TimeoutDriverTests(unittest.TestCase):
             "import sys,time; print('Q2_DRIVER_TIMEOUT_STDOUT', flush=True); "
             "print('Q2_DRIVER_TIMEOUT_STDERR', file=sys.stderr, flush=True); time.sleep(5)"
         )
-        with self.assertRaises(runner.WaveFailure):
+        with pytest.raises(runner.WaveFailure):
             runner.run_command(
                 [sys.executable, "-c", program],
                 cwd=self.run_root,
@@ -694,18 +721,16 @@ class TimeoutDriverTests(unittest.TestCase):
                 stream_output=True,
                 timeout_seconds=0.2,
             )
-        self.assertIn(b"Q2_DRIVER_TIMEOUT_STDOUT", log_stem.with_suffix(".stdout.txt").read_bytes())
-        self.assertIn(b"Q2_DRIVER_TIMEOUT_STDERR", log_stem.with_suffix(".stderr.txt").read_bytes())
+        assert b"Q2_DRIVER_TIMEOUT_STDOUT" in log_stem.with_suffix(".stdout.txt").read_bytes()
+        assert b"Q2_DRIVER_TIMEOUT_STDERR" in log_stem.with_suffix(".stderr.txt").read_bytes()
         command = json.loads(log_stem.with_suffix(".command.json").read_text(encoding="utf-8"))
-        self.assertTrue(command["timed_out"])
-        self.assertEqual(command["timeout_seconds"], 0.2)
+        assert command["timed_out"]
+        assert command["timeout_seconds"] == 0.2
         evidence = driver.capture_terminal_command_evidence(log_stem)
-        self.assertTrue(driver.verify_terminal_command_evidence(evidence))
-        self.assertEqual(
-            evidence["command_record"]["path"], str(log_stem.with_suffix(".command.json"))
-        )
-        self.assertTrue(evidence["stdout"]["available"])
-        self.assertTrue(evidence["stderr"]["available"])
+        assert driver.verify_terminal_command_evidence(evidence)
+        assert evidence["command_record"]["path"] == str(log_stem.with_suffix(".command.json"))
+        assert evidence["stdout"]["available"]
+        assert evidence["stderr"]["available"]
         TERMINAL_EVIDENCE_RECEIPTS["actual_timeout_child"] = evidence
 
     def test_reviewed_runner_nonzero_child_binds_command_and_stream_bytes(self) -> None:
@@ -724,24 +749,19 @@ class TimeoutDriverTests(unittest.TestCase):
             check=False,
             stream_output=True,
         )
-        self.assertEqual(result.returncode, 17)
+        assert result.returncode == 17
         evidence = state["profiles"][-1]["terminal_evidence"]
-        self.assertTrue(driver.verify_terminal_command_evidence(evidence))
+        assert driver.verify_terminal_command_evidence(evidence)
         command = json.loads(log_stem.with_suffix(".command.json").read_text(encoding="utf-8"))
-        self.assertEqual(
-            evidence["command_record"]["sha256"],
-            runner.sha256_file(log_stem.with_suffix(".command.json")),
+        assert evidence["command_record"]["sha256"] == runner.sha256_file(
+            log_stem.with_suffix(".command.json")
         )
-        self.assertEqual(command["returncode"], 17)
-        self.assertEqual(
-            evidence["stdout"]["bytes"], log_stem.with_suffix(".stdout.txt").stat().st_size
-        )
-        self.assertEqual(
-            evidence["stderr"]["bytes"], log_stem.with_suffix(".stderr.txt").stat().st_size
-        )
+        assert command["returncode"] == 17
+        assert evidence["stdout"]["bytes"] == log_stem.with_suffix(".stdout.txt").stat().st_size
+        assert evidence["stderr"]["bytes"] == log_stem.with_suffix(".stderr.txt").stat().st_size
         command_path = Path(evidence["command_record"]["path"])
         command_path.write_bytes(b"{}\n")
-        self.assertTrue(command_path.exists())
+        assert command_path.exists()
         TERMINAL_EVIDENCE_RECEIPTS["actual_nonzero_child"] = {
             "captured_terminal_evidence": evidence,
             "same_path_after_tamper": {
@@ -750,7 +770,7 @@ class TimeoutDriverTests(unittest.TestCase):
                 "sha256": hashlib.sha256(command_path.read_bytes()).hexdigest(),
             },
         }
-        with self.assertRaises(driver.DriverFailure):
+        with pytest.raises(driver.DriverFailure):
             driver.verify_terminal_command_evidence(evidence)
 
     def test_same_path_partial_stream_tampering_fails_terminal_evidence_verification(self) -> None:
@@ -760,7 +780,7 @@ class TimeoutDriverTests(unittest.TestCase):
             "import sys,time; print('Q2_DRIVER_TAMPER_STDOUT', flush=True); "
             "print('Q2_DRIVER_TAMPER_STDERR', file=sys.stderr, flush=True); time.sleep(5)"
         )
-        with self.assertRaises(runner.WaveFailure):
+        with pytest.raises(runner.WaveFailure):
             runner.run_command(
                 [sys.executable, "-c", program],
                 cwd=self.run_root,
@@ -771,11 +791,11 @@ class TimeoutDriverTests(unittest.TestCase):
                 timeout_seconds=0.2,
             )
         evidence = driver.capture_terminal_command_evidence(log_stem)
-        self.assertTrue(driver.verify_terminal_command_evidence(evidence))
+        assert driver.verify_terminal_command_evidence(evidence)
         stdout_path = Path(evidence["stdout"]["path"])
-        self.assertEqual(stdout_path, log_stem.with_suffix(".stdout.txt"))
+        assert stdout_path == log_stem.with_suffix(".stdout.txt")
         stdout_path.write_bytes(b"X" * evidence["stdout"]["bytes"])
-        self.assertTrue(stdout_path.exists())
+        assert stdout_path.exists()
         TERMINAL_EVIDENCE_RECEIPTS["partial_stream_same_path_tamper"] = {
             "captured_terminal_evidence": evidence,
             "same_path_after_tamper": {
@@ -784,7 +804,7 @@ class TimeoutDriverTests(unittest.TestCase):
                 "sha256": hashlib.sha256(stdout_path.read_bytes()).hexdigest(),
             },
         }
-        with self.assertRaises(driver.DriverFailure):
+        with pytest.raises(driver.DriverFailure):
             driver.verify_terminal_command_evidence(evidence)
 
     def test_missing_terminal_stream_is_explicit_unavailable_evidence(self) -> None:
@@ -801,10 +821,10 @@ class TimeoutDriverTests(unittest.TestCase):
         stderr_path = log_stem.with_suffix(".stderr.txt")
         stderr_path.unlink()
         evidence = driver.capture_terminal_command_evidence(log_stem)
-        self.assertFalse(evidence["stderr"]["available"])
-        self.assertEqual(evidence["stderr"]["unavailable_reason"], "file_missing")
+        assert not evidence["stderr"]["available"]
+        assert evidence["stderr"]["unavailable_reason"] == "file_missing"
         TERMINAL_EVIDENCE_RECEIPTS["explicit_missing_stream"] = evidence
-        with self.assertRaises(driver.DriverFailure):
+        with pytest.raises(driver.DriverFailure):
             driver.verify_terminal_command_evidence(evidence)
 
     def test_fifo_capture_without_writer_is_nonblocking_and_nonregular(self) -> None:
@@ -816,16 +836,14 @@ class TimeoutDriverTests(unittest.TestCase):
             "module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module); "
             "print(json.dumps(module._capture_file_binding(__import__('pathlib').Path(sys.argv[2]))))"
         )
-        result = subprocess.run(
+        result = _run_test_process(
             [sys.executable, "-B", "-c", program, str(HERE / "timeout_driver.py"), str(fifo_path)],
-            capture_output=True,
-            text=True,
             check=True,
             timeout=0.75,
         )
         binding = json.loads(result.stdout)
-        self.assertFalse(binding["available"])
-        self.assertEqual(binding["unavailable_reason"], "not_regular_file")
+        assert not binding["available"]
+        assert binding["unavailable_reason"] == "not_regular_file"
         TERMINAL_EVIDENCE_RECEIPTS["fifo_without_writer"] = binding
 
     def test_nonregular_family_and_changed_regular_file_controls(self) -> None:
@@ -835,7 +853,8 @@ class TimeoutDriverTests(unittest.TestCase):
         symlink_path.symlink_to(regular_target)
         directory_path = self.run_root / "directory-path"
         directory_path.mkdir()
-        socket_path = Path("/tmp") / f"q2-socket-{self.run_root.name[-12:]}"
+        socket_dir = Path(tempfile.mkdtemp(prefix="q2-socket-", dir=tempfile.gettempdir()))
+        socket_path = socket_dir / "s"
         listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         listener.bind(str(socket_path))
         family_receipt = {}
@@ -849,8 +868,8 @@ class TimeoutDriverTests(unittest.TestCase):
             for path in nonregular_paths:
                 with self.subTest(path=str(path)):
                     binding = driver._capture_file_binding(path)
-                    self.assertFalse(binding["available"])
-                    self.assertEqual(binding["unavailable_reason"], "not_regular_file")
+                    assert not binding["available"]
+                    assert binding["unavailable_reason"] == "not_regular_file"
                     family_receipt[path.name] = {
                         "path": str(path),
                         "available": binding["available"],
@@ -858,6 +877,8 @@ class TimeoutDriverTests(unittest.TestCase):
                     }
         finally:
             listener.close()
+            socket_path.unlink(missing_ok=True)
+            socket_dir.rmdir()
         TERMINAL_EVIDENCE_RECEIPTS["nonregular_file_family"] = family_receipt
 
         log_stem = self.run_root / "regular-control" / "consumer-suite"
@@ -869,10 +890,10 @@ class TimeoutDriverTests(unittest.TestCase):
         log_stem.with_suffix(".stdout.txt").write_bytes(b"regular stdout\n")
         log_stem.with_suffix(".stderr.txt").write_bytes(b"regular stderr\n")
         evidence = driver.capture_terminal_command_evidence(log_stem)
-        self.assertTrue(driver.verify_terminal_command_evidence(evidence))
+        assert driver.verify_terminal_command_evidence(evidence)
         stdout_path = Path(evidence["stdout"]["path"])
         stdout_path.write_bytes(b"changed stdout\n")
-        with self.assertRaises(driver.DriverFailure):
+        with pytest.raises(driver.DriverFailure):
             driver.verify_terminal_command_evidence(evidence)
         TERMINAL_EVIDENCE_RECEIPTS["changed_regular_control"] = {
             "captured_sha256": evidence["stdout"]["sha256"],
@@ -901,16 +922,30 @@ class TimeoutDriverTests(unittest.TestCase):
                 "        path.write_text(json.dumps(value)+'\\n',encoding='utf-8')",
                 "runner=Runner()",
                 "log_stem=Path(sys.argv[3])",
-                "def original(argv,*,cwd,env,log_stem,check=True,stream_output=False,timeout_seconds=None):",
+                (
+                    "def original(argv,*,cwd,env,log_stem,check=True,stream_output=False,"
+                    "timeout_seconds=None):"
+                ),
                 "    log_stem.parent.mkdir(parents=True,exist_ok=True)",
-                "    log_stem.with_suffix('.stderr.txt').write_text('retained stderr\\n',encoding='utf-8')",
-                "    Runner.json_write(log_stem.with_suffix('.command.json'),{'returncode':0,'timed_out':False,'stream_output':True,'timeout_seconds':timeout_seconds})",
+                (
+                    "    log_stem.with_suffix('.stderr.txt').write_text('retained "
+                    "stderr\\n',encoding='utf-8')"
+                ),
+                (
+                    "    Runner.json_write(log_stem.with_suffix('.command.json'),{'return"
+                    "code':0,'timed_out':False,'stream_output':True,'timeout_seconds':tim"
+                    "eout_seconds})"
+                ),
                 "    return subprocess.CompletedProcess(argv,0,'','')",
                 "runner.run_command=original",
                 "state=driver.install_adaptive_run_command(runner,{})",
                 "started=time.monotonic()",
                 "try:",
-                "    runner.run_command(['synthetic child'],cwd=Path(sys.argv[2]),env={},log_stem=log_stem,check=False,stream_output=True)",
+                (
+                    "    runner.run_command(['synthetic "
+                    "child'],cwd=Path(sys.argv[2]),env={},log_stem=log_stem,check=False,s"
+                    "tream_output=True)"
+                ),
                 "except Runner.WaveFailure as error:",
                 "    wrapper_error=str(error)",
                 "else:",
@@ -924,7 +959,7 @@ class TimeoutDriverTests(unittest.TestCase):
                 "print(json.dumps({'elapsed_seconds':time.monotonic()-started,'sidecar_status':record['status'],'verification':profile['terminal_evidence_verification'],'stdout':profile['terminal_evidence']['stdout'],'sidecar_path':str(sidecar)}))",
             )
         )
-        result = subprocess.run(
+        result = _run_test_process(
             [
                 sys.executable,
                 "-B",
@@ -940,10 +975,10 @@ class TimeoutDriverTests(unittest.TestCase):
             timeout=1.0,
         )
         receipt = json.loads(result.stdout)
-        self.assertEqual(receipt["sidecar_status"], "failed")
-        self.assertEqual(receipt["verification"]["status"], "failed")
-        self.assertFalse(receipt["stdout"]["available"])
-        self.assertEqual(receipt["stdout"]["unavailable_reason"], "not_regular_file")
+        assert receipt["sidecar_status"] == "failed"
+        assert receipt["verification"]["status"] == "failed"
+        assert not receipt["stdout"]["available"]
+        assert receipt["stdout"]["unavailable_reason"] == "not_regular_file"
         sidecar_path = Path(receipt["sidecar_path"])
         TERMINAL_EVIDENCE_RECEIPTS["fifo_wrapper_sidecar"] = {
             "elapsed_seconds": receipt["elapsed_seconds"],
@@ -968,7 +1003,6 @@ if __name__ == "__main__":
     report_path = HERE / "timeout-driver-harness" / f"report-{time.time_ns()}.json"
     report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({**report, "report_path": str(report_path)}, sort_keys=True))
     raise SystemExit(0 if result.wasSuccessful() else 1)
 
 
@@ -1186,8 +1220,10 @@ def test_audit_status_and_supplemental_count_guards_reject_aliases(tmp_path: Pat
 
 def test_timed_driver_expected_baseline_count_is_typed_before_timeout_use(tmp_path: Path) -> None:
     class MinimalRunner:
-        class WaveFailure(RuntimeError):
+        class WaveFailureError(RuntimeError):
             pass
+
+        WaveFailure = WaveFailureError
 
         @staticmethod
         def baseline_node_ids(product: Path, manifest: dict[str, Any]) -> set[str]:
@@ -1454,8 +1490,10 @@ def _timeout_profile_fixture(
     origin_path.write_text(json.dumps({"verified": True}), encoding="utf-8")
 
     class MinimalRunner:
-        class WaveFailure(RuntimeError):
+        class WaveFailureError(RuntimeError):
             pass
+
+        WaveFailure = WaveFailureError
 
         @staticmethod
         def baseline_node_ids(product: Path, manifest: dict[str, Any]) -> set[str]:
@@ -1821,3 +1859,82 @@ def test_terminal_evidence_rejects_schema_version_aliases(tmp_path: Path) -> Non
         candidate["schema_version"] = counterfeit
         with pytest.raises(driver.DriverFailure, match="schema version"):
             driver.verify_terminal_command_evidence(candidate)
+
+
+def test_failure_receipt_type_names_remain_wire_compatible() -> None:
+    wave_error = runner_api.WaveFailure("wire-control")
+    driver_error = driver.DriverFailure("wire-control")
+    actual_runner_sha = hashlib.sha256(Path(runner_api.__file__).read_bytes()).hexdigest()
+    assert actual_runner_sha == driver.EXPECTED_RUNNER_SHA256
+    assert runner_api.WaveFailureError is runner_api.WaveFailure
+    assert driver.DriverFailureError is driver.DriverFailure
+    assert runner_api._failure_receipt_text(wave_error) == "WaveFailure: wire-control"
+    assert driver._failure_receipt_text(driver_error) == "DriverFailure: wire-control"
+
+
+def test_primary_runner_cli_preserves_status_output(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setattr(runner_api, "parse_args", lambda argv=None: object())
+    monkeypatch.setattr(runner_api, "run_wave", lambda args: tmp_path / "q2-cli-control")
+    assert runner_api.main([]) == 0
+    success = capsys.readouterr()
+    assert success.out == f"Q2 frozen installed wave passed: {tmp_path / 'q2-cli-control'}\n"
+    monkeypatch.setattr(
+        runner_api,
+        "run_wave",
+        lambda args: (_ for _ in ()).throw(runner_api.WaveFailure("cli-control")),
+    )
+    assert runner_api.main([]) == 1
+    failure = capsys.readouterr()
+    assert failure.err == "Q2 frozen installed wave failed: cli-control\n"
+
+
+def test_timeout_driver_cli_preserves_status_output(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path,
+) -> None:
+    args = SimpleNamespace(source_sha="a" * 40, source_tree="b" * 40)
+    runner = SimpleNamespace(
+        parse_args=lambda: args,
+        run_wave=lambda _parsed: tmp_path / "timeout-wave",
+    )
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "timeout_driver.py",
+            "--manifest",
+            str(tmp_path / "manifest.json"),
+            "--manifest-sha256",
+            "c" * 64,
+        ],
+    )
+    monkeypatch.setattr(
+        driver,
+        "_load_reviewed_runner",
+        lambda *_args: (
+            runner,
+            {},
+            tmp_path / "runner.py",
+            tmp_path / "manifest.json",
+            "d" * 64,
+            "c" * 64,
+        ),
+    )
+    monkeypatch.setattr(driver, "install_adaptive_run_command", lambda *_args: {})
+    monkeypatch.setattr(driver, "_write_calibration_sidecar", lambda *_args, **_kwargs: None)
+    assert driver.main() == 0
+    success = capsys.readouterr()
+    assert success.out == f"Q2 frozen installed wave passed: {tmp_path / 'timeout-wave'}\n"
+
+    def fail(_parsed: object) -> Path:
+        raise driver.DriverFailure("timeout-cli-control")
+
+    runner.run_wave = fail
+    assert driver.main() == 1
+    failure = capsys.readouterr()
+    assert failure.err == "Q2 timeout driver failed: timeout-cli-control\n"

@@ -64,7 +64,10 @@ System notes:
   complete-component `**`. Path glob metacharacters, backslashes, negative or otherwise
   unrepresentable matchers, malformed maps, indirect/local maps, and overlapping child overrides
   fail closed; other nested Ruff settings remain local and outside workspace-root projection.
-  The product-root pyproject.toml only declares Ruff as a lint dependency.
+  The product-root pyproject.toml only declares Ruff as a lint dependency. Root automatic
+  discovery excludes historical evidence snapshots and the separate Phase 8 roots; workspace
+  commands pass maintained source and evidence-script roots explicitly. A bare `ruff check .`
+  result is not the complete authored-Python denominator.
 - The shared policy uses `line-length = 100`, `target-version = "py314"`, and rule prefixes
   `E`, `F`, `I`, `B`, `T20`, `N`, `UP`, `S`, `PT`, `SIM`, `RUF`, `ANN`, `C4`, and `TCH`;
   package-specific per-file ignores come from the split fragments.

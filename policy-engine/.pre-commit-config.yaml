@@ -43,13 +43,17 @@ repos:
           (?x)^policy-engine/(
             src/polisyos/.*\.pyi?$|
             tests/.*\.pyi?$|
-            tools/.*\.pyi?$|
-            benchmarks/.*\.pyi?$|
+            tools/(?!research/).*\.pyi?$|
+            architecture/.*\.pyi?$|
+            apps/.*\.pyi?$|
+            workers/dowhy-014/.*\.pyi?$|
+            dev-oracles/rdd-cct/.*\.pyi?$|
             schemas/.*\.pyi?$|
             examples/.*\.pyi?$|
             ops/cloud/gcp/.*\.pyi?$|
             jax_bootstrap\.py$|
-            migrate\.py$
+            migrate\.py$|
+            docs/(research/e02-cloud-test-plan/(implementation-handoffs/LOCAL|closure-decisions|execution-organization|execution-prompts/unified-local-2026-10-09|full-run|results|verification/F/api-20261006)|plans/active/agent-packages|research/policy-operations|superpowers/research)/.*\.pyi?$
           )
       - id: ruff-format
         args: [--config=policy-engine/architecture/tooling/ruff/workspace_root.toml]
@@ -58,14 +62,21 @@ repos:
             src/polisyos/.*\.pyi?$|
             tests/.*\.pyi?$|
             tools/.*\.pyi?$|
+            architecture/.*\.pyi?$|
+            apps/.*\.pyi?$|
+            workers/dowhy-014/.*\.pyi?$|
+            dev-oracles/rdd-cct/.*\.pyi?$|
             benchmarks/.*\.pyi?$|
             schemas/.*\.pyi?$|
             examples/.*\.pyi?$|
             ops/cloud/gcp/.*\.pyi?$|
+            docs/research/e02-cloud-test-plan/(implementation-handoffs/LOCAL|closure-decisions|execution-organization|execution-prompts/unified-local-2026-10-09|full-run|results|verification/F/api-20261006)/.*\.pyi?$|
+            docs/plans/active/agent-packages/.*\.pyi?$|
+            docs/research/policy-operations/.*\.pyi?$|
+            docs/superpowers/research/.*\.pyi?$|
             jax_bootstrap\.py$|
             migrate\.py$
           )
-
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: v0.22.0
     hooks:

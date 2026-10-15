@@ -20,6 +20,7 @@ import json
 import os
 import posixpath
 import re
+import shutil
 import subprocess
 import sys
 import tarfile
@@ -33,12 +34,24 @@ from functools import lru_cache
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+
+def _resolve_executable(command: str) -> str:
+    """Resolve a configured executable once without changing PATH lookup order."""
+    resolved = shutil.which(command)
+    return str(Path(resolved).resolve()) if resolved is not None else command
+
+
+def _emit_cli(value: object, *, stderr: bool = False) -> None:
+    """Write one print-compatible CLI value and its default trailing newline."""
+    stream = sys.stderr if stderr else sys.stdout
+    stream.write(str(value) + "\n")
+
+
 try:
     from jsonschema import Draft202012Validator, FormatChecker
 except ImportError as exc:  # pragma: no cover - fail-closed operator path
     raise SystemExit(
-        "jsonschema>=4.25 is required; run this checker from the repository "
-        "toolchain environment"
+        "jsonschema>=4.25 is required; run this checker from the repository toolchain environment"
     ) from exc
 
 
@@ -54,21 +67,15 @@ REPORT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-frontend-disposition-re
 AUDIT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-live-application-audit.md"
 STATUS_CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
 STATUS_INVENTORY_PATH = ATLAS_DIR / "status-retirement-inventory.json"
-DS18_TIME_SEMANTICS_SCANNER_REF = (
-    "architecture/atlas_surfaces/decision_time_semantics_scan.mjs"
-)
+DS18_TIME_SEMANTICS_SCANNER_REF = "architecture/atlas_surfaces/decision_time_semantics_scan.mjs"
 DS18_TIME_SEMANTICS_SCANNER_PATH = REPO_ROOT / DS18_TIME_SEMANTICS_SCANNER_REF
-DS18_TIME_SEMANTICS_SCHEMA_ID = (
-    "polisyos.atlas.ds18-time-semantics-coverage.v1"
-)
+DS18_TIME_SEMANTICS_SCHEMA_ID = "polisyos.atlas.ds18-time-semantics-coverage.v1"
 DS18_TIME_SEMANTICS_REVIEWER = "DS18-C06-independent-root-reconciliation"
 DS18_TIME_SEMANTICS_LANDING_RULE = (
     "the slice landing a post-freeze production render/export root owns its "
     "fresh file/root receipt, independent classification, and behavioral proof"
 )
-DS18_TIME_SEMANTICS_LINEAGE_SCHEMA_ID = (
-    "polisyos.atlas.ds18-time-semantics-lineage.v1"
-)
+DS18_TIME_SEMANTICS_LINEAGE_SCHEMA_ID = "polisyos.atlas.ds18-time-semantics-lineage.v1"
 DS18_TIME_SEMANTICS_LINEAGE_SELECTOR_IDENTITY = (
     "path + component_identity + component-local occurrence, content-bound by "
     "root_id and root_source_sha256"
@@ -79,15 +86,10 @@ DS18_TIME_SEMANTICS_LINEAGE_COMPOSITION_RULE = (
     "reconciliation rebindings; counts are derived summaries"
 )
 DS18_TIME_SEMANTICS_GIT_REGISTER_REF = (
-    "policy-engine/architecture/atlas_surfaces/"
-    "frontend-disposition-register.json"
+    "policy-engine/architecture/atlas_surfaces/frontend-disposition-register.json"
 )
-DS18_TIME_SEMANTICS_OBLIGATION_CLASSES = frozenset(
-    {"decision_bearing", "inherits_admitted_dom"}
-)
-DS18_TIME_SEMANTICS_LINEAGE_FREEZE_COMMIT = (
-    "3011c9584a0327661c8f5a9b695a1769ddb64385"
-)
+DS18_TIME_SEMANTICS_OBLIGATION_CLASSES = frozenset({"decision_bearing", "inherits_admitted_dom"})
+DS18_TIME_SEMANTICS_LINEAGE_FREEZE_COMMIT = "3011c9584a0327661c8f5a9b695a1769ddb64385"
 DS18_TIME_SEMANTICS_LINEAGE_LANDINGS = (
     (
         "DS15",
@@ -110,50 +112,33 @@ DS18_TIME_SEMANTICS_GENERATED_MANIFEST_GIT_REF = (
     "policy-engine/architecture/generated_artifacts.toml"
 )
 DS18_TIME_SEMANTICS_SCANNER_GIT_REF = (
-    "policy-engine/architecture/atlas_surfaces/"
-    "decision_time_semantics_scan.mjs"
+    "policy-engine/architecture/atlas_surfaces/decision_time_semantics_scan.mjs"
 )
-DS18_TIME_SEMANTICS_SOURCE_GIT_ROOT = (
-    "policy-engine/apps/runtime-dashboard/src"
-)
+DS18_TIME_SEMANTICS_SOURCE_GIT_ROOT = "policy-engine/apps/runtime-dashboard/src"
 DS18_TIME_SEMANTICS_BEHAVIOR_TESTS = {
     "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx": [
         "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
     ],
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "AcquisitionApprovalFlow.tsx": [
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "AcquisitionApprovalFlow.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.test.tsx",
     ],
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "AcquisitionExecutionTimeline.tsx": [
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "AcquisitionTimeSemantics.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionExecutionTimeline.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
     ],
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "AcquisitionGrowthBacklog.tsx": [
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "AcquisitionTimeSemantics.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionGrowthBacklog.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
     ],
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "AcquisitionPassportPanel.tsx": [
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "AcquisitionTimeSemantics.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionPassportPanel.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
     ],
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "AcquisitionQuarantineLedger.tsx": [
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "AcquisitionTimeSemantics.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionQuarantineLedger.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
     ],
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "AcquisitionRouteDetail.tsx": [
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "AcquisitionTimeSemantics.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
     ],
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "ConnectorAcquisitionScorecard.tsx": [
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "AcquisitionTimeSemantics.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/ConnectorAcquisitionScorecard.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
     ],
     "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts": [
         "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/"
@@ -181,26 +166,19 @@ DS18_TIME_SEMANTICS_BEHAVIOR_TESTS = {
         "apps/runtime-dashboard/src/features/export/social/OGCard.test.tsx",
     ],
     "apps/runtime-dashboard/src/features/runs/components/EpochStalenessView.tsx": [
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "EpochStalenessView.test.tsx",
+        "apps/runtime-dashboard/src/features/runs/components/EpochStalenessView.test.tsx",
     ],
     "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx": [
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "PublicationPacketPanel.test.tsx",
+        "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx",
     ],
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "ConditionalDeltaFigure.tsx": [
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "ConditionalDeltaFigure.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx",
     ],
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "ConfidenceLedgerRiskSpend.tsx": [
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "ConfidenceLedgerRiskSpend.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx": [
+        "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx",
     ],
     "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx": [
-        "apps/runtime-dashboard/src/features/runs/routes/"
-        "PublicDecisionViewerPage.test.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx",
     ],
     "apps/runtime-dashboard/src/features/runs/routes/RunComparePage.tsx": [
         "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
@@ -216,8 +194,7 @@ DS18_TIME_SEMANTICS_BEHAVIOR_TESTS = {
         "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
     ],
     "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx": [
-        "apps/runtime-dashboard/src/features/runs/components/"
-        "AcquisitionTimeSemantics.test.tsx",
+        "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
     ],
     "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx": [
         "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
@@ -256,28 +233,22 @@ DS18_TIME_SEMANTICS_DIRECT_FILES = {
 DS17_CONFIDENCE_LEDGER_RISK_SPEND_SCHEMA_ID = (
     "polisyos.atlas.ds17-confidence-ledger-risk-spend-surface.v1"
 )
-DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD = (
-    "ds17_confidence_ledger_risk_spend_surface"
-)
+DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD = "ds17_confidence_ledger_risk_spend_surface"
 DS17_CONFIDENCE_LEDGER_QUERY_PATH = "apps/runtime-dashboard/src/api/queryKeys.ts"
 DS17_CONFIDENCE_LEDGER_HOOK_PATH = (
-    "apps/runtime-dashboard/src/features/runs/api/"
-    "useConfidenceLedgerRiskSpend.ts"
+    "apps/runtime-dashboard/src/features/runs/api/useConfidenceLedgerRiskSpend.ts"
 )
 DS17_CONFIDENCE_LEDGER_DOMAIN_PATH = (
-    "apps/runtime-dashboard/src/features/runs/domain/"
-    "confidenceLedgerRiskSpend.ts"
+    "apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.ts"
 )
 DS17_CONFIDENCE_LEDGER_FIGURE_PATH = (
     "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.tsx"
 )
 DS17_CONFIDENCE_LEDGER_PANEL_PATH = (
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "ConfidenceLedgerRiskSpend.tsx"
+    "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.tsx"
 )
 DS17_CONFIDENCE_LEDGER_TWIN_PATH = (
-    "apps/runtime-dashboard/src/features/runs/export/"
-    "confidenceLedgerRiskSpendTwin.ts"
+    "apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.ts"
 )
 DS17_CONFIDENCE_LEDGER_CYCLE_PATH = (
     "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx"
@@ -299,8 +270,7 @@ DS17_CONFIDENCE_LEDGER_ROLE_SPECS: tuple[Mapping[str, Any], ...] = (
         "symbol": "confidenceLedgerRiskSpendQueryOptions",
         "source_path": DS17_CONFIDENCE_LEDGER_HOOK_PATH,
         "test_path": (
-            "apps/runtime-dashboard/src/features/runs/api/"
-            "useConfidenceLedgerRiskSpend.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/api/useConfidenceLedgerRiskSpend.test.tsx"
         ),
         "test_symbol": "confidenceLedgerRiskSpendQueryOptions",
     },
@@ -309,8 +279,7 @@ DS17_CONFIDENCE_LEDGER_ROLE_SPECS: tuple[Mapping[str, Any], ...] = (
         "symbol": "evaluateConfidenceLedgerProtectedQuery",
         "source_path": DS17_CONFIDENCE_LEDGER_DOMAIN_PATH,
         "test_path": (
-            "apps/runtime-dashboard/src/features/runs/domain/"
-            "confidenceLedgerRiskSpend.test.ts"
+            "apps/runtime-dashboard/src/features/runs/domain/confidenceLedgerRiskSpend.test.ts"
         ),
         "test_symbol": "evaluateConfidenceLedgerProtectedQuery",
     },
@@ -319,8 +288,7 @@ DS17_CONFIDENCE_LEDGER_ROLE_SPECS: tuple[Mapping[str, Any], ...] = (
         "symbol": "ConditionalDeltaFigure",
         "source_path": DS17_CONFIDENCE_LEDGER_FIGURE_PATH,
         "test_path": (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "ConditionalDeltaFigure.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/components/ConditionalDeltaFigure.test.tsx"
         ),
         "test_symbol": "ConditionalDeltaFigure",
     },
@@ -329,8 +297,7 @@ DS17_CONFIDENCE_LEDGER_ROLE_SPECS: tuple[Mapping[str, Any], ...] = (
         "symbol": "ConfidenceLedgerRiskSpend",
         "source_path": DS17_CONFIDENCE_LEDGER_PANEL_PATH,
         "test_path": (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "ConfidenceLedgerRiskSpend.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/components/ConfidenceLedgerRiskSpend.test.tsx"
         ),
         "test_symbol": "ConfidenceLedgerRiskSpend",
     },
@@ -339,8 +306,7 @@ DS17_CONFIDENCE_LEDGER_ROLE_SPECS: tuple[Mapping[str, Any], ...] = (
         "symbol": "evaluateConfidenceLedgerRiskSpendTwin",
         "source_path": DS17_CONFIDENCE_LEDGER_TWIN_PATH,
         "test_path": (
-            "apps/runtime-dashboard/src/features/runs/export/"
-            "confidenceLedgerRiskSpendTwin.test.tsx"
+            "apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.test.tsx"
         ),
         "test_symbol": "evaluateConfidenceLedgerRiskSpendTwin",
     },
@@ -348,21 +314,14 @@ DS17_CONFIDENCE_LEDGER_ROLE_SPECS: tuple[Mapping[str, Any], ...] = (
         "role_id": "cycle_board_consumer",
         "symbol": "ConfidenceLedgerRiskSpendQueryPanel",
         "source_path": DS17_CONFIDENCE_LEDGER_CYCLE_PATH,
-        "test_path": (
-            "apps/runtime-dashboard/src/features/runs/routes/"
-            "CycleBoardPage.test.tsx"
-        ),
+        "test_path": ("apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx"),
         "test_symbol": "CycleBoardPage",
     },
 )
 DS17_CONFIDENCE_LEDGER_EXPECTED_SCOPE = {
-    "packet_schema_version": (
-        "policyos.runtime.confidence_ledger_risk_spend_packet.v1"
-    ),
+    "packet_schema_version": ("policyos.runtime.confidence_ledger_risk_spend_packet.v1"),
     "projection_id": "confidence-ledger-risk-spend",
-    "projection_rule_version": (
-        "policyos.runtime.confidence_ledger_risk_spend.v1"
-    ),
+    "projection_rule_version": ("policyos.runtime.confidence_ledger_risk_spend.v1"),
     "protected_action": "protected-action://ds17/review-risk-spend",
     "specialized_query_identity": [
         "runtime",
@@ -371,94 +330,77 @@ DS17_CONFIDENCE_LEDGER_EXPECTED_SCOPE = {
         "confidence-ledger-risk-spend",
         {"representation": "specialized-v1"},
     ],
-    "stable_address": (
-        "/api/v1/exports/governed-projections/confidence-ledger-risk-spend"
-    ),
+    "stable_address": ("/api/v1/exports/governed-projections/confidence-ledger-risk-spend"),
 }
 DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS = {
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "AcquisitionApprovalFlow.tsx": {
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.tsx": {
         (
             "AcquisitionApprovalFlow",
             0,
             "sha256:bf985a18cd992ecd33096bcd32b5970f30024465d2cfc29f81f1483018e64f61",
         ): (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "AcquisitionApprovalFlow.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/AcquisitionApprovalFlow.test.tsx",
         ),
     },
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "AcquisitionExecutionTimeline.tsx": {
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionExecutionTimeline.tsx": {
         (
             "AcquisitionExecutionTimeline",
             0,
             "sha256:2e3a55451f2a9fe83d84e59b6de223b276539c0923cdbcca53a3f6cc401f1f62",
         ): (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "AcquisitionTimeSemantics.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
         ),
     },
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "AcquisitionGrowthBacklog.tsx": {
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionGrowthBacklog.tsx": {
         (
             "AcquisitionGrowthBacklog",
             0,
             "sha256:74efd164f8d65840ecc7a795be0c374b9e428e5d2aecbc890f2801d785e36aac",
         ): (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "AcquisitionTimeSemantics.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
         ),
     },
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "AcquisitionPassportPanel.tsx": {
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionPassportPanel.tsx": {
         (
             "AcquisitionPassportPanel",
             0,
             "sha256:c891d6c9dd6c73e65038f5be9ff2616817a303f9ce81934ffda9a700004eaff2",
         ): (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "AcquisitionTimeSemantics.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
         ),
     },
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "AcquisitionQuarantineLedger.tsx": {
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionQuarantineLedger.tsx": {
         (
             "AcquisitionQuarantineLedger",
             0,
             "sha256:69aa3e633dd69df6fa9823e2311222f180b6414f7ad77ec9fe19332f9d42b5ad",
         ): (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "AcquisitionTimeSemantics.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
         ),
     },
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "AcquisitionRouteDetail.tsx": {
+    "apps/runtime-dashboard/src/features/runs/components/AcquisitionRouteDetail.tsx": {
         (
             "AcquisitionRouteDetail",
             0,
             "sha256:677ab0b53b7b0be51278af00d898b27242370df84acfad277a7a65365518b0bf",
         ): (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "AcquisitionTimeSemantics.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
         ),
         (
             "AcquisitionRouteDetail",
             1,
             "sha256:4bad58733f957422093da2738b3cc31e5be9e439d125500cbd35c9eb744830f9",
         ): (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "AcquisitionTimeSemantics.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
         ),
     },
-    "apps/runtime-dashboard/src/features/runs/components/"
-    "ConnectorAcquisitionScorecard.tsx": {
+    "apps/runtime-dashboard/src/features/runs/components/ConnectorAcquisitionScorecard.tsx": {
         (
             "ConnectorAcquisitionScorecard",
             0,
             "sha256:0aecbb01871407cb5abea64a4a34db271d5dad436cd881fa66beb06cb0ac49b7",
         ): (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "AcquisitionTimeSemantics.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
         ),
     },
     "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx": {
@@ -466,16 +408,12 @@ DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS = {
             "LoadedAcquisitionGrowth",
             0,
             "sha256:aaf2037830f66b58ed3edef33b14a6c797842b60875972c5911d36bf1b6b1b35",
-        ): (
-            "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
-        ),
+        ): ("apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",),
         (
             "AcquisitionGrowthBoundary",
             0,
             "sha256:5a293c7aa700958316730ef3f14f70177a1d59e1a8dff7243416a55200b8de34",
-        ): (
-            "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
-        ),
+        ): ("apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",),
     },
     "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx": {
         (
@@ -483,16 +421,14 @@ DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS = {
             0,
             "sha256:5e20d2720b5b9fd4c9f4ce04fb4105adc2b2da0f6baae237b7610c38130a4efb",
         ): (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "AcquisitionTimeSemantics.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
         ),
         (
             "AuthorizedCaseWorkspace",
             2,
             "sha256:76be3f9893d401fb5a21df186e21ba2d39ca9f9058a2bae8207b7b7a54f18c16",
         ): (
-            "apps/runtime-dashboard/src/features/runs/components/"
-            "AcquisitionTimeSemantics.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/AcquisitionTimeSemantics.test.tsx",
         ),
     },
 }
@@ -568,8 +504,7 @@ DS18_TIME_SEMANTICS_ROOT_INHERITANCE = {
             "sha256:ab4d87d0bb35b966c4139b3f4ce7aaf8e623f14deea3721c4d6182fa1e07010c",
         ): (
             (
-                "apps/runtime-dashboard/src/features/runs/routes/"
-                "CaseWorkspacePage.tsx",
+                "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
                 "AuthorizedCaseWorkspace",
                 2,
                 "sha256:76be3f9893d401fb5a21df186e21ba2d39ca9f9058a2bae8207b7b7a54f18c16",
@@ -588,21 +523,11 @@ _STATUS_SPEC.loader.exec_module(status_checker)
 
 LINT_ORIGIN_COUNT = 75
 LINT_ORIGIN_FILE_COUNT = 22
-LINT_ORIGIN_DIAGNOSTIC_SHA256 = (
-    "3a0af02a1ba643962e83096bdcddc46dd5a637f4c4060c0a7309279f259e1648"
-)
-LINT_ORIGIN_IDENTITY_SHA256 = (
-    "1b22f061e6b5cf61bc0f085c9927ccb5e9e899351d242503957e212f853e5830"
-)
-LINT_ORIGIN_RAW_RECEIPT_SHA256 = (
-    "b5398177d4b6059ff4770d1bbc37d98e1879d0f17a81b8c73dac0bb504523ebb"
-)
-LINT_ORIGIN_RULE_SHA256 = (
-    "e0014bd68cdd629307dbc1fad99c41812d6a082486cd558d48ee10648f5802b6"
-)
-LINT_ORIGIN_CONFIG_SHA256 = (
-    "6653eb0a7475ade10b933623d0d073045731a9ecd48ae202f3b5912f5e20d4e4"
-)
+LINT_ORIGIN_DIAGNOSTIC_SHA256 = "3a0af02a1ba643962e83096bdcddc46dd5a637f4c4060c0a7309279f259e1648"
+LINT_ORIGIN_IDENTITY_SHA256 = "1b22f061e6b5cf61bc0f085c9927ccb5e9e899351d242503957e212f853e5830"
+LINT_ORIGIN_RAW_RECEIPT_SHA256 = "b5398177d4b6059ff4770d1bbc37d98e1879d0f17a81b8c73dac0bb504523ebb"
+LINT_ORIGIN_RULE_SHA256 = "e0014bd68cdd629307dbc1fad99c41812d6a082486cd558d48ee10648f5802b6"
+LINT_ORIGIN_CONFIG_SHA256 = "6653eb0a7475ade10b933623d0d073045731a9ecd48ae202f3b5912f5e20d4e4"
 ARCHITECTURE_ORIGIN_COUNT = 36
 ARCHITECTURE_ORIGIN_FILE_COUNT = 28
 ARCHITECTURE_ORIGIN_IDENTITY_SHA256 = (
@@ -630,12 +555,8 @@ DECISION_DATE = "2026-07-17"
 REGISTER_AS_OF = "2026-07-17T10:30:00+03:00"
 REPAIR_COMMIT = "d01eaa572"
 C03_REPAIR_COMMIT = "97d0c620836a3e6d33c347a1f7f563aaa9177d0c"
-C03_OPEN_VITEST_SHA256 = (
-    "b84ae4ba91378281c93df635f6a10079f472c96ad4c46263ebc615cfbecff0ff"
-)
-C03_RESOLVED_VITEST_SHA256 = (
-    "eced13ccb15f90b298eb5a8320821266d2f7a1665c3f9d066775c41c144efc26"
-)
+C03_OPEN_VITEST_SHA256 = "b84ae4ba91378281c93df635f6a10079f472c96ad4c46263ebc615cfbecff0ff"
+C03_RESOLVED_VITEST_SHA256 = "eced13ccb15f90b298eb5a8320821266d2f7a1665c3f9d066775c41c144efc26"
 C03_RECEIPT_SOURCE_SHA256 = {
     "docs/plans/active/atlas-slices/DS6-evidence-workflow.md": (
         "8339ef3b2a4c12220e0e205cb66fd5626fe1e81eebdf9cec3aafb7861c34cdad"
@@ -667,12 +588,8 @@ C04_RENDERED_CONTRAST_CLUSTER_COUNTS = {
 }
 C06_C04_ADMISSION_COMMIT = "39a19c078066dc8326d81f9bee1746144c52f573"
 C06_C16_ENTRY_REVISION = "41a2020d5c2097c30c94807737ba6d3a80323d2e"
-C06_C16_SOURCE_DELTA_SHA256 = (
-    "800225190d7a47f68b585db206d6b634bd1c7787ab27bb9c5b8e8e1f5fc2bf8a"
-)
-C06_CONTRAST_RAW_RECEIPT_SHA256 = (
-    "a608e9b606e50b75bef602136e0f9b0c47406dfedf0f68888b792b781e99eafa"
-)
+C06_C16_SOURCE_DELTA_SHA256 = "800225190d7a47f68b585db206d6b634bd1c7787ab27bb9c5b8e8e1f5fc2bf8a"
+C06_CONTRAST_RAW_RECEIPT_SHA256 = "a608e9b606e50b75bef602136e0f9b0c47406dfedf0f68888b792b781e99eafa"
 C06_CONTRAST_EVIDENCE_SHA256 = {
     C04_RENDERED_CONTRAST_SOURCE_REF: (
         "c54524c59102c38e02eafdf6cc690ca8896dd1a0262b243138f71e271aa0d225"
@@ -695,9 +612,7 @@ C06_CONTRAST_CURRENT_EVIDENCE_SHA256 = {
         "805007c4ccefc4fb9ea682afc894ac8765dcbc9fba82e7bc13ce582596e56cbf"
     ),
 }
-C06_RENDERED_CONTRAST_FINDING_ID = (
-    "baseline-test-a11y-rendered-contrast-incomplete-debt"
-)
+C06_RENDERED_CONTRAST_FINDING_ID = "baseline-test-a11y-rendered-contrast-incomplete-debt"
 C13_RECEIPT_START = "<!-- TASK-P-C13-PRINT-RECEIPT-REISSUE:START -->"
 C13_RECEIPT_END = "<!-- TASK-P-C13-PRINT-RECEIPT-REISSUE:END -->"
 C13_VERIFIED_REVISION = "0440f0a8d6b64c254c37b64144461e5091e2b1db"
@@ -705,12 +620,9 @@ C13_REPAIR_COMMIT = "69aca1e25921e145fecdf57eac5a73f638f11db4"
 C13_REISSUE_REVISION = "39b5e0d9ceb453eb8afd4c5429cbef4ebeca50c2"
 C13_EVIDENCE_REVISION = "cfaf2cac071082be7505e44503a8c6759d7d37c2"
 C13_RECEIPT_SHA256 = "dd61ccd579fdf860a648ff580a139244e7351fb0eca063f55e6747287a529006"
-C13_RECEIPT_REF = (
-    "docs/superpowers/journals/2026-09-01-debt-p-dashboard-evidence.md"
-)
+C13_RECEIPT_REF = "docs/superpowers/journals/2026-09-01-debt-p-dashboard-evidence.md"
 C13_RAW_ROOT = (
-    "docs/superpowers/journals/receipts/"
-    "2026-09-01-debt-p-dashboard-evidence/c13-final-v2"
+    "docs/superpowers/journals/receipts/2026-09-01-debt-p-dashboard-evidence/c13-final-v2"
 )
 C13_PRINT_ROOT_ID = "adjacent-print-export"
 C13_PRINT_SUCCESSOR_ID = "run-report-paper-projection"
@@ -738,9 +650,7 @@ C13_PRODUCER_REFS = [
     "tests/_helpers/runtime_http.py",
     "tests/repo_quality/frontend/test_fixture_runtime_bound_paper.py",
 ]
-C13_ENVIRONMENT_PRODUCER_REF = (
-    "architecture/atlas_surfaces/capture_c13_execution_environment.mjs"
-)
+C13_ENVIRONMENT_PRODUCER_REF = "architecture/atlas_surfaces/capture_c13_execution_environment.mjs"
 C13_PRINT_SUCCESSOR_REFS = [
     "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
     "apps/runtime-dashboard/src/features/runs/route.tsx",
@@ -792,56 +702,135 @@ DELETE_ROOT_IDS = COLLABORATION_IDS | {
 }
 
 WIRE_OPERATION_RATIONALES = {
-    "api-op-get-artifact-batch": "Reuse the existing typed batch producer for governed artifact inspection and packet conventions.",
-    "api-op-download-artifact-content": "Reuse existing artifact addressing for governed retrieval rather than creating a second export path.",
-    "api-op-export-bureaucratic-artifact": "Reuse the existing packet export/render producer instead of adding parallel export ownership.",
-    "api-op-list-binding-profiles": "Expose existing registry-derived binding-profile discovery through the DS3 waist.",
-    "api-op-get-packet-decision-validity": "Adopt the existing packet-validity read projection through the typed DS3 client.",
-    "api-op-publish-decision-validity-event": "Adopt the live-only, principal-bound validity action through the governed DS3 client.",
-    "api-op-get-run-decision-validity": "Adopt the existing run-validity inspection projection through the DS3 waist.",
-    "api-op-evaluate-run-feedback": "Adopt governed review-effectiveness evaluation and its event trail through DS3.",
-    "api-op-reissue-run": "Adopt the principal-bound reissue action through the generated DS3 contract.",
-    "api-op-get-fabric-run-replay": "Reuse the existing replay producer for version-pinned inspection.",
-    "api-op-get-fabric-source-scorecards": "Reuse the existing source-scorecard producer through one generated client.",
-    "api-op-create-run-production-approval": "Adopt and harden the existing approval endpoint through the governed DS3 contract.",
-    "api-op-create-run-scenario": "Use the server-backed scenario lifecycle that survives deletion of the local WhatIf branch.",
+    ("api-op-get-artifact-batch"): (
+        "Reuse the existing typed batch producer for governed "
+        "artifact inspection and packet conventions."
+    ),
+    ("api-op-download-artifact-content"): (
+        "Reuse existing artifact addressing for governed retrieval "
+        "rather than creating a second export path."
+    ),
+    ("api-op-export-bureaucratic-artifact"): (
+        "Reuse the existing packet export/render producer instead "
+        "of adding parallel export ownership."
+    ),
+    ("api-op-list-binding-profiles"): (
+        "Expose existing registry-derived binding-profile discovery through the DS3 waist."
+    ),
+    ("api-op-get-packet-decision-validity"): (
+        "Adopt the existing packet-validity read projection through the typed DS3 client."
+    ),
+    ("api-op-publish-decision-validity-event"): (
+        "Adopt the live-only, principal-bound validity action through the governed DS3 client."
+    ),
+    ("api-op-get-run-decision-validity"): (
+        "Adopt the existing run-validity inspection projection through the DS3 waist."
+    ),
+    ("api-op-evaluate-run-feedback"): (
+        "Adopt governed review-effectiveness evaluation and its event trail through DS3."
+    ),
+    ("api-op-reissue-run"): (
+        "Adopt the principal-bound reissue action through the generated DS3 contract."
+    ),
+    ("api-op-get-fabric-run-replay"): (
+        "Reuse the existing replay producer for version-pinned inspection."
+    ),
+    ("api-op-get-fabric-source-scorecards"): (
+        "Reuse the existing source-scorecard producer through one generated client."
+    ),
+    ("api-op-create-run-production-approval"): (
+        "Adopt and harden the existing approval endpoint through the governed DS3 contract."
+    ),
+    ("api-op-create-run-scenario"): (
+        "Use the server-backed scenario lifecycle that survives "
+        "deletion of the local WhatIf branch."
+    ),
 }
 
 RETIRE_OPERATION_RATIONALES = {
-    "api-op-analyze-attractors": "No accepted Atlas consumer exists; endpoint presence must not manufacture an analysis UI.",
-    "api-op-persist-basin-map": "No named surface or action-authority contract consumes this persistence operation.",
-    "api-op-persist-continuation-branch": "No accepted Atlas surface consumes this persistence operation.",
-    "api-op-analyze-lyapunov-diagnostics": "Keep this scientific diagnostic server-only until a governed projection is specified.",
-    "api-op-get-attractor-analysis": "The read half of this analysis workflow has no independently admitted consumer.",
-    "api-op-get-analysis-basin-map": "The read half of this basin workflow has no admitted frontend consumer.",
-    "api-op-get-analysis-continuation-branch": "The read half of this continuation workflow has no admitted frontend consumer.",
-    "api-op-estimate-causal-frontier-sae": "This computation is not the DS7 acquisition frontier and has no named consumer.",
-    "api-op-list-control-outbox": "Internal delivery substrate is not a product transparency surface.",
-    "api-op-list-control-workers": "Internal worker-lease state is runtime infrastructure, not product navigation.",
-    "api-op-get-run-compare": "The debug projection lacks a governed product contract and must not become UI authority.",
-    "api-op-get-run-equilibria": "The debug diagnostic has no named consumer or governed product projection.",
-    "api-op-get-run-feedback": "The debug read is not the governed review-effectiveness projection.",
-    "api-op-analyze-fabric-impact": "No named consumer exists; adopting it would create a parallel analytical owner.",
-    "api-op-get-fabric-quality-batch": "No accepted evidence projection names this batch as a consumer dependency.",
-    "api-op-get-fabric-trust-batch": "A trust projection contract is required before frontend adoption.",
-    "api-op-compute-mobility-bounds": "This domain-specific computation has no admitted universal Atlas surface.",
-    "api-op-estimate-mobility": "This domain-specific computation has no admitted frontend surface.",
+    ("api-op-analyze-attractors"): (
+        "No accepted Atlas consumer exists; endpoint presence must not manufacture an analysis UI."
+    ),
+    ("api-op-persist-basin-map"): (
+        "No named surface or action-authority contract consumes this persistence operation."
+    ),
+    ("api-op-persist-continuation-branch"): (
+        "No accepted Atlas surface consumes this persistence operation."
+    ),
+    ("api-op-analyze-lyapunov-diagnostics"): (
+        "Keep this scientific diagnostic server-only until a governed projection is specified."
+    ),
+    ("api-op-get-attractor-analysis"): (
+        "The read half of this analysis workflow has no independently admitted consumer."
+    ),
+    ("api-op-get-analysis-basin-map"): (
+        "The read half of this basin workflow has no admitted frontend consumer."
+    ),
+    ("api-op-get-analysis-continuation-branch"): (
+        "The read half of this continuation workflow has no admitted frontend consumer."
+    ),
+    ("api-op-estimate-causal-frontier-sae"): (
+        "This computation is not the DS7 acquisition frontier and has no named consumer."
+    ),
+    ("api-op-list-control-outbox"): (
+        "Internal delivery substrate is not a product transparency surface."
+    ),
+    ("api-op-list-control-workers"): (
+        "Internal worker-lease state is runtime infrastructure, not product navigation."
+    ),
+    ("api-op-get-run-compare"): (
+        "The debug projection lacks a governed product contract and must not become UI authority."
+    ),
+    ("api-op-get-run-equilibria"): (
+        "The debug diagnostic has no named consumer or governed product projection."
+    ),
+    ("api-op-get-run-feedback"): (
+        "The debug read is not the governed review-effectiveness projection."
+    ),
+    ("api-op-analyze-fabric-impact"): (
+        "No named consumer exists; adopting it would create a parallel analytical owner."
+    ),
+    ("api-op-get-fabric-quality-batch"): (
+        "No accepted evidence projection names this batch as a consumer dependency."
+    ),
+    ("api-op-get-fabric-trust-batch"): (
+        "A trust projection contract is required before frontend adoption."
+    ),
+    ("api-op-compute-mobility-bounds"): (
+        "This domain-specific computation has no admitted universal Atlas surface."
+    ),
+    ("api-op-estimate-mobility"): (
+        "This domain-specific computation has no admitted frontend surface."
+    ),
     "api-op-get-mobility-report": "The mobility report family has no named Atlas consumer.",
     "api-op-get-mobility-report-bounds": "The mobility report detail has no named Atlas consumer.",
-    "api-op-get-mobility-report-diagnostics": "The mobility diagnostic has no named Atlas consumer.",
-    "api-op-get-runs-batch": "Current run list/detail paths cover admitted surfaces; avoid a second read owner.",
-    "api-op-health": "The root health probe is deployment infrastructure; the dashboard already uses governed /api/v1/health.",
+    ("api-op-get-mobility-report-diagnostics"): (
+        "The mobility diagnostic has no named Atlas consumer."
+    ),
+    ("api-op-get-runs-batch"): (
+        "Current run list/detail paths cover admitted surfaces; avoid a second read owner."
+    ),
+    ("api-op-health"): (
+        "The root health probe is deployment infrastructure; the "
+        "dashboard already uses governed /api/v1/health."
+    ),
     "api-op-ready": "Deployment readiness is not a product-readiness claim or browser surface.",
 }
 
 FLAG_DECISIONS = {
     "flag-enable-causal-graph": (
         "wire_disposition",
-        "The graph is live outside its declared gate; DS5 must wire one whole-surface exposure gate.",
+        (
+            "The graph is live outside its declared gate; DS5 must wire one whole-surface "
+            "exposure gate."
+        ),
     ),
     "flag-enable-collaboration": (
         "retire_disposition",
-        "The orphan collaboration surface is deleted, so its unused flag cannot remain false continuity.",
+        (
+            "The orphan collaboration surface is deleted, so its unused flag cannot remain "
+            "false continuity."
+        ),
     ),
     "flag-enable-command-palette": (
         "wire_disposition",
@@ -866,8 +855,7 @@ UI_PRIMITIVES_ROOT_ID = "ui-primitives-root"
 UI_PRIMITIVES_CENSUS_ID = "census-ds4-c03b-dormant-primitives"
 UI_PRIMITIVES_PRE_DELETION_COMMIT = "caa1ee6e3ab49d559b19dbeeda6308c3598e7183"
 UI_PRIMITIVES_RESURRECTION_RULE = (
-    "recreate_in_atlas_ui_only_with_a_real_production_consumer_"
-    "never_restore_in_the_app_tree"
+    "recreate_in_atlas_ui_only_with_a_real_production_consumer_never_restore_in_the_app_tree"
 )
 UI_PRIMITIVES_CHECKED_IMPORT_FORMS = {
     "direct",
@@ -962,9 +950,7 @@ UI_PRIMITIVES_DELETED_BLOBS = {
     "apps/runtime-dashboard/src/shared/ui/Separator.a11y.test.tsx": (
         "1da3670349e6b31b832c1fa5ee236d58ff57eab6"
     ),
-    "apps/runtime-dashboard/src/shared/ui/Sheet.tsx": (
-        "c119e917a73c942e2c2b00a03b84b7c3d86b6d5e"
-    ),
+    "apps/runtime-dashboard/src/shared/ui/Sheet.tsx": ("c119e917a73c942e2c2b00a03b84b7c3d86b6d5e"),
     "apps/runtime-dashboard/src/shared/ui/Sheet.a11y.test.tsx": (
         "5b4f8d67e39bd31869ebe9d753015fcac9fc58f1"
     ),
@@ -980,9 +966,7 @@ ATLAS_UI_INDEX = "packages/atlas-ui/src/index.ts"
 C15_ROOT_ID = "ui-compounds-root"
 C15_PACKAGE_MIGRATED = {"JsonPreview", "VirtualList", "VirtualTable"}
 C15_DASHBOARD_USE_AS_IS = {"DataTable", "MetricCard", "LineageGraph"}
-C15_JSON_PREVIEW_ADAPTER = (
-    "apps/runtime-dashboard/src/shared/ui/LocalizedJsonPreview.tsx"
-)
+C15_JSON_PREVIEW_ADAPTER = "apps/runtime-dashboard/src/shared/ui/LocalizedJsonPreview.tsx"
 C15_SUCCESSOR_ID = "atlas-ui-root-compounds-and-dashboard-transitional-winners"
 C15_CONSUMER_REFS = [
     "packages/atlas-ui/src/index.ts",
@@ -1046,12 +1030,8 @@ C16_RETIRED_PATHS = {
     "apps/runtime-dashboard/src/shared/ui/patterns/FilterPanel.tsx",
 }
 C16_EXPECTED_PRODUCTION_CONSUMERS = {
-    "DetailLayout": {
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx"
-    },
-    "FilterPanel": {
-        "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx"
-    },
+    "DetailLayout": {"apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx"},
+    "FilterPanel": {"apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx"},
 }
 C16_CONSUMER_REFS = [
     "packages/atlas-ui/src/index.ts",
@@ -1103,7 +1083,7 @@ C16_MIXED_RATIONALE = (
     "evidence. This receipt claims no DS2, DS6, or product-flow completion."
 )
 C17_ROOT_ID = "ui-responsive"
-C17_TOKEN_ROOT_ID = "ui-tokens"
+C17_UI_ROOT_ID = "ui-tokens"
 C17_COMPONENTS = {"BottomSheet", "MobileNav", "PullToRefresh", "SwipeableDrawer"}
 C17_HOOK_EXPORTS = {"useBreakpoint"}
 C17_SUCCESSOR_ID = "dashboard-responsive-generated-breakpoint-adapter"
@@ -1823,14 +1803,10 @@ def _typescript_literal_object_array(
         text=True,
     )
     if completed.returncode != 0:
-        raise RuntimeError(
-            "TypeScript literal-array parser failed: " + completed.stderr.strip()
-        )
+        raise RuntimeError("TypeScript literal-array parser failed: " + completed.stderr.strip())
     parsed = json.loads(completed.stdout)
     matches = parsed.get("matches") if isinstance(parsed, dict) else None
-    owner_ast = (
-        parsed.get("ownerAstSha256") if isinstance(parsed, dict) else None
-    )
+    owner_ast = parsed.get("ownerAstSha256") if isinstance(parsed, dict) else None
     errors = parsed.get("errors") if isinstance(parsed, dict) else None
     if (
         not isinstance(matches, list)
@@ -1850,6 +1826,7 @@ def _typescript_literal_object_array(
     rows = matches[0]
     _TS_LITERAL_OBJECT_ARRAY_CACHE[cache_key] = copy.deepcopy(rows)
     return copy.deepcopy(rows)
+
 
 _TYPESCRIPT_REFERENCE_ROLES = frozenset(
     {
@@ -1879,7 +1856,8 @@ _TYPESCRIPT_REFERENCE_IDENTITY_PAYLOAD_KEYS = frozenset(
     }
 )
 
-_TS_REFERENCE_CONSTRUCT_SCRIPT = r"""
+_TS_REFERENCE_CONSTRUCT_SCRIPT = (
+    r"""
 import { createHash } from "node:crypto";
 import path from "node:path";
 import ts from "typescript";
@@ -1908,10 +1886,17 @@ const config = ts.readConfigFile(
 if (config.error) {
   throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, "\n"));
 }
-const parsedConfig = ts.parseJsonConfigFileContent(config.config, ts.sys, dashboardRoot);
-if (parsedConfig.errors.length > 0) {
-  throw new Error(ts.flattenDiagnosticMessageText(parsedConfig.errors[0].messageText, "\n"));
-}
+"""
+    r"""const parsedConfig = ts.parseJsonConfigFileContent(config.config, ts.sys, """
+    r"""dashboardRoot);
+"""
+    r"""if (parsedConfig.errors.length > 0) {
+"""
+    r"""  throw new """
+    r"""Error(ts.flattenDiagnosticMessageText(parsedConfig.errors[0].messageText, """
+    r""""\n"));
+"""
+    r"""}
 const compilerOptions = {
   ...parsedConfig.options,
   jsx: ts.JsxEmit.Preserve,
@@ -1920,8 +1905,11 @@ const compilerOptions = {
   target: ts.ScriptTarget.Latest,
 };
 const virtualSources = new Map(
-  Object.entries(sources).map(([relativePath, source]) => [path.resolve(repoRoot, relativePath), source]),
-);
+"""
+    r"""  Object.entries(sources).map(([relativePath, source]) => """
+    r"""[path.resolve(repoRoot, relativePath), source]),
+"""
+    r""");
 const host = ts.createCompilerHost(compilerOptions, true);
 const defaultFileExists = host.fileExists.bind(host);
 const defaultReadFile = host.readFile.bind(host);
@@ -1931,20 +1919,34 @@ function virtualSource(fileName) {
   return virtualSources.get(path.resolve(repoRoot, fileName));
 }
 host.fileExists = (fileName) =>
-  virtualSource(fileName) !== undefined || (!closedUniverse && defaultFileExists(fileName));
-host.readFile = (fileName) =>
-  virtualSource(fileName) ?? (closedUniverse ? undefined : defaultReadFile(fileName));
-host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
-  const source = virtualSource(fileName);
+"""
+    r"""  virtualSource(fileName) !== undefined || (!closedUniverse && """
+    r"""defaultFileExists(fileName));
+"""
+    r"""host.readFile = (fileName) =>
+"""
+    r"""  virtualSource(fileName) ?? (closedUniverse ? undefined : """
+    r"""defaultReadFile(fileName));
+"""
+    r"""host.getSourceFile = (fileName, languageVersion, onError, """
+    r"""shouldCreateNewSourceFile) => {
+"""
+    r"""  const source = virtualSource(fileName);
   if (source !== undefined) {
     const kind = fileName.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
     return ts.createSourceFile(fileName, source, languageVersion, true, kind);
   }
   if (closedUniverse) return undefined;
-  return defaultGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile);
-};
-host.resolveModuleNames = (moduleNames, containingFile) => moduleNames.map((specifier) => {
-  const resolved = ts.resolveModuleName(
+"""
+    r"""  return defaultGetSourceFile(fileName, languageVersion, onError, """
+    r"""shouldCreateNewSourceFile);
+"""
+    r"""};
+"""
+    r"""host.resolveModuleNames = (moduleNames, containingFile) => """
+    r"""moduleNames.map((specifier) => {
+"""
+    r"""  const resolved = ts.resolveModuleName(
     specifier,
     path.resolve(repoRoot, containingFile),
     compilerOptions,
@@ -1952,12 +1954,18 @@ host.resolveModuleNames = (moduleNames, containingFile) => moduleNames.map((spec
   ).resolvedModule;
   if (resolved) return resolved;
   if (!specifier.startsWith(".")) return undefined;
-  const base = path.resolve(path.dirname(path.resolve(repoRoot, containingFile)), specifier);
-  for (const extension of [".ts", ".tsx", ".mts", ".cts"]) {
+"""
+    r"""  const base = path.resolve(path.dirname(path.resolve(repoRoot, """
+    r"""containingFile)), specifier);
+"""
+    r"""  for (const extension of [".ts", ".tsx", ".mts", ".cts"]) {
     const candidate = base + extension;
     if (virtualSource(candidate) !== undefined) {
-      return { resolvedFileName: candidate, extension: ts.Extension.Ts, isExternalLibraryImport: false };
-    }
+"""
+    r"""      return { resolvedFileName: candidate, extension: ts.Extension.Ts, """
+    r"""isExternalLibraryImport: false };
+"""
+    r"""    }
   }
   return undefined;
 });
@@ -1970,8 +1978,11 @@ const program = ts.createProgram({
 programCreateCount += 1;
 const checker = program.getTypeChecker();
 function isExported(node) {
-  return Boolean(node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword));
-}
+"""
+    r"""  return Boolean(node.modifiers?.some((modifier) => modifier.kind === """
+    r"""ts.SyntaxKind.ExportKeyword));
+"""
+    r"""}
 
 function resolvedModulePath(specifier) {
   const resolved = ts.resolveModuleName(
@@ -1989,8 +2000,11 @@ function importedBinding(name) {
   let result = null;
   function scan(node) {
     if (result) return;
-    if (ts.isImportDeclaration(node) && node.importClause && ts.isStringLiteral(node.moduleSpecifier)) {
-      const clause = node.importClause;
+"""
+    r"""    if (ts.isImportDeclaration(node) && node.importClause && """
+    r"""ts.isStringLiteral(node.moduleSpecifier)) {
+"""
+    r"""      const clause = node.importClause;
       if (clause.name?.text === name) {
         result = { module: node.moduleSpecifier.text, imported: "default" };
         return;
@@ -1999,12 +2013,18 @@ function importedBinding(name) {
       if (bindings && ts.isNamedImports(bindings)) {
         for (const element of bindings.elements) {
           if (element.name.text === name) {
-            result = { module: node.moduleSpecifier.text, imported: (element.propertyName ?? element.name).text };
-            return;
+"""
+    r"""            result = { module: node.moduleSpecifier.text, imported: """
+    r"""(element.propertyName ?? element.name).text };
+"""
+    r"""            return;
           }
         }
-      } else if (bindings && ts.isNamespaceImport(bindings) && bindings.name.text === name) {
-        result = { module: node.moduleSpecifier.text, imported: "*" };
+"""
+    r"""      } else if (bindings && ts.isNamespaceImport(bindings) && """
+    r"""bindings.name.text === name) {
+"""
+    r"""        result = { module: node.moduleSpecifier.text, imported: "*" };
       }
     }
     ts.forEachChild(node, scan);
@@ -2042,8 +2062,11 @@ function declarationChain(nameNode, prefix) {
     prefix,
     `symbol:${symbol?.getName() ?? "unresolved"}`,
     `resolved:${resolved?.getName() ?? "unresolved"}`,
-    `declaration:${declarationPath ?? "unresolved"}:${declaration ? ts.SyntaxKind[declaration.kind] : "unresolved"}`,
-  ];
+"""
+    r"""    `declaration:${declarationPath ?? "unresolved"}:${declaration ? """
+    r"""ts.SyntaxKind[declaration.kind] : "unresolved"}`,
+"""
+    r"""  ];
 }
 
 function namedEnclosingChain(node) {
@@ -2137,13 +2160,19 @@ function normalizedTokenSha256(node) {
     });
     return [ts.SyntaxKind[current.kind], semanticValue(current), children];
   }
-  return createHash("sha256").update(JSON.stringify(fingerprint(node))).digest("hex");
-}
+"""
+    r"""  return """
+    r"""createHash("sha256").update(JSON.stringify(fingerprint(node))).digest("hex");
+"""
+    r"""}
 
 function importBindingChain(node) {
   const importDeclaration = nearest(node, ts.isImportDeclaration);
-  const module = importDeclaration && ts.isStringLiteral(importDeclaration.moduleSpecifier)
-    ? importDeclaration.moduleSpecifier.text
+"""
+    r"""  const module = importDeclaration && """
+    r"""ts.isStringLiteral(importDeclaration.moduleSpecifier)
+"""
+    r"""    ? importDeclaration.moduleSpecifier.text
     : "unresolved";
   if (ts.isImportSpecifier(node)) {
     const imported = (node.propertyName ?? node.name).text;
@@ -2154,8 +2183,12 @@ function importBindingChain(node) {
   }
   return declarationChain(
     node.name,
-    `import:${module}:${resolvedModulePath(module)}:default_or_namespace:${node.name.text}`,
-  );
+"""
+    r"""    """
+    r"""`import:${module}:${resolvedModulePath(module)}:default_or_namespace:${node.name"""
+    r""".text}`,
+"""
+    r"""  );
 }
 
 function jsxOpeningChain(node) {
@@ -2164,22 +2197,39 @@ function jsxOpeningChain(node) {
   if (ts.isIdentifier(node.tagName)) {
     const binding = importedBinding(tag);
     const importPart = binding
-      ? `:import:${binding.module}:${resolvedModulePath(binding.module)}:${binding.imported}`
-      : "";
-    return declarationChain(node.tagName, `jsx_opening:${tag}:enclosing:${enclosing}${importPart}`);
-  }
-  return [`jsx_opening:${tag}`, `symbol:unresolved`, `resolved:unresolved`, `declaration:unresolved:unresolved`];
-}
+"""
+    r"""      ? """
+    r"""`:import:${binding.module}:${resolvedModulePath(binding.module)}:${binding.impor"""
+    r"""ted}`
+"""
+    r"""      : "";
+"""
+    r"""    return declarationChain(node.tagName, """
+    r"""`jsx_opening:${tag}:enclosing:${enclosing}${importPart}`);
+"""
+    r"""  }
+"""
+    r"""  return [`jsx_opening:${tag}`, `symbol:unresolved`, `resolved:unresolved`, """
+    r"""`declaration:unresolved:unresolved`];
+"""
+    r"""}
 
 function jsxAttributeChain(node) {
   const opening = nearest(
     node,
-    (candidate) => ts.isJsxOpeningElement(candidate) || ts.isJsxSelfClosingElement(candidate),
-  );
+"""
+    r"""    (candidate) => ts.isJsxOpeningElement(candidate) || """
+    r"""ts.isJsxSelfClosingElement(candidate),
+"""
+    r"""  );
   const tag = opening ? opening.tagName.getText(sourceFile) : "unresolved";
   const enclosing = namedEnclosingChain(node).join(".") || "module";
-  return [`jsx_attribute:${tag}:${node.name.text}:enclosing:${enclosing}`, `symbol:${node.name.text}`, `resolved:${node.name.text}`, `declaration:${requestedSourcePath}:JsxAttribute`];
-}
+"""
+    r"""  return [`jsx_attribute:${tag}:${node.name.text}:enclosing:${enclosing}`, """
+    r"""`symbol:${node.name.text}`, `resolved:${node.name.text}`, """
+    r"""`declaration:${requestedSourcePath}:JsxAttribute`];
+"""
+    r"""}
 
 function namedDeclarationKinds(node) {
   return (
@@ -2192,26 +2242,42 @@ function namedDeclarationKinds(node) {
 }
 
 function objectPropertyChain(node) {
-  return declarationChain(node.name, `object_property:${qualifiedPropertyName(node)}`);
-}
+"""
+    r"""  return declarationChain(node.name, """
+    r"""`object_property:${qualifiedPropertyName(node)}`);
+"""
+    r"""}
 
 function callExpressionChain(node) {
   const callee = node.expression.getText(sourceFile);
   const enclosing = namedEnclosingChain(node).join(".") || "module";
   if (ts.isIdentifier(node.expression)) {
-    return declarationChain(node.expression, `call:${callee}:enclosing:${enclosing}`);
-  }
-  return [`call:${callee}:enclosing:${enclosing}`, "symbol:unresolved", "resolved:unresolved", "declaration:unresolved:unresolved"];
-}
+"""
+    r"""    return declarationChain(node.expression, """
+    r"""`call:${callee}:enclosing:${enclosing}`);
+"""
+    r"""  }
+"""
+    r"""  return [`call:${callee}:enclosing:${enclosing}`, "symbol:unresolved", """
+    r""""resolved:unresolved", "declaration:unresolved:unresolved"];
+"""
+    r"""}
 
 function stringLiteralChain(node) {
   const enclosing = namedEnclosingChain(node).join(".") || "module";
-  return [`string_literal:${node.text}:enclosing:${enclosing}`, `symbol:${node.text}`, `resolved:${node.text}`, `declaration:${requestedSourcePath}:StringLiteral`];
-}
+"""
+    r"""  return [`string_literal:${node.text}:enclosing:${enclosing}`, """
+    r"""`symbol:${node.text}`, `resolved:${node.text}`, """
+    r"""`declaration:${requestedSourcePath}:StringLiteral`];
+"""
+    r"""}
 
 function nodeDiscriminator(node) {
-  if ((namedDeclarationKinds(node) || ts.isVariableDeclaration(node)) && node.name && ts.isIdentifier(node.name)) return node.name.text;
-  if (ts.isPropertySignature(node) && node.name) {
+"""
+    r"""  if ((namedDeclarationKinds(node) || ts.isVariableDeclaration(node)) && """
+    r"""node.name && ts.isIdentifier(node.name)) return node.name.text;
+"""
+    r"""  if (ts.isPropertySignature(node) && node.name) {
     return role === "generated_schema_property"
       ? generatedSchemaPropertyName(node) ?? "unresolved"
       : qualifiedPropertyName(node);
@@ -2219,15 +2285,23 @@ function nodeDiscriminator(node) {
   if (ts.isPropertyAssignment(node) && node.name) return qualifiedPropertyName(node);
   if (ts.isCallExpression(node)) return node.expression.getText(sourceFile);
   if (ts.isStringLiteral(node)) return node.text;
-  if ((ts.isImportSpecifier(node) || ts.isNamespaceImport(node) || ts.isImportClause(node)) && node.name) return node.name.text;
-  if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) return node.tagName.getText(sourceFile);
-  if (ts.isJsxAttribute(node)) return node.name.text;
+"""
+    r"""  if ((ts.isImportSpecifier(node) || ts.isNamespaceImport(node) || """
+    r"""ts.isImportClause(node)) && node.name) return node.name.text;
+"""
+    r"""  if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) return """
+    r"""node.tagName.getText(sourceFile);
+"""
+    r"""  if (ts.isJsxAttribute(node)) return node.name.text;
   return "unresolved";
 }
 
 function matchesDiscriminator(node) {
-  return discriminator === "__creation_anchor__" || nodeDiscriminator(node) === discriminator;
-}
+"""
+    r"""  return discriminator === "__creation_anchor__" || nodeDiscriminator(node) === """
+    r"""discriminator;
+"""
+    r"""}
 
 let matches = [];
 function visit(node, structuralPath = []) {
@@ -2237,21 +2311,30 @@ function visit(node, structuralPath = []) {
     namedDeclarationKinds(node) &&
     matchesDiscriminator(node)
   ) {
-    matches.push({ node, declarationChain: declarationChain(node.name, `export:${discriminator}`), structuralPath });
-  } else if (
+"""
+    r"""    matches.push({ node, declarationChain: declarationChain(node.name, """
+    r"""`export:${discriminator}`), structuralPath });
+"""
+    r"""  } else if (
     role === "named_declaration" &&
     namedDeclarationKinds(node) &&
     matchesDiscriminator(node)
   ) {
-    matches.push({ node, declarationChain: declarationChain(node.name, `declaration:${discriminator}`), structuralPath });
-  } else if (
+"""
+    r"""    matches.push({ node, declarationChain: declarationChain(node.name, """
+    r"""`declaration:${discriminator}`), structuralPath });
+"""
+    r"""  } else if (
     role === "variable_declaration" &&
     ts.isVariableDeclaration(node) &&
     ts.isIdentifier(node.name) &&
     matchesDiscriminator(node)
   ) {
-    matches.push({ node, declarationChain: declarationChain(node.name, `variable:${discriminator}`), structuralPath });
-  } else if (
+"""
+    r"""    matches.push({ node, declarationChain: declarationChain(node.name, """
+    r"""`variable:${discriminator}`), structuralPath });
+"""
+    r"""  } else if (
     role === "generated_schema_property" &&
     ts.isPropertySignature(node) &&
     generatedSchemaPropertyName(node) !== null &&
@@ -2270,33 +2353,51 @@ function visit(node, structuralPath = []) {
     ts.isPropertySignature(node) &&
     matchesDiscriminator(node)
   ) {
-    matches.push({ node, declarationChain: declarationChain(node.name, `type_property:${discriminator}`), structuralPath });
-  } else if (
+"""
+    r"""    matches.push({ node, declarationChain: declarationChain(node.name, """
+    r"""`type_property:${discriminator}`), structuralPath });
+"""
+    r"""  } else if (
     role === "object_property" &&
     ts.isPropertyAssignment(node) &&
     matchesDiscriminator(node)
   ) {
-    matches.push({ node, declarationChain: objectPropertyChain(node), structuralPath });
-  } else if (
+"""
+    r"""    matches.push({ node, declarationChain: objectPropertyChain(node), """
+    r"""structuralPath });
+"""
+    r"""  } else if (
     role === "call_expression" &&
     ts.isCallExpression(node) &&
     matchesDiscriminator(node)
   ) {
-    matches.push({ node, declarationChain: callExpressionChain(node), structuralPath });
-  } else if (
+"""
+    r"""    matches.push({ node, declarationChain: callExpressionChain(node), """
+    r"""structuralPath });
+"""
+    r"""  } else if (
     role === "string_literal" &&
     ts.isStringLiteral(node) &&
     matchesDiscriminator(node)
   ) {
-    matches.push({ node, declarationChain: stringLiteralChain(node), structuralPath });
-  } else if (
+"""
+    r"""    matches.push({ node, declarationChain: stringLiteralChain(node), """
+    r"""structuralPath });
+"""
+    r"""  } else if (
     role === "import_binding" &&
-    (ts.isImportSpecifier(node) || ts.isNamespaceImport(node) || ts.isImportClause(node)) &&
-    node.name &&
+"""
+    r"""    (ts.isImportSpecifier(node) || ts.isNamespaceImport(node) || """
+    r"""ts.isImportClause(node)) &&
+"""
+    r"""    node.name &&
     matchesDiscriminator(node)
   ) {
-    matches.push({ node, declarationChain: importBindingChain(node), structuralPath });
-  } else if (
+"""
+    r"""    matches.push({ node, declarationChain: importBindingChain(node), """
+    r"""structuralPath });
+"""
+    r"""  } else if (
     role === "jsx_opening" &&
     (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
     matchesDiscriminator(node)
@@ -2307,8 +2408,11 @@ function visit(node, structuralPath = []) {
     ts.isJsxAttribute(node) &&
     matchesDiscriminator(node)
   ) {
-    matches.push({ node, declarationChain: jsxAttributeChain(node), structuralPath });
-  }
+"""
+    r"""    matches.push({ node, declarationChain: jsxAttributeChain(node), """
+    r"""structuralPath });
+"""
+    r"""  }
   const children = [];
   ts.forEachChild(node, (child) => { children.push(child); });
   children.forEach((child, ordinal) =>
@@ -2344,15 +2448,26 @@ for (const request of requests) {
       structuralPath: match.structuralPath,
       declarationChain: match.declarationChain,
       normalizedTokensSha256: normalizedTokenSha256(match.node),
-      startLine: sourceFile.getLineAndCharacterOfPosition(match.node.getStart(sourceFile)).line + 1,
-      fullStartLine: sourceFile.getLineAndCharacterOfPosition(match.node.getFullStart()).line + 1,
-      endLine: sourceFile.getLineAndCharacterOfPosition(match.node.getEnd()).line + 1,
-    })),
+"""
+    r"""      startLine: """
+    r"""sourceFile.getLineAndCharacterOfPosition(match.node.getStart(sourceFile)).line + """
+    r"""1,
+"""
+    r"""      fullStartLine: """
+    r"""sourceFile.getLineAndCharacterOfPosition(match.node.getFullStart()).line + 1,
+"""
+    r"""      endLine: """
+    r"""sourceFile.getLineAndCharacterOfPosition(match.node.getEnd()).line + 1,
+"""
+    r"""    })),
   });
 }
 const countedResults = results.map((result) => ({ ...result, programCreateCount }));
-process.stdout.write(JSON.stringify(input.requests ? { results: countedResults } : countedResults[0]));
 """
+    r"""process.stdout.write(JSON.stringify(input.requests ? { results: countedResults } """
+    r""": countedResults[0]));
+"""
+)
 
 _TS_REFERENCE_CONSTRUCT_CACHE: dict[str, dict[str, Any]] = {}
 
@@ -2627,8 +2742,7 @@ def _typescript_generated_client_absence_facts(
     )
     if completed.returncode != 0:
         raise RuntimeError(
-            "TypeScript generated-client absence parser failed: "
-            + completed.stderr.strip()
+            "TypeScript generated-client absence parser failed: " + completed.stderr.strip()
         )
     parsed = json.loads(completed.stdout)
     if (
@@ -2644,9 +2758,7 @@ def _typescript_generated_client_absence_facts(
             for value in parsed[key]
         )
     ):
-        raise RuntimeError(
-            "TypeScript generated-client absence parser returned an invalid payload"
-        )
+        raise RuntimeError("TypeScript generated-client absence parser returned an invalid payload")
     _TS_GENERATED_CLIENT_ABSENCE_CACHE[cache_key] = copy.deepcopy(parsed)
     return parsed
 
@@ -2664,8 +2776,8 @@ def _typescript_module_facts(sources: Mapping[str, str]) -> list[dict[str, Any]]
     cached = _TS_MODULE_FACTS_CACHE.get(cache_key)
     if cached is not None:
         return cached
-    completed = subprocess.run(
-        ["node", "--input-type=module", "-e", _TS_MODULE_FACTS_SCRIPT],
+    completed = subprocess.run(  # noqa: S603 - fixed Node scanner; JSON source map uses stdin; shell=False
+        [_resolve_executable("node"), "--input-type=module", "-e", _TS_MODULE_FACTS_SCRIPT],
         cwd=REPO_ROOT / "apps/runtime-dashboard",
         input=json.dumps(sources),
         check=False,
@@ -2673,9 +2785,7 @@ def _typescript_module_facts(sources: Mapping[str, str]) -> list[dict[str, Any]]
         text=True,
     )
     if completed.returncode != 0:
-        raise RuntimeError(
-            "TypeScript consumer census failed: " + completed.stderr.strip()
-        )
+        raise RuntimeError("TypeScript consumer census failed: " + completed.stderr.strip())
     parsed = json.loads(completed.stdout)
     if not isinstance(parsed, list):
         raise RuntimeError("TypeScript consumer census returned a non-list payload")
@@ -2709,8 +2819,8 @@ def _typescript_reference_construct_facts_batch(
     cached = _TS_REFERENCE_CONSTRUCT_CACHE.get(cache_key)
     if cached is not None:
         return cached["results"]
-    completed = subprocess.run(
-        ["node", "--input-type=module", "-e", _TS_REFERENCE_CONSTRUCT_SCRIPT],
+    completed = subprocess.run(  # noqa: S603 - fixed Node scanner; JSON request uses stdin; shell=False
+        [_resolve_executable("node"), "--input-type=module", "-e", _TS_REFERENCE_CONSTRUCT_SCRIPT],
         cwd=REPO_ROOT / "apps/runtime-dashboard",
         input=json.dumps(
             {
@@ -2731,7 +2841,10 @@ def _typescript_reference_construct_facts_batch(
     results = parsed.get("results") if isinstance(parsed, dict) else None
     if not isinstance(results, list) or len(results) != len(requests):
         raise RuntimeError("TypeScript reference identity parser returned an invalid payload")
-    if any(not isinstance(result, dict) or not isinstance(result.get("matches"), list) for result in results):
+    if any(
+        not isinstance(result, dict) or not isinstance(result.get("matches"), list)
+        for result in results
+    ):
         raise RuntimeError("TypeScript reference identity parser returned an invalid payload")
     _TS_REFERENCE_CONSTRUCT_CACHE[cache_key] = {"results": results}
     return results
@@ -2821,9 +2934,7 @@ def _typescript_reference_identity_payload(encoded_identity: str) -> dict[str, A
         if not source_path or not marker or "#" in encoded_payload:
             raise ValueError
         payload = json.loads(
-            base64.urlsafe_b64decode(
-                encoded_payload + "=" * (-len(encoded_payload) % 4)
-            )
+            base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
         )
         if (
             not isinstance(payload, dict)
@@ -2836,9 +2947,7 @@ def _typescript_reference_identity_payload(encoded_identity: str) -> dict[str, A
             or payload["role"] not in _TYPESCRIPT_REFERENCE_ROLES
             or not isinstance(payload["discriminator"], str)
             or not isinstance(payload["declaration_chain"], list)
-            or not all(
-                isinstance(part, str) for part in payload["declaration_chain"]
-            )
+            or not all(isinstance(part, str) for part in payload["declaration_chain"])
             or not isinstance(payload["structural_path"], list)
             or not all(isinstance(part, str) for part in payload["structural_path"])
             or not isinstance(payload["normalized_tokens_sha256"], str)
@@ -2929,9 +3038,8 @@ def _typescript_reference_identities_from_anchors(
     anchor_errors: list[str] = []
     for anchor, facts in zip(anchors, facts_by_anchor, strict=True):
         matches = _typescript_reference_anchor_matches(facts, anchor)
-        diagnostic = (
-            f"{anchor['path']}:{anchor['line']}:{anchor['role']}:"
-            + str(anchor.get("descriptor_id", "unlabeled"))
+        diagnostic = f"{anchor['path']}:{anchor['line']}:{anchor['role']}:" + str(
+            anchor.get("descriptor_id", "unlabeled")
         )
         if facts.get("sourceMissing") or not matches:
             anchor_errors.append("typescript_reference_binding_missing_or_renamed:" + diagnostic)
@@ -2994,13 +3102,15 @@ def _typescript_reference_anchor_matches(
     """Select an AST construct by syntax start, then navigation-only containment."""
     matches = facts["matches"]
     exact_start_matches = [
-            match for match in facts["matches"] if int(match.get("startLine", 0)) == int(anchor["line"])
-        ]
+        match for match in facts["matches"] if int(match.get("startLine", 0)) == int(anchor["line"])
+    ]
     matches = exact_start_matches or [
-            match
-            for match in facts["matches"]
-            if int(match.get("fullStartLine", 0)) <= int(anchor["line"]) <= int(match.get("endLine", -1))
-        ]
+        match
+        for match in facts["matches"]
+        if int(match.get("fullStartLine", 0))
+        <= int(anchor["line"])
+        <= int(match.get("endLine", -1))
+    ]
     if not matches and anchor.get("discriminator"):
         matches = facts["matches"]
     return matches
@@ -3027,17 +3137,12 @@ def _typescript_reference_match_error(
     if len(binding_matches) > 1:
         return "typescript_reference_binding_ambiguous"
     if binding_matches:
-        if (
-            binding_matches[0]["normalizedTokensSha256"]
-            != payload["normalized_tokens_sha256"]
-        ):
+        if binding_matches[0]["normalizedTokensSha256"] != payload["normalized_tokens_sha256"]:
             return "typescript_reference_content_drift"
         return None
 
     declaration_matches = [
-        match
-        for match in matches
-        if match["declarationChain"] == payload["declaration_chain"]
+        match for match in matches if match["declarationChain"] == payload["declaration_chain"]
     ]
     relocation_matches = [
         match
@@ -3102,15 +3207,15 @@ _STRUCTURED_KEYED_SELECTOR_RE = re.compile(
 )
 
 
-class _StructuredSelectorMissing(ValueError):
+class _StructuredSelectorMissingError(ValueError):
     """The stable selector did not resolve in the structured document."""
 
 
-class _StructuredSelectorAmbiguous(ValueError):
+class _StructuredSelectorAmbiguousError(ValueError):
     """A keyed selector resolved more than one structured document member."""
 
 
-class _StructuredDuplicateKey(ValueError):
+class _StructuredDuplicateKeyError(ValueError):
     """A JSON object repeated a key and therefore has no unique binding."""
 
 
@@ -3121,7 +3226,7 @@ def _reject_duplicate_json_keys(
     result: dict[str, object] = {}
     for key, value in pairs:
         if key in result:
-            raise _StructuredDuplicateKey(key)
+            raise _StructuredDuplicateKeyError(key)
         result[key] = value
     return result
 
@@ -3147,10 +3252,10 @@ def _structured_selector_value(document: object, selector: str) -> object:
         keyed = _STRUCTURED_KEYED_SELECTOR_RE.fullmatch(segment)
         if keyed is not None:
             if not isinstance(current, Mapping):
-                raise _StructuredSelectorMissing
+                raise _StructuredSelectorMissingError
             collection = current.get(keyed.group("collection"))
             if not isinstance(collection, list):
-                raise _StructuredSelectorMissing
+                raise _StructuredSelectorMissingError
             key = keyed.group("key")
             expected = keyed.group("value")
             matches = [
@@ -3162,15 +3267,15 @@ def _structured_selector_value(document: object, selector: str) -> object:
                 and item[key] == expected
             ]
             if not matches:
-                raise _StructuredSelectorMissing
+                raise _StructuredSelectorMissingError
             if len(matches) > 1:
-                raise _StructuredSelectorAmbiguous
+                raise _StructuredSelectorAmbiguousError
             current = matches[0]
             continue
         if "[" in segment or "]" in segment:
             raise ValueError("structured_reference_selector_invalid")
         if not isinstance(current, Mapping) or segment not in current:
-            raise _StructuredSelectorMissing
+            raise _StructuredSelectorMissingError
         current = current[segment]
     return current
 
@@ -3222,9 +3327,7 @@ def _encoded_structured_reference_identity(
         "selector": selector,
         "normalized_value_sha256": normalized_value_sha256,
     }
-    encoded_payload = json.dumps(
-        payload, sort_keys=True, separators=(",", ":")
-    ).encode("utf-8")
+    encoded_payload = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return (
         source_path
         + "#structured-identity="
@@ -3260,14 +3363,14 @@ def _structured_reference_identity(
         document = _structured_source_value(sources[source_path], format_adapter)
         selected = _structured_selector_value(document, selector)
         value_sha256 = _normalized_structured_value_sha256(selected)
-    except _StructuredSelectorMissing as exc:
+    except _StructuredSelectorMissingError as exc:
         raise ValueError("structured_reference_selector_missing_or_renamed") from exc
-    except _StructuredSelectorAmbiguous as exc:
+    except _StructuredSelectorAmbiguousError as exc:
         raise ValueError("structured_reference_selector_ambiguous") from exc
     except (
         json.JSONDecodeError,
         tomllib.TOMLDecodeError,
-        _StructuredDuplicateKey,
+        _StructuredDuplicateKeyError,
         TypeError,
     ) as exc:
         raise ValueError("structured_reference_source_invalid") from exc
@@ -3294,15 +3397,11 @@ def _validate_structured_reference_identity(
         encoded_identity = reference["encoded_identity"]
         if not isinstance(encoded_identity, str):
             raise ValueError
-        path_prefix, fragment, encoded_payload = encoded_identity.partition(
-            "#structured-identity="
-        )
+        path_prefix, fragment, encoded_payload = encoded_identity.partition("#structured-identity=")
         if not fragment or not path_prefix or "#" in encoded_payload:
             raise ValueError
         payload = json.loads(
-            base64.urlsafe_b64decode(
-                encoded_payload + "=" * (-len(encoded_payload) % 4)
-            ),
+            base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4)),
             object_pairs_hook=_reject_duplicate_json_keys,
         )
         version = payload["version"]
@@ -3351,9 +3450,9 @@ def _validate_structured_reference_identity(
         document = _structured_source_value(source, format_adapter)
         selected = _structured_selector_value(document, selector)
         live_value_sha256 = _normalized_structured_value_sha256(selected)
-    except _StructuredSelectorMissing:
+    except _StructuredSelectorMissingError:
         return ["structured_reference_selector_missing_or_renamed"]
-    except _StructuredSelectorAmbiguous:
+    except _StructuredSelectorAmbiguousError:
         return ["structured_reference_selector_ambiguous"]
     except ValueError as exc:
         if str(exc) == "structured_reference_selector_invalid":
@@ -3429,22 +3528,18 @@ RAW_TRANSPORT_DRIFT_FINDING_ID = "raw-transport-denominator-drift"
 RAW_TRANSPORT_DRIFT_DECISION_DATE = "2026-08-08"
 RAW_TRANSPORT_OWNER_TEST_ABSENT_EXIT = 3
 RAW_TRANSPORT_DRIFT_TEST_ABSENT_EXIT = 4
-RAW_TRANSPORT_OWNER_TEST_METHOD = (
-    "test_direct_authority_transport_requires_typed_purpose_factory"
-)
-RAW_TRANSPORT_DRIFT_TEST_METHOD = (
-    "test_raw_transport_drift_row_binds_historical_and_live_census"
-)
+RAW_TRANSPORT_OWNER_TEST_METHOD = "test_direct_authority_transport_requires_typed_purpose_factory"
+RAW_TRANSPORT_DRIFT_TEST_METHOD = "test_raw_transport_drift_row_binds_historical_and_live_census"
 RAW_TRANSPORT_CLOSURE_SIGNAL = (
     "python3 -c 'import importlib; from architecture.atlas_surfaces import "
     "check_frontend_disposition_register as checker; owner_module=importlib.import_module("
-    "\"architecture.atlas_surfaces.test_atlas_enforcement\"); drift_module=importlib.import_module("
-    "\"architecture.atlas_surfaces.test_frontend_disposition_register\"); raise SystemExit("
+    '"architecture.atlas_surfaces.test_atlas_enforcement"); drift_module=importlib.import_module('
+    '"architecture.atlas_surfaces.test_frontend_disposition_register"); raise SystemExit('
     "checker._raw_transport_debt_closure_exit_code(getattr(owner_module, "
-    "\"AtlasEnforcementTests\", None), "
-    "\"test_direct_authority_transport_requires_typed_purpose_factory\", "
-    "getattr(drift_module, \"RawTransportDriftTests\", None), "
-    "\"test_raw_transport_drift_row_binds_historical_and_live_census\"))' "
+    '"AtlasEnforcementTests", None), '
+    '"test_direct_authority_transport_requires_typed_purpose_factory", '
+    'getattr(drift_module, "RawTransportDriftTests", None), '
+    '"test_raw_transport_drift_row_binds_historical_and_live_census"))\' '
     "# exits 0 only when both exact C03b tests execute and pass with the live 7/5 census; "
     "3 means owner "
     "test absent, 4 means drift test absent, and 1 means either test failed; all are exit nonzero."
@@ -3503,8 +3598,8 @@ def _direct_transport_census_from_sources(
     sources: Mapping[str, str],
 ) -> dict[str, Any]:
     """Count direct raw transport syntax without following data or call flow."""
-    completed = subprocess.run(
-        ["node", "--input-type=module", "-e", _DIRECT_TRANSPORT_CENSUS_SCRIPT],
+    completed = subprocess.run(  # noqa: S603 - fixed Node scanner; JSON source map uses stdin; shell=False
+        [_resolve_executable("node"), "--input-type=module", "-e", _DIRECT_TRANSPORT_CENSUS_SCRIPT],
         cwd=REPO_ROOT / "apps/runtime-dashboard",
         input=json.dumps(sources),
         check=False,
@@ -3512,19 +3607,13 @@ def _direct_transport_census_from_sources(
         text=True,
     )
     if completed.returncode != 0:
-        raise RuntimeError(
-            "direct transport syntax census failed: " + completed.stderr.strip()
-        )
+        raise RuntimeError("direct transport syntax census failed: " + completed.stderr.strip())
     facts = json.loads(completed.stdout)
     if not isinstance(facts, list) or any(not isinstance(fact, dict) for fact in facts):
         raise RuntimeError("direct transport syntax census returned invalid facts")
     kinds = ("fetch", "EventSource", "WebSocket")
     kind_counts = {kind: sum(fact.get("kind") == kind for fact in facts) for kind in kinds}
-    fetch_paths = {
-        str(fact["path"])
-        for fact in facts
-        if fact.get("kind") == "fetch"
-    }
+    fetch_paths = {str(fact["path"]) for fact in facts if fact.get("kind") == "fetch"}
     return {
         "direct_constructor_count": len(facts),
         "production_file_count": len({str(fact["path"]) for fact in facts}),
@@ -3549,13 +3638,9 @@ def _raw_transport_debt_closure_exit_code(
     drift_test_method: str,
 ) -> int:
     """Run the two resolved C03b closure tests without evaluating register text."""
-    if owner_test_class is None or not callable(
-        getattr(owner_test_class, owner_test_method, None)
-    ):
+    if owner_test_class is None or not callable(getattr(owner_test_class, owner_test_method, None)):
         return RAW_TRANSPORT_OWNER_TEST_ABSENT_EXIT
-    if drift_test_class is None or not callable(
-        getattr(drift_test_class, drift_test_method, None)
-    ):
+    if drift_test_class is None or not callable(getattr(drift_test_class, drift_test_method, None)):
         return RAW_TRANSPORT_DRIFT_TEST_ABSENT_EXIT
     suite = unittest.TestSuite(
         (
@@ -3644,10 +3729,7 @@ def _ui_primitive_owner_refs_from_sources(
         reference = f"{fact['path']}:{fact['line']}"
         for primitive in names & primitives:
             observed[primitive].add(reference)
-    return {
-        primitive: sorted(references)
-        for primitive, references in sorted(observed.items())
-    }
+    return {primitive: sorted(references) for primitive, references in sorted(observed.items())}
 
 
 def _atlas_ui_value_consumer_refs_from_sources(
@@ -3669,9 +3751,7 @@ def _c15_migrated_consumer_map_from_sources(
     sources: Mapping[str, str],
 ) -> dict[str, list[str]]:
     """Derive used production dashboard imports for each C15 compound."""
-    observed: dict[str, set[str]] = {
-        component: set() for component in C15_PACKAGE_MIGRATED
-    }
+    observed: dict[str, set[str]] = {component: set() for component in C15_PACKAGE_MIGRATED}
     for fact in _typescript_module_facts(sources):
         source_path = fact["path"]
         if not source_path.startswith("apps/runtime-dashboard/src/"):
@@ -3689,10 +3769,7 @@ def _c15_migrated_consumer_map_from_sources(
         reference = f"{source_path}:{fact['line']}"
         for component in used_names & C15_PACKAGE_MIGRATED:
             observed[component].add(reference)
-    return {
-        component: sorted(references)
-        for component, references in sorted(observed.items())
-    }
+    return {component: sorted(references) for component, references in sorted(observed.items())}
 
 
 def _c15_migrated_consumer_errors(sources: Mapping[str, str]) -> list[str]:
@@ -3706,10 +3783,7 @@ def _c15_migrated_consumer_errors(sources: Mapping[str, str]) -> list[str]:
     for reference in consumers["JsonPreview"]:
         consumer_path = reference.split(":", 1)[0]
         if consumer_path != C15_JSON_PREVIEW_ADAPTER:
-            errors.append(
-                "ui_compounds_root_unlocalized_json_preview_consumer:"
-                f"{consumer_path}"
-            )
+            errors.append(f"ui_compounds_root_unlocalized_json_preview_consumer:{consumer_path}")
     return errors
 
 
@@ -3717,9 +3791,7 @@ def _c16_pattern_consumer_map_from_sources(
     sources: Mapping[str, str],
 ) -> dict[str, list[str]]:
     """Derive direct JSX consumers for each package-migrated C16 pattern."""
-    observed: dict[str, set[str]] = {
-        component: set() for component in C16_PACKAGE_MIGRATED
-    }
+    observed: dict[str, set[str]] = {component: set() for component in C16_PACKAGE_MIGRATED}
     for fact in _typescript_module_facts(sources):
         source_path = fact["path"]
         if not source_path.startswith("apps/runtime-dashboard/src/"):
@@ -3729,10 +3801,7 @@ def _c16_pattern_consumer_map_from_sources(
         used_names = set(fact.get("jsx_element_names", []))
         for component in used_names & C16_PACKAGE_MIGRATED:
             observed[component].add(source_path)
-    return {
-        component: sorted(references)
-        for component, references in sorted(observed.items())
-    }
+    return {component: sorted(references) for component, references in sorted(observed.items())}
 
 
 def _c16_searchable_list_consumers_from_sources(
@@ -3767,12 +3836,12 @@ def _c16_pattern_source_state_errors(
     if sources is None:
         sources = _typescript_production_sources(["apps/runtime-dashboard/src"])
     if existing_paths is None:
-        candidates = C16_REQUIRED_PATHS | C16_RETIRED_PATHS | {
-            "packages/atlas-ui/src/patterns/SearchableList.tsx"
-        }
-        existing_paths = {
-            path for path in candidates if (REPO_ROOT / path).exists()
-        }
+        candidates = (
+            C16_REQUIRED_PATHS
+            | C16_RETIRED_PATHS
+            | {"packages/atlas-ui/src/patterns/SearchableList.tsx"}
+        )
+        existing_paths = {path for path in candidates if (REPO_ROOT / path).exists()}
     if atlas_exports is None:
         atlas_exports = _owner_exports(
             ATLAS_UI_INDEX,
@@ -3788,10 +3857,7 @@ def _c16_pattern_source_state_errors(
 
     missing_exports = C16_PACKAGE_MIGRATED - atlas_exports
     if missing_exports:
-        errors.append(
-            "ui_patterns_package_exports_missing:"
-            + ",".join(sorted(missing_exports))
-        )
+        errors.append("ui_patterns_package_exports_missing:" + ",".join(sorted(missing_exports)))
 
     consumer_map = _c16_pattern_consumer_map_from_sources(sources)
     for component, expected_paths in C16_EXPECTED_PRODUCTION_CONSUMERS.items():
@@ -3824,9 +3890,7 @@ def _c17_responsive_source_state_errors(
     if sources is None:
         sources = _typescript_production_sources(["apps/runtime-dashboard/src"])
     if existing_paths is None:
-        existing_paths = {
-            path for path in C17_CONSUMER_REFS if (REPO_ROOT / path).is_file()
-        }
+        existing_paths = {path for path in C17_CONSUMER_REFS if (REPO_ROOT / path).is_file()}
     responsive_barrel = "apps/runtime-dashboard/src/shared/ui/responsive/index.ts"
     if dashboard_exports is None:
         dashboard_exports = _owner_exports(
@@ -3848,18 +3912,13 @@ def _c17_responsive_source_state_errors(
     required_dashboard_exports = C17_COMPONENTS | C17_HOOK_EXPORTS
     if dashboard_exports != required_dashboard_exports:
         errors.append(
-            "ui_responsive_dashboard_exports_drift:"
-            + ",".join(sorted(dashboard_exports))
+            "ui_responsive_dashboard_exports_drift:" + ",".join(sorted(dashboard_exports))
         )
     package_twins = C17_COMPONENTS & atlas_exports
     if package_twins:
-        errors.append(
-            "ui_responsive_package_twin_created:" + ",".join(sorted(package_twins))
-        )
+        errors.append("ui_responsive_package_twin_created:" + ",".join(sorted(package_twins)))
 
-    observed_consumers: dict[str, set[str]] = {
-        hook: set() for hook in C17_HOOK_CONSUMERS
-    }
+    observed_consumers: dict[str, set[str]] = {hook: set() for hook in C17_HOOK_CONSUMERS}
     for fact in _typescript_module_facts(sources):
         if fact["kind"] != "static" or fact["module"] != "@/shared/ui/responsive":
             continue
@@ -3886,19 +3945,16 @@ def _ui_primitives_successor_evidence_errors(
             if (REPO_ROOT / path).is_file()
         }
     consumed_paths = {
-        ref.split(":", 1)[0]
-        for ref in _atlas_ui_value_consumer_refs_from_sources(sources)
+        ref.split(":", 1)[0] for ref in _atlas_ui_value_consumer_refs_from_sources(sources)
     }
     listed_consumers = reference_paths & consumed_paths
     errors: list[str] = []
     if not any(
-        not re.search(r"\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$", path)
-        for path in listed_consumers
+        not re.search(r"\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$", path) for path in listed_consumers
     ):
         errors.append("ui_primitives_successor_live_consumer_missing")
     if not any(
-        re.search(r"\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$", path)
-        for path in listed_consumers
+        re.search(r"\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$", path) for path in listed_consumers
     ):
         errors.append("ui_primitives_successor_test_consumer_missing")
     return errors
@@ -3918,13 +3974,9 @@ def _ui_primitive_consumer_map_from_sources(
         if module == "@polisyos/atlas-ui":
             return "packages/atlas-ui/src/index"
         if module.startswith("@polisyos/atlas-ui/"):
-            return "packages/atlas-ui/src/" + module.removeprefix(
-                "@polisyos/atlas-ui/"
-            )
+            return "packages/atlas-ui/src/" + module.removeprefix("@polisyos/atlas-ui/")
         if module.startswith("."):
-            return posixpath.normpath(
-                posixpath.join(posixpath.dirname(importer), module)
-            )
+            return posixpath.normpath(posixpath.join(posixpath.dirname(importer), module))
         return None
 
     def primitive_for_direct_module(base: str | None) -> str | None:
@@ -3970,10 +4022,7 @@ def _ui_primitive_consumer_map_from_sources(
         reference = f"{fact['path']}:{fact['line']}"
         for primitive in used_primitives:
             observed[primitive].add(reference)
-    return {
-        primitive: sorted(references)
-        for primitive, references in sorted(observed.items())
-    }
+    return {primitive: sorted(references) for primitive, references in sorted(observed.items())}
 
 
 def _ui_primitive_consumers_from_sources(
@@ -4009,9 +4058,7 @@ def _live_ui_primitives_source_state_errors() -> list[str]:
         (REPO_ROOT / ATLAS_UI_INDEX).read_text(encoding="utf-8"),
         "./primitives/",
     )
-    sources = _typescript_production_sources(
-        ["apps/runtime-dashboard/src", "packages"]
-    )
+    sources = _typescript_production_sources(["apps/runtime-dashboard/src", "packages"])
     consumers = _ui_primitive_consumers_from_sources(sources)
     owner_refs = _ui_primitive_owner_refs_from_sources(sources)
     return _ui_primitives_source_state_errors(
@@ -4021,6 +4068,7 @@ def _live_ui_primitives_source_state_errors() -> list[str]:
         production_consumers=consumers,
         owner_refs=owner_refs,
     )
+
 
 CLUSTER_PROOFS = {
     "collaboration": {
@@ -4100,12 +4148,8 @@ CLUSTER_PROOFS = {
     },
     "review-attention": {
         "unit_ids": {"cache-review-attention"},
-        "paths": [
-            "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
-        ],
-        "targets": [
-            "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
-        ],
+        "paths": ["apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"],
+        "targets": ["apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"],
     },
 }
 
@@ -4273,13 +4317,9 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "IiwiUHJvcGVydHlTaWduYXR1cmU6NDAiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWdu"
                 "YXR1cmU6NSJdLCJ2ZXJzaW9uIjoxfQ"
             ),
-            _C21C_FROZEN_STRUCTURED_IDENTITIES[
-                "architecture/generated_artifacts.toml:764"
-            ],
+            _C21C_FROZEN_STRUCTURED_IDENTITIES["architecture/generated_artifacts.toml:764"],
             "docs/reference/frontend/workspace-contract.md:37",
-            _C21C_FROZEN_STRUCTURED_IDENTITIES[
-                "packages/runtime-api-client/package.json:36"
-            ],
+            _C21C_FROZEN_STRUCTURED_IDENTITIES["packages/runtime-api-client/package.json:36"],
             "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c07b",
         ],
         "rationale": (
@@ -4309,9 +4349,7 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
         ],
         "evidence_refs": [
             "src/polisyos/runtime/http/routes/auth.py:36",
-            _C21C_FROZEN_STRUCTURED_IDENTITIES[
-                "schemas/runtime_api_v1.openapi.json:2221"
-            ],
+            _C21C_FROZEN_STRUCTURED_IDENTITIES["schemas/runtime_api_v1.openapi.json:2221"],
             (
                 "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
                 "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuQXV"
@@ -4443,8 +4481,14 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.test.tsx",
             "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.test.tsx",
         ],
-        "rationale": "dashboard-local synthesis removed because no typed producer field/refusal exists",
-        "closure_signal": "each named value resolves to a generated field or registered typed refusal and C23 containment negatives remain green",
+        ("rationale"): (
+            "dashboard-local synthesis removed because no typed producer field/refusal exists"
+        ),
+        ("closure_signal"): (
+            "each named value resolves to a generated field or "
+            "registered typed refusal and C23 containment negatives "
+            "remain green"
+        ),
     },
     "run-lifecycle-terminal-fact": {
         "finding_kind": "producer_binding_debt",
@@ -4544,10 +4588,8 @@ INTEGRATE_DEBT_DESCRIPTORS = {
             "semantic_test_missing",
         ],
         "evidence_refs": [
-            "architecture/policy_design_case/"
-            "layer3_g4_weakest_boundary_composition.json",
-            "architecture/policy_design_case/"
-            "layer3_g4_public_export_projection_refs.json",
+            "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
+            "architecture/policy_design_case/layer3_g4_public_export_projection_refs.json",
             "architecture/policy_design_case/layer3_g4_readiness_manifest.json",
             "architecture/generated_artifacts.toml",
         ],
@@ -4592,8 +4634,7 @@ INTEGRATE_DEBT_DESCRIPTORS = {
                 "current run attempt; filesystem mtime is observation time only"
             ),
             "runtime_novelty_behavior": (
-                "novel owner status or projection values fail closed as explicit "
-                "unrecognized"
+                "novel owner status or projection values fail closed as explicit unrecognized"
             ),
             "executable_owner_side_closure_signal": (
                 "uv run python tools/quality/validation/"
@@ -4633,8 +4674,7 @@ def _authority_closure(signal: str) -> str:
     return (
         "python3 architecture/atlas_surfaces/"
         "check_frontend_disposition_register.py --check --corruption-probes "
-        "exits 0 after "
-        + signal
+        "exits 0 after " + signal
     )
 
 
@@ -4642,7 +4682,9 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
     "prop-review-presence-status": {
         "classification": "benign:interaction_state",
         "component": "ReviewPresenceSummary",
-        "component_declaration_path": "apps/runtime-dashboard/src/app/realtime/ReviewCollaborationIndicators.tsx",
+        ("component_declaration_path"): (
+            "apps/runtime-dashboard/src/app/realtime/ReviewCollaborationIndicators.tsx"
+        ),
         "prop": "status",
         "consumer_paths": [
             "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
@@ -4652,7 +4694,9 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
     "prop-control-approval-readiness": {
         "classification": "debt",
         "component": "ControlApprovalPanel",
-        "component_declaration_path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+        ("component_declaration_path"): (
+            "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx"
+        ),
         "prop": "readiness",
         "consumer_paths": [
             "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx"
@@ -4665,13 +4709,16 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
             "semantic_test_missing",
         ],
         "closure_signal": _authority_closure(
-            "a generated approval-readiness issuer owns clothing and mixed deny/unknown cases remain non-positive"
+            "a generated approval-readiness issuer owns clothing and mixed deny/unknown "
+            "cases remain non-positive"
         ),
     },
     "prop-form-section-tone": {
         "classification": "benign:layout_accent",
         "component": "AtlasFormSection",
-        "component_declaration_path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+        ("component_declaration_path"): (
+            "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx"
+        ),
         "prop": "tone",
         "consumer_paths": [
             "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
@@ -4681,14 +4728,18 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
     "prop-composer-summary-tone": {
         "classification": "benign:layout_accent",
         "component": "ComposerSummaryMetric",
-        "component_declaration_path": "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx",
+        ("component_declaration_path"): (
+            "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx"
+        ),
         "prop": "tone",
         "consumer_paths": ["apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx"],
     },
     "prop-decision-grade-presentation": {
         "classification": "debt",
         "component": "DecisionGradeBadge",
-        "component_declaration_path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+        ("component_declaration_path"): (
+            "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx"
+        ),
         "prop": "presentation",
         "consumer_paths": [
             "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
@@ -4699,13 +4750,16 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "owner_slice": "DS5",
         "capability_states": ["bridge_missing", "surface_missing"],
         "closure_signal": _authority_closure(
-            "C06 supplies DecisionGrade through the generated client and a private exhaustive issuer replaces this structural presentation"
+            "C06 supplies DecisionGrade through the generated client and a private "
+            "exhaustive issuer replaces this structural presentation"
         ),
     },
     "prop-authored-text-confidence": {
         "classification": "benign:captured_quantity",
         "component": "AuthoredText",
-        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.tsx",
+        ("component_declaration_path"): (
+            "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.tsx"
+        ),
         "prop": "confidence",
         "consumer_paths": [
             "apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx",
@@ -4715,7 +4769,9 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
     "prop-data-freshness": {
         "classification": "debt",
         "component": "DataFreshnessBadge",
-        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx",
+        ("component_declaration_path"): (
+            "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx"
+        ),
         "prop": "freshness",
         "consumer_paths": [
             "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
@@ -4723,13 +4779,16 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "owner_slice": "DS18",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
-            "ProjectionFreshness enters a private exhaustive issuer and runtime-novel states render unrecognized without cache-age inference"
+            "ProjectionFreshness enters a private exhaustive issuer and runtime-novel "
+            "states render unrecognized without cache-age inference"
         ),
     },
     "prop-decision-card-verdict": {
         "classification": "debt",
         "component": "DecisionCard",
-        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+        ("component_declaration_path"): (
+            "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx"
+        ),
         "prop": "verdict",
         "consumer_paths": [
             "apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx",
@@ -4738,13 +4797,16 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "owner_slice": "DS5",
         "capability_states": ["bridge_missing", "surface_missing"],
         "closure_signal": _authority_closure(
-            "C06 generated DecisionGrade and a private issuer replace the raw verdict boundary with novelty tests"
+            "C06 generated DecisionGrade and a private issuer replace the raw verdict "
+            "boundary with novelty tests"
         ),
     },
     "prop-decision-card-confidence": {
         "classification": "debt",
         "component": "DecisionCard",
-        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+        ("component_declaration_path"): (
+            "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx"
+        ),
         "prop": "confidence",
         "consumer_paths": [
             "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx"
@@ -4752,13 +4814,16 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "owner_slice": "DS17",
         "capability_states": ["artifact_missing", "bridge_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
-            "a typed quantity and uncertainty artifact replaces arbitrary ReactNode confidence and rejects structural lookalikes"
+            "a typed quantity and uncertainty artifact replaces arbitrary ReactNode "
+            "confidence and rejects structural lookalikes"
         ),
     },
     "prop-explainability-verdict": {
         "classification": "debt",
         "component": "ExplainabilityCard",
-        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+        ("component_declaration_path"): (
+            "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx"
+        ),
         "prop": "verdict",
         "consumer_paths": [
             "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx"
@@ -4772,7 +4837,9 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
     "prop-counterfactual-status": {
         "classification": "debt",
         "component": "CounterfactualBadge",
-        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
+        ("component_declaration_path"): (
+            "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx"
+        ),
         "prop": "status",
         "consumer_paths": [
             "apps/runtime-dashboard/src/shared/ui/quantity/CounterfactualQuantity.tsx",
@@ -4782,7 +4849,8 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "owner_slice": "DS8",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
-            "a generated scenario-status issuer owns icon, tone, and label while novel values fail closed"
+            "a generated scenario-status issuer owns icon, tone, and label while novel "
+            "values fail closed"
         ),
     },
     "prop-verification-status-cue": {
@@ -4812,7 +4880,9 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
     "prop-dispute-status": {
         "classification": "branded:private_trust_presentation",
         "component": "DisputeBadge",
-        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
+        ("component_declaration_path"): (
+            "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx"
+        ),
         "prop": "presentation",
         "consumer_paths": [
             "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
@@ -4822,7 +4892,9 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
     "prop-verification-status-icon-tone": {
         "classification": "branded:private_trust_presentation",
         "component": "VerificationStatus",
-        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
+        ("component_declaration_path"): (
+            "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx"
+        ),
         "prop": "presentation",
         "consumer_paths": [
             "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx",
@@ -4880,16 +4952,28 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     },
     "badge-preflight-readiness": {
         "owner_slice": "DS7",
-        "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
+        "capability_states": [
+            "producer_missing",
+            "bridge_missing",
+            "consumer_missing",
+            "semantic_test_missing",
+        ],
         "closure_signal": _authority_closure(
-            "typed preflight and diagnostic DTOs use mixed fail/warn veto tests and raw preview clothing is absent"
+            "typed preflight and diagnostic DTOs use mixed fail/warn veto tests and raw "
+            "preview clothing is absent"
         ),
     },
     "badge-artifact-pipeline-decision-grade": {
         "owner_slice": "DS5",
-        "capability_states": ["producer_missing", "consumer_missing", "verification_missing", "semantic_test_missing"],
+        "capability_states": [
+            "producer_missing",
+            "consumer_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ],
         "closure_signal": _authority_closure(
-            "C06 exports DecisionGrade through the generated client and a private exhaustive issuer handles runtime novelty"
+            "C06 exports DecisionGrade through the generated client and a private "
+            "exhaustive issuer handles runtime novelty"
         ),
     },
     "badge-control-approval-quality": {
@@ -4904,7 +4988,8 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
         "owner_slice": "DS15",
         "capability_states": ["consumer_missing", "verification_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
-            "a generated promotion union enters a private issuer and novel values render unrecognized"
+            "a generated promotion union enters a private issuer and novel values render "
+            "unrecognized"
         ),
     },
     "badge-acquisition-boundary-status": {
@@ -4918,9 +5003,15 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     },
     "badge-evidence-source-freshness": {
         "owner_slice": "DS8",
-        "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
+        "capability_states": [
+            "producer_missing",
+            "bridge_missing",
+            "consumer_missing",
+            "semantic_test_missing",
+        ],
         "closure_signal": _authority_closure(
-            "owner source_as_of and freshness fields enforce oldest-input veto without local SLA authority"
+            "owner source_as_of and freshness fields enforce oldest-input veto without "
+            "local SLA authority"
         ),
     },
     "badge-comparability": {
@@ -4939,16 +5030,23 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     },
     "badge-run-deck-authority-summary": {
         "owner_slice": "DS7",
-        "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
+        "capability_states": [
+            "producer_missing",
+            "bridge_missing",
+            "consumer_missing",
+            "semantic_test_missing",
+        ],
         "closure_signal": _authority_closure(
-            "a live typed run-deck contract rejects fixture_only and prevents local authority synthesis"
+            "a live typed run-deck contract rejects fixture_only and prevents local "
+            "authority synthesis"
         ),
     },
     "badge-compound-decision-grade": {
         "owner_slice": "DS5",
         "capability_states": ["bridge_missing", "surface_missing"],
         "closure_signal": _authority_closure(
-            "C06 generated DecisionGrade and a private exhaustive issuer make raw grade assignment fail typecheck"
+            "C06 generated DecisionGrade and a private exhaustive issuer make raw grade "
+            "assignment fail typecheck"
         ),
     },
     "badge-governance-issue-severity": {
@@ -4961,16 +5059,23 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     },
     "badge-public-packet-authority-framing": {
         "owner_slice": "DS12",
-        "capability_states": ["producer_missing", "artifact_missing", "bridge_missing", "semantic_test_missing"],
+        "capability_states": [
+            "producer_missing",
+            "artifact_missing",
+            "bridge_missing",
+            "semantic_test_missing",
+        ],
         "closure_signal": _authority_closure(
-            "generated packet authority, confidence, and rights fields retain a rights-bar mixed-veto test"
+            "generated packet authority, confidence, and rights fields retain a "
+            "rights-bar mixed-veto test"
         ),
     },
     "badge-governed-projection-availability": {
         "owner_slice": "DS7",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
-            "a generated availability union enters an exhaustive issuer and novel values render unrecognized"
+            "a generated availability union enters an exhaustive issuer and novel values "
+            "render unrecognized"
         ),
     },
     "badge-uncertainty-dispute": {
@@ -4984,7 +5089,8 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
         "owner_slice": "DS14",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
-            "a generated decision or boolean issuer owns clothing and raw slot assignment fails typecheck"
+            "a generated decision or boolean issuer owns clothing and raw slot assignment "
+            "fails typecheck"
         ),
     },
     "badge-candidate-declared-authority-purpose": {
@@ -4998,7 +5104,8 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
         "owner_slice": "DS18",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
-            "ProjectionFreshness state enters an exhaustive issuer with explicit absence and novelty behavior"
+            "ProjectionFreshness state enters an exhaustive issuer with explicit absence "
+            "and novelty behavior"
         ),
     },
     "badge-decision-confidence": {
@@ -5027,7 +5134,8 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
         "owner_slice": "DS12",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
-            "a verifier-private integrity presentation remains explicitly outside closeout authority"
+            "a verifier-private integrity presentation remains explicitly outside "
+            "closeout authority"
         ),
     },
     "badge-public-anti-authority-role": {
@@ -5041,7 +5149,8 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
         "owner_slice": "DS16",
         "capability_states": ["artifact_missing", "bridge_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
-            "a typed unavailable or refusal artifact replaces the static caller-owned threshold token"
+            "a typed unavailable or refusal artifact replaces the static caller-owned "
+            "threshold token"
         ),
     },
     "badge-candidate-refusal-markers": {
@@ -5274,13 +5383,17 @@ DS11_RAW_TRUST_ROOT_DESCRIPTORS = (
     {
         "descriptorId": "ds11-raw-dispute-status",
         "component": "DisputeBadge",
-        "componentDeclarationPath": "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
+        ("componentDeclarationPath"): (
+            "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx"
+        ),
         "prop": "status",
     },
     {
         "descriptorId": "ds11-raw-verification-status-icon-tone",
         "component": "StatusIcon",
-        "componentDeclarationPath": "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
+        ("componentDeclarationPath"): (
+            "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx"
+        ),
         "prop": "tone",
     },
 )
@@ -5355,9 +5468,7 @@ def _authority_presentation_scan() -> dict[str, Any]:
         "authorityPropDescriptors": _authority_prop_descriptors(),
         "authorityIssuerCallerPaths": DS11_C04_ISSUER_CALLERS,
     }
-    return status_checker._scan_json(
-        json.dumps(request, sort_keys=True, separators=(",", ":"))
-    )
+    return status_checker._scan_json(json.dumps(request, sort_keys=True, separators=(",", ":")))
 
 
 def _site_location(site: Mapping[str, Any]) -> tuple[str, int]:
@@ -5375,11 +5486,7 @@ def _badge_classification_errors(
         return ["authority_badge_census_invalid"]
     frozen_badges, _frozen_props = _frozen_authority_identity_config()
     classifications = classifications or frozen_badges
-    live_locations = {
-        _site_location(site)
-        for site in sites
-        if isinstance(site, Mapping)
-    }
+    live_locations = {_site_location(site) for site in sites if isinstance(site, Mapping)}
     live_identity_by_location = _authority_badge_live_identity_by_location(sites)
     live_identity_rows = [
         _typescript_reference_identity_record(identity)
@@ -5414,10 +5521,7 @@ def _badge_classification_errors(
         observed = classifications[identity]
         expected = frozen_badges[identity]
         if observed != expected:
-            errors.append(
-                "authority_badge_reclassification:"
-                + f"{identity}:{expected}:{observed}"
-            )
+            errors.append("authority_badge_reclassification:" + f"{identity}:{expected}:{observed}")
 
     categories = Counter(
         "debt"
@@ -5431,9 +5535,7 @@ def _badge_classification_errors(
         if identity in live_identities
     )
     exact_classifications = Counter(
-        value
-        for identity, value in classifications.items()
-        if identity in live_identities
+        value for identity, value in classifications.items() if identity in live_identities
     )
     expected_counts = {
         "branded": AUTHORITY_PRESENTATION_COUNTS["badge_branded"],
@@ -5453,9 +5555,7 @@ def _badge_classification_errors(
                 + f"expected={expected_count}:actual={categories[category]}"
             )
     if categories["invalid"]:
-        errors.append(
-            f"authority_badge_invalid_classification:{categories['invalid']}"
-        )
+        errors.append(f"authority_badge_invalid_classification:{categories['invalid']}")
     for benign_class, expected_count in sorted(BENIGN_BADGE_CLASS_COUNTS.items()):
         observed_count = exact_classifications[f"benign:{benign_class}"]
         if observed_count != expected_count:
@@ -5475,8 +5575,7 @@ def _badge_classification_errors(
             if classification == f"debt:{group_id}"
         }
         observed_identities = {
-            live_key_by_location[_site_location(site)]
-            for site in debt_sites_by_group[group_id]
+            live_key_by_location[_site_location(site)] for site in debt_sites_by_group[group_id]
         }
         if observed_identities != expected_identities:
             errors.append(f"authority_badge_group_drift:{group_id}")
@@ -5493,14 +5592,17 @@ def _badge_classification_errors(
             ],
             key=lambda row: (row["identity"], row["site_sha256"]),
         )
-        partition_sha256 = "sha256:" + hashlib.sha256(
-            json.dumps(
-                partition_rows,
-                sort_keys=True,
-                separators=(",", ":"),
-                ensure_ascii=False,
-            ).encode("utf-8")
-        ).hexdigest()
+        partition_sha256 = (
+            "sha256:"
+            + hashlib.sha256(
+                json.dumps(
+                    partition_rows,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    ensure_ascii=False,
+                ).encode("utf-8")
+            ).hexdigest()
+        )
         if partition_sha256 != AUTHORITY_BADGE_PARTITION_SHA256:
             errors.append(
                 "authority_badge_partition_hash_drift:"
@@ -5516,17 +5618,11 @@ def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
     facts = scan.get("authorityPropCensus", [])
     if not isinstance(facts, list):
         return ["authority_prop_census_invalid"]
-    by_id = {
-        str(fact.get("descriptorId")): fact
-        for fact in facts
-        if isinstance(fact, Mapping)
-    }
+    by_id = {str(fact.get("descriptorId")): fact for fact in facts if isinstance(fact, Mapping)}
     _frozen_badges, frozen_props = _frozen_authority_identity_config()
     live_anchors: list[dict[str, Any]] = []
     live_records: list[dict[str, str]] = []
-    live_identity_by_record: defaultdict[tuple[str, str], list[str]] = defaultdict(
-        list
-    )
+    live_identity_by_record: defaultdict[tuple[str, str], list[str]] = defaultdict(list)
     live_identity_ready = False
     for descriptor_id, spec in AUTHORITY_PROP_CLASSIFICATIONS.items():
         fact = by_id.get(descriptor_id)
@@ -5534,21 +5630,54 @@ def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
             continue
         live_anchors.extend(
             [
-                {"path": fact["componentDeclarationPath"], "line": fact["componentDeclarationLine"], "role": "named_declaration", "discriminator": fact["component"], "descriptor_id": descriptor_id},
-                {"path": fact["propDeclarationPath"], "line": fact["propDeclarationLine"], "role": "type_property", "descriptor_id": descriptor_id},
+                {
+                    "path": fact["componentDeclarationPath"],
+                    "line": fact["componentDeclarationLine"],
+                    "role": "named_declaration",
+                    "discriminator": fact["component"],
+                    "descriptor_id": descriptor_id,
+                },
+                {
+                    "path": fact["propDeclarationPath"],
+                    "line": fact["propDeclarationLine"],
+                    "role": "type_property",
+                    "descriptor_id": descriptor_id,
+                },
             ]
         )
         live_records.extend(
             [
-                {"descriptor_id": descriptor_id, "classification": str(spec["classification"]), "role": "component_declaration"},
-                {"descriptor_id": descriptor_id, "classification": str(spec["classification"]), "role": "prop_declaration"},
+                {
+                    "descriptor_id": descriptor_id,
+                    "classification": str(spec["classification"]),
+                    "role": "component_declaration",
+                },
+                {
+                    "descriptor_id": descriptor_id,
+                    "classification": str(spec["classification"]),
+                    "role": "prop_declaration",
+                },
             ]
         )
         for site in fact.get("consumerSites", []):
             if not isinstance(site, Mapping):
                 continue
-            live_anchors.append({"path": site["path"], "line": site["line"], "role": "jsx_attribute", "discriminator": fact["prop"], "descriptor_id": descriptor_id})
-            live_records.append({"descriptor_id": descriptor_id, "classification": str(spec["classification"]), "role": "consumer"})
+            live_anchors.append(
+                {
+                    "path": site["path"],
+                    "line": site["line"],
+                    "role": "jsx_attribute",
+                    "discriminator": fact["prop"],
+                    "descriptor_id": descriptor_id,
+                }
+            )
+            live_records.append(
+                {
+                    "descriptor_id": descriptor_id,
+                    "classification": str(spec["classification"]),
+                    "role": "consumer",
+                }
+            )
     try:
         live_identities = _typescript_reference_identities_from_anchors(live_anchors)
     except ValueError as exc:
@@ -5557,12 +5686,8 @@ def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
         live_identity_ready = True
         live_props: dict[str, list[dict[str, str]]] = {}
         live_keys = _typescript_reference_hybrid_keys(live_identities)
-        for _identity, key, record in zip(
-            live_identities, live_keys, live_records, strict=True
-        ):
-            live_identity_by_record[(record["descriptor_id"], record["role"])].append(
-                key
-            )
+        for _identity, key, record in zip(live_identities, live_keys, live_records, strict=True):
+            live_identity_by_record[(record["descriptor_id"], record["role"])].append(key)
             live_props.setdefault(key, []).append(record)
         if {
             digest: sorted(records, key=lambda record: (record["descriptor_id"], record["role"]))
@@ -5602,9 +5727,7 @@ def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
                 errors.append(f"authority_prop_identity_drift:{descriptor_id}:{field}")
         expected_uses = sorted(spec["consumer_paths"])
         observed_uses = sorted(
-            str(site.get("path"))
-            for site in consumer_sites
-            if isinstance(site, Mapping)
+            str(site.get("path")) for site in consumer_sites if isinstance(site, Mapping)
         )
         if observed_uses != expected_uses:
             errors.append(f"authority_prop_consumer_drift:{descriptor_id}")
@@ -5613,15 +5736,11 @@ def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
             "propDeclarationSha256",
         ):
             value = fact.get(hash_field)
-            if not isinstance(value, str) or not re.fullmatch(
-                r"sha256:[a-f0-9]{64}", value
-            ):
+            if not isinstance(value, str) or not re.fullmatch(r"sha256:[a-f0-9]{64}", value):
                 errors.append(f"authority_prop_fingerprint_missing:{descriptor_id}:{hash_field}")
         for site in consumer_sites if isinstance(consumer_sites, list) else []:
             value = site.get("siteSha256") if isinstance(site, Mapping) else None
-            if not isinstance(value, str) or not re.fullmatch(
-                r"sha256:[a-f0-9]{64}", value
-            ):
+            if not isinstance(value, str) or not re.fullmatch(r"sha256:[a-f0-9]{64}", value):
                 errors.append(f"authority_prop_site_fingerprint_missing:{descriptor_id}")
 
     expected_counts = {
@@ -5653,19 +5772,21 @@ def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
                     "descriptor_id": descriptor_id,
                     "classification": spec["classification"],
                     "component": fact.get("component"),
-                    "component_declaration_identity": live_identity_by_record[(descriptor_id, "component_declaration")][0],
-                    "component_declaration_sha256": fact.get(
-                        "componentDeclarationSha256"
-                    ),
+                    "component_declaration_identity": live_identity_by_record[
+                        (descriptor_id, "component_declaration")
+                    ][0],
+                    "component_declaration_sha256": fact.get("componentDeclarationSha256"),
                     "prop": fact.get("prop"),
-                    "prop_declaration_identity": live_identity_by_record[(descriptor_id, "prop_declaration")][0],
-                    "prop_declaration_sha256": fact.get(
-                        "propDeclarationSha256"
-                    ),
+                    "prop_declaration_identity": live_identity_by_record[
+                        (descriptor_id, "prop_declaration")
+                    ][0],
+                    "prop_declaration_sha256": fact.get("propDeclarationSha256"),
                     "consumer_sites": sorted(
                         [
                             {
-                                "identity": live_identity_by_record[(descriptor_id, "consumer")][index],
+                                "identity": live_identity_by_record[(descriptor_id, "consumer")][
+                                    index
+                                ],
                                 "site_sha256": site.get("siteSha256"),
                             }
                             for index, site in enumerate(consumer_sites)
@@ -5678,14 +5799,17 @@ def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
                     ),
                 }
             )
-        partition_sha256 = "sha256:" + hashlib.sha256(
-            json.dumps(
-                partition_rows,
-                sort_keys=True,
-                separators=(",", ":"),
-                ensure_ascii=False,
-            ).encode("utf-8")
-        ).hexdigest()
+        partition_sha256 = (
+            "sha256:"
+            + hashlib.sha256(
+                json.dumps(
+                    partition_rows,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                    ensure_ascii=False,
+                ).encode("utf-8")
+            ).hexdigest()
+        )
         if partition_sha256 != AUTHORITY_PROP_PARTITION_SHA256:
             errors.append(
                 "authority_prop_partition_hash_drift:"
@@ -5716,10 +5840,20 @@ def _authority_evidence_identities(scan: Mapping[str, Any]) -> dict[tuple[str, i
             item for item in scan["authorityPropCensus"] if item["descriptorId"] == descriptor_id
         )
         anchors.append(
-            {"path": fact["componentDeclarationPath"], "line": fact["componentDeclarationLine"], "role": "named_declaration", "discriminator": fact["component"]}
+            {
+                "path": fact["componentDeclarationPath"],
+                "line": fact["componentDeclarationLine"],
+                "role": "named_declaration",
+                "discriminator": fact["component"],
+            }
         )
         anchors.extend(
-            {"path": site["path"], "line": site["line"], "role": "jsx_attribute", "discriminator": fact["prop"]}
+            {
+                "path": site["path"],
+                "line": site["line"],
+                "role": "jsx_attribute",
+                "discriminator": fact["prop"],
+            }
             for site in fact["consumerSites"]
         )
     debt_sites_by_group = _authority_badge_sites_by_debt_group(scan)
@@ -5729,15 +5863,27 @@ def _authority_evidence_identities(scan: Mapping[str, Any]) -> dict[tuple[str, i
             continue
         first = sites[0]
         anchors.append(
-            {"path": first["componentDeclarationPath"], "line": first["componentDeclarationLine"], "role": "named_declaration", "discriminator": first["component"]}
+            {
+                "path": first["componentDeclarationPath"],
+                "line": first["componentDeclarationLine"],
+                "role": "named_declaration",
+                "discriminator": first["component"],
+            }
         )
         anchors.extend(
-            {"path": site["path"], "line": site["line"], "role": "jsx_opening", "discriminator": "Badge"}
+            {
+                "path": site["path"],
+                "line": site["line"],
+                "role": "jsx_opening",
+                "discriminator": "Badge",
+            }
             for site in sites
         )
     identities = _typescript_reference_identities_from_anchors(anchors)
     return {
-        (str(anchor["path"]), int(anchor["line"]), str(anchor["role"])): identity["encoded_identity"]
+        (str(anchor["path"]), int(anchor["line"]), str(anchor["role"])): identity[
+            "encoded_identity"
+        ]
         for anchor, identity in zip(anchors, identities, strict=True)
     }
 
@@ -5747,7 +5893,12 @@ def _authority_badge_live_identity_by_location(
 ) -> dict[tuple[str, int], str]:
     """Resolve current direct Badge syntax to its stable classification identity."""
     anchors = [
-        {"path": site["path"], "line": site["line"], "role": "jsx_opening", "discriminator": "Badge"}
+        {
+            "path": site["path"],
+            "line": site["line"],
+            "role": "jsx_opening",
+            "discriminator": "Badge",
+        }
         for site in sites
     ]
     identities = _typescript_reference_identities_from_anchors(anchors)
@@ -5770,8 +5921,7 @@ def _authority_badge_sites_by_debt_group(
     if live_key_by_location is None:
         live_identities = _authority_badge_live_identity_by_location(sites)
         identity_rows = [
-            _typescript_reference_identity_record(identity)
-            for identity in live_identities.values()
+            _typescript_reference_identity_record(identity) for identity in live_identities.values()
         ]
         live_key_by_location = dict(
             zip(
@@ -5782,9 +5932,7 @@ def _authority_badge_sites_by_debt_group(
         )
     grouped = {group_id: [] for group_id in AUTHORITY_BADGE_DEBT_SPECS}
     for site in sites:
-        classification = classifications.get(
-            live_key_by_location[_site_location(site)], ""
-        )
+        classification = classifications.get(live_key_by_location[_site_location(site)], "")
         if classification.startswith("debt:"):
             group_id = classification.removeprefix("debt:")
             if group_id in grouped:
@@ -5796,952 +5944,908 @@ def _authority_badge_sites_by_debt_group(
 # Frozen from the root-owned no-write C21d hybrid-key receipt. Unique
 # declaration/content families relocate; genuine collisions retain structural identity.
 FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
-    '0124de230c2013b547c6c7e4c94944afc801d7f3da751ba6067806e49ae3437f': (
-        'benign:opaque_metadata_or_taxonomy'
+    "0124de230c2013b547c6c7e4c94944afc801d7f3da751ba6067806e49ae3437f": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '0132d8d97b3f44fbca967c039540f8bb1e61ad9934ad6e53dced7f37fcdf660c': (
-        'benign:transport_or_runtime_health'
+    "0132d8d97b3f44fbca967c039540f8bb1e61ad9934ad6e53dced7f37fcdf660c": (
+        "benign:transport_or_runtime_health"
     ),
-    '062c1fe3f9e5ecaa59f778b965257dbc63be53dd48f0750430b4cf02631e73e3': (
-        'benign:layout_or_counts'
+    "062c1fe3f9e5ecaa59f778b965257dbc63be53dd48f0750430b4cf02631e73e3": ("benign:layout_or_counts"),
+    "078599fe50e49c45b6b69803352191205b7409a7e9f382d25019887b1e56fab1": (
+        "benign:transport_or_runtime_health"
     ),
-    '078599fe50e49c45b6b69803352191205b7409a7e9f382d25019887b1e56fab1': (
-        'benign:transport_or_runtime_health'
+    "0975deb3026c856f342cdb39c794dfa4ba8330e71504c957f9925437544cf9fa": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '0975deb3026c856f342cdb39c794dfa4ba8330e71504c957f9925437544cf9fa': (
-        'benign:opaque_metadata_or_taxonomy'
+    "0ad59fd60f80e424424dc14ad83b160cb48394ad294ad3844d8455bf3544e9de": (
+        "debt:badge-provenance-drift"
     ),
-    '0ad59fd60f80e424424dc14ad83b160cb48394ad294ad3844d8455bf3544e9de': (
-        'debt:badge-provenance-drift'
+    "0b4ac8ba80f99e7e9d1bff295a1829fc21accba56ddf0fee804568f642dbcebe": ("benign:layout_or_counts"),
+    "0cbe26958fdbe6d578d16890500e7a353575b48fe8c8c6bf5515b444dca99164": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '0b4ac8ba80f99e7e9d1bff295a1829fc21accba56ddf0fee804568f642dbcebe': (
-        'benign:layout_or_counts'
+    "0ccc46a2e3c1cfab2522bc4f4dbc22bdfbfc9f6f22351287a7053a6c8450f2aa": (
+        "benign:transport_or_runtime_health"
     ),
-    '0cbe26958fdbe6d578d16890500e7a353575b48fe8c8c6bf5515b444dca99164': (
-        'benign:opaque_metadata_or_taxonomy'
+    "0d01fe86a863e406d0bfb676b74f4637a2102952207f1721aa1be40a332cf55e": (
+        "debt:badge-control-approval-quality"
     ),
-    '0ccc46a2e3c1cfab2522bc4f4dbc22bdfbfc9f6f22351287a7053a6c8450f2aa': (
-        'benign:transport_or_runtime_health'
+    "0d02be3c6130a3b628b630687a44aa17c3758ffda106bf5ff46a74baadcc7ec4": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '0d01fe86a863e406d0bfb676b74f4637a2102952207f1721aa1be40a332cf55e': (
-        'debt:badge-control-approval-quality'
+    "0ef26827e7122cfff8edb79967bce02979742d84ad52825be64b530b0853935e": (
+        "debt:badge-run-deck-authority-summary"
     ),
-    '0d02be3c6130a3b628b630687a44aa17c3758ffda106bf5ff46a74baadcc7ec4': (
-        'benign:opaque_metadata_or_taxonomy'
+    "116aa85ec7f5abe277667d64833a6bf469453309f2ce3e891188e21ce410bb3b": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '0ef26827e7122cfff8edb79967bce02979742d84ad52825be64b530b0853935e': (
-        'debt:badge-run-deck-authority-summary'
+    "128486fc6ce4ef95c9ce2410f03c0d79b82a7aeccbfe9735a36c8b611b87b49c": (
+        "debt:badge-projection-source-freshness"
     ),
-    '116aa85ec7f5abe277667d64833a6bf469453309f2ce3e891188e21ce410bb3b': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "12d25f70a1e4d12752533d44a2ff623892cf8a0324712949d2fd9a114372e264": (
+        "debt:badge-public-integrity-result"
     ),
-    '128486fc6ce4ef95c9ce2410f03c0d79b82a7aeccbfe9735a36c8b611b87b49c': (
-        'debt:badge-projection-source-freshness'
+    "135b70bf4ba02dd4cbf39d810beaaeca8c7472f93bd90c790c7662801b1a76cf": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '12d25f70a1e4d12752533d44a2ff623892cf8a0324712949d2fd9a114372e264': (
-        'debt:badge-public-integrity-result'
+    "14a3b807641e72cf79ecaaa83dd98249a6fa5ecebfbdb8434de52e93f9ee239d": ("benign:layout_or_counts"),
+    "14fbd20acffc634f412e1e4619831144afdf0698b8c60afa76a91ef16251f12f": (
+        "debt:badge-explainability-governance-counts"
     ),
-    '135b70bf4ba02dd4cbf39d810beaaeca8c7472f93bd90c790c7662801b1a76cf': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "168d23a2e7bbd0b65d5239812cf87afad12e77f4c5ab14c8a58ec9d1d276b415": (
+        "debt:badge-control-approval-quality"
     ),
-    '14a3b807641e72cf79ecaaa83dd98249a6fa5ecebfbdb8434de52e93f9ee239d': (
-        'benign:layout_or_counts'
+    "16950ecbf6fed6faf6a6d058a4e03dfc850ac9326c49df23b1ac67ec33efeb0d": ("benign:layout_or_counts"),
+    "188038e809c5f6b4bcfdc8744185e9b9ea4f5841e2f2aa45c057a5e86f064946": (
+        "benign:interaction_or_editor_state"
     ),
-    '14fbd20acffc634f412e1e4619831144afdf0698b8c60afa76a91ef16251f12f': (
-        'debt:badge-explainability-governance-counts'
+    "18c241f1f9f5ca3a237baf71f0cb7509c6f95113bc983fa3863a0d51cdf41cac": (
+        "debt:badge-promotion-candidate-status"
     ),
-    '168d23a2e7bbd0b65d5239812cf87afad12e77f4c5ab14c8a58ec9d1d276b415': (
-        'debt:badge-control-approval-quality'
+    "19705539d0d15dbd5f66bf771c2ac39d62871075d237f115ebc145d372548e8d": (
+        "benign:interaction_or_editor_state"
     ),
-    '16950ecbf6fed6faf6a6d058a4e03dfc850ac9326c49df23b1ac67ec33efeb0d': (
-        'benign:layout_or_counts'
+    "1de29932d949fb40855f0a72b9792efdc7323a920d54e721dd9138ab44fa5ae6": (
+        "benign:transport_or_runtime_health"
     ),
-    '188038e809c5f6b4bcfdc8744185e9b9ea4f5841e2f2aa45c057a5e86f064946': (
-        'benign:interaction_or_editor_state'
+    "1e01bb02aa403bfae75475c5ffe5346af68c654fc554bf1c544535e82bae724c": (
+        "debt:badge-public-packet-authority-framing"
     ),
-    '18c241f1f9f5ca3a237baf71f0cb7509c6f95113bc983fa3863a0d51cdf41cac': (
-        'debt:badge-promotion-candidate-status'
+    "22c2a2e7b9b3c9c07fcff8e313559f5e18f31abf5fef96c074ed58da84765c75": (
+        "debt:badge-run-deck-authority-summary"
     ),
-    '19705539d0d15dbd5f66bf771c2ac39d62871075d237f115ebc145d372548e8d': (
-        'benign:interaction_or_editor_state'
+    "2353ac212cdc4f28d6919059be719db9a21c2f357a9ff81637d034bde30e96d0": (
+        "debt:badge-public-packet-authority-framing"
     ),
-    '1de29932d949fb40855f0a72b9792efdc7323a920d54e721dd9138ab44fa5ae6': (
-        'benign:transport_or_runtime_health'
+    "24e1864e260b849cc456c772ce930bd535053d95129542d9c531cd0d66bbad9a": ("benign:layout_or_counts"),
+    "258dd4eb0f8640e78aa80cbe6085a6b731e6e7ff33dd20e39776d6c097a73866": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '1e01bb02aa403bfae75475c5ffe5346af68c654fc554bf1c544535e82bae724c': (
-        'debt:badge-public-packet-authority-framing'
+    "2700e01e38e8458ef1fc6de7f9038c32b31d58ecfeb83cce399d212079b3fb10": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '22c2a2e7b9b3c9c07fcff8e313559f5e18f31abf5fef96c074ed58da84765c75': (
-        'debt:badge-run-deck-authority-summary'
+    "28b2c47947ef00f03eeb3b569db7c89488ac9e22712e5c72373d19033aa4fd24": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '2353ac212cdc4f28d6919059be719db9a21c2f357a9ff81637d034bde30e96d0': (
-        'debt:badge-public-packet-authority-framing'
+    "2af60ce47149ca4c1cb7f29627a16695c047f44fd87ac1de932ec2b63d0d25fe": (
+        "debt:badge-threshold-unavailable"
     ),
-    '24e1864e260b849cc456c772ce930bd535053d95129542d9c531cd0d66bbad9a': (
-        'benign:layout_or_counts'
+    "32cab7325fba8b2f585fc0214ccf345bbf32b0ed4dafab55e94022336f809cba": (
+        "debt:badge-preflight-readiness"
     ),
-    '258dd4eb0f8640e78aa80cbe6085a6b731e6e7ff33dd20e39776d6c097a73866': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "346b26c59bc4ca63a09e51cea968753acd54f1a407b731b89bc5b11a5e02d599": (
+        "benign:transport_or_runtime_health"
     ),
-    '2700e01e38e8458ef1fc6de7f9038c32b31d58ecfeb83cce399d212079b3fb10': (
-        'benign:opaque_metadata_or_taxonomy'
+    "34c659f2601b1ddfbeab58c9d8140b87f71dd33297e81ee79a5d20d69f97d8be": (
+        "debt:badge-compound-decision-grade"
     ),
-    '28b2c47947ef00f03eeb3b569db7c89488ac9e22712e5c72373d19033aa4fd24': (
-        'benign:opaque_metadata_or_taxonomy'
+    "377c1bb5561cd4fef5e2d91c14a12376aac3958f9d8aedaabbacfd4ae8bfec94": (
+        "debt:badge-decision-confidence"
     ),
-    '2af60ce47149ca4c1cb7f29627a16695c047f44fd87ac1de932ec2b63d0d25fe': (
-        'debt:badge-threshold-unavailable'
+    "3823875dc79983dac784b51fe1932918d182d7b8546e1dca9db7c9809f8b435c": (
+        "debt:badge-explainability-governance-counts"
     ),
-    '32cab7325fba8b2f585fc0214ccf345bbf32b0ed4dafab55e94022336f809cba': (
-        'debt:badge-preflight-readiness'
+    "3d35cd0642bc6151a02491b8f39576e526b9bdbc32b954f715d12f2490b47ff3": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '346b26c59bc4ca63a09e51cea968753acd54f1a407b731b89bc5b11a5e02d599': (
-        'benign:transport_or_runtime_health'
+    "3da0a4081081e0d98676b5857cc23316a01eb91b4ad3042e154ff6bf73edf38f": (
+        "debt:badge-evidence-source-freshness"
     ),
-    '34c659f2601b1ddfbeab58c9d8140b87f71dd33297e81ee79a5d20d69f97d8be': (
-        'debt:badge-compound-decision-grade'
+    "3e2dac1a9f9315caf321dc572ef4cd24810ae15b17ba138e6ced1afcd4a58fd6": (
+        "debt:badge-compound-decision-grade"
     ),
-    '377c1bb5561cd4fef5e2d91c14a12376aac3958f9d8aedaabbacfd4ae8bfec94': (
-        'debt:badge-decision-confidence'
+    "406d88d51302590ea467bc8a6f1d36422bb080b18c1cb794b88c2bbd3d17ba6d": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '3823875dc79983dac784b51fe1932918d182d7b8546e1dca9db7c9809f8b435c': (
-        'debt:badge-explainability-governance-counts'
+    "41847e62e0cb802532dad96b457939401e6e772a59acf0a343dc86da0873ffe5": ("benign:layout_or_counts"),
+    "435f0224f0d2a9d5eba9f709f777adacf65dd28d1c36d39f4f702e5509a64452": (
+        "debt:badge-compound-decision-grade"
     ),
-    '3d35cd0642bc6151a02491b8f39576e526b9bdbc32b954f715d12f2490b47ff3': (
-        'benign:opaque_metadata_or_taxonomy'
+    "45655bebe9f1cc0ac150c68901386e1c8feb554108e278612654a4eff4b23fe5": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '3da0a4081081e0d98676b5857cc23316a01eb91b4ad3042e154ff6bf73edf38f': (
-        'debt:badge-evidence-source-freshness'
+    "4681f7d7a6a1febf2badb65da22df140fae88ba3beef9313d8240b532c161b6e": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '3e2dac1a9f9315caf321dc572ef4cd24810ae15b17ba138e6ced1afcd4a58fd6': (
-        'debt:badge-compound-decision-grade'
+    "47e551b9d6e8882de20bfd67eb14f852149d20872aa5d9d6834060afc2a25866": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '406d88d51302590ea467bc8a6f1d36422bb080b18c1cb794b88c2bbd3d17ba6d': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "4824d5e19c44105391522152d9bd9febfe0327fd34e6c9485f4d215c99e5c394": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '41847e62e0cb802532dad96b457939401e6e772a59acf0a343dc86da0873ffe5': (
-        'benign:layout_or_counts'
+    "489584ca817c00d7766e9d474efd1ee37d3ae7335b1a19f41f2918042e5cfb69": (
+        "debt:badge-control-approval-quality"
     ),
-    '435f0224f0d2a9d5eba9f709f777adacf65dd28d1c36d39f4f702e5509a64452': (
-        'debt:badge-compound-decision-grade'
+    "4966df28f2ae3778e52ac1226bded6b2b94a35c845a6b5e0dd729106e5f09acb": (
+        "debt:badge-control-approval-quality"
     ),
-    '45655bebe9f1cc0ac150c68901386e1c8feb554108e278612654a4eff4b23fe5': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "4a079c0100a0b88e5a4cff84538e1fe187b266b842a7600660ea8cd692f86bda": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '4681f7d7a6a1febf2badb65da22df140fae88ba3beef9313d8240b532c161b6e': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "4b0ca289239f6cb5cca22029afb268c85bf71eb90f73dae0f4a70ed2b8394cb1": (
+        "benign:interaction_or_editor_state"
     ),
-    '47e551b9d6e8882de20bfd67eb14f852149d20872aa5d9d6834060afc2a25866': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "4b6cc6e1e45662b2e66cdbaacb3dcb3913ba2eac1ca4931d3847fac9a88c3e65": (
+        "debt:badge-artifact-pipeline-decision-grade"
     ),
-    '4824d5e19c44105391522152d9bd9febfe0327fd34e6c9485f4d215c99e5c394': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "4d4cb2de5e3b09fe879fe2fabf09e233f9885dcfdaad158796ac4726109c5151": ("benign:layout_or_counts"),
+    "5684c71e7fde2485d3193d42e95f3e84732ac3cacc9c63fcbf38d54d3dc7186c": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '489584ca817c00d7766e9d474efd1ee37d3ae7335b1a19f41f2918042e5cfb69': (
-        'debt:badge-control-approval-quality'
+    "575992477f68b27fab1317f1688153b5afaced24c268c22dd2fd2b6f8c49ec76": (
+        "debt:badge-evidence-source-freshness"
     ),
-    '4966df28f2ae3778e52ac1226bded6b2b94a35c845a6b5e0dd729106e5f09acb': (
-        'debt:badge-control-approval-quality'
+    "5796af5c0c00e3724ae4e0f5a21ae84464d4c8f8c8e85dc3fb9afdd03536fbc6": (
+        "debt:badge-operator-blocker-overridability"
     ),
-    '4a079c0100a0b88e5a4cff84538e1fe187b266b842a7600660ea8cd692f86bda': (
-        'benign:opaque_metadata_or_taxonomy'
+    "59b6a960611036630340cfdbdeb67c09a0b0bc2fe0d1670fe9be49d0ac386054": (
+        "benign:interaction_or_editor_state"
     ),
-    '4b0ca289239f6cb5cca22029afb268c85bf71eb90f73dae0f4a70ed2b8394cb1': (
-        'benign:interaction_or_editor_state'
+    "5d069598ed2432ba1300d23dbf64545fdcdb1b00db025ba683c40b395882c7e9": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '4b6cc6e1e45662b2e66cdbaacb3dcb3913ba2eac1ca4931d3847fac9a88c3e65': (
-        'debt:badge-artifact-pipeline-decision-grade'
+    "5eccfc73c26b6c85df52cff3c0843e498d1c2a0b924204804c5aad9de3196ba1": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '4d4cb2de5e3b09fe879fe2fabf09e233f9885dcfdaad158796ac4726109c5151': (
-        'benign:layout_or_counts'
+    "60b71e5d2856a03dc8e9d8873e20f86b0cfcf623f4c9bcaacdb45c8048c0364c": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '5684c71e7fde2485d3193d42e95f3e84732ac3cacc9c63fcbf38d54d3dc7186c': (
-        'benign:opaque_metadata_or_taxonomy'
+    "614a98dc9a95cdaed03c5dfba1b519e12b58af700bf5a812e0a1aa7f582871cb": ("benign:layout_or_counts"),
+    "662b0fc3606167f10f68500739758dd6e7b7ecb8f96db7859b9e1f8d0c0546d1": (
+        "benign:interaction_or_editor_state"
     ),
-    '575992477f68b27fab1317f1688153b5afaced24c268c22dd2fd2b6f8c49ec76': (
-        'debt:badge-evidence-source-freshness'
+    "66a00026342faf1877fa8ddb5128cd33a7b369884dfe64ae18ee237560899b15": ("benign:layout_or_counts"),
+    "6ac80574002dfaad6ad5d921827e753111611f66ea6a0b7a7cce0c1b7ba96216": ("benign:layout_or_counts"),
+    "71ad7ea43a1e8dc3e3df4f67f00cc4fad983b2b6b7a0acdfc6db3daaccd8aa28": (
+        "debt:badge-control-approval-quality"
     ),
-    '5796af5c0c00e3724ae4e0f5a21ae84464d4c8f8c8e85dc3fb9afdd03536fbc6': (
-        'debt:badge-operator-blocker-overridability'
+    "743515ddee3a1654cf2284926e6abbd7797ef5b3ae505e2f94006d3e9ffed683": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '59b6a960611036630340cfdbdeb67c09a0b0bc2fe0d1670fe9be49d0ac386054': (
-        'benign:interaction_or_editor_state'
+    "775183902635829ee7a634e09e77c411ad11cbe0cfff43ee743cebaf17288e25": (
+        "debt:badge-preflight-readiness"
     ),
-    '5d069598ed2432ba1300d23dbf64545fdcdb1b00db025ba683c40b395882c7e9': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "7752dd623b2b966fc992e43150813ae337e1667dcb2a75f1ae7e52d294655317": (
+        "debt:badge-uncertainty-dispute"
     ),
-    '5eccfc73c26b6c85df52cff3c0843e498d1c2a0b924204804c5aad9de3196ba1': (
-        'benign:opaque_metadata_or_taxonomy'
+    "77d4937a8a4ae3861a3d7ca0d409f1dcb5357b59fed592b6f1da55998c74415d": (
+        "debt:badge-control-approval-quality"
     ),
-    '60b71e5d2856a03dc8e9d8873e20f86b0cfcf623f4c9bcaacdb45c8048c0364c': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "782d91933a21abe282a0b2eec316c9e5a01250ae6dd1be645f0564300544c721": (
+        "benign:transport_or_runtime_health"
     ),
-    '614a98dc9a95cdaed03c5dfba1b519e12b58af700bf5a812e0a1aa7f582871cb': (
-        'benign:layout_or_counts'
+    "790d822d3220078d0202ff5acf18234e4989dddaa8f0763460945f568889a957": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '662b0fc3606167f10f68500739758dd6e7b7ecb8f96db7859b9e1f8d0c0546d1': (
-        'benign:interaction_or_editor_state'
+    "7b7a686875b59b4b487be6ffd6040155dbbbea162d3034ae49e8de6a81a40695": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '66a00026342faf1877fa8ddb5128cd33a7b369884dfe64ae18ee237560899b15': (
-        'benign:layout_or_counts'
+    "7cab4e047bfad3eeba1fa62f6541f93ca94f7288e36da8ad9fce0b9f9fd075a8": (
+        "debt:badge-compound-decision-grade"
     ),
-    '6ac80574002dfaad6ad5d921827e753111611f66ea6a0b7a7cce0c1b7ba96216': (
-        'benign:layout_or_counts'
+    "7cbd142395b58dc08a0e2bb7aae5dddee45eae6beef62c24f0fb8b4b8fae67b7": ("benign:layout_or_counts"),
+    "7d026294d7ab9b024d15f64c520125bf1a56d8546bbcc0a4c3889d11381e2e80": (
+        "benign:transport_or_runtime_health"
     ),
-    '71ad7ea43a1e8dc3e3df4f67f00cc4fad983b2b6b7a0acdfc6db3daaccd8aa28': (
-        'debt:badge-control-approval-quality'
+    "7dc80a2bca0f52eabe4056572779e0d61350184ebb303f8635de3a9b462b3d6f": (
+        "debt:badge-candidate-refusal-markers"
     ),
-    '743515ddee3a1654cf2284926e6abbd7797ef5b3ae505e2f94006d3e9ffed683': (
-        'benign:opaque_metadata_or_taxonomy'
+    "7df766a591cd08759ab97ce6fbf3c93b1d83d01e5e6e403886ede521aef97004": (
+        "benign:transport_or_runtime_health"
     ),
-    '775183902635829ee7a634e09e77c411ad11cbe0cfff43ee743cebaf17288e25': (
-        'debt:badge-preflight-readiness'
+    "7e370a0c39a64ebb37b0b55f2a0121ab95430348581ba3f8e30cf90887a8722c": (
+        "benign:transport_or_runtime_health"
     ),
-    '7752dd623b2b966fc992e43150813ae337e1667dcb2a75f1ae7e52d294655317': (
-        'debt:badge-uncertainty-dispute'
+    "7f61ef5fd73fcfd0d116ed59338de06d623e58f5634b4c74151527c06a902bd6": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '77d4937a8a4ae3861a3d7ca0d409f1dcb5357b59fed592b6f1da55998c74415d': (
-        'debt:badge-control-approval-quality'
+    "89146b2b5fbfd278d218aeadc24ad53693a77af147e1086cea5b51a2511659c6": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '782d91933a21abe282a0b2eec316c9e5a01250ae6dd1be645f0564300544c721': (
-        'benign:transport_or_runtime_health'
+    "892350aac1cb253283d156a1952c835fc1d2a8d73327b0feea81fce21d67ad24": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '790d822d3220078d0202ff5acf18234e4989dddaa8f0763460945f568889a957': (
-        'benign:opaque_metadata_or_taxonomy'
+    "89b13db33efc33ad01d076818b832f51aed4a1a2dc5bc3465376b8ff1cc42dae": (
+        "debt:badge-control-approval-quality"
     ),
-    '7b7a686875b59b4b487be6ffd6040155dbbbea162d3034ae49e8de6a81a40695': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "8d1d1b0a3f1bd470d97feec2780c3f3ecace0182e30b9dc4ab6fe918eea698de": ("benign:layout_or_counts"),
+    "901d277be8ac2a458d2d05c65b606307b3c6dc64f1cf48c080f57af4b6f27500": (
+        "debt:badge-public-packet-authority-framing"
     ),
-    '7cab4e047bfad3eeba1fa62f6541f93ca94f7288e36da8ad9fce0b9f9fd075a8': (
-        'debt:badge-compound-decision-grade'
+    "9068a4cd4f2597a561b3ee5e9cb81493c299d6a9ac44a7c39f05f4c336cf42b0": (
+        "benign:transport_or_runtime_health"
     ),
-    '7cbd142395b58dc08a0e2bb7aae5dddee45eae6beef62c24f0fb8b4b8fae67b7': (
-        'benign:layout_or_counts'
+    "9356fe6a3c0dee6467263ab8bf82f01253fb3629c7090a4e14277418cfc96fe6": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '7d026294d7ab9b024d15f64c520125bf1a56d8546bbcc0a4c3889d11381e2e80': (
-        'benign:transport_or_runtime_health'
+    "9374faf00f67a0c3d645b9171576544ef88904aee1f831147de0b1f1e0572e55": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '7dc80a2bca0f52eabe4056572779e0d61350184ebb303f8635de3a9b462b3d6f': (
-        'debt:badge-candidate-refusal-markers'
+    "94f7d09333cadd11a89176ef32d1646677e0070113e346a24bcf0e2f21e29d20": ("benign:layout_or_counts"),
+    "95a566e23d8a67c3342e70696b8299ce11282524dcc512ef8f1b38a542166bb9": (
+        "branded:governed_authority_purpose"
     ),
-    '7df766a591cd08759ab97ce6fbf3c93b1d83d01e5e6e403886ede521aef97004': (
-        'benign:transport_or_runtime_health'
+    "95aea9c66d7babdca5ee9911a0db61b65d7d62614effac90dbf4478aa4b77bff": (
+        "debt:badge-projection-source-freshness"
     ),
-    '7e370a0c39a64ebb37b0b55f2a0121ab95430348581ba3f8e30cf90887a8722c': (
-        'benign:transport_or_runtime_health'
+    "997f7c5ee2d23388fecbe89b4b0248095e86078fb8902768f3ee8f2b647fa2bb": (
+        "benign:transport_or_runtime_health"
     ),
-    '7f61ef5fd73fcfd0d116ed59338de06d623e58f5634b4c74151527c06a902bd6': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "999dfc41d8905bc8fb950ce74afe4ff73d2caa9e9d1144401dd7adc0e488e37a": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '89146b2b5fbfd278d218aeadc24ad53693a77af147e1086cea5b51a2511659c6': (
-        'benign:opaque_metadata_or_taxonomy'
+    "9b58b688994af67d93522e5dadaef6b0f2df21b8efc7ff8633e86db147099413": (
+        "debt:badge-control-approval-quality"
     ),
-    '892350aac1cb253283d156a1952c835fc1d2a8d73327b0feea81fce21d67ad24': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "9e5c541d557ae597994e067895ef46cc5c8106605e12517533c1ef4277c4db42": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    '89b13db33efc33ad01d076818b832f51aed4a1a2dc5bc3465376b8ff1cc42dae': (
-        'debt:badge-control-approval-quality'
+    "9f1248b9bc7ee9c7a669e91b3ab6a03a428cc9e442163b832d7daa0fd1a700e7": (
+        "debt:badge-artifact-pipeline-decision-grade"
     ),
-    '8d1d1b0a3f1bd470d97feec2780c3f3ecace0182e30b9dc4ab6fe918eea698de': (
-        'benign:layout_or_counts'
+    "a178781eec2205bb210feae1963866ddbebbc903e5b167439d795f47a47cd1ef": (
+        "debt:badge-negative-certificate-blocker"
     ),
-    '901d277be8ac2a458d2d05c65b606307b3c6dc64f1cf48c080f57af4b6f27500': (
-        'debt:badge-public-packet-authority-framing'
+    "a39decd55a70a0982f1206d37466ed416d440f2fae951c3f6026add2f89ddfd8": (
+        "benign:transport_or_runtime_health"
     ),
-    '9068a4cd4f2597a561b3ee5e9cb81493c299d6a9ac44a7c39f05f4c336cf42b0': (
-        'benign:transport_or_runtime_health'
+    "a42bc462f389e95b1711b2bd8c2d65c7efe1d62adecff77803629d81ae2c7c72": (
+        "debt:badge-preflight-readiness"
     ),
-    '9356fe6a3c0dee6467263ab8bf82f01253fb3629c7090a4e14277418cfc96fe6': (
-        'benign:opaque_metadata_or_taxonomy'
+    "a4a0f209ac5afc0587dbeec512266e6543cc61ba7e05f95e5b88ad141c01f9ed": (
+        "debt:badge-evidence-source-freshness"
     ),
-    '9374faf00f67a0c3d645b9171576544ef88904aee1f831147de0b1f1e0572e55': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "a608cbead8d75af67ec3a67b1bffcafec43289a959882c3f7ff1f08b943a4ef2": ("benign:layout_or_counts"),
+    "a707876130fc42b9006569b81f1f191de061ba6c2d9e00218e130c5688e3588e": (
+        "benign:interaction_or_editor_state"
     ),
-    '94f7d09333cadd11a89176ef32d1646677e0070113e346a24bcf0e2f21e29d20': (
-        'benign:layout_or_counts'
+    "b002b5f620661bc50ef765de2a66149010e584f39eb810139e8d2441898eaacb": (
+        "benign:interaction_or_editor_state"
     ),
-    '95a566e23d8a67c3342e70696b8299ce11282524dcc512ef8f1b38a542166bb9': (
-        'branded:governed_authority_purpose'
+    "b22524f2bb0c743cad0ba903c0913378f1755770798e5296e1eb2fd290a44a96": (
+        "debt:badge-bureaucratic-legal-review"
     ),
-    '95aea9c66d7babdca5ee9911a0db61b65d7d62614effac90dbf4478aa4b77bff': (
-        'debt:badge-projection-source-freshness'
+    "b4ca75d2e9ab64059d514160e709e532f1c9033afba163d5e387bdb902d205a6": (
+        "benign:transport_or_runtime_health"
     ),
-    '997f7c5ee2d23388fecbe89b4b0248095e86078fb8902768f3ee8f2b647fa2bb': (
-        'benign:transport_or_runtime_health'
+    "b6ed98bcceca5eb3659f89e979641aaedbedbc1a7d48462b820c2ecb4b6911ec": (
+        "debt:badge-candidate-refusal-markers"
     ),
-    '999dfc41d8905bc8fb950ce74afe4ff73d2caa9e9d1144401dd7adc0e488e37a': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "b849a709f7783feecf45e635476c00aae9859d9a207c6cfa611a5113ce5b785a": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '9b58b688994af67d93522e5dadaef6b0f2df21b8efc7ff8633e86db147099413': (
-        'debt:badge-control-approval-quality'
+    "b8956759f3667ee4a2aab6f14ff3f9633530ce94bad4c5741758dbf1872f4131": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    '9e5c541d557ae597994e067895ef46cc5c8106605e12517533c1ef4277c4db42': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "b8a7958e5eadceb9bb9ed7b720e1a4efb9a20bd8bced7dfdea519b92eaf82dca": (
+        "debt:badge-explainability-governance-counts"
     ),
-    '9f1248b9bc7ee9c7a669e91b3ab6a03a428cc9e442163b832d7daa0fd1a700e7': (
-        'debt:badge-artifact-pipeline-decision-grade'
+    "ba194a850616423573ab6ded36d2839fc80ae0470c30f57438a447f4232a4d41": ("benign:layout_or_counts"),
+    "ba344f7d265fd1539ac0fb5435a9f53d1caf848e8f1d452f54f90fb31097ef66": ("benign:layout_or_counts"),
+    "bbfc4140d1b606629556acde90334230a32a304f848211c89f60b73c6bd19947": (
+        "debt:badge-governance-issue-severity"
     ),
-    'a178781eec2205bb210feae1963866ddbebbc903e5b167439d795f47a47cd1ef': (
-        'debt:badge-negative-certificate-blocker'
+    "bdf81e235a4ca11b7864dc6ecdd2284cbe034374693508f633cb85a9761eb6df": (
+        "benign:transport_or_runtime_health"
     ),
-    'a39decd55a70a0982f1206d37466ed416d440f2fae951c3f6026add2f89ddfd8': (
-        'benign:transport_or_runtime_health'
+    "bee1d8b47272f2e55577d8bd97988f38cee5f6857811e69b12d4c06d7545457a": (
+        "debt:badge-public-anti-authority-role"
     ),
-    'a42bc462f389e95b1711b2bd8c2d65c7efe1d62adecff77803629d81ae2c7c72': (
-        'debt:badge-preflight-readiness'
+    "c189d4abe2d873e07f6be8e26b018f8d6d89469e72303dfceb0257e6e81fbf1a": (
+        "debt:badge-run-deck-authority-summary"
     ),
-    'a4a0f209ac5afc0587dbeec512266e6543cc61ba7e05f95e5b88ad141c01f9ed': (
-        'debt:badge-evidence-source-freshness'
+    "c1c1c5396f7e6e331fd35de27613fac55a01597ec02e48a0c0fe7d37b229e047": (
+        "benign:transport_or_runtime_health"
     ),
-    'a608cbead8d75af67ec3a67b1bffcafec43289a959882c3f7ff1f08b943a4ef2': (
-        'benign:layout_or_counts'
+    "c21834b2fafddae48203bb9f1d73a8bffd39ccb98d63b23da53ba610eec8131c": (
+        "debt:badge-comparability"
     ),
-    'a707876130fc42b9006569b81f1f191de061ba6c2d9e00218e130c5688e3588e': (
-        'benign:interaction_or_editor_state'
+    "c240d2feaa07748f063fcff49d11df7617c812f95f3341136ca14d54f644c66b": (
+        "benign:transport_or_runtime_health"
     ),
-    'b002b5f620661bc50ef765de2a66149010e584f39eb810139e8d2441898eaacb': (
-        'benign:interaction_or_editor_state'
+    "c46e2809d8f349d9518a86fe0f8c33df00e393dc7cd50f048fc7d9455a95eeba": (
+        "benign:transport_or_runtime_health"
     ),
-    'b22524f2bb0c743cad0ba903c0913378f1755770798e5296e1eb2fd290a44a96': (
-        'debt:badge-bureaucratic-legal-review'
+    "c614d3390a9d679fbe9253314cbd5f1a18b0613411afdb5e3d550db91252b5c6": (
+        "branded:authority_presentation"
     ),
-    'b4ca75d2e9ab64059d514160e709e532f1c9033afba163d5e387bdb902d205a6': (
-        'benign:transport_or_runtime_health'
+    "c7112bfb817734b2a54a7d55cdb9ad540842a4befcd49b49e8c12863a66047e8": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    'b6ed98bcceca5eb3659f89e979641aaedbedbc1a7d48462b820c2ecb4b6911ec': (
-        'debt:badge-candidate-refusal-markers'
+    "c81aad6b01055c35286a42a8bfdc07cf2223a8c47721aa6a1eaeaaf5b52bbb28": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    'b849a709f7783feecf45e635476c00aae9859d9a207c6cfa611a5113ce5b785a': (
-        'benign:opaque_metadata_or_taxonomy'
+    "cba8b385d57d853f1a0aeed9b9fd8731925269cb37a52aeb62005831353f482c": ("benign:layout_or_counts"),
+    "cc2bd39aaf90f8648705a1f6490ebf6cf38639a5a6096b1d5466a6e3e6d1f3d8": (
+        "debt:badge-control-approval-quality"
     ),
-    'b8956759f3667ee4a2aab6f14ff3f9633530ce94bad4c5741758dbf1872f4131': (
-        'benign:opaque_metadata_or_taxonomy'
+    "ce1071346d9f93620cad1b88481b396016a563d8ccad39f58d2853be27d960ea": ("benign:layout_or_counts"),
+    "cef8147b083b7868c257481362ce5759966736f14fe65cd9f764ddee809e95ea": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    'b8a7958e5eadceb9bb9ed7b720e1a4efb9a20bd8bced7dfdea519b92eaf82dca': (
-        'debt:badge-explainability-governance-counts'
+    "cf40b1db383289a0e350568c515e85540ceef41a10c87b9c6b03a38c1ddd1657": (
+        "debt:badge-public-integrity-result"
     ),
-    'ba194a850616423573ab6ded36d2839fc80ae0470c30f57438a447f4232a4d41': (
-        'benign:layout_or_counts'
+    "d1cf53e72c35bc04a947b651a2afae3efbb7d3d0261dff7aa63aa0ad705bd622": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    'ba344f7d265fd1539ac0fb5435a9f53d1caf848e8f1d452f54f90fb31097ef66': (
-        'benign:layout_or_counts'
+    "d3597f124b355ae0df1aba078fe15dcbfc1eb5273d91497ee5dac0c3a10fa36e": (
+        "benign:interaction_or_editor_state"
     ),
-    'bbfc4140d1b606629556acde90334230a32a304f848211c89f60b73c6bd19947': (
-        'debt:badge-governance-issue-severity'
+    "d5175929f2fea0f9bf06ab5951a76e03d416363447a01b1449ff1c0f04fd5d69": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    'bdf81e235a4ca11b7864dc6ecdd2284cbe034374693508f633cb85a9761eb6df': (
-        'benign:transport_or_runtime_health'
+    "d55790cad1c256c2c84508b5044b318ce50a87c809a16153b95de4aa1006075f": (
+        "benign:transport_or_runtime_health"
     ),
-    'bee1d8b47272f2e55577d8bd97988f38cee5f6857811e69b12d4c06d7545457a': (
-        'debt:badge-public-anti-authority-role'
+    "d6e518e4dcafece66b74ce39b0d7cffb9ef46e95722e93ca7a37047f5b2f903a": (
+        "debt:badge-governance-issue-severity"
     ),
-    'c189d4abe2d873e07f6be8e26b018f8d6d89469e72303dfceb0257e6e81fbf1a': (
-        'debt:badge-run-deck-authority-summary'
+    "d95f9d9d1dfd718118166a3d0a1fef3cfcefa60c5483c6d303ba303a61ac7659": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    'c1c1c5396f7e6e331fd35de27613fac55a01597ec02e48a0c0fe7d37b229e047': (
-        'benign:transport_or_runtime_health'
+    "dbe9710ceb60817af97733abdfa27ca081c78b89a98e2242ffc4f6166567e256": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    'c21834b2fafddae48203bb9f1d73a8bffd39ccb98d63b23da53ba610eec8131c': (
-        'debt:badge-comparability'
+    "dfc72b6a2459a5f1bbae0f083d12aa72bfbd5bf7fbc428729b36504914a27c71": ("benign:layout_or_counts"),
+    "e1dc361da1a68012e234580fa349e121cdbf5dc50539f79e6c5e163a3ec62b50": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    'c240d2feaa07748f063fcff49d11df7617c812f95f3341136ca14d54f644c66b': (
-        'benign:transport_or_runtime_health'
+    "e207cfa4958f3074a81ab79b4964b8590be8beef112d00da0cd7955daa5f053a": ("benign:layout_or_counts"),
+    "e3555ae77473368474ac2aecf962494ce2e015bb56abaf84ad068b5adc37068a": (
+        "benign:interaction_or_editor_state"
     ),
-    'c46e2809d8f349d9518a86fe0f8c33df00e393dc7cd50f048fc7d9455a95eeba': (
-        'benign:transport_or_runtime_health'
+    "e4dd773e764fec196875160e57f6b310dbf2813075a33e9265eeb980262ef55d": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    'c614d3390a9d679fbe9253314cbd5f1a18b0613411afdb5e3d550db91252b5c6': (
-        'branded:authority_presentation'
+    "e8cf63710e8b312c6a9698070215a3d80fd58936593857124775f944ee4b4f27": (
+        "benign:interaction_or_editor_state"
     ),
-    'c7112bfb817734b2a54a7d55cdb9ad540842a4befcd49b49e8c12863a66047e8': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "ec040ce3c17b4c38911f63c37a44188fa51e1415c9063352a3a46dc2f8cd734d": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    'c81aad6b01055c35286a42a8bfdc07cf2223a8c47721aa6a1eaeaaf5b52bbb28': (
-        'benign:opaque_metadata_or_taxonomy'
+    "eda6e6440c411b1ff4b59c9dd5597e500cd4426a31eddae9b46cc21f0eb636f8": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    'cba8b385d57d853f1a0aeed9b9fd8731925269cb37a52aeb62005831353f482c': (
-        'benign:layout_or_counts'
+    "ee0b13c84383978509b3e3ec3504eb334945728b1ccee816e9ba13615ba68dd6": (
+        "debt:badge-candidate-declared-authority-purpose"
     ),
-    'cc2bd39aaf90f8648705a1f6490ebf6cf38639a5a6096b1d5466a6e3e6d1f3d8': (
-        'debt:badge-control-approval-quality'
+    "eeab67da3dac0589720725a171123edeb49c68d05982622c9c36c9b06cc7c4a7": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    'ce1071346d9f93620cad1b88481b396016a563d8ccad39f58d2853be27d960ea': (
-        'benign:layout_or_counts'
+    "eef12bc2ad51233243467d1e006c5a973e0fa138838dffc80cfe3e533ce7afc5": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    'cef8147b083b7868c257481362ce5759966736f14fe65cd9f764ddee809e95ea': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "ef1118d17b97434338471b627d65ba07d0091fe9f064ecb5a5b5c04b71c5a714": (
+        "benign:interaction_or_editor_state"
     ),
-    'cf40b1db383289a0e350568c515e85540ceef41a10c87b9c6b03a38c1ddd1657': (
-        'debt:badge-public-integrity-result'
+    "f0d793a57b01628de090845cb7c5822c23e9f3eccae704bc732c2d5644b22433": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    'd1cf53e72c35bc04a947b651a2afae3efbb7d3d0261dff7aa63aa0ad705bd622': (
-        'benign:opaque_metadata_or_taxonomy'
+    "f429bd648712b69892f15f0815570e349ba93123e3c1689fcc7e8e21b1a39e47": (
+        "benign:interaction_or_editor_state"
     ),
-    'd3597f124b355ae0df1aba078fe15dcbfc1eb5273d91497ee5dac0c3a10fa36e': (
-        'benign:interaction_or_editor_state'
+    "f46d2b5c605e3c5ab6acab65873537121df8cacb43228f16e53a000c97ec0684": (
+        "benign:transport_or_runtime_health"
     ),
-    'd5175929f2fea0f9bf06ab5951a76e03d416363447a01b1449ff1c0f04fd5d69': (
-        'benign:opaque_metadata_or_taxonomy'
+    "f4d4f3e59310e146c58a0ca3952caab54ef348745db6044d0097138675dd94ba": (
+        "debt:badge-control-approval-quality"
     ),
-    'd55790cad1c256c2c84508b5044b318ce50a87c809a16153b95de4aa1006075f': (
-        'benign:transport_or_runtime_health'
+    "f83591094c3b0059152f1882dc77da6851a0463478b16aa4748d05face2ec690": (
+        "benign:transport_or_runtime_health"
     ),
-    'd6e518e4dcafece66b74ce39b0d7cffb9ef46e95722e93ca7a37047f5b2f903a': (
-        'debt:badge-governance-issue-severity'
+    "f932043880d8e07b0d22732d16690d159f803a03ed23d24b9543ad412f443f8f": (
+        "debt:badge-public-integrity-result"
     ),
-    'd95f9d9d1dfd718118166a3d0a1fef3cfcefa60c5483c6d303ba303a61ac7659': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "f9376c6dc6670e77368e91b72ef7de90fd69f4b5290e4352c4a7dbea5d9a00dc": (
+        "debt:badge-review-required-aggregate"
     ),
-    'dbe9710ceb60817af97733abdfa27ca081c78b89a98e2242ffc4f6166567e256': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "f99e0acb8cfd2e2cb117f0f4822ca0c0dde856f03f1f4d629959614e86bf9889": (
+        "debt:badge-run-deck-authority-summary"
     ),
-    'dfc72b6a2459a5f1bbae0f083d12aa72bfbd5bf7fbc428729b36504914a27c71': (
-        'benign:layout_or_counts'
+    "fb60590aea23ce4d4a823d3cf19aea558f5b666e86029388d52469f5f5739641": (
+        "benign:interaction_or_editor_state"
     ),
-    'e1dc361da1a68012e234580fa349e121cdbf5dc50539f79e6c5e163a3ec62b50': (
-        'benign:opaque_metadata_or_taxonomy'
+    "fbb881aadd093a5e283964b7d4b4c1d233d7e1017887fb875d1622ecd2026235": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    'e207cfa4958f3074a81ab79b4964b8590be8beef112d00da0cd7955daa5f053a': (
-        'benign:layout_or_counts'
+    "fc595d1619d1ed3590dcdf87d110fe2e4dc88a0193f018555f9eb3148bde68e2": ("benign:layout_or_counts"),
+    "feae06fefd2cab14a9599492d36ddf16213e3999dacbfa716ebeec97085618fb": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
-    'e3555ae77473368474ac2aecf962494ce2e015bb56abaf84ad068b5adc37068a': (
-        'benign:interaction_or_editor_state'
+    "ff08cad30b4d331f3ba7cfb3757d527f2763dff5608e03f2230e6f4e3c1440b4": (
+        "debt:badge-control-approval-quality"
     ),
-    'e4dd773e764fec196875160e57f6b310dbf2813075a33e9265eeb980262ef55d': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    "1af359393d833cb5ead635d9f8e8442e724e75825ae5a8895f2b8e572244e3b2": (
+        "benign:opaque_metadata_or_taxonomy"
     ),
-    'e8cf63710e8b312c6a9698070215a3d80fd58936593857124775f944ee4b4f27': (
-        'benign:interaction_or_editor_state'
+    "3f6aa01ff891586e321a52eb178b2257fffbd55d0fe678d3d9f730ec63d60cc2": (
+        "debt:badge-governed-projection-availability"
     ),
-    'ec040ce3c17b4c38911f63c37a44188fa51e1415c9063352a3a46dc2f8cd734d': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'eda6e6440c411b1ff4b59c9dd5597e500cd4426a31eddae9b46cc21f0eb636f8': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
-    ),
-    'ee0b13c84383978509b3e3ec3504eb334945728b1ccee816e9ba13615ba68dd6': (
-        'debt:badge-candidate-declared-authority-purpose'
-    ),
-    'eeab67da3dac0589720725a171123edeb49c68d05982622c9c36c9b06cc7c4a7': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'eef12bc2ad51233243467d1e006c5a973e0fa138838dffc80cfe3e533ce7afc5': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'ef1118d17b97434338471b627d65ba07d0091fe9f064ecb5a5b5c04b71c5a714': (
-        'benign:interaction_or_editor_state'
-    ),
-    'f0d793a57b01628de090845cb7c5822c23e9f3eccae704bc732c2d5644b22433': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    'f429bd648712b69892f15f0815570e349ba93123e3c1689fcc7e8e21b1a39e47': (
-        'benign:interaction_or_editor_state'
-    ),
-    'f46d2b5c605e3c5ab6acab65873537121df8cacb43228f16e53a000c97ec0684': (
-        'benign:transport_or_runtime_health'
-    ),
-    'f4d4f3e59310e146c58a0ca3952caab54ef348745db6044d0097138675dd94ba': (
-        'debt:badge-control-approval-quality'
-    ),
-    'f83591094c3b0059152f1882dc77da6851a0463478b16aa4748d05face2ec690': (
-        'benign:transport_or_runtime_health'
-    ),
-    'f932043880d8e07b0d22732d16690d159f803a03ed23d24b9543ad412f443f8f': (
-        'debt:badge-public-integrity-result'
-    ),
-    'f9376c6dc6670e77368e91b72ef7de90fd69f4b5290e4352c4a7dbea5d9a00dc': (
-        'debt:badge-review-required-aggregate'
-    ),
-    'f99e0acb8cfd2e2cb117f0f4822ca0c0dde856f03f1f4d629959614e86bf9889': (
-        'debt:badge-run-deck-authority-summary'
-    ),
-    'fb60590aea23ce4d4a823d3cf19aea558f5b666e86029388d52469f5f5739641': (
-        'benign:interaction_or_editor_state'
-    ),
-    'fbb881aadd093a5e283964b7d4b4c1d233d7e1017887fb875d1622ecd2026235': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
-    ),
-    'fc595d1619d1ed3590dcdf87d110fe2e4dc88a0193f018555f9eb3148bde68e2': (
-        'benign:layout_or_counts'
-    ),
-    'feae06fefd2cab14a9599492d36ddf16213e3999dacbfa716ebeec97085618fb': (
-        'benign:workflow_or_lifecycle_display_without_terminality_inference'
-    ),
-    'ff08cad30b4d331f3ba7cfb3757d527f2763dff5608e03f2230e6f4e3c1440b4': (
-        'debt:badge-control-approval-quality'
-    ),
-    '1af359393d833cb5ead635d9f8e8442e724e75825ae5a8895f2b8e572244e3b2': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
-    '3f6aa01ff891586e321a52eb178b2257fffbd55d0fe678d3d9f730ec63d60cc2': (
-        'debt:badge-governed-projection-availability'
-    ),
-    'ba589be6170116aa03e25219cdb55b3c8718b77a3d7090d8ed25da799505eabd': (
-        'debt:badge-governed-projection-availability'
+    "ba589be6170116aa03e25219cdb55b3c8718b77a3d7090d8ed25da799505eabd": (
+        "debt:badge-governed-projection-availability"
     ),
 }
 
-FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
-    str, list[dict[str, str]]
-] = {
-    '06aa52447c49bbdd19d77123ae8a5a3313abd7a0a8226976da55a52915b8fe49': [
+FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[str, list[dict[str, str]]] = {
+    "06aa52447c49bbdd19d77123ae8a5a3313abd7a0a8226976da55a52915b8fe49": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-verdict',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-decision-card-verdict",
+            "role": "consumer",
         },
     ],
-    '090221c80046c9557a9424e0098ed8c01eaa9621b0a6f99f41d47e6f292da42a': [
+    "090221c80046c9557a9424e0098ed8c01eaa9621b0a6f99f41d47e6f292da42a": [
         {
-            'classification': 'benign:interaction_state',
-            'descriptor_id': 'prop-review-presence-status',
-            'role': 'consumer',
+            "classification": "benign:interaction_state",
+            "descriptor_id": "prop-review-presence-status",
+            "role": "consumer",
         },
     ],
-    '0a9923c0cfd7cb57b27f5bacf64bac468e5862621c904335b290a17e61aa6547': [
+    "0a9923c0cfd7cb57b27f5bacf64bac468e5862621c904335b290a17e61aa6547": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-counterfactual-status',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-counterfactual-status",
+            "role": "consumer",
         },
     ],
-    '0e44a93350c9b74533e5905e633c97892b6e4db719cb24df3aef7ea2bbce2964': [
+    "0e44a93350c9b74533e5905e633c97892b6e4db719cb24df3aef7ea2bbce2964": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-lineage-freshness-cue',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-lineage-freshness-cue",
+            "role": "consumer",
         },
     ],
-    '1288071d7e0ac163c12ce6aa1a20c20f589cbea5e2c433c37011760c01801a4a': [
+    "1288071d7e0ac163c12ce6aa1a20c20f589cbea5e2c433c37011760c01801a4a": [
         {
-            'classification': 'branded:governed_authority_purpose',
-            'descriptor_id': 'prop-envelope-authority-purpose',
-            'role': 'consumer',
+            "classification": "branded:governed_authority_purpose",
+            "descriptor_id": "prop-envelope-authority-purpose",
+            "role": "consumer",
         },
     ],
-    '16eb7fca7159f7309d9753a11f1b620f29fcd51b9b4301c8dfbb25a239079ab6': [
+    "16eb7fca7159f7309d9753a11f1b620f29fcd51b9b4301c8dfbb25a239079ab6": [
         {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'component_declaration',
+            "classification": "branded:authority_presentation",
+            "descriptor_id": "prop-authority-badge-presentation",
+            "role": "component_declaration",
         },
     ],
-    '1908e4138916f64036152bf0f1aad44c6a3b305019545811e2fd330d6abfcc41': [
+    "1908e4138916f64036152bf0f1aad44c6a3b305019545811e2fd330d6abfcc41": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-explainability-verdict',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-explainability-verdict",
+            "role": "consumer",
         },
     ],
-    '19ba562d4caaa193b36eb258135bc8eedefa22de9a825e1230b7e397b9bc777a': [
+    "19ba562d4caaa193b36eb258135bc8eedefa22de9a825e1230b7e397b9bc777a": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-cue',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-verification-status-cue",
+            "role": "consumer",
         },
     ],
-    '22ce2429b6954c1461643264ddeb56ea9b906a4b4c7baa61513d0db4818a9d5c': [
+    "22ce2429b6954c1461643264ddeb56ea9b906a4b4c7baa61513d0db4818a9d5c": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-dispute-status',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-dispute-status",
+            "role": "consumer",
         },
     ],
-    '2539f0dd770d4d81ed7eac41b8659198913e28f7433f2a126d07908aa3f41a55': [
+    "2539f0dd770d4d81ed7eac41b8659198913e28f7433f2a126d07908aa3f41a55": [
         {
-            'classification': 'benign:interaction_state',
-            'descriptor_id': 'prop-review-presence-status',
-            'role': 'prop_declaration',
+            "classification": "benign:interaction_state",
+            "descriptor_id": "prop-review-presence-status",
+            "role": "prop_declaration",
         },
     ],
-    '28451c7385b5593edfd0ac17602ed328120a4949c1a6410d9cb31a3367a773bb': [
+    "28451c7385b5593edfd0ac17602ed328120a4949c1a6410d9cb31a3367a773bb": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-data-freshness',
-            'role': 'prop_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-data-freshness",
+            "role": "prop_declaration",
         },
     ],
-    '2d62ca48a2d4a778b23e7a62ae53dee274c480cacff2cde588352a70e5c46d1c': [
+    "2d62ca48a2d4a778b23e7a62ae53dee274c480cacff2cde588352a70e5c46d1c": [
         {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-composer-summary-tone',
-            'role': 'component_declaration',
+            "classification": "benign:layout_accent",
+            "descriptor_id": "prop-composer-summary-tone",
+            "role": "component_declaration",
         },
     ],
-    '3235dc9058cd679aab28663d8ef6e40fd690dba5931c4222d3c750e895090fdc': [
+    "3235dc9058cd679aab28663d8ef6e40fd690dba5931c4222d3c750e895090fdc": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-control-approval-readiness',
-            'role': 'prop_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-control-approval-readiness",
+            "role": "prop_declaration",
         },
     ],
-    '345048647f2c38a7b4c40150a4f6cf8a157750e34a2313939da45a3bcc3fc03b': [
+    "345048647f2c38a7b4c40150a4f6cf8a157750e34a2313939da45a3bcc3fc03b": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-counterfactual-status',
-            'role': 'component_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-counterfactual-status",
+            "role": "component_declaration",
         },
     ],
-    '3508cd57a8aa6a4eed2f965c15224b54f17b739fa262e5e96c3247b3de0aee5f': [
+    "3508cd57a8aa6a4eed2f965c15224b54f17b739fa262e5e96c3247b3de0aee5f": [
         {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-composer-summary-tone',
-            'role': 'consumer',
+            "classification": "benign:layout_accent",
+            "descriptor_id": "prop-composer-summary-tone",
+            "role": "consumer",
         },
     ],
-    '39f8c143570efef26b5c310b1bf429389358d39fe5bf936a40c19ee6c7211c79': [
+    "39f8c143570efef26b5c310b1bf429389358d39fe5bf936a40c19ee6c7211c79": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-explainability-verdict',
-            'role': 'component_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-explainability-verdict",
+            "role": "component_declaration",
         },
     ],
-    '45fb2442e80045b23fdac4889b002440759292449e536cd2995b84bf67fa5893': [
+    "45fb2442e80045b23fdac4889b002440759292449e536cd2995b84bf67fa5893": [
         {
-            'classification': 'benign:captured_quantity',
-            'descriptor_id': 'prop-authored-text-confidence',
-            'role': 'component_declaration',
+            "classification": "benign:captured_quantity",
+            "descriptor_id": "prop-authored-text-confidence",
+            "role": "component_declaration",
         },
     ],
-    '4626948f8965be6e9d6feb132e399319d02a9ab5c07ff4eb2e04fb977cdf9fa2': [
+    "4626948f8965be6e9d6feb132e399319d02a9ab5c07ff4eb2e04fb977cdf9fa2": [
         {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-form-section-tone',
-            'role': 'component_declaration',
+            "classification": "benign:layout_accent",
+            "descriptor_id": "prop-form-section-tone",
+            "role": "component_declaration",
         },
     ],
-    '463bfc23955e33fcf61719c3b4510aa516bcae5e1d025ad74596bff687bc2d37': [
+    "463bfc23955e33fcf61719c3b4510aa516bcae5e1d025ad74596bff687bc2d37": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-icon-tone',
-            'role': 'component_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-verification-status-icon-tone",
+            "role": "component_declaration",
         },
     ],
-    '47120da814a4f5702cf969d1779626ce434e42c7ae8d22ed96c2da483f867590': [
+    "47120da814a4f5702cf969d1779626ce434e42c7ae8d22ed96c2da483f867590": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-explainability-verdict',
-            'role': 'prop_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-explainability-verdict",
+            "role": "prop_declaration",
         },
     ],
-    '60f1705ce16da1d211d4bd2c9291a0770773e0295f67b15aa375f9113022247e': [
+    "60f1705ce16da1d211d4bd2c9291a0770773e0295f67b15aa375f9113022247e": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'component_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-decision-grade-presentation",
+            "role": "component_declaration",
         },
     ],
-    '6396aaba2a2937fd48c9bc99e4834eaa06c4122dd0e0162a9f9ba31af4e2d6a8': [
+    "6396aaba2a2937fd48c9bc99e4834eaa06c4122dd0e0162a9f9ba31af4e2d6a8": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-control-approval-readiness',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-control-approval-readiness",
+            "role": "consumer",
         },
     ],
-    '68ad2101e3f8b279cb6d41f7fb1ae93e5767fecf714e9db9e427b226d8454f6f': [
+    "68ad2101e3f8b279cb6d41f7fb1ae93e5767fecf714e9db9e427b226d8454f6f": [
         {
-            'classification': 'benign:responsive_layout',
-            'descriptor_id': 'prop-segmented-control-tone',
-            'role': 'prop_declaration',
+            "classification": "benign:responsive_layout",
+            "descriptor_id": "prop-segmented-control-tone",
+            "role": "prop_declaration",
         },
     ],
-    '712710c5c423a0ffc5e2f1567cf5332bb8fcae73a1e15f0495d3312d0a1eb5de': [
+    "712710c5c423a0ffc5e2f1567cf5332bb8fcae73a1e15f0495d3312d0a1eb5de": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-decision-grade-presentation",
+            "role": "consumer",
         },
     ],
-    '71a80646a121675e49570c8c85fa30ffdd40bdf3846ffb245aa265071b73f1c5': [
+    "71a80646a121675e49570c8c85fa30ffdd40bdf3846ffb245aa265071b73f1c5": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-data-freshness',
-            'role': 'component_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-data-freshness",
+            "role": "component_declaration",
         },
     ],
-    '73cf45800d9bbc0e5781565dbbc6ee5de54c0c6b48682c33666e50e8686f8c7b': [
+    "73cf45800d9bbc0e5781565dbbc6ee5de54c0c6b48682c33666e50e8686f8c7b": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'prop_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-decision-grade-presentation",
+            "role": "prop_declaration",
         },
     ],
-    '76a74cb838945515d42022bddecafeb70cc1adc5f2e9334adddb61eb208352ca': [
+    "76a74cb838945515d42022bddecafeb70cc1adc5f2e9334adddb61eb208352ca": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-decision-grade-presentation",
+            "role": "consumer",
         },
     ],
-    '782ed9f3d4c893ff5e9640b2c420cb48a2d08cf8e28d60740bd0c63f3039e462': [
+    "782ed9f3d4c893ff5e9640b2c420cb48a2d08cf8e28d60740bd0c63f3039e462": [
         {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-form-section-tone',
-            'role': 'consumer',
+            "classification": "benign:layout_accent",
+            "descriptor_id": "prop-form-section-tone",
+            "role": "consumer",
         },
     ],
-    '785fc2a4aeab96bd67704104f7dbc63d5693438f9d48a63afe9d1ba50477256d': [
+    "785fc2a4aeab96bd67704104f7dbc63d5693438f9d48a63afe9d1ba50477256d": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-decision-grade-presentation",
+            "role": "consumer",
         },
     ],
-    '7967b768451295aab7bb93830edce43a8605903a6e00fdae468919ccb340c211': [
+    "7967b768451295aab7bb93830edce43a8605903a6e00fdae468919ccb340c211": [
         {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-form-section-tone',
-            'role': 'consumer',
+            "classification": "benign:layout_accent",
+            "descriptor_id": "prop-form-section-tone",
+            "role": "consumer",
         },
     ],
-    '7a76b59f3a814dc6f6b1f9f887eb4b69416f0878a7af3c735f552d937fdb6823': [
+    "7a76b59f3a814dc6f6b1f9f887eb4b69416f0878a7af3c735f552d937fdb6823": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-cue',
-            'role': 'prop_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-verification-status-cue",
+            "role": "prop_declaration",
         },
     ],
-    '831ce02647e1042330f85888d1569f0325a235e7e9ce138a03cbfa58f85e8fe7': [
+    "831ce02647e1042330f85888d1569f0325a235e7e9ce138a03cbfa58f85e8fe7": [
         {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-composer-summary-tone',
-            'role': 'prop_declaration',
+            "classification": "benign:layout_accent",
+            "descriptor_id": "prop-composer-summary-tone",
+            "role": "prop_declaration",
         },
     ],
-    '88061a949593f884d5bef7b9384c644d2c5c7d5d953e04413936be6c0f3a18a8': [
+    "88061a949593f884d5bef7b9384c644d2c5c7d5d953e04413936be6c0f3a18a8": [
         {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'consumer',
+            "classification": "branded:authority_presentation",
+            "descriptor_id": "prop-authority-badge-presentation",
+            "role": "consumer",
         },
     ],
-    '89f4504a2816c5af91a874a64d8117379b47e931e6313d226171a70f1f953413': [
+    "89f4504a2816c5af91a874a64d8117379b47e931e6313d226171a70f1f953413": [
         {
-            'classification': 'benign:responsive_layout',
-            'descriptor_id': 'prop-segmented-control-tone',
-            'role': 'component_declaration',
+            "classification": "benign:responsive_layout",
+            "descriptor_id": "prop-segmented-control-tone",
+            "role": "component_declaration",
         },
     ],
-    '8a560a599792148ea45043a3e13200ca36ab8f47756a677eb1eaa2ef899a7d19': [
+    "8a560a599792148ea45043a3e13200ca36ab8f47756a677eb1eaa2ef899a7d19": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-confidence',
-            'role': 'prop_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-decision-card-confidence",
+            "role": "prop_declaration",
         },
     ],
-    '8bc040f4b701b7f4945431070d65f56529c55eb6f832d094bf116f2083689c5f': [
+    "8bc040f4b701b7f4945431070d65f56529c55eb6f832d094bf116f2083689c5f": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-cue',
-            'role': 'component_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-verification-status-cue",
+            "role": "component_declaration",
         },
     ],
-    '9b0285075c32d8b904ad899c523bfd5dddde9eaa78876dec98ba96b57be00dbd': [
+    "9b0285075c32d8b904ad899c523bfd5dddde9eaa78876dec98ba96b57be00dbd": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-dispute-status',
-            'role': 'prop_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-dispute-status",
+            "role": "prop_declaration",
         },
     ],
-    'a07acb5b94cfdd350caf61f450240bda7f814c1faa029785290c9c58b47056d6': [
+    "a07acb5b94cfdd350caf61f450240bda7f814c1faa029785290c9c58b47056d6": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-counterfactual-status',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-counterfactual-status",
+            "role": "consumer",
         },
     ],
-    'a21ca9ee9373c8c076d703502dcb653879d7a6ce910e3f0e3dff896d217eafd8': [
+    "a21ca9ee9373c8c076d703502dcb653879d7a6ce910e3f0e3dff896d217eafd8": [
         {
-            'classification': 'benign:responsive_layout',
-            'descriptor_id': 'prop-segmented-control-tone',
-            'role': 'consumer',
+            "classification": "benign:responsive_layout",
+            "descriptor_id": "prop-segmented-control-tone",
+            "role": "consumer",
         },
     ],
-    'a87cba5c1e6540ca2bc33b6ee9a169a8fcd8fad7bf460f81d813944814ecbe84': [
+    "a87cba5c1e6540ca2bc33b6ee9a169a8fcd8fad7bf460f81d813944814ecbe84": [
         {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'consumer',
+            "classification": "branded:authority_presentation",
+            "descriptor_id": "prop-authority-badge-presentation",
+            "role": "consumer",
         },
     ],
-    'a9a606e66e7adf776835a8a41bf8968446e341b88dfd3bed962660e5519f0b0e': [
+    "a9a606e66e7adf776835a8a41bf8968446e341b88dfd3bed962660e5519f0b0e": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-verdict',
-            'role': 'prop_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-decision-card-verdict",
+            "role": "prop_declaration",
         },
     ],
-    'b0f22a17ed4d8431f2c8e16579664f17c226202b1a9cf742a3de4fa981a440eb': [
+    "b0f22a17ed4d8431f2c8e16579664f17c226202b1a9cf742a3de4fa981a440eb": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-dispute-status',
-            'role': 'component_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-dispute-status",
+            "role": "component_declaration",
         },
     ],
-    'b1a02625d2fd21109e548cac22c0714690f5803eb15cc7b7be91e7db1f792048': [
+    "b1a02625d2fd21109e548cac22c0714690f5803eb15cc7b7be91e7db1f792048": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-icon-tone',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-verification-status-icon-tone",
+            "role": "consumer",
         },
     ],
-    'b1e30068cb924fa281fed1ac8005603790672b75c00733847d74c8ca637a704f': [
+    "b1e30068cb924fa281fed1ac8005603790672b75c00733847d74c8ca637a704f": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-verdict',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-decision-card-verdict",
+            "role": "consumer",
         },
     ],
-    'b6a1ef787665b777d6a4a7e18fdca654b493d6a8a43473a4d33756514a1e64f1': [
+    "b6a1ef787665b777d6a4a7e18fdca654b493d6a8a43473a4d33756514a1e64f1": [
         {
-            'classification': 'benign:layout_accent',
-            'descriptor_id': 'prop-form-section-tone',
-            'role': 'prop_declaration',
+            "classification": "benign:layout_accent",
+            "descriptor_id": "prop-form-section-tone",
+            "role": "prop_declaration",
         },
     ],
-    'b7b31de2e1cae02214b759a148df24f4a5357909c096c7ee9dab89cd3cc31ec4': [
+    "b7b31de2e1cae02214b759a148df24f4a5357909c096c7ee9dab89cd3cc31ec4": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-grade-presentation',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-decision-grade-presentation",
+            "role": "consumer",
         },
     ],
-    'bba89136665934edc4fb94e1e2c0becd1a0560553b6ed11486d00a5ae512e931': [
+    "bba89136665934edc4fb94e1e2c0becd1a0560553b6ed11486d00a5ae512e931": [
         {
-            'classification': 'benign:interaction_state',
-            'descriptor_id': 'prop-review-presence-status',
-            'role': 'component_declaration',
+            "classification": "benign:interaction_state",
+            "descriptor_id": "prop-review-presence-status",
+            "role": "component_declaration",
         },
     ],
-    'c4695dc59b4f9cbfc62344f12d91f50ab9c0042557aed065d345f054c4bf44e0': [
+    "c4695dc59b4f9cbfc62344f12d91f50ab9c0042557aed065d345f054c4bf44e0": [
         {
-            'classification': 'benign:captured_quantity',
-            'descriptor_id': 'prop-authored-text-confidence',
-            'role': 'consumer',
+            "classification": "benign:captured_quantity",
+            "descriptor_id": "prop-authored-text-confidence",
+            "role": "consumer",
         },
     ],
-    'c8ea08d12ba9b28b1cdfb0f1ed2d1aa2f87913b558025eb8e3448f41dd5888fa': [
+    "c8ea08d12ba9b28b1cdfb0f1ed2d1aa2f87913b558025eb8e3448f41dd5888fa": [
         {
-            'classification': 'branded:governed_authority_purpose',
-            'descriptor_id': 'prop-envelope-authority-purpose',
-            'role': 'component_declaration',
+            "classification": "branded:governed_authority_purpose",
+            "descriptor_id": "prop-envelope-authority-purpose",
+            "role": "component_declaration",
         },
     ],
-    'cba019c47cf0748e39a681763c7d228872e1f3e33726c182359faad876a740ff': [
+    "cba019c47cf0748e39a681763c7d228872e1f3e33726c182359faad876a740ff": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-dispute-status',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-dispute-status",
+            "role": "consumer",
         },
     ],
-    'd13b77727ec6e59051fd01de3d2595381d08ab8a5753470173f4dca54e913f6b': [
+    "d13b77727ec6e59051fd01de3d2595381d08ab8a5753470173f4dca54e913f6b": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-lineage-freshness-cue',
-            'role': 'prop_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-lineage-freshness-cue",
+            "role": "prop_declaration",
         },
     ],
-    'd488da2243cfb0c12b495bfb8becb25dbaf50f1d03f853aaddf9e7530a52495a': [
+    "d488da2243cfb0c12b495bfb8becb25dbaf50f1d03f853aaddf9e7530a52495a": [
         {
-            'classification': 'branded:governed_authority_purpose',
-            'descriptor_id': 'prop-envelope-authority-purpose',
-            'role': 'prop_declaration',
+            "classification": "branded:governed_authority_purpose",
+            "descriptor_id": "prop-envelope-authority-purpose",
+            "role": "prop_declaration",
         },
     ],
-    'd6903156024e582887e0992f164d9fa191eb57d44ccb412655aec1a050ca05b8': [
+    "d6903156024e582887e0992f164d9fa191eb57d44ccb412655aec1a050ca05b8": [
         {
-            'classification': 'benign:interaction_state',
-            'descriptor_id': 'prop-review-presence-status',
-            'role': 'consumer',
+            "classification": "benign:interaction_state",
+            "descriptor_id": "prop-review-presence-status",
+            "role": "consumer",
         },
     ],
-    'd76cf4788345fad84023b91ef225308c43aecf68e6b58f9eb2569fdbd07e9a77': [
+    "d76cf4788345fad84023b91ef225308c43aecf68e6b58f9eb2569fdbd07e9a77": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-lineage-freshness-cue',
-            'role': 'component_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-lineage-freshness-cue",
+            "role": "component_declaration",
         },
     ],
-    'd9f1be34765232337b7e2075e012450b6474312bd313b4e3609de5ddf4488e89': [
+    "d9f1be34765232337b7e2075e012450b6474312bd313b4e3609de5ddf4488e89": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-confidence',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-decision-card-confidence",
+            "role": "consumer",
         },
     ],
-    'daa7db05ca9b71c307935c4f074b1d12df0dc02856ca5292b60bd1824a094230': [
+    "daa7db05ca9b71c307935c4f074b1d12df0dc02856ca5292b60bd1824a094230": [
         {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'prop_declaration',
+            "classification": "branded:authority_presentation",
+            "descriptor_id": "prop-authority-badge-presentation",
+            "role": "prop_declaration",
         },
     ],
-    'ddb70bb5bc1bb2dc30cac27c2428930e5c95c973fc5064de6c01ecb061ed1950': [
+    "ddb70bb5bc1bb2dc30cac27c2428930e5c95c973fc5064de6c01ecb061ed1950": [
         {
-            'classification': 'benign:captured_quantity',
-            'descriptor_id': 'prop-authored-text-confidence',
-            'role': 'consumer',
+            "classification": "benign:captured_quantity",
+            "descriptor_id": "prop-authored-text-confidence",
+            "role": "consumer",
         },
     ],
-    'e5cc3356ae2208fb98c4b1cdfa1d0d37f11c7e933666dc45e0098666561e14d3': [
+    "e5cc3356ae2208fb98c4b1cdfa1d0d37f11c7e933666dc45e0098666561e14d3": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-counterfactual-status',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-counterfactual-status",
+            "role": "consumer",
         },
     ],
-    'ea3c053f9dddfa174cd58f96f0b08967fe93e3465d82fef26c146a11f246ff9d': [
+    "ea3c053f9dddfa174cd58f96f0b08967fe93e3465d82fef26c146a11f246ff9d": [
         {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'consumer',
+            "classification": "branded:authority_presentation",
+            "descriptor_id": "prop-authority-badge-presentation",
+            "role": "consumer",
         },
     ],
-    'ead85722c60492a096a673bb40f117a9798ac462c647086ce7990f60e339f65e': [
+    "ead85722c60492a096a673bb40f117a9798ac462c647086ce7990f60e339f65e": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-verification-status-icon-tone',
-            'role': 'prop_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-verification-status-icon-tone",
+            "role": "prop_declaration",
         },
     ],
-    'ed68a06d959bbc1db946cb34228ca88a11a8bb2a44658dbf19506ed94e5804d9': [
+    "ed68a06d959bbc1db946cb34228ca88a11a8bb2a44658dbf19506ed94e5804d9": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-counterfactual-status',
-            'role': 'prop_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-counterfactual-status",
+            "role": "prop_declaration",
         },
     ],
-    'ef2b25e842386c37d954cb282e8d2a14cb69b22cdb689c4a273de5cd35d80911': [
+    "ef2b25e842386c37d954cb282e8d2a14cb69b22cdb689c4a273de5cd35d80911": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-control-approval-readiness',
-            'role': 'component_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-control-approval-readiness",
+            "role": "component_declaration",
         },
     ],
-    '0f083eca94d56e8a79548b996eb3f1d709a2f67b00548bf3c72f40080b815bed': [
+    "0f083eca94d56e8a79548b996eb3f1d709a2f67b00548bf3c72f40080b815bed": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-data-freshness',
-            'role': 'consumer',
+            "classification": "debt",
+            "descriptor_id": "prop-data-freshness",
+            "role": "consumer",
         },
     ],
-    'fb7a63d86c79d996df5f71c0611b6b7bf44848a6fc0838fb96e7dd371c28e3b2': [
+    "fb7a63d86c79d996df5f71c0611b6b7bf44848a6fc0838fb96e7dd371c28e3b2": [
         {
-            'classification': 'benign:captured_quantity',
-            'descriptor_id': 'prop-authored-text-confidence',
-            'role': 'prop_declaration',
+            "classification": "benign:captured_quantity",
+            "descriptor_id": "prop-authored-text-confidence",
+            "role": "prop_declaration",
         },
     ],
-    'fe5c1e593fa09b93ff37f01f2789d2197faa2f053ac2fc01b68493c20b29bd40': [
+    "fe5c1e593fa09b93ff37f01f2789d2197faa2f053ac2fc01b68493c20b29bd40": [
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-verdict',
-            'role': 'component_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-decision-card-verdict",
+            "role": "component_declaration",
         },
         {
-            'classification': 'debt',
-            'descriptor_id': 'prop-decision-card-confidence',
-            'role': 'component_declaration',
+            "classification": "debt",
+            "descriptor_id": "prop-decision-card-confidence",
+            "role": "component_declaration",
         },
     ],
 }
@@ -6935,25 +7039,15 @@ DS10_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS = {
         "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
     # Existing Evidence counts/taxonomy moved when capability chrome was removed.
-    "4fc8ab35628c8dfc1ffd8aabf69100113f5322c9d2392b19054ec087cf126ae7": (
-        "benign:layout_or_counts"
-    ),
-    "9a34a55819c6a677ec19ee1b663051b106a4417c6d62459402ffacee2deed4a9": (
-        "benign:layout_or_counts"
-    ),
-    "b0b268ca3ec1da6900dfaccbcbea7559c4307a46098dce0d53143120eb69de5f": (
-        "benign:layout_or_counts"
-    ),
-    "058392dec56cdc629eee230434da29b16ee3391223f4ecaabf6bcb320e6e3a24": (
-        "benign:layout_or_counts"
-    ),
+    "4fc8ab35628c8dfc1ffd8aabf69100113f5322c9d2392b19054ec087cf126ae7": ("benign:layout_or_counts"),
+    "9a34a55819c6a677ec19ee1b663051b106a4417c6d62459402ffacee2deed4a9": ("benign:layout_or_counts"),
+    "b0b268ca3ec1da6900dfaccbcbea7559c4307a46098dce0d53143120eb69de5f": ("benign:layout_or_counts"),
+    "058392dec56cdc629eee230434da29b16ee3391223f4ecaabf6bcb320e6e3a24": ("benign:layout_or_counts"),
     "a3c9dadc06d9ad78eaa25debd612b158116c643c117430b56b43acb663d02cdd": (
         "benign:opaque_metadata_or_taxonomy"
     ),
     # Platform reports a count and a candidate-grade discovery state.
-    "a25ca1f34db11f34a31a59f04fb3ab601a6d9cbec3813c0f54864a8ed822006e": (
-        "benign:layout_or_counts"
-    ),
+    "a25ca1f34db11f34a31a59f04fb3ab601a6d9cbec3813c0f54864a8ed822006e": ("benign:layout_or_counts"),
     "25bd9b306ea3a8e8137baff2ab495e31e7d06c4071239e4d90570f458c4d27bf": (
         "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
@@ -7199,9 +7293,7 @@ DS18_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS = {
     "9a246aa9a2660efd3fcbad5b4714e770b7dadcf3ebfae8571dd298ffe65b2cbe": (
         "benign:opaque_metadata_or_taxonomy"
     ),
-    "ae00515ea52ca304394195043dbc08d04b2512bbefc7b505f9d1c6d113bcf7b6": (
-        "benign:layout_or_counts"
-    ),
+    "ae00515ea52ca304394195043dbc08d04b2512bbefc7b505f9d1c6d113bcf7b6": ("benign:layout_or_counts"),
     "af58c8ec7a345c5c17f6871d8bbb21d8e3c2ff270d6de8b185efa84247fb44e0": (
         "benign:workflow_or_lifecycle_display_without_terminality_inference"
     ),
@@ -7229,12 +7321,16 @@ AUTHORITY_BADGE_CLASSIFICATIONS = FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS
 
 def _frozen_authority_identity_config() -> tuple[dict[str, str], dict[str, list[dict[str, str]]]]:
     """Return the committed C21b authority keys; creation receipts cannot authorize."""
-    if not FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS or not FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS:
+    if (
+        not FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS
+        or not FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
+    ):
         raise RuntimeError("c21b_frozen_authority_identity_literals_missing")
     return (
         FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS,
         FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
     )
+
 
 AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS = FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
 
@@ -7272,12 +7368,8 @@ def _authority_presentation_rows(
         *_authority_prop_classification_errors(scan),
     ]
     if census_errors:
-        raise RuntimeError(
-            "authority presentation census invalid: " + ", ".join(census_errors)
-        )
-    prop_by_id = {
-        fact["descriptorId"]: fact for fact in scan["authorityPropCensus"]
-    }
+        raise RuntimeError("authority presentation census invalid: " + ", ".join(census_errors))
+    prop_by_id = {fact["descriptorId"]: fact for fact in scan["authorityPropCensus"]}
     debt_badge_sites_by_group = _authority_badge_sites_by_debt_group(scan)
     rows: list[dict[str, Any]] = []
     evidence_identities = _authority_evidence_identities(scan)
@@ -7305,10 +7397,18 @@ def _authority_presentation_rows(
                 "status": "open_debt",
                 "evidence_refs": [
                     AUTHORITY_PRESENTATION_PLAN_REF,
-                    evidence_identities[(str(fact["componentDeclarationPath"]), int(fact["componentDeclarationLine"]), "named_declaration")],
+                    evidence_identities[
+                        (
+                            str(fact["componentDeclarationPath"]),
+                            int(fact["componentDeclarationLine"]),
+                            "named_declaration",
+                        )
+                    ],
                     *sorted(
                         {
-                            evidence_identities[(str(site["path"]), int(site["line"]), "jsx_attribute")]
+                            evidence_identities[
+                                (str(site["path"]), int(site["line"]), "jsx_attribute")
+                            ]
                             for site in fact["consumerSites"]
                         }
                     ),
@@ -7422,10 +7522,18 @@ def _authority_presentation_rows(
                 "status": "open_debt",
                 "evidence_refs": [
                     AUTHORITY_PRESENTATION_PLAN_REF,
-                    evidence_identities[(str(first["componentDeclarationPath"]), int(first["componentDeclarationLine"]), "named_declaration")],
+                    evidence_identities[
+                        (
+                            str(first["componentDeclarationPath"]),
+                            int(first["componentDeclarationLine"]),
+                            "named_declaration",
+                        )
+                    ],
                     *sorted(
                         {
-                            evidence_identities[(str(site["path"]), int(site["line"]), "jsx_opening")]
+                            evidence_identities[
+                                (str(site["path"]), int(site["line"]), "jsx_opening")
+                            ]
                             for site in badge_sites
                         }
                     ),
@@ -7468,7 +7576,9 @@ def _authority_presentation_rows(
 
 
 def _authority_presentation_errors(
-    data: Mapping[str, Any], *, live_probes: bool = True,
+    data: Mapping[str, Any],
+    *,
+    live_probes: bool = True,
     scan: Mapping[str, Any] | None = None,
 ) -> list[str]:
     """Bind every authority debt row byte-for-byte to its finite live census."""
@@ -7483,24 +7593,18 @@ def _authority_presentation_errors(
         return [str(exc)]
     expected_by_id = {row["finding_id"]: row for row in expected_rows}
     stored_by_id = {
-        str(row.get("finding_id")): row
-        for row in stored_rows
-        if isinstance(row, Mapping)
+        str(row.get("finding_id")): row for row in stored_rows if isinstance(row, Mapping)
     }
     for finding_id, expected in expected_by_id.items():
         row = stored_by_id.get(finding_id)
         if row is None:
-            errors.append(
-                f"authority_presentation_debt_drift:{finding_id}:finding_id"
-            )
+            errors.append(f"authority_presentation_debt_drift:{finding_id}:finding_id")
             continue
         expected_value = _authority_row_semantic_value(expected)
         stored_value = _authority_row_semantic_value(row)
         for field, field_value in expected_value.items():
             if stored_value.get(field) != field_value:
-                errors.append(
-                    f"authority_presentation_debt_drift:{finding_id}:{field}"
-                )
+                errors.append(f"authority_presentation_debt_drift:{finding_id}:{field}")
     for row in stored_rows:
         if not isinstance(row, Mapping):
             continue
@@ -7510,9 +7614,7 @@ def _authority_presentation_errors(
                 finding_id not in expected_by_id
                 and finding_id not in DS11_TRUST_PRESENTATION_FINDING_IDS
             ):
-                errors.append(
-                    "authority_presentation_debt_descriptor_missing:" + finding_id
-                )
+                errors.append("authority_presentation_debt_descriptor_missing:" + finding_id)
     if live_probes:
         errors.extend(_badge_classification_errors(authority_scan))
         errors.extend(_authority_prop_classification_errors(authority_scan))
@@ -7526,9 +7628,7 @@ def _ds11_raw_trust_root_scan() -> dict[str, Any]:
         "authorityPathDescriptors": _ds11_trust_presentation_path_descriptors(),
         "authorityPropDescriptors": list(DS11_RAW_TRUST_ROOT_DESCRIPTORS),
     }
-    return status_checker._scan_json(
-        json.dumps(request, sort_keys=True, separators=(",", ":"))
-    )
+    return status_checker._scan_json(json.dumps(request, sort_keys=True, separators=(",", ":")))
 
 
 def _ds11_is_production_dashboard_source(path: str) -> bool:
@@ -7556,11 +7656,9 @@ def _ds11_trust_presentation_semantic_errors(
     if not isinstance(facts, list):
         return ["ds11_trust_presentation_census_invalid"]
     observed_descriptors = {
-        str(fact.get("descriptorId"))
-        for fact in facts
-        if isinstance(fact, Mapping)
+        str(fact.get("descriptorId")) for fact in facts if isinstance(fact, Mapping)
     }
-    if not DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS <= observed_descriptors:
+    if not observed_descriptors >= DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS:
         errors.append("ds11_trust_presentation_descriptor_missing")
 
     path_facts = scan.get("authorityPathFiles")
@@ -7582,14 +7680,10 @@ def _ds11_trust_presentation_semantic_errors(
         errors.append("ds11_trust_raw_root_census_invalid")
     else:
         raw_descriptor_ids = sorted(
-            str(fact.get("descriptorId"))
-            for fact in raw_facts
-            if isinstance(fact, Mapping)
+            str(fact.get("descriptorId")) for fact in raw_facts if isinstance(fact, Mapping)
         )
         if raw_descriptor_ids:
-            errors.append(
-                "ds11_trust_raw_root_live:" + ",".join(raw_descriptor_ids)
-            )
+            errors.append("ds11_trust_raw_root_live:" + ",".join(raw_descriptor_ids))
 
     issuer = scan.get("authorityIssuerFacts")
     if not isinstance(issuer, Mapping):
@@ -7648,11 +7742,15 @@ def _ds11_trust_presentation_semantic_errors(
             errors.append("ds11_trust_presentation_brand_privacy")
 
     factories = issuer.get("factories")
-    matching_factories = [
-        factory
-        for factory in factories if isinstance(factory, Mapping)
-        and factory.get("name") == "issueTrustPresentation"
-    ] if isinstance(factories, list) else []
+    matching_factories = (
+        [
+            factory
+            for factory in factories
+            if isinstance(factory, Mapping) and factory.get("name") == "issueTrustPresentation"
+        ]
+        if isinstance(factories, list)
+        else []
+    )
     if len(matching_factories) != 1:
         errors.append("ds11_trust_presentation_issuer_cardinality")
     else:
@@ -7677,11 +7775,11 @@ def _ds11_trust_presentation_semantic_errors(
             errors.append("ds11_trust_presentation_issuer_contract_drift")
 
     stores = issuer.get("stores")
-    stores_by_name = {
-        str(store.get("name")): store
-        for store in stores
-        if isinstance(store, Mapping)
-    } if isinstance(stores, list) else {}
+    stores_by_name = (
+        {str(store.get("name")): store for store in stores if isinstance(store, Mapping)}
+        if isinstance(stores, list)
+        else {}
+    )
     expected_stores = {
         "issuedTrustPresentations": {
             "kind": "WeakSet",
@@ -7692,9 +7790,7 @@ def _ds11_trust_presentation_semantic_errors(
                     "argumentParameter": "value",
                 }
             ],
-            "writes": [
-                {"function": "issueTrustPresentation", "method": "add"}
-            ],
+            "writes": [{"function": "issueTrustPresentation", "method": "add"}],
         },
         "issuedTrustPresentationData": {
             "kind": "WeakMap",
@@ -7705,9 +7801,7 @@ def _ds11_trust_presentation_semantic_errors(
                     "argumentParameter": "value",
                 }
             ],
-            "writes": [
-                {"function": "issueTrustPresentation", "method": "set"}
-            ],
+            "writes": [{"function": "issueTrustPresentation", "method": "set"}],
         },
     }
     if set(stores_by_name) != set(expected_stores):
@@ -7753,16 +7847,12 @@ def _ds11_trust_presentation_rows(
         str(fact["descriptorId"]): fact
         for fact in scan["authorityPropCensus"]
         if isinstance(fact, Mapping)
-        and str(fact.get("descriptorId"))
-        in DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS
+        and str(fact.get("descriptorId")) in DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS
     }
     if set(facts) != DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS:
         raise RuntimeError("ds11_trust_presentation_finding_denominator_drift")
     issuer_module = scan["authorityIssuerFacts"]["modules"][0]
-    issuer_evidence_ref = (
-        f"{DS11_TRUST_GLYPHS_PATH}#content-sha256="
-        f"{issuer_module['sourceSha256']}"
-    )
+    issuer_evidence_ref = f"{DS11_TRUST_GLYPHS_PATH}#content-sha256={issuer_module['sourceSha256']}"
     evidence_identities = _authority_evidence_identities(scan)
     rows: list[dict[str, Any]] = []
     for descriptor_id in sorted(DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS):
@@ -7861,6 +7951,7 @@ def _validate_ds11_trust_presentation_transition_findings(
         if len(matches) != 1 or matches[0] != expected_by_id.get(finding_id):
             errors.append("ds11_trust_presentation_transition_drift:" + finding_id)
 
+
 GOVERNED_DEBT_DESCRIPTORS = {
     finding_id: {
         "finding_id": finding_id,
@@ -7938,9 +8029,7 @@ DS15_QUERY_MEMORY_RATIONALE = (
 C11B_QUERY_MEMORY_RATIONALE = DS15_QUERY_MEMORY_RATIONALE
 
 
-def _json_entry_object_span(
-    text: str, unit_id: str
-) -> tuple[int, int, Mapping[str, Any]]:
+def _json_entry_object_span(text: str, unit_id: str) -> tuple[int, int, Mapping[str, Any]]:
     """Locate one root-entry object without normalizing adjacent JSON bytes."""
     needle = f'"unit_id": {json.dumps(unit_id, ensure_ascii=False)}'
     positions = [match.start() for match in re.finditer(re.escape(needle), text)]
@@ -7994,15 +8083,13 @@ def _json_object_span_by_identity(
     within_start, within_end = within
     needle = f"{json.dumps(field)}: {json.dumps(value)}"
     positions = [
-        match.start()
-        for match in re.finditer(re.escape(needle), text[within_start:within_end])
+        match.start() for match in re.finditer(re.escape(needle), text[within_start:within_end])
     ]
     if len(positions) != 1:
         raise ValueError(f"json_identity_span_ambiguous:{field}:{value}")
     identity_start = within_start + positions[0]
     object_starts = [
-        match.start()
-        for match in re.finditer(r"\{", text[within_start:identity_start])
+        match.start() for match in re.finditer(r"\{", text[within_start:identity_start])
     ]
     for relative_start in reversed(object_starts):
         start = within_start + relative_start
@@ -8011,11 +8098,7 @@ def _json_object_span_by_identity(
         except json.JSONDecodeError:
             continue
         end = start + relative_end
-        if (
-            end <= within_end
-            and isinstance(row, Mapping)
-            and row.get(field) == value
-        ):
+        if end <= within_end and isinstance(row, Mapping) and row.get(field) == value:
             return start, end, row
     raise ValueError(f"json_identity_object_missing:{field}:{value}")
 
@@ -8030,8 +8113,7 @@ def _json_field_value_span(
     within_start, within_end = within
     needle = f"{json.dumps(field)}: "
     positions = [
-        match.start()
-        for match in re.finditer(re.escape(needle), text[within_start:within_end])
+        match.start() for match in re.finditer(re.escape(needle), text[within_start:within_end])
     ]
     if len(positions) != 1:
         raise ValueError(f"json_field_value_span_ambiguous:{field}")
@@ -8088,11 +8170,7 @@ def _non_anchor_source_fields_candidate_text(
                 raise ValueError("DS18 root source location is missing")
             source_row_field = "line" if has_legacy_line else "source_row"
             source_row = root[source_row_field]
-            if (
-                not isinstance(source_row, int)
-                or isinstance(source_row, bool)
-                or source_row < 1
-            ):
+            if not isinstance(source_row, int) or isinstance(source_row, bool) or source_row < 1:
                 raise ValueError("DS18 root source location is invalid")
             if has_legacy:
                 legacy_component_count += 1
@@ -8126,11 +8204,7 @@ def _non_anchor_source_fields_candidate_text(
     candidate_files_text = files_text.replace(
         legacy_component_marker, current_component_marker
     ).replace(legacy_line_marker, current_source_row_marker)
-    candidate = (
-        original_text[:files_start]
-        + candidate_files_text
-        + original_text[files_end:]
-    )
+    candidate = original_text[:files_start] + candidate_files_text + original_text[files_end:]
 
     surface_start, surface_end, _surface = _json_top_level_object_span(
         candidate, DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
@@ -8157,33 +8231,22 @@ def _non_anchor_source_fields_candidate_text(
             raise ValueError("DS17 declaration source location is missing")
         source_row_field = "line" if has_legacy_line else "source_row"
         source_row = declaration[source_row_field]
-        if (
-            not isinstance(source_row, int)
-            or isinstance(source_row, bool)
-            or source_row < 1
-        ):
+        if not isinstance(source_row, int) or isinstance(source_row, bool) or source_row < 1:
             raise ValueError("DS17 declaration source location is invalid")
         if has_legacy_line:
             legacy_declaration_line_count += 1
         else:
             current_declaration_row_count += 1
         expected_roles[role_index]["declaration"] = {
-            ("source_row" if key == "line" else key): value
-            for key, value in declaration.items()
+            ("source_row" if key == "line" else key): value for key, value in declaration.items()
         }
     roles_text = candidate[roles_start:roles_end]
     if roles_text.count(legacy_line_marker) != legacy_declaration_line_count:
         raise ValueError("DS17 legacy source-line token coverage drift")
     if roles_text.count(current_source_row_marker) != current_declaration_row_count:
         raise ValueError("DS17 current source-row token coverage drift")
-    candidate_roles_text = roles_text.replace(
-        legacy_line_marker, current_source_row_marker
-    )
-    candidate = (
-        candidate[:roles_start]
-        + candidate_roles_text
-        + candidate[roles_end:]
-    )
+    candidate_roles_text = roles_text.replace(legacy_line_marker, current_source_row_marker)
+    candidate = candidate[:roles_start] + candidate_roles_text + candidate[roles_end:]
     if json.loads(candidate) != expected:
         raise ValueError("non-anchor source-field migration changed an unrelated value")
     return candidate, {
@@ -8243,9 +8306,7 @@ def _ds9_c07_storage_target_spans(
 
 def _ds9_c07_storage_transition_text(text: str) -> str:
     """Re-anchor only the two C06-touched dispute source receipts and digests."""
-    _start, _end, stored = _json_top_level_object_span(
-        text, "storage_construction_census"
-    )
+    _start, _end, stored = _json_top_level_object_span(text, "storage_construction_census")
     candidate = copy.deepcopy(dict(stored))
     factory_receipts = candidate.get("authority_factory_receipts")
     sites = candidate.get("sites")
@@ -8386,8 +8447,7 @@ def _ds9_c07_target_spans(
 ) -> list[tuple[str, int, int]]:
     """Locate every surgical target with exclusive end offsets."""
     spans: list[tuple[str, int, int]] = [
-        (label, start, end)
-        for label, start, end, _value in _ds9_c07_storage_target_spans(text)
+        (label, start, end) for label, start, end, _value in _ds9_c07_storage_target_spans(text)
     ]
     for unit_id in DS9_C07_ROOT_SCOPE:
         start, end, _row = _json_entry_object_span(text, unit_id)
@@ -8494,25 +8554,23 @@ def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
         f"{C13_RAW_ROOT}/run-1/artifacts",
         f"{C13_RAW_ROOT}/run-2/artifacts",
     ]
-    if outputs != expected_outputs or [
-        capture.get("capture_id") for capture in captures
-    ] != ["task-p-c13-verification-1", "task-p-c13-verification-2"]:
+    if outputs != expected_outputs or [capture.get("capture_id") for capture in captures] != [
+        "task-p-c13-verification-1",
+        "task-p-c13-verification-2",
+    ]:
         errors.append("capture_output_not_distinct")
     environment = receipt.get("environment")
     environment_sha256 = _canonical_sha256(environment)
     if (
         not isinstance(environment, Mapping)
         or environment.get("commit") != C13_REISSUE_REVISION
-        or receipt.get("environment_sha256_receipts")
-        != [environment_sha256] * 3
+        or receipt.get("environment_sha256_receipts") != [environment_sha256] * 3
     ):
         errors.append("capture_environment_drift")
     environment_producer = receipt.get("environment_probe_producer")
     if not isinstance(environment_producer, Mapping) or (
         environment_producer.get("path") != C13_ENVIRONMENT_PRODUCER_REF
-        or not re.fullmatch(
-            r"[0-9a-f]{64}", str(environment_producer.get("sha256", ""))
-        )
+        or not re.fullmatch(r"[0-9a-f]{64}", str(environment_producer.get("sha256", "")))
     ):
         errors.append("environment_probe_producer")
     for index, capture in enumerate(captures, 1):
@@ -8544,11 +8602,7 @@ def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
             errors.append(f"capture_{index}_growth_not_admitted")
         for field in ("max_width_delta_pt", "max_height_delta_pt"):
             delta = pdfs.get(field)
-            if (
-                not isinstance(delta, (int, float))
-                or isinstance(delta, bool)
-                or delta >= 0.5
-            ):
+            if not isinstance(delta, (int, float)) or isinstance(delta, bool) or delta >= 0.5:
                 errors.append(f"capture_{index}_{field}")
         width = pdfs.get("box_width_pt")
         height = pdfs.get("box_height_pt")
@@ -8563,8 +8617,7 @@ def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
 
     snapshot = receipt.get("snapshot", {})
     if not isinstance(snapshot, Mapping) or (
-        snapshot.get("sha256")
-        != "26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a"
+        snapshot.get("sha256") != "26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a"
         or snapshot.get("bytes") != 19197
         or (snapshot.get("width"), snapshot.get("height")) != (746, 84)
         or snapshot.get("sha256_receipts") != [snapshot.get("sha256")] * 3
@@ -8585,17 +8638,16 @@ def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
         "machine_bytes_equal_exact_single_response_body",
         "bounded_identity_matches_after_font_readiness",
     )
-    if not isinstance(semantics, Mapping) or any(
-        semantics.get(field) != 0 for field in false_counts
-    ) or any(semantics.get(field) is not True for field in true_predicates):
+    if (
+        not isinstance(semantics, Mapping)
+        or any(semantics.get(field) != 0 for field in false_counts)
+        or any(semantics.get(field) is not True for field in true_predicates)
+    ):
         errors.append("semantic_conjunction_false")
     bindings = receipt.get("source_bindings")
     if (
         not isinstance(bindings, list)
-        or [
-            row.get("path") for row in bindings if isinstance(row, Mapping)
-        ]
-        != C13_SOURCE_REFS
+        or [row.get("path") for row in bindings if isinstance(row, Mapping)] != C13_SOURCE_REFS
         or any(
             not isinstance(row, Mapping)
             or not isinstance(row.get("path"), str)
@@ -8607,11 +8659,7 @@ def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
     producer_bindings = receipt.get("producer_bindings")
     if (
         not isinstance(producer_bindings, list)
-        or [
-            row.get("path")
-            for row in producer_bindings
-            if isinstance(row, Mapping)
-        ]
+        or [row.get("path") for row in producer_bindings if isinstance(row, Mapping)]
         != C13_PRODUCER_REFS
         or any(
             not isinstance(row, Mapping)
@@ -8635,14 +8683,9 @@ def _c13_independent_print_receipt(
     """Admit exactly the independently recomputed two-run journal receipt."""
     if source_text is None:
         source_text = (REPO_ROOT / C13_RECEIPT_REF).read_text(encoding="utf-8")
-    if (
-        source_text.count(C13_RECEIPT_START) != 1
-        or source_text.count(C13_RECEIPT_END) != 1
-    ):
+    if source_text.count(C13_RECEIPT_START) != 1 or source_text.count(C13_RECEIPT_END) != 1:
         raise ValueError("C13 independent receipt rejected:marker cardinality")
-    payload = source_text.split(C13_RECEIPT_START, 1)[1].split(
-        C13_RECEIPT_END, 1
-    )[0]
+    payload = source_text.split(C13_RECEIPT_START, 1)[1].split(C13_RECEIPT_END, 1)[0]
     try:
         receipt = json.loads(payload)
     except json.JSONDecodeError as exc:
@@ -8658,15 +8701,11 @@ def _c13_independent_print_receipt(
 def _c13_raw_specs(suites: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
     specs: list[Mapping[str, Any]] = []
     for suite in suites:
-        specs.extend(
-            spec for spec in suite.get("specs", []) if isinstance(spec, Mapping)
-        )
+        specs.extend(spec for spec in suite.get("specs", []) if isinstance(spec, Mapping))
         children = suite.get("suites", [])
         if isinstance(children, list):
             specs.extend(
-                _c13_raw_specs(
-                    [child for child in children if isinstance(child, Mapping)]
-                )
+                _c13_raw_specs([child for child in children if isinstance(child, Mapping)])
             )
     return specs
 
@@ -8743,9 +8782,10 @@ def _c13_raw_execution_receipt(
         f"{root}/environment-after.json",
     ]
     rows = receipt.get("raw_artifacts")
-    if not isinstance(rows, list) or [
-        row.get("path") for row in rows if isinstance(row, Mapping)
-    ] != expected_paths:
+    if (
+        not isinstance(rows, list)
+        or [row.get("path") for row in rows if isinstance(row, Mapping)] != expected_paths
+    ):
         raise ValueError("C13 raw execution rejected:artifact population")
     expected_hashes = {str(row["path"]): str(row["sha256"]) for row in rows}
     expected_sizes = {str(row["path"]): row.get("bytes") for row in rows}
@@ -8805,12 +8845,15 @@ def _c13_raw_execution_receipt(
             or chromium.get("retries") != 0
             or chromium.get("timeout") != 90000
             or not str(chromium.get("outputDir", "")).endswith(output_suffix)
-            or any(stats.get(field) != expected for field, expected in {
-                "expected": 3,
-                "skipped": 0,
-                "unexpected": 0,
-                "flaky": 0,
-            }.items())
+            or any(
+                stats.get(field) != expected
+                for field, expected in {
+                    "expected": 3,
+                    "skipped": 0,
+                    "unexpected": 0,
+                    "flaky": 0,
+                }.items()
+            )
         ):
             raise ValueError(f"C13 raw execution rejected:run {index} metadata")
         specs = _c13_raw_specs(result.get("suites", []))
@@ -8867,9 +8910,7 @@ def _c13_raw_execution_receipt(
             or expected_base_pages <= 0
             or expected_grown_pages <= expected_base_pages
         ):
-            raise ValueError(
-                f"C13 raw execution rejected:run {index} page-count receipt"
-            )
+            raise ValueError(f"C13 raw execution rejected:run {index} page-count receipt")
         empty = _c13_pdf_geometry(
             decoded["run-paper-empty.pdf"],
             decoded["run-paper-empty-geometry.json"],
@@ -8884,15 +8925,9 @@ def _c13_raw_execution_receipt(
             {
                 "base_page_count": empty["page_count"],
                 "grown_page_count": grown["page_count"],
-                "base_sha256": hashlib.sha256(
-                    decoded["run-paper-empty.pdf"]
-                ).hexdigest(),
-                "grown_sha256": hashlib.sha256(
-                    decoded["run-paper-growth.pdf"]
-                ).hexdigest(),
-                "max_width_delta_pt": max(
-                    empty["max_width_delta_pt"], grown["max_width_delta_pt"]
-                ),
+                "base_sha256": hashlib.sha256(decoded["run-paper-empty.pdf"]).hexdigest(),
+                "grown_sha256": hashlib.sha256(decoded["run-paper-growth.pdf"]).hexdigest(),
+                "max_width_delta_pt": max(empty["max_width_delta_pt"], grown["max_width_delta_pt"]),
                 "max_height_delta_pt": max(
                     empty["max_height_delta_pt"], grown["max_height_delta_pt"]
                 ),
@@ -8902,8 +8937,7 @@ def _c13_raw_execution_receipt(
         "captures": capture_receipts,
         "environment_tuple_count": len({_canonical_sha256(row) for row in environments}),
         "page_counts": [
-            [row["base_page_count"], row["grown_page_count"]]
-            for row in capture_receipts
+            [row["base_page_count"], row["grown_page_count"]] for row in capture_receipts
         ],
         "test_titles": list(C13_TEST_TITLES),
     }
@@ -8919,7 +8953,7 @@ def _c13_verify_current_print_evidence(
     if _c13_receipt_shape_errors(receipt):
         raise ValueError("C13 current evidence drift:receipt")
     raw_receipt = _c13_raw_execution_receipt(receipt)
-    for captured, recorded in zip(raw_receipt["captures"], receipt["captures"]):
+    for captured, recorded in zip(raw_receipt["captures"], receipt["captures"], strict=True):
         for field, actual in captured.items():
             if recorded["pdfs"].get(field) != actual:
                 raise ValueError(f"C13 current evidence drift:raw {field}")
@@ -8931,14 +8965,10 @@ def _c13_verify_current_print_evidence(
         )
         if hashlib.sha256(committed_bytes).hexdigest() != row["sha256"]:
             raise ValueError(f"C13 current evidence drift:raw history:{source_ref}")
-    bindings = {
-        str(row["path"]): str(row["sha256"])
-        for row in receipt["source_bindings"]
-    }
+    bindings = {str(row["path"]): str(row["sha256"]) for row in receipt["source_bindings"]}
     if evidence_bytes is None:
         evidence_bytes = {
-            source_ref: (REPO_ROOT / source_ref).read_bytes()
-            for source_ref in bindings
+            source_ref: (REPO_ROOT / source_ref).read_bytes() for source_ref in bindings
         }
     if set(evidence_bytes) != set(bindings):
         raise ValueError("C13 current evidence drift:source population")
@@ -8954,8 +8984,7 @@ def _c13_verify_current_print_evidence(
             raise ValueError(f"C13 current evidence drift:history:{source_ref}")
 
     producer_bindings = {
-        str(row["path"]): str(row["sha256"])
-        for row in receipt["producer_bindings"]
+        str(row["path"]): str(row["sha256"]) for row in receipt["producer_bindings"]
     }
     if producer_bytes is None:
         producer_bytes = {
@@ -8973,26 +9002,18 @@ def _c13_verify_current_print_evidence(
             f"{C13_REISSUE_REVISION}:policy-engine/{producer_ref}",
         )
         if hashlib.sha256(reissue_bytes).hexdigest() != expected_sha256:
-            raise ValueError(
-                f"C13 current evidence drift:producer history:{producer_ref}"
-            )
+            raise ValueError(f"C13 current evidence drift:producer history:{producer_ref}")
 
     environment_producer = receipt["environment_probe_producer"]
     producer_ref = str(environment_producer["path"])
     environment_producer_bytes = (REPO_ROOT / producer_ref).read_bytes()
-    if (
-        hashlib.sha256(environment_producer_bytes).hexdigest()
-        != environment_producer["sha256"]
-    ):
+    if hashlib.sha256(environment_producer_bytes).hexdigest() != environment_producer["sha256"]:
         raise ValueError("C13 current evidence drift:environment producer")
     committed_producer = _c03_git_bytes(
         "show",
         f"{C13_EVIDENCE_REVISION}:policy-engine/{producer_ref}",
     )
-    if (
-        hashlib.sha256(committed_producer).hexdigest()
-        != environment_producer["sha256"]
-    ):
+    if hashlib.sha256(committed_producer).hexdigest() != environment_producer["sha256"]:
         raise ValueError("C13 current evidence drift:environment producer history")
 
     snapshot = receipt["snapshot"]
@@ -9006,8 +9027,7 @@ def _c13_verify_current_print_evidence(
     if (width, height) != (snapshot["width"], snapshot["height"]):
         raise ValueError("C13 current evidence drift:snapshot dimensions")
     legacy_snapshot = (
-        REPO_ROOT
-        / "apps/runtime-dashboard/e2e/"
+        REPO_ROOT / "apps/runtime-dashboard/e2e/"
         "runtime-dashboard.visual.spec.ts-snapshots/"
         "run-detail-a4-print-chromium-darwin.png"
     )
@@ -9105,17 +9125,13 @@ def _c13_print_transition_text(
                 json.dumps(stored, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest()
         )
-    rendered = json.dumps(admitted_closed, indent=2, ensure_ascii=False).replace(
-        "\n", "\n    "
-    )
+    rendered = json.dumps(admitted_closed, indent=2, ensure_ascii=False).replace("\n", "\n    ")
     return text[:start] + rendered + text[end:]
 
 
 def _c11b_query_memory_transition_text(text: str) -> str:
     """Surgically produce C11b's exact owner-bound query-memory transition."""
-    start, end, source = _json_entry_object_span(
-        text, C11B_QUERY_MEMORY_ROOT_ID
-    )
+    start, end, source = _json_entry_object_span(text, C11B_QUERY_MEMORY_ROOT_ID)
     successor = source.get("successor")
     if (
         source.get("strangle_status") == "strangled"
@@ -9125,9 +9141,7 @@ def _c11b_query_memory_transition_text(text: str) -> str:
         and successor.get("consumer_refs") == C11B_QUERY_MEMORY_SUCCESSOR_REFS
     ):
         errors: list[str] = []
-        _validate_c11b_query_memory_root(
-            {C11B_QUERY_MEMORY_ROOT_ID: source}, errors
-        )
+        _validate_c11b_query_memory_root({C11B_QUERY_MEMORY_ROOT_ID: source}, errors)
         if errors:
             raise ValueError(";".join(errors))
         return text
@@ -9157,22 +9171,16 @@ def _c11b_query_memory_transition_text(text: str) -> str:
             value = C11B_QUERY_MEMORY_RATIONALE
         transitioned[field] = value
     errors = []
-    _validate_c11b_query_memory_root(
-        {C11B_QUERY_MEMORY_ROOT_ID: transitioned}, errors
-    )
+    _validate_c11b_query_memory_root({C11B_QUERY_MEMORY_ROOT_ID: transitioned}, errors)
     if errors:
         raise ValueError(";".join(errors))
-    replacement = json.dumps(transitioned, indent=2, ensure_ascii=False).replace(
-        "\n", "\n    "
-    )
+    replacement = json.dumps(transitioned, indent=2, ensure_ascii=False).replace("\n", "\n    ")
     return text[:start] + replacement + text[end:]
 
 
 def _ds15_query_memory_transition_text(text: str) -> str:
     """Extend the strangled query root to DS15's complete live consumer set."""
-    start, end, source = _json_entry_object_span(
-        text, C11B_QUERY_MEMORY_ROOT_ID
-    )
+    start, end, source = _json_entry_object_span(text, C11B_QUERY_MEMORY_ROOT_ID)
     successor = source.get("successor")
     final = (
         source.get("strangle_status") == "strangled"
@@ -9183,9 +9191,7 @@ def _ds15_query_memory_transition_text(text: str) -> str:
     )
     if final:
         errors: list[str] = []
-        _validate_c11b_query_memory_root(
-            {C11B_QUERY_MEMORY_ROOT_ID: source}, errors
-        )
+        _validate_c11b_query_memory_root({C11B_QUERY_MEMORY_ROOT_ID: source}, errors)
         if errors:
             raise ValueError(";".join(errors))
         return text
@@ -9204,8 +9210,7 @@ def _ds15_query_memory_transition_text(text: str) -> str:
         raise ValueError("ds15_query_memory_transition_source_successor")
     if (
         successor.get("unit_id") != C11B_QUERY_MEMORY_SUCCESSOR_ID
-        or successor.get("consumer_refs")
-        != C11B_QUERY_MEMORY_OPENING_SUCCESSOR_REFS
+        or successor.get("consumer_refs") != C11B_QUERY_MEMORY_OPENING_SUCCESSOR_REFS
     ):
         raise ValueError("ds15_query_memory_transition_source_successor_drift")
 
@@ -9216,12 +9221,11 @@ def _ds15_query_memory_transition_text(text: str) -> str:
     }
     transitioned["rationale"] = DS15_QUERY_MEMORY_RATIONALE
     errors = []
-    _validate_c11b_query_memory_root(
-        {C11B_QUERY_MEMORY_ROOT_ID: transitioned}, errors
-    )
+    _validate_c11b_query_memory_root({C11B_QUERY_MEMORY_ROOT_ID: transitioned}, errors)
     if errors:
         raise ValueError(";".join(errors))
     return text[:start] + _render_root_entry(transitioned) + text[end:]
+
 
 C23_ROOT_IDS = frozenset(
     {
@@ -9245,26 +9249,18 @@ C23_RATIONALE = (
     "no-local-authority gate."
 )
 
-C17B_SCOPED_ENVELOPE_OWNER = (
-    "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts"
-)
+C17B_SCOPED_ENVELOPE_OWNER = "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts"
 C17B_REGISTERED_CODEC_BY_OWNER = {
     C17B_SCOPED_ENVELOPE_OWNER: "authority-local-state-envelope-v1",
     "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts": (
         "composer-draft-v1"
     ),
-    "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts": (
-        "clerk-chat-sessions-v1"
-    ),
-    "apps/runtime-dashboard/src/features/runs/domain/disputes.ts": (
-        "dispute-topology-v1"
-    ),
+    "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts": ("clerk-chat-sessions-v1"),
+    "apps/runtime-dashboard/src/features/runs/domain/disputes.ts": ("dispute-topology-v1"),
     "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts": (
         "operator-craft-family-codecs-v1"
     ),
-    "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx": (
-        "causal-draft-v1"
-    ),
+    "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx": ("causal-draft-v1"),
 }
 C17B_BENIGN_REASON_BY_OWNER = {
     "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx": "ui_preference",
@@ -9276,9 +9272,7 @@ C17B_BENIGN_REASON_BY_OWNER = {
         "ui_preference"
     ),
     "apps/runtime-dashboard/src/shared/i18n/locale.ts": "locale",
-    "apps/runtime-dashboard/src/shared/lib/featureFlags.ts": (
-        "rollout_exposure_control"
-    ),
+    "apps/runtime-dashboard/src/shared/lib/featureFlags.ts": ("rollout_exposure_control"),
 }
 C17B_STORAGE_CLASS_COUNTS = {
     "interaction_benign": 22,
@@ -9338,8 +9332,7 @@ DS8_BASELINE_CONTENT_REANCHORS = frozenset(
         ),
         (
             "C08",
-            "apps/runtime-dashboard/src/features/evidence/components/"
-            "DataIntelligencePanel.tsx",
+            "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
         ),
     }
 )
@@ -9360,8 +9353,7 @@ DS10_BASELINE_CONTENT_REANCHORS = frozenset(
         ),
         (
             "C08",
-            "apps/runtime-dashboard/src/features/evidence/components/"
-            "DataIntelligencePanel.tsx",
+            "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
         ),
     }
 )
@@ -9372,9 +9364,7 @@ DS8_COMPANION_REFERENCE_PATHS = {
     "c06-decision-grade-generated-contract-debt": (
         "architecture/atlas_surfaces/ds4-waist-debt-register.json"
     ),
-    "c08b-auth-session-revision-producer-debt": (
-        "apps/runtime-dashboard/src/api/queryKeys.ts"
-    ),
+    "c08b-auth-session-revision-producer-debt": ("apps/runtime-dashboard/src/api/queryKeys.ts"),
 }
 DS8_STRANGLE_IN_SCOPE = frozenset(
     {
@@ -9395,9 +9385,7 @@ DS8_STRANGLE_CLOSURE_PATHS = {
         "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
         "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
     ),
-    "C05": (
-        "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
-    ),
+    "C05": ("apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",),
     "C06": (
         "apps/runtime-dashboard/src/features/runs/route.tsx",
         "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
@@ -9475,8 +9463,7 @@ DS10_RETIRED_CAPABILITY_DISCOVERY_SUCCESSORS = {
         "unit_id": "feature-capability-discovery",
         "consumer_refs": [
             "apps/runtime-dashboard/src/api/hooks/useDataCatalogSearch.ts",
-            "apps/runtime-dashboard/src/features/evidence/components/"
-            "DataIntelligencePanel.tsx",
+            "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
         ],
     }
 }
@@ -9486,9 +9473,7 @@ DS10_RETIRED_EXTERNAL_REGISTER_NONCLOSURES = (
 )
 DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES: tuple[str, ...] = ()
 DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES: dict[str, tuple[str, str]] = {}
-DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = dict(
-    DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
-)
+DS15_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = dict(DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES)
 
 
 def _validate_ds10_capability_discovery_roots(
@@ -9496,15 +9481,15 @@ def _validate_ds10_capability_discovery_roots(
 ) -> None:
     """Reject drift in the exact ten-root DS10 disposition decision."""
     ds10_entries = {
-        unit_id: entry
-        for unit_id, entry in entries.items()
-        if entry.get("owner_slice") == "DS10"
+        unit_id: entry for unit_id, entry in entries.items() if entry.get("owner_slice") == "DS10"
     }
     if set(ds10_entries) != set(DS10_CAPABILITY_DISCOVERY_ROOTS):
         errors.append("ds10_capability_discovery_root_denominator_drift")
-    for unit_id, (disposition, strangle_status, consumer_refs) in (
-        DS10_CAPABILITY_DISCOVERY_ROOTS.items()
-    ):
+    for unit_id, (
+        disposition,
+        strangle_status,
+        consumer_refs,
+    ) in DS10_CAPABILITY_DISCOVERY_ROOTS.items():
         entry = entries.get(unit_id)
         if not isinstance(entry, Mapping):
             errors.append(f"ds10_capability_discovery_root_missing:{unit_id}")
@@ -9555,14 +9540,13 @@ def _ds10_capability_discovery_candidate_text(
         ),
     }
     candidate_metadata = DS10_CAPABILITY_DISCOVERY_METADATA
-    for unit_id, (disposition, strangle_status, consumer_refs) in (
-        DS10_CAPABILITY_DISCOVERY_ROOTS.items()
-    ):
+    for unit_id, (
+        disposition,
+        strangle_status,
+        consumer_refs,
+    ) in DS10_CAPABILITY_DISCOVERY_ROOTS.items():
         start, end, stored = _json_entry_object_span(original_text, unit_id)
-        if (
-            stored.get("owner") != "team-design"
-            or stored.get("owner_slice") != "DS10"
-        ):
+        if stored.get("owner") != "team-design" or stored.get("owner_slice") != "DS10":
             raise ValueError(f"DS10 root owner preimage drift:{unit_id}")
         target_successor = (
             {
@@ -9579,19 +9563,14 @@ def _ds10_capability_discovery_candidate_text(
             and all(stored.get(key) == value for key, value in opening_metadata.items())
         )
         admitted_successors = [target_successor]
-        retired_successor = DS10_RETIRED_CAPABILITY_DISCOVERY_SUCCESSORS.get(
-            unit_id
-        )
+        retired_successor = DS10_RETIRED_CAPABILITY_DISCOVERY_SUCCESSORS.get(unit_id)
         if retired_successor is not None:
             admitted_successors.append(retired_successor)
         admitted = (
             stored.get("disposition") == disposition
             and stored.get("strangle_status") == strangle_status
             and stored.get("successor") in admitted_successors
-            and all(
-                stored.get(key) == value
-                for key, value in candidate_metadata.items()
-            )
+            and all(stored.get(key) == value for key, value in candidate_metadata.items())
         )
         if not opening and not admitted:
             raise ValueError(f"DS10 root preimage drift:{unit_id}")
@@ -9637,9 +9616,7 @@ def _ds10_capability_discovery_candidate_text(
     if errors:
         raise ValueError("DS10 writer candidate rejected: " + ";".join(errors))
     if verify_idempotency:
-        repeated = _ds10_capability_discovery_candidate_text(
-            candidate, verify_idempotency=False
-        )
+        repeated = _ds10_capability_discovery_candidate_text(candidate, verify_idempotency=False)
         if repeated != candidate:
             raise ValueError("DS10 writer candidate is not idempotent")
     return candidate
@@ -9674,10 +9651,7 @@ def _ds10_protected_signing_census_candidate_text(original_text: str) -> str:
     encoded = sorted(identity["encoded_identity"] for identity in identities)
     matches, diagnostic = _probe_observation_matches_stored_mode(encoded, observed)
     if matches is not True or diagnostic is not None:
-        raise ValueError(
-            "DS10 protected-signing identity reconciliation failed:"
-            + str(diagnostic)
-        )
+        raise ValueError("DS10 protected-signing identity reconciliation failed:" + str(diagnostic))
 
     refreshed = copy.deepcopy(dict(stored))
     refreshed_probe = refreshed["probes"][0]
@@ -9706,20 +9680,15 @@ def _ds10_c13_external_nonclosure_admission(
 ) -> tuple[tuple[str, ...], list[str]]:
     """Require current C13 evidence; no historical C13 residual is admissible."""
     receipt = _c13_independent_print_receipt()
-    bindings = {
-        str(row["path"]): str(row["sha256"])
-        for row in receipt["source_bindings"]
-    }
+    bindings = {str(row["path"]): str(row["sha256"]) for row in receipt["source_bindings"]}
     if source_bytes is None:
         source_bytes = {
-            source_ref: (REPO_ROOT / source_ref).read_bytes()
-            for source_ref in bindings
+            source_ref: (REPO_ROOT / source_ref).read_bytes() for source_ref in bindings
         }
     if set(source_bytes) != set(bindings):
         return (), ["ds10_c13_external_source_binding_census_drift"]
     producer_bindings = {
-        str(row["path"]): str(row["sha256"])
-        for row in receipt["producer_bindings"]
+        str(row["path"]): str(row["sha256"]) for row in receipt["producer_bindings"]
     }
     if producer_bytes is None:
         producer_bytes = {
@@ -9761,9 +9730,7 @@ def _write_ds10_capability_discovery_family() -> dict[str, Any]:
     original_baseline = BASELINE_PATH.read_text(encoding="utf-8")
     baseline_candidate = _ds10_baseline_manifest_candidate_text(original_baseline)
     baseline_data = json.loads(baseline_candidate)
-    refreshed_register = _ds10_protected_signing_census_candidate_text(
-        original_register
-    )
+    refreshed_register = _ds10_protected_signing_census_candidate_text(original_register)
     refreshed_register = _refresh_supplemental_findings_text(refreshed_register)
     register_candidate = _ds10_capability_discovery_candidate_text(refreshed_register)
     data = json.loads(register_candidate)
@@ -9772,8 +9739,8 @@ def _write_ds10_capability_discovery_family() -> dict[str, Any]:
         report_parity=False,
         baseline_manifest=baseline_data,
     )
-    admitted_external_errors, external_admission_errors = (
-        _ds10_c13_external_nonclosure_admission(register_errors)
+    admitted_external_errors, external_admission_errors = _ds10_c13_external_nonclosure_admission(
+        register_errors
     )
     pre_errors = [
         *external_admission_errors,
@@ -9811,14 +9778,10 @@ def _write_ds10_capability_discovery_family() -> dict[str, Any]:
         _validate_ds10_capability_discovery_roots(
             {row["unit_id"]: row for row in stored["entries"]}, errors
         )
-        errors.extend(
-            validate_ds8_strangle_coverage(stored["ds8_strangle_coverage"])
-        )
-        stored_register_errors = validate_register(
-            stored, baseline_manifest=stored_baseline
-        )
-        stored_admitted, stored_admission_errors = (
-            _ds10_c13_external_nonclosure_admission(stored_register_errors)
+        errors.extend(validate_ds8_strangle_coverage(stored["ds8_strangle_coverage"]))
+        stored_register_errors = validate_register(stored, baseline_manifest=stored_baseline)
+        stored_admitted, stored_admission_errors = _ds10_c13_external_nonclosure_admission(
+            stored_register_errors
         )
         errors.extend(stored_admission_errors)
         errors.extend(
@@ -9854,9 +9817,7 @@ def _write_ds10_capability_discovery_family() -> dict[str, Any]:
         "ds8_assignments": len(data["ds8_strangle_coverage"]["assignments"]),
         "baseline_reanchors": len(DS10_BASELINE_CONTENT_REANCHORS),
         "declared_external_nonclosures": list(admitted_external_errors),
-        "c13_external_source_binding_mismatches": len(
-            DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
-        ),
+        "c13_external_source_binding_mismatches": len(DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES),
     }
 
 
@@ -9892,8 +9853,7 @@ def _ds8_git_bytes(*arguments: str) -> bytes:
     )
     if completed.returncode != 0:
         raise ValueError(
-            "DS8 Git census failed: "
-            + completed.stderr.decode("utf-8", errors="replace").strip()
+            "DS8 Git census failed: " + completed.stderr.decode("utf-8", errors="replace").strip()
         )
     return completed.stdout
 
@@ -9904,7 +9864,7 @@ def _ds8_git_text(*arguments: str) -> str:
 
 @lru_cache(maxsize=1)
 def _ds8_coordinate_prefix() -> str:
-    completed = subprocess.run(  # noqa: S603 - fixed repository command
+    completed = subprocess.run(
         ["git", "rev-parse", "--show-prefix"],  # noqa: S607
         cwd=REPO_ROOT,
         capture_output=True,
@@ -9912,9 +9872,7 @@ def _ds8_coordinate_prefix() -> str:
         text=True,
     )
     if completed.returncode != 0:
-        raise ValueError(
-            "DS8 Git prefix query failed: " + completed.stderr.strip()
-        )
+        raise ValueError("DS8 Git prefix query failed: " + completed.stderr.strip())
     prefix = completed.stdout.strip()
     if prefix != "policy-engine/":
         raise ValueError(f"DS8 Git coordinate prefix drift: {prefix!r}")
@@ -9939,8 +9897,7 @@ def _ds8_feature(path: str) -> str:
 
 def _ds8_is_source(path: str) -> bool:
     return path.endswith(DS8_STRANGLE_EXTENSIONS) and any(
-        path == root or path.startswith(root + "/")
-        for root in DS8_STRANGLE_ROOTS
+        path == root or path.startswith(root + "/") for root in DS8_STRANGLE_ROOTS
     )
 
 
@@ -9960,21 +9917,13 @@ def _ds8_git_tree_sources(commit: str) -> dict[str, bytes]:
         "--",
         *top_roots,
     )
-    top_paths = [
-        raw.decode("utf-8")
-        for raw in path_output.split(b"\0")
-        if raw
-    ]
+    top_paths = [raw.decode("utf-8") for raw in path_output.split(b"\0") if raw]
     paths = sorted(
         top_path[len(prefix) :]
         for top_path in top_paths
-        if top_path.startswith(prefix)
-        and _ds8_is_source(top_path[len(prefix) :])
+        if top_path.startswith(prefix) and _ds8_is_source(top_path[len(prefix) :])
     )
-    return {
-        path: _ds8_git_bytes("show", f"{commit}:{prefix}{path}")
-        for path in paths
-    }
+    return {path: _ds8_git_bytes("show", f"{commit}:{prefix}{path}") for path in paths}
 
 
 @lru_cache(maxsize=4)
@@ -10007,8 +9956,7 @@ def _ds8_live_sources() -> dict[str, bytes]:
         path.relative_to(REPO_ROOT).as_posix(): path.read_bytes()
         for root in DS8_STRANGLE_ROOTS
         for path in (REPO_ROOT / root).rglob("*")
-        if path.is_file()
-        and path.suffix in DS8_STRANGLE_EXTENSIONS
+        if path.is_file() and path.suffix in DS8_STRANGLE_EXTENSIONS
     }
     tracked_output = subprocess.run(  # noqa: S603 - fixed repository command
         [  # noqa: S607 - controlled toolchain executable
@@ -10049,14 +9997,9 @@ def _ds8_path_manifest(paths: Iterable[str], *, prefix: str) -> str:
     return _ds8_digest(payload)
 
 
-def _ds8_content_manifest(
-    sources: Mapping[str, bytes], paths: Iterable[str]
-) -> str:
+def _ds8_content_manifest(sources: Mapping[str, bytes], paths: Iterable[str]) -> str:
     payload = b"".join(
-        path.encode()
-        + b"\0"
-        + hashlib.sha256(sources[path]).hexdigest().encode()
-        + b"\n"
+        path.encode() + b"\0" + hashlib.sha256(sources[path]).hexdigest().encode() + b"\n"
         for path in sorted(paths)
     )
     return _ds8_digest(payload)
@@ -10070,27 +10013,22 @@ def _ds8_count(sources: Mapping[str, bytes], paths: Iterable[str]) -> dict[str, 
     }
 
 
-def _ds8_snapshot(
-    commit: str, sources: Mapping[str, bytes]
-) -> dict[str, Any]:
+def _ds8_snapshot(commit: str, sources: Mapping[str, bytes]) -> dict[str, Any]:
     paths = sorted(sources)
-    roles = {role: [path for path in paths if _ds8_role(path) == role] for role in (
-        "production",
-        "test",
-        "story",
-    )}
+    roles = {
+        role: [path for path in paths if _ds8_role(path) == role]
+        for role in (
+            "production",
+            "test",
+            "story",
+        )
+    }
     features = {
         feature: {
-            "all": _ds8_count(
-                sources, [path for path in paths if _ds8_feature(path) == feature]
-            ),
+            "all": _ds8_count(sources, [path for path in paths if _ds8_feature(path) == feature]),
             "production": _ds8_count(
                 sources,
-                [
-                    path
-                    for path in roles["production"]
-                    if _ds8_feature(path) == feature
-                ],
+                [path for path in roles["production"] if _ds8_feature(path) == feature],
             ),
             "tests": _ds8_count(
                 sources,
@@ -10116,9 +10054,7 @@ def _ds8_snapshot(
         "stories": _ds8_count(sources, roles["story"]),
         "features": features,
         "path_manifest_sha256": _ds8_path_manifest(paths, prefix=prefix),
-        "production_path_manifest_sha256": _ds8_path_manifest(
-            roles["production"], prefix=prefix
-        ),
+        "production_path_manifest_sha256": _ds8_path_manifest(roles["production"], prefix=prefix),
         "content_manifest_sha256": _ds8_content_manifest(sources, paths),
     }
 
@@ -10176,22 +10112,15 @@ def build_ds8_strangle_coverage(
         raise ValueError("DS8 source-freeze/live-worktree byte reconciliation failed")
     if not set(baseline) <= set(source):
         raise ValueError(
-            "DS8 source freeze removed opening paths: "
-            + repr(sorted(set(baseline) - set(source)))
+            "DS8 source freeze removed opening paths: " + repr(sorted(set(baseline) - set(source)))
         )
 
-    baseline_production = {
-        path for path in baseline if _ds8_role(path) == "production"
-    }
-    if not DS8_STRANGLE_IN_SCOPE <= baseline_production:
+    baseline_production = {path for path in baseline if _ds8_role(path) == "production"}
+    if not baseline_production >= DS8_STRANGLE_IN_SCOPE:
         raise ValueError("DS8 declared in-scope path is absent from T0 production")
     deferred = baseline_production - DS8_STRANGLE_IN_SCOPE
-    changed_baseline = sorted(
-        path for path in baseline if baseline[path] != source[path]
-    )
-    changed_production = {
-        path for path in changed_baseline if _ds8_role(path) == "production"
-    }
+    changed_baseline = sorted(path for path in baseline if baseline[path] != source[path])
+    changed_production = {path for path in changed_baseline if _ds8_role(path) == "production"}
     if changed_production != DS8_STRANGLE_IN_SCOPE:
         raise ValueError(
             "DS8 changed production set escaped the approved eight paths: "
@@ -10202,9 +10131,7 @@ def build_ds8_strangle_coverage(
         raise ValueError("DS8 deferred production source changed after T0")
 
     cluster_by_path = {
-        path: cluster
-        for cluster, paths in DS8_STRANGLE_CLOSURE_PATHS.items()
-        for path in paths
+        path: cluster for cluster, paths in DS8_STRANGLE_CLOSURE_PATHS.items() for path in paths
     }
     new_paths = sorted(set(source) - set(baseline))
     governed_mechanism_paths = DS8_STRANGLE_IN_SCOPE | {
@@ -10266,12 +10193,8 @@ def build_ds8_strangle_coverage(
             "in_scope_path_manifest_sha256": _ds8_path_manifest(
                 DS8_STRANGLE_IN_SCOPE, prefix=prefix
             ),
-            "deferred_path_manifest_sha256": _ds8_path_manifest(
-                deferred, prefix=prefix
-            ),
-            "deferred_unchanged_content_manifest_sha256": _ds8_content_manifest(
-                baseline, deferred
-            ),
+            "deferred_path_manifest_sha256": _ds8_path_manifest(deferred, prefix=prefix),
+            "deferred_unchanged_content_manifest_sha256": _ds8_content_manifest(baseline, deferred),
         },
         "new_path_count": len(new_paths),
         "new_path_manifest_sha256": _ds8_path_manifest(new_paths, prefix=prefix),
@@ -10305,11 +10228,7 @@ def validate_ds8_strangle_coverage(
     if not isinstance(assignments, list):
         return ["ds8_strangle_assignments_missing"]
     expected_rows = {row["path"]: row for row in expected["assignments"]}
-    actual_paths = [
-        str(row.get("path", ""))
-        for row in assignments
-        if isinstance(row, Mapping)
-    ]
+    actual_paths = [str(row.get("path", "")) for row in assignments if isinstance(row, Mapping)]
     counts = Counter(actual_paths)
     errors: list[str] = []
     errors.extend(
@@ -10341,8 +10260,7 @@ def validate_ds8_strangle_coverage(
         if coverage.get(key) != expected_value:
             errors.append(f"ds8_strangle_metadata_stale:{key}")
     errors.extend(
-        f"ds8_strangle_unknown_property:{key}"
-        for key in sorted(set(coverage) - set(expected))
+        f"ds8_strangle_unknown_property:{key}" for key in sorted(set(coverage) - set(expected))
     )
     return errors
 
@@ -10377,9 +10295,7 @@ def ds8_strangle_corruption_probes(
     )
     stale = copy.deepcopy(coverage)
     stale["assignments"][0]["disposition"] = "new_in_slice"
-    probes.append(
-        ("stale", stale, f"ds8_strangle_stale_assignment:{first_path}")
-    )
+    probes.append(("stale", stale, f"ds8_strangle_stale_assignment:{first_path}"))
     nonexistent = copy.deepcopy(coverage)
     nonexistent["assignments"][0]["path"] = (
         "apps/runtime-dashboard/src/features/runs/nonexistent.ts"
@@ -10444,15 +10360,10 @@ def build_ds8b_post_freeze_transition(
     """Derive only DS8-B's post-C07 delta without rewriting C07 history."""
     historical_errors = validate_ds8_strangle_coverage(historical_coverage)
     if historical_errors:
-        raise ValueError(
-            "DS8-B historical coverage is not exact: "
-            + ";".join(historical_errors)
-        )
+        raise ValueError("DS8-B historical coverage is not exact: " + ";".join(historical_errors))
     historical_assignments = list(historical_coverage["assignments"])
     historical_deferred = [
-        row
-        for row in historical_assignments
-        if row["disposition"] == "surface_out_of_scope"
+        row for row in historical_assignments if row["disposition"] == "surface_out_of_scope"
     ]
     if len(historical_assignments) != 217 or len(historical_deferred) != 137:
         raise ValueError("DS8-B historical 217/137 denominator drift")
@@ -10477,9 +10388,7 @@ def build_ds8b_post_freeze_transition(
     if removed_paths:
         raise ValueError(f"DS8-B source freeze removed paths: {removed_paths}")
     changed_existing_paths = sorted(
-        path
-        for path in set(baseline) & set(source)
-        if baseline[path] != source[path]
+        path for path in set(baseline) & set(source) if baseline[path] != source[path]
     )
     new_paths = sorted(set(source) - set(baseline))
     transition_paths = sorted([*changed_existing_paths, *new_paths])
@@ -10503,9 +10412,7 @@ def build_ds8b_post_freeze_transition(
                 "origin": "source_freeze" if is_new else "opening_base",
                 "disposition": disposition,
                 "closure_cluster": "C03",
-                "baseline_content_sha256": (
-                    None if is_new else _ds8_digest(baseline[path])
-                ),
+                "baseline_content_sha256": (None if is_new else _ds8_digest(baseline[path])),
                 "source_content_sha256": _ds8_digest(source[path]),
             }
         )
@@ -10530,18 +10437,14 @@ def build_ds8b_post_freeze_transition(
         "changed_existing_path_count": len(changed_existing_paths),
         "new_path_count": len(new_paths),
         "transition_path_count": len(transition_paths),
-        "transition_path_manifest_sha256": _ds8_path_manifest(
-            transition_paths, prefix=prefix
-        ),
+        "transition_path_manifest_sha256": _ds8_path_manifest(transition_paths, prefix=prefix),
         "assignments": rows,
         "closure_receipt": {
             "cluster": "C03",
             "source_commit": source_commit,
             "paths": transition_paths,
             "file_count": len(transition_paths),
-            "path_content_manifest_sha256": _ds8_content_manifest(
-                source, transition_paths
-            ),
+            "path_content_manifest_sha256": _ds8_content_manifest(source, transition_paths),
         },
         "reconciliation": {
             "baseline_git_tree_vs_archive": "exact",
@@ -10574,11 +10477,7 @@ def validate_ds8b_post_freeze_transition(
     if not isinstance(assignments, list):
         return ["ds8b_transition_assignments_missing"]
     expected_rows = {row["path"]: row for row in expected["assignments"]}
-    actual_paths = [
-        str(row.get("path", ""))
-        for row in assignments
-        if isinstance(row, Mapping)
-    ]
+    actual_paths = [str(row.get("path", "")) for row in assignments if isinstance(row, Mapping)]
     counts = Counter(actual_paths)
     errors: list[str] = []
     errors.extend(
@@ -10610,8 +10509,7 @@ def validate_ds8b_post_freeze_transition(
         if transition.get(key) != expected_value:
             errors.append(f"ds8b_transition_metadata_stale:{key}")
     errors.extend(
-        f"ds8b_transition_unknown_property:{key}"
-        for key in sorted(set(transition) - set(expected))
+        f"ds8b_transition_unknown_property:{key}" for key in sorted(set(transition) - set(expected))
     )
     return errors
 
@@ -10646,9 +10544,7 @@ def ds8b_post_freeze_corruption_probes(
     )
     stale = copy.deepcopy(transition)
     stale["assignments"][0]["source_content_sha256"] = "sha256:" + "0" * 64
-    probes.append(
-        ("stale", stale, f"ds8b_transition_stale_assignment:{first_path}")
-    )
+    probes.append(("stale", stale, f"ds8b_transition_stale_assignment:{first_path}"))
     nonexistent = copy.deepcopy(transition)
     nonexistent["assignments"][0]["path"] = (
         "apps/runtime-dashboard/src/features/runs/nonexistent-ds8b.ts"
@@ -10662,9 +10558,7 @@ def ds8b_post_freeze_corruption_probes(
         )
     )
     historical = copy.deepcopy(transition)
-    historical["historical_binding"]["deferred_rows_sha256"] = (
-        "sha256:" + "0" * 64
-    )
+    historical["historical_binding"]["deferred_rows_sha256"] = "sha256:" + "0" * 64
     probes.append(
         (
             "historical-deferrals",
@@ -10685,19 +10579,15 @@ def ds8b_post_freeze_corruption_probes(
     return failures
 
 
-def _ds8b_register_candidate_text(
-    original_text: str, transition: Mapping[str, Any]
-) -> str:
+def _ds8b_register_candidate_text(original_text: str, transition: Mapping[str, Any]) -> str:
     """Surgically add DS8-B's transition while preserving C07 byte history."""
     original = json.loads(original_text)
     candidate = original_text
     old_version = (
-        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n'
-        '  "schema_version": "1.1",'
+        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n  "schema_version": "1.1",'
     )
     new_version = (
-        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n'
-        '  "schema_version": "1.2",'
+        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n  "schema_version": "1.2",'
     )
     if candidate.count(old_version) == 1:
         candidate = candidate.replace(old_version, new_version, 1)
@@ -10705,21 +10595,13 @@ def _ds8b_register_candidate_text(
         raise ValueError("DS8-B register schema-version preimage is ambiguous")
 
     key_marker = '  "ds8b_post_freeze_transition": '
-    rendered = json.dumps(transition, indent=2, ensure_ascii=False).replace(
-        "\n", "\n  "
-    )
+    rendered = json.dumps(transition, indent=2, ensure_ascii=False).replace("\n", "\n  ")
     if key_marker in candidate:
         if candidate.count(key_marker) != 1:
             raise ValueError("DS8-B transition key is duplicated")
         value_start = candidate.index(key_marker) + len(key_marker)
-        _stored, relative_end = json.JSONDecoder().raw_decode(
-            candidate[value_start:]
-        )
-        candidate = (
-            candidate[:value_start]
-            + rendered
-            + candidate[value_start + relative_end :]
-        )
+        _stored, relative_end = json.JSONDecoder().raw_decode(candidate[value_start:])
+        candidate = candidate[:value_start] + rendered + candidate[value_start + relative_end :]
     else:
         insertion_marker = '  "seeded_negative_lifecycle": ['
         if candidate.count(insertion_marker) != 1:
@@ -10742,19 +10624,15 @@ def _ds8b_register_candidate_text(
     return candidate
 
 
-def _ds8_register_candidate_text(
-    original_text: str, coverage: Mapping[str, Any]
-) -> str:
+def _ds8_register_candidate_text(original_text: str, coverage: Mapping[str, Any]) -> str:
     """Surgically add or refresh only the DS8 coverage and schema version."""
     original = json.loads(original_text)
     candidate = original_text
     old_version = (
-        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n'
-        '  "schema_version": "1.0",'
+        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n  "schema_version": "1.0",'
     )
     new_version = (
-        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n'
-        '  "schema_version": "1.1",'
+        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n  "schema_version": "1.1",'
     )
     if candidate.count(old_version) == 1:
         candidate = candidate.replace(old_version, new_version, 1)
@@ -10762,21 +10640,13 @@ def _ds8_register_candidate_text(
         raise ValueError("DS8 register schema-version preimage is ambiguous")
 
     key_marker = '  "ds8_strangle_coverage": '
-    rendered = json.dumps(coverage, indent=2, ensure_ascii=False).replace(
-        "\n", "\n  "
-    )
+    rendered = json.dumps(coverage, indent=2, ensure_ascii=False).replace("\n", "\n  ")
     if key_marker in candidate:
         if candidate.count(key_marker) != 1:
             raise ValueError("DS8 coverage key is duplicated")
         value_start = candidate.index(key_marker) + len(key_marker)
-        _stored, relative_end = json.JSONDecoder().raw_decode(
-            candidate[value_start:]
-        )
-        candidate = (
-            candidate[:value_start]
-            + rendered
-            + candidate[value_start + relative_end :]
-        )
+        _stored, relative_end = json.JSONDecoder().raw_decode(candidate[value_start:])
+        candidate = candidate[:value_start] + rendered + candidate[value_start + relative_end :]
     else:
         insertion_marker = '  "seeded_negative_lifecycle": ['
         if candidate.count(insertion_marker) != 1:
@@ -10799,9 +10669,7 @@ def _ds8_register_candidate_text(
     return candidate
 
 
-def _replace_unique_text(
-    text: str, *, old: str, new: str, label: str
-) -> str:
+def _replace_unique_text(text: str, *, old: str, new: str, label: str) -> str:
     if text.count(old) == 1:
         return text.replace(old, new, 1)
     if text.count(new) == 1:
@@ -10828,9 +10696,7 @@ def _baseline_manifest_content_candidate_text(
     index = array_start + 1
     spans: list[tuple[tuple[str, str], int, int, Mapping[str, Any]]] = []
     while index < array_end:
-        while index < array_end and (
-            original_text[index].isspace() or original_text[index] == ","
-        ):
+        while index < array_end and (original_text[index].isspace() or original_text[index] == ","):
             index += 1
         if index >= array_end:
             break
@@ -10893,30 +10759,20 @@ def _ds10_baseline_manifest_candidate_text(original_text: str) -> str:
     )
 
 
-def _ds8_status_inventory_candidate_text(
-    original_text: str, *, register_bytes: bytes
-) -> str:
+def _ds8_status_inventory_candidate_text(original_text: str, *, register_bytes: bytes) -> str:
     """Re-anchor four exact DS8-induced status receipts without reformatting."""
     stored = json.loads(original_text)
     generated = stored["sources"]["generated_client"]
     candidate = _replace_unique_text(
         original_text,
         old=f'"canonical_sha256": "{generated["canonical_sha256"]}"',
-        new=(
-            '"canonical_sha256": "'
-            + _sha256(REPO_ROOT / generated["canonical_path"])
-            + '"'
-        ),
+        new=('"canonical_sha256": "' + _sha256(REPO_ROOT / generated["canonical_path"]) + '"'),
         label="generated canonical hash",
     )
     candidate = _replace_unique_text(
         candidate,
         old=f'"types_sha256": "{generated["types_sha256"]}"',
-        new=(
-            '"types_sha256": "'
-            + _sha256(REPO_ROOT / generated["types_path"])
-            + '"'
-        ),
+        new=('"types_sha256": "' + _sha256(REPO_ROOT / generated["types_path"]) + '"'),
         label="generated types hash",
     )
     candidate = _replace_unique_text(
@@ -10948,9 +10804,7 @@ def _ds8_status_inventory_candidate_text(
     return candidate
 
 
-def _c13_status_inventory_candidate_text(
-    original_text: str, *, register_bytes: bytes
-) -> str:
+def _c13_status_inventory_candidate_text(original_text: str, *, register_bytes: bytes) -> str:
     """Re-anchor only the register source induced by the C13 root transition."""
     stored = json.loads(original_text)
     old_register_hash = str(stored["sources"]["ds19"]["sha256"])
@@ -10971,7 +10825,7 @@ def _c13_status_inventory_candidate_text(
     return candidate
 
 
-def _status_line_leaf_count(value: Any, path: tuple[str, ...] = ()) -> int:
+def _status_line_leaf_count(value: object, path: tuple[str, ...] = ()) -> int:
     governed_keys = {
         "line",
         "start_line",
@@ -10987,21 +10841,20 @@ def _status_line_leaf_count(value: Any, path: tuple[str, ...] = ()) -> int:
         return sum(
             (
                 1
-                if type(child) is int  # noqa: E721 - bool must be excluded
-                and (key in governed_keys or path + (str(key),) in governed_inline)
-                else _status_line_leaf_count(child, path + (str(key),))
+                if type(child) is int
+                and (key in governed_keys or (*path, str(key)) in governed_inline)
+                else _status_line_leaf_count(child, (*path, str(key)))
             )
             for key, child in value.items()
         )
     if isinstance(value, list):
         return sum(
-            _status_line_leaf_count(child, path + (str(index),))
-            for index, child in enumerate(value)
+            _status_line_leaf_count(child, (*path, str(index))) for index, child in enumerate(value)
         )
     return 0
 
 
-def _string_leaf_count(value: Any, marker: str) -> int:
+def _string_leaf_count(value: object, marker: str) -> int:
     if isinstance(value, Mapping):
         return sum(_string_leaf_count(child, marker) for child in value.values())
     if isinstance(value, list):
@@ -11029,14 +10882,10 @@ def _ds8_status_candidate_errors(
     if _string_leaf_count(inventory, "#ts-identity=") != 30:
         errors.append("ds8_status_ts_identity_count_drift")
     status_row = next(
-        row
-        for row in inventory["entries"]
-        if row["unit_id"] == "status-inline-review-surface"
+        row for row in inventory["entries"] if row["unit_id"] == "status-inline-review-surface"
     )
     data_consumer = next(
-        row
-        for row in status_row["consumers"]
-        if row["path"].endswith("/DataIntelligencePanel.tsx")
+        row for row in status_row["consumers"] if row["path"].endswith("/DataIntelligencePanel.tsx")
     )
     if data_consumer["line"] != 1212:
         errors.append("ds8_status_DataIntelligencePanel_line_drift")
@@ -11087,9 +10936,7 @@ def _failure_atomic_write_texts(
     promoted: list[Path] = []
     try:
         for path in ordered:
-            staged[path] = _stage_same_directory(
-                path, candidates[path].encode("utf-8")
-            )
+            staged[path] = _stage_same_directory(path, candidates[path].encode("utf-8"))
         for path in ordered:
             rollback[path] = _stage_same_directory(path, originals[path])
         if pre_promote is not None:
@@ -11108,9 +10955,7 @@ def _failure_atomic_write_texts(
                 os.replace(rollback[path], path)
                 _fsync_directory(path.parent)
             except BaseException as rollback_error:  # pragma: no cover - hard stop
-                rollback_errors.append(
-                    f"{path}:{rollback_error}:recovery={rollback[path]}"
-                )
+                rollback_errors.append(f"{path}:{rollback_error}:recovery={rollback[path]}")
         for temporary in staged.values():
             temporary.unlink(missing_ok=True)
         if rollback_errors:
@@ -11151,8 +10996,7 @@ def _historical_register_projection(
         candidate_rows = {
             str(row.get("finding_id")): copy.deepcopy(row)
             for row in data.get("supplemental_findings", [])
-            if isinstance(row, Mapping)
-            and str(row.get("finding_id")) in finding_ids
+            if isinstance(row, Mapping) and str(row.get("finding_id")) in finding_ids
         }
         if set(candidate_rows) != finding_ids:
             raise ValueError("historical projection finding cardinality drift")
@@ -11209,10 +11053,7 @@ def _ds11_trust_presentation_candidate_errors(
     expected = list(DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES)
     if Counter(errors) == Counter(expected):
         return []
-    return [
-        "DS11 C04 candidate error set drift:"
-        + json.dumps(sorted(errors), ensure_ascii=False)
-    ]
+    return ["DS11 C04 candidate error set drift:" + json.dumps(sorted(errors), ensure_ascii=False)]
 
 
 def _write_ds11_trust_presentation_family() -> dict[str, int]:
@@ -11236,8 +11077,7 @@ def _write_ds11_trust_presentation_family() -> dict[str, int]:
         )
         if preservation_errors:
             raise ValueError(
-                "DS11 C04 register candidate rejected:"
-                + ";".join(preservation_errors)
+                "DS11 C04 register candidate rejected:" + ";".join(preservation_errors)
             )
         register_data = json.loads(register_candidate)
         pre_errors = _ds11_trust_presentation_candidate_errors(
@@ -11261,8 +11101,7 @@ def _write_ds11_trust_presentation_family() -> dict[str, int]:
             for governed_path, expected_text in candidates.items():
                 if governed_path.read_text(encoding="utf-8") != expected_text:
                     errors.append(
-                        "ds11_trust_presentation_family_readback_drift:"
-                        + str(governed_path)
+                        "ds11_trust_presentation_family_readback_drift:" + str(governed_path)
                     )
             errors.extend(
                 _ds11_trust_presentation_candidate_errors(
@@ -11273,8 +11112,7 @@ def _write_ds11_trust_presentation_family() -> dict[str, int]:
             for source_path, expected_bytes in original_sources.items():
                 if source_path.read_bytes() != expected_bytes:
                     errors.append(
-                        "ds11_trust_presentation_source_readback_drift:"
-                        + str(source_path)
+                        "ds11_trust_presentation_source_readback_drift:" + str(source_path)
                     )
             return errors
 
@@ -11282,14 +11120,11 @@ def _write_ds11_trust_presentation_family() -> dict[str, int]:
             for governed_path, expected_text in original_texts.items():
                 if governed_path.read_text(encoding="utf-8") != expected_text:
                     raise ValueError(
-                        "DS11 C04 governed preimage moved before promotion:"
-                        + str(governed_path)
+                        "DS11 C04 governed preimage moved before promotion:" + str(governed_path)
                     )
             for source_path, expected_bytes in original_sources.items():
                 if source_path.read_bytes() != expected_bytes:
-                    raise ValueError(
-                        "DS11 C04 source moved before promotion:" + str(source_path)
-                    )
+                    raise ValueError("DS11 C04 source moved before promotion:" + str(source_path))
 
         _failure_atomic_write_texts(
             candidates,
@@ -11321,9 +11156,9 @@ def _c13_writer_fence() -> None:
     )
     if ancestry.returncode != 0:
         raise ValueError("C13 verified revision is not an ancestor of writer HEAD")
-    tracked_status = subprocess.run(
+    tracked_status = subprocess.run(  # noqa: S603 - fixed git status argv; paths are repo-scoped; shell=False
         [
-            "git",
+            _resolve_executable("git"),
             "status",
             "--porcelain=v1",
             "--untracked-files=no",
@@ -11338,7 +11173,7 @@ def _c13_writer_fence() -> None:
                     DS1_PATH,
                 )
             ),
-        ],  # noqa: S607
+        ],
         cwd=REPO_ROOT,
         capture_output=True,
         check=False,
@@ -11527,9 +11362,7 @@ def _write_c13_print_family() -> dict[str, Any]:
         receipt=receipt,
     )
     register_data = json.loads(register_candidate)
-    pre_errors = validate_register(
-        register_data, live_probes=False, report_parity=False
-    )
+    pre_errors = validate_register(register_data, live_probes=False, report_parity=False)
     if pre_errors:
         raise ValueError("C13 register candidate rejected: " + ";".join(pre_errors))
     report_candidate = render_report(register_data)
@@ -11569,9 +11402,7 @@ def _write_c13_print_family() -> dict[str, Any]:
             if governed_path.read_text(encoding="utf-8") != expected_text:
                 errors.append(f"c13_family_readback_drift:{governed_path}")
         errors.extend(validate_register(_load_json(REGISTER_PATH), live_probes=False))
-        if _c13_status_receipt(_load_json(STATUS_INVENTORY_PATH), debt) != (
-            expected_status
-        ):
+        if _c13_status_receipt(_load_json(STATUS_INVENTORY_PATH), debt) != (expected_status):
             errors.append("c13_status_diagnostic_identity_drift")
         if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
             errors.append("c13_baseline_readback_drift")
@@ -11588,9 +11419,7 @@ def _write_c13_print_family() -> dict[str, Any]:
         _c13_writer_fence()
         for governed_path, expected_text in original_texts.items():
             if governed_path.read_text(encoding="utf-8") != expected_text:
-                raise ValueError(
-                    f"C13 governed preimage moved before promotion: {governed_path}"
-                )
+                raise ValueError(f"C13 governed preimage moved before promotion: {governed_path}")
         if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
             raise ValueError("C13 baseline moved before promotion")
         if DS1_PATH.read_text(encoding="utf-8") != original_readiness:
@@ -11599,9 +11428,7 @@ def _write_c13_print_family() -> dict[str, Any]:
             raise ValueError("C13 receipt moved before promotion")
         for evidence_path, expected_bytes in original_evidence.items():
             if evidence_path.read_bytes() != expected_bytes:
-                raise ValueError(
-                    f"C13 evidence moved before promotion: {evidence_path}"
-                )
+                raise ValueError(f"C13 evidence moved before promotion: {evidence_path}")
 
     _failure_atomic_write_texts(
         candidates,
@@ -11662,7 +11489,9 @@ def _write_ds8_strangle_family() -> dict[str, Any]:
     opening_hashes = {
         REGISTER_PATH: "sha256:4cc97abd7e0984e6dea28f77c5f046a34709e768a141aa5bb08c44cd371b8b61",
         REPORT_PATH: "sha256:b2e25ddea0169c6b3643c88e53fbc4d28798e8a5427cf9619b3aecb008cca36d",
-        STATUS_INVENTORY_PATH: "sha256:9a6eddd187bd20bf88f773f944e7f717480d9a9c1750e7c79fad29ee60aca8b5",
+        STATUS_INVENTORY_PATH: (
+            "sha256:9a6eddd187bd20bf88f773f944e7f717480d9a9c1750e7c79fad29ee60aca8b5"
+        ),
         BASELINE_PATH: "sha256:e060069e7fcae2226b332634338da1be96348c29390d1498080ba87cfa33d5c5",
     }
     original_texts = {
@@ -11671,14 +11500,10 @@ def _write_ds8_strangle_family() -> dict[str, Any]:
         STATUS_INVENTORY_PATH: original_status,
         BASELINE_PATH: original_baseline,
     }
-    baseline_candidate = _ds8_baseline_manifest_candidate_text(
-        original_baseline
-    )
+    baseline_candidate = _ds8_baseline_manifest_candidate_text(original_baseline)
     baseline_data = json.loads(baseline_candidate)
     refreshed_register = _refresh_supplemental_findings_text(original_register)
-    register_candidate = _ds8_register_candidate_text(
-        refreshed_register, coverage
-    )
+    register_candidate = _ds8_register_candidate_text(refreshed_register, coverage)
     register_data = json.loads(register_candidate)
     pre_errors = validate_register(
         register_data,
@@ -11811,17 +11636,10 @@ def _write_ds8b_transition_family() -> dict[str, Any]:
     original_baseline = BASELINE_PATH.read_text(encoding="utf-8")
     original_readiness = DS1_PATH.read_text(encoding="utf-8")
     opening_hashes = {
-        REGISTER_PATH: (
-            "sha256:c1181a07efc38273aa4b4ec1c6f46a1f"
-            "183c1e197b67b96c8796d575da75be11"
-        ),
-        REPORT_PATH: (
-            "sha256:1bc9a2d378ca42dbe7721769ede7369b"
-            "bbef1a88ecc0939e36201663df1c6dde"
-        ),
+        REGISTER_PATH: ("sha256:c1181a07efc38273aa4b4ec1c6f46a1f183c1e197b67b96c8796d575da75be11"),
+        REPORT_PATH: ("sha256:1bc9a2d378ca42dbe7721769ede7369bbbef1a88ecc0939e36201663df1c6dde"),
         STATUS_INVENTORY_PATH: (
-            "sha256:42b6ac0dd5e1cf9614570357c5dbaed1"
-            "5a2a814ce40227fb047ad974284cd1e2"
+            "sha256:42b6ac0dd5e1cf9614570357c5dbaed15a2a814ce40227fb047ad974284cd1e2"
         ),
     }
     original_texts = {
@@ -11841,9 +11659,7 @@ def _write_ds8b_transition_family() -> dict[str, Any]:
         historical_coverage=historical,
         require_live_source_match=True,
     )
-    register_candidate = _ds8b_register_candidate_text(
-        original_register, transition
-    )
+    register_candidate = _ds8b_register_candidate_text(original_register, transition)
     candidate_data = json.loads(register_candidate)
     pre_errors = validate_register(
         candidate_data,
@@ -11869,27 +11685,18 @@ def _write_ds8b_transition_family() -> dict[str, Any]:
         register_bytes=register_candidate.encode("utf-8"),
     )
     if status_errors:
-        raise ValueError(
-            "DS8-B status candidate rejected: " + ";".join(status_errors)
-        )
-    opening_diagnostics = status_checker.validate_inventory(
-        json.loads(original_status), debt
-    )
+        raise ValueError("DS8-B status candidate rejected: " + ";".join(status_errors))
+    opening_diagnostics = status_checker.validate_inventory(json.loads(original_status), debt)
     regeneration_drifts = {
-        "inventory_source_hash_drift:packages/runtime-api-client/"
-        "canonicalRuntimeApiClient.ts",
+        "inventory_source_hash_drift:packages/runtime-api-client/canonicalRuntimeApiClient.ts",
         "inventory_source_hash_drift:packages/runtime-api-client/types.ts",
     }
     if not regeneration_drifts <= set(opening_diagnostics):
         raise ValueError("DS8-B opening generated-source diagnostic mapping drift")
     inherited_diagnostics = [
-        diagnostic
-        for diagnostic in opening_diagnostics
-        if diagnostic not in regeneration_drifts
+        diagnostic for diagnostic in opening_diagnostics if diagnostic not in regeneration_drifts
     ]
-    inherited_payload = "".join(
-        f"{diagnostic}\n" for diagnostic in inherited_diagnostics
-    ).encode()
+    inherited_payload = "".join(f"{diagnostic}\n" for diagnostic in inherited_diagnostics).encode()
     inherited_status = (
         len(inherited_diagnostics),
         len(inherited_payload),
@@ -11917,9 +11724,7 @@ def _write_ds8b_transition_family() -> dict[str, Any]:
             if path.read_text(encoding="utf-8") != expected_text:
                 errors.append(f"ds8b_family_readback_drift:{path}")
         errors.extend(validate_register(_load_json(REGISTER_PATH)))
-        if _c13_status_receipt(_load_json(STATUS_INVENTORY_PATH), debt) != (
-            expected_status
-        ):
+        if _c13_status_receipt(_load_json(STATUS_INVENTORY_PATH), debt) != (expected_status):
             errors.append("ds8b_status_diagnostic_identity_drift")
         if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
             errors.append("ds8b_baseline_readback_drift")
@@ -11931,9 +11736,7 @@ def _write_ds8b_transition_family() -> dict[str, Any]:
         _ds8b_writer_fence()
         for path, expected_text in original_texts.items():
             if path.read_text(encoding="utf-8") != expected_text:
-                raise ValueError(
-                    f"DS8-B governed preimage moved before promotion: {path}"
-                )
+                raise ValueError(f"DS8-B governed preimage moved before promotion: {path}")
         if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
             raise ValueError("DS8-B baseline moved before promotion")
         if DS1_PATH.read_text(encoding="utf-8") != original_readiness:
@@ -12027,11 +11830,7 @@ def _structured_identity_reference_errors(references: Sequence[str]) -> list[str
             errors.append(f"structured_reference_source_path_invalid:{reference}")
             continue
         path = REPO_ROOT / path_prefix
-        sources = (
-            {path_prefix: path.read_text(encoding="utf-8")}
-            if path.is_file()
-            else {}
-        )
+        sources = {path_prefix: path.read_text(encoding="utf-8")} if path.is_file() else {}
         errors.extend(
             f"{error}:{reference}"
             for error in _validate_structured_reference_identity(
@@ -12042,22 +11841,40 @@ def _structured_identity_reference_errors(references: Sequence[str]) -> list[str
 
 
 _C21B_DESCRIPTOR_HINTS = {
-    "packages/runtime-api-client/canonicalRuntimeApiClient.ts:958": ("exported_declaration", "RunSummary"),
+    "packages/runtime-api-client/canonicalRuntimeApiClient.ts:958": (
+        "exported_declaration",
+        "RunSummary",
+    ),
     "packages/runtime-api-client/types.ts:10012": ("type_property", "components.RunSummary"),
     "packages/runtime-api-client/types.ts:10031": ("type_property", "components.finished_at"),
     "packages/runtime-api-client/types.ts:10058": ("type_property", "components.status"),
-    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:156": ("exported_declaration", "depthNCycleBoardProjectionQueryOptions"),
+    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:156": (
+        "exported_declaration",
+        "depthNCycleBoardProjectionQueryOptions",
+    ),
     "packages/runtime-api-client/types.ts:2446": ("type_property", "components.AuthMeResponse"),
     "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42": ("named_declaration", "fetchAuthMe"),
     "apps/runtime-dashboard/src/api/queryKeys.ts:11": ("variable_declaration", "queryKeys"),
-    "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15": ("exported_declaration", "ComposerDraftRecord"),
+    "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15": (
+        "exported_declaration",
+        "ComposerDraftRecord",
+    ),
     "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts:13": (
         "exported_declaration",
         "deleteComposerDraftRecord",
     ),
-    "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301": ("named_declaration", "writeStoredCausalDraft"),
-    "apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109": ("exported_declaration", "writeStoredDisputes"),
-    "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444": ("exported_declaration", "setReviewerThreshold"),
+    "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301": (
+        "named_declaration",
+        "writeStoredCausalDraft",
+    ),
+    "apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109": (
+        "exported_declaration",
+        "writeStoredDisputes",
+    ),
+    "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444": (
+        "exported_declaration",
+        "setReviewerThreshold",
+    ),
     "packages/runtime-api-client/types.ts:2462": ("type_property", "components.permissions"),
     "apps/runtime-dashboard/src/api/types.ts:2513": ("type_property", "components.permissions"),
 }
@@ -12090,9 +11907,14 @@ def _c21b_descriptor_identity_literals() -> dict[str, str]:
     anchors = []
     for reference, (role, discriminator) in _C21B_DESCRIPTOR_HINTS.items():
         path, line = reference.rsplit(":", 1)
-        anchors.append({"path": path, "line": int(line), "role": role, "discriminator": discriminator})
+        anchors.append(
+            {"path": path, "line": int(line), "role": role, "discriminator": discriminator}
+        )
     identities = _typescript_reference_identities_from_anchors(anchors)
-    return {reference: identity["encoded_identity"] for reference, identity in zip(_C21B_DESCRIPTOR_HINTS, identities, strict=True)}
+    return {
+        reference: identity["encoded_identity"]
+        for reference, identity in zip(_C21B_DESCRIPTOR_HINTS, identities, strict=True)
+    }
 
 
 def _c21b_identity_anchor(reference: str) -> dict[str, Any] | None:
@@ -12104,12 +11926,12 @@ def _c21b_identity_anchor(reference: str) -> dict[str, Any] | None:
     match = re.match(r"^(.*?):(\d+)$", reference)
     if not match or Path(match.group(1)).suffix not in {".ts", ".tsx"}:
         return None
-    source_line = (REPO_ROOT / match.group(1)).read_text(encoding="utf-8").splitlines()[
-        int(match.group(2)) - 1
-    ]
-    route_match = re.search(
-        r'["\'](/?public/decisions/:signedId)["\']', source_line
+    source_line = (
+        (REPO_ROOT / match.group(1))
+        .read_text(encoding="utf-8")
+        .splitlines()[int(match.group(2)) - 1]
     )
+    route_match = re.search(r'["\'](/?public/decisions/:signedId)["\']', source_line)
     if route_match:
         role, discriminator = "string_literal", route_match.group(1)
     elif declaration_match := re.search(
@@ -12117,11 +11939,7 @@ def _c21b_identity_anchor(reference: str) -> dict[str, Any] | None:
         r"(?P<name>(?:build|verify)SignedPublicDecisionPacket)\b",
         source_line,
     ):
-        role = (
-            "exported_declaration"
-            if declaration_match.group("export")
-            else "named_declaration"
-        )
+        role = "exported_declaration" if declaration_match.group("export") else "named_declaration"
         discriminator = declaration_match.group("name")
     elif "buildSignedPublicDecisionPacket" in source_line:
         role, discriminator = "call_expression", "buildSignedPublicDecisionPacket"
@@ -12129,7 +11947,12 @@ def _c21b_identity_anchor(reference: str) -> dict[str, Any] | None:
         role, discriminator = "call_expression", "verifySignedPublicDecisionPacket"
     else:
         return None
-    return {"path": match.group(1), "line": int(match.group(2)), "role": role, "discriminator": discriminator}
+    return {
+        "path": match.group(1),
+        "line": int(match.group(2)),
+        "role": role,
+        "discriminator": discriminator,
+    }
 
 
 def _c21b_surgical_identity_text(text: str) -> str:
@@ -12172,14 +11995,23 @@ def _c21b_surgical_identity_text(text: str) -> str:
             component = sink["component_declaration"]
             authority_anchors = {
                 f"{component['path']}:{component['line']}": {
-                    "path": component["path"], "line": component["line"], "role": "named_declaration", "discriminator": sink["component"]
+                    "path": component["path"],
+                    "line": component["line"],
+                    "role": "named_declaration",
+                    "discriminator": sink["component"],
                 }
             }
-            consumer_role = "jsx_attribute" if sink["sink_kind"] == "prop_boundary" else "jsx_opening"
+            consumer_role = (
+                "jsx_attribute" if sink["sink_kind"] == "prop_boundary" else "jsx_opening"
+            )
             for site in sink["consumer_sites"]:
                 authority_anchors[f"{site['path']}:{site['line']}"] = {
-                    "path": site["path"], "line": site["line"], "role": consumer_role,
-                    "discriminator": sink.get("prop", "Badge") if consumer_role == "jsx_attribute" else "Badge",
+                    "path": site["path"],
+                    "line": site["line"],
+                    "role": consumer_role,
+                    "discriminator": sink.get("prop", "Badge")
+                    if consumer_role == "jsx_attribute"
+                    else "Badge",
                 }
             for reference in finding["evidence_refs"]:
                 anchor = authority_anchors.get(reference)
@@ -12237,9 +12069,7 @@ def _c21b_surgical_identity_text(text: str) -> str:
     ]
     expected_partition = tuple(
         existing + migrated
-        for existing, migrated in zip(
-            identity_counts_before, migration_counts, strict=True
-        )
+        for existing, migrated in zip(identity_counts_before, migration_counts, strict=True)
     )
     if (len(observed), len(authority), len(descriptors)) != expected_partition:
         raise ValueError("c21b_identity_partition_drift")
@@ -12263,31 +12093,20 @@ def _c21c_surgical_identity_text(text: str) -> str:
         for probe in census["probes"]
         for reference in probe["observed_refs"]
     )
-    structured = [
-        reference
-        for reference in references
-        if "#structured-identity=" in reference
-    ]
-    if len(structured) != 5 or set(structured) != set(
-        _C21C_FROZEN_STRUCTURED_IDENTITIES.values()
-    ):
+    structured = [reference for reference in references if "#structured-identity=" in reference]
+    if len(structured) != 5 or set(structured) != set(_C21C_FROZEN_STRUCTURED_IDENTITIES.values()):
         raise ValueError("c21c_structured_identity_partition_drift")
     if any(reference in references for reference in _C21C_STRUCTURED_HINTS):
         raise ValueError("c21c_legacy_structured_line_reference")
     line_reference_re = re.compile(r"^(.*?):\d+(?::\d+)?$")
-    line_references = [
-        reference for reference in references if line_reference_re.match(reference)
-    ]
-    if len(line_references) != 12 or len(
-        {
-            line_reference_re.match(reference).group(1)
-            for reference in line_references
-        }
-    ) != 10:
+    line_references = [reference for reference in references if line_reference_re.match(reference)]
+    if (
+        len(line_references) != 12
+        or len({line_reference_re.match(reference).group(1) for reference in line_references}) != 10
+    ):
         raise ValueError("c21c_navigation_residual_drift")
     if any(
-        Path(line_reference_re.match(reference).group(1)).suffix
-        in {".json", ".toml"}
+        Path(line_reference_re.match(reference).group(1)).suffix in {".json", ".toml"}
         for reference in line_references
     ):
         raise ValueError("c21c_structured_line_reference_residual")
@@ -12349,8 +12168,7 @@ def _derived_operation_ids(ds1: Mapping[str, Any]) -> set[str]:
         if entry["surface_id"].startswith("api-op-")
         and entry["readiness_state"] == "consumer_missing"
         and all(
-            ref.startswith("schemas/runtime_api_v1.openapi.json:")
-            for ref in entry["evidence_refs"]
+            ref.startswith("schemas/runtime_api_v1.openapi.json:") for ref in entry["evidence_refs"]
         )
     }
 
@@ -12405,11 +12223,10 @@ def _typescript_import_matches(
             if path.suffix not in {".cts", ".mts", ".ts", ".tsx"}:
                 continue
             try:
-                sources[path.relative_to(REPO_ROOT).as_posix()] = path.read_text(
-                    encoding="utf-8"
-                )
+                sources[path.relative_to(REPO_ROOT).as_posix()] = path.read_text(encoding="utf-8")
             except (UnicodeDecodeError, OSError):
                 continue
+
     def module_stem(value: str) -> str:
         normalized = posixpath.normpath(value.replace("\\", "/"))
         return re.sub(r"\.(?:d\.)?[cm]?[jt]sx?$", "", normalized)
@@ -12433,17 +12250,9 @@ def _typescript_import_matches(
         if isinstance(resolved, str) and resolved:
             candidates.add(module_stem(resolved))
         if module.startswith("@/"):
-            candidates.add(
-                module_stem(
-                    "apps/runtime-dashboard/src/" + module.removeprefix("@/")
-                )
-            )
+            candidates.add(module_stem("apps/runtime-dashboard/src/" + module.removeprefix("@/")))
         elif module.startswith("."):
-            candidates.add(
-                module_stem(
-                    posixpath.join(posixpath.dirname(importer), module)
-                )
-            )
+            candidates.add(module_stem(posixpath.join(posixpath.dirname(importer), module)))
         if candidates & target_forms:
             matches.add(f"{fact['path']}:{fact['line']}")
     return sorted(matches)
@@ -12468,7 +12277,9 @@ def _protected_signing_census() -> dict[str, Any]:
         "verifySignedPublicDecisionPacket(",
         "public/decisions/:signedId",
     ]
-    observed = _reference_matches(targets, ["apps/runtime-dashboard/src", "apps/runtime-dashboard/e2e"])
+    observed = _reference_matches(
+        targets, ["apps/runtime-dashboard/src", "apps/runtime-dashboard/e2e"]
+    )
     return {
         "census_id": "census-browser-signing-protected-live",
         "captured_at": REGISTER_AS_OF,
@@ -12496,18 +12307,14 @@ def _decision_detail(
         "rationale": rationale,
     }
     if disposition == "retire_disposition":
-        detail["retirement_scope"] = (
-            "frontend_exposure_registry" if flag else "frontend_adoption"
-        )
+        detail["retirement_scope"] = "frontend_exposure_registry" if flag else "frontend_adoption"
         detail["revisit_condition"] = (
             "A later accepted slice names a real consumer and an authority-safe projection."
         )
     return detail
 
 
-def _seed_entry(
-    source: Mapping[str, Any], ds2_ids: list[str]
-) -> dict[str, Any]:
+def _seed_entry(source: Mapping[str, Any], ds2_ids: list[str]) -> dict[str, Any]:
     unit_id = source["surface_id"]
     entry: dict[str, Any] = {
         "unit_id": unit_id,
@@ -12521,14 +12328,21 @@ def _seed_entry(
         "owner_slice": source["owning_slice"],
         "decision_date": DECISION_DATE,
         "seed_rule": "ds1_incomplete_rebind_pending",
-        "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner.",
+        ("rationale"): (
+            "DS1 does not record this narrow unit as implemented; its "
+            "owning slice must rebind or retire it without creating a "
+            "parallel owner."
+        ),
     }
     if source["readiness_state"] == "implemented":
         entry.update(
             disposition="use_as_is",
             strangle_status="not_applicable",
             seed_rule="ds1_implemented_use_as_is",
-            rationale="DS1 records this narrow unit as implemented with its applicable capability links proven; no replacement owner is introduced.",
+            rationale=(
+                "DS1 records this narrow unit as implemented with its applicable capability "
+                "links proven; no replacement owner is introduced."
+            ),
         )
     if unit_id in DELETE_ROOT_IDS:
         entry.update(
@@ -12536,7 +12350,10 @@ def _seed_entry(
             strangle_status="pending",
             owner_slice="DS19",
             seed_rule="ds19_named_zero_consumer_candidate",
-            rationale="DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero.",
+            rationale=(
+                "DS1 named this false or zero-consumer substrate for DS19; deletion remains "
+                "pending until a fresh live census is zero."
+            ),
         )
     if unit_id in WIRE_OPERATION_RATIONALES:
         rationale = WIRE_OPERATION_RATIONALES[unit_id]
@@ -12564,7 +12381,9 @@ def _seed_entry(
             disposition=disposition,
             strangle_status="not_applicable",
             owner_slice="DS5",
-            seed_rule=f"ds19_consumer_missing_flag_{'wire' if disposition == 'wire_disposition' else 'retire'}_decision",
+            seed_rule=f"ds19_consumer_missing_flag_{
+                ('wire') if disposition == ('wire_disposition') else ('retire')
+            }_decision",
             rationale=rationale,
             decision_detail=_decision_detail(disposition, "DS5", rationale, flag=True),
         )
@@ -12575,7 +12394,11 @@ def _seed_entry(
             owner_slice="DS12",
             seed_rule="protected_live_consumer_ds12_strangle",
             reference_census_id="census-browser-signing-protected-live",
-            rationale="Three mounted builders, the public viewer verifier, route, and tests are live; DS12 owns the server-signing strangle and DS19 may not delete this chain.",
+            rationale=(
+                "Three mounted builders, the public viewer verifier, route, and tests are "
+                "live; DS12 owns the server-signing strangle and DS19 may not delete this "
+                "chain."
+            ),
         )
     return entry
 
@@ -12594,9 +12417,7 @@ def _c04_rendered_contrast_source_rows(
             owner_ast_sha256=C04_RENDERED_CONTRAST_OWNER_AST_SHA256,
         )
     except (RuntimeError, ValueError) as exc:
-        raise ValueError(
-            "c04_rendered_contrast_source_registry_drift:parser"
-        ) from exc
+        raise ValueError("c04_rendered_contrast_source_registry_drift:parser") from exc
     required_fields = {"sourceId", "ownerCluster", "component", "selector"}
     source_ids = [row.get("sourceId") for row in observed]
     if (
@@ -12606,8 +12427,7 @@ def _c04_rendered_contrast_source_rows(
         or Counter(row.get("ownerCluster") for row in observed)
         != C04_RENDERED_CONTRAST_CLUSTER_COUNTS
         or any(
-            row.get("selector")
-            != f'[data-opaque-contrast-source="{row.get("sourceId")}"]'
+            row.get("selector") != f'[data-opaque-contrast-source="{row.get("sourceId")}"]'
             for row in observed
         )
         or _canonical_sha256(observed) != C04_RENDERED_CONTRAST_REGISTRY_SHA256
@@ -12623,9 +12443,7 @@ def _c04_rendered_contrast_finding(
     _c04_rendered_contrast_source_rows(source_text)
     for reference in C04_RENDERED_CONTRAST_EVIDENCE_REFS:
         if not (REPO_ROOT / reference).is_file():
-            raise ValueError(
-                f"c04_rendered_contrast_source_registry_drift:missing:{reference}"
-            )
+            raise ValueError(f"c04_rendered_contrast_source_registry_drift:missing:{reference}")
     return {
         "finding_id": "baseline-test-a11y-rendered-contrast-incomplete-debt",
         "finding_kind": "baseline_test_debt",
@@ -12659,9 +12477,7 @@ def _supplemental_findings() -> list[dict[str, Any]]:
     c03_lifecycle = _c03_vitest_lifecycle_state(baseline)
     if c03_lifecycle == "invalid":
         raise ValueError("C03 supplemental source lifecycle is not admitted")
-    active_test_classes = {
-        row["class_id"]: row for row in baseline["vitest"]["debt_classes"]
-    }
+    active_test_classes = {row["class_id"]: row for row in baseline["vitest"]["debt_classes"]}
     debt_findings = [
         (
             "baseline-lint-quantity-debt",
@@ -12669,7 +12485,11 @@ def _supplemental_findings() -> list[dict[str, Any]]:
             f"{baseline_ref}#lint",
             None,
             "DS4",
-            "The quantity diagnostic class is derived from the active lint manifest; resolved means all 75 immutable-origin identities have content-bound C06-C08 resolutions.",
+            (
+                "The quantity diagnostic class is derived from the active lint manifest; "
+                "resolved means all 75 immutable-origin identities have content-bound C06-C08 "
+                "resolutions."
+            ),
         ),
         (
             "baseline-test-i18n-count-debt",
@@ -12687,7 +12507,11 @@ def _supplemental_findings() -> list[dict[str, Any]]:
             f"{baseline_ref}#tests/a11y-coverage",
             "shared-ui-a11y-coverage",
             "DS4",
-            "The accessibility census state is derived from the active Vitest debt classes; C12 repairs the OperatorDiagnosticPanel companion without an allowlist suppression.",
+            (
+                "The accessibility census state is derived from the active Vitest debt "
+                "classes; C12 repairs the OperatorDiagnosticPanel companion without an "
+                "allowlist suppression."
+            ),
         ),
         (
             "baseline-test-temporal-cursor-debt",
@@ -12695,7 +12519,10 @@ def _supplemental_findings() -> list[dict[str, Any]]:
             f"{baseline_ref}#tests/temporal-cursor",
             "temporal-cursor-canonical-url",
             "DS4",
-            "The temporal-cursor state is derived from the active Vitest debt classes; C09 closed the time-dependent identity with an injected clock.",
+            (
+                "The temporal-cursor state is derived from the active Vitest debt classes; "
+                "C09 closed the time-dependent identity with an injected clock."
+            ),
         ),
     ]
     findings: list[dict[str, Any]] = []
@@ -12713,9 +12540,7 @@ def _supplemental_findings() -> list[dict[str, Any]]:
             "disposition": "rebind_pending",
             "status": "open_debt" if is_open else "repaired",
             "evidence_refs": [evidence_ref],
-            "owner_slice": (
-                active_class["owner_slice"] if active_class else default_owner
-            ),
+            "owner_slice": (active_class["owner_slice"] if active_class else default_owner),
             "decision_date": DECISION_DATE,
             "rationale": rationale,
         }
@@ -12725,7 +12550,9 @@ def _supplemental_findings() -> list[dict[str, Any]]:
     findings.append(_c06_rendered_contrast_finding())
     dependencies = {
         "dependency-axe-core": "apps/runtime-dashboard/src/shared/lib/a11yAudit.ts:71",
-        "dependency-intl-messageformat": "apps/runtime-dashboard/src/shared/i18n/messages/icu-messages.ts:1",
+        ("dependency-intl-messageformat"): (
+            "apps/runtime-dashboard/src/shared/i18n/messages/icu-messages.ts:1"
+        ),
         "dependency-workbox-core": "apps/runtime-dashboard/src/sw.ts:3",
         "dependency-workbox-precaching": "apps/runtime-dashboard/src/sw.ts:4",
         "dependency-workbox-routing": "apps/runtime-dashboard/src/sw.ts:9",
@@ -12746,7 +12573,11 @@ def _supplemental_findings() -> list[dict[str, Any]]:
                 "owner_slice": "DS19",
                 "decision_date": DECISION_DATE,
                 "repair_commit": REPAIR_COMMIT,
-                "rationale": "The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph.",
+                ("rationale"): (
+                    "The source or PWA peer was already resolved transitively; "
+                    "DS19 declared the exact locked version without changing "
+                    "the resolved graph."
+                ),
             }
         )
     findings.append(
@@ -12762,7 +12593,11 @@ def _supplemental_findings() -> list[dict[str, Any]]:
             "owner_slice": "DS19",
             "decision_date": DECISION_DATE,
             "repair_commit": REPAIR_COMMIT,
-            "rationale": "The fixtures now type audience from the generated projection contract introduced after the fixture helper; runtime and generated code were not changed.",
+            ("rationale"): (
+                "The fixtures now type audience from the generated "
+                "projection contract introduced after the fixture helper; "
+                "runtime and generated code were not changed."
+            ),
         }
     )
     findings.extend(
@@ -12841,12 +12676,8 @@ def _c03_resolved_baseline_manifest_text(text: str) -> str:
         raise ValueError("vitest object missing")
     start = match.start(1)
     end = _json_container_end(text, start)
-    rendered_lines = json.dumps(
-        candidate["vitest"], indent=2, ensure_ascii=False
-    ).splitlines()
-    replacement = rendered_lines[0] + "\n" + "\n".join(
-        "  " + line for line in rendered_lines[1:]
-    )
+    rendered_lines = json.dumps(candidate["vitest"], indent=2, ensure_ascii=False).splitlines()
+    replacement = rendered_lines[0] + "\n" + "\n".join("  " + line for line in rendered_lines[1:])
     return text[:start] + replacement + text[end + 1 :]
 
 
@@ -12866,9 +12697,7 @@ def _supplemental_section_spans(
         if index >= end:
             break
         if text[index] != "{":
-            raise ValueError(
-                f"supplemental finding object expected at offset {index}"
-            )
+            raise ValueError(f"supplemental finding object expected at offset {index}")
         object_end = _json_container_end(text, index)
         row = json.loads(text[index : object_end + 1])
         finding_id = row.get("finding_id")
@@ -12896,9 +12725,11 @@ def _supplemental_section(
 
 def _surgical_supplemental_finding_ids(text: str) -> set[str]:
     """Return descriptor rows and retired generated rows owned by refresh."""
-    descriptor_ids = set(GOVERNED_DEBT_DESCRIPTORS) | set(
-        AUTHORITY_PRESENTATION_DEBT_SPECS
-    ) | DS6_REGISTER_TRANSITION_FINDING_IDS
+    descriptor_ids = (
+        set(GOVERNED_DEBT_DESCRIPTORS)
+        | set(AUTHORITY_PRESENTATION_DEBT_SPECS)
+        | DS6_REGISTER_TRANSITION_FINDING_IDS
+    )
     _start, _end, spans = _supplemental_section_spans(text)
     for finding_id, object_start, object_end in spans:
         row = json.loads(text[object_start : object_end + 1])
@@ -12944,9 +12775,7 @@ def _c06_rendered_contrast_transition_text(text: str) -> str:
         if finding_id == C06_RENDERED_CONTRAST_FINDING_ID
     ]
     if len(matches) != 1:
-        raise ValueError(
-            "C06 rendered contrast transition rejected:target cardinality"
-        )
+        raise ValueError("C06 rendered contrast transition rejected:target cardinality")
     object_start, object_end = matches[0]
     stored = json.loads(text[object_start : object_end + 1])
     admitted_open = _c04_rendered_contrast_finding()
@@ -12955,8 +12784,7 @@ def _c06_rendered_contrast_transition_text(text: str) -> str:
         return text
     if stored != admitted_open:
         raise ValueError(
-            "C06 rendered contrast transition rejected:predecessor:"
-            + _canonical_sha256(stored)
+            "C06 rendered contrast transition rejected:predecessor:" + _canonical_sha256(stored)
         )
 
     candidate = (
@@ -12964,16 +12792,10 @@ def _c06_rendered_contrast_transition_text(text: str) -> str:
         + _render_supplemental_finding(admitted_repaired)
         + text[object_end + 1 :]
     )
-    _candidate_start, _candidate_end, candidate_rows = _supplemental_section(
-        candidate
-    )
+    _candidate_start, _candidate_end, candidate_rows = _supplemental_section(candidate)
     _original_start, _original_end, original_rows = _supplemental_section(text)
-    original_peers = [
-        row for row in original_rows if row[0] != C06_RENDERED_CONTRAST_FINDING_ID
-    ]
-    candidate_peers = [
-        row for row in candidate_rows if row[0] != C06_RENDERED_CONTRAST_FINDING_ID
-    ]
+    original_peers = [row for row in original_rows if row[0] != C06_RENDERED_CONTRAST_FINDING_ID]
+    candidate_peers = [row for row in candidate_rows if row[0] != C06_RENDERED_CONTRAST_FINDING_ID]
     if original_peers != candidate_peers:
         raise ValueError("C06 rendered contrast transition rejected:peer drift")
     return candidate
@@ -12984,12 +12806,8 @@ def _ds11_trust_presentation_preservation_errors(
 ) -> list[str]:
     """Prove the DS11 writer changed only its two target JSON objects."""
     try:
-        original_start, original_end, original_rows = _supplemental_section(
-            original_text
-        )
-        candidate_start, candidate_end, candidate_rows = _supplemental_section(
-            candidate_text
-        )
+        original_start, original_end, original_rows = _supplemental_section(original_text)
+        candidate_start, candidate_end, candidate_rows = _supplemental_section(candidate_text)
     except (json.JSONDecodeError, ValueError) as exc:
         return [f"ds11_trust_presentation_preservation_span_invalid:{exc}"]
     if original_text[: original_start + 1] != candidate_text[: candidate_start + 1]:
@@ -12997,14 +12815,10 @@ def _ds11_trust_presentation_preservation_errors(
     if original_text[original_end:] != candidate_text[candidate_end:]:
         return ["ds11_trust_presentation_suffix_drift"]
     original_peers = [
-        row
-        for row in original_rows
-        if row[0] not in DS11_TRUST_PRESENTATION_FINDING_IDS
+        row for row in original_rows if row[0] not in DS11_TRUST_PRESENTATION_FINDING_IDS
     ]
     candidate_peers = [
-        row
-        for row in candidate_rows
-        if row[0] not in DS11_TRUST_PRESENTATION_FINDING_IDS
+        row for row in candidate_rows if row[0] not in DS11_TRUST_PRESENTATION_FINDING_IDS
     ]
     if original_peers != candidate_peers:
         return ["ds11_trust_presentation_peer_drift"]
@@ -13017,10 +12831,7 @@ def _ds11_trust_presentation_transition_text(
     scan: Mapping[str, Any] | None = None,
 ) -> str:
     """Transition exactly two known DS11 predecessors, or admit their repair."""
-    expected_rows = {
-        str(row["finding_id"]): row
-        for row in _ds11_trust_presentation_rows(scan)
-    }
+    expected_rows = {str(row["finding_id"]): row for row in _ds11_trust_presentation_rows(scan)}
     if set(expected_rows) != DS11_TRUST_PRESENTATION_FINDING_IDS:
         raise ValueError("DS11 C04 transition generated denominator drift")
     _start, _end, spans = _supplemental_section_spans(text)
@@ -13064,8 +12875,7 @@ def _ds11_trust_presentation_transition_text(
         for finding_id in DS11_TRUST_PRESENTATION_FINDING_IDS
     )
     if not is_review_predecessor and any(
-        _canonical_sha256(stored[finding_id])
-        != DS11_C04_OPENING_ROW_SHA256[finding_id]
+        _canonical_sha256(stored[finding_id]) != DS11_C04_OPENING_ROW_SHA256[finding_id]
         for finding_id in DS11_TRUST_PRESENTATION_FINDING_IDS
     ):
         raise ValueError("DS11 C04 transition rejected:predecessor restamp")
@@ -13078,19 +12888,13 @@ def _ds11_trust_presentation_transition_text(
             + _render_supplemental_finding(expected_rows[finding_id])
             + candidate[object_end + 1 :]
         )
-    preservation_errors = _ds11_trust_presentation_preservation_errors(
-        text, candidate
-    )
+    preservation_errors = _ds11_trust_presentation_preservation_errors(text, candidate)
     if preservation_errors:
-        raise ValueError(
-            "DS11 C04 transition rejected:" + ";".join(preservation_errors)
-        )
+        raise ValueError("DS11 C04 transition rejected:" + ";".join(preservation_errors))
     return candidate
 
 
-def _ds11_trust_presentation_report_row_span(
-    text: str, finding_id: str
-) -> tuple[int, int, str]:
+def _ds11_trust_presentation_report_row_span(text: str, finding_id: str) -> tuple[int, int, str]:
     """Locate one rendered finding row without reserializing report peers."""
     matches = list(
         re.finditer(
@@ -13100,9 +12904,7 @@ def _ds11_trust_presentation_report_row_span(
         )
     )
     if len(matches) != 1:
-        raise ValueError(
-            "DS11 C04 report transition rejected:target cardinality:" + finding_id
-        )
+        raise ValueError("DS11 C04 report transition rejected:target cardinality:" + finding_id)
     match = matches[0]
     return match.start(), match.end(), match.group(0)
 
@@ -13123,16 +12925,15 @@ def _ds11_trust_presentation_report_transition_text(
         _opening_start, _opening_end, opening = _ds11_trust_presentation_report_row_span(
             opening_report, finding_id
         )
-        _candidate_start, _candidate_end, repaired = (
-            _ds11_trust_presentation_report_row_span(candidate_report, finding_id)
+        _candidate_start, _candidate_end, repaired = _ds11_trust_presentation_report_row_span(
+            candidate_report, finding_id
         )
         if stored == repaired:
             continue
         already_repaired = False
         if stored != opening:
             raise ValueError(
-                "DS11 C04 report transition rejected:predecessor restamp:"
-                + finding_id
+                "DS11 C04 report transition rejected:predecessor restamp:" + finding_id
             )
         replacements.append((start, end, repaired))
     if already_repaired:
@@ -13150,9 +12951,7 @@ def _ds11_trust_presentation_report_transition_text(
         for finding_id in sorted(DS11_TRUST_PRESENTATION_FINDING_IDS)
     ]
 
-    def gaps(
-        source: str, spans: Sequence[tuple[int, int, str]]
-    ) -> list[str]:
+    def gaps(source: str, spans: Sequence[tuple[int, int, str]]) -> list[str]:
         result: list[str] = []
         previous = 0
         for start, end, _row in spans:
@@ -13193,9 +12992,7 @@ def _refresh_supplemental_findings_text(text: str) -> str:
         stored_ds11[finding_id] != ds11_generated.get(finding_id)
         for finding_id in DS11_TRUST_PRESENTATION_FINDING_IDS
     ):
-        raise ValueError(
-            "trust presentation requires the dedicated DS11 C04 transition"
-        )
+        raise ValueError("trust presentation requires the dedicated DS11 C04 transition")
     refresh_owned_ids = _surgical_supplemental_finding_ids(text)
     refreshed = text
     for finding_id in sorted(refresh_owned_ids - descriptor_ids):
@@ -13209,9 +13006,7 @@ def _refresh_supplemental_findings_text(text: str) -> str:
         if finding_id == C06_RENDERED_CONTRAST_FINDING_ID:
             stored = json.loads(refreshed[object_start : object_end + 1])
             if stored != generated[finding_id]:
-                raise ValueError(
-                    "rendered contrast requires the dedicated C06 transition"
-                )
+                raise ValueError("rendered contrast requires the dedicated C06 transition")
             seen.add(finding_id)
             continue
         if finding_id in AUTHORITY_PRESENTATION_DEBT_SPECS:
@@ -13222,11 +13017,7 @@ def _refresh_supplemental_findings_text(text: str) -> str:
                 seen.add(finding_id)
                 continue
         replacement = _render_supplemental_finding(generated[finding_id])
-        refreshed = (
-            refreshed[:object_start]
-            + replacement
-            + refreshed[object_end + 1 :]
-        )
+        refreshed = refreshed[:object_start] + replacement + refreshed[object_end + 1 :]
         seen.add(finding_id)
 
     missing = sorted(descriptor_ids - seen)
@@ -13243,18 +13034,20 @@ def _refresh_supplemental_findings_text(text: str) -> str:
         )
     else:
         insertion_at = start + 1
-        insertion = "\n" + "\n".join(
-            "    " + _render_supplemental_finding(generated[finding_id])
-            for finding_id in missing
-        ) + "\n  "
+        insertion = (
+            "\n"
+            + "\n".join(
+                "    " + _render_supplemental_finding(generated[finding_id])
+                for finding_id in missing
+            )
+            + "\n  "
+        )
     if insertion_at > end:
         raise ValueError("supplemental insertion escaped its array")
     return refreshed[:insertion_at] + insertion + refreshed[insertion_at:]
 
 
-def _raw_transport_writer_preservation_errors(
-    original_text: str, candidate_text: str
-) -> list[str]:
+def _raw_transport_writer_preservation_errors(original_text: str, candidate_text: str) -> list[str]:
     """Return byte-preservation failures for the surgical supplemental writer."""
     original_start, original_end, original_rows = _supplemental_section(original_text)
     candidate_start, candidate_end, candidate_rows = _supplemental_section(candidate_text)
@@ -13269,9 +13062,7 @@ def _raw_transport_writer_preservation_errors(
     ]
     candidate_descriptor_ids = _surgical_supplemental_finding_ids(candidate_text)
     candidate_accepted = [
-        text
-        for finding_id, text in candidate_rows
-        if finding_id not in candidate_descriptor_ids
+        text for finding_id, text in candidate_rows if finding_id not in candidate_descriptor_ids
     ]
     if original_accepted != candidate_accepted:
         errors.append("raw_transport_writer_accepted_row_drift")
@@ -13298,9 +13089,7 @@ def _ds15_acquisition_routes_preservation_errors(
         errors.append("ds15_acquisition_routes_query_prefix_drift")
     if original_text[original_end:] != query_candidate[candidate_end:]:
         errors.append("ds15_acquisition_routes_query_suffix_drift")
-    errors.extend(
-        _raw_transport_writer_preservation_errors(query_candidate, candidate_text)
-    )
+    errors.extend(_raw_transport_writer_preservation_errors(query_candidate, candidate_text))
     try:
         expected = _refresh_supplemental_findings_text(query_candidate)
     except (json.JSONDecodeError, ValueError) as exc:
@@ -13340,23 +13129,17 @@ def _ds15_acquisition_routes_candidate_text(
     """Build the bounded DS15 query/disposition transition without peer drift."""
     query_candidate = _ds15_query_memory_transition_text(original_text)
     candidate = _refresh_supplemental_findings_text(query_candidate)
-    preservation_errors = _ds15_acquisition_routes_preservation_errors(
-        original_text, candidate
-    )
+    preservation_errors = _ds15_acquisition_routes_preservation_errors(original_text, candidate)
     if preservation_errors:
         raise ValueError(
-            "DS15 acquisition-routes candidate rejected:"
-            + ";".join(preservation_errors)
+            "DS15 acquisition-routes candidate rejected:" + ";".join(preservation_errors)
         )
     candidate_errors = _ds15_acquisition_routes_candidate_errors(
         json.loads(candidate),
         report_parity=False,
     )
     if candidate_errors:
-        raise ValueError(
-            "DS15 acquisition-routes candidate rejected:"
-            + ";".join(candidate_errors)
-        )
+        raise ValueError("DS15 acquisition-routes candidate rejected:" + ";".join(candidate_errors))
     if verify_idempotency:
         repeated = _ds15_acquisition_routes_candidate_text(
             candidate,
@@ -13374,9 +13157,7 @@ def _write_ds15_acquisition_routes_family() -> dict[str, int]:
         REPORT_PATH: REPORT_PATH.read_text(encoding="utf-8"),
     }
     original_readiness = DS1_PATH.read_bytes()
-    register_candidate = _ds15_acquisition_routes_candidate_text(
-        original_texts[REGISTER_PATH]
-    )
+    register_candidate = _ds15_acquisition_routes_candidate_text(original_texts[REGISTER_PATH])
     register_data = json.loads(register_candidate)
     report_candidate = render_report(register_data)
     candidates = {
@@ -13388,10 +13169,7 @@ def _write_ds15_acquisition_routes_family() -> dict[str, int]:
         errors: list[str] = []
         for governed_path, expected_text in candidates.items():
             if governed_path.read_text(encoding="utf-8") != expected_text:
-                errors.append(
-                    "ds15_acquisition_routes_family_readback_drift:"
-                    + str(governed_path)
-                )
+                errors.append("ds15_acquisition_routes_family_readback_drift:" + str(governed_path))
         errors.extend(
             _ds15_acquisition_routes_candidate_errors(
                 _load_json(REGISTER_PATH),
@@ -13406,8 +13184,7 @@ def _write_ds15_acquisition_routes_family() -> dict[str, int]:
         for governed_path, original_text in original_texts.items():
             if governed_path.read_text(encoding="utf-8") != original_text:
                 raise ValueError(
-                    "DS15 acquisition-routes governed preimage moved:"
-                    + str(governed_path)
+                    "DS15 acquisition-routes governed preimage moved:" + str(governed_path)
                 )
         if DS1_PATH.read_bytes() != original_readiness:
             raise ValueError("DS15 acquisition-routes readiness preimage moved")
@@ -13443,7 +13220,11 @@ def _seeded_negatives() -> list[dict[str, Any]]:
             "lifecycle": "still_required",
             "affected_unit_ids": affected.get(negative_id, []),
             "may_count_as_passing_test": False,
-            "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete.",
+            ("rationale"): (
+                "DS19 preserves the seeded negative until an executable "
+                "deletion makes its original substrate wholly or partially "
+                "obsolete."
+            ),
         }
         for index, negative_id in enumerate(
             [f"DS1-N{number:03d}" for number in range(1, 24)], start=1
@@ -13464,16 +13245,15 @@ def build_seed_register() -> dict[str, Any]:
     mapped, unbound, mapping_errors = _ds2_links(ds1_ids, ds2)
     if mapping_errors:
         raise ValueError(";".join(mapping_errors))
-    entries = [
-        _seed_entry(entry, mapped.get(entry["surface_id"], []))
-        for entry in ds1["entries"]
-    ]
+    entries = [_seed_entry(entry, mapped.get(entry["surface_id"], [])) for entry in ds1["entries"]]
     return {
         "$schema": "./frontend-disposition-register.schema.json",
         "schema_version": "1.2",
         "register_id": "atlas-ds19-frontend-disposition",
         "as_of": REGISTER_AS_OF,
-        "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
+        ("controlled_vocabulary_source"): (
+            "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md"
+        ),
         "authority": {
             "authoritative_for": [
                 "frontend estate disposition",
@@ -13509,15 +13289,26 @@ def build_seed_register() -> dict[str, Any]:
         "seed_policy": {
             "rules": [
                 "Preserve DS1 order and identity: one root row per DS1 surface_id.",
-                "Map DS1 implemented to use_as_is; map every other unoverridden root to rebind_pending.",
-                "Apply DS19 deletion and wire-or-retire overrides only to mechanically derived source sets.",
-                "Link every DS2 row exactly once as mapped evidence or an explicitly unbound adoption ID.",
+                (
+                    "Map DS1 implemented to use_as_is; map every other unoverridden root to "
+                    "rebind_pending."
+                ),
+                (
+                    "Apply DS19 deletion and wire-or-retire overrides only to mechanically "
+                    "derived source sets."
+                ),
+                (
+                    "Link every DS2 row exactly once as mapped evidence or an explicitly "
+                    "unbound adoption ID."
+                ),
             ],
             "ds1_root_count": 261,
             "ds2_mapped_count": sum(len(ids) for ids in mapped.values()),
             "ds2_unbound_count": len(unbound),
         },
-        "baseline_debt_manifest_ref": "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json",
+        ("baseline_debt_manifest_ref"): (
+            "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json"
+        ),
         "ds2_unbound_adoption_ids": unbound,
         "reference_censuses": [_protected_signing_census()],
         "storage_construction_census": copy.deepcopy(storage_census),
@@ -13533,7 +13324,11 @@ def build_seed_register() -> dict[str, Any]:
                 "owner": "team-design",
                 "owner_slice": "DS19",
                 "decision_date": DECISION_DATE,
-                "rationale": "Only the unreachable local parameter/store branch is a deletion candidate; the server-backed ScenarioWorkbench remains live.",
+                ("rationale"): (
+                    "Only the unreachable local parameter/store branch is a "
+                    "deletion candidate; the server-backed ScenarioWorkbench "
+                    "remains live."
+                ),
             },
             {
                 "unit_id": "route-app-layout::ru-ui-catalog",
@@ -13548,12 +13343,18 @@ def build_seed_register() -> dict[str, Any]:
                         "Russian is an active selectable UI locale.",
                         "The frozen catalog is a DS19 deletion target.",
                     ],
-                    "separate_capability": "Read-only Russian source-content rendering is separate from UI locale exposure.",
+                    ("separate_capability"): (
+                        "Read-only Russian source-content rendering is separate "
+                        "from UI locale exposure."
+                    ),
                 },
                 "owner": "team-design",
                 "owner_slice": "DS0",
                 "decision_date": "2026-07-16",
-                "rationale": "Ratified D4 freezes the legacy ru UI catalog in place: not used, not deleted, and not an active-locale claim.",
+                ("rationale"): (
+                    "Ratified D4 freezes the legacy ru UI catalog in place: not "
+                    "used, not deleted, and not an active-locale claim."
+                ),
             },
         ],
         "supplemental_findings": _supplemental_findings(),
@@ -13583,7 +13384,7 @@ def _schema_errors(data: Mapping[str, Any], schema_path: Path) -> list[str]:
         schema = copy.deepcopy(schema)
         schema["$defs"]["ownerSlice"] = readiness_schema["$defs"]["owningSlice"]
 
-        def bind_local_reference(value: Any) -> None:
+        def bind_local_reference(value: object) -> None:
             if isinstance(value, dict):
                 if value.get("$ref") == "surface-readiness-ledger.schema.json#/$defs/owningSlice":
                     value["$ref"] = "#/$defs/ownerSlice"
@@ -13605,7 +13406,7 @@ def _schema_errors(data: Mapping[str, Any], schema_path: Path) -> list[str]:
     ]
 
 
-def _canonical_sha256(value: Any) -> str:
+def _canonical_sha256(value: object) -> str:
     encoded = json.dumps(
         value,
         sort_keys=True,
@@ -13635,18 +13436,12 @@ def _c03_c16_receipt_from_sources(
     """Recompute the C16 compact receipt from its landed, content-bound sources."""
     source_texts = {
         "docs/plans/active/atlas-slices/DS6-evidence-workflow.md": plan_text,
-        "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md": (
-            journal_text
-        ),
+        "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md": (journal_text),
     }
     for source_ref, expected_sha256 in C03_RECEIPT_SOURCE_SHA256.items():
-        actual_sha256 = hashlib.sha256(
-            source_texts[source_ref].encode("utf-8")
-        ).hexdigest()
+        actual_sha256 = hashlib.sha256(source_texts[source_ref].encode("utf-8")).hexdigest()
         if actual_sha256 != expected_sha256:
-            raise ValueError(
-                f"C16 receipt source hash drift:{source_ref}:{actual_sha256}"
-            )
+            raise ValueError(f"C16 receipt source hash drift:{source_ref}:{actual_sha256}")
 
     command = _c03_required_match(
         r"`command=([^`]+)`",
@@ -13792,7 +13587,7 @@ def _c03_c16_receipt_from_sources(
                 for source_ref, source_sha256 in C03_RECEIPT_SOURCE_SHA256.items()
             ],
         },
-}
+    }
 
 
 def _c03_git_text(*arguments: str) -> str:
@@ -13808,9 +13603,7 @@ def _c03_git_text(*arguments: str) -> str:
         check=False,
     )
     if completed.returncode != 0:
-        raise ValueError(
-            "C16 Git provenance query failed: " + completed.stderr.strip()
-        )
+        raise ValueError("C16 Git provenance query failed: " + completed.stderr.strip())
     return completed.stdout
 
 
@@ -13885,8 +13678,7 @@ def _c03_verify_c16_git_provenance(
         ).splitlines()
     )
     receipt_source_paths = {
-        f"policy-engine/{source_ref}"
-        for source_ref in C03_RECEIPT_SOURCE_SHA256
+        f"policy-engine/{source_ref}" for source_ref in C03_RECEIPT_SOURCE_SHA256
     }
     mechanism_paths = sorted(changed_paths - receipt_source_paths)
     if (
@@ -13929,9 +13721,7 @@ def _c03_c16_receipt() -> dict[str, Any]:
         )
     receipt = _c03_c16_receipt_from_sources(
         source_texts["docs/plans/active/atlas-slices/DS6-evidence-workflow.md"],
-        source_texts[
-            "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
-        ],
+        source_texts["docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"],
     )
     _c03_verify_c16_git_provenance(receipt["receipt_provenance"])
     return receipt
@@ -13994,9 +13784,7 @@ def _c06_c16_contrast_receipt_from_sources(
     plan_total, plan_passed = (int(value) for value in plan_receipt.groups()[:2])
     plan_wall = float(plan_receipt.group(3))
     plan_raw_sha256 = plan_receipt.group(4)
-    journal_total, journal_passed = (
-        int(value) for value in journal_receipt.groups()[:2]
-    )
+    journal_total, journal_passed = (int(value) for value in journal_receipt.groups()[:2])
     journal_wall = float(journal_receipt.group(3))
     raw_receipt_bytes = int(journal_receipt.group(4).replace(",", ""))
     journal_raw_sha256 = journal_receipt.group(5)
@@ -14019,12 +13807,10 @@ def _c06_c16_contrast_receipt_from_sources(
         or raw_receipt_bytes != 163_320
         or plan_raw_sha256 != C06_CONTRAST_RAW_RECEIPT_SHA256
         or journal_raw_sha256 != plan_raw_sha256
-        or predicate_sha256
-        != C06_CONTRAST_EVIDENCE_SHA256[C04_RENDERED_CONTRAST_SOURCE_REF]
+        or predicate_sha256 != C06_CONTRAST_EVIDENCE_SHA256[C04_RENDERED_CONTRAST_SOURCE_REF]
         or provenance.get("producer_revision") != C03_REPAIR_COMMIT
         or provenance.get("entry_revision") != C06_C16_ENTRY_REVISION
-        or provenance.get("source_delta_sha256")
-        != C06_C16_SOURCE_DELTA_SHA256
+        or provenance.get("source_delta_sha256") != C06_C16_SOURCE_DELTA_SHA256
     ):
         raise ValueError("C16 contrast receipt sources do not reconcile")
 
@@ -14128,9 +13914,7 @@ def _c06_verify_c16_contrast_evidence(
     )
     story_ref = C04_RENDERED_CONTRAST_EVIDENCE_REFS[2]
     changed_evidence_refs = {
-        source_ref
-        for source_ref in expected_refs
-        if f"policy-engine/{source_ref}" in changed_paths
+        source_ref for source_ref in expected_refs if f"policy-engine/{source_ref}" in changed_paths
     }
     if changed_evidence_refs != {story_ref}:
         raise ValueError("C16 contrast historical evidence drift:changed paths")
@@ -14143,9 +13927,7 @@ def _c06_verify_c16_contrast_evidence(
         )
         historical[source_ref] = source_bytes
         if hashlib.sha256(source_bytes).hexdigest() != expected_sha256:
-            raise ValueError(
-                f"C16 contrast historical evidence drift:{source_ref}"
-            )
+            raise ValueError(f"C16 contrast historical evidence drift:{source_ref}")
         current_bytes = current_evidence_bytes.get(source_ref, b"")
         if (
             hashlib.sha256(current_bytes).hexdigest()
@@ -14167,9 +13949,7 @@ def _c06_verify_c16_contrast_evidence(
             f"{C06_C16_ENTRY_REVISION}:policy-engine/{unchanged_ref}",
         )
         if parent_bytes != historical[unchanged_ref]:
-            raise ValueError(
-                f"C16 contrast historical evidence drift:{unchanged_ref}:parent"
-            )
+            raise ValueError(f"C16 contrast historical evidence drift:{unchanged_ref}:parent")
     parent_story = _c03_git_bytes(
         "show",
         f"{C06_C16_ENTRY_REVISION}:policy-engine/{story_ref}",
@@ -14198,9 +13978,7 @@ def _c06_c16_contrast_receipt() -> dict[str, Any]:
     }
     receipt = _c06_c16_contrast_receipt_from_sources(
         source_texts["docs/plans/active/atlas-slices/DS6-evidence-workflow.md"],
-        source_texts[
-            "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
-        ],
+        source_texts["docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"],
     )
     _c06_verify_c16_contrast_evidence()
     return receipt
@@ -14218,10 +13996,7 @@ def _expected_resolution_content_roles(
             references = value if isinstance(value, list) else [value]
             for reference in references:
                 roles_by_cluster_path[(cluster_id, reference)].add(role)
-    return {
-        key: frozenset(roles)
-        for key, roles in roles_by_cluster_path.items()
-    }
+    return {key: frozenset(roles) for key, roles in roles_by_cluster_path.items()}
 
 
 @lru_cache(maxsize=32)
@@ -14285,8 +14060,8 @@ const holds =
   scalar([quantity(-0.25)]) === -0.25;
 process.exit(holds ? 0 : 1);
 """
-    completed = subprocess.run(
-        ["node", "-e", runner, str(dashboard_root)],
+    completed = subprocess.run(  # noqa: S603 - fixed Node probe; source JSON uses stdin; shell=False
+        [_resolve_executable("node"), "-e", runner, str(dashboard_root)],
         cwd=REPO_ROOT,
         input=json.dumps(
             {
@@ -14310,9 +14085,7 @@ def _resolution_content_binding_errors(
     errors: list[str] = []
     expected = _expected_resolution_content_roles(lint["resolutions"])
     bindings = lint["resolution_content_bindings"]
-    stored_by_key: defaultdict[tuple[str, str], list[Mapping[str, Any]]] = defaultdict(
-        list
-    )
+    stored_by_key: defaultdict[tuple[str, str], list[Mapping[str, Any]]] = defaultdict(list)
     for binding in bindings:
         stored_by_key[(binding["cluster_id"], binding["path"])].append(binding)
 
@@ -14329,9 +14102,7 @@ def _resolution_content_binding_errors(
         expected_roles = expected.get((cluster_id, path))
         for binding in rows:
             if expected_roles is not None and frozenset(binding["roles"]) != expected_roles:
-                errors.append(
-                    f"lint_resolution_content_binding_role_drift:{cluster_id}:{path}"
-                )
+                errors.append(f"lint_resolution_content_binding_role_drift:{cluster_id}:{path}")
             if source_bytes_override is not None and path in source_bytes_override:
                 source_bytes = source_bytes_override[path]
             else:
@@ -14347,16 +14118,12 @@ def _resolution_content_binding_errors(
                 errors.append(f"lint_resolution_content_hash_drift:{cluster_id}:{path}")
             if (
                 cluster_id == "C07"
-                and path
-                == "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx"
+                and path == "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx"
             ):
                 quantity_format_source = (
-                    REPO_ROOT
-                    / "apps/runtime-dashboard/src/shared/ui/quantity/quantity-format.ts"
+                    REPO_ROOT / "apps/runtime-dashboard/src/shared/ui/quantity/quantity-format.ts"
                 ).read_bytes()
-                if not _chart_quantity_scalar_semantics_hold(
-                    source_bytes, quantity_format_source
-                ):
+                if not _chart_quantity_scalar_semantics_hold(source_bytes, quantity_format_source):
                     errors.append(f"lint_c07_scalar_semantic_probe_failed:{path}")
     return errors
 
@@ -14398,7 +14165,7 @@ def _resolution_partition_errors(
     resolutions: Sequence[Mapping[str, Any]],
     origin_count: int,
     origin_identity_sha256: str,
-    identity_from_resolution: Any,
+    identity_from_resolution: Callable[[Mapping[str, Any]], Mapping[str, Any]],
 ) -> list[str]:
     """Prove active and resolved rows are one disjoint immutable-origin partition."""
     errors: list[str] = []
@@ -14417,8 +14184,7 @@ def _resolution_partition_errors(
         identity_id = _canonical_sha256(identity)
         if identity_id != resolution["origin_identity_sha256"]:
             errors.append(
-                f"{label}_resolution_identity_hash_drift:"
-                f"{resolution['origin_identity_sha256']}"
+                f"{label}_resolution_identity_hash_drift:{resolution['origin_identity_sha256']}"
             )
         resolved_rows.append(identity)
 
@@ -14520,9 +14286,10 @@ def validate_baseline_manifest(
     if _canonical_sha256(diagnostics) != lint["diagnostic_set"]["sha256"]:
         errors.append("lint_active_payload_hash_drift")
     active_lint_rows = _lint_identity_rows(lint)
-    if _canonical_sha256([row for _identity_id, row in active_lint_rows]) != lint[
-        "identity_set_sha256"
-    ]:
+    if (
+        _canonical_sha256([row for _identity_id, row in active_lint_rows])
+        != lint["identity_set_sha256"]
+    ):
         errors.append("lint_active_identity_set_hash_drift")
     for file_entry in lint["files"]:
         if file_entry["diagnostic_count"] != len(file_entry["diagnostics"]):
@@ -14530,9 +14297,7 @@ def validate_baseline_manifest(
         actual_rule_counts = Counter(
             diagnostic["rule_id"] for diagnostic in file_entry["diagnostics"]
         )
-        stored_rule_counts = {
-            row["rule_id"]: row["count"] for row in file_entry["rule_counts"]
-        }
+        stored_rule_counts = {row["rule_id"]: row["count"] for row in file_entry["rule_counts"]}
         if dict(actual_rule_counts) != stored_rule_counts:
             errors.append(f"lint_file_rule_count_drift:{file_entry['path']}")
         if any(
@@ -14556,10 +14321,8 @@ def validate_baseline_manifest(
         or origin["diagnostic_set"]["sha256"] != LINT_ORIGIN_DIAGNOSTIC_SHA256
         or origin["identity_set_sha256"] != LINT_ORIGIN_IDENTITY_SHA256
         or origin["raw_receipt_sha256"] != LINT_ORIGIN_RAW_RECEIPT_SHA256
-        or origin["rule_identity"]["implementation_sha256"]
-        != LINT_ORIGIN_RULE_SHA256
-        or origin["rule_identity"]["configuration_sha256"]
-        != LINT_ORIGIN_CONFIG_SHA256
+        or origin["rule_identity"]["implementation_sha256"] != LINT_ORIGIN_RULE_SHA256
+        or origin["rule_identity"]["configuration_sha256"] != LINT_ORIGIN_CONFIG_SHA256
     ):
         errors.append("lint_immutable_origin_anchor_drift")
     errors.extend(
@@ -14579,9 +14342,7 @@ def validate_baseline_manifest(
         )
     )
     c06_classifications = Counter(
-        row["classification"]
-        for row in lint["resolutions"]
-        if row["cluster_id"] == "C06"
+        row["classification"] for row in lint["resolutions"] if row["cluster_id"] == "C06"
     )
     if c06_classifications != {
         "quantity_enveloped": 8,
@@ -14591,9 +14352,7 @@ def validate_baseline_manifest(
     }:
         errors.append("lint_c06_resolution_classification_drift")
     c07_classifications = Counter(
-        row["classification"]
-        for row in lint["resolutions"]
-        if row["cluster_id"] == "C07"
+        row["classification"] for row in lint["resolutions"] if row["cluster_id"] == "C07"
     )
     if c07_classifications != {
         "quantity_semantics": 4,
@@ -14618,7 +14377,10 @@ def validate_baseline_manifest(
                 if resolution["classification"] == "authority_guess_removed"
                 and resolution["origin_identity"]["path"]
                 == "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts"
-                else "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+                else (
+                    "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers."
+                    "test.tsx"
+                )
             )
             if resolution["closure_test_ref"] != expected_closure:
                 errors.append(f"lint_c06_semantic_closure_drift:{identity_id}")
@@ -14644,9 +14406,8 @@ def validate_baseline_manifest(
         if resolution["cluster_id"] == "C08":
             if resolution["semantic_kind"] != "non_authority_control":
                 errors.append("lint_c08_semantic_kind_drift")
-            if (
-                resolution["closure_test_ref"]
-                != "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+            if resolution["closure_test_ref"] != (
+                "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
             ):
                 errors.append(f"lint_c08_semantic_closure_drift:{identity_id}")
             if (
@@ -14682,22 +14443,22 @@ def validate_baseline_manifest(
     architecture_rows = _architecture_identity_rows(architecture)
     if len(architecture_rows) != architecture["violation_count"]:
         errors.append("architecture_active_violation_count_drift")
-    if len({row["source_path"] for row in architecture["violations"]}) != architecture[
-        "source_file_count"
-    ]:
+    if (
+        len({row["source_path"] for row in architecture["violations"]})
+        != architecture["source_file_count"]
+    ):
         errors.append("architecture_active_file_count_drift")
-    if _canonical_sha256([row for _identity_id, row in architecture_rows]) != architecture[
-        "identity_set_sha256"
-    ]:
+    if (
+        _canonical_sha256([row for _identity_id, row in architecture_rows])
+        != architecture["identity_set_sha256"]
+    ):
         errors.append("architecture_active_identity_set_hash_drift")
     architecture_origin = architecture["immutable_origin"]
     if (
         architecture_origin["violation_count"] != ARCHITECTURE_ORIGIN_COUNT
         or architecture_origin["source_file_count"] != ARCHITECTURE_ORIGIN_FILE_COUNT
-        or architecture_origin["identity_set_sha256"]
-        != ARCHITECTURE_ORIGIN_IDENTITY_SHA256
-        or architecture_origin["producer_sha256"]
-        != ARCHITECTURE_ORIGIN_PRODUCER_SHA256
+        or architecture_origin["identity_set_sha256"] != ARCHITECTURE_ORIGIN_IDENTITY_SHA256
+        or architecture_origin["producer_sha256"] != ARCHITECTURE_ORIGIN_PRODUCER_SHA256
     ):
         errors.append("architecture_immutable_origin_anchor_drift")
     errors.extend(
@@ -14713,8 +14474,7 @@ def validate_baseline_manifest(
     producer_path = REPO_ROOT / architecture["producer_path"]
     if (
         not producer_path.exists()
-        or hashlib.sha256(producer_path.read_bytes()).hexdigest()
-        != architecture["producer_sha256"]
+        or hashlib.sha256(producer_path.read_bytes()).hexdigest() != architecture["producer_sha256"]
     ):
         errors.append("architecture_producer_hash_drift")
     for resolution in architecture["resolutions"]:
@@ -14751,9 +14511,7 @@ def validate_baseline_manifest(
             path = REPO_ROOT / row["source_path"]
             if not path.exists():
                 errors.append(f"architecture_active_source_missing:{row['source_path']}")
-            elif hashlib.sha256(path.read_bytes()).hexdigest() != row[
-                "source_content_sha256"
-            ]:
+            elif hashlib.sha256(path.read_bytes()).hexdigest() != row["source_content_sha256"]:
                 errors.append(f"architecture_active_source_hash_drift:{row['source_path']}")
 
     receipt_sha256 = _canonical_sha256(baseline["vitest"])
@@ -14779,16 +14537,13 @@ def _normalise_eslint_path(path_text: str) -> str:
         raise ValueError(f"eslint result outside repository: {path_text}") from exc
 
 
-def compare_lint_results(
-    baseline: Mapping[str, Any], raw_results_path: Path
-) -> list[str]:
+def compare_lint_results(baseline: Mapping[str, Any], raw_results_path: Path) -> list[str]:
     """Require the current ESLint diagnostic multiset to be a baseline subset."""
     raw = json.loads(raw_results_path.read_text(encoding="utf-8"))
     if isinstance(raw, dict) and "results" in raw:
         raw = raw["results"]
     if not isinstance(raw, list):
         return ["lint_results_shape_invalid"]
-    baseline_files = {entry["path"]: entry for entry in baseline["lint"]["files"]}
     baseline_counter: Counter[tuple[Any, ...]] = Counter()
     for file_entry in baseline["lint"]["files"]:
         for diagnostic in file_entry["diagnostics"]:
@@ -14811,7 +14566,9 @@ def compare_lint_results(
     for result in raw:
         relative = _normalise_eslint_path(result["filePath"])
         source = REPO_ROOT / relative
-        source_hash = hashlib.sha256(source.read_bytes()).hexdigest() if source.exists() else "missing"
+        source_hash = (
+            hashlib.sha256(source.read_bytes()).hexdigest() if source.exists() else "missing"
+        )
         for suppressed in result.get("suppressedMessages", []):
             if suppressed.get("ruleId") == "policyos/quantity-must-be-wrapped":
                 errors.append(f"quantity_rule_new_suppression:{relative}:{suppressed.get('line')}")
@@ -14854,20 +14611,15 @@ def compare_lint_results(
     return errors
 
 
-def compare_architecture_results(
-    baseline: Mapping[str, Any], raw_results_path: Path
-) -> list[str]:
+def compare_architecture_results(baseline: Mapping[str, Any], raw_results_path: Path) -> list[str]:
     """Require the live custom architecture stage to equal the active set."""
     raw = json.loads(raw_results_path.read_text(encoding="utf-8"))
     if not isinstance(raw, dict) or not isinstance(raw.get("violations"), list):
         return ["architecture_results_shape_invalid"]
     expected = Counter(
-        identity_id
-        for identity_id, _row in _architecture_identity_rows(baseline["architecture"])
+        identity_id for identity_id, _row in _architecture_identity_rows(baseline["architecture"])
     )
-    current = Counter(
-        _canonical_sha256(_architecture_identity(row)) for row in raw["violations"]
-    )
+    current = Counter(_canonical_sha256(_architecture_identity(row)) for row in raw["violations"])
     errors: list[str] = []
     for identity_id, count in current.items():
         if count > expected[identity_id]:
@@ -14887,9 +14639,7 @@ def _normalise_vitest_path(path_text: str) -> str:
     return f"apps/runtime-dashboard/{path_text.lstrip('./')}"
 
 
-def compare_vitest_results(
-    baseline: Mapping[str, Any], raw_results_path: Path
-) -> list[str]:
+def compare_vitest_results(baseline: Mapping[str, Any], raw_results_path: Path) -> list[str]:
     """Require current failed test identities/signatures to be a baseline subset."""
     try:
         lifecycle = _c03_vitest_lifecycle_state(baseline)
@@ -14900,9 +14650,7 @@ def compare_vitest_results(
 
     raw_bytes = raw_results_path.read_bytes()
     if lifecycle == "resolved":
-        expected_sha256 = baseline["vitest"]["receipt_provenance"][
-            "raw_receipt_sha256"
-        ]
+        expected_sha256 = baseline["vitest"]["receipt_provenance"]["raw_receipt_sha256"]
         actual_sha256 = hashlib.sha256(raw_bytes).hexdigest()
         if actual_sha256 != expected_sha256:
             return [
@@ -14939,7 +14687,7 @@ def compare_vitest_results(
             if key not in baseline_rows:
                 errors.append(f"vitest_new_failure:{file_path}:{full_name}")
                 continue
-            class_id, anchor = baseline_rows[key]
+            _class_id, anchor = baseline_rows[key]
             messages = "\n".join(assertion.get("failureMessages", []))
             if anchor not in messages:
                 errors.append(f"vitest_failure_signature_drift:{file_path}:{full_name}")
@@ -14984,9 +14732,7 @@ def _validate_composition(
             errors.append(f"decision_detail_missing:{unit_id}")
 
 
-def _validate_ui_primitives_mixed_receipt(
-    entry: Mapping[str, Any], errors: list[str]
-) -> None:
+def _validate_ui_primitives_mixed_receipt(entry: Mapping[str, Any], errors: list[str]) -> None:
     """Recompute mixed C03b counts, decisions, and Git resurrection anchors."""
     receipt = entry.get("aggregate_disposition_receipt")
     if receipt is None:
@@ -15030,8 +14776,8 @@ def _validate_ui_primitives_mixed_receipt(
         errors.append("ui_primitives_anchor_file_set_drift")
         return
     for path, recorded_blob in anchored_files.items():
-        completed = subprocess.run(
-            ["git", "rev-parse", f"{commit}:policy-engine/{path}"],
+        completed = subprocess.run(  # noqa: S603 - fixed git rev-parse; receipt refs are validated; shell=False
+            [_resolve_executable("git"), "rev-parse", f"{commit}:policy-engine/{path}"],
             cwd=REPO_ROOT.parent,
             check=False,
             capture_output=True,
@@ -15054,9 +14800,7 @@ def _ui_primitives_source_state_errors(
     """Return structural C03b retirement and resurrection failures."""
     errors: list[str] = []
     retired = {
-        name
-        for name, rule in UI_PRIMITIVES_MEMBER_RULES.items()
-        if rule["disposition"] == "retire"
+        name for name, rule in UI_PRIMITIVES_MEMBER_RULES.items() if rule["disposition"] == "retire"
     }
     retained = set(UI_PRIMITIVES_MEMBER_RULES) - retired
 
@@ -15070,9 +14814,7 @@ def _ui_primitives_source_state_errors(
         if primitive in dashboard_exports:
             errors.append(f"ui_primitives_retired_export_revived:{primitive}")
         for reference in (owner_refs or {}).get(primitive, []):
-            errors.append(
-                f"ui_primitives_retired_symbol_revived:{primitive}:{reference}"
-            )
+            errors.append(f"ui_primitives_retired_symbol_revived:{primitive}:{reference}")
 
     for primitive in sorted(retained):
         owner = f"apps/runtime-dashboard/src/shared/ui/{primitive}.tsx"
@@ -15095,14 +14837,11 @@ def _ui_primitives_source_state_errors(
     for primitive in sorted(UI_PRIMITIVES_MEMBER_RULES):
         counterpart = f"packages/atlas-ui/src/primitives/{primitive}.tsx"
         if counterpart in existing_paths or primitive in atlas_exports:
-            errors.append(
-                f"ui_primitives_package_counterpart_without_consumer:{primitive}"
-            )
+            errors.append(f"ui_primitives_package_counterpart_without_consumer:{primitive}")
         for reference in (owner_refs or {}).get(primitive, []):
             if reference.startswith("packages/atlas-ui/src/primitives/"):
                 errors.append(
-                    "ui_primitives_package_counterpart_without_consumer:"
-                    f"{primitive}:{reference}"
+                    f"ui_primitives_package_counterpart_without_consumer:{primitive}:{reference}"
                 )
 
     for primitive in sorted(UI_PRIMITIVES_DASHBOARD_REBOUND):
@@ -15125,17 +14864,14 @@ def _ui_primitives_source_state_errors(
     if missing_package:
         errors.append(f"ui_primitives_package_exports_missing:{missing_package}")
     if missing_define_once:
-        errors.append(
-            f"atlas_ui_define_once_exports_missing:{missing_define_once}"
-        )
+        errors.append(f"atlas_ui_define_once_exports_missing:{missing_define_once}")
     if missing_support:
         errors.append(f"atlas_ui_support_exports_missing:{missing_support}")
     if unexpected_package:
         errors.append(f"ui_primitives_package_exports_unexpected:{unexpected_package}")
     if production_consumers:
         errors.append(
-            "ui_primitives_dormant_production_consumers:"
-            + ",".join(production_consumers)
+            "ui_primitives_dormant_production_consumers:" + ",".join(production_consumers)
         )
     return errors
 
@@ -15297,7 +15033,7 @@ def _validate_c15_mixed_receipt(
     )
     if package_exports & C15_DASHBOARD_USE_AS_IS:
         errors.append("ui_compounds_root_transitional_export_created")
-    if not C15_PACKAGE_MIGRATED <= package_exports:
+    if not package_exports >= C15_PACKAGE_MIGRATED:
         errors.append("ui_compounds_root_package_exports_missing")
 
     sources = _typescript_production_sources(
@@ -15315,8 +15051,7 @@ def _validate_c15_mixed_receipt(
             consumer_path = reference.split(":", 1)[0]
             if consumer_path not in successor_paths:
                 errors.append(
-                    "ui_compounds_root_live_consumer_ref_missing:"
-                    f"{component}:{consumer_path}"
+                    f"ui_compounds_root_live_consumer_ref_missing:{component}:{consumer_path}"
                 )
 
 
@@ -15396,9 +15131,7 @@ def _validate_c16_mixed_receipt(
     for component, references in consumer_map.items():
         for consumer_path in references:
             if consumer_path not in successor_paths:
-                errors.append(
-                    f"ui_patterns_live_consumer_ref_missing:{component}:{consumer_path}"
-                )
+                errors.append(f"ui_patterns_live_consumer_ref_missing:{component}:{consumer_path}")
 
 
 def _validate_c17_responsive_receipt(
@@ -15463,30 +15196,21 @@ def _validate_c17_responsive_receipt(
         errors.extend(_c17_responsive_source_state_errors())
 
 
-def _validate_producer_binding_debt_findings(
-    data: Mapping[str, Any], errors: list[str]
-) -> None:
+def _validate_producer_binding_debt_findings(data: Mapping[str, Any], errors: list[str]) -> None:
     """Bind every producer-debt row byte-for-byte to its sole descriptor."""
     rows = data.get("supplemental_findings", [])
     if not isinstance(rows, list):
         return
-    by_id = {
-        str(row.get("finding_id")): row
-        for row in rows
-        if isinstance(row, Mapping)
-    }
+    by_id = {str(row.get("finding_id")): row for row in rows if isinstance(row, Mapping)}
     producer_rows = [
         row
         for row in rows
-        if isinstance(row, Mapping)
-        and row.get("finding_kind") == "producer_binding_debt"
+        if isinstance(row, Mapping) and row.get("finding_kind") == "producer_binding_debt"
     ]
     for finding_id, descriptor in PRODUCER_BINDING_DEBT_DESCRIPTORS.items():
         row = by_id.get(finding_id)
         if row is None:
-            errors.append(
-                f"producer_binding_debt_drift:{finding_id}:finding_id"
-            )
+            errors.append(f"producer_binding_debt_drift:{finding_id}:finding_id")
             continue
         expected = {
             "finding_id": finding_id,
@@ -15495,16 +15219,12 @@ def _validate_producer_binding_debt_findings(
         }
         for field, expected_value in expected.items():
             if row.get(field) != expected_value:
-                errors.append(
-                    f"producer_binding_debt_drift:{finding_id}:{field}"
-                )
+                errors.append(f"producer_binding_debt_drift:{finding_id}:{field}")
     descriptor_ids = set(PRODUCER_BINDING_DEBT_DESCRIPTORS)
     for row in producer_rows:
         finding_id = str(row.get("finding_id", "unknown"))
         if finding_id not in descriptor_ids:
-            errors.append(
-                "producer_binding_debt_descriptor_missing:" + finding_id
-            )
+            errors.append("producer_binding_debt_descriptor_missing:" + finding_id)
 
 
 def _validate_raw_transport_drift(
@@ -15546,43 +15266,30 @@ def _validate_raw_transport_drift(
         errors.append("raw_transport_live_direct_constructor_census_drift")
 
 
-def _validate_integrate_contract_debt_findings(
-    data: Mapping[str, Any], errors: list[str]
-) -> None:
+def _validate_integrate_contract_debt_findings(data: Mapping[str, Any], errors: list[str]) -> None:
     """Bind external-owner integrate debt byte-for-byte to its typed contract."""
     rows = data.get("supplemental_findings", [])
     if not isinstance(rows, list):
         return
-    by_id = {
-        str(row.get("finding_id")): row
-        for row in rows
-        if isinstance(row, Mapping)
-    }
+    by_id = {str(row.get("finding_id")): row for row in rows if isinstance(row, Mapping)}
     integrate_rows = [
         row
         for row in rows
-        if isinstance(row, Mapping)
-        and row.get("finding_kind") == "integrate_contract_debt"
+        if isinstance(row, Mapping) and row.get("finding_kind") == "integrate_contract_debt"
     ]
     for finding_id, descriptor in INTEGRATE_DEBT_DESCRIPTORS.items():
         row = by_id.get(finding_id)
         if row is None:
-            errors.append(
-                f"integrate_contract_debt_drift:{finding_id}:finding_id"
-            )
+            errors.append(f"integrate_contract_debt_drift:{finding_id}:finding_id")
             continue
         for field, expected_value in descriptor.items():
             if row.get(field) != expected_value:
-                errors.append(
-                    f"integrate_contract_debt_drift:{finding_id}:{field}"
-                )
+                errors.append(f"integrate_contract_debt_drift:{finding_id}:{field}")
     descriptor_ids = set(INTEGRATE_DEBT_DESCRIPTORS)
     for row in integrate_rows:
         finding_id = str(row.get("finding_id", "unknown"))
         if finding_id not in descriptor_ids:
-            errors.append(
-                "integrate_contract_debt_descriptor_missing:" + finding_id
-            )
+            errors.append("integrate_contract_debt_descriptor_missing:" + finding_id)
 
 
 def _validate_c23_containment_roots(
@@ -15644,9 +15351,7 @@ def _validate_c13_print_export_root(
         errors.append("c13_print_export_root_drift")
 
 
-def _validate_storage_construction_census(
-    data: Mapping[str, Any], errors: list[str]
-) -> None:
+def _validate_storage_construction_census(data: Mapping[str, Any], errors: list[str]) -> None:
     """Bind every explicit persistence class to its finite owner contract."""
     census = data.get("storage_construction_census")
     if not isinstance(census, Mapping):
@@ -15682,13 +15387,9 @@ def _validate_storage_construction_census(
         if not factory_path.is_file():
             errors.append(f"storage_construction_factory_source_missing:{receipt_id}")
         elif raw_receipt.get("source_fingerprint") != _sha256(factory_path):
-            errors.append(
-                f"storage_construction_factory_source_fingerprint_drift:{receipt_id}"
-            )
+            errors.append(f"storage_construction_factory_source_fingerprint_drift:{receipt_id}")
     duplicate_factory_ids = sorted(
-        receipt_id
-        for receipt_id, count in Counter(factory_ids).items()
-        if count > 1
+        receipt_id for receipt_id, count in Counter(factory_ids).items() if count > 1
     )
     errors.extend(
         f"storage_construction_duplicate_factory_id:{receipt_id}"
@@ -15735,27 +15436,20 @@ def _validate_storage_construction_census(
                 "scoped_envelope_owner",
             ):
                 if field in row:
-                    errors.append(
-                        f"storage_construction_benign_debt_field:{site_id}:{field}"
-                    )
+                    errors.append(f"storage_construction_benign_debt_field:{site_id}:{field}")
         elif classification == "rollout_cache_pending":
             pass
         else:
             errors.append(f"storage_construction_class_invalid:{site_id}")
 
-    duplicates = sorted(
-        site_id for site_id, count in Counter(site_ids).items() if count > 1
-    )
-    errors.extend(
-        f"storage_construction_duplicate_site_id:{site_id}" for site_id in duplicates
-    )
+    duplicates = sorted(site_id for site_id, count in Counter(site_ids).items() if count > 1)
+    errors.extend(f"storage_construction_duplicate_site_id:{site_id}" for site_id in duplicates)
     observed_class_counts = {
         classification: classes.get(classification, 0)
         for classification in C17B_STORAGE_CLASS_COUNTS
     }
-    if (
-        observed_class_counts != C17B_STORAGE_CLASS_COUNTS
-        or set(classes) - set(C17B_STORAGE_CLASS_COUNTS)
+    if observed_class_counts != C17B_STORAGE_CLASS_COUNTS or set(classes) - set(
+        C17B_STORAGE_CLASS_COUNTS
     ):
         errors.append("storage_construction_class_distribution_drift")
 
@@ -16988,13 +16682,10 @@ def _ds17_typescript_surface_scan_uncached(
     )
     if completed.returncode != 0:
         raise ValueError(
-            "DS17 confidence-ledger TypeScript AST scan failed: "
-            + completed.stderr.strip()
+            "DS17 confidence-ledger TypeScript AST scan failed: " + completed.stderr.strip()
         )
     result = json.loads(completed.stdout)
-    if result.get("schema_id") != (
-        "polisyos.atlas.ds17-typescript-surface-scan.v1"
-    ):
+    if result.get("schema_id") != ("polisyos.atlas.ds17-typescript-surface-scan.v1"):
         raise ValueError("DS17 confidence-ledger TypeScript AST schema drift")
     modules = result.get("modules")
     if not isinstance(modules, Mapping) or set(modules) != all_paths:
@@ -17025,15 +16716,12 @@ def _ds17_typescript_surface_scan(
     unknown = set(source_overrides) - DS17_CONFIDENCE_LEDGER_DS18_PATHS
     if unknown:
         raise ValueError(
-            "DS17 confidence-ledger source override outside owned paths:"
-            + repr(sorted(unknown))
+            "DS17 confidence-ledger source override outside owned paths:" + repr(sorted(unknown))
         )
     return _ds17_typescript_surface_scan_uncached(source_overrides)
 
 
-def _ds17_scan_module(
-    scan: Mapping[str, Any], path_ref: str
-) -> Mapping[str, Any]:
+def _ds17_scan_module(scan: Mapping[str, Any], path_ref: str) -> Mapping[str, Any]:
     modules = scan.get("modules")
     module = modules.get(path_ref) if isinstance(modules, Mapping) else None
     if not isinstance(module, Mapping):
@@ -17041,14 +16729,11 @@ def _ds17_scan_module(
     return module
 
 
-def _ds17_source_receipt(
-    path_ref: str, module: Mapping[str, Any]
-) -> dict[str, str]:
+def _ds17_source_receipt(path_ref: str, module: Mapping[str, Any]) -> dict[str, str]:
     expected = (
         str(module.get("source_sha256"))
         if module.get("source_overridden") is True
-        else "sha256:"
-        + hashlib.sha256((REPO_ROOT / path_ref).read_bytes()).hexdigest()
+        else "sha256:" + hashlib.sha256((REPO_ROOT / path_ref).read_bytes()).hexdigest()
     )
     observed = module.get("source_sha256")
     if observed != expected:
@@ -17059,9 +16744,7 @@ def _ds17_source_receipt(
     return {"path": path_ref, "sha256": expected}
 
 
-def _ds17_declaration(
-    module: Mapping[str, Any], symbol: str
-) -> Mapping[str, Any]:
+def _ds17_declaration(module: Mapping[str, Any], symbol: str) -> Mapping[str, Any]:
     rows = [
         row
         for row in module.get("declarations", [])
@@ -17069,26 +16752,19 @@ def _ds17_declaration(
     ]
     if len(rows) != 1:
         raise ValueError(
-            f"DS17 confidence-ledger role declaration cardinality:{symbol}:"
-            f"{len(rows)}"
+            f"DS17 confidence-ledger role declaration cardinality:{symbol}:{len(rows)}"
         )
     return rows[0]
 
 
-def _ds17_has_call(
-    module: Mapping[str, Any], owner: str, callee: str
-) -> bool:
+def _ds17_has_call(module: Mapping[str, Any], owner: str, callee: str) -> bool:
     return any(
-        isinstance(row, Mapping)
-        and row.get("owner") == owner
-        and row.get("callee") == callee
+        isinstance(row, Mapping) and row.get("owner") == owner and row.get("callee") == callee
         for row in module.get("calls", [])
     )
 
 
-def _ds17_has_jsx(
-    module: Mapping[str, Any], owner: str | None, tag: str
-) -> bool:
+def _ds17_has_jsx(module: Mapping[str, Any], owner: str | None, tag: str) -> bool:
     return any(
         isinstance(row, Mapping)
         and (owner is None or row.get("owner") == owner)
@@ -17097,9 +16773,7 @@ def _ds17_has_jsx(
     )
 
 
-def _ds17_imports(
-    module: Mapping[str, Any], imported: str, module_ref: str
-) -> bool:
+def _ds17_imports(module: Mapping[str, Any], imported: str, module_ref: str) -> bool:
     return any(
         isinstance(row, Mapping)
         and row.get("imported") == imported
@@ -17127,9 +16801,7 @@ def _ds17_import_binding(
     if len(rows) != 1:
         return None
     local = rows[0].get("local")
-    if not isinstance(local, str) or local in module.get(
-        "shadowed_import_locals", []
-    ):
+    if not isinstance(local, str) or local in module.get("shadowed_import_locals", []):
         return None
     return rows[0]
 
@@ -17150,10 +16822,7 @@ def _ds17_test_executes_role_import(
     module_ref: str,
 ) -> bool:
     binding = _ds17_import_binding(module, symbol, module_ref)
-    return bool(
-        binding
-        and binding.get("local") in module.get("executed_import_locals", [])
-    )
+    return bool(binding and binding.get("local") in module.get("executed_import_locals", []))
 
 
 def _ds17_has_connected_render_call(
@@ -17164,9 +16833,7 @@ def _ds17_has_connected_render_call(
     called_symbol: str,
     called_module_ref: str,
 ) -> bool:
-    rendered = _ds17_import_binding(
-        module, rendered_symbol, rendered_module_ref
-    )
+    rendered = _ds17_import_binding(module, rendered_symbol, rendered_module_ref)
     called = _ds17_import_binding(module, called_symbol, called_module_ref)
     if rendered is None or called is None:
         return False
@@ -17178,9 +16845,7 @@ def _ds17_has_connected_render_call(
     )
 
 
-def _ds17_jsx_reachable(
-    module: Mapping[str, Any], source_symbol: str, target_symbol: str
-) -> bool:
+def _ds17_jsx_reachable(module: Mapping[str, Any], source_symbol: str, target_symbol: str) -> bool:
     edges: dict[str, set[str]] = defaultdict(set)
     for row in module.get("jsx", []):
         if not isinstance(row, Mapping):
@@ -17241,9 +16906,7 @@ def _build_ds17_confidence_ledger_risk_spend_surface(
         DS17_CONFIDENCE_LEDGER_TWIN_PATH,
         DS17_CONFIDENCE_LEDGER_CYCLE_PATH,
     }
-    modules = {
-        path_ref: _ds17_scan_module(scan, path_ref) for path_ref in source_paths
-    }
+    modules = {path_ref: _ds17_scan_module(scan, path_ref) for path_ref in source_paths}
     roles: list[dict[str, Any]] = []
     for spec in DS17_CONFIDENCE_LEDGER_ROLE_SPECS:
         source_path = str(spec["source_path"])
@@ -17274,28 +16937,20 @@ def _build_ds17_confidence_ledger_risk_spend_surface(
                     "kind": declaration["kind"],
                     "source_row": declaration["line"],
                 },
-                "behavioral_evidence": [
-                    _ds17_source_receipt(test_path, test_module)
-                ],
+                "behavioral_evidence": [_ds17_source_receipt(test_path, test_module)],
             }
         )
     query_module = modules[DS17_CONFIDENCE_LEDGER_QUERY_PATH]
     domain_module = modules[DS17_CONFIDENCE_LEDGER_DOMAIN_PATH]
     literal_bindings = domain_module.get("literal_bindings", {})
     scope = {
-        "packet_schema_version": literal_bindings.get(
-            "packet_schema_version", [None]
-        )[0],
+        "packet_schema_version": literal_bindings.get("packet_schema_version", [None])[0],
         "projection_id": literal_bindings.get("projection_id", [None])[0],
-        "projection_rule_version": literal_bindings.get(
-            "projection_rule_version", [None]
-        )[0],
-        "protected_action": literal_bindings.get(
-            "protected_action_id", [None]
-        )[0],
-        "specialized_query_identity": query_module.get(
-            "static_exports", {}
-        ).get("confidenceLedgerRiskSpendQueryKey"),
+        "projection_rule_version": literal_bindings.get("projection_rule_version", [None])[0],
+        "protected_action": literal_bindings.get("protected_action_id", [None])[0],
+        "specialized_query_identity": query_module.get("static_exports", {}).get(
+            "confidenceLedgerRiskSpendQueryKey"
+        ),
         "stable_address": literal_bindings.get("stable_address", [None])[0],
     }
     if scope != DS17_CONFIDENCE_LEDGER_EXPECTED_SCOPE:
@@ -17308,8 +16963,7 @@ def _build_ds17_confidence_ledger_risk_spend_surface(
     panel = modules[DS17_CONFIDENCE_LEDGER_PANEL_PATH]
     twin = modules[DS17_CONFIDENCE_LEDGER_TWIN_PATH]
     twin_test_path = (
-        "apps/runtime-dashboard/src/features/runs/export/"
-        "confidenceLedgerRiskSpendTwin.test.tsx"
+        "apps/runtime-dashboard/src/features/runs/export/confidenceLedgerRiskSpendTwin.test.tsx"
     )
     twin_test = _ds17_scan_module(scan, twin_test_path)
     edge_predicates = {
@@ -17366,9 +17020,7 @@ def _build_ds17_confidence_ledger_risk_spend_surface(
         "panel_to_exact_twin": _ds17_has_connected_render_call(
             twin_test,
             rendered_symbol="ConfidenceLedgerRiskSpend",
-            rendered_module_ref=(
-                "@/features/runs/components/ConfidenceLedgerRiskSpend"
-            ),
+            rendered_module_ref=("@/features/runs/components/ConfidenceLedgerRiskSpend"),
             called_symbol="evaluateConfidenceLedgerRiskSpendTwin",
             called_module_ref="./confidenceLedgerRiskSpendTwin",
         )
@@ -17378,13 +17030,9 @@ def _build_ds17_confidence_ledger_risk_spend_surface(
             "evaluateConfidenceLedgerProtectedQuery",
         ),
     }
-    missing_edges = [
-        edge_id for edge_id, admitted in edge_predicates.items() if not admitted
-    ]
+    missing_edges = [edge_id for edge_id, admitted in edge_predicates.items() if not admitted]
     if missing_edges:
-        raise ValueError(
-            "DS17 confidence-ledger AST edge missing:" + ",".join(missing_edges)
-        )
+        raise ValueError("DS17 confidence-ledger AST edge missing:" + ",".join(missing_edges))
     edges = [
         _ds17_ast_edge_receipt(
             edge_id="governed_projection_to_domain_validator",
@@ -17472,9 +17120,7 @@ def _build_ds17_confidence_ledger_risk_spend_surface(
             "relation": edge["relation"],
             "symbol_path": edge["symbol_path"],
             "to_role": edge["to_role"],
-            "wiring_evidence_sha256": [
-                receipt["sha256"] for receipt in edge["wiring_evidence"]
-            ],
+            "wiring_evidence_sha256": [receipt["sha256"] for receipt in edge["wiring_evidence"]],
         }
         for edge in edges
     ]
@@ -17484,12 +17130,8 @@ def _build_ds17_confidence_ledger_risk_spend_surface(
         "predicate_provenance": "recomputed",
         "governed_scope": scope,
         "scope_evidence": [
-            _ds17_source_receipt(
-                DS17_CONFIDENCE_LEDGER_QUERY_PATH, query_module
-            ),
-            _ds17_source_receipt(
-                DS17_CONFIDENCE_LEDGER_DOMAIN_PATH, domain_module
-            ),
+            _ds17_source_receipt(DS17_CONFIDENCE_LEDGER_QUERY_PATH, query_module),
+            _ds17_source_receipt(DS17_CONFIDENCE_LEDGER_DOMAIN_PATH, domain_module),
         ],
         "role_count": len(roles),
         "roles": roles,
@@ -17537,22 +17179,14 @@ def _validate_ds17_confidence_ledger_risk_spend_surface(
     if not isinstance(stored_roles, list):
         errors.append("ds17_confidence_ledger_roles_invalid")
         stored_roles = []
-    role_ids = [
-        str(row.get("role_id"))
-        for row in stored_roles
-        if isinstance(row, Mapping)
-    ]
+    role_ids = [str(row.get("role_id")) for row in stored_roles if isinstance(row, Mapping)]
     for role_id, count in Counter(role_ids).items():
         if count > 1:
             errors.append(f"ds17_confidence_ledger_role_duplicate:{role_id}")
     stored_by_role = {
-        str(row.get("role_id")): row
-        for row in stored_roles
-        if isinstance(row, Mapping)
+        str(row.get("role_id")): row for row in stored_roles if isinstance(row, Mapping)
     }
-    expected_by_role = {
-        str(row["role_id"]): row for row in derived["roles"]
-    }
+    expected_by_role = {str(row["role_id"]): row for row in derived["roles"]}
     for role_id in sorted(set(expected_by_role) - set(stored_by_role)):
         errors.append(f"ds17_confidence_ledger_role_missing:{role_id}")
     for role_id in sorted(set(stored_by_role) - set(expected_by_role)):
@@ -17565,33 +17199,21 @@ def _validate_ds17_confidence_ledger_risk_spend_surface(
         if stored.get("source") != expected_role.get("source"):
             errors.append(f"ds17_confidence_ledger_role_source_drift:{role_id}")
         if stored.get("declaration") != expected_role.get("declaration"):
-            errors.append(
-                f"ds17_confidence_ledger_role_declaration_drift:{role_id}"
-            )
-        if stored.get("behavioral_evidence") != expected_role.get(
-            "behavioral_evidence"
-        ):
+            errors.append(f"ds17_confidence_ledger_role_declaration_drift:{role_id}")
+        if stored.get("behavioral_evidence") != expected_role.get("behavioral_evidence"):
             errors.append(f"ds17_confidence_ledger_role_evidence_drift:{role_id}")
     stored_edges = block.get("edges")
     if not isinstance(stored_edges, list):
         errors.append("ds17_confidence_ledger_edges_invalid")
         stored_edges = []
-    edge_ids = [
-        str(row.get("edge_id"))
-        for row in stored_edges
-        if isinstance(row, Mapping)
-    ]
+    edge_ids = [str(row.get("edge_id")) for row in stored_edges if isinstance(row, Mapping)]
     for edge_id, count in Counter(edge_ids).items():
         if count > 1:
             errors.append(f"ds17_confidence_ledger_edge_duplicate:{edge_id}")
     stored_by_edge = {
-        str(row.get("edge_id")): row
-        for row in stored_edges
-        if isinstance(row, Mapping)
+        str(row.get("edge_id")): row for row in stored_edges if isinstance(row, Mapping)
     }
-    expected_by_edge = {
-        str(row["edge_id"]): row for row in derived["edges"]
-    }
+    expected_by_edge = {str(row["edge_id"]): row for row in derived["edges"]}
     for edge_id in sorted(set(expected_by_edge) - set(stored_by_edge)):
         errors.append(f"ds17_confidence_ledger_edge_missing:{edge_id}")
     for edge_id in sorted(set(stored_by_edge) - set(expected_by_edge)):
@@ -17613,13 +17235,10 @@ def _validate_ds17_confidence_ledger_risk_spend_surface(
         if manifest != derived.get(manifest_field):
             errors.append(f"ds17_confidence_ledger_{kind}_manifest_drift")
         expected_hash = (
-            "sha256:" + _canonical_sha256(manifest)
-            if isinstance(manifest, list)
-            else None
+            "sha256:" + _canonical_sha256(manifest) if isinstance(manifest, list) else None
         )
-        if (
-            block.get(hash_field) != expected_hash
-            or block.get(hash_field) != derived.get(hash_field)
+        if block.get(hash_field) != expected_hash or block.get(hash_field) != derived.get(
+            hash_field
         ):
             errors.append(f"ds17_confidence_ledger_{kind}_manifest_hash_drift")
     for field in ("bounded_closure", "executor"):
@@ -17629,7 +17248,7 @@ def _validate_ds17_confidence_ledger_risk_spend_surface(
 
 def _ds18_time_semantics_scan() -> dict[str, Any]:
     """Run the complete TypeScript AST render/export census."""
-    completed = subprocess.run(
+    completed = subprocess.run(  # noqa: S603 - explicit toolchain env override; fixed scanner argv; shell=False
         [
             os.environ.get("POLISYOS_NODE_EXECUTABLE", "node"),
             str(DS18_TIME_SEMANTICS_SCANNER_PATH),
@@ -17643,9 +17262,7 @@ def _ds18_time_semantics_scan() -> dict[str, Any]:
         check=False,
     )
     if completed.returncode != 0:
-        raise ValueError(
-            "DS18 time-semantics scanner failed: " + completed.stderr.strip()
-        )
+        raise ValueError("DS18 time-semantics scanner failed: " + completed.stderr.strip())
     result = json.loads(completed.stdout)
     if result.get("schema_id") != "polisyos.atlas.ds18-time-semantics-scan.v1":
         raise ValueError("DS18 time-semantics scanner schema drift")
@@ -17668,11 +17285,7 @@ def _ds18_primary_direct_roots(
 ) -> dict[str, dict[str, tuple[str, ...] | None]]:
     """Resolve independently reviewed direct roots and root-specific proofs."""
     resolved: dict[str, dict[str, tuple[str, ...] | None]] = {}
-    files = {
-        str(row["path"]): row
-        for row in scan.get("files", [])
-        if isinstance(row, Mapping)
-    }
+    files = {str(row["path"]): row for row in scan.get("files", []) if isinstance(row, Mapping)}
     for path_ref in sorted(DS18_TIME_SEMANTICS_DIRECT_FILES):
         row = files.get(path_ref)
         if not isinstance(row, Mapping):
@@ -17688,23 +17301,15 @@ def _ds18_primary_direct_roots(
                 "DS18 legacy direct file requires exactly one "
                 f"TimeSemanticsLabel root: {path_ref}:{len(matching)}"
             )
-        resolved[path_ref] = {
-            str(root["root_id"]): None for root in matching
-        }
+        resolved[path_ref] = {str(root["root_id"]): None for root in matching}
 
     roots_by_selector = _ds18_root_selector_index(scan)
-    for path_ref, declarations in sorted(
-        DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS.items()
-    ):
+    for path_ref, declarations in sorted(DS18_TIME_SEMANTICS_RECONCILED_DIRECT_ROOTS.items()):
         if path_ref in resolved:
-            raise ValueError(
-                f"DS18 direct-root modes overlap for reconciled file: {path_ref}"
-            )
+            raise ValueError(f"DS18 direct-root modes overlap for reconciled file: {path_ref}")
         row = files.get(path_ref)
         if not isinstance(row, Mapping):
-            raise ValueError(
-                f"DS18 reconciled direct file absent from scanner: {path_ref}"
-            )
+            raise ValueError(f"DS18 reconciled direct file absent from scanner: {path_ref}")
         root_bindings: dict[str, tuple[str, ...] | None] = {}
         for selector, test_refs in declarations.items():
             component, occurrence, expected_digest = selector
@@ -17719,13 +17324,11 @@ def _ds18_primary_direct_roots(
             root_id = str(root["root_id"])
             if root_id in root_bindings:
                 raise ValueError(
-                    f"DS18 reconciled direct root is declared twice: "
-                    f"{path_ref}:{root_id}"
+                    f"DS18 reconciled direct root is declared twice: {path_ref}:{root_id}"
                 )
             if not test_refs:
                 raise ValueError(
-                    f"DS18 reconciled direct root lacks behavioral evidence: "
-                    f"{path_ref}:{root_id}"
+                    f"DS18 reconciled direct root lacks behavioral evidence: {path_ref}:{root_id}"
                 )
             root_bindings[root_id] = tuple(test_refs)
         label_root_ids = {
@@ -17749,11 +17352,7 @@ def _ds18_behavioral_evidence(
     test_refs: tuple[str, ...] | None = None,
 ) -> list[dict[str, str]]:
     """Return content-bound executable evidence for one reconciled surface file."""
-    refs = (
-        tuple(DS18_TIME_SEMANTICS_BEHAVIOR_TESTS[path_ref])
-        if test_refs is None
-        else test_refs
-    )
+    refs = tuple(DS18_TIME_SEMANTICS_BEHAVIOR_TESTS[path_ref]) if test_refs is None else test_refs
     return [
         {
             **_ds18_source_receipt(test_ref),
@@ -17799,8 +17398,7 @@ def _ds18_resolve_root_selector(
     root = roots_by_selector.get((path_ref, component, occurrence))
     if root is None:
         raise ValueError(
-            f"DS18 {role} root selector is absent: "
-            f"{path_ref}:{component}:{occurrence}"
+            f"DS18 {role} root selector is absent: {path_ref}:{component}:{occurrence}"
         )
     actual_digest = str(root.get("root_source_sha256", ""))
     if actual_digest != expected_digest:
@@ -17820,14 +17418,11 @@ def _build_ds18_time_semantics_coverage(
     """Build explicit per-file/per-root receipts from the reconciled C06 census."""
     primary_root_bindings = _ds18_primary_direct_roots(scan)
     primary_roots = {
-        path_ref: tuple(bindings)
-        for path_ref, bindings in primary_root_bindings.items()
+        path_ref: tuple(bindings) for path_ref, bindings in primary_root_bindings.items()
     }
     roots_by_selector = _ds18_root_selector_index(scan)
 
-    declared_root_owners: dict[
-        tuple[str, str], tuple[tuple[str, str], ...]
-    ] = {}
+    declared_root_owners: dict[tuple[str, str], tuple[tuple[str, str], ...]] = {}
     for path_ref, rules in DS18_TIME_SEMANTICS_ROOT_INHERITANCE.items():
         for selector, owner_selectors in rules.items():
             component, occurrence, expected_digest = selector
@@ -17944,9 +17539,7 @@ def _build_ds18_time_semantics_coverage(
                 decision_roots += 1
                 obligated_roots += 1
                 covered_roots += 1
-                root_specific_tests = primary_root_bindings.get(
-                    path_ref, {}
-                ).get(root_id)
+                root_specific_tests = primary_root_bindings.get(path_ref, {}).get(root_id)
                 root["behavioral_evidence"] = _ds18_behavioral_evidence(
                     path_ref,
                     root_specific_tests,
@@ -18003,8 +17596,7 @@ def _build_ds18_time_semantics_coverage(
         "frontend_freeze_commit": frontend_freeze_commit,
         "landing_slice_rule": DS18_TIME_SEMANTICS_LANDING_RULE,
         "landing_slice_checker": (
-            "architecture/atlas_surfaces/check_frontend_disposition_register.py "
-            "--check"
+            "architecture/atlas_surfaces/check_frontend_disposition_register.py --check"
         ),
         "files": files,
     }
@@ -18018,17 +17610,13 @@ def _refresh_ds18_time_semantics_coverage(
     if not isinstance(existing, Mapping):
         raise ValueError("DS18 time-semantics opening coverage is missing")
     frontend_freeze_commit = existing.get("frontend_freeze_commit")
-    if frontend_freeze_commit is not None and not isinstance(
-        frontend_freeze_commit, str
-    ):
+    if frontend_freeze_commit is not None and not isinstance(frontend_freeze_commit, str):
         raise ValueError("DS18 frontend freeze commit is invalid")
     refreshed = _build_ds18_time_semantics_coverage(
         _ds18_time_semantics_scan(),
         frontend_freeze_commit=frontend_freeze_commit,
     )
-    refreshed["historical_lineage"] = _build_ds18_time_semantics_lineage(
-        refreshed
-    )
+    refreshed["historical_lineage"] = _build_ds18_time_semantics_lineage(refreshed)
     return refreshed
 
 
@@ -18043,9 +17631,7 @@ def _ds18_evidence_errors(
         return [f"ds18_time_semantics_behavioral_evidence_missing:{root_label}"]
     for row in evidence:
         if not isinstance(row, Mapping):
-            errors.append(
-                f"ds18_time_semantics_behavioral_evidence_invalid:{root_label}"
-            )
+            errors.append(f"ds18_time_semantics_behavioral_evidence_invalid:{root_label}")
             continue
         path_ref = str(row.get("path", ""))
         path = REPO_ROOT / path_ref
@@ -18056,9 +17642,7 @@ def _ds18_evidence_errors(
             continue
         observed = "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
         if row.get("sha256") != observed:
-            errors.append(
-                f"ds18_time_semantics_behavioral_evidence_drift:{root_label}:{path_ref}"
-            )
+            errors.append(f"ds18_time_semantics_behavioral_evidence_drift:{root_label}:{path_ref}")
     return errors
 
 
@@ -18109,15 +17693,9 @@ def _validate_ds18_time_semantics_coverage_core(
     if not isinstance(stored_files, list):
         errors.append("ds18_time_semantics_files_invalid")
         return
-    stored_by_path = {
-        str(row.get("path")): row
-        for row in stored_files
-        if isinstance(row, Mapping)
-    }
+    stored_by_path = {str(row.get("path")): row for row in stored_files if isinstance(row, Mapping)}
     scanned_by_path = {
-        str(row.get("path")): row
-        for row in scan.get("files", [])
-        if isinstance(row, Mapping)
+        str(row.get("path")): row for row in scan.get("files", []) if isinstance(row, Mapping)
     }
     if set(stored_by_path) != set(scanned_by_path):
         suffix = (
@@ -18127,8 +17705,8 @@ def _validate_ds18_time_semantics_coverage_core(
         )
         errors.append(
             f"ds18_time_semantics_{suffix}:"
-            f"missing={sorted(set(scanned_by_path)-set(stored_by_path))}:"
-            f"extra={sorted(set(stored_by_path)-set(scanned_by_path))}"
+            f"missing={sorted(set(scanned_by_path) - set(stored_by_path))}:"
+            f"extra={sorted(set(stored_by_path) - set(scanned_by_path))}"
         )
 
     all_roots: dict[tuple[str, str], Mapping[str, Any]] = {}
@@ -18151,9 +17729,7 @@ def _validate_ds18_time_semantics_coverage_core(
             errors.append(f"ds18_time_semantics_roots_invalid:{path_ref}")
             continue
         stored_root_ids = {
-            str(root.get("root_id"))
-            for root in stored_roots
-            if isinstance(root, Mapping)
+            str(root.get("root_id")) for root in stored_roots if isinstance(root, Mapping)
         }
         scanned_root_ids = {
             str(root.get("root_id"))
@@ -18175,23 +17751,16 @@ def _validate_ds18_time_semantics_coverage_core(
                 "component_name": "component_identity",
                 "epoch_context_read_count": "epoch_context_read_count",
                 "epoch_semantics_prop_count": "epoch_semantics_prop_count",
-                "epoch_semantics_provider_render_count": (
-                    "epoch_semantics_provider_render_count"
-                ),
+                "epoch_semantics_provider_render_count": ("epoch_semantics_provider_render_count"),
                 "kind": "kind",
                 "source_row": "line",
                 "root_id": "root_id",
                 "root_source_sha256": "root_source_sha256",
-                "time_semantics_label_render_count": (
-                    "time_semantics_label_render_count"
-                ),
+                "time_semantics_label_render_count": ("time_semantics_label_render_count"),
             }
             for stored_field, scanner_field in scanner_fields.items():
                 if root.get(stored_field) != scanned_root.get(scanner_field):
-                    errors.append(
-                        "ds18_time_semantics_root_receipt_drift:"
-                        f"{label}:{stored_field}"
-                    )
+                    errors.append(f"ds18_time_semantics_root_receipt_drift:{label}:{stored_field}")
             if root.get("predicate_provenance") != "independently_reconciled":
                 errors.append(f"ds18_time_semantics_root_provenance_drift:{label}")
             if root.get("reviewer_receipt") != DS18_TIME_SEMANTICS_REVIEWER:
@@ -18215,9 +17784,7 @@ def _validate_ds18_time_semantics_coverage_core(
                     errors.append(f"ds18_time_semantics_direct_ds4_render_missing:{label}")
             elif binding != "strict_non_jsx_projection":
                 errors.append(f"ds18_time_semantics_binding_invalid:{label}")
-            errors.extend(
-                _ds18_evidence_errors(root.get("behavioral_evidence"), root_label=label)
-            )
+            errors.extend(_ds18_evidence_errors(root.get("behavioral_evidence"), root_label=label))
         elif classification == "inherits_admitted_dom":
             inherited_count += 1
             covered_count += 1
@@ -18232,9 +17799,7 @@ def _validate_ds18_time_semantics_coverage_core(
                 owner = all_roots.get(owner_key)
                 if owner is None or owner.get("classification") != "decision_bearing":
                     errors.append(f"ds18_time_semantics_inherited_owner_invalid:{label}")
-            errors.extend(
-                _ds18_evidence_errors(root.get("behavioral_evidence"), root_label=label)
-            )
+            errors.extend(_ds18_evidence_errors(root.get("behavioral_evidence"), root_label=label))
         elif classification == "non_decision_bearing":
             if not str(root.get("non_decision_reason", "")).strip():
                 errors.append(f"ds18_time_semantics_nondecision_reason_missing:{label}")
@@ -18276,11 +17841,7 @@ def _ds18_coverage_root_index(
             legacy_component_identity = root.get("component_identity")
             if component_name is not None and legacy_component_identity is not None:
                 raise ValueError("DS18 lineage root has two component labels")
-            component = (
-                component_name
-                if component_name is not None
-                else legacy_component_identity
-            )
+            component = component_name if component_name is not None else legacy_component_identity
             if not isinstance(component, str) or not component:
                 raise ValueError("DS18 lineage root component is invalid")
             occurrence = occurrences[component]
@@ -18366,9 +17927,7 @@ def _ds18_rebinding_manifest_sha256(
                 )
             )
         )
-    return "sha256:" + hashlib.sha256(
-        "\n".join(manifest_rows).encode("utf-8")
-    ).hexdigest()
+    return "sha256:" + hashlib.sha256("\n".join(manifest_rows).encode("utf-8")).hexdigest()
 
 
 def _ds18_generated_output_paths(manifest: bytes) -> set[str]:
@@ -18418,15 +17977,10 @@ def _ds18_checkpoint_source_paths(
         path_ref = git_path[len(prefix) :]
         if not path_ref.endswith((".ts", ".tsx")):
             continue
-        source_relative = path_ref.removeprefix(
-            "apps/runtime-dashboard/src/"
-        )
+        source_relative = path_ref.removeprefix("apps/runtime-dashboard/src/")
         parts = source_relative.split("/")
         basename = parts[-1]
-        if any(
-            part in {"__tests__", "test", "tests"}
-            for part in parts[:-1]
-        ):
+        if any(part in {"__tests__", "test", "tests"} for part in parts[:-1]):
             continue
         if re.search(r"\.(?:test|spec)\.(?:ts|tsx)$", basename):
             continue
@@ -18449,10 +18003,9 @@ def _ds18_source_checkpoint_errors(
     landing_id = str(reconciliation.get("landing_id", "invalid"))
     commit = reconciliation.get("source_checkpoint_commit")
     if not isinstance(commit, str) or re.fullmatch(r"[a-f0-9]{40}", commit) is None:
-        return [
-            f"ds18_time_semantics_source_coordinate_invalid:{landing_id}"
-        ]
+        return [f"ds18_time_semantics_source_coordinate_invalid:{landing_id}"]
     if current_artifact_loader is None:
+
         def load_current_artifact(path_ref: str) -> bytes:
             prefix = "policy-engine/"
             if not path_ref.startswith(prefix):
@@ -18472,55 +18025,34 @@ def _ds18_source_checkpoint_errors(
         current_generated_manifest = load_current_artifact(
             DS18_TIME_SEMANTICS_GENERATED_MANIFEST_GIT_REF
         )
-        current_scanner = load_current_artifact(
-            DS18_TIME_SEMANTICS_SCANNER_GIT_REF
-        )
+        current_scanner = load_current_artifact(DS18_TIME_SEMANTICS_SCANNER_GIT_REF)
         checkpoint_paths = _ds18_checkpoint_source_paths(
             commit,
-            generated_outputs=_ds18_generated_output_paths(
-                generated_manifest
-            ),
+            generated_outputs=_ds18_generated_output_paths(generated_manifest),
         )
     except (OSError, subprocess.SubprocessError, UnicodeDecodeError, ValueError):
-        return [
-            f"ds18_time_semantics_source_coordinate_unresolvable:{landing_id}:"
-            f"{commit}"
-        ]
+        return [f"ds18_time_semantics_source_coordinate_unresolvable:{landing_id}:{commit}"]
     expected_digests = {
-        "generated_manifest_sha256": (
-            "sha256:" + hashlib.sha256(generated_manifest).hexdigest()
-        ),
+        "generated_manifest_sha256": ("sha256:" + hashlib.sha256(generated_manifest).hexdigest()),
         "scanner_sha256": "sha256:" + hashlib.sha256(scanner).hexdigest(),
     }
     current_digests = {
         "generated_manifest_sha256": (
             "sha256:" + hashlib.sha256(current_generated_manifest).hexdigest()
         ),
-        "scanner_sha256": (
-            "sha256:" + hashlib.sha256(current_scanner).hexdigest()
-        ),
+        "scanner_sha256": ("sha256:" + hashlib.sha256(current_scanner).hexdigest()),
     }
     for field, expected in expected_digests.items():
         if reconciliation.get(field) != expected:
-            errors.append(
-                f"ds18_time_semantics_source_artifact_drift:{landing_id}:"
-                f"{field}"
-            )
+            errors.append(f"ds18_time_semantics_source_artifact_drift:{landing_id}:{field}")
         if current_digests[field] != expected:
-            errors.append(
-                f"ds18_time_semantics_source_current_artifact_drift:"
-                f"{landing_id}:{field}"
-            )
+            errors.append(f"ds18_time_semantics_source_current_artifact_drift:{landing_id}:{field}")
     files = coverage.get("files")
     if not isinstance(files, list):
-        errors.append(
-            f"ds18_time_semantics_source_files_invalid:{landing_id}"
-        )
+        errors.append(f"ds18_time_semantics_source_files_invalid:{landing_id}")
         return errors
     current_paths = {
-        str(file_row.get("path"))
-        for file_row in files
-        if isinstance(file_row, Mapping)
+        str(file_row.get("path")) for file_row in files if isinstance(file_row, Mapping)
     }
     if checkpoint_paths != current_paths:
         errors.append(
@@ -18545,8 +18077,7 @@ def _ds18_source_checkpoint_errors(
     )
     if completed.returncode != 0:
         errors.append(
-            f"ds18_time_semantics_source_bytes_drift:{landing_id}:"
-            f"exit={completed.returncode}"
+            f"ds18_time_semantics_source_bytes_drift:{landing_id}:exit={completed.returncode}"
         )
     return errors
 
@@ -18613,11 +18144,14 @@ def _ds18_resolve_lineage_checkpoint(
     label: str,
     errors: list[str],
     git_blob_loader: Callable[[str, str], bytes],
-) -> tuple[
-    Mapping[str, Any],
-    dict[tuple[str, str, int], Mapping[str, Any]],
-    dict[tuple[str, str, int], Mapping[str, Any]],
-] | None:
+) -> (
+    tuple[
+        Mapping[str, Any],
+        dict[tuple[str, str, int], Mapping[str, Any]],
+        dict[tuple[str, str, int], Mapping[str, Any]],
+    ]
+    | None
+):
     """Resolve and content-bind one historical DS18 checkpoint."""
     if not isinstance(checkpoint, Mapping):
         errors.append(f"ds18_time_semantics_lineage_checkpoint_invalid:{label}")
@@ -18635,16 +18169,12 @@ def _ds18_resolve_lineage_checkpoint(
         artifact = git_blob_loader(commit, path_ref)
     except (OSError, subprocess.SubprocessError, ValueError):
         errors.append(
-            "ds18_time_semantics_lineage_coordinate_unresolvable:"
-            f"{label}:{commit}:{path_ref}"
+            f"ds18_time_semantics_lineage_coordinate_unresolvable:{label}:{commit}:{path_ref}"
         )
         return None
     artifact_sha256 = "sha256:" + hashlib.sha256(artifact).hexdigest()
     if checkpoint.get("artifact_sha256") != artifact_sha256:
-        errors.append(
-            f"ds18_time_semantics_lineage_artifact_drift:{label}:"
-            f"{artifact_sha256}"
-        )
+        errors.append(f"ds18_time_semantics_lineage_artifact_drift:{label}:{artifact_sha256}")
         return None
     try:
         historical = json.loads(artifact)
@@ -18653,33 +18183,20 @@ def _ds18_resolve_lineage_checkpoint(
             raise ValueError("historical coverage is not an object")
         roots = _ds18_coverage_root_index(coverage)
     except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
-        errors.append(
-            f"ds18_time_semantics_lineage_artifact_invalid:{label}:{exc}"
-        )
+        errors.append(f"ds18_time_semantics_lineage_artifact_invalid:{label}:{exc}")
         return None
     coverage_sha256 = "sha256:" + _canonical_sha256(coverage)
     if checkpoint.get("coverage_sha256") != coverage_sha256:
-        errors.append(
-            f"ds18_time_semantics_lineage_coverage_drift:{label}:"
-            f"{coverage_sha256}"
-        )
+        errors.append(f"ds18_time_semantics_lineage_coverage_drift:{label}:{coverage_sha256}")
     obligated = _ds18_obligated_roots(roots)
     mapping_sha256 = _ds18_obligation_manifest_sha256(obligated)
     if checkpoint.get("obligation_manifest_sha256") != mapping_sha256:
-        errors.append(
-            f"ds18_time_semantics_lineage_mapping_drift:{label}:"
-            f"{mapping_sha256}"
-        )
+        errors.append(f"ds18_time_semantics_lineage_mapping_drift:{label}:{mapping_sha256}")
     count_field = (
-        "obligation_count_summary"
-        if label == "freeze"
-        else "checkpoint_obligation_count_summary"
+        "obligation_count_summary" if label == "freeze" else "checkpoint_obligation_count_summary"
     )
     if checkpoint.get(count_field) != len(obligated):
-        errors.append(
-            f"ds18_time_semantics_lineage_count_drift:{label}:"
-            f"{len(obligated)}"
-        )
+        errors.append(f"ds18_time_semantics_lineage_count_drift:{label}:{len(obligated)}")
     return coverage, roots, obligated
 
 
@@ -18724,24 +18241,18 @@ def _build_ds18_time_semantics_lineage(
 ) -> dict[str, Any]:
     """Build the pinned freeze-plus-landings composition from Git blobs."""
     artifact, freeze_coverage, previous_roots, previous_obligated = (
-        _ds18_lineage_state_at_git_coordinate(
-            DS18_TIME_SEMANTICS_LINEAGE_FREEZE_COMMIT
-        )
+        _ds18_lineage_state_at_git_coordinate(DS18_TIME_SEMANTICS_LINEAGE_FREEZE_COMMIT)
     )
     freeze = {
         "checkpoint_commit": DS18_TIME_SEMANTICS_LINEAGE_FREEZE_COMMIT,
         "artifact_path": DS18_TIME_SEMANTICS_GIT_REGISTER_REF,
         "artifact_sha256": "sha256:" + hashlib.sha256(artifact).hexdigest(),
         "coverage_sha256": "sha256:" + _canonical_sha256(freeze_coverage),
-        "obligation_manifest_sha256": _ds18_obligation_manifest_sha256(
-            previous_obligated
-        ),
+        "obligation_manifest_sha256": _ds18_obligation_manifest_sha256(previous_obligated),
         "obligation_count_summary": len(previous_obligated),
     }
     landings: list[dict[str, Any]] = []
-    for slice_id, admission_commit, checkpoint_commit in (
-        DS18_TIME_SEMANTICS_LINEAGE_LANDINGS
-    ):
+    for slice_id, admission_commit, checkpoint_commit in DS18_TIME_SEMANTICS_LINEAGE_LANDINGS:
         artifact, checkpoint_coverage, checkpoint_roots, checkpoint_obligated = (
             _ds18_lineage_state_at_git_coordinate(checkpoint_commit)
         )
@@ -18775,18 +18286,12 @@ def _build_ds18_time_semantics_lineage(
                 "admission_commit": admission_commit,
                 "checkpoint_commit": checkpoint_commit,
                 "artifact_path": DS18_TIME_SEMANTICS_GIT_REGISTER_REF,
-                "artifact_sha256": (
-                    "sha256:" + hashlib.sha256(artifact).hexdigest()
-                ),
-                "coverage_sha256": (
-                    "sha256:" + _canonical_sha256(checkpoint_coverage)
-                ),
+                "artifact_sha256": ("sha256:" + hashlib.sha256(artifact).hexdigest()),
+                "coverage_sha256": ("sha256:" + _canonical_sha256(checkpoint_coverage)),
                 "obligation_manifest_sha256": (
                     _ds18_obligation_manifest_sha256(checkpoint_obligated)
                 ),
-                "checkpoint_obligation_count_summary": len(
-                    checkpoint_obligated
-                ),
+                "checkpoint_obligation_count_summary": len(checkpoint_obligated),
                 "delta_manifest_sha256": _ds18_delta_manifest_sha256(entrants),
                 "entered_root_count": len(entrants),
                 "entrants": entrants,
@@ -18794,9 +18299,7 @@ def _build_ds18_time_semantics_lineage(
         )
         previous_roots = checkpoint_roots
         previous_obligated = checkpoint_obligated
-    current_obligated = _ds18_obligated_roots(
-        _ds18_coverage_root_index(current_coverage)
-    )
+    current_obligated = _ds18_obligated_roots(_ds18_coverage_root_index(current_coverage))
     entered = set(current_obligated) - set(previous_obligated)
     exited = set(previous_obligated) - set(current_obligated)
     if entered or exited:
@@ -18805,9 +18308,7 @@ def _build_ds18_time_semantics_lineage(
             f"entered={sorted(entered)}:exited={sorted(exited)}"
         )
     source_reconciliations: list[dict[str, Any]] = []
-    for landing_id, source_checkpoint_commit in (
-        DS18_TIME_SEMANTICS_SOURCE_RECONCILIATIONS
-    ):
+    for landing_id, source_checkpoint_commit in DS18_TIME_SEMANTICS_SOURCE_RECONCILIATIONS:
         rebindings = [
             {
                 "path": selector[0],
@@ -18838,22 +18339,14 @@ def _build_ds18_time_semantics_lineage(
             "scanner_sha256": "sha256:" + hashlib.sha256(scanner).hexdigest(),
             "source_file_count_summary": current_coverage["source_file_count"],
             "root_count_summary": current_coverage["root_count"],
-            "file_manifest_sha256": current_coverage[
-                "file_manifest_sha256"
-            ],
-            "root_manifest_sha256": current_coverage[
-                "root_manifest_sha256"
-            ],
-            "obligation_manifest_sha256": (
-                _ds18_obligation_manifest_sha256(current_obligated)
-            ),
+            "file_manifest_sha256": current_coverage["file_manifest_sha256"],
+            "root_manifest_sha256": current_coverage["root_manifest_sha256"],
+            "obligation_manifest_sha256": (_ds18_obligation_manifest_sha256(current_obligated)),
             "obligation_count_summary": len(current_obligated),
             "entered_root_count": 0,
             "exited_root_count": 0,
             "rebound_root_count": len(rebindings),
-            "rebound_manifest_sha256": (
-                _ds18_rebinding_manifest_sha256(rebindings)
-            ),
+            "rebound_manifest_sha256": (_ds18_rebinding_manifest_sha256(rebindings)),
             "rebindings": rebindings,
         }
         checkpoint_errors = _ds18_source_checkpoint_errors(
@@ -18893,15 +18386,9 @@ def _validate_ds18_time_semantics_lineage(
         errors.append("ds18_time_semantics_lineage_schema_drift")
     if lineage.get("predicate_provenance") != "recomputed":
         errors.append("ds18_time_semantics_lineage_provenance_drift")
-    if (
-        lineage.get("selector_identity")
-        != DS18_TIME_SEMANTICS_LINEAGE_SELECTOR_IDENTITY
-    ):
+    if lineage.get("selector_identity") != DS18_TIME_SEMANTICS_LINEAGE_SELECTOR_IDENTITY:
         errors.append("ds18_time_semantics_lineage_selector_identity_drift")
-    if (
-        lineage.get("composition_rule")
-        != DS18_TIME_SEMANTICS_LINEAGE_COMPOSITION_RULE
-    ):
+    if lineage.get("composition_rule") != DS18_TIME_SEMANTICS_LINEAGE_COMPOSITION_RULE:
         errors.append("ds18_time_semantics_lineage_composition_rule_drift")
 
     resolved_freeze = _ds18_resolve_lineage_checkpoint(
@@ -18915,9 +18402,7 @@ def _validate_ds18_time_semantics_lineage(
     freeze_checkpoint = lineage["freeze"]
     if not isinstance(freeze_checkpoint, Mapping):  # pragma: no cover - resolved
         return None
-    if coverage.get("frontend_freeze_commit") != freeze_checkpoint.get(
-        "checkpoint_commit"
-    ):
+    if coverage.get("frontend_freeze_commit") != freeze_checkpoint.get("checkpoint_commit"):
         errors.append("ds18_time_semantics_lineage_freeze_coordinate_drift")
     _freeze_coverage, previous_roots, previous_obligated = resolved_freeze
     freeze_obligated = dict(previous_obligated)
@@ -18943,15 +18428,11 @@ def _validate_ds18_time_semantics_lineage(
     seen_slices: set[str] = set()
     for index, landing in enumerate(landings):
         if not isinstance(landing, Mapping):
-            errors.append(
-                f"ds18_time_semantics_lineage_landing_invalid:{index}"
-            )
+            errors.append(f"ds18_time_semantics_lineage_landing_invalid:{index}")
             continue
         slice_id = landing.get("slice_id")
         if not isinstance(slice_id, str) or not slice_id or slice_id in seen_slices:
-            errors.append(
-                f"ds18_time_semantics_lineage_slice_identity_invalid:{index}"
-            )
+            errors.append(f"ds18_time_semantics_lineage_slice_identity_invalid:{index}")
             continue
         seen_slices.add(slice_id)
         resolved = _ds18_resolve_lineage_checkpoint(
@@ -18970,9 +18451,9 @@ def _validate_ds18_time_semantics_lineage(
                 f"{slice_id}:{_ds18_selector_label(selector)}"
             )
         for selector in sorted(set(previous_obligated) & set(checkpoint_obligated)):
-            if _ds18_obligation_binding(
-                previous_obligated[selector]
-            ) != _ds18_obligation_binding(checkpoint_obligated[selector]):
+            if _ds18_obligation_binding(previous_obligated[selector]) != _ds18_obligation_binding(
+                checkpoint_obligated[selector]
+            ):
                 errors.append(
                     "ds18_time_semantics_lineage_prior_obligation_changed:"
                     f"{slice_id}:{_ds18_selector_label(selector)}"
@@ -18981,23 +18462,17 @@ def _validate_ds18_time_semantics_lineage(
         delta_selectors = set(checkpoint_obligated) - set(previous_obligated)
         entries = landing.get("entrants")
         if not isinstance(entries, list):
-            errors.append(
-                f"ds18_time_semantics_lineage_entries_invalid:{slice_id}"
-            )
+            errors.append(f"ds18_time_semantics_lineage_entries_invalid:{slice_id}")
             continue
         declared: dict[tuple[str, str, int], Mapping[str, Any]] = {}
         for entry in entries:
             if not isinstance(entry, Mapping):
-                errors.append(
-                    f"ds18_time_semantics_lineage_entry_invalid:{slice_id}"
-                )
+                errors.append(f"ds18_time_semantics_lineage_entry_invalid:{slice_id}")
                 continue
             try:
                 selector = _ds18_lineage_entry_selector(entry)
             except ValueError:
-                errors.append(
-                    f"ds18_time_semantics_lineage_entry_invalid:{slice_id}"
-                )
+                errors.append(f"ds18_time_semantics_lineage_entry_invalid:{slice_id}")
                 continue
             if selector in declared:
                 errors.append(
@@ -19047,9 +18522,7 @@ def _validate_ds18_time_semantics_lineage(
             or re.fullmatch(r"[a-f0-9]{40}", admission_commit) is None
             or artifact_path != DS18_TIME_SEMANTICS_GIT_REGISTER_REF
         ):
-            errors.append(
-                f"ds18_time_semantics_landing_admission_invalid:{slice_id}"
-            )
+            errors.append(f"ds18_time_semantics_landing_admission_invalid:{slice_id}")
         else:
             try:
                 before_admission = _ds18_obligated_roots_at_git_coordinate(
@@ -19078,28 +18551,20 @@ def _validate_ds18_time_semantics_lineage(
                 admission_delta = set(at_admission) - set(before_admission)
                 admission_losses = set(before_admission) - set(at_admission)
                 if admission_losses or admission_delta != set(declared):
-                    errors.append(
-                        "ds18_time_semantics_landing_admission_delta_drift:"
-                        f"{slice_id}"
-                    )
+                    errors.append(f"ds18_time_semantics_landing_admission_delta_drift:{slice_id}")
         try:
             delta_sha256 = _ds18_delta_manifest_sha256(entries)
         except ValueError:
             delta_sha256 = "invalid"
         if landing.get("delta_manifest_sha256") != delta_sha256:
-            errors.append(
-                f"ds18_time_semantics_landing_delta_manifest_drift:{slice_id}"
-            )
+            errors.append(f"ds18_time_semantics_landing_delta_manifest_drift:{slice_id}")
         if landing.get("entered_root_count") != len(delta_selectors):
             errors.append(
-                f"ds18_time_semantics_landing_count_drift:{slice_id}:"
-                f"{len(delta_selectors)}"
+                f"ds18_time_semantics_landing_count_drift:{slice_id}:{len(delta_selectors)}"
             )
         overlap = set(composed_obligated) & delta_selectors
         if overlap:  # pragma: no cover - follows from set difference, kept explicit
-            errors.append(
-                f"ds18_time_semantics_lineage_delta_overlap:{slice_id}"
-            )
+            errors.append(f"ds18_time_semantics_lineage_delta_overlap:{slice_id}")
         composed_obligated.update(
             {selector: checkpoint_obligated[selector] for selector in delta_selectors}
         )
@@ -19126,29 +18591,18 @@ def _validate_ds18_time_semantics_lineage(
         else (None, None)
         for reconciliation in source_reconciliations
     )
-    if (
-        declared_source_composition
-        != DS18_TIME_SEMANTICS_SOURCE_RECONCILIATIONS
-    ):
-        errors.append(
-            "ds18_time_semantics_source_composition_identity_drift"
-        )
+    if declared_source_composition != DS18_TIME_SEMANTICS_SOURCE_RECONCILIATIONS:
+        errors.append("ds18_time_semantics_source_composition_identity_drift")
     source_counts: dict[str, dict[str, int]] = {}
     for index, reconciliation in enumerate(source_reconciliations):
         if not isinstance(reconciliation, Mapping):
-            errors.append(
-                f"ds18_time_semantics_source_reconciliation_invalid:{index}"
-            )
+            errors.append(f"ds18_time_semantics_source_reconciliation_invalid:{index}")
             continue
         landing_id = reconciliation.get("landing_id")
         if not isinstance(landing_id, str) or not landing_id:
-            errors.append(
-                f"ds18_time_semantics_source_identity_invalid:{index}"
-            )
+            errors.append(f"ds18_time_semantics_source_identity_invalid:{index}")
             continue
-        errors.extend(
-            _ds18_source_checkpoint_errors(reconciliation, coverage)
-        )
+        errors.extend(_ds18_source_checkpoint_errors(reconciliation, coverage))
         entered_selectors = set(current_obligated) - set(composed_obligated)
         exited_selectors = set(composed_obligated) - set(current_obligated)
         rebound_selectors = {
@@ -19163,9 +18617,7 @@ def _validate_ds18_time_semantics_lineage(
             "root_count_summary": coverage.get("root_count"),
             "file_manifest_sha256": coverage.get("file_manifest_sha256"),
             "root_manifest_sha256": coverage.get("root_manifest_sha256"),
-            "obligation_manifest_sha256": (
-                _ds18_obligation_manifest_sha256(current_obligated)
-            ),
+            "obligation_manifest_sha256": (_ds18_obligation_manifest_sha256(current_obligated)),
             "obligation_count_summary": len(current_obligated),
             "entered_root_count": len(entered_selectors),
             "exited_root_count": len(exited_selectors),
@@ -19173,29 +18625,20 @@ def _validate_ds18_time_semantics_lineage(
         }
         for field, expected in expected_summaries.items():
             if reconciliation.get(field) != expected:
-                errors.append(
-                    f"ds18_time_semantics_source_summary_drift:"
-                    f"{landing_id}:{field}"
-                )
+                errors.append(f"ds18_time_semantics_source_summary_drift:{landing_id}:{field}")
         entries = reconciliation.get("rebindings")
         if not isinstance(entries, list):
-            errors.append(
-                f"ds18_time_semantics_source_rebindings_invalid:{landing_id}"
-            )
+            errors.append(f"ds18_time_semantics_source_rebindings_invalid:{landing_id}")
             continue
         declared: dict[tuple[str, str, int], Mapping[str, Any]] = {}
         for entry in entries:
             if not isinstance(entry, Mapping):
-                errors.append(
-                    f"ds18_time_semantics_source_rebinding_invalid:{landing_id}"
-                )
+                errors.append(f"ds18_time_semantics_source_rebinding_invalid:{landing_id}")
                 continue
             try:
                 selector = _ds18_lineage_entry_selector(entry)
             except ValueError:
-                errors.append(
-                    f"ds18_time_semantics_source_rebinding_invalid:{landing_id}"
-                )
+                errors.append(f"ds18_time_semantics_source_rebinding_invalid:{landing_id}")
                 continue
             if selector in declared:
                 errors.append(
@@ -19215,16 +18658,12 @@ def _validate_ds18_time_semantics_lineage(
             )
         for selector in sorted(rebound_selectors & set(declared)):
             entry = declared[selector]
-            if entry.get("before") != _ds18_obligation_binding(
-                composed_obligated[selector]
-            ):
+            if entry.get("before") != _ds18_obligation_binding(composed_obligated[selector]):
                 errors.append(
                     "ds18_time_semantics_source_rebinding_before_drift:"
                     f"{landing_id}:{_ds18_selector_label(selector)}"
                 )
-            if entry.get("after") != _ds18_obligation_binding(
-                current_obligated[selector]
-            ):
+            if entry.get("after") != _ds18_obligation_binding(current_obligated[selector]):
                 errors.append(
                     "ds18_time_semantics_source_rebinding_after_drift:"
                     f"{landing_id}:{_ds18_selector_label(selector)}"
@@ -19234,15 +18673,9 @@ def _validate_ds18_time_semantics_lineage(
         except ValueError:
             rebound_sha256 = "invalid"
         if reconciliation.get("rebound_manifest_sha256") != rebound_sha256:
-            errors.append(
-                f"ds18_time_semantics_source_rebinding_manifest_drift:"
-                f"{landing_id}"
-            )
+            errors.append(f"ds18_time_semantics_source_rebinding_manifest_drift:{landing_id}")
         composed_obligated.update(
-            {
-                selector: current_obligated[selector]
-                for selector in rebound_selectors
-            }
+            {selector: current_obligated[selector] for selector in rebound_selectors}
         )
         source_counts[landing_id] = {
             "entered": len(entered_selectors),
@@ -19251,13 +18684,11 @@ def _validate_ds18_time_semantics_lineage(
         }
     for selector in sorted(set(freeze_obligated) - set(current_obligated)):
         errors.append(
-            "ds18_time_semantics_frozen_obligation_missing:"
-            f"{_ds18_selector_label(selector)}"
+            f"ds18_time_semantics_frozen_obligation_missing:{_ds18_selector_label(selector)}"
         )
     for selector in sorted(set(current_obligated) - set(composed_obligated)):
         errors.append(
-            "ds18_time_semantics_unreconciled_current_obligation:"
-            f"{_ds18_selector_label(selector)}"
+            f"ds18_time_semantics_unreconciled_current_obligation:{_ds18_selector_label(selector)}"
         )
     for selector in sorted(set(composed_obligated) - set(current_obligated)):
         errors.append(
@@ -19265,9 +18696,9 @@ def _validate_ds18_time_semantics_lineage(
             f"{_ds18_selector_label(selector)}"
         )
     for selector in sorted(set(composed_obligated) & set(current_obligated)):
-        if _ds18_obligation_binding(
-            composed_obligated[selector]
-        ) != _ds18_obligation_binding(current_obligated[selector]):
+        if _ds18_obligation_binding(composed_obligated[selector]) != _ds18_obligation_binding(
+            current_obligated[selector]
+        ):
             errors.append(
                 "ds18_time_semantics_current_obligation_receipt_drift:"
                 f"{_ds18_selector_label(selector)}"
@@ -19289,9 +18720,8 @@ def _validate_ds18_time_semantics_coverage(
     """Validate the current denominator; post-freeze growth is the landing red."""
     current_scan = scan if scan is not None else _ds18_time_semantics_scan()
     coverage = data.get("ds18_time_semantics_coverage")
-    frozen = (
-        isinstance(coverage, Mapping)
-        and isinstance(coverage.get("frontend_freeze_commit"), str)
+    frozen = isinstance(coverage, Mapping) and isinstance(
+        coverage.get("frontend_freeze_commit"), str
     )
     _validate_ds18_time_semantics_coverage_core(
         coverage,
@@ -19343,15 +18773,9 @@ def _ds17_surgical_ds18_coverage(
     if not isinstance(opening_files, list) or not isinstance(fresh_files, list):
         raise ValueError("DS17 DS18 file container drift")
     opening_by_path = {
-        str(row.get("path")): row
-        for row in opening_files
-        if isinstance(row, Mapping)
+        str(row.get("path")): row for row in opening_files if isinstance(row, Mapping)
     }
-    fresh_by_path = {
-        str(row.get("path")): row
-        for row in fresh_files
-        if isinstance(row, Mapping)
-    }
+    fresh_by_path = {str(row.get("path")): row for row in fresh_files if isinstance(row, Mapping)}
     foreign_paths = set(opening_by_path) | set(fresh_by_path)
     foreign_paths -= DS17_CONFIDENCE_LEDGER_DS18_PATHS
     foreign_drift = sorted(
@@ -19361,18 +18785,12 @@ def _ds17_surgical_ds18_coverage(
     )
     if foreign_drift:
         raise ValueError("DS17 DS18 foreign row drift:" + repr(foreign_drift))
-    missing_fresh_paths = sorted(
-        DS17_CONFIDENCE_LEDGER_DS18_PATHS - set(fresh_by_path)
-    )
+    missing_fresh_paths = sorted(DS17_CONFIDENCE_LEDGER_DS18_PATHS - set(fresh_by_path))
     if missing_fresh_paths:
-        raise ValueError(
-            "DS17 DS18 authorized row missing:" + repr(missing_fresh_paths)
-        )
+        raise ValueError("DS17 DS18 authorized row missing:" + repr(missing_fresh_paths))
     candidate = copy.deepcopy(dict(opening))
     if opening.get("historical_lineage") is None:
-        candidate["historical_lineage"] = copy.deepcopy(
-            fresh["historical_lineage"]
-        )
+        candidate["historical_lineage"] = copy.deepcopy(fresh["historical_lineage"])
     for field, value in fresh.items():
         if field not in frozen_fields and field != "files":
             candidate[field] = copy.deepcopy(value)
@@ -19418,9 +18836,7 @@ def _ds17_json_array_object_spans(
             raise ValueError("DS17 JSON array contains a non-object row")
         identity = row.get(identity_field)
         if not isinstance(identity, str) or identity in rows:
-            raise ValueError(
-                f"DS17 JSON array identity drift:{identity_field}:{identity}"
-            )
+            raise ValueError(f"DS17 JSON array identity drift:{identity_field}:{identity}")
         rows[identity] = (cursor, row_end, row)
         cursor = row_end
     return rows
@@ -19447,8 +18863,7 @@ def _ds17_ds18_transition_text(
         identity_field="path",
     )
     raw_opening_rows = {
-        path_ref: original_text[start:end]
-        for path_ref, (start, end, _row) in opening_spans.items()
+        path_ref: original_text[start:end] for path_ref, (start, end, _row) in opening_spans.items()
     }
     candidate_files = coverage.get("files")
     if not isinstance(candidate_files, list):
@@ -19476,9 +18891,7 @@ def _ds17_ds18_transition_text(
         "obligated_root_count",
         "covered_root_count",
     )
-    replacements: list[tuple[int, int, str]] = [
-        (files_start, files_end, files_rendered)
-    ]
+    replacements: list[tuple[int, int, str]] = [(files_start, files_end, files_rendered)]
     if "historical_lineage" not in _opening:
         freeze_start, freeze_end, _freeze = _json_field_value_span(
             original_text,
@@ -19520,9 +18933,7 @@ def _ds17_ds18_transition_text(
     return candidate
 
 
-def _ds17_surface_transition_text(
-    text: str, block: Mapping[str, Any]
-) -> str:
+def _ds17_surface_transition_text(text: str, block: Mapping[str, Any]) -> str:
     rendered = _render_top_level_object(block)
     if DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD in json.loads(text):
         start, end, _stored = _json_top_level_object_span(
@@ -19533,11 +18944,7 @@ def _ds17_surface_transition_text(
     positions = [match.start() for match in re.finditer(re.escape(needle), text)]
     if len(positions) != 1:
         raise ValueError("DS17 register insertion anchor drift")
-    insertion = (
-        f'  {json.dumps(DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD)}: '
-        + rendered
-        + ",\n"
-    )
+    insertion = f"  {json.dumps(DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD)}: " + rendered + ",\n"
     return text[: positions[0]] + insertion + text[positions[0] :]
 
 
@@ -19555,14 +18962,12 @@ def _ds17_registration_preservation_errors(
     opening_peers = {
         key: value
         for key, value in opening.items()
-        if key != "ds18_time_semantics_coverage"
-        and key != DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+        if key != "ds18_time_semantics_coverage" and key != DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
     }
     candidate_peers = {
         key: value
         for key, value in candidate.items()
-        if key != "ds18_time_semantics_coverage"
-        and key != DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
+        if key != "ds18_time_semantics_coverage" and key != DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
     }
     if opening_peers != candidate_peers:
         errors.append("ds17_registration_peer_block_drift")
@@ -19586,29 +18991,21 @@ def _ds17_registration_preservation_errors(
         if opening_ds18.get(field) != candidate_ds18.get(field):
             errors.append(f"ds17_registration_ds18_frozen_drift:{field}")
     try:
-        opening_start, opening_end, _opening_coverage = (
-            _json_top_level_object_span(
-                original_text, "ds18_time_semantics_coverage"
-            )
+        opening_start, opening_end, _opening_coverage = _json_top_level_object_span(
+            original_text, "ds18_time_semantics_coverage"
         )
-        candidate_start, candidate_end, _candidate_coverage = (
-            _json_top_level_object_span(
-                candidate_text, "ds18_time_semantics_coverage"
-            )
+        candidate_start, candidate_end, _candidate_coverage = _json_top_level_object_span(
+            candidate_text, "ds18_time_semantics_coverage"
         )
-        opening_files_start, opening_files_end, _opening_files = (
-            _json_field_value_span(
-                original_text,
-                field="files",
-                within=(opening_start, opening_end),
-            )
+        opening_files_start, opening_files_end, _opening_files = _json_field_value_span(
+            original_text,
+            field="files",
+            within=(opening_start, opening_end),
         )
-        candidate_files_start, candidate_files_end, _candidate_files = (
-            _json_field_value_span(
-                candidate_text,
-                field="files",
-                within=(candidate_start, candidate_end),
-            )
+        candidate_files_start, candidate_files_end, _candidate_files = _json_field_value_span(
+            candidate_text,
+            field="files",
+            within=(candidate_start, candidate_end),
         )
         opening_spans = _ds17_json_array_object_spans(
             original_text,
@@ -19623,15 +19020,11 @@ def _ds17_registration_preservation_errors(
         opening_paths = set(opening_spans)
         candidate_paths = set(candidate_spans)
         for path_ref in sorted(
-            (opening_paths | candidate_paths)
-            - DS17_CONFIDENCE_LEDGER_DS18_PATHS
+            (opening_paths | candidate_paths) - DS17_CONFIDENCE_LEDGER_DS18_PATHS
         ):
             before_start, before_end, _before = opening_spans[path_ref]
             after_start, after_end, _after = candidate_spans[path_ref]
-            if (
-                original_text[before_start:before_end]
-                != candidate_text[after_start:after_end]
-            ):
+            if original_text[before_start:before_end] != candidate_text[after_start:after_end]:
                 errors.append(f"ds17_registration_foreign_row_byte_drift:{path_ref}")
     except (KeyError, TypeError, ValueError) as exc:
         errors.append(f"ds17_registration_ds18_span_invalid:{exc}")
@@ -19663,27 +19056,15 @@ def _ds17_confidence_ledger_risk_spend_candidate_text(
     block = _build_ds17_confidence_ledger_risk_spend_surface()
     transitioned = _ds17_ds18_transition_text(original_text, coverage)
     candidate = _ds17_surface_transition_text(transitioned, block)
-    preservation_errors = _ds17_registration_preservation_errors(
-        original_text, candidate
-    )
+    preservation_errors = _ds17_registration_preservation_errors(original_text, candidate)
     if preservation_errors:
-        raise ValueError(
-            "DS17 registration candidate rejected:"
-            + ";".join(preservation_errors)
-        )
+        raise ValueError("DS17 registration candidate rejected:" + ";".join(preservation_errors))
     data = json.loads(candidate)
     candidate_errors = _schema_errors(data, SCHEMA_PATH)
-    _validate_ds17_confidence_ledger_risk_spend_surface(
-        data, candidate_errors, expected=block
-    )
-    _validate_ds18_time_semantics_coverage(
-        data, candidate_errors, scan=current_scan
-    )
+    _validate_ds17_confidence_ledger_risk_spend_surface(data, candidate_errors, expected=block)
+    _validate_ds18_time_semantics_coverage(data, candidate_errors, scan=current_scan)
     if candidate_errors:
-        raise ValueError(
-            "DS17 registration candidate rejected:"
-            + ";".join(candidate_errors)
-        )
+        raise ValueError("DS17 registration candidate rejected:" + ";".join(candidate_errors))
     if verify_idempotency:
         repeated = _ds17_confidence_ledger_risk_spend_candidate_text(
             candidate,
@@ -19716,10 +19097,7 @@ def _write_ds17_confidence_ledger_risk_spend_family() -> dict[str, int]:
         errors: list[str] = []
         for governed_path, expected_text in candidates.items():
             if governed_path.read_text(encoding="utf-8") != expected_text:
-                errors.append(
-                    "ds17_registration_family_readback_drift:"
-                    + str(governed_path)
-                )
+                errors.append("ds17_registration_family_readback_drift:" + str(governed_path))
         reread = _load_json(REGISTER_PATH)
         errors.extend(_schema_errors(reread, SCHEMA_PATH))
         _validate_ds17_confidence_ledger_risk_spend_surface(reread, errors)
@@ -19730,10 +19108,7 @@ def _write_ds17_confidence_ledger_risk_spend_family() -> dict[str, int]:
     def final_pre_promote_fence() -> None:
         for governed_path, original_text in original_texts.items():
             if governed_path.read_text(encoding="utf-8") != original_text:
-                raise ValueError(
-                    "DS17 registration governed preimage moved:"
-                    + str(governed_path)
-                )
+                raise ValueError("DS17 registration governed preimage moved:" + str(governed_path))
 
     _failure_atomic_write_texts(
         candidates,
@@ -19769,9 +19144,7 @@ def validate_register(
             sources=direct_transport_sources,
         )
     _validate_integrate_contract_debt_findings(data, errors)
-    errors.extend(
-        _authority_presentation_errors(data, live_probes=live_probes)
-    )
+    errors.extend(_authority_presentation_errors(data, live_probes=live_probes))
     try:
         generated_supplemental = _supplemental_findings()
     except ValueError as exc:
@@ -19786,16 +19159,11 @@ def validate_register(
     supplemental_rows = data.get("supplemental_findings", [])
     if isinstance(supplemental_rows, list):
         supplemental_ids = [
-            str(row.get("finding_id"))
-            for row in supplemental_rows
-            if isinstance(row, Mapping)
+            str(row.get("finding_id")) for row in supplemental_rows if isinstance(row, Mapping)
         ]
         if len(supplemental_ids) != len(set(supplemental_ids)):
             errors.append("duplicate_supplemental_finding_id")
-        expected_dates = {
-            row["finding_id"]: row["decision_date"]
-            for row in generated_supplemental
-        }
+        expected_dates = {row["finding_id"]: row["decision_date"] for row in generated_supplemental}
         for row in supplemental_rows:
             if not isinstance(row, Mapping):
                 continue
@@ -19828,7 +19196,6 @@ def validate_register(
     ds1 = _load_json(DS1_PATH)
     ds2 = _load_json(DS2_PATH)
     ds1_ids = [entry["surface_id"] for entry in ds1["entries"]]
-    ds1_by_id = {entry["surface_id"]: entry for entry in ds1["entries"]}
     mapped, unbound, mapping_errors = _ds2_links(set(ds1_ids), ds2)
     errors.extend(mapping_errors)
 
@@ -19846,21 +19213,19 @@ def validate_register(
     if entry_ids != ds1_ids:
         missing = sorted(set(ds1_ids) - set(entry_ids))
         extra = sorted(set(entry_ids) - set(ds1_ids))
-        errors.append(f"ds1_register_parity:missing={missing}:extra={extra}:order_drift={not missing and not extra}")
+        errors.append(
+            f"ds1_register_parity:missing={missing}:extra={extra}:\
+order_drift={not missing and not extra}"
+        )
     if len(entry_ids) != len(set(entry_ids)):
         errors.append("register_duplicate_unit")
     entry_by_id = {entry["unit_id"]: entry for entry in entries}
     _validate_ds9_c07_adjudication(data, entry_by_id, errors)
     _validate_ds10_capability_discovery_roots(entry_by_id, errors)
     for entry in entries:
-        if (
-            "aggregate_disposition_receipt" in entry
-            and entry["unit_id"] != UI_PRIMITIVES_ROOT_ID
-        ):
+        if "aggregate_disposition_receipt" in entry and entry["unit_id"] != UI_PRIMITIVES_ROOT_ID:
             errors.append(f"ui_primitives_receipt_wrong_root:{entry['unit_id']}")
-    _validate_ui_primitives_mixed_receipt(
-        entry_by_id[UI_PRIMITIVES_ROOT_ID], errors
-    )
+    _validate_ui_primitives_mixed_receipt(entry_by_id[UI_PRIMITIVES_ROOT_ID], errors)
 
     linked_ds2: list[str] = []
     for unit_id, entry in entry_by_id.items():
@@ -19887,7 +19252,9 @@ def validate_register(
 
     for unit_id in derived_operations:
         entry = entry_by_id.get(unit_id)
-        expected = "wire_disposition" if unit_id in WIRE_OPERATION_RATIONALES else "retire_disposition"
+        expected = (
+            "wire_disposition" if unit_id in WIRE_OPERATION_RATIONALES else "retire_disposition"
+        )
         if entry is None or entry["disposition"] != expected:
             errors.append(f"uncalled_operation_decision_missing:{unit_id}")
         elif entry["owner_slice"] != "DS3" or entry["decision_detail"]["consumer_slice"] != "DS3":
@@ -19904,7 +19271,11 @@ def validate_register(
         if entry is None or entry["disposition"] not in {"delete_pending", "deleted"}:
             errors.append(f"wave_candidate_disposition_invalid:{unit_id}")
     signing = entry_by_id.get("derivation-browser-signature")
-    if signing is None or signing["disposition"] != "rebind_pending" or signing["owner_slice"] != "DS12":
+    if (
+        signing is None
+        or signing["disposition"] != "rebind_pending"
+        or signing["owner_slice"] != "DS12"
+    ):
         errors.append("browser_signing_protection_missing")
 
     censuses = {census["census_id"]: census for census in data["reference_censuses"]}
@@ -19931,7 +19302,7 @@ def validate_register(
     )
     _validate_c17_responsive_receipt(
         entry_by_id[C17_ROOT_ID],
-        entry_by_id[C17_TOKEN_ROOT_ID],
+        entry_by_id[C17_UI_ROOT_ID],
         ds2,
         errors,
         live_probes=live_probes,
@@ -19950,13 +19321,13 @@ def validate_register(
                     probe["observed_refs"], observed
                 )
                 if mode_error:
-                    errors.append(
-                        f"{mode_error}:{census['census_id']}:{probe['kind']}"
-                    )
+                    errors.append(f"{mode_error}:{census['census_id']}:{probe['kind']}")
                 elif not observation_matches:
                     errors.append(f"census_observation_drift:{census['census_id']}:{probe['kind']}")
                 if len(observed) != probe["expected_count"]:
-                    errors.append(f"census_expected_count_drift:{census['census_id']}:{probe['kind']}")
+                    errors.append(
+                        f"census_expected_count_drift:{census['census_id']}:{probe['kind']}"
+                    )
 
     terminal_ids = {
         unit["unit_id"]
@@ -19970,8 +19341,7 @@ def validate_register(
         matching = [
             census
             for census in data["reference_censuses"]
-            if covered <= set(census["covers_unit_ids"])
-            and census["result"] == "zero_consumers"
+            if covered <= set(census["covers_unit_ids"]) and census["result"] == "zero_consumers"
         ]
         if not matching:
             errors.append(f"code_owned_deletion_census_missing:{cluster}")
@@ -20008,24 +19378,17 @@ def validate_register(
 
     finding_ids = {item["finding_id"] for item in data["supplemental_findings"]}
     if finding_ids != EXPECTED_FINDING_IDS:
-        errors.append(f"repair_observation_drift:missing={sorted(EXPECTED_FINDING_IDS-finding_ids)}:extra={sorted(finding_ids-EXPECTED_FINDING_IDS)}")
+        errors.append(
+            f"repair_observation_drift:missing={sorted(EXPECTED_FINDING_IDS - finding_ids)}:\
+extra={sorted(finding_ids - EXPECTED_FINDING_IDS)}"
+        )
     if not BASELINE_PATH.exists() or not BASELINE_SCHEMA_PATH.exists():
         errors.append("baseline_debt_manifest_missing")
     else:
-        baseline = (
-            baseline_manifest
-            if baseline_manifest is not None
-            else _load_json(BASELINE_PATH)
-        )
-        errors.extend(
-            "baseline_" + error for error in validate_baseline_manifest(baseline)
-        )
-        findings_by_id = {
-            row["finding_id"]: row for row in data["supplemental_findings"]
-        }
-        active_test_classes = {
-            row["class_id"]: row for row in baseline["vitest"]["debt_classes"]
-        }
+        baseline = baseline_manifest if baseline_manifest is not None else _load_json(BASELINE_PATH)
+        errors.extend("baseline_" + error for error in validate_baseline_manifest(baseline))
+        findings_by_id = {row["finding_id"]: row for row in data["supplemental_findings"]}
+        active_test_classes = {row["class_id"]: row for row in baseline["vitest"]["debt_classes"]}
         try:
             c03_lifecycle = _c03_vitest_lifecycle_state(baseline)
         except ValueError:
@@ -20037,14 +19400,12 @@ def validate_register(
             ),
             "baseline-test-i18n-count-debt": (
                 "open_debt" if c03_lifecycle == "open" else "repaired",
-                active_test_classes.get(
-                    "i18n-count-message-parity", {"owner_slice": "DS6"}
-                )["owner_slice"],
+                active_test_classes.get("i18n-count-message-parity", {"owner_slice": "DS6"})[
+                    "owner_slice"
+                ],
             ),
             "baseline-test-a11y-coverage-debt": (
-                "open_debt"
-                if "shared-ui-a11y-coverage" in active_test_classes
-                else "repaired",
+                "open_debt" if "shared-ui-a11y-coverage" in active_test_classes else "repaired",
                 "DS4",
             ),
             "baseline-test-temporal-cursor-debt": (
@@ -20086,9 +19447,7 @@ def validate_register(
         data["baseline_debt_manifest_ref"],
     ]
     references.extend(
-        ref
-        for finding in data["supplemental_findings"]
-        for ref in finding["evidence_refs"]
+        ref for finding in data["supplemental_findings"] for ref in finding["evidence_refs"]
     )
     references.extend(
         ref
@@ -20098,9 +19457,7 @@ def validate_register(
     )
     references.extend(row["source_ref"] for row in data["seeded_negative_lifecycle"])
     references.extend(
-        ref
-        for census in data["reference_censuses"]
-        for ref in census.get("verification_refs", [])
+        ref for census in data["reference_censuses"] for ref in census.get("verification_refs", [])
     )
     for reference in references:
         issue = _reference_resolution_error(reference)
@@ -20123,9 +19480,7 @@ def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
 
     vitest_lifecycle_mix = copy.deepcopy(baseline)
     vitest_lifecycle_mix["vitest"]["disposition"] = (
-        "resolved"
-        if baseline["vitest"]["disposition"] == "rebind_pending"
-        else "rebind_pending"
+        "resolved" if baseline["vitest"]["disposition"] == "rebind_pending" else "rebind_pending"
     )
     probes.append(("vitest-lifecycle-state-mix", vitest_lifecycle_mix))
 
@@ -20192,8 +19547,7 @@ def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
     c07_resolution = next(
         row
         for row in c07_semantic_laundering["lint"]["resolutions"]
-        if row["cluster_id"] == "C07"
-        and row["classification"] == "quantity_semantics"
+        if row["cluster_id"] == "C07" and row["classification"] == "quantity_semantics"
     )
     c07_resolution["semantic_kind"] = "non_authority_control"
     probes.append(("lint-c07-semantic-kind-laundering", c07_semantic_laundering))
@@ -20202,8 +19556,7 @@ def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
     c07_resolution = next(
         row
         for row in c07_marker_only["lint"]["resolutions"]
-        if row["cluster_id"] == "C07"
-        and row["classification"] == "quantity_semantics"
+        if row["cluster_id"] == "C07" and row["classification"] == "quantity_semantics"
     )
     c07_resolution["closure_test_ref"] = (
         "apps/runtime-dashboard/src/shared/charts/chartHardening.test.tsx"
@@ -20297,9 +19650,7 @@ def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
         if not validate_baseline_manifest(mutation):
             failures.append(name)
 
-    c07_scalar_path = (
-        "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx"
-    )
+    c07_scalar_path = "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx"
     c07_source = (REPO_ROOT / c07_scalar_path).read_bytes()
     try:
         scalar_start = c07_source.index(b"export function chartQuantityScalarPoint")
@@ -20333,7 +19684,7 @@ def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
 def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     probes: list[tuple[str, dict[str, Any]]] = []
 
-    def corrupt_value(value: Any) -> Any:
+    def corrupt_value(value: object) -> object:
         if isinstance(value, list):
             return list(reversed(value)) if len(value) > 1 else []
         if isinstance(value, dict):
@@ -20355,7 +19706,9 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     probes.append(("rebound-without-successor", rebound_without_successor))
 
     deleted_without_census = copy.deepcopy(data)
-    target = next(entry for entry in deleted_without_census["entries"] if entry["unit_id"] in DELETE_ROOT_IDS)
+    target = next(
+        entry for entry in deleted_without_census["entries"] if entry["unit_id"] in DELETE_ROOT_IDS
+    )
     target["disposition"] = "deleted"
     target["strangle_status"] = "strangled"
     target.pop("reference_census_id", None)
@@ -20413,18 +19766,12 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     }
     for name, (field, value) in c13_regressions.items():
         mutation = copy.deepcopy(data)
-        row = next(
-            entry
-            for entry in mutation["entries"]
-            if entry["unit_id"] == C13_PRINT_ROOT_ID
-        )
+        row = next(entry for entry in mutation["entries"] if entry["unit_id"] == C13_PRINT_ROOT_ID)
         row[field] = value
         probes.append((f"c13-print-{name}", mutation))
     c13_missing_successor = copy.deepcopy(data)
     next(
-        entry
-        for entry in c13_missing_successor["entries"]
-        if entry["unit_id"] == C13_PRINT_ROOT_ID
+        entry for entry in c13_missing_successor["entries"] if entry["unit_id"] == C13_PRINT_ROOT_ID
     ).pop("successor", None)
     probes.append(("c13-print-missing-successor", c13_missing_successor))
 
@@ -20438,105 +19785,85 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     ds17_block = data.get(DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD)
     if isinstance(ds17_block, Mapping):
         ds17_scope_drift = copy.deepcopy(data)
-        ds17_scope_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD][
-            "governed_scope"
-        ]["projection_id"] = "confidence-ledger-adjacent"
+        ds17_scope_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]["governed_scope"][
+            "projection_id"
+        ] = "confidence-ledger-adjacent"
         probes.append(("ds17-confidence-ledger-scope-drift", ds17_scope_drift))
         for role_id in ("conditional_figure", "exact_twin"):
             ds17_role_missing = copy.deepcopy(data)
-            block = ds17_role_missing[
-                DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD
-            ]
-            block["roles"] = [
-                role for role in block["roles"] if role["role_id"] != role_id
-            ]
-            probes.append(
-                (f"ds17-confidence-ledger-role-missing-{role_id}", ds17_role_missing)
-            )
+            block = ds17_role_missing[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]
+            block["roles"] = [role for role in block["roles"] if role["role_id"] != role_id]
+            probes.append((f"ds17-confidence-ledger-role-missing-{role_id}", ds17_role_missing))
         ds17_source_drift = copy.deepcopy(data)
-        ds17_source_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]["roles"][0][
-            "source"
-        ]["sha256"] = "sha256:" + "0" * 64
+        ds17_source_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]["roles"][0]["source"][
+            "sha256"
+        ] = "sha256:" + "0" * 64
         probes.append(("ds17-confidence-ledger-source-drift", ds17_source_drift))
         ds17_evidence_drift = copy.deepcopy(data)
         ds17_evidence_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]["roles"][0][
             "behavioral_evidence"
         ][0]["sha256"] = "sha256:" + "0" * 64
-        probes.append(
-            ("ds17-confidence-ledger-evidence-drift", ds17_evidence_drift)
-        )
+        probes.append(("ds17-confidence-ledger-evidence-drift", ds17_evidence_drift))
         ds17_edge_drift = copy.deepcopy(data)
-        ds17_edge_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]["edges"][0][
-            "to_role"
-        ] = "panel"
+        ds17_edge_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]["edges"][0]["to_role"] = "panel"
         probes.append(("ds17-confidence-ledger-edge-drift", ds17_edge_drift))
         ds17_manifest_drift = copy.deepcopy(data)
-        ds17_manifest_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD][
-            "role_manifest_sha256"
-        ] = "sha256:" + "0" * 64
-        probes.append(
-            ("ds17-confidence-ledger-manifest-drift", ds17_manifest_drift)
+        ds17_manifest_drift[DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD]["role_manifest_sha256"] = (
+            "sha256:" + "0" * 64
         )
+        probes.append(("ds17-confidence-ledger-manifest-drift", ds17_manifest_drift))
 
     wrong_consumer = copy.deepcopy(data)
-    op = next(entry for entry in wrong_consumer["entries"] if entry["unit_id"] in WIRE_OPERATION_RATIONALES)
+    op = next(
+        entry
+        for entry in wrong_consumer["entries"]
+        if entry["unit_id"] in WIRE_OPERATION_RATIONALES
+    )
     op["decision_detail"]["consumer_slice"] = "DS8"
     probes.append(("wrong-consumer-slice", wrong_consumer))
 
     mixed_count_drift = copy.deepcopy(data)
     primitives = next(
-        entry
-        for entry in mixed_count_drift["entries"]
-        if entry["unit_id"] == UI_PRIMITIVES_ROOT_ID
+        entry for entry in mixed_count_drift["entries"] if entry["unit_id"] == UI_PRIMITIVES_ROOT_ID
     )
     primitives["aggregate_disposition_receipt"]["counts"]["retired"] = 2
     probes.append(("ui-primitives-mixed-count-drift", mixed_count_drift))
 
     mixed_blob_drift = copy.deepcopy(data)
     primitives = next(
-        entry
-        for entry in mixed_blob_drift["entries"]
-        if entry["unit_id"] == UI_PRIMITIVES_ROOT_ID
+        entry for entry in mixed_blob_drift["entries"] if entry["unit_id"] == UI_PRIMITIVES_ROOT_ID
     )
-    primitives["aggregate_disposition_receipt"][
-        "pre_deletion_resurrection_anchor"
-    ]["files"][0]["git_blob"] = "0" * 40
+    primitives["aggregate_disposition_receipt"]["pre_deletion_resurrection_anchor"]["files"][0][
+        "git_blob"
+    ] = "0" * 40
     probes.append(("ui-primitives-resurrection-blob-drift", mixed_blob_drift))
 
     c15_rationale_drift = copy.deepcopy(data)
     compounds = next(
-        entry
-        for entry in c15_rationale_drift["entries"]
-        if entry["unit_id"] == C15_ROOT_ID
+        entry for entry in c15_rationale_drift["entries"] if entry["unit_id"] == C15_ROOT_ID
     )
     compounds["rationale"] = "C15 complete."
     probes.append(("ui-compounds-root-mixed-rationale-drift", c15_rationale_drift))
 
     c16_rationale_drift = copy.deepcopy(data)
     patterns = next(
-        entry
-        for entry in c16_rationale_drift["entries"]
-        if entry["unit_id"] == C16_ROOT_ID
+        entry for entry in c16_rationale_drift["entries"] if entry["unit_id"] == C16_ROOT_ID
     )
     patterns["rationale"] = "C16 complete."
     probes.append(("ui-patterns-mixed-rationale-drift", c16_rationale_drift))
 
     c17_rationale_drift = copy.deepcopy(data)
     responsive = next(
-        entry
-        for entry in c17_rationale_drift["entries"]
-        if entry["unit_id"] == C17_ROOT_ID
+        entry for entry in c17_rationale_drift["entries"] if entry["unit_id"] == C17_ROOT_ID
     )
     responsive["rationale"] = "C17 proves responsive readiness."
     probes.append(("ui-responsive-use-as-is-rationale-drift", c17_rationale_drift))
 
     storage_fingerprint_drift = copy.deepcopy(data)
-    storage_fingerprint_drift["storage_construction_census"]["sites"][0][
-        "source_fingerprint"
-    ] = "sha256:" + "0" * 64
-    probes.append(
-        ("storage-construction-source-fingerprint-drift", storage_fingerprint_drift)
+    storage_fingerprint_drift["storage_construction_census"]["sites"][0]["source_fingerprint"] = (
+        "sha256:" + "0" * 64
     )
+    probes.append(("storage-construction-source-fingerprint-drift", storage_fingerprint_drift))
 
     storage_class_drift = copy.deepcopy(data)
     storage_site = next(
@@ -20561,9 +19888,7 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
             )
             value = row[field]
             row[field] = corrupt_value(value)
-            probes.append(
-                (f"producer-binding-debt-{finding_id}-{field}", mutation)
-            )
+            probes.append((f"producer-binding-debt-{finding_id}-{field}", mutation))
 
     failures: list[str] = []
     ds8_coverage = data.get("ds8_strangle_coverage")
@@ -20644,9 +19969,7 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
             )
             value = row[field]
             row[field] = corrupt_value(value)
-            probes.append(
-                (f"integrate-contract-debt-{finding_id}-{field}", mutation)
-            )
+            probes.append((f"integrate-contract-debt-{finding_id}-{field}", mutation))
 
     authority_id = "authority-presentation-prop-control-approval-readiness"
     missing_authority = copy.deepcopy(data)
@@ -20659,9 +19982,7 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     for field in ("owner_slice", "capability_states", "closure_signal"):
         mutation = copy.deepcopy(data)
         row = next(
-            item
-            for item in mutation["supplemental_findings"]
-            if item["finding_id"] == authority_id
+            item for item in mutation["supplemental_findings"] if item["finding_id"] == authority_id
         )
         row[field] = corrupt_value(row[field])
         probes.append((f"authority-presentation-{field}-drift", mutation))
@@ -20671,9 +19992,7 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
         for item in moved_authority_site["supplemental_findings"]
         if item["finding_id"] == authority_id
     )
-    row["authority_sink"]["consumer_sites"][0]["site_sha256"] = (
-        "sha256:" + "0" * 64
-    )
+    row["authority_sink"]["consumer_sites"][0]["site_sha256"] = "sha256:" + "0" * 64
     probes.append(("authority-presentation-site-hash-drift", moved_authority_site))
 
     duplicate_finding = copy.deepcopy(data)
@@ -20683,9 +20002,7 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     probes.append(("duplicate-supplemental-finding", duplicate_finding))
 
     old_row_restamp = copy.deepcopy(data)
-    old_row_restamp["supplemental_findings"][0]["decision_date"] = (
-        DS5_C01A_DECISION_DATE
-    )
+    old_row_restamp["supplemental_findings"][0]["decision_date"] = DS5_C01A_DECISION_DATE
     probes.append(("accepted-history-decision-date-restamp", old_row_restamp))
 
     new_row_backdate = copy.deepcopy(data)
@@ -20787,11 +20104,7 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
                 storage_start,
                 storage_end,
             ) + len(storage_anchor)
-            storage_byte_mutation = (
-                candidate_text[:anchor_end]
-                + " "
-                + candidate_text[anchor_end:]
-            )
+            storage_byte_mutation = candidate_text[:anchor_end] + " " + candidate_text[anchor_end:]
             if not _ds9_c07_preservation_errors(
                 register_text,
                 storage_byte_mutation,
@@ -20821,9 +20134,7 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
         failures.append("authority-badge-unclassified-site")
 
     retained = {
-        name
-        for name, rule in UI_PRIMITIVES_MEMBER_RULES.items()
-        if rule["disposition"] != "retire"
+        name for name, rule in UI_PRIMITIVES_MEMBER_RULES.items() if rule["disposition"] != "retire"
     }
     expected_package_exports = (
         UI_PRIMITIVES_PACKAGE_MIGRATED
@@ -20884,8 +20195,7 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     ):
         failures.append("ui-compounds-root-unlocalized-json-preview")
     c15_consumers[C15_JSON_PREVIEW_ADAPTER] = (
-        'import { JsonPreview } from "@polisyos/atlas-ui";\n'
-        "void JsonPreview;\n"
+        'import { JsonPreview } from "@polisyos/atlas-ui";\nvoid JsonPreview;\n'
     )
     c15_consumers["apps/runtime-dashboard/src/features/c15-valid.tsx"] = (
         'import { VirtualList, VirtualTable } from "@polisyos/atlas-ui";\n'
@@ -20926,9 +20236,7 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
         ),
     ):
         reduced_sources = {
-            path: source
-            for path, source in c16_consumers.items()
-            if path != consumer_path
+            path: source for path, source in c16_consumers.items() if path != consumer_path
         }
         expected_error = f"ui_patterns_production_consumer_missing:{component}"
         if expected_error not in _c16_pattern_source_state_errors(
@@ -20976,9 +20284,7 @@ def _ds8_strangle_report_projection(coverage: Mapping[str, Any]) -> str:
             if row["feature"] == feature and row["role"] == "production"
         ]
         in_scope = sum(row["disposition"] == "in_scope" for row in rows)
-        deferred = sum(
-            row["disposition"] == "surface_out_of_scope" for row in rows
-        )
+        deferred = sum(row["disposition"] == "surface_out_of_scope" for row in rows)
         totals.update(total=len(rows), in_scope=in_scope, deferred=deferred)
         lines.append(f"| {feature} | {len(rows)} | {in_scope} | {deferred} |")
     lines.extend(
@@ -21144,9 +20450,7 @@ def _ds17_confidence_ledger_risk_spend_report_projection(
         "| --- | --- | --- | --- |",
     ]
     for role in block["roles"]:
-        evidence = ", ".join(
-            f"`{receipt['path']}`" for receipt in role["behavioral_evidence"]
-        )
+        evidence = ", ".join(f"`{receipt['path']}`" for receipt in role["behavioral_evidence"])
         lines.append(
             f"| `{role['role_id']}` | `{role['symbol']}` | "
             f"`{role['source']['path']}` | {evidence} |"
@@ -21181,7 +20485,10 @@ def _report_projection(data: Mapping[str, Any]) -> str:
         [
             "| **Total DS1 roots** | **261** |",
             "",
-            "DS2 evidence reconciliation: **233 = 173 mapped + 60 unbound**. DS2 rows are evidence edges, not 233 additional estate owners.",
+            (
+                "DS2 evidence reconciliation: **233 = 173 mapped + 60 unbound**. DS2 rows are "
+                "evidence edges, not 233 additional estate owners."
+            ),
             "",
             "### Deletion wave",
             "",
@@ -21195,9 +20502,15 @@ def _report_projection(data: Mapping[str, Any]) -> str:
         unit_ids = sorted(proof["unit_ids"])
         rows = [entry_by_id.get(unit_id) or subunit_by_id.get(unit_id) for unit_id in unit_ids]
         rows = [row for row in rows if row is not None]
-        disposition = "deleted" if rows and all(row["disposition"] == "deleted" for row in rows) else "pending"
+        disposition = (
+            "deleted"
+            if rows and all(row["disposition"] == "deleted" for row in rows)
+            else "pending"
+        )
         census_ids = sorted({row.get("reference_census_id", "") for row in rows} - {""})
-        census_results = sorted({censuses[census_id]["result"] for census_id in census_ids if census_id in censuses})
+        census_results = sorted(
+            {censuses[census_id]["result"] for census_id in census_ids if census_id in censuses}
+        )
         verification_refs = sorted(
             {
                 ref
@@ -21215,7 +20528,11 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             + " | `"
             + disposition
             + "` | "
-            + (", ".join(f"`{ref}`" for ref in verification_refs) if verification_refs else "pending")
+            + (
+                ", ".join(f"`{ref}`" for ref in verification_refs)
+                if verification_refs
+                else "pending"
+            )
             + " |"
         )
 
@@ -21243,8 +20560,7 @@ def _report_projection(data: Mapping[str, Any]) -> str:
         for member in primitive_receipt["c03b_members"]:
             adoption_id = member["ds2_adoption_id"] or "none"
             condition = (
-                member["governing_condition"]
-                or "No exact DS2 row; retirement is not prohibited."
+                member["governing_condition"] or "No exact DS2 row; retirement is not prohibited."
             )
             lines.append(
                 f"| `{member['primitive']}` | `{member['disposition']}` | "
@@ -21256,8 +20572,7 @@ def _report_projection(data: Mapping[str, Any]) -> str:
                 "",
                 f"Pre-deletion resurrection commit: `{anchor['git_commit']}`.",
                 "",
-                "Resurrection rule: "
-                f"`{primitive_receipt['resurrection_rule']}`.",
+                f"Resurrection rule: `{primitive_receipt['resurrection_rule']}`.",
             ]
         )
 
@@ -21273,7 +20588,8 @@ def _report_projection(data: Mapping[str, Any]) -> str:
     for unit_id in sorted(WIRE_OPERATION_RATIONALES):
         row = entry_by_id[unit_id]
         lines.append(
-            f"| `{unit_id}` | `{row['decision_detail']['consumer_slice']}` | {row['decision_detail']['rationale']} |"
+            f"| `{unit_id}` | `{row['decision_detail']['consumer_slice']}` | \
+{row['decision_detail']['rationale']} |"
         )
     lines.extend(
         [
@@ -21289,7 +20605,8 @@ def _report_projection(data: Mapping[str, Any]) -> str:
     for unit_id in sorted(RETIRE_OPERATION_RATIONALES):
         row = entry_by_id[unit_id]
         lines.append(
-            f"| `{unit_id}` | `{row['decision_detail']['consumer_slice']}` | {row['decision_detail']['rationale']} |"
+            f"| `{unit_id}` | `{row['decision_detail']['consumer_slice']}` | \
+{row['decision_detail']['rationale']} |"
         )
     lines.extend(
         [
@@ -21303,7 +20620,9 @@ def _report_projection(data: Mapping[str, Any]) -> str:
     for unit_id in sorted(FLAG_DECISIONS):
         row = entry_by_id[unit_id]
         lines.append(
-            f"| `{unit_id}` | `{row['disposition']}` | `{row['decision_detail']['consumer_slice']}` | {row['decision_detail']['rationale']} |"
+            f"| `{unit_id}` | `{row['disposition']}` | \
+`{row['decision_detail']['consumer_slice']}` | \
+{row['decision_detail']['rationale']} |"
         )
 
     persistence_census = data["storage_construction_census"]
@@ -21341,7 +20660,10 @@ def _report_projection(data: Mapping[str, Any]) -> str:
                 f"`{persistence_census['authority_flow_capability_status']}`."
             ),
             "",
-            "| Site | Declared adjudication | Resolved API / operation | Store owner | Source | Fingerprints | Posture |",
+            (
+                "| Site | Declared adjudication | Resolved API / operation | Store owner | "
+                "Source | Fingerprints | Posture |"
+            ),
             "| --- | --- | --- | --- | --- | --- | --- |",
         ]
     )
@@ -21355,12 +20677,8 @@ def _report_projection(data: Mapping[str, Any]) -> str:
         elif row["classification"] == "interaction_benign":
             posture = f"`{row['benign_reason']}`"
         else:
-            states = ", ".join(
-                f"`{state}`" for state in row["capability_states"]
-            )
-            posture = (
-                f"`{row['owner_slice']}`; {states}; {row['closure_signal']}"
-            )
+            states = ", ".join(f"`{state}`" for state in row["capability_states"])
+            posture = f"`{row['owner_slice']}`; {states}; {row['closure_signal']}"
         lines.append(
             f"| `{row['site_id']}` | `{row['classification']}` | "
             f"`{row['resolved_api_declaration']}` / `{row['operation']}` | "
@@ -21381,14 +20699,13 @@ def _report_projection(data: Mapping[str, Any]) -> str:
     )
     for row in data["subunits"]:
         lines.append(
-            f"| `{row['unit_id']}` | `{row['scope_kind']}` | `{row['disposition']}` | `{row['owner_slice']}` | — | — | {row['rationale']} |"
+            f"| `{row['unit_id']}` | `{row['scope_kind']}` | `{row['disposition']}` | \
+`{row['owner_slice']}` | — | — | {row['rationale']} |"
         )
     for row in data["supplemental_findings"]:
         capability_states = row.get("capability_states")
         capability_projection = (
-            ", ".join(f"`{state}`" for state in capability_states)
-            if capability_states
-            else "—"
+            ", ".join(f"`{state}`" for state in capability_states) if capability_states else "—"
         )
         closure_projection = row.get("closure_signal", "—")
         owner_projection = row.get("owner_team", row["owner_slice"])
@@ -21413,7 +20730,10 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             f"| `{row['negative_id']}` | `{row['lifecycle']}` | "
             + (", ".join(f"`{unit_id}`" for unit_id in row["affected_unit_ids"]) or "—")
             + " | "
-            + (", ".join(f"`{census_id}`" for census_id in row.get("deletion_census_ids", [])) or "—")
+            + (
+                ", ".join(f"`{census_id}`" for census_id in row.get("deletion_census_ids", []))
+                or "—"
+            )
             + " |"
         )
 
@@ -21422,7 +20742,10 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             "",
             "### Complete DS1-root projection",
             "",
-            "| Unit | DS1 evidence | DS2 evidence count | Disposition | Strangle | Owner slice | Census/successor |",
+            (
+                "| Unit | DS1 evidence | DS2 evidence count | Disposition | Strangle | Owner "
+                "slice | Census/successor |"
+            ),
             "| --- | --- | ---: | --- | --- | --- | --- |",
         ]
     )
@@ -21431,7 +20754,9 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             row.get("successor", {}).get("unit_id") if row.get("successor") else "—"
         )
         lines.append(
-            f"| `{row['unit_id']}` | `{row['evidence_link']['ds1_entry_id']}` | {len(row['evidence_link']['ds2_adoption_ids'])} | `{row['disposition']}` | `{row['strangle_status']}` | `{row['owner_slice']}` | `{terminal}` |"
+            f"| `{row['unit_id']}` | `{row['evidence_link']['ds1_entry_id']}` | \
+{len(row['evidence_link']['ds2_adoption_ids'])} | `{row['disposition']}` | \
+`{row['strangle_status']}` | `{row['owner_slice']}` | `{terminal}` |"
         )
     lines.append("")
     ds17_surface = data.get(DS17_CONFIDENCE_LEDGER_RISK_SPEND_FIELD)
@@ -21448,17 +20773,22 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             "",
             _ds8_strangle_report_projection(data["ds8_strangle_coverage"]),
             "",
-            _ds8b_transition_report_projection(
-                data["ds8b_post_freeze_transition"]
-            ),
+            _ds8b_transition_report_projection(data["ds8b_post_freeze_transition"]),
         ]
     )
     return "\n".join(lines)
 
 
 def _application_reduction() -> tuple[int, int, int]:
-    numstat = subprocess.run(
-        ["git", "diff", "--numstat", REPAIR_COMMIT, "--", "policy-engine/apps/runtime-dashboard"],
+    numstat = subprocess.run(  # noqa: S603 - fixed git diff argv and repo path; shell=False
+        [
+            _resolve_executable("git"),
+            "diff",
+            "--numstat",
+            REPAIR_COMMIT,
+            "--",
+            "policy-engine/apps/runtime-dashboard",
+        ],
         cwd=REPO_ROOT.parent,
         check=True,
         capture_output=True,
@@ -21471,9 +20801,9 @@ def _application_reduction() -> tuple[int, int, int]:
             added += int(added_text)
         if deleted_text.isdigit():
             deleted += int(deleted_text)
-    deleted_files = subprocess.run(
+    deleted_files = subprocess.run(  # noqa: S603 - fixed git diff argv and repo path; shell=False
         [
-            "git",
+            _resolve_executable("git"),
             "diff",
             "--name-only",
             "--diff-filter=D",
@@ -21490,8 +20820,8 @@ def _application_reduction() -> tuple[int, int, int]:
 
 
 def _recent_commits() -> list[str]:
-    output = subprocess.run(
-        ["git", "log", "--format=%h %s", f"{REPAIR_COMMIT}^..HEAD"],
+    output = subprocess.run(  # noqa: S603 - fixed git log range from repair commit; shell=False
+        [_resolve_executable("git"), "log", "--format=%h %s", f"{REPAIR_COMMIT}^..HEAD"],
         cwd=REPO_ROOT.parent,
         check=True,
         capture_output=True,
@@ -21522,9 +20852,12 @@ checker.
 | Gate | Before result | Acceptance law |
 | --- | --- | --- |
 | Typecheck | PASS, 11.63 s | absolute green |
-| Production build + PWA + security | PASS, 22.69 s; 3,880 modules; 102 precache entries | absolute green |
-| ESLint | 75 errors, 0 warnings; initial enumeration about 19 min; cached JSON 5.93 s | current diagnostic multiset must be a subset of manifest `{baseline['manifest_id']}` |
-| Vitest | 231 files / 678 tests in 181.12 s; 3 files / 5 tests failed | failed-test identity/signature set must be a subset of the parent-reproduced manifest |
+| Production build + PWA + security | PASS, 22.69 s; 3,880 modules; 102 precache entries | \
+absolute green |
+| ESLint | 75 errors, 0 warnings; initial enumeration about 19 min; cached JSON 5.93 s | current \
+diagnostic multiset must be a subset of manifest `{baseline["manifest_id"]}` |
+| Vitest | 231 files / 678 tests in 181.12 s; 3 files / 5 tests failed | failed-test \
+identity/signature set must be a subset of the parent-reproduced manifest |
 
 Vitest's same five failures reproduced on parent `7b6933770` in 1.96 s. The
 baseline repair is `d01eaa572`; the lockfile changed declarations/importer
@@ -21565,10 +20898,15 @@ not changed.
 | Gate | Wave-end result | Law |
 | --- | --- | --- |
 | Typecheck | PASS, 33.98 s | absolute green |
-| Production build + PWA + security | PASS, 12.66 s; 3,871 modules; 101 precache entries | absolute green; run after the explicit typecheck because a duplicate-typecheck wrapper attempt was host-memory-killed before Vite |
-| ESLint | 916 files; inherited 75 errors / 0 warnings in 5.94 s | zero new diagnostic identities; baseline subset PASS |
-| Vitest | 228 files / 664 tests in four deterministic batches; 225 files / 659 tests passed; inherited 3 files / 5 tests failed | failed identity/signature baseline subset PASS |
-| Register/check | schema, fresh live probes, report parity, source-byte binding, lint/test comparisons, corruption probes PASS | disposition law enforced |
+| Production build + PWA + security | PASS, 12.66 s; 3,871 modules; 101 precache entries | \
+absolute green; run after the explicit typecheck because a duplicate-typecheck wrapper attempt \
+was host-memory-killed before Vite |
+| ESLint | 916 files; inherited 75 errors / 0 warnings in 5.94 s | zero new diagnostic \
+identities; baseline subset PASS |
+| Vitest | 228 files / 664 tests in four deterministic batches; 225 files / 659 tests passed; \
+inherited 3 files / 5 tests failed | failed identity/signature baseline subset PASS |
+| Register/check | schema, fresh live probes, report parity, source-byte binding, lint/test \
+comparisons, corruption probes PASS | disposition law enforced |
 
 The monolithic Vitest JSON reporter was host-memory-killed before producing a
 receipt, so the complete default-config suite was rerun in four two-worker
@@ -21582,12 +20920,18 @@ Vitest receipt SHA-256:
 | Gate | Closure result | Interpretation |
 | --- | --- | --- |
 | Typecheck | PASS, 57.65 s | absolute green |
-| Production build + PWA + security | PASS, 28.72 s; 3,871 modules; 101 precache entries | absolute green after the separately recorded typecheck |
-| ESLint | 916 files; inherited 75 errors / 0 warnings in 5.96 s | zero new diagnostic identities; baseline subset PASS |
-| Vitest | 228 files / 664 tests in 236.92 s; 225 files / 659 tests passed; inherited 3 files / 5 tests failed | failed identity/signature baseline subset PASS |
-| Dashboard architecture | 36 inherited violations; 0 violation files changed since `d01eaa572` | baseline-red, no regression; no fence expansion |
-| Repository guardrails | PASS, 27.05 s under `uv run --isolated` | default worktree `.venv` is invalid; isolated run installed 116 ephemeral packages and changed no repository file |
-| Register/check | schema, 261 DS1 roots, 233 DS2 edges, {census_count} live censuses, report parity, links, source hashes, and corruption probes PASS | disposition authority current |
+| Production build + PWA + security | PASS, 28.72 s; 3,871 modules; 101 precache entries | \
+absolute green after the separately recorded typecheck |
+| ESLint | 916 files; inherited 75 errors / 0 warnings in 5.96 s | zero new diagnostic \
+identities; baseline subset PASS |
+| Vitest | 228 files / 664 tests in 236.92 s; 225 files / 659 tests passed; inherited 3 files / 5 \
+tests failed | failed identity/signature baseline subset PASS |
+| Dashboard architecture | 36 inherited violations; 0 violation files changed since `d01eaa572` | \
+baseline-red, no regression; no fence expansion |
+| Repository guardrails | PASS, 27.05 s under `uv run --isolated` | default worktree `.venv` is \
+invalid; isolated run installed 116 ephemeral packages and changed no repository file |
+| Register/check | schema, 261 DS1 roots, 233 DS2 edges, {census_count} live censuses, report \
+parity, links, source hashes, and corruption probes PASS | disposition authority current |
 | Fence | 55 paths, 0 violations against `main...HEAD`; `git diff --check` PASS | DS19 fence only |
 
 Closure ESLint receipt SHA-256:
@@ -21636,8 +20980,12 @@ def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
     dispositions = Counter(row["disposition"] for row in ds8["assignments"])
     return {
         "root_entries": len(data["entries"]),
-        "root_dispositions": dict(sorted(Counter(entry["disposition"] for entry in data["entries"]).items())),
-        "subunit_dispositions": dict(sorted(Counter(entry["disposition"] for entry in data["subunits"]).items())),
+        "root_dispositions": dict(
+            sorted(Counter(entry["disposition"] for entry in data["entries"]).items())
+        ),
+        "subunit_dispositions": dict(
+            sorted(Counter(entry["disposition"] for entry in data["subunits"]).items())
+        ),
         "censuses": len(data["reference_censuses"]),
         "supplemental_findings": len(data["supplemental_findings"]),
         "seeded_negatives": len(data["seeded_negative_lifecycle"]),
@@ -21669,7 +21017,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="run the whole register check while holding the DS11 C04 family lock",
     )
-    parser.add_argument("--write-seed", action="store_true", help="write a fresh deterministic seed register")
+    parser.add_argument(
+        "--write-seed", action="store_true", help="write a fresh deterministic seed register"
+    )
     parser.add_argument(
         "--write-supplemental",
         action="store_true",
@@ -21770,8 +21120,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="print no-write full C21a literals for the 15 descriptor bindings",
     )
-    parser.add_argument("--write-report", action="store_true", help="regenerate the report projection")
-    parser.add_argument("--corruption-probes", action="store_true", help="prove decisive mutations are rejected")
+    parser.add_argument(
+        "--write-report", action="store_true", help="regenerate the report projection"
+    )
+    parser.add_argument(
+        "--corruption-probes", action="store_true", help="prove decisive mutations are rejected"
+    )
     parser.add_argument(
         "--verify-baseline-source-bytes",
         action="store_true",
@@ -21796,9 +21150,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.migrate_non_anchor_source_fields:
         selected = {
-            name
-            for name, value in vars(args).items()
-            if value is not None and value is not False
+            name for name, value in vars(args).items() if value is not None and value is not False
         }
         if selected != {"migrate_non_anchor_source_fields"}:
             sys.stderr.write(
@@ -21808,9 +21160,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
         try:
             original_text = REGISTER_PATH.read_text(encoding="utf-8")
-            candidate_text, renamed_fields = (
-                _non_anchor_source_fields_candidate_text(original_text)
-            )
+            candidate_text, renamed_fields = _non_anchor_source_fields_candidate_text(original_text)
             candidate = json.loads(candidate_text)
             candidate_errors = _schema_errors(candidate, SCHEMA_PATH)
         except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
@@ -21818,9 +21168,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
         if candidate_errors:
             for error in candidate_errors:
-                sys.stderr.write(
-                    f"Non-anchor source-field migration rejected: {error}\n"
-                )
+                sys.stderr.write(f"Non-anchor source-field migration rejected: {error}\n")
             return 1
         REGISTER_PATH.write_text(candidate_text, encoding="utf-8")
         roots = [
@@ -21832,15 +21180,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             json.dumps(
                 {
                     "current_roots": len(roots),
-                    "renamed_ds18_component_labels": renamed_fields[
-                        "ds18_component_labels"
-                    ],
-                    "renamed_ds18_source_lines": renamed_fields[
-                        "ds18_source_lines"
-                    ],
-                    "renamed_ds17_source_lines": renamed_fields[
-                        "ds17_source_lines"
-                    ],
+                    "renamed_ds18_component_labels": renamed_fields["ds18_component_labels"],
+                    "renamed_ds18_source_lines": renamed_fields["ds18_source_lines"],
+                    "renamed_ds17_source_lines": renamed_fields["ds17_source_lines"],
                 },
                 indent=2,
                 sort_keys=True,
@@ -21851,9 +21193,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.write_ds17_confidence_ledger_risk_spend:
         selected = {
-            name
-            for name, value in vars(args).items()
-            if value is not None and value is not False
+            name for name, value in vars(args).items() if value is not None and value is not False
         }
         if selected != {"write_ds17_confidence_ledger_risk_spend"}:
             sys.stderr.write(
@@ -21866,22 +21206,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         except (OSError, ValueError, RuntimeError, KeyError) as exc:
             sys.stderr.write(f"DS17 confidence-ledger writer rejected: {exc}\n")
             return 1
-        sys.stdout.write(
-            "materialized DS17 confidence-ledger register/report family\n"
-        )
+        sys.stdout.write("materialized DS17 confidence-ledger register/report family\n")
         sys.stdout.write(json.dumps(summary, indent=2, sort_keys=True) + "\n")
         return 0
 
     if args.check_ds18_time_semantics_coverage:
         selected = {
-            name
-            for name, value in vars(args).items()
-            if value is not None and value is not False
+            name for name, value in vars(args).items() if value is not None and value is not False
         }
         if selected != {"check_ds18_time_semantics_coverage"}:
             sys.stderr.write(
-                "DS18 time-semantics check requires only "
-                "--check-ds18-time-semantics-coverage\n"
+                "DS18 time-semantics check requires only --check-ds18-time-semantics-coverage\n"
             )
             return 1
         try:
@@ -21899,9 +21234,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         sys.stdout.write(
             json.dumps(
                 {
-                    "predicate_provenance": coverage[
-                        "predicate_provenance"
-                    ],
+                    "predicate_provenance": coverage["predicate_provenance"],
                     "source_file_count": coverage["source_file_count"],
                     "root_count": coverage["root_count"],
                     "obligated_root_count": coverage["obligated_root_count"],
@@ -21916,14 +21249,11 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.write_ds18_time_semantics_coverage:
         selected = {
-            name
-            for name, value in vars(args).items()
-            if value is not None and value is not False
+            name for name, value in vars(args).items() if value is not None and value is not False
         }
         if selected != {"write_ds18_time_semantics_coverage"}:
             sys.stderr.write(
-                "DS18 time-semantics writer requires only "
-                "--write-ds18-time-semantics-coverage\n"
+                "DS18 time-semantics writer requires only --write-ds18-time-semantics-coverage\n"
             )
             return 1
         try:
@@ -21968,19 +21298,16 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.check_ds11_trust_presentation_lock:
         selected = {
-            name
-            for name, value in vars(args).items()
-            if value is not None and value is not False
+            name for name, value in vars(args).items() if value is not None and value is not False
         }
         if selected != {"check", "check_ds11_trust_presentation_lock"}:
             sys.stderr.write(
-                "DS11 C04 locked check requires only --check "
-                "--check-ds11-trust-presentation-lock\n"
+                "DS11 C04 locked check requires only --check --check-ds11-trust-presentation-lock\n"
             )
             return 1
         try:
             with _ds11_trust_presentation_register_lock():
-                completed = subprocess.run(
+                completed = subprocess.run(  # noqa: S603 - current interpreter reruns this checker with fixed --check; shell=False
                     [sys.executable, str(Path(__file__).resolve()), "--check"],
                     cwd=REPO_ROOT,
                     capture_output=True,
@@ -21996,14 +21323,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.write_ds15_acquisition_routes:
         selected = {
-            name
-            for name, value in vars(args).items()
-            if value is not None and value is not False
+            name for name, value in vars(args).items() if value is not None and value is not False
         }
         if selected != {"write_ds15_acquisition_routes"}:
-            sys.stderr.write(
-                "DS15 transition requires only --write-ds15-acquisition-routes\n"
-            )
+            sys.stderr.write("DS15 transition requires only --write-ds15-acquisition-routes\n")
             return 1
         try:
             summary = _write_ds15_acquisition_routes_family()
@@ -22016,14 +21339,11 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.write_ds11_trust_presentation_resolution:
         selected = {
-            name
-            for name, value in vars(args).items()
-            if value is not None and value is not False
+            name for name, value in vars(args).items() if value is not None and value is not False
         }
         if selected != {"write_ds11_trust_presentation_resolution"}:
             sys.stderr.write(
-                "DS11 C04 transition requires only "
-                "--write-ds11-trust-presentation-resolution\n"
+                "DS11 C04 transition requires only --write-ds11-trust-presentation-resolution\n"
             )
             return 1
         try:
@@ -22037,9 +21357,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.write_ds10_capability_discovery:
         selected = {
-            name
-            for name, value in vars(args).items()
-            if value is not None and value is not False
+            name for name, value in vars(args).items() if value is not None and value is not False
         }
         if selected != {"write_ds10_capability_discovery"}:
             sys.stderr.write("DS10 transition requires only --write-ds10-capability-discovery\n")
@@ -22073,17 +21391,13 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.write_ds8b_post_freeze_transition:
         selected = {
-            name
-            for name, value in vars(args).items()
-            if value is not None and value is not False
+            name for name, value in vars(args).items() if value is not None and value is not False
         }
         if selected != {
             "write_ds8b_post_freeze_transition",
             "write_report",
         }:
-            sys.stderr.write(
-                "DS8-B post-freeze transition requires only --write-report\n"
-            )
+            sys.stderr.write("DS8-B post-freeze transition requires only --write-report\n")
             return 1
         try:
             transition = _write_ds8b_transition_family()
@@ -22095,9 +21409,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             json.dumps(
                 {
                     "assignments": len(transition["assignments"]),
-                    "changed_existing_paths": transition[
-                        "changed_existing_path_count"
-                    ],
+                    "changed_existing_paths": transition["changed_existing_path_count"],
                     "new_paths": transition["new_path_count"],
                 },
                 indent=2,
@@ -22109,17 +21421,13 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.write_c13_adjacent_print_export_resolution:
         selected = {
-            name
-            for name, value in vars(args).items()
-            if value is not None and value is not False
+            name for name, value in vars(args).items() if value is not None and value is not False
         }
         if selected != {
             "write_c13_adjacent_print_export_resolution",
             "write_report",
         }:
-            sys.stderr.write(
-                "C13 print transition requires only --write-report\n"
-            )
+            sys.stderr.write("C13 print transition requires only --write-report\n")
             return 1
         try:
             receipt = _write_c13_print_family()
@@ -22164,9 +21472,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         )
         if incompatible or not args.write_report:
-            sys.stderr.write(
-                "DS8 strangle transition requires only --write-report\n"
-            )
+            sys.stderr.write("DS8 strangle transition requires only --write-report\n")
             return 1
         try:
             coverage = _write_ds8_strangle_family()
@@ -22178,9 +21484,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             json.dumps(
                 {
                     "assignments": len(coverage["assignments"]),
-                    "opening_production": coverage[
-                        "opening_production_partition"
-                    ],
+                    "opening_production": coverage["opening_production_partition"],
                     "new_paths": coverage["new_path_count"],
                 },
                 indent=2,
@@ -22213,9 +21517,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         )
         if incompatible or not args.write_report:
-            sys.stderr.write(
-                "C06 rendered-contrast transition requires only --write-report\n"
-            )
+            sys.stderr.write("C06 rendered-contrast transition requires only --write-report\n")
             return 1
 
     if args.print_c21b_authority_partition_hashes:
@@ -22225,16 +21527,22 @@ def main(argv: Sequence[str] | None = None) -> int:
             *_authority_prop_classification_errors(scan),
         ]:
             if "partition_hash_drift:" in error:
-                print(error)
+                _emit_cli(error)
         return 0
     if args.print_c21b_authority_identity_literals:
-        print(json.dumps({
-            "badge": AUTHORITY_BADGE_CLASSIFICATIONS,
-            "prop": AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
-        }, indent=2, sort_keys=True))
+        _emit_cli(
+            json.dumps(
+                {
+                    "badge": AUTHORITY_BADGE_CLASSIFICATIONS,
+                    "prop": AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
         return 0
     if args.print_c21b_descriptor_identities:
-        print(json.dumps(_c21b_descriptor_identity_literals(), indent=2, sort_keys=True))
+        _emit_cli(json.dumps(_c21b_descriptor_identity_literals(), indent=2, sort_keys=True))
         return 0
 
     baseline_text = BASELINE_PATH.read_text(encoding="utf-8")
@@ -22256,11 +21564,13 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.write_seed:
         seed = build_seed_register()
-        REGISTER_PATH.write_text(json.dumps(seed, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        print(f"wrote {REGISTER_PATH.relative_to(REPO_ROOT)}")
+        REGISTER_PATH.write_text(
+            json.dumps(seed, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        _emit_cli(f"wrote {REGISTER_PATH.relative_to(REPO_ROOT)}")
 
     if not REGISTER_PATH.exists():
-        print(f"missing register: {REGISTER_PATH}", file=sys.stderr)
+        _emit_cli(f"missing register: {REGISTER_PATH}", stderr=True)
         return 1
     register_text = REGISTER_PATH.read_text(encoding="utf-8")
     if args.write_c06_rendered_contrast_resolution:
@@ -22276,52 +21586,44 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
         if candidate_errors:
             for error in candidate_errors:
-                sys.stderr.write(
-                    f"C06 rendered contrast transition rejected: {error}\n"
-                )
+                sys.stderr.write(f"C06 rendered contrast transition rejected: {error}\n")
             return 1
         candidate_report = render_report(candidate_data)
         REGISTER_PATH.write_text(candidate_text, encoding="utf-8")
         REPORT_PATH.write_text(candidate_report, encoding="utf-8")
         sys.stdout.write("transitioned the exact C04 rendered-contrast row from C16\n")
         sys.stdout.write(f"wrote {REPORT_PATH.relative_to(REPO_ROOT)}\n")
-        sys.stdout.write(
-            json.dumps(_summary(candidate_data), indent=2, sort_keys=True) + "\n"
-        )
+        sys.stdout.write(json.dumps(_summary(candidate_data), indent=2, sort_keys=True) + "\n")
         return 0
     if args.write_c11b_query_memory_root:
         register_text = _c11b_query_memory_transition_text(register_text)
         REGISTER_PATH.write_text(register_text, encoding="utf-8")
-        print("transitioned cache-query-memory through the C11b owner writer")
+        _emit_cli("transitioned cache-query-memory through the C11b owner writer")
     if args.write_supplemental:
         register_text = _refresh_supplemental_findings_text(register_text)
         REGISTER_PATH.write_text(register_text, encoding="utf-8")
-        print(
-            "refreshed "
-            + str(REGISTER_PATH.relative_to(REPO_ROOT))
-            + " supplemental_findings"
+        _emit_cli(
+            "refreshed " + str(REGISTER_PATH.relative_to(REPO_ROOT)) + " supplemental_findings"
         )
     if args.migrate_c21b:
         register_text = _refresh_supplemental_findings_text(register_text)
         register_text = _c21b_surgical_identity_text(register_text)
         REGISTER_PATH.write_text(register_text, encoding="utf-8")
-        print("migrated gated TypeScript references to C21a identities")
+        _emit_cli("migrated gated TypeScript references to C21a identities")
     if args.migrate_c21c:
         register_text = _c21c_surgical_identity_text(register_text)
         REGISTER_PATH.write_text(register_text, encoding="utf-8")
-        print("migrated gated JSON/TOML references to C21c identities")
+        _emit_cli("migrated gated JSON/TOML references to C21c identities")
     data = json.loads(register_text)
     if args.write_report:
         REPORT_PATH.write_text(render_report(data), encoding="utf-8")
-        print(f"wrote {REPORT_PATH.relative_to(REPO_ROOT)}")
+        _emit_cli(f"wrote {REPORT_PATH.relative_to(REPO_ROOT)}")
     errors = validate_register(data)
     baseline = _load_json(BASELINE_PATH)
     if args.verify_baseline_source_bytes:
         errors.extend(
             "baseline_" + error
-            for error in validate_baseline_manifest(
-                baseline, verify_source_bytes=True
-            )
+            for error in validate_baseline_manifest(baseline, verify_source_bytes=True)
         )
     if args.lint_results:
         errors.extend(compare_lint_results(baseline, args.lint_results))
@@ -22331,7 +21633,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         errors.extend(compare_architecture_results(baseline, args.architecture_results))
     if errors:
         for error in errors:
-            print(error, file=sys.stderr)
+            _emit_cli(error, stderr=True)
         return 1
     if args.corruption_probes:
         failures = [
@@ -22339,10 +21641,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             *_baseline_corruption_probes(baseline),
         ]
         if failures:
-            print("corruption probes escaped: " + ", ".join(failures), file=sys.stderr)
+            _emit_cli("corruption probes escaped: " + ", ".join(failures), stderr=True)
             return 1
-        print("corruption probes: PASS")
-    print(json.dumps(_summary(data), indent=2, sort_keys=True))
+        _emit_cli("corruption probes: PASS")
+    _emit_cli(json.dumps(_summary(data), indent=2, sort_keys=True))
     return 0
 
 

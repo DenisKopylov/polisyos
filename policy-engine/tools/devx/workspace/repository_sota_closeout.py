@@ -23,6 +23,7 @@ from tools.lib.docs_freshness import (
 )
 from tools.lib.fs import atomic_write_bytes, atomic_write_json
 from tools.lib.imports import repo_root_from
+from tools.lib.runner import run_command
 
 REPO_ROOT = repo_root_from(__file__)
 WORKSPACE_ROOT = REPO_ROOT.parent
@@ -1763,7 +1764,7 @@ def _run_subprocess_with_receipt(
 ) -> subprocess.CompletedProcess[str]:
     """Run one closeout child, optionally retaining its raw output before decoding it."""
     if receipt_dir is None:
-        return subprocess.run(
+        return run_command(
             command,
             cwd=REPO_ROOT,
             capture_output=True,
@@ -1771,7 +1772,7 @@ def _run_subprocess_with_receipt(
             check=False,
         )
 
-    raw_completed = subprocess.run(
+    raw_completed = run_command(
         command,
         cwd=REPO_ROOT,
         capture_output=True,

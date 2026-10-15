@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
+import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -13,6 +15,10 @@ AUTHORED_PYTHON_FORMAT_SCOPE: tuple[str, ...] = (
     "src/polisyos",
     "tests",
     "tools",
+    "architecture",
+    "apps",
+    "workers/dowhy-014",
+    "dev-oracles/rdd-cct",
     "benchmarks",
     "schemas",
     "examples",
@@ -36,6 +42,26 @@ AUTHORED_PYTHON_LINT_SCOPE: tuple[str, ...] = tuple(
     path for path in AUTHORED_PYTHON_FORMAT_SCOPE if path not in PHASE8_LIMITED_PYTHON_SCOPE
 )
 AUTHORED_PYTHON_SCOPE = AUTHORED_PYTHON_FORMAT_SCOPE
+# Current evidence-producing/verification scripts live in handoff and plan roots.
+# Keep them in a dedicated check so archived snapshots are not treated as source.
+EVIDENCE_PYTHON_SCOPE: tuple[str, ...] = (
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL",
+    "docs/research/e02-cloud-test-plan/closure-decisions",
+    "docs/research/e02-cloud-test-plan/execution-organization",
+    "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09",
+    "docs/research/e02-cloud-test-plan/full-run",
+    "docs/research/e02-cloud-test-plan/results",
+    "docs/research/e02-cloud-test-plan/verification/F/api-20261006",
+    "docs/plans/active/agent-packages",
+    "docs/research/policy-operations",
+    "docs/superpowers/research",
+)
+# The Q2 raw subtree is an active, tracked producer/consumer fixture set used by
+# the archive, wheel, sdist, and installed-origin gates. Other ignored raw
+# snapshots remain outside the evidence route.
+ACTIVE_IGNORED_EVIDENCE_PYTHON_SCOPE: tuple[str, ...] = (
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw",
+)
 MYPY_CONFIG = "architecture/tooling/mypy/generated.ini"
 PYTHON_BASE_LAYERS: tuple[tuple[str, str, str], ...] = (
     ("common", "src/polisyos/common", "tests/unit/common"),
@@ -136,6 +162,115 @@ def expand_files(
             seen.add(relative)
             resolved.append(relative)
     return resolved
+
+
+def _is_under_scope(path: str, roots: tuple[str, ...]) -> bool:
+    """Return whether a product-relative path belongs to a declared role root."""
+
+    return any(path == root or path.startswith(f"{root.rstrip('/')}/") for root in roots)
+
+
+def current_python_files(
+    raw_paths: tuple[str, ...],
+    *,
+    exclude_roots: tuple[str, ...] = (),
+    include_ignored_roots: tuple[str, ...] = (),
+    include_untracked: bool = True,
+) -> list[str]:
+    """Select index and optionally nonignored Python files from declared role roots.
+
+    Tracked ignored files are admitted only under an explicitly active role root.
+    Paths are returned explicitly so Ruff's directory-level exclusions cannot
+    turn a nonempty role into an empty successful run.
+    """
+
+    roots = tuple(Path(raw_path).as_posix().rstrip("/") for raw_path in raw_paths)
+    exclusions = tuple(Path(raw_path).as_posix().rstrip("/") for raw_path in exclude_roots)
+    ignored_roots = tuple(
+        Path(raw_path).as_posix().rstrip("/") for raw_path in include_ignored_roots
+    )
+    if not roots:
+        raise SystemExit("No Python role roots are declared.")
+    for raw_path in (*roots, *exclusions, *ignored_roots):
+        candidate = _resolve_path(raw_path)
+        if not candidate.exists():
+            raise SystemExit(f"Python role path does not exist: {raw_path}")
+    if any(not _is_under_scope(root, roots) for root in ignored_roots):
+        raise SystemExit("Ignored Python role roots must be nested under a selected role root.")
+
+    git_roots = tuple(_workspace_relative(root) for root in roots)
+    git_args = ["git", "ls-files", "--cached"]
+    if include_untracked:
+        git_args.extend(("--others", "--exclude-standard"))
+    git_args.extend(("-z", "--", *git_roots))
+    completed = subprocess.run(
+        git_args,
+        cwd=GIT_ROOT,
+        check=False,
+        capture_output=True,
+    )
+    if completed.returncode != 0:
+        detail = os.fsdecode(completed.stderr).strip()
+        raise SystemExit(f"Could not enumerate current Python role paths: {detail}")
+
+    candidates: set[str] = set()
+    for raw_path in completed.stdout.split(b"\0"):
+        if not raw_path:
+            continue
+        workspace_path = Path(os.fsdecode(raw_path)).as_posix()
+        if _WORKSPACE_PREFIX:
+            prefix = f"{_WORKSPACE_PREFIX}/"
+            if not workspace_path.startswith(prefix):
+                continue
+            relative = workspace_path.removeprefix(prefix)
+        else:
+            relative = workspace_path
+        if not relative.endswith((".py", ".pyi")):
+            continue
+        if not _is_under_scope(relative, roots) or _is_under_scope(relative, exclusions):
+            continue
+        if any(part in _SKIP_SEGMENTS for part in Path(relative).parts):
+            continue
+        if (GIT_ROOT / workspace_path).is_file():
+            candidates.add(relative)
+
+    if not candidates:
+        raise SystemExit(f"No current Python files found under declared roles: {roots}")
+
+    workspace_candidates = tuple(_workspace_relative(relative) for relative in sorted(candidates))
+    ignored_result = subprocess.run(
+        ["git", "check-ignore", "--no-index", "-z", "--stdin"],
+        cwd=GIT_ROOT,
+        input=b"\0".join(os.fsencode(path) for path in workspace_candidates) + b"\0",
+        check=False,
+        capture_output=True,
+    )
+    if ignored_result.returncode not in (0, 1):
+        detail = os.fsdecode(ignored_result.stderr).strip()
+        raise SystemExit(f"Could not classify ignored Python role paths: {detail}")
+    ignored = {
+        Path(os.fsdecode(raw_path)).as_posix().removeprefix(f"{_WORKSPACE_PREFIX}/")
+        if _WORKSPACE_PREFIX
+        else Path(os.fsdecode(raw_path)).as_posix()
+        for raw_path in ignored_result.stdout.split(b"\0")
+        if raw_path
+    }
+    selected = sorted(
+        path for path in candidates if path not in ignored or _is_under_scope(path, ignored_roots)
+    )
+    if not selected:
+        raise SystemExit(f"No active current Python files found under declared roles: {roots}")
+    return selected
+
+
+def evidence_python_files() -> list[str]:
+    """Return the complete current Python evidence role, including active Q2 sources."""
+
+    return current_python_files(
+        EVIDENCE_PYTHON_SCOPE,
+        include_ignored_roots=ACTIVE_IGNORED_EVIDENCE_PYTHON_SCOPE,
+        include_untracked=False,
+    )
 
 
 def expand_markdown_files(raw_paths: list[str] | tuple[str, ...]) -> list[str]:

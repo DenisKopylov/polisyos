@@ -68,7 +68,8 @@ def test_scanner_covers_jsx_non_jsx_and_inherited_dom_roots(tmp_path: Path) -> N
     )
 
     node_executable = shutil.which("node")
-    assert node_executable is not None  # noqa: S101 - tooling prerequisite.
+    assert node_executable is not None  # tooling prerequisite.
+
     completed = subprocess.run(  # noqa: S603 - resolved tooling prerequisite.
         [
             node_executable,
@@ -82,14 +83,14 @@ def test_scanner_covers_jsx_non_jsx_and_inherited_dom_roots(tmp_path: Path) -> N
         text=True,
     )
 
-    assert completed.returncode == 0, completed.stderr  # noqa: S101
+    assert completed.returncode == 0, completed.stderr
     scan = json.loads(completed.stdout)
-    assert [row["path"] for row in scan["files"]] == [  # noqa: S101
+    assert [row["path"] for row in scan["files"]] == [
         "apps/runtime-dashboard/src/Decision.tsx",
         "apps/runtime-dashboard/src/Email.ts",
         "apps/runtime-dashboard/src/Print.ts",
     ]
     kinds = {root["kind"] for row in scan["files"] for root in row["roots"]}
-    assert {"jsx", "html_template", "dom_clone"} <= kinds  # noqa: S101
+    assert {"jsx", "html_template", "dom_clone"} <= kinds
     decision = scan["files"][0]["roots"][0]
-    assert decision["time_semantics_label_render_count"] == 1  # noqa: S101
+    assert decision["time_semantics_label_render_count"] == 1

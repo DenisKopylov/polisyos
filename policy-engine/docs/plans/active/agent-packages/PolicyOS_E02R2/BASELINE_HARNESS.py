@@ -9,7 +9,8 @@ ignored ``raw/`` directory; completed bulky pytest byproducts are moved to
 macOS Trash with a path/size manifest under ``raw/``.
 
 The initial census is exact to 32 named test modules; the separate touched
-scope covers 68 additional paths, for a combined 100-path pre-repair scope. For every revision, the harness walks all tracked
+scope covers 68 additional paths, for a combined 100-path pre-repair scope. For every revision,
+the harness walks all tracked
 Python test paths, records the complete path denominator, and records a Git
 blob SHA or ``MISSING`` for every named module. An inspection failure is
 ``UNRUN``. A missing path is never treated as a passing test.
@@ -39,17 +40,22 @@ import shutil
 import signal
 import stat
 import subprocess
+import tempfile
 import threading
 import time
 import traceback
 import uuid
-import xml.etree.ElementTree as ET
 from collections import Counter
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any
+
+from defusedxml import ElementTree as SafeET
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 PRODUCT_ROOT = Path("/Users/deniskopylov/polisyos")
 DATA_ROOT = PRODUCT_ROOT / "policy-engine/production_data"
@@ -70,34 +76,38 @@ ADAPTIVE_MAX_GROUP_CPU_PERCENT = 100.0
 ADAPTIVE_MAX_BATCH_RSS_KIB = 8 * 1024**2
 ADAPTIVE_MAX_BATCH_CPU_PERCENT = 500.0
 MAX_RUNNING_BATCH_CPU_PERCENT = 500.0
-NUMERIC_THREAD_ENV = MappingProxyType({
-    "BLIS_NUM_THREADS": "1",
-    "DUCKDB_THREADS": "1",
-    "JAX_PLATFORM_NAME": "cpu",
-    "JAX_PLATFORMS": "cpu",
-    "MKL_NUM_THREADS": "1",
-    "NUMEXPR_NUM_THREADS": "1",
-    "OMP_NUM_THREADS": "1",
-    "OPENBLAS_NUM_THREADS": "1",
-    "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
-    "SCIENTIST_TORCH_NUM_THREADS": "1",
-    "VECLIB_MAXIMUM_THREADS": "1",
-    "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
-})
+NUMERIC_THREAD_ENV = MappingProxyType(
+    {
+        "BLIS_NUM_THREADS": "1",
+        "DUCKDB_THREADS": "1",
+        "JAX_PLATFORM_NAME": "cpu",
+        "JAX_PLATFORMS": "cpu",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+        "SCIENTIST_TORCH_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1",
+    }
+)
 ADAPTIVE_RSS_PROJECTION_MULTIPLIER = 1.25
 UNPROFILED_PILOT_MAX_GROUPS = 2
 UNPROFILED_PILOT_MAX_GROUP_RSS_KIB = 2 * 1024**2
 PROCESS_GROUP_LAUNCH_STAGGER_SECONDS = 0.5
 PROCESS_GROUP_STARTUP_SECONDS = 60.0
 HARD_MEMORY_RESERVE_PERCENT = 30
-RESOURCE_HARD_LIMIT_CODES = frozenset({
-    "process_group_rss_limit_exceeded",
-    "minimum_memory_free_percent_breached",
-    "aggregate_cpu_hard_limit_exceeded",
-    "process_group_count_limit_exceeded",
-    "maximum_swap_growth_exceeded",
-    "minimum_scratch_free_space_breached",
-})
+RESOURCE_HARD_LIMIT_CODES = frozenset(
+    {
+        "process_group_rss_limit_exceeded",
+        "minimum_memory_free_percent_breached",
+        "aggregate_cpu_hard_limit_exceeded",
+        "process_group_count_limit_exceeded",
+        "maximum_swap_growth_exceeded",
+        "minimum_scratch_free_space_breached",
+    }
+)
 LEGACY_CHECKPOINT_HARNESS_SHA256 = (
     "dc9fc32c6e4f20a1c2976c9eac8fb3f285869f02531e5ecca943ecd76dc08c9e"
 )
@@ -105,23 +115,13 @@ LEGACY_CHECKPOINT_RUN_ID = "p41-pre-repair-20260924T144020Z-80143"
 BOOTSTRAP_ALARM_SECONDS = 1800
 TIMEOUT_MULTIPLIER = 3.0
 MIN_MEASURED_ALARM_SECONDS = 120
-EXPECTED_DATA_MANIFEST_SHA256 = (
-    "9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105"
-)
-INTEGRATION_PACKAGE_RELATIVE = (
-    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2"
-)
+EXPECTED_DATA_MANIFEST_SHA256 = "9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105"
+INTEGRATION_PACKAGE_RELATIVE = "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2"
 PROCESS_GROUP_FENCE_DIR = (
-    INTEGRATION_CHECKOUT
-    / INTEGRATION_PACKAGE_RELATIVE
-    / "raw"
-    / "process-group-fences"
+    INTEGRATION_CHECKOUT / INTEGRATION_PACKAGE_RELATIVE / "raw" / "process-group-fences"
 )
 PROCESS_GROUP_FENCE_FAILURE_DIR = (
-    INTEGRATION_CHECKOUT
-    / INTEGRATION_PACKAGE_RELATIVE
-    / "raw"
-    / "process-group-fence-failures"
+    INTEGRATION_CHECKOUT / INTEGRATION_PACKAGE_RELATIVE / "raw" / "process-group-fence-failures"
 )
 PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH = (
     INTEGRATION_CHECKOUT
@@ -176,6 +176,7 @@ def _run_with_stop_handlers(action: Callable[[], int]) -> int:
         for signum, handler in prior_handlers.items():
             signal.signal(signum, handler)
 
+
 PHASE0_REVISION = {
     "key": "phase0_merge",
     "label": "73c656744",
@@ -225,6 +226,7 @@ def _set_integration_head_revision(commit: str | None) -> None:
             "checkout": str(INTEGRATION_CHECKOUT),
         }
     REVISIONS = (*BASE_REVISIONS, revision)
+
 
 # Appendix A/B, plus the three merge-review files that may be touched under R14
 # and the two new test files needed to measure the current integration composition.
@@ -369,7 +371,10 @@ R6_DISCRIMINATING_CASE = (
     "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
     "tests.unit.runtime.quality.test_generation_cycle::test_joint_port_rejects_candidate_unbound_resolution_from_another_context",
 )
-APPENDIX_IDENTITY_SOURCE = "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p41-20260924T084614Z-77175/results.json"
+APPENDIX_IDENTITY_SOURCE = (
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/raw/p4"
+    "1-20260924T084614Z-77175/results.json"
+)
 APPENDIX_IDENTITY_SOURCE_SHA256 = "7df2cf49eba69875882f5dd91916ce3c3fce582a75e168adf9e52e7da0b260e5"
 # Exact identities supplied by the Appendix A/B census. Its old result rows
 # supply names only; no old outcome is reused because source import origin was
@@ -377,7 +382,9 @@ APPENDIX_IDENTITY_SOURCE_SHA256 = "7df2cf49eba69875882f5dd91916ce3c3fce582a75e16
 # ends of its required pair or report that case as UNRUN.
 APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]], ...] = (
     (
-        "A", "e02_execution_base", "e02_head",
+        "A",
+        "e02_execution_base",
+        "e02_head",
         "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
         (
             "tests.unit.runtime.http.test_control_service_di::test_process_nl_job_enters_persisted_tenant_scope[authorized]",
@@ -387,7 +394,9 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "A", "e02_execution_base", "e02_head",
+        "A",
+        "e02_execution_base",
+        "e02_head",
         "policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py",
         (
             "tests.unit.runtime.http.test_normative_generation_bridge::test_compiled_owner_rejects_leaf_graft_even_when_s8_leaf_is_valid",
@@ -413,12 +422,18 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "A", "e02_execution_base", "e02_head",
+        "A",
+        "e02_execution_base",
+        "e02_head",
         "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py",
-        ("tests.unit.runtime.quality.test_acquisition_planner::test_generation_cycle_bootstrap_authority_is_strangled",),
+        (
+            "tests.unit.runtime.quality.test_acquisition_planner::test_generation_cycle_bootstrap_authority_is_strangled",
+        ),
     ),
     (
-        "A", "e02_execution_base", "e02_head",
+        "A",
+        "e02_execution_base",
+        "e02_head",
         "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
         (
             "tests.unit.runtime.quality.test_generation_cycle::test_acquisition_required_invokes_n7_and_records_same_cycle_reentry",
@@ -429,12 +444,18 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "A", "e02_execution_base", "e02_head",
+        "A",
+        "e02_execution_base",
+        "e02_head",
         "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
-        ("tests.unit.runtime.quality.test_joint_simulation_horizon::test_program_graph_plan_loops_real_shared_state_executor",),
+        (
+            "tests.unit.runtime.quality.test_joint_simulation_horizon::test_program_graph_plan_loops_real_shared_state_executor",
+        ),
     ),
     (
-        "A", "e02_execution_base", "e02_head",
+        "A",
+        "e02_execution_base",
+        "e02_head",
         "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
         (
             "tests.unit.runtime.quality.test_promotion_sequence::test_frozen_v6_capture_preserves_history_and_refuses_current_admission",
@@ -443,7 +464,9 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "A", "e02_execution_base", "e02_head",
+        "A",
+        "e02_execution_base",
+        "e02_head",
         "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
         (
             "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate::test_http_and_direct_recursive_paths_share_the_pre_n9_subject_strangle",
@@ -451,27 +474,45 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "A", "e02_execution_base", "e02_head",
+        "A",
+        "e02_execution_base",
+        "e02_head",
         "policy-engine/tests/unit/runtime/quality/test_live_acquisition_executor.py",
-        ("tests.unit.runtime.quality.test_live_acquisition_executor::test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_transport",),
+        (
+            "tests.unit.runtime.quality.test_live_acquisition_executor::test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_transport",
+        ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/integration/core_runtime/test_acquisition_authority_provider.py",
-        ("tests.integration.core_runtime.test_acquisition_authority_provider::test_real_worker_replay_refuses_absent_decision_verification_appointment",),
+        (
+            "tests.integration.core_runtime.test_acquisition_authority_provider::test_real_worker_replay_refuses_absent_decision_verification_appointment",
+        ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/integration/core_runtime/test_acquisition_authority_served.py",
-        ("tests.integration.core_runtime.test_acquisition_authority_served::test_served_acquisition_selects_committed_human_authority_and_reopens_worker",),
+        (
+            "tests.integration.core_runtime.test_acquisition_authority_served::test_served_acquisition_selects_committed_human_authority_and_reopens_worker",
+        ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/integration/core_runtime/test_acquisition_tenant_custody.py",
-        ("tests.integration.core_runtime.test_acquisition_tenant_custody::test_actual_acquisition_producers_preserve_tenant_custody_through_reentry",),
+        (
+            "tests.integration.core_runtime.test_acquisition_tenant_custody::test_actual_acquisition_producers_preserve_tenant_custody_through_reentry",
+        ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
         (
             "tests.integration.core_runtime.test_acquisition_world_growth_chain::test_actual_wdi_admits_delta_and_reenters_same_case[False]",
@@ -482,7 +523,9 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py",
         (
             "tests.integration.runtime_quality.test_evaluation_safety_promotion_bridge::test_compiled_source_content_binding_survives_retained_semantic_markers",
@@ -497,27 +540,45 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/unit/runtime/http/test_human_decision_guarded_custody.py",
-        ("tests.unit.runtime.http.test_human_decision_guarded_custody::test_guarded_store_custodies_record_and_recovers_signed_orphan[True]",),
+        (
+            "tests.unit.runtime.http.test_human_decision_guarded_custody::test_guarded_store_custodies_record_and_recovers_signed_orphan[True]",
+        ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/unit/runtime/http/test_human_decision_service.py",
-        ("tests.unit.runtime.http.test_human_decision_service::test_human_decision_hard_crash_reconciles_null_ref_signed_orphan_before_v2",),
+        (
+            "tests.unit.runtime.http.test_human_decision_service::test_human_decision_hard_crash_reconciles_null_ref_signed_orphan_before_v2",
+        ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
-        ("tests.unit.runtime.http.test_nl_pipeline_materialization::test_plain_language_front_door_calls_real_design_problem_compiler",),
+        (
+            "tests.unit.runtime.http.test_nl_pipeline_materialization::test_plain_language_front_door_calls_real_design_problem_compiler",
+        ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/unit/runtime/http/test_runtime_deployment_security.py",
-        ("tests.unit.runtime.http.test_runtime_deployment_security::test_epoch_privileged_source_ports_are_captured_and_attested",),
+        (
+            "tests.unit.runtime.http.test_runtime_deployment_security::test_epoch_privileged_source_ports_are_captured_and_attested",
+        ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_acquisition_movement_positive.py",
         (
             "tests.unit.runtime.quality.test_acquisition_movement_positive::test_native_supplier_requires_separate_gy_act_then_projects_to_cycle_board",
@@ -525,7 +586,9 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_epoch_deployment.py",
         (
             "tests.unit.runtime.quality.test_epoch_deployment::test_configured_policy_exchange_reaches_native_verifier_limitation",
@@ -533,12 +596,18 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_promotion_epoch_deployment.py",
-        ("tests.unit.runtime.quality.test_promotion_epoch_deployment::test_configured_positive_carrier_still_hits_unchanged_ep_d03_refusal",),
+        (
+            "tests.unit.runtime.quality.test_promotion_epoch_deployment::test_configured_positive_carrier_still_hits_unchanged_ep_d03_refusal",
+        ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_promotion_safety.py",
         (
             "tests.unit.runtime.quality.test_promotion_safety::test_canonical_port_and_independent_reader_share_fixed_source_trust",
@@ -546,7 +615,9 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
         (
             "tests.unit.runtime.quality.test_promotion_sequence::test_frozen_v6_capture_preserves_history_and_refuses_current_admission",
@@ -555,7 +626,9 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
         (
             "tests.unit.runtime.quality.test_generation_cycle::test_acquisition_required_invokes_n7_and_records_same_cycle_reentry",
@@ -566,9 +639,13 @@ APPENDIX_REQUIRED_CASE_GROUPS: tuple[tuple[str, str, str, str, tuple[str, ...]],
         ),
     ),
     (
-        "B", "main", "integration_head",
+        "B",
+        "main",
+        "integration_head",
         "policy-engine/tests/unit/runtime/quality/test_live_acquisition_executor.py",
-        ("tests.unit.runtime.quality.test_live_acquisition_executor::test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_transport",),
+        (
+            "tests.unit.runtime.quality.test_live_acquisition_executor::test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_transport",
+        ),
     ),
 )
 APPENDIX_REQUIRED_CASE_COUNT = sum(len(group[4]) for group in APPENDIX_REQUIRED_CASE_GROUPS)
@@ -579,7 +656,9 @@ APPENDIX_REQUIRED_CASE_COUNTS = {
 if APPENDIX_REQUIRED_CASE_COUNT != 74 or APPENDIX_REQUIRED_CASE_COUNTS != {"A": 37, "B": 37}:
     raise RuntimeError("P41 Appendix A/B required-case inventory must contain 74 named cases")
 if {group[3] for group in APPENDIX_REQUIRED_CASE_GROUPS} - set(PRE_REPAIR_TEST_PATHS):
-    raise RuntimeError("P41 Appendix A/B identities include a test path outside the pre-repair denominator")
+    raise RuntimeError(
+        "P41 Appendix A/B identities include a test path outside the pre-repair denominator"
+    )
 
 NATIVE_MARKERS: tuple[str, ...] = (
     "import jax",
@@ -614,8 +693,12 @@ CASE_SIGNATURE_CACHE: dict[tuple[str, str, str], dict[str, Any]] = {}
 PREMEASURED_WALL_SECONDS = {
     "policy-engine/tests/unit/runtime/http/test_control_service_di.py": 647.049,
     "policy-engine/tests/unit/runtime/http/test_normative_generation_bridge.py": 2332.679,
-    "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py": 230.785,
-    "policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py": 265.948,
+    (
+        "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+    ): 230.785,
+    (
+        "policy-engine/tests/integration/runtime_quality/test_evaluation_safety_promotion_bridge.py"
+    ): 265.948,
 }
 
 
@@ -644,13 +727,13 @@ def _run(
     cwd: Path | None = None,
     env: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
+    # S603: source-bound explicit argv only; shell disabled and child env allowlisted.
+    return subprocess.run(  # noqa: S603
         argv,
         cwd=cwd,
         env=env,
         text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         check=False,
     )
 
@@ -775,6 +858,7 @@ def _persist_unverified_process_group(event: dict[str, Any]) -> dict[str, Any]:
 def _process_group_fence_state() -> dict[str, Any]:
     """Read durable unresolved groups; malformed state blocks admission as UNRUN."""
     try:
+
         def record_paths(directory: Path, pattern: str) -> list[Path]:
             try:
                 directory_stat = os.lstat(directory)
@@ -788,9 +872,7 @@ def _process_group_fence_state() -> dict[str, Any]:
             # outer typed-UNRUN handler.
             with os.scandir(directory) as entries:
                 names = sorted(
-                    entry.name
-                    for entry in entries
-                    if fnmatch.fnmatchcase(entry.name, pattern)
+                    entry.name for entry in entries if fnmatch.fnmatchcase(entry.name, pattern)
                 )
             return [directory / name for name in names]
 
@@ -958,10 +1040,7 @@ def _process_group_fence_state() -> dict[str, Any]:
         ]
         if legacy_failure_present:
             record_paths.append(PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH)
-        digests = [
-            {"path": str(path), "sha256": _sha256(path)}
-            for path in record_paths
-        ]
+        digests = [{"path": str(path), "sha256": _sha256(path)} for path in record_paths]
         return {
             "verdict": "BLOCKED" if pending else "CLEAR",
             "pending": pending,
@@ -1091,12 +1170,16 @@ def _appendix_identity_source_receipt() -> dict[str, Any]:
     try:
         observed = _sha256(path)
     except OSError as exc:
-        record.update({"status": "unavailable", "observed_sha256": None, "read_error": type(exc).__name__})
+        record.update(
+            {"status": "unavailable", "observed_sha256": None, "read_error": type(exc).__name__}
+        )
         return record
-    record.update({
-        "status": "verified" if observed == APPENDIX_IDENTITY_SOURCE_SHA256 else "sha_mismatch",
-        "observed_sha256": observed,
-    })
+    record.update(
+        {
+            "status": "verified" if observed == APPENDIX_IDENTITY_SOURCE_SHA256 else "sha_mismatch",
+            "observed_sha256": observed,
+        }
+    )
     return record
 
 
@@ -1139,18 +1222,34 @@ def _inspect_integration_checkout() -> dict[str, Any]:
     top = _git(INTEGRATION_CHECKOUT, "rev-parse", "--show-toplevel")
     branch = _git(INTEGRATION_CHECKOUT, "symbolic-ref", "-q", "--short", "HEAD")
     head = _git(INTEGRATION_CHECKOUT, "rev-parse", "HEAD")
-    _require(top.returncode == 0 and Path(top.stdout.strip()) == INTEGRATION_CHECKOUT, "integration checkout root mismatch")
-    _require(branch.returncode == 0 and branch.stdout.strip() == "codex/e02-r2", "integration output checkout is not attached to codex/e02-r2")
+    _require(
+        top.returncode == 0 and Path(top.stdout.strip()) == INTEGRATION_CHECKOUT,
+        "integration checkout root mismatch",
+    )
+    _require(
+        branch.returncode == 0 and branch.stdout.strip() == "codex/e02-r2",
+        "integration output checkout is not attached to codex/e02-r2",
+    )
     full_commit = re.fullmatch(r"[0-9a-f]{40}", head.stdout.strip()) is not None
     _require(
         head.returncode == 0 and full_commit,
         "integration checkout HEAD is not a full commit identity",
     )
     phase0_commit = PHASE0_REVISION["commit"]
-    ancestry = _git(INTEGRATION_CHECKOUT, "merge-base", "--is-ancestor", phase0_commit, head.stdout.strip())
-    _require(ancestry.returncode == 0, "integration output checkout is not a descendant of the Phase 0 merge")
-    committed = _git(INTEGRATION_CHECKOUT, "diff", "--name-only", f"{phase0_commit}..{head.stdout.strip()}")
-    _require(committed.returncode == 0, f"integration-vs-Phase0 path census failed: {committed.stderr.strip()}")
+    ancestry = _git(
+        INTEGRATION_CHECKOUT, "merge-base", "--is-ancestor", phase0_commit, head.stdout.strip()
+    )
+    _require(
+        ancestry.returncode == 0,
+        "integration output checkout is not a descendant of the Phase 0 merge",
+    )
+    committed = _git(
+        INTEGRATION_CHECKOUT, "diff", "--name-only", f"{phase0_commit}..{head.stdout.strip()}"
+    )
+    _require(
+        committed.returncode == 0,
+        f"integration-vs-Phase0 path census failed: {committed.stderr.strip()}",
+    )
     dirty_paths = list(_checkout_status(INTEGRATION_CHECKOUT))
     raw_ignore_path = "policy-engine/.gitignore"
     allowed_dirty_paths = _allowed_integration_dirty_paths(
@@ -1159,10 +1258,11 @@ def _inspect_integration_checkout() -> dict[str, Any]:
     )
     unexpected_dirty = sorted(set(dirty_paths) - allowed_dirty_paths)
     dirty_test_inputs = sorted(
-        path for path in dirty_paths
-        if path.startswith((
-            "policy-engine/src/", "policy-engine/tests/", "policy-engine/architecture/"
-        ))
+        path
+        for path in dirty_paths
+        if path.startswith(
+            ("policy-engine/src/", "policy-engine/tests/", "policy-engine/architecture/")
+        )
     )
     _require(
         not dirty_test_inputs,
@@ -1204,16 +1304,20 @@ def _inspect_integration_checkout() -> dict[str, Any]:
             and worktree_oid == REVIEWED_RELEASE_FRAGMENT_BLOB_OID,
             "reviewed release fragment differs from its pinned Git blob",
         )
-        reviewed_release_fragment.update({
-            "status": "verified_exact_blob",
-            "head_git_blob_oid": head_oid,
-            "worktree_git_blob_oid": worktree_oid,
-        })
+        reviewed_release_fragment.update(
+            {
+                "status": "verified_exact_blob",
+                "head_git_blob_oid": head_oid,
+                "worktree_git_blob_oid": worktree_oid,
+            }
+        )
     if raw_ignore_path in dirty_paths:
         original_ignore = _git(INTEGRATION_CHECKOUT, "show", f"{phase0_commit}:{raw_ignore_path}")
         _require(original_ignore.returncode == 0, "Phase 0 gitignore inspection failed")
         marker = "docs/superpowers/journals/**/raw/\n"
-        _require(original_ignore.stdout.count(marker) == 1, "Phase 0 raw-ignore insertion point changed")
+        _require(
+            original_ignore.stdout.count(marker) == 1, "Phase 0 raw-ignore insertion point changed"
+        )
         expected_ignore = original_ignore.stdout.replace(
             marker,
             "docs/plans/active/agent-packages/PolicyOS_E02R2/raw/\n" + marker,
@@ -1242,11 +1346,27 @@ def _integration_checkout_inspection_inputs(
     """Declare the local identities and complete deltas used by checkout admission."""
     phase0_commit = PHASE0_REVISION["commit"]
     inputs = [
-        {"name": "integration_checkout", "path": str(INTEGRATION_CHECKOUT), "purpose": "Git root and local status"},
+        {
+            "name": "integration_checkout",
+            "path": str(INTEGRATION_CHECKOUT),
+            "purpose": "Git root and local status",
+        },
         {"name": "expected_branch", "value": "codex/e02-r2", "purpose": "attached output branch"},
-        {"name": "phase0_commit", "value": phase0_commit, "purpose": "ancestry and complete path-delta base"},
-        {"name": "allowed_package_path", "value": INTEGRATION_PACKAGE_RELATIVE, "purpose": "owned measurement outputs"},
-        {"name": "raw_ignore_path", "value": "policy-engine/.gitignore", "purpose": "exact byte-checked raw-output ignore rule"},
+        {
+            "name": "phase0_commit",
+            "value": phase0_commit,
+            "purpose": "ancestry and complete path-delta base",
+        },
+        {
+            "name": "allowed_package_path",
+            "value": INTEGRATION_PACKAGE_RELATIVE,
+            "purpose": "owned measurement outputs",
+        },
+        {
+            "name": "raw_ignore_path",
+            "value": "policy-engine/.gitignore",
+            "purpose": "exact byte-checked raw-output ignore rule",
+        },
         {
             "name": "reviewed_release_fragment",
             "path": REVIEWED_RELEASE_FRAGMENT_RELATIVE,
@@ -1261,20 +1381,24 @@ def _integration_checkout_inspection_inputs(
                 "not treated as uncommitted drift"
             ),
         },
-        {"name": "worktree_delta", "purpose": "complete porcelain status, including untracked paths"},
+        {
+            "name": "worktree_delta",
+            "purpose": "complete porcelain status, including untracked paths",
+        },
         {"name": "integration_HEAD", "purpose": "current attached output revision"},
     ]
     if expected_identity is not None:
-        inputs.append({
-            "name": "preflight_identity",
-            "branch": expected_identity.get("branch"),
-            "head": expected_identity.get("head"),
-            "status_paths": expected_identity.get("status_paths"),
-            "purpose": (
-                "postflight equality guard against branch, HEAD, "
-                "or worktree-status movement"
-            ),
-        })
+        inputs.append(
+            {
+                "name": "preflight_identity",
+                "branch": expected_identity.get("branch"),
+                "head": expected_identity.get("head"),
+                "status_paths": expected_identity.get("status_paths"),
+                "purpose": (
+                    "postflight equality guard against branch, HEAD, or worktree-status movement"
+                ),
+            }
+        )
     return [{"stage": stage, **item} for item in inputs]
 
 
@@ -1311,9 +1435,7 @@ def _inspect_integration_checkout_verdict(
     """Return a typed PASS, UNRUN, or INVALIDATED checkout-inspection result."""
     observed = _observe_integration_checkout()
     declared_inputs = [
-        *_integration_checkout_inspection_inputs(
-            stage=stage, expected_identity=expected_identity
-        ),
+        *_integration_checkout_inspection_inputs(stage=stage, expected_identity=expected_identity),
         {"stage": stage, "name": "observed_checkout_identity", **observed},
     ]
     failure_verdict = "INVALIDATED" if postflight else "UNRUN"
@@ -1377,9 +1499,7 @@ def _assert_fixed_baseline_postflight_unchanged(
     return post_status
 
 
-def _invalidate_run_outcomes(
-    runs: list[dict[str, Any]], inspection: dict[str, Any]
-) -> None:
+def _invalidate_run_outcomes(runs: list[dict[str, Any]], inspection: dict[str, Any]) -> None:
     """Demote results when postflight cannot establish output-checkout custody."""
     reason = inspection["inspection_error"]
     for row in runs:
@@ -1387,8 +1507,7 @@ def _invalidate_run_outcomes(
             continue
         row["observed_suite_status_before_invalidation"] = row.get("suite_status", "UNRUN")
         row["observed_case_statuses_before_invalidation"] = [
-            {"key": case.get("key"), "status": case.get("status")}
-            for case in row.get("cases", [])
+            {"key": case.get("key"), "status": case.get("status")} for case in row.get("cases", [])
         ]
         row["suite_status"] = "UNRUN"
         row["case_counts"] = {}
@@ -1417,7 +1536,13 @@ def _inspect_checkout(revision: dict[str, str], package_dir: Path) -> dict[str, 
     actual_head = head.stdout.strip()
     _require(
         actual_head == revision["commit"],
-        f"{revision['label']} checkout HEAD drift: expected {revision['commit']}, got {actual_head}",
+        (
+            f"{revision['label']}"
+            f" checkout HEAD drift: expected "
+            f"{revision['commit']}"
+            f", got "
+            f"{actual_head}"
+        ),
     )
     status = _checkout_status(checkout)
     allowed = (
@@ -1437,7 +1562,12 @@ def _inspect_checkout(revision: dict[str, str], package_dir: Path) -> dict[str, 
     _require(data_entry.exists(), f"production_data absent at {revision['label']}")
     _require(
         data_entry.resolve() == DATA_ROOT.resolve(),
-        f"production_data resolves to unexpected path at {revision['label']}: {data_entry.resolve()}",
+        (
+            f"production_data resolves to unexpected path at "
+            f"{revision['label']}"
+            f": "
+            f"{data_entry.resolve()}"
+        ),
     )
     manifest = data_entry / "manifest.json"
     manifest_sha = _sha256(manifest)
@@ -1450,16 +1580,23 @@ def _inspect_checkout(revision: dict[str, str], package_dir: Path) -> dict[str, 
     manifest_mode = stat.S_IMODE(manifest.stat().st_mode)
     _require(
         manifest_sha == EXPECTED_DATA_MANIFEST_SHA256,
-        f"production_data manifest changed: expected {EXPECTED_DATA_MANIFEST_SHA256}, got {manifest_sha}",
+        (
+            f"production_data manifest changed: expected "
+            f"{EXPECTED_DATA_MANIFEST_SHA256}"
+            f", got "
+            f"{manifest_sha}"
+        ),
     )
     _require(manifest_mode & 0o222 == 0, "production_data manifest is writable")
 
-    tree = _git(checkout, "ls-tree", "-r", "--name-only", revision["commit"], "--", "policy-engine/tests")
-    _require(tree.returncode == 0, f"Git test-tree census failed at {revision['label']}: {tree.stderr}")
+    tree = _git(
+        checkout, "ls-tree", "-r", "--name-only", revision["commit"], "--", "policy-engine/tests"
+    )
+    _require(
+        tree.returncode == 0, f"Git test-tree census failed at {revision['label']}: {tree.stderr}"
+    )
     all_test_paths = [line for line in tree.stdout.splitlines() if line.endswith(".py")]
-    test_modules = [
-        line for line in all_test_paths if Path(line).name.startswith("test_")
-    ]
+    test_modules = [line for line in all_test_paths if Path(line).name.startswith("test_")]
     expected = set(REQUESTED_TEST_PATHS)
     found_requested = sorted(path for path in test_modules if path in expected)
     missing_requested = sorted(expected - set(found_requested))
@@ -1477,7 +1614,10 @@ def _inspect_checkout(revision: dict[str, str], package_dir: Path) -> dict[str, 
         blob = _git(checkout, "rev-parse", f"{revision['commit']}:{test_path}")
         worktree_path = checkout / test_path
         worktree_sha = _git(checkout, "hash-object", test_path)
-        _require(blob.returncode == 0 and worktree_sha.returncode == 0, f"test blob inspect failed: {test_path}")
+        _require(
+            blob.returncode == 0 and worktree_sha.returncode == 0,
+            f"test blob inspect failed: {test_path}",
+        )
         blob_oid = blob.stdout.strip()
         _require(
             worktree_sha.stdout.strip() == blob_oid,
@@ -1516,7 +1656,11 @@ def _inspect_checkout(revision: dict[str, str], package_dir: Path) -> dict[str, 
 
 def _runtime_versions(env: dict[str, str]) -> dict[str, str]:
     result = _run(
-        [str(RUNNER_PYTHON), "-c", "import sys, pytest; print(sys.version.split()[0]); print(pytest.__version__)"],
+        [
+            str(RUNNER_PYTHON),
+            "-c",
+            "import sys, pytest; print(sys.version.split()[0]); print(pytest.__version__)",
+        ],
         cwd=PRODUCT_ROOT / "policy-engine",
         env=env,
     )
@@ -1528,14 +1672,14 @@ def _runtime_versions(env: dict[str, str]) -> dict[str, str]:
 
 def _parse_junit(path: Path) -> tuple[str, list[TestCaseResult], str | None]:
     try:
-        root = ET.parse(path).getroot()
-    except (OSError, ET.ParseError) as exc:
+        root = SafeET.parse(path).getroot()
+    except (OSError, SafeET.ParseError) as exc:
         return "UNRUN", [], f"JUnit unreadable: {type(exc).__name__}: {exc}"
     case_nodes = root.findall(".//testcase")
     if not case_nodes:
         return "UNRUN", [], "JUnit contains no testcase records"
     cases: list[TestCaseResult] = []
-    for index, node in enumerate(case_nodes):
+    for _index, node in enumerate(case_nodes):
         classname = node.attrib.get("classname", "")
         name = node.attrib.get("name", "")
         failures = node.findall("failure")
@@ -1575,7 +1719,9 @@ def _safe_environment(
         "PYTHONDONTWRITEBYTECODE": "1",
         "PYTHONNOUSERSITE": "1",
         "PYTHON_DOTENV_DISABLED": "1",
-        "PYTHONPATH": os.pathsep.join((str(checkout / "policy-engine/src"), str(checkout / "policy-engine"))),
+        "PYTHONPATH": os.pathsep.join(
+            (str(checkout / "policy-engine/src"), str(checkout / "policy-engine"))
+        ),
     }
     env.update(NUMERIC_THREAD_ENV)
     if "LC_ALL" in os.environ:
@@ -1583,18 +1729,14 @@ def _safe_environment(
     return env
 
 
-def _numeric_thread_controls_status(process: Any | None) -> str:
+def _numeric_thread_controls_status(process: object | None) -> str:
     """Report whether a child process received the declared numeric controls."""
-    return (
-        "applied_to_child_environment"
-        if process is not None
-        else "not_established"
-    )
+    return "applied_to_child_environment" if process is not None else "not_established"
 
 
 def _numeric_thread_controls_match(
-    environment_policy: Any,
-    row: Any | None = None,
+    environment_policy: object,
+    row: object | None = None,
 ) -> bool:
     """Require exact numeric controls in the invocation and completed cell."""
     expected = dict(NUMERIC_THREAD_ENV)
@@ -1628,12 +1770,20 @@ def _verify_import_origins(checkout: Path, base_env: dict[str, str]) -> dict[str
         cwd=checkout / "policy-engine",
         env=env,
     )
-    _require(result.returncode == 0, f"checkout import-origin probe failed at {checkout}: {result.stderr.strip()}")
+    _require(
+        result.returncode == 0,
+        f"checkout import-origin probe failed at {checkout}: {result.stderr.strip()}",
+    )
     try:
         origins = json.loads(result.stdout)
     except json.JSONDecodeError as exc:
-        raise RuntimeError(f"checkout import-origin probe returned invalid JSON at {checkout}") from exc
-    _require(set(origins) == {"polisyos", "tools"}, f"import-origin probe omitted a package at {checkout}")
+        raise RuntimeError(
+            f"checkout import-origin probe returned invalid JSON at {checkout}"
+        ) from exc
+    _require(
+        set(origins) == {"polisyos", "tools"},
+        f"import-origin probe omitted a package at {checkout}",
+    )
     expected_origins = {
         "polisyos": checkout / "policy-engine/src/polisyos/__init__.py",
         "tools": checkout / "policy-engine/tools/__init__.py",
@@ -1643,7 +1793,13 @@ def _verify_import_origins(checkout: Path, base_env: dict[str, str]) -> dict[str
         origin_path = Path(origin).resolve()
         _require(
             origin_path == expected_origins[name].resolve(),
-            f"{name} resolved to {origin_path}; expected exact pinned source {expected_origins[name].resolve()}",
+            (
+                f"{name}"
+                f" resolved to "
+                f"{origin_path}"
+                f"; expected exact pinned source "
+                f"{expected_origins[name].resolve()}"
+            ),
         )
     return origins
 
@@ -1739,7 +1895,9 @@ def _resource_snapshot(
     pressure = _run(["/usr/bin/memory_pressure"])
     _require(pressure.returncode == 0, f"memory_pressure failed: {pressure.stderr.strip()}")
     pressure_match = re.search(r"System-wide memory free percentage:\s*(\d+)%", pressure.stdout)
-    _require(pressure_match is not None, "memory_pressure did not report system-wide free percentage")
+    _require(
+        pressure_match is not None, "memory_pressure did not report system-wide free percentage"
+    )
 
     swap = _run(["/usr/sbin/sysctl", "vm.swapusage"])
     _require(swap.returncode == 0, f"sysctl vm.swapusage failed: {swap.stderr.strip()}")
@@ -1748,7 +1906,9 @@ def _resource_snapshot(
 
     disk_free = shutil.disk_usage(scratch_root).free
     memory_total = _run(["/usr/sbin/sysctl", "-n", "hw.memsize"])
-    _require(memory_total.returncode == 0, f"sysctl hw.memsize failed: {memory_total.stderr.strip()}")
+    _require(
+        memory_total.returncode == 0, f"sysctl hw.memsize failed: {memory_total.stderr.strip()}"
+    )
     try:
         memory_total_bytes = int(memory_total.stdout.strip())
     except ValueError as exc:
@@ -1794,13 +1954,12 @@ def _resource_summary(samples: list[dict[str, Any]]) -> dict[str, Any]:
         "sample_count": len(samples),
         "initial": samples[0],
         "final": samples[-1],
-        "initial_process_group_sample_measured": samples[0].get("process_group_sample_status") == "measured",
+        "initial_process_group_sample_measured": samples[0].get("process_group_sample_status")
+        == "measured",
         "peak_process_group_cpu_percent_sum": max(
             row["process_group_cpu_percent_sum"] for row in samples
         ),
-        "peak_process_group_rss_kib_sum": max(
-            row["process_group_rss_kib_sum"] for row in samples
-        ),
+        "peak_process_group_rss_kib_sum": max(row["process_group_rss_kib_sum"] for row in samples),
         "peak_active_process_group_count": max(
             row.get("active_process_group_count", 0) for row in samples
         ),
@@ -1813,9 +1972,7 @@ def _resource_summary(samples: list[dict[str, Any]]) -> dict[str, Any]:
         "minimum_system_memory_free_percent": min(
             row["system_memory_free_percent"] for row in samples
         ),
-        "peak_system_swap_used_bytes": max(
-            row["system_swap_used_bytes"] for row in samples
-        ),
+        "peak_system_swap_used_bytes": max(row["system_swap_used_bytes"] for row in samples),
         "minimum_scratch_volume_free_bytes": min(
             row["scratch_volume_free_bytes"] for row in samples
         ),
@@ -1830,9 +1987,9 @@ def _resource_summary(samples: list[dict[str, Any]]) -> dict[str, Any]:
 def _resource_summary_for_report(runs: list[dict[str, Any]]) -> dict[str, Any]:
     """Return a three-valued aggregate resource verdict without hiding gaps."""
     relevant_rows = [
-        row for row in runs
-        if row.get("cell_presence") == "PRESENT"
-        and not isinstance(row.get("safety_skip"), dict)
+        row
+        for row in runs
+        if row.get("cell_presence") == "PRESENT" and not isinstance(row.get("safety_skip"), dict)
     ]
     required = {
         "peak_process_group_rss_kib_sum",
@@ -1843,13 +2000,12 @@ def _resource_summary_for_report(runs: list[dict[str, Any]]) -> dict[str, Any]:
     }
     sampled_rows = [row for row in relevant_rows if isinstance(row.get("resource_metrics"), dict)]
     incomplete_rows = [
-        row for row in relevant_rows
+        row
+        for row in relevant_rows
         if not isinstance(row.get("resource_metrics"), dict)
         or not required.issubset(row["resource_metrics"])
     ]
-    complete_rows = [
-        row for row in sampled_rows if required.issubset(row["resource_metrics"])
-    ]
+    complete_rows = [row for row in sampled_rows if required.issubset(row["resource_metrics"])]
     guard_metadata = {
         (row["revision_key"], row["test_path"]): _resource_guard_metadata(
             row.get("resource_guard"),
@@ -1861,7 +2017,8 @@ def _resource_summary_for_report(runs: list[dict[str, Any]]) -> dict[str, Any]:
     }
     guarded_rows = [row for row in relevant_rows if row.get("resource_guard")]
     hard_guard_rows = [
-        row for row in guarded_rows
+        row
+        for row in guarded_rows
         if guard_metadata[(row["revision_key"], row["test_path"])]["kind"] == "hard_limit"
     ]
     unresolved_guard_rows = [row for row in guarded_rows if row not in hard_guard_rows]
@@ -1869,40 +2026,52 @@ def _resource_summary_for_report(runs: list[dict[str, Any]]) -> dict[str, Any]:
     # has incomplete sampling. Stops, inspection failures, and unclassified
     # guards remain UNRUN even when their last sample was complete.
     status = (
-        "fail" if hard_guard_rows
-        else "UNRUN" if incomplete_rows or not complete_rows or unresolved_guard_rows
+        "fail"
+        if hard_guard_rows
+        else "UNRUN"
+        if incomplete_rows or not complete_rows or unresolved_guard_rows
         else "pass"
     )
     reason = None
     coverage_caveat = (
         f"resource coverage incomplete for {len(incomplete_rows)}/{len(relevant_rows)} "
         f"present non-skipped cells; {len(complete_rows)} cells have complete measurements"
-        if incomplete_rows else None
+        if incomplete_rows
+        else None
     )
     if hard_guard_rows:
-        codes = sorted({
-            guard_metadata[(row["revision_key"], row["test_path"])]["code"]
-            for row in hard_guard_rows
-        })
-        reason = (
-            f"hard resource guard in {len(hard_guard_rows)} present cells ({', '.join(codes)})"
+        codes = sorted(
+            {
+                guard_metadata[(row["revision_key"], row["test_path"])]["code"]
+                for row in hard_guard_rows
+            }
         )
+        reason = f"hard resource guard in {len(hard_guard_rows)} present cells ({', '.join(codes)})"
         if coverage_caveat:
             reason += f"; {coverage_caveat}"
     elif status == "UNRUN":
-        reason = (
-            coverage_caveat
-            or f"resource guard or inspection is unresolved for {len(unresolved_guard_rows)} present cells"
+        reason = coverage_caveat or (
+            f"resource guard or inspection is unresolved for "
+            f"{len(unresolved_guard_rows)}"
+            f" present cells"
         )
     metrics: dict[str, Any] = {}
     if complete_rows:
         observed = [row["resource_metrics"] for row in complete_rows]
         metrics = {
-            "peak_process_group_rss_kib": max(item["peak_process_group_rss_kib_sum"] for item in observed),
-            "peak_process_group_cpu_percent": max(item["peak_process_group_cpu_percent_sum"] for item in observed),
-            "minimum_system_memory_free_percent": min(item["minimum_system_memory_free_percent"] for item in observed),
+            "peak_process_group_rss_kib": max(
+                item["peak_process_group_rss_kib_sum"] for item in observed
+            ),
+            "peak_process_group_cpu_percent": max(
+                item["peak_process_group_cpu_percent_sum"] for item in observed
+            ),
+            "minimum_system_memory_free_percent": min(
+                item["minimum_system_memory_free_percent"] for item in observed
+            ),
             "maximum_swap_growth_bytes": max(item["swap_growth_bytes"] for item in observed),
-            "minimum_scratch_volume_free_bytes": min(item["minimum_scratch_volume_free_bytes"] for item in observed),
+            "minimum_scratch_volume_free_bytes": min(
+                item["minimum_scratch_volume_free_bytes"] for item in observed
+            ),
             "peak_active_process_group_count": max(
                 (item.get("peak_active_process_group_count", 0) for item in observed),
                 default=0,
@@ -1992,20 +2161,18 @@ def _resource_guard_reason(snapshot: dict[str, Any], swap_start_bytes: int) -> s
     if snapshot["process_group_rss_kib_sum"] > MAX_PROCESS_GROUP_RSS_KIB:
         return _typed_hard_resource_guard(
             "process_group_rss_limit_exceeded",
-            "process group RSS exceeded "
-            f"{MAX_PROCESS_GROUP_RSS_KIB} KiB"
+            f"process group RSS exceeded {MAX_PROCESS_GROUP_RSS_KIB} KiB",
         )
     if snapshot["system_memory_free_percent"] < MIN_MEMORY_FREE_PERCENT:
         return _typed_hard_resource_guard(
             "minimum_memory_free_percent_breached",
-            "system memory free percentage fell below "
-            f"{MIN_MEMORY_FREE_PERCENT}%"
+            f"system memory free percentage fell below {MIN_MEMORY_FREE_PERCENT}%",
         )
     if snapshot.get("aggregate_process_group_cpu_percent_sum", 0) > MAX_RUNNING_BATCH_CPU_PERCENT:
         return _typed_hard_resource_guard(
             "aggregate_cpu_hard_limit_exceeded",
             "aggregate pytest process-group CPU exceeded running hard limit "
-            f"{MAX_RUNNING_BATCH_CPU_PERCENT}%"
+            f"{MAX_RUNNING_BATCH_CPU_PERCENT}%",
         )
     if snapshot.get("active_process_group_count", 0) > MAX_PROCESS_GROUPS:
         return _typed_hard_resource_guard(
@@ -2042,13 +2209,23 @@ def _machine_admission_state(
         snapshot = _resource_snapshot(os.getpgrp(), scratch_root)
         reason = _resource_guard_reason(snapshot, baseline_swap_used_bytes)
     except Exception as exc:
-        return None, f"resource inspection unavailable before process admission: {type(exc).__name__}: {exc}"
+        return (
+            None,
+            (
+                f"resource inspection unavailable before process admission: "
+                f"{type(exc).__name__}"
+                f": "
+                f"{exc}"
+            ),
+        )
     if reason is not None:
         return snapshot, f"machine resource guard before process admission: {reason}"
     return snapshot, None
 
 
-def _machine_admission_block_reason(scratch_root: Path, baseline_swap_used_bytes: int) -> str | None:
+def _machine_admission_block_reason(
+    scratch_root: Path, baseline_swap_used_bytes: int
+) -> str | None:
     """Return a fail-closed reason when machine resources cannot admit a process."""
     return _machine_admission_state(scratch_root, baseline_swap_used_bytes)[1]
 
@@ -2327,7 +2504,14 @@ def _run_job(
     temp_path = cell_dir / f"{job_id}.tmp"
     cache_path = cell_dir / f"{job_id}.pytest-cache"
     benchmark_path = cell_dir / f"{job_id}.benchmarks"
-    for output_path in (junit_path, stdout_path, stderr_path, temp_path, cache_path, benchmark_path):
+    for output_path in (
+        junit_path,
+        stdout_path,
+        stderr_path,
+        temp_path,
+        cache_path,
+        benchmark_path,
+    ):
         _require(not output_path.exists(), f"refusing to overwrite prior run output: {output_path}")
     temp_path.mkdir(parents=True)
     cache_path.mkdir(parents=True)
@@ -2411,11 +2595,8 @@ def _run_job(
                 "verify the recorded group manually"
             )
             resource_guard = (
-                f"{resource_guard}; {persistence_reason}"
-                if resource_guard
-                else persistence_reason
+                f"{resource_guard}; {persistence_reason}" if resource_guard else persistence_reason
             )
-
 
     def request_termination(trigger: str) -> None:
         """Attempt cleanup once and preserve a typed UNRUN if cleanup is uncertain."""
@@ -2483,7 +2664,8 @@ def _run_job(
                         }
                     )
                     return row
-                process = subprocess.Popen(
+                # S603: one admitted test child; explicit argv and controlled child environment.
+                process = subprocess.Popen(  # noqa: S603
                     command,
                     cwd=project_root,
                     env=env,
@@ -2618,25 +2800,22 @@ def _run_job(
                         # the next broker invocation must remain fenced until
                         # an owner verifies that the exact group is absent.
                         with _PROCESS_GROUPS_LOCK:
-                            persist_process_group_fence(
-                                "live_members_observed_after_leader_exit"
-                            )
+                            persist_process_group_fence("live_members_observed_after_leader_exit")
                 if process.poll() is not None:
                     returncode = process.returncode
                 if process_group_termination is not None and final_sample is not None:
-                    process_group_termination[
-                        "leader_returncode_at_final_sample"
-                    ] = process.returncode
+                    process_group_termination["leader_returncode_at_final_sample"] = (
+                        process.returncode
+                    )
                     process_group_termination["leader_status_at_final_sample"] = (
                         "exited" if process.returncode is not None else "running"
                     )
-                    process_group_termination["live_process_count_at_final_sample"] = (
-                        final_sample["process_group_live_process_count"]
-                    )
-                    if (
-                        final_sample["process_group_live_process_count"] == 0
-                        and not process_group_termination.get("owner_verification_required")
-                    ):
+                    process_group_termination["live_process_count_at_final_sample"] = final_sample[
+                        "process_group_live_process_count"
+                    ]
+                    if final_sample[
+                        "process_group_live_process_count"
+                    ] == 0 and not process_group_termination.get("owner_verification_required"):
                         process_group_termination["group_state"] = (
                             "no_live_members_observed_at_final_sample"
                         )
@@ -2861,16 +3040,26 @@ def _verify_published_artifacts(
             if expected_sha is None:
                 continue
             artifact_ref = Path(artifact["path"])
-            artifact_path = artifact_ref if artifact_ref.is_absolute() else integration_checkout / artifact_ref
-            _require(artifact_path.is_file(), f"published {artifact_name} artifact is missing: {artifact_path}")
+            artifact_path = (
+                artifact_ref if artifact_ref.is_absolute() else integration_checkout / artifact_ref
+            )
+            _require(
+                artifact_path.is_file(),
+                f"published {artifact_name} artifact is missing: {artifact_path}",
+            )
             actual_sha = _sha256(artifact_path)
-            _require(actual_sha == expected_sha, f"published {artifact_name} artifact hash changed: {artifact_path}")
-            verified.append({
-                "revision_key": row["revision_key"],
-                "test_path": row["test_path"],
-                "artifact": artifact_name,
-                "sha256": actual_sha,
-            })
+            _require(
+                actual_sha == expected_sha,
+                f"published {artifact_name} artifact hash changed: {artifact_path}",
+            )
+            verified.append(
+                {
+                    "revision_key": row["revision_key"],
+                    "test_path": row["test_path"],
+                    "artifact": artifact_name,
+                    "sha256": actual_sha,
+                }
+            )
     return verified
 
 
@@ -2904,7 +3093,11 @@ def _move_test_byproducts(run_dir: Path, scratch_root: Path, run_id: str) -> Pat
         if not cell_dir.is_dir():
             continue
         for entry in sorted(cell_dir.iterdir()):
-            if not (entry.name.endswith(".tmp") or entry.name.endswith(".pytest-cache") or entry.name.endswith(".benchmarks")):
+            if not (
+                entry.name.endswith(".tmp")
+                or entry.name.endswith(".pytest-cache")
+                or entry.name.endswith(".benchmarks")
+            ):
                 continue
             destination = byproduct_root / cell_dir.name / entry.name
             destination.parent.mkdir(parents=True, exist_ok=True)
@@ -2930,14 +3123,21 @@ def _move_completed_byproducts_to_trash(
     entries: list[dict[str, Any]] = []
     for source in directories:
         size = _run(["du", "-sk", str(source)])
-        _require(size.returncode == 0, f"could not size pytest byproduct {source}: {size.stderr.strip()}")
+        _require(
+            size.returncode == 0, f"could not size pytest byproduct {source}: {size.stderr.strip()}"
+        )
         file_count = _run(["find", str(source), "-type", "f"])
-        _require(file_count.returncode == 0, f"could not count pytest byproduct {source}: {file_count.stderr.strip()}")
+        _require(
+            file_count.returncode == 0,
+            f"could not count pytest byproduct {source}: {file_count.stderr.strip()}",
+        )
         relative = source.relative_to(byproduct_root)
         entries.append(
             {
                 "source_path": str(source),
-                "trash_destination": str(Path.home() / ".Trash" / f"e02-r2-{run_id}-byproducts" / relative),
+                "trash_destination": str(
+                    Path.home() / ".Trash" / f"e02-r2-{run_id}-byproducts" / relative
+                ),
                 "size_bytes": int(size.stdout.split()[0]) * 1024,
                 "file_count": len(file_count.stdout.splitlines()),
                 "kind": source.suffix,
@@ -2981,13 +3181,18 @@ def _move_completed_byproducts_to_trash(
         "moved_allocated_bytes": sum(row["size_bytes"] for row in entries),
         "entries": entries,
         "limitations": [
-            "Moving to Trash retains these outputs but does not promise disk space will be reclaimed.",
+            (
+                "Moving to Trash retains these outputs but does not promise disk "
+                "space will be reclaimed."
+            ),
             "No active basetemp, deciding JUnit/log receipt, or production_data path was moved.",
         ],
     }
     manifest_path = package_raw / f"p41-trash-moves-{run_id}.json"
     _require(not manifest_path.exists(), f"refusing to overwrite Trash manifest: {manifest_path}")
-    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     return {
         "path": str(trash_root),
         "manifest_path": manifest_path.relative_to(package_raw.parent).as_posix(),
@@ -3151,11 +3356,7 @@ def _unprofiled_pilot_admission_reason(
         return "projected active pytest RSS exceeds batch cap", False
 
     cpu_limit = min(ADAPTIVE_MAX_BATCH_CPU_PERCENT, MAX_RUNNING_BATCH_CPU_PERCENT)
-    projected_cpu = (
-        float(aggregate_cpu)
-        + active_cpu_projection
-        + ADAPTIVE_MAX_GROUP_CPU_PERCENT
-    )
+    projected_cpu = float(aggregate_cpu) + active_cpu_projection + ADAPTIVE_MAX_GROUP_CPU_PERCENT
     if projected_cpu > cpu_limit:
         return "projected active pytest CPU exceeds batch cap", False
 
@@ -3214,7 +3415,11 @@ def _can_admit_profiled_job(
     if snapshot["active_process_group_count"] >= MAX_PROCESS_GROUPS:
         return False, f"already at {MAX_PROCESS_GROUPS} active pytest process groups", False
     if snapshot["system_memory_free_percent"] < ADAPTIVE_MIN_MEMORY_FREE_PERCENT:
-        return False, f"admission reserve below {ADAPTIVE_MIN_MEMORY_FREE_PERCENT}% free memory", False
+        return (
+            False,
+            f"admission reserve below {ADAPTIVE_MIN_MEMORY_FREE_PERCENT}% free memory",
+            False,
+        )
     with _PROCESS_GROUPS_LOCK:
         active_groups = dict(_LIVE_PROCESS_GROUPS)
     checkout_reason, checkout_hard_block = _checkout_root_admission_reason(
@@ -3230,9 +3435,7 @@ def _can_admit_profiled_job(
     projected_rss_kib = math.ceil(
         profile["peak_process_group_rss_kib"] * ADAPTIVE_RSS_PROJECTION_MULTIPLIER
     )
-    projected_batch_rss_kib = (
-        snapshot["aggregate_process_group_rss_kib_sum"] + projected_rss_kib
-    )
+    projected_batch_rss_kib = snapshot["aggregate_process_group_rss_kib_sum"] + projected_rss_kib
     if projected_batch_rss_kib > ADAPTIVE_MAX_BATCH_RSS_KIB:
         return False, "projected active pytest RSS exceeds batch cap", False
     projected_cpu = (
@@ -3260,7 +3463,11 @@ def _can_admit_profiled_job(
             return False, "an active pytest group has no measured profile", False
         actual_rss_kib = active_rss_by_group.get(str(process_group_id))
         if not isinstance(actual_rss_kib, int):
-            return False, f"active process-group RSS is unavailable for PGID {process_group_id}", True
+            return (
+                False,
+                f"active process-group RSS is unavailable for PGID {process_group_id}",
+                True,
+            )
         expected_peak_kib = math.ceil(
             active_profile["peak_process_group_rss_kib"] * ADAPTIVE_RSS_PROJECTION_MULTIPLIER
         )
@@ -3273,7 +3480,11 @@ def _can_admit_profiled_job(
     )
     projected_future_growth_bytes = (future_active_growth_kib + projected_rss_kib) * 1024
     if projected_future_growth_bytes > free_headroom_bytes:
-        return False, "projected active growth plus new job would cross the 30% hard memory reserve", False
+        return (
+            False,
+            "projected active growth plus new job would cross the 30% hard memory reserve",
+            False,
+        )
     return True, None, False
 
 
@@ -3342,7 +3553,11 @@ def _schedule(
                 on_complete(row)
             if row.get("worker_error"):
                 halt_reason = (
-                    f"scheduler paused after worker error at {row['revision_key']}:{row['test_path']}: "
+                    f"scheduler paused after worker error at "
+                    f"{row['revision_key']}"
+                    f":"
+                    f"{row['test_path']}"
+                    f": "
                     f"{row['inspection_error']}"
                 )
             elif row.get("process_group_verification_required"):
@@ -3357,7 +3572,11 @@ def _schedule(
                 )
             elif row.get("resource_guard"):
                 halt_reason = (
-                    f"scheduler paused after resource guard at {row['revision_key']}:{row['test_path']}: "
+                    f"scheduler paused after resource guard at "
+                    f"{row['revision_key']}"
+                    f":"
+                    f"{row['test_path']}"
+                    f": "
                     f"{row['resource_guard']}"
                 )
 
@@ -3433,8 +3652,9 @@ def _schedule(
                             future = pool.submit(_run_job, *run_args)
                         if not ready.wait(PROCESS_GROUP_STARTUP_SECONDS) and not future.done():
                             halt_reason = (
-                                f"process admission handshake exceeded {PROCESS_GROUP_STARTUP_SECONDS}s; "
-                                "no further jobs will be launched"
+                                f"process admission handshake exceeded "
+                                f"{PROCESS_GROUP_STARTUP_SECONDS}"
+                                f"s; no further jobs will be launched"
                             )
                             pending[future] = job
                             next_index += 1
@@ -3465,7 +3685,11 @@ def _schedule(
                             record_future(future, completed_job)
                         continue
                     halt_reason = (
-                        f"process admission paused before Popen for {job.revision_key}:{job.test_path}: "
+                        f"process admission paused before Popen for "
+                        f"{job.revision_key}"
+                        f":"
+                        f"{job.test_path}"
+                        f": "
                         f"{admission_reason or 'projected resource reserve was insufficient'}"
                     )
                     for unrun_job in batch[next_index:]:
@@ -3543,18 +3767,17 @@ def _schedule(
                 continue
             execute_batch([job])
             continue
-        candidate_batch = pending_light + [job]
+        candidate_batch = [*pending_light, job]
         candidate_profiles = [profiles[_profile_key(item)] for item in candidate_batch]
         batch_fits = (
             len(candidate_batch) <= min(workers, MAX_PROCESS_GROUPS)
             and sum(
                 profile["peak_process_group_rss_kib"] * ADAPTIVE_RSS_PROJECTION_MULTIPLIER
                 for profile in candidate_profiles
-            ) <= ADAPTIVE_MAX_BATCH_RSS_KIB
-            and sum(
-                profile["peak_process_group_cpu_percent_sum"]
-                for profile in candidate_profiles
-            ) <= ADAPTIVE_MAX_BATCH_CPU_PERCENT
+            )
+            <= ADAPTIVE_MAX_BATCH_RSS_KIB
+            and sum(profile["peak_process_group_cpu_percent_sum"] for profile in candidate_profiles)
+            <= ADAPTIVE_MAX_BATCH_CPU_PERCENT
         )
         if batch_fits:
             pending_light = candidate_batch
@@ -3693,7 +3916,13 @@ def _normalized_command(command: list[str]) -> list[str]:
         elif index == 6:
             normalized.append("<alarm-seconds>")
         elif argument.startswith("addopts="):
-            normalized.append(re.sub(r"--benchmark-storage=file://[^ ]+", "--benchmark-storage=file://<run-output>", argument))
+            normalized.append(
+                re.sub(
+                    r"--benchmark-storage=file://[^ ]+",
+                    "--benchmark-storage=file://<run-output>",
+                    argument,
+                )
+            )
         else:
             normalized.append(argument)
     return normalized
@@ -3747,15 +3976,25 @@ def _verified_reuse_rows(
         if result_path.is_dir():
             manifest_path = result_path / "manifest.json"
             progress_path = result_path / "progress.jsonl"
-            _require(manifest_path.is_file() and progress_path.is_file(), f"checkpoint directory is incomplete: {result_path}")
+            _require(
+                manifest_path.is_file() and progress_path.is_file(),
+                f"checkpoint directory is incomplete: {result_path}",
+            )
             prior = json.loads(manifest_path.read_text(encoding="utf-8"))
             checkpoint_rows = []
-            for line_number, line in enumerate(progress_path.read_text(encoding="utf-8").splitlines(), start=1):
+            for line_number, line in enumerate(
+                progress_path.read_text(encoding="utf-8").splitlines(), start=1
+            ):
                 try:
                     event = json.loads(line)
                 except json.JSONDecodeError as exc:
-                    raise RuntimeError(f"checkpoint journal line {line_number} is invalid: {result_path}") from exc
-                _require(event.get("schema") == "policyos.e02r2.p41-checkpoint-row.v1", f"checkpoint journal schema mismatch: {result_path}:{line_number}")
+                    raise RuntimeError(
+                        f"checkpoint journal line {line_number} is invalid: {result_path}"
+                    ) from exc
+                _require(
+                    event.get("schema") == "policyos.e02r2.p41-checkpoint-row.v1",
+                    f"checkpoint journal schema mismatch: {result_path}:{line_number}",
+                )
                 checkpoint_rows.append(event["run"])
             prior["runs"] = checkpoint_rows
             prior_result_sha = hashlib.sha256(
@@ -3765,22 +4004,35 @@ def _verified_reuse_rows(
             _require(result_path.is_file(), f"reuse result file is absent: {result_path}")
             prior = json.loads(result_path.read_text(encoding="utf-8"))
             prior_result_sha = _sha256(result_path)
-        _require(prior.get("schema") in {
-            "policyos.e02r2.p41-baseline.v1",
-            "policyos.e02r2.p41-timeout-rerun.v1",
-            "policyos.e02r2.p41-checkpoint.v1",
-        }, f"unsupported reuse results schema: {result_path}")
+        _require(
+            prior.get("schema")
+            in {
+                "policyos.e02r2.p41-baseline.v1",
+                "policyos.e02r2.p41-timeout-rerun.v1",
+                "policyos.e02r2.p41-checkpoint.v1",
+            },
+            f"unsupported reuse results schema: {result_path}",
+        )
         _require(prior.get("runtime") == runtime, f"reuse runtime differs: {result_path}")
-        _require(prior.get("data_manifest_sha256") == EXPECTED_DATA_MANIFEST_SHA256, f"reuse data manifest differs: {result_path}")
+        _require(
+            prior.get("data_manifest_sha256") == EXPECTED_DATA_MANIFEST_SHA256,
+            f"reuse data manifest differs: {result_path}",
+        )
         environment_policy = prior.get("environment_policy", {})
         if not isinstance(environment_policy, dict):
-            _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, "environment policy is malformed")
+            _reject_invalid_checkpoint_cell(
+                result_path, strict_checkpoint, "environment policy is malformed"
+            )
             continue
         if environment_policy.get("allowlisted_keys") != env_keys:
-            _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, "allowlisted environment keys differ")
+            _reject_invalid_checkpoint_cell(
+                result_path, strict_checkpoint, "allowlisted environment keys differ"
+            )
             continue
         if not _numeric_thread_controls_match(environment_policy):
-            _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, "numeric thread control values differ")
+            _reject_invalid_checkpoint_cell(
+                result_path, strict_checkpoint, "numeric thread control values differ"
+            )
             continue
         legacy_policy_candidate = (
             result_path.is_dir()
@@ -3794,12 +4046,13 @@ def _verified_reuse_rows(
             environment_policy.get("source_import_policy") != "checkout-local-PYTHONPATH"
             and not legacy_policy_candidate
         ):
-            _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, "source import policy is absent or differs")
+            _reject_invalid_checkpoint_cell(
+                result_path, strict_checkpoint, "source import policy is absent or differs"
+            )
             continue
         prior_revision_rows = prior.get("revisions", [])
         prior_rows_valid = isinstance(prior_revision_rows, list) and all(
-            isinstance(row, dict) and isinstance(row.get("key"), str)
-            for row in prior_revision_rows
+            isinstance(row, dict) and isinstance(row.get("key"), str) for row in prior_revision_rows
         )
         if not prior_rows_valid:
             _reject_invalid_checkpoint_cell(
@@ -3827,8 +4080,8 @@ def _verified_reuse_rows(
                 f"{sorted(unknown_revision_keys)}; no revision key is aliased",
             )
             continue
-        legacy_revision_identity = (
-            not unknown_revision_keys and set(prior_revisions) == set(revisions)
+        legacy_revision_identity = not unknown_revision_keys and set(prior_revisions) == set(
+            revisions
         )
         incompatible_shared_revision = False
         for key, record in revisions.items():
@@ -3865,7 +4118,10 @@ def _verified_reuse_rows(
             if row.get("suite_status") not in {"pass", "fail"} or row.get("resource_guard"):
                 continue
             key = (row.get("revision_key"), row.get("test_path"))
-            _require(key[1] in prior_path_list, f"reuse cell is outside its declared path denominator: {result_path} {key}")
+            _require(
+                key[1] in prior_path_list,
+                f"reuse cell is outside its declared path denominator: {result_path} {key}",
+            )
             if key[1] not in REQUESTED_TEST_PATHS:
                 continue
             current_revision = revisions.get(key[0])
@@ -3881,45 +4137,75 @@ def _verified_reuse_rows(
                 )
                 continue
             current_file = current_revision["files"].get(key[1])
-            if not current_file or current_file.get("status") != "PRESENT" or current_file.get("git_blob_oid") != row.get("test_blob_oid"):
+            if (
+                not current_file
+                or current_file.get("status") != "PRESENT"
+                or current_file.get("git_blob_oid") != row.get("test_blob_oid")
+            ):
                 continue
             if row.get("cwd") != str(Path(current_revision["checkout"]) / "policy-engine"):
-                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell working directory differs for {key}")
+                _reject_invalid_checkpoint_cell(
+                    result_path, strict_checkpoint, f"cell working directory differs for {key}"
+                )
                 continue
             expected_pythonpath_roots = [
                 str(Path(current_revision["checkout"]) / "policy-engine/src"),
                 str(Path(current_revision["checkout"]) / "policy-engine"),
             ]
             if row.get("pythonpath_roots") != expected_pythonpath_roots:
-                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell Python path roots differ for {key}")
+                _reject_invalid_checkpoint_cell(
+                    result_path, strict_checkpoint, f"cell Python path roots differ for {key}"
+                )
                 continue
             if row.get("environment_keys") != env_keys:
-                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell environment keys differ for {key}")
+                _reject_invalid_checkpoint_cell(
+                    result_path, strict_checkpoint, f"cell environment keys differ for {key}"
+                )
                 continue
             if not _numeric_thread_controls_match(environment_policy, row):
-                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell numeric thread control values differ for {key}")
+                _reject_invalid_checkpoint_cell(
+                    result_path,
+                    strict_checkpoint,
+                    f"cell numeric thread control values differ for {key}",
+                )
                 continue
             if not row.get("command") or not row.get("resource_metrics"):
-                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell command or resource measurements are absent for {key}")
+                _reject_invalid_checkpoint_cell(
+                    result_path,
+                    strict_checkpoint,
+                    f"cell command or resource measurements are absent for {key}",
+                )
                 continue
             if _normalized_command(row["command"]) != _expected_normalized_command(key[1]):
-                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell command differs for {key}")
+                _reject_invalid_checkpoint_cell(
+                    result_path, strict_checkpoint, f"cell command differs for {key}"
+                )
                 continue
             policy = prior.get("environment_policy", {})
             if policy.get("dotenv_disabled") is not True or policy.get("jax_platforms") != "cpu":
-                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell runtime environment policy differs for {key}")
+                _reject_invalid_checkpoint_cell(
+                    result_path,
+                    strict_checkpoint,
+                    f"cell runtime environment policy differs for {key}",
+                )
                 continue
             if policy.get("allowlisted_keys") != env_keys:
-                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"cell allowlist differs for {key}")
+                _reject_invalid_checkpoint_cell(
+                    result_path, strict_checkpoint, f"cell allowlist differs for {key}"
+                )
                 continue
             if key in reused:
-                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"duplicate completed cell {key}")
+                _reject_invalid_checkpoint_cell(
+                    result_path, strict_checkpoint, f"duplicate completed cell {key}"
+                )
                 continue
             artifacts = row.get("artifacts", {})
             junit = artifacts.get("junit", {})
             junit_ref = junit.get("path")
             if not junit_ref:
-                _reject_invalid_checkpoint_cell(result_path, strict_checkpoint, f"JUnit path is absent for {key}")
+                _reject_invalid_checkpoint_cell(
+                    result_path, strict_checkpoint, f"JUnit path is absent for {key}"
+                )
                 continue
             junit_path = _retained_artifact_path(junit_ref, junit.get("sha256"), package_dir)
             if junit_path is None:
@@ -3934,7 +4220,8 @@ def _verified_reuse_rows(
             parsed_case_identity = [(case.key, case.status) for case in parsed_cases]
             stored_case_identity = (
                 [(case.get("key"), case.get("status")) for case in stored_cases]
-                if isinstance(stored_cases, list) and all(isinstance(case, dict) for case in stored_cases)
+                if isinstance(stored_cases, list)
+                and all(isinstance(case, dict) for case in stored_cases)
                 else None
             )
             status_is_reconciled = (
@@ -3958,14 +4245,17 @@ def _verified_reuse_rows(
                     result_path,
                     strict_checkpoint,
                     f"JUnit outcome does not reconcile with completed row {key}: "
-                    f"parsed={parsed_status}, row={row.get('suite_status')}, error={parse_error}"
+                    f"parsed={parsed_status}, row={row.get('suite_status')}, error={parse_error}",
                 )
                 continue
             reused_row = dict(row)
             reused_row["reused_from_results_json"] = str(result_path)
             reused_row["reused_from_results_sha256"] = prior_result_sha
             reused_row["source_import_policy_reuse"] = (
-                "legacy-derivation: exact old harness digest, pinned import origins, and row PYTHONPATH roots"
+                (
+                    "legacy-derivation: exact old harness digest, pinned import origins, "
+                    "and row PYTHONPATH roots"
+                )
                 if legacy_policy_candidate
                 else "explicit checkpoint manifest"
             )
@@ -3975,18 +4265,42 @@ def _verified_reuse_rows(
 
 _BUILTIN_PYTEST_FIXTURES = frozenset(
     {
-        "capfd", "capfdbinary", "capsys", "capsysbinary", "cache", "doctest_namespace",
-        "monkeypatch", "pytestconfig", "record_property", "record_testsuite_property",
-        "recwarn", "request", "tmp_path", "tmp_path_factory", "tmpdir", "tmpdir_factory",
-        "unused_tcp_port", "unused_tcp_port_factory", "unused_udp_port", "unused_udp_port_factory",
+        "capfd",
+        "capfdbinary",
+        "capsys",
+        "capsysbinary",
+        "cache",
+        "doctest_namespace",
+        "monkeypatch",
+        "pytestconfig",
+        "record_property",
+        "record_testsuite_property",
+        "recwarn",
+        "request",
+        "tmp_path",
+        "tmp_path_factory",
+        "tmpdir",
+        "tmpdir_factory",
+        "unused_tcp_port",
+        "unused_tcp_port_factory",
+        "unused_udp_port",
+        "unused_udp_port_factory",
     }
 )
 _PYTEST_HOOKS = frozenset(
     {
-        "pytest_addoption", "pytest_collection_modifyitems", "pytest_configure",
-        "pytest_generate_tests", "pytest_ignore_collect", "pytest_itemcollected",
-        "pytest_runtest_call", "pytest_runtest_makereport", "pytest_runtest_setup",
-        "pytest_runtest_teardown", "pytest_sessionfinish", "pytest_sessionstart",
+        "pytest_addoption",
+        "pytest_collection_modifyitems",
+        "pytest_configure",
+        "pytest_generate_tests",
+        "pytest_ignore_collect",
+        "pytest_itemcollected",
+        "pytest_runtest_call",
+        "pytest_runtest_makereport",
+        "pytest_runtest_setup",
+        "pytest_runtest_teardown",
+        "pytest_sessionfinish",
+        "pytest_sessionstart",
     }
 )
 
@@ -4046,37 +4360,51 @@ def _case_context_signature(
         return result
     function_name = reported_name.split("[", 1)[0]
     reported_class = classname.rsplit(".", 1)[-1]
-    candidate_classes = [node for node in module.body if isinstance(node, ast.ClassDef) and node.name == reported_class]
+    candidate_classes = [
+        node
+        for node in module.body
+        if isinstance(node, ast.ClassDef) and node.name == reported_class
+    ]
     if candidate_classes:
         class_node = candidate_classes[0] if len(candidate_classes) == 1 else None
         functions = [
-            node for node in (class_node.body if class_node else [])
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == function_name
+            node
+            for node in (class_node.body if class_node else [])
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.name == function_name
         ]
     else:
         class_node = None
         functions = [
-            node for node in module.body
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == function_name
+            node
+            for node in module.body
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.name == function_name
         ]
     if len(functions) != 1:
-        result = {"established": False, "reason": f"test function resolved to {len(functions)} definitions"}
+        result = {
+            "established": False,
+            "reason": f"test function resolved to {len(functions)} definitions",
+        }
         CASE_SIGNATURE_CACHE[cache_key] = result
         return result
     function_node = functions[0]
 
     import_nodes = [node for node in module.body if isinstance(node, (ast.Import, ast.ImportFrom))]
     unresolved_helper_imports = [
-        node for node in import_nodes
+        node
+        for node in import_nodes
         if isinstance(node, ast.ImportFrom)
         and (node.level > 0 or (node.module or "").startswith(("tests.", "policy_engine.tests.")))
     ]
     module_marks = [
-        node for node in module.body
+        node
+        for node in module.body
         if isinstance(node, (ast.Assign, ast.AnnAssign)) and "pytestmark" in _bound_names(node)
     ]
     module_plugins = [
-        node for node in module.body
+        node
+        for node in module.body
         if isinstance(node, (ast.Assign, ast.AnnAssign)) and "pytest_plugins" in _bound_names(node)
     ]
 
@@ -4105,35 +4433,48 @@ def _case_context_signature(
     dependency_nodes: dict[str, str] = {}
     closure_roots = [function_node, *fixture_nodes, *hook_nodes, *module_marks, *module_plugins]
     pending_names = {
-        node.id for root in closure_roots for node in ast.walk(root)
+        node.id
+        for root in closure_roots
+        for node in ast.walk(root)
         if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load)
     }
     pending_names.update(
-        node.attr for root in closure_roots for node in ast.walk(root)
-        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name) and node.value.id == "self"
+        node.attr
+        for root in closure_roots
+        for node in ast.walk(root)
+        if isinstance(node, ast.Attribute)
+        and isinstance(node.value, ast.Name)
+        and node.value.id == "self"
     )
     class_helper_nodes: dict[str, ast.AST] = {}
     if class_node is not None:
         class_methods = [
-            node for node in class_node.body
+            node
+            for node in class_node.body
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
         ]
         while True:
             new_methods = [
-                node for node in class_methods
-                if node.name in pending_names and f"{class_node.name}.{node.name}" not in class_helper_nodes
+                node
+                for node in class_methods
+                if node.name in pending_names
+                and f"{class_node.name}.{node.name}" not in class_helper_nodes
             ]
             if not new_methods:
                 break
             for node in new_methods:
                 class_helper_nodes[f"{class_node.name}.{node.name}"] = node
                 pending_names.update(
-                    child.id for child in ast.walk(node)
+                    child.id
+                    for child in ast.walk(node)
                     if isinstance(child, ast.Name) and isinstance(child.ctx, ast.Load)
                 )
                 pending_names.update(
-                    child.attr for child in ast.walk(node)
-                    if isinstance(child, ast.Attribute) and isinstance(child.value, ast.Name) and child.value.id == "self"
+                    child.attr
+                    for child in ast.walk(node)
+                    if isinstance(child, ast.Attribute)
+                    and isinstance(child.value, ast.Name)
+                    and child.value.id == "self"
                 )
     visited: set[str] = set()
     while pending_names:
@@ -4144,13 +4485,16 @@ def _case_context_signature(
         node = module_bindings.get(name)
         if node is None or node is function_node or _fixture_function(node):
             continue
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_"):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith(
+            "test_"
+        ):
             continue
         if isinstance(node, ast.ClassDef) and class_node is node:
             continue
         dependency_nodes[name] = _ast_text(node)
         pending_names.update(
-            child.id for child in ast.walk(node)
+            child.id
+            for child in ast.walk(node)
             if isinstance(child, ast.Name) and isinstance(child.ctx, ast.Load)
         )
     dependency_nodes.update({name: _ast_text(node) for name, node in class_helper_nodes.items()})
@@ -4168,7 +4512,9 @@ def _case_context_signature(
         conftest_source = _git(checkout, "show", f"{revision['commit']}:{conftest_path}")
         if conftest_source.returncode != 0:
             continue
-        conftest_hashes.append((conftest_path, hashlib.sha256(conftest_source.stdout.encode("utf-8")).hexdigest()))
+        conftest_hashes.append(
+            (conftest_path, hashlib.sha256(conftest_source.stdout.encode("utf-8")).hexdigest())
+        )
         try:
             conftest_module = ast.parse(conftest_source.stdout)
         except SyntaxError:
@@ -4178,11 +4524,16 @@ def _case_context_signature(
                 node.level > 0 or (node.module or "").startswith(("tests.", "policy_engine.tests."))
             ):
                 unresolved_conftest_helper_import = True
-            if isinstance(node, (ast.Assign, ast.AnnAssign)) and "pytest_plugins" in _bound_names(node):
+            if isinstance(node, (ast.Assign, ast.AnnAssign)) and "pytest_plugins" in _bound_names(
+                node
+            ):
                 conftest_has_plugins = True
             if _fixture_function(node):
                 conftest_fixture_names.add(node.name)
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in _PYTEST_HOOKS:
+            if (
+                isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name in _PYTEST_HOOKS
+            ):
                 conftest_hook_names.add(node.name)
 
     parameter_names: set[str] = set()
@@ -4196,18 +4547,26 @@ def _case_context_signature(
                 parameter_names.update(name.strip() for name in names_node.value.split(","))
             elif isinstance(names_node, (ast.Tuple, ast.List)):
                 parameter_names.update(
-                    element.value for element in names_node.elts
+                    element.value
+                    for element in names_node.elts
                     if isinstance(element, ast.Constant) and isinstance(element.value, str)
                 )
     fixture_args = {
         argument.arg
-        for argument in [*function_node.args.posonlyargs, *function_node.args.args, *function_node.args.kwonlyargs]
+        for argument in [
+            *function_node.args.posonlyargs,
+            *function_node.args.args,
+            *function_node.args.kwonlyargs,
+        ]
         if argument.arg not in {"self", "cls"} and argument.arg not in parameter_names
     }
     unresolved_fixture_args = sorted(
         fixture_args - fixture_names - conftest_fixture_names - _BUILTIN_PYTEST_FIXTURES
     )
-    dynamic_collection = any(node.name == "pytest_generate_tests" for node in hook_nodes) or "pytest_generate_tests" in conftest_hook_names
+    dynamic_collection = (
+        any(node.name == "pytest_generate_tests" for node in hook_nodes)
+        or "pytest_generate_tests" in conftest_hook_names
+    )
 
     class_context: dict[str, Any] | None = None
     if class_node is not None:
@@ -4217,8 +4576,10 @@ def _case_context_signature(
             "decorators": [_ast_text(node) for node in class_node.decorator_list],
             "keywords": [_ast_text(node) for node in class_node.keywords],
             "pytestmark": [
-                _ast_text(node) for node in class_node.body
-                if isinstance(node, (ast.Assign, ast.AnnAssign)) and "pytestmark" in _bound_names(node)
+                _ast_text(node)
+                for node in class_node.body
+                if isinstance(node, (ast.Assign, ast.AnnAssign))
+                and "pytestmark" in _bound_names(node)
             ],
         }
     function_sha = hashlib.sha256(_ast_text(function_node).encode("utf-8")).hexdigest()
@@ -4233,7 +4594,9 @@ def _case_context_signature(
         "dependencies": dependency_nodes,
         "conftest_hashes": conftest_hashes,
     }
-    context_sha = hashlib.sha256(json.dumps(case_context, sort_keys=True).encode("utf-8")).hexdigest()
+    context_sha = hashlib.sha256(
+        json.dumps(case_context, sort_keys=True).encode("utf-8")
+    ).hexdigest()
     reasons = []
     if unresolved_helper_imports:
         reasons.append("test-side helper import target not statically resolved")
@@ -4263,7 +4626,14 @@ def _case_diff(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
             left = cells.get((left_key, test_path))
             right = cells.get((right_key, test_path))
             if not left or not right:
-                diffs.append({"pair": pair_label, "test_path": test_path, "status": "UNRUN", "reason": "cell not recorded"})
+                diffs.append(
+                    {
+                        "pair": pair_label,
+                        "test_path": test_path,
+                        "status": "UNRUN",
+                        "reason": "cell not recorded",
+                    }
+                )
                 continue
             left_sha = left.get("test_blob_oid")
             right_sha = right.get("test_blob_oid")
@@ -4271,26 +4641,30 @@ def _case_diff(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
             left_cases = {case["key"]: case["status"] for case in left.get("cases", [])}
             right_cases = {case["key"]: case["status"] for case in right.get("cases", [])}
             if left.get("cell_presence") == "MISSING" or right.get("cell_presence") == "MISSING":
-                diffs.append({
-                    "pair": pair_label,
-                    "test_path": test_path,
-                    "status": "MISSING",
-                    "reason": "test file absent at one or both revisions",
-                    "left_test_blob_oid": left_sha,
-                    "right_test_blob_oid": right_sha,
-                    "same_test_source": same_source,
-                })
+                diffs.append(
+                    {
+                        "pair": pair_label,
+                        "test_path": test_path,
+                        "status": "MISSING",
+                        "reason": "test file absent at one or both revisions",
+                        "left_test_blob_oid": left_sha,
+                        "right_test_blob_oid": right_sha,
+                        "same_test_source": same_source,
+                    }
+                )
                 continue
             if left["suite_status"] == "UNRUN" or right["suite_status"] == "UNRUN":
-                diffs.append({
-                    "pair": pair_label,
-                    "test_path": test_path,
-                    "status": "UNRUN",
-                    "reason": "inspection or execution incomplete",
-                    "left_test_blob_oid": left_sha,
-                    "right_test_blob_oid": right_sha,
-                    "same_test_source": same_source,
-                })
+                diffs.append(
+                    {
+                        "pair": pair_label,
+                        "test_path": test_path,
+                        "status": "UNRUN",
+                        "reason": "inspection or execution incomplete",
+                        "left_test_blob_oid": left_sha,
+                        "right_test_blob_oid": right_sha,
+                        "same_test_source": same_source,
+                    }
+                )
                 continue
             if left_cases == right_cases and (
                 left.get("suite_status") != right.get("suite_status")
@@ -4298,26 +4672,31 @@ def _case_diff(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 or left.get("timed_out") != right.get("timed_out")
                 or left.get("resource_guard") != right.get("resource_guard")
             ):
-                diffs.append({
-                    "pair": pair_label,
-                    "test_path": test_path,
-                    "case": None,
-                    "status": "SUITE_INTEGRITY_TRANSITION",
-                    "before_suite_status": left.get("suite_status"),
-                    "after_suite_status": right.get("suite_status"),
-                    "before_returncode": left.get("returncode"),
-                    "after_returncode": right.get("returncode"),
-                    "before_timed_out": left.get("timed_out"),
-                    "after_timed_out": right.get("timed_out"),
-                    "before_resource_guard": left.get("resource_guard"),
-                    "after_resource_guard": right.get("resource_guard"),
-                    "same_junit_case_statuses": True,
-                    "same_test_source": same_source,
-                    "left_test_blob_oid": left_sha,
-                    "right_test_blob_oid": right_sha,
-                    "owner_attribution": "UNRESOLVED",
-                    "reason": "JUnit case keys/statuses are identical but suite/process integrity differs",
-                })
+                diffs.append(
+                    {
+                        "pair": pair_label,
+                        "test_path": test_path,
+                        "case": None,
+                        "status": "SUITE_INTEGRITY_TRANSITION",
+                        "before_suite_status": left.get("suite_status"),
+                        "after_suite_status": right.get("suite_status"),
+                        "before_returncode": left.get("returncode"),
+                        "after_returncode": right.get("returncode"),
+                        "before_timed_out": left.get("timed_out"),
+                        "after_timed_out": right.get("timed_out"),
+                        "before_resource_guard": left.get("resource_guard"),
+                        "after_resource_guard": right.get("resource_guard"),
+                        "same_junit_case_statuses": True,
+                        "same_test_source": same_source,
+                        "left_test_blob_oid": left_sha,
+                        "right_test_blob_oid": right_sha,
+                        "owner_attribution": "UNRESOLVED",
+                        "reason": (
+                            "JUnit case keys/statuses are identical but suite/process integrity "
+                            "differs"
+                        ),
+                    }
+                )
             for case_key in sorted(set(left_cases) | set(right_cases)):
                 before = left_cases.get(case_key, "NOT_PRESENT")
                 after = right_cases.get(case_key, "NOT_PRESENT")
@@ -4336,13 +4715,15 @@ def _case_diff(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
                     if (
                         left_signature.get("established") is True
                         and right_signature.get("established") is True
-                        and left_signature.get("context_sha256") == right_signature.get("context_sha256")
+                        and left_signature.get("context_sha256")
+                        == right_signature.get("context_sha256")
                     ):
                         equivalence = "same_case_input_signature"
                     elif left_function_sha and left_function_sha == right_function_sha:
                         equivalence = (
                             "BODY_SAME_FIXTURE_SCOPE_CHANGED"
-                            if left_signature.get("established") and right_signature.get("established")
+                            if left_signature.get("established")
+                            and right_signature.get("established")
                             else "BODY_SAME_INPUT_CLOSURE_UNMEASURED"
                         )
                     elif left_function_sha and right_function_sha:
@@ -4356,26 +4737,34 @@ def _case_diff(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
                         classification = "PASS_TO_SKIP"
                     else:
                         classification = "OTHER_OUTCOME_CHANGE"
-                diffs.append({
-                    "pair": pair_label,
-                    "test_path": test_path,
-                    "case": case_key,
-                    "before": before,
-                    "after": after,
-                    "status": classification,
-                    "same_test_source": same_source,
-                    "left_test_blob_oid": left_sha,
-                    "right_test_blob_oid": right_sha,
-                    "case_input_equivalence": equivalence,
-                    "owner_attribution": "UNRESOLVED",
-                    "left_function_ast_sha256": left_signature.get("function_sha256"),
-                    "right_function_ast_sha256": right_signature.get("function_sha256"),
-                    "left_case_context_sha256": left_signature.get("context_sha256"),
-                    "right_case_context_sha256": right_signature.get("context_sha256"),
-                    "case_input_reason": "; ".join(
-                        reason for reason in (left_signature.get("reason"), right_signature.get("reason")) if reason
-                    ) or None,
-                })
+                diffs.append(
+                    {
+                        "pair": pair_label,
+                        "test_path": test_path,
+                        "case": case_key,
+                        "before": before,
+                        "after": after,
+                        "status": classification,
+                        "same_test_source": same_source,
+                        "left_test_blob_oid": left_sha,
+                        "right_test_blob_oid": right_sha,
+                        "case_input_equivalence": equivalence,
+                        "owner_attribution": "UNRESOLVED",
+                        "left_function_ast_sha256": left_signature.get("function_sha256"),
+                        "right_function_ast_sha256": right_signature.get("function_sha256"),
+                        "left_case_context_sha256": left_signature.get("context_sha256"),
+                        "right_case_context_sha256": right_signature.get("context_sha256"),
+                        "case_input_reason": "; ".join(
+                            reason
+                            for reason in (
+                                left_signature.get("reason"),
+                                right_signature.get("reason"),
+                            )
+                            if reason
+                        )
+                        or None,
+                    }
+                )
     return diffs
 
 
@@ -4390,14 +4779,25 @@ def _appendix_case_results(results: list[dict[str, Any]]) -> list[dict[str, Any]
         for case_key in case_keys:
             left = cells.get((left_key, test_path))
             right = cells.get((right_key, test_path))
-            left_case = next((case for case in (left or {}).get("cases", []) if case.get("key") == case_key), None)
-            right_case = next((case for case in (right or {}).get("cases", []) if case.get("key") == case_key), None)
+            left_case = next(
+                (case for case in (left or {}).get("cases", []) if case.get("key") == case_key),
+                None,
+            )
+            right_case = next(
+                (case for case in (right or {}).get("cases", []) if case.get("key") == case_key),
+                None,
+            )
             reason: str | None = None
             if left is None or right is None:
                 reason = "required comparison cell was not recorded"
             elif left.get("cell_presence") != "PRESENT" or right.get("cell_presence") != "PRESENT":
-                reason = "required test file is missing or its source presence is unverified at one comparison base"
-            elif left.get("suite_status") not in {"pass", "fail"} or right.get("suite_status") not in {"pass", "fail"}:
+                reason = (
+                    "required test file is missing or its source presence is unverified "
+                    "at one comparison base"
+                )
+            elif left.get("suite_status") not in {"pass", "fail"} or right.get(
+                "suite_status"
+            ) not in {"pass", "fail"}:
                 reason = "one or both required suite cells are incomplete or UNRUN"
             elif left_case is None or right_case is None:
                 missing_at = []
@@ -4408,8 +4808,16 @@ def _appendix_case_results(results: list[dict[str, Any]]) -> list[dict[str, Any]
                 reason = "exact JUnit case key was not collected at " + ", ".join(missing_at)
             if reason:
                 status = "UNRUN"
-                before = left_case.get("status") if left_case and left and left.get("suite_status") in {"pass", "fail"} else "UNRUN"
-                after = right_case.get("status") if right_case and right and right.get("suite_status") in {"pass", "fail"} else "UNRUN"
+                before = (
+                    left_case.get("status")
+                    if left_case and left and left.get("suite_status") in {"pass", "fail"}
+                    else "UNRUN"
+                )
+                after = (
+                    right_case.get("status")
+                    if right_case and right and right.get("suite_status") in {"pass", "fail"}
+                    else "UNRUN"
+                )
             else:
                 before = left_case["status"]
                 after = right_case["status"]
@@ -4421,26 +4829,28 @@ def _appendix_case_results(results: list[dict[str, Any]]) -> list[dict[str, Any]
                     status = "PASS_TO_SKIP"
                 else:
                     status = "OTHER_OUTCOME_CHANGE"
-            required.append({
-                "appendix": appendix,
-                "pair": pairs[(left_key, right_key)],
-                "left_revision_key": left_key,
-                "right_revision_key": right_key,
-                "test_path": test_path,
-                "junit_case_key": case_key,
-                "before": before,
-                "after": after,
-                "status": status,
-                "reason": reason,
-                "left_suite_status": left.get("suite_status") if left else "UNRUN",
-                "right_suite_status": right.get("suite_status") if right else "UNRUN",
-                "observed_partial_before": left_case.get("status") if left_case else None,
-                "observed_partial_after": right_case.get("status") if right_case else None,
-                "left_returncode": left.get("returncode") if left else None,
-                "right_returncode": right.get("returncode") if right else None,
-                "left_test_blob_oid": left.get("test_blob_oid") if left else None,
-                "right_test_blob_oid": right.get("test_blob_oid") if right else None,
-            })
+            required.append(
+                {
+                    "appendix": appendix,
+                    "pair": pairs[(left_key, right_key)],
+                    "left_revision_key": left_key,
+                    "right_revision_key": right_key,
+                    "test_path": test_path,
+                    "junit_case_key": case_key,
+                    "before": before,
+                    "after": after,
+                    "status": status,
+                    "reason": reason,
+                    "left_suite_status": left.get("suite_status") if left else "UNRUN",
+                    "right_suite_status": right.get("suite_status") if right else "UNRUN",
+                    "observed_partial_before": left_case.get("status") if left_case else None,
+                    "observed_partial_after": right_case.get("status") if right_case else None,
+                    "left_returncode": left.get("returncode") if left else None,
+                    "right_returncode": right.get("returncode") if right else None,
+                    "left_test_blob_oid": left.get("test_blob_oid") if left else None,
+                    "right_test_blob_oid": right.get("test_blob_oid") if right else None,
+                }
+            )
     return required
 
 
@@ -4452,7 +4862,9 @@ def _md_cell(record: dict[str, Any] | None) -> str:
     if record.get("cell_presence") == "MISSING":
         return "UNRUN (verified path absent)"
     counts = record.get("case_counts", {})
-    counts_text = ",".join(f"{key[0]}={value}" for key, value in sorted(counts.items())) or "no cases"
+    counts_text = (
+        ",".join(f"{key[0]}={value}" for key, value in sorted(counts.items())) or "no cases"
+    )
     return f"{status} ({counts_text}); SHA `{sha}`"
 
 
@@ -4473,11 +4885,14 @@ def _write_report(
         package_dir / "raw/p41-timeout-rerun-20260924T120847Z-43051/results.json",
         package_dir / "raw/p41-timeout-rerun-20260924T122853Z-47867/results.json",
     )
-    prior_timeout_citations = "; ".join(
-        f"`{result_path.relative_to(package_dir)}` SHA-256 `{_sha256(result_path)}`"
-        for result_path in prior_timeout_paths
-        if result_path.is_file()
-    ) or "no retained timeout rerun receipt"
+    prior_timeout_citations = (
+        "; ".join(
+            f"`{result_path.relative_to(package_dir)}` SHA-256 `{_sha256(result_path)}`"
+            for result_path in prior_timeout_paths
+            if result_path.is_file()
+        )
+        or "no retained timeout rerun receipt"
+    )
     resource_result = report.get("resource_summary")
     if not isinstance(resource_result, dict):
         resource_result = _resource_summary_for_report(report["runs"])
@@ -4496,15 +4911,25 @@ def _write_report(
         )
     else:
         resource_summary = (
-            f"Resource measurements: PASS; {resource_result['sampled_cell_count']} present process groups; "
-            f"peak group RSS {resource_metrics['peak_process_group_rss_kib']} KiB; "
-            f"peak group CPU {resource_metrics['peak_process_group_cpu_percent']}%; "
-            f"peak concurrent pytest groups {resource_metrics['peak_active_process_group_count']}; "
-            f"peak aggregate pytest RSS {resource_metrics['peak_aggregate_process_group_rss_kib']} KiB; "
-            f"peak aggregate pytest CPU {resource_metrics['peak_aggregate_process_group_cpu_percent']}%; "
-            f"minimum system free memory {resource_metrics['minimum_system_memory_free_percent']}%; "
-            f"maximum swap growth {resource_metrics['maximum_swap_growth_bytes']} bytes; "
-            f"minimum scratch free space {resource_metrics['minimum_scratch_volume_free_bytes']} bytes."
+            f"Resource measurements: PASS; "
+            f"{resource_result['sampled_cell_count']}"
+            f" present process groups; peak group RSS "
+            f"{resource_metrics['peak_process_group_rss_kib']}"
+            f" KiB; peak group CPU "
+            f"{resource_metrics['peak_process_group_cpu_percent']}"
+            f"%; peak concurrent pytest groups "
+            f"{resource_metrics['peak_active_process_group_count']}"
+            f"; peak aggregate pytest RSS "
+            f"{resource_metrics['peak_aggregate_process_group_rss_kib']}"
+            f" KiB; peak aggregate pytest CPU "
+            f"{resource_metrics['peak_aggregate_process_group_cpu_percent']}"
+            f"%; minimum system free memory "
+            f"{resource_metrics['minimum_system_memory_free_percent']}"
+            f"%; maximum swap growth "
+            f"{resource_metrics['maximum_swap_growth_bytes']}"
+            f" bytes; minimum scratch free space "
+            f"{resource_metrics['minimum_scratch_volume_free_bytes']}"
+            f" bytes."
         )
     pilot_groups = report["environment_policy"].get("unprofiled_pilot_max_groups", 0)
     pilot_policy = (
@@ -4518,33 +4943,48 @@ def _write_report(
         "resource-exclusive groups run alone. "
     )
     resource_policy = (
-        f"This invocation admits at most {report['environment_policy']['max_process_groups']} "
-        f"pytest process groups (harness maximum {MAX_PROCESS_GROUPS}; CLI default {DEFAULT_PROCESS_GROUPS}). "
-        f"A light profile must finish within 60 seconds, use {ADAPTIVE_MIN_GROUP_RSS_KIB}–"
-        f"{ADAPTIVE_MAX_GROUP_RSS_KIB} KiB RSS and at most {ADAPTIVE_MAX_GROUP_CPU_PERCENT}% CPU, "
-        "with zero swap growth. Each launch is staggered by 0.5 seconds and rechecked against "
-        "current process-group RSS/CPU, memory free percent, swap and disk. Reserve admission "
-        "projects 1.25x RSS and the remaining peak-growth budget of every active profiled or "
-        "pilot-budgeted group, "
-        "plus the candidate against free memory above the "
-        f"{HARD_MEMORY_RESERVE_PERCENT}% hard reserve. "
-        f"Projected admission CPU is capped at {ADAPTIVE_MAX_BATCH_CPU_PERCENT}%; the sampled running "
-        f"hard limit is {MAX_RUNNING_BATCH_CPU_PERCENT}% to tolerate short accounting jitter while "
-        f"the {RESOURCE_SAMPLE_SECONDS:g}-second sampler can miss shorter bursts. "
-        "Profiles are scoped to the pinned runtime revision and "
-        "test blob. Each revision/path cell in this matrix is unique; completed exact cells "
-        "are reused rather than dispatched again. This pre-repair scope has no safe profiled "
-        "overlap. "
-        f"{pilot_policy} "
-        "Measured-heavy and resource-exclusive groups run alone "
-        "and are scheduled after bounded ordinary cells. Each child is sampled "
-        f"every {RESOURCE_SAMPLE_SECONDS:g} seconds. A red or unavailable guard "
-        "pauses dispatch and checkpoints unstarted cells as UNRUN. SIGINT/SIGTERM sets a cooperative "
-        "stop event; active workers terminate only their own PGID, and the scheduler drains and "
-        "checkpoints active and unstarted cells as UNRUN. Live descendants left after the leader "
-        "exits are targeted only while the leader is unreaped; after leader exit the harness "
-        "observes the PGID without signaling it, and unresolved membership stops admission "
-        "for owner verification."
+        f"This invocation admits at most "
+        f"{report['environment_policy']['max_process_groups']}"
+        f" pytest process groups (harness maximum "
+        f"{MAX_PROCESS_GROUPS}"
+        f"; CLI default "
+        f"{DEFAULT_PROCESS_GROUPS}"
+        f"). A light profile must finish within 60 seconds, use "
+        f"{ADAPTIVE_MIN_GROUP_RSS_KIB}"
+        f"–"
+        f"{ADAPTIVE_MAX_GROUP_RSS_KIB}"
+        f" KiB RSS and at most "
+        f"{ADAPTIVE_MAX_GROUP_CPU_PERCENT}"
+        f"% CPU, with zero swap growth. Each launch is staggered by 0.5 "
+        f"seconds and rechecked against current process-group RSS/CPU, memory "
+        f"free percent, swap and disk. Reserve admission projects 1.25x RSS "
+        f"and the remaining peak-growth budget of every active profiled or "
+        f"pilot-budgeted group, plus the candidate against free memory above "
+        f"the "
+        f"{HARD_MEMORY_RESERVE_PERCENT}"
+        f"% hard reserve. Projected admission CPU is capped at "
+        f"{ADAPTIVE_MAX_BATCH_CPU_PERCENT}"
+        f"%; the sampled running hard limit is "
+        f"{MAX_RUNNING_BATCH_CPU_PERCENT}"
+        f"% to tolerate short accounting jitter while the "
+        f"{RESOURCE_SAMPLE_SECONDS:g}"
+        f"-second sampler can miss shorter bursts. Profiles are scoped to the "
+        f"pinned runtime revision and test blob. Each revision/path cell in "
+        f"this matrix is unique; completed exact cells are reused rather than "
+        f"dispatched again. This pre-repair scope has no safe profiled "
+        f"overlap. "
+        f"{pilot_policy}"
+        f" Measured-heavy and resource-exclusive groups run alone and are "
+        f"scheduled after bounded ordinary cells. Each child is sampled every "
+        f"{RESOURCE_SAMPLE_SECONDS:g}"
+        f" seconds. A red or unavailable guard pauses dispatch and checkpoints "
+        f"unstarted cells as UNRUN. SIGINT/SIGTERM sets a cooperative stop "
+        f"event; active workers terminate only their own PGID, and the "
+        f"scheduler drains and checkpoints active and unstarted cells as "
+        f"UNRUN. Live descendants left after the leader exits are targeted "
+        f"only while the leader is unreaped; after leader exit the harness "
+        f"observes the PGID without signaling it, and unresolved membership "
+        f"stops admission for owner verification."
     )
     lines = [
         "# Four-base P41 test baselines",
@@ -4554,17 +4994,66 @@ def _write_report(
         "",
         "## Discrepancies and scope",
         "",
-        f"The earlier initial and five controlled-timeout receipts did not record effective source import origins. The shared venv's editable `.pth` pointed at the execution-base checkout outside pytest; repository `conftest.py` may then prepend each checkout's source during pytest startup. Those receipts do not prove that the wrong code was imported, but their source identity was not established. This matrix requires checkout-local `PYTHONPATH` and verifies `polisyos` and `tools` origins before execution. It reuses {report.get('reused_cell_count', 0)} completed checkpoint rows only after pinned checkout/origin, per-row `PYTHONPATH`, env/command, source-blob, and JUnit SHA checks; the earlier manifest without explicit source-import policy additionally requires its exact legacy-harness digest and matching row evidence. It does not reuse initial or timeout-rerun result files. The three retained timeout-rerun receipts are: {prior_timeout_citations}.",
+        (
+            f"The earlier initial and five controlled-timeout receipts did not "
+            f"record effective source import origins. The shared venv's editable "
+            f"`.pth` pointed at the execution-base checkout outside pytest; "
+            f"repository `conftest.py` may then prepend each checkout's source "
+            f"during pytest startup. Those receipts do not prove that the wrong "
+            f"code was imported, but their source identity was not established. "
+            f"This matrix requires checkout-local `PYTHONPATH` and verifies "
+            f"`polisyos` and `tools` origins before execution. It reuses "
+            f"{report.get('reused_cell_count', 0)}"
+            f" completed checkpoint rows only after pinned checkout/origin, "
+            f"per-row `PYTHONPATH`, env/command, source-blob, and JUnit SHA "
+            f"checks; the earlier manifest without explicit source-import policy "
+            f"additionally requires its exact legacy-harness digest and matching "
+            f"row evidence. It does not reuse initial or timeout-rerun result "
+            f"files. The three retained timeout-rerun receipts are: "
+            f"{prior_timeout_citations}"
+            f"."
+        ),
         "",
-        f"The original 7-group initial wave had no resource samples and remains provisional (`raw/p41-20260924T084614Z-77175/results.json` SHA-256 `{initial_results_sha}`). Its 300 moved JUnit/log artifacts are byte-mapped in `raw/p41-initial-artifact-path-remap.json` SHA-256 `{remap_sha}`; the six no-byte timeout artifacts are represented explicitly. The source-import discrepancy is resolved only for this controlled replay.",
+        (
+            f"The original 7-group initial wave had no resource samples and "
+            f"remains provisional (`raw/p41-20260924T084614Z-77175/results.json` "
+            f"SHA-256 `"
+            f"{initial_results_sha}"
+            f"`). Its 300 moved JUnit/log artifacts are byte-mapped in "
+            f"`raw/p41-initial-artifact-path-remap.json` SHA-256 `"
+            f"{remap_sha}"
+            f"`; the six no-byte timeout artifacts are represented explicitly. The "
+            f"source-import discrepancy is resolved only for this controlled "
+            f"replay."
+        ),
         "",
         resource_policy,
         "",
         resource_summary,
         "",
-        f"The requested denominator is **{report['requested_test_path_count']} test paths** (`policy-engine/tests/**/*.py`, selected by exact Appendix A/B, R14, hardening, and planned touched-file paths). The complete tracked-test census counted {report['tree_python_path_denominator']} Python paths across the four pinned Git trees; requested-file availability is recorded per revision below.",
+        (
+            f"The requested denominator is **"
+            f"{report['requested_test_path_count']}"
+            f" test paths** (`policy-engine/tests/**/*.py`, selected by exact "
+            f"Appendix A/B, R14, hardening, and planned touched-file paths). The "
+            f"complete tracked-test census counted "
+            f"{report['tree_python_path_denominator']}"
+            f" Python paths across the four pinned Git trees; requested-file "
+            f"availability is recorded per revision below."
+        ),
         "",
-        f"The four-base matrix has {report['matrix_cell_count']} cells: {report['present_cell_count']} present and executed or explicitly UNRUN, {report['missing_cell_count']} verified missing. Missing means the exact path is absent from that revision's tracked Git tree; it is not a pass. The whole-file SHA is retained as context; per-case attribution uses the exact test AST and statically resolved test-input closure.",
+        (
+            f"The four-base matrix has "
+            f"{report['matrix_cell_count']}"
+            f" cells: "
+            f"{report['present_cell_count']}"
+            f" present and executed or explicitly UNRUN, "
+            f"{report['missing_cell_count']}"
+            f" verified missing. Missing means the exact path is absent from that "
+            f"revision's tracked Git tree; it is not a pass. The whole-file SHA is "
+            f"retained as context; per-case attribution uses the exact test AST "
+            f"and statically resolved test-input closure."
+        ),
         "",
         (
             f"Shared runner: Python {report['runtime']['python']}, "
@@ -4580,16 +5069,64 @@ def _write_report(
             "match; each unprofiled sibling runs alone."
         ),
         "",
-        f"Production data input: `{report['data_root']}/manifest.json` SHA-256 `{report['data_manifest_sha256']}`. The path resolved identically from all four checkouts; preflight also verifies that the production_data root and manifest have no write bits (the per-checkout mode and read-only verdict are in `results.json`). Environment values were allowlisted; `.env` loading was disabled and no environment values are recorded.",
-        "",
-        "The harness predicate is: a selected test case's status at a fixed Git revision and test-source blob under the shared local environment. It reads Git HEAD/tree/blob identities, the production-data manifest hash, pytest JUnit case status, and process exit status. Exit status checks runner integrity; JUnit supplies the per-case result. `UNRUN` means the harness could not inspect/execute a cell. Native-resource isolation is detected from direct imports/use in each test module; transitive or dynamic native use is `unresolved_by_construction`.",
-        "",
-        "P38 divergence: the property is the actual test-case outcome; the implementation reads JUnit testcase status and uses process exit only as a runner-integrity signal. A divergent case is a test that passed but pytest exits nonzero after a session/plugin error, or a missing/incomplete JUnit artifact; those cells are marked `FAIL` or `UNRUN`, never green by exit code alone. P41 attribution compares the exact testcase AST and test-input closure: method/decorators, class context, imports, marks, fixtures/hooks, local helpers/constants, and applicable conftest files. The full test-file SHA is recorded but is not an attribution gate. Dynamic or unresolved test-side dependencies stay `not_established`; identical method AST with changed/unmeasured fixture scope is reported separately.",
+        (
+            f"Production data input: `"
+            f"{report['data_root']}"
+            f"/manifest.json` SHA-256 `"
+            f"{report['data_manifest_sha256']}"
+            f"`. The path resolved identically from all four checkouts; preflight "
+            f"also verifies that the production_data root and manifest have no "
+            f"write bits (the per-checkout mode and read-only verdict are in "
+            f"`results.json`). Environment values were allowlisted; `.env` loading "
+            f"was disabled and no environment values are recorded."
+        ),
         "",
         (
-            f"R6 named-case note: `{R6_DISCRIMINATING_CASE[0]}` / `{R6_DISCRIMINATING_CASE[1]}` has identical method ASTs across all four bases but differing test-context signatures, and at least one input closure is unresolved (see `r6_discriminating_case_inputs` in `results.json`). Any observed pass-to-fail remains recorded as `PASS_TO_FAIL`; the closure difference withholds owner attribution, not the R6 repair requirement."
+            "The harness predicate is: a selected test case's status at a fixed "
+            "Git revision and test-source blob under the shared local "
+            "environment. It reads Git HEAD/tree/blob identities, the "
+            "production-data manifest hash, pytest JUnit case status, and process "
+            "exit status. Exit status checks runner integrity; JUnit supplies the "
+            "per-case result. `UNRUN` means the harness could not inspect/execute "
+            "a cell. Native-resource isolation is detected from direct "
+            "imports/use in each test module; transitive or dynamic native use is "
+            "`unresolved_by_construction`."
+        ),
+        "",
+        (
+            "P38 divergence: the property is the actual test-case outcome; the "
+            "implementation reads JUnit testcase status and uses process exit "
+            "only as a runner-integrity signal. A divergent case is a test that "
+            "passed but pytest exits nonzero after a session/plugin error, or a "
+            "missing/incomplete JUnit artifact; those cells are marked `FAIL` or "
+            "`UNRUN`, never green by exit code alone. P41 attribution compares "
+            "the exact testcase AST and test-input closure: method/decorators, "
+            "class context, imports, marks, fixtures/hooks, local "
+            "helpers/constants, and applicable conftest files. The full test-file "
+            "SHA is recorded but is not an attribution gate. Dynamic or "
+            "unresolved test-side dependencies stay `not_established`; identical "
+            "method AST with changed/unmeasured fixture scope is reported "
+            "separately."
+        ),
+        "",
+        (
+            (
+                f"R6 named-case note: `"
+                f"{R6_DISCRIMINATING_CASE[0]}"
+                f"` / `"
+                f"{R6_DISCRIMINATING_CASE[1]}"
+                f"` has identical method ASTs across all four bases but differing "
+                f"test-context signatures, and at least one input closure is "
+                f"unresolved (see `r6_discriminating_case_inputs` in `results.json`). "
+                f"Any observed pass-to-fail remains recorded as `PASS_TO_FAIL`; the "
+                f"closure difference withholds owner attribution, not the R6 repair "
+                f"requirement."
+            )
             if R6_DISCRIMINATING_CASE[0] in REQUESTED_TEST_PATHS
-            else "R6 discriminating case is outside this selected scope; no R6 per-case conclusion is made here."
+            else (
+                "R6 discriminating case is outside this selected scope; no R6 "
+                "per-case conclusion is made here."
+            )
         ),
         "",
         "## Revision and environment identity",
@@ -4606,63 +5143,116 @@ def _write_report(
         "Prior `phase0_merge` receipt rows remain unchanged and cannot be relabeled or reused "
         "as `integration_head`.",
         "",
-        "| Revision | Commit | Branch | Worktree | Tracked test `.py` paths / `test_*.py` modules | Requested present | Data root mode | pytest.ini blob |",
+        (
+            "| Revision | Commit | Branch | Worktree | Tracked test `.py` paths / "
+            "`test_*.py` modules | Requested present | Data root mode | "
+            "pytest.ini blob |"
+        ),
         "|---|---|---|---|---:|---:|---:|---|",
     ]
     for rev in report["revisions"]:
         lines.append(
-            f"| {rev['label']} | `{rev['commit']}` | `{rev['branch']}` | `{rev['checkout']}` | {rev['tracked_test_python_paths']} / {rev['tracked_test_modules']} | {rev['requested_present']}/{report['requested_test_path_count']} | `{rev['data_root_mode']}` read-only | `{rev['pytest_ini_blob']}` |"
+            f"| "
+            f"{rev['label']}"
+            f" | `"
+            f"{rev['commit']}"
+            f"` | `"
+            f"{rev['branch']}"
+            f"` | `"
+            f"{rev['checkout']}"
+            f"` | "
+            f"{rev['tracked_test_python_paths']}"
+            f" / "
+            f"{rev['tracked_test_modules']}"
+            f" | "
+            f"{rev['requested_present']}"
+            f"/"
+            f"{report['requested_test_path_count']}"
+            f" | `"
+            f"{rev['data_root_mode']}"
+            f"` read-only | `"
+            f"{rev['pytest_ini_blob']}"
+            f"` |"
         )
-    lines.extend([
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+        ]
+    )
     safety_skips = report.get("safety_skipped_cells", [])
     if safety_skips:
-        lines.extend([
-            "## Declared safety skips (UNRUN)",
-            "",
-            "These cells remain in the requested denominator. The test was not launched because its helper copies from the read-only production_data tree, which is prohibited.",
-            "",
-            "| Revision | Test file | Status | Code | Reason |",
-            "|---|---|---|---|---|",
-        ])
+        lines.extend(
+            [
+                "## Declared safety skips (UNRUN)",
+                "",
+                (
+                    "These cells remain in the requested denominator. The test was not "
+                    "launched because its helper copies from the read-only "
+                    "production_data tree, which is prohibited."
+                ),
+                "",
+                "| Revision | Test file | Status | Code | Reason |",
+                "|---|---|---|---|---|",
+            ]
+        )
         for cell in safety_skips:
             lines.append(
-                f"| {cell['revision_key']} | `{cell['test_path']}` | UNRUN | `{cell['code']}` | {cell['reason']} |"
+                f"| "
+                f"{cell['revision_key']}"
+                f" | `"
+                f"{cell['test_path']}"
+                f"` | UNRUN | `"
+                f"{cell['code']}"
+                f"` | "
+                f"{cell['reason']}"
+                f" |"
             )
         lines.append("")
-    lines.extend([
-        "## Whole-file four-base matrix",
-        "",
-        "Each cell lists the suite result, JUnit case counts (`p` passed, `f` failed, `e` error, `s` skipped), and the test-file Git blob OID. Full JUnit, stdout, stderr, and machine-readable results are in the cited raw run directory.",
-    ])
+    lines.extend(
+        [
+            "## Whole-file four-base matrix",
+            "",
+            (
+                "Each cell lists the suite result, JUnit case counts (`p` passed, `f` "
+                "failed, `e` error, `s` skipped), and the test-file Git blob OID. "
+                "Full JUnit, stdout, stderr, and machine-readable results are in the "
+                "cited raw run directory."
+            ),
+        ]
+    )
+    pre_repair_path_set = set(INITIAL_TEST_PATHS + ADDON_TEST_PATHS)
     for label, paths in (
         ("Appendix A/B and initial repair paths (32)", INITIAL_TEST_PATHS),
         ("Additional pre-repair touched paths (68)", ADDON_TEST_PATHS),
         (
-            f"Additional selected paths ({sum(path not in set(INITIAL_TEST_PATHS + ADDON_TEST_PATHS) for path in REQUESTED_TEST_PATHS)})",
-            tuple(path for path in REQUESTED_TEST_PATHS if path not in set(INITIAL_TEST_PATHS + ADDON_TEST_PATHS)),
+            (
+                f"Additional selected paths ("
+                f"{sum(path not in pre_repair_path_set for path in REQUESTED_TEST_PATHS)}"
+                f")"
+            ),
+            tuple(path for path in REQUESTED_TEST_PATHS if path not in pre_repair_path_set),
         ),
     ):
         selected_paths = [path for path in paths if path in REQUESTED_TEST_PATHS]
         if not selected_paths:
             continue
-        lines.extend([
-            "",
-            f"### {label}",
-            "",
-            (
-                f"| Test file | 78187878e | 00d946c2b | 5fd3ebcc1 | "
-                f"{report['revisions'][3]['label']} |"
-            ),
-            "|---|---|---|---|---|",
-        ])
-        for test_path in selected_paths:
-            cells = [
-                _md_cell(matrix.get((rev["key"], test_path)))
-                for rev in report["revisions"]
+        lines.extend(
+            [
+                "",
+                f"### {label}",
+                "",
+                (
+                    f"| Test file | 78187878e | 00d946c2b | 5fd3ebcc1 | "
+                    f"{report['revisions'][3]['label']} |"
+                ),
+                "|---|---|---|---|---|",
             ]
-            lines.append(f"| `{test_path.removeprefix('policy-engine/')}` | " + " | ".join(cells) + " |")
+        )
+        for test_path in selected_paths:
+            cells = [_md_cell(matrix.get((rev["key"], test_path))) for rev in report["revisions"]]
+            lines.append(
+                f"| `{test_path.removeprefix('policy-engine/')}` | " + " | ".join(cells) + " |"
+            )
 
     missing = [
         (rev["label"], path)
@@ -4678,60 +5268,158 @@ def _write_report(
 
     diff_counts = Counter(diff["status"] for diff in report["case_diffs"])
     appendix_counts = Counter(case["status"] for case in report["appendix_case_results"])
-    appendix_count_text = ", ".join(
-        f"`{status}`={count}" for status, count in sorted(appendix_counts.items())
-    ) or "no Appendix identities in this scope"
-    lines.extend([
-        "",
-        "## Exact Appendix A/B named cases",
-        "",
-        f"The tracked harness embeds {APPENDIX_REQUIRED_CASE_COUNT} exact required identities (37 A, 37 B). The earlier identity-source receipt is optional provenance only (status: `{report.get('appendix_case_identity_source', {}).get('status', 'unavailable')}`); it is never used for outcomes. A required case is `UNRUN` if its exact JUnit key is missing or either relevant suite cell is missing, incomplete, or `UNRUN`.",
-        "",
-        f"In-scope identity outcomes: {len(report['appendix_case_results'])}/{APPENDIX_REQUIRED_CASE_COUNT}; {appendix_count_text}.",
-        "",
-        "| Appendix | Required comparison | Test path | Exact JUnit case key | Before | After | Status | Reason |",
-        "|---|---|---|---|---|---|---|---|",
-    ])
+    appendix_count_text = (
+        ", ".join(f"`{status}`={count}" for status, count in sorted(appendix_counts.items()))
+        or "no Appendix identities in this scope"
+    )
+    lines.extend(
+        [
+            "",
+            "## Exact Appendix A/B named cases",
+            "",
+            (
+                f"The tracked harness embeds "
+                f"{APPENDIX_REQUIRED_CASE_COUNT}"
+                f" exact required identities (37 A, 37 B). The earlier identity-source "
+                f"receipt is optional provenance only (status: `"
+                f"{report.get('appendix_case_identity_source', {}).get('status', 'unavailable')}"
+                f"`); it is never used for outcomes. A required case is `UNRUN` if its "
+                f"exact JUnit key is missing or either relevant suite cell is missing, "
+                f"incomplete, or `UNRUN`."
+            ),
+            "",
+            (
+                f"In-scope identity outcomes: "
+                f"{len(report['appendix_case_results'])}"
+                f"/"
+                f"{APPENDIX_REQUIRED_CASE_COUNT}"
+                f"; "
+                f"{appendix_count_text}"
+                f"."
+            ),
+            "",
+            (
+                "| Appendix | Required comparison | Test path | Exact JUnit case key "
+                "| Before | After | Status | Reason |"
+            ),
+            "|---|---|---|---|---|---|---|---|",
+        ]
+    )
     if report["appendix_case_results"]:
         for case in report["appendix_case_results"]:
             lines.append(
-                f"| {case['appendix']} | {case['pair']} | `{case['test_path']}` | `{case['junit_case_key']}` | {case['before']} | {case['after']} | {case['status']} | {case.get('reason') or '—'} |"
+                f"| "
+                f"{case['appendix']}"
+                f" | "
+                f"{case['pair']}"
+                f" | `"
+                f"{case['test_path']}"
+                f"` | `"
+                f"{case['junit_case_key']}"
+                f"` | "
+                f"{case['before']}"
+                f" | "
+                f"{case['after']}"
+                f" | "
+                f"{case['status']}"
+                f" | "
+                f"{case.get('reason') or '—'}"
+                f" |"
             )
     else:
         lines.append("| — | — | — | — | — | — | No Appendix identities selected | — |")
-    lines.extend([
-        "",
-        "## Per-case outcome diffs",
-        "",
-        "`PASS_TO_FAIL` always records the observed JUnit transition. `case_input_equivalence` separately compares the exact testcase AST and the statically resolved test-side input closure; it does not claim full production behavioral-input closure. Every owner remains `UNRESOLVED` here until the changed-path intersection is reviewed. Whole-file SHA differences alone never relabel unchanged test cases or waive a pass-to-fail.",
-        "",
-        "Counts: " + (", ".join(f"`{status}`={count}" for status, count in sorted(diff_counts.items())) or "no case changes"),
-        "",
-        "| Comparison | Test path | Case | Before | After | Status | Test input closure | Owner | Same source blob |",
-        "|---|---|---|---|---|---|---|---|---|",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Per-case outcome diffs",
+            "",
+            (
+                "`PASS_TO_FAIL` always records the observed JUnit transition. "
+                "`case_input_equivalence` separately compares the exact testcase AST "
+                "and the statically resolved test-side input closure; it does not "
+                "claim full production behavioral-input closure. Every owner remains "
+                "`UNRESOLVED` here until the changed-path intersection is reviewed. "
+                "Whole-file SHA differences alone never relabel unchanged test cases "
+                "or waive a pass-to-fail."
+            ),
+            "",
+            "Counts: "
+            + (
+                ", ".join(f"`{status}`={count}" for status, count in sorted(diff_counts.items()))
+                or "no case changes"
+            ),
+            "",
+            (
+                "| Comparison | Test path | Case | Before | After | Status | Test "
+                "input closure | Owner | Same source blob |"
+            ),
+            "|---|---|---|---|---|---|---|---|---|",
+        ]
+    )
     nontrivial_diffs = [
         diff for diff in report["case_diffs"] if diff["status"] not in {"MISSING", "UNRUN"}
     ]
     if nontrivial_diffs:
         for diff in nontrivial_diffs:
             lines.append(
-                f"| {diff['pair']} | `{diff['test_path']}` | `{diff.get('case') or ('suite' if diff['status'].startswith('SUITE_') else '—')}` | {diff.get('before', diff.get('before_suite_status', '—'))} | {diff.get('after', diff.get('after_suite_status', '—'))} | {diff['status']} | {diff.get('case_input_equivalence', '—')} | {diff.get('owner_attribution', 'UNRESOLVED')} | {diff.get('same_test_source', '—')} |"
+                f"| "
+                f"{diff['pair']}"
+                f" | `"
+                f"{diff['test_path']}"
+                f"` | `"
+                f"{diff.get('case') or ('suite' if diff['status'].startswith('SUITE_') else '—')}"
+                f"` | "
+                f"{diff.get('before', diff.get('before_suite_status', '—'))}"
+                f" | "
+                f"{diff.get('after', diff.get('after_suite_status', '—'))}"
+                f" | "
+                f"{diff['status']}"
+                f" | "
+                f"{diff.get('case_input_equivalence', '—')}"
+                f" | "
+                f"{diff.get('owner_attribution', 'UNRESOLVED')}"
+                f" | "
+                f"{diff.get('same_test_source', '—')}"
+                f" |"
             )
     else:
         lines.append("| — | — | — | — | — | No comparable case changes | — | — | — |")
 
-    lines.extend([
-        "",
-        "## Inputs, output receipts, and limitations",
-        "",
-        f"Harness SHA-256: `{report['harness_sha256']}`. Machine-readable matrix: `{report['raw_package_path']}/results.json` SHA-256 `{report['results_sha256']}`.",
-        "",
-        "Every run record in `results.json` includes the complete command, allowlisted environment variable names, timeout basis, return code, elapsed time, test-source SHA, case identities/statuses, and SHA-256/size for its JUnit, stdout, and stderr files. Logs are retained in the raw directory; values from the inherited environment are never logged.",
-        "",
-        "Unresolved by construction: dynamic/generated tests not represented by the named tracked files; native dependencies loaded transitively rather than directly named in a test module; tests that intentionally mutate ignored paths; and issue-owner attribution for identical red results, which requires review of the retained failing case output.",
-        "",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Inputs, output receipts, and limitations",
+            "",
+            (
+                f"Harness SHA-256: `"
+                f"{report['harness_sha256']}"
+                f"`. Machine-readable matrix: `"
+                f"{report['raw_package_path']}"
+                f"/results.json` SHA-256 `"
+                f"{report['results_sha256']}"
+                f"`."
+            ),
+            "",
+            (
+                "Every run record in `results.json` includes the complete command, "
+                "allowlisted environment variable names, timeout basis, return code, "
+                "elapsed time, test-source SHA, case identities/statuses, and "
+                "SHA-256/size for its JUnit, stdout, and stderr files. Logs are "
+                "retained in the raw directory; values from the inherited environment "
+                "are never logged."
+            ),
+            "",
+            (
+                "Unresolved by construction: dynamic/generated tests not represented "
+                "by the named tracked files; native dependencies loaded transitively "
+                "rather than directly named in a test module; tests that "
+                "intentionally mutate ignored paths; and issue-owner attribution for "
+                "identical red results, which requires review of the retained failing "
+                "case output."
+            ),
+            "",
+        ]
+    )
     (output_path or (package_dir / "BASELINES.md")).write_text("\n".join(lines), encoding="utf-8")
 
 
@@ -4774,7 +5462,11 @@ def _publish_typed_unrun_receipt(
     appendix_cases = [
         {
             "appendix": appendix,
-            "pair": next(label for left, right, label in COMPARISON_PAIRS if (left, right) == (left_key, right_key)),
+            "pair": next(
+                label
+                for left, right, label in COMPARISON_PAIRS
+                if (left, right) == (left_key, right_key)
+            ),
             "left_revision_key": left_key,
             "right_revision_key": right_key,
             "test_path": test_path,
@@ -4792,9 +5484,8 @@ def _publish_typed_unrun_receipt(
         output_checkout_inspection = _inspect_integration_checkout_verdict(
             stage="typed_unrun_receipt_output_checkout"
         )
-    output_checkout = (
-        output_checkout_inspection.get("checkout")
-        or output_checkout_inspection.get("observed_checkout")
+    output_checkout = output_checkout_inspection.get("checkout") or output_checkout_inspection.get(
+        "observed_checkout"
     )
     report = {
         "schema": "policyos.e02r2.p41-baseline.v1",
@@ -4837,7 +5528,8 @@ def _publish_typed_unrun_receipt(
         "data_root_status": "UNRUN",
         "data_manifest_expected_sha256": EXPECTED_DATA_MANIFEST_SHA256,
         "resource_start_snapshot": resource_snapshot,
-        "inspection_inputs": (inspection_inputs or []) + output_checkout_inspection.get("declared_inputs", []),
+        "inspection_inputs": (inspection_inputs or [])
+        + output_checkout_inspection.get("declared_inputs", []),
         "inspection_disclosure": {
             "verdict": "UNRUN",
             "failed_stage": failure_stage,
@@ -4859,25 +5551,37 @@ def _publish_typed_unrun_receipt(
         encoding="utf-8",
     )
     (external_run_dir / "UNRUN.md").write_text(
-        f"# P41 baseline UNRUN\n\n"
-        f"Run `{run_id}` did not admit any test process. Stage: `{failure_stage}`.\n\n"
-        f"Reason: {reason}\n\n"
-        f"The {len(cells)} matrix cells and {len(appendix_cases)} in-scope required Appendix cases remain `UNRUN`; source presence, JUnit outcomes, and owners were not inferred. "
-        f"See `results.json` for the full typed cell denominator.\n",
+        (
+            f"# P41 baseline UNRUN\n\nRun `"
+            f"{run_id}"
+            f"` did not admit any test process. Stage: `"
+            f"{failure_stage}"
+            f"`.\n\nReason: "
+            f"{reason}"
+            f"\n\nThe "
+            f"{len(cells)}"
+            f" matrix cells and "
+            f"{len(appendix_cases)}"
+            f" in-scope required Appendix cases remain `UNRUN`; source presence, "
+            f"JUnit outcomes, and owners were not inferred. See `results.json` for "
+            f"the full typed cell denominator.\n"
+        ),
         encoding="utf-8",
     )
     moved = _run(["mv", str(external_run_dir), str(destination)])
-    _require(moved.returncode == 0, f"could not publish typed UNRUN receipt: {moved.stderr.strip()}")
-    _require(not external_run_dir.exists() and destination.is_dir(), "typed UNRUN receipt move did not verify")
+    _require(
+        moved.returncode == 0, f"could not publish typed UNRUN receipt: {moved.stderr.strip()}"
+    )
+    _require(
+        not external_run_dir.exists() and destination.is_dir(),
+        "typed UNRUN receipt move did not verify",
+    )
     results_path = destination / "results.json"
     reread = json.loads(results_path.read_text(encoding="utf-8"))
     _require(
         reread.get("verdict") == "UNRUN" and len(reread.get("runs", [])) == len(cells),
         "typed UNRUN receipt readback failed",
     )
-    print(f"P41 matrix UNRUN before test admission ({len(cells)} cells): {reason}")
-    print(f"Raw receipt: {destination.relative_to(INTEGRATION_CHECKOUT)}")
-    print(f"results.json sha256: {_sha256(results_path)}")
     return 2
 
 
@@ -4914,13 +5618,21 @@ def run_matrix(args: argparse.Namespace) -> int:
     integration_checkout = INTEGRATION_CHECKOUT
     expected_counts = {"initial": 32, "touched": 68, "pre-repair": 100}
     expected_count = expected_counts.get(args.scope, len(REQUESTED_TEST_PATHS))
-    _require(len(REQUESTED_TEST_PATHS) == expected_count, f"{args.scope} test denominator is not {expected_count}")
-    _require(len(set(REQUESTED_TEST_PATHS)) == len(REQUESTED_TEST_PATHS), "duplicate requested test path")
+    _require(
+        len(REQUESTED_TEST_PATHS) == expected_count,
+        f"{args.scope} test denominator is not {expected_count}",
+    )
+    _require(
+        len(set(REQUESTED_TEST_PATHS)) == len(REQUESTED_TEST_PATHS), "duplicate requested test path"
+    )
 
     now = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     run_id = f"p41-{args.scope}-{now}-{os.getpid()}"
     external_run_dir = args.scratch_root / run_id
-    _require(not external_run_dir.exists(), f"refusing to overwrite existing scratch run: {external_run_dir}")
+    _require(
+        not external_run_dir.exists(),
+        f"refusing to overwrite existing scratch run: {external_run_dir}",
+    )
     external_run_dir.mkdir(parents=True)
     home = external_run_dir / "isolated-home"
     home.mkdir()
@@ -5078,7 +5790,11 @@ def run_matrix(args: argparse.Namespace) -> int:
                 math.ceil(PREMEASURED_WALL_SECONDS.get(test_path, 0) * TIMEOUT_MULTIPLIER),
             ),
             timeout_basis=(
-                f"3x previously controlled whole-file duration {PREMEASURED_WALL_SECONDS[test_path]}s"
+                (
+                    f"3x previously controlled whole-file duration "
+                    f"{PREMEASURED_WALL_SECONDS[test_path]}"
+                    f"s"
+                )
                 if test_path in PREMEASURED_WALL_SECONDS
                 else "explicit 1800s main timing-pilot ceiling"
             ),
@@ -5221,10 +5937,7 @@ def run_matrix(args: argparse.Namespace) -> int:
             job.revision_key,
         )
     )
-    runs.extend(
-        row for (revision_key, _), row in reuse_cells.items()
-        if revision_key != "main"
-    )
+    runs.extend(row for (revision_key, _), row in reuse_cells.items() if revision_key != "main")
     runs.extend(
         _schedule(
             remaining_jobs,
@@ -5243,35 +5956,37 @@ def run_matrix(args: argparse.Namespace) -> int:
         for test_path, source in revision["files"].items():
             if source["status"] != "MISSING":
                 continue
-            runs.append({
-                "revision_key": revision["key"],
-                "revision_label": revision["label"],
-                "commit": revision["commit"],
-                "test_path": test_path,
-                "cell_presence": "MISSING",
-                "test_blob_oid": None,
-                "timeout_seconds": None,
-                "timeout_basis": "not applicable; path absent from pinned Git tree",
-                "exclusive_native": False,
-                "command": [],
-                "environment_keys": [],
-                "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
-                "numeric_thread_controls_status": "not_executed",
-                "cwd": str(Path(revision["checkout"]) / "policy-engine"),
-                "returncode": None,
-                "timed_out": False,
-                "elapsed_seconds": 0.0,
-                "suite_status": "UNRUN",
-                "inspection_error": "verified test path absent at pinned revision",
-                "case_counts": {},
-                "cases": [],
-                "artifacts": {},
-            })
+            runs.append(
+                {
+                    "revision_key": revision["key"],
+                    "revision_label": revision["label"],
+                    "commit": revision["commit"],
+                    "test_path": test_path,
+                    "cell_presence": "MISSING",
+                    "test_blob_oid": None,
+                    "timeout_seconds": None,
+                    "timeout_basis": "not applicable; path absent from pinned Git tree",
+                    "exclusive_native": False,
+                    "command": [],
+                    "environment_keys": [],
+                    "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
+                    "numeric_thread_controls_status": "not_executed",
+                    "cwd": str(Path(revision["checkout"]) / "policy-engine"),
+                    "returncode": None,
+                    "timed_out": False,
+                    "elapsed_seconds": 0.0,
+                    "suite_status": "UNRUN",
+                    "inspection_error": "verified test path absent at pinned revision",
+                    "case_counts": {},
+                    "cases": [],
+                    "artifacts": {},
+                }
+            )
 
     # A post-run P41 custody check catches branch movement or unexpected source
     # changes. It runs only after all pytest processes have completed.
-    post_status: dict[str, list[str] | None] = (
-        _assert_fixed_baseline_postflight_unchanged(REVISIONS, revision_records)
+    post_status: dict[str, list[str] | None] = _assert_fixed_baseline_postflight_unchanged(
+        REVISIONS, revision_records
     )
     output_checkout_postflight_verdict = _inspect_integration_checkout_verdict(
         stage="run_matrix_postflight",
@@ -5312,9 +6027,15 @@ def run_matrix(args: argparse.Namespace) -> int:
         "requested_test_path_count": len(REQUESTED_TEST_PATHS),
         "requested_test_paths": list(REQUESTED_TEST_PATHS),
         "matrix_cell_count": len(REVISIONS) * len(REQUESTED_TEST_PATHS),
-        "present_cell_count": sum(r["status"] != "MISSING" for rev in revision_records for r in rev["files"].values()),
-        "missing_cell_count": sum(r["status"] == "MISSING" for rev in revision_records for r in rev["files"].values()),
-        "tree_python_path_denominator": sum(r["tracked_test_python_paths"] for r in revision_records),
+        "present_cell_count": sum(
+            r["status"] != "MISSING" for rev in revision_records for r in rev["files"].values()
+        ),
+        "missing_cell_count": sum(
+            r["status"] == "MISSING" for rev in revision_records for r in rev["files"].values()
+        ),
+        "tree_python_path_denominator": sum(
+            r["tracked_test_python_paths"] for r in revision_records
+        ),
         "tree_python_path_denominators_by_revision": {
             r["key"]: r["tracked_test_python_paths"] for r in revision_records
         },
@@ -5328,9 +6049,7 @@ def run_matrix(args: argparse.Namespace) -> int:
             "postflight_inspection": output_checkout_postflight_verdict,
         },
         "measurement_verdict": (
-            "INVALIDATED"
-            if output_checkout_postflight_verdict["verdict"] != "PASS"
-            else "RECORDED"
+            "INVALIDATED" if output_checkout_postflight_verdict["verdict"] != "PASS" else "RECORDED"
         ),
         "resource_start_snapshot": start_snapshot,
         "checkpoint": {
@@ -5392,14 +6111,10 @@ def run_matrix(args: argparse.Namespace) -> int:
             "max_process_groups": workers,
             "unprofiled_pilot_max_groups": args.unprofiled_pilot_groups,
             "unprofiled_pilot_sampled_rss_cap_kib": (
-                UNPROFILED_PILOT_MAX_GROUP_RSS_KIB
-                if args.unprofiled_pilot_groups
-                else None
+                UNPROFILED_PILOT_MAX_GROUP_RSS_KIB if args.unprofiled_pilot_groups else None
             ),
             "unprofiled_pilot_projected_cpu_per_group_percent": (
-                ADAPTIVE_MAX_GROUP_CPU_PERCENT
-                if args.unprofiled_pilot_groups
-                else None
+                ADAPTIVE_MAX_GROUP_CPU_PERCENT if args.unprofiled_pilot_groups else None
             ),
             "resource_guard": {
                 "max_process_group_rss_kib": MAX_PROCESS_GROUP_RSS_KIB,
@@ -5457,8 +6172,15 @@ def run_matrix(args: argparse.Namespace) -> int:
         "appendix_case_results": appendix_case_results,
         "r6_discriminating_case_inputs": r6_discriminating_case_inputs,
         "unresolved_by_construction": [
-            f"Generated/dynamic test modules outside the {len(REQUESTED_TEST_PATHS)} named tracked paths.",
-            "Native libraries loaded transitively or dynamically when no direct marker exists in a test module.",
+            (
+                f"Generated/dynamic test modules outside the "
+                f"{len(REQUESTED_TEST_PATHS)}"
+                f" named tracked paths."
+            ),
+            (
+                "Native libraries loaded transitively or dynamically when no direct "
+                "marker exists in a test module."
+            ),
             "Ignored-path mutations produced inside tests.",
             "Owner attribution for reds until retained failure output is reviewed.",
             (
@@ -5485,8 +6207,13 @@ def run_matrix(args: argparse.Namespace) -> int:
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     published = _run(["mv", str(external_run_dir), str(destination)])
-    _require(published.returncode == 0, f"could not publish baseline run: {published.stderr.strip()}")
-    _require(not external_run_dir.exists() and destination.is_dir(), "baseline output move did not verify")
+    _require(
+        published.returncode == 0, f"could not publish baseline run: {published.stderr.strip()}"
+    )
+    _require(
+        not external_run_dir.exists() and destination.is_dir(),
+        "baseline output move did not verify",
+    )
     report["published_artifacts_verified"] = _verify_published_artifacts(
         report["runs"],
         integration_checkout,
@@ -5499,25 +6226,32 @@ def run_matrix(args: argparse.Namespace) -> int:
         _write_report(package_dir, destination, report, output_path=destination / "BASELINES.md")
     else:
         (destination / "scope-summary.md").write_text(
-            f"# P41 {args.scope} matrix\n\n"
-            f"Run `{run_id}` covers {len(REQUESTED_TEST_PATHS)} requested test paths at four pinned bases. "
-            f"See `results.json` (SHA-256 `{report['results_sha256']}`) for per-cell JUnit outcomes, "
-            "Git blob SHAs, missing paths, and complete stdout/stderr receipts.\n",
+            (
+                f"# P41 "
+                f"{args.scope}"
+                f" matrix\n\nRun `"
+                f"{run_id}"
+                f"` covers "
+                f"{len(REQUESTED_TEST_PATHS)}"
+                f" requested test paths at four pinned bases. See `results.json` "
+                f"(SHA-256 `"
+                f"{report['results_sha256']}"
+                f"`) for per-cell JUnit outcomes, Git blob SHAs, missing paths, and "
+                f"complete stdout/stderr receipts.\n"
+            ),
             encoding="utf-8",
         )
 
     unrun_count = sum(row["suite_status"] == "UNRUN" for row in runs)
-    print(f"Completed {len(runs)} matrix cells; {report['missing_cell_count']} cells are verified MISSING; {unrun_count} are UNRUN.")
-    print(f"Raw outputs: {destination.relative_to(integration_checkout)}")
-    baselines_path = destination / "BASELINES.md" if args.scope == "custom" else package_dir / "BASELINES.md"
-    print(f"BASELINES.md: {baselines_path}")
-    print(f"results.json sha256: {_sha256(results_path)}")
+    (destination / "BASELINES.md" if args.scope == "custom" else package_dir / "BASELINES.md")
     return 2 if unrun_count or output_checkout_postflight_verdict["verdict"] != "PASS" else 0
 
 
 def _timeout_rerun_preflight_environment_policy() -> dict[str, Any]:
     """Describe controls for timeout cells rejected before child admission."""
-    probe_env = _safe_environment(Path("/tmp"), Path("/tmp"), INTEGRATION_CHECKOUT)
+    probe_env = _safe_environment(
+        Path(tempfile.gettempdir()), Path(tempfile.gettempdir()), INTEGRATION_CHECKOUT
+    )
     return {
         "allowlisted_keys": sorted(probe_env),
         "secret_values_logged": False,
@@ -5548,28 +6282,33 @@ def _publish_timeout_rerun_unrun_receipt(
 ) -> int:
     """Publish selected timeout-rerun cells as UNRUN after failed admission."""
     destination = package_dir / "raw" / run_id
-    _require(not destination.exists(), f"refusing to overwrite typed timeout UNRUN receipt: {destination}")
+    _require(
+        not destination.exists(),
+        f"refusing to overwrite typed timeout UNRUN receipt: {destination}",
+    )
     destination.parent.mkdir(parents=True, exist_ok=True)
     runs = []
     for revision_key, test_path in selected_targets:
         previous = prior_cells.get((revision_key, test_path), {})
-        runs.append({
-            "revision_key": revision_key,
-            "test_path": test_path,
-            "cell_presence": previous.get("cell_presence", "UNRUN"),
-            "test_blob_oid": previous.get("test_blob_oid"),
-            "prior_suite_status": previous.get("suite_status", "UNRUN"),
-            "suite_status": "UNRUN",
-            "timed_out": False,
-            "command": [],
-            "environment_keys": [],
-            "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
-            "numeric_thread_controls_status": "not_executed",
-            "returncode": None,
-            "cases": [],
-            "artifacts": {},
-            "inspection_error": inspection["inspection_error"],
-        })
+        runs.append(
+            {
+                "revision_key": revision_key,
+                "test_path": test_path,
+                "cell_presence": previous.get("cell_presence", "UNRUN"),
+                "test_blob_oid": previous.get("test_blob_oid"),
+                "prior_suite_status": previous.get("suite_status", "UNRUN"),
+                "suite_status": "UNRUN",
+                "timed_out": False,
+                "command": [],
+                "environment_keys": [],
+                "numeric_thread_controls": dict(NUMERIC_THREAD_ENV),
+                "numeric_thread_controls_status": "not_executed",
+                "returncode": None,
+                "cases": [],
+                "artifacts": {},
+                "inspection_error": inspection["inspection_error"],
+            }
+        )
     report = {
         "schema": "policyos.e02r2.p41-timeout-rerun.v1",
         "verdict": "UNRUN",
@@ -5596,17 +6335,27 @@ def _publish_timeout_rerun_unrun_receipt(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     (external_run_dir / "UNRUN.md").write_text(
-        f"# P41 timeout rerun UNRUN\n\nRun `{run_id}` admitted no test process because integration-checkout inspection failed. "
-        f"All {len(runs)} selected cells remain UNRUN. See `results.json` for the declared inputs and prior-matrix identity.\n",
+        (
+            f"# P41 timeout rerun UNRUN\n\nRun `"
+            f"{run_id}"
+            f"` admitted no test process because integration-checkout inspection "
+            f"failed. All "
+            f"{len(runs)}"
+            f" selected cells remain UNRUN. See `results.json` for the declared "
+            f"inputs and prior-matrix identity.\n"
+        ),
         encoding="utf-8",
     )
     moved = _run(["mv", str(external_run_dir), str(destination)])
-    _require(moved.returncode == 0, f"could not publish typed timeout UNRUN receipt: {moved.stderr.strip()}")
+    _require(
+        moved.returncode == 0,
+        f"could not publish typed timeout UNRUN receipt: {moved.stderr.strip()}",
+    )
     reread = json.loads((destination / "results.json").read_text(encoding="utf-8"))
-    _require(reread.get("verdict") == "UNRUN" and len(reread.get("runs", [])) == len(selected_targets), "typed timeout UNRUN receipt readback failed")
-    print(f"Timeout rerun UNRUN before test admission ({len(runs)} selected cells): {inspection['inspection_error']}")
-    print(f"Raw receipt: {destination.relative_to(INTEGRATION_CHECKOUT)}")
-    print(f"results.json sha256: {_sha256(destination / 'results.json')}")
+    _require(
+        reread.get("verdict") == "UNRUN" and len(reread.get("runs", [])) == len(selected_targets),
+        "typed timeout UNRUN receipt readback failed",
+    )
     return 2
 
 
@@ -5614,10 +6363,15 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
     """Repeat selected whole-file cells whose first alarm fired."""
     package_dir = Path(__file__).resolve().parent
     prior_path = args.prior_results
-    _require(prior_path is not None and prior_path.is_file(), "--prior-results must name the initial results.json")
+    _require(
+        prior_path is not None and prior_path.is_file(),
+        "--prior-results must name the initial results.json",
+    )
     prior_sha256 = _sha256(prior_path)
     prior = json.loads(prior_path.read_text(encoding="utf-8"))
-    _require(prior.get("schema") == "policyos.e02r2.p41-baseline.v1", "prior matrix schema mismatch")
+    _require(
+        prior.get("schema") == "policyos.e02r2.p41-baseline.v1", "prior matrix schema mismatch"
+    )
     prior_paths = prior.get("requested_test_paths")
     if not isinstance(prior_paths, list):
         prior_paths = sorted({row["test_path"] for row in prior.get("runs", [])})
@@ -5640,7 +6394,9 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
     now = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     run_id = f"p41-timeout-rerun-{now}-{os.getpid()}"
     external_run_dir = args.scratch_root / run_id
-    _require(not external_run_dir.exists(), f"refusing to overwrite rerun scratch: {external_run_dir}")
+    _require(
+        not external_run_dir.exists(), f"refusing to overwrite rerun scratch: {external_run_dir}"
+    )
     external_run_dir.mkdir(parents=True)
     home = external_run_dir / "isolated-home"
     home.mkdir()
@@ -5655,7 +6411,10 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
         requested_targets.append((revision_key, test_path))
     selected_targets = requested_targets or sorted(eligible_targets)
     _require(len(set(selected_targets)) == len(selected_targets), "duplicate --rerun-target")
-    _require(set(selected_targets).issubset(eligible_targets), "--rerun-target must select present cells marked timed-out UNRUN by the prior matrix")
+    _require(
+        set(selected_targets).issubset(eligible_targets),
+        "--rerun-target must select present cells marked timed-out UNRUN by the prior matrix",
+    )
 
     output_checkout_preflight = _inspect_integration_checkout_verdict(
         stage="timeout_rerun_preflight"
@@ -5748,28 +6507,30 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
                 "current revision commit/checkout/import-origin set differs from the prior "
                 "matrix; historical phase0_merge rows are not aliased to integration_head"
             ),
-            "declared_inputs": [{
-                "name": "prior_revision_identities",
-                "prior_results_path": str(prior_path),
-                "prior_results_sha256": prior_sha256,
-                "prior_keys": sorted(prior_revisions),
-                "current_keys": sorted(current_revisions),
-                "prior_commits": {
-                    key: value.get("commit") for key, value in prior_revisions.items()
-                },
-                "current_commits": {
-                    key: value.get("commit") for key, value in current_revisions.items()
-                },
-                "prior_import_origins": {
-                    key: value.get("module_import_origins")
-                    for key, value in prior_revisions.items()
-                },
-                "current_import_origins": {
-                    key: value.get("module_import_origins")
-                    for key, value in current_revisions.items()
-                },
-                "purpose": "exact P41 timeout-rerun identity admission",
-            }],
+            "declared_inputs": [
+                {
+                    "name": "prior_revision_identities",
+                    "prior_results_path": str(prior_path),
+                    "prior_results_sha256": prior_sha256,
+                    "prior_keys": sorted(prior_revisions),
+                    "current_keys": sorted(current_revisions),
+                    "prior_commits": {
+                        key: value.get("commit") for key, value in prior_revisions.items()
+                    },
+                    "current_commits": {
+                        key: value.get("commit") for key, value in current_revisions.items()
+                    },
+                    "prior_import_origins": {
+                        key: value.get("module_import_origins")
+                        for key, value in prior_revisions.items()
+                    },
+                    "current_import_origins": {
+                        key: value.get("module_import_origins")
+                        for key, value in current_revisions.items()
+                    },
+                    "purpose": "exact P41 timeout-rerun identity admission",
+                }
+            ],
         }
         return _publish_timeout_rerun_unrun_receipt(
             package_dir=package_dir,
@@ -5794,13 +6555,18 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
             f"cell is not a timed-out UNRUN: {revision_key}:{test_path}",
         )
         current = revision_by_key[revision_key]["files"][test_path]
-        _require(current["status"] == "PRESENT", f"rerun path missing at {revision_key}: {test_path}")
+        _require(
+            current["status"] == "PRESENT", f"rerun path missing at {revision_key}: {test_path}"
+        )
         _require(
             current["git_blob_oid"] == previous["test_blob_oid"],
             f"test source changed since initial timeout: {revision_key}:{test_path}",
         )
         initial_timeout = int(previous["timeout_seconds"])
-        _require(args.timeout_seconds > initial_timeout, f"rerun alarm must exceed prior {initial_timeout}s alarm")
+        _require(
+            args.timeout_seconds > initial_timeout,
+            f"rerun alarm must exceed prior {initial_timeout}s alarm",
+        )
         prior_attempts.append(previous)
         jobs.append(
             Job(
@@ -5809,7 +6575,11 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
                 test_blob_oid=current["git_blob_oid"],
                 timeout_seconds=args.timeout_seconds,
                 timeout_basis=(
-                    f"explicit {args.timeout_seconds}s whole-file rerun after initial {initial_timeout}s alarm fired"
+                    f"explicit "
+                    f"{args.timeout_seconds}"
+                    f"s whole-file rerun after initial "
+                    f"{initial_timeout}"
+                    f"s alarm fired"
                 ),
                 exclusive_native=bool(current["exclusive_native"]),
             )
@@ -5831,8 +6601,8 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
         start_snapshot["system_swap_used_bytes"],
         workers,
     )
-    post_status: dict[str, list[str] | None] = (
-        _assert_fixed_baseline_postflight_unchanged(REVISIONS, revision_records)
+    post_status: dict[str, list[str] | None] = _assert_fixed_baseline_postflight_unchanged(
+        REVISIONS, revision_records
     )
     output_checkout_postflight_verdict = _inspect_integration_checkout_verdict(
         stage="timeout_rerun_postflight",
@@ -5875,9 +6645,7 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
             "postflight_inspection": output_checkout_postflight_verdict,
         },
         "measurement_verdict": (
-            "INVALIDATED"
-            if output_checkout_postflight_verdict["verdict"] != "PASS"
-            else "RECORDED"
+            "INVALIDATED" if output_checkout_postflight_verdict["verdict"] != "PASS" else "RECORDED"
         ),
         "resource_start_snapshot": start_snapshot,
         "environment_policy": {
@@ -5910,7 +6678,10 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
                 "checkout, pytest configuration, and import-origin identities match; "
                 "any identity drift is recorded UNRUN."
             ),
-            "Native libraries loaded transitively or dynamically without a direct marker remain unresolved by construction.",
+            (
+                "Native libraries loaded transitively or dynamically without a direct "
+                "marker remain unresolved by construction."
+            ),
             (
                 "Timeout-rerun baseline inspection of the four pinned source checkouts, import "
                 "origins, runtime versions, and pytest.ini plus the three fixed historical "
@@ -5933,10 +6704,16 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
     _canonicalize_published_artifact_paths(
         report["runs"], external_run_dir, destination, package_dir
     )
-    (external_run_dir / "results.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    (external_run_dir / "results.json").write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
     published = _run(["mv", str(external_run_dir), str(destination)])
-    _require(published.returncode == 0, f"could not publish timeout rerun: {published.stderr.strip()}")
-    _require(not external_run_dir.exists() and destination.is_dir(), "timeout rerun move did not verify")
+    _require(
+        published.returncode == 0, f"could not publish timeout rerun: {published.stderr.strip()}"
+    )
+    _require(
+        not external_run_dir.exists() and destination.is_dir(), "timeout rerun move did not verify"
+    )
     report["published_artifacts_verified"] = _verify_published_artifacts(
         report["runs"],
         integration_checkout,
@@ -5944,16 +6721,24 @@ def run_timeout_rerun(args: argparse.Namespace) -> int:
     results_path = destination / "results.json"
     report["results_sha256"] = _sha256(results_path)
     (destination / "rerun-summary.md").write_text(
-        f"# P41 timeout rerun\n\n"
-        f"Initial matrix `{prior_path}` SHA-256 `{prior_sha256}` recorded {len(selected_targets)} selected present cells as timed-out UNRUN. "
-        f"This rerun used the same four checkouts, environment policy and data manifest, with an explicit {args.timeout_seconds}s alarm. "
-        f"Rerun results: `results.json` SHA-256 `{report['results_sha256']}`.\n",
+        (
+            f"# P41 timeout rerun\n\nInitial matrix `"
+            f"{prior_path}"
+            f"` SHA-256 `"
+            f"{prior_sha256}"
+            f"` recorded "
+            f"{len(selected_targets)}"
+            f" selected present cells as timed-out UNRUN. This rerun used the same "
+            f"four checkouts, environment policy and data manifest, with an "
+            f"explicit "
+            f"{args.timeout_seconds}"
+            f"s alarm. Rerun results: `results.json` SHA-256 `"
+            f"{report['results_sha256']}"
+            f"`.\n"
+        ),
         encoding="utf-8",
     )
     unrun_count = sum(row["suite_status"] == "UNRUN" for row in runs)
-    print(f"Reran {len(runs)} timed-out whole-file cells; {unrun_count} remain UNRUN.")
-    print(f"Raw outputs: {destination.relative_to(integration_checkout)}")
-    print(f"results.json sha256: {_sha256(results_path)}")
     return 2 if unrun_count or output_checkout_postflight_verdict["verdict"] != "PASS" else 0
 
 
@@ -5965,10 +6750,22 @@ def _normalize_custom_test_paths(raw_paths: list[str]) -> tuple[str, ...]:
         path = Path(raw_path)
         parts = path.parts
         _require(not path.is_absolute(), f"--test-file must be repository-relative: {raw_path!r}")
-        _require(path.as_posix() == raw_path, f"--test-file must use normalized POSIX path syntax: {raw_path!r}")
-        _require(".." not in parts and "." not in parts, f"--test-file cannot traverse directories: {raw_path!r}")
-        _require(parts[:2] == ("policy-engine", "tests"), f"--test-file must be under policy-engine/tests: {raw_path!r}")
-        _require(path.suffix == ".py" and path.name.startswith("test_"), f"--test-file must name a test_*.py module: {raw_path!r}")
+        _require(
+            path.as_posix() == raw_path,
+            f"--test-file must use normalized POSIX path syntax: {raw_path!r}",
+        )
+        _require(
+            ".." not in parts and "." not in parts,
+            f"--test-file cannot traverse directories: {raw_path!r}",
+        )
+        _require(
+            parts[:2] == ("policy-engine", "tests"),
+            f"--test-file must be under policy-engine/tests: {raw_path!r}",
+        )
+        _require(
+            path.suffix == ".py" and path.name.startswith("test_"),
+            f"--test-file must name a test_*.py module: {raw_path!r}",
+        )
         normalized.append(path.as_posix())
     _require(len(normalized) == len(set(normalized)), "duplicate --test-file path")
     return tuple(normalized)
@@ -5987,7 +6784,10 @@ def main() -> int:
         action="append",
         default=[],
         metavar="policy-engine/tests/.../test_name.py",
-        help="add one exact test path to a custom four-base scope; repeat for several; requires --run and cannot be combined with --scope",
+        help=(
+            "add one exact test path to a custom four-base scope; repeat for "
+            "several; requires --run and cannot be combined with --scope"
+        ),
     )
     parser.add_argument("--rerun-timeouts", action="store_true")
     parser.add_argument("--prior-results", type=Path)
@@ -5996,7 +6796,9 @@ def main() -> int:
         type=Path,
         action="append",
         default=[],
-        help="reuse matching completed cells from a controlled prior run after identity/hash checks",
+        help=(
+            "reuse matching completed cells from a controlled prior run after identity/hash checks"
+        ),
     )
     parser.add_argument(
         "--resume-run",
@@ -6049,10 +6851,7 @@ def main() -> int:
     elif args.run == args.rerun_timeouts:
         parser.error("pass exactly one of --run or --rerun-timeouts")
     if args.unprofiled_pilot_groups and (
-        resolving_fence
-        or args.rerun_timeouts
-        or args.reuse_results
-        or args.resume_run is not None
+        resolving_fence or args.rerun_timeouts or args.reuse_results or args.resume_run is not None
     ):
         parser.error("unprofiled pilot groups require a fresh matrix run without reuse or resume")
     if not resolving_fence and not 1 <= args.workers <= MAX_PROCESS_GROUPS:
@@ -6069,8 +6868,7 @@ def main() -> int:
             args.scratch_root,
             failure_stage="broker_invocation_lock_inspection",
             reason=(
-                "could not acquire the process-group admission lock: "
-                f"{type(exc).__name__}: {exc}"
+                f"could not acquire the process-group admission lock: {type(exc).__name__}: {exc}"
             ),
             fence_state=state,
         )

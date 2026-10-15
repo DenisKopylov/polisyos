@@ -15,8 +15,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-
-EXPECTED_RUNNER_SHA256 = 'fdb871b85724615ad48d2d2cf85c101c3f23228e84df3b703625de0fb1013f09'
+EXPECTED_RUNNER_SHA256 = "fccc857d538f198a44bdc1c69379f5e17678e8ba62141c90d451aae49d74e832"
 EXPECTED_PROFILE_ORDER = (
     "source-wheel",
     "rebuilt-sdist-wheel",
@@ -25,8 +24,17 @@ EXPECTED_PROFILE_ORDER = (
 TIMEOUT_MULTIPLIER = 2
 
 
-class DriverFailure(RuntimeError):
+class DriverFailure(RuntimeError):  # noqa: N818 - its class name is part of the Q2 receipt wire format.
     """Raised when a previous consumer profile cannot authorize a timeout."""
+
+
+DriverFailureError = DriverFailure
+
+
+def _failure_receipt_text(error: BaseException) -> str:
+    """Render the established exception class name and message for Q2 receipts."""
+
+    return f"{type(error).__name__}: {error}"
 
 
 def exact_nonbool_count_matches(value: object, expected: object) -> bool:
@@ -243,7 +251,7 @@ def _run_root_from_log_stem(log_stem: Path) -> Path:
     raise DriverFailure(f"cannot derive Q2 run root from command log path: {log_stem}")
 
 
-def _expected_selected_ids(runner: Any, manifest: dict[str, Any], run_root: Path) -> set[str]:
+def _expected_selected_ids(runner: object, manifest: dict[str, object], run_root: Path) -> set[str]:
     frozen_product = run_root / "frozen-source" / "policy-engine"
     original_ids = runner.baseline_node_ids(frozen_product, manifest)
     baseline_count = manifest["original_q2_suite"]["baseline_case_count"]
@@ -261,7 +269,7 @@ def _expected_selected_ids(runner: Any, manifest: dict[str, Any], run_root: Path
 
 
 def validate_completed_profile(
-    runner: Any,
+    runner: object,
     manifest: dict[str, Any],
     run_root: Path,
     profile_name: str,
@@ -374,7 +382,7 @@ def validate_completed_profile(
 
 
 def install_adaptive_run_command(
-    runner: Any,
+    runner: object,
     manifest: dict[str, Any],
 ) -> dict[str, Any]:
     """Wrap only consumer commands, delegating all work to the reviewed runner."""
@@ -390,7 +398,7 @@ def install_adaptive_run_command(
         check: bool = True,
         stream_output: bool = False,
         timeout_seconds: float | None = None,
-    ) -> Any:
+    ) -> object:
         run_root = _run_root_from_log_stem(log_stem)
         if state["run_root"] is None:
             state["run_root"] = run_root
@@ -478,7 +486,7 @@ def install_adaptive_run_command(
                     "timeout_seconds": timeout,
                     "elapsed_wall_seconds": elapsed,
                     "outcome": "timed_out" if command.get("timed_out") else "raised",
-                    "error": f"{type(error).__name__}: {error}",
+                    "error": _failure_receipt_text(error),
                     "command_record_path": str(command_path),
                     "stdout_path": str(log_stem.with_suffix(".stdout.txt")),
                     "stderr_path": str(log_stem.with_suffix(".stderr.txt")),
@@ -513,7 +521,8 @@ def install_adaptive_run_command(
         )
         if terminal_evidence_error is not None:
             raise runner.WaveFailure(
-                f"Q2 consumer command terminal evidence is incomplete or changed: {terminal_evidence_error}"
+                f"Q2 consumer command terminal evidence is incomplete or changed: "
+                f"{terminal_evidence_error}"
             )
         return result
 
@@ -522,7 +531,7 @@ def install_adaptive_run_command(
 
 
 def _write_calibration_sidecar(
-    runner: Any,
+    runner: object,
     state: dict[str, Any],
     *,
     driver_path: Path,
@@ -625,7 +634,7 @@ def _write_calibration_sidecar(
     return sidecar
 
 
-def main() -> int:
+def _run_main() -> int:
     driver_path = Path(__file__).resolve(strict=True)
     driver_sha = sha256_file(driver_path)
     bootstrap = argparse.ArgumentParser(add_help=True)
@@ -645,7 +654,7 @@ def main() -> int:
         completed_run = runner.run_wave(args)
         status = "passed"
     except BaseException as error:
-        failure = f"{type(error).__name__}: {error}"
+        failure = _failure_receipt_text(error)
         raise
     finally:
         _write_calibration_sidecar(
@@ -662,13 +671,19 @@ def main() -> int:
             status=status,
             failure=failure,
         )
-    print(f"Q2 frozen installed wave passed: {completed_run}")
+    sys.stdout.write(f"Q2 frozen installed wave passed: {completed_run}\n")
     return 0
 
 
-if __name__ == "__main__":
+def main() -> int:
+    """Run the timeout wave and preserve the established CLI status text."""
+
     try:
-        raise SystemExit(main())
+        return _run_main()
     except Exception as error:
-        print(f"Q2 timeout driver failed: {error}", file=sys.stderr)
-        raise SystemExit(1) from error
+        sys.stderr.write(f"Q2 timeout driver failed: {error}\n")
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

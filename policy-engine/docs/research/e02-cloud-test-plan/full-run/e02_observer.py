@@ -33,33 +33,52 @@ _control_names = (
     "POLISYOS_R6_FOREIGN_CONTEXT_IDENTITY_REMOVAL",
     "POLISYOS_R7_REMOVE_ACTIVE_PROBE_SUPPRESSION",
 )
-_save("process.json", {"pid": os.getpid(), "ppid": os.getppid(), "argv": sys.argv,
-                       "property_controls": {key: os.environ.get(key) for key in _control_names}})
+_save(
+    "process.json",
+    {
+        "pid": os.getpid(),
+        "ppid": os.getppid(),
+        "argv": sys.argv,
+        "property_controls": {key: os.environ.get(key) for key in _control_names},
+    },
+)
 
 
 def pytest_collection_finish(session: pytest.Session) -> None:
     """Record the final selected nodes in this process."""
-    _save("collection.json", {
-        "pid": os.getpid(),
-        "nodes": [{"id": item.nodeid, "path": str(item.path)} for item in session.items],
-        "config": str(session.config.inipath),
-        "collect_only": bool(session.config.option.collectonly),
-    })
+    _save(
+        "collection.json",
+        {
+            "pid": os.getpid(),
+            "nodes": [{"id": item.nodeid, "path": str(item.path)} for item in session.items],
+            "config": str(session.config.inipath),
+            "collect_only": bool(session.config.option.collectonly),
+        },
+    )
 
 
 def pytest_collectreport(report: pytest.CollectReport) -> None:
     """Preserve collection failure and module-level skip details."""
     if report.outcome != "passed":
-        _event("collection_report", nodeid=report.nodeid, outcome=report.outcome,
-               longrepr=str(report.longrepr))
+        _event(
+            "collection_report",
+            nodeid=report.nodeid,
+            outcome=report.outcome,
+            longrepr=str(report.longrepr),
+        )
 
 
 def pytest_runtest_logreport(report: pytest.TestReport) -> None:
     """Keep each setup, call and teardown report separately."""
-    _event("test_report", nodeid=report.nodeid, phase=report.when,
-           outcome=report.outcome, duration_seconds=report.duration,
-           wasxfail=getattr(report, "wasxfail", None),
-           longrepr=str(report.longrepr) if report.longrepr is not None else None)
+    _event(
+        "test_report",
+        nodeid=report.nodeid,
+        phase=report.when,
+        outcome=report.outcome,
+        duration_seconds=report.duration,
+        wasxfail=getattr(report, "wasxfail", None),
+        longrepr=str(report.longrepr) if report.longrepr is not None else None,
+    )
 
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int | pytest.ExitCode) -> None:
@@ -80,8 +99,21 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int | pytest.ExitC
             except OSError as exc:
                 files[key] = {"read_error": type(exc).__name__}
         modules.append({"module": name, "origin": str(origin), "resolved": key})
-    _save("origins.json", {"pid": os.getpid(), "scope": "session_finish_snapshot",
-                           "modules": modules, "files": files})
-    _save("session.json", {"pid": os.getpid(), "exitstatus": int(exitstatus),
-                           "collected": int(session.testscollected),
-                           "config": str(session.config.inipath)})
+    _save(
+        "origins.json",
+        {
+            "pid": os.getpid(),
+            "scope": "session_finish_snapshot",
+            "modules": modules,
+            "files": files,
+        },
+    )
+    _save(
+        "session.json",
+        {
+            "pid": os.getpid(),
+            "exitstatus": int(exitstatus),
+            "collected": int(session.testscollected),
+            "config": str(session.config.inipath),
+        },
+    )

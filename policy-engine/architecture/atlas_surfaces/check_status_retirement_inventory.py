@@ -8,6 +8,7 @@ import copy
 import hashlib
 import json
 import re
+import shutil
 import subprocess
 import sys
 from collections import Counter
@@ -17,6 +18,19 @@ from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
+
+
+def _resolve_executable(command: str) -> str:
+    """Resolve a configured executable once without changing PATH lookup order."""
+    resolved = shutil.which(command)
+    return str(Path(resolved).resolve()) if resolved is not None else command
+
+
+def _emit_cli(value: object, *, stderr: bool = False) -> None:
+    """Write one print-compatible CLI value and its default trailing newline."""
+    stream = sys.stderr if stderr else sys.stdout
+    stream.write(str(value) + "\n")
+
 
 try:
     from architecture.atlas_surfaces.generated_client_receipt_census import (
@@ -95,9 +109,7 @@ def _sha256(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _schema_errors(
-    value: Mapping[str, Any], schema_path: Path, artifact_name: str
-) -> list[str]:
+def _schema_errors(value: Mapping[str, Any], schema_path: Path, artifact_name: str) -> list[str]:
     schema = _load_json(schema_path)
     Draft202012Validator.check_schema(schema)
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
@@ -110,8 +122,8 @@ def _schema_errors(
 
 @lru_cache(maxsize=32)
 def _scan_json(request_json: str) -> dict[str, Any]:
-    completed = subprocess.run(
-        ["node", str(SCAN_PATH)],
+    completed = subprocess.run(  # noqa: S603 - fixed Node scanner path; request JSON uses stdin; shell=False
+        [_resolve_executable("node"), str(SCAN_PATH)],
         cwd=REPO_ROOT,
         input=request_json,
         capture_output=True,
@@ -133,19 +145,13 @@ def _scan_json(request_json: str) -> dict[str, Any]:
         "authorityPropCensus",
     ):
         if not isinstance(result.get(finding_key), list):
-            raise RuntimeError(
-                f"status TypeScript scan returned invalid {finding_key} findings"
-            )
+            raise RuntimeError(f"status TypeScript scan returned invalid {finding_key} findings")
     request = json.loads(request_json)
     if request.get("validateOverrideDiagnostics") is True and not isinstance(
         result.get("overrideDiagnostics"), list
     ):
-        raise RuntimeError(
-            "status TypeScript scan returned invalid overrideDiagnostics findings"
-        )
-    if "sourceOverrides" not in request and not isinstance(
-        result.get("sourceDenominators"), dict
-    ):
+        raise RuntimeError("status TypeScript scan returned invalid overrideDiagnostics findings")
+    if "sourceOverrides" not in request and not isinstance(result.get("sourceDenominators"), dict):
         raise RuntimeError("status TypeScript scan returned invalid source denominators")
     return result
 
@@ -161,8 +167,7 @@ def _protected_semantic_definitions(
             "paths": sorted(row["protected_source_paths"]),
         }
         for row in inventory.get("semantic_exemptions", [])
-        if row.get("current_definition_state") == "retired"
-        and row.get("protected_source_paths")
+        if row.get("current_definition_state") == "retired" and row.get("protected_source_paths")
     ]
 
 
@@ -182,27 +187,20 @@ def _scan(
         request["validateOverrideDiagnostics"] = True
     if authority_prop_descriptors:
         request["authorityPropDescriptors"] = [
-            dict(sorted(descriptor.items()))
-            for descriptor in authority_prop_descriptors
+            dict(sorted(descriptor.items())) for descriptor in authority_prop_descriptors
         ]
     if inventory is not None:
         request["protectedDefinitions"] = _protected_semantic_definitions(inventory)
         generated = inventory.get("sources", {}).get("generated_client", {})
         request["generatedDefinitionPaths"] = sorted(
-            {
-                str(generated[key])
-                for key in ("canonical_path", "types_path")
-                if generated.get(key)
-            }
+            {str(generated[key]) for key in ("canonical_path", "types_path") if generated.get(key)}
         )
     return _scan_json(json.dumps(request, sort_keys=True, separators=(",", ":")))
 
 
 def _ds1_status_ids(ds1: Mapping[str, Any]) -> set[str]:
     return {
-        entry["surface_id"]
-        for entry in ds1["entries"]
-        if entry["surface_id"].startswith("status-")
+        entry["surface_id"] for entry in ds1["entries"] if entry["surface_id"].startswith("status-")
     }
 
 
@@ -305,23 +303,16 @@ def _validate_ds1_ds19_joins(
         errors.append(f"ds1_status_join_unknown:{unit_id}")
 
     register_ids = {
-        entry["unit_id"]
-        for entry in ds19["entries"]
-        if entry["unit_id"].startswith("status-")
+        entry["unit_id"] for entry in ds19["entries"] if entry["unit_id"].startswith("status-")
     }
     if register_ids != expected:
         errors.append("ds19_status_join_drift")
     collaboration = next(
-        (
-            entry
-            for entry in ds19["entries"]
-            if entry["unit_id"] == "status-collaboration-session"
-        ),
+        (entry for entry in ds19["entries"] if entry["unit_id"] == "status-collaboration-session"),
         None,
     )
     if not collaboration or (
-        collaboration["disposition"] != "deleted"
-        or collaboration["strangle_status"] != "strangled"
+        collaboration["disposition"] != "deleted" or collaboration["strangle_status"] != "strangled"
     ):
         errors.append("collaboration_ds19_terminal_receipt_drift")
     return errors
@@ -330,27 +321,20 @@ def _validate_ds1_ds19_joins(
 def _validate_denominators(inventory: Mapping[str, Any]) -> list[str]:
     errors: list[str] = []
     entries = inventory["entries"]
-    named = sum(
-        entry["definition_kind"] == "named"
-        for entry in entries
-    ) + sum(entry["definition_kind"] == "deleted" for entry in entries)
+    named = sum(entry["definition_kind"] == "named" for entry in entries) + sum(
+        entry["definition_kind"] == "deleted" for entry in entries
+    )
     inline = sum(entry["definition_kind"] == "inline" for entry in entries)
     current_named = sum(
-        entry["definition_kind"] == "named"
-        and entry["current_definition_state"] == "present"
+        entry["definition_kind"] == "named" and entry["current_definition_state"] == "present"
         for entry in entries
     )
     current_inline = sum(
-        entry["definition_kind"] == "inline"
-        and entry["current_definition_state"] == "present"
+        entry["definition_kind"] == "inline" and entry["current_definition_state"] == "present"
         for entry in entries
     )
-    deleted = sum(
-        entry["current_definition_state"] == "deleted" for entry in entries
-    )
-    retired = sum(
-        entry["current_definition_state"] == "retired" for entry in entries
-    )
+    deleted = sum(entry["current_definition_state"] == "deleted" for entry in entries)
+    retired = sum(entry["current_definition_state"] == "retired" for entry in entries)
     actual = {
         "ds1_rows": len(entries),
         "ds1_named": named,
@@ -388,11 +372,9 @@ def _validate_generated_anchors(inventory: Mapping[str, Any]) -> list[str]:
         if not source_path.exists():
             if entry["current_definition_state"] == "present":
                 errors.append(f"generated_source_missing:{unit_id}")
-        elif (
-            '["' in entry.get("type_expression", "")
-            and "@polisyos/runtime-api-client"
-            in source_path.read_text(encoding="utf-8")
-        ):
+        elif '["' in entry.get(
+            "type_expression", ""
+        ) and "@polisyos/runtime-api-client" in source_path.read_text(encoding="utf-8"):
             source_query = _resolve_local_generated_query(entry)
             if source_query != expected_query:
                 errors.append(f"generated_source_binding_drift:{unit_id}")
@@ -423,7 +405,7 @@ def _resolve_local_generated_query(entry: Mapping[str, Any]) -> str | None:
 
     generated_imports: dict[str, str] = {}
     for match in re.finditer(
-        r'import\s+type\s*\{(?P<body>.*?)\}\s*from\s*'
+        r"import\s+type\s*\{(?P<body>.*?)\}\s*from\s*"
         r'["\']@polisyos/runtime-api-client["\']\s*;',
         source,
         flags=re.DOTALL,
@@ -433,7 +415,7 @@ def _resolve_local_generated_query(entry: Mapping[str, Any]) -> str | None:
             if not item:
                 continue
             parts = re.fullmatch(
-                r'([A-Za-z_$][\w$]*)(?:\s+as\s+([A-Za-z_$][\w$]*))?',
+                r"([A-Za-z_$][\w$]*)(?:\s+as\s+([A-Za-z_$][\w$]*))?",
                 item,
             )
             if parts is None:
@@ -441,14 +423,13 @@ def _resolve_local_generated_query(entry: Mapping[str, Any]) -> str | None:
             symbol, alias = parts.groups()
             generated_imports[alias or symbol] = symbol
 
-    local_aliases = {
-        alias: target
-        for alias, target in re.findall(
-            r'export\s+type\s+([A-Za-z_$][\w$]*)\s*=\s*'
-            r'([A-Za-z_$][\w$]*)\s*;',
+    local_aliases = dict(
+        re.findall(
+            r"export\s+type\s+([A-Za-z_$][\w$]*)\s*=\s*"
+            r"([A-Za-z_$][\w$]*)\s*;",
             source,
         )
-    }
+    )
     visited: set[str] = set()
     while base in local_aliases and base not in visited:
         visited.add(base)
@@ -467,9 +448,7 @@ def _validate_refs_and_removals(inventory: Mapping[str, Any]) -> list[str]:
                 errors.append(f"verification_ref_missing:{unit_id}:{reference}")
         if entry["classification"] == "interaction_state":
             reference = entry.get("authority_slot_barrier_ref", "")
-            if not reference or not (
-                REPO_ROOT / reference.split("#", 1)[0]
-            ).exists():
+            if not reference or not (REPO_ROOT / reference.split("#", 1)[0]).exists():
                 errors.append(f"authority_slot_barrier_ref_missing:{unit_id}")
         if entry["current_definition_state"] != "deleted":
             continue
@@ -479,11 +458,10 @@ def _validate_refs_and_removals(inventory: Mapping[str, Any]) -> list[str]:
         evidence = entry.get("removal_evidence", {})
         if all(key in evidence for key in ("pre_deletion_commit", "git_blob")):
             git_ref = (
-                f'{evidence["pre_deletion_commit"]}:policy-engine/'
-                f'{entry["source_span"]["path"]}'
+                f"{evidence['pre_deletion_commit']}:policy-engine/{entry['source_span']['path']}"
             )
-            completed = subprocess.run(
-                ["git", "rev-parse", git_ref],
+            completed = subprocess.run(  # noqa: S603 - fixed git rev-parse; inventory ref validated; shell=False
+                [_resolve_executable("git"), "rev-parse", git_ref],
                 cwd=REPO_ROOT,
                 check=False,
                 capture_output=True,
@@ -504,16 +482,10 @@ def _validate_refs_and_removals(inventory: Mapping[str, Any]) -> list[str]:
 def _validate_c21_partition(inventory: Mapping[str, Any]) -> list[str]:
     """Require the architect-approved exact C21/C22 subcluster partition."""
     rows = inventory.get("semantic_exemptions", [])
-    by_id = {
-        str(row.get("candidate_id")): row
-        for row in rows
-        if isinstance(row, Mapping)
-    }
+    by_id = {str(row.get("candidate_id")): row for row in rows if isinstance(row, Mapping)}
     errors: list[str] = []
     c21 = {
-        candidate_id
-        for candidate_id, row in by_id.items()
-        if row.get("target_cluster") == "C21"
+        candidate_id for candidate_id, row in by_id.items() if row.get("target_cluster") == "C21"
     }
     expected_c21 = C21_INTERACTION_IDS | C21_RETIRED_IDS
     if c21 != expected_c21:
@@ -560,10 +532,7 @@ def _validate_c21_partition(inventory: Mapping[str, Any]) -> list[str]:
             or row.get("target_cluster") != expected_cluster
             or (
                 state == "retired"
-                and (
-                    not row.get("protected_source_paths")
-                    or not row.get("verification_refs")
-                )
+                and (not row.get("protected_source_paths") or not row.get("verification_refs"))
             )
         ):
             errors.append(f"c22_remainder_disposition_drift:{candidate_id}")
@@ -588,9 +557,7 @@ def _validate_live_scan(
         if entry["current_definition_state"] == "retired"
     }
     retired_fact_keys = {
-        key
-        for key, fact in facts.items()
-        if _fact_identity(fact) in retired_entries
+        key for key, fact in facts.items() if _fact_identity(fact) in retired_entries
     }
     for key in sorted(retired_fact_keys, key=str):
         entry = retired_entries[_fact_identity(facts[key])]
@@ -601,9 +568,7 @@ def _validate_live_scan(
     ):
         fact = facts[key]
         name = fact.get("declarationName") or fact.get("fieldName") or "unknown"
-        errors.append(
-            f'unregistered_status_definition:{Path(fact["path"]).name}:{name}'
-        )
+        errors.append(f"unregistered_status_definition:{Path(fact['path']).name}:{name}")
     for key in sorted(set(present_entries) - set(facts), key=str):
         errors.append(f"registered_status_definition_missing:{present_entries[key]['unit_id']}")
     for key in sorted(set(facts) & set(present_entries), key=str):
@@ -627,14 +592,10 @@ def _validate_live_scan(
     ):
         errors.append("live_status_denominator_drift")
     for leak in scan.get("interactionLeaks", []):
-        errors.append(
-            "interaction_state_reaches_authority_slot:"
-            + Path(leak["path"]).name
-        )
+        errors.append("interaction_state_reaches_authority_slot:" + Path(leak["path"]).name)
     for revival in scan.get("protectedRevivals", []):
         errors.append(
-            "retired_semantic_definition_survives:"
-            + str(revival.get("candidateId", "unknown"))
+            "retired_semantic_definition_survives:" + str(revival.get("candidateId", "unknown"))
         )
     errors.extend(_validate_semantic_candidates(inventory, scan))
     return errors
@@ -648,9 +609,7 @@ def _validate_semantic_candidates(
     if scan is None:
         scan = _scan()
 
-    status_keys = {
-        _entry_key_from_fact(fact) for fact in scan.get("definitions", [])
-    }
+    status_keys = {_entry_key_from_fact(fact) for fact in scan.get("definitions", [])}
     candidates = {
         _entry_key_from_fact(fact): fact
         for fact in scan.get("authorityCandidates", [])
@@ -686,27 +645,20 @@ def _validate_semantic_candidates(
         if count > 1:
             errors.append(f"semantic_candidate_id_duplicate:{candidate_id}:{count}")
 
-    retired_identities = {
-        _definition_identity(row): row for row in retired.values()
-    }
+    retired_identities = {_definition_identity(row): row for row in retired.values()}
     retired_candidate_keys = {
-        key
-        for key, fact in candidates.items()
-        if _fact_identity(fact) in retired_identities
+        key for key, fact in candidates.items() if _fact_identity(fact) in retired_identities
     }
     for key in sorted(retired_candidate_keys, key=str):
         row = retired_identities[_fact_identity(candidates[key])]
         errors.append(
-            "retired_semantic_definition_survives:"
-            + str(row.get("candidate_id", "unknown"))
+            "retired_semantic_definition_survives:" + str(row.get("candidate_id", "unknown"))
         )
     for key in sorted(
         set(candidates) - set(registered) - retired_candidate_keys,
         key=str,
     ):
-        errors.append(
-            f"unregistered_semantic_definition:{_semantic_name(candidates[key])}"
-        )
+        errors.append(f"unregistered_semantic_definition:{_semantic_name(candidates[key])}")
     for key in sorted(set(registered) - set(candidates), key=str):
         errors.append(
             "registered_semantic_definition_missing:"
@@ -731,20 +683,17 @@ def _validate_source_overrides(
 ) -> list[str]:
     errors: list[str] = []
     scan = _scan(source_overrides, inventory=inventory)
-    definition_identities = {
-        _fact_identity(fact) for fact in scan.get("definitions", [])
-    }
+    definition_identities = {_fact_identity(fact) for fact in scan.get("definitions", [])}
     protected_sets = {
         tuple(sorted(entry["literal_members"]))
         for entry in inventory["entries"]
-        if entry["classification"] == "lattice_derived"
-        and entry["literal_members"]
+        if entry["classification"] == "lattice_derived" and entry["literal_members"]
     }
     for fact in scan.get("definitions", []):
         file_name = Path(fact["path"]).name
         if fact["kind"] == "inline":
             errors.append(
-                f'unregistered_status_definition:{file_name}:{fact.get("fieldName", "unknown")}'
+                f"unregistered_status_definition:{file_name}:{fact.get('fieldName', 'unknown')}"
             )
             continue
         name = fact.get("declarationName", "unknown")
@@ -757,13 +706,10 @@ def _validate_source_overrides(
             continue
         errors.append(f"unregistered_semantic_definition:{_semantic_name(fact)}")
     for leak in scan.get("interactionLeaks", []):
-        errors.append(
-            f'interaction_state_reaches_authority_slot:{Path(leak["path"]).name}'
-        )
+        errors.append(f"interaction_state_reaches_authority_slot:{Path(leak['path']).name}")
     for revival in scan.get("protectedRevivals", []):
         errors.append(
-            "retired_semantic_definition_survives:"
-            + str(revival.get("candidateId", "unknown"))
+            "retired_semantic_definition_survives:" + str(revival.get("candidateId", "unknown"))
         )
     return errors
 
@@ -812,9 +758,7 @@ def _validate_waist_debt(
         errors.extend(
             validate_anchor_identity_document(
                 debt,
-                artifact_path=(
-                    "architecture/atlas_surfaces/ds4-waist-debt-register.json"
-                ),
+                artifact_path=("architecture/atlas_surfaces/ds4-waist-debt-register.json"),
                 repo_root=repo_root,
                 target_paths=(*canonical_paths, *types_paths),
             )
@@ -841,9 +785,7 @@ def validate_inventory(
     if errors:
         if isinstance(inventory.get("entries"), list):
             errors.extend(
-                _validate_ds1_ds19_joins(
-                    inventory, _load_json(DS1_PATH), _load_json(DS19_PATH)
-                )
+                _validate_ds1_ds19_joins(inventory, _load_json(DS1_PATH), _load_json(DS19_PATH))
             )
         if isinstance(debt.get("entries"), list):
             errors.extend(_validate_waist_debt(debt))
@@ -866,9 +808,7 @@ def validate_inventory(
     return sorted(set(errors))
 
 
-def _corruption_probes(
-    inventory: Mapping[str, Any], debt: Mapping[str, Any]
-) -> list[str]:
+def _corruption_probes(inventory: Mapping[str, Any], debt: Mapping[str, Any]) -> list[str]:
     escaped: list[str] = []
     probes = {
         "renamed-authority-union": (
@@ -905,7 +845,7 @@ def _corruption_probes(
                     "import { createInteractionState, presentAuthority } "
                     'from "./statusOwnership";\n'
                     'const transport = createInteractionState("ready", "transport");\n'
-                    'presentAuthority(transport);\n'
+                    "presentAuthority(transport);\n"
                 )
             },
             "interaction_state_reaches_authority_slot:probe.ts",
@@ -921,8 +861,7 @@ def _corruption_probes(
         "as-const-semantic-vocabulary": (
             {
                 "apps/runtime-dashboard/src/shared/lib/domain/probe.ts": (
-                    "export const DecisionGradeVocabulary = "
-                    '["pass", "fail"] as const;\n'
+                    'export const DecisionGradeVocabulary = ["pass", "fail"] as const;\n'
                 )
             },
             "unregistered_semantic_definition:DecisionGradeVocabulary",
@@ -954,9 +893,7 @@ def _corruption_probes(
         ),
     }
     for name, (sources, expected) in probes.items():
-        errors = validate_inventory(
-            inventory, debt, source_overrides=sources, live_probes=False
-        )
+        errors = validate_inventory(inventory, debt, source_overrides=sources, live_probes=False)
         if expected not in errors:
             escaped.append(name)
 
@@ -970,9 +907,7 @@ def _corruption_probes(
     fourth = copy.deepcopy(debt)
     fourth["entries"].append(copy.deepcopy(fourth["entries"][0]))
     fourth["entries"][-1]["debt_id"] = "ds4-waist-fourth-probe"
-    if "waist_debt_count:4" not in validate_inventory(
-        inventory, fourth, live_probes=False
-    ):
+    if "waist_debt_count:4" not in validate_inventory(inventory, fourth, live_probes=False):
         escaped.append("fourth-waist-row")
     return escaped
 
@@ -990,15 +925,11 @@ def _summary(inventory: Mapping[str, Any], debt: Mapping[str, Any]) -> dict[str,
         "classifications": dict(
             sorted(Counter(entry["classification"] for entry in inventory["entries"]).items())
         ),
-        "current_authored": (
-            inventory["denominators"]["current_total"]
-            - retired_c22_definitions
-        ),
+        "current_authored": (inventory["denominators"]["current_total"] - retired_c22_definitions),
         "ds1_rows": inventory["denominators"]["ds1_rows"],
         "semantic_exemptions": len(inventory["semantic_exemptions"]),
         "semantic_retirement_debt": sum(
-            row["disposition"] == "retirement_debt"
-            and row["current_definition_state"] == "present"
+            row["disposition"] == "retirement_debt" and row["current_definition_state"] == "present"
             for row in inventory["semantic_exemptions"]
         ),
         "waist_debt_rows": len(debt["entries"]),
@@ -1014,21 +945,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     debt = _load_json(WAIST_DEBT_PATH)
     errors = validate_inventory(inventory, debt)
     receipt_report = build_repository_report(repo_root=REPO_ROOT)
-    errors.extend(
-        f"generated_client_receipt_census:{error}"
-        for error in receipt_report["errors"]
-    )
+    errors.extend(f"generated_client_receipt_census:{error}" for error in receipt_report["errors"])
     if errors:
         for error in errors:
-            print(error, file=sys.stderr)
+            _emit_cli(error, stderr=True)
         return 1
     if args.corruption_probes:
         escaped = _corruption_probes(inventory, debt)
         if escaped:
-            print("corruption probes escaped: " + ", ".join(escaped), file=sys.stderr)
+            _emit_cli("corruption probes escaped: " + ", ".join(escaped), stderr=True)
             return 1
-        print("status-retirement corruption probes: PASS")
-    print(json.dumps(_summary(inventory, debt), indent=2, sort_keys=True))
+        _emit_cli("status-retirement corruption probes: PASS")
+    _emit_cli(json.dumps(_summary(inventory, debt), indent=2, sort_keys=True))
     return 0
 
 

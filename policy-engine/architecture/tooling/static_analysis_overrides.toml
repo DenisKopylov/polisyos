@@ -358,14 +358,4 @@ command = "uv run python tools/quality/validation/architecture_report_only_contr
 evidence = "architecture/tooling/static_analysis_overrides.toml"
 acceptance = "Report current noqa count and candidate cleanup locations; do not fail CI in Phase 1.3."
 
-[[override_scope]]
-id = "dowhy-worker-ruff-test-ratchet"
-package = "workers"
-owner = "team-devx"
-tool = "ruff"
-config = "architecture/tooling/ruff/workspace_root.toml"
-pattern = "workers/dowhy-014/tests/**"
-mode = "report_only"
-permanent_rationale = "Mirrors the active direct nested Ruff policy in workers/dowhy-014/pyproject.toml for Git-workspace-root callers; remove this scope when that local suppression is retired."
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-55---tool-config-split-and-overrides-lane"
 expectation = "Keep the workspace matcher derived from the owning nested config; projection supports literal config path components and positive relative patterns using literals, *, or complete-component **, and retire it with the local policy."

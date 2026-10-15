@@ -1,0 +1,258 @@
+{
+  "packet_id": "D-L5-b35",
+  "document_type": "independent_G_decision_handoff_candidate",
+  "status": "decision_pending_fail_closed",
+  "purpose": "Request an owner/G choice for the meaning and source of L5 relation_provenance_ref b35. This packet is decision support only: no source change, authority claim, evidence admission, or formal finding closure.",
+  "decision_question": {
+    "field": "relation_provenance_ref.artifact_id",
+    "value": "sha256:b35defc2e3214b6baf41ed33e2fff808639059cb0f0ba31d56125765e74548ca",
+    "choices": [
+      "shared_issuer_provenance_statement: an external owner/issuer artifact whose exact bytes and authority/custody contract must be supplied",
+      "separate_local_owner_row_content_reference: local relation-row bytes are a different content-addressed object; b35 remains a distinct provenance reference",
+      "legacy_unresolved_reference: b35 is historical/placeholder input with no presently established target semantics; retain fail-closed behavior"
+    ],
+    "if_undecided": "Keep the current unresolved codec and fail-closed epoch_scope_unresolved outcome. Do not reinterpret b35 as the digest of a local row."
+  },
+  "capability_assessment": {
+    "primary_label": "bridge_missing",
+    "route_local_label": "artifact_missing",
+    "referenced_artifact_meaning_and_source": "not_established",
+    "external_absence": "not_established",
+    "current_behavior": "The runtime sees the relation reference with kind l5.schema_regime_scope_relation and media type application/json, but the payload format is unresolved. The graph walk refuses before resolving relation bytes from CAS; the actual owner bridge persists the owner snapshot, registry files, and regime rows, but does not materialize or verify a relation artifact.",
+    "decision_boundary": "This is a local source/bridge gap plus an unresolved field contract. The evidence does not establish that an external artifact is absent."
+  },
+  "evidence": {
+    "oracle": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2150-b31-l5-scope-reference-boundary-oracle-20261015/report.md",
+      "sha256": "ee813b850fca50732831f40481be40601a3415751d52f8c019e51141231963b3",
+      "finding": "The local row-to-CAS/consumer bridge is incomplete; the L5 relation is a prerequisite graph join, not the B31 subject/estimand/uncertainty calculation. A local relation body exists in the tracked registry and typed owner snapshot, while the separate b35 target's meaning/source is not established."
+    },
+    "prior_decision_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2152-b31-l5-relation-reference-semantics-decision-20261015/decision.md",
+      "sha256": "04cc3696c2e6a4083b1abee515db48d31d14ce016ccb48b8cb4b01e9e2158ce5",
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2152-b31-l5-relation-reference-semantics-decision-20261015/manifest.json",
+      "manifest_sha256": "7d59a8e2f77d0f581f7d89591088b616f22b299a3b1117f4e03ae42ceaafe782",
+      "row_comparison_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2152-b31-l5-relation-reference-semantics-decision-20261015/comparison.md",
+      "row_comparison_sha256": "ff9068f66b22e4cb08a8408534e7693f19f0d2e3d03f4f00cefac1ee239ff963"
+    },
+    "tracked_inputs": [
+      {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_l5_schema_regime_scope_registry.json",
+        "sha256": "eaba46821d5ab53109e8cc1174940994606e091fef90adb64f63046b1d1834d0",
+        "bytes": 1151,
+        "observed": "Two rows for ukraine_schema_v1 and ukraine_schema_v2 both point to the same b35 reference; each row has its own scope, visibility-knowledge time, and purpose-admission time."
+      },
+      {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_l5_schema_regime_registry.json",
+        "sha256": "d73926566e533f32aa3348c86a92270824942ba221f51ece0ebddcf39d79cfe3",
+        "bytes": 1031,
+        "observed": "The two local regime rows are distinct and have their own effective starts."
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/epoch.py",
+        "sha256": "5de8e0bbc66fb5ed380f7495bae75ce5855a181e3b44ea087c13e179d7e7749c",
+        "bytes": 48332,
+        "observed": "The relation DTO carries schema_regime_id, scope_identity_refs, relation_provenance_ref, visibility_knowledge_from, and purpose_admission_from; it does not define an independent row-content reference."
+      }
+    ],
+    "canonical_row_hashes_from_r2152": {
+      "v1_raw": "1c0cfcd20aa0b5afed851580fbc432a308b565411ce764e71891ebe19cefedd4",
+      "v1_typed": "0a843f8a98efba91c7a235d488e78ab678d4fad26c246a9ca9891803227e4067",
+      "v2_raw": "ebee13a4b5ef31a48272f481158d9a763afb1f12ffb62df26b25023f8f914d97",
+      "v2_typed": "bcdc5d4f790e0672a542ff3153bcd6ce2d5d954a99e6123e3e34c0c979ae840d",
+      "conclusion": "Neither the whole registry digest nor either local row digest equals b35. Both distinct rows reuse b35. A content hash proves the bytes hashed, not their issuer, authority, custody, or currentness."
+    },
+    "historical_introduction": [
+      {
+        "commit": "062922f05f988df2b4b426b90c3c7e259b025816",
+        "parent": "837a7641eb8da31fd945c991f9670eb32d01a1f4",
+        "tree": "9e8eb6e3fa9471b9e33a70d5d5301ea1ef8a1a1b",
+        "message": "GY-N12 C4 Boundary 1 WIP: policy-owner authority blocker",
+        "observed": "Both initial relation references already used b35; no exact payload, issuer, or codec definition was found in tracked source at that introduction."
+      },
+      {
+        "commit": "00ff2f1a539291dae248df3b68e2a481b417d7f8",
+        "parent": "8da9c390a9fe58035cc011cd7129f5cf9e525187",
+        "tree": "f2c2e63b62fa149733d3a3a6823902620df336f3",
+        "message": "feat(epochs): derive and bind fixed semantics to N13b",
+        "observed": "The same b35 reference remains after row changes; no target definition is established by this history."
+      }
+    ],
+    "test_and_runtime_status": {
+      "source_frame_status": "The prior focused B31 evidence includes native failures and unresolved paths; see the cited oracle and source-bound replay records. No PASS is attributed to this decision packet.",
+      "latest_parent_reported_replay": "R2170 collection ERROR at the Foundry namespace, not a B31 assertion result. Treat it as a separate collection/tooling outcome.",
+      "source_changes_applied": "R2153 was applied by root as R2167 Root231; this packet does not claim it resolves b35 semantics or closes B31."
+    }
+  },
+  "source_frames": {
+    "historical_r2152_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "12f07bdf31a59be418f534fc3473482c73ef6290",
+      "tree": "ee67409f5daf7a42f5ae2be930532f63311f90eb",
+      "dirty_porcelain_entries": 2385,
+      "warning": "This is the evidence frame used by R2152, not the current candidate source frame and not a clean/accepted source freeze."
+    },
+    "current_at_packet_creation": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "23349a36e0fc927fe13fb529e15b29f4bd91720a",
+      "tree": "791db2eb0425792f87942e75107329519a8b7e52",
+      "parent": "edf3f350d718cadecdba2d153a3135795327b378",
+      "status": "dirty_worktree_many_paths; local uncommitted source frame, not G-accepted and not a frozen closeout composition",
+      "current_selected_source_hashes": [
+        {
+          "path": "policy-engine/src/polisyos/core/contracts/epoch.py",
+          "sha256": "5de8e0bbc66fb5ed380f7495bae75ce5855a181e3b44ea087c13e179d7e7749c",
+          "bytes": 48332
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+          "sha256": "3767acff1178615ac4ba8d884348d6d48f2c1e262a6033a4fbc4dc766f0653a2",
+          "bytes": 206909
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+          "sha256": "7b93b56d4c944e9481212ed1c86b944d1778d7eb9128e9ff63721af65a1c5466",
+          "bytes": 89508
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+          "sha256": "45d3f9facabd4f0266a7e0999d973f2cfe9439be33659c3fcf903f08117fe037",
+          "bytes": 73748
+        },
+        {
+          "path": "policy-engine/architecture/policy_design_case/layer3_gy_l5_schema_regime_scope_registry.json",
+          "sha256": "eaba46821d5ab53109e8cc1174940994606e091fef90adb64f63046b1d1834d0",
+          "bytes": 1151
+        },
+        {
+          "path": "policy-engine/architecture/policy_design_case/layer3_gy_l5_schema_regime_registry.json",
+          "sha256": "d73926566e533f32aa3348c86a92270824942ba221f51ece0ebddcf39d79cfe3",
+          "bytes": 1031
+        }
+      ],
+      "warning": "The current hashes include dirty-file bytes where applicable. They must not be merged into or described as the historical R2152 snapshot.",
+      "dirty_porcelain_entries": 2606
+    }
+  },
+  "alternatives": [
+    {
+      "id": "reuse_local_rows_keep_b35_distinct",
+      "order": 1,
+      "proposal": "Reuse the already-owned typed relation rows as local relation content, but never equate their bytes/digests with b35. If the chosen source contract needs content-addressed local rows, add a distinct row-content reference or derive it from the canonical typed row under a versioned schema; retain relation_provenance_ref as a separate unresolved provenance edge until its meaning is supplied.",
+      "advantages": [
+        "Uses the existing two-row owner registry and typed DTO; avoids a new provenance subsystem.",
+        "Makes local content identity and upstream provenance separate, testable concepts."
+      ],
+      "costs_and_migration": [
+        "Requires a versioned DTO/resource/bridge migration and compatibility behavior for legacy v1 rows.",
+        "Legacy b35 remains unresolved; consumers cannot claim external provenance from local bytes."
+      ],
+      "authority_and_time": "The local row's source, authority, and admission times remain exactly those already supplied. They do not establish an external issuer or the validity/currentness interval of b35.",
+      "status": "Potentially closes the local artifact/bridge gap for a local relation claim after owner ratification and real producer\u2192CAS\u2192consumer verification; does not close external provenance or B31."
+    },
+    {
+      "id": "extend_for_supplied_external_statement",
+      "order": 2,
+      "proposal": "Only if the responsible owner supplies the actual b35 artifact and contract, extend the existing resolver/verification bridge to bind exact bytes to a typed schema and the relation rows.",
+      "required_input": [
+        "Exact payload bytes matching b35",
+        "Named issuer and authority basis",
+        "Versioned target schema and verifier/signature rule",
+        "Custody and any institutionally supplied validity/currentness and knowledge/admission times",
+        "Explicit binding to the one or more relation rows and scope"
+      ],
+      "advantages": [
+        "Preserves the current reference if it truly identifies a shared issuer statement.",
+        "Keeps external authority inputs distinct from locally recomputed row selection."
+      ],
+      "costs_and_migration": [
+        "Cannot be implemented honestly from current inputs; must not synthesize issuer, law, custody, or currentness.",
+        "Existing and new rows remain fail-closed until matching evidence arrives."
+      ],
+      "status": "External claim remains not_established until authentic owner input and consumer verification exist."
+    },
+    {
+      "id": "consolidate_owner_registry_after_owner_ruling",
+      "order": 3,
+      "proposal": "If the owner rules b35 to be legacy/unresolved or redundant, consolidate around the existing canonical owner registry/typed row as the local source of relation content, preserve b35 in historical input or explicit legacy provenance, and define a versioned migration.",
+      "advantages": [
+        "Avoids an ungrounded second authority store and reduces duplicated row definitions.",
+        "Can make local source-of-truth and replay semantics explicit."
+      ],
+      "costs_and_migration": [
+        "Requires owner ratification and explicit handling of existing hashes/history; no manifest or hash rewrite is allowed to make pairing pass.",
+        "Does not establish external provenance if no target exists."
+      ],
+      "authority_and_time": "Preserve the existing per-row visibility-knowledge and purpose-admission dates. Any distinct provenance validity/currentness must come from its issuer, not be inferred from local effective dates.",
+      "status": "Only local row composition may become admitted under a declared local contract; external provenance remains limited or unresolved as selected."
+    },
+    {
+      "id": "build_new_provenance_subsystem",
+      "order": 4,
+      "proposal": "Not recommended. Do not build a new issuer/provenance subsystem before the owner identifies the field meaning and provides authoritative inputs.",
+      "reason": "It would create a second authority surface without the source facts required to validate it and would violate reuse-first."
+    }
+  ],
+  "recommended_narrow_decision": {
+    "proposal": "Until the owner selects one of the meanings and supplies any required external artifact, preserve fail-closed behavior. If the owner selects local row content, use distinct local content identity and keep b35 semantically separate; do not silently reinterpret or rewrite b35.",
+    "why": "This is the smallest choice compatible with observed hashes, two distinct rows, existing source/API shapes, and the evidence boundary. It resolves ambiguity without making an external factual claim.",
+    "choice_owner": "G decision required with the L5 source/contract owner; named institution/issuer is not established in current evidence."
+  },
+  "implementation_and_falsifier": {
+    "existing_prototype": "Current system already parses two typed owner relation rows and carries them inline in the owner snapshot; current graph resolver returns unresolved before CAS for this relation kind. R2150/R2152 provide source inspection and digest comparison but do not demonstrate relation artifact production or consumer resolution.",
+    "minimum_capability_to_close_local_bridge": "One source-derived, versioned local relation artifact producer for the complete two-row denominator, persisted through the actual L5 owner/CAS path, resolved by the actual epoch finalizer, and consumed by the actual denominator query. Keep b35 provenance separate unless authenticated semantics are provided.",
+    "falsifier": "Using genuine owner inputs, run both regime rows through producer\u2192CAS\u2192resolver\u2192finalizer\u2192denominator consumer. Then mutate or remove one row's content/ref/time while keeping schema/test markers and registry declarations; the actual consumer must refuse the changed/missing relation and the semantic test must turn red if the resolver/content-binding predicate is removed. Also prove one row cannot satisfy the sibling row's ref, scope, or time binding. No self-labeled artifact or synthetic empty result counts.",
+    "predicates": {
+      "local_row_selection_and_time_filter": "recomputed from the two tracked rows and query context",
+      "content_binding_if_local_ref_is_chosen": "must be recomputed against actual canonical bytes and CAS-resolved artifact",
+      "issuer_identity_authority_custody_currentness": "not_established until supplied and verified from the actual responsible issuer/owner",
+      "b35_semantics": "not_established pending the explicit choice"
+    }
+  },
+  "owner_and_next_check": {
+    "local_owner_api": "polisyos.runtime.quality.substrate_registry.load_l5_catalog_authority and the L5EpochBoundaryOwnerAdapter in polisyos.runtime.quality.semantic_epoch",
+    "local_input": "policy-engine/architecture/policy_design_case/layer3_gy_l5_schema_regime_scope_registry.json plus layer3_gy_l5_schema_regime_registry.json and the typed L5 owner snapshot",
+    "external_input_if_choice_requires_it": "Exact b35 bytes/hash, named issuer/authority, versioned schema/verifier, custody and time/currentness evidence, and explicit relation-row binding. No such exact input is established by this packet.",
+    "next_check_after_G_choice": "Re-freeze the chosen full path, implement only the selected bridge contract, inspect the actual producer/consumer APIs, and run the full two-row positive plus present-but-fake, absent, wrong-scope/time, sibling-row, and remove-property-keep-markers controls. Re-record actual selected inputs and source hashes; preserve native collection errors separately.",
+    "scope_guard": "No broad production census; use only the existing local selected owner inputs and any exact, owner-designated b35 locator/custody receipt. Do not alter production manifests, descriptor hashes, or registry bytes to force a match."
+  },
+  "finding_and_closeout_boundary": {
+    "B31_original_criterion": "Open/held. Original B31 concerns whether uncertainty projection compresses intervals or introduces arbitrary width; it requires separation of identification bounds from native statistical/model uncertainty, no unsupported shrink/symmetrization, preservation of native uncertainty at zero identification, method identity as provenance rather than a substantive coordinate.",
+    "relationship": "L5 relation resolution is a prerequisite scope/schema join, not evidence that the original B31 uncertainty property is satisfied. A bridge fix or local-row hash match cannot close B31 automatically.",
+    "closure_ids": [],
+    "closure_proposals": [],
+    "formal_adjudication": "G only; this author packet proposes no formal closure.",
+    "historical_closures": "No historical B31 closure is asserted by this packet.",
+    "original_B31_source": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "lines": "593-606",
+      "line_span_sha256": "9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f"
+    },
+    "source_observation_boundary": "Original B31 records that a positive consumer was not demonstrated and lists behaviors to check; it does not literally prescribe a consumer-level semantic test.",
+    "proposed_acceptance_evidence": "The real producer\u2192artifact\u2192consumer semantic test and adversarial/removal controls are this E02 task\u2019s proposed acceptance evidence, distinct from literal wording of the historical B31 criterion."
+  },
+  "decision_record_requirements": {
+    "record": "G should record the selected option or explicitly keep status decision_pending/fail_closed.",
+    "if_external": "Name issuer/owner, exact input hash and locator, authority/verifier/custody/time contract, and exact next consumer check.",
+    "if_local_or_legacy": "Name the local canonical source, legacy migration, precise resulting status/authority band, and the adversarial consumer tests that bind both rows and time semantics."
+  },
+  "root_reviewed_copy": {
+    "source_packet_sha256": "156cc0efddea59b98b74f6d81d5ecc0a4811c7ddcb1a1dec8d52ff39d29c8959",
+    "head": "51b9406045d896b60cb9b9f6fdcb1747aee0fcd2",
+    "tree": "a9615d19995bc63c5a57f1f2442d93fa9e1f5915",
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "historical_frame_unchanged": "Source frame current_at_packet_creation remains the author\u2019s recorded 23349 snapshot; this root copy does not relabel it as a current clean freeze.",
+    "correction_class": "P40 SAME_CLASS_DEEPER: historical source criterion separated from task-level proposed acceptance; no contract semantics changed.",
+    "independent_review": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2171-d-l5-b35-decision-ro-review-20261015/review.json",
+        "sha256": "ee390e9d96d07388f93ba726856d3e4578643ffad2164ad25a4075d474ddf7a5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2171-d-l5-b35-decision-ro-review-20261015/review.md",
+        "sha256": "f728805c91cf223e413a01f8d1aed672623fabd8d97e80901d12c806a6e9c801"
+      }
+    ]
+  }
+}

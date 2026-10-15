@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "slice": "source52-53-proposed",
+  "author_role": "local candidate source author; independent G acceptance and finding adjudication only",
+  "slice_base": "51b9406045d896b60cb9b9f6fdcb1747aee0fcd2",
+  "candidate": "69ca76e1666f15681497feb6a8bbb812ddf7721d",
+  "candidate_tree": "cce67becbbc97feaa72d91765d05c36eeb334b94",
+  "candidate_parents": [
+    "51b9406045d896b60cb9b9f6fdcb1747aee0fcd2"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "source_frame_boundary": {
+    "candidate_meaning": "Committed implementation read back at 69ca76e1666f15681497feb6a8bbb812ddf7721d; its exact footprint is the 241-entry committed_footprint map in the cited readback.",
+    "current_later_worktree": {
+      "reported_by_root": true,
+      "head_prefix": "e627",
+      "description": "Later B148 test-only commit plus eight dirty API paths; exact full HEAD/tree and path hashes are not supplied in this task packet.",
+      "status": "not_included_in_69ca_source_receipt; do not relabel 69ca as current HEAD or final source freeze"
+    },
+    "final_source_freeze": false
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2192-source52-53-implementation-boundary-root-20261015/committed-readback.json",
+      "sha256": "afd2efe30084d8de77e918960c7a897ced54601366e96825f9935dd6c889cc3a",
+      "bytes": 35331,
+      "entry_count": 241,
+      "complete": true,
+      "footprint_map_field": "committed_footprint (path -> SHA-256)",
+      "scope": "Complete implementation, test, configuration, public-surface, release-fragment, and mandatory companion path/hash footprint. The referenced readback is the source of truth; this handoff does not duplicate its derived 241-entry map."
+    }
+  ],
+  "implementation_receipt_separate": true,
+  "receipt_commit_identity": null,
+  "receipt_author": "Root/source owner; no future receipt SHA is asserted here",
+  "formal_G_closures": [],
+  "closure_ids": [],
+  "closure_proposals": [
+    {
+      "id": "LA-021",
+      "occurrence": "LA-021 canonical profile/legacy occurrence; exact occurrence ordinal is not re-derived in this packet",
+      "outcome": "held_open_with_limited_source52_evidence",
+      "capability_label": "verification_missing",
+      "boundary": "Source52 proves the nested ModelConstructOptions normalization/revalidation slice. It does not establish the whole profiles/legacy rollout, all profile variants, or every generated/installed consumer. LA-021 remains open; this is not a formal closure proposal for the whole criterion.",
+      "evidence_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2176-source52-can-nested-options-native-actual-root-20261015/command.json",
+          "sha256": "b141f3d09393deed654fed02e1f09fcf0285eef7ee5a5493e5b7d96bcb28b988",
+          "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+          "bytes": 2180002
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2179-source52-can-nested-options-removal-native-actual-root-20261015/command.json",
+          "sha256": "196d66aed957e40799bab6c092c10167254f66536f35925cd632826c1cde601a",
+          "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+          "bytes": 2097965
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2179-can-nested-removal-independent-review-20261015.json",
+          "sha256": "47e198572851d083fb36e6d78c8d52abb7617db1aae91e6ef3bd6a5846178cf1",
+          "bytes": 4867,
+          "availability": "retained local ignored RAW",
+          "disposition": "GO_BOUNDED",
+          "scope": "Independent review of the exact R2178 launcher/manifest/R2179 source-bound removal chain; explicitly not LA-021 closure or full E02 acceptance."
+        }
+      ],
+      "next_check": "On a newly frozen current candidate, enumerate the whole LA-021 profiles/legacy denominator, then verify generated/installed consumers and profile-specific producer-to-artifact-to-consumer behavior. Preserve every legacy and profile outcome."
+    },
+    {
+      "id": "B31",
+      "occurrence": "B31 original uncertainty-projection criterion; original B31 occurrence remains open/held",
+      "outcome": "limited_proposal_only_for_mapping_identity_guards",
+      "capability_label": "verification_missing",
+      "boundary": "Four selected finalizer tests exercise decoded-mapping/pending-hash behavior and one property-removal run proves the pending-hash guard is load-bearing. The early passport guard limits which malformed claims reach decoded-mapping reconciliation; this evidence does not prove the full B31 CI-vs-ID uncertainty semantics, independent source binding, or the unresolved external b35 relation-provenance meaning. Do not close B31 from the hash checks.",
+      "evidence_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2185-source53-b31-hash-finalizers-native-actual-root-20261015/command.json",
+          "sha256": "48863b346bcbe4364893f656f9dac2987dba7eaf72aaac536c9cbf1f6ca16dff",
+          "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+          "bytes": 2201626
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2187-source53-b31-pending-hash-removal-native-actual-root-20261015/command.json",
+          "sha256": "c2e41f729911d04495af920771837789b800bb1c3e1213ad1baf5eb673f5def3",
+          "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+          "bytes": 2090730
+        }
+      ],
+      "next_check": "Resolve the b35 owner/source meaning with authentic authority inputs or retain fail-closed status; then test the original uncertainty-projection property end-to-end against the selected consumer and both passport and decoded mapping paths, including removal controls. Formal finding adjudication remains G-only."
+    }
+  ],
+  "selected_input_profile_backend": {
+    "platform": "Local macOS, exact host/profile captured in each command.json or R2188 receipt.json",
+    "runtime": "Repository .venv Python native pytest; R2188 Ruff invoked as .venv/bin/python -m ruff",
+    "numerical": "No numerical/causal-estimation claim; unit and route identity checks only",
+    "inputs": "Repository-backed typed options, real local CAS/owner/finalizer fixtures, and actual source import/export surfaces. No production custody, issuer, or currentness claim.",
+    "backend": "Native local Python test environment; not a CI/G runtime acceptance result",
+    "source_selection_caveat": "Each native command retains its exact argv, CWD, source HEAD, pre/post path hashes, outputs, JUnit and module origins. The command source HEAD is not always the later implementation commit; see source_alignment and per-command entries."
+  },
+  "real_chain": [
+    "CAN: nested model/mapping options enter the real Core-to-IR adapter; recursive declared model roots and edges are validated before a real FileSystemCAS-backed put_json publication; accepted mapping variants are inspected through the selected manifest/artifact path.",
+    "CAN negative path: model_construct and post-construction mutated nested models cross the same actual adapter boundary; with the recursive normalizer removed while call sites/test markers remain, the targeted semantic test fails for all 30 mutated cases.",
+    "Source53 route identity: public facade and namespace import sites are exercised by route tests against actual package owners, including Foundry facade and causal-engine runtime exports. The separate 843-row route oracle is static classification only, not proof of runtime behavior for unresolved routes.",
+    "B31 finalizer slice: real catalog overlay and production acquisition finalizer tests compare selected decoded mapping and pending hashes against owner/selected evidence; removing the pending-hash predicate makes its targeted actual finalizer test fail. This is limited identity-integrity evidence, not the original B31 interval/uncertainty claim."
+  ],
+  "adversarial_controls": [
+    "R2179 property removal: 30/30 targeted cases fail as expected with the CAN recursive nested-options normalizer removed; command exit 1 is the intended semantic-red result, not a product test-suite failure.",
+    "R2187 property removal: one targeted pending-hash removal case fails as expected; command exit 1 is the intended semantic-red result.",
+    "R2185 baseline: four selected B31 finalizer cases pass on the matched 241-path input composition. The early passport guard means this does not demonstrate that every adversarial passport mutation reaches the decoded-mapping guard.",
+    "R2180 static route oracle: its 843-row source-derived report has 11/11 static controls, yet 111 route proposals remain unresolved; static controls do not establish actual import/runtime use for those occurrences.",
+    "R2188 source quality: actual repo-config Ruff check and format ran over all 223 Python files in the candidate; exact Python path hashes match the 69ca readback."
+  ],
+  "native_evidence": [
+    {
+      "purpose": "Source52 CAN positive recursive normalization and actual adapter/CAS behavior",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2176-source52-can-nested-options-native-actual-root-20261015/command.json",
+        "sha256": "b141f3d09393deed654fed02e1f09fcf0285eef7ee5a5493e5b7d96bcb28b988",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 2180002
+      },
+      "deciding_output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2176-source52-can-nested-options-native-actual-root-20261015/stdout.txt",
+        "sha256": "3987b6ecf710e3cbe6f090cba668dc765382ba58f8a8f17362d808a5d8a29ebb",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 353
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2176-source52-can-nested-options-native-actual-root-20261015/junit.xml",
+        "sha256": "ececc19ddc539f091f6a8d1165c1a8df328a019b4a3404e4b7c419a6d3fb3b96",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 19859
+      },
+      "source_head": "23349a36e0fc927fe13fb529e15b29f4bd91720a",
+      "result": {
+        "tests": 113,
+        "passed": 113,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "exit_code": 0,
+        "wall_seconds": 4.146055833087303
+      },
+      "reported_behavior": "10 recursive normalizer roots, 5 edges, 30 mutated nested-model cases among the exercised set.",
+      "candidate_input_comparison": "The two CAN-owned candidate paths (src/polisyos/core/artifacts/ir_adapter.py and tests/unit/core/artifacts/test_ir_adapter.py) exactly match this command input. The complete 241-path comparison does not: 235 match, 1 is absent, and 5 differ (the five Foundry causal-engine implementation paths); therefore this early run is not represented as a full composed-source replay."
+    },
+    {
+      "purpose": "Source52 CAN normalizer property-removal control",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2179-source52-can-nested-options-removal-native-actual-root-20261015/command.json",
+        "sha256": "196d66aed957e40799bab6c092c10167254f66536f35925cd632826c1cde601a",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 2097965
+      },
+      "deciding_output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2179-source52-can-nested-options-removal-native-actual-root-20261015/stdout.txt",
+        "sha256": "b1dba43a6fa16ae8d6f721002226fa504e3583f99e1e9ab8f9f0dacc74aa7291",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 142612
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2179-source52-can-nested-options-removal-native-actual-root-20261015/junit.xml",
+        "sha256": "e2ac970b0e313b1af6965521beedfe10736f8df74f05270156090950efb62fe2",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 141059
+      },
+      "source_head": "23349a36e0fc927fe13fb529e15b29f4bd91720a",
+      "result": {
+        "tests": 30,
+        "expected_failures": 30,
+        "errors": 0,
+        "skipped": 0,
+        "exit_code": 1,
+        "wall_seconds": 3.982212167000398
+      },
+      "interpretation": "Intentional removal red for the declared CAN property; not a baseline product failure. Exact CAN-owned source/test paths match candidate; full 241 input composition is not asserted for this early run.",
+      "independent_review_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2179-can-nested-removal-independent-review-20261015.json",
+        "sha256": "47e198572851d083fb36e6d78c8d52abb7617db1aae91e6ef3bd6a5846178cf1",
+        "bytes": 4867,
+        "availability": "retained local ignored RAW",
+        "disposition": "GO_BOUNDED",
+        "scope": "Independent review of the exact R2178 launcher/manifest/R2179 source-bound removal chain; explicitly not LA-021 closure or full E02 acceptance."
+      },
+      "reviewed_scope": "The reviewer confirmed the 30 selected mutation cases, exact adapter/test/plugin bindings through the outer launcher manifest, source stability and intended DID NOT RAISE red; LA-021 and the full profile/legacy rollout remain open."
+    },
+    {
+      "purpose": "Source53 public route identity runtime/import tests",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2184-source53-all-public-route-identity-native-actual-root-20261015/command.json",
+        "sha256": "5874f3075eed2a7f0bc2c8cb5d240e062c553d216dd67c8b2097ab095608cb22",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 2053052
+      },
+      "deciding_output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2184-source53-all-public-route-identity-native-actual-root-20261015/stdout.txt",
+        "sha256": "40322bb6ebcd2b95f169283eb9573e4acb5bdcb33a31d12d07f8ea3a6de4cd20",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 353
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2184-source53-all-public-route-identity-native-actual-root-20261015/junit.xml",
+        "sha256": "bbab4b8fc113377986bbfd44ee1e69be6199ac7dd91661f0d36ccf3949b1c94d",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 29372
+      },
+      "command_head": "51b9406045d896b60cb9b9f6fdcb1747aee0fcd2",
+      "candidate_input_comparison": {
+        "candidate_paths": 241,
+        "pre_input_matches": 241,
+        "missing": 0,
+        "different": 0,
+        "post_input_matches": 241,
+        "post_missing": 0,
+        "post_different": 0
+      },
+      "result": {
+        "tests": 127,
+        "passed": 127,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "exit_code": 0,
+        "wall_seconds": 18.4205160420388
+      },
+      "source_identity_note": "The command head field is 51b940. The actual test input bytes for all 241 candidate paths matched the later 69ca committed readback before and after execution; report both facts without relabeling the command head."
+    },
+    {
+      "purpose": "Source53 B31 selected finalizer hash and mapping identity slice",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2185-source53-b31-hash-finalizers-native-actual-root-20261015/command.json",
+        "sha256": "48863b346bcbe4364893f656f9dac2987dba7eaf72aaac536c9cbf1f6ca16dff",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 2201626
+      },
+      "deciding_output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2185-source53-b31-hash-finalizers-native-actual-root-20261015/stdout.txt",
+        "sha256": "9c120e0ceaa1fec369b8434de8b2981b6e548e78a7a402ecdab40bcddff6138b",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 273
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2185-source53-b31-hash-finalizers-native-actual-root-20261015/junit.xml",
+        "sha256": "d3da413230a4943259c7490bc61e926ec516f5eae019189362ed439cd187ba30",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 982
+      },
+      "command_head": "51b9406045d896b60cb9b9f6fdcb1747aee0fcd2",
+      "candidate_input_comparison": {
+        "candidate_paths": 241,
+        "pre_input_matches": 241,
+        "missing": 0,
+        "different": 0,
+        "post_input_matches": 241,
+        "post_missing": 0,
+        "post_different": 0
+      },
+      "result": {
+        "tests": 4,
+        "passed": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "exit_code": 0,
+        "wall_seconds": 24.796014624997042
+      },
+      "source_identity_note": "Four actual finalizer cases run against the 241 path-hash-matched composition; the command HEAD remains 51b940, not 69ca."
+    },
+    {
+      "purpose": "B31 pending-hash predicate property-removal control",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2187-source53-b31-pending-hash-removal-native-actual-root-20261015/command.json",
+        "sha256": "c2e41f729911d04495af920771837789b800bb1c3e1213ad1baf5eb673f5def3",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 2090730
+      },
+      "deciding_output_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2187-source53-b31-pending-hash-removal-native-actual-root-20261015/stdout.txt",
+        "sha256": "9ce043a87a2c3a463ef32a34279e162e85342e1fc4e637cd644d96ace31ce0d5",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 4006
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2187-source53-b31-pending-hash-removal-native-actual-root-20261015/junit.xml",
+        "sha256": "6e01aa32d7cb7130ab984c3da793e5195c605ebed29d06c210164509f1db89c6",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 3178
+      },
+      "command_head": "51b9406045d896b60cb9b9f6fdcb1747aee0fcd2",
+      "candidate_input_comparison": {
+        "candidate_paths": 241,
+        "pre_input_matches": 241,
+        "missing": 0,
+        "different": 0,
+        "post_input_matches": 241,
+        "post_missing": 0,
+        "post_different": 0
+      },
+      "result": {
+        "tests": 1,
+        "expected_failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "exit_code": 1,
+        "wall_seconds": 17.915581207955256
+      },
+      "interpretation": "Expected semantic red when the pending-hash predicate is removed. It does not neutralize the early-passport-guard limitation or establish the original full B31 property."
+    },
+    {
+      "purpose": "Full native Ruff check/format for candidate Python footprint",
+      "receipt_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2188-source52-53-whole-implementation-quality-root-20261015/receipt.json",
+        "sha256": "0ea5c83df9135062f470438e693618a460b7904918b415b6511381f2a691dda4",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 80084
+      },
+      "check_stdout_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2188-source52-53-whole-implementation-quality-root-20261015/check.stdout.txt",
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 2
+      },
+      "format_stdout_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2188-source52-53-whole-implementation-quality-root-20261015/format.stdout.txt",
+        "sha256": "1c0028d26b0eb2bbffd35e8f3ea2957a6a46019184711c82fa05404d700618f4",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 28
+      },
+      "command_head": "51b9406045d896b60cb9b9f6fdcb1747aee0fcd2",
+      "result": {
+        "python_files": 223,
+        "ruff_check_exit": 0,
+        "ruff_format_exit": 0,
+        "format_output": "223 files already formatted",
+        "source_stable": true
+      },
+      "candidate_input_comparison": {
+        "candidate_python_hashes": 223,
+        "matches": 223,
+        "missing": 0,
+        "different": 0
+      },
+      "config_hashes": {
+        "policy-engine/ruff.toml": "8887d0a15457d44ebb1a5b5aee8110dd5101dc9e952649cd0490b845af2d933e",
+        "policy-engine/pyproject.toml": "93f17ea7cc008ecb9b24cc9969e35d367d4d1d351a6e8e906b4065811777b535",
+        "policy-engine/architecture/tooling/static_analysis_overrides.toml": "1c3f0c0ec5a80b3e4cae0c3c807ab1139b205589be78c228610230832434d829"
+      }
+    },
+    {
+      "purpose": "Source-derived 843-route static oracle; not a runtime closure receipt",
+      "report_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2180-source52-full843-wildcard-and-typechecking-guard-20261015/full843-actual-name-use-rebind.json",
+        "sha256": "9218d30b89df32adebbf6b9fd5b8275e9f9036aa062828ab33740c432c9bf735",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 15449232
+      },
+      "summary_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2180-source52-full843-wildcard-and-typechecking-guard-20261015/summary.json",
+        "sha256": "7dc50c71cf4aa2999f0cf1dd575ab3aeb1a3a8bb99674b8e62f9cd778fc76364",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 1740
+      },
+      "result": {
+        "occurrences": 843,
+        "source_files": 187,
+        "route_pairs": 413,
+        "unresolved_route_proposals": 111,
+        "static_controls_passed": 11,
+        "static_controls_total": 11
+      },
+      "interpretation": "Static names/use/rebind classification does not prove actual runtime behavior or public consumer closure for unresolved routes."
+    },
+    {
+      "purpose": "Earlier Foundry namespace collection error, separate from B31 assertion outcome",
+      "command_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2170-source52-b31-hash-finalizers-native-actual-root-20261015/command.json",
+        "sha256": "8b6b6d0bf681a1178077679f85d6c580cc10d0e6849bdb55ff9438db17876d11",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 2052947
+      },
+      "junit_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2170-source52-b31-hash-finalizers-native-actual-root-20261015/junit.xml",
+        "sha256": "74556aeae0d691b04d4b50f0032dffc4cc3a3c6b1378f575d5641241126c165f",
+        "availability": "retained local ignored RAW; source-bound by exact path and SHA-256",
+        "bytes": 5611
+      },
+      "source_head": "23349a36e0fc927fe13fb529e15b29f4bd91720a",
+      "result": {
+        "tests_collected": 2,
+        "errors": 2,
+        "exit_code": 4,
+        "classification": "collection_error_at_Foundry_namespace; no B31 assertion outcome"
+      },
+      "superseding_deciding_evidence": "R2185 direct four-case B31 finalizer run and R2187 pending-hash removal control are separately cited above."
+    }
+  ],
+  "source_bound_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2192-source52-53-implementation-boundary-root-20261015/committed-readback.json",
+    "sha256": "afd2efe30084d8de77e918960c7a897ced54601366e96825f9935dd6c889cc3a",
+    "bytes": 35331,
+    "candidate_head": "69ca76e1666f15681497feb6a8bbb812ddf7721d",
+    "candidate_tree": "cce67becbbc97feaa72d91765d05c36eeb334b94",
+    "changed_path_count": 241,
+    "index_clean_at_candidate_readback": true,
+    "formal_closure_ids": []
+  },
+  "limitations": [
+    "Source52 CAN full-file tests ran at HEAD 23349, not at candidate HEAD 69ca. Both CAN-owned paths match the candidate bytes, but the complete 241-path input comparison has one missing and five different Foundry causal-engine files; this run is limited to the CAN slice.",
+    "Source53 R2184 and R2185 command HEAD is 51b940, but all 241 committed candidate paths are byte-identical in the before/after command input maps; Ruff R2188 has all 223 candidate Python hashes matching. This binds those tests/quality checks to the candidate bytes without changing their recorded command HEAD.",
+    "Current later HEAD is only supplied as short prefix e627 with B148 test-only commit and eight dirty API paths; exact current source frame is not provided here. Therefore 69ca is not the current branch tip, not a full current-tree receipt, and not a final freeze.",
+    "LA-021 complete profiles/legacy rollout remains open. Source52 nested-options cases do not cover the full profile denominator or generated/installed consumers.",
+    "843 route oracle is static; 111 unresolved route proposals remain. Runtime route identity tests cover the selected 127-case surface, not every static occurrence.",
+    "B31 remains open/held: decoded mapping and pending-hash checks are a limited identity guard, not the full original uncertainty-projection criterion. The passport guard can refuse before the decoded mapping comparison. The external b35 relation-provenance semantics/issuer remain unresolved; no authority, custody, law, or currentness has been invented.",
+    "The independent CAN removal review is linked at the exact RAW path and full SHA above. Its GO_BOUNDED scope covers the selected mutation/removal chain only; it explicitly leaves LA-021 and the full profile/legacy rollout open.",
+    "No production manifest, descriptor, hash, or payload was changed or surveyed. No formal finding adjudication or G acceptance is claimed."
+  ],
+  "next_checks": [
+    "Root authors the separate implementation receipt from exact candidate 69ca and later reconciles the current e627/B148/API8 source frame; do not attach a future receipt SHA here.",
+    "Freeze current composed source, then rerun Source52 CAN and the composed route/B31 controls against the exact same candidate bytes and capture exact full source hashes before/after.",
+    "Resolve the complete LA-021 profile/legacy and installed-consumer denominator; preserve per-occurrence status and evidence.",
+    "Resolve or keep fail-closed the exact b35 owner semantics and authentic external input, then test the original B31 uncertainty property independently of mapping-hash integrity.",
+    "Join the 843 static route inventory back to canonical finding IDs and verify unresolved routes through real runtime consumers; do not equate static classification with closure.",
+    "G independently reviews exact source/evidence, publishes integration only on its authority, and adjudicates each finding. No author-proposed IDs are formal closures."
+  ]
+}

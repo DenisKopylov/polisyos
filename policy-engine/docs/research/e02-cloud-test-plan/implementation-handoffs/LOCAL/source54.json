@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "slice": "source54-b148-mixed-foreign-package",
+  "author_role": "local candidate author; formal acceptance reserved for independent G",
+  "slice_base": "69ca76e1666f15681497feb6a8bbb812ddf7721d",
+  "candidate": "e6276e6d274e0bd8c945cf7780a3b24cca4d4eaa",
+  "candidate_tree": "0a34faf0c482ff900111b47225b0f9097ac72486",
+  "candidate_parents": [
+    "69ca76e1666f15681497feb6a8bbb812ddf7721d"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "footprint": [
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+      "sha256": "9d0cde8bba95fdb5c96bf783f91525b02120f2cd073332e7a54bcc5605219729"
+    }
+  ],
+  "mandatory_companions": "test-only verification of existing source50 import mechanism; complete source/test/config input bindings are in the 7735-member native command before/after maps",
+  "implementation_receipt_separate": true,
+  "receipt_commit_identity": null,
+  "final_source_freeze": false,
+  "closure_ids": [],
+  "formal_G_closures": [],
+  "property": "Every member of a mixed valid-first package is admitted for tenant/cell custody before transaction staging; a later foreign member preserves the pre-existing receiver, ownership, generation and readable prior object.",
+  "real_chain": [
+    "genuine scoped producers plus a claimless selected-view member",
+    "directory/archive inventory and whole-set admission",
+    "refusal before import transaction staging and claimed/payload effects",
+    "fresh prior-owner GET, integrity verification and complete non-lock receiver snapshot",
+    "existing package CLI/replay consumers and readable import disposition"
+  ],
+  "selected_input_profile_backend": {
+    "backend": "local FileSystemCAS",
+    "input": "controlled fixture scopes, valid-first directory/archive by foreign tenant/cell; not production input",
+    "positive": "existing owned+new package import and real durable reports",
+    "negative": "4 mixed-package refusal cases"
+  },
+  "native_evidence": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2198-source54-b148-clean-interval-native-root-20261015/command.json",
+      "sha256": "a4bda7d88aebe3872d69ac67ba72c6c63a2e63cb2efdbe57a0647cef69a83f12",
+      "availability": "retained ignored RAW in own local candidate checkout; read-only access for G"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2198-source54-b148-clean-interval-native-root-20261015/junit.xml",
+      "sha256": "4d29c1b1b24904868b745b195a6985326dfce491c964976e8c988d00f0752ed1",
+      "availability": "retained ignored RAW in own local candidate checkout; read-only access for G"
+    }
+  ],
+  "native_result": {
+    "pass": 88,
+    "fail": 0,
+    "error": 0,
+    "skip": 0,
+    "wall_seconds": 20.96500475006178,
+    "input_paths": 7735,
+    "input_changes": 0
+  },
+  "independent_reviews": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-b148-mixed-package-review-20261015.json",
+      "sha256": "4b15b3e87d8174b73a7613e454664f83b21b7769b5a7b5f4c2451c95faf87cd3",
+      "availability": "retained ignored RAW in own local candidate checkout; read-only access for G"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-b148-r2198-wholecriterion-review-20261015.json",
+      "sha256": "697e84b310134cfb8b9475e36aeb94b1210fb282965153f739dafbd3726147d4",
+      "availability": "retained ignored RAW in own local candidate checkout; read-only access for G"
+    }
+  ],
+  "adversarial_removal": "The independent delta review binds the retained-marker removal probe: 4 intended pre-stage assertion failures, zero errors; this is separate from the normal 88-case run.",
+  "source_frame_qualification": "The normal replay ran at 69ca with this test's exact final bytes. Committing e627 changes only branch metadata for already-captured bytes; branch readback verifies the single delivered file.",
+  "implementation_readback": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2200-source54-implementation-boundary-root-20261015/committed-readback.json",
+    "sha256": "89dccfacd018853150c5239866276f2b6d29e44844570c1f337aed387277dbf7",
+    "availability": "retained ignored RAW in own local candidate checkout; read-only access for G"
+  },
+  "closure_proposals": [
+    {
+      "id": "B148",
+      "occurrences": 1,
+      "proposal": "bounded local-CAS behavior ready for G consideration after final composed freeze acceptance",
+      "formal_status": "not_adjudicated",
+      "historical_routes": [
+        "F01-P051",
+        "F09-P055",
+        "F14-P061"
+      ],
+      "route_grades": "preserved as partial/candidate_unverified/not_established; not rewritten by this receipt"
+    }
+  ],
+  "limitations": [
+    "No real external signer, institutional custody, production currentness or unratified cross-tenant policy claim",
+    "Local root mkdir may precede admission; staging and artifacts/claims/generation of a pre-existing receiver remain protected",
+    "B149 reused-directory export is outside this proposal",
+    "Exact final composed source replay and independent G acceptance remain required"
+  ],
+  "next_check": "Run the agreed B148 selectors at final source/input/backend freeze, rebind all original criterion dependencies, then G decides the one canonical occurrence."
+}

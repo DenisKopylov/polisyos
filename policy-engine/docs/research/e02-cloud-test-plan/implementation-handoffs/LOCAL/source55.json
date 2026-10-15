@@ -1,0 +1,487 @@
+{
+  "schema_version": 1,
+  "slice": "source55-api-generated-actual-consumers",
+  "author_role": "local candidate author; independent G code acceptance and formal adjudication remain reserved",
+  "slice_base": "e6276e6d274e0bd8c945cf7780a3b24cca4d4eaa",
+  "candidate": "d63cff58c4c427759503767f5630ad8c370f2a1e",
+  "candidate_tree": "81af0f9460f02437d9a4a26c56fd7e6a21b6afe7",
+  "candidate_parents": [
+    "e6276e6d274e0bd8c945cf7780a3b24cca4d4eaa"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "footprint": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+      "before_sha256": "53d4fe99cdcfdde42d6386ed894d94d88d944da277ae6c761bc60b2fecba807d",
+      "postimage_sha256": "28bb132891e7df3aa1d7522a3473213ba8b1fa2f5570c81ec82980daa085b56a",
+      "bytes": 898788
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/README.md",
+      "before_sha256": "95b8f4ec2e0655d2ab3005cc741d71ba9720732d66d97e9b35ca9091db8faa06",
+      "postimage_sha256": "620fe86f4f3de3042808587243c671dd422efc528e49d9249e0d24098c167f82",
+      "bytes": 10481
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "before_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27",
+      "postimage_sha256": "2a0e20954de3152543370899361f6fd8d5dc523356095b38dc5c94219c9eaf3b",
+      "bytes": 116244
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/scripts/generate-openapi-types.mjs",
+      "before_sha256": "2d9a0590f7633dddd4eaedb646132de9495ac52564dc579bdf417e5281722bcc",
+      "postimage_sha256": "38b865d77baa1cfcc6663dc3dceba64533b70ca914f9e4203e44fd5b7015d0cd",
+      "bytes": 46775
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/scripts/generate-openapi-types.test.mjs",
+      "before_sha256": "505914d2ac0aecdd962525b7e087d81e1adcc6777622a5a8aefd57df2cb2ddbd",
+      "postimage_sha256": "59bc597736ee8eb8ff2e958e9a751fb4794df0665a683941ddde68442558b394",
+      "bytes": 45862
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/types.ts",
+      "before_sha256": "d13a17513905d9305760f9b1c5f47bf5d7e8289b8bddfa786ad40b1a28700ca2",
+      "postimage_sha256": "829c26bb4ecc8a1f13fd5fe7b363fe57673a981d608562195d7280ece484c229",
+      "bytes": 1075853
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-15-runtime-api-nullable-default-presence.toml",
+      "before_sha256": null,
+      "postimage_sha256": "16ffba9097c47304efb676ed645389d98bd630b6fe7570d43605a18421ec6a54",
+      "bytes": 3656
+    },
+    {
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "before_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a",
+      "postimage_sha256": "1c74b62ada5bfe6173e2686bbe6730e0fe3ec0e52e85a2c7f06c345c1d43ca3a",
+      "bytes": 3077770
+    }
+  ],
+  "implementation_readback": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2207-source55-implementation-boundary-root-20261015/committed-readback.json",
+    "sha256": "0457421cfb202bf513b94b58f829662ed21a295f18e8e023d7ad220df1f1f723",
+    "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+  },
+  "implementation_receipt_separate": true,
+  "receipt_commit_identity": null,
+  "final_source_freeze": false,
+  "closure_ids": [],
+  "formal_G_closures": [],
+  "closure_proposals": [],
+  "delivery_proposal": "Accept the bounded nullable-default presence transform with document-wide resource/dialect fail-closed preflight, genuine DTO omission compatibility and exact current generated outputs; no whole E02 finding follows automatically.",
+  "property": "OpenAPI3.1 nullable default-null fields may be omitted in generated types only when not explicitly required and null admission is proven. Unsupported resource/dialect scope anywhere in the recognized schema graph suppresses this projection.",
+  "real_chain": [
+    "actual FastAPI OpenAPI export and actual 409 application/problem+json omission witness",
+    "versioned schema and canonical TypeScript generators",
+    "package canonical client and dashboard generated DTO exports",
+    "four native tsc consumers with actual resolved input sets",
+    "exact package/dashboard output-set and byte reproduction",
+    "native declared runtime OpenAPI hardening/generated-client freshness contract"
+  ],
+  "selected_input_profile_backend": {
+    "backend": "existing Mac workspace .venv Python3.14.3 and Node22.22.2; frozen pnpm lock installation retained",
+    "schema_sha256": "1c74b62ada5bfe6173e2686bbe6730e0fe3ec0e52e85a2c7f06c345c1d43ca3a",
+    "raw_capture_bytes": 14599371,
+    "native_schema_routes": 116,
+    "native_schema_operations": 119,
+    "native_component_schemas": 616
+  },
+  "independent_review": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/review-r69ca76-r3-20261015/review.json",
+    "sha256": "0b8bd6e6800d3ebe4c23a4c2bc416c04f260a258f1b6ee5ad0ce14bedda67494",
+    "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+  },
+  "author_source_actual_409_and_generator_controls": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/proposal-r51b9406045-r3-context-20261015/handoff-r69ca76-r3-final-20261015/manifest.json",
+    "sha256": "2c68aa095bcdff196ef88efd07817b3c104859b575bfb42bf12b0bd07a128562",
+    "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+  },
+  "reused_root_package_native": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2204-source55-native-package-actual-root-20261015/command.json",
+    "sha256": "72f53dcbab9eb0a28bde37fe045ec102b3e495031d355bf7ce5a852df52b8e26",
+    "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+  },
+  "root_package_result": {
+    "pass": 37,
+    "fail": 0,
+    "error": 0,
+    "skip": 0,
+    "source_paths": 27,
+    "seconds": 9.103317333036102
+  },
+  "native_commands": [
+    {
+      "step": "preflight",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/preflight/command.json",
+        "sha256": "9d08e11269c662b9649e05b116ebd2b9c129933c8de7c92674f30550769797aa",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 47,
+      "source_bytes_stable": true,
+      "seconds": 0.05557299999054521
+    },
+    {
+      "step": "package-test-source-list",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/package-test-source-list/command.json",
+        "sha256": "2ef5c5f2303ce6f20b66cf6c500ed485c37d516482d985990b24d25c7d3b73c6",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 47,
+      "source_bytes_stable": true,
+      "seconds": 0.05293991602957249
+    },
+    {
+      "step": "node-version",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/node-version/command.json",
+        "sha256": "1d767ade60970de3c9685c31027dfc32683cde1aac2199d012ac5139bebfa727",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 53,
+      "source_bytes_stable": true,
+      "seconds": 0.03013012500014156
+    },
+    {
+      "step": "pnpm-version",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/pnpm-version/command.json",
+        "sha256": "0e08a06fc92859994ee7a5955dc3b5ff6d4e920a4745f3ff026dd904e44a446f",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 53,
+      "source_bytes_stable": true,
+      "seconds": 0.2682489159051329
+    },
+    {
+      "step": "package-node-version",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/package-node-version/command.json",
+        "sha256": "d7956b788990a60a29f347173e654615b6bbfe878068d5e4d09cd72049708067",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 53,
+      "source_bytes_stable": true,
+      "seconds": 0.303702041041106
+    },
+    {
+      "step": "typescript-version",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/typescript-version/command.json",
+        "sha256": "7846d3cbc1e1f45e89fd7ccd99fb225608d0deacef80b6e8ef55239bb3bc9a09",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 53,
+      "source_bytes_stable": true,
+      "seconds": 0.9017705000005662
+    },
+    {
+      "step": "prettier-version",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/prettier-version/command.json",
+        "sha256": "0697e968e81e4ac0d2999d37f0c8aa6e309684156709933c82160899a7468757",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 53,
+      "source_bytes_stable": true,
+      "seconds": 0.36915233300533146
+    },
+    {
+      "step": "node-dependency-inventory",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/node-dependency-inventory/command.json",
+        "sha256": "716b12e72c41ab766fe7f395d651330ece7eb38128d1d099d3d6db12e3a6b5d1",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 53,
+      "source_bytes_stable": true,
+      "seconds": 0.3724162080325186
+    },
+    {
+      "step": "ts-runtime-client-enumerate",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/ts-runtime-client-enumerate/command.json",
+        "sha256": "fb7e33ac9330feea897f555643846edb31b1545e779edf37d574b623a254090b",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 665,
+      "source_bytes_stable": true,
+      "seconds": 0.5951442919904366
+    },
+    {
+      "step": "ts-dashboard-app-enumerate",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/ts-dashboard-app-enumerate/command.json",
+        "sha256": "1713b38e4f347fc79c466230f805dc7f224cb41b31fd55dd21a6beb6afe4b05d",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 665,
+      "source_bytes_stable": true,
+      "seconds": 2.781546041020192
+    },
+    {
+      "step": "ts-dashboard-node-enumerate",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/ts-dashboard-node-enumerate/command.json",
+        "sha256": "48f51b11498d2d5f9e403195ee32395fb8f9c6a4f637a9edff3dcd93a2f2a83c",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 665,
+      "source_bytes_stable": true,
+      "seconds": 0.7612592079676688
+    },
+    {
+      "step": "ts-dashboard-tools-enumerate",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/ts-dashboard-tools-enumerate/command.json",
+        "sha256": "e5d2115bb266d3f488a8825f679bbaf01cce135c97ba74bcfaacf80689638a0e",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 665,
+      "source_bytes_stable": true,
+      "seconds": 1.097186709055677
+    },
+    {
+      "step": "generator-tests",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/generator-tests/command.json",
+        "sha256": "c135433298d0b653c0b5726f963320a794d082f7c27d52626d6a5ad7e7394031",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 665,
+      "source_bytes_stable": true,
+      "seconds": 8.313290124991909
+    },
+    {
+      "step": "ts-runtime-client",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/ts-runtime-client/command.json",
+        "sha256": "ef2584fd1e737e42e2ab000c52253a6c6f8ce13ec46939fb79c8d97bfa37121c",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 727,
+      "source_bytes_stable": true,
+      "seconds": 0.8239985419204459
+    },
+    {
+      "step": "ts-dashboard-app",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/ts-dashboard-app/command.json",
+        "sha256": "86e8d48916684e2dcd3758157ffbacd6d2471cc01342e0e2075923998ec0d992",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 3554,
+      "source_bytes_stable": true,
+      "seconds": 13.532349333981983
+    },
+    {
+      "step": "ts-dashboard-node",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/ts-dashboard-node/command.json",
+        "sha256": "7459fa0c04cca1adfd6529dc4c7ff0ef03b7577a2edb5517e384cb595e6bcba3",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 1125,
+      "source_bytes_stable": true,
+      "seconds": 0.8969592499779537
+    },
+    {
+      "step": "ts-dashboard-tools",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/ts-dashboard-tools/command.json",
+        "sha256": "5291ff8bbc8edf0030548179bf512247452a6da371f73a6464042c67275bd1d9",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 1550,
+      "source_bytes_stable": true,
+      "seconds": 2.8171711249742657
+    },
+    {
+      "step": "package-generation",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/package-generation/command.json",
+        "sha256": "6f27271f54f690a0f3d67278ed29569499e324988f7745c0faf7e835dce7c7af",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 5047,
+      "source_bytes_stable": true,
+      "seconds": 3.8464739579940215
+    },
+    {
+      "step": "dashboard-generation",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/dashboard-generation/command.json",
+        "sha256": "9cabe1b0b0fa1a99d652244e355c5f11fb7d3a42da6d99aad1708d37730dd0a8",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 5047,
+      "source_bytes_stable": true,
+      "seconds": 3.533763958956115
+    },
+    {
+      "step": "package-byte-compare",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/package-byte-compare/command.json",
+        "sha256": "82916cd31c55524163c890139639caf99b9bb3d8ce62278c29e6406fe4494001",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 665,
+      "source_bytes_stable": true,
+      "seconds": 0.08183662500232458
+    },
+    {
+      "step": "dashboard-byte-compare",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/dashboard-byte-compare/command.json",
+        "sha256": "156fb127c10fb62ae214893e9bf86d8d7ad59d41221e5d402a3ccf0690e15e1b",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 665,
+      "source_bytes_stable": true,
+      "seconds": 0.0812898330623284
+    },
+    {
+      "step": "prettier-package",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/prettier-package/command.json",
+        "sha256": "32a723d646ff7d5b1cbbdd3affe21276773a2e478c4de632c000831046cbb021",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 665,
+      "source_bytes_stable": true,
+      "seconds": 0.7118067920673639
+    },
+    {
+      "step": "prettier-dashboard",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/prettier-dashboard/command.json",
+        "sha256": "ff3456e54baa17368345955662c1f9b1b1635af15e0b42747cae36f7edfeaa6f",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 665,
+      "source_bytes_stable": true,
+      "seconds": 1.0086021670140326
+    },
+    {
+      "step": "runtime-contract-full",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/runtime-contract-full/command.json",
+        "sha256": "581516e57954fdd61adc6035334bc68091615adbc34b299ef091b355eedfef25",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 5047,
+      "source_bytes_stable": true,
+      "seconds": 26.502953083021566
+    },
+    {
+      "step": "runtime-contract-corrupt-openapi",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/runtime-contract-corrupt-openapi/command.json",
+        "sha256": "a18575577b320eaadbfe6482fbda415870ff98afd677d4e0b89a0c434bda348e",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "source_paths": 5047,
+      "source_bytes_stable": true,
+      "seconds": 23.790401040925644
+    },
+    {
+      "step": "source-coherence-audit",
+      "evidence": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/source-coherence-audit/command.json",
+        "sha256": "116486033112493dc740e6c09b249ca58148f5508bb1b7515e7d8ba4db8f64ab",
+        "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+      },
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "source_paths": 665,
+      "source_bytes_stable": true,
+      "seconds": 1.2418526670662686
+    }
+  ],
+  "source_coherence_audit": {
+    "all_selected_source_bytes_unchanged": true,
+    "command_count": 25,
+    "common_source_path_count": 47,
+    "head": "d63cff58c4c427759503767f5630ad8c370f2a1e",
+    "node_dependency_source_path_count": 615,
+    "resolved_typescript_path_counts": {
+      "ts-dashboard-app": 2893,
+      "ts-dashboard-node": 460,
+      "ts-dashboard-tools": 888,
+      "ts-runtime-client": 65
+    },
+    "reused_package_test_receipt_sha256": "72f53dcbab9eb0a28bde37fe045ec102b3e495031d355bf7ce5a852df52b8e26",
+    "reused_package_test_source_path_count": 27,
+    "violations": []
+  },
+  "negative_control": {
+    "expected_exit": 1,
+    "description": "Remove exactly RuntimeApiProblem.context.default from supplied OpenAPI; actual runtime contract rejects the one-field drift. --skip-client-drift is used only for this isolated negative; positive full contract keeps drift enabled.",
+    "evidence": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-generated-consumer-current-20261015/native-capture-source55-20261015/r2206-root-native/captures/runtime-contract-corrupt-openapi/command.json",
+      "sha256": "a18575577b320eaadbfe6482fbda415870ff98afd677d4e0b89a0c434bda348e",
+      "availability": "retained locally in candidate checkout; full deciding outputs remain beside command.json under ignored RAW"
+    }
+  },
+  "limitations": [
+    "Runtime contract checker measures OpenAPI byte drift, declared hardening invariants and generated client freshness; it does not execute endpoints or prove authorization, production deployment, hosted CI or arbitrary client behavior.",
+    "Actual 409 endpoint witness is separately retained in the source-bound R3 packet; native TypeScript consumers and package behavior are independently recorded here.",
+    "Recognized OpenAPI3.1 scope only; this is not a general JSON Schema dialect/resource resolver.",
+    "Generated optional fields can be undefined; downstream external TypeScript consumers were not tested. Release fragment documents migration.",
+    "Final composed source/input/backend freeze, Q2 installed/rebuilt-sdist consumers and independent G acceptance remain pending. Later intersecting source changes require affected replay."
+  ],
+  "next_check": "Review this exact source55 candidate and receipts; carry only their stated scope into the final composed replay and per-occurrence G proposal report."
+}

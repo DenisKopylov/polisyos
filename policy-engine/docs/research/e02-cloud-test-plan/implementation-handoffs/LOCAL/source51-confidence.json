@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "slice": "source51-confidence-source-admission",
+  "author_role": "local candidate author; formal G acceptance and adjudication independent",
+  "slice_base": "12f07bdf31a59be418f534fc3473482c73ef6290",
+  "candidate": "51b9406045d896b60cb9b9f6fdcb1747aee0fcd2",
+  "candidate_tree": "a9615d19995bc63c5a57f1f2442d93fa9e1f5915",
+  "candidate_parents": [
+    "23349a36e0fc927fe13fb529e15b29f4bd91720a"
+  ],
+  "branch": "codex/e02-unified-local-20261009",
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "sha256": "5af7dd7ca7cd093ce51e428447f23c080ec16a6487d0ae1fa5cc4e4ab9420759",
+      "bytes": 368021
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py",
+      "sha256": "9dc6521327e54b19cfdf9be6aa79fd8727d7053da9fb6bc4a4d31785eeeaed28",
+      "bytes": 212252
+    }
+  ],
+  "implementation_receipt_separate": true,
+  "receipt_commit_identity": null,
+  "final_source_freeze": false,
+  "closure_ids": [],
+  "formal_G_closures": [],
+  "closure_proposals": [],
+  "property": "The live confidence-ledger contract registry must agree with the complete contract projection recomputed from the loaded source before selected evidence can construct CAS or enter head/tombstone mutation. A rebased in-memory snapshot does not authorize a differing registry.",
+  "predicates": {
+    "loaded_source_contract_projection": "recomputed",
+    "runtime_registry_schema_version_projection": "recomputed",
+    "external_issuer_custody_currentness": "not_established"
+  },
+  "real_chain": [
+    "actual ConfidenceLedgerSession.from_repo(REPO_ROOT)",
+    "source-derived whole ledger contract projection compared with live registry before artifact-store construction",
+    "typed canonical_loaded_runtime_mismatch on live registry mutation",
+    "zero store-builder calls; unique-scope head/tombstone absent",
+    "genuine four-event prior membership remains unchanged in the orphan event consumer case"
+  ],
+  "selected_input_profile_backend": {
+    "input": "Controlled genuine local ledger fixtures and live selected checkout; unique scope on negative. No production root replacement or import-time baseline rebase.",
+    "platform": "existing local macOS locked .venv, Python 3.14.3, pytest 9.0.2",
+    "numerical": "CPU single thread, Torch 2.10.0 intra/inter-op 1"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2150-confidence-source-admission-consumer-independent-ro-20261015/independent-review.md",
+    "sha256": "278dcf4ec664c8b79710583f012d11a08b3f26d83232662431cd29dfaf07e686",
+    "bytes": 4774,
+    "availability": "retained local ignored RAW"
+  },
+  "native_evidence": {
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "-c",
+      "import subprocess,sys\ntry: result=subprocess.run(sys.argv[1:],timeout=300);sys.exit(result.returncode)\nexcept subprocess.TimeoutExpired: print('operator_wall_budget_expired',file=sys.stderr);sys.exit(124)",
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "--maxfail=0",
+      "-p",
+      "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_progress_failure_r559_20261013",
+      "-p",
+      "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.v5_single_thread_pytest_r315_20261012",
+      "-p",
+      "docs.research.e02-cloud-test-plan.implementation-handoffs.LOCAL.raw.e02_runtime_module_origins_r792_20261013",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_post_admission_rebased_contract_baseline_fails_before_prior_membership",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_canonical_from_repo_rejects_runtime_contract_mutation_before_cas",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2154-source51-confidence-consumer-native-actual-root-20261015/fixtures",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2154-source51-confidence-consumer-native-actual-root-20261015/junit.xml"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "source_head": "12f07bdf31a59be418f534fc3473482c73ef6290",
+    "exit_code": 0,
+    "wall_seconds": 115.53021649993025,
+    "input_count": 7725,
+    "source_stable": true,
+    "junit": [
+      {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "2",
+        "time": "110.830",
+        "timestamp": "2026-10-15T04:44:18.881100+03:00",
+        "hostname": "MacBook-Air-Denis.local"
+      }
+    ],
+    "artifacts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2154-source51-confidence-consumer-native-actual-root-20261015/command.json",
+        "sha256": "ea80d5c35a9442da78b31e727db43f997e9b7d92b39c9aef8511bb6c5a42f655",
+        "bytes": 2057475,
+        "availability": "retained local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2154-source51-confidence-consumer-native-actual-root-20261015/stdout.txt",
+        "sha256": "22debc1c9595dc0dfa206863bd7ae58f9bda75e88ecdd5e52a8ac67c4206c4fc",
+        "bytes": 273,
+        "availability": "retained local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2154-source51-confidence-consumer-native-actual-root-20261015/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "retained local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2154-source51-confidence-consumer-native-actual-root-20261015/junit.xml",
+        "sha256": "163809eeca9bd3df9bfd7628a67f0461ef25370d9d0ee6a67951fdda787d8a18",
+        "bytes": 596,
+        "availability": "retained local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2154-source51-confidence-consumer-native-actual-root-20261015/module-origins.json",
+        "sha256": "28ceb6088f9494cb97a46d292e18262a459b46d9bd6452d4830dc7d284bd3169",
+        "bytes": 440141,
+        "availability": "retained local ignored RAW"
+      }
+    ]
+  },
+  "historical_failure_boundary": "R2149 7 passed/2 failed remains retained. The two test fixtures were corrected without altering the source guard or rebasing loaded-code trust; R2154 freshly replayed the two affected consumers.",
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2180-confidence-implementation-boundary-root-20261015/committed-readback.json",
+    "sha256": "12d1fe7d08e6671b3abb136824ce8482b9f66e5d52ee165946f4502ac9e5e78e",
+    "bytes": 742,
+    "availability": "retained local ignored RAW"
+  },
+  "limitations": [
+    "Focused evidence binds the two exact committed files to the R2154 captured dirty source frame; it is not the final Source53 composed replay.",
+    "The complete ledger module, current protected N9 positive, and final source/input/backend freeze replay remain pending.",
+    "Trusted local process integrity boundary; this does not create an external issuer, custody, protected authority, currentness, or original-finding closure.",
+    "P41 inherited-red provenance is not asserted; any remaining failed gate requires exact pre-all-own slice replay and full denominator reconciliation."
+  ],
+  "next_check": "After final composed source/input/backend freeze, replay complete ledger consumers and required protected positives/removals with authentic named inputs, preserve all FAIL/ERROR/SKIP/UNRUN, then G independently reviews and adjudicates."
+}

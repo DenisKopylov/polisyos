@@ -1,0 +1,623 @@
+{
+  "schema": "policyos.slo_coverage_boundary_decision_review.v1",
+  "decision_packet_id": "r2171-slo-boundary-decision-20261015-69ca76",
+  "as_of_date": "2026-10-15",
+  "review_status": "proposal_only_no_G_acceptance_no_formal_closure",
+  "root_reported_review_frame": {
+    "head": "69ca76e1666f15681497feb6a8bbb812ddf7721d",
+    "tree": "cce67becbbc97feaa72d91765d05c36eeb334b94",
+    "parent": "51b940",
+    "reported_commits_since_prior_frame": 241,
+    "reported_actual_product_bytes_changed": false,
+    "VCS_state_independently_verified_by_this_review": false
+  },
+  "canonical_expiry_report_frame": {
+    "dirty_state": "parent reports root-owned dirty work; this reviewer made no product/source/index/Git/environment writes",
+    "head": "23349 (parent-supplied prefix; not independently verified with VCS)",
+    "scope": "read-only triage, excluding this unique RAW report directory",
+    "tree": "791db2eb (parent-supplied; not independently verified with VCS)"
+  },
+  "source_pins": {
+    "canonical_expiry_triage": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/leaf-sota-expiry-debt-triage-20261015-b04323de9f/report.json@d1eab09481505558d38b45428eb301defb4988d9af215ce187f35f48a6bb5425",
+    "three_mirror_registries": {
+      "architecture/component_observability.toml": "89fc0c1a50ce985bd7ca9022f60dd8120e9603310d72dbc897c413afbdd2bb43",
+      "ops/components/index.toml": "11dccd87b0446249e0ad8cc2bf8ce6971fd892d36427465096f50fd129881f4a",
+      "architecture/runbook_coverage.toml": "7fcae0572dfb14d42ececf6a047023af287618437d0dad4665b84d6f7593fdce"
+    },
+    "package_contracts": {
+      "architecture/packages/berl.toml": "2ce6e72580fdb9453dac94874e0c35e192c9b85fecc70d5e5e14417a9232e258",
+      "architecture/packages/calibration.toml": "33185adc526706a9af811935bc18918ce79399eeda8db1576c3e04f7897517aa",
+      "architecture/packages/common.toml": "b268e360963a41e05afec960be1cd21f6acb0778c841cfeb3584c35d79d6aa2e",
+      "architecture/packages/ddm.toml": "e7247f1d6a06b6b5fc5118441387d5bb6e64e55fff325fb36f98c407a8e6d669"
+    },
+    "slo_placeholders": {
+      "ops/components/berl/slo.yaml": "a01e4afbef5bb59ab8ed4dd36e5548a0ce717b4e6bce70f1cec049f7418f1db1",
+      "ops/components/calibration/slo.yaml": "a7c05080520837c039b3ffbf4b80b8e00d6321358cc2ad2b8966a9b6c04f591b",
+      "ops/components/common/slo.yaml": "f9f07b535811306d5a01dc03e66a942fcec52827ff11db52f824c4937d01294c",
+      "ops/components/ddm/slo.yaml": "53ad66da23c89ef155563e530d9e8e4fe849239e17e1bdd3de7ed34ab01dc1a6",
+      "ops/components/security/slo.yaml": "00248e97d865200ba3af11f750c759189e9824d84b462118c7e8d9ea2b269a50"
+    },
+    "publication_and_deployment": {
+      "architecture/public_surface/contract.toml": "94b10f375cc2184e585da30fae552bb406cbd59e9283791707447406c30a0889",
+      "docs/reference/public-surface.md": "bde3315fa8f88c3ea9517b44d636270f87b717dc8e2b58310db73479f4dfaf5f",
+      "ops/release/deployment-topology.toml": "9a47b0ddcf1db4a4dc918790f67efac1ed68f8fe3d20ad37377d07ecddc7417e",
+      "ops/runtime/runtime-contracts.toml": "b4ba360642cf8edb88dacf7c01891fed8318798c9f4167a720ed8eecd10c9913"
+    },
+    "runtime_scientist_foundry_observability": {
+      "src/polisyos/runtime/http/app.py": "7e911d87cd8b328b49501161fbc528c97667645286a4eb60baa0b05fb39e318e",
+      "src/polisyos/runtime/http/routes/runs.py": "d43e165ee31e5499da804af41046be2ec8559dd974f2d4d1ee19840367cd8894",
+      "src/polisyos/runtime/http/services/predictive_calibration.py": "e341384284ea37b4c4ce439519699aa56d197f77cdcef53db7f8b217374fd50d",
+      "src/polisyos/scientist/api.py": "fa3aa4cdc268f268f773ccbb4c5a4b4655ce0130aad0816203ce2f1049e59b7f",
+      "src/polisyos/scientist/orchestration/engine/metrics_otel.py": "f89f8c921ca4fa759cdde60d7ccd182d32f3033a9e63d6e4affc05bea78a69d0",
+      "src/polisyos/core/observability/metrics_parts.py": "45d3d3183677aeed557e0d410cdce412387c29e526bc33c81c16ad324a4287ac",
+      "src/polisyos/core/observability/_metrics_registry_base.py": "922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85",
+      "ops/components/runtime/slo.yaml": "bd6782527bd1186332997d6963656f57cdd37b07df3d207ce370776f1725a964",
+      "ops/components/foundry/slo.yaml": "371d4673c1804cc847279af61f3833cf7827072e03709f6d34a10f5a43853056",
+      "ops/components/scientist/slo.yaml": "5b215df9bd2a54d75035c23b1c580005bc2f26d63122cc21dc83c71e5b42be63",
+      "ops/observability/prometheus/alerts.yml": "afd2c60c00a6035057700218cc42d4ee6b99710a6db41ca6d620bd7ab8527483",
+      "ops/observability/prometheus/rules/scientist-alerts.yml": "45dc4c9f65e1580abf1bf723350196f64d8f42aa834deea3e47e123cf9fd9c4c",
+      "ops/observability/prometheus/slo_alerts.yml": "ae7ac426676f537cfdd39b4d34014f34d137fbcf8d84297726eb377aeab63f97",
+      "ops/observability/prometheus/slo_recording_rules.yml": "2a9b445a772b6f0d206c25bd115cfb81b82db0a6b67499cece42b456c8d763a7"
+    },
+    "coverage_gate_and_patterns": {
+      "tools/ops_runners/release/check_operability_release_gates.py": "6d5ce278bc8a9de54a1ee080eb161a0fabad5acd21774e7b95361c7dcf58649b",
+      "tests/repo_quality/architecture/test_repository_best_in_class_phase4_9_operability_bundles.py": "77348cda15fc15cfb391ee01537116b7170199c5e2fcc1acf91663e4ee34a65f",
+      "tests/repo_quality/tools/test_operability_release_gates.py": "7468f80d71965a7611e9272ed6ec70487a49ad1e0ee0220fdfa5428aceeab6cf",
+      "tools/quality/validation/architecture_report_only_contracts.py": "0ef8a92b01014c799607e26f52afd933a4d68432f0bdb0a3760f4128207595a2"
+    },
+    "package_source_apis": {
+      "src/polisyos/common/__init__.py": "80cb9fa767bae18ffe0514ca9b1fb09f45263c754a921b77671d3deada89e080",
+      "src/polisyos/common/README.md": "786bda1b9b9f3e66b8a275f5e28cccb533c1ff347835416695d71b4378a83bf1",
+      "src/polisyos/berl/__init__.py": "4a1560f50c92cd4400a80bfcf8a5165d0e1b41365ed9fb201fd68c000ee6612a",
+      "src/polisyos/berl/README.md": "cea91e8337faa51f3e55117f29fe961a5f3b3ad362dace473bbfa865f4c97edf",
+      "src/polisyos/calibration/__init__.py": "160f4b1d39e577da49d428f20e7082940c374119962fdf50ff0501132d580b01",
+      "src/polisyos/calibration/README.md": "9aed676b194667feeea12d39ef43901bff0389ba5f2f3cc1c349dcd9138516eb",
+      "src/polisyos/ddm/__init__.py": "adbf26cc868a931b8ad4b2951558a065a52169a5d55acb3993e137d6657322fc",
+      "src/polisyos/ddm/README.md": "b743d58293dfd85204f778a584630284b4c5d393380b7b64274ee5d5997b3eed",
+      "src/polisyos/core/security/__init__.py": "3f979ea21ed0af2a170ab0294ca9b9b3b196f34c1eee6ad4caed742290a44210",
+      "src/polisyos/core/security/README.md": "2c23ed91aa17c6d35eaeb5c7394cb58a44dbddd234570411c5c71e02ac7a265b"
+    },
+    "actual_consumer_paths": {
+      "src/polisyos/runtime/quality/explanation_reliability.py": "cc785b9da712c975e62e372e0a4dc6a91c55332903d50c83e9988bdb219205e2",
+      "src/polisyos/scientist/validation/phase5_preflight.py": "ea3ba6418a40cf7b1073192b9a1dc231adf21f25dad2755a1f2d14c9b928257d",
+      "src/polisyos/runtime/http/services/predictive_calibration.py": "e341384284ea37b4c4ce439519699aa56d197f77cdcef53db7f8b217374fd50d",
+      "src/polisyos/foundry/methods/catalog/econometrics/advanced.py": "de5961b8b6fc52528dfe75fcfe38f5d13221b664b9758cc27d706c24d216f1a3",
+      "src/polisyos/scientist/methods/backtesting/forecast_owner.py": "73ad0b68666a50271b804756411634a21fcd3e91fd594ac2b0163e94e2cbd69a",
+      "src/polisyos/scientist/governance/continuous/detectors/fairness.py": "0426d33e5232d7e6ad1b6ba14cfc97e5f387a3853ecba513a6fff83ae48816f7",
+      "src/polisyos/runtime/http/cell_router_middleware.py": "aa9d861f005936ea2d4d28acae7959f70ac070531847635eed4cbaf5447d4182",
+      "src/polisyos/runtime/http/dependencies.py": "b4a001bb6873b119e6ff6a0ce7800e9c3404780ea1054ef5c78ad501e9a085dd",
+      "src/polisyos/runtime/http/authz_middleware.py": "585718cf19d04692ee1012c887aa4793e199224b5c28da4a4ab77c17ae48128c"
+    },
+    "component_alert_and_runbook_bundles": {
+      "ops/components/berl/alerts.yml": "6c5e543b59abd95ff5c7055fc9cdafa8550196dc6f05b33d02cd5d570cc88477",
+      "ops/components/berl/runbooks.md": "200aa21610ff5940c5e91cbbd3b1aa1dfb425ff3b6aaeeefa689db69e7c121d1",
+      "ops/components/calibration/alerts.yml": "44dcf29fb39f21462a4c3105a7d4888031ae55ff3a040fde754314bb3fa876f5",
+      "ops/components/calibration/runbooks.md": "4a064e3a2f70d8e3b75971a9ab94571af8d1894a83a873e40d3f83101ea8a046",
+      "ops/components/common/alerts.yml": "5fc390721891621d9106cb08dac1a7e5e6b65c6c526cfe4c995c817f645114a2",
+      "ops/components/common/runbooks.md": "d82328bfb0c5a6a8d9be8e4d125c79465fe7adc72e7561b3d6cb243c67a9f5f5",
+      "ops/components/ddm/alerts.yml": "21ac56eb68e773ef0670875e11d89c330345c8f1615e3c6793194485c030c943",
+      "ops/components/ddm/runbooks.md": "205cc453b4a2e6f1f0a935a16992a8747af5e0c6c77da4ce361a83ab7ec9cf4c",
+      "ops/components/security/alerts.yml": "61b186ed5995593012d2c306c6f5f75b06a0e1021d53f6734e1b8310f5785812",
+      "ops/components/security/runbooks.md": "d05c47c45e9231634ffbad6237215047542be83b7c013e2b7c4e1c4344c53c8e",
+      "ops/components/runtime/alerts.yml": "0ade273cfbc570c4f2a707b2e7f55d25fc6aaee45c6ca244c12b50fe3d937bef",
+      "ops/components/scientist/alerts.yml": "15137b55d53507e57e34be5d2b01b7c75aed82ab1be543e433095b6d75ac0ffc",
+      "ops/components/foundry/alerts.yml": "755903c3e340b7e3ede29a816477739266f05759318614b308c824741fa33332"
+    }
+  },
+  "readback_equivalence": {
+    "matched_canonical_triage_hashes_for_reviewed_rows": true,
+    "reviewed_files": [
+      "architecture/component_observability.toml",
+      "ops/components/index.toml",
+      "architecture/runbook_coverage.toml",
+      "architecture/packages/berl.toml",
+      "architecture/packages/calibration.toml",
+      "architecture/packages/common.toml",
+      "architecture/packages/ddm.toml",
+      "ops/components/berl/slo.yaml",
+      "ops/components/calibration/slo.yaml",
+      "ops/components/common/slo.yaml",
+      "ops/components/ddm/slo.yaml",
+      "ops/components/security/slo.yaml"
+    ],
+    "meaning": "Hash equality establishes readback of the specific expiry-source and SLO placeholder files in this packet; it does not verify the whole source tree or any production deployment."
+  },
+  "review_scope": {
+    "source_order_preserved": true,
+    "individual_occurrence_records": 19,
+    "mirrored_component_slo_occurrences": 15,
+    "related_package_slo_exception_occurrences": 4,
+    "repeated_components_collapsed": false,
+    "formal_closure_ids": [],
+    "expiry_values_changed": false,
+    "native_tests_or_live_services_run": false,
+    "production_traffic_or_current_deployment_inputs_collected": false,
+    "current_deployment_fact": "not_established by this source-only review; deployment topology is marked contract_only, and no production telemetry was inspected"
+  },
+  "recommendation_to_G": {
+    "recommended_rule": "Separate supported package API/versioning status from operated-service status. Require an SLO for a concrete owned service/workload boundary. Permit a library package to be covered_by only through a typed, source-bound relation to all actual consumer service SLOs and the exact property those SLIs measure; keep semantic correctness/admissibility evidence separate from availability/latency.",
+    "why": "public_stable/public_experimental/operational_control labels describe API or governance classes but do not independently prove deployment, traffic, service ownership, or outcome coverage. Current mirror statuses, files, alerts, and runbook references do not prove the whole operational property.",
+    "source_bound_existing_slot": "architecture/packages/common.toml already declares slo_runbook.status=covered_by_dependents. The current package validator only requires the slot to be nonempty; current operability release gate only accepts present|exception and does not resolve the coverage relation. Reuse this source slot as a prototype anchor, not as an accepted coverage claim.",
+    "smallest_missing_capability": "One typed covered_by relation consumed by the existing operability release gate: named covering service/SLO owner + complete consumer/workload boundaries + exact metric producer/selector and runbook links + a generic negative test proving a new/unmapped consumer or removed producer fails closed. No new threshold is needed to validate the relationship.",
+    "P40_bucket": "same_class_deeper: the repeated exceptions are one coverage-boundary/proxy class across the full quantity. Widen one relation/validator over the complete consumer denominator; do not date-patch each mirror or create a per-package patch ladder.",
+    "P37_gate_predicate": "The current gate recomputes package classification and checks status/file metadata, but the decisive premise that a component is operated or covered by another SLI is not_established; a declared covered_by string is consumer_asserted until independently resolved.",
+    "P38_divergent_case": "Property: the whole operation has relevant SLI coverage. Current checker: classification + present|exception + file/field markers + alert-to-runbook names. Divergence: runtime predictive-calibration POST exists and emits method-tagged telemetry, but the runtime SLO alert selectors filter method=GET; the current checker does not examine this route-to-selector gap. Separately, non-5xx response success cannot establish security-control correctness.",
+    "P29_falsifier": "Remove the runtime metric producer or add a live operation whose route/SLI edge is absent while keeping status=present/exception, SLO file, and alert names. The inspected current structural tests would still check the markers/paths; the new semantic gate must fail on the changed property.",
+    "P41": "not_established from the canonical expiry triage: no exact slice-base replay with full gate input denominator and zero intersection was supplied; this review does not relabel the red inherited or newly introduced.",
+    "do_not_do": [
+      "do not renew or shift any expired date",
+      "do not set formal closure IDs",
+      "do not infer live traffic or an issuer decision from package owner metadata",
+      "do not claim the configured alert rule has a current source producer without telemetry/source binding"
+    ]
+  },
+  "systemic_findings": [
+    {
+      "finding": "The three registries mirror exception owner/date/status but do not state a source-derived package-to-operated-service coverage relation; all five individual SLO files have status=exception and objectives=[].",
+      "capability_state": [
+        "contract_only",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "repairable_in_repo": "Typed relation, source map, gate wiring, and negative test are internal engineering work.",
+      "external_or_authority_input": "Actual workloads/deployments and G/owner choice on scope/authority are external or institutionally supplied; leave not_established until read back."
+    },
+    {
+      "finding": "The current operability gate and architectural test accept only present|exception and mostly validate declaration/file presence, exception fields, paths and alert-to-runbook mapping; they do not bind metrics to producer calls or every API route.",
+      "capability_state": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "property_proxy": "SLO status and a SLO YAML containing objectives/runbook names stand in for a measured service boundary and source-bound SLI."
+    },
+    {
+      "finding": "Runtime API instrumentation records route/method/status/duration, while runtime alert selectors currently scope availability/latency to GET; the predictive-calibration POST route is outside that selector. The component runtime SLO file uses http_server_* while the recording/alert rules use polisyos_runtime_api_*; no crosswalk was established in this review.",
+      "capability_state": [
+        "implemented_but_not_orchestrated",
+        "verification_missing"
+      ],
+      "falsifier": "A covered POST route with no matching SLI must fail the relation check; preserve the route and remove the producer to ensure gate fails."
+    },
+    {
+      "finding": "Foundry method-dispatch SLI and calibration alert expressions are configured, but a complete scan of 2,762 src/polisyos/**/*.py files (AST parse failures=0) found zero references to polisyos_foundry_method_dispatch_total, record_foundry_method_dispatch, CalibrationDiverging, polisyos_calibration_grad_norm, or polisyos_calibration_loss. This establishes only that an in-repo Python source binding was not found; external exporters/telemetry are unknown.",
+      "capability_state": [
+        "verification_missing"
+      ],
+      "exact_next_check": "Bind each configured series to its real current emitter/exporter and inspect actual active metric output with owner-approved current workload context.",
+      "producer_presence_state": "not_established: source scan did not find the declared metric producer token; external exporter/telemetry remains unknown."
+    },
+    {
+      "finding": "Alert/runbook coverage is configured for calibration and security, and Scientist/Runtime have source-side metrics, but alerts and endpoint availability do not establish scientific output validity or security-control effectiveness.",
+      "capability_state": [
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "exact_next_check": "G separates service availability SLO, operational alerting, and semantic safety/admissibility checks; retain each as a distinct claim.",
+      "out_of_scope_decision": "not_established; G/owner scope choice is pending."
+    }
+  ],
+  "component_decisions": [
+    {
+      "component": "common",
+      "occurrence_ordinals": [
+        2,
+        11,
+        16,
+        30
+      ],
+      "proposed_boundary": "Public-stable shared library API; not established as a separately operated service. Keep API compatibility/release obligations distinct from service availability SLOs.",
+      "source_chain": [
+        "architecture/packages/common.toml declares a lazy shared-helper facade, public_stable, and slo_runbook.status=covered_by_dependents; its owner is team-core while public-surface registry_owner is team-polisyos.",
+        "ops/components/index.toml classifies common public_stable but records no alerts and says it has no standalone user-visible operations; runtime/foundry/scientist sources import the helpers as dependencies.",
+        "The package-level covered_by_dependents value is a declaration only: the inspected validators check the slot is nonempty; the operability release gate accepts only present|exception and does not resolve dependent service SLOs.",
+        "The Common SLO placeholder has status=exception and objectives=[]."
+      ],
+      "owner_scope": "Package owner team-core and API registry owner team-polisyos; operational index owner team-core. Ask G to ratify API-steward vs service-operator roles; do not copy one owner into every registry by assumption.",
+      "coverage_candidate": "A set-valued relation to actual consuming service/workflow SLOs, derived from the full runtime/foundry/scientist consumer map. Existing source does not prove every consumer edge or its SLI is covered; do not claim coverage yet.",
+      "missing_chain": [
+        "typed covered_by relation consumed by release gate",
+        "complete consumer-to-service/SLI map",
+        "consumer SLI includes the relevant operation outcome, not only unrelated HTTP/workflow success"
+      ],
+      "genuine_external_input_or_G_choice": [
+        "whether any current deployment exposes common directly as an operated service",
+        "which consumer workload owners are accountable for each delegated relation",
+        "whether public_stable API status alone should imply package SLO"
+      ],
+      "internal_repair": [
+        "reuse the existing slo_runbook coverage slot; type and resolve coverage references; wire the generic consumer gate and negative semantic test"
+      ],
+      "next_check": "G chooses the API-vs-service rule; team-core/registry owner provide current workload boundary facts; derive a full consumer map and falsify by adding one unmapped operational consumer while the declaration remains unchanged."
+    },
+    {
+      "component": "berl",
+      "occurrence_ordinals": [
+        0,
+        9,
+        14,
+        28
+      ],
+      "proposed_boundary": "Public-experimental explanation-reliability support library; source shows validation/persistence APIs used in Scientist validation and runtime quality code, not a standalone server contract.",
+      "source_chain": [
+        "architecture/packages/berl.toml and public_surface contract classify polisyos.berl public_experimental, owner team-scientist; ops component and runbook owner are team-architecture.",
+        "Current consumers include src/polisyos/runtime/quality/explanation_reliability.py and src/polisyos/scientist/validation/phase5_preflight.py; its SLO file is empty and its alerts file explicitly has no Prometheus alert family.",
+        "Scientist DAG success/duration can observe an execution outcome but does not establish explanation-validity coverage or a BERL-specific runtime SLI."
+      ],
+      "owner_scope": "Package/API owner team-scientist conflicts with operational SLO/runbook primary team-architecture; G should name the service operator separately from the code steward.",
+      "coverage_candidate": "Use the actual Scientist workflow boundary for execution failures only if the BERL call is bound to the measured workflow; keep explanation validity/reliability as semantic evidence and a matching event/consumer property. No present relation proves either.",
+      "missing_chain": [
+        "BERL call-to-workflow identity in the SLI evidence",
+        "domain-specific output/validation failures mapped to an operational consumer",
+        "typed and independently checked covered_by status"
+      ],
+      "genuine_external_input_or_G_choice": [
+        "whether BERL has a live separately operated deployment or is only embedded support in current workloads",
+        "which team accepts operational response ownership"
+      ],
+      "internal_repair": [
+        "bind measured Scientist workflows to BERL invocation/result state; add a real non-marker negative test for invalid explanation while keeping API success"
+      ],
+      "next_check": "G/team-scientist/team-architecture ratify package-vs-operator roles; map one real workflow call through emitted metrics and runbook; fail a falsifier where invalid BERL output leaves the DAG status successful."
+    },
+    {
+      "component": "calibration",
+      "occurrence_ordinals": [
+        1,
+        10,
+        15,
+        29
+      ],
+      "proposed_boundary": "Canonical public-experimental diagnostics library with multiple consumers, including a concrete run-bound Runtime API producer/reader and Foundry/Scientist code; it is not a standalone service by package name.",
+      "source_chain": [
+        "Package/API owner is team-scientist; ops component/SLO owner is team-foundry; runbook escalates to Foundry with Scientist joining for validity-sensitive output; Runtime route owner is team-runtime.",
+        "src/polisyos/runtime/http/routes/runs.py exposes POST and GET /api/v1/runs/{run_id}/predictive-calibration and calls the service that imports polisyos.calibration.",
+        "Runtime middleware emits route/method/status/duration metrics for all HTTP methods, but current runtime SLO alert selectors filter method=GET; thus the create POST route is a concrete uncovered case for inherited runtime API coverage.",
+        "CalibrationDiverging/CalibrationStuck are configured and runbook-mapped, but the complete 2,762-file src/polisyos/**/*.py scan found zero occurrences of their metric names/alert names; external exporters/production inputs remain unknown.",
+        "The SLO file is empty. Existing alert rules are not an SLO objective or proof that their input series is produced."
+      ],
+      "owner_scope": "Three roles are currently split: package team-scientist, Foundry operability team-foundry, Runtime HTTP route team-runtime. G should appoint operator/SLI owner per actual endpoint/workflow, not erase package ownership.",
+      "coverage_candidate": "For the explicit runtime route, derive availability/latency coverage at runtime_api only after reconciling the runtime SLO file (http_server_* selectors) with current recording/alert rules (polisyos_runtime_api_* selectors), and cover POST plus GET if in scope. Keep calibration semantic adequacy separate.",
+      "missing_chain": [
+        "current source-to-alert producer for calibration metrics",
+        "POST route selector/coverage",
+        "runtime SLO metric-family crosswalk",
+        "current deployment/flag/traffic evidence for candidate predictive-calibration route"
+      ],
+      "genuine_external_input_or_G_choice": [
+        "is the candidate route enabled/served in the current deployment and under whose operational owner",
+        "which consumer workloads operate calibration outputs",
+        "whether standalone calibration SLO is required"
+      ],
+      "internal_repair": [
+        "reconcile emitted metric family with SLI selectors; wire calibration route method scopes; add a negative test for a covered POST without matching SLI and for successful HTTP response carrying an invalid calibration result"
+      ],
+      "next_check": "team-runtime + team-foundry + team-scientist bind the current route/workload owners; G chooses package-vs-operated-surface rule; only then produce a full route/metric/runbook mapping with no new thresholds."
+    },
+    {
+      "component": "ddm",
+      "occurrence_ordinals": [
+        3,
+        12,
+        17,
+        31
+      ],
+      "proposed_boundary": "Internal unversioned drift/degradation monitor library; package contract says it is not a stable public API. A ddm_15_7 compatibility alias remains in the operational index; no standalone runtime server is evidenced by the inspected deployment contract.",
+      "source_chain": [
+        "Package/public surface owner team-scientist; ops component owner team-architecture; exception package owner team-scientist.",
+        "src/polisyos/scientist/governance/continuous/detectors/fairness.py consumes DDM event types; package tests/contracts and replay/runbook references are not a service SLI.",
+        "The SLO placeholder is empty, alerts file says DDM owns no direct Prometheus alert family, and runbooks route detector regressions/replay issues."
+      ],
+      "owner_scope": "Team-scientist owns the canonical API; team-architecture owns the ops/index and shim policy. Keep these roles distinct pending G appointment of the operational owner.",
+      "coverage_candidate": "Scientist DAG SLO may cover workflow execution only when DDM calls are bound into that workflow; drift/readiness correctness must remain a separate semantic property with a real consumer effect and falsifier.",
+      "missing_chain": [
+        "compatibility alias migration/authority decision",
+        "DDM result-to-workflow and downstream readiness/consumer binding",
+        "typed verified coverage relation"
+      ],
+      "genuine_external_input_or_G_choice": [
+        "whether the alias is supported for deployed users",
+        "whether a standalone DDM workload exists now",
+        "owner split between package and ops"
+      ],
+      "internal_repair": [
+        "trace DDM detector output through the Scientist workflow consumer; ensure a drift/readiness failure changes the intended lifecycle signal; test a successful DAG with a semantically rejected DDM signal"
+      ],
+      "next_check": "G/team-scientist/team-architecture decide the alias and service boundary; bind one complete detector→artifact/event→workflow consumer chain before any coverage claim."
+    },
+    {
+      "component": "security",
+      "occurrence_ordinals": [
+        4,
+        18,
+        32
+      ],
+      "proposed_boundary": "Operational security-control surface embedded in runtime/control-plane paths, not necessarily a separately operated security HTTP service. Keep control effectiveness distinct from request availability.",
+      "source_chain": [
+        "ops index classifies security operational_control; owner team-security; alerts and runbooks cover tenant-boundary/authentication, TEE/SBOM, and mTLS signals.",
+        "Security APIs are integrated into Runtime middleware/dependencies; the deployment topology has control_plane (team-platform) and runtime_api (team-runtime) units, while security controls are included in the runtime/API paths.",
+        "Runtime SLI success calculation counts every non-5xx response as success; a security bypass that returns HTTP 200 is a concrete divergent case. Security alerts/semantic gates are not equivalent to an SLO objective.",
+        "The Security SLO placeholder has objectives=[]. Its exception says Wave 6 security SLO boundary is not yet decided."
+      ],
+      "owner_scope": "Ops owner team-security; deployment owners team-platform/control-plane and team-runtime/runtime_api. G should appoint one alert/control authority and separate service SLI operator where those differ.",
+      "coverage_candidate": "Use existing security alert/runbook and release-gate paths for control integrity; use runtime_api SLO only for API availability/latency after metric scope reconciliation. Do not mark control correctness covered by HTTP success.",
+      "missing_chain": [
+        "which owned security operation/property is an SLO versus a fail-closed semantic gate",
+        "deployment-to-alert/metric source binding and current active workload",
+        "owner-approved Wave 6 boundary decision"
+      ],
+      "genuine_external_input_or_G_choice": [
+        "current deployed control-plane/runtime topology and security workload",
+        "whether an independently operated security service exists",
+        "what integrity/admission properties security SLO may claim"
+      ],
+      "internal_repair": [
+        "add source-bound coverage links between real controls, alert series, and deployment unit; semantic falsifier must allow an unauthorized request to return 200 under test and demonstrate SLO alone cannot claim control success"
+      ],
+      "next_check": "G/team-security/team-platform/team-runtime define the measured service boundary; retain security semantic tests/gates and alert routing as separate evidence from availability SLO."
+    }
+  ],
+  "individual_occurrences": [
+    {
+      "source_ordinal": 0,
+      "occurrence_key": "architecture/component_observability.toml#component_contract/berl/exception_expires",
+      "component": "berl",
+      "category": "component_slo",
+      "source_ref": "architecture/component_observability.toml@89fc0c1a50ce985bd7ca9022f60dd8120e9603310d72dbc897c413afbdd2bb43",
+      "expired_field": "exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-architecture",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:berl"
+    },
+    {
+      "source_ordinal": 1,
+      "occurrence_key": "architecture/component_observability.toml#component_contract/calibration/exception_expires",
+      "component": "calibration",
+      "category": "component_slo",
+      "source_ref": "architecture/component_observability.toml@89fc0c1a50ce985bd7ca9022f60dd8120e9603310d72dbc897c413afbdd2bb43",
+      "expired_field": "exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-foundry",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:calibration"
+    },
+    {
+      "source_ordinal": 2,
+      "occurrence_key": "architecture/component_observability.toml#component_contract/common/exception_expires",
+      "component": "common",
+      "category": "component_slo",
+      "source_ref": "architecture/component_observability.toml@89fc0c1a50ce985bd7ca9022f60dd8120e9603310d72dbc897c413afbdd2bb43",
+      "expired_field": "exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-core",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:common"
+    },
+    {
+      "source_ordinal": 3,
+      "occurrence_key": "architecture/component_observability.toml#component_contract/ddm/exception_expires",
+      "component": "ddm",
+      "category": "component_slo",
+      "source_ref": "architecture/component_observability.toml@89fc0c1a50ce985bd7ca9022f60dd8120e9603310d72dbc897c413afbdd2bb43",
+      "expired_field": "exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-architecture",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:ddm"
+    },
+    {
+      "source_ordinal": 4,
+      "occurrence_key": "architecture/component_observability.toml#component_contract/security/exception_expires",
+      "component": "security",
+      "category": "component_slo",
+      "source_ref": "architecture/component_observability.toml@89fc0c1a50ce985bd7ca9022f60dd8120e9603310d72dbc897c413afbdd2bb43",
+      "expired_field": "exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-security",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:security"
+    },
+    {
+      "source_ordinal": 9,
+      "occurrence_key": "architecture/packages/berl.toml#exception/berl-standalone-slo-deferred/sunset",
+      "component": "berl",
+      "category": "package_exception",
+      "source_ref": "architecture/packages/berl.toml@2ce6e72580fdb9453dac94874e0c35e192c9b85fecc70d5e5e14417a9232e258",
+      "expired_field": "sunset",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-scientist",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:berl"
+    },
+    {
+      "source_ordinal": 10,
+      "occurrence_key": "architecture/packages/calibration.toml#exception/calibration-standalone-slo-deferred/sunset",
+      "component": "calibration",
+      "category": "package_exception",
+      "source_ref": "architecture/packages/calibration.toml@33185adc526706a9af811935bc18918ce79399eeda8db1576c3e04f7897517aa",
+      "expired_field": "sunset",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-scientist",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:calibration"
+    },
+    {
+      "source_ordinal": 11,
+      "occurrence_key": "architecture/packages/common.toml#exception/common-dependent-slo/sunset",
+      "component": "common",
+      "category": "package_exception",
+      "source_ref": "architecture/packages/common.toml@b268e360963a41e05afec960be1cd21f6acb0778c841cfeb3584c35d79d6aa2e",
+      "expired_field": "sunset",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-core",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:common"
+    },
+    {
+      "source_ordinal": 12,
+      "occurrence_key": "architecture/packages/ddm.toml#exception/ddm-standalone-slo-deferred/sunset",
+      "component": "ddm",
+      "category": "package_exception",
+      "source_ref": "architecture/packages/ddm.toml@e7247f1d6a06b6b5fc5118441387d5bb6e64e55fff325fb36f98c407a8e6d669",
+      "expired_field": "sunset",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-scientist",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:ddm"
+    },
+    {
+      "source_ordinal": 14,
+      "occurrence_key": "architecture/runbook_coverage.toml#component_contract/berl/slo_exception_expires",
+      "component": "berl",
+      "category": "component_slo",
+      "source_ref": "architecture/runbook_coverage.toml@7fcae0572dfb14d42ececf6a047023af287618437d0dad4665b84d6f7593fdce",
+      "expired_field": "slo_exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-architecture",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:berl"
+    },
+    {
+      "source_ordinal": 15,
+      "occurrence_key": "architecture/runbook_coverage.toml#component_contract/calibration/slo_exception_expires",
+      "component": "calibration",
+      "category": "component_slo",
+      "source_ref": "architecture/runbook_coverage.toml@7fcae0572dfb14d42ececf6a047023af287618437d0dad4665b84d6f7593fdce",
+      "expired_field": "slo_exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-foundry",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:calibration"
+    },
+    {
+      "source_ordinal": 16,
+      "occurrence_key": "architecture/runbook_coverage.toml#component_contract/common/slo_exception_expires",
+      "component": "common",
+      "category": "component_slo",
+      "source_ref": "architecture/runbook_coverage.toml@7fcae0572dfb14d42ececf6a047023af287618437d0dad4665b84d6f7593fdce",
+      "expired_field": "slo_exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-core",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:common"
+    },
+    {
+      "source_ordinal": 17,
+      "occurrence_key": "architecture/runbook_coverage.toml#component_contract/ddm/slo_exception_expires",
+      "component": "ddm",
+      "category": "component_slo",
+      "source_ref": "architecture/runbook_coverage.toml@7fcae0572dfb14d42ececf6a047023af287618437d0dad4665b84d6f7593fdce",
+      "expired_field": "slo_exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-architecture",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:ddm"
+    },
+    {
+      "source_ordinal": 18,
+      "occurrence_key": "architecture/runbook_coverage.toml#component_contract/security/slo_exception_expires",
+      "component": "security",
+      "category": "component_slo",
+      "source_ref": "architecture/runbook_coverage.toml@7fcae0572dfb14d42ececf6a047023af287618437d0dad4665b84d6f7593fdce",
+      "expired_field": "slo_exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-security",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:security"
+    },
+    {
+      "source_ordinal": 28,
+      "occurrence_key": "ops/components/index.toml#component/berl/exception_expires",
+      "component": "berl",
+      "category": "component_slo",
+      "source_ref": "ops/components/index.toml@11dccd87b0446249e0ad8cc2bf8ce6971fd892d36427465096f50fd129881f4a",
+      "expired_field": "exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-architecture",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:berl"
+    },
+    {
+      "source_ordinal": 29,
+      "occurrence_key": "ops/components/index.toml#component/calibration/exception_expires",
+      "component": "calibration",
+      "category": "component_slo",
+      "source_ref": "ops/components/index.toml@11dccd87b0446249e0ad8cc2bf8ce6971fd892d36427465096f50fd129881f4a",
+      "expired_field": "exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-foundry",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:calibration"
+    },
+    {
+      "source_ordinal": 30,
+      "occurrence_key": "ops/components/index.toml#component/common/exception_expires",
+      "component": "common",
+      "category": "component_slo",
+      "source_ref": "ops/components/index.toml@11dccd87b0446249e0ad8cc2bf8ce6971fd892d36427465096f50fd129881f4a",
+      "expired_field": "exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-core",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:common"
+    },
+    {
+      "source_ordinal": 31,
+      "occurrence_key": "ops/components/index.toml#component/ddm/exception_expires",
+      "component": "ddm",
+      "category": "component_slo",
+      "source_ref": "ops/components/index.toml@11dccd87b0446249e0ad8cc2bf8ce6971fd892d36427465096f50fd129881f4a",
+      "expired_field": "exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-architecture",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:ddm"
+    },
+    {
+      "source_ordinal": 32,
+      "occurrence_key": "ops/components/index.toml#component/security/exception_expires",
+      "component": "security",
+      "category": "component_slo",
+      "source_ref": "ops/components/index.toml@11dccd87b0446249e0ad8cc2bf8ce6971fd892d36427465096f50fd129881f4a",
+      "expired_field": "exception_expires",
+      "expired_value": "2026-08-01",
+      "declared_owner": "team-security",
+      "whole_property_state": "not_established",
+      "review_disposition": "hold_expired_no_renewal_no_removal_no_formal_closure",
+      "decision_packet_ref": "component:security"
+    }
+  ],
+  "supersedes_immutable_packet": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2170-slo-boundary-decision-20261015-69ca76/decision.json",
+    "sha256": "7badd8cf9c3ff1d370cc8683dfcba299921cfc3832e0c70c4aa1812bfcba0ca9",
+    "reason": "Final typed-label audit replaced two descriptive strings in capability_state with the approved capability labels; individual source-order occurrence records and corrected component joins remain unchanged. The predecessor r2169 remains superseded for its ordinal joins."
+  },
+  "supersedes_chain": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2169-slo-boundary-decision-20261015-69ca76/decision.json",
+      "status": "superseded_component_ordinal_joins"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r2170-slo-boundary-decision-20261015-69ca76/decision.json",
+      "status": "superseded_capability_label_vocabulary"
+    }
+  ]
+}

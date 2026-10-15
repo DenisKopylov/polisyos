@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 from unittest.mock import MagicMock
 
 import pytest
@@ -16,9 +16,23 @@ from polisyos.core.artifacts.ownership import (
     ArtifactOwnershipError,
     ArtifactPublicReadClosureUnavailableError,
 )
-from polisyos.core.artifacts.protocol import ArtifactStore, matches_runtime_protocol
+from polisyos.core.artifacts.protocol import (
+    ArtifactStore,
+    CoreJSONArtifactStore,
+    RootedArtifactStore,
+    matches_runtime_protocol,
+    matches_runtime_protocol_definition,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.security.tenant_context import tenant_scope
+
+if TYPE_CHECKING:
+
+    class NeverRuntimeProtocolAnnotation: ...
+
+
+class _RootedCoreJSONArtifactStore(RootedArtifactStore, CoreJSONArtifactStore, Protocol):
+    """Composite structural surface used by protected selected-profile readers."""
 
 
 class TestArtifactStoreProtocol:
@@ -78,6 +92,26 @@ def test_runtime_protocol_matcher_uses_inherited_members_on_the_same_dynamic_han
 
         def write(self, data: bytes) -> None: ...
 
+    class ConcreteSurface(CompleteSurface):
+        root = Path("/concrete/root")
+        revision = 1
+
+        @property
+        def ready(self) -> bool:
+            return True
+
+        def read(self) -> bytes:
+            return b"payload"
+
+        def write(self, data: bytes) -> None:
+            return None
+
+    class MarkerSpoof:
+        _is_protocol = True
+
+        def read(self) -> bytes:
+            return b"payload"
+
     class DynamicHandle:
         def __init__(self) -> None:
             self.calls: list[str] = []
@@ -112,10 +146,140 @@ def test_runtime_protocol_matcher_uses_inherited_members_on_the_same_dynamic_han
 
     handle = DynamicHandle()
     assert matches_runtime_protocol(handle, CompleteSurface)
+    assert matches_runtime_protocol_definition(handle, CompleteSurface)
+    assert not matches_runtime_protocol_definition(MarkerSpoof(), MarkerSpoof)
+    assert not matches_runtime_protocol(MarkerSpoof(), MarkerSpoof)
+    assert not matches_runtime_protocol_definition(ConcreteSurface(), ConcreteSurface)
+    assert not matches_runtime_protocol_definition(handle, ConcreteSurface)
     handle.read()
     assert handle.calls == ["read"]
     assert not matches_runtime_protocol(MissingInheritedMember(), CompleteSurface)
+    assert not matches_runtime_protocol_definition(MissingInheritedMember(), CompleteSurface)
     assert not matches_runtime_protocol(NonCallableMethod(), CompleteSurface)
+    assert not matches_runtime_protocol_definition(NonCallableMethod(), CompleteSurface)
+    assert not matches_runtime_protocol_definition(handle, object())
+    assert not matches_runtime_protocol_definition(handle, DynamicHandle)
+
+    class AccessDenied(DynamicHandle):
+        def __getattr__(self, name: str):
+            if name == "read":
+                raise PermissionError("read is denied")
+            return super().__getattr__(name)
+
+    with pytest.raises(PermissionError, match="read is denied"):
+        matches_runtime_protocol_definition(AccessDenied(), CompleteSurface)
+
+    class DynamicCoreStore:
+        def __getattr__(self, name: str):
+            if name == "root":
+                return Path("/guarded/cas")
+            if name in {
+                "has",
+                "get_bytes",
+                "get_manifest",
+                "put_bytes",
+                "put_json",
+                "verify",
+                "iter_artifact_ids",
+                "get_raw_manifest_bytes",
+            }:
+                return lambda *_args, **_kwargs: None
+            raise AttributeError(name)
+
+    class RootedWithoutRawManifest(DynamicCoreStore):
+        def __getattr__(self, name: str):
+            if name == "get_raw_manifest_bytes":
+                raise AttributeError(name)
+            return super().__getattr__(name)
+
+    class CoreJSONWithoutRoot(DynamicCoreStore):
+        def __getattr__(self, name: str):
+            if name == "root":
+                raise AttributeError(name)
+            return super().__getattr__(name)
+
+    assert matches_runtime_protocol_definition(DynamicCoreStore(), _RootedCoreJSONArtifactStore)
+    assert not matches_runtime_protocol_definition(
+        RootedWithoutRawManifest(), _RootedCoreJSONArtifactStore
+    )
+    assert not matches_runtime_protocol_definition(
+        CoreJSONWithoutRoot(), _RootedCoreJSONArtifactStore
+    )
+
+
+def test_runtime_protocol_matcher_requires_inherited_deferred_data_members() -> None:
+    class ParentSurface(Protocol):
+        source_root: NeverRuntimeProtocolAnnotation
+
+        def read(self) -> bytes: ...
+
+    class CompositeSurface(ParentSurface, Protocol):
+        revision: NeverRuntimeProtocolAnnotation
+
+        def write(self, data: bytes) -> None: ...
+
+    class MissingInheritedData:
+        revision = 7
+
+        def read(self) -> bytes:
+            return b"payload"
+
+        def write(self, data: bytes) -> None:
+            return None
+
+    class MissingDirectData:
+        source_root = Path("/source/root")
+
+        def read(self) -> bytes:
+            return b"payload"
+
+        def write(self, data: bytes) -> None:
+            return None
+
+    class CompleteHandle:
+        source_root = Path("/source/root")
+        revision = 7
+
+        def read(self) -> bytes:
+            return b"payload"
+
+        def write(self, data: bytes) -> None:
+            return None
+
+    assert not matches_runtime_protocol_definition(MissingInheritedData(), CompositeSurface)
+    assert not matches_runtime_protocol(MissingInheritedData(), CompositeSurface)
+    assert not matches_runtime_protocol_definition(MissingDirectData(), CompositeSurface)
+    assert matches_runtime_protocol_definition(CompleteHandle(), CompositeSurface)
+    assert matches_runtime_protocol(CompleteHandle(), CompositeSurface)
+
+
+def test_protocol_member_fallback_reads_stored_annotation_names_without_evaluation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import typing
+
+    legacy_surface = type(
+        "LegacyStoredSurface",
+        (Protocol,),
+        {
+            "__annotations__": {"required_root": "UnknownForwardReference"},
+            "read": lambda _self: b"payload",
+        },
+    )
+    monkeypatch.delattr(typing, "get_protocol_members")
+
+    class MissingRoot:
+        def read(self) -> bytes:
+            return b"payload"
+
+    class CompleteHandle:
+        required_root = Path("/legacy/root")
+
+        def read(self) -> bytes:
+            return b"payload"
+
+    assert not matches_runtime_protocol_definition(MissingRoot(), legacy_surface)
+    assert matches_runtime_protocol_definition(CompleteHandle(), legacy_surface)
 
 
 class _NoopSpan:

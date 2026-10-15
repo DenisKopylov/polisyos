@@ -2528,7 +2528,10 @@ def test_empty_hints_cycle_reaches_honest_value_acquisition_with_real_boundary_w
     assert observation.value_receipt is None
 
 
-def test_runtime_value_hints_cannot_change_owner_data_terminal() -> None:
+def test_runtime_value_hints_cannot_change_owner_data_terminal(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Runtime hints cannot promote a valid profile's unresolved assignment."""
     problem = _avg_income_problem()
     forged_problem = problem.model_copy(
         update={
@@ -2541,7 +2544,31 @@ def test_runtime_value_hints_cannot_change_owner_data_terminal() -> None:
         }
     )
     candidate = _avg_income_candidate()
-    simulation = _simulation(_world_record(), candidate_id=candidate.candidate_id)
+    world = _world_record()
+    profile = _controlled_avg_income_owner_profile()
+
+    def load_controlled_profile(
+        _gateway: RealValueOwnerGateway,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: object,
+    ) -> ValueDataProfile:
+        assert candidate is candidate_arg
+        assert problem is problem_arg or problem is forged_problem_arg
+        assert world_record is world_arg
+        return profile
+
+    candidate_arg = candidate
+    problem_arg = problem
+    forged_problem_arg = forged_problem
+    world_arg = world
+    monkeypatch.setattr(
+        RealValueOwnerGateway,
+        "load_value_data_profile",
+        load_controlled_profile,
+    )
+    simulation = _simulation(world, candidate_id=candidate.candidate_id)
     canonical_port = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
             candidate=candidate,
@@ -2576,13 +2603,184 @@ def test_runtime_value_hints_cannot_change_owner_data_terminal() -> None:
     assert (
         forged.authority_blockers
         == canonical.authority_blockers
-        == ("acquire_data:value_owner_unit_binding_ambiguous",)
+        == ("treatment_assignment_not_owner_derived",)
     )
     assert forged.value_receipt is canonical.value_receipt is None
-    assert forged.acquisition_requirement is None
-    assert canonical.acquisition_requirement is None
-    assert forged.value_data_profile_content_hash is None
-    assert canonical.value_data_profile_content_hash is None
+    assert forged.acquisition_requirement == canonical.acquisition_requirement
+    assert forged.acquisition_requirement is not None
+    assert forged.value_data_profile_content_hash == profile.content_hash
+    assert canonical.value_data_profile_content_hash == profile.content_hash
+
+
+@pytest.mark.parametrize(
+    ("source_rows", "expected_reason"),
+    [
+        (((1.0, "dataset", "observation", ""),), "missing"),
+        (
+            (
+                (1.0, "dataset_a", "observation_a", "USD"),
+                (2.0, "dataset_b", "observation_b", "EUR"),
+            ),
+            "conflicting",
+        ),
+    ],
+)
+def test_value_owner_row_refuses_missing_or_conflicting_measurement_units(
+    source_rows: tuple[tuple[float, str, str, str], ...],
+    expected_reason: str,
+) -> None:
+    """Do not combine source rows whose measurement units are unknown or mixed."""
+    from polisyos.runtime.quality import generation_cycle as gc
+
+    with pytest.raises(gc._ValueOwnerMeasurementUnitRefusalError) as refusal:
+        _value_owner_row(
+            outcome="avg_income",
+            unit_id="AM",
+            period_id=2020,
+            source_rows=source_rows,
+        )
+    assert refusal.value.reason == expected_reason
+
+
+@pytest.mark.parametrize(
+    ("condition_json_values", "expected_code", "expected_next_input"),
+    [
+        (
+            (None,) * 8,
+            "acquire_data:value_owner_measurement_unit_missing",
+            "nonblank unit",
+        ),
+        (
+            ("",) * 8,
+            "acquire_data:value_owner_measurement_unit_missing",
+            "nonblank unit",
+        ),
+        (
+            ("{}",) * 8,
+            "acquire_data:value_owner_measurement_unit_missing",
+            "nonblank unit",
+        ),
+        (
+            ('{"unit":"  "}',) * 8,
+            "acquire_data:value_owner_measurement_unit_missing",
+            "nonblank unit",
+        ),
+        (
+            ('{"unit":"USD"',) * 8,
+            "acquire_data:value_owner_measurement_unit_malformed_json",
+            "valid JSON object",
+        ),
+        (
+            ("[]",) * 8,
+            "acquire_data:value_owner_measurement_unit_wrong_shape",
+            "JSON object",
+        ),
+        (
+            ('{"unit":7}',) * 8,
+            "acquire_data:value_owner_measurement_unit_wrong_unit_type",
+            "string",
+        ),
+        (
+            tuple(json.dumps({"unit": unit}, separators=(",", ":")) for unit in ("USD", "EUR") * 4),
+            "acquire_data:value_owner_measurement_unit_conflicting",
+            "one declared unit",
+        ),
+    ],
+)
+def test_value_port_surfaces_typed_owner_measurement_unit_refusal(
+    condition_json_values: tuple[str | None, ...],
+    expected_code: str,
+    expected_next_input: str,
+    tmp_path: Path,
+) -> None:
+    """Real owner rows with invalid units reach the port's typed refusal."""
+    from dataclasses import replace
+
+    import duckdb
+
+    from polisyos.data_forge.read_api.catalog import (
+        build_slice0_fixture_catalog_graph,
+        default_acquisition_overlay_path,
+    )
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourcePaths,
+        catalog_serving_source_scope,
+        default_substrate_catalog_paths,
+    )
+
+    repo_root = tmp_path / "owner-source"
+    catalog = build_slice0_fixture_catalog_graph(repo_root / "catalog")
+    catalog.close()
+    substrate_paths = replace(
+        default_substrate_catalog_paths(repo_root),
+        l1_dcat_path=repo_root / "catalog/catalog.duckdb",
+    )
+    with duckdb.connect(str(substrate_paths.l1_dcat_path)) as connection:
+        connection.executemany(
+            """
+            INSERT INTO ds_observations (
+                observation_id, dataset_id, raw_variable, canonical_var,
+                country_code, year, survey_year, wave, value, condition_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                (
+                    f"fixture-avg-income-{index}",
+                    "acquisition.local.avg_income",
+                    "avg_income",
+                    "avg_income",
+                    "UA",
+                    1800 + index,
+                    None,
+                    None,
+                    float(index % 2),
+                    condition_json,
+                )
+                for index, condition_json in enumerate(condition_json_values)
+            ],
+        )
+    catalog_source = CatalogServingSourcePaths(
+        repo_root=repo_root,
+        snapshot_root=substrate_paths.l1_dcat_path.parent,
+        database_path=substrate_paths.l1_dcat_path,
+        index_dir=repo_root / "index",
+        overlay_path=default_acquisition_overlay_path(repo_root),
+        catalog_run_profile=None,
+        selection_basis="explicit_path_candidate_only",
+        substrate_paths=substrate_paths,
+    )
+    gateway = RealValueOwnerGateway(
+        repo_root=repo_root,
+        catalog_overlay_path=default_acquisition_overlay_path(repo_root),
+        catalog_serving_source=catalog_source,
+    )
+    candidate, problem, world = _avg_income_candidate(), _avg_income_problem(), _world_record()
+    simulation = _simulation(world, candidate_id=candidate.candidate_id)
+    port = FoundryValuePort(
+        evaluation_context=_simulation_execution_context(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+        ),
+        owner_gateway=gateway,
+    )
+
+    with catalog_serving_source_scope(catalog_source):
+        observation = port(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=0,
+        )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == (expected_code,)
+    assert observation.value_ref is None
+    assert observation.value_data_profile_content_hash is None
+    assert observation.acquisition_requirement is None
+    assert "#measurement-unit-binding" in str(observation.reason)
+    assert str(substrate_paths.l1_dcat_path) in str(observation.reason)
+    assert expected_next_input in str(observation.reason)
 
 
 def test_candidate_treatment_assignment_is_not_owner_world_knowledge(
@@ -2857,10 +3055,36 @@ def test_value_advisor_projection_preserves_typed_design_problem_authority() -> 
     }
 
 
-def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition() -> None:
+def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A unit-valid profile lets method selection reach the missing-assignment gate."""
     world = _world_record()
     problem = _avg_income_problem()
     candidate = _avg_income_candidate()
+    profile = _controlled_avg_income_owner_profile()
+
+    def load_controlled_profile(
+        _gateway: RealValueOwnerGateway,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: object,
+    ) -> ValueDataProfile:
+        assert candidate is candidate_arg
+        assert problem is problem_arg
+        assert world_record is world_arg
+        return profile
+
+    candidate_arg = candidate
+    problem_arg = problem
+    world_arg = world
+    monkeypatch.setattr(
+        RealValueOwnerGateway,
+        "load_value_data_profile",
+        load_controlled_profile,
+    )
+
     simulation = _simulation(world, candidate_id="candidate_avg_income_real")
     observation = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
@@ -2880,12 +3104,72 @@ def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition(
     assert observation.selected_method_fqn is not None
     assert observation.value_receipt is None
     assert observation.authority_blockers == ("treatment_assignment_not_owner_derived",)
+    assert observation.value_data_profile_content_hash == profile.content_hash
     assert isinstance(observation.method_selection_receipt, MethodSelectionReceipt)
     assert observation.method_selection_receipt.selection_authority == ("foundry_registry_advisor")
     assert len(observation.method_selection_receipt.denominator) > 1
     assert observation.acquisition_requirement is not None
     assert observation.acquisition_requirement.metadata["requirement"]["operator"] == "any_of"
     assert observation.acquisition_requirement.metadata["satisfaction_status"] == "unsatisfied"
+
+
+def test_value_port_preserves_typed_method_run_owner_refusal() -> None:
+    """A typed owner refusal keeps its blocker and provenance at the port boundary."""
+    profile = _controlled_avg_income_owner_profile()
+    world = _world_record()
+    problem = _avg_income_problem()
+    candidate = _avg_income_candidate()
+    failure = ValueOwnerAccessError(
+        "acquire_data:value_owner_measurement_unit_malformed_json",
+        "owner condition_json is malformed; supply a valid declared unit",
+        owner_access_ref="owner://source#measurement-unit-binding",
+    )
+
+    def observe_failure(selected_failure: Exception) -> ValuePortObservation:
+        class Gateway:
+            def load_value_data_profile(self, **_kwargs: Any) -> ValueDataProfile:
+                return profile
+
+            def load_value_method_run_intent(self, **_kwargs: Any) -> None:
+                raise selected_failure
+
+        simulation = _simulation(world, candidate_id=candidate.candidate_id)
+        return FoundryValuePort(
+            evaluation_context=_simulation_execution_context(
+                candidate=candidate,
+                simulation=simulation,
+                problem=problem,
+            ),
+            owner_gateway=Gateway(),
+        )(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=0,
+        )
+
+    observation = observe_failure(failure)
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == (failure.code,)
+    assert observation.value_ref is None
+    assert observation.acquisition_requirement is None
+    assert observation.selected_method_fqn is not None
+    assert observation.method_selection_receipt is not None
+    assert observation.value_data_profile_content_hash == profile.content_hash
+    assert "owner condition_json is malformed" in str(observation.reason)
+    assert "owner://source#measurement-unit-binding" in str(observation.reason)
+
+    plain_error = ValueError(failure.code)
+    plain_observation = observe_failure(plain_error)
+    assert plain_observation.status == "value_blocked"
+    assert plain_observation.authority_blockers == ("value_owner_method_run_intent_unresolved",)
+    assert plain_observation.reason == (
+        f"Owner method-run intent could not be resolved: {failure.code}"
+    )
+    assert plain_observation.value_ref is None
+    assert plain_observation.method_selection_receipt is not None
+    assert plain_observation.acquisition_requirement is None
 
 
 def test_source_time_limitation_can_accompany_the_bound_treatment_gap() -> None:
@@ -6264,6 +6548,81 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     assert "value_owner_method_run_intent_unresolved" in null_observation.authority_blockers
     assert "value_owner_source_request_explicit_null" in str(null_observation.reason)
     assert null_observation.value_ref is None
+
+    expected_refusal_code = "acquire_data:value_owner_measurement_unit_malformed_json"
+    failure_state: dict[str, Any] = {}
+    original_loader = gc._load_value_data_profile_from_l1_dcat
+
+    def fail_selected_treatment_load(**kwargs: Any) -> Any:
+        if kwargs.get("outcome") == "observed_treatment":
+            treatment_calls = int(failure_state.get("treatment_calls", 0)) + 1
+            failure_state["treatment_calls"] = treatment_calls
+            if treatment_calls == failure_state.get("fail_on_call"):
+                failure = failure_state["error"]
+                assert isinstance(failure, Exception)
+                raise failure
+        return original_loader(**kwargs)
+
+    monkeypatch.setattr(gc, "_load_value_data_profile_from_l1_dcat", fail_selected_treatment_load)
+
+    def run_with_treatment_failure(fail_on_call: int, failure: Exception) -> ValuePortObservation:
+        failure_state.update(
+            fail_on_call=fail_on_call,
+            error=failure,
+            treatment_calls=0,
+        )
+        return run(gateway)
+
+    def typed_unit_refusal() -> gc.ValueOwnerAccessError:
+        return gc.ValueOwnerAccessError(
+            expected_refusal_code,
+            (
+                "owner condition_json is malformed. Next input: supply valid JSON object "
+                "text with a declared unit; N8 will not infer or assign one."
+            ),
+            owner_access_ref=f"{source_fixture.baseline_path}#measurement-unit-binding",
+        )
+
+    baseline_basis_count = len(basis_refs)
+    baseline_outer_count = len(outer_sets)
+
+    intent_refusal = run_with_treatment_failure(1, typed_unit_refusal())
+    assert intent_refusal.status == "value_blocked"
+    assert intent_refusal.authority_blockers == (expected_refusal_code,)
+    assert intent_refusal.value_ref is None
+    assert intent_refusal.acquisition_requirement is None
+    assert intent_refusal.method_selection_receipt is not None
+    assert str(source_fixture.baseline_path) in str(intent_refusal.reason)
+    assert "#measurement-unit-binding" in str(intent_refusal.reason)
+    assert "Next input:" in str(intent_refusal.reason)
+    assert len(basis_refs) == baseline_basis_count
+    assert len(outer_sets) == baseline_outer_count
+
+    intent_code_text = run_with_treatment_failure(1, ValueError(expected_refusal_code))
+    assert intent_code_text.status == "value_blocked"
+    assert intent_code_text.authority_blockers == ("value_owner_method_run_intent_unresolved",)
+    assert intent_code_text.value_ref is None
+    assert len(basis_refs) == baseline_basis_count
+    assert len(outer_sets) == baseline_outer_count
+
+    fresh_reload_refusal = run_with_treatment_failure(2, typed_unit_refusal())
+    assert fresh_reload_refusal.status == "value_blocked"
+    assert fresh_reload_refusal.authority_blockers == (expected_refusal_code,)
+    assert fresh_reload_refusal.value_ref is None
+    assert fresh_reload_refusal.acquisition_requirement is None
+    assert fresh_reload_refusal.method_selection_receipt is not None
+    assert str(source_fixture.baseline_path) in str(fresh_reload_refusal.reason)
+    assert "#measurement-unit-binding" in str(fresh_reload_refusal.reason)
+    assert "Next input:" in str(fresh_reload_refusal.reason)
+    assert len(basis_refs) == baseline_basis_count + 1
+    assert len(outer_sets) == baseline_outer_count
+
+    fresh_reload_code_text = run_with_treatment_failure(2, ValueError(expected_refusal_code))
+    assert fresh_reload_code_text.status == "value_blocked"
+    assert fresh_reload_code_text.authority_blockers == ("value_owner_method_run_basis_invalid",)
+    assert fresh_reload_code_text.value_ref is None
+    assert len(basis_refs) == baseline_basis_count + 2
+    assert len(outer_sets) == baseline_outer_count
 
 
 def test_n8_source_profile_rejects_unprojected_query_row_set(

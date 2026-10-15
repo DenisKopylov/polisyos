@@ -5105,6 +5105,23 @@ class ValueOwnerAccessError(ValueError):
         super().__init__(detail)
 
 
+class _ValueOwnerMeasurementUnitRefusalError(ValueError):
+    """Carry the exact owner-unit defect to the N8 intake boundary."""
+
+    def __init__(
+        self,
+        reason: Literal[
+            "missing",
+            "conflicting",
+            "malformed_json",
+            "wrong_shape",
+            "wrong_unit_type",
+        ],
+    ) -> None:
+        self.reason = reason
+        super().__init__(f"value_owner_measurement_unit_{reason}")
+
+
 class _S10EmpiricalEvidenceResolver(Protocol):
     """Resolve one producer-owned empirical evidence ref at the S10 boundary."""
 
@@ -5826,37 +5843,15 @@ class FoundryValuePort:
                 world_record=world_record,
             )
         except ValueOwnerAccessError as exc:
-            acquisition_requirement = None
-            if exc.owner_gap_evidence is not None:
-                outcome = _value_outcome_variable(candidate, problem)
-                if outcome != exc.owner_gap_evidence.variable_id:
-                    return _blocked_value_observation(
-                        code="value_owner_gap_evidence_mismatch",
-                        reason=(
-                            "L1 availability evidence names another outcome; "
-                            f"expected={outcome} actual={exc.owner_gap_evidence.variable_id}."
-                        ),
-                        mode=mode,
-                        started=started,
-                        candidate_id=candidate_id,
-                        world_model_record_content_hash=str(
-                            _object_get(world_record, "content_hash")
-                        ),
-                    )
-                acquisition_requirement = l1_variable_availability_requirement_gap(
-                    candidate_id=candidate_id,
-                    candidate_content_hash=_candidate_content_hash(candidate),
-                    design_problem_ref=_problem_ref(problem),
-                    availability=exc.owner_gap_evidence,
-                    authority_level=problem.authority_profile.requested_authority_level,
-                )
-            return _blocked_value_observation(
-                code=exc.code,
-                reason=str(exc),
+            return _blocked_value_owner_failure(
+                failure=exc,
+                fallback_code=exc.code,
+                fallback_reason_prefix="",
+                candidate=candidate,
+                problem=problem,
                 mode=mode,
                 started=started,
                 candidate_id=candidate_id,
-                acquisition_requirement=acquisition_requirement,
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
         if not isinstance(method_state, ValueDataProfile):
@@ -5958,9 +5953,12 @@ class FoundryValuePort:
                     selected_method_fqn=selected_method_fqn,
                 )
             except Exception as exc:
-                return _blocked_value_observation(
-                    code="value_owner_method_run_intent_unresolved",
-                    reason=f"Owner method-run intent could not be resolved: {exc}",
+                return _blocked_value_owner_failure(
+                    failure=exc,
+                    fallback_code="value_owner_method_run_intent_unresolved",
+                    fallback_reason_prefix="Owner method-run intent could not be resolved: ",
+                    candidate=candidate,
+                    problem=problem,
                     mode=mode,
                     started=started,
                     candidate_id=candidate_id,
@@ -6018,9 +6016,12 @@ class FoundryValuePort:
                         canon_spec=IRCanonSpec(forbid_floats=False),
                     )
                 except Exception as exc:
-                    return _blocked_value_observation(
-                        code="value_owner_method_run_basis_invalid",
-                        reason=f"Candidate method run remains limited: {exc}",
+                    return _blocked_value_owner_failure(
+                        failure=exc,
+                        fallback_code="value_owner_method_run_basis_invalid",
+                        fallback_reason_prefix="Candidate method run remains limited: ",
+                        candidate=candidate,
+                        problem=problem,
                         mode=mode,
                         started=started,
                         candidate_id=candidate_id,
@@ -12538,64 +12539,84 @@ def _load_value_data_profile_from_l1_dcat(
     if not raw_rows:
         return None
     grouped: dict[tuple[str, int], list[tuple[float, str, str, str]]] = {}
-    for unit, period, value, dataset_id, observation_id, condition_json in raw_rows:
-        numeric_value = float(value)
-        if not math.isfinite(numeric_value):
-            continue
-        source_dataset_id = _optional_text(dataset_id) or ""
-        measurement_unit = (
-            registered_measurement_units_by_id.get(str(observation_id))
-            or _measurement_unit_from_condition_json(condition_json)
-            or ""
+    try:
+        for unit, period, value, dataset_id, observation_id, condition_json in raw_rows:
+            numeric_value = float(value)
+            if not math.isfinite(numeric_value):
+                continue
+            source_dataset_id = _optional_text(dataset_id) or ""
+            measurement_unit = (
+                registered_measurement_units_by_id.get(str(observation_id))
+                or _measurement_unit_from_condition_json(condition_json)
+                or ""
+            )
+            grouped.setdefault((str(unit), int(period)), []).append(
+                (numeric_value, source_dataset_id, str(observation_id), measurement_unit)
+            )
+        ambiguous_keys = tuple(
+            (unit_id, period_id)
+            for (unit_id, period_id), values in sorted(grouped.items())
+            if len(values) > 1
         )
-        grouped.setdefault((str(unit), int(period)), []).append(
-            (numeric_value, source_dataset_id, str(observation_id), measurement_unit)
+        if ambiguous_keys:
+            raise ValueOwnerAccessError(
+                "acquire_data:value_owner_unit_binding_ambiguous",
+                (
+                    "owner observations contain multiple values for a unit-period, but "
+                    "the catalog has no declared measurement-unit binding; refusing to "
+                    "aggregate by dataset identity"
+                ),
+                owner_access_ref=f"{owner_access_ref}#measurement-unit-binding",
+            )
+        owner_rows = tuple(
+            _value_owner_row(
+                outcome=outcome,
+                unit_id=unit_id,
+                period_id=period_id,
+                source_rows=tuple(values),
+            )
+            for (unit_id, period_id), values in sorted(grouped.items())
         )
-    ambiguous_keys = tuple(
-        (unit_id, period_id)
-        for (unit_id, period_id), values in sorted(grouped.items())
-        if len(values) > 1
-    )
-    if ambiguous_keys:
-        raise ValueOwnerAccessError(
-            "acquire_data:value_owner_unit_binding_ambiguous",
-            (
-                "owner observations contain multiple values for a unit-period, but "
-                "the catalog has no declared measurement-unit binding; refusing to "
-                "aggregate by dataset identity"
+        if len(owner_rows) < 4:
+            return None
+        measurement_unit = _declared_value_owner_measurement_unit(
+            tuple(row[3] for values in grouped.values() for row in values)
+        )
+    except _ValueOwnerMeasurementUnitRefusalError as exc:
+        code, message = {
+            "missing": (
+                "acquire_data:value_owner_measurement_unit_missing",
+                "owner observations are missing a nonblank declared condition_json.unit. "
+                "Next input: supply a nonblank unit for every selected owner observation; "
+                "N8 will not infer or assign one.",
             ),
-            owner_access_ref=f"{owner_access_ref}#measurement-unit-binding",
-        )
-    owner_rows = tuple(
-        _value_owner_row(
-            outcome=outcome,
-            unit_id=unit_id,
-            period_id=period_id,
-            source_rows=tuple(values),
-        )
-        for (unit_id, period_id), values in sorted(grouped.items())
-    )
-    if len(owner_rows) < 4:
-        return None
-    measurement_units = tuple(sorted({row[3] for values in grouped.values() for row in values}))
-    if not measurement_units or "" in measurement_units:
-        raise ValueOwnerAccessError(
-            "acquire_data:value_owner_unit_binding_ambiguous",
-            (
-                "owner observations do not carry a declared condition_json.unit over the "
-                "selected profile; refusing to infer measurement units from dataset identity"
+            "conflicting": (
+                "acquire_data:value_owner_measurement_unit_conflicting",
+                "owner observations declare conflicting condition_json.unit values. "
+                "Next input: supply one declared unit across the selected owner profile "
+                "or select a unit-consistent profile; N8 will not combine or convert rows.",
             ),
-            owner_access_ref=f"{owner_access_ref}#measurement-unit-binding",
-        )
-    if len(measurement_units) != 1:
-        raise ValueOwnerAccessError(
-            "acquire_data:value_owner_unit_binding_ambiguous",
-            (
-                "owner observations carry multiple condition_json.unit values over the "
-                "selected profile; refusing to combine measurement units"
+            "malformed_json": (
+                "acquire_data:value_owner_measurement_unit_malformed_json",
+                "owner condition_json is malformed. Next input: supply valid JSON object "
+                "text with a declared unit; N8 will not infer or assign one.",
             ),
+            "wrong_shape": (
+                "acquire_data:value_owner_measurement_unit_wrong_shape",
+                "owner condition_json must be a JSON object. Next input: supply an object "
+                "with a declared unit; N8 will not infer or assign one.",
+            ),
+            "wrong_unit_type": (
+                "acquire_data:value_owner_measurement_unit_wrong_unit_type",
+                "owner condition_json.unit must be a string. Next input: supply a nonblank "
+                "string unit; N8 will not coerce, infer, or convert it.",
+            ),
+        }[exc.reason]
+        raise ValueOwnerAccessError(
+            code,
+            message,
             owner_access_ref=f"{owner_access_ref}#measurement-unit-binding",
-        )
+        ) from exc
     source_dataset_ids = tuple(sorted({row[1] for values in grouped.values() for row in values}))
     if len(source_dataset_ids) != 1 or "" in source_dataset_ids:
         raise ValueOwnerAccessError(
@@ -12614,7 +12635,7 @@ def _load_value_data_profile_from_l1_dcat(
     payload = {
         "schema_version": "policyos.runtime.value_data_profile.v2",
         "outcome": outcome,
-        "measurement_unit": measurement_units[0],
+        "measurement_unit": measurement_unit,
         "rows": rows_payload,
         "owner_row_count": len(owner_rows),
         "unit_count": unit_count,
@@ -12635,9 +12656,7 @@ def _value_owner_row(
     source_rows: tuple[tuple[float, str, str, str], ...],
 ) -> ValueOwnerRow:
     ordered = tuple(sorted(source_rows, key=lambda row: (row[1], row[2], row[0])))
-    measurement_units = tuple(sorted({row[3] for row in ordered}))
-    if len(measurement_units) != 1 or not measurement_units[0].strip():
-        raise ValueError("value_owner_row_measurement_unit_ambiguous")
+    measurement_unit = _declared_value_owner_measurement_unit(tuple(row[3] for row in ordered))
     source_hashes = tuple(
         gy_content_hash(
             {
@@ -12657,13 +12676,24 @@ def _value_owner_row(
         "unit_id": unit_id,
         "period_id": period_id,
         "outcome_value": outcome_value,
-        "measurement_unit": measurement_units[0],
+        "measurement_unit": measurement_unit,
         "source_row_content_hashes": source_hashes,
     }
     return ValueOwnerRow(
         **row_payload,
         row_content_hash=gy_content_hash(row_payload),
     )
+
+
+def _declared_value_owner_measurement_unit(units: Sequence[str]) -> str:
+    """Resolve one declared unit or classify missing versus conflicting input."""
+
+    measurement_units = tuple(sorted(set(units)))
+    if not measurement_units or any(not unit.strip() for unit in measurement_units):
+        raise _ValueOwnerMeasurementUnitRefusalError("missing")
+    if len(measurement_units) != 1:
+        raise _ValueOwnerMeasurementUnitRefusalError("conflicting")
+    return measurement_units[0]
 
 
 def _candidate_estimand_binding_is_unresolved(candidate: object) -> bool:
@@ -13882,6 +13912,59 @@ def _blocked_value_observation(
     )
 
 
+def _blocked_value_owner_failure(
+    *,
+    failure: Exception,
+    fallback_code: str,
+    fallback_reason_prefix: str,
+    candidate: object,
+    problem: DesignProblem,
+    mode: ValueEvaluationMode,
+    started: float,
+    candidate_id: str | None = None,
+    selected_method_fqn: str | None = None,
+    method_selection_receipt: MethodSelectionReceipt | None = None,
+    value_data_profile_content_hash: str | None = None,
+    world_model_record_content_hash: str | None = None,
+) -> ValuePortObservation:
+    """Project typed owner failures without flattening their acquisition meaning."""
+    acquisition_requirement = None
+    if isinstance(failure, ValueOwnerAccessError):
+        code = failure.code
+        reason = str(failure)
+        if failure.owner_gap_evidence is not None:
+            outcome = _value_outcome_variable(candidate, problem)
+            if outcome != failure.owner_gap_evidence.variable_id:
+                code = "value_owner_gap_evidence_mismatch"
+                reason = (
+                    "L1 availability evidence names another outcome; "
+                    f"expected={outcome} actual={failure.owner_gap_evidence.variable_id}."
+                )
+            else:
+                acquisition_requirement = l1_variable_availability_requirement_gap(
+                    candidate_id=candidate_id,
+                    candidate_content_hash=_candidate_content_hash(candidate),
+                    design_problem_ref=_problem_ref(problem),
+                    availability=failure.owner_gap_evidence,
+                    authority_level=problem.authority_profile.requested_authority_level,
+                )
+    else:
+        code = fallback_code
+        reason = f"{fallback_reason_prefix}{failure}"
+    return _blocked_value_observation(
+        code=code,
+        reason=reason,
+        mode=mode,
+        started=started,
+        candidate_id=candidate_id,
+        selected_method_fqn=selected_method_fqn,
+        method_selection_receipt=method_selection_receipt,
+        value_data_profile_content_hash=value_data_profile_content_hash,
+        acquisition_requirement=acquisition_requirement,
+        world_model_record_content_hash=world_model_record_content_hash,
+    )
+
+
 def _value_calibration_receipt(
     *,
     inputs: Mapping[str, Any],
@@ -14584,17 +14667,26 @@ def _optional_text(value: object) -> str | None:
 
 
 def _measurement_unit_from_condition_json(value: object) -> str | None:
-    """Read the catalog's declared measurement unit without inferring semantics."""
+    """Read a declared unit; refuse malformed JSON, shape, or unit types."""
 
+    if value is None:
+        return None
     payload: object = value
     if isinstance(value, str):
+        if not value.strip():
+            return None
         try:
             payload = json.loads(value)
-        except TypeError, ValueError:
-            return None
+        except json.JSONDecodeError as exc:
+            raise _ValueOwnerMeasurementUnitRefusalError("malformed_json") from exc
     if not isinstance(payload, Mapping):
+        raise _ValueOwnerMeasurementUnitRefusalError("wrong_shape")
+    if "unit" not in payload or payload["unit"] is None:
         return None
-    return _optional_text(payload.get("unit"))
+    unit = payload["unit"]
+    if not isinstance(unit, str):
+        raise _ValueOwnerMeasurementUnitRefusalError("wrong_unit_type")
+    return unit.strip() or None
 
 
 def _resolve_owner_scope_region(

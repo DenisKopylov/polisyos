@@ -1,5 +1,6 @@
 import jax
 import jax.numpy as jnp
+import pytest
 
 from polisyos.foundry.agent_sim.actor_critic import ActorCritic
 from polisyos.foundry.agent_sim.jit_training import (
@@ -90,3 +91,37 @@ def test_create_jit_trainer_with_metrics_collects_scalar_histories() -> None:
     assert collector.get_scalar_history("policy_loss").shape[0] == 2
     assert collector.get_scalar_history("mean_reward").shape[0] == 2
     assert bool(jnp.all(jnp.isfinite(collector.get_scalar_history("policy_loss"))))
+
+
+@pytest.mark.parametrize("x64_enabled", [False, True], ids=["float32", "x64"])
+@pytest.mark.parametrize("with_metrics", [False, True], ids=["without-metrics", "with-metrics"])
+def test_active_wealth_terminal_branch_matches_actor_output_precision(
+    with_metrics: bool, x64_enabled: bool
+) -> None:
+    """The masked trajectory branch follows the actor's actual output dtypes."""
+    with jax.enable_x64(x64_enabled):
+        actor, state = _make_actor_and_state()
+
+        def make_executor(ac: ActorCritic):
+            return create_temporal_executor(ac, horizon=8)
+
+        factory = create_jit_trainer_with_metrics if with_metrics else create_jit_trainer
+        trainer = factory(
+            actor,
+            make_executor,
+            state,
+            JITTrainingConfig(
+                n_episodes=1,
+                steps_per_episode=2,
+                ppo_epochs=1,
+                horizon=8,
+                track_active_wealth=True,
+            ),
+        )
+        result = trainer(jax.random.PRNGKey(3))
+        metrics = result[1]
+
+    assert metrics["loss_history"].shape == (1,)
+    expected_dtype = jnp.float64 if x64_enabled else jnp.float32
+    assert metrics["loss_history"].dtype == expected_dtype
+    assert bool(jnp.all(jnp.isfinite(metrics["loss_history"])))

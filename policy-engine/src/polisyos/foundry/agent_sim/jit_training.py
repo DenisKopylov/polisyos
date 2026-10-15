@@ -33,7 +33,6 @@ from polisyos.foundry.agent_sim.prng import get_mechanism_key
 from polisyos.foundry.agent_sim.rewards import compute_agent_reward
 from polisyos.foundry.agent_sim.rl import (
     Trajectory,
-    _zero_ppo_loss_metrics,
     compute_returns_and_advantages,
     ppo_loss,
 )
@@ -197,6 +196,24 @@ def _training_loss_dtype(
     return jax.eval_shape(evaluate_loss, rng_key).dtype
 
 
+def _terminal_trajectory_transition(
+    execute_transition: dict[str, jax.ShapeDtypeStruct],
+    active: jax.Array,
+) -> dict[str, jax.Array]:
+    """Build a masked transition with the executed branch's complete pytree types."""
+    transition = _zero_abstract_mapping(execute_transition)
+    transition["active"] = active
+    transition["active_wealth_supported"] = jnp.asarray(False, dtype=jnp.bool_)
+    return transition
+
+
+def _zero_abstract_mapping(
+    abstract_values: dict[str, jax.ShapeDtypeStruct],
+) -> dict[str, jax.Array]:
+    """Create zeros for each value using the matching branch's abstract types."""
+    return {name: jnp.zeros(spec.shape, dtype=spec.dtype) for name, spec in abstract_values.items()}
+
+
 def create_jit_trainer(
     actor_critic: ActorCritic,
     executor_factory: Callable[[ActorCritic], PureExecutor],
@@ -315,6 +332,10 @@ def create_jit_trainer(
                 transition["active_wealth_supported"] = transition_supported
             return next_state, next_key, transition, transition_supported
 
+        execute_transition = (
+            jax.eval_shape(_run_step, state, rng_key)[2] if config.track_active_wealth else {}
+        )
+
         def step_fn(carry, _):
             if not config.track_active_wealth:
                 cur_state, cur_key = carry
@@ -331,27 +352,10 @@ def create_jit_trainer(
                 return (next_state, next_key, transition_supported), transition
 
             def _terminal(_operand):
-                n_agents = cur_state.agents.active.shape[0]
-                observation_width = build_temporal_observations(
-                    state,
-                    horizon=config.horizon,
-                    include_expectations=config.include_expectations,
-                ).shape[-1]
-                dtype = cur_state.agents.wealth.dtype
-                action_shape = (
-                    (n_agents, actor.action_dim)
-                    if actor.action_type == "continuous"
-                    else (n_agents,)
+                transition = _terminal_trajectory_transition(
+                    execute_transition,
+                    cur_state.agents.active,
                 )
-                transition = {
-                    "obs": jnp.zeros((n_agents, observation_width), dtype=dtype),
-                    "action": jnp.zeros(action_shape, dtype=dtype),
-                    "reward": jnp.zeros_like(cur_state.agents.wealth),
-                    "value": jnp.zeros_like(cur_state.agents.wealth),
-                    "log_prob": jnp.zeros_like(cur_state.agents.wealth),
-                    "active": cur_state.agents.active,
-                    "active_wealth_supported": jnp.asarray(False, dtype=jnp.bool_),
-                }
                 return (cur_state, cur_key, jnp.asarray(False)), transition
 
             return jax.lax.cond(prior_supported, _execute, _terminal, operand=None)
@@ -714,6 +718,10 @@ def create_jit_trainer_with_metrics(
                 transition["active_wealth_supported"] = transition_supported
             return next_state, next_key, transition, transition_supported
 
+        execute_transition = (
+            jax.eval_shape(_run_step, state, rng_key)[2] if config.track_active_wealth else {}
+        )
+
         def step_fn(carry, _):
             if not config.track_active_wealth:
                 cur_state, cur_key = carry
@@ -730,27 +738,10 @@ def create_jit_trainer_with_metrics(
                 return (next_state, next_key, transition_supported), transition
 
             def _terminal(_operand):
-                n_agents = cur_state.agents.active.shape[0]
-                observation_width = build_temporal_observations(
-                    state,
-                    horizon=config.horizon,
-                    include_expectations=config.include_expectations,
-                ).shape[-1]
-                dtype = cur_state.agents.wealth.dtype
-                action_shape = (
-                    (n_agents, actor.action_dim)
-                    if actor.action_type == "continuous"
-                    else (n_agents,)
+                transition = _terminal_trajectory_transition(
+                    execute_transition,
+                    cur_state.agents.active,
                 )
-                transition = {
-                    "obs": jnp.zeros((n_agents, observation_width), dtype=dtype),
-                    "action": jnp.zeros(action_shape, dtype=dtype),
-                    "reward": jnp.zeros_like(cur_state.agents.wealth),
-                    "value": jnp.zeros_like(cur_state.agents.wealth),
-                    "log_prob": jnp.zeros_like(cur_state.agents.wealth),
-                    "active": cur_state.agents.active,
-                    "active_wealth_supported": jnp.asarray(False, dtype=jnp.bool_),
-                }
                 return (cur_state, cur_key, jnp.asarray(False)), transition
 
             return jax.lax.cond(prior_supported, _execute, _terminal, operand=None)
@@ -886,12 +877,13 @@ def create_jit_trainer_with_metrics(
         rng_key: jax.Array,
     ) -> tuple[object, jnp.ndarray, MetricsBuffer, jnp.ndarray, jnp.ndarray]:
         opt_state = optimizer.init(params)
-        loss_dtype = _training_loss_dtype(
+        update_abstract = jax.eval_shape(
             lambda key: _ppo_update_jit(
                 params, opt_state, _collect_trajectory_jit(params, initial_state, key)[0]
-            )[2],
+            ),
             rng_key,
         )
+        loss_dtype = update_abstract[2].dtype
         episode_losses = jnp.zeros((int(config.n_episodes),), dtype=loss_dtype)
         init_carry = TrainingMetricsCarry(
             params=params,
@@ -926,8 +918,8 @@ def create_jit_trainer_with_metrics(
                         current.params,
                         current.opt_state,
                         zero,
-                        _zero_ppo_loss_metrics(zero),
-                        {"mean_reward": zero, "mean_advantage": zero},
+                        _zero_abstract_mapping(update_abstract[3]),
+                        _zero_abstract_mapping(update_abstract[4]),
                     )
 
                 new_params, new_opt_state, loss, metrics, train_stats = jax.lax.cond(

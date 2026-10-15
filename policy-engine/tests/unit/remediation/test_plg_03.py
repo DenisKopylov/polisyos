@@ -1193,7 +1193,7 @@ def test_native_monitor_observes_negative_public_step_even_when_final_step_recov
     assert executor.aggregate_every is None
 
     cas = FileSystemCAS(tmp_path / "trajectory-monitor-cas")
-    with pytest.raises(_ActiveWealthTrajectoryValidationError) as refused:
+    with jax.enable_x64(True), pytest.raises(_ActiveWealthTrajectoryValidationError) as refused:
         train_actor_critic_with_artifact(
             actor,
             state,
@@ -1234,9 +1234,10 @@ def test_native_jit_factory_preserves_typed_validation_cause(with_metrics: bool)
         return PureExecutor([_NativeValidationFailureMechanism()])
 
     factory = create_jit_trainer_with_metrics if with_metrics else create_jit_trainer
-    trainer = factory(actor, make_executor, state, config)
-    with pytest.raises(_NativeExecutionValidationError) as refused:
-        trainer(jax.random.PRNGKey(23))
+    with jax.enable_x64(True):
+        trainer = factory(actor, make_executor, state, config)
+        with pytest.raises(_NativeExecutionValidationError) as refused:
+            trainer(jax.random.PRNGKey(23))
     assert refused.value.code == "native_execution_validation_refused"
     assert isinstance(refused.value.__cause__, eqx.EquinoxRuntimeError)
     assert "opaque validation failure fixture" in str(refused.value.__cause__)
@@ -1268,11 +1269,12 @@ def test_native_jit_factory_preserves_unclassified_jax_failure(with_metrics: boo
         return PureExecutor([_NativeInfrastructureFailureMechanism()])
 
     factory = create_jit_trainer_with_metrics if with_metrics else create_jit_trainer
-    trainer = factory(actor, make_executor, state, config)
-    with pytest.raises(
-        jax.errors.JaxRuntimeError, match="infrastructure callback fixture"
-    ) as failure:
-        trainer(jax.random.PRNGKey(29))
+    with jax.enable_x64(True):
+        trainer = factory(actor, make_executor, state, config)
+        with pytest.raises(
+            jax.errors.JaxRuntimeError, match="infrastructure callback fixture"
+        ) as failure:
+            trainer(jax.random.PRNGKey(29))
     assert not isinstance(failure.value, _NativeExecutionValidationError)
 
 

@@ -1,0 +1,68 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Test-only selected CAS projection for actual predictive POST and fresh GET",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": {
+      "commit": "64a8145835b2de2f9c4a55dbe9345ca6d72691e3",
+      "tree": "c921c1bc621546cc78642e3b2b1ecc03f5234b2a",
+      "parents": [
+        "3fe686ae2e0768aaf502da704821eae89a35e667"
+      ]
+    },
+    "candidate": {
+      "commit": "d0ac164e04e01c81048162411d9e4ac53e7e4c15",
+      "tree": "fa19ae9f79181252242393cee472c03aa5ade179",
+      "parents": [
+        "64a8145835b2de2f9c4a55dbe9345ca6d72691e3"
+      ]
+    },
+    "readback_verified": true,
+    "source_freeze": false,
+    "p41": "not_established"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "sha256": "71dd7422b789c92ad500d298aff89d31764913b1d67ba687d71aec6fecd87ef8"
+    }
+  ],
+  "changed_paths": [
+    "policy-engine/tests/unit/runtime/http/test_control_service_di.py"
+  ],
+  "selected_input_profile_backend": "Own source-bound .venv, tenant-scoped local controlledCAS/DBfixtures; metadata is source-bound only; no production-currentness or externalauthorityfact.",
+  "real_chain": "Real forecast owner -> controlled held-out empirical association -> immutable POST intent/event/CAS -> fresh diagnostic GET/S10 recomputation. Test resolver retains tenant context and full Core/IR selected profile header including schema/lineage; no product CAS guard changed.",
+  "source_bound_command_and_complete_output_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v4-v7-current-route-research-20261015/root-di-format-delta/readback.json",
+    "sha256": "89d42cd74960f15abbeb15e671f1675768231dc939f13111066db0109adc9787"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v4-v7-current-route-research-20261015/independent-review-20261015/independent-review.json",
+    "sha256": "f35e27d30163ab1d382a6254ec7ce852a291895bcfaa12d4c8015604ce1a5464"
+  },
+  "commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/predictive-route-selected-header-fixture-source-1-readback.json",
+    "sha256": "fd32cce763576a58e9e2c64fc91bfc07946e3806bd49cb7d1488aa649deb3a65"
+  },
+  "adversarial_removal_controls": "Exact retained commands and full deciding outputs are linked by source manifest and independent review; limitations below bound which property was exercised.",
+  "limitations": [
+    "One actual POST/freshGET bounded test passed in source frame bound by independent report; format delta ASTidentical independently verified.",
+    "Test asserts denominator4 and differing numerators/grades, not literal4/4vs0/4; no stronger numeric assertion claimed.",
+    "B16 remainsopen current query-beforeLIMIT repair; B32 caller fixturetime islimited; both LA-051FRC01/FRC02 occurrences remain separatelylimited.",
+    "R3 changes to shared acquisition fixture/producer will require affected route rebind; this receipt retains the exact historical independent frame.",
+    "V1/V2/N5 whole ordinarychain, production calibration/currentness, final native and installed consumers remain UNRUN."
+  ],
+  "proposals": [
+    {
+      "outcome": "limited",
+      "boundary": "Test-only selected CAS projection for actual predictive POST and fresh GET; only exact reviewed property/frame, never automatic whole-finding closure."
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "Repair B16 at shared selected-row SQL boundary; rebind actual route after acquisition/profile source/input freeze, preserve individual original criteria.",
+  "independent_format_delta": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v4-v7-current-route-research-20261015/independent-review-20261015/format-delta/independent-format-delta-review.json",
+    "sha256": "f78a68972794be6a5dfd0ef958c8eec5bbabf107b766fd3692917986b05637bf"
+  }
+}

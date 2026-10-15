@@ -1,0 +1,142 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Source-owned request-scoped dependency overrides across actual catalog consumers",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": {
+      "commit": "3fe686ae2e0768aaf502da704821eae89a35e667",
+      "tree": "0626a3d8723b7d3d8e5d458cdbf6e254930d6299",
+      "parents": [
+        "9ba4d7bc5512d08c08101244ada5a6644b396963"
+      ]
+    },
+    "candidate": {
+      "commit": "64a8145835b2de2f9c4a55dbe9345ca6d72691e3",
+      "tree": "c921c1bc621546cc78642e3b2b1ecc03f5234b2a",
+      "parents": [
+        "3fe686ae2e0768aaf502da704821eae89a35e667"
+      ]
+    },
+    "readback_verified": true,
+    "source_freeze": false,
+    "p41": "not_established"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+      "sha256": "c3a8019dce00106229de2ac207c1568ba44b743e64ca9e03620372131be0c040"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+      "sha256": "cdc9587279db23a2d99b419bf385961e555db2b0c68dae252293f53733542c23"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+      "sha256": "3d3d909a5e9fe3cafff6684d469249d5c3b9070605bf73bcf4671fdd414497d0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+      "sha256": "9b3a2dc1d861d4c26607a61b1d7cbeb4179a7b74e411c504dc340d47ab0b67fa"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+      "sha256": "231959818a0fc3fb8192ede89108bf32b1355bb52abe1a38d9b99e28f71c1494"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+      "sha256": "4a1c014b2f346dc4906d7cf4acabba4f586b8b43f1bc3eac7021aff742aa8252"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+      "sha256": "c71931574b691570d8a124e8e582c5fadf685c4973d763adb1ccba97a1d44371"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+      "sha256": "9421aaed384111df9d4539281a3fa742dd472674a1fd2af527db820d0d9ae0b1"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_api.py",
+      "sha256": "786ecce16d07b4a03a2347bcf63e13766fdf63e21330088ceb1a4c677a1d97ad"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py",
+      "sha256": "35bed22f105480fb19a8ef1b64c509046f4ce0ac16f2a35b9fc69bf29cd588f6"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_registry.py",
+      "sha256": "3f55aa245f7a77e89d08d017b5efc57800c099dc60eff38f559e540a67595f4a"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_transformers.py",
+      "sha256": "eab70aa0ee3dc521de542ca5c411983d929b6df62038e6617b0d922b70615211"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_validators.py",
+      "sha256": "3e8b59103da31b96d036814c94ad7c556b419d88d404e755ea810d5a3def07a0"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py",
+      "sha256": "0cdf908e75d2a8849223d6da9ec358bf5c3ae856520bd99046e3926756e00fe0"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/test__core_sources_ingest_contracts.py",
+      "sha256": "628e9f0809058bee8b4d385ee391bec6eef850cfff54fe309e8e5ad65553b08f"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py",
+      "sha256": "f4e7a07635e0b0c78caf0142c8fbc424b293a336c3fa7d7ca4473a756528b977"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_pipeline.py",
+      "sha256": "a1effebc45a7d3636f30d145540705f1120ae3fe601a91c5cde3510e690daec4"
+    }
+  ],
+  "changed_paths": [
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/_core_sources_ingest_contracts.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/loaders.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/registry.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/transformers.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/validators.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources/writers.py",
+    "policy-engine/src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_api.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_loaders.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_registry.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_transformers.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_validators.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test__core_sources_ingest_contracts.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py",
+    "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_pipeline.py"
+  ],
+  "selected_input_profile_backend": "Own source-bound .venv, tenant-scoped local controlledCAS/DBfixtures; metadata is source-bound only; no production-currentness or externalauthorityfact.",
+  "real_chain": "Single immutable canonical67binding map and source-owned owner maps -> request ContextVar -> actual API cache/registry/writer/validator consumers -> concurrent temporaryDuckDB requests -> exact rows/batches/window/cleanup and nested restoration.",
+  "source_bound_command_and_complete_output_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la038-request-scoped-overrides-20261015/source-freeze-r2.json",
+    "sha256": "da9ddf7c16a112e66c59be767f955bcc4d896c0ea16919002112762f657ed067"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la038-request-scoped-overrides-20261015/independent-r2-review-20261015/independent-review.json",
+    "sha256": "619f8a583b9a1d8ead681a870fb41337671ca45dbe2aa973bab749ebfc6feed1"
+  },
+  "commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/la038-immutable-owner-bindings-source-17-readback.json",
+    "sha256": "e11417d3102e9ee5ecb662ed9ccfa4f434a7c4e67e4265137efa8cb5240be4ae"
+  },
+  "adversarial_removal_controls": "Exact retained commands and full deciding outputs are linked by source manifest and independent review; limitations below bound which property was exercised.",
+  "limitations": [
+    "125focused tests pass; independent actual owner controls and concurrent success/failure/cancel are bounded proofs.",
+    "BasedPyright source diagnostic196errors/33warnings exit1, no P41 inheritance or native-green claim.",
+    "B61 generic scanner residual is separate and unwaived; full native and installed consumers UNRUN."
+  ],
+  "proposals": [
+    {
+      "outcome": "limited",
+      "boundary": "Source-owned request-scoped dependency overrides across actual catalog consumers; only exact reviewed property/frame, never automatic whole-finding closure."
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "Finish generic imported-source scanner, final source/input/backend freeze then native and installed composition."
+}

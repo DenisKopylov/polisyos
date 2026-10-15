@@ -1,0 +1,88 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Canonical selected LinkReport view across both existing writer owners",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": {
+      "commit": "d0ac164e04e01c81048162411d9e4ac53e7e4c15",
+      "tree": "fa19ae9f79181252242393cee472c03aa5ade179",
+      "parents": [
+        "64a8145835b2de2f9c4a55dbe9345ca6d72691e3"
+      ]
+    },
+    "candidate": {
+      "commit": "36fc0f762053693ede956c7f84b837814542b249",
+      "tree": "04d18978d1921bd8d2f9df6455ed5edb6b1eee42",
+      "parents": [
+        "d0ac164e04e01c81048162411d9e4ac53e7e4c15"
+      ]
+    },
+    "readback_verified": true,
+    "source_freeze": false,
+    "p41": "not_established"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
+      "sha256": "9e2a60b09c6f0835344eb859db517f306fe4ede8e4284d76aff82817630e34b5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/compile/link_trinity.py",
+      "sha256": "0cd7f4b51704b339a70edb4c41598e3abbfd0836c0d95729f56dcc44e2045859"
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_workflow_post_data_view_profile_binding.py",
+      "sha256": "63182b9800dc9f6a565b0b89485ebfd5c1f68b955249539983441e2cee98ede1"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "sha256": "702f695f09a06871b94dd3e5a09169b992bdb1d065a9a1431efc0ed3f9463c32"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py",
+      "sha256": "c3da7219ed1f11b880e2b965500896c8ce5a19397f2eb0bd0f221ba1f78b49ba"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/compile/test_link_trinity.py",
+      "sha256": "82b34322f9c923e29eb0763271edf404f328586cc3981c5b01e5547c9c1394ed"
+    }
+  ],
+  "changed_paths": [
+    "policy-engine/src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/compile/link_trinity.py",
+    "policy-engine/tests/integration/runtime_quality/test_workflow_post_data_view_profile_binding.py",
+    "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/compile/test_link_trinity.py"
+  ],
+  "selected_input_profile_backend": "Own source-bound .venv, tenant-scoped local controlledCAS/DBfixtures; metadata is source-bound only; no production-currentness or externalauthorityfact.",
+  "real_chain": "Ordinary Trinity/registry inputs -> LinkTrinity and CompileFoundry/DefaultFoundryPort actual writers -> persisted same LinkReport -> canonical selected input edges and exact selected resultrefs; distinct same-byte registry profiles retain distinct lineage. Normalworker test retains embeddedworker and all23defaultaliases.",
+  "source_bound_command_and_complete_output_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v6-link-owner-bridge-prototype-20261015/source-freeze-r1.json",
+    "sha256": "a95ca7f889147142a0501be7e8de5b42777210f83c8d0df1d151e7541eb68419"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v6-link-owner-bridge-prototype-20261015/independent-review-r1-20261015/independent-review-r2.json",
+    "sha256": "e84b3be0505d673267886eac112275fc3929cd966b3abb65cf6bb5464eef9f01"
+  },
+  "commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/v6-two-writer-selected-link-report-source-6-readback.json",
+    "sha256": "d66e4f31140fb6862e913bbe9d6e663d0a73e85271f2a586aaf8e232d1bd3bb9"
+  },
+  "adversarial_removal_controls": "Exact retained commands and full deciding outputs are linked by source manifest and independent review; limitations below bound which property was exercised.",
+  "limitations": [
+    "10focused unit cases and actual two-node CAS paircontrols pass, independent selectorremoval breaks exactref equality while body/manifest/IDremain equal.",
+    "Historical CASexception not reproduced; old reduced-DAG test remains bounded isolation and received only comment correction.",
+    "Full23-node ordinaryliveworker/simulation route onlycollected, executionUNRUN; no V6wholecapability closure.",
+    "Two-source mechanism plusfourmandatorytestcompanions, no newcontract/producer invented; finalnative and installedwaveUNRUN."
+  ],
+  "proposals": [
+    {
+      "outcome": "limited",
+      "boundary": "Canonical selected LinkReport view across both existing writer owners; only exact reviewed property/frame, never automatic whole-finding closure."
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "Freeze relevant actual route inputs and source dependencies, execute one ordinaryPOST/liveControlWorker full23node controlled witness and independent sibling-survival checks."
+}

@@ -2,10 +2,10 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "9ba4d7bc5512d08c08101244ada5a6644b396963",
-    "tree": "55cf680311a45a67adca48fcfb4e16c6a7f6828b",
+    "head": "13f6cf4bb788069c7caf238c5f1278ece699c6d1",
+    "tree": "b63a86895b3e5abc7c5cb43e65990d100ddf90fa",
     "parents": [
-      "31cb4e3bff10f18d20798c2fb0be1fee0a58b6c9"
+      "36fc0f762053693ede956c7f84b837814542b249"
     ],
     "source_freeze": false,
     "dirty_active_source": "Disjoint author work remains outside committed component boundaries. Exact final source/input/backend composition is not yet frozen."
@@ -82,7 +82,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "8210a658eaaa67f3a0cab98b0ffb3fa1733520588e1085fa96adfaaef893c0ce"
+      "sha256": "4608959cdb0f893f69a1f0b8570594b29d2fdc7b66ed8742ad7836647f8a3ab0"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
@@ -139,6 +139,30 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/benchmark4-methodjob-execution-provenance-20261015.json",
       "sha256": "1881d2bf740fdce91b727f6565f94d4d062e368394d5d3dcc3e2c2fc1131b926"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la038-immutable-owner-binding-delivery-20261015.json",
+      "sha256": "0bfaa7c67c0e28f99ede4fef42d29c19615935168ec8dae310b8285f12d7d89e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/predictive-selected-cas-test-fixture-delivery-20261015.json",
+      "sha256": "293e3544a36cd80518f1c3c9a4e18c609a82b9507c2d4f8f256e20b8497b6451"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v6-selected-link-report-two-writer-delivery-20261015.json",
+      "sha256": "4e3a03ea1f6552bd1aa5417e43288b920ffe9571643f459a63a8c81480a32bdf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-metadata-candidate-relocation-delivery-20261015.json",
+      "sha256": "3a54ab5d1bd855e3aedd8a200c3f07e299f50ec67ece8b18853d62934a4e2eee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v6-selected-link-report-two-writer-author-20261015.json",
+      "sha256": "7a955426b638c82d46b42ebe37b6aef5adc017325116db189ff491e86e5d9a6b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-inventory-local-review-attestation-20261015.json",
+      "sha256": "0537b2da0a8c03455d3c7f529f443c76e46155465dc676f9a3bf455226e6a18c"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -164,7 +188,7 @@
     "Canonical release gate latest local row rebinding:254TOMLs/221structuredrows,4errors,exit1. This is not native green and no waiver is issued.",
     "R3N8 normal scientific candidate route still refuses soundness/estimand relationship; RAW-only bypass is not productPASS.",
     "C05 selected PBE/reissue source exists but is not delivered: missing-intent defaults, malformed-present rotation refs, optional stress and rooted-store consumers require the current typed/semantic repair before independent review.",
-    "LA038 batch2 author freeze has17paths and125passing cases. Independent review of the new immutable binding-map implementation is pending; BasedPyright196errors/33warnings is red and P41 inheritance is not established.",
+    "LA03817-path immutable owner-binding source delivered64a81458 after independent125case/actualDuckDB review619f8a58. BasedPyright196errors/33warnings remainsred/notinherited, genericB61scanner unresolvedsourceadapters remainseparate; native/installed UNRUN.",
     "Grounding quote-span subproperty independently bounded GO; actual persisted normative SPO still lacks independent relation evidence, and trust markers skew the raw quality denominator. Relation/status and full-denominator repairs active; encoder wave remains UNRUN.",
     "GuardedCore19-path reviewed union delivered in18changed-path source commit; independent22+4cases and wrong-profile control pass. Ad-hoc type63errors/12warnings remains red, native/installed UNRUN, no P41inheritance asserted.",
     "External institutional issuer/custody/currentness, qualifying production workload, law/refinement and causal calibration are not created by these physical receipts.",

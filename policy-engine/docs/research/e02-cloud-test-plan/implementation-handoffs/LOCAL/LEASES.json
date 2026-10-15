@@ -1216,5 +1216,114 @@
       "demography": "Q2 r3 review03fd4f9432de6bfda8c374bfd00ff66d0a79fb59448b9fd8aefd0d319f4dc611; source7173/testd93f frozen ready for root ordinary source commit."
     },
     "resources": "Two heavy Mac slots, one numerical thread/process; read-only/light checks parallel. Ordinary commits serialize global tracked writes because lefthook fail_on_changes observes all worktree bytes. RAW/read-only execution continues. Disk50GiB, no cleanup census."
+  },
+  "coordination_epoch_20261015_3fe686ae": {
+    "as_of_candidate_commit": "3fe686ae2e0768aaf502da704821eae89a35e667",
+    "source_tree": "0626a3d8723b7d3d8e5d458cdbf6e254930d6299",
+    "authority": "Existing-contract E02 engineering; no final source freeze, native green, formal closure or external authority facts. Root alone stages/commits, disjoint authors write current shared checkout. One level only.",
+    "barrier": "Previous global tracked-write barrier released after source checkpoint9ba4d7 and separate receipt3fe686. Ordinary commit boundaries need short new barriers because lefthook observes whole tracked tree; RAW/read-only continue.",
+    "lease_deltas": {
+      "b61_exact_writer_runtime_author": {
+        "paths": [
+          "tools/quality/validation/decomposition_preflight.py",
+          "tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+          "tests/unit/data_forge/test_phase6_read_api_consolidation.py"
+        ],
+        "boundary": "Generic AST finite immutable map/import binding and globals.setdefault transfer only; no target whitelist, Python execution or unrelated cycle denominator widening. Imported canonical binding map remains single owner. CAN prepares RAW companion patches for the shared consolidation test; root serializes."
+      },
+      "r3_r4_monetary_workload_oracle": {
+        "paths": [
+          "src/polisyos/runtime/quality/semantic_epoch.py",
+          "tests/unit/runtime/quality/test_semantic_epoch.py",
+          "src/polisyos/fabric/data_plane/orchestrator.py",
+          "src/polisyos/fabric/evidence/evidence.py"
+        ],
+        "mandatory_companions": "Exact mirrored producer tests and actual connector-cache payload writer may be added after author names exact path/preimage; no other writer in that family.",
+        "boundary": "Second profile-binding escape widens active owner + all schema-derived typed refs + direct parent input selected-profile invariant. Actual producers emit selected refs, not reader-default attestation. Preserve profileless historical/candidate reads outside authority. Genuine selected path plus remove both owner/edge profiles negative."
+      },
+      "c05_c12_current_composition_oracle": {
+        "additional_path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+        "existing_scope": "Full current34-path reissue/PBE composition, benchmark module and necessary runtime engine/run entry; existing tests/mirrors.",
+        "boundary": "Whole missing-intent propagation, malformed-present rotation refs refusal, optional stress and rooted-store capability. Never substitute causal_core/estimation for unknown or weaken strict replay. EvalSafety reducer2paths belongs NativeC2dead; job_scope dropped DomainPack is a separate next slice."
+      },
+      "can_whole_profile_current_oracle": {
+        "additional_paths": [
+          "src/polisyos/data_forge/domains/legal/source_relation.py",
+          "src/polisyos/lex/knowledge/store.py",
+          "src/polisyos/data_forge/read_api/legal.py",
+          "src/polisyos/data_forge/domains/legal/batch/claim_bridge.py",
+          "src/polisyos/lex/legal_evaluation/transport_constraints.py",
+          "src/polisyos/runtime/http/services/control/lex_pipeline.py",
+          "src/polisyos/runtime/quality/capability_index_compiler.py",
+          "src/polisyos/runtime/quality/credal_reference.py",
+          "src/polisyos/core/contracts/control.py",
+          "src/polisyos/runtime/http/services/control/lex_search_projection.py"
+        ],
+        "mandatory_companions": "Exact existing owner mirror tests including valid legacy K_ref replay v1/v2/current atom; full source relation/quote/quality producer and pipeline lease from prior epochs retained.",
+        "boundary": "All current unverified source relations remain candidates with shared typed refusal; quality raw full-statement denominator. Current legacy L6 projections use same admission refusal, preserving saved bytes and unrelated nonLex/L3. Corefacade export root-only, generators/SDK root-reserved. Browser candidate serving semantics tracked G decision, no invented authority positive."
+      },
+      "native_c2_dead_override_author": {
+        "paths": [
+          "src/polisyos/runtime/http/services/control/evaluation_safety.py",
+          "tests/unit/runtime/http/services/test_evaluation_safety.py"
+        ],
+        "boundary": "Optional generic inventory capability qualifies target metadata before selected reads. Selection/reconciliation/evidence identity includes profile; exact canonical aliases deduped after manifest validation, distinct same-byte profiles not merged. Non-target plaintext skip, malformed target fails closed."
+      },
+      "ir_observation_loop_types_author": {
+        "paths": [
+          "src/polisyos/scientist/nodes/builtins/compile/link_trinity.py",
+          "src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
+          "tests/unit/scientist/nodes/builtins/compile/test_link_trinity.py",
+          "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py",
+          "tests/integration/runtime_quality/test_workflow_post_data_view_profile_binding.py",
+          "tests/integration/scientist/test_res_03_real_simulation_route.py"
+        ],
+        "boundary": "Two real LinkReport writers canonical selected input edges and selected output flags. Historical reduced-DAG test comment-only correction, preserve behavior. Normalworker companion uses real embedded worker/all23aliases. Focused actual-CAS pair tests now, full bounded route only after independent review/input freeze."
+      },
+      "v5_v6_join_systemic_oracle": {
+        "existing_scope": "Current9changedpaths total5source4tests, 13RO/support inputs; prepare freeze/receipt only until independent delta review.",
+        "boundary": "Candidate measurements preserved promotableFalse; protected MethodJob held absent appointed execution provenance. Feedback uses actual promotion decision; separate ClaimGold producer unchanged. Native3SKIP explicit, test-key signature prototype not appointed custody."
+      },
+      "root": {
+        "paths": [
+          "src/polisyos/core/contracts/__init__.py",
+          "tests/unit/runtime/http/test_control_service_di.py",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+        ],
+        "boundary": "CAN facade export acb34 applied to6c79 ->f6c8; include in CAN independent fullunion. DI helper3patches bounded independently reviewed; final format AST unchanged9fc->71dd independentf78a. Metadata9implementation paths/relocation and separate attestation pending independent review. Root exact staging only, source/receipt commits separate, no future receiptSHA."
+      }
+    },
+    "resources": "Two heavy Mac slots, one numerical thread/process; serial shared DuckDB/port/generator/lock/venv. Disk50GiB; no cleanup scan. Full source/input/backend freeze before composed/native/installed wave. Light RO audits independent in parallel.",
+    "p40": "New vs same/deeper class written before repair; second escape widens required mechanism set or declares tested bounded residual. No instance ladder.",
+    "p41": "not_established unless exact pre-own-work slice base replay and zero complete input intersection; no added-line or same-count inheritance."
+  },
+  "coordination_epoch_20261015_r3_cache_profile_and_compute": {
+    "as_of_candidate_commit": "3fe686ae2e0768aaf502da704821eae89a35e667",
+    "r3_additive_exact_lease": [
+      "src/polisyos/fabric/connectors/cache/_store_core.py",
+      "src/polisyos/fabric/connectors/cache/_store_models.py",
+      "src/polisyos/fabric/connectors/cache/_store_index.py",
+      "src/polisyos/fabric/ingestion/ingestion.py",
+      "src/polisyos/fabric/evidence/evidence.py",
+      "src/polisyos/fabric/data_plane/orchestrator.py",
+      "tests/unit/fabric/connectors/test_cache_system.py",
+      "tests/unit/fabric/connectors/test_integration.py",
+      "tests/unit/fabric/data_plane/test_orchestrator.py",
+      "tests/unit/fabric/test_provenance.py"
+    ],
+    "existing_r3_lease": [
+      "src/polisyos/runtime/quality/semantic_epoch.py",
+      "tests/unit/runtime/quality/test_semantic_epoch.py"
+    ],
+    "boundary": "Nullable index-profile migration preserves genuine legacy profileless reads. Actual new writer-selected ref persists through cache reopen/hit, active ingestion opts into selected evidence output; no reader-materialized default may be claimed producer-attested. Legacy active hit must use honest cachemiss/refetch or typed qualification refusal; no production manifest/cache rewrite. All relevant data/evidence/quality/snapshot and parent profile checks plus actual producer positive/removals.",
+    "resources": {
+      "mac_heavy_slots": 3,
+      "numerical_threads_per_process": 1,
+      "linux_heavy_slots": 1,
+      "measured": "2026-10-15 local23:13;16GiB system, memory_pressure free59%, load4.54/3.67/3.18, top Python97.6%CPU RSS792848KiB, no measured memory pressure. Read-only lightweight checks parallel; watch interactive load.",
+      "shared_serial": "Same governed file/schema/generator/lock/venv/DB/port; ordinary Git commit boundary short trackedwrite barrier."
+    },
+    "formal_closure_ids": []
   }
 }

@@ -1,0 +1,646 @@
+{
+  "kind": "local-scoped-public-surface-review-attestation",
+  "date": "2026-10-15",
+  "status": "scoped_local_review_recorded; no G acceptance or formal closure",
+  "source_frame": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-public-surface-review-partitions-20261015/source-hashes.json",
+    "sha256": "3b6d7d4cc3674ebc2a027dbec603d7f5dd1829026c8be63522466d9fdeb04d58",
+    "path_denominator": 120,
+    "comparison_at_attestation_capture": {
+      "exact_matches": 111,
+      "total_changed": 9,
+      "authorized_review_metadata_edits": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-existing-facade-routing.toml",
+          "review_sha256": "88b2d450e181c2b591951effaf85a21da00081f518a98d88c05d4094de972b08",
+          "current_sha256": "54db1a9e6dc393880deb694441d5678f3f480ba7a5a661deb16096d87d22a9ff"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-la036-selected-profile-cas-readers.toml",
+          "review_sha256": "89867b60bc8638a2d861f16347e9b26acffc0f9e71191ac56c65c0f7f4e16e7a",
+          "current_sha256": "25d9db53ae1af46803d419101771fdf09785d4fbb5e9968ac9afd390b40250e0"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-s3-selected-profile-followup.toml",
+          "review_sha256": "7948fb889cad61511eed347ecd7ac012feabca0a7bddd842cc1a75bbfaac098e",
+          "current_sha256": "f0f5b9a873baaac086527a8a7a528e9955fad25599af967728f8aef18b1b3445"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-11-scientist-composition-loader-contract.toml",
+          "review_sha256": "49b260b65c051e110194697be5850a3d926193a621eb74a045eaca7806425d06",
+          "current_sha256": "9c5703f5505dc295377242c09153c1dac01559158a8ff831dfa217e9f85bca6a"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-12-causal-y0-api-adapter.toml",
+          "review_sha256": "2eb61b14e3748addd2f6e2325fed6876f9ac0ed79a975a3c2c0c4962f2c8e02b",
+          "current_sha256": "04a5498ff4a2bea42d394f791ed35f03fbbf7df812b880ecd9187d8dfd0b9178"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-b214-source-graph-disposition.toml",
+          "review_sha256": "7e77b1b6208afc6d0a3d2543ad55e846c96fe7203b8ce601a2991b8ebc7b64c5",
+          "current_sha256": "20da180264a9ea235a982fe9ee951e8a0a69e23bd812f655dff94b3d31e63e44"
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-calibration-report-cas-bridge.toml",
+          "review_sha256": "0a3887995ae3ed128adaf3ba678cd60cb99559e694bdbf21ab6082a7262f65ca",
+          "current_sha256": "dedfd00c68f09579e13569f80b9ea2105f8f590d4a66409b3050b9e77939292a"
+        }
+      ],
+      "product_source_or_test_deltas": [
+        {
+          "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+          "review_sha256": "78d15089eafb8127b04276b24bc0b399bf58c5c18fb9cbb070b8650f3580f805",
+          "current_sha256": "7173f64b3e24afecd43fa1d92d2478fbd2fd888bbe86ac8e6622439c76850068"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+          "review_sha256": "6dd304c25e0d90b81b09402d1476ae6655a19f701659ca159503a9a4e7c4a93b",
+          "current_sha256": "627dc34b631c49070f4d73fa5218f2b47310c6317a92de10179c4e4167f17d95"
+        }
+      ],
+      "missing_paths": [],
+      "meaning": "The source-hash manifest pins the exact reviewed path/hash frame. Current differences are seven already-authorized release-fragment metadata edits from the R1 proposal and two source/test changes; the latter are not represented as exact review preimages."
+    }
+  },
+  "review_artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-public-surface-review-partitions-20261015/part-1-review.json",
+      "sha256": "d7982a71af2ec10ce8d92789e8e2bcbbc77a91a7b1dbd733e5a03e606f252e0a",
+      "row_range_zero_based": [
+        0,
+        8
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-public-surface-review-partitions-20261015/assessment-part-2.json",
+      "sha256": "e53a93ea51eb762f6154e36680d3ca179c333b69c9f7bf86ca1dc3699eb1facd",
+      "row_range_zero_based": [
+        9,
+        17
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-public-surface-review-partitions-20261015/part-3-independent-review.json",
+      "sha256": "4e5043d49f601134ee2214475630163b851efc2c2f219302c0e2a308c7c8c549",
+      "row_range_zero_based": [
+        18,
+        25
+      ]
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-public-surface-review-partitions-20261015/source-hashes.json",
+      "sha256": "3b6d7d4cc3674ebc2a027dbec603d7f5dd1829026c8be63522466d9fdeb04d58",
+      "row_range_zero_based": null
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-public-surface-review-aggregation-20261015/proposed-r1/proposal-manifest.json",
+      "sha256": "16c86d9453238def7c01c07d1752532308be5a4865ebf3fc5042a6f022800906",
+      "row_range_zero_based": null
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-public-surface-review-aggregation-20261015/proposed-r1/release-inventory-metadata-proposal.patch",
+      "sha256": "f9f399cae908c9f64053480a0732c52a815930e68dd990ac9be635f7acc99d2c",
+      "row_range_zero_based": null
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/demography-role-projection-independent-r2-20261015/r3-independent-review.json",
+      "sha256": "03fd4f9432de6bfda8c374bfd00ff66d0a79fb59448b9fd8aefd0d319f4dc611",
+      "scope": "Current bounded candidate-only DemographyRoleProjection property review; not producer custody/currentness/G."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-query-world-table-facade-20261015/independent-review-r1.json",
+      "sha256": "1d505f1a8de3ec36dd06fb91236e2d2dcf319f769b8352df26f60b669637f2f8",
+      "scope": "One query_world_table facade binding/identity delta and four focused tests; not the full 67-name inventory."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-remaining16-20261015/layout-route-rebind-20261015/command-result.json",
+      "sha256": "346c1b8247f9b1b82f3324dfe9827bf72e2f83dfac77a5ad313ae06b6e7b05bc",
+      "scope": "Current-source/test route suite rebind for the layout-reader row."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-remaining16-20261015/layout-route-rebind-20261015/stdout.txt",
+      "sha256": "ecf61887e3a8765d4482c13468a2b1c62ed60a0733317a5ff810dda55fa06b6b",
+      "scope": "Full output: 51 passed; one pytest configuration warning."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-remaining16-20261015/layout-route-rebind-20261015/junit.xml",
+      "sha256": "5ba6216c756e3039b28c6547ee343dd8c0566f39944ef664d7e2cf9b2593b494",
+      "scope": "JUnit denominator for the 51-test layout-reader route suite."
+    }
+  ],
+  "review_totals": {
+    "row_denominator": 26,
+    "go": 21,
+    "hold": 5,
+    "formal_closure_ids": [],
+    "current_rebindings": {
+      "original_26_row_result_preserved": {
+        "go": 21,
+        "hold": 5
+      },
+      "current_bounded_changes": [
+        {
+          "row": "la032-ukraine-demography-layout-selection",
+          "result": "GO_REBOUND",
+          "flag": true
+        },
+        {
+          "row": "ukraine-demography-inventory-read-api",
+          "result": "GO_BOUNDED",
+          "flag": true
+        }
+      ],
+      "additional_new_row": {
+        "row": "fabric-data-plane-world-table-query-resolver",
+        "result": "GO_FOR_THE_TWO_PATH_FACADE_DELTA",
+        "flag": true
+      },
+      "remaining_holds": [
+        "core-contracts-selected-acquisition-reference-graph",
+        "e02-fabric-documented-child-entrypoints",
+        "runtime-app-candidate-catalog-source",
+        "scientist-legal-tool-status-envelope"
+      ],
+      "formal_closure_ids": []
+    }
+  },
+  "row_reviews": [
+    {
+      "ordinal": 1,
+      "compatibility_change_id": "catalog-result-search-status-fields-and-atomic-tool-envelope",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-09-e02-c12-catalog-search-status.toml",
+      "review_partition": 1,
+      "review_scope": "Scoped GO for the stated API/behavior and its breaking compatibility note; do not claim provider trust or a complete static export census."
+    },
+    {
+      "ordinal": 2,
+      "compatibility_change_id": "authority-event-manifest-profile",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-authority-event-selected-profile.toml",
+      "review_partition": 1,
+      "review_scope": "Scoped GO for additive profile-view binding and compatibility behavior; leave the public_surface_inventory_reviewed flag unchanged until root owner attestation."
+    },
+    {
+      "ordinal": 3,
+      "compatibility_change_id": "e02-fabric-documented-child-entrypoints",
+      "review_result": "HOLD",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-documented-child-entrypoints.toml",
+      "review_partition": 1,
+      "review_scope": "Hold row 3's inventory attestation until the current resolver delta is represented by an accurate release note/classification and a frozen source/test pair. No product edit was made by this reviewer."
+    },
+    {
+      "ordinal": 4,
+      "compatibility_change_id": "e02-ir-documented-child-entrypoints",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-documented-child-entrypoints.toml",
+      "review_partition": 1,
+      "review_scope": "Scoped GO for module-path registration only; not a claim about every IR model's semantic validity or capability completeness."
+    },
+    {
+      "ordinal": 5,
+      "compatibility_change_id": "e02-core-canon-facade",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-existing-facade-routing.toml",
+      "review_partition": 1,
+      "review_scope": "Scoped GO for adding the existing module path to supported Core APIs."
+    },
+    {
+      "ordinal": 6,
+      "compatibility_change_id": "e02-core-artifacts-facade",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-existing-facade-routing.toml",
+      "review_partition": 1,
+      "review_scope": "Scoped GO for supported-path registration; preserve the static inventory limitation."
+    },
+    {
+      "ordinal": 7,
+      "compatibility_change_id": "e02-core-components-facade",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-existing-facade-routing.toml",
+      "review_partition": 1,
+      "review_scope": "Scoped GO for module-path registration; keep behavior unchanged and inventory limitation explicit."
+    },
+    {
+      "ordinal": 8,
+      "compatibility_change_id": "e02-data-forge-academic-read-facade",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-existing-facade-routing.toml",
+      "review_partition": 1,
+      "review_scope": "Scoped GO for registering the existing experimental read module."
+    },
+    {
+      "ordinal": 9,
+      "compatibility_change_id": "e02-data-forge-catalog-read-facade",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-existing-facade-routing.toml",
+      "review_partition": 1,
+      "review_scope": "Scoped GO for module-path registration; row 1 separately covers the search-status contract."
+    },
+    {
+      "ordinal": 10,
+      "compatibility_change_id": "e02-scientist-deterministic-replay-facade",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-existing-facade-routing.toml",
+      "review_partition": 2,
+      "review_scope": "Exact public contract route was checked; generated public-surface inventory is finite but does not claim export completeness or serialize exact member signatures."
+    },
+    {
+      "ordinal": 11,
+      "compatibility_change_id": "la032-ukraine-demography-layout-selection",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-la032-demography-layout-reader.toml",
+      "review_partition": 2,
+      "review_scope": "Exact public contract route was checked; generated public-surface inventory is finite but does not claim export completeness or serialize exact member signatures."
+    },
+    {
+      "ordinal": 12,
+      "compatibility_change_id": "berl-selected-profile-cas-read-error-export",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-la036-selected-profile-cas-readers.toml",
+      "review_partition": 2,
+      "review_scope": "Exact public contract route was checked; generated public-surface inventory is finite but does not claim export completeness or serialize exact member signatures."
+    },
+    {
+      "ordinal": 13,
+      "compatibility_change_id": "profile-bound-artifact-ref",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-s3-selected-profile-followup.toml",
+      "review_partition": 2,
+      "review_scope": "Exact public contract route was checked; generated public-surface inventory is finite but does not claim export completeness or serialize exact member signatures."
+    },
+    {
+      "ordinal": 14,
+      "compatibility_change_id": "typed-declared-builtin-loader",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-11-scientist-composition-loader-contract.toml",
+      "review_partition": 2,
+      "review_scope": "Exact public contract route was checked; generated public-surface inventory is finite but does not claim export completeness or serialize exact member signatures."
+    },
+    {
+      "ordinal": 15,
+      "compatibility_change_id": "causal-identification-family-trso",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-12-causal-y0-api-adapter.toml",
+      "review_partition": 2,
+      "review_scope": "Exact public contract route was checked; generated public-surface inventory is finite but does not claim export completeness or serialize exact member signatures."
+    },
+    {
+      "ordinal": 16,
+      "compatibility_change_id": "surrogate-data-profile-parameter",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-12-causal-y0-api-adapter.toml",
+      "review_partition": 2,
+      "review_scope": "Exact public contract route was checked; generated public-surface inventory is finite but does not claim export completeness or serialize exact member signatures."
+    },
+    {
+      "ordinal": 17,
+      "compatibility_change_id": "b214-scalar-identification-graph-admission",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-b214-source-graph-disposition.toml",
+      "review_partition": 2,
+      "review_scope": "Exact public contract route was checked; generated public-surface inventory is finite but does not claim export completeness or serialize exact member signatures."
+    },
+    {
+      "ordinal": 18,
+      "compatibility_change_id": "calibrator-run-and-persist",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-calibration-report-cas-bridge.toml",
+      "review_partition": 2,
+      "review_scope": "Exact public contract route was checked; generated public-surface inventory is finite but does not claim export completeness or serialize exact member signatures."
+    },
+    {
+      "ordinal": 19,
+      "compatibility_change_id": "runtime-app-candidate-catalog-source",
+      "review_result": "HOLD",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-i1-c05-catalog-source-selection.toml",
+      "review_partition": 3,
+      "review_scope": "Public-surface inventory alignment only; app configuration behavior is positively represented by a real factory-to-consumer test."
+    },
+    {
+      "ordinal": 20,
+      "compatibility_change_id": "ukraine-demography-inventory-read-api",
+      "review_result": "HOLD",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-la032-demography-inventory-candidate.toml",
+      "review_partition": 3,
+      "review_scope": "Public API contract and read-only property; no claim about external producer custody, semantic truth, or currentness."
+    },
+    {
+      "ordinal": 21,
+      "compatibility_change_id": "control-pre-admission-core-contract",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-r3-pre-admission-attempt-owner.toml",
+      "review_partition": 3,
+      "review_scope": "Bounded to the response DTO public Python binding and its route/API use; not the broader billing, migration, or production-authority claim."
+    },
+    {
+      "ordinal": 22,
+      "compatibility_change_id": "runtime-quality-selected-graph-transport-run",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-14-b31-b33-transport-basis.toml",
+      "review_partition": 3,
+      "review_scope": "Bounded to the declared public_experimental Python facade binding and signature; B31/B33 capability and production authority remain open."
+    },
+    {
+      "ordinal": 23,
+      "compatibility_change_id": "core-contracts-selected-acquisition-reference-graph",
+      "review_result": "HOLD",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-14-b31-selected-reference-graph.toml",
+      "review_partition": 3,
+      "review_scope": "The implementation exports the named APIs through the stable Core facade; the release fragment declares a different, unsupported module path."
+    },
+    {
+      "ordinal": 24,
+      "compatibility_change_id": "runtime-quality-selected-source-projection-value-run",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-14-b31-source-projection-owner-bridge.toml",
+      "review_partition": 3,
+      "review_scope": "Bounded to the exported experimental facade and typed request/variable DTOs; source authority, identification, and value promotion remain open."
+    },
+    {
+      "ordinal": 25,
+      "compatibility_change_id": "scientist-legal-tool-status-envelope",
+      "review_result": "HOLD",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml",
+      "review_partition": 3,
+      "review_scope": "The consumer behavior is tested, but its breaking boundary is a registered tool JSON result contract rather than KnowledgeToolkit Python return-type compatibility."
+    },
+    {
+      "ordinal": 26,
+      "compatibility_change_id": "policy-verified-candidate-pack-retrieval-status",
+      "review_result": "GO",
+      "fragment_path": "policy-engine/release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml",
+      "review_partition": 3,
+      "review_scope": "Bounded to the stable policy_verified Python DTO binding and compatibility shape; retrieval status remains observed candidate data and does not establish legal authority or vector admission."
+    }
+  ],
+  "row_rebindings": {
+    "la032-ukraine-demography-layout-selection": {
+      "original_review_result": "GO",
+      "prior_flag": "false",
+      "prior_withheld_reason": "The reviewed source_inventory.py preimage changed after review; the current route/test frame is now separately pinned and the focused route suite was replayed.",
+      "current_local_result": "GO_REBOUND",
+      "current_flag": "true",
+      "current_source_and_test_hashes": {
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py": "976623314261b34ef639e50c5351b446b279e0aea42675ebc2e3dc44fedc5436",
+        "policy-engine/src/polisyos/data_forge/read_api/ukraine.py": "81f0d1e1fb47e38ea7ff667fb3f28cbfd74d4289d534d1b0194a792be7bc4cc0",
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py": "7173f64b3e24afecd43fa1d92d2478fbd2fd888bbe86ac8e6622439c76850068",
+        "policy-engine/tests/unit/remediation/test_udf_05.py": "312efbcad55566f9f73065c367bf078c8d5bc9929af8de73b4c775116e03a26e"
+      },
+      "evidence_artifacts": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-public-surface-review-partitions-20261015/assessment-part-2.json@e53a93ea51eb762f6154e36680d3ca179c333b69c9f7bf86ca1dc3699eb1facd",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-remaining16-20261015/layout-route-rebind-20261015/command-result.json@346c1b8247f9b1b82f3324dfe9827bf72e2f83dfac77a5ad313ae06b6e7b05bc",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-remaining16-20261015/layout-route-rebind-20261015/junit.xml@5ba6216c756e3039b28c6547ee343dd8c0566f39944ef664d7e2cf9b2593b494"
+      ],
+      "scope": "Exact public read facade route/export and current focused layout behavior only; does not establish source custody/currentness or broader capability acceptance."
+    },
+    "runtime-quality-selected-graph-transport-run_and_runtime-quality-selected-source-projection-value-run": {
+      "rows": [
+        "runtime-quality-selected-graph-transport-run",
+        "runtime-quality-selected-source-projection-value-run"
+      ],
+      "current_check_scope": "Only current facade definitions/exports and the optional solver_mode signature were statically rebound; no numerical suite rerun and no N8 semantic, producer-to-consumer, authority, or full capability acceptance is claimed.",
+      "source_and_test_deltas": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "review_sha256": "b68a593e1b01c65640cb1393d3662ed099c61c32bcaa016b49251935ebd233e3",
+          "current_sha256": "4d3181679789503bf8dd993f20cb9ac4e54139c0e778e4334adc0b15038907c1",
+          "related_rows": [
+            "runtime-quality-selected-graph-transport-run",
+            "runtime-quality-selected-source-projection-value-run"
+          ],
+          "delta_scope": "The runtime delta removes redundant local Data Forge imports and binds the fresh reproducibility seed check to the execution receipt. The test delta includes identification_status and numeric canonicalization changes plus a real-panel candidate refusal with no run-basis or outer-set emission. Route/signature claims remain limited to facade export identity and optional solver-mode signature; no N8 product acceptance is claimed."
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+          "review_sha256": "6dd304c25e0d90b81b09402d1476ae6655a19f701659ca159503a9a4e7c4a93b",
+          "current_sha256": "627dc34b631c49070f4d73fa5218f2b47310c6317a92de10179c4e4167f17d95",
+          "related_rows": [
+            "runtime-quality-selected-graph-transport-run",
+            "runtime-quality-selected-source-projection-value-run"
+          ],
+          "delta_scope": "The runtime delta removes redundant local Data Forge imports and binds the fresh reproducibility seed check to the execution receipt. The test delta includes identification_status and numeric canonicalization changes plus a real-panel candidate refusal with no run-basis or outer-set emission. Route/signature claims remain limited to facade export identity and optional solver-mode signature; no N8 product acceptance is claimed."
+        }
+      ]
+    },
+    "ukraine-demography-inventory-read-api": {
+      "original_review_result": "HOLD",
+      "current_local_result": "GO_BOUNDED",
+      "current_flag": "true",
+      "source_and_test_hashes": {
+        "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py": "7173f64b3e24afecd43fa1d92d2478fbd2fd888bbe86ac8e6622439c76850068",
+        "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py": "d93f544fd37e98473e750ab72539a17c8849f7a60174a939d50b814ea9d4a146"
+      },
+      "review_artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/demography-role-projection-independent-r2-20261015/r3-independent-review.json@03fd4f9432de6bfda8c374bfd00ff66d0a79fb59448b9fd8aefd0d319f4dc611",
+      "scope": "Bounded source-level detached payload views and recursively valid JSON-number admission for the candidate-only typed projection, backed by controlled producer/CAS/readers/Foundry fixture and 48 focused tests. No external source authenticity, custody, authority, currentness, semantic completeness, calibration, admissibility, global source freeze, native acceptance, or G acceptance."
+    },
+    "fabric-data-plane-world-table-query-resolver": {
+      "original_review_result": "NEW_ROW_OUTSIDE_ORIGINAL_26_ROW_PARTITIONS",
+      "current_local_result": "GO_FOR_THE_TWO_PATH_FACADE_DELTA",
+      "current_flag": "true",
+      "source_and_test_hashes": {
+        "policy-engine/src/polisyos/fabric/data_plane/__init__.py": "fb459a6b4b9aaf49815936aa591062910bffa27d7d150a52ae7716f8d8dacbe1",
+        "policy-engine/src/polisyos/fabric/world/query.py": "eb8aa6704eaf94d6fe64bbfa8e7fb7c9f2b7db0bcc1288db0577a113ef616208",
+        "policy-engine/tests/unit/fabric/data_plane/test_raw_result_sink.py": "e83201136424e9196d957be61c8323d728841f8667aa239db122f300913e7634"
+      },
+      "review_artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-query-world-table-facade-20261015/independent-review-r1.json@1d505f1a8de3ec36dd06fb91236e2d2dcf319f769b8352df26f60b669637f2f8",
+      "scope": "The declared query_world_table lazy export resolves to the canonical function object and focused consumer tests pass. Not a complete module inventory, 67-entry runtime export proof, static inventory acceptance, whole-capability acceptance, or G acceptance."
+    }
+  },
+  "flag_disposition": {
+    "scoped_go_rows_flagged": [
+      "authority-event-manifest-profile",
+      "b214-scalar-identification-graph-admission",
+      "berl-selected-profile-cas-read-error-export",
+      "calibrator-run-and-persist",
+      "catalog-result-search-status-fields-and-atomic-tool-envelope",
+      "causal-identification-family-trso",
+      "control-pre-admission-core-contract",
+      "e02-core-artifacts-facade",
+      "e02-core-canon-facade",
+      "e02-core-components-facade",
+      "e02-data-forge-academic-read-facade",
+      "e02-data-forge-catalog-read-facade",
+      "e02-ir-documented-child-entrypoints",
+      "e02-scientist-deterministic-replay-facade",
+      "fabric-data-plane-world-table-query-resolver",
+      "la032-ukraine-demography-layout-selection",
+      "policy-verified-candidate-pack-retrieval-status",
+      "profile-bound-artifact-ref",
+      "runtime-quality-selected-graph-transport-run",
+      "runtime-quality-selected-source-projection-value-run",
+      "surrogate-data-profile-parameter",
+      "typed-declared-builtin-loader",
+      "ukraine-demography-inventory-read-api"
+    ],
+    "go_row_withheld_due_source_drift": [],
+    "hold_rows_left_unflagged": [
+      "core-contracts-selected-acquisition-reference-graph",
+      "e02-fabric-documented-child-entrypoints",
+      "runtime-app-candidate-catalog-source",
+      "scientist-legal-tool-status-envelope"
+    ],
+    "whole_fragment_reviewed_true_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-09-e02-c12-catalog-search-status.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-authority-event-selected-profile.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-existing-facade-routing.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-la032-demography-layout-reader.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-la036-selected-profile-cas-readers.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-s3-selected-profile-followup.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-11-scientist-composition-loader-contract.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-causal-y0-api-adapter.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-calibration-report-cas-bridge.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-la032-demography-inventory-candidate.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-14-b31-b33-transport-basis.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-14-b31-source-projection-owner-bridge.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-15-e02-fabric-query-world-table-resolver.toml"
+    ],
+    "per_compatibility_row_true": {
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-documented-child-entrypoints.toml": [
+        "e02-ir-documented-child-entrypoints"
+      ],
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-b214-source-graph-disposition.toml": [
+        "b214-scalar-identification-graph-admission"
+      ],
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-r3-pre-admission-attempt-owner.toml": [
+        "control-pre-admission-core-contract"
+      ],
+      "policy-engine/release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml": [
+        "policy-verified-candidate-pack-retrieval-status"
+      ],
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-la032-demography-layout-reader.toml": [
+        "la032-ukraine-demography-layout-selection"
+      ],
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-la032-demography-inventory-candidate.toml": [
+        "ukraine-demography-inventory-read-api"
+      ],
+      "policy-engine/release-fragments/unreleased/2026-10-15-e02-fabric-query-world-table-resolver.toml": [
+        "fabric-data-plane-world-table-query-resolver"
+      ]
+    },
+    "new_fabric_resolver_fragment": {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-15-e02-fabric-query-world-table-resolver.toml",
+      "public_surface_inventory_reviewed": true,
+      "reason": "The flag is bound to the single reviewed facade resolver row and its exact canonical object identity/focused consumer tests; no complete symbol inventory, full 67-entry proof, static inventory acceptance, or G acceptance is claimed.",
+      "review_artifact": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-query-world-table-facade-20261015/independent-review-r1.json@1d505f1a8de3ec36dd06fb91236e2d2dcf319f769b8352df26f60b669637f2f8"
+    },
+    "unrun_candidate_preserved_outside_release_renderer": {
+      "original_path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-r3-pre-admission-browser-recovery.toml",
+      "current_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidates/e02-r3-pre-admission-browser-recovery-2026-10-12.toml",
+      "bytes": 1111,
+      "sha256": "5779af11fa6103bbe7066413a0a641a11f856b6f9fafe5f94c2276a0afced306",
+      "mode": "0644",
+      "identity": "Path.rename preserved the same inode on the worktree filesystem; bytes/hash and mode are unchanged.",
+      "status": "candidate",
+      "reason": "Authored proposal explicitly says source integration, client generation, runtime/API/dashboard/browser tests, removal controls, and native gates are UNRUN. The release renderer scans every TOML under unreleased regardless of candidate status; preserved outside that directory without synthesizing release metadata."
+    }
+  },
+  "scope_and_limits": {
+    "flag_meaning": "A true flag records the scoped, row-bound local public API route/export review described by its linked compatibility row(s). It does not assert complete module export enumeration or regenerated inventory acceptance.",
+    "static_inventory": "Static grammar unresolved rows remain as reported by the reviewer artifacts. The exact 120-path source frame is pinned above; this review does not claim all runtime exports or member signatures were enumerated.",
+    "not_claimed": [
+      "complete runtime export inventory",
+      "generated public-surface snapshot regeneration or acceptance",
+      "semantic/native or end-to-end capability acceptance",
+      "integration publication",
+      "G acceptance",
+      "formal finding closure"
+    ],
+    "public_static_purity": "Separate root-owned G decision; not adjudicated or changed by this local review.",
+    "closure_ids": []
+  },
+  "release_gate": {
+    "pre_review_gate": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-profiled-entrypoints-20261015/release-gate.stdout.json",
+      "sha256": "6c5ce2d9861f2b0e83037b8ad11d4b67f1193c5afce7f8ee167b1e21940bbc65",
+      "fragment_count": 253,
+      "contract_errors": 60,
+      "findings": 0,
+      "note": "Saved baseline was captured before the new Fabric resolver fragment; this is not a current/post-change gate receipt."
+    },
+    "post_review_gate": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "tools.ops_runners.release.check_compatibility_release_gates",
+        "--repo-root",
+        ".",
+        "--fragments-dir",
+        "release-fragments/unreleased",
+        "--fail-on-contract-errors"
+      ],
+      "command_receipt": {
+        "bytes": 2981,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-remaining16-20261015/post-browser-relocation-gate-20261015/command-and-result.json",
+        "sha256": "69bfcc33af8d2659bbef88365321a447f5cef91562ef645303cb4497bbab7636"
+      },
+      "contract_error_count": 4,
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "denominator_note": "The complete *.toml set under release-fragments/unreleased was counted before and after execution; the UNRUN browser-recovery candidate was moved byte-for-byte outside that renderer input directory, no fragment was excluded by a gate option, and --fail-on-contract-errors remained enabled. The four remaining rows are held rather than marked reviewed.",
+      "elapsed_seconds": 0.15,
+      "error_counts_by_check": {
+        "public-surface-review": 4
+      },
+      "exit_code": 1,
+      "exit_receipt": {
+        "bytes": 2,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-remaining16-20261015/post-browser-relocation-gate-20261015/exit-code.txt",
+        "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+      },
+      "finding_count": 0,
+      "fragment_count_after": 254,
+      "fragment_count_before": 254,
+      "input_denominator": {
+        "directory": "release-fragments/unreleased",
+        "sorted_relative_paths_sha256": "2ae6015ca1bd71f8667795e80027a42a93acbc95d13c5f65d1f65080cba4f85d",
+        "toml_file_count_after": 254,
+        "toml_file_count_before": 254
+      },
+      "remaining_rows": [
+        {
+          "compatibility_change_id": "e02-fabric-documented-child-entrypoints",
+          "check": "public-surface-review",
+          "disposition": "HOLD; flag remains false"
+        },
+        {
+          "compatibility_change_id": "runtime-app-candidate-catalog-source",
+          "check": "public-surface-review",
+          "disposition": "HOLD; flag remains false"
+        },
+        {
+          "compatibility_change_id": "core-contracts-selected-acquisition-reference-graph",
+          "check": "public-surface-review",
+          "disposition": "HOLD; flag remains false"
+        },
+        {
+          "compatibility_change_id": "scientist-legal-tool-status-envelope",
+          "check": "public-surface-review",
+          "disposition": "HOLD; flag remains false"
+        }
+      ],
+      "status": "contract_errors",
+      "stderr": {
+        "bytes": 0,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-remaining16-20261015/post-browser-relocation-gate-20261015/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 5437,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-remaining16-20261015/post-browser-relocation-gate-20261015/stdout.json",
+        "sha256": "30ac9b44539e8bdd87eb77f4605aa47ce9cb4adddad4eafabcf4abbf4c130608"
+      }
+    }
+  },
+  "capture_git_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "44e852948104f7d9a34242fdc6b3cfbcfebad6e9",
+    "tree": "c10dbaaa49876574166723f2958b03359fb0e4e9"
+  },
+  "pattern_pass": {
+    "P29": "The reviewed routes are backed by the referenced actual identity/consumer checks, including the Fabric exact same-object assertion and its remove-the-mapping falsifier. This attestation does not rerun or generalize those checks beyond the cited rows.",
+    "P35": "The review covers all 26 compatibility rows across the three pinned partitions; the exact source-path denominator is 120 paths in the cited source-hash frame. The row census and path frame are both pinned by content hash.",
+    "P37_P38": "The true flags express only the row-bound route/export review recorded here. They do not mean the static grammar resolved every export, that generated inventories were regenerated, or that a complete runtime-symbol inventory was accepted.",
+    "P40": "The B31 route/signature observations remain in the same public-API inventory class at a deeper source/test frame. Current source and test hashes are recorded by row; review scope remains facade identity/signature only, with no N8 semantic or capability closure.",
+    "P41": "The post-relocation canonical gate was rerun across the complete current 254-fragment directory with --fail-on-contract-errors. It returned four public-surface-review errors, zero findings, and exit 1; the four source/test boundary holds remain unflagged. Full output and exact input denominator are pinned in post_review_gate."
+  }
+}

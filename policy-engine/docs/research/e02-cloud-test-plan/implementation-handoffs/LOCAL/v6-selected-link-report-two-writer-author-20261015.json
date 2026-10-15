@@ -1,0 +1,63 @@
+{
+  "title": "V6 selected LinkReport lineage across both writers",
+  "status": "author_frozen_pending_independent_review",
+  "candidate_commit": null,
+  "candidate_head": "3fe686ae2e0768aaf502da704821eae89a35e667",
+  "candidate_head_tree": "0626a3d8723b7d3d8e5d458cdbf6e254930d6299",
+  "finding": "The historical default-graph CAS-conflict claim was incorrect: in the pre-fix actual-node pair both writers succeeded with the same deterministic LinkReport artifact ID and payload, while returning distinct manifest-selected views. The real gap was selector and lineage consistency across the complete two-writer set.",
+  "change": "LinkTrinity uses input_ref_from_artifact_ref with canonical `ir` and `registry_bundle` roles and requests the selected output profile. CompileFoundry passes the existing return_selected_profile=true selector through CompileRequest. Different upstream lineage views remain distinct.",
+  "changed_paths": [
+    {
+      "path": "src/polisyos/scientist/nodes/builtins/compile/link_trinity.py",
+      "sha256": "0cd7f4b51704b339a70edb4c41598e3abbfd0836c0d95729f56dcc44e2045859"
+    },
+    {
+      "path": "src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
+      "sha256": "9e2a60b09c6f0835344eb859db517f306fe4ede8e4284d76aff82817630e34b5"
+    },
+    {
+      "path": "tests/unit/scientist/nodes/builtins/compile/test_link_trinity.py",
+      "sha256": "82b34322f9c923e29eb0763271edf404f328586cc3981c5b01e5547c9c1394ed"
+    },
+    {
+      "path": "tests/unit/scientist/nodes/builtins/compile/test_compile_foundry.py",
+      "sha256": "c3da7219ed1f11b880e2b965500896c8ce5a19397f2eb0bd0f221ba1f78b49ba"
+    },
+    {
+      "path": "tests/integration/runtime_quality/test_workflow_post_data_view_profile_binding.py",
+      "sha256": "63182b9800dc9f6a565b0b89485ebfd5c1f68b955249539983441e2cee98ede1"
+    },
+    {
+      "path": "tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "sha256": "702f695f09a06871b94dd3e5a09169b992bdb1d065a9a1431efc0ed3f9463c32"
+    }
+  ],
+  "pattern_pass": [
+    "P12",
+    "P31",
+    "P38",
+    "P40"
+  ],
+  "verification": {
+    "focused_unit_tests": "10 passed; full output and exact command are cited in the raw source-freeze packet.",
+    "actual_cas_pair_controls": "Passed for profileless API-like inputs and selected Trinity/registry refs using the actual node implementations and DefaultFoundryPort.",
+    "ruff": "Canonical product-root Ruff check and format check passed on all six changed paths.",
+    "default_worker_route": "The 23-node route test collects but was not run. Its live worker, all-alias trace, simulation and fresh-read behavior remain pending independent review and one bounded route run."
+  },
+  "raw_source_freeze": "LOCAL/raw/resume-v6-link-owner-bridge-prototype-20261015/source-freeze-r1.json",
+  "p38_property_and_divergent_case": {
+    "property": "When both actual writers consume the same exact typed refs, they return the same exact selected LinkReport ArtifactRef and the report manifest preserves the same canonical input edges.",
+    "old_proxy": "Comparing only artifact ID and report payload.",
+    "divergent_case": "Before the repair, both real nodes succeeded with the same artifact ID and report payload, but LinkTrinity returned a profileless ref with input role trinity_bundle while CompileFoundry returned a profile-bound ref with role ir. A selected-LinkTrinity/default-CompileFoundry control also returned unequal exact refs, so both writer selectors and canonical input roles are required.",
+    "evidence": [
+      {
+        "path": "LOCAL/raw/resume-v6-default-link-owner-bridge-20261015/actual-node-pair-probe-tenant.stdout.txt",
+        "sha256": "0571da777372fe7c16016c0dca5ef8aa9d6d4ad56af6fa098c97b67711eebed4"
+      },
+      {
+        "path": "LOCAL/raw/resume-v6-link-owner-bridge-prototype-20261015/profileless-normal-input-return-selector-probe.stdout.txt",
+        "sha256": "0f62e5391acf3e79061ef869f9a246dfedcbf1e7331d017e4d0610a498dca008"
+      }
+    ]
+  }
+}

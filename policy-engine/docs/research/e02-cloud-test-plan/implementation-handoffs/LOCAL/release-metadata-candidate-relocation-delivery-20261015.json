@@ -1,0 +1,106 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Truthful compatibility metadata and intact UNRUN browser proposal",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": {
+      "commit": "36fc0f762053693ede956c7f84b837814542b249",
+      "tree": "04d18978d1921bd8d2f9df6455ed5edb6b1eee42",
+      "parents": [
+        "d0ac164e04e01c81048162411d9e4ac53e7e4c15"
+      ]
+    },
+    "candidate": {
+      "commit": "13f6cf4bb788069c7caf238c5f1278ece699c6d1",
+      "tree": "b63a86895b3e5abc7c5cb43e65990d100ddf90fa",
+      "parents": [
+        "36fc0f762053693ede956c7f84b837814542b249"
+      ]
+    },
+    "readback_verified": true,
+    "source_freeze": false,
+    "p41": "not_established"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidates/e02-r3-pre-admission-browser-recovery-2026-10-12.toml",
+      "sha256": "5779af11fa6103bbe7066413a0a641a11f856b6f9fafe5f94c2276a0afced306"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-la032-demography-layout-reader.toml",
+      "sha256": "12f89314fdb43f53bb8812ff2c9f28c3fd274864b6ea4c0b9f0421889b130687"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-12-causal-y0-api-adapter.toml",
+      "sha256": "8fb255f56f09c01b6a4867ee472ae78f9997b1052491a7d00909031405e34a89"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-b214-source-graph-disposition.toml",
+      "sha256": "6868dbc2c06ebc0e35d4d9fc45e4afc5495ab03cee7e947ca01db5157d37646b"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-la032-demography-inventory-candidate.toml",
+      "sha256": "e7a4ddacda19999f8a900f167b2df343271531cdce7e90fb21233c1a85c83eaa"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-13-stress-score-selected-source-manifests.toml",
+      "sha256": "f12a65315e994042b5f5ae9fcd78de15357c545e92e1b23c9a580f4e53f19e40"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-14-e02-n9-selected-catalog-profile-lineage.toml",
+      "sha256": "1f21386315e923462f33403c83e2492448364c51bd52176b7e3b4f7fcd070757"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-15-e02-fabric-query-world-table-resolver.toml",
+      "sha256": "024067b61028b7060f9c0e12dc95619a004f4da703021a15c7d8b11d27f8e8c7"
+    }
+  ],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidates/e02-r3-pre-admission-browser-recovery-2026-10-12.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-11-e02-la032-demography-layout-reader.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-12-causal-y0-api-adapter.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-12-e02-b214-source-graph-disposition.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-12-e02-la032-demography-inventory-candidate.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-12-e02-r3-pre-admission-browser-recovery.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-13-stress-score-selected-source-manifests.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-14-e02-n9-selected-catalog-profile-lineage.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-15-e02-fabric-query-world-table-resolver.toml"
+  ],
+  "selected_input_profile_backend": "Own source-bound .venv, tenant-scoped local controlledCAS/DBfixtures; metadata is source-bound only; no production-currentness or externalauthorityfact.",
+  "real_chain": "Actual public/internal/API surface contracts -> row-scoped release declarations/review -> canonical releasegate; UNRUN1111byte browser proposal relocated intact outside release renderer inputs.",
+  "source_bound_command_and_complete_output_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-remaining16-20261015/source-freeze-footprint-current-31cb4e-20261015.json",
+    "sha256": "7ed2c25f7dfbaadaf43c128018c1ba7cb273d2be1bd30c80833a8b777bdc307b"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-release-metadata-freeze-independent-20261015/assessment.json",
+    "sha256": "2e6a46f1cbfb4766255b45a0c08aeec7e58f99530fbff5b650492d2cd40d16d5"
+  },
+  "commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/release-rows-and-candidate-relocation-source-9-readback.json",
+    "sha256": "90ab17100010e726358fc06201366c4af2c010926a4b64786a2a446807345dd1"
+  },
+  "adversarial_removal_controls": "Exact retained commands and full deciding outputs are linked by source manifest and independent review; limitations below bound which property was exercised.",
+  "limitations": [
+    "IndependentmetadataGO bounded, gate254TOMLs/221changes/4contracterrors/0findings exit1. No repositoryreleasegreen, waiver or Gacceptance.",
+    "Y0generatedrequiresregeneration, B214/stressinternalplanes, N9openmapABI compatibility only; scopedflags notcompleteinventory/runtimeproof.",
+    "Original26rowhistory21GO5HOLD retained; fourcurrentheldrows require truthfulsurface/toolplane resolution.",
+    "Browserproposal bytes5779af11fa6103bbe7066413a0a641a11f856b6f9fafe5f94c2276a0afced306 preserved, executionUNRUN; ordinaryrelocation not discarded work."
+  ],
+  "proposals": [
+    {
+      "outcome": "limited",
+      "boundary": "Truthful compatibility metadata and intact UNRUN browser proposal; only exact reviewed property/frame, never automatic whole-finding closure."
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "Complete remaining four surface/tool-output rows without unsupported inventory claims, regenerate actual public/client surfaces, then native gate.",
+  "preserved_relocations": [
+    {
+      "from": "policy-engine/release-fragments/unreleased/2026-10-12-e02-r3-pre-admission-browser-recovery.toml",
+      "to": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidates/e02-r3-pre-admission-browser-recovery-2026-10-12.toml",
+      "sha256": "5779af11fa6103bbe7066413a0a641a11f856b6f9fafe5f94c2276a0afced306"
+    }
+  ]
+}

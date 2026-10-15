@@ -46,6 +46,27 @@ runtime mutations and live streams.
   `services/*`, `container.py`, `dependencies.py`, `execution_policy.py`,
   `mutation_policy.py`, `openapi_contract.py`, `permissions.py`
 
+## Controlled local Legal runtime profile
+
+For a local Legal vector-search candidate, run the module entrypoint with the
+same operator-selected profile root used by the Legal batch producer:
+
+```bash
+python -m polisyos.runtime.http.profiled_server \
+  --runtime-material-profile-root /path/to/legal-runtime-profile
+```
+
+The root must contain the fixed `hf-cache/` and `asset-file-manifest.txt`
+members. The source-owned Legal material owner validates the pinned manifest
+and model members before query encoding. An invalid explicit root fails startup
+with a typed refusal; omitting the root preserves the ordinary profileless app
+composition. The root is process configuration and is not accepted from an
+HTTP request. Use the same Python environment, source checkout, working
+directory, and module invocation context for producer and server because the
+runtime fingerprint includes the active module search path. This local
+candidate profile establishes neither Legal authority nor production
+currentness.
+
 ## Candidate catalog input selection
 
 Deployments may pass a typed CatalogServingSourceSelection to

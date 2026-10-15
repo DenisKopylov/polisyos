@@ -27,6 +27,8 @@ from polisyos.data_forge.kernel.embeddings import derive_encoder_identity
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
 
+    from sentence_transformers import SentenceTransformer
+
     from polisyos.data_forge.kernel.io.generation_basis import GenerationIdentity
 
 LEGAL_RUNTIME_MATERIAL_RULE_VERSION = "legal.runtime_material.v2"
@@ -199,23 +201,29 @@ def _model_file_inventory(
 
     members: list[dict[str, object]] = []
     seen: set[str] = set()
+    logical_bytes = 0
     for entry in manifest["files"]:
         if not isinstance(entry, dict):
             raise LegalRuntimeMaterialError("query_encoder_runtime_material_not_established")
         name = entry.get("name")
+        if not isinstance(name, str):
+            raise LegalRuntimeMaterialError("query_encoder_runtime_material_not_established")
         expected_digest = entry.get("sha256")
         expected_size = entry.get("size_bytes")
-        member = PurePosixPath(name) if isinstance(name, str) else None
         if (
-            member is None
-            or member.is_absolute()
+            not isinstance(expected_digest, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", expected_digest)
+            or not isinstance(expected_size, int)
+            or isinstance(expected_size, bool)
+            or expected_size < 0
+        ):
+            raise LegalRuntimeMaterialError("query_encoder_runtime_material_not_established")
+        member = PurePosixPath(name)
+        if (
+            member.is_absolute()
             or not member.parts
             or any(part in ("", ".", "..") for part in member.parts)
             or name in seen
-            or not isinstance(expected_digest, str)
-            or not re.fullmatch(r"[0-9a-f]{64}", expected_digest)
-            or type(expected_size) is not int
-            or expected_size < 0
         ):
             raise LegalRuntimeMaterialError("query_encoder_runtime_material_not_established")
         seen.add(name)
@@ -228,6 +236,7 @@ def _model_file_inventory(
         actual_digest, actual_size = _sha256_file(resolved_member)
         if actual_digest != expected_digest or actual_size != expected_size:
             raise LegalRuntimeMaterialError("query_encoder_runtime_material_not_established")
+        logical_bytes += actual_size
         members.append(
             {
                 "name": name,
@@ -235,9 +244,7 @@ def _model_file_inventory(
                 "size_bytes": actual_size,
             }
         )
-    if len(seen) != 9 or sum(int(item["size_bytes"]) for item in members) != manifest.get(
-        "logical_bytes"
-    ):
+    if len(seen) != 9 or logical_bytes != manifest.get("logical_bytes"):
         raise LegalRuntimeMaterialError("query_encoder_runtime_material_not_established")
     ordered = tuple(sorted(members, key=lambda item: str(item["name"])))
     return _canonical_digest(
@@ -350,14 +357,9 @@ def _python_execution_profile(
         configured_paths = sysconfig.get_paths()
     except (AttributeError, OSError, TypeError, ValueError) as exc:
         raise LegalRuntimeMaterialError("query_encoder_runtime_material_not_established") from exc
-    if isinstance(raw_user_site, str):
-        user_site_packages = [raw_user_site]
-    elif isinstance(raw_user_site, (list, tuple)) and all(
-        isinstance(path, str) for path in raw_user_site
-    ):
-        user_site_packages = list(raw_user_site)
-    else:
+    if not isinstance(raw_user_site, str):
         raise LegalRuntimeMaterialError("query_encoder_runtime_material_not_established")
+    user_site_packages = [raw_user_site]
     if not isinstance(raw_site_packages, (list, tuple)) or not all(
         isinstance(path, str) for path in raw_site_packages
     ):
@@ -425,9 +427,13 @@ def _installed_runtime_digest() -> str:
     except ImportError as exc:
         raise LegalRuntimeMaterialError("query_encoder_runtime_material_not_established") from exc
 
-    environment = default_environment()
+    environment: dict[str, str] = {}
+    for key, value in default_environment().items():
+        if not isinstance(key, str) or not isinstance(value, str):
+            raise LegalRuntimeMaterialError("query_encoder_runtime_material_not_established")
+        environment[key] = value
     environment["extra"] = ""
-    pending = list(_RUNTIME_ROOT_DISTRIBUTIONS)
+    pending: list[str] = list(_RUNTIME_ROOT_DISTRIBUTIONS)
     resolved: dict[str, dict[str, object]] = {}
     while pending:
         requested = pending.pop()
@@ -449,7 +455,7 @@ def _installed_runtime_digest() -> str:
         file_records: list[dict[str, object]] = []
         for item in sorted(files, key=lambda path: str(path)):
             resolved_file = _safe_local_file(
-                Path(distribution.locate_file(item)),
+                Path(str(distribution.locate_file(item))),
                 error_code="query_encoder_runtime_material_not_established",
             )
             file_digest, file_size = _sha256_file(resolved_file)
@@ -580,6 +586,46 @@ class LegalRuntimeMaterialOwner:
         self._handles: dict[str, LegalRuntimeMaterialHandle] = {}
         self._handle: LegalRuntimeMaterialHandle | None = None
 
+    @classmethod
+    def from_profile_root(cls, profile_root: Path) -> LegalRuntimeMaterialOwner:
+        """Bind the source-pinned profile's fixed cache and manifest members.
+
+        The profile root is an operator-supplied locator, not a profile
+        declaration. Model identity, manifest digest, member inventory, and
+        runtime settings remain source-owned and are revalidated before model
+        loading. Invalid explicit roots refuse instead of falling back to an
+        unowned encoder.
+        """
+        if not isinstance(profile_root, Path):
+            raise LegalRuntimeMaterialError("query_encoder_runtime_material_not_established")
+        try:
+            resolved_root = profile_root.expanduser().resolve(strict=True)
+            resolved_cache = (resolved_root / "hf-cache").resolve(strict=True)
+            resolved_manifest = (resolved_root / "asset-file-manifest.txt").resolve(strict=True)
+        except (OSError, RuntimeError) as exc:
+            raise LegalRuntimeMaterialError(
+                "query_encoder_runtime_material_not_established"
+            ) from exc
+
+        if (
+            not resolved_root.is_dir()
+            or not resolved_cache.is_dir()
+            or not resolved_manifest.is_file()
+            or not resolved_cache.is_relative_to(resolved_root)
+            or not resolved_manifest.is_relative_to(resolved_root)
+        ):
+            raise LegalRuntimeMaterialError("query_encoder_runtime_material_not_established")
+        try:
+            manifest_digest, _manifest_size = _sha256_file(resolved_manifest)
+        except OSError as exc:
+            raise LegalRuntimeMaterialError(
+                "query_encoder_runtime_material_not_established"
+            ) from exc
+        if manifest_digest != LEGAL_CONTROLLED_MANIFEST_SHA256:
+            raise LegalRuntimeMaterialError("query_encoder_runtime_material_not_established")
+
+        return cls(cache_root=resolved_cache, manifest_path=resolved_manifest)
+
     @property
     def embedding_model(self) -> str:
         """Return the source-pinned immutable model reference."""
@@ -652,7 +698,11 @@ class LegalRuntimeMaterialOwner:
                         "query_encoder_runtime_material_not_established"
                     )
                 actual_device = str(getattr(model, "device", ""))
-                dimension = int(model.get_sentence_embedding_dimension())
+                dimension = model.get_sentence_embedding_dimension()
+                if dimension is None:
+                    raise LegalRuntimeMaterialError(
+                        "query_encoder_runtime_material_not_established"
+                    )
                 if actual_device != "cpu" or dimension != 1024:
                     raise LegalRuntimeMaterialError(
                         "query_encoder_runtime_material_not_established"
@@ -732,7 +782,7 @@ class LegalRuntimeMaterialHandle:
         self,
         *,
         owner: LegalRuntimeMaterialOwner,
-        model: object,
+        model: SentenceTransformer,
         asset_identity: GenerationIdentity,
         model_files_digest: str,
         runtime_digest: str,
@@ -804,8 +854,11 @@ class LegalRuntimeMaterialHandle:
         ) is not getattr(self._bound_encode, "__func__", None):
             raise LegalRuntimeMaterialError("query_encoder_runtime_material_changed")
         try:
-            current_device = str(getattr(model, "device", ""))
-            current_dimension = int(model.get_sentence_embedding_dimension())
+            current_device = str(model.device)
+            dimension = model.get_sentence_embedding_dimension()
+            if dimension is None:
+                raise ValueError("legal_embedding_dimension_unavailable")
+            current_dimension = int(dimension)
             current_assets = derive_encoder_identity(
                 model,
                 include_live_model_state=True,

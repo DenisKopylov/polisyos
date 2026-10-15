@@ -19,6 +19,7 @@ extraction, graph assembly, quality reporting, and publish flow.
 - **Temporal resolution** — `temporal_parser.py` and `temporal_resolver.py` build document and fact temporal envelopes for version-aware downstream logic.
 - **Extraction quality filters** — `quality_filters.py` and `hallucination_detector.py` reject synthetic subjects, low-quality entities, and suspicious SPO output.
 - **Content-bound Legal embeddings** — `embedding_projection.py` is the shared entity/fact/provision text projection. `embedder.py` reads one table snapshot, fingerprints the loaded encoder assets, and binds that identity plus each projected member into the selected generation. Incremental reuse requires the same member bytes and encoder identity.
+- **Controlled local runtime profile** — `embed-local --runtime-material-profile-root PATH` asks the existing `LegalRuntimeMaterialOwner` to resolve the source-pinned model from `PATH/hf-cache` and verify `PATH/asset-file-manifest.txt`. An omitted profile keeps the legacy unowned candidate-generation path; an explicit invalid profile raises a typed refusal and never falls back.
 - **Operational outputs** — smoke, QC, and publish commands produce manifests and quality reports, not only raw graph tables.
 
 ## Public API
@@ -37,8 +38,19 @@ Full reference: [docs/reference/lex/](../../../../../../docs/reference/lex/index
 
 ## Current State
 
-- Last updated: 2026-10-14
+- Last updated: 2026-10-15
 - Phase 4/8 cutover moved this runtime into Data Forge and retired the old Lex batch package.
 - Canonical CLI: `python -m polisyos.data_forge.domains.legal.batch`.
+- Controlled local generation example:
+
+  ```bash
+  python -m polisyos.data_forge.domains.legal.batch embed-local \
+    --output-dir /path/to/legal-output \
+    --runtime-material-profile-root /path/to/legal-runtime-profile
+  ```
+
+  The profile root is operator-local configuration, not evidence of legal
+  authority, production source currentness, or publication readiness. The
+  selected model and manifest remain source-pinned.
 - Cloud Lex manifest runner imports this Data Forge runtime directly.
 - Existing selected generations without a bound encoder identity are not reused or admitted for vector queries; rerun `embed-local` to publish a compatible generation.

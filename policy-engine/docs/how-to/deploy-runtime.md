@@ -70,6 +70,27 @@ Local development-server example:
 uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
 ```
 
+To serve a local Legal generation with the existing source-owned runtime
+material profile, use the module entrypoint and pass the same profile root used
+by `embed-local`:
+
+```bash
+python -m polisyos.data_forge.domains.legal.batch embed-local \
+  --output-dir /path/to/legal-output \
+  --runtime-material-profile-root /path/to/legal-runtime-profile
+python -m polisyos.runtime.http.profiled_server \
+  --runtime-material-profile-root /path/to/legal-runtime-profile
+```
+
+The profile root contains `hf-cache/` and `asset-file-manifest.txt`; the owner
+rechecks the source-pinned manifest and model members. Keep the same Python
+environment, source checkout, working directory, and module invocation context
+for both commands. The runtime fingerprint includes the module search path, so
+launching the server through an alternate Uvicorn `app_dir` does not preserve
+the same profile. Without a profile root the existing app remains profileless
+and a vector query is refused. This is a local candidate-serving path; it does
+not establish legal authority or production currentness.
+
 Default local URLs:
 
 - `http://localhost:8000`

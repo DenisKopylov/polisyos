@@ -9,12 +9,18 @@ import shutil
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import TYPE_CHECKING, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.legal.batch.config import ALL_STAGES, BatchConfig
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 
 logger = get_logger(__name__)
+
+if TYPE_CHECKING:
+    import duckdb
+
+    from polisyos.data_forge.domains.legal.runtime_material import LegalRuntimeMaterialOwner
 
 
 def _parse_gonka_api_keys(raw: str) -> list[str]:
@@ -541,10 +547,19 @@ def _build_parser() -> argparse.ArgumentParser:
     embed_p = sub.add_parser("embed-local", help="Build local embeddings and HNSW indexes")
     embed_p.add_argument("--output-dir", required=True, type=Path)
     embed_p.add_argument("--db-path", type=Path, default=None)
-    embed_p.add_argument("--model", default="intfloat/multilingual-e5-large")
-    embed_p.add_argument("--device", default="mps")
-    embed_p.add_argument("--batch-size", type=int, default=24)
-    embed_p.add_argument("--chunk-size", type=int, default=2000)
+    embed_p.add_argument(
+        "--runtime-material-profile-root",
+        type=Path,
+        default=None,
+        help=(
+            "Use the source-pinned Legal runtime profile rooted at this directory; "
+            "requires hf-cache/ and asset-file-manifest.txt."
+        ),
+    )
+    embed_p.add_argument("--model", default=None)
+    embed_p.add_argument("--device", default=None)
+    embed_p.add_argument("--batch-size", type=int, default=None)
+    embed_p.add_argument("--chunk-size", type=int, default=None)
     embed_p.add_argument("--thermal", action="store_true")
     embed_p.add_argument(
         "--incremental",
@@ -904,12 +919,21 @@ def _cmd_smoke(args: argparse.Namespace) -> None:
 def _cmd_embed_local(args: argparse.Namespace) -> None:
     from polisyos.data_forge.domains.legal.batch.embedder import build_local_embeddings_and_indexes
     from polisyos.data_forge.kernel.embeddings import embedding_generation_manifest
+    from polisyos.data_forge.read_api import legal as legal_read_api
 
     db_path = (
         args.db_path if args.db_path is not None else args.output_dir / "lex_knowledge_graph.duckdb"
     )
     if not db_path.exists():
         sys.exit(1)
+
+    runtime_material_owner = None
+    if args.runtime_material_profile_root is not None:
+        owner_type = cast(
+            "type[LegalRuntimeMaterialOwner]",
+            legal_read_api.LegalRuntimeMaterialOwner,
+        )
+        runtime_material_owner = owner_type.from_profile_root(args.runtime_material_profile_root)
 
     stats = build_local_embeddings_and_indexes(
         db_path=db_path,
@@ -921,6 +945,7 @@ def _cmd_embed_local(args: argparse.Namespace) -> None:
         thermal_pause_seconds=0.5 if args.thermal else 0.0,
         incremental=args.incremental,
         fp16=args.fp16,
+        runtime_material_owner=runtime_material_owner,
     )
 
     projection_names = (
@@ -1020,9 +1045,9 @@ def _cmd_stats(args: argparse.Namespace) -> None:
 
     con = duckdb.connect(str(db_path), read_only=True)
     try:
-        con.execute("SELECT COUNT(*) FROM lex_entities").fetchone()[0]
-        con.execute("SELECT COUNT(*) FROM lex_facts").fetchone()[0]
-        con.execute("SELECT COUNT(*) FROM lex_provisions").fetchone()[0]
+        _required_query_count(con, "SELECT COUNT(*) FROM lex_entities")
+        _required_query_count(con, "SELECT COUNT(*) FROM lex_facts")
+        _required_query_count(con, "SELECT COUNT(*) FROM lex_provisions")
         candidate_facts = _count_table_rows(con, "lex_fact_candidates")
         grounded_facts = _count_table_rows(con, "lex_fact_grounded")
         normative_facts = _count_table_rows(con, "lex_normative_facts")
@@ -1043,11 +1068,18 @@ def _cmd_stats(args: argparse.Namespace) -> None:
         pass
 
 
+def _required_query_count(con: duckdb.DuckDBPyConnection, query: str) -> int:
+    """Read one aggregate count and refuse a missing result row."""
+    row = con.execute(query).fetchone()
+    if row is None:
+        raise RuntimeError("legal_stats_count_row_missing")
+    return int(row[0])
+
+
 def _cmd_search(args: argparse.Namespace) -> None:
     del args
     raise RuntimeError(
-        "interactive legal search is Lex-owned; use "
-        "python -m polisyos.lex.knowledge.cli"
+        "interactive legal search is Lex-owned; use python -m polisyos.lex.knowledge.cli"
     )
 
 

@@ -1,0 +1,113 @@
+{
+  "decision_id": "I4 Legal source-owned producer/consumer profile bridge",
+  "kind": "author engineering decision packet for independent G review; no formal closure or external authority claim",
+  "status": "narrow implementation authored; awaiting independent source review, freeze, and bounded actual serving proof",
+  "source_frame": {
+    "head": "a4c10b32e7aaf02bab42ac6fe4a79a048f5c52cf",
+    "tree": "50dc8a5ed3fa63d00448632655afdb97f9ee9f2b",
+    "parent": "e8f37c7178e0c5c69508fbe785992c63000e4606",
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "original_route_claim": "A local controlled Legal generation from the ordinary CLI is consumable by a separate Runtime API process under the same source-owned runtime material profile; GET carries immutable generation intent; matching POST may use vector retrieval; stale/missing/wrong profile fails closed with typed refusal.",
+  "observed_gap": {
+    "p40_bucket": "same runtime-material owner/entrypoint handshake class, one level deeper",
+    "labels": [
+      "implemented_but_not_orchestrated",
+      "bridge_missing",
+      "verification_missing"
+    ],
+    "evidence": "Ordinary `python -m polisyos.data_forge.domains.legal.batch embed-local` emitted complete entity/fact/provision generations from the actual cached pinned model, but generator_rule_version used an absolute model snapshot path and omitted `legal.runtime_material.v2=`. A fresh default Runtime API app returned GET available with immutable generation intent, then typed POST refusal `query_encoder_assets_unavailable`; default app has no source owner/provider. Separate C12 owner/provider witness independently has a true fresh API vector positive, but only through direct injection.",
+    "raw_receipts": [
+      "LOCAL/raw/resume-i4-ordinary-legal-serving-20261015/assessment.json@8781d60e55c5507cd9bdb1f7ac07b08929a22451bc4aa95c33a64eebe53b2a8d",
+      "LOCAL/raw/resume-i4-ordinary-legal-serving-20261015/ordinary-cli-producer-pinned/command.json@4706a7b27f47295483a9494035afc9200ed1826631d39520c45a5d83716f11d7",
+      "LOCAL/raw/resume-i4-ordinary-legal-serving-20261015/ordinary-cli-producer-pinned/case/api-reader-r2/result.json@91be39d305505421ee1a2acb1b69a6fe82a22777200cd22eeee0229f8a398e2c",
+      "LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/fresh-consumer-r1/stdout.json@46ebd04c96d739cfbb74e38d09e76b76b9357f7efbaf24472dd6b697d464e6b0",
+      "LOCAL/raw/resume-i4-ordinary-legal-serving-20261015/launch-path-prototype-r4/result.json@a954d4ca9412a780a39c4bd1daad6aca13e18098789d4fa5d32352dca9552e64"
+    ]
+  },
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P07",
+      "P08",
+      "P12",
+      "P29",
+      "P32",
+      "P38",
+      "P40"
+    ],
+    "anti_pattern": "Owner appears only in injected witness/test wiring. Ordinary CLI emits no owner-bound basis; default app has no provider. Treating GET available as encoder readiness is a proxy. Uvicorn entrypoint can change sys.path, which is a full-profile input.",
+    "target": "One explicit local operator profile locator shared by producer CLI and module server; existing source-owned Legal owner verifies pinned cache/manifest; existing immutable GET intent and reader gate remain the query admission bridge; preserve complete runtime fingerprint.",
+    "acceptance": "With one selected profile root, actual ordinary producer emits owner-bound generations; separate fresh supported API process GET exposes selected intent, POST intent serialized from that GET returns vector fact-1. Stale intent, wrong profile and removed owner typed-refuse. Default no-provider app typed-refuses. No production currentness or legal truth inferred."
+  },
+  "alternatives": [
+    {
+      "name": "Reuse existing owner and add explicit profiled entrypoints (chosen)",
+      "impact": "Small extension of existing LegalRuntimeMaterialOwner, builder keyword, LegalQueryEncoderProvider, RuntimeContainerOverrides and create_runtime_api_app. No generic configuration subsystem, new model or generation schema.",
+      "migration": "No profile specified keeps backward-compatible unowned candidate generation; default API keeps typed vector refusal. Explicit profile specified but malformed/missing files raises typed LegalRuntimeMaterialError and never falls back. Conflicting settings refuse. Operators that require vector search provide same profile root to producer/server.",
+      "authority_time_status": "Profile is local operator configuration and candidate runtime material only; not an HTTP field; confers no legal or production authority/currentness."
+    },
+    {
+      "name": "Normalize/remove sys.path from runtime fingerprint",
+      "impact": "Changes a load-bearing runtime identity and risks concealing module shadowing; rejected. `python -m uvicorn`/console changed sys.path; raw module-invoked programmatic callable factory matched it, but only sys.path was tested.",
+      "migration": "Requires a separate G contract choice, new falsifier and invalidates prior receipts; out of scope."
+    },
+    {
+      "name": "Leave owner composition test-only",
+      "impact": "Default app correctly refuses vector but ordinary CLI→server remains bridge_missing.",
+      "migration": "Cannot claim I4 complete."
+    }
+  ],
+  "source_contract": {
+    "profile_locator": "Existing named C12 local controlled profile root `docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile`, containing fixed `hf-cache/` and `asset-file-manifest.txt` SHA-256 `191a71ec41bc1a69665fffccb5fa7f1c30b3f94ccd60f71cc3ed1f074ecb98ca`. The root is a locator only; source-owned owner revalidates actual bytes against fixed digest and manifest members.",
+    "runtime_material_identity": "Preserve source-pinned model/revision, package version, CPU/query/producer settings, source closure, assets, handle binding and exact full runtime profile including sys.path. No filename/self-label trust, fingerprint normalization, manifest rewrite, DTO/API change, or production currentness inference.",
+    "profile_selection": "Operator passes explicit `--runtime-material-profile-root PATH` to producer and module server. Not HTTP request input. Fixed relative child names are `hf-cache` and `asset-file-manifest.txt`.",
+    "entrypoint": "`python -m polisyos.runtime.http.profiled_server --runtime-material-profile-root PATH` composes owner→LegalQueryEncoderProvider→RuntimeContainerOverrides→create_runtime_api_app→Uvicorn callable factory. Module invocation preserves observed sys.path; no console entrypoint, `app_dir`, or sys.path change."
+  },
+  "exact_lease": {
+    "mechanism_paths": [
+      "src/polisyos/data_forge/domains/legal/runtime_material.py",
+      "src/polisyos/data_forge/domains/legal/batch/cli.py",
+      "src/polisyos/runtime/http/profiled_server.py"
+    ],
+    "tests": [
+      "tests/unit/data_forge/legal_batch/test_embed_local_runtime_material.py",
+      "tests/unit/runtime/http/test_profiled_server.py",
+      "tests/integration/data_forge_runtime/test_legal_runtime_material_entrypoints.py"
+    ],
+    "docs": [
+      "src/polisyos/data_forge/domains/legal/batch/README.md",
+      "src/polisyos/runtime/http/README.md",
+      "docs/how-to/deploy-runtime.md"
+    ],
+    "release_fragment": "release-fragments/unreleased/2026-10-15-e02-legal-profiled-entrypoints.toml",
+    "excluded": [
+      "public HTTP DTO/OpenAPI",
+      "generation/inventory schema",
+      "Legal provider/store admission semantics",
+      "C12 pinned model assets/manifest",
+      "pyproject console script",
+      "production payloads/manifests"
+    ]
+  },
+  "delivery_sequence": [
+    "Decision packet was written before implementation; the root coordinator owns ordinary Git delivery and history boundaries.",
+    "TDD observed the intended red: the owner profile-root factory was absent and the producer CLI rejected the explicit profile option.",
+    "Implemented the fixed-child owner profile-root factory and optional embed-local profile wiring; no-profile defaults remain delegated to the existing builder and invalid explicit roots refuse.",
+    "Implemented the module-invoked profiled server using the existing provider/container/app APIs; the default app path has no injected profile.",
+    "Focused unit and existing importer tests pass (26 total, including a None-row refusal regression); the opt-in integration remains skipped by default and now persists full producer/server/HTTP/wrong-profile outputs to the assigned receipt directory. Canonical Ruff, formatting, and diff checks pass. The repository-configured targeted basedpyright command with the existing C12 rag-local interpreter reports 0 errors and 3 warnings (missing SentenceTransformer stubs and an existing protected _owns access); the checked baseline hash remained unchanged.",
+    "Await independent delta review and freeze source/input/profile.",
+    "After freeze/review, run one bounded actual one-row cached-model CLI→separate actual HTTP server wave; retain full output, GET intent, matched vector POST fact-1, stale/wrong-profile/owner-removal controls, and exact profile inputs. Other 13-supplier C12 wave remains separate."
+  ],
+  "limits": {
+    "current_sys_path_prototype": "Only sys.path equality was tested for programmatic module Uvicorn; not full warmed profile or Legal owner HTTP route.",
+    "local_fixture_only": true,
+    "production_payloads_read": false,
+    "production_currentness_established": false,
+    "external_legal_authority_established": false,
+    "scientific_contract_changed": false
+  },
+  "falsifier": "If same-profile owner-bound ordinary generation and fresh server still refuse after GET exposes its exact persisted intent, investigate the owner/profile bridge. If stale intent, wrong profile, or removed owner still returns vector-positive, implementation fails."
+}

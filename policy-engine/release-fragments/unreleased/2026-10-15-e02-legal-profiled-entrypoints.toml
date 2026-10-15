@@ -1,0 +1,28 @@
+id = "2026-10-15-e02-legal-profiled-entrypoints"
+title = "Wire Legal local generation and Runtime serving through one owned profile"
+type = "changed"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "Legal embed-local can bind generations to the source-owned runtime-material profile, and a module-invoked Runtime API server can compose the same existing owner into query serving."
+evidence = [
+  "src/polisyos/data_forge/domains/legal/runtime_material.py",
+  "src/polisyos/data_forge/domains/legal/batch/cli.py",
+  "src/polisyos/runtime/http/profiled_server.py",
+  "tests/unit/data_forge/legal_batch/test_embed_local_runtime_material.py",
+  "tests/unit/runtime/http/test_profiled_server.py",
+  "tests/integration/data_forge_runtime/test_legal_runtime_material_entrypoints.py",
+]
+compatibility = "Omitting a profile root preserves the existing unowned candidate generation and profileless Runtime API composition. An invalid explicit root raises a typed refusal instead of falling back."
+change_class = "tooling"
+surface_classification = "public_tool_cli"
+migration = "For local vector serving, pass the same source-qualified profile root to `embed-local` and `python -m polisyos.runtime.http.profiled_server`. Keep the same Python environment, source checkout, working directory, and module invocation context."
+api = "The existing Legal owner and Runtime container/provider compose through a local module entrypoint. No HTTP request field, generation schema, or public Runtime API DTO changes."
+limitations = "The path is a controlled local candidate profile and makes no legal-authority or production-currentness claim. The cached-model one-row producer-to-fresh-server proof remains gated on independent source review and freeze."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = [
+  "src/polisyos/data_forge/domains/legal/batch/README.md",
+  "src/polisyos/runtime/http/README.md",
+  "docs/how-to/deploy-runtime.md",
+]
+runbook_docs = []

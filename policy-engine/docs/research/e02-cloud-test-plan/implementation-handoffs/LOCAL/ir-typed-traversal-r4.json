@@ -1,0 +1,211 @@
+{
+  "schema": "policyos.e02.local_handoff.v1",
+  "slice": "ir-typed-traversal-r4",
+  "status": "implemented_bounded_verification; final_composition_not_frozen",
+  "slice_base": {
+    "sha": "10c2ed2eeacb0a9fbac86e155b139e52831a0cb7",
+    "tree": "f921533a75f363c7fa3f6644837e7ae633b7acaa",
+    "purpose": "base predating original ad012 typed-selector/temporal WIP; no P41 inherited-red claim"
+  },
+  "repair_entry": {
+    "sha": "4bef78b9cb4d81d3d8c0b5b4f7e971a23751bb23",
+    "tree": "2c9fdecccffe39766a2c8424ebf22c39e38e8d31"
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "fa689651901c5c5b00d629c646c65c8f6141996d",
+    "tree": "8487940dbfdfe6c0ff35fbbff0705e290b5ac93f",
+    "parents": [
+      "4bef78b9cb4d81d3d8c0b5b4f7e971a23751bb23"
+    ],
+    "scope": "only five committed paths below; concurrent other lanes excluded"
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/interventions.py",
+      "git_blob": "6b4ac14a3815a60287b0acd8c21cd56438d90eb9",
+      "sha256": "13591ee4546431c1c8489703f9972f82fc2a4d234fd8337de8b9e884034c317b",
+      "bytes": 53666,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "git_blob": "6a23891c57ac164d0b331345a2aab839ea0addf4",
+      "sha256": "a6b14b329428854e5811623567f684c62e80029df29d93de28dba3621031b9ce",
+      "bytes": 48578,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/governance/mechanism_semantics.py",
+      "git_blob": "070166f2eab9770085213e057939130fd020b9f8",
+      "sha256": "124060aba9247c507ca778ab4fa31186b33fd85228d527355c88c08b26b6a274",
+      "bytes": 24641,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/governance/temporal_logic.py",
+      "git_blob": "d477253b27bb61db648ee51e2e3ddfd95e50c403",
+      "sha256": "aeac823670c8db126f8cf9f693c6604717e05615289db8e130bd5137afdb43f2",
+      "bytes": 13160,
+      "branch_readback_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/governance/test_phase5_governance_contracts.py",
+      "git_blob": "9bb4d9fbd614db52a2fc6f2352796f49854e564e",
+      "sha256": "289d3273acfb8636ee67f1fb66d8ff4db20266e094a23ac007ea079d4d8e41d6",
+      "bytes": 14509,
+      "branch_readback_equal": true
+    }
+  ],
+  "original_wip_commit": "ad01224b0cf14b2279c3be78573b5154ab50bf83",
+  "selected_input_profile_backend": {
+    "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]\n/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "backend": "Pydantic typed IR models; no optional numerical backend",
+    "inputs": "canonical typed models and JSON mappings; no production input"
+  },
+  "property_and_chain": {
+    "chain": "JSON mapping -> Pydantic TemporalLogicExpr -> after-validator -> recursive stats/family walkers -> accepted typed policy constraint or ValueError",
+    "changes": [
+      "typed exhaustive temporal dispatch preserves validated mapping input and recursive depth/node/family/path checks",
+      "distinct locals preserve typed iteration over distinct mechanism/policy models",
+      "facade alias loaders use distinct locals; remove two unused ignores",
+      "typed EstimandAST narrowing retains declared AST/dict/None path"
+    ],
+    "external_surface": "existing IR model/API exports preserved; no new HTTP capability claim"
+  },
+  "verification": {
+    "pytest": {
+      "tests": 52,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "ruff": "PASS five changed paths",
+    "format": "PASS five changed paths",
+    "mypy": "PASS four selected source files with original unsuppressed config and normal import following; full192-source IR gate not rerun",
+    "removal_controls": "two existing behavioral tests fail when recursive-size or family checking is removed in memory; markers/source retained",
+    "source_stability": true,
+    "logs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "available": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/format.stdout.txt",
+        "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+        "bytes": 26,
+        "available": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/junit.xml",
+        "sha256": "3418f7dd4d1cef5fbb51da40d1966b67245122662d3bf7f2ab1fde83cb698846",
+        "bytes": 7975,
+        "available": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/mypy-selected-correct-imports-command.json",
+        "sha256": "29d95cca4f2efbe879626892b17d8a5856b5d5d3a7de455456b14f88e45626b8",
+        "bytes": 742,
+        "available": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/mypy-selected-correct-imports.stderr.txt",
+        "sha256": "9de5190aaaee378692322185217f94991d807cd352ec254542663b3e1a12ee54",
+        "bytes": 36251,
+        "available": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/mypy-selected-correct-imports.stdout.txt",
+        "sha256": "71144743c83babea384888a735db0c4daba3d4d7b7942b6839984bd5c21b52bb",
+        "bytes": 43,
+        "available": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/mypy-selected.stderr.txt",
+        "sha256": "f8e01ea28fc6713fab1106e2ec1de689ac1ef60e50c9a9df36fb39e154544829",
+        "bytes": 41621,
+        "available": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/mypy-selected.stdout.txt",
+        "sha256": "6bab0ac0afc9011ec27ab56a64eb9778a2ac214f62534c6a9d7a0acc41d2e068",
+        "bytes": 10025,
+        "available": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "available": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/pytest.stdout.txt",
+        "sha256": "d9108367fe14cdb06e82521cd7edd462c20488343a1c75aa0dcf4856ac7b8e20",
+        "bytes": 583,
+        "available": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/removal-controls.stdout.txt",
+        "sha256": "e09c8b2d131bfaf1345517cdb89c6cf3817a8a215a5c710b9e0236dce7f4f099",
+        "bytes": 464,
+        "available": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/results.json",
+        "sha256": "6acdb926851e562b0bcf1563a74f14e079e876d988b7faed0e316a118a66094b",
+        "bytes": 3724,
+        "available": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/ruff.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "available": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-first-boundary-root-20261015/ruff.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19,
+        "available": "local ignored RAW"
+      }
+    ],
+    "independent_temporal_api_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-independent-review-20261015/review.json",
+      "sha256": "50f3e4e43ef2e42b6ff7aa377e6307b5ab2abc2c167d222ef16dc2181ea9692a",
+      "bytes": 4542,
+      "available": "local ignored RAW"
+    },
+    "other_review": "root inspected complete mechanism/intervention diffs; root did not author those changes",
+    "harness_error": "first root command overriding follow_imports=skip erased dependency model types and produced79 synthetic diagnostics; retained as ERROR and superseded by exact normal-import command"
+  },
+  "limitations": [
+    "Full IR MyPy previously223 errors/53files/192sources. This scoped pass does not establish whole gate green or inherited debt.",
+    "Private temporal helpers require canonical validated model objects; arbitrary duck-typed private calls are outside supported public input.",
+    "Other IR observation/native/runtime author deltas remain uncommitted and outside this candidate footprint.",
+    "Full composed replay, native SOTA, installed wheel/rebuilt-sdist and G independent acceptance remain pending."
+  ],
+  "pattern_pass": {
+    "relevant": [
+      "P29",
+      "P31",
+      "P33",
+      "P35",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "bucket": "SAME_CLASS_DEEPER: widened repeated typed-local/walker class across investigated modules; no blanket closure",
+    "p41": "not_established; no exact slice-base full-gate replay plus zero-intersection proof"
+  },
+  "closure_ids": [],
+  "author_proposals": [
+    {
+      "task": "DX0",
+      "outcome": "limited",
+      "claim": "bounded typed IR traversal and loop repair; full native-quality and finding-level closeout remains open"
+    }
+  ],
+  "historical_and_g_authority": "No change to historical closures or G adjudication."
+}

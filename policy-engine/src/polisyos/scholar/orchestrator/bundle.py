@@ -125,8 +125,26 @@ def persist_bundle_and_event(
     input_artifact_ids: list[str],
     segment_name: str | None = None,
     persist_report: bool = True,
+    return_selected_profile: bool = False,
 ) -> tuple[KnowledgeBundleRef, EnrichmentReportV1, EnrichmentReportRef | None]:
-    """Write the knowledge bundle, optional report, and corresponding world event to storage."""
+    """Write the bundle, optional report, and world event.
+
+    Args:
+        cas: Artifact store for the bundle and report.
+        fact_log_root: Directory for the emitted world-fact segment.
+        bundle_payload: Typed knowledge-bundle payload to persist.
+        report_payload: Report linked to the persisted bundle.
+        doc_version_ids: Document versions represented by the bundle.
+        claim_ids: Claims represented by the bundle.
+        conflict_set_ids: Conflict sets represented by the bundle.
+        input_artifact_ids: Artifacts recorded as direct bundle inputs.
+        segment_name: Optional stable name for the world-fact segment.
+        persist_report: Whether to persist the linked enrichment report.
+        return_selected_profile: Whether the returned bundle ref selects its exact CAS view.
+
+    Returns:
+        The bundle ref, report with its bundle ID, and optional report ref.
+    """
     bundle_ref = cas.put_json(
         bundle_payload.model_dump(mode="python"),
         opts=ArtifactWriteOptions(
@@ -135,6 +153,7 @@ def persist_bundle_and_event(
             schema=_BUNDLE_SCHEMA,
             inputs=_input_refs(input_artifact_ids),
         ),
+        return_selected_profile=return_selected_profile,
     )
     bundle_artifact_id = str(bundle_ref.artifact_id)
 
@@ -201,7 +220,7 @@ def persist_bundle_and_event(
     append_world_segment_index(manifest, fact_log_root=fact_log_root)
 
     return (
-        KnowledgeBundleRef(artifact_id=bundle_ref.artifact_id),
+        KnowledgeBundleRef.model_validate(bundle_ref.model_dump(mode="json")),
         report,
         report_ref,
     )

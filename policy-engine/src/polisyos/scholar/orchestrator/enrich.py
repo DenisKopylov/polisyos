@@ -983,6 +983,7 @@ def enrich_topic(
             input_artifact_ids=input_artifact_ids,
             segment_name=f"scholar_bundle_build_{run_token}",
             persist_report=scholar_policy.persist_report,
+            return_selected_profile=True,
         )
     except Exception as exc:
         raise ScholarBundleError(f"bundle stage failed: {exc}") from exc

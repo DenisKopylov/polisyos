@@ -7,13 +7,21 @@ from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts import artifact_manifest_profile_sha256
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent, ResearchIntentRef
+from polisyos.core.contracts.scholar import (
+    KnowledgeBundleRef,
+    ResearchIntent,
+    ResearchIntentRef,
+    SourceSpec,
+)
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.scholar.api import ScholarService
 from polisyos.scholar.freshness import build_freshness_metadata
-from polisyos.scholar.types import KnowledgeBundlePayloadV1
+from polisyos.scholar.orchestrator.bundle import persist_bundle_and_event
+from polisyos.scholar.types import EnrichmentReportV1, KnowledgeBundlePayloadV1
 from polisyos.scientist.nodes.builtins.data.enrich_knowledge import EnrichKnowledgeNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_KNOWLEDGE_BUNDLE_REF,
@@ -65,8 +73,11 @@ class _AssertionFailScholar:
         raise AssertionError("scholar invariant")
 
 
-def _store_intent(cas: FileSystemCAS) -> ResearchIntentRef:
-    intent = ResearchIntent(domain="labor")
+def _store_intent(
+    cas: FileSystemCAS,
+    intent: ResearchIntent | None = None,
+) -> ResearchIntentRef:
+    intent = intent or ResearchIntent(domain="labor")
     artifact = cas.put_json(
         intent.model_dump(mode="python"),
         PutOptions(
@@ -139,6 +150,78 @@ def test_enrich_node_refreshes_stale_bundle(tmp_path: Path) -> None:
     assert fake_scholar.calls == 1
     refreshed_ref = outcome.state.inputs[INPUT_KNOWLEDGE_BUNDLE_REF]
     assert str(refreshed_ref.artifact_id) != str(stale_ref.artifact_id)
+    assert refreshed_ref.manifest_profile_sha256 is not None
+    reopened = FileSystemCAS(ctx.store.root)
+    assert (
+        artifact_manifest_profile_sha256(reopened.get_manifest(refreshed_ref))
+        == refreshed_ref.manifest_profile_sha256
+    )
+
+
+def test_real_scholar_producer_returns_selected_bundle_profile(tmp_path: Path) -> None:
+    intent = ResearchIntent(
+        domain="labor",
+        topic="E02 profile lineage witness",
+        seed_sources=[
+            SourceSpec(
+                kind="bytes",
+                data=b"A policy note about labor-market training and employment outcomes.",
+                source_locator="e02:test:knowledge-bundle-profile",
+                license="test-fixture",
+                mime_hint="text/plain",
+            )
+        ],
+    )
+    scholar = ScholarService(fact_log_root=tmp_path / "world-facts")
+    ctx, state = _build_context(tmp_path, scholar)
+    state.inputs[INPUT_RESEARCH_INTENT_REF] = _store_intent(ctx.store, intent)
+
+    outcome = EnrichKnowledgeNode().execute(ctx, state)
+
+    assert outcome.status == "ok"
+    bundle_ref = outcome.state.inputs[INPUT_KNOWLEDGE_BUNDLE_REF]
+    assert bundle_ref.manifest_profile_sha256 is not None
+    reopened = FileSystemCAS(ctx.store.root)
+    manifest = reopened.get_manifest(bundle_ref)
+    assert manifest.kind == "scholar.knowledge_bundle"
+    assert artifact_manifest_profile_sha256(manifest) == bundle_ref.manifest_profile_sha256
+
+
+def test_bundle_writer_profile_selection_is_opt_in(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    payload = KnowledgeBundlePayloadV1(bundle_id="bundle.profile-opt-in")
+    report = EnrichmentReportV1(bundle_artifact_id="", bundle_id=payload.bundle_id)
+
+    default_ref, _, _ = persist_bundle_and_event(
+        cas=store,
+        fact_log_root=tmp_path / "default-facts",
+        bundle_payload=payload,
+        report_payload=report,
+        doc_version_ids=[],
+        claim_ids=[],
+        conflict_set_ids=[],
+        input_artifact_ids=[],
+        persist_report=False,
+    )
+    selected_ref, _, _ = persist_bundle_and_event(
+        cas=store,
+        fact_log_root=tmp_path / "selected-facts",
+        bundle_payload=payload,
+        report_payload=report,
+        doc_version_ids=[],
+        claim_ids=[],
+        conflict_set_ids=[],
+        input_artifact_ids=[],
+        persist_report=False,
+        return_selected_profile=True,
+    )
+
+    assert default_ref.manifest_profile_sha256 is None
+    assert selected_ref.artifact_id == default_ref.artifact_id
+    assert selected_ref.manifest_profile_sha256 is not None
+    reopened = FileSystemCAS(store.root)
+    manifest = reopened.get_manifest(selected_ref)
+    assert artifact_manifest_profile_sha256(manifest) == selected_ref.manifest_profile_sha256
 
 
 def test_enrich_node_skips_refresh_during_cooldown(tmp_path: Path) -> None:

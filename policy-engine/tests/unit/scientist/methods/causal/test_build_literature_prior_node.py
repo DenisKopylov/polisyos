@@ -1,22 +1,37 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import replace
 
 import duckdb
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256,
+)
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.contracts.scholar import (
+    KnowledgeBundleRef,
+    ResearchIntent,
+    ResearchIntentRef,
+    SourceSpec,
+)
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.analytics.literature import load_literature_causal_prior
+from polisyos.scholar.api import ScholarService
 from polisyos.scientist.nodes.builtins.causal.build_literature_prior import (
     BuildLiteraturePriorNode,
 )
+from polisyos.scientist.nodes.builtins.data.enrich_knowledge import EnrichKnowledgeNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LITERATURE_PRIOR_GRAPH_REF,
     ARTIFACT_LITERATURE_PRIOR_REF,
     INPUT_KNOWLEDGE_BUNDLE_REF,
+    INPUT_RESEARCH_INTENT_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -139,6 +154,134 @@ def test_build_literature_prior_node_persists_prior_and_graph(tmp_path) -> None:
     assert prior.environment_audit is not None
     assert prior.environment_audit.status == "ok"
     assert outcome.state.params["environment_audit_status"] == "ok"
+
+
+def test_real_scholar_bundle_profile_flows_through_prior_and_graph(tmp_path) -> None:
+    ctx = _build_ctx(tmp_path)
+    ctx = replace(
+        ctx,
+        scholar=ScholarService(fact_log_root=tmp_path / "world-facts"),
+    )
+    intent = ResearchIntent(
+        domain="labor",
+        topic="E02 selected-profile chain witness",
+        seed_sources=[
+            SourceSpec(
+                kind="bytes",
+                data=b"A policy note about labor-market training and employment outcomes.",
+                source_locator="e02:test:build-prior-profile-chain",
+                license="test-fixture",
+                mime_hint="text/plain",
+            )
+        ],
+    )
+    intent_artifact = ctx.store.put_json(
+        intent.model_dump(mode="python"),
+        PutOptions(
+            kind="scholar.research_intent",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.core.contracts.scholar.ResearchIntent",
+                version="1.0",
+            ),
+        ),
+    )
+    intent_ref = ResearchIntentRef.model_validate(intent_artifact.model_dump(mode="json"))
+    enrichment = EnrichKnowledgeNode().execute(
+        ctx,
+        ExperimentState(
+            run_id="R_phase9_lit",
+            inputs={INPUT_RESEARCH_INTENT_REF: intent_ref},
+        ),
+    )
+    assert enrichment.status == "ok"
+    selected_ref = KnowledgeBundleRef.model_validate(
+        enrichment.state.inputs[INPUT_KNOWLEDGE_BUNDLE_REF].model_dump(mode="json")
+    )
+    assert selected_ref.manifest_profile_sha256 is not None
+    bundle_manifest = ctx.store.get_manifest(selected_ref)
+    assert bundle_manifest.kind == "scholar.knowledge_bundle"
+    assert artifact_manifest_profile_sha256(bundle_manifest) == selected_ref.manifest_profile_sha256
+
+    sibling_artifact = ctx.store.put_bytes(
+        ctx.store.get_bytes(selected_ref),
+        PutOptions(
+            kind="scholar.knowledge_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scholar.KnowledgeBundlePayloadV1.sibling-view",
+                version="1.0",
+            ),
+        ),
+        return_selected_profile=True,
+    )
+    sibling_ref = KnowledgeBundleRef.model_validate(sibling_artifact.model_dump(mode="json"))
+    assert sibling_ref.artifact_id == selected_ref.artifact_id
+    assert sibling_ref.manifest_profile_sha256 is not None
+    assert sibling_ref.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
+    reopened_store = FileSystemCAS(ctx.store.root)
+    assert (
+        artifact_manifest_profile_sha256(reopened_store.get_manifest(selected_ref))
+        == selected_ref.manifest_profile_sha256
+    )
+    assert (
+        artifact_manifest_profile_sha256(reopened_store.get_manifest(sibling_ref))
+        == sibling_ref.manifest_profile_sha256
+    )
+
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_db(db_path)
+    source_views = (
+        ("selected", selected_ref),
+        ("same_bytes_sibling_profile", sibling_ref),
+        (
+            "legacy_profileless_input",
+            KnowledgeBundleRef(
+                artifact_id=selected_ref.artifact_id,
+                kind=selected_ref.kind,
+                media_type=selected_ref.media_type,
+            ),
+        ),
+    )
+    for label, source_ref in source_views:
+        state = ExperimentState(
+            run_id=f"R_phase9_lit_{label}",
+            inputs={INPUT_KNOWLEDGE_BUNDLE_REF: source_ref},
+            params={
+                "causal_variables": ["tax", "employment"],
+                "skg_db_path": str(db_path),
+                "skg_index_dir": str(tmp_path / "idx"),
+                "discovery_data": [[0.0, 1.0], [0.1, 1.1], [2.0, 3.0], [2.1, 3.1]],
+                "discovery_variable_names": ["tax", "employment"],
+                "discovery_environment_labels": ["a", "a", "b", "b"],
+            },
+        )
+        outcome = BuildLiteraturePriorNode().execute(ctx, state)
+        assert outcome.status == "ok"
+        prior_ref = outcome.state.artifacts_index[ARTIFACT_LITERATURE_PRIOR_REF]
+        graph_ref = outcome.state.artifacts_index[ARTIFACT_LITERATURE_PRIOR_GRAPH_REF]
+        prior = load_literature_causal_prior(_ensure_ir_artifact_store(ctx.store), prior_ref)
+        assert len(prior.edges) == 1
+
+        source_edge = (
+            str(source_ref.artifact_id),
+            "knowledge_bundle",
+            source_ref.manifest_profile_sha256,
+        )
+        prior_edge = (
+            str(prior_ref.artifact_id),
+            "literature_prior",
+            prior_ref.manifest_profile_sha256,
+        )
+
+        def input_edges(ref) -> list[tuple[str, str, str | None]]:
+            return [
+                (str(item.artifact_id), item.role, item.manifest_profile_sha256)
+                for item in reopened_store.get_manifest(ref).inputs
+            ]
+
+        assert input_edges(prior_ref) == [source_edge]
+        assert input_edges(graph_ref) == [source_edge, prior_edge]
 
 
 def test_build_literature_prior_node_skips_without_variables(tmp_path) -> None:

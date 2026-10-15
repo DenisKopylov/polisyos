@@ -92,6 +92,7 @@ class EnrichKnowledgeNode:
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         from polisyos.core.artifacts import load_core_json_artifact
+
         if ctx.scholar is None:
             return NodeOutcome(
                 status="fail",
@@ -404,6 +405,7 @@ class EnrichKnowledgeNode:
         bundle_ref: KnowledgeBundleRef,
     ) -> KnowledgeBundlePayloadV1:
         from polisyos.core.artifacts import load_core_json_artifact
+
         payload = load_core_json_artifact(ctx.store, bundle_ref)
         if not isinstance(payload, dict):
             raise ValueError("knowledge_bundle_ref must point to JSON object payload")
@@ -421,8 +423,9 @@ class EnrichKnowledgeNode:
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.scholar.KnowledgeBundlePayloadV1", version="1.0"),
             ),
+            return_selected_profile=True,
         )
-        return KnowledgeBundleRef.model_validate(artifact.model_dump())
+        return KnowledgeBundleRef.model_validate(artifact.model_dump(mode="json"))
 
     def _extract_drift_signals(self, state: ExperimentState) -> dict[str, bool]:
         raw = state.params.get("scholar_drift_signals")

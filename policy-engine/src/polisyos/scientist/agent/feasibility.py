@@ -226,7 +226,11 @@ class StateSnapshotFeasibilityProbe:
         )
 
     def _load_state_for_snapshot(self, data_snapshot_ref: str) -> Any:
-        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.core.artifacts import (
+            load_core_json_artifact,
+            validate_core_model_json_artifact,
+        )
+
         try:
             from polisyos.foundry.execute import SnapshotStateLayoutError
             from polisyos.foundry.execute.executor import load_state_snapshot
@@ -236,8 +240,11 @@ class StateSnapshotFeasibilityProbe:
             _ = exc
 
         data_snapshot_id = ArtifactID.model_validate(data_snapshot_ref)
-        payload = load_core_json_artifact(self._cas, data_snapshot_id)
-        snapshot = DataSnapshot.model_validate(payload)
+        snapshot = validate_core_model_json_artifact(
+            DataSnapshot,
+            self._cas,
+            data_snapshot_id,
+        )
 
         state_ref = snapshot.data_ref
         if state_ref.kind != "foundry.state_snapshot":
@@ -256,6 +263,7 @@ class StateSnapshotFeasibilityProbe:
 
     def _load_raw_state_snapshot(self, snapshot_artifact_id: str | ArtifactID) -> Any:
         from polisyos.core.artifacts import load_core_json_artifact
+
         snapshot_payload = load_core_json_artifact(self._cas, snapshot_artifact_id)
         snapshot = StateSnapshot.model_validate(snapshot_payload)
         blob = np.load(BytesIO(self._cas.get_bytes(snapshot.state_ref)))

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from statistics import NormalDist
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
@@ -75,7 +76,14 @@ def _put_simulation_result_with_envelope(store: FileSystemCAS, *, point: float, 
     )
     return store.put_json(
         sim,
-        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=CoreSchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=sim.schema_version,
+            ),
+        ),
     )
 
 
@@ -182,6 +190,38 @@ def test_confidence_pass_blocks_wide_ci(tmp_path) -> None:
     assert any(issue.severity == IssueSeverity.BLOCKER for issue in issues)
 
 
+def test_confidence_pass_refuses_simulation_result_from_foreign_schema(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path)
+    valid_ref = _put_simulation_result_with_envelope(store, point=1.0, std=0.4)
+    payload = store.get_bytes(valid_ref.artifact_id)
+    foreign_ref = store.put_json(
+        json.loads(payload),
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=CoreSchemaInfo(
+                name="polisyos.other.SimulationResult",
+                version=SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+        return_selected_profile=True,
+    )
+    sim_ref = SimulationResultRef.model_validate(foreign_ref.model_dump(mode="python"))
+    ctx = PassContext(
+        ir=None,
+        state={"artifacts_index": {"simulation_result_ref": sim_ref}, "_store": store},
+        registry_bundle=None,
+        profile=ValidationProfile.strict(),
+        run_id="R_confidence_foreign_simulation_schema",
+    )
+
+    issues = ConfidencePass().validate(ctx)
+
+    refusal = next(issue for issue in issues if issue.code == "CONFIDENCE_SIM_RESULT_LOAD_FAILED")
+    assert refusal.severity == IssueSeverity.WARNING
+    assert "canon_profile_typed_artifact_schema_name_mismatch" in refusal.message
+
+
 def test_confidence_pass_missing_envelope_returns_empty() -> None:
     """When no simulation result or causal envelope exist, pass returns no issues."""
     ctx = PassContext(
@@ -272,7 +312,14 @@ def test_confidence_pass_non_gate_eligible_triggers_gate_ratio_blocker(tmp_path)
     )
     sim_ref = store.put_json(
         sim,
-        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+        PutOptions(
+            kind=SimulationResult.ARTIFACT_KIND,
+            media_type=SimulationResult.ARTIFACT_MEDIA_TYPE,
+            schema=CoreSchemaInfo(
+                name=SimulationResult.ARTIFACT_SCHEMA_NAME,
+                version=sim.schema_version,
+            ),
+        ),
     )
     ctx = PassContext(
         ir=None,

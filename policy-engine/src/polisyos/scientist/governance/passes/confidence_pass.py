@@ -45,7 +45,7 @@ class ConfidencePass(ValidatorPass):
         return 50
 
     def validate(self, ctx: PassContext) -> list[ComplianceIssue]:
-        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.core.artifacts import validate_core_model_json_artifact
 
         issues: list[ComplianceIssue] = []
 
@@ -101,8 +101,11 @@ class ConfidencePass(ValidatorPass):
             envelope_refs["causal_effect"] = causal_ref
         else:
             try:
-                payload = load_core_json_artifact(store, sim_result_ref)
-                sim_result = SimulationResult.model_validate(payload)
+                sim_result = validate_core_model_json_artifact(
+                    SimulationResult,
+                    store,
+                    sim_result_ref,
+                )
             except (
                 AttributeError,
                 OSError,

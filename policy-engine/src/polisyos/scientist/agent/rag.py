@@ -25,7 +25,6 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.protocols import ProblemFrame as AgentProblemFrame
 
 logger = get_logger(__name__)
@@ -367,6 +366,7 @@ class CASRAGIndex:
 
     def build_from_cas(self, cas: FileSystemCAS, *, max_entries: int = 10_000) -> int:
         from polisyos.core.artifacts import load_core_json_artifact
+
         indexed = 0
         for artifact_id in cas.iter_artifact_ids():
             if indexed >= max_entries:
@@ -394,7 +394,12 @@ class CASRAGIndex:
         payload: Any,
         decision_packet_ref: str,
     ) -> RAGCaseEntry | None:
-        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.core.artifacts import (
+            ensure_ir_artifact_store,
+            load_core_json_artifact,
+        )
+        from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+
         if not isinstance(payload, dict):
             return None
 
@@ -416,8 +421,10 @@ class CASRAGIndex:
 
         try:
             trinity_aid = ArtifactID.model_validate(trinity_ref_str)
-            trinity_payload = load_core_json_artifact(cas, trinity_aid)
-            trinity = TrinityBundle.model_validate(trinity_payload)
+            trinity = load_trinity_bundle_artifact(
+                ensure_ir_artifact_store(cas),
+                trinity_aid,
+            )
         except _RAG_ARTIFACT_LOAD_ERRORS:
             return None
 
@@ -550,6 +557,7 @@ class CASRAGIndex:
         embedder: EmbeddingBackend,
     ) -> CASRAGIndex:
         from polisyos.core.artifacts import load_core_json_artifact
+
         snapshot_aid = ArtifactID.model_validate(snapshot_ref)
         snapshot_payload = load_core_json_artifact(cas, snapshot_aid)
         if not isinstance(snapshot_payload, dict):

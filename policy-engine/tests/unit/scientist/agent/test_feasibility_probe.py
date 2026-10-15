@@ -4,12 +4,14 @@ import asyncio
 
 import pytest
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+
 jax = pytest.importorskip("jax")
 import jax.numpy as jnp
 
 from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot
@@ -39,9 +41,42 @@ def _build_data_snapshot_ref(cas: FileSystemCAS) -> str:
     data_snapshot = DataSnapshot(data_ref=state_snapshot_ref)
     data_snapshot_ref = cas.put_json(
         data_snapshot.model_dump(mode="json"),
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
     )
     return str(data_snapshot_ref.artifact_id)
+
+
+def test_state_snapshot_probe_rejects_foreign_data_snapshot_owner(tmp_path) -> None:
+    cas = FileSystemCAS(tmp_path)
+    data_snapshot_ref = _build_data_snapshot_ref(cas)
+    payload = DataSnapshot.model_validate(
+        from_canonical_bytes(cas.get_bytes(ArtifactID.model_validate(data_snapshot_ref)))
+    ).model_copy(update={"stats": {"foreign_owner_probe": True}})
+    foreign_ref = cas.put_json(
+        payload,
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name="polisyos.other.DataSnapshot",
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+
+    probe = StateSnapshotFeasibilityProbe(cas)
+    with pytest.raises(
+        CanonicalProfileRefusalError,
+        match="canon_profile_typed_artifact_schema_name_mismatch",
+    ):
+        probe._load_state_for_snapshot(str(foreign_ref.artifact_id))
 
 
 def _tamper_snapshot_lineage(cas: FileSystemCAS, data_snapshot_ref: str) -> None:

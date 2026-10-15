@@ -4,6 +4,7 @@ from datetime import datetime
 
 import pytest
 
+from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain
@@ -60,7 +61,14 @@ def test_rag_build_from_cas_and_search(tmp_path) -> None:
     trinity = _make_trinity("poverty_fiscal", ProblemDomain.FISCAL)
     trinity_ref = cas.put_json(
         trinity.model_dump(mode="json"),
-        PutOptions(kind="ir.trinity_bundle", media_type="application/json"),
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
     )
     cas.put_json(
         {
@@ -104,7 +112,14 @@ def test_rag_snapshot_roundtrip(tmp_path) -> None:
     trinity = _make_trinity("labor_program", ProblemDomain.LABOR)
     trinity_ref = cas.put_json(
         trinity.model_dump(mode="json"),
-        PutOptions(kind="ir.trinity_bundle", media_type="application/json"),
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
     )
     cas.put_json(
         {
@@ -133,6 +148,35 @@ def test_rag_snapshot_roundtrip(tmp_path) -> None:
     results = loaded.search(query, top_k=1, domain_filter=True, similarity_threshold=0.0)
     assert len(results) == 1
     assert results[0].entry.decision_packet_ref.startswith("sha256:")
+
+
+def test_rag_skips_trinity_bundle_with_foreign_owner_schema(tmp_path) -> None:
+    cas = FileSystemCAS(tmp_path)
+    trinity = _make_trinity("foreign_owner", ProblemDomain.FISCAL)
+    trinity_ref = cas.put_json(
+        trinity.model_dump(mode="json"),
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name="polisyos.other.TrinityBundle",
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+    cas.put_json(
+        {
+            "run_id": "run_foreign_trinity_owner",
+            "governance": {"verdict": "APPROVE", "issues": []},
+            "inputs": {"trinity_bundle_ref": str(trinity_ref.artifact_id)},
+        },
+        PutOptions(kind="scientist.decision_packet", media_type="application/json"),
+    )
+
+    index = CASRAGIndex(HashEmbeddingBackend(dimension=32), similarity_threshold=0.0)
+
+    assert index.build_from_cas(cas) == 0
+    assert index.size == 0
 
 
 def test_format_few_shot_block() -> None:
@@ -182,17 +226,12 @@ def test_rag_entry_trinity_assertion_is_not_swallowed(
         "inputs": {"trinity_bundle_ref": "sha256:" + ("b" * 64)},
     }
 
-    def _boom(_cls, _payload):
+    def _boom(_store, _selector):
         raise AssertionError("trinity validation invariant failed")
 
     monkeypatch.setattr(
-        "polisyos.scientist.agent.rag.TrinityBundle.model_validate",
-        classmethod(_boom),
-    )
-    monkeypatch.setattr(cas, "get_bytes", lambda _artifact_id: b"{}")
-    monkeypatch.setattr(
-        "polisyos.scientist.agent.rag.from_canonical_bytes",
-        lambda _payload: {},
+        "polisyos.ir.trinity.loaders.load_trinity_bundle_artifact",
+        _boom,
     )
 
     with pytest.raises(AssertionError, match="trinity validation invariant failed"):

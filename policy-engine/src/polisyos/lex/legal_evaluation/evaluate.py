@@ -28,7 +28,6 @@ from polisyos.fabric.world.events import (
     persist_world_event_with_facts,
 )
 from polisyos.ir.kernel.base import ID_PATTERN
-from polisyos.ir.trinity import TrinityBundle as TrinityPayloadBundle
 from polisyos.ir.world.abi import NodeKind
 from polisyos.ir.world.event import (
     EventKind,
@@ -96,10 +95,15 @@ def _load_trinity_bundle_refs(
     cas: FileSystemCAS,
     trinity_bundle_ref: Any,
 ) -> tuple[PolicySpecRef, ModelSpecRef | None]:
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact
+
     artifact_id = str(trinity_bundle_ref.artifact_id)
     try:
-        payload = load_core_json_artifact(cas, trinity_bundle_ref)
+        trinity_bundle = load_trinity_bundle_artifact(
+            ensure_ir_artifact_store(cas),
+            trinity_bundle_ref,
+        )
     except FileNotFoundError as exc:
         raise LexNotReadyError(
             "missing trinity_bundle artifact",
@@ -109,24 +113,6 @@ def _load_trinity_bundle_refs(
         raise LexValidationError(
             "failed to read trinity_bundle artifact",
             details={"artifact_id": artifact_id},
-        ) from exc
-
-    if not isinstance(payload, dict):
-        raise LexValidationError("trinity_bundle payload must be a JSON object")
-
-    try:
-        from polisyos.core.contracts.trinity import TrinityBundle as TrinityRefsBundle
-
-        refs_bundle = TrinityRefsBundle.model_validate(payload)
-        return refs_bundle.policy_spec_ref, refs_bundle.model_spec_ref
-    except Exception as exc:
-        logger.debug("Ignored exception: %s", exc)
-
-    try:
-        trinity_bundle = TrinityPayloadBundle.model_validate(payload)
-    except Exception as exc:
-        raise LexValidationError(
-            "trinity_bundle payload is not a supported Trinity bundle shape"
         ) from exc
 
     policy_ref = cas.put_json(

@@ -686,6 +686,51 @@ def test_live_executor_uses_orchestration_and_returns_reopenable_one_call_eviden
     assert set(reopened.data["year"]) == {_START_YEAR, _END_YEAR}
 
 
+def test_live_executor_rejects_foreign_data_snapshot_schema(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core.artifacts._manifest_lifecycle import ManifestLifecycle
+    from polisyos.core.artifacts.manifest import SchemaInfo
+
+    original_put_json = FileSystemCAS.put_json
+
+    def _put_json_with_foreign_snapshot_schema(
+        store: FileSystemCAS,
+        payload: object,
+        opts: Any,
+        canon_spec: Any = None,
+        **kwargs: Any,
+    ) -> Any:
+        artifact_ref = original_put_json(store, payload, opts, canon_spec, **kwargs)
+        if getattr(opts, "kind", None) == "fabric.data_snapshot":
+            manifest = store.get_manifest(artifact_ref.artifact_id)
+            _blob_path, manifest_path = store._paths(artifact_ref.artifact_id)
+            manifest_path.write_bytes(
+                ManifestLifecycle.to_bytes(
+                    manifest.model_copy(
+                        update={
+                            "artifact_schema": SchemaInfo(
+                                name="polisyos.other.DataSnapshot",
+                                version="0.2.0",
+                            )
+                        }
+                    )
+                )
+            )
+        return artifact_ref
+
+    monkeypatch.setattr(FileSystemCAS, "put_json", _put_json_with_foreign_snapshot_schema)
+
+    with pytest.raises(LiveAcquisitionExecutionError) as refusal:
+        _run(tmp_path, monkeypatch)
+
+    assert refusal.value.code == "canon_profile_typed_artifact_schema_name_mismatch"
+    terminal = _failure_terminal(tmp_path / "journal.jsonl")
+    assert terminal.failure_code == refusal.value.code
+    assert terminal.response_admitted is False
+
+
 @pytest.mark.parametrize(
     ("scenario", "expected_code"),
     [

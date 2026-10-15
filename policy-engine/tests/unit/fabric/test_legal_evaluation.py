@@ -19,10 +19,15 @@ from polisyos.core.contracts.trinity import PolicySpecRef
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world.materialize import materialize_world_duckdb_from_fact_log
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain
+from polisyos.ir.governance.problem_frame import ProblemFrame as IRProblemFrame
 from polisyos.ir.loading.citations import CitationRef, DocumentRef
 from polisyos.ir.loading.norm_pack import NormPack, NormRef, NormRule, RuleType
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.api import evaluate_legality
+from polisyos.lex.errors import LexValidationError
 from polisyos.lex.legal_evaluation.backends.simple_v1 import evaluate_rule_simple_v1
 from polisyos.lex.legal_evaluation.context_builder import (
     LegalContextBuilder,
@@ -35,6 +40,83 @@ def _citation(fragment_id: str) -> CitationRef:
     return CitationRef(
         doc=DocumentRef(doc_id="doc.test", doc_version_id="docv.test"),
         fragment_id=fragment_id,
+    )
+
+
+def _trinity_bundle_for_legal_ref_resolution() -> TrinityBundle:
+    return TrinityBundle(
+        problem_frame=IRProblemFrame(
+            problem_id="problem_legal_ref_test",
+            domain=ProblemDomain.FISCAL,
+            narrative="Test legal evaluation input binding.",
+        ),
+        policy_spec=PolicySpec(policy_id="policy_legal_ref_test", interventions=[]),
+        model_spec=ModelSpec(
+            model_id="model_legal_ref_test",
+            data_snapshot_ref="sha256:" + "0" * 64,
+        ),
+    )
+
+
+def test_legal_evaluation_resolves_only_owned_ir_trinity_bundle(tmp_path) -> None:
+    from polisyos.core.contracts.trinity import TrinityBundleRef
+    from polisyos.lex.legal_evaluation.evaluate import _load_trinity_bundle_refs
+
+    cas = FileSystemCAS(tmp_path)
+    bundle = _trinity_bundle_for_legal_ref_resolution()
+    foreign_ref = cas.put_json(
+        bundle.model_dump(mode="json"),
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name="polisyos.other.TrinityBundle",
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+
+    with pytest.raises(LexValidationError, match="failed to read trinity_bundle artifact"):
+        _load_trinity_bundle_refs(
+            cas=cas,
+            trinity_bundle_ref=TrinityBundleRef(artifact_id=foreign_ref.artifact_id),
+        )
+
+    assert len(list(cas.iter_artifact_ids())) == 1
+
+
+def test_legal_evaluation_writes_refs_from_owned_ir_trinity_bundle(tmp_path) -> None:
+    from polisyos.core.contracts.trinity import TrinityBundleRef
+    from polisyos.lex.legal_evaluation.evaluate import _load_trinity_bundle_refs
+
+    cas = FileSystemCAS(tmp_path)
+    bundle = _trinity_bundle_for_legal_ref_resolution()
+    trinity_ref = cas.put_json(
+        bundle.model_dump(mode="json"),
+        PutOptions(
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
+    )
+
+    policy_ref, model_ref = _load_trinity_bundle_refs(
+        cas=cas,
+        trinity_bundle_ref=TrinityBundleRef(artifact_id=trinity_ref.artifact_id),
+    )
+
+    policy_manifest = cas.get_manifest(policy_ref.artifact_id)
+    model_manifest = cas.get_manifest(model_ref.artifact_id)
+    assert policy_manifest.artifact_schema == SchemaInfo(
+        name="polisyos.ir.PolicySpec",
+        version=bundle.policy_spec.schema_version,
+    )
+    assert model_manifest.artifact_schema == SchemaInfo(
+        name="polisyos.ir.ModelSpec",
+        version=bundle.model_spec.schema_version,
     )
 
 

@@ -961,7 +961,10 @@ def _execute_authorized_live_acquisition(
     cache_namespace: str | None,
 ) -> LiveSourceExecutionEvidence:
     """Execute and independently reopen one already-authorized live carrier."""
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts import (
+        load_core_json_artifact,
+        validate_core_model_json_artifact,
+    )
 
     entry = resolved.entry
     attempt_id = authorization.attempt_id
@@ -1059,8 +1062,10 @@ def _execute_authorized_live_acquisition(
         )
     if baseline_after_sha256 is None:  # pragma: no cover - finally assigns or raises
         raise LiveAcquisitionExecutionError("live_baseline_identity_drift")
-    snapshot = DataSnapshot.model_validate(
-        load_core_json_artifact(store, ingestion_result.data_snapshot_ref)
+    snapshot = validate_core_model_json_artifact(
+        DataSnapshot,
+        store,
+        ingestion_result.data_snapshot_ref,
     )
     evidence_bundle = EvidenceBundle.model_validate(
         load_core_json_artifact(store, ingestion_result.evidence_bundle_ref)

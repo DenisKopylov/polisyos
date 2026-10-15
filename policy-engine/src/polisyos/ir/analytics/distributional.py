@@ -163,13 +163,34 @@ def _persist_distributional_leaf(
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     return ArtifactRefModel.model_validate(ref)
 
 
 def _load_distributional_leaf[DistributionalModelT: BaseModel](
-    store: ArtifactStore, ref: ArtifactRefModel, model: type[DistributionalModelT]
+    store: ArtifactStore,
+    ref: ArtifactRefModel,
+    model: type[DistributionalModelT],
+    *,
+    expected_kind: str,
+    expected_schema_name: str,
+    expected_schema_version: str,
 ) -> DistributionalModelT:
+    if ref.kind != expected_kind or ref.media_type != "application/json":
+        raise ValueError("ir_distributional_leaf_owner_mismatch")
+
+    manifest = store.get_manifest(ref)
+    schema = manifest.artifact_schema
+    if (
+        manifest.kind != expected_kind
+        or manifest.media_type != "application/json"
+        or schema is None
+        or schema.name != expected_schema_name
+        or schema.version != expected_schema_version
+    ):
+        raise ValueError("ir_distributional_leaf_owner_mismatch")
+
     payload = get_json_artifact(store, ref)
     return model.model_validate(payload)
 
@@ -1444,7 +1465,7 @@ def persist_discrete_distribution_summary(
     return _persist_distributional_leaf(
         store,
         summary,
-        kind="ir.discrete_distribution_summary",
+        kind=_DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_NAME,
         schema_name=_DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_NAME,
         schema_version=_DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_VERSION,
         inputs=inputs,
@@ -1456,7 +1477,14 @@ def load_discrete_distribution_summary(
     ref: ArtifactRefModel,
 ) -> DiscreteDistributionSummary:
     """Load discrete distribution summary."""
-    return _load_distributional_leaf(store, ref, DiscreteDistributionSummary)
+    return _load_distributional_leaf(
+        store,
+        ref,
+        DiscreteDistributionSummary,
+        expected_kind=_DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_NAME,
+        expected_schema_name=_DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_NAME,
+        expected_schema_version=_DISCRETE_DISTRIBUTION_SUMMARY_SCHEMA_VERSION,
+    )
 
 
 def persist_distributional_bounds_bundle(
@@ -1529,7 +1557,7 @@ def persist_ot_coupling_summary(
     return _persist_distributional_leaf(
         store,
         summary,
-        kind="ir.ot_coupling_summary",
+        kind=_OT_COUPLING_SUMMARY_SCHEMA_NAME,
         schema_name=_OT_COUPLING_SUMMARY_SCHEMA_NAME,
         schema_version=_OT_COUPLING_SUMMARY_SCHEMA_VERSION,
         inputs=inputs,
@@ -1541,7 +1569,14 @@ def load_ot_coupling_summary(
     ref: ArtifactRefModel,
 ) -> OTCouplingSummary:
     """Load ot coupling summary."""
-    return _load_distributional_leaf(store, ref, OTCouplingSummary)
+    return _load_distributional_leaf(
+        store,
+        ref,
+        OTCouplingSummary,
+        expected_kind=_OT_COUPLING_SUMMARY_SCHEMA_NAME,
+        expected_schema_name=_OT_COUPLING_SUMMARY_SCHEMA_NAME,
+        expected_schema_version=_OT_COUPLING_SUMMARY_SCHEMA_VERSION,
+    )
 
 
 def persist_quantile_shift_summary(
@@ -1554,7 +1589,7 @@ def persist_quantile_shift_summary(
     return _persist_distributional_leaf(
         store,
         summary,
-        kind="ir.quantile_shift_summary",
+        kind=_QUANTILE_SHIFT_SUMMARY_SCHEMA_NAME,
         schema_name=_QUANTILE_SHIFT_SUMMARY_SCHEMA_NAME,
         schema_version=_QUANTILE_SHIFT_SUMMARY_SCHEMA_VERSION,
         inputs=inputs,
@@ -1566,7 +1601,14 @@ def load_quantile_shift_summary(
     ref: ArtifactRefModel,
 ) -> QuantileShiftSummary:
     """Load quantile shift summary."""
-    return _load_distributional_leaf(store, ref, QuantileShiftSummary)
+    return _load_distributional_leaf(
+        store,
+        ref,
+        QuantileShiftSummary,
+        expected_kind=_QUANTILE_SHIFT_SUMMARY_SCHEMA_NAME,
+        expected_schema_name=_QUANTILE_SHIFT_SUMMARY_SCHEMA_NAME,
+        expected_schema_version=_QUANTILE_SHIFT_SUMMARY_SCHEMA_VERSION,
+    )
 
 
 def persist_tail_risk_delta_summary(
@@ -1579,7 +1621,7 @@ def persist_tail_risk_delta_summary(
     return _persist_distributional_leaf(
         store,
         summary,
-        kind="ir.tail_risk_delta_summary",
+        kind=_TAIL_RISK_DELTA_SUMMARY_SCHEMA_NAME,
         schema_name=_TAIL_RISK_DELTA_SUMMARY_SCHEMA_NAME,
         schema_version=_TAIL_RISK_DELTA_SUMMARY_SCHEMA_VERSION,
         inputs=inputs,
@@ -1591,7 +1633,14 @@ def load_tail_risk_delta_summary(
     ref: ArtifactRefModel,
 ) -> TailRiskDeltaSummary:
     """Load tail risk delta summary."""
-    return _load_distributional_leaf(store, ref, TailRiskDeltaSummary)
+    return _load_distributional_leaf(
+        store,
+        ref,
+        TailRiskDeltaSummary,
+        expected_kind=_TAIL_RISK_DELTA_SUMMARY_SCHEMA_NAME,
+        expected_schema_name=_TAIL_RISK_DELTA_SUMMARY_SCHEMA_NAME,
+        expected_schema_version=_TAIL_RISK_DELTA_SUMMARY_SCHEMA_VERSION,
+    )
 
 
 def persist_subgroup_distribution_comparison(
@@ -1604,7 +1653,7 @@ def persist_subgroup_distribution_comparison(
     return _persist_distributional_leaf(
         store,
         comparison,
-        kind="ir.subgroup_distribution_comparison",
+        kind=_SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_NAME,
         schema_name=_SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_NAME,
         schema_version=_SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_VERSION,
         inputs=inputs,
@@ -1616,7 +1665,14 @@ def load_subgroup_distribution_comparison(
     ref: ArtifactRefModel,
 ) -> SubgroupDistributionComparison:
     """Load subgroup distribution comparison."""
-    return _load_distributional_leaf(store, ref, SubgroupDistributionComparison)
+    return _load_distributional_leaf(
+        store,
+        ref,
+        SubgroupDistributionComparison,
+        expected_kind=_SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_NAME,
+        expected_schema_name=_SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_NAME,
+        expected_schema_version=_SUBGROUP_DISTRIBUTION_COMPARISON_SCHEMA_VERSION,
+    )
 
 
 def persist_causal_assumption_card(
@@ -1629,7 +1685,7 @@ def persist_causal_assumption_card(
     ref = _persist_distributional_leaf(
         store,
         card,
-        kind="ir.causal_assumption_card",
+        kind=_CAUSAL_ASSUMPTION_CARD_SCHEMA_NAME,
         schema_name=_CAUSAL_ASSUMPTION_CARD_SCHEMA_NAME,
         schema_version=_CAUSAL_ASSUMPTION_CARD_SCHEMA_VERSION,
         inputs=inputs,
@@ -1642,7 +1698,14 @@ def load_causal_assumption_card(
     ref: CausalAssumptionCardRef,
 ) -> CausalAssumptionCard:
     """Load one causal-assumption card."""
-    return _load_distributional_leaf(store, ref, CausalAssumptionCard)
+    return _load_distributional_leaf(
+        store,
+        ref,
+        CausalAssumptionCard,
+        expected_kind=_CAUSAL_ASSUMPTION_CARD_SCHEMA_NAME,
+        expected_schema_name=_CAUSAL_ASSUMPTION_CARD_SCHEMA_NAME,
+        expected_schema_version=_CAUSAL_ASSUMPTION_CARD_SCHEMA_VERSION,
+    )
 
 
 def persist_distributional_proof_artifact(
@@ -1655,7 +1718,7 @@ def persist_distributional_proof_artifact(
     ref = _persist_distributional_leaf(
         store,
         artifact,
-        kind="ir.distributional_proof_artifact",
+        kind=_DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_NAME,
         schema_name=_DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_NAME,
         schema_version=_DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_VERSION,
         inputs=inputs,
@@ -1668,7 +1731,14 @@ def load_distributional_proof_artifact(
     ref: DistributionalProofArtifactRef,
 ) -> DistributionalProofArtifact:
     """Load a typed distributional proof wrapper."""
-    return _load_distributional_leaf(store, ref, DistributionalProofArtifact)
+    return _load_distributional_leaf(
+        store,
+        ref,
+        DistributionalProofArtifact,
+        expected_kind=_DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_NAME,
+        expected_schema_name=_DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_NAME,
+        expected_schema_version=_DISTRIBUTIONAL_PROOF_ARTIFACT_SCHEMA_VERSION,
+    )
 
 
 def persist_ordinal_poverty_report(

@@ -1,32 +1,80 @@
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import pytest
+from pydantic import BaseModel
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.distributional import (
+    CausalAssumptionCard,
+    CohortDimension,
     CouplingDiagnostics,
     DiscreteDistributionSummary,
     DistributionalBoundsBundle,
     DistributionalBoundsMethodSummary,
     DistributionalBoundUniformity,
+    DistributionalCouplingStatus,
     DistributionalDualBoundWitness,
     DistributionalDualCertificate,
     DistributionalEffectBundle,
     DistributionalFunctional,
     DistributionalFunctionalParameters,
     DistributionalJustification,
+    DistributionalProofArtifact,
+    DistributionalProofTarget,
     DistributionBin,
     FunctionalBounds,
     GridAxis,
+    OTCouplingSummary,
+    QuantileShiftEntry,
+    QuantileShiftSummary,
+    SubgroupDistributionComparison,
+    TailRiskDeltaEntry,
+    TailRiskDeltaSummary,
     attach_distributional_dual_certificate_ref,
+    load_causal_assumption_card,
+    load_discrete_distribution_summary,
     load_distributional_bounds_bundle,
     load_distributional_dual_certificate,
+    load_distributional_proof_artifact,
+    load_ot_coupling_summary,
+    load_quantile_shift_summary,
+    load_subgroup_distribution_comparison,
+    load_tail_risk_delta_summary,
+    persist_causal_assumption_card,
     persist_discrete_distribution_summary,
     persist_distributional_bounds_bundle,
     persist_distributional_dual_certificate,
+    persist_distributional_proof_artifact,
+    persist_ot_coupling_summary,
+    persist_quantile_shift_summary,
+    persist_subgroup_distribution_comparison,
+    persist_tail_risk_delta_summary,
 )
-from polisyos.ir.registry.refs import ArtifactRefModel
+from polisyos.ir.artifacts import ArtifactStore, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts.contracts import ArtifactSelector
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import (
+    ArtifactRefModel,
+    CausalAssumptionCardRef,
+    DistributionalProofArtifactRef,
+)
+
+
+class _ManifestRecordingStore:
+    def __init__(self, store: ArtifactStore) -> None:
+        self._store = store
+        self.selectors: list[ArtifactSelector] = []
+        self._get_manifest: Callable[[ArtifactSelector], object] = store.get_manifest
+
+    def __getattr__(self, name: str) -> object:
+        return getattr(self._store, name)
+
+    def get_manifest(self, selector: ArtifactSelector) -> object:
+        self.selectors.append(selector)
+        return self._get_manifest(selector)
 
 
 def _distributional_proof_ref() -> ArtifactRefModel:
@@ -91,6 +139,215 @@ def _summary(
         assumptions_used=["test_assumption"],
         display_label=method,
     )
+
+
+def _distributional_leaf_routes() -> list[
+    tuple[Callable[..., object], Callable[..., object], BaseModel]
+]:
+    return [
+        (
+            persist_discrete_distribution_summary,
+            load_discrete_distribution_summary,
+            _distribution_summary("owner-route"),
+        ),
+        (
+            persist_ot_coupling_summary,
+            load_ot_coupling_summary,
+            OTCouplingSummary(
+                source_support=(0.0,),
+                target_support=(0.0,),
+                transport_matrix=((1.0,),),
+                regularization_strength=0.1,
+                sinkhorn_iterations=1,
+                convergence_delta=0.0,
+                weighting_mode="uniform",
+            ),
+        ),
+        (
+            persist_quantile_shift_summary,
+            load_quantile_shift_summary,
+            QuantileShiftSummary(
+                outcome_name="owner-route",
+                entries=[
+                    QuantileShiftEntry(
+                        quantile=0.5,
+                        baseline_value=1.0,
+                        counterfactual_value=2.0,
+                        shift=1.0,
+                    )
+                ],
+            ),
+        ),
+        (
+            persist_tail_risk_delta_summary,
+            load_tail_risk_delta_summary,
+            TailRiskDeltaSummary(
+                outcome_name="owner-route",
+                entries=[
+                    TailRiskDeltaEntry(
+                        baseline_quantile=0.9,
+                        threshold_value=1.0,
+                        baseline_exceedance_probability=0.1,
+                        counterfactual_exceedance_probability=0.2,
+                        exceedance_probability_delta=0.1,
+                    )
+                ],
+            ),
+        ),
+        (
+            persist_subgroup_distribution_comparison,
+            load_subgroup_distribution_comparison,
+            SubgroupDistributionComparison(
+                subgroup_dimension=next(iter(CohortDimension)),
+                subgroup_id="owner-route",
+                subgroup_label="Owner route",
+                baseline_distribution_ref=ArtifactRefModel(
+                    artifact_id="sha256:" + "1" * 64,
+                    kind="ir.discrete_distribution_summary",
+                    media_type="application/json",
+                ),
+                counterfactual_distribution_ref=ArtifactRefModel(
+                    artifact_id="sha256:" + "2" * 64,
+                    kind="ir.discrete_distribution_summary",
+                    media_type="application/json",
+                ),
+                coupling_diagnostics=CouplingDiagnostics(mass_conservation_error=0.0),
+                baseline_sample_size=1,
+                counterfactual_sample_size=1,
+            ),
+        ),
+        (
+            persist_causal_assumption_card,
+            load_causal_assumption_card,
+            CausalAssumptionCard(
+                scope="marginal",
+                status="scenario_only",
+                theorem_family="owner-route",
+                assumption_type="test",
+                description="test payload for selected-view ownership",
+                testable=False,
+            ),
+        ),
+        (
+            persist_distributional_proof_artifact,
+            load_distributional_proof_artifact,
+            DistributionalProofArtifact(
+                target=DistributionalProofTarget.COUPLING,
+                coupling_status=DistributionalCouplingStatus.SCENARIO_ONLY,
+                theorem_family="owner-route",
+            ),
+        ),
+    ]
+
+
+def test_distributional_leaf_routes_bind_owner_schema_and_profile(tmp_path) -> None:
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "owner-routes"))
+
+    for index, (persist, load, payload) in enumerate(_distributional_leaf_routes()):
+        ref = persist(store, payload)
+        assert isinstance(ref, ArtifactRefModel)
+        expected_ref_type = {
+            5: CausalAssumptionCardRef,
+            6: DistributionalProofArtifactRef,
+        }.get(index, ArtifactRefModel)
+        assert type(ref) is expected_ref_type
+
+        manifest = store.get_manifest(ref)
+        schema = manifest.artifact_schema
+        assert schema is not None
+        assert manifest.kind == ref.kind
+        assert schema.name == ref.kind
+        assert schema.version
+        loaded = load(store, ref)
+        assert isinstance(loaded, BaseModel)
+        assert loaded.model_dump(mode="json") == payload.model_dump(mode="json")
+
+        foreign_schema_data = put_json_artifact(
+            store,
+            payload.model_dump(mode="json"),
+            kind=ref.kind,
+            schema_name=f"ir.foreign_distributional_owner_{index}",
+            schema_version="9.9",
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        assert foreign_schema_data["artifact_id"] == str(ref.artifact_id)
+        assert foreign_schema_data["manifest_profile_sha256"] != ref.manifest_profile_sha256
+        foreign_schema_ref = ref.model_copy(
+            update={"manifest_profile_sha256": foreign_schema_data["manifest_profile_sha256"]}
+        )
+        assert get_json_artifact(store, foreign_schema_ref) == payload.model_dump(mode="json")
+        with pytest.raises(ValueError, match="ir_distributional_leaf_owner_mismatch"):
+            load(store, foreign_schema_ref)
+
+        assert ref.manifest_profile_sha256 is not None
+
+
+def test_distributional_generic_leaf_rejects_foreign_kind_with_valid_payload(tmp_path) -> None:
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "owner-kind"))
+    persist, load, payload = _distributional_leaf_routes()[0]
+    ref = persist(store, payload)
+    assert isinstance(ref, ArtifactRefModel)
+    manifest = store.get_manifest(ref)
+    schema = manifest.artifact_schema
+    assert schema is not None
+
+    foreign_kind_data = put_json_artifact(
+        store,
+        payload.model_dump(mode="json"),
+        kind="ir.foreign_distributional_kind",
+        schema_name=schema.name,
+        schema_version=schema.version,
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert foreign_kind_data["artifact_id"] == str(ref.artifact_id)
+    foreign_kind_ref = ArtifactRefModel.model_validate(foreign_kind_data)
+    assert get_json_artifact(store, foreign_kind_ref) == payload.model_dump(mode="json")
+
+    with pytest.raises(ValueError, match="ir_distributional_leaf_owner_mismatch"):
+        load(store, foreign_kind_ref)
+
+
+def test_distributional_generic_leaf_preserves_selected_profile_on_read(
+    tmp_path,
+) -> None:
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "owner-profile"))
+    persist, load, payload = _distributional_leaf_routes()[0]
+    ref = persist(store, payload)
+    assert isinstance(ref, ArtifactRefModel)
+    assert ref.manifest_profile_sha256 is not None
+    manifest = store.get_manifest(ref)
+    schema = manifest.artifact_schema
+    assert schema is not None
+
+    alternate_profile_data = put_json_artifact(
+        store,
+        payload.model_dump(mode="json"),
+        kind=ref.kind,
+        schema_name=schema.name,
+        schema_version=schema.version,
+        canon_spec=CanonSpec(forbid_floats=False, ensure_ascii=True),
+        return_selected_profile=True,
+    )
+    assert alternate_profile_data["artifact_id"] == str(ref.artifact_id)
+    assert alternate_profile_data["manifest_profile_sha256"] != ref.manifest_profile_sha256
+    alternate_profile_ref = ArtifactRefModel.model_validate(alternate_profile_data)
+
+    recording_store = _ManifestRecordingStore(store)
+    loaded = load(recording_store, alternate_profile_ref)
+    assert isinstance(loaded, BaseModel)
+    assert loaded.model_dump(mode="json") == payload.model_dump(mode="json")
+    assert recording_store.selectors
+    selected_profiles = [
+        selector.get("manifest_profile_sha256")
+        if isinstance(selector, dict)
+        else getattr(selector, "manifest_profile_sha256", None)
+        for selector in recording_store.selectors
+    ]
+    assert all(
+        profile == alternate_profile_ref.manifest_profile_sha256 for profile in selected_profiles
+    ), selected_profiles
 
 
 def test_distributional_bounds_bundle_round_trip_via_store(tmp_path) -> None:

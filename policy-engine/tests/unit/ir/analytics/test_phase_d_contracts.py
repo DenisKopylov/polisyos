@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from collections.abc import Callable
 
 import pytest
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store
@@ -14,6 +15,7 @@ from polisyos.foundry.methods.catalog.causal.strategic import (
     persist_strategic_solve_artifacts,
     solve_strategic_response,
 )
+from polisyos.ir.analytics import strategic as strategic_api
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
     AbstractionPreservationType,
@@ -104,9 +106,33 @@ from polisyos.ir.analytics.structural_causal_model import (
     NodeMechanism,
     StructuralCausalModelSpec,
 )
+from polisyos.ir.artifacts import ArtifactStore, get_json_artifact, put_json_artifact
+from polisyos.ir.artifacts.contracts import ArtifactSelector
 from polisyos.ir.kernel import base as kernel_base
-from polisyos.ir.registry.refs import ArtifactRefModel, EstimandASTRef, ProofBundleRef
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import (
+    ArtifactRefModel,
+    EstimandASTRef,
+    MeanFieldEquilibriumCertificateRef,
+    MeanFieldMacroSimulationConfigRef,
+    MeanFieldPerturbationSpecRef,
+    ProofBundleRef,
+)
 from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
+
+
+class _ManifestRecordingStore:
+    def __init__(self, store: ArtifactStore) -> None:
+        self._store = store
+        self.selectors: list[ArtifactSelector] = []
+        self._get_manifest: Callable[[ArtifactSelector], object] = store.get_manifest
+
+    def __getattr__(self, name: str) -> object:
+        return getattr(self._store, name)
+
+    def get_manifest(self, selector: ArtifactSelector) -> object:
+        self.selectors.append(selector)
+        return self._get_manifest(selector)
 
 
 def _artifact_id(ch: str) -> str:
@@ -119,6 +145,141 @@ def _artifact_ref(ch: str, *, kind: str) -> ArtifactRefModel:
         kind=kind,
         media_type="application/json",
     )
+
+
+def _strategic_leaf_routes() -> list[
+    tuple[Callable[..., object], Callable[..., object], BaseModel]
+]:
+    return [
+        (
+            strategic_api.persist_mean_field_perturbation_spec,
+            strategic_api.load_mean_field_perturbation_spec,
+            compile_intervention_spec_to_mean_field_perturbation(
+                InterventionSpec(type="stochastic", distribution="owner-route"),
+                source_intervention_ref=_artifact_ref("1", kind="ir.intervention_certificate"),
+                baseline_policy_ref=_artifact_ref("2", kind="ir.policy_recommendation"),
+            ),
+        ),
+        (
+            strategic_api.persist_mean_field_macro_simulation_config,
+            strategic_api.load_mean_field_macro_simulation_config,
+            MeanFieldMacroSimulationConfig(
+                population_measure_snapshot_ref=_artifact_ref("3", kind="ir.population_snapshot"),
+                coefficient_field_ref=_artifact_ref("4", kind="ir.coefficient_field"),
+            ),
+        ),
+        (
+            strategic_api.persist_mean_field_solver_residual_report,
+            strategic_api.load_mean_field_solver_residual_report,
+            strategic_api.MeanFieldSolverResidualReport(
+                converged=True,
+                iterations=1,
+                tolerance=1.0e-6,
+                value_residual_max_abs=0.0,
+                policy_fixed_point_residual_max_abs=0.0,
+                residual_threshold=1.0e-5,
+                within_tolerance=True,
+            ),
+        ),
+        (
+            strategic_api.persist_mean_field_mass_conservation_report,
+            strategic_api.load_mean_field_mass_conservation_report,
+            strategic_api.MeanFieldMassConservationReport(
+                mass_sum=1.0,
+                mass_sum_error=0.0,
+                min_mass=0.0,
+                stationary_distribution_residual_max_abs=0.0,
+                residual_threshold=1.0e-5,
+                mass_threshold=1.0e-5,
+                within_tolerance=True,
+            ),
+        ),
+        (
+            strategic_api.persist_mean_field_equilibrium_certificate,
+            strategic_api.load_mean_field_equilibrium_certificate,
+            MeanFieldEquilibriumCertificate(
+                intervention_kind="distributional",
+                intervention_spec_ref=_artifact_ref("5", kind="ir.mean_field_perturbation_spec"),
+                mean_field_model_class="second_order",
+                well_posedness={
+                    "scm_solvability_ref": _artifact_ref("6", kind="ir.proof_bundle"),
+                    "monotonicity_type": "lasry_lions",
+                    "convexity_verified": True,
+                    "regularity_scope": "Lipschitz_in_measure",
+                    "uniqueness_status": "local_stable_branch",
+                },
+                identification={
+                    "graph_semantics": "sigma_separation",
+                    "positivity_status": "verified",
+                    "selection_rule": "stable_branch",
+                    "identified_estimands": ("welfare",),
+                },
+            ),
+        ),
+        (
+            strategic_api.persist_strategic_closure_summary,
+            strategic_api.load_strategic_closure_summary,
+            strategic_api.StrategicClosureSummary(
+                fallback_mode=StrategicFallbackMode.STRATEGIC_BOUNDS,
+                equilibrium_selection_dependence="owner-route",
+            ),
+        ),
+        (
+            strategic_api.persist_equilibrium_set_summary,
+            strategic_api.load_equilibrium_set_summary,
+            strategic_api.EquilibriumSetSummary(),
+        ),
+        (
+            strategic_api.persist_equilibrium_selection_summary,
+            strategic_api.load_equilibrium_selection_summary,
+            strategic_api.EquilibriumSelectionSummary(
+                selected_equilibrium={"agent": "action"},
+                equilibrium_selection_dependence="owner-route",
+            ),
+        ),
+        (
+            strategic_api.persist_performative_shift_summary,
+            strategic_api.load_performative_shift_summary,
+            strategic_api.PerformativeShiftSummary(),
+        ),
+        (
+            strategic_api.persist_post_adaptation_policy_value_summary,
+            strategic_api.load_post_adaptation_policy_value_summary,
+            strategic_api.PostAdaptationPolicyValueSummary(
+                fallback_mode=StrategicFallbackMode.STRATEGIC_BOUNDS,
+                baseline_policy_value=1.0,
+                lower_bound=0.0,
+                upper_bound=2.0,
+            ),
+        ),
+        (
+            strategic_api.persist_strategic_decomposition_certificate,
+            strategic_api.load_strategic_decomposition_certificate,
+            strategic_api.StrategicDecompositionCertificate(
+                decomposition_status=StrategicDecompositionStatus.BOUNDED,
+                cross_world_anchor_defined=False,
+            ),
+        ),
+        (
+            strategic_api.persist_strategic_decomposition_failure_card,
+            strategic_api.load_strategic_decomposition_failure_card,
+            strategic_api.StrategicDecompositionFailureCard(
+                failure_code="owner_route_limited",
+                message="A bounded fallback applies.",
+                fallback_mode=StrategicFallbackMode.STRATEGIC_BOUNDS,
+                equilibrium_selection_dependence="owner-route",
+            ),
+        ),
+        (
+            strategic_api.persist_strategic_component_bounds_summary,
+            strategic_api.load_strategic_component_bounds_summary,
+            strategic_api.StrategicComponentBoundsSummary(
+                component=strategic_api.StrategicDecompositionComponent.CAUSAL,
+                lower_bound=0.0,
+                upper_bound=1.0,
+            ),
+        ),
+    ]
 
 
 def _distribution_summary(outcome_name: str) -> DiscreteDistributionSummary:
@@ -172,6 +333,115 @@ def _ordinal_poverty_estimate() -> OrdinalPovertyEstimate:
         breadth_scores=(1.0, 2 / 3, 1 / 3, 0.0, 2 / 3, 0.0, 1.0, 0.0, 2 / 3, 0.0),
         severity_scores=(0.6, 0.3, 0.1, 0.0, 0.4, 0.0, 0.7, 0.0, 0.5, 0.0),
         censored_scores=(0.6, 0.3, 0.0, 0.0, 0.4, 0.0, 0.7, 0.0, 0.5, 0.0),
+    )
+
+
+def test_strategic_leaf_routes_bind_owner_schema_and_profile(tmp_path) -> None:
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "strategic-owner-routes"))
+
+    for index, (persist, load, payload) in enumerate(_strategic_leaf_routes()):
+        ref = persist(store, payload)
+        assert isinstance(ref, ArtifactRefModel)
+        expected_ref_type = {
+            0: MeanFieldPerturbationSpecRef,
+            1: MeanFieldMacroSimulationConfigRef,
+            4: MeanFieldEquilibriumCertificateRef,
+        }.get(index, ArtifactRefModel)
+        assert type(ref) is expected_ref_type
+
+        manifest = store.get_manifest(ref)
+        schema = manifest.artifact_schema
+        assert schema is not None
+        assert manifest.kind == ref.kind
+        assert schema.name == ref.kind
+        assert schema.version
+        loaded = load(store, ref)
+        assert isinstance(loaded, BaseModel)
+        assert loaded.model_dump(mode="json") == payload.model_dump(mode="json")
+
+        foreign_schema_data = put_json_artifact(
+            store,
+            payload.model_dump(mode="json"),
+            kind=ref.kind,
+            schema_name=f"ir.foreign_strategic_owner_{index}",
+            schema_version="9.9",
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        assert foreign_schema_data["artifact_id"] == str(ref.artifact_id)
+        assert foreign_schema_data["manifest_profile_sha256"] != ref.manifest_profile_sha256
+        foreign_schema_ref = ref.model_copy(
+            update={"manifest_profile_sha256": foreign_schema_data["manifest_profile_sha256"]}
+        )
+        assert get_json_artifact(store, foreign_schema_ref) == payload.model_dump(mode="json")
+        with pytest.raises(ValueError, match="ir_strategic_leaf_owner_mismatch"):
+            load(store, foreign_schema_ref)
+
+        assert ref.manifest_profile_sha256 is not None
+
+
+def test_strategic_generic_leaf_rejects_foreign_kind_with_valid_payload(tmp_path) -> None:
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "strategic-owner-kind"))
+    persist, load, payload = _strategic_leaf_routes()[4]
+    ref = persist(store, payload)
+    assert isinstance(ref, ArtifactRefModel)
+    manifest = store.get_manifest(ref)
+    schema = manifest.artifact_schema
+    assert schema is not None
+
+    foreign_kind_data = put_json_artifact(
+        store,
+        payload.model_dump(mode="json"),
+        kind="ir.foreign_strategic_kind",
+        schema_name=schema.name,
+        schema_version=schema.version,
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert foreign_kind_data["artifact_id"] == str(ref.artifact_id)
+    foreign_kind_ref = ArtifactRefModel.model_validate(foreign_kind_data)
+    assert get_json_artifact(store, foreign_kind_ref) == payload.model_dump(mode="json")
+
+    with pytest.raises(ValueError, match="ir_strategic_leaf_owner_mismatch"):
+        load(store, foreign_kind_ref)
+
+
+def test_strategic_generic_leaf_preserves_selected_profile_on_read(tmp_path) -> None:
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "strategic-owner-profile"))
+    persist, load, payload = _strategic_leaf_routes()[4]
+    ref = persist(store, payload)
+    assert isinstance(ref, ArtifactRefModel)
+    assert ref.manifest_profile_sha256 is not None
+    manifest = store.get_manifest(ref)
+    schema = manifest.artifact_schema
+    assert schema is not None
+
+    alternate_profile_data = put_json_artifact(
+        store,
+        payload.model_dump(mode="json"),
+        kind=ref.kind,
+        schema_name=schema.name,
+        schema_version=schema.version,
+        canon_spec=CanonSpec(forbid_floats=False, ensure_ascii=True),
+        return_selected_profile=True,
+    )
+    assert alternate_profile_data["artifact_id"] == str(ref.artifact_id)
+    assert alternate_profile_data["manifest_profile_sha256"] != ref.manifest_profile_sha256
+    alternate_profile_ref = ArtifactRefModel.model_validate(alternate_profile_data)
+
+    recording_store = _ManifestRecordingStore(store)
+    loaded = load(recording_store, alternate_profile_ref)
+    assert isinstance(loaded, BaseModel)
+    assert loaded.model_dump(mode="json") == payload.model_dump(mode="json")
+    assert recording_store.selectors
+    selected_profiles = [
+        selector.get("manifest_profile_sha256")
+        if isinstance(selector, dict)
+        else getattr(selector, "manifest_profile_sha256", None)
+        for selector in recording_store.selectors
+    ]
+    assert all(
+        profile == alternate_profile_ref.manifest_profile_sha256 for profile in selected_profiles
     )
 
 

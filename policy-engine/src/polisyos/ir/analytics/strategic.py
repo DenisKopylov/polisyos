@@ -118,15 +118,34 @@ def _persist_strategic_leaf(
         schema_version=schema_version,
         inputs=inputs,
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     return ArtifactRefModel.model_validate(ref)
 
 
-def _load_strategic_leaf(
+def _load_strategic_leaf[StrategicModelT: BaseModel](
     store: ArtifactStore,
     ref: ArtifactRefModel,
-    model: type[BaseModel],
-) -> Any:
+    model: type[StrategicModelT],
+    *,
+    expected_kind: str,
+    expected_schema_name: str,
+    expected_schema_version: str,
+) -> StrategicModelT:
+    if ref.kind != expected_kind or ref.media_type != "application/json":
+        raise ValueError("ir_strategic_leaf_owner_mismatch")
+
+    manifest = store.get_manifest(ref)
+    schema = manifest.artifact_schema
+    if (
+        manifest.kind != expected_kind
+        or manifest.media_type != "application/json"
+        or schema is None
+        or schema.name != expected_schema_name
+        or schema.version != expected_schema_version
+    ):
+        raise ValueError("ir_strategic_leaf_owner_mismatch")
+
     payload = get_json_artifact(store, ref)
     return model.model_validate(payload)
 
@@ -2340,7 +2359,14 @@ def load_mean_field_perturbation_spec(
 ) -> MeanFieldPerturbationSpec:
     """Load a compiled MFG perturbation spec."""
     return MeanFieldPerturbationSpec.model_validate(
-        _load_strategic_leaf(store, ref, MeanFieldPerturbationSpec)
+        _load_strategic_leaf(
+            store,
+            ref,
+            MeanFieldPerturbationSpec,
+            expected_kind=_MFG_PERTURBATION_SPEC_SCHEMA_NAME,
+            expected_schema_name=_MFG_PERTURBATION_SPEC_SCHEMA_NAME,
+            expected_schema_version=_MFG_PERTURBATION_SPEC_SCHEMA_VERSION,
+        )
     )
 
 
@@ -2368,7 +2394,14 @@ def load_mean_field_macro_simulation_config(
 ) -> MeanFieldMacroSimulationConfig:
     """Load a reproducible MFG numerics config."""
     return MeanFieldMacroSimulationConfig.model_validate(
-        _load_strategic_leaf(store, ref, MeanFieldMacroSimulationConfig)
+        _load_strategic_leaf(
+            store,
+            ref,
+            MeanFieldMacroSimulationConfig,
+            expected_kind=_MFG_MACRO_SIMULATION_CONFIG_SCHEMA_NAME,
+            expected_schema_name=_MFG_MACRO_SIMULATION_CONFIG_SCHEMA_NAME,
+            expected_schema_version=_MFG_MACRO_SIMULATION_CONFIG_SCHEMA_VERSION,
+        )
     )
 
 
@@ -2395,7 +2428,14 @@ def load_mean_field_solver_residual_report(
 ) -> MeanFieldSolverResidualReport:
     """Load a mean-field solver residual evidence report."""
     return MeanFieldSolverResidualReport.model_validate(
-        _load_strategic_leaf(store, ref, MeanFieldSolverResidualReport)
+        _load_strategic_leaf(
+            store,
+            ref,
+            MeanFieldSolverResidualReport,
+            expected_kind=_MFG_SOLVER_RESIDUAL_REPORT_SCHEMA_NAME,
+            expected_schema_name=_MFG_SOLVER_RESIDUAL_REPORT_SCHEMA_NAME,
+            expected_schema_version=_MFG_SOLVER_RESIDUAL_REPORT_SCHEMA_VERSION,
+        )
     )
 
 
@@ -2422,7 +2462,14 @@ def load_mean_field_mass_conservation_report(
 ) -> MeanFieldMassConservationReport:
     """Load a mean-field mass conservation evidence report."""
     return MeanFieldMassConservationReport.model_validate(
-        _load_strategic_leaf(store, ref, MeanFieldMassConservationReport)
+        _load_strategic_leaf(
+            store,
+            ref,
+            MeanFieldMassConservationReport,
+            expected_kind=_MFG_MASS_CONSERVATION_REPORT_SCHEMA_NAME,
+            expected_schema_name=_MFG_MASS_CONSERVATION_REPORT_SCHEMA_NAME,
+            expected_schema_version=_MFG_MASS_CONSERVATION_REPORT_SCHEMA_VERSION,
+        )
     )
 
 
@@ -2450,7 +2497,14 @@ def load_mean_field_equilibrium_certificate(
 ) -> MeanFieldEquilibriumCertificate:
     """Load mean-field-equilibrium certificate."""
     return MeanFieldEquilibriumCertificate.model_validate(
-        _load_strategic_leaf(store, ref, MeanFieldEquilibriumCertificate)
+        _load_strategic_leaf(
+            store,
+            ref,
+            MeanFieldEquilibriumCertificate,
+            expected_kind=_MFG_EQUILIBRIUM_CERTIFICATE_SCHEMA_NAME,
+            expected_schema_name=_MFG_EQUILIBRIUM_CERTIFICATE_SCHEMA_NAME,
+            expected_schema_version=_MFG_EQUILIBRIUM_CERTIFICATE_SCHEMA_VERSION,
+        )
     )
 
 
@@ -2477,7 +2531,14 @@ def load_strategic_closure_summary(
 ) -> StrategicClosureSummary:
     """Load strategic closure summary."""
     return StrategicClosureSummary.model_validate(
-        _load_strategic_leaf(store, ref, StrategicClosureSummary)
+        _load_strategic_leaf(
+            store,
+            ref,
+            StrategicClosureSummary,
+            expected_kind=_STRATEGIC_CLOSURE_SUMMARY_SCHEMA_NAME,
+            expected_schema_name=_STRATEGIC_CLOSURE_SUMMARY_SCHEMA_NAME,
+            expected_schema_version=_STRATEGIC_CLOSURE_SUMMARY_SCHEMA_VERSION,
+        )
     )
 
 
@@ -2504,7 +2565,14 @@ def load_equilibrium_set_summary(
 ) -> EquilibriumSetSummary:
     """Load equilibrium set summary."""
     return EquilibriumSetSummary.model_validate(
-        _load_strategic_leaf(store, ref, EquilibriumSetSummary)
+        _load_strategic_leaf(
+            store,
+            ref,
+            EquilibriumSetSummary,
+            expected_kind=_EQUILIBRIUM_SET_SUMMARY_SCHEMA_NAME,
+            expected_schema_name=_EQUILIBRIUM_SET_SUMMARY_SCHEMA_NAME,
+            expected_schema_version=_EQUILIBRIUM_SET_SUMMARY_SCHEMA_VERSION,
+        )
     )
 
 
@@ -2531,7 +2599,14 @@ def load_equilibrium_selection_summary(
 ) -> EquilibriumSelectionSummary:
     """Load equilibrium selection summary."""
     return EquilibriumSelectionSummary.model_validate(
-        _load_strategic_leaf(store, ref, EquilibriumSelectionSummary)
+        _load_strategic_leaf(
+            store,
+            ref,
+            EquilibriumSelectionSummary,
+            expected_kind=_EQUILIBRIUM_SELECTION_SUMMARY_SCHEMA_NAME,
+            expected_schema_name=_EQUILIBRIUM_SELECTION_SUMMARY_SCHEMA_NAME,
+            expected_schema_version=_EQUILIBRIUM_SELECTION_SUMMARY_SCHEMA_VERSION,
+        )
     )
 
 
@@ -2558,7 +2633,14 @@ def load_performative_shift_summary(
 ) -> PerformativeShiftSummary:
     """Load performative shift summary."""
     return PerformativeShiftSummary.model_validate(
-        _load_strategic_leaf(store, ref, PerformativeShiftSummary)
+        _load_strategic_leaf(
+            store,
+            ref,
+            PerformativeShiftSummary,
+            expected_kind=_PERFORMATIVE_SHIFT_SUMMARY_SCHEMA_NAME,
+            expected_schema_name=_PERFORMATIVE_SHIFT_SUMMARY_SCHEMA_NAME,
+            expected_schema_version=_PERFORMATIVE_SHIFT_SUMMARY_SCHEMA_VERSION,
+        )
     )
 
 
@@ -2585,7 +2667,14 @@ def load_post_adaptation_policy_value_summary(
 ) -> PostAdaptationPolicyValueSummary:
     """Load post adaptation policy value summary."""
     return PostAdaptationPolicyValueSummary.model_validate(
-        _load_strategic_leaf(store, ref, PostAdaptationPolicyValueSummary)
+        _load_strategic_leaf(
+            store,
+            ref,
+            PostAdaptationPolicyValueSummary,
+            expected_kind=_POST_ADAPTATION_POLICY_VALUE_SUMMARY_SCHEMA_NAME,
+            expected_schema_name=_POST_ADAPTATION_POLICY_VALUE_SUMMARY_SCHEMA_NAME,
+            expected_schema_version=_POST_ADAPTATION_POLICY_VALUE_SUMMARY_SCHEMA_VERSION,
+        )
     )
 
 
@@ -2612,7 +2701,14 @@ def load_strategic_decomposition_certificate(
 ) -> StrategicDecompositionCertificate:
     """Load strategic decomposition certificate."""
     return StrategicDecompositionCertificate.model_validate(
-        _load_strategic_leaf(store, ref, StrategicDecompositionCertificate)
+        _load_strategic_leaf(
+            store,
+            ref,
+            StrategicDecompositionCertificate,
+            expected_kind=_STRATEGIC_DECOMPOSITION_CERTIFICATE_SCHEMA_NAME,
+            expected_schema_name=_STRATEGIC_DECOMPOSITION_CERTIFICATE_SCHEMA_NAME,
+            expected_schema_version=_STRATEGIC_DECOMPOSITION_CERTIFICATE_SCHEMA_VERSION,
+        )
     )
 
 
@@ -2639,7 +2735,14 @@ def load_strategic_decomposition_failure_card(
 ) -> StrategicDecompositionFailureCard:
     """Load strategic decomposition failure card."""
     return StrategicDecompositionFailureCard.model_validate(
-        _load_strategic_leaf(store, ref, StrategicDecompositionFailureCard)
+        _load_strategic_leaf(
+            store,
+            ref,
+            StrategicDecompositionFailureCard,
+            expected_kind=_STRATEGIC_DECOMPOSITION_FAILURE_CARD_SCHEMA_NAME,
+            expected_schema_name=_STRATEGIC_DECOMPOSITION_FAILURE_CARD_SCHEMA_NAME,
+            expected_schema_version=_STRATEGIC_DECOMPOSITION_FAILURE_CARD_SCHEMA_VERSION,
+        )
     )
 
 
@@ -2666,7 +2769,14 @@ def load_strategic_component_bounds_summary(
 ) -> StrategicComponentBoundsSummary:
     """Load strategic component bounds summary."""
     return StrategicComponentBoundsSummary.model_validate(
-        _load_strategic_leaf(store, ref, StrategicComponentBoundsSummary)
+        _load_strategic_leaf(
+            store,
+            ref,
+            StrategicComponentBoundsSummary,
+            expected_kind=_STRATEGIC_COMPONENT_BOUNDS_SUMMARY_SCHEMA_NAME,
+            expected_schema_name=_STRATEGIC_COMPONENT_BOUNDS_SUMMARY_SCHEMA_NAME,
+            expected_schema_version=_STRATEGIC_COMPONENT_BOUNDS_SUMMARY_SCHEMA_VERSION,
+        )
     )
 
 

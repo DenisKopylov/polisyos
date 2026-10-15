@@ -1,0 +1,137 @@
+{
+  "schema": "policyos.e02.local_storage_cleanup.v1",
+  "date": "2026-10-15",
+  "state": "storage_retirement_delivered; E02_paused",
+  "authority": "Author maintenance receipt; G acceptance and finding adjudication unchanged",
+  "closure_ids": [],
+  "closure_proposals": [],
+  "source_binding": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": "a42b2abafb072e0d3ea58a989c1ca855e1ce05b6",
+    "candidate_source_before_receipt_commit": "a42b2abafb072e0d3ea58a989c1ca855e1ce05b6",
+    "tree": "51cc663e1c89ab85b8e773c64cddad5a431f229c",
+    "parents": [
+      "faf1486cf1cbd6fdef3042c78bcd405c87bf3e78"
+    ],
+    "implementation_delta": [],
+    "receipt_footprint": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/storage-semantic-cleanup-20261015.json"
+    ]
+  },
+  "G": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "branch": "codex/e02-integration",
+    "head": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+    "tree": "c3a38aecbab5af06c8aed1ae27d535c7e2dc8eca",
+    "status": "clean; unchanged"
+  },
+  "outcome": {
+    "retired_registered_worktrees": 13,
+    "new_move_events": 451,
+    "collections": [
+      {
+        "path": "/Users/deniskopylov/.Trash/PolicyOS-docs-refresh-20261015",
+        "du_kib": 3991808
+      },
+      {
+        "path": "/Users/deniskopylov/.Trash/PolicyOS-retired-workspaces-20261015",
+        "du_kib": 17059760
+      },
+      {
+        "path": "/Users/deniskopylov/.Trash/PolicyOS-empty-workspace-markers-20261015",
+        "du_kib": 0
+      },
+      {
+        "path": "/Users/deniskopylov/.Trash/PolicyOS-retired-generated-20261015",
+        "du_kib": 40154292
+      }
+    ],
+    "du_total_gib": 58.37045669555664,
+    "size_boundary": "Allocated size of the four complete named collections; shared APFS extents and hardlinks may reduce unique physical reclaim.",
+    "available_gib": 4.6392059326171875,
+    "same_volume_physical_bytes_freed": 0,
+    "trash_emptied": false,
+    "permanent_deletion": false,
+    "selected_preserved_files": 234,
+    "selected_preserved_bytes": 27752003
+  },
+  "keepers": {
+    "author_checkout": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "G_checkout": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos",
+    "shared_git_and_production_root": "/Users/deniskopylov/polisyos",
+    "resources": [
+      "OWN/G venv and workspace node_modules",
+      "shared CPython and pnpm store",
+      "OWN production_data link and primary production_data",
+      "selected .colima-e02-local Linux worker and backend envs",
+      "C12 encoder env and pinned model cache",
+      "EconML arm64 worker env; offline replacement not proven",
+      "offline uv cache",
+      "source/test/docs, useful patches, full deciding outputs, selected custody metadata"
+    ],
+    "map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/storage-semantic-sweep-20261015/keeper-map.json",
+      "sha256": "3f6700ef6ca7781dccda8fe6e38113b305ac8c62be5eb7b942a8d5ee510b4693"
+    }
+  },
+  "verification": {
+    "root_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/storage-semantic-sweep-20261015/root-final-readback.json",
+      "sha256": "a3132c76026f56e8c03de906f9bbddbe232a677e8a67a899eaca9852366f084a"
+    },
+    "independent_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/storage-semantic-sweep-20261015/cross-lane-review.json",
+        "sha256": "b2cf341a91e75f2300f62f7d4e60aa6778f5b54bfc0378d1181f7cc9ac42c2bf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/storage-semantic-sweep-20261015/cross-lane-review-delta1.json",
+        "sha256": "de95705c606ac508dcf7a1685cca674e35dbc3c94be3ad2c6d96b44fb2096d00"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/storage-semantic-sweep-20261015/cross-lane-review-final-delta.json",
+        "sha256": "07acf222992973bcafb7ed69975e74267b8a0d076a0930639bf4d44fb63df998"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/storage-semantic-sweep-20261015/cross-lane-review-tail.json",
+        "sha256": "56a4a504b70b56aca0e12033c25bdad8e55087f5dadeb2a323b88a951faba4a4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/storage-semantic-sweep-20261015/cross-lane-review-tail-c.json",
+        "sha256": "8504570357eca7710ed7909ed9012b76fed067ffef6002279dca172e5154b9b4"
+      }
+    ],
+    "fresh_checks": [
+      "451 move pairs re-read; destinations unique",
+      "234 selected files verified by size and SHA-256",
+      "OWN/G Python,Pydantic,Pytest execute after retirement",
+      "OWN/G Lefthook 2.1.6 executes after PRIMARY install retirement",
+      "13 retired worktrees keep exact Git branches,HEADs,trees and refs",
+      "OWN/G source unchanged before this receipt"
+    ],
+    "E02_native_gates": "UNRUN during explicit user pause. Existing FAIL/ERROR/SKIP/UNRUN are not reclassified.",
+    "historical_results": "Retained as source-bound history, including failures/timeouts and I1 FROZEN_SOURCE_IDENTITY_DRIFT; no current-source PASS inferred."
+  },
+  "remaining": {
+    "six_small_areas": {
+      "count": 6,
+      "du_kib": 8604,
+      "reason": "unique patch/test/review inputs or missing exact generation recipe; retained"
+    },
+    "B05_overlay": "src/tests permissions prevent du traversal; unknown, not empty. Unapplied patch and overlay retained; no chmod.",
+    "capacity": "Same-volume Trash occupies blocks. Physical recovery requires a separate irreversible removal; none executed here.",
+    "restore": "Absolute fixture symlinks need original recorded paths; Git worktrees use git worktree move. Full path maps retained in RAW.",
+    "E02": "Paused and incomplete. See storage-pause-docs-merge-20261015.json for source and existing gate boundary."
+  },
+  "pattern_pass": {
+    "ids": [
+      "P35",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "property": "Retain current E02/G runtimes and unique work; retire unused copies,fixtures,envs recoverably.",
+    "basis": "Actual use, producer recipe, byte identity and consumers; neither directory name nor test PASS decides disposal.",
+    "scope": "Complete285fixture set; source-copy holds narrowed to unique overlays and irrecomputable outputs. No native inherited-debt claim."
+  }
+}

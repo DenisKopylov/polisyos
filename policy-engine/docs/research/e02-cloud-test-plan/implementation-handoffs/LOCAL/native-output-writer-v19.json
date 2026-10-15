@@ -1,0 +1,280 @@
+{
+  "schema": "policyos.e02.local_handoff.v1",
+  "slice": "native-output-writer-v19",
+  "status": "implemented_bounded_verification; full_native_wave_unrun",
+  "slice_base": {
+    "sha": "ae86a04c44b4594944171952e03d0b07cd14dc08",
+    "tree": "01180069e952724eb20206aee32f63e2c355e419",
+    "meaning": "actual application base of complete V19 composition; no inherited-red claim"
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "d6b83342ad81362cb36afbcc23cd7407b0711c0f",
+    "tree": "793cc3ea791df5f80022e916918d0792987fb54f",
+    "parents": [
+      "ae86a04c44b4594944171952e03d0b07cd14dc08"
+    ]
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_native_output_registry_scope.py",
+      "git_blob": "353e1388943b17b1a81b717899e003df92a3cf35",
+      "sha256": "ad1ed367ca26a3782bcffeda9136ed422a14d942a4d035fe38b1d21c75327637",
+      "bytes": 19050,
+      "branch_readback": true,
+      "working_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/acceptance_audit.py",
+      "git_blob": "e7f676de62f9aff64b93f6eb5b3d3001bb2e8832",
+      "sha256": "ae49694f0a6ff39e7d063f616be1e03bacba0b407f3f5ce82b0b6e236a417ae7",
+      "bytes": 31170,
+      "branch_readback": true,
+      "working_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/repository_sota_closeout.py",
+      "git_blob": "8e84272d6a8c91c094f4e5c9be96549c1db14a24",
+      "sha256": "b997674f203fd58e5051926634458360b70a3863db2ed307b5f5e153b360c1e6",
+      "bytes": 75147,
+      "branch_readback": true,
+      "working_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tools/devx/workspace/verify.py",
+      "git_blob": "feb14b5b1865de79d1a6715deece73ef399ce9eb",
+      "sha256": "936cc51b5782d3255618993ac662521b738bf65fda2b1099bc5536e7cffa74ab",
+      "bytes": 12380,
+      "branch_readback": true,
+      "working_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tools/lib/fs.py",
+      "git_blob": "e0c3311b75bf07863695b9b6220fa8c1ec26869e",
+      "sha256": "0ddf42f824ddfe55386f5d5d63b39cacfb53f73dad03d8d2158f19a6b9a15119",
+      "bytes": 35453,
+      "branch_readback": true,
+      "working_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py",
+      "git_blob": "a35c46b55dce0bb9899587d12d79c749eba062c5",
+      "sha256": "1519363edb1f9a0ae5dffaabbc7774670e9916270771f143433181c635a600cf",
+      "bytes": 58785,
+      "branch_readback": true,
+      "working_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/release/check_operability_release_gates.py",
+      "git_blob": "5fb984e9bb66962b687f4cb3ff75149bfdbb1303",
+      "sha256": "27eb3c135255d1ccd8c2b9ab11ca67435c20a49335a52a101ce9d4cf96c97862",
+      "bytes": 37826,
+      "branch_readback": true,
+      "working_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tools/ops_runners/reports/dead_overrides.py",
+      "git_blob": "96162e50b1fb2e2f9cc48cf73f9fea27ec6b4268",
+      "sha256": "fefdb388a516a80601ae3fa06ddf73b9031eb3a2ca45c6084427803e864f9dd3",
+      "bytes": 25076,
+      "branch_readback": true,
+      "working_bytes_equal": false
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/architecture_report_only_contracts.py",
+      "git_blob": "0636cc941691e24950914325844d099a69407122",
+      "sha256": "fc7082940ab90b046b240c93a56f3a41228889dd0012752b26f435caf60ef239",
+      "bytes": 114715,
+      "branch_readback": true,
+      "working_bytes_equal": true
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/repository_last_mile_inventory.py",
+      "git_blob": "6a4bd99599394f409d26761b27d8c2d9036b840b",
+      "sha256": "427133abdec8148cbe92d9d94def191a2fb2e2d1fd480378913c075b943b25ae",
+      "bytes": 62346,
+      "branch_readback": true,
+      "working_bytes_equal": true
+    }
+  ],
+  "selected_input_profile_backend": {
+    "backend": "OWN Python3.14.3, locked Ruff0.14.10, real local child processes",
+    "input": "source-derived native registry; scoped temporary output roots; no production input"
+  },
+  "property_and_chain": [
+    "native entrypoint selects output root -> SecureOutputRoot ownership -> child route argv -> scoped atomic report writer -> actual output bytes and stdout/stderr capture -> deciding gate receipt",
+    "Fixed nine existing writer/facade/entrypoint companions and actual canonical test; retained existing resource/API resolution."
+  ],
+  "verification": {
+    "canonical_product_pytest": "4 PASS",
+    "canonical_ruff": "0 diagnostics across all10 committed paths",
+    "format": "all10 formatted",
+    "real_subprocess_probe": "PASS scoped write + actual exit9 stdout/stderr receipt + fd1/2 capture",
+    "broader_root_probe": "Three test_timing.py assertions failed and were retained; separate timing/parser/Atlas companion repair is under independent review. No blanket inherited claim.",
+    "full_native_sota": "UNRUN pending composed source/input/backend freeze",
+    "archive_wheel_rebuilt_sdist": "UNRUN",
+    "logs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-independent-delta-20261015/actual-subprocess-probe.json",
+        "sha256": "c5e1a0183a5ddfb565456e8e1e156633c80dd55b32d832dd5c2e948679267072",
+        "bytes": 4578,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-independent-delta-20261015/canonical-format-latest.json",
+        "sha256": "fcd8bbc8b19e4c7e4c52cf5b3a910d5dcacd7643b6abbb6d6dbb64ebb6ed2a96",
+        "bytes": 1102,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-independent-delta-20261015/canonical-pytest-latest.json",
+        "sha256": "07ada8b7aa8a31990818df5eacf3fae484f91fef331fbb5b45b79b7d3f160ccd",
+        "bytes": 424,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-independent-delta-20261015/pytest-command.json",
+        "sha256": "52e2bfda38d3f72badb920921df77afcfbe76c5819206196c4560cb4ac8c4e61",
+        "bytes": 413,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-independent-delta-20261015/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-independent-delta-20261015/pytest.stdout.txt",
+        "sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830",
+        "bytes": 80,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-independent-delta-20261015/review.json",
+        "sha256": "fde5412b29d6eb1790a860568b8ed5e86bf4e627caa909b33f19f4791e38ba54",
+        "bytes": 5212,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-independent-delta-20261015/ruff-command.json",
+        "sha256": "92a1243367927d85af72c4e370627c8cfc36bb624b34119254d06e3f2490c0ad",
+        "bytes": 378,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-independent-delta-20261015/ruff.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-independent-delta-20261015/ruff.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-independent-delta-20261015/v19-full-product-ruff-canonical-cwd.json",
+        "sha256": "03e1440b6e3bce13791955742aa6a4d44e83a77199b2866726abd296e6770d04",
+        "bytes": 1177,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-independent-delta-20261015/v19-full-product-ruff.json",
+        "sha256": "850cbe26f57e6394d8f87bfd0cad6c4236f35ae7224ab4654be2d22ffc8fb37e",
+        "bytes": 74913,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-independent-delta-20261015/writer-raw-ruff-diagnostic-probe.json",
+        "sha256": "b5e0afb80f630c1323ba04522607fa537e70a904a2516ad37d4e25dde26609c9",
+        "bytes": 19925,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-product-root-20261015/commands.json",
+        "sha256": "e5cd7ff1967bde75b7acfbc6399cb7dc5934122d633ccfe48439dc24c6d78872",
+        "bytes": 2945,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-product-root-20261015/format-apply.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-product-root-20261015/format-apply.stdout.txt",
+        "sha256": "cb8cd7a784d81c87fc010d36097a723371928a2477ebf20adbfbfbc6574938ad",
+        "bytes": 44,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-product-root-20261015/format-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-product-root-20261015/format-check.stdout.txt",
+        "sha256": "5b9f70ad96522f492ef846065642c069b5627379aff2ab3f74acd2e3b9ecfe34",
+        "bytes": 27,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-product-root-20261015/junit.xml",
+        "sha256": "5928d9713d9b2bbc32dcfb2c71ac10866c86cfc8d083d45ade9e14bc3b98ef01",
+        "bytes": 27791,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-product-root-20261015/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-product-root-20261015/pytest.stdout.txt",
+        "sha256": "833feb9f564d8abbaab3b3c2c18ba49579407dc345f387bfa1ca14e92c4aaf81",
+        "bytes": 9928,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-product-root-20261015/ruff.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "availability": "local ignored RAW"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v19-product-root-20261015/ruff.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19,
+        "availability": "local ignored RAW"
+      }
+    ]
+  },
+  "adversarial_removal_controls": [
+    "actual nonzero child exit remains nonzero and its stdout/stderr are retained",
+    "source-derived registered/conditional writer denominator; recorder preflight-event removal check was a separate review HOLD, subsequently repaired in RAW and awaiting independent delta review"
+  ],
+  "p40": {
+    "product": "bounded sameUID namespace limitation recorded; no endless namespace-race ladder",
+    "recorder": "new class: preflight observation completeness omitted from success predicate; separate RAW repair/review"
+  },
+  "limitations": [
+    "No claim of full native green from four tests or 86 planned output leaves.",
+    "SameUID ancestor namespace replacement strength remains explicitly bounded; source freeze and native wave pending.",
+    "Current C3 dead-override overlay changes one committed writer path after this candidate; its evidence is separate.",
+    "Raw recorder lint diagnostics remain visible, not a product-gate PASS."
+  ],
+  "decision_pointers": [
+    "LOCAL/raw/resume-v19-independent-delta-20261015/review.json"
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "formal_G_acceptance": false,
+    "author_proposals": []
+  },
+  "next_check": "Independent timing/recorder delta review -> freeze all blocking source -> one native13-row replay and exact Q2 installed/archive consumers."
+}

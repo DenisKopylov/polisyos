@@ -3,18 +3,29 @@
 from __future__ import annotations
 
 import hashlib
+import importlib
 import json
 from collections.abc import Mapping
 from copy import deepcopy
 from enum import Enum
 from functools import cached_property
-from typing import Any, ClassVar, Self
+from typing import Any, ClassVar, NoReturn, Protocol, Self, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir._internal.runtime_protocols import protocol_declared_callables_are_callable
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import CausalGraphModelRef
+
+
+@runtime_checkable
+class _RustworkxDirectedGraph(Protocol):
+    """Small runtime-checked surface used by the optional rustworkx export."""
+
+    def add_node(self, node: str, /) -> int: ...
+
+    def add_edge(self, source: int, target: int, data: object, /) -> object: ...
 
 
 class GraphType(str, Enum):
@@ -81,22 +92,14 @@ class GraphProjectionDisposition(BaseModel):
             if self.source_graph_type is not GraphType.DAG:
                 raise ValueError("identity disposition requires a declared DAG source")
             if self.resolved_graph_sha256 not in (None, self.source_graph_sha256):
-                raise ValueError(
-                    "identity disposition cannot change the source graph content"
-                )
+                raise ValueError("identity disposition cannot change the source graph content")
             if self.reason_code is not None:
                 raise ValueError("identity disposition cannot carry a refusal reason")
         elif self.status is GraphProjectionStatus.PROJECTED:
-            if self.source_graph_type not in {
-                GraphType.PAG, GraphType.CPDAG, GraphType.ADMG
-            }:
-                raise ValueError(
-                    "projected disposition requires an admitted source graph profile"
-                )
+            if self.source_graph_type not in {GraphType.PAG, GraphType.CPDAG, GraphType.ADMG}:
+                raise ValueError("projected disposition requires an admitted source graph profile")
             if self.resolved_graph_sha256 is None or self.reason_code is not None:
-                raise ValueError(
-                    "projected disposition requires a resolved graph and no refusal"
-                )
+                raise ValueError("projected disposition requires a resolved graph and no refusal")
         elif self.status is GraphProjectionStatus.UNAVAILABLE:
             if self.resolved_graph_sha256 is not None or self.reason_code is None:
                 raise ValueError("unavailable disposition requires a reason and no DAG")
@@ -120,10 +123,7 @@ def _snapshot_canonical_value(value: Any) -> Any:
     if type(value) in (list, _FrozenList):
         return [_snapshot_canonical_value(item) for item in list.__iter__(value)]
     if type(value) in (dict, _FrozenDict):
-        return {
-            key: _snapshot_canonical_value(item)
-            for key, item in dict.items(value)
-        }
+        return {key: _snapshot_canonical_value(item) for key, item in dict.items(value)}
     if type(value) is tuple:
         return tuple(_snapshot_canonical_value(item) for item in value)
     if type(value) is set:
@@ -160,9 +160,7 @@ def _canonical_model_field_snapshot(
         raise ValueError("canonical model field storage must be a plain dictionary")
     if extra_fields is not None:
         raise ValueError("canonical model cannot carry Pydantic extra fields")
-    if private_fields is not None and (
-        type(private_fields) is not dict or private_fields
-    ):
+    if private_fields is not None and (type(private_fields) is not dict or private_fields):
         raise ValueError("canonical model cannot carry undeclared private fields")
 
     declared_fields = set(model_type.model_fields)
@@ -177,12 +175,10 @@ def _canonical_model_field_snapshot(
         )
     if missing_names:
         raise ValueError(
-            "canonical model is missing stored fields: "
-            + ", ".join(sorted(missing_names))
+            "canonical model is missing stored fields: " + ", ".join(sorted(missing_names))
         )
     return {
-        name: _snapshot_canonical_value(stored_fields[name])
-        for name in model_type.model_fields
+        name: _snapshot_canonical_value(stored_fields[name]) for name in model_type.model_fields
     }
 
 
@@ -275,9 +271,7 @@ def legacy_graph_projection_disposition(
     if resolved_graph is not None:
         resolved_graph = _canonical_causal_graph(resolved_graph)
     source_hash = graph_content_sha256(source_graph)
-    resolved_hash = (
-        graph_content_sha256(resolved_graph) if resolved_graph is not None else None
-    )
+    resolved_hash = graph_content_sha256(resolved_graph) if resolved_graph is not None else None
     if source_graph.graph_type is GraphType.DAG:
         if resolved_hash in (None, source_hash):
             return GraphProjectionDisposition(
@@ -339,9 +333,7 @@ def graph_for_analysis(
         disposition.source_graph_type is not source_graph.graph_type
         or disposition.source_graph_sha256 != graph_content_sha256(source_graph)
     ):
-        raise ValueError(
-            "graph projection disposition does not bind the current source graph"
-        )
+        raise ValueError("graph projection disposition does not bind the current source graph")
     if disposition.status is GraphProjectionStatus.IDENTITY:
         if (
             resolved_graph is not None
@@ -357,9 +349,7 @@ def graph_for_analysis(
             raise ValueError("resolved graph does not match its projection disposition")
         expected, _ = project_graph_to_dag(source_graph)
         if graph_content_sha256(expected) != graph_content_sha256(resolved_graph):
-            raise ValueError(
-                "resolved graph is not the canonical projection of its source"
-            )
+            raise ValueError("resolved graph is not the canonical projection of its source")
         return resolved_graph
     if disposition.status is GraphProjectionStatus.UNAVAILABLE:
         if resolved_graph is not None:
@@ -369,9 +359,7 @@ def graph_for_analysis(
         resolved_graph is not None
         and graph_content_sha256(resolved_graph) != disposition.resolved_graph_sha256
     ):
-        raise ValueError(
-            "unsupported candidate graph does not match its refusal disposition"
-        )
+        raise ValueError("unsupported candidate graph does not match its refusal disposition")
     if resolved_graph is None and disposition.resolved_graph_sha256 is not None:
         raise ValueError("unsupported refusal references a missing candidate graph")
     return None
@@ -392,7 +380,7 @@ class _FrozenList(list[Any]):
 
     __slots__ = ()
 
-    def _immutable(self, *_args: Any, **_kwargs: Any) -> None:
+    def _immutable(self, *_args: Any, **_kwargs: Any) -> NoReturn:
         raise TypeError("published graph containers are immutable")
 
     __setitem__ = _immutable
@@ -413,8 +401,10 @@ class _FrozenList(list[Any]):
 
     def __deepcopy__(self, memo: dict[int, Any]) -> _FrozenList:
         existing = memo.get(id(self))
-        if existing is not None:
+        if isinstance(existing, _FrozenList):
             return existing
+        if existing is not None:
+            raise TypeError("deepcopy memo contains an incompatible frozen-list copy")
         copied = _FrozenList()
         memo[id(self)] = copied
         list.extend(copied, (deepcopy(item, memo) for item in self))
@@ -426,7 +416,7 @@ class _FrozenDict(dict[Any, Any]):
 
     __slots__ = ()
 
-    def _immutable(self, *_args: Any, **_kwargs: Any) -> None:
+    def _immutable(self, *_args: Any, **_kwargs: Any) -> NoReturn:
         raise TypeError("published graph containers are immutable")
 
     __delitem__ = _immutable
@@ -443,8 +433,10 @@ class _FrozenDict(dict[Any, Any]):
 
     def __deepcopy__(self, memo: dict[int, Any]) -> _FrozenDict:
         existing = memo.get(id(self))
-        if existing is not None:
+        if isinstance(existing, _FrozenDict):
             return existing
+        if existing is not None:
+            raise TypeError("deepcopy memo contains an incompatible frozen-dict copy")
         copied = _FrozenDict()
         memo[id(self)] = copied
         dict.update(
@@ -729,9 +721,20 @@ class CausalGraphModel(BaseModel):
         return "\n".join(lines)
 
     def to_rustworkx(self) -> tuple[Any, dict[str, int]]:
-        import rustworkx as rx
+        rx_module = importlib.import_module("rustworkx")
+        graph_factory = getattr(rx_module, "PyDiGraph", None)
+        if not callable(graph_factory):
+            raise AttributeError("rustworkx does not expose PyDiGraph")
+        graph_candidate: object = graph_factory()
+        if not isinstance(graph_candidate, _RustworkxDirectedGraph) or not (
+            protocol_declared_callables_are_callable(
+                graph_candidate,
+                _RustworkxDirectedGraph,
+            )
+        ):
+            raise TypeError("rustworkx PyDiGraph does not expose the required graph methods")
+        graph = graph_candidate
 
-        graph = rx.PyDiGraph()
         node_map: dict[str, int] = {}
         for node in self.nodes:
             idx = graph.add_node(node)
@@ -747,7 +750,7 @@ class CausalGraphModel(BaseModel):
     def to_networkx(self) -> Any:
         import networkx as nx
 
-        graph = nx.MultiDiGraph()
+        graph: nx.MultiDiGraph[str, dict[str, object], dict[str, object]] = nx.MultiDiGraph()
         graph.add_nodes_from(self.nodes)
         grouped_edges: dict[
             tuple[str, str, str, str, int | None],

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.ir.analytics.diagnostic_dashboard import DiagnosticDashboardData
+from polisyos.ir.analytics.diagnostic_dashboard import DiagnosticDashboardData, _serialize_raking
 from polisyos.ir.analytics.survey_raking import SurveyRakingDiagnosticReport
 
 
@@ -49,3 +49,14 @@ def test_dashboard_includes_raking_convergence_and_weight_stability() -> None:
     assert dashboard.weight_stability["ess_fraction"] == 0.42
     assert dashboard.has_weighting_issues is True
     assert dashboard.n_warnings == 1
+
+
+def test_raking_serializer_rejects_non_mapping_model_dump() -> None:
+    class MalformedReport:
+        contract_id = "ir.survey_raking_diagnostic_report.v1"
+
+        def model_dump(self, *, mode: str) -> list[str]:
+            assert mode == "json"
+            return ["not", "an", "object"]
+
+    assert _serialize_raking(MalformedReport()) is None

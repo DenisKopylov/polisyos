@@ -25,6 +25,8 @@ from polisyos.ir.analytics.hte import (
     persist_hte_result,
     persist_policy_recommendation,
 )
+from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
+from polisyos.scientist.methods.backtesting.trust_scorer import TrustScorer
 
 
 def test_hte_result_persist_round_trip(tmp_path) -> None:
@@ -176,8 +178,61 @@ def test_policy_recommendation_is_frozen_report_contract() -> None:
 
 def test_backtest_report_persist_round_trip(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
-    report = BacktestReport(
+    scenario = BacktestScenario(
+        scenario_id="s1",
+        scenario_label="scenario 1",
+        outcome_comparisons=[
+            OutcomeComparison(
+                metric_name="gdp",
+                y_pred=value,
+                y_true=value,
+                absolute_error=0.0,
+                relative_error=0.0,
+            )
+            for value in (1.0, 2.0, 3.0)
+        ],
+        rmse=0.0,
+        mae=0.0,
+        mape=0.0,
+        requested_count=3,
+        compared_count=3,
+        absolute_error_sum=0.0,
+        squared_error_sum=0.0,
+        percentage_error_sum=0.0,
+        percentage_error_count=3,
+    )
+    orchestrator = BacktestOrchestrator.__new__(BacktestOrchestrator)
+    orchestrator._trust_scorer = TrustScorer()
+    report = orchestrator._aggregate(
         report_id="BT_test",
+        scenarios=[scenario],
+        metadata={},
+        prediction_mode_requested=None,
+        prediction_mode_effective=None,
+        degraded_reasons=[],
+    )
+    report = orchestrator._validate_trust_projection_before_persist(report)
+    assert report.metric_diagnostics_are_source_bound()
+    assert report.has_source_bound_exact_zero_metrics()
+    assert report.trust_eligible
+    assert report.trust_score is not None
+    assert report.trust_grade is not None
+
+    ref = persist_backtest_report(_ensure_ir_artifact_store(store), report)
+    loaded = load_backtest_report(_ensure_ir_artifact_store(store), ref)
+    assert loaded.report_id == "BT_test"
+    assert loaded.n_scenarios == 1
+    assert loaded.metric_diagnostics_are_source_bound()
+    assert loaded.has_source_bound_exact_zero_metrics()
+    assert loaded.trust_eligible
+    assert loaded.trust_score == report.trust_score
+    assert loaded.trust_grade == report.trust_grade
+
+
+def test_unbound_legacy_backtest_grade_is_refused_and_persists_as_limited(tmp_path) -> None:
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path))
+    report = BacktestReport(
+        report_id="BT_legacy_unbound",
         scenarios=[
             BacktestScenario(
                 scenario_id="s1",
@@ -188,27 +243,33 @@ def test_backtest_report_persist_round_trip(tmp_path) -> None:
                         y_pred=1.0,
                         y_true=1.2,
                         absolute_error=0.2,
-                        relative_error=0.1667,
+                        relative_error=1.0 / 6.0,
                     )
                 ],
                 rmse=0.2,
                 mae=0.2,
-                mape=16.67,
-                coverage_probability=0.5,
+                mape=(1.0 / 6.0) * 100.0,
             )
         ],
         overall_rmse=0.2,
         overall_mae=0.2,
-        overall_mape=16.67,
-        overall_coverage_probability=0.5,
+        overall_mape=(1.0 / 6.0) * 100.0,
         n_scenarios=1,
         n_metrics_evaluated=1,
         overall_bias_direction=BiasDirection.NEUTRAL,
         trust_score=0.62,
         trust_grade="C",
     )
-    ref = persist_backtest_report(_ensure_ir_artifact_store(store), report)
-    loaded = load_backtest_report(_ensure_ir_artifact_store(store), ref)
-    assert loaded.report_id == "BT_test"
-    assert loaded.n_scenarios == 1
-    assert loaded.trust_grade == "C"
+    assert report.metric_diagnostics_are_source_bound() is False
+    assert report.trust_eligible is False
+    assert report.trust_score is None
+    assert report.trust_grade is None
+    assert "metric_diagnostics_not_source_bound" in report.degraded_reasons
+
+    ref = persist_backtest_report(store, report)
+    loaded = load_backtest_report(store, ref)
+    assert loaded.metric_diagnostics_are_source_bound() is False
+    assert loaded.trust_eligible is False
+    assert loaded.trust_score is None
+    assert loaded.trust_grade is None
+    assert "metric_diagnostics_not_source_bound" in loaded.degraded_reasons

@@ -414,7 +414,7 @@ class BacktestReport(BaseModel):
                 if has_lower != has_upper:
                     raise ValueError("source interval bounds must be supplied as a complete pair")
                 expected_within = None
-                if has_lower and has_upper:
+                if comparison.ci_lower is not None and comparison.ci_upper is not None:
                     interval_available += 1
                     expected_within = bool(
                         comparison.ci_lower <= comparison.y_true <= comparison.ci_upper

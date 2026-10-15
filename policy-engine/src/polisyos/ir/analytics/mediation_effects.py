@@ -223,9 +223,13 @@ class MediationDecomposition(BaseModel):
         normalized = dict(payload)
         if normalized.get("proportion_mediated") is not None:
             return normalized
+        total_effect_value = normalized.get("total_effect")
+        nie_value = normalized.get("nie")
+        if total_effect_value is None or nie_value is None:
+            return normalized
         try:
-            total_effect = float(normalized.get("total_effect"))
-            nie = float(normalized.get("nie"))
+            total_effect = float(total_effect_value)
+            nie = float(nie_value)
         except (TypeError, ValueError):
             return normalized
         if abs(total_effect) > 1.0e-12:

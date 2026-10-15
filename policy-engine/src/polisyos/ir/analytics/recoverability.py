@@ -144,7 +144,7 @@ class RecoverabilityCertificate(BaseModel):
 
     def to_summary_dict(self) -> dict[str, Any]:
         """Return the compact JSON shape embedded in proof/readiness metadata."""
-        summary = {
+        summary: dict[str, object] = {
             "schema_version": self.schema_version,
             "target_query": self.target_query,
             "mgraph_fingerprint": self.mgraph_fingerprint,

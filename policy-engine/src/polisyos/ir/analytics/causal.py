@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import re
 from enum import Enum
-from typing import TYPE_CHECKING, Any, ClassVar, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, TypeGuard
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -967,7 +967,7 @@ def proof_bundle_from_identification_result(
         witness_index_ref=resolved_witness_index_ref,
         estimand_ast=(
             estimand_ast.model_dump(mode="json")
-            if hasattr(estimand_ast, "model_dump")
+            if estimand_ast is not None and hasattr(estimand_ast, "model_dump")
             else estimand_ast
         ),
         dynamic_semantics=dynamic_semantics,
@@ -1270,9 +1270,9 @@ def proof_bundle_from_proximal_certificate(
             metadata["spatial_model_family"] = certificate.metadata["spatial_model_family"]
     return ProofBundle(
         proof_status="identified",
-        proof_stratum=proof_stratum,  # type: ignore[arg-type]
+        proof_stratum=proof_stratum,
         theorem_family=theorem_family,
-        completeness_regime=completeness_regime,  # type: ignore[arg-type]
+        completeness_regime=completeness_regime,
         implementation_coverage=implementation_coverage,
         graph_ref=graph_ref,
         query_ref=query_ref,
@@ -1814,15 +1814,20 @@ def _recoverability_summary(payload: Any) -> dict[str, Any] | None:
     if payload is None:
         return None
     if hasattr(payload, "to_summary_dict"):
-        candidate = payload.to_summary_dict()
+        candidate: object = payload.to_summary_dict()
     elif hasattr(payload, "model_dump"):
         candidate = payload.model_dump(mode="json")
     elif isinstance(payload, dict):
         candidate = dict(payload)
     else:
         return None
+    if not _is_string_keyed_dict(candidate):
+        return None
     if "recoverability" in candidate and isinstance(candidate["recoverability"], dict):
-        candidate = dict(candidate["recoverability"])
+        nested = candidate["recoverability"]
+        if not _is_string_keyed_dict(nested):
+            return None
+        candidate = dict(nested)
     return candidate
 
 
@@ -1854,16 +1859,23 @@ def _joint_decision_summary(payload: Any) -> dict[str, Any] | None:
     if payload is None:
         return None
     if hasattr(payload, "to_summary_dict"):
-        candidate = payload.to_summary_dict()
+        candidate: object = payload.to_summary_dict()
     elif hasattr(payload, "model_dump"):
         candidate = payload.model_dump(mode="json")
     elif isinstance(payload, dict):
         candidate = dict(payload)
     else:
         return None
+    if not _is_string_keyed_dict(candidate):
+        return None
     if "verdict" not in candidate:
         return None
     return candidate
+
+
+def _is_string_keyed_dict(value: object) -> TypeGuard[dict[str, object]]:
+    """Check the runtime key shape required by summary consumers."""
+    return isinstance(value, dict) and all(isinstance(key, str) for key in value)
 
 
 def _typed_ref_from_payload(payload: Any, ref_cls: type[Any]) -> Any | None:
@@ -1883,8 +1895,12 @@ def _normalize_composability_status(
     payload: Any,
 ) -> Literal["reusable", "revalidate", "rederive", "unknown"]:
     candidate = str(getattr(payload, "value", payload) or "").strip().lower()
-    if candidate in {"reusable", "revalidate", "rederive"}:
-        return candidate
+    if candidate == "reusable":
+        return "reusable"
+    if candidate == "revalidate":
+        return "revalidate"
+    if candidate == "rederive":
+        return "rederive"
     return "unknown"
 
 
@@ -2010,8 +2026,10 @@ def _normalize_operator_lift_scope(
     payload: Any,
 ) -> Literal["none", "finite_audit_basis", "whole_probe_space"]:
     candidate = str(getattr(payload, "value", payload) or "").strip().lower()
-    if candidate in {"finite_audit_basis", "whole_probe_space"}:
-        return candidate
+    if candidate == "finite_audit_basis":
+        return "finite_audit_basis"
+    if candidate == "whole_probe_space":
+        return "whole_probe_space"
     return "none"
 
 

@@ -3,16 +3,21 @@
 from __future__ import annotations
 
 import csv
+import importlib
 import logging
+import operator
 import shutil
 import tempfile
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol, SupportsIndex, runtime_checkable
+
+from polisyos.ir._internal.runtime_protocols import protocol_declared_callables_are_callable
 
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from pandas import DataFrame
 
     from polisyos.ir.analytics.causal_graph import CausalGraphModel
 
@@ -30,6 +35,26 @@ class CausalGraphKuzuNotAvailableError(CausalGraphKuzuError):
 
 class CausalGraphKuzuSchemaError(CausalGraphKuzuError):
     """Raised when Kuzu schema cannot be applied."""
+
+
+class _KuzuQueryResult(Protocol):
+    """Query result subset used to reconcile materialized graph counts."""
+
+    def get_as_df(self) -> DataFrame: ...
+
+
+class _KuzuConnection(Protocol):
+    """Subset of a Kuzu connection used by this adapter."""
+
+    def execute(self, statement: str) -> _KuzuQueryResult: ...
+
+
+@runtime_checkable
+class _KuzuModule(Protocol):
+    """Optional Kuzu module surface used by the causal graph adapter."""
+
+    Database: Callable[[str], object]
+    Connection: Callable[[object], _KuzuConnection]
 
 
 def ensure_causal_kuzu_schema(
@@ -101,13 +126,13 @@ def materialize_causal_kuzu_from_graph(
 
         expected_nodes = len(graph.nodes)
         expected_edges = len(graph.edges)
-        kuzu_nodes = int(
-            kuzu_conn.execute("MATCH (n:CausalVar) RETURN COUNT(n) AS c").get_as_df().iloc[0, 0]
+        kuzu_nodes = _count_query_result(
+            kuzu_conn,
+            "MATCH (n:CausalVar) RETURN COUNT(n) AS c",
         )
-        kuzu_edges = int(
-            kuzu_conn.execute("MATCH ()-[e:CausalEdge]->() RETURN COUNT(e) AS c")
-            .get_as_df()
-            .iloc[0, 0]
+        kuzu_edges = _count_query_result(
+            kuzu_conn,
+            "MATCH ()-[e:CausalEdge]->() RETURN COUNT(e) AS c",
         )
         if kuzu_nodes != expected_nodes:
             raise CausalGraphKuzuError(
@@ -177,13 +202,33 @@ def _export_graph_edges_csv(graph: CausalGraphModel, output_path: Path) -> None:
             )
 
 
-def _import_kuzu() -> Any:
+def _import_kuzu() -> _KuzuModule:
     try:
-        import kuzu
-
+        module = importlib.import_module("kuzu")
     except (ImportError, OSError) as exc:
         raise CausalGraphKuzuNotAvailableError("kuzu not available") from exc
-    return kuzu
+    if not isinstance(module, _KuzuModule) or not protocol_declared_callables_are_callable(
+        module,
+        _KuzuModule,
+    ):
+        raise CausalGraphKuzuNotAvailableError(
+            "kuzu module does not expose Database and Connection"
+        )
+    return module
+
+
+def _count_query_result(connection: _KuzuConnection, statement: str) -> int:
+    """Read a nonnegative integer cell from a Kuzu aggregate query result."""
+    value: object = connection.execute(statement).get_as_df().iloc[0, 0]
+    if isinstance(value, bool) or not isinstance(value, SupportsIndex):
+        raise CausalGraphKuzuError("kuzu COUNT query returned a non-integer value")
+    try:
+        count = operator.index(value)
+    except TypeError as exc:
+        raise CausalGraphKuzuError("kuzu COUNT query returned a non-integer value") from exc
+    if count < 0:
+        raise CausalGraphKuzuError("kuzu COUNT query returned a negative value")
+    return count
 
 
 def _iter_ddl_statements(ddl_text: str) -> list[str]:

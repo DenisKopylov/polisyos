@@ -19,7 +19,10 @@ from polisyos.core.contracts.foundry import (
     SimulationResult,
     SimulationResultRef,
 )
-from polisyos.foundry.analysis.attractors import attach_abm_bifurcation_report_ref
+from polisyos.foundry.analysis.attractors import (
+    attach_abm_bifurcation_report_ref,
+    persist_attractor_analysis_result,
+)
 from polisyos.foundry.calibration import attach_abm_identifiability_certificate_ref
 from polisyos.foundry.methods.catalog.simulation.dynamics import (
     build_content_bound_abm_result,
@@ -343,7 +346,8 @@ def test_phase4_abm_attachment_helpers_persist_exact_fields(tmp_path) -> None:
         diagnostic_ref.artifact_id
     )
 
-    attractor_ref_payload = store.put_json(
+    attractor_ref = persist_attractor_analysis_result(
+        store,
         AttractorAnalysisResult(
             analysis_id="phase4-test-attractors",
             simulation_result_ref=sim_ref,
@@ -352,14 +356,11 @@ def test_phase4_abm_attachment_helpers_persist_exact_fields(tmp_path) -> None:
                 reduced_dimension=1,
             ),
         ),
-        PutOptions(kind="foundry.attractor_analysis_result", media_type="application/json"),
     )
     bifurcation_abm_ref = attach_abm_bifurcation_report_ref(
         store,
         simulation_result_ref=sim_ref,
-        attractor_analysis_ref=AttractorAnalysisResultRef(
-            artifact_id=attractor_ref_payload.artifact_id
-        ),
+        attractor_analysis_ref=attractor_ref,
     )
     bifurcation_abm = load_abm_result(_ensure_ir_artifact_store(store), bifurcation_abm_ref)
     assert bifurcation_abm.bifurcation_report is not None
@@ -403,13 +404,19 @@ def test_dynamic_microsim_validation_report_roundtrip_and_calibration_integratio
 
 
 def test_phase4_causal_certificates_roundtrip(tmp_path) -> None:
+    from pydantic import BaseModel
+
+    class LocalIndependencePayload(BaseModel):
+        verification_status: str
+        assumptions: list[str]
+
     store = FileSystemCAS(tmp_path)
     temporal = build_temporal_graph_causal_certificate(
         temporal_identification_certificate={"theorem_family": "local_independence"},
-        local_independence_certificate={
-            "verification_status": "identified",
-            "assumptions": ["observed_filtration"],
-        },
+        local_independence_certificate=LocalIndependencePayload(
+            verification_status="identified",
+            assumptions=["observed_filtration"],
+        ),
     )
     assert isinstance(temporal, TemporalGraphCausalCertificate)
     temporal_ref = persist_temporal_graph_causal_certificate(

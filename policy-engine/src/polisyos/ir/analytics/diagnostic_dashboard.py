@@ -8,7 +8,7 @@ object intended for the audit UI and downstream quality scoring.
 from __future__ import annotations
 
 import logging
-from typing import Any
+from typing import Any, TypeGuard
 
 from pydantic import BaseModel, ConfigDict
 
@@ -98,7 +98,7 @@ class DiagnosticDashboardData(BaseModel):
         cls,
         run_id: str,
         query_str: str,
-        node_outputs: dict[str, dict],
+        node_outputs: dict[str, dict[str, object]],
         *,
         created_at: str = "",
     ) -> DiagnosticDashboardData:
@@ -176,7 +176,11 @@ class DiagnosticDashboardData(BaseModel):
         falsification: FalsificationReport | None = FalsificationReport.from_dowhy_refute_outputs(
             node_outputs
         )
-        if falsification.n_passed == 0 and falsification.n_failed == 0:
+        if (
+            falsification is not None
+            and falsification.n_passed == 0
+            and falsification.n_failed == 0
+        ):
             falsification = None
 
         # Aggregate counts
@@ -314,12 +318,19 @@ def _serialize_raking(value: Any) -> dict[str, Any] | None:
     ):
         model_dump = getattr(value, "model_dump", None)
         if callable(model_dump):
-            return model_dump(mode="json")
+            serialized: object = model_dump(mode="json")
+            if _is_string_keyed_dict(serialized):
+                return serialized
     if isinstance(value, dict) and {"decision", "stop_reason", "max_rel_margin_error"} <= set(
         value
     ):
         return dict(value)
     return None
+
+
+def _is_string_keyed_dict(value: object) -> TypeGuard[dict[str, object]]:
+    """Check the runtime key shape required by dashboard payload consumers."""
+    return isinstance(value, dict) and all(isinstance(key, str) for key in value)
 
 
 def _raking_convergence_view(raking_result: dict[str, Any] | None) -> dict[str, Any] | None:

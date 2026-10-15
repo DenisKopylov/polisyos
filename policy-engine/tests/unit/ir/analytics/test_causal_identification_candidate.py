@@ -15,6 +15,8 @@ from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
     EstimationStatus,
+    _joint_decision_summary,
+    _recoverability_summary,
     load_causal_effect_report,
     persist_causal_effect_report,
 )
@@ -54,6 +56,20 @@ def _report(method: CausalMethod, inference_method: str = "asymptotic") -> Causa
             },
         },
     )
+
+
+def test_dynamic_summary_boundaries_require_string_keyed_objects() -> None:
+    class MalformedSummary:
+        def to_summary_dict(self) -> list[str]:
+            return ["not", "a", "summary"]
+
+    assert _recoverability_summary(MalformedSummary()) is None
+    assert _joint_decision_summary(MalformedSummary()) is None
+    assert _recoverability_summary({"recoverability": {1: "bad key"}}) is None
+    assert _recoverability_summary({"recoverability": {"status": "recoverable"}}) == {
+        "status": "recoverable"
+    }
+    assert _joint_decision_summary({"verdict": "admitted"}) == {"verdict": "admitted"}
 
 
 @pytest.mark.parametrize("method", list(CausalMethod))

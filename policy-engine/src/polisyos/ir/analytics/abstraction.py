@@ -1397,7 +1397,8 @@ def _psd_matrix_sqrt(matrix: np.ndarray) -> np.ndarray:
     sym = 0.5 * (matrix + matrix.T)
     eigenvalues, eigenvectors = np.linalg.eigh(sym)
     clipped = np.clip(eigenvalues, a_min=0.0, a_max=None)
-    return eigenvectors @ np.diag(np.sqrt(clipped)) @ eigenvectors.T
+    result: np.ndarray = eigenvectors @ np.diag(np.sqrt(clipped)) @ eigenvectors.T
+    return result
 
 
 def _gaussian_wasserstein_2(

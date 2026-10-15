@@ -166,7 +166,11 @@ class FallbackResult(BaseModel):
                 EpistemicTier.ASSUMPTION_DEPENDENT: 2,
                 EpistemicTier.DIAGNOSTIC_GUIDANCE: 3,
             }
-            object.__setattr__(self, "highest_tier_reached", min(candidates, key=rank.get))
+            object.__setattr__(
+                self,
+                "highest_tier_reached",
+                min(candidates, key=lambda tier: rank[tier]),
+            )
         return self
 
     def to_diagnostics_dict(self) -> dict[str, Any]:
@@ -608,7 +612,11 @@ class NegativeCertificate(BaseModel):
         if missing_domains:
             parts.append(f"Additional source domains that would help: {missing_domains}.")
         if hedge_certificate is not None:
-            minimal = getattr(hedge_certificate, "minimal_required_s_nodes", frozenset())
+            minimal: frozenset[str] = getattr(
+                hedge_certificate,
+                "minimal_required_s_nodes",
+                frozenset(),
+            )
             if minimal:
                 parts.append(
                     f"Breaking the hedge requires experimental data on: {sorted(minimal)}."

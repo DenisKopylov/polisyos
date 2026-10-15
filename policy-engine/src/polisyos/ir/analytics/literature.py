@@ -10,7 +10,7 @@ from collections.abc import Callable, Mapping, Sequence
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -490,6 +490,16 @@ class OpenAlexExtractionObservation(BaseModel):
     predictions: list[dict[str, Any]] = Field(default_factory=list)
     constructed_negatives: list[dict[str, Any]] = Field(default_factory=list)
     reason: str = ""
+
+
+class _OpenAlexExtractionObservationBase(TypedDict):
+    case_id: str
+    openalex_id: str
+    query: str
+    source_ref: str
+    recorded_at: str | None
+    gold_reviewed_at: str | None
+    source_content_sha256: str | None
 
 
 class ExtractorAccuracyReport(BaseModel):
@@ -1466,7 +1476,7 @@ def evaluate_openalex_claim_extractor_accuracy(
     )
     observations = []
     for case in cases:
-        base = {
+        base: _OpenAlexExtractionObservationBase = {
             "case_id": case.case_id,
             "openalex_id": case.openalex_id,
             "query": case.query,
@@ -2062,6 +2072,8 @@ def load_recorded_openalex_source(
         if query is not None
         else (recording.get("query") if isinstance(recording, dict) else None)
     )
+    if not isinstance(selected_query, str):
+        raise ValueError("OpenAlex fixture recording query drift")
     captured_at = validate_recorded_openalex_response(
         payload, query=selected_query, allow_empty=allow_empty
     )
@@ -2099,7 +2111,7 @@ def persist_article_extraction_result(
     result: ArticleExtractionResult,
     *,
     inputs: list[InputRef] | None = None,
-) -> dict:
+) -> dict[str, str]:
     """Persist article extraction result helper."""
     return put_json_artifact(
         store,

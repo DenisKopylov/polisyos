@@ -20,8 +20,7 @@ from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from polisyos.ir.artifacts.contracts import ArtifactStore
-    from polisyos.ir.artifacts.refs import InputRef
+    from polisyos.ir.artifacts.contracts import ArtifactStore, InputRef
     from polisyos.ir.registry.refs import SurveyQualityCertificateRef
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"

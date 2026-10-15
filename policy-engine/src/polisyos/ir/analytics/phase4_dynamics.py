@@ -6,7 +6,7 @@ import hashlib
 import json
 from collections.abc import Mapping
 from enum import StrEnum
-from typing import Any, Literal
+from typing import Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -33,6 +33,13 @@ from .regime_shift_forecast import (
     RegimeShiftForecastBundle,
     load_regime_shift_forecast_bundle,
 )
+
+
+@runtime_checkable
+class _JsonModelDumper(Protocol):
+    """Model-like input that can provide a JSON-compatible payload."""
+
+    def model_dump(self, *, mode: Literal["json"]) -> dict[str, object]: ...
 
 
 class Phase4GateStatus(StrEnum):
@@ -858,7 +865,7 @@ def _coerce_ref(value: Any | None, cls: type[Any]) -> Any | None:
 def _model_payload(value: Any | None) -> dict[str, Any] | None:
     if value is None:
         return None
-    if hasattr(value, "model_dump"):
+    if isinstance(value, _JsonModelDumper):
         return value.model_dump(mode="json")
     if isinstance(value, Mapping):
         return dict(value)

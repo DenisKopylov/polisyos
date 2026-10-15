@@ -69,7 +69,8 @@ def _ensure_non_empty(value: str, *, field_name: str) -> str:
 
 
 def _ensure_finite(value: float, *, field_name: str) -> float:
-    return float(ensure_finite_numeric(value, field_name=field_name))
+    ensure_finite_numeric(value, field_name=field_name)
+    return float(value)
 
 
 def _normalize_string_tuple(value: Any, *, field_name: str) -> tuple[str, ...]:
@@ -584,6 +585,7 @@ def _default_fallback_mode_for_descriptor_payload(
 def _descriptor_payload_from_legacy(
     value: StrategicEquilibriumConcept | str,
 ) -> dict[str, Any]:
+    existence_assumptions: tuple[str, ...]
     legacy = (
         value
         if isinstance(value, StrategicEquilibriumConcept)

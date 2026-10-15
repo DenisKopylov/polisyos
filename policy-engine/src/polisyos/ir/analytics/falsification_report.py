@@ -7,6 +7,7 @@ and the QualityScoreAggregator.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict
@@ -107,7 +108,7 @@ class FalsificationReport(BaseModel):
     @classmethod
     def from_dowhy_refute_outputs(
         cls,
-        node_outputs: dict[str, dict],
+        node_outputs: Mapping[str, object],
         *,
         alpha: float = 0.05,
     ) -> FalsificationReport:
@@ -116,52 +117,66 @@ class FalsificationReport(BaseModel):
         Looks for any node output that has a 'refutation_result' key.
         """
         tests: list[FalsificationTest] = []
-        for node_id, outputs in node_outputs.items():
-            if not isinstance(outputs, dict):
+        for node_id, raw_outputs in node_outputs.items():
+            outputs = _string_keyed_mapping(raw_outputs)
+            if outputs is None:
                 continue
-            refute = outputs.get("refutation_result")
-            if not isinstance(refute, dict):
+            refute = _string_keyed_mapping(outputs.get("refutation_result"))
+            if refute is None:
                 continue
-            test_name = refute.get("test_name", node_id)
-            p_val: float | None = refute.get("p_value")
-            stat: float | None = refute.get("statistic")
-            passed = bool(refute.get("passed", True))
-            kind_str = refute.get("test_kind", "data_subset")
-            try:
-                kind = FalsificationTestKind(kind_str)
-            except ValueError:
+            kind_value = refute.get("test_kind", "data_subset")
+            if isinstance(kind_value, str):
+                try:
+                    kind = FalsificationTestKind(kind_value)
+                except ValueError:
+                    kind = FalsificationTestKind.DATA_SUBSET
+            else:
                 kind = FalsificationTestKind.DATA_SUBSET
+            passed = bool(refute.get("passed", True))
             tests.append(
-                FalsificationTest(
-                    test_name=test_name,
-                    test_kind=kind,
-                    passed=passed,
-                    statistic=stat,
-                    p_value=p_val,
-                    interpretation=refute.get("interpretation", ""),
-                    is_critical=kind
-                    in {
-                        FalsificationTestKind.PLACEBO_TREATMENT,
-                        FalsificationTestKind.INDEPENDENCE_TEST,
-                    },
+                FalsificationTest.model_validate(
+                    {
+                        "test_name": refute.get("test_name", node_id),
+                        "test_kind": kind,
+                        "passed": passed,
+                        "statistic": refute.get("statistic"),
+                        "p_value": refute.get("p_value"),
+                        "interpretation": refute.get("interpretation", ""),
+                        "is_critical": kind
+                        in {
+                            FalsificationTestKind.PLACEBO_TREATMENT,
+                            FalsificationTestKind.INDEPENDENCE_TEST,
+                        },
+                    }
                 )
             )
         return cls.from_tests(tests)
 
     @classmethod
-    def from_parallel_trends(cls, result: dict) -> FalsificationReport:
+    def from_parallel_trends(cls, result: Mapping[str, object]) -> FalsificationReport:
         """Build a single-test FalsificationReport from a ParallelTrendsCheck result dict."""
         passed = bool(result.get("passed", True))
-        test = FalsificationTest(
-            test_name="parallel_trends_check",
-            test_kind=FalsificationTestKind.PARALLEL_TRENDS,
-            passed=passed,
-            statistic=result.get("statistic"),
-            p_value=result.get("p_value"),
-            interpretation=("Pre-treatment slope equality: " + ("passed" if passed else "FAILED")),
-            is_critical=True,
+        test = FalsificationTest.model_validate(
+            {
+                "test_name": "parallel_trends_check",
+                "test_kind": FalsificationTestKind.PARALLEL_TRENDS,
+                "passed": passed,
+                "statistic": result.get("statistic"),
+                "p_value": result.get("p_value"),
+                "interpretation": (
+                    "Pre-treatment slope equality: " + ("passed" if passed else "FAILED")
+                ),
+                "is_critical": True,
+            }
         )
         return cls.from_tests([test])
+
+
+def _string_keyed_mapping(value: object) -> dict[str, object] | None:
+    """Return the string-keyed fields from an untyped refutation payload."""
+    if not isinstance(value, dict):
+        return None
+    return {key: item for key, item in value.items() if isinstance(key, str)}
 
 
 __all__ = [

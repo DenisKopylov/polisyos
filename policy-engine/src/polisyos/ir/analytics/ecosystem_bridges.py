@@ -99,11 +99,13 @@ def _oriented_directed_edges(graph: CausalGraphModel) -> list[tuple[str, str]]:
 
 
 def _bidirected_edges(graph: CausalGraphModel) -> list[tuple[str, str]]:
-    return [
-        tuple(sorted((edge.src, edge.dst)))
-        for edge in graph.edges
-        if edge.mark_src is EdgeMark.ARROW and edge.mark_dst is EdgeMark.ARROW
-    ]
+    edges: list[tuple[str, str]] = []
+    for edge in graph.edges:
+        if edge.mark_src is not EdgeMark.ARROW or edge.mark_dst is not EdgeMark.ARROW:
+            continue
+        src, dst = sorted((edge.src, edge.dst))
+        edges.append((src, dst))
+    return edges
 
 
 def to_dowhy_graph_bridge(

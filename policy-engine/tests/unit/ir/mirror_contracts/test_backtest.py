@@ -208,8 +208,8 @@ def test_source_reconciliation_rejects_marker_retaining_scenario_flip_and_metric
     assert len(produced_diagnostics) == 1
 
     # Keep the actual producer's source-bound count, mean, magnitude, scope, direction,
-    # and statistical result. Only retain the old exact-zero status to isolate the
-    # BacktestReport source/status guard from stale summary-data rejection.
+    # and statistical result. Retaining only its old exact-zero status violates the
+    # diagnostic's own execution-identity contract before report-level reconciliation.
     payload = source_flipped.model_dump(mode="python")
     payload["metric_diagnostics"] = [
         produced_diagnostics[0].model_copy(
@@ -217,7 +217,8 @@ def test_source_reconciliation_rejects_marker_retaining_scenario_flip_and_metric
         )
     ]
     with pytest.raises(
-        ValidationError, match="nonzero source residuals cannot be marked exact_zero"
+        ValidationError,
+        match="non-available diagnostic cannot claim an executed statistical method",
     ):
         type(valid_zero).model_validate(payload)
 
@@ -228,6 +229,10 @@ def test_source_reconciliation_rejects_marker_retaining_scenario_flip_and_metric
         "scenarios": [first, second],
         "overall_mae": 0.75,
         "overall_rmse": math.sqrt(8.75 / 6.0),
+        "overall_mape": math.fsum(
+            scenario.percentage_error_sum or 0.0 for scenario in (first, second)
+        )
+        / sum(scenario.percentage_error_count for scenario in (first, second)),
         "n_scenarios": 2,
         "n_metrics_evaluated": 6,
         "metric_diagnostics": [_diagnostic([0.5, 1.5, 2.5], metric="metric_a", scenario_id="a")],

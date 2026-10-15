@@ -793,7 +793,7 @@ def build_feasibility_certificate(
                 domain_ok = False
                 break
             try:
-                numeric = float(step.target_value)  # type: ignore[arg-type]
+                numeric = float(step.target_value)
             except (TypeError, ValueError):
                 domain_ok = False
                 break

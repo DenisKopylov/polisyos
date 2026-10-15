@@ -10,8 +10,7 @@ from polisyos.ir.kernel.base import KernelModel
 from polisyos.ir.registry.refs import DynamicMicrosimValidationReportRef
 
 if TYPE_CHECKING:
-    from polisyos.ir.artifacts.contracts import ArtifactStore
-    from polisyos.ir.artifacts.refs import InputRef
+    from polisyos.ir.artifacts.contracts import ArtifactStore, InputRef
     from polisyos.ir.registry.refs import MicrosimCalibrationReportRef
 
 
@@ -90,6 +89,8 @@ def report_from_target_compatibility(
     """Map a reweighting compatibility payload into the persisted Phase 1 gate."""
 
     status = _enum_string(getattr(compatibility, "status", None), default="inconclusive")
+    if status is None:
+        status = "inconclusive"
     reason_code = _enum_string(getattr(compatibility, "reason_code", None))
     warnings = list(getattr(compatibility, "warnings", ()) or ())
     blocking_reasons: list[str] = []

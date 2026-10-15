@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import sys
+from copy import deepcopy
 from itertools import permutations
+from types import ModuleType
 
 import pytest
 from pydantic import ValidationError
@@ -14,6 +17,9 @@ from polisyos.ir.analytics.causal_graph import (
     EdgeSource,
     GraphType,
     PAGIdentificationPolicy,
+    _FrozenDict,
+    _FrozenList,
+    _RustworkxDirectedGraph,
     load_causal_graph_model,
     persist_causal_graph_model,
 )
@@ -184,9 +190,7 @@ def test_causal_graph_model_validate_refuses_duplicate_pag_unordered_adjacencies
         ValidationError,
         match="PAG requires at most one edge per unordered node pair",
     ):
-        CausalGraphModel.model_validate(
-            {"graph_type": "pag", "nodes": ["X", "Y"], "edges": edges}
-        )
+        CausalGraphModel.model_validate({"graph_type": "pag", "nodes": ["X", "Y"], "edges": edges})
 
 
 def test_causal_graph_preserves_single_pag_edge_and_admg_bow() -> None:
@@ -341,6 +345,58 @@ def test_causal_graph_networkx_preserves_mixed_edge_identity(
     assert observed_key_to_relation == {
         expected_key_by_kind[kind]: expected_by_kind[kind] for kind in edge_order
     }
+
+
+def test_frozen_graph_containers_preserve_recursive_deepcopy_and_reject_mutation() -> None:
+    frozen_list = _FrozenList()
+    list.append(frozen_list, frozen_list)
+    list_copy = deepcopy(frozen_list)
+    assert list_copy[0] is list_copy
+    with pytest.raises(TypeError, match="containers are immutable"):
+        frozen_list.append("changed")
+
+    frozen_dict = _FrozenDict()
+    dict.__setitem__(frozen_dict, "self", frozen_dict)
+    dict_copy = deepcopy(frozen_dict)
+    assert dict_copy["self"] is dict_copy
+    with pytest.raises(TypeError, match="containers are immutable"):
+        frozen_dict.update({"changed": True})
+
+
+def test_rustworkx_export_uses_and_checks_its_minimum_optional_graph_surface(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class FakeDiGraph:
+        def __init__(self) -> None:
+            self.nodes: list[str] = []
+            self.edges: list[tuple[int, int, object]] = []
+
+        def add_node(self, node: str) -> int:
+            self.nodes.append(node)
+            return len(self.nodes) - 1
+
+        def add_edge(self, source: int, target: int, data: object) -> int:
+            self.edges.append((source, target, data))
+            return len(self.edges) - 1
+
+    module = ModuleType("rustworkx")
+    module.__dict__["PyDiGraph"] = FakeDiGraph
+    monkeypatch.setitem(sys.modules, "rustworkx", module)
+
+    exported, node_map = _minimal_dag().to_rustworkx()
+    assert isinstance(exported, FakeDiGraph)
+    assert node_map == {"X": 0, "Y": 1, "Z": 2}
+    assert exported.nodes == ["X", "Y", "Z"]
+    assert len(exported.edges) == 3
+
+    class NonCallableDiGraph:
+        add_node = 7
+        add_edge = 8
+
+    assert isinstance(NonCallableDiGraph(), _RustworkxDirectedGraph)
+    module.__dict__["PyDiGraph"] = NonCallableDiGraph
+    with pytest.raises(TypeError, match="required graph methods"):
+        _minimal_dag().to_rustworkx()
 
 
 @pytest.mark.parametrize(
@@ -607,9 +663,10 @@ def test_causal_graph_pag_artifact_reader_refuses_persisted_duplicate_adjacencie
     fresh_reader = _ensure_ir_artifact_store(FileSystemCAS(cas_root))
     stored_payload = get_json_artifact(fresh_reader, ref)
 
-    assert [
-        edge["metadata"]["producer_marker"] for edge in stored_payload["edges"]
-    ] == ["persisted-row-one", "persisted-row-two"]
+    assert [edge["metadata"]["producer_marker"] for edge in stored_payload["edges"]] == [
+        "persisted-row-one",
+        "persisted-row-two",
+    ]
     with pytest.raises(
         ValidationError,
         match="PAG requires at most one edge per unordered node pair",

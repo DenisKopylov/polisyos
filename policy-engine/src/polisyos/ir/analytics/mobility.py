@@ -11,8 +11,7 @@ from polisyos.ir.kernel.base import KernelModel
 from polisyos.ir.registry.refs import BoundsBundleRef
 
 if TYPE_CHECKING:
-    from polisyos.ir.artifacts.contracts import ArtifactStore
-    from polisyos.ir.artifacts.refs import InputRef
+    from polisyos.ir.artifacts.contracts import ArtifactStore, InputRef
     from polisyos.ir.registry.refs import MobilityReportRef
 
 
@@ -196,10 +195,6 @@ class MobilityReport(KernelModel):
 
     @model_validator(mode="after")
     def _fill_compatibility_views(self) -> MobilityReport:
-        expected_artifact_name = _default_artifact_name(self.schema_version)
-        if self.artifact_name != expected_artifact_name and self.artifact_name == "":
-            object.__setattr__(self, "artifact_name", expected_artifact_name)
-
         summary_metrics = dict(self.summary_metrics)
         if self.point_estimate.transition_matrix and "transition_matrix" not in summary_metrics:
             summary_metrics["transition_matrix"] = self.point_estimate.transition_matrix

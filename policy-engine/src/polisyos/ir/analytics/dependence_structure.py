@@ -9,8 +9,7 @@ from pydantic import ConfigDict, Field
 from polisyos.ir.kernel.base import KernelModel
 
 if TYPE_CHECKING:
-    from polisyos.ir.artifacts.contracts import ArtifactStore
-    from polisyos.ir.artifacts.refs import InputRef
+    from polisyos.ir.artifacts.contracts import ArtifactStore, InputRef
     from polisyos.ir.registry.refs import DependenceStructureRef
 
 

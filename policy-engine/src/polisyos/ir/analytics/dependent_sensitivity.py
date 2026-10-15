@@ -45,6 +45,11 @@ DependentEstimatorFamily = Literal[
 ]
 
 
+def _default_contribution_modes() -> list[ContributionMode]:
+    """Return the default contribution mode with its literal type preserved."""
+    return ["full"]
+
+
 def _to_camel(value: str) -> str:
     parts = value.rstrip("_").split("_")
     return parts[0] + "".join(part[:1].upper() + part[1:] for part in parts[1:])
@@ -268,7 +273,7 @@ class DependentEstimatorSpec(DependentSensitivityModel):
     target: Literal[
         "variance", "mean", "quantile", "tail_probability", "welfare_loss", "custom"
     ] = "variance"
-    contribution_modes: list[ContributionMode] = Field(default_factory=lambda: ["full"])
+    contribution_modes: list[ContributionMode] = Field(default_factory=_default_contribution_modes)
     coalition_mode: Literal["inputs", "groups", "edges"] = "inputs"
     reference_copula_id: str | None = Field(default=None, pattern=ID_PATTERN)
     budget: DependentEstimatorBudgetSpec = Field(default_factory=DependentEstimatorBudgetSpec)

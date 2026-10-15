@@ -199,13 +199,9 @@ class StructuralCausalModelSpec(BaseModel):
     @model_validator(mode="after")
     def _validate_mechanisms_cover_graph(self) -> StructuralCausalModelSpec:
         if (self.source_graph is None) != (self.graph_projection is None):
-            raise ValueError(
-                "source_graph and graph_projection must be supplied together"
-            )
+            raise ValueError("source_graph and graph_projection must be supplied together")
         if self.source_graph_ref is not None and self.source_graph is None:
-            raise ValueError(
-                "source_graph_ref requires the complete source_graph payload"
-            )
+            raise ValueError("source_graph_ref requires the complete source_graph payload")
         if self.source_graph is not None:
             admitted = graph_for_analysis(
                 self.source_graph,
@@ -213,14 +209,10 @@ class StructuralCausalModelSpec(BaseModel):
                 self.graph_projection,
             )
             if admitted is None:
-                raise ValueError(
-                    "SCM cannot be fitted from an unavailable source graph"
-                )
+                raise ValueError("SCM cannot be fitted from an unavailable source graph")
         if self.schema_version == "1.2" and self.fit_method in {"gcm", "native_hybrid"}:
             if self.source_graph is None or self.graph_projection is None:
-                raise ValueError(
-                    "SCM 1.2 fitted artifacts require their graph source disposition"
-                )
+                raise ValueError("SCM 1.2 fitted artifacts require their graph source disposition")
         mech_vars = {m.variable for m in self.mechanisms}
         graph_vars = set(self.graph.nodes)
 
@@ -275,9 +267,17 @@ class StructuralCausalModelSpec(BaseModel):
                 source = params.get("observed_samples_source")
                 alignment = params.get("observed_sample_alignment")
                 group = params.get("joint_sample_group")
-                if not all(
-                    isinstance(value, str) and value.strip() for value in (source, alignment, group)
-                ):
+                if not isinstance(source, str) or not source.strip():
+                    raise ValueError(
+                        f"Observed root carrier '{mechanism.variable}' requires "
+                        "source, alignment, and joint group"
+                    )
+                if not isinstance(alignment, str) or not alignment.strip():
+                    raise ValueError(
+                        f"Observed root carrier '{mechanism.variable}' requires "
+                        "source, alignment, and joint group"
+                    )
+                if not isinstance(group, str) or not group.strip():
                     raise ValueError(
                         f"Observed root carrier '{mechanism.variable}' requires "
                         "source, alignment, and joint group"
@@ -337,10 +337,7 @@ def persist_structural_causal_model_spec(
 ) -> StructuralCausalModelSpecRef:
     """Persist a structural causal model spec and return its typed artifact ref."""
     resolved_version = schema_version or scm_spec.schema_version
-    if (
-        resolved_version != scm_spec.schema_version
-        or resolved_version not in {"1.0", "1.1", "1.2"}
-    ):
+    if resolved_version != scm_spec.schema_version or resolved_version not in {"1.0", "1.1", "1.2"}:
         raise ValueError("SCM payload and supported CAS schema versions must match")
     ref = put_json_artifact(
         store,

@@ -1,0 +1,100 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Candidate MethodJob measurement with protected provenance refusal",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": {
+      "commit": "938c0c1a8465510b3872ef395f7324f16209c2c5",
+      "tree": "23d7717671adb970a4c5cb77e48d6af4d0f3745c",
+      "parents": [
+        "13f6cf4bb788069c7caf238c5f1278ece699c6d1"
+      ]
+    },
+    "candidate": {
+      "commit": "d70c48551e10267a39833543766e13e15060898d",
+      "tree": "41bddc7955fd52263ddf0cef2060584d9b9468ac",
+      "parents": [
+        "938c0c1a8465510b3872ef395f7324f16209c2c5"
+      ]
+    },
+    "readback_verified": true,
+    "source_freeze": false,
+    "p41": "not_established"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "sha256": "c05c01cad9efa483ebf15e4c00912ec75a71abc53c0e5f77ad1095953529fe84"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/execution_work.py",
+      "sha256": "96832083c087c9300865eab0fef69b2836c6fb6acd296231c05b27a039647e40"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "sha256": "e4bd8b9be39040535570e7066e94934b0772430519cbbbacc1b503aa7ce545a5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "sha256": "2adee55dfd3db65f4e3e4d3343bda31556dbb2e02edaad9bf6b7604d7fe6ff53"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "sha256": "f05b5490444e04f1bfe863327fa4a0d6f93e8dffbd186092a1c9d2692718da10"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py",
+      "sha256": "f2a53d8dc468f7843d44176252c089cfbb5ff709ad8f7cb477ef58c033f78594"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+      "sha256": "ddbc2b67cf0e910dd06abcaa2af35d61ad04336c4b7a3ca23714ac555521b57b"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+      "sha256": "84eae3cd46349f9fc1b9ab540faba53e861d1719a347bf8ca7d38a89d67fc19c"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/autotune/test_methodjob_execution_work_packet_promotion_admission.py",
+      "sha256": "472df96c75ea05ec58f2bedd726419b1d8d8dc101d2ccafcfc6a5202bef94d94"
+    }
+  ],
+  "selected_input_profile_backend": "Own source-bound .venv Python3.14; controlled filesystem CAS fixtures and explicit selected profiles; no production-currentness claim.",
+  "real_chain_and_deciding_outputs": [
+    "Actual MethodBackend dispatch -> selected CAS suite/result/evaluation -> fresh CAS ChampionRegistry -> PromotionDecision/SearchLoop feedback.",
+    "58 PASS, 3 native GP/DR SKIP; unsigned and self-signed forged graphs refuse; remove provenance guard restores promotion."
+  ],
+  "source_bound_command_and_full_output_manifests": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/benchmark4-methodjob-execution-provenance-final-source-freeze-20261015.json",
+      "sha256": "dc587aaaf75a7406b0591d50ffa95be294aeb8fb1e09b01f0ee22def83006311"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/benchmark4-methodjob-execution-provenance-final-handoff-20261015.json",
+      "sha256": "0693e17e1ebdb0d8784aea0e51318d9a8b763a5d99c708865e5d7e26fa3f7dee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-v5-provenance-final-review-20261015/review-manifest.json",
+      "sha256": "51750b7816278079110ef04ba169ca045e3c67d88f7468a07df0bed415ba8a56"
+    }
+  ],
+  "commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/v5-methodjob-provenance-source-20261016-readback.json",
+    "sha256": "0272067260f6e43f3eb044a3f380745db9f96ff1b0ebd9558f9d866324759828"
+  },
+  "adversarial_removal_controls": "Full deciding outputs and exact commands retained in the pinned author/reviewer/application manifests; no declaration-only green.",
+  "limitations": [
+    "B116 remains HOLD: no appointed trusted executor, exclusive custody receipt producer or trusted verifier.",
+    "Supplemental MyPy60diagnostics are not_established, not inherited. Native GP/DR and final installed/composed wave UNRUN."
+  ],
+  "proposals": [
+    {
+      "finding_or_boundary": "B116#1",
+      "outcome": "limited_or_held",
+      "formal": false
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "Resolve exact remaining typed/semantic/input choices, freeze full source/input/backend composition, independent delta review, then one required composed native/installed replay."
+}

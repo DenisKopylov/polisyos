@@ -1,0 +1,149 @@
+{
+  "alternatives": [
+    {
+      "assessment": "Recommended; minimal and consistent with the current documentation and lazy facade.",
+      "effects": "One new route under the existing stable runtime package; preserve subpackage ownership, no root re-export, no Python implementation change. Then regenerate canonical inventory and reference docs and prove the entrypoint/export binding.",
+      "option_id": "A_documented_subpackage_route"
+    },
+    {
+      "assessment": "Not recommended. It increases API coupling and does not fit the source/docs separation between replay contracts and HTTP assembly; it also does not remove the need for export-resolution proof.",
+      "effects": "Re-export all seven HTTP names from polisyos.runtime so the current single-route root contract could remain; widens/redefines the replay root facade and changes import behavior for every consumer.",
+      "option_id": "B_reexport_from_runtime_root"
+    },
+    {
+      "assessment": "Coherent only if G rejects stable support. It is not an accurate description of the current package documentation and exposed lazy facade.",
+      "effects": "Do not add a route; revise the HTTP README “Public entrypoints” section and any supported import examples to describe an internal implementation path.",
+      "option_id": "C_keep_internal_and_retract_documented_public_route"
+    }
+  ],
+  "authority_boundary": "G alone adjudicates the public contract and release-plane choice. This engineering packet is evidence and a recommendation, not admission, ratification, or formal closure.",
+  "closure_ids": [],
+  "controlled_contract_and_inventory_prototype": {
+    "candidate_inventory": {
+      "bytes": 477680,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-http-facade-contract-choice-20261015/candidate-inventory.json",
+      "result": "Canonical parser/renderer produces 20 package rows and 68 supported entrypoint rows; parity is consistent with the controlled candidate contract.",
+      "sha256": "3dd6b2eb57c4d0f6d865735f754881d3eff4e9b25e071091f8c4b40961137a9b"
+    },
+    "interpretation": "The 67→68 test demonstrates the route-set reconciliation and its stale-inventory failure mode. The candidate count is not a reviewed source export list; runtime import proof and static export proof remain distinct.",
+    "release_gate_receipts": [
+      {
+        "label": "candidate contract with stale 67-row inventory",
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-http-facade-contract-choice-20261015/release-gate-stale-inventory.json",
+        "result": "Canonical release gate: exit 1; 254 fragments, 221 structured changes, 4 errors. Two are the expected supported-entrypoint parity errors; two are unrelated existing public-surface-review holds.",
+        "sha256": "9dbc6f0f73d7290d1afd5fd817aeb536c2e38d05f62d101fd4b453eaa3858fdc"
+      },
+      {
+        "label": "candidate contract with canonical candidate inventory",
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-http-facade-contract-choice-20261015/release-gate-regenerated-inventory.json",
+        "result": "Canonical release gate: exit 1; same 254 fragments/221 changes, 2 unrelated public-surface-review errors. Candidate public-surface parity is consistent; this is not a green whole release gate.",
+        "sha256": "4049c2cd53bbf9cf2b3af213b5c285e8a455b9d60f6af8f65b33e258bc8c88ae"
+      },
+      {
+        "label": "argv/timing and full predicate receipt",
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-http-facade-contract-choice-20261015/release-gate-prototypes-summary.json",
+        "result": "Records both exact canonical gate commands, exit codes, error groupings, timings, denominator, and predicate boundaries. The checker reconciles contract/inventory parity but explicitly does not prove runtime export resolution.",
+        "sha256": "a4dd9913e7e01ad0313ee522b0c07951ef80c5e6ccad3277eac9ea2ec86e7924"
+      }
+    ],
+    "static_export_limit": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-http-facade-contract-choice-20261015/static-inventory-prototype.json",
+      "result": "Facade export resolution remains unresolved: export_count=null, known_export_count=0, complete=false. This is not an empty runtime namespace; the parser cannot reason through the parent importlib lazy facade.",
+      "sha256": "871e1440037cb7efd99822c8f6b3687b0f300dcaf9690a256d8f0715d6048c73"
+    },
+    "unapplied_contract_patch": {
+      "effect": "Adds exactly polisyos.runtime.http to the existing runtime supported_entrypoints list; does not alter source, canonical contract, or inventory.",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-http-facade-contract-choice-20261015/runtime-http-public-entrypoint.patch",
+      "sha256": "beefd14f1ce067869e31b5c63232fa1607d3ad3dcf2d8a6223d31d4d823fcb2e"
+    }
+  },
+  "created_date_local": "2026-10-16",
+  "decision_status": "G_CHOICE_REQUIRED",
+  "packet_id": "runtime-http-documented-facade-contract-20261015",
+  "pattern_pass": {
+    "falsifier": "The raw static-inventory prototype is a counterexample: the candidate route counts as a declared inventory row while the export set stays unresolved; the source-bound import probe supplies the independent current binding witness.",
+    "ids": [
+      "P29",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "p40_bucket": "Same supported-entrypoint/inventory consistency class, one level deeper at lazy export resolution. The repair must reconcile the route-level contract and full export binding together; no isolated marker-only flag.",
+    "p41": "This packet did not use an inherited passing gate. The controlled canonical release gate was run against candidate copies; the remaining errors are explicitly listed, not claimed inherited or cleared.",
+    "property": "A documented supported route maps to the exact runtime facade exports and owner objects, and generated inventory reflects the whole route set.",
+    "proxy_gap": "The release checker can prove route-count parity while its static export resolver is unresolved; entry count and declared __all__ are not export-resolution proof."
+  },
+  "post_choice_work_required": [
+    "After G accepts option A, apply only the one-route contract delta and run the canonical architecture inventory/doc renderer against current source.",
+    "Add a source-bound gate that resolves this recognized lazy-facade pattern and verifies the complete seven-name mapping, or record a bounded unresolved-export limitation if the canonical inventory format cannot express it. Do not check only __all__/_EXPORTS marker presence.",
+    "Rerun the canonical guardrail and release checks and preserve full outputs. Do not set a review flag to clear the two unrelated release-fragment errors without their own review.",
+    "If G chooses option C, reconcile both package READMEs and examples with the internal status instead of leaving contradictory public-route prose."
+  ],
+  "question_for_G": "Does G accept polisyos.runtime.http as an additional public_stable supported entrypoint, or keep it internal and direct owners to remove/qualify the existing “Public entrypoints” contract in its package README?",
+  "recommended_choice": {
+    "basis": "The parent contract explicitly says HTTP subpackages remain internal unless separately documented. The dedicated HTTP README separately labels the module public entrypoints and names the exact facade. The actual lazy facade resolves seven names to canonical owner objects. This makes the smallest contract change consistent with the existing policy carve-out.",
+    "decision": "Add polisyos.runtime.http to supported_entrypoints of the existing public_stable polisyos.runtime package. Do not move the seven names to the parent polisyos.runtime facade.",
+    "not_yet_authorized": "This is a recommendation only. Documentation is evidence for the G choice, not canonical admission by itself.",
+    "option_id": "A_documented_subpackage_route"
+  },
+  "scope": "Whether to admit the already implemented and documented polisyos.runtime.http lazy facade as a supported route under the existing public_stable polisyos.runtime package contract, and authorize the ensuing canonical inventory/docs reconciliation.",
+  "source_bound_runtime_probe": {
+    "command": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-http-facade-contract-choice-20261015/runtime-export-smoke.py",
+    "command_receipt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-http-facade-contract-choice-20261015/runtime-http-export-smoke.command.json",
+      "sha256": "d73034cbacf86697965e56f7c41f09ea29ead2153c01a1aef352a46012e31a40"
+    },
+    "result": "PASS, exit 0, 9.73 seconds. All 7 names in __all__ resolve and are identical to the mapped canonical module object. The parent runtime root does not export them.",
+    "scope_limit": "This verifies current local import binding only. It did not instantiate an app, serve a request, use a network, examine production state, establish API stability, or establish authority/currentness.",
+    "stdout": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-http-facade-contract-choice-20261015/runtime-http-export-smoke.stdout.txt",
+      "sha256": "bdd7508c6656efd8f77b447296d6dc76907d057fa9e70ae82f2cc29b42e83054"
+    }
+  },
+  "source_findings": {
+    "canonical_contract": {
+      "finding": "polisyos.runtime is public_stable and lists only polisyos.runtime; its note says HTTP subpackages stay internal unless separately documented.",
+      "path": "architecture/public_surface/contract.toml",
+      "sha256": "87f24939839c452064f752c2031ddaae473c82b96484105d4818e690d0338e9f"
+    },
+    "canonical_renderer": {
+      "finding": "The static export resolver refuses to claim names when it encounters importlib outside its pure-declaration grammar.",
+      "path": "tools/devx/architecture/guardrails.py",
+      "sha256": "575f9b75a23ad7da49dec3b823f1ee7910828b7b7f2b54d72a766f17e841a897"
+    },
+    "current_inventory": {
+      "finding": "20 package rows and 67 supported-entrypoint rows.",
+      "path": "architecture/public_surface/inventory.json",
+      "sha256": "e28add8c2aabd842e556a2a6717afc8f0aaf9210724e4d4893a43961e7ef80e5"
+    },
+    "lazy_facade": {
+      "finding": "__all__ and _EXPORTS each contain the same seven lazy export names.",
+      "path": "src/polisyos/runtime/http/__init__.py",
+      "sha256": "37609525d7a752ad39aba173aafc58f0f78809b96dc87b4d18ff947b7332518f"
+    },
+    "parent_facade": {
+      "finding": "The parent facade remains the separate replay-facing surface; it does not export the seven HTTP names.",
+      "path": "src/polisyos/runtime/__init__.py",
+      "sha256": "9a186c21390e1c1282659a4afea846e49a1d53f6602789fa5004def977142287"
+    },
+    "parent_readme": {
+      "finding": "Describes polisyos.runtime.http as the runtime API assembly/OpenAPI owner while identifying polisyos.runtime as the supported package entrypoint.",
+      "path": "src/polisyos/runtime/README.md",
+      "sha256": "98889b88e9adb0cdddbd75dca9facbb7448cd43292e0627ff884c59f034b7dba"
+    },
+    "subpackage_readme": {
+      "finding": "Contains an explicit “Public entrypoints” section and exact import example for the subpackage.",
+      "path": "src/polisyos/runtime/http/README.md",
+      "sha256": "9b3eacf3ddd6aa52df5a574e0210c913632bebae1d975e521ae253768e3e5f44"
+    }
+  },
+  "source_frame": {
+    "frame_note": "The source hashes below were read from the named worktree paths. This packet records proposals and controlled RAW prototypes only; it does not claim a source freeze or G acceptance.",
+    "git_mutation_or_git_read_performed": false,
+    "owner_supplied_head": "938c0c1a8465510b3872ef395f7324f16209c2c5",
+    "owner_supplied_tree": "23d7717671adb970a4c5cb77e48d6af4d0f3745c",
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+  }
+}

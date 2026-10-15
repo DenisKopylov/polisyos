@@ -1,0 +1,545 @@
+{
+  "created_at": "2026-10-15",
+  "freeze_id": "sha256:79a589ebce55f322c09bf14ea15395fa8d9cfde52bd52d6d241f8b3f09114a00",
+  "freeze_id_algorithm": "sha256 of canonical JSON document with freeze_id omitted (UTF-8, sorted keys, compact separators)",
+  "implementation_outline": [
+    "The runner records exact selected method/version, request parameters, source-slot refs, schemas, and scalar/empty input fingerprints when capture_dispatch_binding is explicitly requested; the option is separate from scientific method_params. The older caller-supplied capture_execution_work path remains compatible and is not inserted by the runner.",
+    "The evaluator persists producer-selected profile refs and reloads the actual result/evidence through a fresh CAS; it recomputes content and dispatch consistency but does not claim this proves who executed the method.",
+    "The registry preserves measured metrics as candidate evidence and requires a trusted execution-provenance basis for protected promotion; absent that basis, promotable is false and the surfaced PromotionDecision is REJECT.",
+    "ClaimGold/ClaimAdjudication remains a separate consumer path. This slice does not change scientific qualification, issuer appointment, currentness, or public authority semantics."
+  ],
+  "path_manifest": [
+    {
+      "base_head_git_blob_sha1": "76b331a313cee77ca0a89f9e852fef86c40099bb",
+      "changed_from_slice_base": true,
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "role": "Actual MethodBackend/run_job producer; adds explicit opt-in capture_dispatch_binding separate from method_params, while retaining the prior declared capture_execution_work parameter path for compatibility.",
+      "size_bytes": 35340,
+      "status_porcelain_v2": "1 .M N... 100644 100644 100644 76b331a313cee77ca0a89f9e852fef86c40099bb 76b331a313cee77ca0a89f9e852fef86c40099bb policy-engine/src/polisyos/scientist/compute/runner.py",
+      "worktree_git_blob_sha1": "7cab08cd0fb256c14e315375ed998c9f3c4fe578",
+      "worktree_sha256": "c05c01cad9efa483ebf15e4c00912ec75a71abc53c0e5f77ad1095953529fe84"
+    },
+    {
+      "base_head_git_blob_sha1": "9b50dbca8d62e4c725b681d10d03ac2adf5085f0",
+      "changed_from_slice_base": true,
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/execution_work.py",
+      "role": "Typed MethodDispatchBinding; v1.2 records exact scalar/empty input-slot shape while keeping v1.1 vector compatibility.",
+      "size_bytes": 9078,
+      "status_porcelain_v2": "1 .M N... 100644 100644 100644 9b50dbca8d62e4c725b681d10d03ac2adf5085f0 9b50dbca8d62e4c725b681d10d03ac2adf5085f0 policy-engine/src/polisyos/scientist/methods/autotune/execution_work.py",
+      "worktree_git_blob_sha1": "6994de9b89a0df6b002c13fd3de4a79c98302b03",
+      "worktree_sha256": "96832083c087c9300865eab0fef69b2836c6fb6acd296231c05b27a039647e40"
+    },
+    {
+      "base_head_git_blob_sha1": "77903969ece34a5732ed1ed3c9849469127f1e6d",
+      "changed_from_slice_base": true,
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "role": "Typed MethodJob suite/evaluation persistence and selected producer-profile references; historical profileless readers remain limited.",
+      "size_bytes": 44657,
+      "status_porcelain_v2": "1 .M N... 100644 100644 100644 77903969ece34a5732ed1ed3c9849469127f1e6d 77903969ece34a5732ed1ed3c9849469127f1e6d policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "worktree_git_blob_sha1": "e3c637dbfa3dbfa1ea1664bc1847797782b9a6ba",
+      "worktree_sha256": "e4bd8b9be39040535570e7066e94934b0772430519cbbbacc1b503aa7ce545a5"
+    },
+    {
+      "base_head_git_blob_sha1": "0e9e5a021e02a8f56d5d356ea1f3e11d479b157d",
+      "changed_from_slice_base": true,
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "role": "Recomputes the MethodJob request/source/result/evaluation basis and applies the protected execution-provenance refusal.",
+      "size_bytes": 41940,
+      "status_porcelain_v2": "1 .M N... 100644 100644 100644 0e9e5a021e02a8f56d5d356ea1f3e11d479b157d 0e9e5a021e02a8f56d5d356ea1f3e11d479b157d policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "worktree_git_blob_sha1": "8570ce43d645b619157c4ede345a430ea64b6f7e",
+      "worktree_sha256": "2adee55dfd3db65f4e3e4d3343bda31556dbb2e02edaad9bf6b7604d7fe6ff53"
+    },
+    {
+      "base_head_git_blob_sha1": "3824eaf6fa1cc401882fbcc4b1a4ff3a53cfc8e3",
+      "changed_from_slice_base": true,
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "role": "Resolves method version at producer dispatch, records real dispatch facts, retains metrics as candidate evidence, and derives feedback from PromotionDecision.",
+      "size_bytes": 134174,
+      "status_porcelain_v2": "1 .M N... 100644 100644 100644 3824eaf6fa1cc401882fbcc4b1a4ff3a53cfc8e3 3824eaf6fa1cc401882fbcc4b1a4ff3a53cfc8e3 policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "worktree_git_blob_sha1": "d2a941bf14725ab8f0ffef531ef2616dacb685e4",
+      "worktree_sha256": "f05b5490444e04f1bfe863327fa4a0d6f93e8dffbd186092a1c9d2692718da10"
+    },
+    {
+      "base_head_git_blob_sha1": "72c6d76fcb10b5764b4f8a4ca149549b9bd357ae",
+      "changed_from_slice_base": true,
+      "path": "policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py",
+      "role": "Ensures capture_dispatch_binding is an explicit runner option and is not smuggled into scientific method parameters.",
+      "size_bytes": 19849,
+      "status_porcelain_v2": "1 .M N... 100644 100644 100644 72c6d76fcb10b5764b4f8a4ca149549b9bd357ae 72c6d76fcb10b5764b4f8a4ca149549b9bd357ae policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py",
+      "worktree_git_blob_sha1": "37f0970db96567614c7b935ad313e671b4c3acf1",
+      "worktree_sha256": "f2a53d8dc468f7843d44176252c089cfbb5ff709ad8f7cb477ef58c033f78594"
+    },
+    {
+      "base_head_git_blob_sha1": "d7f3fece03ec0092a3c3b95751151821d4a12008",
+      "changed_from_slice_base": true,
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+      "role": "Tests scalar shape/value capture and SearchLoop candidate-versus-admission semantics under missing, unreadable, or mismatched execution evidence.",
+      "size_bytes": 56365,
+      "status_porcelain_v2": "1 .M N... 100644 100644 100644 d7f3fece03ec0092a3c3b95751151821d4a12008 d7f3fece03ec0092a3c3b95751151821d4a12008 policy-engine/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+      "worktree_git_blob_sha1": "16671499b41c78488b4a3772a9377b7d54ec1d47",
+      "worktree_sha256": "ddbc2b67cf0e910dd06abcaa2af35d61ad04336c4b7a3ca23714ac555521b57b"
+    },
+    {
+      "base_head_git_blob_sha1": "0798acf5fdc0fe7fcf72eca4ab81f3962e502be4",
+      "changed_from_slice_base": true,
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+      "role": "Tests candidate metric retention with protected promotion held, same-byte foreign-source refusal, and genuine zero-input-slot binding.",
+      "size_bytes": 75444,
+      "status_porcelain_v2": "1 .M N... 100644 100644 100644 0798acf5fdc0fe7fcf72eca4ab81f3962e502be4 0798acf5fdc0fe7fcf72eca4ab81f3962e502be4 policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+      "worktree_git_blob_sha1": "75e6448fc246d5f0632ab806c33fa366d9f038a5",
+      "worktree_sha256": "84eae3cd46349f9fc1b9ab540faba53e861d1719a347bf8ca7d38a89d67fc19c"
+    },
+    {
+      "base_head_git_blob_sha1": "2d5a29672839e23eb5e8f29eb9e9f29b336458fe",
+      "changed_from_slice_base": true,
+      "path": "policy-engine/tests/integration/scientist/methods/autotune/test_methodjob_execution_work_packet_promotion_admission.py",
+      "role": "Runs an actual controlled SearchLoop MethodJob producer into persisted artifacts and a fresh CAS consumer; asserts candidate metric, typed refusal, and no champion.",
+      "size_bytes": 41709,
+      "status_porcelain_v2": "1 .M N... 100644 100644 100644 2d5a29672839e23eb5e8f29eb9e9f29b336458fe 2d5a29672839e23eb5e8f29eb9e9f29b336458fe policy-engine/tests/integration/scientist/methods/autotune/test_methodjob_execution_work_packet_promotion_admission.py",
+      "worktree_git_blob_sha1": "bb5796fe41ea1ff6543aaa3c1bc3c77bc8c7cf3e",
+      "worktree_sha256": "472df96c75ea05ec58f2bedd726419b1d8d8dc101d2ccafcfc6a5202bef94d94"
+    }
+  ],
+  "path_union_arithmetic": {
+    "source_paths": 5,
+    "test_paths": 4,
+    "total_changed_paths": 9,
+    "unique_paths": 9
+  },
+  "property": {
+    "candidate_band": "Actual MethodJob computation, numeric evaluation, history, and diagnostic evidence remain usable as candidate-grade when execution custody is unverified.",
+    "criterion": "A protected ChampionRegistry MethodJob promotion must be supported by actual trusted execution of the exact resolved MethodSignature/version and immutable JobSpec against producer-selected source refs, with the exact result/evidence later consumed by a fresh verifier.",
+    "protected_band": "When no appointed trusted executor receipt producer/verifier is configured, ChampionRegistry returns methodjob_execution_provenance_not_established and cannot promote the candidate."
+  },
+  "read_only_dependency_support_pins": [
+    {
+      "base_head_git_blob_sha1": "f71f5cab7c1980d0bb0d0e30c1424e359a69fc24",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "role": "Core artifact facade used by producer/reader APIs.",
+      "size_bytes": 8683,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "f71f5cab7c1980d0bb0d0e30c1424e359a69fc24",
+      "worktree_sha256": "6d56dcd7042227ce00d617b0698eae26c263eaef72934dda06d911575b4aefae"
+    },
+    {
+      "base_head_git_blob_sha1": "93c144f77b44c9e9300d7479b7f5b8c86e766345",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "role": "Filesystem artifact-store configuration/factory used by real producers.",
+      "size_bytes": 8035,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "93c144f77b44c9e9300d7479b7f5b8c86e766345",
+      "worktree_sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d"
+    },
+    {
+      "base_head_git_blob_sha1": "f187d1becd6ea2d1c6bbac2a50263c700f385ab5",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/src/polisyos/core/artifacts/ids.py",
+      "role": "Canonical ArtifactID contract for persisted artifact references.",
+      "size_bytes": 2794,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "f187d1becd6ea2d1c6bbac2a50263c700f385ab5",
+      "worktree_sha256": "96ab03d78510679bb9195ce79a58dd1559be8f7ccf1de2e6d10031c172ae07e6"
+    },
+    {
+      "base_head_git_blob_sha1": "f1b3372d9e209cf823bacf7dc38eecd76b6780bb",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "role": "ArtifactRef/InputRef/schema/profile manifest identities and source-edge representation.",
+      "size_bytes": 13401,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "f1b3372d9e209cf823bacf7dc38eecd76b6780bb",
+      "worktree_sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f"
+    },
+    {
+      "base_head_git_blob_sha1": "f0cc88d010c9ff17adbcbb84ee5f6526941bdff8",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "role": "FileSystemCAS bytes, manifests, reads, and selected-profile writes.",
+      "size_bytes": 217661,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "f0cc88d010c9ff17adbcbb84ee5f6526941bdff8",
+      "worktree_sha256": "f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab"
+    },
+    {
+      "base_head_git_blob_sha1": "610a563ce506be29c3606b4229ae4ab427920d5f",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "role": "ArtifactWriteOptions and producer-selected manifest profile contract.",
+      "size_bytes": 1137,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "610a563ce506be29c3606b4229ae4ab427920d5f",
+      "worktree_sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+    },
+    {
+      "base_head_git_blob_sha1": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "role": "Canonicalization public facade and fingerprints.",
+      "size_bytes": 606,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "worktree_sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3"
+    },
+    {
+      "base_head_git_blob_sha1": "32d3ac9d9e4722e697d8b20498d4cdfb0d9a18ea",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "role": "Canonical JSON serialization profile used by persisted artifacts.",
+      "size_bytes": 3447,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "32d3ac9d9e4722e697d8b20498d4cdfb0d9a18ea",
+      "worktree_sha256": "14626d965f82d04bedb8c57291fa230f3ab181c450e546a1d6ab5767825f93da"
+    },
+    {
+      "base_head_git_blob_sha1": "fdbeed80a0bdf6e803d0190aee9567f6ce7ad36c",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+      "role": "DataSnapshot contract and schema used by MethodJob input binding.",
+      "size_bytes": 9102,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "fdbeed80a0bdf6e803d0190aee9567f6ce7ad36c",
+      "worktree_sha256": "73cc21fa3bbe601c4cf15809d053a9a78b940fd60f81c5ab428417c456c61279"
+    },
+    {
+      "base_head_git_blob_sha1": "4d73b367bb7f067fabaff11399066694bab424a2",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/src/polisyos/foundry/methods/base.py",
+      "role": "Resolved MethodSignature identity/version and input-slot contract.",
+      "size_bytes": 74245,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "4d73b367bb7f067fabaff11399066694bab424a2",
+      "worktree_sha256": "ae6ab49021c3adbab8a72f39b2a7cc126d082a54d748f737e0092c64bd6720e8"
+    },
+    {
+      "base_head_git_blob_sha1": "36ffa3565869a4d0e4f0ab731714300abe65aa9a",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/registry.py",
+      "role": "Runtime MethodRegistry selection and resolved method metadata.",
+      "size_bytes": 35936,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "36ffa3565869a4d0e4f0ab731714300abe65aa9a",
+      "worktree_sha256": "3250f70d07a658c9beb9b9210254d425715129a1b9eb29cdbbcdc4a208c977b9"
+    },
+    {
+      "base_head_git_blob_sha1": "e4e5e9e2f6824b4d031731ac7d27c00dd5e72057",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/src/polisyos/foundry/methods/backends/dispatch.py",
+      "role": "Actual backend dispatcher invoked by MethodBackend/run_job.",
+      "size_bytes": 39376,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "e4e5e9e2f6824b4d031731ac7d27c00dd5e72057",
+      "worktree_sha256": "51273afac6480b557a518ec7ed8c7565cceac524ce1a4b656788f86b1899f8e1"
+    },
+    {
+      "base_head_git_blob_sha1": "08ca681b525820b7cb4e751637ffb8f453c1e0d0",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/src/polisyos/scientist/compute/job_spec.py",
+      "role": "Immutable JobSpec/JobKey request and input-reference contract.",
+      "size_bytes": 2854,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "08ca681b525820b7cb4e751637ffb8f453c1e0d0",
+      "worktree_sha256": "71d06a81854f6ddca4b1f8826d4d30e6482b6c57c168395c6b14c8b534669dc6"
+    }
+  ],
+  "schema": "policyos.e02.local_source_freeze.v1",
+  "slice": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate_commit": null,
+    "candidate_parents": null,
+    "candidate_state": "uncommitted worktree snapshot; no source commit or receipt commit created by this handoff",
+    "candidate_tree": null,
+    "finding_occurrence": "B116#1",
+    "owned_path_status": "All nine owned files are worktree-only modifications relative to slice_base_head (porcelain v2 .M); none is staged.",
+    "scope_statement": "This is a 9-path V5 MethodJob candidate slice, not a whole E02 source freeze. The shared worktree has unrelated dirty/untracked peer lanes; this packet makes no clean-tree or global-composition claim.",
+    "slice_base_head": "3fe686ae2e0768aaf502da704821eae89a35e667",
+    "slice_base_parents": [
+      "9ba4d7bc5512d08c08101244ada5a6644b396963"
+    ],
+    "slice_base_tree": "0626a3d8723b7d3d8e5d458cdbf6e254930d6299",
+    "slice_id": "benchmark4-methodjob-execution-provenance-final",
+    "source_commit_and_receipt_are_separate": true
+  },
+  "verification_context": {
+    "lockfile": {
+      "base_head_git_blob_sha1": "fe546f91f1d30676e7609cee113e744ddec5fba3",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/uv.lock",
+      "role": "Locked Python environment recipe; no dependency installation occurred in this slice.",
+      "size_bytes": 788441,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "fe546f91f1d30676e7609cee113e744ddec5fba3",
+      "worktree_sha256": "9d200a0789f50fccb533ddbb66a39453b04de8f22e653d34a62c35125c20a120"
+    },
+    "mypy_config": {
+      "base_head_git_blob_sha1": "594ab4d060735c68b3d135f836908b096874801d",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/mypy.ini",
+      "role": "Configuration for the isolated/full-file MyPy commands recorded below.",
+      "size_bytes": 328,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "594ab4d060735c68b3d135f836908b096874801d",
+      "worktree_sha256": "fb1ae483c1d597920e8418e908d95061010ccddcac4fe88d7a9c96144a646538"
+    },
+    "project_profile": {
+      "base_head_git_blob_sha1": "01e0674b3dd647863d7a14ffadd305c4f25980f5",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/pyproject.toml",
+      "role": "Project dependency/profile declarations for the reused locked environment.",
+      "size_bytes": 11141,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "01e0674b3dd647863d7a14ffadd305c4f25980f5",
+      "worktree_sha256": "841160aa331ba5610a1f161d4faaf18c3bcfd44d2181b3661de665a05a6745a0"
+    },
+    "ruff_config": {
+      "base_head_git_blob_sha1": "898deda37f2f53932b9c69f5f4dbfb185d20f8c6",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/ruff.toml",
+      "role": "Canonical Python Ruff configuration used by the nine-file check.",
+      "size_bytes": 932,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "898deda37f2f53932b9c69f5f4dbfb185d20f8c6",
+      "worktree_sha256": "e9aae7023e86c1ed6446eecbc5d3d14d1192e6186d369ee7b5ddd85221c4be2f"
+    },
+    "runtime_versions": {
+      "botorch": "0.16.1",
+      "environment": "existing policy-engine/.venv on the local macOS worktree; no installs or environment reconstruction",
+      "gpytorch": "1.15.1",
+      "mypy": "1.19.1",
+      "numpy": "2.3.5",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "python": "3.14.3",
+      "ruff": "0.14.10",
+      "torch": "2.10.0"
+    },
+    "shared_worktree_dependency_overlay": {
+      "base_head_git_blob_sha1": "155c31e272106c30c5f110648d85971967a6f404",
+      "changed_from_slice_base": true,
+      "classification": "changed outside this slice; hash pinned as an observed dependency overlay, not described as a clean/read-only base file.",
+      "external_delta_summary": "Only the LexSourceRelationRefusal export was added in the observed diff; not authored by this slice.",
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "role": "External package-export overlay exercised through DataSnapshot package imports; authored by another lane.",
+      "size_bytes": 67881,
+      "status_porcelain_v2": "1 .M N... 100644 100644 100644 155c31e272106c30c5f110648d85971967a6f404 155c31e272106c30c5f110648d85971967a6f404 policy-engine/src/polisyos/core/contracts/__init__.py",
+      "worktree_git_blob_sha1": "6574934f581c3a05109b63ee6417465151c42b63",
+      "worktree_sha256": "f6c8da89b5e59150507c42acf1c4ac28bc1970674ec4112c1939bfc69a3b0889"
+    },
+    "unmodified_test_input": {
+      "base_head_git_blob_sha1": "9994dbf3a158d409084ba2624804f06444734c06",
+      "changed_from_slice_base": false,
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+      "role": "Existing suite input included in the 61-case composed focused replay; not an authored path.",
+      "size_bytes": 36112,
+      "status_porcelain_v2": "",
+      "worktree_git_blob_sha1": "9994dbf3a158d409084ba2624804f06444734c06",
+      "worktree_sha256": "bd9c2b00274a7cce441e3c728c5cac242ecc581933040075da9903cf518a5499"
+    }
+  },
+  "verification_references": {
+    "composed_focused_tests": {
+      "argv": [
+        "env",
+        "OPENBLAS_NUM_THREADS=1",
+        "OMP_NUM_THREADS=1",
+        "MKL_NUM_THREADS=1",
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+        "tests/integration/scientist/methods/autotune/test_methodjob_execution_work_packet_promotion_admission.py",
+        "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/final-composed-r11.junit.xml"
+      ],
+      "cwd": "policy-engine",
+      "elapsed_pytest_seconds": 12.036,
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/final-composed-r11.junit.xml",
+        "sha256": "04c23319278782a002d706aa277be247a74c74ce78559c468fd39419b34e003a"
+      },
+      "outcome": {
+        "errors": 0,
+        "failures": 0,
+        "passed": 58,
+        "skipped": 3,
+        "tests": 61
+      },
+      "result_scope": "Focused local MethodJob/SearchLoop/registry route only; three native numerical tests are SKIP, not backend PASS; not the full E02 composed replay.",
+      "skip_reasons": [
+        "test_v5_search_pipeline.py: reserved single native GP fit slot",
+        "test_methodjob_execution_work_packets.py: native GP and DR MethodJob use the serialized numerical verification slot",
+        "test_methodjob_execution_work_packets.py: native DR L3/L4 fit uses the serialized numerical verification slot"
+      ],
+      "stderr_note": "The retained complete pytest output includes the warning summary; no separate stderr file was retained for this original run.",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/final-composed-r11.stdout.txt",
+        "sha256": "4ad24f48e652a1daf6df8caa02243e439b3a76f858949540a0b173e69703a148"
+      },
+      "timeout_seconds": "not recorded in the retained original launch metadata"
+    },
+    "current_supplemental_five_source_mypy": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "mypy",
+        "--config-file",
+        "mypy.ini",
+        "src/polisyos/scientist/compute/runner.py",
+        "src/polisyos/scientist/methods/autotune/execution_work.py",
+        "src/polisyos/scientist/methods/autotune/models.py",
+        "src/polisyos/scientist/methods/autotune/registry.py",
+        "src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "by_file": {
+        "models.py": 0,
+        "registry.py": 12,
+        "runner.py": 4,
+        "runtime.py": 44
+      },
+      "cwd": "policy-engine",
+      "diagnostic_codes": {
+        "arg-type": 25,
+        "attr-defined": 24,
+        "no-any-return": 2,
+        "operator": 5,
+        "redundant-cast": 3,
+        "union-attr": 1
+      },
+      "diagnostics": 60,
+      "elapsed_seconds": 10.324,
+      "exit_code": 1,
+      "status": "ERROR; P41 not_established. This isolated target is supplemental, not evidence of canonical native project-gate status. Do not classify inherited without exact slice-base/full-denominator replay.",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/mypy-five-source-r12.stdout.txt",
+        "sha256": "4ce28be86225e5677d9de0b3dfde2f5e3350a8af1669b4a9f505be62181dbab2"
+      },
+      "timeout_seconds": 180
+    },
+    "git_diff_check_all_nine": {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/execution_work.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py",
+        "policy-engine/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+        "policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+        "policy-engine/tests/integration/scientist/methods/autotune/test_methodjob_execution_work_packet_promotion_admission.py"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "timeout_seconds": 120
+    },
+    "models_strict_mypy": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "mypy",
+        "--config-file",
+        "mypy.ini",
+        "src/polisyos/scientist/methods/autotune/models.py"
+      ],
+      "cwd": "policy-engine",
+      "exit_code": 0,
+      "result": "Success: no issues found in 1 source file.",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/models-mypy-r11.stdout.txt",
+        "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+      }
+    },
+    "native_and_global_gates": {
+      "CI parity": "UNRUN by this slice",
+      "architecture guardrails": "UNRUN by this slice",
+      "fresh wheel/sdist install consumers": "UNRUN",
+      "full E02 composed replay": "UNRUN until final input/profile/source freeze",
+      "full_backend_verify": "UNRUN by this slice",
+      "native GP/DR producer replay": "SKIP in this focused suite; not a positive backend receipt"
+    },
+    "ruff_check_all_nine": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/scientist/compute/runner.py",
+        "src/polisyos/scientist/methods/autotune/execution_work.py",
+        "src/polisyos/scientist/methods/autotune/models.py",
+        "src/polisyos/scientist/methods/autotune/registry.py",
+        "src/polisyos/scientist/methods/autotune/runtime.py",
+        "tests/unit/scientist/compute/test_runner_polyglot.py",
+        "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+        "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+        "tests/integration/scientist/methods/autotune/test_methodjob_execution_work_packet_promotion_admission.py"
+      ],
+      "cwd": "policy-engine",
+      "elapsed_seconds": 0.047,
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/ruff-all-nine-check-r12.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "timeout_seconds": 120
+    },
+    "ruff_format_all_nine": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/scientist/compute/runner.py",
+        "src/polisyos/scientist/methods/autotune/execution_work.py",
+        "src/polisyos/scientist/methods/autotune/models.py",
+        "src/polisyos/scientist/methods/autotune/registry.py",
+        "src/polisyos/scientist/methods/autotune/runtime.py",
+        "tests/unit/scientist/compute/test_runner_polyglot.py",
+        "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+        "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+        "tests/integration/scientist/methods/autotune/test_methodjob_execution_work_packet_promotion_admission.py"
+      ],
+      "cwd": "policy-engine",
+      "elapsed_seconds": 0.054,
+      "exit_code": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/ruff-all-nine-format-r12.stdout.txt",
+        "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8"
+      },
+      "timeout_seconds": 120
+    },
+    "separate_c05_strict_gate": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "mypy",
+        "--config-file",
+        "mypy.ini",
+        "src/polisyos/scientist/methods/search/promotion_evidence.py",
+        "src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py",
+        "src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py",
+        "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "cwd": "policy-engine",
+      "diagnostics": 11,
+      "exit_code": 1,
+      "location": "policy_blueprint_runtime_benchmarks.py only",
+      "status": "Other C05 lane; separate from this MethodJob slice and not claimed inherited or green.",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/c05-strict-after-models.stdout.txt",
+        "sha256": "f7229a34244ba053f2fe0633b3d76009a84442f2168dbb1580a7993c96d2fcd6"
+      }
+    }
+  }
+}

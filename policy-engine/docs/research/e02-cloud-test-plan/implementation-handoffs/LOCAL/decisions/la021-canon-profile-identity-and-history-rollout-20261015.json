@@ -1,0 +1,293 @@
+{
+  "alternatives_in_required_order": [
+    {
+      "authority_and_time": "A codec-family label only identifies serialization capability. It grants no source authenticity, producer authority, currentness, or publication status. Do not use created_at or a new wall-clock field as a substitute for a source/issuer event.",
+      "build": {
+        "impact": "Not justified: it expands authority and migration surface and risks silently widening IR. P13 cost is high; reject unless existing models cannot express a G-ratified profile family.",
+        "option": "Build a new codec registry/negotiation service or universal tag grammar."
+      },
+      "consolidate": {
+        "impact": "Can reduce algorithm drift but does not itself fix the persisted shared-label ambiguity. Must preserve existing golden bytes, error codes/types, public imports, and historical reader behavior.",
+        "option": "Consolidate any still-duplicated common encoding primitives behind one shared implementation while retaining explicit Core and IR tag-policy descriptors and facade exports."
+      },
+      "decision_id": "canon-profile-identity-and-tag-family",
+      "decision_owner": "G; implementation author cannot ratify persisted profile semantics.",
+      "extend": {
+        "impact": "New manifests/profile selectors change for new writes; requires Core+IR CanonInfo/CanonSpec models, strict raw parser, adapter normalizer, writers, readers, caches/backends, public schemas/docs, and all identified semantic consumers. Existing manifest views and content bytes stay immutable; no in-place metadata edit. Readers retain a legacy 0.2.0 path with existing narrow behavior until source-qualified retirement.",
+        "option": "If explicit persisted identity is required, extend the existing profile contract with a G-owned family identity or distinct versioned Core/IR profile identifiers. Exact field/name/version and legacy interpretation must be selected by G; do not invent one in this packet."
+      },
+      "migration_and_backcompat": "Keep extant sidecar bytes and CAS content IDs. A future version creates a new immutable manifest view; new exact ArtifactRef selectors flow to consumers. Preserve known exception types/refusal codes. Characterize historical error behavior before claiming compatibility.",
+      "question": "Does LA-021 require the persisted profile identity itself to distinguish the Core and IR accepted tag grammars?",
+      "recommended_narrow_G_option": "For this E02 candidate, preserve the current common label, bytes and reader allowlists and explicitly refuse any tag-family widening under 0.2.0. Record LA-021 as limited/held for formal identity acceptance. If G needs distinct persisted families, authorize a separate additive versioned change with named IDs and a compatibility/migration matrix; preserve old refs and do not auto-rewrite.",
+      "reuse": {
+        "impact": "No stored bytes, CAS IDs, manifest views, public exports, or reader behavior change. Ambiguity remains visible and LA-021 cannot be called fully resolved unless G explicitly accepts this scoped interpretation.",
+        "option": "Keep current common.canonical primitives and current Core/IR facade codecs/allowlists. Interpret the existing 0.2.0 label only as the shared wire-mechanics label for already supported values; preserve Core-only tag refusal in IR."
+      }
+    },
+    {
+      "authority_and_status": "Malformed/present-invalid profiles refuse. A successful byte check is not producer attestation, legal authority, or currentness.",
+      "build": {
+        "impact": "Rejected: duplicate validation is unnecessary; the producer-choice inference is impossible for observationally identical cases.",
+        "option": "Build a second validator or infer the producer’s serializer choices from payload bytes."
+      },
+      "consolidate": {
+        "impact": "Reuse already exists; verify any additional consolidation against byte/error corpus and import boundaries.",
+        "option": "Continue sharing the generic raw profile parser/roundtrip primitive while keeping codec-specific tag sets."
+      },
+      "decision_id": "raw-profile-conformance-property",
+      "extend": {
+        "impact": "Would require DTO/client/API companion updates and negative fresh-consumer tests; not currently needed for CAN.",
+        "option": "Only if an actual consumer needs a typed candidate result, extend the result projection while preserving explicit status and normal-value refusal. Do not turn unknown/malformed into absence/default."
+      },
+      "property_divergence": "If someone claims the reader proves the producer actually selected every option, a no-null payload is a minimal divergent input: two exclude_none settings yield the same bytes. The verifier must test declared-byte conformance, not inferred author intent.",
+      "question": "What should a green conformance check claim about the profile and payload?",
+      "recommended_narrow_G_option": "Accept only the bounded claim: the reader recomputed that the selected bytes conform to a complete declared supported profile. Keep historical producer choice as not_established when bytes cannot distinguish settings (for example, exclude_none=true on a payload containing no null).",
+      "reuse": {
+        "impact": "Current semantic contract; no migration or source change required.",
+        "option": "Reuse existing raw-sidecar intake, strict field parsing, exact selected-view binding and byte-roundtrip guards in Core/IR."
+      }
+    },
+    {
+      "build": {
+        "impact": "New authority subsystem and external institutional dependency. None is established by this audit; do not build or assert now.",
+        "option": "Add signed producer attestations only after an actual issuer/key owner, key custody, signature verification, revocation/currentness, and exact statement scope are supplied."
+      },
+      "consolidate": {
+        "impact": "Can tighten writer-side consistency without labeling every raw carrier as semantically encoded.",
+        "option": "Keep semantic JSON writes on existing `put_json` paths that compute bytes and metadata together; keep raw `put_bytes` as a separate byte-preserving API."
+      },
+      "decision_id": "producer-selection-and-attestation",
+      "extend": {
+        "impact": "API/DTO and generated schema changes; does not by itself increase trust or prove serializer use.",
+        "option": "If a real consumer needs to distinguish origin, extend the typed read/write result with a selection-origin enum such as writer_selected, reader_materialized, or caller_selected; do not place a free-form self-assertion in a persisted manifest."
+      },
+      "question": "Does an exact writer-selected manifest selector count as producer attestation?",
+      "recommended_narrow_G_option": "Treat CanonInfo as manifest-declared and exact byte conformance as reader-recomputed. Name writer-selected vs reader-materialized where the existing result supports it, and leave producer attestation not_established. Do not infer attestation from a method name or a selector digest.",
+      "reuse": {
+        "impact": "No persisted/API changes; accurate but not cryptographic. `put_bytes` callers remain responsible for the truth of their declared metadata, with readers checking byte conformance.",
+        "option": "Use the current writer-returned selected reference for the write-time view and preserve reader_materialized provenance for selectors derived after reading."
+      }
+    },
+    {
+      "build": {
+        "impact": "Rejected: weaker typing and no current capability gap.",
+        "option": "Build a new untyped metadata DSL or dict-only wrapper."
+      },
+      "consolidate": {
+        "impact": "Could change public Python type identity/imports; preserve current exports and avoid this unrelated refactor.",
+        "option": "Only consolidate Core and IR option types if an actual ownership/API duplication remains after the adapter projection."
+      },
+      "decision_id": "typed-mapping-write-options",
+      "extend": {
+        "impact": "Routine owner work with mandatory Core/IR API/test companions; no semantic G choice.",
+        "option": "When Core adds an option, require an adapter normalizer and update source-derived positive/negative coverage; retain the field-set drift guard."
+      },
+      "question": "Should callers be limited to dict-shaped write options?",
+      "recommended_narrow_G_option": "Accept the existing Mapping-capable writer bridge as the current contract; no additional code or persisted schema choice is needed for this item.",
+      "reuse": {
+        "impact": "Current behavior; MappingProxyType and plain nested maps already have a persisted-CAS positive and malformed/unknown negatives.",
+        "option": "Keep the already implemented collections.abc.Mapping bridge and nested typed validation for all 12 currently declared options."
+      }
+    },
+    {
+      "build": {
+        "impact": "Reject: no historical evidence or owner basis supports this; broad census and guessed defaults could fabricate semantic authority.",
+        "option": "Create a global backfill/scanner that assigns profiles to all profileless manifests."
+      },
+      "consolidate": {
+        "impact": "Requires exact owner-issued source/codec evidence, exact old selector, custody, and downstream ref updates. Preserve old view and blob hash; no rewriting a production manifest.",
+        "option": "If the original producer/source is known, use that canonical owner’s existing reissue/migration seam to create a new immutable selected manifest for the same verified bytes."
+      },
+      "decision_id": "profileless-history-rollout",
+      "extend": {
+        "impact": "New API/result status and consumer tests; selection is a consumer decision, not producer metadata. G must approve exact use and boundary.",
+        "option": "Only for a named supported caller, add an explicit caller-selected legacy decoder mode returning a typed `reader_selected` candidate/limitation; do not return it through a normal authority-grade `.value`."
+      },
+      "minimum_external_inputs_for_one_legacy_case": [
+        "Exact immutable artifact_id plus exact manifest_profile_sha256 when a selected sidecar exists; if the sidecar itself lacks canon, a read-only owner locator to those exact manifest bytes and the matching CAS blob.",
+        "A source-qualified producer record/code/config identifying the actual canonical tag family and serializer options for this exact payload; a default-filled reader model or its created_at is not sufficient.",
+        "L01/L02 named private custody receipt only if it binds the exact selected artifact/profile and producer/source identity. INPUTS.json gives private roots but this audit has not established a CAN-specific matching selector; do not scan roots or payloads broadly.",
+        "The exact downstream consumer, expected historical behavior, and (for any authority-bearing use) independently verified authority/currentness basis and time-role join."
+      ],
+      "missing_input_owner": "The source-owning producer/history custodian for the specific artifact family must provide the source-qualified tuple. G must name that owner if a positive is required; no issuer or permission is inferred here.",
+      "question": "May an old semantic JSON artifact without a declared raw profile be decoded as ordinary validated input?",
+      "recommended_narrow_G_option": "Keep default refusal and no auto-migration. Candidate-only reading remains explicitly non-authoritative. Consider a legacy mode only after one concrete source-backed caller is named and its bounded requirement is verified.",
+      "reuse": {
+        "impact": "No stored data, CAS IDs, refs, exports or authority change. Historical use remains limited until source evidence exists.",
+        "option": "Keep strict refusal for semantic Core/IR reads. Retain the explicit candidate-only Core and Ukraine surfaces without upgrading their status."
+      }
+    }
+  ],
+  "audit_evidence": {
+    "current_rebind": "All 30 reported source/test/document pins were re-read at the current packet frame and match the audit hashes; no source-pin drift was found.",
+    "deciding_receipts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-contract-profile-audit-20261015/focused-receipt.json",
+        "result": "145 passed; typed/mapping/plain-map writes and Core/IR profile/raw byte negatives. Full output is in the same raw directory.",
+        "sha256": "b51896e3de182299060b1f9d5df418a0631a00230ed516c35d1f624f8135f24b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-contract-profile-audit-20261015/profileless-consumer-receipt.json",
+        "result": "11 passed; profileless Ukraine candidate, strict Core absent/malformed/unknown, and selected consumers.",
+        "sha256": "8b41452dd8928f6db81ba909606e6d00439ceb8738f94e5592fd8ade0f3e29a3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-contract-profile-audit-20261015/route-refusal-rerun-receipt.json",
+        "result": "2 passed; direct HTTP route source rebind with equal pre/post hashes, including semantic refusal and raw exact-byte behavior.",
+        "sha256": "4b70333082d56a2ee8448a5ea7828d0ae5aea3d8a4ad2079372b79b9dda6b044"
+      }
+    ],
+    "known_limit": "These focused receipts pin governing source/test paths but not the complete transitive import closure; the final composed E02 source-freeze replay remains necessary.",
+    "report_frame": {
+      "head": "3fe686ae2e0768aaf502da704821eae89a35e667",
+      "tree": "0626a3d8723b7d3d8e5d458cdbf6e254930d6299"
+    },
+    "report_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-contract-profile-audit-20261015/review.json",
+    "report_sha256": "d95cefa982ff3b3fdb6ba3e59ec3ac5e277398f0b811213a09047633aab548fb",
+    "tracked_source_denominator": {
+      "count": 2770,
+      "path_list_sha256": "519f06daae5204d36003551bd80766f048d0ac1162e845039eec07a2c70c2e8a",
+      "scope": "tracked policy-engine/src/**/*.py path list; the call census is syntactic, not a dynamic caller-closure proof"
+    }
+  },
+  "authorship": "Local implementation author; this packet records options and a bounded recommendation, not G code acceptance or formal finding closure.",
+  "closure_ids": [],
+  "decision_authority": "G independently decides persisted profile law and any legacy/history policy. The local author may preserve current behavior and implement routine fixes within that accepted contract, but may not create a new profile law, issuer, producer attestation, historical eligibility, or production currentness.",
+  "external_evidence_boundary": {
+    "currentness_and_authority": "not_established; codec correctness and content-address identity do not create external authority, custody, issuer permission, or currentness.",
+    "private_locator_policy": "INPUTS.json records L01/L02 local custody roots; use only an exact matching CAN selector and custody receipt if one is already named. No broad payload census.",
+    "production_data_read": "none for this audit; no production manifest, descriptor, blob, or hash was changed."
+  },
+  "formal_finding_state": "No change proposed: historical ledger remains closed as history; current finding remains not_adjudicated until G adjudicates this packet and full original criterion.",
+  "g_questions": [
+    "Is the existing `polisyos.canon.json@0.2.0` label accepted as a shared mechanics label while Core and IR retain distinct reader-local tag allowlists, or does LA-021 require additive persisted family/version identifiers before full acceptance?",
+    "Should the current writer-selected and reader-materialized provenance fields remain descriptive only, with producer attestation not_established until an actual issuer/custody contract exists?",
+    "Can any named caller safely require profileless historical semantic input? If yes, identify the exact source-qualified selector, producer basis, consumer, owner, and candidate/authority limit; otherwise preserve strict refusal."
+  ],
+  "implementation_boundary": {
+    "not_proposed": "No source codec edits, schema writes, output/profile rewrites, broad production/history census, public API default change, or automatic manifest migration.",
+    "requires_G_semantics": "Changing the persisted codec-family identity/version; widening tag acceptance; assigning a legacy profile to historical bytes; treating a selected selector as producer attestation; or upgrading profileless bytes into authority-grade typed data.",
+    "routine_work_local_authorized": "Maintain Mapping normalization, strict raw-profile completeness, exact selected-view binding, byte re-encoding, known reader-local tag allowlists, and candidate-only profileless results with their tests."
+  },
+  "observed_current_contract": {
+    "profileless_history": {
+      "identity_caveat": "A ref can select a manifest view even if that manifest has no canon profile. The selector is not a semantic profile declaration.",
+      "observed": "IR get_json_artifact and Core load_core_json_artifact refuse missing canon by default. An explicit Core read opt-in yields profile_absent_unqualified_candidate and blocks the normal .value property. The Ukraine reader may expose exact-byte/schema-bound input only through value_for_candidate and labels producer attestation/currentness not_established. Semantic HTTP views refuse absent/incomplete/unknown JSON profiles; raw responses preserve exact bytes under separate CAS/surface admission. Non-JSON views may legitimately omit CanonInfo.",
+      "status": "Keep history fail-closed by default; no global compatibility or migration is evidenced."
+    },
+    "raw_profile_and_content": {
+      "falsifiers": "Remove each raw CanonInfo key while keeping typed defaults available; use canon:null; use numeric 1.5 under forbid_floats=true; alter separators/whitespace; or substitute another selected manifest view for the same content ID. The selected readers refuse. A conformant Decimal/shared-tag value remains the positive.",
+      "implementation": "IR reads exact raw selected-sidecar bytes, rejects absent/malformed/duplicate/incomplete profiles before payload decode, checks typed/raw selected-view equality, applies the IR tag allowlist, and requires exact decode/re-encode bytes. Core semantic loaders similarly require a declared profile by default.",
+      "property": "A semantic JSON reader returns a value only when the selected raw profile is complete and supported and the actual stored bytes reproduce under that profile’s decoder/encoder settings.",
+      "status": "bounded_reader_conformance_verified; keep this behavior."
+    },
+    "tag_family_mismatch": {
+      "current_safety": "The refusal prevents silent widening; the ambiguity is persisted identity/compatibility semantics, not a reason to union tags or rewrite old data.",
+      "observed": "Core and IR both default to polisyos.canon.json@0.2.0. Core additionally recognizes array_digest, bytes_hex and float_hex; IR’s set remains narrower. A Core-only tag under the shared label is refused by a fresh IR reader. Ordinary supported values preserve current bytes.",
+      "property_vs_implementation": "The label suggests one named profile, while the implementation turns on codec-local tag allowlists. The concrete divergence is a Core float_hex/bytes_hex/array_digest payload: Core accepts it and IR refuses under the same label.",
+      "status": "G_choice_required_for_formal_LA021_acceptance."
+    },
+    "typed_mapping_options": {
+      "actual_discriminator": "MappingProxyType is exercised for a mapping of model values and a mapping of plain nested maps; the persisted selected manifest is checked field by field. The malformed-map control verifies no artifact is emitted.",
+      "implementation": "Core→IR accepts collections.abc.Mapping, validates all current fields and nested DTOs, refuses unknown/malformed supplied values before persistence, and fails if the normalizer field set drifts from the Core dataclass.",
+      "source_contract": "Core ArtifactWriteOptions declares 12 fields: kind, media_type, schema, producer, env, inputs, canon, governance, tenant_context, same_input_closure, authority, warnings.",
+      "status": "bounded_current_contract_verified; no G semantic choice is needed for this repair."
+    },
+    "writer_selection_vs_reader_materialization": {
+      "observed": "return_selected_profile=True yields the exact manifest view chosen by the write. artifact_ref_for_manifest/read-side default selection can materialize that view later. Both are represented by ArtifactRef.manifest_profile_sha256, and that selector is not itself a producer signature or proof that put_bytes payload bytes were produced with the declared CanonInfo.",
+      "p37": "CAS content identity, selected manifest identity, raw-profile completeness and byte conformance are recomputed. Historical producer serializer choice/signature and unobservable options are not_established. Ukraine records reader_materialized and not_established producer_attestation_status for its candidate path.",
+      "status": "No attestation claim; current precise status semantics are the safe default."
+    }
+  },
+  "original_finding_binding": {
+    "capability_label": null,
+    "coverage_path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+    "coverage_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+    "criterion_document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "criterion_document_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+    "criterion_lines": [
+      990,
+      1021
+    ],
+    "criterion_ref_sha256_from_coverage": "6bf9986ec241a8980ff624f30d08973fba07f5c8e1402652a276da1bce22aa7b",
+    "current_closure_status": "not_adjudicated",
+    "denominator": {
+      "bundles": 127,
+      "canonical_source_block_occurrences": 291,
+      "findings": 282
+    },
+    "finding_id": "LA-021",
+    "historical_ledger_status": "closed",
+    "occurrence_binding": {
+      "criterion_refs_in_this_finding": 1,
+      "occurrence_key_note": "coverage.json supplies no separate occurrence_key field; retain the exact criterion tuple above as this packet’s occurrence locator. Do not merge or deduplicate any other canonical occurrence.",
+      "source_tuple": {
+        "card": "CAN-01",
+        "criterion_id": "LA-021",
+        "document": "LA_r09",
+        "lines": [
+          990,
+          1021
+        ],
+        "sha256": "6bf9986ec241a8980ff624f30d08973fba07f5c8e1402652a276da1bce22aa7b"
+      }
+    },
+    "primary_bundle": "CAN-01",
+    "rule": "Historical status is preserved as history. This packet changes no finding state and claims no closure.",
+    "task_ref": "C.md#finding-la-021",
+    "unit": "C"
+  },
+  "packet_id": "CAN-LA021-profile-identity-history-rollout-20261015",
+  "patterns": {
+    "capability_states": "Mapping bridge and reader conformance have bounded semantic tests. Persisted cross-codec family identity and historical profileless migration remain absent/unallocated pending G and source-qualified inputs.",
+    "observed_antipattern": "Typed Pydantic defaults, shared version strings, or a manifest selector could be mistaken for a complete raw profile, a single tag law, or producer attestation.",
+    "p40_bucket": "The Mapping and raw-profile findings were same-class/deeper C06 conformance work widened to current complete declared option/profile predicates. The remaining tag-family and history items are separate persisted-semantic decisions, not invitations to continue per-case repairs.",
+    "relevant_ids": [
+      "P06",
+      "P07",
+      "P08",
+      "P10",
+      "P29",
+      "P31",
+      "P32",
+      "P37",
+      "P38",
+      "P39",
+      "P40"
+    ],
+    "target_pattern": "Use one strict raw intake and exact selected-byte roundtrip; preserve separate codec policies until a versioned persisted identity is ratified; fail closed or downgrade candidate status on absence."
+  },
+  "proposal_ids": [
+    "LA-021"
+  ],
+  "schema": "policyos.e02.g_decision_packet.v1",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "938c0c1a8465510b3872ef395f7324f16209c2c5",
+    "repository": "PolicyOS local candidate",
+    "source_or_test_changes_made_for_this_packet": false,
+    "tree": "23d7717671adb970a4c5cb77e48d6af4d0f3745c"
+  },
+  "status": "proposed_for_independent_G_adjudication",
+  "task_context": {
+    "decision_instruction": "The Q1 decision row says equal version numbers do not prove a single Core/IR law; do not infer a producer profile from reader defaults or admit a profileless artifact silently.",
+    "pinned_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+        "pointer": "#/queues/Q1",
+        "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+        "pointer": "CAN/Core row",
+        "sha256": "e88b59dd714a192e88ab674e2d1aba376c3881a336f89e88f6ec8093762e16df"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-options/decision-packet.md",
+        "pointer": "existing bounded alternatives and P37/P38/P40 analysis",
+        "sha256": "093b483e805338ea453666011d5f775328832bdda5ff58ee7585609ed0f8a40b"
+      }
+    ],
+    "q1": "Reconcile actual Core/IR codec laws, write options and raw profile/content conformance; investigate the legacy selector/history and profile-law ambiguity. Do not import the whole prior branch."
+  }
+}

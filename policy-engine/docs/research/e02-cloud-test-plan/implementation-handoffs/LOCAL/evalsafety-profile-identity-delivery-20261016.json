@@ -1,0 +1,68 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Exact selected-profile inventory and reconciliation identity",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": {
+      "commit": "d70c48551e10267a39833543766e13e15060898d",
+      "tree": "41bddc7955fd52263ddf0cef2060584d9b9468ac",
+      "parents": [
+        "938c0c1a8465510b3872ef395f7324f16209c2c5"
+      ]
+    },
+    "candidate": {
+      "commit": "496131f67563da3e630047566e8ee5f11dc92967",
+      "tree": "8dc0b4adc70b953a400044b97bf553de349f263f",
+      "parents": [
+        "d70c48551e10267a39833543766e13e15060898d"
+      ]
+    },
+    "readback_verified": true,
+    "source_freeze": false,
+    "p41": "not_established"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "sha256": "05c42d72e630640489afe7df2794735729d1aac1bc431a104a5715fa887a23a5"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/services/test_evaluation_safety.py",
+      "sha256": "483b293613b1652f21c1af1e438e18d4e55216e081f44991420d05db178014c9"
+    }
+  ],
+  "selected_input_profile_backend": "Own source-bound .venv Python3.14; controlled filesystem CAS fixtures and explicit selected profiles; no production-currentness claim.",
+  "real_chain_and_deciding_outputs": [
+    "Actual inventory target qualification -> selected manifest -> Core JSON -> identity reducer -> new persistence service/event log.",
+    "11 reducer cases and fresh-service controlled CAS probe pass; independent canonical alias dedup and six added cases checked."
+  ],
+  "source_bound_command_and_full_output_manifests": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-evalsafety-current-20261015/profile-identity-local-receipt.json",
+      "sha256": "47e51e1e875e1dc0647ab764b3e6f24a2bd921ea27c14a85b35086cdfc8fc578"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-evalsafety-independent-review-20261015/assessment-r3.json",
+      "sha256": "75c87d7a43dfbc900bb77a0d99e525b04a3e690a1d6a29baab50b72ec61030e2"
+    }
+  ],
+  "commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/evalsafety-selected-profile-identity-source-20261016-readback.json",
+    "sha256": "c56015d6487319711f7c0e21802a59e35f6eda3b8f072dbb8f896a0006aad184"
+  },
+  "adversarial_removal_controls": "Full deciding outputs and exact commands retained in the pinned author/reviewer/application manifests; no declaration-only green.",
+  "limitations": [
+    "Full module24PASS1FAIL387.751s: runtime integrity reports source changed, exact __init__.py path not established. Full replay awaits stable whole-source freeze.",
+    "Local filesystem controlled witness does not establish external authority or production currentness."
+  ],
+  "proposals": [
+    {
+      "finding_or_boundary": "C05 profile identity bounded subproperty",
+      "outcome": "limited_or_held",
+      "formal": false
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "Resolve exact remaining typed/semantic/input choices, freeze full source/input/backend composition, independent delta review, then one required composed native/installed replay."
+}

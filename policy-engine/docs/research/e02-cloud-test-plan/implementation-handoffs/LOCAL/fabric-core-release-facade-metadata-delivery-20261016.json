@@ -1,0 +1,72 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Release rows bind actual stable Fabric and Core facades",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": {
+      "commit": "929117bbf3ad7717ea44d0327bc1e4c361498dc0",
+      "tree": "cbbf2ca3439bdf444aaec49a271ce36193489b5d",
+      "parents": [
+        "496131f67563da3e630047566e8ee5f11dc92967"
+      ]
+    },
+    "candidate": {
+      "commit": "e4488f8f43e69372b8ff1b0200dba56cfc176768",
+      "tree": "4e84534e0d8d0b0c5fb0a1fe29f89b1e0604e27e",
+      "parents": [
+        "929117bbf3ad7717ea44d0327bc1e4c361498dc0"
+      ]
+    },
+    "readback_verified": true,
+    "source_freeze": false,
+    "p41": "not_established"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-documented-child-entrypoints.toml",
+      "sha256": "87d78b2385f2ac556a0e9b0bee9a2728cc9f0d8decb27f7b4f9c07f33501a20e"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-14-b31-selected-reference-graph.toml",
+      "sha256": "0aae911c866c398c64870073075e8e71f8a24271020014596c91d4dc9e15dcbe"
+    }
+  ],
+  "selected_input_profile_backend": "Own source-bound .venv Python3.14; controlled filesystem CAS fixtures and explicit selected profiles; no production-currentness claim.",
+  "real_chain_and_deciding_outputs": [
+    "Complete HEAD-to-postimage diff reread by root, both fragment hashes and all actual source facade identities reviewed independently.",
+    "Canonical gate254TOMLs221rows2ERRORS runtime-http/tool-result ABI; no complete inventory or native green. Corrupt flag is declaration control only; actual lazy-binding removal controls refuse."
+  ],
+  "source_bound_command_and_full_output_manifests": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-remaining16-20261015/fabric-core-facade-metadata-20261015/final-review.json",
+      "sha256": "e90caa17d1dcb8edc1234cb938cb9a9b245a3040faab3f5c4b29f18017c325e9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-remaining16-20261015/fabric-core-facade-metadata-20261015/independent-review/independent-review.json",
+      "sha256": "b0c48ef09ebef57417b3b201dfdecae21e9ea35fa879c0c80298c09e646037cf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-remaining16-20261015/fabric-core-facade-metadata-20261015/provenance-addendum-20261016.json",
+      "sha256": "c374ac402cbe1afdc80ab901da18f9f101e86ffe3f123a04a930c8123a75db55"
+    }
+  ],
+  "commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/fabric-core-release-facade-metadata-source-20261016-readback.json",
+    "sha256": "1c1af3c6d21f5d577520d63aaa0a5e982a0db642745cc9880794e585164861d8"
+  },
+  "adversarial_removal_controls": "Full deciding outputs and exact commands retained in the pinned author/reviewer/application manifests; no declaration-only green.",
+  "limitations": [
+    "Fabric preexisting347-byte working overlay provenance not_established. Manifest73303 preimage is working-tree overlay, actual Git preimage1c637 is separately pinned; source commit contains complete636-byte total Fabric delta.",
+    "Review flag consumer_asserted; G decisions and full canonical regeneration remain pending."
+  ],
+  "proposals": [
+    {
+      "finding_or_boundary": "Release metadata bounded reconciliation",
+      "outcome": "limited_or_held",
+      "formal": false
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "Resolve exact remaining typed/semantic/input choices, freeze full source/input/backend composition, independent delta review, then one required composed native/installed replay."
+}

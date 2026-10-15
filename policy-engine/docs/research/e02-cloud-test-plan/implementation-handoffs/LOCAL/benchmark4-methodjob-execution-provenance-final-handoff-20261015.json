@@ -1,0 +1,357 @@
+{
+  "adversarial_and_removal_controls": [
+    {
+      "command": {
+        "argv": [
+          "env",
+          "PYTHONPATH=src",
+          "OPENBLAS_NUM_THREADS=1",
+          "OMP_NUM_THREADS=1",
+          "MKL_NUM_THREADS=1",
+          ".venv/bin/python",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/forged-unsigned-promotable-false-probe.py"
+        ],
+        "cwd": "policy-engine",
+        "timeout_seconds": 90
+      },
+      "elapsed_seconds": 4.686,
+      "exit_code": 0,
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/unsigned-r12.metadata.json",
+      "metadata_sha256": "c4db42386594dcd7285577908490ed4a87c2ed23fe5087773a327c0b4e278776",
+      "name": "unsigned forged full-profile CAS graph",
+      "observation": "decision_promoted=false; reason=methodjob_execution_provenance_not_established; method_invoked=false.",
+      "script_sha256": "21ce4171e1e42b5f0857d3df27bfe56d5f24dd7438963f1b3b736ae0ae82ebb1",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/unsigned-r12.stdout.txt",
+        "sha256": "9a1e21f26d38033daff1118dbcff9ced8460c5f038500629f9aa09ebab99c7df"
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "env",
+          "PYTHONPATH=src",
+          "OPENBLAS_NUM_THREADS=1",
+          "OMP_NUM_THREADS=1",
+          "MKL_NUM_THREADS=1",
+          ".venv/bin/python",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/forged-runner-foreign-self-signer-promotable-false-probe.py"
+        ],
+        "cwd": "policy-engine",
+        "timeout_seconds": 90
+      },
+      "elapsed_seconds": 6.806,
+      "exit_code": 0,
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/foreign-signed-r12.metadata.json",
+      "metadata_sha256": "d9a6a42a0ed6d7b7692d887dd956d38b185ce47f84c89a7577da0c78ced1a4ee",
+      "name": "foreign/self-signed receipt plus generic CAS signatures",
+      "observation": "all refs have selected profiles; five generic CAS signatures are attached and the self-signed receipt validates under its own key, yet decision_promoted=false with methodjob_execution_provenance_not_established; method_invoked=false.",
+      "script_sha256": "184fa8ca72613ca24c2c09a98d4a94fe598676c76546557aa2054aab5e714106",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/foreign-signed-r12.stdout.txt",
+        "sha256": "ccdb23a80103fd939aee1dfd567cedec30a99a6ba39c4fd61a06b38be807690e"
+      }
+    },
+    {
+      "command": {
+        "argv": [
+          "env",
+          "PYTHONPATH=src",
+          "OPENBLAS_NUM_THREADS=1",
+          "OMP_NUM_THREADS=1",
+          "MKL_NUM_THREADS=1",
+          ".venv/bin/python",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/forged-runner-removal-control-probe.py"
+        ],
+        "cwd": "policy-engine",
+        "timeout_seconds": 90
+      },
+      "elapsed_seconds": 4.722,
+      "exit_code": 0,
+      "metadata": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/removal-control-r12.metadata.json",
+      "metadata_sha256": "d6cea3375dd24fb9211907f34ca10e693210d7bcd6c0a3aa9c3c32a9b7da3b52",
+      "name": "remove provenance guard while retaining markers",
+      "observation": "After removing the provenance guard with profile/source markers left intact, the forged graph promotes; method_invoked=false. This control proves the guard is behavioral, not marker-only.",
+      "script_sha256": "67890ede394602d81678f2073ce6c4650bde8a4c6b36fab8d09145a16ee910e3",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/removal-control-r12.stdout.txt",
+        "sha256": "70134e8fdb4f89d6bb8890ffb2bd0b3ed7d334642c4b123cb618f8700d768299"
+      }
+    }
+  ],
+  "created_at": "2026-10-15",
+  "decision_and_authority": {
+    "candidate_status": "Candidate compute and measured metrics remain useful, with execution provenance explicitly limited/not established.",
+    "external_inputs_needed": [
+      "authorized deployment/runtime owner appoints the MethodJob executor identity and key",
+      "custody-controlled signer capability is bound to the actual backend invocation and selected source/result/evidence refs",
+      "authoritative key trust, revocation, and rotation lifecycle at admission",
+      "whether protected claim needs a trusted execution time/currentness interval or an external worker/TEE attestation"
+    ],
+    "g_decision_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/benchmark4-methodjob-execution-provenance-20261015.json",
+      "sha256": "1881d2bf740fdce91b727f6565f94d4d062e368394d5d3dcc3e2c2fc1131b926",
+      "status": "author-proposed bounded contract and G choice; no formal G adjudication"
+    },
+    "generic_signature_limit": "A generic CAS signature or self-signature proves only the self-authored selected artifact statement; it does not prove the trusted MethodBackend invocation that produced the result.",
+    "protected_status": "HOLD: methodjob_execution_provenance_not_established; evaluation.promotable=false and ChampionRegistry does not promote.",
+    "trusted_execution_positive": "Not honestly available: no MethodJob-specific appointed signer/identity, exclusive custody boundary, and fresh-CAS verifier is configured. The local code cannot invent that external appointment."
+  },
+  "handoff_id": "benchmark4-methodjob-execution-provenance-final-20261015",
+  "historical_reviews_and_retraction": {
+    "bounded_go_review": {
+      "meaning": "GO only for bounded source/request/result recomputation; did not establish trusted dispatch identity.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-benchmark4-independent-review-20261015/independent-review.json",
+      "sha256": "072e77e9b98e32c1b14cba4830a78c62f47a7406bc57f70f2405be25c927d136"
+    },
+    "disposition": "Keep historical code/tests and bounded content-reconciliation findings; retract any prior broader claim that they prove protected execution provenance or B116 closure. No historical artifact is retroactively blessed.",
+    "fresh_cas_followup_hold": {
+      "meaning": "HOLD for candidate/suite source-profile admission; retained limited historical reads.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-benchmark4-independent-review-20261015/fresh-cas-followup-review.json",
+      "sha256": "11a3bafc07d865221d57516d66b4ce22bfbb0000bc8756c60ac2101b425458c1"
+    },
+    "independent_forged_runner_falsifier": {
+      "output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-v5-methodjob-review-20261015/forged-runner-evidence-probe.stdout.txt",
+      "output_sha256": "482460586154dbd02c04e338e6a096f1727064699863968cde1f08d2077843c8",
+      "script_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-v5-methodjob-review-20261015/forged-runner-evidence-probe.py",
+      "script_sha256": "6e98428c630e405c78d49997d8df12a4e0b95b22342ad050353c680a3ac94e67"
+    },
+    "prior_r9_handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/benchmark4-methodjob-dispatch-handoff-r9-20261015.json",
+      "sha256": "ad6232780a51d17005163525f71f33eb4fa2d920d8f1b36a15d0b78158b3c653"
+    },
+    "prior_r9_source_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/benchmark4-methodjob-dispatch-source-freeze-r9-20261015.json",
+      "sha256": "a69ab41db09ec1a5446633d41b5592fcd1728c1baa56f29d4bb488f33a2ca2ff"
+    }
+  },
+  "implemented_chain": {
+    "artifact": "Selected-profile MethodJob candidate, suite, result, method evidence/dispatch binding, and BenchmarkEvaluation persisted in FileSystemCAS with typed source refs and computed fingerprints.",
+    "bridge": "MethodJobBenchmarkEvaluator reloads actual persisted output through a fresh CAS view; SearchLoopRunner consumes candidate metrics and the actual PromotionDecision.",
+    "claimgold_boundary": "ClaimGold/ClaimAdjudication remains separate and unchanged; no all-method or all-benchmark authority claim is made.",
+    "consumer": "ChampionRegistry recomputes MethodJob source/request/result/evaluation consistency, then refuses protected promotion when no trusted executor provenance verifier is configured.",
+    "producer": "MethodBackend/run_job resolves the actual MethodSignature/version and executes through the dispatcher; explicit capture_dispatch_binding records request/source-slot facts without mutating method_params. The older caller-supplied capture_execution_work compatibility path remains and is not injected by the runner.",
+    "surface": "SearchLoop history, stage_b simulation_results, typed evaluation status, and feedback promotion_decision; a controlled integration test retains candidate score 2.5, exposes measured_candidate, returns REJECT, and creates no champion."
+  },
+  "patterns_and_gate_predicates": {
+    "p37": {
+      "CAS selected artifact bytes/profile": "recomputed by FileSystemCAS reader",
+      "method request/slot/output recomputation": "recomputed within producer/consumer bytes",
+      "signer appointment/custody/currentness": "not_established; institutionally supplied external inputs absent",
+      "trusted executor identity and actual invocation provenance": "not_established without a distinct appointed receipt verifier"
+    },
+    "p38": {
+      "current_gate_measures": "internal consistency of supplied CAS artifacts and dispatch fields",
+      "divergent_case": "self-authored full-profile CAS graph matches candidate/suite/evaluation/dispatch fields while the registered pure_step deliberately raises and is never called; the old gate promotes it",
+      "property": "a trusted MethodJob runner actually executed the exact method/version and immutable JobSpec against the selected inputs"
+    },
+    "p40": {
+      "bounded_residual": "producer_missing and verification_missing for trusted execution custody until an authorized signer and fresh-CAS verifier are supplied",
+      "bucket": "SAME_METHODJOB_EXECUTION_PROVENANCE_CLASS_ONE_LEVEL_DEEPER",
+      "repair_scope": "one protected MethodJob execution-provenance boundary for the entire family; no per-field, per-method, or per-registry ladder patches"
+    },
+    "p41": "The current supplemental strict MyPy result is recorded as ERROR/not_established. No inherited classification is asserted because an exact pre-own slice-base replay and full applicable input denominator comparison was not established.",
+    "pattern_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P12",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ]
+  },
+  "proposal_fields": {
+    "author_proposals": [
+      {
+        "finding": "B116#1",
+        "proposal": "Keep the candidate measurement path available; refuse protected MethodJob promotion until an authorized trusted executor receipt producer and fresh-CAS verifier are supplied.",
+        "status": "HOLD proposal for independent G review"
+      }
+    ],
+    "closure_ids": [],
+    "formal_closures": []
+  },
+  "remaining_checks": [
+    "Independent reviewer must bind review to this exact source-freeze SHA and all nine current path hashes; no review verdict is asserted here.",
+    "G/deployment owner must provide the trusted MethodJob executor appointment, key/custody boundary, and authoritative rotation/revocation/currentness rule if required.",
+    "After the final E02 source/input/profile freeze, run one composed replay including native GP/DR only with an explicitly provisioned supported backend profile; preserve these SKIPs until then.",
+    "Global E02 full-ID proposal mapping and G formal adjudication remain outside this slice."
+  ],
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "slice": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate_commit": null,
+    "candidate_is_uncommitted_content_snapshot": true,
+    "candidate_parents": null,
+    "candidate_tree": null,
+    "changed_path_accounting": {
+      "source_footprint": [
+        {
+          "base_head_git_blob_sha1": "76b331a313cee77ca0a89f9e852fef86c40099bb",
+          "changed_from_slice_base": true,
+          "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+          "role": "Actual MethodBackend/run_job producer; adds opt-in typed dispatch capture separate from scientific method parameters.",
+          "size_bytes": 35340,
+          "status_porcelain_v2": "1 .M N... 100644 100644 100644 76b331a313cee77ca0a89f9e852fef86c40099bb 76b331a313cee77ca0a89f9e852fef86c40099bb policy-engine/src/polisyos/scientist/compute/runner.py",
+          "worktree_git_blob_sha1": "7cab08cd0fb256c14e315375ed998c9f3c4fe578",
+          "worktree_sha256": "c05c01cad9efa483ebf15e4c00912ec75a71abc53c0e5f77ad1095953529fe84"
+        },
+        {
+          "base_head_git_blob_sha1": "9b50dbca8d62e4c725b681d10d03ac2adf5085f0",
+          "changed_from_slice_base": true,
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/execution_work.py",
+          "role": "Typed MethodDispatchBinding; v1.2 records exact scalar/empty input-slot shape while keeping v1.1 vector compatibility.",
+          "size_bytes": 9078,
+          "status_porcelain_v2": "1 .M N... 100644 100644 100644 9b50dbca8d62e4c725b681d10d03ac2adf5085f0 9b50dbca8d62e4c725b681d10d03ac2adf5085f0 policy-engine/src/polisyos/scientist/methods/autotune/execution_work.py",
+          "worktree_git_blob_sha1": "6994de9b89a0df6b002c13fd3de4a79c98302b03",
+          "worktree_sha256": "96832083c087c9300865eab0fef69b2836c6fb6acd296231c05b27a039647e40"
+        },
+        {
+          "base_head_git_blob_sha1": "77903969ece34a5732ed1ed3c9849469127f1e6d",
+          "changed_from_slice_base": true,
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "role": "Typed MethodJob suite/evaluation persistence and selected producer-profile references; historical profileless readers remain limited.",
+          "size_bytes": 44657,
+          "status_porcelain_v2": "1 .M N... 100644 100644 100644 77903969ece34a5732ed1ed3c9849469127f1e6d 77903969ece34a5732ed1ed3c9849469127f1e6d policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+          "worktree_git_blob_sha1": "e3c637dbfa3dbfa1ea1664bc1847797782b9a6ba",
+          "worktree_sha256": "e4bd8b9be39040535570e7066e94934b0772430519cbbbacc1b503aa7ce545a5"
+        },
+        {
+          "base_head_git_blob_sha1": "0e9e5a021e02a8f56d5d356ea1f3e11d479b157d",
+          "changed_from_slice_base": true,
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+          "role": "Recomputes the MethodJob request/source/result/evaluation basis and applies the protected execution-provenance refusal.",
+          "size_bytes": 41940,
+          "status_porcelain_v2": "1 .M N... 100644 100644 100644 0e9e5a021e02a8f56d5d356ea1f3e11d479b157d 0e9e5a021e02a8f56d5d356ea1f3e11d479b157d policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+          "worktree_git_blob_sha1": "8570ce43d645b619157c4ede345a430ea64b6f7e",
+          "worktree_sha256": "2adee55dfd3db65f4e3e4d3343bda31556dbb2e02edaad9bf6b7604d7fe6ff53"
+        },
+        {
+          "base_head_git_blob_sha1": "3824eaf6fa1cc401882fbcc4b1a4ff3a53cfc8e3",
+          "changed_from_slice_base": true,
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "role": "Resolves method version at producer dispatch, records real dispatch facts, retains metrics as candidate evidence, and derives feedback from PromotionDecision.",
+          "size_bytes": 134174,
+          "status_porcelain_v2": "1 .M N... 100644 100644 100644 3824eaf6fa1cc401882fbcc4b1a4ff3a53cfc8e3 3824eaf6fa1cc401882fbcc4b1a4ff3a53cfc8e3 policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "worktree_git_blob_sha1": "d2a941bf14725ab8f0ffef531ef2616dacb685e4",
+          "worktree_sha256": "f05b5490444e04f1bfe863327fa4a0d6f93e8dffbd186092a1c9d2692718da10"
+        },
+        {
+          "base_head_git_blob_sha1": "72c6d76fcb10b5764b4f8a4ca149549b9bd357ae",
+          "changed_from_slice_base": true,
+          "path": "policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py",
+          "role": "Ensures capture_dispatch_binding is an explicit runner option and is not smuggled into scientific method parameters.",
+          "size_bytes": 19849,
+          "status_porcelain_v2": "1 .M N... 100644 100644 100644 72c6d76fcb10b5764b4f8a4ca149549b9bd357ae 72c6d76fcb10b5764b4f8a4ca149549b9bd357ae policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py",
+          "worktree_git_blob_sha1": "37f0970db96567614c7b935ad313e671b4c3acf1",
+          "worktree_sha256": "f2a53d8dc468f7843d44176252c089cfbb5ff709ad8f7cb477ef58c033f78594"
+        },
+        {
+          "base_head_git_blob_sha1": "d7f3fece03ec0092a3c3b95751151821d4a12008",
+          "changed_from_slice_base": true,
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+          "role": "Tests scalar shape/value capture and SearchLoop candidate-versus-admission semantics under missing, unreadable, or mismatched execution evidence.",
+          "size_bytes": 56365,
+          "status_porcelain_v2": "1 .M N... 100644 100644 100644 d7f3fece03ec0092a3c3b95751151821d4a12008 d7f3fece03ec0092a3c3b95751151821d4a12008 policy-engine/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+          "worktree_git_blob_sha1": "16671499b41c78488b4a3772a9377b7d54ec1d47",
+          "worktree_sha256": "ddbc2b67cf0e910dd06abcaa2af35d61ad04336c4b7a3ca23714ac555521b57b"
+        },
+        {
+          "base_head_git_blob_sha1": "0798acf5fdc0fe7fcf72eca4ab81f3962e502be4",
+          "changed_from_slice_base": true,
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+          "role": "Tests candidate metric retention with protected promotion held, same-byte foreign-source refusal, and genuine zero-input-slot binding.",
+          "size_bytes": 75444,
+          "status_porcelain_v2": "1 .M N... 100644 100644 100644 0798acf5fdc0fe7fcf72eca4ab81f3962e502be4 0798acf5fdc0fe7fcf72eca4ab81f3962e502be4 policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+          "worktree_git_blob_sha1": "75e6448fc246d5f0632ab806c33fa366d9f038a5",
+          "worktree_sha256": "84eae3cd46349f9fc1b9ab540faba53e861d1719a347bf8ca7d38a89d67fc19c"
+        },
+        {
+          "base_head_git_blob_sha1": "2d5a29672839e23eb5e8f29eb9e9f29b336458fe",
+          "changed_from_slice_base": true,
+          "path": "policy-engine/tests/integration/scientist/methods/autotune/test_methodjob_execution_work_packet_promotion_admission.py",
+          "role": "Runs an actual controlled SearchLoop MethodJob producer into persisted artifacts and a fresh CAS consumer; asserts candidate metric, typed refusal, and no champion.",
+          "size_bytes": 41709,
+          "status_porcelain_v2": "1 .M N... 100644 100644 100644 2d5a29672839e23eb5e8f29eb9e9f29b336458fe 2d5a29672839e23eb5e8f29eb9e9f29b336458fe policy-engine/tests/integration/scientist/methods/autotune/test_methodjob_execution_work_packet_promotion_admission.py",
+          "worktree_git_blob_sha1": "bb5796fe41ea1ff6543aaa3c1bc3c77bc8c7cf3e",
+          "worktree_sha256": "472df96c75ea05ec58f2bedd726419b1d8d8dc101d2ccafcfc6a5202bef94d94"
+        }
+      ],
+      "source_paths": 5,
+      "test_paths": 4,
+      "total_changed_paths": 9
+    },
+    "criterion": "B116#1 — actual MethodJob execution provenance for protected ChampionRegistry promotion.",
+    "receipt_commit_sha": null,
+    "slice_base_head": "3fe686ae2e0768aaf502da704821eae89a35e667",
+    "slice_base_parents": [
+      "9ba4d7bc5512d08c08101244ada5a6644b396963"
+    ],
+    "slice_base_tree": "0626a3d8723b7d3d8e5d458cdbf6e254930d6299",
+    "source_commit_and_receipt_are_separate": true,
+    "source_freeze": {
+      "freeze_id": "sha256:79a589ebce55f322c09bf14ea15395fa8d9cfde52bd52d6d241f8b3f09114a00",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/benchmark4-methodjob-execution-provenance-final-source-freeze-20261015.json",
+      "sha256": "dc587aaaf75a7406b0591d50ffa95be294aeb8fb1e09b01f0ee22def83006311"
+    },
+    "whole_tree_status": "Shared worktree remains dirty across other lanes; this is not an E02 global freeze and no global clean-tree claim is made."
+  },
+  "test_property_accounting": {
+    "denominator_check": "AST set reconciliation of the exact four changed test files against slice_base_head: one net test function name removed/renamed and four new functions added; the same-name DataSnapshot profile/schema test is retained. No 73-case arithmetic is used to infer preservation.",
+    "net_removed_test_names": [
+      {
+        "old_name": "test_search_loop_suppresses_unreconciled_source_bound_score",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+        "reason": "Same five failure modes remain exercised: missing packet, unreadable packet, metric mismatch, capture omitted, and capture disabled. The old test withheld every score when packet capture was absent/unreadable; the current test retains a valid finite method result as measured_candidate, keeps promotable=false and REJECT, and still withholds a score when the measured metric is mismatched. This reflects candidate-versus-protected status, not weakened authority.",
+        "replacement": "test_search_loop_uses_execution_evidence_not_diagnostic_packet_as_admission"
+      }
+    ],
+    "second_property_audit": {
+      "name": "test_search_profile_readers_require_selected_data_snapshot_owner_schema",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+      "status": "preserved in current file; AST name-set comparison shows no net deletion. Its original selected DataSnapshot/schema/profile checks and valid-versus-foreign request assertions remain."
+    }
+  },
+  "verification_outputs": {
+    "current_supplemental_strict_mypy": {
+      "metadata_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/mypy-five-source-r12.metadata.json",
+      "metadata_sha256": "99cf6afd3edf2a06bd286170597b7fff4764b7663d02104dd17f1802b9828c7e",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/mypy-five-source-r12.stdout.txt",
+      "stdout_sha256": "4ce28be86225e5677d9de0b3dfde2f5e3350a8af1669b4a9f505be62181dbab2"
+    },
+    "diff_check_all_nine": {
+      "metadata_sha256": "17e69cc39d92e575272a8008bb74c5c2e54c719d82ec6585c35cbe4554d5bda7",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/diff-check-r12.stdout.txt",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "earlier_full_file_mypy_64_diagnostic_receipt": {
+      "disposition": "Historical 64-error run on earlier source snapshot; current five-source replay above is 60 and is not classified inherited.",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-source-admission-20261015/strict-mypy-final-r3.stdout.txt",
+      "stdout_sha256": "e14af4ccdbb429e3b7d29cef636267b80f52f645e86697bc482041854678d4ad"
+    },
+    "models_targeted_mypy": {
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/models-mypy-r11.stdout.txt",
+      "stdout_sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    },
+    "ruff_all_nine": {
+      "check_metadata_sha256": "0fae7bcb20e6a033c5d958cc9f4cd1ed8e5547b76f31b0791e1481272673dee4",
+      "check_stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/ruff-all-nine-check-r12.stdout.txt",
+      "check_stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "format_metadata_sha256": "98436ab4a52111e38ab6b4c228697c8ea9ec86a01c8ee280d0b284e63ca69374",
+      "format_stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/ruff-all-nine-format-r12.stdout.txt",
+      "format_stdout_sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8"
+    },
+    "shared_c05_mypy": {
+      "input_hashes_after_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/c05-strict-inputs-after.txt",
+      "input_hashes_after_sha256": "6a86b588a91af1ebcaf0494e21f551971af4d88a40ec8765c66ae252c7bc1268",
+      "input_hashes_before_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/c05-strict-inputs-before.txt",
+      "input_hashes_before_sha256": "6a86b588a91af1ebcaf0494e21f551971af4d88a40ec8765c66ae252c7bc1268",
+      "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-methodjob-provenance-guard-20261015/c05-strict-after-models.stdout.txt",
+      "stdout_sha256": "f7229a34244ba053f2fe0633b3d76009a84442f2168dbb1580a7993c96d2fcd6"
+    }
+  }
+}

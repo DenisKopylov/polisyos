@@ -1,0 +1,73 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Runtime guarded protocol admission over complete source member set",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": {
+      "commit": "496131f67563da3e630047566e8ee5f11dc92967",
+      "tree": "8dc0b4adc70b953a400044b97bf553de349f263f",
+      "parents": [
+        "d70c48551e10267a39833543766e13e15060898d"
+      ]
+    },
+    "candidate": {
+      "commit": "929117bbf3ad7717ea44d0327bc1e4c361498dc0",
+      "tree": "cbbf2ca3439bdf444aaec49a271ce36193489b5d",
+      "parents": [
+        "496131f67563da3e630047566e8ee5f11dc92967"
+      ]
+    },
+    "readback_verified": true,
+    "source_freeze": false,
+    "p41": "not_established"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "sha256": "f70de7350c66639403fffc7bb28998184f00f0b6fc95a3e6e16a86ee4f6c969e"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+      "sha256": "468a29576350003c288934ade204c89d691ac793bd6213012ede55ea19933965"
+    }
+  ],
+  "selected_input_profile_backend": "Own source-bound .venv Python3.14; controlled filesystem CAS fixtures and explicit selected profiles; no production-currentness claim.",
+  "real_chain_and_deciding_outputs": [
+    "Actual Protocol member source -> same guarded handle -> selected-profile resolver -> Core JSON consumer; bool API companion preserves existing TypeGuard signature.",
+    "Independent spoof/concrete-class/deferred inherited data/callability/PermissionError probes pass; root applied exact reviewed patch and reran22 tests and canonical Ruff/format successfully."
+  ],
+  "source_bound_command_and_full_output_manifests": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-protocol-definition-r3-20261016/runtime-protocol-definition-helper.json",
+      "sha256": "1f893ec011a37ab2d7a785ab3c1bec7de5db1b15f68965560eb2f8bfcffa39b9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-protocol-definition-independent-r3-20261016/review.json",
+      "sha256": "7cd8de72f03ab9cba00fb3c7f198ce3ba742ca118260d85828132914bfc97e22"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-protocol-r3-application-20261016/application-verification.json",
+      "sha256": "5337967b046721495489abfef22837b043231e13ec33c93ce8aed64ace0457a9"
+    }
+  ],
+  "commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/core-protocol-complete-member-source-20261016-readback.json",
+    "sha256": "0a566afefd221e095678aaee285007d7d28f186b6068001586a751c9a10ab9b2"
+  },
+  "adversarial_removal_controls": "Full deciding outputs and exact commands retained in the pinned author/reviewer/application manifests; no declaration-only green.",
+  "limitations": [
+    "Structural presence/callability is not semantic verification of operation outputs; consumers must execute and validate guarded operations.",
+    "Python3.12 fallback was simulated on3.14. Independent report binds original manifest0ce0511c, exact unchanged patch2e393c and postimages; current manifest1f893ec has later smoke metadata/output and is not byte-identical to that review.",
+    "No full C05, production-currentness or G closure claim."
+  ],
+  "proposals": [
+    {
+      "finding_or_boundary": "C05 guarded Core JSON protocol composition",
+      "outcome": "limited_or_held",
+      "formal": false
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "Resolve exact remaining typed/semantic/input choices, freeze full source/input/backend composition, independent delta review, then one required composed native/installed replay."
+}

@@ -1325,5 +1325,53 @@
       "shared_serial": "Same governed file/schema/generator/lock/venv/DB/port; ordinary Git commit boundary short trackedwrite barrier."
     },
     "formal_closure_ids": []
+  },
+  "coordination_epoch_20261016_composed_repairs": {
+    "as_of_candidate_commit": "e4488f8f43e69372b8ff1b0200dba56cfc176768",
+    "root_serial_core": [
+      "src/polisyos/core/artifacts/protocol.py",
+      "tests/unit/core/artifacts/test_artifact_store_protocol.py"
+    ],
+    "root_serial_c05_next_pure_read_owner_batch": [
+      "src/polisyos/scientist/methods/search/promotion_evidence.py",
+      "src/polisyos/scientist/methods/autotune/runtime.py",
+      "src/polisyos/scientist/methods/autotune/registry.py",
+      "src/polisyos/scientist/methods/search/claim_adjudication_verifier.py",
+      "src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py"
+    ],
+    "r3_profile_admission_companions": [
+      "src/polisyos/runtime/quality/acquisition_executor.py",
+      "tests/_helpers/acquisition_production.py",
+      "tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py",
+      "tests/unit/fabric/connectors/test_integration.py"
+    ],
+    "s1_b16": [
+      "src/polisyos/runtime/quality/generation_cycle.py",
+      "tests/unit/runtime/quality/test_value_gate.py"
+    ],
+    "v3_b148_test_only": [
+      "tests/unit/core/artifacts/test_import_admission_noop.py"
+    ],
+    "q2_owner_and_mandatory_companions": [
+      "src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+      "tools/quality/validation/packaged_resource_contract.py",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py"
+    ],
+    "can_full_batch": "Current28-path freeze plus exact independent eeb3 consumer census mandatory intake/emission companions; author sends new exact paths before writes; same source-relation class, no fabricated relation/law positive.",
+    "domain_pack": "job_scope_admission.py and owning integration test: RAW prototype first; missing owner encoding ABI/new authority semantics must have tracked G decision, exact quality companions proposed before writes.",
+    "compute": {
+      "mac_heavy_slots": 3,
+      "numerical_threads_per_process": 1,
+      "linux_heavy_slots": 1,
+      "disk_available_GiB": 49
+    },
+    "p40": "One structural intake/emission mechanism for full demonstrated class; no per-case repair ladder.",
+    "p41": "not_established unless exact slice-base and full denominator/disjointness proof.",
+    "formal_closure_ids": []
   }
 }

@@ -1,0 +1,187 @@
+{
+  "authority_boundary": "G alone adjudicates the public contract and release-plane choice. This engineering packet is evidence and a recommendation, not admission, ratification, or formal closure.",
+  "behavioral_prototype": {
+    "command_receipt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/tool-output-abi-prototype-20261015/registered-tool-output-boundary-prototype.command.json",
+      "sha256": "02d449d35365483b69a4fa6c00acfb3448ef8378137465e31b7dbd215c1c91ef"
+    },
+    "limitation": "The prototype guard is a local subclass, not an implementation in ToolRegistry. Its error detail includes validation input for visible falsification; production errors must not echo raw tool output or sensitive values. No database/network/production path was used.",
+    "result": "PASS as a controlled local prototype, not as product verification. It uses the real KnowledgeToolkit unavailable producer, the real adapter, ToolRegistry, Pydantic LegalFactSearchResponse and run_tool_loop. The valid current producer result validates. An adversarial text envelope lacking vector_refusal_code becomes invalid_tool_output before role=tool emission in the guarded variant. The remove-the-check variant leaves the output schema marker present but emits that malformed object as a successful role=tool result; the removal control detects the escape.",
+    "script": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/tool-output-abi-prototype-20261015/registered-tool-output-boundary-prototype.py",
+      "sha256": "9d2813d8e89765425c43046be67b9756f8b4ea798297b28cf03a64867b570b5d"
+    },
+    "stdout": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/tool-output-abi-prototype-20261015/registered-tool-output-boundary-prototype.stdout.txt",
+      "sha256": "512ad965ee2d3a8861d341266fb5650ed9d6157f28805135b081e3d14b5d16a3"
+    }
+  },
+  "capability_state_now": {
+    "artifact_or_event": "ToolCallResult carries result: Any; no typed result contract is bound.",
+    "bridge": "Present through registry and ToolLoop.",
+    "consumer": "Present: role=tool model consumer, worker supervisor, eval, and research DAG projection.",
+    "producer": "Present for legal currentness/status; the adapter selects it for the registered key.",
+    "semantic_test": "The prototype exercises a remove-the-check consumer leak; product-level central output-validation test is missing.",
+    "surface": "Registered tool JSON output is consumer-visible; direct Python KnowledgeToolkit list API is separate.",
+    "typed_contract": "The legal producer has a strict typed status model, but generic ToolDefinition declares input parameters only.",
+    "verification": "Missing at generic output boundary. Existing worker and legal-model tests are narrower."
+  },
+  "closure_ids": [],
+  "complete_static_scope_census": {
+    "denominator_files": 2771,
+    "direct_registry_register_call_sites": 13,
+    "direct_tooldefinition_constructor_sites": 7,
+    "method": "Read-only Python AST traversal over every .py file beneath src/polisyos; exact filename denominator is in the source frame; dynamic runtime registrations are identified as such and are not inferred from static names.",
+    "producer_families": [
+      "Knowledge adapter: 23 allowlisted public methods selected dynamically from the complete `_INCLUDE_METHODS` set, with status-aware substitutions for search_datasets and search_legal_facts; optional Scholar adapter adds 3 tools.",
+      "Scholar-search registry: 3 directly constructed tool definitions.",
+      "Worker registry: arbitrary caller-supplied handlers go through register_worker_tool and WorkerTaskResult enforcement; its runtime cardinality is caller-supplied.",
+      "G6 bounded-request registry: 5 tool registrations; the sixth direct register call is its local unbounded_web_search conformance negative, not a production tool.",
+      "Evaluation harness: 1 local regression tool.",
+      "HTTP control provider wires the knowledge registry into the runtime agent path."
+    ],
+    "qualification": "This is a complete source-file AST denominator for the direct builder/constructor spellings and identified consumer paths, not a complete dynamic runtime registry count or claim that every tool already has an output contract.",
+    "result_consumers": [
+      "ToolRegistry.execute and ToolRegistry.aexecute return ToolCallResult.result to direct callers.",
+      "agent/tools/tool_loop.py sends successful JSON results as role=tool content and errors as a structured error payload.",
+      "agent/supervisor.py calls the worker registry then validates successful payloads as WorkerTaskResult.",
+      "agent/eval_harness.py reads result keys for its regression case.",
+      "agent/reflexion_evaluator.py serializes ToolCallResult into evaluation inputs.",
+      "scientist/methods/research_dag/projections.py projects tool output as untrusted/redacted text in the audit DAG.",
+      "runtime/quality/capability_discovery.py persists ToolDefinition metadata (not handler results)."
+    ],
+    "toolregistry_constructor_sites": 5,
+    "worker_registration_helper_call_sites": 1
+  },
+  "created_date_local": "2026-10-16",
+  "decision_status": "G_CHOICE_REQUIRED",
+  "packet_id": "registered-tool-output-contract-and-release-plane-20261015",
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P05",
+      "P12",
+      "P29",
+      "P31",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "p40_bucket": "A distinct consumer-visible ABI plane, with a same-class deeper validation gap across sync/async and builder families. Widen the common boundary to all result-contract-bearing registrations; do not patch only search_legal_facts.",
+    "p41": "No inherited pass is claimed; the source-bound prototype is not native product verification.",
+    "property": "Every registered tool result that crosses the output boundary satisfies its versioned result contract, or is returned as a typed refusal before the downstream consumer receives a success payload.",
+    "proxy_gap": "Input parameter schema validation, the `schema_ready` flag, and a WorkerTaskResult-only validator do not prove arbitrary registered output validity."
+  },
+  "question_for_G": "Should registered tool JSON results receive their own versioned compatibility plane and generic output-validation contract, and should the existing search_legal_facts result-envelope change be treated as a breaking tool-output change?",
+  "recommendation": {
+    "authority_limit": "The result remains untrusted tool output/candidate evidence; schema validity does not create authority or establish grounding/currentness.",
+    "decision": "Yes. Add a distinct registered-tool JSON output ABI classification; classify the current search_legal_facts top-level list→status-envelope change as breaking for registered-tool consumers. Keep direct Python KnowledgeToolkit.search_legal_facts list compatibility distinct.",
+    "implementation_shape": "Extend the existing ToolDefinition schema contract with an explicit result contract, validate the rendered result once in the shared ToolRegistry output boundary for both execute and aexecute, and make readiness report output-contract status separately from input-schema readiness. Preserve worker-specific contract validation while consolidating reusable structural schema checks."
+  },
+  "remaining_property_work_after_choice": [
+    "Resolve G choice on class and source-of-truth ownership before modifying release gate policy or schema taxonomy.",
+    "Pin actual legal-search result envelope contract, status conditional rules, result item schema, and final post-render shape; preserve direct Python list call behavior.",
+    "Implement one central validator used by sync and async execution and prove invalid outputs cannot return as successful ToolCallResult or role=tool content; apply error-safe details that do not echo raw outputs.",
+    "Test positive text/vector/unavailable states, invalid missing/conflicting status, wrong outer shape, forbidden extra fields, over-limit rendering/truncation, and remove-the-property-keep-the-contract-marker control through the actual producer→adapter→registry→tool-loop chain.",
+    "Update capability readiness and persisted registry snapshot compatibility explicitly. Keep worker validation behavior and its existing negative tests; do not claim the worker path closes all generic tools.",
+    "Complete a quantity-wide review of the 23 dynamic knowledge tools, 3 scholar tools, dynamic worker handlers, 5 G6 tools, and the eval harness before any whole-registry completeness claim."
+  ],
+  "reuse_extend_consolidate_build": {
+    "build_new": "Only if G chooses a separate versioned tool-result contract registry because ToolDefinition snapshots cannot safely serve as the source of truth. Do not build this registry before the authority/ownership choice.",
+    "consolidate": "Factor/reuse the JSON-schema subset currently duplicated in registry input validation and worker expected_output_schema checks, but define a bounded supported grammar and fail closed on unsupported output schema keywords. Preserve worker semantic policy checks.",
+    "extend": "Add an explicit output contract to ToolDefinition; centralize one output validation step after _render_tool_result in both sync and async registry execution; add typed invalid_tool_output refusal and output readiness. Validate final emitted shape, not handler return before render.",
+    "reuse": "Keep the existing ToolDefinition/ToolRegistry architecture, ToolCallResult error path, strict LegalFactSearchResponse, and actual worker response validation. Keep existing provider-facing input parameters unchanged."
+  },
+  "scope": "Adjudicate the actual registered Scientist tool-result JSON ABI separately from Python symbol/import ABI and HTTP/OpenAPI ABI; define the minimum runtime and release-gate mechanism needed for honest validation.",
+  "source_bound_findings": {
+    "agent_consumer": {
+      "finding": "The main async consumer calls registry.aexecute. On success it JSON-serializes result.result into a role=tool message; on error it sends _tool_error_payload. This is the critical output boundary to the model.",
+      "path": "src/polisyos/scientist/agent/tools/tool_loop.py",
+      "sha256": "a57849b99366ba71fd8260932bb13482908494767a98bba81325df4e587ad199"
+    },
+    "generic_contract_readiness": {
+      "finding": "schema_ready currently evaluates input parameters only; there is no output readiness dimension.",
+      "path": "src/polisyos/scientist/agent/tool_contracts.py",
+      "sha256": "525c1e098db4128bad5c0bf6ea82fa600f0030daa07a5da3887ff28d00a07715"
+    },
+    "legal_test": {
+      "finding": "Existing tests prove registered status-envelope behavior while direct search_legal_facts remains list-returning, and negative status-model tests reject missing text refusal/mixed unavailable status.",
+      "path": "tests/unit/scientist/agent/tools/test_knowledge_tools_adapter.py",
+      "sha256": "3226ee5bcae876770012f96ce5287ce2665157295b487f96a7a0be6c9c839dfa"
+    },
+    "legal_tool_adapter": {
+      "finding": "The adapter keeps the registered key search_legal_facts but selects search_legal_facts_with_status when available. This is a registered result shape change, not a direct method shape change.",
+      "path": "src/polisyos/scientist/agent/tools/knowledge_tools_adapter.py",
+      "sha256": "4e60cb47c079eb813a055370a3432d2c4fd48ad53110b9f002ebefc890b4fb24"
+    },
+    "legal_typed_producer": {
+      "finding": "search_legal_facts keeps the direct Python list result. search_legal_facts_with_status returns LegalFactSearchResponse; text mode requires a vector_refusal_code, vector mode forbids refusal/limitation fields, and no search_mode requires a limitation_code.",
+      "path": "src/polisyos/scientist/agent/knowledge_tools.py",
+      "sha256": "534b010e44b15aea96931291ea46a123c93785112653f321d32859388c385d23"
+    },
+    "persisted_tool_definition_projection": {
+      "finding": "The capability discovery snapshot serializes each ToolDefinition.model_dump(mode=json) into definition under scientist.tool_registry.v1; adding result contract metadata changes snapshot content/digests and needs explicit old-snapshot compatibility review.",
+      "path": "src/polisyos/runtime/quality/capability_discovery.py",
+      "sha256": "6c2234d2eb66094d0adae60a9a0d29175dea7e0e84c5d75c9091360622dcb79a"
+    },
+    "public_python_facade": {
+      "finding": "ToolDefinition and ToolRegistry are public lazy package exports. A new result_schema/result_contract field on ToolDefinition is a separate additive Python API change and must not be hidden inside the new result ABI class.",
+      "path": "src/polisyos/scientist/__init__.py",
+      "sha256": "788c90a28976c00bff196fa7cdd94f545f2135498ffa022a6bdf7a7739404a29"
+    },
+    "registry_execution": {
+      "finding": "ToolCallResult.result is Any. execute/aexecute validate arguments, call a handler, serialize/compact/truncate via _render_tool_result, then return success without validating that rendered result. A result contract must run after rendering and before breaker record_success; output failure should record failure and return no successful result.",
+      "path": "src/polisyos/scientist/agent/tools/registry.py",
+      "sha256": "8dda48f0b3f6700e76f07ff9d62a4703c47e439ee60518755a15e9fa4b913b6b"
+    },
+    "release_change_being_classified": {
+      "finding": "scientist-legal-tool-status-envelope currently labels the registered result plane python-public-api/breaking, despite saying direct Python KnowledgeToolkit.search_legal_facts callers remain list-returning. It lacks the public import inventory review flag because this is not itself an import-surface change.",
+      "path": "release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml",
+      "sha256": "eb7b59baae42ad0d87c58d64acc282cdb16e7c23210bd926e3e3d3740dfe943a"
+    },
+    "tool_definition": {
+      "finding": "Strict ToolDefinition exposes input `parameters`, response verbosity/cap, and no result schema. `to_openai_tool()` sends only input parameters. ToolDefinition is also lazily exported from the public polisyos.scientist facade.",
+      "path": "src/polisyos/scientist/agent/tools/schema.py",
+      "sha256": "3817f50b70806ccab327d07a8e7993533deacd6ffe5bdae5e1bf63849a9ca568"
+    },
+    "worker_specific_existing_validator": {
+      "finding": "WorkerTaskResult is model-validated by the supervisor and worker expected_output_schema is checked by a narrow worker-only validator; this does not validate arbitrary ToolRegistry results.",
+      "path": "src/polisyos/scientist/agent/workers.py",
+      "sha256": "86641f1eb55995d8639dbd1fc4b9accbe3a30902935b045d35343b61a4a4937b"
+    }
+  },
+  "source_frame": {
+    "frame_note": "The source hashes below were read from the named worktree paths. This packet records proposals and controlled RAW prototypes only; it does not claim a source freeze or G acceptance.",
+    "git_mutation_or_git_read_performed": false,
+    "owner_supplied_head": "938c0c1a8465510b3872ef395f7324f16209c2c5",
+    "owner_supplied_tree": "23d7717671adb970a4c5cb77e48d6af4d0f3745c",
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+  },
+  "specific_g_choice_and_release_grammar": {
+    "minimum_policy_delta_if_approved": [
+      "Add registered-tool-json-output-abi to compatibility_release_gates.allowed_change_classes.",
+      "Add a compatibility_surface row for the registered Scientist tool-result contract, naming an owned versioned source-of-truth path and version_owner/deprecation-window fields.",
+      "Extend the release-gate class-specific checks and tests to require a bound old/new result-contract reference for a changed tool result, accurate impact and migration guidance for breaking output, and fail-closed handling when the result contract is absent/unresolved. The current gate validates only the class enum and generic required fields; taxonomy row alone would not prove schema compatibility.",
+      "Keep generated_client_compatibility not_applicable for this agent-message plane. Do not make it schema-openapi-abi merely because the contract uses JSON Schema."
+    ],
+    "recommended_new_change_class": "registered-tool-json-output-abi",
+    "release_fragment": "For scientist-legal-tool-status-envelope, classify the registered-tool list→object/status change as breaking in the new tool-result plane. If the added `search_legal_facts_with_status` Python method or ToolDefinition result-contract field is admitted as public, carry its own python-public-api row separately. Preserve the current direct search_legal_facts list API statement. Do not bless the release row by setting the Python surface review flag.",
+    "runtime_contract_delta_if_approved": [
+      "Add optional result_schema/result_contract metadata to ToolDefinition, with separately reviewed additive python-public-api accounting because ToolDefinition is publicly exported.",
+      "Use a canonical general validator for serialized outputs; JSON Schema from Pydantic does not include the current LegalFactSearchResponse model-level status validator. The prototype confirms that the generated schema lacks text_legal_search_requires_vector_refusal and unavailable_legal_search_requires_limitation.",
+      "Either encode these invariants in the output schema using a supported composition grammar or use a typed result contract whose validator runs centrally. Existing `_validate_schema_value` does not support oneOf/if-then/not/$ref; jsonschema is in the test extra, not the runtime extras, so promoting that dependency is a real packaging decision.",
+      "Run validation after concise/truncate transformations. The current generic truncation path can replace an oversized object with a wrapper that no longer matches its declared output schema; declare that wrapper as part of the ABI or return invalid_tool_output instead of successful malformed content.",
+      "Do not let a missing output contract appear as full readiness. Old scientist.tool_registry.v1 definitions remain readable but are explicitly output-unverified; assess snapshot/digest compatibility because the definition is persisted via model_dump."
+    ],
+    "why_existing_classes_do_not_fit": {
+      "persisted-artifact-format": "The result is not itself a persisted artifact, although the capability-discovery snapshot serializes ToolDefinition metadata.",
+      "python-public-api": "Tracks Python import/config symbols. It is the separate classification needed if ToolDefinition gains a result contract field, but it does not classify a JSON value emitted to an agent tool-call consumer.",
+      "schema-openapi-abi": "Tracks HTTP/OpenAPI schemas and generated runtime clients; this result is not an HTTP response or an SDK-generated client method.",
+      "tooling_or_internal": "Would misclassify an actual consumer-visible role=tool JSON contract and could let a breaking envelope change evade appropriate migration review."
+    }
+  }
+}

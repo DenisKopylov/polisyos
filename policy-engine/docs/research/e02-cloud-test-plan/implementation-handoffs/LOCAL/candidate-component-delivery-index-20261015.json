@@ -2,10 +2,10 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "13f6cf4bb788069c7caf238c5f1278ece699c6d1",
-    "tree": "b63a86895b3e5abc7c5cb43e65990d100ddf90fa",
+    "head": "e4488f8f43e69372b8ff1b0200dba56cfc176768",
+    "tree": "4e84534e0d8d0b0c5fb0a1fe29f89b1e0604e27e",
     "parents": [
-      "36fc0f762053693ede956c7f84b837814542b249"
+      "929117bbf3ad7717ea44d0327bc1e4c361498dc0"
     ],
     "source_freeze": false,
     "dirty_active_source": "Disjoint author work remains outside committed component boundaries. Exact final source/input/backend composition is not yet frozen."
@@ -163,6 +163,42 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-inventory-local-review-attestation-20261015.json",
       "sha256": "0537b2da0a8c03455d3c7f529f443c76e46155465dc676f9a3bf455226e6a18c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v5-methodjob-provenance-delivery-20261016.json",
+      "sha256": "66b0bd0f05a1547273b56ddf8b2a5eaf24fe0b92769f5ab9e00239c764a2a63a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/evalsafety-profile-identity-delivery-20261016.json",
+      "sha256": "b697636d4ab5e6b8eaf822e8e2ebe5377b100c273949b1710743a697139a788b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/core-runtime-protocol-members-delivery-20261016.json",
+      "sha256": "6182fdb90314c032a10a1d1cefc1d87fdde733ace38ce912914bfea0108d497d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/fabric-core-release-facade-metadata-delivery-20261016.json",
+      "sha256": "56ca8c4d130a4d1e23299d6027135d16618a46c61ee5240d800c9dd315ace329"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/benchmark4-methodjob-execution-provenance-final-source-freeze-20261015.json",
+      "sha256": "dc587aaaf75a7406b0591d50ffa95be294aeb8fb1e09b01f0ee22def83006311"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/benchmark4-methodjob-execution-provenance-final-handoff-20261015.json",
+      "sha256": "0693e17e1ebdb0d8784aea0e51318d9a8b763a5d99c708865e5d7e26fa3f7dee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/la021-canon-profile-identity-and-history-rollout-20261015.json",
+      "sha256": "c1c14649ee0ffe16f81485eb78aa041529d9f0b31d28b1e8a13097ab067c3f07"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/runtime-http-documented-facade-contract-20261015.json",
+      "sha256": "750922bc066a205ab36d0381d6a2f214a852ae51843304f2dc673c50f54b4ec2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/registered-tool-output-contract-and-release-plane-20261015.json",
+      "sha256": "705887736b018d5c6c4370932dc44f8a50d861f91e87da6d9689978f2890a332"
     }
   ],
   "canonical_denominator_recomputed": {

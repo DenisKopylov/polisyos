@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Sequence
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
 from polisyos.core import canon, contracts
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_forge import read_api
 from polisyos.runtime.http.services.acquisition_surface_execution import (
     WorldBankWDIAcquisitionExecutionPort,
@@ -34,7 +36,10 @@ from tests._helpers.acquisition_production import (
     intercepted_wdi_transport,
 )
 from tests._helpers.controlled_candidate_profile import _CgfGenerationPort
-from tests._helpers.semantic_epoch_native import sign_native_epoch_scenario
+from tests._helpers.semantic_epoch_native import (
+    NativeEpochFixtureCustodian,
+    sign_native_epoch_scenario,
+)
 
 _SERVED_WDI_N4_RECORDING_ID = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
 
@@ -117,6 +122,22 @@ def controlled_served_wdi_generation_recording(
     )
     n4_contract._validate_recording_fixture(controlled)
     return controlled
+
+
+def _retained_native_epoch_custodian(
+    appointments: Sequence[object], *, store: FileSystemCAS
+) -> NativeEpochFixtureCustodian | None:
+    """Return the latest appointment's custodian only for this exact CAS context."""
+    store_root = store.root.resolve()
+    for appointment in reversed(appointments):
+        custodian = getattr(appointment, "custodian", None)
+        if (
+            isinstance(custodian, NativeEpochFixtureCustodian)
+            and custodian.store is store
+            and custodian.store.root.resolve() == store_root
+        ):
+            return custodian
+    return None
 
 
 def make_wdi_port_case(
@@ -277,11 +298,13 @@ def make_wdi_port_case(
         history = FileSemanticEpochHistoryRepository(
             root=args["epoch_history_root"], artifacts=store
         )
+        custodian = _retained_native_epoch_custodian(appointments, store=store)
         native = sign_native_epoch_scenario(
             SimpleNamespace(
                 store=store, prepared=prepared, query=prepared.query, history=history, service=None
             ),
             tmp_path / "institution",
+            custodian=custodian,
         )
         bridge.epoch_deployment = native.deployment
         appointments.append(native)

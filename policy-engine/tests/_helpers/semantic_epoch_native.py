@@ -9,6 +9,7 @@ import base64
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass, field
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -58,7 +59,223 @@ from polisyos.runtime.quality.semantic_epoch_store import (
 contract = contracts.chronology
 
 
-def sign_native_epoch_scenario(scenario: SimpleNamespace, tmp_path: Path) -> SimpleNamespace:
+@dataclass(frozen=True, slots=True)
+class NativeEpochFixtureSignedAdmission:
+    """Exact selected admission artifact and its retained signed-evidence record."""
+
+    artifact_ref: artifacts.ArtifactRef
+    evidence: contract.PersistedSignedArtifactEvidence
+
+
+@dataclass(frozen=True, slots=True)
+class _NativeEpochFixtureCustodyEntry:
+    """Context needed to decide whether this fixture may reuse a signature."""
+
+    store: FileSystemCAS
+    store_root: Path
+    artifact_ref: artifacts.ArtifactRef
+    evidence_record_ref: artifacts.ArtifactRef
+    signing_profile_ref: artifacts.ArtifactRef
+    signer_provenance_ref: artifacts.ArtifactRef
+    signer_key_id: str
+    issuer_identity: str
+    issuer_roles: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class NativeEpochFixtureCustodian:
+    """Hold one fixture issuer key and reuse only its fully reconciled envelopes."""
+
+    store: FileSystemCAS
+    owner_ref: artifacts.ArtifactRef
+    signer: artifacts.Ed25519Signer
+    public_key_path: Path
+    issuer_identity: str = "fixture-native-epoch-owner"
+    issuer_roles: tuple[str, ...] = ("predicate_policy_admission",)
+    _entries: list[_NativeEpochFixtureCustodyEntry] = field(default_factory=list, repr=False)
+
+    @classmethod
+    def create(cls, store: FileSystemCAS, root: Path) -> NativeEpochFixtureCustodian:
+        """Create a per-test fixture issuer bound to this exact CAS and profile."""
+        owner_ref = store.put_bytes(
+            b"fixture independent institution for the exact native epoch scope",
+            artifacts.ArtifactWriteOptions(
+                kind="fixture.epoch.policy_owner",
+                media_type="application/octet-stream",
+            ),
+        )
+        private_key = Ed25519PrivateKey.generate()
+        signer = artifacts.Ed25519Signer(private_key)
+        root.mkdir(parents=True, exist_ok=True)
+        key_path_id = hashlib.sha256(signer.key_id.encode("utf-8")).hexdigest()
+        public_key_path = root / f"native-epoch-owner-{key_path_id}.pub"
+        public_key_bytes = private_key.public_key().public_bytes(
+            Encoding.PEM,
+            PublicFormat.SubjectPublicKeyInfo,
+        )
+        with public_key_path.open("xb") as public_key_file:
+            public_key_file.write(public_key_bytes)
+        return cls(
+            store=store,
+            owner_ref=owner_ref,
+            signer=signer,
+            public_key_path=public_key_path,
+        )
+
+    def persist_or_reuse(
+        self,
+        *,
+        blob_bytes: bytes,
+        signing_profile_ref: artifacts.ArtifactRef,
+        signer_provenance_ref: artifacts.ArtifactRef,
+    ) -> NativeEpochFixtureSignedAdmission:
+        """Persist one admission or return its exact previously verified envelope."""
+        write_options = artifacts.ArtifactWriteOptions(
+            kind="fixture.epoch.signed_native_admission",
+            media_type="application/octet-stream",
+        )
+        artifact_ref = self.store.put_bytes(blob_bytes, write_options)
+        matching_entries = [
+            entry
+            for entry in self._entries
+            if entry.artifact_ref.artifact_id == artifact_ref.artifact_id
+        ]
+        if matching_entries:
+            if len(matching_entries) != 1:
+                raise ValueError("native epoch fixture has ambiguous retained signatures")
+            entry = matching_entries[0]
+            if not self._context_matches(
+                entry,
+                artifact_ref=artifact_ref,
+                signing_profile_ref=signing_profile_ref,
+                signer_provenance_ref=signer_provenance_ref,
+            ):
+                raise ValueError("native epoch fixture signing context conflicts with envelope")
+            return self._read_and_verify(
+                entry,
+                blob_bytes=blob_bytes,
+                artifact_ref=artifact_ref,
+                signing_profile_ref=signing_profile_ref,
+                signer_provenance_ref=signer_provenance_ref,
+            )
+
+        if self.store.has_signature(artifact_ref):
+            raise ValueError(
+                "existing signature is not owned by this native epoch fixture custodian"
+            )
+
+        persisted = FileSystemSignedArtifactEvidenceRepository(self.store).persist_signed(
+            blob_bytes=blob_bytes,
+            write_options=write_options,
+            signer=self.signer,
+            signing_profile_ref=signing_profile_ref,
+            signer_provenance_ref=signer_provenance_ref,
+        )
+        entry = _NativeEpochFixtureCustodyEntry(
+            store=self.store,
+            store_root=self.store.root.resolve(),
+            artifact_ref=artifact_ref,
+            evidence_record_ref=persisted.evidence_record_ref,
+            signing_profile_ref=signing_profile_ref,
+            signer_provenance_ref=signer_provenance_ref,
+            signer_key_id=self.signer.key_id,
+            issuer_identity=self.issuer_identity,
+            issuer_roles=self.issuer_roles,
+        )
+        self._entries.append(entry)
+        return self._read_and_verify(
+            entry,
+            blob_bytes=blob_bytes,
+            artifact_ref=artifact_ref,
+            signing_profile_ref=signing_profile_ref,
+            signer_provenance_ref=signer_provenance_ref,
+        )
+
+    def _context_matches(
+        self,
+        entry: _NativeEpochFixtureCustodyEntry,
+        *,
+        artifact_ref: artifacts.ArtifactRef,
+        signing_profile_ref: artifacts.ArtifactRef,
+        signer_provenance_ref: artifacts.ArtifactRef,
+    ) -> bool:
+        return (
+            entry.store is self.store
+            and entry.store_root == self.store.root.resolve()
+            and entry.artifact_ref == artifact_ref
+            and entry.signing_profile_ref == signing_profile_ref
+            and entry.signer_provenance_ref == signer_provenance_ref
+            and entry.signer_key_id == self.signer.key_id
+            and entry.issuer_identity == self.issuer_identity
+            and entry.issuer_roles == self.issuer_roles
+        )
+
+    def _read_and_verify(
+        self,
+        entry: _NativeEpochFixtureCustodyEntry,
+        *,
+        blob_bytes: bytes,
+        artifact_ref: artifacts.ArtifactRef,
+        signing_profile_ref: artifacts.ArtifactRef,
+        signer_provenance_ref: artifacts.ArtifactRef,
+    ) -> NativeEpochFixtureSignedAdmission:
+        evidence = FileSystemSignedArtifactEvidenceRepository(self.store).read_exact(
+            evidence_record_ref=entry.evidence_record_ref
+        )
+        frames = contract._split_framed_records(evidence.persisted.record_bytes)
+        if len(frames) != 1:
+            raise ValueError("native epoch fixture evidence record has invalid framing")
+        raw_record = json.loads(frames[0])
+        if not isinstance(raw_record, dict):
+            raise ValueError("native epoch fixture evidence record is not a mapping")
+        record = contract.SignedArtifactEvidenceRecord.model_validate(raw_record)
+        if evidence.blob_bytes != blob_bytes or record.artifact_ref != artifact_ref:
+            raise ValueError("native epoch fixture envelope does not bind exact admission bytes")
+        if (
+            record.signing_profile_ref != signing_profile_ref
+            or record.signer_provenance_ref != signer_provenance_ref
+        ):
+            raise ValueError("native epoch fixture envelope profile or provenance mismatch")
+        if (
+            entry.store is not self.store
+            or entry.store_root != self.store.root.resolve()
+            or entry.signer_key_id != self.signer.key_id
+            or entry.issuer_identity != self.issuer_identity
+            or entry.issuer_roles != self.issuer_roles
+        ):
+            raise ValueError("native epoch fixture envelope custody context changed")
+
+        signature = artifacts.DetachedSignature.model_validate_json(
+            evidence.detached_signature_bytes
+        )
+        if signature.key_id != self.signer.key_id:
+            raise ValueError("native epoch fixture signature key differs from custodian")
+        verifier = artifacts.Ed25519Verifier(strict_identity=True)
+        trusted_key_id = verifier.load_trusted_key_file(
+            self.public_key_path,
+            identity=self.issuer_identity,
+        )
+        if trusted_key_id != self.signer.key_id:
+            raise ValueError("native epoch fixture issuer key binding changed")
+        verification = self.store.verify_signature(
+            artifact_ref,
+            verifier,
+            strict_identity=True,
+        )
+        if verification.status is not artifacts.SignatureVerificationStatus.VALID:
+            raise ValueError("native epoch fixture signature did not verify for its issuer")
+        return NativeEpochFixtureSignedAdmission(
+            artifact_ref=artifact_ref,
+            evidence=evidence.persisted,
+        )
+
+
+def sign_native_epoch_scenario(
+    scenario: SimpleNamespace,
+    tmp_path: Path,
+    *,
+    custodian: NativeEpochFixtureCustodian | None = None,
+) -> SimpleNamespace:
     """Bind a separately signed native policy to an actual prepared epoch basis."""
     store = scenario.store
     manifest_ref = scenario.prepared.stamp.semantic_manifest_ref
@@ -110,10 +327,11 @@ def sign_native_epoch_scenario(scenario: SimpleNamespace, tmp_path: Path) -> Sim
             artifacts.ArtifactWriteOptions(kind=kind, media_type="application/octet-stream"),
         )
 
-    owner_ref = put(
-        b"fixture independent institution for the exact native epoch scope",
-        "fixture.epoch.policy_owner",
-    )
+    if custodian is None:
+        custodian = NativeEpochFixtureCustodian.create(store, tmp_path / "issuer")
+    elif custodian.store is not store:
+        raise ValueError("native epoch fixture custodian belongs to a different CAS")
+    owner_ref = custodian.owner_ref
     bindings = (
         EpochNativePredicateBinding(
             predicate_id="native-member", semantic_property="member_manifest_binding"
@@ -162,19 +380,8 @@ def sign_native_epoch_scenario(scenario: SimpleNamespace, tmp_path: Path) -> Sim
         owner_relation_ref=relation_ref,
         owner_relation_content_hash=str(relation_ref.artifact_id),
     )
-    private_key = Ed25519PrivateKey.generate()
-    signer = artifacts.Ed25519Signer(private_key)
-    tmp_path.mkdir(parents=True, exist_ok=True)
-    public_key_path = tmp_path / "native-epoch-owner.pub"
-    public_key_path.write_bytes(
-        private_key.public_key().public_bytes(Encoding.PEM, PublicFormat.SubjectPublicKeyInfo)
-    )
-    signed = FileSystemSignedArtifactEvidenceRepository(store).persist_signed(
+    signed = custodian.persist_or_reuse(
         blob_bytes=security.canonical_statement_bytes(admission),
-        write_options=artifacts.ArtifactWriteOptions(
-            kind="fixture.epoch.signed_native_admission", media_type="application/octet-stream"
-        ),
-        signer=signer,
         signing_profile_ref=owner_ref,
         signer_provenance_ref=owner_ref,
     )
@@ -183,12 +390,12 @@ def sign_native_epoch_scenario(scenario: SimpleNamespace, tmp_path: Path) -> Sim
         native_epoch_history_root=scenario.history._root,
         trusted_issuers=(
             EpochTrustedIssuerConfig(
-                identity="fixture-native-epoch-owner",
-                public_key_path=public_key_path,
-                roles=("predicate_policy_admission",),
+                identity=custodian.issuer_identity,
+                public_key_path=custodian.public_key_path,
+                roles=custodian.issuer_roles,
             ),
         ),
-        predicate_policy_admission_refs=(signed.evidence_record_ref,),
+        predicate_policy_admission_refs=(signed.evidence.evidence_record_ref,),
     )
     deployment = build_semantic_epoch_native_deployment(config)
     owner = deployment._state().chronology_policy_owner
@@ -223,6 +430,8 @@ def sign_native_epoch_scenario(scenario: SimpleNamespace, tmp_path: Path) -> Sim
         service=service,
         policy=policy,
         admission=admission,
+        signed=signed,
+        custodian=custodian,
     )
 
 
@@ -1060,6 +1269,10 @@ def make_native_multivariable_active_projections(
             history=history, artifacts=store
         ),
     )
+    fixture_custodian = NativeEpochFixtureCustodian.create(
+        store,
+        tmp_path / "native-epoch-owner",
+    )
     projections: dict[str, object] = {}
     for epoch_id, entry in enumerate(entries, start=1):
         resolved = authority.resolve(entry.entry_id)
@@ -1139,7 +1352,11 @@ def make_native_multivariable_active_projections(
             passport=passport,
             pending=pending,
         )
-        native_case = sign_native_epoch_scenario(scenario, tmp_path / f"policy-{epoch_id:02d}")
+        native_case = sign_native_epoch_scenario(
+            scenario,
+            tmp_path / f"policy-{epoch_id:02d}",
+            custodian=fixture_custodian,
+        )
         finalized = finalize_native_epoch_case(native_case)
         projections[entry.target_variable] = overlay.read_activated_semantic_epoch_observations(
             receipt_ref=finalized.activated.receipt_ref,

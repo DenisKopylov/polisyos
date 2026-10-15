@@ -91,6 +91,40 @@ def _executor_probe_port(case):
     return port, attempted_constraints
 
 
+def _assert_exact_native_appointment_repeat(case, store):
+    """Prove a repeated exact appointment reuses its custodian and envelope."""
+    first_appointment = case.appoint_native_policy()
+    first_signature_bytes = store.get_signature_bytes(first_appointment.signed.artifact_ref)
+    first_record_bytes = first_appointment.signed.evidence.record_bytes
+    first_key_bytes = first_appointment.custodian.public_key_path.read_bytes()
+
+    repeated_appointment = case.appoint_native_policy()
+    assert repeated_appointment.custodian is first_appointment.custodian
+    assert repeated_appointment.signed.artifact_ref == first_appointment.signed.artifact_ref
+    assert (
+        repeated_appointment.signed.evidence.evidence_record_ref
+        == first_appointment.signed.evidence.evidence_record_ref
+    )
+    assert repeated_appointment.signed.evidence.record_bytes == first_record_bytes
+    assert store.get_signature_bytes(repeated_appointment.signed.artifact_ref) == (
+        first_signature_bytes
+    )
+    assert first_appointment.custodian.public_key_path.read_bytes() == first_key_bytes
+    verifier = artifacts.Ed25519Verifier(strict_identity=True)
+    verifier.load_trusted_key_file(
+        first_appointment.custodian.public_key_path,
+        identity=first_appointment.custodian.issuer_identity,
+    )
+    assert (
+        store.verify_signature(
+            first_appointment.signed.artifact_ref,
+            verifier,
+            strict_identity=True,
+        ).status
+        is artifacts.SignatureVerificationStatus.VALID
+    )
+
+
 def test_wdi_constraints_use_revised_basis_year_with_same_basis_control():
     """The WDI binding owner selects B's year while preserving the S=B control."""
 
@@ -141,6 +175,38 @@ def test_wdi_constraints_use_revised_basis_year_with_same_basis_control():
         revised_constraints.start_year,
         revised_constraints.end_year,
     ) == ("UKR", 2023, 2023)
+
+
+@pytest.mark.asyncio
+async def test_native_policy_appointment_reuses_custodian_on_exact_repeat(tmp_path, monkeypatch):
+    """Re-appointment preserves the exact admission and first issuer trust key."""
+
+    def reject_local_route_rebuild(*args, **kwargs):
+        del args, kwargs
+        raise AssertionError("native bridge must not enter the contract-test ACQ-01 helper")
+
+    monkeypatch.setattr(
+        GenerationCycleController,
+        "_rebuild_n7_acq01_route_context",
+        reject_local_route_rebuild,
+    )
+    install_fixture_wdi_cost_basis(monkeypatch)
+    control = _build_control_service(tmp_path / "control")
+    source_root = Path(__file__).resolve().parents[3]
+    closure, _ = await persist_wdi_route(
+        control,
+        generation_cycle_repo_root=source_root,
+    )
+    case = make_wdi_port_case(tmp_path / "wdi", monkeypatch, control=control, closure=closure)
+
+    quarantined = case.port.execute(closure)
+    assert quarantined.disposition == "quarantined_no_growth"
+    assert quarantined.admitted_observation_delta == 0
+    _ref, deferral, _attempt = case.bridge._load_deferral(closure)
+    assert deferral.negative_receipt.failure_codes == ("policy_admission_missing",), (
+        deferral.negative_receipt.failure_codes
+    )
+    _assert_exact_native_appointment_repeat(case, control._artifact_store)
 
 
 @pytest.mark.asyncio
@@ -208,9 +274,7 @@ async def test_bridge_resume_reenters_after_current_source_passport_and_epoch(
     action = begin_current_wdi_action(
         control, closure, job_id=f"direct-bridge-action-{uuid.uuid4().hex}"
     )
-    committed = case.port.execute(
-        closure, action_phase_ref=action.executing_head.receipt_ref
-    )
+    committed = case.port.execute(closure, action_phase_ref=action.executing_head.receipt_ref)
     assert committed.disposition == "world_committed"
     assert committed.admitted_observation_delta == 1
     assert case.bridge.artifact_store is control._artifact_store
@@ -370,9 +434,7 @@ async def test_revised_cycle_basis_survives_served_native_admission_and_reentry(
     action = begin_current_wdi_action(
         control, closure, job_id=f"direct-bridge-action-{uuid.uuid4().hex}"
     )
-    committed = case.port.execute(
-        closure, action_phase_ref=action.executing_head.receipt_ref
-    )
+    committed = case.port.execute(closure, action_phase_ref=action.executing_head.receipt_ref)
     assert committed.disposition == "world_committed"
     assert committed.admitted_observation_delta == 1
     assert case.bridge.artifact_store is control._artifact_store
@@ -577,14 +639,15 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
     before = tuple(case.transport_calls)
     # Lose only the post-activation acknowledgement; recover from native owner bytes.
     case.bridge._growth_pointer(case.selected).unlink()
-    with pytest.raises(AcquisitionActionServiceError, match="acquisition_live_evidence_not_admitted"):
+    with pytest.raises(
+        AcquisitionActionServiceError, match="acquisition_live_evidence_not_admitted"
+    ):
         case.port.recover_owned_result(closure)
-    assert case.port.recover_owned_result(
-        closure, action_phase_ref=executing_head.receipt_ref
-    ) == result
-    tampered_closure = closure.model_copy(
-        update={"compiled_ref": "sha256:" + "0" * 64}
+    assert (
+        case.port.recover_owned_result(closure, action_phase_ref=executing_head.receipt_ref)
+        == result
     )
+    tampered_closure = closure.model_copy(update={"compiled_ref": "sha256:" + "0" * 64})
     with pytest.raises(ValueError, match="acquisition_action_phase_source_binding_mismatch"):
         case.port.recover_owned_result(
             tampered_closure, action_phase_ref=executing_head.receipt_ref
@@ -593,9 +656,7 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
         AcquisitionWorldGrowthConfig,
     )
 
-    changed_selection = case.selected.model_copy(
-        update={"epoch_id": case.selected.epoch_id + 1}
-    )
+    changed_selection = case.selected.model_copy(update={"epoch_id": case.selected.epoch_id + 1})
     changed_config = case.bridge.config.model_copy(update={"routes": (changed_selection,)})
     changed_epoch_bridge = type(case.bridge)(
         config=changed_config,
@@ -631,9 +692,10 @@ async def _run_actual_wdi_admits_delta_and_reenters_same_case_impl(
     assert receipt.new_cycle.cycle_index == closure.source_cycle.cycle_index + 1
     before = tuple(case.transport_calls)
     assert case.port.resume_reentry(closure, result.owner_receipt_refs) == ref
-    assert case.port.recover_owned_result(
-        closure, action_phase_ref=executing_head.receipt_ref
-    ) == result
+    assert (
+        case.port.recover_owned_result(closure, action_phase_ref=executing_head.receipt_ref)
+        == result
+    )
     assert tuple(case.transport_calls) == before
     growth_refs = tuple(
         ref
@@ -1495,6 +1557,7 @@ async def test_deferred_admission_refuses_unknown_outcome_and_missing_negative(
     assert tuple(case.transport_calls) == fetched
     assert case.bridge.has_deferred_admission(closure)
 
+
 @pytest.mark.asyncio
 async def test_current_world_growth_receipt_rejects_wrong_schema_with_markers_intact(
     tmp_path, monkeypatch, request
@@ -1528,10 +1591,7 @@ async def test_current_world_growth_receipt_rejects_wrong_schema_with_markers_in
     owner_manifest = control._artifact_store.get_manifest(growth_ref)
     assert owner_manifest.kind == "runtime_quality.acquisition_world_growth_receipt"
     assert owner_manifest.artifact_schema is not None
-    assert (
-        owner_manifest.artifact_schema.name
-        == AcquisitionWorldGrowthReceipt.ARTIFACT_SCHEMA_NAME
-    )
+    assert owner_manifest.artifact_schema.name == AcquisitionWorldGrowthReceipt.ARTIFACT_SCHEMA_NAME
     assert owner_manifest.artifact_schema.version == "1.1"
     sink.verify_action_head(snapshot.head)
 
@@ -1556,16 +1616,12 @@ async def test_current_world_growth_receipt_rejects_wrong_schema_with_markers_in
         forged_readback.setattr(
             run_lifecycle_module, "read_core_manifest_profile", wrong_schema_only
         )
-        with pytest.raises(
-            ValueError, match="acquisition_action_owner_receipt_binding_mismatch"
-        ):
+        with pytest.raises(ValueError, match="acquisition_action_owner_receipt_binding_mismatch"):
             sink.verify_action_head(snapshot.head)
 
     assert len(forged_manifests) == 1
     assert (
-        forged_manifests[0].model_copy(
-            update={"artifact_schema": owner_manifest.artifact_schema}
-        )
+        forged_manifests[0].model_copy(update={"artifact_schema": owner_manifest.artifact_schema})
         == owner_manifest
     )
     sink.verify_action_head(snapshot.head)

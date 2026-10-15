@@ -1,0 +1,266 @@
+{
+  "authorship": "Local candidate author handoff; G retains independent code acceptance, integration publication, and formal finding adjudication.",
+  "bounded_gaps": [
+    {
+      "evidence": "Independent test source frame was HEAD 7455 with exact IR slice bytes but uncommitted Core export/profile files at hashes different from those in committed source tree. Re-run focused 50 tests, CAS discriminators and route inventory against exact committed/current composed Core dependencies before declaring the freeze final.",
+      "id": "dependency_rebind",
+      "status": "required before exact composed-source freeze"
+    },
+    {
+      "bucket": "same class, test-only residual",
+      "evidence": "Permanent tests couple wrong schema-name and wrong schema-version in one forged manifest and do not isolate wrong-media manifest. Independent real-CAS probe isolated schema name, version and media and refused each; current implementation did not escape.",
+      "id": "permanent_regression_specificity",
+      "next_check": "Add one family-level table-driven actual CAS negative that varies schema version with all other fields fixed, then media with kind/name/version fixed; use same bytes.",
+      "status": "limited"
+    },
+    {
+      "evidence": "Schema/profile admission is byte and owner conformance only; no legal rule, causal validity, scientific conclusion, authority or policy semantics are inferred.",
+      "id": "formal_semantics",
+      "status": "not established"
+    },
+    {
+      "evidence": "No full native repository gate, wheel, rebuilt sdist, or global E02 composed replay is included in this slice.",
+      "id": "native_and_installed_consumers",
+      "status": "unrun"
+    }
+  ],
+  "closure_ids": [],
+  "dependencies": {
+    "comparison": "The independent review records those Core files as uncommitted overlay at HEAD 7455db0; exact source commit b7208 contains the dependency hashes above instead. IR changed path bytes match exactly, but Core dependency behavior must be rebound by the final composed replay.",
+    "review_overlay_dependencies": {
+      "policy-engine/src/polisyos/core/artifacts/__init__.py": "6d56dcd7042227ce00d617b0698eae26c263eaef72934dda06d911575b4aefae",
+      "policy-engine/src/polisyos/core/artifacts/canonical_profile.py": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34"
+    },
+    "source_commit_dependencies": [
+      {
+        "bytes": 8189,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "sha256": "a750cfeb3483db25c4b867d55c3d17ef9ad60ccfd3ac837e9c638650b345b9e2"
+      },
+      {
+        "bytes": 31926,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+        "sha256": "0368466ee5e88cbdf0f485cb9c9437c3167e185fb1decc49b948a49dca0c1bae"
+      },
+      {
+        "bytes": 22839,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "sha256": "da6d33ca7aaad00dd7ed8b6ccefa0e5b126d591f8c63951540606d3ea3e6d0ed"
+      },
+      {
+        "bytes": 13401,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f"
+      },
+      {
+        "bytes": 217661,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab"
+      },
+      {
+        "bytes": 12663,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "sha256": "c5dbd2ba226e67a748d8d4a6064ebb218042580d129d5fedda17dc621db48894"
+      },
+      {
+        "bytes": 39919,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+        "sha256": "bbac14368f7091bf8135f621999e9b702d711c31a95e87e7ceaa1bd963c8fe72"
+      }
+    ]
+  },
+  "formal_closure_ids": [],
+  "mechanism": {
+    "actual_selected_profile_positive": "20/20 route replay persisted through actual public writer functions and round-tripped through actual loaders with selected profiles present; same-byte alternate JSON profile with correct ABI loaded; instrumented reader recorded exact selected profile on manifest/profile/blob calls.",
+    "history": "No mutable append-only history/index route exists in this family slice. Selected profile identity is retained on each immutable ArtifactRef; history mutation is not claimed.",
+    "isolated_negative_controls": "Using one content-addressed payload, actual CAS manifests varied one owner field at a time: foreign kind, schema name, schema version, and media type all refused. Genuine text/plain view refused at the IR helper; forged application/json selector against that manifest refused in Core identity validation.",
+    "owner_abi": "Each family-local helper receives the route’s expected kind/schema name/schema version from producer-owned constants and checks selected manifest ABI before decoding. Per-route exact names, versions, refs, and payload types are retained in the 20-route inventory output; source family constants remain unchanged by this slice.",
+    "pattern_pass": {
+      "P40": "Same class across both families and all 20 inventoried routes; one family-local generic owner guard per family, not route-specific patches.",
+      "acceptance_signal": "All inventoried routes perform actual persist→selected profile→fresh read round-trips, same-byte foreign kind/schema/media/version views refuse, and a property-removal mutant makes owner tests fail.",
+      "avoided": "Foreign-kind acceptance, checking only a selected manifest label, deriving schema identity from caller data without owner contract, or conflating Core byte/profile verification with IR semantics."
+    },
+    "profile_and_semantic_boundary": "Selected profile is preserved and checked for ownership and canonical bytes. This is not legal validation, scientific adequacy, causal validity, authority, or an IR-law adjudication.",
+    "property": "Before Pydantic model validation, every listed distributional and strategic IR leaf reader binds expected kind and JSON media to the actual selected manifest kind/media/schema name/version; producer-selected manifest_profile_sha256 is preserved through IR and Core raw-manifest/blob reads.",
+    "property_removal_control": "A pytest-only mutant replaced both runtime owner helpers with unchecked JSON read plus model validation while owner-mismatch source markers remained. Four negative tests failed with DID NOT RAISE (expected control result), demonstrating tests detect the runtime property, not marker presence.",
+    "route_denominator": {
+      "distributional": 7,
+      "inventory": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-typed-core-admission-whole-source-census-20261015/part-platform/generic-ir-route-census.json",
+        "sha256": "8ab599ab7cfe5f22f9a2741276ec56d600ea09a05dc191fad9cf70baa11b1c38"
+      },
+      "reference_shapes": {
+        "ArtifactRefModel": 15,
+        "specialized_Literal_ref": 5
+      },
+      "strategic": 13,
+      "total": 20
+    }
+  },
+  "proposal_fields": {
+    "author_proposal": "Limited code acceptance proposal for selected-manifest owner ABI admission across the 20 inventoried distributional/strategic routes only, after dependency rebind; no claim of IR semantic or global E02 closure.",
+    "formal_g_acceptance": false
+  },
+  "review_evidence_frame": {
+    "actual_route_inventory": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/independent-review-20261015/actual_route_inventory.stdout.json",
+      "sha256": "435c0e0fb438c3a1f1dd56ff403c69e62304747f7ccd2acb79a21bf03d7666a8"
+    },
+    "all_receipts_are_local_ignored_raw": true,
+    "cas_probe": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/independent-review-20261015/ir_owner_cas_probe.stdout.json",
+      "sha256": "5eef1ad5535086e48464f5874b6952ed39bc321574d5f63967f1e551d9ef795d"
+    },
+    "independent_review_json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/independent-review-20261015/review.json",
+      "sha256": "ab3a7009dd344fa53a58d889277545a4474216e6c813b38a0fccb7b8e99ea23f"
+    },
+    "inventory": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-typed-core-admission-whole-source-census-20261015/part-platform/generic-ir-route-census.json",
+      "sha256": "8ab599ab7cfe5f22f9a2741276ec56d600ea09a05dc191fad9cf70baa11b1c38"
+    },
+    "property_removal_probe": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/independent-review-20261015/owner_property_mutant.stdout.txt",
+      "sha256": "bed20235583bc4b9603b4228df3e4ce22adba923f259f2d9b8621ecae77f184e"
+    }
+  },
+  "schema": "policyos.e02.local_handoff.v1",
+  "slice": "ir-distributional-strategic-owner-admission",
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit_footprint": [
+      {
+        "bytes": 74755,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/ir/analytics/distributional.py",
+        "sha256": "fedc8d36b13b06e154997587de1d59b2993b51397ace1a8f92c71436c2c89e06"
+      },
+      {
+        "bytes": 116132,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/ir/analytics/strategic.py",
+        "sha256": "9f4fcef80202c4cd4dc50216cdc7836327db577f533e5168801f588caaadb296"
+      },
+      {
+        "bytes": 22973,
+        "committed_blob_readback": true,
+        "path": "policy-engine/tests/unit/ir/analytics/test_distributional_bounds_bundle.py",
+        "sha256": "aa1b0ef531fec48bcab11217a0de3121020147cbdc902693f6609b7c15821112"
+      },
+      {
+        "bytes": 77228,
+        "committed_blob_readback": true,
+        "path": "policy-engine/tests/unit/ir/analytics/test_phase_d_contracts.py",
+        "sha256": "c2fd2ec225f92124431059f3566a58fa28b32a02cc1297f4bfcbcd30db6169f1"
+      }
+    ],
+    "precommit_review_frame": {
+      "exact_changed_path_bytes_match_commit": true,
+      "head": "7455db0523bd91e6ce2b4523ef4731327b7eb78d",
+      "note": "Independent 50-test/20-route review checked the exact four IR source/test bytes now in this commit. It also ran with a broader working-tree Core profile/API overlay, which is not part of this commit; dependency rebind is required before treating the review as an exact full-tree freeze.",
+      "tree": "15bad5107f63ecbc6e910a69e05be2388678796a"
+    },
+    "slice_base": {
+      "commit": "aa844d9cd71976c2968c74131c96ebb32fcd8b8b",
+      "tree": "c787cd3115a3c8fde66760b56177bc6def2b83d2"
+    },
+    "source_commit": {
+      "commit": "b7208ee518b2745251a060f9d3587ac4ddbce613",
+      "parents": [
+        "aa844d9cd71976c2968c74131c96ebb32fcd8b8b"
+      ],
+      "subject": "fix(ir): enforce producer owner profiles across distributional and strategic leaves",
+      "tree": "2965725f75dc22d1e21f708d83a5a4fe98f11893"
+    },
+    "source_commit_status": "committed_and_read_back"
+  },
+  "status": "source_committed_scoped_independent_go_dependency_rebind_required",
+  "verification": {
+    "author_focused_tests": {
+      "command": "cd policy-engine && .venv/bin/python -m pytest -q tests/unit/ir/analytics/test_distributional_bounds_bundle.py tests/unit/ir/analytics/test_phase_d_contracts.py",
+      "exit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/independent-review-20261015/full-two-files.exit.txt",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/full-focused-tests-final-r5.stdout.txt",
+        "sha256": "5952b218382e51f578768c0a348723d5418c12143cc6d5f49d527f1d1b978a79"
+      },
+      "result": "50 passed; independent review measured 10.805s"
+    },
+    "baseline_falsifier": {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-typed-core-admission-whole-source-census-20261015/part-platform/typed-ir-wrapper-falsifier.stdout.json",
+        "sha256": "8096e3e89294ca6afd429877484882bea1ed9f2d073a59301545cf0bc45e3c74"
+      },
+      "result": "Pre-repair source-bound probe showed both generic readers accepted same-byte foreign-kind refs; the changed helpers now reject them"
+    },
+    "independent_review": {
+      "full_test_replay": {
+        "exit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/independent-review-20261015/full-two-files.exit.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        "result": "50 passed, 10.805s",
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/independent-review-20261015/full-two-files.stdout.txt",
+          "sha256": "5952b218382e51f578768c0a348723d5418c12143cc6d5f49d527f1d1b978a79"
+        }
+      },
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/independent-review-20261015/review.json",
+        "sha256": "ab3a7009dd344fa53a58d889277545a4474216e6c813b38a0fccb7b8e99ea23f"
+      },
+      "verdict": "GO for typed owner admission across the inventoried 20 IR routes; no formal G closure"
+    },
+    "real_cas_adversarial": {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/independent-review-20261015/ir_owner_cas_probe.stdout.json",
+        "sha256": "5eef1ad5535086e48464f5874b6952ed39bc321574d5f63967f1e551d9ef795d"
+      },
+      "result": "PASS; same-byte foreign kind/schema name/schema version/media refused; valid selected profile succeeds; exact profile recorded through actual Core and IR reads"
+    },
+    "remove_property_keep_markers": {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/independent-review-20261015/owner_property_mutant.stdout.txt",
+        "sha256": "bed20235583bc4b9603b4228df3e4ce22adba923f259f2d9b8621ecae77f184e"
+      },
+      "result": "CONTROL_DETECTED_REMOVAL; expected mutant pytest exit 1, four actual owner negatives fail DID NOT RAISE while markers remain"
+    },
+    "route_inventory": {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/independent-review-20261015/actual_route_inventory.stdout.json",
+        "sha256": "435c0e0fb438c3a1f1dd56ff403c69e62304747f7ccd2acb79a21bf03d7666a8"
+      },
+      "result": "20/20 actual current producer/loader routes match census; selected manifest kind/media/schema owner and profile agree; loaded payload equals producer payload"
+    },
+    "ruff_check": {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/final-canonical-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "result": "All checks passed"
+    },
+    "ruff_format": {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/final-canonical-ruff-format-check.stdout.txt",
+        "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+      },
+      "result": "4 files already formatted"
+    },
+    "strict_selected_mypy": {
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-generic-ir-owner-routes-20261015/final-strict-selected-mypy.stdout.txt",
+        "sha256": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8"
+      },
+      "result": "Success: no issues found in 2 source files"
+    }
+  }
+}

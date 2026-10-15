@@ -4,7 +4,7 @@
   "commit_owner": "root",
   "branch": "codex/e02-unified-local-20261009",
   "one_level_delegation": true,
-  "current_root_application_lease": {
+  "historical_root_application_lease_20261015_511095": {
     "as_of_candidate_commit": "511095b8080859c63278e17c5602b3857d85e710",
     "commit_owner": "root only; source and receipt commits are separate; known advances are journaled under raw/resume-parallel-coordination-20261015/root-owned-commits.json",
     "subagent_mode": "Direct authors on exact disjoint path leases and independent read-only reviewers; no children or agent commits",
@@ -421,5 +421,488 @@
     },
     "resources": "One heavy slot and one numerical thread. All product fits, installed waves and browsers wait for exact source/input/backend freeze.",
     "bucket_rule": "P40: the 82 identity-compatible existing-facade edges are a bounded wire-existing repair; the other 475 edges require explicit API/integration-boundary choices and are not removed by a baseline refresh. No task PASS or route success closes finding occurrences."
+  },
+  "historical_root_application_lease_20261015_7455db0": {
+    "as_of_candidate_commit": "7455db0523bd91e6ce2b4523ef4731327b7eb78d",
+    "commit_owner": "root only; append-only source and separate receipt commits; exact root-owned advances journaled under raw/resume-parallel-coordination-20261015/root-owned-commits.json",
+    "branch": "codex/e02-unified-local-20261009",
+    "one_level_delegation": true,
+    "state": "composed source freeze pending; no formal G closures; external authority facts and pending semantics remain held",
+    "serialization": {
+      "heavy_slots": 2,
+      "numerical_threads_per_process": 1,
+      "lightweight_work": "independent reads, AST scans, lint and focused logic tests parallel; measure before widening heavy load",
+      "exclusive_resources": [
+        "each tracked writer path",
+        "shared schema/generator/lock",
+        "each CAS/DB/port",
+        "Linux isolated worker"
+      ],
+      "commit_hook": "brief tracked-writer barrier, explicit ACK or interruption; read-only and ignored RAW continue"
+    },
+    "canonical_python_origin": "candidate .venv/bin/python with PYTHONPATH=src:. for product proofs; installed-wheel proofs deliberately unset PYTHONPATH and capture origins",
+    "canonical_ruff": "from OWNROOT: policy-engine/.venv/bin/python -m ruff check|format --check --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/<exact paths>",
+    "active_candidate_slices": [
+      {
+        "owner": "s1_s3_semantic_failure_oracle",
+        "state": "40-path pending r3 frozen; add 3 source + 5 tests; shared helper remains untouched pending full producer-ABI audit",
+        "footprint_manifest": "raw/resume-simulation-owner-intake-repair-20261015/owner-intake-scope-40-pending-r3.json",
+        "additional_sources": [
+          "src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py",
+          "src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+          "src/polisyos/scientist/methods/autotune/runtime.py"
+        ],
+        "additional_tests": [
+          "tests/unit/scientist/nodes/test_normative_arbitration_node.py",
+          "tests/unit/scientist/nodes/test_build_policy_output_bundle.py",
+          "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+          "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+          "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py"
+        ],
+        "conditional_path": "src/polisyos/scientist/methods/autotune/models.py only after complete caller ABI reconciliation and root confirmation"
+      },
+      {
+        "owner": "ir_governance_loop_types_author",
+        "state": "B31 parser/consumer typed-refusal repair and exact controlled fixture companions active; production signing/CAS immutability unchanged",
+        "paths": [
+          "src/polisyos/runtime/quality/generation_cycle.py",
+          "tests/unit/runtime/quality/test_value_gate.py",
+          "tests/_helpers/acquisition_production.py",
+          "tests/unit/runtime/quality/test_semantic_epoch.py",
+          "tests/_helpers/semantic_epoch_native.py",
+          "tests/unit/runtime/quality/test_semantic_epoch_fixture_custody.py"
+        ],
+        "limits": [
+          "No law, external issuer, currentness, calibration or treatment assignment manufactured",
+          "L5 b35 unresolved graph held under existing decision packet; canonical cache ABI repair is not a positive for that graph"
+        ]
+      },
+      {
+        "owner": "fabric_pool_cleanup_author",
+        "state": "five paths frozen; independent bounded GO; HTTP proof deferred",
+        "paths": [
+          "src/polisyos/calibration/forecast_bridge.py",
+          "tests/unit/remediation/test_frc_02_bridge.py",
+          "tests/unit/remediation/test_frc_02_empirical_bridge.py",
+          "tests/unit/remediation/test_frc_02_s10.py",
+          "tests/unit/runtime/http/test_control_service_di.py"
+        ]
+      },
+      {
+        "owner": "r3_r4_monetary_workload_oracle",
+        "state": "four paths frozen; independent review active",
+        "paths": [
+          "src/polisyos/ir/analytics/literature.py",
+          "src/polisyos/fabric/entity_resolution/store.py",
+          "tests/unit/ir/test_literature_contract.py",
+          "tests/unit/fabric/test_entity_resolution.py"
+        ]
+      },
+      {
+        "owner": "ir_small_analytics_types_author",
+        "state": "two generic IR family mechanisms cover complete 20 routes; final checks pending",
+        "paths": [
+          "src/polisyos/ir/analytics/distributional.py",
+          "src/polisyos/ir/analytics/strategic.py",
+          "tests/unit/ir/analytics/test_phase_d_contracts.py",
+          "tests/unit/ir/analytics/test_distributional_bounds_bundle.py"
+        ]
+      },
+      {
+        "owner": "v3_acquisition_actual_post_author",
+        "state": "10 source producer/consumer paths and mirrored tests authorized; excludes shared Core helper/test",
+        "sources": [
+          "src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py",
+          "src/polisyos/scientist/nodes/builtins/compile/link_trinity.py",
+          "src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py",
+          "src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py",
+          "src/polisyos/scientist/nodes/builtins/governance/data_plane_gate.py",
+          "src/polisyos/scientist/nodes/builtins/governance/governance_gate_requests.py",
+          "src/polisyos/scientist/nodes/builtins/governance/run_governance.py",
+          "src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+          "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+          "src/polisyos/runtime/quality/workspace/loop.py"
+        ],
+        "test_manifest": "raw/typed-core-owner-route-repair-20261015/prehash-7455.json",
+        "additional_test": "tests/unit/scientist/nodes/test_selected_owner_intake_profiles.py"
+      },
+      {
+        "owner": "full_occurrence_property_audit_2",
+        "state": "test driver widening only; no heavy R4 wave before freeze",
+        "paths": [
+          "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py"
+        ],
+        "invariants": [
+          "retain 1.5-second deadline and all fold settings/assertions",
+          "fresh child per capacity/removal case; run all before aggregate FAIL",
+          "no unapproved capacity denominator or dedicated IO pool semantics"
+        ]
+      },
+      {
+        "owner": "root",
+        "state": "reserved",
+        "paths": "all generated/schema/lock final outputs, LEASES, composed freeze/input/backend/proposals; pending central explicit producer-ABI mechanism decision",
+        "committed_boundaries": [
+          "c2c2cc46529e1f791a3afab5aff1b5f3a5d8451c",
+          "dacce30cf41d743f9b6c8d9261f816b2ae6756ac",
+          "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+          "7455db0523bd91e6ce2b4523ef4731327b7eb78d"
+        ]
+      }
+    ],
+    "docs_only_writers": {
+      "b61_exact_writer_runtime_author": [
+        "epoch-selected-profile-producer-20261015.json",
+        "generated-reference-owner-family-20261015.json"
+      ],
+      "can_whole_profile_current_oracle": [
+        "la029-ukraine-ops-owner-entrypoint-20261015.json"
+      ],
+      "architecture_remaining_route_oracle": [
+        "catalog-production-route-test-preservation-20261015.json"
+      ]
+    },
+    "review_and_research": "All other direct agents are read-only except exact explicitly assigned documentation output; no delegation children; authors and independent reviewers differ",
+    "P40": "same typed-owner class widened by complete producer/caller quantities; no ClassVar-absence inference of ownerlessness; generic custom candidate reads are distinct from owner-required authority admission",
+    "P41": "UKOPS-local inherited import red is not an inherited claim for whole E02; root changed paths intersect complete native gate denominator"
+  },
+  "current_root_application_lease": {
+    "as_of_candidate_commit": "b7208ee518b2745251a060f9d3587ac4ddbce613",
+    "branch": "codex/e02-unified-local-20261009",
+    "commit_owner": "root only; ordinary append-only source commits and separate receipts; exact advances in raw/resume-parallel-coordination-20261015/root-owned-commits.json",
+    "one_level_delegation": true,
+    "state": "source composition active; full freeze and final verification pending; no author formal closures",
+    "compute": {
+      "heavy_slots": 2,
+      "numerical_threads_per_process": 1,
+      "no_environment_or_source_copies": true,
+      "free_disk_gib_observed": 52
+    },
+    "commit_hook": "brief tracked-writer barrier with ACK; ignored RAW/read-only work continues",
+    "canonical_python_origin": "candidate .venv/bin/python with PYTHONPATH=src:.; installed-wheel proofs unset PYTHONPATH and capture origins",
+    "canonical_ruff": "OWNROOT policy-engine/.venv/bin/python -m ruff check|format --check --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/<paths>",
+    "slices": [
+      {
+        "owner": "s1_s3_semantic_failure_oracle",
+        "mode": "frozen",
+        "manifest": "raw/resume-simulation-owner-intake-repair-20261015/final-source-freeze-r5.json",
+        "sha256": "ebbaa1f01e03e904de7ce7a92b94a95d1feb65e4fd9e5da9bce82462f5c67df8",
+        "boundary": "51 scoped paths, 50 changed; independent delta replay active; RunSimulation source/test reserved until root commit"
+      },
+      {
+        "owner": "ir_small_analytics_types_author",
+        "mode": "frozen",
+        "paths": [
+          "src/polisyos/core/artifacts/owned_json.py",
+          "src/polisyos/core/artifacts/__init__.py",
+          "tests/unit/core/artifacts/test_owned_core_json_artifact.py"
+        ],
+        "review": "raw/resume-core-owned-json-independent-20261015/r7-delta/review.json",
+        "review_sha256": "5f4ce14a043898214ebe16950fd2a63b7120941c399b9405dfbe8a73cb9a1f83"
+      },
+      {
+        "owner": "r3_r4_monetary_workload_oracle",
+        "mode": "frozen",
+        "manifest": "raw/resume-r3-selected-profile-independent-20261015/receipt.json",
+        "boundary": "eight causal graph writer/bridge source and test paths; KB upstream actual producers separate"
+      },
+      {
+        "owner": "r3_r4_monetary_workload_oracle",
+        "mode": "write",
+        "paths": [
+          "src/polisyos/core/contracts/epoch.py",
+          "src/polisyos/core/contracts/__init__.py",
+          "src/polisyos/runtime/quality/semantic_epoch.py",
+          "src/polisyos/runtime/quality/semantic_epoch_store.py",
+          "tests/unit/runtime/quality/test_semantic_epoch_chronology_bridge.py",
+          "tests/unit/runtime/quality/test_semantic_epoch_store.py"
+        ],
+        "boundary": "actual four chronology/history codecs only; existing chronology verification, unchanged history wire; no fabricated external b35 resolver"
+      },
+      {
+        "owner": "v3_acquisition_actual_post_author",
+        "mode": "write",
+        "manifest": "raw/typed-core-owner-route-repair-20261015/final-source-frame.json",
+        "boundary": "existing 21 paths absent-vs-invalid aggregate repair, strict selected owner intake; RunSimulation two companions RAW patch until S1 commit; shared Core/IR loaders read-only"
+      },
+      {
+        "owner": "native_c2_independent_oracle",
+        "mode": "frozen",
+        "manifest": "raw/typed-owner-route-repair-proposal-20261015/assessment.md",
+        "boundary": "previous five runtime/agent/governance source plus five test paths, independent reviewer full_occurrence_property_audit_2"
+      },
+      {
+        "owner": "native_c2_independent_oracle",
+        "mode": "frozen",
+        "paths": [
+          "src/polisyos/runtime/quality/grounding_risk.py",
+          "src/polisyos/scientist/governance/blueprint_release.py",
+          "tests/unit/runtime/quality/test_grounding_risk.py",
+          "tests/unit/scientist/governance/test_blueprint_release.py"
+        ],
+        "review": "raw/resume-ir-consumer-freeze-independent-20261015/review-summary.json",
+        "boundary": "13 focused pass, six full-module failures not inherited; independent reviewer ir_observation_loop_types_author"
+      },
+      {
+        "owner": "ir_governance_loop_types_author",
+        "mode": "frozen",
+        "paths": [
+          "tests/_helpers/semantic_epoch_native.py",
+          "tests/_helpers/acquisition_chain.py",
+          "tests/unit/runtime/quality/test_semantic_epoch_fixture_custody.py",
+          "tests/integration/core_runtime/test_acquisition_world_growth_chain.py"
+        ],
+        "boundary": "exact CAS-context controlled custodian reuse, exclusive key-derived trust paths, actual repeat-appointment test retained red pending chronology"
+      },
+      {
+        "owner": "ir_governance_loop_types_author",
+        "mode": "frozen",
+        "paths": [
+          "src/polisyos/runtime/quality/generation_cycle.py",
+          "tests/unit/runtime/quality/test_value_gate.py",
+          "tests/_helpers/acquisition_production.py",
+          "tests/unit/runtime/quality/test_semantic_epoch.py"
+        ],
+        "boundary": "B31 typed refusal and canonical-cache fixture companions; no current native positive established"
+      },
+      {
+        "owner": "full_occurrence_property_audit_2",
+        "mode": "frozen",
+        "paths": [
+          "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py"
+        ],
+        "boundary": "three native diagnostic cases all UNRUN until freeze; candidate-vs-committed base reviewed, dirty-preimage exact delta not established"
+      },
+      {
+        "owner": "q2_linux_installed_plan_oracle",
+        "mode": "write",
+        "paths": [
+          "src/polisyos/scholar/orchestrator/bundle.py",
+          "src/polisyos/scholar/orchestrator/enrich.py",
+          "src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
+          "tests/unit/scientist/nodes/test_enrich_knowledge_node_freshness.py"
+        ],
+        "conditional_companion": "tests/unit/scientist/methods/causal/test_build_literature_prior_node.py RAW patch until root commits frozen causal graph eight paths",
+        "boundary": "two actual KB writers and their actual callers; default API False preserved, E02 producer opts into selected refs"
+      },
+      {
+        "owner": "b61_exact_writer_runtime_author",
+        "mode": "write",
+        "paths": [
+          "src/polisyos/data_forge/_ukraine_release_contracts.py",
+          "src/polisyos/data_forge/domains/ukraine/manifests.py",
+          "src/polisyos/data_forge/read_api/ukraine.py",
+          "src/polisyos/lex/knowledge/__init__.py",
+          "src/polisyos/lex/knowledge/README.md",
+          "src/polisyos/runtime/quality/credal_reference.py",
+          "src/polisyos/runtime/quality/design_generation.py",
+          "src/polisyos/runtime/quality/intervention_substrate.py",
+          "tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+          "tests/unit/data_forge/read_api/test_surfaces.py",
+          "tests/unit/data_forge/read_api/test_ukraine_stage_artifacts.py",
+          "tests/unit/lex/knowledge/test_public_facade.py",
+          "tests/unit/runtime/quality/test_credal_reference.py",
+          "tests/unit/runtime/quality/test_design_generation.py",
+          "tests/unit/runtime/quality/test_intervention_substrate.py",
+          "tests/unit/runtime/quality/test_acquisition_executor.py"
+        ],
+        "boundary": "ordinary four Phase6 gate repairs; acquisition_executor.py only RAW patch until runtime10 source commit; semantic_epoch.py excluded; no architecture allowance or provenance string rewrite; wider unlisted-route discrepancy separate G decision"
+      }
+    ],
+    "docs_only_writers": {
+      "ir_small_analytics_types_author": [
+        "core-owned-json-owner-profile-20261015.json"
+      ],
+      "fabric_pool_cleanup_author": [
+        "c09-role-source-lineage-20261015.json"
+      ],
+      "ir_temporal_typed_author_r4": [
+        "ir-literature-entity-owner-admission-20261015.json",
+        "ir-distributional-strategic-owner-admission-20261015.json"
+      ],
+      "b61_exact_writer_runtime_author": [
+        "native-dataforge-boundary-20261015.json"
+      ]
+    },
+    "read_only_agents": "all other agents; ignored RAW prototype/research only until root explicit exact lease",
+    "root_reserved": "LEASES and generated/schema/lock output, source/input/backend/composed freeze, full-ID proposals and final publication verification",
+    "P40": "same class widened to complete actual producer/consumer quantity; distinct human custody and benchmark work-packet defects separately researched; no patch ladder",
+    "P41": "no inherited full-gate claims without exact pre-work slice base replay and zero intersection complete input denominator",
+    "production": "local read-only exact approved locators only; no broad payload census, no manifest/data/hash rewrites"
+  },
+  "coordination_deltas_20261015_2307": {
+    "source_boundary_commits": [
+      "664e07dfcd3b5376c042138c77b591bdcac32856",
+      "2c7f893ef61f46bbe63a47776af4d42d399cda03",
+      "05aaa70dc57996ff6772f9f78a11953bd5db0ea4",
+      "2307d655c1a78e3395fe837ae3e681c35cff8e45"
+    ],
+    "released_after_commit": {
+      "v3_acquisition_actual_post_author": [
+        "src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_run_simulation.py"
+      ],
+      "q2_linux_installed_plan_oracle": [
+        "tests/unit/scientist/methods/causal/test_build_literature_prior_node.py"
+      ]
+    },
+    "additional_exact_writers": {
+      "v3_acquisition_actual_post_author": {
+        "paths": [
+          "src/polisyos/scientist/governance/passes/pii_check_pass.py",
+          "tests/unit/scientist/governance/test_pii_check_pass.py"
+        ],
+        "boundary": "malformed supplied PII summaries never default to no issue; true absence retains warning; whole 25-path slice"
+      },
+      "v5_v6_join_systemic_oracle": {
+        "paths": [
+          "src/polisyos/scientist/methods/autotune/runtime.py",
+          "src/polisyos/scientist/methods/search/promotion_evidence.py",
+          "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+          "tests/unit/scientist/search/test_promotion_evidence.py",
+          "tests/integration/scientist/methods/autotune/test_methodjob_execution_work_packet_promotion_admission.py"
+        ],
+        "docs": [
+          "decision-benchmark-source-intent-20261015.json"
+        ],
+        "boundary": "recompute actual policy vector selection; MethodJob and D4 distinct source basis, unknown protected roles held; no engine write lease"
+      },
+      "dynamic_import_binding_author": {
+        "paths": [
+          "src/polisyos/scientist/governance/human_review/admission.py",
+          "src/polisyos/scientist/governance/human_review/decisions.py",
+          "src/polisyos/scientist/governance/human_review/oversight_policy.py",
+          "src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+          "src/polisyos/scientist/governance/human_review/__init__.py",
+          "tests/unit/scientist/governance/human_review/test_admission.py",
+          "tests/unit/scientist/governance/human_review/test_decision_packet_integration.py",
+          "tests/unit/scientist/governance/human_review/test_oversight_policy.py",
+          "tests/unit/scientist/governance/human_review/test_governance_integration.py",
+          "tests/unit/scientist/nodes/test_decision_packet_node_v3.py"
+        ],
+        "docs": [
+          "decision-human-review-custody-20261015.json"
+        ],
+        "boundary": "single fail-closed resolver/gate, exact packet/run/profile/signature; assignment/currentness/duration institutional facts held; no persisted public model or issuer policy invented"
+      },
+      "ir_temporal_typed_author_r4": {
+        "paths": [
+          "src/polisyos/scientist/validation/policy_verified/models.py",
+          "tests/unit/scientist/validation/policy_verified/test_models.py"
+        ],
+        "boundary": "three report producer/reader families only; actual producers retain selected refs, supported finite ABI; external law/currentness not established"
+      }
+    },
+    "pending_lease_proposals": {
+      "c05_c12_current_composition_oracle": "GovernanceReport five source readers/owner and replay verification shared producer/loader; awaiting exact mirrored test list, RunGovernance producer remains V3-owned"
+    },
+    "freeze_boundary": "all source active, global expensive wave still deferred; individual GO is bounded and not a full capability closure",
+    "proposals_and_formal_closures": "no new formal G closures; preserve canonical 291 occurrence history and B198",
+    "read_only_full_id_impact_report": {
+      "path": "raw/full-id-abi-impact-20261015/report.json",
+      "sha256": "8ca0c4baf09f3b33b42b297689e3c08698ad40819ff06f0defdd333bc4f25693"
+    }
+  },
+  "coordination_epoch_20261015_92074009": {
+    "as_of_candidate_commit": "92074009c670f90496f1e45460c8f379fbcee470",
+    "supersedes_prior_current_labels": "Earlier epoch and current_root_application_lease entries are historical coordination snapshots; these deltas and exact author freezes control the current writes.",
+    "commit_owner": "root only; ordinary source and separate receipt commits; known advances journaled in ignored RAW",
+    "new_completed_source_commits": [
+      "7b6d31a551d8a11e68db8f672dc83ef11a044507",
+      "8c1cd1cbccb0606f42ace814b1e1e3d63e1d5c4c",
+      "5c5aba7258a35ec769a39378c2e881a85461c897",
+      "92074009c670f90496f1e45460c8f379fbcee470"
+    ],
+    "active_and_frozen_lease_deltas": {
+      "v3_acquisition_actual_post_author": {
+        "existing_freeze": "raw/resume-selected-owner-status-20261015/final-source-freeze.json; 27 scoped paths; now profile-input delta invalidates affected old-frame evidence",
+        "additional_paths": [
+          "src/polisyos/scientist/policy_design/search.py",
+          "tests/unit/scientist/policy_design/test_search.py",
+          "src/polisyos/core/contracts/fabric.py",
+          "tests/unit/core/contracts/test_fabric.py",
+          "src/polisyos/fabric/data_plane/orchestrator.py",
+          "tests/unit/fabric/data_plane/test_orchestrator.py",
+          "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+          "tests/unit/runtime/http/test_nl_pipeline_materialization.py"
+        ],
+        "boundary": "Actual unassessed retrieval summaries must have distinct typed owner/schema, selected refs, and declared unknown; strict gate blocks. Epoch codec patch is RAW only until root serial application, not concurrent write."
+      },
+      "s1_s3_semantic_failure_oracle": {
+        "paths": [
+          "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+          "tests/unit/scientist/orchestration/engine/test_checkpoint.py",
+          "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py"
+        ],
+        "boundary": "Actual sync/async selected writer refs and owner-bound resume; portable temp-fd fsync fixture preserves deadline/cancel/budget property."
+      },
+      "dynamic_import_binding_author": {
+        "existing_lease": "nine changed HumanReview source/test paths in current R2 decision packet; optional __init__ remains unchanged",
+        "boundary": "Replace forgeable result seal with explicit unsupported institutional admission limitation; no identity-token authority, issuer/time/permission invention, or persisted schema change."
+      },
+      "r3_r4_monetary_workload_oracle": {
+        "existing_freeze": "raw/resume-chronology-epoch-owned-bridge-20261015; six source/test paths",
+        "additional_paths": [
+          "tests/_helpers/semantic_epoch_native.py"
+        ],
+        "sequential_companion": "tests/unit/runtime/quality/test_value_gate.py only after root commits independently reviewed B31 overlay",
+        "boundary": "Exact-full selected ref dedup before both native config consumers; distinct policy records remain ambiguous; controlled CatalogServingSourcePaths uses temporary fixture only. Core epoch.py frozen, root later codec patch only."
+      },
+      "c05_c12_current_composition_oracle": {
+        "paths": [
+          "src/polisyos/scientist/governance/report.py",
+          "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+          "src/polisyos/scientist/nodes/builtins/decide/_decision_packet_contracts.py",
+          "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py",
+          "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+          "src/polisyos/scientist/nodes/builtins/planning/run_evaluator.py",
+          "src/polisyos/scientist/replay/verification.py",
+          "src/polisyos/scientist/policy_design/schema.py",
+          "src/polisyos/scientist/methods/discovery/output.py",
+          "src/polisyos/scientist/methods/discovery/priors.py",
+          "src/polisyos/scientist/methods/discovery/schema.py",
+          "src/polisyos/scientist/methods/discovery/utility_judge.py",
+          "src/polisyos/scientist/methods/search/adversarial.py",
+          "tests/unit/scientist/discovery/test_utility_judge.py",
+          "tests/unit/scientist/governance/test_governance_report_owner_admission.py",
+          "tests/unit/scientist/replay/test_verification_owner_admission.py"
+        ],
+        "boundary": "Governance/Replay producer and shared owner intake; pure CAS loader capability typing; actual vulnerability producer semantics reused, no invented confidence rule. RunGovernance remains V3 owner."
+      },
+      "native_c2_independent_oracle": {
+        "frozen_grounding": "raw/resume-ir-consumer-freeze-independent-20261015/grounding-d4-final-freeze-receipt.json; 5 paths, review 32bb93aa6c5b6c7f1ff375fecb081c72445ce9bba07f75802253c58bbf1adc56",
+        "frozen_lesson": "lesson-transfer-repair-freeze-20261015.json; 3 paths; known semantic test failure and separate G choice preserved",
+        "boundary": "Frozen, no further source edits pre-root boundary."
+      },
+      "b61_exact_writer_runtime_author": {
+        "existing_freeze": "raw/phase6-gate-property-review-20261015/after-generic-resolver/run-summary.json; 15 paths",
+        "additional_released_path": "src/polisyos/runtime/quality/acquisition_executor.py after Runtime10 commit7b6",
+        "boundary": "Independent same-behavior registry-rename falsifier blocks gate; complete generic dynamic target resolution or explicit unresolved limitation, no literal site-name recognizer."
+      },
+      "v5_v6_join_systemic_oracle": {
+        "paths": [
+          "src/polisyos/scientist/methods/search/promotion_evidence.py",
+          "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+          "tests/unit/scientist/search/test_promotion_evidence.py",
+          "tests/integration/scientist/methods/autotune/test_methodjob_execution_work_packet_promotion_admission.py"
+        ],
+        "boundary": "Four actual changed paths; runtime.py unchanged. Workpacket/D4 source basis conformance is not ordinary hidden-holdout integration or appointed evaluator authority."
+      },
+      "ir_governance_loop_types_author": {
+        "paths": [
+          "src/polisyos/runtime/quality/scorecard.py",
+          "tests/unit/runtime/quality/test_scorecard.py"
+        ],
+        "boundary": "Raw override markers candidate-only; typed production approval resolver untouched. Existing generation_cycle.py/test_value_gate.py B31 frozen pending root commit; no concurrent edits."
+      },
+      "can_whole_profile_current_oracle": {
+        "mode": "read-only source; ignored controlled witness only until exact companion plan",
+        "boundary": "One actual ordinary CLI single-row cached encoder generation then separate default app GET/POST; heavy Mac slot1, one numerical thread; no profile stripping or production payload reads."
+      }
+    },
+    "resource_serialization": "Two heavy Mac slots maximum; C12 ordinary encoder witness owns slot1. One numerical thread/process. Single Linux worker slot; no extra source/env copies. Commit barrier covers all tracked writers only for hooks.",
+    "baseline_incident": "User approved exact one-file recovery; baseline now HEAD bytes. Ad-hoc BasedPyright must pass --baselinemode lock and check before/after hash. Maintained read-only discard wrappers unchanged.",
+    "root_reserved": "LEASES; generated/schema/config/lock publication; sequential epoch codec companion; exact source/input/backend freeze; receipts/proposals and remote readback.",
+    "authority": "No new formal G closures. Independent component GO and author proposals do not adjudicate canonical 282 IDs /291 occurrences; history including B198 preserved."
   }
 }

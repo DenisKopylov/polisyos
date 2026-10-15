@@ -1,0 +1,377 @@
+{
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "handoff_id": "v6-admitted-simulation-consumer-20261015",
+  "created_at": "2026-10-15",
+  "slice": {
+    "task": "V6 actual SimulationResult persistence, later sibling failure, and fresh debug/API consumer",
+    "finding": "B13",
+    "branch": "codex/e02-unified-local-20261009",
+    "base_sha": "6d83be8f5fbb7718c2bfb34d5face35f13d9230a",
+    "base_tree_sha": "63d23c35298bbb7530b491e8e7ee47c4e985186f",
+    "base_parents": [
+      "044056485b81600c47fe24241f01fb24efe0f66f"
+    ],
+    "candidate_sha": "f3e064a388fa7620acf33bf15dd59d114431dda0",
+    "candidate_tree_sha": "a18a85476dd4b8230d1db5080893f8c2746c0c09",
+    "candidate_parents": [
+      "6d83be8f5fbb7718c2bfb34d5face35f13d9230a"
+    ],
+    "commit_subject": "test(runtime): bind surviving simulation results to admitted caller and typed API refusals",
+    "changed_paths": [
+      "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py"
+    ],
+    "source_commit_and_receipt_are_separate": true
+  },
+  "criterion": {
+    "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/V6",
+    "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/V6",
+    "original_finding_pointer": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md#B13",
+    "required_property": "An actual simulation is persisted; after a later stage fails, a fresh user/debug read preserves its valid typed candidate ref and exact failure, skips dependent conclusions, permits an independent sibling, and refuses corrupted result/report bindings.",
+    "P40_bucket": {
+      "class": "SAME_CLASS_DEEPER",
+      "class_name": "V6/B13 persisted successful simulation remains readable after an independent later-stage failure",
+      "deepening": "The current witness adds actual HTTP POST admission, persisted caller-profile intent, a real simulation producer, strict typed refusal DTO and adversarial tenant/profile/byte checks to the prior route class.",
+      "not_a_new_class": "These limits concern whether the same successful-result-after-failure route was dispatched and whether its exact retained-ref predicate has an explicit removal control; they do not demonstrate a separate failure family.",
+      "falsifier": "Delete the candidate simulation ref from the persisted ExperimentState artifact while preserving the failed WorkflowReport/run-status artifacts. Re-read the actual debug consumer and prove fail-closed output; a generic presence of failure markers must not pass. If broadening to worker dispatch, submit the custom DAG through ordinary worker execution and read the post-dispatch GET.",
+      "classification_effect": "Keep the B13 author proposal limited; do not convert the test PASS into finding closure. Further same-class escapes fold into this specific limitation unless widened to the worker/readback quantity or a narrower residual is explicitly accepted by G."
+    }
+  },
+  "source_freeze": {
+    "test_source": {
+      "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+      "sha256": "70ceb27571dae74bd6412fa0132e3633bf943bc4bd191db61a4990b9772d4719",
+      "size_bytes": 51596,
+      "git_blob_sha1": "6c6898045755946ba5f28760a43ec3eae8aeb854",
+      "source_freeze_id": "sha256:b1282b775834d99e6b42a8f4b414120b94bc07d769d61d54653060f1be7a1b68",
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-res03-actual-consumer-probe-20261015/r8-strict-runtime-problem-dto/test-source-freeze.json",
+      "manifest_sha256": "14b08e3062548678add44cfd7b6e2831fad8fae1234ffbab3b13c0c7d2401bb6",
+      "readback": "Committed test-file content SHA-256 equals the R8 frozen content SHA-256; Git blob SHA-1 is recorded separately."
+    },
+    "direct_runtime_source_inputs_r8": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "r8_sha256": "e56ca352a9a4426f2d50368cda502857a219d1a53800e2e9cd43934a6fae301f",
+        "r8_size_bytes": 13726,
+        "r8_equal_before_after": true,
+        "candidate_commit_git_blob_sha1": "986f13da74d6ec2b097557d29a21606a177349cd",
+        "candidate_commit_content_sha256": "e56ca352a9a4426f2d50368cda502857a219d1a53800e2e9cd43934a6fae301f",
+        "r8_matches_candidate_commit": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "r8_sha256": "f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab",
+        "r8_size_bytes": 217661,
+        "r8_equal_before_after": true,
+        "candidate_commit_git_blob_sha1": "f0cc88d010c9ff17adbcbb84ee5f6526941bdff8",
+        "candidate_commit_content_sha256": "f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab",
+        "r8_matches_candidate_commit": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+        "r8_sha256": "0e3078d1f9a26f9a8f2933865375f368e0713a04f6d87d3d1338470f075d0c62",
+        "r8_size_bytes": 70157,
+        "r8_equal_before_after": true,
+        "candidate_commit_git_blob_sha1": "43e3f56513ab3094a25588cd702731fda1b5037b",
+        "candidate_commit_content_sha256": "aba4c3ce6962a97c8ee731718f0ed664616043b7ac2a71d624260b55f2d5ec1c",
+        "r8_matches_candidate_commit": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+        "r8_sha256": "4e931bac26e293d26f4866f1086aec81e12ed0938a941cd238e39c75e4c621c1",
+        "r8_size_bytes": 202158,
+        "r8_equal_before_after": true,
+        "candidate_commit_git_blob_sha1": "f204094a71d869708a6b6df96985244972c0b3bc",
+        "candidate_commit_content_sha256": "4e931bac26e293d26f4866f1086aec81e12ed0938a941cd238e39c75e4c621c1",
+        "r8_matches_candidate_commit": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/run/context.py",
+        "r8_sha256": "2d84d7d06a88c8692a6a97715beeecd2f2f361455f711c3b659cfd2efb6515f4",
+        "r8_size_bytes": 81644,
+        "r8_equal_before_after": true,
+        "candidate_commit_git_blob_sha1": "3cb536a2e12ec11d6cc2f29b38303c31e924853d",
+        "candidate_commit_content_sha256": "2d84d7d06a88c8692a6a97715beeecd2f2f361455f711c3b659cfd2efb6515f4",
+        "r8_matches_candidate_commit": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/routes/debug.py",
+        "r8_sha256": "85b3e58a6ac2e852fa56ef1a8dae11312c1cdcf68b9be923040c012f91c73a58",
+        "r8_size_bytes": 9219,
+        "r8_equal_before_after": true,
+        "candidate_commit_git_blob_sha1": "a6b3dc2d498c749a34bb464160cfae32a727794d",
+        "candidate_commit_content_sha256": "85b3e58a6ac2e852fa56ef1a8dae11312c1cdcf68b9be923040c012f91c73a58",
+        "r8_matches_candidate_commit": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/debug.py",
+        "r8_sha256": "9ba5da529046dc6955a21c33c649c87822610814bc4e5fe6d4ca097c9719149e",
+        "r8_size_bytes": 144781,
+        "r8_equal_before_after": true,
+        "candidate_commit_git_blob_sha1": "244bbaa3fc736842208e3b35114b1945d52f7a23",
+        "candidate_commit_content_sha256": "9ba5da529046dc6955a21c33c649c87822610814bc4e5fe6d4ca097c9719149e",
+        "r8_matches_candidate_commit": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/adapters/foundry_bridge.py",
+        "r8_sha256": "c65da18921a1f868f513180d5dd404e9c566ba380737c4f977817cd2530422f7",
+        "r8_size_bytes": 6727,
+        "r8_equal_before_after": true,
+        "candidate_commit_git_blob_sha1": "c92a34fea4db8d5c45013eaa5955d01c60b66512",
+        "candidate_commit_content_sha256": "c65da18921a1f868f513180d5dd404e9c566ba380737c4f977817cd2530422f7",
+        "r8_matches_candidate_commit": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+        "r8_sha256": "886f8091c8e3812ac0b1bda117d7c080fdea58cf3253acfb46394b95ab1343b2",
+        "r8_size_bytes": 27839,
+        "r8_equal_before_after": true,
+        "candidate_commit_git_blob_sha1": "485cc5b2ac0998beb24992cdecddd512233f3cef",
+        "candidate_commit_content_sha256": "886f8091c8e3812ac0b1bda117d7c080fdea58cf3253acfb46394b95ab1343b2",
+        "r8_matches_candidate_commit": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "r8_sha256": "fa26ff85699280a97f9dab0a3df8d7f130c2c254c07336738396bfbe6ed76655",
+        "r8_size_bytes": 88212,
+        "r8_equal_before_after": true,
+        "candidate_commit_git_blob_sha1": "a0e61d67fccb596b8401ed693fbb77f4d97b8c52",
+        "candidate_commit_content_sha256": "fa26ff85699280a97f9dab0a3df8d7f130c2c254c07336738396bfbe6ed76655",
+        "r8_matches_candidate_commit": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py",
+        "r8_sha256": "6e3ae8b0e45863b2696bbf99d1a2da297ffc6f134690b6bf7fb78b6bfe0e59b6",
+        "r8_size_bytes": 44771,
+        "r8_equal_before_after": true,
+        "candidate_commit_git_blob_sha1": "b63815ada8a99594b0ed4cf045ffdb987c4a4726",
+        "candidate_commit_content_sha256": "6e3ae8b0e45863b2696bbf99d1a2da297ffc6f134690b6bf7fb78b6bfe0e59b6",
+        "r8_matches_candidate_commit": true
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py",
+        "r8_sha256": "70ceb27571dae74bd6412fa0132e3633bf943bc4bd191db61a4990b9772d4719",
+        "r8_size_bytes": 51596,
+        "r8_equal_before_after": true,
+        "candidate_commit_git_blob_sha1": "6c6898045755946ba5f28760a43ec3eae8aeb854",
+        "candidate_commit_content_sha256": "70ceb27571dae74bd6412fa0132e3633bf943bc4bd191db61a4990b9772d4719",
+        "r8_matches_candidate_commit": true
+      }
+    ],
+    "source_input_count": 12,
+    "source_stability": "R8 run summary records identical before/after hashes for all 12 directly observed source inputs.",
+    "S1_25_path_overlay": {
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/simulation-whole-lease-25-paths.json",
+      "manifest_sha256": "2bfc6fd929474570b30b11f4f16cb98c1f9d7a530d665dcd0974fabd2d0ad6a1",
+      "source_freeze_id": "sha256:9c1ff9ff08f71ad9c52d47e1dfbd6cd81bd194b513b9f6931f31256ad92b334a",
+      "path_count": 25,
+      "all_25_match_manifest_before_and_after": true,
+      "tested_source_frame": "R8 ran at HEAD 511095b8080859c63278e17c5602b3857d85e710 with the shared, uncommitted 25-path S1 source overlay present; the overlay remained byte-stable throughout R8.",
+      "committed_candidate_boundary": "The f3e064a commit contains the test fixture companion only; it does not include the full R8 S1 overlay. Eleven of 12 direct inputs match the f3e064a tree. core/contracts/foundry.py is 0e3078d1f9a26f9a8f2933865375f368e0713a04f6d87d3d1338470f075d0c62 in the R8 overlay and aba4c3ce6962a97c8ee731718f0ed664616043b7ac2a71d624260b55f2d5ec1c in the committed tree. This records replay-overlay versus committed-tree identity; it is not labeled post-replay drift. Commit the intended S1 overlay, freeze the resulting composition, and rerun affected V6 evidence before claiming composed-source verification."
+    }
+  },
+  "profile_and_backend": {
+    "input": "Synthetic SQLite SQLQueryConnector data with two controlled income rows; caller-selected, typed DataViewRequestRef admitted through POST.",
+    "request_profile_origin": "caller_selected (persisted job payload; independently reviewed).",
+    "artifact_backend": "Local FileSystemCAS under pytest temporary directory.",
+    "api_runtime": "FastAPI TestClient with synthetic tenant/cell, fixture identity, allow_unscoped_artifacts, and security middleware disabled.",
+    "production_currentness": "not_established",
+    "external_authority_or_custody": "not_established"
+  },
+  "implemented_chain": {
+    "producer_to_artifact_to_bridge_to_consumer": [
+      "SQLite SQLQueryConnector persists controlled source snapshot and typed DataViewRequestRef.",
+      "POST /api/v1/control/runs persists workflow_run admission, caller_selected profile intent, job payload and control.job.created outbox event.",
+      "DefaultFoundryPort produces and persists typed foundry.simulation_result and foundry.metrics with tenant-scoped CAS manifests and input roles.",
+      "A later workflow node fails res03.later_failure; dependent child skips as upstream_failed while an independent sibling succeeds.",
+      "Fresh run/workflow/evidence-context/debug GETs retain terminal failure, report/result refs and candidate projection."
+    ],
+    "metrics_cas_readback": {
+      "artifact_id": "sha256:3b1af351c08bfe30c92d98c8ac167a7a1a04869913ac452d0e54f7b55948b694",
+      "kind": "foundry.metrics",
+      "schema": "polisyos.core.Metrics@0.1.0",
+      "media_type": "application/json",
+      "tenant_context": {
+        "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "cell_id": "cell-a"
+      },
+      "size_bytes": 220,
+      "finite_numeric_values_count": 10,
+      "numeric_values": {
+        "applied_nodes": 1,
+        "checked_constraints": 0,
+        "constraint_hard_fail": 0,
+        "failure_cards_dropped": 0,
+        "failure_cards_recorded": 0,
+        "op_nodes": 4,
+        "patch_ops": 2,
+        "skipped_nodes": 0,
+        "step": 0,
+        "step_latency_ms": 1014
+      },
+      "cas_verification": "verified",
+      "served_metrics_ref_matches_producer": true,
+      "numeric_metrics_in_debug_http_body": false
+    },
+    "debug_consumer": {
+      "surface": "GET /api/v1/debug/runs/{run_id}/nodes/run_simulation/simulation-result",
+      "projection_class": "candidate_reference_only",
+      "authority_status": "non_authority",
+      "integrity_status": "verified",
+      "result_ref": {
+        "artifact_id": "sha256:e801a6d138401a16e49c99ff394df406b44bc8b0638a5ae90a6d177629e6cbce",
+        "kind": "foundry.simulation_result",
+        "manifest_profile_sha256": null,
+        "media_type": "application/json"
+      },
+      "meaning": "The API returns typed candidate refs; numerical Metrics bytes were verified from CAS in the probe and are not rendered as an HTTP metrics body."
+    },
+    "workflow_statuses": {
+      "nodes": {
+        "dependent_after_failure": {
+          "error_code": null,
+          "skip_reason": "upstream_failed",
+          "status": "skip"
+        },
+        "independent_sibling": {
+          "error_code": null,
+          "skip_reason": null,
+          "status": "ok"
+        },
+        "later_failure": {
+          "error_code": "res03.later_failure",
+          "skip_reason": null,
+          "status": "fail"
+        },
+        "run_simulation": {
+          "error_code": null,
+          "skip_reason": null,
+          "status": "ok"
+        }
+      },
+      "workflow_status": "fail"
+    }
+  },
+  "verification": {
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-res03-actual-consumer-probe-20261015/r8-strict-runtime-problem-dto/pytest-basetemp",
+      "tests/integration/scientist/test_res_03_real_simulation_route.py::test_res_03_real_simulation_later_failure_reaches_user_route",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-res03-actual-consumer-probe-20261015/r8-strict-runtime-problem-dto/junit.xml",
+      "-p",
+      "v6_probe_plugin"
+    ],
+    "result": "1 passed, 2 warnings in 45.68s",
+    "wrapper_wall_seconds": 50.577,
+    "deadline_seconds": 180,
+    "return_code": 0,
+    "timed_out": false,
+    "warnings": "Two Torch JIT deprecation warnings under Python 3.14; no test failure.",
+    "environment": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "SCIPY_OPENBLAS_NUM_THREADS": "1",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "deciding_output": {
+      "run_summary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-res03-actual-consumer-probe-20261015/r8-strict-runtime-problem-dto/run-summary.json@sha256:6217a6e52cdf8f1b8183ea3f8f062c0653d92c1c11f3d3d97a921fd0b930348f",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-res03-actual-consumer-probe-20261015/r8-strict-runtime-problem-dto/pytest.stdout.txt@sha256:233ebce6835386120cdcde1aa90c911f56706dcb798aaf9b28aa93d1d2110f06",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-res03-actual-consumer-probe-20261015/r8-strict-runtime-problem-dto/pytest.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-res03-actual-consumer-probe-20261015/r8-strict-runtime-problem-dto/junit.xml@sha256:61ea29ad1f0b64ba819bff7785c5619fac5618d8a341180cda22abcd70b18adc",
+      "observation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-res03-actual-consumer-probe-20261015/r8-strict-runtime-problem-dto/observation.json@sha256:3ea4305ea35cb22c2ec03a98c4ef083a7f9c02fc700146c00c14e20ab1c5a392",
+      "note": "Complete deciding outputs are retained under the ignored raw/ directory; no raw fixture dump is copied into this tracked record."
+    },
+    "focused_lint_before_replay": "Ruff check, Ruff format --check and git diff --check passed for the frozen test path.",
+    "whole_repo_native_gates": "not run by this V6 slice."
+  },
+  "adversarial_and_removal_controls": {
+    "present": [
+      "Malformed, wrong-kind/media/schema, stale run/state, foreign tenant/cell and wrong/mixed node-reference cases.",
+      "SimulationResult CAS byte tamper produces 409 simulation_result_integrity_failed.",
+      "Workflow-report binding tamper produces 409 simulation_result_binding_integrity_failed.",
+      "Authority refusal parses the strict RuntimeApiProblem DTO and checks extension decision reason, blocking, visible downgrade and verified integrity."
+    ],
+    "missing_exact_property_removal_control": "The test does not delete ARTIFACT_SIMULATION_RESULT_REF from persisted ExperimentState while preserving failure/status markers and assert that the same fresh debug consumer refuses the read. Add this exact P29 property-removal probe."
+  },
+  "prior_attempts": [
+    {
+      "attempt": "r3",
+      "outcome": "Failed on data_view_request_* provenance warnings: the ordinary caller-selected request/profile context was not established in that first route witness.",
+      "return_code": 1,
+      "duration_seconds": 56.526,
+      "run_summary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-res03-actual-consumer-probe-20261015/r3/run-summary.json@sha256:b17c63ba6a4a4c93203d835a56600a9dfcfb277cffd220472795c948e0e69d78"
+    },
+    {
+      "attempt": "r4-preserved-fixture",
+      "outcome": "Same evidence-context provenance refusal on exact selector; retained-fixture GET separately confirmed candidate ref serving while profile origin/lineage remained unestablished.",
+      "return_code": 1,
+      "duration_seconds": 55.656,
+      "run_summary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-res03-actual-consumer-probe-20261015/r4-preserved-fixture/run-summary.json@sha256:598643552cef8547e44891d5dd4d758433e96deaab24dba14e59c3001ef0b7e4"
+    },
+    {
+      "attempt": "r5-admitted-context",
+      "outcome": "POST admitted the caller-selected request, but low-level custom execution did not persist the control-job backlink, so the consumer remained not_established.",
+      "return_code": 1,
+      "duration_seconds": 51.999,
+      "run_summary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-res03-actual-consumer-probe-20261015/r5-admitted-context/run-summary.json@sha256:a413ce5161b6a4cef9b5886d11417d5cd1992f1f6cb1f17a407afe08e2eb53e7"
+    },
+    {
+      "attempt": "r6-admitted-context-runmeta",
+      "outcome": "After linking the manifest, the route and CAS checks ran; this test attempt failed because the helper expected authority_surface_decision at the flat response top level instead of in RuntimeApiProblem.extensions.",
+      "return_code": 1,
+      "duration_seconds": 60.885,
+      "run_summary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-res03-actual-consumer-probe-20261015/r6-admitted-context-runmeta/run-summary.json@sha256:a5a1c6452ff9314188bb9a767239fa7094f0cee5b9ba312549c82cb5e522b5fc"
+    },
+    {
+      "attempt": "r7-nested-http-problem-envelope",
+      "outcome": "Passed with nested JSON extension access. Superseded as final deciding receipt by R8, which uses strict RuntimeApiProblem DTO parsing.",
+      "return_code": 0,
+      "duration_seconds": 52.087,
+      "run_summary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-res03-actual-consumer-probe-20261015/r7-nested-http-problem-envelope/run-summary.json@sha256:20d889c96c21a9bc7fa3076b73aa28aabea09544701ed203bbc53f6d817687f6"
+    }
+  ],
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v6-test-companion-independent-20261015/review.json",
+    "sha256": "30b517e970acc864b950bb51db95172259ee2e0db4a2398324d087e60613b256",
+    "reviewer": "native_c2_dead_override_author",
+    "decision": "GO_BOUNDED_V6_WITNESS",
+    "scope": "Independent GO for the exact bounded V6 witness. Review source hash matches R8 test bytes and its review-time source frame; it does not grant finding closure or full worker-dispatch/production claims.",
+    "finding_disposition": "B13 remains a limited author proposal; no closure_ids and no G adjudication"
+  },
+  "proposals": [
+    {
+      "finding_id": "B13",
+      "outcome": "limited author proposal",
+      "proposal": "The exact R8 witness demonstrates persisted candidate SimulationResult readability after an independent later failure, sibling/dependent lifecycle behavior, fresh reference reads, and CAS corruption refusal.",
+      "limitations": [
+        "The test stops the embedded worker after ordinary POST admission, then runs a custom sibling-failure DAG manually through low-level WorkflowExecutor and explicitly attaches the admitted control_job_id to the run manifest. It does not prove ordinary worker dispatch of this request/DAG.",
+        "The debug route is candidate-reference-only and non-authority. Numeric Metrics content was verified in CAS; it is not rendered in the HTTP body.",
+        "Fixture identity, synthetic tenant/cell, unscoped artifacts and disabled security middleware do not establish production workload, active profile, custody, currentness or external authority.",
+        "No exact retained-ref removal control has yet falsified the successful-result GET property while failure markers remain.",
+        "The R8 runtime overlay is not wholly included in candidate commit f3e064a; source freeze and affected replay are required after the intended S1 overlay is committed."
+      ],
+      "next_check": "Commit and freeze the intended source composition (including the R8 S1 overlay), then rerun this V6 selector on that exact composition. Add the persisted-state retained-ref removal control. If ordinary worker dispatch is in accepted scope, dispatch this custom workflow through the worker and perform fresh GET."
+    }
+  ],
+  "closure_ids": [],
+  "authority_and_acceptance": {
+    "formal_adjudicator": "G",
+    "formal_G_acceptance": "pending",
+    "global_closeout": "not established by this slice",
+    "no_claims": [
+      "production workload qualification",
+      "live profile/currentness",
+      "external custody or issuer authority",
+      "numeric Metrics rendered in API response",
+      "formal B13 closure"
+    ]
+  }
+}

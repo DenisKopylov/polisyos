@@ -1,0 +1,897 @@
+{
+  "implementation": {
+    "P37_P38": {
+      "consumer_asserted_or_not_established": "No EvidenceBundle schema-owner predicate is admitted; SimulationResult WARNING-to-publication composition is not established; producer identity/signature and external authority are not established.",
+      "divergent_case": "A correctly shaped EvidenceBundle under an authorized non-default producer profile can be rejected by an unjustified default-only policy, while payload shape alone can wrongly admit a same-shape foreign schema; the consumer contract needs the complete producer-profile set before admission.",
+      "recomputed": "For bounded DataSnapshot and IR Trinity paths, selected-profile manifest/content and owner checks are recomputed at the consumer boundary."
+    },
+    "P40_bucket": "SAME_CLASS_ONE_LEVEL_DEEPER: selected typed-owner admission remains the class. This five-owner slice closes only bounded consumer routes. Missing-owner generic Core validation and legitimate multi-profile EvidenceBundle are deeper members and remain held; no per-consumer patch ladder or default-only EvidenceBundle contract is proposed.",
+    "effective_dependency_hash_reconciliation": {
+      "interpretation": "The independent review source pins exactly match all ten assigned source/test postimages. Its effective dependency pin for blueprint_release.py differs from the immutable source commit blob. This handoff preserves both values; the dependency-content boundary for that producer must be reconciled before using the review as an exact producer-side source freeze.",
+      "mismatch": {
+        "candidate_bytes": 133310,
+        "candidate_commit_blob": "3e23a83c2ec8c174dcec3428445a6b23bcb5902a",
+        "candidate_sha256": "f58064a851cae714fe587794c8d4b3cb9f652905441b27898d3afb665fa40346",
+        "matches_review_expected": false,
+        "path": "policy-engine/src/polisyos/scientist/governance/blueprint_release.py",
+        "review_expected_bytes": 134461,
+        "review_expected_sha256": "3630d0ed760544fdbdacd40e621573a17c168acdb2561b32e7ac466229ae4624",
+        "status": "mismatch_requires_reconciliation"
+      },
+      "result": "14 of 15 reviewer dependency pins match the exact candidate commit; one pin differs and must not be silently treated as exact."
+    },
+    "effective_runtime_dependencies": [
+      {
+        "candidate_bytes": 6803,
+        "candidate_commit_blob": "4eb2d3703a75d9a8af6503385ff401621ea394c4",
+        "candidate_sha256": "09a8a5dd1468edbad75632336a1ec16c4580b6cf97decde326b2c63c6f6880a1",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/ir/trinity/loaders.py",
+        "review_expected_bytes": 6803,
+        "review_expected_sha256": "09a8a5dd1468edbad75632336a1ec16c4580b6cf97decde326b2c63c6f6880a1",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 12663,
+        "candidate_commit_blob": "630a5d8157a7c7c94d4d13bcd4d9f3e863552001",
+        "candidate_sha256": "c5dbd2ba226e67a748d8d4a6064ebb218042580d129d5fedda17dc621db48894",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "review_expected_bytes": 12663,
+        "review_expected_sha256": "c5dbd2ba226e67a748d8d4a6064ebb218042580d129d5fedda17dc621db48894",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 22839,
+        "candidate_commit_blob": "67aaab2c641a19bfdfc42892d38da99e2f39c8d1",
+        "candidate_sha256": "da6d33ca7aaad00dd7ed8b6ccefa0e5b126d591f8c63951540606d3ea3e6d0ed",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "review_expected_bytes": 22839,
+        "review_expected_sha256": "da6d33ca7aaad00dd7ed8b6ccefa0e5b126d591f8c63951540606d3ea3e6d0ed",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 37586,
+        "candidate_commit_blob": "232c31b73eef6596a2b273c5579aa29750cfacf0",
+        "candidate_sha256": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+        "review_expected_bytes": 37586,
+        "review_expected_sha256": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 5735,
+        "candidate_commit_blob": "41cfab28552e7a4ee230f9b363f46aba2d69ff4f",
+        "candidate_sha256": "ca825e69949de563588cecf828323dfd123691c8ba380fc66acd42cd1fc4544c",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+        "review_expected_bytes": 5735,
+        "review_expected_sha256": "ca825e69949de563588cecf828323dfd123691c8ba380fc66acd42cd1fc4544c",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 70157,
+        "candidate_commit_blob": "c098279062a1ee558b97876fcc7d6d9a3a57f975",
+        "candidate_sha256": "0e3078d1f9a26f9a8f2933865375f368e0713a04f6d87d3d1338470f075d0c62",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+        "review_expected_bytes": 70157,
+        "review_expected_sha256": "0e3078d1f9a26f9a8f2933865375f368e0713a04f6d87d3d1338470f075d0c62",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 29921,
+        "candidate_commit_blob": "a3d91b9befccb43c95342cb7c9a2b4ad350cbfc5",
+        "candidate_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+        "review_expected_bytes": 29921,
+        "review_expected_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 52107,
+        "candidate_commit_blob": "59a6df80b1a89f3c23f8a1cd6b8107c7b3d60ca0",
+        "candidate_sha256": "c3ac7464df74fc6c8478267bfedb90121d3ea9ed3d947dbb98d212c784941599",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+        "review_expected_bytes": 52107,
+        "review_expected_sha256": "c3ac7464df74fc6c8478267bfedb90121d3ea9ed3d947dbb98d212c784941599",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 6204,
+        "candidate_commit_blob": "c3d85ef2d25631bbd4a9bdedfe1626a87d3d7eca",
+        "candidate_sha256": "e179fdefed5107bda92cf2fa3b659f7efaac18c1fee22cde76e0ea8c06a9a672",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/fabric/evidence/evidence.py",
+        "review_expected_bytes": 6204,
+        "review_expected_sha256": "e179fdefed5107bda92cf2fa3b659f7efaac18c1fee22cde76e0ea8c06a9a672",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 4323,
+        "candidate_commit_blob": "d5bec664daca60c215b8a1d459e383d91a861dae",
+        "candidate_sha256": "7d8bdb8f590b65b57b1d753f05f353787054dd3585d35511b7203534b31bf6da",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/fabric/claims/types.py",
+        "review_expected_bytes": 4323,
+        "review_expected_sha256": "7d8bdb8f590b65b57b1d753f05f353787054dd3585d35511b7203534b31bf6da",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 5493,
+        "candidate_commit_blob": "efea8e5dcce6ba9ded136eedf72df66a60195a6c",
+        "candidate_sha256": "dd56a3ab287b47d96318a91ad7f1f896f54d92f2fefd0a0402603313badb36ca",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/fabric/claims/persist.py",
+        "review_expected_bytes": 5493,
+        "review_expected_sha256": "dd56a3ab287b47d96318a91ad7f1f896f54d92f2fefd0a0402603313badb36ca",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 16924,
+        "candidate_commit_blob": "313f120b0265ded82391dbfe986ac73c668c9c68",
+        "candidate_sha256": "6d7bd5eb1f2fd890971bb7c0ba4575a5c40b337aeadec2cdc7dd3db4d8dc9a42",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/fabric/claims/extraction.py",
+        "review_expected_bytes": 16924,
+        "review_expected_sha256": "6d7bd5eb1f2fd890971bb7c0ba4575a5c40b337aeadec2cdc7dd3db4d8dc9a42",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 17677,
+        "candidate_commit_blob": "652fa1132989afb3ef3403472e5f8b19b6168f53",
+        "candidate_sha256": "54d88175a8428821adb4174a4ec05fbeda385a389e60fbae6ed5ec18804127e2",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/fabric/claims/normalize.py",
+        "review_expected_bytes": 17677,
+        "review_expected_sha256": "54d88175a8428821adb4174a4ec05fbeda385a389e60fbae6ed5ec18804127e2",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 64436,
+        "candidate_commit_blob": "f935d3ee1fe7a2298374aa247b4a5fc57a3a5ede",
+        "candidate_sha256": "d2c4523e3dd141e0906b1cba3ec1b50a5db7ef294e3db279b92d0fc8f8ef6a4a",
+        "matches_review_expected": true,
+        "path": "policy-engine/src/polisyos/foundry/execute/api.py",
+        "review_expected_bytes": 64436,
+        "review_expected_sha256": "d2c4523e3dd141e0906b1cba3ec1b50a5db7ef294e3db279b92d0fc8f8ef6a4a",
+        "status": "matches"
+      },
+      {
+        "candidate_bytes": 133310,
+        "candidate_commit_blob": "3e23a83c2ec8c174dcec3428445a6b23bcb5902a",
+        "candidate_sha256": "f58064a851cae714fe587794c8d4b3cb9f652905441b27898d3afb665fa40346",
+        "matches_review_expected": false,
+        "path": "policy-engine/src/polisyos/scientist/governance/blueprint_release.py",
+        "review_expected_bytes": 134461,
+        "review_expected_sha256": "3630d0ed760544fdbdacd40e621573a17c168acdb2561b32e7ac466229ae4624",
+        "status": "mismatch_requires_reconciliation"
+      }
+    ],
+    "producer_artifact_bridge_consumers": [
+      {
+        "artifact_contract": "polisyos.ir.TrinityBundle@1.0; ir.trinity_bundle; application/json; payload schema_version 1.0.",
+        "bounded_behavior": "Foreign owner schema is refused before Legal writes additional refs; RAG produces no index entry for foreign-owner bundle.",
+        "bridge": "Core-to-IR adapter preserves typed artifact reference and manifest_profile_sha256; shared IR loader validates selected-profile bytes/profile, manifest owner, and payload version.",
+        "consumer_and_surface": "Legal evaluation admits PolicySpec/ModelSpec refs after owned bundle load; Scientist RAG builds/searches its index from the selected bundle.",
+        "producer": "blueprint_release writes TrinityBundle with declared owner constants (producer implementation is an effective dependency, with the hash mismatch called out above).",
+        "route": "IR TrinityBundle -> Legal evaluation and Scientist RAG"
+      },
+      {
+        "artifact_contract": "polisyos.core.DataSnapshot@0.2.0; fabric.data_snapshot; application/json.",
+        "bounded_behavior": "Foreign manifest owner is rejected; live negative is recorded as terminal typed failure with response_admitted=false; positive test uses real ingestion/connector path with intercepted transport and fresh reopen.",
+        "bridge": "Core artifact resolver validates selected manifest kind/media/schema name/version, selected bytes/profile, strict payload, and any payload schema_version relation.",
+        "consumer_and_surface": "Live acquisition reopens persisted DataSnapshot after ordinary ingestion; feasibility probe consumes DataSnapshot before nested StateSnapshot.",
+        "producer": "Data plane orchestrator and streaming writers persist the DataSnapshot owner.",
+        "route": "Fabric DataSnapshot -> runtime acquisition and feasibility"
+      },
+      {
+        "artifact_contract": "polisyos.core.SimulationResult, foundry.simulation_result/application/json; current 1.4 and legacy 1.3.",
+        "bounded_behavior": "Foreign schema returns CONFIDENCE_SIM_RESULT_LOAD_FAILED WARNING and does not admit an uncertainty envelope from that object; same-content legacy 1.3 views are distinguished by selected lineage.",
+        "bridge": "Selected profile is resolved and validated against manifest owner and payload schema version; selected-view lineage is retained.",
+        "consumer_and_surface": "Confidence governance pass.",
+        "producer": "Foundry execute API has current 1.4 producer path with ExecutionInputBasis and legacy 1.3 path (source-inspected for the assigned slice).",
+        "route": "Foundry SimulationResult -> confidence pass"
+      }
+    ],
+    "source_footprint": [
+      {
+        "candidate_bytes": 15900,
+        "candidate_sha256": "37ecd84521af69b4ec149f48d31ec0bb536d2bd72cd73b388c6237a34d983cf0",
+        "independent_review_pin": {
+          "bytes": 15900,
+          "path": "src/polisyos/lex/legal_evaluation/evaluate.py",
+          "sha256": "37ecd84521af69b4ec149f48d31ec0bb536d2bd72cd73b388c6237a34d983cf0"
+        },
+        "path": "policy-engine/src/polisyos/lex/legal_evaluation/evaluate.py",
+        "role": "source",
+        "slice_base_sha256": "049241f5369d44d1d293db5106667861fca2cf73be1d9af7f23155f1518d9dc5",
+        "source_commit_blob": "1db5f59be6fe465adc48a7b3188025aa9d2bf5c9"
+      },
+      {
+        "candidate_bytes": 110458,
+        "candidate_sha256": "27136bac2029380f0bf5127d2dc01aa296e90d5b4e2b31d36b0584d16151b6fc",
+        "independent_review_pin": {
+          "bytes": 110458,
+          "path": "src/polisyos/runtime/quality/acquisition_executor.py",
+          "sha256": "27136bac2029380f0bf5127d2dc01aa296e90d5b4e2b31d36b0584d16151b6fc"
+        },
+        "path": "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+        "role": "source",
+        "slice_base_sha256": "648c286f25720fc16270ea2bed2ce8b50f703d4ac0e532ca1848f2ab7f25b78b",
+        "source_commit_blob": "9fef93ac470668ea171c0645e57cb1c1cb60873f"
+      },
+      {
+        "candidate_bytes": 15374,
+        "candidate_sha256": "ac090039869ea13a934549984d1474a795749949c19f4aa2675c16bd50c4c8b4",
+        "independent_review_pin": {
+          "bytes": 15374,
+          "path": "src/polisyos/scientist/agent/feasibility.py",
+          "sha256": "ac090039869ea13a934549984d1474a795749949c19f4aa2675c16bd50c4c8b4"
+        },
+        "path": "policy-engine/src/polisyos/scientist/agent/feasibility.py",
+        "role": "source",
+        "slice_base_sha256": "6002318367d06ab90f11b199226fa4c4d99f55636de2c115afb4fe04eaff5aee",
+        "source_commit_blob": "3b089c8ddf23328c637a8e676186696b7224dc8c"
+      },
+      {
+        "candidate_bytes": 24924,
+        "candidate_sha256": "7e11e108b1752cb20fbe7180134dcd34a1342ec16e3de3b70fb1172c370da54c",
+        "independent_review_pin": {
+          "bytes": 24924,
+          "path": "src/polisyos/scientist/agent/rag.py",
+          "sha256": "7e11e108b1752cb20fbe7180134dcd34a1342ec16e3de3b70fb1172c370da54c"
+        },
+        "path": "policy-engine/src/polisyos/scientist/agent/rag.py",
+        "role": "source",
+        "slice_base_sha256": "39e205ce8ad920239a9c3b324d8c2424ee10a44f740ff5b1a6e510f52b4de596",
+        "source_commit_blob": "1785a212bde258db301304e226bbb759b9465224"
+      },
+      {
+        "candidate_bytes": 13773,
+        "candidate_sha256": "0a7a50f51723a2f810568ca2c4d5295690476a4260f1eaf9c341bff5452ecc08",
+        "independent_review_pin": {
+          "bytes": 13773,
+          "path": "src/polisyos/scientist/governance/passes/confidence_pass.py",
+          "sha256": "0a7a50f51723a2f810568ca2c4d5295690476a4260f1eaf9c341bff5452ecc08"
+        },
+        "path": "policy-engine/src/polisyos/scientist/governance/passes/confidence_pass.py",
+        "role": "source",
+        "slice_base_sha256": "afc5cb80ba5535019312b575a421f91431c7a5920431166b0a99e488ff63cbd9",
+        "source_commit_blob": "293c019a9451a52b8d59d0d6615cc720c55323ca"
+      },
+      {
+        "candidate_bytes": 18081,
+        "candidate_sha256": "672bf1cab42023e712c959faf9bd71d1616a29dccedf92ec7f5e0ca12b81b61c",
+        "independent_review_pin": {
+          "bytes": 18081,
+          "path": "tests/unit/fabric/test_legal_evaluation.py",
+          "sha256": "672bf1cab42023e712c959faf9bd71d1616a29dccedf92ec7f5e0ca12b81b61c"
+        },
+        "path": "policy-engine/tests/unit/fabric/test_legal_evaluation.py",
+        "role": "test",
+        "slice_base_sha256": "5b9650ee9e4affb976189dca362f7ec185bcb50ec4dd32691494f58852468e08",
+        "source_commit_blob": "249abba3d96d9211d7394aa53f28c2afcef64f73"
+      },
+      {
+        "candidate_bytes": 53704,
+        "candidate_sha256": "6b37db68f60e43420c10abef917a1adafcd9d9fab316e3c8aa97cad9580128c1",
+        "independent_review_pin": {
+          "bytes": 53704,
+          "path": "tests/unit/runtime/quality/test_live_acquisition_executor.py",
+          "sha256": "6b37db68f60e43420c10abef917a1adafcd9d9fab316e3c8aa97cad9580128c1"
+        },
+        "path": "policy-engine/tests/unit/runtime/quality/test_live_acquisition_executor.py",
+        "role": "test",
+        "slice_base_sha256": "19daf098b4792718438fbcdcef2418072a83fb95f728ea7ff900835c578e5eec",
+        "source_commit_blob": "d1607b80bcbfa3ce5383fdfbc2127e47df33c95e"
+      },
+      {
+        "candidate_bytes": 7094,
+        "candidate_sha256": "76d1309428766347b49c58e26293ec89b7f20536c4faeb4678d1e431a00fd38e",
+        "independent_review_pin": {
+          "bytes": 7094,
+          "path": "tests/unit/scientist/agent/test_feasibility_probe.py",
+          "sha256": "76d1309428766347b49c58e26293ec89b7f20536c4faeb4678d1e431a00fd38e"
+        },
+        "path": "policy-engine/tests/unit/scientist/agent/test_feasibility_probe.py",
+        "role": "test",
+        "slice_base_sha256": "8312c70dba788893ad0c8f0e157410a655c7cc06e1f59d95c5764552c4339c49",
+        "source_commit_blob": "996a683366a158973ea79ca44fe31716422e28ca"
+      },
+      {
+        "candidate_bytes": 9418,
+        "candidate_sha256": "c65fbbcb4c3d1561fd26437d33a956926eb8287ea66592bacd9060efb4ed47db",
+        "independent_review_pin": {
+          "bytes": 9418,
+          "path": "tests/unit/scientist/agent/test_rag_index.py",
+          "sha256": "c65fbbcb4c3d1561fd26437d33a956926eb8287ea66592bacd9060efb4ed47db"
+        },
+        "path": "policy-engine/tests/unit/scientist/agent/test_rag_index.py",
+        "role": "test",
+        "slice_base_sha256": "63b9d88e37f77997c8115ab6e3852276d4cdd1df4ef01770a5f600ba5000fafb",
+        "source_commit_blob": "918215f29ebec845c87c0654dffa2d19fef83dba"
+      },
+      {
+        "candidate_bytes": 15151,
+        "candidate_sha256": "b367df2716946c66f8e3eac182731b330e98794de027ed98258ccd625561ac81",
+        "independent_review_pin": {
+          "bytes": 15151,
+          "path": "tests/unit/scientist/governance/test_confidence_pass.py",
+          "sha256": "b367df2716946c66f8e3eac182731b330e98794de027ed98258ccd625561ac81"
+        },
+        "path": "policy-engine/tests/unit/scientist/governance/test_confidence_pass.py",
+        "role": "test",
+        "slice_base_sha256": "740807f90fccbdab4e9e001d679780c7cdef092f3d8867725ef4275a1e209b53",
+        "source_commit_blob": "6734f0de00253c46784a935d8e7ac70b584052a3"
+      }
+    ]
+  },
+  "limitations": {
+    "confidence": "The WARNING-to-publication or external surface effect is unverified. A positive current SimulationResult 1.4 producer/consumer test is unrun; do not infer publication blocking or successful positive 1.4 runtime behavior.",
+    "dependency_hash": "blueprint_release.py independent-review hash differs from the exact 7b6 commit blob; the mismatch is explicitly recorded and requires reconciliation.",
+    "evidence_bundle": "EvidenceBundleRef lacks a schema owner; persist_evidence_bundle accepts schema name/version override, while real producers use multiple profiles. A typed expected-owner descriptor or authorized profile set must be derived from complete producer/consumer census; do not force the default owner.",
+    "external_authority": "No external issuer, legal authority, producer signature/authentication, custody/currentness claim, live production input, or production deployment was established by these local unit tests.",
+    "finding_statuses": [
+      {
+        "bounded_result": "Legal positive persists PolicySpec/ModelSpec refs only after owned IR bundle read; foreign schema fails before extra writes. RAG positive builds/searches from approved packet; foreign-owner bundle yields no index entry. Production blueprint_release writes IR TrinityBundle using declared owner constants.",
+        "id": "IR-TRINITY-LEGAL-RAG",
+        "limitation": "RAG packet stores Trinity ref as ID-only string; tests cover the default manifest view. No selected non-default RAG profile or signed producer identity is established.",
+        "paths": [
+          "src/polisyos/lex/legal_evaluation/evaluate.py",
+          "src/polisyos/scientist/agent/rag.py"
+        ],
+        "property": "Reject a Trinity payload unless the selected IR view has the owner kind/media/schema name/version and payload schema_version.",
+        "source_evidence": "legal and RAG both call ensure_ir_artifact_store plus load_trinity_bundle_artifact. That loader uses IR get_json_artifact for selected-profile byte conformance, reads the same selector manifest, checks exact TrinityBundle owner fields, then checks payload version. CoreToIR adapter preserves typed ref manifest_profile_sha256.",
+        "status": "bounded_GO",
+        "tests": [
+          "test_legal_evaluation_resolves_only_owned_ir_trinity_bundle",
+          "test_legal_evaluation_writes_refs_from_owned_ir_trinity_bundle",
+          "test_rag_build_from_cas_and_search",
+          "test_rag_skips_trinity_bundle_with_foreign_owner_schema"
+        ]
+      },
+      {
+        "bounded_result": "Live negative mutates the actual persisted snapshot owner and sees a typed refusal recorded as terminal failure with response_admitted=false. Positive runs real ingestion/connector with intercepted transport, then reopens persisted evidence through ordinary resolver. Feasibility has same-owner positive plus foreign-owner refusal.",
+        "id": "CORE-DATASNAPSHOT-ACQUISITION-FEASIBILITY",
+        "limitation": "Validating DataSnapshot does not validate the owner ABI of its EvidenceBundle reference.",
+        "paths": [
+          "src/polisyos/runtime/quality/acquisition_executor.py",
+          "src/polisyos/scientist/agent/feasibility.py"
+        ],
+        "property": "DataSnapshot manifest owner is validated before consumer use.",
+        "source_evidence": "DataSnapshot declares fabric.data_snapshot/application-json/polisyos.core.DataSnapshot@0.2.0. validate_core_model_json_artifact checks selected manifest kind/media/schema name/version, selected byte/profile conformance, strict payload, and version relation where the model contains schema_version. Orchestrator and streaming writers persist the same owner.",
+        "status": "bounded_GO",
+        "tests": [
+          "test_live_executor_rejects_foreign_data_snapshot_schema",
+          "test_live_executor_runs_real_orchestrator_and_connector_with_intercepted_transport",
+          "test_state_snapshot_probe_rejects_foreign_data_snapshot_owner",
+          "test_state_snapshot_probe_counts_matching_agents"
+        ]
+      },
+      {
+        "bounded_result": "Foreign schema becomes CONFIDENCE_SIM_RESULT_LOAD_FAILED WARNING; no envelope admission is derived from that object. Selected-view test distinguishes two same-content legacy 1.3 views by lineage.",
+        "id": "CORE-SIMULATIONRESULT-CONFIDENCE",
+        "limitation": "Warning-to-publication composition is not verified here. The assigned files contain no positive 1.4 producer case; that producer branch is source-inspected only. Do not claim the refusal blocks publication or that both versions were dynamically tested.",
+        "paths": [
+          "src/polisyos/scientist/governance/passes/confidence_pass.py"
+        ],
+        "property": "Foreign SimulationResult schema owner is refused before uncertainty envelope admission; selected profile lineage is retained.",
+        "source_evidence": "Model declares foundry.simulation_result/application-json/polisyos.core.SimulationResult@1.4, legacy 1.3. Foundry producer writes 1.4 with ExecutionInputBasis and legacy 1.3 otherwise; Core validator supports those manifest versions and matches payload schema_version.",
+        "status": "limited",
+        "tests": [
+          "test_confidence_pass_refuses_simulation_result_from_foreign_schema",
+          "test_confidence_pass_preserves_selected_simulation_lineage_view",
+          "test_confidence_pass_blocks_wide_ci"
+        ]
+      },
+      {
+        "id": "EVIDENCEBUNDLE-PROFILE-OWNER",
+        "minimum_next_check": "Resolve a typed expected-owner descriptor/authorized profile set from all real EvidenceBundle producers and consumers; test each legitimate profile through its consumer and a foreign same-payload profile refusal. Do not impose a default-only owner.",
+        "paths": [
+          "src/polisyos/runtime/quality/acquisition_executor.py",
+          "src/polisyos/core/contracts/fabric.py",
+          "src/polisyos/fabric/evidence/evidence.py",
+          "src/polisyos/fabric/claims/types.py",
+          "src/polisyos/fabric/claims/persist.py"
+        ],
+        "property": "A typed EvidenceBundle reader needs an authorized producer-profile contract; payload shape alone cannot establish the profile owner.",
+        "source_evidence": "EvidenceBundleRef has kind/media but no schema owner. persist_evidence_bundle accepts schema_name/schema_version override. Claims producers use fabric.evidence.claim_extract_v1@1.0 and fabric.evidence.claim_normalize_v1@1.0. Acquisition reads selected Core JSON then EvidenceBundle.model_validate and source equality without validating profile owner.",
+        "status": "HOLD",
+        "test_gap": "No test in the assigned five modules exercises those override profiles or a same-shape foreign EvidenceBundle schema at the acquisition consumer."
+      },
+      {
+        "evidence": "The pinned assessment marks these overlaps and gives bounded positives for generation_cycle Graph/ExecPlan owner checks and N7 DataSnapshot custody; neither establishes the WMR DataSnapshot companion or generic WMR route.",
+        "id": "OVERLAPPING-ROUTES",
+        "minimum_next_check": "Route each sibling consumer through the shared owner mechanism or declare and falsify a bounded residual, then replay its actual consumer tests. Whole route quantity remains open.",
+        "paths": [
+          "src/polisyos/runtime/quality/data_state_substrate.py",
+          "src/polisyos/runtime/quality/generation_cycle.py",
+          "src/polisyos/runtime/quality/world_model_record.py"
+        ],
+        "property": "The selected-owner class also includes sibling DataSnapshot/WMR paths outside this five-file lease.",
+        "status": "HOLD"
+      }
+    ],
+    "full_capability": "No whole-group verification or semantic acceptance is claimed. The available runs are selected unit tests and Ruff checks, not a composed HTTP/API fresh GET or complete end-to-end source freeze.",
+    "overlapping_routes": "data_state_substrate.py, generation_cycle.py, and world_model_record.py sibling routes remain unresolved; existing bounded Graph/ExecPlan and N7 checks do not establish the generic WMR/DataSnapshot route.",
+    "rag_profile": "RAG tests exercise default manifest view; selected non-default profile and signed producer identity are not established. Trinity reference in packet is ID-only."
+  },
+  "prepared_on_utc": "2026-10-15T15:17:17+00:00",
+  "proposal_fields": {
+    "author_role": "Local candidate author only.",
+    "bounded_slice_proposal": "Accept only the three bounded behavioral slices if G confirms the exact producer dependency and source selection; otherwise retain them as candidate evidence pending source-pin reconciliation.",
+    "closure_ids": [],
+    "formal_adjudication_owner": "G independent acceptance/integration/adjudication.",
+    "held_proposals": [
+      {
+        "finding": "EVIDENCEBUNDLE-PROFILE-OWNER",
+        "next_check": "Add a typed contract and consumer test after the producer/consumer census; preserve legitimate overrides.",
+        "proposal": "Derive an authorized owner/profile set from the full real producer and consumer set, then test every legitimate profile through its ordinary consumer and a same-payload foreign-profile refusal."
+      },
+      {
+        "finding": "CORE-SIMULATIONRESULT-CONFIDENCE",
+        "next_check": "Run selected owner positive/negative tests at actual downstream governance surface after composed source/profile freeze.",
+        "proposal": "Verify the WARNING outcome through the downstream confidence/publication composition, plus a real positive producer/consumer path for 1.4."
+      },
+      {
+        "finding": "OVERLAPPING-ROUTES",
+        "next_check": "Add actual fresh consumer controls for data_state_substrate.py, generation_cycle.py, and world_model_record.py.",
+        "proposal": "Route the sibling DataSnapshot/WMR consumers through the generic owner validation mechanism or document and falsify a precise bounded residual."
+      },
+      {
+        "finding": "IR-TRINITY-LEGAL-RAG",
+        "next_check": "Reconcile blueprint_release.py blob, then run non-default selected profile through producer, persisted IR artifact, Legal/RAG consumer.",
+        "proposal": "Treat bounded tests as local selected-profile evidence only; test selected non-default RAG profile and resolve producer source dependency mismatch before broader owner-chain claim."
+      }
+    ],
+    "proposed_closure_ids": []
+  },
+  "receipt_references": {
+    "author_assessment": {
+      "bytes": 13592,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/typed-owner-route-repair-proposal-20261015/assessment.md",
+      "sha256": "497c9bd97e13bb832d850694a1963d84ca7bb9a28ee74635ee120987afdd00a5"
+    },
+    "candidate_commit_readback": {
+      "commit": "7b6d31a551d8a11e68db8f672dc83ef11a044507",
+      "parent": "2307d655c1a78e3395fe837ae3e681c35cff8e45",
+      "tree": "8ca5bfd0a149d1beaa51b930fb8bd98266655226"
+    },
+    "decision_run_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/test-runs-default-plugin.json",
+      "sha256": "1a2c9960e05761ff6e3e52dfcd8df6a7d5f23bad5f260ab8af29568b4696c06f"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/review-final.json",
+      "sha256": "823782729e3b178e0b7fd5858390f6ebc6fc2668f84b62ee6b95f29acf39535a"
+    },
+    "lint_run_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/lint-runs.json",
+      "sha256": "a575dc922843d4490221cd1e3aeb327607e81fb6c88238a4a933d8663fa754ce"
+    }
+  },
+  "schema": "policys-e02-local-implementation-handoff-v1",
+  "slice": {
+    "candidate_branch": "codex/e02-unified-local-20261009",
+    "id": "Runtime10-selected-owner-consumers",
+    "property": "Consumers admit only selected-profile artifacts whose manifest owner and content-bound payload version satisfy the declared owner contract; foreign owner/schema fails before downstream admission or writes.",
+    "slice_base": "2307d655c1a78e3395fe837ae3e681c35cff8e45",
+    "source_commit": "7b6d31a551d8a11e68db8f672dc83ef11a044507",
+    "source_commit_is_ancestor_of_current_candidate_head_at_preparation": true,
+    "source_commit_subject": "fix: validate selected owner artifacts in runtime evidence consumers",
+    "source_footprint_count": 10,
+    "source_parent": "2307d655c1a78e3395fe837ae3e681c35cff8e45",
+    "source_readback": "Every footprint entry is read from immutable Git commit blobs at source_commit; the present working-tree acquisition_executor.py includes a later authorized B61 Lex-facade hunk and is explicitly excluded from these candidate bytes.",
+    "source_tree": "8ca5bfd0a149d1beaa51b930fb8bd98266655226"
+  },
+  "verification": {
+    "independent_review": {
+      "author_assessment": {
+        "bytes": 13592,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/typed-owner-route-repair-proposal-20261015/assessment.md",
+        "sha256": "497c9bd97e13bb832d850694a1963d84ca7bb9a28ee74635ee120987afdd00a5"
+      },
+      "decision": {
+        "P40": "SAME_CLASS_ONE_LEVEL_DEEPER: typed-owner bypass remains the class; absent-owner Core validation and multi-profile EvidenceBundle remain outside this five-owner slice.",
+        "bounded_slice": "GO_WITH_LIMITATIONS",
+        "closure_ids": [],
+        "whole_group_capability_labels": [
+          "verification_missing",
+          "semantic_test_missing"
+        ],
+        "whole_typed_owner_route_group": "HOLD"
+      },
+      "effective_dependency_pins": [
+        {
+          "candidate_bytes": 6803,
+          "candidate_commit_blob": "4eb2d3703a75d9a8af6503385ff401621ea394c4",
+          "candidate_sha256": "09a8a5dd1468edbad75632336a1ec16c4580b6cf97decde326b2c63c6f6880a1",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/ir/trinity/loaders.py",
+          "review_expected_bytes": 6803,
+          "review_expected_sha256": "09a8a5dd1468edbad75632336a1ec16c4580b6cf97decde326b2c63c6f6880a1",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 12663,
+          "candidate_commit_blob": "630a5d8157a7c7c94d4d13bcd4d9f3e863552001",
+          "candidate_sha256": "c5dbd2ba226e67a748d8d4a6064ebb218042580d129d5fedda17dc621db48894",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+          "review_expected_bytes": 12663,
+          "review_expected_sha256": "c5dbd2ba226e67a748d8d4a6064ebb218042580d129d5fedda17dc621db48894",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 22839,
+          "candidate_commit_blob": "67aaab2c641a19bfdfc42892d38da99e2f39c8d1",
+          "candidate_sha256": "da6d33ca7aaad00dd7ed8b6ccefa0e5b126d591f8c63951540606d3ea3e6d0ed",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+          "review_expected_bytes": 22839,
+          "review_expected_sha256": "da6d33ca7aaad00dd7ed8b6ccefa0e5b126d591f8c63951540606d3ea3e6d0ed",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 37586,
+          "candidate_commit_blob": "232c31b73eef6596a2b273c5579aa29750cfacf0",
+          "candidate_sha256": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+          "review_expected_bytes": 37586,
+          "review_expected_sha256": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 5735,
+          "candidate_commit_blob": "41cfab28552e7a4ee230f9b363f46aba2d69ff4f",
+          "candidate_sha256": "ca825e69949de563588cecf828323dfd123691c8ba380fc66acd42cd1fc4544c",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+          "review_expected_bytes": 5735,
+          "review_expected_sha256": "ca825e69949de563588cecf828323dfd123691c8ba380fc66acd42cd1fc4544c",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 70157,
+          "candidate_commit_blob": "c098279062a1ee558b97876fcc7d6d9a3a57f975",
+          "candidate_sha256": "0e3078d1f9a26f9a8f2933865375f368e0713a04f6d87d3d1338470f075d0c62",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/core/contracts/foundry.py",
+          "review_expected_bytes": 70157,
+          "review_expected_sha256": "0e3078d1f9a26f9a8f2933865375f368e0713a04f6d87d3d1338470f075d0c62",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 29921,
+          "candidate_commit_blob": "a3d91b9befccb43c95342cb7c9a2b4ad350cbfc5",
+          "candidate_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+          "review_expected_bytes": 29921,
+          "review_expected_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 52107,
+          "candidate_commit_blob": "59a6df80b1a89f3c23f8a1cd6b8107c7b3d60ca0",
+          "candidate_sha256": "c3ac7464df74fc6c8478267bfedb90121d3ea9ed3d947dbb98d212c784941599",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/fabric/data_plane/modes.py",
+          "review_expected_bytes": 52107,
+          "review_expected_sha256": "c3ac7464df74fc6c8478267bfedb90121d3ea9ed3d947dbb98d212c784941599",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 6204,
+          "candidate_commit_blob": "c3d85ef2d25631bbd4a9bdedfe1626a87d3d7eca",
+          "candidate_sha256": "e179fdefed5107bda92cf2fa3b659f7efaac18c1fee22cde76e0ea8c06a9a672",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/fabric/evidence/evidence.py",
+          "review_expected_bytes": 6204,
+          "review_expected_sha256": "e179fdefed5107bda92cf2fa3b659f7efaac18c1fee22cde76e0ea8c06a9a672",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 4323,
+          "candidate_commit_blob": "d5bec664daca60c215b8a1d459e383d91a861dae",
+          "candidate_sha256": "7d8bdb8f590b65b57b1d753f05f353787054dd3585d35511b7203534b31bf6da",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/fabric/claims/types.py",
+          "review_expected_bytes": 4323,
+          "review_expected_sha256": "7d8bdb8f590b65b57b1d753f05f353787054dd3585d35511b7203534b31bf6da",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 5493,
+          "candidate_commit_blob": "efea8e5dcce6ba9ded136eedf72df66a60195a6c",
+          "candidate_sha256": "dd56a3ab287b47d96318a91ad7f1f896f54d92f2fefd0a0402603313badb36ca",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/fabric/claims/persist.py",
+          "review_expected_bytes": 5493,
+          "review_expected_sha256": "dd56a3ab287b47d96318a91ad7f1f896f54d92f2fefd0a0402603313badb36ca",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 16924,
+          "candidate_commit_blob": "313f120b0265ded82391dbfe986ac73c668c9c68",
+          "candidate_sha256": "6d7bd5eb1f2fd890971bb7c0ba4575a5c40b337aeadec2cdc7dd3db4d8dc9a42",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/fabric/claims/extraction.py",
+          "review_expected_bytes": 16924,
+          "review_expected_sha256": "6d7bd5eb1f2fd890971bb7c0ba4575a5c40b337aeadec2cdc7dd3db4d8dc9a42",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 17677,
+          "candidate_commit_blob": "652fa1132989afb3ef3403472e5f8b19b6168f53",
+          "candidate_sha256": "54d88175a8428821adb4174a4ec05fbeda385a389e60fbae6ed5ec18804127e2",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/fabric/claims/normalize.py",
+          "review_expected_bytes": 17677,
+          "review_expected_sha256": "54d88175a8428821adb4174a4ec05fbeda385a389e60fbae6ed5ec18804127e2",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 64436,
+          "candidate_commit_blob": "f935d3ee1fe7a2298374aa247b4a5fc57a3a5ede",
+          "candidate_sha256": "d2c4523e3dd141e0906b1cba3ec1b50a5db7ef294e3db279b92d0fc8f8ef6a4a",
+          "matches_review_expected": true,
+          "path": "policy-engine/src/polisyos/foundry/execute/api.py",
+          "review_expected_bytes": 64436,
+          "review_expected_sha256": "d2c4523e3dd141e0906b1cba3ec1b50a5db7ef294e3db279b92d0fc8f8ef6a4a",
+          "status": "matches"
+        },
+        {
+          "candidate_bytes": 133310,
+          "candidate_commit_blob": "3e23a83c2ec8c174dcec3428445a6b23bcb5902a",
+          "candidate_sha256": "f58064a851cae714fe587794c8d4b3cb9f652905441b27898d3afb665fa40346",
+          "matches_review_expected": false,
+          "path": "policy-engine/src/polisyos/scientist/governance/blueprint_release.py",
+          "review_expected_bytes": 134461,
+          "review_expected_sha256": "3630d0ed760544fdbdacd40e621573a17c168acdb2561b32e7ac466229ae4624",
+          "status": "mismatch_requires_reconciliation"
+        }
+      ],
+      "independent_postimage_pins": [
+        {
+          "bytes": 15900,
+          "path": "src/polisyos/lex/legal_evaluation/evaluate.py",
+          "sha256": "37ecd84521af69b4ec149f48d31ec0bb536d2bd72cd73b388c6237a34d983cf0"
+        },
+        {
+          "bytes": 110458,
+          "path": "src/polisyos/runtime/quality/acquisition_executor.py",
+          "sha256": "27136bac2029380f0bf5127d2dc01aa296e90d5b4e2b31d36b0584d16151b6fc"
+        },
+        {
+          "bytes": 15374,
+          "path": "src/polisyos/scientist/agent/feasibility.py",
+          "sha256": "ac090039869ea13a934549984d1474a795749949c19f4aa2675c16bd50c4c8b4"
+        },
+        {
+          "bytes": 24924,
+          "path": "src/polisyos/scientist/agent/rag.py",
+          "sha256": "7e11e108b1752cb20fbe7180134dcd34a1342ec16e3de3b70fb1172c370da54c"
+        },
+        {
+          "bytes": 13773,
+          "path": "src/polisyos/scientist/governance/passes/confidence_pass.py",
+          "sha256": "0a7a50f51723a2f810568ca2c4d5295690476a4260f1eaf9c341bff5452ecc08"
+        },
+        {
+          "bytes": 18081,
+          "path": "tests/unit/fabric/test_legal_evaluation.py",
+          "sha256": "672bf1cab42023e712c959faf9bd71d1616a29dccedf92ec7f5e0ca12b81b61c"
+        },
+        {
+          "bytes": 53704,
+          "path": "tests/unit/runtime/quality/test_live_acquisition_executor.py",
+          "sha256": "6b37db68f60e43420c10abef917a1adafcd9d9fab316e3c8aa97cad9580128c1"
+        },
+        {
+          "bytes": 7094,
+          "path": "tests/unit/scientist/agent/test_feasibility_probe.py",
+          "sha256": "76d1309428766347b49c58e26293ec89b7f20536c4faeb4678d1e431a00fd38e"
+        },
+        {
+          "bytes": 9418,
+          "path": "tests/unit/scientist/agent/test_rag_index.py",
+          "sha256": "c65fbbcb4c3d1561fd26437d33a956926eb8287ea66592bacd9060efb4ed47db"
+        },
+        {
+          "bytes": 15151,
+          "path": "tests/unit/scientist/governance/test_confidence_pass.py",
+          "sha256": "b367df2716946c66f8e3eac182731b330e98794de027ed98258ccd625561ac81"
+        }
+      ],
+      "independent_source_denominator": {
+        "paths": [
+          "src/polisyos/lex/legal_evaluation/evaluate.py",
+          "src/polisyos/runtime/quality/acquisition_executor.py",
+          "src/polisyos/scientist/agent/feasibility.py",
+          "src/polisyos/scientist/agent/rag.py",
+          "src/polisyos/scientist/governance/passes/confidence_pass.py",
+          "tests/unit/fabric/test_legal_evaluation.py",
+          "tests/unit/runtime/quality/test_live_acquisition_executor.py",
+          "tests/unit/scientist/agent/test_feasibility_probe.py",
+          "tests/unit/scientist/agent/test_rag_index.py",
+          "tests/unit/scientist/governance/test_confidence_pass.py"
+        ],
+        "python_files": 10
+      },
+      "reviewer_scope": "Read-only; source_changes_made_by_reviewer=false.",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/review-final.json",
+      "source_sha256": "823782729e3b178e0b7fd5858390f6ebc6fc2668f84b62ee6b95f29acf39535a",
+      "whole_group_capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "whole_group_result": "HOLD"
+    },
+    "negative_controls": [
+      "Foreign Trinity owner schema is refused; Legal extra refs are not written and RAG index entry is absent.",
+      "Foreign DataSnapshot owner is refused at persisted consumer admission; live executor records response_admitted=false.",
+      "Foreign SimulationResult schema is represented as typed WARNING and no uncertainty envelope is admitted from that object.",
+      "Same-content legacy SimulationResult profiles remain distinct by selected manifest lineage."
+    ],
+    "static_checks": {
+      "commands": [
+        {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "check",
+            "src/polisyos/lex/legal_evaluation/evaluate.py",
+            "src/polisyos/runtime/quality/acquisition_executor.py",
+            "src/polisyos/scientist/agent/feasibility.py",
+            "src/polisyos/scientist/agent/rag.py",
+            "src/polisyos/scientist/governance/passes/confidence_pass.py",
+            "tests/unit/fabric/test_legal_evaluation.py",
+            "tests/unit/runtime/quality/test_live_acquisition_executor.py",
+            "tests/unit/scientist/agent/test_feasibility_probe.py",
+            "tests/unit/scientist/agent/test_rag_index.py",
+            "tests/unit/scientist/governance/test_confidence_pass.py"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+          "elapsed_seconds": 0.126465,
+          "name": "ruff-check",
+          "returncode": 0,
+          "stderr": {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/ruff-check-stderr.bin",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 19,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/ruff-check-stdout.bin",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+          }
+        },
+        {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "src/polisyos/lex/legal_evaluation/evaluate.py",
+            "src/polisyos/runtime/quality/acquisition_executor.py",
+            "src/polisyos/scientist/agent/feasibility.py",
+            "src/polisyos/scientist/agent/rag.py",
+            "src/polisyos/scientist/governance/passes/confidence_pass.py",
+            "tests/unit/fabric/test_legal_evaluation.py",
+            "tests/unit/runtime/quality/test_live_acquisition_executor.py",
+            "tests/unit/scientist/agent/test_feasibility_probe.py",
+            "tests/unit/scientist/agent/test_rag_index.py",
+            "tests/unit/scientist/governance/test_confidence_pass.py"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+          "elapsed_seconds": 0.061075,
+          "name": "ruff-format-check",
+          "returncode": 0,
+          "stderr": {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/ruff-format-check-stderr.bin",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 27,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/ruff-format-check-stdout.bin",
+            "sha256": "5b9f70ad96522f492ef846065642c069b5627379aff2ab3f74acd2e3b9ecfe34"
+          }
+        }
+      ],
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/lint-runs.json",
+      "manifest_sha256": "a575dc922843d4490221cd1e3aeb327607e81fb6c88238a4a933d8663fa754ce",
+      "result": "Ruff check and format check pass for all assigned 10 files."
+    },
+    "tests": {
+      "deciding_run_manifest": {
+        "bytes": 2257,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/test-runs-default-plugin.json",
+        "sha256": "1a2c9960e05761ff6e3e52dfcd8df6a7d5f23bad5f260ab8af29568b4696c06f"
+      },
+      "passed_count": 86,
+      "result": "86 passed, zero failures; default-plugin run emitted existing ValidationProfile and datetime.utcnow deprecation warnings only.",
+      "runs": [
+        {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "tests/unit/scientist/agent/test_feasibility_probe.py",
+            "tests/unit/scientist/governance/test_confidence_pass.py",
+            "tests/unit/runtime/quality/test_live_acquisition_executor.py"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+          "elapsed_seconds": 31.664227,
+          "environment": {
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTHONPATH": "src"
+          },
+          "name": "core-three-default-plugin",
+          "passed_count_from_complete_dot_line": 64,
+          "readback_output_hashes_valid": true,
+          "returncode": 0,
+          "stderr": {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/core-three-default-plugin-stderr.bin",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 627,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/core-three-default-plugin-stdout.bin",
+            "sha256": "c47527be94a698463e2c6aa94da9096318ce44186378a2fbcfbacb39665545e8"
+          }
+        },
+        {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "tests/unit/fabric/test_legal_evaluation.py",
+            "tests/unit/scientist/agent/test_rag_index.py"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+          "elapsed_seconds": 5.532632,
+          "environment": {
+            "PYTHONDONTWRITEBYTECODE": "1",
+            "PYTHONPATH": "src"
+          },
+          "name": "legal-rag-two-default-plugin",
+          "passed_count_from_complete_dot_line": 22,
+          "readback_output_hashes_valid": true,
+          "returncode": 0,
+          "stderr": {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/legal-rag-two-default-plugin-stderr.bin",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 1643,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/legal-rag-two-default-plugin-stdout.bin",
+            "sha256": "758082bbb2e47b22717a6b48c1e7d2dfc795844b77b13273c20767d39d1adb6b"
+          }
+        }
+      ],
+      "superseded_diagnostic_run": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime10-selected-owner-route-review-20261015/test-runs.json",
+        "sha256": "6e53b2bcdf61f8192b1028aeac94250f9a2f27642328dcd38c3d40eb1d82bd7e",
+        "status": "superseded; cache plugin was disabled and pytest emitted unknown cache_dir config warnings; not used as deciding evidence"
+      }
+    }
+  }
+}

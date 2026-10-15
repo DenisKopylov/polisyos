@@ -1,0 +1,292 @@
+{
+  "schema": "policyos.e02.catalog_route_preservation_and_c12_readiness.v1",
+  "recorded_on": "2026-10-15",
+  "purpose": "Preserve the authorized Catalog route-test recovery and prepare bounded I4/C12 post-freeze serving checks.",
+  "write_scope": "This handoff only; no product source, tests, imports, test runs, stage, or commit were performed for this record.",
+  "current_frame": {
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "7455db0523bd91e6ce2b4523ef4731327b7eb78d",
+    "tree": "15bad5107f63ecbc6e910a69e05be2388678796a",
+    "parent": "e6836b423ad61be878c5169e7f1bd1d7439d58eb"
+  },
+  "catalog_route_test_recovery": {
+    "commit_scope": "The current HEAD commit contains the two test paths below; no runtime source path is in this commit.",
+    "files": [
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_gy_d1_catalog_wiring.py",
+        "sha256": "e0f6a373c9362f6cc71d70df0f600ca0c9482308e4d52cb58d98e035051cd93e",
+        "change": "Restored source-derived production route expressions and corrected fixture to use the current batch-producer graph, owner-bound artifact store, and RetrievalService.artifact_store."
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_gy_d1_catalog_direct_retrieval_semantics.py",
+        "sha256": "b8f8ba55e92a830e81143117e9abbfc5e84bae8424f1dbf76e807a08f9473470",
+        "change": "Preserves the three direct RetrievalService/CAS/N9 semantic tests as a separate module."
+      }
+    ],
+    "authorization_and_preservation": {
+      "human_approval_call": "call_28f07bab1d0b4228ae5d0426a0ed0fe8",
+      "approval_text": "Разрешить patch с сохранением текущих тестов и продолжить E02",
+      "approved_patch_sha256": "ea78fc9a536904d2e639ba0b3d080e3011dabc11599d83b8c1b099ad05453bc8",
+      "application_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-catalog-wiring-companion-oracle-20261015/proposed-r3/authorized-application.json@9e07b67cc0c40bb9e6f075a19bd6c5515733918f5010cd5ab2ca934bb5518f7f",
+      "preexisting_unowned_delta_preserved": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-catalog-wiring-companion-oracle-20261015/exact-current-test-diff-at-511095-20261015.patch",
+        "sha256": "39fdfee21a5eaccb06a8894e16ae9bee59acf0d065c64618239c1938beb6205f"
+      }
+    },
+    "live_evidence": {
+      "verification_summary": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-catalog-wiring-companion-oracle-20261015/live-verification/verification-summary.md@8801d70900d5dcf41c35da4a9c9ea8c55a691b146c646f5fc2c025a4b838f177",
+      "artifact_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-catalog-wiring-companion-oracle-20261015/live-verification/artifact-manifest.json@a51402d731dd8a288f9d1f8bc108daa04eaeea11342eb0343d5f2cdad7e3fb7b",
+      "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-catalog-wiring-independent-review-20261015/independent-review.md@ce0d91672627652c01ae4d503091a0195824fd38a0592b938ee2e96291a095af",
+      "review_frame": {
+        "head": "f3e064a388fa7620acf33bf15dd59d114431dda0",
+        "tree": "a18a85476dd4b8230d1db5080893f8c2746c0c09",
+        "qualification": "The two committed test blobs above match the reviewed and live-tested bytes; this binds the receipts to these test paths, not to a claim that all current product workflows were executed."
+      },
+      "cases": [
+        {
+          "slice": "route-pair",
+          "passed": 2,
+          "junit_seconds": 17.605,
+          "wall_seconds": 21.162
+        },
+        {
+          "slice": "direct-two",
+          "passed": 2,
+          "junit_seconds": 130.117,
+          "wall_seconds": 134.404
+        },
+        {
+          "slice": "direct-n9",
+          "passed": 1,
+          "junit_seconds": 129.222,
+          "wall_seconds": 133.804
+        },
+        {
+          "slice": "nl-source-n9",
+          "passed": 1,
+          "junit_seconds": 252.751,
+          "wall_seconds": 256.606
+        }
+      ],
+      "total": {
+        "passed": 6,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_census": {
+        "denominator": "2,766 tracked plus non-ignored untracked Python files under src/ at the independent review frame f3e064a; not recounted at the later current worktree frame.",
+        "methods": "AST and token scans agreed on four RetrievalService constructor call expressions.",
+        "expressions": [
+          "src/polisyos/runtime/http/services/control/nl_pipeline.py:5449 (NaturalLanguageRunMixin._run_variant)",
+          "src/polisyos/runtime/http/services/control/run_lifecycle.py:2580 (ControlPlaneService.__init__)",
+          "src/polisyos/runtime/quality/acquisition_planner.py:1454 (RealAcquisitionOwnerGateway._capture_fabric)",
+          "src/polisyos/runtime/quality/acquisition_planner.py:1510 (RealAcquisitionOwnerGateway._capture_fabric)"
+        ]
+      },
+      "semantic_limit": "The route-pair case evaluates the source-derived constructor expressions in controlled test contexts; it does not execute each enclosing production workflow. Direct RetrievalService/CAS/N9 tests and the actual NL run_blocking_async(fetch) expression are separate behavioral checks.",
+      "p40": {
+        "bucket": "Same Catalog constructor/wiring class one level deeper.",
+        "bounded_residual": "Current census is not a transitive import/re-export resolver. A hidden alias such as 'from hidden_adapter import R; R(...)' is missed; a synthetic falsifier confirmed 0 AST/token sites for that shape versus 1/1 for direct alias import. No current hidden alias route was found.",
+        "smallest_missing_capability": "Cross-module import/re-export resolution or one explicit construction registry; neither is provided by this test mechanism.",
+        "claim_boundary": "Current-tree coverage only; not a whole-future route inventory or formal closure."
+      }
+    }
+  },
+  "i4_c12_status": {
+    "task_id": "I4",
+    "task_title": "Catalog/Legal serving profile bridge",
+    "finding_ids": [
+      "LA-033",
+      "LA-046",
+      "LA-028",
+      "LA-032",
+      "LA-040"
+    ],
+    "original_exit": "actual request -> typed profile/encoded query -> fresh reader; wrong/missing profile refuses",
+    "closure_ids": [],
+    "scope_status": "No formal finding closure or G acceptance is proposed. The C12 crosswalk removes LA-033 as REP-01-related; it marks LA-040 as a narrow runtime-material intersection only, with full incremental reuse still open. LA-046, LA-028, and LA-032 remain unadjudicated in this scoped audit.",
+    "source_documents": [
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/parallel-2026-10-08/C12.md@eb29876ad44f05f32aa9f6d4a3308e2ec61b282a23815ba6c8d760670bf7c169",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json@a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/INPUTS.json@b000d61906fc0d732287f1a50cbb1ca902c23f4d08a292e4330734f5147431da"
+    ],
+    "current_audit": {
+      "report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c12-actual-producer-current-20261015/report.json@a6ebb4f1731158e13189939994bcc46a10bdeb4c759cee76fb81ba3cbd4acff4",
+      "source_frame": "511095b8080859c63278e17c5602b3857d85e710",
+      "source_report_limit": "The report predates current HEAD. Rechecking its exact 13-path C12 denominator now gives 12/13 SHA matches: the only delta is the additive test-only facade coverage in policy-engine/tests/unit/data_forge/read_api/test_surfaces.py (expected bba82edd2a5bf82eee7c0486a3f052f230685adca74b204514e97b89737e7f10; current f9f2d79809c70dd80c55e3012566561877cd57b9de09802977f9f477833c1e08). The 13-path set is therefore not wholly current until a post-freeze preflight is recaptured. The selected Catalog HTTP test and the 12 matching C12 paths have not changed by this recheck; this is not a full-worktree source-currentness claim.",
+      "13_path_postflight": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/postflight.json@2873726b35b849d0bc8dd47a4b36466dacf1c5702ff31ceb81d0a238944e09c5",
+      "current_matches": 12,
+      "current_total": 13,
+      "legal_input_limit": "No paired L01/L02 production Legal corpus/model/currentness custody or law/authority claim was admitted; the local model/corpus fixture is not production evidence.",
+      "current_mismatch": {
+        "path": "policy-engine/tests/unit/data_forge/read_api/test_surfaces.py",
+        "expected_sha256": "bba82edd2a5bf82eee7c0486a3f052f230685adca74b204514e97b89737e7f10",
+        "current_sha256": "f9f2d79809c70dd80c55e3012566561877cd57b9de09802977f9f477833c1e08",
+        "observed_delta": "45-line test-only addition for canonical academic lazy exports and snapshot-publication facade identity; no runtime source changed in this delta."
+      }
+    },
+    "observed_legal_witness": {
+      "model_profile": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile",
+      "model": "intfloat/multilingual-e5-large",
+      "revision": "3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3",
+      "asset_manifest_sha256": "191a71ec41bc1a69665fffccb5fa7f1c30b3f94ccd60f71cc3ed1f074ecb98ca",
+      "model_files_digest": "825d9654f3b0ea3fab99ccd8a4ab21c6ffb90bb5fe5606e7bc3e0718f42e83d8",
+      "encoder": "sentence_transformers.SentenceTransformer.encode",
+      "profile": "legal_lex_facts_embedding",
+      "runtime_material_binding": "4fb915664a0b9af26714da8ce2091f21439c2fc942ae4b819e7434c05a7b91c4",
+      "selected_generations": {
+        "legal_lex_entities_embedding": "bd7241e8708848a4941572fb8e9b1034",
+        "legal_lex_facts_embedding": "0a3d7ccfb1be42db8dd60da05804c761",
+        "legal_lex_provisions_embedding": "09136f6d56e44d3e83c850197de7b58d"
+      },
+      "producer_command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/command.txt@a8c509e85f8760d3b4a1e335a5129492e57008a9e88d21dce7b44eded4648ede",
+      "producer_result": "At source frame fa689651901c5c5b00d629c646c65c8f6141996d, the source-owned producer wrote the three selected generations; the wrapper then exited 1 before its HTTP phase because its patched provider factory recursed and rejected runtime_material_owner. This is a harness failure, not an integrated producer-consumer PASS.",
+      "separate_fresh_consumer": {
+        "script": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/fresh_http_consumer_matching_context.py@df618c02497bd1279f5e87a657571a3dbaae845957a900741137cf9ce7a3ebaf",
+        "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/fresh-consumer-r1/command.txt@3cb89c3948e5a61d2c83874884b3a93a43e44d255e0d7cbc62df684746976bc6",
+        "result": "Separate fresh ASGI HTTP consumer returned fact-1 in vector mode (200); stale selected intent and actual sys.path mutation fell back to text with typed refusal. It read retained generations at c12-owned-api-4bef78b9-20261015-r2/case/output.",
+        "result_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/matching-context-r1/fresh-consumer-r1/stdout.json@46ebd04c96d739cfbb74e38d09e76b76b9357f7efbaf24472dd6b697d464e6b0",
+        "elapsed_seconds": 37.017,
+        "transport_limit": "In-process ASGI TestClient; not TCP or a production server."
+      },
+      "postfreeze_replay": {
+        "raw_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-production-route-test-postfreeze-20261015/legal-fresh-consumer-r1/",
+        "workdir": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "argv_template": [
+          "/usr/bin/env",
+          "HF_HUB_OFFLINE=1",
+          "TRANSFORMERS_OFFLINE=1",
+          "TOKENIZERS_PARALLELISM=false",
+          "POLISYOS_OTEL_ENABLED=false",
+          "PYTHONDONTWRITEBYTECODE=1",
+          "OMP_NUM_THREADS=1",
+          "MKL_NUM_THREADS=1",
+          "OPENBLAS_NUM_THREADS=1",
+          "NUMEXPR_NUM_THREADS=1",
+          "VECLIB_MAXIMUM_THREADS=1",
+          "BLIS_NUM_THREADS=1",
+          "PYTHONPATH=src:.",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/venv/bin/python",
+          "-B",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05c12-current-20261015/c12-owned-api-4bef78b9-20261015-r2/fresh_http_consumer_matching_context.py",
+          "--mode",
+          "fresh-consumer",
+          "--case-root",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-production-route-test-postfreeze-20261015/legal-fresh-consumer-r1/case"
+        ],
+        "input": "This retained source-owned generation set; the script binds fresh consumer source/profile/runtime and rechecks all 13 C12 path hashes against the producer postflight. Do not regenerate or alter the retained output for this reader replay.",
+        "positive": "GET selected profile for legal_lex_facts_embedding, then POST the matching typed intent; expect 200/vector/fact-1.",
+        "negative": "POST stale/mismatched generation intent; expect 200/text with query_profile_stale_or_mismatched. Script's live sys.path mutation control expects query_encoder_runtime_material_changed and text fallback.",
+        "status": "Prepared, not run after current C05 composition; create unique case root and capture full output/JUnit-equivalent JSON only after source freeze."
+      }
+    },
+    "catalog_public_http_replay": {
+      "test_file": "policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py@da373550c49fa9e084b15f7c3fd277fe2ddc4d5e0c1d1b2f40824900c3dfdd3e",
+      "profile": "prod_full",
+      "route": "POST /api/v1/control/data/resolve",
+      "positive_selector": "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_selects_published_plan_through_fresh_reader",
+      "negative_selectors": [
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_blocks_published_excluded_profile_inputs"
+      ],
+      "expected_properties": [
+        "Published current profile produces one admitted fetch plan and candidate; fresh reader graph differs from producer graph but points at the published DB.",
+        "Missing selection yields catalog_run_profile_unresolved; conflicting profile yields catalog_run_profile_conflict; malformed selection refuses; none produces fetch plans.",
+        "Excluded profile input is stale candidate-only and produces no fetch plan."
+      ],
+      "no_fixed_port": {
+        "process_env": "POLISYOS_OTEL_ENABLED=false before Python startup",
+        "source_basis": [
+          "policy-engine/src/polisyos/core/observability/config.py@08cacb20670ed714ce97f90e0d42a9ce5ce4f57b629395fe70fba4dd2d5e0be0",
+          "policy-engine/src/polisyos/core/observability/_metrics_registry_base.py@922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85"
+        ],
+        "mechanism": "The supported OTel config reads the process environment; disabled metrics initialization returns before Prometheus start_http_server. This establishes a no-listener test configuration from source; it has not yet been exercised on the final composed source."
+      },
+      "command_template": [
+        "/usr/bin/env",
+        "POLISYOS_OTEL_ENABLED=false",
+        "PYTHONDONTWRITEBYTECODE=1",
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-o",
+        "addopts=",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-production-route-test-postfreeze-20261015/catalog-http-r1/basetemp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-production-route-test-postfreeze-20261015/catalog-http-r1/junit.xml",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_selects_published_plan_through_fresh_reader",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_blocks_published_excluded_profile_inputs"
+      ],
+      "status": "UNRUN at current C05 composition; run only after freeze and source/test hash preflight. Historical R1116 was five passes at HEAD 808225e before C05 source changes and is not current-source proof."
+    },
+    "catalog_selected_profile_http": {
+      "status": "prepared_not_run_after_freeze",
+      "why": "The current C05 Catalog source composition has not had its selected-profile public HTTP witness replayed after freeze. The existing direct service and stale-currentness evidence is not a substitute for this serving boundary.",
+      "source_paths": [
+        "policy-engine/tests/unit/runtime/http/test_catalog_profile_http.py@da373550c49fa9e084b15f7c3fd277fe2ddc4d5e0c1d1b2f40824900c3dfdd3e",
+        "policy-engine/tests/_helpers/runtime_http.py@77a5e5822074e81c2ee74d69044589c86daa8a97c2bb743be77a1b5d7eb9913a",
+        "policy-engine/src/polisyos/core/observability/config.py@08cacb20670ed714ce97f90e0d42a9ce5ce4f57b629395fe70fba4dd2d5e0be0",
+        "policy-engine/src/polisyos/core/observability/_metrics_registry_base.py@922eac01d723a6e30070fd887f469b8c6c0c735d922b1fb76185cb0e47d62f85"
+      ],
+      "workdir": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "input": "Each test invokes the canonical `_actual_scope_catalog` producer into a fresh pytest temporary root, freezes its selected snapshot, then creates a new app/ControlPlaneService with CatalogServingSourceSelection(snapshot_root, catalog_run_profile=\"prod_full\"). The method profile is worldbank_wdi; request is scope_metric / DEU / 2025 via POST /api/v1/control/data/resolve.",
+      "selectors": [
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_selects_published_plan_through_fresh_reader",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_blocks_published_excluded_profile_inputs"
+      ],
+      "argv_after_freeze": [
+        "/usr/bin/env",
+        "POLISYOS_OTEL_ENABLED=false",
+        "POLISYOS_HPC_OBSERVABILITY_ENABLED=false",
+        "PYTHONPATH=src:.",
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-production-route-test-postfreeze-20261015/catalog-selected-profile-http-r1/pytest-basetemp",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-production-route-test-postfreeze-20261015/catalog-selected-profile-http-r1/junit.xml",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_selects_published_plan_through_fresh_reader",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_refuses_absent_conflicting_and_malformed_selection",
+        "tests/unit/runtime/http/test_catalog_profile_http.py::test_catalog_profile_http_blocks_published_excluded_profile_inputs"
+      ],
+      "no_port_basis": "Run as a fresh Python process with the documented OTel disable variable set before first metrics initialization. MetricsRegistryBase._ensure_initialized returns before the Prometheus start_http_server branch when OTel is disabled; requests use in-process FastAPI TestClient. This is a source-derived no-port setup, not a claim of a TCP server replay.",
+      "positive_expected": "HTTP 200, one current candidate with plan_admission_reason=catalog_profile_inputs_covered, exactly one fetch plan for worldbank.wdi / scope_dataset / worldbank_wdi, and a fresh reader graph distinct from the producer graph but opening the selected snapshot DB.",
+      "negative_expected": [
+        "Absent app/request profile refuses with 422 catalog_run_profile_unresolved and no fetch_plans.",
+        "Conflicting rest_backfill profile refuses with 422 catalog_run_profile_conflict and no fetch_plans.",
+        "Malformed future_profile refuses with 422 and no fetch_plans.",
+        "A producer-time excluded profile input leaves the candidate stale and emits no fetch plan."
+      ],
+      "receipt_requirements": "Before/after freeze record the exact HEAD/tree and the full 13-path C12 + C05 source/test hashes; store command JSON, full stdout/stderr, and JUnit under the specified RAW run root. Run only once frozen; do not reuse the stale C12 source-frame claim as current proof.",
+      "capability_state": "verification_missing",
+      "claim_boundary": "An existing test exercises the route, but the exact selected-profile public HTTP positive and refusal controls are not freshly verified on the final frozen C05 source. This is not surface_missing; no closure is proposed."
+    },
+    "current_source_e2e_state": "verification_missing",
+    "current_source_e2e_limit": "The retained Legal fresh-consumer witness is an actual in-process ASGI consumer of source-produced retained generations, but its producer wrapper failed before its HTTP phase and the prepared replay has not been run after source freeze. The current Catalog selected-profile public HTTP selectors below have also not been replayed after final C05 composition. Existing service tests and historical R1116 do not close either current-source replay requirement."
+  },
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P31",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "disposition": "Use the existing producer and public HTTP route, with currentness/refusal assertions. Do not infer a serving capability from constructor markers, direct-service tests, or the historical R1116 receipt. No formal closures or G acceptance are claimed."
+  }
+}

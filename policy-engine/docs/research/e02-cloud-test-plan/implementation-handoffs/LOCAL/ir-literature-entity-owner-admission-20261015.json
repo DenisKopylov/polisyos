@@ -1,0 +1,255 @@
+{
+  "authorship": "Local candidate author handoff; G retains independent code acceptance, integration publication, and formal finding adjudication.",
+  "bounded_gaps": [
+    {
+      "bucket": "same-class deeper",
+      "evidence": "Bridge creates knowledge-bundle and graph InputRefs using artifact_id only although InputRef carries manifest_profile_sha256 and producer now returns selected refs. Direct reader admission passes; end-to-end selected-view lineage does not.",
+      "id": "IR-SELECTED-PROFILE-LINEAGE-BRIDGE",
+      "location": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py:273-279,284-287",
+      "next_check": "Carry each source ref manifest_profile_sha256 into the downstream InputRef, then persist/read graph lineage with a same-ID colliding view and assert exact selected profiles reopen.",
+      "status": "open companion"
+    },
+    {
+      "evidence": "Historical ID-only rows lack profile identity by construction; compatibility uses only current default view after exact owner ABI checks.",
+      "id": "legacy-override-history-selector",
+      "next_check": "No backfill/rewrite; preserve the explicit default-view limitation in consumer-facing outcome.",
+      "status": "bounded limitation"
+    },
+    {
+      "evidence": "Owner ABI conformance does not establish law, custody, issuer, provenance authenticity, substantive IR truth or authority.",
+      "id": "formal_scope",
+      "status": "not established"
+    }
+  ],
+  "closure_ids": [],
+  "dependencies": {
+    "review_dependency_boundary": "Core owns manifest selection/byte-profile verification; IR owns literature producer schema and profiled intake; Fabric owns entity-resolution ABI. Dependency bytes at source commit are pinned above. The independent review was run from a broader candidate checkout, so final composed replay should remain separately bound.",
+    "selected_manifest_and_IR_IO_dependencies": [
+      {
+        "bytes": 8189,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "sha256": "a750cfeb3483db25c4b867d55c3d17ef9ad60ccfd3ac837e9c638650b345b9e2"
+      },
+      {
+        "bytes": 31926,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+        "sha256": "0368466ee5e88cbdf0f485cb9c9437c3167e185fb1decc49b948a49dca0c1bae"
+      },
+      {
+        "bytes": 22839,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "sha256": "da6d33ca7aaad00dd7ed8b6ccefa0e5b126d591f8c63951540606d3ea3e6d0ed"
+      },
+      {
+        "bytes": 13401,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f"
+      },
+      {
+        "bytes": 217661,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab"
+      },
+      {
+        "bytes": 12663,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "sha256": "c5dbd2ba226e67a748d8d4a6064ebb218042580d129d5fedda17dc621db48894"
+      },
+      {
+        "bytes": 39919,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/ir/registry/refs.py",
+        "sha256": "bbac14368f7091bf8135f621999e9b702d711c31a95e87e7ceaa1bd963c8fe72"
+      }
+    ]
+  },
+  "formal_closure_ids": [],
+  "mechanism": {
+    "history_semantics": "New rows preserve selected manifest profile and are append-only; no index rewrite. Legacy artifact_id-only records cannot recover their historical selector, so they use the CAS default manifest and fail closed on owner-ABI mismatch.",
+    "isolated_negative_controls": "Same bytes were presented as foreign kind/schema/profile; real application/json versus same-byte text/plain alternate views rejected on the three JSON readers; override same-kind wrong-version profile rejected. Legacy ID-only history is positive only when default view matches override ABI and negative when that default view has wrong ABI.",
+    "pattern_pass": {
+      "P40": "Same-class deeper; owner admission is one class across article extraction, literature prior, entity candidates, and entity overrides/history.",
+      "acceptance_signal": "Real selected producer refs round-trip; same-byte foreign kind/media/schema/profile views fail at actual reader entrypoints; exact override history reopens despite a colliding alternate profile.",
+      "avoided": "Reader-side artifact-id reconstruction, trusting self-labeled schema, rewriting append-only history, or treating payload validation as manifest ownership."
+    },
+    "producer_artifact_bridge_consumer": [
+      {
+        "abi": "ir.article_extraction_result; manifest schema 1.2; JSON",
+        "chain": "IR writer returns selected ref → profiled IR reader resolves exact selected manifest and validates kind/media/schema/version before payload decode",
+        "owner": "IR",
+        "route": "article extraction"
+      },
+      {
+        "abi": "ir.literature_causal_prior; manifest schema 1.0; JSON",
+        "chain": "IR writer returns selected typed ref → reader retains full ref and validates selected owner ABI before JSON decode",
+        "owner": "IR",
+        "route": "literature causal prior"
+      },
+      {
+        "abi": "fabric.entity_resolution.candidate_batch / polisyos.fabric.EntityMatchBatch@1.0; JSON",
+        "chain": "Fabric writer returns selected Core ref → reader resolves selected manifest and enforces ABI before IR intake",
+        "owner": "Fabric",
+        "route": "entity candidate batch"
+      },
+      {
+        "abi": "fabric.entity_resolution.override / polisyos.fabric.EntityMatchOverride@1.0; JSON",
+        "chain": "writer returns selected ref → new append-only row carries kind/media/profile → reader selects exact history view and validates ABI",
+        "owner": "Fabric",
+        "route": "entity override + audit history"
+      }
+    ],
+    "property": "A typed consumer admits only the exact selected CAS manifest view whose kind, media type, schema name, and schema version match the existing producer ABI. Producer refs and new override-history entries retain manifest_profile_sha256.",
+    "property_removal_control": "No separate marker-retaining mutant was run for this slice. Red-before/green-after same-view regression tests plus independent actual-CAS wrong-profile/media controls demonstrate runtime behavior; do not claim an authorial-proof removal control beyond those receipts.",
+    "selected_profile_positive": "Author and independent actual FileSystemCAS tests read selected producer refs successfully; history collision control reopens the original selected override after a same-content colliding schema-version view."
+  },
+  "proposal_fields": {
+    "author_proposal": "Limited code acceptance proposal for the four direct owner-admission APIs only; hold end-to-end graph lineage claim until the Scientist bridge companion is repaired and independently reviewed.",
+    "formal_g_acceptance": false
+  },
+  "review_evidence_frame": {
+    "all_receipts_are_local_ignored_raw": true,
+    "independent_review_json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-independent-review-20261015/review.json",
+      "sha256": "72f345907c6951ef7f79b0a5f395959e1d20320721a5942110a798dcd3b82401"
+    },
+    "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-independent-review-20261015/",
+    "source_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-repair-20261015/source-freeze.json",
+      "sha256": "165eed902a01b22e3cf0970d7ae2c59ce6078b97c359d2b5892043e3ae9314fd"
+    }
+  },
+  "schema": "policyos.e02.local_handoff.v1",
+  "slice": "ir-literature-entity-owner-admission",
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit_footprint": [
+      {
+        "bytes": 82262,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/ir/analytics/literature.py",
+        "sha256": "b73bff03ed73da4f5c128633ca4c30e61b251e7caa1e4bc2858db2ac57e9b6b1"
+      },
+      {
+        "bytes": 9003,
+        "committed_blob_readback": true,
+        "path": "policy-engine/src/polisyos/fabric/entity_resolution/store.py",
+        "sha256": "d69cc9c99a0e74ea550206d4c4f97962c3adfd1b3e5dde736d4b6c426f8cfd37"
+      },
+      {
+        "bytes": 18462,
+        "committed_blob_readback": true,
+        "path": "policy-engine/tests/unit/ir/test_literature_contract.py",
+        "sha256": "67f0bd0f9c3b5158c95df2b0054b262961bbae1f10659c5010b66eee478ba118"
+      },
+      {
+        "bytes": 17054,
+        "committed_blob_readback": true,
+        "path": "policy-engine/tests/unit/fabric/test_entity_resolution.py",
+        "sha256": "c47821521d188e73e3fe58548742f946131e67067826c2fb730c71706cd7105b"
+      }
+    ],
+    "precommit_review_frame": {
+      "head": "7455db0523bd91e6ce2b4523ef4731327b7eb78d",
+      "note": "Independent tests reviewed exact four source/test path bytes that are in this commit; the review checkout also contained broader uncommitted composition work. The current handoff pins the actual source commit and does not treat that broader state as accepted.",
+      "path_bytes_match_commit": true,
+      "source_freeze": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-repair-20261015/source-freeze.json@sha256:165eed902a01b22e3cf0970d7ae2c59ce6078b97c359d2b5892043e3ae9314fd",
+      "tree": "15bad5107f63ecbc6e910a69e05be2388678796a"
+    },
+    "slice_base": {
+      "commit": "21861abcae413de471a772802df52105c3476d15",
+      "tree": "4f4f24bb306f4eb1f596923502179b500091b7da"
+    },
+    "source_commit": {
+      "commit": "aa844d9cd71976c2968c74131c96ebb32fcd8b8b",
+      "parents": [
+        "21861abcae413de471a772802df52105c3476d15"
+      ],
+      "subject": "fix(ir): retain selected literature and entity artifact owner profiles",
+      "tree": "c787cd3115a3c8fde66760b56177bc6def2b83d2"
+    },
+    "source_commit_status": "committed_and_read_back"
+  },
+  "status": "source_committed_scoped_independent_go_composition_gap_open",
+  "verification": {
+    "author_adversarial_red_green": [
+      {
+        "output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-repair-20261015/red-falsifier-tests.txt",
+          "sha256": "629b631d1ecb8ff0d775e3064b2176900cc1e3852152fa9f2cead5e2a314c724"
+        },
+        "result": "3 pre-repair failures demonstrated missing selected reference / foreign-view admissions"
+      },
+      {
+        "output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-repair-20261015/green-falsifier-tests-final.txt",
+          "sha256": "74e6190a785e8211cebb96a9f90c4b287ca95e1558bf5ba194d52b1838ab2f7c"
+        },
+        "result": "3 adversarial tests passed, 19 deselected"
+      }
+    ],
+    "author_full_affected_modules": {
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest -v tests/unit/ir/test_literature_contract.py tests/unit/fabric/test_entity_resolution.py --tb=short",
+      "cwd": "policy-engine",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-repair-20261015/full-affected-module-tests-final.txt",
+        "sha256": "c0368e36e9c0808296425227559b1c4e630fd03dc3287f4113b6de3b3ba924d7"
+      },
+      "result": "22 passed in 0.60s"
+    },
+    "independent_review": {
+      "actual_cas_controls": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-independent-review-20261015/literature-media-control.txt",
+          "sha256": "305608c67da868626da16f6f4d1e15820b44916812a95c4b8f4fb919b51fe146"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-independent-review-20261015/legacy-wrong-abi-control.txt",
+          "sha256": "2329ce4c2ddb9036001ec312cc8e4c49164a70a79e641c322b414d7e5cf0b3ac"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-independent-review-20261015/cas-history-controls-v2.txt",
+          "sha256": "18b94bc41a3849a9918c48dd091da587db064f5618fbf9ae1b07a42688b2964f"
+        }
+      ],
+      "diff_check": {
+        "output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-independent-review-20261015/diff-check.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "result": "exit 0, empty output"
+      },
+      "full_affected_tests": {
+        "output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-independent-review-20261015/affected-tests.txt",
+          "sha256": "643d513f175a88f496b6b30ed52833434a4e06f3624f5220aeaf0f1416e77222"
+        },
+        "result": "22 passed in 0.57s"
+      },
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-independent-review-20261015/review.json",
+        "sha256": "72f345907c6951ef7f79b0a5f395959e1d20320721a5942110a798dcd3b82401"
+      },
+      "ruff_check": {
+        "output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-independent-review-20261015/ruff-check.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "result": "All checks passed"
+      },
+      "ruff_format": {
+        "output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-owner-admission-independent-review-20261015/ruff-format.txt",
+          "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+        },
+        "result": "4 files already formatted"
+      },
+      "verdict": "GO for the four frozen owner routes; composition PARTIAL due adjacent Scientist lineage bridge"
+    }
+  }
+}

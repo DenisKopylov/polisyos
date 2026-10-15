@@ -1,0 +1,160 @@
+{
+  "schema": "policyos.e02.local.slice_handoff.v1",
+  "slice": "R4 shared Runtime workload diagnostic driver",
+  "prepared_on": "2026-10-15",
+  "status": "bounded_candidate_for_independent_G_review",
+  "closure_ids": [],
+  "proposal_fields": {
+    "formal_closure_authority": "G",
+    "proposed_formal_status": "not adjudicated; G only",
+    "proposed_source_outcome": "bounded GO for the all-profile diagnostic-driver mechanism; the R4 runtime property remains verification_missing until a fresh composed native run succeeds",
+    "proposed_id_mapping": "Map only after comparing this evidence with the exact original R4 criterion and occurrence rows. This packet proposes no formal finding closures. B56 and B148 are not closed or transferred by this work."
+  },
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "base_commit": "05aaa70dc57996ff6772f9f78a11953bd5db0ea4",
+    "candidate_commit": "2307d655c1a78e3395fe837ae3e681c35cff8e45",
+    "candidate_tree": "491a6eb8463286f3cc6a84ad9e1031db5e425ab5",
+    "candidate_parents": [
+      "05aaa70dc57996ff6772f9f78a11953bd5db0ea4"
+    ],
+    "candidate_subject": "test: retain all shared workload profile outcomes before deciding",
+    "candidate_is_ancestor_of_observed_head": true,
+    "observed_workspace_head": "2307d655c1a78e3395fe837ae3e681c35cff8e45",
+    "leased_paths_match_candidate_commit_at_readback": true,
+    "source_frame_note": "The candidate is a one-file test-driver commit whose direct parent source blob was read back and matched the committed 7455 baseline used by the independent assertion audit. The root-owned earlier dirty target at 5ac0d552ec873a487162d0021cb57ba1f4918f1629bb0c116bc40b46d1cca538 is known only by its recorded hash and metadata; its exact bytes or a dirty-preimage-to-candidate patch are unavailable. Therefore assertion preservation against that dirty preimage is not_established."
+  },
+  "source_footprint": [
+    {
+      "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+      "base_sha256": "16ba315badd0a08b582afc1fa051b1aeadb2abd4d51f1bd73c9ea9d937c83988",
+      "candidate_sha256": "b1ab06a8c12739c1423b7c05f4ed40dbd19f8c6b8c0893e99173db161d0ebac1",
+      "base_bytes": 56308,
+      "candidate_bytes": 96245
+    }
+  ],
+  "contract_and_property": {
+    "original_runtime_property": "Two concurrent Runtime control-worker jobs share the configured MethodBackend admission boundary across compute and blocking-I/O work; capacity one admits no more than one method fold at once, capacity two admits no more than two, all expected folds/results are retained and freshly read back, and removing the bridge exposes the expected admission escape.",
+    "driver_property": "The outer test attempts each of the three declared child profiles in its own fresh subprocess, retains complete child stdout/stderr before the aggregate decision, records typed failure outcomes for runner errors, timeouts, malformed markers, and nonzero exits, and fails unless the exact configured profile set all passes.",
+    "declared_profiles": [
+      {
+        "case_id": "cap-1-configured",
+        "capacity": 1,
+        "bridge_removed": false
+      },
+      {
+        "case_id": "cap-2-configured",
+        "capacity": 2,
+        "bridge_removed": false
+      },
+      {
+        "case_id": "cap-1-bridge-removal",
+        "capacity": 1,
+        "bridge_removed": true
+      }
+    ],
+    "native_child_workload_shape": "The child uses two concurrent test-defined Scientist workflow jobs and TMLE MethodBackend execution, serial fold configuration, two repeats by three folds per study, and checks fold completeness, worker dispatch, owner scopes, terminal state, CAS artifacts, evidence links, and fresh result/evidence reads. This is a synthetic integration fixture, not an established production workload roster or production sizing input.",
+    "instrumentation": "The child observes shared executor queue residence and classifies submissions, records BlockingDependencyGuard context at control-store and CAS seams, and captures guarded put_json payloads at the canonical CAS operation. The two slowest eligible payloads may be retained per child within a 25 MiB total child-payload budget; oversize payloads retain size/hash/reference metadata only.",
+    "semantic_effect": "This commit widens the diagnostic runner to attempt all three declared profiles before aggregation. It does not itself exercise or establish the Runtime property because the three native children remain UNRUN."
+  },
+  "pattern_review": {
+    "relevant_patterns": [
+      "P29 authorial proof",
+      "P31 instance patching",
+      "P32 trust by form",
+      "P33 teaching to the test",
+      "P35 denominator completeness",
+      "P37 declared gate predicate",
+      "P38 proxy gate",
+      "P40 ladder repair",
+      "P41 red provenance"
+    ],
+    "P38_property_vs_implementation": {
+      "property": "The shared runtime admission invariant and its removal falsifier hold over the complete declared profile set.",
+      "implementation": "The parent driver attempts the three declared child scenarios and aggregates their structured statuses; native child assertions measure queue, guard, folds, CAS, ownership, and readback behavior.",
+      "divergence": "A passing parent driver or successful subprocess exit is not the Runtime property. The native child results and their actual measurements are currently UNRUN; driver coverage cannot be promoted to runtime evidence."
+    },
+    "P40_bucket": "SAME_CLASS_DEEPER: widen the shared R4 driver to the complete declared profile set and aggregate only after every case was attempted; do not add another one-profile patch ladder.",
+    "P41": "The committed-base-to-candidate source delta is exact. The earlier dirty target preimage is not replayable from its SHA-only binding, so a strict delta or assertion-preservation claim against that state is not_established."
+  },
+  "verification": {
+    "frozen_source_checks": {
+      "manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-driver-freeze-20261015-7455db0/freeze-manifest.json",
+      "manifest_sha256": "721312736d272e95ed0503fad20ba8716d97b0be67036cbb11a1118943b8b302",
+      "source_sha256": "b1ab06a8c12739c1423b7c05f4ed40dbd19f8c6b8c0893e99173db161d0ebac1",
+      "checks": [
+        {
+          "name": "Ruff check",
+          "command": ".venv/bin/python -B -m ruff check tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+          "result": "PASS"
+        },
+        {
+          "name": "Ruff format check",
+          "command": ".venv/bin/python -B -m ruff format --check tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+          "result": "PASS"
+        },
+        {
+          "name": "diff check",
+          "command": "git diff --check -- tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+          "result": "PASS"
+        },
+        {
+          "name": "Python syntax compile",
+          "command": "python3 -B -c 'from pathlib import Path; p=Path(\"tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py\"); compile(p.read_text(), str(p), \"exec\")'",
+          "result": "PASS"
+        }
+      ],
+      "static_outputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-driver-review-20261015/static-checks.json",
+      "static_outputs_sha256": "081789426d6f6a052cc372f876f50151f062c897c70d9eccd516605549a5da6c"
+    },
+    "author_original_lightweight_runs": {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-driver-freeze-20261015-7455db0/test-runs.json",
+      "receipt_sha256": "ffbc3d696bc5c9bf7a05fb9c43db5421550298d71d59f66874edf3ec4ecd4389",
+      "result": "Both selectors passed separately against the exact candidate bytes; 8.37s for full timeout-stream retention and 9.57s for attempt-all-before-aggregate-failure.",
+      "native_profiles": "UNRUN"
+    },
+    "independent_review": {
+      "report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-driver-review-20261015/review-report.md",
+      "report_sha256": "ce37f30f5614fc42827af0edd532dc190a473466137bad98dba2bf98f6c8e731b",
+      "assertion_audit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-driver-review-20261015/assertion-audit.txt",
+      "assertion_audit_sha256": "5a166b8a5335693fcd00cd59d9993596ad2340b8ed45de47bb1716d1deb0ebea",
+      "assertion_audit_baseline": "Committed baseline source blob SHA-256 16ba315badd0a08b582afc1fa051b1aeadb2abd4d51f1bd73c9ea9d937c83988 (also the direct-parent blob of candidate commit 2307d655). The audit found no removed native assertions against this committed baseline. It does not establish a strict delta against dirty SHA 5ac0d552... whose exact bytes are unavailable.",
+      "verdict": "Bounded GO for the widened diagnostic driver; no R4 runtime capability pass or formal closure."
+    },
+    "native_r4_profiles": {
+      "status": "UNRUN",
+      "reason": "Deferred until the whole composed source is frozen and independently reviewed.",
+      "required_cases": [
+        "cap-1-configured",
+        "cap-2-configured",
+        "cap-1-bridge-removal"
+      ],
+      "actual_queue_cas_and_workload_observations": "UNRUN"
+    },
+    "independent_review_focused_tests": {
+      "selectors": [
+        "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py::test_r4_child_output_retention_writes_full_timeout_streams",
+        "tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py::test_r4_profile_driver_attempts_all_cases_before_aggregate_failure"
+      ],
+      "result": "2 passed in 3.47s",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-driver-review-20261015/lightweight-driver-tests.stdout.txt",
+      "output_sha256": "0a0f316f4f0dd70215447cfa1d1dcdb8139aeb3427b14f63284d68035a5c91c0",
+      "command_limitation": "The exact combined shell argv was not separately retained in the independent review record. The author freeze receipt below retains the exact per-selector argv and complete output for both tests."
+    }
+  },
+  "limitations": [
+    "The production roster, named qualifying studies/models/folds/seeds/backend/order, actual resource budget, and production capacity/SLO denominator have not been established by this synthetic fixture.",
+    "The candidate changes driver coverage, not native runtime outcome. Full fresh child outputs and payload bytes from the three profiles do not exist yet; the per-child output and 25 MiB payload mechanisms describe what a future run would retain.",
+    "Failure diagnostics do not yet emit a dedicated child-finally record of every partial fold/job/readback count. Missing observations must remain missing rather than pass.",
+    "The earlier root-owned dirty preimage hash is bound by resume-r4-current-workload-test-oracle-20261015/report.json @ 217aa4ed3877095a7fff6bab625a27634ba32bcc8c1380120a7127aae3fe934b and r2.json @ 728fd3720c105103f8595e6c8706a6e215df3d7cebbbb23d656fa06a7c3a16b5; neither supplies exact prior bytes or an exact prior-dirty-to-candidate patch. Assertion preservation against that dirty state is not_established.",
+    "B56 resource-denominator adjudication and B148 import-set publication are outside this driver result; neither is closed, transferred, or adjudicated here."
+  ],
+  "next_check": "After whole-composition source freeze and independent review, run the exact top-level selector tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py::test_runtime_control_worker_shared_method_admission_and_removal_probe once. Retain complete stdout/stderr and each child receipt. Require all three cases to pass their Runtime queue/admission, folds, owner-scope, terminal-state, CAS, evidence-link, fresh-read, and bridge-removal assertions; record FAIL/ERROR/SKIP/UNRUN exactly. Supply or explicitly leave open the authentic workload and resource-budget input required by the original R4 criterion. Do not promote the diagnostic driver alone to closure.",
+  "evidence_paths": {
+    "source_freeze": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-driver-freeze-20261015-7455db0/freeze-manifest.json",
+    "source_checks": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-driver-review-20261015/static-checks.json",
+    "focused_runs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r4-driver-freeze-20261015-7455db0/test-runs.json",
+    "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-driver-review-20261015/review-report.md",
+    "prior_dirty_preimage_binding": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r4-current-workload-test-oracle-20261015/report.json"
+  }
+}

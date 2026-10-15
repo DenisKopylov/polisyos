@@ -1,0 +1,235 @@
+{
+  "schema": "policyos.e02.local.slice_handoff.v1",
+  "slice": "R3 causal graph selected-profile writers and producer bridge",
+  "prepared_on": "2026-10-15",
+  "status": "bounded_candidate_for_independent_G_review",
+  "closure_ids": [],
+  "proposal_fields": {
+    "formal_closure_authority": "G",
+    "proposed_formal_status": "not adjudicated; G only",
+    "proposed_source_outcome": "bounded GO for the optional selected-profile writer contract and the committed BuildLiteraturePrior/Reconcile causal-graph bridge on the exact eight-path source slice; actual Scholar KnowledgeBundle selected-profile production and the separate V3 cross-graph callsites remain not_established",
+    "proposed_id_mapping": "Map only after checking the original R3 criterion and every canonical occurrence. This packet proposes no formal closures."
+  },
+  "source": {
+    "branch": "codex/e02-unified-local-20261009",
+    "base_commit": "2c7f893ef61f46bbe63a47776af4d42d399cda03",
+    "candidate_commit": "05aaa70dc57996ff6772f9f78a11953bd5db0ea4",
+    "candidate_tree": "6287b203600fb0023074a8a3ae9d8f0b818ef933",
+    "candidate_parents": [
+      "2c7f893ef61f46bbe63a47776af4d42d399cda03"
+    ],
+    "candidate_subject": "fix: retain selected profiles across causal graph producers",
+    "candidate_is_ancestor_of_observed_head": true,
+    "observed_workspace_head": "2307d655c1a78e3395fe837ae3e681c35cff8e45",
+    "leased_paths_match_candidate_commit_at_readback": true,
+    "readback_method": "All eight candidate file bytes were read by git show from 05aaa70dc57996ff6772f9f78a11953bd5db0ea4 and SHA-256 matched the independent source-freeze manifest. Base bytes were read from its exact parent 2c7f893ef61f46bbe63a47776af4d42d399cda03.",
+    "source_frame_note": "The R3 independent review ran at ancestor commit 1cfe47ab42e29ebd02359f2b80a8173a528d8b94/tree 8b40a2b055df3052a55abb3a3ee36ae9a8260172. The eight leased path blobs are exact at the later committed source 05aaa. The current worktree is dirty with a separate five-path Q2 follow-up under independent review; this packet uses committed Git blobs only, including for test_build_literature_prior_node.py, and makes no claim about those newer overlays."
+  },
+  "source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+      "base_sha256": "8952e4f2795c8f15520a11a2e5a5e92194c3588e163b09b5135e47090aaa0362",
+      "candidate_sha256": "7bb6e7a0c29a1d13dc1e1f53f0c735dec68e67b1cc1fc2aa606f84f34efc823c",
+      "candidate_bytes": 43346
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/cross_graph.py",
+      "base_sha256": "5287e2fc7b2ba59677ce17c2f35ee6a231a518cb9a9cd395be2d39cd870cb37a",
+      "candidate_sha256": "be89c7192ba5ff35b8cfc48775c18a1a62391ae4b74693dcbbfdbb068e830430",
+      "candidate_bytes": 42450
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
+      "base_sha256": "8103fbe4c30fc122eca7fa69e587c1e435dd106b5de82d12e1819df7deef4a4d",
+      "candidate_sha256": "160ad7ea10b0172b51a73b9d39adc90855fe3f4dbde0b0771ed2658acff1a114",
+      "candidate_bytes": 13704
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "base_sha256": "7a1f629420af573b2835d3944c660c66c091f0dd7adda0e094f698a563b43a96",
+      "candidate_sha256": "3a257ef4eee0ca587f31c7b40428abed67d3f1d26c12ad17a886e765447bbf36",
+      "candidate_bytes": 48761
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/mirror_contracts/test_cross_graph.py",
+      "base_sha256": "5a502b0d6ae4bb21afc6d25d602d03cf08cf5ddb513f42cb2a85d5665765c228",
+      "candidate_sha256": "bd9e70d8938c31326ddc98fd8fe7a6246ba5358a7c3b36a5f983cd038bb9374b",
+      "candidate_bytes": 1592
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_causal_graph_contract.py",
+      "base_sha256": "de97965410b330cbcfe0c6ead256f8333458b2694b46989fb8626fa067714317",
+      "candidate_sha256": "3b2da835b01e1c06ac8895959bda0b1938f7dca955bbe72b076e06d56913bc35",
+      "candidate_bytes": 23690
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_build_literature_prior_node.py",
+      "base_sha256": "af232a5993e28edf32bffea160d56314582adfa233e293041cb4872f864d95e0",
+      "candidate_sha256": "56a92eb01cad85e3cf157a24c2996cfd0fca69722a57713b2d8a5a35b82b94f2",
+      "candidate_bytes": 6758
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py",
+      "base_sha256": "7582073c6d5806e62a56c53740900be69cbf3dede414fb10762aed7e5d258b3e",
+      "candidate_sha256": "bbc15a7a5b25eaa83d9e3d18227b49e2ebc3ac6654697bd107e19dce201141f1",
+      "candidate_bytes": 37733
+    }
+  ],
+  "contract_and_property": {
+    "writer_contract": "persist_causal_graph_model and persist_cross_graph_evidence_profile preserve their legacy profileless return by default and accept an explicit bool opt-in that forwards through the existing put_json_artifact selected-profile writer contract. The selected profile is returned by the real store write; it is not reconstructed or self-labeled from payload bytes.",
+    "committed_producer_paths": "The committed BuildLiteraturePrior and ReconcileCausalGraph paths opt into selected-profile returns for the prior/graph writes, preserve source input profile edges, and place actual returned refs in their state/artifact outcomes as applicable. The committed Reconcile path rejects a same-byte literature prior with a wrong schema/profile rather than treating matching bytes as equivalent evidence.",
+    "same_bytes_sibling_control": "A local FileSystemCAS probe keeps each real artifact ABI fixed, writes identical payload bytes with distinct valid input-edge profiles, checks the selected manifest profile and exact input-edge digest through a fresh reader, and loads the artifact through its IR consumer.",
+    "semantic_effect": "The source proves bounded optional selected-view persistence and propagation through the tested local causal prior-to-graph bridge. The metadata establishes selected manifest identity/provenance, not the truth, currentness, legal authority, causal validity, or promotion readiness of the payload. Literature prior remains candidate evidence."
+  },
+  "review_dependency_overlay": {
+    "source_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-selected-profile-independent-20261015/source-freeze.json",
+    "source_manifest_sha256": "506ab5467349e11aaf745fa1cd51e7cfde0344314bd6ee1ade5c5abd3d3855b5",
+    "meaning": "The following hashes are the read-only dependency paths captured by the independent review. They are context pins, not R3 source changes. Candidate-commit equivalence is checked against the exact Git blob at 05aaa.",
+    "references": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "review_captured_sha256": "da6d33ca7aaad00dd7ed8b6ccefa0e5b126d591f8c63951540606d3ea3e6d0ed",
+        "matches_candidate_commit_blob": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "review_captured_sha256": "e56ca352a9a4426f2d50368cda502857a219d1a53800e2e9cd43934a6fae301f",
+        "matches_candidate_commit_blob": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "review_captured_sha256": "f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab",
+        "matches_candidate_commit_blob": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/query_preservation.py",
+        "review_captured_sha256": "4ac6d5e7faf0e0a43223070855398f7d0cbb161013d06cb3350cd090e2fcd207",
+        "matches_candidate_commit_blob": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/literature.py",
+        "review_captured_sha256": "b73bff03ed73da4f5c128633ca4c30e61b251e7caa1e4bc2858db2ac57e9b6b1",
+        "matches_candidate_commit_blob": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scholar/orchestrator/bundle.py",
+        "review_captured_sha256": "121d5a63e728b6e85bf1df4b0873860741bf1dc412a6e8d3f59e81335ef76afd",
+        "matches_candidate_commit_blob": true,
+        "review_finding": "The committed source snapshot writes KnowledgeBundle without requesting a selected profile; the separate five-path Q2 follow-up is not included here."
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+        "review_captured_sha256": "81fac102bce9779a74b5d469a02586e4a6b9e2cbc4b8958a50466305f547dd3e",
+        "matches_candidate_commit_blob": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
+        "review_captured_sha256": "4f9ddcec411cb8d83cef83da755b15fa5343865b209541fa5e335e333613fc3b",
+        "matches_candidate_commit_blob": true,
+        "review_finding": "The committed EnrichKnowledge producer path uses the default profileless write; this receipt does not establish actual upstream selected-profile attestation."
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+        "review_captured_sha256": "fe838a6d7074846556d7370e20624dc7baa8720bedf4fe53cff751e72db6c1f3",
+        "candidate_commit_blob_sha256": "03fdd17f08451d245cc8986da15d8fc79f0e2d61b93ea8dc78cbff0257b8f3f3",
+        "matches_candidate_commit_blob": false,
+        "disposition": "The review-captured overlay hash does not match the source commit Git blob and no exact overlay bytes are copied by the source manifest. The file is a separate V3-owned consumer. At 05aaa the two persist_cross_graph_evidence_profile calls do not request return_selected_profile. Do not attribute the review-overlay callsite behavior to the committed R3 source. The currently modified Q2 worktree file is a separate mutable overlay."
+      }
+    ],
+    "overlay_capture_limit": "The review source manifest pins effective read-only paths by hash; it does not preserve the mismatching V3 overlay bytes. That overlay is not silently treated as the committed source or as an R3 dependency proof."
+  },
+  "verification": {
+    "author_composed": {
+      "result": "57 PASS reported by the author handoff; retained output contains 57 passing dots.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-selected-profile-writers-20261015/pytest-composed.log",
+      "output_sha256": "5603b3bdbd979d86e8c62be43291039331c1f18d392c470cba56f4eba489b84d",
+      "exact_command": "not retained in the pinned raw receipt"
+    },
+    "independent_focused": {
+      "result": "7 passed in 4.06s",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-selected-profile-independent-20261015/focused-verification.log",
+      "output_sha256": "202a2c1221fdfe1c338e2029012fec87cfc9bf15878593ac3fbdb27a17d7959f",
+      "selectors": [
+        "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_writer_returns_exact_selected_profile_on_same_bytes",
+        "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_writer_refuses_selected_profile_when_store_cannot_return_it",
+        "tests/unit/ir/test_causal_graph_contract.py::test_causal_graph_writer_refuses_malformed_selected_profile_option",
+        "tests/unit/ir/mirror_contracts/test_cross_graph.py::test_cross_graph_writer_returns_exact_selected_profile_on_same_bytes",
+        "tests/unit/scientist/methods/causal/test_build_literature_prior_node.py::test_build_literature_prior_node_persists_prior_and_graph",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py::test_reconcile_rejects_literature_prior_with_same_bytes_wrong_schema",
+        "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py::test_reconcile_causal_graph_node_persists_graph_and_params"
+      ],
+      "exact_command": "not retained in the pinned raw receipt"
+    },
+    "same_abi_sibling_profile_probe": {
+      "result": "PASS; temporary local FileSystemCAS only",
+      "script": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-selected-profile-independent-20261015/same-abi-sibling-profile-probe.py",
+      "script_sha256": "de97557e74457fe058d5c845542015e23cb471027790be8dc7415648cccad750",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-selected-profile-independent-20261015/same-abi-sibling-profile-probe.log",
+      "output_sha256": "a9f2a76c230c07cf94ef8c428bd3221e91616dff74e69ede7ab8df9507d6d545",
+      "exact_command": "not retained in the pinned raw receipt"
+    },
+    "independent_review": {
+      "report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-selected-profile-independent-20261015/review.md",
+      "report_sha256": "5f95edd84e14d553c8c8eea4b90bd7e1e0fd185993b648db9c4c60d37758b2c8",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-selected-profile-independent-20261015/receipt.json",
+      "receipt_sha256": "003224216a3b72a1ce1bd3afb636dd00f880faba58a5b84b993130b2348e46e5",
+      "verdict": "Bounded GO for eight frozen paths' optional selected-profile writer behavior and the tested causal prior-to-graph bridge; composition holds remain. Review is not formal adjudication."
+    },
+    "source_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-selected-profile-independent-20261015/source-freeze.json",
+      "sha256": "506ab5467349e11aaf745fa1cd51e7cfde0344314bd6ee1ade5c5abd3d3855b5",
+      "all_eight_candidate_git_blobs_match": true,
+      "review_time_dependency_overlay_mismatch_count": 1
+    }
+  },
+  "capability_labels": [
+    "Optional selected-profile writer contract plus committed BuildLiteraturePrior/Reconcile producer-to-CAS-to-reader path: bounded implemented and semantically unit-tested.",
+    "Actual Scholar/Enrich KnowledgeBundle producer-attested selected profile: producer_missing for the selected-profile property / verification_missing; committed source writes profileless inputs.",
+    "V3 cross-graph compiler selected-profile writer integration in candidate 05aaa: implemented_but_not_orchestrated for selected-profile use; the committed two calls do not opt in, and the review-time captured overlay is hash-mismatched and not source-committed.",
+    "Global composed E02 source freeze, actual producer end-to-end route, external currentness/authority, and formal finding adjudication: not established / G-owned."
+  ],
+  "limitations": [
+    "No actual Scholar-produced selected-profile KnowledgeBundle path was run. The independent review found the committed Scholar and EnrichKnowledge writers use default profileless writes; the source hashes match the committed 05aaa blobs. A separate five-path Q2 follow-up is under independent review and is deliberately not folded into this result.",
+    "The separate V3-owned compile_cross_graph_evidence.py review dependency was recorded at a SHA that differs from its Git blob in both the review-head and R3 candidate commits. The overlay bytes are unavailable in this receipt. The 05aaa committed callsites do not request selected-profile returns, so no V3 producer integration claim is made.",
+    "The Reconcile query-preservation projection and composition certificate contain bare graph artifact IDs in diagnostic/certificate structures. This review did not establish whether any downstream consumer treats these as authority-bearing selected-view refs; exact consumer census remains open.",
+    "Six unchanged persist_causal_graph_model callsites in run_abm_consistency, run_causal_ensemble, causal validity, and backtesting retain the profileless compatibility default. This slice does not establish profile safety for those routes.",
+    "Selected manifest profile, schema, and content integrity do not establish source truth, issuer, permission, currentness, legal correctness, causal calibration adequacy, or publication/promotion authority. No production inputs were used.",
+    "The pinned full test outputs and review manifest do not retain exact test command argv. Their selectors/results and exact source blobs are recorded; G should not infer command details absent from those receipts."
+  ],
+  "next_check": "After the separately assigned five-path Q2 review settles and the full E02 source is frozen, run the ordinary local Scholar/Enrich producer through KnowledgeBundle persistence, BuildLiteraturePrior, Reconcile, and a fresh selected-profile CAS reader. Verify the exact producer-selected manifest profile and edge continuity; include missing/foreign/wrong-profile and same-bytes sibling-profile controls. Separately review V3 compiler changes at their exact committed source, verify whether selected-profile opt-in is intended, and exercise its writer consumer. Census every downstream reader of bare query-preservation/composition graph IDs and the six unchanged profileless writer routes. Preserve candidate-only status and leave original findings to G for formal adjudication.",
+  "evidence_pins": {
+    "source_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-selected-profile-independent-20261015/receipt.json@003224216a3b72a1ce1bd3afb636dd00f880faba58a5b84b993130b2348e46e5",
+    "source_freeze_and_dependency_overlay": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-selected-profile-independent-20261015/source-freeze.json@506ab5467349e11aaf745fa1cd51e7cfde0344314bd6ee1ade5c5abd3d3855b5",
+    "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-selected-profile-independent-20261015/review.md@5f95edd84e14d553c8c8eea4b90bd7e1e0fd185993b648db9c4c60d37758b2c8",
+    "author_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-ir-selected-profile-writers-20261015/pytest-composed.log@5603b3bdbd979d86e8c62be43291039331c1f18d392c470cba56f4eba489b84d",
+    "independent_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-selected-profile-independent-20261015/focused-verification.log@202a2c1221fdfe1c338e2029012fec87cfc9bf15878593ac3fbdb27a17d7959f",
+    "sibling_abi_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-selected-profile-independent-20261015/same-abi-sibling-profile-probe.log@a9f2a76c230c07cf94ef8c428bd3221e91616dff74e69ede7ab8df9507d6d545"
+  },
+  "pattern_review": {
+    "relevant_patterns": [
+      "P01 contract-only capability",
+      "P02 thin orchestration",
+      "P05 authority boundary",
+      "P12 producer handshake",
+      "P14 evidence independence",
+      "P31 instance patching",
+      "P32 trust by form",
+      "P35 denominator completeness",
+      "P37 declared gate predicate",
+      "P38 proxy gate",
+      "P41 red provenance"
+    ],
+    "existing_gaps": [
+      "Selected-profile writer capability is opt-in; actual KnowledgeBundle writers in committed source do not emit the profile-bearing source ref required by the downstream causal path.",
+      "The V3 cross-graph compile callers in the committed 05aaa source do not opt in, while the independent review dependency hash refers to a non-committed overlay.",
+      "The same-bytes/sibling-profile tests verify that payload identity alone does not stand in for selected manifest identity, but they do not establish upstream source truth or authority."
+    ],
+    "target_pattern": "Reuse the existing typed artifact writer, let the real store return the selected manifest profile, carry that exact artifact/profile tuple through producer outputs and edges, then verify it with fresh consumer readback and wrong-profile/changed-schema negatives. Keep legacy profileless default behavior explicit.",
+    "missing_capability_labels": [
+      "actual Scholar/Enrich KnowledgeBundle selected-profile producer: producer_missing / verification_missing",
+      "committed V3 cross-graph compiler selected-profile opt-in: implemented_but_not_orchestrated",
+      "full composed E02 source and external/current authority: not_established"
+    ],
+    "acceptance_signal": "The exact selected-profile producer chain runs against the composed source; the CAS reader returns the same selected (artifact_id, manifest_profile_sha256), correct ABI, and complete expected input-edge profile map; sibling-profile same-byte, wrong-schema, missing, and foreign-source controls refuse or remain explicitly limited."
+  }
+}

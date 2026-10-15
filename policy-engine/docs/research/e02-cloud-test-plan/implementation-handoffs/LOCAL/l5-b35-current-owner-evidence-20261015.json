@@ -1,0 +1,103 @@
+{
+  "record_id": "l5-b35-current-owner-evidence-20261015",
+  "document_type": "current_source_evidence_companion",
+  "purpose": "Update the current L5 producer-to-consumer evidence for D-L5-b35 without duplicating or changing that pending decision.",
+  "status": "evidence_recorded_decision_pending_fail_closed",
+  "formal_closure_ids": [],
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "7455db0523bd91e6ce2b4523ef4731327b7eb78d",
+    "tree": "15bad5107f63ecbc6e910a69e05be2388678796a",
+    "current_code_hashes": {
+      "src/polisyos/core/contracts/epoch.py": "5de8e0bbc66fb5ed380f7495bae75ce5855a181e3b44ea087c13e179d7e7749c",
+      "src/polisyos/runtime/quality/semantic_epoch.py": "2093b09b0091e0db72e3b01bff3bf7f05aa0c1fc4bbfbd2168e95fd54af8cede",
+      "src/polisyos/runtime/quality/substrate_registry.py": "7b93b56d4c944e9481212ed1c86b944d1778d7eb9128e9ff63721af65a1c5466"
+    },
+    "scoped_dirty_test": {
+      "path": "tests/unit/runtime/quality/test_semantic_epoch.py",
+      "sha256": "12be958ca6d0dcfe3b7bde58407c193eb45470499a9a33ae04d9a370bfa8cba7",
+      "qualification": "The only scoped dirty test path contains IRgov's authorized connector-cache prefix negative control; no L5 source or test change was made for this investigation."
+    }
+  },
+  "existing_decision": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decision-l5-b35.json",
+    "sha256": "697bd988c569eb77dbba8dbd8f8a8b517a4d9cd0932022bb66dd5f5c586f36f2",
+    "status": "decision_pending_fail_closed",
+    "meaning_changed": false
+  },
+  "tracked_local_inputs": {
+    "regime_registry": {
+      "path": "architecture/policy_design_case/layer3_gy_l5_schema_regime_registry.json",
+      "sha256": "d73926566e533f32aa3348c86a92270824942ba221f51ece0ebddcf39d79cfe3",
+      "row_count": 2
+    },
+    "scope_registry": {
+      "path": "architecture/policy_design_case/layer3_gy_l5_schema_regime_scope_registry.json",
+      "sha256": "eaba46821d5ab53109e8cc1174940994606e091fef90adb64f63046b1d1834d0",
+      "row_count": 2,
+      "relation_provenance_refs": [
+        "sha256:b35defc2e3214b6baf41ed33e2fff808639059cb0f0ba31d56125765e74548ca",
+        "sha256:b35defc2e3214b6baf41ed33e2fff808639059cb0f0ba31d56125765e74548ca"
+      ]
+    }
+  },
+  "current_contract_and_route": {
+    "dto": "L5SchemaRegimeScopeRelation carries schema_regime_id, scope_identity_refs, relation_provenance_ref, visibility_knowledge_from, and purpose_admission_from; it has no separate relation-row content reference.",
+    "codec": "l5.schema_regime_scope_relation / application/json / unresolved_reference (core/contracts/epoch.py:253-254).",
+    "local_owner": "substrate_registry.py parses typed rows from the tracked scope registry, computes applicability from scope and historical cutoffs, and includes rows inline in the owner snapshot.",
+    "adapter_gap": "L5EpochBoundaryOwnerAdapter persists the registry files, snapshot, regime rows, denominator receipt, and projection, but no distinct l5.schema_regime_scope_relation content object.",
+    "consumer_behavior": "The selected-reference graph refuses unresolved_reference before reading relation bytes; direct relation mapping resolution returns owner reference has no registered content resolver."
+  },
+  "fresh_controlled_producer_evidence": {
+    "output_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-l5-b35-actual-owner-producer-20261015/controlled-owner-adapter-r2.stdout.txt",
+    "output_sha256": "64f3a3cacbd43f38f030bfe45a4dc45f22118c3afcc4efd53e6f3a8573d188d5",
+    "input_guard": "The harness constructed L5CatalogAuthority only from the two tracked architecture registry JSON files and used a fresh temporary FileSystemCAS; it did not call default_substrate_catalog_paths or load production D2 inputs.",
+    "observed": {
+      "owner_receipt": "resolved over both local rows",
+      "projection": "resolved; ukraine_schema_v2 applicable for the controlled 2025-01-01 query, v1 not_applicable",
+      "adapter_batch": "resolved; both regime members persisted/read back with selected CAS profiles, alongside both exact registry byte streams, snapshot, receipt, and projection",
+      "b35_in_ephemeral_cas": false,
+      "relation_resolver": "ValueError: owner reference has no registered content resolver",
+      "snapshot_graph": "unresolved"
+    },
+    "interpretation_limit": "Ephemeral-CAS absence does not establish absence in any external or production store. The resolved local projection demonstrates recomputation from controlled local rows, not external issuer, law, custody, or currentness authority."
+  },
+  "current_wrapper_trace": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-wrapper-reference-census-20261015/trace.jsonl",
+    "sha256": "96cd2cd31b0cf49ac5ba76c511b868bba474f8433648d34aade6d1f21a68b479",
+    "event_counts": {
+      "load_attempt": 49,
+      "load_ok": 49,
+      "refset": 29,
+      "walk_result": 1
+    },
+    "reference_denominator": {
+      "occurrences": 65,
+      "unique_artifact_kind_media_identities": 38
+    },
+    "final_edge": "Two profileless b35 refs with kind l5.schema_regime_scope_relation and media application/json are observed in the selected owner snapshot; codec format is unresolved_reference and graph result is unresolved."
+  },
+  "complete_scoped_source_census": {
+    "output_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-l5-b35-actual-owner-producer-20261015/trace-and-source-census-r1.stdout.txt",
+    "output_sha256": "049d35a4c72530b24f338733dc3c7087b0ef841c681c40c8da6d22d5968ae3e7",
+    "scope": "git-tracked src/polisyos, tests/unit/runtime/quality, and architecture/policy_design_case",
+    "file_denominator": {
+      "all_tracked_files": 3766,
+      "python": 3009,
+      "json": 486
+    },
+    "note": "The cited output contains complete counts and matching source locations for the L5 DTO, codec, roles, consumer, tests, and registry rows."
+  },
+  "supplementary_default_loader_scope_incident": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-l5-b35-actual-owner-producer-20261015/supplementary-default-d2-metadata-scope.json",
+    "sha256": "20decd8db48a5996f64d80cbd9066cf8660f3871e3688bce202cd6ec94f9232e",
+    "classification": "excluded_from_controlled_only_evidence",
+    "reason": "The supplementary pytest invocation included test_real_l5_owner_rows_and_registry_files_round_trip_through_cas, whose default loader reads three production_data D2 metadata JSON files. Its full output is preserved separately; it is not used for this controlled-source result or production authority/currentness claims."
+  },
+  "minimal_g_choice_and_next_check": {
+    "choice": "Keep D-L5-b35 pending/fail-closed until G and the L5 source owner choose whether b35 is an external issuer statement, a distinct legacy/unresolved input, or provenance separate from local row content.",
+    "if_local_rows_are_selected": "Ratify a versioned local content identity separate from b35; use the canonical owner rows, preserve each row's scope and knowledge/admission times, then test the complete two-row producer→CAS→selected-profile resolver→finalizer→denominator route with absent, altered, wrong-kind/profile, swapped-sibling, wrong-scope/time, and remove-property controls.",
+    "if_external_statement_is_selected": "Require exact b35 bytes/hash, named issuer and authority basis, versioned schema and verifier/signature rule, custody and institutionally supplied time/currentness, and explicit relation-row binding before extending the resolver.",
+    "prohibition": "Do not derive b35 from local row bytes, infer an issuer/law/currentness fact, or rewrite source manifests/hashes to force pairing."
+  }
+}

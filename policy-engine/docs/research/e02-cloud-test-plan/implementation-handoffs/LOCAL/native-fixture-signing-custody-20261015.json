@@ -1,0 +1,115 @@
+{
+  "artifact": "native-fixture-signing-custody",
+  "date": "2026-10-15",
+  "scope": "Controlled native semantic-epoch test-fixture signing custody and exact-repeat reuse only.",
+  "disposition": {
+    "bounded_review": "GO for the fixture-custody mechanism and its focused unit controls",
+    "formal_closure": false,
+    "closure_ids": [],
+    "production_authority_claim": false
+  },
+  "source_commit": {
+    "commit": "8c1cd1cbccb0606f42ace814b1e1e3d63e1d5c4c",
+    "tree": "eda9ebaef11d2aa1e22e1176d7df10c65cdc5211",
+    "parent": "7b6d31a551d8a11e68db8f672dc83ef11a044507",
+    "subject": "test: preserve exact native fixture signing custody on reuse"
+  },
+  "checkout_observation": {
+    "head_at_readback": "5c5aba7258a35ec769a39378c2e881a85461c897",
+    "active_helper_sha256_is_separate_from_source_commit": true
+  },
+  "source_paths": [
+    {
+      "path": "policy-engine/tests/_helpers/semantic_epoch_native.py",
+      "commit_blob_sha1": "614f4d02a7975829d9263fda2d045c933e0b5f1c",
+      "commit_content_sha256": "9b35b5274b83f19f931baa0dd00a64dd1aea9fe15c8f041a001bd2d2d656f280",
+      "current_worktree_sha256": "2fc611c6e5e3352825081a1f9d9f7e41497d1d99d44d92b650d46af275e21b87",
+      "current_overlay": "R3-owned later overlay adds prior admission-reference accumulation and returns native_service; it is outside this receipt's verification and is not represented by the committed source hash."
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_fixture_custody.py",
+      "commit_blob_sha1": "d327634470e6f180ace1cf288a7a92131b30bce4",
+      "commit_content_sha256": "d6ba70b0fbab45cefc533d66c571995ab9011d3f0007502b88e8a262003c841d",
+      "current_worktree_sha256": "d6ba70b0fbab45cefc533d66c571995ab9011d3f0007502b88e8a262003c841d",
+      "current_overlay": null
+    },
+    {
+      "path": "policy-engine/tests/_helpers/acquisition_chain.py",
+      "commit_blob_sha1": "0e47df80d94e561bd8e7ec41a7bdaf58c81933ac",
+      "commit_content_sha256": "b25bd4dc0dab173dfdaa8be4820f2c43fd4917fff09ca6e4c5f0b62fb0e05598",
+      "current_worktree_sha256": "b25bd4dc0dab173dfdaa8be4820f2c43fd4917fff09ca6e4c5f0b62fb0e05598",
+      "current_overlay": null
+    },
+    {
+      "path": "policy-engine/tests/integration/core_runtime/test_acquisition_world_growth_chain.py",
+      "commit_blob_sha1": "27f176a52c4c1bc4e8cc59aea3bbd0ec92e2572a",
+      "commit_content_sha256": "87555731569be57bae27c83cec555eb939c2745ddf6caeb8f5bb16182e51ccde",
+      "current_worktree_sha256": "87555731569be57bae27c83cec555eb939c2745ddf6caeb8f5bb16182e51ccde",
+      "current_overlay": null
+    }
+  ],
+  "mechanism": {
+    "invariant": "The fixture custodian creates its key-id-derived public-key path exclusively, so a second issuer cannot replace the first trust bytes. Appointment reuse requires the retained custodian and the same CAS object and canonical root; persisted envelope, admission reference, signing profile, provenance, key identity, issuer identity, and roles remain bound and the detached signature is verified as VALID.",
+    "controls": [
+      "A second custodian at the same root cannot overwrite the first public key; the original signature remains VALID under the first key.",
+      "Exact same-context reuse preserves the signed envelope and signature bytes.",
+      "Wrong-custodian verification is UNTRUSTED; changed query and changed provenance do not reuse the prior signature.",
+      "A reopened CAS object at the same root and an appointment without the retained custodian are refused.",
+      "A fresh-CAS changed-profile falsifier refuses reuse, preserves original signature bytes, and leaves the original issuer VALID."
+    ],
+    "excluded": [
+      "No global signer cache or persisted private key was added.",
+      "No production custody or institutional authority fact is established; signer keys and artifacts are ephemeral controlled test fixtures.",
+      "The separate B31/value-owner and cache-ABI work is not included in this receipt."
+    ]
+  },
+  "verification": [
+    {
+      "name": "fixture custody unit test",
+      "command": ".venv/bin/python -m pytest -q tests/unit/runtime/quality/test_semantic_epoch_fixture_custody.py",
+      "result": "PASS: 2 passed",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-custody-repair-20261015/unit-focused.stdout.txt",
+      "output_sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+      "independent_rerun": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-custody-independent-review-20261015/unit-rerun.stdout.txt",
+      "independent_rerun_sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87"
+    },
+    {
+      "name": "Ruff check on four leased files",
+      "result": "PASS: All checks passed!",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-custody-repair-20261015/ruff-check-four.stdout.txt",
+      "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "name": "Ruff format check on four leased files",
+      "result": "PASS: 4 files already formatted",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-custody-repair-20261015/ruff-format-four.stdout.txt",
+      "output_sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+    },
+    {
+      "name": "changed-profile refusal falsifier",
+      "result": "PASS: changed profile refused; original signature bytes retained; original key remains VALID",
+      "probe": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-custody-independent-review-20261015/profile-context-control.py",
+      "probe_sha256": "34525753c9a1026576545e82884d4eeff531ada68e351a48249667431a53d26f",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-custody-independent-review-20261015/profile-context-control.stdout.txt",
+      "output_sha256": "a0c29d5c13bac68dc0b705969e288c0f4a160305061d0b3a56b1212bd26732ea"
+    },
+    {
+      "name": "real WDI appointment exact-repeat integration control",
+      "command": ".venv/bin/python -m pytest -q tests/integration/core_runtime/test_acquisition_world_growth_chain.py::test_native_policy_appointment_reuses_custodian_on_exact_repeat",
+      "result": "UNREACHED: fails its owner precondition before the first appointment call; observed ('epoch_scope_unresolved',), expected ('policy_admission_missing',)",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-custody-repair-20261015/appointment-repeat.final.stdout.txt",
+      "output_sha256": "5a720e5222e7009918da617cc7aa62008fa06f2a610509c401a23091de4e32dd"
+    }
+  ],
+  "independent_review": {
+    "result": "GO for bounded fixture custody and unit controls; real appointment repeat remains UNREACHED",
+    "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-custody-independent-review-20261015/review.md",
+    "review_sha256": "380f4c963f66d9fa99b2bb82a139ef989348655e1ce970a4a28b9526465af481"
+  },
+  "next_check": "After the separate chronology/producer bridge resolves the epoch_scope_unresolved precondition, rerun the exact integration selector. Require the policy_admission_missing precondition to pass before claiming two real appointments preserve the admission/artifact reference, evidence-record bytes, detached signature bytes, unchanged public key, and VALID signature.",
+  "pattern_pass": {
+    "register": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+    "ids": ["P29", "P31", "P32", "P40", "P41"],
+    "application": "The unit probe exercises the custody invariant and adversarial contexts rather than checking markers (P29/P32); exclusive creation and retained-custodian selection address the fixture class rather than a single instance (P31); the unresolved integration failure is retained with its observed reason and is not reported as inherited, green, or closed (P40/P41)."
+  }
+}

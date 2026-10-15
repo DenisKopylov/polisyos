@@ -1,0 +1,227 @@
+{
+  "authority": {
+    "formal_closure_ids": [],
+    "global_E02_or_G_acceptance": false,
+    "scope_note": "This records source and bounded evidence only; it does not accept LA-021 profile law/history or any institutional authority, custody, currentness, or producer identity.",
+    "source_commit_owner": "root only"
+  },
+  "complete_caller_census": {
+    "full_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can-central-reader-guard-r2-20261015/source-callsite-census.txt",
+      "sha256": "c0cd2baae411204642a29cccfaaf7be4da3a94c8b5a181016a7e23976bed92ef"
+    },
+    "method": "stdlib AST walk over every Python file under product src/ and tests/; no product imports",
+    "src": {
+      "api_counts": {
+        "load_registry_bundle": 0,
+        "load_registry_bundle_content": 12,
+        "load_registry_bundle_payload": 3
+      },
+      "caller_files": 11,
+      "calls": 15,
+      "parse_errors": 0,
+      "parsed": 2766,
+      "python_files": 2766
+    },
+    "tests": {
+      "api_counts": {
+        "load_registry_bundle": 2,
+        "load_registry_bundle_content": 31,
+        "load_registry_bundle_payload": 4
+      },
+      "caller_files": 18,
+      "calls": 37,
+      "parse_errors": 0,
+      "parsed": 3021,
+      "python_files": 3021
+    }
+  },
+  "decision_history": {
+    "author_R1_HOLD": {
+      "meaning": "HOLD pending independent review of all eight hashes, WMR caller diagnostics, and public-surface companion; source not changed by that freeze.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can-current-reader-freeze-20261015/report.json",
+      "sha256": "ebd3c3141ff2d1880816569027aa7c793a795e2c035476a543ca71e663b9e0b6"
+    },
+    "author_R2_bounded_candidate": {
+      "meaning": "Uncommitted candidate packet subsequently committed as the exact candidate above; closure_ids empty.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can-central-reader-guard-r2-20261015/report.json",
+      "sha256": "92822a0554366d01126d0678953e0fa7950b89b212f427e636e8d6299cf932b7"
+    },
+    "independent_R2_scoped_GO": {
+      "meaning": "SCOPED GO for shared registry-reader capability mechanism only. It explicitly excludes global E02/G closure.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can-central-reader-guard-independent-r2-20261015/independent-review.json",
+      "sha256": "c547bfb96b8e182ef779ad9978f5dd14b301f6837e787fcfba59f7319cb882bd"
+    },
+    "prior_independent_R1_HOLD_preserved": {
+      "meaning": "Historical HOLD for the earlier eight-path composition because four ArtifactStore-typed consumers were not compatible with CoreJSONArtifactStore-only loader inputs; this history remains preserved.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can-final8-independent-20261015/assessment.json",
+      "sha256": "0a0a281371c7f6c56deb3ebb5faab61c71fab6f86507206b75384bd6a9db4ed9"
+    }
+  },
+  "dependency_and_remaining_scope": {
+    "LA021_profile_law_and_history": {
+      "boundary": "The oracle is GO_BOUNDED for common parsing/conformance and selected codec boundaries, HOLD for full LA-021 acceptance, history rollout, producer attestation, and law/authority claims. No profileless historical eligibility is granted here.",
+      "reference": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-la021-independent-oracle-20261015.md",
+        "sha256": "00a7d8a8bce957183d1bfbfd4a2c10a2d4a232f1b59c63ec78656e75dcc47ecf"
+      },
+      "status": "bounded/limited; full profile-law and history rollout remain held, not closed"
+    },
+    "S1_shared_helper_dependency": {
+      "historical_lease_snapshot": {
+        "commit": "6d83be8f5fbb7718c2bfb34d5face35f13d9230a",
+        "resolution": "Read this path from the named immutable commit; current LEASES evolves and is not this historical snapshot.",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "sha256": "83c053b103c6f70bc9085178ca5a344f392050d13cb7ebc2136050abb7214b43"
+      },
+      "current_status": "S1 original 25-path review is historical; the approved unique union is now 40 paths (19 source, 21 tests) and the complete current 40-path freeze remains pending. The two helper paths above are S1-owned dependencies and are not accepted by this CAN reader review.",
+      "historical_25_path_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/simulation-whole-lease-25-paths.json",
+        "sha256": "2bfc6fd929474570b30b11f4f16cb98c1f9d7a530d665dcd0974fabd2d0ad6a1"
+      },
+      "pinned_paths": [
+        {
+          "path": "src/polisyos/core/artifacts/canonical_profile.py",
+          "sha256": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34"
+        },
+        {
+          "path": "tests/unit/core/artifacts/test_selected_profile_core_json.py",
+          "sha256": "7bd94f6aa7c879bc52cfb2594b1859f8c303b22d7b46fe6d31d3f247c2d8bb3d"
+        }
+      ]
+    },
+    "formal_closure_ids": [],
+    "generated_public_surface": {
+      "outputs": [
+        {
+          "path": "policy-engine/docs/reference/public-surface.md",
+          "sha256": "57a7f35639c7f5ebf83a77d2944df9059f9b3c24673da96b66732df045543286",
+          "symbol_present": false
+        },
+        {
+          "path": "policy-engine/architecture/public_surface/inventory.json",
+          "sha256": "2ccbddf694f23546fb8b27262371e037ab344bd1f907d23bf1b83dd01ceedd4b",
+          "symbol_present": false
+        }
+      ],
+      "status": "pending root canonical regeneration/validation; both outputs still omit CoreJSONArtifactStore"
+    },
+    "myPy_and_native": {
+      "complete_current_caller_wide_mypy": "UNRUN",
+      "full_native_integration_wave": "UNRUN",
+      "strict_diagnostics": "16 diagnostics remain in the narrow prior view; they are not a native green result."
+    }
+  },
+  "mechanism_and_boundary": {
+    "P40": "Same capability-propagation class, second finding. Widened at the common semantic loader ingress across all three public APIs, not repaired by per-consumer patches.",
+    "bounded_controls": [
+      "Weak ArtifactStore: all three public loaders refuse before any recorded operation or payload read.",
+      "Opaque wrapper through lazy public registry facade: refuses before delegated store calls.",
+      "Wrong-signature structural adapter passes protocol isinstance but the semantic read rejects canon_profile_raw_manifest_unavailable with zero adapter operations; structural protocol presence is not a semantic proof.",
+      "Fresh FileSystemCAS reads actual producer-persisted selected views: eight selected refs; a separate CAS reader materializes content and preserves the selected bundle reference."
+    ],
+    "compatibility": "Names, return types, reference normalization, and ArtifactStore input ABI remain. Missing-reader stores refuse with canon_profile_raw_manifest_unavailable before I/O.",
+    "implementation": "Public load_registry_bundle_payload, load_registry_bundle, and load_registry_bundle_content retain ArtifactStore input annotations; one shared runtime CoreJSONArtifactStore guard runs before store operations. Private helpers accept the narrowed protocol. Existing selected raw-manifest parsing and profile/payload conformance remain the semantic reader responsibility."
+  },
+  "raw_deciding_outputs": {
+    "r2_author_report_indexed_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can-central-reader-guard-r2-20261015/pytest-storage-protocol-boundaries.stdout.txt",
+        "sha256": "700bc0322b00f8e8db3ce495047983b54ab27ab59ed1fedac05f3aeba47dae24"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can-central-reader-guard-r2-20261015/ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can-central-reader-guard-r2-20261015/ruff-format-check.stdout.txt",
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can-central-reader-guard-r2-20261015/diff-check.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can-central-reader-guard-r2-20261015/api-signature-check.stdout.txt",
+        "sha256": "228c535b3945e093efc29e53f9197345be3d246a6257c3d31a11923575de2f01"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can-central-reader-guard-r2-20261015/source-callsite-census.txt",
+        "sha256": "c0cd2baae411204642a29cccfaaf7be4da3a94c8b5a181016a7e23976bed92ef"
+      }
+    ],
+    "r2_independent_report_is_full_output_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can-central-reader-guard-independent-r2-20261015/independent-review.json@c547bfb96b8e182ef779ad9978f5dd14b301f6837e787fcfba59f7319cb882bd",
+    "readback_validation": "All unique path/sha refs in R2 author report (15) and independent R2 report (26) matched current local readback; source candidate commit blob/content hashes matched all eight current source/test files."
+  },
+  "record_type": "CAN_central_registry_reader_capability_source_handoff",
+  "recorded_at_utc": "2026-10-15T12:59:48Z",
+  "slice_source_frame": {
+    "all_eight_path_worktree_readbacks_match_candidate": true,
+    "base_commit": "511095b8080859c63278e17c5602b3857d85e710",
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate_commit": "044056485b81600c47fe24241f01fb24efe0f66f",
+    "candidate_commit_is_current_head_ancestor": true,
+    "candidate_parents": [
+      "511095b8080859c63278e17c5602b3857d85e710"
+    ],
+    "candidate_subject": "fix(core): admit registry readers through one semantic store capability boundary",
+    "candidate_tree": "8b6fe370edc44be5906e7c776041c82a5417bfa8",
+    "current_branch_delta_outside_this_slice": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c05-atomic-review-basis-and-profile-snapshot-20261015.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/c05-complete-alignment-review-basis-source-proposal-20261015.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/c05-profile-snapshot-candidate-manifest-20261015.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/worker-transport-ownership-temporal.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/s1-s2-semantic-fixture-companions-20261015.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/worker-parent-receipt-core-skg-20261015.json",
+      "policy-engine/tests/integration/scientist/test_res_03_real_simulation_route.py"
+    ],
+    "current_eight_path_delta_from_candidate": [],
+    "current_head": "f3e064a388fa7620acf33bf15dd59d114431dda0",
+    "current_tree": "a18a85476dd4b8230d1db5080893f8c2746c0c09",
+    "eight_path_manifest": [
+      {
+        "git_blob": "3195378707feacadaaea4906dce5df3ad6ff90e7",
+        "path": "src/polisyos/core/registry/loader.py",
+        "sha256": "10d727c0480acb25c08bcedd0f3eb17585ae3f6393e870a54bb662914db11d1b"
+      },
+      {
+        "git_blob": "986f13da74d6ec2b097557d29a21606a177349cd",
+        "path": "src/polisyos/core/artifacts/protocol.py",
+        "sha256": "e56ca352a9a4426f2d50368cda502857a219d1a53800e2e9cd43934a6fae301f"
+      },
+      {
+        "git_blob": "5716b8c3d7c8209a8e89334321f147263f096681",
+        "path": "src/polisyos/core/artifacts/__init__.py",
+        "sha256": "a750cfeb3483db25c4b867d55c3d17ef9ad60ccfd3ac837e9c638650b345b9e2"
+      },
+      {
+        "git_blob": "bf996309bccdf481691fc6c9b59af5cbd132a5ce",
+        "path": "src/polisyos/scientist/governance/preflight.py",
+        "sha256": "a278f271fba1d642a61d80717608bc20a277a842d2b561be3a20020a50641c33"
+      },
+      {
+        "git_blob": "1d70cdd292b2fee139504f5069182a648491fc5d",
+        "path": "src/polisyos/runtime/quality/world_model_record.py",
+        "sha256": "bdc880eb40f50dd45253a7d118d1c9530aaba8a732b1814a7fe374646280cf09"
+      },
+      {
+        "git_blob": "9b91b6a0bd596657d94927b8cb32f668cc18bf76",
+        "path": "tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+        "sha256": "1ee4d8fb461da34792fc09fab7deb13d68a18c61be75aaca1135ea5967ce5797"
+      },
+      {
+        "git_blob": "bbbb770f3576681bbc3ed8693c43864e467fbf0b",
+        "path": "tests/unit/scientist/governance/test_validation_pipeline.py",
+        "sha256": "2b92c255134f1e9bf8a3d4d43e990ce57954fdda132f7baaf6af5a7c64f6e851"
+      },
+      {
+        "git_blob": "4e000a32e5bad1375db98cc74ea739206220efb8",
+        "path": "tests/unit/runtime/quality/test_world_model_record.py",
+        "sha256": "0603f0b64d0ae598a1fe800292c08ef7211db1b796efc89d188020001ec665bb"
+      }
+    ]
+  },
+  "status": "committed_slice_readback_verified; bounded mechanism GO; shared S1 helper and global closeout remain open",
+  "write_scope": "This record is the only file written for this task; no source/test changes, stage, or commit."
+}

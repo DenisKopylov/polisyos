@@ -1,0 +1,290 @@
+{
+  "schema_version": "policyos.e02.local_candidate_handoff.v1",
+  "handoff_id": "LA-029-ukraine-ops-owner-entrypoint-20261015",
+  "finding": {
+    "id": "LA-029",
+    "task_pointer": "TASKS.json#/tasks/Q0/finding_ids/64",
+    "coverage_pointer": "coverage.json#/findings/253/criterion_refs/0",
+    "original_criterion": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "span": "1518-1567",
+      "claim": "Move repository bootstrap and C7 launch to the existing Ops boundary; pass the workspace root explicitly and separately from artifact root; preserve server-only admission, prerequisites, typed pass/skip/fail manifests, and fail-closed no-checkout behavior."
+    },
+    "historical_status": "partial",
+    "capability_state": "verification_missing",
+    "proposed_outcome": "limited",
+    "closure_ids": [],
+    "formal_g_closure": false
+  },
+  "source_freeze": {
+    "branch": "codex/e02-unified-local-20261009",
+    "source_commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+    "tree": "615120fb764d1b47ea22886863052011824c09bc",
+    "parents": [
+      "dacce30cf41d743f9b6c8d9261f816b2ae6756ac"
+    ],
+    "slice_base": "f3e064a388fa7620acf33bf15dd59d114431dda0",
+    "supporting_prior_commit": {
+      "commit": "c2c2cc46529e1f791a3afab5aff1b5f3a5d8451c",
+      "tree": "627f4f91b8805649ca05354ab21e5b37487c4553",
+      "parent": "f3e064a388fa7620acf33bf15dd59d114431dda0",
+      "role": "contains the public-surface inventory test included in the 20-path footprint"
+    },
+    "path_count": 20,
+    "all_paths_re-read_from_git_commits_and_sha256_verified": true,
+    "footprint": [
+      {
+        "path": "policy-engine/architecture/domain_migration_batches.toml",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "7a6b8bf0278d5ca0d30d6ec499e94404e024425474baa08901d2bd230664bba5",
+        "role": "current migration inventory entrypoint"
+      },
+      {
+        "path": "policy-engine/docs/migration/README.md",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "e4b0807c524da0de793f36c963842dd392d02c771f25cffc689e0c4a16b31279",
+        "role": "migration guide index"
+      },
+      {
+        "path": "policy-engine/docs/migration/ukraine-data-ops-entrypoint.md",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "14928753886b9316d6d3b74fbd8983ad79cef510286b3a95f8eb6e4a508396d5",
+        "role": "owner boundary and operator migration guide"
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "841160aa331ba5610a1f161d4faaf18c3bcfd44d2181b3661de665a05a6745a0",
+        "role": "public console-script wiring"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-15-e02-ukraine-ops-entrypoint.toml",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "e94e57eef8bc47acf0d5c2a5640afcfdab22c7794428ec35310caa0669f1ee2f",
+        "role": "release and compatibility notes"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/cli.py",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "0784438233ed964d9094de6df1ef598a756f86530120d58e9cb4e61e4373bb4a",
+        "role": "domain CLI and explicit Ops-factory boundary"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/models.py",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "2f0bf55bee2dcfb5f9ac94392ddf9ca8c6562c4be2d47a46730e224ec441ac36",
+        "role": "typed operation and manifest models"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/orchestrator.py",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "585c0e7e4860401fac00dd24e15b8a8de93bd36ab96a857c5329db11f6499d9c",
+        "role": "domain orchestration consumer"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/server.py",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "e9e6968a7537a76a2ebeb719b859c0009e553641fd0704febe202f80c450af8c",
+        "role": "server-only domain surface"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+        "commit": "c2c2cc46529e1f791a3afab5aff1b5f3a5d8451c",
+        "sha256": "7748591b128e0fa999c21c10f52dc67f6bddc50030206fed9ec3c55eb9b334e6",
+        "role": "public entrypoint inventory behavior; introduced in prior gen2 commit"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_cli.py",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "d02120c5db2a36df3d9fc97a309c823abf71b4b2a26efc62a48acddd409fc952",
+        "role": "ordinary CLI composition and refusal controls"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_installed_wheel_no_checkout.py",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "ef02aecab17e88b9187cd4497167f980769cdec1e63304b6024a7e21f560c71c",
+        "role": "installed-wheel/no-checkout consumer test (Linux-only here)"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_orchestrator.py",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "11f14736d9797cf7c02ceb06cb85df07b5a52ac6c1228c9f10603154b23d6b11",
+        "role": "orchestration behavior and synthetic D3 outputs"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_server.py",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "a2ec9dac876168d8e746699cec5a0cd5ee9af56e2b086f82350694148878b396",
+        "role": "server admission and typed manifest controls"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/test_phase8_shim_sunset.py",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "e12f8e731be746f01ec883871a2a93a8a967053fc16c205f24a595e1181cd28f",
+        "role": "canonical migration and shim semantics"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_udf_04.py",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "0807475bcf87a83ee0f2fe5cce05152ca8e6bf256ddab0144839338a76ecffa7",
+        "role": "remediation/importer companion"
+      },
+      {
+        "path": "policy-engine/tools/ops_runners/ukraine_data/README.md",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "ea075cc17f3d4d977672cebb26429bc0b19c9cb097cebf45b1ef515d6d6944bc",
+        "role": "Ops usage and workspace-root distinction"
+      },
+      {
+        "path": "policy-engine/tools/ops_runners/ukraine_data/server_bootstrap.py",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "6d09e23e9419a79a52c2e4aed252eeb45e6a352f2b830cf891f037e687166cbc",
+        "role": "Ops-owned bootstrap, callbacks, and C7 invocation"
+      },
+      {
+        "path": "policy-engine/tools/ops_runners/ukraine_data/validate_part_a.py",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "490848eea1923ea5f3e44a32beccc5881b9536a2b64a8b219e46d26df9456b6a",
+        "role": "Ops-owned Part A validation runner"
+      },
+      {
+        "path": "policy-engine/tools/ops_runners/ukraine_data_cli.py",
+        "commit": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+        "sha256": "ceff1e5b5b5fb9842e5a1faaf7708acaf89cd562d643a0376f10920e526d1fda",
+        "role": "console composition root"
+      }
+    ],
+    "later_branch_observation": {
+      "head": "7455db0523bd91e6ce2b4523ef4731327b7eb78d",
+      "tree": "15bad5107f63ecbc6e910a69e05be2388678796a",
+      "parent": "e6836b423ad61be878c5169e7f1bd1d7439d58eb",
+      "commit_delta_outside_footprint": [
+        "policy-engine/tests/repo_quality/tools/test_gy_d1_catalog_direct_retrieval_semantics.py (added)",
+        "policy-engine/tests/repo_quality/tools/test_gy_d1_catalog_wiring.py (modified)"
+      ],
+      "binding_note": "The LA-029 source freeze is e6836b4; the later branch head and concurrent dirty worktree are not represented as part of this slice."
+    }
+  },
+  "selected_inputs_and_backend": {
+    "backend": "local macOS, Python 3.14; source checkout explicitly bound by PYTHONPATH in the recorded pytest receipt",
+    "test_inputs": "synthetic/local fixtures only",
+    "production_inputs": "none; no production manifest, descriptor, hash, custody, or currentness assertion was read or changed",
+    "linux_worker_profile": "not executed for this committed source freeze"
+  },
+  "implemented_route": {
+    "console_script": "ukraine-data = tools.ops_runners.ukraine_data_cli:main",
+    "composition": "The public Ops CLI injects tools.ops_runners.ukraine_data.server_bootstrap.build_orchestrator into polisyos.data_forge.domains.ukraine.cli.main. Domain execution requires an explicit factory and refuses when it is absent; subprocess/workspace bootstrap remains Ops-owned.",
+    "roots": "--root selects build/artifact root; --workspace-root selects the repository checkout used by Ops gates. If omitted, the Ops boundary resolves the process working directory; no domain-side package-parent guessing is used.",
+    "consumer_effect": "Ops checks checkout/server prerequisites, runs the configured Part A C7 pytest command with cwd=workspace_root and POLISYOS_RUN_INTEGRATION=1, then writes typed gate/stage manifests through the domain orchestration path.",
+    "public_surface": "The existing ukraine-data parser and command surface remain; the distinct polisyos-tools ukraine_data command group remains separate."
+  },
+  "behavioral_controls": [
+    "Direct domain CLI call without an Ops factory raises instead of discovering a workspace or spawning a process.",
+    "Tests cover ordinary console-to-Ops composition, explicit workspace/build-root distinction, CWD resolution, subprocess command/cwd/environment, and typed exit/skip outcomes.",
+    "Installed-wheel/no-checkout test contains a no-runner negative sentinel, but was skipped on macOS because it requires an installed Linux wheel.",
+    "Server-only guard and prerequisite admission are retained; no listener start/stop/restart lifecycle is claimed.",
+    "Synthetic D3 inputs exercise five normalized cases and bind produced artifacts; the household candidate panel has zero rows and incomplete basis, so the output is not a real candidate or authority claim.",
+    "StageId string/format compatibility and Phase 8 canonical exception parsing have focused positive and malformed-input controls; empty valid TOML is allowed while malformed supplied TOML raises."
+  ],
+  "verification": {
+    "focused_source_suite": {
+      "command_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la029-linux-route-20261015/full-targeted-pytest-receipt.json",
+      "command_receipt_sha256": "c4c777292144c8380d720ecb0bbc9eb5a1871214c092376bab2b7783a1f474c5",
+      "full_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la029-linux-route-20261015/full-targeted-pytest.txt",
+      "full_output_sha256": "4537138f715b1ac0fcaf3e8d6c3f0349c5a445d162a6615dd93ef0a30a868548",
+      "outcome": "81 passed, 1 skipped, exit 0; the tested 15 source/CLI hashes match the committed source paths, with the separate public-surface test already committed in c2c2cc4.",
+      "skip": "tests/unit/data_forge/domains/ukraine/test_installed_wheel_no_checkout.py:14 — requires an installed Linux wheel",
+      "command_detail": "Exact Python executable, PYTHONPATH, test list, and source-before/after hashes are in the cited receipt."
+    },
+    "static_checks": {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la029-linux-route-20261015/static-checks.json",
+      "sha256": "d950ec4ba3053063fa31251d12ba33b9589623cee1141cd7e11302d7969df80b",
+      "outcome": "Ruff check, Ruff format check (14 Python paths), and scoped diff check passed."
+    },
+    "migration_inventory": {
+      "taplo_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la029-doc-config-delta-20261015/migration-inventory-taplo-format-receipt.json",
+      "taplo_sha256": "639f4495fc0a65f5f6820fb44d2a64d9f6db5519ec5eae874195d10535f27adf",
+      "result": "Parsed TOML equals the exact slice base plus the approved Ops console entrypoint; formatting check passed.",
+      "focused_config_tests": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la029-doc-config-delta-20261015/targeted-migration-config-tests-final.txt",
+      "focused_config_tests_sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+      "focused_config_outcome": "2 targeted migration inventory/production-entrypoint tests passed."
+    },
+    "release_fragment": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la029-doc-config-delta-20261015/release-fragment-validation.txt",
+      "sha256": "d04cd3643bae57d5bb56045c5c8bb62cdee1277491c26bc33c174cb38de45469",
+      "outcome": "Repository release-fragment validator, six curated sections, and migration/evidence path checks passed."
+    },
+    "migration_module": {
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la029-doc-config-delta-20261015/migration-module-current-worktree.txt",
+      "sha256": "65c6bf2b66383f3fe24630c3ccd36c6004777ccc447343479db7e05ca877794c",
+      "outcome": "Whole phase-2 migration module: 6 passed, 1 failed. This remains a red gate; the failing runtime-consumer import test was reproduced at the exact slice base and classified inherited only for that test denominator."
+    },
+    "exact_slice_base_failure_provenance": {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la029-linux-route-20261015/p41-baseline/exact-slice-base-pytest-receipt.json",
+      "receipt_sha256": "4e36231b8011ed1eed2b54d754874f5b2d34e4c5bc17169c6475ce72288e8d67",
+      "full_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la029-linux-route-20261015/p41-baseline/exact-slice-base-pytest.txt",
+      "full_output_sha256": "b9e8d939de074b03f7cad8df99cb6fc2cb7515fb52eea5f14498fcae878829f5",
+      "classification": "inherited_at_exact_slice_base for this one import-boundary test only",
+      "denominator": {
+        "repository_files": 2766,
+        "checked_source_files": 2477,
+        "changed_path_intersection": 0
+      },
+      "same_four_base_and_candidate_violations": [
+        "src/polisyos/runtime/quality/acquisition_planner.py imports polisyos.data_forge.domains.academic.openalex.client",
+        "src/polisyos/runtime/quality/data_state_substrate.py imports polisyos.data_forge.kernel.pipeline.manifests",
+        "src/polisyos/runtime/quality/data_state_substrate.py imports polisyos.data_forge.kernel.snapshot",
+        "src/polisyos/runtime/quality/semantic_epoch.py imports polisyos.data_forge.domains.catalog.knowledge.overlay"
+      ],
+      "scope_limit": "This exact-test classification does not make the complete migration module or E02 green."
+    }
+  },
+  "independent_review": {
+    "source_review": {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la029-owner-migration-independent-20261015/review.json",
+      "sha256": "136e938d069a57848dcc9849fa1b6fe5d41cd89dfdc3c850760f26117e2cad95",
+      "disposition": "GO for reviewed source mechanism and progression to authentic verification; LA-029 limited; no formal G closure."
+    },
+    "final20_delta_review": {
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la029-doc-config-delta-20261015/independent-final20-delta-review.json",
+      "sha256": "8147a28998fdf5f75c21cac89c7ed1aa0b10dabb56ca531e9fe56ce737c1a3aa",
+      "disposition": "GO for 20-path owner/config/documentation slice; LIMITED for LA-029; no formal G closure."
+    },
+    "post_review_doc_byte_delta": {
+      "path": "policy-engine/docs/migration/ukraine-data-ops-entrypoint.md",
+      "reviewed_sha256": "8a2f6cdae3fbdb3c242613ffacdb85798e7b26f4efea5c24176aa24a9ed81542",
+      "committed_sha256": "14928753886b9316d6d3b74fbd8983ad79cef510286b3a95f8eb6e4a508396d5",
+      "delta": "Root removed trailing spaces only on lines 3–5 before source commit; no text or runtime behavior changed. The independent delta review is not represented as byte-identical review of the final Markdown bytes.",
+      "repair_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/ukraine-doc-trailing-whitespace-repair.json",
+      "repair_record_sha256": "05cdfd43a6339485fe04d174b1cdd8092b28032feded6e1977e84c6693aa09b6",
+      "committed_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/ukraine-ops-owner-readback.json",
+      "readback_sha256": "282587a85333de8934b6a21f90ca6c1fa9aa8ce5a1646fff84cd1e339ea374ff"
+    },
+    "p40": "SAME_CLASS_DEEPER: Linux installed-wheel and C7 evidence are remaining authentic-consumer checks in the same owner-boundary class."
+  },
+  "limitations_and_next_checks": [
+    {
+      "status": "UNRUN",
+      "check": "Run the Ops-owned ukraine-data validate-part-a route on a supported Linux worker against this exact frozen source, capturing command, cwd, env, full C7 output, and persisted typed gate manifest."
+    },
+    {
+      "status": "SKIP",
+      "check": "Build/install the candidate wheel in a no-checkout Linux environment and execute test_installed_wheel_no_checkout.py; the macOS run skipped it."
+    },
+    {
+      "status": "OPEN",
+      "check": "G should adjudicate whether the owner-boundary evidence supports a limited LA-029 proposal after authentic Linux/C7 evidence. Do not infer production currentness, lifecycle, real D3 candidate adequacy, or formal closure."
+    }
+  ],
+  "pattern_dispositions": {
+    "P01_P02_P12": "The ordinary console path is now connected to Ops composition and typed manifests through the domain orchestrator; native Linux/C7 consumer verification remains open.",
+    "P40": "same-class deeper evidence; no second local repair ladder for the already-routed owner handoff.",
+    "P41": "Inherited only for the named phase-2 runtime-import test at exact slice base; all other whole-module status remains reported as observed."
+  },
+  "authority": {
+    "status": "author proposal only; G retains independent acceptance, formal finding adjudication, and integration publication.",
+    "production_currentness_or_custody_claim": false,
+    "formal_closures": []
+  }
+}

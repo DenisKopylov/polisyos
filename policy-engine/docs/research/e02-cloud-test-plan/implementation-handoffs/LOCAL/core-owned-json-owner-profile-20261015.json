@@ -1,0 +1,106 @@
+{
+  "receipt_type": "core_owned_json_owner_profile_handoff_draft",
+  "status": "candidate_source_committed_component_review_go",
+  "authority": "author source-bound API handoff; not G code acceptance, integration publication, or formal adjudication",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "base_commit": "664e07dfcd3b5376c042138c77b591bdcac32856",
+    "base_tree": "6926622d1fcf6f134774a8cdc48ae0f8d55cc155",
+    "base_parent": "b7208ee518b2745251a060f9d3587ac4ddbce613",
+    "candidate_commit": "2c7f893ef61f46bbe63a47776af4d42d399cda03",
+    "candidate_tree": "e98680f94e9cdd7b98551d308a6e7941d7a76d51",
+    "candidate_parents": ["664e07dfcd3b5376c042138c77b591bdcac32856"],
+    "candidate_fields_owner": "root read the actual ordinary source commit and all three Git blobs after commit; author observation b7208ee is distinct from the immediate application base 664e07df",
+    "paths": [
+      {
+        "path": "src/polisyos/core/artifacts/owned_json.py",
+        "sha256": "9d06198e8db627491716d39b527fbce78fd99fbf68397fe486e37e972074244a"
+      },
+      {
+        "path": "src/polisyos/core/artifacts/__init__.py",
+        "sha256": "6d56dcd7042227ce00d617b0698eae26c263eaef72934dda06d911575b4aefae"
+      },
+      {
+        "path": "tests/unit/core/artifacts/test_owned_core_json_artifact.py",
+        "sha256": "8de76cc43149f3d9ee80adf981fa61c5e1bb8b14a270681d56a115c8e9a8b8a2"
+      }
+    ]
+  },
+  "api": {
+    "symbols": [
+      "CoreArtifactOwnerProfile",
+      "CoreOwnedModelRead",
+      "validate_owned_core_model_json_artifact"
+    ],
+    "owner_contract": "Exact kind and media type; either a non-empty finite set of SchemaInfo identities (full name/version pairs) or the exact string sentinel 'absent'; and, when the model has schema_version, a complete exact mapping from every accepted manifest schema identity to payload schema_version. Models without that field use the exact string sentinel 'not_applicable'. Sentinel fields and nested mapping keys are type-checked before comparison.",
+    "read_result": "Validated model value, the actual selected profile-bound Core ArtifactRef, and the parsed CanonInfo profile.",
+    "owner_origin": "expected_owner must come from a defining producer contract or typed workflow context. It must not be inferred from the selected manifest/ref, HTTP input, or a self-label.",
+    "status_and_authority": "A match proves selected-view and payload conformance only. It does not prove who produced the bytes, custody, currentness, admissibility, legal meaning, or authority. Matching ABI is not producer authenticity.",
+    "canonical_profile_dependency": "Reuses existing Core canonical-profile manifest and byte readers. A recomputed selected CanonInfo/profile binding does not grant authority or attest expected_owner provenance.",
+    "generic_candidate_reader": "validate_core_model_json_artifact remains unchanged and available for ownerless candidate reads; this API is a separate explicit owner-bound operation."
+  },
+  "verification": {
+    "author_replay": [
+      {
+        "command": "policy-engine/.venv/bin/python -m pytest -o addopts= -q policy-engine/tests/unit/core/artifacts/test_owned_core_json_artifact.py policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+        "result": "PASS; 72 passed in 7.05s",
+        "output_path": "raw/resume-core-owned-json-api-20261015/pytest-r7.log",
+        "output_sha256": "22bb13864e532f21f0755ec48ea916695b6e97ca4450a715c923136707386694"
+      },
+      {
+        "command": "policy-engine/.venv/bin/python -m ruff check --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/src/polisyos/core/artifacts/owned_json.py policy-engine/src/polisyos/core/artifacts/__init__.py policy-engine/tests/unit/core/artifacts/test_owned_core_json_artifact.py",
+        "result": "PASS; All checks passed",
+        "output_path": "raw/resume-core-owned-json-api-20261015/ruff-r7.log",
+        "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "command": "policy-engine/.venv/bin/python -m ruff format --check --config policy-engine/architecture/tooling/ruff/workspace_root.toml policy-engine/src/polisyos/core/artifacts/owned_json.py policy-engine/src/polisyos/core/artifacts/__init__.py policy-engine/tests/unit/core/artifacts/test_owned_core_json_artifact.py",
+        "result": "PASS; 3 files already formatted",
+        "output_path": "raw/resume-core-owned-json-api-20261015/ruff-format-r7.log",
+        "output_sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+      },
+      {
+        "command": "cd policy-engine && .venv/bin/python -m mypy --config-file mypy.ini src/polisyos/core/artifacts/owned_json.py",
+        "result": "PASS; Success: no issues found in 1 source file",
+        "output_path": "raw/resume-core-owned-json-api-20261015/mypy-r7.log",
+        "output_sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+      }
+    ],
+    "independent_r7_delta_review": {
+      "path": "raw/resume-core-owned-json-independent-20261015/r7-delta/review.json",
+      "sha256": "5f4ce14a043898214ebe16950fd2a63b7120941c399b9405dfbe8a73cb9a1f83",
+      "verdict": "GO for the API sentinel-fix component at the reviewed exact three-file bytes; no new blocking finding",
+      "focused_test_output_path": "raw/resume-core-owned-json-independent-20261015/r7-delta/focused-tests.stdout.txt",
+      "focused_test_output_sha256": "0e78a856c890e0ad7c98a79545b95d7b171d4ece13d6f159774beb1617e8db69",
+      "spoof_control_output_path": "raw/resume-core-owned-json-independent-20261015/r7-delta/three-spoof-controls.stdout.txt",
+      "spoof_control_output_sha256": "e7629fe6be785c1fd1e203ac2b9b7fd1cc5c420d32b912bea6362e2d5786a23b"
+    }
+  },
+  "review_history": {
+    "prior_hold": {
+      "path": "raw/resume-core-owned-json-independent-20261015/review.json",
+      "sha256": "e1170906c89a889ff96623199946f2c47cc1c20d168a0894cd89a336425652e4",
+      "finding": "Custom equality objects could masquerade as the 'absent' or 'not_applicable' string sentinels at schema_variants, payload version rules, raw schema keys, and snapshot checks.",
+      "original_falsifier_path": "raw/resume-core-owned-json-independent-20261015/sentinel-refusal-probe.stdout.txt",
+      "original_falsifier_sha256": "87228abe1031dc901810c20623da7a800cbb9d7366fe8e14211c198c7537e3d1"
+    },
+    "fixed_falsifiers": "Exact-type guards precede every sentinel comparison. A shared normalizer validates both public and stored version-rule tuples; parameterized tests cover constructor sentinels, raw-key objects and tuple members, and public/private snapshot mutations. Existing positive controls retain explicit absent state, literal schema version 'absent', and all two-schema/schema-rule permutations.",
+    "P40": "Same sentinel-equality class, widened across every sentinel branch and both construction/snapshot quantities; the second finding drove a generic normalizer and full-position falsifiers rather than another field-specific patch."
+  },
+  "integration_and_history_bounds": {
+    "core_ir_boundary": "The API is in Core and preserves the generic Core candidate reader. The focused tests exercise actual persist_causal_evidence_bundle producer writes for EvidenceBundle schemas 1.0 and 1.1 through the IR adapter into selected Core CAS reads. This does not establish universal IR law or an IR orchestration bridge. Independent source-bound temporary-CAS probes covered ProgramGraph 0.2.0 and SimulationResult 1.3/1.4 schema-to-payload-version relations; they are not full compile/execute workflows.",
+    "historical_profiles": "Finite explicit owner variants preserve supported version families without normalization or defaulting. Profileless or malformed historical manifests remain subject to the existing canonical-profile refusal; no rollout or migration of profileless history is claimed.",
+    "current_source_callers": [
+      "src/polisyos/scientist/governance/blueprint_release.py:2588",
+      "src/polisyos/runtime/quality/grounding_risk.py:286"
+    ],
+    "caller_review_boundary": "Those call sites are present at the source frame, but this API-only independent review did not validate their full producer-to-consumer behavior or end-to-end lifecycle. They require the composed integration review.",
+    "formal_closure_ids": [],
+    "closure_ids": [],
+    "remaining_checks": [
+      "Rebind caller/producer/consumer evidence to the root's ordinary source commit and composed dependency frame.",
+      "Run composed integration and native consumer verification; assess capability completeness separately from this API review.",
+      "G retains independent code acceptance, integration publication, and formal finding adjudication."
+    ]
+  }
+}

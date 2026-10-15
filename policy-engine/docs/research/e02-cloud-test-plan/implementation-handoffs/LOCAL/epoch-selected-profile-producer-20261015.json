@@ -1,0 +1,99 @@
+{
+  "schema": "policyos.e02.local_source_handoff.v1",
+  "handoff_id": "epoch-selected-profile-producer-20261015",
+  "kind": "source-and-verification-handoff",
+  "status": "committed_candidate_source; bounded independent review GO; full native module and downstream consumer proof remain limited",
+  "source_role": "candidate implementation evidence for G; independent code acceptance, integration publication, and finding adjudication remain with G",
+  "original_slice_base": {
+    "commit": "f3e064a388fa7620acf33bf15dd59d114431dda0",
+    "tree": "a18a85476dd4b8230d1db5080893f8c2746c0c09"
+  },
+  "actual_commit_parent": "c2c2cc46529e1f791a3afab5aff1b5f3a5d8451c",
+  "base_relationship": "The epoch source was prepared over the original f3e slice base with the disjoint C2 commit layered in. Both changed epoch files at C2 are byte-identical to their f3e versions; the actual epoch commit parent is C2.",
+  "source_commit": {
+    "commit": "dacce30cf41d743f9b6c8d9261f816b2ae6756ac",
+    "tree": "ef3addb0b7681e43a610dc817f08ea042380e411",
+    "parents": [
+      "c2c2cc46529e1f791a3afab5aff1b5f3a5d8451c"
+    ],
+    "path_count": 2,
+    "paths": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+        "git_blob_oid": "a48ea748d91f45e202c2781cc2018def7f9cd612",
+        "committed_sha256": "2093b09b0091e0db72e3b01bff3bf7f05aa0c1fc4bbfbd2168e95fd54af8cede",
+        "role": "the shared epoch.semantic_manifest persistence path in _append_and_qualify requests and uses the ArtifactStore-selected profile returned by that write"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py",
+        "git_blob_oid": "2eb192851faa4d5c66d58a0a6658b73b73aa6b87",
+        "committed_sha256": "a1aae58c5be480778ecbf66c1ac47eaf64173e7ebab63592c71ecb6770ee7fa8",
+        "role": "real finalization, activation, and fresh persisted owner-history readback asserts exact manifest/member ref identity and matching non-null profile stamp"
+      }
+    ],
+    "readback_journal": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/epoch-selected-profile-readback.json",
+      "sha256": "aad15d410bbf05fba77f7200cb186e6ff9ab5b4059f34608c6c0c5b860825074"
+    }
+  },
+  "current_branch_relation": {
+    "branch": "codex/e02-unified-local-20261009",
+    "observed_head": "7455db0523bd91e6ce2b4523ef4731327b7eb78d",
+    "observed_tree": "15bad5107f63ecbc6e910a69e05be2388678796a",
+    "source_commit_is_ancestor_of_observed_head": true,
+    "identity_rule": "all source hashes above are computed from the named committed Git blobs, not from the concurrently changing worktree"
+  },
+  "producer_to_consumer_path": {
+    "producer": "shared SemanticEpochService._append_and_qualify, used by ordinary resolution and admitted acquisition finalization",
+    "artifact": "persisted epoch.semantic_manifest; selected ArtifactRef comes from the same write, not a later default-profile read",
+    "bridge_and_consumer": "owner history stores manifest_ref and native_member_ref as the selected persisted ref; the test freshly resolves activated owner history and checks both refs plus profile stamp against the producer ref",
+    "surface_and_authority_limit": "The fixture uses an ephemeral Ed25519 test issuer and local synthetic policy. This proves the bounded persistence/profile path only; it does not establish a production issuer, external custody, or live currentness.",
+    "history_limit": "Strict equality is retained; historical profileless references are not backfilled or treated as selected-profile positives."
+  },
+  "verification": [
+    {
+      "command": "cd policy-engine && PYTHONPATH=src .venv/bin/python -B -m pytest -q -ra -o addopts= --import-mode=importlib tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py::test_real_epoch_finalization_activation_and_native_readback",
+      "result": "exit 0; 1 passed",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-epoch-selected-profile-independent-20261015/native_finalize.stdout.txt@sha256:6d178bca1e2517bea0857e175d0a4b2ad17a52bffcc387de822d7e8c8842abff"
+    },
+    {
+      "command": "cd policy-engine && PYTHONPATH=src .venv/bin/python -B -m pytest -q -ra -o addopts= --import-mode=importlib tests/unit/runtime/quality/test_semantic_epoch.py::test_every_registered_boundary_source_reconciles_a_complete_native_receipt",
+      "result": "exit 0; 1 passed",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-epoch-selected-profile-independent-20261015/ordinary_mode.stdout.txt@sha256:4b25ca8eb936b9442cbfc9b4bb2c7c4d960b7524d95d52e2f515483c1a3d5c80"
+    },
+    {
+      "command": "cd policy-engine && .venv/bin/python -B -m pytest -q -ra -o addopts= --import-mode=importlib tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py",
+      "result": "exit 1; 6 passed, 1 failed. test_production_wrapper_activates_the_actual_signed_live_epoch_basis fails during selected reference-graph resolution before _append_and_qualify. No pre-edit baseline replay exists; red provenance is not_established, not inherited.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-policy-owner-fixture-oracle-20261015/producer-fix-native-module.log@sha256:de9568403a6fd2b594568d970a2a3eea7724d83e5e94f97827daf4e16a32e592"
+    },
+    {
+      "command": "cd policy-engine && .venv/bin/python -B -m pytest -q -ra -o addopts= --import-mode=importlib tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds[aipw]",
+      "result": "exit 1 before four consumer error controls; helper persistence raises immutable signature sidecar conflicts. The failure is outside this exact two-file source delta and is not attributed to a production issuer or accepted consumer positive.",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-policy-owner-fixture-oracle-20261015/producer-fix-b31-aipw-control.log@sha256:cdf440a23a3bd3e19954ef46377158f70c42a6857b914cb9aeec9ad635915e9b"
+    }
+  ],
+  "review": {
+    "decision": "independent reviewer GO for the bounded selected-profile producer repair; no whole-module/native SOTA or G acceptance",
+    "review_report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-epoch-selected-profile-independent-20261015/review.md@sha256:ccd3944c6b494a12158a5dcd69014987358785f3b9abacef8ca9bbfdde0c6850",
+    "review_json": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-epoch-selected-profile-independent-20261015/review.json@sha256:8d760c812ff8177f68c1aa5199fe11aadaffc48a68e79243c08d2a67c1833735",
+    "author_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-policy-owner-fixture-oracle-20261015/producer-selected-profile-r1-receipt.json@sha256:4b516e5f7285bfed0a0973a668c340baede53688247c602784a2d88938b3900d",
+    "focused_command_inventory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-epoch-selected-profile-independent-20261015/focused-results.json@sha256:34fc20012873d734ef2764dc7e98ae598420e3c737951b3c066db2606e82cbf3"
+  },
+  "task_proposal": {
+    "task_refs": [
+      "Q1"
+    ],
+    "finding_ids": [],
+    "status": "limited source-level progress proposed; no finding closure proposed",
+    "basis": "Q1 requires selecting compatible source contracts and reconciling typed write options/profile-content conformance. This delta proves selected-profile return and persisted owner-history identity for one shared semantic-epoch producer path. It does not resolve Q1 as a whole or the LA-021 Core/IR canonical codec compatibility and legacy-history criterion.",
+    "next_check": "Determine the origin of the full-module pre-append graph-resolution red with a baseline predating this delta; repair the separate native fixture sidecar collision under its own source lease; then reach and verify the four B31 consumer controls. Separately retain the profileless-history migration decision and test exact legacy behavior before proposing any individual finding outcome."
+  },
+  "closure_ids": [],
+  "external_facts_claimed": [],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/epoch-selected-profile-readback.json",
+      "sha256": "aad15d410bbf05fba77f7200cb186e6ff9ab5b4059f34608c6c0c5b860825074"
+    }
+  ]
+}

@@ -1,0 +1,372 @@
+{
+  "capability_scope": {
+    "not_established": [
+      "causal prior derived from KnowledgeBundle contents",
+      "Scholar report and world-event profile binding (current links are ID-based)",
+      "all report/audit/API/dashboard surfaces",
+      "live production source, external authority/custody/currentness",
+      "installed wheel, rebuilt sdist, or archive consumer behavior",
+      "full E02 finding closure or source/backend/native freeze"
+    ],
+    "proven": "selected-profile writer contract, fresh and refresh-write producers, persisted CAS profile, typed KnowledgeBundleRef propagation, prior/graph input-edge lineage, same-bytes sibling-profile distinction, profileless default/legacy control, fresh graph consumer reopen"
+  },
+  "closure_ids": [],
+  "contract_and_property": {
+    "bridge_and_consumer": "BuildLiteraturePriorNode creates a knowledge_bundle InputRef from the selected KnowledgeBundleRef, persists that ref as an input edge of the prior, then includes the KB edge and prior edge in the graph write. The test resolves the prior and verifies the exact input edge profile map for selected, same-byte sibling-profile, and legacy profileless views.",
+    "causal_basis_limit": "BuildLiteraturePriorNode computes the prior via BuildLiteraturePrior.pure_step using SKGQuery/its DuckDB input and supplied causal variables. It does not decode or derive causal edges from the KnowledgeBundle payload in this route. The KB ref is preserved as provenance lineage; do not call it the causal material basis.",
+    "existing_contract": "The shared persist_bundle_and_event API adds an optional strict bool return_selected_profile=False. The default preserves legacy profileless KnowledgeBundleRef behavior. When opted in, the exact ArtifactRef returned by the store is converted with model_dump(mode=\"json\") and validated into KnowledgeBundleRef, retaining manifest_profile_sha256.",
+    "fresh_graph_reopen": "An independent wrapper opens all three produced graph refs with a new FileSystemCAS and loads each through load_causal_graph_model. All three loaded payloads equal the producer CausalGraphModel JSON; they have the same graph artifact_id, one edge each, and three distinct selected profiles.",
+    "fresh_producer": "EnrichKnowledgeNode fresh execution calls real ScholarService.enrich; enrich_topic calls persist_bundle_and_event(return_selected_profile=True). The selected CAS manifest has kind scholar.knowledge_bundle and its independently recomputed profile equals the returned typed ref.",
+    "profileless_legacy_control": "The default writer remains profileless and the graph/prior route retains a None input profile for the profileless legacy ref. This is a compatibility witness, not proof of profileless-history migration or reader-materialized authority.",
+    "refresh_producer": "The stale-refresh _finalize_refreshed_bundle caller invokes _store_bundle_payload, which asks ctx.store.put_json for return_selected_profile=True and returns the typed ref including the selected profile. The freshness module exercises the storage route; its refresh provider fixture is fake, so no external enrichment authority is claimed.",
+    "same_bytes_sibling_control": "The test writes the selected KB payload bytes under a sibling schema/profile. Both refs share the same artifact_id and differ in manifest_profile_sha256. Fresh CAS manifest reads preserve both exact profiles; prior and graph input edges preserve the distinct selection digests.",
+    "semantic_effect": "This proves bounded selected-view provenance in a real Scholar→KnowledgeBundle→prior/graph manifest lineage route and selected graph re-read. It establishes neither causal dependence on bundle content nor payload truth, law, authority, currentness, calibration, or publication eligibility."
+  },
+  "evidence": [
+    {
+      "bytes": 99,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/composed-focused-final.txt",
+      "sha256": "bfa007830270fcb9b1a987ce3cde69485b591e441d36429fde547f1efc413600"
+    },
+    {
+      "bytes": 14278,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-review-report.json",
+      "sha256": "456387b5c252081d139954b3cd4dcbf4d7897699a583359756dd8825b08e4fba"
+    },
+    {
+      "bytes": 3042,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-review-run.json",
+      "sha256": "eab3961be679b0aa6f49241b61d11bc8da62325b5742d0b16526f2ec1f3961e6"
+    },
+    {
+      "bytes": 80,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-review-stdout.txt",
+      "sha256": "7040371af15613c02e821ec0eecc1d1330f691ace4cef93a41bfa358822c4103"
+    },
+    {
+      "bytes": 1906,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-review-junit.xml",
+      "sha256": "aac852de9f48d887019735f43ad7502ba1327faa9ae35b3e2ce478f6c7a97620"
+    },
+    {
+      "bytes": 2152,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-graph-payload-readback.json",
+      "sha256": "e24e31ea5af0ee34b06dd265571a6ddeb5d3990dcda8cea4c2a7f83d7b2632ad"
+    },
+    {
+      "bytes": 496,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-writer-census.txt",
+      "sha256": "3025d51a300ecf2a56c5961acf6352e87653b8024c77628f6710f4f0c716fea6"
+    },
+    {
+      "bytes": 496,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/production_writer_census.txt",
+      "sha256": "bc4af3d40081437f8fe82275e44d7633245ea7b920de03547f1bc165905a7506"
+    },
+    {
+      "bytes": 19,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/ruff-check.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 26,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/ruff-format.txt",
+      "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1"
+    }
+  ],
+  "pattern_review": {
+    "P37": "The selected manifest digest is independently recomputed from the CAS manifest and compared with the emitted ref and persisted input edges. A selector name or matching artifact_id is insufficient.",
+    "P38": "Payload bytes and artifact_id alone collapse the selected and sibling-profile views. This exact same-byte/different-profile control demonstrates that divergence and the manifest lineage preserves the distinction.",
+    "anti_pattern_found": "A selected artifact ref could lose its selected manifest profile while crossing a KnowledgeBundle producer/consumer boundary; a second same-byte view demonstrates that artifact ID/payload alone is not the selected view.",
+    "authority_limit": "Profile selection is provenance metadata; it does not establish source truth or authority.",
+    "relevant_patterns": [
+      "P01",
+      "P02",
+      "P05",
+      "P12",
+      "P14",
+      "P31",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "target_pattern": "Reuse the existing ArtifactStore selected-profile return; preserve the exact returned typed ref through real producers and manifest input edges; retain profileless compatibility explicitly; verify via fresh manifest and consumer reads."
+  },
+  "prepared_on": "2026-10-15",
+  "producer_census": {
+    "author_earlier_denominator": 2767,
+    "author_snapshot_output": {
+      "bytes": 496,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/production_writer_census.txt",
+      "sha256": "bc4af3d40081437f8fe82275e44d7633245ea7b920de03547f1bc165905a7506"
+    },
+    "caller_count_per_writer": 1,
+    "census_script": {
+      "bytes": 2316,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/production_writer_census.py",
+      "sha256": "6c744cce2e2637e9bd8efb630eeaa4d7c6843c0cec2667abb66c40365bab47dd"
+    },
+    "complete_denominator_output": {
+      "bytes": 496,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-writer-census.txt",
+      "sha256": "3025d51a300ecf2a56c5961acf6352e87653b8024c77628f6710f4f0c716fea6"
+    },
+    "denominator_delta_explained": "The independent capture included two additional untracked Python files; its report records that neither contains the KnowledgeBundle writer/caller patterns. The full independent census still found the same two writer sites and one caller per writer.",
+    "independent_method": "AST scan of every Python file under policy-engine/src at independent capture; exact full output retained.",
+    "independent_source_file_denominator": 2769,
+    "writer_count": 2,
+    "writer_sites": [
+      {
+        "caller": {
+          "function": "enrich_topic",
+          "line": 975,
+          "path": "policy-engine/src/polisyos/scholar/orchestrator/enrich.py"
+        },
+        "function": "persist_bundle_and_event",
+        "line": 148,
+        "path": "policy-engine/src/polisyos/scholar/orchestrator/bundle.py",
+        "writer": "cas.put_json for kind scholar.knowledge_bundle"
+      },
+      {
+        "caller": {
+          "function": "_finalize_refreshed_bundle",
+          "line": 371,
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py"
+        },
+        "function": "_store_bundle_payload",
+        "line": 419,
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
+        "writer": "ctx.store.put_json for kind scholar.knowledge_bundle"
+      }
+    ]
+  },
+  "proposal_fields": {
+    "external_facts_claimed": [],
+    "formal_closure_authority": "G",
+    "proposed_finding_status": "limited source-level progress only; this packet maps no original finding occurrence and proposes no closure",
+    "proposed_formal_status": "not adjudicated; G only",
+    "proposed_id_mapping": "G must inspect each original criterion and canonical occurrence before mapping this bounded source evidence. No closure IDs are supplied.",
+    "proposed_source_outcome": "Bounded GO for the exact five-path selected-profile producer and lineage slice: fresh real Scholar enrichment returns the store-selected KnowledgeBundleRef profile; the stale-refresh storage route also retains the returned profile; BuildLiteraturePrior persists the exact KB selection in prior/graph manifest input edges; the real graph consumer reopens three same-artifact/different-profile views. The computed causal prior comes from SKG/DuckDB inputs, not the KnowledgeBundle payload, so this is provenance lineage rather than proof that KB content drives the causal estimate."
+  },
+  "review": {
+    "bounded_limitations": [
+      "BuildLiteraturePriorNode computes the causal prior from SKGQuery/its DuckDB input; it does not decode the Scholar bundle payload in this route. This verifies a real provenance path into prior and graph, not that Scholar bundle content contributes to the causal edge calculation.",
+      "The report and world-event links created by persist_bundle_and_event remain ID-based and were not exercised for profile binding by this five-file review. Do not generalize this GO to every Scholar audit/report surface.",
+      "This is a bounded code review and local test replay, not G acceptance or E02 formal closure."
+    ],
+    "decision": "Independent GO for this bounded five-path source slice; no whole-module/native SOTA or G acceptance.",
+    "effective_import_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/__init__.py",
+    "report": {
+      "bytes": 14278,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-review-report.json",
+      "sha256": "456387b5c252081d139954b3cd4dcbf4d7897699a583359756dd8825b08e4fba"
+    },
+    "verified_source_scope": [
+      {
+        "changed_vs_HEAD": true,
+        "head_blob": "ac487a2489153a359320d954da1da2e45c87b22e",
+        "path": "src/polisyos/scholar/orchestrator/bundle.py",
+        "sha256": "f93623abd9ac2efdc2d9011acb8009fca75c580a4e809d64e5a8d63aa9eb2a25",
+        "working_blob": "d94e582ee433157ad5efe3312358d75e52f623e1"
+      },
+      {
+        "changed_vs_HEAD": true,
+        "head_blob": "68910c4dffa51701756f0a0b39da895cc8e09f4e",
+        "path": "src/polisyos/scholar/orchestrator/enrich.py",
+        "sha256": "01341a4b425585e9b184962ce6f983cd2f562410158fd72f55a245cd37375abd",
+        "working_blob": "c6013aa92521c9dcbe96378fd59e76bba2d6f4d8"
+      },
+      {
+        "changed_vs_HEAD": true,
+        "head_blob": "477ef41dea0f1e73db4ead5a9e9d08da9fc6281b",
+        "path": "src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
+        "sha256": "3e102cf151ca26783a71660b67dc8025174700df5fc95d794df08187c5c551e0",
+        "working_blob": "9430bb12c7d006b72f983dee33259f2c2bdce288"
+      },
+      {
+        "changed_vs_HEAD": true,
+        "head_blob": "a9235ea17c58aa213ab772fbfda6d593945143fc",
+        "path": "tests/unit/scientist/nodes/test_enrich_knowledge_node_freshness.py",
+        "sha256": "d8551ecd03bbc09ba1a0a0b8d0e556afd40f1ce531b4325944fc369d03dac41e",
+        "working_blob": "e689fb4d058787cc260544ebfe6a509f7657ad2d"
+      },
+      {
+        "changed_vs_HEAD": true,
+        "head_blob": "ad860234cbbfbc4d3f9e4014283986448fee87a2",
+        "path": "tests/unit/scientist/methods/causal/test_build_literature_prior_node.py",
+        "sha256": "7105bab1ba7d3e56182fb0bff5b5702e1168b32704b34e642137b1d1c9b5cd0d",
+        "working_blob": "4e4c111222097dea7ed38c668977081883e85031"
+      }
+    ]
+  },
+  "schema": "policyos.e02.local.slice_handoff.v1",
+  "separate_q2_harness_context": {
+    "bounded_result": "The current Q2 helper self-test and real-Git source/index binding/corrupt-field controls passed normal and optimized isolated invocations. No Q2 prepare/check, package build, or installed wave ran.",
+    "meaning": "A separate isolated Q2 helper-control receipt; it is not part of this Scholar producer proof and is not installed-consumer acceptance.",
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-q2-linux-20261015/helper-controls-current/verification.json",
+    "receipt_sha256": "a3fd972354612f1f1a4582392d852d862722d8c9627e7be6bc5bb72ea0ccf265"
+  },
+  "slice": "Scholar KnowledgeBundle selected-profile producers and prior lineage (KB5)",
+  "source": {
+    "all_five_paths_match_candidate_commit": true,
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate_commit": "5c5aba7258a35ec769a39378c2e881a85461c897",
+    "candidate_is_ancestor_of_observed_head": true,
+    "candidate_parents": [
+      "8c1cd1cbccb0606f42ace814b1e1e3d63e1d5c4c"
+    ],
+    "candidate_subject": "fix: retain Scholar selected profiles through prior provenance",
+    "candidate_tree": "446bba7d2b4ab3818d728508b02d273b93ab0e16",
+    "no_formal_acceptance": "This is candidate-source evidence. G retains independent acceptance, integration publication, and occurrence adjudication.",
+    "observed_workspace_head": "5c5aba7258a35ec769a39378c2e881a85461c897",
+    "observed_workspace_tree": "446bba7d2b4ab3818d728508b02d273b93ab0e16",
+    "slice_base_commit": "2307d655c1a78e3395fe837ae3e681c35cff8e45",
+    "slice_base_tree": "491a6eb8463286f3cc6a84ad9e1031db5e425ab5",
+    "source_readback_method": "For each of the five leased paths, read the exact candidate blob with git rev-parse <commit>:<path> and git cat-file blob, then recompute SHA-256 and byte length. The exact original slice-base blob was compared with the actual commit parent for every path; all five were byte-identical across those bases.",
+    "verification_timing": "The author and independent tests ran on the exact five candidate working-tree bytes before the implementation commit, at slice base 2307d655. The committed 5c5aba7 blobs were read back afterward and match every source hash exercised by those runs. Tests were not rerun after commit."
+  },
+  "source_footprint": [
+    {
+      "base_sha256": "121d5a63e728b6e85bf1df4b0873860741bf1dc412a6e8d3f59e81335ef76afd",
+      "candidate_blob_oid": "d94e582ee433157ad5efe3312358d75e52f623e1",
+      "candidate_bytes": 8913,
+      "candidate_sha256": "f93623abd9ac2efdc2d9011acb8009fca75c580a4e809d64e5a8d63aa9eb2a25",
+      "path": "policy-engine/src/polisyos/scholar/orchestrator/bundle.py",
+      "slice_base_and_actual_parent_bytes_equal": true
+    },
+    {
+      "base_sha256": "58b12d00cf30ed32a1268aa6586c168de1d744bf7a8f8158a76cbd7fafd920b7",
+      "candidate_blob_oid": "c6013aa92521c9dcbe96378fd59e76bba2d6f4d8",
+      "candidate_bytes": 38464,
+      "candidate_sha256": "01341a4b425585e9b184962ce6f983cd2f562410158fd72f55a245cd37375abd",
+      "path": "policy-engine/src/polisyos/scholar/orchestrator/enrich.py",
+      "slice_base_and_actual_parent_bytes_equal": true
+    },
+    {
+      "base_sha256": "4f9ddcec411cb8d83cef83da755b15fa5343865b209541fa5e335e333613fc3b",
+      "candidate_blob_oid": "9430bb12c7d006b72f983dee33259f2c2bdce288",
+      "candidate_bytes": 16987,
+      "candidate_sha256": "3e102cf151ca26783a71660b67dc8025174700df5fc95d794df08187c5c551e0",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
+      "slice_base_and_actual_parent_bytes_equal": true
+    },
+    {
+      "base_sha256": "56a92eb01cad85e3cf157a24c2996cfd0fca69722a57713b2d8a5a35b82b94f2",
+      "candidate_blob_oid": "4e4c111222097dea7ed38c668977081883e85031",
+      "candidate_bytes": 12155,
+      "candidate_sha256": "7105bab1ba7d3e56182fb0bff5b5702e1168b32704b34e642137b1d1c9b5cd0d",
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_build_literature_prior_node.py",
+      "slice_base_and_actual_parent_bytes_equal": true
+    },
+    {
+      "base_sha256": "95421fb3b837302cd77b78010ebe42982348ea02825713bbde0e6df93b75c699",
+      "candidate_blob_oid": "e689fb4d058787cc260544ebfe6a509f7657ad2d",
+      "candidate_bytes": 10972,
+      "candidate_sha256": "d8551ecd03bbc09ba1a0a0b8d0e556afd40f1ce531b4325944fc369d03dac41e",
+      "path": "policy-engine/tests/unit/scientist/nodes/test_enrich_knowledge_node_freshness.py",
+      "slice_base_and_actual_parent_bytes_equal": true
+    }
+  ],
+  "status": "committed candidate source; bounded independent code-review GO; no G acceptance or formal E02 closure",
+  "task_proposal": {
+    "basis": "Independent code review GO and exact producer→artifact→bridge→consumer lineage evidence for the five committed paths. The author and independent suite outputs both report 10 passing cases; the full source consumer surface and E02 acceptance remain outside this slice.",
+    "finding_ids": [],
+    "next_check": "At the final composed source freeze, rebind this exact five-path commit and rerun the real fresh Scholar→EnrichKnowledgeNode→BuildLiteraturePriorNode chain plus same-byte sibling/profileless controls; separately inspect the report/world-event ID-only surfaces and original finding occurrences. G performs independent code acceptance and adjudication.",
+    "status": "limited source-level progress proposed; no formal closure proposed",
+    "task_label": "KB5"
+  },
+  "verification": {
+    "author_composed": {
+      "exact_command": "not retained with the pinned final output; do not infer exact argv from earlier attempts",
+      "output": {
+        "bytes": 99,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/composed-focused-final.txt",
+        "sha256": "bfa007830270fcb9b1a987ce3cde69485b591e441d36429fde547f1efc413600"
+      },
+      "result": "10 passed in 6.22s"
+    },
+    "author_freshness_module": {
+      "output": {
+        "bytes": 98,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/freshness-module.txt",
+        "sha256": "f708a02246e02f652109c7c4697ab1111b063452af28fe02c360d7829f51487f"
+      },
+      "result": "6 passed in 7.44s"
+    },
+    "author_static": {
+      "ruff_check": {
+        "output": {
+          "bytes": 19,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/ruff-check.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "result": "All checks passed"
+      },
+      "ruff_format": {
+        "output": {
+          "bytes": 26,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/ruff-format.txt",
+          "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1"
+        },
+        "result": "5 files already formatted"
+      }
+    },
+    "independent_focused": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-ra",
+        "--junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-review-junit.xml",
+        "tests/unit/scientist/nodes/test_enrich_knowledge_node_freshness.py",
+        "tests/unit/scientist/methods/causal/test_build_literature_prior_node.py"
+      ],
+      "cwd": "policy-engine",
+      "elapsed_seconds": 8.155,
+      "junit": {
+        "bytes": 1906,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-review-junit.xml",
+        "sha256": "aac852de9f48d887019735f43ad7502ba1327faa9ae35b3e2ce478f6c7a97620"
+      },
+      "package_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/__init__.py",
+      "report": {
+        "bytes": 14278,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-review-report.json",
+        "sha256": "456387b5c252081d139954b3cd4dcbf4d7897699a583359756dd8825b08e4fba"
+      },
+      "result": "10 tests; 0 failures, 0 errors, 0 skips; exit 0",
+      "run_receipt": {
+        "bytes": 3042,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-review-run.json",
+        "sha256": "eab3961be679b0aa6f49241b61d11bc8da62325b5742d0b16526f2ec1f3961e6"
+      },
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-review-stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 80,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-review-stdout.txt",
+        "sha256": "7040371af15613c02e821ec0eecc1d1330f691ace4cef93a41bfa358822c4103"
+      }
+    },
+    "independent_graph_reopen": {
+      "outcome": "PASS; three graph refs reopened and loaded; exact payload JSON equality asserted",
+      "output": {
+        "bytes": 2152,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-scholar-kb-selected-profile-20261015/independent-graph-payload-readback.json",
+        "sha256": "e24e31ea5af0ee34b06dd265571a6ddeb5d3990dcda8cea4c2a7f83d7b2632ad"
+      },
+      "package_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/__init__.py",
+      "three_selected_profiles": [
+        "sha256:6c50e874bf4ea27896221b9d8721ccbdc8deb817c56f9648dbd42534eb1fbed9",
+        "sha256:0e98979f5452803c1a4ada61be15aea94305cccc777fd1edcd16137832058429",
+        "sha256:5b4077693ca3df8f2069c8a812ad779e2991e94daba9285613d924e38a3280d0"
+      ]
+    }
+  }
+}

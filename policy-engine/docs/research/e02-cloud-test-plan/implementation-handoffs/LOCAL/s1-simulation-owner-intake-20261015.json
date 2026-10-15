@@ -1,0 +1,180 @@
+{
+  "schema": "polisyos.e02.local-implementation-handoff.v1",
+  "created_on": "2026-10-15",
+  "workstream": "S1 simulation owner intake / selected-profile preservation",
+  "owner": "local unified E02 candidate author",
+  "decision": {
+    "implementation_delta": "GO",
+    "formal_g_adjudication": "NOT_PERFORMED",
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "scope_note": "This records a bounded implementation slice and independent delta review. It does not close any E02 finding or accept the global source composition."
+  },
+  "source_slice": {
+    "branch": "codex/e02-unified-local-20261009",
+    "base": {
+      "commit": "b7208ee518b2745251a060f9d3587ac4ddbce613",
+      "tree": "2965725f75dc22d1e21f708d83a5a4fe98f11893",
+      "parents": [
+        "aa844d9cd71976c2968c74131c96ebb32fcd8b8b"
+      ]
+    },
+    "candidate": {
+      "commit": "664e07dfcd3b5376c042138c77b591bdcac32856",
+      "tree": "6926622d1fcf6f134774a8cdc48ae0f8d55cc155",
+      "parents": [
+        "b7208ee518b2745251a060f9d3587ac4ddbce613"
+      ],
+      "subject": "fix: preserve typed artifact owner profiles through simulation consumers"
+    },
+    "scope_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-simulation-owner-intake-repair-20261015/final-source-freeze-r5.json",
+      "sha256": "ebbaa1f01e03e904de7ce7a92b94a95d1feb65e4fd9e5da9bce82462f5c67df8",
+      "source_freeze_id": "sha256:05b270e0a781d694ac2f54af81e49392a3bbfbfb17546b39d62d4bff0a8d8797",
+      "scope_path_count": 51,
+      "scope_breakdown": {
+        "source": 23,
+        "tests": 28
+      },
+      "candidate_commit_changed_path_count": 50,
+      "scoped_unchanged_path": {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+        "base_blob": "9994dbf3a158d409084ba2624804f06444734c06",
+        "candidate_blob": "9994dbf3a158d409084ba2624804f06444734c06",
+        "sha256": "bd9c2b00274a7cce441e3c728c5cac242ecc581933040075da9903cf518a5499",
+        "disposition": "in_scope_but_unchanged"
+      },
+      "manifest_caveat": "The frozen r5 manifest marked the unchanged path changed_bytes_since_head=true. Do not rely on that row for changed-byte claims: the independent Git blob audit found exactly 50 changed and one unchanged path. The frozen manifest was not modified.",
+      "candidate_commit_change_breakdown": {
+        "source": 23,
+        "tests": 27
+      }
+    },
+    "later_branch_context": {
+      "current_head_at_handoff": {
+        "commit": "2307d655c1a78e3395fe837ae3e681c35cff8e45",
+        "tree": "491a6eb8463286f3cc6a84ad9e1031db5e425ab5",
+        "parent": "05aaa70dc57996ff6772f9f78a11953bd5db0ea4",
+        "branch_worktree_note": "Shared candidate worktree has unrelated active E02 edits; this handoff makes no clean-tree claim."
+      },
+      "core_followup_dependency": {
+        "commit": "2c7f893ef61f46bbe63a47776af4d42d399cda03",
+        "tree": "e98680f94e9cdd7b98551d308a6e7941d7a76d51",
+        "parent": "664e07dfcd3b5376c042138c77b591bdcac32856",
+        "subject": "fix: bind Core JSON reads to explicit producer owner profiles",
+        "changed_paths": [
+          "policy-engine/src/polisyos/core/artifacts/__init__.py",
+          "policy-engine/src/polisyos/core/artifacts/owned_json.py",
+          "policy-engine/tests/unit/core/artifacts/test_owned_core_json_artifact.py"
+        ],
+        "effective_facade_blob": {
+          "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+          "sha256": "6d56dcd7042227ce00d617b0698eae26c263eaef72934dda06d911575b4aefae",
+          "relationship": "This exact facade blob was in the r5 independent review dependency set and is now materialized by this follow-up commit."
+        },
+        "additive_api_context": {
+          "path": "policy-engine/src/polisyos/core/artifacts/owned_json.py",
+          "sha256": "9d06198e8db627491716d39b527fbce78fd99fbf68397fe486e37e972074244a",
+          "used_by_s1_slice": false
+        }
+      },
+      "other_descendants_outside_slice": [
+        {
+          "commit": "05aaa70dc57996ff6772f9f78a11953bd5db0ea4",
+          "tree": "6287b203600fb0023074a8a3ae9d8f0b818ef933",
+          "parent": "2c7f893ef61f46bbe63a47776af4d42d399cda03",
+          "subject": "fix: retain selected profiles across causal graph producers",
+          "relationship": "separate downstream E02 composition change"
+        },
+        {
+          "commit": "2307d655c1a78e3395fe837ae3e681c35cff8e45",
+          "tree": "491a6eb8463286f3cc6a84ad9e1031db5e425ab5",
+          "parent": "05aaa70dc57996ff6772f9f78a11953bd5db0ea4",
+          "subject": "test: retain all shared workload profile outcomes before deciding",
+          "relationship": "separate downstream verification change"
+        }
+      ]
+    }
+  },
+  "property_and_evidence": {
+    "property": "Owner-declared Core JSON artifacts preserve a selected manifest profile through producer writes, nested-reference narrowing, persisted CAS reads, typed consumer admission, and compatible Trinity IR intake. Schema identity/version and selected profile are checked at the consumer boundary; legacy profileless bytes remain honestly refused where a selected owner profile is required.",
+    "source_path": "The 50 changed paths in candidate commit 664e07dfcd3b5376c042138c77b591bdcac32856; complete scoped path set is the frozen r5 manifest cited above.",
+    "real_consumer_chain": "Foundry input binding producer → selected-profile DataSnapshot and FoundryInputBindings in FileSystemCAS → fresh FileSystemCAS reader → typed Core validation / input-binding loader; companion paths exercise executor private modules, runtime parity, release acceptance, and Trinity owner-aware intake.",
+    "additional_nonzero_income_probe": {
+      "review_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-simulation-owner-intake-repair-20261015/independent-r5-delta-review.json@sha256:5c716ba1632eb919220f0d2601cdf6db7f9166a8af01a8a67fdf2530c5856da0",
+      "outcome": "PASS",
+      "input": {
+        "agent_income": 42.0
+      },
+      "action": "prepare_trivial_input_bindings; reopen selected bindings and nested DataSnapshot through a new FileSystemCAS; validate DataSnapshot against the selected Core JSON profile",
+      "loaded_type": "DataSnapshot",
+      "binding_profile_sha256": "f9ff38b4b8894454d0126ce34b4cddb6b19fc096256f3469680cf5f0c4e27171",
+      "snapshot_profile_sha256": "89b38af316a1aecae92bcbd3ce18b20519b6d55651ad0e46065c9a2b0a2a367f",
+      "qualification": "This is a local producer/CAS/fresh-reader contract witness with nonzero income, not an empirical or production-authority claim. The review notes that an initial extra diagnostic print accessed a nonexistent schema_version attribute; the corrected producer/read assertions passed."
+    }
+  },
+  "verification": {
+    "author_run": {
+      "tests": 45,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-simulation-owner-intake-repair-20261015/author-focused-junit-r5.xml",
+      "junit_sha256": "6460d41db627f66ee11748e94409c3cbcaca0ff7bd505dd6c8d98f82040d68fe",
+      "strict_mypy": "PASS, 19 source files, no issues",
+      "ruff_and_format_and_diff_check": "PASS on scoped source/test paths"
+    },
+    "independent_delta_review": {
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-simulation-owner-intake-repair-20261015/independent-r5-delta-review.json@sha256:5c716ba1632eb919220f0d2601cdf6db7f9166a8af01a8a67fdf2530c5856da0",
+      "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-simulation-owner-intake-repair-20261015/independent-r5-receipt.json@sha256:3708dbfc22e00f29d34e85022641a561b09ba4d04f047b87c7b0837b90006157",
+      "replay_base_head": "b7208ee518b2745251a060f9d3587ac4ddbce613",
+      "replay_branch": "codex/e02-unified-local-20261009",
+      "replay_environment": "The reviewer ran from policy-engine at the frozen r5 source/dependency snapshot while HEAD stayed at the base; after review, the exact source slice was committed as 664e07df. This is not represented as a clean checkout replay of that commit.",
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-ra",
+        "--junitxml=LOCAL/raw/resume-simulation-owner-intake-repair-20261015/independent-r5-junit.xml",
+        "tests/unit/ir/test_trinity_loaders.py",
+        "tests/unit/foundry/runtime/test_executor_private_modules.py",
+        "tests/unit/foundry/runtime/test_patch_vm_parity.py",
+        "tests/unit/foundry/facade/test_quickstart.py",
+        "tests/unit/foundry/validation/test_release_gate.py::test_release_acceptance_runs_compile_execute_replay_from_cas_only"
+      ],
+      "outcome": {
+        "exit_code": 0,
+        "tests": 45,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 70.32
+      },
+      "retained_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-simulation-owner-intake-repair-20261015/independent-r5-stdout.txt",
+        "sha256": "b2c6720453f06d35157bf6fc9703ffce184bf1d11bc189b38e5a9b17338d728b",
+        "content": ".............................................                            [100%]"
+      },
+      "retained_junit": {
+        "path": "policy-engine/LOCAL/raw/resume-simulation-owner-intake-repair-20261015/independent-r5-junit.xml",
+        "sha256": "4e86ecdea91d6b7ac0d79971f30b478d68485870a328f9e863f14c680dbf6840",
+        "tests": 45,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "retained_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-simulation-owner-intake-repair-20261015/independent-r5-stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "review_boundary": "Independent bounded r4→r5 implementation delta review only; not all 51 scoped paths, global E02 acceptance, or formal closure. Review decision: implementation delta GO; formal closure NONE; receipt metadata caveat recorded above."
+    }
+  },
+  "capability_status": {
+    "state": "implementation_candidate_verified_for_bounded_delta",
+    "scope": "Typed artifact owner/profile intake and selected-profile persistence across the tested Core/Foundry/Trinity consumers in this S1 slice.",
+    "known_boundary": "External institutional authority/currentness and scientific or empirical validity are not established by these local contract tests. Other E02 consumers and all formal finding decisions remain for the composed source freeze and G.",
+    "next_check": "Integrate this exact committed slice and effective Core dependencies into the composed source freeze; run the full consumer-composition closeout and route the complete per-ID proposals to G."
+  }
+}

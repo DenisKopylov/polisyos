@@ -1,0 +1,508 @@
+{
+  "schema": "policyos.e02.local_slice_handoff.v1",
+  "recorded_on": "2026-10-15",
+  "slice_id": "native-dataforge-boundary-20261015",
+  "task": "Native Data Forge boundary repair: four runtime owner imports routed through existing public facade surfaces.",
+  "slice_base": {
+    "commit": "7455db0523bd91e6ce2b4523ef4731327b7eb78d",
+    "tree": "15bad5107f63ecbc6e910a69e05be2388678796a"
+  },
+  "candidate_source": {
+    "commit": "1cfe47ab42e29ebd02359f2b80a8173a528d8b94",
+    "tree": "8b40a2b055df3052a55abb3a3ee36ae9a8260172",
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "parents": [
+    "7455db0523bd91e6ce2b4523ef4731327b7eb78d"
+  ],
+  "entry_state": {
+    "head_when_follow-up_diagnosis_was_created": "b7208ee518b2745251a060f9d3587ac4ddbce613",
+    "tree": "2965725f75dc22d1e21f708d83a5a4fe98f11893",
+    "status_scope": "current shared worktree may contain other agents changes; statuses are recorded below",
+    "note": "This later shared-tree diagnostic is separate from the 1cfe committed source freeze; no later G/source delta is implicitly part of this slice."
+  },
+  "source_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+      "category": "sources",
+      "git_blob": "27294495c8d4e42f8babe16107e0114eeda2227c",
+      "sha256": "6a1b16e5a77b3a88c1496b58d5d42c69d36b33e407efac1c1fe076946181ade6",
+      "bytes": 206897
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+      "category": "sources",
+      "git_blob": "68358cd48789fa383699db9a53b9e19f0ed552a9",
+      "sha256": "92a4f9eeb246b4048f40f27e200a62d616f1db8598bd4b52dc9a36aab354a064",
+      "bytes": 89908
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+      "category": "sources",
+      "git_blob": "2561d356e3eb4661a4031567ea96f8671de7ee65",
+      "sha256": "c869ace07737be1262adcf0b096bc9908d9c8f717a421a6118c68fc1e26a065a",
+      "bytes": 236221
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/__init__.py",
+      "category": "sources",
+      "git_blob": "54f984d8f3920c837a682bd8aa6966a8a25e4e47",
+      "sha256": "51610086ec8f1284895ee9a1cb177a27bde0c382976f59bd40374e15c76521fc",
+      "bytes": 3156
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/academic.py",
+      "category": "sources",
+      "git_blob": "7e8fccf1d8d207634371cc45440ee9e28ceb3c4a",
+      "sha256": "ec06fbceea6b2e3b922866ed938db432dbbcdfe275af84b1f39dc23766aa1ed5",
+      "bytes": 7607
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+      "category": "tests",
+      "git_blob": "fd1e19c3f3062ed96ca53156d5fc0df403097462",
+      "sha256": "f48b6a27fccb2c401a94b3a08b1ca24705fe9e0cca34c45426b8c08bc90c1403",
+      "bytes": 11749
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/read_api/test_surfaces.py",
+      "category": "tests",
+      "git_blob": "a0ae36a37881e0eb5b06f91aac3c3567b2a2616f",
+      "sha256": "f9f2d79809c70dd80c55e3012566561877cd57b9de09802977f9f477833c1e08",
+      "bytes": 14139
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_data_state_substrate.py",
+      "category": "tests",
+      "git_blob": "4ca73fb759ed4f5ce18963fd8a430f85689e6720",
+      "sha256": "7eedc3b7b2cda69c12bc7027f87114f1b3f35e996b0d292e5a1bdaaa446332b6",
+      "bytes": 6605
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py",
+      "category": "tests",
+      "git_blob": "9e3d2aa4ab0a5a7261b798aeaa1470867428ec26",
+      "sha256": "ca521e80b9b379efc04e64380fdf8967d2f9830837e8008a2d088a8724223647",
+      "bytes": 146309
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py",
+      "category": "tests",
+      "git_blob": "05dc402814b13c3957f86d801f78954461b4f630",
+      "sha256": "05735b77499fc6eb97a1bff3849aacfcf5b8d7fe3af517e244b48f2786f064ff",
+      "bytes": 98973
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/README.md",
+      "category": "documentation",
+      "git_blob": "dadc34d992902055047fc33a90d4386076caf90b",
+      "sha256": "14a6d74eeeb445bf342067d1c693bbd136b5f29c78fda665ac999b046b0fa8a0",
+      "bytes": 5732
+    }
+  ],
+  "selected_inputs": [
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "sha256": "94b10f375cc2184e585da30fae552bb406cbd59e9283791707447406c30a0889",
+      "bytes": 20929,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/architecture/packages/boundaries.toml",
+      "sha256": "e822643497f797aeec90979b6658234e704c5c2f05e8c341352acede3c9a3bbf",
+      "bytes": 9655,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/architecture/imports/policy.toml",
+      "sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d",
+      "bytes": 3465,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/architecture/imports/contracts.toml",
+      "sha256": "104a3ade87eacb7d2b5727eb20d85012b26ef7b8e1abdda14df275e89191cf79",
+      "bytes": 6750,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/architecture/domain_migration_batches.toml",
+      "sha256": "7a6b8bf0278d5ca0d30d6ec499e94404e024425474baa08901d2bd230664bba5",
+      "bytes": 8543,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/test_phase6_read_api_consolidation.py",
+      "sha256": "f48b6a27fccb2c401a94b3a08b1ca24705fe9e0cca34c45426b8c08bc90c1403",
+      "bytes": 11749,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+      "sha256": "123bf0afc90873458bd7fbac56b7212cf40123abb644d4d65c27047dd1d93105",
+      "bytes": 51162,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/manifests.py",
+      "sha256": "aaa05f342b4dae5b3b01d177d34b87f78361de03cfd82528858504d87e7035e7",
+      "bytes": 17889,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/__init__.py",
+      "sha256": "2aed42f3293e261e3d5ffced6af871b08b75b199ea2b2a1e20f01d231ab437b1",
+      "bytes": 2183,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+      "sha256": "a825fb0cc1ad350b30c313a24b45f43e790264a7b096bc884bd9d8a45b78aaed",
+      "bytes": 117649,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+      "sha256": "a8821de12aee8ee369bc89231fbfada8431c998523684fabee3d7d324d04d47b",
+      "bytes": 17143,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_profile.py",
+      "sha256": "dcb4d235d8966a0888df3fed5ffdc1e887801a97a72b66e1a19476afcc94233a",
+      "bytes": 3086,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_projection.py",
+      "sha256": "6cc4b33da0b99a10b96670cc086a53bfeed02688bd257a8c3fad3bfaabbf6e60",
+      "bytes": 893,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+      "sha256": "27136bac2029380f0bf5127d2dc01aa296e90d5b4e2b31d36b0584d16151b6fc",
+      "bytes": 110458,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+      "sha256": "c38d1747bd56f23455dec238fdf8e333dfbcdaf2a2e64fab56abf13e1fa99396",
+      "bytes": 128499,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "sha256": "620d69de85b9db138cc02407f5330fde4d6241b9e9a4d0b3823002aeb4a628a3",
+      "bytes": 189791,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+      "sha256": "ec67327bf87b5e8b8dbcf76000bfd11187b480cd57e8fe53ee27750be84371af",
+      "bytes": 174929,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/pinned_route_demand_home.py",
+      "sha256": "c6a295253bcb164d002df5c2df9797a8fc1ca3ab784d2143f145448bfb2d45f1",
+      "bytes": 42809,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/workspace/loop.py",
+      "sha256": "b160f9bc49a3dc414b3e7c51f77230193d0bb0394c5d731057ef689156b918a2",
+      "bytes": 188519,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "sha256": "575f9b75a23ad7da49dec3b823f1ee7910828b7b7f2b54d72a766f17e841a897",
+      "bytes": 228177,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/manifest.json",
+      "sha256": "61a20defc17fb326bb777d603cf734c397c45db9f36af558724b3e6f57716de4",
+      "bytes": 9153,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/phase6-full.stdout.txt",
+      "sha256": "17f9cbe62f95debdc873fcf1cbc64989f2655645ff9494ef41837cb94c409caa",
+      "bytes": 7721,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/phase6_runtime_census.py",
+      "sha256": "81879406f29f48f708e6abf7ede47718468b48a0148e8599eb132794dbfc94fa",
+      "bytes": 5421,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/phase6_runtime_census.json",
+      "sha256": "7fad0995eeee957f2bc766dffb6c0e56032b5476d354b43e12c72402e9e1aff4",
+      "bytes": 9510,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-gate-property-review-20261015/ukraine-cold-import.stdout.txt",
+      "sha256": "58a0f85c2bcf4cddbb0c223e1a18178f52c1d19176cdfd42f6351bfb1054251d",
+      "bytes": 506,
+      "role": "architecture/import contract input snapshot"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/phase6-full.stdout.txt",
+      "sha256": "17f9cbe62f95debdc873fcf1cbc64989f2655645ff9494ef41837cb94c409caa",
+      "role": "complete Phase 6 deciding output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/phase6_runtime_census.json",
+      "sha256": "7fad0995eeee957f2bc766dffb6c0e56032b5476d354b43e12c72402e9e1aff4",
+      "role": "complete runtime census output"
+    }
+  ],
+  "backend_profile": {
+    "profile": "Local source-tree test profile; focused tests use policy-engine/.venv/bin/python with test configuration; no installed wheel or production profile selected.",
+    "platform": "Local macOS worktree; exact historical Python patch version and dependency-lock identity were not captured by the author command record.",
+    "dependency_provisioning": "No dependency installation or lockfile changes in this slice. Existing local .venv supplied pytest and Ruff; package versions were not retained.",
+    "production_inputs": "None. Controlled source and tests only; no D2/18 or external authority input."
+  },
+  "commands": [
+    {
+      "name": "author focused tests",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "23 passed",
+      "cwd": "policy-engine",
+      "argv": ".venv/bin/python -m pytest -q tests/unit/data_forge/test_phase6_read_api_consolidation.py::test_runtime_consumers_do_not_import_data_forge_internals_directly tests/unit/data_forge/test_phase6_read_api_consolidation.py::test_runtime_import_gate_rejects_internal_bypass_and_accepts_public_facade tests/unit/data_forge/read_api/test_surfaces.py tests/unit/runtime/quality/test_data_state_substrate.py tests/unit/runtime/quality/test_acquisition_planner.py::test_openalex_gateway_uses_academic_facade_and_keeps_response_candidate tests/unit/runtime/quality/test_acquisition_planner.py::test_openalex_gateway_default_refuses_before_owner_call tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py::test_legacy_native_row_is_recorded_and_blocks_positive_epoch tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py::test_legacy_row_has_not_established_semantic_epoch",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/target-focused.stdout.txt",
+        "sha256": "475bcfb56b286d857c4310602373e306e2cb722ad6df6053d0e1aff939c18220",
+        "role": "complete stdout"
+      }
+    },
+    {
+      "name": "author Ruff check",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "All checks passed!",
+      "cwd": "policy-engine",
+      "argv": ".venv/bin/python -m ruff check <10 owned Python source/test paths>",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "role": "complete stdout"
+      }
+    },
+    {
+      "name": "author Ruff format check",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "10 files already formatted",
+      "cwd": "policy-engine",
+      "argv": ".venv/bin/python -m ruff format --check <10 owned Python source/test paths>",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/ruff-format-check.stdout.txt",
+        "sha256": "5b9f70ad96522f492ef846065642c069b5627379aff2ab3f74acd2e3b9ecfe34",
+        "role": "complete stdout"
+      }
+    },
+    {
+      "name": "complete Phase 6 consolidation module",
+      "status": "FAIL",
+      "exit_code": 1,
+      "result": "6 passed, 4 failed",
+      "cwd": "policy-engine",
+      "argv": null,
+      "argv_limitation": "The initial full-module shell command was not retained separately; use the exact full captured output rather than reconstructing a command.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/phase6-full.stdout.txt",
+        "sha256": "17f9cbe62f95debdc873fcf1cbc64989f2655645ff9494ef41837cb94c409caa",
+        "role": "complete deciding output"
+      },
+      "failure_classification_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-gate-property-review-20261015/report.json",
+        "sha256": "15fd48a1b36480c828705b98893d3b49ea782bc58613d62ca4d78d54bfc8e1f2",
+        "role": "subsequent current-source classification; not a rerun of the old module"
+      }
+    },
+    {
+      "name": "independent focused tests and cold-import probe",
+      "status": "PASS",
+      "exit_code": 0,
+      "result": "8 focused tests passed; cold facade import, pipeline tuple identity, and lazy academic export identity passed.",
+      "reviewer_command": ".venv/bin/python -m pytest -q -rA tests/unit/data_forge/read_api/test_surfaces.py::test_academic_openalex_exports_are_typed_lazy_canonical_objects tests/unit/data_forge/read_api/test_surfaces.py::test_snapshot_publication_facade_resolves_canonical_owners tests/unit/data_forge/test_phase6_read_api_consolidation.py::test_runtime_import_gate_rejects_internal_bypass_and_accepts_public_facade tests/unit/runtime/quality/test_data_state_substrate.py::test_snapshot_binding_uses_read_api_publishers_and_preserves_surface tests/unit/runtime/quality/test_acquisition_planner.py::test_openalex_gateway_uses_academic_facade_and_keeps_response_candidate tests/unit/runtime/quality/test_acquisition_planner.py::test_openalex_gateway_default_refuses_before_owner_call tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py::test_legacy_native_row_is_recorded_and_blocks_positive_epoch tests/unit/data_forge/domains/catalog/knowledge/test_overlay.py::test_legacy_row_has_not_established_semantic_epoch",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-independent-20261015/independent-focused.stdout.txt",
+          "sha256": "3b517220e52605a9dfde7312012a0486e9d78a07df042d6160acc663e88d1d33",
+          "role": "complete stdout"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-independent-20261015/cold-import-probe.stdout.txt",
+          "sha256": "15a7d64cdd2c611c953c9d2f9eadbd2f50a85c4c50d1a45d381b9c6c7ca78e6a",
+          "role": "complete stdout"
+        }
+      ]
+    },
+    {
+      "name": "independent exact-slice review",
+      "status": "GO",
+      "exit_code": 0,
+      "review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-independent-20261015/review.json",
+        "sha256": "68c9e9912fd0136aac0f6495a62d94d51f593a00488f7319741eefcfa0979c07",
+        "role": "read-only independent review"
+      },
+      "scope": "Exact 11-path boundary only; review explicitly keeps full Phase 6 module red and makes no inherited/global-closure claim."
+    }
+  ],
+  "chain": {
+    "producer": "Existing canonical Data Forge publisher/catalog/academic owner modules.",
+    "artifact": "Existing typed facade DTO/export/member surfaces; this slice adds no external authority or policy status.",
+    "bridge": "Runtime consumers resolve canonical owner objects through existing read_api facade routes; static tests cover actual symbol identity, publisher behavior, and OpenAlex candidate-only behavior.",
+    "consumer": "Named Runtime consumers; exact chain coverage is bounded to the 11 committed paths.",
+    "verification": "23 author-focused tests, author Ruff/format, and independent 8-test/cold-import review; complete Phase 6 module remains red.",
+    "surface": "Existing Python facade/public-surface contract; no generated surface regeneration or installed-wheel claim.",
+    "semantic_test": "Controlled artifact publisher and OpenAlex opt-in/default refusal tests; not a policy recommendation authority proof."
+  },
+  "controls": [
+    "OpenAlex opt-in invokes the selected owner once and preserves response as candidate evidence; default path refuses before owner/network call.",
+    "Lazy imports resolve canonical owner objects and keep publisher/OpenAlex implementation modules unloaded until selected.",
+    "Independent reviewer separately reran the focused consumer tests and cold-import probe against the exact 11-path footprint.",
+    "Full Phase 6 output remains preserved and failing; no markers-only claim or formal closure is made."
+  ],
+  "limitations": [
+    "The complete Phase 6 module result is 6 passed / 4 failed and is not inherited, green, or formally closed.",
+    "Later current-source diagnosis classifies Ukraine cold import and the duplicate AST gate as one real defect; Lex public-root false positive; three real private Lex dynamic imports plus one real SKG domain registry import, with provenance strings as false positives. See report.json@15fd48… for exact source paths and criteria.",
+    "The author full-module command was not retained, so its exact argv is unknown even though complete stdout is retained.",
+    "The broader census has 405 unlisted deep-module import occurrences and 109 unlisted root-route occurrences; this is a separate G architecture/contract decision. No mass migration, blanket waiver, or allowlist expansion is proposed in this slice.",
+    "Public/generated-surface regeneration and native source-wide gate remain root-owned; no external/production currentness, custody, or authority established."
+  ],
+  "decision_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/manifest.json",
+      "sha256": "61a20defc17fb326bb777d603cf734c397c45db9f36af558724b3e6f57716de4",
+      "role": "author slice manifest"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-gate-property-review-20261015/report.json",
+      "sha256": "15fd48a1b36480c828705b98893d3b49ea782bc58613d62ca4d78d54bfc8e1f2",
+      "role": "complete current Phase 6 property diagnosis"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-gate-property-review-20261015/report.md",
+      "sha256": "b981e2e7db1884f41ac76097a61f6a2efeae5bff0d4f04f7ecdc2da093f56446",
+      "role": "readable diagnosis"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-gate-property-review-20261015/runtime-files-sha256.json",
+      "sha256": "9e4f376351ae90385016f0a8032bed2ac24ad9f79dcf025ba44f4a2dcb6037c0",
+      "role": "complete 328-file Runtime denominator hashes"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "sha256": "94b10f375cc2184e585da30fae552bb406cbd59e9283791707447406c30a0889",
+      "role": "public route contract input"
+    },
+    {
+      "path": "policy-engine/architecture/packages/boundaries.toml",
+      "sha256": "e822643497f797aeec90979b6658234e704c5c2f05e8c341352acede3c9a3bbf",
+      "role": "runtime package boundary input"
+    },
+    {
+      "path": "policy-engine/architecture/imports/policy.toml",
+      "sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d",
+      "role": "import policy input"
+    },
+    {
+      "path": "policy-engine/architecture/imports/contracts.toml",
+      "sha256": "104a3ade87eacb7d2b5727eb20d85012b26ef7b8e1abdda14df275e89191cf79",
+      "role": "Import Linter contract input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-independent-20261015/review.json",
+      "sha256": "68c9e9912fd0136aac0f6495a62d94d51f593a00488f7319741eefcfa0979c07",
+      "role": "independent exact-slice review"
+    },
+    {
+      "source_policy": "No interpretation of the wider 405/109 contract discrepancy as a closure or waiver; retain for G decision."
+    }
+  ],
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P05",
+    "P06",
+    "P12",
+    "P31",
+    "P32",
+    "P38"
+  ],
+  "proposal_ids": [],
+  "formal_closure_ids": [],
+  "closure_ids": [],
+  "outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/target-focused.stdout.txt",
+      "sha256": "475bcfb56b286d857c4310602373e306e2cb722ad6df6053d0e1aff939c18220",
+      "role": "author deciding output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/ruff-check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "role": "author deciding output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/ruff-format-check.stdout.txt",
+      "sha256": "5b9f70ad96522f492ef846065642c069b5627379aff2ab3f74acd2e3b9ecfe34",
+      "role": "author deciding output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-repair/phase6-full.stdout.txt",
+      "sha256": "17f9cbe62f95debdc873fcf1cbc64989f2655645ff9494ef41837cb94c409caa",
+      "role": "author deciding output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-independent-20261015/cold-import-probe.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "independent review evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-independent-20261015/cold-import-probe.stdout.txt",
+      "sha256": "15a7d64cdd2c611c953c9d2f9eadbd2f50a85c4c50d1a45d381b9c6c7ca78e6a",
+      "role": "independent review evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-independent-20261015/independent-focused.exit.txt",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "role": "independent review evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-independent-20261015/independent-focused.stdout.txt",
+      "sha256": "3b517220e52605a9dfde7312012a0486e9d78a07df042d6160acc663e88d1d33",
+      "role": "independent review evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-four-dataforge-boundary-independent-20261015/review.json",
+      "sha256": "68c9e9912fd0136aac0f6495a62d94d51f593a00488f7319741eefcfa0979c07",
+      "role": "independent source review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-gate-property-review-20261015/report.json",
+      "sha256": "15fd48a1b36480c828705b98893d3b49ea782bc58613d62ca4d78d54bfc8e1f2",
+      "role": "later current Phase 6 property diagnosis"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-gate-property-review-20261015/report.md",
+      "sha256": "b981e2e7db1884f41ac76097a61f6a2efeae5bff0d4f04f7ecdc2da093f56446",
+      "role": "later readable property diagnosis"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-gate-property-review-20261015/runtime-files-sha256.json",
+      "sha256": "9e4f376351ae90385016f0a8032bed2ac24ad9f79dcf025ba44f4a2dcb6037c0",
+      "role": "later current 328-file Runtime denominator"
+    }
+  ]
+}

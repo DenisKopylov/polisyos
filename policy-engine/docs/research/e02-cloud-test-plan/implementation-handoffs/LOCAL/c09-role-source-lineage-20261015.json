@@ -1,0 +1,272 @@
+{
+  "closure_ids": [],
+  "contract_and_property": {
+    "compatibility": "Additional source-edge requirement applies to selected-profile schema 1.2. Existing schema 1.0/1.1 profileless history remains on its existing path.",
+    "edge_admission": "Requires exactly one selected report source edge per expected source role; resolves and content-binds each selected source manifest; requires the child's complete input multiset of (artifact_id, role, manifest_profile_sha256) to equal the expected parent-selected tuples; rejects missing, repeated, foreign, wrong-role, wrong-profile, and extra edges.",
+    "embedded_payload_paths": {
+      "plain_ids": [
+        [
+          "scope_binding",
+          "binding.model_spec_ref",
+          "model_spec"
+        ],
+        [
+          "scope_binding",
+          "binding.policy_spec_ref",
+          "policy_spec"
+        ]
+      ],
+      "typed_ref_binding": "Compares artifact ID, selected manifest profile, kind, and media type against the resolved selected source manifest.",
+      "typed_refs": [
+        [
+          "observed_outcome",
+          "observed_source_ref",
+          "observed_source"
+        ],
+        [
+          "prediction",
+          "uncertainty_bundle_ref",
+          "uncertainty_bundle"
+        ],
+        [
+          "evaluation_design",
+          "training_slice_ref",
+          "training_slice"
+        ],
+        [
+          "source_lineage",
+          "candidate_source_ref",
+          "candidate_source"
+        ],
+        [
+          "source_lineage",
+          "observed_source_ref",
+          "observed_source"
+        ],
+        [
+          "method_lineage",
+          "method_artifact_ref",
+          "method_artifact"
+        ],
+        [
+          "method_lineage",
+          "calibration_rule_ref",
+          "calibration_rule"
+        ]
+      ]
+    },
+    "property": "For selected-profile schema 1.2 predictive calibration evidence, every role child must be content-bound to the exact report-selected source artifact/profile edges required by that role. Embedded refs and IDs must agree with the same resolved source manifests. Names, payload self-labels, and same-byte artifact IDs do not substitute for persisted lineage.",
+    "pure_ir_fallback": "Before profile checking, requires returned manifest artifact_id to equal the requested edge ID, then checks profile digest, bytes against content ID and manifest integrity SHA, and declared byte size. The IR-only compatibility route admits only the default profile; the Core profile-addressed route supports selected non-default profiles.",
+    "role_source_edges": {
+      "calibration_threshold": [
+        "calibration_rule"
+      ],
+      "credible_evaluation": [
+        "candidate_source"
+      ],
+      "evaluation_design": [
+        "training_slice"
+      ],
+      "method_lineage": [
+        "method_artifact",
+        "calibration_rule"
+      ],
+      "observed_outcome": [
+        "observed_source"
+      ],
+      "prediction": [
+        "uncertainty_bundle"
+      ],
+      "scope_binding": [
+        "candidate_source",
+        "model_spec",
+        "policy_spec",
+        "calibration_rule"
+      ],
+      "source_lineage": [
+        "candidate_source",
+        "observed_source"
+      ]
+    },
+    "semantic_effect": "A broken role/source relationship yields reference_source_lineage_not_established:<role>, context_bound=false, and usable_for_calibration=false. Candidate evidence remains predictive-only; no promotion or authority follows."
+  },
+  "independent_review_decisions": {
+    "P38": {
+      "candidate_behavior": "Explicit ID comparison rejects that witness before profile validation; default-profile positive and Core-selected non-default positive remain valid, while pure-IR non-default remains refused.",
+      "falsifier": "A forged default-only manifest with the expected profile and valid byte/integrity hashes but a different ID.",
+      "old_proxy_divergence": "The pure-IR fallback checked profile/content/integrity/size but did not bind returned manifest artifact_id to the requested edge ID.",
+      "property": "The source manifest selected by a report edge is the same artifact/profile whose content is admitted through the role child."
+    },
+    "P40": "SAME_CLASS_DEEPER: widen the common selected-view postcondition and test the falsifier once; no per-role patch ladder.",
+    "P41": "The source type-check input intersects the changed bridge file. The 11-error output is recorded, not called inherited.",
+    "capability_labels": [
+      "bounded report -> role -> source lineage: locally implemented with unit/probe verification",
+      "ordinary HTTP producer -> persisted artifact/event -> fresh GET consumer: verification_missing / UNRUN"
+    ]
+  },
+  "limitations": [
+    "No actual HTTP POST/reopen/fresh-GET positive on this composed source is recorded.",
+    "No external issuer, permission, source-population authenticity, source currentness/freshness, legal correctness, causal calibration adequacy, or promotion authority is established by these bytes.",
+    "A persisted content/profile lineage proves only the admitted artifact relationship, not the truth or authority of the source assertion.",
+    "The 11 basedpyright errors remain a non-inherited gate result for G to adjudicate or repair; targeted output is complete and pinned."
+  ],
+  "next_check": "After whole-composition source freeze and independent review, run test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry once against the exact selected local serving instance; retain complete deciding output and fresh-GET result. Separately adjudicate the C09 original criteria/occurrences and type-gate diagnostics. Do not convert this source handoff into formal finding closures.",
+  "prepared_on": "2026-10-15",
+  "proposal_fields": {
+    "formal_closure_authority": "G",
+    "proposed_formal_status": "not adjudicated; G only",
+    "proposed_id_mapping": "G should map this bounded source evidence to the exact C09 original criterion/occurrences; this packet does not assert or close any finding ID.",
+    "proposed_source_outcome": "bounded GO for exact selected-profile role/source lineage mechanism, subject to independent code acceptance and composed HTTP consumer verification"
+  },
+  "runtime_dependencies_read_from_candidate_commit": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/predictive_calibration.py",
+      "role": "actual producer; _persist_evidence_role_refs persists the selected role children and their source inputs",
+      "sha256": "e341384284ea37b4c4ce439519699aa56d197f77cdcef53db7f8b217374fd50d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "role": "actual ForecastOwner path used by producer and source-role CAS tests",
+      "sha256": "73ad0b68666a50271b804756411634a21fcd3e91fd594ac2b0163e94e2cbd69a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "role": "selected-profile resolution and content-bound CAS operations",
+      "sha256": "f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "role": "Core-to-IR store resolution route and default-only fallback boundary",
+      "sha256": "da6d33ca7aaad00dd7ed8b6ccefa0e5b126d591f8c63951540606d3ea3e6d0ed"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "role": "typed artifact manifest and selected-profile identity",
+      "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "role": "canonical public resolver exports used by the bridge",
+      "sha256": "a750cfeb3483db25c4b867d55c3d17ef9ad60ccfd3ac837e9c638650b345b9e2"
+    }
+  ],
+  "schema": "policyos.e02.local.slice_handoff.v1",
+  "slice": "C09 selected-profile report-role-source lineage",
+  "source": {
+    "base_commit": "1cfe47ab42e29ebd02359f2b80a8173a528d8b94",
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate_commit": "21861abcae413de471a772802df52105c3476d15",
+    "candidate_is_ancestor_of_observed_head": true,
+    "candidate_parents": [
+      "1cfe47ab42e29ebd02359f2b80a8173a528d8b94"
+    ],
+    "candidate_subject": "fix(calibration): bind report roles to exact producer source profiles",
+    "candidate_tree": "4f4f24bb306f4eb1f596923502179b500091b7da",
+    "leased_paths_match_candidate_commit_at_readback": true,
+    "observed_workspace_head": "b7208ee518b2745251a060f9d3587ac4ddbce613",
+    "source_frame_note": "The C09 source commit is the source pin, not a claim that the whole composed E02 source is frozen. The actual POST/fresh-GET replay remains pending the composed freeze."
+  },
+  "source_footprint": [
+    {
+      "base_sha256": "dbf66944d46c38079cf0a176b9f4f0f9b5f3bc1a136ef734ae5c17a00da67846",
+      "candidate_sha256": "c2973e1162f7d3f89487acaf0225077dc4b69ccfe0dd33f7421f779249c0a215",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py"
+    },
+    {
+      "base_sha256": "5d7229f76fdd09aaba57cdaad63046672e096a267d27e3787427b0f99c005613",
+      "candidate_sha256": "c1a1eab1561b8b20928fccedcc37d5a67d7724626938d034a6c1a9e5aec82459",
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_bridge.py"
+    },
+    {
+      "base_sha256": "e99f73f1a233b88149323bb16ec54f52cabaf2a03ca6398155378637ad684da5",
+      "candidate_sha256": "09d018eed152f96937aa96184092c40ad03587a6b8dee8818b4e5d82db3c06bf",
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_empirical_bridge.py"
+    },
+    {
+      "base_sha256": "9de5166c90053c6d1919398a3638a5c04cae1e3c2d8dde58238f1733f5d5684d",
+      "candidate_sha256": "e659d299ada3caaf47f6fc9677115bdd412bdc3e578c47b5f6d7b87fb7fbbf99",
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_s10.py"
+    },
+    {
+      "base_sha256": "52d17dc9fc0af53e61aff1427ff9781c6c0c31d464c7620cd351156ce4d0dc52",
+      "candidate_sha256": "f0b7aabf71355abab54df312267347c7ff9860d35015e4b1dc3eeac01f18de3f",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py"
+    }
+  ],
+  "status": "bounded_candidate_for_independent_G_review",
+  "verification": {
+    "author_source_bound_65_pass": {
+      "command": "OMP_NUM_THREADS=1 policy-engine/.venv/bin/python -m pytest policy-engine/tests/unit/remediation/test_frc_02_bridge.py policy-engine/tests/unit/remediation/test_frc_02_empirical_bridge.py policy-engine/tests/unit/remediation/test_frc_02_s10.py -q",
+      "cwd": "repository root",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c09-role-source-lineage-design-20261015/c09-focused-postfreeze.txt",
+      "output_sha256": "9144238091332852e4c78de1c2d00c66bd3c70b7fe1e4c65489df359bbced5b3",
+      "result": "65 passed in 24.68s",
+      "selector_note": "Source-frozen focused-suite output as cited by the independent delta review; it does not include the HTTP control_service_di POST/reopen GET test.",
+      "test_scope": [
+        "tests/unit/remediation/test_frc_02_bridge.py",
+        "tests/unit/remediation/test_frc_02_empirical_bridge.py",
+        "tests/unit/remediation/test_frc_02_s10.py"
+      ]
+    },
+    "author_static_checks": {
+      "basedpyright": {
+        "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c09-role-source-lineage-design-20261015/c09-basedpyright-source-v2.stdout.txt",
+        "output_sha256": "13cc198491729d7447ac866c1b03442408bcbb1a17b247d7f3c82f5ab952f396",
+        "result": "11 errors, 0 warnings, 0 notes; not classified inherited under P41 because the changed source path intersects the type-check input; no new C09 helper diagnostics remain according to author report."
+      },
+      "git_diff_check": {
+        "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e464e9b934ca495991b7852b855",
+        "result": "PASS"
+      },
+      "ruff_check": {
+        "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "result": "PASS"
+      },
+      "ruff_format_check": {
+        "output_sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+        "result": "PASS"
+      }
+    },
+    "independent_review_delta": {
+      "probe_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c09-role-source-lineage-independent-20261015/c09-identity-guard-delta.stdout.txt",
+      "probe_output_sha256": "109e6bce8e403910025bec833a8f76f714909373a887b257a41edad3128e712b",
+      "probe_results": [
+        "PURE_IR_DEFAULT_PROFILE_POSITIVE=PASS",
+        "CORE_NONDEFAULT_SELECTED_VIEW_POSITIVE=PASS",
+        "PURE_IR_NONDEFAULT_SELECTED_VIEW=REFUSED",
+        "PURE_IR_WRONG_MANIFEST_ID=REFUSED_BEFORE_PROFILE_CHECK"
+      ],
+      "report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c09-role-source-lineage-independent-20261015/c09-postfix-independent-delta.md",
+      "report_sha256": "3f418880653b1bb7d10fc0b6317cc14b04de5de3a60fe695c768c0dd3b34342f",
+      "verdict": "Bounded GO for the identity repair; all eight role lineage remains bounded GO; full ordinary HTTP/API route remains UNRUN."
+    },
+    "independent_review_prior": {
+      "falsifier_output_sha256": "430ee1845dc03b617ea6018505d454f62913356016f97553e882ae2c716e3400",
+      "report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c09-role-source-lineage-independent-20261015/review-report.md",
+      "report_sha256": "64794607d5f940f61e59dbcc03d7bde6295ceb2a74fb30c676bd0884e19f757b",
+      "verdict": "HOLD on a pure-IR default-only resolver accepting a returned manifest with the wrong artifact_id."
+    },
+    "ordinary_http_producer_consumer": {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "reason": "deferred to composed source freeze and independent review gate; no native/API green claim from unit or probe results",
+      "required_sequence": "ordinary POST -> persisted source-bound role artifacts/event -> reopen service/store -> fresh GET and exact intent retry",
+      "selector": "test_predictive_calibration_post_event_reopen_get_and_exact_intent_retry",
+      "status": "UNRUN"
+    },
+    "producer_role_adversarial_review": {
+      "covered_per_role": [
+        "missing",
+        "foreign ID",
+        "wrong role",
+        "wrong profile",
+        "duplicate edge",
+        "extra edge"
+      ],
+      "driver": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c09-role-source-lineage-independent-20261015/role-lineage-review-probe.py",
+      "driver_sha256": "7e533c442f6f9e84f2a3dd7f41715132b59c2345db6c89f0fdbc3722c1c593c5",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c09-role-source-lineage-independent-20261015/role-lineage-review-probe.stdout.txt",
+      "output_sha256": "a44a5da048b52a1a20c25051d449862b8c154a34b424153c374d84a5cb515b21",
+      "result": "All eight actual producer role maps checked; 48/48 edge attacks rejected."
+    }
+  }
+}

@@ -953,9 +953,9 @@ def test_workspace_generated_config_drift_rejects_a_corrupt_nested_ignore(tmp_pa
         for item in tool_configs.render_files(REPO_ROOT)
         if item.relative_path == manifest["workspace_root_generated_config"]
     )
-    rule = '"policy-engine/workers/**/tests/**" = ["ANN", "E501", "PT011", "PT018", "S101", "T201"]'
+    rule = '"policy-engine/tools/**" = ["T201"]'
     assert rule in generated.content
-    corrupted_content = generated.content.replace(rule, rule.replace(', "T201"', ""), 1)
+    corrupted_content = generated.content.replace(rule, rule.replace('["T201"]', "[]"), 1)
     assert corrupted_content != generated.content
     corrupted_path = tmp_path / "workspace_root.toml"
     corrupted_path.write_text(corrupted_content, encoding="utf-8")
@@ -972,7 +972,7 @@ def test_workspace_generated_config_drift_rejects_a_corrupt_nested_ignore(tmp_pa
 
     assert len(findings) == 1
     assert findings[0]["message"] == "generated config is stale"
-    assert "policy-engine/workers/**/tests/**" in findings[0]["diff"]
+    assert "policy-engine/tools/**" in findings[0]["diff"]
 
 
 def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
@@ -1049,7 +1049,8 @@ def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
         for matcher, value in workspace_per_file_ignores.items()
     }
     worker_test_scope = "<PRODUCT>/workers/**/tests/**"
-    assert worker_test_scope in normalized_product_ignores
+    assert worker_test_scope not in normalized_product_ignores
+    assert worker_test_scope not in normalized_workspace_ignores
     assert normalized_workspace_ignores == normalized_product_ignores
 
     nested_worker_target = "workers/dowhy-014/tests/test_worker.py"
@@ -1076,10 +1077,9 @@ def test_ruff_pre_commit_settings_and_collection_match_product_root() -> None:
         _normalize_ruff_paths(matcher, product_root=REPO_ROOT, git_root=git_root): value
         for matcher, value in workspace_worker_ignores.items()
     }
-    assert (
-        normalized_product_worker_ignores[worker_test_scope]
-        == normalized_workspace_worker_ignores[worker_test_scope]
-    )
+    assert worker_test_scope not in normalized_product_worker_ignores
+    assert worker_test_scope not in normalized_workspace_worker_ignores
+    assert normalized_product_worker_ignores == normalized_workspace_worker_ignores
     assert product_worker_settings["linter.unresolved_target_version"] == "3.12"
     assert workspace_worker_settings["linter.unresolved_target_version"] == "3.14"
     assert normalized_product_ignores

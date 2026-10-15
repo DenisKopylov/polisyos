@@ -27,10 +27,15 @@ LOCAL_SCRIPT = (
 ROLE_MATCHER = "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/**/test_*.py"
 WORKER_TEST = "workers/dowhy-014/tests/test_worker.py"
 WORKER_SCRIPT = "workers/dowhy-014/worker.py"
-WORKER_TEST_MATCHER = '"workers/**/tests/**" = ["ANN", "E501", "PT011", "PT018", "S101", "T201"]\n'
 
 
-def _ruff_diagnostics(config: Path, filename: str, source: str) -> list[dict[str, object]]:
+def _ruff_diagnostics(
+    config: Path,
+    filename: str,
+    source: str,
+    *,
+    cwd: Path = REPO_ROOT,
+) -> list[dict[str, object]]:
     result = subprocess.run(
         [
             sys.executable,
@@ -46,7 +51,7 @@ def _ruff_diagnostics(config: Path, filename: str, source: str) -> list[dict[str
             filename,
             "-",
         ],
-        cwd=REPO_ROOT,
+        cwd=cwd,
         input=source,
         text=True,
         capture_output=True,
@@ -179,11 +184,15 @@ def test_evidence_role_uses_index_plus_active_ignored_sources(tmp_path: Path) ->
         assert untracked_history in default_untracked_selection
 
 
-def test_worker_test_style_is_generic_and_test_only(tmp_path: Path) -> None:
-    source = "assert True\n"
+def test_worker_test_suite_lints_without_a_worker_wide_ignore() -> None:
     generated = (REPO_ROOT / "ruff.generated.toml").read_text(encoding="utf-8")
-    if generated.count(WORKER_TEST_MATCHER) != 1:
-        raise AssertionError("the generated Ruff config must contain one worker test-role matcher")
+    workspace_generated = (REPO_ROOT / "architecture/tooling/ruff/workspace_root.toml").read_text(
+        encoding="utf-8"
+    )
+    if '"workers/**/tests/**"' in generated:
+        raise AssertionError("product Ruff config must not suppress worker test paths broadly")
+    if '"policy-engine/workers/**/tests/**"' in workspace_generated:
+        raise AssertionError("workspace Ruff config must not suppress worker test paths broadly")
 
     if not (REPO_ROOT / "workers/dowhy-014/pyproject.toml").is_file():
         raise AssertionError("the isolated worker profile must remain present")
@@ -205,24 +214,60 @@ def test_worker_test_style_is_generic_and_test_only(tmp_path: Path) -> None:
     ):
         raise AssertionError("retired nested worker suppression must leave no stale override row")
 
-    test_diagnostics = _ruff_diagnostics(REPO_ROOT / "ruff.toml", WORKER_TEST, source)
-    if test_diagnostics:
-        raise AssertionError(
-            f"worker test role should accept test assertions: {test_diagnostics!r}"
+    worker_test_source = (REPO_ROOT / WORKER_TEST).read_text(encoding="utf-8")
+    git_root = Path(
+        subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], cwd=REPO_ROOT, text=True
+        ).strip()
+    )
+    workspace_prefix = REPO_ROOT.relative_to(git_root).as_posix()
+    worker_profiles = (
+        (REPO_ROOT / "ruff.toml", WORKER_TEST, REPO_ROOT),
+        (
+            REPO_ROOT / "architecture/tooling/ruff/workspace_root.toml",
+            f"{workspace_prefix}/{WORKER_TEST}",
+            git_root,
+        ),
+    )
+    for config, test_filename, cwd in worker_profiles:
+        test_diagnostics = _ruff_diagnostics(
+            config,
+            test_filename,
+            worker_test_source,
+            cwd=cwd,
         )
+        if test_diagnostics:
+            raise AssertionError(
+                f"the repaired worker test must pass without a worker-wide ignore: "
+                f"{test_diagnostics!r}"
+            )
 
-    script_codes = [
-        row.get("code") for row in _ruff_diagnostics(REPO_ROOT / "ruff.toml", WORKER_SCRIPT, source)
-    ]
-    if script_codes != ["S101"]:
-        raise AssertionError(f"worker production code must retain S101: {script_codes!r}")
+        synthetic_test_codes = [
+            row.get("code")
+            for row in _ruff_diagnostics(
+                config,
+                test_filename,
+                "assert True\n",
+                cwd=cwd,
+            )
+        ]
+        if synthetic_test_codes != ["S101"]:
+            raise AssertionError(
+                "a synthetic worker-test assertion must remain visible under the canonical "
+                f"Ruff profile, got {synthetic_test_codes!r}"
+            )
 
-    removed_root = tmp_path / "ruff.toml"
-    removed_generated = tmp_path / "ruff.generated.toml"
-    removed_root.write_text((REPO_ROOT / "ruff.toml").read_text(encoding="utf-8"), encoding="utf-8")
-    removed_generated.write_text(generated.replace(WORKER_TEST_MATCHER, ""), encoding="utf-8")
-    removed_codes = [
-        row.get("code") for row in _ruff_diagnostics(removed_root, WORKER_TEST, source)
-    ]
-    if removed_codes != ["S101"]:
-        raise AssertionError(f"removing the generic test role must restore S101: {removed_codes!r}")
+        script_filename = (
+            f"{workspace_prefix}/{WORKER_SCRIPT}" if cwd == git_root else WORKER_SCRIPT
+        )
+        script_codes = [
+            row.get("code")
+            for row in _ruff_diagnostics(
+                config,
+                script_filename,
+                "assert True\n",
+                cwd=cwd,
+            )
+        ]
+        if script_codes != ["S101"]:
+            raise AssertionError(f"worker production code must retain S101, got {script_codes!r}")

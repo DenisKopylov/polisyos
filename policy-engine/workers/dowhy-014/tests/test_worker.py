@@ -4,6 +4,10 @@ from __future__ import annotations
 
 import json
 import sys
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from types import FrameType
 
 import numpy as np
 import pytest
@@ -12,7 +16,7 @@ from protocol import REQUEST_SCHEMA, decode, digest, validate_request
 from worker import execute, interval, linear_ate, scalar
 
 
-def request(seed=19, n=500):
+def request(seed: int = 19, n: int = 500) -> dict[str, Any]:
     rng = np.random.default_rng(seed)
     x = rng.normal(size=n)
     a = rng.binomial(1, 1 / (1 + np.exp(-x)))
@@ -49,7 +53,7 @@ def request(seed=19, n=500):
     return bind(result)
 
 
-def bind(value):
+def bind(value: dict[str, Any]) -> dict[str, Any]:
     value.pop("request_id", None)
     value.pop("request_sha256", None)
     value["request_id"] = digest(value)
@@ -57,41 +61,48 @@ def bind(value):
     return value
 
 
-def oracle(value):
+def oracle(value: dict[str, Any]) -> sm.regression.linear_model.RegressionResultsWrapper:
     data = np.asarray(value["basis"]["rows"])
     return sm.OLS(data[:, 1], sm.add_constant(data[:, [0, 2]])).fit()
 
 
-def test_actual_dowhy_identification_estimation_matches_independent_statsmodels():
+def test_actual_dowhy_identification_estimation_matches_independent_statsmodels() -> None:
     value = request()
     response = execute(value)
     result = response["result"]
     expected = oracle(value)
-    assert result["point"] == pytest.approx(expected.params[1], abs=1e-12)
-    assert result["interval"] == pytest.approx(expected.conf_int(alpha=0.05)[1], abs=1e-12)
-    assert result["standard_error"] == pytest.approx(expected.bse[1], abs=1e-12)
-    assert result["effective_confidence_level"] == 0.95
-    assert result["adjustment_set"] == ["X"]
-    assert (
-        result["estimator_class"]
-        == "dowhy.causal_estimators.linear_regression_estimator.LinearRegressionEstimator"
+    np.testing.assert_equal(result["point"] == pytest.approx(expected.params[1], abs=1e-12), True)
+    np.testing.assert_equal(
+        result["interval"] == pytest.approx(expected.conf_int(alpha=0.05)[1], abs=1e-12), True
     )
-    assert response["authority"] == "candidate_computation_only"
-    assert response["versions"]["dowhy"] == "0.14"
+    np.testing.assert_equal(
+        result["standard_error"] == pytest.approx(expected.bse[1], abs=1e-12), True
+    )
+    np.testing.assert_equal(result["effective_confidence_level"], 0.95)
+    np.testing.assert_equal(result["adjustment_set"], ["X"])
+    np.testing.assert_equal(
+        result["estimator_class"],
+        "dowhy.causal_estimators.linear_regression_estimator.LinearRegressionEstimator",
+    )
+    np.testing.assert_equal(response["authority"], "candidate_computation_only")
+    np.testing.assert_equal(response["versions"]["dowhy"], "0.14")
 
 
-def test_known_gaussian_dgp_nominal_95_coverage_over_independent_replicates():
+def test_known_gaussian_dgp_nominal_95_coverage_over_independent_replicates() -> None:
     covered = 0
     # Independent IID draws from a full-rank correctly specified homoscedastic DGP.
     for seed in range(1000, 1200):
         value = request(seed, n=180)
         actual = linear_ate(value)
         expected = oracle(value)
-        assert actual["interval"] == pytest.approx(expected.conf_int(alpha=0.05)[1], abs=1e-11)
+        np.testing.assert_equal(
+            actual["interval"] == pytest.approx(expected.conf_int(alpha=0.05)[1], abs=1e-11),
+            True,
+        )
         covered += actual["interval"][0] <= 2 <= actual["interval"][1]
     # Predeclared conservative binomial band for 200 independent 95% intervals.
-    assert 180 <= covered <= 199, covered
-    print(
+    np.testing.assert_equal(180 <= covered <= 199, True, str(covered))
+    sys.stdout.write(
         json.dumps(
             {
                 "replicates": 200,
@@ -102,20 +113,30 @@ def test_known_gaussian_dgp_nominal_95_coverage_over_independent_replicates():
                 "scope": "known IID homoscedastic Gaussian synthetic DGP",
             }
         )
+        + "\n"
     )
 
 
 @pytest.mark.parametrize(
-    "value", [[1, 2, 3], [[1, 2], [3, 4]], [3, 1], [float("nan"), 2], [1, float("inf")]]
+    ("value", "error_message"),
+    [
+        ([1, 2, 3], "unsupported confidence interval shape/value"),
+        ([[1, 2], [3, 4]], "unsupported confidence interval shape/value"),
+        ([3, 1], "reversed confidence interval"),
+        ([float("nan"), 2], "finite numeric primitives required"),
+        ([1, float("inf")], "finite numeric primitives required"),
+    ],
 )
-def test_intervals_are_rejected_without_flattening_selection_or_repair(value):
-    with pytest.raises(ValueError):
+def test_intervals_are_rejected_without_flattening_selection_or_repair(
+    value: object, error_message: str
+) -> None:
+    with pytest.raises(ValueError, match=error_message):
         interval(value)
 
 
 @pytest.mark.parametrize("value", [[1, 2], [[1, 2]], None])
-def test_exact_supported_interval_shapes_and_legitimate_point_only(value):
-    assert interval(value) == (None if value is None else [1.0, 2.0])
+def test_exact_supported_interval_shapes_and_legitimate_point_only(value: object) -> None:
+    np.testing.assert_equal(interval(value), None if value is None else [1.0, 2.0])
 
 
 @pytest.mark.parametrize(
@@ -130,13 +151,15 @@ def test_exact_supported_interval_shapes_and_legitimate_point_only(value):
         ("standard_error", False),
     ],
 )
-def test_actual_backend_numeric_primitives_are_not_coerced(monkeypatch, field, value):
+def test_actual_backend_numeric_primitives_are_not_coerced(
+    monkeypatch: pytest.MonkeyPatch, field: str, value: object
+) -> None:
     from dowhy import CausalModel
 
     original = CausalModel.estimate_effect
     calls = []
 
-    def malformed(self, *args, **kwargs):
+    def malformed(self: object, *args: object, **kwargs: object) -> object:
         actual = original(self, *args, **kwargs)
         calls.append(type(actual.estimator).__module__)
         if field == "interval":
@@ -150,23 +173,25 @@ def test_actual_backend_numeric_primitives_are_not_coerced(monkeypatch, field, v
     monkeypatch.setattr(CausalModel, "estimate_effect", malformed)
     with pytest.raises(ValueError, match="numeric primitives"):
         linear_ate(request())
-    assert calls == ["dowhy.causal_estimators.linear_regression_estimator"]
+    np.testing.assert_equal(calls, ["dowhy.causal_estimators.linear_regression_estimator"])
 
 
-def test_actual_numpy_numeric_scalar_and_interval_types_remain_supported():
+def test_actual_numpy_numeric_scalar_and_interval_types_remain_supported() -> None:
     for value in [np.float32(2), np.float64(2), np.int32(2), np.int64(2)]:
-        assert scalar(value) == 2.0
+        np.testing.assert_equal(scalar(value), 2.0)
     for dtype in [np.float32, np.float64, np.int32, np.int64]:
-        assert interval(np.array([1, 3], dtype=dtype)) == [1.0, 3.0]
-        assert interval(np.array([[1, 3]], dtype=dtype)) == [1.0, 3.0]
+        np.testing.assert_equal(interval(np.array([1, 3], dtype=dtype)), [1.0, 3.0])
+        np.testing.assert_equal(interval(np.array([[1, 3]], dtype=dtype)), [1.0, 3.0])
 
 
-def test_real_estimator_point_only_is_retained_without_synthesizing_ci(monkeypatch):
+def test_real_estimator_point_only_is_retained_without_synthesizing_ci(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     from dowhy import CausalModel
 
     original = CausalModel.estimate_effect
 
-    def point_only(self, *args, **kwargs):
+    def point_only(self: object, *args: object, **kwargs: object) -> object:
         actual = original(self, *args, **kwargs)
         actual.get_confidence_intervals = lambda **kwargs: None
         actual.get_standard_error = lambda: None
@@ -174,17 +199,21 @@ def test_real_estimator_point_only_is_retained_without_synthesizing_ci(monkeypat
 
     monkeypatch.setattr(CausalModel, "estimate_effect", point_only)
     result = linear_ate(request())
-    assert result["point"] == pytest.approx(2.016134929864521)
-    assert result["interval"] is None and result["effective_confidence_level"] is None
-    assert result["standard_error"] is None and result["inference_status"] == "point_only"
+    np.testing.assert_equal(result["point"] == pytest.approx(2.016134929864521), True)
+    np.testing.assert_equal(result["interval"], None)
+    np.testing.assert_equal(result["effective_confidence_level"], None)
+    np.testing.assert_equal(result["standard_error"], None)
+    np.testing.assert_equal(result["inference_status"], "point_only")
 
 
-def test_actual_backend_confidence_level_divergence_is_refused(monkeypatch):
+def test_actual_backend_confidence_level_divergence_is_refused(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     from dowhy import CausalModel
 
     original = CausalModel.estimate_effect
 
-    def wrong_level(self, *args, **kwargs):
+    def wrong_level(self: object, *args: object, **kwargs: object) -> object:
         kwargs["method_params"] = {"confidence_level": 0.9}
         return original(self, *args, **kwargs)
 
@@ -193,14 +222,14 @@ def test_actual_backend_confidence_level_divergence_is_refused(monkeypatch):
         linear_ate(request())
 
 
-def test_real_graph_identification_cannot_relabel_a_different_adjustment():
+def test_real_graph_identification_cannot_relabel_a_different_adjustment() -> None:
     value = request()
     value["parameters"]["adjustment_set"] = []
     with pytest.raises(ValueError, match="adjustment set mismatch"):
         linear_ate(value)
 
 
-def test_actual_unblocked_latent_backdoor_does_not_identify_ate():
+def test_actual_unblocked_latent_backdoor_does_not_identify_ate() -> None:
     value = request()
     value["graph"]["payload"] = "digraph { U -> A; U -> Y; A -> Y; X; }"
     value["parameters"]["adjustment_set"] = []
@@ -208,7 +237,7 @@ def test_actual_unblocked_latent_backdoor_does_not_identify_ate():
         linear_ate(value)
 
 
-def test_hash_alignment_duplicate_json_and_row_id_negatives():
+def test_hash_alignment_duplicate_json_and_row_id_negatives() -> None:
     value = request(n=30)
     value["basis"]["rows"][0][1] += 10
     bind(value)
@@ -224,7 +253,7 @@ def test_hash_alignment_duplicate_json_and_row_id_negatives():
         decode(b'{"schema":"a","schema":"b"}')
 
 
-def gcm_request():
+def gcm_request() -> dict[str, Any]:
     value = request(n=80)
     rows = np.asarray(value["basis"]["rows"])
     # Genuine continuous root with independently generated linear Gaussian outcome.
@@ -244,43 +273,56 @@ def gcm_request():
     return bind(value)
 
 
-def test_genuine_gcm_assignment_fit_residual_rows_and_every_bootstrap_refit():
+def test_genuine_gcm_assignment_fit_residual_rows_and_every_bootstrap_refit() -> None:
     from dowhy.gcm.fitting_sampling import fit as installed_fit
 
     value = gcm_request()
     calls = []
 
-    def observe(frame, event, arg):
+    def observe(frame: FrameType, event: str, arg: object) -> None:
         if event == "call" and frame.f_code is installed_fit.__code__:
             calls.append(frame.f_code.co_filename)
 
-    assert "site-packages/dowhy/gcm/fitting_sampling.py" in installed_fit.__code__.co_filename
+    np.testing.assert_equal(
+        "site-packages/dowhy/gcm/fitting_sampling.py" in installed_fit.__code__.co_filename,
+        True,
+    )
     sys.setprofile(observe)
     try:
         actual = execute(value)["result"]
     finally:
         sys.setprofile(None)
-    assert len(calls) == 4, "Actual installed gcm.fit must execute for base and every bootstrap"
+    np.testing.assert_equal(
+        len(calls), 4, "Actual installed gcm.fit must execute for base and every bootstrap"
+    )
     rows = np.asarray(value["basis"]["rows"])
     models = [actual, *actual["bootstrap_models"]]
     index_sets = [list(range(len(rows))), *value["parameters"]["bootstrap_indices"]]
     for fitted, indices in zip(models, index_sets, strict=True):
         selected = rows[indices]
         expected = sm.OLS(selected[:, 1], sm.add_constant(selected[:, 0])).fit()
-        assert fitted["fit_function"] == "dowhy.gcm.fit"
-        assert fitted["row_ids"] == [value["basis"]["row_ids"][i] for i in indices]
-        assert fitted["mechanisms"]["X"]["observed_samples"] == selected[:, 0].tolist()
+        np.testing.assert_equal(fitted["fit_function"], "dowhy.gcm.fit")
+        np.testing.assert_equal(fitted["row_ids"], [value["basis"]["row_ids"][i] for i in indices])
+        np.testing.assert_equal(
+            fitted["mechanisms"]["X"]["observed_samples"], selected[:, 0].tolist()
+        )
         child = fitted["mechanisms"]["Y"]
-        assert child["intercept"] == pytest.approx(expected.params[0])
-        assert child["coefficients"] == {"X": pytest.approx(expected.params[1])}
-        assert child["residual_samples"] == pytest.approx(expected.resid, abs=1e-12)
-    assert len({m["mechanisms"]["Y"]["coefficients"]["X"] for m in models}) == 4
+        np.testing.assert_equal(child["intercept"] == pytest.approx(expected.params[0]), True)
+        np.testing.assert_equal(
+            child["coefficients"] == {"X": pytest.approx(expected.params[1])}, True
+        )
+        np.testing.assert_equal(
+            child["residual_samples"] == pytest.approx(expected.resid, abs=1e-12), True
+        )
+    np.testing.assert_equal(len({m["mechanisms"]["Y"]["coefficients"]["X"] for m in models}), 4)
 
 
-def test_gcm_fit_removal_keeps_imports_and_version_but_cannot_export_fitted_mechanisms(monkeypatch):
+def test_gcm_fit_removal_keeps_imports_and_version_but_cannot_export_fitted_mechanisms(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     from dowhy import gcm
 
     monkeypatch.setattr(gcm, "fit", lambda *args, **kwargs: None)
-    assert callable(gcm.fit)
+    np.testing.assert_equal(callable(gcm.fit), True)
     with pytest.raises((AttributeError, ValueError, TypeError)):
         execute(gcm_request())

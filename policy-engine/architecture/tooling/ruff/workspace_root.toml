@@ -740,4 +740,3 @@ extend-exclude = ["policy-engine/docs/archive/**", "policy-engine/docs/research/
 # Atlas and E02 semantic-probe assertions are allowed only in genuine test modules.
 "policy-engine/architecture/atlas_surfaces/test_*.py" = ["S101"]
 "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/**/test_*.py" = ["S101"]
-"policy-engine/workers/**/tests/**" = ["ANN", "E501", "PT011", "PT018", "S101", "T201"]

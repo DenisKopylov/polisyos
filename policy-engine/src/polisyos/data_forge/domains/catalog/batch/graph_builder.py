@@ -11,6 +11,10 @@ from typing import TYPE_CHECKING
 import duckdb
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.catalog.batch.core_sources.schema import (
+    create_alignment_audit_table,
+    create_alignment_review_basis_table,
+)
 from polisyos.data_forge.domains.catalog.batch.normalizer import METRIC_INFERENCE_CONFIDENCE
 from polisyos.data_forge.domains.catalog.knowledge.types import DatasetRecord, DistributionRecord
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
@@ -135,20 +139,6 @@ CREATE TABLE IF NOT EXISTS ds_variable_alignments (
     PRIMARY KEY (dataset_id, raw_variable, canonical_var)
 );
 
-CREATE TABLE IF NOT EXISTS ds_alignment_audit (
-    audit_id               VARCHAR PRIMARY KEY,
-    dataset_id             VARCHAR NOT NULL,
-    raw_variable           VARCHAR NOT NULL,
-    canonical_variable     VARCHAR,
-    method                 VARCHAR NOT NULL,
-    raw_confidence         FLOAT,
-    calibrated_confidence  FLOAT,
-    alternatives_json      JSON DEFAULT '[]',
-    resolved_at            VARCHAR,
-    reviewed               BOOLEAN DEFAULT FALSE,
-    reviewer_override      VARCHAR DEFAULT NULL
-);
-
 CREATE TABLE IF NOT EXISTS ds_observations (
     observation_id VARCHAR PRIMARY KEY,
     dataset_id     VARCHAR NOT NULL,
@@ -264,13 +254,18 @@ def _run_statements(con: duckdb.DuckDBPyConnection, sql_blob: str) -> None:
 
 def _init_schema(con: duckdb.DuckDBPyConnection) -> None:
     _run_statements(con, _DDL)
+    create_alignment_audit_table(con)
+    create_alignment_review_basis_table(con)
     _run_statements(con, _ALTERS)
 
 
 def _truncate(con: duckdb.DuckDBPyConnection) -> None:
+    con.execute("DELETE FROM ds_alignment_review_basis")
+    con.execute("DELETE FROM ds_alignment_audit")
+    con.execute("DELETE FROM ds_variable_alignments")
+    con.execute("DELETE FROM ds_registry_datasets")
     con.execute("DELETE FROM ds_metric_bindings")
     con.execute("DELETE FROM ds_schema_profiles")
-    con.execute("DELETE FROM ds_alignment_audit")
     con.execute("DELETE FROM ds_alignment_hints")
     con.execute("DELETE FROM ds_entity_mappings")
     con.execute("DELETE FROM ds_distributions")

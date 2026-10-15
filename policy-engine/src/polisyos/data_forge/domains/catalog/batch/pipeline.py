@@ -927,6 +927,18 @@ async def run_dataset_pipeline(
     config: DatasetBatchConfig, *, thermal: bool = False
 ) -> PipelineStats:
     """Run selected stages sequentially (used by `run` CLI wrapper)."""
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        _runtime_source_profile_snapshot_scope,
+    )
+
+    with _runtime_source_profile_snapshot_scope():
+        return await _run_dataset_pipeline_with_profile_snapshot(config, thermal=thermal)
+
+
+async def _run_dataset_pipeline_with_profile_snapshot(
+    config: DatasetBatchConfig, *, thermal: bool = False
+) -> PipelineStats:
+    """Run stages under the single profile snapshot captured by the public entrypoint."""
     from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
         run_core_sources_ingest_async,
     )

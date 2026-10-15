@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+from dataclasses import dataclass, fields
 from datetime import UTC, datetime
 from importlib import import_module
 from typing import TYPE_CHECKING, cast
@@ -15,6 +16,13 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
     ObservationPlan,
     ObservationShard,
     SupportSketch,
+)
+from polisyos.data_forge.domains.catalog.batch.core_sources.schema import (
+    alignment_audit_columns,
+    create_alignment_audit_table,
+    create_alignment_review_basis_table,
+    resolve_alignment_audit_schema_profile,
+    resolve_alignment_review_basis_schema,
 )
 from polisyos.data_forge.domains.catalog.knowledge.country_codes import (
     iso2_to_numeric,
@@ -31,7 +39,7 @@ from polisyos.data_forge.read_api.academic import CANONICAL_VARIABLES
 
 if TYPE_CHECKING:
     import asyncio
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterable
     from pathlib import Path
 
     import duckdb
@@ -56,9 +64,29 @@ _CORE_SOURCE_RECEIPT_TABLES: dict[str, tuple[str, ...]] = {
         "ds_registry_datasets",
         "ds_variable_alignments",
         "ds_alignment_audit",
+        "ds_alignment_review_basis",
         "ds_observations",
     ),
 }
+_ALIGNMENT_AUDIT_OPERATIONAL_FIELDS = frozenset({"resolved_at"})
+_ALIGNMENT_AUDIT_REVIEW_FIELDS = frozenset({"reviewed", "reviewer_override"})
+_ALIGNMENT_AUDIT_WRITE_BATCH_SIZE = 500
+_ALIGNMENT_REVIEW_BASIS_VERSION = "policyos.catalog.alignment_review_basis.v2"
+
+
+@dataclass(frozen=True, slots=True)
+class _AlignmentReviewBasisRecord:
+    """One persisted operational basis for a complete dataset/raw-variable group."""
+
+    dataset_id: str
+    raw_variable: str
+    basis_version: str
+    basis_json: str
+    basis_sha256: str
+
+
+_AlignmentReviewBasisKey = tuple[str, str]
+_AlignmentReviewBasisMap = dict[_AlignmentReviewBasisKey, _AlignmentReviewBasisRecord]
 
 
 def _core_source_receipt_tables() -> dict[str, tuple[str, ...]]:
@@ -292,23 +320,8 @@ def _ensure_registry_tables(con: duckdb.DuckDBPyConnection) -> None:
         );
         """
     )
-    con.execute(
-        """
-        CREATE TABLE IF NOT EXISTS ds_alignment_audit (
-            audit_id               VARCHAR PRIMARY KEY,
-            dataset_id             VARCHAR NOT NULL,
-            raw_variable           VARCHAR NOT NULL,
-            canonical_variable     VARCHAR,
-            method                 VARCHAR NOT NULL,
-            raw_confidence         FLOAT,
-            calibrated_confidence  FLOAT,
-            alternatives_json      VARCHAR DEFAULT '[]',
-            resolved_at            VARCHAR,
-            reviewed               BOOLEAN DEFAULT FALSE,
-            reviewer_override      VARCHAR DEFAULT NULL
-        );
-        """
-    )
+    create_alignment_audit_table(con)
+    create_alignment_review_basis_table(con)
     con.execute(
         """
         CREATE TABLE IF NOT EXISTS ds_observations (
@@ -766,6 +779,8 @@ def _remember_alignment(
 def _upsert_catalog_alignments(
     con: duckdb.DuckDBPyConnection,
     alignments: list[VariableAlignment],
+    *,
+    affected_dataset_ids: Iterable[str] = (),
 ) -> int:
     rows = [
         (
@@ -780,44 +795,494 @@ def _upsert_catalog_alignments(
         )
         for item in alignments
     ]
-    if not rows:
-        return 0
-    con.executemany(
-        "INSERT OR REPLACE INTO ds_variable_alignments "
-        "(dataset_id, raw_variable, canonical_var, method, confidence, "
-        "evidence, is_proxy, proxy_penalty) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        rows,
+    dataset_ids = sorted(
+        {str(value) for value in affected_dataset_ids if str(value)}
+        | {item.dataset_id for item in alignments}
     )
+    if dataset_ids:
+        con.execute(
+            "DELETE FROM ds_variable_alignments WHERE dataset_id = ANY(?)",
+            [dataset_ids],
+        )
+    if rows:
+        con.executemany(
+            "INSERT INTO ds_variable_alignments "
+            "(dataset_id, raw_variable, canonical_var, method, confidence, "
+            "evidence, is_proxy, proxy_penalty) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            rows,
+        )
     return len(rows)
+
+
+def _bind_catalog_alignment_review_basis(
+    datasets: list[CatalogTransportDataset],
+    alignments: list[VariableAlignment],
+    *,
+    profile_material_input_identity: str | None,
+    profile_input_coverage: object,
+) -> tuple[list[VariableAlignment], _AlignmentReviewBasisMap]:
+    """Build separate operational basis rows for complete producer groups.
+
+    Producer-authored alignment evidence is returned unchanged. A basis row is
+    emitted only when the full selected dataset, candidate group, material
+    identity, and profile coverage are content-bound and reusable.
+    """
+    from polisyos.data_forge.domains.catalog.batch.config import parse_profile_input_coverage
+
+    coverage_state, profiles = parse_profile_input_coverage(profile_input_coverage)
+    identity_is_content_bound = bool(
+        isinstance(profile_material_input_identity, str)
+        and re.fullmatch(r"[0-9a-f]{64}", profile_material_input_identity)
+    )
+    datasets_by_id: dict[str, CatalogTransportDataset | None] = {}
+    for dataset in datasets:
+        dataset_id = dataset.catalog_dataset_id
+        if dataset_id in datasets_by_id:
+            datasets_by_id[dataset_id] = None
+        else:
+            datasets_by_id[dataset_id] = dataset
+
+    grouped: dict[tuple[str, str], list[VariableAlignment]] = {}
+    for alignment in alignments:
+        grouped.setdefault((alignment.dataset_id, alignment.dataset_var), []).append(alignment)
+
+    basis_records: _AlignmentReviewBasisMap = {}
+    for (dataset_id, dataset_var), candidates in grouped.items():
+        dataset = datasets_by_id.get(dataset_id)
+        profile_state = (
+            profiles.get(dataset.profile_id)
+            if profiles is not None and dataset is not None
+            else None
+        )
+        basis_available = (
+            identity_is_content_bound
+            and coverage_state == "established"
+            and dataset is not None
+            and bool(dataset.profile_id)
+            and profile_state == "none"
+        )
+        if basis_available:
+            payload = {
+                "version": _ALIGNMENT_REVIEW_BASIS_VERSION,
+                "profile_material_input_identity": profile_material_input_identity,
+                "profile_input_coverage_state": "none",
+                "selected_profile_id": dataset.profile_id,
+                "selected_dataset": {
+                    item.name: getattr(dataset, item.name) for item in fields(dataset)
+                },
+                "alignment_group": [
+                    item.model_dump(mode="json")
+                    for item in sorted(candidates, key=lambda candidate: candidate.canonical_var)
+                ],
+            }
+            basis_json = _canonical_alignment_review_basis_json(payload)
+            basis_sha256 = hashlib.sha256(basis_json.encode("utf-8")).hexdigest()
+            record = _AlignmentReviewBasisRecord(
+                dataset_id=dataset_id,
+                raw_variable=dataset_var,
+                basis_version=_ALIGNMENT_REVIEW_BASIS_VERSION,
+                basis_json=basis_json,
+                basis_sha256=basis_sha256,
+            )
+            if _alignment_review_basis_record_is_valid(record):
+                basis_records[(dataset_id, dataset_var)] = record
+    return list(alignments), basis_records
+
+
+def _canonical_alignment_review_basis_json(payload: dict[str, object]) -> str:
+    """Serialize one operational basis deterministically for storage and hashing."""
+    return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+
+def _alignment_review_basis_record_is_valid(
+    record: _AlignmentReviewBasisRecord,
+) -> bool:
+    """Verify the sidecar record's complete typed payload and recomputed digest."""
+    if record.basis_version != _ALIGNMENT_REVIEW_BASIS_VERSION or not re.fullmatch(
+        r"[0-9a-f]{64}", record.basis_sha256
+    ):
+        return False
+    try:
+        payload = json.loads(record.basis_json)
+    except (TypeError, json.JSONDecodeError):
+        return False
+    if not isinstance(payload, dict) or set(payload) != {
+        "version",
+        "profile_material_input_identity",
+        "profile_input_coverage_state",
+        "selected_profile_id",
+        "selected_dataset",
+        "alignment_group",
+    }:
+        return False
+    if (
+        payload.get("version") != record.basis_version
+        or payload.get("profile_input_coverage_state") != "none"
+        or not isinstance(payload.get("selected_profile_id"), str)
+        or not payload["selected_profile_id"].strip()
+        or not isinstance(payload.get("profile_material_input_identity"), str)
+        or re.fullmatch(r"[0-9a-f]{64}", payload["profile_material_input_identity"]) is None
+        or not isinstance(payload.get("selected_dataset"), dict)
+        or not isinstance(payload.get("alignment_group"), list)
+        or not payload["alignment_group"]
+    ):
+        return False
+    dataset = payload["selected_dataset"]
+    dataset_fields = fields(CatalogTransportDataset)
+    if set(dataset) != {item.name for item in dataset_fields}:
+        return False
+    tuple_fields = {"variables", "keywords", "themes", "polisyos_metrics"}
+    for item in dataset_fields:
+        value = dataset[item.name]
+        if item.name in tuple_fields:
+            if not isinstance(value, list) or not all(isinstance(member, str) for member in value):
+                return False
+        elif item.name == "default_filters":
+            if not isinstance(value, dict) or not all(
+                isinstance(key, str)
+                and isinstance(members, list)
+                and all(isinstance(member, str) for member in members)
+                for key, members in value.items()
+            ):
+                return False
+        elif not isinstance(value, str):
+            return False
+    if (
+        dataset.get("catalog_dataset_id") != record.dataset_id
+        or dataset.get("profile_id") != payload["selected_profile_id"]
+    ):
+        return False
+    normalized_group: list[dict[str, object]] = []
+    canonical_vars: set[str] = set()
+    for raw_alignment in payload["alignment_group"]:
+        if not isinstance(raw_alignment, dict) or set(raw_alignment) != set(
+            VariableAlignment.model_fields
+        ):
+            return False
+        try:
+            alignment = VariableAlignment.model_validate(raw_alignment)
+        except Exception:
+            return False
+        if (
+            alignment.dataset_id != record.dataset_id
+            or alignment.dataset_var != record.raw_variable
+            or alignment.canonical_var in canonical_vars
+        ):
+            return False
+        canonical_vars.add(alignment.canonical_var)
+        normalized_group.append(alignment.model_dump(mode="json"))
+    if normalized_group != sorted(normalized_group, key=lambda item: str(item["canonical_var"])):
+        return False
+    canonical_json = _canonical_alignment_review_basis_json(payload)
+    return (
+        record.basis_json == canonical_json
+        and hashlib.sha256(canonical_json.encode("utf-8")).hexdigest() == record.basis_sha256
+    )
+
+
+def _alignment_model_storage_profile(
+    con: duckdb.DuckDBPyConnection,
+) -> tuple[tuple[str, ...], dict[str, str]]:
+    """Derive the persisted alignment projection and types from the producer DTO."""
+    columns = {name: name for name in VariableAlignment.model_fields if name != "dataset_var"}
+    columns["dataset_var"] = "raw_variable"
+    profile: dict[str, str] = {}
+    for field_name, field in VariableAlignment.model_fields.items():
+        annotation = field.annotation
+        if isinstance(annotation, type) and issubclass(annotation, str):
+            sql_type = "VARCHAR"
+        elif annotation is float:
+            sql_type = "FLOAT"
+        elif annotation is bool:
+            sql_type = "BOOLEAN"
+        else:
+            raise RuntimeError(
+                f"unsupported VariableAlignment field type for {field_name!r}: {annotation!r}"
+            )
+        profile[columns[field_name]] = sql_type
+
+    actual = con.execute("PRAGMA table_info('ds_variable_alignments')").fetchall()
+    actual_names = tuple(str(row[1]) for row in actual)
+    expected_names = set(profile)
+    if len(actual_names) != len(expected_names) or set(actual_names) != expected_names:
+        raise RuntimeError(
+            "ds_variable_alignments physical columns do not match the complete "
+            "VariableAlignment producer model"
+        )
+    for row in actual:
+        name = str(row[1])
+        if str(row[2]).upper() != profile[name]:
+            raise RuntimeError(f"ds_variable_alignments has unsupported physical type for {name!r}")
+    return actual_names, profile
+
+
+def _alignment_review_group_status(
+    con: duckdb.DuckDBPyConnection,
+    alignments: list[VariableAlignment],
+    *,
+    affected_dataset_ids: Iterable[str] = (),
+    candidate_review_bases: _AlignmentReviewBasisMap | None = None,
+) -> tuple[set[tuple[str, str]], set[tuple[str, str]]]:
+    """Compare complete old/new model groups and their independently stored basis."""
+    columns, sql_types = _alignment_model_storage_profile(con)
+    dataset_ids = sorted(
+        {str(value) for value in affected_dataset_ids if str(value)}
+        | {alignment.dataset_id for alignment in alignments}
+    )
+    incoming: dict[tuple[str, str], list[VariableAlignment]] = {}
+    for alignment in alignments:
+        incoming.setdefault((alignment.dataset_id, alignment.dataset_var), []).append(alignment)
+
+    existing: dict[tuple[str, str], list[tuple[object, ...]]] = {}
+    if dataset_ids:
+        selected_columns = ", ".join(f'"{column}"' for column in columns)
+        persisted_query = (
+            "SELECT "  # noqa: S608 - identifiers are derived from the exact producer model.
+            + selected_columns
+            + " FROM ds_variable_alignments WHERE dataset_id = ANY(?) "
+            'ORDER BY "dataset_id", "raw_variable", "canonical_var"'
+        )
+        persisted = con.execute(
+            persisted_query,
+            [dataset_ids],
+        ).fetchall()
+        dataset_index = columns.index("dataset_id")
+        variable_index = columns.index("raw_variable")
+        for row in persisted:
+            group_key = (str(row[dataset_index]), str(row[variable_index]))
+            existing.setdefault(group_key, []).append(tuple(row))
+
+    candidate_bases = candidate_review_bases or {}
+    existing_bases: _AlignmentReviewBasisMap = {}
+    existing_basis_keys: set[tuple[str, str]] = set()
+    if dataset_ids:
+        resolve_alignment_review_basis_schema(con)
+        basis_rows = con.execute(
+            "SELECT dataset_id, raw_variable, basis_version, basis_json, basis_sha256 "
+            "FROM ds_alignment_review_basis WHERE dataset_id = ANY(?)",
+            [dataset_ids],
+        ).fetchall()
+        for row in basis_rows:
+            dataset_id, raw_variable = row[0], row[1]
+            if not isinstance(dataset_id, str) or not isinstance(raw_variable, str):
+                continue
+            group_key = (dataset_id, raw_variable)
+            existing_basis_keys.add(group_key)
+            if not all(isinstance(value, str) for value in row):
+                continue
+            record = _AlignmentReviewBasisRecord(
+                dataset_id=row[0],
+                raw_variable=row[1],
+                basis_version=row[2],
+                basis_json=row[3],
+                basis_sha256=row[4],
+            )
+            if _alignment_review_basis_record_is_valid(record):
+                existing_bases[group_key] = record
+
+    candidate_context_valid: dict[tuple[str, str], bool] = {}
+    column_aliases = ", ".join(f'"{column}"' for column in columns)
+    cast_columns = ", ".join(
+        f'CAST("incoming"."{column}" AS {sql_types[column]}) AS "{column}"' for column in columns
+    )
+    for group_key, candidates in incoming.items():
+        ordered = sorted(candidates, key=lambda candidate: candidate.canonical_var)
+        unique_candidates = len({item.canonical_var for item in ordered}) == len(ordered)
+        basis = candidate_bases.get(group_key)
+        candidate_context_valid[group_key] = (
+            unique_candidates
+            and basis is not None
+            and _alignment_review_basis_record_is_valid(basis)
+        )
+
+    candidate_rows: dict[tuple[str, str], list[tuple[object, ...]]] = {}
+    ordered_alignments = sorted(
+        alignments,
+        key=lambda item: (item.dataset_id, item.dataset_var, item.canonical_var),
+    )
+    for start in range(0, len(ordered_alignments), _ALIGNMENT_AUDIT_WRITE_BATCH_SIZE):
+        batch = ordered_alignments[start : start + _ALIGNMENT_AUDIT_WRITE_BATCH_SIZE]
+        values_sql = ", ".join("(" + ", ".join("?" for _column in columns) + ")" for _item in batch)
+        parameters = [
+            item.model_dump(mode="json").get("dataset_var" if column == "raw_variable" else column)
+            for item in batch
+            for column in columns
+        ]
+        normalized_query = (
+            f"SELECT {cast_columns} FROM (VALUES {values_sql}) "  # noqa: S608 - columns/types are derived from the exact producer model.
+            f"AS incoming({column_aliases})"
+        )
+        normalized_rows = con.execute(normalized_query, parameters).fetchall()
+        for item, normalized in zip(batch, normalized_rows, strict=True):
+            group_key = (item.dataset_id, item.dataset_var)
+            candidate_rows.setdefault(group_key, []).append(tuple(normalized))
+
+    all_groups = set(existing) | set(incoming) | existing_basis_keys | set(candidate_bases)
+    reusable: set[tuple[str, str]] = set()
+    changed: set[tuple[str, str]] = set()
+    for group_key in all_groups:
+        old_rows = existing.get(group_key, [])
+        new_rows = candidate_rows.get(group_key, [])
+        is_unchanged = (
+            group_key in incoming
+            and candidate_context_valid.get(group_key, False)
+            and old_rows == new_rows
+            and existing_bases.get(group_key) == candidate_bases.get(group_key)
+        )
+        (reusable if is_unchanged else changed).add(group_key)
+    return reusable, changed
 
 
 def _upsert_alignment_audit(
     con: duckdb.DuckDBPyConnection,
     alignments: list[VariableAlignment],
+    *,
+    affected_dataset_ids: Iterable[str] = (),
+    candidate_review_bases: _AlignmentReviewBasisMap | None = None,
 ) -> int:
     rows = _build_alignment_audit_rows(alignments)
+    scope_ids = {str(value) for value in affected_dataset_ids if str(value)} | {
+        item.dataset_id for item in alignments
+    }
+    if not rows and not scope_ids:
+        return 0
+
+    schema_profile = resolve_alignment_audit_schema_profile(con)
+    schema_columns = alignment_audit_columns(schema_profile)
+    table_columns = tuple(column.name for column in schema_columns)
+    expected_columns = set(table_columns)
+    if any(set(row) != expected_columns for row in rows):
+        raise RuntimeError(
+            "alignment audit producer rows must cover the complete ds_alignment_audit schema"
+        )
+
+    reusable_groups, changed_groups = _alignment_review_group_status(
+        con,
+        alignments,
+        affected_dataset_ids=scope_ids,
+        candidate_review_bases=candidate_review_bases,
+    )
+    if changed_groups:
+        con.executemany(
+            "UPDATE ds_alignment_audit SET reviewed = FALSE, reviewer_override = NULL "
+            "WHERE dataset_id = ? AND raw_variable = ?",
+            sorted(changed_groups),
+        )
     if not rows:
         return 0
-    con.executemany(
-        "INSERT OR REPLACE INTO ds_alignment_audit "
-        "(audit_id, dataset_id, raw_variable, canonical_variable, method, raw_confidence, "
-        "calibrated_confidence, alternatives_json, resolved_at, reviewed, reviewer_override) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        rows,
+
+    column_list_sql = ", ".join(table_columns)
+    placeholders = ", ".join("?" for _column in schema_columns)
+    insert_sql = (
+        "INSERT OR REPLACE INTO ds_alignment_audit "  # noqa: S608 - names are from the closed schema profile.
+        f"({column_list_sql}) VALUES ({placeholders})"
     )
+    audit_id_column = table_columns.index("audit_id")
+    for start in range(0, len(rows), _ALIGNMENT_AUDIT_WRITE_BATCH_SIZE):
+        batch = rows[start : start + _ALIGNMENT_AUDIT_WRITE_BATCH_SIZE]
+        existing_rows = con.execute(
+            "SELECT * FROM ds_alignment_audit WHERE audit_id = ANY(?)",
+            [[row["audit_id"] for row in batch]],
+        ).fetchall()
+        normalized_values_sql = ", ".join(
+            "(" + ", ".join(f"CAST(? AS {column.sql_type})" for column in schema_columns) + ")"
+            for _row in batch
+        )
+        normalized_rows = con.execute(
+            # Types come from one of the canonical source-qualified schema profiles.
+            f"SELECT * FROM (VALUES {normalized_values_sql}) AS incoming",  # noqa: S608
+            [row[column] for row in batch for column in table_columns],
+        ).fetchall()
+        existing_by_id = {
+            record[audit_id_column]: dict(zip(table_columns, record, strict=True))
+            for record in existing_rows
+        }
+        persisted_rows: list[tuple[object, ...]] = []
+        for row, normalized_record in zip(batch, normalized_rows, strict=True):
+            existing = existing_by_id.get(row["audit_id"])
+            candidate = dict(zip(table_columns, normalized_record, strict=True))
+            review_group = (str(row["dataset_id"]), str(row["raw_variable"]))
+            if (
+                existing is not None
+                and review_group in reusable_groups
+                and _alignment_audit_rows_semantically_equal(existing, candidate)
+            ):
+                previous_resolution_time = existing.get("resolved_at")
+                if isinstance(previous_resolution_time, str) and previous_resolution_time.strip():
+                    row["resolved_at"] = previous_resolution_time
+                for field in _ALIGNMENT_AUDIT_REVIEW_FIELDS:
+                    row[field] = existing[field]
+            persisted_rows.append(tuple(row[column] for column in table_columns))
+        con.executemany(insert_sql, persisted_rows)
     return len(rows)
+
+
+def _replace_catalog_alignment_review_bases(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    affected_dataset_ids: Iterable[str],
+    candidate_review_bases: _AlignmentReviewBasisMap,
+) -> int:
+    """Replace internal basis rows for affected catalog datasets after comparison."""
+    resolve_alignment_review_basis_schema(con)
+    dataset_ids = sorted({str(value) for value in affected_dataset_ids if str(value)})
+    if not dataset_ids:
+        dataset_ids = sorted({record.dataset_id for record in candidate_review_bases.values()})
+    for group_key, record in candidate_review_bases.items():
+        if group_key != (record.dataset_id, record.raw_variable):
+            raise RuntimeError("alignment review basis key does not match its complete group")
+        if record.dataset_id not in dataset_ids or not _alignment_review_basis_record_is_valid(
+            record
+        ):
+            raise RuntimeError("alignment review basis candidate is malformed or out of scope")
+    if dataset_ids:
+        con.execute(
+            "DELETE FROM ds_alignment_review_basis WHERE dataset_id = ANY(?)", [dataset_ids]
+        )
+    rows = [
+        (
+            record.dataset_id,
+            record.raw_variable,
+            record.basis_version,
+            record.basis_json,
+            record.basis_sha256,
+        )
+        for _group_key, record in sorted(candidate_review_bases.items())
+        if record.dataset_id in dataset_ids
+    ]
+    if rows:
+        con.executemany(
+            "INSERT INTO ds_alignment_review_basis "
+            "(dataset_id, raw_variable, basis_version, basis_json, basis_sha256) "
+            "VALUES (?, ?, ?, ?, ?)",
+            rows,
+        )
+    return len(rows)
+
+
+def _alignment_audit_rows_semantically_equal(
+    existing: dict[str, object],
+    candidate: dict[str, object],
+) -> bool:
+    """Compare complete producer rows without review annotations or resolution time."""
+    if set(existing) != set(candidate):
+        return False
+    producer_fields = (
+        set(existing) - _ALIGNMENT_AUDIT_OPERATIONAL_FIELDS - _ALIGNMENT_AUDIT_REVIEW_FIELDS
+    )
+    return all(existing[field] == candidate[field] for field in producer_fields)
 
 
 def _build_alignment_audit_rows(
     alignments: list[VariableAlignment],
-) -> list[tuple[object, ...]]:
+) -> list[dict[str, object]]:
     grouped: dict[tuple[str, str], list[VariableAlignment]] = {}
     for alignment in alignments:
         grouped.setdefault((alignment.dataset_id, alignment.dataset_var), []).append(alignment)
 
     resolved_at = datetime.now(UTC).isoformat()
-    rows: list[tuple[object, ...]] = []
+    rows: list[dict[str, object]] = []
     for candidates in grouped.values():
         ranked = sorted(
             candidates,
@@ -842,19 +1307,19 @@ def _build_alignment_audit_rows(
                 f"{alignment.dataset_id}|{alignment.dataset_var}|{alignment.canonical_var}".encode()
             ).hexdigest()[:24]
             rows.append(
-                (
-                    audit_id,
-                    alignment.dataset_id,
-                    alignment.dataset_var,
-                    alignment.canonical_var,
-                    alignment.method.value,
-                    float(alignment.confidence),
-                    calibrate_alignment_confidence(alignment),
-                    json.dumps(alternatives, ensure_ascii=False),
-                    resolved_at,
-                    False,
-                    None,
-                )
+                {
+                    "audit_id": audit_id,
+                    "dataset_id": alignment.dataset_id,
+                    "raw_variable": alignment.dataset_var,
+                    "canonical_variable": alignment.canonical_var,
+                    "method": alignment.method.value,
+                    "raw_confidence": float(alignment.confidence),
+                    "calibrated_confidence": calibrate_alignment_confidence(alignment),
+                    "alternatives_json": json.dumps(alternatives, ensure_ascii=False),
+                    "resolved_at": resolved_at,
+                    "reviewed": False,
+                    "reviewer_override": None,
+                }
             )
     return rows
 

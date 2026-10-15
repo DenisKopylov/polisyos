@@ -7,7 +7,7 @@ import json
 import os
 import sys
 import types
-from dataclasses import replace
+from dataclasses import fields, replace
 from pathlib import Path
 
 import duckdb
@@ -55,6 +55,87 @@ def _save_state(config: DatasetBatchConfig, stage: str, outputs: list[Path]) -> 
     _record_stage_completion(config, stage)
 
 
+def _assert_current_alignment_review_basis(
+    config: DatasetBatchConfig,
+    *,
+    dataset_id: str,
+    raw_variable: str,
+    evidence_prefix: str,
+) -> list[tuple[str, str]]:
+    """Recompute sidecar basis and unchanged producer evidence from real inputs."""
+    from polisyos.data_forge.domains.catalog.batch.checkpoints import hash_payload
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        _producer_config_snapshot,
+        parse_profile_input_coverage,
+    )
+    from polisyos.data_forge.domains.catalog.batch.core_sources import api as core_api
+    from polisyos.data_forge.domains.catalog.batch.core_sources import registry as core_registry
+
+    with duckdb.connect(str(config.db_path), read_only=True) as connection:
+        datasets = core_api._load_catalog_transport_datasets(connection, config)
+        persisted = connection.execute(
+            "SELECT canonical_var, evidence FROM ds_variable_alignments "
+            "WHERE dataset_id = ? AND raw_variable = ? ORDER BY canonical_var",
+            [dataset_id, raw_variable],
+        ).fetchall()
+        stored_basis = connection.execute(
+            "SELECT basis_version, basis_json, basis_sha256 FROM ds_alignment_review_basis "
+            "WHERE dataset_id = ? AND raw_variable = ?",
+            [dataset_id, raw_variable],
+        ).fetchone()
+    selected = [dataset for dataset in datasets if dataset.catalog_dataset_id == dataset_id]
+    assert len(selected) == 1
+    dataset = selected[0]
+    alignments = core_api._build_catalog_alignments(
+        datasets,
+        core_api._seed_alignments_path(),
+    )
+    group = sorted(
+        (
+            alignment
+            for alignment in alignments
+            if alignment.dataset_id == dataset_id and alignment.dataset_var == raw_variable
+        ),
+        key=lambda alignment: alignment.canonical_var,
+    )
+    assert group
+
+    producer_config = _producer_config_snapshot(config)
+    profile_coverage_value = producer_config.get("resolved_profile_input_coverage")
+    coverage_state, profile_coverage = parse_profile_input_coverage(
+        profile_coverage_value,
+        missing="resolved_profile_input_coverage" not in producer_config,
+    )
+    assert coverage_state == "established"
+    assert profile_coverage is not None
+    assert profile_coverage.get(dataset.profile_id) == "none"
+    material_identity = hash_payload({"producer_config": producer_config})
+    basis_payload = {
+        "version": core_registry._ALIGNMENT_REVIEW_BASIS_VERSION,
+        "profile_material_input_identity": material_identity,
+        "profile_input_coverage_state": "none",
+        "selected_profile_id": dataset.profile_id,
+        "selected_dataset": {item.name: getattr(dataset, item.name) for item in fields(dataset)},
+        "alignment_group": [item.model_dump(mode="json") for item in group],
+    }
+    assert stored_basis is not None
+    basis_record = core_registry._AlignmentReviewBasisRecord(
+        dataset_id=dataset_id,
+        raw_variable=raw_variable,
+        basis_version=stored_basis[0],
+        basis_json=stored_basis[1],
+        basis_sha256=stored_basis[2],
+    )
+    assert core_registry._alignment_review_basis_record_is_valid(basis_record)
+    assert json.loads(basis_record.basis_json) == json.loads(
+        core_registry._canonical_alignment_review_basis_json(basis_payload)
+    )
+    expected = [(item.canonical_var, item.evidence) for item in group]
+    assert persisted == expected
+    assert all(evidence.startswith(evidence_prefix) for _, evidence in persisted)
+    return persisted
+
+
 def _stub_complete_harvest_receipt(
     monkeypatch: pytest.MonkeyPatch, config: DatasetBatchConfig
 ) -> None:
@@ -69,6 +150,23 @@ def _stub_complete_harvest_receipt(
         "_harvest_stage_receipt",
         lambda _config: (names, outcomes, []),
     )
+
+
+def _install_non_private_profile_registry(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Give resume tests a real, credential-free profile-input denominator."""
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    profiles = SourceProfileRegistry()
+    profiles.register(
+        SourceProfile(
+            profile_id="worldbank_wdi",
+            display_name="Fixture World Bank",
+            connector_family="worldbank",
+            base_url="https://example.test/worldbank",
+        )
+    )
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
 
 
 def _create_empty_embedding_database(config: DatasetBatchConfig) -> None:
@@ -123,6 +221,7 @@ class _MutableSentenceTransformer:
 def test_same_stat_changed_manifest_bytes_do_not_reuse_normalize_stage(
     monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:
+    _install_non_private_profile_registry(monkeypatch)
     config = DatasetBatchConfig(
         snapshot_root=tmp_path / "snapshot",
         stages=frozenset({"normalize"}),
@@ -147,6 +246,7 @@ def test_same_stat_changed_manifest_bytes_do_not_reuse_normalize_stage(
 def test_mtime_only_manifest_change_keeps_normalize_stage_reusable(
     monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:
+    _install_non_private_profile_registry(monkeypatch)
     config = DatasetBatchConfig(
         snapshot_root=tmp_path / "snapshot",
         stages=frozenset({"normalize"}),
@@ -167,6 +267,7 @@ def test_mtime_only_manifest_change_keeps_normalize_stage_reusable(
 
 
 def test_harvest_resume_rejects_preflight_limit_change(monkeypatch, tmp_path) -> None:
+    _install_non_private_profile_registry(monkeypatch)
     registry = SourceRegistry(
         version=1,
         sources=(
@@ -213,6 +314,7 @@ def test_harvest_resume_rejects_preflight_limit_change(monkeypatch, tmp_path) ->
 def test_embed_resume_rejects_changed_loaded_encoder_assets(monkeypatch, tmp_path) -> None:
     from polisyos.data_forge.kernel.embeddings import derive_encoder_identity
 
+    _install_non_private_profile_registry(monkeypatch)
     _MutableSentenceTransformer.asset_revision = 0
     _MutableEncoderTokenizer.revision = 0
     monkeypatch.setitem(
@@ -252,7 +354,10 @@ def test_embed_resume_rejects_changed_loaded_encoder_assets(monkeypatch, tmp_pat
 
 
 @pytest.mark.parametrize("stage", ["graph_load", "graph_index"])
-def test_graph_resume_rejects_same_stat_changed_input(stage: str, tmp_path) -> None:
+def test_graph_resume_rejects_same_stat_changed_input(
+    stage: str, tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _install_non_private_profile_registry(monkeypatch)
     config = DatasetBatchConfig(
         snapshot_root=tmp_path / "snapshot",
         stages=frozenset({stage}),
@@ -280,6 +385,7 @@ def test_graph_receipts_bind_database_after_selected_downstream_writers(
     from polisyos.data_forge.domains.catalog.batch import graph_builder
     from polisyos.data_forge.domains.catalog.batch.core_sources import api as core_api
 
+    _install_non_private_profile_registry(monkeypatch)
     config = DatasetBatchConfig(
         snapshot_root=tmp_path / "snapshot",
         stages=frozenset({"graph_load", "graph_index", "core_sources_ingest"}),
@@ -339,6 +445,7 @@ def test_pipeline_preserves_current_core_producer_progress_for_benchmark(
     from polisyos.fabric.connectors.base import DatasetCapabilitySnapshot
     from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 
+    _install_non_private_profile_registry(monkeypatch)
     registry_path = tmp_path / "registry.yaml"
     registry_path.write_text(
         "\n".join(
@@ -778,6 +885,7 @@ def test_benchmark_resume_requires_current_core_ingest_receipt(monkeypatch, tmp_
 
 
 def test_benchmark_resume_rejects_bulk_equivalence_manifest_change(monkeypatch, tmp_path) -> None:
+    _install_non_private_profile_registry(monkeypatch)
     monkeypatch.setattr(
         DatasetBatchConfig,
         "load_registry",
@@ -801,6 +909,7 @@ def test_benchmark_resume_rejects_bulk_equivalence_manifest_change(monkeypatch, 
 
 
 def test_benchmark_resume_rejects_unselected_raw_source_change(monkeypatch, tmp_path) -> None:
+    _install_non_private_profile_registry(monkeypatch)
     registry = SourceRegistry(
         version=1,
         sources=(
@@ -876,7 +985,10 @@ def test_qc_resume_rejects_selected_previous_snapshot_payload_change(monkeypatch
     assert not _should_skip_stage(config, "qc")
 
 
-def test_changed_output_bytes_do_not_reuse_merge_stage(tmp_path) -> None:
+def test_changed_output_bytes_do_not_reuse_merge_stage(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _install_non_private_profile_registry(monkeypatch)
     config = DatasetBatchConfig(
         snapshot_root=tmp_path / "snapshot",
         stages=frozenset({"merge_dedup"}),
@@ -1225,6 +1337,7 @@ def test_real_qc_receipt_binds_shared_merged_and_duplicate_inputs(
 
 
 def test_selected_empty_generation_is_reused_without_reencoding(monkeypatch, tmp_path) -> None:
+    _install_non_private_profile_registry(monkeypatch)
     config = DatasetBatchConfig(
         snapshot_root=tmp_path / "snapshot",
         stages=frozenset({"embed"}),
@@ -1254,6 +1367,7 @@ def test_selected_empty_generation_is_reused_without_reencoding(monkeypatch, tmp
 def test_embed_resume_rejects_config_rule_and_selected_output_changes(
     monkeypatch, tmp_path
 ) -> None:
+    _install_non_private_profile_registry(monkeypatch)
     config = DatasetBatchConfig(
         snapshot_root=tmp_path / "snapshot",
         stages=frozenset({"embed"}),
@@ -1316,6 +1430,7 @@ def test_interrupted_embed_state_is_never_reusable(tmp_path) -> None:
 def test_incomplete_selected_harvest_cannot_resume_and_failed_source_retries(
     monkeypatch, tmp_path
 ) -> None:
+    _install_non_private_profile_registry(monkeypatch)
     registry = SourceRegistry(
         version=1,
         sources=(
@@ -1428,7 +1543,6 @@ def test_same_id_live_source_profile_change_invalidates_stage_receipts(
         description="All non-default profile fields",
         connector_family="sdmx",
         base_url="https://example.test/source",
-        auth_policy="api_key",
         timeout_seconds=17,
         max_retries=5,
         rate_limit_rps=2.5,
@@ -1523,6 +1637,43 @@ def test_same_id_live_source_profile_change_invalidates_stage_receipts(
     for stage in ("benchmark", "publish"):
         assert not _should_skip_stage(config, stage)
         assert current_content_stage_receipt(config, stage) is None
+
+
+def test_resume_refuses_profile_with_unversioned_auth_inputs(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    profiles = SourceProfileRegistry()
+    profiles.register(
+        SourceProfile(
+            profile_id="fixture_profile",
+            display_name="Credentialed fixture",
+            connector_family="sdmx",
+            base_url="https://example.test/source",
+            auth_policy="api_key",
+        )
+    )
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snapshot",
+        stages=frozenset({"merge_dedup"}),
+        resume=True,
+    )
+    normalized = config.normalized_dir / "records.jsonl"
+    normalized.parent.mkdir(parents=True, exist_ok=True)
+    normalized.write_text("input\n", encoding="utf-8")
+    config.merged_records_path.parent.mkdir(parents=True, exist_ok=True)
+    config.merged_records_path.write_text("output\n", encoding="utf-8")
+    config.duplicates_report_path.write_text("dedup_key,kept_id,dropped_id\n", encoding="utf-8")
+
+    _record_stage_completion(config, "merge_dedup")
+    saved_state = json.loads(config.stage_state_path.read_text(encoding="utf-8"))["merge_dedup"]
+
+    assert saved_state["metadata"]["currentness_state"] == "not_established"
+    assert saved_state["metadata"]["currentness_reason"] == "profile_private_inputs_unversioned"
+    assert not _should_skip_stage(config, "merge_dedup")
 
 
 def test_real_qc_receipt_rejects_same_id_live_source_profile_change(
@@ -1769,14 +1920,16 @@ def test_material_input_change_recomputes_real_producer_and_benchmark(
     assert initial_report["diagnostic_context"]["core_output_receipt_current"] is True
     assert _current_core_output_receipt_state(config).is_current
     assert _should_skip_stage(config, "benchmark")
-    with duckdb.connect(str(config.db_path), read_only=True) as connection:
-        initial_evidence = connection.execute(
-            "SELECT evidence FROM ds_variable_alignments WHERE dataset_id = 'wb-gdp' "
-            "AND raw_variable = 'NY.GDP.MKTP.CD'"
-        ).fetchall()
-    assert initial_evidence == [("seed_worldbank_wdi;source=worldbank",)]
+    initial_evidence = _assert_current_alignment_review_basis(
+        config,
+        dataset_id="wb-gdp",
+        raw_variable="NY.GDP.MKTP.CD",
+        evidence_prefix="seed_worldbank_wdi;source=worldbank",
+    )
     initial_signature = config.run_signature
     profiles.register(profile.model_copy(deep=True), override=True)
+    registry_content = registry_path.read_bytes()
+    seed_content = seed_path.read_bytes()
     registry_stat = registry_path.stat()
     os.utime(
         registry_path,
@@ -1787,8 +1940,26 @@ def test_material_input_change_recomputes_real_producer_and_benchmark(
         seed_path,
         ns=(seed_stat.st_atime_ns, seed_stat.st_mtime_ns + 1_000_000),
     )
+    assert registry_path.stat().st_mtime_ns > registry_stat.st_mtime_ns
+    assert seed_path.stat().st_mtime_ns > seed_stat.st_mtime_ns
+    assert registry_path.read_bytes() == registry_content
+    assert seed_path.read_bytes() == seed_content
     assert config.run_signature == initial_signature
-    run_dataset_pipeline_sync(config)
+    no_op_receipt = _current_core_output_receipt_state(config).current_receipt
+    no_op = run_dataset_pipeline_sync(config)
+    # Core ingestion intentionally rechecks external profile/source inputs; it
+    # has no complete content receipt that would make skipping authority-safe.
+    assert {"core_sources_ingest", "benchmark"}.issubset(no_op.stage_times)
+    assert "core_sources_ingest" not in no_op.skipped_stages
+    assert "benchmark" not in no_op.skipped_stages
+    with duckdb.connect(str(config.db_path), read_only=True) as connection:
+        no_op_rows = connection.execute(
+            "SELECT dataset_id, raw_variable, country_code, year, value "
+            "FROM ds_observations WHERE dataset_id = 'wb-gdp'"
+        ).fetchall()
+    assert no_op_rows == initial_rows
+    assert no_op_receipt is not None
+    assert _current_core_output_receipt_state(config).current_receipt == no_op_receipt
     assert fetch_urls == ["https://example.test/original"]
 
     marker_bytes = config.stage_state_path.read_bytes()
@@ -1822,8 +1993,9 @@ def test_material_input_change_recomputes_real_producer_and_benchmark(
     assert config.run_signature != initial_signature
     with duckdb.connect(str(config.db_path), read_only=True) as connection:
         held_evidence = connection.execute(
-            "SELECT evidence FROM ds_variable_alignments WHERE dataset_id = 'wb-gdp' "
+            "SELECT canonical_var, evidence FROM ds_variable_alignments WHERE dataset_id = 'wb-gdp' "
             "AND raw_variable = 'NY.GDP.MKTP.CD'"
+            " ORDER BY canonical_var"
         ).fetchall()
     assert held_evidence == initial_evidence
     assert not _current_core_output_receipt_state(config).is_current
@@ -1852,15 +2024,16 @@ def test_material_input_change_recomputes_real_producer_and_benchmark(
             "SELECT dataset_id, raw_variable, country_code, year, value "
             "FROM ds_observations WHERE dataset_id = 'wb-gdp'"
         ).fetchall()
-        evidence = connection.execute(
-            "SELECT evidence FROM ds_variable_alignments WHERE dataset_id = 'wb-gdp' "
-            "AND raw_variable = 'NY.GDP.MKTP.CD'"
-        ).fetchall()
 
     assert repaired.metrics["core_failures"] == 0
     assert fetch_urls == ["https://example.test/original", expected_url]
     assert rows == [("wb-gdp", "NY.GDP.MKTP.CD", "UA", 2020, expected_value)]
-    assert evidence == [(expected_evidence,)]
+    evidence = _assert_current_alignment_review_basis(
+        config,
+        dataset_id="wb-gdp",
+        raw_variable="NY.GDP.MKTP.CD",
+        evidence_prefix=expected_evidence,
+    )
     assert checkpoint["planner_signature"] == config.run_signature
     assert {item["status"] for item in checkpoint["completed"].values()} == {"complete_with_rows"}
     assert current.is_current
@@ -1883,6 +2056,43 @@ def test_material_input_change_recomputes_real_producer_and_benchmark(
     assert fetch_urls == ["https://example.test/original", expected_url]
     assert _current_core_output_receipt_state(fresh_benchmark).is_current
     assert current_content_stage_receipt(fresh_benchmark, "benchmark") is not None
+
+    # A forged sidecar digest must not preserve human review or alter public evidence.
+    with duckdb.connect(str(config.db_path)) as connection:
+        connection.execute(
+            "UPDATE ds_alignment_audit SET reviewed = TRUE, reviewer_override = ? "
+            "WHERE dataset_id = 'wb-gdp' AND raw_variable = 'NY.GDP.MKTP.CD'",
+            ["dfi03-corrupt-basis-control"],
+        )
+        connection.execute(
+            "UPDATE ds_alignment_review_basis SET basis_sha256 = ? "
+            "WHERE dataset_id = 'wb-gdp' AND raw_variable = 'NY.GDP.MKTP.CD'",
+            ["0" * 64],
+        )
+    assert not _current_core_output_receipt_state(config).is_current
+
+    review_replay = run_dataset_pipeline_sync(
+        replace(config, stages=frozenset({"core_sources_ingest"}))
+    )
+    assert "core_sources_ingest" in review_replay.stage_times
+    assert review_replay.metrics["core_failures"] == 0
+    with duckdb.connect(str(config.db_path), read_only=True) as connection:
+        review_state = connection.execute(
+            "SELECT reviewed, reviewer_override FROM ds_alignment_audit "
+            "WHERE dataset_id = 'wb-gdp' AND raw_variable = 'NY.GDP.MKTP.CD'"
+        ).fetchone()
+    assert review_state == (False, None)
+    assert _current_core_output_receipt_state(config).is_current
+    assert (
+        _assert_current_alignment_review_basis(
+            config,
+            dataset_id="wb-gdp",
+            raw_variable="NY.GDP.MKTP.CD",
+            evidence_prefix=expected_evidence,
+        )
+        == evidence
+    )
+    assert fetch_urls[-1] == expected_url
 
 
 def test_warm_proxy_policy_change_updates_actual_catalog_alignment(

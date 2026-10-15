@@ -66,6 +66,21 @@ class SourceProfileRegistry:
         with self._state_lock:
             return sorted(self._profiles.values(), key=lambda p: p.profile_id)
 
+    def snapshot_all(self) -> list[SourceProfile]:
+        """Return detached profile copies captured atomically with registry updates.
+
+        Callers that need one coherent view while ``register(..., override=True)``
+        may run concurrently use this method. Existing ``get`` and ``list_all``
+        retain their live-object behavior for compatibility. Mutating a profile
+        obtained from those APIs in place bypasses this lock and is not covered
+        by the atomic snapshot guarantee.
+        """
+        with self._state_lock:
+            return [
+                profile.model_copy(deep=True)
+                for profile in sorted(self._profiles.values(), key=lambda item: item.profile_id)
+            ]
+
     def list_by_family(self, connector_family: str) -> list[SourceProfile]:
         """List all registered profiles for one connector family."""
 

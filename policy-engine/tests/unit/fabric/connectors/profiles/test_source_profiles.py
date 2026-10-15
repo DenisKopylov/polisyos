@@ -155,6 +155,25 @@ class TestSourceProfileRegistry:
         reg.register(custom, override=True)
         assert reg.get("worldbank_wdi").display_name == "Overridden"
 
+    def test_snapshot_all_is_detached_from_later_override(self):
+        reg = SourceProfileRegistry.get_instance()
+        original = reg.get("worldbank_wdi")
+        assert original is not None
+        original = original.model_copy(
+            update={"headers": {"X-PolicyOS-Snapshot": "before"}}, deep=True
+        )
+        reg.register(original, override=True)
+
+        snapshot = reg.snapshot_all()
+        captured = next(item for item in snapshot if item.profile_id == "worldbank_wdi")
+        replacement = captured.model_copy(
+            update={"headers": {"X-PolicyOS-Snapshot": "after"}}, deep=True
+        )
+        reg.register(replacement, override=True)
+
+        assert captured.headers == {"X-PolicyOS-Snapshot": "before"}
+        assert reg.get("worldbank_wdi").headers == {"X-PolicyOS-Snapshot": "after"}
+
     def test_singleton(self):
         reg1 = SourceProfileRegistry.get_instance()
         reg2 = SourceProfileRegistry.get_instance()

@@ -191,9 +191,7 @@ for __dependency_name, __dependency_owner in (
 # Bind owner protocols to the exact objects installed by setdefault, preserving
 # the compatibility and monkeypatch seam.
 _resolve_profile_config = cast("_ResolveProfileConfig", globals()["_resolve_profile_config"])
-_existing_observation_ids = cast(
-    "_ExistingObservationIds", globals()["_existing_observation_ids"]
-)
+_existing_observation_ids = cast("_ExistingObservationIds", globals()["_existing_observation_ids"])
 _iter_chunked_values = cast("_IterChunkedValues", globals()["_iter_chunked_values"])
 _load_wvs_bulk_duckdb = cast("_LoadWvsBulkDuckdb", globals()["_load_wvs_bulk_duckdb"])
 _load_wvs_bulk_rows = cast("_LoadWvsBulkRows", globals()["_load_wvs_bulk_rows"])
@@ -331,8 +329,6 @@ _ILO_INFERRED_DIMENSION_TOKENS: frozenset[str] = frozenset(
         "STU",
     }
 )
-
-
 
 
 def _system_memory_bytes() -> int:
@@ -990,6 +986,8 @@ def _capability_snapshot_fresh(
     else:
         checked_at = checked_at.astimezone(UTC)
     return checked_at + timedelta(hours=ttl_hours) >= datetime.now(UTC)
+
+
 def _write_observation_ingest_manifests(
     *,
     config: DatasetBatchConfig,
@@ -1281,8 +1279,8 @@ def _insert_generic_observations(
     if multi_slice_keys > 0:
         logger.warning(
             (
-                'Observation plan {} {} {} produced {} multi-slice country/year keys; p'
-                'reserving condition-aware rows'
+                "Observation plan {} {} {} produced {} multi-slice country/year keys; p"
+                "reserving condition-aware rows"
             ),
             plan.dataset_id,
             plan.raw_variable,
@@ -1293,14 +1291,14 @@ def _insert_generic_observations(
     inserted = len(unique_rows) - len(existing_ids)
     replaced = len(existing_ids)
     insert_sql = (
-        'INSERT INTO ds_observations (observation_id, dataset_id, raw_variable, c'
-        'anonical_var, country_code, year, survey_year, wave, value, condition_json, a'
-        'cquisition_method, source_watermark, dataset_version) VALUES (?, ?, ?, ?, ?, ?, ?'
-        ', ?, ?, ?, ?, ?, ?) ON CONFLICT(observation_id) DO UPDATE SET v'
-        'alue=EXCLUDED.value, condition_json=EXCLUDED.condition_json, a'
-        'cquisition_method=EXCLUDED.acquisition_method, s'
-        'ource_watermark=EXCLUDED.source_watermark, d'
-        'ataset_version=EXCLUDED.dataset_version'
+        "INSERT INTO ds_observations (observation_id, dataset_id, raw_variable, c"
+        "anonical_var, country_code, year, survey_year, wave, value, condition_json, a"
+        "cquisition_method, source_watermark, dataset_version) VALUES (?, ?, ?, ?, ?, ?, ?"
+        ", ?, ?, ?, ?, ?, ?) ON CONFLICT(observation_id) DO UPDATE SET v"
+        "alue=EXCLUDED.value, condition_json=EXCLUDED.condition_json, a"
+        "cquisition_method=EXCLUDED.acquisition_method, s"
+        "ource_watermark=EXCLUDED.source_watermark, d"
+        "ataset_version=EXCLUDED.dataset_version"
     )
     for chunk in _iter_chunked_values(unique_rows.values(), _OBSERVATION_INSERT_BATCH_SIZE):
         con.executemany(

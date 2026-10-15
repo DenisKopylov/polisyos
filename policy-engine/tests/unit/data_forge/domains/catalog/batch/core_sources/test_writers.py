@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import asyncio
+from pathlib import Path
+
 from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import ObservationPlan
 from polisyos.data_forge.domains.catalog.batch.core_sources import transformers, writers
 
@@ -16,7 +19,9 @@ def test_writer_resolves_transformer_dependency_without_facade_bootstrap(monkeyp
         lambda _row: ("UA", 2020, None, None, 1.5, "{}"),
     )
     monkeypatch.setattr(writers, "_observation_id", lambda *args, **kwargs: "obs-1", raising=False)
-    monkeypatch.setattr(writers, "_existing_observation_ids", lambda _con, _ids: set(), raising=False)
+    monkeypatch.setattr(
+        writers, "_existing_observation_ids", lambda _con, _ids: set(), raising=False
+    )
     monkeypatch.setattr(
         writers,
         "_iter_chunked_values",
@@ -60,3 +65,116 @@ def test_core_sources_writers_keep_facade_compatibility() -> None:
     from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
 
     assert facade._format_duckdb_memory_limit(1536 * 1024 * 1024) == "1536MB"
+
+
+def test_connector_session_cache_uses_one_captured_effective_profile_set(
+    monkeypatch, tmp_path: Path
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        DatasetBatchConfig,
+        _runtime_source_profile_snapshot_scope,
+    )
+    from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
+        _resolve_profile_config,
+        _resolve_source_execution_policy,
+    )
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    registry = SourceProfileRegistry()
+    profile_ids = (
+        "worldbank_wdi",
+        "eurostat_public",
+        "who_gho",
+        "unpd_dataportal",
+        "unesco_uis_public",
+        "fixture_sdmx",
+    )
+    for profile_id in profile_ids:
+        registry.register(
+            SourceProfile(
+                profile_id=profile_id,
+                display_name=profile_id,
+                connector_family="sdmx" if profile_id == "fixture_sdmx" else profile_id,
+                base_url=f"https://before.example/{profile_id}",
+                max_concurrency=2,
+            )
+        )
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", registry)
+    monkeypatch.setenv("POLISYOS_UNPD_API_TOKEN", "captured-env-token")
+    monkeypatch.setenv("POLISYOS_DATASET_LEGACY_SERIAL", "0")
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+    received = []
+
+    class _FakeConnector:
+        async def connect(self, connection_config):
+            received.append(connection_config)
+            return object()
+
+        async def disconnect(self, _handle) -> None:
+            return None
+
+    for connector_name in (
+        "WorldBankConnector",
+        "EurostatConnector",
+        "WHOConnector",
+        "UNPDConnector",
+        "UNESCOUISConnector",
+        "SDMXSourceConnector",
+    ):
+        monkeypatch.setattr(writers, connector_name, _FakeConnector)
+
+    async def _exercise() -> None:
+        with _runtime_source_profile_snapshot_scope() as profile_snapshot:
+            original_signature = config.run_signature
+            for profile_id in profile_ids:
+                current = registry.get(profile_id)
+                assert current is not None
+                registry.register(
+                    current.model_copy(
+                        update={
+                            "base_url": f"https://after.example/{profile_id}",
+                            "headers": {"X-PolicyOS-Changed": "current-registry-only"},
+                            "max_concurrency": 9,
+                        },
+                        deep=True,
+                    ),
+                    override=True,
+                )
+            monkeypatch.setenv("POLISYOS_UNPD_API_TOKEN", "later-env-token")
+            assert config.run_signature == original_signature
+            assert "captured-env-token" not in repr(profile_snapshot)
+
+            cache = writers._ConnectorSessionCache()
+            await cache.get_worldbank()
+            await cache.get_eurostat()
+            await cache.get_who()
+            await cache.get_unpd()
+            await cache.get_unesco_uis()
+            await cache.get_sdmx("fixture_sdmx")
+            await cache.close()
+
+            assert [item.url for item in received] == [
+                f"https://before.example/{profile_id}" for profile_id in profile_ids
+            ]
+            assert all(not item.headers for item in received[:3])
+            assert dict(received[3].auth_credentials) == {"token": "captured-env-token"}
+            assert not received[4].headers
+            assert (
+                _resolve_profile_config("fixture_sdmx").url == "https://before.example/fixture_sdmx"
+            )
+            assert (
+                _resolve_source_execution_policy(
+                    source="fixture_sdmx", profile_id="fixture_sdmx"
+                ).max_concurrency
+                == 2
+            )
+
+        assert (
+            _resolve_source_execution_policy(
+                source="fixture_sdmx", profile_id="fixture_sdmx"
+            ).max_concurrency
+            == 9
+        )
+
+    asyncio.run(_exercise())

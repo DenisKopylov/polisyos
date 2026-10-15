@@ -740,6 +740,20 @@ def _current_core_output_receipt_state(
     con: duckdb.DuckDBPyConnection | None = None,
 ) -> _CurrentCoreOutputReceiptState:
     """Reconcile one saved core receipt with its ledger and current database tables."""
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        _runtime_source_profile_snapshot_scope,
+    )
+
+    with _runtime_source_profile_snapshot_scope():
+        return _current_core_output_receipt_state_for_profile_snapshot(config, con=con)
+
+
+def _current_core_output_receipt_state_for_profile_snapshot(
+    config: DatasetBatchConfig,
+    *,
+    con: duckdb.DuckDBPyConnection | None = None,
+) -> _CurrentCoreOutputReceiptState:
+    """Reconcile a receipt using one profile view for identity and currentness."""
     checkpoint_state = load_json(config.observation_ingest_checkpoint_path, default={})
     if not isinstance(checkpoint_state, dict):
         checkpoint_state = {}
@@ -832,6 +846,16 @@ def _encode_core_receipt_value(value: object) -> object | None:
 
 def _prepare_core_output_resume(config: DatasetBatchConfig) -> bool:
     """Permit cache reuse only under an established, unchanged profile basis."""
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        _runtime_source_profile_snapshot_scope,
+    )
+
+    with _runtime_source_profile_snapshot_scope():
+        return _prepare_core_output_resume_for_profile_snapshot(config)
+
+
+def _prepare_core_output_resume_for_profile_snapshot(config: DatasetBatchConfig) -> bool:
+    """Permit cache reuse using one profile view for identity and currentness."""
     live_state, live_coverage = _runtime_profile_input_snapshot()
     live_basis_identity = str(config.run_signature or "")
     reuse_allowed = config.resume and config.resume_mode != "off" and live_state == "established"

@@ -503,6 +503,110 @@ def test_profile_input_coverage_binds_presence_without_persisting_values(
     assert "fixture-only-env-token" not in repr(token_snapshot)
 
 
+def test_profile_snapshot_is_the_same_basis_and_runtime_connection(
+    monkeypatch, tmp_path: Path
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        _runtime_profile_input_currentness,
+        _runtime_source_profile_snapshot_scope,
+    )
+    from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
+        _legacy_serial_mode_enabled,
+        _resolve_profile_config,
+    )
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    profiles = SourceProfileRegistry()
+    original = SourceProfile(
+        profile_id="fixture_profile",
+        display_name="Fixture",
+        connector_family="sdmx",
+        base_url="https://example.test/source",
+    )
+    profiles.register(original)
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
+    monkeypatch.delenv("POLISYOS_UNPD_API_TOKEN", raising=False)
+    monkeypatch.setenv("POLISYOS_DATASET_LEGACY_SERIAL", "0")
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+
+    with _runtime_source_profile_snapshot_scope():
+        initial_signature = config.run_signature
+        assert _legacy_serial_mode_enabled() is False
+        assert _resolve_profile_config("fixture_profile").headers == {}
+        assert _runtime_profile_input_currentness() == (
+            "established",
+            {"fixture_profile": "none"},
+        )
+
+        # A registry replacement after capture must affect the next run, while
+        # the active run keeps hashing and consuming its captured profile.
+        changed = original.model_copy(
+            update={"headers": {"X-PolicyOS-Test": "fixture-only-secret"}},
+            deep=True,
+        )
+        profiles.register(changed, override=True)
+        monkeypatch.setenv("POLISYOS_DATASET_LEGACY_SERIAL", "yes")
+        assert config.run_signature == initial_signature
+        assert _legacy_serial_mode_enabled() is False
+        assert _resolve_profile_config("fixture_profile").headers == {}
+        assert _runtime_profile_input_currentness() == (
+            "established",
+            {"fixture_profile": "none"},
+        )
+
+    assert config.run_signature != initial_signature
+    assert _legacy_serial_mode_enabled() is True
+    assert _resolve_profile_config("fixture_profile").headers == {
+        "X-PolicyOS-Test": "fixture-only-secret"
+    }
+    assert _runtime_profile_input_currentness() == (
+        "not_established",
+        {"fixture_profile": "excluded_present"},
+    )
+
+
+def test_core_receipt_reconciliation_uses_one_profile_snapshot(monkeypatch, tmp_path: Path) -> None:
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        _runtime_source_profile_snapshot_scope,
+    )
+    from polisyos.data_forge.domains.catalog.batch.core_sources.validators import (
+        _current_core_output_receipt_state,
+    )
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    profiles = SourceProfileRegistry()
+    original = SourceProfile(
+        profile_id="fixture_profile",
+        display_name="Fixture",
+        connector_family="sdmx",
+        base_url="https://example.test/source",
+    )
+    profiles.register(original)
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot")
+
+    with _runtime_source_profile_snapshot_scope():
+        initial_signature = config.run_signature
+        profiles.register(
+            original.model_copy(
+                update={"headers": {"X-PolicyOS-Test": "fixture-only-secret"}},
+                deep=True,
+            ),
+            override=True,
+        )
+        receipt_state = _current_core_output_receipt_state(config)
+        assert receipt_state.live_profile_input_currentness == "established"
+        assert receipt_state.live_profile_input_coverage == {"fixture_profile": "none"}
+        assert receipt_state.live_profile_input_basis_identity == initial_signature
+
+    receipt_state = _current_core_output_receipt_state(config)
+    assert receipt_state.live_profile_input_currentness == "not_established"
+    assert receipt_state.live_profile_input_coverage == {"fixture_profile": "excluded_present"}
+    assert receipt_state.live_profile_input_basis_identity != initial_signature
+
+
 def test_current_publish_reader_keeps_legacy_or_malformed_coverage_unknown(
     tmp_path: Path,
 ) -> None:

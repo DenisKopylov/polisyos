@@ -31,7 +31,7 @@ from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts im
     _ObservationRuntimeMetrics,
     _SourceBudgetWindow,
 )
-from polisyos.data_forge.domains.catalog.batch.checkpoints import fingerprint_paths
+from polisyos.data_forge.domains.catalog.batch.checkpoints import fingerprint_paths, hash_payload
 from polisyos.data_forge.domains.catalog.batch.core_sources.writers import (
     _ConnectorSessionCache,
     _ObservationCapabilityCache,
@@ -228,6 +228,9 @@ _apply_dimension_order_to_snapshot: Callable[..., object] = __make_implementatio
 )
 _build_catalog_alignments: Callable[..., object] = __make_implementation_proxy(
     "_build_catalog_alignments", "registry"
+)
+_bind_catalog_alignment_review_basis: Callable[..., object] = __make_implementation_proxy(
+    "_bind_catalog_alignment_review_basis", "registry"
 )
 _build_catalog_observation_plans: Callable[..., object] = __make_implementation_proxy(
     "_build_catalog_observation_plans", "registry"
@@ -427,6 +430,9 @@ _update_unsupported_signature_cache: Callable[..., object] = __make_implementati
 _upsert_alignment_audit: Callable[..., object] = __make_implementation_proxy(
     "_upsert_alignment_audit", "registry"
 )
+_replace_catalog_alignment_review_bases: Callable[..., object] = __make_implementation_proxy(
+    "_replace_catalog_alignment_review_bases", "registry"
+)
 _upsert_catalog_alignments: Callable[..., object] = __make_implementation_proxy(
     "_upsert_catalog_alignments", "registry"
 )
@@ -459,6 +465,18 @@ async def run_core_sources_ingest_async(
     config: DatasetBatchConfig,
 ) -> CoreSourcesIngestStats:
     """Async entrypoint for ingesting registry/observation data used by DatasetRegistry."""
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        _runtime_source_profile_snapshot_scope,
+    )
+
+    with _runtime_source_profile_snapshot_scope():
+        return await _run_core_sources_ingest_stage(config)
+
+
+async def _run_core_sources_ingest_stage(
+    config: DatasetBatchConfig,
+) -> CoreSourcesIngestStats:
+    """Write stage receipts and outputs under the active profile snapshot."""
     started_at = datetime.now(UTC).isoformat()
     __resolve_implementation_dependency("_prepare_core_output_resume", "validators")(config)
     __resolve_implementation_dependency("_write_core_ingest_stage_progress", "validators")(
@@ -576,6 +594,17 @@ async def run_core_sources_ingest_async(
 async def _run_core_sources_ingest_async(
     config: DatasetBatchConfig,
 ) -> CoreSourcesIngestStats:
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        _runtime_source_profile_snapshot_scope,
+    )
+
+    with _runtime_source_profile_snapshot_scope():
+        return await _run_core_sources_ingest_with_profile_snapshot(config)
+
+
+async def _run_core_sources_ingest_with_profile_snapshot(
+    config: DatasetBatchConfig,
+) -> CoreSourcesIngestStats:
     stats = CoreSourcesIngestStats()
     catalog_datasets: list[CatalogTransportDataset] = []
     catalog_alignments: list[VariableAlignment] = []
@@ -586,13 +615,75 @@ async def _run_core_sources_ingest_async(
             catalog_alignments = _build_catalog_alignments(
                 catalog_datasets, _seed_alignments_path()
             )
-            stats.registry_datasets = _upsert_catalog_registry_datasets(con, catalog_datasets)
-            stats.variable_alignments = _upsert_catalog_alignments(con, catalog_alignments)
-            _upsert_alignment_audit(con, catalog_alignments)
+            from polisyos.data_forge.domains.catalog.batch.config import _producer_config_snapshot
+
+            try:
+                producer_config = _producer_config_snapshot(config)
+                profile_material_input_identity = hash_payload({"producer_config": producer_config})
+                profile_input_coverage = producer_config.get("resolved_profile_input_coverage")
+            except Exception as exc:
+                logger.warning(
+                    "Alignment review basis unavailable; prior review will not be retained ({})",
+                    type(exc).__name__,
+                )
+                profile_material_input_identity = None
+                profile_input_coverage = None
+            bound_review_basis = cast(
+                "tuple[list[VariableAlignment], dict[tuple[str, str], object]]",
+                _bind_catalog_alignment_review_basis(
+                    catalog_datasets,
+                    catalog_alignments,
+                    profile_material_input_identity=profile_material_input_identity,
+                    profile_input_coverage=profile_input_coverage,
+                ),
+            )
+            catalog_alignments, candidate_review_bases = bound_review_basis
+            dataset_ids = [dataset.catalog_dataset_id for dataset in catalog_datasets]
+            con.execute("BEGIN TRANSACTION")
+            try:
+                stats.registry_datasets = _upsert_catalog_registry_datasets(con, catalog_datasets)
+                _upsert_alignment_audit(
+                    con,
+                    catalog_alignments,
+                    affected_dataset_ids=dataset_ids,
+                    candidate_review_bases=candidate_review_bases,
+                )
+                stats.variable_alignments = _upsert_catalog_alignments(
+                    con,
+                    catalog_alignments,
+                    affected_dataset_ids=dataset_ids,
+                )
+                _replace_catalog_alignment_review_bases(
+                    con,
+                    affected_dataset_ids=dataset_ids,
+                    candidate_review_bases=candidate_review_bases,
+                )
+                con.execute("COMMIT")
+            except Exception:
+                con.execute("ROLLBACK")
+                raise
         else:
-            stats.registry_datasets = _upsert_legacy_registry_datasets(con)
-            stats.variable_alignments = _upsert_seed_alignments(con, _seed_alignments_path())
-            _upsert_alignment_audit(con, load_seed_alignments(_seed_alignments_path()))
+            seed_alignments = load_seed_alignments(_seed_alignments_path())
+            affected_dataset_ids = sorted({item.dataset_id for item in seed_alignments})
+            con.execute("BEGIN TRANSACTION")
+            try:
+                stats.registry_datasets = _upsert_legacy_registry_datasets(con)
+                _upsert_alignment_audit(
+                    con,
+                    seed_alignments,
+                    affected_dataset_ids=affected_dataset_ids,
+                    candidate_review_bases={},
+                )
+                stats.variable_alignments = _upsert_seed_alignments(con, _seed_alignments_path())
+                _replace_catalog_alignment_review_bases(
+                    con,
+                    affected_dataset_ids=affected_dataset_ids,
+                    candidate_review_bases={},
+                )
+                con.execute("COMMIT")
+            except Exception:
+                con.execute("ROLLBACK")
+                raise
 
     if catalog_datasets:
         plans = _build_catalog_observation_plans(
@@ -624,6 +715,17 @@ async def _run_core_sources_ingest_async(
 
 
 def _resolve_profile_config(profile_id: str) -> ConnectionConfig:
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        _current_runtime_source_profile_snapshot,
+    )
+
+    profile_snapshot = _current_runtime_source_profile_snapshot()
+    if profile_snapshot is not None:
+        connection = profile_snapshot.connection_configs.get(profile_id)
+        if connection is None:
+            raise ValueError(f"Missing source profile: {profile_id}")
+        return cast("ConnectionConfig", connection)
+
     registry = SourceProfileRegistry.get_instance()
     profile = registry.get(profile_id)
     if profile is None:
@@ -653,6 +755,13 @@ def _resolve_profile_config(profile_id: str) -> ConnectionConfig:
 
 
 def _legacy_serial_mode_enabled() -> bool:
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        _current_runtime_source_profile_snapshot,
+    )
+
+    profile_snapshot = _current_runtime_source_profile_snapshot()
+    if profile_snapshot is not None:
+        return profile_snapshot.legacy_serial_mode
     value = str(os.getenv("POLISYOS_DATASET_LEGACY_SERIAL") or "").strip().lower()
     return value in {"1", "true", "yes", "on"}
 
@@ -662,6 +771,17 @@ def _resolve_source_execution_policy(
     source: str,
     profile_id: str,
 ) -> SourceExecutionPolicy:
+    from polisyos.data_forge.domains.catalog.batch.config import (
+        _current_runtime_source_profile_snapshot,
+    )
+
+    profile_snapshot = _current_runtime_source_profile_snapshot()
+    if profile_snapshot is not None:
+        policy = profile_snapshot.execution_policies.get(profile_id)
+        if policy is not None:
+            return cast("SourceExecutionPolicy", policy)
+        return SourceExecutionPolicy(profile_id=profile_id)
+
     registry = SourceProfileRegistry.get_instance()
     profile = registry.get(profile_id) if profile_id else None
     if profile is not None:

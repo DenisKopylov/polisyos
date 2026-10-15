@@ -2148,6 +2148,10 @@ def test_credal_production_default_vintage_refusal_constructs_no_source_profile(
 
 
 def _write_n4_catalog(path: Path, rows: tuple[tuple[object, ...], ...]) -> None:
+    from polisyos.data_forge.domains.catalog.batch.core_sources.schema import (
+        create_alignment_review_basis_table,
+    )
+
     path.parent.mkdir(parents=True, exist_ok=True)
     with duckdb.connect(str(path)) as connection:
         connection.execute("DROP TABLE IF EXISTS ds_variable_alignments")
@@ -2166,6 +2170,7 @@ def _write_n4_catalog(path: Path, rows: tuple[tuple[object, ...], ...]) -> None:
             )
             """
         )
+        create_alignment_review_basis_table(connection)
         for row in rows:
             connection.execute(
                 "INSERT INTO ds_variable_alignments VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -2306,6 +2311,36 @@ def test_selected_catalog_context_binds_all_alignment_rows_into_kref(
     assert {
         edge.provenance["selected_catalog_source_profile_hash"] for edge in selected_a_edges
     } == {profile_a.content_hash}
+
+    # The operational review sidecar is not producer semantic evidence and
+    # must not perturb the public credal reference hash.
+    with duckdb.connect(str(selected_a_path)) as connection:
+        connection.execute(
+            "INSERT INTO ds_alignment_review_basis "
+            "(dataset_id, raw_variable, basis_version, basis_json, basis_sha256) "
+            "VALUES (?, ?, ?, ?, ?)",
+            [
+                "selected-a",
+                "tax",
+                "policyos.catalog.alignment_review_basis.v2",
+                '{"review":"one"}',
+                "1" * 64,
+            ],
+        )
+    reference_a_with_review_basis = _build_n4_reference_from_selected_catalog(
+        monkeypatch, root, source_a
+    )
+    assert reference_a_with_review_basis.reference_hash == reference_a.reference_hash
+    with duckdb.connect(str(selected_a_path)) as connection:
+        connection.execute(
+            "UPDATE ds_alignment_review_basis SET basis_json = ?, basis_sha256 = ? "
+            "WHERE dataset_id = 'selected-a' AND raw_variable = 'tax'",
+            ['{"review":"two"}', "2" * 64],
+        )
+    reference_a_with_changed_review_basis = _build_n4_reference_from_selected_catalog(
+        monkeypatch, root, source_a
+    )
+    assert reference_a_with_changed_review_basis.reference_hash == reference_a.reference_hash
 
     _write_n4_catalog(
         default_path,

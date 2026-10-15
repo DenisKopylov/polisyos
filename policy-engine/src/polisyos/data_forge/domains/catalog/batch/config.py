@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import json
+import os
 import platform
 import types
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
+from contextvars import ContextVar, Token
 from dataclasses import dataclass, field, fields
 from pathlib import Path
 from typing import TYPE_CHECKING, Union, cast, get_args, get_origin, get_type_hints
@@ -35,6 +38,27 @@ from polisyos.data_forge.kernel.io.generation_basis import build_generation_basi
 
 _PROFILE_INPUT_COVERAGE_SCHEMA_VERSION = "policyos.catalog.profile_input_coverage.v1"
 _PROFILE_INPUT_COVERAGE_STATES = frozenset({"none", "excluded_present"})
+
+
+@dataclass(frozen=True, slots=True)
+class _RuntimeSourceProfileSnapshot:
+    """One immutable in-memory view of profile inputs consumed by a catalog run.
+
+    Connection configs may carry secrets and are deliberately excluded from the
+    representation and from every persisted signature. Only their excluded-input
+    presence classification is persisted.
+    """
+
+    connection_configs: Mapping[str, object] = field(repr=False)
+    execution_policies: Mapping[str, object] = field(repr=False)
+    coverage: Mapping[str, object] = field(repr=False)
+    profile_payload: bytes = field(repr=False)
+    legacy_serial_mode: bool
+
+
+_RUNTIME_SOURCE_PROFILE_SNAPSHOT: ContextVar[_RuntimeSourceProfileSnapshot | None] = ContextVar(
+    "polisyos_catalog_runtime_source_profile_snapshot", default=None
+)
 
 ALL_STAGES = frozenset(
     {
@@ -420,7 +444,10 @@ def _producer_config_snapshot(config: DatasetBatchConfig) -> dict[str, object]:
         for item in fields(config)
         if item.name not in {"resume", "stages"}
     }
-    profile_input_coverage = _runtime_profile_input_coverage()
+    profile_snapshot = _current_runtime_source_profile_snapshot()
+    if profile_snapshot is None:
+        profile_snapshot = _capture_runtime_source_profile_snapshot()
+    profile_input_coverage = _runtime_profile_input_coverage(profile_snapshot)
     values.update(
         {
             "resolved_embedding_device": config.resolved_embedding_device,
@@ -431,7 +458,9 @@ def _producer_config_snapshot(config: DatasetBatchConfig) -> dict[str, object]:
             "uses_custom_registry": config.uses_custom_registry,
             "is_sampled_run": config.is_sampled_run,
             "producer_material_input_basis": _producer_material_input_basis(
-                config, profile_input_coverage=profile_input_coverage
+                config,
+                profile_input_coverage=profile_input_coverage,
+                profile_snapshot=profile_snapshot,
             ),
             "resolved_profile_input_coverage": profile_input_coverage,
         }
@@ -443,6 +472,7 @@ def _producer_material_input_basis(
     config: DatasetBatchConfig,
     *,
     profile_input_coverage: dict[str, object],
+    profile_snapshot: _RuntimeSourceProfileSnapshot,
 ) -> dict[str, object]:
     """Bind canonical policy file bytes and covered live profile settings.
 
@@ -454,9 +484,6 @@ def _producer_material_input_basis(
     from polisyos.data_forge.domains.catalog.batch import harvester
     from polisyos.data_forge.domains.catalog.batch.core_sources import api as core_api
     from polisyos.data_forge.domains.catalog.batch.core_sources import loaders
-    from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
-        _legacy_serial_mode_enabled,
-    )
     from polisyos.data_forge.domains.catalog.knowledge import proxy_penalties
 
     harvest_wvs_snapshot = _material_file_snapshot(harvester._wvs_registry_path())
@@ -497,7 +524,7 @@ def _producer_material_input_basis(
         for role, (path, required, selected) in sorted(paths.items())
     }
     members = [snapshot.generation_member(role) for role, snapshot in snapshots.items()]
-    members.append(("resolved_profile_registry", _runtime_source_profile_payload()))
+    members.append(("resolved_profile_registry", profile_snapshot.profile_payload))
     members.append(
         (
             "resolved_profile_input_coverage",
@@ -513,7 +540,7 @@ def _producer_material_input_basis(
         (
             "resolved_producer_runtime_policy",
             json.dumps(
-                {"legacy_serial_mode_enabled": _legacy_serial_mode_enabled()},
+                {"legacy_serial_mode_enabled": profile_snapshot.legacy_serial_mode},
                 sort_keys=True,
                 separators=(",", ":"),
             ).encode("utf-8"),
@@ -526,25 +553,119 @@ def _producer_material_input_basis(
     ).to_dict()
 
 
-def _runtime_profile_input_coverage() -> dict[str, object]:
-    """Classify the complete live profile registry without recording input values."""
-    from polisyos.data_forge.domains.catalog.batch.core_sources.api import (
-        _resolve_profile_config,
-    )
-    from polisyos.fabric.connectors import SourceProfileRegistry
-
-    coverage: dict[str, str] = {}
-    profiles = SourceProfileRegistry.get_instance().list_all()
-    for profile in profiles:
-        connection = _resolve_profile_config(profile.profile_id)
-        excluded_input_present = bool(
-            connection.headers or connection.auth_method or connection.auth_credentials
-        )
-        coverage[profile.profile_id] = "excluded_present" if excluded_input_present else "none"
+def _runtime_profile_input_coverage(
+    snapshot: _RuntimeSourceProfileSnapshot | None = None,
+) -> dict[str, object]:
+    """Classify one complete immutable profile snapshot without input values."""
+    profile_snapshot = snapshot or _current_runtime_source_profile_snapshot()
+    if profile_snapshot is None:
+        profile_snapshot = _capture_runtime_source_profile_snapshot()
+    profiles = cast("Mapping[str, str]", profile_snapshot.coverage["profiles"])
     return {
         "schema_version": _PROFILE_INPUT_COVERAGE_SCHEMA_VERSION,
-        "profiles": dict(sorted(coverage.items())),
+        "profiles": dict(sorted(profiles.items())),
     }
+
+
+def _capture_runtime_source_profile_snapshot() -> _RuntimeSourceProfileSnapshot:
+    """Copy profiles once, then resolve every runtime input from those copies."""
+    from polisyos.fabric.connectors.base import ConnectionConfig
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+    from polisyos.fabric.connectors.profiles.resolver import (
+        resolve_connection_config,
+        resolve_execution_policy,
+    )
+
+    # snapshot_all copies while holding the registry lock. Re-copying these
+    # detached models outside that lock would add work without improving the
+    # supported register/override consistency guarantee.
+    profiles = tuple(SourceProfileRegistry.get_instance().snapshot_all())
+    token = str(os.getenv("POLISYOS_UNPD_API_TOKEN") or "").strip()
+    legacy_serial_mode_value = (
+        str(os.getenv("POLISYOS_DATASET_LEGACY_SERIAL") or "").strip().lower()
+    )
+    connections: dict[str, ConnectionConfig] = {}
+    policies: dict[str, object] = {}
+    coverage: dict[str, str] = {}
+    payload: list[dict[str, object]] = []
+    for profile in profiles:
+        connection = resolve_connection_config(profile)
+        if (
+            profile.profile_id == "unpd_dataportal"
+            and token
+            and not connection.auth_credentials.get("token")
+        ):
+            credentials = dict(connection.auth_credentials)
+            credentials["token"] = token
+            connection = ConnectionConfig(
+                url=connection.url,
+                headers=dict(connection.headers),
+                auth_method=connection.auth_method or "bearer",
+                auth_credentials=credentials,
+                timeout_seconds=connection.timeout_seconds,
+                max_retries=connection.max_retries,
+                retry_delay_seconds=connection.retry_delay_seconds,
+                rate_limit_rps=connection.rate_limit_rps,
+                max_connections=connection.max_connections,
+                keepalive_seconds=connection.keepalive_seconds,
+                verify_ssl=connection.verify_ssl,
+                ca_bundle_path=connection.ca_bundle_path,
+            )
+        connections[profile.profile_id] = connection
+        policies[profile.profile_id] = resolve_execution_policy(profile)
+        coverage[profile.profile_id] = (
+            "excluded_present"
+            if connection.headers or connection.auth_method or connection.auth_credentials
+            else "none"
+        )
+        payload.append(
+            {
+                "profile": profile.model_dump(mode="json", exclude={"headers"}),
+                "connection": {
+                    item.name: _signature_safe(getattr(connection, item.name))
+                    for item in fields(connection)
+                    if item.name not in {"headers", "auth_credentials"}
+                },
+                "execution_policy": policies[profile.profile_id].model_dump(mode="json"),
+            }
+        )
+    frozen_coverage = types.MappingProxyType(
+        {
+            "schema_version": _PROFILE_INPUT_COVERAGE_SCHEMA_VERSION,
+            "profiles": types.MappingProxyType(dict(sorted(coverage.items()))),
+        }
+    )
+    return _RuntimeSourceProfileSnapshot(
+        connection_configs=types.MappingProxyType(connections),
+        execution_policies=types.MappingProxyType(policies),
+        coverage=frozen_coverage,
+        profile_payload=json.dumps(
+            payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+        ).encode("utf-8"),
+        legacy_serial_mode=legacy_serial_mode_value in {"1", "true", "yes", "on"},
+    )
+
+
+@contextmanager
+def _runtime_source_profile_snapshot_scope() -> Iterator[_RuntimeSourceProfileSnapshot]:
+    """Keep profile resolution stable across one catalog pipeline operation."""
+    current = _current_runtime_source_profile_snapshot()
+    if current is not None:
+        yield current
+        return
+    snapshot = _capture_runtime_source_profile_snapshot()
+    token: Token[_RuntimeSourceProfileSnapshot | None] = _RUNTIME_SOURCE_PROFILE_SNAPSHOT.set(
+        snapshot
+    )
+    try:
+        yield snapshot
+    finally:
+        _RUNTIME_SOURCE_PROFILE_SNAPSHOT.reset(token)
+
+
+def _current_runtime_source_profile_snapshot() -> _RuntimeSourceProfileSnapshot | None:
+    """Return the profile snapshot active for the current run, if any."""
+    return _RUNTIME_SOURCE_PROFILE_SNAPSHOT.get()
 
 
 def parse_profile_input_coverage(
@@ -590,9 +711,10 @@ def profile_input_coverage_currentness(
 
 
 def _runtime_profile_input_currentness() -> tuple[str, dict[str, str] | None]:
-    """Recompute live profile coverage through the canonical resolver."""
+    """Recompute profile currentness from one immutable effective snapshot."""
     try:
-        return profile_input_coverage_currentness(_runtime_profile_input_coverage())
+        coverage = _runtime_profile_input_coverage()
+        return profile_input_coverage_currentness(coverage)
     except Exception:
         return "malformed", None
 
@@ -606,32 +728,10 @@ def _runtime_source_profile_payload() -> bytes:
     is separately content-bound in the producer basis. No values or digests of
     headers, credentials, or environment tokens are persisted.
     """
-    from polisyos.fabric.connectors import (
-        SourceProfileRegistry,
-        resolve_connection_config,
-        resolve_execution_policy,
-    )
-
-    profiles = [
-        profile.model_copy(deep=True) for profile in SourceProfileRegistry.get_instance().list_all()
-    ]
-    payload: list[dict[str, object]] = []
-    for profile in profiles:
-        connection = resolve_connection_config(profile)
-        payload.append(
-            {
-                "profile": profile.model_dump(mode="json", exclude={"headers"}),
-                "connection": {
-                    item.name: _signature_safe(getattr(connection, item.name))
-                    for item in fields(connection)
-                    if item.name not in {"headers", "auth_credentials"}
-                },
-                "execution_policy": resolve_execution_policy(profile).model_dump(mode="json"),
-            }
-        )
-    return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode(
-        "utf-8"
-    )
+    snapshot = _current_runtime_source_profile_snapshot()
+    if snapshot is None:
+        snapshot = _capture_runtime_source_profile_snapshot()
+    return snapshot.profile_payload
 
 
 def _signature_safe(value: object) -> object:

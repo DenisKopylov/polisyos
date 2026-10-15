@@ -38,7 +38,20 @@ def test_pipeline_writes_telemetry_when_qc_fails(monkeypatch, tmp_path) -> None:
     assert "qc exploded" in payload["error"]
 
 
-def test_embed_resume_does_not_skip_when_selected_member_is_missing(tmp_path) -> None:
+def test_embed_resume_does_not_skip_when_selected_member_is_missing(tmp_path, monkeypatch) -> None:
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    profiles = SourceProfileRegistry()
+    profiles.register(
+        SourceProfile(
+            profile_id="worldbank_wdi",
+            display_name="Fixture World Bank",
+            connector_family="worldbank",
+            base_url="https://example.test/worldbank",
+        )
+    )
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
     config = DatasetBatchConfig(
         snapshot_root=tmp_path / "snap",
         stages=frozenset({"embed"}),
@@ -76,3 +89,53 @@ def test_embed_resume_does_not_skip_when_selected_member_is_missing(tmp_path) ->
     (generation_dir / "embeddings.npz").unlink()
 
     assert not _should_skip_stage(config, "embed")
+
+
+def test_pipeline_uses_one_profile_snapshot_for_signature_and_core_consumer(
+    tmp_path, monkeypatch
+) -> None:
+    from polisyos.data_forge.domains.catalog.batch import pipeline
+    from polisyos.data_forge.domains.catalog.batch._core_sources_ingest_contracts import (
+        CoreSourcesIngestStats,
+    )
+    from polisyos.data_forge.domains.catalog.batch.core_sources import api as core_api
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    profiles = SourceProfileRegistry()
+    original = SourceProfile(
+        profile_id="worldbank_wdi",
+        display_name="Fixture World Bank",
+        connector_family="worldbank",
+        base_url="https://example.test/worldbank",
+    )
+    profiles.register(original)
+    monkeypatch.setattr(SourceProfileRegistry, "_instance", profiles)
+    config = DatasetBatchConfig(
+        snapshot_root=tmp_path / "snap",
+        stages=frozenset({"core_sources_ingest"}),
+    )
+    signatures: list[str] = []
+
+    async def _fake_core_ingest(received_config):
+        signatures.append(received_config.run_signature)
+        profiles.register(
+            original.model_copy(update={"base_url": "https://example.test/replaced"}),
+            override=True,
+        )
+        signatures.append(received_config.run_signature)
+        return CoreSourcesIngestStats()
+
+    monkeypatch.setattr(core_api, "run_core_sources_ingest_async", _fake_core_ingest)
+
+    def _does_not_skip(received_config, _stage):
+        signatures.append(received_config.run_signature)
+        return False
+
+    monkeypatch.setattr(pipeline, "_should_skip_stage", _does_not_skip)
+
+    run_dataset_pipeline_sync(config)
+
+    assert len(signatures) == 3
+    assert len(set(signatures)) == 1
+    assert config.run_signature != signatures[0]

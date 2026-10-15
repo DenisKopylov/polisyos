@@ -17,6 +17,7 @@ from polisyos.core.artifacts import (
     read_core_json_artifact,
     read_core_manifest_profile,
 )
+from polisyos.core.artifacts.protocol import matches_runtime_protocol
 from polisyos.pdc import ArtifactRef as EvalSafetyArtifactRef
 from polisyos.pdc import AuthorityBoundary
 from polisyos.runtime.http.services.control.artifacts import (
@@ -98,6 +99,34 @@ if TYPE_CHECKING:
 
 _PRODUCER_COMPONENT = "polisyos.runtime.http.control.evaluation_safety"
 _PRODUCER_VERSION = "1.0.0"
+
+
+class _CASInventoryEntry(Protocol):
+    """Structural view of one verified entry from the CAS inventory API."""
+
+    artifact_ref: core_artifacts.ArtifactID | core_artifacts.ArtifactRef
+    manifest: core_artifacts.ArtifactManifest
+    blob_sha256: str
+    blob_byte_size: int
+    manifest_sha256: str
+    manifest_byte_size: int
+
+
+class _CASInventorySnapshot(Protocol):
+    """Structural view of the existing stable inventory result."""
+
+    verdict: Literal["pass", "fail", "UNRUN"]
+    inputs: tuple[str, ...]
+    unresolved_by_construction: tuple[str, ...]
+    owner_generation_sha256: str | None
+    entries: tuple[_CASInventoryEntry, ...]
+    reason: str | None
+
+
+class _AllViewCASInventory(Protocol):
+    """Optional store capability that proves the complete visible view set."""
+
+    def inventory_snapshot(self) -> _CASInventorySnapshot: ...
 
 
 class EvaluationSafetyPersistenceContext(BaseModel):
@@ -412,6 +441,8 @@ class EvaluationSafetyPersistenceService:
         admitted_pack = owner_state.admitted_pack
         pack_admission_ref: EvalSafetyArtifactRef | None = None
         if admitted_pack is not None:
+            if request_ref is None:
+                raise ValueError("eval_safety_admitted_pack_request_ref_missing")
             pack_write = self._write(
                 key="pack_admission",
                 payload=admitted_pack.model_dump(mode="json"),
@@ -681,9 +712,12 @@ class EvaluationSafetyPersistenceService:
                     inputs_read=inputs_read,
                     read_attempts=read_attempts,
                 )
+                cell_id = context.cell_id
+                if cell_id is None:
+                    raise ValueError("promotion_source_actor_scope_mismatch")
                 if not isinstance(payload, dict) or (
                     payload.get("tenant_id") != context.tenant_id
-                    or payload.get("cell_id") != context.cell_id
+                    or payload.get("cell_id") != cell_id
                     or payload.get("run_id") != source_run_id
                 ):
                     raise ValueError("promotion_source_actor_scope_mismatch")
@@ -693,7 +727,7 @@ class EvaluationSafetyPersistenceService:
                     job=job,
                     expected_control_run_id=source_run_id,
                     tenant_id=context.tenant_id,
-                    cell_id=context.cell_id,
+                    cell_id=cell_id,
                     read_attempts=read_attempts,
                 )
                 inputs_read.extend(
@@ -1063,7 +1097,7 @@ class EvaluationSafetyPersistenceService:
             blocking_status=("non_blocking" if event.safety.status == "passed" else "blocking"),
         )
         decision_ref = self._verified_eval_ref(
-            written.cas_ref.artifact_id,
+            written.cas_ref,
             key="decision",
             semantic_hash=event.content_hash,
             expected_context=written.identity_context,
@@ -1134,10 +1168,17 @@ class EvaluationSafetyPersistenceService:
     ) -> EvaluationSafetyDecisionReduction:
         """Reduce the complete exact decision-kind/schema CAS denominator."""
 
-        evidence_by_ref: dict[tuple[str, str], list[EvaluationSafetyDecisionEvidence]] = {}
+        evidence_by_ref: dict[
+            tuple[str, str, str | None], list[EvaluationSafetyDecisionEvidence]
+        ] = {}
         for row in evidence:
             rows = evidence_by_ref.setdefault(
-                (row.decision_ref.artifact_id, row.decision_ref.content_hash), []
+                (
+                    row.decision_ref.artifact_id,
+                    row.decision_ref.content_hash,
+                    row.decision_ref.manifest_profile_sha256,
+                ),
+                [],
             )
             if row not in rows:
                 rows.append(row)
@@ -1145,42 +1186,79 @@ class EvaluationSafetyPersistenceService:
         selected: list[EvalSafetyArtifactRef] = []
         reconciled: list[tuple[EvalSafetyArtifactRef, EvaluationSafetyDecisionEvent]] = []
         event_refs: list[EvalSafetyArtifactRef] = []
-        for artifact_id in self._artifact_store.iter_artifact_ids():
-            typed_id = core_artifacts.ArtifactID.model_validate(artifact_id)
-            try:
-                manifest = read_core_manifest_profile(self._artifact_store, typed_id)[0]
-            except (OSError, TypeError, ValueError) as exc:
-                raise ValueError("eval_safety_selection_not_established") from exc
+        seen_profiles: dict[
+            tuple[str, str],
+            tuple[core_artifacts.ArtifactManifest, str, int, str, int],
+        ] = {}
+        for entry in self._decision_inventory_entries():
+            manifest = entry.manifest
+            if manifest.kind != identity.kind:
+                continue
             schema = manifest.artifact_schema
             if (
-                manifest.kind != identity.kind
+                manifest.media_type != "application/json"
                 or schema is None
                 or schema.name != identity.schema
                 or schema.version != "1.0"
             ):
+                raise ValueError("eval_safety_selection_not_established")
+
+            selected_core_ref = core_artifacts.artifact_ref_for_manifest(manifest)
+            if isinstance(entry.artifact_ref, core_artifacts.ArtifactRef) and (
+                entry.artifact_ref != selected_core_ref
+            ):
+                raise ValueError("eval_safety_selection_not_established")
+            try:
+                selected_manifest = read_core_manifest_profile(
+                    self._artifact_store,
+                    selected_core_ref,
+                )[0]
+            except (OSError, TypeError, ValueError) as exc:
+                raise ValueError("eval_safety_selection_not_established") from exc
+            if selected_manifest != manifest:
+                raise ValueError("eval_safety_selection_not_established")
+            typed_id = selected_core_ref.artifact_id
+            selected_profile = selected_core_ref.manifest_profile_sha256
+            if selected_profile is None:
+                raise ValueError("eval_safety_selection_not_established")
+            profile_identity = (str(typed_id), selected_profile)
+            profile_receipt = (
+                manifest,
+                entry.blob_sha256,
+                entry.blob_byte_size,
+                entry.manifest_sha256,
+                entry.manifest_byte_size,
+            )
+            previous_receipt = seen_profiles.get(profile_identity)
+            if previous_receipt is not None:
+                if previous_receipt != profile_receipt:
+                    raise ValueError("eval_safety_selection_not_established")
                 continue
+            seen_profiles[profile_identity] = profile_receipt
             selected_ref = _eval_ref(
                 typed_id,
                 identity=identity,
                 semantic_hash=str(typed_id),
+                manifest_profile_sha256=selected_profile,
             )
             selected.append(selected_ref)
             try:
                 if not self._authority_envelope_is_exact(
                     artifact_id=typed_id,
                     identity=identity,
+                    selected_ref=selected_core_ref,
                 ):
                     raise ValueError("eval_safety_authority_envelope_mismatch")
                 report = reconcile_authority_ref(
                     artifact_store=self._artifact_store,
                     event_log=self._event_log,
-                    cas_ref=str(typed_id),
+                    cas_ref=selected_core_ref,
                 )
-                payload = self._artifact_store.get_bytes(typed_id)
+                payload = self._artifact_store.get_bytes(selected_core_ref)
                 decision = EvaluationSafetyDecisionEvent.model_validate(
                     read_core_json_artifact(
                         self._artifact_store,
-                        typed_id,
+                        selected_core_ref,
                         raw_payload_bytes=payload,
                     ).value
                 )
@@ -1189,7 +1267,12 @@ class EvaluationSafetyPersistenceService:
                 )
                 selected[-1] = selected_ref
                 owner_rows = evidence_by_ref.get(
-                    (selected_ref.artifact_id, selected_ref.content_hash), []
+                    (
+                        selected_ref.artifact_id,
+                        selected_ref.content_hash,
+                        selected_ref.manifest_profile_sha256,
+                    ),
+                    [],
                 )
                 if len(owner_rows) != 1:
                     raise ValueError("eval_safety_owner_recomposition_missing")
@@ -1214,7 +1297,7 @@ class EvaluationSafetyPersistenceService:
                 reconciled.append((selected_ref, rebuilt))
                 event_authority = read_core_manifest_profile(
                     self._artifact_store,
-                    typed_id,
+                    selected_core_ref,
                 )[0].authority
                 if event_authority is None:
                     raise ValueError("eval_safety_diagnostic_event_linkage_missing")
@@ -1226,14 +1309,17 @@ class EvaluationSafetyPersistenceService:
                     self._artifact_store,
                     selected_event_ref,
                 )[0]
+                event_schema = event_manifest.artifact_schema
+                if event_schema is None:
+                    raise ValueError("eval_safety_diagnostic_event_schema_missing")
                 event_refs.append(
                     EvalSafetyArtifactRef(
                         artifact_id=str(event_manifest.artifact_id),
                         artifact_type=event_manifest.kind,
                         content_hash=str(event_manifest.artifact_id),
-                        schema_ref=event_manifest.artifact_schema.name,
+                        schema_ref=event_schema.name,
                         uri=f"cas://sha256/{event_manifest.artifact_id.hex}",
-                        version=event_manifest.artifact_schema.version,
+                        version=event_schema.version,
                         manifest_profile_sha256=(selected_event_ref.manifest_profile_sha256),
                     )
                 )
@@ -1247,8 +1333,8 @@ class EvaluationSafetyPersistenceService:
             ):
                 continue
         by_id: dict[str, list[tuple[EvalSafetyArtifactRef, EvaluationSafetyDecisionEvent]]] = {}
-        for row in reconciled:
-            by_id.setdefault(row[1].decision_id, []).append(row)
+        for reconciled_row in reconciled:
+            by_id.setdefault(reconciled_row[1].decision_id, []).append(reconciled_row)
         conflicts = {
             decision_id
             for decision_id, rows in by_id.items()
@@ -1283,12 +1369,22 @@ class EvaluationSafetyPersistenceService:
         else:
             coverage = "complete"
         reconciled_refs = tuple(ref for ref, _ in reconciled)
-        selected_identities = {(ref.artifact_id, ref.content_hash) for ref in selected}
-        reconciled_identities = {(ref.artifact_id, ref.content_hash) for ref in reconciled_refs}
+        selected_identities = {
+            (ref.artifact_id, ref.content_hash, ref.manifest_profile_sha256) for ref in selected
+        }
+        reconciled_identities = {
+            (ref.artifact_id, ref.content_hash, ref.manifest_profile_sha256)
+            for ref in reconciled_refs
+        }
         unreconciled_refs = tuple(
             ref
             for ref in selected
-            if (ref.artifact_id, ref.content_hash) not in reconciled_identities
+            if (
+                ref.artifact_id,
+                ref.content_hash,
+                ref.manifest_profile_sha256,
+            )
+            not in reconciled_identities
         )
         if unreconciled_refs or conflicting_refs:
             coverage = "not_established"
@@ -1306,6 +1402,50 @@ class EvaluationSafetyPersistenceService:
             reconciliation_status="complete" if complete else "not_established",
             source_event_refs=tuple(sorted(event_refs, key=lambda ref: ref.artifact_id)),
         )
+
+    def _decision_inventory_entries(self) -> tuple[_CASInventoryEntry, ...]:
+        """Require the store's existing stable all-visible-views inventory."""
+        try:
+            if not matches_runtime_protocol(
+                self._artifact_store,
+                _AllViewCASInventory,  # type: ignore[type-abstract]
+            ):
+                raise ValueError("eval_safety_selection_not_established")
+            snapshot = self._artifact_store.inventory_snapshot()
+        except (AttributeError, NotImplementedError, OSError, TypeError, ValueError) as exc:
+            raise ValueError("eval_safety_selection_not_established") from exc
+        if snapshot.verdict != "pass" or not matches_runtime_protocol(
+            snapshot,
+            _CASInventorySnapshot,  # type: ignore[type-abstract]
+        ):
+            raise ValueError("eval_safety_selection_not_established")
+        if type(snapshot.entries) is not tuple:
+            raise ValueError("eval_safety_selection_not_established")
+        for entry in snapshot.entries:
+            if not matches_runtime_protocol(
+                entry,
+                _CASInventoryEntry,  # type: ignore[type-abstract]
+            ):
+                raise ValueError("eval_safety_selection_not_established")
+            if not isinstance(entry.manifest, core_artifacts.ArtifactManifest):
+                raise ValueError("eval_safety_selection_not_established")
+            if not isinstance(
+                entry.artifact_ref,
+                (core_artifacts.ArtifactID, core_artifacts.ArtifactRef),
+            ):
+                raise ValueError("eval_safety_selection_not_established")
+            artifact_id = (
+                entry.artifact_ref.artifact_id
+                if isinstance(entry.artifact_ref, core_artifacts.ArtifactRef)
+                else entry.artifact_ref
+            )
+            if (
+                entry.manifest.artifact_id != artifact_id
+                or entry.blob_sha256 != str(artifact_id)
+                or entry.blob_byte_size != entry.manifest.byte_size
+            ):
+                raise ValueError("eval_safety_selection_not_established")
+        return snapshot.entries
 
     def reconcile_persisted_attempt(
         self,
@@ -1527,8 +1667,12 @@ class EvaluationSafetyPersistenceService:
         *,
         artifact_id: core_artifacts.ArtifactID,
         identity: EvaluationSafetyArtifactIdentity,
+        selected_ref: core_artifacts.ArtifactRef | None = None,
     ) -> bool:
-        manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
+        manifest = read_core_manifest_profile(
+            self._artifact_store,
+            selected_ref or artifact_id,
+        )[0]
         authority = manifest.authority
         if authority is None:
             return False
@@ -1572,10 +1716,16 @@ class EvaluationSafetyPersistenceService:
     ) -> ModelT:
         artifact_id = core_artifacts.ArtifactID.model_validate(artifact_ref.artifact_id)
         identity = EVALUATION_SAFETY_ARTIFACT_IDENTITIES[key]
-        verification = self._artifact_store.verify(artifact_id)
+        selected_core_ref = core_artifacts.ArtifactRef(
+            artifact_id=artifact_id,
+            kind=identity.kind,
+            media_type="application/json",
+            manifest_profile_sha256=artifact_ref.manifest_profile_sha256,
+        )
+        verification = self._artifact_store.verify(selected_core_ref)
         if not verification.ok:
             raise ValueError("eval_safety_cas_readback_failed")
-        manifest = read_core_manifest_profile(self._artifact_store, artifact_id)[0]
+        manifest = read_core_manifest_profile(self._artifact_store, selected_core_ref)[0]
         schema = manifest.artifact_schema
         if (
             manifest.kind != identity.kind
@@ -1585,16 +1735,17 @@ class EvaluationSafetyPersistenceService:
             or not self._authority_envelope_is_exact(
                 artifact_id=artifact_id,
                 identity=identity,
+                selected_ref=selected_core_ref,
             )
         ):
             raise ValueError("eval_safety_cas_identity_mismatch")
         reconcile_authority_ref(
             artifact_store=self._artifact_store,
             event_log=self._event_log,
-            cas_ref=str(artifact_id),
+            cas_ref=selected_core_ref,
         )
         result = model_type.model_validate(
-            read_core_json_artifact(self._artifact_store, artifact_id).value
+            read_core_json_artifact(self._artifact_store, selected_core_ref).value
         )
         embedded_hash = getattr(result, "content_hash", None)
         expected_hash = embedded_hash if isinstance(embedded_hash, str) else str(artifact_id)
@@ -1602,6 +1753,7 @@ class EvaluationSafetyPersistenceService:
             artifact_id,
             identity=identity,
             semantic_hash=expected_hash,
+            manifest_profile_sha256=selected_core_ref.manifest_profile_sha256,
         ):
             raise ValueError("eval_safety_cas_ref_binding_mismatch")
         return result
@@ -1668,7 +1820,7 @@ class EvaluationSafetyPersistenceService:
 
     def _verified_eval_ref(
         self,
-        artifact_id: core_artifacts.ArtifactID,
+        artifact_id: core_artifacts.ArtifactID | core_artifacts.ArtifactRef,
         *,
         key: str,
         semantic_hash: str,
@@ -1676,7 +1828,10 @@ class EvaluationSafetyPersistenceService:
         artifact_type: str | None = None,
         schema_ref: str | None = None,
     ) -> EvalSafetyArtifactRef:
-        typed_id = core_artifacts.ArtifactID.model_validate(artifact_id)
+        selected_ref = artifact_id if isinstance(artifact_id, core_artifacts.ArtifactRef) else None
+        typed_id = core_artifacts.ArtifactID.model_validate(
+            selected_ref.artifact_id if selected_ref is not None else artifact_id
+        )
         identity = EVALUATION_SAFETY_ARTIFACT_IDENTITIES[key]
         if artifact_type is not None or schema_ref is not None:
             verification = self._artifact_store.verify(typed_id)
@@ -1694,7 +1849,7 @@ class EvaluationSafetyPersistenceService:
                 raise ValueError("eval_safety_authority_identity_context_missing")
             verify_runtime_authority_artifact_identity(
                 self._artifact_store,
-                artifact_id=typed_id,
+                artifact_id=selected_ref or typed_id,
                 opts=core_artifacts.ArtifactWriteOptions(
                     kind=identity.kind,
                     media_type="application/json",
@@ -1735,6 +1890,9 @@ class EvaluationSafetyPersistenceService:
             schema_ref=schema_ref or identity.schema,
             uri=f"cas://sha256/{typed_id.hex}",
             version="1.0",
+            manifest_profile_sha256=(
+                selected_ref.manifest_profile_sha256 if selected_ref is not None else None
+            ),
         )
 
 
@@ -1964,6 +2122,7 @@ def _eval_ref(
     *,
     identity: EvaluationSafetyArtifactIdentity,
     semantic_hash: str,
+    manifest_profile_sha256: str | None = None,
 ) -> EvalSafetyArtifactRef:
     return EvalSafetyArtifactRef(
         artifact_id=str(artifact_id),
@@ -1972,6 +2131,7 @@ def _eval_ref(
         schema_ref=identity.schema,
         uri=f"cas://sha256/{artifact_id.hex}",
         version="1.0",
+        manifest_profile_sha256=manifest_profile_sha256,
     )
 
 

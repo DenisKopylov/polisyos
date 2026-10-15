@@ -12,7 +12,8 @@ import pytest
 from polisyos.core import components as core_components
 from polisyos.core.artifacts import ArtifactID as CoreArtifactID
 from polisyos.core.artifacts import ArtifactRef as CoreArtifactRef
-from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
+from polisyos.core.artifacts import artifact_ref_for_manifest, read_core_manifest_profile
+from polisyos.core.artifacts.manifest import EnvInfo, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import content_hash as canonical_content_hash
 from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
@@ -72,6 +73,26 @@ def _service(tmp_path) -> tuple[EvaluationSafetyPersistenceService, FileSystemCA
         "tenant-1",
         cell_id="cell-a",
     )
+    control_store = ControlPlaneStore(
+        backend="sqlite",
+        sqlite_path=tmp_path / "control.sqlite3",
+    )
+    event_log = RuntimeDiagnosticEventLog(
+        store=control_store,
+        artifact_store=artifact_store,
+    )
+    return (
+        EvaluationSafetyPersistenceService(
+            artifact_store=artifact_store,
+            event_log=event_log,
+        ),
+        artifact_store,
+    )
+
+
+def _unowned_service(tmp_path) -> tuple[EvaluationSafetyPersistenceService, FileSystemCAS]:
+    """Build a portable CAS fixture without tenant ownership-index state."""
+    artifact_store = FileSystemCAS(tmp_path / "cas")
     control_store = ControlPlaneStore(
         backend="sqlite",
         sqlite_path=tmp_path / "control.sqlite3",
@@ -285,9 +306,7 @@ def _passing_fixture(
     pack = DomainEvalSafetyPack.build(
         schema_version="polisyos.eval_safety.domain_pack.v1",
         rule_version=basis.rule_version,
-        pack_component_id=core_components.ComponentId(
-            "novel_domain.safety_pack@1.0.0"
-        ),
+        pack_component_id=core_components.ComponentId("novel_domain.safety_pack@1.0.0"),
         source_pack_ref=_ref("sha256:" + "8" * 64, "test.domain-pack-source"),
         mode_basis_ref=basis_ref,
         semantic_facet_registry_ref=registry_ref,
@@ -307,12 +326,8 @@ def _passing_fixture(
             verifier_component_id=core_components.ComponentId(
                 "polisyos.eval_safety.universal_verifier@1.0.0"
             ),
-            component_discovery_manifest_ref=_ref(
-                "sha256:" + "a" * 64, "test.component-manifest"
-            ),
-            appointing_authority_ref=_ref(
-                "sha256:" + "b" * 64, "test.appointing-authority"
-            ),
+            component_discovery_manifest_ref=_ref("sha256:" + "a" * 64, "test.component-manifest"),
+            appointing_authority_ref=_ref("sha256:" + "b" * 64, "test.appointing-authority"),
             appointment_verification_receipt_ref=_ref(
                 "sha256:" + "c" * 64, "test.appointment-verification"
             ),
@@ -325,12 +340,8 @@ def _passing_fixture(
             verifier_component_id=core_components.ComponentId(
                 "novel_domain.independent_verifier@1.0.0"
             ),
-            component_discovery_manifest_ref=_ref(
-                "sha256:" + "d" * 64, "test.component-manifest"
-            ),
-            appointing_authority_ref=_ref(
-                "sha256:" + "e" * 64, "test.appointing-authority"
-            ),
+            component_discovery_manifest_ref=_ref("sha256:" + "d" * 64, "test.component-manifest"),
+            appointing_authority_ref=_ref("sha256:" + "e" * 64, "test.appointing-authority"),
             appointment_verification_receipt_ref=_ref(
                 "sha256:" + "f" * 64, "test.appointment-verification"
             ),
@@ -365,15 +376,14 @@ def _passing_fixture(
                         else "polisyos.eval_safety.basis_verifier@1.0.0"
                     ),
                 )
-            binding = cause_bindings.get(
-                (artifact_ref.artifact_id, artifact_ref.content_hash)
-            )
+            binding = cause_bindings.get((artifact_ref.artifact_id, artifact_ref.content_hash))
             if binding is None:
                 for artifact_id in artifact_store.iter_artifact_ids():
                     manifest = artifact_store.get_manifest(artifact_id)
-                    if manifest.kind != c02.EVALUATION_SAFETY_ARTIFACT_IDENTITIES[
-                        "certificate"
-                    ].kind:
+                    if (
+                        manifest.kind
+                        != c02.EVALUATION_SAFETY_ARTIFACT_IDENTITIES["certificate"].kind
+                    ):
                         continue
                     certificate = es.EvalSafetyCertificate.model_validate(
                         from_canonical_bytes(artifact_store.get_bytes(artifact_id))
@@ -400,9 +410,7 @@ def _passing_fixture(
                 return es.EvalSafetyAuthorityResolution(
                     status="blocked",
                     artifact_ref=artifact_ref,
-                    blocker_codes=(
-                        "polisyos.eval_safety.revision_cause_unresolved@1.0.0",
-                    ),
+                    blocker_codes=("polisyos.eval_safety.revision_cause_unresolved@1.0.0",),
                     predicate_provenance=(),
                     resolved_at=evaluated_at,
                 )
@@ -429,9 +437,7 @@ def _passing_fixture(
             appointment = next(
                 (
                     row
-                    for candidate_ref, row in zip(
-                        appointment_refs, appointments, strict=True
-                    )
+                    for candidate_ref, row in zip(appointment_refs, appointments, strict=True)
                     if candidate_ref == ref
                 ),
                 None,
@@ -478,9 +484,7 @@ def _passing_fixture(
                     "novel_domain.sensor@1.0.0"
                 ),
                 verifier_component_id=appointment.verifier_component_id,
-                verification_receipt_ref=_ref(
-                    "sha256:" + "0" * 64, "test.verification-receipt"
-                ),
+                verification_receipt_ref=_ref("sha256:" + "0" * 64, "test.verification-receipt"),
                 status="passed",
                 blocker_codes=(),
                 predicate_provenance=("independently_reconciled",),
@@ -491,11 +495,7 @@ def _passing_fixture(
     class Registry:
         def resolve(self, evidence_contract_id: str) -> Verifier | None:
             appointment = next(
-                (
-                    row
-                    for row in appointments
-                    if row.evidence_contract_id == evidence_contract_id
-                ),
+                (row for row in appointments if row.evidence_contract_id == evidence_contract_id),
                 None,
             )
             return Verifier(appointment) if appointment is not None else None
@@ -519,9 +519,7 @@ def _passing_fixture(
         mode_resolution=resolve_evaluation_mode("field_pilot"),
         domain_hint="novel-domain",
         domain_pack_ref=pack_ref,
-        target_population_scope_ref=_ref(
-            "sha256:" + "8" * 64, "test.population"
-        ),
+        target_population_scope_ref=_ref("sha256:" + "8" * 64, "test.population"),
         evaluation_input_refs=(source_ref,),
         evaluation_input_provenance=(
             EvaluationInputProvenance(
@@ -559,9 +557,7 @@ def _passing_fixture(
         ),
         classification_offer=None,
         classification=None,
-        certificate_issue_cause_ref=_ref(
-            "sha256:" + "5" * 64, "test.revision-cause"
-        ),
+        certificate_issue_cause_ref=_ref("sha256:" + "5" * 64, "test.revision-cause"),
     )
     persisted = service.compose_and_persist_attempt(
         intake=intake,
@@ -625,7 +621,8 @@ def _passing_fixture(
 
 
 def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """An owner-blocked persisted N6 run cannot supply a current N9 source."""
 
@@ -716,18 +713,20 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
                 repo_root=REPO_ROOT,
             ),
         )
-        return asyncio.run(recursive_controller.run(
-            graph,
-            problems_by_node={root_ref: problem},
-            budget_state=_budget(),
-            recursive_budget=RecursiveCycleBudget(
-                max_depth=0,
-                max_nodes=1,
-                min_cycles_per_leaf=1,
-                max_cycles_per_leaf=1,
-            ),
-            execution_intents_by_node={root_ref: "candidate_only"},
-        ))
+        return asyncio.run(
+            recursive_controller.run(
+                graph,
+                problems_by_node={root_ref: problem},
+                budget_state=_budget(),
+                recursive_budget=RecursiveCycleBudget(
+                    max_depth=0,
+                    max_nodes=1,
+                    min_cycles_per_leaf=1,
+                    max_cycles_per_leaf=1,
+                ),
+                execution_intents_by_node={root_ref: "candidate_only"},
+            )
+        )
 
     stopped_recursive = _run_recursive(_StopController)
     blocked_recursive = _run_recursive(_BlockedController)
@@ -758,17 +757,12 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
     )
     with pytest.raises(
         GenerationCycleError,
-        match=(
-            "generation_cycle_run_invalid_before_n9: "
-            "voi_blocked_action_run_terminal_mismatch"
-        ),
+        match=("generation_cycle_run_invalid_before_n9: voi_blocked_action_run_terminal_mismatch"),
     ):
         eligible_n9_source_for_run(completed_with_blocked_voi)
     missing_terminal_status_payload = stopped_n6.model_dump(mode="json")
     missing_terminal_status_payload.pop("terminal_status")
-    missing_terminal_status_run = GenerationCycleRun.model_validate(
-        missing_terminal_status_payload
-    )
+    missing_terminal_status_run = GenerationCycleRun.model_validate(missing_terminal_status_payload)
     with pytest.raises(
         GenerationCycleError,
         match="generation_cycle_terminal_status_not_supplied",
@@ -777,7 +771,8 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
     stop_candidate = stopped_n6.candidate_summaries[0]
     candidate = blocked_n6.candidate_summaries[0]
     assert (stop_candidate.candidate_id, stop_candidate.content_hash) == (
-        candidate.candidate_id, candidate.content_hash
+        candidate.candidate_id,
+        candidate.content_hash,
     )
 
     def _compiled_base(
@@ -788,14 +783,14 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
             "design_problem_ref": problem_ref,
             "design_problem": problem.model_dump(mode="json"),
             "cycle_substrate_context_ref": None,
-            "recursive_run": recursive_run.model_dump(
-                mode="json", exclude={"leaf_nodes"}
-            ),
+            "recursive_run": recursive_run.model_dump(mode="json", exclude={"leaf_nodes"}),
         }
-        return CompiledRecursiveGenerationCycleRun.model_validate({
-            **compiled_payload,
-            "content_hash": gy_content_hash(compiled_payload),
-        })
+        return CompiledRecursiveGenerationCycleRun.model_validate(
+            {
+                **compiled_payload,
+                "content_hash": gy_content_hash(compiled_payload),
+            }
+        )
 
     stopped_base_compiled = _compiled_base(stopped_recursive)
     blocked_base_compiled = _compiled_base(blocked_recursive)
@@ -827,17 +822,17 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
         artifact_type=WORLD_MODEL_RECORD_ARTIFACT_KIND,
         content_hash=world_hash,
         schema_ref=WORLD_MODEL_RECORD_SCHEMA_VERSION,
-        uri=(
-            "cas://sha256/"
-            f"{str(world_artifact.artifact_id).removeprefix('sha256:')}"
-        ),
+        uri=(f"cas://sha256/{str(world_artifact.artifact_id).removeprefix('sha256:')}"),
         version="1.0",
     )
     assert world_ref.artifact_id == str(world_artifact.artifact_id)
     assert world_ref.content_hash == reopened_world.content_hash == world_hash
-    assert WorldModelRecord.model_validate(
-        from_canonical_bytes(store.get_bytes(world_ref.artifact_id))
-    ) == reopened_world
+    assert (
+        WorldModelRecord.model_validate(
+            from_canonical_bytes(store.get_bytes(world_ref.artifact_id))
+        )
+        == reopened_world
+    )
     promotion_runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "n9-cas"))
     value_fixture = _receipt(world_record)
     value = ValueGateReceipt(
@@ -878,21 +873,22 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
     assert n9_observation.status == "not_promoted"
     assert n9_observation.reason
     assert n9_observation.receipts
-    genuine_receipt = n9.CanonicalPromotionReceipt.model_validate(
-        n9_observation.receipts[0]
-    )
+    genuine_receipt = n9.CanonicalPromotionReceipt.model_validate(n9_observation.receipts[0])
     assert genuine_receipt.owner_projection.candidate_summary == candidate
     assert genuine_receipt.owner_projection.value_receipt == value
-    assert n9.validate_canonical_promotion_receipt(
-        genuine_receipt,
-        candidate_summary=candidate,
-        design_problem=problem,
-        value_receipt=value,
-        open_world_resolver=n9_port.open_world_resolver,
-        epoch_validity_resolver=n9_port.epoch_validity_resolver,
-        promotion_evidence_resolver=n9_port.promotion_evidence_resolver,
-        repo_root=REPO_ROOT,
-    ) == ()
+    assert (
+        n9.validate_canonical_promotion_receipt(
+            genuine_receipt,
+            candidate_summary=candidate,
+            design_problem=problem,
+            value_receipt=value,
+            open_world_resolver=n9_port.open_world_resolver,
+            epoch_validity_resolver=n9_port.epoch_validity_resolver,
+            promotion_evidence_resolver=n9_port.promotion_evidence_resolver,
+            repo_root=REPO_ROOT,
+        )
+        == ()
+    )
 
     source_node = stopped_base_compiled.recursive_run.leaf_nodes[0]
     blocked_source_node = blocked_base_compiled.recursive_run.leaf_nodes[0]
@@ -918,35 +914,40 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
         } == {"promotion_port"}
         n6_run = GenerationCycleRun.model_validate(n6_with_adversarial_receipt)
         nodes = tuple(
-            row.model_copy(update={
-                "cycle_run": n6_run,
-                "terminal": generation_cycle_terminal_state(n6_run),
-            })
+            row.model_copy(
+                update={
+                    "cycle_run": n6_run,
+                    "terminal": generation_cycle_terminal_state(n6_run),
+                }
+            )
             if row.node_ref == base_compiled.recursive_run.root_node_ref
             else row
             for row in base_compiled.recursive_run.nodes
         )
         root_node = next(
-            row for row in nodes
-            if row.node_ref == base_compiled.recursive_run.root_node_ref
+            row for row in nodes if row.node_ref == base_compiled.recursive_run.root_node_ref
         )
         recursive = base_compiled.recursive_run.model_copy(
             update={"nodes": nodes, "terminal": root_node.terminal}
         )
         recursive_projection = gy_artifact_self_identity_projection(recursive)
         recursive_projection.pop("leaf_nodes", None)
-        recursive = RecursiveGenerationCycleRun.model_validate({
-            **recursive.model_dump(mode="json"),
-            "content_hash": gy_content_hash(recursive_projection),
-        })
+        recursive = RecursiveGenerationCycleRun.model_validate(
+            {
+                **recursive.model_dump(mode="json"),
+                "content_hash": gy_content_hash(recursive_projection),
+            }
+        )
         draft = base_compiled.model_copy(update={"recursive_run": recursive})
         compiled_projection = gy_artifact_self_identity_projection(draft)
         compiled_projection["recursive_run"].pop("leaf_nodes", None)
-        return type(base_compiled).model_validate({
-            **draft.model_dump(mode="json"),
-            "recursive_run": recursive,
-            "content_hash": gy_content_hash(compiled_projection),
-        })
+        return type(base_compiled).model_validate(
+            {
+                **draft.model_dump(mode="json"),
+                "recursive_run": recursive,
+                "content_hash": gy_content_hash(compiled_projection),
+            }
+        )
 
     payload = {
         "tenant_id": "tenant-1",
@@ -997,10 +998,12 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
         return SimpleNamespace(
             manifest=SimpleNamespace(
                 status="ok",
-                outputs=(SimpleNamespace(
-                    kind="runtime.compiled_recursive_generation_cycle",
-                    artifact_id=control_store.compiled_ref,
-                ),),
+                outputs=(
+                    SimpleNamespace(
+                        kind="runtime.compiled_recursive_generation_cycle",
+                        artifact_id=control_store.compiled_ref,
+                    ),
+                ),
             ),
             tenant_id=payload["tenant_id"],
             cell_id=payload["cell_id"],
@@ -1011,9 +1014,7 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
     monkeypatch.setattr(core_run_adapter, "load_terminal_core_run_source", load_terminal)
 
     selected_sources = c02.EvaluationSafetyPromotionSourceContext(
-        slot=c02.EvaluationSafetyPromotionSourceSlot(
-            source_run_ids=("persisted-source-run",)
-        ),
+        slot=c02.EvaluationSafetyPromotionSourceSlot(source_run_ids=("persisted-source-run",)),
         control_store=control_store,
         core_runs_root=tmp_path / "core-runs",
         promotion_runtime=promotion_runtime,
@@ -1023,21 +1024,26 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
     )
 
     def source_intake() -> EvaluationAttemptIntake:
-        return fixture.intake.model_copy(update={
-            "design_problem_ref": problem_ref,
-            "candidate_ref": fixture.intake.candidate_ref.model_copy(update={
-                "artifact_id": candidate.candidate_id,
-                "content_hash": candidate.content_hash,
-            }),
-            "world_model_record_ref": world_ref,
-        })
+        return fixture.intake.model_copy(
+            update={
+                "design_problem_ref": problem_ref,
+                "candidate_ref": fixture.intake.candidate_ref.model_copy(
+                    update={
+                        "artifact_id": candidate.candidate_id,
+                        "content_hash": candidate.content_hash,
+                    }
+                ),
+                "world_model_record_ref": world_ref,
+            }
+        )
 
     def resolve(base_compiled, n6_source, *, omit_terminal_status: bool = False):
         compiled = compiled_wire(base_compiled, n6_source)
         compiled_payload = compiled.model_dump(mode="json")
         if omit_terminal_status:
             persisted_root = next(
-                row for row in compiled_payload["recursive_run"]["nodes"]
+                row
+                for row in compiled_payload["recursive_run"]["nodes"]
                 if row["node_ref"] == compiled_payload["recursive_run"]["root_node_ref"]
             )
             persisted_cycle = persisted_root["cycle_run"]
@@ -1076,18 +1082,15 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
     assert len(parsed_receipts) == 1
     stop_compiled_ref = control_store.compiled_ref
     assert stop_compiled_ref
-    persisted_stop_compiled = from_canonical_bytes(
-        store.get_bytes(stop_compiled_ref)
-    )
+    persisted_stop_compiled = from_canonical_bytes(store.get_bytes(stop_compiled_ref))
     persisted_stop_leaf = next(
-        row for row in persisted_stop_compiled["recursive_run"]["nodes"]
+        row
+        for row in persisted_stop_compiled["recursive_run"]["nodes"]
         if row["node_ref"] == source_node.node_ref
     )
     persisted_stop_cycle = persisted_stop_leaf["cycle_run"]
     assert persisted_stop_cycle["promotion_port"]["status"] == "not_promoted"
-    assert persisted_stop_cycle["promotion_port"] == n9_observation.model_dump(
-        mode="json"
-    )
+    assert persisted_stop_cycle["promotion_port"] == n9_observation.model_dump(mode="json")
 
     # Exercise the persisted consumer with the exact same selected N6 source.
     # The canonical N9 receipt is valid and replayable, but its owner status is
@@ -1103,9 +1106,7 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
     )
     assert consumed.promotion_source_resolution_ref is not None
     source_resolution = c02.EvaluationSafetyPromotionSourceResolution.model_validate(
-        from_canonical_bytes(
-            store.get_bytes(consumed.promotion_source_resolution_ref)
-        )
+        from_canonical_bytes(store.get_bytes(consumed.promotion_source_resolution_ref))
     )
     assert source_resolution.classification == "verified"
     assert source_resolution.refusal_reasons == ()
@@ -1130,11 +1131,10 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
         blocked_base_compiled, blocked_n6
     )
     blocked_compiled_ref = control_store.compiled_ref
-    persisted_blocked_compiled = from_canonical_bytes(
-        store.get_bytes(blocked_compiled_ref)
-    )
+    persisted_blocked_compiled = from_canonical_bytes(store.get_bytes(blocked_compiled_ref))
     persisted_blocked_leaf = next(
-        row for row in persisted_blocked_compiled["recursive_run"]["nodes"]
+        row
+        for row in persisted_blocked_compiled["recursive_run"]["nodes"]
         if row["node_ref"] == source_node.node_ref
     )
     persisted_blocked_cycle = persisted_blocked_leaf["cycle_run"]
@@ -1150,20 +1150,20 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
     ]
     assert parsed_receipts == [], "blocked N6 reached the persisted N9 receipt parser"
     assert blocked_source is None
-    assert "promotion_source_blocked_generation_cycle_cannot_supply_n9_receipt" in (
-        blocked_reasons
-    )
+    assert "promotion_source_blocked_generation_cycle_cannot_supply_n9_receipt" in (blocked_reasons)
     assert f"cas_bytes:{blocked_compiled_ref}" in blocked_inputs
 
     parsed_receipts.clear()
-    completed_blocked_source, _completed_blocked_inputs, _completed_blocked_attempts, (
-        completed_blocked_reasons
+    (
+        completed_blocked_source,
+        _completed_blocked_inputs,
+        _completed_blocked_attempts,
+        (completed_blocked_reasons),
     ) = resolve(blocked_base_compiled, completed_with_blocked_voi)
     assert completed_blocked_source is None
     assert parsed_receipts == [], "semantically blocked N6 reached the persisted N9 receipt parser"
     assert any(
-        "voi_blocked_action_run_terminal_mismatch" in reason
-        for reason in completed_blocked_reasons
+        "voi_blocked_action_run_terminal_mismatch" in reason for reason in completed_blocked_reasons
     )
 
     # A legacy-shaped persisted run defaults its absent terminal field to
@@ -1174,11 +1174,10 @@ def test_persisted_eval_safety_source_blocks_terminal_n6_before_n9_receipt_read(
         resolve(stopped_base_compiled, stopped_n6, omit_terminal_status=True)
     )
     absent_status_compiled_ref = control_store.compiled_ref
-    absent_status_artifact = from_canonical_bytes(
-        store.get_bytes(absent_status_compiled_ref)
-    )
+    absent_status_artifact = from_canonical_bytes(store.get_bytes(absent_status_compiled_ref))
     absent_status_leaf = next(
-        row for row in absent_status_artifact["recursive_run"]["nodes"]
+        row
+        for row in absent_status_artifact["recursive_run"]["nodes"]
         if row["node_ref"] == source_node.node_ref
     )
     assert "terminal_status" not in absent_status_leaf["cycle_run"]
@@ -1233,14 +1232,13 @@ def _verified_classification(
         profile = c4_profile(record)
         return core_artifacts.ArtifactRef(
             artifact_id=core_artifacts.ArtifactID("sha256:" + label * 64),
-            kind=profile.kind, media_type=profile.media_type,
+            kind=profile.kind,
+            media_type=profile.media_type,
         )
 
     open_core_ref = core_ref("5", "open_world_risk_vector")
     epoch_core_ref = core_ref("6", "epoch_validity_gate_receipt")
-    open_ref = es.near_miss_resolver_basis_reference(
-        open_core_ref, record="open_world_risk_vector"
-    )
+    open_ref = es.near_miss_resolver_basis_reference(open_core_ref, record="open_world_risk_vector")
     epoch_ref = es.near_miss_resolver_basis_reference(
         epoch_core_ref, record="epoch_validity_gate_receipt"
     )
@@ -1277,9 +1275,7 @@ def _verified_classification(
         "test.promotion-receipt",
         gy_content_hash(receipt.model_dump()),
     )
-    canonical_input_ref = named_ref(
-        "sha256:" + "8" * 64, "test.promotion-input", projection_hash
-    )
+    canonical_input_ref = named_ref("sha256:" + "8" * 64, "test.promotion-input", projection_hash)
     design_ref = named_ref(
         "sha256:" + "9" * 64,
         "test.design-binding",
@@ -1288,9 +1284,7 @@ def _verified_classification(
     value_ref = named_ref("sha256:" + "a" * 64, "test.value", value_hash)
     candidate_ref = named_ref(candidate_id, "test.candidate", candidate_hash)
     world_ref = named_ref("wmr-classified", "test.wmr", world_hash)
-    validation_ref = named_ref(
-        "sha256:" + "b" * 64, "test.validation", projection_hash
-    )
+    validation_ref = named_ref("sha256:" + "b" * 64, "test.validation", projection_hash)
     offer_values = {
         "promotion_receipt_ref": promotion_receipt_ref,
         "canonical_promotion_input_ref": canonical_input_ref,
@@ -1457,9 +1451,7 @@ def test_cas_backed_admission_verifier_is_fresh_and_current(tmp_path) -> None:
             self.material = material
             self.calls = 0
 
-        def resolve(
-            self, context: es.EvaluationExecutionContext
-        ) -> EvaluationSafetyReplayMaterial:
+        def resolve(self, context: es.EvaluationExecutionContext) -> EvaluationSafetyReplayMaterial:
             del context
             self.calls += 1
             return self.material
@@ -1478,9 +1470,7 @@ def test_cas_backed_admission_verifier_is_fresh_and_current(tmp_path) -> None:
         consumer_component_id=context.evaluator_owner_id
     )
     first = verifier.require_admission(context, first_challenge)
-    assert es.evaluation_safety_consumer_admission_is_verified(
-        first, context, first_challenge
-    )
+    assert es.evaluation_safety_consumer_admission_is_verified(first, context, first_challenge)
 
     changed_context = context.model_copy(
         update={"candidate_ref": _ref("sha256:" + "e" * 64, "test.candidate")}
@@ -1491,20 +1481,14 @@ def test_cas_backed_admission_verifier_is_fresh_and_current(tmp_path) -> None:
     assert not es.evaluation_safety_consumer_admission_is_verified(
         first, changed_context, first_challenge
     )
-    assert not es.evaluation_safety_consumer_admission_is_verified(
-        first, context, second_challenge
-    )
+    assert not es.evaluation_safety_consumer_admission_is_verified(first, context, second_challenge)
     second = verifier.require_admission(context, second_challenge)
-    assert es.evaluation_safety_consumer_admission_is_verified(
-        second, context, second_challenge
-    )
+    assert es.evaluation_safety_consumer_admission_is_verified(second, context, second_challenge)
     assert second is not first and resolver.calls == 2
 
     stale_context = context.model_copy(
         update={
-            "eval_safety_revision_head_ref": _ref(
-                "sha256:" + "f" * 64, "test.certificate-revision"
-            )
+            "eval_safety_revision_head_ref": _ref("sha256:" + "f" * 64, "test.certificate-revision")
         }
     )
     stale = verifier.require_admission(
@@ -1554,9 +1538,7 @@ def test_cas_backed_admission_verifier_is_fresh_and_current(tmp_path) -> None:
     )
     forked = verifier.require_admission(
         context,
-        es.EvalSafetyAdmissionChallenge.fresh(
-            consumer_component_id=context.evaluator_owner_id
-        ),
+        es.EvalSafetyAdmissionChallenge.fresh(consumer_component_id=context.evaluator_owner_id),
     )
     assert forked.status == "blocked"
 
@@ -1582,9 +1564,7 @@ def test_cas_backed_admission_verifier_is_fresh_and_current(tmp_path) -> None:
     )
     blocked = blocked_verifier.require_admission(
         context,
-        es.EvalSafetyAdmissionChallenge.fresh(
-            consumer_component_id=context.evaluator_owner_id
-        ),
+        es.EvalSafetyAdmissionChallenge.fresh(consumer_component_id=context.evaluator_owner_id),
     )
     assert blocked.status == "blocked" and missing_state.action_calls == 0
     public_callables = {
@@ -1595,8 +1575,7 @@ def test_cas_backed_admission_verifier_is_fresh_and_current(tmp_path) -> None:
     assert public_callables == {"require_admission"}
     signature = inspect.signature(verifier_type.require_admission)
     assert all(
-        parameter.kind
-        not in {inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD}
+        parameter.kind not in {inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD}
         for parameter in signature.parameters.values()
     )
 
@@ -1648,8 +1627,7 @@ def test_unseen_domain_composition_is_data_driven_and_refuses_exact_gaps(
     assert fixture.persisted.decision.safety.status == "passed"
     assert fixture.persisted.certificate_ref is not None
     assert tuple(
-        row.requirement_id
-        for row in fixture.persisted.decision.safety.requirement_results
+        row.requirement_id for row in fixture.persisted.decision.safety.requirement_results
     ) == (
         "polisyos.eval_safety.universal_floor@1.0.0",
         "novel_domain.platform_guard@1.0.0",
@@ -1733,17 +1711,16 @@ def test_unseen_domain_composition_is_data_driven_and_refuses_exact_gaps(
     class MissingAppointmentResolver:
         def resolve(self, ref: ArtifactRef) -> es.EvalSafetyAppointmentResolution:
             resolved = fixture.appointment_resolver.resolve(ref)
-            if resolved.appointment is None or not resolved.appointment.evidence_contract_id.startswith(
-                "novel_domain."
+            if (
+                resolved.appointment is None
+                or not resolved.appointment.evidence_contract_id.startswith("novel_domain.")
             ):
                 return resolved
             return es.EvalSafetyAppointmentResolution(
                 status="blocked",
                 appointment_ref=ref,
                 appointment=None,
-                blocker_codes=(
-                    "polisyos.eval_safety.verifier_unappointed@1.0.0",
-                ),
+                blocker_codes=("polisyos.eval_safety.verifier_unappointed@1.0.0",),
                 predicate_provenance=("not_established",),
                 verified_at=fixture.evaluated_at,
             )
@@ -1796,9 +1773,7 @@ def test_compose_and_replay_share_the_complete_authority_absence_lattice(
                 status="blocked",
                 appointment_ref=ref,
                 appointment=None,
-                blocker_codes=(
-                    "polisyos.eval_safety.verifier_unappointed@1.0.0",
-                ),
+                blocker_codes=("polisyos.eval_safety.verifier_unappointed@1.0.0",),
                 predicate_provenance=("not_established",),
                 verified_at=fixture.evaluated_at,
             )
@@ -1860,9 +1835,7 @@ def test_admission_io_and_ownership_failures_return_typed_blocked_receipts(
     fixture = _passing_fixture(tmp_path)
 
     class RaisingResolver:
-        def resolve(
-            self, context: es.EvaluationExecutionContext
-        ) -> EvaluationSafetyReplayMaterial:
+        def resolve(self, context: es.EvaluationExecutionContext) -> EvaluationSafetyReplayMaterial:
             del context
             raise OSError("current-state CAS unavailable")
 
@@ -1883,9 +1856,7 @@ def test_admission_io_and_ownership_failures_return_typed_blocked_receipts(
     )
 
     class ProgrammerFaultResolver:
-        def resolve(
-            self, context: es.EvaluationExecutionContext
-        ) -> EvaluationSafetyReplayMaterial:
+        def resolve(self, context: es.EvaluationExecutionContext) -> EvaluationSafetyReplayMaterial:
             del context
             raise ValueError("resolver programmer fault")
 
@@ -1900,9 +1871,7 @@ def test_admission_io_and_ownership_failures_return_typed_blocked_receipts(
         programmer_fault.require_admission(fixture.execution_context, challenge)
 
     class CurrentStateResolver:
-        def resolve(
-            self, context: es.EvaluationExecutionContext
-        ) -> EvaluationSafetyReplayMaterial:
+        def resolve(self, context: es.EvaluationExecutionContext) -> EvaluationSafetyReplayMaterial:
             del context
             return fixture.replay_material
 
@@ -1944,20 +1913,14 @@ def test_admission_io_and_ownership_failures_return_typed_blocked_receipts(
         "sha256:" + "0" * 64,
         c02.EVALUATION_SAFETY_ARTIFACT_IDENTITIES["certificate"].kind,
     ).model_copy(
-        update={
-            "schema_ref": c02.EVALUATION_SAFETY_ARTIFACT_IDENTITIES[
-                "certificate"
-            ].schema
-        }
+        update={"schema_ref": c02.EVALUATION_SAFETY_ARTIFACT_IDENTITIES["certificate"].schema}
     )
     inaccessible_context = fixture.execution_context.model_copy(
         update={"eval_safety_certificate_ref": inaccessible_ref}
     )
 
     class InaccessibleStateResolver:
-        def resolve(
-            self, context: es.EvaluationExecutionContext
-        ) -> EvaluationSafetyReplayMaterial:
+        def resolve(self, context: es.EvaluationExecutionContext) -> EvaluationSafetyReplayMaterial:
             del context
             return replace(fixture.replay_material, certificate_ref=inaccessible_ref)
 
@@ -1993,9 +1956,7 @@ def test_promotion_state_injection_cannot_change_persisted_safety_or_unsafe_coun
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     evaluated_at = _NOW
-    absent_fixture = _passing_fixture(
-        tmp_path / "absent", evaluated_at=evaluated_at
-    )
+    absent_fixture = _passing_fixture(tmp_path / "absent", evaluated_at=evaluated_at)
     absent = absent_fixture.service.compose_and_persist_attempt(
         intake=absent_fixture.intake,
         authorities=replace(absent_fixture.authorities, facet_denominator=None),
@@ -2003,9 +1964,7 @@ def test_promotion_state_injection_cannot_change_persisted_safety_or_unsafe_coun
         evaluated_at=evaluated_at,
     )
     core = absent.decision.safety
-    offer, _offer_ref, genuine = _verified_classification(
-        core, monkeypatch, promotion_safe=True
-    )
+    offer, _offer_ref, genuine = _verified_classification(core, monkeypatch, promotion_safe=True)
     public_copy = object.__new__(es.VerifiedNearMissClassification)
     for name in (
         "offer_ref",
@@ -2046,9 +2005,7 @@ def test_promotion_state_injection_cannot_change_persisted_safety_or_unsafe_coun
 
     observables = []
     for name, (fixture, persisted) in persisted_by_case.items():
-        reduction = fixture.service.reduce_decisions(
-            evidence=(persisted.owner_evidence,)
-        )
+        reduction = fixture.service.reduce_decisions(evidence=(persisted.owner_evidence,))
         observables.append(
             (
                 persisted.decision.safety.status,
@@ -2064,9 +2021,7 @@ def test_promotion_state_injection_cannot_change_persisted_safety_or_unsafe_coun
             assert persisted.decision.promotion_safe_facet is None
             assert not persisted.decision.near_miss
             assert reduction.near_miss_count == 0
-            assert persisted.decision.decision_id in (
-                reduction.unclassified_blocked_decision_ids
-            )
+            assert persisted.decision.decision_id in (reduction.unclassified_blocked_decision_ids)
         else:
             assert persisted.decision.promotion_safe_facet is True
             assert persisted.decision.near_miss
@@ -2114,9 +2069,7 @@ def test_counter_reducer_reports_near_miss_and_unclassified_coverage_honestly(
         )
         return fixture, persisted
 
-    true_fixture, classified_true_attempt = classified_attempt(
-        "classified-true", classified_true
-    )
+    true_fixture, classified_true_attempt = classified_attempt("classified-true", classified_true)
     retry_authorities = replace(
         true_fixture.authorities,
         facet_denominator=None,
@@ -2135,17 +2088,18 @@ def test_counter_reducer_reports_near_miss_and_unclassified_coverage_honestly(
     )
     retry_event = from_canonical_bytes(
         true_fixture.artifact_store.get_bytes(
-            CoreArtifactID.model_validate(
-                retry_manifest.authority.diagnostic_event_ref
-            )
+            CoreArtifactID.model_validate(retry_manifest.authority.diagnostic_event_ref)
         )
     )
-    assert len(
-        true_fixture.service._event_log.list_events(  # noqa: SLF001
-            event_id=retry_event["event_id"],
-            limit=2,
+    assert (
+        len(
+            true_fixture.service._event_log.list_events(  # noqa: SLF001
+                event_id=retry_event["event_id"],
+                limit=2,
+            )
         )
-    ) == 1
+        == 1
+    )
     retry = true_fixture.service.reduce_decisions(
         evidence=(
             true_fixture.persisted.owner_evidence,
@@ -2169,20 +2123,25 @@ def test_counter_reducer_reports_near_miss_and_unclassified_coverage_honestly(
         selected_from_cas.add(str(artifact_id))
         expected_decision_ids.add(
             es.EvaluationSafetyDecisionEvent.model_validate(
-                from_canonical_bytes(
-                    true_fixture.artifact_store.get_bytes(artifact_id)
-                )
+                from_canonical_bytes(true_fixture.artifact_store.get_bytes(artifact_id))
             ).decision_id
         )
     assert {ref.artifact_id for ref in retry.selected_refs} == selected_from_cas
     assert {ref.artifact_id for ref in retry.reconciled_refs} == selected_from_cas
+    selected_profiles = {
+        (ref.artifact_id, ref.manifest_profile_sha256) for ref in retry.selected_refs
+    }
+    reconciled_profiles = {
+        (ref.artifact_id, ref.manifest_profile_sha256) for ref in retry.reconciled_refs
+    }
+    assert len(retry.selected_refs) == len(selected_profiles)
+    assert len(retry.reconciled_refs) == len(reconciled_profiles)
+    assert selected_profiles == reconciled_profiles
     assert set(retry.denominator_decision_ids) == expected_decision_ids
     assert true_fixture.persisted.decision_ref in retry.selected_refs
     assert true_fixture.persisted.decision_ref in retry.reconciled_refs
-    assert (
-        true_fixture.persisted.decision.decision_id
-        in retry.denominator_decision_ids
-    )
+    assert true_fixture.persisted.decision.decision_id in retry.denominator_decision_ids
+
     assert retry.unsafe_attempt_blocked_count == 1
     assert retry.near_miss_count == 1
     assert retry.near_miss_classification_status == "complete"
@@ -2228,9 +2187,7 @@ def test_counter_reducer_reports_near_miss_and_unclassified_coverage_honestly(
             return [
                 replace(
                     row,
-                    event=row.event.model_copy(
-                        update={"trace_id": "trace-event-substituted"}
-                    ),
+                    event=row.event.model_copy(update={"trace_id": "trace-event-substituted"}),
                 )
                 if row.event.payload_ref == classified_false_attempt.decision_ref.artifact_id
                 else row
@@ -2278,6 +2235,310 @@ def test_counter_reducer_reports_near_miss_and_unclassified_coverage_honestly(
     assert conflict.reconciliation_status == "not_established"
     assert conflict.near_miss_classification_status == "not_established"
     assert conflict_true.decision.decision_id not in conflict.denominator_decision_ids
+
+
+def test_counter_reducer_keeps_same_bytes_distinct_profiles_in_denominator(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fixture = _passing_fixture(tmp_path)
+    decision_ref = fixture.persisted.decision_ref
+    typed_id = CoreArtifactID.model_validate(decision_ref.artifact_id)
+    raw = fixture.artifact_store.get_bytes(decision_ref.artifact_id)
+    original_core_ref = CoreArtifactRef(
+        artifact_id=typed_id,
+        kind=decision_ref.artifact_type,
+        media_type="application/json",
+        manifest_profile_sha256=decision_ref.manifest_profile_sha256,
+    )
+    original_manifest = read_core_manifest_profile(
+        fixture.artifact_store,
+        original_core_ref,
+    )[0]
+
+    lifecycle = fixture.artifact_store._manifests  # noqa: SLF001
+    original_build = lifecycle.build
+
+    def build_with_original_timestamp(**values: object):
+        values["created_at"] = original_manifest.created_at
+        return original_build(**values)
+
+    monkeypatch.setattr(lifecycle, "build", build_with_original_timestamp)
+    sibling_ref = fixture.artifact_store.put_json(
+        from_canonical_bytes(raw),
+        PutOptions(
+            kind=original_manifest.kind,
+            media_type=original_manifest.media_type,
+            schema=original_manifest.artifact_schema,
+            producer=original_manifest.producer,
+            env=EnvInfo(
+                python="3.12-profile-sibling",
+                platform="profile-sibling",
+                deps_lock_hash="a" * 64,
+            ),
+            inputs=original_manifest.inputs,
+            canon=original_manifest.canon,
+            governance=original_manifest.governance,
+            tenant_context=original_manifest.tenant_context,
+            same_input_closure=original_manifest.same_input_closure,
+            authority=original_manifest.authority,
+            warnings=original_manifest.warnings,
+        ),
+        return_selected_profile=True,
+    )
+    assert sibling_ref.artifact_id == typed_id
+    assert sibling_ref.manifest_profile_sha256 != decision_ref.manifest_profile_sha256
+    original_identity = (
+        decision_ref.artifact_id,
+        decision_ref.manifest_profile_sha256,
+    )
+    sibling_identity = (
+        str(sibling_ref.artifact_id),
+        sibling_ref.manifest_profile_sha256,
+    )
+
+    reduction = fixture.service.reduce_decisions(evidence=(fixture.persisted.owner_evidence,))
+
+    assert {
+        (str(ref.artifact_id), ref.manifest_profile_sha256) for ref in reduction.selected_refs
+    } == {
+        original_identity,
+        sibling_identity,
+    }
+    assert {
+        (str(ref.artifact_id), ref.manifest_profile_sha256) for ref in reduction.reconciled_refs
+    } == {original_identity}
+    assert {
+        (str(ref.artifact_id), ref.manifest_profile_sha256) for ref in reduction.unreconciled_refs
+    } == {sibling_identity}
+    assert reduction.reconciliation_status == "not_established"
+
+
+def test_decision_reducer_ignores_profileless_non_target_artifact(tmp_path) -> None:
+    service, artifact_store = _service(tmp_path)
+    core, source_ref = _blocked_core(artifact_store)
+    persisted = service.persist_decision(
+        core=core,
+        classification=None,
+        context=_context(source_ref.artifact_id),
+    )
+    unrelated = artifact_store.put_bytes(
+        b"not a Core JSON artifact",
+        PutOptions(
+            kind="chronology.open_world_risk_verifier",
+            media_type="text/plain",
+        ),
+    )
+    unrelated_manifest = artifact_store.get_manifest(unrelated.artifact_id)
+    assert unrelated_manifest.canon is None
+    assert unrelated_manifest.artifact_schema is None
+
+    evidence = EvaluationSafetyDecisionEvidence(
+        decision_ref=persisted.decision_ref,
+        decision=persisted.decision,
+        classification=None,
+    )
+    reduction = service.reduce_decisions(evidence=(evidence,))
+
+    assert persisted.decision_ref in reduction.selected_refs
+    assert persisted.decision_ref in reduction.reconciled_refs
+    assert all(ref.artifact_id != str(unrelated.artifact_id) for ref in reduction.selected_refs)
+
+
+@pytest.mark.parametrize(
+    ("media_type", "schema"),
+    [
+        ("application/json", None),
+        ("application/json", SchemaInfo(name="other.schema", version="1.0")),
+        ("text/plain", SchemaInfo(name="eval.safety.decision", version="1.0")),
+    ],
+)
+def test_decision_reducer_refuses_malformed_target_view_even_if_sibling_is_valid(
+    tmp_path,
+    media_type: str,
+    schema: SchemaInfo | None,
+) -> None:
+    source_service, artifact_store = _unowned_service(tmp_path / "source")
+    core, source_ref = _blocked_core(artifact_store)
+    persisted = source_service.persist_decision(
+        core=core,
+        classification=None,
+        context=_context(source_ref.artifact_id),
+    )
+    identity = c02.EVALUATION_SAFETY_ARTIFACT_IDENTITIES["decision"]
+    destination, destination_service = _import_chain_with_decision_overlay(
+        source=artifact_store,
+        source_service=source_service,
+        persisted=persisted,
+        target=tmp_path / "destination",
+        options=PutOptions(kind=identity.kind, media_type=media_type, schema=schema),
+    )
+    assert destination.get_manifest(persisted.decision_ref.artifact_id).kind == identity.kind
+    evidence = EvaluationSafetyDecisionEvidence(
+        decision_ref=persisted.decision_ref,
+        decision=persisted.decision,
+        classification=None,
+    )
+
+    with pytest.raises(ValueError, match="eval_safety_selection_not_established"):
+        destination_service.reduce_decisions(evidence=(evidence,))
+
+
+@pytest.mark.parametrize("snapshot_state", ["absent", "UNRUN", "fail"])
+def test_decision_reducer_requires_a_passed_all_view_inventory(
+    tmp_path,
+    snapshot_state: str,
+) -> None:
+    service, artifact_store = _service(tmp_path)
+    core, source_ref = _blocked_core(artifact_store)
+    persisted = service.persist_decision(
+        core=core,
+        classification=None,
+        context=_context(source_ref.artifact_id),
+    )
+
+    evidence = EvaluationSafetyDecisionEvidence(
+        decision_ref=persisted.decision_ref,
+        decision=persisted.decision,
+        classification=None,
+    )
+
+    class LimitedStore:
+        def __getattr__(self, name: str) -> object:
+            if name == "inventory_snapshot" and snapshot_state == "absent":
+                raise AttributeError(name)
+            return getattr(artifact_store, name)
+
+        if snapshot_state != "absent":
+
+            def inventory_snapshot(self) -> object:
+                return SimpleNamespace(verdict=snapshot_state, entries=(), reason="fixture")
+
+    limited_service = EvaluationSafetyPersistenceService(
+        artifact_store=LimitedStore(),
+        event_log=service._event_log,  # noqa: SLF001
+    )
+
+    with pytest.raises(ValueError, match="eval_safety_selection_not_established"):
+        limited_service.reduce_decisions(evidence=(evidence,))
+
+
+def test_decision_reducer_refuses_conflicting_receipts_for_one_profile(
+    tmp_path,
+) -> None:
+    service, artifact_store = _service(tmp_path)
+    core, source_ref = _blocked_core(artifact_store)
+    persisted = service.persist_decision(
+        core=core,
+        classification=None,
+        context=_context(source_ref.artifact_id),
+    )
+    evidence = EvaluationSafetyDecisionEvidence(
+        decision_ref=persisted.decision_ref,
+        decision=persisted.decision,
+        classification=None,
+    )
+    snapshot = artifact_store.inventory_snapshot()
+    target_entry = next(
+        entry
+        for entry in snapshot.entries
+        if entry.manifest.kind == c02.EVALUATION_SAFETY_ARTIFACT_IDENTITIES["decision"].kind
+    )
+    contradictory_entry = replace(
+        target_entry,
+        manifest_sha256="sha256:" + "0" * 64,
+    )
+
+    class ContradictoryInventoryStore:
+        def __getattr__(self, name: str) -> object:
+            return getattr(artifact_store, name)
+
+        def inventory_snapshot(self) -> object:
+            return replace(
+                snapshot,
+                entries=(*snapshot.entries, contradictory_entry),
+            )
+
+    contradictory_service = EvaluationSafetyPersistenceService(
+        artifact_store=ContradictoryInventoryStore(),
+        event_log=service._event_log,  # noqa: SLF001
+    )
+
+    with pytest.raises(ValueError, match="eval_safety_selection_not_established"):
+        contradictory_service.reduce_decisions(evidence=(evidence,))
+
+
+def test_decision_reducer_finds_target_profile_when_default_view_is_non_target(
+    tmp_path,
+) -> None:
+    source_service, artifact_store = _unowned_service(tmp_path / "source")
+    core, source_ref = _blocked_core(artifact_store)
+    persisted = source_service.persist_decision(
+        core=core,
+        classification=None,
+        context=_context(source_ref.artifact_id),
+    )
+    identity = c02.EVALUATION_SAFETY_ARTIFACT_IDENTITIES["decision"]
+    destination, destination_service = _import_chain_with_decision_overlay(
+        source=artifact_store,
+        source_service=source_service,
+        persisted=persisted,
+        target=tmp_path / "destination",
+        options=PutOptions(kind="test.unrelated.same-bytes", media_type="text/plain"),
+    )
+    snapshot = destination.inventory_snapshot()
+    matching_views = tuple(
+        entry
+        for entry in snapshot.entries
+        if str(entry.manifest.artifact_id) == persisted.decision_ref.artifact_id
+    )
+    assert snapshot.verdict == "pass"
+    assert destination.get_manifest(persisted.decision_ref.artifact_id).kind == (
+        "test.unrelated.same-bytes"
+    )
+    assert any(entry.manifest.kind == identity.kind for entry in matching_views)
+    evidence = EvaluationSafetyDecisionEvidence(
+        decision_ref=persisted.decision_ref,
+        decision=persisted.decision,
+        classification=None,
+    )
+
+    reduction = destination_service.reduce_decisions(evidence=(evidence,))
+
+    assert persisted.decision_ref in reduction.selected_refs
+    assert persisted.decision_ref in reduction.reconciled_refs
+
+
+def _import_chain_with_decision_overlay(
+    *,
+    source: FileSystemCAS,
+    source_service: EvaluationSafetyPersistenceService,
+    persisted,
+    target: Path,
+    options: PutOptions,
+) -> tuple[FileSystemCAS, EvaluationSafetyPersistenceService]:
+    """Copy a real decision chain behind an alternate default manifest view."""
+    source_snapshot = source.inventory_snapshot()
+    assert source_snapshot.verdict == "pass"
+    package = source.export_subgraph(
+        [
+            ref
+            for entry in source_snapshot.entries
+            for ref in (entry.artifact_ref, artifact_ref_for_manifest(entry.manifest))
+        ],
+        target / "all-views",
+        compress=False,
+    )
+    destination = FileSystemCAS(target / "cas")
+    decision_id = CoreArtifactID.model_validate(persisted.decision_ref.artifact_id)
+    overlay = destination.put_bytes(source.get_bytes(decision_id), options)
+    assert overlay.artifact_id == decision_id
+    destination.import_subgraph(package.output_path, verify_integrity=True)
+    destination_service = EvaluationSafetyPersistenceService(
+        artifact_store=destination,
+        event_log=source_service._event_log,  # noqa: SLF001
+    )
+    return destination, destination_service
 
 
 class _UnusedAuthorityResolver:
@@ -2339,9 +2600,7 @@ def test_blocked_non_simulation_persists_ordered_chain_without_certificate(tmp_p
     basis = EvalSafetyModeBasis.build(
         schema_version="policyos.eval-safety.mode-basis.v1",
         rule_version="eval-safety-rule-v1",
-        profiles=(
-            EvalSafetyModeProfile(mode="field_pilot", all_of=(basis_requirement,)),
-        ),
+        profiles=(EvalSafetyModeProfile(mode="field_pilot", all_of=(basis_requirement,)),),
         producer_authority_ref=producer_ref,
         verifier_receipt_ref=verifier_ref,
         valid_from=_NOW,
@@ -2379,9 +2638,7 @@ def test_blocked_non_simulation_persists_ordered_chain_without_certificate(tmp_p
         mode_basis_ref=basis_ref,
         semantic_facet_registry_ref=registry_ref,
         semantic_facet_denominator_receipt_ref=denominator_ref,
-        verifier_appointment_refs=(
-            _ref("sha256:" + "7" * 64, "test.verifier-appointment"),
-        ),
+        verifier_appointment_refs=(_ref("sha256:" + "7" * 64, "test.verifier-appointment"),),
         profiles=(EvalSafetyModeProfile(mode="field_pilot", all_of=(pack_requirement,)),),
         valid_from=_NOW,
         valid_until=None,
@@ -2422,9 +2679,7 @@ def test_blocked_non_simulation_persists_ordered_chain_without_certificate(tmp_p
         mode_basis=basis,
         pack_ref=pack_ref,
         pack=pack,
-        semantic_facet_denominator_receipt_ref=(
-            pack.semantic_facet_denominator_receipt_ref
-        ),
+        semantic_facet_denominator_receipt_ref=(pack.semantic_facet_denominator_receipt_ref),
         facet_registry=None,
         facet_denominator=None,
         authority_resolver=_BlockedAuthorityResolver(),
@@ -2716,7 +2971,6 @@ def test_service_signature_has_no_executor_callback_or_kwargs() -> None:
         assert not any(name in parameter_text for name in forbidden)
         assert not forbidden.intersection(signature.parameters)
         assert all(
-            parameter.kind
-            not in {inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD}
+            parameter.kind not in {inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD}
             for parameter in signature.parameters.values()
         )

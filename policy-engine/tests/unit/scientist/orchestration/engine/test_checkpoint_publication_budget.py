@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import os
 import threading
 import time
 from pathlib import Path
@@ -12,10 +11,16 @@ import pytest
 
 from polisyos.common import async_tools
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run.context import RunContext
 from polisyos.scientist.orchestration.engine import checkpoint
+from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.errors import WorkflowTimeoutError
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from tests._helpers.run_lifecycle import resume_same_run
 from tests.unit.scientist.orchestration.engine.test_workflow_deadline_custody import (
     _events,
     _setup,
@@ -29,6 +34,233 @@ def _budget(seconds):
         deadline_monotonic=time.monotonic() + seconds if seconds is not None else None,
         owner_is_current=lambda: True,
         caller_cancelled=lambda: task.cancelling() > baseline,
+    )
+
+
+def _track_checkpoint_head_temp_fds(monkeypatch: pytest.MonkeyPatch) -> set[int]:
+    """Track checkpoint-head descriptors without relying on platform fd paths."""
+    head_fds: set[int] = set()
+    original_mkstemp = checkpoint.tempfile.mkstemp
+
+    def _tracked_mkstemp(*args, **kwargs):
+        fd, path = original_mkstemp(*args, **kwargs)
+        if kwargs.get("prefix") == ".checkpoint_head_":
+            head_fds.add(fd)
+        return fd, path
+
+    monkeypatch.setattr(checkpoint.tempfile, "mkstemp", _tracked_mkstemp)
+    return head_fds
+
+
+def _track_checkpoint_writer_files(
+    monkeypatch: pytest.MonkeyPatch,
+    run_dir: Path,
+) -> dict[tuple[int, int], str]:
+    """Identify the exact temporary files and run lock passed to ``os.write``."""
+    files: dict[tuple[int, int], str] = {}
+    original_mkstemp = checkpoint.tempfile.mkstemp
+    original_open = checkpoint.os.open
+
+    def _remember(fd: int, purpose: str) -> None:
+        stat = checkpoint.os.fstat(fd)
+        files[(stat.st_dev, stat.st_ino)] = purpose
+
+    def _tracked_mkstemp(*args, **kwargs):
+        fd, path = original_mkstemp(*args, **kwargs)
+        prefix = kwargs.get("prefix")
+        if prefix in {".checkpoint_head_", ".checkpoint_history_"}:
+            _remember(fd, prefix)
+        return fd, path
+
+    def _tracked_open(path, *args, **kwargs):
+        fd = original_open(path, *args, **kwargs)
+        if Path(path) == run_dir / checkpoint.RUN_LOCK_FILENAME:
+            _remember(fd, "run-lock")
+        return fd
+
+    monkeypatch.setattr(checkpoint.tempfile, "mkstemp", _tracked_mkstemp)
+    monkeypatch.setattr(checkpoint.os, "open", _tracked_open)
+    return files
+
+
+def _checkpoint_ref(digest_char: str) -> ArtifactRef:
+    return ArtifactRef(
+        artifact_id=f"sha256:{digest_char * 64}",
+        kind=checkpoint.CHECKPOINT_KIND,
+        media_type="application/json",
+    )
+
+
+def test_atomic_checkpoint_head_and_history_complete_positive_short_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    run_dir = tmp_path / "runs" / "R_short_writes"
+    file_purposes = _track_checkpoint_writer_files(monkeypatch, run_dir)
+    original_write = checkpoint.os.write
+    write_counts: dict[str, int] = {}
+
+    def _short_write(fd: int, payload: bytes | memoryview) -> int:
+        stat = checkpoint.os.fstat(fd)
+        purpose = file_purposes.get((stat.st_dev, stat.st_ino))
+        if purpose not in {".checkpoint_head_", ".checkpoint_history_"}:
+            return original_write(fd, payload)
+        count = max(1, len(payload) // 2)
+        write_counts[purpose] = write_counts.get(purpose, 0) + 1
+        return original_write(fd, payload[:count])
+
+    monkeypatch.setattr(checkpoint.os, "write", _short_write)
+    checkpoint.update_checkpoint_head(
+        run_dir,
+        run_id="R_short_writes",
+        checkpoint_ref=_checkpoint_ref("1"),
+        sequence_number=1,
+        node_alias="first",
+        writer_pid=123,
+        writer_hostname="localhost",
+    )
+
+    head = checkpoint.load_checkpoint_head(run_dir)
+    history = checkpoint.load_checkpoint_history(run_dir)
+    assert head is not None and head.sequence_number == 1
+    assert history is not None and [entry.sequence_number for entry in history.entries] == [1]
+    assert write_counts[".checkpoint_head_"] > 1
+    assert write_counts[".checkpoint_history_"] > 1
+
+
+@pytest.mark.parametrize("file_purpose", ["head", "history"], ids=["head", "history"])
+@pytest.mark.parametrize("failure_mode", ["zero", "error"], ids=["zero", "error"])
+def test_atomic_checkpoint_write_failure_preserves_previous_generation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    file_purpose: str,
+    failure_mode: str,
+) -> None:
+    run_dir = tmp_path / "runs" / "R_write_failure"
+    checkpoint.update_checkpoint_head(
+        run_dir,
+        run_id="R_write_failure",
+        checkpoint_ref=_checkpoint_ref("2"),
+        sequence_number=1,
+        node_alias="first",
+        writer_pid=123,
+        writer_hostname="localhost",
+    )
+    head_path = run_dir / checkpoint.CHECKPOINT_HEAD_FILENAME
+    history_path = run_dir / checkpoint.CHECKPOINT_HISTORY_FILENAME
+    prior_head_bytes = head_path.read_bytes()
+    prior_history_bytes = history_path.read_bytes()
+    prior_head = checkpoint.load_checkpoint_head(run_dir)
+    prior_history = checkpoint.load_checkpoint_history(run_dir)
+    assert prior_head is not None and prior_history is not None
+
+    file_purposes = _track_checkpoint_writer_files(monkeypatch, run_dir)
+    target = ".checkpoint_head_" if file_purpose == "head" else ".checkpoint_history_"
+    original_write = checkpoint.os.write
+    target_attempts = 0
+
+    def _partial_then_fail(fd: int, payload: bytes | memoryview) -> int:
+        nonlocal target_attempts
+        stat = checkpoint.os.fstat(fd)
+        if file_purposes.get((stat.st_dev, stat.st_ino)) != target:
+            return original_write(fd, payload)
+        target_attempts += 1
+        if target_attempts == 1:
+            return original_write(fd, payload[: max(1, len(payload) // 2)])
+        if failure_mode == "zero":
+            return 0
+        raise OSError("controlled checkpoint temporary write failure")
+
+    monkeypatch.setattr(checkpoint.os, "write", _partial_then_fail)
+    if file_purpose == "head":
+        with pytest.raises(OSError):
+            checkpoint.update_checkpoint_head(
+                run_dir,
+                run_id="R_write_failure",
+                checkpoint_ref=_checkpoint_ref("3"),
+                sequence_number=2,
+                node_alias="second",
+                writer_pid=124,
+                writer_hostname="localhost",
+            )
+    else:
+        next_head = prior_head.model_copy(
+            update={
+                "checkpoint_ref": _checkpoint_ref("3"),
+                "sequence_number": 2,
+                "node_alias": "second",
+                "writer_pid": 124,
+            }
+        )
+        next_entry = checkpoint.CheckpointHistoryEntry.model_validate(
+            next_head.model_dump(mode="python")
+        )
+        replacement_history = checkpoint.CheckpointHistory(
+            entries=[*prior_history.entries, next_entry]
+        )
+        with pytest.raises(OSError):
+            checkpoint.write_checkpoint_history(run_dir, replacement_history)
+
+    assert target_attempts == 2
+    assert head_path.read_bytes() == prior_head_bytes
+    assert history_path.read_bytes() == prior_history_bytes
+    assert checkpoint.load_checkpoint_head(run_dir) == prior_head
+    assert checkpoint.load_checkpoint_history(run_dir) == prior_history
+    assert not list(run_dir.glob(".checkpoint_*.tmp"))
+
+
+@pytest.mark.parametrize("write_mode", ["short", "zero"], ids=["short", "zero"])
+def test_run_lock_metadata_write_preserves_flock_authority(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    write_mode: str,
+) -> None:
+    run_dir = tmp_path / "runs" / "R_lock_metadata"
+    file_purposes = _track_checkpoint_writer_files(monkeypatch, run_dir)
+    original_write = checkpoint.os.write
+    zero_injected = False
+
+    def _short_or_zero(fd: int, payload: bytes | memoryview) -> int:
+        nonlocal zero_injected
+        stat = checkpoint.os.fstat(fd)
+        if file_purposes.get((stat.st_dev, stat.st_ino)) != "run-lock":
+            return original_write(fd, payload)
+        if write_mode == "zero" and not zero_injected:
+            zero_injected = True
+            return 0
+        if write_mode == "short":
+            return original_write(fd, payload[: max(1, len(payload) // 2)])
+        return original_write(fd, payload)
+
+    monkeypatch.setattr(checkpoint.os, "write", _short_or_zero)
+    holder = checkpoint.acquire_run_lock(
+        run_dir,
+        run_id="R_lock_metadata",
+        mode="test",
+    )
+    try:
+        metadata = checkpoint.read_run_lock_metadata(run_dir / checkpoint.RUN_LOCK_FILENAME)
+        if write_mode == "short":
+            assert metadata == holder.metadata
+        else:
+            assert metadata is None
+        with pytest.raises(checkpoint.RunLockError, match="already active"):
+            checkpoint.acquire_run_lock(
+                run_dir,
+                run_id="R_lock_metadata",
+                mode="contender",
+            )
+    finally:
+        holder.release()
+
+    reacquired = checkpoint.acquire_run_lock(
+        run_dir,
+        run_id="R_lock_metadata",
+        mode="after-release",
+    )
+    reacquired.release()
+    assert checkpoint.read_run_lock_metadata(run_dir / checkpoint.RUN_LOCK_FILENAME) == (
+        reacquired.metadata
     )
 
 
@@ -79,11 +311,11 @@ async def test_native_workflow_budget_replaces_hidden_helper_default(
     if stage == "artifact":
         original = store.put_bytes
 
-        def delayed(data, opts):
+        def delayed(data, opts, *, return_selected_profile=False):
             if opts.kind == checkpoint.CHECKPOINT_KIND:
                 entered.append(threading.get_ident())
                 time.sleep(0.04)
-            return original(data, opts)
+            return original(data, opts, return_selected_profile=return_selected_profile)
 
         monkeypatch.setattr(store, "put_bytes", delayed)
     else:
@@ -137,15 +369,21 @@ async def test_native_workflow_budget_replaces_hidden_helper_default(
 @pytest.mark.asyncio
 async def test_cancelled_checkpoint_cannot_adopt_reused_executor_owner(tmp_path, monkeypatch):
     store = FileSystemCAS(tmp_path / "cas")
-    ctx, node, workflow, executor = _setup(store)
+    setup_ctx, node, workflow, setup_executor = _setup(store)
+    run_id = "R_cancelled_checkpoint_resume"
+    registry_bundle = build_default_registry_bundle(store, return_selected_profile=True)
+    run = RunContext.start(store, registry_bundle.bundle_ref, run_id=run_id)
+    ctx = ExecutionContext(store=store, run=run, logger=setup_ctx.logger)
+    executor = AsyncWorkflowExecutor(ctx, setup_executor._registry)
     executor._checkpoint_hook = checkpoint.CASCheckpointHook(
         store=store, run_dir=ctx.run.trace_path.parent
     )
     entered, release, finished = threading.Event(), threading.Event(), threading.Event()
     original_fsync = checkpoint.os.fsync
+    checkpoint_head_fds = _track_checkpoint_head_temp_fds(monkeypatch)
 
     def held_fsync(fd):
-        if ".checkpoint_head_" not in os.readlink(f"/proc/self/fd/{fd}"):
+        if fd not in checkpoint_head_fds:
             return original_fsync(fd)
         entered.set()
         try:
@@ -156,7 +394,7 @@ async def test_cancelled_checkpoint_cannot_adopt_reused_executor_owner(tmp_path,
 
     monkeypatch.setattr(checkpoint.os, "fsync", held_fsync)
     old_task = asyncio.create_task(
-        executor.execute(workflow, ExperimentState(run_id="R_deadline", params={"seed": 7}))
+        executor.execute(workflow, ExperimentState(run_id=run_id, params={"seed": 7}))
     )
     try:
         assert await asyncio.to_thread(entered.wait, 5)
@@ -164,14 +402,6 @@ async def test_cancelled_checkpoint_cannot_adopt_reused_executor_owner(tmp_path,
         with pytest.raises(asyncio.CancelledError):
             await old_task
         old_owner = executor._cache_seed_owner
-        executor._checkpoint_hook = None
-        current = await executor.execute(
-            workflow, ExperimentState(run_id="R_deadline", params={"seed": 7})
-        )
-        assert current.report.status == "ok"
-        assert executor._cache_seed_owner is not old_owner
-        assert executor._workflow_task is asyncio.current_task()
-        assert executor._workflow_cancelling == 0 and old_task.cancelling() == 1
     finally:
         release.set()
         assert await asyncio.to_thread(finished.wait, 5)
@@ -179,8 +409,19 @@ async def test_cancelled_checkpoint_cannot_adopt_reused_executor_owner(tmp_path,
             if not list(ctx.run.trace_path.parent.glob(".checkpoint_head_*.tmp")):
                 break
             await asyncio.sleep(0.002)
-    assert checkpoint.resolve_latest_checkpoint(FileSystemCAS(store.root), "R_deadline") is None
+    assert checkpoint.resolve_latest_checkpoint(FileSystemCAS(store.root), run_id) is None
     assert not list(ctx.run.trace_path.parent.glob(".checkpoint_head_*.tmp"))
+
+    resumed_run = resume_same_run(store, ctx.run)
+    resumed_ctx = ExecutionContext(store=store, run=resumed_run, logger=ctx.logger)
+    resumed_executor = AsyncWorkflowExecutor(resumed_ctx, executor._registry)
+    current = await resumed_executor.execute(
+        workflow, ExperimentState(run_id=run_id, params={"seed": 7})
+    )
+    assert current.report.status == "ok"
+    assert resumed_executor._cache_seed_owner is not old_owner
+    assert resumed_executor._workflow_task is asyncio.current_task()
+    assert resumed_executor._workflow_cancelling == 0 and old_task.cancelling() == 1
     assert node.calls == 1  # The later actual invocation reuses verified native cache.
     assert len(node.refs) == 1 and FileSystemCAS(store.root).verify(node.refs[0]).ok
 
@@ -286,10 +527,11 @@ async def test_real_head_fsync_fence_keeps_previous_generation(tmp_path, monkeyp
     old_head = (run_dir / checkpoint.CHECKPOINT_HEAD_FILENAME).read_bytes()
     old_history = (run_dir / checkpoint.CHECKPOINT_HISTORY_FILENAME).read_bytes()
     original = checkpoint.os.fsync
+    checkpoint_head_fds = _track_checkpoint_head_temp_fds(monkeypatch)
     entered, release, finished = threading.Event(), threading.Event(), threading.Event()
 
     def held_fsync(fd):
-        if ".checkpoint_head_" in os.readlink(f"/proc/self/fd/{fd}"):
+        if fd in checkpoint_head_fds:
             entered.set()
             try:
                 assert release.wait(5)
@@ -391,10 +633,10 @@ async def test_explicit_adapter_limit_is_one_budget_across_artifact_and_head(tmp
     original_head = checkpoint.update_checkpoint_head
     finished = threading.Event()
 
-    def delayed_put(data, opts):
+    def delayed_put(data, opts, *, return_selected_profile=False):
         if opts.kind == checkpoint.CHECKPOINT_KIND:
             time.sleep(0.05)
-        return original_put(data, opts)
+        return original_put(data, opts, return_selected_profile=return_selected_profile)
 
     def delayed_head(*args, **kwargs):
         try:

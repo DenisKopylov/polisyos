@@ -1,16 +1,20 @@
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytest
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
+from polisyos.core.artifacts.manifest import CanonInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.scientist.orchestration.engine.checkpoint import (
+    CHECKPOINT_KIND,
+    CHECKPOINT_SCHEMA_VERSION,
     COMPLETED_NODE_STATUS_CONTRACT,
     CASCheckpointHook,
     CheckpointCorruptedError,
@@ -760,12 +764,25 @@ def test_checkpoint_hook_async_path_uses_async_artifact_store_adapter(
         checkpoint_policy="strict",
     )
     state = ExperimentState(run_id="R_async_hook", params={"phase": "EXECUTE"})
-    calls: list[str] = []
+    selected_profile_requests: list[bool] = []
     original_put_json = AsyncArtifactStoreAdapter.put_json
 
-    async def _tracked_put_json(self, obj, opts, canon_spec=None):
-        calls.append("put_json")
-        return await original_put_json(self, obj, opts, canon_spec=canon_spec)
+    async def _tracked_put_json(
+        self,
+        obj,
+        opts,
+        canon_spec=None,
+        *,
+        return_selected_profile=False,
+    ):
+        selected_profile_requests.append(return_selected_profile)
+        return await original_put_json(
+            self,
+            obj,
+            opts,
+            canon_spec=canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
 
     monkeypatch.setattr(AsyncArtifactStoreAdapter, "put_json", _tracked_put_json)
 
@@ -782,7 +799,7 @@ def test_checkpoint_hook_async_path_uses_async_artifact_store_adapter(
     )
 
     assert result is not None
-    assert calls == ["put_json"]
+    assert selected_profile_requests == [True]
     head = load_checkpoint_head(tmp_path / "runs" / "R_async_hook")
     assert head is not None
 
@@ -820,6 +837,229 @@ def test_resume_allows_valid_state_without_cache_refs(tmp_path: Path) -> None:
 
     assert resumed.report.status == "ok"
     assert resumed.report.nodes == []
+
+
+@pytest.mark.parametrize("async_writer", [False, True], ids=["sync", "async"])
+def test_checkpoint_writer_and_resume_preserve_selected_profile(
+    tmp_path: Path,
+    async_writer: bool,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    run_id = f"R_selected_profile_{async_writer}"
+    workflow = _workflow("scientist.node_cached_counter@1.0.0")
+    state = ExperimentState(run_id=run_id)
+    checkpoint_args = {
+        "run_id": run_id,
+        "state": state.model_dump(mode="python", by_alias=True, exclude_none=False),
+        "sequence_number": 0,
+        "completed_node_alias": "start",
+        "completed_node_id": "scientist.node_cached_counter@1.0.0",
+        "completed_nodes": ["start"],
+        "completed_node_status_contract": COMPLETED_NODE_STATUS_CONTRACT,
+        "workflow_id": workflow.workflow_id,
+        "workflow_fingerprint": compute_workflow_fingerprint(workflow),
+        "fsm_phase": "EXECUTE",
+        "cache_entry_refs": [],
+    }
+
+    if async_writer:
+        created = run_coro_sync(
+            create_checkpoint_async(AsyncArtifactStoreAdapter(store), **checkpoint_args)
+        )
+    else:
+        created = create_checkpoint(store, **checkpoint_args)
+
+    selected_profile = created.checkpoint_ref.manifest_profile_sha256
+    assert selected_profile is not None
+    run_dir = tmp_path / "runs" / run_id
+    bare_legacy_ref = created.checkpoint_ref.model_copy(update={"manifest_profile_sha256": None})
+    update_checkpoint_head(
+        run_dir,
+        run_id=run_id,
+        checkpoint_ref=bare_legacy_ref,
+        sequence_number=0,
+        node_alias="start",
+        writer_pid=123,
+        writer_hostname="localhost",
+    )
+
+    resolved = resolve_latest_checkpoint(store, run_id, run_dir=run_dir)
+    assert resolved is not None
+    resolved_head, checkpoint = resolved
+    assert resolved_head.checkpoint_ref.manifest_profile_sha256 == selected_profile
+    assert checkpoint.metadata.run_id == run_id
+    assert checkpoint.state is not None
+    assert load_checkpoint_head(run_dir).checkpoint_ref.manifest_profile_sha256 is None
+
+    resumed = resume_from_checkpoint(store, run_id, workflow=workflow)
+    assert resumed.report.status == "ok"
+    assert resumed.report.nodes == []
+
+
+def test_resume_accepts_legacy_nested_checkpoint_schema_under_current_manifest(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_legacy_checkpoint_payload_schema"
+    workflow = _workflow("scientist.node_cached_counter@1.0.0")
+    state = ExperimentState(run_id=run_id)
+    created = create_checkpoint(
+        store,
+        run_id=run_id,
+        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+        sequence_number=0,
+        completed_node_alias="start",
+        completed_node_id="scientist.node_cached_counter@1.0.0",
+        completed_nodes=["start"],
+        completed_node_status_contract=COMPLETED_NODE_STATUS_CONTRACT,
+        workflow_id=workflow.workflow_id,
+        workflow_fingerprint=compute_workflow_fingerprint(workflow),
+        fsm_phase="EXECUTE",
+        cache_entry_refs=[],
+    )
+    current = load_checkpoint(store, created.checkpoint_ref)
+    legacy_payload = current.model_copy(
+        update={
+            "metadata": current.metadata.model_copy(update={"schema_version": "1.0"}),
+        }
+    )
+    legacy_ref = store.put_json(
+        legacy_payload.model_dump(mode="python", by_alias=True, exclude_none=False),
+        PutOptions(
+            kind=CHECKPOINT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.checkpoint.CheckpointArtifact",
+                version=CHECKPOINT_SCHEMA_VERSION,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    run_dir = tmp_path / "runs" / run_id
+    update_checkpoint_head(
+        run_dir,
+        run_id=run_id,
+        checkpoint_ref=legacy_ref,
+        sequence_number=0,
+        node_alias="start",
+        writer_pid=123,
+        writer_hostname="localhost",
+    )
+
+    resumed = resume_from_checkpoint(store, run_id, workflow=workflow)
+
+    assert load_checkpoint(store, legacy_ref).metadata.schema_version == "1.0"
+    assert resumed.report.status == "ok"
+    assert resumed.report.nodes == []
+
+
+@pytest.mark.parametrize(
+    ("wrong_kind", "wrong_media_type", "wrong_schema"),
+    [
+        (
+            "other.checkpoint",
+            "application/json",
+            SchemaInfo(
+                name="polisyos.scientist.checkpoint.CheckpointArtifact",
+                version="1.3",
+            ),
+        ),
+        (
+            "scientist.checkpoint",
+            "application/vnd.other+json",
+            SchemaInfo(
+                name="polisyos.scientist.checkpoint.CheckpointArtifact",
+                version="1.3",
+            ),
+        ),
+        (
+            "scientist.checkpoint",
+            "application/json",
+            SchemaInfo(name="other.CheckpointArtifact", version="1.3"),
+        ),
+        (
+            "scientist.checkpoint",
+            "application/json",
+            SchemaInfo(
+                name="polisyos.scientist.checkpoint.CheckpointArtifact",
+                version="9.0",
+            ),
+        ),
+        ("scientist.checkpoint", "application/json", None),
+    ],
+    ids=["kind", "media-type", "schema-name", "schema-version", "missing-schema"],
+)
+def test_resume_rejects_same_checkpoint_bytes_with_wrong_owner_before_state_restore(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    wrong_kind: str,
+    wrong_media_type: str,
+    wrong_schema: SchemaInfo | None,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_wrong_checkpoint_owner"
+    workflow = _workflow("scientist.node_cached_counter@1.0.0")
+    state = ExperimentState(run_id=run_id)
+    created = create_checkpoint(
+        store,
+        run_id=run_id,
+        state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+        sequence_number=0,
+        completed_node_alias="start",
+        completed_node_id="scientist.node_cached_counter@1.0.0",
+        completed_nodes=["start"],
+        completed_node_status_contract=COMPLETED_NODE_STATUS_CONTRACT,
+        workflow_id=workflow.workflow_id,
+        workflow_fingerprint=compute_workflow_fingerprint(workflow),
+        fsm_phase="EXECUTE",
+        cache_entry_refs=[],
+    )
+    checkpoint_bytes = store.get_bytes(created.checkpoint_ref)
+    wrong_ref = store.put_bytes(
+        checkpoint_bytes,
+        PutOptions(
+            kind=wrong_kind,
+            media_type=wrong_media_type,
+            schema=wrong_schema,
+            canon=CanonInfo(forbid_floats=False),
+        ),
+        return_selected_profile=True,
+    )
+    assert wrong_ref.artifact_id == created.checkpoint_ref.artifact_id
+    assert store.get_bytes(wrong_ref) == checkpoint_bytes
+    assert wrong_ref.manifest_profile_sha256 is not None
+    update_checkpoint_head(
+        tmp_path / "runs" / run_id,
+        run_id=run_id,
+        checkpoint_ref=wrong_ref,
+        sequence_number=0,
+        node_alias="start",
+        writer_pid=123,
+        writer_hostname="localhost",
+    )
+
+    state_restore_attempts: list[object] = []
+    original_model_validate = ExperimentState.model_validate
+
+    def _track_state_restore(
+        cls: type[ExperimentState],
+        value: Any,
+        **kwargs: Any,
+    ) -> ExperimentState:
+        state_restore_attempts.append(value)
+        return original_model_validate(value, **kwargs)
+
+    monkeypatch.setattr(
+        ExperimentState,
+        "model_validate",
+        classmethod(_track_state_restore),
+    )
+
+    with pytest.raises(CheckpointCorruptedError, match="checkpoint artifact payload is invalid"):
+        resume_from_checkpoint(store, run_id, workflow=workflow)
+
+    assert state_restore_attempts == []
 
 
 def test_resume_refuses_status_blind_checkpoint_completed_nodes(tmp_path: Path) -> None:
@@ -935,9 +1175,7 @@ def test_incremental_checkpoint_rejects_cross_tenant_base(tmp_path: Path) -> Non
             cache_entry_refs=[],
             tenant_id="tenant-b",
             cell_id="cell-a",
-            previous_state=base_state.model_dump(
-                mode="python", by_alias=True, exclude_none=False
-            ),
+            previous_state=base_state.model_dump(mode="python", by_alias=True, exclude_none=False),
             previous_checkpoint_ref=base.checkpoint_ref,
             previous_chain_depth=base.chain_depth,
         )

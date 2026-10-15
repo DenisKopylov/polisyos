@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from threading import Lock
-from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, TypeGuard, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
@@ -25,7 +25,10 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import (
     AsyncArtifactStoreAdapter,
     AsyncFileSystemArtifactStore,
+    CoreArtifactOwnerProfile,
+    CoreOwnedModelRead,
     ensure_async_artifact_store,
+    validate_owned_core_model_json_artifact,
 )
 from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
@@ -35,6 +38,7 @@ from polisyos.core.artifacts.backends.config import (
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, content_hash, to_canonical_bytes
+from polisyos.core.components import ComponentId
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.core.security import (
     get_current_access_scope_or_none,
@@ -54,7 +58,15 @@ logger = get_logger(__name__)
 
 CHECKPOINT_KIND = "scientist.checkpoint"
 CHECKPOINT_SCHEMA_VERSION = "1.3"
-COMPLETED_NODE_STATUS_CONTRACT = "native_node_outcome_v1"
+_CHECKPOINT_MEDIA_TYPE = "application/json"
+_CHECKPOINT_SCHEMA_NAME = "polisyos.scientist.checkpoint.CheckpointArtifact"
+_CHECKPOINT_OWNER_PROFILE = CoreArtifactOwnerProfile(
+    kind=CHECKPOINT_KIND,
+    media_type=_CHECKPOINT_MEDIA_TYPE,
+    schema_variants=(SchemaInfo(name=_CHECKPOINT_SCHEMA_NAME, version=CHECKPOINT_SCHEMA_VERSION),),
+    payload_schema_version_by_manifest="not_applicable",
+)
+COMPLETED_NODE_STATUS_CONTRACT: Literal["native_node_outcome_v1"] = "native_node_outcome_v1"
 CHECKPOINT_HEAD_FILENAME = "checkpoint_head.json"
 CHECKPOINT_HISTORY_FILENAME = "checkpoint_history.json"
 RUN_LOCK_FILENAME = "run.lock"
@@ -207,13 +219,13 @@ async def _run_checkpoint_blocking[T](
         publication_budget.require_active(operation, execution_state="unknown")
         raise
     publication_budget.require_active(operation, execution_state="unknown")
-    return cast("T", result)
+    return result
 
 
 class CheckpointRegistry(Protocol):
     """Minimal registry contract needed by checkpoint resume flows."""
 
-    def get(self, node_id: object) -> Any: ...
+    def get(self, node_id: ComponentId | str) -> Any: ...
 
 
 @dataclass(frozen=True)
@@ -709,7 +721,15 @@ def _diff_checkpoint_value(previous: Any, current: Any, *, path: str) -> tuple[A
 
 
 def _apply_state_delta(base: dict[str, Any], delta: dict[str, Any]) -> dict[str, Any]:
-    return _apply_checkpoint_op(base, delta, root=True)
+    result = _apply_checkpoint_op(base, delta, root=True)
+    if not _is_string_keyed_dict(result):
+        raise CheckpointCorruptedError("checkpoint delta root state must be a string-keyed dict")
+    return result
+
+
+def _is_string_keyed_dict(value: object) -> TypeGuard[dict[str, Any]]:
+    """Validate the JSON object shape required for persisted checkpoint state."""
+    return isinstance(value, dict) and all(isinstance(key, str) for key in value)
 
 
 def _apply_checkpoint_op(value: Any, op: dict[str, Any], *, root: bool = False) -> Any:
@@ -848,7 +868,7 @@ class CASCheckpointHook:
         )
         self._cache_entry_refs: list[ArtifactRef] = list(initial_cache_entry_refs or [])
         self._completed_nodes: list[str] = _dedupe_aliases(initial_completed_nodes or [])
-        self._completed_node_status_contract = None
+        self._completed_node_status_contract: Literal["native_node_outcome_v1"] | None = None
         if initial_status_contract_established:
             self._completed_node_status_contract = (
                 initial_completed_node_status_contract
@@ -1742,13 +1762,14 @@ def create_checkpoint(
         checkpoint.model_dump(mode="python", by_alias=True, exclude_none=False),
         ArtifactWriteOptions(
             kind=CHECKPOINT_KIND,
-            media_type="application/json",
+            media_type=_CHECKPOINT_MEDIA_TYPE,
             schema=SchemaInfo(
-                name="polisyos.scientist.checkpoint.CheckpointArtifact",
+                name=_CHECKPOINT_SCHEMA_NAME,
                 version=CHECKPOINT_SCHEMA_VERSION,
             ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     duration_ms = int((time.perf_counter() - t0) * 1000)
     return CreatedCheckpoint(
@@ -1839,9 +1860,9 @@ async def create_checkpoint_async(
     payload = checkpoint.model_dump(mode="python", by_alias=True, exclude_none=False)
     opts = ArtifactWriteOptions(
         kind=CHECKPOINT_KIND,
-        media_type="application/json",
+        media_type=_CHECKPOINT_MEDIA_TYPE,
         schema=SchemaInfo(
-            name="polisyos.scientist.checkpoint.CheckpointArtifact",
+            name=_CHECKPOINT_SCHEMA_NAME,
             version=CHECKPOINT_SCHEMA_VERSION,
         ),
     )
@@ -1855,6 +1876,7 @@ async def create_checkpoint_async(
             payload,
             opts,
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
             publication_budget=publication_budget,
             operation="checkpoint_artifact",
         )
@@ -1862,13 +1884,23 @@ async def create_checkpoint_async(
         remaining = publication_budget.remaining_seconds("checkpoint_artifact")
         try:
             async with asyncio.timeout(remaining):
-                ref = await store.put_json(payload, opts, canon_spec=CanonSpec(forbid_floats=False))
+                ref = await store.put_json(
+                    payload,
+                    opts,
+                    canon_spec=CanonSpec(forbid_floats=False),
+                    return_selected_profile=True,
+                )
         except TimeoutError:
             publication_budget.require_active("checkpoint_artifact", execution_state="unknown")
             raise
         publication_budget.require_active("checkpoint_artifact", execution_state="unknown")
     else:
-        ref = await store.put_json(payload, opts, canon_spec=CanonSpec(forbid_floats=False))
+        ref = await store.put_json(
+            payload,
+            opts,
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
     duration_ms = int((time.perf_counter() - t0) * 1000)
     return CreatedCheckpoint(
         checkpoint_ref=ref,
@@ -1886,6 +1918,16 @@ def _fsync_dir(path: Path) -> None:
         os.fsync(fd)
     finally:
         os.close(fd)
+
+
+def _write_all(fd: int, payload: bytes) -> None:
+    """Write every byte or fail before the temporary file can be published."""
+    remaining = memoryview(payload)
+    while remaining:
+        written = os.write(fd, remaining)
+        if written <= 0 or written > len(remaining):
+            raise OSError("checkpoint file write made no valid progress")
+        remaining = remaining[written:]
 
 
 def update_checkpoint_head(
@@ -1925,7 +1967,7 @@ def update_checkpoint_head(
     fd, tmp_path = tempfile.mkstemp(prefix=".checkpoint_head_", suffix=".tmp", dir=str(run_dir))
     try:
         try:
-            os.write(fd, payload)
+            _write_all(fd, payload)
             os.fsync(fd)
         finally:
             os.close(fd)
@@ -1992,7 +2034,7 @@ def write_checkpoint_history(
     )
     try:
         try:
-            os.write(fd, payload)
+            _write_all(fd, payload)
             os.fsync(fd)
         finally:
             os.close(fd)
@@ -2175,9 +2217,20 @@ def load_checkpoint_head(run_dir: Path) -> CheckpointHead | None:
 
 def load_checkpoint(store: ArtifactStore, checkpoint_ref: ArtifactRef) -> CheckpointArtifact:
     """Load checkpoint."""
-    from polisyos.core.artifacts import load_core_json_artifact
-    payload = load_core_json_artifact(store, checkpoint_ref)
-    return CheckpointArtifact.model_validate(payload)
+    return _load_checkpoint_read(store, checkpoint_ref).value
+
+
+def _load_checkpoint_read(
+    store: ArtifactStore,
+    checkpoint_ref: ArtifactRef,
+) -> CoreOwnedModelRead[CheckpointArtifact]:
+    """Read a checkpoint through its selected owner ABI and retain the actual view."""
+    return validate_owned_core_model_json_artifact(
+        CheckpointArtifact,
+        store,
+        checkpoint_ref,
+        expected_owner=_CHECKPOINT_OWNER_PROFILE,
+    )
 
 
 def materialize_checkpoint_state(
@@ -2250,7 +2303,8 @@ def resolve_latest_checkpoint(
         return None
 
     try:
-        checkpoint = load_checkpoint(store, head.checkpoint_ref)
+        checkpoint_read = _load_checkpoint_read(store, head.checkpoint_ref)
+        checkpoint = checkpoint_read.value
     except (ValidationError, ValueError, TypeError) as exc:
         raise CheckpointCorruptedError(f"checkpoint artifact payload is invalid: {exc}") from exc
     if checkpoint.metadata.run_id != run_id:
@@ -2272,6 +2326,9 @@ def resolve_latest_checkpoint(
             "checkpoint metadata mismatch between checkpoint_head.json and artifact: "
             + ", ".join(mismatches)
         )
+    head = head.model_copy(
+        update={"checkpoint_ref": checkpoint_read.artifact_ref.model_copy(deep=True)}
+    )
     _reconcile_checkpoint_history(run_dir, head=head)
     materialized_state = materialize_checkpoint_state(
         store,
@@ -2364,10 +2421,24 @@ def acquire_run_lock(
         "mode": mode,
         "started_at": datetime.now(UTC).isoformat(),
     }
-    os.ftruncate(fd, 0)
-    os.lseek(fd, 0, os.SEEK_SET)
-    os.write(fd, json.dumps(metadata, ensure_ascii=True, sort_keys=True).encode("utf-8"))
-    os.fsync(fd)
+    try:
+        os.ftruncate(fd, 0)
+        os.lseek(fd, 0, os.SEEK_SET)
+        lock_payload = json.dumps(metadata, ensure_ascii=True, sort_keys=True).encode("utf-8")
+        try:
+            _write_all(fd, lock_payload)
+        except OSError as exc:
+            # flock is the lock authority; this file only supplies best-effort
+            # diagnostics about the current holder.
+            logger.warning("Run lock metadata for %s could not be written: %s", run_id, exc)
+        else:
+            os.fsync(fd)
+    except BaseException:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+        raise
 
     return RunLockHandle(run_id=run_id, path=lock_path, fd=fd, metadata=metadata)
 
@@ -2479,10 +2550,11 @@ def resume_from_checkpoint(
         # A fully completed workflow has no residual node whose declared reads
         # need checking.  Return its durable state without requiring registry
         # implementations for nodes that are no longer executable.
-        resolved_registry = registry
         missing_state_paths: tuple[str, ...] = ()
         if resumed_workflow.nodes:
-            resolved_registry = registry or build_registry_with_builtin_nodes()
+            resolved_registry: CheckpointRegistry = (
+                registry if registry is not None else build_registry_with_builtin_nodes()
+            )
             missing_state_paths = _missing_completed_state_paths(
                 workflow_spec,
                 resumed_workflow,

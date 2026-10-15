@@ -10,11 +10,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Annotated, Any, Literal, Protocol, cast
+from typing import Annotated, Any, Final, Literal, Protocol, cast
 
 from pydantic import BaseModel, ConfigDict, Field, StrictStr, ValidationError, model_validator
 
@@ -39,13 +40,20 @@ from polisyos.data_forge.read_api.ukraine import (
 )
 
 SOURCE_INVENTORY_STAGE_ID = "demography_source_inventory"
-SOURCE_INVENTORY_PRODUCER_ID = (
-    "polisyos.data_forge.domains.ukraine.demography.source_inventory.v2"
+SOURCE_INVENTORY_PRODUCER_ID: Final[
+    Literal["polisyos.data_forge.domains.ukraine.demography.source_inventory.v2"]
+] = "polisyos.data_forge.domains.ukraine.demography.source_inventory.v2"
+SOURCE_INVENTORY_SCHEMA: Final[Literal["policyos.ukraine.demography.source_inventory.v2"]] = (
+    "policyos.ukraine.demography.source_inventory.v2"
 )
-SOURCE_INVENTORY_SCHEMA = "policyos.ukraine.demography.source_inventory.v2"
-SOURCE_INVENTORY_RULE = "ukraine-demography-source-inventory.v2"
+SOURCE_INVENTORY_RULE: Final[Literal["ukraine-demography-source-inventory.v2"]] = (
+    "ukraine-demography-source-inventory.v2"
+)
 SOURCE_INVENTORY_BASIS_KIND = "ukraine_demography_source_inventory"
-_REQUIRED_ROLES = ("targets", "priors")
+_REQUIRED_ROLES: Final[tuple[Literal["targets"], Literal["priors"]]] = (
+    "targets",
+    "priors",
+)
 _SOURCE_FACT_KEYS = frozenset(
     {
         "source_owner_id",
@@ -157,7 +165,8 @@ class InventoryBuildRequest(StrictFrozenModel):
     def _validate_recipe(self) -> InventoryBuildRequest:
         if self.upstream_expected_stage not in {item.value for item in StageId}:
             raise ValueError("upstream_expected_stage must name a known Ukraine stage")
-        expected = set(_REQUIRED_ROLES)
+        expected: set[Literal["targets", "priors", "donor"]] = set()
+        expected.update(_REQUIRED_ROLES)
         if self.source_claims.donor_disposition == "present":
             expected.add("donor")
         if set(self.role_outputs) != expected:
@@ -212,9 +221,9 @@ class DemographyInventoryEnvelope(StrictFrozenModel):
     """Content-bound inventory whose semantics remain candidate-only."""
 
     inventory_id: StrictStr = Field(pattern=r"^[0-9a-f]{24}$")
-    producer_identity: Literal[SOURCE_INVENTORY_PRODUCER_ID]
-    schema_version: Literal[SOURCE_INVENTORY_SCHEMA]
-    verification_rule_version: Literal[SOURCE_INVENTORY_RULE]
+    producer_identity: Literal["polisyos.data_forge.domains.ukraine.demography.source_inventory.v2"]
+    schema_version: Literal["policyos.ukraine.demography.source_inventory.v2"]
+    verification_rule_version: Literal["ukraine-demography-source-inventory.v2"]
     evidence_band: Literal["candidate_only"]
     source_materialization: Literal["verified_stage_outputs"]
     source_stage_receipt: VerifiedUkraineStageArtifacts
@@ -250,8 +259,8 @@ class DemographyInventoryEnvelope(StrictFrozenModel):
             raise ValueError("inventory member roles must exactly match the declared disposition")
         if set(self.source_stage_receipt.outputs) != set(self.role_outputs.values()):
             raise ValueError("source receipt must contain exactly the selected role outputs")
-        for role, source_name in self.role_outputs.items():
-            member = members_by_role[role]
+        for member in members_by_role.values():
+            source_name = self.role_outputs[member.role]
             source_output = self.source_stage_receipt.outputs[source_name]
             if (
                 member.source_output_name != source_name
@@ -341,7 +350,54 @@ class ResolvedDemographySource:
     donor_disposition: Literal["present", "intentionally_absent", "not_established"]
 
 
-@dataclass(frozen=True, eq=False)
+def _snapshot_json_value(value: object, active: set[int]) -> object:
+    """Copy one JSON value without retaining aliases to mutable input containers."""
+    value_type = type(value)
+    if isinstance(value, float) and not math.isfinite(value):
+        raise ValueError("demography role payload floats must be finite JSON numbers")
+    if value is None or value_type in (bool, int, float, str):
+        return value
+    identity = id(value)
+    if isinstance(value, list):
+        if identity in active:
+            raise TypeError("demography role payloads cannot contain cycles")
+        active.add(identity)
+        try:
+            return [_snapshot_json_value(item, active) for item in value]
+        finally:
+            active.remove(identity)
+    if isinstance(value, dict):
+        if identity in active:
+            raise TypeError("demography role payloads cannot contain cycles")
+        active.add(identity)
+        try:
+            snapshot: dict[str, object] = {}
+            for key, item in value.items():
+                if not isinstance(key, str):
+                    raise TypeError("demography role payload object keys must be strings")
+                snapshot[key] = _snapshot_json_value(item, active)
+            return snapshot
+        finally:
+            active.remove(identity)
+    raise TypeError("demography role payloads must contain JSON values")
+
+
+def _snapshot_json_object(payload: dict[str, object]) -> dict[str, object]:
+    """Return a recursively detached JSON object for a role projection."""
+    if not isinstance(payload, dict):
+        raise TypeError("demography role payload must be a JSON object")
+    snapshot = _snapshot_json_value(payload, set())
+    if not isinstance(snapshot, dict):
+        raise TypeError("demography role payload must be a JSON object")
+    result: dict[str, object] = {}
+    for key, value in snapshot.items():
+        if not isinstance(key, str):
+            raise TypeError("demography role payload object keys must be strings")
+        result[key] = value
+    return result
+
+
+@dataclass(frozen=True, eq=False, init=False)
 class DemographyRoleProjection(Mapping[str, object]):
     """Mapping view whose equality follows payload values; evidence stays attached."""
 
@@ -349,22 +405,50 @@ class DemographyRoleProjection(Mapping[str, object]):
     payload: dict[str, object]
     evidence: DemographySourceEvidence
 
+    def __init__(
+        self,
+        role: Literal["targets", "priors", "donor"],
+        payload: dict[str, object],
+        evidence: DemographySourceEvidence,
+    ) -> None:
+        """Bind evidence to a private snapshot of the supplied JSON payload."""
+        object.__setattr__(self, "role", role)
+        object.__setattr__(self, "evidence", evidence)
+        object.__setattr__(self, "_payload_snapshot", _snapshot_json_object(payload))
+
+    def __getattribute__(self, name: str) -> object:
+        """Expose the dataclass payload field as a recursively detached mutable copy."""
+        if name == "payload":
+            snapshot = object.__getattribute__(self, "_payload_snapshot")
+            return _snapshot_json_object(snapshot)
+        return object.__getattribute__(self, name)
+
+    def _stored_payload(self) -> dict[str, object]:
+        """Return the owner-private snapshot for internal mapping operations."""
+        snapshot: dict[str, object] = object.__getattribute__(self, "_payload_snapshot")
+        return snapshot
+
     def __getitem__(self, key: str) -> object:
-        return self.payload[key]
+        snapshot = self._stored_payload()
+        return _snapshot_json_value(snapshot[key], set())
 
     def __iter__(self) -> Iterator[str]:
-        return iter(self.payload)
+        snapshot = self._stored_payload()
+        return iter(snapshot)
 
     def __len__(self) -> int:
-        return len(self.payload)
+        snapshot = self._stored_payload()
+        return len(snapshot)
 
     def __eq__(self, other: object) -> bool:
         """Compare the public mapping view by its keys and values."""
         if not isinstance(other, Mapping):
             return False
-        return self.payload == dict(other.items())
-
-    __hash__ = None
+        snapshot = self._stored_payload()
+        other_values: dict[object, object] = {}
+        for key, value in other.items():
+            other_values[key] = value
+        return snapshot == other_values
 
 
 class InventoryBuildRequestProtocol(Protocol):
@@ -408,9 +492,7 @@ def _artifact_record_set(
     paths = [str(Path(record.path).resolve()) for record in records]
     if len(paths) != len(set(paths)):
         raise SourceResolutionRefusalError(refusal_code, "artifact record paths are duplicated")
-    return tuple(
-        sorted(_canonical_json(record.model_dump(mode="json")) for record in records)
-    )
+    return tuple(sorted(_canonical_json(record.model_dump(mode="json")) for record in records))
 
 
 def _selected_upstream_receipt(
@@ -460,13 +542,9 @@ def _selected_upstream_receipt(
         output = receipt.outputs.get(output_name)
         if output is None:
             raise SourceResolutionRefusalError("upstream_output_missing", output_name)
-        records = [
-            item for item in source_manifest.outputs if Path(item.path).name == output_name
-        ]
+        records = [item for item in source_manifest.outputs if Path(item.path).name == output_name]
         if len(records) != 1:
-            raise SourceResolutionRefusalError(
-                "upstream_output_record_ambiguous", output_name
-            )
+            raise SourceResolutionRefusalError("upstream_output_record_ambiguous", output_name)
         record = records[0]
         if (
             record.sha256 != output.sha256
@@ -475,9 +553,7 @@ def _selected_upstream_receipt(
             or record.nnz != output.nnz
             or record.artifact_id != output.producer_artifact_id
         ):
-            raise SourceResolutionRefusalError(
-                "upstream_output_record_mismatch", output_name
-            )
+            raise SourceResolutionRefusalError("upstream_output_record_mismatch", output_name)
         try:
             raw = load_verified_stage_output_bytes(store, receipt, output_name)
         except Exception as exc:
@@ -523,9 +599,7 @@ def _basis_for(
         ("source-manifest.json", source_manifest_bytes),
         ("source-role-map.json", role_map_bytes),
     ]
-    inputs.extend(
-        (f"member:{role}", raw) for role, raw in sorted(member_bytes.items())
-    )
+    inputs.extend((f"member:{role}", raw) for role, raw in sorted(member_bytes.items()))
     return build_generation_basis(
         basis_kind=SOURCE_INVENTORY_BASIS_KIND,
         generator_rule_version=SOURCE_INVENTORY_RULE,
@@ -649,10 +723,10 @@ def _check_claimed_cross_member_consistency(
         and target_state_ids is not None
         and target_state_ids != ordered_states
     ):
-            raise SourceResolutionRefusalError(
-                "declared_state_order_mismatch",
-                "target state order differs from the explicit claim",
-            )
+        raise SourceResolutionRefusalError(
+            "declared_state_order_mismatch",
+            "target state order differs from the explicit claim",
+        )
     prior_matrix = priors.get("transition_prior_matrix")
     if isinstance(prior_matrix, list):
         for fact_name, axis in (
@@ -661,8 +735,10 @@ def _check_claimed_cross_member_consistency(
         ):
             declared_axis = envelope.source_claims.facts[fact_name].value
             if isinstance(declared_axis, list):
-                expected_length = len(prior_matrix) if axis == 0 else (
-                    len(prior_matrix[0]) if prior_matrix else 0
+                expected_length = (
+                    len(prior_matrix)
+                    if axis == 0
+                    else (len(prior_matrix[0]) if prior_matrix else 0)
                 )
                 if len(declared_axis) != expected_length:
                     raise SourceResolutionRefusalError(
@@ -674,10 +750,10 @@ def _check_claimed_cross_member_consistency(
                     and isinstance(target_state_ids, list)
                     and declared_axis != target_state_ids
                 ):
-                        raise SourceResolutionRefusalError(
-                            "declared_prior_destination_order_mismatch",
-                            "prior destination axis differs from target state order",
-                        )
+                    raise SourceResolutionRefusalError(
+                        "declared_prior_destination_order_mismatch",
+                        "prior destination axis differs from target state order",
+                    )
 
 
 def _resolve_inventory(request: InventorySourceRequest) -> ResolvedDemographySource:
@@ -726,11 +802,7 @@ def _resolve_inventory(request: InventorySourceRequest) -> ResolvedDemographySou
             isinstance(exc, UkraineJSONSnapshotRefusalError)
             and isinstance(exc.__cause__, ValidationError)
         )
-        code = (
-            "inventory_malformed"
-            if malformed_model
-            else "inventory_profile_or_payload_refused"
-        )
+        code = "inventory_malformed" if malformed_model else "inventory_profile_or_payload_refused"
         raise SourceResolutionRefusalError(code, str(exc)) from exc
     source_manifest, source_manifest_bytes, source_manifest_read = _source_manifest_from_receipt(
         envelope.source_stage_receipt, store=request.store
@@ -744,9 +816,7 @@ def _resolve_inventory(request: InventorySourceRequest) -> ResolvedDemographySou
         output = envelope.source_stage_receipt.outputs.get(output_name)
         if output is None:
             raise SourceResolutionRefusalError("source_member_receipt_missing", output_name)
-        records = [
-            item for item in source_manifest.outputs if Path(item.path).name == output_name
-        ]
+        records = [item for item in source_manifest.outputs if Path(item.path).name == output_name]
         if len(records) != 1:
             raise SourceResolutionRefusalError(
                 "source_member_manifest_record_ambiguous", output_name
@@ -896,9 +966,7 @@ def _resolve_historical_layout(
     identity_bytes = _canonical_json(
         {
             "layout": selected,
-            "members": {
-                name: _sha256(raw) for name, raw in sorted(member_bytes.items())
-            },
+            "members": {name: _sha256(raw) for name, raw in sorted(member_bytes.items())},
         }
     )
     evidence = DemographySourceEvidence(
@@ -960,9 +1028,10 @@ def read_demography_role(
         else:
             raise SourceResolutionRefusalError("member_not_established", role)
     elif resolved.status == "candidate_only":
-        payload = resolved.member_json_values.get(role)
-        if payload is None:
+        candidate_payload = resolved.member_json_values.get(role)
+        if candidate_payload is None:
             raise SourceResolutionRefusalError("member_profile_value_not_established", role)
+        payload = candidate_payload
     else:
         payload = _read_json_object(raw, role=role, typed_errors=False)
     return DemographyRoleProjection(role=role, payload=payload, evidence=resolved.evidence)

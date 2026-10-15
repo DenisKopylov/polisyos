@@ -24,6 +24,11 @@ from polisyos.data_forge.domains.ukraine.demography import (
     load_transition_priors as load_domain_transition_priors,
 )
 from polisyos.data_forge.domains.ukraine.demography.source_inventory import (
+    SOURCE_INVENTORY_PRODUCER_ID,
+    SOURCE_INVENTORY_RULE,
+    SOURCE_INVENTORY_SCHEMA,
+    DemographyInventoryEnvelope,
+    DemographySourceEvidence,
     InventoryBuildRequest,
     SourceFact,
     SourceSemanticClaims,
@@ -111,9 +116,7 @@ def _claims(
     )
     facts["donor_absence_reason"] = SourceFact(
         value=(
-            "fixture:donor-not-applicable"
-            if donor_disposition == "intentionally_absent"
-            else None
+            "fixture:donor-not-applicable" if donor_disposition == "intentionally_absent" else None
         ),
         provenance=(
             "consumer_asserted"
@@ -202,11 +205,7 @@ def _make_candidate(
         role_outputs={
             "targets": targets_path.name,
             "priors": priors_path.name,
-            **(
-                {"donor": donor_path.name}
-                if donor_disposition == "present"
-                else {}
-            ),
+            **({"donor": donor_path.name} if donor_disposition == "present" else {}),
         },
         source_claims=_claims(
             state_ids,
@@ -232,6 +231,96 @@ def _make_candidate(
     assert summary.status == "completed"
     store = FileSystemCAS(config.build_root.resolved_cas_root)
     return orchestrator.stage_manifest_path(StageId.DEMOGRAPHY_SOURCE_INVENTORY), build_root, store
+
+
+def test_inventory_schema_version_constants_remain_wire_stable() -> None:
+    """Literal constants and generated schema preserve the published inventory identifiers."""
+    properties = DemographyInventoryEnvelope.model_json_schema()["properties"]
+    expected = {
+        "producer_identity": "polisyos.data_forge.domains.ukraine.demography.source_inventory.v2",
+        "schema_version": "policyos.ukraine.demography.source_inventory.v2",
+        "verification_rule_version": "ukraine-demography-source-inventory.v2",
+    }
+    actual = {
+        "producer_identity": SOURCE_INVENTORY_PRODUCER_ID,
+        "schema_version": SOURCE_INVENTORY_SCHEMA,
+        "verification_rule_version": SOURCE_INVENTORY_RULE,
+    }
+    assert actual == expected
+    assert {name: properties[name]["const"] for name in expected} == expected
+    assert properties["required_roles"]["items"]["enum"] == ["targets", "priors"]
+
+
+def _minimal_projection_evidence() -> DemographySourceEvidence:
+    """Build valid candidate evidence for projection payload boundary tests."""
+    return DemographySourceEvidence(
+        source_status="candidate_only",
+        source_identity="sha256:fixture",
+        source_layout=None,
+        source_producer_identity=None,
+        source_stage_id=None,
+        source_run_id=None,
+        source_authority_provenance="not_established",
+        source_fact_provenance="not_established",
+        source_currentness_provenance="not_established",
+        member_content_binding_provenance="not_established",
+        declared_basis_binding_provenance="not_established",
+        semantic_completeness_provenance="not_established",
+        donor_disposition="not_established",
+        compatibility_notes=[],
+        source_claims=None,
+    )
+
+
+@pytest.mark.parametrize("location", ["root", "list", "dict"])
+@pytest.mark.parametrize(
+    "value",
+    [
+        pytest.param(float("nan"), id="nan"),
+        pytest.param(float("inf"), id="positive-infinity"),
+        pytest.param(float("-inf"), id="negative-infinity"),
+    ],
+)
+def test_role_projection_rejects_nonfinite_json_numbers_at_every_depth(
+    location: Literal["root", "list", "dict"],
+    value: float,
+) -> None:
+    """Reject non-finite floats in direct fields, lists, and nested objects."""
+    if location == "root":
+        payload: dict[str, object] = {"value": value}
+    elif location == "list":
+        payload = {"value": [value]}
+    else:
+        payload = {"value": {"nested": value}}
+
+    with pytest.raises(ValueError, match="finite JSON number"):
+        DemographyRoleProjection("targets", payload, _minimal_projection_evidence())
+
+
+@pytest.mark.parametrize("location", ["root", "list", "dict"])
+@pytest.mark.parametrize(
+    "value",
+    [
+        pytest.param(1.25, id="positive-float"),
+        pytest.param(0.0, id="positive-zero"),
+        pytest.param(-0.0, id="negative-zero"),
+    ],
+)
+def test_role_projection_preserves_finite_json_numbers_at_every_depth(
+    location: Literal["root", "list", "dict"],
+    value: float,
+) -> None:
+    """Preserve finite floats and signed zero in detached recursive JSON copies."""
+    if location == "root":
+        payload: dict[str, object] = {"value": value}
+    elif location == "list":
+        payload = {"value": [value]}
+    else:
+        payload = {"value": {"nested": value}}
+
+    projection = DemographyRoleProjection("targets", payload, _minimal_projection_evidence())
+
+    assert json.dumps(projection.payload, allow_nan=False) == json.dumps(payload, allow_nan=False)
 
 
 @pytest.mark.parametrize(
@@ -322,7 +411,6 @@ def test_inventory_candidate_reaches_all_real_readers_and_foundry(
     targets = load_reconciled_targets(source=source)
     priors = load_transition_priors(source=source)
     donors = load_donor_pool(source=source)
-    aggregate = load_demography_artifacts(source=source)
 
     assert isinstance(source, InventorySourceRequest)
     assert isinstance(targets, DemographyRoleProjection)
@@ -334,15 +422,71 @@ def test_inventory_candidate_reaches_all_real_readers_and_foundry(
     assert targets["state_ids"] == ["state:a", "state:b"]
     assert priors["transition_prior_matrix"] == [[0.8, 0.2], [0.1, 0.9]]
     assert donors["donor_record_index"] == [101, 102]
-    assert len(
-        {
-            targets.evidence.source_identity,
-            priors.evidence.source_identity,
-            donors.evidence.source_identity,
-            aggregate.source_evidence.source_identity,
-            artifacts.source_evidence.source_identity,
-        }
-    ) == 1
+
+    # The public payload and every Mapping read must be detached recursively. A
+    # shallow dict(result) is deliberately a mutable caller copy, not a writable
+    # path back into the source snapshot.
+    payload_copy = targets.payload
+    state_ids_copy = payload_copy["state_ids"]
+    assert isinstance(state_ids_copy, list)
+    state_ids_copy.append("caller-only")
+    metadata_copy = payload_copy["metadata"]
+    assert isinstance(metadata_copy, dict)
+    metadata_copy["caller-only"] = True
+
+    item_copy = targets["state_ids"]
+    assert isinstance(item_copy, list)
+    item_copy.append("getitem-only")
+
+    mapping_copy = dict(targets)
+    mapping_state_ids = mapping_copy["state_ids"]
+    assert isinstance(mapping_state_ids, list)
+    mapping_state_ids.append("dict-only")
+
+    items_copy = dict(targets.items())
+    items_state_ids = items_copy["state_ids"]
+    assert isinstance(items_state_ids, list)
+    items_state_ids.append("items-only")
+
+    prior_copy = priors["transition_prior_matrix"]
+    assert isinstance(prior_copy, list)
+    prior_copy[0][0] = -1.0
+
+    donor_copy = donors.payload["donor_record_index"]
+    assert isinstance(donor_copy, list)
+    donor_copy.append(-1)
+
+    assert targets["state_ids"] == ["state:a", "state:b"]
+    assert targets["metadata"] == {"fixture_profile": "candidate-only"}
+    assert priors["transition_prior_matrix"] == [[0.8, 0.2], [0.1, 0.9]]
+    assert donors["donor_record_index"] == [101, 102]
+
+    constructor_payload: dict[str, object] = {
+        "nested": {"values": ["original"]},
+    }
+    constructed = DemographyRoleProjection("targets", constructor_payload, targets.evidence)
+    constructor_payload["nested"]["values"].append("constructor-alias")
+    assert constructed["nested"] == {"values": ["original"]}
+    exposed_constructor_value = constructed["nested"]
+    assert isinstance(exposed_constructor_value, dict)
+    exposed_constructor_value["values"].append("getitem-alias")
+    assert constructed["nested"] == {"values": ["original"]}
+
+    fresh_targets = load_reconciled_targets(source=source)
+    assert fresh_targets["state_ids"] == ["state:a", "state:b"]
+    aggregate = load_demography_artifacts(source=source)
+    assert (
+        len(
+            {
+                targets.evidence.source_identity,
+                priors.evidence.source_identity,
+                donors.evidence.source_identity,
+                aggregate.source_evidence.source_identity,
+                artifacts.source_evidence.source_identity,
+            }
+        )
+        == 1
+    )
     assert aggregate.source_evidence.source_status == "candidate_only"
     assert aggregate.source_evidence.source_fact_provenance == "consumer_asserted"
     assert aggregate.source_evidence.source_authority_provenance == "not_established"
@@ -367,6 +511,36 @@ def test_inventory_candidate_reaches_all_real_readers_and_foundry(
         result.diagnostics["demography_source_evidence"]["source_currentness_provenance"]
         == "not_established"
     )
+
+
+def test_historical_role_projection_detaches_nested_mutable_values() -> None:
+    """Historical reads and dict(result) keep ordinary mutable copies isolated."""
+    baseline = (
+        Path(__file__).resolve().parents[4] / "_data" / "data_forge" / "ukraine_shadow" / "baseline"
+    )
+    targets_path = baseline / "demography" / "targets.json"
+    original_bytes = targets_path.read_bytes()
+    projection = load_reconciled_targets(root=baseline, layout="new")
+    expected_metadata = {"year": 2027, "scope": "static-aging-fixture"}
+    with pytest.raises(TypeError):
+        hash(projection)
+
+    payload_copy = projection.payload
+    metadata_copy = payload_copy["metadata"]
+    assert isinstance(metadata_copy, dict)
+    metadata_copy["scope"] = "caller-only"
+    assert projection["metadata"] == expected_metadata
+
+    mutable_mapping_copy = dict(projection)
+    mapping_metadata = mutable_mapping_copy["metadata"]
+    assert isinstance(mapping_metadata, dict)
+    mapping_metadata["scope"] = "dict-only"
+    assert projection["metadata"] == expected_metadata
+    assert projection == json.loads(original_bytes)
+
+    assert targets_path.read_bytes() == original_bytes
+    reread = load_reconciled_targets(root=baseline, layout="new")
+    assert reread["metadata"] == expected_metadata
 
 
 @pytest.mark.parametrize(
@@ -572,9 +746,7 @@ def test_inventory_stage_manifest_rejects_inexact_selected_input_membership(
         )
 
     assert exc_info.value.code == "inventory_stage_input_membership_mismatch"
-    assert "candidate stage inputs differ from all selected producer outputs" in str(
-        exc_info.value
-    )
+    assert "candidate stage inputs differ from all selected producer outputs" in str(exc_info.value)
 
 
 @pytest.mark.parametrize(
@@ -597,9 +769,7 @@ def test_inventory_rejects_foreign_producer_or_currentness_self_label(
     payload = json.loads(inventory_path.read_text(encoding="utf-8"))
     payload[field] = value
     inventory_path.write_text(json.dumps(payload), encoding="utf-8")
-    rewritten = manifest.model_copy(
-        update={"outputs": [ArtifactRecord.from_path(inventory_path)]}
-    )
+    rewritten = manifest.model_copy(update={"outputs": [ArtifactRecord.from_path(inventory_path)]})
     write_manifest(manifest_path, rewritten)
 
     with pytest.raises(SourceResolutionRefusalError) as exc_info:

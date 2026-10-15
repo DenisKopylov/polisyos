@@ -1,0 +1,36 @@
+id = "2026-10-15-e02-fabric-query-world-table-resolver"
+title = "Resolve the Fabric world-table query from the data-plane facade"
+type = "changed"
+component = "fabric"
+owner = "team-fabric"
+summary = "The documented polisyos.fabric.data_plane.query_world_table lazy export now resolves to the canonical world-query function with object identity preserved."
+evidence = [
+  "src/polisyos/fabric/data_plane/__init__.py",
+  "src/polisyos/fabric/world/query.py",
+  "tests/unit/fabric/data_plane/test_raw_result_sink.py",
+  "src/polisyos/fabric/data_plane/README.md",
+  "docs/reference/fabric/connectors.md",
+]
+compatibility = "The query_world_table name was already listed in polisyos.fabric.data_plane.__all__; its lazy resolver now makes that declared binding available from the facade and returns the canonical polisyos.fabric.world.query.query_world_table object. The function implementation and result shape are unchanged."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.fabric.data_plane"
+migration = "No migration is required; callers may import query_world_table from the documented data-plane facade."
+api = "The data-plane facade resolves query_world_table to the existing canonical world.query implementation."
+limitations = "This fragment records one restored binding only. A bounded independent local review pins the canonical resolver identity and its focused consumer tests; the current generated inventory still marks the parent module unresolved_exports with no statically proven names. This does not claim a complete symbol inventory, whole-capability acceptance, static-inventory completeness, or G acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/fabric/data_plane/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "fabric-data-plane-world-table-query-resolver"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.fabric.data_plane"
+owner = "team-fabric"
+version_owner = "team-fabric"
+deprecation_window = "not_applicable"
+release_note = "Restore the declared data-plane query_world_table resolver while preserving identity with the canonical world.query implementation."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/fabric/data_plane/README.md"]
+runbook_docs = []

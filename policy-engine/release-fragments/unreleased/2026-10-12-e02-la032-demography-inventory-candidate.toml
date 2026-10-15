@@ -1,6 +1,6 @@
 id = "2026-10-12-e02-la032-demography-inventory-candidate"
 title = "Expose the candidate demographic inventory through the Ukraine read API"
-type = "feature"
+type = "changed"
 component = "data_forge.ukraine.demography"
 owner = "team-data-forge"
 summary = "Adds candidate-only inventory requests, typed Mapping-compatible role projections, and required v2 source evidence while preserving explicitly limited historical omission behavior."
@@ -14,9 +14,9 @@ change_class = "python-public-api"
 surface_classification = "public_experimental: polisyos.data_forge.read_api.ukraine"
 migration = "Existing loader call signatures and Mapping-style reads remain supported, including mapping equality by payload values. Callers requiring a plain mutable dict can convert a projection with dict(result); direct UkraineDemographyArtifacts construction or v1 payload validation must supply the required v2 source_evidence field. Inventory-backed individual readers share one InventorySourceRequest; historical source evidence remains legacy_limited and preserves the historical error categories."
 api = "Exports DemographySourceRequest, InventorySourceRequest, HistoricalLayoutRequest, DemographyRoleProjection, and SourceResolutionRefusalError through read_api.ukraine. Role projections implement Mapping[str, object] and compare by payload values while carrying separate evidence. SourceResolutionRefusalError remains typed by .code and is a ValueError subtype for existing callers. UkraineDemographyArtifacts contract v2 requires source_evidence. Candidate inventory membership remains byte-bound; source authority, semantic completeness, units, and currentness remain not_established."
-limitations = "Candidate-only inventory. Authentic source producer, independent source-owner custody/currentness, and semantic truth remain unestablished. The generated public-surface inventory has not yet been regenerated/reviewed, so public_surface_inventory_reviewed remains false pending the root-owned generator and review."
+limitations = "Candidate-only inventory. An independent local review covers the supported Ukraine read facade and the detached payload-view/finite-JSON properties for the exact source and test hashes recorded in the local release-inventory attestation; it does not establish an authoritative inventory, source-owner custody/currentness, or semantic truth. The generated public-surface static parser still reports unresolved exports, so this scoped review does not claim complete symbol enumeration, native acceptance, or G acceptance."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["docs/reference/foundry/demography.md"]
 runbook_docs = []
 

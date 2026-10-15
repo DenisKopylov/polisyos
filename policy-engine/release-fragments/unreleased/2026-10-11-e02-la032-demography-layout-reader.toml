@@ -15,7 +15,7 @@ migration = "Pass the same layout keyword to each scalar read when composing mul
 api = "load_reconciled_targets, load_transition_priors, and load_donor_pool accept a keyword-only layout of new or legacy. Explicit selection requires that snapshot's complete targets and priors; the donor member remains optional within the selected snapshot."
 limitations = "The layout reader validates local file coherence only. It does not establish the authoritative LA-032 inventory, producer/profile identity, member custody, rule epoch, currentness, external law, or permission. No source-inventory finding is closed by this change."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/data_forge/domains/ukraine/demography/README.md"]
 runbook_docs = []
 

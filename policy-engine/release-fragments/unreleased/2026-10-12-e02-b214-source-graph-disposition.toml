@@ -48,7 +48,7 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "b214-scalar-identification-graph-admission"
-change_class = "behavioral-refusal-boundary"
+change_class = "python-public-api"
 impact = "fail-closed for partial-graph scalar identification"
 surface = "public CausalEngine and direct Foundry ID calls; internal canonical graph admission owner"
 owner = "team-foundry"
@@ -56,12 +56,13 @@ version_owner = "team-foundry"
 deprecation_window = "not_applicable"
 release_note = "Direct scalar ID and TR entry points consume detached snapshots of the complete graph and typed selection diagram; PAG/CPDAG source tags remain a typed limitation until completion semantics are adjudicated. Static ID refuses cyclic ADMGs and M-graphs without full-law inputs; the dedicated M-graph recoverability route derives proxy-stripped DAG/ADMG subgraphs only from resolved endpoint marks and refuses unsupported marks. TR requires each S-node target in the base graph, and the validated dynamic-reduction, sigma/cyclic, temporal, and full-law routes retain their separate owners."
 generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
 migration_docs = ["docs/reference/ir/analytics.md", "src/polisyos/foundry/methods/catalog/causal/README.md"]
 runbook_docs = []
 
 [[compatibility_change]]
 id = "b214-shared-static-cache-and-candidate-audit-boundary"
-change_class = "behavioral-refusal-boundary"
+change_class = "internal"
 impact = "typed fail-closed graph admission and diagnostic eligibility"
 surface = "static causal graph consumers and discovery audit reports"
 owner = "team-foundry"

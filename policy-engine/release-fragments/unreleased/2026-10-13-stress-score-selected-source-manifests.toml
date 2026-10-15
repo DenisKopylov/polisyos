@@ -24,7 +24,7 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "stress-score-selected-source-profile-and-schema"
-change_class = "behavioral-refusal-boundary"
+change_class = "internal"
 impact = "Refuse finite score admission when a source ref lacks an exact selected manifest profile or its selected manifest does not match the owner schema contract."
 surface = "Existing Scientist StressTestReport, StressOutcomeBasis, AdversarialPlan, and BenchmarkEvaluation CAS reader/writer paths."
 owner = "team-scientist"

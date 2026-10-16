@@ -118,15 +118,32 @@ class _ProfiledResultStore:
     def __getattr__(self, name: str) -> Any:
         return getattr(self._store, name)
 
-    def put_json(self, obj: object, opts, canon_spec=None):
-        ref = self._store.put_json(obj, opts, canon_spec)
+    def put_json(
+        self,
+        obj: object,
+        opts,
+        canon_spec=None,
+        *,
+        return_selected_profile: bool = False,
+    ):
         if opts.kind != "scientist.method_result.tests.posterior":
-            return ref
+            return self._store.put_json(
+                obj,
+                opts,
+                canon_spec,
+                return_selected_profile=return_selected_profile,
+            )
+        self._store.put_json(obj, opts, canon_spec)
         selected_opts = replace(
             opts,
             schema=SchemaInfo(name="polisyos.scientist.MethodResult", version="0.2.0"),
         )
-        return self._store.put_json(obj, selected_opts, canon_spec)
+        return self._store.put_json(
+            obj,
+            selected_opts,
+            canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
 
 
 def _run_native_fixture(tmp_path, *, corrupt_hash: bool = False) -> JobResult:

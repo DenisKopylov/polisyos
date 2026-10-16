@@ -6,13 +6,14 @@ import os
 import threading
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
 from polisyos.common import async_tools as common_async_tools
 from polisyos.common.logger import get_logger
 from polisyos.common.serialization import to_python_data
+from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.artifacts.backends.config import (
     ArtifactStoreConfig,
     build_artifact_store,
@@ -30,7 +31,7 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.components import ENTRY_POINT_GROUP_FOUNDRY_METHODS
 from polisyos.core.components.bootstrap import build_components_index
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.components_bridge import (
+from polisyos.foundry.methods.components.bridge import (
     bootstrap_method_registry_from_components,
 )
 from polisyos.foundry.methods.exceptions import MethodNotFoundError
@@ -72,10 +73,7 @@ if TYPE_CHECKING:
 
 def _build_store(cas_root: Path) -> ArtifactStore:
     store = build_artifact_store(ArtifactStoreConfig(backend="filesystem", root=str(cas_root)))
-    return cast(
-        "ArtifactStore",
-        with_ambient_ownership_enforcement_if_supported(store),
-    )
+    return with_ambient_ownership_enforcement_if_supported(store)
 
 
 def _require_filesystem_store(store: ArtifactStore, *, operation: str) -> FileSystemCAS:
@@ -428,7 +426,7 @@ class MethodBackend:
                 PosteriorPointRole.POSTERIOR_MEDIAN,
             ):
                 posterior_summary_refs[point_role] = persist_posterior_summary_from_method_evidence(
-                    store,
+                    ensure_ir_artifact_store(store),
                     evidence_ref,
                     point_role=point_role,
                 )
@@ -480,7 +478,7 @@ def _issue_payload(
         error_type=error_type,
         input_value=input_value,
     )
-    return cast("dict[str, Any]", issue.model_dump())
+    return issue.model_dump()
 
 
 def _runner_degraded(

@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import math
 import sqlite3
 import time
+from collections.abc import Callable
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -40,6 +43,153 @@ from polisyos.scientist.orchestration.workflows.default import default_workflow_
 from tests._helpers.runtime_http import _runtime_api_request
 
 pytest_plugins = ("tests._helpers.runtime_http",)
+
+
+# Twice the measured 328s controlled N4 route duration is a test-harness ceiling.
+# The default workflow's wall time remains unmeasured; this is not a product SLA.
+_CONTROL_JOB_TEST_WAIT_BUDGET_SECONDS = 656.0
+_CONTROL_JOB_POLL_INTERVAL_SECONDS = 0.1
+
+
+def _wait_for_control_job_terminal(
+    get_job: Callable[[str], Any | None],
+    job_id: str,
+    *,
+    timeout_seconds: float,
+    monotonic: Callable[[], float] = time.monotonic,
+    sleep: Callable[[float], None] = time.sleep,
+) -> Any:
+    """Wait for a durable control job to complete, fail, or exhaust its test budget."""
+    if not math.isfinite(timeout_seconds) or timeout_seconds <= 0:
+        raise ValueError("Control-job test wait budget must be finite and positive.")
+
+    deadline = monotonic() + timeout_seconds
+    while True:
+        job = get_job(job_id)
+        if job is None:
+            raise AssertionError(f"Control job {job_id!r} disappeared while waiting.")
+        if job.state == "completed":
+            return job
+        if job.state == "failed":
+            detail = job.error_message or "no error message recorded"
+            raise AssertionError(f"Control job {job_id!r} failed: {detail}")
+        if job.state not in {"pending", "running"}:
+            raise AssertionError(f"Control job {job_id!r} reached unexpected state {job.state!r}.")
+
+        remaining = deadline - monotonic()
+        if remaining <= 0:
+            raise TimeoutError(
+                f"Control job {job_id!r} remained {job.state!r} after "
+                f"{timeout_seconds:g}s test wait budget."
+            )
+        sleep(min(_CONTROL_JOB_POLL_INTERVAL_SECONDS, remaining))
+
+
+def test_control_job_wait_returns_completed_record_without_wall_sleep() -> None:
+    states = iter(("pending", "running", "completed"))
+    clock = [0.0]
+    lookups: list[str] = []
+
+    def get_job(job_id: str) -> SimpleNamespace:
+        lookups.append(job_id)
+        return SimpleNamespace(state=next(states), error_message=None)
+
+    def sleep(seconds: float) -> None:
+        clock[0] += seconds
+
+    completed = _wait_for_control_job_terminal(
+        get_job,
+        "job-completes",
+        timeout_seconds=1.0,
+        monotonic=lambda: clock[0],
+        sleep=sleep,
+    )
+
+    assert completed.state == "completed"
+    assert lookups == ["job-completes"] * 3
+    assert clock[0] == pytest.approx(0.2)
+
+
+def test_control_job_wait_times_out_for_stalled_worker_without_wall_sleep() -> None:
+    clock = [0.0]
+    lookups = 0
+
+    def get_job(job_id: str) -> SimpleNamespace:
+        nonlocal lookups
+        lookups += 1
+        return SimpleNamespace(state="running", error_message=None)
+
+    def sleep(seconds: float) -> None:
+        clock[0] += seconds
+
+    with pytest.raises(TimeoutError, match=r"job-stalled.*'running'.*0.25s"):
+        _wait_for_control_job_terminal(
+            get_job,
+            "job-stalled",
+            timeout_seconds=0.25,
+            monotonic=lambda: clock[0],
+            sleep=sleep,
+        )
+
+    assert lookups == 4
+    assert clock[0] == pytest.approx(0.25)
+
+
+def test_control_job_wait_reports_worker_failure_immediately() -> None:
+    monotonic_calls = 0
+    sleeps: list[float] = []
+
+    def get_job(job_id: str) -> SimpleNamespace:
+        return SimpleNamespace(state="failed", error_message="worker exploded")
+
+    def monotonic() -> float:
+        nonlocal monotonic_calls
+        monotonic_calls += 1
+        return 0.0
+
+    with pytest.raises(AssertionError, match=r"job-failed.*worker exploded"):
+        _wait_for_control_job_terminal(
+            get_job,
+            "job-failed",
+            timeout_seconds=656.0,
+            monotonic=monotonic,
+            sleep=sleeps.append,
+        )
+
+    assert monotonic_calls == 1
+    assert sleeps == []
+
+
+@pytest.mark.parametrize(
+    "timeout_seconds",
+    [float("nan"), float("inf"), float("-inf"), 0.0, -1.0],
+)
+def test_control_job_wait_rejects_nonfinite_or_nonpositive_budget(
+    timeout_seconds: float,
+) -> None:
+    calls: list[str] = []
+
+    def get_job(job_id: str) -> SimpleNamespace:
+        calls.append("get_job")
+        return SimpleNamespace(state="running", error_message=None)
+
+    def monotonic() -> float:
+        calls.append("monotonic")
+        return 0.0
+
+    def sleep(seconds: float) -> None:
+        calls.append("sleep")
+
+    with pytest.raises(ValueError, match="finite and positive"):
+        _wait_for_control_job_terminal(
+            get_job,
+            "job-invalid-budget",
+            timeout_seconds=timeout_seconds,
+            monotonic=monotonic,
+            sleep=sleep,
+        )
+
+    assert calls == []
 
 
 def _persist_request(store, version: str) -> DataViewRequestRef:
@@ -166,16 +316,12 @@ def test_ordinary_post_worker_fabric_cas_and_fresh_get_keep_selected_profile(
         assert bound_trinity["kind"] == "ir.trinity_bundle"
         assert bound_trinity["media_type"] == "application/json"
 
-        deadline = time.monotonic() + 90.0
-        finished = service._control_store.get_job(job_id)
-        while (
-            finished is not None
-            and finished.state in {"pending", "running"}
-            and time.monotonic() < deadline
-        ):
-            time.sleep(0.1)
-            finished = service._control_store.get_job(job_id)
-        assert finished is not None and finished.state == "completed"
+        finished = _wait_for_control_job_terminal(
+            service._control_store.get_job,
+            job_id,
+            timeout_seconds=_CONTROL_JOB_TEST_WAIT_BUDGET_SECONDS,
+        )
+        assert finished.state == "completed"
         assert worker._thread is not None and worker._thread.is_alive()
         evidence = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/evidence-context")
         assert evidence.status_code == 200, evidence.text

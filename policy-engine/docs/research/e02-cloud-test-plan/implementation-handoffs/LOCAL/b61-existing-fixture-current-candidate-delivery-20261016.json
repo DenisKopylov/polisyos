@@ -1,0 +1,129 @@
+{
+  "record_type": "bounded_test_companion_delivery_proposal",
+  "slice_base": {
+    "author_base": "25f7b0301c377d1b872a93854d233ce129fdabc8",
+    "actual_application_parent": "155c5f9968aa38a6e473f9c7ad5c06fcc9c39620",
+    "scoped_preimages_verified_unchanged_across_root_appends": true
+  },
+  "candidate": {
+    "sha": "b35de5c4565834ea29d0a786da1ff364c9cefdbf",
+    "tree": "8ee60917588a8a7ca05ae688849b50f7dde2570b",
+    "parents": [
+      "155c5f9968aa38a6e473f9c7ad5c06fcc9c39620"
+    ]
+  },
+  "full_code_test_config_companion_footprint": {
+    "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py": "ff9f607903d4ff3c60a10e2549e61faaaea1dcb2620ad4b06a5d1f85bd88c7bc",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "1047b9e7ed827e15de86ba94242d08916e9f9c60250e7d654deab9ccd0dfe308"
+  },
+  "selected_input_profile_backend": {
+    "python": "own macOS CPython3.14.3",
+    "integration_environment": "POLISYOS_RUN_INTEGRATION=1",
+    "numerical_threads": 1,
+    "pinned_input_paths": 37,
+    "actual_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-existing-fixture-actual-20261016/request.json"
+  },
+  "real_chain": [
+    "Explicit bound empty dispatch params \u2192 real timeout worker admission \u2192 expected optional-context refusal before child construction.",
+    "Production _persist_trinity_bundle \u2192 canonical manifest schema/profile \u2192 existing prepared-read CrossGraph node fixture \u2192 regenerated profile carries Trinity source edge. The existing test retains its compiler mock."
+  ],
+  "verification": {
+    "actual_whole_existing_module": {
+      "passed": 19,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "wall_seconds": 26.567
+    },
+    "canonical_root_ruff": {
+      "check": "PASS",
+      "format": "PASS",
+      "files": 1
+    },
+    "loaded_source_context": {
+      "candidate": "b35de5c4565834ea29d0a786da1ff364c9cefdbf",
+      "loaded_source_modules": 1558,
+      "matching_commit": 1557,
+      "owned_uncommitted_context": [
+        {
+          "module": "polisyos.lex",
+          "path": "policy-engine/src/polisyos/lex/__init__.py",
+          "sha256": "5e9e2b3659fa5494e2b93bbc47de4e554e576284ea0ea053e3163fa560dfbf94",
+          "committed_sha256": "d2dcdde45c1b1b54fb5f8aa85db4036d9676aed1d1009ed0c2cfedd92271ae70"
+        }
+      ],
+      "outside": {},
+      "missing_selected": [],
+      "wrong_selected": [],
+      "bare_whole_commit_replay": false
+    },
+    "input_bytes_unchanged": true,
+    "timeout_basis_correction": "Earlier request text called33cases prior wholemodule; current complete selectedfile denominator is19 from actualJUnit, not33. Current measuredwall26.567s. No33case result claimed."
+  },
+  "adversarial_controls": [
+    "Missing dispatch binding and optional-context rejection stay distinct; test now reaches intended later guard rather than asserting on earlier refusal.",
+    "Canonical owner schema+Trinity input lineage assertions prevent stale positive fixture from bypassing selected artifact admission.",
+    "Separate independent RAW real-compiler companion changes mixed\u2192unsupported after source-row removal; not replayed by this19-case run and not conflated with its retained compiler mock."
+  ],
+  "surface": "Existing integration test fixtures only; no runtime/API/schema/status/authority code changed.",
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-existing-test-companion-author-20261016/manifest.json",
+      "sha256": "c2ac47a04b8a5776efa045d90721759b4e5794ff814a796ef41b9bd05fca8bf3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-sibling-route-companions-20261016/review.json",
+      "sha256": "2c873b935aec27ab14bd36ee325bbe72267971eb34a533968031973a2e896d7a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-sibling-route-companions-20261016/semantic-profile-readback.json",
+      "sha256": "e75f79db34e3630ebcbb37986b8fe256e0d736a2bca0256fd2c2285994ad2a6b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-existing-fixture-actual-20261016/request.json",
+      "sha256": "03465d0041395b0d91803c8401d6c86a3b51a8bb36239713f900651718b0baf0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-existing-fixture-actual-20261016/actual-results.json",
+      "sha256": "2012dacf15de148dda19f152f7eb8173ff5c03ac4021d1bce3717d55d234dbf4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-existing-fixture-actual-20261016/actual-loaded-source-origins.json",
+      "sha256": "5f18711dc5df1a67d83ffdc42291fb6f5076558d74d0013b057a0b2c6c12cffb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-existing-fixture-code-boundary-20261016/b61-existing-fixture-source-readback.json",
+      "sha256": "a14328f4c2d9e4257b7615d6e45547ca283918f6f777c34abfc06a672ed7b912"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b61-existing-fixture-code-boundary-20261016/loaded-context-vs-commit-readback.json",
+      "sha256": "0ca3ea027a356c5b835e3931cb1b949751706de6baf3e720ec444d7ec00be90b"
+    }
+  ],
+  "limitations": [
+    "This19case module does not establish PreparedB13contours, fullB61/B148wholecriterion, native/composed/installed closure.",
+    "Preimagecensus3049Python testfiles/81directTrinitywriters remains historical boundedinventory; other malformed/schema-lesspositive/intentionalnegativefixtures not automatically repaired.",
+    "One attributed uncommitted Lex facade postimage was loaded; fullbarecommit replay is false.",
+    "Torch JIT CPython3.14deprecation warnings2 retained; no dependency/scientific contract change."
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P33",
+      "P35",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "P40": "Stalepositivefixture class uses existingproductionpersister; broader preimagefixtureinventory residual retained, noformalB61closure.",
+    "P41": "No inherited gate failure asserted."
+  },
+  "source_freeze": false,
+  "closure_ids": [],
+  "proposal_fields": {
+    "component": "bounded_test_companion_GO",
+    "finding_ids": [],
+    "formal_G_closure": false
+  },
+  "next_check": "Final source/input/backendfreeze and exactcomposedPreparedB13/B61/B148criterion replay with individualoriginaloccurrence proposals."
+}

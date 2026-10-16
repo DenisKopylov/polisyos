@@ -2,10 +2,10 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "47a6aa405991d521ffc4e9ea0a4e5d38612a1d7c",
-    "tree": "ab4f0a0a8a4303cbf80ab1771952c1830f8a59b4",
+    "head": "b35de5c4565834ea29d0a786da1ff364c9cefdbf",
+    "tree": "8ee60917588a8a7ca05ae688849b50f7dde2570b",
     "parents": [
-      "25f7b0301c377d1b872a93854d233ce129fdabc8"
+      "155c5f9968aa38a6e473f9c7ad5c06fcc9c39620"
     ],
     "source_freeze": false,
     "dirty_active_source": "Foundry current-lock twoownerTOMLs regenerated47a6 after independent8input/7checks review; actualcanonicalwrite/check0andcorruptfield1. Metadata25flagprovenance companion under review; GLR3heldforeignsubjectidentity, R4wholejoinauthor. Legaldiscovery/N4V2/C05trace/B190sharedsourceintake/selectedartifactdisposition RAWonly. Final globalfreeze absent."
@@ -411,6 +411,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/foundry-current-lock-owner-regeneration-current-candidate-delivery-20261016.json",
       "sha256": "4d80d4ffbad72883bf2fc3438a537e1ab70f979b0979b3293f09a5dc3e920548"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b61-existing-fixture-current-candidate-delivery-20261016.json",
+      "sha256": "ffd585f45d47f286958b539ddb5eeaed4739c95654820871c81d2b54927976d9"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -449,7 +453,8 @@
     "Read_api source47317575 repairs complete358mapped-name class across5facades:235typed-equivalent123Any;3actualbehaviorPASS/Ruff5PASS. Generic191alias removal preserves runtime markers/AST and yields133semantic type mismatches;58removed aliases remainAny. No fullpublicAPI/native/staticpurity/installed/findingclosure claim.",
     "Credal source4304328b typed-refusalconsumer5paths committed with102PASS0SKIP, canonicalMyPy1/Ruff2PASS.1478ownorigins=1474commit+4namedownedpostimages; no barewholecommitclaim. Full refusal staysincompleteedgeprovenance, boundedlift retainsstatus/completionreason/hash; resolverinjectiontest doesnotprove contextproducer/persistedN6. Nine heterogeneous rowtypingerrors repaired acrosswholefunction, normalized ASTequal. ActualN4/CAS/N6 companionpending.",
     "Runtimeprojection+devtyping sourcece2a88d4 committed12paths;58PASS+10separateLexPASS, canonicalstrictselectedMyPy4PASS(notfullCoreRuntime), Ruff6PASS, Arrow22runtimeprobe/uvpipcheckPASS. Old252distributionrecordsretained; onlyverifiedstubinstalled, lock423\u2192424fullrecords preserves422nonrootold inclduplicatenames. Fullsourcecontext1699/1712hasoneattributedLexpostimage, nobarewholecommit. Four discoveryreds realinternalnotinherited; GLfullrequiredmembership/N4refusal/C05origin/R9sourcehelpers workpending. Pyprojectchanged: Foundryownerprofilegen/check/drift mandatorybeforefreeze.",
-    "Foundry current-lock source47a6 regenerates exactlytwoownerTOMLs fromfull8inputclosure. Rootactualwrite/checkPASSandcorruptfieldexpectedrefusal; independent7checksreplayed. This removes ownerdigest staleness caused by lintlockchange, but doesnotestablish installedresolver/runtime/N8sourcefreeze/nativegreen."
+    "Foundry current-lock source47a6 regenerates exactlytwoownerTOMLs fromfull8inputclosure. Rootactualwrite/checkPASSandcorruptfieldexpectedrefusal; independent7checksreplayed. This removes ownerdigest staleness caused by lintlockchange, but doesnotestablish installedresolver/runtime/N8sourcefreeze/nativegreen.",
+    "B61adjacent positivefixture companion sourceb35: actualwholeexistingpreparedreadcachemodule19PASS0SKIP/Ruff1PASS;1558ownorigins1557commitmatches+oneownedLexpostimage. Existingcompiler mockretained, separaterealcompilerwitnessnotreplayed. NoPreparedB13/B61wholeclosure; earlier33timeouttextisnotcurrentfiledenominator."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "next_check": "Finish reviewed actual typing/candidate-discovery/GL/refusal-to-persisted-consumer companions; commit source boundaries and separate receipts; canonical regeneration/drift controls and full source/input/backend freeze; one actual composed/native/Linux/installed/authenticRO wave and full291proposal reconciliation. G remains independent codeacceptance/integration/adjudication."

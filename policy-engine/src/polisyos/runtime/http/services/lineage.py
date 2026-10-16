@@ -9,6 +9,7 @@ from pathlib import Path
 from time import perf_counter
 from typing import TYPE_CHECKING, Any
 
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import ArtifactRef, read_core_json_artifact
 from polisyos.core.artifacts.graph import NodeStatus, resolve_dependency_graph
 from polisyos.core.artifacts.ids import ArtifactID
@@ -489,6 +490,8 @@ class LineageService:
             return DEFAULT_DECISION_SOURCE_CONTRACT
         try:
             profiled = read_core_json_artifact(self._store, run.decision_packet_ref)
+        except CanonicalProfileRefusalError:
+            raise
         except (TypeError, ValueError):
             return DEFAULT_DECISION_SOURCE_CONTRACT
         if isinstance(profiled.value, Mapping):

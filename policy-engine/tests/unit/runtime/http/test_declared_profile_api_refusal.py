@@ -295,6 +295,69 @@ def test_quantity_and_fabric_routes_refuse_the_selected_packet_profile(
         assert response.json()["code"] == "canon_profile_payload_nonconformant"
 
 
+def test_fabric_route_translates_late_source_contract_refusal(
+    runtime_api_env: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    app = runtime_api_env["app"]
+    context = app.state.runtime_api_ctx
+    run_id = runtime_api_env["core_run_id"]
+    run = context.run_index.get_run(run_id)
+    if run.decision_packet_ref is None:
+        pytest.fail("fixture run has no decision packet")
+    store = context.store
+    with tenant_scope(
+        None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
+    ):
+        selected = store.get_manifest(run.decision_packet_ref)
+        payload = store.get_bytes(run.decision_packet_ref)
+        if selected.canon is None:
+            pytest.fail("fixture packet has no selected canonical profile")
+        bad_ref = profile_bound_ref(
+            store,
+            store.put_bytes(
+                payload,
+                PutOptions(
+                    kind=selected.kind,
+                    media_type=selected.media_type,
+                    schema=selected.artifact_schema,
+                    producer=selected.producer,
+                    env=selected.env,
+                    inputs=selected.inputs,
+                    canon=selected.canon.model_copy(update={"forbid_floats": True}),
+                    governance=selected.governance,
+                    tenant_context=selected.tenant_context,
+                    same_input_closure=selected.same_input_closure,
+                    authority=selected.authority,
+                    warnings=selected.warnings,
+                ),
+            ),
+        )
+    bad_run = replace(run, decision_packet_ref=bad_ref)
+    monkeypatch.setattr(context.run_index, "get_run", lambda _run_id: bad_run)
+    # Force the route past its earlier quantity read; the later selected-packet
+    # source-contract read must still be translated to the same typed HTTP refusal.
+    with tenant_scope(
+        None, tenant_id=runtime_api_env["tenant_a"], cell_id=runtime_api_env["cell_a"]
+    ):
+        valid_inventory = context.lineage.build_quantity_inventory_for_run(run)
+    monkeypatch.setattr(
+        context.lineage,
+        "build_quantity_inventory_for_run",
+        lambda _run: valid_inventory,
+    )
+    response = _runtime_api_request(
+        runtime_api_env,
+        runtime_api_env["client"].get,
+        f"/api/v1/runs/{run_id}/fabric-decision-data",
+    )
+    if response.status_code != 409:
+        pytest.fail(
+            f"late source-contract refusal returned {response.status_code}: {response.text}"
+        )
+    if response.json().get("code") != "canon_profile_payload_nonconformant":
+        pytest.fail(f"unexpected source-contract refusal body: {response.text}")
+
+
 def test_debug_workflow_and_public_verification_refuse_profile_mismatch(
     runtime_api_env, monkeypatch
 ) -> None:

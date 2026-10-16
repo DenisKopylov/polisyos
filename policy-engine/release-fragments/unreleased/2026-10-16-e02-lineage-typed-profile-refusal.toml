@@ -1,0 +1,30 @@
+id = "2026-10-16-e02-lineage-typed-profile-refusal"
+title = "Preserve canonical profile refusals through lineage source-contract lookup"
+type = "fixed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "The shared lineage source-contract resolver propagates canonical profile refusals so the existing HTTP handler returns the typed 409 response instead of substituting a default source contract."
+evidence = ["src/polisyos/runtime/http/services/lineage.py", "tests/unit/runtime/http/test_declared_profile_refusal.py", "tests/unit/runtime/http/test_declared_profile_api_refusal.py"]
+compatibility = "Valid selected packets and genuine missing packet/field defaults retain their behavior. A supplied malformed canonical profile remains a refusal through the existing typed HTTP error contract."
+change_class = "internal"
+surface_classification = "internal: shared lineage resolver; existing runtime HTTP refusal projection"
+migration = "No artifact history is rewritten. Callers must preserve a supplied canonical-profile refusal rather than treating it as missing data."
+api = "Existing CanonicalProfileRefusalError projection and response schema are reused; no new DTO, export or route is introduced."
+limitations = "This repairs the source-contract resolver and its actual fabric-decision-data route. It does not adjudicate Core/IR law, profileless-history rollout, external authority or production currentness."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "lineage-canonical-profile-refusal-propagation"
+change_class = "internal"
+impact = "internal"
+surface = "internal: runtime lineage source-contract lookup"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Canonical profile refusal survives the shared lineage resolver and reaches the existing typed HTTP handler."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

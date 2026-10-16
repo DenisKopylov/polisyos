@@ -1,0 +1,123 @@
+{
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "slice": "CAN typed profile refusal through shared lineage source-contract lookup",
+  "slice_base": {
+    "sha": "d4a0871e3bed47cdc72f61bb34e018a0b246f2bf",
+    "tree": "8a94a6e9fe9bcf93b0e7895508e29eda09611f38"
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "9c6ca54d2fee716655a4538e7088494ec4b91775",
+    "tree": "86d373801b119f921c41c0ca21203cfda5ec1c76",
+    "parents": [
+      "d4a0871e3bed47cdc72f61bb34e018a0b246f2bf"
+    ],
+    "paths_sha256": {
+      "policy-engine/src/polisyos/runtime/http/services/lineage.py": "bb3e5455fd328110967f2c1a8fdcef863a1fc3c7e725fd80aea793b616f4ca02",
+      "policy-engine/tests/unit/runtime/http/test_declared_profile_api_refusal.py": "5b9d2837360c1a4ee74225246608ef4a4e6c7c57216ccae77a3851069ab00219",
+      "policy-engine/tests/unit/runtime/http/test_declared_profile_refusal.py": "9a24abf57bdac9a9109e014941848b7477ca262680d0743c53fa0b927515f44f",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-lineage-typed-profile-refusal.toml": "375d47296aaca97b47b6c35a4c6af9f92fdd951bcfc544802913bea6d6262d5a"
+    },
+    "remote_status": "not yet pushed at receipt creation; ordinary candidate-only push readback follows"
+  },
+  "problem_and_change": "CanonicalProfileRefusalError is a ValueError subtype. The shared resolver swallowed it and returned DEFAULT_DECISION_SOURCE_CONTRACT for a supplied malformed profile. Re-raise that typed refusal before the existing fallback; the existing HTTP handler projects 409.",
+  "property_and_boundary": "A supplied canonical-profile refusal must not become absent data/default source contract. Valid selected packet and genuine absent packet/field retain their established defaults. This is the shared resolver and its actual fabric-decision-data consumer, not every CAN reader.",
+  "full_mechanism_and_mandatory_companion_footprint": [
+    "policy-engine/src/polisyos/runtime/http/services/lineage.py",
+    "policy-engine/tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+    "policy-engine/tests/unit/runtime/http/test_declared_profile_refusal.py",
+    "policy-engine/release-fragments/unreleased/2026-10-16-e02-lineage-typed-profile-refusal.toml"
+  ],
+  "selected_input_profile_backend": "Controlled local FileSystemCAS selected canonical profiles and payload conformance variants; existing runtime HTTP dependency injection/auth fixture and Python3.14 environment; no production instance/currentness input.",
+  "real_chain": "Producer writes selected decision-packet manifest and bytes → persisted run ref → Core JSON reader → shared LineageService source-contract resolver → actual /api/v1/runs/{id}/fabric-decision-data → existing typed HTTP error handler.",
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-can-r12-independent-20261016/review-receipt-r13.json",
+      "sha256": "0126ed723c58a299b1bc4a4da9c3645dbd7c9075693d0f43c9418c1b1c64bedc",
+      "outcome": "GO, exact R13 source/API bytes and AST-bound behavior; repository-root Ruff/format pass"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-lineage-release-20261016/independent-release-review.json",
+      "sha256": "5b53b58ef8668b4e0e00e8821d680eda5d9db6601db858d2692943baede517fc",
+      "outcome": "GO mandatory release companion; full release gate remains separate"
+    }
+  ],
+  "verification": {
+    "actual_unit_tests": 8,
+    "actual_route_tests": 1,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "process_seconds": 19.744,
+    "junit_seconds": 2.947,
+    "loaded_source_modules": 1737,
+    "outside_own_source_modules": 0,
+    "frame": "Actual working composition, exact three code/test postimages subsequently read back from candidate commit; full origins retained. Global source freeze is not claimed.",
+    "outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-lineage-final-actual-20261016/request.json",
+        "sha256": "d8bab680cf9e565ed95220c145a312a72e4edb2e398c2982c77557071f00d414",
+        "availability": "retained ignored RAW on this local candidate host"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-lineage-final-actual-20261016/actual-results.json",
+        "sha256": "d25324ca5f8a1de01526e35ee71e633516d6957cdbf5744284d4bb6cc0bf2a84",
+        "availability": "retained ignored RAW on this local candidate host"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-lineage-final-actual-20261016/can-actual-unit-and-route.stdout.txt",
+        "sha256": "266e3bad8251669c67fc7069c27c22fa70e6a8f37c66b2e8840e687e5b43455e",
+        "availability": "retained ignored RAW on this local candidate host"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-lineage-final-actual-20261016/can-actual-unit-and-route.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained ignored RAW on this local candidate host"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-lineage-final-actual-20261016/behavior.junit.xml",
+        "sha256": "71bdea6e395751e30a3d7a34918bc718b399e28cc894628db9686b9487557479",
+        "availability": "retained ignored RAW on this local candidate host"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-lineage-final-actual-20261016/actual-loaded-source-origins.json",
+        "sha256": "bf829d0cb4ce0857c62eaeed3db4d67e1fa84440eceb83cf4dff10d544c2784b",
+        "availability": "retained ignored RAW on this local candidate host"
+      }
+    ],
+    "canonical_Ruff": "Repository-root Ruff and format passed on exact source/test postimages in root-seven-path-actual-checks-20261016; unchanged source bytes reused, not an inherited-failure claim.",
+    "release": "TOML parse and independent policy review pass; canonical full release/native gate remains required."
+  },
+  "adversarial_and_removal_controls": {
+    "cases": [
+      "Valid selected packet",
+      "Genuine absent ref and absent field default",
+      "Malformed supplied profile propagates typed refusal",
+      "Late resolver refusal reaches real HTTP handler even with earlier inventory path bypassed"
+    ],
+    "removal": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-source-contract-refusal-r11-20261016/api-removal.stdout.txt",
+      "sha256": "d1a5c212432f96762f6100af73c9d44c49cc85b89dd8c09bf0c6d40620208430",
+      "result": "Expected FAIL: removing only the typed rethrow returns HTTP200/default while the API test still requires409; marker strings remain."
+    }
+  },
+  "consumer_surface": "Runtime fabric-decision-data API; existing DTO/error handler reused, no generated client API change.",
+  "limitations": [
+    "Core-only tag versus IR law and profileless-history rollout remain separate G choices.",
+    "No external issuer, custody, live production currentness or global CAN closure is established.",
+    "Canonical regeneration, final composed native and installed consumers remain pending."
+  ],
+  "proposal_fields": {
+    "LA-021": {
+      "scope": "bounded shared resolver technical behavior",
+      "whole_property_status": "unchanged; this receipt supplies evidence without closing the original profile/legacy property",
+      "next_check": "Use frozen full CAN source/profile composition, genuine reader/legacy controls and the separate Core/IR/history decision packet."
+    }
+  },
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "historical_closures": "unchanged",
+  "G_checkpoint_observed": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+  "G_acceptance_of_this_candidate": null,
+  "source_freeze": false
+}

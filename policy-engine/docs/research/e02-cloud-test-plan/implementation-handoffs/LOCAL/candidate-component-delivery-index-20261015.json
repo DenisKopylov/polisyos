@@ -2,10 +2,10 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "b0864610c166cf974d832bd178d1bb197c82a5d5",
-    "tree": "f1d332bec0a49e1b81d5602db03b5daccac5164b",
+    "head": "9c6ca54d2fee716655a4538e7088494ec4b91775",
+    "tree": "86d373801b119f921c41c0ca21203cfda5ec1c76",
     "parents": [
-      "8b4f369da96418b49bce9b5b18e6a93900941942"
+      "d4a0871e3bed47cdc72f61bb34e018a0b246f2bf"
     ],
     "source_freeze": false,
     "dirty_active_source": "Known root-owned C05/C7 and LA025 source; reviewed CAN and PBE readers applied. Fabric cache, replay-basis, runtime-support and V6 companions still active."
@@ -335,6 +335,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b10-design-generation-context-companion-delivery-20261016.json",
       "sha256": "0701ec6a3db8b989bfe4c8cddcbe6e24de96b05a35101b2617e2d2608a432542"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-lineage-profile-refusal-delivery-20261016.json",
+      "sha256": "2587bb99a0309bad7b52b3e713900b4d64c0ab2efb7fcd0c44b221a760640ee9"
     }
   ],
   "canonical_denominator_recomputed": {

@@ -1,0 +1,192 @@
+{
+  "schema": "policyos.e02.component_delivery_evidence_proposal.v1",
+  "record_type": "bounded adopted-source and actual-run evidence receipt proposal; no G adjudication or formal closure",
+  "unit": "LOCAL",
+  "slice": "B65 optional-metrics settlement test-only append and actual full-module replay",
+  "prepared_at_local_date": "2026-10-17",
+  "status": {
+    "global_source_freeze": false,
+    "formal_G_acceptance": null,
+    "closure_ids": [],
+    "formal_G_closure_ids": []
+  },
+  "original_criterion_binding": {
+    "finding_id": "B65",
+    "occurrence_id": "B65#1:B_r19:LLM-01:f21a5d7d62b538e3466fe46778cbd8e27c2e3fa333cfb0b3a367b8fa6c731b76",
+    "occurrence_index_pointer": "/occurrences/190",
+    "original_source": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "whole_document_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+    },
+    "criterion_span": {
+      "lines": [
+        1669,
+        1688
+      ],
+      "sha256": "f21a5d7d62b538e3466fe46778cbd8e27c2e3fa333cfb0b3a367b8fa6c731b76"
+    },
+    "occurrence_index_snapshot": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+      "sha256": "70673fe8c1e74b3d83627d883cda70e9dbc19401302d81458bba16dcc874a892",
+      "occurrence_count": 291
+    }
+  },
+  "bounded_property": "Optional telemetry failure must not turn a completed provider call into failure; required accounting and persistence remain distinct; failure of error-metrics must not replace the original diagnostic.",
+  "candidate_and_independent_review": {
+    "author_candidate_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b65-optional-metrics-settlement-companion-r2-20261017/manifest.json",
+      "sha256": "99ce1889e393dc2dfdbd06a81525bb67f36545379a75f664c5e8a0309e9b458f"
+    },
+    "candidate_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b65-optional-metrics-settlement-companion-r2-20261017/candidate.patch",
+      "sha256": "488e2d1cf8bfdd486d5ace82bdf3884257e5675cc3d0d1de919358fe98c1f19a"
+    },
+    "adopted_test_postimage_sha256": "ea5c26c388488a967476a523dba0df18f93cf17353814fae7bfde212a5355105",
+    "candidate_scope": "One test-file append containing the sealed R1 prefix and three R2 tests; no product source, DTO, schema, status, config, lock, generated-surface, or release-fragment edits.",
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b65-optional-metrics-settlement-r2-independent-review-20261017/review.json",
+      "sha256": "7770a23bf43542ff5119f9fd72a053daab9eadad2b843a5ad9be26174a2973c8",
+      "verdict": "GO_FOR_BOUNDED_TEST_ONLY_APPEND; WHOLE_B65_REMAINS_LIMITED",
+      "review_boundary": "The independent candidate-delta review reran the three added tests, not the unchanged 22; this receipt separately binds the later actual full test-module replay below.",
+      "p40": "R2 was classified as the second example of the same optional-telemetry/settlement class and widened coverage across provider-error metrics, required-accounting failure, cancellation after dispatch, concurrent sibling isolation, durable settlement, fresh read, and consumer effects. No formal B65 closure was claimed."
+    }
+  },
+  "adopted_source": {
+    "repository_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "commit": "5dae0670ff6b5f3e0b85eec8b148074e9243e833",
+    "tree": "9f38319a9f2b265922d6ec499f8557312ab1f201",
+    "parents": [
+      "3b2bedd5b67aa8aa64f27647ae94f2a86986d926"
+    ],
+    "subject": "test(core): verify optional telemetry preserves durable settlement consumers",
+    "changed_path_count": 2,
+    "changed_paths_sha256": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "221bb55dfca5174da74d74bf621f6c7ec757e5b9eb23ccc90e22fca47de91240",
+      "policy-engine/tests/unit/core/llm/test_traced_client_settlement.py": "ea5c26c388488a967476a523dba0df18f93cf17353814fae7bfde212a5355105"
+    },
+    "source_commit_readback": "Read-only git object inspection confirms the commit identity, tree, parent, and both changed path blobs; no product-source path changed in this commit."
+  },
+  "actual_execution": {
+    "source_freeze": {
+      "global_source_freeze": false,
+      "scope": "Specific B65 test and release-owner slice at 5dae0670ff6b5f3e0b85eec8b148074e9243e833; the frozen map contains all materialized polisyos/src and tools Python plus release fragments, configs, and public-inventory inputs. It is not a global E02 freeze.",
+      "request_pin_count": 3507,
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/request.json",
+        "sha256": "5acc2f643e7e3535aecc786e6910a68157126f8bc25776cdcb65bfa26b248bcf"
+      },
+      "actual_results": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/actual-results.json",
+        "sha256": "d13e9975a9324c6ae6f319748f2cfb94f3b5a9618d934f2316f754c996133d53",
+        "head_after": "5dae0670ff6b5f3e0b85eec8b148074e9243e833",
+        "source_paths_unchanged": true
+      },
+      "actual_module_origins": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/actual-module-origins.json",
+        "sha256": "f29205850d2fa39abf31b7e943255f40e0d176a7cd66f36b3626f13735e06536",
+        "observed_module_count": 1485,
+        "observed_modules_matching_request_path_and_byte_pins": 1485,
+        "outside_or_unpinned_count": 0,
+        "required_missing_count": 0,
+        "actual_canonical_source": true,
+        "method": "Read-only comparison of each observed module origin path and SHA-256 to the exact request path-pin map; this is an observed-import set, not a claim that all repository modules were imported."
+      },
+      "actual_origin_helper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/actual_origin.py",
+        "sha256": "e7855aacd754a7b2c9793c056ab26c03d48af2f45c3c38be5db67b6332c92d80"
+      }
+    },
+    "full_test_module": {
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/actual-b65-full-module.run.json",
+        "sha256": "fce835c5f3ea411d43dd338b5c99a8c5e9f9a6138eaec62e2fc8355ac9455c7c"
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-q",
+        "-p",
+        "actual_origin",
+        "tests/unit/core/llm/test_traced_client_settlement.py",
+        "--tb=short",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/pytest-tmp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/b65.junit.xml"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "timed_out": false,
+      "wrapper_seconds": 13.171,
+      "pytest_summary": "25 passed in 9.28s",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/actual-b65-full-module.stdout.txt",
+        "sha256": "a94b8d54665c9398d253f45b431a125b60c7a59f4353cf0c0ab77e938c261d87"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/actual-b65-full-module.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/b65.junit.xml",
+        "sha256": "062976f00521848f032dd41377d6cb92ff937ff81cc6ff4293a4ebbc7f6cb896",
+        "tests": 25,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "ruff_check": {
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/canonical-ruff-check.run.json",
+        "sha256": "58f2c70eeea7251261b99efb575d6d17976e4d4f99daa3cdfe808be44597bb44"
+      },
+      "exit_code": 0,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/canonical-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/canonical-ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "ruff_format_check": {
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/canonical-ruff-format.run.json",
+        "sha256": "034c5c3a78c92e39db78a2e4178becda6a6c9e352cae7dabd299339eb126ced7"
+      },
+      "exit_code": 0,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/canonical-ruff-format.stdout.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/canonical-ruff-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "limits": [
+    "The 25-test replay establishes the scoped module cases only; it is not whole B65 closure.",
+    "Provider, metrics sink, observer, and concurrency barrier are deterministic fixtures. No external provider, remote telemetry backend, HTTP/control-job/API surface, or scientific validity of provider content is established.",
+    "The adopted source commit changes one test file plus the lease; it does not change product implementation or authoritatively prove every B65 clause.",
+    "The earlier invalid partition proposal/report were not accepted as criterion replacement or closure; the original B65 span controls.",
+    "No full backend or whole E02 run is included in this receipt."
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P04",
+      "P09",
+      "P12",
+      "P29",
+      "P38",
+      "P40"
+    ],
+    "finding": "The author/reviewer classify the R2 expansion as the second same-class example under P40; this receipt records the broader actual module replay without converting bounded verification into formal closure.",
+    "capability_state": "No new product capability claim; bounded verification coverage for existing producer, persisted ledger, fresh reader, reconciler, and consumer behavior."
+  },
+  "index_update": "No index was changed by this receipt preparation. Root may separately record the evidence proposal against the pinned B65 occurrence after review."
+}

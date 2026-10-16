@@ -1,0 +1,186 @@
+{
+  "schema": "policyos.e02.component_delivery_evidence_proposal.v1",
+  "record_type": "bounded adopted release-metadata source and actual full-owner evidence receipt proposal; no G adjudication or formal closure",
+  "unit": "LOCAL",
+  "slice": "Remaining-ten release metadata R2 adoption and actual full compatibility-release-owner replay",
+  "prepared_at_local_date": "2026-10-17",
+  "status": {
+    "global_source_freeze": false,
+    "formal_G_acceptance": null,
+    "closure_ids": [],
+    "formal_G_closure_ids": []
+  },
+  "scope_binding": {
+    "kind": "multi-fragment metadata review and bounded source adoption; no single occurrence-level closure is asserted",
+    "reviewed_candidate_inputs": 10,
+    "structured_rows_reviewed": 12,
+    "author_candidate_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining-ten-release-metadata-review-20261017-r2/candidate-overlay-manifest.json",
+      "sha256": "6a39e547412de94134d02ce49b0fc5f5474c820ee734278ca2a00dcb62660977"
+    },
+    "candidate_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining-ten-release-metadata-review-20261017-r2/candidate.patch",
+      "sha256": "3da937bd948216510569b1ca41e7f2f5ec79bed90f7212bf9c5316c611a7e4b7"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining-ten-release-metadata-review-20261017-r2/review.json",
+      "sha256": "50b316f65b7e109d695617e20ccc90746dc2f5ef0fa13dc749f214a4afbabc37",
+      "disposition": "bounded conservative proposal; candidate not applied; not a full release-inventory GO",
+      "p40": "The review buckets this as the same metadata marker/provenance class at a wider ten-file, twelve-row scope. Marker values are not complete inventory evidence, capability closure, or G acceptance."
+    }
+  },
+  "adopted_source": {
+    "commit": "951a8eed44f4f071161642666c6d9f30a8ec17ed",
+    "tree": "ed29c9f142c2490cb86339b7772740db0e05579a",
+    "parents": [
+      "79051bd7a7d7a8849bf2198402cf246a41a893a2"
+    ],
+    "subject": "docs(release): retain only source-qualified compatibility review claims",
+    "changed_path_count": 10,
+    "changed_path_types": "Nine release TOMLs plus LOCAL/LEASES.json.",
+    "changed_paths_sha256": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "7ada312581415b0c1b4889a131a9f77ded818999252e7a4c9b259df4d7fde546",
+      "policy-engine/release-fragments/unreleased/2026-10-09-e02-c12-catalog-search-status.toml": "646891153961a958767fc018e88ed21fd030419807870f30f851ca5f725df52d",
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-la036-selected-profile-cas-readers.toml": "45512d394ea0dd08b437f15e96196763369793b141d337666406a934c4c013cc",
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-s3-selected-profile-followup.toml": "f0f5b9a873baaac086527a8a7a528e9955fad25599af967728f8aef18b1b3445",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-acquisition-growth-outcome-status.toml": "c0c18aa22745d394cba73a56a84a65779bb134e91eb114d930acee3c5100d21e",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-b28-n9-continuation.toml": "28d8e4a9840d3319147d51f0f013091c999bb2b1baea44deb81c02d81f30fb19",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-c05-measurement-root-admission-scope.toml": "ec43e454d15daa396b33f4960e31bd6b01f29ef8c9609f43730a1338a55a8dd4",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-calibration-report-cas-bridge.toml": "0548b70b790b3c7c6d8af1a3f841b573d7fc30bc6d1aa90f72681d8b564d9579",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-i1-c05-catalog-source-selection.toml": "30af08908558e0cc5f42146051d179848761d06c211ef000e4803468bb092a0c",
+      "policy-engine/release-fragments/unreleased/2026-10-14-b31-b33-transport-basis.toml": "1626ac4065f0c5dc0096142d6d7c503eb7e618b608195d0994d7135abf540328"
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/remaining-ten-release-metadata-r2-20261017-readback.json",
+      "sha256": "37acc3b89f66435c6754e357993bbc42f52b3c63b799ecde9d7e4d3c8631c935"
+    },
+    "candidate_vs_adopted_scope": {
+      "reviewed_toml_inputs": 10,
+      "adopted_changed_tomls": 9,
+      "lease_path_in_adopted_commit": true,
+      "extra_candidate_toml_not_changed_by_adopted_commit": "policy-engine/release-fragments/unreleased/2026-10-11-e02-authority-event-selected-profile.toml",
+      "extra_toml_preimage_and_adopted_blob_sha256": "5323b2a9685d422579cca41b8438b28558816f78159c29f932cf02d10174b3b2",
+      "scope_note": "The authority-event fragment was one of the ten reviewed candidate inputs but its adopted-commit blob equals its parent blob; it is not a tenth changed TOML."
+    }
+  },
+  "actual_composition": {
+    "measured_run_head": "5dae0670ff6b5f3e0b85eec8b148074e9243e833",
+    "measured_run_tree": "9f38319a9f2b265922d6ec499f8557312ab1f201",
+    "ancestry": [
+      {
+        "sha": "951a8eed44f4f071161642666c6d9f30a8ec17ed",
+        "parent": "79051bd7a7d7a8849bf2198402cf246a41a893a2",
+        "tree": "ed29c9f142c2490cb86339b7772740db0e05579a"
+      },
+      {
+        "sha": "3b2bedd5b67aa8aa64f27647ae94f2a86986d926",
+        "parent": "951a8eed44f4f071161642666c6d9f30a8ec17ed",
+        "tree": "28ace629c9627326560fa177eeb75541699a7be0"
+      },
+      {
+        "sha": "5dae0670ff6b5f3e0b85eec8b148074e9243e833",
+        "parent": "3b2bedd5b67aa8aa64f27647ae94f2a86986d926",
+        "tree": "9f38319a9f2b265922d6ec499f8557312ab1f201"
+      }
+    ],
+    "run_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/request.json",
+      "sha256": "5acc2f643e7e3535aecc786e6910a68157126f8bc25776cdcb65bfa26b248bcf",
+      "expected_head": "5dae0670ff6b5f3e0b85eec8b148074e9243e833",
+      "pin_count": 3507,
+      "source_freeze": "Specific B65 test and release-owner slice at 5dae; all materialized polisyos/src and tools Python plus all release fragments/config/public inventory; not global E02 freeze."
+    },
+    "actual_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/actual-results.json",
+      "sha256": "d13e9975a9324c6ae6f319748f2cfb94f3b5a9618d934f2316f754c996133d53",
+      "head_after": "5dae0670ff6b5f3e0b85eec8b148074e9243e833",
+      "source_paths_unchanged": true
+    },
+    "release_owner_run": {
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/actual-release-owner.run.json",
+        "sha256": "595088a46c166bc5671a80e2324adc4fe36f6dc84c2c83bb8774abe7f701a96d"
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "tools/ops_runners/release/check_compatibility_release_gates.py",
+        "--json-output",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/release-owner-report.json",
+        "--fail-on-contract-errors"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 1,
+      "timed_out": false,
+      "seconds": 0.247,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/actual-release-owner.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/actual-release-owner.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "generated_report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/release-owner-report.json",
+      "sha256": "16883effc2613859007d433917ceca587db67f6dc500bdcbd9f288e1dc82d506",
+      "mode": "report_only",
+      "status": "contract_errors",
+      "fragment_count": 271,
+      "structured_compatibility_change_count": 240,
+      "contract_error_count": 14,
+      "finding_count": 0,
+      "contract_errors_all_have_check": "public-surface-review",
+      "public_surface_inventory_evidence": {
+        "complete_verdict": true,
+        "predicate_status": "consistent",
+        "denominator": {
+          "contract_package_rows": 20,
+          "contract_supported_entrypoints": 67,
+          "contract_generated_artifact_families": 13,
+          "contract_package_model_field_slots_expected": 180,
+          "contract_package_model_field_slots_present": 180,
+          "inventory_entrypoint_schema_field_slots_expected": 670,
+          "inventory_entrypoint_schema_field_slots_present": 670
+        },
+        "predicate_basis": {
+          "generated_artifact_family_parity": "recomputed",
+          "inventory_schema_presence_and_types": "recomputed",
+          "package_metadata_and_set_parity": "recomputed",
+          "supported_entrypoint_set_parity": "recomputed",
+          "inventory_review_owner_identity": "not_established",
+          "public_surface_inventory_reviewed_flag": "consumer_asserted",
+          "runtime_export_resolution": "not_established_by_this_checker"
+        },
+        "limitation": "This report reconciles static declarations and canonical rendered inventory schema; it does not execute facades or independently resolve runtime exports. The reviewed flag is a local owner assertion, not authenticated review or G acceptance."
+      }
+    },
+    "ancestry_readback_method": "Read-only Git object header inspection confirms 951a is an ancestor of 3b2, which is the parent of measured run head 5dae; no mutable journal is used as the commit-chain authority."
+  },
+  "review_context_and_limits": {
+    "candidate_review_result": "The R2 selected-fragment validator reported 4 expected public-surface holds, 0 non-surface contract errors, 12 structured rows, and 10 inputs. That bounded candidate result is not the actual full-owner result below.",
+    "pre_adoption_full_owner_attempt": "The R2 review recorded an earlier candidate-scope global preflight KeyError at internal_rule. That attempt is not the later actual product-.venv full owner command/readback above and is not reused as its result.",
+    "actual_failure_attribution": "The actual owner report has 14 public-surface-review errors. This receipt does not attribute them as introduced or inherited; no exact slice-base replay with zero complete-input intersection is claimed.",
+    "scope_limits": [
+      "The actual full owner command exits 1 under --fail-on-contract-errors and reports 14 public-surface-review errors; it is not a native green or G approval.",
+      "The static public-surface schema reconciliation does not establish runtime exports or authenticate the reviewed flag.",
+      "The actual run is a 271-fragment repository owner report, not a complete E02 evaluation or issuer/expiry/renewal review.",
+      "The ten TOMLs are the reviewed candidate input set; the adopted commit changes nine of them plus LEASES.json.",
+      "No formal closure, complete public API/generated inventory claim, or global source freeze is made."
+    ]
+  },
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "finding": "P40 is the review's same-class metadata marker/provenance bucket. The actual owner output is reported at the 5dae composition without promoting marker presence/schema reconciliation to runtime-export proof. P41 failure provenance remains not established.",
+    "capability_state": "No new capability claim; bounded release metadata classification and owner-report evidence only."
+  },
+  "index_update": "No source, Git, environment, or canonical-index mutation was made for this receipt. Root may separately append a reviewed evidence reference."
+}

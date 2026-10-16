@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "0f5e647063c8dd0b0b5fbc59b044ec9dc015484e",
-    "tree": "c049b298f20694781ded44fe977b6bfeefae9d06",
+    "head": "6c983e5516853d14c9da69d79f03c5eb61d840fe",
+    "tree": "dbb2252bd8cf564a42fcad78d21672a837d2a784",
     "parents": [
-      "1229425d577e76f6af53ba34f416fda3fd25a829"
+      "ad514e3e4639652f4e06156ed9b0310f709a7961"
     ],
     "source_freeze": false,
-    "dirty_active_source": "B190 source14ad + child122 delivered with separate99PASS/1FAIL original and1PASS child receipts; post-child100-test composed waveUNRUN. Legal2449 + canonicalstylec27 actual52PASS/Ruff9PASS, strictMyPy33distinctdiagnostics across3modules remainsRED; no authority/currentness claim. Selected refusal0f5 actual165PASS/Ruff8, receipt pending; NLselected-CAS-inline precedence repair in RAW. GL/N4/C05/LA036/Legaltyping ongoing; knownoriginalGL/Lex postimages preserved."
+    "dirty_active_source": "Nativeguardad514 fullmodule65PASS/Ruff2PASS/83canonicalorigins; actualreleaseowner271TOML240rows14publicreviewerrors remainsRED. B65source5dae actual25PASS/Ruff1PASS/1485ownorigins. Full291proposal6c983 structurallyindependentlyverified withallhistory preserved, nofreshfull-propertyclosures. NLtypedselectorR4/Legaltyping/GL/N4/C05/LA036 inRAW; knownGL/Lex/inventory and attributedLegaltestd987 preserved, no globalfreeze. V5nativeGPandDRindividualPASS, lightselectorERRORrepair inprogress."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -447,6 +447,26 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/selected-artifact-refusal-r2-current-candidate-delivery-20261017.json",
       "sha256": "d861a9a40f38ac8802b57ab13b3a490bbadfdde6e4dcddb68f22dc697e954a8c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b65-settlement-consumer-current-candidate-delivery-20261017.json",
+      "sha256": "51b16623d6049605cfe4a6e19482517443236108818ef268f419936f86be41cb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/remaining-release-metadata-r2-current-candidate-delivery-20261017.json",
+      "sha256": "24f81b8f3697452057c556b4cb11e9c5e7d3869d4efec035251c2b39c790212e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-release-schema-guard-current-candidate-delivery-20261017.json",
+      "sha256": "e09d2f3662419ea85b14ea7fe72c3d739fd365aeb9d96244938ce14029b49c55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full291-reviewed-successor-delivery-20261017.json",
+      "sha256": "d9c2c3287d22b67013bf4340d4a8bca9f1bff5d7a9b3842fcdeab51952abda89"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r9-ir-facade-source-map-contract-decision-20261017.json",
+      "sha256": "6880ca143c50da445961d6efeebc28584b765e10acc203f8933b14b75cedc099"
     }
   ],
   "canonical_denominator_recomputed": {

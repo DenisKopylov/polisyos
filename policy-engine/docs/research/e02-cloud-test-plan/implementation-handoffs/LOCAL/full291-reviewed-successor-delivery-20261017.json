@@ -1,0 +1,86 @@
+{
+  "schema": "policyos.e02.reviewed-occurrence-successor-delivery.v1",
+  "record_type": "separate delivery receipt for independently reviewed intermediate full-occurrence proposal",
+  "source_commit": {
+    "sha": "6c983e5516853d14c9da69d79f03c5eb61d840fe",
+    "tree": "dbb2252bd8cf564a42fcad78d21672a837d2a784",
+    "parents": [
+      "ad514e3e4639652f4e06156ed9b0310f709a7961"
+    ],
+    "changed_paths_sha256": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json": "a15f2aac5036f75b9ab79edadbfe059cb1eff0254995ce540872dd1266051044"
+    }
+  },
+  "proposal": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
+    "sha256": "a15f2aac5036f75b9ab79edadbfe059cb1eff0254995ce540872dd1266051044"
+  },
+  "historical_index_preserved": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+    "sha256": "70673fe8c1e74b3d83627d883cda70e9dbc19401302d81458bba16dcc874a892"
+  },
+  "verification": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-full291-readonly-check-20261017/command.json",
+      "sha256": "a543fdbf28365c1de8bf23ba8d448ff9bef6f9049fd852793bc73f4087561f82"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-full291-readonly-check-20261017/check.stdout.json",
+      "sha256": "d29b479e810a766d1d84ab49cee1a24c452e9f5ba859be8d1931e6e7e5a9fc1c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-compact291-check-20261017/command.json",
+      "sha256": "b09a831dbebed8ff62178894cf7b611253ffca6ab48be70ac7d1c461d0517bd9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-compact291-check-20261017/check.stdout.json",
+      "sha256": "f2265702017e9b60f4fd17f82ec3e9f397cc4a980fc24a4b725b4f8f8e2e9705"
+    }
+  ],
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-current-property-reconciliation-20261016/partition-2-independent-review/compact-successor-delta-review.json",
+    "sha256": "5477be39a7e0b97b79e5c79d11d86f3bd5171c26afe505a396fb8115b6c74ca3"
+  },
+  "verification_meaning": {
+    "root_full_aggregate": "PASS_READONLY_RECOMPUTATION; complete frozen aggregate and corrected binding patch reproduced without changing seals, eight in-memory corruption probes rejected.",
+    "root_compact": "PASS_READONLY_COMPARE;4709checks/0issues/seven in-memory corruption probes rejected,0.377seconds.",
+    "independent_compact": "1746 independent row predicates (6 per occurrence); exact JSON value/types, spans/history/task routes/pointer and key bindings. This validates proposal transport and evidence binding, not capability acceptance."
+  },
+  "denominators": {
+    "occurrences": 291,
+    "finding_ids": 282,
+    "repeated_ids": 8,
+    "occurrences_of_repeated_ids": 17,
+    "bundles": 127,
+    "primary_bundle_labels": 124,
+    "occurrence_task_routes": 331,
+    "historical_TSV_transport_rows_separate": 2524
+  },
+  "proposals_at_frozen_report_frames": {
+    "open": 19,
+    "limited": 252,
+    "held": 20,
+    "technical_closed": 0,
+    "formal_G_closure_ids": []
+  },
+  "history_preserved": {
+    "author_proposed_closed_ids": 198,
+    "author_proposed_closed_occurrences": 202,
+    "historical_ledger_closed_occurrences": 9,
+    "ledger_is_not_formal_G_closure": true,
+    "B198": "historical decision preserved; current original criterion remains unadjudicated"
+  },
+  "boundaries": [
+    "All original occurrences remain individually represented; repeated IDs are not deduplicated. Shared routes are not additive closures.",
+    "Criterion documents/spans and whole-property boundaries are preserved; property_gap JSON values include strings, objects, one list and nulls without coercion.",
+    "The predecessor0fbd patch is invalid for application: wrong report pointers and mixed-type evidence append. The corrected fe758 binding proposal and compact row pointers supersede both defects.",
+    "The no_occurrence_binding_at_target diagnostic label was wrong for fixed-width rows whose key is slot0; it is not evidence of absence.",
+    "Each partition and the105-entry component snapshot atc553 remain time-specific provisional source observations. Later B65/Legal/NL/V5 evidence requires per-property reconciliation, never automatic closure.",
+    "Global source/input/backend freeze, native/composed/Linux/wheel/rebuilt-sdist/authentic closeout and independent G adjudication remain outstanding."
+  ],
+  "status": {
+    "global_source_freeze": false,
+    "formal_G_acceptance": null,
+    "closure_ids": []
+  }
+}

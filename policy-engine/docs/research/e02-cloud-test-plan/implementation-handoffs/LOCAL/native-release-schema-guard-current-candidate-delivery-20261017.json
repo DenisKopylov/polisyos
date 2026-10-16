@@ -1,0 +1,336 @@
+{
+  "schema": "policyos.e02.component_delivery_evidence_proposal.v1",
+  "record_type": "bounded native checker source-and-actual-run receipt proposal; no G adjudication or formal closure",
+  "unit": "LOCAL",
+  "slice": "Native compatibility-release schema availability and mismatch guard",
+  "prepared_at_local_date": "2026-10-17",
+  "status": {
+    "global_source_freeze": false,
+    "formal_G_acceptance": null,
+    "closure_ids": [],
+    "formal_G_closure_ids": []
+  },
+  "bounded_property": "The compatibility release checker must derive its internal_rule schema from the canonical renderer, report canonical schema unavailability as not established and fail closed, and report a present-but-corrupted renderer value as a mismatch rather than accepting inventory shape or a marker as proof.",
+  "candidate_and_reviews": {
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-release-internal-rule-repair-r3b-20261017/manifest.json",
+      "sha256": "0e0351028d6e5dacff84461b785b089c172ce4f96fcd0164841ee0eddbc3f50d",
+      "composed_patch_sha256": "82cb46662d45e8cf6b1dd3cffb3b327f3b29bc9ff727319347162b86bc1e8b7e"
+    },
+    "composed_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-release-internal-rule-repair-r3b-20261017/composed-r3.patch",
+      "sha256": "82cb46662d45e8cf6b1dd3cffb3b327f3b29bc9ff727319347162b86bc1e8b7e"
+    },
+    "source_postimage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-release-internal-rule-repair-r3b-20261017/r3-source-postimage.py",
+      "sha256": "e99502e3ff8a8928c4a80cbc152625c77686f01b471684eab9acb4ed8c1b8163"
+    },
+    "test_postimage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-release-internal-rule-repair-r3b-20261017/r3-test-postimage.py",
+      "sha256": "0ba1a81dd4b1cc11685b1225e2c87f922c9dbd79f4a43622ab5ae2c6fb7651a5"
+    },
+    "R2_behavior_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-release-internal-rule-independent-review-20261017/review.json",
+      "sha256": "d56054dfa0f2322dcb4336861882f257896ec9e7e3889dc0f01799b964b9166a",
+      "decision": "GO_BOUNDED_WITH_NONBLOCKING_BASE_FILE_FORMAT_DEBT",
+      "behavior_controls": {
+        "normal_canonical_source": "Canonical-source control is complete and consistent with no errors.",
+        "renderer_key_missing": "complete_verdict=false; predicate_status=not_established; explicit schema errors, including canonical renderer not establishing internal_rule.",
+        "renderer_value_corrupted": "predicate_status=mismatch with an explicit inventory-versus-renderer error; not accepted as consistent.",
+        "behavioral_gate_basis": "Review controls evaluate canonical renderer output and explicit missing/corrupted source cases; acceptance is based on the recomputed source property and its error outcome, not marker presence."
+      },
+      "review_limit": "The independent R2 review did not rerun the full native test module; the later actual full-module replay is recorded below."
+    },
+    "R3_format_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-release-internal-rule-r3-independent-review-20261017/review.json",
+      "sha256": "66a52e3efb3df7a9981d621e514e2094c2cc57b0242e7d8375ba619ad9bdd34b",
+      "decision": "GO_FORMAT_ONLY_DELTA",
+      "source_section_retained_exactly": true,
+      "test_ast_equal": true,
+      "composed_patch_apply_check_passes": true,
+      "ruff_check_and_format_pass_for_both_changed_files": true
+    },
+    "prior_diagnosis": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-release-internal-rule-repair-20261017/diagnosis.json",
+      "sha256": "b839605b2342d8a63b4f8400fdd1aeb2629fd4acae7c70f5fe5bffa2a97dc18a",
+      "classification": "The earlier system-Python KeyError is attributed in the diagnosis to the interpreter importing polisyos from the unrelated primary checkout, which lacked polisyos.common.markdown. It is retained as an origin diagnostic, not counted as a native product failure or as a native green result."
+    }
+  },
+  "adopted_source": {
+    "repository_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "commit": "ad514e3e4639652f4e06156ed9b0310f709a7961",
+    "tree": "3059ccc3c5b9313df48e4296ff5993b0ea2566df",
+    "parents": [
+      "5a7570b14bfb8928d5912401ab111054543e0df7"
+    ],
+    "subject": "fix(tooling): fail closed when canonical release schema is unavailable",
+    "changed_path_count": 3,
+    "changed_paths_sha256": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "6b4ec73720a33b4cbd85ca27e5f434d2cbe20723bea09c4197c0a73dd1c8dc99",
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase5_10_compatibility_release_gates.py": "0ba1a81dd4b1cc11685b1225e2c87f922c9dbd79f4a43622ab5ae2c6fb7651a5",
+      "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py": "e99502e3ff8a8928c4a80cbc152625c77686f01b471684eab9acb4ed8c1b8163"
+    },
+    "exact_source_and_test_postimages_match_candidate": true
+  },
+  "actual_execution_source_frame": {
+    "source_freeze": {
+      "global_source_freeze": false,
+      "description": "Specific native guard ad514 plus the full changed test-module scope. The pin map also includes repository/config/release inputs; it is not a global native or E02 freeze.",
+      "request_pin_count": 3509,
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/request.json",
+        "sha256": "91258241eed9c55f6de944c6207678464732e096ba0da4dc672693be57d82de3"
+      },
+      "actual_results": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/actual-results.json",
+        "sha256": "9f3ff95d3132903dc7e2a5ce65fbc74348a36a76fcf4df2a8c16f6ced78289be",
+        "head_after": "ad514e3e4639652f4e06156ed9b0310f709a7961",
+        "source_paths_unchanged": true
+      },
+      "static_pin_vs_commit_tree_reconciliation": {
+        "request_pins": 3509,
+        "paths_present_in_adopted_commit_tree": 3505,
+        "paths_absent_from_adopted_commit_tree": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/actual_origin.py",
+            "request_sha256": "e7855aacd754a7b2c9793c056ab26c03d48af2f45c3c38be5db67b6332c92d80",
+            "classification": "pinned run support helper"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/actual_origin.py",
+            "request_sha256": "e7855aacd754a7b2c9793c056ab26c03d48af2f45c3c38be5db67b6332c92d80",
+            "classification": "pinned run support helper"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/native_actual_origin.py",
+            "request_sha256": "5eddd2f9f425defa9e7f3cb65049ee5608d71d29e7611e3bc0ad64eb4509b3bd",
+            "classification": "pinned run support helper"
+          },
+          {
+            "path": "policy-engine/release-fragments/unreleased/2026-10-15-e02-source-bound-legal-grounding.toml",
+            "request_sha256": "8c8564e841702e54ae038f03486a23946f38e5bf8537ffa0bf52f8520c971bbf",
+            "classification": "separate release-fragment input outside the adopted commit tree"
+          }
+        ],
+        "paths_present_but_byte_different_from_commit_tree": [
+          {
+            "path": "policy-engine/architecture/public_surface/inventory.json",
+            "request_sha256": "e28add8c2aabd842e556a2a6717afc8f0aaf9210724e4d4893a43961e7ef80e5",
+            "adopted_commit_tree_sha256": "2ccbddf694f23546fb8b27262371e037ab344bd1f907d23bf1b83dd01ceedd4b",
+            "provenance": "not established by this receipt; request pins exact input bytes and records them unchanged during the run"
+          },
+          {
+            "path": "policy-engine/docs/reference/public-surface.md",
+            "request_sha256": "5884fc9920a81844121ad412048d03ce2d36cc0adf82c1b47c4825b3d1011dc9",
+            "adopted_commit_tree_sha256": "57a7f35639c7f5ebf83a77d2944df9059f9b3c24673da96b66732df045543286",
+            "provenance": "not established by this receipt; request pins exact input bytes and records them unchanged during the run"
+          },
+          {
+            "path": "policy-engine/src/polisyos/lex/__init__.py",
+            "request_sha256": "5e9e2b3659fa5494e2b93bbc47de4e554e576284ea0ea053e3163fa560dfbf94",
+            "adopted_commit_tree_sha256": "d2dcdde45c1b1b54fb5f8aa85db4036d9676aed1d1009ed0c2cfedd92271ae70",
+            "lease_pointer": "/coordination_epoch_20261016_direct_write_attributed/files/6",
+            "classification": "named GL/Lex postimage recorded in the committed LEASES.json"
+          },
+          {
+            "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+            "request_sha256": "a39d43b9bda4403f930c28927456c46081736760f65f9656eff2b8db7f4111cf",
+            "adopted_commit_tree_sha256": "485eb76804be71a6915152ea6d99d30607c488ae4ad6a004b71265fa71ae2f49",
+            "lease_pointer": "/coordination_epoch_20261016_direct_write_attributed/files/7",
+            "classification": "named GL/Lex postimage recorded in the committed LEASES.json"
+          }
+        ],
+        "interpretation": "The request is a complete path-and-byte snapshot for this run and stayed unchanged, but it is not a pure Git-tree replay or global source freeze. The two GL/Lex postimages are named in LEASES.json; the two public-surface artifact postimages have no provenance established here. Four additional pins are run helpers or a separate untracked release fragment.",
+        "lease_source": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+          "sha256": "6b4ec73720a33b4cbd85ca27e5f434d2cbe20723bea09c4197c0a73dd1c8dc99"
+        },
+        "direct_write_attribution_evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owned-direct-write-attribution-20261016/attribution-resolved.json",
+          "sha256": "9ad828c19df8c93a8d2fc32972e64920ba653c193fc9e94221d5919b2e263d3f"
+        }
+      },
+      "observed_module_origins": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/actual-module-origins.json",
+        "sha256": "a033790fbf6eb865d8ac12d165adb236b1b9a13da987614e5f7987f02f900c4d",
+        "observed_count": 83,
+        "matching_request_path_and_byte_pins": 83,
+        "matching_exact_adopted_commit_tree_bytes": 83,
+        "outside_or_unpinned_count": 0,
+        "required_missing_count": 0,
+        "actual_canonical_source": true,
+        "method": "Read-only SHA-256 reconciliation of every observed imported module origin to both the 3509-path run request and exact ad514 commit tree blobs; all 83 observed origins matched both. This does not convert the broader static request snapshot into a global source freeze."
+      },
+      "actual_origin_helper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/native_actual_origin.py",
+        "sha256": "5eddd2f9f425defa9e7f3cb65049ee5608d71d29e7611e3bc0ad64eb4509b3bd"
+      }
+    }
+  },
+  "actual_verification": {
+    "full_changed_release_gate_test_module": {
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/actual-full-release-gate-tests.run.json",
+        "sha256": "f93a59c1d8a500e8c50c3794398f81559d949435f7a9f7765e0528c39d4717f3"
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-q",
+        "-p",
+        "native_actual_origin",
+        "tests/repo_quality/architecture/test_repository_best_in_class_phase5_10_compatibility_release_gates.py",
+        "--tb=short",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/pytest-tmp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/release-gates.junit.xml"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "timed_out": false,
+      "wrapper_seconds": 5.54,
+      "pytest_summary": "65 passed in 4.53s",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/actual-full-release-gate-tests.stdout.txt",
+        "sha256": "43e53cde01e14b3cefe5fae5f468e7564405cdb3e7ceee3f4d7467ddf2f79ac2"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/actual-full-release-gate-tests.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/release-gates.junit.xml",
+        "sha256": "5f3d77c512f94deae17134137fe00c14059b10dc8f5ed4e542e46fdfe902b5d4",
+        "tests": 65,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "full_release_owner": {
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/actual-full-release-owner.run.json",
+        "sha256": "f2f3fb6ba1b9e804920184845d24a7ee18dc1bdf5cf380aae4065ce0e78958f8"
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "tools/ops_runners/release/check_compatibility_release_gates.py",
+        "--json-output",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/release-owner-report.json",
+        "--fail-on-contract-errors"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 1,
+      "timed_out": false,
+      "seconds": 0.249,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/actual-full-release-owner.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/actual-full-release-owner.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "release_owner_report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/release-owner-report.json",
+      "sha256": "16883effc2613859007d433917ceca587db67f6dc500bdcbd9f288e1dc82d506",
+      "mode": "report_only",
+      "status": "contract_errors",
+      "fragments": 271,
+      "structured_compatibility_changes": 240,
+      "contract_errors": 14,
+      "findings": 0,
+      "all_contract_error_checks": [
+        "public-surface-review"
+      ],
+      "public_surface_inventory_evidence": {
+        "complete_verdict": true,
+        "predicate_status": "consistent",
+        "predicate_basis": {
+          "generated_artifact_family_parity": "recomputed",
+          "inventory_schema_presence_and_types": "recomputed",
+          "package_metadata_and_set_parity": "recomputed",
+          "supported_entrypoint_set_parity": "recomputed",
+          "inventory_review_owner_identity": "not_established",
+          "public_surface_inventory_reviewed_flag": "consumer_asserted",
+          "runtime_export_resolution": "not_established_by_this_checker"
+        },
+        "denominator": {
+          "contract_package_rows": 20,
+          "contract_supported_entrypoints": 67,
+          "contract_generated_artifact_families": 13,
+          "contract_package_model_field_slots_expected": 180,
+          "contract_package_model_field_slots_present": 180,
+          "inventory_entrypoint_schema_field_slots_expected": 670,
+          "inventory_entrypoint_schema_field_slots_present": 670
+        },
+        "limitation": "The checker reconciles static declarations and rendered inventory schema; it does not execute facades or independently resolve runtime exports. The reviewed flag is a local owner assertion, not authenticated review or G acceptance."
+      },
+      "comparison": {
+        "earlier_5dae_report": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b65-and-release-owner-actual-20261017/release-owner-report.json",
+          "sha256": "16883effc2613859007d433917ceca587db67f6dc500bdcbd9f288e1dc82d506"
+        },
+        "report_bytes_equal": true,
+        "P41_classification": "No introduced/inherited attribution is made. The report is byte-identical to the earlier 5dae output, but the checker source itself is an input changed in this slice, so the zero-input-intersection condition for an inherited-red claim is not established."
+      }
+    },
+    "canonical_ruff_check": {
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/canonical-ruff-check.run.json",
+        "sha256": "2fef1b25cfe88007708a3fef5c663040003e77af9c923ba283d12d16da6bbd31"
+      },
+      "exit_code": 0,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/canonical-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/canonical-ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "canonical_ruff_format_check": {
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/canonical-ruff-format.run.json",
+        "sha256": "4766e94a992f6836e5be18274877dd10cd4d7b9ce048d50a1ab5357a10279b8a"
+      },
+      "exit_code": 0,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/canonical-ruff-format.stdout.txt",
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-release-schema-guard-actual-20261017/canonical-ruff-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "scope_limits": [
+    "The 65/65 result is the complete changed compatibility-release-gate test module; it is not a whole-repository or full E02 pass.",
+    "The actual native release owner remains red with 14 public-surface-review contract errors and exit 1; the test-module pass is not owner green or G approval.",
+    "The canonical checker proves static schema parity/availability and reports runtime export resolution and reviewer identity as not established; the public_surface_inventory_reviewed flag is consumer_asserted.",
+    "No release-fragment metadata, issuer/expiry/renewal semantics, inventory taxonomy, external authority, publication status, or formal closure is changed or adjudicated here.",
+    "The nonnative system-Python/wrong-origin KeyError is diagnostic only, not the native test/run verdict.",
+    "The static path snapshot includes known live/postimage inputs described above; no global source-freeze claim is made."
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "finding": "The bounded guard derives and compares the canonical renderer rule, and review controls exercise missing-source and corrupted-source behavior. The actual receipt labels unestablished inventory/review predicates and avoids marker/schema parity as runtime export proof. P41 attribution of the unchanged 14-error owner report remains not established.",
+    "capability_state": "No new governance/public-surface capability claim; this is a bounded behavior gate in the existing release owner."
+  },
+  "index_update": "No source, Git, environment, or canonical-index mutation was made for this receipt. Root may separately append a reviewed evidence reference."
+}

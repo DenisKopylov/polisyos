@@ -1,0 +1,234 @@
+{
+  "candidate_observation": {
+    "all_source_test_pins": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "sha256_at_wave": "6d56dcd7042227ce00d617b0698eae26c263eaef72934dda06d911575b4aefae",
+        "sha256_current": "6d56dcd7042227ce00d617b0698eae26c263eaef72934dda06d911575b4aefae",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+        "sha256_at_wave": "ce8004a1ab0ea0ad94e71b3ed99c104247eb0ad5c576a8d14bef33b3613d4df1",
+        "sha256_current": "ce8004a1ab0ea0ad94e71b3ed99c104247eb0ad5c576a8d14bef33b3613d4df1",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "sha256_at_wave": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+        "sha256_current": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256_at_wave": "e1506ceca8ad7907c85f2006e3247565f939035d9f681c97b6db6bc0a223a0f8",
+        "sha256_current": "e1506ceca8ad7907c85f2006e3247565f939035d9f681c97b6db6bc0a223a0f8",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/run/context.py",
+        "sha256_at_wave": "2d84d7d06a88c8692a6a97715beeecd2f2f361455f711c3b659cfd2efb6515f4",
+        "sha256_current": "2d84d7d06a88c8692a6a97715beeecd2f2f361455f711c3b659cfd2efb6515f4",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/trace/sink.py",
+        "sha256_at_wave": "706d7de830febcb47525b7a133de7c592db14c7fb6a0f3f0c89370234793688a",
+        "sha256_current": "706d7de830febcb47525b7a133de7c592db14c7fb6a0f3f0c89370234793688a",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+        "sha256_at_wave": "6f3d0a755d0d4e750f0655f5b8fd021e579ac4cbf83dfafe45f00cee7cebfeba",
+        "sha256_current": "6f3d0a755d0d4e750f0655f5b8fd021e579ac4cbf83dfafe45f00cee7cebfeba",
+        "unchanged_since_wave": true
+      },
+      {
+        "delta_commit": "e70766dc10916c230cf8f0f5d4a6f7373c341337",
+        "delta_scope": "9 lines adding only TYPE_CHECKING imports for claim-adjudication type exports in data_forge.read_api.academic; runtime _EXPORTS/lazy-loading code unchanged; TYPE_CHECKING is false at runtime.",
+        "path": "policy-engine/src/polisyos/data_forge/read_api/academic.py",
+        "rerun_decision": "no replay; exact diff does not execute or alter SKG runtime binding/selector behavior",
+        "sha256_at_wave": "ec06fbceea6b2e3b922866ed938db432dbbcdfe275af84b1f39dc23766aa1ed5",
+        "sha256_current": "64f585fd5cdda626caca396f129d80bdf9b098031e71141cbb2e677b975e9c86",
+        "unchanged_since_wave": false
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal_graph.py",
+        "sha256_at_wave": "7bb6e7a0c29a1d13dc1e1f53f0c735dec68e67b1cc1fc2aa606f84f34efc823c",
+        "sha256_current": "7bb6e7a0c29a1d13dc1e1f53f0c735dec68e67b1cc1fc2aa606f84f34efc823c",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/context.py",
+        "sha256_at_wave": "926af367ab113b2ca537cb259b9b12ea37579e2f027587da1a83eab2c27db6a9",
+        "sha256_current": "926af367ab113b2ca537cb259b9b12ea37579e2f027587da1a83eab2c27db6a9",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/parameters.py",
+        "sha256_at_wave": "c70cdc594ab8866f028ec32d9c9a262ad15d9f0f50f122b0668580278465a957",
+        "sha256_current": "c70cdc594ab8866f028ec32d9c9a262ad15d9f0f50f122b0668580278465a957",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+        "sha256_at_wave": "81fac102bce9779a74b5d469a02586e4a6b9e2cbc4b8958a50466305f547dd3e",
+        "sha256_current": "81fac102bce9779a74b5d469a02586e4a6b9e2cbc4b8958a50466305f547dd3e",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+        "sha256_at_wave": "5e1e21effba7eac4e8e977dfc3c3110ef14ad8f77418be116681bc2c8840c921",
+        "sha256_current": "5e1e21effba7eac4e8e977dfc3c3110ef14ad8f77418be116681bc2c8840c921",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+        "sha256_at_wave": "7d1adeb66fdaa33cedb7bf4cc4351fadc432a0a145d552e32c12158438b4f17f",
+        "sha256_current": "7d1adeb66fdaa33cedb7bf4cc4351fadc432a0a145d552e32c12158438b4f17f",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+        "sha256_at_wave": "fa26ff85699280a97f9dab0a3df8d7f130c2c254c07336738396bfbe6ed76655",
+        "sha256_current": "fa26ff85699280a97f9dab0a3df8d7f130c2c254c07336738396bfbe6ed76655",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "sha256_at_wave": "f1c2e67c0100e823cc9e7c68b39258d5ee8fd2919576b4bd116e028a13e40965",
+        "sha256_current": "f1c2e67c0100e823cc9e7c68b39258d5ee8fd2919576b4bd116e028a13e40965",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+        "sha256_at_wave": "b2bb41aabf0b3b0f71f5adddc20f3ecb7ae74998329af6daf05e77c28392e751",
+        "sha256_current": "b2bb41aabf0b3b0f71f5adddc20f3ecb7ae74998329af6daf05e77c28392e751",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/skg_snapshot.py",
+        "sha256_at_wave": "a012959277bda9fcbdc5c26c5994c809b6cc4eb53b7bf55f198ff2e1532a68f3",
+        "sha256_current": "a012959277bda9fcbdc5c26c5994c809b6cc4eb53b7bf55f198ff2e1532a68f3",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state.py",
+        "sha256_at_wave": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+        "sha256_current": "7f02ad147eae494e905a984dd6eb1d5282e315122d40c37146ce66a0e9e180a9",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/state_branching.py",
+        "sha256_at_wave": "c3de3e7d6e46017f3ed337d228474c9f3063e67a5c987bde77775f8ef7da2626",
+        "sha256_current": "c3de3e7d6e46017f3ed337d228474c9f3063e67a5c987bde77775f8ef7da2626",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/workflow_spec.py",
+        "sha256_at_wave": "d4f8757f15e7cedecbce102a53d64b846aa421b234eeb59f38fddc84aac59ffd",
+        "sha256_current": "d4f8757f15e7cedecbce102a53d64b846aa421b234eeb59f38fddc84aac59ffd",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+        "sha256_at_wave": "54ea3cd14681bdcb9f810cf3c173843332e582d2576a4f76e2f64d152529696c",
+        "sha256_current": "54ea3cd14681bdcb9f810cf3c173843332e582d2576a4f76e2f64d152529696c",
+        "unchanged_since_wave": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_skg_snapshot_replay.py",
+        "sha256_at_wave": "46d4e874e5e2af5a5d4cde98a9d7a0ab2f761ffbc35a9bff9478520837653da0",
+        "sha256_current": "46d4e874e5e2af5a5d4cde98a9d7a0ab2f761ffbc35a9bff9478520837653da0",
+        "unchanged_since_wave": true
+      }
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "commits_after_wave_head": [
+      "39ddaac9f test(e02): isolate Legal generation drift from profileless refusal",
+      "e70766dc1 fix(e02): preserve guarded MethodJob ownership and typed selected reads"
+    ],
+    "current_head": "39ddaac9fb0d8216ce90b638de043cd85f661740",
+    "current_tree": "f67549e93b26190e3ff455144afe5de13b996f64",
+    "other_selected_source_paths_unchanged": true,
+    "tracked_scope_intersection": [
+      {
+        "current_sha256": "64f585fd5cdda626caca396f129d80bdf9b098031e71141cbb2e677b975e9c86",
+        "impact": "Added 9 lines under `if TYPE_CHECKING`; no runtime map/target or implementation changes. No runtime replay because this delta is excluded by the runtime guard.",
+        "path": "policy-engine/src/polisyos/data_forge/read_api/academic.py",
+        "wave_sha256": "ec06fbceea6b2e3b922866ed938db432dbbcdfe275af84b1f39dc23766aa1ed5"
+      }
+    ],
+    "wave_head": "2423b825f2b1de2c95b47bfa7c64578499c02f66",
+    "wave_tree": "fb8a6132189df532909e9e7311d34687488c9585"
+  },
+  "finding": {
+    "criterion": "Changed actually consumed source content/version changes key and result; an unconsumed new database does not invalidate the study; retained snapshot remains reproducible; checked version/content and actual query are bound to the same connection/transaction.",
+    "digest_without_owner": "The original text prefers source-owner refs but expressly accepts a controlled digest for a file without a version owner. It does not require a foreign issuer/currentness fact.",
+    "id": "B61",
+    "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md@198076863e143dea9f89f02734b13d50dae3eed5:1601-1614",
+    "source_span_sha256": "d866142adb470420e36484ae68a71a865e730697ae87639bbef85c27ef86c32b"
+  },
+  "proposal": {
+    "candidate_outcome": "proposed_satisfied_bounded_for_the_original_controlled_file_source_criterion",
+    "closure_ids": [],
+    "evidence_assessment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-content-route-20261016/b61-content-route-assessment.json",
+    "evidence_assessment_sha256": "db5feefc0dae92f434f838497da1d29bd251570a380e12d2d5f7cbeab51bcc39",
+    "formal_g_status": "none; independent source acceptance/finding adjudication required",
+    "limitation": "The live-produced parameter bundle itself has no direct retained snapshot input edge. The identical retained CAS ref is in its node result, run manifest and cache-origin event; replay through the explicit selected-snapshot consumer materializes that exact ref and creates a replay bundle with the exact input edge. This is lineage nuance, not an external authority/currentness claim.",
+    "not_claimed": [
+      "production source authenticity/currentness",
+      "authority or issuer-positive evidence",
+      "source-to-output causal dependence (receipt correctly says output_dependency=not_established)",
+      "coverage of every possible consumer/storage backend"
+    ]
+  },
+  "purpose": "Compact author evidence proposal for ROOT tracked handoff; raw only. No source edits, no staging/commit, no formal G closure.",
+  "receipt_sha256_excludes_itself": true,
+  "schema": "policyos.e02.local-b61-original-criterion-delivery-proposal.v1",
+  "verification": [
+    {
+      "inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-content-route-20261016/full22-current/run-input.json",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-content-route-20261016/full22-current/junit.xml",
+      "junit_sha256": "21cacaadb7bd72e043e6c0fbd84c91469b4418b6838143214e24c729175bb67f",
+      "result": "22 passed; 0 failed; 0 errors; 0 skipped; 28.58 sec",
+      "scope": "Original fixed 22-case family, exact selectors listed in run-input",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-content-route-20261016/full22-current/stdout.txt",
+      "stdout_sha256": "74b5bbb6199633e43942aacd8fafb2be0af1c9a1dcd94624888223bc1d8df6bd"
+    },
+    {
+      "failures": [
+        {
+          "classification": "expected old refusal reason; actual `timeout_worker_dispatch_params_not_bound` typed refusal occurs before process construction, so there is no wrong-read/cache signal. Keep the test mismatch visible.",
+          "test": "test_spawn_timeout_refuses_live_prepared_read_before_child_start"
+        },
+        {
+          "classification": "fixture fails before SKG consumer due TrinityBundle artifact-manifest/IR-owner mismatch; consumed-values list is empty. Same-property sibling consumer remains not verified by this failed case.",
+          "test": "test_cross_graph_recomputes_existing_profile_from_changed_prepared_source"
+        }
+      ],
+      "inputs": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-content-route-20261016/current-siblings/run-input.json",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-content-route-20261016/current-siblings/junit.xml",
+      "junit_sha256": "51bffcdafa3828e8d98320785945a8b6802a3a1bc4d7d7dac9162b11eeea62e4",
+      "result": "31 passed; 2 failed; 0 errors; 0 skipped; 33.232 sec suite",
+      "scope": "13 additional same-property unit selectors plus complete 20-case integration module",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-content-route-20261016/current-siblings/stdout.txt",
+      "stdout_sha256": "2ef0e0dfc0cb0485b8e29c5e0351186c94b0ef1c7a546731090bd99d1e6f8b51"
+    },
+    {
+      "observed": "Live source value 1.4 and digest ef562f0b8f2dae08ec07b2af3cec6cb015b00f02c2240c68f7ffd23fb22ff517; exact CAS snapshot ref sha256:2dd0c0a4d2dfb5abaa2657b28bd2892a36c8ae46a6d88e1cc73db4eb8d009202 was on node result, run manifest, cache origin. After live same-path value became 9.75 (digest 862c8df448f9e3a95d1e31c0273d09bb35efb8d8208b17ff2580355fad635909), a fresh run materialized original digest at another path and returned 1.4.",
+      "probe": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-content-route-20261016/live-retain-replay-probe.py@94eb4e0c95103e6b6699670e652f7eb10a71d2e036f12c69112954c46816c82e",
+      "result": "PASS, exit 0; 8.43 sec; selected source/test pins stable across run",
+      "run_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-content-route-20261016/live-retain-replay.run.json",
+      "run_manifest_sha256": "d6098d72e0e7db0197c74e654a58b6d3dc12595ca7e0c5b8e18986abeca5380d",
+      "scope": "Controlled current-source WorkflowExecutor live read → retain → mutate live path → fresh explicit snapshot consumer",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-skg-content-route-20261016/live-retain-replay.stdout.json",
+      "stdout_sha256": "ff216da8065846356a2721af4ce951b6ee2c2df9b60544df47686416dfcd1823"
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "source_freeze": false,
+  "delivery_kind": "criterion-evidence proposal on existing candidate source; no implementation commit in this receipt"
+}

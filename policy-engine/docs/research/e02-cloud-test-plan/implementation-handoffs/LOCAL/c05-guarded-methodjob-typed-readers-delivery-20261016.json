@@ -1,0 +1,428 @@
+{
+  "schema": "policyos.e02.local_delivery.v1",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice": "R11 guarded MethodJob ownership and typed selected readers",
+  "slice_base_sha": "2423b825f2b1de2c95b47bfa7c64578499c02f66",
+  "candidate_sha": "e70766dc10916c230cf8f0f5d4a6f7373c341337",
+  "candidate_tree": "e58d362035b1a23c859123bfdc6a90e7b9f5d24a",
+  "parents": [
+    "2423b825f2b1de2c95b47bfa7c64578499c02f66"
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "source_freeze": false,
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudication_verifier.py",
+      "sha256": "940eb30691b69b6dcd5960f4fcfafc26db972f0a4aebe66caef0120c1a9b3d57"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py",
+      "sha256": "ded7bb918c231d73a75685ac003c843ba240de611d37cfb762747315cdab5671"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/academic.py",
+      "sha256": "64f585fd5cdda626caca396f129d80bdf9b098031e71141cbb2e677b975e9c86"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/resilience.py",
+      "sha256": "db03cecc78ab0caedec32e1e23c3baf25ff0a659db74ecfd85cca942b73de4f0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/__init__.py",
+      "sha256": "8b4232cb406cf16ddde7276d794ac2e5603f56cadb4360777fa6413383e4a320"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "sha256": "a83f8ee607349126395658143040510f4a5c4245155f8e1481f47f532e79a2ae"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "sha256": "8a422e4abe0affa2e27691f764db177dac0cf6d441284ccf9dfcb04688cb268d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "sha256": "e1130d8bcf2dd5b98f1213c9b60a47552bcb794cf939d5da27204b0e2b6574ae"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/promotion_evidence.py",
+      "sha256": "41e57e893435fe27596bbcae2b20fca813bfdcdf562690370d81dea6c74022ba"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_resilience_guards.py",
+      "sha256": "79937ee1d510da63e7821c45f80a003d1a0862d5a46c75b3bc9053adc94fa41b"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+      "sha256": "9e2ac497133ec8e7fc126582ea646db3b599a00cca83ff14cd46303c3bf191ec"
+    }
+  ],
+  "actual_preimage": "Parent 2423b825; the complete 11-path preimage map and patch are linked below. promotion_evidence.py preimage b7ca8d580c63fdbc29927532f22b4be851a544ab5158cffb53d937effb8caf1e preserves the pre-existing dirty E02 work.",
+  "changes": [
+    "Bound the actual MethodJob evaluation and runner to the same rooted guarded store through method dispatch, protected writes and fresh result/evidence reads; keep ambient tenant-ownership enforcement on the actual handle.",
+    "Require selected profile-addressed reads for protected claim predecessor/source and suite/candidate evidence; preserve typed refusals and public lazy read_api.academic exports.",
+    "Align the eleven source/test files with the existing typed Core JSON/profile-addressed reader contracts; no scientific rule, issuer, custody, or currentness fact is introduced."
+  ],
+  "selected_input_profile_backend": "Local policy-engine .venv; controlled synthetic fixtures and local rooted FileSystemCAS/Core JSON profile-addressed views; no production inputs or model-training evidence. Canonical Ruff profile: architecture/tooling/ruff/workspace_root.toml@88de6836be7f506b77ea23206e1165f0ef6a6e0b3c945d58e817da0730776feb.",
+  "verification": {
+    "author_actual_pytest": "PASS: 54 tests, 21.175 s, 0 failures/errors/skips; full stdout/stderr/JUnit and command JSON retained.",
+    "author_strict_mypy": "PASS: 9 source files, 44.715 s; complete output and exact argv retained.",
+    "canonical_ruff_and_diff": "PASS: canonical Ruff check/format, patch apply checks and git diff --check; outputs retained.",
+    "independent_review": "GO_FOR_SCOPED_11_PATH_OVERLAY_APPLICATION; its composed 54-test run passed with 0 failures/errors/skips. Reviewer did not rerun MyPy, but confirmed exact nine source hashes; no global G acceptance.",
+    "whole_E02": "UNRUN as a composed current full-source/input/backend/native closeout; no whole-property or global gate pass is claimed."
+  },
+  "adversarial_removal_controls": "The scoped tests remove or deny the guarded-store/profile property and assert refusal/no measurement: same-handle read/write denial, fresh filesystem reconstruction, tenant A/B ownership, same bytes under a foreign profile, profileless/stale/mismatched source graph, alternate suite profile, missing selected replay edge, and non-fingerprintable method parameters.",
+  "limitations": [
+    "This is a bounded 11-file route and 54-test composition, not full C05 or global source freeze.",
+    "PromotionEvidenceBundle evaluation edge ID-only comparison remains a separate selected-profile lineage gap; a supplemental repair is still required before that property can be proposed closed.",
+    "No installed wheel/rebuilt sdist, native full-repository closeout, production authority, legal issuer, custody, or live currentness evidence is established.",
+    "P41 inherited status is not established; do not generalize this bounded replay to the complete original denominator."
+  ],
+  "capability_state": "semantic_test_missing",
+  "proposals": [
+    {
+      "criterion_ids": [],
+      "outcome": "limited_local_candidate",
+      "claim": "The selected guarded MethodJob/typed selected-reader route is source-bound and independently replayed within this 11-path slice.",
+      "remaining": "No original finding IDs are mapped in this receipt; whole C05 subject/profile lineage and its full consumer denominator remain open. G should adjudicate exact IDs only after composition and ID reconciliation."
+    },
+    {
+      "criterion_ids": [],
+      "outcome": "held",
+      "claim": "PromotionEvidenceBundle evaluation-profile binding is not closed by this slice.",
+      "evidence": "application-and-checks.json records the ID-only evaluation-edge residual; supplemental profile-subject repair and current composed consumer replay remain pending."
+    }
+  ],
+  "proposal_outcome": "Local implementation candidate only. No formal G closure or whole-E02 source freeze.",
+  "next_check": "After the complete C05 source/input/backend frame is frozen, run the composed current producer→selected CAS→bridge→consumer replay once, include the supplemental PromotionEvidence profile-edge repair, preserve all outputs, then have G independently adjudicate mapped original occurrences.",
+  "property": "Bounded R11 property: the actual MethodJob producer and protected selected-profile readers preserve the same rooted guarded store through dispatch, protected writes/readbacks and claim-chain consumption; malformed, absent, foreign-profile, stale, or denied protected inputs do not become an admissible measured result.",
+  "real_chain_steps": [
+    {
+      "stage": "producer",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "detail": "Actual SearchLoopRunner and MethodJobBenchmarkEvaluator use real run_job/registered-method dispatch with the rooted guarded store; actual source, candidate, suite, method result and evidence writes/readback are in the scoped tests."
+    },
+    {
+      "stage": "persisted_artifact_and_bridge",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "detail": "CAS artifacts are resolved with selected kind/schema/profile views and carried as typed refs into claim-adjudication and promotion readers."
+    },
+    {
+      "stage": "consumer",
+      "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/claim_adjudication_verifier.py",
+      "detail": "Protected predecessor/source graph is resolved and checked through selected-profile readers; the Core JSON facade provides typed public access without eager runtime imports."
+    },
+    {
+      "stage": "surface_and_verification",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/academic.py",
+      "detail": "Lazy public read API is exercised alongside real method dispatch, CAS persistence, fresh reads, tenant controls and typed negative cases."
+    }
+  ],
+  "real_chain": [
+    "SearchLoopRunner and MethodJobBenchmarkEvaluator invoke real run_job/registered-method dispatch using one rooted guarded CAS handle.",
+    "Selected candidate, suite, result, evidence, source and predecessor artifacts persist as profile-addressed Core JSON refs; exact refs flow through typed claim-adjudication and promotion readers.",
+    "The fresh selected-profile consumers and public lazy academic read facade exercise the persisted chain; 54 bounded tests cover positives and negative controls."
+  ],
+  "command_receipts": [
+    {
+      "phase": "focused producer/consumer pytest",
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-verification-results.json",
+        "sha256": "58ba8baae056619216d625fbb865777fbe4ef7e62aed6efed849715c477df937"
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "--import-mode=importlib",
+        "-p",
+        "r11_actual_origins_plugin",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-pytest54-junit.xml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_search_profile_readers_require_selected_data_snapshot_owner_schema",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_method_job_evaluator_uses_real_runner_and_returns_cas_provenance",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_search_parameter_binding_reaches_real_methodjob_and_fresh_receipt",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_same_bytes_foreign_candidate_source_is_held_by_actual_methodjob_admission",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_methodjob_evaluator_keeps_one_rooted_guarded_store_for_runner_and_fresh_reads",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_methodjob_evaluator_refuses_same_handle_protected_read_denial",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_methodjob_evaluator_does_not_measure_after_same_handle_protected_write_denial",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_methodjob_evaluator_preserves_ambient_tenant_ownership",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_search_loop_runner_normalizes_plain_store_for_tenant_scope",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_methodjob_evaluator_retains_existing_owned_guarded_handle",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/runtime/http/test_resilience_guards.py::test_guarded_store_ambient_enforcement_retains_runtime_guard",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_protected_predecessor_requires_resolved_selected_source_chain",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_same_id_alternate_candidate_profile_is_refused_by_full_claim_chain",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_id_only_replay_api_fails_with_typed_selected_profile_refusal",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_verifier.py::test_same_id_alternate_suite_profile_is_refused_by_complete_chain",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudicator.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/domains/academic/batch/test_admitted_claim_adjudication_consumers.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py::test_search_loop_persists_selected_suite_candidate_and_evaluation_for_fresh_reader",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py::test_search_loop_refuses_profileless_suite_before_candidate_generation",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py::test_claim_registry_refuses_profileless_suite_without_publishing",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py::test_protected_evaluation_rejects_profileless_declared_producer_roles",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py::test_protected_evaluation_accepts_selected_suite_input_without_suite_argument",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py::test_protected_evaluation_rejects_unbound_search_gp_input_edge",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/scientist/search/test_promotion_evidence.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "seconds": 21.175,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-pytest54.stdout.txt",
+        "sha256": "dde6f4f71d0bc84eb45271948edd788e46bcc09296832cb1e5220408d2fd3fb8"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-pytest54.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-pytest54-result.json",
+        "sha256": "6632a99f00b06a6d58f1612da8b39a7ae8e9b86cca8fb3a098adc02be97bd3e1"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-pytest54-junit.xml",
+        "sha256": "139c019940b91c28e4c26e474ad9ad68ed3c199612bbcc68bbd494b1d96b526b"
+      }
+    },
+    {
+      "phase": "strict MyPy for nine source files",
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-verification-results.json",
+        "sha256": "58ba8baae056619216d625fbb865777fbe4ef7e62aed6efed849715c477df937"
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "--no-incremental",
+        "--config-file",
+        "mypy.ini",
+        "src/polisyos/data_forge/domains/academic/batch/claim_adjudication_verifier.py",
+        "src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py",
+        "src/polisyos/data_forge/read_api/academic.py",
+        "src/polisyos/runtime/http/resilience.py",
+        "src/polisyos/scientist/methods/autotune/__init__.py",
+        "src/polisyos/scientist/methods/autotune/models.py",
+        "src/polisyos/scientist/methods/autotune/registry.py",
+        "src/polisyos/scientist/methods/autotune/runtime.py",
+        "src/polisyos/scientist/methods/search/promotion_evidence.py"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "exit_code": 0,
+      "seconds": 44.715,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-mypy9.stdout.txt",
+        "sha256": "46984ca20bf69f7b14ec1fd9bd82101d56a4e109e68f016fd2a04f22481b09b3"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-mypy9.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-mypy9-result.json",
+        "sha256": "892d25f92112936c316a6b39ad4ab2c0e093d687df633b5e0f8ba0500c80516e"
+      }
+    },
+    {
+      "phase": "patch application, canonical Ruff check/format, and diff check",
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/commands.json",
+        "sha256": "828760ffc2a4c6658e15b7e006c6a12df7fcd92004c500e6c91050e686332354"
+      },
+      "application_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/application-and-checks.json",
+        "sha256": "2bff81fc1d0ce09be347ec49de1058573e48c4fcca6f5d58009a664a418d43f8"
+      },
+      "ruff_check_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "ruff_check_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ruff_format_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/ruff-format-check.stdout.txt",
+        "sha256": "75b7030be9d7de96bf4e76e79b1f03f14af8899d169fd8d79564d59167d1ab80"
+      },
+      "ruff_format_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/ruff-format-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "diff_check_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/diff-check.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "diff_check_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/diff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "result": "all recorded commands exit 0"
+    },
+    {
+      "phase": "independent composed 54-test review",
+      "review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-typed-r11-independent-review-20261016/independent-review-r11.json",
+        "sha256": "86984ed54b2146698071d86fdbbefddb2fa1255e9f681e56900df0672a6856c9"
+      },
+      "command": "policy-engine/.venv/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-typed-r11-independent-review-20261016/composed_runner_r11.py",
+      "exit_code": 0,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-typed-r11-independent-review-20261016/composed-r11.stdout.txt",
+        "sha256": "a0c349b7973c6ba5a89fd7bdfa15965d65879e015e58ed5cc12ea2d5dcf50ae4"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-typed-r11-independent-review-20261016/composed-r11-junit.xml",
+        "sha256": "752288e4f81440039e09aea65ca3f231509ae1148ca5421c7fbe61853a6fdd77"
+      },
+      "tests": 54,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "source_bound_commands_and_complete_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-verification-results.json",
+      "sha256": "58ba8baae056619216d625fbb865777fbe4ef7e62aed6efed849715c477df937"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-pytest54-result.json",
+      "sha256": "6632a99f00b06a6d58f1612da8b39a7ae8e9b86cca8fb3a098adc02be97bd3e1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-pytest54.stdout.txt",
+      "sha256": "dde6f4f71d0bc84eb45271948edd788e46bcc09296832cb1e5220408d2fd3fb8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-pytest54.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-pytest54-junit.xml",
+      "sha256": "139c019940b91c28e4c26e474ad9ad68ed3c199612bbcc68bbd494b1d96b526b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-mypy9-result.json",
+      "sha256": "892d25f92112936c316a6b39ad4ab2c0e093d687df633b5e0f8ba0500c80516e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-mypy9.stdout.txt",
+      "sha256": "46984ca20bf69f7b14ec1fd9bd82101d56a4e109e68f016fd2a04f22481b09b3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-mypy9.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/commands.json",
+      "sha256": "828760ffc2a4c6658e15b7e006c6a12df7fcd92004c500e6c91050e686332354"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/application-and-checks.json",
+      "sha256": "2bff81fc1d0ce09be347ec49de1058573e48c4fcca6f5d58009a664a418d43f8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/ruff-check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/ruff-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/ruff-format-check.stdout.txt",
+      "sha256": "75b7030be9d7de96bf4e76e79b1f03f14af8899d169fd8d79564d59167d1ab80"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/ruff-format-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/diff-check.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/diff-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-nine-source-origins-expected.json",
+      "sha256": "ed3d4c743b44bc5010841c31e68b02e2e40d3b009894f53bd514a0c2f5e24a13"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-nine-source-origins-observed.json",
+      "sha256": "ed3d4c743b44bc5010841c31e68b02e2e40d3b009894f53bd514a0c2f5e24a13"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/r11-guarded-methodjob-types-source-readback.json",
+      "sha256": "963d5d46213ea48978aa4dd07fe99b207f50979e37f851f586840f841311dff7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-typed-r11-independent-review-20261016/independent-review-r11.json",
+      "sha256": "86984ed54b2146698071d86fdbbefddb2fa1255e9f681e56900df0672a6856c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-typed-r11-independent-review-20261016/composed-r11.stdout.txt",
+      "sha256": "a0c349b7973c6ba5a89fd7bdfa15965d65879e015e58ed5cc12ea2d5dcf50ae4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-typed-r11-independent-review-20261016/composed-r11-junit.xml",
+      "sha256": "752288e4f81440039e09aea65ca3f231509ae1148ca5421c7fbe61853a6fdd77"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-typed-r11-independent-review-20261016/ruff-r11-report.json",
+      "sha256": "d1a3108c92513c0dd1e55470606693881f43a053607f264bc96f2e5680cf8929"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-typed-r11-independent-review-20261016/capture-only-source-frame.json",
+      "sha256": "c21c066524c4500ad4c6a56c13bc3c942ee66f92b90c449e7d9e6f7b140fdee9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-typed-r11-independent-review-20261016/composed-posttest-source-frame.json",
+      "sha256": "c21c066524c4500ad4c6a56c13bc3c942ee66f92b90c449e7d9e6f7b140fdee9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/coherent-r11-actual-preimages.patch",
+      "sha256": "31744bc4a997d248966f72f7c60a516ecfd5576ac8082038cae3d7987d756dfc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/r11-guarded-methodjob-types-source-commit.stdout.txt",
+      "sha256": "003860edc206067655ada5cb1ae9f5823b1e88802e453bfe65660685b88da2aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/r11-guarded-methodjob-types-source-commit.stderr.txt",
+      "sha256": "a4cf77ed5f5ec33ff8dd6da03738a111dda9b7242875bf4d962e1627eb4c89f1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-nine-source-origins-expected.json",
+      "sha256": "ed3d4c743b44bc5010841c31e68b02e2e40d3b009894f53bd514a0c2f5e24a13"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/actual-nine-source-origins-observed.json",
+      "sha256": "ed3d4c743b44bc5010841c31e68b02e2e40d3b009894f53bd514a0c2f5e24a13"
+    }
+  ],
+  "adversarial_control_details": [
+    "Same-handle protected read denial and protected write denial stop measurement; fresh FileSystemCAS reconstruction is trapped.",
+    "Tenant-A/B ownership controls and plain-store normalization preserve ambient ownership; retained existing owned guard is not unwrapped.",
+    "Same content with foreign candidate profile, profileless/stale/mismatched source graph, alternate suite profile, missing selected replay edge, and un-fingerprintable method parameters are refused or remain typed limited.",
+    "Expected and observed runtime module origins are byte-identical across all nine source modules; independent replay pins the runtime-only search.service origin."
+  ],
+  "preimage_sources": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/application-and-checks.json",
+      "sha256": "2bff81fc1d0ce09be347ec49de1058573e48c4fcca6f5d58009a664a418d43f8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-r11-application-20261016/coherent-r11-actual-preimages.patch",
+      "sha256": "31744bc4a997d248966f72f7c60a516ecfd5576ac8082038cae3d7987d756dfc"
+    }
+  ],
+  "slice_source_freeze": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-typed-freeze-r11-20261016.json",
+    "sha256": "12d78dd8a381fdaa719d96775152c81a5229e8ad5f954aafd99a50bc9da0cf58"
+  },
+  "source_freeze_note": "The R11 slice source is committed and pinned, but source_freeze=false denotes that the full E02 composition is not frozen; later I4 and other companion work remain separate."
+}

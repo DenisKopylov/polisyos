@@ -2,17 +2,17 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "a4db107f72e2622699c6883a89e9e9352c541588",
-    "tree": "ef3cd66a67cf5752833748c25c01228112442401",
+    "head": "39ddaac9fb0d8216ce90b638de043cd85f661740",
+    "tree": "f67549e93b26190e3ff455144afe5de13b996f64",
     "parents": [
-      "9bad326a227416baefdec42f9261212b7ebab7e1"
+      "e70766dc10916c230cf8f0f5d4a6f7373c341337"
     ],
     "source_freeze": false,
-    "dirty_active_source": "Disjoint author work remains outside committed component boundaries. Exact final source/input/backend composition is not yet frozen."
+    "dirty_active_source": "Root owns macro selected-profile producer/consumer composition; other author proposals RAW-only. Finalnative/profile/input wave unrun."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
-    "receipt": "raw/resume-candidate-push-83b3259671b7-20261015/remote-readback.json",
+    "receipt": "raw/root-resume-admission-rebind-20261016/admission-rebind.json",
     "meaning": "Published G checkpoint read only; not authorship and not automatic acceptance of later changes."
   },
   "component_receipts_and_decision_packets": [
@@ -82,7 +82,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "85d1b1fd6f9ec0e9bb5a5eca4bf56d6266861e87d75a729073b0eb570970ab71"
+      "sha256": "d27c03da52ab385d2bc28ccff89f63111e35934fe35be5c4c2349977afb9df97"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
@@ -283,6 +283,14 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/legal-source-relation-candidate-api-delivery-20261016.json",
       "sha256": "c90e404f97a7040f4d2b761651c147be0bf5ae4be7a207e333f038cb62931b11"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c05-guarded-methodjob-typed-readers-delivery-20261016.json",
+      "sha256": "d61f84122dbf9f97ac2b6d18a8015d399e1e4484c4ecc390ec87961c163f071a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b61-controlled-content-key-read-replay-proposal-20261016.json",
+      "sha256": "defd1403e741ecb36659933149640b959b72b15becac7ea0e55d6c061da4d902"
     }
   ],
   "canonical_denominator_recomputed": {

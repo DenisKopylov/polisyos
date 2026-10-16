@@ -227,7 +227,7 @@
         "tests/unit/data_forge/kernel/test_encoder_identity.py",
         "kernel README/release"
       ],
-      "scope": "Existing selected-ref/Core\u2192IR caller crosscut; immutable completed wrapper changes preserved across peer-owned files. Active new edits limited to B61 adapter/ref collector; peer-owned additional deltas sent to owner/root. Full completed crosscut footprint is supplied in ready manifest."
+      "scope": "Existing selected-ref/Core→IR caller crosscut; immutable completed wrapper changes preserved across peer-owned files. Active new edits limited to B61 adapter/ref collector; peer-owned additional deltas sent to owner/root. Full completed crosscut footprint is supplied in ready manifest."
     },
     "cas_contracts": {
       "mechanisms": [
@@ -1161,7 +1161,7 @@
       },
       "fabric_pool_cleanup_author": {
         "existing_scope": "Reopen prior8src9tests after actual4dependency classes bypass evidence573b738edc3a",
-        "boundary": "Whole67binding actual consumer reads/constructor routes, real owner constants rather than unused API copies. Shared ContextVar resolver invariant, no leaf globals; actual concurrent deterministic connector\u2192DuckDB counts/rows/cleanup control required for broader claim."
+        "boundary": "Whole67binding actual consumer reads/constructor routes, real owner constants rather than unused API copies. Shared ContextVar resolver invariant, no leaf globals; actual concurrent deterministic connector→DuckDB counts/rows/cleanup control required for broader claim."
       }
     },
     "frozen_review_ready": {
@@ -1526,6 +1526,29 @@
       "heavy_mac_slots": 3,
       "numerical_threads_per_process": 1
     },
+    "formal_G_closure_ids": []
+  },
+  "coordination_epoch_20261016_r11_i4_lineage": {
+    "as_of_candidate_commit": "39ddaac9fb0d8216ce90b638de043cd85f661740",
+    "root_delivered": [
+      {
+        "sha": "e70766dc10916c230cf8f0f5d4a6f7373c341337",
+        "scope": "R11 guarded MethodJob, pure-read and typed-source11; actual54behaviorPASS and9sourceMyPyPASS"
+      },
+      {
+        "sha": "39ddaac9fb0d8216ce90b638de043cd85f661740",
+        "scope": "One I4test isolation; first modelFAIL retained; fresh realproducer/freshHTTP one test PASS166.27s, exactoutputindependent review pending"
+      }
+    ],
+    "root_sole_tracked_source_writer": true,
+    "authors": "Allauthor/review tasks RAW-only; no product-source/Git mutations byagents. Root applies disjoint exact patches sequentially. Known forward commits preserve activeleases.",
+    "active_root_macro_composition": "RAW/root-c05-lineage-application-20261016/first-eleven-application.json; eleven profile-edge producer/funnel paths applied, canonical import/format-only8delta recorded; supplemental protected consumer/completefixturepatch pending. No globalfreeze.",
+    "compute": {
+      "mac_heavy_slots": 3,
+      "numerical_threads_per_process": 1,
+      "disk_available_gib_observed": 45
+    },
+    "P40": "Same-class second escape requires structural whole quantity or explicit falsified residual; null/null profile equality cannot qualify protected claim.",
     "formal_G_closure_ids": []
   }
 }

@@ -1,0 +1,19 @@
+{
+  "schema": "policyos.e02.local_delivery.v1",
+  "branch": "codex/e02-unified-local-20261009",
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "source_freeze": false,
+  "G_acceptance": null,
+  "slice": "B148 affected Corestore dependency rebind",
+  "test_source_candidate": "12bcba324996575acc16a8b627628ad6feb413e9",
+  "current_Corestore_source_candidate": "1214187d9ba56a0c52400962d97cd4db61b2eabb",
+  "Corestore_sha256": "e1506ceca8ad7907c85f2006e3247565f939035d9f681c97b6db6bc0a223a0f8",
+  "independent_deciding_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-current-core-store-rebind-r1-20261016/successor.json",
+    "sha256": "98010154f9fd331ee64c26a24a6e38d86eb40e9a947cc15faf3de765fe816ac8"
+  },
+  "verification": "Fresh4race selectorsPASS at currentstore, real own module origin pre/post; admission/import bodies and transfer owner unchanged; prior exact4case property-removal failures retained with scope comparison.",
+  "proposal_outcome": "bounded_selected_view_race_rebound_whole_B148_limited",
+  "next_check": "Original full B148 criterion, canonical native and installed consumers remain required."
+}

@@ -1,0 +1,78 @@
+{
+  "schema": "policyos.e02.local_delivery.v1",
+  "branch": "codex/e02-unified-local-20261009",
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "source_freeze": false,
+  "G_acceptance": null,
+  "slice": "C05 complete manifest-only CAS inventory and actual NL refusal consumer",
+  "slice_base_sha": "ec6919274a43e3a34edfb08ecd3917a10b446104",
+  "candidate_sha": "1214187d9ba56a0c52400962d97cd4db61b2eabb",
+  "candidate_tree": "74df8064c050e550dc28d1481bd262c344850018",
+  "parents": [
+    "ec6919274a43e3a34edfb08ecd3917a10b446104"
+  ],
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-c05-cas-manifest-only-inventory.toml",
+      "sha256": "f06902a85d16c7e91b5da01bf0be4a7f1a4b559014c4cd4554e11066fd04cdab"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+      "sha256": "d4ade66aab5dee24da5e549d59babd29b73587b9d38d2d9ffc4cc8e7b2bc67bc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "e1506ceca8ad7907c85f2006e3247565f939035d9f681c97b6db6bc0a223a0f8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "sha256": "bf7a14d1afbb1f658a4dfc28b5323de351d3c019093cdca388ebe9125a802772"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_manifest_inventory_snapshot.py",
+      "sha256": "dde4437cae2a558ade212205294488b70b7f3710b6f91ba52a9ce8d7064096d1"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/services/test_evaluation_safety.py",
+      "sha256": "2afb2dc72aed05a7a8e2938a1cabab8e84c9476f018f7010ad94257ab7f95fca"
+    }
+  ],
+  "selected_input_profile_backend": "Own Python3.14.3/.venv; synthetic source-bound NL input written via return_selected_profile=True; actual local Core CAS and control SQLite worker; input custody/currentness explicitly not_established.",
+  "real_chain": "Ordinary NL POST persists immutable intent and genuine writer-selected input -> control worker -> complete stable manifest/profile/owner-generation inventory -> selected decision payload/profile/authority recomposition -> persisted typed blocked outcome -> fresh GET. Unrelated payload blobs are not opened.",
+  "source_bound_commands_and_complete_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-cas-manifest-inventory-r4-20261016/source-freeze-r6b-docs-independent-bound.json",
+      "sha256": "6858140d19ea8dbd4e1071f85311c24aa850fdfc1cb8309a440b849810c8d720"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-manifest-inventory-independent-review-20261016/independent-review-r1.json",
+      "sha256": "868657554cdf6d6d40502614358460aa1cf24b0fa763a16e1f32b35184e2145e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-cas-manifest-inventory-r4-20261016/source-run-r5b.json",
+      "sha256": "1278447df93f28d26cabeb3560219670fe638848298c19b4207eb78051f90e57"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/c05-complete-manifest-only-inventory-source-20261016-readback.json",
+      "sha256": "1ce90f00aaa550f9e7c97ab53654bfd28d8f64121795c8368550b78ce18908c2"
+    }
+  ],
+  "verification": {
+    "author": "12 focused PASS, canonical Ruff check/format PASS, scoped MyPy PASS; complete outputs pinned in author source/run records.",
+    "independent": "17 focused PASS, zero failures/errors/skips; 21 exact source/fixture inputs pre/post and own module origins verified.",
+    "actual_POST_worker_fresh_GET": "19.52s route; 290 CAS calls, zero exceptions; manifest snapshot996ms, unchanged1.5s guard; persisted exact selected source/decision profile identities; fresh GET blocked on four explicitly missing bases.",
+    "B148_affected_dependency": "Fresh selected-view race rebind4PASS at exact e1506cec Corestore; separate receipt below.",
+    "full_native_installed": "UNRUN"
+  },
+  "adversarial_controls": "Complete malformed/racing manifest membership refuses; same-kind wrong schema/media cannot hide from denominator; selected target profile vs default is preserved; corrupt unrelated8MiB payload is not read; full inventory backend fallback remains real. Independent complete output is pinned.",
+  "predicate_basis": "independently_reconciled",
+  "limitations": [
+    "Metadata snapshot does not establish payload/signature integrity; selected consumer still verifies actual target bytes.",
+    "Public method is optional on existing FileSystemCAS; base ArtifactStore protocol is unchanged. Final canonical public inventory/native gates remain required.",
+    "Actual route is a mechanical refusal witness, not a protected positive: attempt class, DomainPack, mode basis and request are missing/not_established.",
+    "No production currentness, issuer, custody or whole C05 closure is asserted."
+  ],
+  "proposal_outcome": "bounded_component_delivered_whole_property_limited",
+  "next_check": "Freeze remaining source and actual inputs/backends, regenerate canonical surfaces, execute composed/native/installed proofs; independent G acceptance/adjudication."
+}

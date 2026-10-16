@@ -1,0 +1,68 @@
+{
+  "schema": "policyos.e02.local_delivery.v1",
+  "branch": "codex/e02-unified-local-20261009",
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "source_freeze": false,
+  "G_acceptance": null,
+  "slice": "N8 defining harness preconditions",
+  "slice_base_sha": "1214187d9ba56a0c52400962d97cd4db61b2eabb",
+  "candidate_sha": "0e6fa9b84663e2019338514cc57e8a59ba9ff962",
+  "candidate_tree": "6fa2dfe0cc3a58aed1a9c9a3f82a0700edd917b3",
+  "parents": [
+    "1214187d9ba56a0c52400962d97cd4db61b2eabb"
+  ],
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "sha256": "ac683a85252d1be4685befaef0831d9becdaebfaafb6f2946b776114b127d5bf"
+    }
+  ],
+  "actual_preimage": "0014d3f3e08cdd0cb115075548bf51fb5b6562979a04e33a5b771775bd250a6a first present at56a87ad; old8a1 proposal frame does not contain this preimage.",
+  "changes": [
+    "Manifest v1 schema fixture reaches unrelated-ambient-drift guard.",
+    "Child process imports sys before stderr capture.",
+    "Actual FoundryValuePort gateway receives a declared controlled valid profile, establishes canonical assignment blocker/acquisition requirement, then rejects blocker/claim mutations."
+  ],
+  "selected_input_profile_backend": "Own Python3.14/.venv, explicitly synthetic controlled owner profile, actual FoundryValuePort/strict observation consumer; no live custody/currentness.",
+  "source_bound_commands_and_complete_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n8-executable-repair-prototypes-20261016/independent-review-r1.json",
+      "sha256": "71fb105c699ac99be04943049d0136222412744e0da703f005d21c1c6bb997ac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-n8-harness-application-20261016/targeted-r3-result.json",
+      "sha256": "e88bbf8ce8f0463294ab4e22308773baa15efdd059a3e3355cba414481708eed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-n8-harness-application-20261016/static-result.json",
+      "sha256": "170e48999027752a29b79aaa528d75af0631deb54e3df57dcc4a08d20fbfdb72"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-n8-harness-application-20261016/application-and-verification.json",
+      "sha256": "61f786f7a317b315ff09e9ded7a24be78a466b71118f2daa0f485679048b97a0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-n8-harness-application-20261016/targeted-r2-result.json",
+      "sha256": "2faa44b7836706fed1cdcddcf810e1c7a969acfc2ebb74f27b9c0712a71272c4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/n8-defining-harness-preconditions-source-20261016-readback.json",
+      "sha256": "8251f492c326968ab87609352284f630d680705c759426ffc78a6f88705f24cf"
+    }
+  ],
+  "verification": {
+    "independent_shadow": "4PASS; apply postimage and integration dependencies validated.",
+    "root_actual_pytest": "4PASS in54.27s; correct --import-mode=importlib; fullstdout/stderr/JUnit retained.",
+    "canonical_Ruff": "check and format PASS.",
+    "setup_errors": "First root invocation failed test-module relative imports before collection; second had root argv flag-position error before collection. Both full outputs retained and are ERROR, not productFAIL.",
+    "whole_N8": "UNRUN; historical161 selector108PASS/53FAIL is not updated by these four results."
+  },
+  "limitations": [
+    "Source-flip runner unit prints a hard-coded marker: proves capture/restore only, not mutation-caused scientific red.",
+    "Controlled owner profile proves input-to-observation invariants, not authentic assignment/issuer/currentness.",
+    "No original whole-property closure from test-only repairs."
+  ],
+  "proposal_outcome": "bounded_harness_repair_delivered_whole_property_limited",
+  "next_check": "Final source/profile freeze and composed N8 original criteria; regenerate Foundry owner profile only through canonical owner tool."
+}

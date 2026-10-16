@@ -2,10 +2,10 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "74af20dcda1cc1035d19f96eb9c9e77ce2754984",
-    "tree": "aad852148abd9715d29c1773d7eda59249775c0d",
+    "head": "0e6fa9b84663e2019338514cc57e8a59ba9ff962",
+    "tree": "6fa2dfe0cc3a58aed1a9c9a3f82a0700edd917b3",
     "parents": [
-      "8e87c9ba7432f38e9a5f35fa345c39a5414280b9"
+      "1214187d9ba56a0c52400962d97cd4db61b2eabb"
     ],
     "source_freeze": false,
     "dirty_active_source": "Disjoint author work remains outside committed component boundaries. Exact final source/input/backend composition is not yet frozen."
@@ -243,6 +243,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r3-typed-cache-fetch-receipt-delivery-20261016.json",
       "sha256": "a31ad4ebc83f167af258b692152c8190b7ee2a92551b3603a5d9c5f57e288676"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c05-manifest-inventory-nl-refusal-delivery-20261016.json",
+      "sha256": "fa3f54c2848bb7630f0b7ddc04920675a88a02e6235ee4e4c26a52ed8799b326"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n8-defining-harness-preconditions-delivery-20261016.json",
+      "sha256": "50d703cb0b465c8200ff9f12cd699c6f4a0436e0019ed82e01507aac7f126e21"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b148-current-core-store-rebind-delivery-20261016.json",
+      "sha256": "825fd29e464a2774ad3efe79f901d21d24b27b2009eddd0730086d9b3d32739a"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -272,7 +284,8 @@
     "Grounding quote-span subproperty independently bounded GO; actual persisted normative SPO still lacks independent relation evidence, and trust markers skew the raw quality denominator. Relation/status and full-denominator repairs active; encoder wave remains UNRUN.",
     "GuardedCore19-path reviewed union delivered in18changed-path source commit; independent22+4cases and wrong-profile control pass. Ad-hoc type63errors/12warnings remains red, native/installed UNRUN, no P41inheritance asserted.",
     "External institutional issuer/custody/currentness, qualifying production workload, law/refinement and causal calibration are not created by these physical receipts.",
-    "Selected acquisition source9ba4d7 is extended by74af20dc typed cache receipt19-path source with independent3-case GO. L5 epoch_scope_unresolved remains held; final native/currentness/whole-property checks remain UNRUN."
+    "Selected acquisition source9ba4d7 is extended by74af20dc typed cache receipt19-path source with independent3-case GO. L5 epoch_scope_unresolved remains held; final native/currentness/whole-property checks remain UNRUN.",
+    "C05 manifest-only inventory1214187d and N8 defining harness0e6fa9b8 delivered with independent bounded reviews. Selected-profile NL POST/freshGET returns honest blocked outcome; current GL legal report/bundle self-attestation escape is under repair, and model-gated nonempty candidate serving remains UNRUN."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "next_check": "Finish executable producer/caller companion queue, independent delta reviews, commit source boundaries, explicit source/input/backend freeze, canonical regeneration/drift controls, one composed replay and authentic read-only closeout. G remains final code acceptance/integration publisher/finding adjudicator."

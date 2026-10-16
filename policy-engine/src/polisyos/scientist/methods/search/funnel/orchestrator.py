@@ -8,7 +8,7 @@ from collections.abc import Callable, Iterable, Mapping
 from dataclasses import replace
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Literal
+from typing import Any, Literal, TypeGuard
 from uuid import uuid4
 
 from polisyos.common.logger import get_logger
@@ -105,6 +105,22 @@ _CACHE_CONTEXT_IDENTITY_FRAGMENTS = (
     "transfer",
 )
 _UNSERIALIZABLE_CACHE_VALUE = object()
+_DEGRADATION_MODES: frozenset[DegradationMode] = frozenset(
+    {
+        "normal",
+        "conservative_routing",
+        "no_promotion",
+        "reduced_judge",
+        "freeze_frontier",
+        "prior_free",
+        "auto_cap",
+    }
+)
+
+
+def _is_degradation_mode(value: object) -> TypeGuard[DegradationMode]:
+    """Check that an untrusted routing value is one of the supported modes."""
+    return value in _DEGRADATION_MODES
 
 
 def _stable_payload_hash(payload: Any) -> str:
@@ -987,7 +1003,10 @@ class FunnelOrchestrator:
         stage_level: int,
     ) -> None:
         """Fresh-read and bind a native work packet before projecting its reference."""
-        from polisyos.core.artifacts import load_core_json_artifact
+        from polisyos.core.artifacts import (
+            input_ref_from_artifact_ref,
+            load_core_json_artifact,
+        )
 
         ref = result.executed_work_packet_ref
         if ref is None:
@@ -1022,10 +1041,30 @@ class FunnelOrchestrator:
                 else None
             )
             source_result_payload = load_core_json_artifact(store, packet.source_result_ref)
-            packet_inputs = {item.role: str(item.artifact_id) for item in packet_manifest.inputs}
-            result_candidate_inputs = {
-                str(item.artifact_id) for item in result_manifest.inputs if item.role == "candidate"
-            }
+            expected_packet_inputs = sorted(
+                (
+                    item.role,
+                    str(item.artifact_id),
+                    item.manifest_profile_sha256 is None,
+                    item.manifest_profile_sha256 or "",
+                )
+                for item in (
+                    input_ref_from_artifact_ref(packet.candidate_ref, role="candidate"),
+                    input_ref_from_artifact_ref(packet.source_result_ref, role="source_result"),
+                )
+            )
+            packet_inputs = sorted(
+                (
+                    item.role,
+                    str(item.artifact_id),
+                    item.manifest_profile_sha256 is None,
+                    item.manifest_profile_sha256 or "",
+                )
+                for item in packet_manifest.inputs
+            )
+            result_candidate_inputs = [
+                item for item in result_manifest.inputs if item.role == "candidate"
+            ]
             bootstrap = result.simulation_results.get("bootstrap", {})
             requested_draw_count = (
                 bootstrap.get("requested_draw_count") if isinstance(bootstrap, Mapping) else None
@@ -1055,13 +1094,10 @@ class FunnelOrchestrator:
                 or not isinstance(source_result_payload, Mapping)
                 or candidate_payload.get("candidate_id")
                 != source_result_payload.get("candidate_id")
-                or packet_inputs
-                != {
-                    "candidate": str(packet.candidate_ref.artifact_id),
-                    "source_result": str(packet.source_result_ref.artifact_id),
-                }
+                or packet_inputs != expected_packet_inputs
                 or len(result_manifest.inputs) != 1
-                or str(packet.candidate_ref.artifact_id) not in result_candidate_inputs
+                or result_candidate_inputs
+                != [input_ref_from_artifact_ref(packet.candidate_ref, role="candidate")]
                 or packet.requested_draw_count != requested_draw_count
                 or packet.input_signature
                 != (
@@ -1088,55 +1124,23 @@ class FunnelOrchestrator:
             # A persisted calibration projection can be authoritative even
             # when no mutable tracker snapshot is available for this run.
             candidate_mode = context.get("funnel_degradation_mode") if context else None
-            if candidate_mode in {
-                "normal",
-                "conservative_routing",
-                "no_promotion",
-                "reduced_judge",
-                "freeze_frontier",
-                "prior_free",
-                "auto_cap",
-            }:
+            if _is_degradation_mode(candidate_mode):
                 return candidate_mode
             candidate_metrics = context.get("correlation_metrics") if context else None
             if isinstance(candidate_metrics, Mapping):
                 if bool(candidate_metrics.get("promotion_ban_active")):
                     return "no_promotion"
                 candidate_mode = candidate_metrics.get("routing_mode")
-                if candidate_mode in {
-                    "normal",
-                    "conservative_routing",
-                    "no_promotion",
-                    "reduced_judge",
-                    "freeze_frontier",
-                    "prior_free",
-                    "auto_cap",
-                }:
+                if _is_degradation_mode(candidate_mode):
                     return candidate_mode
             return "normal"
         if hasattr(self._correlation_tracker, "routing_mode"):
             mode = self._correlation_tracker.routing_mode()
-            if mode in {
-                "normal",
-                "conservative_routing",
-                "no_promotion",
-                "reduced_judge",
-                "freeze_frontier",
-                "prior_free",
-                "auto_cap",
-            }:
+            if _is_degradation_mode(mode):
                 return mode
         metrics = self._correlation_tracker.compute_metrics()
         mode = metrics.get("routing_mode", "normal")
-        if mode in {
-            "normal",
-            "conservative_routing",
-            "no_promotion",
-            "reduced_judge",
-            "freeze_frontier",
-            "prior_free",
-            "auto_cap",
-        }:
+        if _is_degradation_mode(mode):
             return mode
         return "normal"
 

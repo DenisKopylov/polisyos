@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
 from polisyos.core.artifacts import (
@@ -8,11 +7,15 @@ from polisyos.core.artifacts import (
     InputRef,
     PutOptions,
     SchemaInfo,
+    input_ref_from_artifact_ref,
 )
 from polisyos.core.canon import CanonSpec
 from polisyos.foundry.validation import normalize_phase2_artifact_family
 from polisyos.ir import CrossGraphEvidenceProfile, EvidenceSourceKind
-from polisyos.scientist.evidence.sources import build_path_source_status
+from polisyos.scientist.evidence.sources import (
+    EvidenceSourcesConfig,
+    build_path_source_status,
+)
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
@@ -45,9 +48,15 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_state import (
     maybe_artifact_ref,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    _parse_policy_claim_mode,
+    _require_policy_runtime_registry_root,
     load_benchmark_evaluation,
 )
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_WELFARE_BUNDLE_REF
+from polisyos.scientist.nodes.builtins.state_keys import (
+    ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF,
+    ARTIFACT_WELFARE_BUNDLE_REF,
+    INPUT_PROMOTION_EVIDENCE_BUNDLE_REF,
+)
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
@@ -57,7 +66,7 @@ from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 def _resolve_policy_runtime_source_statuses(
     *,
     cross_graph_profile: CrossGraphEvidenceProfile | None,
-    evidence_sources,
+    evidence_sources: EvidenceSourcesConfig,
 ) -> dict[str, str]:
     statuses: dict[str, str] = {}
     if cross_graph_profile is not None:
@@ -103,12 +112,25 @@ def _register_runtime_benchmark_inputs(
     *,
     benchmark_registry: BenchmarkRegistry,
     evidence_bundle: PromotionEvidenceBundle | None,
-    family: str,
+    family: str | None,
+    claim_mode: str | None = None,
     query_type: str | None,
     estimator_name: str | None,
     readiness_target: str | None,
 ) -> None:
     expected_loop_id = _expected_policy_loop_id(state)
+    rotating_refs: list[ArtifactRef] = []
+    if "rotating_challenge_evaluation_refs" in state.params:
+        supplied_refs = state.params["rotating_challenge_evaluation_refs"]
+        if not isinstance(supplied_refs, list):
+            raise ValueError("rotating_challenge_evaluation_refs_invalid")
+        for supplied_ref in supplied_refs:
+            parsed_ref = maybe_artifact_ref(supplied_ref)
+            if parsed_ref is None:
+                raise ValueError("rotating_challenge_evaluation_refs_invalid")
+            rotating_refs.append(parsed_ref)
+    if evidence_bundle is not None and evidence_bundle.rotating_challenge_evaluation_refs:
+        rotating_refs = list(evidence_bundle.rotating_challenge_evaluation_refs)
     hidden_holdout_ref = (
         evidence_bundle.hidden_holdout_evaluation_ref
         if evidence_bundle is not None
@@ -122,21 +144,10 @@ def _register_runtime_benchmark_inputs(
         run_id=state.run_id,
         expected_loop_id=expected_loop_id,
         family=family,
+        claim_mode=claim_mode,
         query_type=query_type,
         estimator_name=estimator_name,
         readiness_target=readiness_target,
-    )
-    rotating_refs = (
-        list(evidence_bundle.rotating_challenge_evaluation_refs)
-        if evidence_bundle is not None and evidence_bundle.rotating_challenge_evaluation_refs
-        else [
-            ref
-            for ref in (
-                maybe_artifact_ref(item)
-                for item in (state.params.get("rotating_challenge_evaluation_refs") or [])
-            )
-            if ref is not None
-        ]
     )
     for ref in rotating_refs:
         _maybe_register_benchmark_evaluation(
@@ -147,6 +158,7 @@ def _register_runtime_benchmark_inputs(
             run_id=state.run_id,
             expected_loop_id=expected_loop_id,
             family=family,
+            claim_mode=claim_mode,
             query_type=query_type,
             estimator_name=estimator_name,
             readiness_target=readiness_target,
@@ -174,6 +186,7 @@ def _run_and_register_phase_d4_challenge_suites(
     )
     benchmark_refs: list[ArtifactRef] = []
     stress_refs: list[ArtifactRef] = []
+    retained_warnings = list(warnings)
 
     for suite_result in suite_results:
         benchmark_ref = persist_benchmark_evaluation(
@@ -235,7 +248,11 @@ def _run_and_register_phase_d4_challenge_suites(
         resolution = resolve_stress_score_components(
             ctx.store, [component], expected_candidate_ref=candidate_ref
         )
-        stress_report = suite_result.stress_test_report.model_copy(
+        source_stress_report = suite_result.stress_test_report
+        if source_stress_report is None:
+            retained_warnings.append(f"phase_d4_stress_report_absent:{suite_result.suite_id}")
+            continue
+        stress_report = source_stress_report.model_copy(
             update={
                 "score_components": [component],
                 "score_profile": resolution.score_profile or "finite_binary_scenario_v1",
@@ -296,10 +313,10 @@ def _run_and_register_phase_d4_challenge_suites(
                 "artifact_family": benchmark_scope["artifact_family"],
                 "claim_mode": benchmark_scope["claim_mode"],
                 "rotation_group": PHASE_D4_ROTATION_GROUP,
-                **dict(suite_result.stress_test_report.metadata),
+                **dict(source_stress_report.metadata),
             },
         )
-    return benchmark_refs, stress_refs, warnings
+    return benchmark_refs, stress_refs, tuple(retained_warnings)
 
 
 def _dedupe_phase_d4_rotating_refs(
@@ -348,7 +365,8 @@ def _maybe_register_benchmark_evaluation(
     split_type: BenchmarkSplit,
     run_id: str,
     expected_loop_id: str,
-    family: str,
+    family: str | None,
+    claim_mode: str | None,
     query_type: str | None,
     estimator_name: str | None,
     readiness_target: str | None,
@@ -374,9 +392,30 @@ def _maybe_register_benchmark_evaluation(
         metadata={
             "loop_id": evaluation.loop_id,
             "artifact_family": family,
-            "claim_mode": "estimation",
+            "claim_mode": claim_mode,
         },
     )
+
+
+def _optional_scope_text(
+    name: str,
+    sources: tuple[dict[str, Any], ...],
+    *,
+    lowercase: bool = False,
+) -> str | None:
+    """Read optional declared scope without coercing malformed supplied values."""
+    for source in sources:
+        if name not in source:
+            continue
+        value = source[name]
+        if value is None:
+            continue
+        if not isinstance(value, str):
+            raise ValueError(f"{name}_invalid")
+        text = value.strip()
+        if text:
+            return text.lower() if lowercase else text
+    return None
 
 
 def _resolve_benchmark_scope(
@@ -405,28 +444,22 @@ def _resolve_benchmark_scope(
         ).strip()
         or None
     )
-    artifact_family = normalize_phase2_artifact_family(
-        str(
-            state.params.get("artifact_family")
-            or candidate_metadata.get("artifact_family")
-            or metadata.get("artifact_family")
-            or "causal_core"
-        ).strip()
-        or "causal_core",
-        estimator_name=estimator_name,
-        query_type=query_type,
+    raw_artifact_family = _optional_scope_text(
+        "artifact_family", (state.params, candidate_metadata, metadata)
     )
-    claim_mode = (
-        str(
-            state.params.get("claim_mode")
-            or candidate_metadata.get("claim_mode")
-            or metadata.get("claim_mode")
-            or "estimation"
+    artifact_family = (
+        None
+        if raw_artifact_family is None
+        else normalize_phase2_artifact_family(
+            raw_artifact_family,
+            estimator_name=estimator_name,
+            query_type=query_type,
         )
-        .strip()
-        .lower()
-        or "estimation"
     )
+    raw_claim_mode = _optional_scope_text(
+        "claim_mode", (state.params, candidate_metadata, metadata), lowercase=True
+    )
+    claim_mode = None if raw_claim_mode is None else _parse_policy_claim_mode(raw_claim_mode)
     readiness_target = (
         str(
             state.params.get("readiness_target")
@@ -463,6 +496,7 @@ def prepare_runtime_benchmark_evidence(session: _RuntimeSession) -> None:
     owner = session.owner
     ctx = session.ctx
     state = session.state
+    registry_root = _require_policy_runtime_registry_root(ctx.store)
     benchmark_registry = session.benchmark_registry
     benchmark_scope = session.benchmark_scope
     selection_evaluation = session.selection_evaluation
@@ -482,6 +516,7 @@ def prepare_runtime_benchmark_evidence(session: _RuntimeSession) -> None:
         benchmark_registry=benchmark_registry,
         evidence_bundle=existing_evidence,
         family=benchmark_scope["artifact_family"],
+        claim_mode=benchmark_scope["claim_mode"],
         query_type=benchmark_scope["query_type"],
         estimator_name=benchmark_scope["estimator_name"],
         readiness_target=benchmark_scope["readiness_target"],
@@ -508,20 +543,26 @@ def prepare_runtime_benchmark_evidence(session: _RuntimeSession) -> None:
             )
             if evaluation is not None
         ]
-    frontier_benchmark_bundle = benchmark_registry.resolve_family_bundle(
-        family=benchmark_scope["artifact_family"],
-        claim_mode=benchmark_scope["claim_mode"],
-        run_id=state.run_id,
-        loop_id=owner._expected_policy_loop_id(state),
-        query_type=benchmark_scope["query_type"],
-        estimator_name=benchmark_scope["estimator_name"],
-        readiness_target=benchmark_scope["readiness_target"],
-    )
-    hidden_holdout_ref = frontier_benchmark_bundle.hidden_holdout_evaluation_ref
-    rotating_refs = owner._dedupe_phase_d4_rotating_refs(
-        ctx,
-        list(frontier_benchmark_bundle.rotating_challenge_evaluation_refs),
-    )
+    artifact_family = benchmark_scope["artifact_family"]
+    claim_mode = benchmark_scope["claim_mode"]
+    if artifact_family is not None and claim_mode is not None:
+        frontier_benchmark_bundle = benchmark_registry.resolve_family_bundle(
+            family=artifact_family,
+            claim_mode=claim_mode,
+            run_id=state.run_id,
+            loop_id=owner._expected_policy_loop_id(state),
+            query_type=benchmark_scope["query_type"],
+            estimator_name=benchmark_scope["estimator_name"],
+            readiness_target=benchmark_scope["readiness_target"],
+        )
+        hidden_holdout_ref = frontier_benchmark_bundle.hidden_holdout_evaluation_ref
+        rotating_refs = owner._dedupe_phase_d4_rotating_refs(
+            ctx,
+            list(frontier_benchmark_bundle.rotating_challenge_evaluation_refs),
+        )
+    else:
+        hidden_holdout_ref = None
+        rotating_refs = []
     hidden_holdout = owner._load_benchmark_if_present(ctx, hidden_holdout_ref)
     rotating_holdouts = [
         item
@@ -599,9 +640,7 @@ def prepare_runtime_benchmark_evidence(session: _RuntimeSession) -> None:
             replay_bundle_ref=replay_bundle_ref,
             candidate_ref=candidate_ref,
             evaluation_ref=selection_vector_ref,
-            registry=owner.ReplayRegistry(
-                Path(ctx.store.root) / "search_registry" / "replay_registry"
-            ),
+            registry=owner.ReplayRegistry(registry_root / "search_registry" / "replay_registry"),
         )
     governance_ref = (
         existing_evidence.governance_report_ref
@@ -616,15 +655,25 @@ def prepare_runtime_benchmark_evidence(session: _RuntimeSession) -> None:
         governance_ref=governance_ref,
         calibration_report=calibration_report,
     )
-    missing_benchmark_requirements = benchmark_registry.require_promotion_evidence(
-        family=benchmark_scope["artifact_family"],
-        claim_mode=benchmark_scope["claim_mode"],
-        run_id=state.run_id,
-        loop_id=owner._expected_policy_loop_id(state),
-        query_type=benchmark_scope["query_type"],
-        estimator_name=benchmark_scope["estimator_name"],
-        readiness_target=benchmark_scope["readiness_target"],
-    )
+    if artifact_family is not None and claim_mode is not None:
+        missing_benchmark_requirements = benchmark_registry.require_promotion_evidence(
+            family=artifact_family,
+            claim_mode=claim_mode,
+            run_id=state.run_id,
+            loop_id=owner._expected_policy_loop_id(state),
+            query_type=benchmark_scope["query_type"],
+            estimator_name=benchmark_scope["estimator_name"],
+            readiness_target=benchmark_scope["readiness_target"],
+        )
+    else:
+        missing_benchmark_requirements = [
+            name
+            for name, value in (
+                ("artifact_family", artifact_family),
+                ("claim_mode", claim_mode),
+            )
+            if value is None
+        ]
     if missing_benchmark_requirements and degradation_mode == "normal":
         degradation_mode = "no_promotion"
     evidence_bundle = PromotionEvidenceBundle(
@@ -657,13 +706,25 @@ def prepare_runtime_benchmark_evidence(session: _RuntimeSession) -> None:
             "phase_d4_warnings": list(session.phase_d4_warnings),
         },
     )
+    source_evidence_ref = state.inputs.get(INPUT_PROMOTION_EVIDENCE_BUNDLE_REF)
+    if source_evidence_ref is None:
+        source_evidence_ref = state.artifacts_index.get(ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF)
     evidence_ref = owner.persist_promotion_evidence_bundle(
         ctx.store,
         evidence_bundle,
         inputs=[
-            InputRef(artifact_id=candidate_ref.artifact_id, role="candidate"),
-            InputRef(artifact_id=selection_vector_ref.artifact_id, role="policy_evaluation"),
-            InputRef(artifact_id=selection_ref.artifact_id, role="selection_evaluation"),
+            input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+            input_ref_from_artifact_ref(selection_vector_ref, role="policy_evaluation"),
+            input_ref_from_artifact_ref(selection_ref, role="selection_evaluation"),
+            *(
+                [
+                    input_ref_from_artifact_ref(
+                        source_evidence_ref, role="source_promotion_evidence_bundle"
+                    )
+                ]
+                if source_evidence_ref is not None
+                else []
+            ),
         ],
     )
     session.hidden_holdout_ref = hidden_holdout_ref
@@ -708,10 +769,15 @@ def build_runtime_funnel_context(session: _RuntimeSession) -> None:
     owner = session.owner
     ctx = session.ctx
     state = session.state
+    registry_root = _require_policy_runtime_registry_root(ctx.store)
     candidate = session.candidate
     evidence_bundle = session.evidence_bundle
     evidence_ref = session.evidence_ref
+    selection_vector_ref = session.selection_vector_ref
+    selection_ref = session.selection_ref
     calibration_report = session.calibration_report
+    assert selection_vector_ref is not None
+    assert selection_ref is not None
     assert evidence_bundle is not None
     assert evidence_ref is not None
     transfer_context = _resolve_runtime_transfer_context(state, candidate)
@@ -755,7 +821,7 @@ def build_runtime_funnel_context(session: _RuntimeSession) -> None:
         "calibration_report": calibration_report,
         "pinned_input_signature": session.input_signature,
         "lesson_registry": owner.LessonRegistry(
-            root=Path(ctx.store.root) / "search_registry" / "lessons",
+            root=registry_root / "search_registry" / "lessons",
             store=ctx.store,
         ),
     }
@@ -783,14 +849,18 @@ def build_runtime_funnel_context(session: _RuntimeSession) -> None:
         ctx.store,
         evidence_bundle,
         inputs=[
-            InputRef(artifact_id=session.candidate_ref.artifact_id, role="candidate"),
-            InputRef(
-                artifact_id=session.selection_vector_ref.artifact_id,
+            input_ref_from_artifact_ref(session.candidate_ref, role="candidate"),
+            input_ref_from_artifact_ref(
+                selection_vector_ref,
                 role="policy_evaluation",
             ),
-            InputRef(
-                artifact_id=session.selection_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                selection_ref,
                 role="selection_evaluation",
+            ),
+            input_ref_from_artifact_ref(
+                evidence_ref,
+                role="source_promotion_evidence_bundle",
             ),
         ],
     )

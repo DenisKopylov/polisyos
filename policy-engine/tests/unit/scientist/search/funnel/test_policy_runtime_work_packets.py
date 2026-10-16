@@ -7,9 +7,15 @@ from typing import Any
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.artifacts import input_ref_from_artifact_ref
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    ProducerInfo,
+    SchemaInfo,
+)
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
@@ -156,7 +162,7 @@ def _context(
 def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(tmp_path: Path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     candidate = _policy_candidate()
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
     candidate_payload = _candidate_payload(candidate)
     caller_context = _context(store, candidate, candidate_ref)
     caller_snapshot = deepcopy(
@@ -255,6 +261,15 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(tmp_path: Pa
     assert projected["stage_results"]["4"]["executed_work_packet_ref"] == (
         chain_l4_packet_ref.model_dump(mode="json")
     )
+    for packet_ref, packet in (
+        (direct_packet_ref, direct_packet),
+        (chain_l3_packet_ref, chain_l3_packet),
+        (chain_l4_packet_ref, chain_l4_packet),
+    ):
+        assert store.get_manifest(packet_ref).inputs == [
+            input_ref_from_artifact_ref(packet.candidate_ref, role="candidate"),
+            input_ref_from_artifact_ref(packet.source_result_ref, role="source_result"),
+        ]
 
 
 @pytest.mark.parametrize(
@@ -305,6 +320,108 @@ def test_work_packet_consumer_rejects_wrong_run_or_draw_binding(
     assert (
         outcome.stage_results[3].feedback["policy_runtime_work_packet_rejection_reason"]
         == "work_packet_binding_mismatch"
+    )
+
+
+@pytest.mark.parametrize(
+    "edge_variant",
+    ["same_id_foreign_profile", "duplicate_role", "missing_role", "extra_role"],
+)
+def test_work_packet_consumer_rejects_nonexact_input_edge_multiset(
+    tmp_path: Path,
+    edge_variant: str,
+) -> None:
+    """Fresh admission requires the complete input-edge multiset from the typed body."""
+    store = FileSystemCAS(tmp_path / "cas")
+    candidate = _policy_candidate()
+    candidate_ref = persist_policy_candidate_schema(
+        store,
+        candidate,
+        return_selected_profile=True,
+    )
+    foreign_store = FileSystemCAS(tmp_path / "foreign-cas")
+    foreign_ref = foreign_store.put_json(
+        candidate,
+        PutOptions(
+            kind=candidate_ref.kind,
+            media_type=candidate_ref.media_type,
+            schema=SchemaInfo(name="tests.ForeignCandidateProfile", version="99.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    assert foreign_ref.artifact_id == candidate_ref.artifact_id
+    assert foreign_ref.manifest_profile_sha256 != candidate_ref.manifest_profile_sha256
+
+    evaluation_ref = persist_policy_evaluation_vector_to_store(
+        store,
+        candidate_ref=candidate_ref,
+        evaluation_vector=PolicyEvaluationVector(candidate_id=candidate.candidate_id),
+    )
+    context = _context(store, candidate, candidate_ref)
+    stage = Level3MediumFidelity(workflow_engine=_RecordingWorkflowEngine(fidelity="medium"))
+    orchestrator = FunnelOrchestrator([stage])
+    ticket = orchestrator.submit(_candidate_payload(candidate), context)
+    packet = FunnelExecutedWorkPacket(
+        run_id="run_work_packet_test",
+        ticket_id=ticket.ticket_id,
+        candidate_hash=ticket.candidate_hash,
+        candidate_ref=candidate_ref,
+        stage_level=3,
+        stage_name="funnel_L3_medium",
+        fidelity="medium",
+        evaluation_attempt_id="attempt-foreign-profile-edge",
+        observed_at=datetime.now(UTC),
+        backend_kind="synthetic",
+        source_result_ref=evaluation_ref,
+        requested_draw_count=64,
+        input_signature=context["pinned_input_signature"],
+    )
+    candidate_input = input_ref_from_artifact_ref(candidate_ref, role="candidate")
+    source_result_input = input_ref_from_artifact_ref(evaluation_ref, role="source_result")
+    if edge_variant == "same_id_foreign_profile":
+        packet_inputs = [
+            InputRef(
+                artifact_id=foreign_ref.artifact_id,
+                role="candidate",
+                manifest_profile_sha256=foreign_ref.manifest_profile_sha256,
+            ),
+            source_result_input,
+        ]
+    elif edge_variant == "duplicate_role":
+        packet_inputs = [candidate_input, source_result_input, candidate_input]
+    elif edge_variant == "missing_role":
+        packet_inputs = [candidate_input]
+    else:
+        packet_inputs = [
+            candidate_input,
+            source_result_input,
+            InputRef(artifact_id=candidate_ref.artifact_id, role="extra"),
+        ]
+    packet_ref = store.put_json(
+        packet,
+        PutOptions(
+            kind="scientist.search.funnel_native_work_packet",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.search.FunnelExecutedWorkPacket",
+                version="1.0",
+            ),
+            producer=ProducerInfo(
+                component="scientist.policy_runtime_work_packet",
+                version="1.0.0",
+            ),
+            inputs=packet_inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    stage.evaluate = lambda _candidate, _context: stage_result_with_packet(packet_ref)
+
+    outcome = orchestrator.advance(ticket, target_level=3)
+
+    assert outcome.trace[0].executed_work_packet_status == "rejected"
+    assert outcome.stage_results[3].feedback["policy_runtime_work_packet_rejection_reason"] == (
+        "work_packet_binding_mismatch"
     )
 
 

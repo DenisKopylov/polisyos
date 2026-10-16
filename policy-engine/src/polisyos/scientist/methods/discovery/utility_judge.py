@@ -8,14 +8,15 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import DownstreamUtilityReportRef
-from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
-from polisyos.foundry.methods.catalog.causal.id_engine import (
+from polisyos.foundry.methods.catalog.causal._id_contracts import (
     IdentificationResult,
     IdentificationStatus,
 )
+from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.methods.catalog.causal.transport_engine import (
     solve_transportability,
 )
@@ -46,7 +47,7 @@ DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME = (
     "polisyos.scientist.methods.discovery.DownstreamUtilityReport"
 )
 IDENTIFICATION_SOURCE_ALGORITHM_VERSION = "causal_engine_identification_projection_v1"
-DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION = "1.2"
+DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION: Literal["1.2"] = "1.2"
 _DOWNSTREAM_UTILITY_REPORT_LEGACY_SCHEMA_VERSION = "1.1"
 
 # The v1.1 scorecard predates the typed graph-diagnostic scope fields. These
@@ -487,7 +488,7 @@ def persist_downstream_utility_report(
 
 
 def load_downstream_utility_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: DownstreamUtilityReportRef,
 ) -> DownstreamUtilityReport:
     """Load a manifest-bound current report or an exact bounded historical scorecard."""
@@ -805,27 +806,27 @@ def _score_transportability(
         return 0.0, result.status.value, reasons, warnings
 
     engine = CausalEngine()
-    result = engine.identify(
+    identification_result = engine.identify(
         treatment=causal_query.treatment_variable,
         outcome=causal_query.outcome_variable,
         graph=graph,
         s_nodes=s_nodes,
     )
     if (
-        isinstance(result, IdentificationResult)
-        and result.status is IdentificationStatus.IDENTIFIED
+        isinstance(identification_result, IdentificationResult)
+        and identification_result.status is IdentificationStatus.IDENTIFIED
     ):
         reasons.append("transportability:identified_via_s_nodes")
         return 1.0, "identified", reasons, warnings
-    if isinstance(result, IdentificationResult) and result.status in {
+    if isinstance(identification_result, IdentificationResult) and identification_result.status in {
         IdentificationStatus.PAG_AMBIGUOUS,
         IdentificationStatus.ORACLE_NEEDED,
     }:
-        reasons.append(f"transportability:partial:{result.status.value}")
-        return 0.5, result.status.value, reasons, warnings
-    if isinstance(result, NegativeCertificate):
-        reasons.append(f"transportability:blocked:{result.blocking_type.value}")
-        return 0.0, result.blocking_type.value, reasons, warnings
+        reasons.append(f"transportability:partial:{identification_result.status.value}")
+        return 0.5, identification_result.status.value, reasons, warnings
+    if isinstance(identification_result, NegativeCertificate):
+        reasons.append(f"transportability:blocked:{identification_result.blocking_type.value}")
+        return 0.0, identification_result.blocking_type.value, reasons, warnings
     reasons.append("transportability:unsupported_result")
     return 0.0, "unsupported_result", reasons, warnings
 

@@ -2,21 +2,23 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal
+from collections.abc import Iterable, Mapping
+from typing import TYPE_CHECKING, Any, Literal, SupportsFloat
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.foundry.validation import (
     maybe_load_foundry_phase2_closure_report,
     normalize_phase2_artifact_family,
 )
+from polisyos.ir import UncertaintyType
 from polisyos.ir.analytics.causal import DataReadinessReport, load_data_readiness_report
 from polisyos.ir.analytics.cross_graph import CrossGraphEvidenceProfile, EvidenceSourceState
+from polisyos.ir.registry.refs import DataReadinessReportRef
 from polisyos.scientist.evidence.decision_readiness import DecisionReadiness
 from polisyos.scientist.methods.discovery.priors import PriorKnowledgeBundle
 from polisyos.scientist.methods.search.artifact_minimality import (
@@ -24,12 +26,13 @@ from polisyos.scientist.methods.search.artifact_minimality import (
     ArtifactMinimalityMixin,
     artifact_functions_field,
 )
-from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope, UncertaintyType
+from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 from polisyos.scientist.policy_design.objectives import ConstraintStatus, PolicyEvaluationVector
 from polisyos.scientist.policy_design.phase3 import Phase3CertificateStatus
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactStore
     from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
 
 READINESS_CONTRACT_SCHEMA_NAME = "polisyos.scientist.search.DecisionReadinessContract"
@@ -90,7 +93,7 @@ class DecisionReadinessEvaluator:
         self,
         *,
         requirements: list[ReadinessRequirement] | None = None,
-        store: FileSystemCAS | None = None,
+        store: ArtifactStore | None = None,
     ) -> None:
         self._requirements = requirements or self.default_requirements()
         self._store = store
@@ -236,7 +239,9 @@ class DecisionReadinessEvaluator:
             try:
                 resolved_data_readiness = load_data_readiness_report(
                     _ensure_ir_artifact_store(self._store),
-                    data_readiness_report_ref,
+                    DataReadinessReportRef.model_validate(
+                        data_readiness_report_ref.model_dump(mode="json")
+                    ),
                 )
             except Exception:
                 resolved_data_readiness = None
@@ -328,14 +333,23 @@ class DecisionReadinessEvaluator:
             surfaced = _dedupe_strings(
                 [
                     *surfaced,
-                    *list(latent_governance.get("surfaced_assumptions", [])),
+                    *(
+                        str(value)
+                        for value in _iterable_values(
+                            latent_governance.get("surfaced_assumptions", [])
+                        )
+                    ),
                     *(
                         f"latent_falsification:{value}"
-                        for value in latent_governance.get("surfaced_falsification_tests", [])
+                        for value in _iterable_values(
+                            latent_governance.get("surfaced_falsification_tests", [])
+                        )
                     ),
                     *(
                         f"latent_no_promotion:{value}"
-                        for value in latent_governance.get("no_promotion_reasons", [])
+                        for value in _iterable_values(
+                            latent_governance.get("no_promotion_reasons", [])
+                        )
                     ),
                 ]
             )
@@ -351,7 +365,9 @@ class DecisionReadinessEvaluator:
             "evaluation_fidelity_mode": runtime_metadata.get("fidelity_mode"),
             "evaluation_promotable_source": runtime_metadata.get("promotable_source", True),
             "evaluation_degradation_mode": runtime_metadata.get("degradation_mode"),
-            "evaluation_provenance_notes": list(runtime_metadata.get("notes", []) or []),
+            "evaluation_provenance_notes": list(
+                _iterable_values(runtime_metadata.get("notes", []) or [])
+            ),
             "artifact_family": resolved_artifact_family,
             "claim_mode": claim_mode,
             "prior_knowledge_status": (
@@ -395,10 +411,10 @@ class DecisionReadinessEvaluator:
         if latent_governance is not None:
             metadata["latent_governance"] = dict(latent_governance)
             metadata["latent_falsification_tests"] = list(
-                latent_governance.get("surfaced_falsification_tests", [])
+                _iterable_values(latent_governance.get("surfaced_falsification_tests", []))
             )
             metadata["latent_no_promotion_reasons"] = list(
-                latent_governance.get("no_promotion_reasons", [])
+                _iterable_values(latent_governance.get("no_promotion_reasons", []))
             )
             metadata["not_for_decision_support"] = bool(
                 latent_governance.get("not_for_decision_support", True)
@@ -457,7 +473,7 @@ class DecisionReadinessEvaluator:
 
 
 def persist_decision_readiness_contract(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     contract: DecisionReadinessContract,
     *,
     inputs: list[InputRef] | None = None,
@@ -479,11 +495,12 @@ def persist_decision_readiness_contract(
 
 
 def load_decision_readiness_contract(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ArtifactRef,
 ) -> DecisionReadinessContract:
     """Load decision readiness contract."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     return DecisionReadinessContract.model_validate(payload)
 
@@ -758,6 +775,12 @@ def _mapping(value: object) -> dict[str, object]:
     return {}
 
 
+def _iterable_values(value: object) -> Iterable[object]:
+    if isinstance(value, Iterable):
+        return value
+    raise TypeError(f"Expected an iterable value, got {type(value).__name__}")
+
+
 def _resolve_latent_governance(
     evidence_metadata: dict[str, object],
 ) -> dict[str, object] | None:
@@ -773,8 +796,12 @@ def _resolve_latent_governance_readiness_cap(
     if not isinstance(payload, dict):
         return None
     cap = str(payload.get("readiness_cap") or "").strip().lower()
-    if cap in {"proof_only", "bounds_ready", "estimation_ready"}:
-        return cap
+    if cap == "proof_only":
+        return "proof_only"
+    if cap == "bounds_ready":
+        return "bounds_ready"
+    if cap == "estimation_ready":
+        return "estimation_ready"
     return None
 
 
@@ -790,7 +817,7 @@ def _resolve_latent_discovery_resolution_error(
 def _resolve_phase2_closure(
     evidence_metadata: dict[str, object],
     *,
-    store: FileSystemCAS | None = None,
+    store: ArtifactStore | None = None,
 ) -> dict[str, Any] | None:
     payload = evidence_metadata.get("phase2_closure")
     if isinstance(payload, dict):
@@ -808,27 +835,28 @@ def _resolve_phase2_closure(
                 load_foundry_phase2_closure_report,
             )
 
-            report = load_foundry_phase2_closure_report(store, ref)
+            artifact_report = load_foundry_phase2_closure_report(store, ref)
             return {
-                "phase": report.phase_id,
+                "phase": artifact_report.phase_id,
                 "artifact_families": {
                     key: value.model_dump(mode="json")
-                    for key, value in report.artifact_families.items()
+                    for key, value in artifact_report.artifact_families.items()
                 },
             }
         except Exception:
             return None
 
     report_path = evidence_metadata.get("phase2_closure_report_path")
-    report = maybe_load_foundry_phase2_closure_report(
+    path_report = maybe_load_foundry_phase2_closure_report(
         explicit_path=None if report_path is None else str(report_path),
     )
-    if report is None:
+    if path_report is None:
         return None
     return {
-        "phase": report.phase_id,
+        "phase": path_report.phase_id,
         "artifact_families": {
-            key: value.model_dump(mode="json") for key, value in report.artifact_families.items()
+            key: value.model_dump(mode="json")
+            for key, value in path_report.artifact_families.items()
         },
     }
 
@@ -894,8 +922,10 @@ def _resolve_dp_robustness_summary(
     *,
     data_readiness_report: DataReadinessReport | None = None,
 ) -> dict[str, object] | None:
-    if isinstance(getattr(data_readiness_report, "dp_distortion", None), dict):
-        return dict(data_readiness_report.dp_distortion)
+    if data_readiness_report is not None:
+        dp_distortion = data_readiness_report.dp_distortion
+        if isinstance(dp_distortion, dict):
+            return dict(dp_distortion)
     payload = evidence_metadata.get("dp_robustness")
     if not isinstance(payload, dict):
         return None
@@ -976,11 +1006,11 @@ def _surface_assumptions(
     surfaced: list[str] = []
     for assumption in candidate.evidence_assumptions:
         surfaced.append(assumption.description)
-    for assumption in candidate.transport_assumptions:
-        surfaced.append(assumption.description)
-        surfaced.extend(assumption.caveats)
-    for assumption in candidate.trinity_bundle.model_spec.assumptions:
-        surfaced.append(assumption.description)
+    for transport_assumption in candidate.transport_assumptions:
+        surfaced.append(transport_assumption.description)
+        surfaced.extend(transport_assumption.caveats)
+    for model_assumption in candidate.trinity_bundle.model_spec.assumptions:
+        surfaced.append(model_assumption.description)
     if evaluation_vector is not None:
         for name, status in evaluation_vector.constraint_statuses.items():
             if status is ConstraintStatus.NEAR_BINDING:
@@ -1048,10 +1078,12 @@ def _supports_advanced_evidence_depth(
 ) -> bool:
     if prior_knowledge_bundle is None or prior_knowledge_bundle.status != "ok":
         return False
-    return (
-        bool(evidence_support_summary.get("available", False))
-        and float(evidence_support_summary.get("coverage_ratio", 0.0) or 0.0) >= 0.8
-    )
+    if not bool(evidence_support_summary.get("available", False)):
+        return False
+    coverage_ratio = evidence_support_summary.get("coverage_ratio", 0.0) or 0.0
+    if isinstance(coverage_ratio, str | SupportsFloat):
+        return float(coverage_ratio) >= 0.8
+    raise TypeError(f"Expected a numeric coverage ratio, got {type(coverage_ratio).__name__}")
 
 
 def _evidence_channel_notes(

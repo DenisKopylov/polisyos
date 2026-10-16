@@ -3,7 +3,6 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from pathlib import Path
 from types import ModuleType
 from typing import Any
 
@@ -18,6 +17,7 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_state import maybe_
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     PolicyRuntimeEvaluationArtifact,
     ProductionPolicyEvaluationBackend,
+    _require_policy_runtime_registry_root,
     build_policy_runtime_evaluation,
     build_selection_benchmark_evaluation,
     persist_funnel_executed_work_packet,
@@ -94,6 +94,7 @@ def prepare_runtime_session(
     owner: ModuleType,
 ) -> _RuntimeSession:
     """Resolve policy inputs and persist the selection evaluation in source order."""
+    registry_root = _require_policy_runtime_registry_root(ctx.store)
     candidate = runtime_request.candidate
     candidate_ref = runtime_request.candidate_ref
     cross_graph_profile = runtime_request.cross_graph_profile
@@ -193,15 +194,14 @@ def prepare_runtime_session(
         ctx.store,
         selection_evaluation,
         inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+        return_selected_profile=True,
     )
     benchmark_scope = owner._resolve_benchmark_scope(
         state=state,
         candidate=candidate,
         selection_vector=selection_vector,
     )
-    benchmark_registry = owner.BenchmarkRegistry(
-        Path(ctx.store.root) / "search_registry" / "benchmarks"
-    )
+    benchmark_registry = owner.BenchmarkRegistry(registry_root / "search_registry" / "benchmarks")
     benchmark_registry.record_evaluation(
         selection_evaluation,
         selection_ref,
@@ -251,6 +251,7 @@ def run_runtime_funnel(session: _RuntimeSession) -> None:
     """Build and advance the existing L0-L6 funnel without changing its stage order."""
     owner = session.owner
     ctx = session.ctx
+    registry_root = _require_policy_runtime_registry_root(ctx.store)
     state = session.state
     candidate = session.candidate
     candidate_ref = session.candidate_ref
@@ -305,7 +306,7 @@ def run_runtime_funnel(session: _RuntimeSession) -> None:
         ],
         correlation_tracker=owner._resolve_runtime_correlation_tracker(calibration_report),
         lesson_registry=owner.LessonRegistry(
-            root=Path(ctx.store.root) / "search_registry" / "lessons",
+            root=registry_root / "search_registry" / "lessons",
             store=ctx.store,
         ),
         voi_scheduler=predictive_voi,

@@ -4,17 +4,21 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from decimal import Decimal
 from typing import Any
 
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.execution_plan import (
     IterationState,
 )
-from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.governance.report import (
+    GovernanceReport,
+    load_governance_report_artifact,
+)
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_EVALUATOR_REPORT_REF,
     ARTIFACT_ITERATION_STATE_REF,
@@ -94,15 +98,13 @@ class RunEvaluatorNode:
         return _SPEC
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
-        from polisyos.core.artifacts import load_core_json_artifact
         governance_verdict = "NEEDS_REVISION"
         governance_issues: list[dict[str, Any]] = []
         events: list[NodeEvent] = []
         governance_ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
         if governance_ref is not None:
             try:
-                payload = load_core_json_artifact(ctx.store, governance_ref)
-                governance = GovernanceReport.model_validate(payload)
+                governance = load_governance_report_artifact(ctx.store, governance_ref)
                 governance_verdict = str(governance.verdict or "NEEDS_REVISION").upper()
                 governance_issues = list(governance.issues)
             except _GOVERNANCE_REPORT_LOAD_ERRORS as exc:
@@ -119,7 +121,8 @@ class RunEvaluatorNode:
                     )
                 )
         issue_count = len(governance_issues)
-        filtered = int(state.params.get("retrieval_candidates_filtered") or 0)
+        raw_filtered = state.params.get("retrieval_candidates_filtered")
+        filtered = _coerce_json_int(raw_filtered) if raw_filtered else 0
         retrieval_quality = 1.0 if filtered == 0 else max(0.0, 1.0 - min(1.0, filtered / 100.0))
         budget_remaining_ratio = _budget_remaining_ratio(state.params)
         evaluator_report = evaluate_iteration(
@@ -131,7 +134,7 @@ class RunEvaluatorNode:
         eval_ref = persist_evaluator_report(
             ctx.store,
             evaluator_report,
-            inputs=[InputRef(artifact_id=governance_ref.artifact_id, role="governance_report")]
+            inputs=[input_ref_from_artifact_ref(governance_ref, role="governance_report")]
             if governance_ref is not None
             else None,
         )
@@ -180,7 +183,7 @@ class RunEvaluatorNode:
         iteration_ref = persist_iteration_state(
             ctx.store,
             iteration_state,
-            inputs=[InputRef(artifact_id=eval_ref.artifact_id, role="evaluator_report")],
+            inputs=[input_ref_from_artifact_ref(eval_ref, role="evaluator_report")],
         )
 
         new_state = branch_state(state, write_paths=_SPEC.state_writes).state
@@ -209,16 +212,28 @@ def _budget_remaining_ratio(params: dict[str, Any]) -> float | None:
     run_budget = params.get("run_budget_usd")
     run_cost = params.get("run_cost_usd")
     try:
-        budget = float(run_budget)
+        budget = _coerce_json_float(run_budget)
     except _NUMERIC_COERCE_ERRORS:
         return None
     if budget <= 0:
         return None
     try:
-        spent = float(run_cost or 0.0)
+        spent = _coerce_json_float(run_cost) if run_cost else 0.0
     except _NUMERIC_COERCE_ERRORS:
         spent = 0.0
     return max(0.0, (budget - spent) / budget)
+
+
+def _coerce_json_int(value: object) -> int:
+    if isinstance(value, (int, float, str, Decimal)):
+        return int(value)
+    raise TypeError("expected a JSON numeric or string value")
+
+
+def _coerce_json_float(value: object) -> float:
+    if isinstance(value, (int, float, str, Decimal)):
+        return float(value)
+    raise TypeError("expected a JSON numeric or string value")
 
 
 __all__ = ["RunEvaluatorNode"]

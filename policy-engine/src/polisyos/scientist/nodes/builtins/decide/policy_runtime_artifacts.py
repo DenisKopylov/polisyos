@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Any
 from polisyos.core.artifacts import (
     ArtifactRef,
     ArtifactStore,
-    InputRef,
     ProducerInfo,
     PutOptions,
     SchemaInfo,
@@ -35,7 +34,15 @@ from polisyos.ir.analytics.distributional import (
     load_distributional_report,
 )
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.ir.registry.refs import (
+    CrossGraphEvidenceProfileRef,
+    DistributionalReportRef,
+    UncertaintyEnvelopeRef,
+)
+from polisyos.scientist.governance.report import (
+    GovernanceReport,
+    load_governance_report_artifact,
+)
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
@@ -48,8 +55,11 @@ from polisyos.scientist.methods.discovery.priors import (
     PriorKnowledgeBundle,
     load_prior_knowledge_bundle,
 )
-from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.methods.search.funnel.types import FunnelExecutedWorkPacket
+from polisyos.scientist.methods.doe.stress_report import Vulnerability
+from polisyos.scientist.methods.search.funnel.types import (
+    FunnelExecutedWorkPacket,
+    FunnelOutcome,
+)
 from polisyos.scientist.methods.search.judge_stack import to_search_uncertainty_envelope
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
     _POLICY_RUNTIME_LOAD_ERRORS,
@@ -179,9 +189,10 @@ def _persist_policy_evaluation_vector_to_store_impl(
                 name="polisyos.scientist.policy_design.PolicyEvaluationVector",
                 version="1.0",
             ),
-            inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+            inputs=[input_ref_from_artifact_ref(candidate_ref, role="candidate")],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 
@@ -204,11 +215,8 @@ def _persist_funnel_executed_work_packet_impl(
                 version="1.0.0",
             ),
             inputs=[
-                InputRef(artifact_id=packet.candidate_ref.artifact_id, role="candidate"),
-                InputRef(
-                    artifact_id=packet.source_result_ref.artifact_id,
-                    role="source_result",
-                ),
+                input_ref_from_artifact_ref(packet.candidate_ref, role="candidate"),
+                input_ref_from_artifact_ref(packet.source_result_ref, role="source_result"),
             ],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -295,75 +303,21 @@ def _build_policy_runtime_evaluation_impl(
 def _build_vulnerabilities_impl(
     *,
     evaluation: PolicyEvaluationVector | None,
-    distributional,
+    distributional: DistributionalReport | None,
     causal_report: CausalEffectReport | None,
     governance_report: GovernanceReport | None,
-) -> list[Any]:
-    """Build vulnerabilities."""
-    from polisyos.scientist.methods.doe.stress_report import (
-        Vulnerability,
-        VulnerabilityType,
+) -> list[Vulnerability]:
+    """Reuse the existing Level-5 vulnerability projection and its typed taxonomy."""
+    from polisyos.scientist.nodes.builtins.decide.run_policy_funnel_level5 import (
+        _build_vulnerabilities,
     )
 
-    vulnerabilities: list[Vulnerability] = []
-    if evaluation is not None:
-        for name, channel in evaluation.hard_constraints.items():
-            if channel.status is None or str(channel.status) not in {
-                "violated",
-                "near_binding",
-            }:
-                continue
-            vulnerabilities.append(
-                Vulnerability(
-                    vulnerability_id=f"constraint_{name}",
-                    vulnerability_type=VulnerabilityType.CONSTRAINT_VIOLATION,
-                    severity="critical" if str(channel.status) == "violated" else "high",
-                    objective_value=channel.value,
-                    constraint_violated=name,
-                    explanation=f"Policy constraint '{name}' is {channel.status}.",
-                    source_evidence=["policy_evaluation"],
-                )
-            )
-    if governance_report is not None:
-        issues = getattr(governance_report, "issues", None) or []
-        for idx, issue in enumerate(issues, start=1):
-            vulnerabilities.append(
-                Vulnerability(
-                    vulnerability_id=f"governance_{idx}",
-                    vulnerability_type=VulnerabilityType.GOVERNANCE_RISK,
-                    severity="high",
-                    objective_value=1.0,
-                    explanation=str(getattr(issue, "summary", None) or issue),
-                    source_evidence=["governance_report"],
-                )
-            )
-    if distributional is not None:
-        subgroup_count = len(getattr(distributional, "subgroup_reports", None) or [])
-        if subgroup_count:
-            vulnerabilities.append(
-                Vulnerability(
-                    vulnerability_id="distributional_shift",
-                    vulnerability_type=VulnerabilityType.SUBGROUP_HARM,
-                    severity="medium",
-                    objective_value=float(subgroup_count),
-                    explanation="Distributional analysis identified subgroup-level shifts that require review.",
-                    source_evidence=["distributional_report"],
-                )
-            )
-    if causal_report is not None and getattr(causal_report, "confidence", None) is not None:
-        confidence = float(causal_report.confidence)
-        if confidence < 0.5:
-            vulnerabilities.append(
-                Vulnerability(
-                    vulnerability_id="causal_confidence_low",
-                    vulnerability_type=VulnerabilityType.MODEL_RISK,
-                    severity="high",
-                    objective_value=confidence,
-                    explanation="Causal report confidence is below promotion-grade tolerance.",
-                    source_evidence=["causal_report"],
-                )
-            )
-    return vulnerabilities
+    return _build_vulnerabilities(
+        evaluation=evaluation,
+        distributional=distributional,
+        causal_report=causal_report,
+        governance_report=governance_report,
+    )
 
 
 def _load_simulation_metrics_impl(
@@ -391,13 +345,19 @@ def _load_simulation_metrics_impl(
     return output
 
 
-def _load_distributional_report_for_state_impl(ctx: ExecutionContext, state: ExperimentState):
+def _load_distributional_report_for_state_impl(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> DistributionalReport | None:
     """Load distributional report for state."""
     ref = state.artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_REPORT_REF)
     return (
         None
         if ref is None
-        else load_distributional_report(_ensure_ir_artifact_store(ctx.store), ref)
+        else load_distributional_report(
+            _ensure_ir_artifact_store(ctx.store),
+            DistributionalReportRef.model_validate(ref.model_dump(mode="json")),
+        )
     )
 
 
@@ -417,21 +377,25 @@ def _load_governance_report_impl(
     ctx: ExecutionContext, state: ExperimentState
 ) -> GovernanceReport | None:
     """Load governance report."""
-    from polisyos.core.artifacts import load_core_json_artifact
-
     ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
     if ref is None:
         return None
-    return GovernanceReport.model_validate(load_core_json_artifact(ctx.store, ref))
+    return load_governance_report_artifact(ctx.store, ref)
 
 
-def _load_cross_graph_profile_impl(ctx: ExecutionContext, state: ExperimentState):
+def _load_cross_graph_profile_impl(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> CrossGraphEvidenceProfile | None:
     """Load cross graph profile."""
     ref = state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF)
     return (
         None
         if ref is None
-        else load_cross_graph_evidence_profile(_ensure_ir_artifact_store(ctx.store), ref)
+        else load_cross_graph_evidence_profile(
+            _ensure_ir_artifact_store(ctx.store),
+            CrossGraphEvidenceProfileRef.model_validate(ref.model_dump(mode="json")),
+        )
     )
 
 
@@ -477,13 +441,19 @@ def _load_prior_knowledge_bundle_for_state_impl(
         return None
 
 
-def _load_search_uncertainty_impl(ctx: ExecutionContext, state: ExperimentState):
+def _load_search_uncertainty_impl(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> UncertaintyEnvelope:
     """Load search uncertainty."""
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF)
     if ref is None:
         return to_search_uncertainty_envelope(None)
     return to_search_uncertainty_envelope(
-        load_uncertainty_envelope(_ensure_ir_artifact_store(ctx.store), ref)
+        load_uncertainty_envelope(
+            _ensure_ir_artifact_store(ctx.store),
+            UncertaintyEnvelopeRef.model_validate(ref.model_dump(mode="json")),
+        )
     )
 
 
@@ -523,9 +493,7 @@ def _load_governance_report_from_ref_impl(
     ref: ArtifactRef,
 ) -> GovernanceReport:
     """Load governance report from ref."""
-    from polisyos.core.artifacts import load_core_json_artifact
-
-    return GovernanceReport.model_validate(load_core_json_artifact(ctx.store, ref))
+    return load_governance_report_artifact(ctx.store, ref)
 
 
 def _merge_proxy_boundary_into_latent_bundle_impl(

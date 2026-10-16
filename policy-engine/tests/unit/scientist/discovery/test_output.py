@@ -1,6 +1,9 @@
-from polisyos.core.artifacts import artifact_manifest_profile_sha256
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256,
+    input_ref_from_artifact_ref,
+)
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.ir.analytics.causal_discovery import (
     LATENT_CARDINALITY_EVIDENCE_KEY,
     AlgebraicConstraintFamily,
@@ -520,6 +523,15 @@ def test_discovery_artifact_builder_creates_full_bundle_with_typed_placeholders(
     ).mine(graph_prior_bundle)
 
     store = FileSystemCAS(tmp_path)
+    dataset_ref = store.put_json(
+        {"dataset_id": "selected-discovery-input"},
+        PutOptions(
+            kind="test.dataset",
+            media_type="application/json",
+            schema=SchemaInfo(name="tests.SelectedDiscoveryDataset", version="1.0"),
+        ),
+        return_selected_profile=True,
+    )
     side_info_ref = persist_actionable_side_information(
         store,
         ActionableSideInformation(candidate_id="discovery_task"),
@@ -546,13 +558,7 @@ def test_discovery_artifact_builder_creates_full_bundle_with_typed_placeholders(
             downstream_utility_report=utility,
             graph_prior_bundle=graph_prior_bundle,
             prior_knowledge_bundle=prior_knowledge_bundle,
-            source_refs={
-                "input_dataset": ArtifactRef(
-                    artifact_id="sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                    kind="test.dataset",
-                    media_type="application/json",
-                )
-            },
+            source_refs={"input_dataset": dataset_ref},
             audit_refs=[side_info_ref],
             actionable_side_information_refs=[side_info_ref],
         ),
@@ -567,6 +573,8 @@ def test_discovery_artifact_builder_creates_full_bundle_with_typed_placeholders(
     audit = load_discovery_audit_bundle(store, bundle.discovery_audit_bundle_ref)
     graph_prior_manifest = store.get_manifest(bundle.graph_prior_bundle_ref)
 
+    task_profile_inputs = store.get_manifest(bundle.discovery_task_profile_ref).inputs
+    assert input_ref_from_artifact_ref(dataset_ref, role="input_dataset") in task_profile_inputs
     assert any(
         input_ref.role == "downstream_utility_report"
         and str(input_ref.artifact_id) == str(bundle.downstream_utility_report_ref.artifact_id)
@@ -608,9 +616,7 @@ def test_discovery_artifact_builder_creates_full_bundle_with_typed_placeholders(
     assert disambiguation.status == "ready"
     assert disambiguation.actions
     assert disambiguation.metadata["target_context"]["worker_findings"]["targeted_edge_keys"]
-    assert str(audit.source_refs["input_dataset"].artifact_id) == (
-        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    )
+    assert audit.source_refs["input_dataset"] == dataset_ref
     assert "edge_confidence_matrix_ref" in audit.output_refs
     assert "graph_prior_bundle_ref" in audit.output_refs
     assert audit.metadata["worker_bundle"]["skeptic_findings"]

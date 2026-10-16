@@ -1082,3 +1082,27 @@ def test_finite_occurrence_basis_is_freshly_recomputed_and_top_k_independent(tmp
     assert partial_resolution.status == "partial"
     assert partial_resolution.reason_code == "expected_occurrence_rows_incomplete"
     assert partial_resolution.robustness_score is None
+
+
+def test_platform_meta_report_persistence_returns_selected_manifest_view(tmp_path) -> None:
+    from polisyos.core.artifacts.canonical_profile import read_core_manifest_profile
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.scientist.methods.search.adversarial import (
+        PlatformMetaEvaluationReport,
+        persist_platform_meta_evaluation_report,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    report = PlatformMetaEvaluationReport(
+        metadata={"run_id": "run-selected-meta"},
+    )
+
+    ref = persist_platform_meta_evaluation_report(store, report)
+
+    assert ref.manifest_profile_sha256 is not None
+    manifest, _declaration = read_core_manifest_profile(
+        store,
+        ref,
+        manifest_profile_sha256=ref.manifest_profile_sha256,
+    )
+    assert manifest.kind == "scientist.platform_meta_evaluation_report"

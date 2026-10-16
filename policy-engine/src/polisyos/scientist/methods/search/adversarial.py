@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Protocol, TypeGuard, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -14,6 +14,7 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import PlatformMetaEvaluationReportRef
@@ -41,7 +42,7 @@ from polisyos.scientist.methods.doe.stress_report import (
     VulnerabilityType,
     resolve_stress_score_components,
 )
-from polisyos.scientist.methods.search.controller import SearchIteration
+from polisyos.scientist.methods.search.contracts import SearchIteration
 from polisyos.scientist.methods.search.objective import (
     BaseObjective,
     CompositeObjective,
@@ -56,6 +57,32 @@ from polisyos.scientist.methods.search.stopping import (
     StoppingCondition,
     StoppingCriterion,
 )
+
+
+@runtime_checkable
+class _DirectionProvider(Protocol):
+    """Structural direction contract for direct and legacy objective adapters."""
+
+    @property
+    def direction(self) -> OptimizationDirection: ...
+
+
+class _CandidateGenerator(Protocol):
+    """Legacy ask-loop generator contract used for adaptive stress continuation."""
+
+    def generate(
+        self,
+        history: list[SearchIteration],
+        current_best: dict[str, Any] | None,
+        runtime_context: dict[str, Any],
+        /,
+    ) -> dict[str, Any]: ...
+
+
+def _has_candidate_generator(value: object) -> TypeGuard[_CandidateGenerator]:
+    """Narrow the legacy hasattr gate without changing its runtime admission predicate."""
+    return hasattr(value, "generate")
+
 
 PLATFORM_META_EVALUATION_SCHEMA_NAME = "polisyos.scientist.PlatformMetaEvaluationReport"
 
@@ -152,7 +179,7 @@ class PlatformMetaEvaluator:
         )
         failures = [result for result in attack_results if result.status == "failed"]
         overall_status = "failed" if failures else "passed"
-        metrics = {
+        metrics: dict[str, int | str] = {
             "attack_count": len(attack_results),
             "failed_attack_count": len(failures),
             "skipped_attack_count": sum(
@@ -459,7 +486,9 @@ def _resolve_adversarial_direction(base_objective: object) -> OptimizationDirect
         if all(isinstance(item, BaseObjective) for item in base_objective.objectives):
             return base_objective.direction
         return OptimizationDirection.MAXIMIZE
-    return base_objective.direction  # type: ignore[attr-defined]
+    if isinstance(base_objective, _DirectionProvider):
+        return base_objective.direction
+    raise AttributeError(f"'{type(base_objective).__name__}' object has no attribute 'direction'")
 
 
 def _objective_badness(raw_objective: float, direction: OptimizationDirection) -> float:
@@ -624,7 +653,7 @@ def run_stress_test(
     if (
         adversarial_plan.strategy == AdversarialStrategy.SEARCH_LOOP
         and candidate_generator is not None
-        and hasattr(candidate_generator, "generate")
+        and _has_candidate_generator(candidate_generator)
         and total_evaluated < adversarial_plan.max_iterations
         and (not vulnerabilities or not adversarial_plan.stop_on_first_vulnerability)
         and not evaluation_unverified
@@ -653,7 +682,7 @@ def run_stress_test(
         best_candidate: dict[str, Any] | None = None
         best_search_objective = float("nan")
         for idx in range(remaining):
-            candidate = candidate_generator.generate(history, best_candidate, runtime_context)  # type: ignore[attr-defined]
+            candidate = candidate_generator.generate(history, best_candidate, runtime_context)
             candidate_parameters = {
                 key: float(value)
                 for key, value in candidate.items()
@@ -909,14 +938,14 @@ def _detect_objective_vulnerability(
     parameters: dict[str, float],
     vuln_id: str,
 ) -> Vulnerability | None:
-    if not _is_objective_vulnerable(
+    if threshold is None or not _is_objective_vulnerable(
         objective,
         threshold=threshold,
         direction=direction,
     ):
         return None
     badness = _objective_badness(objective, direction)
-    threshold_badness = _objective_badness(float(threshold), direction)
+    threshold_badness = _objective_badness(threshold, direction)
     return Vulnerability(
         vulnerability_id=vuln_id,
         vulnerability_type=VulnerabilityType.OBJECTIVE_COLLAPSE,
@@ -967,7 +996,7 @@ def _canon_safe(value: Any) -> Any:
 
 
 def persist_platform_meta_evaluation_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     report: PlatformMetaEvaluationReport,
     *,
     inputs: list[InputRef] | None = None,
@@ -985,12 +1014,13 @@ def persist_platform_meta_evaluation_report(
             inputs=list(inputs or []),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     return PlatformMetaEvaluationReportRef.model_validate(ref.model_dump(mode="json"))
 
 
 def load_platform_meta_evaluation_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: PlatformMetaEvaluationReportRef | ArtifactRef,
 ) -> PlatformMetaEvaluationReport:
     """Load platform meta evaluation report."""

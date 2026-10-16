@@ -6,14 +6,29 @@ import sys
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 from pydantic import ValidationError
 
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+if TYPE_CHECKING:
+    from typing import TypeGuard
+
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core.artifacts import (
+    CoreJSONArtifactStore,
+    artifact_ref_identity_key,
+)
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
+from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -76,8 +91,8 @@ from polisyos.scientist.methods.search.funnel.level5_refutation_governance impor
     Level5RefutationGovernanceStage,
 )
 from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
-from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator, FunnelOutcome
-from polisyos.scientist.methods.search.funnel.types import FunnelExecutedWorkPacket
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOrchestrator
+from polisyos.scientist.methods.search.funnel.types import FunnelExecutedWorkPacket, FunnelOutcome
 from polisyos.scientist.methods.search.lessons import LessonRegistry
 from polisyos.scientist.methods.search.promotion_evidence import (
     PromotionEvidenceBundle,
@@ -153,6 +168,7 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_state import (
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     PolicyRuntimeEvaluationArtifact,
     ProductionPolicyEvaluationBackend,
+    _require_policy_runtime_registry_root,
     build_policy_runtime_evaluation,
     build_selection_benchmark_evaluation,
     build_vulnerabilities,
@@ -186,8 +202,17 @@ from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+from polisyos.scientist.policy_design.output import (
+    ReplayableAuditBundle,
+    load_replayable_audit_bundle,
+    persist_replayable_audit_bundle,
+)
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
-from polisyos.scientist.replay.verification import ReplayRegistry, verify_and_persist_replay_bundle
+from polisyos.scientist.replay.verification import (
+    ReplayRegistry,
+    load_replay_verification_report,
+    verify_and_persist_replay_bundle,
+)
 
 _POLICY_RUNTIME_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
 _POLICY_RUNTIME_LOAD_ERRORS = (
@@ -251,12 +276,15 @@ _SPEC = NodeSpec(
         "params.promotion_decision",
         "params.policy_runtime_source_statuses",
         "params.promotion_evidence_bundle_ref",
+        "params.replay_bundle_ref",
+        "params.replay_verification_ref",
         "params.audit_refs",
         "params.actionable_side_information_refs",
         "params.voi_run_report_ref",
         "params.strategic_response",
         f"artifacts_index.{ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF}",
         f"artifacts_index.{ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF}",
+        f"artifacts_index.{ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF}",
         f"artifacts_index.{ARTIFACT_PLATFORM_META_EVALUATION_REPORT_REF}",
         f"artifacts_index.{ARTIFACT_STRESS_TEST_REPORT_REF}",
         f"artifacts_index.{ARTIFACT_STRATEGIC_SCM_REF}",
@@ -366,6 +394,7 @@ class RunPolicyBlueprintRuntimeNode:
         if not _is_policy_mode(state):
             return NodeOutcome(status="skip", state=state)
 
+        _require_policy_runtime_registry_root(ctx.store)
         runtime_request = resolve_policy_runtime_request(ctx, state)
         if runtime_request is None:
             return NodeOutcome(status="skip", state=state)
@@ -427,6 +456,25 @@ def _world_model_record_from_state(state: ExperimentState) -> WorldModelRecord |
     return None
 
 
+if TYPE_CHECKING:
+
+    def _is_promotion_evidence_core_json_store(
+        store: object,
+    ) -> TypeGuard[CoreJSONArtifactStore]: ...
+else:
+
+    def _is_promotion_evidence_core_json_store(store: object) -> bool:
+        """Check the actual owner capability without replacing the store handle."""
+        return matches_artifact_store_protocol(store, CoreJSONArtifactStore)
+
+
+def _require_promotion_evidence_core_json_store(store: object) -> CoreJSONArtifactStore:
+    """Narrow the exact store handle before protected Core JSON admission."""
+    if not _is_promotion_evidence_core_json_store(store):
+        raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable")
+    return store
+
+
 def _policy_promotion_runner(
     ctx: ExecutionContext,
     state: ExperimentState,
@@ -441,7 +489,9 @@ def _policy_promotion_runner(
             "reason": "promotion_evidence_bundle_missing",
         }
     try:
-        evidence_bundle = load_promotion_evidence_bundle(ctx.store, evidence_ref)
+        evidence_bundle = load_promotion_evidence_bundle(
+            _require_promotion_evidence_core_json_store(ctx.store), evidence_ref
+        )
         evaluation_vector, evaluation_ref = _extract_level4_policy_evaluation(
             ctx,
             candidate_ref=candidate_ref,
@@ -460,20 +510,49 @@ def _policy_promotion_runner(
                 "backend_kind": provenance["backend_kind"],
                 "degradation_mode": provenance["degradation_mode"],
             }
-        evidence_bundle = evidence_bundle.model_copy(update={"evaluation_ref": evaluation_ref})
-        if not _policy_promotion_owner_recheck(ctx, state, candidate_ref, context):
+        replay_bundle_ref, replay_verification_ref = _reissue_replay_verification_for_subject(
+            ctx,
+            run_id=state.run_id,
+            candidate_ref=candidate_ref,
+            evaluation_ref=evaluation_ref,
+            replay_bundle_ref=evidence_bundle.replay_bundle_ref,
+            replay_verification_ref=evidence_bundle.replay_verification_ref,
+        )
+        (
+            evidence_bundle,
+            _,
+            promotion_state,
+            promotion_context,
+        ) = _persist_current_promotion_evidence(
+            ctx,
+            state,
+            context=context,
+            source_evidence_ref=evidence_ref,
+            source_evidence_bundle=evidence_bundle,
+            candidate_ref=candidate_ref,
+            evaluation_vector=evaluation_vector,
+            evaluation_ref=evaluation_ref,
+            replay_bundle_ref=replay_bundle_ref,
+            replay_verification_ref=replay_verification_ref,
+        )
+        if not _policy_promotion_owner_recheck(
+            ctx,
+            promotion_state,
+            candidate_ref,
+            promotion_context,
+        ):
             return {
                 "decision": "defer_to_human",
                 "reason": "promotion_owner_recheck_failed",
             }
         return run_promotion_with_evidence(
             ctx=ctx,
-            state=state,
+            state=promotion_state,
             candidate=candidate,
             candidate_ref=candidate_ref,
             evaluation_vector=evaluation_vector,
             evidence_bundle=evidence_bundle,
-            promotion_context=context,
+            promotion_context=promotion_context,
             evaluation_provenance=provenance,
         )
     except ValueError as exc:
@@ -481,6 +560,105 @@ def _policy_promotion_runner(
             "decision": "reject",
             "reason": str(exc),
         }
+
+
+def _persist_current_promotion_evidence(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    context: dict[str, Any],
+    source_evidence_ref: ArtifactRef,
+    source_evidence_bundle: PromotionEvidenceBundle,
+    candidate_ref: ArtifactRef,
+    evaluation_vector: PolicyEvaluationVector,
+    evaluation_ref: ArtifactRef,
+    replay_bundle_ref: ArtifactRef | None,
+    replay_verification_ref: ArtifactRef | None,
+) -> tuple[PromotionEvidenceBundle, ArtifactRef, ExperimentState, dict[str, Any]]:
+    """Persist the reissued subject and branch the state to those exact selected refs."""
+    if source_evidence_bundle.run_id != state.run_id:
+        raise ValueError("promotion_evidence_bundle_run_id_mismatch")
+    if artifact_ref_identity_key(source_evidence_bundle.candidate_ref) != artifact_ref_identity_key(
+        candidate_ref
+    ):
+        raise ValueError("promotion_evidence_bundle_candidate_context_mismatch")
+    current_bundle = source_evidence_bundle.model_copy(
+        update={
+            "evaluation_ref": evaluation_ref,
+            "replay_bundle_ref": replay_bundle_ref,
+            "replay_verification_ref": replay_verification_ref,
+        }
+    )
+    current_ref = persist_promotion_evidence_bundle(
+        ctx.store,
+        current_bundle,
+        inputs=[
+            input_ref_from_artifact_ref(
+                source_evidence_ref,
+                role="source_promotion_evidence_bundle",
+            )
+        ],
+    )
+    if current_ref.manifest_profile_sha256 is None:
+        raise ValueError("promotion_evidence_bundle_selected_profile_missing")
+    current_bundle = load_promotion_evidence_bundle(
+        _require_promotion_evidence_core_json_store(ctx.store), current_ref
+    )
+    if current_bundle.evaluation_ref is None or artifact_ref_identity_key(
+        current_bundle.evaluation_ref
+    ) != artifact_ref_identity_key(evaluation_ref):
+        raise ValueError("promotion_evidence_bundle_evaluation_context_mismatch")
+    if (current_bundle.replay_bundle_ref is None) != (replay_bundle_ref is None) or (
+        current_bundle.replay_bundle_ref is not None
+        and replay_bundle_ref is not None
+        and artifact_ref_identity_key(current_bundle.replay_bundle_ref)
+        != artifact_ref_identity_key(replay_bundle_ref)
+    ):
+        raise ValueError("promotion_evidence_bundle_replay_context_mismatch")
+    if (current_bundle.replay_verification_ref is None) != (replay_verification_ref is None) or (
+        current_bundle.replay_verification_ref is not None
+        and replay_verification_ref is not None
+        and artifact_ref_identity_key(current_bundle.replay_verification_ref)
+        != artifact_ref_identity_key(replay_verification_ref)
+    ):
+        raise ValueError("promotion_evidence_bundle_verification_context_mismatch")
+
+    promotion_state = branch_state(
+        state,
+        write_paths=(
+            f"artifacts_index.{ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF}",
+            f"artifacts_index.{ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF}",
+            "params.policy_candidate_ref",
+            "params.policy_evaluation",
+            "params.policy_evaluation_ref",
+            "params.promotion_evidence_bundle_ref",
+            "params.replay_bundle_ref",
+            "params.replay_verification_ref",
+        ),
+    ).state
+    promotion_state.artifacts_index[ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF] = current_ref
+    if replay_bundle_ref is None:
+        promotion_state.artifacts_index.pop(ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF, None)
+    else:
+        promotion_state.artifacts_index[ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF] = replay_bundle_ref
+    promotion_state.params.update(
+        {
+            "policy_candidate_ref": candidate_ref.model_dump(mode="json"),
+            "policy_evaluation": evaluation_vector.model_dump(mode="json"),
+            "policy_evaluation_ref": evaluation_ref.model_dump(mode="json"),
+            "promotion_evidence_bundle_ref": current_ref.model_dump(mode="json"),
+            "replay_bundle_ref": (
+                replay_bundle_ref.model_dump(mode="json") if replay_bundle_ref is not None else None
+            ),
+            "replay_verification_ref": (
+                replay_verification_ref.model_dump(mode="json")
+                if replay_verification_ref is not None
+                else None
+            ),
+        }
+    )
+    context["promotion_evidence_bundle_ref"] = current_ref
+    return current_bundle, current_ref, promotion_state, dict(context)
 
 
 def _policy_promotion_owner_recheck(
@@ -506,7 +684,9 @@ def _policy_promotion_owner_recheck(
     if not isinstance(evidence_ref, ArtifactRef):
         return False
     try:
-        evidence_bundle = load_promotion_evidence_bundle(ctx.store, evidence_ref)
+        evidence_bundle = load_promotion_evidence_bundle(
+            _require_promotion_evidence_core_json_store(ctx.store), evidence_ref
+        )
         evidence_bundle.assert_compatible_with_run(state.run_id)
     except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
         return False
@@ -555,7 +735,9 @@ def _load_existing_promotion_evidence(
         ref = state.artifacts_index.get(ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF)
     if ref is None:
         return None
-    return load_promotion_evidence_bundle(ctx.store, ref)
+    return load_promotion_evidence_bundle(
+        _require_promotion_evidence_core_json_store(ctx.store), ref
+    )
 
 
 def _resolve_replay_bundle_ref(
@@ -608,6 +790,118 @@ def _extract_level4_policy_evaluation(
         evaluation_vector=evaluation,
     )
     return evaluation, ref
+
+
+def _reissue_replay_verification_for_subject(
+    ctx: ExecutionContext,
+    *,
+    run_id: str,
+    candidate_ref: ArtifactRef,
+    evaluation_ref: ArtifactRef,
+    replay_bundle_ref: ArtifactRef | None,
+    replay_verification_ref: ArtifactRef | None,
+) -> tuple[ArtifactRef | None, ArtifactRef | None]:
+    """Reissue a selected replay snapshot when its candidate/evaluation subject changes.
+
+    Old bundle and report refs remain immutable upstream lineage. The new report is produced by
+    the shared replay verifier against a newly persisted bundle containing the exact current
+    subject; old report content is never relabeled as current.
+    """
+    if replay_bundle_ref is None:
+        if replay_verification_ref is not None:
+            raise ValueError("replay_verification_without_bundle_context")
+        return None, None
+
+    bundle_manifest = ctx.store.get_manifest(replay_bundle_ref)
+    if (
+        bundle_manifest.kind != "scientist.replayable_audit_bundle"
+        or bundle_manifest.artifact_schema
+        != SchemaInfo(
+            name="polisyos.scientist.policy_design.ReplayableAuditBundle",
+            version="1.0",
+        )
+    ):
+        raise ValueError("replay_bundle_owner_schema_mismatch")
+    source_bundle = load_replayable_audit_bundle(ctx.store, replay_bundle_ref)
+    if source_bundle.run_id != run_id:
+        raise ValueError("replay_bundle_run_id_mismatch")
+    if source_bundle.candidate_ref is None:
+        raise ValueError("replay_bundle_candidate_context_missing")
+    if artifact_ref_identity_key(source_bundle.candidate_ref) != artifact_ref_identity_key(
+        candidate_ref
+    ):
+        raise ValueError("replay_bundle_candidate_context_mismatch")
+
+    source_report = None
+    if replay_verification_ref is not None:
+        source_report = load_replay_verification_report(ctx.store, replay_verification_ref)
+        if source_report.run_id != run_id or artifact_ref_identity_key(
+            source_report.replay_bundle_ref
+        ) != artifact_ref_identity_key(replay_bundle_ref):
+            raise ValueError("replay_verification_source_context_mismatch")
+
+    subject_is_current = (
+        source_bundle.evaluation_ref is not None
+        and artifact_ref_identity_key(source_bundle.candidate_ref)
+        == artifact_ref_identity_key(candidate_ref)
+        and artifact_ref_identity_key(source_bundle.evaluation_ref)
+        == artifact_ref_identity_key(evaluation_ref)
+    )
+    registry_root = _require_policy_runtime_registry_root(
+        ctx.store,
+        error_code="replay_registry_root_unavailable",
+    )
+    registry = ReplayRegistry(registry_root / "search_registry" / "replay_registry")
+    if subject_is_current and replay_verification_ref is not None:
+        try:
+            load_replay_verification_report(
+                ctx.store,
+                replay_verification_ref,
+                expected_run_id=run_id,
+                expected_replay_bundle_ref=replay_bundle_ref,
+                expected_candidate_ref=candidate_ref,
+                expected_evaluation_ref=evaluation_ref,
+            )
+        except ValueError:
+            pass
+        else:
+            return replay_bundle_ref, replay_verification_ref
+
+    current_bundle_ref = replay_bundle_ref
+    if not subject_is_current or replay_verification_ref is not None:
+        upstream_refs = list(source_bundle.upstream_audit_refs)
+        for prior_ref in (replay_bundle_ref, replay_verification_ref):
+            if prior_ref is not None and all(
+                artifact_ref_identity_key(prior_ref) != artifact_ref_identity_key(existing)
+                for existing in upstream_refs
+            ):
+                upstream_refs.append(prior_ref)
+        current_bundle = source_bundle.model_copy(
+            update={
+                "candidate_ref": candidate_ref,
+                "evaluation_ref": evaluation_ref,
+                "upstream_audit_refs": upstream_refs,
+            }
+        )
+        current_bundle_ref = persist_replayable_audit_bundle(ctx.store, current_bundle)
+
+    current_report_ref = verify_and_persist_replay_bundle(
+        ctx.store,
+        run_id=run_id,
+        replay_bundle_ref=current_bundle_ref,
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+        registry=registry,
+    )
+    load_replay_verification_report(
+        ctx.store,
+        current_report_ref,
+        expected_run_id=run_id,
+        expected_replay_bundle_ref=current_bundle_ref,
+        expected_candidate_ref=candidate_ref,
+        expected_evaluation_ref=evaluation_ref,
+    )
+    return current_bundle_ref, current_report_ref
 
 
 def _resolve_runtime_policy_evaluation(

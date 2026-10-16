@@ -4,14 +4,15 @@ import importlib
 import json
 import sys
 from decimal import Decimal
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
 from pydantic import BaseModel
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.manifest import ArtifactRef, input_ref_from_artifact_ref
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.foundry.validation.phase2_closure import PHASE2_CLOSURE_ENV_VAR
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
@@ -121,6 +122,7 @@ from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime impor
     _PolicyRuntimeWorkflowEngine,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.workflows import builder as workflow_builder
 from polisyos.scientist.policy_design.objectives import (
     ObjectiveChannelValue,
     ObjectiveDirection,
@@ -141,8 +143,8 @@ from polisyos.scientist.policy_design.schema import (
     persist_policy_candidate_schema,
 )
 from polisyos.scientist.replay.verification import (
-    ReplayVerificationReport,
-    persist_replay_verification_report,
+    load_replay_verification_report,
+    verify_and_persist_replay_bundle,
 )
 
 
@@ -550,36 +552,52 @@ def _persist_replay_support(
     *,
     candidate_ref: ArtifactRef,
     evaluation_ref: ArtifactRef,
-    run_id: str = "policy-runtime-test",
+    monkeypatch,
+    run_id: str = "policy_promotion",
 ) -> tuple[ArtifactRef, ArtifactRef]:
+    """Persist a measured replay using a controlled executor over the same CAS evaluation."""
+    runtime_input_ref = store.put_json(
+        {"decision_packet": "controlled-replay-input"},
+        PutOptions(kind="scientist.runtime_input", media_type="application/json"),
+        return_selected_profile=True,
+    )
     replay_ref = persist_replayable_audit_bundle(
         store,
         ReplayableAuditBundle(
             run_id=run_id,
             candidate_ref=candidate_ref,
             evaluation_ref=evaluation_ref,
+            workflow_id="policy_design",
+            execution_profile="full",
+            runtime_input_refs={"decision_packet": runtime_input_ref},
+            runtime_params_snapshot={"workflow_id": "policy_design"},
         ),
     )
-    verification_ref = persist_replay_verification_report(
+
+    def _run_selected_workflow(*, initial_state, store):
+        del store
+        assert initial_state.inputs["decision_packet"] == runtime_input_ref
+        assert initial_state.params["replay_mode"] is True
+        return SimpleNamespace(
+            state=SimpleNamespace(
+                params={"policy_evaluation_ref": evaluation_ref},
+                artifacts_index={},
+                reports_index={},
+            )
+        )
+
+    monkeypatch.setattr(workflow_builder, "run_selected_workflow", _run_selected_workflow)
+    verification_ref = verify_and_persist_replay_bundle(
         store,
-        ReplayVerificationReport(
-            run_id=run_id,
-            replay_bundle_ref=replay_ref,
-            verification_mode="semantic_diff",
-            completeness_level="complete",
-            passed=True,
-            overall_similarity=1.0,
-            details={
-                "replay_run_id": f"synthetic_{run_id}",
-                "semantic_diff_summary": {
-                    "overall_similarity": 1.0,
-                    "structural_match": True,
-                    "field_diff_count": 0,
-                },
-                "reason_codes": [],
-            },
-        ),
+        run_id=run_id,
+        replay_bundle_ref=replay_ref,
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
     )
+    report = load_replay_verification_report(store, verification_ref)
+    assert report.verification_mode == "semantic_diff"
+    assert report.passed is True
+    assert report.overall_similarity == 1.0
     return replay_ref, verification_ref
 
 
@@ -1129,19 +1147,24 @@ def test_platform_meta_eval_only_blocks_when_report_is_attached() -> None:
     )
 
 
-def test_promotion_coordinator_persists_readiness_and_requires_canonical_n9(tmp_path) -> None:
+def test_promotion_coordinator_persists_readiness_and_requires_canonical_n9(
+    tmp_path, monkeypatch
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
 
     candidate = _candidate(evidence_depth="replicated")
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
     selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
-    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    evaluation_ref = persist_benchmark_evaluation(
+        store, selection_eval, return_selected_profile=True
+    )
     replay_ref, replay_verification_ref = _persist_replay_support(
         store,
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
+        monkeypatch=monkeypatch,
     )
     vector = _evaluation_vector(candidate)
     bundle = coordinator.build_input_bundle(
@@ -1199,6 +1222,14 @@ def test_promotion_coordinator_persists_readiness_and_requires_canonical_n9(tmp_
     assert result.judge_verdict_ref is not None
     assert result.readiness_contract.readiness_level == DecisionReadiness.DEPLOYMENT_READY
     assert result.readiness_ref is not None
+    expected_candidate_evaluation_edges = [
+        input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+        input_ref_from_artifact_ref(evaluation_ref, role="evaluation"),
+    ]
+    assert store.get_manifest(result.judge_verdict_ref).inputs[:2] == (
+        expected_candidate_evaluation_edges
+    )
+    assert store.get_manifest(result.readiness_ref).inputs == expected_candidate_evaluation_edges
     assert (
         result.judge_verdict.per_judge["statistical"].metrics["statistical_uncertainty_level"]
         == 0.1
@@ -1213,19 +1244,24 @@ def test_promotion_coordinator_persists_readiness_and_requires_canonical_n9(tmp_
     assert registry.get("policy_loop") is None
 
 
-def test_missing_prior_knowledge_caps_readiness_before_canonical_n9_refusal(tmp_path) -> None:
+def test_missing_prior_knowledge_caps_readiness_before_canonical_n9_refusal(
+    tmp_path, monkeypatch
+) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
 
     candidate = _candidate(evidence_depth="replicated")
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
     selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
-    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    evaluation_ref = persist_benchmark_evaluation(
+        store, selection_eval, return_selected_profile=True
+    )
     replay_ref, replay_verification_ref = _persist_replay_support(
         store,
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
+        monkeypatch=monkeypatch,
     )
 
     bundle = coordinator.build_input_bundle(
@@ -1286,19 +1322,22 @@ def test_missing_prior_knowledge_caps_readiness_before_canonical_n9_refusal(tmp_
     assert result.readiness_contract.metadata["evidence_support_summary"]["available"] is False
 
 
-def test_synthetic_runtime_caps_readiness_and_blocks_promotion(tmp_path) -> None:
+def test_synthetic_runtime_caps_readiness_and_blocks_promotion(tmp_path, monkeypatch) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
 
     candidate = _candidate(evidence_depth="replicated")
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
     selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
-    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    evaluation_ref = persist_benchmark_evaluation(
+        store, selection_eval, return_selected_profile=True
+    )
     replay_ref, replay_verification_ref = _persist_replay_support(
         store,
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
+        monkeypatch=monkeypatch,
     )
     bundle = coordinator.build_input_bundle(
         candidate=candidate,
@@ -1497,19 +1536,22 @@ def test_fabric_low_source_trust_caps_decision_readiness() -> None:
     assert contract.metadata["readiness_cap_reason"] == "fabric_source_trust_low"
 
 
-def test_phase2_closure_summary_flows_through_promotion_runtime(tmp_path) -> None:
+def test_phase2_closure_summary_flows_through_promotion_runtime(tmp_path, monkeypatch) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
 
     candidate = _candidate(evidence_depth="replicated")
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
     selection_eval, _ = _benchmark(candidate_ref, holdout_score=0.94)
-    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    evaluation_ref = persist_benchmark_evaluation(
+        store, selection_eval, return_selected_profile=True
+    )
     replay_ref, replay_verification_ref = _persist_replay_support(
         store,
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
+        monkeypatch=monkeypatch,
     )
 
     bundle = coordinator.build_input_bundle(
@@ -1629,13 +1671,16 @@ def test_phase2_closure_summary_flows_through_promotion_runtime_via_env_report(
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
 
     candidate = _candidate(evidence_depth="replicated")
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
     selection_eval, _ = _benchmark(candidate_ref, holdout_score=0.94)
-    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    evaluation_ref = persist_benchmark_evaluation(
+        store, selection_eval, return_selected_profile=True
+    )
     replay_ref, replay_verification_ref = _persist_replay_support(
         store,
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
+        monkeypatch=monkeypatch,
     )
 
     bundle = coordinator.build_input_bundle(
@@ -1708,19 +1753,22 @@ def test_phase2_benchmark_scope_normalizes_frontier_family() -> None:
     assert scope["estimator_name"] == "network_missingness_frontier"
 
 
-def test_latent_bundle_forces_research_only_cap_and_human_gate(tmp_path) -> None:
+def test_latent_bundle_forces_research_only_cap_and_human_gate(tmp_path, monkeypatch) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
 
     candidate = _candidate(evidence_depth="replicated")
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
     selection_eval, _ = _benchmark(candidate_ref, holdout_score=0.94)
-    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    evaluation_ref = persist_benchmark_evaluation(
+        store, selection_eval, return_selected_profile=True
+    )
     replay_ref, replay_verification_ref = _persist_replay_support(
         store,
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
+        monkeypatch=monkeypatch,
     )
 
     bundle = coordinator.build_input_bundle(
@@ -1788,19 +1836,23 @@ def test_readiness_metadata_surfaces_latent_separation_summary() -> None:
 
 def test_promoted_latent_bundle_maps_to_bounds_claim_mode_in_runtime(
     tmp_path,
+    monkeypatch,
 ) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
 
     candidate = _candidate(evidence_depth="replicated")
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
     selection_eval, _ = _benchmark(candidate_ref, holdout_score=0.94)
-    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    evaluation_ref = persist_benchmark_evaluation(
+        store, selection_eval, return_selected_profile=True
+    )
     replay_ref, replay_verification_ref = _persist_replay_support(
         store,
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
+        monkeypatch=monkeypatch,
     )
 
     bundle = coordinator.build_input_bundle(
@@ -1916,19 +1968,23 @@ def test_missing_identification_conditions_rejects_latent_bundle() -> None:
 
 def test_unreadable_latent_bundle_resolution_is_rejected_and_caps_readiness(
     tmp_path,
+    monkeypatch,
 ) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
 
     candidate = _candidate(evidence_depth="replicated")
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
     selection_eval, _ = _benchmark(candidate_ref, holdout_score=0.94)
-    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    evaluation_ref = persist_benchmark_evaluation(
+        store, selection_eval, return_selected_profile=True
+    )
     replay_ref, replay_verification_ref = _persist_replay_support(
         store,
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
+        monkeypatch=monkeypatch,
     )
 
     bundle = coordinator.build_input_bundle(
@@ -2040,19 +2096,22 @@ def test_data_readiness_metadata_uses_ref_and_summary_not_inline_dump(tmp_path) 
     assert "data_readiness_report" not in metadata
 
 
-def test_ref_only_data_readiness_warn_caps_readiness(tmp_path) -> None:
+def test_ref_only_data_readiness_warn_caps_readiness(tmp_path, monkeypatch) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
 
     candidate = _candidate(evidence_depth="replicated")
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
     selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
-    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    evaluation_ref = persist_benchmark_evaluation(
+        store, selection_eval, return_selected_profile=True
+    )
     replay_ref, replay_verification_ref = _persist_replay_support(
         store,
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
+        monkeypatch=monkeypatch,
     )
     readiness_report = build_data_readiness_report(
         sample_size=120,
@@ -2114,19 +2173,22 @@ def test_ref_only_data_readiness_warn_caps_readiness(tmp_path) -> None:
     assert metadata["data_readiness_report_ref"]["artifact_id"] == str(readiness_ref.artifact_id)
 
 
-def test_dp_bounds_only_metadata_is_surfaced_in_readiness_contract(tmp_path) -> None:
+def test_dp_bounds_only_metadata_is_surfaced_in_readiness_contract(tmp_path, monkeypatch) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
 
     candidate = _candidate(evidence_depth="replicated")
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
     selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
-    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    evaluation_ref = persist_benchmark_evaluation(
+        store, selection_eval, return_selected_profile=True
+    )
     replay_ref, replay_verification_ref = _persist_replay_support(
         store,
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
+        monkeypatch=monkeypatch,
     )
     readiness_report = DataReadinessReport(
         decision="warn",
@@ -2202,7 +2264,9 @@ def test_dp_bounds_only_metadata_is_surfaced_in_readiness_contract(tmp_path) -> 
     assert metadata["dp_effect_interval"] == [-0.12, -0.03]
 
 
-def test_promotion_coordinator_publishes_canonical_n9_refusal_to_voi_scheduler(tmp_path) -> None:
+def test_promotion_coordinator_publishes_canonical_n9_refusal_to_voi_scheduler(
+    tmp_path, monkeypatch
+) -> None:
     class _Scheduler:
         def __init__(self) -> None:
             self.calls: list[dict[str, object]] = []
@@ -2214,14 +2278,17 @@ def test_promotion_coordinator_publishes_canonical_n9_refusal_to_voi_scheduler(t
     registry = ChampionRegistry(root=tmp_path / "search_registry", store=store)
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
     candidate = _candidate(evidence_depth="replicated")
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
     selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
-    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    evaluation_ref = persist_benchmark_evaluation(
+        store, selection_eval, return_selected_profile=True
+    )
     scheduler = _Scheduler()
     replay_ref, replay_verification_ref = _persist_replay_support(
         store,
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
+        monkeypatch=monkeypatch,
     )
 
     bundle = coordinator.build_input_bundle(
@@ -2389,7 +2456,7 @@ def test_typed_objective_reaches_best_frontier_and_candidate_transfer_only_when_
     )
     valid_result = valid_controller.run(initial_context={})
 
-    assert valid_result.best_candidate == {"candidate_id": candidate.candidate_id}
+    assert valid_result.best_candidate == candidate_seed_payload
     assert valid_result.history[0].objective_value != -1_000_000.0
     assert valid_result.history[0].policy_evaluation_status == "valid"
     assert valid_result.pareto_projection is not None
@@ -2426,10 +2493,10 @@ def test_typed_objective_reaches_best_frontier_and_candidate_transfer_only_when_
         candidate.candidate_id
     )
 
-    class EmptyGenerator:
+    class NextCandidateGenerator:
         def generate(self, history, current_best, context):
             del history, current_best, context
-            return []
+            return {"candidate_id": "unused-next-candidate"}
 
     receiving_controller = SearchController(
         config=SearchConfig(
@@ -2437,8 +2504,8 @@ def test_typed_objective_reaches_best_frontier_and_candidate_transfer_only_when_
             objective=CompositeObjective([]),
             initial_evaluations=warm_starts,
         ),
-        candidate_generator=EmptyGenerator(),
-        stage_a_evaluator=lambda _candidate, _context: (0.0, True),
+        candidate_generator=NextCandidateGenerator(),
+        stage_a_evaluator=lambda _candidate, _context: (0.0, False),
         stage_b_evaluator=lambda _candidate, _context: {},
     )
     received_result = receiving_controller.run(initial_context={})

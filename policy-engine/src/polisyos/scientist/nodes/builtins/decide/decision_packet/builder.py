@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 
 import polisyos.scientist.nodes.builtins.errors as node_errors
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
@@ -15,7 +16,6 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.core.contracts.scientist import (
     DecisionPacketRef,
-    MetricValidationReportRef,
     SourceVerificationReportRef,
     ValidationReportRef,
     VerifiedPolicyReportRef,
@@ -23,12 +23,16 @@ from polisyos.core.contracts.scientist import (
 from polisyos.ir.analytics.metric_validation_report import (
     load_metric_validation_report,
 )
+from polisyos.ir.registry.refs import MetricValidationReportRef as IRMetricValidationReportRef
 from polisyos.scientist.evidence.claims.head_index import ClaimLedgerHeadAdvanced
 from polisyos.scientist.evidence.claims.validators import (
     is_fail_on_naked_claims_enabled,
     validate_naked_decision_claims,
 )
-from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.scientist.governance.report import (
+    GovernanceReport,
+    load_governance_report_artifact,
+)
 from polisyos.scientist.methods.research_dag.projections import (
     is_research_dag_required_for_publication,
 )
@@ -151,6 +155,15 @@ from polisyos.scientist.validation.policy_verified import (
 
 logger = get_logger(__name__)
 
+
+@dataclass(frozen=True)
+class _GovernanceReportIntakeRefusal:
+    """Preserve failure to admit a supplied governance report through node intake."""
+
+    artifact_ref: str
+    reason_code: str
+
+
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_build_decision_packet@1.5.0"),
     kind=ComponentKind.SCIENTIST_NODE,
@@ -230,6 +243,31 @@ class BuildDecisionPacketNode:
         )
         request = _build_decision_packet_request(ctx, state)
         packet_payload, governance_report = __build_packet_payload__(ctx, state, request)
+        if isinstance(governance_report, _GovernanceReportIntakeRefusal):
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                events=[
+                    NodeEvent(
+                        level="error",
+                        code="governance_report_not_established",
+                        message="Supplied GovernanceReport could not be admitted by its owner profile.",
+                        attrs={
+                            "reason_code": governance_report.reason_code,
+                            "artifact_ref": governance_report.artifact_ref,
+                        },
+                    )
+                ],
+                error=NodeError(
+                    code="governance_report_not_established",
+                    message="GovernanceReport admission is not established",
+                    details={
+                        "governance_report_status": "not_established",
+                        "governance_report_refusal_code": governance_report.reason_code,
+                        "artifact_ref": governance_report.artifact_ref,
+                    },
+                ),
+            )
         (
             validity_envelope,
             validity_baseline,
@@ -357,7 +395,7 @@ class BuildDecisionPacketNode:
             new_state.artifacts_index[ARTIFACT_JUDGE_VERDICT_REF] = judge_verdict_ref
         if sensitivity_bundle_ref is not None:
             new_state.artifacts_index[ARTIFACT_SENSITIVITY_ANALYSIS_BUNDLE_REF] = (
-                sensitivity_bundle_ref
+                ArtifactRef.model_validate(sensitivity_bundle_ref.model_dump(mode="json"))
             )
 
         return NodeOutcome(
@@ -381,8 +419,9 @@ def _build_packet_payload(
     ctx: ExecutionContext,
     state: ExperimentState,
     request: _DecisionPacketBuildRequest,
-) -> tuple[dict[str, object], GovernanceReport | None]:
+) -> tuple[dict[str, object], GovernanceReport | _GovernanceReportIntakeRefusal | None]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     replay_section = _build_replay_section(
         inputs_section=request.inputs_section,
         artifacts_section=request.artifacts_section,
@@ -636,7 +675,9 @@ def _build_packet_payload(
         try:
             report = load_metric_validation_report(
                 _ensure_ir_artifact_store(ctx.store),
-                MetricValidationReportRef.model_validate(metric_validation_ref.model_dump()),
+                IRMetricValidationReportRef.model_validate(
+                    metric_validation_ref.model_dump(mode="json")
+                ),
             )
             packet_payload["metric_validation_report_ref"] = str(metric_validation_ref.artifact_id)
             packet_payload["metric_significance"] = _build_metric_significance_projection(report)
@@ -661,20 +702,19 @@ def _build_packet_payload(
                 ),
             )
 
-    governance_report: GovernanceReport | None = None
+    governance_report: GovernanceReport | _GovernanceReportIntakeRefusal | None = None
 
     governance_ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
 
     if governance_ref is not None:
         try:
-            payload = load_core_json_artifact(ctx.store, governance_ref)
-            report = GovernanceReport.model_validate(payload)
-            governance_report = report
+            governance_report_value = load_governance_report_artifact(ctx.store, governance_ref)
+            governance_report = governance_report_value
             packet_payload["governance"] = {
-                "verdict": report.verdict,
-                "issues": report.issues,
-                "links": report.links.model_dump(mode="json"),
-                "notes": report.notes,
+                "verdict": governance_report_value.verdict,
+                "issues": governance_report_value.issues,
+                "links": governance_report_value.links.model_dump(mode="json"),
+                "notes": governance_report_value.notes,
             }
         except _DECISION_PACKET_LOAD_ERRORS as exc:
             _record_decision_packet_degraded(
@@ -687,7 +727,17 @@ def _build_packet_payload(
                     artifact_key=REPORT_GOVERNANCE_REPORT_REF,
                 ),
             )
+            refusal_code = (
+                exc.code
+                if isinstance(exc, CanonicalProfileRefusalError)
+                else "governance_report_load_failed"
+            )
+            governance_report = _GovernanceReportIntakeRefusal(
+                artifact_ref=str(governance_ref.artifact_id),
+                reason_code=refusal_code,
+            )
             packet_payload["governance"] = None
+            return packet_payload, governance_report
 
     from polisyos.scientist.nodes.builtins.decide.decision_packet_support import (
         _populate_optional_report_projections,
@@ -942,7 +992,13 @@ def _build_decision_packet_request(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> _DecisionPacketBuildRequest:
-    seed = int(state.params.get("random_seed", 0) or 0)
+    raw_seed = state.params.get("random_seed", 0)
+    if not raw_seed:
+        seed = 0
+    elif isinstance(raw_seed, (int, float, str)):
+        seed = int(raw_seed)
+    else:
+        raise TypeError("random_seed must be a JSON integer, number, string, or null")
     inputs_section = _build_inputs_section(state.inputs, state.artifacts_index)
     artifacts_section = _build_artifacts_section(
         state.artifacts_index,

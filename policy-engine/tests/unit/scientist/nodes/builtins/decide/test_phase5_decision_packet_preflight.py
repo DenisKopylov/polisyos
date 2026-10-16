@@ -81,7 +81,12 @@ def _context_and_state(
     )
     governance_ref = store.put_json(
         GovernanceReport(verdict="approve", issues=[]),
-        PutOptions(kind="scientist.governance_report", media_type="application/json"),
+        PutOptions(
+            kind="scientist.governance_report",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.GovernanceReport", version="1.0"),
+        ),
+        return_selected_profile=True,
     )
 
     state = ExperimentState(

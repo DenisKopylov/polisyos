@@ -3,23 +3,39 @@
 from __future__ import annotations
 
 import hashlib
-from collections.abc import Mapping
-from dataclasses import dataclass
+import math
+from collections.abc import Buffer, Mapping
+from dataclasses import dataclass, replace
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    NamedTuple,
+    Protocol,
+    SupportsFloat,
+    SupportsIndex,
+    TypeGuard,
+    cast,
+)
 
 from pydantic import ValidationError
 
 from polisyos.core import components as core_components
-from polisyos.core.artifacts import ArtifactStore
+from polisyos.core.artifacts import ArtifactStore, CoreJSONArtifactStore, RootedArtifactStore
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
+from polisyos.core.artifacts.protocol import (
+    matches_runtime_protocol,
+    matches_runtime_protocol_definition,
+)
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.core.contracts.scientist import DiscoveryArtifactBundleRef, PriorKnowledgeBundleRef
 from polisyos.foundry.methods.catalog.optimization.protocols import AmbiguityCertificate
 from polisyos.foundry.validation import normalize_phase2_artifact_family
+from polisyos.ir import UncertaintyType
 from polisyos.ir.analytics.causal import CausalEffectReport, load_data_readiness_report
 from polisyos.ir.analytics.causal_discovery import LatentDiscoveryBundle
 from polisyos.ir.analytics.cross_graph import (
@@ -27,8 +43,12 @@ from polisyos.ir.analytics.cross_graph import (
     TransportStatus,
     load_cross_graph_evidence_profile,
 )
-from polisyos.ir.analytics.distributional import DistributionalReport, load_distributional_report
+from polisyos.ir.analytics.distributional import (
+    DistributionalReport,
+    load_distributional_report,
+)
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+from polisyos.ir.registry.refs import DataReadinessReportRef
 from polisyos.pdc import (
     EvalSafetyAdmissionChallenge,
     EvalSafetyVerifierPort,
@@ -55,8 +75,7 @@ from polisyos.scientist.methods.discovery.priors import (
     load_prior_knowledge_bundle,
 )
 from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
-from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.methods.search.funnel.types import FunnelExecutedWorkPacket
+from polisyos.scientist.methods.search.funnel.types import FunnelExecutedWorkPacket, FunnelOutcome
 from polisyos.scientist.methods.search.judge_stack import (
     PolicyPromotionCoordinator,
     PolicyPromotionResult,
@@ -67,7 +86,7 @@ from polisyos.scientist.methods.search.promotion_evidence import (
     _PhaseD4ChallengeSourceBasis,
     _PolicyRuntimeSelectionSourceBasis,
 )
-from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope, UncertaintyType
+from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 from polisyos.scientist.nodes.builtins.decide import (
     policy_runtime_artifacts as _runtime_artifacts,
 )
@@ -106,6 +125,88 @@ from polisyos.scientist.replay.verification import (
 _POLICY_RUNTIME_VALIDATION_ERRORS = _runtime_metrics._POLICY_RUNTIME_VALIDATION_ERRORS
 _POLICY_RUNTIME_LOAD_ERRORS = _runtime_metrics._POLICY_RUNTIME_LOAD_ERRORS
 _EVAL_SAFETY_BLOCKER_PREFIX = "polisyos.eval_safety"
+
+
+if TYPE_CHECKING:
+
+    def _is_core_json_artifact_store(store: object) -> TypeGuard[CoreJSONArtifactStore]: ...
+
+else:
+
+    def _is_core_json_artifact_store(store: object) -> bool:
+        return matches_runtime_protocol(store, CoreJSONArtifactStore)
+
+
+def _require_policy_runtime_registry_root(
+    store: ArtifactStore,
+    *,
+    error_code: str = "policy_runtime_registry_root_unavailable",
+) -> Path:
+    """Capture the typed backing root once for local registry operations."""
+    if not matches_runtime_protocol_definition(store, ArtifactStore):
+        raise ValueError(error_code)
+    try:
+        root = cast("RootedArtifactStore", store).root
+    except AttributeError as exc:
+        raise ValueError(error_code) from exc
+    if not isinstance(root, Path):
+        raise ValueError(error_code)
+    return root
+
+
+def _require_policy_runtime_store(
+    store: ArtifactStore,
+    *,
+    error_code: str = "policy_runtime_registry_root_unavailable",
+) -> tuple[CoreJSONArtifactStore, Path]:
+    """Require the protected store and capture its registry root once."""
+    registry_root = _require_policy_runtime_registry_root(store, error_code=error_code)
+    if not _is_core_json_artifact_store(store):
+        raise ValueError(error_code)
+    return store, registry_root
+
+
+def _parse_policy_claim_mode(value: object) -> Literal["proof_only", "bounds", "estimation"]:
+    """Return an admitted policy claim mode without filling missing intent."""
+    if not isinstance(value, str):
+        raise ValueError("promotion_benchmark_scope_unavailable")
+    normalized = value.strip().lower()
+    if normalized == "proof_only":
+        return "proof_only"
+    if normalized == "bounds":
+        return "bounds"
+    if normalized == "estimation":
+        return "estimation"
+    raise ValueError("promotion_benchmark_scope_unavailable")
+
+
+class _PolicyRuntimeNumericInputs(NamedTuple):
+    """Optional measurements consumed by policy runtime promotion."""
+
+    compute_cost_usd: float | None
+    replay_cost_usd: float | None
+    timeout_risk: float | None
+
+
+def _optional_runtime_number(value: object) -> float | None:
+    """Parse one optional finite numeric measurement without defaulting absence."""
+    if value is None:
+        return None
+    if not isinstance(value, (str, Buffer, SupportsFloat, SupportsIndex)):
+        raise TypeError("runtime numeric input must be float-convertible")
+    result = float(value)
+    if not math.isfinite(result):
+        raise ValueError("runtime numeric input must be finite")
+    return result
+
+
+def _policy_runtime_numeric_inputs(state: ExperimentState) -> _PolicyRuntimeNumericInputs:
+    """Preserve absence and parse all optional promotion measurements centrally."""
+    return _PolicyRuntimeNumericInputs(
+        compute_cost_usd=_optional_runtime_number(state.params.get("estimated_compute_cost_usd")),
+        replay_cost_usd=_optional_runtime_number(state.params.get("estimated_replay_cost_usd")),
+        timeout_risk=_optional_runtime_number(state.params.get("timeout_risk")),
+    )
 
 
 def _eval_safety_blocker(name: str) -> str:
@@ -550,7 +651,7 @@ def build_policy_simulation_results(
 def build_vulnerabilities(
     *,
     evaluation: PolicyEvaluationVector | None,
-    distributional,
+    distributional: DistributionalReport | None,
     causal_report: CausalEffectReport | None,
     governance_report: GovernanceReport | None,
 ) -> list[Any]:
@@ -573,7 +674,9 @@ def load_simulation_metrics(ctx: ExecutionContext, state: ExperimentState) -> di
     return _runtime_artifacts._load_simulation_metrics_impl(ctx, state)
 
 
-def load_distributional_report_for_state(ctx: ExecutionContext, state: ExperimentState):
+def load_distributional_report_for_state(
+    ctx: ExecutionContext, state: ExperimentState
+) -> DistributionalReport | None:
     """Load the state-bound distributional report, when present."""
     return _runtime_artifacts._load_distributional_report_for_state_impl(ctx, state)
 
@@ -590,7 +693,9 @@ def load_governance_report(
     return _runtime_artifacts._load_governance_report_impl(ctx, state)
 
 
-def load_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):
+def load_cross_graph_profile(
+    ctx: ExecutionContext, state: ExperimentState
+) -> CrossGraphEvidenceProfile | None:
     """Load the cross-graph evidence profile indexed by the current state."""
     return _runtime_artifacts._load_cross_graph_profile_impl(ctx, state)
 
@@ -669,7 +774,7 @@ def _merge_proxy_boundary_into_latent_bundle(
     )
 
 
-def load_search_uncertainty(ctx: ExecutionContext, state: ExperimentState):
+def load_search_uncertainty(ctx: ExecutionContext, state: ExperimentState) -> UncertaintyEnvelope:
     """Load the causal uncertainty envelope for search consumption."""
     return _runtime_artifacts._load_search_uncertainty_impl(ctx, state)
 
@@ -764,6 +869,20 @@ def run_promotion_with_evidence(
     evaluation_provenance: dict[str, Any] | None = None,
 ) -> PolicyPromotionResult:
     """Run promotion with evidence."""
+    policy_runtime_store, registry_root = _require_policy_runtime_store(ctx.store)
+    policy_runtime_context = replace(ctx, store=policy_runtime_store)
+    evidence_metadata = dict(evidence_bundle.metadata)
+    raw_artifact_family = evidence_metadata.get("artifact_family")
+    raw_claim_mode = evidence_metadata.get("claim_mode")
+    if (
+        not isinstance(raw_artifact_family, str)
+        or not raw_artifact_family.strip()
+        or not isinstance(raw_claim_mode, str)
+        or not raw_claim_mode.strip()
+    ):
+        raise ValueError("promotion_benchmark_scope_unavailable")
+    artifact_family = normalize_phase2_artifact_family(raw_artifact_family)
+    claim_mode = _parse_policy_claim_mode(raw_claim_mode)
     expected_loop_id = str(state.params.get("policy_loop_id") or state.run_id)
     selection_ref = evidence_bundle.selection_evaluation_ref
     if selection_ref is None:
@@ -771,23 +890,27 @@ def run_promotion_with_evidence(
     verification_ref = evidence_bundle.replay_verification_ref
     verification_report = None
     if verification_ref is not None:
-        verification_report = load_replay_verification_report(ctx.store, verification_ref)
+        verification_report = load_replay_verification_report(
+            policy_runtime_store, verification_ref
+        )
     elif evidence_bundle.replay_bundle_ref is not None:
         verification_ref = verify_and_persist_replay_bundle(
-            ctx.store,
+            policy_runtime_store,
             run_id=state.run_id,
             replay_bundle_ref=evidence_bundle.replay_bundle_ref,
             candidate_ref=candidate_ref,
             evaluation_ref=evidence_bundle.evaluation_ref or selection_ref,
-            registry=ReplayRegistry(Path(ctx.store.root) / "search_registry" / "replay_registry"),
+            registry=ReplayRegistry(registry_root / "search_registry" / "replay_registry"),
         )
-        verification_report = load_replay_verification_report(ctx.store, verification_ref)
+        verification_report = load_replay_verification_report(
+            policy_runtime_store, verification_ref
+        )
         evidence_bundle = evidence_bundle.model_copy(
             update={"replay_verification_ref": verification_ref}
         )
     evidence_bundle.assert_runtime_compatible(
         run_id=state.run_id,
-        store=ctx.store,
+        store=policy_runtime_store,
         expected_loop_id=expected_loop_id,
         expected_refs={
             "candidate_ref": candidate_ref,
@@ -827,27 +950,29 @@ def run_promotion_with_evidence(
     assert hidden_holdout_ref is not None
     assert platform_meta_ref is not None
 
-    selection_evaluation = load_benchmark_evaluation(ctx, selection_ref)
-    hidden_holdout = load_benchmark_evaluation(ctx, hidden_holdout_ref)
-    platform_meta = load_platform_meta_evaluation_report(ctx.store, platform_meta_ref)
+    selection_evaluation = load_benchmark_evaluation(policy_runtime_context, selection_ref)
+    hidden_holdout = load_benchmark_evaluation(policy_runtime_context, hidden_holdout_ref)
+    platform_meta = load_platform_meta_evaluation_report(policy_runtime_store, platform_meta_ref)
     governance_report = (
-        load_governance_report_from_ref(ctx, evidence_bundle.governance_report_ref)
+        load_governance_report_from_ref(
+            policy_runtime_context, evidence_bundle.governance_report_ref
+        )
         if evidence_bundle.governance_report_ref is not None
-        else load_governance_report(ctx, state)
+        else load_governance_report(policy_runtime_context, state)
     )
     if governance_report is None:
         raise ValueError("PromotionEvidenceBundle governance_report_ref could not be resolved.")
-    causal_report = load_causal_report(ctx, state)
-    distributional_report = load_distributional_report_for_state(ctx, state)
-    cross_graph_profile = load_cross_graph_profile(ctx, state)
-    prior_knowledge_bundle = load_prior_knowledge_bundle_for_state(ctx, state)
+    causal_report = load_causal_report(policy_runtime_context, state)
+    distributional_report = load_distributional_report_for_state(policy_runtime_context, state)
+    cross_graph_profile = load_cross_graph_profile(policy_runtime_context, state)
+    prior_knowledge_bundle = load_prior_knowledge_bundle_for_state(policy_runtime_context, state)
     latent_resolution = resolve_effective_latent_discovery_bundle_for_state(
-        ctx,
+        policy_runtime_context,
         state,
         causal_report=causal_report,
     )
     latent_discovery_bundle = latent_resolution.bundle
-    uncertainty = load_search_uncertainty(ctx, state)
+    uncertainty = load_search_uncertainty(policy_runtime_context, state)
     l2_result = (
         promotion_context.get("_funnel_L2_result") if isinstance(promotion_context, dict) else None
     )
@@ -857,31 +982,16 @@ def run_promotion_with_evidence(
     if data_readiness_report_ref is not None:
         try:
             data_readiness_report = load_data_readiness_report(
-                _ensure_ir_artifact_store(ctx.store),
-                data_readiness_report_ref,
+                _ensure_ir_artifact_store(policy_runtime_store),
+                DataReadinessReportRef.model_validate(
+                    data_readiness_report_ref.model_dump(mode="json")
+                ),
             )
         except _POLICY_RUNTIME_LOAD_ERRORS:
             data_readiness_report = None
     proof_bundle_ref = maybe_artifact_ref(l2_feedback.get("proof_bundle_ref"))
     bounds_bundle_ref = maybe_artifact_ref(l2_feedback.get("bounds_bundle_ref"))
     negative_certificate_ref = maybe_artifact_ref(l2_feedback.get("negative_certificate_ref"))
-    evidence_metadata = dict(evidence_bundle.metadata)
-    artifact_family = normalize_phase2_artifact_family(
-        str(evidence_metadata.get("artifact_family") or ""),
-        estimator_name=(
-            None
-            if evidence_metadata.get("estimator_name") is None
-            else str(evidence_metadata.get("estimator_name"))
-        ),
-        query_type=(
-            None
-            if evidence_metadata.get("query_type") is None
-            else str(evidence_metadata.get("query_type"))
-        ),
-    )
-    claim_mode = (
-        str(evidence_metadata.get("claim_mode") or "estimation").strip().lower() or "estimation"
-    )
     query_type = (
         str(evidence_metadata.get("query_type"))
         if evidence_metadata.get("query_type") is not None
@@ -899,16 +1009,17 @@ def run_promotion_with_evidence(
     )
 
     champion_registry = ChampionRegistry(
-        root=Path(ctx.store.root) / "search_registry",
-        store=ctx.store,
+        root=registry_root / "search_registry",
+        store=policy_runtime_store,
     )
     coordinator = PolicyPromotionCoordinator(
         champion_registry=champion_registry,
-        store=ctx.store,
+        store=policy_runtime_store,
     )
     loop_id = expected_loop_id
     runtime_provenance = dict(evaluation_provenance or {})
-    phase3_gate = resolve_phase3_gate(ctx, state, candidate=candidate)
+    phase3_gate = resolve_phase3_gate(policy_runtime_context, state, candidate=candidate)
+    runtime_numeric_inputs = _policy_runtime_numeric_inputs(state)
     judge_input = coordinator.build_input_bundle(
         candidate=candidate,
         funnel_outcome=resolve_funnel_outcome(state),
@@ -959,9 +1070,9 @@ def run_promotion_with_evidence(
             },
             "current_pareto_position": "unknown",
         },
-        compute_cost_usd=float(state.params.get("estimated_compute_cost_usd", 0.0) or 0.0),
-        replay_cost_usd=float(state.params.get("estimated_replay_cost_usd", 0.0) or 0.0),
-        timeout_risk=float(state.params.get("timeout_risk", 0.0) or 0.0),
+        compute_cost_usd=runtime_numeric_inputs.compute_cost_usd,
+        replay_cost_usd=runtime_numeric_inputs.replay_cost_usd,
+        timeout_risk=runtime_numeric_inputs.timeout_risk,
         evaluation_backend_kind=(
             str(runtime_provenance.get("backend_kind"))
             if runtime_provenance.get("backend_kind") is not None

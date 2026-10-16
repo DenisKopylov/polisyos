@@ -6,13 +6,16 @@ import importlib
 import json
 import xml.etree.ElementTree as ET
 from collections.abc import Mapping
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactStore
 
 type Path = Any
 _Path = __import__("pathlib", fromlist=("Path",)).Path
@@ -119,7 +122,10 @@ def default_foundry_phase2_closure_report_path(repo_root: Path | None = None) ->
 
 
 def _load_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"Expected a JSON object in {path}")
+    return payload
 
 
 def _normalize_named_items(values: object) -> tuple[str, ...]:
@@ -580,7 +586,7 @@ def build_foundry_phase2_closure_report(
 
 
 def persist_foundry_phase2_closure_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     report: FoundryPhase2ClosureReport,
     *,
     inputs: list[InputRef] | None = None,
@@ -600,7 +606,7 @@ def persist_foundry_phase2_closure_report(
 
 
 def load_foundry_phase2_closure_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ArtifactRef,
 ) -> FoundryPhase2ClosureReport:
     """Load the canonical Phase 2 closure report from CAS."""

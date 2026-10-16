@@ -4,7 +4,7 @@ import logging
 
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
@@ -108,6 +108,11 @@ def test_all_governance_consumers_accept_the_owner_profile(
         event.code == "EVALUATOR_GOVERNANCE_REPORT_INVALID" for event in evaluator.events
     )
     assert evaluator.state.params["evaluator_verdict"] == "APPROVE"
+    evaluator_ref = evaluator.state.evaluator_report_ref
+    assert evaluator_ref is not None
+    assert cas_store.get_manifest(evaluator_ref).inputs == [
+        input_ref_from_artifact_ref(ref, role="governance_report")
+    ]
 
 
 def test_governance_reader_preserves_existing_profileless_owner_manifest(cas_store) -> None:

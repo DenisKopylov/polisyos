@@ -10,6 +10,7 @@ from typing import Annotated, Any, Literal, Union, get_args, get_origin
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import GraphHypothesisRef
@@ -99,18 +100,13 @@ class GraphHypothesis(BaseModel):
     def _adapt_historical_graph_projection(cls, value: Any) -> Any:
         if not isinstance(value, dict) or "projection_disposition" in value:
             return value
-        if (
-            "graph" not in value
-            or not _allows_legacy_graph_projection_adaptation(value)
-        ):
+        if "graph" not in value or not _allows_legacy_graph_projection_adaptation(value):
             return value
         data = dict(value)
         source_graph = CausalGraphModel.model_validate(data["graph"])
         resolved_value = data.get("resolved_graph")
         resolved_graph = (
-            CausalGraphModel.model_validate(resolved_value)
-            if resolved_value is not None
-            else None
+            CausalGraphModel.model_validate(resolved_value) if resolved_value is not None else None
         )
         data["projection_disposition"] = legacy_graph_projection_disposition(
             source_graph,
@@ -134,9 +130,7 @@ class GraphHypothesis(BaseModel):
 
     def graph_for_analysis(self) -> CausalGraphModel | None:
         """Return only a content-bound DAG accepted by this hypothesis."""
-        return graph_for_analysis(
-            self.graph, self.resolved_graph, self.projection_disposition
-        )
+        return graph_for_analysis(self.graph, self.resolved_graph, self.projection_disposition)
 
 
 def edge_key_for_edge(edge: CausalEdge) -> str:
@@ -161,7 +155,9 @@ def skeleton_key_for_edge(edge: CausalEdge) -> str:
 
 
 def _normalized_lag(lag: int | None) -> int:
-    return 0 if lag in (None, 0) else int(lag)
+    if lag is None or lag == 0:
+        return 0
+    return int(lag)
 
 
 @lru_cache(maxsize=16384)
@@ -348,14 +344,10 @@ def _snapshot_untyped_graph_hypothesis_value(value: Any) -> Any:
         }
     if type(value) is dict:
         return {
-            key: _snapshot_untyped_graph_hypothesis_value(item)
-            for key, item in dict.items(value)
+            key: _snapshot_untyped_graph_hypothesis_value(item) for key, item in dict.items(value)
         }
     if type(value) is list:
-        return [
-            _snapshot_untyped_graph_hypothesis_value(item)
-            for item in list.__iter__(value)
-        ]
+        return [_snapshot_untyped_graph_hypothesis_value(item) for item in list.__iter__(value)]
     if type(value) is tuple:
         return tuple(_snapshot_untyped_graph_hypothesis_value(item) for item in value)
     if type(value) is set:
@@ -438,7 +430,10 @@ def _snapshot_graph_hypothesis_value(value: Any, annotation: Any) -> Any:
                 raise ValueError(
                     f"graph hypothesis nested model does not match {annotation.__name__}"
                 )
-            if annotation in {CausalGraphModel, CausalEdge, GraphProjectionDisposition} and type(value) is not annotation:
+            if (
+                annotation in {CausalGraphModel, CausalEdge, GraphProjectionDisposition}
+                and type(value) is not annotation
+            ):
                 raise ValueError(
                     f"graph hypothesis requires exact {annotation.__name__} runtime type"
                 )
@@ -450,9 +445,7 @@ def _snapshot_graph_hypothesis_value(value: Any, annotation: Any) -> Any:
                         f"graph hypothesis nested {annotation.__name__} has undeclared fields"
                     )
             fields = {
-                name: _snapshot_graph_hypothesis_value(
-                    actual_fields[name], field.annotation
-                )
+                name: _snapshot_graph_hypothesis_value(actual_fields[name], field.annotation)
                 for name, field in annotation.model_fields.items()
                 if name in actual_fields
             }
@@ -478,16 +471,16 @@ def _snapshot_graph_hypothesis_value(value: Any, annotation: Any) -> Any:
             return value
         item_annotation = get_args(annotation)[0]
         return [
-            _snapshot_graph_hypothesis_value(item, item_annotation)
-            for item in list.__iter__(value)
+            _snapshot_graph_hypothesis_value(item, item_annotation) for item in list.__iter__(value)
         ]
     if origin is dict:
         if type(value) is not dict:
             return value
         key_annotation, item_annotation = get_args(annotation)
         return {
-            _snapshot_graph_hypothesis_value(key, key_annotation):
-            _snapshot_graph_hypothesis_value(item, item_annotation)
+            _snapshot_graph_hypothesis_value(key, key_annotation): _snapshot_graph_hypothesis_value(
+                item, item_annotation
+            )
             for key, item in dict.items(value)
         }
     if origin is tuple:
@@ -496,8 +489,7 @@ def _snapshot_graph_hypothesis_value(value: Any, annotation: Any) -> Any:
         item_annotations = get_args(annotation)
         if len(item_annotations) == 2 and item_annotations[1] is Ellipsis:
             return tuple(
-                _snapshot_graph_hypothesis_value(item, item_annotations[0])
-                for item in value
+                _snapshot_graph_hypothesis_value(item, item_annotations[0]) for item in value
             )
         if len(value) != len(item_annotations):
             return value
@@ -509,10 +501,7 @@ def _snapshot_graph_hypothesis_value(value: Any, annotation: Any) -> Any:
         if type(value) is not origin:
             return value
         item_annotation = get_args(annotation)[0]
-        items = (
-            _snapshot_graph_hypothesis_value(item, item_annotation)
-            for item in value
-        )
+        items = (_snapshot_graph_hypothesis_value(item, item_annotation) for item in value)
         return origin(items)
     return value
 
@@ -524,9 +513,7 @@ def _revalidate_current_graph_hypothesis(hypothesis: GraphHypothesis) -> GraphHy
     try:
         fields = _canonical_model_field_snapshot(hypothesis, GraphHypothesis)
         snapshot = {
-            name: _snapshot_graph_hypothesis_value(
-                fields[name], field.annotation
-            )
+            name: _snapshot_graph_hypothesis_value(fields[name], field.annotation)
             for name, field in GraphHypothesis.model_fields.items()
         }
         return GraphHypothesis.model_validate(snapshot, strict=True)
@@ -601,12 +588,13 @@ def persist_graph_hypothesis(
 
 
 def load_graph_hypothesis(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: GraphHypothesisRef,
 ) -> GraphHypothesis:
     """Load a version-bound current hypothesis or an exact historical 1.0 candidate."""
     manifest = store.get_manifest(ref)
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     stored_version = _validate_graph_hypothesis_artifact_binding(ref, manifest, payload)
     hypothesis = GraphHypothesis.model_validate(payload)

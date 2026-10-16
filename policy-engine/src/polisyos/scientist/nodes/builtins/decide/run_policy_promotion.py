@@ -9,15 +9,30 @@ from typing import Any
 from pydantic import ValidationError
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.foundry import Metrics
 from polisyos.ir.analytics.causal import CausalEffectReport
-from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
-from polisyos.ir.analytics.distributional import load_distributional_report
+from polisyos.ir.analytics.cross_graph import (
+    CrossGraphEvidenceProfile,
+    load_cross_graph_evidence_profile,
+)
+from polisyos.ir.analytics.distributional import DistributionalReport, load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
-from polisyos.scientist.governance.report import GovernanceReport
+from polisyos.ir.registry.refs import (
+    CrossGraphEvidenceProfileRef,
+    DistributionalReportRef,
+    UncertaintyEnvelopeRef,
+)
+from polisyos.scientist.governance.report import (
+    GovernanceReport,
+    load_governance_report_artifact,
+)
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     BenchmarkSplit,
@@ -26,19 +41,21 @@ from polisyos.scientist.methods.autotune.models import (
 )
 from polisyos.scientist.methods.autotune.registry import ChampionRegistry
 from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
-from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.funnel.types import FunnelOutcome
 from polisyos.scientist.methods.search.judge_stack import (
     PolicyPromotionCoordinator,
     PolicyPromotionResult,
     to_search_uncertainty_envelope,
 )
 from polisyos.scientist.methods.search.promotion_evidence import PromotionEvidenceBundle
+from polisyos.scientist.methods.search.uncertainty import UncertaintyEnvelope
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     _is_policy_mode,
     _parse_model,
 )
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+    _policy_runtime_numeric_inputs,
     load_ambiguity_certificate,
     load_prior_knowledge_bundle_for_state,
     resolve_effective_latent_discovery_bundle_for_state,
@@ -132,7 +149,7 @@ class RunPolicyPromotionNode:
             status="fail",
             state=state,
             error=NodeError(
-                code=node_errors.ERROR_INVALID_INPUT,
+                code=node_errors.ERROR_INVALID_STATE,
                 message=(
                     "run_policy_promotion is no longer supported as a direct runtime node. "
                     "Use run_policy_blueprint_runtime for blueprint-native promotion."
@@ -150,6 +167,9 @@ def _run_promotion_with_evidence(
     evaluation_vector: PolicyEvaluationVector,
     evidence_bundle: PromotionEvidenceBundle,
 ) -> PolicyPromotionResult:
+    store = ctx.store
+    if not isinstance(store, FileSystemCAS):
+        raise TypeError("policy_promotion_requires_filesystem_cas")
     evidence_bundle.assert_compatible_with_run(state.run_id)
     missing = evidence_bundle.missing_required_refs(
         require_hidden_holdout=True,
@@ -170,7 +190,7 @@ def _run_promotion_with_evidence(
 
     selection_evaluation = _load_benchmark_evaluation(ctx, selection_ref)
     hidden_holdout = _load_benchmark_evaluation(ctx, hidden_holdout_ref)
-    platform_meta = load_platform_meta_evaluation_report(ctx.store, platform_meta_ref)
+    platform_meta = load_platform_meta_evaluation_report(store, platform_meta_ref)
     governance_report = (
         _load_governance_report_from_ref(ctx, evidence_bundle.governance_report_ref)
         if evidence_bundle.governance_report_ref is not None
@@ -191,14 +211,15 @@ def _run_promotion_with_evidence(
     uncertainty = _load_search_uncertainty(ctx, state)
 
     champion_registry = ChampionRegistry(
-        root=Path(ctx.store.root) / "search_registry",
-        store=ctx.store,
+        root=Path(store.root) / "search_registry",
+        store=store,
     )
     coordinator = PolicyPromotionCoordinator(
         champion_registry=champion_registry,
-        store=ctx.store,
+        store=store,
     )
     loop_id = str(state.params.get("policy_loop_id") or state.run_id)
+    runtime_numeric_inputs = _policy_runtime_numeric_inputs(state)
     judge_input = coordinator.build_input_bundle(
         candidate=candidate,
         funnel_outcome=_resolve_funnel_outcome(state),
@@ -232,9 +253,9 @@ def _run_promotion_with_evidence(
             },
             "current_pareto_position": "unknown",
         },
-        compute_cost_usd=float(state.params.get("estimated_compute_cost_usd", 0.0) or 0.0),
-        replay_cost_usd=float(state.params.get("estimated_replay_cost_usd", 0.0) or 0.0),
-        timeout_risk=float(state.params.get("timeout_risk", 0.0) or 0.0),
+        compute_cost_usd=runtime_numeric_inputs.compute_cost_usd,
+        replay_cost_usd=runtime_numeric_inputs.replay_cost_usd,
+        timeout_risk=runtime_numeric_inputs.timeout_risk,
     )
     promotion_policy = PromotionPolicy(
         loop_id=loop_id,
@@ -262,9 +283,7 @@ def _ensure_candidate_ref(
     return persist_policy_candidate_schema(
         ctx.store,
         candidate,
-        inputs=[
-            InputRef(artifact_id=ref.artifact_id, role=key) for key, ref in state.inputs.items()
-        ],
+        inputs=[input_ref_from_artifact_ref(ref, role=key) for key, ref in state.inputs.items()],
     )
 
 
@@ -300,7 +319,7 @@ def _resolve_policy_evaluation(
                 name="polisyos.scientist.policy_design.PolicyEvaluationVector",
                 version="1.0",
             ),
-            inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+            inputs=[input_ref_from_artifact_ref(candidate_ref, role="candidate")],
         ),
     )
     return parsed, ref
@@ -308,6 +327,7 @@ def _resolve_policy_evaluation(
 
 def _load_simulation_metrics(ctx: ExecutionContext, state: ExperimentState) -> dict[str, float]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     metrics_ref = state.artifacts_index.get(ARTIFACT_METRICS_REF)
     if metrics_ref is None:
         return {}
@@ -363,20 +383,28 @@ def _build_selection_benchmark_evaluation(
 
 def _load_benchmark_evaluation(ctx: ExecutionContext, ref: ArtifactRef) -> BenchmarkEvaluation:
     from polisyos.core.artifacts import load_core_json_artifact
+
     return BenchmarkEvaluation.model_validate(load_core_json_artifact(ctx.store, ref))
 
 
-def _load_distributional_report(ctx: ExecutionContext, state: ExperimentState):
+def _load_distributional_report(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> DistributionalReport | None:
     ref = state.artifacts_index.get(ARTIFACT_DISTRIBUTIONAL_REPORT_REF)
     return (
         None
         if ref is None
-        else load_distributional_report(_ensure_ir_artifact_store(ctx.store), ref)
+        else load_distributional_report(
+            _ensure_ir_artifact_store(ctx.store),
+            DistributionalReportRef.model_validate(ref.model_dump(mode="json")),
+        )
     )
 
 
 def _load_causal_report(ctx: ExecutionContext, state: ExperimentState) -> CausalEffectReport | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if ref is None:
         return None
@@ -386,36 +414,46 @@ def _load_causal_report(ctx: ExecutionContext, state: ExperimentState) -> Causal
 def _load_governance_report(
     ctx: ExecutionContext, state: ExperimentState
 ) -> GovernanceReport | None:
-    from polisyos.core.artifacts import load_core_json_artifact
     ref = state.reports_index.get(REPORT_GOVERNANCE_REPORT_REF)
     if ref is None:
         return None
-    return GovernanceReport.model_validate(load_core_json_artifact(ctx.store, ref))
+    return load_governance_report_artifact(ctx.store, ref)
 
 
 def _load_governance_report_from_ref(
     ctx: ExecutionContext,
     ref: ArtifactRef,
 ) -> GovernanceReport | None:
-    from polisyos.core.artifacts import load_core_json_artifact
-    return GovernanceReport.model_validate(load_core_json_artifact(ctx.store, ref))
+    return load_governance_report_artifact(ctx.store, ref)
 
 
-def _load_cross_graph_profile(ctx: ExecutionContext, state: ExperimentState):
+def _load_cross_graph_profile(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> CrossGraphEvidenceProfile | None:
     ref = state.artifacts_index.get(ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF)
     return (
         None
         if ref is None
-        else load_cross_graph_evidence_profile(_ensure_ir_artifact_store(ctx.store), ref)
+        else load_cross_graph_evidence_profile(
+            _ensure_ir_artifact_store(ctx.store),
+            CrossGraphEvidenceProfileRef.model_validate(ref.model_dump(mode="json")),
+        )
     )
 
 
-def _load_search_uncertainty(ctx: ExecutionContext, state: ExperimentState):
+def _load_search_uncertainty(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> UncertaintyEnvelope:
     ref = state.artifacts_index.get(ARTIFACT_CAUSAL_ENVELOPE_REF)
     if ref is None:
         return to_search_uncertainty_envelope(None)
     return to_search_uncertainty_envelope(
-        load_uncertainty_envelope(_ensure_ir_artifact_store(ctx.store), ref)
+        load_uncertainty_envelope(
+            _ensure_ir_artifact_store(ctx.store),
+            UncertaintyEnvelopeRef.model_validate(ref.model_dump(mode="json")),
+        )
     )
 
 

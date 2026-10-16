@@ -133,6 +133,19 @@ def test_build_foundry_phase2_closure_report_all_green(tmp_path: Path) -> None:
     assert report.artifact_families["distributional_frontier"].passes_all is True
 
 
+def test_build_foundry_phase2_closure_report_rejects_non_object_manifest(
+    tmp_path: Path,
+) -> None:
+    (tmp_path / "manifest.json").write_text("[]", encoding="utf-8")
+
+    try:
+        _build_report(tmp_path)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("Phase 2 manifests must be JSON objects")
+
+
 def test_build_foundry_phase2_closure_report_flags_missing_typed_target_mapping(
     tmp_path: Path,
 ) -> None:

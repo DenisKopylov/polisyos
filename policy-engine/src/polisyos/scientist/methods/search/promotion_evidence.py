@@ -145,13 +145,12 @@ class PromotionEvidenceBundle(BaseModel):
                 raise ValueError(
                     "PromotionEvidenceBundle evaluation_ref must be a policy evaluation vector."
                 )
-            if not any(
-                item.artifact_id == self.candidate_ref.artifact_id and item.role == "candidate"
-                for item in manifest.inputs
-            ):
-                raise ValueError(
-                    "PromotionEvidenceBundle evaluation_ref is stale or detached from the current candidate."
-                )
+            _assert_exact_evaluation_inputs(
+                store,
+                ref=self.evaluation_ref,
+                expected={"candidate": self.candidate_ref},
+                role="evaluation_ref",
+            )
         if self.selection_evaluation_ref is not None:
             _validate_benchmark_ref(
                 store,
@@ -338,8 +337,17 @@ def _require_manifest(
     *,
     role: str,
 ) -> ArtifactManifest:
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError(f"PromotionEvidenceBundle {role} requires a selected manifest profile.")
+    from polisyos.core.artifacts.canonical_profile import read_core_manifest_profile
+
     try:
-        return store.get_manifest(ref)
+        manifest, _declaration = read_core_manifest_profile(
+            store,
+            ref,
+            manifest_profile_sha256=ref.manifest_profile_sha256,
+        )
+        return manifest
     except FileNotFoundError as exc:  # pragma: no cover - defensive runtime error path
         raise ValueError(f"PromotionEvidenceBundle {role} is missing from CAS.") from exc
 

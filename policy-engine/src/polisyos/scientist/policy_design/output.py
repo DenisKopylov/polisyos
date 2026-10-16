@@ -2,13 +2,24 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any, Literal
+from typing import Any, Literal, Protocol
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.canonical_profile import artifact_ref_for_manifest
+from polisyos.core.artifacts.manifest import (
+    ArtifactManifest,
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    artifact_ref_identity_key,
+    input_ref_from_artifact_ref,
+)
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.ic_verification import ICVerificationCertificateRef
@@ -108,6 +119,13 @@ class RecommendedAction(BaseModel):
     title: str = Field(min_length=1)
     description: str = Field(min_length=1)
     priority: str = Field(default="medium", min_length=1)
+
+
+class _SchemaVersionedModel(Protocol):
+    """Minimal schema surface shared by persisted policy artifact models."""
+
+    @property
+    def schema_version(self) -> str: ...
 
 
 class PolicyBrief(ArtifactMinimalityMixin):
@@ -531,6 +549,12 @@ class ReplayableAuditBundle(ArtifactMinimalityMixin):
     trace_notes: list[str] = Field(default_factory=list)
 
 
+_REPLAYABLE_AUDIT_BUNDLE_OWNER_SCHEMA = SchemaInfo(
+    name="polisyos.scientist.policy_design.ReplayableAuditBundle",
+    version="1.0",
+)
+
+
 class PolicyArtifactBundle(ArtifactMinimalityMixin):
     """Top-level bundle stitching together frontier, governance, rollout, and replay artifacts."""
 
@@ -852,7 +876,7 @@ class PolicyArtifactBuilder:
         self,
         *,
         source: PolicyArtifactBuildInput,
-        refs: dict[str, ArtifactRef],
+        refs: Mapping[str, ArtifactRef],
         phase3_gate: Phase3CertificateStatus,
     ) -> ClaimLedger:
         readiness_level = (
@@ -1327,8 +1351,8 @@ class PolicyArtifactBuilder:
 
     def _reporting_distance_from_selected(
         self,
-        candidate_evaluation,
-        selected_evaluation,
+        candidate_evaluation: PolicyEvaluationVector,
+        selected_evaluation: PolicyEvaluationVector,
     ) -> float:
         candidate_axes = candidate_evaluation.frontier_objectives("global_feasible")
         selected_axes = selected_evaluation.frontier_objectives("global_feasible")
@@ -1626,20 +1650,281 @@ def persist_rejected_alternatives_summary(
 
 
 def persist_replayable_audit_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     payload: ReplayableAuditBundle,
     *,
     inputs: list[InputRef] | None = None,
 ) -> ReplayableAuditBundleRef:
     """Persist the replayable audit bundle that rehydrates a policy decision end to end."""
+    if not payload.run_id.strip():
+        raise ValueError("replay_bundle_run_id_blank")
+    projected_inputs = _replayable_audit_bundle_input_refs(payload)
+    persisted_inputs = _merge_replay_bundle_input_refs(projected_inputs, inputs)
     return _persist_model(
         store,
         payload,
         kind="scientist.replayable_audit_bundle",
-        schema_name="polisyos.scientist.policy_design.ReplayableAuditBundle",
+        schema_name=_REPLAYABLE_AUDIT_BUNDLE_OWNER_SCHEMA.name,
         ref_cls=ReplayableAuditBundleRef,
-        inputs=inputs,
+        inputs=persisted_inputs,
     )
+
+
+def _replayable_audit_bundle_artifact_refs(
+    payload: ReplayableAuditBundle,
+) -> list[tuple[str, ArtifactRef]]:
+    """Return every artifact reference carried by the replay bundle with its lineage role."""
+    references: list[tuple[str, ArtifactRef]] = []
+    for role, ref in (
+        ("candidate", payload.candidate_ref),
+        ("evaluation", payload.evaluation_ref),
+        ("readiness", payload.readiness_ref),
+    ):
+        if ref is not None:
+            references.append((role, ref))
+    for role_prefix, values in (
+        ("runtime_input", payload.runtime_input_refs),
+        ("runtime_artifact", payload.runtime_artifacts_index),
+        ("runtime_report", payload.runtime_reports_index),
+        ("artifact_ref", payload.artifact_refs),
+    ):
+        references.extend((f"{role_prefix}:{key}", ref) for key, ref in sorted(values.items()))
+    references.extend(
+        (f"upstream_audit_ref:{index}", ref)
+        for index, ref in enumerate(payload.upstream_audit_refs)
+    )
+    references.extend(
+        (f"actionable_side_information_ref:{index}", ref)
+        for index, ref in enumerate(payload.actionable_side_information_refs)
+    )
+    return references
+
+
+def _replayable_audit_bundle_unselected_input_refs(
+    payload: ReplayableAuditBundle,
+) -> list[tuple[str, ArtifactRef]]:
+    """Return projected bundle inputs that lack a producer-selected manifest profile."""
+    return [
+        (role, ref)
+        for role, ref in _replayable_audit_bundle_artifact_refs(payload)
+        if ref.manifest_profile_sha256 is None
+    ]
+
+
+def _replayable_audit_bundle_input_refs(payload: ReplayableAuditBundle) -> list[InputRef]:
+    """Project every artifact reference carried by the replay bundle into lineage edges."""
+    return [
+        input_ref_from_artifact_ref(ref, role=role)
+        for role, ref in _replayable_audit_bundle_artifact_refs(payload)
+    ]
+
+
+@dataclass(frozen=True)
+class _ReplayableAuditBasisRoot:
+    """Record whether the outer replay-bundle selector admits its exact current view."""
+
+    ref: ArtifactRef
+    manifest: ArtifactManifest | None
+    failure_kind: (
+        Literal["profile_missing", "selected_manifest_missing", "owner_mismatch", "integrity"]
+        | None
+    )
+    error_code: str | None
+    byte_size: int | None
+    integrity_error: str | None
+
+
+@dataclass(frozen=True)
+class _ReplayableAuditBasisReference:
+    """Record admission checks for one projected current replay-basis reference."""
+
+    role: str
+    ref: ArtifactRef
+    lineage_matches: bool
+    selected_profile_missing: bool
+    integrity_ok: bool | None
+    byte_size: int | None
+    integrity_error: str | None
+
+
+@dataclass(frozen=True)
+class _ReplayableAuditBasisAdmission:
+    """Capture the outer owner and all projected selected-view and lineage checks."""
+
+    root: _ReplayableAuditBasisRoot
+    bundle: ReplayableAuditBundle | None
+    references: tuple[_ReplayableAuditBasisReference, ...]
+    duplicate_input_roles: tuple[str, ...]
+
+    @property
+    def input_mismatch_roles(self) -> tuple[str, ...]:
+        """Return projected roles whose outer lineage edge differs from the body ref."""
+        return tuple(item.role for item in self.references if not item.lineage_matches)
+
+
+def _admit_replayable_audit_bundle_basis(
+    store: ArtifactStore,
+    replay_bundle_ref: ArtifactRef,
+) -> _ReplayableAuditBasisAdmission:
+    """Admit the selected outer bundle and every projected dependency as one current basis."""
+
+    def rejected_root(
+        failure_kind: Literal[
+            "profile_missing", "selected_manifest_missing", "owner_mismatch", "integrity"
+        ],
+        error_code: str,
+        *,
+        manifest: ArtifactManifest | None = None,
+        integrity_error: str | None = None,
+    ) -> _ReplayableAuditBasisAdmission:
+        return _ReplayableAuditBasisAdmission(
+            root=_ReplayableAuditBasisRoot(
+                ref=replay_bundle_ref,
+                manifest=manifest,
+                failure_kind=failure_kind,
+                error_code=error_code,
+                byte_size=None,
+                integrity_error=integrity_error,
+            ),
+            bundle=None,
+            references=(),
+            duplicate_input_roles=(),
+        )
+
+    if (
+        replay_bundle_ref.kind != "scientist.replayable_audit_bundle"
+        or replay_bundle_ref.media_type != "application/json"
+    ):
+        return rejected_root("owner_mismatch", "replay_bundle_kind_or_media_type_mismatch")
+    if replay_bundle_ref.manifest_profile_sha256 is None:
+        return rejected_root("profile_missing", "replay_bundle_selected_profile_required")
+
+    try:
+        manifest = store.get_manifest(replay_bundle_ref)
+    except Exception:
+        return rejected_root(
+            "selected_manifest_missing", "replay_bundle_selected_manifest_mismatch"
+        )
+    if artifact_ref_identity_key(artifact_ref_for_manifest(manifest)) != artifact_ref_identity_key(
+        replay_bundle_ref
+    ):
+        return rejected_root(
+            "selected_manifest_missing",
+            "replay_bundle_selected_manifest_mismatch",
+            manifest=manifest,
+        )
+    if manifest.artifact_schema != _REPLAYABLE_AUDIT_BUNDLE_OWNER_SCHEMA:
+        return rejected_root(
+            "owner_mismatch",
+            "replay_bundle_owner_schema_mismatch",
+            manifest=manifest,
+        )
+
+    root_integrity_error: str | None
+    try:
+        root_verification = store.verify(replay_bundle_ref)
+    except Exception as exc:
+        root_integrity_error = f"{type(exc).__name__}: {exc}"
+    else:
+        root_integrity_error = (
+            None
+            if root_verification.ok
+            else root_verification.error or "artifact verification failed"
+        )
+    if root_integrity_error is not None:
+        return rejected_root(
+            "integrity",
+            "replay_bundle_integrity_failed",
+            manifest=manifest,
+            integrity_error=root_integrity_error,
+        )
+
+    bundle = load_replayable_audit_bundle(store, replay_bundle_ref)
+    input_refs_by_role: dict[str, InputRef] = {}
+    duplicate_input_roles: set[str] = set()
+    for item in manifest.inputs:
+        if item.role in input_refs_by_role:
+            duplicate_input_roles.add(item.role)
+        else:
+            input_refs_by_role[item.role] = item
+
+    references: list[_ReplayableAuditBasisReference] = []
+    for role, ref in _replayable_audit_bundle_artifact_refs(bundle):
+        expected_input = input_ref_from_artifact_ref(ref, role=role)
+        lineage_matches = (
+            role not in duplicate_input_roles and input_refs_by_role.get(role) == expected_input
+        )
+        if ref.manifest_profile_sha256 is None:
+            references.append(
+                _ReplayableAuditBasisReference(
+                    role=role,
+                    ref=ref,
+                    lineage_matches=lineage_matches,
+                    selected_profile_missing=True,
+                    integrity_ok=None,
+                    byte_size=None,
+                    integrity_error=None,
+                )
+            )
+            continue
+
+        integrity_error: str | None
+        try:
+            verification = store.verify(ref)
+        except Exception as exc:
+            integrity_ok = False
+            byte_size = None
+            integrity_error = f"{type(exc).__name__}: {exc}"
+        else:
+            integrity_ok = verification.ok
+            byte_size = verification.byte_size if verification.ok else None
+            integrity_error = (
+                None if verification.ok else verification.error or "artifact verification failed"
+            )
+        references.append(
+            _ReplayableAuditBasisReference(
+                role=role,
+                ref=ref,
+                lineage_matches=lineage_matches,
+                selected_profile_missing=False,
+                integrity_ok=integrity_ok,
+                byte_size=byte_size,
+                integrity_error=integrity_error,
+            )
+        )
+
+    return _ReplayableAuditBasisAdmission(
+        root=_ReplayableAuditBasisRoot(
+            ref=replay_bundle_ref,
+            manifest=manifest,
+            failure_kind=None,
+            error_code=None,
+            byte_size=root_verification.byte_size,
+            integrity_error=None,
+        ),
+        bundle=bundle,
+        references=tuple(references),
+        duplicate_input_roles=tuple(sorted(duplicate_input_roles)),
+    )
+
+
+def _merge_replay_bundle_input_refs(
+    projected_inputs: list[InputRef],
+    supplied_inputs: list[InputRef] | None,
+) -> list[InputRef]:
+    """Retain additional producer edges while requiring exact declared replay references."""
+    supplied_by_role: dict[str, InputRef] = {}
+    for item in supplied_inputs or []:
+        if item.role in supplied_by_role:
+            raise ValueError(f"replay_bundle_{item.role}_input_duplicate")
+        supplied_by_role[item.role] = item
+
+    for item in projected_inputs:
+        supplied = supplied_by_role.get(item.role)
+        if supplied is not None and supplied != item:
+            raise ValueError(f"replay_bundle_{item.role}_input_mismatch")
+        supplied_by_role[item.role] = item
+    return list(supplied_by_role.values())
 
 
 def persist_policy_artifact_bundle(
@@ -1790,7 +2075,7 @@ def load_rejected_alternatives_summary(
 
 
 def load_replayable_audit_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ArtifactRef,
 ) -> ReplayableAuditBundle:
     """Load replayable audit bundle."""
@@ -1827,15 +2112,15 @@ def _limited_pareto_projection(
     )
 
 
-def _persist_model(
-    store: FileSystemCAS,
-    payload: BaseModel,
+def _persist_model[ArtifactRefT: ArtifactRef](
+    store: ArtifactStore,
+    payload: _SchemaVersionedModel,
     *,
     kind: str,
     schema_name: str,
-    ref_cls: type[ArtifactRef],
+    ref_cls: type[ArtifactRefT],
     inputs: list[InputRef] | None,
-) -> ArtifactRef:
+) -> ArtifactRefT:
     historical_projection = None
     if payload.schema_version == "1.0":
         historical_projection = getattr(
@@ -1843,7 +2128,7 @@ def _persist_model(
             f"historical_v{payload.schema_version[0]}_payload",
             None,
         )
-    stored_payload: BaseModel | dict[str, Any] = payload
+    stored_payload: object = payload
     if callable(historical_projection):
         stored_payload = historical_projection()
     ref = store.put_json(
@@ -1855,21 +2140,29 @@ def _persist_model(
             inputs=list(inputs or []),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     return ref_cls.model_validate(ref.model_dump())
 
 
-def _load_model(store: FileSystemCAS, ref: ArtifactRef, model_cls: type[BaseModel]) -> Any:
+def _load_model[ModelT: BaseModel](
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    model_cls: type[ModelT],
+) -> ModelT:
     from polisyos.core.artifacts import load_core_json_artifact
+
     raw = store.get_bytes(ref)
     payload = load_core_json_artifact(store, ref, raw_payload_bytes=raw)
     schema_version = payload.get("schema_version") if isinstance(payload, dict) else None
     model = model_cls.model_validate(payload)
     historical_projection = None
+    historical_schema_version: str | None = None
     if schema_version == "1.0":
+        historical_schema_version = schema_version[0]
         historical_projection = getattr(
             model,
-            f"historical_v{schema_version[0]}_payload",
+            f"historical_v{historical_schema_version}_payload",
             None,
         )
     if (
@@ -1878,7 +2171,7 @@ def _load_model(store: FileSystemCAS, ref: ArtifactRef, model_cls: type[BaseMode
         and to_canonical_bytes(historical_projection(), CanonSpec(forbid_floats=False)) != raw
     ):
         raise ValueError(
-            f"historical v{schema_version[0]} policy artifact does not replay byte-exactly"
+            f"historical v{historical_schema_version} policy artifact does not replay byte-exactly"
         )
     return model
 
@@ -1886,22 +2179,19 @@ def _load_model(store: FileSystemCAS, ref: ArtifactRef, model_cls: type[BaseMode
 def _bundle_inputs(source: PolicyArtifactBuildInput) -> list[InputRef]:
     inputs: list[InputRef] = []
     if source.candidate_ref is not None:
-        inputs.append(InputRef(artifact_id=source.candidate_ref.artifact_id, role="candidate"))
+        inputs.append(input_ref_from_artifact_ref(source.candidate_ref, role="candidate"))
     if source.evaluation_ref is not None:
-        inputs.append(InputRef(artifact_id=source.evaluation_ref.artifact_id, role="evaluation"))
+        inputs.append(input_ref_from_artifact_ref(source.evaluation_ref, role="evaluation"))
     if source.readiness_ref is not None:
-        inputs.append(InputRef(artifact_id=source.readiness_ref.artifact_id, role="readiness"))
+        inputs.append(input_ref_from_artifact_ref(source.readiness_ref, role="readiness"))
     if source.stress_test_report_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=source.stress_test_report_ref.artifact_id,
-                role="stress_test_report",
-            )
+            input_ref_from_artifact_ref(source.stress_test_report_ref, role="stress_test_report")
         )
     if source.calibration_validation_bundle_ref is not None:
         inputs.append(
-            InputRef(
-                artifact_id=source.calibration_validation_bundle_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                source.calibration_validation_bundle_ref,
                 role="calibration_validation_bundle",
             )
         )
@@ -1910,24 +2200,16 @@ def _bundle_inputs(source: PolicyArtifactBuildInput) -> list[InputRef]:
         and source.calibration_validation_bundle.governance_accountability_ref is not None
     ):
         inputs.append(
-            InputRef(
-                artifact_id=source.calibration_validation_bundle.governance_accountability_ref.artifact_id,
+            input_ref_from_artifact_ref(
+                source.calibration_validation_bundle.governance_accountability_ref,
                 role="governance_accountability_artifact",
             )
         )
     for index, ref in enumerate(_dedupe_artifact_refs(source.audit_refs)):
-        inputs.append(
-            InputRef(
-                artifact_id=ref.artifact_id,
-                role=f"upstream_audit_ref_{index}",
-            )
-        )
+        inputs.append(input_ref_from_artifact_ref(ref, role=f"upstream_audit_ref:{index}"))
     for index, ref in enumerate(_dedupe_artifact_refs(source.actionable_side_information_refs)):
         inputs.append(
-            InputRef(
-                artifact_id=ref.artifact_id,
-                role=f"actionable_side_information_ref_{index}",
-            )
+            input_ref_from_artifact_ref(ref, role=f"actionable_side_information_ref:{index}")
         )
     return inputs
 
@@ -1999,7 +2281,10 @@ def _dedupe_artifact_refs(items: list[ArtifactRef]) -> list[ArtifactRef]:
     return output
 
 
-def _maybe_validate_ref(ref: ArtifactRef | None, ref_cls: type[ArtifactRef]) -> ArtifactRef | None:
+def _maybe_validate_ref[ModelT: BaseModel](
+    ref: BaseModel | None,
+    ref_cls: type[ModelT],
+) -> ModelT | None:
     if ref is None:
         return None
     return ref_cls.model_validate(ref.model_dump())

@@ -95,6 +95,15 @@ def test_calibration_report_builds_from_tracker_lessons_and_burn_in(tmp_path) ->
     assert report.expensive_stage_load_reduction == 0.6
 
     ref = persist_funnel_calibration_report(store, report)
+    assert ref.manifest_profile_sha256 is not None
+    from polisyos.core.artifacts.canonical_profile import read_core_manifest_profile
+
+    manifest, _declaration = read_core_manifest_profile(
+        store,
+        ref,
+        manifest_profile_sha256=ref.manifest_profile_sha256,
+    )
+    assert manifest.kind == "scientist.search.calibration_report"
     loaded = load_funnel_calibration_report(store, ref)
     assert loaded.current_mode == report.current_mode
 

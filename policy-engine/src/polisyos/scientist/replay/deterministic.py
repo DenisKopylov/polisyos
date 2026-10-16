@@ -12,7 +12,7 @@ import random
 import re
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common import logger as common_logger
 from polisyos.core import artifacts as core_artifacts
@@ -47,6 +47,12 @@ _STATE_SOURCE_ROLES = frozenset(
     }
 )
 logger = get_logger(__name__)
+
+if TYPE_CHECKING:
+    from polisyos.scientist.policy_design.output import (
+        ReplayableAuditBundle,
+        _ReplayableAuditBasisAdmission,
+    )
 
 
 class ReplayStrategy(StrEnum):
@@ -237,6 +243,7 @@ def resolve_effective_seed(
 ) -> SeedResolution:
     """Resolve the replay seed from packet metadata, run records, or ExecPlan."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     replay_block = payload.get("replay")
     if isinstance(replay_block, dict):
         replay_seed = replay_block.get("effective_seed")
@@ -278,6 +285,7 @@ def compare_current_environment(
     an empty diff list after debug logging.
     """
     from polisyos.core.artifacts import load_core_json_artifact
+
     inputs = _dict_section(payload, "inputs")
     env_ref = try_parse_artifact_id(inputs.get("environment_manifest_ref"))
     if env_ref is None:
@@ -312,59 +320,118 @@ def measure_replayable_audit_bundle(
     replay_bundle_ref: ArtifactRef,
 ) -> ReplayBundleMeasurement:
     """Check replay-bundle dependencies and run semantic replay when snapshots exist."""
-    from polisyos.scientist.policy_design.output import load_replayable_audit_bundle
+    from polisyos.scientist.policy_design.output import _admit_replayable_audit_bundle_basis
 
-    bundle = load_replayable_audit_bundle(cast("Any", store), replay_bundle_ref)
-    refs: list[ArtifactRef] = []
-    if bundle.candidate_ref is not None:
-        refs.append(bundle.candidate_ref)
-    if bundle.evaluation_ref is not None:
-        refs.append(bundle.evaluation_ref)
-    if bundle.readiness_ref is not None:
-        refs.append(bundle.readiness_ref)
-    refs.extend(bundle.upstream_audit_refs)
-    refs.extend(bundle.actionable_side_information_refs)
-    refs.extend(bundle.artifact_refs.values())
-    refs.extend(bundle.runtime_input_refs.values())
-    refs.extend(bundle.runtime_artifacts_index.values())
-    refs.extend(bundle.runtime_reports_index.values())
+    admission = _admit_replayable_audit_bundle_basis(store, replay_bundle_ref)
+    return _measure_replayable_audit_bundle_admission(
+        store,
+        replay_bundle_ref,
+        admission.bundle,
+        admission,
+    )
 
-    missing: list[MissingArtifact] = []
-    total_size_bytes = 0
-    for ref in refs:
-        try:
-            manifest = store.get_manifest(ref)
-            total_size_bytes += int(getattr(manifest, "size_bytes", 0) or 0)
-        except FileNotFoundError:
-            missing.append(
-                MissingArtifact(
-                    artifact_id=str(ref.artifact_id),
-                    role=str(ref.kind or "artifact"),
-                    kind=ref.kind,
-                    critical=True,
-                    status=NodeStatus.MISSING,
-                )
+
+def _measure_replayable_audit_bundle_admission(
+    store: ArtifactStore,
+    replay_bundle_ref: ArtifactRef,
+    bundle: ReplayableAuditBundle | None,
+    admission: _ReplayableAuditBasisAdmission,
+) -> ReplayBundleMeasurement:
+    """Render shared basis admission checks as completeness and replay outcome."""
+    references = list(admission.references)
+    root = admission.root
+    root_failure_kind = root.failure_kind
+    ref_by_role = {item.role: item.ref for item in references}
+    unselected_roles = {item.role for item in references if item.selected_profile_missing}
+    mismatched_roles = set(admission.input_mismatch_roles)
+    duplicate_roles = set(admission.duplicate_input_roles)
+    integrity_errors = {
+        item.role: item.integrity_error for item in references if item.integrity_error is not None
+    }
+    integrity_failure_roles = {item.role for item in references if item.integrity_ok is False}
+
+    missing: list[MissingArtifact] = [
+        MissingArtifact(
+            artifact_id=str(ref_by_role[role].artifact_id),
+            role=role,
+            kind=ref_by_role[role].kind,
+            critical=True,
+            status=NodeStatus.MISSING_MANIFEST,
+        )
+        for role in sorted(unselected_roles)
+    ]
+    if root_failure_kind in {"profile_missing", "selected_manifest_missing"}:
+        missing.append(
+            MissingArtifact(
+                artifact_id=str(root.ref.artifact_id),
+                role="replay_bundle",
+                kind=root.ref.kind,
+                critical=True,
+                status=NodeStatus.MISSING_MANIFEST,
             )
+        )
+    corrupted_roles = (
+        mismatched_roles | duplicate_roles | integrity_failure_roles
+    ) - unselected_roles
+    corrupted = [
+        MissingArtifact(
+            artifact_id=str(ref_by_role[role].artifact_id),
+            role=role,
+            kind=ref_by_role[role].kind,
+            critical=True,
+            status=NodeStatus.CORRUPTED,
+        )
+        for role in sorted(corrupted_roles)
+        if role in ref_by_role
+    ]
+    if root_failure_kind in {"owner_mismatch", "integrity"}:
+        corrupted.append(
+            MissingArtifact(
+                artifact_id=str(root.ref.artifact_id),
+                role="replay_bundle",
+                kind=root.ref.kind,
+                critical=True,
+                status=NodeStatus.CORRUPTED,
+            )
+        )
+    total_size_bytes = (root.byte_size or 0) + sum(
+        int(item.byte_size or 0)
+        for item in references
+        if item.lineage_matches and not item.selected_profile_missing and item.integrity_ok is True
+    )
 
     reason_codes: list[str] = []
-    if bundle.candidate_ref is None:
+    if root.error_code is not None:
+        reason_codes.append(root.error_code)
+    if bundle is not None and bundle.candidate_ref is None:
         reason_codes.append("candidate_ref_missing")
-    if bundle.evaluation_ref is None:
+    if bundle is not None and bundle.evaluation_ref is None:
         reason_codes.append("evaluation_ref_missing")
+    if unselected_roles or root_failure_kind == "profile_missing":
+        reason_codes.append("bundle_dependency_selected_profile_missing")
     if missing:
         reason_codes.append("bundle_dependency_missing")
+    if integrity_failure_roles or root_failure_kind == "integrity":
+        reason_codes.append("bundle_dependency_integrity_failed")
+    if root_failure_kind == "owner_mismatch":
+        reason_codes.append("bundle_dependency_owner_mismatch")
+    if mismatched_roles:
+        reason_codes.append("bundle_dependency_input_mismatch")
+    if duplicate_roles:
+        reason_codes.append("bundle_dependency_input_duplicate")
 
     completeness_level = (
         CompletenessLevel.COMPLETE
-        if not missing and not reason_codes
+        if not missing and not corrupted and not reason_codes
         else CompletenessLevel.INCOMPLETE
     )
     completeness = CompletenessReport(
         level=completeness_level,
         strategy=ReplayStrategy.SCIENTIST,
-        total_artifacts=len(refs),
-        present_artifacts=max(len(refs) - len(missing), 0),
+        total_artifacts=len(references) + 1,
+        present_artifacts=max(len(references) + 1 - len(missing) - len(corrupted), 0),
         missing=missing,
+        corrupted=corrupted,
         total_size_bytes=total_size_bytes,
         reason_codes=sorted(set(reason_codes)),
     )
@@ -377,10 +444,19 @@ def measure_replayable_audit_bundle(
             overall_similarity=0.0,
             reason_codes=list(completeness.reason_codes),
             details={
-                "artifact_ref_count": len(refs),
-                "trace_notes": list(bundle.trace_notes),
+                "artifact_ref_count": len(references) + 1,
+                "trace_notes": list(bundle.trace_notes) if bundle is not None else [],
+                "unselected_profile_roles": sorted(unselected_roles),
+                "root_admission_error": root.error_code,
+                "root_integrity_error": root.integrity_error,
+                "integrity_errors": integrity_errors,
+                "input_mismatch_roles": sorted(mismatched_roles),
+                "duplicate_input_roles": sorted(duplicate_roles),
             },
         )
+
+    if bundle is None:
+        raise ValueError("replay_bundle_basis_not_established")
 
     if _bundle_has_runtime_snapshot(bundle):
         try:
@@ -403,7 +479,7 @@ def measure_replayable_audit_bundle(
                 overall_similarity=0.0,
                 reason_codes=["replay_execution_failed"],
                 details={
-                    "artifact_ref_count": len(refs),
+                    "artifact_ref_count": len(references) + 1,
                     "trace_notes": list(bundle.trace_notes),
                     "replay_error": f"{type(exc).__name__}: {exc}",
                 },
@@ -417,7 +493,7 @@ def measure_replayable_audit_bundle(
         overall_similarity=1.0,
         reason_codes=["replay_execution_not_available"],
         details={
-            "artifact_ref_count": len(refs),
+            "artifact_ref_count": len(references) + 1,
             "trace_notes": list(bundle.trace_notes),
             "snapshot_only": True,
         },
@@ -515,6 +591,7 @@ def _load_artifact_payload_for_diff(
     ref: ArtifactRef,
 ) -> dict[str, Any]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     if isinstance(payload, dict):
         return payload
@@ -730,6 +807,7 @@ def verify_replay(
 
 def _load_packet_payload(store: ArtifactStore, packet_ref: ArtifactID) -> dict[str, Any]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, packet_ref)
     if not isinstance(payload, dict):
         raise ValueError(f"DecisionPacket payload must be object, got: {type(payload).__name__}")
@@ -862,6 +940,7 @@ def _extract_simulation_result_ref(payload: dict[str, Any]) -> ArtifactID | None
 
 def _load_metrics_values(store: ArtifactStore, sim_ref: ArtifactID) -> dict[str, float | int | str]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     sim_payload = load_core_json_artifact(store, sim_ref)
     simulation_result = SimulationResult.model_validate(sim_payload)
     metrics_payload = load_core_json_artifact(store, simulation_result.metrics_ref)

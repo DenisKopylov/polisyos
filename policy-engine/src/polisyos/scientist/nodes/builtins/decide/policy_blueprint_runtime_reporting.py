@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from collections.abc import Mapping
 from dataclasses import fields, is_dataclass
-from typing import Any
+from typing import Any, TypeGuard
 
 from pydantic import BaseModel
 
@@ -25,6 +25,7 @@ from polisyos.scientist.methods.doe.stress_report import (
     _STRESS_TEST_REPORT_SCHEMA_NAME,
     StressScoreResolution,
     StressTestReport,
+    Vulnerability,
     _load_stress_report_source,
     resolve_stress_score_components,
 )
@@ -37,7 +38,8 @@ from polisyos.scientist.methods.search.funnel.level5_refutation_governance impor
     Level5RefutationGovernanceStage,
 )
 from polisyos.scientist.methods.search.funnel.level6_promotion import Level6PromotionStage
-from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.funnel.types import FunnelOutcome
+from polisyos.scientist.methods.search.judge_stack import PolicyPromotionResult
 from polisyos.scientist.methods.search.transfer_context import TransferContext
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.decide.policy_blueprint_runtime_engine import (
@@ -57,6 +59,23 @@ from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+
+
+def _is_builtin_number(value: object) -> TypeGuard[int | float]:
+    """Narrow only the exact JSON numeric primitives used by finite-score gates."""
+    return type(value) is int or type(value) is float
+
+
+def _metadata_int(value: object, *, field_name: str) -> int:
+    """Parse an explicitly supplied JSON count without turning malformed values into absence."""
+    try:
+        if isinstance(value, str):
+            return int(value)
+        if isinstance(value, (int, float)):
+            return int(value)
+    except (OverflowError, ValueError) as exc:
+        raise ValueError(f"{field_name}_invalid") from exc
+    raise ValueError(f"{field_name}_invalid")
 
 
 def _ensure_stress_test_report(
@@ -234,7 +253,7 @@ def _merge_stress_test_reports(
             )
             continue
         source_score = source_report.robustness_score
-        if type(source_score) not in {int, float} or not math.isfinite(source_score):
+        if not _is_builtin_number(source_score) or not math.isfinite(source_score):
             source_score = None
         score_source_reports.append(
             {
@@ -264,28 +283,38 @@ def _merge_stress_test_reports(
     score_status = (
         "profile_mismatch" if score_profile == "mixed_unscored" else base_report.score_status
     )
-    suite_scenario_counts = {
-        str(key): int(value)
-        for key, value in dict(
-            base_report.metadata.get("phase_d4_suite_scenario_counts") or {}
-        ).items()
-        if str(key).strip()
-    }
+    raw_suite_scenario_counts = base_report.metadata.get("phase_d4_suite_scenario_counts")
+    if raw_suite_scenario_counts is None:
+        suite_scenario_count_inputs: Mapping[object, object] = {}
+    elif isinstance(raw_suite_scenario_counts, Mapping):
+        suite_scenario_count_inputs = raw_suite_scenario_counts
+    else:
+        raise ValueError("phase_d4_suite_scenario_counts_invalid")
+    suite_scenario_counts: dict[str, int] = {}
+    for raw_suite_id, raw_count in suite_scenario_count_inputs.items():
+        suite_id = str(raw_suite_id)
+        if suite_id.strip():
+            suite_scenario_counts[suite_id] = _metadata_int(
+                raw_count,
+                field_name="phase_d4_suite_scenario_count",
+            )
     for suite_id in replacement_suite_ids_set:
         suite_scenario_counts.pop(suite_id, None)
-    base_total_scenarios = int(
+    base_total_scenarios = _metadata_int(
         base_report.metadata.get(
             "base_total_scenarios_evaluated",
             max(
-                int(base_report.total_scenarios_evaluated) - sum(suite_scenario_counts.values()), 0
+                int(base_report.total_scenarios_evaluated) - sum(suite_scenario_counts.values()),
+                0,
             ),
-        )
+        ),
+        field_name="base_total_scenarios_evaluated",
     )
     for supplemental in supplemental_reports:
         vulnerabilities.extend(supplemental.vulnerabilities)
-        suite_id = supplemental.metadata.get("challenge_suite_id")
-        if suite_id is not None and str(suite_id).strip():
-            suite_scenario_counts[str(suite_id)] = int(supplemental.total_scenarios_evaluated)
+        raw_suite_id = supplemental.metadata.get("challenge_suite_id")
+        if raw_suite_id is not None and str(raw_suite_id).strip():
+            suite_scenario_counts[str(raw_suite_id)] = int(supplemental.total_scenarios_evaluated)
     total_scenarios = base_total_scenarios + sum(suite_scenario_counts.values())
     return base_report.model_copy(
         update={
@@ -314,7 +343,7 @@ def _merge_stress_test_reports(
     )
 
 
-def _phase_d4_suite_id_from_vulnerability(vulnerability) -> str | None:
+def _phase_d4_suite_id_from_vulnerability(vulnerability: Vulnerability) -> str | None:
     candidate = str(getattr(vulnerability, "vulnerability_id", "")).strip()
     if ":" not in candidate:
         return None
@@ -420,7 +449,7 @@ def _extract_level5_gate(outcome: FunnelOutcome) -> dict[str, Any]:
         and feedback.get("stress_score_profile") == "finite_binary_scenario_v1"
         and feedback.get("stress_score_predicate_status")
         in {"recomputed", "independently_reconciled"}
-        and type(score_value) in {int, float}
+        and _is_builtin_number(score_value)
         and math.isfinite(score_value)
     )
     return {
@@ -668,6 +697,19 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
         outcome=outcome,
         fallback=session.selection_vector,
     )
+    final_replay_bundle_ref = session.replay_bundle_ref
+    final_replay_verification_ref = None
+    if final_evaluation_ref is not None:
+        final_replay_bundle_ref, final_replay_verification_ref = (
+            owner._reissue_replay_verification_for_subject(
+                ctx,
+                run_id=state.run_id,
+                candidate_ref=session.candidate_ref,
+                evaluation_ref=final_evaluation_ref,
+                replay_bundle_ref=session.replay_bundle_ref,
+                replay_verification_ref=session.replay_verification_ref,
+            )
+        )
     stage4_feedback = dict(
         (outcome.stage_results.get(4).feedback or {})
         if outcome.stage_results.get(4) is not None
@@ -676,6 +718,8 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
     evidence_bundle = evidence_bundle.model_copy(
         update={
             "evaluation_ref": final_evaluation_ref,
+            "replay_bundle_ref": final_replay_bundle_ref,
+            "replay_verification_ref": final_replay_verification_ref,
             "metadata": {
                 **evidence_bundle.metadata,
                 "voi_model_status": [
@@ -707,11 +751,30 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
         ctx.store,
         evidence_bundle,
         inputs=[
-            InputRef(artifact_id=session.candidate_ref.artifact_id, role="candidate"),
-            InputRef(artifact_id=session.selection_ref.artifact_id, role="selection_evaluation"),
+            input_ref_from_artifact_ref(session.candidate_ref, role="candidate"),
+            input_ref_from_artifact_ref(session.selection_ref, role="selection_evaluation"),
+            input_ref_from_artifact_ref(
+                session.evidence_ref,
+                role="source_promotion_evidence_bundle",
+            ),
             *(
-                [InputRef(artifact_id=final_evaluation_ref.artifact_id, role="policy_evaluation")]
+                [input_ref_from_artifact_ref(final_evaluation_ref, role="policy_evaluation")]
                 if final_evaluation_ref is not None
+                else []
+            ),
+            *(
+                [input_ref_from_artifact_ref(final_replay_bundle_ref, role="replay_bundle")]
+                if final_replay_bundle_ref is not None
+                else []
+            ),
+            *(
+                [
+                    input_ref_from_artifact_ref(
+                        final_replay_verification_ref,
+                        role="replay_verification",
+                    )
+                ]
+                if final_replay_verification_ref is not None
                 else []
             ),
         ],
@@ -751,6 +814,8 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
             "params.policy_evaluation",
             "params.policy_evaluation_ref",
             "params.promotion_evidence_bundle_ref",
+            "params.replay_bundle_ref",
+            "params.replay_verification_ref",
             "params.funnel_outcome",
             "params._funnel_outcome",
             "params.policy_level5_gate",
@@ -767,6 +832,16 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
     new_state.params["policy_evaluation"] = final_evaluation_vector.model_dump(mode="json")
     if final_evaluation_ref is not None:
         new_state.params["policy_evaluation_ref"] = final_evaluation_ref.model_dump(mode="json")
+    new_state.params["replay_bundle_ref"] = (
+        final_replay_bundle_ref.model_dump(mode="json")
+        if final_replay_bundle_ref is not None
+        else None
+    )
+    new_state.params["replay_verification_ref"] = (
+        final_replay_verification_ref.model_dump(mode="json")
+        if final_replay_verification_ref is not None
+        else None
+    )
     new_state.params["promotion_evidence_bundle_ref"] = evidence_ref.model_dump(mode="json")
     new_state.params["funnel_outcome"] = serialized_funnel_outcome
     new_state.params["_funnel_outcome"] = serialized_funnel_outcome
@@ -784,6 +859,12 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
         new_state.params.setdefault("strategic_response_source", "policy_runtime")
     new_state.artifacts_index[owner.ARTIFACT_PROMOTION_EVIDENCE_BUNDLE_REF] = evidence_ref
     new_state.artifacts_index[owner.ARTIFACT_VOI_RUN_REPORT_REF] = voi_report_ref
+    if final_replay_bundle_ref is not None:
+        new_state.artifacts_index[owner.ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF] = (
+            final_replay_bundle_ref
+        )
+    else:
+        new_state.artifacts_index.pop(owner.ARTIFACT_REPLAYABLE_AUDIT_BUNDLE_REF, None)
     if session.platform_meta_ref is not None:
         new_state.artifacts_index[owner.ARTIFACT_PLATFORM_META_EVALUATION_REPORT_REF] = (
             session.platform_meta_ref
@@ -801,6 +882,9 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
     session.evidence_ref = evidence_ref
     session.final_evaluation_vector = final_evaluation_vector
     session.final_evaluation_ref = final_evaluation_ref
+    if final_evaluation_ref is not None:
+        session.replay_bundle_ref = final_replay_bundle_ref
+        session.replay_verification_ref = final_replay_verification_ref
     session.voi_report_ref = voi_report_ref
     session.new_state = new_state
     return _build_runtime_outcome(session)
@@ -808,15 +892,12 @@ def finalize_runtime_session(session: _RuntimeSession) -> NodeOutcome:
 
 def _project_promotion_feedback(new_state: Any, promotion_feedback: dict[str, Any]) -> None:
     promotion_payload = promotion_feedback.get("promotion_result")
-    if hasattr(promotion_payload, "model_dump"):
-        new_state.params["policy_promotion_result"] = promotion_payload.model_dump(mode="json")
-        new_state.params["judge_verdict"] = promotion_payload.judge_verdict.model_dump(mode="json")
-        new_state.params["decision_readiness_contract"] = (
-            promotion_payload.readiness_contract.model_dump(mode="json")
-        )
-        new_state.params["promotion_decision"] = promotion_payload.promotion_decision.model_dump(
-            mode="json"
-        )
+    if isinstance(promotion_payload, PolicyPromotionResult):
+        payload_json = promotion_payload.model_dump(mode="json")
+        new_state.params["policy_promotion_result"] = payload_json
+        new_state.params["judge_verdict"] = payload_json["judge_verdict"]
+        new_state.params["decision_readiness_contract"] = payload_json["readiness_contract"]
+        new_state.params["promotion_decision"] = payload_json["promotion_decision"]
         if promotion_payload.readiness_ref is not None:
             new_state.artifacts_index[ARTIFACT_DECISION_READINESS_CONTRACT_REF] = (
                 promotion_payload.readiness_ref

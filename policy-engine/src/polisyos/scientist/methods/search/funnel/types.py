@@ -11,7 +11,8 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.ir import TypedFailureCard, UncertaintyType
+from polisyos.ir import TypedFailureCard as TypedFailureCard
+from polisyos.ir import UncertaintyType
 from polisyos.scientist.methods.search.artifact_minimality import (
     ArtifactFunction,
     ArtifactMinimalityMixin,
@@ -19,7 +20,9 @@ from polisyos.scientist.methods.search.artifact_minimality import (
 )
 from polisyos.scientist.methods.search.stage_contracts import SearchStage, StageResult
 from polisyos.scientist.methods.search.uncertainty import (
-    UncertaintyEnvelope,
+    UncertaintyEnvelope as UncertaintyEnvelope,
+)
+from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEstimate,
 )
 

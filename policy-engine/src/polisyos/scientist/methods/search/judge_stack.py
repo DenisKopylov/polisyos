@@ -9,14 +9,20 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts import ArtifactStore
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    InputRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
-from polisyos.ir import FailureSeverity, TypedFailureCard
+from polisyos.ir import FailureSeverity, TypedFailureCard, UncertaintyType
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     DataReadinessReport,
@@ -32,6 +38,7 @@ from polisyos.ir.analytics.partial_identification import load_bounds_bundle
 from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope as IRUncertaintyEnvelope,
 )
+from polisyos.ir.registry.refs import BoundsBundleRef, DataReadinessReportRef, ProofBundleRef
 from polisyos.ir.trinity import TrinityBundle
 
 # Governance pass implementations are lazy-imported via judge_passes to keep
@@ -39,15 +46,15 @@ from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
+    BenchmarkSplit,
     ChampionPointer,
     PromotionDecision,
     PromotionPolicy,
 )
 from polisyos.scientist.methods.discovery.priors import PriorKnowledgeBundle
 from polisyos.scientist.methods.search.adversarial import PlatformMetaEvaluationReport
-from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.funnel.types import FunnelOutcome
 from polisyos.scientist.methods.search.judge_passes import (
-    load_benchmark_split_enum,
     load_governance_pass_factories,
     load_quality_gate_pass_type,
     load_reproducibility_pass_types,
@@ -76,7 +83,6 @@ from polisyos.scientist.methods.search.registry_contracts import ChampionRegistr
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
-    UncertaintyType,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
@@ -140,7 +146,7 @@ class JudgeVerdict(BaseModel):
 
 
 def persist_judge_verdict(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     verdict: JudgeVerdict,
     *,
     inputs: list[InputRef] | None = None,
@@ -159,11 +165,12 @@ def persist_judge_verdict(
 
 
 def load_judge_verdict(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ArtifactRef,
 ) -> JudgeVerdict:
     """Load judge verdict."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     return JudgeVerdict.model_validate(payload)
 
@@ -388,7 +395,7 @@ class JudgeStack:
         self,
         *,
         threshold_registry: JudgeThresholdRegistry | None = None,
-        store: FileSystemCAS | None = None,
+        store: ArtifactStore | None = None,
     ) -> None:
         self._threshold_registry = threshold_registry or JudgeThresholdRegistry()
         self._store = store
@@ -509,7 +516,8 @@ class JudgeStack:
 
         if self._store is not None and bundle.proof_bundle_ref is not None:
             proof_bundle = load_proof_bundle(
-                _ensure_ir_artifact_store(self._store), bundle.proof_bundle_ref
+                _ensure_ir_artifact_store(self._store),
+                ProofBundleRef.model_validate(bundle.proof_bundle_ref.model_dump(mode="json")),
             )
             proof_coverage = 1.0 if proof_bundle.completeness_regime == "complete" else 0.5
             if proof_bundle.proof_status != "identified":
@@ -535,7 +543,8 @@ class JudgeStack:
 
         if self._store is not None and bundle.bounds_bundle_ref is not None:
             bounds_bundle = load_bounds_bundle(
-                _ensure_ir_artifact_store(self._store), bundle.bounds_bundle_ref
+                _ensure_ir_artifact_store(self._store),
+                BoundsBundleRef.model_validate(bundle.bounds_bundle_ref.model_dump(mode="json")),
             )
             lower = bounds_bundle.lower_bound
             upper = bounds_bundle.upper_bound
@@ -684,7 +693,9 @@ class JudgeStack:
         ):
             report = load_data_readiness_report(
                 _ensure_ir_artifact_store(self._store),
-                bundle.data_readiness_report_ref,
+                DataReadinessReportRef.model_validate(
+                    bundle.data_readiness_report_ref.model_dump(mode="json")
+                ),
             )
         if bundle.effective_claim_mode() in {"bounds", "estimation"} and report is None:
             cards.append(
@@ -1118,6 +1129,26 @@ class JudgeStack:
         resolved = self._resolved_thresholds(JudgeName.REPRODUCIBILITY, bundle)
         state = bundle.build_state()
         if (
+            self._store is not None
+            and bundle.replay_verification_ref is not None
+            and bundle.replay_bundle_ref is not None
+            and (bundle.candidate_ref is None or bundle.evaluation_ref is None)
+        ):
+            cards.append(
+                TypedFailureCard(
+                    judge_name=JudgeName.REPRODUCIBILITY.value,
+                    failure_type="replay_verification_context_incomplete",
+                    severity=FailureSeverity.BLOCKER,
+                    description=(
+                        "Current candidate and evaluation references are required to admit replay evidence."
+                    ),
+                    metadata={
+                        "candidate_ref_present": bundle.candidate_ref is not None,
+                        "evaluation_ref_present": bundle.evaluation_ref is not None,
+                    },
+                )
+            )
+        if (
             "checkpoints" not in state
             and "verified_claims" not in state
             and "data_sources" not in state
@@ -1183,16 +1214,21 @@ class JudgeStack:
                 )
             )
 
-        verification_report = bundle.replay_verification_report
+        verification_report = None
         if (
-            verification_report is None
-            and self._store is not None
+            self._store is not None
             and bundle.replay_verification_ref is not None
+            and bundle.replay_bundle_ref is not None
         ):
-            verification_report = load_replay_verification_report(
-                self._store,
-                bundle.replay_verification_ref,
-            )
+            if bundle.candidate_ref is not None and bundle.evaluation_ref is not None:
+                verification_report = load_replay_verification_report(
+                    self._store,
+                    bundle.replay_verification_ref,
+                    expected_run_id=bundle.run_id,
+                    expected_replay_bundle_ref=bundle.replay_bundle_ref,
+                    expected_candidate_ref=bundle.candidate_ref,
+                    expected_evaluation_ref=bundle.evaluation_ref,
+                )
 
         if (
             bundle.effective_claim_mode() in {"bounds", "estimation"}
@@ -1409,7 +1445,7 @@ class PolicyPromotionCoordinator:
         self,
         *,
         champion_registry: ChampionRegistryContract,
-        store,
+        store: ArtifactStore,
         judge_stack: JudgeStack | None = None,
         readiness_evaluator: DecisionReadinessEvaluator | None = None,
     ) -> None:
@@ -1549,12 +1585,12 @@ class PolicyPromotionCoordinator:
             self._store,
             judge_verdict,
             inputs=[
-                InputRef(artifact_id=candidate_ref.artifact_id, role="candidate"),
-                InputRef(artifact_id=evaluation_ref.artifact_id, role="evaluation"),
+                input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+                input_ref_from_artifact_ref(evaluation_ref, role="evaluation"),
                 *(
                     [
-                        InputRef(
-                            artifact_id=judge_input.data_readiness_report_ref.artifact_id,
+                        input_ref_from_artifact_ref(
+                            judge_input.data_readiness_report_ref,
                             role="data_readiness_report",
                         )
                     ]
@@ -1564,6 +1600,7 @@ class PolicyPromotionCoordinator:
             ],
         )
         judge_verdict = judge_verdict.model_copy(update={"audit_log_ref": judge_verdict_ref})
+        latent_governance = judge_input.latent_governance_assessment()
         readiness = self._readiness_evaluator.evaluate(
             candidate=judge_input.candidate,
             judge_verdict=judge_verdict,
@@ -1597,9 +1634,7 @@ class PolicyPromotionCoordinator:
                     else dict(judge_input.latent_discovery_resolution_error)
                 ),
                 "latent_governance": (
-                    None
-                    if judge_input.latent_governance_assessment() is None
-                    else judge_input.latent_governance_assessment().model_dump(mode="json")
+                    None if latent_governance is None else latent_governance.model_dump(mode="json")
                 ),
                 "dp_robustness": _resolve_dp_consumer_summary(
                     judge_input,
@@ -1613,8 +1648,8 @@ class PolicyPromotionCoordinator:
             self._store,
             readiness,
             inputs=[
-                InputRef(artifact_id=candidate_ref.artifact_id, role="candidate"),
-                InputRef(artifact_id=evaluation_ref.artifact_id, role="evaluation"),
+                input_ref_from_artifact_ref(candidate_ref, role="candidate"),
+                input_ref_from_artifact_ref(evaluation_ref, role="evaluation"),
             ],
         )
 
@@ -1801,29 +1836,21 @@ def to_search_uncertainty_envelope(
     return UncertaintyEnvelope.unknown()
 
 
-def benchmark_split(name: str):
+def benchmark_split(name: str) -> BenchmarkSplit:
     """Benchmark split helper."""
-    benchmark_split_enum = load_benchmark_split_enum()
     normalized = str(name).strip().lower()
-    for split in benchmark_split_enum:
+    for split in BenchmarkSplit:
         if split.value == normalized:
             return split
-    return (
-        benchmark_split_enum.SELECTION
-        if normalized == "selection"
-        else benchmark_split_enum.HOLDOUT
-    )
+    return BenchmarkSplit.SELECTION if normalized == "selection" else BenchmarkSplit.HOLDOUT
 
 
 def _benchmark_runtime_split_card(
     bundle: JudgeInputBundle,
 ) -> TypedFailureCard | None:
-    benchmark_split_enum = load_benchmark_split_enum()
     selection = bundle.benchmark_evaluation
     holdout = bundle.hidden_holdout_evaluation
-    if selection is not None and not selection.matches_runtime_split(
-        benchmark_split_enum.SELECTION
-    ):
+    if selection is not None and not selection.matches_runtime_split(BenchmarkSplit.SELECTION):
         return TypedFailureCard(
             judge_name=JudgeName.ROBUSTNESS.value,
             failure_type="benchmark_split_type_mismatch",
@@ -1835,9 +1862,7 @@ def _benchmark_runtime_split_card(
                 "suite_id": selection.suite_id,
             },
         )
-    if holdout is not None and not holdout.matches_runtime_split(
-        benchmark_split_enum.HIDDEN_HOLDOUT
-    ):
+    if holdout is not None and not holdout.matches_runtime_split(BenchmarkSplit.HIDDEN_HOLDOUT):
         return TypedFailureCard(
             judge_name=JudgeName.ROBUSTNESS.value,
             failure_type="benchmark_split_type_mismatch",
@@ -2059,14 +2084,14 @@ def _evidence_refs(bundle: JudgeInputBundle) -> list[ArtifactRef]:
     return refs
 
 
-def _to_artifact_ref(ref: Any) -> ArtifactRef:
+def _to_artifact_ref(ref: DataReadinessReportRef) -> ArtifactRef:
     return ArtifactRef.model_validate(ref.model_dump(mode="json"))
 
 
 def _resolve_dp_consumer_summary(
     bundle: JudgeInputBundle,
     *,
-    store: FileSystemCAS | None,
+    store: ArtifactStore | None,
     report: DataReadinessReport | None = None,
 ) -> dict[str, Any] | None:
     summary = _coerce_dp_summary(getattr(report, "dp_distortion", None))
@@ -2080,7 +2105,10 @@ def _resolve_dp_consumer_summary(
     if store is not None and bundle.data_readiness_report_ref is not None:
         try:
             loaded_report = load_data_readiness_report(
-                _ensure_ir_artifact_store(store), bundle.data_readiness_report_ref
+                _ensure_ir_artifact_store(store),
+                DataReadinessReportRef.model_validate(
+                    bundle.data_readiness_report_ref.model_dump(mode="json")
+                ),
             )
         except Exception:
             loaded_report = None
@@ -2091,7 +2119,8 @@ def _resolve_dp_consumer_summary(
     if store is not None and bundle.proof_bundle_ref is not None:
         try:
             proof_bundle = load_proof_bundle(
-                _ensure_ir_artifact_store(store), bundle.proof_bundle_ref
+                _ensure_ir_artifact_store(store),
+                ProofBundleRef.model_validate(bundle.proof_bundle_ref.model_dump(mode="json")),
             )
         except Exception:
             proof_bundle = None
@@ -2105,7 +2134,8 @@ def _resolve_dp_consumer_summary(
     if store is not None and bundle.bounds_bundle_ref is not None:
         try:
             bounds_bundle = load_bounds_bundle(
-                _ensure_ir_artifact_store(store), bundle.bounds_bundle_ref
+                _ensure_ir_artifact_store(store),
+                BoundsBundleRef.model_validate(bundle.bounds_bundle_ref.model_dump(mode="json")),
             )
         except Exception:
             bounds_bundle = None
@@ -2219,7 +2249,16 @@ def _attach_policy_metadata(
     metadata["judge_verdict_ref"] = judge_verdict_ref.model_dump(mode="json")
     metadata["decision_readiness"] = readiness.model_dump(mode="json")
     metadata["decision_readiness_ref"] = readiness_ref.model_dump(mode="json")
-    updated = champion.model_copy(update={"metadata": metadata})
+    updated = ChampionPointer(
+        loop_id=champion.loop_id,
+        candidate_ref=champion.candidate_ref,
+        evaluation_ref=champion.evaluation_ref,
+        metrics=dict(champion.metrics),
+        suite_version=champion.suite_version,
+        promoted_at=champion.promoted_at,
+        search_space_version=champion.search_space_version,
+        metadata=metadata,
+    )
     registry.write_pointer(loop_id, updated)
     return updated
 

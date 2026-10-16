@@ -22,11 +22,11 @@ if TYPE_CHECKING:
 @dataclass(frozen=True)
 class DecisionPacketBuildRequest:
     seed: int
-    inputs_section: dict[str, object]
-    artifacts_section: dict[str, object]
+    inputs_section: dict[str, str | None]
+    artifacts_section: dict[str, str | None]
     readiness: ReplayReadiness
     strategy_hint: str
-    policy_summary: dict[str, object]
+    policy_summary: str
     intervention_count: int
 
 

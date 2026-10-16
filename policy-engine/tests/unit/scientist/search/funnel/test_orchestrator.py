@@ -9,9 +9,19 @@ import pytest
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.ir.governance.policy_spec import PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
+from polisyos.scientist.methods.doe.designs import (
+    AdversarialPlan,
+    AdversarialStrategy,
+    ParameterSpec,
+)
 from polisyos.scientist.methods.doe.stress_report import StressTestReport
+from polisyos.scientist.methods.search.adversarial import run_stress_test
 from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
     Level5RefutationGovernanceStage,
 )
@@ -25,9 +35,18 @@ from polisyos.scientist.methods.search.funnel.types import (
     UncertaintyEnvelope,
 )
 from polisyos.scientist.methods.search.lessons import LessonRegistry
+from polisyos.scientist.methods.search.objective import (
+    BaseObjective,
+    CompositeObjective,
+    OptimizationDirection,
+)
 from polisyos.scientist.methods.search.transfer_context import TransferContext
 from polisyos.scientist.methods.search.voi_scheduler import PredictiveVOIScheduler
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.policy_design.schema import (
+    PolicyCandidateSchema,
+    persist_policy_candidate_schema,
+)
 
 
 def _artifact_ref(seed: str) -> ArtifactRef:
@@ -36,6 +55,36 @@ def _artifact_ref(seed: str) -> ArtifactRef:
         kind="scientist.test",
         media_type="application/json",
     )
+
+
+class _L5FixtureUtilityObjective(BaseObjective):
+    """Deterministic objective for a source-bound finite stress fixture."""
+
+    @property
+    def name(self) -> str:
+        return "utility"
+
+    @property
+    def direction(self) -> OptimizationDirection:
+        return OptimizationDirection.MINIMIZE
+
+    def _extract_value(self, results: dict[str, object]) -> float:
+        raw_value = results["utility"]
+        if isinstance(raw_value, bool) or not isinstance(raw_value, (int, float)):
+            raise TypeError("utility must be a numeric fixture result")
+        return float(raw_value)
+
+
+def _persist_l5_l6_candidate(store: FileSystemCAS) -> ArtifactRef:
+    bundle = TrinityBundle(
+        problem_frame=ProblemFrame(problem_id="problem_funnel_l5_l6", domain=ProblemDomain.FISCAL),
+        policy_spec=PolicySpec(policy_id="policy_funnel_l5_l6"),
+        model_spec=ModelSpec(model_id="model_funnel_l5_l6", data_snapshot_ref="sha256:" + "3" * 64),
+    )
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        bundle, candidate_id="candidate_funnel_l5_l6"
+    )
+    return persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
 
 
 def _make_stage(
@@ -601,6 +650,73 @@ class TestFunnelOrchestrator:
     @pytest.mark.parametrize("prepared", [False, True])
     def test_level5_and_level6_runtime_generalization_collects_audit_refs(self, tmp_path, prepared):
         store = FileSystemCAS(tmp_path / ".polisyos")
+        candidate_ref = _persist_l5_l6_candidate(store)
+        candidate = {"candidate_id": "cand-1", "semantic": {"interventions": [], "objectives": []}}
+        plan = AdversarialPlan(
+            parameter_specs=[
+                ParameterSpec(name=f"p{index}", lower_bound=-1.0, upper_bound=1.0)
+                for index in range(4)
+            ],
+            strategy=AdversarialStrategy.GRID_EXTREME,
+            max_iterations=10,
+            vulnerability_threshold=0.0,
+            stop_on_first_vulnerability=False,
+            collect_top_k=1,
+        )
+        stress_report = run_stress_test(
+            adversarial_plan=plan,
+            base_objective=CompositeObjective([_L5FixtureUtilityObjective()]),
+            stage_b_evaluator=lambda _candidate, _context: {
+                "simulation_results": {"utility": -1.0}
+            },
+            context={"policy_candidate_ref": candidate_ref},
+            cas=store,
+        )
+        stress_report_ref = stress_report.cas_artifact_ref
+        assert stress_report_ref is not None
+        assert stress_report_ref.manifest_profile_sha256 is not None
+        assert stress_report.score_status == "available"
+        assert stress_report.score_profile == "finite_binary_scenario_v1"
+        assert stress_report.robustness_score == 1.0
+
+        selection = BenchmarkEvaluation(
+            loop_id="loop",
+            suite_id="selection",
+            candidate_ref=candidate_ref,
+            selection_metrics={"score": 1.0},
+            holdout_metrics={"score": 1.0},
+            promotable=True,
+            runtime_split_type=BenchmarkSplit.SELECTION,
+        )
+        hidden_holdout = BenchmarkEvaluation(
+            loop_id="loop",
+            suite_id="policy_hidden_holdout",
+            candidate_ref=candidate_ref,
+            selection_metrics={"score": 1.0},
+            holdout_metrics={"score": 0.96},
+            promotable=True,
+            runtime_split_type=BenchmarkSplit.HIDDEN_HOLDOUT,
+        )
+        unbound_summary = Level5RefutationGovernanceStage(require_hidden_holdout=True).evaluate(
+            candidate,
+            {
+                "store": store,
+                "policy_candidate_ref": candidate_ref,
+                "selection_evaluation": selection,
+                "hidden_holdout_evaluation": hidden_holdout,
+                "stress_test_report": StressTestReport(
+                    report_id="unbound_score_only",
+                    score_profile="finite_binary_scenario_v1",
+                    score_status="available",
+                    score_predicate_status="recomputed",
+                    robustness_score=1.0,
+                ),
+            },
+        )
+        assert unbound_summary.feedback["stress_score_status"] == "unbound"
+        assert unbound_summary.feedback["stress_score_value"] is None
+        assert unbound_summary.terminal_action == "defer_to_human"
+
         runner_calls = []
         stages = [
             _make_stage(0, "L0"),
@@ -614,9 +730,7 @@ class TestFunnelOrchestrator:
                 ),
             ),
             _make_stage(4, "L4", objective_value=0.8),
-            Level5RefutationGovernanceStage(
-                require_hidden_holdout=True,
-            ),
+            Level5RefutationGovernanceStage(require_hidden_holdout=True),
             Level6PromotionStage(
                 promotion_runner=lambda candidate, context: runner_calls.append(candidate)
                 or {
@@ -626,55 +740,37 @@ class TestFunnelOrchestrator:
             ),
         ]
         orch = FunnelOrchestrator(stages)
-        selection = BenchmarkEvaluation(
-            loop_id="loop",
-            suite_id="selection",
-            candidate_ref=_artifact_ref("a"),
-            selection_metrics={"score": 1.0},
-            holdout_metrics={"score": 1.0},
-            promotable=True,
-            runtime_split_type=BenchmarkSplit.SELECTION,
-        )
-        hidden_holdout = BenchmarkEvaluation(
-            loop_id="loop",
-            suite_id="policy_hidden_holdout",
-            candidate_ref=_artifact_ref("b"),
-            selection_metrics={"score": 1.0},
-            holdout_metrics={"score": 0.96},
-            promotable=True,
-            runtime_split_type=BenchmarkSplit.HIDDEN_HOLDOUT,
-        )
-        stress_report = StressTestReport(
-            report_id="stress_ok",
-            total_scenarios_evaluated=3,
-            robustness_score=0.9,
-        )
-        governance_report = GovernanceReport(verdict="approve")
-
-        outcome = orch.advance(
-            orch.submit(
-                {"candidate_id": "cand-1", "semantic": {"interventions": [], "objectives": []}},
-                {
-                    "store": store,
-                    "selection_evaluation": selection,
-                    "hidden_holdout_evaluation": hidden_holdout,
-                    "stress_test_report": stress_report,
-                    "governance_report": governance_report,
-                    **(
-                        {"promotion_result": {"decision": "complete", "reason": "already_prepared"}}
-                        if prepared
-                        else {}
-                    ),
-                },
+        context = {
+            "store": store,
+            "policy_candidate_ref": candidate_ref,
+            "selection_evaluation": selection,
+            "hidden_holdout_evaluation": hidden_holdout,
+            "stress_test_report_ref": stress_report_ref,
+            "governance_report": GovernanceReport(verdict="approve"),
+            **(
+                {"promotion_result": {"decision": "complete", "reason": "already_prepared"}}
+                if prepared
+                else {}
             ),
-            policy="full",
-        )
+        }
+
+        outcome = orch.advance(orch.submit(candidate, context), policy="full")
 
         assert outcome.completed is True
         assert outcome.final_action == ("complete" if prepared else "defer_to_human")
         assert runner_calls == []
         assert outcome.final_result is not None
         assert outcome.final_result.stage_name == "funnel_L6_promotion"
+        level5_result = outcome.stage_results[5]
+        assert level5_result.terminal_action is None
+        assert level5_result.feedback["stress_score_status"] == "available"
+        assert level5_result.feedback["stress_score_profile"] == "finite_binary_scenario_v1"
+        assert level5_result.feedback["stress_score_predicate_status"] == "recomputed"
+        assert level5_result.feedback["stress_score_value"] == 1.0
+        assert level5_result.feedback["stress_robust"] is True
+        assert not any(
+            card.failure_type == "stress_score_unavailable" for card in level5_result.failure_cards
+        )
         if prepared:
             assert outcome.final_result.feedback["promotion_result_read_only"] is True
         else:
@@ -781,3 +877,85 @@ class TestFunnelOrchestrator:
         stage_context = stage.evaluate.call_args.args[1]
         assert stage_context["transfer_context"].run_id == "source-declared-run"
         assert stage_context["policy_runtime_work_identity"]["run_id"] == "source-declared-run"
+
+    @pytest.mark.parametrize(
+        "mode",
+        [
+            "normal",
+            "conservative_routing",
+            "no_promotion",
+            "reduced_judge",
+            "freeze_frontier",
+            "prior_free",
+            "auto_cap",
+        ],
+    )
+    def test_routing_mode_accepts_supported_context_modes(self, mode: str) -> None:
+        orchestrator = FunnelOrchestrator([])
+        assert orchestrator._routing_mode({"funnel_degradation_mode": mode}) == mode
+
+    @pytest.mark.parametrize("mode", [None, "future_mode"])
+    def test_routing_mode_unknown_hashable_modes_keep_existing_fallback(self, mode: object) -> None:
+        orchestrator = FunnelOrchestrator([])
+        assert orchestrator._routing_mode({"funnel_degradation_mode": mode}) == "normal"
+
+    @pytest.mark.parametrize("mode", [[], {}])
+    def test_routing_mode_unhashable_mode_remains_malformed_input(self, mode: object) -> None:
+        orchestrator = FunnelOrchestrator([])
+        with pytest.raises(TypeError):
+            orchestrator._routing_mode({"funnel_degradation_mode": mode})
+
+    def test_routing_mode_validates_metrics_and_preserves_fallbacks(self) -> None:
+        orchestrator = FunnelOrchestrator([])
+        assert (
+            orchestrator._routing_mode(
+                {
+                    "funnel_degradation_mode": "future_mode",
+                    "correlation_metrics": {"routing_mode": "no_promotion"},
+                }
+            )
+            == "no_promotion"
+        )
+        assert (
+            orchestrator._routing_mode(
+                {
+                    "correlation_metrics": {
+                        "routing_mode": "future_mode",
+                        "promotion_ban_active": False,
+                    }
+                }
+            )
+            == "normal"
+        )
+        assert (
+            orchestrator._routing_mode(
+                {
+                    "correlation_metrics": {
+                        "routing_mode": "future_mode",
+                        "promotion_ban_active": True,
+                    }
+                }
+            )
+            == "no_promotion"
+        )
+
+        class _TrackerWithFallback:
+            def routing_mode(self) -> object:
+                return "future_mode"
+
+            def compute_metrics(self) -> dict[str, object]:
+                return {"routing_mode": "auto_cap"}
+
+        assert (
+            FunnelOrchestrator([], correlation_tracker=_TrackerWithFallback())._routing_mode()
+            == "auto_cap"
+        )
+
+        class _MetricsOnlyTracker:
+            def compute_metrics(self) -> dict[str, object]:
+                return {"routing_mode": "future_mode"}
+
+        assert (
+            FunnelOrchestrator([], correlation_tracker=_MetricsOnlyTracker())._routing_mode()
+            == "normal"
+        )

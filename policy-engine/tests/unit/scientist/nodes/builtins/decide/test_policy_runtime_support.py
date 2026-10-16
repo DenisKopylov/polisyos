@@ -1,11 +1,14 @@
 import inspect
 from datetime import UTC, datetime
-from typing import Any
+from pathlib import Path
+from typing import Any, cast
 from unittest.mock import MagicMock
 
 import pytest
 
+from polisyos.core.artifacts import ArtifactStore
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal import (
     CausalEffectReport,
     CausalMethod,
@@ -63,10 +66,14 @@ from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityJudge,
     UtilityJudgeInput,
 )
+from polisyos.scientist.methods.search.judge_stack import JudgeInputBundle, JudgeStack
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     PRODUCTION_POLICY_EVALUATION_BACKEND_ID,
     PolicyRuntimeEvaluationSafetyError,
     ProductionPolicyEvaluationBackend,
+    _policy_runtime_numeric_inputs,
+    _require_policy_runtime_registry_root,
+    _require_policy_runtime_store,
     build_policy_simulation_results,
     load_effective_latent_discovery_bundle_for_state,
     resolve_effective_latent_discovery_bundle_for_state,
@@ -74,6 +81,7 @@ from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_DISCOVERY_ARTIFACT_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
@@ -813,3 +821,122 @@ def test_runtime_marks_unreadable_discovery_bundle_ref_as_latent_resolution_erro
     assert resolution.source_bundle_ref == broken_ref
     assert resolution.error_payload() is not None
     assert resolution.error_payload()["error_code"]
+
+
+class _ChangingRootStore:
+    """Transparent store proxy that returns successive root values."""
+
+    def __init__(self, target: Any, roots: list[object]) -> None:
+        self._target = target
+        self._roots = roots
+        self.root_reads = 0
+
+    @property
+    def root(self) -> object:
+        self.root_reads += 1
+        return self._roots[min(self.root_reads - 1, len(self._roots) - 1)]
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._target, name)
+
+
+def test_policy_runtime_store_captures_one_path_and_preserves_the_store_handle(
+    tmp_path: Path,
+) -> None:
+    underlying = FileSystemCAS(tmp_path / "root-capture")
+    proxy = _ChangingRootStore(underlying, [tmp_path / "captured", "malformed-second-read"])
+
+    admitted_store, captured_root = _require_policy_runtime_store(cast("ArtifactStore", proxy))
+
+    assert admitted_store is proxy
+    assert captured_root == tmp_path / "captured"
+    assert proxy.root_reads == 1
+
+
+def test_policy_runtime_registry_root_rejects_a_string_after_one_read(tmp_path: Path) -> None:
+    underlying = FileSystemCAS(tmp_path / "wrong-root")
+    proxy = _ChangingRootStore(underlying, ["not-a-path"])
+
+    with pytest.raises(ValueError, match="policy_runtime_registry_root_unavailable"):
+        _require_policy_runtime_registry_root(cast("ArtifactStore", proxy))
+
+    assert proxy.root_reads == 1
+
+
+def test_policy_runtime_numbers_keep_absence_distinct_from_explicit_zero() -> None:
+    absent = _policy_runtime_numeric_inputs(ExperimentState(run_id="numeric-absent", params={}))
+    assert absent.compute_cost_usd is None
+    assert absent.replay_cost_usd is None
+    assert absent.timeout_risk is None
+
+    explicit_zero = _policy_runtime_numeric_inputs(
+        ExperimentState(
+            run_id="numeric-zero",
+            params={
+                "estimated_compute_cost_usd": 0.0,
+                "estimated_replay_cost_usd": 0.0,
+                "timeout_risk": 0.0,
+            },
+        )
+    )
+    assert explicit_zero.compute_cost_usd == 0.0
+    assert explicit_zero.replay_cost_usd == 0.0
+    assert explicit_zero.timeout_risk == 0.0
+
+
+def test_policy_runtime_compute_judge_observes_absence_and_zero_differently() -> None:
+    candidate = _policy_candidate()
+    absent = _policy_runtime_numeric_inputs(ExperimentState(run_id="numeric-absent", params={}))
+    absent_verdict = JudgeStack()._compute(
+        JudgeInputBundle.model_construct(
+            candidate=candidate,
+            compute_cost_usd=absent.compute_cost_usd,
+            replay_cost_usd=absent.replay_cost_usd,
+            timeout_risk=absent.timeout_risk,
+        )
+    )
+    zero = _policy_runtime_numeric_inputs(
+        ExperimentState(
+            run_id="numeric-zero",
+            params={
+                "estimated_compute_cost_usd": 0.0,
+                "estimated_replay_cost_usd": 0.0,
+                "timeout_risk": 0.0,
+            },
+        )
+    )
+    zero_verdict = JudgeStack()._compute(
+        JudgeInputBundle.model_construct(
+            candidate=candidate,
+            compute_cost_usd=zero.compute_cost_usd,
+            replay_cost_usd=zero.replay_cost_usd,
+            timeout_risk=zero.timeout_risk,
+        )
+    )
+
+    assert "missing_compute_inputs" in {card.failure_type for card in absent_verdict.warnings}
+    assert absent_verdict.metrics == {}
+    assert not zero_verdict.warnings
+    assert zero_verdict.metrics["timeout_risk"] == 0.0
+    assert zero_verdict.metrics["replay_cost_ratio"] == 0.0
+
+
+class _OperationalRootFailureStore(_ChangingRootStore):
+    """Proxy whose root getter raises a meaningful storage error."""
+
+    @property
+    def root(self) -> object:
+        self.root_reads += 1
+        raise RuntimeError("root service failed")
+
+
+def test_policy_runtime_root_propagates_operational_property_errors_once(
+    tmp_path: Path,
+) -> None:
+    underlying = FileSystemCAS(tmp_path / "root-error")
+    proxy = _OperationalRootFailureStore(underlying, [])
+
+    with pytest.raises(RuntimeError, match="root service failed"):
+        _require_policy_runtime_registry_root(cast("ArtifactStore", proxy))
+
+    assert proxy.root_reads == 1

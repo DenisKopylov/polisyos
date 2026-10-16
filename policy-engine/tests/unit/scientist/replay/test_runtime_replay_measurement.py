@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.scientist.orchestration.workflows import builder as workflow_builder
 from polisyos.scientist.policy_design.output import (
@@ -21,6 +21,7 @@ def test_measure_replayable_audit_bundle_reports_semantic_diff(tmp_path, monkeyp
             media_type="application/json",
             schema=SchemaInfo(name="candidate", version="1.0"),
         ),
+        return_selected_profile=True,
     )
     evaluation_ref = store.put_json(
         {"score": 1, "decision": "promote"},
@@ -28,8 +29,9 @@ def test_measure_replayable_audit_bundle_reports_semantic_diff(tmp_path, monkeyp
             kind="scientist.policy_evaluation_vector",
             media_type="application/json",
             schema=SchemaInfo(name="evaluation", version="1.0"),
-            inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+            inputs=[input_ref_from_artifact_ref(candidate_ref, role="candidate")],
         ),
+        return_selected_profile=True,
     )
     runtime_input_ref = store.put_json(
         {"input": "snapshot"},
@@ -38,6 +40,7 @@ def test_measure_replayable_audit_bundle_reports_semantic_diff(tmp_path, monkeyp
             media_type="application/json",
             schema=SchemaInfo(name="runtime_input", version="1.0"),
         ),
+        return_selected_profile=True,
     )
     replayed_evaluation_ref = store.put_json(
         {"score": 0, "decision": "hold"},
@@ -45,8 +48,9 @@ def test_measure_replayable_audit_bundle_reports_semantic_diff(tmp_path, monkeyp
             kind="scientist.policy_evaluation_vector",
             media_type="application/json",
             schema=SchemaInfo(name="evaluation", version="1.0"),
-            inputs=[InputRef(artifact_id=candidate_ref.artifact_id, role="candidate")],
+            inputs=[input_ref_from_artifact_ref(candidate_ref, role="candidate")],
         ),
+        return_selected_profile=True,
     )
 
     replay_bundle_ref = persist_replayable_audit_bundle(

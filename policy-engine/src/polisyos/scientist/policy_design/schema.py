@@ -8,7 +8,7 @@ from typing import Any, ClassVar, Literal
 from pydantic import Field, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
-from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
+from polisyos.core.artifacts.protocol import ArtifactStore, _require_return_selected_profile_writer
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.ir.governance.problem_frame import KPISpec, ProblemFrame
@@ -215,17 +215,23 @@ class PolicyCandidateSchema(KernelModel):
                     )
 
         total_allocated = Decimal("0")
-        for entry in self.budget_allocation:
-            total_allocated += entry.amount.amount
-            if entry.intervention_id is not None and entry.intervention_id not in intervention_map:
+        for budget_entry in self.budget_allocation:
+            total_allocated += budget_entry.amount.amount
+            if (
+                budget_entry.intervention_id is not None
+                and budget_entry.intervention_id not in intervention_map
+            ):
                 raise ValueError(
-                    f"budget allocation '{entry.allocation_id}' references unknown "
-                    f"intervention '{entry.intervention_id}'"
+                    f"budget allocation '{budget_entry.allocation_id}' references unknown "
+                    f"intervention '{budget_entry.intervention_id}'"
                 )
-            if entry.constraint_id is not None and entry.constraint_id not in constraint_ids:
+            if (
+                budget_entry.constraint_id is not None
+                and budget_entry.constraint_id not in constraint_ids
+            ):
                 raise ValueError(
-                    f"budget allocation '{entry.allocation_id}' references unknown "
-                    f"constraint '{entry.constraint_id}'"
+                    f"budget allocation '{budget_entry.allocation_id}' references unknown "
+                    f"constraint '{budget_entry.constraint_id}'"
                 )
 
         budget_envelope = extract_budget_envelope(problem_frame)
@@ -360,7 +366,7 @@ class PolicyCandidateSchema(KernelModel):
 
 
 def persist_policy_candidate_schema(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     candidate: PolicyCandidateSchema,
     *,
     inputs: list[InputRef] | None = None,

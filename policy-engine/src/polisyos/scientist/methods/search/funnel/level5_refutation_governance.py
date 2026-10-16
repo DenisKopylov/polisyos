@@ -5,11 +5,13 @@ from __future__ import annotations
 from collections.abc import Callable
 from datetime import UTC, datetime
 from math import isfinite
-from typing import Any
+from typing import Any, Literal
+
+from pydantic import BaseModel
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ArtifactRef
-from polisyos.ir import FailureSeverity, TypedFailureCard
+from polisyos.core.artifacts import ArtifactRef, ArtifactStore
+from polisyos.ir import FailureSeverity, TypedFailureCard, UncertaintyType
 from polisyos.ir.analytics.causal import CausalEffectReport, EstimationStatus
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
@@ -39,7 +41,6 @@ from polisyos.scientist.methods.search.funnel.types import (
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
-    UncertaintyType,
 )
 
 logger = get_logger(__name__)
@@ -62,7 +63,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
         hidden_holdout_degradation_threshold: float = 0.10,
         require_hidden_holdout: bool = True,
         require_platform_meta: bool = False,
-        store=None,
+        store: ArtifactStore | None = None,
     ) -> None:
         self._hidden_holdout_evaluator = hidden_holdout_evaluator
         self._stress_evaluator = stress_evaluator
@@ -96,7 +97,10 @@ class Level5RefutationGovernanceStage(FunnelStage):
         prior_result = _prior_result(context)
         objective_value = float(prior_result.objective_value) if prior_result is not None else 0.0
         failure_cards: list[TypedFailureCard] = []
-        terminal_action = None
+        terminal_action: (
+            Literal["advance", "defer", "reject", "retry_cheaper", "complete", "defer_to_human"]
+            | None
+        ) = None
 
         selection = _coerce_model(
             BenchmarkEvaluation,
@@ -311,6 +315,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
         score_is_finite_binary = (
             score_status == "available"
             and score_profile == "finite_binary_scenario_v1"
+            and score_value is not None
             and type(score_value) in {int, float}
             and isfinite(score_value)
             and score_predicate_status in {"recomputed", "independently_reconciled"}
@@ -362,7 +367,7 @@ class Level5RefutationGovernanceStage(FunnelStage):
                     },
                 )
             )
-        else:
+        elif not score_is_finite_binary or stress_report is None:
             failure_cards.append(
                 TypedFailureCard(
                     judge_name="L5_refutation_governance",
@@ -540,7 +545,11 @@ def _stress_score_source_reports(report: StressTestReport) -> list[dict[str, Any
         if rows:
             return rows
     reported_score = report.robustness_score
-    if type(reported_score) not in {int, float} or not isfinite(reported_score):
+    if (
+        reported_score is None
+        or type(reported_score) not in {int, float}
+        or not isfinite(reported_score)
+    ):
         reported_score = None
     return [
         {
@@ -563,7 +572,7 @@ def _coerce_artifact_ref(value: Any) -> ArtifactRef | None:
         return None
 
 
-def _coerce_model(model_cls, value: Any):
+def _coerce_model[ModelT: BaseModel](model_cls: type[ModelT], value: object) -> ModelT | None:
     if value is None or isinstance(value, model_cls):
         return value
     if isinstance(value, dict):
@@ -690,7 +699,7 @@ def _build_actionable_side_information(
         or candidate.get("name")
         or "unknown_candidate"
     )
-    sensitivity_failures = []
+    sensitivity_failures: list[str] = []
     if stress_report is not None:
         sensitivity_failures.extend(
             vuln.description or vuln.vulnerability_id
@@ -703,19 +712,19 @@ def _build_actionable_side_information(
             for result in causal_report.refutation_results
             if not result.passed
         )
-    subgroup_harms = []
+    subgroup_harms: list[str] = []
     if distributional_report is not None:
         subgroup_harms.extend(
             f"{entry.cohort_label}: {entry.net_impact}"
             for entry in distributional_report.winners_losers.losers
         )
-    legality_failures = []
+    legality_failures: list[str] = []
     if governance_report is not None:
         legality_failures.extend(
             str(issue.get("message") or issue.get("code") or issue)
             for issue in governance_report.issues
         )
-    transport_failures = []
+    transport_failures: list[str] = []
     if cross_graph_profile is not None:
         transport_failures.extend(
             need.need.need_id

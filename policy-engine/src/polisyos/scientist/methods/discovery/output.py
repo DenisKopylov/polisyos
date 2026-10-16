@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
@@ -16,6 +17,7 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import (
@@ -645,7 +647,7 @@ class DiscoveryArtifactBuilder:
             }
         )
         if source.seed_replay_scores:
-            measured_score = _mean_or_none(source.seed_replay_scores.values())
+            measured_score = _mean_or_none(list(source.seed_replay_scores.values()))
             return ReproducibilityReport(
                 status="complete",
                 bootstrap_reproducibility=bootstrap_reproducibility,
@@ -794,13 +796,14 @@ def persist_discovery_task_profile(
         payload,
         kind="scientist.discovery_task_profile",
         schema_name=DISCOVERY_TASK_PROFILE_SCHEMA_NAME,
+        schema_version=payload.schema_version,
         ref_cls=DiscoveryTaskProfileRef,
         inputs=inputs,
     )
 
 
 def load_discovery_task_profile(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: DiscoveryTaskProfileRef,
 ) -> DiscoveryTaskProfile:
     """Load discovery task profile."""
@@ -819,13 +822,14 @@ def persist_graph_hypothesis_set(
         payload,
         kind="scientist.graph_hypothesis_set",
         schema_name=GRAPH_HYPOTHESIS_SET_SCHEMA_NAME,
+        schema_version=payload.schema_version,
         ref_cls=GraphHypothesisSetRef,
         inputs=inputs,
     )
 
 
 def load_graph_hypothesis_set(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: GraphHypothesisSetRef,
 ) -> GraphHypothesisSet:
     """Load graph hypothesis set."""
@@ -844,13 +848,14 @@ def persist_refutation_report(
         payload,
         kind="scientist.discovery_refutation_report",
         schema_name=REFUTATION_REPORT_SCHEMA_NAME,
+        schema_version=payload.schema_version,
         ref_cls=RefutationReportRef,
         inputs=inputs,
     )
 
 
 def load_refutation_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: RefutationReportRef,
 ) -> RefutationReport:
     """Load refutation report."""
@@ -869,13 +874,14 @@ def persist_reproducibility_report(
         payload,
         kind="scientist.discovery_reproducibility_report",
         schema_name=REPRODUCIBILITY_REPORT_SCHEMA_NAME,
+        schema_version=payload.schema_version,
         ref_cls=ReproducibilityReportRef,
         inputs=inputs,
     )
 
 
 def load_reproducibility_report(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ReproducibilityReportRef,
 ) -> ReproducibilityReport:
     """Load reproducibility report."""
@@ -894,13 +900,14 @@ def persist_active_disambiguation_plan(
         payload,
         kind="scientist.active_disambiguation_plan",
         schema_name=ACTIVE_DISAMBIGUATION_PLAN_SCHEMA_NAME,
+        schema_version=payload.schema_version,
         ref_cls=ActiveDisambiguationPlanRef,
         inputs=inputs,
     )
 
 
 def load_active_disambiguation_plan(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: ActiveDisambiguationPlanRef,
 ) -> ActiveDisambiguationPlan:
     """Load active disambiguation plan."""
@@ -919,13 +926,14 @@ def persist_discovery_audit_bundle(
         payload,
         kind="scientist.discovery_audit_bundle",
         schema_name=DISCOVERY_AUDIT_BUNDLE_SCHEMA_NAME,
+        schema_version=payload.schema_version,
         ref_cls=DiscoveryAuditBundleRef,
         inputs=inputs,
     )
 
 
 def load_discovery_audit_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: DiscoveryAuditBundleRef,
 ) -> DiscoveryAuditBundle:
     """Load discovery audit bundle."""
@@ -944,37 +952,36 @@ def persist_discovery_artifact_bundle(
         payload,
         kind="scientist.discovery_artifact_bundle",
         schema_name=DISCOVERY_ARTIFACT_BUNDLE_SCHEMA_NAME,
+        schema_version=payload.schema_version,
         ref_cls=DiscoveryArtifactBundleRef,
         inputs=inputs,
     )
 
 
 def load_discovery_artifact_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: DiscoveryArtifactBundleRef,
 ) -> DiscoveryArtifactBundle:
     """Load discovery artifact bundle."""
     return _load_model(store, ref, DiscoveryArtifactBundle)
 
 
-def _put_model(
+def _put_model[DiscoveryRefT: ArtifactRef](
     store: FileSystemCAS,
     payload: BaseModel,
     *,
     kind: str,
     schema_name: str,
-    ref_cls: type[ArtifactRef],
+    schema_version: str,
+    ref_cls: type[DiscoveryRefT],
     inputs: list[InputRef] | None = None,
-) -> Any:
+) -> DiscoveryRefT:
     ref = store.put_json(
         payload,
         PutOptions(
             kind=kind,
             media_type="application/json",
-            schema=SchemaInfo(
-                name=schema_name,
-                version=str(payload.schema_version),
-            ),
+            schema=SchemaInfo(name=schema_name, version=schema_version),
             inputs=list(inputs or []),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -983,32 +990,28 @@ def _put_model(
     return profile_bound_written_ref(store, typed_ref)
 
 
-def _load_model(
-    store: FileSystemCAS,
+def _load_model[DiscoveryModelT: BaseModel](
+    store: ArtifactStore,
     ref: ArtifactRef,
-    model_cls: type[BaseModel],
-) -> Any:
+    model_cls: type[DiscoveryModelT],
+) -> DiscoveryModelT:
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     return model_cls.model_validate(payload)
 
 
 def _bundle_inputs(source: DiscoveryArtifactBuildInput) -> list[InputRef]:
     inputs = [
-        InputRef(artifact_id=ref.artifact_id, role=role)
+        input_ref_from_artifact_ref(ref, role=role)
         for role, ref in sorted(source.source_refs.items())
     ]
     for index, ref in enumerate(_dedupe_artifact_refs(source.audit_refs)):
-        inputs.append(
-            InputRef(
-                artifact_id=ref.artifact_id,
-                role=f"upstream_audit_ref_{index}",
-            )
-        )
+        inputs.append(input_ref_from_artifact_ref(ref, role=f"upstream_audit_ref_{index}"))
     for index, ref in enumerate(_dedupe_artifact_refs(source.actionable_side_information_refs)):
         inputs.append(
-            InputRef(
-                artifact_id=ref.artifact_id,
+            input_ref_from_artifact_ref(
+                ref,
                 role=f"actionable_side_information_ref_{index}",
             )
         )
@@ -1135,10 +1138,10 @@ def _merge_latent_cardinality_payloads(values: list[dict[str, Any]]) -> dict[str
         merged["model_class"] = model_classes[0]
     elif model_classes:
         merged["model_class"] = "mixed"
-        merged["model_classes"] = model_classes
-    status = _conservative_latent_identifiability_status(status_values)
-    if status is not None:
-        merged["identifiability_status"] = status
+        merged["model_classes"] = list(model_classes)
+    merged_status = _conservative_latent_identifiability_status(status_values)
+    if merged_status is not None:
+        merged["identifiability_status"] = merged_status
     if latent_blocks:
         merged["latent_blocks"] = latent_blocks
     if latent_candidates:
@@ -1257,7 +1260,7 @@ def merge_latent_discovery_hypotheses(
     assumption_cards: list[LatentAssumptionCard] = []
     proxy_boundary_payloads: list[dict[str, Any]] = []
     latent_cardinality_payloads: list[dict[str, Any]] = []
-    separation_diagnostics_payloads: list[dict[str, Any]] = []
+    separation_diagnostics_payloads: list[Mapping[str, Any]] = []
     separation_diagnostics_trusts: list[LatentTrustLevel] = []
     seen_assumptions: set[str] = set()
     trust_rank = {
@@ -1434,7 +1437,7 @@ def _summarize_latent_discovery_hypotheses(
 
 
 def load_graph_hypotheses_for_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     bundle: DiscoveryArtifactBundle,
 ) -> list[GraphHypothesis]:
     """Load graph hypotheses for bundle."""
@@ -1443,7 +1446,7 @@ def load_graph_hypotheses_for_bundle(
 
 
 def load_source_discovery_reports_for_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     bundle: DiscoveryArtifactBundle,
 ) -> dict[str, CausalDiscoveryReport]:
     """Load source discovery reports for bundle."""
@@ -1460,7 +1463,7 @@ def load_source_discovery_reports_for_bundle(
 
 
 def load_merged_latent_discovery_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     bundle: DiscoveryArtifactBundle,
 ) -> LatentDiscoveryBundle | None:
     """Load merged latent discovery bundle."""

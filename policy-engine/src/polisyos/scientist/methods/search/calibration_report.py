@@ -73,6 +73,7 @@ def persist_funnel_calibration_report(
             inputs=list(inputs or []),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 
@@ -244,9 +245,8 @@ def load_funnel_calibration_report(
 ) -> FunnelCalibrationReport:
     """Load funnel calibration report."""
     from polisyos.core.artifacts import load_core_json_artifact
-    return FunnelCalibrationReport.model_validate(
-        load_core_json_artifact(store, ref)
-    )
+
+    return FunnelCalibrationReport.model_validate(load_core_json_artifact(store, ref))
 
 
 def _resolve_top_lessons(

@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.foundry.methods.catalog.causal import constraint_discovery as constraint_module
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.methods.catalog.causal.causal_engine.identification import (
@@ -188,18 +189,17 @@ def test_identified_graph_outranks_unresolved_pag_with_fresh_limited_report(tmp_
     assert [score.hypothesis_id for score in report.scores] == ["identified", "ambiguous"]
     assert report.scores[0].identification_status == "identified"
     assert report.scores[1].identification_status == "unsupported_graph_profile"
-    assert (
-        "identifiability:unsupported:graph_projection_unavailable"
-        in report.scores[1].reasons
-    )
+    assert "identifiability:unsupported:graph_projection_unavailable" in report.scores[1].reasons
     assert report.scores[1].composite_score <= report.scores[0].composite_score
 
     writer = FileSystemCAS(tmp_path / "utility-report")
     ref = persist_downstream_utility_report(writer, report)
     manifest = writer.get_manifest(ref)
-    payload = utility_module.from_canonical_bytes(writer.get_bytes(ref))
+    payload = from_canonical_bytes(writer.get_bytes(ref))
     assert manifest.artifact_schema.name == utility_module.DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME
-    assert manifest.artifact_schema.version == utility_module.DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION
+    assert (
+        manifest.artifact_schema.version == utility_module.DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION
+    )
     assert payload["schema_version"] == utility_module.DOWNSTREAM_UTILITY_REPORT_SCHEMA_VERSION
     fresh_report = load_downstream_utility_report(
         FileSystemCAS(tmp_path / "utility-report"),
@@ -207,9 +207,7 @@ def test_identified_graph_outranks_unresolved_pag_with_fresh_limited_report(tmp_
     )
     fresh_score = next(score for score in fresh_report.scores if score.hypothesis_id == "ambiguous")
     assert fresh_score.identification_status == "unsupported_graph_profile"
-    assert (
-        "identifiability:unsupported:graph_projection_unavailable" in fresh_score.reasons
-    )
+    assert "identifiability:unsupported:graph_projection_unavailable" in fresh_score.reasons
 
 
 def test_untyped_identification_error_keeps_generic_negative_certificate(monkeypatch) -> None:
@@ -395,6 +393,53 @@ def test_s_nodes_activate_transport_channel_without_selection_diagram(monkeypatc
     assert report.metadata["channel_coverage"]["transportability"] is True
 
 
+def test_s_node_negative_certificate_is_preserved_as_blocked_transportability(monkeypatch) -> None:
+    hypothesis = _hypothesis(
+        hypothesis_id="blocked-candidate",
+        graph=_dag_graph(),
+        method=DiscoveryMethod.DAGMA,
+        algorithm_family=DiscoveryAlgorithmFamily.SCORE_BASED,
+    )
+    stability_report = _stability_report(
+        HypothesisStabilitySummary(
+            hypothesis_id="blocked-candidate",
+            mean_edge_stability=0.5,
+            completed_resamples=5,
+        )
+    )
+
+    def identify_blocked_query(*args, **kwargs):
+        return NegativeCertificate(
+            blocking_type=BlockingType.S_NODE_UNRESOLVED,
+            blocking_description="selection shift remains unresolved",
+        )
+
+    monkeypatch.setattr(utility_module.CausalEngine, "identify", identify_blocked_query)
+    report = DownstreamUtilityJudge().evaluate(
+        UtilityJudgeInput(
+            hypotheses=[hypothesis],
+            stability_report=stability_report,
+            causal_query=_query(),
+            s_nodes=[
+                SNode(
+                    target_variable="X",
+                    context_dimension="domain",
+                    source_value=0.0,
+                    target_value=1.0,
+                    delta=1.0,
+                    severity="medium",
+                    origin=SNodeOrigin.CONTEXT_DELTA,
+                )
+            ],
+        )
+    )
+
+    score = report.scores[0]
+    assert score.transportability_score == 0.0
+    assert score.transport_status == BlockingType.S_NODE_UNRESOLVED.value
+    assert "transportability:blocked:s_node_unresolved" in score.reasons
+
+
 def test_missing_optional_inputs_are_renormalized_in_composite_score() -> None:
     hypothesis = _hypothesis(
         hypothesis_id="candidate",
@@ -422,8 +467,6 @@ def test_missing_optional_inputs_are_renormalized_in_composite_score() -> None:
     assert report.scores[0].estimation_quality_score is None
     assert report.scores[0].discovery_consistency_score == pytest.approx(1.0, rel=1e-6)
     assert report.scores[0].composite_score == pytest.approx(0.8333333333, rel=1e-6)
-
-
 
 
 def test_graph_derived_assumptions_remain_typed_through_candidate_shortlist(
@@ -511,7 +554,10 @@ def test_graph_derived_assumptions_remain_typed_through_candidate_shortlist(
     )
     reopened_score = reopened.scores[0]
     assert reopened_score.graph_derived_assumption_status is AlgebraicAssumptionStatus.UNKNOWN
-    assert reopened_score.graph_derived_scope_of_falsification is AlgebraicFalsificationScope.RANKING_ONLY
+    assert (
+        reopened_score.graph_derived_scope_of_falsification
+        is AlgebraicFalsificationScope.RANKING_ONLY
+    )
 
 
 def test_algebraic_blocker_is_excluded_from_shortlist_when_clean_candidate_exists() -> None:
@@ -761,7 +807,7 @@ def test_current_utility_writer_persists_nullable_scope_fields_for_fresh_reader(
     )
     store = FileSystemCAS(tmp_path / "nullable-utility-report")
     ref = persist_downstream_utility_report(store, report)
-    payload = utility_module.from_canonical_bytes(store.get_bytes(ref))
+    payload = from_canonical_bytes(store.get_bytes(ref))
     score = payload["scores"][0]
 
     assert "graph_derived_assumption_status" in score
@@ -894,7 +940,9 @@ def test_downstream_utility_writer_rejects_forged_historical_version_before_cas_
     report = DownstreamUtilityReport()
     forged = report.model_copy(update={"schema_version": "1.1"})
     store = FileSystemCAS(tmp_path / "writer-rejects-legacy")
-    before = sorted(path.relative_to(store.root) for path in store.root.rglob("*") if path.is_file())
+    before = sorted(
+        path.relative_to(store.root) for path in store.root.rglob("*") if path.is_file()
+    )
 
     with pytest.raises(ValueError, match="schema version"):
         persist_downstream_utility_report(store, forged)

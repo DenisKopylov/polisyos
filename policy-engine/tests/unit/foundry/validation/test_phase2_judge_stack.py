@@ -29,6 +29,7 @@ from tests.unit.scientist.search.test_phase_b_policy_runtime import (
 
 def _phase2_bundle(
     tmp_path,
+    monkeypatch,
     *,
     artifact_family: str,
     estimator_name: str,
@@ -39,14 +40,16 @@ def _phase2_bundle(
     coordinator = PolicyPromotionCoordinator(champion_registry=registry, store=store)
 
     candidate = _candidate(evidence_depth="replicated")
-    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    candidate_ref = persist_policy_candidate_schema(store, candidate, return_selected_profile=True)
     selection_eval, hidden_holdout = _benchmark(candidate_ref, holdout_score=0.94)
-    evaluation_ref = persist_benchmark_evaluation(store, selection_eval)
+    evaluation_ref = persist_benchmark_evaluation(
+        store, selection_eval, return_selected_profile=True
+    )
     replay_ref, replay_verification_ref = _persist_replay_support(
         store,
         candidate_ref=candidate_ref,
         evaluation_ref=evaluation_ref,
-        run_id=f"{artifact_family}-phase2",
+        monkeypatch=monkeypatch,
     )
     replay_verification_report = load_replay_verification_report(store, replay_verification_ref)
 
@@ -96,10 +99,11 @@ def _phase2_bundle(
     )
 
 
-def test_phase2_econometrics_frontier_six_judge_promote(tmp_path) -> None:
-    verdict = JudgeStack().evaluate(
+def test_phase2_econometrics_frontier_six_judge_promote(tmp_path, monkeypatch) -> None:
+    verdict = JudgeStack(store=FileSystemCAS(tmp_path / "cas")).evaluate(
         _phase2_bundle(
             tmp_path,
+            monkeypatch,
             artifact_family="econometrics_frontier",
             estimator_name="high_dimensional_post_selection_iv",
             query_type="post_selection_inference",
@@ -109,10 +113,11 @@ def test_phase2_econometrics_frontier_six_judge_promote(tmp_path) -> None:
     assert verdict.composite_decision == "promote"
 
 
-def test_phase5_preflight_evaluates_all_six_judges(tmp_path) -> None:
-    verdict = JudgeStack().evaluate_phase5_preflight(
+def test_phase5_preflight_evaluates_all_six_judges(tmp_path, monkeypatch) -> None:
+    verdict = JudgeStack(store=FileSystemCAS(tmp_path / "cas")).evaluate_phase5_preflight(
         _phase2_bundle(
             tmp_path,
+            monkeypatch,
             artifact_family="econometrics_frontier",
             estimator_name="high_dimensional_post_selection_iv",
             query_type="post_selection_inference",
@@ -125,10 +130,11 @@ def test_phase5_preflight_evaluates_all_six_judges(tmp_path) -> None:
     )
 
 
-def test_phase2_distributional_frontier_six_judge_promote(tmp_path) -> None:
-    verdict = JudgeStack().evaluate(
+def test_phase2_distributional_frontier_six_judge_promote(tmp_path, monkeypatch) -> None:
+    verdict = JudgeStack(store=FileSystemCAS(tmp_path / "cas")).evaluate(
         _phase2_bundle(
             tmp_path,
+            monkeypatch,
             artifact_family="distributional_frontier",
             estimator_name="distributional_bounds_engine",
             query_type="partial_identification",
@@ -138,10 +144,11 @@ def test_phase2_distributional_frontier_six_judge_promote(tmp_path) -> None:
     assert verdict.composite_decision == "promote"
 
 
-def test_phase2_mobility_frontier_six_judge_promote(tmp_path) -> None:
-    verdict = JudgeStack().evaluate(
+def test_phase2_mobility_frontier_six_judge_promote(tmp_path, monkeypatch) -> None:
+    verdict = JudgeStack(store=FileSystemCAS(tmp_path / "cas")).evaluate(
         _phase2_bundle(
             tmp_path,
+            monkeypatch,
             artifact_family="mobility_frontier",
             estimator_name="attrition_adjusted_transition_matrix",
             query_type="mobility_under_attrition",
@@ -151,10 +158,11 @@ def test_phase2_mobility_frontier_six_judge_promote(tmp_path) -> None:
     assert verdict.composite_decision == "promote"
 
 
-def test_phase2_network_identification_six_judge_promote(tmp_path) -> None:
-    verdict = JudgeStack().evaluate(
+def test_phase2_network_identification_six_judge_promote(tmp_path, monkeypatch) -> None:
+    verdict = JudgeStack(store=FileSystemCAS(tmp_path / "cas")).evaluate(
         _phase2_bundle(
             tmp_path,
+            monkeypatch,
             artifact_family="network_identification",
             estimator_name="network_missingness_frontier",
             query_type="partial_observability_bounds",
@@ -164,10 +172,11 @@ def test_phase2_network_identification_six_judge_promote(tmp_path) -> None:
     assert verdict.composite_decision == "promote"
 
 
-def test_phase2_spatial_identification_six_judge_promote(tmp_path) -> None:
-    verdict = JudgeStack().evaluate(
+def test_phase2_spatial_identification_six_judge_promote(tmp_path, monkeypatch) -> None:
+    verdict = JudgeStack(store=FileSystemCAS(tmp_path / "cas")).evaluate(
         _phase2_bundle(
             tmp_path,
+            monkeypatch,
             artifact_family="spatial_identification",
             estimator_name="spatial_interference_frontier",
             query_type="maup_and_interference_identification",

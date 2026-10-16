@@ -7,6 +7,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import (
@@ -29,7 +30,7 @@ from polisyos.scientist.methods.search.artifact_minimality import (
 )
 
 GRAPH_PRIOR_BUNDLE_SCHEMA_NAME = "polisyos.scientist.methods.discovery.GraphPriorBundle"
-GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION = "1.2"
+GRAPH_PRIOR_BUNDLE_SCHEMA_VERSION: Literal["1.2"] = "1.2"
 _GRAPH_PRIOR_BUNDLE_LEGACY_SCHEMA_VERSION = "1.1"
 _GRAPH_PRIOR_BUNDLE_V1_1_FIELDS = frozenset(
     {
@@ -525,7 +526,7 @@ def persist_prior_knowledge_bundle(
 
 
 def load_prior_knowledge_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     ref: PriorKnowledgeBundleRef,
 ) -> PriorKnowledgeBundle:
     """Load prior knowledge bundle."""

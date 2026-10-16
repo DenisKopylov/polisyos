@@ -1,0 +1,16 @@
+{
+  "schema": "policyos.e02.local_receipt_environment_erratum.v1",
+  "erratum": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-actual-replay-v2-effective-environment-20261017/erratum.json",
+    "sha256": "9b24af19e4bf7d2f3688c5e6831c080067e2f3143d9e06d9fa12790ebcf6c92e",
+    "availability": "local ignored RAW; retained on this host"
+  },
+  "actual_child_readback_probe": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-actual-replay-v2-effective-environment-20261017/readback.json",
+    "sha256": "db66d65a5785f14445847e7c5812ac0238a630fa022f8eb7860c210552bcc4d2",
+    "availability": "local ignored RAW; retained on this host"
+  },
+  "scope": "Old runner correctly passed merged request overrides to subprocess but serialized only default settings as environment. Preserve old results; interpret using exact request+runner+origin report. New runner records selected effective mapping, validated against actual child output. No full inherited-secret environment dump or reconstructed old child snapshot.",
+  "formal_G_closures": [],
+  "closure_ids": []
+}

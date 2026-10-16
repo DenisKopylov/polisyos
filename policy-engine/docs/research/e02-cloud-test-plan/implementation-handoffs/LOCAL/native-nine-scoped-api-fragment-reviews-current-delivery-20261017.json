@@ -1,0 +1,124 @@
+{
+  "schema": "policyos.e02.local_native_component_delivery.v1",
+  "source_base": "ec8c7a046dc9fa9120bf2c3857dbd95e5c2b3ee7",
+  "candidate": {
+    "sha": "6edb6077a8d4e2c5a082cb99a9f82491ef728555",
+    "tree": "995600316500a682054c09fb3c504d2ce4e998d1",
+    "parents": [
+      "ec8c7a046dc9fa9120bf2c3857dbd95e5c2b3ee7"
+    ]
+  },
+  "implementation_footprint": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+    "policy-engine/release-fragments/unreleased/2026-10-11-e02-authority-event-selected-profile.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-12-e02-calibration-report-cas-bridge.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-12-e02-i1-c05-catalog-source-selection.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-16-e02-c05-selected-consumer-composition.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-16-e02-fabric-registration-origin-binding.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-16-e02-phase2-legal-source-relation-facade.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-16-e02-scholar-bundle-persistence.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-16-e02-transport-candidate-source-refusal.toml"
+  ],
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/public-surface-metadata-adoption-delta-20261017-r1/review.json",
+    "sha256": "45407c01fb66c63bc3e00207a9304b0bbb2e531bc250502dc92223bf3d2e2384",
+    "availability": "local ignored RAW; retained on this host"
+  },
+  "inventory_source": "de132f6a02e243a0fd6d2e53c166653b204b38d0; inventory70cfd423 / public reference43160e14 / generated reference67892a4d byte-equal current renderer at review; 67 unresolved static export routes, not runtime completeness",
+  "admission_grade": "independently_reconciled local selected declared API rows; field booleans remain consumer_asserted to native owner, not authenticated human or G authority",
+  "actual_gate": {
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-compatibility-after-scoped-review-20261017/request.json",
+      "sha256": "f861a941e7dabe7d699c63fc7324f1ebdc15ae021efa7e811ac902b2478afb19",
+      "availability": "local ignored RAW; retained on this host"
+    },
+    "results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-compatibility-after-scoped-review-20261017/actual-results.json",
+      "sha256": "caa9909c355eeb4c6815e455b58fa74595069624ee8fcd65f366aa1cb573e744",
+      "availability": "local ignored RAW; retained on this host"
+    },
+    "command": {
+      "label": "actual-native-compatibility-owner",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "tools/ops_runners/release/check_compatibility_release_gates.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "--policy",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/gates/compatibility_release.toml",
+        "--fail-on-contract-errors"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 1,
+      "timed_out": false,
+      "seconds": 0.21,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-compatibility-after-scoped-review-20261017/actual-native-compatibility-owner.stdout.txt",
+        "sha256": "27e4e5318776a9857f73afc915e986e4b2477e246fcd9bc721e3a6ebf4c46118"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-compatibility-after-scoped-review-20261017/actual-native-compatibility-owner.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "full_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-compatibility-after-scoped-review-20261017/actual-native-compatibility-owner.stdout.txt",
+      "sha256": "27e4e5318776a9857f73afc915e986e4b2477e246fcd9bc721e3a6ebf4c46118",
+      "availability": "local ignored RAW; retained on this host"
+    },
+    "fragment_count": 276,
+    "structured_rows": 244,
+    "contract_error_count": 6,
+    "contract_errors": [
+      {
+        "check": "public-surface-review",
+        "detail": "",
+        "message": "python public API change requires public_surface_inventory_reviewed=true",
+        "severity": "error",
+        "subject": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/release-fragments/unreleased/2026-10-09-e02-c12-catalog-search-status.toml:catalog-result-search-status-fields-and-atomic-tool-envelope"
+      },
+      {
+        "check": "public-surface-review",
+        "detail": "",
+        "message": "python public API change requires public_surface_inventory_reviewed=true",
+        "severity": "error",
+        "subject": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml:scientist-legal-tool-status-envelope"
+      },
+      {
+        "check": "public-surface-review",
+        "detail": "",
+        "message": "python public API change requires public_surface_inventory_reviewed=true",
+        "severity": "error",
+        "subject": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml:legal-runtime-material-owner-api"
+      },
+      {
+        "check": "public-surface-review",
+        "detail": "",
+        "message": "python public API change requires public_surface_inventory_reviewed=true",
+        "severity": "error",
+        "subject": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/release-fragments/unreleased/2026-10-16-e02-gl-candidate-facet-origin-refusal.toml:gl-candidate-facet-origin-refusal"
+      },
+      {
+        "check": "public-surface-review",
+        "detail": "",
+        "message": "python public API change requires public_surface_inventory_reviewed=true",
+        "severity": "error",
+        "subject": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/release-fragments/unreleased/2026-10-16-e02-gl-selected-subject-identity-join.toml:gl-selected-subject-identity-join"
+      },
+      {
+        "check": "public-surface-review",
+        "detail": "",
+        "message": "python public API change requires public_surface_inventory_reviewed=true",
+        "severity": "error",
+        "subject": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/release-fragments/unreleased/2026-10-17-e02-gl-full-requirement-projection-reconciliation.toml:gl-full-requirement-projection-reconciliation"
+      }
+    ],
+    "input_pins": 3634,
+    "source_paths_unchanged": true
+  },
+  "outcome": "FAIL; six review errors at this exact source cut. Three GL child-surface classifications separately under review; Catalog/tool JSON/dynamic Legal handle held for G. No blanket native green.",
+  "closure_ids": [],
+  "formal_G_closures": [],
+  "source_freeze": false
+}

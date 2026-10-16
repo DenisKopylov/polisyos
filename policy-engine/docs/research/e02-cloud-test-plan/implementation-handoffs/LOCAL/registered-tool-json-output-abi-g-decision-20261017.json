@@ -1,0 +1,186 @@
+{
+  "alternatives": [
+    {
+      "option": "Reuse python-public-api",
+      "result": "Reject as the sole classification: direct Python method/import compatibility is distinct from a JSON value delivered to an agent tool consumer. Use python-public-api separately for any newly exported ToolDefinition result-contract field."
+    },
+    {
+      "option": "Reuse schema-openapi-abi",
+      "result": "Reject: this output is not HTTP/OpenAPI and does not target generated runtime SDK clients."
+    },
+    {
+      "option": "Reuse persisted-artifact-format",
+      "result": "Reject: ToolDefinition metadata is snapshot-persisted, but the result value itself is transient and emitted to model/agent consumers."
+    },
+    {
+      "option": "Reuse tooling/internal",
+      "result": "Reject as sole classification: both understate an actual consumer-visible result contract and could mask a breaking envelope change."
+    },
+    {
+      "option": "Add registered-tool-json-output-abi",
+      "result": "Recommend for G consideration. It matches the receiver, result format, and compatibility boundary."
+    }
+  ],
+  "app_metadata_correction": {
+    "candidate": "internal classification postimage in metadata-postimage-index-r1; existing contract unambiguously requires internal for unlisted polisyos.runtime.http.app path.",
+    "source_preimage": "policy-engine/release-fragments/unreleased/2026-10-12-e02-i1-c05-catalog-source-selection.toml@30af08908558e0cc5f42146051d179848761d06c211ef000e4803468bb092a0c"
+  },
+  "authority_boundary": "G alone decides the release taxonomy, version owner, and formal acceptance. This is an author-side evidence/recommendation packet. No code, production input, or G source was changed.",
+  "authority_status_time": {
+    "authority": "Schema validity means only result-shape conformance. It grants no legal validity, source custody, issuer permission, publication authority, or authority to promote LLM/tool output.",
+    "status": "Legal search_mode/refusal/limitation and catalog generation context describe the selected query outcome. Empty/missing status stays unknown/limited according to producer contracts; the output ABI must preserve it without interpreting it as legal truth or currentness.",
+    "time": "Contract ID/version is a compatibility epoch for the result shape. It is not a data-currentness timestamp or source freshness receipt."
+  },
+  "catalog_metadata_draft": {
+    "draft_status": "G_CHOICE_REQUIRED; no directly applicable TOML postimage written because new class and version owner remain unsettled.",
+    "python_row": {
+      "change_class": "python-public-api",
+      "impact": "additive",
+      "public_surface_inventory_reviewed": true,
+      "retain_current_occurrence_identity": true,
+      "surface": "public_experimental: polisyos.data_forge.read_api.catalog; 4 DTOs/49 fields and 2 DatasetCatalogGraph methods"
+    },
+    "source_preimage": "policy-engine/release-fragments/unreleased/2026-10-09-e02-c12-catalog-search-status.toml@646891153961a958767fc018e88ed21fd030419807870f30f851ca5f725df52d",
+    "tool_row": {
+      "change_class": "registered-tool-json-output-abi",
+      "impact": "breaking",
+      "owner": "G must adjudicate; candidate runtime owner team-polisyos, schema owner team-data-forge",
+      "proposed_id": "catalog-registered-search-result-json-envelope",
+      "surface": "registered Scientist search_datasets output; Data Forge DatasetSearchResponse",
+      "version_owner": "G must name; no existing contract sets it"
+    },
+    "top_level_flag": false,
+    "wording_correction": "Replace claim that semantic benchmark run v2 is a persisted workspace artifact with the narrower observed fact: query status is serialized into the returned workspace-quality exit projection; physical CAS persistence/readback remains not_established."
+  },
+  "closure_ids": [],
+  "compatibility_and_migration": {
+    "catalog": "Registered search_datasets output is the status envelope selected by the adapter, while direct Python DatasetCatalogGraph.search_datasets and KnowledgeToolkit.search_datasets remain list-returning. Split one composite release occurrence into a Python API row (additive named DTO/method surface) and a registered-tool result ABI row (breaking envelope) only after G accepts class/ownership.",
+    "discovery_snapshot": "ToolDefinition model_dump is persisted in capability-discovery snapshots under scientist.tool_registry.v1; adding contract metadata changes snapshot contents/digests. Existing snapshots must be explicitly read as unverified or migrated under a declared version rule; do not silently synthesize contracts.",
+    "generated_clients": "not_applicable for the tool JSON message plane; do not claim OpenAPI or generated runtime client changes.",
+    "inventory_flags": "Do not set the top-level Catalog public_surface_inventory_reviewed flag while the tool and persistence planes remain unresolved. A separate named Data Forge Python row can be locally reviewed after a conditional split; G still adjudicates the whole fragment and class.",
+    "legal": "Registered search_legal_facts list-to-object status envelope is breaking for tool-result consumers. Migrate role=tool consumers to results and status fields. Direct Python KnowledgeToolkit.search_legal_facts remains list-returning. Preserve text mode requiring a vector refusal, vector mode forbidding refusal/limitation, and unavailable mode requiring limitation."
+  },
+  "created": "2026-10-17",
+  "current_contract_facts": {
+    "catalog_producer": "The Data Forge facade exposes four DTOs: DatasetSearchResult (33 fields), DatasetSearchResponse (5), CatalogEmbeddingProfile (7), CatalogQueryGenerationContext (4); total 49 fields. DatasetCatalogGraph.search_datasets remains list-returning and search_datasets_with_status returns a strict/frozen response. KnowledgeToolkit adapter selects the status method for the registered search_datasets key.",
+    "consumers": [
+      "ToolRegistry.execute/aexecute direct callers",
+      "agent/tool_loop.py role=tool content consumer",
+      "worker supervisor with narrower WorkerTaskResult enforcement",
+      "reflexion evaluator serialization",
+      "research DAG redacted/untrusted projection",
+      "capability discovery snapshots of ToolDefinition metadata"
+    ],
+    "legal_producer": "The registered search_legal_facts key is adapted to search_legal_facts_with_status and serializes LegalFactSearchResponse. The direct Python KnowledgeToolkit.search_legal_facts method remains list-returning. The response has results, search_mode, vector_refusal_code, limitation_code with model-level conditional status validation.",
+    "native_allowed_classes": [
+      "python-public-api",
+      "schema-openapi-abi",
+      "extension-plugin-abi",
+      "runtime-state-format",
+      "persisted-artifact-format",
+      "js-package-api",
+      "tooling",
+      "shim_sunset",
+      "internal"
+    ],
+    "registry": "ToolRegistry.execute and aexecute validate input parameters, invoke the handler, serialize/model_dump, apply concise/truncate rendering, and return ToolCallResult.result: Any. No generic validation of the final rendered result runs before success or role=tool emission.",
+    "semantic_workspace_plane": "SemanticBenchmarkRun v2 includes per-query statuses and v1 serialization removes v2 fields. Workspace loop calls model_dump(mode=json) into returned SearchIncompletenessRecord.search_quality.semantic_benchmark_run. This review did not establish a persisted CAS write/read path for the full exit contract; do not claim a persisted artifact or add a public ABI row until the actual producer-to-consumer/persistence path is traced.",
+    "surface_rules": "Any polisyos module not listed in architecture/public_surface/contract.toml is internal by default. Registered-tool JSON is a consumer ABI plane, not an import path. The catalog Python route is supported public_experimental; runtime.http.app is not supported.",
+    "tool_definition": "ToolDefinition is a strict Pydantic model with input parameters, domain, timeout, response verbosity, response_max_chars; it has no result contract. ToolDefinition/ToolRegistry are lazy exports from the stable Scientist facade."
+  },
+  "decision_status": "G_CHOICE_REQUIRED",
+  "kind": "g-decision-packet-registered-tool-json-output-abi-and-catalog-plane-split",
+  "packet_id": "registered-tool-json-output-abi-and-catalog-split-20261017-r2",
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P05",
+      "P12",
+      "P29",
+      "P31",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "p40_bucket": "Same-class deeper occurrence across result-producing tool definitions/handlers, not a one-tool patch. A class-wide output validator is needed. Do not claim whole-registry completeness until the current complete producer and consumer set is enumerated.",
+    "p41": "The prior prototype/source census uses an older source frame; it is supporting research only, not inherited current product verification."
+  },
+  "prototype_and_falsifier": {
+    "negative_cases": [
+      "missing/conflicting status fields",
+      "wrong outer envelope",
+      "wrong result item type",
+      "extra fields",
+      "output over response_max_chars after truncation",
+      "uncontracted registry definition readiness",
+      "sync and async paths"
+    ],
+    "positive_cases": [
+      "valid Legal vector result",
+      "Legal text result with refusal code",
+      "Legal unavailable result with limitation",
+      "Catalog selected/text/refused query statuses"
+    ],
+    "prior_prototype": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/tool-output-abi-prototype-20261015/registered-tool-output-boundary-prototype.py@9d2813d8e89765425c43046be67b9756f8b4ea798297b28cf03a64867b570b5d; command @02d449d35365483b69a4fa6c00acfb3448ef8378137465e31b7dbd215c1c91ef; stdout @512ad965ee2d3a8861d341266fb5650ed9d6157f28805135b081e3d14b5d16a3. Prior controlled subclass prototype only, not current ToolRegistry product verification or current source freeze.",
+    "remove_property_control": "Keep output_contract declaration/schema markers and remove the actual validator; a malformed status envelope must reach neither successful ToolCallResult nor role=tool content. This falsifier distinguishes runtime behavior from declaration completeness."
+  },
+  "question_for_G": "Should consumer-visible JSON emitted by the registered Scientist ToolRegistry have a distinct versioned registered-tool-json-output-abi classification and a generic output contract enforced after final rendering? If yes, who owns/version-owns that ABI plane, and how should the current legal and catalog list-to-envelope changes migrate?",
+  "recommendation": {
+    "candidate_implementation": "Extend ToolDefinition with output-contract metadata, run one validator after _render_tool_result in both sync and async paths, return error_type=invalid_tool_output without echoing raw result, and bind output readiness separately from parameter readiness. If truncation produces a wrapper, the wrapper must belong to the versioned ABI or the output is refused.",
+    "contract_property": "Every contract-bearing registered result crossing the ToolRegistry output boundary either satisfies its versioned result contract after serialization/concise/truncate rendering, or produces a typed invalid_tool_output refusal before a successful ToolCallResult/role=tool content reaches a consumer.",
+    "decision": "Approve a separate registered-tool-json-output-abi class, subject to G naming its owner/version_owner and source-of-truth path.",
+    "readiness": "Old scientist.tool_registry.v1 definitions lacking result contracts remain readable but explicitly output_contract_unverified; absence is not interpreted as a default schema or a green readiness claim. G should decide staged migration and whether uncontracted tool results can still be delivered as candidate text during transition."
+  },
+  "remaining_checks_after_choice": [
+    "Confirm G taxonomy, owner/version-owner roles, compatibility source path, and rollout status before editing allowed classes or gate code.",
+    "Bind exact final rendered Legal/Catalog JSON result contracts, including Pydantic status validators and truncation wrappers.",
+    "Implement central output validation for execute and aexecute, no raw-result errors, and output readiness separate from parameters.",
+    "Run real producer -> adapter -> registry -> ToolLoop chain with positive, contradictory, missing, wrong-shape, truncation, and remove-the-property cases.",
+    "Review old capability-discovery snapshots and any ToolDefinition digest/schema version compatibility.",
+    "Before any whole-registry capability claim, refresh the source-wide registry/producer/consumer denominator. Prior packet census is historical and not a current-source denominator."
+  ],
+  "requested_narrow_decision": {
+    "contract_source": "Choose between extending the existing ToolDefinition with versioned output-contract metadata, or a separate typed contract registry only if ToolDefinition snapshots cannot safely be the source of truth.",
+    "owner": "Name runtime contract owner and version_owner; current canonical package owner for Scientist/ToolRegistry is team-polisyos. The producer schema owner remains per DTO (Data Forge for Catalog DTOs; Scientist/Lex owners for Legal response). This packet does not assert team delegation or version authority.",
+    "release_gate": "Require class-specific old/new output-contract reference, version, impact/migration, and unresolved-contract fail-closed state. G must decide whether the new class is accepted in compatibility_release_gates.allowed_change_classes and compatibility_surface.",
+    "taxonomy": "Authorize or reject new class registered-tool-json-output-abi; do not map this plane to python-public-api, schema-openapi-abi, persisted-artifact-format, or internal/tooling merely to satisfy the current enum."
+  },
+  "reuse_extend_consolidate_build": {
+    "build_only_if": "Build a separate output-contract registry only if G determines ToolDefinition snapshot metadata is not an appropriate canonical source; no evidence currently requires a new registry.",
+    "consolidate": "Reuse/consolidate the structural JSON-schema validation already used for input validation and worker expected_output_schema, with an explicit supported grammar and fail-closed behavior for unsupported keywords. Preserve model-level semantic validation; current Pydantic-generated JSON Schema alone omits LegalFactSearchResponse conditional rules. Do not adopt a new runtime jsonschema dependency without a measured packaging decision.",
+    "extend_preferred": "Add an explicit versioned output-contract descriptor to ToolDefinition; bind a canonical contract identity/version and schema owner; validate final rendered JSON in the shared ToolRegistry path for both execute and aexecute before reporting success; expose output-contract readiness separately from input-schema readiness.",
+    "reuse": "Keep the existing ToolDefinition, ToolRegistry, ToolCallResult error path, typed LegalFactSearchResponse and DatasetSearchResponse producers, real adapters, ToolLoop, and worker-specific validation. Keep provider-facing input parameter schema unchanged."
+  },
+  "source_and_review_pins": {
+    "catalog_search_producer": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py@9c065efd1c5802dde4cfda6f9392dd9b33efc55e1f590306dd7abc40fd9b3ad6",
+    "catalog_typed_source": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/types.py@90bd4901c233e37c3136f8c094eacebfb0116378d43518719c542d4ff2f3a09e",
+    "compatibility_gate_policy": "policy-engine/architecture/gates/compatibility_release.toml@ad2c8d7940c7568d6feac37be1c76d3c0704abf859e29b8e61c958bdf8cd69a3",
+    "complete_source_pin_map": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-public-surface-metadata-proposals-20261017/source-pins-r2.json@16307d7f031625ddee9374a84ca708a1d6d748e806be4f1f83161f7ef86238fa",
+    "existing_G_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/registered-tool-output-contract-and-release-plane-20261015.json@705887736b018d5c6c4370932dc44f8a50d861f91e87da6d9689978f2890a332",
+    "legal_adapter": "policy-engine/src/polisyos/scientist/agent/tools/knowledge_tools_adapter.py@4e60cb47c079eb813a055370a3432d2c4fd48ad53110b9f002ebefc890b4fb24",
+    "legal_producer": "policy-engine/src/polisyos/scientist/agent/knowledge_tools.py@534b010e44b15aea96931291ea46a123c93785112653f321d32859388c385d23",
+    "local_surface_attestation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-public-surface-metadata-proposals-20261017/public-surface-scoped-attestation-r1.json@b591223617025b0fbe24272b5477a36b5bf4765b9d4957ca292776d37d2a6f62",
+    "package_settings": "policy-engine/pyproject.toml@2522afe7bbbe74b8df37dcf64cda247f244ef0ec073657bb5d9e1d7841b1efe7",
+    "public_scientist_facade": "policy-engine/src/polisyos/scientist/__init__.py@788c90a28976c00bff196fa7cdd94f545f2135498ffa022a6bdf7a7739404a29",
+    "registry_snapshot_consumer": "policy-engine/src/polisyos/runtime/quality/capability_discovery.py@ecc598f29f4a221f9b2fc2a2eaa9a3384a8930454b0e5faa4266593aac9a6479",
+    "scientist_tool_registry": "policy-engine/src/polisyos/scientist/agent/tools/registry.py@8dda48f0b3f6700e76f07ff9d62a4703c47e439ee60518755a15e9fa4b913b6b",
+    "semantic_run_types": "policy-engine/src/polisyos/runtime/quality/semantic_binding.py@21a10b4e6d741df391dee0eeb11dcad326bb62b84fd2e4a3bbb909b0651c8597",
+    "tool_definition": "policy-engine/src/polisyos/scientist/agent/tools/schema.py@3817f50b70806ccab327d07a8e7993533deacd6ffe5bdae5e1bf63849a9ca568",
+    "tool_loop_consumer": "policy-engine/src/polisyos/scientist/agent/tools/tool_loop.py@a57849b99366ba71fd8260932bb13482908494767a98bba81325df4e587ad199",
+    "workspace_semantic_exit": "policy-engine/src/polisyos/runtime/quality/workspace/loop.py@b160f9bc49a3dc414b3e7c51f77230193d0bb0394c5d731057ef689156b918a2"
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "514fc9ca4a9bdadd7c617cdb5cc0b8c10e592a76",
+    "selected_dirty_paths": [
+      "policy-engine/architecture/public_surface/inventory.json",
+      "policy-engine/docs/reference/public-surface.md",
+      "policy-engine/src/polisyos/lex/__init__.py"
+    ],
+    "tree": "9bf4ca31e5d82a26e88c1a17910d892a31e28a4e"
+  }
+}

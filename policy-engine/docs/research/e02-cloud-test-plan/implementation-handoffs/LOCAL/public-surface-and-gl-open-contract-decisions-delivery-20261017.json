@@ -1,0 +1,52 @@
+{
+  "schema": "policyos.e02.local_g_decision_delivery.v1",
+  "source_base": "718a54bc686e725f58a122d0c39b84a7c4737c52",
+  "candidate_source": {
+    "sha": "718a54bc686e725f58a122d0c39b84a7c4737c52",
+    "tree": "4d4f5ff7169de2b073712bcf2d2d21ea6ca1144e",
+    "parents": [
+      "6edb6077a8d4e2c5a082cb99a9f82491ef728555"
+    ]
+  },
+  "decision_packets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/legal-runtime-material-handle-finite-surface-g-decision-20261017.md",
+      "sha256": "081171d73fd7df5c3e51613aeed452787c526d4555b587585b1861ae9635019e",
+      "availability": "tracked candidate path",
+      "original_RAW_packet_sha256": "b3c743baf4492859bbac075eea291ce8b78341a3494343c2cd8a6ca330986825",
+      "delivery_markup_delta": "Two Markdown hard line breaks use backslash syntax instead of trailing spaces; body and rendered line breaks preserved. Original RAW packet retained byte-exact."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/registered-tool-json-output-abi-g-decision-20261017.json",
+      "sha256": "dccc08bc53c1b43286f632252de7232b192b1daf3753608b2dac5c6120a4bf24",
+      "availability": "tracked candidate path"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/gl-custom-claims-input-basis-g-decision-20261017.md",
+      "sha256": "bb7ff62d710c19728bb48e32159f320b45445368dd04bb92f747edab890bd8cd",
+      "availability": "tracked candidate path"
+    }
+  ],
+  "supporting_research_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-choice-delivery-companion-20261017-r1/manifest.json",
+    "sha256": "1a6640a3c365e774f202d63e7bb522c6a504456e0775525b0d3a03d2e29fa87c",
+    "availability": "local ignored RAW; retained on this host"
+  },
+  "supporting_packet_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-choice-delivery-companion-20261017-r1",
+  "supporting_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-choice-delivery-companion-20261017-r1/delivery-proposal.json",
+    "sha256": "516bf925ac5480a84f668bd3f8218ab0bdcc63abeb05c7323c563a40ce35c13f",
+    "availability": "local ignored RAW; retained on this host"
+  },
+  "input_scope": "Each original packet retains its exact historical source pins. Companion enumerates historical/current differences; no implied unchanged source or P41 inheritance. Current direct ToolDefinition, ToolRegistry and ToolLoop match the pinned ABI observation.",
+  "later_append": "718a changes NL selected-read exception handling/test and LEASES after companion readback at6edb; decisions are not actual runtime receipts for 718a.",
+  "claim_boundary": "Research decisions for independent G choice: finite public encoder handle, registered-tool rendered JSON ABI, owner-resolvable custom GL input basis. No source change, authority promotion, production currentness, named human approval or finding closure.",
+  "proposal_fields": {
+    "legal_handle": "A finite facade if G accepts experimental compatibility change; otherwise versioned proxy or completeness hold",
+    "tool_json": "Extend existing definition/output boundary after G selects ABI owner/version/taxonomy",
+    "GL_custom": "Default-only until G approves owner-resolvable content-bound custom input basis"
+  },
+  "closure_ids": [],
+  "formal_G_closures": [],
+  "source_freeze": false
+}

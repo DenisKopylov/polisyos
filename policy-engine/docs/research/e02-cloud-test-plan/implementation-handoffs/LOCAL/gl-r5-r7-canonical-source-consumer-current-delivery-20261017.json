@@ -1,0 +1,254 @@
+{
+  "schema": "policyos.e02.local_source_bound_delivery.v1",
+  "slice": "GL whole default compiler projection, identity/facet admission and persisted consumer refusal",
+  "source_base": "28ba9342111b778e3b9534b66038ca3d9dc2facd",
+  "candidate": {
+    "sha": "3be84f9dade4ca557279a14c09f1d7e03c4574b3",
+    "tree": "a2f3d30dbdebd8a4ad033b1158bfcbb6ae7baf39",
+    "parents": [
+      "28ba9342111b778e3b9534b66038ca3d9dc2facd"
+    ]
+  },
+  "style_successor": {
+    "sha": "9e752c894684a21923312992c4dd6f8350270cc1",
+    "tree": "a4cdfb4abeeb8b5390504c34855b5648ffb3c8e9",
+    "parents": [
+      "3be84f9dade4ca557279a14c09f1d7e03c4574b3"
+    ],
+    "property": "Lex one blank line; complete AST/imports/comments/61 lazy export pairs independently equal",
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-lex-style-independent-review-20261017/review.json",
+      "sha256": "734528a0d44a19ed9284683261edf97397d2c0bc6e0afa3a4205e2fde2c5381d",
+      "availability": "local ignored RAW; retained on this host"
+    }
+  },
+  "full_implementation_footprint": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+    "policy-engine/release-fragments/unreleased/2026-10-16-e02-gl-candidate-facet-origin-refusal.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-16-e02-gl-selected-subject-identity-join.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-17-e02-gl-full-requirement-projection-reconciliation.toml",
+    "policy-engine/src/polisyos/lex/__init__.py",
+    "policy-engine/src/polisyos/runtime/quality/README.md",
+    "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+    "policy-engine/tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py"
+  ],
+  "source_and_test_pins": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+      "sha256": "e99b1b3ba38a28264497477cb064fed6cddf0f8a4affb3e57eb25bd06bdbd927",
+      "snapshot": "actual full GL run at 3be84f9",
+      "evidence_ref_id": "actual-request"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py",
+      "sha256": "80973bf173031675f6ea7e10655fad0c8e16cf74b26b7350c788569a41881c88",
+      "snapshot": "actual full GL run at 3be84f9",
+      "evidence_ref_id": "actual-request"
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/__init__.py",
+      "sha256": "5e9e2b3659fa5494e2b93bbc47de4e554e576284ea0ea053e3163fa560dfbf94",
+      "snapshot": "actual full GL run before whitespace-only style commit",
+      "evidence_ref_id": "actual-request"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+      "sha256": "e99b1b3ba38a28264497477cb064fed6cddf0f8a4affb3e57eb25bd06bdbd927",
+      "snapshot": "post-style actual Ruff readback at 9e752c8",
+      "evidence_ref_id": "lex-actual-readback"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py",
+      "sha256": "80973bf173031675f6ea7e10655fad0c8e16cf74b26b7350c788569a41881c88",
+      "snapshot": "post-style actual Ruff readback at 9e752c8",
+      "evidence_ref_id": "lex-actual-readback"
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/__init__.py",
+      "sha256": "5003567a252b0166927252592591eeb84e0121ff4e7639518dad858acc4a5637",
+      "snapshot": "post-style actual Ruff readback at 9e752c8",
+      "evidence_ref_id": "lex-actual-readback"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/source_relation.py",
+      "sha256": "2f90f3859175981ae5d75665079abb2c2dbb7732bd6873365ae53facb88dbddf",
+      "snapshot": "owner pin cited by preserved R6 G decision packet; not a fresh current-source readback",
+      "evidence_ref_id": "r6-g-custom-decision"
+    }
+  ],
+  "profile_backend": "OWN literal .venv, canonical ordinary import source, controlled GL default requirement and selected local read-only KG basis; path/size/mtime locator is not a KG content hash; no production currentness",
+  "actual_run": {
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/request.json",
+      "sha256": "6966c0fe412c9f683c29fef7bb51a79c35fa2f7bb05c88092068f68d4f118204",
+      "availability": "local ignored RAW; retained on this host"
+    },
+    "results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/actual-results.json",
+      "sha256": "d8b9fee9f67fd43644e6e40eec6a304a16e2254116a61161612e0573af73096b",
+      "availability": "local ignored RAW; retained on this host"
+    },
+    "origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/actual-module-origins.json",
+      "sha256": "32522c476b373b2ed21434a0a99dd388e48f5ec2aefb305959c95d3ffcd6ae53",
+      "availability": "local ignored RAW; retained on this host"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/gl.junit.xml",
+      "sha256": "06870d20ade2e0c46625c1ec296824fc28e87ad31361e3f7615ada3bf946fb61",
+      "availability": "local ignored RAW; retained on this host"
+    },
+    "commands": [
+      {
+        "label": "actual-full-gl-module",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "-q",
+          "-p",
+          "actual_origin",
+          "-p",
+          "no:cacheprovider",
+          "tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py",
+          "--tb=short",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/pytest-tmp",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/gl.junit.xml"
+        ],
+        "timeout_seconds": 240,
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 35.95,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/actual-full-gl-module.stdout.txt",
+          "sha256": "475377e0e9484d780554b0dea4270deed6bdcfdb6e231a2e18bba8a20140208b"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/actual-full-gl-module.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "label": "selected-mypy",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "tools.devx.workspace.core_runtime_mypy",
+          "src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py"
+        ],
+        "timeout_seconds": 180,
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 7.677,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/selected-mypy.stdout.txt",
+          "sha256": "6aecbc87be23df7b09b5fdbf99a39aa954714e80b5fe427b938af83419e7cad8"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/selected-mypy.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "label": "canonical-ruff-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+          "policy-engine/src/polisyos/lex/__init__.py",
+          "policy-engine/tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "timeout_seconds": 60,
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 0.089,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/canonical-ruff-check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/canonical-ruff-check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "label": "canonical-ruff-format",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+          "policy-engine/src/polisyos/lex/__init__.py",
+          "policy-engine/tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "timeout_seconds": 60,
+        "exit_code": 1,
+        "timed_out": false,
+        "seconds": 0.079,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/canonical-ruff-format.stdout.txt",
+          "sha256": "65b9cdf291129492ddb68718b7a5772811abb37e7988406aa302ab99012a81c4"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-actual-canonical-20261017/canonical-ruff-format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "pytest": {
+      "passed": 125,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "outer_seconds": 35.95,
+      "junit_seconds": 32.072,
+      "observed_OWN_modules": 1426,
+      "input_pins": 2782
+    },
+    "mypy": "One selected GL source passed, not whole core-runtime",
+    "ruff": "Three-file check passed; initial format failed only Lex blank line; successor actual check and format both pass",
+    "post_style_actual_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-lex-format-actual-readback-20261017/readback.json",
+      "sha256": "4a74e9d324a04946f981bece56688c246d5fad737fe28a71149b9d4c41a7a9cc",
+      "availability": "local ignored RAW; retained on this host"
+    }
+  },
+  "real_chain": "canonical GL compiler→whole-binding rederive→persisted bundle→typed rehydration→both Lex adapters→fresh validator; 34 sections, one canonical requirement projection; two candidate bindings blocked and zero unsupported candidate norms",
+  "semantic_controls": "Complete binding-field mutations/removal preserving markers; missing/malformed ten-facet membership, wrong source/subject/time and custom-present-input preservation refuse. Complete details linked.",
+  "limitations": [
+    "No valid legal candidate/authority positive, issuer/law truth/currentness/refinement rule established",
+    "Original custom claim payload is not owner-resolvable from compiled refs; default-only boundary and genuine custom source-basis G choice remain open",
+    "R7 stale Ruff pointer and preliminary R6 retention gap preserved explicitly in details; no reconstructed historical bytes",
+    "125-case run at3be; Lex style successor has independent AST equivalence and selected Ruff, not another claimed 125-case run"
+  ],
+  "details": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/gl-r5-r7-canonical-delivery-details-20261017.md",
+    "sha256": "df816738b907442f1846832826f3a0a4274f7e44c0808793de4b67ea5fa8d795",
+    "availability": "tracked candidate path"
+  },
+  "reference_census": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-lex-style-delivery-proposal-20261017-r2/all-reference-hash-census-r2.json",
+    "sha256": "5153ec0c5ef7dd362f62587693d5437bf6deaa18b46043a145e1fab56b4a878f",
+    "availability": "local ignored RAW; retained on this host"
+  },
+  "proposal_fields": {
+    "record": "bounded source/consumer-refusal delivery only",
+    "finding_closures": "none automatically derived from task or PASS"
+  },
+  "closure_ids": [],
+  "formal_G_closures": [],
+  "source_freeze": false
+}

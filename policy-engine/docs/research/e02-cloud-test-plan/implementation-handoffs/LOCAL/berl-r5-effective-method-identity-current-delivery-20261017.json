@@ -1,0 +1,580 @@
+{
+  "P40_and_residuals": {
+    "bucket": "Same LA-036 non-execution identity class, one level deeper; R4 addressed strict typing within the existing repair. No new source escape was surfaced in the reviewed candidate or bounded replay; do not open another leaf repair for this class.",
+    "remaining_scope": [
+      "Full package/backend suite not run.",
+      "Installed-wheel or external consumer verification not run.",
+      "No formal LA-036/G closure or whole-source/global freeze.",
+      "Dashboard has no typed BERL identity view; existing generic JSON preview remains.",
+      "No policy admissibility or publication authority established."
+    ],
+    "smallest_missing_capability_recorded_by_oracle": "One shared diagnostic-result contract/emitter plus a generic semantic test spanning unavailable, refused, unregistered, and failed adapter outcomes."
+  },
+  "actual_replay": {
+    "actual_head_during_run": "ec8c7a046dc9fa9120bf2c3857dbd95e5c2b3ee7",
+    "actual_results": {
+      "bytes": 6169,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/actual-results.json",
+      "sha256": "2c98a857a6347569bc60dc3ad279c779e6a10e2855cde3b01a983811793443a4"
+    },
+    "commands": [
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-o",
+          "addopts=",
+          "--import-mode=importlib",
+          "-q",
+          "-p",
+          "actual_origin",
+          "-p",
+          "no:cacheprovider",
+          "tests/unit/berl/test_service.py",
+          "tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+          "tests/unit/remediation/test_ber_01.py",
+          "--tb=short",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/pytest-tmp",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/tests.junit.xml"
+        ],
+        "exit_code": 0,
+        "label": "actual-affected-modules",
+        "stderr": {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/actual-affected-modules.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 613,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/actual-affected-modules.stdout.txt",
+          "sha256": "34ef168e0c3fe97f1c7ec8ab16171669c31ca07d452283854c01091f8d095180"
+        },
+        "timed_out": false,
+        "timeout_seconds": 300,
+        "wall_seconds": 13.485
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "ruff",
+          "check",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/berl/service.py",
+          "policy-engine/tests/unit/berl/test_service.py",
+          "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "exit_code": 0,
+        "label": "canonical-ruff-check",
+        "stderr": {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/canonical-ruff-check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 19,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/canonical-ruff-check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "timed_out": false,
+        "timeout_seconds": 60,
+        "wall_seconds": 0.151
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/berl/service.py",
+          "policy-engine/tests/unit/berl/test_service.py",
+          "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "exit_code": 0,
+        "label": "canonical-ruff-format",
+        "stderr": {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/canonical-ruff-format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 26,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/canonical-ruff-format.stdout.txt",
+          "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+        },
+        "timed_out": false,
+        "timeout_seconds": 60,
+        "wall_seconds": 0.048
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-actual-replay-20261016/serialized_mypy.py",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "tools.devx.workspace.core_runtime_mypy",
+          "src/polisyos/berl/service.py"
+        ],
+        "exit_code": 0,
+        "label": "selected-mypy",
+        "stderr": {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/selected-mypy.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "bytes": 101,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/selected-mypy.stdout.txt",
+          "sha256": "6aecbc87be23df7b09b5fdbf99a39aa954714e80b5fe427b938af83419e7cad8"
+        },
+        "timed_out": false,
+        "timeout_seconds": 420,
+        "wall_seconds": 2.008
+      }
+    ],
+    "complete_input_pin_census": {
+      "current_rehash_readback": {
+        "mismatch": 0,
+        "missing": 0,
+        "nonregular": 0,
+        "outside_resolved_root": 0,
+        "result": "all 3,268 request path hashes still match; all paths regular, non-symlink, and resolve inside OWN",
+        "symlink": 0
+      },
+      "denominator_sum": 3268,
+      "file_type_denominator": {
+        ".ini": 9,
+        ".lock": 1,
+        ".py": 3232,
+        ".toml": 14,
+        ".yml": 12
+      },
+      "lease_path_in_input_map": false,
+      "path_map_count": 3268,
+      "source": {
+        "bytes": 466554,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/request.json",
+        "sha256": "ecb15c7260254d5286920526d4170262e93181155da5dde8794a83c45ce23b67"
+      }
+    },
+    "environment_capture": {
+      "actual_results_environment_snapshot": {
+        "JAX_PLATFORMS": "cpu",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "VECLIB_MAXIMUM_THREADS": "1"
+      },
+      "qualification": "The request overrides were passed by the runner per its code. actual-results.json.environment captures only defaults/settings (including PYTHONPATH=src:.), not the merged child environment; runtime child-environment snapshot was not captured. Do not use that field as child-env evidence; no sealed output is rewritten here.",
+      "request_environment": {
+        "E02_REPLAY_REQUEST": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/request.json",
+        "PATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+        "PYTEST_ADDOPTS": "",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017"
+      },
+      "runner": {
+        "observed_environment_merge": "env = {**os.environ, **settings, **request.get(\"environment\", {})}; passed to subprocess.Popen(..., env=env)",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-actual-replay-20261016/run_request.py",
+        "sha256": "833767aebb9519f464a3c34867a69bfced525d355c0b584340cd4e6bccf474d8"
+      }
+    },
+    "execution_origin": "Actual execution in OWN against the canonical ec8 composition. The RAW origin hook is an observer only, not a product import override.",
+    "mypy_scope_and_P38": {
+      "command_receipt": {
+        "bytes": 1196,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/selected-mypy.run.json",
+        "sha256": "cf69126f96354f4d360f162651e4ab12e24b01bf2b354f39920df4da62e8e49c"
+      },
+      "interpretation": "The stdout wrapper says “full core-runtime surface,” but the exact argv selects one source file; receipt scope is one-file strict typing. Divergent case: a typing error in another module would not be detected by this selected-file gate.",
+      "result": "PASS for the selected BERL service file only",
+      "selected_source": "src/polisyos/berl/service.py",
+      "stdout": {
+        "bytes": 101,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/selected-mypy.stdout.txt",
+        "sha256": "6aecbc87be23df7b09b5fdbf99a39aa954714e80b5fe427b938af83419e7cad8"
+      },
+      "strict_mypy_profile": "tools.devx.workspace.core_runtime_mypy"
+    },
+    "origin_reconciliation": {
+      "independent_readback_against_complete_request_map": {
+        "hash_mismatch_or_missing": 0,
+        "outside_product_source": 0,
+        "result": "all 1,450 observed polisyos modules resolve under OWN/policy-engine/src and match request-pinned bytes",
+        "unmapped": 0
+      },
+      "observed_loaded_product_modules": 1450,
+      "observer_artifact": {
+        "bytes": 426757,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/actual-module-origins.json",
+        "sha256": "158acc93f2440a89d937d5bbcdf22d2e790bbda8d390bd70597faf397fcf6b95"
+      },
+      "observer_hook": {
+        "bytes": 1111,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/actual_origin.py",
+        "sha256": "e7855aacd754a7b2c9793c056ab26c03d48af2f45c3c38be5db67b6332c92d80"
+      },
+      "observer_report": {
+        "actual_canonical_source": true,
+        "outside_or_unpinned": 0,
+        "required_missing": 0
+      },
+      "scope_limit": "Loaded polisyos module names with __file__ only; not a complete import-graph or installed-wheel proof."
+    },
+    "pytest": {
+      "failures_or_errors": 0,
+      "junit": {
+        "bytes": 8834,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/tests.junit.xml",
+        "sha256": "b98ea0086539e2eed8a52c1f4d9dfb021ee524128128df2600a32ac8918008ff"
+      },
+      "junit_suite_seconds": 8.998,
+      "pytest_report_seconds": 9.11,
+      "result": "PASS",
+      "runner_wall_seconds": 13.485,
+      "skipped": 0,
+      "stdout": {
+        "bytes": 613,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/actual-affected-modules.stdout.txt",
+        "sha256": "34ef168e0c3fe97f1c7ec8ab16171669c31ca07d452283854c01091f8d095180"
+      },
+      "test_file_counts": {
+        "test_ber_01": 34,
+        "test_explanation_reliability_bridge": 7,
+        "test_service": 13
+      },
+      "tests": 54,
+      "warning": "PytestConfigWarning: Unknown config option: cache_dir; warning retained, no test failure."
+    },
+    "request": {
+      "bytes": 466554,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/request.json",
+      "sha256": "ecb15c7260254d5286920526d4170262e93181155da5dde8794a83c45ce23b67"
+    },
+    "required_imports": [
+      "polisyos.berl.service",
+      "polisyos.berl.persistence"
+    ],
+    "retained_prelaunch_request": {
+      "bytes": 396605,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-actual-canonical-20261017/request-prelaunch-r1.json",
+      "sha256": "7671c55cf0ebbcd4dff64ae7a8f6c2b2d84e328d5f66a354dcbbb1953f91d737",
+      "status": "UNRUN; superseded by the actual request; selectors/runtime code unchanged"
+    },
+    "run_id": "root-berl-identity-r5-actual-canonical-20261017",
+    "source_profile": "ActualnormalOWNimports against canonicalec8c composition; no RAWoverride/MetaPathFinder/privateGitroot. Numericthreads1. Localcontrolledproof only, noformalclosure/globalfreeze.",
+    "source_set": {
+      "regular_non_symlink": true,
+      "replaces_prelaunch_plan": "request-prelaunch-r1.json retained, UNRUN; runtimecode/pytestselectors unchanged.",
+      "shared_resource": "Only MyPy sharedcache serialized byfcntl, numericthreads1/testprocesses can overlap.",
+      "src_python_files": 2772,
+      "tooling_configs": 34,
+      "tools_python_files": 454
+    },
+    "workers": 1
+  },
+  "artifact_status": "RAW-only delivery receipt proposal; root adoption and formal LA-036 disposition remain separate",
+  "coordination_observation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-parallel-coordination-20261015/root-owned-commits.json",
+    "role": "Mutable coordination observation only; not a runtime predicate, source gate, or acceptance signal.",
+    "sha256_at_receipt_preparation": "2e8a476dd17e12c4b8ef2b0e6ee2242e8710a2499a12ea096f31f3fba5e07904"
+  },
+  "created_at_utc": "2026-10-16T23:23:39.984506+00:00",
+  "decision": {
+    "LA036_disposition": "proposal_only",
+    "closure_ids": [],
+    "current_source_freeze": false,
+    "formal_G_adjudication": "not performed",
+    "formal_acceptance": false,
+    "global_source_freeze": false,
+    "local_delivery_state": "source_delivered_and_scoped_replay_passed",
+    "publication_authority": false
+  },
+  "implementation_source": {
+    "branch_at_delivery": "codex/e02-unified-local-20261009",
+    "commit": "ec8c7a046dc9fa9120bf2c3857dbd95e5c2b3ee7",
+    "lineage_artifacts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-berl-nonexecution-effective-identity-candidate-r3-20261017/candidate-manifest.json",
+        "role": "sealed R3 source candidate",
+        "sha256": "e7b9169bf99e45a95c9c5f52f20c432ac983a3d9fabd2fc20a0f1a429c4b11a2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-berl-nonexecution-effective-identity-candidate-r3-20261017/candidate.patch",
+        "role": "R3 patch",
+        "sha256": "70080b39d43906c0f951035351d1e75c9dfa7dd66964fa7aea543480e1ba0f75"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-berl-nonexecution-identity-r4-typing-release-20261017/candidate-manifest.json",
+        "role": "R4 typing candidate",
+        "sha256": "cc361b46890a508708d5dbfa192dae65365adb4772a4b91d5f525ce2a415aaa4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-berl-nonexecution-identity-r4-typing-release-20261017/candidate.patch",
+        "role": "R4 typing patch",
+        "sha256": "eb7cf40748bb178c512fcef4f00d44ec8134ee7bfa1aefcdf4c76126da4fdd5a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-berl-nonexecution-identity-r5-release-metadata-20261017/candidate-manifest.json",
+        "role": "R5 metadata candidate manifest",
+        "sha256": "34a13ef2d81bbcefcb3a21ff750b4a1e625ba9324288a680b8e7d2334c2a8a30"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-berl-nonexecution-identity-r5-release-metadata-20261017/candidate.patch",
+        "role": "R5 metadata candidate patch",
+        "sha256": "acb0d59000226685bebd8d82cc4d56218e4e0471cd501f305cf2ed7f43032ca1"
+      }
+    ],
+    "mechanism_budget": {
+      "mandatory_product_companions": [
+        "policy-engine/tests/unit/berl/test_service.py",
+        "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+        "policy-engine/docs/explanation/berl-method-identity.md",
+        "policy-engine/release-fragments/unreleased/2026-10-17-e02-berl-nonexecution-identity.toml"
+      ],
+      "mechanism_path_count": 1,
+      "mechanism_paths": [
+        "policy-engine/src/polisyos/berl/service.py"
+      ],
+      "separate_coordination_companion": {
+        "base": {
+          "bytes": 231565,
+          "sha256": "020eb90854b97b64655253c9ebb463c7aabc1e00dbe0d4bf85191b70f4690011"
+        },
+        "numstat": {
+          "added": 32,
+          "deleted": 0
+        },
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "postimage": {
+          "bytes": 233879,
+          "sha256": "a675d94d6ebe352ae2d9a277ffa3bc3b828a4ba030477af7e3b50ff9690a4bce"
+        }
+      }
+    },
+    "parent_commit": "963c9bcd563330ceedde974ef39963df6895d165",
+    "parent_tree": "447f350a69fb62a075182d218d938ab677c6c925",
+    "product_file_type_denominator": {
+      "markdown": 1,
+      "regular_python": 3,
+      "toml": 1,
+      "total": 5
+    },
+    "product_path_count": 5,
+    "product_paths": [
+      {
+        "base": {
+          "bytes": 31275,
+          "exists": true,
+          "sha256": "56511a6b8c9efb637b4c6f747bfb5ba2b58bdd571323b34f1e818f144101f526"
+        },
+        "numstat": {
+          "added": 90,
+          "deleted": 39
+        },
+        "path": "policy-engine/src/polisyos/berl/service.py",
+        "postimage": {
+          "bytes": 32951,
+          "exists": true,
+          "sha256": "d090bf2617430ccaf808ac3bd4c8912638a91400d31428a291c8b97b7a0c9611"
+        }
+      },
+      {
+        "base": {
+          "bytes": 1945,
+          "exists": true,
+          "sha256": "2c7bb7dc0e93341e5c00bdf5c24845adf9c8f940a1382c6a1e4578f701a82542"
+        },
+        "numstat": {
+          "added": 306,
+          "deleted": 0
+        },
+        "path": "policy-engine/tests/unit/berl/test_service.py",
+        "postimage": {
+          "bytes": 13081,
+          "exists": true,
+          "sha256": "9ef76cea7a152430696db08526de9509f719e5a0f434d4978c6d60cdfda7b94a"
+        }
+      },
+      {
+        "base": {
+          "bytes": 28550,
+          "exists": true,
+          "sha256": "0f8d24c66f356b9e9f8a80d70eaf91aa5b7c78e00c8139cf9a194b4d7ac29c95"
+        },
+        "numstat": {
+          "added": 64,
+          "deleted": 0
+        },
+        "path": "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+        "postimage": {
+          "bytes": 30831,
+          "exists": true,
+          "sha256": "b29d5a9d25c8da17d618b96fb0ce197f658b51bb79dcde20d044c5cacb7c9a13"
+        }
+      },
+      {
+        "base": {
+          "bytes": 4562,
+          "exists": true,
+          "sha256": "45ad81c5825c0427a72ba3798cd7af540ad7dbd37df6173adabde1aa24342860"
+        },
+        "numstat": {
+          "added": 12,
+          "deleted": 7
+        },
+        "path": "policy-engine/docs/explanation/berl-method-identity.md",
+        "postimage": {
+          "bytes": 7141,
+          "exists": true,
+          "sha256": "36a4e16faea57858f6f6312d581d9c4a24e1450de3ebf4e11ff756236d47f1f6"
+        }
+      },
+      {
+        "base": {
+          "bytes": 0,
+          "exists": false,
+          "sha256": null
+        },
+        "numstat": {
+          "added": 35,
+          "deleted": 0
+        },
+        "path": "policy-engine/release-fragments/unreleased/2026-10-17-e02-berl-nonexecution-identity.toml",
+        "postimage": {
+          "bytes": 2482,
+          "exists": true,
+          "sha256": "aefdf93c2d56a5d96a936dea9b96a9cdc4026b35dddc2c96b56a4bf32d0d46de"
+        }
+      }
+    ],
+    "tree": "d57db3d291808d2e435a22e67c6cb3c7a27edf13"
+  },
+  "later_root_head_observation": {
+    "BERL_product_path_overlap": [],
+    "head": "6edb6077a8d4e2c5a082cb99a9f82491ef728555",
+    "interpretation": "A later root-owned release-metadata/lease commit followed the implementation replay. This is a distinct repository observation; no tests or new source-fingerprint claim are made for that later HEAD.",
+    "parent": "ec8c7a046dc9fa9120bf2c3857dbd95e5c2b3ee7",
+    "path_diff": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-authority-event-selected-profile.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-calibration-report-cas-bridge.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-i1-c05-catalog-source-selection.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-c05-selected-consumer-composition.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-fabric-registration-origin-binding.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-phase2-legal-source-relation-facade.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-scholar-bundle-persistence.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-transport-candidate-source-refusal.toml"
+    ],
+    "path_diff_from_delivered_commit_count": 10,
+    "tree": "995600316500a682054c09fb3c504d2ce4e998d1"
+  },
+  "receipt_id": "root-berl-identity-r5-delivery-receipt-proposal-20261017",
+  "release_surface_review": {
+    "R5_candidate_validation_reference": {
+      "bytes": 4563,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-berl-nonexecution-identity-r5-release-metadata-20261017/verification/r5-native-release-report.json",
+      "sha256": "348d351b0b34367a34c52b0f4cb9e332e2f26cfd05dcf5bed977beece6d52232"
+    },
+    "changed_semantic_quantity": "One compatibility row: ExplanationBundle.methods[].effective_method_id and its params mirror; existing nullable field shape, JSON schema, and exports unchanged.",
+    "classification": "python-public-api behavior on public_experimental: polisyos.berl; owner team-scientist",
+    "committed_fragment": {
+      "aggregate_inventory_reviewed": false,
+      "compatibility_row_reviewed": true,
+      "path": "policy-engine/release-fragments/unreleased/2026-10-17-e02-berl-nonexecution-identity.toml",
+      "sha256": "aefdf93c2d56a5d96a936dea9b96a9cdc4026b35dddc2c96b56a4bf32d0d46de",
+      "surface_classification": "public_experimental: polisyos.berl"
+    },
+    "inventory_anchor": {
+      "commit": "de132f6a02e243a0fd6d2e53c166653b204b38d0",
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "sha256": "70cfd42316a9540123ba5a1303bc185a46cba976039d39d28509b04ef6f942e8"
+    },
+    "release_validator_in_this_actual_replay": "UNRUN; R5 author candidate has a separate native release report, but this canonical root replay did not rerun that validator.",
+    "review_limits": [
+      "No package-wide export inventory attestation.",
+      "No owner identity authentication.",
+      "No G acceptance, formal closure, publication authority, deployment, or installed-consumer compatibility claim."
+    ],
+    "scoped_independent_review": {
+      "bytes": 13760,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-berl-nonexecution-identity-r4-independent-review-20261017/review.json",
+      "sha256": "edbe5375f7afe49d80d697141d70f0fcd4ccd7bd5e60897b18c117b5d1366640"
+    }
+  },
+  "schema": "policyos.local.e02_berl_identity_delivery_receipt_proposal.v1",
+  "semantic_chain_and_controls": {
+    "R4_historical_overlay_receipts_not_added_to_current_total": [
+      {
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-berl-nonexecution-identity-r4-typing-release-20261017/verification/r4-focused-leaf-final-20261017-command.json",
+        "result": "20 passed",
+        "scope": "R4 focused tests",
+        "sha256": "5e7a7558b90b1d03892221620b26effa1a123eabaf3b97915aa319823eeb9fae"
+      },
+      {
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-berl-nonexecution-identity-r4-typing-release-20261017/verification/r4-identity-controls-leaf-final-20261017-command.json",
+        "result": "8 passed",
+        "scope": "R4 identity compatibility controls",
+        "sha256": "c2802319635a6efffdb87577980b975f9412eb1133ab9d3318a13d330c37e17c"
+      },
+      {
+        "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-berl-nonexecution-identity-r4-typing-release-20261017/verification/r4-cache-controls-leaf-final-20261017-command.json",
+        "result": "8 passed",
+        "scope": "R4 exact cache controls",
+        "sha256": "a08411ca8116b33576bb631ddf5af1e4dd18c285c755ecdd453356f628af4d57"
+      }
+    ],
+    "cache_eligibility_invariant": "Exact built-in adapter class eligibility remains unchanged; subclass/custom adapters are refused for cache reuse.",
+    "input_to_consumer": "No accepted attribution vector -> BERL diagnostic retains requested method/reason and null effective identity -> ExplanationOrchestrator.explain produces the existing typed ExplanationBundle -> persist_explanation_bundle/FileSystemCAS -> fresh load_explanation_bundle readback -> existing Scientist/Phase-5 reliability and scorecard consumers retain diagnostic-only/block posture. Supported marginal successful controls remain distinct.",
+    "negative_and_integration_evidence": [
+      "Cached failed-kernel alias retains null identity after fresh CAS read; requested identifiers remain and downstream consumer remains diagnostic-only/blocked.",
+      "Explanation bundle crosses CAS into existing consumers for empty-CAS and same-id-collision marginal/conditional profiles.",
+      "Scientist preflight validates BERL explanation reliability: valid control passes; conditional and missing-bound diagnostic cases block.",
+      "Correlated rho=0.8 source bundle retains conditional refusal versus marginal control distinction.",
+      "Unit service coverage includes no-vector routes, alias success, both cache orders, repeats, post-result rejection, and actual vector identity.",
+      "BER-01 controls include exact built-in cache allowlist, subclasses/custom adapters excluded, cache partitions, configuration, confidence, and fallback controls."
+    ]
+  },
+  "source_oracle": {
+    "artifact": {
+      "bytes": 23258,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-original-berl-identity-current-oracle-20261016/report.json",
+      "sha256": "1626abdb39f4fc59461363909191805773512a7c59537da3ed84dcdf5dbe65b5"
+    },
+    "candidate_disposition_only": true,
+    "current_source_freeze": false,
+    "formal_G_adjudication": "not performed",
+    "formal_closure_ids": []
+  },
+  "root_delivery": {
+    "source_receipt_proposal": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-delivery-receipt-proposal-20261017/proposal.json",
+      "sha256": "2eb4944c6cef40b2d2fdcc90cd88bff7b169f0b2207d367a59ce8127c619121d",
+      "availability": "local ignored RAW; retained on this host"
+    },
+    "all_reference_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-berl-identity-r5-delivery-receipt-proposal-20261017/readback.json",
+      "sha256": "dcf22e62943e6db4e78045eb988e30214347f71afd6ae1a8ece2a71d6e990879",
+      "availability": "local ignored RAW; retained on this host"
+    },
+    "effective_environment_erratum": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-actual-replay-v2-effective-environment-20261017/erratum.json",
+      "sha256": "9b24af19e4bf7d2f3688c5e6831c080067e2f3143d9e06d9fa12790ebcf6c92e",
+      "availability": "local ignored RAW; retained on this host"
+    },
+    "receipt_commit_separate_from_implementation": true,
+    "post_evidence_source_freeze": false
+  },
+  "closure_ids": [],
+  "formal_G_closures": []
+}

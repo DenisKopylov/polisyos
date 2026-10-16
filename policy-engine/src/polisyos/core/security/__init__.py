@@ -2,264 +2,284 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from importlib import import_module
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Any
 
-_EXPORTS: dict[str, tuple[str, str]] = {
-    "verify_signed_evidence": (
-        "polisyos.core.security.chronology_anchor",
-        "verify_signed_evidence",
-    ),
-    "verify_acceptance_appointment": (
-        "polisyos.core.security.chronology_anchor",
-        "verify_acceptance_appointment",
-    ),
-    "verify_holder_appointment": (
-        "polisyos.core.security.chronology_anchor",
-        "verify_holder_appointment",
-    ),
-    "C3_CANONICAL_CODECS": (
-        "polisyos.core.security.chronology_anchor",
-        "C3_CANONICAL_CODECS",
-    ),
-    "ExactAnchorAcceptanceReceiptVerifier": (
-        "polisyos.core.security.chronology_anchor",
-        "ExactAnchorAcceptanceReceiptVerifier",
-    ),
-    "ExactAnchorHolderReceiptVerifier": (
-        "polisyos.core.security.chronology_anchor",
-        "ExactAnchorHolderReceiptVerifier",
-    ),
-    "InMemoryAnchorReadbackChallengeRepository": (
-        "polisyos.core.security.chronology_anchor",
-        "InMemoryAnchorReadbackChallengeRepository",
-    ),
-    "build_retention_package": (
-        "polisyos.core.security.chronology_anchor",
-        "build_retention_package",
-    ),
-    "canonical_statement_bytes": (
-        "polisyos.core.security.chronology_anchor",
-        "canonical_statement_bytes",
-    ),
-    "parse_canonical_statement": (
-        "polisyos.core.security.chronology_anchor",
-        "parse_canonical_statement",
-    ),
-    "raw_content_hash": (
-        "polisyos.core.security.chronology_anchor",
-        "raw_content_hash",
-    ),
-    "semantic_content_hash": (
-        "polisyos.core.security.chronology_anchor",
-        "semantic_content_hash",
-    ),
-    "FileAnchorAcceptanceLineageRepository": (
-        "polisyos.core.security.anchor_lineage",
-        "FileAnchorAcceptanceLineageRepository",
-    ),
-    "FullPrefixVerifier": (
-        "polisyos.core.security.full_prefix",
-        "FullPrefixVerifier",
-    ),
-    "build_full_prefix_bundle": (
-        "polisyos.core.security.full_prefix",
-        "build_full_prefix_bundle",
-    ),
-    "CellAssignment": ("polisyos.core.security.cell", "CellAssignment"),
-    "CellResolution": ("polisyos.core.security.registry", "CellResolution"),
-    "CellSpec": ("polisyos.core.security.cell", "CellSpec"),
-    "CellTier": ("polisyos.core.security.cell", "CellTier"),
-    "IsolationLevel": ("polisyos.core.security.cell", "IsolationLevel"),
-    "TenantSpec": ("polisyos.core.security.cell", "TenantSpec"),
-    "AuditActor": ("polisyos.core.security.audit_models", "AuditActor"),
-    "AuditCorrelation": ("polisyos.core.security.audit_models", "AuditCorrelation"),
-    "AuditEventType": ("polisyos.core.security.audit_models", "AuditEventType"),
-    "AuditResource": ("polisyos.core.security.audit_models", "AuditResource"),
-    "ChainedLogEntry": ("polisyos.core.security.audit_models", "ChainedLogEntry"),
-    "AuditLog": ("polisyos.core.security.audit_protocol", "AuditLog"),
-    "ChainedAuditSink": ("polisyos.core.security.audit_sink", "ChainedAuditSink"),
-    "LocalJsonlBackend": ("polisyos.core.security.audit_sink", "LocalJsonlBackend"),
-    "HotTierBackend": ("polisyos.core.security.audit_sink", "HotTierBackend"),
-    "ColdTierBackend": ("polisyos.core.security.audit_sink", "ColdTierBackend"),
-    "ChainVerificationResult": (
-        "polisyos.core.security.audit_verifier",
-        "ChainVerificationResult",
-    ),
-    "ChainVerifier": ("polisyos.core.security.audit_verifier", "ChainVerifier"),
-    "build_default_audit_backends_from_env": (
-        "polisyos.core.security.audit_sink",
-        "build_default_audit_backends_from_env",
-    ),
-    "AccessScope": ("polisyos.core.security.access_scope", "AccessScope"),
-    "PolicyOSRole": ("polisyos.core.security.identity", "PolicyOSRole"),
-    "PIIAccessLevel": ("polisyos.core.security.identity", "PIIAccessLevel"),
-    "UserIdentityClaims": ("polisyos.core.security.identity", "UserIdentityClaims"),
-    "ServiceIdentity": ("polisyos.core.security.identity", "ServiceIdentity"),
-    "ServiceIdentityInfo": ("polisyos.core.security.identity", "ServiceIdentityInfo"),
-    "SPIFFEIdentityProvider": (
-        "polisyos.core.security.identity",
-        "SPIFFEIdentityProvider",
-    ),
-    "DelegationContextClaims": (
-        "polisyos.core.security.delegation",
-        "DelegationContextClaims",
-    ),
-    "DelegationTokenManager": (
-        "polisyos.core.security.delegation",
-        "DelegationTokenManager",
-    ),
-    "AuthzDecision": ("polisyos.core.security.authz", "AuthzDecision"),
-    "AuthzInput": ("polisyos.core.security.authz", "AuthzInput"),
-    "AuthzResult": ("polisyos.core.security.authz", "AuthzResult"),
-    "OPAClient": ("polisyos.core.security.authz", "OPAClient"),
-    "DatabaseBackend": ("polisyos.core.security.db_backend", "DatabaseBackend"),
-    "PostgresBackend": ("polisyos.core.security.db_backend", "PostgresBackend"),
-    "DuckDBLegacyBackend": ("polisyos.core.security.db_backend", "DuckDBLegacyBackend"),
-    "validate_tenant_id": ("polisyos.core.security.db_backend", "validate_tenant_id"),
-    "TenantIsolationError": (
-        "polisyos.core.security.exceptions",
-        "TenantIsolationError",
-    ),
-    "CrossTenantAccessError": (
-        "polisyos.core.security.exceptions",
-        "CrossTenantAccessError",
-    ),
-    "TenantNotFoundError": ("polisyos.core.security.exceptions", "TenantNotFoundError"),
-    "CellCapacityError": ("polisyos.core.security.exceptions", "CellCapacityError"),
-    "TenantContextNotSetError": (
-        "polisyos.core.security.exceptions",
-        "TenantContextNotSetError",
-    ),
-    "IdentityError": ("polisyos.core.security.exceptions", "IdentityError"),
-    "IdentityNotAvailableError": (
-        "polisyos.core.security.exceptions",
-        "IdentityNotAvailableError",
-    ),
-    "IdentityVerificationError": (
-        "polisyos.core.security.exceptions",
-        "IdentityVerificationError",
-    ),
-    "TokenValidationError": (
-        "polisyos.core.security.exceptions",
-        "TokenValidationError",
-    ),
-    "MFARequiredError": ("polisyos.core.security.exceptions", "MFARequiredError"),
-    "DelegationError": ("polisyos.core.security.exceptions", "DelegationError"),
-    "DelegationVerificationError": (
-        "polisyos.core.security.exceptions",
-        "DelegationVerificationError",
-    ),
-    "AuthorizationError": (
-        "polisyos.core.security.exceptions",
-        "AuthorizationError",
-    ),
-    "AuthorizationDeniedError": (
-        "polisyos.core.security.exceptions",
-        "AuthorizationDeniedError",
-    ),
-    "MissingTenantHeaderError": (
-        "polisyos.core.security.router",
-        "MissingTenantHeaderError",
-    ),
-    "TenantRoutingError": ("polisyos.core.security.router", "TenantRoutingError"),
-    "CellRegistry": ("polisyos.core.security.registry", "CellRegistry"),
-    "NamespacedArtifactStore": (
-        "polisyos.core.security.namespace",
-        "NamespacedArtifactStore",
-    ),
-    "SECURITY_ASSURANCE_REPORT_REF_KEY": (
-        "polisyos.core.security.quality_gates",
-        "SECURITY_ASSURANCE_REPORT_REF_KEY",
-    ),
-    "SECURITY_REPORT_FILE": (
-        "polisyos.core.security.quality_gates",
-        "SECURITY_REPORT_FILE",
-    ),
-    "build_security_assurance_report": (
-        "polisyos.core.security.quality_gates",
-        "build_security_assurance_report",
-    ),
-    "security_gates_from_report": (
-        "polisyos.core.security.quality_gates",
-        "security_gates_from_report",
-    ),
-    "TenantQuotaRegistry": (
-        "polisyos.core.security.quota_registry",
-        "TenantQuotaRegistry",
-    ),
-    "TenantQuotaLimits": (
-        "polisyos.core.security.tenant_quota",
-        "TenantQuotaLimits",
-    ),
-    "TenantContext": ("polisyos.core.security.tenant_context", "TenantContext"),
-    "clear_tenant_context": (
-        "polisyos.core.security.tenant_context",
-        "clear_tenant_context",
-    ),
-    "tenant_scope": ("polisyos.core.security.tenant_context", "tenant_scope"),
-    "require_tenant_context": (
-        "polisyos.core.security.tenant_context",
-        "require_tenant_context",
-    ),
-    "get_current_tenant_id": (
-        "polisyos.core.security.tenant_context",
-        "get_current_tenant_id",
-    ),
-    "get_current_tenant_id_or_none": (
-        "polisyos.core.security.tenant_context",
-        "get_current_tenant_id_or_none",
-    ),
-    "get_current_cell_id": (
-        "polisyos.core.security.tenant_context",
-        "get_current_cell_id",
-    ),
-    "get_current_access_scope_or_none": (
-        "polisyos.core.security.tenant_context",
-        "get_current_access_scope_or_none",
-    ),
-    "set_current_access_scope": (
-        "polisyos.core.security.tenant_context",
-        "set_current_access_scope",
-    ),
-    "reset_current_access_scope": (
-        "polisyos.core.security.tenant_context",
-        "reset_current_access_scope",
-    ),
-    "TENANT_HEADER": ("polisyos.core.security.router", "TENANT_HEADER"),
-    "RoutingResult": ("polisyos.core.security.router", "RoutingResult"),
-    "resolve_routing": ("polisyos.core.security.router", "resolve_routing"),
-    "SecuritySettings": ("polisyos.core.security.settings", "SecuritySettings"),
-    "get_security_settings": (
-        "polisyos.core.security.settings",
-        "get_security_settings",
-    ),
-    "TEEPlatform": ("polisyos.core.security.tee", "TEEPlatform"),
-    "AttestationStatus": ("polisyos.core.security.tee", "AttestationStatus"),
-    "AttestationReport": ("polisyos.core.security.tee", "AttestationReport"),
-    "AttestationPolicy": ("polisyos.core.security.tee", "AttestationPolicy"),
-    "AttestationResult": ("polisyos.core.security.tee", "AttestationResult"),
-    "SEVSNPVerifier": ("polisyos.core.security.tee", "SEVSNPVerifier"),
-    "NoOpVerifier": ("polisyos.core.security.tee", "NoOpVerifier"),
-    "TEEGatekeeper": ("polisyos.core.security.tee_middleware", "TEEGatekeeper"),
-    "AttestationDeniedError": (
-        "polisyos.core.security.tee_middleware",
-        "AttestationDeniedError",
-    ),
-    "SBOMGenerator": ("polisyos.core.security.sbom", "SBOMGenerator"),
-    "SBOMVerifier": ("polisyos.core.security.sbom", "SBOMVerifier"),
-    "SBOMMetadata": ("polisyos.core.security.sbom", "SBOMMetadata"),
-    "SBOMVerificationResult": (
-        "polisyos.core.security.sbom",
-        "SBOMVerificationResult",
-    ),
-    "InTotoStatement": (
-        "polisyos.core.security.slsa.models",
-        "InTotoStatement",
-    ),
-    "VulnerabilityRecord": ("polisyos.core.security.sbom", "VulnerabilityRecord"),
-    "VulnerabilitySeverity": ("polisyos.core.security.sbom", "VulnerabilitySeverity"),
-}
+_EXPORTS: Mapping[str, tuple[str, str]] = MappingProxyType(
+    {
+        "verify_signed_evidence": (
+            "polisyos.core.security.chronology_anchor",
+            "verify_signed_evidence",
+        ),
+        "verify_acceptance_appointment": (
+            "polisyos.core.security.chronology_anchor",
+            "verify_acceptance_appointment",
+        ),
+        "verify_holder_appointment": (
+            "polisyos.core.security.chronology_anchor",
+            "verify_holder_appointment",
+        ),
+        "C3_CANONICAL_CODECS": (
+            "polisyos.core.security.chronology_anchor",
+            "C3_CANONICAL_CODECS",
+        ),
+        "ExactAnchorAcceptanceReceiptVerifier": (
+            "polisyos.core.security.chronology_anchor",
+            "ExactAnchorAcceptanceReceiptVerifier",
+        ),
+        "ExactAnchorHolderReceiptVerifier": (
+            "polisyos.core.security.chronology_anchor",
+            "ExactAnchorHolderReceiptVerifier",
+        ),
+        "InMemoryAnchorReadbackChallengeRepository": (
+            "polisyos.core.security.chronology_anchor",
+            "InMemoryAnchorReadbackChallengeRepository",
+        ),
+        "build_retention_package": (
+            "polisyos.core.security.chronology_anchor",
+            "build_retention_package",
+        ),
+        "canonical_statement_bytes": (
+            "polisyos.core.security.chronology_anchor",
+            "canonical_statement_bytes",
+        ),
+        "parse_canonical_statement": (
+            "polisyos.core.security.chronology_anchor",
+            "parse_canonical_statement",
+        ),
+        "raw_content_hash": (
+            "polisyos.core.security.chronology_anchor",
+            "raw_content_hash",
+        ),
+        "semantic_content_hash": (
+            "polisyos.core.security.chronology_anchor",
+            "semantic_content_hash",
+        ),
+        "FileAnchorAcceptanceLineageRepository": (
+            "polisyos.core.security.anchor_lineage",
+            "FileAnchorAcceptanceLineageRepository",
+        ),
+        "FullPrefixVerifier": (
+            "polisyos.core.security.full_prefix",
+            "FullPrefixVerifier",
+        ),
+        "build_full_prefix_bundle": (
+            "polisyos.core.security.full_prefix",
+            "build_full_prefix_bundle",
+        ),
+        "CellAssignment": ("polisyos.core.security.cell", "CellAssignment"),
+        "CellResolution": ("polisyos.core.security.registry", "CellResolution"),
+        "CellSpec": ("polisyos.core.security.cell", "CellSpec"),
+        "CellTier": ("polisyos.core.security.cell", "CellTier"),
+        "IsolationLevel": ("polisyos.core.security.cell", "IsolationLevel"),
+        "TenantSpec": ("polisyos.core.security.cell", "TenantSpec"),
+        "AuditActor": ("polisyos.core.security.audit_models", "AuditActor"),
+        "AuditCorrelation": ("polisyos.core.security.audit_models", "AuditCorrelation"),
+        "AuditEventType": ("polisyos.core.security.audit_models", "AuditEventType"),
+        "AuditResource": ("polisyos.core.security.audit_models", "AuditResource"),
+        "ChainedLogEntry": ("polisyos.core.security.audit_models", "ChainedLogEntry"),
+        "AuditLog": ("polisyos.core.security.audit_protocol", "AuditLog"),
+        "ChainedAuditSink": ("polisyos.core.security.audit_sink", "ChainedAuditSink"),
+        "LocalJsonlBackend": ("polisyos.core.security.audit_sink", "LocalJsonlBackend"),
+        "HotTierBackend": ("polisyos.core.security.audit_sink", "HotTierBackend"),
+        "ColdTierBackend": ("polisyos.core.security.audit_sink", "ColdTierBackend"),
+        "ChainVerificationResult": (
+            "polisyos.core.security.audit_verifier",
+            "ChainVerificationResult",
+        ),
+        "ChainVerifier": ("polisyos.core.security.audit_verifier", "ChainVerifier"),
+        "build_default_audit_backends_from_env": (
+            "polisyos.core.security.audit_sink",
+            "build_default_audit_backends_from_env",
+        ),
+        "AccessScope": ("polisyos.core.security.access_scope", "AccessScope"),
+        "PolicyOSRole": ("polisyos.core.security.identity", "PolicyOSRole"),
+        "PIIAccessLevel": ("polisyos.core.security.identity", "PIIAccessLevel"),
+        "UserIdentityClaims": ("polisyos.core.security.identity", "UserIdentityClaims"),
+        "ServiceIdentity": ("polisyos.core.security.identity", "ServiceIdentity"),
+        "ServiceIdentityInfo": ("polisyos.core.security.identity", "ServiceIdentityInfo"),
+        "SPIFFEIdentityProvider": (
+            "polisyos.core.security.identity",
+            "SPIFFEIdentityProvider",
+        ),
+        "DelegationContextClaims": (
+            "polisyos.core.security.delegation",
+            "DelegationContextClaims",
+        ),
+        "DelegationTokenManager": (
+            "polisyos.core.security.delegation",
+            "DelegationTokenManager",
+        ),
+        "AuthzDecision": ("polisyos.core.security.authz", "AuthzDecision"),
+        "AuthzInput": ("polisyos.core.security.authz", "AuthzInput"),
+        "AuthzResult": ("polisyos.core.security.authz", "AuthzResult"),
+        "OPAClient": ("polisyos.core.security.authz", "OPAClient"),
+        "DatabaseBackend": ("polisyos.core.security.db_backend", "DatabaseBackend"),
+        "PostgresBackend": ("polisyos.core.security.db_backend", "PostgresBackend"),
+        "DuckDBLegacyBackend": ("polisyos.core.security.db_backend", "DuckDBLegacyBackend"),
+        "validate_tenant_id": ("polisyos.core.security.db_backend", "validate_tenant_id"),
+        "TenantIsolationError": (
+            "polisyos.core.security.exceptions",
+            "TenantIsolationError",
+        ),
+        "CrossTenantAccessError": (
+            "polisyos.core.security.exceptions",
+            "CrossTenantAccessError",
+        ),
+        "TenantNotFoundError": ("polisyos.core.security.exceptions", "TenantNotFoundError"),
+        "CellCapacityError": ("polisyos.core.security.exceptions", "CellCapacityError"),
+        "TenantContextNotSetError": (
+            "polisyos.core.security.exceptions",
+            "TenantContextNotSetError",
+        ),
+        "IdentityError": ("polisyos.core.security.exceptions", "IdentityError"),
+        "IdentityNotAvailableError": (
+            "polisyos.core.security.exceptions",
+            "IdentityNotAvailableError",
+        ),
+        "IdentityVerificationError": (
+            "polisyos.core.security.exceptions",
+            "IdentityVerificationError",
+        ),
+        "TokenValidationError": (
+            "polisyos.core.security.exceptions",
+            "TokenValidationError",
+        ),
+        "MFARequiredError": ("polisyos.core.security.exceptions", "MFARequiredError"),
+        "DelegationError": ("polisyos.core.security.exceptions", "DelegationError"),
+        "DelegationVerificationError": (
+            "polisyos.core.security.exceptions",
+            "DelegationVerificationError",
+        ),
+        "AuthorizationError": (
+            "polisyos.core.security.exceptions",
+            "AuthorizationError",
+        ),
+        "AuthorizationDeniedError": (
+            "polisyos.core.security.exceptions",
+            "AuthorizationDeniedError",
+        ),
+        "MissingTenantHeaderError": (
+            "polisyos.core.security.router",
+            "MissingTenantHeaderError",
+        ),
+        "TenantRoutingError": ("polisyos.core.security.router", "TenantRoutingError"),
+        "CellRegistry": ("polisyos.core.security.registry", "CellRegistry"),
+        "NamespacedArtifactStore": (
+            "polisyos.core.security.namespace",
+            "NamespacedArtifactStore",
+        ),
+        "SECURITY_ASSURANCE_REPORT_REF_KEY": (
+            "polisyos.core.security.quality_gates",
+            "SECURITY_ASSURANCE_REPORT_REF_KEY",
+        ),
+        "SECURITY_REPORT_FILE": (
+            "polisyos.core.security.quality_gates",
+            "SECURITY_REPORT_FILE",
+        ),
+        "build_security_assurance_report": (
+            "polisyos.core.security.quality_gates",
+            "build_security_assurance_report",
+        ),
+        "SECURITY_ASSURANCE_ARTIFACT_KIND": (
+            "polisyos.core.security.quality_gates",
+            "SECURITY_ASSURANCE_ARTIFACT_KIND",
+        ),
+        "SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE": (
+            "polisyos.core.security.quality_gates",
+            "SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE",
+        ),
+        "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME": (
+            "polisyos.core.security.quality_gates",
+            "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME",
+        ),
+        "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION": (
+            "polisyos.core.security.quality_gates",
+            "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION",
+        ),
+        "security_gates_from_report": (
+            "polisyos.core.security.quality_gates",
+            "security_gates_from_report",
+        ),
+        "TenantQuotaRegistry": (
+            "polisyos.core.security.quota_registry",
+            "TenantQuotaRegistry",
+        ),
+        "TenantQuotaLimits": (
+            "polisyos.core.security.tenant_quota",
+            "TenantQuotaLimits",
+        ),
+        "TenantContext": ("polisyos.core.security.tenant_context", "TenantContext"),
+        "clear_tenant_context": (
+            "polisyos.core.security.tenant_context",
+            "clear_tenant_context",
+        ),
+        "tenant_scope": ("polisyos.core.security.tenant_context", "tenant_scope"),
+        "require_tenant_context": (
+            "polisyos.core.security.tenant_context",
+            "require_tenant_context",
+        ),
+        "get_current_tenant_id": (
+            "polisyos.core.security.tenant_context",
+            "get_current_tenant_id",
+        ),
+        "get_current_tenant_id_or_none": (
+            "polisyos.core.security.tenant_context",
+            "get_current_tenant_id_or_none",
+        ),
+        "get_current_cell_id": (
+            "polisyos.core.security.tenant_context",
+            "get_current_cell_id",
+        ),
+        "get_current_access_scope_or_none": (
+            "polisyos.core.security.tenant_context",
+            "get_current_access_scope_or_none",
+        ),
+        "set_current_access_scope": (
+            "polisyos.core.security.tenant_context",
+            "set_current_access_scope",
+        ),
+        "reset_current_access_scope": (
+            "polisyos.core.security.tenant_context",
+            "reset_current_access_scope",
+        ),
+        "TENANT_HEADER": ("polisyos.core.security.router", "TENANT_HEADER"),
+        "RoutingResult": ("polisyos.core.security.router", "RoutingResult"),
+        "resolve_routing": ("polisyos.core.security.router", "resolve_routing"),
+        "SecuritySettings": ("polisyos.core.security.settings", "SecuritySettings"),
+        "get_security_settings": (
+            "polisyos.core.security.settings",
+            "get_security_settings",
+        ),
+        "TEEPlatform": ("polisyos.core.security.tee", "TEEPlatform"),
+        "AttestationStatus": ("polisyos.core.security.tee", "AttestationStatus"),
+        "AttestationReport": ("polisyos.core.security.tee", "AttestationReport"),
+        "AttestationPolicy": ("polisyos.core.security.tee", "AttestationPolicy"),
+        "AttestationResult": ("polisyos.core.security.tee", "AttestationResult"),
+        "SEVSNPVerifier": ("polisyos.core.security.tee", "SEVSNPVerifier"),
+        "NoOpVerifier": ("polisyos.core.security.tee", "NoOpVerifier"),
+        "TEEGatekeeper": ("polisyos.core.security.tee_middleware", "TEEGatekeeper"),
+        "AttestationDeniedError": (
+            "polisyos.core.security.tee_middleware",
+            "AttestationDeniedError",
+        ),
+        "SBOMGenerator": ("polisyos.core.security.sbom", "SBOMGenerator"),
+        "SBOMVerifier": ("polisyos.core.security.sbom", "SBOMVerifier"),
+        "SBOMMetadata": ("polisyos.core.security.sbom", "SBOMMetadata"),
+        "SBOMVerificationResult": (
+            "polisyos.core.security.sbom",
+            "SBOMVerificationResult",
+        ),
+        "InTotoStatement": (
+            "polisyos.core.security.slsa.models",
+            "InTotoStatement",
+        ),
+        "VulnerabilityRecord": ("polisyos.core.security.sbom", "VulnerabilityRecord"),
+        "VulnerabilitySeverity": ("polisyos.core.security.sbom", "VulnerabilitySeverity"),
+    }
+)
 
 if TYPE_CHECKING:
     from polisyos.core.security.access_scope import AccessScope
@@ -408,27 +428,6 @@ if TYPE_CHECKING:
         tenant_scope,
     )
     from polisyos.core.security.tenant_quota import TenantQuotaLimits
-
-_EXPORTS.update(
-    {
-        "SECURITY_ASSURANCE_ARTIFACT_KIND": (
-            "polisyos.core.security.quality_gates",
-            "SECURITY_ASSURANCE_ARTIFACT_KIND",
-        ),
-        "SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE": (
-            "polisyos.core.security.quality_gates",
-            "SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE",
-        ),
-        "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME": (
-            "polisyos.core.security.quality_gates",
-            "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME",
-        ),
-        "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION": (
-            "polisyos.core.security.quality_gates",
-            "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION",
-        ),
-    }
-)
 
 __all__ = [
     "C3_CANONICAL_CODECS",

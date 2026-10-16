@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from importlib import import_module
+from types import MappingProxyType
 
 import pytest
 
@@ -9,11 +10,16 @@ EXPECTED_EXPORTS = {
     "InTotoStatement": "polisyos.core.security.slsa.models",
     "NamespacedArtifactStore": "polisyos.core.security.namespace",
     "SECURITY_ASSURANCE_REPORT_REF_KEY": "polisyos.core.security.quality_gates",
+    "SECURITY_ASSURANCE_ARTIFACT_KIND": "polisyos.core.security.quality_gates",
+    "SECURITY_ASSURANCE_ARTIFACT_MEDIA_TYPE": "polisyos.core.security.quality_gates",
+    "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_NAME": "polisyos.core.security.quality_gates",
+    "SECURITY_ASSURANCE_ARTIFACT_SCHEMA_VERSION": "polisyos.core.security.quality_gates",
     "SECURITY_REPORT_FILE": "polisyos.core.security.quality_gates",
     "TenantQuotaLimits": "polisyos.core.security.tenant_quota",
     "TenantQuotaRegistry": "polisyos.core.security.quota_registry",
     "build_security_assurance_report": "polisyos.core.security.quality_gates",
     "security_gates_from_report": "polisyos.core.security.quality_gates",
+    "tenant_scope": "polisyos.core.security.tenant_context",
     "validate_tenant_id": "polisyos.core.security.db_backend",
 }
 
@@ -32,3 +38,15 @@ def test_security_facade_does_not_export_private_tenant_validator() -> None:
 
     assert "_validate_tenant_id" not in facade.__all__
     assert not hasattr(facade, "_validate_tenant_id")
+
+
+def test_security_facade_export_map_is_immutable_and_covers_public_exports() -> None:
+    facade = import_module("polisyos.core.security")
+
+    assert isinstance(facade._EXPORTS, MappingProxyType)
+    assert set(facade._EXPORTS) == set(facade.__all__)
+    with pytest.raises(TypeError):
+        facade._EXPORTS["tenant_scope"] = (
+            "importlib",
+            "import_module",
+        )

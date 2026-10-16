@@ -1,0 +1,140 @@
+{
+  "record_type": "bounded_component_delivery_proposal",
+  "slice_base": {
+    "sha": "c20bf40b63d528f9de9a5088f1716be1da64c08b",
+    "tree": "8a0317aae125a746e381a4d2a9d6635440487394"
+  },
+  "candidate": {
+    "sha": "47317575c39cef4f2db388beea400ee6405c9d75",
+    "tree": "ecc66de3efce664bfb285a3b60ea88b39af4079b",
+    "parents": [
+      "c20bf40b63d528f9de9a5088f1716be1da64c08b"
+    ]
+  },
+  "footprint": {
+    "policy-engine/src/polisyos/data_forge/read_api/__init__.py": "9a01816e301a444cd6f5ca0c99916ee89b14e5d517413959d5c17e2ff1a84c3d",
+    "policy-engine/src/polisyos/data_forge/read_api/academic.py": "39e3ea320983a732e89eec7e90f49183c54fa7d093c39e10a38d3d1548d94540",
+    "policy-engine/src/polisyos/data_forge/read_api/legal.py": "8db9b46a210cbbbd6856a9dd009a1e25fe1bcb9ca06345e22347e7571a32b015",
+    "policy-engine/src/polisyos/data_forge/read_api/ukraine.py": "97ddaaa2a6e4dfbc2a2e3b7a1f505f72d67982d5360cc00a34fffc173867d8c7",
+    "policy-engine/tests/unit/data_forge/read_api/test_lazy_typed_exports.py": "4c8545c39b633618dfa1ac3dc1b8226b5e8186d4b21d935aa883bd30473b20de",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "317a1a9ca63a8d7fea477416262f63467ada6a0e7bfa62fe6ea3a05f142495e3"
+  },
+  "selected_input_profile_backend": {
+    "runtime": "existing macOS Python3.14.3 own .venv",
+    "lock_sha256": "9d200a0789f50fccb533ddbb66a39453b04de8f22e653d34a62c35125c20a120",
+    "new_pyarrow_stubs": false,
+    "source_freeze": false
+  },
+  "property": "Mapped lazy read_api exports have the same statically visible canonical owner type while retaining runtime lazy names and object identity.",
+  "chain": [
+    "five canonical _EXPORTS maps",
+    "four facade TYPE_CHECKING owner bindings",
+    "actual strict MyPy consumer resolves 358 facade/owner pairs",
+    "cold runtime public facade imports match canonical identity",
+    "mirrored behavior module and semantic alias removal"
+  ],
+  "surface": "Python read_api facades; unchanged catalog146 is a control. Full public API/__all__ denominator is not claimed.",
+  "verification": {
+    "actual_commands_and_full_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-read-api-typing-r2-formatted-actual-20261016/request.json",
+        "sha256": "18ddde149989656ff36ea181180f2237bbea23c0d3fdb32b33351c7f87fb3af4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-read-api-typing-r2-formatted-actual-20261016/actual-results.json",
+        "sha256": "5eb3afc6970a364cf9e7230f0f5f02996bbf3b3481686b0aa98085b3e523bccd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-read-api-typing-r2-formatted-actual-20261016/actual-loaded-source-origins.json",
+        "sha256": "c118c615242d71d421d3984fb926db1e874abad4a548f374f8b7f0810339c4a1"
+      }
+    ],
+    "behavior": {
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "canonical_ruff": {
+      "check_files": 5,
+      "format_files": 5,
+      "result": "PASS"
+    },
+    "type_pairs": {
+      "mapped_names": 358,
+      "typed_equivalent": 235,
+      "Any_not_established": 123,
+      "origins": 65
+    },
+    "adversarial_removal": {
+      "removed_new_aliases": 191,
+      "type_mismatches": 133,
+      "remaining_Any_removed": 58,
+      "mypy_exit": 0,
+      "semantic_verifier_exit": 1,
+      "runtime_maps_and_imports_preserved": true
+    },
+    "parent_test_origins": {
+      "own": 75,
+      "outside": 0,
+      "missing": 0,
+      "wrong": 0
+    }
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-read-api-typing-r2-code-boundary-20261016/read-api-typing-source-readback.json",
+      "sha256": "12e1c66a53f65d093df913f1846b6af29d3306f3583619c361330e57a3350d03"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-read-api-typing-r2-formatted-actual-20261016/request.json",
+      "sha256": "18ddde149989656ff36ea181180f2237bbea23c0d3fdb32b33351c7f87fb3af4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-read-api-typing-r2-formatted-actual-20261016/actual-results.json",
+      "sha256": "5eb3afc6970a364cf9e7230f0f5f02996bbf3b3481686b0aa98085b3e523bccd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-read-api-typing-r2-formatted-actual-20261016/actual-loaded-source-origins.json",
+      "sha256": "c118c615242d71d421d3984fb926db1e874abad4a548f374f8b7f0810339c4a1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/public-facade-typing-post-adoption-controls-20261016/control-evidence-r1.json",
+      "sha256": "24e35524585de1ff84e33210e334e3d433cf291d9f6534a6f3af7a2bf74c92fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-read-api-typing-semantic-control-readback-20261016/readback.json",
+      "sha256": "fd328db73a0b616cc2d0efe286c0d5d4c29adf6052afecb5833fedaf9697d52f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/read-api-typing-current-receipt-draft-20261016/receipt-draft.md",
+      "sha256": "049c9bbd4f1b6200e291cb47068c568ed0ce975b68a3a4ef814a4106a58aff20"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/public-facade-typing-independent-review-20261016/r2/independent-review.md",
+      "sha256": "c2e695881edfde137c70634810e700df8b1b34cfdba6107d0ebf194141794b49"
+    }
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P06",
+      "P29",
+      "P35",
+      "P38",
+      "P40"
+    ],
+    "bucket": "Missing canonical facade type binding class; repaired over complete five-map/358-name quantity. 123 Any pairs bounded not_established; same consumer is next falsifier after owner typing changes."
+  },
+  "limitations": [
+    "No full public API/static inventory purity claim; G decision315640 remains held.",
+    "No native/CoreRuntime/installed/final-composed green or authority/currentness claim.",
+    "Original B/LA whole-property IDs not individually established by this typing companion."
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "component": "bounded_GO",
+    "finding_ids": [],
+    "formal_G_adjudication": false
+  },
+  "next_check": "Adopt remaining reviewed runtime/Lex/refusal companions; canonical generated/native/composed/installed checks on final source/input/backend freeze."
+}

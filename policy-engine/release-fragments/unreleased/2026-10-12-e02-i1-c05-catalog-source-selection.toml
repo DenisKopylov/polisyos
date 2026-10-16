@@ -20,7 +20,7 @@ change_class = "additive"
 surface_classification = "public Python app-factory configuration only; the HTTP endpoint and generated-client contract do not change."
 migration = "No persisted-data migration is required. Deployments that opt in pass a CatalogServingSourceSelection containing an absolute snapshot_root and CatalogRunProfile; the selected fixed-layout database is candidate input only."
 api = "create_runtime_api_app(catalog_source_selection=CatalogServingSourceSelection(snapshot_root=..., catalog_run_profile=...)) selects snapshot_root/datasets/graph/dataset_catalog.duckdb for candidate L1 consumers. When app catalog_run_profile is omitted, the selector profile is used; conflicting profiles and missing DB paths refuse. The same resolved source is bound through sync NL and async recursive generation and shared L1 consumers."
-limitations = "Path/profile resolution does not establish producer publication lineage, source content provenance, global profile coverage, freshness/currentness, external authority, or publication readiness. Legacy absence remains candidate-only; no production manifest, source profile registry, or historical artifact is rewritten."
+limitations = "Path/profile resolution does not establish producer publication lineage, source content provenance, global profile coverage, freshness/currentness, external authority, or publication readiness. Legacy absence remains candidate-only; no production manifest, source profile registry, or historical artifact is rewritten. Public-surface classification remains owner-held: the supported public-surface contract does not list polisyos.runtime.http.app as an entrypoint. The row retains python-public-api as the candidate classification, and this fragment does not claim public export review is complete."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
 migration_docs = ["docs/reference/api/migration-guide.md", "src/polisyos/runtime/http/README.md"]
@@ -28,7 +28,7 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "runtime-app-candidate-catalog-source"
-change_class = "python-configuration"
+change_class = "python-public-api"
 impact = "compatible"
 surface = "optional keyword-only create_runtime_api_app configuration; no HTTP request/response or OpenAPI shape change"
 owner = "team-runtime"

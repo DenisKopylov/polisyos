@@ -4,6 +4,13 @@ type = "changed"
 component = "runtime"
 owner = "team-polisyos"
 summary = "A V6 acquisition re-entry now appends the new cycle and its summaries to a continued GenerationCycleRun, applies the shared N6 currentness and N9 promotion gates, and persists the resulting current front or typed refusal inside a versioned re-entry receipt. For same-candidate re-entry the fresh run-details GET binds prior/current N4/N5 refs, same profile selection identity with separate content hashes, and a changed selected-target baseline."
+evidence = [
+  "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+  "src/polisyos/runtime/http/services/control/generation_cycle.py",
+  "tests/unit/runtime/quality/test_recursive_generation_cycle.py",
+  "tests/integration/core_runtime/test_acquisition_authority_served.py",
+]
+
 compatibility = "Re-entry receipts v1 and v2 remain readable. New re-entry receipts use manifest schema 2.0 and receipt schema v3; the run-details continuation projection is additive."
 change_class = "schema-openapi-abi"
 surface_classification = "public-api: RunDetails.candidate_simulation.acquisition_history[].continuation"

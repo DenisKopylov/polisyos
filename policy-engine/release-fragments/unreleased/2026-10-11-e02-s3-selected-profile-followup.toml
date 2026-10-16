@@ -16,7 +16,7 @@ migration = "Use the profile-bound reference helper through the canonical polisy
 api = "Core re-exports profile_bound_ref through polisyos.core.artifacts and its __all__; the Fabric adapter and snapshot node use that facade."
 limitations = "A profileless ref binds the current default view at this producer boundary; it does not attest historical selection or authority/currentness."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = []
 runbook_docs = []
 

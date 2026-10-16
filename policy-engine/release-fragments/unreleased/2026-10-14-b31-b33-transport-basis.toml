@@ -15,7 +15,7 @@ migration = "Call RealValueOwnerGateway.run_transport only with an existing sele
 api = "Exports RealValueOwnerGateway and ValueTransportRunReceiptV1 from the polisyos.runtime.quality facade; run_transport accepts an optional existing solver_mode, the immutable request/run basis records it, the receipt reports the actual backend, and persist_transportability_result supports same-write selected-profile opt-in."
 limitations = "An explicit simplified_legacy result is a candidate software witness only; auto remains the production gateway default. A replayable candidate solver result does not establish graph truth, a genuine Y0 surrogate profile, empirical causal authority, calibration, B31 partial-identification bounds, unit conversion, or value promotion."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/runtime/quality/README.md"]
 runbook_docs = []
 

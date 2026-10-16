@@ -4,6 +4,13 @@ type = "changed"
 component = "runtime"
 owner = "team-polisyos"
 summary = "Acquisition route v1.1 reads distinguish an unestablished outcome, a reverified zero-delta result for the selected active epoch, and a positively admitted delta. Lost-ack recovery preserves a selected zero receipt as quarantined without re-entry."
+evidence = [
+  "src/polisyos/runtime/quality/acquisition_world_growth.py",
+  "src/polisyos/runtime/http/routes/acquisitions.py",
+  "tests/unit/runtime/quality/test_acquisition_world_growth.py",
+  "tests/integration/core_runtime/test_acquisition_authority_served.py",
+]
+
 compatibility = "Projection v1.1 carries the explicit not_established/no_growth/admitted_delta state and nullable admitted_observation_delta. Pending v1.0 no_growth defaults are presented as unknown; positive v1.0 admitted_delta remains positive. The DS15 semantic outcome grew is represented by the admitted_delta transport literal. Existing growth pointers without a receipt_kind continue to resolve as positive growth."
 change_class = "schema-openapi-abi"
 surface_classification = "public-api: additive GET /api/v1/runs/{run_id}/acquisition-routes[/{route_id}]; breaking response-literal changes on POST /api/v1/runs/{run_id}/acquisition-routes/{route_id}/decision-request and /execute"

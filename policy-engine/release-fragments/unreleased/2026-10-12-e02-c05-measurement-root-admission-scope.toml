@@ -20,21 +20,21 @@ change_class = "Runtime producer and fresh-reader scope binding with additive nu
 surface_classification = "public_stable: runtime_quality authority envelope schema"
 migration = "No existing CAS bytes are rewritten. Consumers of the v1 JSON schema should refresh generated DTOs for the nullable requested field; historical non-null payloads retain their exact schema version and identity. The new null value is emitted only from a typed workflow request whose admitted creation event records omission."
 api = "MeasurementRootExecutionBinding is threaded from the exact ControlJobExecutionAdmission through MeasurementRootProducer and N7/N9 readers. Established writers use admitted tenant/cell/job/run plus effective profile; unestablished scope emits only a generic unclaimed candidate and no authority envelope/event."
-limitations = "This change does not establish upstream shared/system source neutrality, cross-tenant permission, a new issuer, or a G-level owner selection. Protected readers require a fresh independently captured binding; unknown scope is not assigned a concrete fallback. Native overlay verification remains separate from the R359 source-bound checkpoint."
-generated_client_compatibility = "schema_refresh_required"
-public_surface_inventory_reviewed = true
+limitations = "This change does not establish upstream shared/system source neutrality, cross-tenant permission, a new issuer, or a G-level owner selection. Protected readers require a fresh independently captured binding; unknown scope is not assigned a concrete fallback. Native overlay verification remains separate from the R359 source-bound checkpoint. Compatibility of existing v1 envelope consumers that reject an explicit null for requested_execution_profile is not established; a specific consumer/version proof or G choice is still required. The not_applicable generated-client label does not resolve that persisted-schema reader question."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
 migration_docs = []
 runbook_docs = []
 
 [[compatibility_change]]
 id = "c05-requested-profile-explicit-null"
-change_class = "schema-nullability"
+change_class = "persisted-artifact-format"
 impact = "additive"
 surface = "runtime_quality.evidence_authority_envelope.v1"
 owner = "team-runtime"
 version_owner = "team-runtime"
 deprecation_window = "not_applicable"
 release_note = "The required requested_execution_profile may explicitly be null when the admitted WorkflowRunRequest omitted it; effective_execution_profile remains source-established and separate."
-generated_client_compatibility = "schema_refresh_required"
+generated_client_compatibility = "not_applicable"
 migration_docs = []
 runbook_docs = []

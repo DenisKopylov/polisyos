@@ -2922,4 +2922,34 @@
     "source_freeze": false,
     "closure_ids": []
   }
+,
+  "coordination_epoch_20261017_remaining_ten_release_metadata_r2": {
+    "root_writer": "/root",
+    "base": "79051bd7a7d7a8849bf2198402cf246a41a893a2",
+    "mechanism_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-09-e02-c12-catalog-search-status.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-la036-selected-profile-cas-readers.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-s3-selected-profile-followup.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-acquisition-growth-outcome-status.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-b28-n9-continuation.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-c05-measurement-root-admission-scope.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-calibration-report-cas-bridge.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-i1-c05-catalog-source-selection.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-14-b31-b33-transport-basis.toml"
+    ],
+    "candidate_input_denominator": "10 attributed dirty release fragments / 12 compatibility rows /44 evidence paths, exact original and dirty and proposed bytes distinguished in frozen review. One demoted marker returns to HEAD; no unrelated reset/restore.",
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate source-bound receipt and component index"
+    ],
+    "author_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/remaining-ten-release-metadata-review-20261017-r2/review.json",
+      "sha256": "50b316f65b7e109d695617e20ccc90746dc2f5ef0fa13dc749f214a4afbabc37"
+    },
+    "patch_sha256": "3da937bd948216510569b1ca41e7f2f5ec79bed90f7212bf9c5316c611a7e4b7",
+    "P40": "Use canonical existing allowed change classes and generated-client literals, demote unestablished review markers; nullable v1 persisted consumers and registered-tool ABI remain held, no new taxonomy or authority.",
+    "native_status": "Canonical owner structural validation retained; actual current complete native gate not green. 271 fragments/240rows/11publicreviewerrs is a separate earlier own-venv frame, not this candidate replay.",
+    "source_freeze": false,
+    "closure_ids": []
+  }
 }

@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "08aa7da7d5eb3959171f463fcdb1abc0417381d4",
-    "tree": "b96e5f4b7c78699c7b1730f27ea09454df9f7b91",
+    "head": "4648e3d184b67cb82108ca1bf1d0a10299fa2130",
+    "tree": "fb1249beeb1919d12520a2138ad7666d4cf180c8",
     "parents": [
-      "e1015c4b36ddcbacf7f6351b4bbe265203001190"
+      "2449a9de36290d8f44f569a507afc35303d10be4"
     ],
     "source_freeze": false,
-    "dirty_active_source": "R9exactliteral lookup source08aa committed5paths; actual142mirrors134PASS8FAIL/Ruff2PASS/3239pinsstable/canonicalorigin. FiveIRannotationcollection and3additionalcasesunresolved, noinheritance/nativegreen. LegalR3indepGO+tenantfixturecompanion, refusalPhase3wholematrix/B190owner/GLcanonicalprojection/N4controlledcontext/C05invocationbasis ongoing; globalfreeze false."
+    "dirty_active_source": "R9 test companion4648 actual8PASS/Ruff2PASS and canonical77origins; full gate still unresolved. B19014ad actual99PASS1fresh-child-testFAIL (normal-import companion in review); Legal2449 source adopted, canonical root Ruff companion before actual replay; GL/N4/C05/refusal/LA036 ongoing. Known original GL/Lex postimages preserved."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -431,6 +431,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r9-exact-literal-lookup-current-candidate-delivery-20261016.json",
       "sha256": "4db375d3a57bb16342d88c0f516f481f3ea1dd685a1bdccd8661c668532dc5be"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r9-behavioral-test-companion-current-candidate-delivery-20261017.json",
+      "sha256": "556fd33c8e40624895acbdd16f98ebd2d88e8be60db3a9a42860dbc27f38e741"
     }
   ],
   "canonical_denominator_recomputed": {

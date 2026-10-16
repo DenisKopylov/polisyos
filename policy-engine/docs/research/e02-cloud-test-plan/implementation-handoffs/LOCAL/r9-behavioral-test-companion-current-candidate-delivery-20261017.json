@@ -1,0 +1,122 @@
+{
+  "record_type": "bounded_R9_test_companion_delivery_proposal",
+  "slice_base": {
+    "sha": "2449a9de36290d8f44f569a507afc35303d10be4"
+  },
+  "candidate": {
+    "sha": "4648e3d184b67cb82108ca1bf1d0a10299fa2130",
+    "tree": "fb1249beeb1919d12520a2138ad7666d4cf180c8",
+    "parents": [
+      "2449a9de36290d8f44f569a507afc35303d10be4"
+    ]
+  },
+  "full_code_test_config_companion_footprint": {
+    "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py": "80eca17c93ff50be16203d559a4e92a39faf4752af24eda00cb48ba79fdf636d",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "b8df05505a36376c669878d1375c2e64f7a2bb39cbf1e30f335b9875e3c738a6"
+  },
+  "selected_input_profile_backend": {
+    "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+    "command_input_pin_count": 6,
+    "profile": "Existing OWN macOS environment, CPU numeric threads1; no installation by this slice. Editable project distribution had separately recorded refresh; no installed wheel/sdist claim.",
+    "existing_environment_record": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/venv-sync-incident-20261016/current-distributions.json",
+      "sha256": "89850863482ef3cc48f1b9faeb1b79a7ded5076801afd944cd09c972ec5a25bb"
+    }
+  },
+  "real_chain": [
+    "Canonical tracked scanner imported normally from OWN tools; focused tests create actual importer and explicit no-import controls.",
+    "Registry missing, present and removed states drive actual scanner findings; immutable tuple and mutation controls remain.",
+    "Fresh child uses real runtime find_spec with positive and negative target resolution; no blanket target resolver stub."
+  ],
+  "verification": {
+    "actual_focused_cases": {
+      "cases": 8,
+      "pass": 8,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "command_seconds": 2.611,
+      "exit_code": 0
+    },
+    "canonical_ruff": "source and test check/format PASS",
+    "actual_project_modules": 77,
+    "outside_own_source": {},
+    "all_command_pins_unchanged": true,
+    "P41": "not_established; no inherited-red claim; full static collector not exercised by this focused slice"
+  },
+  "consumer_surface": "Native dynamic-import source gate and registered-target finder; no public API/schema change.",
+  "adversarial_removal_controls": [
+    "Same candidate cases exercise genuine importer without row (refusal), add exact row (admitted), remove row again (refusal).",
+    "Explicit globals alpha runtime-trap remains no-import and cannot accidentally invoke a fake importer.",
+    "Immutable tuple importer capability and mutable backing refusal controls preserved; fresh target missing refuses."
+  ],
+  "limitations": [
+    "Earlier complete selected dynamic gate at08aa was134PASS8FAIL; this8case run does not rerun or clear that full gate.",
+    "New complete facade-import research reports121 importing modules/106 collection errors at its exact source cut; full collector stops at first error. Generic source-owned immutable facade binding repair remains in progress; no five-error-only underlying denominator claim.",
+    "Exact integer positive-membership refinement remains typed fail-closed unsupported as recorded in source08aa, not stale green.",
+    "Global source/input/backend freeze, native gate, canonical regeneration and installed consumers remain pending."
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-test-companion-actual-20261017/request.json",
+      "sha256": "906a5621f57893d86cc800b17636fcf93f67af7438512b55bf3059f1026193f7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-test-companion-actual-20261017/actual-results.json",
+      "sha256": "e6f807f866e3759590345c54bfbd91bdff1d94c63fd3b88e2a20fe6ea913840b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-test-companion-actual-20261017/actual-module-origins.json",
+      "sha256": "c4a4da4d31a7f136862cda9eb9316335c2a325d0ce79187a7c79840defb0ac40"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-test-companion-actual-20261017/r9-focused.junit.xml",
+      "sha256": "ad8ddefb8ab1564ee11fb720d9416a6bfef5a75ad981c76c436e4aa526384d08"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-exact-key-r4-test-companion-independent-review-20261016/delta-review.json",
+      "sha256": "6e400c849e553ae68d7c4da961c0d590ab99761576b2ef62ab01944e60fdeb2f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-exact-key-r4-test-companion-20261016/candidate-manifest-r3.json",
+      "sha256": "dc2eaa49f6630da202585582f9a78c3233cb22b3963ad8ae9868f55e134a36ba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-berl-annotation-20261016/facade-import-census.json",
+      "sha256": "ae991b23e6039a993596fd44451f8ccc537f33f63a6ec3eb3b0633272e90afc4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-test-companion-actual-20261017/actual-eight-focused-controls.stdout.txt",
+      "sha256": "eab8fa66c53032059b67e755cc48fb76ec14cfd2196757d95f541c32406bd977"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-test-companion-actual-20261017/actual-eight-focused-controls.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-test-companion-actual-20261017/canonical-ruff-check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-test-companion-actual-20261017/canonical-ruff-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-test-companion-actual-20261017/canonical-ruff-format.stdout.txt",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-test-companion-actual-20261017/canonical-ruff-format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "proposal_fields": {
+    "scope": "R9 behavioral test companion only",
+    "outcome": "limited",
+    "next_check": "Finish generic facade source-binding repair and independent delta review; freeze source then rerun complete dynamic collector/registry regeneration with corrupt-field controls and native gates."
+  },
+  "closure_ids": [],
+  "formal_G_acceptance": null,
+  "source_freeze": false
+}

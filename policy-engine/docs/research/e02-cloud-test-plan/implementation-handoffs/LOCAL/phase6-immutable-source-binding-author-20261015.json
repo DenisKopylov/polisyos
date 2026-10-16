@@ -1,0 +1,154 @@
+{
+  "schema_version": "policyos.e02.local-implementation-handoff.v1",
+  "record_type": "local_candidate_handoff",
+  "slice_id": "phase6-immutable-source-binding-author-20261015",
+  "status": "candidate_source_frozen_for_independent_review",
+  "author_role": "local implementation author; not G acceptance authority",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base": {
+    "head": "938c0c1a8465510b3872ef395f7324f16209c2c5",
+    "tree": "23d7717671adb970a4c5cb77e48d6af4d0f3745c",
+    "parents": [
+      "13f6cf4bb788069c7caf238c5f1278ece699c6d1"
+    ]
+  },
+  "candidate": {
+    "commit": null,
+    "tree": null,
+    "identity": "Uncommitted four-file source snapshot; see per-file SHA-256 in source freeze.",
+    "root_commits": true
+  },
+  "source_freeze": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-map-membership-scanner-20261015/r6/source-freeze.json",
+    "sha256": "3f96981d8fd2b12dd679d99ce3196a5e7c422b9610971e176c7d9a8c2887b20c"
+  },
+  "code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+      "sha256": "c14ab0bbf619cdca7ecbc9ce5299607167de92767cbd3459a82d7272d38a31d0"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+      "sha256": "5d31c0e75f701cdd57be1d972b351fe31247125ef592c3bf43cd71074e8199cf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/__init__.py",
+      "sha256": "4eb58e401bef9021eecfd5c123d1b8e281599a88459a741fee64d442c39556d0"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/security/test_facade.py",
+      "sha256": "05aa61eac6c6d139d3a45d352610dbc637075e7d65578cc5dc7bf0bebb2ba6bb"
+    }
+  ],
+  "implementation_and_consumer": {
+    "property": "Static dynamic-import architecture gate must trace source-owned finite binding maps and public lazy facades without treating mutable or unresolved target flow as absent.",
+    "candidate_behavior": "The analyzer has bounded source-only immutable-map and PEP 562 resolution. Core security retains its exact lazy public facade while its 110-pair resolver map is immutable.",
+    "actual_consumer": "tools.quality.validation.decomposition_preflight.validate_dynamic_imports scans selected src/tools/apps/packages source files and is mirrored by tests/repo_quality/architecture/test_decomposition_preflight_gates.py.",
+    "surface": "architecture/imports/dynamic.toml inventory gate; no registry row was added for the core.security.__getattr__ importer in this lease."
+  },
+  "input_profile_environment": {
+    "source": "local checkout, no production/private data or external authorities",
+    "python": "3.14.0 at /opt/homebrew/opt/python@3.14/bin/python3.14",
+    "pytest": "9.0.2",
+    "ruff": "0.15.0"
+  },
+  "verification": {
+    "environment": {
+      "python": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "python_version": "3.14.0",
+      "pytest": "9.0.2",
+      "ruff": "0.15.0",
+      "external_inputs": "none; local source/tests only"
+    },
+    "focused_tests": {
+      "command": "python3 -m pytest -q tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_resolves_literal_pep562_exports_without_overtaint tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_resolves_immutable_mapping_pep562_facade_dispatch tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_pep562_map_preserves_importer_capability_provenance tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_rejects_unresolved_or_mutable_pep562_export_map tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_resolves_source_owned_immutable_mapping_through_aliases tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_unresolved_internal_mapping_never_defaults_to_absence tests/repo_quality/architecture/test_decomposition_preflight_gates.py::test_dynamic_import_source_binding_cannot_escape_selected_source_root tests/unit/core/security/test_facade.py",
+      "result": "26 passed",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-map-membership-scanner-20261015/r6/focused-pep562.stdout.txt",
+        "sha256": "64576d99c4cef913eb9b9bd4e5a096807fe2289f77eb08a67c7de2e43fc6349d"
+      }
+    },
+    "full_dynamic_import_architecture_mirror": {
+      "command": "python3 -m pytest -q tests/repo_quality/architecture/test_decomposition_preflight_gates.py -k dynamic_import",
+      "collection": {
+        "command": "python3 -m pytest --collect-only -q tests/repo_quality/architecture/test_decomposition_preflight_gates.py -k dynamic_import",
+        "count": 100,
+        "output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-map-membership-scanner-20261015/r6/dynamic-import-collection.stdout.txt",
+          "sha256": "83b147e5598165de268c36f5f70f920540e4a56e9cc2d62b26f132e64fb37800"
+        }
+      },
+      "result": "exit 1; five tests fail because the complete source scanner refuses the unresolved IR source binding. This is a real non-green result, not a successful gate.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-map-membership-scanner-20261015/r6/dynamic-import.stdout.txt",
+        "sha256": "202b91f0715819f7a93aa26b83b4e874d3a436e6dd9eaf5d1086bcc9c39eb3b4"
+      }
+    },
+    "full_source_inventory_denominator": {
+      "command": "PYTHONPATH=tools/quality/validation python3 - <<'PY' ... _dynamic_source_paths('src','tools','apps','packages') ... PY",
+      "selected_python_paths": 3230,
+      "scope_counts": {
+        "src": 2771,
+        "tools": 454,
+        "apps": 5,
+        "packages": 0
+      },
+      "first_scanner_failure": {
+        "path": "src/polisyos/berl/persistence.py",
+        "sorted_position": "36/3230",
+        "cause": "dynamic map binding is mutable/unsupported; ExplanationBundleRef annotation flow is ambiguous"
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-map-membership-scanner-20261015/r6/source-selection-denominator.stdout.txt",
+        "sha256": "8f01fc4ab277aba78c301b83a10abfbb14881cdcb22ba42e70d0ebb067e23414"
+      },
+      "interpretation": "3230 is the actual selected Python-file denominator; the full scanner did not finish over those files, so no complete dynamic-sink inventory or native-green claim is made."
+    },
+    "ruff_check": {
+      "command": "python3 -m ruff check tools/quality/validation/decomposition_preflight.py tests/repo_quality/architecture/test_decomposition_preflight_gates.py src/polisyos/core/security/__init__.py tests/unit/core/security/test_facade.py",
+      "exit": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-map-membership-scanner-20261015/r6/ruff-check-current.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    "ruff_format_check": {
+      "command": "python3 -m ruff format --check tools/quality/validation/decomposition_preflight.py tests/repo_quality/architecture/test_decomposition_preflight_gates.py src/polisyos/core/security/__init__.py tests/unit/core/security/test_facade.py",
+      "exit": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-map-membership-scanner-20261015/r6/ruff-format-current.stdout.txt",
+        "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+      }
+    },
+    "git_diff_check": {
+      "command": "git diff --check -- <four frozen paths>",
+      "exit": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-map-membership-scanner-20261015/r6/git-diff-check-current.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "adversarial_and_removal_controls": [
+    "source-owned immutable mapping positive path and import aliases",
+    "PEP 562 lazy facade positive dispatch and importer provenance",
+    "unresolved or mutable map refusal",
+    "source-root escape refusal",
+    "security export map key set equals __all__ and attempted map mutation raises TypeError"
+  ],
+  "decision_pointer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json",
+  "proposal_fields": {
+    "closure_ids": [],
+    "formal_closure_claimed": false,
+    "proposed_status": "bounded candidate mechanism; IR public mutable-map/fallback residual held non-green; G review pending",
+    "proposal_scope": "Phase6 dynamic-import gate/source binding; no formal occurrence ID assigned by this leaf receipt"
+  },
+  "limitations": [
+    "Shared worktree is concurrently dirty; this receipt freezes only the exact four listed bytes. No whole checkout candidate tree is asserted.",
+    "Focused 26-pass tests do not imply the full dynamic-import source inventory passed.",
+    "The architecture mirror selected 100 tests and failed five at the real unresolved IR facade source flow; selected source denominator was 3230 files and scan stopped at 36/3230.",
+    "The IR public facade map is mutable and has a dynamic submodule fallback. It needs a full source-owned map/call-site and public extension compatibility decision, not a site-name exception.",
+    "Core security finite target proof is not a dynamic.toml registry registration/owner authorization.",
+    "No formal closure, native green, global E02 closeout, or external authority/currentness claim is made."
+  ]
+}

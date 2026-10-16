@@ -1789,6 +1789,51 @@
     },
     "source_freeze": false,
     "formal_G_closure_ids": []
-  }
-
+  },
+"coordination_epoch_20261016_whole_input_bindings": {
+  "observed_head": "7f5f0deb1d88f6f91d919e530f63d9d57c5ed8d6",
+  "root_is_sole_product_and_git_writer": true,
+  "agents": "RAW-only proposals or read-only reviews; no mutating git apply; no children",
+  "raw_author_paths": {
+    "s1_s3_semantic_failure_oracle": [
+      "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+      "release-fragments/unreleased/2026-10-16-e02-propagation-config-admission.toml"
+    ],
+    "api_generated_actual_consumers_successor": [
+      "src/polisyos/scientist/methods/advanced.py",
+      "tests/unit/scientist/methods/test_advanced.py",
+      "tests/_helpers/c7_synthetic_data.py",
+      "tests/integration/test_c7_synthetic_full_pipeline.py"
+    ],
+    "fabric_pool_cleanup_author": "existing16-path cache selected-view lease plus shared actual-handle intent admission; additional persistence type companions require exact pre-pins",
+    "ir_governance_loop_types_author": "R7 six-path explicit replay basis candidate; full actual semantic-input binding research, no further source lease yet",
+    "b61_exact_writer_runtime_author": [
+      "tests/_helpers/generic_n4_served_replay.py",
+      "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+      "tests/_helpers/controlled_candidate_profile.py"
+    ]
+  },
+  "independent_reviews": {
+    "full_occurrence_property_audit_2": "B194 malformed config admission",
+    "native_c2_dead_override_author": "replay R7 delta and actual semantic consumer denominator",
+    "native_c2_independent_oracle": "R1 whole owner/config intent binding",
+    "ir_temporal_typed_author_r4": "R1 honest persistence API type companions",
+    "architecture_remaining_route_oracle": "C7 all7 method-native slot bridges",
+    "dynamic_import_binding_author": "Phase6 historical append preservation and legacy pointer resolution"
+  },
+  "root_reserved": [
+    "canonical generated/schema/public/API/lock outputs",
+    "all live source application, commits and candidate-only push",
+    "expensive composed replay after source/profile/input freeze"
+  ],
+  "P40": "Second same-class escape widens the full required quantity; declarations and input ref presence do not prove actual dispatched-state content binding.",
+  "compute": {
+    "mac_heavy_slots": 3,
+    "numerical_threads_per_process": 1,
+    "observed_free_disk_gib": 42
+  },
+  "source_freeze": false,
+  "formal_G_closure_ids": []
+}
 }

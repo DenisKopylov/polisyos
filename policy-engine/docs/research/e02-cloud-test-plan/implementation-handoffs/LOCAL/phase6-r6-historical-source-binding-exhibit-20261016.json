@@ -1,0 +1,110 @@
+{
+  "schema": "policyos.e02.historical_source_binding_exhibit.v1",
+  "status": "historical uncommitted R6 author record; superseded source; not current acceptance evidence",
+  "observation_head": "7f5f0deb1d88f6f91d919e530f63d9d57c5ed8d6",
+  "issued_decision_preserved": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json",
+    "sha256": "fdfc3585d6e2742cf6e9975ae7ac046b15e38b5a33cff257b3dd41418b32468d",
+    "git_blob": "4687e249eb88fbbe320ce46d3eaaffbcda67d756",
+    "read_at_commit": "7f5f0deb1d88f6f91d919e530f63d9d57c5ed8d6"
+  },
+  "pending_append_provenance": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json",
+    "complete_dirty_preimage_sha256": "e82fec4f8d5cf8603dcb322e931a50dd09a2132e260c473d4d9ef60948b7cf29",
+    "source_frame": {
+      "head": "938c0c1a8465510b3872ef395f7324f16209c2c5",
+      "tree": "23d7717671adb970a4c5cb77e48d6af4d0f3745c"
+    },
+    "author": "Local E02 implementation-author role attested by the exact handoff; no individual identity or G acceptance inferred. Root owns source publication.",
+    "author_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase6-immutable-source-binding-author-20261015.json",
+      "sha256": "d91d74552f5b2c7914f3b157d000bc5f426c5189082bf3e338fd9afbb85b468e",
+      "scope": "historical R6 author statements only; null candidate commit/tree remain unchanged"
+    },
+    "exact_append_diff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-provenance-currentness-20261016/decision-append.diff",
+      "sha256": "592a3f987bfb64b18105b32ed2bad84f8df049e8640981e46a1ac1f0aae4d3a7",
+      "availability": "retained ignored RAW on this local candidate host"
+    }
+  },
+  "preservation_invariant": "Removing only the appended top-level R6 key and its separating comma reconstructs the exact issued decision bytes. The complete append diff and unchanged historical author packet remain available; no source bytes are recreated under an old identity.",
+  "superseding_source": {
+    "sha": "2b9f7177e3569b618724ae162220e3ca543922f3",
+    "tree": "04f0eaa9b28277f144fdd7b93fa04b1fd1922b75",
+    "meaning": "R9 source commit supersedes two R6 scanner/test pins; the two CoreSecurity pins remain exact. This is source provenance, not G adjudication."
+  },
+  "currentness_audit": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-provenance-currentness-20261016/phase6-provenance-currentness-report-20261016.json",
+    "sha256": "1c4326c4846172f80750ea110bd009a066d6f673c643114b4e76fd484fbbf83d"
+  },
+  "preserved_limits": [
+    "The historical full dynamic-import mirror recorded five failures; it is not a current native-green receipt.",
+    "CoreSecurity registration/issuer and mutable IR facade choices remain not established or held; no G acceptance is inferred from adjacent Q0 packet references.",
+    "Fresh complete native source inventory and full gate on the final freeze remain required."
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "source_freeze": false,
+  "legacy_reference_resolution": {
+    "status": "historical pointer resolution only; not current source binding, G acceptance, or closure",
+    "canonical_path_after_preservation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json",
+      "restored_issued_sha256": "fdfc3585d6e2742cf6e9975ae7ac046b15e38b5a33cff257b3dd41418b32468d",
+      "historical_dirty_sha256": "e82fec4f8d5cf8603dcb322e931a50dd09a2132e260c473d4d9ef60948b7cf29",
+      "resolution_rule": "An @e82fec4f… reference resolves only by applying the exact retained R6 append diff to the exact issued fdfc3585… HEAD bytes; it must not be resolved by reading the canonical path after restoration."
+    },
+    "references": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase6-effective-hook-author-r9-20261016.json",
+        "field": "/decision_pointer",
+        "expected_pointer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json@e82fec4f8d5cf8603dcb322e931a50dd09a2132e260c473d4d9ef60948b7cf29",
+        "status": "candidate_source_frozen_pending_independent_delta_review",
+        "author_role": "local scanner author; not G code acceptor, integration publisher, or finding adjudicator",
+        "actual_pointer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json@e82fec4f8d5cf8603dcb322e931a50dd09a2132e260c473d4d9ef60948b7cf29",
+        "file_sha256": "f287e8300c2ea5d53845aacf332c6a4451b7e6d336da3cff5089d237608338e3",
+        "current_source_bytes_are_e82": false,
+        "interpretation": "historical reference to the exact reconstructed dirty decision; not a pointer to the restored current canonical path and not acceptance evidence"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/ir-lazy-dispatch-source-ownership-and-public-mutation-20261016.json",
+        "field": "/related_phase6_evidence_and_limits/prior_decision",
+        "expected_pointer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json@e82fec4f8d5cf8603dcb322e931a50dd09a2132e260c473d4d9ef60948b7cf29",
+        "status": "author_recommendation_pending_G_adjudication",
+        "author_role": "Local candidate author; not independent code acceptance, integration publication, or formal finding adjudication",
+        "actual_pointer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json@e82fec4f8d5cf8603dcb322e931a50dd09a2132e260c473d4d9ef60948b7cf29",
+        "file_sha256": "7bf6e441cee9eeafb97e68d5efd0ffa4cf48264b2c684b4334951f31ab4a7ef8",
+        "current_source_bytes_are_e82": false,
+        "interpretation": "historical reference to the exact reconstructed dirty decision; not a pointer to the restored current canonical path and not acceptance evidence"
+      }
+    ],
+    "reader_instructions": [
+      "Leave the original R9 handoff and IR decision bytes unchanged; they remain historical records of their original source frame and pending proposal status.",
+      "When a reader encounters either exact path@e82fec4f… pointer, resolve it through this exhibit and reconstruction-proof.json using the issued decision bytes plus exact append diff; do not retarget the pointer to fdfc3585….",
+      "If either workstream needs a current decision pointer, create a separately versioned successor/addendum after source freeze; do not rewrite either historical packet.",
+      "The R6 append is author provenance only; it is not current scanner acceptance, G code acceptance, integration publication, formal finding adjudication, or native-green evidence."
+    ],
+    "denominator_audit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase6-historical-preservation-20261016/r2/local-json-denominator.json",
+      "sha256": "4c8dce000a31ed9e2b56a91a4b830ed4835b55c383f193943c72590c692f1a46",
+      "path_set_sha256": "d3e071b0e88e031d504a961066f28c887baac8567c887ab8f5420e11beb42794",
+      "unique_json_count": 1332
+    },
+    "reconstruction_proof": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase6-historical-preservation-20261016/r2/reconstruction-proof.json",
+      "sha256": "e21c2a307f3bf8a0f47a6ae2b885ec19631dd0de9ce9b747cb371c8652a6e7df",
+      "reconstructed_sha256": "e82fec4f8d5cf8603dcb322e931a50dd09a2132e260c473d4d9ef60948b7cf29"
+    },
+    "r1_packet_preservation": {
+      "proposal": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase6-historical-preservation-20261016/proposal.json",
+        "sha256": "f2c495b775dcb8222d336a0de8e5cc68d0cc2e4f49de0db94d7d1b0afbc5a0f0"
+      },
+      "exhibit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase6-historical-preservation-20261016/exhibit.json",
+        "sha256": "3f3c653bff1fb37125f45d9c42e16843374c854a9139a2ea525a55cdbbd0d635"
+      },
+      "disposition": "R1 files remain immutable; R2 is a new revision, not an in-place edit."
+    }
+  }
+}

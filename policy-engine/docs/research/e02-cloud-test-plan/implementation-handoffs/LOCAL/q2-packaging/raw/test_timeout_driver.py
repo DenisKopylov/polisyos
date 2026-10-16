@@ -1230,8 +1230,6 @@ class TimeoutDriverTests(unittest.TestCase):
                 str(self.run_root),
                 str(log_dir / "consumer-suite"),
             ],
-            capture_output=True,
-            text=True,
             check=True,
             timeout=1.0,
         )

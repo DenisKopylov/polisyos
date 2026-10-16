@@ -2867,7 +2867,9 @@ def validate_python_runtime_profile(
     collection_profile_directories(expected_profile, "stdlib_roots")
 
 
-def collection_environment(product: Path, output_root: Path, result_path: Path) -> dict[str, str]:
+def collection_environment(
+    product: Path, output_root: Path, result_path: Path, catalog_expected_path: Path
+) -> dict[str, str]:
     """Build the source collector's complete environment without inheriting ambient keys."""
     directories = {
         name: output_root / name for name in ("home", "tmp", "cache", "config", "pycache")
@@ -2882,6 +2884,7 @@ def collection_environment(product: Path, output_root: Path, result_path: Path) 
         "LC_ALL": "C",
         "PATH": "/usr/bin:/bin",
         "POLISYOS_Q2_COLLECTION_RESULT": str(result_path),
+        "E02_CATALOG_EXPECTED_JSON": str(catalog_expected_path),
         "POLISYOS_RUN_INTEGRATION": "1",
         "PYTHONHASHSEED": "0",
         "PYTHONNOUSERSITE": "1",
@@ -3692,6 +3695,8 @@ def collect_ids(
     selectors: list[str],
     allowed_paths: set[str],
     output_root: Path,
+    catalog_expected_path: Path,
+    catalog_expected_bytes: bytes,
     label: str,
     timeout_seconds: float,
 ) -> tuple[set[str], dict[str, Any]]:
@@ -3705,8 +3710,9 @@ def collect_ids(
     result_path = output_root / f"{label}.collection.json"
     if result_path.exists() or result_path.is_symlink():
         raise AuditFailure(f"collection result path already exists: {result_path}")
+    catalog_before = verify_catalog_collection_input(catalog_expected_path, catalog_expected_bytes)
     python_before = python_executable_record(python)
-    environment = collection_environment(product, output_root, result_path)
+    environment = collection_environment(product, output_root, result_path, catalog_expected_path)
     isolated_runtime_before = selected_python_runtime_profile(
         python,
         home=Path(environment["HOME"]),
@@ -3768,6 +3774,7 @@ def collect_ids(
             f"source pytest collection timed out after {timeout_seconds}s: {label}"
         ) from error
     wall = time.monotonic() - started
+    catalog_after = verify_catalog_collection_input(catalog_expected_path, catalog_expected_bytes)
     (output_root / f"{label}.stdout.txt").write_text(result.stdout, encoding="utf-8")
     (output_root / f"{label}.stderr.txt").write_text(result.stderr, encoding="utf-8")
     record = {
@@ -3780,6 +3787,8 @@ def collect_ids(
         "stderr_sha256": sha256(result.stderr.encode("utf-8")),
         "collected_node_count": None,
         "collected_node_ids_sha256": None,
+        "catalog_collection_input_before": catalog_before,
+        "catalog_collection_input_after": catalog_after,
     }
     if result.returncode:
         raise AuditFailure(f"source pytest collection exited {result.returncode}: {label}")
@@ -3949,6 +3958,135 @@ def asset_rows_from_config(
         "assets": rows,
         "resource_wheel_targets": sorted(str(row["wheel"]) for row in rows),
     }
+
+
+def resource_target_roots_from_runner(runner_bytes: bytes) -> tuple[str, ...]:
+    """Read the resource roots from the exact selected Q2 runner without importing it."""
+    try:
+        tree = ast.parse(runner_bytes.decode("utf-8", "strict"), filename=RUNNER_REL)
+    except (UnicodeDecodeError, SyntaxError) as error:
+        raise AuditFailure(
+            "selected Q2 runner cannot be parsed for resource target roots"
+        ) from error
+    assignments = [
+        node
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(
+            isinstance(target, ast.Name) and target.id == "RESOURCE_TARGET_ROOTS"
+            for target in node.targets
+        )
+    ]
+    if len(assignments) != 1 or len(assignments[0].targets) != 1:
+        raise AuditFailure("selected Q2 runner has an ambiguous RESOURCE_TARGET_ROOTS binding")
+    try:
+        roots = ast.literal_eval(assignments[0].value)
+    except (ValueError, TypeError) as error:
+        raise AuditFailure("selected Q2 runner resource roots are not literal data") from error
+    if (
+        type(roots) is not tuple
+        or not roots
+        or any(
+            type(root) is not str
+            or not root.endswith("/")
+            or root.startswith("/")
+            or PurePosixPath(root).as_posix() + "/" != root
+            or any(part in {".", ".."} for part in PurePosixPath(root).parts)
+            for root in roots
+        )
+    ):
+        raise AuditFailure("selected Q2 runner resource roots are not canonical relative prefixes")
+    return roots
+
+
+def catalog_expectation_from_assets(
+    assets: list[dict[str, Any]], runner_bytes: bytes
+) -> tuple[str, dict[str, Any]]:
+    """Mirror the selected runner's catalog-resource projection from exact source asset rows."""
+    roots = resource_target_roots_from_runner(runner_bytes)
+    catalog_root = roots[0]
+    resources: dict[str, dict[str, int | str]] = {}
+    for row in assets:
+        if not isinstance(row, dict):
+            raise AuditFailure("source asset row is not an object")
+        source = row.get("source")
+        wheel = row.get("wheel")
+        byte_count = row.get("bytes")
+        digest = row.get("sha256")
+        if not isinstance(source, str) or not isinstance(wheel, str):
+            raise AuditFailure("source asset row omits its source or wheel target")
+        if not wheel.startswith(catalog_root):
+            continue
+        name = Path(source).name
+        if (
+            not name
+            or type(byte_count) is not int
+            or byte_count < 0
+            or not isinstance(digest, str)
+            or not re.fullmatch(r"[0-9a-f]{64}", digest)
+        ):
+            raise AuditFailure("selected catalog asset row has invalid content identity")
+        if name in resources:
+            raise AuditFailure(f"catalog resource source basenames are ambiguous: {name}")
+        resources[name] = {"bytes": byte_count, "sha256": digest}
+    if not resources:
+        raise AuditFailure("selected runner catalog target has no source-derived assets")
+    return catalog_root, {"resources": resources}
+
+
+def validate_catalog_expectation(
+    actual: object, assets: list[dict[str, Any]], runner_bytes: bytes
+) -> None:
+    """Reject catalog expectation drift against the selected runner and full asset rows."""
+    _root, expected = catalog_expectation_from_assets(assets, runner_bytes)
+    if not json_values_match_exactly(actual, expected):
+        raise AuditFailure("catalog expectation differs from selected runner source asset rows")
+
+
+def verify_catalog_collection_input(path: Path, expected: bytes) -> dict[str, Any]:
+    """Reconcile the physical selected input before and after each collection.
+
+    These observations bind the controlled file at admission and return; they do
+    not establish atomic consumption if another writer mutates and restores it
+    during collection. The output directory is owned by this isolated run.
+    """
+    actual = read_regular_local(path)
+    if actual != expected:
+        raise AuditFailure(
+            "catalog collection input bytes differ from the source-derived expectation"
+        )
+    return {"path": str(path), "bytes": len(actual), "sha256": sha256(actual)}
+
+
+def historical_subset_matches(declaration: dict[str, Any], selected_ids: set[str]) -> bool:
+    """Compare the historical subset against the exact newly collected complete selector set."""
+    return exact_nonbool_count_matches(
+        declaration.get("selected_node_count"), len(selected_ids)
+    ) and declaration.get("selected_node_ids_sha256") == canonical_ids_sha256(selected_ids)
+
+
+def require_historical_subset_match(
+    declaration: dict[str, Any], selected_ids: set[str], *, require_match: bool
+) -> bool:
+    """Require an exact historic binding only in check mode; prepare may propose a rebind."""
+    matches = historical_subset_matches(declaration, selected_ids)
+    if require_match and not matches:
+        raise AuditFailure(
+            "historical original-plus-named-profile/worker subset does not recompute "
+            "from current source collection"
+        )
+    return matches
+
+
+def proposed_historical_subset(
+    declaration: dict[str, Any], selected_ids: set[str]
+) -> dict[str, Any]:
+    """Propose only fields recomputed from the complete collected historical subset."""
+    proposed = copy.deepcopy(declaration)
+    proposed["name"] = "original-q2-plus-named-installed-consumers"
+    proposed["selected_node_count"] = len(selected_ids)
+    proposed["selected_node_ids_sha256"] = canonical_ids_sha256(selected_ids)
+    return proposed
 
 
 def canonical_json_sha256(value: object) -> str:
@@ -5214,6 +5352,76 @@ def self_test() -> dict[str, Any]:
             template["candidate_baseline"]["force_include_count"] == len(expected_assets)
         ),
     }
+    sample_root = "sample/catalog/_resources/"
+    runner_fixture = (
+        b"RESOURCE_TARGET_ROOTS = (\n"
+        b"    'sample/catalog/_resources/',\n"
+        b"    'sample/other/_resources/',\n"
+        b")\n"
+    )
+    sample_assets = [
+        {
+            "source": f"data/catalog/resource-{index}.yaml",
+            "archive": f"policy-engine/data/catalog/resource-{index}.yaml",
+            "wheel": f"{sample_root}resource-{index}.yaml",
+            "bytes": index + 10,
+            "sha256": f"{index + 1:064x}",
+        }
+        for index in range(3)
+    ] + [
+        {
+            "source": "architecture/other.toml",
+            "archive": "policy-engine/architecture/other.toml",
+            "wheel": "sample/other/_resources/other.toml",
+            "bytes": 41,
+            "sha256": "f" * 64,
+        }
+    ]
+    sample_prefix, sample_expected = catalog_expectation_from_assets(sample_assets, runner_fixture)
+    validate_catalog_expectation(sample_expected, sample_assets, runner_fixture)
+    cases["catalog-input-uses-selected-runner-target-and-complete-source-asset-rows"] = (
+        sample_prefix == sample_root
+        and sorted(sample_expected["resources"]) == [f"resource-{index}.yaml" for index in range(3)]
+    )
+    for field, corrupt_value in (("bytes", 999), ("sha256", "0" * 64)):
+        corrupted = copy.deepcopy(sample_expected)
+        corrupted["resources"]["resource-1.yaml"][field] = corrupt_value
+        try:
+            validate_catalog_expectation(corrupted, sample_assets, runner_fixture)
+        except AuditFailure as error:
+            cases[f"catalog-corrupt-{field}-rejected"] = (
+                "differs from selected runner source asset rows" in str(error)
+            )
+        else:
+            cases[f"catalog-corrupt-{field}-rejected"] = False
+    try:
+        validate_catalog_expectation(sample_expected, sample_assets[:-2], runner_fixture)
+    except AuditFailure as error:
+        cases["catalog-source-asset-removal-rejected"] = (
+            "differs from selected runner source asset rows" in str(error)
+        )
+    else:
+        cases["catalog-source-asset-removal-rejected"] = False
+    stale_historical = {
+        "selected_node_count": len(actual) + 1,
+        "selected_node_ids_sha256": "0" * 64,
+    }
+    cases["prepare-observes-stale-historical-binding"] = not require_historical_subset_match(
+        stale_historical, actual, require_match=False
+    )
+    try:
+        require_historical_subset_match(stale_historical, actual, require_match=True)
+    except AuditFailure as error:
+        cases["check-refuses-stale-historical-binding"] = "does not recompute" in str(error)
+    else:
+        cases["check-refuses-stale-historical-binding"] = False
+    proposed_historical = proposed_historical_subset(stale_historical, actual)
+    cases["prepare-proposal-rebinds-only-from-complete-collected-set"] = (
+        proposed_historical["selected_node_count"] == len(actual)
+        and proposed_historical["selected_node_ids_sha256"] == canonical_ids_sha256(actual)
+        and proposed_historical["selected_node_ids_sha256"]
+        != stale_historical["selected_node_ids_sha256"]
+    )
     junit_case = b"<testsuite><testcase classname='sample.test_module' name='case'/></testsuite>"
     cases["junit-ordinary-testcase-parsed"] = junit_testcase_attributes(junit_case) == [
         {"classname": "sample.test_module", "name": "case"}
@@ -5469,6 +5677,26 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
     manifest = parse_json(original_manifest_bytes, MANIFEST_REL)
     if (repo / MANIFEST_REL).read_bytes() != original_manifest_bytes:
         raise AuditFailure("working manifest bytes differ from frozen Git object")
+    assets, asset_receipt = asset_rows_from_config(repo, args.source_sha, manifest)
+    runner_bytes = local_capsule_bytes[RUNNER_REL]
+    catalog_resource_root, catalog_expected = catalog_expectation_from_assets(assets, runner_bytes)
+    catalog_resources = catalog_expected["resources"]
+    catalog_expected_path = output / "catalog-expected.json"
+    if catalog_expected_path.exists() or catalog_expected_path.is_symlink():
+        raise AuditFailure("catalog collection input path is occupied")
+    catalog_expected_bytes = (
+        json.dumps(
+            catalog_expected,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        + "\n"
+    ).encode("utf-8")
+    validate_catalog_expectation(catalog_expected, assets, runner_bytes)
+    catalog_expected_path.write_bytes(catalog_expected_bytes)
+    catalog_created = verify_catalog_collection_input(catalog_expected_path, catalog_expected_bytes)
+    catalog_expected_sha256 = catalog_created["sha256"]
     baseline_junit_relative = safe_relative(
         manifest["original_q2_suite"]["baseline_junit_path"]
     ).as_posix()
@@ -5508,6 +5736,8 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         selectors=baseline_paths,
         allowed_paths=set(baseline_paths),
         output_root=output,
+        catalog_expected_path=catalog_expected_path,
+        catalog_expected_bytes=catalog_expected_bytes,
         label="collect-primary-baseline",
         timeout_seconds=args.collection_timeout_seconds,
     )
@@ -5538,6 +5768,8 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
             selectors=specs,
             allowed_paths={path},
             output_root=output,
+            catalog_expected_path=catalog_expected_path,
+            catalog_expected_bytes=catalog_expected_bytes,
             label=f"collect-primary-consumers-{index:02d}",
             timeout_seconds=args.collection_timeout_seconds,
         )
@@ -5576,13 +5808,9 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
     }:
         raise AuditFailure("historical Q2 subset resolution is inconsistent")
     historical_decl = manifest["current_primary_suite"]["historical_baseline_subset"]
-    if not exact_nonbool_count_matches(
-        historical_decl.get("selected_node_count"), len(historical)
-    ) or historical_decl.get("selected_node_ids_sha256") != canonical_ids_sha256(historical):
-        raise AuditFailure(
-            "historical 91-plus-nine subset does not recompute from its original "
-            "baseline and named groups"
-        )
+    historical_decl_matches = require_historical_subset_match(
+        historical_decl, historical, require_match=args.command == "check"
+    )
     if not historical <= primary_ids:
         raise AuditFailure(
             "source-derived primary suite does not retain the historical baseline subset"
@@ -5608,10 +5836,14 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         selectors=supplement_specs,
         allowed_paths={supplemental_path},
         output_root=output,
+        catalog_expected_path=catalog_expected_path,
+        catalog_expected_bytes=catalog_expected_bytes,
         label="collect-supplemental-consumers",
         timeout_seconds=args.collection_timeout_seconds,
     )
     collection_records.append(supplemental_collection)
+    if sha256(read_regular_local(catalog_expected_path)) != catalog_expected_sha256:
+        raise AuditFailure("source-derived catalog collection input changed during collection")
     supplemental_group = {"test_path": supplemental_path, "selectors": supplemental_selectors}
     supplemental_ids = selected_group_ids(supplemental_group, supplemental_collected)
     if supplemental_ids != supplemental_collected:
@@ -5639,7 +5871,6 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         fixture_file_records[relative] = {"bytes": len(data), "sha256": sha256(data)}
     fixture_hashes = {relative: row["sha256"] for relative, row in fixture_file_records.items()}
 
-    assets, asset_receipt = asset_rows_from_config(repo, args.source_sha, manifest)
     lock_and_build_paths = (
         HATCH_REL,
         APP_PROJECT_REL,
@@ -5669,10 +5900,31 @@ def run_audit(args: argparse.Namespace) -> dict[str, Any]:
         },
         "transitive_fixture_paths": fixture_file_records,
         "force_include_archive_wheel_resources": assets,
+        "catalog_collection_input": {
+            "path": str(catalog_expected_path),
+            "bytes": len(catalog_expected_bytes),
+            "sha256": catalog_expected_sha256,
+            "resources": catalog_resources,
+            "resource_target_root": catalog_resource_root,
+            "derived_from": {
+                "runner_path": RUNNER_REL,
+                "runner_sha256": sha256(runner_bytes),
+                "runner_constant": "RESOURCE_TARGET_ROOTS[0]",
+                "asset_rows": "force-include rows from the selected source commit",
+            },
+        },
+        "historical_subset_recomputed": {
+            "matches_frozen_manifest": historical_decl_matches,
+            "selected_node_count": len(historical),
+            "selected_node_ids_sha256": canonical_ids_sha256(historical),
+        },
         "lock_build_archive_inputs": locked_inputs,
     }
 
     proposed = copy.deepcopy(manifest)
+    proposed["current_primary_suite"]["historical_baseline_subset"] = proposed_historical_subset(
+        proposed["current_primary_suite"]["historical_baseline_subset"], historical
+    )
     # candidate_baseline.source_sha/tree identify the historical asset candidate.
     # Keep them unchanged: putting this commit's SHA in its own tracked manifest
     # would make the commit identity self-referential. The actual freeze belongs

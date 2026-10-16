@@ -1,0 +1,97 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Owner-derived resource-byte contract across source archives and installed packages",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": {
+      "commit": "462b9caeabe96eec6159ca35ab361b7b6dd0b27f",
+      "tree": "d41d19548a84129c583270206d00b9611538f82f",
+      "parents": [
+        "12bcba324996575acc16a8b627628ad6feb413e9"
+      ]
+    },
+    "candidate": {
+      "commit": "4380f4e0ca42a3508800e2d0df6e4c8fbd470433",
+      "tree": "81d2e0740f12789680b758e5d8e7eb604ad695ce",
+      "parents": [
+        "462b9caeabe96eec6159ca35ab361b7b6dd0b27f"
+      ]
+    },
+    "readback_verified": true,
+    "source_freeze": false,
+    "p41": "not_established"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/_dowhy_worker.py",
+      "sha256": "b3fab16731fbf1243905a48b157d5600ef1cb97ffa356e45679ac41fbfde4238"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_dowhy_worker.py",
+      "sha256": "850fcaff875495a075c090bd61884b2bd2aae3cf24520cf781c61ed06d3a3b70"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_catalog_default_resources_packaging.py",
+      "sha256": "da71fc2c3ba7aa7e48b1027e7d588926c95d48a0e866420524e8b47ada98f12e"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/packaged_resource_contract.py",
+      "sha256": "fae709267438174486eede8288ba9f6b1aa5c8e24d71081b456294a939b1ac3f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+      "sha256": "aa95b261be3dfa920da4c7646995c9b6c36c475c09199528157c2394433347f6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
+      "sha256": "27155211c31269ad08987e77641517342936890e3c84819032f613a06ff3b737"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/timeout_driver.py",
+      "sha256": "712de235e7cdf13908d491aac316ca314c4cdb04b8f9cdfe5592643eef77bbc7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+      "sha256": "332325706b178eebbfdb14f21da6b7ceb0a229c75c54fab7fd362e14a06a3155"
+    }
+  ],
+  "selected_input_profile_backend": "Own source-bound Python3.14/.venv and controlled filesystem CAS/DuckDB fixtures; Q2 installed and Linux execution explicitly UNRUN.",
+  "real_chain_and_deciding_output_summary": [
+    "Four Catalog Literal resources + selected dependency registry + actual worker six-name frozenset produce the full11-resource set; same inventory drives source/manifest/sdist/wheel/installed importlib checks.",
+    "Independent7resource+2worker testsPASS; package4testsCOLLECTED only; canonical Ruff/format/diffPASS; all four canonical source-binding selectors replayed unchanged on committed4380f4e and PASS. Full packaging/installed wave remains UNRUN."
+  ],
+  "source_bound_command_and_complete_output_manifests": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/owner-derived-resource-contract-20261016/q2-source-and-test-review-freeze.json",
+      "sha256": "aa21018cdeaa5172d432fc696bdea4f3aaa251c7e0c1a136d5b56ddea0d83c79"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-precommit-independent-review-20261016/independent-review.json",
+      "sha256": "2efe604b7eb681fee995003c953f4f950175c626b05ef4dc06c7c7d402bf3609"
+    }
+  ],
+  "postcommit_source_binding": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/postcommit-source-bind-4380f4e-20261016/q2-postcommit-source-binding-receipt.json",
+    "sha256": "80786ee2bb75dbb0b6f3d92dcb7db378976af686e0906ee1f44a6080dccfef6b"
+  },
+  "commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/q2-owner-derived-packaged-resource-contract-source-20261016-readback.json",
+    "sha256": "b8563ff13ba095b9348d296b6a8d0619397c5083f1ee833c97b64612ef3fdd70"
+  },
+  "adversarial_removal_controls": "Exact full outputs and commands retained in the pinned author/independent manifests; property removal is distinct from marker presence.",
+  "limitations": [
+    "Full waveHOLD: actual primary manifest fails on exactly two stale DoWhy byte bindings; canonical regeneration after final source/input freeze required, no manual hash edits.",
+    "No wheel/sdist/installed/native13/Linux71/LA029 run in this checkpoint; prepared harness is not capability proof.",
+    "Earlier git add returned nonzero ignored-parent advisory after staging all8 exact intended paths; index bytes were individually verified and normal commit resumed without force/reset/history replacement."
+  ],
+  "proposals": [
+    {
+      "finding_or_route": "Q2 execution and packaging route",
+      "outcome": "bounded_component_delivered_whole_property_limited_or_held",
+      "formal": false
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "Rebind affected source deltas at the final full source/input/backend freeze, execute required composed/native/installed checks, retain remaining owner facts/G choices individually."
+}

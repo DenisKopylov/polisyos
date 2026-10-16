@@ -2,10 +2,10 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "e4488f8f43e69372b8ff1b0200dba56cfc176768",
-    "tree": "4e84534e0d8d0b0c5fb0a1fe29f89b1e0604e27e",
+    "head": "4380f4e0ca42a3508800e2d0df6e4c8fbd470433",
+    "tree": "81d2e0740f12789680b758e5d8e7eb604ad695ce",
     "parents": [
-      "929117bbf3ad7717ea44d0327bc1e4c361498dc0"
+      "462b9caeabe96eec6159ca35ab361b7b6dd0b27f"
     ],
     "source_freeze": false,
     "dirty_active_source": "Disjoint author work remains outside committed component boundaries. Exact final source/input/backend composition is not yet frozen."
@@ -82,7 +82,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "4608959cdb0f893f69a1f0b8570594b29d2fdc7b66ed8742ad7836647f8a3ab0"
+      "sha256": "1b360c06b8e18b48ea1038d43fd389c908cdb57c6639a41c453ba88109e59dd4"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
@@ -199,6 +199,42 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/registered-tool-output-contract-and-release-plane-20261015.json",
       "sha256": "705887736b018d5c6c4370932dc44f8a50d861f91e87da6d9689978f2890a332"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b16-owner-projection-before-limit-delivery-20261016.json",
+      "sha256": "0e76fecc9dce03b0e51013302d06bebe255ef6a23117eb4460d8a1fdcfe89951"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b148-selected-view-race-delivery-20261016.json",
+      "sha256": "b8ed26280877fb33212e7e42d8e4d25f4ab15a1ddfd5f5d4f111b670676d6916"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c07-qualified-report-refusal-controls-delivery-20261016.json",
+      "sha256": "9f56901592a2020cdb6f29f2d54f3dec884221c8eaa83cb678f37e8079a3f7b6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-owner-derived-resource-contract-delivery-20261016.json",
+      "sha256": "95c8ef2de1e60960393406f5defa063c912275129392ec52059b3ddc3ed1fb35"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b16-owner-projection-before-limit-author-20261015.json",
+      "sha256": "7308452fb9428c9e821c75e084416a995000852e0c12af37839aa1b192aaf29b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b148-same-content-selected-view-race-20261016.json",
+      "sha256": "948bf3096b64d4b17cad983267ebf694236acfee258bf167dc3b543cc01b4219"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/ir-lazy-dispatch-source-ownership-and-public-mutation-20261016.json",
+      "sha256": "7bf6e441cee9eeafb97e68d5efd0ffa4cf48264b2c684b4334951f31ab4a7ef8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/domain-eval-safety-pack-owner-encoding-and-admission-bridge-20261016.json",
+      "sha256": "67ba2f5037349ee98eee67ece141c2012a323491fd3ccba7635cfa8b4ff7358e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/core-security-dynamic-import-finite-target-registration-20261016.json",
+      "sha256": "97ed27bc29b4f7d31e953f5db2f763ca080024c3471b85c9a6f6f9adb1a68764"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -219,9 +255,9 @@
   },
   "known_current_composition_limits": [
     "Chronology/test_value_gate and decision builder receipts refer to their exact historical source frames; later deltas are not silently covered.",
-    "Q2 has135primary+6supplemental/15sourcepins/11assets but remains prepared_not_launchable. Its last readiness audit found eight stale source and two stale resource pins at that historical audit frame; current full rebind, freeze, source manifest and prepare/check remain pending.",
+    "Q2 source4380f4e delivers the owner-derived11-resource contract; four committed source-binding testsPASS. Direct audited source inputs17/full tracked object map18 include the derived installed-origin gate. Two DoWhy resource byte bindings remain stale; final source/input/backend freeze, canonical manifest regeneration and actual135primary+6supplemental installed/native/Linux execution remain UNRUN.",
     "Public-surface runtime checks are bounded to67declaredentrypoints and5300declarednames; static inventory grammar remains unresolved, canonical inventory/docs/deep-import outputs currently drift. No gate waiver or complete symbol-inventory claim.",
-    "Canonical release gate latest local row rebinding:254TOMLs/221structuredrows,4errors,exit1. This is not native green and no waiver is issued.",
+    "Canonical release gate latest local row rebinding:254TOMLs/221structuredrows,2errors,exit1 (runtime HTTP facade and registered-tool output ABI choices). This is not native green and no waiver is issued.",
     "R3N8 normal scientific candidate route still refuses soundness/estimand relationship; RAW-only bypass is not productPASS.",
     "C05 selected PBE/reissue source exists but is not delivered: missing-intent defaults, malformed-present rotation refs, optional stress and rooted-store consumers require the current typed/semantic repair before independent review.",
     "LA03817-path immutable owner-binding source delivered64a81458 after independent125case/actualDuckDB review619f8a58. BasedPyright196errors/33warnings remainsred/notinherited, genericB61scanner unresolvedsourceadapters remainseparate; native/installed UNRUN.",

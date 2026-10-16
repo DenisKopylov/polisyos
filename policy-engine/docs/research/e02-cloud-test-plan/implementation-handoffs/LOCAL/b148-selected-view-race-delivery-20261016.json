@@ -1,0 +1,64 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Actual competing import lease across same-byte distinct selected manifest views",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": {
+      "commit": "56a87adcf8298cbe26b74b85ce7e9059f1b717b2",
+      "tree": "0124241511a441f3ba2759cf74a0cbb48d89a614",
+      "parents": [
+        "8a1cce6b33c8fcb631f8e30ff3e1afab5908b306"
+      ]
+    },
+    "candidate": {
+      "commit": "12bcba324996575acc16a8b627628ad6feb413e9",
+      "tree": "b3ed917c7e3cbc27a765275d5c1325fcc56d756d",
+      "parents": [
+        "56a87adcf8298cbe26b74b85ce7e9059f1b717b2"
+      ]
+    },
+    "readback_verified": true,
+    "source_freeze": false,
+    "p41": "not_established"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_import_admission_noop.py",
+      "sha256": "058cf299b45bf0a31aca2fce6c7126fd772e827d5b26c691d505140222f0186b"
+    }
+  ],
+  "selected_input_profile_backend": "Own source-bound Python3.14/.venv and controlled filesystem CAS/DuckDB fixtures; Q2 installed and Linux execution explicitly UNRUN.",
+  "real_chain_and_deciding_output_summary": [
+    "Real CAS export/import directory and tar -> A paused during staging/publication -> B attempts actual admission -> typed refusal with A view unchanged and verified.",
+    "Author owning module44PASS; independent four race variantsPASS. Removing actual admission while retaining markers makes all four fail with competing admitted/staged/completed true."
+  ],
+  "source_bound_command_and_complete_output_manifests": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b148-same-content-selected-view-race-20261016.json",
+      "sha256": "948bf3096b64d4b17cad983267ebf694236acfee258bf167dc3b543cc01b4219"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-independent-review-20261016/b148-independent-review.json",
+      "sha256": "9cbb1776acaaf7a0c9485ab57d27bf4789d7f53f08e76fda96800afa8eb78d6b"
+    }
+  ],
+  "commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/b148-selected-view-import-race-test-20261016-readback.json",
+    "sha256": "1634fc2c784ed9ccc881122c727c1b675025642165636eb57c563d342599257f"
+  },
+  "adversarial_removal_controls": "Exact full outputs and commands retained in the pinned author/independent manifests; property removal is distinct from marker presence.",
+  "limitations": [
+    "Runtime implementation unchanged in this test slice; selected source product pins are exact historical frame, not automatic coverage of later CoreStore deltas.",
+    "Whole original criterion and formal adjudication stay with G; no task PASS is a finding closure."
+  ],
+  "proposals": [
+    {
+      "finding_or_route": "B148#1",
+      "outcome": "bounded_component_delivered_whole_property_limited_or_held",
+      "formal": false
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "Rebind affected source deltas at the final full source/input/backend freeze, execute required composed/native/installed checks, retain remaining owner facts/G choices individually."
+}

@@ -1,0 +1,68 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Predictive HTTP consumer checks actual selected report kind/media/schema/basis/size",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": {
+      "commit": "12bcba324996575acc16a8b627628ad6feb413e9",
+      "tree": "b3ed917c7e3cbc27a765275d5c1325fcc56d756d",
+      "parents": [
+        "56a87adcf8298cbe26b74b85ce7e9059f1b717b2"
+      ]
+    },
+    "candidate": {
+      "commit": "462b9caeabe96eec6159ca35ab361b7b6dd0b27f",
+      "tree": "d41d19548a84129c583270206d00b9611538f82f",
+      "parents": [
+        "12bcba324996575acc16a8b627628ad6feb413e9"
+      ]
+    },
+    "readback_verified": true,
+    "source_freeze": false,
+    "p41": "not_established"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+      "sha256": "a6731d2c17a5dc133b1b2d5424b4b0c8853396386be936880d419174e0c1b566"
+    }
+  ],
+  "selected_input_profile_backend": "Own source-bound Python3.14/.venv and controlled filesystem CAS/DuckDB fixtures; Q2 installed and Linux execution explicitly UNRUN.",
+  "real_chain_and_deciding_output_summary": [
+    "Real ForecastOwner BacktestReport -> permitted metadata expansion -> typed validation -> canonical selected CAS profile -> actual HTTP inspector refusal.",
+    "Author16modulePASS and independent1selectorPASS; wrong-kind/media/schema use actual CAS views, separate missing-profile control, valid report exceeds2MB."
+  ],
+  "source_bound_command_and_complete_output_manifests": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c07-valid-oversize-r3-20261016/c07-valid-oversized-backtest-report-r3-freeze.json",
+      "sha256": "8900e001c2e1f6b994eb94033eabc41af838da9a114944b12e2621f452348a2c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c07-valid-oversize-r3-20261016/independent-review-addendum.json",
+      "sha256": "c526e40d3ef54ffce54290a800f88328167dfde01f33e694c84da378626ad62a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-independent-review-20261016/c07-independent-review.json",
+      "sha256": "09b1ba64da8ea43708fbd6939ff837a2ef37455ba134f3d88e422569468bbe34"
+    }
+  ],
+  "commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/c07-qualified-report-negative-basis-test-20261016-readback.json",
+    "sha256": "e6472141528f73d607e18ddb93060daec00e4bee528eb3deb977713619c0a9f2"
+  },
+  "adversarial_removal_controls": "Exact full outputs and commands retained in the pinned author/independent manifests; property removal is distinct from marker presence.",
+  "limitations": [
+    "Initial tagged-float fixture attempt failure retained; actual Core typed decoder is used in final fixture.",
+    "No scientific calibration, empirical qualifying population or whole predictive capability closure is claimed."
+  ],
+  "proposals": [
+    {
+      "finding_or_route": "C07/C09 original criterion subproperties",
+      "outcome": "bounded_component_delivered_whole_property_limited_or_held",
+      "formal": false
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "Rebind affected source deltas at the final full source/input/backend freeze, execute required composed/native/installed checks, retain remaining owner facts/G choices individually."
+}

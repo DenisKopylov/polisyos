@@ -1373,5 +1373,125 @@
     "p40": "One structural intake/emission mechanism for full demonstrated class; no per-case repair ladder.",
     "p41": "not_established unless exact slice-base and full denominator/disjointness proof.",
     "formal_closure_ids": []
+  },
+  "coordination_epoch_20261016_can_full_relation_batch": {
+    "owner": "can_whole_profile_current_oracle",
+    "root_known_base": "8a1cce6b33c8fcb631f8e30ff3e1afab5908b306",
+    "additional_source_paths": [
+      "src/polisyos/data_forge/domains/legal/batch/pipeline.py",
+      "src/polisyos/data_forge/domains/legal/batch/publish.py",
+      "src/polisyos/data_forge/domains/legal/batch/cli.py",
+      "src/polisyos/data_forge/domains/legal/batch/smoke.py",
+      "src/polisyos/data_forge/domains/legal/shadow.py",
+      "src/polisyos/lex/normpack/applicability_report.py",
+      "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "src/polisyos/runtime/quality/assurance_case.py",
+      "src/polisyos/runtime/quality/claim_registry.py",
+      "src/polisyos/runtime/quality/producer_pipeline.py",
+      "src/polisyos/runtime/quality/scorecard.py",
+      "src/polisyos/runtime/quality/semantic_binding.py",
+      "src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+      "src/polisyos/lex/legal_evaluation/transport_constraints.py",
+      "src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+      "src/polisyos/scientist/cross_graph/compiler.py"
+    ],
+    "mandatory_test_companions": [
+      "tests/unit/data_forge/legal_batch/test_publish_bundle.py",
+      "tests/unit/data_forge/legal_batch/test_cli_smoke.py",
+      "tests/unit/data_forge/legal_batch/test_smoke.py",
+      "tests/unit/data_forge/test_phase0b_legal_shadow.py",
+      "tests/unit/lex/test_normative_applicability_report.py",
+      "tests/unit/lex/test_api_transport_constraints.py",
+      "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "tests/unit/runtime/quality/test_assurance_case.py",
+      "tests/unit/runtime/quality/test_claim_registry.py",
+      "tests/unit/runtime/quality/test_producer_pipeline.py",
+      "tests/unit/runtime/quality/test_scorecard.py",
+      "tests/unit/runtime/quality/test_semantic_binding.py",
+      "tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py",
+      "tests/unit/scientist/nodes/builtins/causal/test_resolve_transport.py",
+      "tests/unit/scientist/cross_graph/test_compiler.py",
+      "tests/integration/data_forge_runtime/test_legal_source_relation_authority_surfaces.py"
+    ],
+    "prior_28_freeze": "raw/resume-legal-source-relation-20261015/retained-product-local-prefix/current-legal-source-test-manifest-final.json@sha256:4e7e08f2b3d9711ee7397dbad66e824b1b27bdc59dad879e916ef9b1a450582e",
+    "P40": "same source-relation authority class deeper: central qualified intake and all actual authority emissions; preserve useful candidate/provision operations and honest typed verification_missing, no fabricated legal authority or all([])green.",
+    "serialized": "nl_pipeline previously V3 now CAN solewriter; Core facade/control overlap root patches only after coordination, generated/SDK/schema/publiccontract/lock reserved root. Existing C12 benchmark read-only unless demonstrated escape after central fix.",
+    "reviewer": "dynamic_import_binding_author independent full composed delta before expensive Legal/C12 wave",
+    "formal_closure_ids": []
+  },
+  "coordination_epoch_20261016_r3_cache_receipt_bridge": {
+    "owner": "r3_r4_monetary_workload_oracle",
+    "base": "8a1cce6b33c8fcb631f8e30ff3e1afab5908b306",
+    "additional_source": [
+      "src/polisyos/fabric/connectors/cache/proxy.py",
+      "src/polisyos/fabric/connectors/_registry_lifecycle.py"
+    ],
+    "conditional_export_companion": "src/polisyos/fabric/connectors/cache/__init__.py only if actual typed API export is needed",
+    "additional_test": [
+      "tests/unit/fabric/connectors/test_registry.py"
+    ],
+    "existing_lease": "cache store/model/index, ingestion/evidence and mirrored tests remain same solewriter; derived-payload writer stays canonical cache owner",
+    "property": "Actual proxy hit must carry exact producer-selected profile through typed receipt; unchanged transformed bytes reuse exact ref, changed bytes persist derived selected artifact with exact raw selected input edge. Legacy active profileless entries refetch or typed refusal; never default-profile relabel. Preserve raw index and SLO measurement including async route.",
+    "review": "de5f59999acfff0d6f4ea10a75841b5c3b5fce0529952a1edeb6ea0be7353ca8 HOLD retained: equal deterministic second-put bytes mask absent hit metadata bridge",
+    "P40": "same selected-profile propagation class deeper, widen canonical handoff once, no test-only ladder",
+    "formal_closure_ids": []
+  },
+  "coordination_epoch_20261016_manifest_inventory_and_cache_facade": {
+    "as_of_commit": "4380f4e0ca42a3508800e2d0df6e4c8fbd470433",
+    "cas_writer": "native_c2_dead_override_author",
+    "cas_exact_paths": [
+      "src/polisyos/core/artifacts/store.py",
+      "src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "tests/unit/core/artifacts/test_manifest_inventory_snapshot.py",
+      "tests/unit/runtime/http/services/test_evaluation_safety.py",
+      "src/polisyos/core/artifacts/README.md",
+      "release-fragments/unreleased/2026-10-16-e02-c05-cas-manifest-only-inventory.toml"
+    ],
+    "property": "Optional distinct manifest-only all-profile snapshot; complete names, active-visible manifest/profile bytes and owner generation checked before/after; selected target bodies still validated, old full inventory untouched, no fake blob proof/SLA increase.",
+    "r3_mandatory_facade_companions": [
+      "src/polisyos/fabric/connectors/cache/store.py",
+      "src/polisyos/fabric/connectors/cache/__init__.py"
+    ],
+    "root_only": "Git staging/commits/push and index; Core protocol/facade/public generators remain reserved unless separately leased.",
+    "retention": "Announced frozen @sha artifacts are immutable; changed WIP prototypes or binding metadata use successor filenames.",
+    "formal_closure_ids": []
+  },
+  "coordination_epoch_20261016_4380_companion_completion": {
+    "as_of_candidate_commit": "4380f4e0ca42a3508800e2d0df6e4c8fbd470433",
+    "root_only": "Exact staging, ordinary commits/push, delivery index and public/generated artifact regeneration. Known disjoint root commits do not revoke active path leases.",
+    "can_whole_profile_current_oracle": {
+      "additional_paths": [
+        "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py",
+        "tests/unit/runtime/quality/test_proving_ground_proof_carrying_analytics_search.py",
+        "src/polisyos/lex/knowledge/benchmark.py",
+        "tests/unit/lex/test_benchmark.py"
+      ],
+      "property": "Single guarded IR producer persistence boundary and typed missing legal-source relation propagated by every actual transport caller; no self-attested law or empty-set ALLOWED."
+    },
+    "api_generated_actual_consumers_successor": {
+      "paths": [
+        "apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts",
+        "apps/runtime-dashboard/e2e/journeys/knowledge-flow.spec.ts",
+        "apps/runtime-dashboard/src/api/validators.test.ts",
+        "apps/runtime-dashboard/src/api/validators.ts",
+        "apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.test.tsx",
+        "apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.tsx",
+        "apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+        "apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+        "apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+        "tests/repo_quality/frontend/test_fixture_runtime_bound_paper.py"
+      ],
+      "property": "Strict typed refusal survives parsing and actual page/export; mandatory fixture serializer uses existing typed encoder. Generated DTO/client outputs remain root-reserved."
+    },
+    "core_store_review_hold": "Released after independent R3 review 9ea5f67c9da26890bac7d90a97ff85474c0388c986e96d5a655d110428725df3; C2 exact six-path writer may fix no-redef then freeze successor. All affected full-file receipts require final rebind.",
+    "compute": {
+      "heavy_mac_slots": 3,
+      "numerical_threads_per_process": 1,
+      "slot_1": "C2 actual controlled POST",
+      "slot_2": "UI fixture/browser sequence",
+      "slot_3": "root integration when explicitly scheduled"
+    },
+    "P40": "Second escape of a class requires widened invariant or tested bounded residual; no keyword/leaf patch ladder.",
+    "formal_G_closure_ids": []
   }
 }

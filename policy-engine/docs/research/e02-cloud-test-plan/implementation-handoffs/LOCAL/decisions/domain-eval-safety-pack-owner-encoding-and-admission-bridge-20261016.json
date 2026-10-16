@@ -1,0 +1,297 @@
+{
+  "authorship_boundary": {
+    "author": "local E02 candidate author; not independent G reviewer",
+    "candidate_code_edits_in_this_packet": [],
+    "closure_ids": [],
+    "formal_G_adjudication": "pending",
+    "formal_closure_ids": [],
+    "source_owner_ABI_or_issuer_not_asserted": true
+  },
+  "controlled_prototypes_and_verification": {
+    "actual_nl_post_worker_get": {
+      "command": "cd policy-engine && PYTHONPATH=tests .venv/bin/python docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-domain-pack-admission-r2-20261016/nl-post-worker-get-prototype.py",
+      "first_boundary_attempts": [
+        "Initial execution_profile=research was rejected before attempt creation by fixture identity profile guard (422 fixture_identity_profile_forbidden); the prototype then used the supported fixture default profile.",
+        "An initial worker attempt wrote CAS source outside tenant_scope and failed tenant ownership. The prototype was corrected to write under fixture tenant/cell.",
+        "With tenant ownership corrected, POST and immutable binding succeeded but worker dispatch ended in content_addressed_storage timed out. This is not attributed to OOM and is not classified as an external fact."
+      ],
+      "next_attempt": "Reproduce/diagnose the exact CAS timeout under the controlled runtime fixture before claiming the NL worker consumes the EvalSafety blocker; preserve a direct worker assertion and fresh GET on success.",
+      "result": "POST returned 200 accepted and persisted event binding exact attempt_content_hash matched a fresh hash of the exact request attempt. The worker was dispatched and GET returned the terminal job. The worker ended with generic content_addressed_storage timed out before an EvalSafety-specific decision was observed. GET exposed generic failed status/progress and no domain_pack admission scope. This is a route/hash/fresh-GET witness and a worker-path failure, not a successful EvalSafety consumer replay or semantic positive."
+    },
+    "existing_integration_module": {
+      "command": "cd policy-engine && PYTHONPATH=tests .venv/bin/python -m pytest -q tests/integration/runtime_quality/test_evaluation_safety_admission.py -ra --tb=short",
+      "exit": 0,
+      "output": ".... [100%] (4 tests)",
+      "scope": "Current tests exercise direct workflow service path and blocked/simulate-only behavior. They do not exercise actual POST /runs/nl immutable attempt binding; add an actual-route integration test after the G owner-ABI decision."
+    },
+    "same_bytes_different_profiles": {
+      "boundary": "Mechanical Core selection/serialization only; no real producer, issuer, appointment, currentness, permission, or protected-use positive.",
+      "cas_blob": "sha256:70adcc8c6a340f2919a812374fb23dc12a692580dec13ef787dcc7f12b9a4b35",
+      "profile_sha256": {
+        "same_bytes_decoy": "sha256:62cfca0b103d02c61a9e7e1bc98840741709e0973c4e5b9376a4651aabf04d84",
+        "selected": "sha256:33a075462634e72ace2a4bec39b385e0ed61ec2ebc4d25f676337a40af383d95"
+      },
+      "result": "A controlled DomainEvalSafetyPack JSON blob was written to a temporary local FileSystemCAS with two different manifest profiles over the exact same artifact bytes. The intended profile parsed as declared_bytes_conformant; a second live profile using schema research.unowned-alias@9.0 also parsed as DomainEvalSafetyPack. The exact missing profile was refused. Generic model parsing cannot distinguish the wrong live owner schema without an expected owner contract.",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-domain-pack-admission-r2-20261016/selected-read-prototype.py"
+    }
+  },
+  "created_at": "2026-10-16",
+  "current_whole_chain": [
+    {
+      "current_behavior": "The route accepts NaturalLanguageRunRequest.context.evaluation_safety_attempt. Publication reparses EvaluationAttemptIntake, recomputes mode and canonical-hashes the exact nested attempt into execution_intent_binding.attempt_content_hash, then persists that binding in the job-created event/outbox. This preserves the supplied typed ref; it does not admit its referenced pack.",
+      "evidence": "The controlled actual POST probe observed route_id POST /api/v1/control/runs/nl, intent_band eval_safety_required, admission_status established, and exact observed/recomputed attempt-hash equality. It used an unresolved controlled placeholder, not a positive pack.",
+      "source": "src/polisyos/runtime/http/routes/control.py:381-468; src/polisyos/runtime/http/services/control/job_attempt_publication.py:266-357",
+      "stage": "ordinary NL POST intake and immutable binding"
+    },
+    {
+      "current_behavior": "The NL worker dispatches the EVAL_SAFETY_REQUIRED band into _admit_evaluation_safety_attempt. That bridge reparses intake but constructs EvaluationSafetyAttemptAuthorities with mode_basis_ref/basis, pack_ref/pack, semantic_facet_denominator_receipt_ref, facet_registry and facet_denominator all None, without selecting the supplied domain_pack_ref. It passes the intake to persistence.",
+      "divergent_property_case": "A non-null selected pack ref is present in the immutable NL attempt hash, yet the scope gate receives pack_ref=None and pack=None; the supplied material is not selected by the consumer.",
+      "source": "src/polisyos/runtime/http/services/control/job_nl_admission.py:210-249; src/polisyos/runtime/http/services/control/job_scope_admission.py:556-591",
+      "stage": "worker-to-scope bridge"
+    },
+    {
+      "current_behavior": "A request is emitted only when accepted non-simulation mode, rule version, intake domain_pack_ref, and an independently supplied semantic_facet_denominator_receipt_ref are present. The current bridge supplies no denominator, mode basis, pack or facet material. Pack admission is reached only after request/ref plus mode-basis/pack dependencies exist. Existing admission distinguishes missing pack from binding mismatch once called, but no selected-ref load result represents present malformed/unresolved material.",
+      "source": "src/polisyos/runtime/http/services/control/evaluation_safety.py:377-428,1001-1067; src/polisyos/runtime/quality/evaluation_safety.py:322-376,438-475,1001-1032",
+      "stage": "quality request and decision"
+    },
+    {
+      "current_behavior": "The bridge again passes None for pack/basis/facet material into replay. Existing replay material is process-local and is not an owner-bound selected-profile loader; a fresh reader cannot infer owner ABI from a ref.",
+      "source": "src/polisyos/runtime/http/services/control/job_scope_admission.py:629-673; src/polisyos/runtime/http/services/control/run_lifecycle.py:482-519; src/polisyos/runtime/http/services/control/evaluation_safety.py:1450-1510,1899-1990",
+      "stage": "replay and fresh consumer"
+    },
+    {
+      "current_behavior": "GET /api/v1/control/jobs/{job_id} exposes durable job status/progress; it has no domain-pack admission view. Generic artifact routes can select a profile but are not wired as an EvalSafety pack consumer.",
+      "source": "src/polisyos/runtime/http/routes/control.py:561-576",
+      "stage": "GET/API surface"
+    }
+  ],
+  "decision_impacts": {
+    "if_option_A": "Adds a versioned source-owned ABI, owner-defined writer/member/profile path, and typed distinction for present-invalid refs; requires migration policy for old refs. External authority remains blocked until separately supplied.",
+    "if_option_B": "No protected admission claim. Generic reader supports candidate inspection with explicit not_established limitation; the consumer must never label it admitted.",
+    "if_option_C": "No identity-semantic migration or writer, but bridge_missing and no distinct present-refusal semantics remain.",
+    "time_and_status": "No clock shift, broad waiver, issuer substitution, or automatic expiry. Owner schema version/validity semantics require owner-supplied policy; currentness remains not_established absent current evidence."
+  },
+  "decision_requested_from_G": {
+    "option_A_recommended": {
+      "minimum_contract_fields": [
+        "trusted producer/owner identity",
+        "exact kind and media_type",
+        "finite SchemaInfo name/version variants",
+        "payload schema_version mapping per manifest schema",
+        "source-defined writer/encoder and selected-profile-bound reference shape",
+        "compatibility and migration behavior for existing profileless refs and prior schema versions",
+        "typed present-refusal status for malformed, stale, unselected, wrong-kind/media/schema/payload-version refs"
+      ],
+      "name": "owner_registered_versioned_producer_contract",
+      "owner_assignment_required": "G must name the actual defining producer and accept its ABI/versioning/migration responsibility. The caller-supplied pack_component_id is not nominated as owner.",
+      "semantics": [
+        "A named producer contract fixes exact Core manifest kind and media type, a finite accepted schema-name/version set, and the mapping from each accepted manifest schema to DomainEvalSafetyPack.schema_version.",
+        "That producer writes a real content-addressed DomainEvalSafetyPack member through the existing CAS write contract and returns a typed PDC ArtifactRef binding the content identity and exact selected manifest-profile SHA-256.",
+        "The trusted owner contract, not the selected artifact, constructs CoreArtifactOwnerProfile. The worker selects and validates that exact profile, validates the payload, and checks the PDC pack semantic hash against payload content_hash.",
+        "Outcomes distinguish true absence, selected owner-conformant material, present but unresolvable/malformed input, and wrong kind/media/schema/payload version. A supplied malformed ref never becomes absence or domain_pack_missing.",
+        "The same selected profile identity is retained through immutable request, persisted decision/replay and a fresh consumer; it is not only an in-memory loaded object.",
+        "Profile conformance establishes material identity only. Mode basis, semantic denominator, verifier appointment, issuer/currentness, evidence, permission and commit-time checks remain independent."
+      ]
+    },
+    "option_B": {
+      "impact": "No new owner identity contract or writer. The domain-pack bridge remains incomplete; any candidate consumer that inspects a supplied ref still needs a typed invalid-present outcome.",
+      "name": "candidate_only_explicit_limitation",
+      "semantics": "Generic Core reads may inspect candidate material only. With no defining owner ABI, status remains not_established; no protected admission, certificate, or external authority follows. Preserve the blocked field_pilot result and expose the limitation."
+    },
+    "option_C": {
+      "impact": "No new identity/migration semantics, but current bridge_missing state and no distinct present-refusal semantics remain. This is not implemented capability.",
+      "name": "leave_bridge_missing_until_owner_is_named",
+      "semantics": "Do not decode a supplied ref as DomainEvalSafetyPack; preserve current fail-closed blocking until an actual producer owner is appointed."
+    },
+    "question": "May DomainEvalSafetyPack become an owner-bound Core artifact, and which named producer owns its finite wire ABI? Do not infer the owner from the caller reference, selected manifest, pack_component_id, fixture, or adjacent B164 authority requirement.",
+    "recommendation": "Choose owner_registered_versioned_producer_contract only after naming its defining source owner. Reuse CoreArtifactOwnerProfile and existing Core CAS/profile APIs. If no source owner can be assigned, choose explicit candidate_only_limitation and keep protected field_pilot blocked; do not create a PolicyOS-owned producer by default.",
+    "rejected_shortcuts": [
+      "derive expected kind/schema from caller ref or selected manifest",
+      "treat pack_component_id as producer proof",
+      "invent a PolicyOS producer, default issuer, appointment, or denominator",
+      "convert malformed present ref to None or the same absence state",
+      "use a mechanically valid fixture or same-byte alias as owner-positive evidence",
+      "promote Core read or controlled test to permission, custody, currentness, or protected-use evidence"
+    ]
+  },
+  "input_sha256": {
+    "docs/research/e02-cloud-test-plan/closure-decisions/coverage.json": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+    "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/INPUTS.json": "b000d61906fc0d732287f1a50cbb1ca902c23f4d08a292e4330734f5147431da",
+    "docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B164-minimum-owner-input.json": "8f650bdd0891f8f6f41ff602c2251a941a3ce8aa089989cea39438ae9ed77bf4",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b164-current-l6-bridge-c05-composition-20261015.md": "74e029ed109fd93c5a0141f07c7e6ec042a0cb4b65b9da1b7408fcdf1be2466f",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-domain-pack-admission-20261015/decision-report.json": "d47b428e24d3ca4ddd6f8b3e129230c7251c7963bb527692d6524008913e5a0e"
+  },
+  "migration_and_external_inputs": {
+    "B164_relation": {
+      "canonical_occurrence": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json#/findings/80/criterion_refs/0",
+      "criterion_span_sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137",
+      "finding": "B164",
+      "owner_input": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/recovery-20261008/B164-minimum-owner-input.json",
+      "separation": "Related only as a separate required protected-use boundary. This packet neither claims B164 positive nor proposes B164 closure by solving internal pack selection.",
+      "task": "T2"
+    },
+    "migration": "Do not silently upgrade existing profileless refs or choose the first manifest profile. Preserve historical profileless behavior as not_established unless a defining owner can bind a genuine exact profile. Re-encode/reissue only under owner-approved migration and rollback policy with old/new reader compatibility and content/provenance receipts.",
+    "separate_external_inputs_still_required": [
+      "independently supplied mode-basis artifact and selected profile",
+      "independently reconciled semantic-facet registry and denominator receipt; do not copy pack-embedded denominator into request authority field",
+      "real verifier appointment and appointment verification receipt",
+      "issuer/permission and currentness evidence when required by protected criterion",
+      "commit-time revalidation and qualifying external consumer/production input when required by original occurrence"
+    ]
+  },
+  "next_check_after_G_choice": [
+    "Freeze the named producer contract and finite CoreArtifactOwnerProfile; inspect the real writer/member encoder and source-origin proof.",
+    "Produce one source-owned versioned DomainEvalSafetyPack to local CAS and retrieve its exact selected profile; validate owner kind/media/schema/payload-version and PDC semantic hash.",
+    "Run actual POST /api/v1/control/runs/nl -> persisted immutable attempt hash -> worker resolution/admission -> fresh GET/replay; diagnose the controlled CAS timeout first.",
+    "Run owner-positive mechanical control plus same-byte wrong-live-profile, wrong kind/media/schema, stale profile, malformed supplied ref, ref/hash mismatch, and true absent ref; each removal must change the gate result while preserving markers.",
+    "Separately supply mode basis, semantic denominator, appointments, issuer/currentness/permission, and commit-time evidence from actual owners; mechanical pack positive cannot substitute.",
+    "Freeze exact candidate source receipt and independent review before any closure proposal; preserve formal G adjudication and each original occurrence separately."
+  ],
+  "packet_status": "author_proposal_for_G_choice_not_ratification",
+  "pattern_pass_and_classification": {
+    "P40": {
+      "bucket": "NEW internal producer/member/profile-to-worker bridge class relative to B164",
+      "falsifier": "Keep caller ref and CAS bytes identical while adding a second valid manifest profile with an unowned schema. If the gate accepts either profile as pack, it is using model shape or caller declaration instead of owner ABI.",
+      "reason": "The defect is internal loss of typed pack selection and missing owner ABI. B164 is a separate external permission/issuer/commit-time boundary and remains held even if this bridge is repaired.",
+      "stopping_rule": "One generic owner-contract/selected-profile mechanism should cover new pack profiles. Do not repair individual schema names or producer sites; no per-instance exemption ladder."
+    },
+    "P41": "No inherited-gate claim. Actual NL worker replay is not established because the controlled local attempt failed at CAS.",
+    "capability_state_labels": [
+      "producer_missing",
+      "bridge_missing",
+      "verification_missing",
+      "surface_missing"
+    ],
+    "existing_antipatterns": [
+      "P01/P02: intake field exists but no selected material producer/member/owner loader is wired through orchestration to the safety consumer.",
+      "P32/P37/P38: caller ref/model shape is not owner profile; the property diverges when identical bytes have a second live unowned schema profile that still parses.",
+      "P05/P04: authority inputs are absent and blocked; profile conformance must not become permission, appointment, or currentness.",
+      "P29: generic reader and constructor success are not admission proof; require actual producer, exact selected profile, worker decision, and fresh consumer.",
+      "P12: worker ignores an extant typed pack reference instead of selecting an owner-bound member."
+    ],
+    "relevant_patterns": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P12",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P40"
+    ]
+  },
+  "producer_and_owner_census": {
+    "artifact_reference_boundary": {
+      "core_selector_type": "polisyos.core.artifacts.ArtifactRef",
+      "current_bridge_conversion_or_selection": "none",
+      "intake_type": "polisyos.pdc.ArtifactRef",
+      "selected_profile_supported": true,
+      "warning": "Do not conflate PDC content_hash (the pack semantic hash checked against payload.content_hash) with CAS blob identity or Core manifest-profile SHA-256."
+    },
+    "method_and_current_denominator": {
+      "DomainEvalSafetyPack_build_calls_in_production_source": 0,
+      "census_frame": "Complete current worktree tree at 8a1cce6b33c8fcb631f8e30ff3e1afab5908b306; symbol/field scan over every file in the stated roots.",
+      "conclusion": "No production DomainEvalSafetyPack builder/persister/member encoder or selected-owner loader exists in the current 2,771-file source denominator. DomainEvalSafetyPack.build recomputes payload content hash only; it does not write or select a Core member. EVALUATION_SAFETY_ARTIFACT_IDENTITIES contains pack-admission receipt, not an input DomainEvalSafetyPack producer identity.",
+      "current_production_symbol_files": [
+        "src/polisyos/runtime/quality/evaluation_safety.py",
+        "src/polisyos/runtime/http/services/control/evaluation_safety.py"
+      ],
+      "source_file_count": 2771,
+      "source_file_type": "*.py",
+      "source_root": "src/polisyos",
+      "test_file_count": 3041,
+      "test_file_type": "*.py",
+      "test_fixture_build_calls": 7,
+      "tests_root": "tests"
+    },
+    "payload_contract_observed": {
+      "fields": [
+        "schema_version:str",
+        "rule_version",
+        "pack_component_id",
+        "source_pack_ref",
+        "mode_basis_ref",
+        "semantic_facet_registry_ref",
+        "semantic_facet_denominator_receipt_ref",
+        "verifier_appointment_refs",
+        "profiles",
+        "valid_from",
+        "valid_until",
+        "content_hash"
+      ],
+      "identity_warning": "schema_version is currently an unconstrained str; pack_component_id is carried in caller material. Neither field is an owner ABI by itself.",
+      "model": "DomainEvalSafetyPack",
+      "path": "src/polisyos/runtime/quality/evaluation_safety.py:322-376"
+    }
+  },
+  "raw_evidence_sha256": {
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-domain-pack-admission-r2-20261016/current-integration-replay.stdout.txt": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-domain-pack-admission-r2-20261016/nl-post-worker-get-prototype.py": "ca6e0ee8ee0c27df3c80c1af0a34458a025cabc4ebba44f3329b277ad287a561",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-domain-pack-admission-r2-20261016/nl-post-worker-get-prototype.stderr.txt": "adb4e8f78f63eff0a27deb79ceb886c30af5b9df3fac1857efdc61bb4ab9c5d2",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-domain-pack-admission-r2-20261016/nl-post-worker-get-prototype.stdout.txt": "4db1f43f5cb39fc6f82d1f9b491523de0a1c447e34197c11a5668aa1d46e2122",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-domain-pack-admission-r2-20261016/selected-read-prototype.py": "d259b8eefadfdefc6ee3eb553cab5ffc3110bf92394faabcb9d59e6e53c566cc",
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-domain-pack-admission-r2-20261016/selected-read-prototype.stdout.txt": "ae198be31aa4542088019765f2ce06a76951efde452dd49f84267c84169f130e"
+  },
+  "reuse_first_analysis": {
+    "existing_owner_reader": "Core validate_owned_core_model_json_artifact accepts CoreArtifactOwnerProfile; it checks fixed kind/media, finite schema variants and exact payload-schema-version mapping before selected-byte/model validation.",
+    "existing_reusable_reader": "Core read_core_manifest_profile/read_core_json_artifact can select exact manifest profiles and validate canonical bytes/model shape.",
+    "existing_write_path": "Generic Core CAS can write JSON with kind/media/schema and return a selected profile. It supplies generic storage mechanics, not a DomainEvalSafetyPack producer or owner contract.",
+    "minimal_reuse": "After G names the actual owner, use the existing owner-profile validator and CAS selected-profile mechanism. Add a small source-owned pack adapter only if that producer does not exist. Do not create a parallel store or generic owner registry without a real source of truth.",
+    "owner_profile_source_rule": "CoreArtifactOwnerProfile requires expected owner contract from the defining producer or typed workflow context, not from selected manifest, ref, HTTP input, or self-label. Current source cannot construct the required authoritative profile from the supplied DomainEvalSafetyPack reference."
+  },
+  "schema": "policyos.e02.domain_eval_safety_pack_owner_encoding_decision.v1",
+  "six_path_code_and_test_impact_proposal": [
+    {
+      "path": "src/polisyos/runtime/http/services/control/job_scope_admission.py",
+      "role": "Select supplied profile through trusted owner contract; preserve missing vs present typed refusal; pass selected material into admission/replay without deriving authority inputs."
+    },
+    {
+      "path": "tests/integration/runtime_quality/test_evaluation_safety_admission.py",
+      "role": "Actual POST /runs/nl -> immutable content hash -> worker decision -> fresh GET with owner-profile positive mechanics, wrong-live-profile, stale/missing profile, malformed-present, and true absence controls."
+    },
+    {
+      "path": "src/polisyos/runtime/quality/evaluation_safety.py",
+      "role": "Only if G chooses a new typed pack-resolution/refusal representation or distinct blocker; keep gate fail-closed and separate from authority inputs."
+    },
+    {
+      "path": "tests/unit/runtime/quality/test_evaluation_safety.py",
+      "role": "Exercise absent/present-unresolved/wrong-owner outcomes; ensure no effect or certificate on refusal."
+    },
+    {
+      "path": "src/polisyos/runtime/http/services/control/evaluation_safety.py",
+      "role": "Persist/recompose selected pack identity and typed refusal through decision/replay without dropping it from request/owner state."
+    },
+    {
+      "path": "tests/unit/runtime/http/services/test_evaluation_safety.py",
+      "role": "Assert persistence and fresh recomposition preserve selected profile identity and exact refusal; malformed-present is not converted to absent."
+    }
+  ],
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "8a1cce6b33c8fcb631f8e30ff3e1afab5908b306",
+    "parents": [
+      "e4488f8f43e69372b8ff1b0200dba56cfc176768"
+    ],
+    "scope": "Exact current candidate source at packet authoring; this packet adds no product source edits.",
+    "six_path_lease": "Proposal only; code writes remain withheld pending G owner-ABI decision and root lease.",
+    "tree": "9f142c88d5a9d4418951197e9e3864b82ed257e1"
+  },
+  "source_sha256": {
+    "src/polisyos/core/artifacts/canonical_profile.py": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34",
+    "src/polisyos/core/artifacts/manifest.py": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+    "src/polisyos/core/artifacts/owned_json.py": "9d06198e8db627491716d39b527fbce78fd99fbf68397fe486e37e972074244a",
+    "src/polisyos/runtime/http/routes/control.py": "6cf6a88a2b0407359004181b7e07e46e1aedaa8f34b09604bf5a004034e03695",
+    "src/polisyos/runtime/http/services/control/evaluation_safety.py": "05c42d72e630640489afe7df2794735729d1aac1bc431a104a5715fa887a23a5",
+    "src/polisyos/runtime/http/services/control/job_attempt_publication.py": "44010e0ac5b85f4aca2472d12c14a72abd7690ea3e3d8ebc554b329e3628f553",
+    "src/polisyos/runtime/http/services/control/job_nl_admission.py": "c0e178920d51ea0fa7357cd3099b968f2169e38e961c2c36299e968312e24bc0",
+    "src/polisyos/runtime/http/services/control/job_scope_admission.py": "89d9b550638b8d10e66c4955490b7b8cf1678c7b7bfb3c6c855e7510531eb230",
+    "src/polisyos/runtime/quality/evaluation_safety.py": "b6190be907885a34839494308d7a0d2b943ae09ad03e0bbb2b0971c6e2d31b5b",
+    "tests/integration/runtime_quality/test_evaluation_safety_admission.py": "d9466a5a31ffd8df1ee0f428593d0e5ea76d09063586ac05d223fd6d9d7dcd16",
+    "tests/unit/runtime/http/services/test_evaluation_safety.py": "483b293613b1652f21c1af1e438e18d4e55216e081f44991420d05db178014c9",
+    "tests/unit/runtime/http/test_control_api.py": "e26bad3b5e1b7bbb467c37dfd60520305b4676f32a176e06b3b6e0b86924a8f9",
+    "tests/unit/runtime/quality/test_evaluation_safety.py": "38508ecfe40aeb11ae5621dc77eb9be76a7746a1e2685e91138774a623b6aea5"
+  }
+}

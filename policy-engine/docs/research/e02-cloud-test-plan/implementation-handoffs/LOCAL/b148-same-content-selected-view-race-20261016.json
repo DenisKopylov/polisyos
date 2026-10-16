@@ -1,0 +1,281 @@
+{
+  "schema": "polisyos.e02.local-implementation-handoff.v1",
+  "artifact_role": "candidate-source-and-verification-handoff",
+  "slice": "B148 same-content competing selected-view import race",
+  "author_task": "/root/v3_acquisition_actual_post_author",
+  "status": "author-source-frozen-for-independent-review; root commit pending",
+  "formal_adjudication": "G-owned; not claimed by this author",
+  "closure_ids": [],
+  "proposal_fields": {
+    "B148#1:B_r19:CAS-02:9dc24cc351838bcc7e2f1210c44c7cd4a6b6377579f500b53a677e8276e6e47a": {
+      "bounded_outcome": "current local FileSystemCAS importer holds the artifact lease while an overlapping same-blob, different-selected-manifest import waits and is refused with ArtifactOwnershipError; the first persisted selected view remains readable and verifies",
+      "formal_status": "G adjudication pending",
+      "whole_original_property": "not established by this slice alone",
+      "next_check": "independent review of the exact candidate slice tree and outputs, then reconcile this occurrence with the full current B148 consumer/input frame and let G adjudicate",
+      "authority": "recomputed from local CAS producer refs, bytes, manifests, import outcomes, and readback; no external ownership or production-currentness claim"
+    }
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base_commit": "938c0c1a8465510b3872ef395f7324f16209c2c5",
+    "slice_base_tree": "23d7717671adb970a4c5cb77e48d6af4d0f3745c",
+    "slice_base_parents": [
+      "13f6cf4bb788069c7caf238c5f1278ece699c6d1"
+    ],
+    "isolated_candidate_slice_tree": "443262d7682fd03dfc1a92f2b2090c80490732f6",
+    "candidate_source_blob": "6a363af8975ed4db45338be65791651d7090203f",
+    "candidate_commit": null,
+    "candidate_commit_reason": "This handoff is prepared before the root-authorized source commit; no future commit SHA is asserted.",
+    "candidate_tree_method": "Built an alternate Git index from the exact slice base, added only the owned test path, and verified `git diff --name-only base candidate-tree` contains that path alone. The live Git index SHA-256 was unchanged before and after.",
+    "candidate_tree_receipt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-same-content-selected-view-race-20261016/candidate-tree-freeze-r3.txt",
+      "sha256": "61a86d6f23cc3e4351ff9b07dac5c29e0904c77c4463acb4116bdadcca4fa395"
+    },
+    "worktree_status": "shared worktree is dirty from other E02 lanes; this lease changed only the B148 test file. No full-worktree candidate tree or cleanliness claim is made.",
+    "authored_mechanism_paths": [
+      {
+        "path": "tests/unit/core/artifacts/test_import_admission_noop.py",
+        "base_git_blob": "73145f07d16427f2f26b9882e9c0b98ba3cf2803",
+        "candidate_sha256": "058cf299b45bf0a31aca2fce6c7126fd772e827d5b26c691d505140222f0186b",
+        "role": "one parametrized actual producer-to-importer race test covering staging/publication by directory/tar"
+      }
+    ],
+    "source_change_boundary": "No product source, API, schema, fixture, configuration, or C07/C09 path was edited in this slice."
+  },
+  "source_and_test_pins": [
+    {
+      "path": "src/polisyos/core/artifacts/store.py",
+      "sha256": "f151e514443dd555c3099cfc29cd445a64777c5c13a0d2f3768749784e6866ab",
+      "role": "FileSystemCAS selected-view writer, import admission, publish bridge, readback, and verify; unchanged from slice base"
+    },
+    {
+      "path": "src/polisyos/core/artifacts/_transfer_ops.py",
+      "sha256": "ce8004a1ab0ea0ad94e71b3ed99c104247eb0ad5c576a8d14bef33b3613d4df1",
+      "role": "directory/tar export and import flow; intake admission precedes staging and the admission context spans staged publication; unchanged from slice base"
+    },
+    {
+      "path": "src/polisyos/core/artifacts/ownership.py",
+      "sha256": "79216c9596812628119769a4dcdb9520c04dd097df5501e1b878e5270fd98b9a",
+      "role": "tenant ownership and artifact lease implementation; unchanged from slice base"
+    },
+    {
+      "path": "src/polisyos/core/artifacts/manifest.py",
+      "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+      "role": "ArtifactRef, manifest profile identity and tenant context; unchanged from slice base"
+    },
+    {
+      "path": "src/polisyos/core/artifacts/canonical_profile.py",
+      "sha256": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34",
+      "role": "canonical selected manifest profile digest; unchanged from slice base"
+    },
+    {
+      "path": "src/polisyos/core/artifacts/write_contract.py",
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+      "role": "ArtifactWriteOptions alias used to create real selected producer views; unchanged from slice base"
+    },
+    {
+      "path": "tests/conftest.py",
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "role": "pytest root fixtures and collection context; unchanged from slice base"
+    },
+    {
+      "path": "tests/unit/core/conftest.py",
+      "sha256": "e05c5e31b5113b760b314691473acf9af9dda52b0200c47e61b05e415cbe88c3",
+      "role": "core test fixtures and collection context; unchanged from slice base"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "841160aa331ba5610a1f161d4faaf18c3bcfd44d2181b3661de665a05a6745a0",
+      "role": "pytest and Ruff project configuration; unchanged from slice base"
+    },
+    {
+      "path": "ruff.toml",
+      "sha256": "e9aae7023e86c1ed6446eecbc5d3d14d1192e6186d369ee7b5ddd85221c4be2f",
+      "role": "canonical product Ruff configuration; unchanged from slice base"
+    },
+    {
+      "path": "uv.lock",
+      "sha256": "9d200a0789f50fccb533ddbb66a39453b04de8f22e653d34a62c35125c20a120",
+      "role": "locked Python environment; unchanged from slice base"
+    },
+    {
+      "path": ".python-version",
+      "sha256": "a876e0b10411037a012498b9fe18d9bc1df32ed8b722a13564dc944ddcfd9135",
+      "role": "supported interpreter selection; unchanged from slice base"
+    }
+  ],
+  "original_criterion_and_occurrence": {
+    "finding_id": "B148",
+    "canonical_occurrence_key": "B148#1:B_r19:CAS-02:9dc24cc351838bcc7e2f1210c44c7cd4a6b6377579f500b53a677e8276e6e47a",
+    "canonical_ordinal": 63,
+    "occurrence_within_finding": 1,
+    "owner": "B",
+    "bundle": "CAS-02",
+    "criterion_source": {
+      "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "lines_1_based_inclusive": [3917, 3928],
+      "criterion_span_sha256": "9dc24cc351838bcc7e2f1210c44c7cd4a6b6377579f500b53a677e8276e6e47a"
+    },
+    "bundle_source": {
+      "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAS-02.md",
+      "sha256": "b670f795ccedf4f6aa81124c7c0b18b52a0e0f3adc64fd1e99ae2c9ac581e3e2"
+    },
+    "full_occurrence_denominator": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-proposal-report-20261015.json",
+      "sha256": "aac9615dd380f5474fd878ea8a6681d35c71450f1a50233f3c407308fd32f931",
+      "file_type_denominator": "one JSON report with 291 occurrence records in occurrences[]",
+      "B148_records_in_that_complete_denominator": 1,
+      "record_pointer": "/occurrences/62"
+    },
+    "prior_exact_contour_audit": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-13-contour-audit-20261015/prepared-b-13-contour-current-audit-r1.json",
+      "sha256": "29981145e01b1cd6aeefa99b6c855ace2405c4eb228200dd1419c39e6f87d5fa",
+      "prior_state": "bounded_import_positive_with_concurrency_open; formal_closure=false",
+      "prior_next_check": "Exercise overlapping same-content conflicting-manifest publication; no prior run is carried as this slice's runtime receipt."
+    },
+    "scope_decision": {
+      "path": "docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-B53-decision/B148-scope-adjudication.md",
+      "sha256": "5f302911b5d555f451b35999845c3931976697858a9930da25313f5d30d942d5",
+      "application": "This witness addresses the bounded existing tenant/cell ownership and conflicting selected-view import route. It does not decide a broader cross-tenant sharing policy."
+    }
+  },
+  "selected_inputs_and_backend": {
+    "backend": "FileSystemCAS local filesystem, both source producers and the receiving consumer",
+    "tenant_context": "tenant-b148 for both exact views and the receiver",
+    "payload_sha256": "ba8f9759ff0fb80d4ce347188ed9f12b9bd50225f3c534c7325a1899b081ec78",
+    "source_a_selected_ref": {
+      "artifact_id": "sha256:ba8f9759ff0fb80d4ce347188ed9f12b9bd50225f3c534c7325a1899b081ec78",
+      "kind": "tests.b148.owner-a",
+      "media_type": "application/octet-stream",
+      "manifest_profile_sha256": "sha256:524f6953a5300424c3695fc4b01784e3c416008893f49511b589f6578ae33c69"
+    },
+    "source_b_selected_ref": {
+      "artifact_id": "sha256:ba8f9759ff0fb80d4ce347188ed9f12b9bd50225f3c534c7325a1899b081ec78",
+      "kind": "tests.b148.owner-b",
+      "media_type": "application/octet-stream",
+      "manifest_profile_sha256": "sha256:fa45d19a9f6c0cf37fed845072b5032e868e1b4583e2aa429513c65b1a3e99e3"
+    },
+    "distinguishing_content_facts": "The two real put_bytes(return_selected_profile=True) outputs have the same content-addressed blob ID and different selected profile digests, kinds, and serialized manifest digests. The retained JUnit XML binds the per-case source ref and actual source-manifest byte hashes.",
+    "package_formats": ["directory", "tar"],
+    "races": ["pause after first importer creates its .cas-import staging root", "pause first importer immediately before staged publication"]
+  },
+  "real_chain_and_property": {
+    "producer": "Two FileSystemCAS.put_bytes calls with distinct typed kind/schema/producer options and same tenant context, each returning its actual selected ArtifactRef.",
+    "artifact": "The actual persisted blob and selected manifest from each source CAS; both are exported through the normal directory or tar producer.",
+    "bridge": "FileSystemCAS.import_subgraph -> _transfer_ops.import_subgraph -> the receiver's current bound _admit_import_members -> .cas-import staging -> _publish_staged_import -> publication admission and durable owner write.",
+    "consumer": "After the first import publishes and the competing view is refused, the target reads the exact first ArtifactRef's payload and manifest and verifies it.",
+    "verification": "The first import is paused while its actual admission context remains open. An instance-bound instrumentation wrapper signals when B reaches the real admission context boundary, then delegates to the method bound at runtime. The test checks that B cannot acquire admission, create a staging directory, or finish before A releases the lease.",
+    "persisted_state_check": "The first selected view's persistent target snapshot is captured after publication but before A exits its outer admission context; temporary .cas-import trees and .lock synchronization files are excluded. After B refuses, that snapshot is byte-identical and exact A body/manifest/verify readback remains true.",
+    "expected_competing_result": "ArtifactOwnershipError with `exact view is not owned` in the message",
+    "P40_bucket": "same class, one level deeper: prior same-payload/same-options competition did not exercise a conflicting selected manifest profile. This test widens the existing artifact-lease mechanism to the property-relevant same-blob/different-view quantity; it does not add a second mechanism.",
+    "P37_predicates": {
+      "same_blob_and_different_selected_profile": "recomputed from actual source CAS refs and manifest bytes",
+      "lease_held_and_competitor_boundary": "recomputed by event instrumentation at the real importer calls while the first import is paused inside its admission context",
+      "refusal_and_preserved_view": "recomputed by typed exception, exact target bytes, exact target manifest, and target verify()"
+    },
+    "P38_divergent_case": "A same-content competitor with identical options can reuse the same selected view and pass without testing conflicting manifest ownership. The new B input has the same blob ID but a distinct selected manifest profile and is refused only after A publishes.",
+    "consumer_surface": "Local Core FileSystemCAS import/export/read/verify API. No HTTP route, installed package, remote backend, or production instance claim is made.",
+    "removal_control": "The test's autouse E02_B_PROPERTY_REMOVAL=cas-import-admission fixture substitutes an allow-all admission context. The test then captures the receiver's currently bound instance method and delegates through it; it does not close over or call around the substituted class method."
+  },
+  "deciding_runs": [
+    {
+      "name": "four race variants with selected-ref JUnit properties",
+      "command": "PYTHONPATH=src:. .venv/bin/python -B -m pytest -q -ra -o addopts= -o junit_family=legacy --import-mode=importlib --junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-same-content-selected-view-race-20261016/focused-4-cases-r5.xml tests/unit/core/artifacts/test_import_admission_noop.py::test_import_lease_rejects_same_blob_competing_selected_view",
+      "result": "4 passed in 2.91s",
+      "output": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-same-content-selected-view-race-20261016/focused-4-cases-r5.log",
+        "sha256": "8b3b756fb8803545de4061fbc2ff0dd206b6bfd392837633b7f981237009b795"
+      },
+      "actual_selected_input_properties": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-same-content-selected-view-race-20261016/focused-4-cases-r5.xml",
+        "sha256": "d87ad923d46f76856318b3bf873af6856cb48fe20d8519fd76c93ac0f71c3a6c"
+      }
+    },
+    {
+      "name": "complete owning import-admission module",
+      "command": "PYTHONPATH=src:. .venv/bin/python -B -m pytest -q -ra -o addopts= --import-mode=importlib tests/unit/core/artifacts/test_import_admission_noop.py",
+      "result": "44 passed in 4.52s",
+      "output": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-same-content-selected-view-race-20261016/full-import-admission-module-r3.log",
+        "sha256": "dfa2935ee9f7ca0c213f197accb60de6d4aa18cdef307ade0b8e817280d4f5c0"
+      }
+    },
+    {
+      "name": "actual admission property removal with markers retained",
+      "command": "E02_B_PROPERTY_REMOVAL=cas-import-admission PYTHONPATH=src:. .venv/bin/python -B -m pytest -q -ra -o addopts= --import-mode=importlib tests/unit/core/artifacts/test_import_admission_noop.py::test_import_lease_rejects_same_blob_competing_selected_view",
+      "result": "Expected nonzero exit; all four parameter cases fail the property assertion. In every case the competing import acquired admission, staged, and completed before the held import released its lease (admitted=True, staged=True, completed=True).",
+      "output": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-same-content-selected-view-race-20261016/removal-cas-import-admission-4-cases-r3.log",
+        "sha256": "9d23fa511f320298296e86d69163100cced730dc084ad8d2e3833200349d8e95"
+      },
+      "live_product_code_modified": false
+    },
+    {
+      "name": "Ruff check",
+      "command": ".venv/bin/python -m ruff check tests/unit/core/artifacts/test_import_admission_noop.py",
+      "result": "All checks passed!",
+      "output": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-same-content-selected-view-race-20261016/ruff-check-final.log",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    {
+      "name": "Ruff format check",
+      "command": ".venv/bin/python -m ruff format --check tests/unit/core/artifacts/test_import_admission_noop.py",
+      "result": "1 file already formatted",
+      "output": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b148-same-content-selected-view-race-20261016/ruff-format-check-final.log",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      }
+    }
+  ],
+  "environment": {
+    "python": "3.14.3",
+    "pytest": "9.0.2",
+    "lockfile": "uv.lock@9d200a0789f50fccb533ddbb66a39453b04de8f22e653d34a62c35125c20a120",
+    "interpreter_selector": ".python-version@a876e0b10411037a012498b9fe18d9bc1df32ed8b722a13564dc944ddcfd9135"
+  },
+  "separate_C07_C09_receipt": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-13-contour-audit-20261015/c07-c09-owner-module-r2-after.json",
+    "sha256": "c65d9108c17c0bf6f30f83e90d4cdfdfaf7a623ffa01cfc0a7c941dca79a2cdd",
+    "captured_at_utc": "2026-10-15T20:53:12.351504+00:00",
+    "source_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "938c0c1a8465510b3872ef395f7324f16209c2c5",
+      "tree": "23d7717671adb970a4c5cb77e48d6af4d0f3745c"
+    },
+    "owned_test": "tests/unit/remediation/test_frc_02_owner.py@345ffc0ab67a6b844a29b8b10e106b8254c7c8465043cc2ef49b56892e64ce11",
+    "deciding_outputs": [
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-13-contour-audit-20261015/c07-c09-owner-selector-r6.log",
+        "sha256": "dc10e47880c89abc3a83890f67a1e73370a51812cfc6a572b94364e83abc2b18",
+        "result": "1 passed in 16.64s"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-13-contour-audit-20261015/c07-c09-owner-module-r2.log",
+        "sha256": "c8940eb999219d9ae0b16eba81c07cc10228e829f6e26b94aad0acf41ed329e4",
+        "result": "16 passed in 20.68s"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-13-contour-audit-20261015/c07-c09-owner-ruff-format-final-r2.log",
+        "sha256": "d807f3580f2470a7fe15ad89e1a6c08e4166ffe1e33d94152d605f0c46d21bfa"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-13-contour-audit-20261015/c07-c09-owner-ruff-check-final-r2.log",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-13-contour-audit-20261015/c07-c09-owner-ruff-format-check-final-r2.log",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      }
+    ],
+    "relationship_to_B148_slice": "A separately captured prior C07/C09 witness on the same source frame, included as an exact metadata pointer only; it is not evidence for B148."
+  },
+  "limitations_and_next_check": [
+    "This local FileSystemCAS witness does not test remote CAS backends, HTTP/client surfaces, or production owner inputs.",
+    "The test closes the previously missing same-content/different-selected-manifest concurrency discriminator for this importer path; it does not automatically close other B148 criteria or repeated canonical occurrences outside the pinned 291-record source report.",
+    "No cryptographic signing claim, broader cross-tenant sharing policy, external authorization, or live production currentness claim is made.",
+    "Independent code acceptance and formal occurrence adjudication remain with G."
+  ]
+}

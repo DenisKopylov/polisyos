@@ -1,0 +1,520 @@
+{
+  "branch": "codex/e02-unified-local-20261009",
+  "candidate_commit": null,
+  "candidate_head": "938c0c1a8465510b3872ef395f7324f16209c2c5",
+  "candidate_head_tree": "23d7717671adb970a4c5cb77e48d6af4d0f3745c",
+  "candidate_parent": "13f6cf4bb788069c7caf238c5f1278ece699c6d1",
+  "candidate_uncommitted_postimage_sha256": "0290c7f1399bdcd3d54650e9d28859b01316563466c22552a1304971c2dd19e3",
+  "captured_at_utc": "2026-10-15 21:09:23 UTC",
+  "changed_paths": [
+    {
+      "base_git_blob": "71a53a192da833c57455bc99c2b1c32453a905b6",
+      "change": "Apply the resolved active projected observation-ID set inside the SQL WHERE before ORDER BY/LIMIT; keep exact post-query projection equality and existing guardrails.",
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "sha256": "09eb023483e40fd1106fae75aaf3118c064b0d0bf78a190816f6764dd8b54009"
+    },
+    {
+      "base_git_blob": "97e670f4342ae275693a15434694bf398796e4c2",
+      "change": "Replace stale expectation that rejects any extra physical source row with selected-projection membership positive and present-malformed projection negative; add 20,001-row starvation discriminator through RealValueOwnerGateway.",
+      "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "sha256": "0014d3f3e08cdd0cb115075548bf51fb5b6562979a04e33a5b771775bd250a6a"
+    }
+  ],
+  "closure_ids": [],
+  "consumer_quantity": {
+    "actual_loader_consumers": [
+      {
+        "line": 5262,
+        "name": "RealValueOwnerGateway.load_value_data_profile",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "role": "selected outcome owner profile"
+      },
+      {
+        "line": 16970,
+        "name": "_value_owner_source_projection_intent",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "role": "source-role profile used to create method-run intent"
+      },
+      {
+        "line": 17344,
+        "name": "_value_owner_reloaded_source_profiles",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "role": "freshly reloaded selected source profiles before use"
+      }
+    ],
+    "census_output": {
+      "bytes": 2639,
+      "duration_seconds": null,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/source-callsite-census.json",
+      "result": "One loader definition; three production callsites; eight test references; no parse failures",
+      "role": "Complete AST census output over 2,771 product source Python files and 3,041 test Python files.",
+      "sha256": "6d0c37aabda5c0dda7c5cbad0b54ebdaf529d4db059ff04a667bfdfababaf4be",
+      "timing_note": "The retained pytest -q output has no duration; no timed wrapper was retained, so duration is not reconstructed."
+    },
+    "census_script": {
+      "bytes": 2048,
+      "duration_seconds": null,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/source-callsite-census.py",
+      "role": "AST census implementation over complete product source/test Python trees.",
+      "sha256": "da5ac3c13d2084ccb22baed8976622b8ebc0ff49192a5d65a4f93d75fcead127",
+      "timing_note": "The retained pytest -q output has no duration; no timed wrapper was retained, so duration is not reconstructed."
+    },
+    "complete_scan": {
+      "all_production_calls": [
+        {
+          "line": 5262,
+          "name": "_load_value_data_profile_from_l1_dcat",
+          "path": "src/polisyos/runtime/quality/generation_cycle.py"
+        },
+        {
+          "line": 17344,
+          "name": "_load_value_data_profile_from_l1_dcat",
+          "path": "src/polisyos/runtime/quality/generation_cycle.py"
+        },
+        {
+          "line": 16970,
+          "name": "_load_value_data_profile_from_l1_dcat",
+          "path": "src/polisyos/runtime/quality/generation_cycle.py"
+        }
+      ],
+      "all_production_callsite_count": 3,
+      "all_test_calls": [
+        {
+          "line": 356,
+          "name": "_load_value_data_profile_from_l1_dcat",
+          "path": "tests/unit/remediation/test_emp_01.py"
+        },
+        {
+          "line": 375,
+          "name": "_load_value_data_profile_from_l1_dcat",
+          "path": "tests/unit/remediation/test_emp_01.py"
+        },
+        {
+          "line": 79,
+          "name": "_load_value_data_profile_from_l1_dcat",
+          "path": "tests/unit/runtime/quality/test_acquisition_overlay_visibility.py"
+        },
+        {
+          "line": 112,
+          "name": "_load_value_data_profile_from_l1_dcat",
+          "path": "tests/unit/runtime/quality/test_acquisition_overlay_visibility.py"
+        },
+        {
+          "line": 335,
+          "name": "_load_value_data_profile_from_l1_dcat",
+          "path": "tests/unit/runtime/quality/test_acquisition_overlay_visibility.py"
+        },
+        {
+          "line": 409,
+          "name": "_load_value_data_profile_from_l1_dcat",
+          "path": "tests/unit/runtime/quality/test_acquisition_overlay_visibility.py"
+        },
+        {
+          "line": 6782,
+          "name": "_load_value_data_profile_from_l1_dcat",
+          "path": "tests/unit/runtime/quality/test_value_gate.py"
+        },
+        {
+          "line": 6802,
+          "name": "_load_value_data_profile_from_l1_dcat",
+          "path": "tests/unit/runtime/quality/test_value_gate.py"
+        }
+      ],
+      "all_test_callsite_count": 8,
+      "product_source_parsed": 2771,
+      "product_source_python_files": 2771,
+      "source_definition_count": 1,
+      "source_parse_errors": [],
+      "test_files_parsed": 3041,
+      "test_parse_errors": [],
+      "test_python_file_denominator": 3041
+    },
+    "fixture_and_existing_reader_refs": [
+      {
+        "path": "policy-engine/tests/_helpers/semantic_epoch_native.py",
+        "role": "native fixture producer for canonical active source/epoch/projection",
+        "sha256": "689d1079493a07cdff489454634cf6bd220594d1ba16c0450dc72f1b88b747ab"
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+        "role": "unchanged row-cap refusal control",
+        "sha256": "8b538d7cb9871e8bd581b31a916e8993ca1827ea9a86d5ae1f27095d75e3f0b8"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_overlay_visibility.py",
+        "role": "unchanged direct-loader visibility consumers",
+        "sha256": "5d5252e2cefed44394848285de7371320a157e22f1422e1b9f10ae265f3fcb3c"
+      }
+    ]
+  },
+  "criterion_occurrence": {
+    "bundle": "EMP-01",
+    "bundle_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/EMP-01.md",
+    "bundle_sha256": "d04e4270ef56371ce614ab7b6f2fbe85c84a9121c1cce77b9b2c2212e97bc3b5",
+    "coverage_file": {
+      "bytes": 550854,
+      "head_content_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "head_git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "unchanged_from_head": true,
+      "worktree_sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    "criterion_id": "B16",
+    "criterion_sha256": "fddf1601c092be1f87a19a79a3f6975264850d8df9428e3f54bd3f8fe48d8706",
+    "document_key": "B_r19",
+    "json_pointer": "/findings/75/criterion_refs/0",
+    "line_span_inclusive": [
+      387,
+      398
+    ],
+    "original_document_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+    "original_document_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "original_document_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "original_index": 75
+  },
+  "evidence_paths": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/red-exact-active-selection.stdout.txt",
+      "role": "Pre-fix decisive negative output: selected active projection query returned unrelated baseline rows before cap, triggering exact rowset mismatch; command duration and original wrapper not retained.",
+      "sha256": "6dfde1bc1cf68904955683f68d209ade74799787c4514505f876ff7dab89b35c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/targeted-selection-and-cap-r2.stdout.txt",
+      "role": "Exact post-fix B16 selectors (two active-projection selection controls plus existing cap refusal control).",
+      "sha256": "cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/full-value-gate-and-cap.stdout.txt",
+      "role": "Full N8 value-gate module plus EMP-01 row-cap control; complete deciding output, deliberately not represented as a whole-suite green.",
+      "sha256": "26742d838e7f6a462f715888c5201bdf6dcf046c4efa1fff9bf5e82c463c637e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/full-value-gate-run-counts.json",
+      "role": "Complete output parser result: progress-mark and pytest summary failure denominators agree.",
+      "sha256": "39bba010e47236bc0b053219d35d40204091696d9f1a36dbcddb1f55a8dd4cdf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/analyze-full-value-gate-run.py",
+      "role": "Parser source for complete 161 result markers and failure summary IDs.",
+      "sha256": "19fe3f53dca98bf99514925e937a55d3268b6efc0fc1df20ecff4922b44b4bab"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/final-ruff-check.stdout.txt",
+      "role": "Canonical Ruff check for both changed files.",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/final-ruff-format-check.stdout.txt",
+      "role": "Canonical Ruff format check for both changed files.",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/source-callsite-census.py",
+      "role": "AST census implementation over complete product source/test Python trees.",
+      "sha256": "da5ac3c13d2084ccb22baed8976622b8ebc0ff49192a5d65a4f93d75fcead127"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/source-callsite-census.json",
+      "role": "Complete AST census output over 2,771 product source Python files and 3,041 test Python files.",
+      "sha256": "6d0c37aabda5c0dda7c5cbad0b54ebdaf529d4db059ff04a667bfdfababaf4be"
+    },
+    {
+      "bytes": 1404,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/source-origin-probe.py",
+      "role": "Runtime-origin and interpreter provenance probe.",
+      "sha256": "af261991e904fc6e23df81202e359cfb492d0745032a386b2856e41eac43cba7"
+    },
+    {
+      "bytes": 4829,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/source-origin-probe.json",
+      "result": "Python 3.14.3; sys.prefix = /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv; 11 source modules resolved; 7.446s",
+      "role": "Bounded import/origin probe output for canonical modules.",
+      "sha256": "c307a7691dc3a150c7c995f618c9efd4f31da83f47600dc587cb2f139009adf3"
+    }
+  ],
+  "limitations": [
+    "This local candidate fixture is not a production appointment, current-serving-root proof, scientific calibration, or causal effect claim.",
+    "Population and measurement semantics beyond the exact existing active projection remain not established; no new condition_json grammar or aggregation rule is claimed.",
+    "The 53 failures from the combined N8 module are not inherited and no global green is claimed.",
+    "Independent code acceptance, integration publication, and formal findings adjudication remain with G.",
+    "The full pytest output has no per-file source snapshot; acquisition_executor.py is a separate dirty shared-worktree dependency in the current freeze. Its file mtime precedes the output mtime, but that does not prove the exact bytes loaded during the run."
+  ],
+  "property_and_limit": {
+    "bounded_remaining": "This selection fix does not define a general population predicate or new condition_json semantics, does not change measurement/aggregation rules, does not establish a qualifying empirical producer or a causal S10 claim, and does not prove calibration. The wider B16/V7 criterion therefore remains limited/proposed and awaits independent review and G adjudication.",
+    "capability_label_for_whole_route": "verification_missing",
+    "implementation": "Resolve and revalidate the active projection and passport; derive projected_observation_ids from the canonical projection for the normalized scope (registered WDI ISO3 exceptions only when the existing live-fetch passport authorization, connector/profile/request, and country registration all agree); bind the resulting IDs into the DuckDB WHERE clause before deterministic ordering and LIMIT. Retain post-query exact-set, duplicate, drift, unit, source, and time validation.",
+    "property": "When a typed, canonical active observation projection is selected for N8/value-owner loading, the query applies its complete eligible observation-ID set before ORDER BY and LIMIT, so unrelated rows cannot starve selected rows and post-query rowset equality still checks the exact projection.",
+    "unchanged_behavior": "Without an active projection, the SQL projection predicate is NULL/no-op and the existing geographic query and 20,000-row truncation refusal remain in force. No dataset-id/population inference was added."
+  },
+  "proposal": {
+    "closure_ids": [],
+    "finding_ids": [
+      "B16"
+    ],
+    "formal_G_adjudication": "pending",
+    "proposed_outcome": "limited",
+    "reason": "Fixes one required B16 property layer (active eligible selected IDs are applied before SQL limit and scope identity is tested) while measurement/population semantics and empirical producer-to-fresh-consumer evidence remain open."
+  },
+  "raw_source_freeze": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/source-freeze-r1.json",
+    "sha256": "0667e78f4b88cc826432b5eb2ad605a0a89fde67f533d407124015bb7fa3b291"
+  },
+  "required_unchanged_dependencies": [
+    {
+      "bytes": 88712,
+      "head_content_sha256": "904e88b350cfdae482c792ea64e86528241ed1affdbf2ad5acc33d4d02eb0170",
+      "head_git_blob": "0924cc7dca6b8a0e8a7605b1668855a30976822e",
+      "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "role": "Canonical repository/profile root resolution and serving-source selection",
+      "unchanged_from_head": true,
+      "worktree_sha256": "904e88b350cfdae482c792ea64e86528241ed1affdbf2ad5acc33d4d02eb0170"
+    },
+    {
+      "bytes": 89908,
+      "head_content_sha256": "92a4f9eeb246b4048f40f27e200a62d616f1db8598bd4b52dc9a36aab354a064",
+      "head_git_blob": "68358cd48789fa383699db9a53b9e19f0ed552a9",
+      "path": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+      "role": "Owner availability and chosen overlay/source resolution called by all three owner routes",
+      "unchanged_from_head": true,
+      "worktree_sha256": "92a4f9eeb246b4048f40f27e200a62d616f1db8598bd4b52dc9a36aab354a064"
+    },
+    {
+      "bytes": 60481,
+      "head_content_sha256": "e349bff38d4c8e946d4aaf5759fe5286d2e60e43f09faae166a6918c916feabe",
+      "head_git_blob": "aca00546bb3d1ae4e9c7d0a90b8fbc6ff3b66402",
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "role": "Canonical read facade; observation catalog, overlay/session and country-code exports",
+      "unchanged_from_head": true,
+      "worktree_sha256": "e349bff38d4c8e946d4aaf5759fe5286d2e60e43f09faae166a6918c916feabe"
+    },
+    {
+      "bytes": 222752,
+      "head_content_sha256": "af0345fc38a195ef85aee960126e80eb79a2f19c54028dd5ce24b86b7444d152",
+      "head_git_blob": "8aa02da788efeaef87e08de7b075b8ce163192eb",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+      "role": "Typed active projection and canonical owner re-read / digest validation",
+      "unchanged_from_head": true,
+      "worktree_sha256": "af0345fc38a195ef85aee960126e80eb79a2f19c54028dd5ce24b86b7444d152"
+    },
+    {
+      "bytes": 5715,
+      "head_content_sha256": "9f0ca18d3c50fa569bdaede8c319c25afaffb933efcbd6a733d0cab74661ba89",
+      "head_git_blob": "f8c37446f5cd595e88e2630352e4326d67a4d21b",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/country_codes.py",
+      "role": "Existing ISO2/ISO3 normalization used by bounded WDI projection admission",
+      "unchanged_from_head": true,
+      "worktree_sha256": "9f0ca18d3c50fa569bdaede8c319c25afaffb933efcbd6a733d0cab74661ba89"
+    },
+    {
+      "bytes": 1914,
+      "head_content_sha256": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6",
+      "head_git_blob": "0867804c64b5468bff7025a5208574b2390b90ad",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/_resources.py",
+      "role": "Read API default resource resolution; preserved, not replaced",
+      "unchanged_from_head": true,
+      "worktree_sha256": "6c36ffce957ade642ba1cc1dab2367c2620dd7c75d0219520c64b3eec94bf0a6"
+    },
+    {
+      "bytes": 56300,
+      "head_content_sha256": "689d1079493a07cdff489454634cf6bd220594d1ba16c0450dc72f1b88b747ab",
+      "head_git_blob": "47b9a928bf0ac60350cb6ac99f8162abfba6b692",
+      "path": "policy-engine/tests/_helpers/semantic_epoch_native.py",
+      "role": "Native controlled source/epoch/projection fixture producer used by B16 selected-row controls",
+      "unchanged_from_head": true,
+      "worktree_sha256": "689d1079493a07cdff489454634cf6bd220594d1ba16c0450dc72f1b88b747ab"
+    },
+    {
+      "bytes": 18632,
+      "head_content_sha256": "8b538d7cb9871e8bd581b31a916e8993ca1827ea9a86d5ae1f27095d75e3f0b8",
+      "head_git_blob": "a12520b28ef52d824f433a61115ae3d633f6fce9",
+      "path": "policy-engine/tests/unit/remediation/test_emp_01.py",
+      "role": "Existing row-cap truncation refusal control",
+      "unchanged_from_head": true,
+      "worktree_sha256": "8b538d7cb9871e8bd581b31a916e8993ca1827ea9a86d5ae1f27095d75e3f0b8"
+    },
+    {
+      "bytes": 14718,
+      "head_content_sha256": "5d5252e2cefed44394848285de7371320a157e22f1422e1b9f10ae265f3fcb3c",
+      "head_git_blob": "b365e45c493346a722ab9fd0c0c6b4d56a82ff18",
+      "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_overlay_visibility.py",
+      "role": "All existing direct loader visibility/read controls found in full test-tree census",
+      "unchanged_from_head": true,
+      "worktree_sha256": "5d5252e2cefed44394848285de7371320a157e22f1422e1b9f10ae265f3fcb3c"
+    },
+    {
+      "bytes": 9664,
+      "head_content_sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "head_git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "path": "policy-engine/tests/conftest.py",
+      "role": "Product pytest fixture/import setup",
+      "unchanged_from_head": true,
+      "worktree_sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+    },
+    {
+      "bytes": 1021,
+      "head_content_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "head_git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "path": "policy-engine/pytest.ini",
+      "role": "Pytest collection/config",
+      "unchanged_from_head": true,
+      "worktree_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+    },
+    {
+      "bytes": 11141,
+      "head_content_sha256": "841160aa331ba5610a1f161d4faaf18c3bcfd44d2181b3661de665a05a6745a0",
+      "head_git_blob": "01e0674b3dd647863d7a14ffadd305c4f25980f5",
+      "path": "policy-engine/pyproject.toml",
+      "role": "Project Python/test configuration and package-root settings",
+      "unchanged_from_head": true,
+      "worktree_sha256": "841160aa331ba5610a1f161d4faaf18c3bcfd44d2181b3661de665a05a6745a0"
+    },
+    {
+      "bytes": 16224,
+      "head_content_sha256": "06a727c201770bf33b2c6ab05b07b7715251218758f0ec88189c247ceb2464d3",
+      "head_git_blob": "dab1f86d046b5ff6b8ca6886968d50e5d952e8b9",
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "role": "ArtifactStore protocol resolved by the owner readback and used by the native fixture CAS",
+      "unchanged_from_head": true,
+      "worktree_sha256": "06a727c201770bf33b2c6ab05b07b7715251218758f0ec88189c247ceb2464d3"
+    },
+    {
+      "bytes": 51618,
+      "head_content_sha256": "64528b1c015d8311b790eaabd5b570db05e5a8935e80bfe625fc569568e2276a",
+      "head_git_blob": "45260cdb2e3bbc0a154637cf33aba310103af138",
+      "path": "policy-engine/src/polisyos/core/contracts/epoch.py",
+      "role": "Verified acquisition passport statement load from selected CAS",
+      "unchanged_from_head": true,
+      "worktree_sha256": "64528b1c015d8311b790eaabd5b570db05e5a8935e80bfe625fc569568e2276a"
+    },
+    {
+      "bytes": 111458,
+      "head_content_sha256": "2cfaf497064a9a63ba5d684b5777e9eee972d9c6a39df4a353f8db8faaf40941",
+      "head_git_blob": "bedced6eb3eeae5ec01fcd6ccf00dfd4ce5213f1",
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+      "role": "AdmissionPassport model and existing passport contract",
+      "unchanged_from_head": false,
+      "worktree_sha256": "378709393f2bd4bbf63a7a3f4aebce5b5835d15dcf65e533554a96adb62abc91"
+    },
+    {
+      "bytes": 9254,
+      "head_content_sha256": "fb459a6b4b9aaf49815936aa591062910bffa27d7d150a52ae7716f8d8dacbe1",
+      "head_git_blob": "117199cbdce80aa277d6e9006e280e47b0e5c07f",
+      "path": "policy-engine/src/polisyos/fabric/data_plane/__init__.py",
+      "role": "Existing canonical content hash function for the persisted passport",
+      "unchanged_from_head": true,
+      "worktree_sha256": "fb459a6b4b9aaf49815936aa591062910bffa27d7d150a52ae7716f8d8dacbe1"
+    },
+    {
+      "bytes": 103308,
+      "head_content_sha256": "984953283f027fd2fbda70ca5f1c04c2c7670a5bf7916b011c0b872cc4d00155",
+      "head_git_blob": "fdbbc9f0ab4aaf9c7ffd388f5512e8307aa76260",
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py",
+      "role": "Canonical AcquisitionAuthority materialized from the selected source provision",
+      "unchanged_from_head": true,
+      "worktree_sha256": "984953283f027fd2fbda70ca5f1c04c2c7670a5bf7916b011c0b872cc4d00155"
+    }
+  ],
+  "schema": "policyos.e02.local_author_handoff.v1",
+  "slice_base_head": "938c0c1a8465510b3872ef395f7324f16209c2c5",
+  "slice_base_tree": "23d7717671adb970a4c5cb77e48d6af4d0f3745c",
+  "status": "author_frozen_pending_independent_review",
+  "title": "B16 owner projection is selected before row limit",
+  "verification": {
+    "composed_value_gate_module": {
+      "classification": "53 failures are not inherited under P41 and are not B16 closure evidence. The exact slice-base/full-input zero-intersection proof was not made; this shared module intersects this slice. Three B16 selectors are absent from failed IDs and pass in the focused run.",
+      "command": ".venv/bin/python -B -m pytest -q --import-mode=importlib tests/unit/runtime/quality/test_value_gate.py tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile",
+      "count_parser": {
+        "bytes": 7212,
+        "duration_seconds": null,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/full-value-gate-run-counts.json",
+        "result": "161 total, 108 passed, 53 failed",
+        "role": "Complete output parser result: progress-mark and pytest summary failure denominators agree.",
+        "sha256": "39bba010e47236bc0b053219d35d40204091696d9f1a36dbcddb1f55a8dd4cdf",
+        "timing_note": "The retained pytest -q output has no duration; no timed wrapper was retained, so duration is not reconstructed."
+      },
+      "cwd": "policy-engine",
+      "duration_note": "No --durations output or external time wrapper was retained; do not reconstruct runtime from file mtimes.",
+      "duration_seconds": null,
+      "output": {
+        "bytes": 351030,
+        "duration_seconds": null,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/full-value-gate-and-cap.stdout.txt",
+        "result": "108 passed / 53 failed (161 collected result markers); P41 provenance not established",
+        "role": "Full N8 value-gate module plus EMP-01 row-cap control; complete deciding output, deliberately not represented as a whole-suite green.",
+        "sha256": "26742d838e7f6a462f715888c5201bdf6dcf046c4efa1fff9bf5e82c463c637e",
+        "timing_note": "The retained pytest -q output has no duration; no timed wrapper was retained, so duration is not reconstructed."
+      },
+      "parser_result": {
+        "failed": 53,
+        "marker_failure_count_matches_summary_ids": true,
+        "passed": 108,
+        "total": 161
+      },
+      "parser_source": {
+        "bytes": 1066,
+        "duration_seconds": null,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/analyze-full-value-gate-run.py",
+        "role": "Parser source for complete 161 result markers and failure summary IDs.",
+        "sha256": "19fe3f53dca98bf99514925e937a55d3268b6efc0fc1df20ecff4922b44b4bab",
+        "timing_note": "The retained pytest -q output has no duration; no timed wrapper was retained, so duration is not reconstructed."
+      }
+    },
+    "focused_post_fix": {
+      "command": ".venv/bin/python -B -m pytest -q --import-mode=importlib tests/unit/runtime/quality/test_value_gate.py::test_n8_source_profile_selects_exact_active_projection_before_row_cap tests/unit/runtime/quality/test_value_gate.py::test_n8_active_projection_rows_are_selected_before_large_owner_row_cap tests/unit/remediation/test_emp_01.py::test_owner_row_cap_refuses_truncated_profile",
+      "cwd": "policy-engine",
+      "outcome": "3 passed. The two active-projection controls exercise 200 selected members among same-dataset/other-dataset/foreign-scope rows and 4 selected members behind 20,001 unrelated rows; the retained existing control refuses >20,000 rows when there is no projection.",
+      "output": {
+        "bytes": 80,
+        "duration_seconds": null,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/targeted-selection-and-cap-r2.stdout.txt",
+        "result": "3 passed",
+        "role": "Exact post-fix B16 selectors (two active-projection selection controls plus existing cap refusal control).",
+        "sha256": "cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236",
+        "timing_note": "The retained pytest -q output has no duration; no timed wrapper was retained, so duration is not reconstructed."
+      }
+    },
+    "git_diff_check": "Previously reported pass; deciding stdout was not retained in this source-freeze packet.",
+    "pre_fix_red": {
+      "command": "Exact original shell invocation was not retained; selector and full output are preserved. Do not infer duration.",
+      "outcome": "1 failure at active_observation_projection_rowset_mismatch, demonstrating selected rows were queried after unrelated baseline rows occupied the cap.",
+      "output": {
+        "bytes": 18307,
+        "duration_seconds": null,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/red-exact-active-selection.stdout.txt",
+        "result": "1 failed: acquire_data:active_observation_projection_rowset_mismatch",
+        "role": "Pre-fix decisive negative output: selected active projection query returned unrelated baseline rows before cap, triggering exact rowset mismatch; command duration and original wrapper not retained.",
+        "sha256": "6dfde1bc1cf68904955683f68d209ade74799787c4514505f876ff7dab89b35c",
+        "timing_note": "The retained pytest -q output has no duration; no timed wrapper was retained, so duration is not reconstructed."
+      },
+      "selector": "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_profile_selects_exact_active_projection_before_row_cap"
+    },
+    "ruff_check": {
+      "command": ".venv/bin/python -m ruff check src/polisyos/runtime/quality/generation_cycle.py tests/unit/runtime/quality/test_value_gate.py",
+      "cwd": "policy-engine",
+      "outcome": "All checks passed!",
+      "output": {
+        "bytes": 19,
+        "duration_seconds": null,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/final-ruff-check.stdout.txt",
+        "result": "All checks passed!",
+        "role": "Canonical Ruff check for both changed files.",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "timing_note": "The retained pytest -q output has no duration; no timed wrapper was retained, so duration is not reconstructed."
+      }
+    },
+    "ruff_format": {
+      "command": ".venv/bin/python -m ruff format --check src/polisyos/runtime/quality/generation_cycle.py tests/unit/runtime/quality/test_value_gate.py",
+      "cwd": "policy-engine",
+      "outcome": "2 files already formatted",
+      "output": {
+        "bytes": 26,
+        "duration_seconds": null,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-query-profile-limit-repair-20261015/final-ruff-format-check.stdout.txt",
+        "result": "2 files already formatted",
+        "role": "Canonical Ruff format check for both changed files.",
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "timing_note": "The retained pytest -q output has no duration; no timed wrapper was retained, so duration is not reconstructed."
+      }
+    }
+  }
+}

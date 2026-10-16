@@ -1,0 +1,213 @@
+{
+  "schema_version": "e02.g-decision-packet.v1",
+  "record_type": "g_decision_packet",
+  "decision_id": "IR-LAZY-DISPATCH-SOURCE-OWNERSHIP-AND-PUBLIC-MUTATION-20261016",
+  "title": "IR lazy-dispatch source ownership and public mapping mutability",
+  "status": "author_recommendation_pending_G_adjudication",
+  "author_role": "Local candidate author; not independent code acceptance, integration publication, or formal finding adjudication",
+  "date": "2026-10-16",
+  "closure_ids": [],
+  "formal_closure_claimed": false,
+  "question_for_G": {
+    "question": "Are the publicly exported IR facade dictionaries an intentional, supported mutation/extension API, or are they read-only source manifests whose runtime set must remain source-owned?",
+    "recommendation": "For the required finite source-owned dispatch property, treat the maps as read-only manifests and freeze the entire IR lazy-facade quantity. If G does not authorize the public API migration, preserve the current behavior and keep the static source proof explicitly held/non-green.",
+    "decision_boundary": "This is a public-API compatibility choice. The runtime probes establish mutable Python behavior; they do not establish that external clients rely on or are entitled to mutation. No external-client census was performed."
+  },
+  "review_frames": {
+    "research_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "938c0c1a8465510b3872ef395f7324f16209c2c5",
+      "tree": "23d7717671adb970a4c5cb77e48d6af4d0f3745c",
+      "ir_source_hashes_match_committed_frame": true,
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ir-lazy-facade-review-20261016/assessment.json@3562b1daa863f4514ab9011e0fc1d40d3d9b9931d7673f43f6bb3969347ba040"
+    },
+    "intermediate_readback_frame_929117": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "929117bbf3ad7717ea44d0327bc1e4c361498dc0",
+      "tree": "cbbf2ca3439bdf444aaec49a271ce36193489b5d",
+      "parent": "496131f67563da3e630047566e8ee5f11dc92967",
+      "working_tree_clean": false,
+      "readback_scope": "Historical intermediate capture at 929117. The eleven named source and contract files were read back and matched the 938c research hashes at this point; a later root commit is recorded separately below.",
+      "source_hashes": {
+        "policy-engine/src/polisyos/ir/api.py": "a6b14b329428854e5811623567f684c62e80029df29d93de28dba3621031b9ce",
+        "policy-engine/src/polisyos/ir/__init__.py": "66e0a12531ac1e44e9ec71d67cc78c814f3a54ff72c12f0e736594261fd0472f",
+        "policy-engine/src/polisyos/ir/analytics/__init__.py": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+        "policy-engine/src/polisyos/ir/kernel/__init__.py": "1a1124a1b02cca8854bb0f42b56fa8ec97363d2025b351557c2f2bf9eec4b04a",
+        "policy-engine/src/polisyos/ir/world/__init__.py": "f259dc167171766c15b68c0006d0995a10bed5458b139d828956a135739a58e3",
+        "policy-engine/src/polisyos/ir/observation/__init__.py": "b230861e7a7deb64941bbe5393073cc825f45924634e531efa943d27da4f6686",
+        "policy-engine/src/polisyos/ir/governance/__init__.py": "f431b7cd232377c7a556f023630bf209d23bdffa209a17f5af12f2143fe6a13a",
+        "policy-engine/src/polisyos/ir/schemas/catalog.py": "2e7b465db1eb09a27830fe38f94c1cbf48caeec3f183c08876cadd0783c94985",
+        "policy-engine/src/polisyos/runtime/quality/derived_observations.py": "a2a4f7a16b71a020999fbd201e48d500ae4670d53de04aab6ad0b360f5bba07a",
+        "policy-engine/architecture/public_surface/contract.toml": "87f24939839c452064f752c2031ddaae473c82b96484105d4818e690d0338e9f",
+        "policy-engine/architecture/extension_points.toml": "007791692e7c5532fd80a01e11a875aeeb5365779f3ea11c668c92663c29dab3"
+      }
+    },
+    "latest_readback_frame_8a1cce": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "8a1cce6b33c8fcb631f8e30ff3e1afab5908b306",
+      "tree": "9f142c88d5a9d4418951197e9e3864b82ed257e1",
+      "parent": "e4488f8f43e69372b8ff1b0200dba56cfc176768",
+      "working_tree_clean": false,
+      "readback_scope": "Read-only current-frame capture after the root commit; the same eleven IR/API/catalog/runtime/public-surface files were rehashed and still match the 938c research-frame bytes. Other worktree changes are present and are not represented as part of this decision.",
+      "source_hashes": {
+        "policy-engine/src/polisyos/ir/api.py": "a6b14b329428854e5811623567f684c62e80029df29d93de28dba3621031b9ce",
+        "policy-engine/src/polisyos/ir/__init__.py": "66e0a12531ac1e44e9ec71d67cc78c814f3a54ff72c12f0e736594261fd0472f",
+        "policy-engine/src/polisyos/ir/analytics/__init__.py": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+        "policy-engine/src/polisyos/ir/kernel/__init__.py": "1a1124a1b02cca8854bb0f42b56fa8ec97363d2025b351557c2f2bf9eec4b04a",
+        "policy-engine/src/polisyos/ir/world/__init__.py": "f259dc167171766c15b68c0006d0995a10bed5458b139d828956a135739a58e3",
+        "policy-engine/src/polisyos/ir/observation/__init__.py": "b230861e7a7deb64941bbe5393073cc825f45924634e531efa943d27da4f6686",
+        "policy-engine/src/polisyos/ir/governance/__init__.py": "f431b7cd232377c7a556f023630bf209d23bdffa209a17f5af12f2143fe6a13a",
+        "policy-engine/src/polisyos/ir/schemas/catalog.py": "2e7b465db1eb09a27830fe38f94c1cbf48caeec3f183c08876cadd0783c94985",
+        "policy-engine/src/polisyos/runtime/quality/derived_observations.py": "a2a4f7a16b71a020999fbd201e48d500ae4670d53de04aab6ad0b360f5bba07a",
+        "policy-engine/architecture/public_surface/contract.toml": "87f24939839c452064f752c2031ddaae473c82b96484105d4818e690d0338e9f",
+        "policy-engine/architecture/extension_points.toml": "007791692e7c5532fd80a01e11a875aeeb5365779f3ea11c668c92663c29dab3"
+      }
+    }
+  },
+  "property_and_divergence": {
+    "required_property": "The six IR PEP 562 facades dispatch only through a complete, source-owned, deterministic manifest, while preserving the declared public import surface and actual package submodule behavior.",
+    "current_implementation": "The exported facade maps are mutable dictionaries. Runtime resolution consults them, caches resolved namespace values, derives dir/facade names from them, and separately falls back to real package submodules for names absent from curated maps.",
+    "divergent_cases": [
+      "Adding a symbol after import changes resolution, dir(), and facade_export_names(), while __all__ remains the import-time snapshot.",
+      "Remapping before first access changes the resolved object; remapping after access leaves the cached object unchanged.",
+      "Removing a name fails with AttributeError, while an absent curated name can still resolve as a real submodule such as analytics.causal_graph.",
+      "The static export reader returns an incomplete inventory for these import-driven facades; it does not falsely report a complete runtime set."
+    ],
+    "impact_boundary": "The demonstrated divergence concerns API/inventory determinism and source-analysis completeness. No policy authority or admissibility decision is shown to depend on these maps.",
+    "capability_status": "The bounded lazy-import runtime route is exercised, but the source-owned closed-dispatch proof remains verification_missing/held. This packet does not claim an E02 capability closure."
+  },
+  "whole_property_quantity": {
+    "repository_census": {
+      "root": "policy-engine/src/**/*.py",
+      "tracked_python_files": 2770,
+      "parsed_python_files": 2770,
+      "parse_errors": 0,
+      "module_level_pep562_dispatchers": 89,
+      "with_top_level_source_table": 53,
+      "manifest_sha256": "a971bfe08016e353a089145adbfd4586edb1d500c85499c42a7931aeb14b34e2",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ir-lazy-facade-review-20261016/source-census.json@43106ca7611a2cc9863bc83935c932bc9fc42e59970bd1b925628d6069f9417a"
+    },
+    "owned_ir_dispatchers": [
+      {
+        "module": "polisyos.ir",
+        "entries": 496
+      },
+      {
+        "module": "polisyos.ir.analytics",
+        "entries": 285
+      },
+      {
+        "module": "polisyos.ir.kernel",
+        "entries": 52
+      },
+      {
+        "module": "polisyos.ir.world",
+        "entries": 54
+      },
+      {
+        "module": "polisyos.ir.observation",
+        "entries": 167
+      },
+      {
+        "module": "polisyos.ir.governance",
+        "entries": 111
+      }
+    ],
+    "nested_public_metadata": {
+      "package_table_entries": {
+        "analytics": 285,
+        "kernel": 52,
+        "world": 54
+      },
+      "outer_package_map_entries": 3,
+      "import_policy_map_entries": 3,
+      "legacy_alias_entries": 0,
+      "identity_contract": "PACKAGE_FACADE_EXPORTS inner maps alias the three public package maps by object identity."
+    },
+    "mandatory_consumers": [
+      "polisyos.ir.analytics, polisyos.ir.kernel, and polisyos.ir.world call ir.api.resolve_lazy_export.",
+      "polisyos.runtime.quality.derived_observations resolves DEFAULT_UNITS_REGISTRY through the helper.",
+      "polisyos.ir.schemas.catalog._collect_export_map reads PACKAGE_FACADE_EXPORTS and recognizes root _LAZY_IMPORTS only through an isinstance(..., dict) guard; a read-only Mapping contract requires changing that guard."
+    ],
+    "complete_reference_list": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ir-lazy-facade-review-20261016/tracked-references.txt@ab9778bf48f38615d12e9e00a9b56cb65069f82d4698c61e81f302ba968b94c6",
+    "same_class_bucket": "P40 same mutable-facade/source-binding class, widened across the six actual IR dispatchers and all nested maps; do not repair analytics as a single instance or start a per-facade ladder. The other 83 dispatchers are outside this IR-owned decision and are not claimed complete."
+  },
+  "observed_evidence": {
+    "report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ir-lazy-facade-review-20261016/report.md@7148d397126245ccf14e5b21fee756aeff41931a102c222b09fe3cc22e1016eb",
+    "assessment": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ir-lazy-facade-review-20261016/assessment.json@3562b1daa863f4514ab9011e0fc1d40d3d9b9931d7673f43f6bb3969347ba040",
+    "runtime_probe": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ir-lazy-facade-review-20261016/runtime-probe.json@cdca9a0189c065ee25d6b4f6baa0a838e726309587a1c455a3c2b6a3656d364e",
+    "mapping_proxy_prototype": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ir-lazy-facade-review-20261016/read-only-map-prototype.json@bb4c019d3b685f1b6282fdcf17ce97f8608ba8d830be37f178c62f741da35254",
+    "focused_tests_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/ir-lazy-facade-review-20261016/focused-tests.stdout.txt@968ea100b4a9bfdbc52b1e01b9f84908dc70a6b9d0855270c999847558c2bbc1",
+    "test_command": "cd policy-engine && PYTHONPATH=src .venv/bin/python -B -m pytest -p no:cacheprovider -vv tests/unit/ir/test_public_surface.py tests/repo_quality/architecture/test_public_surface_export_resolution.py",
+    "test_result": "118 passed, 0 failed, 3.46s; one existing Unknown config option: cache_dir warning. Tests do not assert public tables reject mutation.",
+    "prototype_boundary": "MappingProxyType copy of the complete analytics map preserves the tested helper resolution, dir, and real-submodule fallback; writes fail with TypeError and a removed key fails with AttributeError. This is a prototype only, not current-source proof or API approval."
+  },
+  "alternatives": [
+    {
+      "order": 1,
+      "approach": "Reuse current behavior and retain a bounded residual.",
+      "impact": "No migration or source change. Keep public dict behavior, report static closed-source dispatch as unresolved, and do not claim the Phase6 dynamic-import gate is green.",
+      "status": "available immediately"
+    },
+    {
+      "order": 2,
+      "approach": "Extend with a canonical source-owned immutable IR dispatch manifest that is the actual runtime admission source.",
+      "impact": "Preferred narrow mechanism if G selects read-only manifests. Preserve current public names, key/target pairs, owner identity, lazy loading, and package fallback; update API typing and schema catalog to Mapping. Add whole-quantity mutation/removal/fallback tests and complete source-gate proof.",
+      "status": "recommended conditional on G compatibility decision; not implemented"
+    },
+    {
+      "order": 3,
+      "approach": "Consolidate duplicate declarations into one canonical table with compatibility projections.",
+      "impact": "Potentially reduces drift but crosses map identity, __all__, dir, memoization, reflection, and fallback contracts. Consider only after G chooses the public mutation policy; no prototype demonstrates transparent compatibility.",
+      "status": "deferred"
+    },
+    {
+      "order": 4,
+      "approach": "Build a runtime registration/plugin ABI or general importer interpreter.",
+      "impact": "A writable registry would need synchronization of mutation, __all__, dir, caches, schema reflection, and consumers; a general interpreter/source execution adds unsafe complexity. IR is documented as not a plugin host and no registration contract exists.",
+      "status": "not recommended/rejected for this bounded decision"
+    }
+  ],
+  "compatibility_and_migration": {
+    "public_api_status": "polisyos.ir is classified public_stable and polisyos.ir.api is listed as a public entrypoint.",
+    "documented_policy": "The Python public API policy names team-architecture as version owner, allows a two-minor-release deprecation window, and requires a breaking signal via SemVer major or an explicit shim/deprecation entry.",
+    "decision_required": "G must choose whether to stage deprecation before rejecting writes or to deliver an explicit breaking release/shim. This author packet does not pick a release version, imply existing deprecation, or authorize an unannounced behavior/type change.",
+    "proposed_migration_if_read_only_is_selected": [
+      "Before implementation, publish the chosen deprecation/major-release path and owner assignment with team-polisyos for the IR surface and team-architecture for public API versioning.",
+      "Keep the existing aliases, exported names, target tuples, and lazy behavior during any approved deprecation period; do not advertise mutation as a registry unless G explicitly chooses that contract.",
+      "At the approved compatibility boundary, expose immutable Mapping values as the runtime dispatch source and update resolver/type/catalog consumers and generated public-surface artifacts together.",
+      "Verify all six facade routes, import identity, __all__/dir behavior, cache behavior, mapping mutation refusal, unknown-name behavior, real analytics child-module fallback, schema reflection, and the direct DEFAULT_UNITS_REGISTRY consumer."
+    ],
+    "persisted_data_or_law_migration": "None identified. This decision changes a Python public API contract only; it supplies no law, issuer, permission, or authority fact.",
+    "status_time_authority": "No expiry, blanket waiver, or clock-based exception is proposed. G adjudication remains pending; no authority or closure is created by this packet."
+  },
+  "related_phase6_evidence_and_limits": {
+    "prior_decision": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json@e82fec4f8d5cf8603dcb322e931a50dd09a2132e260c473d4d9ef60948b7cf29",
+    "scanner_author_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase6-immutable-source-binding-author-20261015.json@d91d74552f5b2c7914f3b157d000bc5f426c5189082bf3e338fd9afbb85b468e",
+    "scanner_four_path_freeze": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-map-membership-scanner-20261015/r6/source-freeze.json@3f96981d8fd2b12dd679d99ce3196a5e7c422b9610971e176c7d9a8c2887b20c",
+    "scanner_selected_gate_output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-map-membership-scanner-20261015/r6/dynamic-import.stdout.txt@202b91f0715819f7a93aa26b83b4e874d3a436e6dd9eaf5d1086bcc9c39eb3b4",
+    "prior_gate_status": "The four-path Phase6 candidate reported 26 focused passes but its selected dynamic-import run had five failures and stopped the selected 3,230-Python-path inventory at source position 36/3,230. The IR mutable map/submodule fallback was an explicitly recorded unresolved source adapter. Separately, the same packet recorded a core_sources/api.py arbitrary globals lookup unresolved importer route. These are distinct residuals; this decision addresses only the IR public-facade contract and does not close the other route or make the full gate green.",
+    "formal_status": "All linked packets have empty formal closure IDs for this question; independent review and G adjudication remain required."
+  },
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P27",
+      "P32",
+      "P37",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "anti_pattern_found": "A public mutable dispatch table is treated as a static source manifest although runtime consumers observe mutation, caching, reflection, and a separate package fallback. A single analytics-only fix would be instance-patching.",
+    "target_pattern": "One source-owned runtime dispatch contract for the full IR quantity, with explicitly bounded submodule fallback and truthful incomplete/held gate status until the complete source proof passes.",
+    "acceptance_signal": "After G chooses compatibility semantics, an independent review verifies whole-surface behavior/removal controls and the real dynamic-import source gate completes its entire denominator on frozen source."
+  },
+  "next_checks": [
+    "G adjudicates whether public mutation is supported and selects the migration/release path; absent this choice, keep the residual held and do not silently freeze public dictionaries.",
+    "If read-only is selected, owner prepares one whole-six-facade change plus mandatory API/catalog/public-surface contract, inventory/generator, and mirrored semantic test companions.",
+    "Independent reviewer verifies no map/facade consumer is omitted, removal/tamper controls fail closed, all real imports and analytics package fallback remain valid, and public API compatibility matches the adjudicated path.",
+    "After the composed source freeze, rerun the complete selected dynamic-import denominator and removal controls; retain the current non-green B61 gate as historical evidence until that fresh run passes.",
+    "Reconcile the existing public-surface discrepancy: documentation lists kernel/world facades but the public-surface contract/inventory omits them; this is a companion contract question, not an automatic closure."
+  ]
+}

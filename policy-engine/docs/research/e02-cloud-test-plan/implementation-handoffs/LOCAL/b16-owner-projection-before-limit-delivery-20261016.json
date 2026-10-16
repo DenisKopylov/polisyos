@@ -1,0 +1,73 @@
+{
+  "record_type": "local_implementation_delivery",
+  "title": "Active owner projection membership before SQL ordering and row cap",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": {
+      "commit": "8a1cce6b33c8fcb631f8e30ff3e1afab5908b306",
+      "tree": "9f142c88d5a9d4418951197e9e3864b82ed257e1",
+      "parents": [
+        "e4488f8f43e69372b8ff1b0200dba56cfc176768"
+      ]
+    },
+    "candidate": {
+      "commit": "56a87adcf8298cbe26b74b85ce7e9059f1b717b2",
+      "tree": "0124241511a441f3ba2759cf74a0cbb48d89a614",
+      "parents": [
+        "8a1cce6b33c8fcb631f8e30ff3e1afab5908b306"
+      ]
+    },
+    "readback_verified": true,
+    "source_freeze": false,
+    "p41": "not_established"
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "sha256": "09eb023483e40fd1106fae75aaf3118c064b0d0bf78a190816f6764dd8b54009"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "sha256": "0014d3f3e08cdd0cb115075548bf51fb5b6562979a04e33a5b771775bd250a6a"
+    }
+  ],
+  "selected_input_profile_backend": "Own source-bound Python3.14/.venv and controlled filesystem CAS/DuckDB fixtures; Q2 installed and Linux execution explicitly UNRUN.",
+  "real_chain_and_deciding_output_summary": [
+    "Actual DataForge selected projection -> DuckDB membership predicate before ORDER/LIMIT -> shared loader used by all three production callers.",
+    "Fresh same-process current Core protocol/source origins plus all17 dependency pre/post pins:3PASS; unchanged query removal keeping markers fails the crowded-data case."
+  ],
+  "source_bound_command_and_complete_output_manifests": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b16-owner-projection-before-limit-author-20261015.json",
+      "sha256": "7308452fb9428c9e821c75e084416a995000852e0c12af37839aa1b192aaf29b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-independent-review-20261016/independent-review.json",
+      "sha256": "8c02a85684d7ae01868c06261cc6e4639d9d4116ecd1fc81516a123109b83094"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b16-independent-current-origin-rebind-20261016/independent-current-rebind.json",
+      "sha256": "38dd2138e74b53943732c6a1ae603c255e38d0db524f8b49d02d23ff94212e59"
+    }
+  ],
+  "commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/b16-owner-projection-query-before-limit-source-20261016-readback.json",
+    "sha256": "fba25cb58a34ac478fc8650e62c448daed364031a5e116f1769a38a67ac89aef"
+  },
+  "adversarial_removal_controls": "Exact full outputs and commands retained in the pinned author/independent manifests; property removal is distinct from marker presence.",
+  "limitations": [
+    "Whole B16 remains limited: full module108PASS53FAIL/not_established; downstream AIPW/TMLE soundness and method basis refuse.",
+    "Author freeze duplicate runtime_profile origin pins are inconsistent; evidence_artifacts/current hashes and new independent source rebind are the deciding current record. No author RAW overwrite was established.",
+    "No unit/population semantics, empirical qualification or causal calibration is invented."
+  ],
+  "proposals": [
+    {
+      "finding_or_route": "B16#1",
+      "outcome": "bounded_component_delivered_whole_property_limited_or_held",
+      "formal": false
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "Rebind affected source deltas at the final full source/input/backend freeze, execute required composed/native/installed checks, retain remaining owner facts/G choices individually."
+}

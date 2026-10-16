@@ -1,0 +1,187 @@
+{
+  "kind": "g_choice_candidate",
+  "title": "Core Security finite dynamic-import target registration",
+  "status": "candidate_for_named_review",
+  "prepared_at": "2026-10-16",
+  "formal_closure_ids": [],
+  "decision_scope": {
+    "question": "Should the source-owned finite Core Security facade map be represented as a source-derived allowed-target set in the existing dynamic-import registry, separately from the registry-wide dated owner review?",
+    "source_route": {
+      "source_file": "src/polisyos/core/security/__init__.py",
+      "line": 547,
+      "call": "importlib.import_module",
+      "pattern": "module_name",
+      "collector_row_id": "dynamic-bdf7e0359dcb",
+      "registry_row_present": false,
+      "current_collector_allowed_targets": [],
+      "current_collector_notes": "User/plugin supplied module name; call site is inventoried for review."
+    },
+    "registry_frame": {
+      "registry_path": "architecture/imports/dynamic.toml",
+      "current_pattern_rows": 250,
+      "route_row_count": 0,
+      "expected_rows_after_this_registration_if_no_other_rows_change": 251,
+      "schema_version": 1,
+      "header_status": "fail_closed"
+    }
+  },
+  "source_object_denominator": {
+    "mapping": "The facade's immutable _EXPORTS mapping is the source map; __all__ names match its keys.",
+    "aliases": 110,
+    "__all___entries": 110,
+    "distinct_import_module_targets": 26,
+    "module_source_files": 26,
+    "top_level_target_attribute_resolution": "110/110 resolved by static AST inspection",
+    "complete_denominator_receipt": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-dynamic-import-proposal-20261016/core-security-110-alias-source-census.json",
+      "sha256": "d79f567982ade9f25715611cff2191cb65742caef25959722b7b981f3a70b89d",
+      "scope_limit": "Static source map and module-file census; no production import, runtime find_spec, or import result was exercised."
+    },
+    "proposed_target_set_ref": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-dynamic-import-proposal-20261016/proposal.json",
+      "sha256": "09b7de6923e1d7a3e1c9876ae719948ba046db2d683b55e1b5a04fd66c3e9ee8",
+      "field": "proposed_row.allowed_targets",
+      "note": "The exact 26 module names are retained in the cited proposal, not duplicated here."
+    }
+  },
+  "current_contract_and_gate_behavior": {
+    "canonical_collector": {
+      "path": "tools/quality/validation/decomposition_preflight.py",
+      "sha256": "c14ab0bbf619cdca7ecbc9ce5299607167de92767cbd3459a82d7272d38a31d0",
+      "observed_functions": [
+        "_DynamicImportSourceBindings._module_getattr_export",
+        "_DynamicImportSourceScanner._expression_binding",
+        "_DynamicImportSourceScanner._record_call",
+        "_call_pattern",
+        "_allowed_targets_for_pattern",
+        "collect_dynamic_imports",
+        "render_dynamic_imports_toml",
+        "validate_dynamic_imports"
+      ],
+      "behavior": "The scanner retains source-derived import, tuple, mapping, and MappingProxyType bindings, and resolves a PEP 562 export for a requested symbol. At the dynamic-call sink, _call_pattern currently uses a literal argument or its expression text; _allowed_targets_for_pattern derives targets for literal polisyos modules and known entry-point groups, not a complete finite value set flowing through module_name. The current canonical row therefore has an empty allowed_targets list.",
+      "row_validation": "validate_dynamic_imports recomputes the source inventory and compares row signatures and the complete expected/observed field sets and values. It also checks each registered allowed target with importlib.util.find_spec. A manually inserted 26-target row does not match the current canonical collector; a manually inserted empty row can represent the current collector output but fails to bind the known finite map and remains review-required under ADR-RSR-0141.",
+      "not_run": [
+        "Production validate_dynamic_imports command or output",
+        "Runtime import of the Core Security facade or any target",
+        "Native SOTA closeout command"
+      ]
+    },
+    "date_and_issuer_checks": {
+      "registry_renderer": "render_dynamic_imports_toml hardcodes reviewed_at=2026-05-06 and review_expires=2026-08-04.",
+      "inventory_gate": "validate_dynamic_imports treats review_owner, reviewed_at, and review_expires as external review fields: it requires nonempty strings but does not compare them to the renderer, authenticate an issuer, or check expiration.",
+      "closeout_gate": {
+        "path": "tools/devx/workspace/repository_sota_closeout.py",
+        "sha256": "b997674f203fd58e5051926634458360b70a3863db2ed307b5f5e153b360c1e6",
+        "selector": "_check_phase65_exception_cleanup -> _check_dynamic_import_exception_metadata; gate phase6.5-exceptions",
+        "behavior": "Requires review_owner, reviewed_at, review_expires and an issue/ADR reference; parses review_expires and reports expired when it is earlier than today's date; rejects a future reviewed_at. It does not authenticate that the configured review_owner issued the decision.",
+        "current_effect": "As of 2026-10-16, the configured 2026-08-04 expiry is past and the closeout check is red unless a legitimate registry-wide review decision is issued. This is a source-code trace, not a claim that the full closeout command was run."
+      },
+      "current_header": {
+        "path": "architecture/imports/dynamic.toml",
+        "sha256": "822fdeadc564f8e36f3ce1d45efbe9991f9365b23b91907ecd5ec6d3e7df0d49",
+        "owner": "team-architecture",
+        "review_owner": "team-architecture",
+        "reviewed_at": "2026-05-06",
+        "review_expires": "2026-08-04",
+        "interpretation": "These are configured strings, not proof of a named issuer or a current review. No date, expiry, owner, or clock change is proposed."
+      }
+    },
+    "existing_decision_contract": {
+      "path": "docs/adr/repository-structure-0141-dynamic-import-registry.md",
+      "sha256": "cbb43a805103b3dc484469e43ae37a1c9dd706285cfb99ba07ef0409a36ea745",
+      "relevant_rule": "The registry is source of truth for dynamic import patterns; canonical rows are fully compared; empty allowed_targets are still review-required; review_owner/reviewed_at/review_expires are external decisions and inventory reconciliation neither issues nor renews them."
+    }
+  },
+  "engineering_recommendation": {
+    "disposition": "Reuse registry version 1 and the existing complete source-derived row comparison; compose the route with the ongoing generic B61 source-binding work. Do not add a Core Security special case or a hand-maintained target whitelist.",
+    "same_class_bucket": "P40 SAME_CLASS_DEEPER: dynamic-import source-value provenance at the sink. Fold this route into the generic source-binding mechanism already in progress. If it remains outside that mechanism, record a bounded residual for finite source-owned values passed to import_module and use the add/remove/opaque-map falsifier; do not patch another individual source instance.",
+    "minimal_generic_behavior": "Pass the scanner's proven argument binding into dynamic-call row construction. For a complete, exact, immutable finite mapping whose selected value is a module string or a statically proven module component, derive the sorted distinct module set for allowed_targets. Preserve an empty target set for opaque, mixed, mutated, unresolved, or partial provenance; fail collection closed when guarded importer provenance becomes ambiguous. Keep existing literal and entry-point handling unchanged.",
+    "canonical_footprint": [
+      {
+        "path": "tools/quality/validation/decomposition_preflight.py",
+        "role": "Extend existing source-binding/scanner-to-sink collection and canonical rendering/validation; do not create a parallel registry or route-specific rule."
+      },
+      {
+        "path": "tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+        "role": "Mirror generic finite-map coverage, exact row recomputation, target addition/removal drift, opaque/mixed fail-closed behavior, and unaffected literal/entry-point controls. The test should remove the source-derived target binding while leaving registry declarations intact and observe a mismatch/refusal."
+      },
+      {
+        "path": "architecture/imports/dynamic.toml",
+        "role": "Regenerate the one canonical row from source only after the collector can reproduce its exact target set; the row should name the existing verifier and preserve global header review metadata."
+      }
+    ],
+    "schema_and_migration": {
+      "registry_version": "Remain at version 1; allowed_targets and full-row comparison already exist, so this is an improvement to source derivation rather than a schema change.",
+      "migration": "After the generic collector is accepted, regenerate the registry to add one row with the 26 source-derived module targets. The existing target-resolution gate then checks those modules. No per-target rows, exception, waiver, or blanket module promotion is needed.",
+      "separate_release_or_api_change": "None proposed. This inventory change does not establish runtime import success, security review, or broader public API guarantees."
+    }
+  },
+  "g_choice": {
+    "recommended_choice": "Treat the source map as a finite, source-owned dynamic-import registration once the generic collector proves the exact 110-alias-to-26-module mapping; keep dated owner review as a separate registry-wide authority decision.",
+    "options": [
+      {
+        "id": "A",
+        "choice": "Source-derived finite registration plus separate dated registry review",
+        "assessment": "Recommended. Engineering can derive the finite map from source without an authority expansion. A named accountable issuer must separately review the global registry before its expired review metadata is renewed."
+      },
+      {
+        "id": "B",
+        "choice": "Register this as an empty-target user/plugin slot",
+        "assessment": "Not recommended. It matches current collector output but contradicts the statically finite source map and leaves all 26 module targets unbound; ADR-RSR-0141 says empty target lists remain review-required."
+      },
+      {
+        "id": "C",
+        "choice": "Insert the 26 targets manually into dynamic.toml",
+        "assessment": "Rejected. The production validator compares the complete row to collector output, so the hand-maintained row is not canonical and can drift from source."
+      },
+      {
+        "id": "D",
+        "choice": "Change review dates, reviewer strings, expiry rules, or exception policy to obtain a green gate",
+        "assessment": "Rejected. This would alter authority/time semantics without an issuer decision and would conflate source inventory with review approval."
+      }
+    ],
+    "minimum_named_issuer_input_if_G_requires_review_renewal": {
+      "identity": "Name the accountable person or authorized review body; the current string team-architecture is not authenticated by the validator and the path-derived owner is not an approval record.",
+      "scope": "Explicitly state that the review covers the complete dynamic-import registry (currently 250 rows, and 251 after the proposed route row if no other rows change), not only this Core Security facade.",
+      "decision": "Record accept/refuse, rationale, any conditions, and the pinned registry/source frame reviewed.",
+      "time": "The issuer supplies the actual reviewed_at and review_expires values; do not infer or shift dates. The existing closeout gate checks expiry and rejects future review dates.",
+      "reference": "Provide the actual issue/ADR or governed review record. Existing field presence alone does not prove issuer identity."
+    },
+    "authority_state": "No G acceptance, named security reviewer, or fresh registry-wide review record is established by the inspected source and receipts."
+  },
+  "evidence": {
+    "proposal": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-dynamic-import-proposal-20261016/proposal.json",
+      "sha256": "09b7de6923e1d7a3e1c9876ae719948ba046db2d683b55e1b5a04fd66c3e9ee8"
+    },
+    "prototype": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-dynamic-import-proposal-20261016/source-bound-registry-validator-prototype.py",
+      "sha256": "3de373b3abd1f2e0a4e1fc44e414fa8eaf6d67f893d38289bb8945624360f678",
+      "command_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-dynamic-import-proposal-20261016/prototype-command.json",
+      "command_sha256": "31f8bca4f606ec52dff1f0966abc3bfe958b1bd6687dff4a66597e7762162cdf",
+      "output_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-dynamic-import-proposal-20261016/prototype.stdout.json",
+      "output_sha256": "0ca9a895ae4fcf88e83873df6f1b6c676607e53ce9036fd1bdbd52374debc850",
+      "result": "110/110 alias coverage; 26 module source objects; add/remove target controls detected; opaque or mixed values remain unallowlisted.",
+      "limit": "AST-only prototype, no product imports, no runtime find_spec, and no production validator execution. It is not a production proof."
+    },
+    "facade": {
+      "path": "src/polisyos/core/security/__init__.py",
+      "sha256": "4eb58e401bef9021eecfd5c123d1b8e281599a88459a741fee64d442c39556d0",
+      "observed_shape": "Immutable _EXPORTS mapping; __all__ has the same 110 names; __getattr__ resolves the requested map entry, imports module_name, then gets the named attribute."
+    },
+    "test_that_checks_closeout_date": {
+      "path": "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+      "sha256": "a5db3609d4d01d3f22bfd8174c2ca841e1376e93558fecd98061e7f5d2a9d5e1",
+      "assertion": "The phase 6.5 closeout test requires review_expires >= today; no test output was run for this packet."
+    }
+  },
+  "pattern_pass": {
+    "ids": ["P31", "P35", "P37", "P38", "P40"],
+    "P31": "Fix the generic source-value binding class, not this facade alone.",
+    "P35": "Use the complete 110-alias, 26-module, 250-row denominators and their pinned receipts.",
+    "P37_P38": "The collector recomputes row structure but currently sees only expression text at this dynamic sink; the exact finite target property is unmeasured there. The separate closeout gate recomputes date expiry, while reviewer identity remains an unauthenticated string.",
+    "P40": "Same class, one level deeper; compose with B61's generic source binding and do not create a per-instance allowance."
+  },
+  "application_status": "Decision packet only. No source, test, dynamic.toml, expiry, owner, or exception-policy change is included or applied.",
+  "review_request": "G review: decide whether to accept the source-owned finite target registration as an engineering inventory fact, and separately identify the accountable issuer/process for the overdue registry-wide review."
+}

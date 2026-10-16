@@ -26,7 +26,7 @@ from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artif
 from polisyos.core.artifacts import input_ref_from_artifact_ref, profile_bound_ref
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.ownership import ArtifactOwnershipError
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import ComponentId
 from polisyos.core.registry import build_default_registry_bundle
@@ -82,6 +82,7 @@ from polisyos.scientist.nodes.builtins.planning.run_discovery_blueprint_runtime 
 from polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search import (
     HierarchicalPolicySearchAdapter,
     RunHierarchicalPolicySearchNode,
+    _persist_trinity_bundle,
 )
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CONTEXT_ADAPTIVE_PARAMETER_BUNDLE_REF,
@@ -1352,6 +1353,7 @@ def test_spawn_timeout_refuses_live_prepared_read_before_child_start(
                 retry_policy=retry_module.RetryPolicy(),
                 timeout_s=5.0,
                 alias="resolve",
+                dispatch_params={},
             )
         assert caught.value.code == "node.timeout_worker_unsupported"
         assert caught.value.details["reason"] == "timeout_worker_optional_context_port_unsupported"
@@ -1615,23 +1617,27 @@ def test_cross_graph_recomputes_existing_profile_from_changed_prepared_source(
     db_path = tmp_path / "cross-graph-source.duckdb"
     _seed_skg(db_path)
     store = FileSystemCAS(tmp_path / "cross-graph-cas")
-    trinity_ref = store.put_json(
-        _trinity_bundle(),
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="ir.trinity_bundle", version="1.0"),
-        ),
-    )
-    old_ref = persist_cross_graph_evidence_profile(
-        _ensure_ir_artifact_store(store),
-        CrossGraphEvidenceProfile(
-            summary=CrossGraphEvidenceSummary(status="ok", total_needs=0),
-            notes=["legacy-source-unbound"],
-        ),
-    )
+    run_id = "R_existing_cross_graph_profile"
+    seed_state = ExperimentState(run_id=run_id)
+    context, _ = _build_run_context(store, run_id)
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        trinity_ref = _persist_trinity_bundle(context, _trinity_bundle(), state=seed_state)
+        trinity_manifest = store.get_manifest(trinity_ref)
+        assert trinity_manifest.kind == TrinityBundle.ARTIFACT_KIND
+        assert trinity_manifest.media_type == TrinityBundle.ARTIFACT_MEDIA_TYPE
+        assert trinity_manifest.artifact_schema == SchemaInfo(
+            name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+            version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+        )
+        old_ref = persist_cross_graph_evidence_profile(
+            _ensure_ir_artifact_store(store),
+            CrossGraphEvidenceProfile(
+                summary=CrossGraphEvidenceSummary(status="ok", total_needs=0),
+                notes=["legacy-source-unbound"],
+            ),
+        )
     state = ExperimentState(
-        run_id="R_existing_cross_graph_profile",
+        run_id=run_id,
         inputs={INPUT_TRINITY_BUNDLE_REF: trinity_ref},
         artifacts_index={ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF: old_ref},
         params={
@@ -1641,7 +1647,6 @@ def test_cross_graph_recomputes_existing_profile_from_changed_prepared_source(
             }
         },
     )
-    context, _ = _build_run_context(store, state.run_id)
     consumed_values: list[float] = []
 
     def compile_from_prepared_source(_self, _bundle, *, prepared_skg_read=None, **_kwargs):
@@ -1674,6 +1679,12 @@ def test_cross_graph_recomputes_existing_profile_from_changed_prepared_source(
         assert current_ref != old_ref
         profile = load_cross_graph_evidence_profile(_ensure_ir_artifact_store(store), current_ref)
         assert profile.notes == [f"prepared-source-value:{expected_value}"]
+        profile_manifest = store.get_manifest(current_ref)
+        assert any(
+            source.role == "trinity_bundle"
+            and str(source.artifact_id) == str(trinity_ref.artifact_id)
+            for source in profile_manifest.inputs
+        )
         state = outcome.state
         old_ref = current_ref
 

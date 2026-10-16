@@ -2649,5 +2649,16 @@
       "policy-engine/tools/devx/foundry/sync_dependency_profile.py": "00fc919cb8136c2dd492b64da2b08111e9ff0db4fa5b22937377ae293dfc442f"
     },
     "verification": "Actual canonicalwrite/check0; corruptfieldcontrol1expected. Independentsevenchecks/current8pins reviewed; noinstalled/runtime/native/globalacceptance."
+  },
+  "coordination_epoch_20261016_b61_existing_positive_fixture_companion": {
+    "root_writer": "/root",
+    "base": "155c5f9968aa38a6e473f9c7ad5c06fcc9c39620",
+    "test_path": "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b61-existing-test-companion-author-20261016/manifest.json",
+      "sha256": "c2ac47a04b8a5776efa045d90721759b4e5794ff814a796ef41b9bd05fca8bf3"
+    },
+    "review": "Root reviewedexactpatch: dispatchparams boundbeforeoptionalcontextpredicate; realcanonicalTrinitypersister+manifestlineageassertions preserveexistingcompiler mock. No productsemantic/B61closureclaim.",
+    "P40": "Stalepositivefixture repairs existingtest only;81directwriterswholecensusresidual retained."
   }
 }

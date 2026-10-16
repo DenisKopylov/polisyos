@@ -4972,3 +4972,83 @@ def test_nl_pipeline_marks_progress_failed_when_scientist_raises(
     assert record.progress["state"] == "failed"
     assert record.progress["last_step"]["status"] == "failed"
     assert record.progress["last_step"]["details"]["error_type"] == "RuntimeError"
+
+
+def test_selected_final_claims_refusal_report_blocks_grounding() -> None:
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        _selected_final_claims_refusal_report,
+    )
+    from polisyos.scientist.validation.policy_grounding import (
+        build_policy_grounding_matrix_report,
+    )
+
+    citation = _selected_final_claims_refusal_report(
+        refusal_code="nl_final_policy_claims_selected_unreadable"
+    )
+    assert citation["status"] == "fail"
+    assert citation["blocking_issue_count"] == 1
+    assert citation["claims"] == []
+    assert citation["issues"][0]["code"] == "selected_final_policy_claims_unavailable"
+    grounding = build_policy_grounding_matrix_report(
+        claims=[],
+        citation_faithfulness_report=citation,
+        enforce_claim_support_semantics=True,
+    )
+    assert grounding["status"] == "fail"
+    assert grounding["citation_faithfulness"]["status"] == "fail"
+
+
+def test_empty_selected_final_claims_payload_is_not_absence() -> None:
+    import pytest
+
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        _require_final_claims_report_shape,
+    )
+    from polisyos.scientist.validation.policy_grounding import (
+        build_policy_grounding_matrix_report,
+    )
+
+    with pytest.raises(CanonicalProfileRefusalError) as refusal:
+        _require_final_claims_report_shape(
+            {},
+            refusal_code="nl_final_policy_claims_selected_payload_invalid",
+        )
+    assert refusal.value.code == "nl_final_policy_claims_selected_payload_invalid"
+    with pytest.raises(CanonicalProfileRefusalError) as malformed_claims:
+        _require_final_claims_report_shape(
+            {"claims": [None]},
+            refusal_code="nl_final_policy_claims_selected_payload_invalid",
+        )
+    assert malformed_claims.value.code == "nl_final_policy_claims_selected_payload_invalid"
+    with pytest.raises(CanonicalProfileRefusalError) as malformed_inline:
+        _require_final_claims_report_shape(
+            "not-an-object",
+            refusal_code="nl_final_policy_claims_inline_payload_invalid",
+        )
+    assert malformed_inline.value.code == "nl_final_policy_claims_inline_payload_invalid"
+
+    valid_empty_failed_report = {
+        "schema_version": "policyos.scientist.final_policy_claims.v1",
+        "extraction_status": "fail",
+        "human_review_required": False,
+        "claims": [],
+        "major_claims": [],
+        "issues": [{"code": "policy_claim_extraction_failed", "severity": "fail"}],
+    }
+    selected_report = _require_final_claims_report_shape(
+        valid_empty_failed_report,
+        refusal_code="nl_final_policy_claims_selected_payload_invalid",
+    )
+    assert selected_report == valid_empty_failed_report
+
+    # The typed empty artifact is retained for the real quality consumer, which
+    # refuses it as unusable policy evidence instead of treating it as absence.
+    grounding = build_policy_grounding_matrix_report(
+        claims=[],
+        claim_extraction_report=selected_report,
+        enforce_claim_support_semantics=True,
+    )
+    assert grounding["status"] == "fail"
+    assert "policy_claim_extraction_failed" in {issue["code"] for issue in grounding["issues"]}
+    assert "no_policy_claims" in {issue["code"] for issue in grounding["issues"]}

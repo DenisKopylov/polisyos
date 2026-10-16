@@ -7,6 +7,8 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common._selected_artifact_intake import read_optional_selected_artifact
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.contracts.foundry import SimulationResult
@@ -78,6 +80,8 @@ _PHASE3_BLOCK_MECHANISM_CERTIFICATE_MISSING = "phase3.mechanism_certificate_miss
 _PHASE3_BLOCK_MECHANISM_WELFARE_BOUND_MISSING = "phase3.mechanism_welfare_bound_missing"
 _PHASE3_BLOCK_MECHANISM_FAMILY_UNSUPPORTED = "phase3.mechanism_family_unsupported"
 _PHASE3_BLOCK_FISCAL_FEEDBACK_MISSING = "phase3.fiscal_feedback_missing"
+_PHASE3_BLOCK_CANDIDATE_REFUSED = "phase3.selected_candidate_unreadable"
+_PHASE3_BLOCK_AMBIGUITY_REFUSED = "phase3.selected_ambiguity_unreadable"
 _SUPPORTED_MECHANISM_FAMILY_IDS = frozenset(
     {
         "bayes_tax_pl_v1",
@@ -157,13 +161,22 @@ def resolve_phase3_gate(
 ) -> Phase3CertificateStatus:
     """Resolve the complete Phase 3 certificate package from runtime state."""
 
-    resolved_candidate = candidate or _resolve_candidate(ctx, state)
+    candidate_refusal_code: str | None = None
+    try:
+        resolved_candidate = candidate if candidate is not None else _resolve_candidate(ctx, state)
+    except CanonicalProfileRefusalError as exc:
+        resolved_candidate = None
+        candidate_refusal_code = exc.code
     welfare_bundle_ref = _resolve_welfare_bundle_ref(ctx, state)
-    ambiguity_required = phase3_ambiguity_required(ctx, state, candidate=resolved_candidate)
-    ambiguity_certificate_ref = ensure_optimization_ambiguity_certificate(
+    (
+        ambiguity_required,
+        ambiguity_certificate_ref,
+        ambiguity_refusal_code,
+    ) = _resolve_phase3_gate_ambiguity(
         ctx,
         state,
-        create_if_missing=create_deterministic_ambiguity and not ambiguity_required,
+        candidate=resolved_candidate,
+        create_deterministic_ambiguity=create_deterministic_ambiguity,
     )
     semantic_ic_certificate_ref = _pick_first_ref(
         state.artifacts_index,
@@ -183,6 +196,10 @@ def resolve_phase3_gate(
     fiscal_feedback_ref = _resolve_fiscal_feedback_ref(state)
 
     blocking_reasons: list[str] = []
+    if candidate_refusal_code is not None:
+        blocking_reasons.append(f"{_PHASE3_BLOCK_CANDIDATE_REFUSED}:{candidate_refusal_code}")
+    if ambiguity_refusal_code is not None:
+        blocking_reasons.append(f"{_PHASE3_BLOCK_AMBIGUITY_REFUSED}:{ambiguity_refusal_code}")
     fiscal_feedback_required = False
     mechanism_required = bool(
         resolved_candidate is not None
@@ -259,6 +276,29 @@ def resolve_phase3_gate(
         gate_passed=not blocking_reasons,
         blocking_reasons=list(dict.fromkeys(blocking_reasons)),
     )
+
+
+def _resolve_phase3_gate_ambiguity(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+    *,
+    candidate: PolicyCandidateSchema | None,
+    create_deterministic_ambiguity: bool,
+) -> tuple[bool, OptimizationAmbiguityCertificateRef | None, str | None]:
+    """Keep selected ambiguity refusal intact across requirement and materialization."""
+
+    try:
+        required = phase3_ambiguity_required(ctx, state, candidate=candidate)
+        certificate_ref = ensure_optimization_ambiguity_certificate(
+            ctx,
+            state,
+            create_if_missing=create_deterministic_ambiguity and not required,
+        )
+    except CanonicalProfileRefusalError as exc:
+        # The required flag can skip the preflight read; materialization reads the
+        # same selected aliases. Both boundaries must produce one blocked outcome.
+        return True, None, exc.code
+    return required, certificate_ref, None
 
 
 def phase3_ambiguity_required(
@@ -567,33 +607,40 @@ def _resolve_candidate(
     from polisyos.core.artifacts import load_core_json_artifact
 
     payload = state.params.get("policy_candidate_schema")
-    if isinstance(payload, dict):
-        try:
-            return PolicyCandidateSchema.model_validate(payload)
-        except (TypeError, ValueError):
-            return None
+    if payload is not None:
+        return read_optional_selected_artifact(
+            payload,
+            lambda selected: PolicyCandidateSchema.model_validate(
+                selected.model_dump(mode="python") if hasattr(selected, "model_dump") else selected
+            ),
+            refusal_code="phase3_selected_candidate_payload_invalid",
+            expected_errors=(TypeError, ValueError),
+        )
 
     candidate_ref = state.params.get("policy_candidate_ref")
     if candidate_ref is not None:
-        try:
-            return load_policy_candidate_schema(
+        return read_optional_selected_artifact(
+            candidate_ref,
+            lambda selected: load_policy_candidate_schema(
                 ctx.store,
-                ArtifactRef.model_validate(candidate_ref),
-            )
-        except (TypeError, ValueError, OSError, RuntimeError):
-            return None
+                ArtifactRef.model_validate(selected),
+            ),
+            refusal_code="phase3_selected_candidate_unreadable",
+            expected_errors=(TypeError, ValueError, OSError, RuntimeError),
+        )
 
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
     if trinity_ref is None:
         return None
-    try:
-        payload = load_core_json_artifact(ctx.store, trinity_ref)
-        return PolicyCandidateSchema.from_trinity_bundle(
-            TrinityBundle.model_validate(payload),
+    return read_optional_selected_artifact(
+        trinity_ref,
+        lambda selected: PolicyCandidateSchema.from_trinity_bundle(
+            TrinityBundle.model_validate(load_core_json_artifact(ctx.store, selected)),
             candidate_id=str(state.params.get("policy_candidate_id") or state.run_id),
-        )
-    except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
-        return None
+        ),
+        refusal_code="phase3_selected_trinity_candidate_unreadable",
+        expected_errors=(AttributeError, OSError, RuntimeError, TypeError, ValueError),
+    )
 
 
 def _resolve_welfare_bundle_ref(
@@ -624,21 +671,29 @@ def _resolve_ambiguity_payload(
         "ambiguity_certificate_ref",
         "moment_dro_certificate_ref",
     ):
-        ref = _coerce_ref(state.params.get(key), ArtifactRef)
-        if ref is None:
+        selected_ref = state.params.get(key)
+        if selected_ref is None:
             continue
-        payload = _load_json_mapping(ctx, ref)
+        ref = _coerce_ref(selected_ref, ArtifactRef)
+        if ref is None:
+            raise CanonicalProfileRefusalError(f"phase3_{key}_invalid")
+        payload = _load_json_mapping(ctx, ref, refusal_code=f"phase3_{key}_unreadable")
         resolved = _extract_ambiguity_payload(payload)
-        if resolved is not None:
-            return resolved
+        if resolved is None:
+            raise CanonicalProfileRefusalError(f"phase3_{key}_payload_invalid")
+        return resolved
 
     for key in (
         "ambiguity_certificate",
         "moment_dro_certificate",
     ):
-        resolved = _extract_ambiguity_payload(state.params.get(key))
-        if resolved is not None:
-            return resolved
+        inline_payload = state.params.get(key)
+        if inline_payload is None:
+            continue
+        resolved = _extract_ambiguity_payload(inline_payload)
+        if resolved is None:
+            raise CanonicalProfileRefusalError(f"phase3_{key}_payload_invalid")
+        return resolved
 
     for container_key in (
         "optimization_result",
@@ -1079,16 +1134,23 @@ def _coerce_ref(value: Any, ref_cls):
         return None
 
 
-def _load_json_mapping(ctx: ExecutionContext, ref: ArtifactRef) -> dict[str, Any] | None:
+def _load_json_mapping(
+    ctx: ExecutionContext,
+    ref: ArtifactRef,
+    *,
+    refusal_code: str = "phase3_selected_ambiguity_unreadable",
+) -> dict[str, Any]:
     from polisyos.core.artifacts import load_core_json_artifact
 
-    try:
-        payload = load_core_json_artifact(ctx.store, ref)
-    except (OSError, RuntimeError, TypeError, ValueError):
-        return None
-    if isinstance(payload, Mapping):
-        return _json_mapping(payload)
-    return None
+    payload = read_optional_selected_artifact(
+        ref,
+        lambda selected: load_core_json_artifact(ctx.store, selected),
+        refusal_code=refusal_code,
+        expected_errors=(OSError, RuntimeError, TypeError, ValueError),
+    )
+    if not isinstance(payload, Mapping):
+        raise CanonicalProfileRefusalError(f"{refusal_code}_payload_invalid")
+    return _json_mapping(payload)
 
 
 def _json_mapping(value: Mapping[str, Any]) -> dict[str, Any]:

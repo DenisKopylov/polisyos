@@ -72,8 +72,12 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
   helper surfaces used across packages. `canonical_profile.py` is a supported, storage-agnostic helper: it parses the exact raw selected manifest, distinguishes
   a missing declaration from malformed-present data, and applies caller-supplied
   codecs to verify declared payload bytes. The caller keeps its own typed tags and
-  exceptions. The helper establishes reader consistency only, not writer identity
-  or producer authority, and is not exported through the Common facade.
+  exceptions. The internal `common/_selected_artifact_intake.py` wrapper preserves
+  `None` only for a missing selector; once selected, expected storage, decoding,
+  and validation failures or a reader-returned `None` become an owner-coded
+  `CanonicalProfileRefusalError`, while unexpected exceptions propagate unchanged.
+  It is not exported by either Common facade or the supported profile module.
+  The intake wrapper establishes no writer identity or producer authority.
 - `config.py`, `jax_env.py`, and `env_parsing.py` are early-process bootstrap
   helpers; keep domain behavior out of them.
 - `migrations/` owns package-local migration manifest helpers.

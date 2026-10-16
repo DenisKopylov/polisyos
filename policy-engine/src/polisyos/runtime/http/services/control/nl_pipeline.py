@@ -17,7 +17,9 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
+from polisyos.common._selected_artifact_intake import read_optional_selected_artifact
 from polisyos.common.async_tools import run_blocking_async
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import read_core_json_artifact
 from polisyos.core.canon import to_canonical_bytes
@@ -103,6 +105,56 @@ logger = get_logger(__name__)
 _CURRENT_NL_STEP_ID: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "polisyos_current_nl_step_id", default=None
 )
+
+
+def _selected_final_claims_refusal_report(*, refusal_code: str) -> dict[str, Any]:
+    """Build a failing citation report when supplied final-claims evidence is unusable."""
+
+    return {
+        "schema_version": "policyos.scientist.citation_faithfulness.v1",
+        "status": "fail",
+        "live_llm_judging_enabled": False,
+        "claims": [],
+        "issues": [
+            {
+                "code": "selected_final_policy_claims_unavailable",
+                "severity": "fail",
+                "layer": "scientist_policy_artifacts",
+                "phase": "citation_faithfulness",
+                "claim_id": "selected_final_policy_claims",
+                "claim_text": "",
+                "citation_ref": None,
+                "label": "unverifiable",
+                "mismatch_dimensions": [],
+                "message": f"Selected final-policy-claims evidence was refused: {refusal_code}.",
+                "next_action": (
+                    "Repair or reissue the selected claims artifact before citation review."
+                ),
+            }
+        ],
+        "blocking_issue_count": 1,
+        "label_counts": {},
+        "residual_risk": {
+            "level": "high",
+            "deterministic_only": True,
+            "summary": "Selected final-policy-claims evidence was not established.",
+        },
+    }
+
+
+def _require_final_claims_report_shape(
+    payload: object,
+    *,
+    refusal_code: str,
+) -> dict[str, Any]:
+    """Reject malformed supplied reports while preserving valid empty reports."""
+
+    if not isinstance(payload, Mapping) or not payload:
+        raise CanonicalProfileRefusalError(refusal_code)
+    claims = payload.get("claims", payload.get("policy_claims"))
+    if not isinstance(claims, list) or any(not isinstance(claim, Mapping) for claim in claims):
+        raise CanonicalProfileRefusalError(refusal_code)
+    return dict(payload)
 
 
 def _cost_number(value: object) -> float | None:
@@ -2373,6 +2425,7 @@ class NaturalLanguageRunMixin:
             runtime_quality_artifact_refs: dict[str, ArtifactRef] = {}
             runtime_quality_evidence: dict[str, Any] = {}
             runtime_quality_cost_events: list[dict[str, Any]] = []
+            selected_final_claims_refusal_codes: list[str] = []
             runtime_quality_diagnostic_events: list[dict[str, Any]] = []
             diagnostic_event_log_ref: str | None = None
 
@@ -2701,9 +2754,32 @@ class NaturalLanguageRunMixin:
             ) -> dict[str, Any]:
                 report = variant.get("final_policy_claims")
                 if isinstance(report, Mapping):
-                    return dict(report)
-                loaded = _load_json_artifact_payload(variant.get("final_policy_claims_ref"))
-                return loaded or {}
+                    return _require_final_claims_report_shape(
+                        report,
+                        refusal_code="nl_final_policy_claims_inline_payload_empty",
+                    )
+                if report is not None:
+                    raise CanonicalProfileRefusalError(
+                        "nl_final_policy_claims_inline_payload_invalid"
+                    )
+                selected_ref = variant.get("final_policy_claims_ref")
+                if selected_ref is None:
+                    return {}
+                artifact_id = _artifact_id_from_ref_payload(selected_ref)
+                if artifact_id is None and isinstance(selected_ref, str):
+                    artifact_id = selected_ref.strip()
+                if not artifact_id:
+                    raise CanonicalProfileRefusalError("nl_final_policy_claims_ref_invalid")
+                payload = read_optional_selected_artifact(
+                    artifact_id,
+                    lambda selected: read_core_json_artifact(store, selected).value,
+                    refusal_code="nl_final_policy_claims_selected_unreadable",
+                    expected_errors=(OSError, RuntimeError, TypeError, ValueError),
+                )
+                return _require_final_claims_report_shape(
+                    payload,
+                    refusal_code="nl_final_policy_claims_selected_payload_invalid",
+                )
 
             def _claims_from_final_report(
                 report: Mapping[str, Any],
@@ -7687,9 +7763,13 @@ class NaturalLanguageRunMixin:
                 ]
                 auto_refs = selected_variant.get("auto_data_source_refs")
                 if isinstance(auto_refs, Mapping):
-                    final_claims_report_for_data_quality = _final_policy_claims_report_from_variant(
-                        selected_variant
-                    )
+                    try:
+                        final_claims_report_for_data_quality = (
+                            _final_policy_claims_report_from_variant(selected_variant)
+                        )
+                    except CanonicalProfileRefusalError as exc:
+                        selected_final_claims_refusal_codes.append(exc.code)
+                        final_claims_report_for_data_quality = {}
                     final_claims_for_data_quality = _claims_from_final_report(
                         final_claims_report_for_data_quality
                     )
@@ -8524,7 +8604,13 @@ class NaturalLanguageRunMixin:
                                 "runtime_quality_refs": dict(runtime_quality_refs),
                             },
                         )
-                    final_claims_report = _final_policy_claims_report_from_variant(selected_variant)
+                    try:
+                        final_claims_report = _final_policy_claims_report_from_variant(
+                            selected_variant
+                        )
+                    except CanonicalProfileRefusalError as exc:
+                        selected_final_claims_refusal_codes.append(exc.code)
+                        final_claims_report = {}
                     deterministic_evidence = _deterministic_scenario_quality_evidence(
                         selected_variant.get("auto_data_source_refs")
                         if isinstance(selected_variant.get("auto_data_source_refs"), Mapping)
@@ -8532,6 +8618,7 @@ class NaturalLanguageRunMixin:
                     )
                     if (
                         _deterministic_scenario_enabled()
+                        and not selected_final_claims_refusal_codes
                         and "final_policy_claims" in deterministic_evidence
                     ):
                         final_claims_report = dict(deterministic_evidence["final_policy_claims"])
@@ -8558,7 +8645,21 @@ class NaturalLanguageRunMixin:
                     )
                     model_variant_claims: list[dict[str, Any]] = []
                     for variant in variants:
-                        variant_claims_report = _final_policy_claims_report_from_variant(variant)
+                        variant_claims_refusal_code: str | None = None
+                        try:
+                            variant_claims_report = _final_policy_claims_report_from_variant(
+                                variant
+                            )
+                        except CanonicalProfileRefusalError as exc:
+                            variant_claims_refusal_code = exc.code
+                            variant_claims_report = {}
+                            is_selected_variant = variant is selected_variant or (
+                                selected_variant_id is not None
+                                and str(variant.get("model_variant_id") or "")
+                                == str(selected_variant_id)
+                            )
+                            if is_selected_variant:
+                                selected_final_claims_refusal_codes.append(exc.code)
                         model_variant_claims.append(
                             {
                                 "model_variant_id": variant.get("model_variant_id"),
@@ -8572,20 +8673,26 @@ class NaturalLanguageRunMixin:
                                     "llm_model_adjudication_ref"
                                 ),
                                 "claims": _claims_from_final_report(variant_claims_report),
+                                "final_policy_claims_refusal_code": variant_claims_refusal_code,
                             }
                         )
 
-                    citation_faithfulness_report = (
-                        build_policy_context_citation_faithfulness_report(
-                            claims=final_policy_claims,
-                            normative_evidence=(
-                                dict(normative_evidence)
-                                if isinstance(normative_evidence, Mapping)
-                                else None
-                            ),
-                            fabric_retrieval_trace=fabric_retrieval_trace,
+                    if selected_final_claims_refusal_codes:
+                        citation_faithfulness_report = _selected_final_claims_refusal_report(
+                            refusal_code=selected_final_claims_refusal_codes[0]
                         )
-                    )
+                    else:
+                        citation_faithfulness_report = (
+                            build_policy_context_citation_faithfulness_report(
+                                claims=final_policy_claims,
+                                normative_evidence=(
+                                    dict(normative_evidence)
+                                    if isinstance(normative_evidence, Mapping)
+                                    else None
+                                ),
+                                fabric_retrieval_trace=fabric_retrieval_trace,
+                            )
+                        )
                     citation_inputs = [
                         ref
                         for ref in (

@@ -144,7 +144,6 @@ def test_core_selected_profile_is_refused_before_payload_io() -> None:
     assert store.payload_read is False
 
 
-
 def test_valid_unsupported_profile_is_raw_only_and_never_uses_a_codec_default() -> None:
     from polisyos.common.canonical_profile import (
         decode_profiled_canonical_bytes,
@@ -166,7 +165,8 @@ def test_valid_unsupported_profile_is_raw_only_and_never_uses_a_codec_default() 
         declaration,
         profile_model=CoreCanonInfo,
         make_spec=lambda item: CoreCanonSpec(**item.model_dump()),
-        decode=lambda data, max_depth: calls.append("decode") or core_from_canonical_bytes(data, max_depth=max_depth),
+        decode=lambda data, max_depth: calls.append("decode")
+        or core_from_canonical_bytes(data, max_depth=max_depth),
         encode=lambda value, spec: calls.append("encode") or core_to_canonical_bytes(value, spec),
     )
     assert read.status == "declared_unknown_candidate"
@@ -174,7 +174,9 @@ def test_valid_unsupported_profile_is_raw_only_and_never_uses_a_codec_default() 
     assert calls == []
     with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_not_verified"):
         _ = read.value
-    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_candidate_read_not_unqualified"):
+    with pytest.raises(
+        CanonicalProfileRefusalError, match="canon_profile_candidate_read_not_unqualified"
+    ):
         _ = read.unqualified_candidate_value
     with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_not_verified"):
         require_declared_profile(read)
@@ -185,3 +187,62 @@ def test_profile_refusal_keeps_existing_value_error_boundary_compatibility() -> 
     from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 
     assert issubclass(CanonicalProfileRefusalError, ValueError)
+
+
+def test_optional_selected_artifact_distinguishes_absence_and_refusal() -> None:
+    from polisyos.common._selected_artifact_intake import read_optional_selected_artifact
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+
+    assert (
+        read_optional_selected_artifact(
+            None,
+            lambda _selector: {"status": "pass"},
+            refusal_code="selected_payload_unavailable",
+            expected_errors=(OSError, ValueError),
+        )
+        is None
+    )
+    assert read_optional_selected_artifact(
+        "selected",
+        lambda selector: {"selector": selector},
+        refusal_code="selected_payload_unavailable",
+        expected_errors=(OSError, ValueError),
+    ) == {"selector": "selected"}
+
+    with pytest.raises(CanonicalProfileRefusalError) as refusal:
+        read_optional_selected_artifact(
+            "selected",
+            lambda _selector: (_ for _ in ()).throw(ValueError("bad selected bytes")),
+            refusal_code="selected_payload_unavailable",
+            expected_errors=(OSError, ValueError),
+        )
+    assert refusal.value.code == "selected_payload_unavailable"
+    assert isinstance(refusal.value.__cause__, ValueError)
+
+    with pytest.raises(CanonicalProfileRefusalError) as missing_payload:
+        read_optional_selected_artifact(
+            "selected",
+            lambda _selector: None,
+            refusal_code="selected_payload_unavailable",
+            expected_errors=(OSError, ValueError),
+        )
+    assert missing_payload.value.code == "selected_payload_unavailable"
+
+
+def test_optional_selected_artifact_does_not_relabel_unexpected_internal_errors() -> None:
+    from polisyos.common._selected_artifact_intake import read_optional_selected_artifact
+
+    class InternalInvariantError(Exception):
+        pass
+
+    try:
+        read_optional_selected_artifact(
+            "selected",
+            lambda _selector: (_ for _ in ()).throw(InternalInvariantError("bug")),
+            refusal_code="selected_payload_unavailable",
+            expected_errors=(OSError, ValueError),
+        )
+    except InternalInvariantError:
+        pass
+    else:
+        raise AssertionError("unexpected internal errors must keep their original type")

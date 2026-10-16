@@ -9,6 +9,8 @@ from typing import Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.common._selected_artifact_intake import read_optional_selected_artifact
+from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.ir.analytics._truthfulness import (
     TruthfulnessReceipt,
     TruthfulnessScope,
@@ -317,6 +319,31 @@ def build_simulation_proof_bridge_artifacts(
     query_ref = _coerce_optional_ref(causal_query_ref)
     base_proof_ref = _coerce_typed_optional_ref(base_proof_bundle_ref, ProofBundleRef)
 
+    # Selected constraint/readiness artifacts affect BLOCKED classification. Read
+    # them before writing any derived artifacts so a malformed selected view is an
+    # explicit refusal, while an omitted selector remains an optional absence.
+    selected_report_refusal_reasons: list[str] = []
+    try:
+        constraint_payload = _load_selected_report_payload(
+            store,
+            constraint_ref,
+            role="constraint_report",
+        )
+    except CanonicalProfileRefusalError as exc:
+        constraint_payload = None
+        selected_report_refusal_reasons.append(f"constraint_report_selected_refused:{exc.code}")
+    try:
+        readiness_payload = _load_selected_report_payload(
+            store,
+            readiness_ref,
+            role="causal_readiness_bundle",
+        )
+    except CanonicalProfileRefusalError as exc:
+        readiness_payload = None
+        selected_report_refusal_reasons.append(
+            f"causal_readiness_bundle_selected_refused:{exc.code}"
+        )
+
     bound_simulation_payload, simulation_intake_reasons = _load_truthfulness_owner_payload(
         store,
         sim_ref,
@@ -459,22 +486,27 @@ def build_simulation_proof_bridge_artifacts(
     )
     proof = attach_proof_composability_to_proof_bundle(proof, certificate_ref, certificate)
 
-    reasons = _degradation_reasons(
-        has_causal_query=causal_query is not None or query_ref is not None,
-        has_interface_mapping=mapping_ref is not None,
-        base_proof_ref=base_proof_ref,
-        calibration_receipt=receipt,
-        calibration_accepted=calibration_accepted,
-        composability_status=composability_status.value,
-        constraint_payload=_load_payload(store, constraint_ref)
-        if constraint_ref is not None
-        else None,
-        readiness_payload=_load_payload(store, readiness_ref)
-        if readiness_ref is not None
-        else None,
-        validity_payload=(
-            _load_causal_validity_payload(store, validity_ref) if validity_ref is not None else None
-        ),
+    reasons = tuple(
+        dict.fromkeys(
+            (
+                *_degradation_reasons(
+                    has_causal_query=causal_query is not None or query_ref is not None,
+                    has_interface_mapping=mapping_ref is not None,
+                    base_proof_ref=base_proof_ref,
+                    calibration_receipt=receipt,
+                    calibration_accepted=calibration_accepted,
+                    composability_status=composability_status.value,
+                    constraint_payload=constraint_payload,
+                    readiness_payload=readiness_payload,
+                    validity_payload=(
+                        _load_causal_validity_payload(store, validity_ref)
+                        if validity_ref is not None
+                        else None
+                    ),
+                ),
+                *selected_report_refusal_reasons,
+            )
+        )
     )
     certification_status = _certification_status(
         proof=proof,
@@ -585,6 +617,27 @@ def _lineage_inputs(items: Sequence[tuple[str, Any | None]]) -> list[InputRef]:
         if ref is not None:
             inputs.append(_input_ref(ref, role))
     return inputs
+
+
+def _load_selected_report_payload(
+    store: ArtifactStore,
+    ref: ArtifactRefModel | None,
+    *,
+    role: Literal["constraint_report", "causal_readiness_bundle"],
+) -> dict[str, Any] | None:
+    """Load an optional selected blocker report, refusing malformed present refs."""
+
+    payload = read_optional_selected_artifact(
+        ref,
+        lambda selected: get_json_artifact(store, selected),
+        refusal_code=f"simulation_bridge_{role}_selected_unreadable",
+        expected_errors=(FileNotFoundError, OSError, TypeError, ValueError),
+    )
+    if payload is None:
+        return None
+    if not isinstance(payload, Mapping):
+        raise CanonicalProfileRefusalError(f"simulation_bridge_{role}_selected_payload_invalid")
+    return dict(payload)
 
 
 def _load_payload(store: ArtifactStore, ref: ArtifactRefModel | None) -> dict[str, Any] | None:
@@ -901,10 +954,17 @@ def _certification_status(
 
 
 def _has_blocking_reason(reasons: Sequence[str]) -> bool:
+    blocking_reasons = {
+        "constraint_report_hard_fail",
+        "causal_readiness_blocked",
+        "causal_validity_failed",
+    }
+    refusal_prefixes = (
+        "constraint_report_selected_refused:",
+        "causal_readiness_bundle_selected_refused:",
+    )
     return any(
-        reason
-        in {"constraint_report_hard_fail", "causal_readiness_blocked", "causal_validity_failed"}
-        for reason in reasons
+        reason in blocking_reasons or reason.startswith(refusal_prefixes) for reason in reasons
     )
 
 

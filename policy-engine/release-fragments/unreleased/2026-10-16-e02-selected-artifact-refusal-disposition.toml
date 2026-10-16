@@ -1,0 +1,27 @@
+id = "2026-10-16-e02-selected-artifact-refusal-disposition"
+title = "Preserve refusal for malformed selected artifacts"
+type = "fixed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Malformed present selected artifacts, including a typed Phase 3 candidate whose serializer returns an invalid payload, remain typed refusals at the affected proof, Phase 3, and selected-claims consumer boundaries."
+evidence = [
+  "src/polisyos/common/canonical_profile.py",
+  "src/polisyos/common/_selected_artifact_intake.py",
+  "src/polisyos/ir/analytics/simulation_proof_bridge.py",
+  "src/polisyos/scientist/policy_design/phase3.py",
+  "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+  "tests/unit/common/test_canonical_profile.py",
+  "tests/unit/ir/analytics/test_simulation_proof_bridge.py",
+  "tests/unit/scientist/policy_design/test_phase3_decision_layer.py",
+  "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+]
+compatibility = "No artifact schema or canonical-profile law changes. A genuinely absent selector retains its existing optional behavior; a supplied selected ref whose read is refused or returns no payload is no longer collapsed into absence. No blanket legacy migration or G-owned profile decision is introduced."
+change_class = "internal"
+surface_classification = "internal runtime consumer behavior; no new supported facade export or generated-client surface"
+migration = "Repair or reissue a malformed selected artifact, or omit the selector only when the existing owner contract permits true absence. Do not encode malformed-present data as an absent input."
+api = "The shared selected-view wrapper remains internal. Existing consumer outcomes are fail-closed for these malformed-present paths: the proof bridge records a blocker, Phase 3 records a blocking reason even when a selected typed candidate's model_dump returns None or another invalid value, and the selected-claims citation report is proposed to fail."
+limitations = "The authentic NL pipeline consumer replay is not established: its source-authenticity guard rejects candidate overlay imports. The selected-claims route remains verification_missing pending the composed canonical-source replay. This proposal creates no law, producer identity, issuer, custody, currentness, calibration, or publication authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

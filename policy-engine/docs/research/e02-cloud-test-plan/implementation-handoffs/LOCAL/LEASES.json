@@ -2879,5 +2879,47 @@
     "verification_context": "Actual source14ad four-suite99PASS1FAIL125.719s retained, Ruff8PASS selectedMyPy2PASS. Author fixed freshchild1PASS18.047s on actualOWN; root canonical companion replay pending; no unioned100PASS claim.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_selected_artifact_refusal_disposition_r2": {
+    "root_writer": "/root",
+    "base": "1229425d577e76f6af53ba34f416fda3fd25a829",
+    "author_slice_base": {
+      "commit": "033ea7594187ce00916150bd767ebd81d19742cc",
+      "tree": "5b4ee123914988b3cd06cd7723e85fe00c341476"
+    },
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py",
+      "policy-engine/src/polisyos/scientist/policy_design/phase3.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "policy-engine/src/polisyos/common/_selected_artifact_intake.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/tests/unit/common/test_canonical_profile.py",
+      "policy-engine/tests/unit/ir/analytics/test_simulation_proof_bridge.py",
+      "policy-engine/tests/unit/scientist/policy_design/test_phase3_decision_layer.py",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "policy-engine/src/polisyos/common/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-selected-artifact-refusal-disposition.toml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate actual canonical consumer receipt/index"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/selected-artifact-refusal-disposition-author-r2-20261016/patch-file-manifest-r2.json",
+      "sha256": "ce3fa800dfcb2fd0622f01ef35f379d79212e10ccd75386937a12bbb68fae57e"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/selected-artifact-refusal-r2-independent-review-20261017/review.json",
+      "sha256": "14abc44c659b11d9f67e96331e47e2d8da2001b05409360615c9804500275f8e"
+    },
+    "P40": "Shared intake over all6callers keeps original suppliedselector; normalization+validation inside reader. Only genuineNone absence; malformedpresent stays typedrefusal. All36ambiguitybasis cells retained.",
+    "canonical_root_style_companion": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-adoption-20261017/one-line-companion-readback.json",
+      "sha256": "287eb3bbc774b9b861cad2ac2e0ad5b5cd4e60aa1d70821885d4ac61af1ad90c",
+      "delta": "Remove exactly one blank line between same-package function-local imports; wholemoduleASTequal; actual8Python check+formatPASS. Author nine-file claim includes RAW probe, not eight product/test paths."
+    },
+    "composition": "C05Phase3 instrumentation layers onto exact47e9d19f... and preserves allrefusalbridges; root applies overlap sequentially.",
+    "claim_boundary": "34census rows preserved; actualAUTHNLroute/fullchangedmoduleMyPy pending rootcanonicalreplay. No formalclosures/authoritypromotion.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

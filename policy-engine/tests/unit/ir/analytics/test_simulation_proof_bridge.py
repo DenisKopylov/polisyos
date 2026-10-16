@@ -138,7 +138,14 @@ def _produce_real_foundry_simulation(store: FileSystemCAS):
     state_ref = StateSnapshotRef(artifact_id=snapshot_ref.artifact_id)
     data_ref = store.put_json(
         DataSnapshot(data_ref=state_ref),
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
     )
     bindings_ref = store.put_json(
         FoundryInputBindings(
@@ -147,7 +154,14 @@ def _produce_real_foundry_simulation(store: FileSystemCAS):
             rules=[],
             bound_state_snapshot_ref=state_ref,
         ),
-        PutOptions(kind="foundry.input_bindings", media_type="application/json"),
+        PutOptions(
+            kind=FoundryInputBindings.ARTIFACT_KIND,
+            media_type=FoundryInputBindings.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=FoundryInputBindings.ARTIFACT_SCHEMA_NAME,
+                version=FoundryInputBindings.ARTIFACT_SCHEMA_VERSION,
+            ),
+        ),
     )
     result = execute_foundry(
         store,
@@ -845,3 +859,144 @@ def test_simulation_proof_bridge_rejects_malformed_explicit_receipt(tmp_path) ->
             simulation_result_ref=simulation_ref,
             calibration_receipt={"runtime_truthfulness_tier": "forged-tier"},
         )
+
+
+def test_selected_optional_bridge_report_refuses_unreadable_profile(monkeypatch) -> None:
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.ir.analytics import simulation_proof_bridge as bridge_module
+
+    selector = ArtifactRefModel(
+        artifact_id="sha256:" + "f" * 64,
+        kind="ir.constraint_report",
+        media_type="application/json",
+        manifest_profile_sha256="sha256:" + "a" * 64,
+    )
+    store = object()
+
+    monkeypatch.setattr(
+        bridge_module, "get_json_artifact", lambda _store, _ref: {"hard_fail": True}
+    )
+    assert bridge_module._load_selected_report_payload(
+        store, selector, role="constraint_report"
+    ) == {"hard_fail": True}
+    assert (
+        bridge_module._load_selected_report_payload(store, None, role="constraint_report") is None
+    )
+
+    def refuse(_store, _ref):
+        raise CanonicalProfileRefusalError("canon_profile_not_verified")
+
+    monkeypatch.setattr(bridge_module, "get_json_artifact", refuse)
+    with pytest.raises(CanonicalProfileRefusalError) as refusal:
+        bridge_module._load_selected_report_payload(store, selector, role="constraint_report")
+    assert refusal.value.code == "canon_profile_not_verified"
+
+
+def test_selected_report_refusal_persists_blocked_bridge(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    simulation_ref = store.put_json(
+        {"schema_version": "1.3", "notes": []},
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    )
+    selected_report = store.put_json(
+        {"hard_fail": False},
+        PutOptions(kind="ir.constraint_report", media_type="application/json"),
+    )
+    malformed_selected_ref = ArtifactRefModel.model_validate(
+        selected_report.model_dump(mode="json")
+    ).model_copy(update={"manifest_profile_sha256": "sha256:" + "f" * 64})
+    output = build_simulation_proof_bridge_artifacts(
+        _ensure_ir_artifact_store(store),
+        run_id="R_selected_constraint_refusal",
+        simulation_result_ref=simulation_ref,
+        constraint_report_ref=malformed_selected_ref,
+    )
+
+    assert output.certification_status is SimulationCertificationStatus.BLOCKED
+    refusal_reason = (
+        "constraint_report_selected_refused:simulation_bridge_constraint_report_selected_unreadable"
+    )
+    assert refusal_reason in output.degradation_reasons
+    bridge = load_simulation_proof_bridge(_ensure_ir_artifact_store(store), output.bridge_ref)
+    assert bridge.certification_status is SimulationCertificationStatus.BLOCKED
+    assert refusal_reason in bridge.degradation_reasons
+
+
+def test_valid_selected_hard_fail_constraint_blocks_bridge(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    simulation_ref = store.put_json(
+        {"schema_version": "1.3", "notes": []},
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    )
+    constraint_ref = store.put_json(
+        {"hard_fail": True},
+        PutOptions(kind="ir.constraint_report", media_type="application/json"),
+    )
+
+    output = build_simulation_proof_bridge_artifacts(
+        _ensure_ir_artifact_store(store),
+        run_id="R_selected_constraint_hard_fail",
+        simulation_result_ref=simulation_ref,
+        constraint_report_ref=constraint_ref,
+    )
+
+    assert output.certification_status is SimulationCertificationStatus.BLOCKED
+    assert "constraint_report_hard_fail" in output.degradation_reasons
+
+
+def test_selected_readiness_report_refusal_blocks_and_absence_stays_optional(tmp_path) -> None:
+    from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
+    from polisyos.ir.observation.causal_readiness import (
+        CausalReadinessBundle,
+        TransportabilityCheckEntry,
+        persist_causal_readiness_bundle,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    ir_store = _ensure_ir_artifact_store(store)
+    simulation_ref = store.put_json(
+        {"schema_version": "1.3", "notes": []},
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    )
+    readiness_ref = persist_causal_readiness_bundle(
+        ir_store,
+        CausalReadinessBundle(
+            transport_results=[TransportabilityCheckEntry(check_id="transport", status="blocked")]
+        ),
+    )
+
+    valid = build_simulation_proof_bridge_artifacts(
+        ir_store,
+        run_id="R_selected_readiness_valid",
+        simulation_result_ref=simulation_ref,
+        causal_readiness_bundle_ref=readiness_ref,
+    )
+    assert valid.certification_status is SimulationCertificationStatus.BLOCKED
+    assert "causal_readiness_blocked" in valid.degradation_reasons
+
+    malformed_ref = CoreArtifactRef.model_validate(
+        readiness_ref.model_dump(mode="json")
+    ).model_copy(update={"manifest_profile_sha256": "sha256:" + "f" * 64})
+    refused = build_simulation_proof_bridge_artifacts(
+        ir_store,
+        run_id="R_selected_readiness_refused",
+        simulation_result_ref=simulation_ref,
+        causal_readiness_bundle_ref=malformed_ref,
+    )
+    refusal_reason = (
+        "causal_readiness_bundle_selected_refused:"
+        "simulation_bridge_causal_readiness_bundle_selected_unreadable"
+    )
+    assert refused.certification_status is SimulationCertificationStatus.BLOCKED
+    assert refusal_reason in refused.degradation_reasons
+
+    absent = build_simulation_proof_bridge_artifacts(
+        ir_store,
+        run_id="R_selected_readiness_absent",
+        simulation_result_ref=simulation_ref,
+    )
+    assert absent.certification_status is SimulationCertificationStatus.SCENARIO
+    assert not any(
+        reason.startswith("causal_readiness_bundle_selected_refused:")
+        for reason in absent.degradation_reasons
+    )

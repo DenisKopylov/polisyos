@@ -21,29 +21,29 @@ migration = "Direct callers that previously consumed heuristic LegalConstraintSe
 api = "The shared source-relation contract carries trust_tier=search_candidate and a typed legal_source_relation_verification_not_established refusal. LegalConstraintBridge invokes that gate before any database lookup, so both a populated candidate-fact database and a missing database produce a refusal rather than a constraint or an unblocked result."
 limitations = "No law, issuer, permission, source custody, relation verifier, currentness, or positive/negative transport conclusion is established. The current implementation has no admitted positive verifier path. The two focused controls exercise candidate facts and absent storage only; they do not establish the whole Lex, API, or policy-design capability."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 
 [[compatibility_change]]
 id = "e02-legal-transport-source-relation-refusal"
 change_class = "python-public-api"
 impact = "breaking"
-surface = "Direct LegalConstraintBridge.get_constraints_for_policy callers using the existing canonical API"
+surface = "public_stable: polisyos.lex.LegalConstraintBridge.get_constraints_for_policy"
 owner = "team-polisyos"
 version_owner = "team-polisyos"
 deprecation_window = "not_applicable"
 release_note = "Direct callers must handle LegalSourceRelationVerificationMissingError(status=verification_missing); candidate legal facts and absent rows do not establish transport permission or a legal constraint."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 
 
 [[compatibility_change]]
 id = "e02-legal-transport-root-facade-aliases"
 change_class = "python-public-api"
 impact = "additive"
-surface = "public stable: polisyos.lex root lazy facade (six aliases to canonical symbols)"
+surface = "public_stable: polisyos.lex root lazy facade (six named aliases; identity scoped to the named aliases)"
 owner = "team-polisyos"
 version_owner = "team-polisyos"
 deprecation_window = "not_applicable"
 release_note = "The polisyos.lex root facade exposes the existing transport bridge, result set, blocking helper, evaluator, and source-relation refusal types as lazy aliases to their canonical owners."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true

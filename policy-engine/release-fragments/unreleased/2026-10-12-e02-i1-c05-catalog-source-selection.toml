@@ -16,11 +16,11 @@ evidence = [
   "docs/reference/api/migration-guide.md",
 ]
 compatibility = "The new create_runtime_api_app catalog_source_selection option is optional and keyword-only. When omitted, the existing repository-default catalog input remains selected. A supplied selector/profile mismatch or missing/unbound database refuses composition; no HTTP request/response or OpenAPI fields change."
-change_class = "additive"
-surface_classification = "public Python app-factory configuration only; the HTTP endpoint and generated-client contract do not change."
+change_class = "internal"
+surface_classification = "internal: polisyos.runtime.http.app.create_runtime_api_app"
 migration = "No persisted-data migration is required. Deployments that opt in pass a CatalogServingSourceSelection containing an absolute snapshot_root and CatalogRunProfile; the selected fixed-layout database is candidate input only."
 api = "create_runtime_api_app(catalog_source_selection=CatalogServingSourceSelection(snapshot_root=..., catalog_run_profile=...)) selects snapshot_root/datasets/graph/dataset_catalog.duckdb for candidate L1 consumers. When app catalog_run_profile is omitted, the selector profile is used; conflicting profiles and missing DB paths refuse. The same resolved source is bound through sync NL and async recursive generation and shared L1 consumers."
-limitations = "Path/profile resolution does not establish producer publication lineage, source content provenance, global profile coverage, freshness/currentness, external authority, or publication readiness. Legacy absence remains candidate-only; no production manifest, source profile registry, or historical artifact is rewritten. Public-surface classification remains owner-held: the supported public-surface contract does not list polisyos.runtime.http.app as an entrypoint. The row retains python-public-api as the candidate classification, and this fragment does not claim public export review is complete."
+limitations = "Path/profile resolution does not establish producer publication lineage, source content provenance, global profile coverage, freshness/currentness, external authority, or publication readiness. The existing public-surface contract lists only polisyos.runtime; its unlisted http.app factory route is internal by the contract internal_rule."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
 migration_docs = ["docs/reference/api/migration-guide.md", "src/polisyos/runtime/http/README.md"]
@@ -28,9 +28,9 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "runtime-app-candidate-catalog-source"
-change_class = "python-public-api"
-impact = "compatible"
-surface = "optional keyword-only create_runtime_api_app configuration; no HTTP request/response or OpenAPI shape change"
+change_class = "internal"
+impact = "internal"
+surface = "internal: polisyos.runtime.http.app.create_runtime_api_app"
 owner = "team-runtime"
 version_owner = "team-runtime"
 deprecation_window = "not_applicable"

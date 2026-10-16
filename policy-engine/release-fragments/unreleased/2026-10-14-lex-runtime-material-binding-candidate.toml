@@ -63,6 +63,7 @@ version_owner = "team-polisyos"
 deprecation_window = "not_applicable"
 release_note = "The stable LegalCandidatePack model exposes the defaulted legal_retrieval_status field for per-query and per-route retrieval outcomes. Omitting the field remains accepted by the typed model; the field records retrieval status, not legal authority."
 generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/scientist/agent/README.md"]
 runbook_docs = []
 
@@ -76,6 +77,7 @@ version_owner = "team-polisyos"
 deprecation_window = "not_applicable"
 release_note = "Add a same-call typed retrieval-status method while retaining the legacy list-returning hybrid_search API. Retrieval status remains evidence of query outcome, not legal authority."
 generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/lex/knowledge/README.md"]
 runbook_docs = []
 
@@ -89,5 +91,6 @@ version_owner = "team-data-forge"
 deprecation_window = "not_applicable"
 release_note = "Expose the versioned Legal runtime-material owner and typed refusal through the experimental Data Forge read facade. This local candidate contract does not establish production currentness or legal authority."
 generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
 migration_docs = ["src/polisyos/data_forge/README.md"]
 runbook_docs = []

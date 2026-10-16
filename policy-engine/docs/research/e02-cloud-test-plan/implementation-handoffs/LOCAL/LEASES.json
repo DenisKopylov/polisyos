@@ -3228,5 +3228,32 @@
     "P40": "Same nonexecutionidentity/cachealias class: onlyactualacceptedattributionvector carries effective_method_id; unavailable/failedcachedaliasno-vector remainsNone; exactbuiltin cacheeligibility and confidence/fallback preserved.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_nine_reviewed_public_surface_fragments": {
+    "source_base": "ec8c7a046dc9fa9120bf2c3857dbd95e5c2b3ee7",
+    "root_is_only_canonical_writer": true,
+    "scope": [
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-authority-event-selected-profile.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-calibration-report-cas-bridge.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-i1-c05-catalog-source-selection.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-c05-selected-consumer-composition.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-fabric-registration-origin-binding.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-phase2-legal-source-relation-facade.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-scholar-bundle-persistence.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-transport-candidate-source-refusal.toml"
+    ],
+    "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/public-surface-metadata-adoption-delta-20261017-r1/review.json@sha256:45407c01fb66c63bc3e00207a9304b0bbb2e531bc250502dc92223bf3d2e2384",
+    "commit_inventory_basis": "de132f6a02e243a0fd6d2e53c166653b204b38d0",
+    "review_grade": "independently_reconciled selected declared API rows only; not global export completeness, authenticated owner or G acceptance",
+    "held": [
+      "registered-tool JSON ABI",
+      "dynamic Legal handle",
+      "Catalog composite row"
+    ],
+    "one_writer_per_mechanism": true,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ]
   }
 }

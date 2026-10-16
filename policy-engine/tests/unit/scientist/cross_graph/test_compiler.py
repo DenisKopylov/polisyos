@@ -6,7 +6,12 @@ from typing import cast
 import pytest
 
 from polisyos.data_forge.read_api.academic import ParameterCandidate
-from polisyos.ir.analytics.cross_graph import EvidenceNeed, EvidenceNeedType, EvidenceStatus
+from polisyos.ir.analytics.cross_graph import (
+    EvidenceNeed,
+    EvidenceNeedType,
+    EvidenceStatus,
+    LegalStatus,
+)
 from polisyos.ir.analytics.literature import EvidenceParameter, EvidenceStrength
 from polisyos.scientist.cross_graph import compiler
 
@@ -90,3 +95,34 @@ def test_parameter_candidate_keeps_established_quality_factors() -> None:
         quality_flags=("canonical_gap_resolved",),
     )
     assert compiler._parameter_candidate_score(candidate) == pytest.approx(0.205632)
+
+
+def test_unverified_transport_relation_remains_unknown_in_legal_consumer(tmp_path) -> None:
+    import duckdb
+
+    db_path = tmp_path / "empty_legal.duckdb"
+    with duckdb.connect(str(db_path)):
+        pass
+
+    bundle = SimpleNamespace(policy_spec=SimpleNamespace(model_dump=lambda **_kwargs: {}))
+    adapter = compiler._LegalGraphAdapter(
+        config=compiler.CrossGraphEvidenceConfig(legal_db_path=str(db_path)),
+        bundle=bundle,
+        causal_graph=None,
+        jurisdiction="UA",
+        policy_domain="social",
+    )
+    need = EvidenceNeed(
+        need_id="legal_relation_missing",
+        need_type=EvidenceNeedType.LEGAL_APPLICABILITY_NEED,
+    )
+
+    result = adapter.assess_need(need)
+
+    assert result.status is LegalStatus.UNKNOWN
+    assert result.confidence < 1.0
+    assert result.requires_expert_review is True
+    assert any(
+        diagnostic.code == "legal_source_relation_verification_not_established"
+        for diagnostic in result.diagnostics
+    )

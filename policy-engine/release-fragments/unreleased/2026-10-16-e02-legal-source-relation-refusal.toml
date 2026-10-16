@@ -1,0 +1,37 @@
+id = "2026-10-16-e02-legal-source-relation-refusal"
+title = "Keep unverified Legal search results candidate-only"
+type = "changed"
+component = "runtime-api"
+owner = "team-policyos-runtime"
+summary = "Authenticated Lex search returns candidate-tier facts with a typed refusal while independent claim-to-source verification is unavailable."
+evidence = [
+  "src/polisyos/data_forge/domains/legal/source_relation.py",
+  "src/polisyos/runtime/http/services/control/lex_pipeline.py",
+  "src/polisyos/runtime/http/services/control/lex_search_projection.py",
+  "src/polisyos/core/contracts/control.py",
+  "tests/integration/data_forge_runtime/test_legal_runtime_material_entrypoints.py",
+  "src/polisyos/data_forge/README.md",
+]
+compatibility = "Authenticated POST /api/v1/control/lex/search now preserves matching Legal candidate rows and returns the legal_relation_refusal status verification_missing. These rows are explicitly search_candidate; consumers must not treat them as normative or verified legal authority."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: Runtime API POST /api/v1/control/lex/search response"
+migration = "Regenerate Runtime API clients from the updated OpenAPI schema before release. Clients should render candidate-tier results separately from normative claims and retain the typed legal_relation_refusal; an empty result is not a substitute for that refusal. Existing DuckDB graphs are not rewritten in place, so rebuild them through the ordinary producer or graph builder to recompute candidate tiers."
+api = "The response adds the typed legal_relation_refusal object with code legal_source_relation_verification_not_established and status verification_missing. Result rows preserve LegalFactResult fields, including trust_tier=search_candidate and the source/provenance fields."
+limitations = "No independent verifier establishes the relationship between a complete SPO claim and its source. Quote presence proves text occurrence only; this change does not establish entailment, legal validity, issuer authority, custody, currentness, or production currentness. The r3 cached-model generation-to-fresh-server replay remains UNRUN, so this candidate does not claim a positive runtime consumer receipt. The controlled source fixture is synthetic and is not a legal authority claim."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-lex-search-candidate-and-relation-refusal"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: Runtime API v1 authenticated Lex search response"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Lex search preserves candidate-tier facts and returns a typed verification_missing relation refusal; consumers must not promote candidate rows to legal authority."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []

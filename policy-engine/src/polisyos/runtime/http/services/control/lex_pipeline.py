@@ -12,8 +12,14 @@ from polisyos.core.contracts.control import (
     LexGraphStatsResponse,
     LexPipelineStatusResponse,
     LexSearchRequest,
+    LexSourceRelationRefusal,
     LexTriggerRequest,
     LexTriggerResponse,
+)
+from polisyos.data_forge.domains.legal.source_relation import (
+    LEGAL_SOURCE_RELATION_REFUSAL,
+    LegalSourceRelationRefusal,
+    LegalSourceRelationVerificationMissingError,
 )
 
 from .._control_contracts import _build_api_meta
@@ -33,6 +39,13 @@ if TYPE_CHECKING:
     from ..control_plane_store import ControlJobExecutionScope, ControlJobRecord
 
 logger = get_logger(__name__)
+
+
+def _legal_relation_refusal_projection(
+    refusal: LegalSourceRelationRefusal = LEGAL_SOURCE_RELATION_REFUSAL,
+) -> LexSourceRelationRefusal:
+    """Project the shared Data Forge refusal into the canonical HTTP DTO."""
+    return LexSourceRelationRefusal(**refusal.to_payload())
 
 
 def _legal_query_profiles_from_request(
@@ -383,6 +396,7 @@ class LexPipelineMixin:
                 else "selected_generation_unavailable"
                 if query_profile is not None
                 else None,
+                legal_relation_refusal=_legal_relation_refusal_projection(),
             )
 
         try:
@@ -420,8 +434,8 @@ class LexPipelineMixin:
                     raw_results, query_status = graph.hybrid_search_with_status(
                         request.query,
                         top_k=request.top_k,
-                        trust_tier=None,
-                        include_candidates=False,
+                        trust_tier="search_candidate",
+                        include_candidates=True,
                     )
                     refusal_code = query_status.code if query_status is not None else None
                     search_mode = "vector" if refusal_code is None else "text"
@@ -429,26 +443,36 @@ class LexPipelineMixin:
                     raw_results = graph.text_search(
                         request.query,
                         top_k=request.top_k,
-                        trust_tier=None,
-                        include_candidates=False,
+                        trust_tier="search_candidate",
+                        include_candidates=True,
                     )
                     refusal_code = profile_error.code
                     search_mode = "text"
             finally:
                 graph.close()
 
-            items = [
-                LexSearchResultItem.model_validate(result.model_dump(mode="python"))
-                for result in raw_results
+            results = [
+                LexSearchResultItem.model_validate(result.model_dump()) for result in raw_results
             ]
 
             return LexSearchResponse(
                 meta=_build_api_meta(request_id),
                 query=request.query,
-                results=items,
-                total=len(items),
+                results=results,
+                total=len(results),
                 search_mode=search_mode,
                 vector_refusal_code=refusal_code,
+                legal_relation_refusal=_legal_relation_refusal_projection(),
+            )
+        except LegalSourceRelationVerificationMissingError as exc:
+            return LexSearchResponse(
+                meta=_build_api_meta(request_id),
+                query=request.query,
+                results=[],
+                total=0,
+                search_mode="text",
+                vector_refusal_code=profile_error.code if profile_error is not None else None,
+                legal_relation_refusal=_legal_relation_refusal_projection(exc.refusal),
             )
         except (
             duckdb.Error,
@@ -465,4 +489,5 @@ class LexPipelineMixin:
                 total=0,
                 search_mode="text",
                 vector_refusal_code="lex_search_failed",
+                legal_relation_refusal=_legal_relation_refusal_projection(),
             )

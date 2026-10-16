@@ -12273,6 +12273,9 @@ export interface components {
      * @description Return ranked Lex facts with the actual retrieval mode and refusal reason.
      */
     LexSearchResponse: {
+      legal_relation_refusal?:
+        | components["schemas"]["LexSourceRelationRefusal"]
+        | null;
       meta: components["schemas"]["ApiMeta"];
       /** Query */
       query: string;
@@ -12511,6 +12514,22 @@ export interface components {
        * @default
        */
       version_id: string;
+    };
+    /**
+     * LexSourceRelationRefusal
+     * @description Typed limitation when Lex claim-to-source relation verification is absent.
+     */
+    LexSourceRelationRefusal: {
+      /**
+       * Code
+       * @constant
+       */
+      code: "legal_source_relation_verification_not_established";
+      /**
+       * Status
+       * @constant
+       */
+      status: "verification_missing";
     };
     /**
      * LexTriggerRequest
@@ -19695,7 +19714,7 @@ export interface components {
     };
     /**
      * TimeFrequency
-     * @description Единицы времени для симуляции.
+     * @description Time frequencies for simulation.
      * @enum {string}
      */
     TimeFrequency: "M" | "Q" | "Y";

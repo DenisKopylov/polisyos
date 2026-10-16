@@ -623,7 +623,11 @@ def test_semantic_binding_builder_preserves_runtime_report_refs() -> None:
 
     validated = SemanticBindingLedger.model_validate(ledger)
     assert validated.semantic_binding_ref.startswith("sha256:")
-    assert validated.lex[0].selected_norm_refs == ("norm.ua.credit_eligibility",)
+    assert validated.lex[0].selected_norm_refs == ()
+    assert validated.lex[0].candidate_norm_refs == ("norm.ua.credit_eligibility",)
+    assert "legal_source_relation_verification_not_established" in (
+        validated.lex[0].legal_authority_blocker_refs
+    )
     assert validated.lex[0].legal_query_terms == (
         "credit support",
         "wartime MSME eligibility",

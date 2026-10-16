@@ -19,6 +19,9 @@ import duckdb
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.data_forge.domains.legal.source_relation import (
+    require_legal_source_relation_verification,
+)
 from polisyos.fabric.claims import ClaimNormalizeOptions, normalize_claims
 from polisyos.fabric.claims.canonicalize import (
     canonical_unit,
@@ -591,6 +594,7 @@ def export_normative_claim_sets(
     segment_name: str = "lex_batch_export_claim_sets",
 ) -> BatchClaimBridgeResult:
     """Persist normative Lex batch facts as CAS-backed ``lex.norms.claim_set`` artifacts."""
+    require_legal_source_relation_verification()
     output_dir.mkdir(parents=True, exist_ok=True)
     cas = FileSystemCAS(cas_root)
     rows = _load_normative_rows(db_path)

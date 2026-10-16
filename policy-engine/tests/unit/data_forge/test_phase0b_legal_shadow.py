@@ -32,17 +32,30 @@ def test_legal_shadow_adapter_loads_completed_lex_fixture_without_lex_imports() 
     assert after == before
     assert bundle.pipeline == "lex"
     assert bundle.consumer_ready is True
-    assert bundle.release_ready is True
-    assert bundle.warnings == ()
+    assert bundle.release_ready is False
+    assert any(
+        "legal source relation verification is not established" in warning
+        for warning in bundle.warnings
+    )
     assert len(bundle.artifacts) == 7
-    assert all(artifact.exists for artifact in bundle.artifacts)
+    missing_normative_export = bundle.artifact_by_relative_path(
+        "claim_exports/normative_claims.jsonl"
+    )
+    assert missing_normative_export is not None
+    assert missing_normative_export.exists is False
+    assert all(
+        artifact.exists
+        for artifact in bundle.artifacts
+        if artifact.relative_path != "claim_exports/normative_claims.jsonl"
+    )
     publish_manifest = bundle.artifact_by_relative_path("publish/manifest.json")
     assert publish_manifest
     assert publish_manifest.checksum_ok is None
     assert all(
         artifact.checksum_ok is True
         for artifact in bundle.artifacts
-        if artifact.relative_path != "publish/manifest.json"
+        if artifact.relative_path
+        not in {"publish/manifest.json", "claim_exports/normative_claims.jsonl"}
     )
     assert bundle.table_counts["lex_normative_facts"] == 2
     assert bundle.artifact_by_relative_path("claim_exports/normative_claims_summary.json")
@@ -57,11 +70,13 @@ def test_legal_shadow_diff_reports_artifact_and_metric_changes() -> None:
     diff = compare_lex_shadow_bundles(baseline, candidate)
 
     assert diff.has_changes
+    assert baseline.release_ready is False
+    assert candidate.release_ready is False
     assert diff.added_artifacts == ("claim_exports/normative_claim_sets_summary.json",)
     assert "claim_exports/normative_claims_summary.json" in diff.changed_artifacts
     assert "publish/manifest.json" in diff.changed_artifacts
     assert "publish/consumer_readiness.json" in diff.changed_artifacts
-    assert diff.readiness_changes["release_ready"] == (True, False)
+    assert "release_ready" not in diff.readiness_changes
     assert diff.metric_deltas["table_counts.lex_normative_facts"] == 1.0
     assert diff.metric_deltas["quality.metrics.normative_ready_share_pct"] == -25.0
     assert diff.metric_deltas["benchmark.metrics.benchmark_search_top5_relevance_pct"] == -20.0
@@ -86,3 +101,26 @@ def test_legal_shadow_golden_fixture_detects_manifest_drift(tmp_path) -> None:
         encoding="utf-8",
     )
     assert not verify_golden_file(working_root, golden)
+
+
+def test_legal_shadow_does_not_trust_legacy_normative_readiness(tmp_path) -> None:
+    publish_dir = tmp_path / "publish"
+    publish_dir.mkdir()
+    (publish_dir / "manifest.json").write_text(
+        '{"pipeline":"lex","artifacts":[]}', encoding="utf-8"
+    )
+    (publish_dir / "consumer_readiness.json").write_text(
+        '{"readiness":{"consumer_ready":true},'
+        '"release_readiness":{"release_ready":true},'
+        '"table_counts":{"lex_normative_facts":1}}',
+        encoding="utf-8",
+    )
+
+    bundle = load_lex_shadow_bundle(tmp_path)
+
+    assert bundle.consumer_ready is True
+    assert bundle.release_ready is False
+    assert any(
+        "legal source relation verification is not established" in warning
+        for warning in bundle.warnings
+    )

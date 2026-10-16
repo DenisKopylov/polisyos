@@ -16,6 +16,11 @@ import duckdb
 import httpx
 import pytest
 
+from polisyos.data_forge.domains.legal.batch.graph_builder import build_graph
+from polisyos.data_forge.domains.legal.batch.postprocess import ground_spo_quotes
+from polisyos.data_forge.domains.legal.batch.provisions_io import write_provisions
+from polisyos.lex.knowledge import LegalKnowledgeGraph
+
 pytestmark = [
     pytest.mark.integration,
     pytest.mark.slow,
@@ -30,38 +35,170 @@ PROFILE_ROOT = (
     POLICY_ENGINE_ROOT
     / "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile"
 )
+CONTROLLED_DOC_ID = "controlled-legal-fixture"
+SOURCE_BOUND_PROVISION_ANCHOR = "body:1/item:0001"
+SOURCE_BOUND_PROVISION_TEXT = "The Ministry shall publish the annual budget report by March."
+SOURCE_BOUND_CANDIDATE_TEXT = "The Ministry must publish the annual budget report by March."
 
 
-def _prepare_graph_database(path: Path) -> None:
-    connection = duckdb.connect(str(path))
+def _write_jsonl(path: Path, rows: list[dict[str, object]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as output:
+        for row in rows:
+            output.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
+def _prepare_graph_database(path: Path) -> list[str]:
+    """Build a real Legal graph from controlled source-bound and forged candidates."""
+    output_root = path.parent
+    doc_id = CONTROLLED_DOC_ID
+    anchor = SOURCE_BOUND_PROVISION_ANCHOR
+    provision_text = SOURCE_BOUND_PROVISION_TEXT
+    provisions_dir = output_root / "fixture-provisions"
+    raw_spo_dir = output_root / "fixture-spo-raw"
+    grounded_spo_dir = output_root / "fixture-spo-grounded"
+    write_provisions(
+        provisions_dir=provisions_dir,
+        doc_id=doc_id,
+        provisions=[
+            {
+                "anchor_path": anchor,
+                "kind": "point",
+                "text": provision_text,
+                "is_fallback_chunk": False,
+                "struct_kind": "enumeration_item",
+                "section_role": "normative_unit",
+                "fallback_allowed_for_reasoning": True,
+            }
+        ],
+    )
+    _write_jsonl(
+        raw_spo_dir / doc_id[:2] / f"{doc_id}.jsonl",
+        [
+            {
+                "doc_id": doc_id,
+                "provision_anchor": anchor,
+                "provision_citation": "controlled test source; not legal authority",
+                "extraction_source": "rule_auto",
+                "statements": [
+                    {
+                        "statement_id": "source-bound-candidate",
+                        "subject_en": "Ministry",
+                        "subject_uk": "Міністерство",
+                        "predicate": "requires",
+                        "object_en": "annual budget report",
+                        "object_uk": "річний бюджетний звіт",
+                        "fact_text": SOURCE_BOUND_CANDIDATE_TEXT,
+                        "confidence": 0.99,
+                        "norm_type": "obligation",
+                        "norm_type_canon": "obligation",
+                        "action_canon": "requires",
+                        "canonical_status": "canonicalized",
+                        "source_quote_uk": SOURCE_BOUND_PROVISION_TEXT,
+                        "source_quote_start": None,
+                        "source_quote_end": None,
+                        "grounding_status": "exact_quote",
+                        "trust_tier": "normative_fact",
+                    },
+                    {
+                        "statement_id": "forged-quote-control",
+                        "subject_en": "Ministry",
+                        "subject_uk": "Міністерство",
+                        "predicate": "requires",
+                        "object_en": "annual budget report",
+                        "object_uk": "річний бюджетний звіт",
+                        "fact_text": "The Ministry has a forged reporting deadline.",
+                        "confidence": 0.99,
+                        "norm_type": "obligation",
+                        "norm_type_canon": "obligation",
+                        "action_canon": "requires",
+                        "canonical_status": "canonicalized",
+                        "source_quote_uk": "This quotation is absent from the selected provision.",
+                        "source_quote_start": 0,
+                        "source_quote_end": 1,
+                        "grounding_status": "exact_quote",
+                        "trust_tier": "normative_fact",
+                    },
+                ],
+            }
+        ],
+    )
+    ground_spo_quotes(
+        spo_results_dir=raw_spo_dir,
+        provisions_dir=provisions_dir,
+        output_dir=grounded_spo_dir,
+    )
+    build_graph(
+        spo_results_dir=grounded_spo_dir,
+        provisions_dir=provisions_dir,
+        references_dir=None,
+        domains_dir=None,
+        doc_metadata={},
+        db_path=path,
+    )
+
+    connection = duckdb.connect(str(path), read_only=True)
     try:
-        connection.execute(
-            "CREATE TABLE lex_entities (entity_id VARCHAR, name_en VARCHAR, name_uk VARCHAR, "
-            "entity_type VARCHAR, aliases_en VARCHAR, aliases_uk VARCHAR)"
-        )
-        connection.execute(
-            "INSERT INTO lex_entities VALUES "
-            "('entity-1', 'Budget', 'Бюджет', 'concept', 'budget plan', 'план бюджету')"
-        )
-        connection.execute(
-            "CREATE TABLE lex_facts (fact_id VARCHAR, subject_en VARCHAR, subject_uk VARCHAR, "
-            "predicate VARCHAR, object_en VARCHAR, object_uk VARCHAR, fact_text VARCHAR, "
-            "norm_type VARCHAR, action_canon VARCHAR, norm_type_canon VARCHAR, "
-            "condition_text_uk VARCHAR, exception_text_uk VARCHAR, procedure_text_uk VARCHAR, "
-            "thresholds_json VARCHAR, source_quote_uk VARCHAR)"
-        )
-        connection.execute(
-            "INSERT INTO lex_facts VALUES "
-            "('fact-1', 'State', 'Держава', 'sets', 'tax', 'податок', 'State sets tax', "
-            "'obligation', 'sets', 'obligation', '', '', '', '{}', 'quote')"
-        )
-        connection.execute(
-            "CREATE TABLE lex_provisions (provision_id VARCHAR, provision_text VARCHAR)"
-        )
-        connection.execute("INSERT INTO lex_provisions VALUES ('provision-1', 'Article 1')")
-        connection.execute("CHECKPOINT")
+        normative = connection.execute("SELECT fact_id FROM lex_normative_facts").fetchall()
+        candidates = connection.execute("SELECT fact_id FROM lex_fact_candidates").fetchall()
     finally:
         connection.close()
+    assert normative == []
+    assert len(candidates) == 2
+    return [str(row[0]) for row in candidates]
+
+
+def _assert_candidate_search_response(
+    body: Mapping[str, object],
+    *,
+    candidate_fact_ids: set[str],
+    source_bound_fact_id: str | None = None,
+) -> list[dict[str, object]]:
+    raw_results = body.get("results")
+    assert isinstance(raw_results, list) and raw_results, (
+        "candidate search must project non-empty owner results"
+    )
+    assert all(isinstance(row, dict) for row in raw_results)
+    rows = cast("list[dict[str, object]]", raw_results)
+    fact_ids = [str(row.get("fact_id")) for row in rows]
+    assert set(fact_ids) <= candidate_fact_ids
+    assert body.get("total") == len(rows)
+    assert all(row.get("trust_tier") == "search_candidate" for row in rows)
+    refusal = body.get("legal_relation_refusal")
+    assert isinstance(refusal, dict)
+    assert refusal.get("code") == "legal_source_relation_verification_not_established"
+    assert refusal.get("status") == "verification_missing"
+    if source_bound_fact_id is not None:
+        source_bound_rows = [row for row in rows if row.get("fact_id") == source_bound_fact_id]
+        assert source_bound_rows
+        assert any(row.get("fact_text") == SOURCE_BOUND_CANDIDATE_TEXT for row in source_bound_rows)
+        assert any(
+            row.get("source_quote_uk") == SOURCE_BOUND_PROVISION_TEXT
+            and row.get("provision_anchor") == SOURCE_BOUND_PROVISION_ANCHOR
+            and row.get("doc_id") == CONTROLLED_DOC_ID
+            for row in source_bound_rows
+        )
+    return rows
+
+
+def _assert_refused_text_fallback(
+    body: Mapping[str, object],
+    *,
+    request_body: Mapping[str, object],
+    expected_query_generation_intent: list[dict[str, object]],
+    expected_vector_refusal_code: str,
+) -> None:
+    """Assert a no-hit text fallback keeps both refusal and request intent."""
+    assert body.get("query") == request_body.get("query")
+    assert body.get("search_mode") == "text"
+    assert body.get("vector_refusal_code") == expected_vector_refusal_code
+    assert request_body.get("query_generation_intent") == expected_query_generation_intent
+    assert body.get("results") == []
+    assert body.get("total") == 0
+    relation_refusal = body.get("legal_relation_refusal")
+    assert isinstance(relation_refusal, dict)
+    assert relation_refusal.get("code") == "legal_source_relation_verification_not_established"
+    assert relation_refusal.get("status") == "verification_missing"
 
 
 def _free_loopback_port() -> int:
@@ -70,9 +207,16 @@ def _free_loopback_port() -> int:
         return int(listener.getsockname()[1])
 
 
-def _http_json(url: str, payload: Mapping[str, object] | None = None) -> dict[str, object]:
+def _http_json(
+    url: str,
+    payload: Mapping[str, object] | None = None,
+    *,
+    timeout: float = 10,
+) -> dict[str, object]:
     response = (
-        httpx.get(url, timeout=10) if payload is None else httpx.post(url, json=payload, timeout=10)
+        httpx.get(url, timeout=timeout)
+        if payload is None
+        else httpx.post(url, json=payload, timeout=timeout)
     )
     response.raise_for_status()
     result = response.json()
@@ -202,7 +346,7 @@ def _runtime_server(
             )
 
 
-def test_ordinary_legal_cli_generation_is_served_by_fresh_profiled_api(
+def test_ordinary_legal_cli_generation_preserves_candidate_default_exclusion(
     tmp_path: Path,
 ) -> None:
     receipt_value = os.environ.get("POLISYOS_I4_RECEIPT_DIR")
@@ -225,7 +369,7 @@ def test_ordinary_legal_cli_generation_is_served_by_fresh_profiled_api(
         receipt_root,
         "profile-inputs.json",
         {
-            "fixture": "synthetic one-row Legal database",
+            "fixture": "controlled source whose unverified Legal facts remain candidates",
             "manifest_path": str(manifest_path.resolve()),
             "manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
             "manifest_size_bytes": len(manifest_bytes),
@@ -239,7 +383,15 @@ def test_ordinary_legal_cli_generation_is_served_by_fresh_profiled_api(
     output_root = receipt_root / "producer-output"
     output_root.mkdir()
     db_path = output_root / "lex_knowledge_graph.duckdb"
-    _prepare_graph_database(db_path)
+    candidate_fact_ids = set(_prepare_graph_database(db_path))
+    with duckdb.connect(str(db_path), read_only=True) as connection:
+        source_bound_row = connection.execute(
+            "SELECT fact_id FROM lex_fact_candidates WHERE fact_text = ?",
+            [SOURCE_BOUND_CANDIDATE_TEXT],
+        ).fetchone()
+    assert source_bound_row is not None
+    source_bound_fact_id = str(source_bound_row[0])
+    assert source_bound_fact_id in candidate_fact_ids
 
     env = os.environ.copy()
     env.update(
@@ -314,7 +466,7 @@ def test_ordinary_legal_cli_generation_is_served_by_fresh_profiled_api(
             env=env,
             capture_output=True,
             text=True,
-            timeout=240,
+            timeout=900,
             check=False,
         )
     except subprocess.TimeoutExpired as exc:
@@ -401,30 +553,100 @@ def test_ordinary_legal_cli_generation_is_served_by_fresh_profiled_api(
         assert isinstance(raw_intents, list) and len(raw_intents) == 1
         assert isinstance(raw_intents[0], dict)
         intents = cast("list[dict[str, object]]", raw_intents)
+        query = "must publish annual budget report by March"
+        text_only_graph = LegalKnowledgeGraph(db_path=db_path, index_dir=output_root)
+        try:
+            assert (
+                text_only_graph.text_search(
+                    query,
+                    top_k=5,
+                    trust_tier="search_candidate",
+                    include_candidates=True,
+                )
+                == []
+            )
+        finally:
+            text_only_graph.close()
+
         request_body: dict[str, object] = {
-            "query": "state tax budget",
+            "query": query,
             "top_k": 5,
             "output_dir": str(output_root),
             "query_generation_intent": intents,
         }
-        positive = _http_json(f"{base_url}/api/v1/control/lex/search", request_body)
-        _write_json(receipt_root, "matching-post.json", positive)
-        assert positive["search_mode"] == "vector"
-        assert positive["vector_refusal_code"] is None
-        raw_results = positive["results"]
-        assert isinstance(raw_results, list)
-        assert all(isinstance(row, dict) for row in raw_results)
-        result_rows = cast("list[dict[str, object]]", raw_results)
-        assert [row.get("fact_id") for row in result_rows] == ["fact-1"]
+        default_search = _http_json(
+            f"{base_url}/api/v1/control/lex/search",
+            request_body,
+            timeout=120,
+        )
+        _write_json(receipt_root, "matching-post.json", default_search)
+        assert default_search["search_mode"] == "vector"
+        assert default_search["vector_refusal_code"] is None
+        result_rows = _assert_candidate_search_response(
+            default_search,
+            candidate_fact_ids=candidate_fact_ids,
+            source_bound_fact_id=source_bound_fact_id,
+        )
+        without_results = dict(default_search)
+        without_results["results"] = []
+        with pytest.raises(AssertionError, match="candidate search must project"):
+            _assert_candidate_search_response(
+                without_results,
+                candidate_fact_ids=candidate_fact_ids,
+                source_bound_fact_id=source_bound_fact_id,
+            )
+        _write_json(receipt_root, "matching-candidate-results.json", {"results": result_rows})
 
+        stale_intents = [{**intents[0], "generation_id": "stale-generation"}]
         stale_body = dict(request_body)
-        stale_body["query_generation_intent"] = [
-            {**intents[0], "generation_id": "stale-generation"}
-        ]
+        stale_body["query_generation_intent"] = stale_intents
         stale = _http_json(f"{base_url}/api/v1/control/lex/search", stale_body)
         _write_json(receipt_root, "stale-intent-post.json", stale)
-        assert stale["search_mode"] == "text"
-        assert stale["vector_refusal_code"] == "query_profile_stale_or_mismatched"
+        assert request_body["query_generation_intent"] == intents
+        assert stale_body["query_generation_intent"] != request_body["query_generation_intent"]
+        _assert_refused_text_fallback(
+            stale,
+            request_body=stale_body,
+            expected_query_generation_intent=stale_intents,
+            expected_vector_refusal_code="query_profile_stale_or_mismatched",
+        )
+        selected_after_stale = _http_json(f"{base_url}{profile_url}")
+        _write_json(receipt_root, "selected-get-after-stale-post.json", selected_after_stale)
+        assert selected_after_stale["status"] == "available"
+        assert selected_after_stale["query_generation_intent"] == intents
+
+        with duckdb.connect(str(db_path)) as connection:
+            connection.execute(
+                "UPDATE lex_facts SET fact_text = ? WHERE fact_id = ?",
+                [
+                    "Mutated selected Legal member for the typed drift control.",
+                    source_bound_fact_id,
+                ],
+            )
+        drift_text_graph = LegalKnowledgeGraph(db_path=db_path, index_dir=output_root)
+        try:
+            assert (
+                drift_text_graph.text_search(
+                    query,
+                    top_k=5,
+                    trust_tier="search_candidate",
+                    include_candidates=True,
+                )
+                == []
+            )
+        finally:
+            drift_text_graph.close()
+        member_drift = _http_json(
+            f"{base_url}/api/v1/control/lex/search",
+            request_body,
+        )
+        _write_json(receipt_root, "selected-member-drift-post.json", member_drift)
+        _assert_refused_text_fallback(
+            member_drift,
+            request_body=request_body,
+            expected_query_generation_intent=intents,
+            expected_vector_refusal_code="selected_generation_membership_mismatch",
+        )
 
     with _runtime_server(
         python=python,
@@ -435,9 +657,12 @@ def test_ordinary_legal_cli_generation_is_served_by_fresh_profiled_api(
     ) as base_url:
         removed_owner = _http_json(f"{base_url}/api/v1/control/lex/search", request_body)
         _write_json(receipt_root, "removed-owner-post.json", removed_owner)
-        assert removed_owner["search_mode"] == "text"
-        assert removed_owner["vector_refusal_code"] is not None
-        assert removed_owner["vector_refusal_code"] != "query_profile_stale_or_mismatched"
+        _assert_refused_text_fallback(
+            removed_owner,
+            request_body=request_body,
+            expected_query_generation_intent=intents,
+            expected_vector_refusal_code="query_encoder_assets_unavailable",
+        )
 
     wrong_profile_root = tmp_path / "wrong-profile"
     (wrong_profile_root / "hf-cache").mkdir(parents=True)

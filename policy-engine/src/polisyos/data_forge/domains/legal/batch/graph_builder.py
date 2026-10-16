@@ -34,6 +34,10 @@ from polisyos.data_forge.domains.legal.batch.entity_resolver import (
     EntityResolver,
     normalize_entity_name,
 )
+from polisyos.data_forge.domains.legal.batch.postprocess import (
+    ground_spo_candidate,
+    structure_quality_for_provision,
+)
 from polisyos.data_forge.domains.legal.batch.provisions_io import _shard_prefix, read_provisions
 from polisyos.data_forge.domains.legal.batch.quality_filters import (
     compact_text,
@@ -1609,6 +1613,12 @@ def _stream_facts_to_duckdb(
                 for stmt in result.statements:
                     provision_meta = prov_by_anchor.get(result.provision_anchor, {})
                     provision_text = ctx_by_anchor.get(result.provision_anchor, "")
+                    stmt = ground_spo_candidate(
+                        stmt=stmt,
+                        provision_text=provision_text,
+                        structure_quality=structure_quality_for_provision(provision_meta),
+                        extraction_source=extraction_source,
+                    )
                     sanitized_stmt = _sanitize_statement_for_graph(
                         stmt=stmt,
                         meta=meta,

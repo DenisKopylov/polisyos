@@ -10,6 +10,9 @@ import pytest
 
 import polisyos.scientist.nodes.builtins.causal as causal_nodes
 from polisyos.ir.analytics.causal import CausalEffectReport, CausalMethod
+from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+from polisyos.ir.analytics.context import ContextProfile
+from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import (
     ResolutionState,
     RunTransportabilityNode,
@@ -224,3 +227,35 @@ def test_run_transportability_uses_branch_state_for_skip_warning(
     assert outcome.state.params["transportability_warning"].startswith(
         "missing_source_or_target_context"
     )
+
+
+def test_actual_resolution_loop_refuses_unverified_legal_basis_before_solver() -> None:
+    result = TransportabilityResolutionLoop(
+        dataset_registry=object(),
+        legal_kg_db_path=None,
+        skg_query=object(),
+        max_rounds=1,
+    ).resolve(
+        source_context=ContextProfile(context_id="source"),
+        target_context=ContextProfile(context_id="target"),
+        causal_graph=CausalGraphModel(
+            graph_type=GraphType.DAG,
+            nodes=["policy", "income"],
+            edges=[CausalEdge(src="policy", dst="income")],
+        ),
+        query_treatment="policy",
+        query_outcome="income",
+        policy_spec={"domain": "tax_policy", "retroactive": True},
+    )
+
+    assert result.status is TransportabilityStatus.UNSUPPORTED
+    assert result.transport_mode is TransportMode.NONE
+    assert result.feasible is False
+    assert result.unsupported_reason == "legal_source_relation_verification_not_established"
+    assert result.hard_legal_constraints == []
+    assert result.requires_expert_review is True
+    assert "legal_source_relation_verification_not_established" in result.expert_review_reasons
+    assert result.metadata["legal_source_relation_refusal"] == {
+        "code": "legal_source_relation_verification_not_established",
+        "status": "verification_missing",
+    }

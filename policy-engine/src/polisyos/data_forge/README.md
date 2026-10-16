@@ -40,6 +40,16 @@ revision, runtime bytes, source closure, and effective encode settings are
 recomputed by the owner and do not select production sources or confer authority.
 Domain implementation under `domains/` remains non-public.
 
+Legal claim-to-source admission uses one shared relation owner. Until an
+independent verifier receipt binds the complete SPO claim to selected source
+bytes, extracted claims remain `search_candidate`; an exact quotation establishes
+text occurrence only. The authenticated Runtime Lex search can return those
+candidate rows with the typed `legal_relation_refusal` status
+`verification_missing`. Neither candidate results nor quote presence establish
+entailment, legal validity, issuer authority, custody, or currentness. Existing
+graphs are not rewritten in place; rebuild them through the ordinary producer
+or graph builder to recompute candidate tiers.
+
 ## Role
 
 Data Forge owns offline acquisition, normalization, and publishing of prepared

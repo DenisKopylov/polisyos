@@ -49,6 +49,10 @@ from polisyos.data_forge.domains.legal.batch.pipeline_types import (
 )
 from polisyos.data_forge.domains.legal.batch.progress import ProgressTracker
 from polisyos.data_forge.domains.legal.batch.provisions_io import read_provisions
+from polisyos.data_forge.domains.legal.source_relation import (
+    LegalSourceRelationVerificationMissingError,
+    current_legal_source_relation_disposition,
+)
 
 if TYPE_CHECKING:
     from polisyos.data_forge.domains.legal.batch.config import BatchConfig
@@ -972,6 +976,7 @@ async def run_batch_pipeline(
     """Run configured stages sequentially with bounded memory."""
     t0 = time.monotonic()
     stats = PipelineStats()
+    relation_refusal = current_legal_source_relation_disposition().refusal
     progress = ProgressTracker(config.progress_path)
 
     from polisyos.data_forge.domains.legal.batch.xml_parser import iter_documents
@@ -1533,32 +1538,43 @@ async def run_batch_pipeline(
         logger.info("=== Export claims ===")
         from polisyos.data_forge.domains.legal.batch.postprocess import export_normative_claims
 
-        export_stats = export_normative_claims(
-            db_path=config.db_path,
-            output_dir=config.claim_exports_dir,
-        )
-        stats.exported_claims = export_stats["claims_total"]
-        if config.export_claims_to_cas:
-            from polisyos.data_forge.domains.legal.batch.claim_bridge import (
-                export_normative_claim_sets,
-            )
-
-            bridge_result = export_normative_claim_sets(
+        try:
+            export_stats = export_normative_claims(
                 db_path=config.db_path,
-                cas_root=config.cas_root or (config.output_dir / ".polisyos"),
-                fact_log_root=config.fact_log_root or (config.output_dir / "fact_log"),
                 output_dir=config.claim_exports_dir,
             )
-            stats.exported_claim_sets = len(bridge_result.normalized_claim_set_artifact_ids)
+            stats.exported_claims = export_stats["claims_total"]
+            if config.export_claims_to_cas:
+                from polisyos.data_forge.domains.legal.batch.claim_bridge import (
+                    export_normative_claim_sets,
+                )
+
+                bridge_result = export_normative_claim_sets(
+                    db_path=config.db_path,
+                    cas_root=config.cas_root or (config.output_dir / ".polisyos"),
+                    fact_log_root=config.fact_log_root or (config.output_dir / "fact_log"),
+                    output_dir=config.claim_exports_dir,
+                )
+                stats.exported_claim_sets = len(bridge_result.normalized_claim_set_artifact_ids)
+        except LegalSourceRelationVerificationMissingError as exc:
+            stats.exported_claims = 0
+            stats.exported_claim_sets = 0
+            stats.release_passed = False
+            stats.release_failed_checks = list(
+                dict.fromkeys([*stats.release_failed_checks, exc.refusal.code])
+            )
+            logger.warning(
+                "Normative claim export refused: {} ({})",
+                exc.refusal.status,
+                exc.refusal.code,
+            )
         stats.stage_times["export_claims"] = time.monotonic() - st
 
     if "benchmark" in config.stages:
         st = time.monotonic()
         logger.info("=== Benchmark ===")
         if benchmark_runner is None:
-            raise RuntimeError(
-                "benchmark stage requires an injected Lex semantic benchmark runner"
-            )
+            raise RuntimeError("benchmark stage requires an injected Lex semantic benchmark runner")
         benchmark_outcome = benchmark_runner(config)
         stats.benchmark_passed = benchmark_outcome.passed
         stats.benchmark_metrics = benchmark_outcome.metrics
@@ -1607,8 +1623,19 @@ async def run_batch_pipeline(
         stats.qc_passed = bool(qc_metrics.get("qc_passed", qc_report.passed))
         stats.qc_failed_checks = list(qc_metrics.get("qc_failed_checks", []))
         release_passed = qc_metrics.get("release_passed")
-        stats.release_passed = bool(release_passed) if release_passed is not None else None
-        stats.release_failed_checks = list(qc_metrics.get("release_failed_checks", []))
+        stats.release_failed_checks = list(
+            dict.fromkeys(
+                [
+                    *stats.release_failed_checks,
+                    *list(qc_metrics.get("release_failed_checks", [])),
+                ]
+            )
+        )
+        stats.release_passed = (
+            bool(release_passed) if release_passed is not None else stats.release_passed
+        )
+        if relation_refusal.code in stats.release_failed_checks:
+            stats.release_passed = False
 
     if "publish_bundle" in config.stages:
         st = time.monotonic()
@@ -1619,6 +1646,11 @@ async def run_batch_pipeline(
             config.output_dir,
             require_embeddings=config.publish_require_embeddings,
         )
+        if relation_refusal.status == "verification_missing":
+            stats.release_passed = False
+            stats.release_failed_checks = list(
+                dict.fromkeys([*stats.release_failed_checks, relation_refusal.code])
+            )
         stats.published_bundle = True
         stats.stage_times["publish_bundle"] = time.monotonic() - st
 
@@ -1649,6 +1681,7 @@ async def run_batch_pipeline(
         "benchmark_failed_checks": stats.benchmark_failed_checks,
         "release_passed": stats.release_passed,
         "release_failed_checks": stats.release_failed_checks,
+        "legal_relation_refusal": relation_refusal.to_payload(),
     }
     with open(config.telemetry_path, "w", encoding="utf-8") as fh:
         json.dump(telemetry_payload, fh, ensure_ascii=False, indent=2)

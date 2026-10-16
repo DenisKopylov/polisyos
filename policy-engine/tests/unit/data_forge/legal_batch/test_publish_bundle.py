@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import duckdb
 
@@ -65,7 +66,11 @@ def test_run_publish_writes_consumer_readiness_manifest(tmp_path) -> None:
     assert readiness_path.exists()
     payload = json.loads(readiness_path.read_text(encoding="utf-8"))
     assert payload["readiness"]["consumer_ready"] is True
-    assert payload["release_readiness"]["release_ready"] is True
+    assert payload["release_readiness"]["release_ready"] is False
+    assert (
+        "legal_source_relation_verification_not_established"
+        in payload["release_readiness"]["release_failed_checks"]
+    )
     assert payload["table_counts"]["lex_normative_facts"] == 1
     assert payload["quality_summary"]["llm_gap_fill_metrics"]["llm_gap_fill_sent_total"] == 12
     assert (
@@ -119,6 +124,60 @@ def test_run_publish_ignores_optional_embedding_failures_for_smoke(tmp_path) -> 
         (tmp_path / "publish" / "consumer_readiness.json").read_text(encoding="utf-8")
     )
     assert payload["release_readiness"]["qc_failed_checks"] == []
-    assert payload["release_readiness"]["release_failed_checks"] == []
+    assert payload["release_readiness"]["release_failed_checks"] == [
+        "legal_source_relation_verification_not_established"
+    ]
     assert payload["release_readiness"]["qc_passed"] is True
-    assert payload["release_readiness"]["release_ready"] is True
+    assert payload["release_readiness"]["release_ready"] is False
+
+
+def test_run_publish_withholds_stale_legal_authority_artifacts(tmp_path) -> None:
+    db_path = tmp_path / "lex_knowledge_graph.duckdb"
+    with duckdb.connect(str(db_path)) as con:
+        con.execute("CREATE TABLE lex_fact_candidates (fact_id VARCHAR)")
+        con.execute("CREATE TABLE lex_fact_grounded (fact_id VARCHAR)")
+        con.execute("CREATE TABLE lex_normative_facts (fact_id VARCHAR)")
+        con.execute("CREATE TABLE lex_normative_ready_facts (fact_id VARCHAR)")
+        con.execute("INSERT INTO lex_fact_candidates VALUES ('candidate-1')")
+        con.execute("INSERT INTO lex_fact_grounded VALUES ('candidate-1')")
+        con.execute("INSERT INTO lex_normative_facts VALUES ('unverified-1')")
+        con.execute("INSERT INTO lex_normative_ready_facts VALUES ('unverified-1')")
+
+    stale_artifacts = {
+        "claim_exports/normative_claims.jsonl": b'{"claim_id":"stale"}\n',
+        "claim_exports/normative_claims_summary.json": b'{"status":"ok"}',
+        "claim_exports/normative_claim_sets_summary.json": b'{"status":"ok"}',
+    }
+    for relative_path, content in stale_artifacts.items():
+        path = tmp_path / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+
+    (tmp_path / "qc_report.json").write_text(
+        json.dumps({"passed": True, "metrics": {"quality_gate_passed": True}}),
+        encoding="utf-8",
+    )
+    (tmp_path / "benchmark_report.json").write_text(
+        json.dumps({"readiness": {"passed": True, "failed_checks": []}}),
+        encoding="utf-8",
+    )
+
+    manifest_path = run_publish(tmp_path, require_embeddings=False)
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    readiness = json.loads(
+        (tmp_path / "publish" / "consumer_readiness.json").read_text(encoding="utf-8")
+    )
+    published_paths = {Path(artifact["path"]).resolve() for artifact in manifest["artifacts"]}
+    withheld_paths = {(tmp_path / path).resolve() for path in stale_artifacts}
+
+    assert not published_paths.intersection(withheld_paths)
+    assert all(
+        (tmp_path / path).read_bytes() == content for path, content in stale_artifacts.items()
+    )
+    assert readiness["readiness"]["candidate_layer_ready"] is True
+    assert readiness["readiness"]["normative_layer_ready"] is False
+    assert readiness["release_readiness"]["release_ready"] is False
+    assert readiness["legal_relation_refusal"] == {
+        "code": "legal_source_relation_verification_not_established",
+        "status": "verification_missing",
+    }

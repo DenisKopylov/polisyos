@@ -19,6 +19,9 @@ from polisyos.core.components import (
     ComponentKind,
     ComponentMetadata,
 )
+from polisyos.data_forge.domains.legal.source_relation import (
+    LegalSourceRelationVerificationMissingError,
+)
 from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.data_forge.read_api.catalog import (
     DatasetRegistry,
@@ -405,12 +408,40 @@ class TransportabilityResolutionLoop:
                     causal_graph,
                 )
                 context_s_nodes = list(context_diagram.s_nodes)
-                legal_constraint_set = _evaluate_legal_constraints(
-                    target_context=target_context,
-                    policy_spec=policy_spec,
-                    causal_graph=causal_graph,
-                    legal_kg_db_path=self._legal_kg_db_path,
-                )
+                try:
+                    legal_constraint_set = _evaluate_legal_constraints(
+                        target_context=target_context,
+                        policy_spec=policy_spec,
+                        causal_graph=causal_graph,
+                        legal_kg_db_path=self._legal_kg_db_path,
+                    )
+                except LegalSourceRelationVerificationMissingError as exc:
+                    refusal = exc.refusal
+                    return _finalize_transport_loop_result(
+                        TransportabilityResult(
+                            query=f"P*({query_outcome}|do({query_treatment}))",
+                            status=TransportabilityStatus.UNSUPPORTED,
+                            transport_mode=TransportMode.NONE,
+                            base_confidence=0.0,
+                            final_confidence=0.0,
+                            feasible=False,
+                            identification_engine="legal_source_relation_gate",
+                            identification_trace=[f"legal_source_relation:{refusal.status}"],
+                            unsupported_reason=refusal.code,
+                            unsupported_cases=[refusal.code],
+                            requires_expert_review=True,
+                            expert_review_reasons=[refusal.code],
+                            source_context_id=source_context.context_id,
+                            target_context_id=target_context.context_id,
+                            warnings=[
+                                "Legal transport authority is unavailable until the complete "
+                                "claim-to-source relation is independently verified."
+                            ],
+                            metadata={"legal_source_relation_refusal": refusal.to_payload()},
+                            notes=["Legal relation verification is not established."],
+                        ),
+                        privacy_context=privacy_context,
+                    )
                 hard_constraints = list(legal_constraint_set.hard_constraints)
                 legal_s_nodes = _legal_constraints_to_s_nodes(
                     mappings=legal_constraint_set.legal_dag_mappings,
@@ -1055,20 +1086,12 @@ def _evaluate_legal_constraints(
     causal_graph: CausalGraphModel,
     legal_kg_db_path: Path | None,
 ) -> LegalConstraintSet:
-    if not policy_spec:
-        return LegalConstraintSet(
-            jurisdiction=target_context.context_id,
-            policy_domain="",
-            hard_constraints=[],
-            soft_constraints=[],
-            data_license_constraints=[],
-            legal_dag_mappings=[],
-        )
-    domain = str(policy_spec.get("domain", ""))
+    policy_payload = dict(policy_spec) if policy_spec else {}
+    domain = str(policy_payload.get("domain", ""))
     return evaluate_transport_constraints(
         jurisdiction=target_context.context_id,
         policy_domain=domain,
-        policy_spec=dict(policy_spec),
+        policy_spec=policy_payload,
         causal_graph=causal_graph.model_dump(mode="json"),
         legal_kg_db_path=legal_kg_db_path,
     )

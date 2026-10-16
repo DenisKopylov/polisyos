@@ -1503,6 +1503,7 @@ def _reconcile_materialization_input_basis(
     *,
     currently_published_refs: frozenset[str],
     existing_basis: tuple[tuple[InputRef, ...], frozenset[str]] | None,
+    current_reissuable_report_refs: frozenset[tuple[str, str]] = frozenset(),
 ) -> tuple[tuple[InputRef, ...], frozenset[str]]:
     """Keep one report's upstream input closure stable across idempotent retries.
 
@@ -1515,10 +1516,20 @@ def _reconcile_materialization_input_basis(
 
     frozen_inputs, refs_present_at_freeze = existing_basis
     later_published_refs = currently_published_refs - refs_present_at_freeze
-    current_upstream_inputs = tuple(
-        item for item in current_inputs if str(item.artifact_id) not in later_published_refs
+    later_report_roles = frozenset(
+        role
+        for artifact_id, role in current_reissuable_report_refs
+        if artifact_id in later_published_refs
     )
-    if current_upstream_inputs != frozen_inputs:
+    current_upstream_inputs = tuple(
+        item
+        for item in current_inputs
+        if str(item.artifact_id) not in later_published_refs and item.role not in later_report_roles
+    )
+    frozen_upstream_inputs = tuple(
+        item for item in frozen_inputs if item.role not in later_report_roles
+    )
+    if current_upstream_inputs != frozen_upstream_inputs:
         raise RuntimeError("auto_materialization_input_basis_changed")
     return existing_basis
 
@@ -3104,6 +3115,17 @@ class NaturalLanguageRunMixin:
                 if basis_key is None:
                     return inputs
 
+                reissuable_report_roles = frozenset(
+                    key.removesuffix("_ref")
+                    for key, kind in materialization_ref_kinds.items()
+                    if kind in {"runtime.production_data_quality_report", "fabric.retrieval_trace"}
+                )
+                current_reissuable_report_refs = frozenset(
+                    (str(item.artifact_id), item.role)
+                    for item in inputs
+                    if item.role in reissuable_report_roles
+                )
+
                 if basis_key is not None and output_payload is None:
                     raise RuntimeError("auto_materialization_output_payload_not_established")
 
@@ -3170,6 +3192,7 @@ class NaturalLanguageRunMixin:
                     inputs,
                     currently_published_refs=previously_published_refs,
                     existing_basis=existing_basis,
+                    current_reissuable_report_refs=current_reissuable_report_refs,
                 )
                 frozen_materialization_input_bases[basis_identity] = reconciled_basis
                 return list(reconciled_basis[0])

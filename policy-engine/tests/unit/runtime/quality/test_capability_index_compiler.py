@@ -3,7 +3,6 @@ from __future__ import annotations
 # ruff: noqa: S101, S608, TC003
 import hashlib
 import json
-from datetime import UTC, datetime
 from pathlib import Path
 
 import duckdb
@@ -13,6 +12,9 @@ import pytest
 
 import polisyos.runtime.quality.capability_index_compiler as compiler
 from polisyos.data_forge.domains.academic.knowledge import skg_versioning
+from polisyos.data_forge.domains.legal.source_relation import (
+    LegalSourceRelationVerificationMissingError,
+)
 from polisyos.runtime.quality.capability_index import (
     AuthorityEnvelope,
     CapabilityConflictRecord,
@@ -68,18 +70,18 @@ def test_discovery_snapshot_projects_owner_kinds_and_never_world_agents(
 
     rows = build_capability_discovery_snapshot(result.capability_index)
 
-    assert {row.resource_kind for row in rows} >= {"method", "dataset", "legal_norm"}
+    assert {row.resource_kind for row in rows} >= {"method", "dataset"}
     assert all(row.resource_kind != "agent" for row in rows)
     assert all("agent_registry" not in ref for row in rows for ref in row.provenance_refs)
     legal_rows = tuple(row for row in rows if row.resource_kind == "legal_norm")
-    assert legal_rows
-    assert all(row.owner_truth.grounding_status == "grounded" for row in legal_rows)
-    assert all(row.owner_truth.hallucination_status == "verified_clear" for row in legal_rows)
-    assert all(row.owner_truth.jurisdiction == "UA" for row in legal_rows)
-    assert all(row.owner_truth.temporal_resolution_status == "resolved" for row in legal_rows)
-    assert all(
-        row.owner_truth.temporal_snapshot_at == datetime(2026, 5, 25, tzinfo=UTC)
-        for row in legal_rows
+    assert legal_rows == ()
+    assert result.capability_index.metadata["legal_source_relation_refusal"] == {
+        "code": "legal_source_relation_verification_not_established",
+        "status": "verification_missing",
+    }
+    assert not any(
+        "lex_norm" in capability.modality or capability.evidence_mode == "legal_threshold"
+        for capability in result.capability_index.capabilities
     )
 
     method = next(
@@ -96,36 +98,7 @@ def test_discovery_snapshot_projects_owner_kinds_and_never_world_agents(
 
     assert fallback_rows[0].provenance_refs == (result.capability_index.release_ref,)
 
-    legal = next(
-        capability
-        for capability in result.capability_index.capabilities
-        if "lex_norm" in capability.modality
-    )
-    opaque_legal = legal.model_copy(update={"metadata": {"input_groups": ("l3_lex_kg",)}})
-    opaque_index = result.capability_index.model_copy(update={"capabilities": (opaque_legal,)})
-
-    assert build_capability_discovery_snapshot(opaque_index) == ()
-
-    owner_truth = dict(legal.metadata["legal_norm_owner_truth"])
-    corruptions = (
-        ("grounding_status", "candidate"),
-        ("hallucination_status", "unknown"),
-        ("jurisdiction", ""),
-        ("effective_from", "not-a-date"),
-        ("temporal_state", "unknown"),
-        ("temporal_resolution_status", "unresolved"),
-    )
-    for field, value in corruptions:
-        corrupted = legal.model_copy(
-            update={
-                "metadata": {
-                    **legal.metadata,
-                    "legal_norm_owner_truth": {**owner_truth, field: value},
-                }
-            }
-        )
-        corrupted_index = result.capability_index.model_copy(update={"capabilities": (corrupted,)})
-        assert build_capability_discovery_snapshot(corrupted_index) == (), field
+    assert all(row.resource_kind != "legal_norm" for row in fallback_rows)
 
 
 @pytest.mark.parametrize(
@@ -134,29 +107,26 @@ def test_discovery_snapshot_projects_owner_kinds_and_never_world_agents(
         "effective_from",
         "effective_to",
         "declared_state",
-        "expected_projected",
     ),
     [
-        ("2026-05-25T12:34:56.123456+03:00", "2099-01-01", None, "effective", False),
-        ("2026-05-25T12:34:56.123456+03:00", "2022-02-01", "2026-05-24", "effective", False),
-        ("2026-05-25T12:34:56.123456+03:00", "2022-02-01", None, "superseded", False),
-        ("2026-05-25T12:34:56.123456+03:00", "2026-05-25", None, "effective", True),
+        ("2026-05-25T12:34:56.123456+03:00", "2099-01-01", None, "effective"),
+        ("2026-05-25T12:34:56.123456+03:00", "2022-02-01", "2026-05-24", "effective"),
+        ("2026-05-25T12:34:56.123456+03:00", "2022-02-01", None, "superseded"),
+        ("2026-05-25T12:34:56.123456+03:00", "2026-05-25", None, "effective"),
         (
             "2026-05-25T12:34:56.123456+03:00",
             "2022-02-01",
             "2026-05-25",
             "effective",
-            True,
         ),
     ],
 )
-def test_legal_norm_effectiveness_is_recomputed_at_release_snapshot(
+def test_lex_authority_projection_is_withheld_at_release_snapshots_without_relation_proof(
     tmp_path: Path,
     generated_at: str,
     effective_from: str,
     effective_to: str | None,
     declared_state: str,
-    expected_projected: bool,
 ) -> None:
     input_root = create_capability_index_fixture_inputs(tmp_path / "production_data")
     lex_path = next(input_root.glob("**/lex_knowledge_graph.duckdb"))
@@ -183,11 +153,10 @@ def test_legal_norm_effectiveness_is_recomputed_at_release_snapshot(
         for row in build_capability_discovery_snapshot(result.capability_index)
         if row.resource_kind == "legal_norm"
     )
-    assert bool(legal_rows) is expected_projected
-    if legal_rows:
-        assert legal_rows[0].owner_truth.temporal_snapshot_at == datetime.fromisoformat(
-            generated_at
-        )
+    assert legal_rows == ()
+    assert result.capability_index.metadata["legal_source_relation_refusal"]["status"] == (
+        "verification_missing"
+    )
 
 
 def test_capability_release_snapshot_requires_timezone_for_temporal_truth(tmp_path: Path) -> None:
@@ -285,11 +254,21 @@ def test_fixture_compiler_promotes_l1_l7_assets_into_authority_scoped_index(
             SELECT count(*)
             FROM capabilities
             WHERE modality_json LIKE '%lex_norm%'
-              AND evidence_mode = 'legal_threshold'
-              AND source_refs_json LIKE '%lex_rule_thresholds%'
+               OR evidence_mode = 'legal_threshold'
             """
             ).fetchone()[0]
-            >= 1
+            == 0
+        )
+        assert (
+            con.execute(
+                """
+            SELECT count(*)
+            FROM index_metadata
+            WHERE key = 'legal_source_relation_refusal'
+              AND value_json LIKE '%verification_missing%'
+            """
+            ).fetchone()[0]
+            == 1
         )
         assert (
             con.execute(
@@ -328,6 +307,7 @@ def test_fixture_compiler_promotes_l1_l7_assets_into_authority_scoped_index(
     summary = json.loads(result.summary_path.read_text())
     assert summary["primary_runtime_output"] == "capability_index_v1.duckdb"
     assert summary["exports_are_summary_only"] is True
+    assert summary["legal_source_relation_refusal"]["status"] == "verification_missing"
     assert summary["performance_budget"]["status"] == "pass"
     assert summary["capability_floors"]["fabric_data"]["observed"] >= 1
 
@@ -459,6 +439,40 @@ def test_simulation_only_cannot_satisfy_production_authority() -> None:
 
     with pytest.raises(ValueError, match="simulation_only"):
         validate_capability_authority(capability)
+
+
+def test_unverified_lex_capability_cannot_claim_production_admissibility(
+    tmp_path: Path,
+) -> None:
+    input_root = create_capability_index_fixture_inputs(tmp_path / "production_data")
+    result = compile_capability_index(
+        CapabilityIndexCompilerConfig(
+            production_data_root=input_root,
+            output_dir=tmp_path / "out",
+            mode="fixture",
+            generated_at="2026-05-25T00:00:00Z",
+        )
+    )
+    method = next(
+        capability
+        for capability in result.capability_index.capabilities
+        if "foundry_method_contract" in capability.modality
+    )
+    lex_capability = method.model_copy(
+        update={
+            "modality": ("lex_norm",),
+            "evidence_mode": "legal_threshold",
+            "authority_envelope": AuthorityEnvelope(
+                research="admissible",
+                governed_pilot="admissible",
+                production="admissible",
+                authoritative_for=("legal_authority",),
+            ),
+        }
+    )
+
+    with pytest.raises(LegalSourceRelationVerificationMissingError):
+        validate_capability_authority(lex_capability)
 
 
 def test_capability_construct_alias_preserves_artifact_schema() -> None:

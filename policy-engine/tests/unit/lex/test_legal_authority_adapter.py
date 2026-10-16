@@ -116,7 +116,7 @@ def test_jurisdiction_fallback_requires_governed_config() -> None:
     assert blocked["claim_legal_anchors"][0]["selected_norm_refs"] == []
     assert "legal_authority_fallback_policy_missing" in blocked["issue_codes"]
 
-    allowed = build_normative_applicability_report(
+    configured = build_normative_applicability_report(
         target_context={
             "jurisdiction": "UA-30-KYIV",
             "policy_domain": "wartime_msme_support",
@@ -140,15 +140,18 @@ def test_jurisdiction_fallback_requires_governed_config() -> None:
         },
     )
 
-    record = allowed["legal_authority_records"][0]
+    record = configured["legal_authority_records"][0]
 
-    assert allowed["status"] == "pass"
-    assert allowed["claim_legal_anchors"][0]["selected_norm_refs"] == ["norm.ua.local_credit"]
+    assert configured["status"] == "fail"
+    assert configured["claim_legal_anchors"][0]["selected_norm_refs"] == []
+    assert configured["claim_legal_anchors"][0]["candidate_norm_refs"] == ["norm.ua.local_credit"]
     assert record["jurisdiction_fallback_policy_ref"] == (
         "jurisdiction-fallback:ua-local-national-implementation"
     )
     assert record["fallback_path"] == ["UA-30-KYIV", "UA"]
     assert record["fallback_disposition"] == "configured"
+    assert record["admissibility_grade"] == "blocked_no_authority"
+    assert record["reason_code"] == "legal_source_relation_verification_not_established"
 
 
 def test_authority_types_are_independent_for_funding_claims() -> None:
@@ -180,11 +183,16 @@ def test_authority_types_are_independent_for_funding_claims() -> None:
     }
 
     assert report["status"] == "fail"
-    assert records_by_type["enabling"]["admissibility_grade"] == "selected_authority"
+    assert records_by_type["enabling"]["admissibility_grade"] == "blocked_no_authority"
     assert records_by_type["funding"]["admissibility_grade"] == "blocked_no_authority"
-    assert anchor["selected_authority_types"] == ["enabling"]
-    assert anchor["blocked_authority_types"] == ["funding"]
+    assert anchor["selected_authority_types"] == []
+    assert anchor["blocked_authority_types"] == ["enabling", "funding"]
     assert "legal_authority_type_not_carried_by_norm" in report["issue_codes"]
+    assert all(not record["selected_norm_refs"] for record in records_by_type.values())
+    assert all(
+        "claim_source_relation_verification" in record["missing_facets"]
+        for record in records_by_type.values()
+    )
 
 
 def test_competence_change_splits_only_the_affected_legal_window() -> None:
@@ -226,13 +234,19 @@ def test_competence_change_splits_only_the_affected_legal_window() -> None:
         "2026-07-01",
     ]
     assert [segment["segment_disposition"] for segment in segments] == [
-        "selected_authority",
+        "blocked_no_authority",
         "blocked_no_authority",
     ]
-    assert report["claim_legal_anchors"][0]["selected_norm_refs"] == ["norm.ua.local_credit"]
+    assert report["claim_legal_anchors"][0]["selected_norm_refs"] == []
+    assert report["claim_legal_anchors"][0]["candidate_norm_refs"] == ["norm.ua.local_credit"]
     assert report["claim_legal_anchors"][0]["blocked_segment_refs"] == [
-        "legal-authority-segment:rec_local_credit:implementing:2026-07-01:2026-12-31"
+        "legal-authority-segment:rec_local_credit:implementing:2026-01-01:2026-06-30",
+        "legal-authority-segment:rec_local_credit:implementing:2026-07-01:2026-12-31",
     ]
+    assert "legal_source_relation_verification_not_established" in report["issue_codes"]
+    first_segment, second_segment = report["legal_authority_records"]
+    assert "claim_source_relation_verification" in first_segment["missing_facets"]
+    assert "implementation_authority_ref" in second_segment["missing_facets"]
 
 
 def test_llm_legal_summary_remains_candidate_until_lex_validates_norm_ref() -> None:
@@ -290,9 +304,7 @@ def test_lex_consumes_capability_graph_legal_facts_with_effective_time_filtering
                 "required_hierarchy_depth": 2,
                 "required_instrument_classes": ["credit_guarantee"],
                 "required_actor_refs": ["ministry_of_economy"],
-                "required_implementation_authority_refs": [
-                    "wartime_credit_program_office"
-                ],
+                "required_implementation_authority_refs": ["wartime_credit_program_office"],
                 "temporal_competence_window": {
                     "start": "2022-03-01",
                     "end": "2022-12-31",
@@ -372,16 +384,12 @@ def test_lex_consumes_capability_graph_legal_facts_with_effective_time_filtering
     anchor = report["claim_legal_anchors"][0]
     record = report["legal_authority_records"][0]
 
-    assert report["status"] == "pass"
-    assert anchor["selected_norm_refs"] == ["norm.ua.wartime_credit"]
-    assert anchor["rejected_norm_refs"] == ["norm.ua.prewar_credit"]
-    assert record["capability_ref"] == "capability:lex_wartime_credit_authority"
-    assert record["construct_ref"] == "construct:firm_survival"
-    assert record["capability_index_ref"] == "capability-index:phase5"
-    assert record["lex_normative_fact_refs"] == ["lex_normative_facts:wartime"]
-    assert record["lex_rule_threshold_refs"] == ["lex_rule_thresholds:msme_employee_count"]
-    assert record["lex_amendment_refs"] == ["lex_amendments:wartime_credit_2022"]
-    assert record["lex_temporal_audit_refs"] == ["lex_temporal_audit:wartime"]
-    assert record["legal_hierarchy_constraints"] == [
-        "wartime_resolution_overrides_prewar"
-    ]
+    assert report["status"] == "fail"
+    assert anchor["selected_norm_refs"] == []
+    assert set(anchor["rejected_norm_refs"]) == {
+        "norm.ua.prewar_credit",
+        "norm.ua.wartime_credit",
+    }
+    assert "legal_source_relation_verification_not_established" in report["issue_codes"]
+    assert record["legal_admissibility_grade"] == "blocked"
+    assert "claim_source_relation_verification" in record["missing_facets"]

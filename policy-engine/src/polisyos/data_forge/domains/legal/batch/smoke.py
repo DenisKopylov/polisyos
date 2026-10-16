@@ -19,6 +19,9 @@ from polisyos.data_forge.domains.legal.batch.provisions_io import _shard_prefix,
 from polisyos.data_forge.domains.legal.batch.publish import run_publish
 from polisyos.data_forge.domains.legal.batch.quality_report import build_quality_report
 from polisyos.data_forge.domains.legal.batch.xml_parser import iter_documents
+from polisyos.data_forge.domains.legal.source_relation import (
+    current_legal_source_relation_disposition,
+)
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 
 _APPENDIX_RE = re.compile(r"(^|\n)\s*додаток\b", re.IGNORECASE)
@@ -601,6 +604,7 @@ def build_smoke_report(
             "qc_failed_checks": stats.qc_failed_checks,
             "benchmark_failed_checks": stats.benchmark_failed_checks,
             "release_failed_checks": stats.release_failed_checks,
+            "legal_relation_refusal": current_legal_source_relation_disposition().refusal.to_payload(),
             "stage_times": stats.stage_times,
             "elapsed_seconds": stats.elapsed_seconds,
             "llm_gate_metrics": stats.llm_gate_metrics,
@@ -644,8 +648,11 @@ def build_smoke_report(
             "publish_manifest_path": str(output_dir / "publish" / "manifest.json"),
             "consumer_manifest_path": str(consumer_manifest_path),
             "benchmark_report_path": str(benchmark_manifest_path),
-            "claim_summary_path": str(
-                output_dir / "claim_exports" / "normative_claim_sets_summary.json"
+            "claim_summary_path": (
+                str(output_dir / "claim_exports" / "normative_claim_sets_summary.json")
+                if stats.exported_claim_sets > 0
+                and (output_dir / "claim_exports" / "normative_claim_sets_summary.json").exists()
+                else None
             ),
         },
     }

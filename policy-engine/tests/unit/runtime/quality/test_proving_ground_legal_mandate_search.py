@@ -617,13 +617,14 @@ def test_layer3_gl_bundle_contains_required_sections_and_manifest_keys() -> None
     assert set(payload["readiness_manifest"]) >= EXPECTED_MANIFEST_KEYS
 
 
-def test_layer3_gl_plan_fixtures_cover_valid_and_malformed_semantic_bundles() -> None:
+def test_layer3_gl_plan_fixtures_fail_closed_without_relation_verification() -> None:
     gl = _gl()
 
     valid = _fixture("valid_legal_mandate_minimal_bundle.json")
     valid_report = gl.validate_layer3_gl_bundle(REPO_ROOT, valid["payload"])
 
-    assert _dump(valid_report)["status"] == "pass"
+    assert _dump(valid_report)["status"] == "fail"
+    assert "legal_source_relation_verification_not_established" in _issue_codes(valid_report)
 
     malformed_expectations = {
         "malformed_text_search_used_as_authority.json": {"layer3_gl_text_search_used_as_authority"},
@@ -654,41 +655,48 @@ def test_layer3_gl_task8_g0_manifest_counts_pass_satisfies_closeout_dependency()
     assert "layer3_gl_g0_dependency_not_ready" not in _issue_codes(report)
 
 
-def test_layer3_gl_task8_conformance_and_performance_closeout_gates_pass() -> None:
+def test_layer3_gl_task8_reports_unverified_relation_as_limited_authority() -> None:
     gl = _gl()
     bundle = gl.build_layer3_gl_bundle(REPO_ROOT)
     payload = _dump(bundle)
     conformance = payload["conformance_report"]
     health = payload["health_metric_delta"]
 
-    assert conformance["status"] == "pass"
-    assert conformance["issue_codes"] == []
-    assert conformance["performance_status"] == "pass"
-    assert conformance["closeout_status"] == "pass"
-    assert set(conformance["conformance_gate_statuses"].items()) >= set(
-        {
-            "g0_dependency": "pass",
-            "legal_kg_route": "pass",
-            "search_recall_freshness": "pass",
-            "claim_level_authority": "pass",
-            "consumer_gates": "pass",
-            "public_projection": "pass",
-            "adapter_registry": "pass",
-            "performance_scaling": "pass",
-        }.items()
-    )
-    assert payload["readiness_manifest"]["gl_conformance_status"] == "pass"
+    refusal = "legal_source_relation_verification_not_established"
+    assert conformance["status"] == "fail"
+    assert conformance["performance_status"] == "fail"
+    assert conformance["closeout_status"] == "fail"
+    assert conformance["conformance_gate_statuses"]["g0_dependency"] == "pass"
+    assert conformance["conformance_gate_statuses"]["legal_kg_route"] == "pass"
+    assert conformance["conformance_gate_statuses"]["search_recall_freshness"] == "pass"
+    assert conformance["conformance_gate_statuses"]["claim_level_authority"] == "fail"
+    assert conformance["conformance_gate_statuses"]["consumer_gates"] == "fail"
+    assert conformance["conformance_gate_statuses"]["public_projection"] == "pass"
+    assert conformance["conformance_gate_statuses"]["adapter_registry"] == "pass"
+    assert conformance["conformance_gate_statuses"]["performance_scaling"] == "fail"
+    assert payload["legal_authority_report"]["status"] == "fail"
+    assert payload["legal_authority_report"]["selected_norm_refs"] == []
+    assert refusal in payload["legal_authority_report"]["blocker_refs"]
+    assert refusal in payload["legal_authority_report"]["issue_codes"]
+    assert payload["claim_registry_consumer_gate"]["status"] == "fail"
+    assert refusal in payload["claim_registry_consumer_gate"]["issue_codes"]
+    assert payload["semantic_binding_consumer_gate"]["status"] == "fail"
+    assert refusal in payload["semantic_binding_consumer_gate"]["issue_codes"]
+    assert payload["readiness_manifest"]["gl_conformance_status"] == "fail"
     assert payload["readiness_manifest"]["gl_adapter_semantic_loss_status"] == "pass"
-    assert payload["readiness_manifest"]["gl_governance_throughput_status"] == "pass"
+    assert payload["readiness_manifest"]["gl_governance_throughput_status"] == "fail"
     assert health["readings"]["adapter-semantic-loss"] == "pass"
-    assert health["readings"]["governance-throughput"] == "pass"
+    assert health["readings"]["governance-throughput"] == "fail"
 
     for trace in payload["l3_legal_kg_query_traces"]:
         assert "LIMIT" in trace["sql_shape"].upper()
         assert trace["bounded_result_limit"] <= 256
         assert trace["query_budget"]["python_full_scan_allowed"] is False
         assert trace["query_budget"]["full_corpus_scan_allowed"] is False
-        assert trace["observed_row_count"] <= trace["bounded_result_limit"]
+        assert trace["observed_row_count"] <= trace["bounded_result_limit"] + 1
+        if trace["observed_row_count"] > trace["bounded_result_limit"]:
+            assert trace["observed_row_count"] == trace["bounded_result_limit"] + 1
+            assert trace["query_budget"]["completeness_status"] == "budget_cutoff"
     assert not any(
         ledger["used_full_table_scan"] for ledger in payload["l3_legal_kg_search_ledgers"]
     )
@@ -1152,21 +1160,205 @@ def test_layer3_gl_task4_legal_authority_report_selects_norm_and_preserves_adapt
     bundle = gl.build_layer3_gl_bundle(REPO_ROOT)
     report = _dump(bundle.legal_authority_report)
 
-    assert report["status"] == "pass"
-    assert report["selected_norm_refs"]
-    assert report["legal_authority_record_refs"]
-    assert report["adapter_legal_authority_record_refs"] == report["legal_authority_record_refs"]
+    assert report["status"] == "fail"
+    assert report["selected_norm_refs"] == []
+    assert report["legal_authority_record_refs"] == []
     assert report["adapter_candidate_norm_count"] >= 2
+    assert "legal_source_relation_verification_not_established" in report["blocker_refs"]
+    assert report["adapter_legal_authority_record_refs"]
+    adapter_records = report["adapter_report"]["legal_authority_records"]
+    assert adapter_records
+    assert all(
+        record["legal_admissibility_grade"] == "blocked"
+        and record["admissibility_grade"] == "blocked_no_authority"
+        for record in adapter_records
+    )
+    assert all(not record.get("selected_norm_ref") for record in adapter_records)
     assert report["used_internal_requirement_compile"] is False
     assert report["runtime_candidate_norms_used_for_closure"] is False
     assert report["applicability_internal_kg_fallback_used"] is False
     assert report["producer_artifact_ref"].startswith(
         "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#"
     )
-    assert report["adapter_report"]["status"] == "pass"
+    # The adapter resolves typed candidates and refuses authority; it does not
+    # establish that source bytes entail the recommendation claim.
+    assert report["adapter_report"]["status"] == "fail"
     assert report["adapter_report"]["producer_artifact_ref"] == report["producer_artifact_ref"]
-    assert report["adapter_report"]["issue_codes"] == []
-    assert report["issue_codes"] == []
+    assert (
+        "legal_source_relation_verification_not_established"
+        in report["adapter_report"]["issue_codes"]
+    )
+    assert "legal_source_relation_verification_not_established" in report["issue_codes"]
+
+
+def test_layer3_gl_public_authority_builders_refuse_self_attested_source_relation() -> None:
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LegalSourceRelationVerificationMissingError,
+    )
+
+    gl = _gl()
+    report = gl.Layer3GLLegalAuthorityReportBinding(
+        status="pass",
+        claim_id="claim:fake",
+        requirement_ref="requirement:fake",
+        legal_as_of="2026-01-01",
+        jurisdiction="UA",
+        selected_norm_refs=("norm.fake",),
+        legal_authority_record_refs=("legal-authority-record:fake",),
+    )
+    norm = gl.Layer3GLNormCandidateBinding(
+        status="pass",
+        binding_id="candidate:fake",
+        kg_row_ref="lex_normative_facts:fake",
+        candidate_norm_status="admitted_candidate",
+        context_only=False,
+        legal_kg_snapshot_ref="snapshot:fake",
+        candidate_norm={
+            "norm_id": "norm.fake",
+            "source_provenance_ref": "fake://no-source",
+            "lex_rule_threshold_refs": ["lex_rule_thresholds:fake"],
+            "effective_from": "2020-01-01",
+            "effective_to": "2030-01-01",
+        },
+    )
+    ledger = gl.Layer3GLLegalSearchLedger(
+        status="pass",
+        ledger_id="ledger:fake",
+        request_ref="request:fake",
+        legal_kg_snapshot_ref="snapshot:fake",
+        selected_row_refs=("lex_rule_thresholds:fake",),
+        candidate_rows=(
+            {
+                "row_ref": "lex_rule_thresholds:fake",
+                "hydrated_from_table": "lex_rule_thresholds",
+                "threshold_source_field": "lex_rule_thresholds",
+                "metric": "eligibility",
+                "operator": "<=",
+                "value_decimal": "5",
+                "unit": "years",
+                "fact_id": "fact.fake",
+            },
+        ),
+    )
+
+    with pytest.raises(LegalSourceRelationVerificationMissingError):
+        gl.build_gl_threshold_authority_records(
+            REPO_ROOT,
+            ledgers=(ledger,),
+            legal_authority_report=report,
+            norm_candidate_bindings=(norm,),
+        )
+    with pytest.raises(LegalSourceRelationVerificationMissingError):
+        gl.build_gl_temporal_competence_records(
+            REPO_ROOT,
+            ledgers=(ledger,),
+            legal_authority_report=report,
+            norm_candidate_bindings=(norm,),
+        )
+    with pytest.raises(LegalSourceRelationVerificationMissingError):
+        gl.build_gl_design_constraint_consumer_gate(
+            legal_authority_report=report,
+            threshold_authority_records=(),
+            mandate_authority_records=(),
+        )
+
+
+def test_layer3_gl_authority_record_argument_roles_refuse_typed_and_serialized_inputs() -> None:
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LegalSourceRelationVerificationMissingError,
+        current_legal_source_relation_disposition,
+    )
+
+    gl = _gl()
+    report = gl.Layer3GLLegalAuthorityReportBinding(
+        status="fail",
+        claim_id="claim:unverified",
+        requirement_ref="requirement:unverified",
+        legal_as_of="2026-01-01",
+        jurisdiction="UA",
+    )
+    mandate = gl.Layer3GLMandateAuthorityRecord(record_id="gl-mandate:unverified")
+    threshold = gl.Layer3GLThresholdAuthorityRecord(record_id="gl-threshold:unverified")
+    s6_gate = gl.Layer3GLS6MandateConsumerGate(status="fail")
+    mandate_inputs = (
+        [mandate],
+        [mandate.model_dump(mode="json")],
+        [{"record_id": mandate.record_id, "unexpected": True}],
+        {"record_id": mandate.record_id, "unexpected": True},
+    )
+    threshold_inputs = (
+        [threshold],
+        [threshold.model_dump(mode="json")],
+        [{"record_id": threshold.record_id, "unexpected": True}],
+        {"record_id": threshold.record_id, "unexpected": True},
+    )
+    assert current_legal_source_relation_disposition().refusal.status == "verification_missing"
+
+    for records in mandate_inputs:
+        with pytest.raises(LegalSourceRelationVerificationMissingError):
+            gl.build_gl_public_export_projection_refs(
+                legal_authority_report=report,
+                threshold_authority_records=(),
+                mandate_authority_records=records,
+            )
+        with pytest.raises(LegalSourceRelationVerificationMissingError):
+            gl.build_gl_s6_mandate_consumer_gate(
+                legal_authority_report=report,
+                mandate_authority_records=records,
+            )
+        with pytest.raises(LegalSourceRelationVerificationMissingError):
+            gl.build_gl_s7_delegation_consumer_gate(
+                mandate_authority_records=records,
+                s6_mandate_consumer_gate=s6_gate,
+            )
+
+    for records in threshold_inputs:
+        with pytest.raises(LegalSourceRelationVerificationMissingError):
+            gl.build_gl_public_export_projection_refs(
+                legal_authority_report=report,
+                threshold_authority_records=records,
+                mandate_authority_records=(),
+            )
+
+    for role_name, records_input_set in (
+        ("mandate_authority_records", mandate_inputs),
+        ("threshold_authority_records", threshold_inputs),
+    ):
+        for records in records_input_set:
+            payload = _mutable_gl_runtime_payload()
+            payload["legal_authority_report"]["selected_norm_refs"] = []
+            payload["legal_authority_report"]["legal_authority_record_refs"] = []
+            payload["legal_authority_report"]["blocker_refs"] = []
+            payload["legal_authority_report"]["issue_codes"] = []
+            payload[role_name] = records
+
+            validation = gl.validate_layer3_gl_bundle(REPO_ROOT, payload)
+            assert "legal_source_relation_verification_not_established" in _issue_codes(validation)
+
+
+def test_layer3_gl_empty_authority_record_roles_keep_candidate_reference_projection() -> None:
+    gl = _gl()
+    bundle = gl.build_layer3_gl_bundle(REPO_ROOT)
+
+    assert bundle.norm_candidate_bindings
+    assert bundle.mandate_authority_records == ()
+    assert bundle.threshold_authority_records == ()
+    assert bundle.public_export_projection_refs.projection_refs["mandate_record_refs"] == ()
+
+
+def test_layer3_gl_validator_recomputes_relation_refusal_after_marker_removal() -> None:
+    gl = _gl()
+    payload = _fixture("valid_legal_mandate_minimal_bundle.json")["payload"]
+    report = payload["legal_authority_report"]
+    assert report["selected_norm_refs"]
+    assert report["legal_authority_record_refs"]
+    report["blocker_refs"] = []
+    report["issue_codes"] = []
+
+    validation = gl.validate_layer3_gl_bundle(REPO_ROOT, payload)
+
+    assert _dump(validation)["status"] == "fail"
+    assert "legal_source_relation_verification_not_established" in _issue_codes(validation)
 
 
 def test_layer3_gl_task4_threshold_authority_record_binds_hydrated_rule_row() -> None:
@@ -1174,21 +1366,16 @@ def test_layer3_gl_task4_threshold_authority_record_binds_hydrated_rule_row() ->
     bundle = gl.build_layer3_gl_bundle(REPO_ROOT)
     records = [_dump(record) for record in bundle.threshold_authority_records]
 
-    assert records
-    record = records[0]
-    assert record["status"] == "pass"
-    assert record["legal_authority_record_refs"]
-    assert record["threshold_row_ref"].startswith("lex_rule_thresholds:")
-    assert record["hydrated_from_table"] == "lex_rule_thresholds"
-    assert record["threshold_source_field"] == "lex_rule_thresholds"
-    assert record["metric"]
-    assert record["operator"]
-    assert record["value_decimal"] or record["value_text"]
-    assert record["unit"]
-    assert record["source_fact_ref"]
-    assert record["source_norm_ref"] in _dump(bundle.legal_authority_report)["selected_norm_refs"]
-    assert record["legal_admissibility_grade"] == "admissible"
-    assert record["query_trace_refs"]
+    assert records == []
+    assert bundle.norm_candidate_bindings
+    assert any(
+        _dump(binding).get("candidate_norm", {}).get("lex_rule_threshold_refs")
+        for binding in bundle.norm_candidate_bindings
+    )
+    assert (
+        "legal_source_relation_verification_not_established"
+        in _dump(bundle.legal_authority_report)["blocker_refs"]
+    )
 
 
 def test_layer3_gl_task4_mandate_record_uses_s6_compatible_handoff_without_forking() -> None:
@@ -1196,20 +1383,13 @@ def test_layer3_gl_task4_mandate_record_uses_s6_compatible_handoff_without_forki
     bundle = gl.build_layer3_gl_bundle(REPO_ROOT)
     records = [_dump(record) for record in bundle.mandate_authority_records]
 
-    assert records
-    record = records[0]
-    assert record["status"] == "compatibility_only"
-    assert record["legal_authority_record_refs"]
-    assert record["mandate_source_refs"]
-    assert record["s6_mandate_firewall_disposition"] == "compatibility_only"
-    assert record["s6_evaluation_ref"] is None
-    assert record["s6_compatible_source_handoff_refs"]
-    assert record["mandate_source_payloads"][0]["compatibility_status"] == (
-        "requires_s6_evaluation"
+    assert records == []
+    assert bundle.norm_candidate_bindings
+    assert _dump(bundle.legal_authority_report)["legal_authority_record_refs"] == []
+    assert (
+        "legal_source_relation_verification_not_established"
+        in _dump(bundle.legal_authority_report)["blocker_refs"]
     )
-    assert record["authority_type"] == "implementing"
-    assert record["competent_actor_ref"]
-    assert record["legal_as_of"] == "2022-03-01"
 
 
 def test_layer3_gl_task4_l5_calibration_limitation_is_explicit_for_passing_records() -> None:
@@ -1217,16 +1397,9 @@ def test_layer3_gl_task4_l5_calibration_limitation_is_explicit_for_passing_recor
     bundle = gl.build_layer3_gl_bundle(REPO_ROOT)
     bindings = [_dump(binding) for binding in bundle.l5_calibration_bindings]
 
-    assert bindings
-    binding = bindings[0]
-    assert binding["status"] == "limitation"
-    assert binding["candidate_norm_refs"]
-    assert binding["threshold_record_refs"]
-    assert binding["mandate_record_refs"]
-    assert binding["calibration_status"] == "missing_l5_calibration_limitation"
-    assert binding["trust_tier"]
-    assert binding["trust_cap"] == "context_or_claim_level_only"
-    assert "layer3_gl_l5_calibration_binding_missing" in binding["issue_codes"]
+    assert bindings == []
+    assert bundle.norm_candidate_bindings
+    assert _dump(bundle.legal_authority_report)["selected_norm_refs"] == []
 
 
 def test_layer3_gl_task4_temporal_amendment_and_reference_records_fail_closed_when_needed() -> None:
@@ -1236,7 +1409,7 @@ def test_layer3_gl_task4_temporal_amendment_and_reference_records_fail_closed_wh
     amendment_records = [_dump(record) for record in bundle.amendment_lineage_records]
     reference_records = [_dump(record) for record in bundle.reference_resolution_records]
 
-    assert any(record["status"] == "pass" for record in temporal_records)
+    assert not any(record["status"] == "pass" for record in temporal_records)
     assert any(record["status"] == "reissue_required" for record in temporal_records)
     assert any(
         "layer3_gl_partial_temporal_row_promoted_to_authority" in record["issue_codes"]
@@ -1277,40 +1450,9 @@ def test_layer3_gl_task5_lex_intervention_map_binding_has_authority_precondition
     bundle = gl.build_layer3_gl_bundle(REPO_ROOT)
     bindings = [_dump(binding) for binding in bundle.lex_intervention_map_bindings]
 
-    assert bindings
-    binding = bindings[0]
-    assert binding["status"] == "pass"
-    assert binding["mapping_ref"].startswith("lex-intervention-map:")
-    assert binding["provision_ref"].startswith("lex_rule_thresholds:")
-    assert (
-        binding["legal_authority_record_refs"]
-        == _dump(bundle.legal_authority_report)["legal_authority_record_refs"]
-    )
-    assert (
-        binding["selected_norm_refs"] == _dump(bundle.legal_authority_report)["selected_norm_refs"]
-    )
-    assert binding["admitted_authority_precondition_status"] == "pass"
-    assert binding["used_as_legal_authority"] is False
-    assert "legal_authority" not in binding["authoritative_for"]
-    assert binding["intervention_kind"]
-    assert binding["knob_ids"]
-    assert binding["target_population_type"]
-    assert binding["target_region_ids"]
-    assert binding["target_sector_ids"]
-    assert binding["measurement_expectations"]
-    assert binding["crosswalk_refs"]
-    assert binding["mapping_confidence_score"] is not None
-    assert binding["mapping_provenance_refs"]
-    assert binding["registry_validation_status"] == "pass"
-    assert set(binding["registry_lookup_method_refs"]) >= {
-        "LexProvisionMappingRegistry.get_mapping",
-        "LexProvisionMappingRegistry.require_mapping",
-        "LexProvisionMappingRegistry.require_knob",
-        "LexProvisionMappingRegistry.get_crosswalk",
-    }
-    assert binding["executable_compile_status"] == "out_of_scope"
-    assert binding["directive_compiled"] is False
-    assert binding["issue_codes"] == []
+    assert bindings == []
+    assert bundle.norm_candidate_bindings
+    assert _dump(bundle.legal_authority_report)["selected_norm_refs"] == []
 
 
 def test_layer3_gl_task5_zero_row_production_map_reports_bounded_mapping_coverage() -> None:
@@ -1331,14 +1473,9 @@ def test_layer3_gl_task5_zero_row_production_map_reports_bounded_mapping_coverag
         )
     ]
 
-    assert bindings
-    binding = bindings[0]
-    assert binding["status"] == "pass"
-    assert binding["mapping_coverage_status"] == "synthetic_seed_used_zero_row_production_map"
-    assert binding["production_mapping_row_count"] == 0
-    assert binding["synthetic_mapping_seed_used"] is True
-    assert binding["legal_authority_record_refs"]
-    assert binding["used_as_legal_authority"] is False
+    assert bindings == []
+    assert bundle.norm_candidate_bindings
+    assert _dump(bundle.legal_authority_report)["legal_authority_record_refs"] == []
 
 
 def test_layer3_gl_task5_intervention_map_without_authority_record_fails_precondition() -> None:
@@ -1387,60 +1524,71 @@ def test_layer3_gl_task6_claim_and_semantic_consumer_gates_preserve_authority_re
     claim_gate = _dump(bundle.claim_registry_consumer_gate)
     semantic_gate = _dump(bundle.semantic_binding_consumer_gate)
 
-    assert claim_gate["status"] == "pass"
-    assert claim_gate["claim_registry_status"] == "pass"
+    assert claim_gate["status"] == "fail"
+    assert claim_gate["claim_registry_status"] == "fail"
     assert claim_gate["claim_registry_rows"]
     claim_row = claim_gate["claim_registry_rows"][0]
     assert claim_row["claim_id"] == report["claim_id"]
-    assert claim_row["selected_norm_refs"] == report["selected_norm_refs"]
-    assert claim_row["legal_authority_record_refs"] == report["legal_authority_record_refs"]
-    assert claim_row["threshold_record_refs"]
-    assert claim_row["mandate_record_refs"]
+    assert claim_row["selected_norm_refs"] == []
+    assert claim_row["legal_norm_refs"] == []
+    assert claim_row["legal_authority_blocker_refs"]
+    assert claim_row["threshold_record_refs"] == []
+    assert claim_row["mandate_record_refs"] == []
     assert claim_row["authority_role"] == "consumer_projection"
     assert "legal_authority" not in claim_row["authoritative_for"]
     assert "legal_authority_without_claim_level_adapter" in claim_row["may_not_use_for"]
-    assert claim_gate["producer_authority_refs"] == report["legal_authority_record_refs"]
+    assert claim_gate["producer_authority_refs"] == []
+    assert "legal_source_relation_verification_not_established" in claim_gate["issue_codes"]
 
-    assert semantic_gate["status"] == "pass"
-    assert semantic_gate["semantic_binding_status"] == "pass"
+    assert semantic_gate["status"] == "fail"
+    assert semantic_gate["semantic_binding_status"] == "fail"
     assert semantic_gate["semantic_binding_rows"]
     semantic_row = semantic_gate["semantic_binding_rows"][0]
-    assert semantic_row["selected_norm_refs"] == report["selected_norm_refs"]
-    assert semantic_row["legal_authority_record_refs"] == report["legal_authority_record_refs"]
-    assert semantic_row["legal_admissibility_grades"] == ["admissible"]
-    assert "semantic_lex_legal_authority_record_missing" not in semantic_gate["issue_codes"]
+    assert semantic_row["selected_norm_refs"] == []
+    assert semantic_row["legal_authority_record_refs"] == []
+    assert semantic_row["legal_admissibility_grades"] == []
+    assert "legal_source_relation_verification_not_established" in semantic_gate["issue_codes"]
+    assert "layer3_gl_semantic_binding_consumer_gate_missing" in semantic_gate["issue_codes"]
+    semantic_input = gl._gl_lex_semantic_report(report)
+    relation_blocker = next(
+        row
+        for row in semantic_input["authority_blockers"]
+        if row["code"] == "legal_source_relation_verification_not_established"
+    )
+    missing_facet_blocker = next(
+        row
+        for row in semantic_input["authority_blockers"]
+        if row["code"] == "legal_authority_missing_claim_level_facets"
+    )
+    assert relation_blocker["status"] == "verification_missing"
+    assert "status" not in missing_facet_blocker
 
 
 def test_layer3_gl_task6_argument_graph_s6_s7_s8_handoffs_preserve_authority_boundaries() -> None:
     gl = _gl()
     bundle = gl.build_layer3_gl_bundle(REPO_ROOT)
     report = _dump(bundle.legal_authority_report)
-    threshold_ref = _dump(bundle.threshold_authority_records[0])["record_id"]
-    mandate_ref = _dump(bundle.mandate_authority_records[0])["record_id"]
-
     argument_gate = _dump(bundle.argument_graph_readiness_consumer_gate)
-    assert argument_gate["status"] == "pass"
+    assert argument_gate["status"] == "fail"
     assert argument_gate["diagnostic_only"] is True
     readiness = argument_gate["readiness_rows"][0]
     assert readiness["readiness_check"] == "layer3_gl_legal_mandate_search_readiness_gate"
-    assert readiness["status"] == "pass"
-    assert set(readiness["authority_refs"]) >= {
-        report["legal_authority_record_refs"][0],
-        threshold_ref,
-        mandate_ref,
-    }
+    assert readiness["status"] == "fail"
+    assert not report["legal_authority_record_refs"]
+    assert not report["selected_norm_refs"]
+    assert "legal_source_relation_verification_not_established" in readiness["blocker_refs"]
     assert argument_gate["claims_promotion_authority"] is False
 
     s6_gate = _dump(bundle.s6_mandate_consumer_gate)
-    assert s6_gate["status"] == "pass"
+    assert s6_gate["status"] == "fail"
     assert s6_gate["s6_gate_disposition"] == "compatibility_only"
     assert s6_gate["does_not_assert_s6_pass"] is True
-    assert s6_gate["s6_mandate_source_records"][0]["mandate_record_ref"] == mandate_ref
+    assert s6_gate["s6_mandate_source_records"] == []
     assert s6_gate["s6_evaluation_ref"] is None
 
     s7_gate = _dump(bundle.s7_delegation_consumer_gate)
-    assert s7_gate["status"] == "pass"
-    assert s7_gate["mandate_record_refs"] == [mandate_ref]
+    assert s7_gate["status"] == "fail"
+    assert s7_gate["mandate_record_refs"] == []
     assert s7_gate["human_decision_integrity_authority"] == "s7_not_gl"
     assert s7_gate["p26_boundary_preserved"] is True
 
@@ -1454,25 +1602,22 @@ def test_layer3_gl_task6_argument_graph_s6_s7_s8_handoffs_preserve_authority_bou
 def test_layer3_gl_task6_pdc_design_g4_and_public_projection_do_not_overclaim() -> None:
     gl = _gl()
     bundle = gl.build_layer3_gl_bundle(REPO_ROOT)
-    threshold_ref = _dump(bundle.threshold_authority_records[0])["record_id"]
-    mandate_ref = _dump(bundle.mandate_authority_records[0])["record_id"]
-
     pdc_gate = _dump(bundle.pdc_compiler_consumer_gate)
-    assert pdc_gate["status"] == "pass"
-    assert pdc_gate["compatible_with_pdc_input"] is True
+    assert pdc_gate["status"] == "fail"
+    assert pdc_gate["compatible_with_pdc_input"] is False
     assert pdc_gate["pdc_input_refs"]
+    assert pdc_gate["legal_authority_record_refs"] == []
+    assert pdc_gate["selected_norm_refs"] == []
 
     design_gate = _dump(bundle.design_constraint_consumer_gate)
-    assert design_gate["status"] == "pass"
+    assert design_gate["status"] == "fail"
     assert design_gate["consumed_as_recommendation_substance"] is False
     assert design_gate["consumed_as_promotion_authority"] is False
-    assert set(design_gate["design_constraint_rows"][0]["source_refs"]) >= {
-        threshold_ref,
-        mandate_ref,
-    }
+    assert design_gate["design_constraint_rows"][0]["source_refs"] == []
+    assert design_gate["design_constraint_rows"][0]["legal_authority_record_refs"] == []
 
     g4_gate = _dump(bundle.g4_promotion_gate_consumer_gate)
-    assert g4_gate["status"] == "pass"
+    assert g4_gate["status"] == "fail"
     assert g4_gate["promotion_authority_claimed"] is False
     assert g4_gate["closeout_authority_claimed"] is False
     assert g4_gate["future_g4_required_refs"]
@@ -1486,13 +1631,14 @@ def test_layer3_gl_task6_pdc_design_g4_and_public_projection_do_not_overclaim() 
     assert audit_surface["status"] == "pass"
     assert audit_surface["surface_audiences"] == ["EXPERT", "MACHINE"]
     assert audit_surface["raw_legal_payload_exported"] is False
-    assert audit_surface["audit_refs"]["legal_authority_record_refs"]
+    assert audit_surface["audit_refs"]["legal_authority_record_refs"] == []
 
     public_refs = _dump(bundle.public_export_projection_refs)
     assert public_refs["status"] == "pass"
     assert public_refs["projection_mode"] == "reference_only"
     assert public_refs["public_export_hook_status"] == "out_of_scope_reference_only"
     assert public_refs["raw_legal_payload_exported"] is False
+    assert public_refs["projection_refs"]["legal_authority_record_refs"] == []
     assert public_refs["projection_policy_ref"]
     assert public_refs["public_payload_fields"] == [
         "surface_id",
@@ -1510,28 +1656,49 @@ def test_layer3_gl_task6_pdc_design_g4_and_public_projection_do_not_overclaim() 
 
 
 def test_layer3_gl_task6_validator_fails_claim_or_semantic_consumer_gate_ref_loss() -> None:
-    def mutate_claim_gate(payload: dict[str, Any]) -> None:
-        payload["claim_registry_consumer_gate"]["claim_registry_rows"][0][
-            "legal_authority_record_refs"
-        ] = []
-
-    _validate_mutation(
-        mutate_claim_gate,
-        {"layer3_gl_claim_registry_consumer_gate_missing"},
+    gl = _gl()
+    payload = _mutable_gl_runtime_payload()
+    report = payload["legal_authority_report"]
+    report["selected_norm_refs"] = ["norm.unverified.test"]
+    report["legal_authority_record_refs"] = ["legal-authority-record:unverified.test"]
+    report["blocker_refs"] = list(
+        dict.fromkeys(
+            [
+                *report.get("blocker_refs", []),
+                "legal_source_relation_verification_not_established",
+            ]
+        )
     )
-
-    def mutate_semantic_gate(payload: dict[str, Any]) -> None:
-        payload["semantic_binding_consumer_gate"]["semantic_binding_rows"][0][
-            "legal_authority_record_refs"
-        ] = []
-        payload["semantic_binding_consumer_gate"]["issue_codes"] = [
-            "semantic_lex_legal_authority_record_missing"
-        ]
-
-    _validate_mutation(
-        mutate_semantic_gate,
-        {"layer3_gl_semantic_binding_consumer_gate_missing"},
+    report["issue_codes"] = list(
+        dict.fromkeys(
+            [
+                *report.get("issue_codes", []),
+                "legal_source_relation_verification_not_established",
+            ]
+        )
     )
+    claim_gate = payload["claim_registry_consumer_gate"]
+    claim_gate["status"] = "pass"
+    claim_gate["selected_norm_refs"] = ["norm.unverified.test"]
+    claim_gate["legal_authority_record_refs"] = ["legal-authority-record:unverified.test"]
+    claim_gate["claim_registry_rows"] = [
+        {"selected_norm_refs": [], "legal_authority_record_refs": []}
+    ]
+    semantic_gate = payload["semantic_binding_consumer_gate"]
+    semantic_gate["status"] = "pass"
+    semantic_gate["selected_norm_refs"] = ["norm.unverified.test"]
+    semantic_gate["legal_authority_record_refs"] = ["legal-authority-record:unverified.test"]
+    semantic_gate["semantic_binding_rows"] = [
+        {"selected_norm_refs": [], "legal_authority_record_refs": []}
+    ]
+
+    report_result = gl.validate_layer3_gl_bundle(REPO_ROOT, payload)
+    issues = _issue_codes(report_result)
+
+    assert _dump(report_result)["status"] == "fail"
+    assert "legal_source_relation_verification_not_established" in issues
+    assert "layer3_gl_claim_registry_consumer_gate_missing" in issues
+    assert "layer3_gl_semantic_binding_consumer_gate_missing" in issues
 
 
 def test_layer3_gl_task6_validator_blocks_ranking_or_public_projection_overclaim() -> None:
@@ -1598,6 +1765,7 @@ def test_layer3_gl_validator_fails_search_ledger_without_legal_authority_record(
 def test_layer3_gl_validator_fails_legal_authority_report_without_consumer_gates() -> None:
     def mutate(payload: dict[str, Any]) -> None:
         payload["legal_authority_report"]["status"] = "pass"
+        payload["legal_authority_report"]["selected_norm_refs"] = ["lex-norm://unverified-test"]
         payload["legal_authority_report"]["legal_authority_record_refs"] = [
             "legal-authority-record://gl/test"
         ]

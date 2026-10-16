@@ -196,7 +196,7 @@ def test_quality_gates_block_on_primary_clause_miss_but_keep_raw_audit_miss_as_w
     assert gate.warning_failed_checks == ["audit_miss_rate_pct"]
 
 
-def test_quality_report_prefers_grounded_missing_quote_rate(tmp_path: Path) -> None:
+def test_quality_gate_uses_full_statement_missing_quote_rate(tmp_path: Path) -> None:
     provisions_dir = tmp_path / "provisions" / "ab"
     spo_dir = tmp_path / "spo_grounded" / "ab"
     provisions_dir.mkdir(parents=True)
@@ -271,7 +271,7 @@ def test_quality_report_prefers_grounded_missing_quote_rate(tmp_path: Path) -> N
             max_missing_quote_rate_pct=5.0,
         ),
     )
-    assert gate.passed is True
+    assert "missing_quote_rate_pct" in gate.failed_checks
 
 
 def test_quality_report_builds_family_breakdown_and_audit_categories(tmp_path: Path) -> None:

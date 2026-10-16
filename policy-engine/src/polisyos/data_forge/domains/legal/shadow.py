@@ -8,6 +8,9 @@ from typing import cast
 
 from pydantic import Field
 
+from polisyos.data_forge.domains.legal.source_relation import (
+    current_legal_source_relation_disposition,
+)
 from polisyos.data_forge.kernel._base import DataForgeModel
 from polisyos.data_forge.kernel.io import sha256_file
 
@@ -136,6 +139,38 @@ def load_lex_shadow_bundle(root: str | Path) -> LegalShadowBundle:
 
     consumer_ready = _bool_value(readiness.get("consumer_ready"), consumer_readiness.get("ready"))
     release_ready = _bool_value(release_readiness.get("release_ready"), consumer_ready)
+    normative_artifact_names = {
+        "normative_claims.jsonl",
+        "normative_claims_summary.json",
+        "normative_claim_sets_summary.json",
+    }
+    has_normative_authority_material = (
+        table_counts.get("lex_normative_facts", 0) > 0
+        or _bool_value(readiness.get("normative_layer_ready"), False)
+        or any(
+            Path(str(item.get("path") or "")).name in normative_artifact_names
+            for item in _list_value(manifest.get("artifacts"))
+            if isinstance(item, dict)
+        )
+    )
+    if has_normative_authority_material:
+        relation_refusal = current_legal_source_relation_disposition().refusal.to_payload()
+        release_ready = False
+        readiness = {**readiness, "normative_layer_ready": False}
+        release_readiness = {
+            **release_readiness,
+            "release_ready": False,
+            "legal_relation_refusal": relation_refusal,
+        }
+        consumer_readiness = {
+            **consumer_readiness,
+            "readiness": readiness,
+            "legal_relation_refusal": relation_refusal,
+        }
+        warnings.append(
+            "legal source relation verification is not established; legacy normative "
+            "readiness is withheld"
+        )
 
     return LegalShadowBundle(
         root=str(root_path),

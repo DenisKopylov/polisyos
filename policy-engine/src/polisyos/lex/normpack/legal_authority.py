@@ -17,6 +17,9 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from datetime import date
 
+from polisyos.data_forge.domains.legal.source_relation import (
+    current_legal_source_relation_disposition,
+)
 from polisyos.legal_requirement import (
     LegalAuthorityRequirementArtifact,
     LegalAuthorityRequirementSpec,
@@ -191,6 +194,7 @@ def build_legal_authority_report(
     return {
         "schema_version": LEGAL_AUTHORITY_REPORT_SCHEMA_VERSION,
         "status": status,
+        "legal_relation_refusal": current_legal_source_relation_disposition().refusal.to_payload(),
         "capability_reality_status": "implemented",
         "runtime_authority_envelope": _authority_envelope(),
         "authority_role": "producer_authority",
@@ -414,6 +418,25 @@ def _evaluate_norm_for_segment(
     norm_for_segment = {**norm, **window}
     missing: list[str] = []
     issues: list[dict[str, Any]] = []
+    relation_refusal = current_legal_source_relation_disposition().refusal
+    missing.append("claim_source_relation_verification")
+    issues.append(
+        _issue(
+            code=relation_refusal.code,
+            claim_id=claim_id,
+            norm_id=norm_id,
+            authority_type=authority_type,
+            message=(
+                "The Lex capability has no qualified claim-to-source relation "
+                "verification, so it cannot satisfy a legal authority slot."
+            ),
+            next_action=(
+                "Provide an independently qualified claim-to-source relation "
+                "receipt before projecting this Lex capability as authority."
+            ),
+            missing_facets=("claim_source_relation_verification",),
+        )
+    )
     if _is_llm_candidate(norm_for_segment):
         issues.append(
             _issue(

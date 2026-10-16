@@ -10,6 +10,9 @@ import pytest
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts import epoch as epoch_contract
+from polisyos.data_forge.domains.legal.source_relation import (
+    LegalSourceRelationVerificationMissingError,
+)
 from polisyos.lex.knowledge.store import LegalKnowledgeStore
 from polisyos.runtime.quality import semantic_epoch
 
@@ -120,7 +123,9 @@ def test_legal_store_evidence_refs_ignore_physical_checkout_path(tmp_path) -> No
     ]
 
 
-def test_legal_knowledge_store_prefers_high_trust_layers(tmp_path) -> None:
+def test_legal_store_reads_explicit_candidates_and_refuses_legacy_trust_markers(
+    tmp_path,
+) -> None:
     db_path = tmp_path / "lex_knowledge_graph.duckdb"
     with duckdb.connect(str(db_path)) as con:
         con.execute(
@@ -160,6 +165,7 @@ def test_legal_knowledge_store_prefers_high_trust_layers(tmp_path) -> None:
         )
         con.execute("CREATE TABLE lex_fact_grounded AS SELECT * FROM lex_facts WHERE 1 = 0")
         con.execute("CREATE TABLE lex_normative_facts AS SELECT * FROM lex_facts WHERE 1 = 0")
+        con.execute("CREATE TABLE lex_fact_candidates AS SELECT * FROM lex_facts WHERE 1 = 0")
         con.execute(
             """
             CREATE TABLE lex_rule_thresholds (
@@ -204,6 +210,11 @@ def test_legal_knowledge_store_prefers_high_trust_layers(tmp_path) -> None:
             "INSERT INTO lex_facts VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             row,
         )
+        candidate_row = (*row[:16], "search_candidate", *row[17:])
+        con.execute(
+            "INSERT INTO lex_fact_candidates VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            candidate_row,
+        )
         con.execute(
             "INSERT INTO lex_fact_grounded VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             row,
@@ -216,20 +227,21 @@ def test_legal_knowledge_store_prefers_high_trust_layers(tmp_path) -> None:
 
     store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
     try:
-        facts = store.text_search_facts("permit", domain="transport")
+        facts = store.text_search_facts("permit", domain="transport", trust_tier="search_candidate")
         assert len(facts) == 1
-        assert facts[0].trust_tier == "normative_fact"
+        assert facts[0].fact_id == "f1"
+        assert facts[0].trust_tier == "search_candidate"
 
-        constraints = store.find_constraints(domain="transport", jurisdiction="UA")
-        assert len(constraints) == 1
-
-        thresholds = store.search_facts_with_threshold("vat_rate", domain="transport")
-        assert len(thresholds) == 1
-
-        norms = store.get_applicable_norms(
-            domain="transport", jurisdiction="UA", as_of="2024-02-01"
-        )
-        assert len(norms) == 1
+        with pytest.raises(LegalSourceRelationVerificationMissingError):
+            store.text_search_facts("permit", domain="transport")
+        with pytest.raises(LegalSourceRelationVerificationMissingError):
+            store.text_search_facts("permit", domain="transport", trust_tier="normative_fact")
+        with pytest.raises(LegalSourceRelationVerificationMissingError):
+            store.find_constraints(domain="transport", jurisdiction="UA")
+        with pytest.raises(LegalSourceRelationVerificationMissingError):
+            store.search_facts_with_threshold("vat_rate", domain="transport")
+        with pytest.raises(LegalSourceRelationVerificationMissingError):
+            store.get_applicable_norms(domain="transport", jurisdiction="UA", as_of="2024-02-01")
     finally:
         store.close()
 
@@ -535,7 +547,9 @@ def test_unresolved_lex_window_partition_is_typed_and_verified(tmp_path: Path) -
         )
 
 
-def test_legal_knowledge_store_supports_quality_band_and_fused_confidence_filters(tmp_path) -> None:
+def test_legal_knowledge_store_refuses_legacy_quality_markers_without_relation_verifier(
+    tmp_path,
+) -> None:
     db_path = tmp_path / "lex_quality_graph.duckdb"
     with duckdb.connect(str(db_path)) as con:
         con.execute(
@@ -605,33 +619,33 @@ def test_legal_knowledge_store_supports_quality_band_and_fused_confidence_filter
 
     store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
     try:
-        filtered = store.find_constraints(
-            domain="transport",
-            jurisdiction="UA",
-            min_fused_confidence=0.85,
-            quality_band="high_confidence_norm",
-        )
-        assert [fact.fact_id for fact in filtered] == ["high1"]
+        with pytest.raises(LegalSourceRelationVerificationMissingError):
+            store.find_constraints(
+                domain="transport",
+                jurisdiction="UA",
+                min_fused_confidence=0.85,
+                quality_band="high_confidence_norm",
+            )
 
-        thresholds = store.search_facts_with_threshold(
-            "permit_rate",
-            domain="transport",
-            min_fused_confidence=0.85,
-            quality_band="high_confidence_norm",
-        )
-        assert [fact.fact_id for fact in thresholds] == ["high1"]
-        assert thresholds[0].quality_band == "high_confidence_norm"
-        assert thresholds[0].fused_confidence == pytest.approx(0.91)
+        with pytest.raises(LegalSourceRelationVerificationMissingError):
+            store.search_facts_with_threshold(
+                "permit_rate",
+                domain="transport",
+                min_fused_confidence=0.85,
+                quality_band="high_confidence_norm",
+            )
     finally:
         store.close()
 
 
-def test_legal_knowledge_store_hides_temporal_unknown_rows_for_as_of(tmp_path) -> None:
+def test_legal_candidate_search_keeps_resolved_time_filter_and_refuses_norm_projection(
+    tmp_path,
+) -> None:
     db_path = tmp_path / "lex_temporal_graph.duckdb"
     with duckdb.connect(str(db_path)) as con:
         con.execute(
             """
-            CREATE TABLE lex_normative_facts (
+            CREATE TABLE lex_facts (
                 fact_id VARCHAR,
                 subject_en VARCHAR,
                 predicate VARCHAR,
@@ -668,13 +682,13 @@ def test_legal_knowledge_store_hides_temporal_unknown_rows_for_as_of(tmp_path) -
         )
         con.execute(
             """
-            INSERT INTO lex_normative_facts VALUES
+            INSERT INTO lex_facts VALUES
             ('resolved1', 'body', 'requires', 'permit', 'Resolved rule', 0.9, 'obligation', 'requires',
-             'obligation', '[]', 'quote', 'normative_fact', 'exact_quote', 'canonicalized', 'resolved',
+             'obligation', '[]', 'quote', 'search_candidate', 'exact_quote', 'canonicalized', 'resolved',
              'structured_legal_unit', '', 'UA', 'transport', '2024-01-01', '', 'current', 'resolved',
              'document', 'doc_temporal_inheritance', 0.9, '{}', 'Resolved law', 'R-1', 'art:1', 'стаття 1'),
             ('unknown1', 'body', 'requires', 'permit', 'Unknown temporal rule', 0.9, 'obligation', 'requires',
-             'obligation', '[]', 'quote', 'normative_fact', 'exact_quote', 'canonicalized', 'resolved',
+             'obligation', '[]', 'quote', 'search_candidate', 'exact_quote', 'canonicalized', 'resolved',
              'structured_legal_unit', '', 'UA', 'transport', '', '', 'current', 'unknown',
              'document', 'status_semantics', 0.5, '{}', 'Unknown law', 'U-1', 'art:2', 'стаття 2')
             """
@@ -685,11 +699,17 @@ def test_legal_knowledge_store_hides_temporal_unknown_rows_for_as_of(tmp_path) -
 
     store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
     try:
-        norms = store.get_applicable_norms(
-            domain="transport", jurisdiction="UA", as_of="2024-02-01"
+        candidates = store.text_search_facts(
+            "permit",
+            domain="transport",
+            jurisdiction="UA",
+            trust_tier="search_candidate",
+            as_of="2024-02-01",
         )
-        assert [fact.fact_id for fact in norms] == ["resolved1"]
-        assert norms[0].temporal_resolution_status == "resolved"
+        assert [fact.fact_id for fact in candidates] == ["resolved1"]
+        assert candidates[0].temporal_resolution_status == "resolved"
+        with pytest.raises(LegalSourceRelationVerificationMissingError):
+            store.get_applicable_norms(domain="transport", jurisdiction="UA", as_of="2024-02-01")
     finally:
         store.close()
 

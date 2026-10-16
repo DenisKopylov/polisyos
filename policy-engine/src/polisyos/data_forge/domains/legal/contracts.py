@@ -187,6 +187,7 @@ class ActiveVersionResult:
     explanation: list[str]
     candidates: list[dict[str, str | None]] = field(default_factory=list)
 
+
 # ---------------------------------------------------------------------------
 # SPO extraction output (Stage 3 -> Stage 4)
 # ---------------------------------------------------------------------------
@@ -373,45 +374,9 @@ class SPOCandidate(BaseModel):
             else:
                 reference_resolution_status = "unresolved"
 
-        if self.structure_quality == "fallback_search_only":
-            trust_tier = "search_candidate"
-        elif self.trust_tier != "search_candidate":
-            trust_tier = self.trust_tier
-        else:
-            confidence_rank = (
-                self.fused_confidence
-                if self.fused_confidence is not None
-                else (confidence_final if confidence_final is not None else self.confidence)
-            )
-            if (
-                grounding_status == "exact_quote"
-                and canonical_status == "canonicalized"
-                and (self.norm_type_canon or norm_type_canon)
-                in {"obligation", "prohibition", "permission"}
-                and confidence_rank >= 0.6
-                and self.structure_quality != "fallback_search_only"
-            ):
-                trust_tier = "normative_fact"
-            elif grounding_status == "exact_quote":
-                trust_tier = "grounded_fact"
-            else:
-                trust_tier = "search_candidate"
-        # Demote normative_fact only if there are actual blocking hallucination flags
-        # (not just an empty JSON array "[]")
-        if trust_tier == "normative_fact" and self.hallucination_flags_json.strip():
-            try:
-                _parsed_flags = __import__("json").loads(self.hallucination_flags_json)
-            except Exception:
-                _parsed_flags = []
-            _blocking_types = {"phantom_article_reference", "phantom_number"}
-            if any(
-                str(f.get("type") or "") in _blocking_types
-                for f in _parsed_flags
-                if isinstance(f, dict)
-            ):
-                trust_tier = (
-                    "grounded_fact" if grounding_status == "exact_quote" else "search_candidate"
-                )
+        # SPOCandidate is extraction input. Quote presence, confidence, canonical fields,
+        # and caller-supplied tier labels do not prove claim-to-source entailment.
+        trust_tier: FactTrustTier = "search_candidate"
 
         object.__setattr__(self, "action_raw", action_raw)
         object.__setattr__(self, "action_canon", action_canon)

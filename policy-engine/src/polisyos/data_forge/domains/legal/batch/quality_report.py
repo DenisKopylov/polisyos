@@ -845,11 +845,9 @@ def evaluate_quality_gates(
     if statement_total >= thresholds.min_statements_for_statement_rate:
         if float(report.get("oov_action_rate_pct", 0.0)) > thresholds.max_oov_action_rate_pct:
             failed.append("oov_action_rate_pct")
-        missing_quote_metric = (
-            float(report.get("grounded_missing_quote_rate_pct", 0.0))
-            if int(report.get("grounded_statement_total", 0) or 0) > 0
-            else float(report.get("missing_quote_rate_pct", 0.0))
-        )
+        # The gate denominator is every extracted statement. Trust-tier fields in
+        # the input rows are candidate assertions and cannot select a passing subset.
+        missing_quote_metric = float(report.get("missing_quote_rate_pct", 0.0))
         if missing_quote_metric > thresholds.max_missing_quote_rate_pct:
             failed.append("missing_quote_rate_pct")
     else:
@@ -919,10 +917,8 @@ def evaluate_quality_gates(
                     > thresholds.max_oov_action_rate_pct
                 ):
                     hotspot_failed.append(f"family:{family}:oov_action_rate_pct")
-                family_missing_quote_metric = (
-                    float(payload.get("grounded_missing_quote_rate_pct", 0.0) or 0.0)
-                    if int(payload.get("grounded_statement_total", 0) or 0) > 0
-                    else float(payload.get("missing_quote_rate_pct", 0.0) or 0.0)
+                family_missing_quote_metric = float(
+                    payload.get("missing_quote_rate_pct", 0.0) or 0.0
                 )
                 if family_missing_quote_metric > thresholds.max_missing_quote_rate_pct:
                     hotspot_failed.append(f"family:{family}:missing_quote_rate_pct")
@@ -964,10 +960,8 @@ def evaluate_quality_gates(
                     > thresholds.max_oov_action_rate_pct
                 ):
                     hotspot_failed.append(f"subtype:{subtype}:oov_action_rate_pct")
-                subtype_missing_quote_metric = (
-                    float(payload.get("grounded_missing_quote_rate_pct", 0.0) or 0.0)
-                    if int(payload.get("grounded_statement_total", 0) or 0) > 0
-                    else float(payload.get("missing_quote_rate_pct", 0.0) or 0.0)
+                subtype_missing_quote_metric = float(
+                    payload.get("missing_quote_rate_pct", 0.0) or 0.0
                 )
                 if subtype_missing_quote_metric > thresholds.max_missing_quote_rate_pct:
                     hotspot_failed.append(f"subtype:{subtype}:missing_quote_rate_pct")

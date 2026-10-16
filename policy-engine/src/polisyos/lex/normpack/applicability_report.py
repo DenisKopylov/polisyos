@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from datetime import date
 
+from polisyos.data_forge.domains.legal.source_relation import (
+    current_legal_source_relation_disposition,
+)
 from polisyos.lex.common import parse_iso_date
 from polisyos.lex.normpack.legal_authority import build_legal_authority_report
 from polisyos.lex.normpack.query_normalization import (
@@ -478,9 +481,8 @@ def _norm_from_pack_rule(
     applicability_jurisdiction = _mapping(applicability.get("jurisdiction")) or {}
 
     if not _norm_jurisdiction(norm):
-        norm["jurisdiction"] = (
-            _first_selector_value(applicability_jurisdiction)
-            or _text(pack_defaults.get("jurisdiction"))
+        norm["jurisdiction"] = _first_selector_value(applicability_jurisdiction) or _text(
+            pack_defaults.get("jurisdiction")
         )
     if not _norm_domain(norm):
         norm["policy_domain"] = (
@@ -519,9 +521,7 @@ def _candidate_norms_from_runtime_payload(context: Mapping[str, Any]) -> list[di
         for key, value in mapping.items():
             if key in _CANDIDATE_NORM_KEYS:
                 candidates.extend(
-                    candidate
-                    for item in _list(value)
-                    if (candidate := _mapping(item)) is not None
+                    candidate for item in _list(value) if (candidate := _mapping(item)) is not None
                 )
             if key in _NORM_PACK_KEYS:
                 pack = _mapping(value)
@@ -544,7 +544,7 @@ def _candidate_norms_from_lex_kg(
     if not kg_paths or not query_terms:
         return candidates
     try:
-        from polisyos.data_forge.read_api.legal import search_legal_knowledge_graph
+        from polisyos.lex.knowledge.search import LegalKnowledgeGraph
     except (ImportError, RuntimeError):
         return candidates
     try:
@@ -553,60 +553,74 @@ def _candidate_norms_from_lex_kg(
         search_errors = (OSError, RuntimeError, TypeError, ValueError, duckdb.Error)
     except ImportError:
         search_errors = (OSError, RuntimeError, TypeError, ValueError)
-    target_jurisdiction = _text(
-        target_context.get("jurisdiction") or target_context.get("jurisdiction_norm")
-    )
-    target_domain = _text(
-        target_context.get("policy_domain")
-        or target_context.get("top_domain")
-        or target_context.get("domain")
-    )
     for kg_path_raw in kg_paths[:3]:
         output_dir = _lex_kg_output_dir(kg_path_raw)
         db_path = output_dir / "lex_knowledge_graph.duckdb"
         if not db_path.exists():
             continue
-        for term in query_terms[:16]:
-            if len(term) < 3:
-                continue
-            try:
-                rows = search_legal_knowledge_graph(
-                    output_dir=output_dir,
-                    query=term,
-                    top_k=top_k_per_term,
-                )
-            except search_errors:
-                continue
-            for row in rows:
-                norm_id = _text(getattr(row, "fact_id", ""))
-                if not norm_id:
+        try:
+            graph = LegalKnowledgeGraph(db_path=db_path, index_dir=output_dir)
+        except search_errors:
+            continue
+        try:
+            for term in query_terms[:16]:
+                if len(term) < 3:
                     continue
-                doc_name = _text(getattr(row, "doc_name", ""))
-                candidates.append(
-                    {
-                        "norm_id": norm_id,
-                        "artifact_id": norm_id,
-                        "fact_class": _text(getattr(row, "norm_type_canon", ""))
-                        or _text(getattr(row, "norm_type", ""))
-                        or "lex_kg_fact",
-                        "jurisdiction": target_jurisdiction,
-                        "policy_domain": target_domain,
-                        "source_authority": doc_name or "Lex legal knowledge graph",
-                        "authority_level": "lex_knowledge_graph",
-                        "relevance_rationale": (
-                            f"Retrieved from Lex KG with normalized query term {term!r}."
-                        ),
-                        "legal_query_term": term,
-                        "doc_name": doc_name,
-                        "doc_reestr_code": _text(getattr(row, "doc_reestr_code", "")),
-                        "provision_citation": _text(
-                            getattr(row, "provision_citation", "")
-                        ),
-                        "source_quote_uk": _text(getattr(row, "source_quote_uk", "")),
-                        "fact_text": _text(getattr(row, "fact_text", "")),
-                        "confidence": getattr(row, "confidence", 0.0),
-                    }
-                )
+                try:
+                    rows = graph.text_search(
+                        term,
+                        top_k=top_k_per_term,
+                        trust_tier="search_candidate",
+                    )
+                except search_errors:
+                    continue
+                for row in rows:
+                    norm_id = _text(getattr(row, "fact_id", ""))
+                    if not norm_id:
+                        continue
+                    doc_name = _text(getattr(row, "doc_name", ""))
+                    candidates.append(
+                        {
+                            "norm_id": norm_id,
+                            "artifact_id": norm_id,
+                            "fact_class": _text(getattr(row, "norm_type_canon", ""))
+                            or _text(getattr(row, "norm_type", ""))
+                            or "lex_kg_fact",
+                            "action_canon": _text(getattr(row, "action_canon", "")),
+                            "norm_type": _text(getattr(row, "norm_type", "")),
+                            "norm_type_canon": _text(getattr(row, "norm_type_canon", "")),
+                            "condition_text_uk": _text(getattr(row, "condition_text_uk", "")),
+                            "exception_text_uk": _text(getattr(row, "exception_text_uk", "")),
+                            "procedure_text_uk": _text(getattr(row, "procedure_text_uk", "")),
+                            "thresholds_json": _text(getattr(row, "thresholds_json", "")),
+                            "jurisdiction": _text(getattr(row, "jurisdiction", "")),
+                            "policy_domain": _text(getattr(row, "top_domain", "")),
+                            "effective_from": _text(getattr(row, "effective_from", "")),
+                            "effective_to": _text(getattr(row, "effective_to", "")),
+                            "temporal_state": _text(getattr(row, "temporal_state", "")),
+                            "temporal_resolution_status": _text(
+                                getattr(row, "temporal_resolution_status", "")
+                            ),
+                            "legal_unit_subtype": _text(getattr(row, "legal_unit_subtype", "")),
+                            "route_class": _text(getattr(row, "route_class", "")),
+                            "relevance_rationale": (
+                                f"Retrieved as a search candidate from Lex KG with "
+                                f"normalized query term {term!r}."
+                            ),
+                            "legal_query_term": term,
+                            "doc_name": doc_name,
+                            "doc_id": _text(getattr(row, "doc_id", "")),
+                            "doc_family_id": _text(getattr(row, "doc_family_id", "")),
+                            "version_id": _text(getattr(row, "version_id", "")),
+                            "doc_reestr_code": _text(getattr(row, "doc_reestr_code", "")),
+                            "provision_citation": _text(getattr(row, "provision_citation", "")),
+                            "source_quote_uk": _text(getattr(row, "source_quote_uk", "")),
+                            "fact_text": _text(getattr(row, "fact_text", "")),
+                            "confidence": getattr(row, "confidence", 0.0),
+                        }
+                    )
+        finally:
+            graph.close()
     return _dedupe_norms(candidates)
 
 
@@ -866,8 +880,7 @@ def _classify_norm(
             norm,
             reason_code="wrong_policy_domain",
             message=(
-                f"Norm {norm_id} domain {norm_domain} does not match "
-                f"target domain {target_domain}."
+                f"Norm {norm_id} domain {norm_domain} does not match target domain {target_domain}."
             ),
             next_action="Use domain-relevant norms or document why cross-domain authority applies.",
         )
@@ -1008,15 +1021,13 @@ def _facet_match(
     candidates = [value.casefold() for value in norm_values if value]
     claim_token = claim_value.casefold()
     if claim_token and any(
-        claim_token == value or claim_token in value or value in claim_token
-        for value in candidates
+        claim_token == value or claim_token in value or value in claim_token for value in candidates
     ):
         return True
     if claim_token and claim_token in norm_text:
         return True
     return bool(
-        candidates
-        and any(value and value in claim_text for value in candidates if len(value) >= 4)
+        candidates and any(value and value in claim_text for value in candidates if len(value) >= 4)
     )
 
 
@@ -1102,10 +1113,38 @@ def _score_reason(norm_score: Mapping[str, Any]) -> str:
     return "lower_claim_specific_score"
 
 
+def _claim_candidate_norm_scores(
+    claim: Mapping[str, Any],
+    candidate_norms: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Rank claim-relevant norms as candidates without asserting applicability."""
+    return sorted(
+        (_claim_norm_score(norm, claim) for norm in candidate_norms),
+        key=lambda row: (-int(row["score"]), str(row["norm_id"])),
+    )
+
+
+def _candidate_anchor_scores(
+    claim: Mapping[str, Any],
+    candidate_norms: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Return the existing claim-match suggestions, still candidate-grade."""
+    return [
+        row
+        for row in _claim_candidate_norm_scores(claim, candidate_norms)
+        if int(row["score"]) >= 5
+        and (
+            "policy_instrument" in row["matched_facets"]
+            or "claim_text_overlap" in row["matched_facets"]
+        )
+    ][:3]
+
+
 def _recommendation_coverage(
     *,
     recommendation_claims: list[dict[str, Any]],
     candidate_norm_ids: list[str],
+    candidate_norms: list[dict[str, Any]],
     applied_norms: list[dict[str, Any]],
     rejected_norms: list[dict[str, Any]],
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
@@ -1121,8 +1160,7 @@ def _recommendation_coverage(
         applicable_refs = [ref for ref in refs if ref in applied_norm_ids]
         rejected_refs = [ref for ref in refs if ref in rejected_norm_ids]
         rationale = _text(
-            claim.get("no_normative_anchor_rationale")
-            or claim.get("normative_gap_rationale")
+            claim.get("no_normative_anchor_rationale") or claim.get("normative_gap_rationale")
         )
 
         if applicable_refs:
@@ -1188,10 +1226,10 @@ def _recommendation_coverage(
                 "scored_norms": [],
                 "no_anchor_rationale": None,
             }
-        elif applied_norms:
-            scored = sorted(
-                (_claim_norm_score(norm, claim) for norm in applied_norms),
-                key=lambda row: (-int(row["score"]), str(row["norm_id"])),
+        elif applied_norms or candidate_norms:
+            scored = _claim_candidate_norm_scores(
+                claim,
+                applied_norms if applied_norms else candidate_norms,
             )
             selected_scores = [
                 row
@@ -1202,41 +1240,41 @@ def _recommendation_coverage(
                     or "claim_text_overlap" in row["matched_facets"]
                 )
             ][:3]
-            selected_refs = [
-                _text(row["norm_id"])
-                for row in selected_scores
-                if _text(row["norm_id"])
+            matched_candidate_refs = [
+                _text(row["norm_id"]) for row in selected_scores if _text(row["norm_id"])
             ]
-            rejected_refs = [
-                _text(row["norm_id"])
-                for row in scored
-                if _text(row["norm_id"]) and _text(row["norm_id"]) not in selected_refs
-            ]
-            if selected_refs:
+            # Retrieval candidates that are not a top claim-text match are
+            # still candidates; scoring is not a rejection or authority test.
+            # Keep the complete pool visible and reserve rejected refs for
+            # explicit claim refs that failed the applicability checks above.
+            candidate_refs = candidate_norm_ids
+            if candidate_refs and matched_candidate_refs:
+                relation_refusal = current_legal_source_relation_disposition().refusal
                 item = {
                     "claim_id": claim_id,
                     "major": major,
-                    "status": "pass",
-                    "reason_code": "claim_specific_norm_anchor_selected",
-                    "norm_refs": selected_refs,
-                    "candidate_norm_refs": candidate_norm_ids,
-                    "selected_norm_refs": selected_refs,
+                    "status": "fail" if major else "warn",
+                    "reason_code": relation_refusal.code,
+                    "norm_refs": [],
+                    "candidate_norm_refs": candidate_refs,
+                    "selected_norm_refs": [],
                     "rejected_norm_refs": rejected_refs,
+                    "legal_relation_refusal": relation_refusal.to_payload(),
                 }
                 anchor = {
                     **item,
-                    "anchor_mode": "claim_specific_scoring",
+                    "anchor_mode": "candidate_relation_not_verified",
                     "scored_norms": [
                         {
                             **row,
                             "selection_status": (
-                                "selected"
-                                if _text(row["norm_id"]) in selected_refs
-                                else "rejected"
+                                "candidate"
+                                if _text(row["norm_id"]) in matched_candidate_refs
+                                else "not_selected"
                             ),
                             "reason_code": (
-                                "claim_specific_best_match"
-                                if _text(row["norm_id"]) in selected_refs
+                                relation_refusal.code
+                                if _text(row["norm_id"]) in matched_candidate_refs
                                 else _score_reason(row)
                             ),
                         }
@@ -1244,6 +1282,21 @@ def _recommendation_coverage(
                     ],
                     "no_anchor_rationale": None,
                 }
+                if major:
+                    issues.append(
+                        _issue(
+                            code=relation_refusal.code,
+                            claim_id=claim_id,
+                            message=(
+                                f"Lex candidates can be surfaced for {claim_id}, but no "
+                                "independent claim-to-source relation verifier is available."
+                            ),
+                            next_action=(
+                                "Keep these rows candidate-only until a qualified relation "
+                                "receipt is available."
+                            ),
+                        )
+                    )
             elif major:
                 item = {
                     "claim_id": claim_id,
@@ -1253,9 +1306,7 @@ def _recommendation_coverage(
                     "norm_refs": [],
                     "candidate_norm_refs": candidate_norm_ids,
                     "selected_norm_refs": [],
-                    "rejected_norm_refs": [
-                        _text(row["norm_id"]) for row in scored if _text(row["norm_id"])
-                    ],
+                    "rejected_norm_refs": rejected_refs,
                 }
                 anchor = {
                     **item,
@@ -1264,7 +1315,7 @@ def _recommendation_coverage(
                     "scored_norms": [
                         {
                             **row,
-                            "selection_status": "rejected",
+                            "selection_status": "not_selected",
                             "reason_code": _score_reason(row),
                         }
                         for row in scored
@@ -1421,7 +1472,18 @@ def build_normative_applicability_report(
 ) -> dict[str, Any]:
     """Build a strict applicability report from candidate Lex norms."""
     recommendation_claims = recommendation_claims or []
-    candidate_norms = [dict(norm) for norm in candidate_norms if isinstance(norm, dict)]
+    relation_disposition = current_legal_source_relation_disposition()
+    relation_refusal = relation_disposition.refusal
+    candidate_norms = [
+        {
+            **dict(norm),
+            "trust_tier": relation_disposition.trust_tier,
+            "applicability_status": "candidate",
+            "legal_relation_refusal": relation_refusal.to_payload(),
+        }
+        for norm in candidate_norms
+        if isinstance(norm, dict)
+    ]
     target_jurisdiction = _text(
         target_context.get("jurisdiction") or target_context.get("jurisdiction_norm")
     )
@@ -1477,7 +1539,10 @@ def build_normative_applicability_report(
             as_of=as_of,
         )
         if applied is not None:
-            applied_norms.append(applied)
+            # Jurisdiction, domain, and time matching do not prove that this
+            # SPO follows from the cited source. Keep the row in the candidate
+            # collection and let the typed relation refusal block selection.
+            continue
         if rejected is not None:
             rejected_norms.append(rejected)
         if issue is not None:
@@ -1491,36 +1556,65 @@ def build_normative_applicability_report(
         jurisdiction_fallback_config=jurisdiction_fallback_config,
     )
     legal_selected_norm_refs = set(_text_list(legal_authority.get("selected_norm_refs")))
+    relation_required = (
+        bool(legal_authority.get("legal_authority_required"))
+        or bool(legal_selected_norm_refs)
+        or any(_claim_norm_refs(claim) for claim in recommendation_claims)
+        or any(
+            bool(_candidate_anchor_scores(claim, candidate_norms))
+            and bool(claim.get("major", True))
+            and not _text(
+                claim.get("no_normative_anchor_rationale") or claim.get("normative_gap_rationale")
+            )
+            for claim in recommendation_claims
+        )
+    )
+    if relation_required and not any(
+        _text(issue.get("code")) == relation_refusal.code
+        for issue in _mapping_list(legal_authority.get("issues"))
+    ):
+        issues.append(
+            _issue(
+                code=relation_refusal.code,
+                message=(
+                    "Lex candidates are retained for search, but their claim-to-source "
+                    "relation has not been independently verified."
+                ),
+                next_action=(
+                    "Provide an independently qualified claim-to-source relation "
+                    "receipt before selecting or applying a normative candidate."
+                ),
+            )
+        )
     if legal_selected_norm_refs:
-        candidate_by_id = {
-            _norm_id(candidate): candidate for candidate in candidate_norms if _norm_id(candidate)
-        }
-        existing_applied = {_norm_id(norm) for norm in applied_norms if _norm_id(norm)}
-        for norm_ref in sorted(legal_selected_norm_refs - existing_applied):
-            selected_candidate = candidate_by_id.get(norm_ref)
-            if selected_candidate is None:
-                continue
-            applied_norms.append(
-                {
-                    **selected_candidate,
-                    "norm_id": norm_ref,
-                    "applicability_status": "applied",
-                    "legal_selection_reason": "claim_level_legal_authority",
-                }
+        relation_required = True
+        issues.append(
+            _issue(
+                code=relation_refusal.code,
+                message=(
+                    "Legal authority selection was returned without a qualified "
+                    "claim-to-source relation receipt and cannot be projected."
+                ),
+                next_action=(
+                    "Keep the Lex row candidate-only until a qualified relation "
+                    "receipt is available."
+                ),
             )
-        rejected_norms = [
-            norm for norm in rejected_norms if _norm_id(norm) not in legal_selected_norm_refs
-        ]
-        issues = [
-            issue
-            for issue in issues
-            if not (
-                _text(issue.get("norm_id")) in legal_selected_norm_refs
-                and _text(issue.get("code")) in {"wrong_jurisdiction"}
-            )
-        ]
+        )
+        legal_selected_norm_refs.clear()
 
     authority_blocker_rows = _mapping_list(authority_blockers)
+    if relation_required and not any(
+        _text(blocker.get("code")) == relation_refusal.code for blocker in authority_blocker_rows
+    ):
+        authority_blocker_rows.append(
+            {
+                **relation_refusal.to_payload(),
+                "severity": "fail",
+                "layer": "lex",
+                "phase": "normative_applicability",
+            }
+        )
     if retrieval_blocker is not None and not any(
         _text(blocker.get("code")) == retrieval_blocker["code"]
         for blocker in authority_blocker_rows
@@ -1532,6 +1626,7 @@ def build_normative_applicability_report(
     coverage, claim_legal_anchors, coverage_issues = _recommendation_coverage(
         recommendation_claims=recommendation_claims,
         candidate_norm_ids=candidate_norm_ids,
+        candidate_norms=candidate_norms,
         applied_norms=applied_norms,
         rejected_norms=rejected_norms,
     )
@@ -1539,11 +1634,7 @@ def build_normative_applicability_report(
         claim_legal_anchors,
         legal_authority.get("claim_legal_anchors"),
     )
-    legal_selected_claim_ids = {
-        _text(anchor.get("claim_id"))
-        for anchor in _mapping_list(legal_authority.get("claim_legal_anchors"))
-        if _text_list(anchor.get("selected_norm_refs"))
-    }
+    legal_selected_claim_ids: set[str] = set()
     coverage_issues = [
         issue
         for issue in coverage_issues
@@ -1563,7 +1654,7 @@ def build_normative_applicability_report(
         query_trace_issue = _query_normalization_trace_issue(normalized_query_report)
         if query_trace_issue is not None:
             issues.append(query_trace_issue)
-    if not applied_norms:
+    if not applied_norms and (not candidate_norms or len(rejected_norms) == len(candidate_norms)):
         issues.append(
             _issue(
                 code="no_applicable_norms",
@@ -1588,9 +1679,7 @@ def build_normative_applicability_report(
         "retrieval_status": resolved_retrieval_status,
         "legal_corpus_snapshot": corpus_snapshot,
         "query_terms": resolved_query_terms,
-        "normalized_query_terms": _text_list(
-            normalized_query_report.get("normalized_terms")
-        ),
+        "normalized_query_terms": _text_list(normalized_query_report.get("normalized_terms")),
         "query_normalization_report": normalized_query_report,
         "concept_refs": concept_refs
         if concept_refs is not None
@@ -1606,10 +1695,9 @@ def build_normative_applicability_report(
             "as_of": as_of.isoformat() if as_of is not None else as_of_raw,
         },
         "legal_requirements": legal_requirements,
-        "legal_requirement_specs": _mapping_list(
-            legal_authority.get("legal_requirement_specs")
-        ),
+        "legal_requirement_specs": _mapping_list(legal_authority.get("legal_requirement_specs")),
         "candidate_norms": candidate_norms,
+        "legal_relation_refusal": relation_refusal.to_payload() if relation_required else None,
         "candidate_norm_refs": candidate_norm_ids,
         "global_candidate_norms": candidate_norms,
         "global_candidate_norm_refs": candidate_norm_ids,
@@ -1626,13 +1714,9 @@ def build_normative_applicability_report(
         "competence": _mapping_list(competence) or _competence_rows(applied_norms),
         "legal_authority_report_schema_version": legal_authority.get("schema_version"),
         "capability_reality_status": legal_authority.get("capability_reality_status"),
-        "runtime_authority_envelope": dict(
-            legal_authority.get("runtime_authority_envelope") or {}
-        ),
+        "runtime_authority_envelope": dict(legal_authority.get("runtime_authority_envelope") or {}),
         "legal_authority_required": bool(legal_authority.get("legal_authority_required")),
-        "legal_authority_records": _mapping_list(
-            legal_authority.get("legal_authority_records")
-        ),
+        "legal_authority_records": _mapping_list(legal_authority.get("legal_authority_records")),
         "claim_window_splits": _mapping_list(legal_authority.get("claim_window_splits")),
         "legal_authority_summary": dict(legal_authority.get("summary") or {}),
         "authority_blockers": authority_blocker_rows,
@@ -1824,10 +1908,14 @@ def normalize_normative_applicability_report(report: dict[str, Any]) -> dict[str
     ]
     candidate_norms = _dedupe_norms(candidate_norms)
     coverage = report.get("recommendation_coverage")
-    recommendation_claims = [claim for claim in coverage if isinstance(claim, dict)] if isinstance(
-        coverage,
-        list,
-    ) else []
+    recommendation_claims = (
+        [claim for claim in coverage if isinstance(claim, dict)]
+        if isinstance(
+            coverage,
+            list,
+        )
+        else []
+    )
     missing_retrieval_trace = _has_legal_shape(report) and not _has_retrieval_trace(report)
     missing_zero_candidate_query_normalization = (
         not candidate_norms
@@ -1861,10 +1949,7 @@ def normalize_normative_applicability_report(report: dict[str, Any]) -> dict[str
             normalized,
             _issue(
                 code="legal_retrieval_trace_missing",
-                message=(
-                    "Legal-shaped normative payload is missing Lex retrieval trace "
-                    "metadata."
-                ),
+                message=("Legal-shaped normative payload is missing Lex retrieval trace metadata."),
                 next_action=(
                     "Emit legal corpus snapshot, query terms, filters, candidates, "
                     "selection, rejections, competence, conflicts, and blockers from Lex "

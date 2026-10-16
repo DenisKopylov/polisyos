@@ -12,6 +12,7 @@ import polisyos.lex as lex_facade
 from polisyos.core.contracts.control import (
     LegalQueryGenerationIntentV1,
     LexSearchRequest,
+    LexSearchResponse,
 )
 from polisyos.lex.knowledge import LegalFactResult, LegalQueryProfileError
 from polisyos.runtime.http.app import create_runtime_api_app
@@ -37,11 +38,11 @@ def _owner_result(*, suffix: str, similarity: float) -> LegalFactResult:
         exception_text_uk=f"exception-{suffix}",
         procedure_text_uk=f"procedure-{suffix}",
         thresholds_json='[{"operator":">=","value":1}]',
-        source_quote_uk=f"quote-{suffix}",
-        trust_tier="normative_fact",
-        grounding_status="exact_quote",
-        canonical_status="canonicalized",
-        reference_resolution_status="resolved",
+        source_quote_uk="",
+        trust_tier="search_candidate",
+        grounding_status="missing_quote",
+        canonical_status="raw",
+        reference_resolution_status="unresolved",
         structure_quality="complete",
         constraint_type_canon="eligibility",
         legal_unit_subtype="normative_rule",
@@ -93,6 +94,21 @@ def _trap_legacy_store(monkeypatch: pytest.MonkeyPatch) -> None:
         "polisyos.lex.knowledge.store.LegalKnowledgeStore",
         _LegacyStoreTrap,
     )
+
+
+def _assert_source_relation_refused(response: LexSearchResponse) -> None:
+    assert response.legal_relation_refusal is not None
+    assert response.legal_relation_refusal.code == (
+        "legal_source_relation_verification_not_established"
+    )
+    assert response.legal_relation_refusal.status == "verification_missing"
+
+
+def _assert_candidate_projection(response: LexSearchResponse) -> None:
+    assert response.results, "candidate projection must preserve owner search results"
+    assert response.total == len(response.results)
+    assert all(result.trust_tier == "search_candidate" for result in response.results)
+    _assert_source_relation_refused(response)
 
 
 def test_runtime_container_rejects_untyped_legal_query_encoder_provider(
@@ -165,21 +181,32 @@ def test_search_lex_graph_uses_public_graph_and_preserves_owner_results(
             "worker leave",
             {
                 "top_k": 7,
-                "trust_tier": None,
-                "include_candidates": False,
+                "trust_tier": "search_candidate",
+                "include_candidates": True,
             },
         )
     ]
     assert response.query == "worker leave"
-    assert response.total == 2
-    assert [item.model_dump(mode="python") for item in response.results] == [
-        result.model_dump(mode="python") for result in owner_results
-    ]
+    _assert_candidate_projection(response)
+    assert [result.fact_id for result in response.results] == ["fact-z", "fact-a"]
+    assert response.results[0].fact_text == owner_results[0].fact_text
+    assert response.results[0].provision_anchor == owner_results[0].provision_anchor
+    assert response.results[0].doc_id == owner_results[0].doc_id
+    assert response.results[0].grounding_status == "missing_quote"
     assert graph.close_count == 1
     assert graph.query_profile is None
     assert graph.hybrid_calls == []
     assert response.search_mode == "text"
     assert response.vector_refusal_code == "query_profile_unavailable"
+
+    # Keep the routing and refusal markers but remove the result bytes. The
+    # semantic acceptance check must reject this marker-only response.
+    without_results = response.model_copy(update={"results": [], "total": 0})
+    assert without_results.search_mode == response.search_mode
+    assert without_results.vector_refusal_code == response.vector_refusal_code
+    assert without_results.legal_relation_refusal == response.legal_relation_refusal
+    with pytest.raises(AssertionError, match="candidate projection"):
+        _assert_candidate_projection(without_results)
 
 
 def test_search_lex_graph_preserves_valid_intent_and_typed_provider_refusal(
@@ -246,13 +273,18 @@ def test_search_lex_graph_preserves_valid_intent_and_typed_provider_refusal(
     assert graph.hybrid_calls == [
         (
             "worker leave",
-            {"top_k": 7, "trust_tier": None, "include_candidates": False},
+            {
+                "top_k": 7,
+                "trust_tier": "search_candidate",
+                "include_candidates": True,
+            },
         )
     ]
     assert not hasattr(graph, "query_profile_error")
     assert response.search_mode == "text"
     assert response.vector_refusal_code == "query_encoder_assets_unavailable"
-    assert [item.fact_id for item in response.results] == ["fact-typed"]
+    _assert_candidate_projection(response)
+    assert response.results[0].fact_id == "fact-typed"
     assert graph.close_count == 1
 
 
@@ -353,13 +385,17 @@ def test_search_lex_graph_rejects_malformed_intent_and_keeps_text_results(
     assert graph.text_calls == [
         (
             "worker leave",
-            {"top_k": 7, "trust_tier": None, "include_candidates": False},
+            {
+                "top_k": 7,
+                "trust_tier": "search_candidate",
+                "include_candidates": True,
+            },
         )
     ]
     assert graph.hybrid_calls == []
     assert response.search_mode == "text"
     assert response.vector_refusal_code == "query_profile_malformed"
-    assert [item.fact_id for item in response.results] == ["fact-text"]
+    _assert_candidate_projection(response)
     assert graph.close_count == 1
 
 
@@ -416,7 +452,7 @@ def test_search_lex_graph_treats_empty_present_intent_as_malformed(
     assert graph.close_count == 1
     assert response.search_mode == "text"
     assert response.vector_refusal_code == "query_profile_malformed"
-    assert [item.fact_id for item in response.results] == ["fact-empty-intent"]
+    _assert_candidate_projection(response)
 
 
 def test_search_lex_graph_reports_malformed_present_intent_without_database(
@@ -434,6 +470,7 @@ def test_search_lex_graph_reports_malformed_present_intent_without_database(
     assert response.search_mode == "text"
     assert response.vector_refusal_code == "query_profile_malformed"
     assert response.results == []
+    _assert_source_relation_refused(response)
 
 
 def test_search_lex_graph_degrades_known_error_and_closes_graph(
@@ -479,6 +516,7 @@ def test_search_lex_graph_degrades_known_error_and_closes_graph(
     assert response.total == 0
     assert response.search_mode == "text"
     assert response.vector_refusal_code == "lex_search_failed"
+    _assert_source_relation_refused(response)
     assert len(instances) == 1
     assert instances[0].close_count == 1
 

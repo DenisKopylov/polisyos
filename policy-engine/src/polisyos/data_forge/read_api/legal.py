@@ -135,6 +135,18 @@ def search_legal_knowledge_graph(
 ) -> list[LegalKnowledgeGraphFact]:
     """Search a published Legal knowledge graph without importing legacy Lex facades."""
 
+    require_relation = load_lazy_export(
+        "require_legal_source_relation_verification",
+        exports={
+            "require_legal_source_relation_verification": (
+                "polisyos.data_forge.domains.legal.source_relation"
+            )
+        },
+        module_name=__name__,
+        namespace=globals(),
+    )
+    require_relation()
+
     import duckdb
 
     output_path = Path(output_dir)

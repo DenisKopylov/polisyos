@@ -114,8 +114,7 @@ def _policy_design_case(
         "owner": "team-runtime-quality",
         "runtime_authority": _runtime_authority(),
         "intent_envelope": _intent_envelope(),
-        "capability_ledger": capability_ledger
-        or _capability_ledger(*_all_capability_duties()),
+        "capability_ledger": capability_ledger or _capability_ledger(*_all_capability_duties()),
     }
 
 
@@ -137,9 +136,7 @@ def test_assurance_case_explains_serious_scorecard_with_required_fields() -> Non
     assert assurance_case["claim"]["canary_kind"] == "production"
     assert assurance_case["argument_strategy"] == "runtime_authority_graph"
     assert assurance_case["owner"] == "team-assurance"
-    assert assurance_case["reviewer_attribution"]["reviewer_id"] == (
-        "runtime-quality-reviewer"
-    )
+    assert assurance_case["reviewer_attribution"]["reviewer_id"] == ("runtime-quality-reviewer")
     assert assurance_case["evidence"]
     assert isinstance(assurance_case["next_diagnostic_command"], str)
     assert assurance_case["next_diagnostic_command"].startswith("uv run ")
@@ -164,9 +161,7 @@ def test_assurance_case_preserves_non_overridable_blockers_and_uncertainty() -> 
     )
 
     assert assurance_case["claim"]["status"] == "blocked"
-    assert assurance_case["non_overridable_blockers"] == [
-        "diagnostic_slo_error_budget_burned"
-    ]
+    assert assurance_case["non_overridable_blockers"] == ["diagnostic_slo_error_budget_burned"]
     assert assurance_case["blockers"][0]["code"] == "diagnostic_slo_error_budget_burned"
     assert assurance_case["unresolved_uncertainty"]
     assert assurance_case["confidence_limits"]["upper_bound"] < 1.0
@@ -219,10 +214,7 @@ def test_policy_design_case_profile_metadata_is_runtime_quality_owned() -> None:
         set(POLICY_DESIGN_CASE_PROFILE_METADATA["reserved_node_families"])
         == expected_reserved_families
     )
-    assert (
-        POLICY_DESIGN_CASE_PROFILE_METADATA["mapping"]["counter_evidence"]
-        == "CAE.defeater"
-    )
+    assert POLICY_DESIGN_CASE_PROFILE_METADATA["mapping"]["counter_evidence"] == "CAE.defeater"
 
 
 def test_policy_design_case_profile_requires_runtime_quality_authority_chain() -> None:
@@ -251,9 +243,7 @@ def test_policy_design_case_profile_requires_runtime_quality_authority_chain() -
     assert validated["owner"] == "team-runtime-quality"
     assert validated["authority_chain"]["runtime_quality_authority"] is True
     assert validated["core_node_types"] == list(POLICY_DESIGN_CASE_CORE_NODE_TYPES)
-    assert validated["reserved_node_families"] == list(
-        POLICY_DESIGN_CASE_RESERVED_NODE_FAMILIES
-    )
+    assert validated["reserved_node_families"] == list(POLICY_DESIGN_CASE_RESERVED_NODE_FAMILIES)
 
 
 def test_policy_design_case_walking_skeleton_carries_intent_to_claim_refs() -> None:
@@ -361,9 +351,7 @@ def test_policy_design_case_walking_skeleton_rejects_non_runtime_authority_surfa
 ) -> None:
     case = build_policy_design_case_walking_skeleton()
     mutated = deepcopy(case)
-    producer = next(
-        node for node in mutated["nodes"] if node["node_type"] == "producer_evidence"
-    )
+    producer = next(node for node in mutated["nodes"] if node["node_type"] == "producer_evidence")
     producer.update(node_patch)
     producer["runtime_authority_envelope"].update(envelope_patch)
 
@@ -421,11 +409,7 @@ def test_policy_design_capability_ledger_rejects_wrong_schema_version() -> None:
 
 
 def test_scorecard_blocks_when_scholar_is_omitted_from_literature_required_ledger() -> None:
-    duties = [
-        duty
-        for duty in _all_capability_duties()
-        if duty["capability"] != "scholar"
-    ]
+    duties = [duty for duty in _all_capability_duties() if duty["capability"] != "scholar"]
     case = _policy_design_case(capability_ledger=_capability_ledger(*duties))
     evidence = complete_quality_evidence()
     evidence["policy_design_case"] = case

@@ -1428,6 +1428,76 @@ def test_materialization_input_basis_ignores_later_outputs_but_detects_source_vi
         )
 
 
+def test_materialization_input_basis_keeps_frozen_generated_lineage_across_reissue() -> None:
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        _reconcile_materialization_input_basis,
+    )
+
+    source_input = InputRef(
+        artifact_id="sha256:" + "1" * 64,
+        role="data_ref",
+        manifest_profile_sha256="sha256:" + "a" * 64,
+    )
+    frozen_report = InputRef(
+        artifact_id="sha256:" + "2" * 64,
+        role="production_data_quality_report",
+        manifest_profile_sha256="sha256:" + "b" * 64,
+    )
+    superseding_report = InputRef(
+        artifact_id="sha256:" + "3" * 64,
+        role="production_data_quality_report",
+        manifest_profile_sha256="sha256:" + "c" * 64,
+    )
+    initial_refs = frozenset({str(frozen_report.artifact_id)})
+    initial_basis = _reconcile_materialization_input_basis(
+        [source_input, frozen_report],
+        currently_published_refs=initial_refs,
+        existing_basis=None,
+    )
+
+    assert (
+        _reconcile_materialization_input_basis(
+            [source_input],
+            currently_published_refs=frozenset(
+                {*initial_refs, str(superseding_report.artifact_id)}
+            ),
+            existing_basis=initial_basis,
+            current_reissuable_report_refs=frozenset(
+                {(str(superseding_report.artifact_id), "production_data_quality_report")}
+            ),
+        )
+        == initial_basis
+    )
+
+    changed_source = source_input.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "d" * 64}
+    )
+    with pytest.raises(RuntimeError, match="auto_materialization_input_basis_changed"):
+        _reconcile_materialization_input_basis(
+            [changed_source],
+            currently_published_refs=frozenset(
+                {*initial_refs, str(superseding_report.artifact_id)}
+            ),
+            existing_basis=initial_basis,
+            current_reissuable_report_refs=frozenset(
+                {(str(superseding_report.artifact_id), "production_data_quality_report")}
+            ),
+        )
+
+    changed_source_ref = source_input.model_copy(update={"artifact_id": "sha256:" + "4" * 64})
+    with pytest.raises(RuntimeError, match="auto_materialization_input_basis_changed"):
+        _reconcile_materialization_input_basis(
+            [changed_source_ref],
+            currently_published_refs=frozenset(
+                {*initial_refs, str(superseding_report.artifact_id)}
+            ),
+            existing_basis=initial_basis,
+            current_reissuable_report_refs=frozenset(
+                {(str(superseding_report.artifact_id), "production_data_quality_report")}
+            ),
+        )
+
+
 def test_nl_pipeline_only_auto_attaches_default_production_data_for_serious_profiles(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -2331,12 +2401,18 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
 
     assert report_ref.startswith("sha256:")
     assert params["runtime_quality_refs"]["normative_applicability_report_ref"] == report_ref
-    assert params["runtime_quality_evidence"]["normative_evidence"]["status"] == "pass"
+    normative_evidence = params["runtime_quality_evidence"]["normative_evidence"]
+    assert normative_evidence["status"] == "fail"
+    assert normative_evidence["candidate_norm_refs"] == ["norm.ua.credit_eligibility"]
+    assert normative_evidence["applied_norms"] == []
+    assert "legal_source_relation_verification_not_established" in normative_evidence["issue_codes"]
     assert payload["reports_index"]["normative_applicability_report_ref"]["artifact_id"] == (
         report_ref
     )
-    assert persisted_report["status"] == "pass"
-    assert persisted_report["applied_norms"][0]["norm_id"] == "norm.ua.credit_eligibility"
+    assert persisted_report["status"] == "fail"
+    assert persisted_report["candidate_norm_refs"] == ["norm.ua.credit_eligibility"]
+    assert persisted_report["applied_norms"] == []
+    assert "legal_source_relation_verification_not_established" in persisted_report["issue_codes"]
     normative_edges = list(normative_manifest.inputs)
     assert normative_edges
     assert all(edge.manifest_profile_sha256 is not None for edge in normative_edges)
@@ -2408,9 +2484,14 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
     )
     assert record is not None
     assert record.progress["details"]["normative_applicability_report_ref"] == report_ref
+    persisted_progress_evidence = record.progress["details"]["runtime_quality_evidence"][
+        "normative_evidence"
+    ]
+    assert persisted_progress_evidence["status"] == "fail"
+    assert persisted_progress_evidence["applied_norms"] == []
     assert (
-        record.progress["details"]["runtime_quality_evidence"]["normative_evidence"]["status"]
-        == "pass"
+        "legal_source_relation_verification_not_established"
+        in persisted_progress_evidence["issue_codes"]
     )
 
 
@@ -2932,7 +3013,7 @@ def test_serious_nl_pipeline_blocks_missing_jurisdiction_before_scientist_workfl
     assert "payload" not in captured
 
 
-def test_canary_evidence_writes_normative_evidence_from_runtime_output(
+def test_canary_evidence_keeps_unverified_runtime_norms_candidate_only(
     tmp_path: Path,
 ) -> None:
     normative_evidence = {
@@ -2993,8 +3074,10 @@ def test_canary_evidence_writes_normative_evidence_from_runtime_output(
     persisted = json.loads(evidence_path.read_text(encoding="utf-8"))
 
     assert evidence_path.exists()
-    assert persisted["status"] == "pass"
-    assert persisted["applied_norms"][0]["norm_id"] == "norm.ua.credit_eligibility"
+    assert persisted["status"] == "fail"
+    assert persisted["candidate_norm_refs"] == ["norm.ua.credit_eligibility"]
+    assert persisted["applied_norms"] == []
+    assert "legal_source_relation_verification_not_established" in persisted["issue_codes"]
 
 
 def test_production_data_canary_materializes_local_lane_without_external_fetch(

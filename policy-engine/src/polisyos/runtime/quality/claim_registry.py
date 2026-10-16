@@ -9,6 +9,9 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
+from polisyos.data_forge.domains.legal.source_relation import (
+    current_legal_source_relation_disposition,
+)
 from polisyos.runtime.quality.calibration_ledger import (
     historical_prior_claim_evidence_issues,
 )
@@ -231,16 +234,115 @@ def normalize_runtime_claim_registry(
         for index, claim in enumerate(claims or [])
         if isinstance(claim, Mapping) and _is_major_claim(claim)
     ]
-    rows_by_id = {
-        str(row.get("claim_id")): row
-        for row in rows
-        if _text(row.get("claim_id"))
-    }
+    rows_by_id = {str(row.get("claim_id")): row for row in rows if _text(row.get("claim_id"))}
     global_norm_refs = _global_norm_refs(normative_evidence)
+    relation_refusal = current_legal_source_relation_disposition().refusal
+    selected_lex_refs = _dedupe(
+        [
+            ref
+            for row in rows
+            for ref in (
+                *_as_refs(row.get("selected_norm_refs")),
+                *_as_refs(row.get("legal_norm_refs")),
+                *_as_refs(row.get("legal_authority_record_refs")),
+            )
+        ]
+    )
+    has_relation_refusal = (
+        (
+            _relation_refusal_present(normative_evidence, relation_refusal.code)
+            or bool(_as_refs(normative_evidence.get("selected_norm_refs")))
+            or bool(_as_refs(normative_evidence.get("applied_norm_refs")))
+        )
+        if isinstance(normative_evidence, Mapping)
+        else False
+    )
+    relation_required = bool(
+        selected_lex_refs
+        or has_relation_refusal
+        or (
+            isinstance(normative_evidence, Mapping)
+            and bool(normative_evidence.get("legal_authority_required"))
+        )
+    )
+    if relation_required:
+        row_refs: list[str] = []
+        for row in rows:
+            claimed_refs = _dedupe(
+                [
+                    *_as_refs(row.get("selected_norm_refs")),
+                    *_as_refs(row.get("legal_norm_refs")),
+                    *_as_refs(row.get("legal_authority_record_refs")),
+                ]
+            )
+            if not claimed_refs:
+                continue
+            row_refs.extend(claimed_refs)
+            issues.extend(
+                candidate_firewall_issues_for_payload(
+                    {"selected_norm_refs": claimed_refs},
+                    hypothesis_ledger=hypothesis_ledger,
+                    surface="runtime_claim_registry.legal_authority",
+                )
+            )
+            row["candidate_norm_refs"] = _dedupe(
+                [*_as_refs(row.get("candidate_norm_refs")), *claimed_refs]
+            )
+            row["selected_norm_refs"] = []
+            row["legal_norm_refs"] = []
+            row["legal_authority_record_refs"] = []
+            row["legal_authority_blocker_refs"] = _dedupe(
+                [*_as_refs(row.get("legal_authority_blocker_refs")), relation_refusal.code]
+            )
+            row["blocker_refs"] = _dedupe(
+                [*_as_refs(row.get("blocker_refs")), relation_refusal.code]
+            )
+            selected_by_producer = row.get("selected_producer_refs")
+            if isinstance(selected_by_producer, Mapping):
+                selected_by_producer = dict(selected_by_producer)
+                selected_by_producer.pop("lex", None)
+                if selected_by_producer:
+                    row["selected_producer_refs"] = selected_by_producer
+                else:
+                    row.pop("selected_producer_refs", None)
+            _add_compatibility_fields(row)
+            issues.append(
+                _issue(
+                    code=relation_refusal.code,
+                    claim_id=_text(row.get("claim_id")),
+                    missing_evidence_type="legal_authority_relation",
+                    message=(
+                        "Lex norm refs remain candidate evidence because their claim-to-source "
+                        "relation is not independently verified."
+                    ),
+                    next_action=(
+                        "Provide a qualified claim-to-source relation receipt before binding "
+                        "a Lex norm as selected authority."
+                    ),
+                    candidate_norm_refs=claimed_refs,
+                    legal_relation_refusal=relation_refusal.to_payload(),
+                )
+            )
+        if not row_refs:
+            issues.append(
+                _issue(
+                    code=relation_refusal.code,
+                    claim_id="runtime_claim_registry",
+                    missing_evidence_type="legal_authority_relation",
+                    message=(
+                        "The claim registry includes a legal authority requirement or "
+                        "candidate, but no verified claim-to-source relation is available."
+                    ),
+                    next_action=(
+                        "Keep Lex refs candidate-only and provide a qualified relation receipt "
+                        "before claiming legal authority."
+                    ),
+                    candidate_norm_refs=global_norm_refs,
+                    legal_relation_refusal=relation_refusal.to_payload(),
+                )
+            )
     global_method_refs = _global_method_refs(foundry_method_report)
-    generic_global_method_refs = [
-        ref for ref in global_method_refs if _is_generic_method_ref(ref)
-    ]
+    generic_global_method_refs = [ref for ref in global_method_refs if _is_generic_method_ref(ref)]
 
     for claim_id in major_claim_ids:
         if claim_id in rows_by_id:
@@ -343,11 +445,13 @@ def apply_runtime_claim_registry_to_claim(
     merged = dict(claim)
     if not isinstance(registry_entry, Mapping):
         return merged
+    relation_refusal = current_legal_source_relation_disposition().refusal
     entry = _normalize_entry_row(dict(registry_entry), index=0, run_id=None)
     ref_mapping = {
         "scenario_requirement_refs": "scenario_requirement_refs",
         "data_refs": "data_refs",
         "selected_norm_refs": "selected_norm_refs",
+        "candidate_norm_refs": "candidate_norm_refs",
         "rejected_norm_refs": "rejected_norm_refs",
         "legal_authority_record_refs": "legal_authority_record_refs",
         "legal_authority_blocker_refs": "legal_authority_blocker_refs",
@@ -378,6 +482,35 @@ def apply_runtime_claim_registry_to_claim(
             merged[target_key] = refs
     if entry.get("selected_norm_refs"):
         merged["norm_refs"] = _as_refs(entry.get("selected_norm_refs"))
+    if relation_refusal.code in _as_refs(entry.get("legal_authority_blocker_refs")):
+        candidate_norm_refs = _dedupe(
+            [
+                *_as_refs(entry.get("candidate_norm_refs")),
+                *_as_refs(merged.get("selected_norm_refs")),
+                *_as_refs(merged.get("norm_refs")),
+                *_as_refs(merged.get("normative_refs")),
+                *_as_refs(merged.get("norm_ids")),
+                *_as_refs(merged.get("legal_norm_refs")),
+            ]
+        )
+        for key in (
+            "selected_norm_refs",
+            "norm_refs",
+            "normative_refs",
+            "norm_ids",
+            "legal_norm_refs",
+        ):
+            merged.pop(key, None)
+        merged["candidate_norm_refs"] = candidate_norm_refs
+        merged["legal_relation_refusal"] = relation_refusal.to_payload()
+        selected_by_producer = merged.get("selected_producer_refs")
+        if isinstance(selected_by_producer, Mapping):
+            selected_by_producer = dict(selected_by_producer)
+            selected_by_producer.pop("lex", None)
+            if selected_by_producer:
+                merged["selected_producer_refs"] = selected_by_producer
+            else:
+                merged.pop("selected_producer_refs", None)
     if entry.get("method_output_refs"):
         merged["method_refs"] = _as_refs(entry.get("method_output_refs"))
 
@@ -830,7 +963,7 @@ def _entry_issues(row: Mapping[str, Any]) -> list[dict[str, Any]]:
                     "policy grounding or publication can pass."
                 ),
             )
-    )
+        )
     method_output_refs = _as_refs(row.get("method_output_refs"))
     if any(_requires_method_runtime_evidence(ref) for ref in method_output_refs):
         if not _as_refs(row.get("assumption_gate_refs")) and not (
@@ -964,9 +1097,7 @@ def _add_compatibility_fields(row: dict[str, Any]) -> None:
     row["legal_norm_refs"] = _as_refs(row.get("legal_norm_refs")) or _as_refs(
         row.get("selected_norm_refs")
     )
-    row["method_refs"] = _as_refs(row.get("method_refs")) or _as_refs(
-        row.get("method_output_refs")
-    )
+    row["method_refs"] = _as_refs(row.get("method_refs")) or _as_refs(row.get("method_output_refs"))
     disconfirming = _dedupe(
         [
             *_as_refs(row.get("disconfirming_refs")),
@@ -1160,10 +1291,27 @@ def _global_norm_refs(normative_evidence: Mapping[str, Any] | None) -> list[str]
         for item in raw_items:
             if not isinstance(item, Mapping):
                 continue
-            refs.extend(
-                _as_refs(item.get("norm_id") or item.get("id") or item.get("artifact_id"))
-            )
+            refs.extend(_as_refs(item.get("norm_id") or item.get("id") or item.get("artifact_id")))
     return _dedupe(refs)
+
+
+def _relation_refusal_present(
+    normative_evidence: Mapping[str, Any] | None,
+    refusal_code: str,
+) -> bool:
+    if not isinstance(normative_evidence, Mapping):
+        return False
+    refusal = normative_evidence.get("legal_relation_refusal")
+    if isinstance(refusal, Mapping) and _text(refusal.get("code")) == refusal_code:
+        return True
+    for key in ("issue_codes", "issues", "authority_blockers", "blockers"):
+        values = normative_evidence.get(key)
+        if isinstance(values, Sequence) and not isinstance(values, str | bytes | bytearray):
+            for value in values:
+                code = _text(value.get("code")) if isinstance(value, Mapping) else _text(value)
+                if code == refusal_code:
+                    return True
+    return False
 
 
 def _global_method_refs(foundry_method_report: Mapping[str, Any] | None) -> list[str]:

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import duckdb
+
 from polisyos.lex.normpack.applicability_report import (
     build_normative_applicability_report,
     build_runtime_normative_applicability_report,
@@ -24,7 +26,7 @@ def _norm(**overrides: object) -> dict[str, object]:
     return payload
 
 
-def test_normative_applicability_report_passes_for_applicable_norm_and_claim() -> None:
+def test_normative_applicability_keeps_candidate_but_refuses_unverified_authority() -> None:
     report = build_normative_applicability_report(
         target_context={
             "jurisdiction": "UA",
@@ -42,11 +44,40 @@ def test_normative_applicability_report_passes_for_applicable_norm_and_claim() -
         ],
     )
 
-    assert report["status"] == "pass"
-    assert report["applied_norms"][0]["norm_id"] == "norm.ua.credit_eligibility"
+    assert report["status"] == "fail"
+    assert report["candidate_norms"][0]["norm_id"] == "norm.ua.credit_eligibility"
+    assert report["applied_norms"] == []
+    assert report["selected_norm_refs"] == []
     assert report["rejected_norms"] == []
-    assert report["recommendation_coverage"][0]["status"] == "pass"
-    assert report["blocking_issue_count"] == 0
+    assert report["recommendation_coverage"][0]["status"] == "fail"
+    assert report["blocking_issue_count"] > 0
+    assert "legal_source_relation_verification_not_established" in report["issue_codes"]
+
+
+def test_unverified_candidate_remains_visible_without_becoming_selected_authority() -> None:
+    report = build_normative_applicability_report(
+        target_context={
+            "jurisdiction": "UA",
+            "policy_domain": "wartime_msme_support",
+            "as_of": "2026-05-12",
+        },
+        candidate_norms=[_norm()],
+        recommendation_claims=[
+            {
+                "claim_id": "rec_1",
+                "major": True,
+                "text": "Target wartime credit support to eligible MSMEs.",
+                "norm_refs": ["norm.ua.credit_eligibility"],
+            }
+        ],
+    )
+
+    assert [norm["norm_id"] for norm in report["candidate_norms"]] == ["norm.ua.credit_eligibility"]
+    assert report["applied_norms"] == []
+    assert report["selected_norms"] == []
+    assert report["selected_norm_refs"] == []
+    assert report["status"] == "fail"
+    assert "legal_source_relation_verification_not_established" in report["issue_codes"]
 
 
 def test_normative_report_emits_legal_retrieval_authority_trace() -> None:
@@ -90,20 +121,20 @@ def test_normative_report_emits_legal_retrieval_authority_trace() -> None:
         "norm.ua.credit_eligibility",
         "norm.ua.procurement_fixture",
     ]
-    assert [norm["norm_id"] for norm in report["selected_norms"]] == [
-        "norm.ua.credit_eligibility"
-    ]
+    assert report["selected_norms"] == []
+    assert report["selected_norm_refs"] == []
     assert report["rejected_norms"][0]["reason_code"] == "wrong_policy_domain"
     assert report["conflicts"][0]["conflict_id"] == "conflict:resolved-credit-eligibility"
-    assert report["competence"][0]["norm_id"] == "norm.ua.credit_eligibility"
-    assert report["authority_blockers"] == []
+    assert report["competence"] == []
+    assert any(
+        blocker["code"] == "legal_source_relation_verification_not_established"
+        for blocker in report["authority_blockers"]
+    )
     assert report["recommendation_coverage"][0]["candidate_norm_refs"] == [
         "norm.ua.credit_eligibility",
         "norm.ua.procurement_fixture",
     ]
-    assert report["recommendation_coverage"][0]["selected_norm_refs"] == [
-        "norm.ua.credit_eligibility"
-    ]
+    assert report["recommendation_coverage"][0]["selected_norm_refs"] == []
     assert report["recommendation_coverage"][0]["rejected_norm_refs"] == []
 
 
@@ -330,27 +361,17 @@ def test_global_candidate_pool_is_scored_into_per_claim_legal_anchors() -> None:
     anchors = {item["claim_id"]: item for item in report["claim_legal_anchors"]}
     assert report["summary"]["global_candidate_norm_count"] == 33
     assert report["global_candidate_norm_refs"] == report["candidate_norm_refs"]
-    assert anchors["rec_credit"]["status"] == "pass"
-    assert anchors["rec_credit"]["selected_norm_refs"]
-    assert anchors["rec_credit"]["rejected_norm_refs"]
-    assert all(
-        ref.startswith("norm.ua.credit.")
-        for ref in anchors["rec_credit"]["selected_norm_refs"]
-    )
-    assert anchors["rec_grant"]["status"] == "pass"
-    assert anchors["rec_grant"]["selected_norm_refs"]
-    assert all(
-        ref.startswith("norm.ua.grant.")
-        for ref in anchors["rec_grant"]["selected_norm_refs"]
-    )
+    assert anchors["rec_credit"]["status"] == "fail"
+    assert anchors["rec_credit"]["selected_norm_refs"] == []
+    assert anchors["rec_grant"]["status"] == "fail"
+    assert anchors["rec_grant"]["selected_norm_refs"] == []
+    assert anchors["rec_credit"]["candidate_norm_refs"]
+    assert anchors["rec_grant"]["candidate_norm_refs"]
     assert anchors["rec_operational_dashboard"]["status"] == "pass"
-    assert anchors["rec_operational_dashboard"]["reason_code"] == (
-        "explicit_no_anchor_rationale"
-    )
+    assert anchors["rec_operational_dashboard"]["reason_code"] == ("explicit_no_anchor_rationale")
     assert anchors["rec_operational_dashboard"]["selected_norm_refs"] == []
-    assert report["recommendation_coverage"][0]["selected_norm_refs"] == (
-        anchors["rec_credit"]["selected_norm_refs"]
-    )
+    assert report["recommendation_coverage"][0]["selected_norm_refs"] == []
+    assert "legal_source_relation_verification_not_established" in report["issue_codes"]
 
 
 def test_normative_applicability_report_rejects_unusable_norms() -> None:
@@ -384,11 +405,9 @@ def test_normative_applicability_report_rejects_unusable_norms() -> None:
     assert report["status"] == "fail"
     assert rejected["norm.de.wrong_jurisdiction"]["reason_code"] == "wrong_jurisdiction"
     assert rejected["norm.ua.expired"]["reason_code"] == "expired_norm"
-    assert rejected["norm.ua.missing_authority"]["reason_code"] == (
-        "missing_authority_metadata"
-    )
+    assert rejected["norm.ua.missing_authority"]["reason_code"] == ("missing_authority_metadata")
     assert "recommendation_references_rejected_norm" in issue_codes
-    assert "no_applicable_norms" in issue_codes
+    assert "legal_source_relation_verification_not_established" in issue_codes
 
 
 def test_normative_applicability_report_requires_major_claim_anchor_or_rationale() -> None:
@@ -527,9 +546,90 @@ def test_runtime_report_collects_context_norms_and_recommendation_claims() -> No
         as_of="2026-05-12",
     )
 
-    assert report["status"] == "pass"
+    assert report["status"] == "fail"
     assert report["target_context"]["jurisdiction"] == "UA"
     assert report["target_context"]["policy_domain"] == "wartime_msme_support"
-    assert report["applied_norms"][0]["source_authority"] == "Verkhovna Rada"
-    assert report["applied_norms"][0]["effective_from"] == "2024-01-01"
+    assert report["candidate_norms"][0]["source_authority"] == "Verkhovna Rada"
+    assert report["candidate_norms"][0]["effective_from"] == "2024-01-01"
+    assert report["applied_norms"] == []
+    assert report["selected_norm_refs"] == []
+    assert "legal_source_relation_verification_not_established" in report["issue_codes"]
     assert report["recommendation_coverage"][0]["claim_id"] == "rec_1"
+
+
+def test_runtime_report_reads_lex_kg_as_candidates_and_keeps_relation_refusal(
+    tmp_path,
+) -> None:
+    db_path = tmp_path / "lex_knowledge_graph.duckdb"
+    with duckdb.connect(str(db_path)) as connection:
+        connection.execute(
+            """
+            CREATE TABLE lex_fact_candidates (
+                fact_id VARCHAR,
+                subject_en VARCHAR,
+                object_en VARCHAR,
+                fact_text VARCHAR,
+                confidence DOUBLE,
+                norm_type VARCHAR,
+                norm_type_canon VARCHAR,
+                action_canon VARCHAR,
+                source_quote_uk VARCHAR,
+                trust_tier VARCHAR,
+                jurisdiction VARCHAR,
+                top_domain VARCHAR,
+                effective_from VARCHAR,
+                effective_to VARCHAR,
+                doc_name VARCHAR,
+                doc_reestr_code VARCHAR,
+                provision_citation VARCHAR
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO lex_fact_candidates VALUES (
+                'candidate-annual-report', 'Ministry', 'annual report',
+                'The Ministry must publish the annual report by March.', 0.99,
+                    'obligation', 'obligation', 'requires',
+                'Міністерство публікує річний звіт до березня.',
+                'search_candidate', 'UA', 'public_administration',
+                    '2024-01-01', NULL,
+                'controlled source', 'TEST-1', 'article 1'
+            )
+            """
+        )
+
+    report = build_runtime_normative_applicability_report(
+        context={
+            "target_context": {
+                "jurisdiction": "UA",
+                "policy_domain": "public_administration",
+                "as_of": "2026-05-12",
+            },
+            "lex_kg_db_path": str(db_path),
+            "query_terms": ["annual report"],
+            "recommendation_claims": [
+                {
+                    "claim_id": "claim-annual-report",
+                    "major": True,
+                    "text": "The Ministry must publish the annual report by March.",
+                }
+            ],
+        },
+        domain_hint="public administration",
+        selected_variant={},
+    )
+
+    refusal = "legal_source_relation_verification_not_established"
+    assert [row["norm_id"] for row in report["candidate_norms"]] == ["candidate-annual-report"]
+    assert report["candidate_norms"][0]["trust_tier"] == "search_candidate"
+    assert report["candidate_norms"][0]["legal_relation_refusal"] == {
+        "code": refusal,
+        "status": "verification_missing",
+    }
+    assert report["applied_norms"] == []
+    assert report["selected_norm_refs"] == []
+    assert report["status"] == "fail"
+    coverage = report["recommendation_coverage"][0]
+    assert coverage["status"] == "fail"
+    assert coverage["selected_norm_refs"] == []

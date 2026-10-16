@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-import json
 from datetime import UTC
 from pathlib import Path
 
 import duckdb
+import pytest
 
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_forge.domains.legal.batch.claim_bridge import (
     _to_datetime_utc,
     export_normative_claim_sets,
 )
-from polisyos.fabric.claims.persist import load_claim, load_doc_meta, load_json_artifact
+from polisyos.data_forge.domains.legal.source_relation import (
+    LegalSourceRelationVerificationMissingError,
+)
 
 
 def _seed_bridge_db(db_path: Path) -> None:
@@ -147,43 +147,24 @@ def _seed_bridge_db(db_path: Path) -> None:
         )
 
 
-def test_export_normative_claim_sets_writes_claim_sets_and_summary(tmp_path: Path) -> None:
+def test_export_normative_claim_sets_refuses_unverified_legal_authority_without_side_effects(
+    tmp_path: Path,
+) -> None:
     db_path = tmp_path / "lex.duckdb"
     _seed_bridge_db(db_path)
 
-    cas = FileSystemCAS(tmp_path / "cas")
-    bridge_result = export_normative_claim_sets(
-        db_path=db_path,
-        cas_root=cas.root,
-        fact_log_root=tmp_path,
-        output_dir=tmp_path / "claim_exports",
-    )
+    cas_root = tmp_path / "cas"
+    output_dir = tmp_path / "claim_exports"
+    with pytest.raises(LegalSourceRelationVerificationMissingError):
+        export_normative_claim_sets(
+            db_path=db_path,
+            cas_root=cas_root,
+            fact_log_root=tmp_path,
+            output_dir=output_dir,
+        )
 
-    assert len(bridge_result.raw_claim_set_artifact_ids) == 2
-    assert len(bridge_result.normalized_claim_set_artifact_ids) == 2
-    assert len(bridge_result.claim_ids) == 2
-    assert bridge_result.world_segment_manifest is not None
-    assert Path(bridge_result.world_segment_manifest.path).exists()
-
-    summary_path = tmp_path / "claim_exports" / "normative_claim_sets_summary.json"
-    payload = json.loads(summary_path.read_text(encoding="utf-8"))
-    assert (
-        payload["normalized_claim_set_artifact_ids"]
-        == bridge_result.normalized_claim_set_artifact_ids
-    )
-
-    claim_set_payload = load_json_artifact(cas, bridge_result.normalized_claim_set_artifact_ids[0])
-    assert claim_set_payload["doc_source_id"].startswith("doc.")
-    assert claim_set_payload["claims"]
-
-    claim = load_claim(cas, claim_set_payload["claims"][0]["claim_artifact_id"])
-    assert claim.subject_id == "road_user"
-    assert claim.props["lex"]["trust_tier"] == "normative_fact"
-    assert claim.jurisdiction == "ua"
-
-    doc_meta = load_doc_meta(cas, claim_set_payload["doc_meta_artifact_id"])
-    raw_bytes = cas.get_bytes(ArtifactID.model_validate(doc_meta.raw_ref))
-    assert "Максимальна швидкість".encode() in raw_bytes
+    assert not cas_root.exists()
+    assert not output_dir.exists()
 
 
 def test_to_datetime_utc_accepts_ukrainian_day_month_year() -> None:

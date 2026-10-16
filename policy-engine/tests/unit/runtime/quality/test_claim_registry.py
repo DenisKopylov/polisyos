@@ -137,9 +137,7 @@ def _s11_proof_payload(**overrides: object) -> dict[str, object]:
 
 
 def _s11_proof_record(**overrides: object) -> Any:
-    return _s11("build_proof_carrying_analytics_record")(
-        **_s11_proof_payload(**overrides)
-    )
+    return _s11("build_proof_carrying_analytics_record")(**_s11_proof_payload(**overrides))
 
 
 def _record_field(record: Any, field_name: str) -> Any:
@@ -164,9 +162,7 @@ def _bridge_from_s11_proof(record: Any) -> dict[str, object]:
                     record,
                     "proof_composability_status",
                 ),
-                "proof_composability_refs": list(
-                    _record_field(record, "proof_composability_refs")
-                ),
+                "proof_composability_refs": list(_record_field(record, "proof_composability_refs")),
                 "uncertainty_refs": list(_record_field(record, "uncertainty_refs")),
                 "baseline_refs": [_record_field(record, "baseline_design_ref")],
                 "comparison_refs": [_record_field(record, "design_comparison_ref")],
@@ -266,10 +262,11 @@ def test_runtime_claim_registry_binds_major_claim_to_all_required_axes() -> None
     rows = claim_registry_rows_by_id(registry)
     row = rows["rec_credit_guarantee"]
 
-    assert registry["status"] == "pass"
+    assert registry["status"] == "fail"
     assert row["scenario_requirement_refs"] == ["scenario.req.credit_support"]
     assert row["data_refs"] == ["source.msme_panel"]
-    assert row["selected_norm_refs"] == ["norm.ua.credit_guarantee"]
+    assert row["selected_norm_refs"] == []
+    assert row["candidate_norm_refs"] == ["norm.ua.credit_guarantee"]
     assert row["rejected_norm_refs"] == ["norm.ua.unrelated"]
     assert row["method_output_refs"] == ["foundry.did.msme_survival"]
     assert row["portfolio_refs"] == ["portfolio.rec_credit_guarantee"]
@@ -281,14 +278,17 @@ def test_runtime_claim_registry_binds_major_claim_to_all_required_axes() -> None
     assert row["accepted_deficit_refs"] == ["deficit.recency.msme_panel"]
     assert row["assumption_gate_refs"] == ["assumption-gate.rec_credit_guarantee"]
     assert row["source_data_refs"] == ["source.msme_panel"]
-    assert row["legal_norm_refs"] == ["norm.ua.credit_guarantee"]
+    assert row["legal_norm_refs"] == []
     assert row["method_refs"] == ["foundry.did.msme_survival"]
-    assert row["selected_producer_refs"]["lex"] == ["norm.ua.credit_guarantee"]
+    assert "lex" not in row["selected_producer_refs"]
     assert row["selected_producer_refs"]["foundry"] == [
         "foundry.did.msme_survival",
         "assumption-gate.rec_credit_guarantee",
         "uncertainty.rec_credit_guarantee",
     ]
+    assert "legal_source_relation_verification_not_established" in {
+        issue["code"] for issue in registry["issues"]
+    }
 
 
 def test_superiority_claim_requires_baseline_and_named_alternative_refs() -> None:
@@ -392,7 +392,12 @@ def test_ir_analytics_bridge_projects_proof_refs_into_claim_registry() -> None:
 
     row = claim_registry_rows_by_id(registry)["rec_credit_guarantee"]
 
-    assert registry["status"] == "pass"
+    assert registry["status"] == "fail"
+    assert row["selected_norm_refs"] == []
+    assert row["candidate_norm_refs"] == ["norm.ua.credit_guarantee"]
+    assert row["legal_authority_blocker_refs"] == [
+        "legal_source_relation_verification_not_established"
+    ]
     assert row["ir_analytics_refs"] == ["ir.analytics.partial_id.msme_survival"]
     assert row["method_output_refs"] == ["ir.method.partial_identification.ate"]
     assert row["ir_certificate_refs"] == ["ir.certificate.dual.msme_survival"]
@@ -409,6 +414,9 @@ def test_ir_analytics_bridge_projects_proof_refs_into_claim_registry() -> None:
         "ir.proof_composability.msme_survival",
     ]
     assert registry["summary"]["ir_analytics_binding_count"] == 1
+    assert "legal_source_relation_verification_not_established" in {
+        issue["code"] for issue in registry["issues"]
+    }
 
 
 def test_ir_analytics_required_claim_fails_without_bridge_binding() -> None:
@@ -505,7 +513,9 @@ def test_s11_proof_carrying_record_projects_bridge_refs_into_claim_registry() ->
 
     row = claim_registry_rows_by_id(registry)["rec_credit_guarantee"]
 
-    assert registry["status"] == "pass"
+    assert registry["status"] == "fail"
+    assert row["selected_norm_refs"] == []
+    assert row["candidate_norm_refs"] == ["norm.ua.credit_guarantee"]
     assert row["ir_analytics_refs"] == ["ir.analytics.partial_id.msme_survival"]
     assert row["method_output_refs"] == ["ir.method.partial_identification.ate"]
     assert row["ir_certificate_refs"] == ["ir.certificate.dual.msme_survival"]
@@ -513,6 +523,9 @@ def test_s11_proof_carrying_record_projects_bridge_refs_into_claim_registry() ->
     assert row["uncertainty_refs"] == ["ir.uncertainty.msme_survival"]
     assert row["baseline_refs"] == ["baseline://ua-msme/no-new-credit"]
     assert row["selected_producer_refs"]["ir_analytics"]
+    assert "legal_source_relation_verification_not_established" in {
+        issue["code"] for issue in registry["issues"]
+    }
 
 
 def test_s11_proof_carrying_record_preserves_design_comparison_refs() -> None:
@@ -534,11 +547,16 @@ def test_s11_proof_carrying_record_preserves_design_comparison_refs() -> None:
 
     row = claim_registry_rows_by_id(registry)["rec_credit_guarantee"]
 
-    assert registry["status"] == "pass"
+    assert registry["status"] == "fail"
+    assert row["selected_norm_refs"] == []
+    assert row["candidate_norm_refs"] == ["norm.ua.credit_guarantee"]
     assert row["baseline_refs"] == ["baseline://ua-msme/no-new-credit"]
     assert row["alternative_refs"] == ["alternative://ua-msme/cash-transfer"]
     assert row["comparison_refs"] == ["comparison://ua-msme/credit-vs-cash"]
     assert row["ir_analytics_bridge_ref"] == "ir-analytics-bridge://ua-msme/credit-access"
+    assert "legal_source_relation_verification_not_established" in {
+        issue["code"] for issue in registry["issues"]
+    }
 
 
 def test_s11_negative_certificate_blocks_claim_registry_evidence_upgrade() -> None:
@@ -572,10 +590,12 @@ def test_s11_negative_certificate_blocks_claim_registry_evidence_upgrade() -> No
     assert row["rejected_method_refs"] == ["ir.method.partial_identification.ate"]
 
 
-def test_layer3_g3_resolved_bridge_reaches_claim_registry_consumer_gate(
+def test_layer3_g3_bridge_reaches_registry_while_lex_authority_stays_candidate(
     tmp_path: Path,
 ) -> None:
-    g3 = importlib.import_module("polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search")
+    g3 = importlib.import_module(
+        "polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search"
+    )
     request, proof_bindings, bridge_binding = _g3_resolved_bridge(g3, tmp_path)
 
     gate = g3.build_g3_claim_registry_consumer_gate(
@@ -592,14 +612,17 @@ def test_layer3_g3_resolved_bridge_reaches_claim_registry_consumer_gate(
         ),
     )
 
-    assert gate.status == "pass"
-    assert gate.claim_registry_status == "pass"
+    assert gate.status == "fail"
+    assert gate.claim_registry_status == "fail"
+    assert "legal_source_relation_verification_not_established" in gate.issue_codes
     assert gate.ir_analytics_bridge_ref == bridge_binding.bridge_ref
     assert gate.proof_carrying_analytics_refs == (proof_bindings[0].proof_ref,)
     assert gate.claim_registry_payload["summary"]["ir_analytics_binding_count"] == 1
     row = claim_registry_rows_by_id(gate.claim_registry_payload)[request.claim_id]
     assert row["ir_analytics_bridge_ref"] == bridge_binding.bridge_ref
     assert row["ir_analytics_refs"] == proof_bindings[0].s11_record["ir_analytics_refs"]
+    assert row["selected_norm_refs"] == []
+    assert row["candidate_norm_refs"] == ["norm.ua.credit_guarantee"]
 
 
 def _g3_resolved_bridge(g3: Any, tmp_path: Path) -> tuple[Any, tuple[Any, ...], Any]:

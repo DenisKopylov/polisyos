@@ -13,6 +13,9 @@ from typing import TYPE_CHECKING, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.legal.batch.config import ALL_STAGES, BatchConfig
+from polisyos.data_forge.domains.legal.source_relation import (
+    current_legal_source_relation_disposition,
+)
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 
 logger = get_logger(__name__)
@@ -848,16 +851,23 @@ def _cmd_run(args: argparse.Namespace) -> None:
             "spo": stats.total_spo,
             "entities": stats.entities,
             "facts": stats.facts,
+            "exported_claims": stats.exported_claims,
+            "exported_claim_sets": stats.exported_claim_sets,
+            "release_passed": stats.release_passed,
+            "release_failed_checks": stats.release_failed_checks,
+            "legal_relation_refusal": current_legal_source_relation_disposition().refusal.to_payload(),
             "elapsed_seconds": round(stats.elapsed_seconds, 3),
             **stats.llm_gate_metrics,
             **stats.benchmark_metrics,
         },
         artifacts=[
-            *run_artifacts,
-            config.consumer_manifest_path,
-            config.benchmark_report_path,
-            config.claim_exports_dir / "normative_claims.jsonl",
-            config.claim_exports_dir / "normative_claim_sets_summary.json",
+            path
+            for path in [
+                *run_artifacts,
+                config.consumer_manifest_path,
+                config.benchmark_report_path,
+            ]
+            if path.exists()
         ],
         started_at=datetime.now(UTC).isoformat(),
     )

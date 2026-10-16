@@ -7,6 +7,9 @@ from typing import TYPE_CHECKING
 
 import duckdb
 
+from polisyos.data_forge.domains.legal.source_relation import (
+    current_legal_source_relation_disposition,
+)
 from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
 
 if TYPE_CHECKING:
@@ -35,6 +38,7 @@ def _load_json(path: Path) -> dict:
 
 
 def _write_consumer_readiness_manifest(*, output_dir: Path, require_embeddings: bool) -> Path:
+    relation_refusal = current_legal_source_relation_disposition().refusal
     db_path = output_dir / "lex_knowledge_graph.duckdb"
     embedding_artifacts = [
         output_dir / "lex_entity_embeddings.npz",
@@ -58,7 +62,7 @@ def _write_consumer_readiness_manifest(*, output_dir: Path, require_embeddings: 
         "embeddings_ready": all(path.exists() for path in embedding_artifacts),
         "candidate_layer_ready": tables["lex_fact_candidates"] > 0,
         "grounded_layer_ready": tables["lex_fact_grounded"] > 0,
-        "normative_layer_ready": tables["lex_normative_facts"] > 0,
+        "normative_layer_ready": False,
         "reference_edges_ready": tables["lex_reference_edges"] > 0,
         "doc_versions_ready": tables["lex_doc_versions"] > 0,
     }
@@ -136,8 +140,12 @@ def _write_consumer_readiness_manifest(*, output_dir: Path, require_embeddings: 
     )
     qc_passed = not qc_failed_checks
     benchmark_passed = bool(benchmark_readiness.get("passed", False))
-    release_passed = bool(quality_gate_passed and qc_passed)
+    release_passed = bool(
+        quality_gate_passed and qc_passed and relation_refusal.status != "verification_missing"
+    )
     release_ready = readiness["consumer_ready"] and release_passed
+    if relation_refusal.status == "verification_missing":
+        release_failed_checks = list(dict.fromkeys([*release_failed_checks, relation_refusal.code]))
 
     manifest_path = output_dir / "publish" / "consumer_readiness.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -147,8 +155,10 @@ def _write_consumer_readiness_manifest(*, output_dir: Path, require_embeddings: 
                 "kind": "consumer_readiness",
                 "component_dir": str(output_dir),
                 "readiness": readiness,
+                "legal_relation_refusal": relation_refusal.to_payload(),
                 "release_readiness": {
                     "release_ready": release_ready,
+                    "legal_relation_refusal": relation_refusal.to_payload(),
                     "quality_gate_passed": quality_gate_passed,
                     "qc_passed": qc_passed,
                     "benchmark_passed": benchmark_passed,
@@ -277,9 +287,6 @@ def run_publish(output_dir: Path, *, require_embeddings: bool = True) -> Path:
         output_dir / "benchmark_report.json",
         output_dir / "manifests" / "llm_gate.json",
         output_dir / "llm_gate_audit.jsonl",
-        output_dir / "claim_exports" / "normative_claims.jsonl",
-        output_dir / "claim_exports" / "normative_claims_summary.json",
-        output_dir / "claim_exports" / "normative_claim_sets_summary.json",
         consumer_manifest,
     ]
     existing = [path for path in artifacts if path.exists()]

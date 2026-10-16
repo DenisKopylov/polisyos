@@ -28,6 +28,10 @@ import duckdb
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import contracts as core_contracts
+from polisyos.data_forge.domains.legal.source_relation import (
+    LEGAL_SOURCE_RELATION_REFUSAL,
+    LegalSourceRelationVerificationMissingError,
+)
 from polisyos.pdc import SkgCausalPriorRef, gy_content_hash
 from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateError,
@@ -880,25 +884,36 @@ class CredalReference:
                     normalized,
                     reason="edge_not_in_credal_reference",
                 )
-            lifted[_edge_key_text(edge.key)] = {
-                "status": edge.status,
-                "admissible_completions": [
-                    item.to_payload() for item in edge.admissible_completions
-                ],
+            is_unverified_legal_mapping = edge.modality == "L6_LEX_INTERVENTION_MAP"
+            completion_payloads: list[dict[str, Any]] = []
+            for completion in edge.admissible_completions:
+                payload = completion.to_payload()
+                if is_unverified_legal_mapping and completion.completion_kind in {
+                    "fixed",
+                    "alternative",
+                    "partial",
+                }:
+                    payload["completion_kind"] = "may_exist"
+                    payload["reason"] = LEGAL_SOURCE_RELATION_REFUSAL.code
+                completion_payloads.append(payload)
+            projection: dict[str, Any] = {
+                "status": "incomplete" if is_unverified_legal_mapping else edge.status,
+                "admissible_completions": completion_payloads,
                 "content_hash": edge.content_hash,
                 "is_set_valued": edge.is_set_valued,
             }
+            if is_unverified_legal_mapping:
+                projection["source_relation_refusal"] = LEGAL_SOURCE_RELATION_REFUSAL.to_payload()
+            lifted[_edge_key_text(edge.key)] = projection
         return lifted
 
     def all_essential_confirmed(self, edge_scope: Iterable[EdgeKey | str]) -> bool:
         """Return the CGF bind predicate over a scoped essential edge set."""
 
-        for key in edge_scope:
-            normalized = _normalize_edge_key(key)
-            edge = self.essential_edges.get(normalized)
-            if edge is None or edge.status != "confirmed":
-                return False
-        return True
+        return all(
+            projection.get("status") == "confirmed"
+            for projection in self.reference_lift(edge_scope).values()
+        )
 
     def denominator_counts(self) -> dict[str, dict[str, int]]:
         """Return total and status counts by modality."""
@@ -2250,6 +2265,9 @@ def _derive_l2_causal_claim(
             },
         },
     }
+    provenance["signals"]["legal_source_relation_refusal"] = (
+        LEGAL_SOURCE_RELATION_REFUSAL.to_payload()
+    )
     value = {
         "cause": cause_text,
         "direction": str(claim_result.direction or ""),
@@ -2487,15 +2505,22 @@ def _derive_l3_threshold_edge(
         gate_reason_codes,
     ) = row
     threshold = str(threshold_id or "").strip()
-    as_of_date = _parse_date(as_of)
-    start = _parse_date(effective_from)
-    end = _parse_date(effective_to)
+    fact = str(fact_id or "").strip()
     provenance = {
         "owner": "L3",
         "source": "lex_rule_thresholds",
         "version": version,
         "signals": {
             "as_of": as_of,
+            "candidate_value": {
+                "applies_to": str(applies_to or ""),
+                "fact_id": fact,
+                "metric": str(metric or ""),
+                "operator": str(operator or ""),
+                "unit": str(unit or ""),
+                "value_decimal": str(value_decimal or ""),
+                "value_text": str(value_text or ""),
+            },
             "doc_family_id": str(doc_family_id or ""),
             "effective_from": str(effective_from or ""),
             "effective_to": str(effective_to or ""),
@@ -2504,60 +2529,14 @@ def _derive_l3_threshold_edge(
             "quality_band": str(quality_band or ""),
             "temporal_resolution_status": str(temporal_resolution_status or ""),
             "temporal_state": str(temporal_state or ""),
+            "source_relation_refusal": LEGAL_SOURCE_RELATION_REFUSAL.to_payload(),
         },
     }
-    value = {
-        "applies_to": str(applies_to or ""),
-        "fact_id": str(fact_id or ""),
-        "metric": str(metric or ""),
-        "operator": str(operator or ""),
-        "unit": str(unit or ""),
-        "value_decimal": str(value_decimal or ""),
-        "value_text": str(value_text or ""),
-    }
-    if (
-        not threshold
-        or not metric
-        or not operator
-        or not (value_decimal or value_text)
-        or not applies_to
-    ):
-        return _edge(
-            "L3_RULE_THRESHOLD",
-            threshold or str(fact_id or "missing_threshold"),
-            "incomplete",
-            _incomplete_completions("threshold_key_or_value_incomplete"),
-            provenance,
-            unit=str(unit or "") or None,
-            scale=_threshold_scale(unit),
-        )
-    if as_of_date is None:
-        status: CredalReferenceStatus = "incomplete"
-        completions = _incomplete_completions("as_of_unparseable")
-    elif start is not None and as_of_date < start:
-        status = "out_of_scope"
-        completions = (
-            AdmissibleCompletion("excluded", value, "threshold_not_yet_effective_for_asof"),
-        )
-    elif (end is not None and as_of_date >= end) or (
-        next_start is not None and as_of_date >= next_start
-    ):
-        status = "deprecated"
-        completions = (AdmissibleCompletion("excluded", value, "threshold_superseded_or_expired"),)
-    elif str(temporal_resolution_status or "").casefold() == "partial":
-        status = "contested"
-        completions = (
-            AdmissibleCompletion("alternative", value, "threshold_temporal_partial"),
-            AdmissibleCompletion("partial", value, "threshold_effective_window_partial"),
-        )
-    else:
-        status = "confirmed"
-        completions = (AdmissibleCompletion("fixed", value, "threshold_in_force"),)
     return _edge(
         "L3_RULE_THRESHOLD",
-        threshold,
-        status,
-        completions,
+        threshold or fact or "unresolved",
+        "incomplete",
+        _incomplete_completions(LEGAL_SOURCE_RELATION_REFUSAL.code),
         provenance,
         unit=str(unit or "") or None,
         scale=_threshold_scale(unit),
@@ -2922,6 +2901,9 @@ def _iter_l6_edges(
                     legal_store=lex_store,
                     world_model_record=world_model_record,
                 )
+            except LegalSourceRelationVerificationMissingError as exc:
+                reason = exc.refusal.code
+                resolutions.append({"knob_id": knob_id, "status": "blocked", "reason": reason})
             except InterventionSubstrateError as exc:
                 reason = exc.code
                 resolutions.append({"knob_id": knob_id, "status": "blocked", "reason": reason})

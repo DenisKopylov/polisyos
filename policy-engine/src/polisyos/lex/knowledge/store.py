@@ -19,6 +19,9 @@ import numpy as np
 
 from polisyos.common.logger import get_logger
 from polisyos.core import artifacts, contracts
+from polisyos.data_forge.domains.legal.source_relation import (
+    require_legal_source_relation_verification,
+)
 from polisyos.data_forge.read_api import legal as legal_read_api
 from polisyos.lex.knowledge.types import (
     LegalDocVersionResult,
@@ -627,18 +630,16 @@ class LegalKnowledgeStore:
         include_candidates: bool,
         quality_band: str | None = None,
     ) -> str:
-        if quality_band == "high_confidence_norm" and self._table_exists(
-            "lex_high_confidence_norms"
+        if trust_tier not in {None, "search_candidate"} or (
+            trust_tier is None and not include_candidates
         ):
-            return "lex_high_confidence_norms"
-        if trust_tier == "normative_fact" and self._table_exists("lex_normative_facts"):
-            return "lex_normative_facts"
-        if trust_tier == "grounded_fact" and self._table_exists("lex_fact_grounded"):
-            return "lex_fact_grounded"
-        if trust_tier == "search_candidate" and self._table_exists("lex_fact_candidates"):
+            # Stored trust tiers and quality bands are producer claims, not a
+            # qualified claim-to-source relation receipt. Refuse current and
+            # legacy legal-authority projections through this shared selector.
+            require_legal_source_relation_verification()
+
+        if self._table_exists("lex_fact_candidates"):
             return "lex_fact_candidates"
-        if not include_candidates and self._table_exists("lex_fact_grounded"):
-            return "lex_fact_grounded"
         return "lex_facts"
 
     def _fact_filters(
@@ -664,8 +665,8 @@ class LegalKnowledgeStore:
         if trust_tier:
             clauses.append(f"{prefix}trust_tier = ?")
             params.append(trust_tier)
-        elif (not include_candidates) and selected_table == "lex_facts":
-            clauses.append(f"{prefix}trust_tier IN ('grounded_fact', 'normative_fact')")
+        elif include_candidates:
+            clauses.append(f"{prefix}trust_tier = 'search_candidate'")
 
         if jurisdiction:
             clauses.append(f"UPPER(COALESCE({prefix}jurisdiction, '')) = ?")
@@ -738,14 +739,7 @@ class LegalKnowledgeStore:
         return ", ".join(selected)
 
     def _threshold_fact_table(self) -> str:
-        if self._table_exists("lex_normative_ready_facts"):
-            return "lex_normative_ready_facts"
-        if self._table_exists("lex_normative_facts"):
-            return "lex_normative_facts"
-        return self._fact_table(
-            trust_tier="normative_fact",
-            include_candidates=False,
-        )
+        require_legal_source_relation_verification()
 
     def _to_rule_threshold_row(self, row: tuple) -> LegalRuleThresholdRow:
         provision_ref = ""

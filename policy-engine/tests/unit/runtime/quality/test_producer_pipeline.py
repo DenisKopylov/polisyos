@@ -255,9 +255,10 @@ def test_eight_stage_pipeline_runs_producers_through_closeout_projection_surface
         "quality_evidence/producer_pipeline.json"
     )
     assert report["inspection"]["components"][0]["component_id"] == "producer_pipeline"
-    assert report["replay"]["orchestration_continuity"]["producer_pipeline_ref"] == report[
-        "producer_pipeline_ref"
-    ]
+    assert (
+        report["replay"]["orchestration_continuity"]["producer_pipeline_ref"]
+        == report["producer_pipeline_ref"]
+    )
     assert report["authority_boundary"]["authoritative_for"] == [
         "producer_pipeline_stage_order",
         "producer_liveness_state",
@@ -266,8 +267,7 @@ def test_eight_stage_pipeline_runs_producers_through_closeout_projection_surface
     assert "producer_domain_truth" in report["authority_boundary"]["may_not_use_for"]
 
 
-def test_pipeline_persists_per_producer_capability_refs_and_cross_modal_traceability(
-) -> None:
+def test_pipeline_persists_per_producer_capability_refs_and_cross_modal_traceability() -> None:
     report = run_eight_stage_producer_pipeline(
         run_id="run-phase5-cross-modal",
         job_id="job-phase5-cross-modal",
@@ -323,12 +323,8 @@ def test_pipeline_persists_per_producer_capability_refs_and_cross_modal_traceabi
         "participation",
     }
     assert {row["construct_ref"] for row in decisions} == {"construct:firm_survival"}
-    assert {row["capability_index_ref"] for row in decisions} == {
-        "capability-index:phase5"
-    }
-    assert {row["construct_registry_ref"] for row in decisions} == {
-        "construct-registry:v1"
-    }
+    assert {row["capability_index_ref"] for row in decisions} == {"capability-index:phase5"}
+    assert {row["construct_registry_ref"] for row in decisions} == {"construct-registry:v1"}
     assert {row["authority_composition_rule_ref"] for row in decisions} == {
         "capability-authority-v1.0"
     }
@@ -363,17 +359,17 @@ def test_pipeline_report_projects_quality_evidence_and_control_plane_surfaces() 
 
     surfaces = build_producer_pipeline_quality_evidence_surfaces(report)
 
-    assert surfaces["producer_pipeline"]["producer_pipeline_ref"] == report[
-        "producer_pipeline_ref"
-    ]
+    assert surfaces["producer_pipeline"]["producer_pipeline_ref"] == report["producer_pipeline_ref"]
     assert surfaces["producer_handshake_ledger"] == report["producer_handshake_ledger"]
     assert surfaces["producer_pipeline_readiness"] == report["readiness"]
-    assert surfaces["producer_pipeline_control_plane"]["progress_patch"] == report[
-        "control_plane"
-    ]["progress_patch"]
-    assert surfaces["producer_pipeline_replay"]["orchestration_continuity"] == report[
-        "replay"
-    ]["orchestration_continuity"]
+    assert (
+        surfaces["producer_pipeline_control_plane"]["progress_patch"]
+        == report["control_plane"]["progress_patch"]
+    )
+    assert (
+        surfaces["producer_pipeline_replay"]["orchestration_continuity"]
+        == report["replay"]["orchestration_continuity"]
+    )
     assert surfaces["producer_pipeline_bundle_assembly"] == report["bundle_assembly"]
     assert surfaces["producer_pipeline_inspection"] == report["inspection"]
 
@@ -382,9 +378,10 @@ def test_pipeline_report_projects_quality_evidence_and_control_plane_surfaces() 
         report,
     )
     assert merged["existing_report"] == {"status": "pass"}
-    assert merged["producer_pipeline_readiness"]["producer_pipeline_ref"] == report[
-        "producer_pipeline_ref"
-    ]
+    assert (
+        merged["producer_pipeline_readiness"]["producer_pipeline_ref"]
+        == report["producer_pipeline_ref"]
+    )
 
 
 def test_waiting_on_peer_without_artifact_fields_and_deadline_emits_liveness_blocker() -> None:
@@ -478,9 +475,7 @@ def test_first_pass_authority_and_llm_candidate_selected_bindings_are_blocked() 
     )
 
     assert report["status"] == "blocked"
-    assert {
-        issue["code"] for issue in report["issues"]
-    } >= {
+    assert {issue["code"] for issue in report["issues"]} >= {
         "producer_pipeline_first_pass_authority_blocked",
         "producer_pipeline_llm_candidate_authority_blocked",
     }
@@ -489,9 +484,10 @@ def test_first_pass_authority_and_llm_candidate_selected_bindings_are_blocked() 
         "participation": "blocked",
     }
     assert report["provisional_claim_registry"]["claims"][0]["selected_binding_refs"] == []
-    assert "claim_authority" in report["provisional_claim_registry"]["authority_boundary"][
-        "may_not_use_for"
-    ]
+    assert (
+        "claim_authority"
+        in report["provisional_claim_registry"]["authority_boundary"]["may_not_use_for"]
+    )
 
 
 def test_spine_bootstrap_requires_w6_compilation_artifacts_before_producer_authority() -> None:
@@ -519,16 +515,12 @@ def test_spine_bootstrap_requires_w6_compilation_artifacts_before_producer_autho
     assert report["stages"][1]["status"] == "blocked"
     assert report["producer_state_summary"]["final_states"]["fabric"] == "blocked"
     assert report["semantic_closure"]["selected_binding_refs"] == []
-    assert {
-        blocker["code"] for blocker in report["spine_bootstrap"]["blockers"]
-    } == {
+    assert {blocker["code"] for blocker in report["spine_bootstrap"]["blockers"]} == {
         "producer_pipeline_universal_grammar_missing",
         "producer_pipeline_obligation_graph_missing",
         "producer_pipeline_claim_decomposition_missing",
     }
-    assert {
-        issue["code"] for issue in report["issues"]
-    } >= {
+    assert {issue["code"] for issue in report["issues"]} >= {
         "producer_pipeline_universal_grammar_missing",
         "producer_pipeline_obligation_graph_missing",
         "producer_pipeline_claim_decomposition_missing",
@@ -567,9 +559,9 @@ def test_spine_bootstrap_rejects_blocked_w6_compilation_artifact_refs() -> None:
     assert report["spine_bootstrap"]["status"] == "blocked"
     assert report["producer_state_summary"]["final_states"]["fabric"] == "blocked"
     assert report["semantic_closure"]["selected_binding_refs"] == []
-    assert {
-        blocker["code"] for blocker in report["spine_bootstrap"]["blockers"]
-    } >= {"producer_pipeline_obligation_graph_blocked"}
+    assert {blocker["code"] for blocker in report["spine_bootstrap"]["blockers"]} >= {
+        "producer_pipeline_obligation_graph_blocked"
+    }
 
 
 def test_preflight_requires_declared_requirements_outputs_and_deadline() -> None:
@@ -665,9 +657,9 @@ def test_second_pass_binding_must_match_declared_compiled_requirement_spec() -> 
 
     assert report["status"] == "blocked"
     assert report["producer_state_summary"]["final_states"]["fabric"] == "blocked"
-    assert {
-        issue["code"] for issue in report["issues"]
-    } >= {"producer_pipeline_requirement_binding_unmatched"}
+    assert {issue["code"] for issue in report["issues"]} >= {
+        "producer_pipeline_requirement_binding_unmatched"
+    }
 
 
 def test_provisional_claim_registry_requires_facet_baseline_and_alternative_bindings() -> None:
@@ -706,9 +698,9 @@ def test_provisional_claim_registry_requires_facet_baseline_and_alternative_bind
         "baseline_refs",
         "alternative_refs",
     }
-    assert {
-        issue["code"] for issue in report["issues"]
-    } >= {"producer_pipeline_claim_registry_binding_missing"}
+    assert {issue["code"] for issue in report["issues"]} >= {
+        "producer_pipeline_claim_registry_binding_missing"
+    }
 
 
 def test_second_pass_requires_selected_rejected_or_blocked_requirement_binding() -> None:
@@ -752,13 +744,14 @@ def test_second_pass_requires_selected_rejected_or_blocked_requirement_binding()
 
     assert report["status"] == "blocked"
     assert report["producer_state_summary"]["final_states"]["fabric"] == "blocked"
-    assert {
-        issue["code"] for issue in report["issues"]
-    } >= {"producer_pipeline_second_pass_authoritative_binding_missing"}
+    assert {issue["code"] for issue in report["issues"]} >= {
+        "producer_pipeline_second_pass_authoritative_binding_missing"
+    }
 
 
-def test_requirement_pipeline_corpus_stub_mode_selects_bindings_without_production_authority(
-) -> None:
+def test_requirement_pipeline_corpus_stub_mode_selects_bindings_without_production_authority() -> (
+    None
+):
     report = run_requirement_spec_producer_pipeline(
         run_id="run-corpus-stub",
         job_id="job-corpus-stub",
@@ -767,9 +760,7 @@ def test_requirement_pipeline_corpus_stub_mode_selects_bindings_without_producti
         authority_profile="production",
         spine_context=_spine_context(),
         claims=(_claim(),),
-        data_requirement_specs=(
-            {"requirement_id": "req.data.msme_panel", "claim_id": "rec_1"},
-        ),
+        data_requirement_specs=({"requirement_id": "req.data.msme_panel", "claim_id": "rec_1"},),
         legal_authority_requirement_specs=(
             {"requirement_id": "req.legal.credit_authority", "claim_id": "rec_1"},
         ),
@@ -800,3 +791,73 @@ def test_requirement_pipeline_corpus_stub_mode_selects_bindings_without_producti
     assert report["corpus_stub"]["max_authority_posture"] == "governed-pilot"
     assert "production_closeout_authority" in report["corpus_stub"]["may_not_use_for"]
     assert report["summary"]["selected_binding_count"] >= 5
+
+
+def test_requirement_pipeline_carries_missing_lex_relation_through_real_bridge() -> None:
+    report = run_requirement_spec_producer_pipeline(
+        run_id="run-lex-relation-missing",
+        job_id="job-lex-relation-missing",
+        tenant_id="tenant-1",
+        request_ref="request:lex-relation-missing",
+        authority_profile="production",
+        spine_context=_spine_context(),
+        claims=(_claim(),),
+        legal_authority_requirement_specs=(
+            {
+                "requirement_id": "req.legal.credit_authority",
+                "claim_ref": "claim:rec_1",
+                "claim_id": "rec_1",
+                "authority_types": ["implementing"],
+            },
+        ),
+        candidate_norms=(
+            {
+                "norm_id": "norm.synthetic-source-unrelated",
+                "jurisdiction": "UA",
+                "policy_domain": "economic_policy",
+                "as_of": "2024-01-01",
+                "authority_type": "implementing",
+                "authority_types": ["implementing"],
+                "instrument_type": "program",
+                "trust_tier": "normative_fact",
+            },
+        ),
+        target_context={
+            "jurisdiction": "UA",
+            "policy_domain": "economic_policy",
+            "as_of": "2024-01-01",
+        },
+        **_w6_artifacts(),
+    )
+
+    refusal = "legal_source_relation_verification_not_established"
+    lex_report = report["compiled_requirement_interfaces"]["lex"]
+    assert lex_report["legal_relation_refusal"] == {
+        "code": refusal,
+        "status": "verification_missing",
+    }
+    assert refusal in lex_report["issue_codes"]
+    assert lex_report["selected_norm_refs"] == []
+    assert lex_report["claim_legal_anchors"][0]["selected_norm_refs"] == []
+    assert lex_report["legal_authority_records"]
+    assert all(
+        row["legal_admissibility_grade"] == "blocked"
+        and "claim_source_relation_verification" in row["missing_facets"]
+        and any(issue["code"] == refusal for issue in row["issues"])
+        for row in lex_report["legal_authority_records"]
+    )
+    lex_bindings = [
+        binding
+        for binding in report["producer_binding_decisions"]
+        if binding["producer_component"] == "lex"
+    ]
+    assert lex_bindings
+    assert all(binding["disposition"] == "blocked" for binding in lex_bindings)
+    assert all(binding["label"] == "blocked" for binding in lex_bindings)
+    assert report["producer_state_summary"]["final_states"]["lex"] == "blocked"
+    assert any(
+        record["producer_component"] == "lex"
+        and record["state"] == "blocked"
+        and any(binding["disposition"] == "blocked" for binding in record["binding_decisions"])
+        for record in report["producer_handshake_records"]
+    )

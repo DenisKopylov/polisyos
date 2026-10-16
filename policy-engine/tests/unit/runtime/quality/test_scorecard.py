@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 
 import pytest
@@ -278,6 +279,7 @@ def _complete_runtime_refs() -> dict[str, str]:
         "human_review_calibration_report_ref": _sha("0"),
         "decision_artifact_quality_report_ref": _sha("2"),
         "privacy_compliance_report_ref": _sha("3"),
+        "security_assurance_report_ref": _sha("9"),
         "continuous_governance_stale_report_ref": _sha("4"),
         "continuous_governance_reissue_report_ref": _sha("5"),
         "continuous_governance_supersede_report_ref": _sha("6"),
@@ -548,7 +550,7 @@ def _complete_quality_evidence() -> dict[str, object]:
                 "manifest_ref": "cas://sha256/" + "6" * 64,
             },
             "query_terms": ["wartime MSME credit eligibility"],
-            "applied_norms": [
+            "candidate_norms": [
                 {
                     "norm_id": "norm.ua.credit_eligibility",
                     "jurisdiction": "UA",
@@ -556,15 +558,14 @@ def _complete_quality_evidence() -> dict[str, object]:
                     "effective_from": "2024-01-01",
                     "source_authority": "Verkhovna Rada",
                     "authority_level": "statute",
+                    "trust_tier": "search_candidate",
+                    "legal_relation_refusal": {
+                        "code": "legal_source_relation_verification_not_established",
+                        "status": "verification_missing",
+                    },
                 }
             ],
-            "recommendation_claims": [
-                {
-                    "claim_id": "rec_1",
-                    "major": True,
-                    "norm_refs": ["norm.ua.credit_eligibility"],
-                }
-            ],
+            "recommendation_claims": [],
         },
         "fabric_retrieval_trace": {
             "schema_version": "policyos.fabric.source_selection_trace.v1",
@@ -670,7 +671,7 @@ def _complete_quality_evidence() -> dict[str, object]:
                     "text": "Target wartime credit support to eligible MSMEs.",
                     "data_refs": ["production-msme-panel"],
                     "method_refs": ["causal.difference_in_differences"],
-                    "norm_refs": ["norm.ua.credit_eligibility"],
+                    "norm_refs": [],
                     "portfolio_refs": ["portfolio-rec-1"],
                     "independence_refs": ["independence-rec-1"],
                     "synthesis_refs": ["synthesis-rec-1"],
@@ -736,6 +737,19 @@ def _complete_quality_evidence() -> dict[str, object]:
         "data_forge_snapshot_binding": _complete_data_forge_snapshot_binding_report(),
     }
     refs = _complete_runtime_refs()
+    from polisyos.core.security import build_security_assurance_report
+
+    evidence["security_assurance_report"] = build_security_assurance_report(
+        payloads={
+            "llm": {"fixture": "ordinary candidate answer"},
+            "tool": {"fixture": "typed tool request"},
+            "data": {"fixture": "controlled test input"},
+            "artifact": {"fixture": "candidate artifact ref"},
+            "runtime_api": {"fixture": "bounded test route"},
+            "dashboard": {"fixture": "text-only test projection"},
+        },
+        report_ref=refs["security_assurance_report_ref"],
+    )
     lifecycle_reports = {
         "continuous_governance_stale": (
             "stale",
@@ -1076,6 +1090,32 @@ def test_scorecard_rejects_malformed_aliases_for_the_complete_report_registry() 
 
 
 def test_scorecard_ingests_can_i_closeout_blockers_without_minting_closeout() -> None:
+    closeout_ref = f"sha256:{hashlib.sha256(b'can-i-closeout-scorecard-test').hexdigest()}"
+    job_payload = _complete_job_payload()
+    details = job_payload["progress"]["details"]
+    details["runtime_quality_refs"]["can_i_closeout_ref"] = closeout_ref
+    details["diagnostic_events"].append(
+        {
+            "event_name": "can_i_closeout.persisted",
+            "severity": "serious",
+            "sampling": {"decision": "always_record", "rate": 1.0},
+            "artifact_ref": closeout_ref,
+            "runtime_cas_ref": closeout_ref,
+        }
+    )
+    closeout_envelope = authority_envelope_for(
+        report_key="can_i_closeout",
+        ref_key="can_i_closeout_ref",
+        ref_value=closeout_ref,
+        run_id="R_quality",
+        job_id="job-quality",
+    )
+    closeout_envelope.update(
+        {
+            "authoritative_for": ["closeout_verdict"],
+            "may_not_use_for": ["scorecard_authority"],
+        }
+    )
     quality_evidence = normalize_quality_evidence(
         {
             **_complete_quality_evidence(),
@@ -1084,10 +1124,8 @@ def test_scorecard_ingests_can_i_closeout_blockers_without_minting_closeout() ->
                 "status": "blocked",
                 "can_closeout": False,
                 "verdict": "cannot_closeout",
-                "authority_envelope": {
-                    "authoritative_for": ["closeout_verdict"],
-                    "may_not_use_for": ["scorecard_authority"],
-                },
+                "can_i_closeout_ref": closeout_ref,
+                "authority_envelope": closeout_envelope,
                 "blockers": [
                     {
                         "upstream_issue_code": "semantic_binding_claim_missing",
@@ -1108,7 +1146,7 @@ def test_scorecard_ingests_can_i_closeout_blockers_without_minting_closeout() ->
         job_id="job-quality",
         run_id="R_quality",
         execution_status="completed",
-        job_payload=_complete_job_payload(),
+        job_payload=job_payload,
         run_payload=None,
         provider_preflight={"status": "passed"},
         quality_evidence=quality_evidence,
@@ -1359,6 +1397,27 @@ def test_continuous_governance_noop_rejects_borrowed_production_data_authority()
 def test_scorecard_semantic_failures_match_closed_producer_ledger_status() -> None:
     closed_ledger = close_semantic_binding_ledger(semantic_ledger_missing_claim_axes())
     quality_evidence = _complete_quality_evidence()
+    ledger_ref = f"sha256:{hashlib.sha256(b'semantic-ledger-scorecard-test').hexdigest()}"
+    job_payload = _complete_job_payload()
+    details = job_payload["progress"]["details"]
+    details["runtime_quality_refs"]["semantic_binding_ledger_ref"] = ledger_ref
+    details["diagnostic_events"].append(
+        {
+            "event_name": "semantic_binding_ledger.persisted",
+            "severity": "serious",
+            "sampling": {"decision": "always_record", "rate": 1.0},
+            "artifact_ref": ledger_ref,
+            "runtime_cas_ref": ledger_ref,
+        }
+    )
+    closed_ledger["semantic_binding_ledger_ref"] = ledger_ref
+    closed_ledger["authority_envelope"] = authority_envelope_for(
+        report_key="semantic_binding_ledger",
+        ref_key="semantic_binding_ledger_ref",
+        ref_value=ledger_ref,
+        run_id="R_quality",
+        job_id="job-quality",
+    )
     quality_evidence["semantic_binding_ledger"] = closed_ledger
 
     scorecard = build_quality_scorecard(
@@ -1366,7 +1425,7 @@ def test_scorecard_semantic_failures_match_closed_producer_ledger_status() -> No
         job_id="job-quality",
         run_id="R_quality",
         execution_status="completed",
-        job_payload=_complete_job_payload(),
+        job_payload=job_payload,
         run_payload=None,
         provider_preflight={"status": "passed"},
         quality_evidence=quality_evidence,
@@ -2183,8 +2242,26 @@ def test_runtime_quality_scorecard_distinguishes_quality_warning_state() -> None
 
 
 def test_runtime_quality_scorecard_requires_override_for_performance_budget_failure() -> None:
+    raw_quality_evidence = complete_quality_evidence()
+    normative = raw_quality_evidence["normative_evidence"]
+    normative["candidate_norms"] = [
+        {
+            **normative["candidate_norms"][0],
+            "trust_tier": "search_candidate",
+            "legal_relation_refusal": {
+                "code": "legal_source_relation_verification_not_established",
+                "status": "verification_missing",
+            },
+        }
+    ]
+    normative.pop("selected_norms", None)
+    normative.pop("applied_norms", None)
+    normative.pop("competence", None)
+    normative["recommendation_claims"] = []
+    for claim in raw_quality_evidence["policy_grounding_matrix"]["claims"]:
+        claim["norm_refs"] = []
     quality_evidence = normalize_quality_evidence(
-        complete_quality_evidence(),
+        raw_quality_evidence,
         canary_kind="production",
     )
     job_payload = complete_job_payload(
@@ -2326,9 +2403,11 @@ def test_runtime_quality_scorecard_keeps_raw_override_markers_candidate_only() -
         )
         packet = build_production_approval_packet(scorecard=scorecard)
 
-        assert scorecard["quality_status"] == absent_scorecard["quality_status"] == "fail"
+        assert scorecard["quality_status"] == absent_scorecard["quality_status"] == "pass"
         assert scorecard["performance_status"] == absent_scorecard["performance_status"] == "fail"
-        assert scorecard["approval_state"] == absent_scorecard["approval_state"] == "quality_failed"
+        assert (
+            scorecard["approval_state"] == absent_scorecard["approval_state"] == "override_required"
+        )
         assert scorecard["approval_eligibility"]["override_accepted"] is False
         assert scorecard["approval_eligibility"]["eligible"] is False
         assert scorecard["override_evidence"] == {"status": "candidate", "accepted": False}
@@ -2643,6 +2722,9 @@ def test_scorecard_rejects_every_canonical_report_role_before_consumption() -> N
     details["runtime_quality_refs"] = valid_overlay
 
     quality_evidence = _complete_quality_evidence()
+    # This probe supplies malformed roles only; remove the valid report body so
+    # no successful fixture can satisfy a rejected reference path.
+    quality_evidence.pop("security_assurance_report", None)
     malformed_refs = {key: f"bad\nscorecard-role-{index}" for index, key in enumerate(ref_keys)}
     quality_evidence["runtime_quality_refs"] = malformed_refs
     malformed_values = set(malformed_refs.values())
@@ -2678,9 +2760,17 @@ def test_scorecard_rejects_every_canonical_report_role_before_consumption() -> N
     evidence_refs = scorecard["evidence_refs"]
     assert set(ref_keys).isdisjoint(evidence_refs)
     assert set(body_ref_keys).isdisjoint(evidence_refs)
-    fallback_refs = {f"quality_evidence/{filename}" for filename in QUALITY_REPORT_FILES.values()}
+    # Resolve the registry's aliases through its canonical runtime-ref map.
+    # Data Forge snapshot binding has a separate typed gate and is not part of
+    # the canonical report-body intake registry tested here.
+    canonical_body_ref_keys = set(body_ref_keys.values())
+    canonical_body_refs = {
+        f"quality_evidence/{QUALITY_REPORT_FILES[report_key]}"
+        for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items()
+        if ref_key in canonical_body_ref_keys
+    }
     assert not any(
-        gate.get("status") == "pass" and gate.get("evidence_ref") in fallback_refs
+        gate.get("status") == "pass" and gate.get("evidence_ref") in canonical_body_refs
         for gate in scorecard["quality_gates"]
     )
     assert not any(

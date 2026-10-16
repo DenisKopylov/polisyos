@@ -31,9 +31,7 @@ POLICY_DESIGN_WALKING_SKELETON_SCHEMA_VERSION = (
 POLICY_DESIGN_JURISDICTION_SPINE_SCHEMA_VERSION = (
     "policyos.runtime.policy_design_case.jurisdiction_spine.v1"
 )
-POLICY_DESIGN_JURISDICTION_SPINE_CONTRACT = (
-    "policy_design_case.concept_jurisdiction_spine.v1"
-)
+POLICY_DESIGN_JURISDICTION_SPINE_CONTRACT = "policy_design_case.concept_jurisdiction_spine.v1"
 POLICY_DESIGN_JURISDICTION_SPINE_PROJECTOR_COMPONENT = (
     f"{POLICY_DESIGN_CASE_RUNTIME_QUALITY_COMPONENT}.jurisdiction_spine_projector"
 )
@@ -43,18 +41,14 @@ POLICY_DESIGN_JURISDICTION_AUTHORITY_LEVELS = (
     "regional",
     "local",
 )
-POLICY_DESIGN_WALKING_SKELETON_CONTRACT_ID = (
-    "policy_design_case.walking_skeleton_case_contract.v1"
-)
+POLICY_DESIGN_WALKING_SKELETON_CONTRACT_ID = "policy_design_case.walking_skeleton_case_contract.v1"
 POLICY_DESIGN_WALKING_SKELETON_STUB_COMPONENT = (
     f"{POLICY_DESIGN_CASE_RUNTIME_QUALITY_COMPONENT}.walking_skeleton_stub"
 )
 POLICY_DESIGN_CAPABILITY_LEDGER_SCHEMA_VERSION = (
     "policyos.runtime.policy_design_case.capability_ledger.v1"
 )
-POLICY_DESIGN_CONCEPT_SPINE_SCHEMA_VERSION = (
-    "policyos.runtime.policy_design_case.concept_spine.v1"
-)
+POLICY_DESIGN_CONCEPT_SPINE_SCHEMA_VERSION = "policyos.runtime.policy_design_case.concept_spine.v1"
 POLICY_DESIGN_CONCEPT_SPINE_CONTRACT_ID = "policy_design_case.concept_spine_contract.v1"
 POLICY_DESIGN_CONCEPT_SPINE_OWNER = "team-policy-semantics"
 POLICY_DESIGN_CONCEPT_SPINE_COMPONENT = (
@@ -294,9 +288,7 @@ _POLICY_DESIGN_WALKING_SKELETON_REQUIRED_REFS = (
     "effective_mode_ref",
     "same_input_closure_ref",
 )
-_POLICY_DESIGN_WALKING_SKELETON_ACCEPTED_DEFICIT_KIND = (
-    "single_line_evidence_deficit"
-)
+_POLICY_DESIGN_WALKING_SKELETON_ACCEPTED_DEFICIT_KIND = "single_line_evidence_deficit"
 _POLICY_DESIGN_WALKING_SKELETON_ALLOWED_DEFICIT_PROFILES = frozenset({"research"})
 
 
@@ -412,9 +404,7 @@ def validate_policy_intent_envelope(envelope: Mapping[str, Any]) -> dict[str, An
     if generated_at is not None:
         normalized["generated_at"] = generated_at
 
-    normalized["requester_preference"] = _policy_intent_requester_preference(
-        preferred_conclusion
-    )
+    normalized["requester_preference"] = _policy_intent_requester_preference(preferred_conclusion)
     normalized["analysis_independence"] = _policy_intent_analysis_independence()
     risk = _policy_intent_capture_risk(
         preferred_conclusion=preferred_conclusion,
@@ -444,9 +434,7 @@ def build_policy_design_case_profile(
 
     authority_chain = _policy_design_case_authority_chain(runtime_authority)
     validated_intent = (
-        validate_policy_intent_envelope(intent_envelope)
-        if intent_envelope is not None
-        else None
+        validate_policy_intent_envelope(intent_envelope) if intent_envelope is not None else None
     )
     case = {
         "schema_version": POLICY_DESIGN_CASE_SCHEMA_VERSION,
@@ -587,9 +575,7 @@ def build_policy_design_case_concept_spine(
         "producer_component": POLICY_DESIGN_CONCEPT_SPINE_COMPONENT,
         "status": status,
         "source_projection": source_projection,
-        "canonical_concept_ids": [
-            str(row["canonical_concept_id"]) for row in concept_rows
-        ],
+        "canonical_concept_ids": [str(row["canonical_concept_id"]) for row in concept_rows],
         "canonical_concepts": concept_rows,
         "reconciliation_trace": reconciliation_trace,
         "normalization_trace": normalization_trace,
@@ -725,26 +711,35 @@ def validate_policy_design_case_concept_spine(spine: Mapping[str, Any]) -> dict[
             "policy_design_concept_spine_schema_version_invalid",
             "Concept spine must use the Phase 8.1 runtime-quality schema version.",
         )
-    if _policy_design_required_text(
-        spine.get("contract_id"),
-        "policy_design_concept_spine_contract_id_missing",
-    ) != POLICY_DESIGN_CONCEPT_SPINE_CONTRACT_ID:
+    if (
+        _policy_design_required_text(
+            spine.get("contract_id"),
+            "policy_design_concept_spine_contract_id_missing",
+        )
+        != POLICY_DESIGN_CONCEPT_SPINE_CONTRACT_ID
+    ):
         raise PolicyDesignCaseAuthorityError(
             "policy_design_concept_spine_contract_id_invalid",
             "Concept spine contract id is not recognized.",
         )
-    if _policy_design_required_text(
-        spine.get("node_type"),
-        "policy_design_concept_spine_node_type_missing",
-    ) != "concept_spine":
+    if (
+        _policy_design_required_text(
+            spine.get("node_type"),
+            "policy_design_concept_spine_node_type_missing",
+        )
+        != "concept_spine"
+    ):
         raise PolicyDesignCaseAuthorityError(
             "policy_design_concept_spine_node_type_invalid",
             "Concept spine node must use the concept_spine node type.",
         )
-    if _policy_design_required_text(
-        spine.get("owner"),
-        "policy_design_concept_spine_owner_missing",
-    ) != POLICY_DESIGN_CONCEPT_SPINE_OWNER:
+    if (
+        _policy_design_required_text(
+            spine.get("owner"),
+            "policy_design_concept_spine_owner_missing",
+        )
+        != POLICY_DESIGN_CONCEPT_SPINE_OWNER
+    ):
         raise PolicyDesignCaseAuthorityError(
             "policy_design_concept_spine_owner_invalid",
             "Concept spine must be owned by policy semantics.",
@@ -796,10 +791,7 @@ def validate_policy_design_case_concept_spine(spine: Mapping[str, Any]) -> dict[
             "policy_design_concept_spine_concepts_missing",
             "Concept spine must record canonical_concepts.",
         )
-    normalized_concepts = [
-        _policy_design_validate_concept_row(row)
-        for row in concept_rows
-    ]
+    normalized_concepts = [_policy_design_validate_concept_row(row) for row in concept_rows]
     concept_ids = [str(row["canonical_concept_id"]) for row in normalized_concepts]
     if len(set(concept_ids)) != len(concept_ids):
         raise PolicyDesignCaseAuthorityError(
@@ -896,11 +888,7 @@ def validate_policy_design_case_concept_spine(spine: Mapping[str, Any]) -> dict[
                 "policy_design_concept_spine_blocker_missing",
                 "Concept spine with semantic mismatches must be blocked.",
             )
-    blocked_normalization = [
-        entry
-        for entry in normalization_trace
-        if entry["status"] == "blocked"
-    ]
+    blocked_normalization = [entry for entry in normalization_trace if entry["status"] == "blocked"]
     if blocked_normalization:
         blocker_codes = {str(blocker.get("code")) for blocker in blockers}
         missing_codes = {
@@ -1105,8 +1093,7 @@ def build_policy_design_case_walking_skeleton(
                 state="selected",
                 evidence_ref=producer_ref,
                 runtime_event_ref=(
-                    "event://policy_design_case/wave6/walking_skeleton/"
-                    f"capability/{capability}"
+                    f"event://policy_design_case/wave6/walking_skeleton/capability/{capability}"
                 ),
                 cas_ref=producer_ref,
                 reason=(
@@ -1441,9 +1428,7 @@ def validate_policy_design_case_profile(case: Mapping[str, Any]) -> dict[str, An
         effective_execution_profile=effective_execution_profile,
         final_major_claims=_policy_design_case_final_major_claims(case),
     )
-    case_registry_entry = _policy_design_case_registry_entry(
-        case.get("case_registry_entry")
-    )
+    case_registry_entry = _policy_design_case_registry_entry(case.get("case_registry_entry"))
     authority_profile = _policy_design_case_authority_profile(
         requested_authority_level=intent_envelope["requested_authority_level"],
         effective_execution_profile=effective_execution_profile,
@@ -1661,10 +1646,7 @@ def _subclaims(scorecard: Mapping[str, Any]) -> list[dict[str, Any]]:
                 "evidence_refs": sorted(
                     {
                         ref
-                        for ref in (
-                            _text_or_none(gate.get("evidence_ref"))
-                            for gate in stage_gates
-                        )
+                        for ref in (_text_or_none(gate.get("evidence_ref")) for gate in stage_gates)
                         if ref is not None
                     }
                 ),
@@ -2506,10 +2488,7 @@ def _policy_design_project_ir_world(
         unresolved.append(
             _policy_design_concept_unresolved(
                 source_component="ir_world",
-                source_term=(
-                    _policy_design_text(raw_unresolved.get("source_term"))
-                    or "ir_world"
-                ),
+                source_term=(_policy_design_text(raw_unresolved.get("source_term")) or "ir_world"),
                 reason=(
                     _policy_design_text(raw_unresolved.get("reason"))
                     or "IR world reported an unresolved concept"
@@ -2521,10 +2500,7 @@ def _policy_design_project_ir_world(
         conflicts.append(
             _policy_design_concept_conflict(
                 source_component="ir_world",
-                source_term=(
-                    _policy_design_text(raw_conflict.get("source_term"))
-                    or "ir_world"
-                ),
+                source_term=(_policy_design_text(raw_conflict.get("source_term")) or "ir_world"),
                 candidate_concept_ids=_policy_design_text_list(
                     raw_conflict.get("candidate_concept_ids")
                 ),
@@ -2676,10 +2652,9 @@ def _policy_design_bind_claim_numerical_semantics(
                 ("calendar", "calendar", "calendars"),
                 ("freshness_ref", "freshness_ref", "freshness"),
             ):
-                value = (
-                    _policy_design_semantic_text(binding.get(binding_key))
-                    or _policy_design_first_text(row.get(row_field))
-                )
+                value = _policy_design_semantic_text(
+                    binding.get(binding_key)
+                ) or _policy_design_first_text(row.get(row_field))
                 if value is not None:
                     ref[target_key] = value
                     _policy_design_append_text(row, row_field, value)
@@ -2690,8 +2665,7 @@ def _policy_design_bind_claim_numerical_semantics(
             ref["semantic_ref"] = _policy_design_cas_ref_from_payload(
                 {
                     "schema_version": (
-                        "policyos.runtime.policy_design_case."
-                        "claim_numerical_semantics_ref.v1"
+                        "policyos.runtime.policy_design_case.claim_numerical_semantics_ref.v1"
                     ),
                     **ref,
                 }
@@ -2949,9 +2923,7 @@ def _policy_design_claim_semantic_mismatches(
                 ("calendar", "policy_design_claim_calendar_mismatch"),
                 ("freshness_ref", "policy_design_claim_freshness_mismatch"),
             ):
-                values = _policy_design_distinct_semantic_values(
-                    ref.get(dimension) for ref in refs
-                )
+                values = _policy_design_distinct_semantic_values(ref.get(dimension) for ref in refs)
                 if len(values) > 1:
                     mismatches.append(
                         _policy_design_claim_mismatch(
@@ -2980,8 +2952,7 @@ def _policy_design_concept_mismatch(
         "dimension": dimension,
         "observed_values": values,
         "message": (
-            f"Concept {canonical_concept_id} has incompatible {dimension}: "
-            f"{', '.join(values)}."
+            f"Concept {canonical_concept_id} has incompatible {dimension}: {', '.join(values)}."
         ),
     }
 
@@ -3047,9 +3018,7 @@ def _policy_design_concept_reconciliation_trace(
             bindings = _policy_design_mapping_list(row.get(field_name))
             binding_refs = [
                 text
-                for text in (
-                    _policy_design_text(binding.get(id_key)) for binding in bindings
-                )
+                for text in (_policy_design_text(binding.get(id_key)) for binding in bindings)
                 if text is not None
             ]
             if not binding_refs:
@@ -3096,9 +3065,7 @@ def _policy_design_trace_semantic_dimensions(row: Mapping[str, Any]) -> dict[str
         "currency": _policy_design_text_list(row.get("currency")),
         "price_bases": _policy_design_text_list(row.get("price_bases")),
         "exchange_rates": _policy_design_text_list(row.get("exchange_rates")),
-        "inflation_adjustments": _policy_design_text_list(
-            row.get("inflation_adjustments")
-        ),
+        "inflation_adjustments": _policy_design_text_list(row.get("inflation_adjustments")),
         "calendars": _policy_design_text_list(row.get("calendars")),
         "freshness": _policy_design_text_list(row.get("freshness")),
         "legal_concepts": _policy_design_distinct_semantic_values(
@@ -3128,9 +3095,7 @@ def _policy_design_concept_normalization_trace(
         ]
         requested_norms = {
             normalized
-            for normalized in (
-                _policy_design_normalized_term_key(term) for term in requested_terms
-            )
+            for normalized in (_policy_design_normalized_term_key(term) for term in requested_terms)
             if normalized
         }
     for normalized, entry in sorted(term_index.items(), key=lambda item: item[0]):
@@ -3146,11 +3111,7 @@ def _policy_design_concept_normalization_trace(
             continue
         seen_norms.add(normalized)
         indexed = term_index.get(normalized)
-        refs = (
-            sorted(indexed["canonical_concept_refs"])
-            if indexed is not None
-            else []
-        )
+        refs = sorted(indexed["canonical_concept_refs"]) if indexed is not None else []
         if not refs:
             typed_blocker = _policy_design_normalization_blocker(
                 code="policy_design_concept_unresolved",
@@ -3315,8 +3276,7 @@ def _policy_design_validate_concept_reconciliation_trace_entry(
         "binding_refs": _policy_design_text_list(entry.get("binding_refs")),
         "source_components": _policy_design_text_list(entry.get("source_components")),
         "semantic_dimensions": {
-            key: _policy_design_text_list(value)
-            for key, value in semantic_dimensions.items()
+            key: _policy_design_text_list(value) for key, value in semantic_dimensions.items()
         },
         "mismatches": mismatches,
     }
@@ -3537,9 +3497,7 @@ def _policy_design_concept_blockers(
                     "uv run pytest "
                     "tests/unit/runtime/quality/test_policy_design_case_concept_spine.py -q"
                 ),
-                "normalization_trace": blocked_normalization[
-                    "policy_design_concept_unresolved"
-                ],
+                "normalization_trace": blocked_normalization["policy_design_concept_unresolved"],
             }
         )
     if conflicts:
@@ -3571,9 +3529,7 @@ def _policy_design_concept_blockers(
                 "owner": POLICY_DESIGN_CONCEPT_SPINE_OWNER,
                 "source_component": "concept_spine_normalization",
                 "message": "Raw user term maps to multiple canonical concept refs.",
-                "upstream_cause": (
-                    "Aliases or source terms collided across canonical concepts."
-                ),
+                "upstream_cause": ("Aliases or source terms collided across canonical concepts."),
                 "downstream_impact": (
                     "Legal, data, method, objective, and claim evidence may bind "
                     "different concepts to the same user term."
@@ -3613,8 +3569,7 @@ def _policy_design_concept_blockers(
                     "tests/unit/runtime/quality/test_policy_design_case_concept_spine.py -q"
                 ),
                 "missing_fields_by_concept": {
-                    concept_id: list(fields)
-                    for concept_id, fields in sorted(closure_gaps.items())
+                    concept_id: list(fields) for concept_id, fields in sorted(closure_gaps.items())
                 },
             }
         )
@@ -3684,10 +3639,13 @@ def _policy_design_validate_concept_blocker(blocker: Mapping[str, Any]) -> None:
             "policy_design_concept_spine_blocker_code_invalid",
             "Concept spine blockers must use typed concept blocker codes.",
         )
-    if _policy_design_required_text(
-        blocker.get("owner"),
-        "policy_design_concept_spine_blocker_owner_missing",
-    ) != POLICY_DESIGN_CONCEPT_SPINE_OWNER:
+    if (
+        _policy_design_required_text(
+            blocker.get("owner"),
+            "policy_design_concept_spine_blocker_owner_missing",
+        )
+        != POLICY_DESIGN_CONCEPT_SPINE_OWNER
+    ):
         raise PolicyDesignCaseAuthorityError(
             "policy_design_concept_spine_blocker_owner_invalid",
             "Concept spine blockers must name the policy-semantics owner.",
@@ -3853,8 +3811,7 @@ def _policy_design_collect_cross_graph_diagnostic(
             _policy_design_concept_unresolved(
                 source_component="scientist_cross_graph",
                 source_term=(
-                    _policy_design_text(diagnostic.get("need_id"))
-                    or "scientist_cross_graph"
+                    _policy_design_text(diagnostic.get("need_id")) or "scientist_cross_graph"
                 ),
                 reason=(
                     _policy_design_text(diagnostic.get("message"))
@@ -3867,8 +3824,7 @@ def _policy_design_collect_cross_graph_diagnostic(
             _policy_design_concept_conflict(
                 source_component="scientist_cross_graph",
                 source_term=(
-                    _policy_design_text(diagnostic.get("need_id"))
-                    or "scientist_cross_graph"
+                    _policy_design_text(diagnostic.get("need_id")) or "scientist_cross_graph"
                 ),
                 candidate_concept_ids=_policy_design_text_list(
                     diagnostic.get("candidate_concept_ids")
@@ -3929,11 +3885,7 @@ def _policy_design_append_binding(
     field_name: str,
     binding: Mapping[str, Any],
 ) -> None:
-    cleaned = {
-        key: value
-        for key, value in binding.items()
-        if value not in (None, "", [], ())
-    }
+    cleaned = {key: value for key, value in binding.items() if value not in (None, "", [], ())}
     if cleaned:
         row[field_name].append(cleaned)
 
@@ -3983,11 +3935,7 @@ def _policy_design_mapping_list(value: object) -> list[dict[str, Any]]:
 def _policy_design_dedupe_mappings(rows: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
     deduped: dict[str, dict[str, Any]] = {}
     for row in rows:
-        cleaned = {
-            key: value
-            for key, value in row.items()
-            if value not in (None, "", [], ())
-        }
+        cleaned = {key: value for key, value in row.items() if value not in (None, "", [], ())}
         if not cleaned:
             continue
         key = json.dumps(cleaned, sort_keys=True, separators=(",", ":"), default=str)
@@ -4125,8 +4073,7 @@ def _policy_design_case_capability_duty(
     normalized["capability"] = capability
     normalized["state"] = state
     normalized["owner"] = (
-        _policy_design_text(duty.get("owner"))
-        or _POLICY_DESIGN_CAPABILITY_OWNERS[capability]
+        _policy_design_text(duty.get("owner")) or _POLICY_DESIGN_CAPABILITY_OWNERS[capability]
     )
     if state == "selected":
         if not _policy_design_has_any_ref(duty, _POLICY_DESIGN_SELECTED_REF_FIELDS):
@@ -4243,15 +4190,13 @@ def _policy_design_duty_state(value: object) -> str:
 
 def _policy_design_has_blocker(duty: Mapping[str, Any]) -> bool:
     return _policy_design_has_any_ref(duty, _POLICY_DESIGN_BLOCKER_FIELDS) or any(
-        isinstance(duty.get(field), Mapping)
-        for field in _POLICY_DESIGN_BLOCKER_RECORD_FIELDS
+        isinstance(duty.get(field), Mapping) for field in _POLICY_DESIGN_BLOCKER_RECORD_FIELDS
     )
 
 
 def _policy_design_has_degradation(duty: Mapping[str, Any]) -> bool:
     return _policy_design_has_any_ref(duty, _POLICY_DESIGN_DEGRADATION_REF_FIELDS) or any(
-        isinstance(duty.get(field), Mapping)
-        for field in _POLICY_DESIGN_DEGRADATION_RECORD_FIELDS
+        isinstance(duty.get(field), Mapping) for field in _POLICY_DESIGN_DEGRADATION_RECORD_FIELDS
     )
 
 
@@ -4417,9 +4362,7 @@ def _policy_intent_challenge_depth_policy(
         "depth": depth,
         "minimum_alternative_count": minimum_alternative_count,
         "requires_disconfirming_evidence": depth in {"heightened", "adversarial"},
-        "requires_requester_capture_challenge": bool(
-            risk.get("preferred_conclusion_present")
-        ),
+        "requires_requester_capture_challenge": bool(risk.get("preferred_conclusion_present")),
     }
 
 
@@ -4507,10 +4450,13 @@ def _policy_design_case_walking_skeleton_contract(
             "policy_design_skeleton_contract_id_invalid",
             "Walking skeleton contract id is not recognized.",
         )
-    if _policy_design_required_text(
-        contract.get("profile"),
-        "policy_design_skeleton_profile_missing",
-    ) != "research":
+    if (
+        _policy_design_required_text(
+            contract.get("profile"),
+            "policy_design_skeleton_profile_missing",
+        )
+        != "research"
+    ):
         raise PolicyDesignCaseAuthorityError(
             "policy_design_skeleton_profile_invalid",
             "Walking skeleton contract must be research-profile only.",
@@ -4541,11 +4487,7 @@ def _policy_design_case_walking_skeleton_contract(
             "Walking skeleton must carry exactly one node for: " + ", ".join(duplicates),
         )
 
-    typed_nodes = {
-        node_type: matches[0]
-        for node_type, matches in by_type.items()
-        if matches
-    }
+    typed_nodes = {node_type: matches[0] for node_type, matches in by_type.items() if matches}
     for node_type, node in typed_nodes.items():
         _policy_design_validate_walking_skeleton_record(
             node,
@@ -4743,10 +4685,7 @@ def _policy_design_validate_walking_skeleton_flow(
             "policy_design_skeleton_claim_deficit_ref_missing",
             "Major claim must cite the accepted single-line deficit.",
         )
-    if (
-        effective_execution_profile
-        not in _POLICY_DESIGN_WALKING_SKELETON_ALLOWED_DEFICIT_PROFILES
-    ):
+    if effective_execution_profile not in _POLICY_DESIGN_WALKING_SKELETON_ALLOWED_DEFICIT_PROFILES:
         raise PolicyDesignCaseAuthorityError(
             "policy_design_skeleton_single_line_deficit_not_allowed",
             (
@@ -4966,9 +4905,7 @@ def build_policy_design_jurisdiction_spine(
     )
     jurisdiction_rows = _policy_design_attach_jurisdiction_children(jurisdiction_rows)
     conflict_surfaces = [
-        *_policy_design_jurisdiction_conflicts_from_arbitration(
-            normative_arbitration_result
-        ),
+        *_policy_design_jurisdiction_conflicts_from_arbitration(normative_arbitration_result),
         *_policy_design_jurisdiction_conflicts_from_cross_graph(cross_graph_conflict_rows),
     ]
     payload = {
@@ -5063,9 +5000,7 @@ def validate_policy_design_jurisdiction_spine(
         ),
         generated_at=None,
     )
-    taxonomy = _policy_design_jurisdiction_authority_taxonomy(
-        spine.get("authority_level_taxonomy")
-    )
+    taxonomy = _policy_design_jurisdiction_authority_taxonomy(spine.get("authority_level_taxonomy"))
     raw_rows = spine.get("jurisdictions")
     if not isinstance(raw_rows, list) or not raw_rows:
         raise PolicyDesignCaseAuthorityError(
@@ -5073,8 +5008,7 @@ def validate_policy_design_jurisdiction_spine(
             "Jurisdiction spine must include jurisdiction rows.",
         )
     jurisdictions = [
-        _policy_design_validate_jurisdiction_row(row, taxonomy=taxonomy)
-        for row in raw_rows
+        _policy_design_validate_jurisdiction_row(row, taxonomy=taxonomy) for row in raw_rows
     ]
     conflict_surfaces = [
         _policy_design_validate_jurisdiction_conflict_surface(conflict)
@@ -5107,15 +5041,13 @@ def validate_policy_design_jurisdiction_spine(
                     "surface": "lex.normative_applicability",
                     "jurisdiction_id": row["jurisdiction_id"],
                     "message": (
-                        f"Jurisdiction {row['jurisdiction_id']} lacks resolved "
-                        "competence evidence."
+                        f"Jurisdiction {row['jurisdiction_id']} lacks resolved competence evidence."
                     ),
                 }
             )
     blockers = _policy_design_dedupe_blockers(blockers)
     unresolved_conflicts = [
-        _policy_design_jurisdiction_typed_conflict(conflict)
-        for conflict in unresolved_conflicts
+        _policy_design_jurisdiction_typed_conflict(conflict) for conflict in unresolved_conflicts
     ]
     blocker_codes = {str(blocker.get("code")) for blocker in blockers}
     for conflict in unresolved_conflicts:
@@ -5173,9 +5105,7 @@ def policy_design_jurisdiction_spine_json_schema() -> dict[str, Any]:
             "status",
         ],
         "properties": {
-            "schema_version": {
-                "const": POLICY_DESIGN_JURISDICTION_SPINE_SCHEMA_VERSION
-            },
+            "schema_version": {"const": POLICY_DESIGN_JURISDICTION_SPINE_SCHEMA_VERSION},
             "spine_id": {"type": "string", "minLength": 1},
             "jurisdiction_spine_ref": {"type": "string", "minLength": 1},
             "run_id": {"type": "string", "minLength": 1},
@@ -5267,13 +5197,11 @@ def _policy_design_jurisdiction_authority_envelope(
             or POLICY_DESIGN_JURISDICTION_SPINE_PROJECTOR_COMPONENT,
             "producer_version": _policy_design_text(authority.get("producer_version"))
             or "2026.05.17+pdc-phase8.2",
-            "owner": _policy_design_text(authority.get("owner"))
-            or "team-policy-semantics",
+            "owner": _policy_design_text(authority.get("owner")) or "team-policy-semantics",
             "runtime_event_ref": runtime_event_ref,
             "schema_name": _policy_design_text(authority.get("schema_name"))
             or "policy_design_case.jurisdiction_spine",
-            "schema_version": _policy_design_text(authority.get("schema_version"))
-            or "1.0.0",
+            "schema_version": _policy_design_text(authority.get("schema_version")) or "1.0.0",
             "reader_contract": _policy_design_text(authority.get("reader_contract"))
             or POLICY_DESIGN_JURISDICTION_SPINE_CONTRACT,
             "run_id": _policy_design_text(authority.get("run_id")) or run_id,
@@ -5355,14 +5283,9 @@ def _policy_design_jurisdiction_row_from_norm(
         or norm.get("source_authority_level"),
         jurisdiction_id=jurisdiction_id,
     )
-    norm_ref = _policy_design_text(
-        norm.get("norm_id") or norm.get("id") or norm.get("artifact_id")
-    )
+    norm_ref = _policy_design_text(norm.get("norm_id") or norm.get("id") or norm.get("artifact_id"))
     effective_from = _policy_design_text(
-        norm.get("effective_from")
-        or norm.get("valid_from")
-        or norm.get("as_of")
-        or default_as_of
+        norm.get("effective_from") or norm.get("valid_from") or norm.get("as_of") or default_as_of
     )
     effective_to = _policy_design_text(norm.get("effective_to") or norm.get("valid_to"))
     competence_scope = _policy_design_text(
@@ -5577,9 +5500,7 @@ def _policy_design_jurisdiction_conflicts_from_cross_graph(
             continue
         severity = (_policy_design_text(conflict.get("severity")) or "medium").casefold()
         blocking = bool(conflict.get("blocking")) or severity in {"critical", "blocker", "fail"}
-        resolved = _policy_design_text(
-            conflict.get("resolved_status") or conflict.get("status")
-        )
+        resolved = _policy_design_text(conflict.get("resolved_status") or conflict.get("status"))
         rows.append(
             {
                 "surface": "scientist.cross_graph.conflict",
@@ -5669,9 +5590,7 @@ def _policy_design_validate_jurisdiction_row(
             "policy_design_jurisdiction_competence_missing",
             "Jurisdiction row must record competence.",
         )
-    competence_status = (
-        _policy_design_text(competence.get("status")) or "unresolved"
-    ).casefold()
+    competence_status = (_policy_design_text(competence.get("status")) or "unresolved").casefold()
     if competence_status not in {
         "resolved",
         "delegated",
@@ -5760,11 +5679,16 @@ def _policy_design_jurisdiction_conflict_is_unresolved(
 ) -> bool:
     status = (_policy_design_text(conflict.get("status")) or "").casefold()
     severity = (_policy_design_text(conflict.get("severity")) or "").casefold()
-    return bool(conflict.get("blocking")) or status in {
-        "unresolved",
-        "violated",
-        "requires_review",
-    } or severity in {"critical", "blocker", "fail", "failed"}
+    return (
+        bool(conflict.get("blocking"))
+        or status
+        in {
+            "unresolved",
+            "violated",
+            "requires_review",
+        }
+        or severity in {"critical", "blocker", "fail", "failed"}
+    )
 
 
 def _policy_design_jurisdiction_blocker(blocker: object) -> dict[str, Any]:
@@ -5783,10 +5707,7 @@ def _policy_design_jurisdiction_blocker(blocker: object) -> dict[str, Any]:
         "upstream_cause": _policy_design_text(blocker.get("upstream_cause")),
         "downstream_impact": _policy_design_text(blocker.get("downstream_impact")),
         "next_command": _policy_design_text(blocker.get("next_command"))
-        or (
-            "uv run pytest "
-            "tests/unit/runtime/quality/test_policy_design_jurisdiction_spine.py -q"
-        ),
+        or ("uv run pytest tests/unit/runtime/quality/test_policy_design_jurisdiction_spine.py -q"),
     }
 
 
@@ -5798,9 +5719,7 @@ def _policy_design_jurisdiction_typed_conflict(
         _policy_design_text(conflict.get("code"))
         or "policy_design_jurisdiction_unresolved_conflict_blocker"
     )
-    normalized["severity"] = (
-        _policy_design_text(conflict.get("severity")) or "blocker"
-    )
+    normalized["severity"] = _policy_design_text(conflict.get("severity")) or "blocker"
     normalized["blocking"] = True
     return normalized
 
@@ -5814,16 +5733,13 @@ def _policy_design_unresolved_competence_blocker(
         "owner": "team-policy-semantics",
         "missing_input": f"competence evidence for {jurisdiction_id}",
         "upstream_cause": (
-            "Lex selected a jurisdictional norm without competent authority or "
-            "competence scope."
+            "Lex selected a jurisdictional norm without competent authority or competence scope."
         ),
         "downstream_impact": (
-            "Legal, data, method, and claim evidence cannot close over the same "
-            "jurisdiction spine."
+            "Legal, data, method, and claim evidence cannot close over the same jurisdiction spine."
         ),
         "next_command": (
-            "uv run pytest "
-            "tests/unit/runtime/quality/test_policy_design_jurisdiction_spine.py -q"
+            "uv run pytest tests/unit/runtime/quality/test_policy_design_jurisdiction_spine.py -q"
         ),
     }
 
@@ -5838,16 +5754,12 @@ def _policy_design_unresolved_jurisdiction_conflict_blocker(
         or "policy_design_jurisdiction_unresolved_conflict_blocker",
         "owner": "team-policy-semantics",
         "missing_input": f"resolved jurisdiction conflict for {conflict_id}",
-        "upstream_cause": (
-            f"{surface} emitted an unresolved or blocking jurisdiction conflict."
-        ),
+        "upstream_cause": (f"{surface} emitted an unresolved or blocking jurisdiction conflict."),
         "downstream_impact": (
-            "Legal, data, method, and claim evidence cannot close over the same "
-            "jurisdiction spine."
+            "Legal, data, method, and claim evidence cannot close over the same jurisdiction spine."
         ),
         "next_command": (
-            "uv run pytest "
-            "tests/unit/runtime/quality/test_policy_design_jurisdiction_spine.py -q"
+            "uv run pytest tests/unit/runtime/quality/test_policy_design_jurisdiction_spine.py -q"
         ),
     }
 
@@ -5877,9 +5789,7 @@ def _policy_design_dedupe_conflicts(
 
 def _policy_design_merge_text_lists(first: object, second: object) -> list[str]:
     return list(
-        dict.fromkeys(
-            [*_policy_design_text_list(first), *_policy_design_text_list(second)]
-        )
+        dict.fromkeys([*_policy_design_text_list(first), *_policy_design_text_list(second)])
     )
 
 
@@ -5937,10 +5847,7 @@ def _policy_design_text_list(value: object) -> list[str]:
 
 def _looks_like_local_path(value: str) -> bool:
     return (
-        value.startswith("/")
-        or value.startswith("./")
-        or value.startswith("../")
-        or "\\" in value
+        value.startswith("/") or value.startswith("./") or value.startswith("../") or "\\" in value
     )
 
 

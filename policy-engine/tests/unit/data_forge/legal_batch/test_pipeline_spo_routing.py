@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import asyncio
+import json
+from pathlib import Path
 
 import pytest
 
@@ -12,13 +14,17 @@ from polisyos.data_forge.domains.legal.batch.pipeline import (
     _should_route_llm_gap_fill,
     _should_skip_audit_for_span,
     extract_provisions_worker,
+    run_batch_pipeline,
+)
+from polisyos.data_forge.domains.legal.batch.pipeline_helpers import _active_spo_results_dir
+from polisyos.data_forge.domains.legal.batch.quality_report import (
+    QualityGateThresholds,
+    build_quality_report,
+    evaluate_quality_gates,
 )
 from polisyos.data_forge.domains.legal.batch.smoke import SMOKE_PROFILES
 from polisyos.data_forge.domains.legal.batch.structurer import ProvisionSpan
 from polisyos.data_forge.domains.legal.batch.xml_parser import NPACard, NPADocument
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 def _doc(*, doc_id: str, title: str, doc_type: str = "Постанова") -> NPADocument:
@@ -65,6 +71,43 @@ def test_acceptance_safe_profile_exists() -> None:
     assert profile.parallel_llm == 4
     assert profile.gonka_rate_limit_rps == 1.2
     assert profile.spo_request_batch_size == 2
+
+
+def test_pipeline_preserves_candidate_stages_when_authority_export_is_refused(
+    tmp_path: Path,
+) -> None:
+    output_dir = tmp_path / "lex"
+    config = BatchConfig(
+        cards_path=tmp_path / "cards.xml",
+        texts_path=tmp_path / "texts.xml",
+        output_dir=output_dir,
+        stages=frozenset({"export_claims", "qc", "publish_bundle"}),
+        quality_gates_enabled=False,
+        quality_fail_on_critical=False,
+        publish_require_embeddings=False,
+    )
+
+    stats = asyncio.run(run_batch_pipeline(config))
+
+    refusal_code = "legal_source_relation_verification_not_established"
+    assert stats.exported_claims == 0
+    assert stats.exported_claim_sets == 0
+    assert stats.published_bundle is True
+    assert stats.release_passed is False
+    assert refusal_code in stats.release_failed_checks
+    assert not (config.claim_exports_dir / "normative_claims.jsonl").exists()
+    assert not (config.claim_exports_dir / "normative_claim_sets_summary.json").exists()
+
+    telemetry = json.loads(config.telemetry_path.read_text(encoding="utf-8"))
+    assert telemetry["legal_relation_refusal"] == {
+        "code": refusal_code,
+        "status": "verification_missing",
+    }
+    assert refusal_code in telemetry["release_failed_checks"]
+
+    consumer_manifest = json.loads(config.consumer_manifest_path.read_text(encoding="utf-8"))
+    assert consumer_manifest["release_readiness"]["release_ready"] is False
+    assert consumer_manifest["legal_relation_refusal"] == telemetry["legal_relation_refusal"]
 
 
 def test_production_gap_fill_wide_profile_exists() -> None:
@@ -176,6 +219,75 @@ def test_group_docs_by_spo_settings_separates_outliers(tmp_path: Path) -> None:
     assert len(grouped) == 2
     request_sizes = sorted(settings.request_batch_size for settings, _docs in grouped)
     assert request_sizes == [1, 4]
+
+
+def test_quality_gate_uses_raw_spo_fallback_when_grounded_output_is_absent(
+    tmp_path: Path,
+) -> None:
+    config = BatchConfig(
+        cards_path=tmp_path / "cards.xml",
+        texts_path=tmp_path / "texts.xml",
+        output_dir=tmp_path / "lex",
+    )
+    anchor = "article:1/point:1"
+    provision_path = config.provisions_dir / "aa" / "lawdoc.jsonl"
+    provision_path.parent.mkdir(parents=True)
+    provision_path.write_text(
+        json.dumps(
+            {
+                "kind": "point",
+                "anchor_path": anchor,
+                "doc_type_category": "law",
+                "legal_unit_subtype": "core_normative_clause",
+                "text": "The authority shall publish the annual report.",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    raw_path = config.spo_results_dir / "aa" / "lawdoc.jsonl"
+    raw_path.parent.mkdir(parents=True)
+    raw_path.write_text(
+        json.dumps(
+            {
+                "doc_id": "lawdoc",
+                "provision_anchor": anchor,
+                "statements": [
+                    {
+                        "statement_id": "marker-with-quote",
+                        "source_quote_uk": "The authority shall publish the annual report.",
+                        "trust_tier": "normative_fact",
+                    },
+                    {
+                        "statement_id": "missing-quote",
+                        "source_quote_uk": "",
+                        "trust_tier": "search_candidate",
+                    },
+                ],
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    selected_spo_dir = Path(_active_spo_results_dir(config))
+    assert selected_spo_dir == config.spo_results_dir
+    report = build_quality_report(
+        provisions_dir=config.provisions_dir,
+        spo_results_dir=selected_spo_dir,
+    )
+    gate = evaluate_quality_gates(
+        report=report,
+        thresholds=QualityGateThresholds(
+            min_provision_docs_for_doc_rate=1,
+            min_spo_rows_for_row_rate=1,
+            min_statements_for_statement_rate=1,
+            max_missing_quote_rate_pct=5.0,
+        ),
+    )
+
+    assert report["missing_quote_rate_pct"] == 50.0
+    assert "missing_quote_rate_pct" in gate.failed_checks
 
 
 def test_build_spo_doc_routing_plan_keeps_law_soft_cap_above_acceptance_default(

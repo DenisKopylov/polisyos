@@ -3,7 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import duckdb
+import pytest
 
+from polisyos.data_forge.domains.legal.source_relation import (
+    LegalSourceRelationVerificationMissingError,
+)
 from polisyos.lex.api import evaluate_transport_constraints
 
 if TYPE_CHECKING:
@@ -64,33 +68,32 @@ def _prepare_lex_db(db_path: Path) -> None:
         con.close()
 
 
-def test_evaluate_transport_constraints_returns_constraint_set(tmp_path: Path) -> None:
+def test_evaluate_transport_constraints_refuses_unverified_legal_candidate(tmp_path: Path) -> None:
     db_path = tmp_path / "lex_api.duckdb"
     _prepare_lex_db(db_path)
 
-    result = evaluate_transport_constraints(
-        jurisdiction="UA",
-        policy_domain="tax_policy",
-        policy_spec={"retroactive": True},
-        legal_kg_db_path=db_path,
-    )
+    with pytest.raises(LegalSourceRelationVerificationMissingError) as refusal:
+        evaluate_transport_constraints(
+            jurisdiction="UA",
+            policy_domain="tax_policy",
+            policy_spec={"retroactive": True},
+            legal_kg_db_path=db_path,
+        )
 
-    assert result.jurisdiction == "UA"
-    assert result.policy_domain == "tax_policy"
-    assert result.hard_constraints
+    assert refusal.value.refusal.code == "legal_source_relation_verification_not_established"
 
 
-def test_evaluate_transport_constraints_gracefully_handles_missing_graph(tmp_path: Path) -> None:
+def test_evaluate_transport_constraints_does_not_treat_missing_graph_as_no_restriction(
+    tmp_path: Path,
+) -> None:
     missing_db = tmp_path / "missing_lex_kg.duckdb"
 
-    result = evaluate_transport_constraints(
-        jurisdiction="UA",
-        policy_domain="tax_policy",
-        policy_spec={},
-        legal_kg_db_path=missing_db,
-    )
+    with pytest.raises(LegalSourceRelationVerificationMissingError) as refusal:
+        evaluate_transport_constraints(
+            jurisdiction="UA",
+            policy_domain="tax_policy",
+            policy_spec={},
+            legal_kg_db_path=missing_db,
+        )
 
-    assert result.hard_constraints == []
-    assert result.soft_constraints == []
-    assert result.data_license_constraints == []
-    assert result.legal_dag_mappings == []
+    assert refusal.value.refusal.status == "verification_missing"

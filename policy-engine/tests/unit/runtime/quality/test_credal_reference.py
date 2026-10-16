@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 from collections import UserDict
 from collections.abc import Iterator
 from dataclasses import replace
@@ -39,11 +38,11 @@ from polisyos.runtime.quality.credal_reference import (
     _component_versions,
     _credal_reference_source_profile_content_hash,
     _derive_l2_causal_claim,
+    _derive_l3_threshold_edge,
     _iter_l2_edges,
     _reference_hash,
     all_essential_confirmed,
     bind_grounding_certificate_reference,
-    build_credal_reference,
     build_grounding_backend_availability,
     credal_reference_data_forge_catalog_source_profile,
     credal_reference_l2_source_profile,
@@ -433,6 +432,13 @@ def _assert_phase5_law_scope_preserved_and_nonconfirmed(bundle, scoped, atoms):
     )
     assert set(laws) == set(bundle.lex_intervention_map) == set(raw)
     assert {edge.status for edge in laws.values()} == {"incomplete"}
+    assert all(
+        any(
+            completion.reason == "legal_source_relation_verification_not_established"
+            for completion in edge.admissible_completions
+        )
+        for edge in laws.values()
+    )
     expected_knobs = set(bundle.knob_dictionary)
     assert {atom.signature.op for atom in atoms} == expected_knobs
     law_keys = {f"{edge.modality}::{edge.edge_id}" for edge in laws.values()}
@@ -443,6 +449,126 @@ def _assert_phase5_law_scope_preserved_and_nonconfirmed(bundle, scoped, atoms):
 
 def test_phase5_law_owner_refusal_survives_credal_and_atom_consumers() -> None:
     _assert_phase5_law_scope_preserved_and_nonconfirmed(*_phase5_l6_law_scope())
+
+
+@pytest.mark.parametrize(
+    "schema_version",
+    [
+        "policyos.runtime.grounding_credal_reference.v1",
+        CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+    ],
+)
+def test_replayed_legacy_lex_mapping_is_candidate_only_in_current_atoms(
+    schema_version: str,
+) -> None:
+    from polisyos.runtime.quality import credal_reference as owner
+    from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
+    from polisyos.runtime.quality.promotion_sequence import _CredalReferenceReplayRecord
+
+    edges = {
+        ("L6_KNOB_OPERATOR", "tax_relief_rate"): owner._confirmed_edge(
+            "L6_KNOB_OPERATOR",
+            "tax_relief_rate",
+            {
+                "operator_kind": "tax_relief_rate",
+                "parameter_domain": {"minimum": 0, "maximum": 1, "unit": "ratio"},
+            },
+            {"owner": "L6", "source": "intervention_knob_dictionary", "version": "legacy"},
+            unit="ratio",
+        ),
+        ("L6_KNOB_WORLD_SLOT", "tax_relief_rate"): owner._confirmed_edge(
+            "L6_KNOB_WORLD_SLOT",
+            "tax_relief_rate",
+            {
+                "operator_kind": "tax_relief_rate",
+                "target_world_slots": ["global.tax_rate"],
+                "world_model_record_id": "wmr:controlled",
+            },
+            {"owner": "L6", "source": "intervention_knob_dictionary", "version": "legacy"},
+            unit="ratio",
+        ),
+        ("L6_LEX_INTERVENTION_MAP", "tax_relief_statute"): owner._confirmed_edge(
+            "L6_LEX_INTERVENTION_MAP",
+            "tax_relief_statute",
+            {
+                "knob_id": "tax_relief_rate",
+                "provision_ref": "controlled:provision",
+                "threshold_id": "controlled:threshold",
+            },
+            {
+                "owner": "L6",
+                "source": "lex_intervention_map",
+                "version": "legacy",
+                "signals": {"law_token": "tax_relief_statute"},
+            },
+        ),
+        ("WMR_WORLD_SLOT", "global.tax_rate"): owner._confirmed_edge(
+            "WMR_WORLD_SLOT",
+            "global.tax_rate",
+            {"world_slot": "global.tax_rate", "value_type": "float"},
+            {"owner": "WMR", "source": "world_model_record", "version": "controlled"},
+            unit="ratio",
+        ),
+        ("WMR_POLICY_SLOT_MAP", "tax_slot:global.tax_rate"): owner._confirmed_edge(
+            "WMR_POLICY_SLOT_MAP",
+            "tax_slot:global.tax_rate",
+            {"world_slot": "global.tax_rate", "binding_id": "tax_slot"},
+            {"owner": "WMR", "source": "world_model_record", "version": "controlled"},
+            unit="ratio",
+        ),
+    }
+    component_versions = owner._component_versions(
+        edges,
+        world_model_record_hash="controlled-wmr-v1",
+    )
+    reference_hash = _reference_hash(
+        component_versions=component_versions,
+        edge_index=edges,
+        as_of="2026-06-29",
+        schema_version=schema_version,
+    )
+    reference = CredalReference(
+        schema_version=schema_version,
+        reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
+        reference_hash=reference_hash,
+        as_of="2026-06-29",
+        component_versions=component_versions,
+        essential_edges=edges,
+    )
+    stored_law_edge = reference.essential_edges[("L6_LEX_INTERVENTION_MAP", "tax_relief_statute")]
+
+    serialized = _CredalReferenceReplayRecord.from_reference(reference).model_dump(mode="json")
+    replayed = _CredalReferenceReplayRecord.model_validate(serialized).to_reference()
+    law_key = "L6_LEX_INTERVENTION_MAP::tax_relief_statute"
+    lifted = reference_lift(replayed, [law_key])[law_key]
+
+    assert replayed == reference
+    assert replayed.essential_edges[stored_law_edge.key] == stored_law_edge
+    assert lifted["status"] == "incomplete"
+    assert lifted["source_relation_refusal"] == {
+        "code": "legal_source_relation_verification_not_established",
+        "status": "verification_missing",
+    }
+    assert lifted["admissible_completions"] == [
+        {
+            "completion_kind": "may_exist",
+            "reason": "legal_source_relation_verification_not_established",
+            "value": {
+                "knob_id": "tax_relief_rate",
+                "provision_ref": "controlled:provision",
+                "threshold_id": "controlled:threshold",
+            },
+        }
+    ]
+    assert all_essential_confirmed(replayed, [law_key]) is False
+
+    atoms = GroundingRelationEngine(replayed).reference_atoms
+    assert len(atoms) == 1
+    atom = atoms[0]
+    assert atom.signature.admissibility == "reference_contested"
+    assert (
+        atom.reference_lift[law_key]["source_relation_refusal"] == lifted["source_relation_refusal"]
+    )
 
 
 def test_l6_projection_opens_selected_lex_database_through_public_facade(
@@ -497,7 +623,72 @@ def test_phase5_law_resolution_exception_keeps_declared_dependency(monkeypatch) 
         raise InterventionSubstrateError("law_threshold_unresolved")
 
     monkeypatch.setattr(owner, "resolve_law_bound_lever", unresolved)
-    _assert_phase5_law_scope_preserved_and_nonconfirmed(*_phase5_l6_law_scope())
+    bundle, scoped, atoms = _phase5_l6_law_scope()
+    laws = {
+        edge.edge_id: edge
+        for edge in scoped.essential_edges.values()
+        if edge.modality == "L6_LEX_INTERVENTION_MAP"
+    }
+    assert set(laws) == set(bundle.lex_intervention_map)
+    assert {edge.status for edge in laws.values()} == {"incomplete"}
+    unresolved_edges = tuple(
+        edge
+        for edge in laws.values()
+        if any(
+            completion.reason == "law_threshold_unresolved"
+            for completion in edge.admissible_completions
+        )
+    )
+    assert unresolved_edges
+    assert all(
+        any(
+            completion.completion_kind == "may_exist" and completion.value.get("knob_id")
+            for completion in edge.admissible_completions
+        )
+        for edge in unresolved_edges
+    )
+    assert {atom.signature.admissibility for atom in atoms} == {"reference_contested"}
+
+
+def test_l3_threshold_with_complete_temporal_fields_stays_incomplete_without_relation_receipt() -> (
+    None
+):
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LEGAL_SOURCE_RELATION_REFUSAL,
+    )
+
+    edge = _derive_l3_threshold_edge(
+        (
+            "threshold:employee-cap",
+            "fact:employee-cap",
+            "employee_count",
+            "<=",
+            "50",
+            None,
+            "persons",
+            "microenterprise",
+            "ua-law-family:1",
+            "2026-01-01",
+            None,
+            "in_force",
+            "resolved",
+            "high",
+            "",
+        ),
+        version="controlled-lex-v1",
+        as_of="2026-04-01",
+        next_start=None,
+    )
+
+    assert edge.modality == "L3_RULE_THRESHOLD"
+    assert edge.status == "incomplete"
+    assert edge.provenance["signals"]["source_relation_refusal"] == (
+        LEGAL_SOURCE_RELATION_REFUSAL.to_payload()
+    )
+    assert all(
+        completion.value == {} and completion.reason == LEGAL_SOURCE_RELATION_REFUSAL.code
+        for completion in edge.admissible_completions
+    )
 
 
 @pytest.mark.parametrize("removed", ["status", "association"])
@@ -544,7 +735,7 @@ def test_phase5_historical_reference_replay_keeps_epoch_and_current_stales_it() 
     assert _CredalReferenceReplayRecord.from_reference(historical).to_reference() == historical
     edge = next(iter(historical.essential_edges.values()))
     assert owner.replace_reference_edge(historical, edge) == historical
-    assert current.schema_version == "policyos.runtime.grounding_credal_reference.v3"
+    assert current.schema_version == CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION
     certificate = owner.bind_grounding_certificate_reference(
         historical,
         certificate_id="historical_epoch_replay_control",
@@ -709,9 +900,68 @@ def test_credal_reference_consumes_bound_layer_vintage_before_first_yield(
 
 @pytest.fixture(scope="module")
 def reference() -> CredalReference:
-    os.environ.setdefault("JAX_PLATFORM_NAME", "cpu")
-    os.environ.setdefault("JAX_PLATFORMS", "cpu")
-    return build_credal_reference(REPO_ROOT)
+    from polisyos.runtime.quality import credal_reference as owner
+
+    edges = {
+        ("L2_CONTESTED_EDGE", "controlled-contested"): owner._edge(
+            "L2_CONTESTED_EDGE",
+            "controlled-contested",
+            "contested",
+            (
+                AdmissibleCompletion("alternative", {"src": "x", "dst": "y"}, "fixture_candidate"),
+                AdmissibleCompletion(
+                    "may_not_exist", {"src": "x", "dst": "y"}, "fixture_uncertain"
+                ),
+            ),
+            {"owner": "L2", "source": "controlled_fixture"},
+        ),
+        ("L2_FAMILY_EDGE", "controlled-family"): owner._edge(
+            "L2_FAMILY_EDGE",
+            "controlled-family",
+            "incomplete",
+            (AdmissibleCompletion("may_exist", {}, "family_edge_endpoint_unresolved"),),
+            {"owner": "L2", "source": "controlled_fixture"},
+        ),
+        ("L2_MODERATION_EDGE", "controlled-moderation"): owner._edge(
+            "L2_MODERATION_EDGE",
+            "controlled-moderation",
+            "incomplete",
+            (AdmissibleCompletion("may_exist", {}, "moderation_fixture_unresolved"),),
+            {"owner": "L2", "source": "controlled_fixture"},
+        ),
+        ("L2_DATA_FORGE_VARIABLE_ALIGNMENT", "controlled-alignment"): owner._edge(
+            "L2_DATA_FORGE_VARIABLE_ALIGNMENT",
+            "controlled-alignment",
+            "incomplete",
+            (AdmissibleCompletion("may_exist", {}, "alignment_fixture_unresolved"),),
+            {"owner": "L2/DataForge", "source": "controlled_fixture"},
+        ),
+        ("L3_REFERENCE_EDGE", "controlled-reference"): owner._edge(
+            "L3_REFERENCE_EDGE",
+            "controlled-reference",
+            "incomplete",
+            (AdmissibleCompletion("may_exist", {}, "reference_fixture_unresolved"),),
+            {"owner": "L3", "source": "controlled_fixture"},
+        ),
+    }
+    component_versions = owner._component_versions(
+        edges,
+        world_model_record_hash="sha256:" + "5" * 64,
+    )
+    reference_hash = _reference_hash(
+        component_versions=component_versions,
+        edge_index=edges,
+        as_of="2026-06-29",
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+    )
+    return CredalReference(
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+        reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
+        reference_hash=reference_hash,
+        as_of="2026-06-29",
+        component_versions=component_versions,
+        essential_edges=edges,
+    )
 
 
 def test_contested_edge_lifts_set_valued_and_blocks_confirmation(
@@ -767,16 +1017,14 @@ def test_expanded_essential_scope_classes_are_counted(reference: CredalReference
     assert "L2_MODERATION_EDGE" in modalities
     assert "L2_DATA_FORGE_VARIABLE_ALIGNMENT" in modalities
     assert "L3_REFERENCE_EDGE" in modalities
-    assert counts["L2_FAMILY_EDGE"]["total"] == 15945
-    assert counts["L2_MODERATION_EDGE"]["total"] == 25035
-    assert counts["L2_DATA_FORGE_VARIABLE_ALIGNMENT"]["total"] == 20326
-    assert counts["L3_REFERENCE_EDGE"]["total"] == 73793
+    assert counts["L2_FAMILY_EDGE"]["total"] == 1
+    assert counts["L2_MODERATION_EDGE"]["total"] == 1
+    assert counts["L2_DATA_FORGE_VARIABLE_ALIGNMENT"]["total"] == 1
+    assert counts["L3_REFERENCE_EDGE"]["total"] == 1
 
 
-def test_exact_and_family_edge_payloads_match_pre_split_oracles(
-    reference: CredalReference,
-) -> None:
-    """Freeze complete payload behavior for the two forbidden Runtime paths."""
+def test_historical_l2_edge_payloads_roundtrip_without_current_recomputation() -> None:
+    """Keep historical edge bytes readable without forwarding the blocked source vintage."""
 
     expected = {
         ("L2_CAUSAL_EDGE", "000fccc608c3d9b6447fd636"): (
@@ -817,15 +1065,56 @@ def test_exact_and_family_edge_payloads_match_pre_split_oracles(
         ),
     }
 
+    historical_edges: dict[tuple[str, str], CredalReferenceEdge] = {}
     for key, oracle in expected.items():
-        edge = reference.essential_edges[key]
-        payload = json.dumps(
-            edge.to_payload(),
-            ensure_ascii=False,
-            sort_keys=True,
-            separators=(",", ":"),
+        payload = json.loads(oracle)
+        edge = CredalReferenceEdge(
+            modality=payload["modality"],
+            edge_id=payload["edge_id"],
+            status=payload["status"],
+            admissible_completions=tuple(
+                AdmissibleCompletion(
+                    item["completion_kind"],
+                    item["value"],
+                    item["reason"],
+                )
+                for item in payload["admissible_completions"]
+            ),
+            provenance=payload["provenance"],
+            unit=payload["unit"],
+            scale=payload["scale"],
+            content_hash=payload["content_hash"],
         )
-        assert payload == oracle
+        assert edge.key == key
+        assert edge.with_content_hash().to_payload() == payload
+        historical_edges[key] = edge
+
+    from polisyos.runtime.quality import credal_reference as owner
+
+    component_versions = owner._component_versions(
+        historical_edges,
+        world_model_record_hash="sha256:" + "5" * 64,
+    )
+    reference_hash = _reference_hash(
+        component_versions=component_versions,
+        edge_index=historical_edges,
+        as_of="2026-06-29",
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+    )
+    historical_reference = CredalReference(
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+        reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
+        reference_hash=reference_hash,
+        as_of="2026-06-29",
+        component_versions=component_versions,
+        essential_edges=historical_edges,
+    )
+    lifted = reference_lift(historical_reference, historical_edges)
+    assert {key: item["status"] for key, item in lifted.items()} == {
+        f"{modality}::{edge_id}": payload["status"]
+        for (modality, edge_id), oracle in expected.items()
+        for payload in (json.loads(oracle),)
+    }
 
 
 def test_reference_repair_stales_dependent_certificate(

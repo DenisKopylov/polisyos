@@ -221,6 +221,7 @@ ALL_ISSUE_CODES: tuple[str, ...] = (
     "layer3_gl_temporal_competence_record_missing",
     "layer3_gl_legal_authority_report_missing",
     "layer3_gl_selected_norm_without_legal_authority_record",
+    "legal_source_relation_verification_not_established",
     "layer3_gl_lex_intervention_map_missing",
     "layer3_gl_lex_intervention_map_used_as_authority",
     "layer3_gl_claim_registry_consumer_gate_missing",
@@ -1596,6 +1597,12 @@ def build_gl_l5_calibration_bindings(
     """Bind selected legal authority to L5 calibration limits without upgrading it."""
 
     _ = repo_root
+    _require_gl_source_relation_verification_if_authority_projection(
+        legal_authority_report,
+        threshold_authority_records,
+        mandate_authority_records,
+        authority_record_arguments=(threshold_authority_records, mandate_authority_records),
+    )
     report = legal_authority_report
     selected_norm_refs = tuple(report.selected_norm_refs if report else ())
     if not selected_norm_refs:
@@ -2605,6 +2612,7 @@ def build_gl_threshold_authority_records(
     """Build GL threshold authority records from hydrated lex_rule_thresholds rows."""
 
     _ = repo_root
+    _require_gl_source_relation_verification_if_authority_projection(legal_authority_report)
     report = legal_authority_report
     if report is None or report.status != "pass" or not report.legal_authority_record_refs:
         return ()
@@ -2677,6 +2685,11 @@ def build_gl_mandate_authority_records(
     """Build S6-compatible mandate source handoffs without claiming S6 pass."""
 
     _ = repo_root
+    _require_gl_source_relation_verification_if_authority_projection(
+        legal_authority_report,
+        threshold_authority_records,
+        authority_record_arguments=(threshold_authority_records,),
+    )
     report = legal_authority_report
     if report is None or report.status != "pass" or not report.legal_authority_record_refs:
         return ()
@@ -2761,6 +2774,7 @@ def build_gl_temporal_competence_records(
     """Build legal-time competence records and fail-closed reissue rows."""
 
     _ = repo_root
+    _require_gl_source_relation_verification_if_authority_projection(legal_authority_report)
     report = legal_authority_report
     requirement = legal_requirement_bindings[0] if legal_requirement_bindings else None
     selected_binding = _selected_norm_binding(
@@ -2929,6 +2943,11 @@ def build_gl_lex_intervention_map_bindings(
     """Build Lex intervention-map handoff bindings without legal-authority laundering."""
 
     _ = repo_root
+    _require_gl_source_relation_verification_if_authority_projection(
+        legal_authority_report,
+        threshold_authority_records,
+        authority_record_arguments=(threshold_authority_records,),
+    )
     report = legal_authority_report
     if report is None or not report.selected_norm_refs:
         return ()
@@ -3171,6 +3190,74 @@ def _record_ids(records: Sequence[object]) -> tuple[str, ...]:
     return tuple(dict.fromkeys(refs))
 
 
+def _gl_contains_authority_projection(value: object) -> bool:
+    """Return whether GL inputs contain selected or emitted authority refs."""
+
+    if isinstance(
+        value,
+        (
+            Layer3GLL5CalibrationBinding,
+            Layer3GLThresholdAuthorityRecord,
+            Layer3GLMandateAuthorityRecord,
+            Layer3GLTemporalCompetenceRecord,
+            Layer3GLLexInterventionMapBinding,
+        ),
+    ):
+        return True
+    if isinstance(value, BaseModel):
+        value = value.model_dump(mode="python")
+    if isinstance(value, Mapping):
+        if any(
+            _tuple(value.get(key)) for key in ("selected_norm_refs", "legal_authority_record_refs")
+        ):
+            return True
+        if any(
+            str(value.get(key) or "") in {"admissible", "selected_authority", "normative_fact"}
+            for key in ("authority_grade", "legal_admissibility_grade", "admissibility_grade")
+        ):
+            return True
+        return any(
+            _gl_contains_authority_projection(item)
+            for key, item in value.items()
+            if key not in {"adapter_report", "applicability_report"}
+        )
+    if isinstance(value, Sequence) and not isinstance(value, str | bytes):
+        return any(_gl_contains_authority_projection(item) for item in value)
+    return False
+
+
+def _gl_has_nonempty_authority_record_argument(value: object) -> bool:
+    """Return whether a GL authority-record argument role carries any rows."""
+
+    if value is None:
+        return False
+    if isinstance(value, Mapping | Sequence):
+        return bool(value)
+    return True
+
+
+def _require_gl_source_relation_verification_if_authority_projection(
+    *values: object,
+    authority_record_arguments: Sequence[object] = (),
+) -> None:
+    """Refuse GL authority output while claim-to-source verification is absent."""
+
+    has_authority_record_role = any(
+        _gl_has_nonempty_authority_record_argument(value) for value in authority_record_arguments
+    )
+    if not has_authority_record_role and not any(
+        _gl_contains_authority_projection(value) for value in values
+    ):
+        return
+    from polisyos.data_forge.domains.legal.source_relation import (
+        current_legal_source_relation_disposition,
+        require_legal_source_relation_verification,
+    )
+
+    if current_legal_source_relation_disposition().refusal.status == "verification_missing":
+        require_legal_source_relation_verification()
+
+
 def _gl_legal_refs_from_mandates(records: Sequence[object]) -> tuple[str, ...]:
     return tuple(
         dict.fromkeys(
@@ -3200,6 +3287,8 @@ def _gl_consumer_claim(
 ) -> dict[str, Any]:
     claim_id = str(legal_authority_report.get("claim_id") or "gl_canonical_threshold_seed")
     selected_norm_refs = _tuple(legal_authority_report.get("selected_norm_refs"))
+    applicability_report = _mapping(legal_authority_report.get("applicability_report"))
+    candidate_norm_refs = _tuple(applicability_report.get("candidate_norm_refs"))
     legal_refs = _tuple(legal_authority_report.get("legal_authority_record_refs"))
     limitation_refs = tuple(
         dict.fromkeys(["gl-limitation:s6-evaluation-required", *mandate_record_refs])
@@ -3223,6 +3312,7 @@ def _gl_consumer_claim(
         "data_refs": ["data-source://layer3/gl/legal-mandate-consumer"],
         "column_refs": ["field://layer3/gl/legal-mandate-threshold"],
         "source_refs": ["data-source://layer3/gl/legal-mandate-consumer"],
+        "candidate_norm_refs": list(candidate_norm_refs),
         "selected_norm_refs": list(selected_norm_refs),
         "norm_refs": list(selected_norm_refs),
         "rejected_norm_refs": list(_tuple(legal_authority_report.get("rejected_norm_refs"))),
@@ -3246,24 +3336,57 @@ def _gl_consumer_claim(
 
 
 def _gl_lex_semantic_report(legal_authority_report: Mapping[str, Any]) -> dict[str, Any]:
+    from polisyos.data_forge.domains.legal.source_relation import (
+        current_legal_source_relation_disposition,
+    )
+
     adapter_report = _mapping(legal_authority_report.get("adapter_report"))
+    applicability_report = _mapping(legal_authority_report.get("applicability_report"))
+    refusal = current_legal_source_relation_disposition().refusal
     records: list[dict[str, Any]] = []
     for row in _sequence_of_mappings(adapter_report.get("legal_authority_records")):
         record = dict(row)
-        record["admissibility_grade"] = "admissible"
-        record["legal_admissibility_grade"] = "admissible"
+        record["selected_norm_refs"] = []
+        record["legal_authority_record_refs"] = []
+        record["legal_admissibility_grade"] = "context_only"
+        record["admissibility_grade"] = "context_only"
+        record["legacy_admissibility_grade"] = "context_only"
+        record["reason_code"] = refusal.code
+        record["legal_relation_refusal"] = refusal.to_payload()
+        record["missing_facets"] = list(
+            dict.fromkeys(
+                [*_tuple(record.get("missing_facets")), "claim_source_relation_verification"]
+            )
+        )
         records.append(record)
-    if not records:
-        records = [
-            {
-                "legal_authority_record_id": ref,
-                "admissibility_grade": "admissible",
-                "legal_admissibility_grade": "admissible",
-            }
-            for ref in _tuple(legal_authority_report.get("legal_authority_record_refs"))
-        ]
-    claim_id = str(legal_authority_report.get("claim_id") or "gl_canonical_threshold_seed")
-    selected_norm_refs = _tuple(legal_authority_report.get("selected_norm_refs"))
+    candidate_norms = _sequence_of_mappings(applicability_report.get("candidate_norms"))
+    candidate_norm_refs = tuple(
+        dict.fromkeys(
+            str(row.get("norm_id") or row.get("norm_ref") or "")
+            for row in candidate_norms
+            if row.get("norm_id") or row.get("norm_ref")
+        )
+    )
+    actual_anchors = _sequence_of_mappings(adapter_report.get("claim_legal_anchors"))
+    anchors = [
+        {
+            **dict(anchor),
+            "selected_norm_refs": [],
+            "legal_authority_record_refs": [],
+            "legal_admissibility_grade": "context_only",
+            "admissibility_grade": "context_only",
+            "legal_relation_refusal": refusal.to_payload(),
+        }
+        for anchor in actual_anchors
+    ]
+    blockers = tuple(
+        dict.fromkeys(
+            [
+                *_tuple(legal_authority_report.get("blocker_refs")),
+                refusal.code,
+            ]
+        )
+    )
     fallback_refs = tuple(
         dict.fromkeys(
             ref
@@ -3273,7 +3396,8 @@ def _gl_lex_semantic_report(legal_authority_report: Mapping[str, Any]) -> dict[s
         )
     )
     return {
-        "status": "pass",
+        "status": "fail",
+        "legal_relation_refusal": refusal.to_payload(),
         "legal_authority_required": True,
         "target_context": {
             "jurisdiction": legal_authority_report.get("jurisdiction") or "UA",
@@ -3282,28 +3406,25 @@ def _gl_lex_semantic_report(legal_authority_report: Mapping[str, Any]) -> dict[s
         },
         "query_terms": ["threshold", "mandate", "legal_authority"],
         "concept_refs": ["concept:economic_policy_support"],
-        "candidate_norms": [{"norm_id": ref} for ref in selected_norm_refs],
-        "selected_norms": [{"norm_id": ref} for ref in selected_norm_refs],
+        "candidate_norms": [dict(row) for row in candidate_norms],
+        "candidate_norm_refs": list(candidate_norm_refs),
+        "selected_norms": [],
         "rejected_norms": [
             {"norm_id": ref} for ref in _tuple(legal_authority_report.get("rejected_norm_refs"))
         ],
-        "selected_norm_refs": list(selected_norm_refs),
+        "selected_norm_refs": [],
         "legal_authority_records": records,
-        "claim_legal_anchors": [
-            {
-                "claim_id": claim_id,
-                "major": True,
-                "legal_authority_required": True,
-                "selected_norm_refs": list(selected_norm_refs),
-                "legal_authority_record_refs": list(
-                    _tuple(legal_authority_report.get("legal_authority_record_refs"))
-                ),
-                "legal_admissibility_grade": "admissible",
-                "admissibility_grade": "admissible",
-                "selected_authority_types": ["implementing"],
-            }
-        ],
+        "claim_legal_anchors": anchors,
         "jurisdiction_fallback_policy_refs": fallback_refs,
+        "authority_blockers": [
+            {
+                "code": code,
+                "severity": "fail",
+                "layer": "lex",
+                **({"status": refusal.status} if code == refusal.code else {}),
+            }
+            for code in blockers
+        ],
     }
 
 
@@ -3472,6 +3593,12 @@ def build_gl_claim_registry_consumer_gate(
 ) -> Layer3GLClaimRegistryConsumerGate:
     """Build the runtime claim-registry consumer projection for GL refs."""
 
+    _require_gl_source_relation_verification_if_authority_projection(
+        legal_authority_report,
+        threshold_authority_records,
+        mandate_authority_records,
+        authority_record_arguments=(threshold_authority_records, mandate_authority_records),
+    )
     from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
 
     report = _mapping(_dump_model(legal_authority_report))
@@ -3541,6 +3668,12 @@ def build_gl_semantic_binding_consumer_gate(
 ) -> Layer3GLSemanticBindingConsumerGate:
     """Build and evaluate a semantic binding ledger that consumes GL legal refs."""
 
+    _require_gl_source_relation_verification_if_authority_projection(
+        legal_authority_report,
+        threshold_authority_records,
+        mandate_authority_records,
+        authority_record_arguments=(threshold_authority_records, mandate_authority_records),
+    )
     from polisyos.runtime.quality.semantic_binding import (
         build_semantic_binding_ledger,
         evaluate_semantic_binding_ledger,
@@ -3576,6 +3709,13 @@ def build_gl_semantic_binding_consumer_gate(
     )
     legal_refs = _tuple(report.get("legal_authority_record_refs"))
     selected_norm_refs = _tuple(report.get("selected_norm_refs"))
+    from polisyos.data_forge.domains.legal.source_relation import (
+        current_legal_source_relation_disposition,
+    )
+
+    relation_refusal = current_legal_source_relation_disposition().refusal
+    if relation_refusal.code in _tuple(report.get("blocker_refs")):
+        issue_codes = (*issue_codes, relation_refusal.code)
     if not legal_refs and selected_norm_refs:
         issue_codes = (*issue_codes, "semantic_lex_legal_authority_record_missing")
     status = "pass" if not issue_codes and legal_refs and selected_norm_refs else "fail"
@@ -3628,6 +3768,14 @@ def build_gl_argument_graph_readiness_consumer_gate(
 ) -> Layer3GLArgumentGraphReadinessConsumerGate:
     """Build argument-graph-compatible readiness rows for GL evidence."""
 
+    _require_gl_source_relation_verification_if_authority_projection(
+        legal_authority_report,
+        threshold_authority_records,
+        mandate_authority_records,
+        claim_registry_consumer_gate,
+        semantic_binding_consumer_gate,
+        authority_record_arguments=(threshold_authority_records, mandate_authority_records),
+    )
     report = _mapping(_dump_model(legal_authority_report))
     claim_gate = _mapping(_dump_model(claim_registry_consumer_gate))
     semantic_gate = _mapping(_dump_model(semantic_binding_consumer_gate))
@@ -3638,9 +3786,17 @@ def build_gl_argument_graph_readiness_consumer_gate(
     authority_refs = tuple(
         dict.fromkeys([*legal_refs, *threshold_refs, *mandate_refs, *blocker_refs])
     )
+    semantic_ready = semantic_gate.get("status") == "pass"
     readiness_row = {
         "readiness_check": GL_READINESS_CHECK_ID,
-        "status": "pass" if authority_refs and claim_gate.get("status") == "pass" else "fail",
+        "status": (
+            "pass"
+            if legal_refs
+            and _tuple(report.get("selected_norm_refs"))
+            and claim_gate.get("status") == "pass"
+            and semantic_ready
+            else "fail"
+        ),
         "claim_id": report.get("claim_id"),
         "evidence_refs": [
             ref
@@ -3682,6 +3838,11 @@ def build_gl_s6_mandate_consumer_gate(
 ) -> Layer3GLS6MandateConsumerGate:
     """Build S6-compatible mandate source handoff without claiming S6 pass."""
 
+    _require_gl_source_relation_verification_if_authority_projection(
+        legal_authority_report,
+        mandate_authority_records,
+        authority_record_arguments=(mandate_authority_records,),
+    )
     report = _mapping(_dump_model(legal_authority_report))
     mandate_refs = _record_ids(mandate_authority_records)
     records = tuple(_gl_s6_mandate_source_record(record) for record in mandate_authority_records)
@@ -3712,6 +3873,11 @@ def build_gl_s7_delegation_consumer_gate(
 ) -> Layer3GLS7DelegationConsumerGate:
     """Build S7 delegation handoff while preserving P26 authority boundaries."""
 
+    _require_gl_source_relation_verification_if_authority_projection(
+        mandate_authority_records,
+        s6_mandate_consumer_gate,
+        authority_record_arguments=(mandate_authority_records,),
+    )
     s6_gate = _mapping(_dump_model(s6_mandate_consumer_gate))
     mandate_refs = _record_ids(mandate_authority_records)
     legal_refs = _gl_legal_refs_from_mandates(mandate_authority_records)
@@ -3740,6 +3906,11 @@ def build_gl_s8_value_choice_consumer_gate(
 ) -> Layer3GLS8ValueChoiceConsumerGate:
     """Declare S8 compatibility or non-ranking out-of-scope status for GL."""
 
+    _require_gl_source_relation_verification_if_authority_projection(
+        mandate_authority_records,
+        s6_mandate_consumer_gate,
+        authority_record_arguments=(mandate_authority_records,),
+    )
     _ = s6_mandate_consumer_gate
     mandate_refs = _record_ids(mandate_authority_records)
     return Layer3GLS8ValueChoiceConsumerGate(
@@ -3769,11 +3940,27 @@ def build_gl_pdc_compiler_consumer_gate(
 ) -> Layer3GLPdcCompilerConsumerGate:
     """Build PDC compiler-compatible projection rows for GL refs."""
 
+    _require_gl_source_relation_verification_if_authority_projection(
+        legal_authority_report,
+        threshold_authority_records,
+        mandate_authority_records,
+        claim_registry_consumer_gate,
+        semantic_binding_consumer_gate,
+        authority_record_arguments=(threshold_authority_records, mandate_authority_records),
+    )
     report = _mapping(_dump_model(legal_authority_report))
     claim_gate = _mapping(_dump_model(claim_registry_consumer_gate))
     semantic_gate = _mapping(_dump_model(semantic_binding_consumer_gate))
     threshold_refs = _record_ids(threshold_authority_records)
     mandate_refs = _record_ids(mandate_authority_records)
+    legal_refs = _tuple(report.get("legal_authority_record_refs"))
+    selected_norm_refs = _tuple(report.get("selected_norm_refs"))
+    relation_authority_ready = bool(
+        legal_refs
+        and selected_norm_refs
+        and claim_gate.get("status") == "pass"
+        and semantic_gate.get("status") == "pass"
+    )
     pdc_input_refs = tuple(
         ref
         for ref in (
@@ -3794,7 +3981,7 @@ def build_gl_pdc_compiler_consumer_gate(
         "projection_role": "pdc_input_ref_only",
     }
     return Layer3GLPdcCompilerConsumerGate(
-        status="pass" if pdc_input_refs else "fail",
+        status="pass" if pdc_input_refs and relation_authority_ready else "fail",
         gate_id="layer3.gl.pdc_compiler.legal_mandate_consumer_gate",
         claim_id=str(report.get("claim_id") or ""),
         selected_norm_refs=_tuple(report.get("selected_norm_refs")),
@@ -3802,10 +3989,14 @@ def build_gl_pdc_compiler_consumer_gate(
         threshold_record_refs=threshold_refs,
         mandate_record_refs=mandate_refs,
         limitation_refs=_gl_mandate_limitations(mandate_authority_records),
-        compatible_with_pdc_input=bool(pdc_input_refs),
+        compatible_with_pdc_input=bool(pdc_input_refs and relation_authority_ready),
         pdc_input_refs=pdc_input_refs,
         projection_rows=(projection_row,),
-        issue_codes=() if pdc_input_refs else ("layer3_gl_pdc_compiler_consumer_gate_missing",),
+        issue_codes=(
+            ()
+            if pdc_input_refs and relation_authority_ready
+            else ("layer3_gl_pdc_compiler_consumer_gate_missing",)
+        ),
     )
 
 
@@ -3817,10 +4008,19 @@ def build_gl_design_constraint_consumer_gate(
 ) -> Layer3GLDesignConstraintConsumerGate:
     """Build design-loop constraints from legal thresholds and mandate refs."""
 
+    _require_gl_source_relation_verification_if_authority_projection(
+        legal_authority_report,
+        threshold_authority_records,
+        mandate_authority_records,
+        authority_record_arguments=(threshold_authority_records, mandate_authority_records),
+    )
     report = _mapping(_dump_model(legal_authority_report))
     threshold_refs = _record_ids(threshold_authority_records)
     mandate_refs = _record_ids(mandate_authority_records)
     source_refs = tuple(dict.fromkeys([*threshold_refs, *mandate_refs]))
+    legal_refs = _tuple(report.get("legal_authority_record_refs"))
+    selected_norm_refs = _tuple(report.get("selected_norm_refs"))
+    relation_authority_ready = bool(legal_refs and selected_norm_refs)
     constraint_row = {
         "constraint_id": (
             f"design-constraint://layer3/gl/{_slug(str(report.get('claim_id') or 'claim'))}"
@@ -3833,7 +4033,7 @@ def build_gl_design_constraint_consumer_gate(
         "may_not_use_for": list(GL_MAY_NOT_USE_FOR),
     }
     return Layer3GLDesignConstraintConsumerGate(
-        status="pass" if source_refs else "fail",
+        status="pass" if source_refs and relation_authority_ready else "fail",
         gate_id="layer3.gl.design_constraint.legal_boundary_consumer_gate",
         claim_id=str(report.get("claim_id") or ""),
         selected_norm_refs=_tuple(report.get("selected_norm_refs")),
@@ -3844,7 +4044,11 @@ def build_gl_design_constraint_consumer_gate(
         design_constraint_rows=(constraint_row,),
         consumed_as_recommendation_substance=False,
         consumed_as_promotion_authority=False,
-        issue_codes=() if source_refs else ("layer3_gl_design_constraint_consumer_gate_missing",),
+        issue_codes=(
+            ()
+            if source_refs and relation_authority_ready
+            else ("layer3_gl_design_constraint_consumer_gate_missing",)
+        ),
     )
 
 
@@ -3857,6 +4061,13 @@ def build_gl_g4_promotion_gate_consumer_gate(
 ) -> Layer3GLG4PromotionGateConsumerGate:
     """Build future-G4 compatibility refs without promotion authority."""
 
+    _require_gl_source_relation_verification_if_authority_projection(
+        legal_authority_report,
+        threshold_authority_records,
+        mandate_authority_records,
+        design_constraint_consumer_gate,
+        authority_record_arguments=(threshold_authority_records, mandate_authority_records),
+    )
     report = _mapping(_dump_model(legal_authority_report))
     design_gate = _mapping(_dump_model(design_constraint_consumer_gate))
     threshold_refs = _record_ids(threshold_authority_records)
@@ -3875,8 +4086,13 @@ def build_gl_g4_promotion_gate_consumer_gate(
             ]
         )
     )
+    relation_authority_ready = bool(
+        _tuple(report.get("legal_authority_record_refs"))
+        and _tuple(report.get("selected_norm_refs"))
+        and design_gate.get("status") == "pass"
+    )
     return Layer3GLG4PromotionGateConsumerGate(
-        status="pass" if required_refs else "fail",
+        status="pass" if required_refs and relation_authority_ready else "fail",
         gate_id="layer3.gl.g4.promotion_compatibility_consumer_gate",
         claim_id=str(report.get("claim_id") or ""),
         selected_norm_refs=_tuple(report.get("selected_norm_refs")),
@@ -3888,7 +4104,11 @@ def build_gl_g4_promotion_gate_consumer_gate(
         promotion_authority_claimed=False,
         closeout_authority_claimed=False,
         governed_promoted_claimed=False,
-        issue_codes=() if required_refs else ("layer3_gl_g4_promotion_gate_consumer_gate_missing",),
+        issue_codes=(
+            ()
+            if required_refs and relation_authority_ready
+            else ("layer3_gl_g4_promotion_gate_consumer_gate_missing",)
+        ),
     )
 
 
@@ -3901,6 +4121,13 @@ def build_gl_promotion_gate_handoff(
 ) -> Layer3GLPromotionGateHandoff:
     """Build GL promotion gate handoff."""
 
+    _require_gl_source_relation_verification_if_authority_projection(
+        legal_authority_report,
+        threshold_authority_records,
+        mandate_authority_records,
+        g4_promotion_gate_consumer_gate,
+        authority_record_arguments=(threshold_authority_records, mandate_authority_records),
+    )
     report = _mapping(_dump_model(legal_authority_report))
     g4_gate = _mapping(_dump_model(g4_promotion_gate_consumer_gate))
     handoff_refs = tuple(
@@ -3941,6 +4168,19 @@ def build_gl_audit_surface(
 ) -> Layer3GLLegalMandateAuditSurface:
     """Build GL audit surface."""
 
+    _require_gl_source_relation_verification_if_authority_projection(
+        legal_authority_report,
+        threshold_authority_records,
+        mandate_authority_records,
+        claim_registry_consumer_gate,
+        semantic_binding_consumer_gate,
+        argument_graph_readiness_consumer_gate,
+        s6_mandate_consumer_gate,
+        s7_delegation_consumer_gate,
+        s8_value_choice_consumer_gate,
+        g4_promotion_gate_consumer_gate,
+        authority_record_arguments=(threshold_authority_records, mandate_authority_records),
+    )
     report = _mapping(_dump_model(legal_authority_report))
     coverage_payload = _mapping(_dump_model(coverage))
     gates = (
@@ -3981,6 +4221,12 @@ def build_gl_public_export_projection_refs(
 ) -> Layer3GLPublicExportProjectionRefSurface:
     """Build GL public projection-ref surface."""
 
+    _require_gl_source_relation_verification_if_authority_projection(
+        legal_authority_report,
+        threshold_authority_records,
+        mandate_authority_records,
+        authority_record_arguments=(threshold_authority_records, mandate_authority_records),
+    )
     report = _mapping(_dump_model(legal_authority_report))
     return Layer3GLPublicExportProjectionRefSurface(
         status="pass",
@@ -4418,9 +4664,7 @@ def _candidate_ledger(
         normalized_terms=normalized_terms,
         filters=filters,
         sql_shapes=(_normalize_sql(sql),),
-        selected_row_refs=tuple(
-            str(candidate["row_ref"]) for candidate in selected_candidates
-        ),
+        selected_row_refs=tuple(str(candidate["row_ref"]) for candidate in selected_candidates),
         candidate_rows=selected_candidates,
         rejected_candidate_rows=rejected_candidates,
         no_hit_blockers=() if selected_candidates else (no_hit_blocker,),
@@ -4507,9 +4751,7 @@ def _gl_owner_frontier(
         or len(snapshot_hex) != 64
         or any(char not in "0123456789abcdefABCDEF" for char in snapshot_hex)
     ):
-        snapshot_digest = "sha256:" + hashlib.sha256(
-            snapshot_digest.encode("utf-8")
-        ).hexdigest()
+        snapshot_digest = "sha256:" + hashlib.sha256(snapshot_digest.encode("utf-8")).hexdigest()
     replay_payload = {
         "request_ref": request.request_id,
         "snapshot_ref": snapshot_ref,
@@ -4520,14 +4762,17 @@ def _gl_owner_frontier(
         "completeness_status": status,
         "incompleteness_reasons": reasons,
     }
-    replay_digest = "sha256:" + hashlib.sha256(
-        json.dumps(
-            replay_payload,
-            ensure_ascii=False,
-            sort_keys=True,
-            separators=(",", ":"),
-        ).encode("utf-8")
-    ).hexdigest()
+    replay_digest = (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                replay_payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+    )
     return SearchFrontier(
         request_ref=request.request_id,
         query_plan={
@@ -4641,9 +4886,7 @@ def _bounded_no_hit_ledger(
         normalized_terms=("__policyos_gl_known_no_hit_seed__",),
         filters={"known_no_hit_seed": "__policyos_gl_known_no_hit_seed__"},
         sql_shapes=(_normalize_sql(sql),),
-        selected_row_refs=tuple(
-            str(candidate["row_ref"]) for candidate in selected_candidates
-        ),
+        selected_row_refs=tuple(str(candidate["row_ref"]) for candidate in selected_candidates),
         candidate_rows=selected_candidates,
         rejected_candidate_rows=rejected_candidates,
         no_hit_blockers=("bounded_no_hit_probe",) if not rows else (),
@@ -4692,8 +4935,7 @@ def _coverage_blocked_ledger(
             rejected_candidates=(),
             limit=0,
             completeness_status="producer_unavailable",
-            incompleteness_reasons=coverage.issue_codes
-            or ("gl_owner_index_unavailable",),
+            incompleteness_reasons=coverage.issue_codes or ("gl_owner_index_unavailable",),
         ),
     )
 
@@ -4766,6 +5008,26 @@ def _validate_authority_firewalls(
     selected_norm_refs = _tuple(report.get("selected_norm_refs"))
     authority_refs = _tuple(report.get("legal_authority_record_refs"))
     ledgers = _sequence_of_mappings(payload.get("l3_legal_kg_search_ledgers"))
+    relation_refusal_code = "legal_source_relation_verification_not_established"
+    refusal_declared = relation_refusal_code in {
+        *_tuple(report.get("blocker_refs")),
+        *_tuple(report.get("issue_codes")),
+    }
+    has_authority_record_role = any(
+        _gl_has_nonempty_authority_record_argument(payload.get(key))
+        for key in ("threshold_authority_records", "mandate_authority_records")
+    )
+    if (
+        refusal_declared or has_authority_record_role or _gl_contains_authority_projection(payload)
+    ) and not any(issue.code == relation_refusal_code for issue in issues):
+        issues.append(
+            _issue(
+                relation_refusal_code,
+                "$.legal_authority_report",
+                "GL cannot project a Lex claim as authority without a qualified "
+                "claim-to-source relation receipt.",
+            )
+        )
     if ledgers and not authority_refs:
         issues.append(
             _issue(
@@ -5117,7 +5379,7 @@ def _validate_consumer_gates(
     selected_norm_refs = _tuple(report.get("selected_norm_refs"))
     threshold_refs = _record_ids(_sequence_of_mappings(payload.get("threshold_authority_records")))
     mandate_refs = _record_ids(_sequence_of_mappings(payload.get("mandate_authority_records")))
-    has_authority = bool(legal_refs)
+    has_authority = bool(selected_norm_refs and legal_refs)
     if has_authority:
         gate_codes = (
             ("claim_registry_consumer_gate", "layer3_gl_claim_registry_consumer_gate_missing"),
@@ -5226,26 +5488,6 @@ def _validate_consumer_gates(
                     "S8 gate must pass or explicitly declare non-ranking GL closure out of scope.",
                 )
             )
-        s6_disposition = str(s6_gate.get("s6_gate_disposition") or "")
-        source_dispositions = {
-            str(row.get("mandate_source_disposition") or "")
-            for row in _sequence_of_mappings(s6_gate.get("s6_mandate_source_records"))
-        }
-        if s8_gate.get("ranking_authorized") and (
-            s6_disposition != "pass"
-            or any(
-                disposition.startswith(("candidate", "limited"))
-                for disposition in source_dispositions
-            )
-        ):
-            issues.append(
-                _issue(
-                    "layer3_gl_s8_ranking_authorized_without_mandate_pass",
-                    "$.s8_value_choice_consumer_gate.ranking_authorized",
-                    "GL cannot authorize ranked value choices without S6 mandate pass.",
-                )
-            )
-
         pdc_gate = _mapping(payload.get("pdc_compiler_consumer_gate"))
         if pdc_gate.get("status") != "pass" or not pdc_gate.get("compatible_with_pdc_input"):
             issues.append(
@@ -5299,6 +5541,27 @@ def _validate_consumer_gates(
                     "GL cannot claim closeout authority.",
                 )
             )
+
+    s6_gate = _mapping(payload.get("s6_mandate_consumer_gate"))
+    s8_gate = _mapping(payload.get("s8_value_choice_consumer_gate"))
+    s6_disposition = str(s6_gate.get("s6_gate_disposition") or "")
+    source_dispositions = {
+        str(row.get("mandate_source_disposition") or "")
+        for row in _sequence_of_mappings(s6_gate.get("s6_mandate_source_records"))
+    }
+    if s8_gate.get("ranking_authorized") and (
+        s6_disposition != "pass"
+        or any(
+            disposition.startswith(("candidate", "limited")) for disposition in source_dispositions
+        )
+    ):
+        issues.append(
+            _issue(
+                "layer3_gl_s8_ranking_authorized_without_mandate_pass",
+                "$.s8_value_choice_consumer_gate.ranking_authorized",
+                "GL cannot authorize ranked value choices without S6 mandate pass.",
+            )
+        )
 
     projection = _mapping(payload.get("public_export_projection_refs"))
     raw_public_keys = {

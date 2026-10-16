@@ -11,6 +11,9 @@ import duckdb
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.data_forge.domains.legal.source_relation import (
+    LegalSourceRelationVerificationMissingError,
+)
 from polisyos.data_forge.read_api.academic import (
     ParameterCandidate,
     SKGQuery,
@@ -716,6 +719,16 @@ class _LegalGraphAdapter:
                 ),
                 legal_kg_db_path=Path(self._config.legal_db_path),
             )
+        except LegalSourceRelationVerificationMissingError as exc:
+            diagnostics.append(
+                CrossGraphDiagnostic(
+                    code=exc.refusal.code,
+                    need_id=need.need_id,
+                    message="Legal claim-to-source relation verification is not established.",
+                    details=exc.refusal.to_payload(),
+                )
+            )
+            self._constraint_set = None
         except _CROSS_GRAPH_QUERY_ERRORS as exc:
             diagnostics.append(
                 CrossGraphDiagnostic(

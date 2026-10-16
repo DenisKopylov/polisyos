@@ -29,13 +29,16 @@ from polisyos.data_forge.domains.legal.batch.doc_identity import (
 from polisyos.data_forge.domains.legal.batch.hallucination_detector import (
     detect_hallucination_flags,
     encode_hallucination_flags,
-    has_blocking_hallucination,
 )
 from polisyos.data_forge.domains.legal.batch.provisions_io import read_provisions
 from polisyos.data_forge.domains.legal.batch.reference_resolution import (
     resolve_references as resolve_reference_edges,
 )
 from polisyos.data_forge.domains.legal.contracts import SPOCandidate, SPOExtractionResult
+from polisyos.data_forge.domains.legal.source_relation import (
+    current_legal_source_relation_disposition,
+    require_legal_source_relation_verification,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -177,6 +180,132 @@ def _find_quote_offsets(provision_text: str, quote_text: str) -> tuple[int | Non
     return start, end
 
 
+def _quote_span_matches(*, provision_text: str, quote_text: str, start: int, end: int) -> bool:
+    """Return whether offsets identify the complete quote in the selected provision."""
+    if not quote_text.strip() or start < 0 or end <= start or end > len(provision_text):
+        return False
+    return _normalize_quote_text(provision_text[start:end]) == _normalize_quote_text(quote_text)
+
+
+def _verified_quote_offsets(
+    *,
+    provision_text: str,
+    quote_text: str,
+    supplied_start: int | None,
+    supplied_end: int | None,
+) -> tuple[int | None, int | None]:
+    """Recompute offsets unless the supplied span binds the whole quote to source bytes."""
+    if not quote_text.strip() or not provision_text:
+        return None, None
+
+    if (
+        supplied_start is not None
+        and supplied_end is not None
+        and _quote_span_matches(
+            provision_text=provision_text,
+            quote_text=quote_text,
+            start=supplied_start,
+            end=supplied_end,
+        )
+    ):
+        return supplied_start, supplied_end
+
+    start, end = _find_quote_offsets(provision_text, quote_text)
+    if (
+        start is not None
+        and end is not None
+        and _quote_span_matches(
+            provision_text=provision_text,
+            quote_text=quote_text,
+            start=start,
+            end=end,
+        )
+    ):
+        return start, end
+    return None, None
+
+
+def structure_quality_for_provision(provision_row: dict[str, Any]) -> str:
+    """Return the existing structure quality label for a provision record."""
+    struct_kind = str(provision_row.get("struct_kind") or "").strip()
+    section_role = str(provision_row.get("section_role") or "").strip()
+    reasoning_allowed = bool(
+        provision_row.get(
+            "fallback_allowed_for_reasoning",
+            not bool(provision_row.get("is_fallback_chunk", False)),
+        )
+    )
+    if (
+        bool(provision_row.get("is_fallback_chunk", False))
+        or not reasoning_allowed
+        or section_role in {"table_header", "appendix_section", "fallback_recall"}
+    ):
+        return "fallback_search_only"
+    if struct_kind:
+        return struct_kind
+    return "structured_legal_unit"
+
+
+def ground_spo_candidate(
+    *,
+    stmt: SPOCandidate,
+    provision_text: str,
+    structure_quality: str,
+    extraction_source: str,
+) -> SPOCandidate:
+    """Recompute quote grounding and trust from the selected provision bytes."""
+    quote_text = stmt.source_quote_uk.strip() or _candidate_quote(stmt, provision_text)
+    quote_start, quote_end = _verified_quote_offsets(
+        provision_text=provision_text,
+        quote_text=quote_text,
+        supplied_start=stmt.source_quote_start,
+        supplied_end=stmt.source_quote_end,
+    )
+    if quote_text and quote_start is not None and quote_end is not None:
+        grounding_status = "exact_quote"
+    elif quote_text:
+        grounding_status = "quote_without_offsets"
+    elif stmt.source_quote_start is not None or stmt.source_quote_end is not None:
+        grounding_status = "offsets_without_quote"
+    else:
+        grounding_status = "missing_quote"
+
+    hallucination_flags = detect_hallucination_flags(
+        statement=stmt,
+        provision_text=provision_text,
+    )
+    fused = compute_fused_confidence(
+        extraction_conf=(
+            stmt.confidence_extract if stmt.confidence_extract is not None else stmt.confidence
+        ),
+        grounding_status=grounding_status,
+        structural_quality=structure_quality,
+        verification_conf=stmt.confidence_verify,
+        extraction_source=extraction_source or "llm",
+    )
+    quality_band = quality_band_for_score(fused.fused_score)
+    # A bound quote proves where these bytes occur, not that the source entails
+    # the SPO claim. The shared admission owner therefore keeps it candidate-only.
+    trust_tier = current_legal_source_relation_disposition().trust_tier
+
+    return SPOCandidate.model_validate(
+        {
+            **stmt.model_dump(mode="python"),
+            "source_quote_uk": quote_text,
+            "source_quote_start": quote_start,
+            "source_quote_end": quote_end,
+            "grounding_status": grounding_status,
+            "structure_quality": structure_quality,
+            "trust_tier": trust_tier,
+            "fused_confidence": fused.fused_score,
+            "confidence_breakdown_json": fused.breakdown_json(),
+            "consistency_score": 1.0,
+            "hallucination_flags_json": encode_hallucination_flags(hallucination_flags),
+            "quality_band": quality_band,
+        }
+    )
+
+
 def ground_spo_quotes(
     *,
     spo_results_dir: Path,
@@ -220,93 +349,16 @@ def ground_spo_quotes(
                 result = SPOExtractionResult.model_validate_json(line)
                 provision_row = by_anchor.get(result.provision_anchor, {})
                 provision_text = str(provision_row.get("text") or "")
-                struct_kind = str(provision_row.get("struct_kind") or "").strip()
-                section_role = str(provision_row.get("section_role") or "").strip()
-                reasoning_allowed = bool(
-                    provision_row.get(
-                        "fallback_allowed_for_reasoning",
-                        not bool(provision_row.get("is_fallback_chunk", False)),
-                    )
-                )
-                if (
-                    bool(provision_row.get("is_fallback_chunk", False))
-                    or not reasoning_allowed
-                    or section_role in {"table_header", "appendix_section", "fallback_recall"}
-                ):
-                    structure_quality = "fallback_search_only"
-                elif struct_kind:
-                    structure_quality = struct_kind
-                else:
-                    structure_quality = "structured_legal_unit"
+                structure_quality = structure_quality_for_provision(provision_row)
 
                 grounded_statements: list[SPOCandidate] = []
                 for stmt in result.statements:
                     stats["statements_total"] += 1
-                    quote_text = stmt.source_quote_uk.strip() or _candidate_quote(
-                        stmt, provision_text
-                    )
-                    quote_start = stmt.source_quote_start
-                    quote_end = stmt.source_quote_end
-                    if quote_text and (quote_start is None or quote_end is None):
-                        quote_start, quote_end = _find_quote_offsets(provision_text, quote_text)
-                    if quote_text and quote_start is not None and quote_end is not None:
-                        grounding_status = "exact_quote"
-                    elif quote_text:
-                        grounding_status = "quote_without_offsets"
-                    elif quote_start is not None and quote_end is not None:
-                        grounding_status = "offsets_without_quote"
-                    else:
-                        grounding_status = "missing_quote"
-
-                    hallucination_flags = detect_hallucination_flags(
-                        statement=stmt,
+                    grounded = ground_spo_candidate(
+                        stmt=stmt,
                         provision_text=provision_text,
-                    )
-                    fused = compute_fused_confidence(
-                        extraction_conf=stmt.confidence_extract
-                        if stmt.confidence_extract is not None
-                        else stmt.confidence,
-                        grounding_status=grounding_status,
-                        structural_quality=structure_quality,
-                        verification_conf=stmt.confidence_verify,
-                        extraction_source=result.extraction_source or "llm",
-                    )
-                    quality_band = quality_band_for_score(fused.fused_score)
-                    has_blocking = bool(
-                        hallucination_flags and has_blocking_hallucination(hallucination_flags)
-                    )
-                    # Promotion ladder: search_candidate → grounded_fact → normative_fact
-                    if grounding_status in ("exact_quote", "quote_without_offsets"):
-                        if has_blocking and grounding_status != "exact_quote":
-                            # Blocking hallucination demotes unless saved by exact quote
-                            trust_tier_override = "search_candidate"
-                        else:
-                            trust_tier_override = "grounded_fact"
-                    else:
-                        trust_tier_override = "search_candidate"
-
-                    # Promote grounded facts with sufficient quality to normative
-                    if trust_tier_override == "grounded_fact" and not has_blocking:
-                        if quality_band in ("high_confidence_norm", "normative_ready"):
-                            trust_tier_override = "normative_fact"
-
-                    grounded = SPOCandidate.model_validate(
-                        {
-                            **stmt.model_dump(mode="python"),
-                            "source_quote_uk": quote_text,
-                            "source_quote_start": quote_start,
-                            "source_quote_end": quote_end,
-                            "grounding_status": grounding_status,
-                            "structure_quality": structure_quality,
-                            "trust_tier": trust_tier_override,
-                            "fused_confidence": fused.fused_score,
-                            "confidence_breakdown_json": fused.breakdown_json(),
-                            "consistency_score": 1.0,
-                            "hallucination_flags_json": encode_hallucination_flags(
-                                hallucination_flags
-                            ),
-                            "quality_band": quality_band,
-                        }
+                        structure_quality=structure_quality,
+                        extraction_source=result.extraction_source,
                     )
                     if grounded.trust_tier in {"grounded_fact", "normative_fact"}:
                         stats["statements_grounded"] += 1
@@ -553,6 +605,7 @@ def resolve_references(
 
 def export_normative_claims(*, db_path: Path, output_dir: Path) -> dict[str, int]:
     """Export high-trust legal facts into a simple claim-set-like JSONL artifact."""
+    require_legal_source_relation_verification()
     output_dir.mkdir(parents=True, exist_ok=True)
     claims_path = output_dir / "normative_claims.jsonl"
     summary_path = output_dir / "normative_claims_summary.json"

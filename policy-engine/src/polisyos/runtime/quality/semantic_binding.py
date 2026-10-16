@@ -18,6 +18,9 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.data_forge.domains.legal.source_relation import (
+    current_legal_source_relation_disposition,
+)
 from polisyos.data_forge.read_api.catalog import CatalogQueryGenerationContext
 from polisyos.runtime.quality.candidate_firewall import (
     candidate_firewall_issues_for_payload,
@@ -1659,27 +1662,48 @@ def _build_lex_record(
     claims: Sequence[Mapping[str, Any]],
     spine_context: Mapping[str, Any] | ProducerSpineReadContext | None,
 ) -> dict[str, Any]:
-    selected = tuple(
+    reported_selected = tuple(
         dict.fromkeys(
             [
                 *_norm_refs_from_rows(lex_report.get("applied_norms")),
                 *_norm_refs_from_rows(lex_report.get("selected_norms")),
+                *_refs_from(lex_report, "selected_norm_refs", "applied_norm_refs"),
             ]
         )
     )
-    claim_norms = _refs_from_claims(claims, "norm_refs")
-    if not selected:
-        selected = claim_norms
+    claim_norms = tuple(
+        dict.fromkeys(
+            [
+                *_refs_from_claims(claims, "norm_refs"),
+                *_refs_from_claims(claims, "normative_refs"),
+                *_refs_from_claims(claims, "norm_ids"),
+                *_refs_from_claims(claims, "legal_norm_refs"),
+            ]
+        )
+    )
+    relation_refusal = current_legal_source_relation_disposition().refusal
+    relation_required = bool(
+        reported_selected
+        or claim_norms
+        or lex_report.get("legal_authority_required")
+        or lex_report.get("legal_relation_refusal")
+    )
+    selected = () if relation_required else reported_selected
     candidate = tuple(
         dict.fromkeys(
             [
                 *_norm_refs_from_rows(lex_report.get("candidate_norms")),
+                *_refs_from(lex_report, "candidate_norm_refs"),
+                *reported_selected,
+                *claim_norms,
                 *selected,
                 *_norm_refs_from_rows(lex_report.get("applied_norms")),
             ]
         )
     )
     authority_blockers = _blocker_ref_tuple(lex_report, "authority_blockers", "blockers")
+    if relation_required:
+        authority_blockers = tuple(dict.fromkeys((*authority_blockers, relation_refusal.code)))
     typed_retrieval_blockers = _authority_blocker_refs_by_family(
         lex_report,
         {"retrieval_failure", "missing_store"},
@@ -1691,6 +1715,8 @@ def _build_lex_record(
     blockers = typed_no_norm_blockers or tuple(
         ref for ref in authority_blockers if ref not in typed_retrieval_blockers
     )
+    if relation_required:
+        blockers = tuple(dict.fromkeys((*blockers, relation_refusal.code)))
     retrieval_blockers = _blocker_ref_tuple(
         lex_report,
         "retrieval_error_blocker_refs",
@@ -1705,6 +1731,24 @@ def _build_lex_record(
         blocker_refs=(*blockers, *retrieval_blockers, *typed_retrieval_blockers),
     )
     legal_authority_fields = _lex_legal_authority_fields(lex_report)
+    if relation_required:
+        legal_authority_fields = {
+            **legal_authority_fields,
+            "legal_authority_record_refs": (),
+            "legal_authority_blocker_refs": tuple(
+                dict.fromkeys(
+                    (
+                        *_refs_from_value(
+                            legal_authority_fields.get("legal_authority_blocker_refs")
+                        ),
+                        relation_refusal.code,
+                    )
+                )
+            ),
+            "legal_admissibility_grades": (),
+            "legal_authority_types": (),
+            "jurisdiction_fallback_policy_refs": (),
+        }
     return {
         "binding_id": "lex-binding-runtime",
         "legal_query_terms": _refs_from(
@@ -4700,7 +4744,7 @@ def _authority_blocker_refs_by_family(
     ]:
         code = _optional_text(row.get("code")) or _optional_text(row.get("reason_code"))
         blocker_type = _optional_text(row.get("blocker_type")) or _optional_text(row.get("family"))
-        tokens = {code.casefold(), blocker_type.casefold()}
+        tokens = {value.casefold() for value in (code, blocker_type) if value}
         if not tokens.intersection(families):
             continue
         ref = (

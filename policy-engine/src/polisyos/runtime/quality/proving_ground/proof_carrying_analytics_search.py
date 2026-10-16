@@ -33,9 +33,7 @@ IRTypeInfo = object
 LAYER3_G3_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g3_analytics_search.v1"
 LAYER3_G3_RULE_VERSION = "policyos.layer3.g3.analytics_search.v1"
 LAYER3_G3_SURFACE_ID = "layer3_g3_proof_carrying_audit_surface"
-LAYER3_G3_GENERATED_ARTIFACT_FAMILY_ID = (
-    "policy-design-case-layer3-g3-analytics-search-artifacts"
-)
+LAYER3_G3_GENERATED_ARTIFACT_FAMILY_ID = "policy-design-case-layer3-g3-analytics-search-artifacts"
 REPO_ROOT = Path(__file__).resolve().parents[5]
 G3_PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)
 G3_GENERATED_ARTIFACT_PATH_REFS: tuple[str, ...] = (
@@ -443,9 +441,7 @@ class Layer3G3ArtifactStoreIndex(_G3Model):
     status: Literal["pass", "fail", "blocked", "not_configured"]
     store_backend: str = "not_configured"
     store_root_ref: str | None = None
-    index_scope: Literal["selected_refs", "bounded_listing", "not_configured"] = (
-        "selected_refs"
-    )
+    index_scope: Literal["selected_refs", "bounded_listing", "not_configured"] = "selected_refs"
     selected_candidate_count: int = Field(default=0, ge=0)
     indexed_artifact_refs: tuple[str, ...] = Field(default=())
     manifest_refs: tuple[str, ...] = Field(default=())
@@ -826,9 +822,7 @@ class Layer3G3GeneratedArtifactRegistrationStatus(_G3Model):
     record_id: str = LAYER3_G3_GENERATED_ARTIFACT_FAMILY_ID
     status: Literal["pass", "fail"]
     generated_artifact_family_id: str = LAYER3_G3_GENERATED_ARTIFACT_FAMILY_ID
-    required_artifact_paths: tuple[str, ...] = Field(
-        default=G3_GENERATED_ARTIFACT_PATH_REFS
-    )
+    required_artifact_paths: tuple[str, ...] = Field(default=G3_GENERATED_ARTIFACT_PATH_REFS)
     registered_artifact_paths: tuple[str, ...] = Field(default=())
     registered_doc_refs: tuple[str, ...] = Field(default=())
     missing_registration_refs: tuple[str, ...] = Field(default=())
@@ -946,9 +940,7 @@ def load_g3_l2_skg_dependency_artifacts(repo_root: Path) -> Layer3G3L2SkgDepende
     )
     query_traces = tuple(_sequence(payloads.get("query_traces", {}).get("l2_skg_query_traces")))
     index_coverage = _mapping(payloads.get("index_coverage", {}).get("l2_skg_index_coverage"))
-    recall_freshness = _mapping(
-        payloads.get("recall_freshness", {}).get("search_recall_freshness")
-    )
+    recall_freshness = _mapping(payloads.get("recall_freshness", {}).get("search_recall_freshness"))
     unhealthy = (
         bool(missing_paths)
         or not search_ledgers
@@ -1015,8 +1007,7 @@ def build_g3_l2_skg_proof_candidate_bindings(
         bindings.append(
             Layer3G3L2SkgProofCandidateBinding(
                 binding_id=(
-                    "g3-l2-skg-proof-candidate-binding:"
-                    f"{_stable_id(request.request_id, ledger_id)}"
+                    f"g3-l2-skg-proof-candidate-binding:{_stable_id(request.request_id, ledger_id)}"
                 ),
                 status="fail" if issues else "pass",
                 request_ref=request.request_id,
@@ -1214,9 +1205,7 @@ def _g3_owner_frontier(
         incompleteness_reasons = ()
     snapshot_digest = coverage.catalog_snapshot_hash_ref
     if not snapshot_digest.startswith("sha256:"):
-        snapshot_digest = "sha256:" + hashlib.sha256(
-            snapshot_digest.encode("utf-8")
-        ).hexdigest()
+        snapshot_digest = "sha256:" + hashlib.sha256(snapshot_digest.encode("utf-8")).hexdigest()
     replay_payload = {
         "request_ref": request.request_id,
         "snapshot_ref": coverage.catalog_snapshot_hash_ref,
@@ -1226,14 +1215,17 @@ def _g3_owner_frontier(
         "completeness_status": completeness_status,
         "incompleteness_reasons": incompleteness_reasons,
     }
-    replay_digest = "sha256:" + hashlib.sha256(
-        json.dumps(
-            replay_payload,
-            ensure_ascii=False,
-            sort_keys=True,
-            separators=(",", ":"),
-        ).encode("utf-8")
-    ).hexdigest()
+    replay_digest = (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                replay_payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+    )
     return SearchFrontier(
         request_ref=request.request_id,
         query_plan={
@@ -1620,6 +1612,8 @@ def produce_g3_deterministic_first_case_certificate(
     causal_module = importlib.import_module("polisyos.ir.analytics.causal")
     proof_bundle_cls = causal_module.ProofBundle
     persist_proof_bundle = causal_module.persist_proof_bundle
+    artifact_adapter_module = importlib.import_module("polisyos.core.artifacts")
+    ensure_ir_artifact_store = artifact_adapter_module.ensure_ir_artifact_store
 
     bundle = proof_bundle_cls(
         proof_status="identified",
@@ -1648,7 +1642,10 @@ def produce_g3_deterministic_first_case_certificate(
             },
         },
     )
-    ref = persist_proof_bundle(store, bundle)
+    # IR's writer projects CanonSpec into its typed StorePutOptions. Adapt Core
+    # stores at this producer boundary so the Core owner receives Core CanonInfo
+    # while the exact injected store handle (including a guard facade) is retained.
+    ref = persist_proof_bundle(ensure_ir_artifact_store(store), bundle)
     artifact_ref = ref.model_dump(mode="json")
     artifact_id = str(artifact_ref["artifact_id"])
     return (
@@ -1681,9 +1678,7 @@ def produce_g3_deterministic_first_case_certificate(
 def build_g3_ir_artifact_store_index(
     *,
     store: ArtifactStore | None = None,
-    selected_candidates: Sequence[
-        Layer3G3CertificateCandidate | Mapping[str, Any]
-    ] = (),
+    selected_candidates: Sequence[Layer3G3CertificateCandidate | Mapping[str, Any]] = (),
     stale: bool = False,
     allow_full_listing: bool = False,
     listing_budget: int = 0,
@@ -1811,8 +1806,10 @@ def resolve_g3_certificate_candidates(
     resolved_candidates = tuple(
         _coerce_certificate_candidate(candidate) for candidate in candidates
     )
-    index_payload = _dump_model(artifact_index) if isinstance(artifact_index, BaseModel) else (
-        dict(artifact_index) if isinstance(artifact_index, Mapping) else {}
+    index_payload = (
+        _dump_model(artifact_index)
+        if isinstance(artifact_index, BaseModel)
+        else (dict(artifact_index) if isinstance(artifact_index, Mapping) else {})
     )
     if index_payload.get("stale"):
         return tuple(
@@ -1823,8 +1820,7 @@ def resolve_g3_certificate_candidates(
             for candidate in resolved_candidates
         )
     return tuple(
-        _resolve_one_certificate_candidate(candidate, store)
-        for candidate in resolved_candidates
+        _resolve_one_certificate_candidate(candidate, store) for candidate in resolved_candidates
     )
 
 
@@ -1841,8 +1837,10 @@ def build_g3_certificate_resolution_report(
         artifact_index=artifact_index,
         store=store,
     )
-    index_payload = _dump_model(artifact_index) if isinstance(artifact_index, BaseModel) else (
-        dict(artifact_index) if isinstance(artifact_index, Mapping) else {}
+    index_payload = (
+        _dump_model(artifact_index)
+        if isinstance(artifact_index, BaseModel)
+        else (dict(artifact_index) if isinstance(artifact_index, Mapping) else {})
     )
     issue_codes = [
         str(code)
@@ -1910,9 +1908,7 @@ def build_g3_search_recall_freshness(
     """Replay known G3 seeds before allowing proof-domain ceiling claims."""
 
     dependency_payload = _dump_model(dependencies) if dependencies is not None else {}
-    coverage_payload = (
-        _dump_model(ir_catalog_coverage) if ir_catalog_coverage is not None else {}
-    )
+    coverage_payload = _dump_model(ir_catalog_coverage) if ir_catalog_coverage is not None else {}
     artifact_payload = (
         _dump_model(ir_artifact_store_index) if ir_artifact_store_index is not None else {}
     )
@@ -2153,9 +2149,7 @@ def build_g3_method_requirement_bindings(
             ),
             authority_boundary=authority_boundary,
             issue_codes=tuple(issue_codes),
-            may_not_use_for=_merge_g3_denials(
-                _sequence(authority_boundary.get("may_not_use_for"))
-            ),
+            may_not_use_for=_merge_g3_denials(_sequence(authority_boundary.get("may_not_use_for"))),
         ),
     )
 
@@ -2170,9 +2164,14 @@ def build_g3_semantic_spine_bindings(
 
     if request is None:
         return ()
-    method_refs = tuple(
-        ref for binding in method_requirement_bindings for ref in binding.method_requirement_refs
-    ) or request.method_requirement_refs
+    method_refs = (
+        tuple(
+            ref
+            for binding in method_requirement_bindings
+            for ref in binding.method_requirement_refs
+        )
+        or request.method_requirement_refs
+    )
     certificate_refs = tuple(
         ref
         for record in (
@@ -2224,8 +2223,7 @@ def build_g3_proof_carrying_analytics_bindings(
         return (
             Layer3G3ProofCarryingAnalyticsBinding(
                 binding_id=(
-                    "g3-proof-carrying-analytics-binding:"
-                    f"{_stable_id(request.request_id, 'fail')}"
+                    f"g3-proof-carrying-analytics-binding:{_stable_id(request.request_id, 'fail')}"
                 ),
                 status="fail",
                 request_ref=request.request_id,
@@ -2234,15 +2232,21 @@ def build_g3_proof_carrying_analytics_bindings(
             ),
         )
 
-    method_refs = tuple(
-        ref for binding in method_requirement_bindings for ref in binding.method_requirement_refs
-    ) or request.method_requirement_refs
+    method_refs = (
+        tuple(
+            ref
+            for binding in method_requirement_bindings
+            for ref in binding.method_requirement_refs
+        )
+        or request.method_requirement_refs
+    )
     method_output_refs = tuple(
         ref for binding in method_requirement_bindings for ref in binding.selected_method_refs
     )
-    semantic_refs = tuple(
-        ref for binding in semantic_spine_bindings for ref in binding.semantic_spine_refs
-    ) or request.semantic_spine_refs
+    semantic_refs = (
+        tuple(ref for binding in semantic_spine_bindings for ref in binding.semantic_spine_refs)
+        or request.semantic_spine_refs
+    )
     uncertainty_refs = _g3_deterministic_uncertainty_refs(
         request=request,
         method_requirement_bindings=method_requirement_bindings,
@@ -2262,7 +2266,8 @@ def build_g3_proof_carrying_analytics_bindings(
             "design_comparison_ref": (
                 request.comparison_ref or f"comparison://layer3/g3/{request.case_id}"
             ),
-            "baseline_design_ref": request.baseline_ref or f"baseline://layer3/g3/{request.case_id}",
+            "baseline_design_ref": request.baseline_ref
+            or f"baseline://layer3/g3/{request.case_id}",
             "alternative_design_refs": list(request.alternative_refs),
             "ir_analytics_refs": [certificate_ref],
             "method_output_refs": list(method_output_refs),
@@ -2380,9 +2385,7 @@ def build_g3_ir_analytics_bridge_bindings(
         )
     raw_missing_claim_id = any(not str(row.get("claim_id", "")).strip() for row in rows)
     method_specs = tuple(
-        spec
-        for binding in method_requirement_bindings
-        for spec in binding.method_requirement_specs
+        spec for binding in method_requirement_bindings for spec in binding.method_requirement_specs
     )
     bridge_ref = _first_present_str(
         _mapping(_dump_model(binding)).get("bridge_ref")
@@ -2517,8 +2520,7 @@ def build_g3_s11_prerequisite_bindings(
             s10_forecast_support_ref=resolved_s10_ref,
             s10_forecast_tier=resolved_tier,
             s10_forecast_calibration_record_ref=resolved_calibration_ref,
-            g2_forecast_support_binding_ref=str(g2_binding.get("binding_id") or "")
-            or None,
+            g2_forecast_support_binding_ref=str(g2_binding.get("binding_id") or "") or None,
             source_contract_refs=resolved_source_refs,
             method_validity_refs=resolved_method_refs,
             issue_codes=tuple(dict.fromkeys(issue_codes)),
@@ -2529,9 +2531,7 @@ def build_g3_s11_prerequisite_bindings(
 def build_g3_s11_calibration_bindings(
     *,
     request: Layer3G3AnalyticsRequest | None = None,
-    s11_prerequisite_bindings: Sequence[
-        Layer3G3S11PrerequisiteBinding | Mapping[str, Any]
-    ] = (),
+    s11_prerequisite_bindings: Sequence[Layer3G3S11PrerequisiteBinding | Mapping[str, Any]] = (),
     proof_carrying_analytics_records: Sequence[
         Layer3G3ProofCarryingAnalyticsBinding | Mapping[str, Any]
     ] = (),
@@ -2609,9 +2609,7 @@ def build_g3_s11_calibration_bindings(
             cell_ref=cell_ref,
             s6_floor_record_ref=prereq.s6_floor_status_refs[0],
             s10_forecast_support_ref=prereq.s10_forecast_support_ref,
-            s10_forecast_calibration_record_ref=(
-                prereq.s10_forecast_calibration_record_ref
-            ),
+            s10_forecast_calibration_record_ref=(prereq.s10_forecast_calibration_record_ref),
             calibration_ledger_ref=f"calibration-ledger://layer3/g3/{request.case_id}",
             calibration_scope_ref=f"scope://layer3/g3/{request.case_id}/current",
             prediction_context_ref=f"pdc://layer3/g3/{request.case_id}/prediction-context",
@@ -2622,9 +2620,7 @@ def build_g3_s11_calibration_bindings(
             method_infrastructure_refs=[method_validity_ref],
             source_lineage_refs=[source_contract_ref],
             method_lineage_refs=list(prereq.method_validity_refs),
-            effective_independence_refs=[
-                f"independence://layer3/g3/{request.claim_id}"
-            ],
+            effective_independence_refs=[f"independence://layer3/g3/{request.claim_id}"],
             sensitivity_analysis_ref=f"sensitivity://layer3/g3/{request.case_id}/{axis}",
             credible_evaluation_evidence_ref=(
                 f"evidence://layer3/g3/{request.case_id}/credible-evaluation"
@@ -2643,8 +2639,7 @@ def build_g3_s11_calibration_bindings(
             pass_rate=calibration_numerator / denominator if denominator else 0.0,
             threshold=0.75,
             threshold_ref=(
-                "repo://architecture/policy_design_case/"
-                "layer2_floor_governance.toml#s11"
+                "repo://architecture/policy_design_case/layer2_floor_governance.toml#s11"
             ),
             floor_passed=floor_passed,
             calibration_status=calibration_status,
@@ -2757,12 +2752,8 @@ def build_g3_s11_calibration_bindings(
 def build_g3_s11_predictive_posture_bindings(
     *,
     request: Layer3G3AnalyticsRequest | None = None,
-    s11_prerequisite_bindings: Sequence[
-        Layer3G3S11PrerequisiteBinding | Mapping[str, Any]
-    ] = (),
-    s11_calibration_bindings: Sequence[
-        Layer3G3S11CalibrationBinding | Mapping[str, Any]
-    ] = (),
+    s11_prerequisite_bindings: Sequence[Layer3G3S11PrerequisiteBinding | Mapping[str, Any]] = (),
+    s11_calibration_bindings: Sequence[Layer3G3S11CalibrationBinding | Mapping[str, Any]] = (),
     proof_carrying_analytics_records: Sequence[
         Layer3G3ProofCarryingAnalyticsBinding | Mapping[str, Any]
     ] = (),
@@ -2789,8 +2780,7 @@ def build_g3_s11_predictive_posture_bindings(
         return (
             Layer3G3S11PredictivePostureBinding(
                 binding_id=(
-                    "g3-s11-predictive-posture-binding:"
-                    f"{_stable_id(request.request_id, 'blocked')}"
+                    f"g3-s11-predictive-posture-binding:{_stable_id(request.request_id, 'blocked')}"
                 ),
                 status="blocked",
                 request_ref=request.request_id,
@@ -2819,13 +2809,9 @@ def build_g3_s11_predictive_posture_bindings(
             s6_constraint_store_update_refs=prereq.s6_constraint_store_update_refs,
             s6_c3_authority_dimension_refs=prereq.s6_c3_authority_dimension_refs,
             post_intervention_dgp_update_ref=prereq.post_intervention_dgp_update_ref,
-            system_dynamics_handoff_required=(
-                prereq.system_dynamics_handoff_required
-            ),
+            system_dynamics_handoff_required=(prereq.system_dynamics_handoff_required),
             s10_forecast_support_ref=prereq.s10_forecast_support_ref,
-            s10_forecast_tier=(
-                prereq.s10_forecast_tier or "observable_calibrated"
-            ),
+            s10_forecast_tier=(prereq.s10_forecast_tier or "observable_calibrated"),
             predictive_knowledge_ref=(
                 f"pdc://layer3/g3/{request.case_id}/s11/predictive-knowledge"
             ),
@@ -2836,9 +2822,7 @@ def build_g3_s11_predictive_posture_bindings(
             calibration_records=(calibration.calibration_record,),
             proof_records=(proof_record,),
             method_infrastructure_refs=tuple(
-                _sequence(
-                    calibration.calibration_record.get("method_infrastructure_refs")
-                )
+                _sequence(calibration.calibration_record.get("method_infrastructure_refs"))
             ),
             cells_closed=(calibration.cell_ref,),
             report_id=f"layer3.g3.s11.posture.integrity.{_stable_id(request.request_id)}",
@@ -2847,8 +2831,7 @@ def build_g3_s11_predictive_posture_bindings(
         return (
             Layer3G3S11PredictivePostureBinding(
                 binding_id=(
-                    "g3-s11-predictive-posture-binding:"
-                    f"{_stable_id(request.request_id, 'invalid')}"
+                    f"g3-s11-predictive-posture-binding:{_stable_id(request.request_id, 'invalid')}"
                 ),
                 status="blocked",
                 request_ref=request.request_id,
@@ -2910,11 +2893,7 @@ def _load_g2_forecast_support_binding(repo_root: Path | None) -> dict[str, Any]:
 
 
 def _dict_rows(rows: Sequence[Mapping[str, Any] | BaseModel]) -> tuple[dict[str, Any], ...]:
-    return tuple(
-        _dump_model(row)
-        for row in rows
-        if isinstance(row, (BaseModel, Mapping))
-    )
+    return tuple(_dump_model(row) for row in rows if isinstance(row, (BaseModel, Mapping)))
 
 
 def _first_pass_s11_prerequisite(
@@ -2944,11 +2923,7 @@ def _first_pass_s11_calibration(
             if isinstance(binding, Layer3G3S11CalibrationBinding)
             else Layer3G3S11CalibrationBinding.model_validate(binding)
         )
-        if (
-            record.status == "pass"
-            and record.calibration_record
-            and record.axis_upgrade_record
-        ):
+        if record.status == "pass" and record.calibration_record and record.axis_upgrade_record:
             return record
     return None
 
@@ -2957,8 +2932,10 @@ def _first_pass_g3_proof_binding(
     bindings: Sequence[Layer3G3ProofCarryingAnalyticsBinding | Mapping[str, Any]],
 ) -> dict[str, Any]:
     for binding in bindings:
-        payload = _dump_model(binding) if isinstance(binding, BaseModel) else (
-            dict(binding) if isinstance(binding, Mapping) else {}
+        payload = (
+            _dump_model(binding)
+            if isinstance(binding, BaseModel)
+            else (dict(binding) if isinstance(binding, Mapping) else {})
         )
         if (
             payload.get("status") == "pass"
@@ -3000,9 +2977,7 @@ def _s11_authority_issue_codes(*records: Mapping[str, Any]) -> tuple[str, ...]:
             record if "authoritative_for" in record else {}
         )
         authoritative_for = {
-            str(item)
-            for item in _sequence(boundary.get("authoritative_for"))
-            if str(item)
+            str(item) for item in _sequence(boundary.get("authoritative_for")) if str(item)
         }
         if authoritative_for & {
             "production_authority",
@@ -3034,8 +3009,10 @@ def _bridge_payload_from_g3(
 ) -> dict[str, Any]:
     if value is None:
         return {}
-    payload = _dump_model(value) if isinstance(value, BaseModel) else (
-        dict(value) if isinstance(value, Mapping) else {}
+    payload = (
+        _dump_model(value)
+        if isinstance(value, BaseModel)
+        else (dict(value) if isinstance(value, Mapping) else {})
     )
     bridge = _mapping(payload.get("bridge_payload"))
     return dict(bridge) if bridge else payload
@@ -3056,8 +3033,10 @@ def _refs_from_records(
 ) -> tuple[str, ...]:
     refs: list[str] = []
     for record in records:
-        payload = _dump_model(record) if isinstance(record, BaseModel) else (
-            dict(record) if isinstance(record, Mapping) else {}
+        payload = (
+            _dump_model(record)
+            if isinstance(record, BaseModel)
+            else (dict(record) if isinstance(record, Mapping) else {})
         )
         value = payload.get(field_name)
         if isinstance(value, str):
@@ -3193,13 +3172,14 @@ def build_g3_claim_registry_consumer_gate(
         proof_carrying_analytics_refs=proof_refs,
         consumed_ir_analytics_refs=consumed_ir_refs,
         blocked_claim_count=int(
-            _mapping(registry.get("summary")).get("ir_analytics_blocked_claim_count", 0)
-            or 0
+            _mapping(registry.get("summary")).get("ir_analytics_blocked_claim_count", 0) or 0
         ),
         claim_registry_payload=dict(registry),
         issue_codes=tuple(issue_codes),
         may_not_use_for=_merge_g3_denials(
-            _sequence(_mapping(bridge_payload.get("runtime_authority_envelope")).get("may_not_use_for"))
+            _sequence(
+                _mapping(bridge_payload.get("runtime_authority_envelope")).get("may_not_use_for")
+            )
         ),
     )
 
@@ -3294,9 +3274,7 @@ def build_g3_baseline_comparison_consumer_gate(
     authority_issues = _s11_authority_issue_codes(
         *[_mapping(comparison.get("authority_boundary")) for comparison in comparisons]
     )
-    bridge_refs = tuple(
-        ref for ref in (_bridge_ref(bridge_payload),) if ref
-    )
+    bridge_refs = tuple(ref for ref in (_bridge_ref(bridge_payload),) if ref)
     if not comparisons or not evidence_refs:
         issue_codes.append("layer3_g3_baseline_comparison_consumer_gate_missing")
     issue_codes.extend(authority_issues)
@@ -3399,9 +3377,7 @@ def build_g3_public_export_projection_ref_surface(
     certificate_resolution_report: (
         Layer3G3CertificateResolutionReport | Mapping[str, Any] | None
     ) = None,
-    ir_analytics_search_ledgers: Sequence[
-        Layer3G3IRCatalogSearchLedger | Mapping[str, Any]
-    ] = (),
+    ir_analytics_search_ledgers: Sequence[Layer3G3IRCatalogSearchLedger | Mapping[str, Any]] = (),
     proof_carrying_analytics_records: Sequence[
         Layer3G3ProofCarryingAnalyticsBinding | Mapping[str, Any]
     ] = (),
@@ -3446,25 +3422,18 @@ def build_g3_public_export_projection_ref_surface(
     return Layer3G3PublicExportProjectionRefSurface(
         status="pass" if not issue_codes else "fail",
         certificate_resolution_report_ref=(
-            "repo://architecture/policy_design_case/"
-            "layer3_g3_certificate_resolution_report.json"
+            "repo://architecture/policy_design_case/layer3_g3_certificate_resolution_report.json"
         ),
         search_ledger_refs=search_ledger_refs,
-        redacted_search_frontier_refs=(
-            "g3-search-frontier://layer3/g3/resolved-proof-candidates",
-        )
+        redacted_search_frontier_refs=("g3-search-frontier://layer3/g3/resolved-proof-candidates",)
         if search_ledger_refs
         else (),
         proof_carrying_analytics_refs=proof_refs,
         ir_analytics_bridge_refs=(bridge_ref,) if bridge_ref else (),
         method_requirement_refs=method_refs,
         s11_predictive_posture_refs=posture_refs,
-        resolved_certificate_count=int(
-            certificate.get("resolved_certificate_count", 0) or 0
-        ),
-        blocked_certificate_count=int(
-            certificate.get("blocking_certificate_count", 0) or 0
-        ),
+        resolved_certificate_count=int(certificate.get("resolved_certificate_count", 0) or 0),
+        blocked_certificate_count=int(certificate.get("blocking_certificate_count", 0) or 0),
         authority_boundary=boundary,
         may_not_use_for=_merge_g3_denials(_sequence(boundary.get("may_not_use_for"))),
         public_payload_redaction_status="pass",
@@ -3517,9 +3486,7 @@ def build_g3_proof_carrying_audit_surface(
         dict.fromkeys(
             ref
             for proof in proof_carrying_analytics_records
-            for ref in _sequence(
-                _dump_model(proof).get("s11_record", {}).get("limitation_refs")
-            )
+            for ref in _sequence(_dump_model(proof).get("s11_record", {}).get("limitation_refs"))
             if str(ref)
         )
     )
@@ -3552,8 +3519,7 @@ def build_g3_proof_carrying_audit_surface(
             "issue_codes",
         ),
         certificate_resolution_report_ref=(
-            "repo://architecture/policy_design_case/"
-            "layer3_g3_certificate_resolution_report.json"
+            "repo://architecture/policy_design_case/layer3_g3_certificate_resolution_report.json"
         ),
         proof_carrying_analytics_refs=proof_refs,
         ir_analytics_bridge_refs=(bridge_ref,) if bridge_ref else (),
@@ -3667,11 +3633,7 @@ def build_g3_adapter_contract_registry_status(
         dict.fromkeys(
             [
                 *preservation_issue_codes,
-                *(
-                    ("layer3_g3_adapter_contract_registry_missing",)
-                    if missing_path_ids
-                    else ()
-                ),
+                *(("layer3_g3_adapter_contract_registry_missing",) if missing_path_ids else ()),
             ]
         )
     )
@@ -3716,8 +3678,7 @@ def build_g3_generated_artifact_registration_status(
     missing_refs: list[str] = []
     if LAYER3_G3_GENERATED_ARTIFACT_FAMILY_ID not in generated_text:
         missing_refs.append(
-            "architecture/generated_artifacts.toml:"
-            f"{LAYER3_G3_GENERATED_ARTIFACT_FAMILY_ID}"
+            f"architecture/generated_artifacts.toml:{LAYER3_G3_GENERATED_ARTIFACT_FAMILY_ID}"
         )
     missing_refs.extend(
         f"architecture/generated_artifacts.toml:{path}"
@@ -3816,17 +3777,11 @@ def build_g3_conformance_report(
     return Layer3G3ConformanceReport(
         status="pass" if not issue_codes else "fail",
         replay_check_status="fail" if set(issue_codes) & replay_codes else "pass",
-        performance_check_status=(
-            "fail" if set(issue_codes) & performance_codes else "pass"
-        ),
+        performance_check_status=("fail" if set(issue_codes) & performance_codes else "pass"),
         module_load_check_status="fail" if heavy_import_refs else "pass",
-        adapter_admission_check_status=(
-            "fail" if set(issue_codes) & adapter_codes else "pass"
-        ),
+        adapter_admission_check_status=("fail" if set(issue_codes) & adapter_codes else "pass"),
         artifact_store_check_status=artifact_status,
-        authority_boundary_check_status=(
-            "fail" if set(issue_codes) & authority_codes else "pass"
-        ),
+        authority_boundary_check_status=("fail" if set(issue_codes) & authority_codes else "pass"),
         replayed_certificate_count=_resolved_certificate_count(payload),
         checked_adapter_path_count=len(
             _sequence(_mapping(payload.get("adapter_contract_registry")).get("adapter_path_ids"))
@@ -3858,9 +3813,7 @@ def _g3_conformance_search_and_performance_issues(
     ledgers = tuple(
         _mapping(ledger) for ledger in _sequence(payload.get("ir_analytics_search_ledgers"))
     )
-    traces = tuple(
-        _mapping(trace) for trace in _sequence(payload.get("ir_analytics_query_traces"))
-    )
+    traces = tuple(_mapping(trace) for trace in _sequence(payload.get("ir_analytics_query_traces")))
     trace_ids = {str(trace.get("trace_id")) for trace in traces if trace.get("trace_id")}
     if not ledgers:
         issues.append("layer3_g3_search_ledger_missing")
@@ -3902,8 +3855,7 @@ def _g3_conformance_search_and_performance_issues(
     if (
         recall.get("status") != "pass"
         or recall.get("freshness_status") != "pass"
-        or int(recall.get("recalled_seed_count") or 0)
-        != int(recall.get("known_seed_count") or 0)
+        or int(recall.get("recalled_seed_count") or 0) != int(recall.get("known_seed_count") or 0)
     ):
         recall_issue_codes = _sequence(recall.get("issue_codes")) or (
             "layer3_g3_search_recall_seed_miss_blocks_domain_ceiling",
@@ -3943,16 +3895,12 @@ def _g3_conformance_replay_issues(
     issues: list[str] = []
     missing_refs: list[str] = []
     certificate = _mapping(payload.get("certificate_resolution_report"))
-    resolution_records = tuple(
-        _mapping(record) for record in _sequence(certificate.get("records"))
-    )
+    resolution_records = tuple(_mapping(record) for record in _sequence(certificate.get("records")))
     resolved_records = tuple(
         record for record in resolution_records if record.get("status") == "resolved"
     )
     resolution_record_ids = {
-        str(record.get("record_id"))
-        for record in resolved_records
-        if record.get("record_id")
+        str(record.get("record_id")) for record in resolved_records if record.get("record_id")
     }
     if not resolved_records:
         issues.append("layer3_g3_certificate_resolution_missing")
@@ -4221,8 +4169,7 @@ def _resolve_one_certificate_candidate(
     )
     return Layer3G3CertificateResolutionRecord(
         record_id=(
-            "g3-certificate-resolution:"
-            f"{_stable_id(candidate.candidate_id, payload_fingerprint)}"
+            f"g3-certificate-resolution:{_stable_id(candidate.candidate_id, payload_fingerprint)}"
         ),
         candidate_id=candidate.candidate_id,
         status=status,
@@ -4263,9 +4210,7 @@ def _load_typed_certificate_payload(
             "polisyos.ir.analytics.causal.load_proof_bundle",
         )
     if normalized_kind == "negative_certificate" or artifact_kind == "ir.negative_certificate":
-        negative_module = importlib.import_module(
-            "polisyos.ir.analytics.negative_certificate"
-        )
+        negative_module = importlib.import_module("polisyos.ir.analytics.negative_certificate")
         refs_module = importlib.import_module("polisyos.ir.registry.refs")
         load_negative_certificate = negative_module.load_negative_certificate
         negative_certificate_ref_cls = refs_module.NegativeCertificateRef
@@ -4280,16 +4225,12 @@ def _load_typed_certificate_payload(
         normalized_kind == "proof_composability"
         or artifact_kind == "ir.proof_composability_certificate"
     ):
-        composability_module = importlib.import_module(
-            "polisyos.ir.analytics.proof_composability"
-        )
+        composability_module = importlib.import_module("polisyos.ir.analytics.proof_composability")
         refs_module = importlib.import_module("polisyos.ir.registry.refs")
         load_proof_composability_certificate = (
             composability_module.load_proof_composability_certificate
         )
-        proof_composability_certificate_ref_cls = (
-            refs_module.ProofComposabilityCertificateRef
-        )
+        proof_composability_certificate_ref_cls = refs_module.ProofComposabilityCertificateRef
 
         ref = proof_composability_certificate_ref_cls.model_validate(artifact_ref)
         return (
@@ -4298,9 +4239,7 @@ def _load_typed_certificate_payload(
             "polisyos.ir.analytics.proof_composability.load_proof_composability_certificate",
         )
     if normalized_kind == "bounds_bundle" or artifact_kind == "ir.bounds_bundle":
-        partial_module = importlib.import_module(
-            "polisyos.ir.analytics.partial_identification"
-        )
+        partial_module = importlib.import_module("polisyos.ir.analytics.partial_identification")
         refs_module = importlib.import_module("polisyos.ir.registry.refs")
         load_bounds_bundle = partial_module.load_bounds_bundle
         bounds_bundle_ref_cls = refs_module.BoundsBundleRef
@@ -4534,9 +4473,7 @@ def _g3_adapter_admission_records(
             "admission_state": "admitted",
             "admitted": True,
             "adapter_contract_path_refs": [path_id],
-            "source_touchpoint_refs": [
-                f"touchpoint://runtime-quality/{path_id.replace('_', '-')}"
-            ],
+            "source_touchpoint_refs": [f"touchpoint://runtime-quality/{path_id.replace('_', '-')}"],
         }
         for path_id in adapter_path_ids
     )
@@ -4614,9 +4551,7 @@ def _claim_binding_from_g3_proof_binding(
             [record.get("baseline_design_ref")] if record.get("baseline_design_ref") else []
         ),
         "comparison_refs": (
-            [record.get("design_comparison_ref")]
-            if record.get("design_comparison_ref")
-            else []
+            [record.get("design_comparison_ref")] if record.get("design_comparison_ref") else []
         ),
         "alternative_refs": list(_sequence(record.get("alternative_design_refs"))),
         "independence_refs": list(_sequence(record.get("independence_refs"))),
@@ -4760,8 +4695,7 @@ def _producer_refs(module_name: str, type_name: str) -> tuple[str, ...]:
             continue
         lowered = name.lower()
         if not any(
-            prefix in lowered
-            for prefix in ("build", "create", "infer", "certify", "validate")
+            prefix in lowered for prefix in ("build", "create", "infer", "certify", "validate")
         ):
             continue
         if not tokens or any(token in lowered for token in tokens):
@@ -4911,8 +4845,7 @@ def _validate_task1_search(
     if (
         recall.get("status") != "pass"
         or recall.get("freshness_status") != "pass"
-        or int(recall.get("recalled_seed_count") or 0)
-        != int(recall.get("known_seed_count") or 0)
+        or int(recall.get("recalled_seed_count") or 0) != int(recall.get("known_seed_count") or 0)
     ):
         for code in recall_issue_codes or (
             "layer3_g3_search_recall_seed_miss_blocks_domain_ceiling",
@@ -5009,9 +4942,7 @@ def _default_g3_claim_ledger_route() -> tuple[Any, Layer3G3AnalyticsRequest, str
     decomposition_compiler_cls = decomposition_module.ClaimDecompositionCompiler
     decomposition_facet_cls = decomposition_module.ClaimDecompositionFacet
     decomposition_input_cls = decomposition_module.ClaimDecompositionInput
-    decomposition_named_alternative_cls = (
-        decomposition_module.ClaimDecompositionNamedAlternative
-    )
+    decomposition_named_alternative_cls = decomposition_module.ClaimDecompositionNamedAlternative
     decomposition_obligation_cls = decomposition_module.ClaimDecompositionObligation
     default_request = _default_g3_request()
     outcome_ref = default_request.cause.replace("policy.", "").replace(".", "_")
@@ -5150,9 +5081,7 @@ def _default_g3_s2_consumer_payload(
             "predictive_knowledge_refs": [posture_ref],
             "proof_carrying_analytics_refs": [proof_ref],
             "iterations": ["iteration://layer3/g3/default"],
-            "refinement_decision_refs": [
-                f"refinement-decision://layer3/g3/{request.case_id}"
-            ],
+            "refinement_decision_refs": [f"refinement-decision://layer3/g3/{request.case_id}"],
         },
         "constraint_store": {
             "constraint_records": [
@@ -5210,14 +5139,17 @@ def _catalog_snapshot_hash(rows: Sequence[Layer3G3IRCatalogEntry]) -> str:
 
 
 def _json_hash_ref(payload: object) -> str:
-    return "sha256:" + hashlib.sha256(
-        json.dumps(
-            _jsonable_payload(payload),
-            sort_keys=True,
-            separators=(",", ":"),
-            default=str,
-        ).encode("utf-8")
-    ).hexdigest()
+    return (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                _jsonable_payload(payload),
+                sort_keys=True,
+                separators=(",", ":"),
+                default=str,
+            ).encode("utf-8")
+        ).hexdigest()
+    )
 
 
 def _jsonable_payload(value: object) -> object:

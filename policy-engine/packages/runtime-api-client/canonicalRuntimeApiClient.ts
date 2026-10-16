@@ -1046,6 +1046,9 @@ export type LexSearchResponse =
 export type LexSearchResultItem =
   RuntimeApiComponents["schemas"]["LexSearchResultItem"];
 
+export type LexSourceRelationRefusal =
+  RuntimeApiComponents["schemas"]["LexSourceRelationRefusal"];
+
 export type LexTriggerRequest =
   RuntimeApiComponents["schemas"]["LexTriggerRequest"];
 

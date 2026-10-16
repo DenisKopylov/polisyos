@@ -131,3 +131,85 @@ def test_quality_report_includes_gate_metrics_and_treats_raw_audit_miss_as_warni
     assert gate.passed is True
     assert gate.failed_checks == []
     assert "audit_miss_rate_pct" in gate.warning_failed_checks
+
+
+def test_missing_quote_gates_use_full_rows_across_all_breakdowns(tmp_path: Path) -> None:
+    provisions_dir = tmp_path / "provisions"
+    spo_results_dir = tmp_path / "spo_results"
+    provision_anchor = "article:1/point:1"
+    _write_jsonl(
+        provisions_dir / "aa" / "lawdoc.jsonl",
+        [
+            {
+                "kind": "point",
+                "anchor_path": provision_anchor,
+                "doc_type_category": "law",
+                "legal_unit_subtype": "core_normative_clause",
+                "route_class": "deterministic_only",
+                "text": "The authority shall publish the annual report.",
+            }
+        ],
+    )
+    statements = [
+        {
+            "statement_id": "only-marked-row",
+            "source_quote_uk": "The authority shall publish the annual report.",
+            "trust_tier": "normative_fact",
+            "predicate": "requires",
+        }
+    ]
+    statements.extend(
+        {
+            "statement_id": f"missing-{index}",
+            "source_quote_uk": "",
+            "trust_tier": "search_candidate",
+            "predicate": "requires",
+        }
+        for index in range(99)
+    )
+    result_path = spo_results_dir / "aa" / "lawdoc.jsonl"
+
+    def report_for_current_marker() -> dict:
+        _write_jsonl(
+            result_path,
+            [
+                {
+                    "doc_id": "lawdoc",
+                    "provision_anchor": provision_anchor,
+                    "statements": statements,
+                }
+            ],
+        )
+        return build_quality_report(
+            provisions_dir=provisions_dir,
+            spo_results_dir=spo_results_dir,
+        )
+
+    thresholds = QualityGateThresholds(
+        min_provision_docs_for_doc_rate=1,
+        min_spo_rows_for_row_rate=1,
+        min_statements_for_statement_rate=1,
+        max_missing_quote_rate_pct=5.0,
+        max_oov_action_rate_pct=100.0,
+    )
+    gate_results = []
+    for marker_present in (True, False):
+        if marker_present:
+            statements[0]["trust_tier"] = "normative_fact"
+        else:
+            statements[0].pop("trust_tier")
+        report = report_for_current_marker()
+        assert report["statement_total"] == 100
+        assert report["missing_quote_rate_pct"] == 99.0
+        assert report["grounded_missing_quote_rate_pct"] == 0.0
+        family = report["doc_family_breakdown"]["law"]
+        subtype = report["legal_unit_subtype_breakdown"]["core_normative_clause"]
+        assert family["missing_quote_rate_pct"] == 99.0
+        assert subtype["missing_quote_rate_pct"] == 99.0
+        gate = evaluate_quality_gates(report=report, thresholds=thresholds)
+        assert "missing_quote_rate_pct" in gate.failed_checks
+        assert "family:law:missing_quote_rate_pct" in gate.hotspot_failed_checks
+        assert "subtype:core_normative_clause:missing_quote_rate_pct" in gate.hotspot_failed_checks
+        gate_results.append((gate.passed, gate.failed_checks, gate.hotspot_failed_checks))
+
+    assert gate_results[0] == gate_results[1]

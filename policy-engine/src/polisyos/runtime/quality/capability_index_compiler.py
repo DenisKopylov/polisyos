@@ -19,6 +19,12 @@ import duckdb
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from polisyos.data_forge.domains.legal.source_relation import (
+    LEGAL_SOURCE_RELATION_REFUSAL,
+    LegalSourceRelationRefusal,
+    current_legal_source_relation_disposition,
+    require_legal_source_relation_verification,
+)
 from polisyos.runtime.quality.capability_index import (
     CAPABILITY_INDEX_SCHEMA_VERSION,
     AcquisitionStrategy,
@@ -238,6 +244,14 @@ def compile_capability_index(
             )
         )
 
+    capabilities, legal_relation_refusal = _exclude_unverified_lex_capabilities(
+        capabilities,
+        has_lex_source=(
+            "l3_lex_kg" in rebuilt_labels
+            or _find_first(production_data_root, "**/lex_knowledge_graph.duckdb") is not None
+        ),
+    )
+
     incremental = {
         **incremental,
         "rebuilt_input_labels": list(rebuilt_labels),
@@ -281,6 +295,9 @@ def compile_capability_index(
             "adr_ref": "ADR-0174",
             "pattern_refs": ["P01", "P02", "P03", "P05", "P10", "P15"],
             "incremental": incremental,
+            "legal_source_relation_refusal": (
+                legal_relation_refusal.to_payload() if legal_relation_refusal else None
+            ),
         },
     )
 
@@ -458,6 +475,8 @@ def _legal_norm_owner_truth(
     *,
     release_snapshot_at: datetime,
 ) -> LegalNormOwnerTruth | None:
+    if "lex_norm" in capability.modality or capability.evidence_mode == "legal_threshold":
+        return None
     payload = capability.metadata.get("legal_norm_owner_truth")
     if not isinstance(payload, Mapping):
         return None
@@ -483,6 +502,11 @@ def _legal_norm_owner_truth(
 
 def validate_capability_authority(capability: EvidenceCapability) -> None:
     """Validate authority boundaries that must never be laundered."""
+
+    if (
+        "lex_norm" in capability.modality or capability.evidence_mode == "legal_threshold"
+    ) and capability_is_production_admissible(capability):
+        require_legal_source_relation_verification()
 
     if (
         capability.evidence_mode in {"simulation_only", "candidate_unverified"}
@@ -618,6 +642,29 @@ def _capability_input_groups(capability: EvidenceCapability) -> set[str]:
         for asset in capability.source_assets
         if asset.source_layer in SOURCE_LAYER_TO_INPUT_GROUP
     }
+
+
+def _exclude_unverified_lex_capabilities(
+    capabilities: Sequence[EvidenceCapability],
+    *,
+    has_lex_source: bool,
+) -> tuple[list[EvidenceCapability], LegalSourceRelationRefusal | None]:
+    """Remove old Lex authority claims that have no admitted relation receipt."""
+    retained: list[EvidenceCapability] = []
+    removed_lex_authority = False
+    for capability in capabilities:
+        is_lex_source = (
+            "lex_norm" in capability.modality
+            or capability.evidence_mode == "legal_threshold"
+            or "l3_lex_kg" in _capability_input_groups(capability)
+        )
+        if is_lex_source:
+            removed_lex_authority = True
+            continue
+        retained.append(capability)
+    if has_lex_source or removed_lex_authority:
+        return retained, LEGAL_SOURCE_RELATION_REFUSAL
+    return retained, None
 
 
 def discover_input_fingerprints(production_data_root: Path) -> dict[str, Any]:
@@ -1220,6 +1267,9 @@ def _build_legal_norm_owner_truth(
     release_snapshot_at: datetime,
 ) -> LegalNormOwnerTruth | None:
     """Admit only grounded, hallucination-clear, temporally resolved Lex rows."""
+
+    if current_legal_source_relation_disposition().trust_tier == "search_candidate":
+        return None
 
     fact_id = _optional_str(row.get("fact_id"))
     document_ref = _optional_str(row.get("doc_id"))
@@ -2212,15 +2262,18 @@ def write_capability_index_duckdb(
                 "INSERT INTO acquisition_strategies VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 strategy_rows,
             )
-        con.executemany(
-            "INSERT INTO index_metadata VALUES (?, ?)",
-            [
-                ("schema_version", _json_dumps(capability_index.schema_version)),
-                ("compiler_version", _json_dumps(capability_index.compiler_version)),
-                ("release_ref", _json_dumps(capability_index.release_ref)),
-                ("mode", _json_dumps(capability_index.mode)),
-            ],
-        )
+        metadata_rows = [
+            ("schema_version", _json_dumps(capability_index.schema_version)),
+            ("compiler_version", _json_dumps(capability_index.compiler_version)),
+            ("release_ref", _json_dumps(capability_index.release_ref)),
+            ("mode", _json_dumps(capability_index.mode)),
+        ]
+        legal_relation_refusal = capability_index.metadata.get("legal_source_relation_refusal")
+        if isinstance(legal_relation_refusal, Mapping):
+            metadata_rows.append(
+                ("legal_source_relation_refusal", _json_dumps(legal_relation_refusal))
+            )
+        con.executemany("INSERT INTO index_metadata VALUES (?, ?)", metadata_rows)
         return _duckdb_table_counts(con)
 
 
@@ -2258,7 +2311,7 @@ def build_summary(
             modality_counts["compatibility_only"] += 1
         for asset in capability.source_assets:
             source_layer_counts[asset.source_layer] += 1
-    return {
+    summary = {
         "schema_version": "policyos.capability_index.summary.v1",
         "primary_runtime_output": CAPABILITY_INDEX_DUCKDB,
         "exports_are_summary_only": True,
@@ -2276,6 +2329,10 @@ def build_summary(
         "performance_budget": dict(performance_budget),
         "incremental": dict(incremental),
     }
+    legal_relation_refusal = capability_index.metadata.get("legal_source_relation_refusal")
+    if isinstance(legal_relation_refusal, Mapping):
+        summary["legal_source_relation_refusal"] = dict(legal_relation_refusal)
+    return summary
 
 
 def build_manifest(

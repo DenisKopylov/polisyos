@@ -1909,6 +1909,15 @@ class LexSearchResultItem(BaseModel):
     provision_citation: str
 
 
+class LexSourceRelationRefusal(BaseModel):
+    """Typed limitation when Lex claim-to-source relation verification is absent."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    code: Literal["legal_source_relation_verification_not_established"]
+    status: Literal["verification_missing"]
+
+
 class LexSearchResponse(BaseModel):
     """Return ranked Lex fact matches for a text query."""
 
@@ -1920,6 +1929,7 @@ class LexSearchResponse(BaseModel):
     total: int = 0
     search_mode: Literal["text", "vector"] = "text"
     vector_refusal_code: str | None = None
+    legal_relation_refusal: LexSourceRelationRefusal | None = None
 
 
 __all__ = [
@@ -1997,6 +2007,7 @@ __all__ = [
     "LexSearchRequest",
     "LexSearchResponse",
     "LexSearchResultItem",
+    "LexSourceRelationRefusal",
     "LexTriggerRequest",
     "LexTriggerResponse",
     "MetricCandidate",

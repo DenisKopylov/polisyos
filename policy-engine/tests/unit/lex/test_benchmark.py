@@ -2,17 +2,26 @@ from __future__ import annotations
 
 import asyncio
 import json
+from pathlib import Path
+from types import SimpleNamespace
 
 import duckdb
+import pytest
 
 from polisyos.data_forge.domains.legal.batch.config import BatchConfig
 from polisyos.data_forge.domains.legal.batch.pipeline import run_batch_pipeline
 from polisyos.lex import run_legal_benchmark
+from polisyos.lex.knowledge import benchmark as benchmark_module
 
 
 def _seed_benchmark_db(db_path) -> None:
     with duckdb.connect(str(db_path)) as con:
-        for table_name in ("lex_facts", "lex_fact_grounded", "lex_normative_facts"):
+        for table_name in (
+            "lex_facts",
+            "lex_fact_candidates",
+            "lex_fact_grounded",
+            "lex_normative_facts",
+        ):
             con.execute(
                 f"""
                 CREATE TABLE {table_name} (
@@ -226,9 +235,25 @@ def _seed_benchmark_db(db_path) -> None:
             ),
         ]
         grounded_rows = [(*row[:14], "grounded_fact", *row[15:]) for row in base_rows]
+        candidate_rows = [
+            (
+                *row[:13],
+                "",
+                "search_candidate",
+                "missing_quote",
+                "raw",
+                "unresolved",
+                "candidate",
+                *row[19:22],
+                "candidate",
+                *row[23:],
+            )
+            for row in base_rows
+        ]
         normative_rows = [(*row[:14], "normative_fact", *row[15:]) for row in base_rows]
         for table_name, rows in (
             ("lex_facts", grounded_rows),
+            ("lex_fact_candidates", candidate_rows),
             ("lex_fact_grounded", grounded_rows),
             ("lex_normative_facts", normative_rows),
         ):
@@ -316,8 +341,11 @@ def test_run_benchmark_writes_report_and_metrics(tmp_path) -> None:
 
     assert outcome.report_path.exists()
     assert outcome.metrics["benchmark_search_top5_relevance_pct"] >= 75.0
-    assert outcome.metrics["benchmark_constraints_ready_pct"] == 100.0
-    assert outcome.metrics["benchmark_cross_graph_non_unknown_pct"] == 100.0
+    assert outcome.metrics["benchmark_constraints_ready_pct"] == 0.0
+    assert outcome.metrics["benchmark_cross_graph_non_unknown_pct"] == 0.0
+    assert "benchmark_constraints_ready_pct" in outcome.failed_checks
+    assert "benchmark_cross_graph_non_unknown_pct" in outcome.failed_checks
+    assert outcome.passed is False
     assert outcome.metrics["benchmark_entity_dedup_ready_pct"] == 75.0
     assert outcome.metrics["benchmark_reference_resolution_ready_pct"] == 100.0
     assert outcome.metrics["benchmark_amendment_extraction_ready_pct"] == 100.0
@@ -333,6 +361,31 @@ def test_run_benchmark_writes_report_and_metrics(tmp_path) -> None:
     assert all(
         case["vector_refusal_code"] == "query_encoder_assets_unavailable"
         for case in payload["sections"]["search"]["cases"]
+    )
+    assert all(
+        case["result_trust_tiers"] == ["search_candidate"]
+        for case in payload["sections"]["search"]["cases"]
+        if case["results_total"]
+    )
+    expected_refusal = {
+        "code": "legal_source_relation_verification_not_established",
+        "status": "verification_missing",
+    }
+    assert all(
+        row["authority_status"] == "verification_missing"
+        and row["authority_refusal"] == expected_refusal
+        and row["constraints_total"] == 0
+        and row["ready"] is False
+        for row in payload["sections"]["constraints"]["domains"]
+    )
+    assert all(
+        row["legal_status"] == "verification_missing"
+        and row["authority_refusal"] == expected_refusal
+        and row["provenance"] == ""
+        for row in payload["sections"]["cross_graph"]["cases"]
+    )
+    assert all(
+        row["legal_status"] != "allowed" for row in payload["sections"]["cross_graph"]["cases"]
     )
     assert (
         payload["sections"]["quality_capabilities"]["sections"]["entity_resolution"][
@@ -385,6 +438,35 @@ def test_data_forge_pipeline_consumes_real_lex_benchmark_runner(tmp_path) -> Non
 
     stats = asyncio.run(run_batch_pipeline(config, benchmark_runner=run_legal_benchmark))
 
-    assert stats.benchmark_passed is True
-    assert stats.benchmark_failed_checks == []
+    assert stats.benchmark_passed is False
+    assert "benchmark_constraints_ready_pct" in stats.benchmark_failed_checks
+    assert "benchmark_cross_graph_non_unknown_pct" in stats.benchmark_failed_checks
     assert stats.benchmark_metrics["benchmark_normpack_ready_pct"] == 0.0
+
+    payload = json.loads(config.benchmark_report_path.read_text(encoding="utf-8"))
+    assert all(
+        row["authority_refusal"]["status"] == "verification_missing"
+        for row in payload["sections"]["cross_graph"]["cases"]
+    )
+
+
+def test_cross_graph_empty_constraint_set_does_not_imply_allowed(monkeypatch) -> None:
+    class CandidateOnlyGraph:
+        def get_applicable_norms(self, **kwargs):
+            pytest.fail("candidate facts cannot be promoted to applicable legal authority")
+
+    monkeypatch.setattr(
+        benchmark_module,
+        "evaluate_transport_constraints",
+        lambda **kwargs: SimpleNamespace(
+            hard_constraints=[],
+            soft_constraints=[],
+            data_license_constraints=[],
+        ),
+    )
+
+    assert benchmark_module._resolve_cross_graph_status(
+        graph=CandidateOnlyGraph(),
+        domain="licensing",
+        db_path=Path("unused.duckdb"),
+    ) == ("unknown", "", None)

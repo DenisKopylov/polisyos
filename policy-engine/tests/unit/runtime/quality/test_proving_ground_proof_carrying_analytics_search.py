@@ -646,6 +646,142 @@ def test_layer3_g3_task2_indexes_selected_artifact_refs_without_full_store_listi
     assert "layer3_g3_full_cas_listing_in_request_path" not in index.issue_codes
 
 
+def test_layer3_g3_producer_adapts_core_store_through_the_injected_guard(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.fabric.connectors.resilience.circuit_breaker import (
+        CircuitBreaker,
+        CircuitBreakerConfig,
+    )
+    from polisyos.ir.analytics.causal import load_proof_bundle, persist_proof_bundle
+    from polisyos.ir.registry.refs import ProofBundleRef
+    from polisyos.runtime.http.resilience import (
+        BlockingDependencyGuard,
+        GuardedDependencyProxy,
+    )
+
+    g3 = _g3()
+    store = FileSystemCAS(tmp_path / "guarded-cas")
+    guard = BlockingDependencyGuard(
+        dependency_name="g3-proof-producer-cas",
+        timeout_seconds=2.0,
+        breaker=CircuitBreaker(
+            "g3-proof-producer-cas",
+            CircuitBreakerConfig(min_throughput=1),
+        ),
+    )
+    guard_calls: list[str] = []
+    guarded_run = guard.run
+
+    def record_guard_call(function, *args, **kwargs):
+        guard_calls.append(function.__name__)
+        return guarded_run(function, *args, **kwargs)
+
+    monkeypatch.setattr(guard, "run", record_guard_call)
+    guarded_store = GuardedDependencyProxy(target=store, guard=guard)
+    try:
+        request = _task2_request(g3, "guarded-core-store")
+        candidates = g3.produce_g3_deterministic_first_case_certificate(
+            request,
+            store=guarded_store,
+        )
+
+        adapted_store = _ensure_ir_artifact_store(guarded_store)
+        assert _ensure_ir_artifact_store(adapted_store) is adapted_store
+        proof_ref = ProofBundleRef.model_validate(candidates[0].artifact_ref)
+        loaded = load_proof_bundle(adapted_store, proof_ref)
+
+        assert loaded.proof_status == "identified"
+        # The IR adapter lowers its typed write options to Core put_bytes while
+        # all reads/writes still pass through the injected guard facade.
+        assert "put_bytes" in guard_calls
+        assert "get_manifest_bytes" in guard_calls
+        assert "get_bytes" in guard_calls
+        assert guarded_store._target is store
+
+        # The Core contract remains strict: the actual IR producer still fails
+        # on a raw Core store because IR canon options are a different type.
+        with pytest.raises(
+            ValueError,
+            match=r"^canon metadata must match the canonicalization spec used for encoding$",
+        ):
+            persist_proof_bundle(FileSystemCAS(tmp_path / "unadapted-core-control"), loaded)
+    finally:
+        guarded_store.close()
+
+
+def test_layer3_g3_bundle_builder_keeps_core_cas_guard_for_real_consumer_chain(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from types import SimpleNamespace
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.fabric.connectors.resilience.circuit_breaker import (
+        CircuitBreaker,
+        CircuitBreakerConfig,
+    )
+    from polisyos.runtime.http.resilience import (
+        BlockingDependencyGuard,
+        GuardedDependencyProxy,
+    )
+
+    g3 = _g3()
+    original_import_module = import_module
+    requested_roots: list[Path] = []
+    guard_calls: list[str] = []
+    guarded_stores: list[GuardedDependencyProxy] = []
+    physical_stores: list[FileSystemCAS] = []
+
+    def guarded_cas(requested_root: Path) -> GuardedDependencyProxy:
+        requested_roots.append(Path(requested_root))
+        physical_store = FileSystemCAS(tmp_path / "builder-cas")
+        guard = BlockingDependencyGuard(
+            dependency_name="g3-bundle-builder-cas",
+            timeout_seconds=2.0,
+            breaker=CircuitBreaker(
+                "g3-bundle-builder-cas",
+                CircuitBreakerConfig(min_throughput=1),
+            ),
+        )
+        guarded_run = guard.run
+
+        def record_guard_call(function, *args, **kwargs):
+            guard_calls.append(function.__name__)
+            return guarded_run(function, *args, **kwargs)
+
+        monkeypatch.setattr(guard, "run", record_guard_call)
+        guarded_store = GuardedDependencyProxy(target=physical_store, guard=guard)
+        physical_stores.append(physical_store)
+        guarded_stores.append(guarded_store)
+        return guarded_store
+
+    def source_bound_import(module_name: str, package: str | None = None) -> Any:
+        if module_name == "polisyos.core.artifacts.store":
+            return SimpleNamespace(FileSystemCAS=guarded_cas)
+        return original_import_module(module_name, package)
+
+    # Isolate only the builder's constructor lookup. Replacing the real module
+    # attribute would also mutate FileSystemCAS's own isinstance checks.
+    monkeypatch.setattr(g3, "importlib", SimpleNamespace(import_module=source_bound_import))
+    try:
+        bundle = g3.build_layer3_g3_bundle(REPO_ROOT)
+
+        assert requested_roots == [REPO_ROOT / "_build" / ".tmp" / "production-quality" / "g3-cas"]
+        assert bundle.ir_artifact_store_index.selected_candidate_count == 1
+        assert bundle.certificate_resolution_report.positive_resolved_certificate_count == 1
+        assert bundle.certificate_resolution_report.status == "pass"
+        assert "put_bytes" in guard_calls
+        assert "get_manifest_bytes" in guard_calls
+        assert "get_bytes" in guard_calls
+        assert guarded_stores[0]._target is physical_stores[0]
+    finally:
+        for guarded_store in guarded_stores:
+            guarded_store.close()
+
+
 def test_layer3_g3_task2_resolves_positive_proof_bundle_with_typed_loader(
     tmp_path: Path,
 ) -> None:

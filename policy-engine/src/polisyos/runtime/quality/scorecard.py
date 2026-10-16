@@ -8565,7 +8565,11 @@ def _source_truth_reader_conflicts(
     authority_refs = _runtime_authority_refs(
         job_payload=job_payload,
         run_payload=run_payload,
-        quality_evidence=quality_evidence,
+        # This reader detects disagreement with a runtime-owned ref. Letting
+        # the report body participate in ref resolution would let its
+        # contradictory value erase the runtime ref before we record the
+        # conflict.
+        quality_evidence=None,
     )
     for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
         report = quality_evidence.get(report_key)
@@ -10083,7 +10087,11 @@ def build_quality_scorecard(
         canary_kind=canary_kind,
     )
     reader_source_truth_conflicts = _source_truth_reader_conflicts(
-        quality_evidence=quality_evidence,
+        # The admitted view deliberately removes report bodies whose embedded
+        # runtime ref conflicts with the resolver's accepted ref. Preserve the
+        # rejected input only for conflict diagnostics so the mismatch remains
+        # visible after admission fails closed.
+        quality_evidence=raw_quality_evidence,
         canary_kind=canary_kind,
         job_payload=job_payload,
         run_payload=run_payload,

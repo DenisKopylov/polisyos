@@ -10,6 +10,10 @@ from typing import TYPE_CHECKING, Any
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.data_forge.domains.legal.source_relation import (
+    require_legal_source_relation_verification,
+)
+
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
@@ -112,6 +116,13 @@ class LegalConstraintBridge:
         policy_domain: str,
         policy_spec: dict[str, Any],
     ) -> LegalConstraintSet:
+        """Return legal transport constraints only after source relation verification.
+
+        The current Legal pipeline has no independent claim-to-source verifier.
+        Candidate facts and request booleans therefore cannot establish either a
+        prohibition or the absence of one.
+        """
+        require_legal_source_relation_verification()
         jurisdiction_norm = (jurisdiction or "").strip().upper()
         policy_domain_norm = _normalize_token(policy_domain or "policy")
         facts = self._find_relevant_facts(

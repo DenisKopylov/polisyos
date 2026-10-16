@@ -12,6 +12,9 @@ from typing import Any, Protocol
 import duckdb
 
 from polisyos.core import artifacts as core_artifacts
+from polisyos.data_forge.domains.legal.source_relation import (
+    LegalSourceRelationVerificationMissingError,
+)
 from polisyos.data_forge.read_api import legal as legal_read_api
 from polisyos.lex.api import assemble_norm_pack, evaluate_transport_constraints
 from polisyos.lex.knowledge.search import LegalKnowledgeGraph
@@ -183,10 +186,10 @@ def _search_case_results(
     results = graph.hybrid_search(
         case.query,
         top_k=5,
-        trust_tier="grounded_fact",
+        trust_tier="search_candidate",
         jurisdiction="UA",
         domain=case.domain,
-        include_candidates=False,
+        include_candidates=True,
     )
     if results and any(_result_matches_case(result, case) for result in results):
         return results
@@ -199,9 +202,9 @@ def _search_case_results(
                 graph.search_facts_by_action(
                     action,
                     top_k=5,
-                    trust_tier="grounded_fact",
+                    trust_tier="search_candidate",
                     domain=case.domain,
-                    include_candidates=False,
+                    include_candidates=True,
                 ),
             )
 
@@ -212,8 +215,10 @@ def _search_case_results(
                 graph.search_facts_with_threshold(
                     token,
                     top_k=5,
+                    trust_tier="search_candidate",
                     jurisdiction="UA",
                     domain=case.domain,
+                    include_candidates=True,
                 ),
             )
 
@@ -224,10 +229,10 @@ def _search_case_results(
             graph.hybrid_search(
                 token,
                 top_k=5,
-                trust_tier="grounded_fact",
+                trust_tier="search_candidate",
                 jurisdiction="UA",
                 domain=case.domain,
-                include_candidates=False,
+                include_candidates=True,
             ),
         )
     for token in [part.strip() for part in case.query.split() if len(part.strip()) >= 4]:
@@ -241,10 +246,10 @@ def _search_case_results(
             fact_results = graph.hybrid_search(
                 provision.provision_text_preview,
                 top_k=5,
-                trust_tier="grounded_fact",
+                trust_tier="search_candidate",
                 jurisdiction="UA",
                 domain=case.domain,
-                include_candidates=False,
+                include_candidates=True,
             )
             _merge_results(merged, fact_results)
     return list(merged.values())[:5]
@@ -267,6 +272,7 @@ def _run_search_benchmark(
                 "case_id": case.case_id,
                 "query": case.query,
                 "results_total": len(results),
+                "result_trust_tiers": sorted({str(result.trust_tier) for result in results}),
                 "vector_refusal_code": (
                     graph.query_profile_error.code
                     if graph.query_profile_error is not None
@@ -295,11 +301,24 @@ def _run_constraints_benchmark(
     rows: list[dict[str, Any]] = []
     ready = 0
     for domain in domains:
-        results = graph.find_legal_constraints(
-            jurisdiction="UA",
-            domain=domain,
-            top_k=20,
-        )
+        try:
+            results = graph.find_legal_constraints(
+                jurisdiction="UA",
+                domain=domain,
+                top_k=20,
+            )
+        except LegalSourceRelationVerificationMissingError as exc:
+            rows.append(
+                {
+                    "domain": domain,
+                    "constraints_total": 0,
+                    "ready": False,
+                    "top_fact_id": "",
+                    "authority_status": exc.refusal.status,
+                    "authority_refusal": exc.refusal.to_payload(),
+                }
+            )
+            continue
         if results:
             ready += 1
         rows.append(
@@ -319,13 +338,16 @@ def _run_constraints_benchmark(
 
 def _resolve_cross_graph_status(
     *, graph: LegalKnowledgeGraph, domain: str, db_path: Path
-) -> tuple[str, str]:
-    constraint_set = evaluate_transport_constraints(
-        jurisdiction="UA",
-        policy_domain=domain,
-        policy_spec={"retroactive": True},
-        legal_kg_db_path=db_path,
-    )
+) -> tuple[str, str, dict[str, str] | None]:
+    try:
+        constraint_set = evaluate_transport_constraints(
+            jurisdiction="UA",
+            policy_domain=domain,
+            policy_spec={"retroactive": True},
+            legal_kg_db_path=db_path,
+        )
+    except LegalSourceRelationVerificationMissingError as exc:
+        return exc.refusal.status, "", exc.refusal.to_payload()
     all_constraints = [
         *constraint_set.hard_constraints,
         *constraint_set.soft_constraints,
@@ -338,19 +360,12 @@ def _resolve_cross_graph_status(
         and not str(constraint.legal_source or "").endswith(":dataset_license")
     ]
     if grounded_constraints and constraint_set.hard_constraints:
-        return "prohibited", grounded_constraints[0].legal_source
+        return "prohibited", grounded_constraints[0].legal_source, None
     if grounded_constraints and (
         constraint_set.soft_constraints or constraint_set.data_license_constraints
     ):
-        return "constrained", grounded_constraints[0].legal_source
-    applicable = graph.get_applicable_norms(
-        jurisdiction="UA",
-        domain=domain,
-        top_k=20,
-    )
-    if applicable:
-        return "allowed", applicable[0].doc_name or applicable[0].doc_reestr_code
-    return "unknown", ""
+        return "constrained", grounded_constraints[0].legal_source, None
+    return "unknown", "", None
 
 
 def _run_cross_graph_benchmark(
@@ -364,12 +379,12 @@ def _run_cross_graph_benchmark(
     selected_domains = domains[: len(_POLICY_CASES)] if domains else []
     for idx, domain in enumerate(selected_domains):
         label, policy_spec = _POLICY_CASES[idx]
-        status, provenance = _resolve_cross_graph_status(
+        status, provenance, authority_refusal = _resolve_cross_graph_status(
             graph=graph,
             domain=domain,
             db_path=db_path,
         )
-        if status != "unknown":
+        if status in {"prohibited", "constrained"}:
             non_unknown += 1
         rows.append(
             {
@@ -378,6 +393,7 @@ def _run_cross_graph_benchmark(
                 "policy_spec": policy_spec,
                 "legal_status": status,
                 "provenance": provenance,
+                "authority_refusal": authority_refusal,
             }
         )
     metrics: dict[str, float | int] = {
@@ -391,6 +407,7 @@ def _run_normpack_benchmark(
     config: LexBenchmarkConfig,
 ) -> tuple[dict[str, Any], dict[str, float | int]]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     summary_path = config.claim_exports_dir / "normative_claim_sets_summary.json"
     if not summary_path.exists():
         return {

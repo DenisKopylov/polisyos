@@ -293,9 +293,7 @@ def run_eight_stage_producer_pipeline(
     issues.extend(dict(blocker) for blocker in spine_bootstrap["blockers"])
     liveness_blockers: list[dict[str, Any]] = []
     records: list[dict[str, Any]] = []
-    state_history: dict[str, list[str]] = {
-        item.producer_component: [] for item in producer_models
-    }
+    state_history: dict[str, list[str]] = {item.producer_component: [] for item in producer_models}
     blocked_producers: set[str] = set()
 
     for producer in producer_models:
@@ -677,15 +675,9 @@ def run_requirement_spec_producer_pipeline(
             legal_authority_requirement_specs=legal_authority_requirement_specs,
             method_validity_requirement_specs=method_validity_requirement_specs,
             scholar_support_requirement_specs=scholar_support_requirement_specs,
-            participation_provenance_requirement_specs=(
-                participation_provenance_requirement_specs
-            ),
-            capability_index_ref=_capability_index_ref_from_bindings(
-                capability_bindings
-            ),
-            construct_registry_ref=_construct_registry_ref_from_bindings(
-                capability_bindings
-            ),
+            participation_provenance_requirement_specs=(participation_provenance_requirement_specs),
+            capability_index_ref=_capability_index_ref_from_bindings(capability_bindings),
+            construct_registry_ref=_construct_registry_ref_from_bindings(capability_bindings),
             authority_composition_rule_ref=(
                 _authority_composition_rule_ref_from_bindings(capability_bindings)
             ),
@@ -894,9 +886,7 @@ def build_producer_pipeline_quality_evidence_surfaces(
         "producer_pipeline_readiness": dict(_required_mapping(report, "readiness")),
         "producer_pipeline_control_plane": dict(_required_mapping(report, "control_plane")),
         "producer_pipeline_replay": dict(_required_mapping(report, "replay")),
-        "producer_pipeline_bundle_assembly": dict(
-            _required_mapping(report, "bundle_assembly")
-        ),
+        "producer_pipeline_bundle_assembly": dict(_required_mapping(report, "bundle_assembly")),
         "producer_pipeline_inspection": dict(_required_mapping(report, "inspection")),
     }
 
@@ -1362,10 +1352,7 @@ def _spine_bootstrap(
         blockers.append(
             _issue(
                 "producer_pipeline_obligation_graph_blocked",
-                (
-                    "W6.C obligation graph is not pass and cannot feed producer "
-                    "authority."
-                ),
+                ("W6.C obligation graph is not pass and cannot feed producer authority."),
                 phase="spine_bootstrap",
                 severity="fail",
                 capability_label="bridge_missing",
@@ -1386,10 +1373,7 @@ def _spine_bootstrap(
         blockers.append(
             _issue(
                 "producer_pipeline_claim_decomposition_blocked",
-                (
-                    "W6.D claim decomposition is not pass and cannot feed producer "
-                    "authority."
-                ),
+                ("W6.D claim decomposition is not pass and cannot feed producer authority."),
                 phase="spine_bootstrap",
                 severity="fail",
                 capability_label="bridge_missing",
@@ -1477,9 +1461,7 @@ def _provisional_claim_registry(
     first_pass_records: Sequence[Mapping[str, Any]],
 ) -> dict[str, Any]:
     producer_requirement_refs = [
-        requirement
-        for producer in producers
-        for requirement in producer.consumed_requirement_refs
+        requirement for producer in producers for requirement in producer.consumed_requirement_refs
     ]
     context_only_refs = _binding_refs(first_pass_records, "context_only_label_refs")
     blocker_refs = _binding_refs(first_pass_records, "blocked_binding_refs")
@@ -1574,9 +1556,7 @@ def _semantic_closure(
     status: str,
 ) -> dict[str, Any]:
     closure_status = (
-        "pass"
-        if status == "pass" and handshake_ledger.get("status") == "pass"
-        else "blocked"
+        "pass" if status == "pass" and handshake_ledger.get("status") == "pass" else "blocked"
     )
     closure = {
         "schema_version": "policyos.runtime.producer_pipeline.semantic_closure.v1",
@@ -1733,9 +1713,7 @@ def _replay_patch(
             "carrier_ref": carrier.get("carrier_ref"),
             "concept_spine_ref": carrier.get("concept_spine_ref"),
             "jurisdiction_spine_ref": carrier.get("jurisdiction_spine_ref"),
-            "producer_handshake_ledger_ref": handshake_ledger.get(
-                "producer_handshake_ledger_ref"
-            ),
+            "producer_handshake_ledger_ref": handshake_ledger.get("producer_handshake_ledger_ref"),
             "provisional_claim_registry_ref": provisional_registry.get(
                 "provisional_claim_registry_ref"
             ),
@@ -1761,9 +1739,7 @@ def _control_plane_patch(
         "schema_version": "policyos.runtime.producer_pipeline.control_plane_patch.v1",
         "progress_patch": {
             "producer_pipeline_ref": pipeline_ref,
-            "producer_handshake_ledger_ref": handshake_ledger.get(
-                "producer_handshake_ledger_ref"
-            ),
+            "producer_handshake_ledger_ref": handshake_ledger.get("producer_handshake_ledger_ref"),
             "producer_pipeline_readiness": readiness,
         },
         "workflow_state_patch": {
@@ -1909,11 +1885,7 @@ def _record_blocking(record: Mapping[str, Any]) -> bool:
 
 
 def _binding_refs(records: Sequence[Mapping[str, Any]], key: str) -> tuple[str, ...]:
-    return tuple(
-        dict.fromkeys(
-            ref for record in records for ref in _text_tuple(record.get(key))
-        )
-    )
+    return tuple(dict.fromkeys(ref for record in records for ref in _text_tuple(record.get(key))))
 
 
 def _producer_binding_decisions(
@@ -1934,14 +1906,11 @@ def _cross_modal_consistency(
     capability_rows = [
         dict(row)
         for row in decisions
-        if _optional_text(row.get("capability_ref"))
-        and _optional_text(row.get("construct_ref"))
+        if _optional_text(row.get("capability_ref")) and _optional_text(row.get("construct_ref"))
     ]
     conflict_refs = list(
         dict.fromkeys(
-            ref
-            for row in capability_rows
-            for ref in _text_tuple(row.get("conflict_marker_refs"))
+            ref for row in capability_rows for ref in _text_tuple(row.get("conflict_marker_refs"))
         )
     )
     construct_refs = sorted(
@@ -2279,8 +2248,7 @@ def _producer_from_adapter_report(
         )
     return ProducerPipelineProducer(
         producer_component=component,
-        consumed_concept_refs=_text_tuple(concept_refs)
-        or ("concept:compiled-policy-design-case",),
+        consumed_concept_refs=_text_tuple(concept_refs) or ("concept:compiled-policy-design-case",),
         consumed_requirement_refs=refs,
         expected_output_families=(output_family,),
         first_pass_bindings=first_pass,
@@ -2303,8 +2271,7 @@ def _fabric_pipeline_bindings(
         bindings.append(
             ProducerPipelineBinding(
                 binding_id=(
-                    f"binding.fabric."
-                    f"{_slug(requirement_ref or row.get('source_family'))}.{status}"
+                    f"binding.fabric.{_slug(requirement_ref or row.get('source_family'))}.{status}"
                 ),
                 binding_kind="dataset",
                 disposition=status,  # type: ignore[arg-type]
@@ -2330,8 +2297,7 @@ def _lex_pipeline_bindings(
         bindings.append(
             ProducerPipelineBinding(
                 binding_id=(
-                    "binding.lex."
-                    f"{_slug(row.get('legal_authority_record_id') or requirement_ref)}"
+                    f"binding.lex.{_slug(row.get('legal_authority_record_id') or requirement_ref)}"
                 ),
                 binding_kind="norm",
                 disposition=disposition,
@@ -2497,9 +2463,7 @@ def _legal_disposition(row: Mapping[str, Any]) -> ProducerPipelineDisposition:
 
 
 def _capability_binding_kwargs(row: Mapping[str, Any]) -> dict[str, Any]:
-    capability_ref = _optional_text(
-        row.get("capability_ref") or row.get("selected_capability_ref")
-    )
+    capability_ref = _optional_text(row.get("capability_ref") or row.get("selected_capability_ref"))
     payload: dict[str, Any] = {}
     for target, source in (
         ("capability_ref", capability_ref),
@@ -2584,9 +2548,7 @@ def _compiled_requirement_exit_gate(
         "status": status,
         "missing_spec_families": missing_specs,
         "missing_binding_producers": missing_bindings,
-        "requirement_counts": {
-            family: len(specs) for family, specs in specs_by_family.items()
-        },
+        "requirement_counts": {family: len(specs) for family, specs in specs_by_family.items()},
         "adapter_binding_counts": {
             producer.producer_component: len(producer.second_pass_bindings)
             for producer in producers

@@ -154,12 +154,14 @@ def test_build_graph_creates_fact_partitions_and_reference_edges(tmp_path) -> No
     )
 
     assert stats.facts == 1
-    assert stats.normative_facts == 1
+    assert stats.candidate_facts == 1
+    assert stats.normative_facts == 0
     assert stats.reference_edges == 1
 
     with duckdb.connect(str(db_path), read_only=True) as con:
-        assert con.execute("SELECT COUNT(*) FROM lex_normative_facts").fetchone()[0] == 1
-        assert con.execute("SELECT COUNT(*) FROM lex_fact_grounded").fetchone()[0] == 1
+        assert con.execute("SELECT COUNT(*) FROM lex_fact_candidates").fetchone()[0] == 1
+        assert con.execute("SELECT COUNT(*) FROM lex_normative_facts").fetchone()[0] == 0
+        assert con.execute("SELECT COUNT(*) FROM lex_fact_grounded").fetchone()[0] == 0
         assert con.execute("SELECT top_domain FROM lex_facts").fetchone()[0] == "transport"
         assert (
             con.execute("SELECT reference_resolution_status FROM lex_facts").fetchone()[0]
@@ -290,7 +292,8 @@ def test_build_graph_rewrites_fact_id_collisions_for_distinct_statements(tmp_pat
     )
 
     assert stats.facts == 2
-    assert stats.grounded_facts == 2
+    assert stats.candidate_facts == 2
+    assert stats.grounded_facts == 0
 
     with duckdb.connect(str(db_path), read_only=True) as con:
         rows = con.execute(
@@ -1031,13 +1034,14 @@ def test_build_graph_replaces_synthetic_subject_with_publisher_and_cleans_flags(
     )
 
     assert stats.facts == 1
-    assert stats.normative_facts == 1
+    assert stats.candidate_facts == 1
+    assert stats.normative_facts == 0
 
     with duckdb.connect(str(db_path), read_only=True) as con:
         row = con.execute(
             """
             SELECT subject_uk, hallucination_flags_json
-            FROM lex_normative_facts
+            FROM lex_fact_candidates
             """
         ).fetchone()
         assert row is not None

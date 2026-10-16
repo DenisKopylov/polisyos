@@ -4,12 +4,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 from pydantic import ValidationError
 
-from polisyos.core.artifacts.manifest import SchemaInfo
-from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.scholar import (
     FreshnessStatus,
@@ -29,7 +28,6 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_KNOWLEDGE_BUNDLE_REF,
     INPUT_RESEARCH_INTENT_REF,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.idempotency import (
     NodeResultCache,
     compute_idempotency_key,
@@ -40,8 +38,12 @@ from polisyos.scientist.orchestration.engine.protocol import (
     NodeOutcome,
     NodeSpec,
 )
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
+
+if TYPE_CHECKING:
+    from polisyos.scholar.freshness import FreshnessCheckResult
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_enrich_knowledge@1.1.0"),
@@ -131,7 +133,35 @@ class EnrichKnowledgeNode:
                 ),
             )
 
-        freshness_store = FreshnessStateStore(ctx.store)
+        missing_root = object()
+        root_path: object = getattr(ctx.store, "root", missing_root)
+        if root_path is missing_root:
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code="scholar.freshness_state_requires_rooted_store",
+                    message=(
+                        "Knowledge-bundle freshness requires a rooted artifact store "
+                        "for persistent cooldown and refresh-lock state"
+                    ),
+                    details={"required_store_capability": "RootedArtifactStore"},
+                ),
+            )
+        if not isinstance(root_path, Path):
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code="scholar.freshness_root_invalid",
+                    message="Rooted artifact store returned an invalid freshness root",
+                    details={
+                        "required_root_type": "Path",
+                        "observed_root_type": type(root_path).__name__,
+                    },
+                ),
+            )
+        freshness_store = FreshnessStateStore(root_path)
         existing_ref = self._resolve_existing_bundle_ref(ctx, state)
         existing_bundle: KnowledgeBundlePayloadV1 | None = None
         if existing_ref is not None:
@@ -302,7 +332,7 @@ class EnrichKnowledgeNode:
         *,
         state: ExperimentState,
         bundle_ref: KnowledgeBundleRef,
-        freshness: Any,
+        freshness: FreshnessCheckResult,
         level: str | None = None,
         code: str | None = None,
         message: str | None = None,
@@ -416,16 +446,13 @@ class EnrichKnowledgeNode:
         ctx: ExecutionContext,
         bundle: KnowledgeBundlePayloadV1,
     ) -> KnowledgeBundleRef:
-        artifact = ctx.store.put_json(
-            bundle.model_dump(mode="python"),
-            PutOptions(
-                kind="scholar.knowledge_bundle",
-                media_type="application/json",
-                schema=SchemaInfo(name="polisyos.scholar.KnowledgeBundlePayloadV1", version="1.0"),
-            ),
+        from polisyos.scholar import persist_knowledge_bundle_payload
+
+        return persist_knowledge_bundle_payload(
+            cas=ctx.store,
+            bundle_payload=bundle,
             return_selected_profile=True,
         )
-        return KnowledgeBundleRef.model_validate(artifact.model_dump(mode="json"))
 
     def _extract_drift_signals(self, state: ExperimentState) -> dict[str, bool]:
         raw = state.params.get("scholar_drift_signals")

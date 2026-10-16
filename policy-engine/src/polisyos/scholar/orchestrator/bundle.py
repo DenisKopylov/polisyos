@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scholar import (
     EnrichmentReportRef,
     FreshnessMetadata,
@@ -36,6 +37,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
 
 _BUNDLE_SCHEMA = SchemaInfo(name="polisyos.scholar.KnowledgeBundlePayloadV1", version="1.0")
+_BUNDLE_CANON_SPEC = CanonSpec(forbid_floats=False)
 _REPORT_SCHEMA = SchemaInfo(name="polisyos.scholar.EnrichmentReportV1", version="1.0")
 
 
@@ -53,7 +55,7 @@ def compute_bundle_id(
         "claim_ids": sorted(set(claim_ids)),
         "policy_ids_used": {key: policy_ids_used[key] for key in sorted(policy_ids_used)},
     }
-    return cast("str", stable_world_id_from_canon(prefix="bundle", payload=payload))
+    return stable_world_id_from_canon(prefix="bundle", payload=payload)
 
 
 def build_knowledge_bundle_payload(
@@ -113,6 +115,28 @@ def _input_refs(artifact_ids: list[str]) -> list[InputRef]:
     return refs
 
 
+def persist_knowledge_bundle_payload(
+    *,
+    cas: ArtifactStore,
+    bundle_payload: KnowledgeBundlePayloadV1,
+    input_artifact_ids: list[str] | None = None,
+    return_selected_profile: bool,
+) -> KnowledgeBundleRef:
+    """Persist the shared KnowledgeBundle schema using its declared float-capable profile."""
+    artifact = cas.put_json(
+        bundle_payload.model_dump(mode="python"),
+        opts=ArtifactWriteOptions(
+            kind="scholar.knowledge_bundle",
+            media_type="application/json",
+            schema=_BUNDLE_SCHEMA,
+            inputs=_input_refs(input_artifact_ids or []),
+        ),
+        canon_spec=_BUNDLE_CANON_SPEC,
+        return_selected_profile=return_selected_profile,
+    )
+    return KnowledgeBundleRef.model_validate(artifact.model_dump(mode="json"))
+
+
 def persist_bundle_and_event(
     *,
     cas: ArtifactStore,
@@ -145,14 +169,10 @@ def persist_bundle_and_event(
     Returns:
         The bundle ref, report with its bundle ID, and optional report ref.
     """
-    bundle_ref = cas.put_json(
-        bundle_payload.model_dump(mode="python"),
-        opts=ArtifactWriteOptions(
-            kind="scholar.knowledge_bundle",
-            media_type="application/json",
-            schema=_BUNDLE_SCHEMA,
-            inputs=_input_refs(input_artifact_ids),
-        ),
+    bundle_ref = persist_knowledge_bundle_payload(
+        cas=cas,
+        bundle_payload=bundle_payload,
+        input_artifact_ids=input_artifact_ids,
         return_selected_profile=return_selected_profile,
     )
     bundle_artifact_id = str(bundle_ref.artifact_id)
@@ -220,7 +240,7 @@ def persist_bundle_and_event(
     append_world_segment_index(manifest, fact_log_root=fact_log_root)
 
     return (
-        KnowledgeBundleRef.model_validate(bundle_ref.model_dump(mode="json")),
+        bundle_ref,
         report,
         report_ref,
     )
@@ -230,4 +250,5 @@ __all__ = [
     "build_knowledge_bundle_payload",
     "compute_bundle_id",
     "persist_bundle_and_event",
+    "persist_knowledge_bundle_payload",
 ]

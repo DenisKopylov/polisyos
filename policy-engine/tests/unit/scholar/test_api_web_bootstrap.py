@@ -5,16 +5,24 @@ from __future__ import annotations
 import asyncio
 import copy
 import json
+import threading
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import httpx
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256,
+    load_core_json_artifact,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import content_hash, from_canonical_bytes
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent
-from polisyos.scholar.api import enrich_topic
+from polisyos.fabric.claims.persist import load_doc_meta
+from polisyos.ir.world.ids import doc_version_id_from_raw_artifact
+from polisyos.scholar.api import _source_spec_from_snapshot, enrich_topic
 from polisyos.scholar.errors import ScholarAcquireError
 from polisyos.scholar.search.cache import UrlFetchCache
 from polisyos.scholar.search.fetcher import source_id_from_url
@@ -23,6 +31,7 @@ from polisyos.scholar.search.models import (
     QueryGraph,
     ResearchBrief,
     SearchBudgetControls,
+    SearchConstraints,
     SourceSnippet,
     WebEvidenceBundle,
     WebSearchHit,
@@ -35,7 +44,11 @@ from polisyos.scholar.search.providers import (
 from polisyos.scholar.search.scoring import build_source_metadata
 from polisyos.scholar.search.security import sanitize_untrusted_text
 from polisyos.scholar.search.service import ScholarDeepSearchService
-from polisyos.scholar.types import EnrichmentReportV1, EnrichResultV1
+from polisyos.scholar.types import (
+    EnrichmentReportV1,
+    EnrichResultV1,
+    KnowledgeBundlePayloadV1,
+)
 
 
 def _assert_expected_validation_error(
@@ -48,12 +61,15 @@ def _assert_expected_validation_error(
     """Require one specific typed validation failure, not an earlier decode error."""
     errors = error.errors(include_url=False)
     assert errors
-    assert expected_location_suffix is not None or expected_error_type is not None or expected_message is not None
+    assert (
+        expected_location_suffix is not None
+        or expected_error_type is not None
+        or expected_message is not None
+    )
     assert any(
         (
             expected_location_suffix is None
-            or tuple(item["loc"][-len(expected_location_suffix) :])
-            == expected_location_suffix
+            or tuple(item["loc"][-len(expected_location_suffix) :]) == expected_location_suffix
         )
         and (expected_error_type is None or item["type"] == expected_error_type)
         and (expected_message is None or expected_message in item["msg"])
@@ -245,9 +261,7 @@ def test_enrich_topic_bootstraps_seed_sources_from_web(
         fact_log_root=tmp_path / "facts",
         intent=ResearchIntent(domain="labor", topic="minimum wage effects"),
         web_search_service=ScholarDeepSearchService(
-            provider_policy=ProviderFailoverPolicy(
-                [providers[name] for name in provider_order]
-            ),
+            provider_policy=ProviderFailoverPolicy([providers[name] for name in provider_order]),
             cas=cas,
         ),
         web_search_budgets=SearchBudgetControls(
@@ -263,9 +277,7 @@ def test_enrich_topic_bootstraps_seed_sources_from_web(
     assert len(captured["web_evidence_bundle"].query_traces) == 1
     trace = captured["web_evidence_bundle"].query_traces[0]
     assert trace.provider == "static"
-    assert [
-        attempt.provider for attempt in trace.provider_attempts
-    ] == expected_provider_calls
+    assert [attempt.provider for attempt in trace.provider_attempts] == expected_provider_calls
     assert [attempt.reason for attempt in trace.provider_attempts] == [
         "not_established" for _ in expected_provider_calls
     ]
@@ -280,19 +292,15 @@ def test_enrich_topic_bootstraps_seed_sources_from_web(
     assert captured["intent"].seed_sources[0].raw_artifact_ref is not None
     assert captured["web_evidence_bundle"].bundle_id.startswith("webkb.")
     assert captured["web_evidence_artifact_id"].startswith("sha256:")
-    payload_bytes = cas.get_bytes(
-        ArtifactID.model_validate(captured["web_evidence_artifact_id"])
-    )
+    payload_bytes = cas.get_bytes(ArtifactID.model_validate(captured["web_evidence_artifact_id"]))
     persisted = json.loads(payload_bytes)
     typed_persisted = from_canonical_bytes(payload_bytes)
     assert persisted["schema_version"] == "1.1"
     assert [
-        attempt["provider"]
-        for attempt in persisted["query_traces"][0]["provider_attempts"]
+        attempt["provider"] for attempt in persisted["query_traces"][0]["provider_attempts"]
     ] == expected_provider_calls
     assert [
-        attempt["outcome"]
-        for attempt in persisted["query_traces"][0]["provider_attempts"]
+        attempt["outcome"] for attempt in persisted["query_traces"][0]["provider_attempts"]
     ] == [
         "returned_no_hits" if name == "empty" else "returned_hits"
         for name in expected_provider_calls
@@ -309,14 +317,17 @@ def test_enrich_topic_bootstraps_seed_sources_from_web(
     malformed_payloads.append(
         (
             malformed,
-            {"expected_location_suffix": ("returned_hit_count",), "expected_error_type": "int_type"},
+            {
+                "expected_location_suffix": ("returned_hit_count",),
+                "expected_error_type": "int_type",
+            },
         )
     )
 
     malformed = copy.deepcopy(typed_persisted)
-    malformed["query_traces"][0]["provider_attempts"][0][
-        "constraint_rejection_counts"
-    ] = {"forged": -1}
+    malformed["query_traces"][0]["provider_attempts"][0]["constraint_rejection_counts"] = {
+        "forged": -1
+    }
     malformed_payloads.append(
         (
             malformed,
@@ -328,14 +339,17 @@ def test_enrich_topic_bootstraps_seed_sources_from_web(
     )
 
     malformed = copy.deepcopy(typed_persisted)
-    malformed["query_traces"][0]["provider_attempts"][0][
-        "normalization_rejection_counts"
-    ] = {"forged": True}
+    malformed["query_traces"][0]["provider_attempts"][0]["normalization_rejection_counts"] = {
+        "forged": True
+    }
     malformed_payloads.append(
         (
             malformed,
             {
-                "expected_location_suffix": ("normalization_rejection_counts", "forged"),
+                "expected_location_suffix": (
+                    "normalization_rejection_counts",
+                    "forged",
+                ),
                 "expected_error_type": "int_type",
             },
         )
@@ -352,9 +366,7 @@ def test_enrich_topic_bootstraps_seed_sources_from_web(
 
     if expected_provider_calls[0] == "empty":
         malformed = copy.deepcopy(typed_persisted)
-        malformed["query_traces"][0]["provider_attempts"][0]["outcome"] = (
-            "returned_hits"
-        )
+        malformed["query_traces"][0]["provider_attempts"][0]["outcome"] = "returned_hits"
         malformed_payloads.append(
             (
                 malformed,
@@ -594,10 +606,7 @@ def test_enrich_topic_persists_value_free_provider_attempt_trace(
     assert manifest.artifact_schema.version == "1.1"
     payload_bytes = cas.get_bytes(artifact_id)
     payload_text = payload_bytes.decode("utf-8")
-    assert all(
-        marker not in payload_text
-        for marker in (url_marker, mailto_marker, payload_marker)
-    )
+    assert all(marker not in payload_text for marker in (url_marker, mailto_marker, payload_marker))
     persisted = json.loads(payload_text)
     trace = next(
         item
@@ -610,3 +619,247 @@ def test_enrich_topic_persists_value_free_provider_attempt_trace(
     assert attempt["error_type"] == "http_status_error"
     assert trace["provider"] == "duckduckgo_html"
     assert trace.get("error") is None
+
+
+def test_actual_snapshot_bytes_feed_unpatched_enrichment_and_fresh_bundle_reader(
+    tmp_path,
+):
+    v1 = (
+        b"Controlled LA-025 fixture report.\n"
+        b"Search snapshot version v1.\n"
+        b"claim: wage_index(region_a) = 120 [index]\n"
+    )
+    v2 = (
+        b"Controlled LA-025 fixture report.\n"
+        b"Same URL expired-cache version v2.\n"
+        b"claim: wage_index(region_a) = 999 [index]\n"
+    )
+
+    class _VersionedHandler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.server.request_count += 1
+            body = v1 if self.server.request_count == 1 else v2
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, format, *args):
+            del format, args
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _VersionedHandler)
+    server.request_count = 0
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    url = f"http://127.0.0.1:{server.server_port}/same-report"
+
+    class _LocalOneHitProvider:
+        name = "controlled-la025-local-fixture"
+
+        async def search(self, query, *, constraints, max_results, timeout_s):
+            del constraints, timeout_s
+            return [
+                WebSearchHit(
+                    url=url,
+                    title="Controlled fixture",
+                    snippet="wage index evidence",
+                    provider=self.name,
+                    query=query,
+                    rank=1,
+                    source_type="government",
+                )
+            ][:max_results]
+
+    def _rows_for_kind(store, kind):
+        rows = []
+        for artifact_id in store.iter_artifact_ids():
+            manifest = store.get_manifest(artifact_id)
+            if manifest.kind == kind:
+                rows.append((artifact_id, manifest))
+        return rows
+
+    try:
+        tenant = "la025-actual-route-fixture"
+        cas_root = tmp_path / "cas"
+        cas = FileSystemCAS(cas_root, tenant_id=tenant)
+        cache_index = tmp_path / "cache" / "index.json"
+        cache_index.parent.mkdir(parents=True)
+        cache = UrlFetchCache(index_path=cache_index, cas=cas, ttl_seconds=86_400)
+        provider = _LocalOneHitProvider()
+        service = ScholarDeepSearchService(
+            provider_policy=ProviderFailoverPolicy([provider]),
+            cas=cas,
+            cache=cache,
+        )
+        intent = ResearchIntent(domain="labor", topic="wage index controlled lineage")
+        constraints = SearchConstraints(
+            allowed_domains=["127.0.0.1"],
+            allow_private_networks=True,
+        )
+        budgets = SearchBudgetControls(
+            max_search_queries=1,
+            max_fetch_pages=1,
+            max_parallel_queries=1,
+            max_parallel_fetches=1,
+            max_depth=0,
+            max_wall_time_s=10,
+            per_page_max_bytes=4096,
+        )
+
+        # This is the real public API and the real unpatched search/fetch/intake/enrich route.
+        result = enrich_topic(
+            cas=cas,
+            fact_log_root=tmp_path / "facts",
+            intent=intent,
+            web_search_service=service,
+            web_search_constraints=constraints,
+            web_search_budgets=budgets,
+        )
+        assert server.request_count == 1
+
+        fresh = FileSystemCAS(cas_root, tenant_id=tenant)
+        web_rows = _rows_for_kind(fresh, "scholar.web_evidence_bundle")
+        assert len(web_rows) == 1
+        web_artifact_id, web_manifest = web_rows[0]
+        web_bundle = WebEvidenceBundle.model_validate(
+            from_canonical_bytes(fresh.get_bytes(web_artifact_id))
+        )
+        assert web_manifest.kind == "scholar.web_evidence_bundle"
+        assert len(web_bundle.sources) == 1
+        source = web_bundle.sources[0]
+        selected_ref = source.raw_artifact_ref
+        assert selected_ref is not None
+        assert selected_ref.kind == "scholar.web_fetch_payload"
+        assert selected_ref.media_type == "text/plain"
+        assert source.content_sha256 == content_hash(v1)
+        assert fresh.get_bytes(selected_ref) == v1
+
+        knowledge_ref = result.knowledge_bundle_ref
+        knowledge_manifest = fresh.get_manifest(knowledge_ref)
+        knowledge_bytes = fresh.get_bytes(knowledge_ref)
+        knowledge_payload = load_core_json_artifact(fresh, knowledge_ref)
+        assert isinstance(knowledge_payload, dict)
+        knowledge = KnowledgeBundlePayloadV1.model_validate(knowledge_payload)
+        assert knowledge_manifest.kind == "scholar.knowledge_bundle"
+        assert knowledge_manifest.media_type == "application/json"
+        assert knowledge_manifest.artifact_schema.name == (
+            "polisyos.scholar.KnowledgeBundlePayloadV1"
+        )
+        assert knowledge_manifest.canon is not None
+        assert knowledge_manifest.canon.forbid_floats is False
+        assert knowledge_ref.manifest_profile_sha256 is not None
+        assert artifact_manifest_profile_sha256(knowledge_manifest) == (
+            knowledge_ref.manifest_profile_sha256
+        )
+        assert knowledge.doc_meta_artifact_ids
+        assert knowledge.web_evidence["sources"][0]["content_sha256"] == content_hash(v1)
+        assert knowledge.web_evidence["sources"][0]["raw_artifact_ref"] == (
+            selected_ref.model_dump(mode="json", exclude_none=True)
+        )
+        assert isinstance(knowledge.web_evidence["sources"][0]["quality_score"], float)
+        assert isinstance(knowledge.web_evidence["snippets"][0]["relevance_score"], float)
+
+        matching_doc_metas = []
+        for artifact_id in knowledge.doc_meta_artifact_ids:
+            meta = load_doc_meta(fresh, str(artifact_id))
+            if meta.canonical_url != url:
+                continue
+            raw = fresh.get_bytes(ArtifactID.model_validate(meta.raw_ref))
+            matching_doc_metas.append(meta)
+            assert raw == v1
+            assert meta.doc_version_id == doc_version_id_from_raw_artifact(
+                raw_artifact_id=meta.raw_ref
+            )
+        assert matching_doc_metas
+        assert all(meta.license == "public-web" for meta in matching_doc_metas)
+
+        cached_bundle = asyncio.run(
+            service.deep_search(
+                intent=intent,
+                claim_texts=[intent.topic],
+                constraints=constraints,
+                budgets=budgets,
+            )
+        )
+        cached_source = cached_bundle.sources[0]
+        assert cached_source.fetch_status == "cached"
+        assert cached_source.source_id == source.source_id
+        assert cached_source.raw_artifact_ref == selected_ref
+        assert server.request_count == 1
+
+        expired_cache = UrlFetchCache(
+            index_path=cache_index,
+            cas=cas,
+            ttl_seconds=0,
+        )
+        refresh_service = ScholarDeepSearchService(
+            provider_policy=ProviderFailoverPolicy([_LocalOneHitProvider()]),
+            cas=cas,
+            cache=expired_cache,
+        )
+        refreshed_bundle = asyncio.run(
+            refresh_service.deep_search(
+                intent=intent,
+                claim_texts=[intent.topic],
+                constraints=constraints,
+                budgets=budgets,
+            )
+        )
+        refreshed = refreshed_bundle.sources[0]
+        assert server.request_count == 2
+        assert str(refreshed.url) == url
+        assert refreshed.raw_artifact_ref is not None
+        assert fresh.get_bytes(refreshed.raw_artifact_ref) == v2
+        assert refreshed.content_sha256 == content_hash(v2)
+        assert refreshed.source_id != source.source_id
+        assert refreshed.lineage_parent_artifact_id == str(selected_ref.artifact_id)
+        assert refreshed.refresh_reason == "cache-refresh"
+
+        malformed_wire = web_bundle.model_dump(mode="python")
+        malformed_wire["sources"][0]["raw_artifact_ref"]["manifest_profile_sha256"] = (
+            "not-a-manifest-profile"
+        )
+        with pytest.raises(ValidationError):
+            WebEvidenceBundle.model_validate(malformed_wire)
+
+        wrong_profile_ref = selected_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + ("f" * 64)}
+        )
+        wrong_profile_source = source.model_copy(update={"raw_artifact_ref": wrong_profile_ref})
+        with pytest.raises(ScholarAcquireError, match="raw snapshot is unavailable"):
+            _source_spec_from_snapshot(
+                wrong_profile_source,
+                cas=fresh,
+                cache=service._cache,
+            )
+
+        missing_hex = "e" * 64
+        missing_ref = selected_ref.model_copy(
+            update={"artifact_id": ArtifactID.model_validate("sha256:" + missing_hex)}
+        )
+        missing_source = source.model_copy(
+            update={
+                "raw_artifact_ref": missing_ref,
+                "content_sha256": missing_hex,
+            }
+        )
+        with pytest.raises(ScholarAcquireError, match="raw snapshot is unavailable"):
+            _source_spec_from_snapshot(missing_source, cas=fresh, cache=service._cache)
+
+        no_snapshot = source.model_copy(
+            update={
+                "raw_artifact_ref": None,
+                "artifact_id": None,
+                "content_sha256": None,
+            }
+        )
+        with pytest.raises(ScholarAcquireError, match="no reusable raw snapshot"):
+            _source_spec_from_snapshot(no_snapshot, cas=fresh, cache=None)
+
+        assert fresh.get_bytes(selected_ref) == v1
+        assert server.request_count == 2
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)

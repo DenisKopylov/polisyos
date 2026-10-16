@@ -11,6 +11,7 @@ Names listed in `__all__` are the supported package-level surface.
 from __future__ import annotations
 
 import importlib
+from typing import TYPE_CHECKING
 
 __all__ = [
     "SCHOLAR_ACADEMIC_EVIDENCE_FILENAME",
@@ -37,12 +38,19 @@ __all__ = [
     "build_scholar_spine_evidence_binding",
     "enrich_topic",
     "normalize_scholar_academic_evidence_report",
+    "persist_knowledge_bundle_payload",
     "sanitize_untrusted_text",
     "scholar_academic_evidence_required",
     "scholar_citation_from_fabric_decision_data",
     "validate_source_snippet_spans",
     "validate_web_evidence_source_binding",
 ]
+
+if TYPE_CHECKING:
+    from polisyos.scholar.orchestrator.bundle import (
+        persist_knowledge_bundle_payload as persist_knowledge_bundle_payload,
+    )
+
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ScholarService": ("polisyos.scholar.api", "ScholarService"),
@@ -110,6 +118,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "EnrichResultV1": ("polisyos.scholar.types", "EnrichResultV1"),
     "EnrichmentReportV1": ("polisyos.scholar.types", "EnrichmentReportV1"),
     "KnowledgeBundlePayloadV1": ("polisyos.scholar.types", "KnowledgeBundlePayloadV1"),
+    "persist_knowledge_bundle_payload": (
+        "polisyos.scholar.orchestrator.bundle",
+        "persist_knowledge_bundle_payload",
+    ),
 }
 
 

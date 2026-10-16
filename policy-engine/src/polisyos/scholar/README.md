@@ -35,7 +35,10 @@ staying CAS-first and freshness-aware.
 - `EnrichResultV1`
 - `EnrichmentReportV1`
 - `KnowledgeBundlePayloadV1`
+- `persist_knowledge_bundle_payload` for persisting that typed payload through the canonical Scholar CAS writer.
 - error types: `ScholarError`, `ScholarValidationError`, `ScholarDiscoverError`, `ScholarAcquireError`, `ScholarDocsError`, `ScholarClaimsError`, `ScholarReconcileError`, `ScholarBundleError`
+
+The canonical bundle writer preserves the existing `scholar.knowledge_bundle` kind, JSON media type, schema, and declared input references. It admits finite floating-point fields in `KnowledgeBundlePayloadV1`; non-finite values remain refused. Persisting a bundle does not establish source licensing, currentness, or evidentiary quality.
 
 ## Deep-Research Artifact Compatibility
 

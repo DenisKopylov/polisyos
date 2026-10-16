@@ -61,6 +61,7 @@ _SHA_PLAN = "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c86
 _SHA_RUN_PAPER = "sha256:853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa"
 _SHA_REGISTRY = "sha256:bdedb5a6471e6a1b3bd16ef5065570d33157d96788e0ebc2ca17a569f03921b8"
 _SHA_METHOD = "sha256:08622409c86efbeb945e4bdbdea7585e8eaff6e380c450273bc5b41bcf3f0073"
+_SHA_ATLAS_PLAN = "sha256:35c1b64c91aa4209cffed4aed42d89258e5f975afab44464f201111ba0b4d725"
 _SHA_DATA = "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb"
 _SHA_BINDINGS = "sha256:e823430756f9bab004490a705c8baa7b2e0f441d82d5703239b2cfff3bf264e4"
 _SHA_LINEAGE = "sha256:0713f136ea316c8f3e274d55012e3bf10d05b5263837187a39593ff0d8838dfa"
@@ -398,7 +399,7 @@ _CYCLE_BOARD_COMPOSED_ABSENCE_SAMPLE = {
                 "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md"
             ),
             "availability": "available",
-            "artifact_content_hash": _SHA_METHOD,
+            "artifact_content_hash": _SHA_ATLAS_PLAN,
             "source_dependency_hash": None,
             "as_of": None,
             "freshness": None,
@@ -408,21 +409,22 @@ _CYCLE_BOARD_COMPOSED_ABSENCE_SAMPLE = {
         },
     ],
     "composition_manifest_hash": (
-        "sha256:b69628732b574a98f6418027b96062112ff8bc28ba4fa499c840c35ad373dbbc"
+        "sha256:46d37f06014cff1f291cf91b2114a67485f2fc5e6f2e6c241a41474f2b978650"
     ),
     "source_dependency_hash": (
-        "sha256:ea8c7ffcbecfc5ba9fc8d6641c82b2d8ab19a2ae156ab1c1ff6a3fbd1c56a959"
+        "sha256:48105c74bc9fe5655d331f48ce489ee852262ba18893373f28f407e928e83fd3"
     ),
-    "projection_hash": ("sha256:3d3358e9d913977f5049d3410df9e537968d6d5607692c8f3ff11ac6c8a0a311"),
+    "projection_hash": ("sha256:34e48f97cabfe5c5596d1842b10687ff61498d90123cc9633849bea303d1e7dd"),
     "projection_observed_at": _TS_SAMPLE,
     "stable_address": "/api/v1/exports/governed-projections/depth-n-cycle-board",
     "replay_address": (
-        "/api/v1/exports/governed-projections/depth-n-cycle-board?"
-        "composition_manifest_hash=sha256%3Ab69628732b574a98f6418027b96062112ff8bc28ba"
-        "4fa499c840c35ad373dbbc&projection_hash=sha256%3A3d3358e9d913977f5049d3410df9"
-        "e537968d6d5607692c8f3ff11ac6c8a0a311&projection_rule_version=policyos.runtime."
-        "depth_n_cycle_board.v2&replay_target=composed_v2&source_dependency_hash=sha256%3A"
-        "ea8c7ffcbecfc5ba9fc8d6641c82b2d8ab19a2ae156ab1c1ff6a3fbd1c56a959"
+        "/api/v1/exports/governed-projections/depth-n-cycle-board?composition_m"
+        "anifest_hash=sha256%3A46d37f06014cff1f291cf91b2114a67485f2fc5e6f2e6c24"
+        "1a41474f2b978650&projection_hash=sha256%3A34e48f97cabfe5c5596d1842b106"
+        "87ff61498d90123cc9633849bea303d1e7dd&projection_rule_version=policyos."
+        "runtime.depth_n_cycle_board.v2&replay_target=composed_v2&source_depend"
+        "ency_hash=sha256%3A48105c74bc9fe5655d331f48ce489ee852262ba18893373f28f"
+        "407e928e83fd3"
     ),
     "payload": {
         "rows": [],
@@ -459,7 +461,25 @@ _CYCLE_BOARD_COMPOSED_ABSENCE_SAMPLE = {
             "source_ref": (
                 "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md"
             ),
-            "source_content_hash": _SHA_METHOD,
+            "source_content_hash": _SHA_ATLAS_PLAN,
+            "read_receipt": {
+                "source_ref": (
+                    "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md"
+                ),
+                "read_status": "read",
+                "status": "COMPLETE",
+                "coverage": "complete_selected_input",
+                "source_content_hash": _SHA_ATLAS_PLAN,
+                "read_error": None,
+                "table_row_denominator": 172,
+                "selected_measurement_cell_count": 1,
+                "selector": "all_markdown_table_cells_with_ds3_measurement",
+                "unresolved_by_construction": [
+                    "non_table_sections_uninterpreted",
+                    "other_sources_unselected",
+                    "current_availability_not_measured",
+                ],
+            },
             "counts": {"available": 5, "invalid_source": 7, "artifact_missing": 1},
             "measurement_scope": "environment_relative",
             "environment_absence": "production_data",

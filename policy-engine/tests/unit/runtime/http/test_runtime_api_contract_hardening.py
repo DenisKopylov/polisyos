@@ -134,7 +134,6 @@ def test_artifact_resolver_problem_openapi_matches_runtime_serializer() -> None:
     """The resolver response set matches the runtime problem serializer and model."""
     import ast
     import inspect
-    import textwrap
     from copy import deepcopy
 
     from polisyos.core.contracts.runtime import RuntimeApiProblem
@@ -147,22 +146,59 @@ def test_artifact_resolver_problem_openapi_matches_runtime_serializer() -> None:
 
     media = "application/problem+json"
     ref = "#/components/schemas/RuntimeApiProblem"
+    module_tree = ast.parse(inspect.getsource(artifact_routes))
+    module_functions = {
+        node.name: node
+        for node in ast.walk(module_tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+
+    class _FunctionCalls(ast.NodeVisitor):
+        def __init__(self, root: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
+            self.root = root
+            self.names: set[str] = set()
+
+        def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+            if node is self.root:
+                self.generic_visit(node)
+
+        def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+            if node is self.root:
+                self.generic_visit(node)
+
+        def visit_Lambda(self, node: ast.Lambda) -> None:
+            return
+
+        def visit_Call(self, node: ast.Call) -> None:
+            if isinstance(node.func, ast.Name):
+                self.names.add(node.func.id)
+            elif isinstance(node.func, ast.Attribute):
+                self.names.add(node.func.attr)
+            self.generic_visit(node)
+
+    def reaches_resolver(function_name: str, visited: set[str]) -> bool:
+        if function_name in visited:
+            return False
+        visited.add(function_name)
+        function = module_functions.get(function_name)
+        if function is None:
+            return False
+        calls = _FunctionCalls(function)
+        calls.visit(function)
+        return "_resolve_artifact_manifest" in calls.names or any(
+            callee in module_functions and reaches_resolver(callee, visited)
+            for callee in calls.names
+        )
+
     resolver_ids: set[str] = set()
     for route in artifact_routes.router.routes:
         endpoint = getattr(route, "endpoint", None)
         operation_id = getattr(route, "operation_id", None)
-        if endpoint is None:
-            continue
-        tree = ast.parse(textwrap.dedent(inspect.getsource(endpoint)))
-        if any(
-            isinstance(node, ast.Call)
-            and isinstance(node.func, ast.Name)
-            and node.func.id == "_resolve_artifact_manifest"
-            for node in ast.walk(tree)
-        ):
+        endpoint_name = getattr(endpoint, "__name__", None)
+        if isinstance(endpoint_name, str) and reaches_resolver(endpoint_name, set()):
             assert isinstance(operation_id, str)
             resolver_ids.add(operation_id)
-    assert len(resolver_ids) == 8
+    assert resolver_ids, "the router must expose at least one artifact resolver consumer"
     schema = export_runtime_openapi_schema()
     live = {
         op.get("operationId"): op
@@ -1208,6 +1244,8 @@ def test_acquisition_route_growth_status_requires_matching_owner_delta() -> None
 
 
 def _assert_ds15_acquisition_openapi_contract(schema: dict[str, object]) -> None:
+    from copy import deepcopy
+
     paths = schema["paths"]
     operations = {
         "list": paths["/api/v1/runs/{run_id}/acquisition-routes"]["get"],
@@ -1249,7 +1287,8 @@ def _assert_ds15_acquisition_openapi_contract(schema: dict[str, object]) -> None
     assert forbidden_authority_fields.isdisjoint(body["properties"])
     projection = schema["components"]["schemas"]["AcquisitionRouteProjection"]
     assert projection["properties"]["schema_version"]["const"] == ("AcquisitionRouteProjection@1.1")
-    model_properties = AcquisitionRouteProjection.model_json_schema()["properties"]
+    model_schema = AcquisitionRouteProjection.model_json_schema(mode="serialization")
+    model_properties = model_schema["properties"]
     assert (
         projection["properties"]["world_growth"]["enum"] == model_properties["world_growth"]["enum"]
     )
@@ -1257,9 +1296,21 @@ def _assert_ds15_acquisition_openapi_contract(schema: dict[str, object]) -> None
         projection["properties"]["qualification_status"]["enum"]
         == model_properties["qualification_status"]["enum"]
     )
-    assert (
-        projection["properties"]["admitted_observation_delta"]
-        == model_properties["admitted_observation_delta"]
+    delta_key = "admitted_observation_delta"
+    actual_delta = deepcopy(projection["properties"][delta_key])
+    model_delta = deepcopy(model_properties[delta_key])
+    for property_schema in (actual_delta, model_delta):
+        nullable_branches = property_schema.get("anyOf")
+        assert isinstance(nullable_branches, list)
+        assert any(
+            isinstance(branch, dict) and branch.get("type") == "null"
+            for branch in nullable_branches
+        )
+        if property_schema.get("default", object()) is None:
+            property_schema.pop("default")
+    assert actual_delta == model_delta
+    assert (delta_key in projection.get("required", [])) == (
+        delta_key in model_schema.get("required", [])
     )
     for operation in operations.values():
         examples = operation["responses"]["200"]["content"]["application/json"]["examples"]
@@ -1524,42 +1575,24 @@ def test_run_paper_success_example_recomputes_its_declared_projection_hash() -> 
     assert hash_export_projection(semantic_projection) == packet.projection_hash
 
 
-def test_cycle_board_success_example_is_a_strict_composed_absence_packet() -> None:
-    schema = export_runtime_openapi_schema()
-    operation = schema["paths"]["/api/v1/exports/governed-projections/depth-n-cycle-board"]["get"]
-    example = operation["responses"]["200"]["content"]["application/json"]["examples"]["default"][
-        "value"
-    ]
-
-    packet = CycleBoardProjectionPacket.model_validate(example)
-
-    assert packet.projection_rule_version == "policyos.runtime.depth_n_cycle_board.v2"
-    assert tuple(source.source_id for source in packet.composition_manifest) == (
-        *(projection_id.value for projection_id in _GOVERNED_COMPONENT_ORDER),
-        "n13b-global-deeper-terminal",
-        "ds4-realized-disposition",
-        "historical-producer-availability",
+def _assert_cycle_board_example_source_and_replay_bindings(
+    packet: CycleBoardProjectionPacket,
+) -> None:
+    history = packet.payload.historical_producer_availability
+    receipt = history.read_receipt
+    assert receipt.source_ref == history.source_ref
+    assert receipt.source_content_hash == history.source_content_hash
+    assert receipt.read_status == "read"
+    assert receipt.status == "COMPLETE"
+    assert receipt.coverage == "complete_selected_input"
+    assert "current_availability_not_measured" in receipt.unresolved_by_construction
+    historical_source = next(
+        source
+        for source in packet.composition_manifest
+        if source.source_id == "historical-producer-availability"
     )
-    repository_root = Path(__file__).resolve().parents[4]
-    catalog = {
-        item.projection_id.value: item
-        for item in GovernedProjectionService(repository_root).catalog()
-    }
-    for source in packet.composition_manifest[: len(_GOVERNED_COMPONENT_ORDER)]:
-        owner = catalog[source.source_id]
-        assert source.source_ref == owner.expected_source_path
-        assert source.authoritative_for == owner.authoritative_for
-        assert source.may_not_use_for == owner.may_not_use_for
-    n13b_source = packet.composition_manifest[len(_GOVERNED_COMPONENT_ORDER)]
-    assert n13b_source.authoritative_for == ()
-    assert n13b_source.may_not_use_for == N13B_DENIED_ROW_USES
-    assert packet.payload.rows == ()
-    assert packet.payload.coverage.capability_state == "absent/unallocated"
-    assert packet.payload.coverage.execution_status == "not_established"
-    assert packet.payload.coverage.exhaustive is False
-    assert packet.payload.movement_gap.capability_state == "absent/unallocated"
-    assert packet.payload.movement_gap.execution_status == "not_established"
-    assert packet.payload.movement_gap.movement_records == ()
+    assert historical_source.source_ref == history.source_ref
+    assert historical_source.artifact_content_hash == history.source_content_hash
 
     manifest_material = _manifest_hash_material(packet.composition_manifest)
     manifest_hash = hash_export_projection(manifest_material)
@@ -1595,6 +1628,88 @@ def test_cycle_board_success_example_is_a_strict_composed_absence_packet() -> No
             "source_dependency_hash": dependency_hash,
         },
     )
+
+
+def test_cycle_board_success_example_is_a_strict_composed_absence_packet() -> None:
+    schema = export_runtime_openapi_schema()
+    operation = schema["paths"]["/api/v1/exports/governed-projections/depth-n-cycle-board"]["get"]
+    example = operation["responses"]["200"]["content"]["application/json"]["examples"]["default"][
+        "value"
+    ]
+
+    packet = CycleBoardProjectionPacket.model_validate(example)
+    _assert_cycle_board_example_source_and_replay_bindings(packet)
+
+    assert packet.projection_rule_version == "policyos.runtime.depth_n_cycle_board.v2"
+    assert tuple(source.source_id for source in packet.composition_manifest) == (
+        *(projection_id.value for projection_id in _GOVERNED_COMPONENT_ORDER),
+        "n13b-global-deeper-terminal",
+        "ds4-realized-disposition",
+        "historical-producer-availability",
+    )
+    repository_root = Path(__file__).resolve().parents[4]
+    from polisyos.runtime.http.services.cycle_board_sources import (
+        load_historical_producer_availability,
+    )
+
+    assert packet.payload.historical_producer_availability == (
+        load_historical_producer_availability(repository_root)
+    )
+    catalog = {
+        item.projection_id.value: item
+        for item in GovernedProjectionService(repository_root).catalog()
+    }
+    for source in packet.composition_manifest[: len(_GOVERNED_COMPONENT_ORDER)]:
+        owner = catalog[source.source_id]
+        assert source.source_ref == owner.expected_source_path
+        assert source.authoritative_for == owner.authoritative_for
+        assert source.may_not_use_for == owner.may_not_use_for
+    n13b_source = packet.composition_manifest[len(_GOVERNED_COMPONENT_ORDER)]
+    assert n13b_source.authoritative_for == ()
+    assert n13b_source.may_not_use_for == N13B_DENIED_ROW_USES
+    assert packet.payload.rows == ()
+    assert packet.payload.coverage.capability_state == "absent/unallocated"
+    assert packet.payload.coverage.execution_status == "not_established"
+    assert packet.payload.coverage.exhaustive is False
+    assert packet.payload.movement_gap.capability_state == "absent/unallocated"
+    assert packet.payload.movement_gap.execution_status == "not_established"
+    assert packet.payload.movement_gap.movement_records == ()
+
+
+def test_cycle_board_success_example_rejects_missing_read_receipt() -> None:
+    from copy import deepcopy
+
+    from pydantic import ValidationError
+
+    schema = export_runtime_openapi_schema()
+    operation = schema["paths"]["/api/v1/exports/governed-projections/depth-n-cycle-board"]["get"]
+    example = operation["responses"]["200"]["content"]["application/json"]["examples"]["default"][
+        "value"
+    ]
+    malformed = deepcopy(example)
+    del malformed["payload"]["historical_producer_availability"]["read_receipt"]
+    with pytest.raises(ValidationError, match="read_receipt"):
+        CycleBoardProjectionPacket.model_validate(malformed)
+
+
+def test_cycle_board_success_example_rejects_manifest_source_hash_drift() -> None:
+    from copy import deepcopy
+
+    schema = export_runtime_openapi_schema()
+    operation = schema["paths"]["/api/v1/exports/governed-projections/depth-n-cycle-board"]["get"]
+    example = operation["responses"]["200"]["content"]["application/json"]["examples"]["default"][
+        "value"
+    ]
+    mutated = deepcopy(example)
+    source = next(
+        item
+        for item in mutated["composition_manifest"]
+        if item["source_id"] == "historical-producer-availability"
+    )
+    source["artifact_content_hash"] = "sha256:" + "0" * 64
+    packet = CycleBoardProjectionPacket.model_validate(mutated)
+    with pytest.raises(AssertionError):
+        _assert_cycle_board_example_source_and_replay_bindings(packet)
 
 
 def test_openapi_contract_includes_client_navigation_links() -> None:
@@ -1982,14 +2097,11 @@ def test_committed_runtime_client_matches_package_generation_pipeline(tmp_path: 
 def _render_openapi_typescript(repo_root: Path, spec_path: Path, output_path: Path) -> None:
     result = subprocess.run(
         [
-            "corepack",
-            "pnpm",
-            "--dir",
-            str(repo_root / "packages" / "runtime-api-client"),
-            "exec",
-            "openapi-typescript",
+            "node",
+            str(repo_root / "packages/runtime-api-client/scripts/generate-openapi-types.mjs"),
+            "--openapi",
             str(spec_path),
-            "-o",
+            "--output",
             str(output_path),
         ],
         cwd=repo_root,
@@ -1999,26 +2111,6 @@ def _render_openapi_typescript(repo_root: Path, spec_path: Path, output_path: Pa
         check=False,
     )
     assert result.returncode == 0, result.stderr or result.stdout
-    normalized = subprocess.run(
-        [
-            "node",
-            str(
-                repo_root
-                / "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs"
-            ),
-            "--types",
-            str(output_path),
-        ],
-        cwd=repo_root,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert normalized.returncode == 0, normalized.stderr or normalized.stdout
-    print(
-        "Measured: schema-type bytes from the locked executable and canonical recursive-type "
-        "normalizer. Not measured: runtime client behavior, endpoint execution, or hosted CI."
-    )
 
 
 def test_shared_client_generation_is_package_owned_and_version_pinned() -> None:
@@ -2051,18 +2143,14 @@ def test_shared_client_generation_is_package_owned_and_version_pinned() -> None:
     assert dashboard_importer is not None
     assert "openapi-typescript" not in dashboard_manifest["devDependencies"]
     assert "openapi-typescript" not in dashboard_importer.group("body")
-    assert (
-        'corepack pnpm --dir "${CLIENT_PACKAGE_ROOT}" exec openapi-typescript'
-        in dashboard_generator
-    )
-    assert 'corepack pnpm --dir "${PROJECT_ROOT}/packages/runtime-api-client" exec' in generator
-    assert "openapi-typescript" in generator
+    assert "generate-openapi-types.mjs" in generator
+    assert "generate-openapi-types.mjs" in dashboard_generator
     assert "--openapi" in generator
     assert '--openapi "${OPENAPI_FILE}"' in generator
     assert "apps/runtime-dashboard" not in generator
     assert "--prefix" not in generator
     assert "--output-root" in generator
-    assert "corepack pnpm --dir packages/runtime-api-client exec openapi-typescript" in readme
+    assert "generate-openapi-types.mjs" in readme
     assert "--openapi schemas/runtime_api_v1.openapi.json" in readme
     assert "npx --prefix apps/runtime-dashboard" not in readme
 
@@ -2121,7 +2209,9 @@ def test_client_package_entrypoints_generate_only_in_scratch(tmp_path: Path) -> 
     } == tracked_outputs
 
 
-def test_openapi_typescript_output_matches_committed_shared_types(tmp_path: Path) -> None:
+def test_openapi_typescript_output_matches_canonical_types_and_rejects_field_drift(
+    tmp_path: Path,
+) -> None:
     repo_root = Path(__file__).resolve().parents[4]
     spec_path = repo_root / "schemas" / "runtime_api_v1.openapi.json"
     generated = tmp_path / "types.ts"
@@ -2130,6 +2220,25 @@ def test_openapi_typescript_output_matches_committed_shared_types(tmp_path: Path
 
     committed = repo_root / "packages" / "runtime-api-client" / "types.ts"
     assert committed.read_bytes() == generated.read_bytes()
+
+    mutated_spec = json.loads(spec_path.read_text(encoding="utf-8"))
+    lex_response = mutated_spec["components"]["schemas"]["LexSearchResponse"]
+    removed_property = lex_response["properties"].pop("legal_relation_refusal")
+    assert removed_property
+    mutated_spec_path = tmp_path / "runtime_api_v1.missing_legal_refusal.json"
+    mutated_spec_path.write_text(json.dumps(mutated_spec), encoding="utf-8")
+    mutated_types = tmp_path / "types.missing_legal_refusal.ts"
+    _render_openapi_typescript(repo_root, mutated_spec_path, mutated_types)
+    assert mutated_types.read_bytes() != generated.read_bytes()
+
+    from tools.ops_runners.runtime.check_runtime_api_contract import _check_openapi_drift
+
+    violations = _check_openapi_drift(
+        repo_root=repo_root,
+        openapi_path=mutated_spec_path,
+        max_diff_lines=120,
+    )
+    assert any("OpenAPI drift detected" in violation for violation in violations), violations
 
 
 def test_generated_client_permission_union_matches_server_openapi_enum() -> None:

@@ -1,0 +1,165 @@
+{
+  "record_type": "bounded_component_delivery_proposal",
+  "slice_base": {
+    "sha": "25f7b0301c377d1b872a93854d233ce129fdabc8",
+    "tree": "bc8b2a3c7df4590bbf1ac37a3977c69536f80926"
+  },
+  "candidate": {
+    "sha": "47a6aa405991d521ffc4e9ea0a4e5d38612a1d7c",
+    "tree": "ab4f0a0a8a4303cbf80ab1771952c1830f8a59b4",
+    "parents": [
+      "25f7b0301c377d1b872a93854d233ce129fdabc8"
+    ]
+  },
+  "full_code_test_config_companion_footprint": {
+    "policy-engine/architecture/production_quality/method_catalog_dependency_profiles.toml": "813531330a3d5dbba43786432850d173005ef308552694ad67d1b4f56ed4e40a",
+    "policy-engine/architecture/production_quality/method_catalog_dependency_authority.toml": "53de2721f302acf85034975ec073fd2b2824128ec89792ed67481927dae6cabf",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "f87be3fcdb566f61e7b822b689767115563b2915b348603919b30e6f74e4a03f"
+  },
+  "selected_input_profile_backend": {
+    "input_closure": {
+      "policy-engine/architecture/production_quality/method_catalog_dependency_profiles.toml": "813531330a3d5dbba43786432850d173005ef308552694ad67d1b4f56ed4e40a",
+      "policy-engine/architecture/production_quality/method_catalog_dependency_authority.toml": "53de2721f302acf85034975ec073fd2b2824128ec89792ed67481927dae6cabf",
+      "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml": "186078f2cd5c24cdef007449109d5667f60f4f7949c9b663026e5658e538bb5b",
+      "policy-engine/pyproject.toml": "2522afe7bbbe74b8df37dcf64cda247f244ef0ec073657bb5d9e1d7841b1efe7",
+      "policy-engine/uv.lock": "6b0157dd281cae2f1bb3c2af2bd2ea4353a99ca1fa2f0424df091f41fd0b8b9c",
+      "policy-engine/src/polisyos/foundry/methods/catalog/dependency_profile.py": "d8a7c3ee2e55f1ca93ae04f12e0073f26f2a5b45042acdaaf60e3502c2a88f8c",
+      "policy-engine/src/polisyos/foundry/methods/catalog/dependency_evidence.py": "dc408f79d6c04a783391419775404cdc41715f9905da7fb6140db73b6fcf39ad",
+      "policy-engine/tools/devx/foundry/sync_dependency_profile.py": "00fc919cb8136c2dd492b64da2b08111e9ff0db4fa5b22937377ae293dfc442f"
+    },
+    "closure_paths": 8,
+    "generated_outputs": 2,
+    "authority_purpose": "n8_method_catalog_reconstruction",
+    "profile_id": "n8-method-catalog-reconstruction-py314-uv0921-v1",
+    "python": "own macOS venv CPython3.14.3",
+    "runtime_or_installed_resolver_verified": false
+  },
+  "real_chain": [
+    "Current pyproject/uv.lock + exact declared digest domains \u2192 canonical regenerate-owner \u2192 profile two digests + authority two declaration identities \u2192 actual current-owner checker."
+  ],
+  "verification": {
+    "actual_root_commands": [
+      {
+        "label": "owner-write",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "tools/devx/foundry/sync_dependency_profile.py",
+          "regenerate-owner",
+          "--authority-purpose",
+          "n8_method_catalog_reconstruction",
+          "--tracked-source-root",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+          "--write"
+        ],
+        "exit_code": 0,
+        "expected_exit_code": 0,
+        "seconds": 0.784,
+        "stdout_sha256": "7e11cda766f6372151f924e180807eafc7e5a0e70a90b55b2fb4f431d6a901fb",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "owner-check",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "tools/devx/foundry/sync_dependency_profile.py",
+          "regenerate-owner",
+          "--authority-purpose",
+          "n8_method_catalog_reconstruction",
+          "--tracked-source-root",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+          "--check"
+        ],
+        "exit_code": 0,
+        "expected_exit_code": 0,
+        "seconds": 0.844,
+        "stdout_sha256": "ca593db8bd962631843e7cea6504ba298bcf05be059856ce13c5ea26be116479",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "label": "corrupt-field-control",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "tools/devx/foundry/sync_dependency_profile.py",
+          "regenerate-owner",
+          "--authority-purpose",
+          "n8_method_catalog_reconstruction",
+          "--tracked-source-root",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+          "--corrupt-field-drift-check"
+        ],
+        "exit_code": 1,
+        "expected_exit_code": 1,
+        "seconds": 0.836,
+        "stdout_sha256": "5b8068a4d65fc35739da1356940ac8338f781901770d9adc1666192b973fe48d",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "independent_replayed_checks": 7,
+    "actual_write_and_check": "PASS",
+    "corrupt_field_expected_refusal": "PASS exit1",
+    "source_closure_all8_checked_before_and_after": true
+  },
+  "adversarial_controls": [
+    "Canonical built-in corrupt dependency bytes refuses with tracked_dependency_bytes_stale, leaving tracked files unchanged.",
+    "Same canonical validator rejects RAW selected pyproject stub pin and uv.lock package version mutations; independent reviewer replayed four input-drift controls."
+  ],
+  "surface": "Existing internal dependency profile/authority owner declarations; no API/schema/status/issuer/expiry changes.",
+  "pattern_pass": {
+    "ids": [
+      "P07",
+      "P29",
+      "P35",
+      "P37",
+      "P38",
+      "P39"
+    ],
+    "P37": "Owner digests and identities recomputed from exact full-byte declared domains; this is not installed resolver or runtime authority proof.",
+    "P39": "Eight-input closure is distinct from two generated outputs; lease and receipt/index are mandatory companions."
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-owner-current-lock-application-20261016/application-readback.json",
+      "sha256": "4acce62ccb61d145d03a07bb5cb9b595bb92edae67c244a59030841e7d2a75c2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-owner-current-lock-application-20261016/commands.json",
+      "sha256": "28c8ac7d263758ab1e3a04028a616cb37e38e62ef97df5b982813515bb30c90d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-owner-current-lock-application-20261016/foundry-owner-source-readback.json",
+      "sha256": "283ad8776dd974eae1b44516f1a4f49601ee0af930b346966e5bc5b47f1af75f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/foundry-dependency-profile-current-lock-regeneration-20261016/regeneration-result.json",
+      "sha256": "655ca3473f2821b6bed60e76f5c105e035a381caad2afffba8c483792c8cff18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/foundry-dependency-profile-current-lock-regeneration-20261016/source-input-frame.json",
+      "sha256": "b104e5182e04c7edcf71f3f1ab6e06c9cb55f34cd9c351663c899471641b84ba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/foundry-dependency-profile-current-lock-regeneration-20261016/command-results.json",
+      "sha256": "8a4b6b4d42ef48087e012503a7b05b7317597b1ddc59732020d5ff3b48f15205"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/foundry-owner-regeneration-independent-review-20261016/review.json",
+      "sha256": "61177915dc1b8fbfed983cf6649024d63e653cc1f15093fb7d5f171a524b44d2"
+    }
+  ],
+  "limitations": [
+    "Owner reconstruction only; actual N8 source freeze/diagnose/sync and installed environment validation remain separate.",
+    "No full native/Linux/wheel/rebuilt-sdist/global closeout or formal finding adjudication.",
+    "Later pyproject/lock/domain/owner source deltas invalidate affected currentness and require re-generation."
+  ],
+  "source_freeze": false,
+  "closure_ids": [],
+  "proposal_fields": {
+    "component": "bounded_GO",
+    "finding_ids": [],
+    "formal_G_closure": false
+  },
+  "next_check": "Complete current reviewed source companions then final full source/input/backend freeze and canonical/native/installed actual checks."
+}

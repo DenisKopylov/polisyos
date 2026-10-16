@@ -1863,6 +1863,9 @@
       "vectorSearchMode": "Vector retrieval",
       "textSearchMode": "Text retrieval",
       "vectorSearchRefused": "Vector retrieval was refused; these results use text retrieval. Reason:",
+      "legalRelationVerificationMissing": "Source verification for legal claims is not established. Returned rows remain search candidates.",
+      "legalRelationRefusalStatus": "Legal relation status",
+      "legalRelationRefusalCode": "Reason code",
       "noResults": "No results found for \"{query}\"",
       "resultsSummary": "{count, plural, one {# result for \"{query}\"} other {# results for \"{query}\"}}",
       "columns": {

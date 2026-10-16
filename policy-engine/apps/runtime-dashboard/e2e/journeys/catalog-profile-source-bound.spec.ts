@@ -159,12 +159,20 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
   const legalSearchPayload = asRecord(await legalSearch.json());
   expect(legalSearchPayload?.search_mode).toBe("vector");
   expect(legalSearchPayload?.vector_refusal_code).toBeNull();
+  expect(legalSearchPayload?.legal_relation_refusal).toEqual({
+    code: "legal_source_relation_verification_not_established",
+    status: "verification_missing",
+  });
+  expect(legalSearchPayload?.results).toEqual([]);
   await expect(page.getByTestId("lex-search-result-mode")).toContainText(
     "Vector retrieval",
   );
   await expect(
-    page.getByText("Worker is entitled to annual leave"),
-  ).toBeVisible();
+    page.getByTestId("lex-search-legal-relation-refusal"),
+  ).toContainText("verification_missing");
+  await expect(
+    page.getByText(/No results found for "annual leave"/i),
+  ).toHaveCount(0);
 
   const staleIntent = selectedIntent.map((item) => ({ ...asRecord(item)! }));
   const originalInventoryJson = asRecord(staleIntent[0])?.inventory_json;
@@ -195,11 +203,12 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
   expect(asRecord(staleSearch.payload)?.vector_refusal_code).toBe(
     "query_profile_stale_or_mismatched",
   );
+  expect(asRecord(staleSearch.payload)?.legal_relation_refusal).toEqual({
+    code: "legal_source_relation_verification_not_established",
+    status: "verification_missing",
+  });
   const staleResults = asRecord(staleSearch.payload)?.results;
-  expect(Array.isArray(staleResults)).toBe(true);
-  expect(asRecord((staleResults as unknown[])[0])?.fact_id).toBe(
-    "fact-annual-leave",
-  );
+  expect(staleResults).toEqual([]);
 
   const encodedRequest = metadata.source_bound_v1_request_json_base64;
   if (!encodedRequest) {

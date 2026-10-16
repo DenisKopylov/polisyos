@@ -4583,6 +4583,13 @@ export const lexSearchRequestSchema = z
   })
   .strict();
 
+const legalRelationRefusalSchema = z
+  .object({
+    code: z.literal("legal_source_relation_verification_not_established"),
+    status: z.literal("verification_missing"),
+  })
+  .strict();
+
 export const lexSearchResponseSchema = z.object({
   meta: apiMetaSchema,
   query: z.string(),
@@ -4590,6 +4597,7 @@ export const lexSearchResponseSchema = z.object({
   total: z.number().default(0),
   search_mode: z.enum(["text", "vector"]),
   vector_refusal_code: z.string().nullable(),
+  legal_relation_refusal: legalRelationRefusalSchema.nullable().optional(),
 });
 
 export const lexSearchProfileResponseSchema = z.discriminatedUnion("status", [

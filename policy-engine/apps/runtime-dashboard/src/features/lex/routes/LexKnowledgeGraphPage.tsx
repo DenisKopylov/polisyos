@@ -156,6 +156,8 @@ export default function LexKnowledgeGraph() {
     }))
     .filter((entry) => entry.entityType.length > 0);
   const searchResults = searchMutation.data?.results ?? [];
+  const legalRelationRefusal =
+    searchMutation.data?.legal_relation_refusal ?? null;
   const searchColumns = useMemo(
     () => [
       {
@@ -640,11 +642,33 @@ export default function LexKnowledgeGraph() {
             </p>
           )}
 
-          {searchMutation.data && searchResults.length === 0 && (
-            <p className="text-muted text-sm">
-              {t("pages.lex.noResults", { query: searchMutation.data.query })}
-            </p>
+          {legalRelationRefusal && (
+            <div
+              className="border-warning/30 bg-warning/10 text-warning rounded-lg border px-3 py-2 text-sm"
+              data-testid="lex-search-legal-relation-refusal"
+              role="alert"
+            >
+              <p>{t("pages.lex.legalRelationVerificationMissing")}</p>
+              <p className="mt-1 text-xs">
+                {t("pages.lex.legalRelationRefusalStatus")}:{" "}
+                <code>{legalRelationRefusal.status}</code>
+              </p>
+              <p className="text-xs">
+                {t("pages.lex.legalRelationRefusalCode")}:{" "}
+                <code>{legalRelationRefusal.code}</code>
+              </p>
+            </div>
           )}
+
+          {searchMutation.data &&
+            searchResults.length === 0 &&
+            !legalRelationRefusal && (
+              <p className="text-muted text-sm">
+                {t("pages.lex.noResults", {
+                  query: searchMutation.data.query,
+                })}
+              </p>
+            )}
 
           {searchMutation.data && searchResults.length > 0 && (
             <div>
@@ -670,25 +694,34 @@ export default function LexKnowledgeGraph() {
                   >
                     {t("common.shareView")}
                   </Button>
-                  <Button
-                    type="button"
-                    onClick={() =>
-                      exportCsv(
-                        "lex-search-results.csv",
-                        searchResults,
-                        searchColumns,
-                      )
-                    }
-                    variant="ghost"
-                  >
-                    {t("common.exportCsv")}
-                  </Button>
+                  {!legalRelationRefusal && (
+                    <Button
+                      type="button"
+                      onClick={() =>
+                        exportCsv(
+                          "lex-search-results.csv",
+                          searchResults,
+                          searchColumns,
+                        )
+                      }
+                      variant="ghost"
+                    >
+                      {t("common.exportCsv")}
+                    </Button>
+                  )}
                   <Button
                     type="button"
                     onClick={() =>
                       exportJson("lex-search-results.json", {
                         outputDir,
                         query: searchMutation.data?.query ?? searchQuery,
+                        meta: searchMutation.data?.meta,
+                        search_mode: searchMutation.data?.search_mode,
+                        vector_refusal_code:
+                          searchMutation.data?.vector_refusal_code,
+                        legal_relation_refusal:
+                          searchMutation.data?.legal_relation_refusal,
+                        total: searchMutation.data?.total,
                         results: searchResults,
                       })
                     }

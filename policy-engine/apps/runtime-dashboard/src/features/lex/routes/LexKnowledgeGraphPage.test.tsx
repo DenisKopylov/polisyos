@@ -74,6 +74,16 @@ vi.mock("@/shared/i18n/LocaleProvider", async () => {
 import LexKnowledgeGraphPage from "@/features/lex/routes/LexKnowledgeGraphPage";
 import { createQueryHookWrapper } from "@/test/queryHook";
 
+function readBlobText(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () =>
+      reject(reader.error ?? new Error("Failed to read export blob"));
+    reader.onload = () => resolve(String(reader.result));
+    reader.readAsText(blob);
+  });
+}
+
 function renderLexPage() {
   return render(
     <MemoryRouter>
@@ -277,6 +287,127 @@ describe("LexKnowledgeGraphPage", () => {
     expect(
       screen.getByText('pages.lex.noResults:{"query":"missing"}'),
     ).toBeInTheDocument();
+  });
+
+  it("shows legal relation verification refusal separately from an empty search", () => {
+    useLexSearchMock.mockReturnValue({
+      data: {
+        query: "annual leave",
+        results: [],
+        search_mode: "vector",
+        total: 0,
+        vector_refusal_code: null,
+        legal_relation_refusal: {
+          code: "legal_source_relation_verification_not_established",
+          status: "verification_missing",
+        },
+      },
+      error: null,
+      isPending: false,
+      mutate: vi.fn(),
+    });
+
+    renderLexPage();
+
+    const refusal = screen.getByTestId("lex-search-legal-relation-refusal");
+    expect(refusal).toHaveAttribute("role", "alert");
+    expect(refusal).toHaveTextContent(
+      "pages.lex.legalRelationVerificationMissing",
+    );
+    expect(refusal).toHaveTextContent("verification_missing");
+    expect(refusal).toHaveTextContent(
+      "legal_source_relation_verification_not_established",
+    );
+    expect(screen.getByTestId("lex-search-result-mode")).toHaveTextContent(
+      "pages.lex.vectorSearchMode",
+    );
+    expect(
+      screen.queryByText('pages.lex.noResults:{"query":"annual leave"}'),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps the typed Legal refusal and response metadata in JSON exports", async () => {
+    const user = userEvent.setup();
+    const refusal = {
+      code: "legal_source_relation_verification_not_established",
+      status: "verification_missing",
+    } as const;
+    useLexSearchMock.mockReturnValue({
+      data: {
+        meta: {
+          generated_at: "2026-10-16T00:00:00Z",
+          request_id: "request-legal-search",
+          source_kinds: ["core_run"],
+        },
+        query: "annual leave",
+        results: [
+          {
+            confidence: 0.91,
+            doc_name: "Directive",
+            fact_id: "candidate-annual-leave",
+            fact_text: "Candidate text about annual leave.",
+            norm_type: "obligation",
+            object_name: "employees",
+            predicate: "may take",
+            provision_citation: "Article 17",
+            subject_name: "employee",
+          },
+        ],
+        search_mode: "vector",
+        total: 1,
+        vector_refusal_code: null,
+        legal_relation_refusal: refusal,
+      },
+      error: null,
+      isPending: false,
+      mutate: vi.fn(),
+    });
+    const createObjectUrl = vi
+      .spyOn(URL, "createObjectURL")
+      .mockReturnValue("blob:legal-search-export");
+    const revokeObjectUrl = vi
+      .spyOn(URL, "revokeObjectURL")
+      .mockImplementation(() => undefined);
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(() => undefined);
+
+    try {
+      renderLexPage();
+      expect(
+        screen.queryByRole("button", { name: "common.exportCsv" }),
+      ).not.toBeInTheDocument();
+
+      await user.click(
+        screen.getByRole("button", { name: "common.exportJson" }),
+      );
+
+      expect(click).toHaveBeenCalledTimes(1);
+      const blob = createObjectUrl.mock.calls[0]?.[0];
+      expect(blob).toBeInstanceOf(Blob);
+      if (!(blob instanceof Blob)) {
+        throw new Error("JSON export did not create a Blob");
+      }
+      const exported = JSON.parse(await readBlobText(blob));
+      expect(exported).toMatchObject({
+        meta: {
+          generated_at: "2026-10-16T00:00:00Z",
+          request_id: "request-legal-search",
+        },
+        outputDir: "data/lex_knowledge",
+        query: "annual leave",
+        search_mode: "vector",
+        total: 1,
+        vector_refusal_code: null,
+        legal_relation_refusal: refusal,
+      });
+      expect(exported.results).toHaveLength(1);
+      expect(revokeObjectUrl).toHaveBeenCalledWith("blob:legal-search-export");
+    } finally {
+      createObjectUrl.mockRestore();
+      revokeObjectUrl.mockRestore();
+      click.mockRestore();
+    }
   });
 
   it("posts the click-framed selected profile and displays returned retrieval mode", async () => {

@@ -1863,6 +1863,9 @@
       "vectorSearchMode": "Векторний пошук",
       "textSearchMode": "Текстовий пошук",
       "vectorSearchRefused": "Векторний пошук відхилено; показано результати текстового пошуку. Причина:",
+      "legalRelationVerificationMissing": "Перевірку джерела для правових тверджень не встановлено. Повернуті рядки залишаються кандидатами пошуку.",
+      "legalRelationRefusalStatus": "Статус зв’язку з правовим джерелом",
+      "legalRelationRefusalCode": "Код причини",
       "noResults": "За запитом \"{query}\" нічого не знайдено",
       "resultsSummary": "{count, plural, one {# результат для \"{query}\"} few {# результати для \"{query}\"} many {# результатів для \"{query}\"} other {# результату для \"{query}\"}}",
       "columns": {

@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import uvicorn
+from pydantic_core import to_jsonable_python
 
 if TYPE_CHECKING:
     from collections.abc import Callable, ContextManager
@@ -56,6 +57,11 @@ def _assert_dashboard_fixture_clean(payload: object) -> None:
     )
 
     assert_no_benchmark_contamination(payload, surface="dashboard_fixture")
+
+
+def _serialize_fixture_metadata(metadata: dict[str, object]) -> str:
+    """Encode typed fixture metadata without stringifying nested model values."""
+    return json.dumps(to_jsonable_python(metadata), indent=2)
 
 
 def _build_run_paper_search_input(
@@ -248,7 +254,7 @@ def main() -> None:
                 key: value for key, value in env.items() if key not in {"app", "client", "cas_root"}
             }
             _assert_dashboard_fixture_clean(metadata)
-            metadata_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+            metadata_path.write_text(_serialize_fixture_metadata(metadata), encoding="utf-8")
 
         uvicorn.run(app, host=args.host, port=args.port, log_level="warning")
 

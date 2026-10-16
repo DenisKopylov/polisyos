@@ -2298,6 +2298,57 @@ describe("runtime API validators", () => {
     ).toBe(false);
   });
 
+  it("preserves the typed Legal source-relation refusal and rejects malformed supplied values", () => {
+    const response = {
+      meta: {
+        request_id: "request-legal-relation-refusal",
+        generated_at: "2026-10-16T00:00:00Z",
+        source_kinds: [],
+      },
+      query: "employment leave",
+      results: [],
+      total: 0,
+      search_mode: "text",
+      vector_refusal_code: null,
+    } as const;
+    const refusal = {
+      code: "legal_source_relation_verification_not_established",
+      status: "verification_missing",
+    } as const;
+
+    expect(
+      lexSearchResponseSchema.parse({
+        ...response,
+        legal_relation_refusal: refusal,
+      }).legal_relation_refusal,
+    ).toEqual(refusal);
+    expect(lexSearchResponseSchema.parse(response)).not.toHaveProperty(
+      "legal_relation_refusal",
+    );
+    expect(
+      lexSearchResponseSchema.parse({
+        ...response,
+        legal_relation_refusal: null,
+      }).legal_relation_refusal,
+    ).toBeNull();
+
+    for (const invalidRefusal of [
+      { code: "different_refusal", status: "verification_missing" },
+      {
+        code: refusal.code,
+        status: "verified",
+      },
+      { ...refusal, issuer: "untrusted-adjacent-field" },
+    ]) {
+      expect(
+        lexSearchResponseSchema.safeParse({
+          ...response,
+          legal_relation_refusal: invalidRefusal,
+        }).success,
+      ).toBe(false);
+    }
+  });
+
   it("keeps selected Legal search snapshots distinct from typed refusals", () => {
     const meta = {
       request_id: "request-legal-profile",

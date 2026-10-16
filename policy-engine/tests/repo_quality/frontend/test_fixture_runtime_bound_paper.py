@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import importlib
 import importlib.util
+import json
 from pathlib import Path
 from types import ModuleType
 
+import pytest
+from pydantic_core import PydanticSerializationError
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
-FIXTURE_SERVER = (
-    REPO_ROOT / "apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py"
-)
+FIXTURE_SERVER = REPO_ROOT / "apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py"
 BOUND_ARTIFACT_KINDS = {
     "policyos.layer2_s2.design_record_v0",
     "policyos.layer2_s2.search_ledger",
@@ -19,14 +21,54 @@ BOUND_ARTIFACT_KINDS = {
 
 
 def _load_fixture_server() -> ModuleType:
-    spec = importlib.util.spec_from_file_location(
-        "ds11_fixture_runtime_api", FIXTURE_SERVER
-    )
+    spec = importlib.util.spec_from_file_location("ds11_fixture_runtime_api", FIXTURE_SERVER)
     assert spec is not None
     assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def test_fixture_metadata_json_serializes_real_artifact_refs_and_selected_profile(
+    tmp_path: Path,
+) -> None:
+    """Keep nested fixture references typed through the metadata JSON boundary."""
+    from polisyos.core.artifacts import ArtifactRef
+
+    server = _load_fixture_server()
+    runtime_helper = importlib.import_module("_helpers.runtime_http")
+    env = server._build_dashboard_fixture_env(
+        tmp_path,
+        include_run_paper_fixtures=False,
+        include_bound_run_paper_fixture=False,
+        include_test_client=True,
+    )
+    try:
+        metadata = {
+            key: value for key, value in env.items() if key not in {"app", "client", "cas_root"}
+        }
+        registry_ref = metadata["registry_bundle_ref"]
+        assert isinstance(registry_ref, ArtifactRef)
+        selected_profile_ref = registry_ref.model_copy(
+            update={"manifest_profile_sha256": "sha256:" + "b" * 64}
+        )
+        metadata["selected_profile_ref"] = selected_profile_ref
+
+        encoded = server._serialize_fixture_metadata(metadata)
+        decoded = json.loads(encoded)
+
+        assert decoded["registry_bundle_ref"] == registry_ref.model_dump(mode="json")
+        assert decoded["selected_profile_ref"] == selected_profile_ref.model_dump(mode="json")
+    finally:
+        runtime_helper.close_runtime_api_env(env)
+
+
+def test_fixture_metadata_json_rejects_unknown_objects() -> None:
+    """Do not stringify unsupported fixture values at the server boundary."""
+    server = _load_fixture_server()
+
+    with pytest.raises(PydanticSerializationError):
+        server._serialize_fixture_metadata({"unknown": object()})
 
 
 def test_dashboard_fixture_publishes_one_content_bound_s2_run_paper(
@@ -53,12 +95,8 @@ def test_dashboard_fixture_publishes_one_content_bound_s2_run_paper(
     assert binding["run_id"] == run_id == packet["run"]["run_id"]
     assert binding["tenant_id"] == env["tenant_a"] == packet["run"]["tenant_id"]
     assert binding["cell_id"] == env["cell_a"]
-    linked_kinds = [
-        link["artifact_ref"]["kind"] for link in packet["artifact_links"]
-    ]
-    assert {kind for kind in linked_kinds if kind in BOUND_ARTIFACT_KINDS} == (
-        BOUND_ARTIFACT_KINDS
-    )
+    linked_kinds = [link["artifact_ref"]["kind"] for link in packet["artifact_links"]]
+    assert {kind for kind in linked_kinds if kind in BOUND_ARTIFACT_KINDS} == (BOUND_ARTIFACT_KINDS)
     assert all(linked_kinds.count(kind) == 1 for kind in BOUND_ARTIFACT_KINDS)
 
 
@@ -81,12 +119,8 @@ def test_bound_run_paper_fixture_is_opt_in_and_preserves_default_run_population(
         include_test_client=True,
     )
     try:
-        default_runs = default_env["client"].get("/api/v1/runs?limit=100").json()[
-            "runs"
-        ]
-        bound_runs = bound_env["client"].get("/api/v1/runs?limit=100").json()[
-            "runs"
-        ]
+        default_runs = default_env["client"].get("/api/v1/runs?limit=100").json()["runs"]
+        bound_runs = bound_env["client"].get("/api/v1/runs?limit=100").json()["runs"]
     finally:
         runtime_helper.close_runtime_api_env(default_env)
         runtime_helper.close_runtime_api_env(bound_env)
@@ -117,10 +151,7 @@ def test_visual_run_paper_fixtures_bind_three_distinct_s2_records(
             env["run_paper_empty_run_id"],
             env["run_paper_growth_run_id"],
         ]
-        responses = [
-            env["client"].get(f"/api/v1/runs/{run_id}/paper")
-            for run_id in run_ids
-        ]
+        responses = [env["client"].get(f"/api/v1/runs/{run_id}/paper") for run_id in run_ids]
     finally:
         runtime_helper.close_runtime_api_env(env)
 
@@ -130,25 +161,15 @@ def test_visual_run_paper_fixtures_bind_three_distinct_s2_records(
     packets = [response.json() for response in responses]
     cases = [packet["case_record"] for packet in packets]
     assert [packet["run"]["run_id"] for packet in packets] == run_ids
-    assert all(
-        case["availability"] == "record_available_authority_abstaining"
-        for case in cases
-    )
+    assert all(case["availability"] == "record_available_authority_abstaining" for case in cases)
     assert all(case["authority_projection"] == "abstained" for case in cases)
     assert [case["design_record_binding"]["run_id"] for case in cases] == run_ids
-    assert len(
-        {
-            case["design_record_binding"]["design_record_content_digest"]
-            for case in cases
-        }
-    ) == 3
+    assert (
+        len({case["design_record_binding"]["design_record_content_digest"] for case in cases}) == 3
+    )
     for packet in packets:
-        linked_kinds = [
-            link["artifact_ref"]["kind"] for link in packet["artifact_links"]
-        ]
+        linked_kinds = [link["artifact_ref"]["kind"] for link in packet["artifact_links"]]
         assert all(linked_kinds.count(kind) == 1 for kind in BOUND_ARTIFACT_KINDS)
-    growth_kinds = [
-        link["artifact_ref"]["kind"] for link in packets[2]["artifact_links"]
-    ]
+    growth_kinds = [link["artifact_ref"]["kind"] for link in packets[2]["artifact_links"]]
     assert growth_kinds.count("test.run_paper_growth_output") == 64
     assert len(packets[2]["artifact_links"]) == len(packets[1]["artifact_links"]) + 64

@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "c6c9bc0009d5c73949107d956a0995edf45d8b18",
-    "tree": "25fde5f874e21b9a8bc8af411b6c830b71372c8c",
+    "head": "1dd2dcec36c7b4210c41ff95142b0cd4506554a8",
+    "tree": "ffc6777814f0b4eacacd1a8905764d9ea36a118d",
     "parents": [
-      "087880dd4f9680f80cdf9caf3a124dbc665d77c2"
+      "4682c29b8f2cfdf298afdfb62f10d16175489031"
     ],
     "source_freeze": false,
-    "dirty_active_source": "C05 selected-consumer source49 committed087880d with releasec6c9bc;310actualPASS/MyPy28/Ruff51. Known root-owned C7/LA025/calibration/generated/release/test companions remain pending; FabricR4 and Legal facade RAW review."
+    "dirty_active_source": "C05 source087/releasec6, Legal468 and C7 source1dd committed. Actual C05 310PASS, Legal7PASS and C7 34PASS0SKIP. Fabric R4 full28 awaits independent reviews; two exact author write-through companions attributed and retained. LA025/test/generated/release companions remain root-owned active; no global freeze."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -82,7 +82,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "ef8f87579a01ef2b89d45e6023594e4d8eaa6d12cddc1180a27fc48873e6edc7"
+      "sha256": "cef18dc9c57a7d25029ba1dd7108ff1b7a06e94c788dd5cd863cfe39794f6801"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
@@ -371,6 +371,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c05-selected-consumer-composition-delivery-20261016.json",
       "sha256": "0443fc9e1178349c257e39ef47d451f4578da730d23af3767c536e787c5a6417"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/legal-transport-root-facade-delivery-20261016.json",
+      "sha256": "8c390ae05dec975195e9063e3bf7518cb64cfb6f23336afddaf62d32b1ca102c"
     }
   ],
   "canonical_denominator_recomputed": {

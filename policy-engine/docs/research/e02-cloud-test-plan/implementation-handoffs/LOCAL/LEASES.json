@@ -1985,5 +1985,30 @@
     },
     "formal_G_closure_ids": [],
     "source_freeze": false
+  },
+  "coordination_epoch_20261016_fabric28_and_c7_companions": {
+    "observed_head": "4682c29b8f2cfdf298afdfb62f10d16175489031",
+    "root_sole_authorized_live_source_and_git_writer": true,
+    "fabric_R4_full_union_paths": 28,
+    "fabric_additional_original_preimages": {
+      "policy-engine/src/polisyos/fabric/connectors/_registry_models.py": "19130e6738d9d08dc7e308993f37df2de387072734be5b54d38d25a2821773fb",
+      "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py": "6cab5975b94dc4d0dac35314a0a42bcec81155b02c0a0e59e7d2c59fcdd949cf"
+    },
+    "attributed_author_write_through": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-register-snapshot-live-attribution-20261016/attribution-resolved.json",
+      "sha256": "7a4a0ba1cd11a2a6b002ea3bdea8132c55da10e94b9808d006340111bb919b7e",
+      "status": "Two known exact necessary author postimages already present, no rollback; independent full28 review required before adoption."
+    },
+    "C7_post_R7_companions": {
+      "preimages": {
+        "policy-engine/tests/unit/scientist/methods/test_advanced.py": "d836f403f7c0633fabbc3c8c4904ce8839500d9db686c9777c64d81b9d7ed753",
+        "policy-engine/src/polisyos/scientist/governance/calibration_validation.py": "7afad1e9cd87662d7f5a519035778f30ce5504897a35751cd900a38e5340e46c"
+      },
+      "freeze_sha256": "ffb6b4f0989f9b687d9c65bcd60a6bca680d7c546e6891bde9c716e5ce792da1",
+      "independent_review_sha256": "f77d09aafcfa44b965c10506601b42a7d7687fb8a1f7b6768ae4c79b5243e207",
+      "property": "WholeSurvivalData actual4tuple plus strict valid/present-malformed/absent registry return boundary; no cast/Any/default laundering."
+    },
+    "source_freeze": false,
+    "formal_G_closure_ids": []
   }
 }

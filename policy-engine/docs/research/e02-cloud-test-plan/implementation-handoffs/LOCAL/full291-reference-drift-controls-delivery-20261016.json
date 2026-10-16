@@ -1,0 +1,71 @@
+{
+  "schema": "policyos.e02.local_verification_handoff.v1",
+  "slice": "R7 occurrence-index fail-closed drift gate successor",
+  "branch": "codex/e02-unified-local-20261009",
+  "observed_candidate_sha": "fba8e987aa6bb0c202dd968ced50d921f27949d0",
+  "index_source_commit": "52e16a793af9ad8b9c1e75206e3316a4a78f3308",
+  "index": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+    "sha256": "70673fe8c1e74b3d83627d883cda70e9dbc19401302d81458bba16dcc874a892"
+  },
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "source_freeze": false,
+  "G_acceptance": null,
+  "property": "Index verification exits nonzero for unresolved references and valid-but-wrong occurrence bindings, even when altered declared hashes and marker counts remain well formed.",
+  "P40": "Same reference/row-binding class widened once to all accumulated failure families at the final admission. No special mutant IDs.",
+  "prior_frozen_validator": "2c1bc8383fc013544282c03226b7e6bdabaf41ac7715041353147121411e1898",
+  "prior_failure": "Old validator printed binding/target failures but exited0 for two mutants; original clean R7 report integrity remains independently reconciled. Old outputs and script retained.",
+  "successor": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-index-drift-controls-20261016/r3/verify_r7_successor.py",
+    "sha256": "8233a694ab9c86a989d0679e5408abf9fabe5786c0857420e5053c1a1548c27b"
+  },
+  "actual_published_index_check": {
+    "exit_code": 0,
+    "seconds": 8.132,
+    "strict_pointers": 1820,
+    "full_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q0-r7-successor-actual-20261016/actual-check.stdout.txt",
+      "sha256": "46e65d80a7a9a285d1e78d001bc7ddc23f70749b0ca2064868d6a31d6bccc611"
+    },
+    "command": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q0-r7-successor-actual-20261016/actual-check.run.json",
+      "sha256": "a7531d53e65dcac9f3be164bf8e7442a40009e28133554a9236162510dbfc7ee"
+    }
+  },
+  "independent_cases": {
+    "baseline": "PASS",
+    "criterion_span_hash_corruption": "FAIL_expected",
+    "deleted_occurrence_row": "FAIL_expected",
+    "valid_other_occurrence_pointer": "FAIL_expected",
+    "actual_referenced_target_removed_with_updated_declared_hashes": "FAIL_expected"
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-index-drift-controls-20261016/r2/independent-review-addendum-r1.json",
+      "sha256": "7ca687b8b4f5d74d1cf73d1112918e5170997f5febfd787ea69328569d6351b9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-index-drift-controls-20261016/r3/successor-verification-manifest.json",
+      "sha256": "ad8e3bd3df56fbbbb3ff1118983905285eb6f7ae17cfb3661d8d1a5e27973353"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-index-drift-controls-20261016/r3/source-preservation-check.json",
+      "sha256": "1abc4e61238261ffef852ccea1c2b74d26a646c1a597f51171a3a20c546d941c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-index-drift-controls-20261016/r3/independent-review-r3/independent-review-r3.json",
+      "sha256": "89de270ba12d1bbfe90e01f668d5384d4d3656377dd80a62716c6ac94e5e36d5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-index-drift-controls-20261016/r3/independent-review-r3/independent-replay.json",
+      "sha256": "6964572914feff784d20d953f39b1dd7bfd6831b5eef65841f438a64576d38b8"
+    }
+  ],
+  "availability": "Exact verifier and deciding outputs retained as ignoredRAW on the shared localhost. G must read those bytes or rerun; no raw source snapshots were added to Git.",
+  "limitations": [
+    "Bounded to exactR5/R7reportpair and declared input routes; not a product authority or verification of all underlying capabilities.",
+    "No original proposal/history/source-freeze status was changed."
+  ],
+  "next_check": "Use this exact successor and fresh per-occurrence source evidence at final proposal freeze; independently adjudicate throughG."
+}

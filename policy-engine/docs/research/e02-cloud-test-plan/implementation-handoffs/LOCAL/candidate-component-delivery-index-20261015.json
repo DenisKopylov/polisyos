@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "52e16a793af9ad8b9c1e75206e3316a4a78f3308",
-    "tree": "adbb36aba4f8d7e0e4f774ed311b5960b7745d75",
+    "head": "fba8e987aa6bb0c202dd968ced50d921f27949d0",
+    "tree": "57405fb6bcd986bec5aef46fc5a70d144442b1b2",
     "parents": [
-      "b7b04d1680a6fe77d35b589c88f1845786dcc316"
+      "30d769ac5e42459f344df1fb32a7010f6274dbfc"
     ],
     "source_freeze": false,
-    "dirty_active_source": "Owned C05/replay/root/L5 and LA025 companions pending; Fabricprofile-keyrepair and V6authenticfailurefixtureRAW; finalwave notadmitted."
+    "dirty_active_source": "Knownroot-ownedmacro+LA025overlays; selectedprofile/replay/C7writer,root/unknowncost,Fabric cache andV6companions stillactive."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -323,6 +323,14 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
       "sha256": "70673fe8c1e74b3d83627d883cda70e9dbc19401302d81458bba16dcc874a892"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v1-bounded-control-job-wait-delivery-20261016.json",
+      "sha256": "cab56283856295949e2fef74388ea1d9ec5195a107ce7052a1a014ef0e9ebf56"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full291-reference-drift-controls-delivery-20261016.json",
+      "sha256": "555f06fa55d95336b40080071a37984dc5548345c4903089079a235d87928e8f"
     }
   ],
   "canonical_denominator_recomputed": {

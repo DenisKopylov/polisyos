@@ -1,0 +1,92 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "LOCAL",
+  "slice": "Bounded default-workflow control-job test wait",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "30d769ac5e42459f344df1fb32a7010f6274dbfc",
+  "candidate_sha": "fba8e987aa6bb0c202dd968ced50d921f27949d0",
+  "candidate_tree_sha": "57405fb6bcd986bec5aef46fc5a70d144442b1b2",
+  "parents": [
+    "30d769ac5e42459f344df1fb32a7010f6274dbfc"
+  ],
+  "implementation_commits": [
+    "fba8e987aa6bb0c202dd968ced50d921f27949d0"
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "source_freeze": false,
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_workflow_post_data_view_profile_binding.py",
+      "sha256": "d7b10773ada323d1563842b460a8db0a8a67944c03cd6b16164e5d28e3a9f70b"
+    }
+  ],
+  "property": "The test observes the actual durable job terminal state, fails immediately with failed/missing/invalid-state diagnostics, and bounds a stalled job with a finite monotonic test budget.",
+  "selected_input_profile_backend": "Own locked Python3.14. Fake-clock controls call the exact test helper; real default23route remains unrun.",
+  "budget": {
+    "seconds": 656,
+    "basis": "2x measured328s controlled N4 observation; default workflow still unmeasured",
+    "meaning": "Test harness ceiling only; no product SLA or clock/expiry change."
+  },
+  "verification": {
+    "root_actual_combined_cases": 28,
+    "combined_breakdown": {
+      "Scholar_API": 6,
+      "Scientist_node": 14,
+      "V1_wait_helper": 8
+    },
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "canonical_Ruff": "PASS exactsource/testpaths",
+    "additional_four_source_mypy": "PASS; includes separate B18 and LA025 cohort, not a harness requirement",
+    "import_boundary": "1695 actual own-source modules; selectedthreeLA025sourcesloaded; no outside-own imports"
+  },
+  "source_bound_commands_and_full_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-v1-actual-checks-20261016/request.json",
+      "sha256": "3e455aca524133253424cf3477c857e0f29d09a509c8de72e4f16f38a117311c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-v1-actual-checks-20261016/actual-results.json",
+      "sha256": "2a8e0e2174cd8398bb117f863d1ae51c05b6b40657ad6279778597409764a5c2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-v1-actual-checks-20261016/actual-la025-v1-focused.stdout.txt",
+      "sha256": "d8b94e00520e299ffc17f07932780f554f2ea2c8edf7ac5e4b81ee19cbede3e9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-v1-actual-checks-20261016/actual-la025-v1-focused.junit.xml",
+      "sha256": "75b6b4358dc0056a82df785f12e101065f87821baa56eca1fc62b35a8f06103e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-v1-actual-checks-20261016/actual-loaded-source-origins.json",
+      "sha256": "bd4d65015bb68e8cf5437ec583f3dd9d4983b2f722e710636d433d0820be6894"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-v1-actual-checks-20261016/v1-harness-source-readback.json",
+      "sha256": "ed70384be8083dbfc1eb1cd1d0ef74f4a4fc6735595e36b91e0d5a5983ea7561"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-v1-v2-independent-20261016/review-receipt.json",
+      "sha256": "a7a049db47e714c8acabbfcfc51eb3787e4244e4415f8decf447de6878d85acb"
+    }
+  ],
+  "negative_controls": [
+    "Completion progresses pending/running/completed with monotonic fake clock",
+    "Stalled running job exhausts finite budget",
+    "Failed terminal job reports immediately without sleep",
+    "NaN,+inf,-inf,zero,negative budget rejected before clock/job access"
+  ],
+  "consumer_surface": "Test only; ordinary POST/worker/CAS/freshGET test calls this helper through existing get_job API.",
+  "proposal_fields": {
+    "finding_ids": [],
+    "outcome": "Harness ready for later source-frozen route run; no finding closure follows from helper controls."
+  },
+  "limitations": [
+    "Full23defaultroute, source-backedownerpositive and genuineV6siblingroute remainUNRUN/held independently.",
+    "LA025twotypedwriterswereworking-treeoverlaysduringcombined28; that broadercompositionisnotpublishedbythisone-testsourcecommit."
+  ],
+  "next_check": "After complete source/input/backend freeze run the real ordinary POST->worker->CAS->freshGET selector once; retain full terminal output and timing."
+}

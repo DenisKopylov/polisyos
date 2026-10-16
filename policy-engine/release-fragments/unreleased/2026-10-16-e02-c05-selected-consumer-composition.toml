@@ -1,0 +1,40 @@
+id = "2026-10-16-e02-c05-selected-consumer-composition"
+title = "Bind protected Scientist replay and runtime consumers to their selected artifact basis"
+type = "fixed"
+component = "scientist"
+owner = "team-polisyos"
+summary = "Covered runtime-evaluation, replay-reissue, promotion-evidence and funnel-consumer routes preserve selected profiles and verify the declared artifact basis before using it. Candidate and snapshot grades retain their explicit limits."
+evidence = [
+  "src/polisyos/scientist/policy_design/output.py",
+  "src/polisyos/scientist/replay/verification.py",
+  "src/polisyos/scientist/replay/deterministic.py",
+  "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+  "tests/unit/scientist/replay/test_profileless_replay_basis.py",
+  "tests/unit/scientist/replay/test_verification_owner_admission.py",
+  "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_replay_reissue.py",
+  "tests/unit/scientist/search/test_judge_stack_replay_verification_owner.py",
+]
+compatibility = "The existing replay facade names remain available. Protected current-basis admission checks the outer replay-bundle root for expected kind, JSON media type, owner schema, selected manifest and physical integrity. The nine explicit ref containers require matching selected-manifest/profile identities, physical verification and exact projected input edges; this does not establish a semantic owner/schema for every nested role or reject every extra manifest edge. Historical profileless archive loading remains distinct from a complete current basis. This is a stricter consumer contract, not a reader-side profile upgrade."
+change_class = "Python API and protected runtime admission"
+surface_classification = "public-api: existing polisyos.scientist.replay facade and its policy-design artifact consumers"
+migration = "Reissue the selected basis through the actual writer and retain its exact selected refs and input edges. Do not synthesize a profile from the default reader view. Existing artifact-snapshot reports do not become executed semantic replay. A consumed runtime-param fallback without original-run selection evidence remains not_established under the separately proposed source-binding decision."
+api = "The shared replay-basis admission resolves the selected root and every explicit typed ref container against its persisted manifest and physical integrity. Reissue preserves source evidence/state while passing the newly persisted bundle/report refs to the consumer. Minimal ArtifactStore protocols preserve guarded-store use; no new facade names are introduced."
+limitations = "The 310-test composed component replay and strict checks cover the pinned source/test set. The final promotion call in the paired reissue fixture is controlled; it is not a full positive promotion proof. The original selection of JSON runtime-parameter aliases and the complete semantic workflow remain unestablished. Global native, generated, installed, Linux, served and production-currentness checks are separate pending work. No G acceptance or finding closure is claimed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/replay-runtime-parameter-binding-r2-20261016.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-c05-selected-artifact-consumer-admission"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "polisyos.scientist.replay verification/reissue consumers and policy-design selected-basis admission"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Protected consumers require the actual writer-selected artifact basis; profileless/mismatched/corrupt explicit refs refuse rather than falling back to a default manifest. Archive/snapshot access and its lower grade remain distinct."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/replay-runtime-parameter-binding-r2-20261016.md"]
+runbook_docs = []

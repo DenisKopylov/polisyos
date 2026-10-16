@@ -12,10 +12,10 @@ from typing import Any, Protocol
 import duckdb
 
 from polisyos.core import artifacts as core_artifacts
-from polisyos.data_forge.domains.legal.source_relation import (
+from polisyos.data_forge.read_api import legal as legal_read_api
+from polisyos.data_forge.read_api.legal import (
     LegalSourceRelationVerificationMissingError,
 )
-from polisyos.data_forge.read_api import legal as legal_read_api
 from polisyos.lex.api import assemble_norm_pack, evaluate_transport_constraints
 from polisyos.lex.knowledge.search import LegalKnowledgeGraph
 from polisyos.lex.knowledge.store import LegalQueryProfileError

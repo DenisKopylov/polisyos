@@ -19,9 +19,6 @@ from polisyos.core.components import (
     ComponentKind,
     ComponentMetadata,
 )
-from polisyos.data_forge.domains.legal.source_relation import (
-    LegalSourceRelationVerificationMissingError,
-)
 from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.data_forge.read_api.catalog import (
     DatasetRegistry,
@@ -29,6 +26,9 @@ from polisyos.data_forge.read_api.catalog import (
     compose_confidence_harmonic,
     resolve_proxy,
     validate_proxy,
+)
+from polisyos.data_forge.read_api.legal import (
+    LegalSourceRelationVerificationMissingError,
 )
 from polisyos.foundry.methods.catalog.causal.transport_engine import (
     solve_transportability,

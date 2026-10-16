@@ -104,11 +104,11 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "LegalToDAGMappingType",
     ),
     "LegalSourceRelationRefusal": (
-        "polisyos.data_forge.domains.legal.source_relation",
+        "polisyos.data_forge.read_api.legal",
         "LegalSourceRelationRefusal",
     ),
     "LegalSourceRelationVerificationMissingError": (
-        "polisyos.data_forge.domains.legal.source_relation",
+        "polisyos.data_forge.read_api.legal",
         "LegalSourceRelationVerificationMissingError",
     ),
     "is_transport_blocked": (

@@ -3,7 +3,7 @@
 `polisyos.data_forge` is the experimental build-time facade for asset-centric
 data preparation and governed artifact publication.
 
-- Last updated: 2026-05-02
+- Last updated: 2026-10-16
 
 ## Public Surface
 
@@ -40,7 +40,13 @@ revision, runtime bytes, source closure, and effective encode settings are
 recomputed by the owner and do not select production sources or confer authority.
 Domain implementation under `domains/` remains non-public.
 
-Legal claim-to-source admission uses one shared relation owner. Until an
+Legal claim-to-source admission uses one shared relation owner.
+
+The runtime-safe `polisyos.data_forge.read_api.legal` facade re-exports the
+canonical typed source-relation refusal and disposition contracts by identity.
+Lex and runtime consumers use that facade without changing the `search_candidate`
+disposition or `verification_missing` status or implying that relation
+verification has been established. Until an
 independent verifier receipt binds the complete SPO claim to selected source
 bytes, extracted claims remain `search_candidate`; an exact quotation establishes
 text occurrence only. The authenticated Runtime Lex search can return those

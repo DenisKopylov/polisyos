@@ -11,14 +11,14 @@ import duckdb
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.data_forge.domains.legal.source_relation import (
-    LegalSourceRelationVerificationMissingError,
-)
 from polisyos.data_forge.read_api.academic import (
     ParameterCandidate,
     SKGQuery,
 )
 from polisyos.data_forge.read_api.catalog import DatasetRegistry, resolve_proxy
+from polisyos.data_forge.read_api.legal import (
+    LegalSourceRelationVerificationMissingError,
+)
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentDegradedOutcome,
     AlignmentDegradedOutcomeCode,

@@ -19,7 +19,7 @@ import duckdb
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from polisyos.data_forge.domains.legal.source_relation import (
+from polisyos.data_forge.read_api.legal import (
     LEGAL_SOURCE_RELATION_REFUSAL,
     LegalSourceRelationRefusal,
     current_legal_source_relation_disposition,

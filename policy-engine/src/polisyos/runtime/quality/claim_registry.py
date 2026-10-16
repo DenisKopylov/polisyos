@@ -9,7 +9,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
-from polisyos.data_forge.domains.legal.source_relation import (
+from polisyos.data_forge.read_api.legal import (
     current_legal_source_relation_disposition,
 )
 from polisyos.runtime.quality.calibration_ledger import (

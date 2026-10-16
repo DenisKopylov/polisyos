@@ -28,7 +28,7 @@ import duckdb
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import contracts as core_contracts
-from polisyos.data_forge.domains.legal.source_relation import (
+from polisyos.data_forge.read_api.legal import (
     LEGAL_SOURCE_RELATION_REFUSAL,
     LegalSourceRelationVerificationMissingError,
 )

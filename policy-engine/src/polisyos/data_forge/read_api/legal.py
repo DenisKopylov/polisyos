@@ -14,9 +14,54 @@ if TYPE_CHECKING:
     from polisyos.data_forge.domains.legal.runtime_material import (
         LegalRuntimeMaterialOwner as LegalRuntimeMaterialOwner,
     )
+    from polisyos.data_forge.domains.legal.source_relation import (
+        CURRENT_LEGAL_SOURCE_RELATION_DISPOSITION as CURRENT_LEGAL_SOURCE_RELATION_DISPOSITION,
+    )
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LEGAL_SOURCE_RELATION_REFUSAL as LEGAL_SOURCE_RELATION_REFUSAL,
+    )
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LEGAL_SOURCE_RELATION_REFUSAL_CODE as LEGAL_SOURCE_RELATION_REFUSAL_CODE,
+    )
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LegalCandidateTrustTier as LegalCandidateTrustTier,
+    )
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LegalSourceRelationDisposition as LegalSourceRelationDisposition,
+    )
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LegalSourceRelationRefusal as LegalSourceRelationRefusal,
+    )
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LegalSourceRelationRefusalCode as LegalSourceRelationRefusalCode,
+    )
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LegalSourceRelationStatus as LegalSourceRelationStatus,
+    )
+    from polisyos.data_forge.domains.legal.source_relation import (
+        LegalSourceRelationVerificationMissingError as LegalSourceRelationVerificationMissingError,
+    )
+    from polisyos.data_forge.domains.legal.source_relation import (
+        current_legal_source_relation_disposition as current_legal_source_relation_disposition,
+    )
+    from polisyos.data_forge.domains.legal.source_relation import (
+        require_legal_source_relation_verification as require_legal_source_relation_verification,
+    )
 
 _LEGAL_DOMAIN = "polisyos.data_forge.domains.legal"
+_LEGAL_SOURCE_RELATION_MODULE = f"{_LEGAL_DOMAIN}.source_relation"
 _EXPORTS = {
+    "CURRENT_LEGAL_SOURCE_RELATION_DISPOSITION": _LEGAL_SOURCE_RELATION_MODULE,
+    "LEGAL_SOURCE_RELATION_REFUSAL": _LEGAL_SOURCE_RELATION_MODULE,
+    "LEGAL_SOURCE_RELATION_REFUSAL_CODE": _LEGAL_SOURCE_RELATION_MODULE,
+    "LegalCandidateTrustTier": _LEGAL_SOURCE_RELATION_MODULE,
+    "LegalSourceRelationDisposition": _LEGAL_SOURCE_RELATION_MODULE,
+    "LegalSourceRelationRefusal": _LEGAL_SOURCE_RELATION_MODULE,
+    "LegalSourceRelationRefusalCode": _LEGAL_SOURCE_RELATION_MODULE,
+    "LegalSourceRelationStatus": _LEGAL_SOURCE_RELATION_MODULE,
+    "LegalSourceRelationVerificationMissingError": _LEGAL_SOURCE_RELATION_MODULE,
+    "current_legal_source_relation_disposition": _LEGAL_SOURCE_RELATION_MODULE,
+    "require_legal_source_relation_verification": _LEGAL_SOURCE_RELATION_MODULE,
     "BatchConfig": "polisyos.data_forge.domains.legal.batch.config",
     "EmbeddingGenerationRef": "polisyos.data_forge.kernel.embeddings",
     "LEGAL_EMBEDDING_PROJECTION_RULE_VERSION": (

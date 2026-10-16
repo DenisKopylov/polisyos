@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.data_forge.domains.legal.source_relation import (
+from polisyos.data_forge.read_api.legal import (
     require_legal_source_relation_verification,
 )
 

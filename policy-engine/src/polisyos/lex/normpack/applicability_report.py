@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from datetime import date
 
-from polisyos.data_forge.domains.legal.source_relation import (
+from polisyos.data_forge.read_api.legal import (
     current_legal_source_relation_disposition,
 )
 from polisyos.lex.common import parse_iso_date

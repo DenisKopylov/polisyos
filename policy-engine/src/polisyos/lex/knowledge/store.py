@@ -19,10 +19,10 @@ import numpy as np
 
 from polisyos.common.logger import get_logger
 from polisyos.core import artifacts, contracts
-from polisyos.data_forge.domains.legal.source_relation import (
+from polisyos.data_forge.read_api import legal as legal_read_api
+from polisyos.data_forge.read_api.legal import (
     require_legal_source_relation_verification,
 )
-from polisyos.data_forge.read_api import legal as legal_read_api
 from polisyos.lex.knowledge.types import (
     LegalDocVersionResult,
     LegalFactResult,

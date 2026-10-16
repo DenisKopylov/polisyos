@@ -18,10 +18,10 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.data_forge.domains.legal.source_relation import (
+from polisyos.data_forge.read_api.catalog import CatalogQueryGenerationContext
+from polisyos.data_forge.read_api.legal import (
     current_legal_source_relation_disposition,
 )
-from polisyos.data_forge.read_api.catalog import CatalogQueryGenerationContext
 from polisyos.runtime.quality.candidate_firewall import (
     candidate_firewall_issues_for_payload,
 )

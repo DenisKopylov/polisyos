@@ -1,0 +1,35 @@
+id = "2026-10-16-e02-phase2-legal-source-relation-facade"
+title = "Route Legal source-relation contracts through Data Forge read API"
+type = "changed"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "Expose the existing typed Legal source-relation refusal and candidate disposition through the canonical Data Forge legal read facade, and route Lex/runtime consumers through that facade."
+evidence = [
+  "tests/unit/data_forge/test_phase2_legal_source_relation_facade.py",
+  "tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py",
+  "tests/unit/lex/test_public_transport_facade.py",
+]
+compatibility = "The read facade and existing Lex aliases resolve the same canonical source-relation objects. This changes import routes only; current Legal claim-to-source disposition remains candidate-only and fail-closed."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.data_forge.read_api.legal source-relation contracts"
+migration = "Runtime consumers may import the existing typed source-relation contracts from polisyos.data_forge.read_api.legal. Existing Lex aliases remain available by identity."
+api = "Adds the canonical Legal source-relation refusal, disposition, status, trust-tier, and verification helper exports to the Data Forge legal read facade."
+limitations = "No independent verifier receipt is added. Extracted claims remain search_candidate; the verification status remains verification_missing; no legal validity, issuer authority, custody, or currentness is established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/data_forge/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "data-forge-legal-source-relation-read-api"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.data_forge.read_api.legal source-relation contracts"
+owner = "team-data-forge"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable"
+release_note = "Expose the existing typed Legal source-relation refusal and candidate disposition through the Data Forge legal read facade while preserving the canonical objects and fail-closed behavior."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/data_forge/README.md"]
+runbook_docs = []

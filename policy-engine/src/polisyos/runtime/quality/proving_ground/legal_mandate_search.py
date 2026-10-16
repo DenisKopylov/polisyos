@@ -3249,7 +3249,7 @@ def _require_gl_source_relation_verification_if_authority_projection(
         _gl_contains_authority_projection(value) for value in values
     ):
         return
-    from polisyos.data_forge.domains.legal.source_relation import (
+    from polisyos.data_forge.read_api.legal import (
         current_legal_source_relation_disposition,
         require_legal_source_relation_verification,
     )
@@ -3336,7 +3336,7 @@ def _gl_consumer_claim(
 
 
 def _gl_lex_semantic_report(legal_authority_report: Mapping[str, Any]) -> dict[str, Any]:
-    from polisyos.data_forge.domains.legal.source_relation import (
+    from polisyos.data_forge.read_api.legal import (
         current_legal_source_relation_disposition,
     )
 
@@ -3709,7 +3709,7 @@ def build_gl_semantic_binding_consumer_gate(
     )
     legal_refs = _tuple(report.get("legal_authority_record_refs"))
     selected_norm_refs = _tuple(report.get("selected_norm_refs"))
-    from polisyos.data_forge.domains.legal.source_relation import (
+    from polisyos.data_forge.read_api.legal import (
         current_legal_source_relation_disposition,
     )
 

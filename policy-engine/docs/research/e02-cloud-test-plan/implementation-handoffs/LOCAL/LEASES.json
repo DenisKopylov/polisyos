@@ -2036,5 +2036,99 @@
     "property": "One shared float-capable selected Core JSON knowledge bundle writer used by actual API/node; fresh CAS metadata preserves synthetic non-default license and public-web control, not rights authority.",
     "global_source_freeze": false,
     "formal_G_closure_ids": []
+  },
+  "coordination_epoch_20261016_legal_read_api_routes": {
+    "observed_head": "e942139dd4e98ef88b2321e19a2e34cfc262f29f",
+    "root_sole_live_source_and_git_writer": true,
+    "property": "Whole existing canonical Legal source-relation export group and all outside-Data-Forge production consumers route through the existing read facade by identity, preserving search_candidate and verification_missing refusal. CLI architecture assertion follows the already-registered entrypoint.",
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase2-legal-source-relation-facade-r1-20261016/r5/manifest.json",
+      "sha256": "5cc0002fe3ec2aec3a33732a7f7aec6a305b4e782b0ecc76d38b5f816c494ed1"
+    },
+    "independent_source_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-read-api-review-20261016-r1/review.md",
+      "sha256": "920bf894b33d860e6d051591600addf490b930924e28f0326cf31bb8ad83f6b1"
+    },
+    "source_and_mandatory_companion_preimages": {
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-phase2-legal-source-relation-facade.toml": null,
+      "policy-engine/src/polisyos/data_forge/README.md": "1d63568e8f0f58706f7e2c9d848a26be743dc0cc842677045d4c5af738342040",
+      "policy-engine/src/polisyos/data_forge/read_api/legal.py": "b7ee1d202f2fb84a917ded9b2bab97920be8af313ae42ac1d52b43cd9725740b",
+      "policy-engine/src/polisyos/lex/__init__.py": "e7599972eea021aa1541629c976458c010693e9316e02c39e3e07d4b11cb7215",
+      "policy-engine/src/polisyos/lex/knowledge/benchmark.py": "24328c22c2a81f5830fdb44fe6acbc3f0f85145948fc094274bf552aea50678b",
+      "policy-engine/src/polisyos/lex/knowledge/store.py": "c3101da98a096a478d86c03d3ea0d02cdf61ce94bfd00ed0283ba31e68bfc6ac",
+      "policy-engine/src/polisyos/lex/legal_evaluation/transport_constraints.py": "c0e0d88a028e82f31b4b670b75684e8d5ce59f5be84bbdba242c72cff4145c27",
+      "policy-engine/src/polisyos/lex/normpack/applicability_report.py": "99d1eb6db665cfa71192ead16954ccc0ca39d3c8b6bcbc949cb24d10d9b9fcc2",
+      "policy-engine/src/polisyos/lex/normpack/legal_authority.py": "fc940c5c1bbe7659ebb0a740a08151ddc304e5d567705ecc3909368e07c70ad5",
+      "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py": "6155ccb5ad614245d730f1d724f2163d131a17b93b3c12f573eff534ba5870f2",
+      "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py": "31b22372e4b5d95d3605f6b301065a5f34b379695b9fa35c588ad4d523f2c430",
+      "policy-engine/src/polisyos/runtime/quality/claim_registry.py": "bdb1af65c81aa6b1dae0436e588e64292773157212f2aff0efaee7c5b1c214c8",
+      "policy-engine/src/polisyos/runtime/quality/credal_reference.py": "ee23d9e8224d34def7889f4ccec9a8fa89b97b9cbddb577fb75d42dc250e3ef5",
+      "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py": "c724558d1e29d8fe34920a52c8371115040a5f2a08e698ac27edebf506b74859",
+      "policy-engine/src/polisyos/runtime/quality/semantic_binding.py": "a544e5b1fdcee7550c085a0ecaedf057c13af265463c80683dfcadc8166cb326",
+      "policy-engine/src/polisyos/scientist/cross_graph/compiler.py": "fd918fc74c60f55779cc2d3181e91855eec44f616d1c9d99132694f328212dc3",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py": "41257b1023966d1b2926f7bb82c05686b3139a43b6a54da5a1606e7e3b2477a7",
+      "policy-engine/tests/unit/data_forge/test_phase2_legal_source_relation_facade.py": null,
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py": "62028223422a46c2db5e3c8f2738825c993104ec236e85b5dc3fc6696b17ec36"
+    },
+    "reviewed_postimages": {
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-phase2-legal-source-relation-facade.toml": "6ce811c6a5747f1e1109267a6968ca641740dc5bf094110e73f9af12b234a2f0",
+      "policy-engine/src/polisyos/data_forge/README.md": "9744d38d7d1094be4f343681545e27e154b49b5b938f361b8fdfa632d25f7c3a",
+      "policy-engine/src/polisyos/data_forge/read_api/legal.py": "f280478a6881c0ce557f199165fd59bb4c6dfeee433afc3e3d9a523c43c6841f",
+      "policy-engine/src/polisyos/lex/__init__.py": "d2dcdde45c1b1b54fb5f8aa85db4036d9676aed1d1009ed0c2cfedd92271ae70",
+      "policy-engine/src/polisyos/lex/knowledge/benchmark.py": "c3626f256101e587ba6e7c94a4d817c5d99ba9c313bb8b4d3f760c9c7b8f9754",
+      "policy-engine/src/polisyos/lex/knowledge/store.py": "d829f06af17d2a340e22da8806d749a70530458482c43309d8badb6c84ccfc0e",
+      "policy-engine/src/polisyos/lex/legal_evaluation/transport_constraints.py": "5a8939c2ae9a5402afded38922ba1f57cf001685d61c238222d5901d4329c412",
+      "policy-engine/src/polisyos/lex/normpack/applicability_report.py": "3c6fb7d20684c2c649286587d57d6848b4f81475ca8d3935b0d4c58337934169",
+      "policy-engine/src/polisyos/lex/normpack/legal_authority.py": "a6649aa5e37820110f8a529714d49edac6edd74440f729d8e5effca5b1b34536",
+      "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py": "5e5f233e7baebf34c721308280fa2d612f26be65d9ffa4b18e8e89fd4b0aecec",
+      "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py": "08c643a3fe711ecab8d47812e3edc9c50f522b77a116e514fe2c9e018464beab",
+      "policy-engine/src/polisyos/runtime/quality/claim_registry.py": "b6edea161e379a32453e515b3ad561552f21f9137c9d8a7b94bc4a97c0ff149e",
+      "policy-engine/src/polisyos/runtime/quality/credal_reference.py": "31ed9bfba26d229f68559bf64469ba3f697b0ffcc1e6005b3f1542100d828298",
+      "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py": "485eb76804be71a6915152ea6d99d30607c488ae4ad6a004b71265fa71ae2f49",
+      "policy-engine/src/polisyos/runtime/quality/semantic_binding.py": "1538fb510f9fec9b78f5841dad7306525b973d6d36ccdd83f245a63426aa1b89",
+      "policy-engine/src/polisyos/scientist/cross_graph/compiler.py": "fe09d7804d629fa4b2e3e195c25f0e67e92871f3f6bccc0d585fe750a24775df",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py": "a7bd31aae4fc212b8b419e24b30f8c4b129a8619d34ab066e115ca094f875580",
+      "policy-engine/tests/unit/data_forge/test_phase2_legal_source_relation_facade.py": "b309f4c0052a950398939c9f78f3538708b0b0c843f58c289ccc6fa261d4fdca",
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase2_domain_migration.py": "48eff1cbe007fcce9ba1d68f3a61144de71c724c377fba6c08cfdb9adbc6bd61"
+    },
+    "known_preexisting_cli_companion_live_sha256": "48eff1cbe007fcce9ba1d68f3a61144de71c724c377fba6c08cfdb9adbc6bd61",
+    "proof_corrections": "R5 manifest 2771 is total source Python files, not outside-Data-Forge denominator; initial overlay runtime and wrong-config format output are nonreceipts. Root actual replay and corrected independent evidence required.",
+    "static_public_inventory": "verification_missing; existing G choice315640, flags false, not inherited under P41",
+    "global_source_freeze": false,
+    "formal_G_closure_ids": []
+  },
+  "coordination_epoch_20261016_legal_canonical_lint_batch": {
+    "observed_head": "e942139dd4e98ef88b2321e19a2e34cfc262f29f",
+    "root_only_writer": true,
+    "property": "Canonical Ruff import ordering on six route companions and pytest exception assertion on the new semantic refusal test; no formatter, waiver, type suppression or semantic default.",
+    "preimages": {
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py": "a7bd31aae4fc212b8b419e24b30f8c4b129a8619d34ab066e115ca094f875580",
+      "policy-engine/src/polisyos/data_forge/read_api/legal.py": "f280478a6881c0ce557f199165fd59bb4c6dfeee433afc3e3d9a523c43c6841f",
+      "policy-engine/src/polisyos/lex/knowledge/store.py": "d829f06af17d2a340e22da8806d749a70530458482c43309d8badb6c84ccfc0e",
+      "policy-engine/src/polisyos/lex/knowledge/benchmark.py": "c3626f256101e587ba6e7c94a4d817c5d99ba9c313bb8b4d3f760c9c7b8f9754",
+      "policy-engine/src/polisyos/scientist/cross_graph/compiler.py": "fe09d7804d629fa4b2e3e195c25f0e67e92871f3f6bccc0d585fe750a24775df",
+      "policy-engine/src/polisyos/runtime/quality/semantic_binding.py": "1538fb510f9fec9b78f5841dad7306525b973d6d36ccdd83f245a63426aa1b89",
+      "policy-engine/tests/unit/data_forge/test_phase2_legal_source_relation_facade.py": "b309f4c0052a950398939c9f78f3538708b0b0c843f58c289ccc6fa261d4fdca"
+    },
+    "patch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-canonical-lint-batch-20261016/canonical-lint-batch-unapplied.patch",
+    "patch_sha256": "1727ba9acaf7b4ec582efe7a46dfe67248c966bfc4a9e6ee7b60249437501e74",
+    "type_gate": "Exploratory 15-path bulk MyPy with the root policy stub returned 263 diagnostics. The canonical tool-config contract requires generated.ini for historical overrides and the core runtime owner uses per-file invocations. This is not a canonical native type verdict; proper type evidence and genuine lazy-facade alias diagnosis are pending, with no P41 inheritance claim.",
+    "formal_closure_ids": []
+  },
+  "coordination_epoch_20261016_legal_route_independent_delta": {
+    "observed_head": "e942139dd4e98ef88b2321e19a2e34cfc262f29f",
+    "root_sole_live_source_and_git_writer": true,
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-read-api-review-20261016-r2/review.md",
+      "sha256": "183bde38038629fa978089e1a02b0b101e40f347522359f22d44bb12051f6719"
+    },
+    "actual_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/request.json",
+      "sha256": "99ef01ebe14023740c0c764af0ff61a306ee032fd132bafc4f03dd825d7bb538"
+    },
+    "actual_results_sha256": "2b7877b2a6cb0cc302efc08ef1668ba0fe74e9ba5bbfc17957a4d9c0b9a2d74c",
+    "bounded_result": "14 behavior PASS; canonical Ruff check20 and format20 PASS; complete2771/2480/291sourcePython census, 15 exact selected imports, 1457 own origins and no outside/missing/wrong module.",
+    "limitations": "Canonical type/native/global/installed verification unclaimed. Static public inventory verification_missing under existing G choice315640. Exploratory bulkMyPy263diagnostics are not the canonical native verdict.",
+    "formal_G_closure_ids": []
   }
 }

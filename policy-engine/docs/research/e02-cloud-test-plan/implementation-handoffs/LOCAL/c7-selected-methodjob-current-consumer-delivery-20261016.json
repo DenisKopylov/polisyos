@@ -1,0 +1,290 @@
+{
+  "schema": "policyos.e02.c7.actual_source_delivery_and_fresh_consumer.r4",
+  "record_type": "bounded_component_source_and_current_producer_consumer_receipt",
+  "slice": "C7 selected MethodJob input-request-result-bundle chain",
+  "slice_base": {
+    "sha": "4682c29b8f2cfdf298afdfb62f10d16175489031",
+    "tree": "5adf07983bbcb12091dcef0139753e464337b4fb",
+    "status": "Root-owned dirty worktree inputs captured by exact request; byte-identical delivered in its child source commit."
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "1dd2dcec36c7b4210c41ff95142b0cd4506554a8",
+    "tree": "ffc6777814f0b4eacacd1a8905764d9ea36a118d",
+    "parents": [
+      "4682c29b8f2cfdf298afdfb62f10d16175489031"
+    ],
+    "full_code_test_doc_release_footprint": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-c7-method-job-provenance.toml",
+        "sha256": "0b6a5d17fd580f04f335b4553a4718cb24207616bef4327c365d48062146101c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "sha256": "fbd80ae9ffd1af8fc343388664bb843def3c0fdec0ed601fecf26095948d56b7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+        "sha256": "74aaa333cc6ca7a5f41954fc20ccfc331e060b630b96b3df1e2644e9834e229c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/README.md",
+        "sha256": "c67309e72584e0ffafe2bb8f2cbe43fbe481eab29f1de5daa72e93e84ac36bed"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/advanced.py",
+        "sha256": "d17f40ac9815cc2747d0e0eacea8cc33ea7eb72c90531f4c615047ab2751e3bf"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/c7_synthetic_data.py",
+        "sha256": "9e9ca782972e06661c851f0005db8781817aa1ede4353e950c64a16c68d00bfa"
+      },
+      {
+        "path": "policy-engine/tests/integration/test_c7_synthetic_full_pipeline.py",
+        "sha256": "47a85baa1966f3e121010722541c9bf0f5976c791e9c66dfef099be0a486461c"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py",
+        "sha256": "87bf873521dc496a8f0f62aa658a884d6715cda90eeed077f706822e6fa05309"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/governance/test_calibration_validation.py",
+        "sha256": "d01e2325db7d08da9ac87855bb20fe45fe21e7b97fa739145152a2e8251b9732"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/test_advanced.py",
+        "sha256": "653e04632f2d07e054be6dcb0ce40cf004a43c5ae88c0a7b0187f7495094d1d9"
+      }
+    ]
+  },
+  "receipt_preparation_frame": {
+    "head": "648605de2ddc6fe78774495d56a8eb66f84064ce",
+    "tree": "84d989248593cbc24b8f39c9ba39a62567c224ba",
+    "parents": [
+      "15becce142b2a557a076df71a6d9b75807d908d3"
+    ],
+    "source_freeze": false
+  },
+  "selected_input_profile_backend": {
+    "input": "Actual test-created synthetic C7 suite and its retained selected CAS. No production inputs.",
+    "profile": "Exact selected manifest profiles, typed JobSpec/JobResult schemas and full JSON-native input slots; profile values/edges recorded in fresh consumer output.",
+    "backend": "Own Python3.14.3 local .venv, numerical threads1. Runtime backend evidence remains producer-recorded, not independent dispatch authority.",
+    "full_frozen_input_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/request.json",
+      "sha256": "4b8c8a27b60e7d82f79dcc22340f6daf11f7d6e8c0736765f8d8f188f97d879c"
+    }
+  },
+  "deciding_commands_and_full_outputs": {
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/request.json",
+      "sha256": "4b8c8a27b60e7d82f79dcc22340f6daf11f7d6e8c0736765f8d8f188f97d879c"
+    },
+    "actual_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/actual-results.json",
+      "sha256": "a431348e3bfbbb74a81da831702d180b4bce3484c7d145a150ad9c7e891cd4ff"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/behavior.junit.xml",
+      "sha256": "7fea142941b838756b0c8428e866084fb04d0ef5a822db681e5efad03cac9105"
+    },
+    "origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/actual-loaded-source-origins.json",
+      "sha256": "159153c7914aab589cd93c9bdd410ccae8754255ca08cb0c45dea31bef25d3af"
+    },
+    "actual-behavior_command_and_exit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/actual-behavior.run.json",
+      "sha256": "bac5f8a8b1b78ed8242c759e0bf0e3e6ee031bae5fee4ea89b82316171876e44"
+    },
+    "actual-behavior_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/actual-behavior.stdout.txt",
+      "sha256": "7b102b3c5554e3c4591fb377e7fac78697556d2435536608662200dd7e255949"
+    },
+    "actual-behavior_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/actual-behavior.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source-mypy_command_and_exit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/source-mypy.run.json",
+      "sha256": "101b74dfb09dd641ae11bd1c3096f6d2b1b5395ea163a146dc39a14c9005e688"
+    },
+    "source-mypy_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/source-mypy.stdout.txt",
+      "sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8"
+    },
+    "source-mypy_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/source-mypy.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "canonical-root-ruff-check_command_and_exit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/canonical-root-ruff-check.run.json",
+      "sha256": "ba4003a8917162cd4e33fbf4319acf9ac0d032f2f37aa668c56d057a536bec91"
+    },
+    "canonical-root-ruff-check_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/canonical-root-ruff-check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "canonical-root-ruff-check_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/canonical-root-ruff-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "canonical-root-ruff-format_command_and_exit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/canonical-root-ruff-format.run.json",
+      "sha256": "1377f3f5bf7b2f02e06d926334c0d778c29bbf05c0fc384aedb1bafa4e89ea83"
+    },
+    "canonical-root-ruff-format_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/canonical-root-ruff-format.stdout.txt",
+      "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985"
+    },
+    "canonical-root-ruff-format_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-actual-r2-executed-20261016/canonical-root-ruff-format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "results": {
+    "PASS": {
+      "pytest": 34,
+      "enabled_integration_tests": 3,
+      "strict_mypy_source_files": 3,
+      "canonical_Ruff_python_paths": 8,
+      "canonical_format_python_paths": 8,
+      "own_loaded_modules": 1183
+    },
+    "FAIL": [],
+    "ERROR": [],
+    "SKIP": [],
+    "warnings": 3,
+    "pytest_stdout_seconds": 39.43,
+    "pytest_process_seconds": 43.074,
+    "UNRUN": [
+      "Final composed/native/Linux/installed wheel/rebuilt-sdist/global source-input-backend freeze.",
+      "Observed dispatch binding, panel/source custody, calibration validity and policy authority."
+    ]
+  },
+  "real_chain": "Seven C7 adapters -> full JSON-native selected input slots -> persisted typed selected JobSpec -> readback -> actual run_job(method_state=None) -> selected typed JobResult and result/evidence edges -> selected bundle -> independent new-process FileSystemCAS consumer over those exact persisted outputs.",
+  "independent_reviews_and_controls": [
+    {
+      "id": "r7_freeze",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c7-methodjob-bridge-candidate-r7-20261016/final-source-freeze-r2.json",
+      "sha256": "76f29d0865541b8e7eb39c4956164ce346110b4457819f2d9b6cd81a1f8e76af"
+    },
+    {
+      "id": "r7_patch",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c7-methodjob-bridge-candidate-r7-20261016/candidate.patch",
+      "sha256": "03990001d657e7de9ecaf31f2901c303c2c7615977135886ace14722d0121080"
+    },
+    {
+      "id": "r7_independent_review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c7-methodjob-bridge-candidate-r7-20261016/independent-review-r2.json",
+      "sha256": "868f793bd95005157bd949786561d0473f2fd6e89fd97db5bea0d0e419aeac5c"
+    },
+    {
+      "id": "r7_application_readback",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-r7-application-20261016/application-readback.json",
+      "sha256": "005d3e5bede174479f1dfa7a6c7b692b1eba02408ad3e1c2c480a6180051bbfd"
+    },
+    {
+      "id": "post_r7_companion_freeze",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c7-post-r7-companions-r1-20261016/final-source-freeze-r1.json",
+      "sha256": "ffb6b4f0989f9b687d9c65bcd60a6bca680d7c546e6891bde9c716e5ce792da1"
+    },
+    {
+      "id": "post_r7_companion_patch",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c7-post-r7-companions-r1-20261016/candidate-companions.patch",
+      "sha256": "5467d91de367b3b3f768973f4a29800c7f630285facebfda512a45f6ef385e37"
+    },
+    {
+      "id": "post_r7_independent_review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c7-post-r7-companions-r1-20261016/independent-review-r1/independent-review-r1.json",
+      "sha256": "f77d09aafcfa44b965c10506601b42a7d7687fb8a1f7b6768ae4c79b5243e207"
+    },
+    {
+      "id": "post_r7_application_readback",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-post-r7-companion-application-20261016/application-readback.json",
+      "sha256": "39fdbcb838c9f015ede02b0647661d9e0a18b756a8622bff9aea84329b6f97c1"
+    }
+  ],
+  "adversarial_and_removal_controls": [
+    "R7 review: transplanted refs and missing-profile writer results refuse; serializer rejects cycles, non-string keys, unsupported values.",
+    "Seven adapters/eight calls compare source state, loaded slots, backend inputs, direct-vs-Job output, method identity/version/seed/params/JobKey and selected edges; runner-guard removal is expected red.",
+    "Survival preserves feature_names/metadata and selected JobResult profile through the bundle manifest.",
+    "Registry: absent/no method => None; ArtifactRef accepted; present None/string => TypeError."
+  ],
+  "current_actual_producer_fresh_consumer": {
+    "report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c7-fresh-consumer-oracle-current-actual-r2-v2-20261016/fresh-reader-report.json",
+      "sha256": "982118342f6eabd756639f63d27ecaa968212f02cba27ec21b4a45298a321966"
+    },
+    "run": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c7-fresh-consumer-oracle-current-actual-r2-v2-20261016/run.json",
+      "sha256": "dae06bca4ed67ea68395a0f95c003a42c84e9040eda8b632d4e53de85bc4446d"
+    },
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c7-fresh-consumer-oracle-current-actual-r2-v2-20261016/fresh-reader.stdout.txt",
+      "sha256": "798a5e115e321790d4c6cec8616d38a46e08a5a99b423745a764fecbedba57a6"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c7-fresh-consumer-oracle-current-actual-r2-v2-20261016/fresh-reader.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "harness": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c7-fresh-consumer-oracle-current-actual-r2-v2-20261016/oracle.py",
+      "sha256": "d8d8d5f0216ba8c586767a36100838c7223224d0f38ababe37acb6a415d4fc97"
+    },
+    "full_named_CAS_inventory": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c7-fresh-consumer-oracle-current-actual-r2-v2-20261016/cas-inventory.json",
+      "sha256": "ff68ac3bb248f43270c39ea3df843ebca0a61221b35feb73332d31910a01473a"
+    },
+    "source_commit": "1dd2dcec36c7b4210c41ff95142b0cd4506554a8",
+    "producer_request_sha256": "4b8c8a27b60e7d82f79dcc22340f6daf11f7d6e8c0736765f8d8f188f97d879c",
+    "producer_actual_results_sha256": "a431348e3bfbbb74a81da831702d180b4bce3484c7d145a150ad9c7e891cd4ff",
+    "fresh_process_pid": 65312,
+    "process_seconds": 1.526771,
+    "selected_refs_physically_verified": 71,
+    "bundles": 7,
+    "method_jobs": 8,
+    "input_slots_read_and_hashed": 32,
+    "reader_module_pins_matching_source_commit": 7,
+    "seed_mutation_control": "All8 persisted JobSpecs produce a different JobKey after a controlled seed increment without CAS mutation.",
+    "complete_named_store_before_after": {
+      "files": 317,
+      "manifests": 179,
+      "blobs": 85,
+      "locks": 53,
+      "changed_files": 0
+    },
+    "scope": "This is the preserved actual34PASS producer CAS, not the earlier pre-companion fixture."
+  },
+  "historical_evidence": {
+    "prior_component_proposal": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c7-composed-closeout-proposal-20261016/c7-handoff-proposal-r3.json",
+      "sha256": "c098f5a3bb47b3d0cdb286284d294bee5554f98414aed4504bb97fb40b5b5dc4"
+    },
+    "older_consumer_report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c7-fresh-consumer-oracle-20261016/fresh-reader-report.json",
+      "sha256": "7043f2dcd44a6b4696dcec1bf9c988dbee74e1235a4103cfbe6e1468c1b9ee0d"
+    },
+    "older_consumer_qualification": "Earlier controlled CAS produced with test module d836; historical only. The current report above binds actual test module653e and all10 committed input files.",
+    "initial_attempt": "Original30PASS/1FAIL/3SKIP plus source MyPy error and README-origin harness error are retained in prior proposal and outputs. The reviewed companions, v2 origin helper and explicit integration flag resolved them."
+  },
+  "limitations": [
+    "Observed backend dispatch kwargs are not independently bound by MethodDispatchBinding; JobSpec binds intended params, input slots, seed, method identity/version, and recomputable JobKey.",
+    "RunnerBackend supplied for a MethodJob is an existing route outside this slice.",
+    "Source/panel custody or currentness, empirical validity, causal calibration, scientific quality, and policy-admissibility authority.",
+    "Other MethodJob callers and broader Core/IR/profile contracts.",
+    "Supplied registry missing record_local currently silently follows the None branch (a confirmed malformed-input bug); a separately diagnosed C5a/C5b whole-boundary repair is in progress. This receipt preserves source1dd behavior, not future successor bytes.",
+    "Canonical generated/schema/public inventory and native gates remain pending; no inventory flag or exception is promoted here."
+  ],
+  "decision_pointers": [
+    "MethodJob observed dispatch provenance decision1881 remains unadjudicated; this proves persisted intention and slot consistency.",
+    "Public inventory semantics decision315640 remains separate."
+  ],
+  "proposal_fields": {
+    "task": "limited execution-lineage component",
+    "individual_occurrence_upgrades": [],
+    "rule": "No task/global PASS or fresh-reader success closes original whole-property findings; full-ID audit retains B16/B32/LA051 bounds."
+  },
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "global_source_freeze": false,
+  "next_check": "Finish unrelated owned source repairs; regenerate canonical companions; freeze source/input/backend; independent reviews and composed/native/Linux/installed replay; G acceptance/publication/adjudication remain independent."
+}

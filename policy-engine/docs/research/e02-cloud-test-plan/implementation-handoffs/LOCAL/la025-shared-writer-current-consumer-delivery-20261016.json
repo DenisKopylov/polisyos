@@ -1,0 +1,192 @@
+{
+  "schema": "policyos.e02.la025.shared_writer_current_consumer.v1",
+  "record_type": "bounded_component_source_and_actual_receipt",
+  "slice": "LA025 shared selected KnowledgeBundle writer and API/node fresh reads",
+  "slice_base": {
+    "sha": "15becce142b2a557a076df71a6d9b75807d908d3",
+    "tree": "b009a93aaa8465d6deddaf44cdeed11af9dcbd56",
+    "status": "Known root-owned dirty7 source/test/doc/release composition captured by working-tree pins and independently reviewed."
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "648605de2ddc6fe78774495d56a8eb66f84064ce",
+    "tree": "84d989248593cbc24b8f39c9ba39a62567c224ba",
+    "parents": [
+      "15becce142b2a557a076df71a6d9b75807d908d3"
+    ],
+    "full_code_test_doc_release_footprint": {
+      "policy-engine/src/polisyos/scholar/__init__.py": "5ec6466b0163b2f80914ff8bc66b25a32688a0b568e68953b24a0da25aebeddd",
+      "policy-engine/src/polisyos/scholar/orchestrator/bundle.py": "e0e07f73cf76f18847f23dbbc38bb471e35a549efe8f0195d01e054a16afb270",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py": "fd209c5636414f359083a174daed8dab279a937d790313faff24c2543d252671",
+      "policy-engine/tests/unit/scientist/nodes/test_enrich_knowledge_node_freshness.py": "f742715f278d95165689d21127b081523a3a8ed574ff1d2855abc7aa31d3d24f",
+      "policy-engine/src/polisyos/scholar/README.md": "5ed6ee110f1c789d9d7b843eb8e1ef5fefb9ddbb4a3b0a1b43822af774a780be",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-scholar-bundle-persistence.toml": "399cd1f8fc785c9502419789fee77b08716c75cb7f2e80849b3292747fa3d053",
+      "policy-engine/tests/unit/scholar/test_api_web_bootstrap.py": "72db94eb13fcd96419bcfed0e7e5881abefa0771c4dc4d2ceda15647b3712ff1"
+    }
+  },
+  "full_actual_input_request": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/request.json",
+    "sha256": "98e49b7da5dd51f421fba0d29d5c827b842eb40ea334074509ad010bf8501f21"
+  },
+  "selected_input_profile_backend": {
+    "input": "Controlled local HTTP/ScholarService/CAS fixtures from two test modules; no production payload.",
+    "profile": "One canonical KnowledgeBundlePayloadV1 owner writer, float-capable Core JSON profile; finite numbers and selected manifest profiles are carried across API/node readers.",
+    "backend": "Own local Python3.14.3 .venv, numerical threads1, fresh per-request pytest CAS root.",
+    "authority": "Synthetic LicenseRef-E02-CandidateFixture and public-web labels are metadata, not rights or authority."
+  },
+  "deciding_commands_and_full_outputs": {
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/request.json",
+      "sha256": "98e49b7da5dd51f421fba0d29d5c827b842eb40ea334074509ad010bf8501f21"
+    },
+    "actual_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/actual-results.json",
+      "sha256": "eab6e28f0afa008ef22f43300fc1d9a602700f1159fc31a96c2d7eb6a7b8c5cc"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/behavior.junit.xml",
+      "sha256": "5d00952cb2633a1524970d958818c64916751f005c872d6ac197d5a49793b9b4"
+    },
+    "origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/actual-loaded-source-origins.json",
+      "sha256": "1dda47dc33de2771977d57d7427772a06b2b6a765f64bd1195fbbe39b4d1369e"
+    },
+    "actual-behavior_run": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/actual-behavior.run.json",
+      "sha256": "f91eeb42260d543edb75035c4d8a2f0b39e5b5c702532b43227b50823ee0ad08"
+    },
+    "actual-behavior_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/actual-behavior.stdout.txt",
+      "sha256": "f501a501046c4b9d84900fd82f2da1e3dc41eeada2401fc63bccadd55de1f40d"
+    },
+    "actual-behavior_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/actual-behavior.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "source-mypy_run": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/source-mypy.run.json",
+      "sha256": "6c23032c2b2335fd5b461cbfd11fc6cdae8cf87ba076382ef918e1ce325f99f8"
+    },
+    "source-mypy_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/source-mypy.stdout.txt",
+      "sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8"
+    },
+    "source-mypy_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/source-mypy.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "canonical-root-ruff-check_run": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/canonical-root-ruff-check.run.json",
+      "sha256": "e5c87803bd48afde390ed5dfce6247a71104e959b82fd2e3e391cd31b0c3c2c9"
+    },
+    "canonical-root-ruff-check_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/canonical-root-ruff-check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "canonical-root-ruff-check_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/canonical-root-ruff-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "canonical-root-ruff-format_run": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/canonical-root-ruff-format.run.json",
+      "sha256": "5769b66a31ffb00c9209aa00748f27f665798ab95e76f37a157049ddcfe7d5a4"
+    },
+    "canonical-root-ruff-format_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/canonical-root-ruff-format.stdout.txt",
+      "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985"
+    },
+    "canonical-root-ruff-format_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-final-actual-20261016/canonical-root-ruff-format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "results": {
+    "PASS": {
+      "pytest": 26,
+      "strict_mypy_source_files": 3,
+      "canonical_Ruff_python_paths": 8,
+      "canonical_format_python_paths": 8,
+      "own_loaded_source_modules": 962
+    },
+    "FAIL": [],
+    "ERROR": [],
+    "SKIP": [],
+    "UNRUN": [
+      "Final native/Linux/installed/global source-input-backend composition.",
+      "Canonical public inventory proof and G independent acceptance/adjudication."
+    ],
+    "seconds": {
+      "actual-behavior": 10.023,
+      "source-mypy": 35.869,
+      "canonical-root-ruff-check": 0.091,
+      "canonical-root-ruff-format": 0.044
+    }
+  },
+  "real_chain": "Actual API and EnrichKnowledgeNode -> ScholarService -> shared typed selected KnowledgeBundle CAS writer -> fresh FileSystemCAS/Core JSON read -> typed bundle -> referenced DocMeta, freshness/cache and source lineage checks.",
+  "verified_properties": [
+    "Exactly one knowledge_bundle writer sink in full2771 source-Python AST census at the independent review frame; caller API and node delegate to it.",
+    "Finite JSON float payload persists under its declared owner profile; NaN/infinity refusal does not leave new bundle artifacts; missing web evidence remains missing/empty as declared.",
+    "Freshness root is resolved once; rootless/malformed runtime stores fail explicitly; actual controlled fresh/expired/live refresh tests retain source/profile references.",
+    "Real node producer with synthetic non-default license retains that exact persisted DocMeta value after a new CAS reader; the actual API producer keeps its public-web control."
+  ],
+  "independent_reviews_and_controls": {
+    "full7_source_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la025-final-review-r1-20261016/independent-review-current-7.json",
+      "sha256": "a484de2326e2dfcbcb25e1134aa10ea5da10f6f1be5582d9bd7c531839533307"
+    },
+    "license2_test_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la025-license-freshness-20261016/final-freeze-r2.json",
+      "sha256": "9ebc248429eb94e67bef1496872d2d9099e105c9d32822198760c41ecd55ccc1"
+    },
+    "license2_test_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la025-license-freshness-20261016/candidate.patch",
+      "sha256": "bab45e7abf3528a4e9ffee411e57d5a04916db5e220cd1c079d40f78c1b79504"
+    },
+    "license2_independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la025-license-companion-review-r2-20261016/independent-review.md",
+      "sha256": "6e833030e679fde9a9a4f4dc6fe01b290debdccfc594e197c76657591bd77ccc"
+    },
+    "root_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la025-license-companion-application-20261016/application-readback.json",
+      "sha256": "7ea725ba1bb28c2b324124f13a4a430dc3b5ca6489b111a9ade34e94a818faa0"
+    },
+    "license_discriminator_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la025-license-freshness-20261016/fresh-metadata-row-discriminator.stdout.txt",
+      "sha256": "b93fe76cd753bf64795147452170fe62c310bc9b85636a85adfac9e9e6c297f1"
+    },
+    "removal_control": "Independent review replaces license propagation with public-web in memory while retaining paths/markers; persisted-license assertion fails. See full reviewer deciding outputs, not declaration-only credit."
+  },
+  "original_criterion": {
+    "occurrence_key": "LA-025#1:LA_r09:SCL-03:2bc4e727677c0b073b03c2cd763b0dc65c25b0917ab5e423ee9f7d4442c05da4",
+    "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+    "source_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+    "inclusive_lines": [
+      1114,
+      1149
+    ],
+    "criterion_span_sha256": "2bc4e727677c0b073b03c2cd763b0dc65c25b0917ab5e423ee9f7d4442c05da4",
+    "property": "Carry the exact fetched source snapshot, digest, fetch context, licensing string and provenance from search into enrichment; reuse exact v1 bytes without another network fetch or explicitly create v2 with new lineage. Missing or invalid snapshot must produce a typed gap/refusal, not URL-only fallback or a synthetic default."
+  },
+  "proposals": {
+    "LA025": "limited; local producer/persisted artifact/bridge/fresh consumer behavior demonstrated; no external rights/currentness/source authority or whole-capability closure.",
+    "formal_id_upgrades": []
+  },
+  "limitations": [
+    "Supported Scholar helper inventory remains unresolved under existing static-purity semantics decision315640; release public_surface_inventory_reviewed flags remain false. No native pass or waiver inferred.",
+    "Lying path/root providers or externally supplied custody/rights/currentness are not established by local store/profile coherence.",
+    "Input graph origin, semantic relevance, licensing authority, causal calibration, refinement and policy recommendation authority are not supplied by this writer."
+  ],
+  "public_surface": {
+    "release_fragment": {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-scholar-bundle-persistence.toml",
+      "sha256": "399cd1f8fc785c9502419789fee77b08716c75cb7f2e80849b3292747fa3d053"
+    },
+    "classification": "public_experimental: polisyos.scholar",
+    "inventory_reviewed": false,
+    "generated_HTTP_client_change": "not_applicable"
+  },
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "global_source_freeze": false,
+  "next_check": "Reconcile canonical schema/public inventories under admitted semantics; finish independent source repairs and freeze the composition; run required native/Linux/installed/served/authentic checks; preserve original per-occurrence bounds for G."
+}

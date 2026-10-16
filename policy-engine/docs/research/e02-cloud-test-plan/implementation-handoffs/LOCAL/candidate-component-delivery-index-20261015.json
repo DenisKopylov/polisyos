@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "1dd2dcec36c7b4210c41ff95142b0cd4506554a8",
-    "tree": "ffc6777814f0b4eacacd1a8905764d9ea36a118d",
+    "head": "648605de2ddc6fe78774495d56a8eb66f84064ce",
+    "tree": "84d989248593cbc24b8f39c9ba39a62567c224ba",
     "parents": [
-      "4682c29b8f2cfdf298afdfb62f10d16175489031"
+      "15becce142b2a557a076df71a6d9b75807d908d3"
     ],
     "source_freeze": false,
-    "dirty_active_source": "C05 source087/releasec6, Legal468 and C7 source1dd committed. Actual C05 310PASS, Legal7PASS and C7 34PASS0SKIP. Fabric R4 full28 awaits independent reviews; two exact author write-through companions attributed and retained. LA025/test/generated/release companions remain root-owned active; no global freeze."
+    "dirty_active_source": "C05(087/releasec6), Legal468, C7source1dd and LA025source648 committed with exact component receipts; FabricR6/LegalreadAPI18/C5a-C5b registry-boundary RAW repairs/reviews remain active. Known Fabric2 write-through bytes preserved. Canonical schema/public/OpenAPI/client/release companions still pending."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -82,7 +82,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "cef18dc9c57a7d25029ba1dd7108ff1b7a06e94c788dd5cd863cfe39794f6801"
+      "sha256": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
@@ -375,6 +375,14 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/legal-transport-root-facade-delivery-20261016.json",
       "sha256": "8c390ae05dec975195e9063e3bf7518cb64cfb6f23336afddaf62d32b1ca102c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c7-selected-methodjob-current-consumer-delivery-20261016.json",
+      "sha256": "6e6f9340cbccfcafe001a7d27b5d1786297ce9fc3b097062df4f82021daefe4f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la025-shared-writer-current-consumer-delivery-20261016.json",
+      "sha256": "77dffbddd3485d5be95282601e4b2e81f9ef773c7f87cd0d78f3531e52069eec"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -394,20 +402,22 @@
     "B198": "Historical decision retained; current candidate original criterion still not formally adjudicated."
   },
   "known_current_composition_limits": [
-    "Chronology/test_value_gate and decision builder receipts refer to their exact historical source frames; later deltas are not silently covered.",
-    "Q2 source4380f4e delivers the owner-derived11-resource contract; four committed source-binding testsPASS. Direct audited source inputs17/full tracked object map18 include the derived installed-origin gate. Two DoWhy resource byte bindings remain stale; final source/input/backend freeze, canonical manifest regeneration and actual135primary+6supplemental installed/native/Linux execution remain UNRUN.",
-    "Public-surface runtime checks are bounded to67declaredentrypoints and5300declarednames; static inventory grammar remains unresolved, canonical inventory/docs/deep-import outputs currently drift. No gate waiver or complete symbol-inventory claim.",
-    "Canonical release gate latest local row rebinding:254TOMLs/221structuredrows,2errors,exit1 (runtime HTTP facade and registered-tool output ABI choices). This is not native green and no waiver is issued.",
-    "R3N8 normal scientific candidate route still refuses soundness/estimand relationship; RAW-only bypass is not productPASS.",
-    "C05 selected PBE/reissue source exists but is not delivered: missing-intent defaults, malformed-present rotation refs, optional stress and rooted-store consumers require the current typed/semantic repair before independent review.",
-    "LA03817-path immutable owner-binding source delivered64a81458 after independent125case/actualDuckDB review619f8a58. BasedPyright196errors/33warnings remainsred/notinherited, genericB61scanner unresolvedsourceadapters remainseparate; native/installed UNRUN.",
-    "Grounding quote-span subproperty independently bounded GO; actual persisted normative SPO still lacks independent relation evidence, and trust markers skew the raw quality denominator. Relation/status and full-denominator repairs active; encoder wave remains UNRUN.",
-    "GuardedCore19-path reviewed union delivered in18changed-path source commit; independent22+4cases and wrong-profile control pass. Ad-hoc type63errors/12warnings remains red, native/installed UNRUN, no P41inheritance asserted.",
-    "External institutional issuer/custody/currentness, qualifying production workload, law/refinement and causal calibration are not created by these physical receipts.",
-    "Selected acquisition source9ba4d7 is extended by74af20dc typed cache receipt19-path source with independent3-case GO. L5 epoch_scope_unresolved remains held; final native/currentness/whole-property checks remain UNRUN.",
-    "C05 manifest-only inventory1214187d and N8 defining harness0e6fa9b8 delivered with independent bounded reviews. Selected-profile NL POST/freshGET returns honest blocked outcome; current GL legal report/bundle self-attestation escape is under repair, and model-gated nonempty candidate serving remains UNRUN.",
-    "R9source2b9f7177 andV5compute8f43f503 delivered with boundedindependentGO;119dynamic-import mirror still5FAIL. Dashboard10pathsa2da042 deliveredwith actualmockedAPIhookbrowserPASS; canonicalgeneratedDTO2TS2339/localepairity andsourceboundfullbrowser remain open. CAN65GL/I4 andC05r8guarded/pure-read union pending review/integration.",
-    "2026-10-16 successor: B18missing reducers and full291index committed separately. R7 remains provisional and preserves earlier row evidence; latest L5/replay/Fabric/root guards need new exactsource receipts. No source/input/backend freeze, no globalnative/installedcloseout, and no formal G closure."
+    "Every receipt remains bound to its own source/property/input/profile/backend slice. Later deltas require affected re-verification; no task PASS grants whole-property or formal closure.",
+    "C05 selected-consumer composition source49 committed087880dd with releasec6c9bc and receipt0443fc9e: actual310PASS, strictMyPy28 and canonicalRuff51. This covers the declared selected outer basis and enumerated reference containers, not every nested semantic owner or full positive promotion. Runtime parameter origin/binding decisionbc8f remains held for G.",
+    "C7 source1dd2dcec is delivered with actual34PASS/0SKIP including3 enabled integration cases, MyPy3/Ruff8. The new current actual-r2 producer CAS was read by independent process65312:71 selected refs,7 bundles,8 MethodJobs,32 input slots and unchanged317-file store. Observed backend dispatch kwargs/source panel/calibration/authority remain not_established; older reader7043 is historical only.",
+    "LA025source648605de delivers the shared KnowledgeBundle owner writer/facade and API/node consumers. Actual26PASS, strictMyPy3/Ruff8 and new-process metadata checks preserve both synthetic non-default and public-web license labels. No rights, source authority, relevance or production currentness is established; public inventory flag remains false.",
+    "Legal sourcea4db and root facade468 propagate typed verification_missing refusal; candidate and absent DB controls pass7 tests. No independent normative SPO relation verifier or law/currentness positive exists. Necessary DataForge read-API route companion18 paths remains RAW/unapplied; its static inventory is unresolved under decision315640.",
+    "Fabric R5 is independently HOLD for one registration-origin class: mutable factory/same-owner instance and stale pool after override can bypass the string owner snapshot. R6 widens one private registration/admitted-instance binding and lifecycle. Its author205 focusedPASS is not an integrated PreparedB defining/all13-contour replay; full replay remains UNRUN. The two earlier accidental live companion writes are preserved and attributed, not reverted.",
+    "C5a/C5b supplied LessonRegistry intake has a confirmed malformed-input bug: non-None receiver missing record_local is silently treated as absent. A common intake/output repair across both runners is RAW/in progress; preserve C7source1dd behavior as historical until successor verification.",
+    "Public-surface runtime evidence is bounded to its exact names and mappings. Static-purity versus runtime completeness remains G decision315640; unknown exports are not empty, flags are not blanket-promoted, canonical inventory/docs require regeneration and current native check. No waiver is issued.",
+    "Q2 source4380f4e supplies the owner-derived11-resource contract and focused source tests, but two DoWhy bindings and later source pins need fresh source audit. The actual final source/input/backend and primary/supplemental installed denominator must be recomputed; old135+6 is not an immutable new count. Native/Linux/wheel/rebuilt-sdist execution remains UNRUN on final composition.",
+    "Canonical release scan254TOMLs/221 structured rows with2 ABI errors was a historical local frame. Metadata12 corrections are now applied, and later fragments/rows changed the denominator. Re-run the actual owner scan after generation/review; HTTP facade and registered-tool ABI choices remain distinct G decisions, not native green.",
+    "Selected acquisition9ba4d7 plus74af20dc cache-receipt source is bounded; L5 epoch_scope_unresolved, soundness/estimand relationships, final currentness and original whole-property checks remain limited or held.",
+    "V5 GP/Search current joined consumer and B157 workload replay remain UNRUN; the new request rebinds current source and cannot inherit earlier unpinned constructor/GP success. V6 typed NCM overflow source/test is delivered, but the costly actual served N4/N5/N6/freshGET wave is still UNRUN; thrown sibling-stage failure is a separate B13 property.",
+    "R9dynamic-import mapping source2b9f7177 retains5 failing mirrors at its earlier source frame; source-bound dashboard hook/browser evidence does not establish full frozen browser/client/installed behavior. CAN bounded late-refusal source9c6, C10/C11 and G-base101PASS/7SKIP do not close their entire original criteria.",
+    "Earlier LA038 and GuardedCore ad-hoc type reds remain historical diagnostic evidence, not inherited/current native results. Re-run the actual required gates with exact current input denominators; P41 inheritance is not asserted. Native owner source has20 subprocess checks plus11 preflights/conditional docs, not the stale17-row plan.",
+    "External issuer/permission/custody/currentness, qualifying production workload, valid law/refinement/causal calibration are not created by local physical receipts. Authentic inputs remain read-only and concrete missing facts/choices are recorded individually.",
+    "Canonical291 occurrences/282 IDs/127 bundles,198 historical proposed-closed IDs(202 occurrences),9 historical ledger closures and B198 stay preserved. Full current index remains provisional; no source/input/backend global freeze or formal G closure is asserted."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "next_check": "Finish executable producer/caller companion queue, independent delta reviews, commit source boundaries, explicit source/input/backend freeze, canonical regeneration/drift controls, one composed replay and authentic read-only closeout. G remains final code acceptance/integration publisher/finding adjudicator."

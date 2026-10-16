@@ -2010,5 +2010,31 @@
     },
     "source_freeze": false,
     "formal_G_closure_ids": []
+  },
+  "coordination_epoch_20261016_la025_final_license_companion": {
+    "observed_head": "15becce142b2a557a076df71a6d9b75807d908d3",
+    "root_sole_live_source_and_git_writer": true,
+    "full7_current_preimages": {
+      "policy-engine/src/polisyos/scholar/__init__.py": "5ec6466b0163b2f80914ff8bc66b25a32688a0b568e68953b24a0da25aebeddd",
+      "policy-engine/src/polisyos/scholar/orchestrator/bundle.py": "e0e07f73cf76f18847f23dbbc38bb471e35a549efe8f0195d01e054a16afb270",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py": "fd209c5636414f359083a174daed8dab279a937d790313faff24c2543d252671",
+      "policy-engine/tests/unit/scientist/nodes/test_enrich_knowledge_node_freshness.py": "23f09623f92239f9510094191d80ca9cdd85c7afbb33b87b69d883bfed951a73",
+      "policy-engine/src/polisyos/scholar/README.md": "5ed6ee110f1c789d9d7b843eb8e1ef5fefb9ddbb4a3b0a1b43822af774a780be",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-scholar-bundle-persistence.toml": "399cd1f8fc785c9502419789fee77b08716c75cb7f2e80849b3292747fa3d053",
+      "policy-engine/tests/unit/scholar/test_api_web_bootstrap.py": "4ef795e05d741c45b8a97f48f7d613aacc5ee9e0139417c632e18365ec28be79"
+    },
+    "test_only_patch_preimages": {
+      "policy-engine/tests/unit/scholar/test_api_web_bootstrap.py": "4ef795e05d741c45b8a97f48f7d613aacc5ee9e0139417c632e18365ec28be79",
+      "policy-engine/tests/unit/scientist/nodes/test_enrich_knowledge_node_freshness.py": "23f09623f92239f9510094191d80ca9cdd85c7afbb33b87b69d883bfed951a73"
+    },
+    "test_only_patch_postimages": {
+      "policy-engine/tests/unit/scholar/test_api_web_bootstrap.py": "72db94eb13fcd96419bcfed0e7e5881abefa0771c4dc4d2ceda15647b3712ff1",
+      "policy-engine/tests/unit/scientist/nodes/test_enrich_knowledge_node_freshness.py": "f742715f278d95165689d21127b081523a3a8ed574ff1d2855abc7aa31d3d24f"
+    },
+    "independent_full7_review_sha256": "a484de2326e2dfcbcb25e1134aa10ea5da10f6f1be5582d9bd7c531839533307",
+    "independent_test_delta_review_sha256": "6e833030e679fde9a9a4f4dc6fe01b290debdccfc594e197c76657591bd77ccc",
+    "property": "One shared float-capable selected Core JSON knowledge bundle writer used by actual API/node; fresh CAS metadata preserves synthetic non-default license and public-web control, not rights authority.",
+    "global_source_freeze": false,
+    "formal_G_closure_ids": []
   }
 }

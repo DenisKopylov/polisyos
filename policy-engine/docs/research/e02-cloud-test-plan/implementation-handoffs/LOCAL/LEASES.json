@@ -3196,5 +3196,37 @@
     "scope": "Knowncurrentrunlineage notsemantic/legal/currentnesspromotion; ledgerpayloadlegacyIDstrings unqualified, exactdurableInputRefs carryprofiles. No-maplegacyexactCoreprofile resolution retained.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_berl_nonexecution_identity_r5": {
+    "root_writer": "/root",
+    "base": "963c9bcd563330ceedde974ef39963df6895d165",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/berl/service.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/tests/unit/berl/test_service.py",
+      "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+      "policy-engine/docs/explanation/berl-method-identity.md",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-berl-nonexecution-identity.toml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate actual canonicalBERL behavior/MyPy/consumer receipt/index"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-berl-nonexecution-identity-r5-release-metadata-20261017/candidate-manifest.json",
+      "sha256": "34a13ef2d81bbcefcb3a21ff750b4a1e625ba9324288a680b8e7d2334c2a8a30"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-berl-nonexecution-identity-r4-independent-review-20261017/review.json",
+      "sha256": "edbe5375f7afe49d80d697141d70f0fcd4ccd7bd5e60897b18c117b5d1366640"
+    },
+    "local_scoped_API_review": {
+      "inventory_commit": "de132f6a02e243a0fd6d2e53c166653b204b38d0",
+      "inventory_sha256": "70cfd42316a9540123ba5a1303bc185a46cba976039d39d28509b04ef6f942e8",
+      "reviewed_quantity": "OneexistingnullableExplanationBundle.methods[].effective_method_id behavior andparamsmirror; noexport/schema/fieldshapechange. public_experimental:polisyos.berl, team-scientist. Rowflagtrue only; aggregatefalse.",
+      "normative_boundary": "No authenticatedhumanapproval requirement inferredfromownerfield (erratum831a5449). Local independentlyreconciled review, notGacceptance/owneridentity/publicationauthority/fullpackageinventory."
+    },
+    "P40": "Same nonexecutionidentity/cachealias class: onlyactualacceptedattributionvector carries effective_method_id; unavailable/failedcachedaliasno-vector remainsNone; exactbuiltin cacheeligibility and confidence/fallback preserved.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

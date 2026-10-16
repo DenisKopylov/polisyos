@@ -1,0 +1,35 @@
+id = "2026-10-17-e02-berl-nonexecution-identity"
+title = "Keep BERL effective identity unset when no result executed"
+type = "fixed"
+component = "berl"
+owner = "team-scientist"
+summary = "BERL diagnostics retain the requested method and refusal reason while the existing nullable effective_method_id stays null unless an accepted attribution result establishes which implementation ran."
+evidence = [
+  "tests/unit/berl/test_service.py",
+  "tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
+  "tests/unit/remediation/test_ber_01.py",
+]
+compatibility = "The existing MethodExplanation.effective_method_id field remains nullable and its schema is unchanged. A refused, failed-before-result, or rejected-after-result diagnostic has effective_method_id=null; successful accepted vectors keep the selected implementation identity, alias reuse behavior, and requested-method confidence adjustment."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.berl"
+migration = "Consumers should treat effective_method_id=null as no accepted attribution result and use the requested method ID plus diagnostic reason for explanation of the refusal. No stored-artifact migration is required."
+api = "No DTO field, schema, export, generated-client contract, issuer, or authority rule is added. The field's existing nullable type is used for no-execution diagnostics."
+limitations = "This RAW candidate is subject to independent review and root integration. It does not establish a final source/input/backend freeze, installed-consumer verification, policy admissibility, or publication authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/explanation/berl-method-identity.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "berl-nonexecution-effective-method-identity"
+change_class = "python-public-api"
+impact = "compatible"
+surface = "public_experimental: polisyos.berl"
+public_surface_inventory_reviewed = true
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "BERL leaves the existing nullable effective_method_id unset for refused or unsuccessful explanations with no accepted attribution vector; successful results keep their selected implementation identity."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/explanation/berl-method-identity.md"]
+runbook_docs = []

@@ -173,6 +173,68 @@ def _explanation_bundle(
     )
 
 
+def test_cached_failed_kernel_aliases_keep_null_identity_after_fresh_cas_read(
+    tmp_path,
+) -> None:
+    from polisyos.berl import (
+        ExplanationOrchestrator,
+        ExplanationRequest,
+        load_explanation_bundle,
+        persist_explanation_bundle,
+    )
+    from polisyos.core.artifacts.store import FileSystemCAS
+
+    feature_names = tuple(f"x{index}" for index in range(11))
+    request = ExplanationRequest(
+        prediction_id="cached-kernel-alias-failure",
+        row_id="row-1",
+        x=dict.fromkeys(feature_names, 1.0),
+        feature_names=feature_names,
+        methods=("kernel_shap", "kernel_shap_marginal"),
+        feature_dependence_policy="marginal_interventional",
+        background_rows=(
+            dict.fromkeys(feature_names, 0.0),
+            dict.fromkeys(feature_names, 1.0),
+        ),
+        n_eval_perturbations=2,
+        random_seed=7,
+        include_disagreement=False,
+        include_redundancy=False,
+    )
+
+    def model(features: dict[str, float]) -> float:
+        return sum(features.values())
+
+    producer_store = FileSystemCAS(tmp_path)
+    produced = ExplanationOrchestrator().explain(model, request)
+
+    ref = persist_explanation_bundle(producer_store, produced)
+    loaded = load_explanation_bundle(FileSystemCAS(tmp_path), ref)
+    methods = loaded.methods
+
+    assert [method.requested_method_id for method in methods] == [
+        "kernel_shap",
+        "kernel_shap_marginal",
+    ]
+    for method, requested_method_id in zip(
+        methods,
+        request.methods,
+        strict=True,
+    ):
+        assert method.method_id == requested_method_id
+        assert method.effective_method_id is None
+        assert method.params["requested_method_id"] == requested_method_id
+        assert method.params["effective_method_id"] is None
+        assert method.scope == "diagnostic"
+        assert method.attributions == []
+        assert method.infidelity is None
+        assert "reduce features" in str(method.params["diagnostic"])
+
+    component = _explanation_component_for(loaded)
+    assert component.status == "blocked"
+    assert any("diagnostic-only" in item for item in component.blockers)
+
+
 @pytest.mark.parametrize(
     ("feature_dependence_policy", "method_id"),
     [
@@ -385,6 +447,8 @@ def test_explanation_orchestrator_bundle_crosses_cas_into_existing_consumers(
         method = loaded.methods[0]
         assert method.scope == "diagnostic"
         assert method.attributions == []
+        assert method.requested_method_id == method_id
+        assert method.effective_method_id is None
         assert "no verified conditional law" in method.params["diagnostic"]
         assert loaded.audit.artifact_refs == ["cas://self-attested/conditional-law-verified"]
         assert explanation_component.status == "blocked"

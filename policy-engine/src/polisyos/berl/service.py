@@ -7,7 +7,7 @@ import uuid
 from dataclasses import dataclass, field, fields
 from datetime import UTC, datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Literal, cast
+from typing import TYPE_CHECKING, Literal, TypeGuard, cast
 
 from polisyos.berl.adapters import (
     ALEAdapter,
@@ -77,8 +77,18 @@ if TYPE_CHECKING:
 
 
 MethodScope = Literal["local", "global", "local_bin", "diagnostic"]
+type _AdapterRoute = ExplanationAdapter | UnavailableAdapter
+type _BuiltinAdapter = (
+    ALEAdapter
+    | EBMComponentAdapter
+    | FiniteDifferenceGradientAdapter
+    | KernelSHAPAdapter
+    | LIMEAdapter
+    | PermutationImportanceAdapter
+    | TreeSHAPAdapter
+)
 _CACHE_IDENTITY_UNSUPPORTED = object()
-_BUILTIN_EFFECTIVE_METHODS: dict[type[object], str] = {
+_BUILTIN_EFFECTIVE_METHODS: dict[type[_BuiltinAdapter], str] = {
     ALEAdapter: "ale_local_bin",
     EBMComponentAdapter: "ebm_components",
     FiniteDifferenceGradientAdapter: "finite_difference_gradient",
@@ -145,7 +155,7 @@ class ExplanationOrchestrator:
         *,
         thresholds: ValidationThresholds | None = None,
     ) -> None:
-        self._adapters = dict(adapters or default_adapters())
+        self._adapters: dict[str, _AdapterRoute] = dict(adapters or default_adapters())
         self._thresholds = thresholds or ValidationThresholds()
 
     def explain(self, model: ScalarModel, request: ExplanationRequest) -> ExplanationBundle:
@@ -189,6 +199,9 @@ class ExplanationOrchestrator:
             if adapter is None:
                 methods.append(_diagnostic_method(method_id, "adapter_not_registered"))
                 continue
+            if isinstance(adapter, UnavailableAdapter):
+                methods.append(_diagnostic_method(method_id, adapter.diagnostic))
+                continue
             effective_method_id = _effective_method_id(adapter)
             cache_key = _effective_request_key(
                 model=model,
@@ -217,7 +230,10 @@ class ExplanationOrchestrator:
                     cached.method,
                     adapter=adapter,
                     requested_method_id=method_id,
-                    effective_method_id=effective_method_id,
+                    # A cached result proves execution only when its vector exists.
+                    effective_method_id=(
+                        cached.vector.method_id if cached.vector is not None else None
+                    ),
                 )
                 vector = None
             methods.append(method)
@@ -325,7 +341,6 @@ class ExplanationOrchestrator:
                 _diagnostic_method(
                     requested_method_id,
                     str(exc),
-                    effective_method_id=effective_method_id,
                 ),
                 None,
             )
@@ -444,17 +459,14 @@ class ExplanationOrchestrator:
         )
 
 
-def default_adapters() -> dict[str, ExplanationAdapter]:
+def default_adapters() -> dict[str, _AdapterRoute]:
     """Return the built-in BERL adapter registry."""
 
     return {
         "kernel_shap": cast("ExplanationAdapter", KernelSHAPAdapter()),
-        "kernel_shap_conditional": cast(
-            "ExplanationAdapter",
-            UnavailableAdapter(
-                method_id="kernel_shap_conditional",
-                diagnostic=_CONDITIONAL_KERNEL_SHAP_UNAVAILABLE,
-            ),
+        "kernel_shap_conditional": UnavailableAdapter(
+            method_id="kernel_shap_conditional",
+            diagnostic=_CONDITIONAL_KERNEL_SHAP_UNAVAILABLE,
         ),
         "kernel_shap_marginal": cast(
             "ExplanationAdapter",
@@ -482,8 +494,8 @@ _CONDITIONAL_KERNEL_SHAP_UNAVAILABLE = (
 def _adapter_for_request(
     method_id: str,
     feature_dependence_policy: str,
-    adapters: Mapping[str, ExplanationAdapter],
-) -> ExplanationAdapter | None:
+    adapters: Mapping[str, _AdapterRoute],
+) -> _AdapterRoute | None:
     """Refuse KernelSHAP requests whose declared feature law is not implemented."""
 
     if method_id == "kernel_shap_conditional":
@@ -525,9 +537,8 @@ def detect_redundancy_clusters_from_bundle(
 
 
 def _effective_method_id(adapter: ExplanationAdapter) -> str:
-    builtin_profile = _BUILTIN_EFFECTIVE_METHODS.get(type(adapter))
-    if builtin_profile is not None:
-        return builtin_profile
+    if _is_builtin_adapter(adapter):
+        return _BUILTIN_EFFECTIVE_METHODS[type(adapter)]
     candidate = getattr(adapter, "effective_method_id", None)
     if isinstance(candidate, str) and candidate:
         return candidate
@@ -592,18 +603,22 @@ def _adapter_cache_identity(
     the adapter protocol supplies an admitted cache-configuration contract.
     """
 
-    builtin_profile = _BUILTIN_EFFECTIVE_METHODS.get(type(adapter))
-    if builtin_profile is None or effective_method_id != builtin_profile:
+    if not _is_builtin_adapter(adapter):
+        return None
+    builtin_profile = _BUILTIN_EFFECTIVE_METHODS[type(adapter)]
+    if effective_method_id != builtin_profile:
         return None
 
     adapter_method_id = object.__getattribute__(adapter, "method_id")
     shared_kernel_profile = (
-        type(adapter) is KernelSHAPAdapter
+        isinstance(adapter, KernelSHAPAdapter)
+        and type(adapter) is KernelSHAPAdapter
         and adapter_method_id in {"kernel_shap", "kernel_shap_marginal"}
         and builtin_profile == "kernel_shap"
     )
     shared_tree_fallback = (
-        type(adapter) is TreeSHAPAdapter
+        isinstance(adapter, TreeSHAPAdapter)
+        and type(adapter) is TreeSHAPAdapter
         and adapter_method_id == "tree_shap"
         and builtin_profile == "kernel_shap"
     )
@@ -624,6 +639,25 @@ def _adapter_cache_identity(
         builtin_profile,
         tuple(configuration),
     )
+
+
+def _is_builtin_adapter(adapter: ExplanationAdapter) -> TypeGuard[_BuiltinAdapter]:
+    """Narrow to exact registered built-ins eligible for dataclass identity."""
+
+    if not isinstance(
+        adapter,
+        (
+            ALEAdapter,
+            EBMComponentAdapter,
+            FiniteDifferenceGradientAdapter,
+            KernelSHAPAdapter,
+            LIMEAdapter,
+            PermutationImportanceAdapter,
+            TreeSHAPAdapter,
+        ),
+    ):
+        return False
+    return type(adapter) in _BUILTIN_EFFECTIVE_METHODS
 
 
 def _freeze_scalar(value: object) -> object:
@@ -704,7 +738,9 @@ def _freeze(value: object) -> object:
                 return _CACHE_IDENTITY_UNSUPPORTED
             items.append((frozen_key, frozen_item))
         return ("dict", tuple(sorted(items, key=lambda pair: repr(pair[0]))))
-    if type(value) in {tuple, list, set, frozenset}:
+    if isinstance(value, (tuple, list, set, frozenset)):
+        if type(value) not in {tuple, list, set, frozenset}:
+            return _CACHE_IDENTITY_UNSUPPORTED
         frozen_items = tuple(_freeze(item) for item in value)
         if any(item is _CACHE_IDENTITY_UNSUPPORTED for item in frozen_items):
             return _CACHE_IDENTITY_UNSUPPORTED
@@ -730,26 +766,45 @@ def _reidentify_method(
     *,
     adapter: ExplanationAdapter,
     requested_method_id: str,
-    effective_method_id: str,
+    effective_method_id: str | None,
 ) -> MethodExplanation:
     params = dict(method.params)
+    params["requested_method_id"] = requested_method_id
+    params["effective_method_id"] = effective_method_id
+    if effective_method_id is None:
+        return method.model_copy(
+            update={
+                "method_id": requested_method_id,
+                "requested_method_id": requested_method_id,
+                "effective_method_id": None,
+                "params": params,
+            }
+        )
+
     assumptions = dict(method.assumptions)
     fallback = method.fallback
     fallback_reason = method.fallback_reason
-    params["requested_method_id"] = requested_method_id
-    params["effective_method_id"] = effective_method_id
 
-    if type(adapter) is TreeSHAPAdapter and adapter.method_id == "tree_shap":
+    if (
+        isinstance(adapter, TreeSHAPAdapter)
+        and type(adapter) is TreeSHAPAdapter
+        and adapter.method_id == "tree_shap"
+    ):
         fallback = True
         fallback_reason = TREE_SHAP_FALLBACK_REASON
         params["fallback"] = True
         params["fallback_reason"] = fallback_reason
         assumptions["tree_exactness_claimed"] = False
         assumptions["fallback_reason"] = fallback_reason
-    elif type(adapter) is KernelSHAPAdapter and adapter.method_id in {
-        "kernel_shap",
-        "kernel_shap_marginal",
-    }:
+    elif (
+        isinstance(adapter, KernelSHAPAdapter)
+        and type(adapter) is KernelSHAPAdapter
+        and adapter.method_id
+        in {
+            "kernel_shap",
+            "kernel_shap_marginal",
+        }
+    ):
         fallback = False
         fallback_reason = None
         params["fallback"] = False
@@ -770,23 +825,19 @@ def _reidentify_method(
     )
 
 
-def _diagnostic_method(
-    method_id: str,
-    reason: str,
-    *,
-    effective_method_id: str | None = None,
-) -> MethodExplanation:
-    effective = effective_method_id or method_id
+def _diagnostic_method(method_id: str, reason: str) -> MethodExplanation:
+    """Build a diagnostic record without claiming an implementation ran."""
+
     return MethodExplanation(
         method_id=method_id,
         requested_method_id=method_id,
-        effective_method_id=effective,
+        effective_method_id=None,
         library="polisyos.berl",
         scope="diagnostic",
         params={
             "diagnostic": reason,
             "requested_method_id": method_id,
-            "effective_method_id": effective,
+            "effective_method_id": None,
         },
         assumptions={"faithfulness_claim": "unbounded", "display_policy": "diagnostic_only"},
     )

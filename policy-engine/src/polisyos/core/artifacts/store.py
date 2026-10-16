@@ -307,6 +307,29 @@ class CASInventorySnapshot:
     reason: str | None = None
 
 
+@dataclass(frozen=True, slots=True)
+class CASManifestInventoryEntry:
+    """One exact visible manifest view, without claiming payload verification."""
+
+    artifact_ref: ArtifactID | ArtifactRef
+    manifest: ArtifactManifest
+    manifest_profile_sha256: str
+    manifest_sha256: str
+    manifest_byte_size: int
+
+
+@dataclass(frozen=True, slots=True)
+class CASManifestInventorySnapshot:
+    """Three-valued stable manifest inventory with payload verification unresolved."""
+
+    verdict: Literal["pass", "fail", "UNRUN"]
+    inputs: tuple[str, ...]
+    unresolved_by_construction: tuple[str, ...]
+    owner_generation_sha256: str | None
+    entries: tuple[CASManifestInventoryEntry, ...]
+    reason: str | None = None
+
+
 class _VerifiedCASMemberStream:
     """Read-only bounded stream that verifies bytes as its owner consumes them."""
 
@@ -3916,7 +3939,7 @@ class FileSystemCAS:
                         cell_id=owner["cell_id"],
                     )
                 )
-                default_existing_profile: str | None = None
+                publication_default_existing_profile: str | None = None
                 if default_manifest_path.exists():
                     self._prepare_import_destination(
                         default_manifest_path,
@@ -3926,7 +3949,9 @@ class FileSystemCAS:
                         default_manifest_path.read_bytes()
                     )
                     _validate_manifest_identity(artifact_id, existing_default)
-                    default_existing_profile = self._manifests.profile_sha256(existing_default)
+                    publication_default_existing_profile = self._manifests.profile_sha256(
+                        existing_default
+                    )
 
                 desired_views: dict[str, dict[str, Any]] = {}
                 desired_signatures: dict[str, dict[str, Any]] = {}
@@ -3939,8 +3964,8 @@ class FileSystemCAS:
                         is_source_default
                         and (default_owned or not has_claims)
                         and (
-                            default_existing_profile is None
-                            or default_existing_profile == profile_sha256
+                            publication_default_existing_profile is None
+                            or publication_default_existing_profile == profile_sha256
                         )
                     )
                     view_targets = [default_manifest_path] if can_use_default else []
@@ -4793,6 +4818,154 @@ class FileSystemCAS:
                 reason="inventory_changed_during_scan",
             )
         return CASInventorySnapshot(
+            verdict="pass",
+            inputs=inputs,
+            unresolved_by_construction=unresolved,
+            owner_generation_sha256=generation_after,
+            entries=tuple(entries),
+        )
+
+    def manifest_inventory_snapshot(self, *, kind: str) -> CASManifestInventorySnapshot:
+        """Select every visible manifest of one kind from a stable CAS metadata view.
+
+        This method validates complete CAS member names and all visible manifest
+        profiles before returning the requested kind. It does not open or verify
+        any payload blob. Consumers must still resolve each selected manifest
+        profile and verify selected payload bytes through their normal typed read
+        before using an entry for reconciliation or admission.
+        """
+        inputs = (
+            "complete canonical CAS root member names",
+            "all active-scope manifest bytes, identities, and profiles",
+            "signed ownership-index generation",
+            f"all visible manifests with exact kind {kind!r}",
+        )
+        unresolved = (
+            "all payload blob bytes and digests; selected payloads require consumer verification",
+            "detached signature contents",
+            "other tenant views hidden by the active tenant scope",
+            "direct filesystem writers outside the CAS lease protocol",
+        )
+        if type(kind) is not str or not kind:
+            return CASManifestInventorySnapshot(
+                verdict="fail",
+                inputs=inputs,
+                unresolved_by_construction=unresolved,
+                owner_generation_sha256=None,
+                entries=(),
+                reason="cas_manifest_inventory_kind_invalid",
+            )
+
+        def capture() -> tuple[
+            tuple[str, ...],
+            tuple[tuple[ArtifactID, str | None, Path, ArtifactManifest, bytes], ...],
+            str,
+            tuple[tuple[str, str | None, str, str], ...],
+        ]:
+            with self._coordinator.root_exclusive():
+                names, views, generation = self._capture_inventory_membership()
+            signature = tuple(
+                sorted(
+                    (
+                        (
+                            artifact_id.hex,
+                            selector,
+                            hashlib.sha256(manifest_bytes).hexdigest(),
+                            self._manifests.profile_sha256(manifest),
+                        )
+                        for artifact_id, selector, _path, manifest, manifest_bytes in views
+                    ),
+                    key=lambda row: (row[0], row[1] or "", row[2], row[3]),
+                )
+            )
+            return names, views, generation, signature
+
+        try:
+            names_before, views_before, generation_before, signature_before = capture()
+        except (ArtifactIntegrityError, ValidationError) as exc:
+            return CASManifestInventorySnapshot(
+                verdict="fail",
+                inputs=inputs,
+                unresolved_by_construction=unresolved,
+                owner_generation_sha256=None,
+                entries=(),
+                reason=(
+                    str(exc)
+                    if isinstance(exc, ArtifactIntegrityError)
+                    else "cas_inventory_manifest_invalid"
+                ),
+            )
+        except (OSError, ValueError, TypeError, ArtifactOwnershipError) as exc:
+            return CASManifestInventorySnapshot(
+                verdict="UNRUN",
+                inputs=inputs,
+                unresolved_by_construction=unresolved,
+                owner_generation_sha256=None,
+                entries=(),
+                reason=f"manifest_inventory_capture_unavailable:{type(exc).__name__}",
+            )
+
+        entries: list[CASManifestInventoryEntry] = []
+        for artifact_id, selector, _manifest_path, manifest, manifest_bytes in views_before:
+            if manifest.kind != kind:
+                continue
+            profile_sha256 = self._manifests.profile_sha256(manifest)
+            artifact_ref: ArtifactID | ArtifactRef = artifact_id
+            if selector is not None:
+                artifact_ref = ArtifactRef(
+                    artifact_id=artifact_id,
+                    kind=manifest.kind,
+                    media_type=manifest.media_type,
+                    manifest_profile_sha256=selector,
+                )
+            entries.append(
+                CASManifestInventoryEntry(
+                    artifact_ref=artifact_ref,
+                    manifest=manifest,
+                    manifest_profile_sha256=profile_sha256,
+                    manifest_sha256="sha256:" + hashlib.sha256(manifest_bytes).hexdigest(),
+                    manifest_byte_size=len(manifest_bytes),
+                )
+            )
+
+        try:
+            names_after, _views_after, generation_after, signature_after = capture()
+        except (ArtifactIntegrityError, ValidationError) as exc:
+            return CASManifestInventorySnapshot(
+                verdict="fail",
+                inputs=inputs,
+                unresolved_by_construction=unresolved,
+                owner_generation_sha256=generation_before,
+                entries=tuple(entries),
+                reason=(
+                    str(exc)
+                    if isinstance(exc, ArtifactIntegrityError)
+                    else "cas_inventory_manifest_invalid"
+                ),
+            )
+        except (OSError, ValueError, TypeError, ArtifactOwnershipError) as exc:
+            return CASManifestInventorySnapshot(
+                verdict="UNRUN",
+                inputs=inputs,
+                unresolved_by_construction=unresolved,
+                owner_generation_sha256=generation_before,
+                entries=tuple(entries),
+                reason=f"manifest_inventory_recheck_unavailable:{type(exc).__name__}",
+            )
+        if (
+            names_before != names_after
+            or generation_before != generation_after
+            or signature_before != signature_after
+        ):
+            return CASManifestInventorySnapshot(
+                verdict="UNRUN",
+                inputs=inputs,
+                unresolved_by_construction=unresolved,
+                owner_generation_sha256=generation_after,
+                entries=tuple(entries),
+                reason="manifest_inventory_changed_during_scan",
+            )
+        return CASManifestInventorySnapshot(
             verdict="pass",
             inputs=inputs,
             unresolved_by_construction=unresolved,

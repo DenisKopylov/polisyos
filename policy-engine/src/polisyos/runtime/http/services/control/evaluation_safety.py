@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import re
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -123,10 +124,50 @@ class _CASInventorySnapshot(Protocol):
     reason: str | None
 
 
+class _CASManifestInventoryEntry(Protocol):
+    """Structural view of a stable manifest entry without payload claims."""
+
+    artifact_ref: core_artifacts.ArtifactID | core_artifacts.ArtifactRef
+    manifest: core_artifacts.ArtifactManifest
+    manifest_profile_sha256: str
+    manifest_sha256: str
+    manifest_byte_size: int
+
+
+class _CASManifestInventorySnapshot(Protocol):
+    """Structural view of a stable manifest-only inventory result."""
+
+    verdict: Literal["pass", "fail", "UNRUN"]
+    inputs: tuple[str, ...]
+    unresolved_by_construction: tuple[str, ...]
+    owner_generation_sha256: str | None
+    entries: tuple[_CASManifestInventoryEntry, ...]
+    reason: str | None
+
+
 class _AllViewCASInventory(Protocol):
     """Optional store capability that proves the complete visible view set."""
 
     def inventory_snapshot(self) -> _CASInventorySnapshot: ...
+
+
+class _KindScopedCASManifestInventory(Protocol):
+    """Optional inventory capability that selects manifests without reading blobs."""
+
+    def manifest_inventory_snapshot(self, *, kind: str) -> _CASManifestInventorySnapshot: ...
+
+
+@dataclass(frozen=True, slots=True)
+class _DecisionInventoryEntry:
+    """Normalized selected manifest receipt from either CAS inventory API."""
+
+    artifact_ref: core_artifacts.ArtifactID | core_artifacts.ArtifactRef
+    manifest: core_artifacts.ArtifactManifest
+    manifest_profile_sha256: str
+    manifest_sha256: str
+    manifest_byte_size: int
+    blob_sha256: str | None
+    blob_byte_size: int | None
 
 
 class EvaluationSafetyPersistenceContext(BaseModel):
@@ -1188,7 +1229,13 @@ class EvaluationSafetyPersistenceService:
         event_refs: list[EvalSafetyArtifactRef] = []
         seen_profiles: dict[
             tuple[str, str],
-            tuple[core_artifacts.ArtifactManifest, str, int, str, int],
+            tuple[
+                core_artifacts.ArtifactManifest,
+                str | None,
+                int | None,
+                str,
+                int,
+            ],
         ] = {}
         for entry in self._decision_inventory_entries():
             manifest = entry.manifest
@@ -1208,6 +1255,21 @@ class EvaluationSafetyPersistenceService:
                 entry.artifact_ref != selected_core_ref
             ):
                 raise ValueError("eval_safety_selection_not_established")
+            if entry.blob_sha256 is None:
+                raw_manifest_reader = getattr(self._artifact_store, "get_raw_manifest_bytes", None)
+                if not callable(raw_manifest_reader):
+                    raise ValueError("eval_safety_selection_not_established")
+                try:
+                    selected_manifest_bytes = raw_manifest_reader(selected_core_ref)
+                except (OSError, TypeError, ValueError) as exc:
+                    raise ValueError("eval_safety_selection_not_established") from exc
+                if (
+                    type(selected_manifest_bytes) is not bytes
+                    or len(selected_manifest_bytes) != entry.manifest_byte_size
+                    or "sha256:" + hashlib.sha256(selected_manifest_bytes).hexdigest()
+                    != entry.manifest_sha256
+                ):
+                    raise ValueError("eval_safety_selection_not_established")
             try:
                 selected_manifest = read_core_manifest_profile(
                     self._artifact_store,
@@ -1403,9 +1465,102 @@ class EvaluationSafetyPersistenceService:
             source_event_refs=tuple(sorted(event_refs, key=lambda ref: ref.artifact_id)),
         )
 
-    def _decision_inventory_entries(self) -> tuple[_CASInventoryEntry, ...]:
-        """Require the store's existing stable all-visible-views inventory."""
+    def _decision_inventory_entries(self) -> tuple[_DecisionInventoryEntry, ...]:
+        """Select decision manifests from the strongest available stable inventory."""
+        identity = EVALUATION_SAFETY_ARTIFACT_IDENTITIES["decision"]
         try:
+            manifest_inventory = getattr(
+                self._artifact_store,
+                "manifest_inventory_snapshot",
+                None,
+            )
+            if manifest_inventory is not None:
+                if not callable(manifest_inventory) or not matches_runtime_protocol(
+                    self._artifact_store,
+                    _KindScopedCASManifestInventory,  # type: ignore[type-abstract]
+                ):
+                    raise ValueError("eval_safety_selection_not_established")
+                snapshot = manifest_inventory(kind=identity.kind)
+                if snapshot.verdict != "pass" or not matches_runtime_protocol(
+                    snapshot,
+                    _CASManifestInventorySnapshot,  # type: ignore[type-abstract]
+                ):
+                    raise ValueError("eval_safety_selection_not_established")
+                if type(snapshot.entries) is not tuple:
+                    raise ValueError("eval_safety_selection_not_established")
+                required_inputs = {
+                    "complete canonical CAS root member names",
+                    "all active-scope manifest bytes, identities, and profiles",
+                    "signed ownership-index generation",
+                    f"all visible manifests with exact kind {identity.kind!r}",
+                }
+                if (
+                    type(snapshot.inputs) is not tuple
+                    or not all(type(item) is str for item in snapshot.inputs)
+                    or not required_inputs.issubset(snapshot.inputs)
+                    or type(snapshot.unresolved_by_construction) is not tuple
+                    or not all(type(item) is str for item in snapshot.unresolved_by_construction)
+                    or (
+                        "all payload blob bytes and digests; selected payloads require "
+                        "consumer verification"
+                    )
+                    not in snapshot.unresolved_by_construction
+                    or type(snapshot.owner_generation_sha256) is not str
+                    or re.fullmatch(r"sha256:[0-9a-f]{64}", snapshot.owner_generation_sha256)
+                    is None
+                ):
+                    raise ValueError("eval_safety_selection_not_established")
+                entries: list[_DecisionInventoryEntry] = []
+                for manifest_entry in snapshot.entries:
+                    if not matches_runtime_protocol(
+                        manifest_entry,
+                        _CASManifestInventoryEntry,  # type: ignore[type-abstract]
+                    ):
+                        raise ValueError("eval_safety_selection_not_established")
+                    if (
+                        not isinstance(manifest_entry.manifest, core_artifacts.ArtifactManifest)
+                        or not isinstance(
+                            manifest_entry.artifact_ref,
+                            (core_artifacts.ArtifactID, core_artifacts.ArtifactRef),
+                        )
+                        or manifest_entry.manifest.kind != identity.kind
+                        or type(manifest_entry.manifest_profile_sha256) is not str
+                        or type(manifest_entry.manifest_sha256) is not str
+                        or re.fullmatch(r"sha256:[0-9a-f]{64}", manifest_entry.manifest_sha256)
+                        is None
+                        or type(manifest_entry.manifest_byte_size) is not int
+                        or manifest_entry.manifest_byte_size < 1
+                    ):
+                        raise ValueError("eval_safety_selection_not_established")
+                    artifact_id = (
+                        manifest_entry.artifact_ref.artifact_id
+                        if isinstance(manifest_entry.artifact_ref, core_artifacts.ArtifactRef)
+                        else manifest_entry.artifact_ref
+                    )
+                    selected_ref = core_artifacts.artifact_ref_for_manifest(manifest_entry.manifest)
+                    if (
+                        manifest_entry.manifest.artifact_id != artifact_id
+                        or manifest_entry.manifest_profile_sha256
+                        != selected_ref.manifest_profile_sha256
+                        or (
+                            isinstance(manifest_entry.artifact_ref, core_artifacts.ArtifactRef)
+                            and manifest_entry.artifact_ref != selected_ref
+                        )
+                    ):
+                        raise ValueError("eval_safety_selection_not_established")
+                    entries.append(
+                        _DecisionInventoryEntry(
+                            artifact_ref=manifest_entry.artifact_ref,
+                            manifest=manifest_entry.manifest,
+                            manifest_profile_sha256=manifest_entry.manifest_profile_sha256,
+                            manifest_sha256=manifest_entry.manifest_sha256,
+                            manifest_byte_size=manifest_entry.manifest_byte_size,
+                            blob_sha256=None,
+                            blob_byte_size=None,
+                        )
+                    )
+                return tuple(entries)
+
             if not matches_runtime_protocol(
                 self._artifact_store,
                 _AllViewCASInventory,  # type: ignore[type-abstract]
@@ -1421,31 +1576,50 @@ class EvaluationSafetyPersistenceService:
             raise ValueError("eval_safety_selection_not_established")
         if type(snapshot.entries) is not tuple:
             raise ValueError("eval_safety_selection_not_established")
-        for entry in snapshot.entries:
+        full_entries: list[_DecisionInventoryEntry] = []
+        for full_entry in snapshot.entries:
             if not matches_runtime_protocol(
-                entry,
+                full_entry,
                 _CASInventoryEntry,  # type: ignore[type-abstract]
             ):
                 raise ValueError("eval_safety_selection_not_established")
-            if not isinstance(entry.manifest, core_artifacts.ArtifactManifest):
+            if not isinstance(full_entry.manifest, core_artifacts.ArtifactManifest):
                 raise ValueError("eval_safety_selection_not_established")
             if not isinstance(
-                entry.artifact_ref,
+                full_entry.artifact_ref,
                 (core_artifacts.ArtifactID, core_artifacts.ArtifactRef),
             ):
                 raise ValueError("eval_safety_selection_not_established")
             artifact_id = (
-                entry.artifact_ref.artifact_id
-                if isinstance(entry.artifact_ref, core_artifacts.ArtifactRef)
-                else entry.artifact_ref
+                full_entry.artifact_ref.artifact_id
+                if isinstance(full_entry.artifact_ref, core_artifacts.ArtifactRef)
+                else full_entry.artifact_ref
             )
             if (
-                entry.manifest.artifact_id != artifact_id
-                or entry.blob_sha256 != str(artifact_id)
-                or entry.blob_byte_size != entry.manifest.byte_size
+                full_entry.manifest.artifact_id != artifact_id
+                or full_entry.blob_sha256 != str(artifact_id)
+                or full_entry.blob_byte_size != full_entry.manifest.byte_size
+                or type(full_entry.manifest_sha256) is not str
+                or re.fullmatch(r"sha256:[0-9a-f]{64}", full_entry.manifest_sha256) is None
+                or type(full_entry.manifest_byte_size) is not int
+                or full_entry.manifest_byte_size < 1
             ):
                 raise ValueError("eval_safety_selection_not_established")
-        return snapshot.entries
+            selected_ref = core_artifacts.artifact_ref_for_manifest(full_entry.manifest)
+            if selected_ref.manifest_profile_sha256 is None:
+                raise ValueError("eval_safety_selection_not_established")
+            full_entries.append(
+                _DecisionInventoryEntry(
+                    artifact_ref=full_entry.artifact_ref,
+                    manifest=full_entry.manifest,
+                    manifest_profile_sha256=selected_ref.manifest_profile_sha256,
+                    manifest_sha256=full_entry.manifest_sha256,
+                    manifest_byte_size=full_entry.manifest_byte_size,
+                    blob_sha256=full_entry.blob_sha256,
+                    blob_byte_size=full_entry.blob_byte_size,
+                )
+            )
+        return tuple(full_entries)
 
     def reconcile_persisted_attempt(
         self,

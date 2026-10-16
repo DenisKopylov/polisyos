@@ -1,0 +1,36 @@
+id = "2026-10-16-e02-c05-cas-manifest-only-inventory"
+title = "Select C05 decision manifests without streaming unrelated CAS payloads"
+type = "fixed"
+component = "core"
+owner = "team-runtime"
+summary = "The C05 evaluator-safety reducer can select the complete visible decision-kind manifest set from a stable metadata snapshot, then verify selected profiles and payloads through its existing typed read path."
+evidence = [
+  "src/polisyos/core/artifacts/store.py",
+  "src/polisyos/runtime/http/services/control/evaluation_safety.py",
+  "tests/unit/core/artifacts/test_manifest_inventory_snapshot.py",
+  "tests/unit/runtime/http/services/test_evaluation_safety.py",
+  "src/polisyos/core/artifacts/README.md",
+]
+compatibility = "The existing full inventory API and its blob-verification receipt are unchanged. The new FileSystemCAS manifest-only inventory is additive and optional; a consumer with no such port retains the full-inventory path."
+change_class = "Optional filesystem CAS metadata-selection API and one runtime consumer integration"
+surface_classification = "Additive public method on the existing public-stable polisyos.core.artifacts.FileSystemCAS class; no ArtifactStore protocol requirement, artifact wire format, CAS member layout, or facade export changes"
+migration = "No CAS bytes are rewritten. Existing ArtifactStore implementations do not need to implement the optional method; their existing full inventory behavior remains the fallback."
+api = "manifest_inventory_snapshot(kind=...) captures the complete local CAS name set, all active-scope visible manifests and profiles, and ownership-index generation before and after selection. It returns exact-kind manifest entries without opening payloads. The C05 reducer still re-resolves each selected manifest profile, reads and validates selected payload bytes, and re-composes the owner event before reconciliation."
+limitations = "The manifest-only result is not a full blob-integrity receipt and carries no blob digest or size. Hidden tenant views, detached signature contents, and direct filesystem writers outside the CAS lease remain unresolved. This change does not establish a DomainPack owner/issuer, appointment, permission, or production currentness."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/core/artifacts/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "cas-manifest-only-kind-selection"
+change_class = "python-public-api"
+impact = "Add an optional FileSystemCAS metadata-only manifest inventory; full inventory callers and receipts retain their prior semantics."
+surface = "polisyos.core.artifacts.FileSystemCAS.manifest_inventory_snapshot"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "C05 can select target-kind manifests without streaming unrelated blobs. It still resolves each selected view and verifies its payload before reconciliation; metadata-only inventory is not represented as payload verification."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/core/artifacts/README.md"]
+runbook_docs = []

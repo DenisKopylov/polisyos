@@ -2405,6 +2405,8 @@ def test_decision_reducer_requires_a_passed_all_view_inventory(
 
     class LimitedStore:
         def __getattr__(self, name: str) -> object:
+            if name == "manifest_inventory_snapshot":
+                raise AttributeError(name)
             if name == "inventory_snapshot" and snapshot_state == "absent":
                 raise AttributeError(name)
             return getattr(artifact_store, name)
@@ -2438,12 +2440,9 @@ def test_decision_reducer_refuses_conflicting_receipts_for_one_profile(
         decision=persisted.decision,
         classification=None,
     )
-    snapshot = artifact_store.inventory_snapshot()
-    target_entry = next(
-        entry
-        for entry in snapshot.entries
-        if entry.manifest.kind == c02.EVALUATION_SAFETY_ARTIFACT_IDENTITIES["decision"].kind
-    )
+    kind = c02.EVALUATION_SAFETY_ARTIFACT_IDENTITIES["decision"].kind
+    snapshot = artifact_store.manifest_inventory_snapshot(kind=kind)
+    target_entry = next(entry for entry in snapshot.entries if entry.manifest.kind == kind)
     contradictory_entry = replace(
         target_entry,
         manifest_sha256="sha256:" + "0" * 64,
@@ -2453,7 +2452,8 @@ def test_decision_reducer_refuses_conflicting_receipts_for_one_profile(
         def __getattr__(self, name: str) -> object:
             return getattr(artifact_store, name)
 
-        def inventory_snapshot(self) -> object:
+        def manifest_inventory_snapshot(self, *, kind: str) -> object:
+            assert kind == c02.EVALUATION_SAFETY_ARTIFACT_IDENTITIES["decision"].kind
             return replace(
                 snapshot,
                 entries=(*snapshot.entries, contradictory_entry),
@@ -2466,6 +2466,156 @@ def test_decision_reducer_refuses_conflicting_receipts_for_one_profile(
 
     with pytest.raises(ValueError, match="eval_safety_selection_not_established"):
         contradictory_service.reduce_decisions(evidence=(evidence,))
+
+
+def test_decision_reducer_reads_selected_payloads_without_streaming_non_target_blobs(
+    tmp_path,
+) -> None:
+    """Manifest selection scopes I/O; reducer still verifies the actual decision bytes."""
+    service, artifact_store = _service(tmp_path)
+    core, source_ref = _blocked_core(artifact_store)
+    persisted = service.persist_decision(
+        core=core,
+        classification=None,
+        context=_context(source_ref.artifact_id),
+    )
+    evidence = EvaluationSafetyDecisionEvidence(
+        decision_ref=persisted.decision_ref,
+        decision=persisted.decision,
+        classification=None,
+    )
+    unrelated = artifact_store.put_bytes(
+        b"X" * (8 * 1024 * 1024),
+        PutOptions(kind="test.unrelated.large", media_type="application/octet-stream"),
+    )
+    artifact_store._member_path(unrelated.artifact_id, "blob", None).write_bytes(
+        b"corrupt unrelated blob"
+    )
+
+    class ManifestOnlyStore:
+        def __init__(self) -> None:
+            self.selected_kinds: list[str] = []
+            self.read_payload_ids: list[str] = []
+
+        def __getattr__(self, name: str) -> object:
+            if name == "inventory_snapshot":
+                raise AssertionError("full inventory would stream unrelated payloads")
+            return getattr(artifact_store, name)
+
+        def manifest_inventory_snapshot(self, *, kind: str) -> object:
+            self.selected_kinds.append(kind)
+            return artifact_store.manifest_inventory_snapshot(kind=kind)
+
+        def get_bytes(self, selector: object) -> bytes:
+            artifact_id = (
+                selector.artifact_id
+                if isinstance(selector, CoreArtifactRef)
+                else CoreArtifactID.model_validate(selector)
+            )
+            self.read_payload_ids.append(str(artifact_id))
+            return artifact_store.get_bytes(selector)
+
+    selected_store = ManifestOnlyStore()
+    selected_service = EvaluationSafetyPersistenceService(
+        artifact_store=selected_store,
+        event_log=service._event_log,  # noqa: SLF001
+    )
+
+    reduction = selected_service.reduce_decisions(evidence=(evidence,))
+
+    assert selected_store.selected_kinds == [
+        c02.EVALUATION_SAFETY_ARTIFACT_IDENTITIES["decision"].kind
+    ]
+    assert persisted.decision_ref.artifact_id in selected_store.read_payload_ids
+    assert str(unrelated.artifact_id) not in selected_store.read_payload_ids
+    assert persisted.decision_ref in reduction.selected_refs
+    assert persisted.decision_ref in reduction.reconciled_refs
+    assert reduction.reconciliation_status == "complete"
+
+
+def test_decision_reducer_keeps_full_inventory_fallback_for_existing_stores(
+    tmp_path,
+) -> None:
+    """An older store lacking the optional metadata port retains full verification."""
+    service, artifact_store = _service(tmp_path)
+    core, source_ref = _blocked_core(artifact_store)
+    persisted = service.persist_decision(
+        core=core,
+        classification=None,
+        context=_context(source_ref.artifact_id),
+    )
+    evidence = EvaluationSafetyDecisionEvidence(
+        decision_ref=persisted.decision_ref,
+        decision=persisted.decision,
+        classification=None,
+    )
+
+    class FullInventoryOnlyStore:
+        def __init__(self) -> None:
+            self.inventory_calls = 0
+
+        def __getattr__(self, name: str) -> object:
+            if name == "manifest_inventory_snapshot":
+                raise AttributeError(name)
+            return getattr(artifact_store, name)
+
+        def inventory_snapshot(self) -> object:
+            self.inventory_calls += 1
+            return artifact_store.inventory_snapshot()
+
+    old_store = FullInventoryOnlyStore()
+    old_service = EvaluationSafetyPersistenceService(
+        artifact_store=old_store,
+        event_log=service._event_log,  # noqa: SLF001
+    )
+
+    reduction = old_service.reduce_decisions(evidence=(evidence,))
+
+    assert old_store.inventory_calls == 1
+    assert persisted.decision_ref in reduction.reconciled_refs
+    assert reduction.reconciliation_status == "complete"
+
+
+def test_decision_reducer_refuses_manifest_bytes_changed_after_metadata_snapshot(
+    tmp_path,
+) -> None:
+    """The consumer binds the snapshot's exact raw manifest bytes to its selected view."""
+    service, artifact_store = _service(tmp_path)
+    core, source_ref = _blocked_core(artifact_store)
+    persisted = service.persist_decision(
+        core=core,
+        classification=None,
+        context=_context(source_ref.artifact_id),
+    )
+    evidence = EvaluationSafetyDecisionEvidence(
+        decision_ref=persisted.decision_ref,
+        decision=persisted.decision,
+        classification=None,
+    )
+
+    class ChangedManifestAfterSnapshotStore:
+        def __getattr__(self, name: str) -> object:
+            return getattr(artifact_store, name)
+
+        def manifest_inventory_snapshot(self, *, kind: str) -> object:
+            snapshot = artifact_store.manifest_inventory_snapshot(kind=kind)
+            target = next(entry for entry in snapshot.entries if entry.manifest.kind == kind)
+            selected_ref = artifact_ref_for_manifest(target.manifest)
+            manifest_path = artifact_store._member_path(  # noqa: SLF001
+                target.manifest.artifact_id,
+                "manifest",
+                selected_ref.manifest_profile_sha256,
+            )
+            manifest_path.write_bytes(b" " + manifest_path.read_bytes())
+            return snapshot
+
+    changed_service = EvaluationSafetyPersistenceService(
+        artifact_store=ChangedManifestAfterSnapshotStore(),
+        event_log=service._event_log,  # noqa: SLF001
+    )
+
+    with pytest.raises(ValueError, match="eval_safety_selection_not_established"):
+        changed_service.reduce_decisions(evidence=(evidence,))
 
 
 def test_decision_reducer_finds_target_profile_when_default_view_is_non_target(

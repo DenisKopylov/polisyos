@@ -65,6 +65,15 @@ environment fingerprints.
 - `FileSystemCAS.inventory_snapshot(artifact_id=...)` rechecks the complete local member-name
   set and owner generation while verifying only the selected artifact ID's visible views.
   The active tenant scope can hide other tenants' views, which remain unresolved by construction.
+- `FileSystemCAS.manifest_inventory_snapshot(kind=...)` is an additive public method on the
+  existing `polisyos.core.artifacts.FileSystemCAS` class. It rechecks the complete local member-name
+  set, every visible manifest profile, and owner generation while selecting all visible
+  manifests of one exact kind. It deliberately does not open or verify payload blobs, and its
+  entries carry no blob digest or size receipt. A consumer must re-resolve the exact selected
+  profile and verify each selected payload through its typed read before reconciliation or
+  admission. This optional metadata-only port is not a new `ArtifactStore` protocol requirement
+  and does not replace `inventory_snapshot`'s full payload-verification contract; consumers without
+  the method keep using the full inventory API.
 - local publication durability: `ensure_directory_durable`, `fsync_directory`, and
   `AtomicFileDurabilityError` expose the existing filesystem helpers through this
   facade. Cross-layer consumers reuse these exports rather than importing the
@@ -107,7 +116,7 @@ Workflow consumers carry their original deadline through the adapter. Native
 async backends retain their own scheduling policy; this option does not preempt
 already-entered filesystem calls or roll back a completed publication.
 
-- Last updated: 2026-10-09
+- Last updated: 2026-10-16
 - The package still serves as the CAS source of truth for audit exports, runtime lineage, and registry bundles.
 - The tree now explicitly includes `protocol.py` and the `environment_parts.py` facade alongside the capture/comparison helpers.
 

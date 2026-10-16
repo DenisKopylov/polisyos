@@ -1,0 +1,321 @@
+{
+  "schema_version": "e02.r9.ir_facade_mutability_contract_decision.v1",
+  "kind": "Reviewable candidate contract-decision packet for independent G adjudication; no source implementation, acceptance, publication or closure.",
+  "generated_at_utc": "2026-10-16T21:42:21.200664+00:00",
+  "intended_tracked_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r9-ir-facade-source-map-contract-decision-20261017.json",
+  "status": {
+    "decision": "pending independent G adjudication",
+    "implementation": "No source implementation is delivered by this packet. Existing runtime mutation behavior is preserved pending the proposed compatibility decision.",
+    "formal_acceptance_or_closure": "none claimed"
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "5dae0670ff6b5f3e0b85eec8b148074e9243e833",
+    "tree": "9f38319a9f2b265922d6ec499f8557312ab1f201",
+    "parents": [
+      "3b2bedd5b67aa8aa64f27647ae94f2a86986d926"
+    ],
+    "head_subject": "test(core): verify optional telemetry preserves durable settlement consumers",
+    "root_owned_commit_journal": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-parallel-coordination-20261015/root-owned-commits.json",
+      "sha256": "85a37c92f6796df231260401c33f9ac81f734da12fbc1cffdec4e0440c36352d",
+      "head_entry_exact": true,
+      "entry_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/tests/unit/core/llm/test_traced_client_settlement.py"
+      ],
+      "qualification": "Exact journal bytes pinned at packet creation. Since the sealed analysis frame 0f5e647, journaled commits affect docs/release fragments and tests only (no policy-engine/src or policy-engine/tools paths); this does not claim shared worktree cleanliness or a new full scanner replay.",
+      "availability": "Mutable coordination journal. This SHA records the observed bytes at packet creation; a historical whole-file snapshot is not relied on as verification evidence. Exact source cut, Git parents, immutable per-commit readbacks and scoped source pins are the replayable bindings."
+    },
+    "analysis_source_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "0f5e647063c8dd0b0b5fbc59b044ec9dc015484e",
+      "tree": "c049b298f20694781ded44fe977b6bfeefae9d06",
+      "parent": "1229425d577e76f6af53ba34f416fda3fd25a829",
+      "working_tree_porcelain_entries": 2419,
+      "scoped_source_paths_clean": true,
+      "note": "Shared worktree contains unrelated dirty/untracked work. This packet adds only an ignored RAW file and makes no tracked change."
+    },
+    "scoped_source_pins": [
+      {
+        "path": "policy-engine/src/polisyos/ir/api.py",
+        "sha256": "a6b14b329428854e5811623567f684c62e80029df29d93de28dba3621031b9ce",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/__init__.py",
+        "sha256": "66e0a12531ac1e44e9ec71d67cc78c814f3a54ff72c12f0e736594261fd0472f",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+        "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/governance/__init__.py",
+        "sha256": "f431b7cd232377c7a556f023630bf209d23bdffa209a17f5af12f2143fe6a13a",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/__init__.py",
+        "sha256": "1a1124a1b02cca8854bb0f42b56fa8ec97363d2025b351557c2f2bf9eec4b04a",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/observation/__init__.py",
+        "sha256": "b230861e7a7deb64941bbe5393073cc825f45924634e531efa943d27da4f6686",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/world/__init__.py",
+        "sha256": "f259dc167171766c15b68c0006d0995a10bed5458b139d828956a135739a58e3",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+        "sha256": "ac336b411cadad2485b26fe75fe1eecad3631ee0c15db4801f60ecab67890956",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/berl/persistence.py",
+        "sha256": "9013ffc27691d652fe7180a395da37cc05e508d60ae4c50498ad31d7a147d6d0",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/schemas/catalog.py",
+        "sha256": "2e7b465db1eb09a27830fe38f94c1cbf48caeec3f183c08876cadd0783c94985",
+        "worktree_status": "clean"
+      }
+    ],
+    "supporting_document_pins": [
+      {
+        "path": "policy-engine/src/polisyos/ir/README.md",
+        "sha256": "d87193c2176544c71a4ec5be21c5ae1501a68c7ab778439da0c7b75c4d5a200c",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "sha256": "5884fc9920a81844121ad412048d03ce2d36cc0adf82c1b47c4825b3d1011dc9",
+        "worktree_status": "M policy-engine/docs/reference/public-surface.md"
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/contract.toml",
+        "sha256": "87f24939839c452064f752c2031ddaae473c82b96484105d4818e690d0338e9f",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "sha256": "474f1d6a756f033f3500ba934095623d8a547265c08343ea5d28e08873362858",
+        "worktree_status": "clean"
+      }
+    ],
+    "worktree_boundary": "Shared worktree has unrelated dirty/untracked work. Each scoped IR owner/facade/scanner/BERL path is separately pinned; no whole-worktree clean claim."
+  },
+  "decision_question": {
+    "property": "Can mutation of exported IR facade maps legitimately change the module/attribute selected by the lazy facade at runtime?",
+    "choice_required": "G should choose whether these exported maps are supported runtime extension points (B), or immutable source manifests whose mutation is unsupported (A). Until selected, the static collector must not promote a mutable map literal as authoritative for the actual runtime import target.",
+    "A_immutable_source_manifest": "Make defining-owner maps immutable before facade import and expose read-only Mapping views. Preserve export names, resolve_lazy_export/lazy_dir/facade_export_names, lazy loading, child-module behavior and namespace memoization. Facades and PACKAGE_FACADE_EXPORTS read the same canonical owner maps. Extend the collector to derive the existing resolver’s actual selection/cache semantics rather than keeping a second interpretation. Do not retain a mutable compatibility dict that silently stops steering imports; if G requires a migration window, specify its behavior and end explicitly.",
+    "B_supported_mutation": "Keep current mutable dict maps and the behavior where mutation before facade import changes the imported object. The source-only collector must produce typed unresolved/not_established for map-derived targets and refuse a positive based on the literal alone. Any later positive needs a separately sourced, current runtime map snapshot/receipt; none is established here.",
+    "author_recommendation": "Prefer A only if G determines external map mutation is not a supported compatibility contract and accepts a documented read-only API migration; otherwise choose B and retain the static refusal. This proposal does not select or execute either choice."
+  },
+  "reuse_extend_consolidate_build": {
+    "reuse": "Reuse the existing IR API owner module, LazyExportMap, resolve_lazy_export, lazy_dir, facade_export_names, six PEP-562 facades and maps. The issue is source-map authority, not a missing registry.",
+    "extend": "Under A, extend the existing map type/resolver and derive the collector’s proof from the shared source-owned helper. Under B, extend the collector result vocabulary so map-selected mutable targets remain explicitly not_established.",
+    "consolidate": "Under A, consolidate the four public map views and three private facade tables over one immutable owner definition while preserving PACKAGE_FACADE_EXPORTS/schema catalog agreement. Under B, retain one runtime map contract and make its static limitation explicit instead of duplicating a guessed snapshot.",
+    "build_new": "A new plugin/registration subsystem is not justified; it would not answer whether mutation of today’s exported dict is part of the API contract."
+  },
+  "source_and_consumer_scope": {
+    "core_owner_paths": [
+      {
+        "path": "policy-engine/src/polisyos/ir/api.py",
+        "sha256": "a6b14b329428854e5811623567f684c62e80029df29d93de28dba3621031b9ce",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/__init__.py",
+        "sha256": "66e0a12531ac1e44e9ec71d67cc78c814f3a54ff72c12f0e736594261fd0472f",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/__init__.py",
+        "sha256": "45aa31f2dd8d139d0f9e33bda37f22f88e455ad70a5d7f31261944489a54c174",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/governance/__init__.py",
+        "sha256": "f431b7cd232377c7a556f023630bf209d23bdffa209a17f5af12f2143fe6a13a",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/kernel/__init__.py",
+        "sha256": "1a1124a1b02cca8854bb0f42b56fa8ec97363d2025b351557c2f2bf9eec4b04a",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/observation/__init__.py",
+        "sha256": "b230861e7a7deb64941bbe5393073cc825f45924634e531efa943d27da4f6686",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/world/__init__.py",
+        "sha256": "f259dc167171766c15b68c0006d0995a10bed5458b139d828956a135739a58e3",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+        "sha256": "ac336b411cadad2485b26fe75fe1eecad3631ee0c15db4801f60ecab67890956",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/berl/persistence.py",
+        "sha256": "9013ffc27691d652fe7180a395da37cc05e508d60ae4c50498ad31d7a147d6d0",
+        "worktree_status": "clean"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/schemas/catalog.py",
+        "sha256": "2e7b465db1eb09a27830fe38f94c1cbf48caeec3f183c08876cadd0783c94985",
+        "worktree_status": "clean"
+      }
+    ],
+    "facade_owner_and_reader_paths": [
+      "policy-engine/src/polisyos/ir/__init__.py",
+      "policy-engine/src/polisyos/ir/analytics/__init__.py",
+      "policy-engine/src/polisyos/ir/governance/__init__.py",
+      "policy-engine/src/polisyos/ir/kernel/__init__.py",
+      "policy-engine/src/polisyos/ir/observation/__init__.py",
+      "policy-engine/src/polisyos/ir/world/__init__.py",
+      "policy-engine/src/polisyos/ir/schemas/catalog.py"
+    ],
+    "full_source_walk_observation": {
+      "path_count": 3231,
+      "pathset_sha256": "028ad359145d38097a6a33e6690b23bc208ade5ccfddfbe159459f71aeeef77d",
+      "ast_parse_errors": 0,
+      "qualification": "Complete selected source walk recorded in sealed analysis at its source frame; not a new walk against the later shared worktree."
+    },
+    "direct_facade_importers": {
+      "count": 148,
+      "pathset_sha256": "2768c497ebf0c9f4bcc12203c26537748eba654629550e54385a9dd42408671a",
+      "candidate_pathset_sha256": "2768c497ebf0c9f4bcc12203c26537748eba654629550e54385a9dd42408671a",
+      "candidate_paths_unique": true,
+      "candidate_importer_hash_mismatches_at_analysis": 0,
+      "qualification": "Analysis recorded 148 direct importers and zero importer-source hash mismatches at that frame. The later candidate output is not a source-frozen full 148-importer replay; replay after decision and source freeze."
+    }
+  },
+  "scanner_result_and_denominator_limits": {
+    "old_candidate": {
+      "candidate_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-berl-annotation-20261016/immutable-facade-prototype-no-cache.json",
+        "sha256": "7d84531cf30425bf6341e231f070c005d80890d0ba8e7f26c2bd8291e4947961",
+        "role": "Diagnostic overlay output, 67 PASS / 81 ERROR; exact generator argv and full-source identity were not retained."
+      },
+      "first_error_breakdown": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-berl-annotation-20261016/immutable-facade-prototype-error-breakdown.json",
+        "sha256": "86afe918b08b66e64ecfc6454659294a91af03b82ac0927e4a8dbdefb0d6ee33",
+        "role": "All 81 first-error rows/source details; not an independent-defect count."
+      },
+      "recorded_source_count": 3230,
+      "full_pathset_sha256_embedded": false,
+      "companion_pathset_sha256": "bedfa19fa1eae98ff168fcf8996089f80b04fd1f87b4da0f18273a762d3f24b2",
+      "exact_candidate_to_companion_identity": "not_established: matching counts do not bind complete path identity."
+    },
+    "first_failure_counts": {
+      "unresolved importer binding": 43,
+      "guarded value escapes function annotation": 26,
+      "guarded value escapes call argument": 7,
+      "unresolved reflective scope mutation": 1,
+      "guarded value escapes annotation": 2,
+      "guarded value escapes function return": 2
+    },
+    "bucket": {
+      "facade_binding_involved": 11,
+      "independent_first_failure": 70,
+      "facade_binding_import_occurrences": 45,
+      "facade_bucket_families": {
+        "guarded value escapes function annotation": 3,
+        "guarded value escapes call argument": 4,
+        "unresolved importer binding": 3,
+        "guarded value escapes function return": 1
+      },
+      "independent_bucket_families": {
+        "unresolved importer binding": 40,
+        "unresolved reflective scope mutation": 1,
+        "guarded value escapes call argument": 3,
+        "guarded value escapes function annotation": 23,
+        "guarded value escapes annotation": 2,
+        "guarded value escapes function return": 1
+      },
+      "meaning": "One first reported diagnostic per file in the older overlay. The collector stops there; the 70 are not solved by map ownership, later failures are unobserved, and the 11 also cross generic source-flow boundaries."
+    },
+    "interpretation": "Do not call 81 independent defects, 81 map-caused defects, or a current full-gate result. The current analysis records 3,231 selected paths, whereas the older output records 3,230 and carries no full pathset digest."
+  },
+  "runtime_and_prototype_evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-berl-annotation-20261016/mutable-facade-map-runtime-falsifier.json",
+      "sha256": "e1fcba884dd95c301bed4ff2b33ecec307553647927c9f75ac5bf2fb745d1bff",
+      "role": "Mutation before import redirects analytics ExplanationBundleRef to ArtifactRefModel; disproves that the public dict is inert metadata."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-berl-annotation-20261016/owner-map-immutable-cache-prototype.json",
+      "sha256": "4bf9619269968ef5dc90194fdd75e9ceb1a3d43b5db45bbe1bab20a559f78c7d",
+      "role": "In-memory static prototype resolves six representative symbols in one BERL scan; not a full importer gate."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-berl-annotation-20261016/owner-map-immutable-cache-runtime-probe.stdout.json",
+      "sha256": "53d4083736c56d9e053d282272574c2dfc492b02747a6c14a57ae3168306813b",
+      "role": "In-memory overlay preserves representative exports, lazy import, __all__, helper callability, child fallback and globals() memoization while map mutation no longer steers resolution."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-berl-annotation-20261016/immutable-facade-mutable-map-removal.stdout.txt",
+      "sha256": "05b83affc90cc494ef2535642cad0edee475141ac921e0bf412db0fe6f163845",
+      "role": "Marker-preserving mutable-map removal control: representative bindings become ambiguous and BERL refuses; this is limited evidence, not full class coverage."
+    }
+  ],
+  "migration_impacts": {
+    "A": [
+      "Observable compatibility change: writes to today’s public dict can redirect imports, while a read-only Mapping rejects them.",
+      "The exact-name repository search in the sealed analysis found no direct mutation in its 10 exact-hit files; that does not inventory external callers or establish migration safety.",
+      "Preserve export names and shared helper API; update Mapping types, API docs, schema catalog, facade/architecture tests, source collector proof, release note, and installed-package checks together.",
+      "Do not leave an ignored mutable shadow; any supported extension path needs a separately specified typed contract."
+    ],
+    "B": [
+      "Runtime mutation behavior stays unchanged.",
+      "Static source proof for targets selected through mutable maps remains typed not_established until a genuine source-bound runtime input exists."
+    ]
+  },
+  "verification_after_decision": {
+    "A": "After a frozen source frame: mutation rejection before import; all six facade exports/dir/unknown-name/memoization behavior; analytics child fallback; actual shared resolver and catalog agreement; owner-removal with markers retained; all 148 importer paths; installed wheel/rebuilt-sdist consumers; independent review and one canonical whole-input replay.",
+    "B": "Keep mutation-before-import runtime compatibility positive and prove the source gate refuses whenever selected target relies on mutable state. A fabricated or synthetic snapshot must not pass. Review a future runtime-snapshot contract separately.",
+    "not_run": [
+      "External map-mutator inventory",
+      "Current complete 3,231-path replay",
+      "Current 148-importer replay",
+      "Installed wheel/rebuilt-sdist replay",
+      "Independent G review"
+    ]
+  },
+  "pattern_pass": {
+    "P05": "Do not let a source literal or projection stand in for the actual runtime-selected import.",
+    "P29_P32": "Exercise helper/runtime selection; markers and present dict fields are not semantic proof.",
+    "P31_P40": "One map-owner and full-consumer class; no caller patch ladder.",
+    "P35_P37_P38": "Bind set claims to complete source denominators, label the old gate input not_established, and name the runtime mutation divergence."
+  },
+  "authority_time_status": {
+    "external_law_or_issuer": "none asserted or required; this is an internal API-contract decision.",
+    "currentness_or_expiry": "no external currentness rule or expiry invented.",
+    "status": "candidate decision packet; G choice pending; no acceptance or closure.",
+    "closure_ids": [],
+    "author_proposals_are_not_formal_closures": true
+  },
+  "decision_needed": "Record A or B with the compatibility boundary. Until G decides, preserve existing runtime behavior and keep static map-derived proof unresolved; do not use the old 81 diagnostic to claim closure or justify a hidden mutable/immutable split.",
+  "remaining_independent_work": [
+    "The 70 generic first-failure rows remain a separate engineering queue and are not resolved by this contract choice.",
+    "Reconstruct exact canonical generator argv and source provenance only after a selected contract and full input/profile freeze.",
+    "External map-mutating consumers remain unknown."
+  ],
+  "analysis_evidence": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-berl-annotation-20261016/r9-immutable-ir-facade-contract-decision-analysis-20261017.json",
+    "sha256": "03a9d82820015d1cf29b7e0314e6ef9841c2e27fa3ab85b95beaf46ca84d5a44",
+    "role": "Sealed read-only investigation; prototype diagnostics are bounded and not a current full-gate result."
+  }
+}

@@ -24,7 +24,7 @@ from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.runtime.quality import design_generation as dg
-from polisyos.runtime.quality.credal_reference import build_credal_reference
+from polisyos.runtime.quality.credal_reference import CredalReference
 from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
 from polisyos.runtime.quality.design_generation import (
     SUPPORTED_GENERATION_MODEL_IDS,
@@ -80,12 +80,92 @@ def _test_design_problem() -> dg.DesignProblem:
 
 
 @lru_cache(maxsize=1)
-def _education_cycle_context() -> tuple[DesignProblem, object]:
-    """Load the real pack and project it through the canonical WMR owner."""
+def _unit_credal_reference() -> CredalReference:
+    """Use a unit-* reference only for local CG mechanics, never production K_ref."""
+
+    from tests.unit.runtime.quality.test_grounding_relation import _reference
+
+    return _reference()
+
+
+def _unit_credal_reference_for_candidate_generation(
+    _repo_root: Path, *, world_model_record: object | None = None
+) -> CredalReference:
+    """Use the unit fixture only when N4 has no selected WMR context."""
+
+    if world_model_record is not None:
+        raise AssertionError("unit-* reference cannot stand in for a selected WMR binding")
+    return _unit_credal_reference()
+
+
+@lru_cache(maxsize=1)
+def _historical_education_prompt_context() -> tuple[DesignProblem, object]:
+    """Replay frozen candidate vocabulary without presenting it as current L6."""
+
+    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    problem = DesignProblem.model_validate(frozen["smoke_problem"]["design_problem"])
+    context = second_domain_pack._build_historical_replay_cycle_substrate_context(
+        REPO_ROOT,
+        bundle=frozen,
+        design_problem=problem,
+    )
+    assert context.intervention_substrate is None
+    assert context.authority_purpose == "cycle_input_candidate_only"
+    return problem, context
+
+
+@lru_cache(maxsize=1)
+def _current_education_cycle_context() -> tuple[DesignProblem, object]:
+    """Build candidate-only context from current L1/L2/S0/L6 owners."""
+
+    from unittest.mock import patch
+
+    original_connect = second_domain_pack.duckdb.connect
+
+    def single_thread_connect(*args: Any, **kwargs: Any) -> Any:
+        connection = original_connect(*args, **kwargs)
+        connection.execute("SET threads=1")
+        return connection
+
+    with patch.object(second_domain_pack.duckdb, "connect", single_thread_connect):
+        paths = second_domain_pack._owner_paths(REPO_ROOT)
+        timings: dict[str, float] = {}
+        census = second_domain_pack._build_census(REPO_ROOT, paths, timings)
+        facts = second_domain_pack._build_selected_domain_facts(
+            REPO_ROOT,
+            paths,
+            census,
+            timings,
+        )
+        problem = DesignProblem.model_validate(
+            second_domain_pack._build_smoke_problem(census, facts)["design_problem"]
+        )
+        substrate_input = second_domain_pack._build_cycle_substrate_input_projection(census, facts)
+        context = second_domain_pack._build_live_cycle_substrate_context(
+            REPO_ROOT,
+            census=census,
+            substrate_input=substrate_input,
+            design_problem=problem,
+        )
+
+    assert context.domain == facts["chosen_candidate"]
+    assert context.substrate_registry_content_hash == facts["s0_registry"]["content_hash"]
+    assert context.intervention_substrate is not None
+    assert context.authority_purpose == "cycle_input_candidate_only"
+    assert context.world_model_record.authority_status == "limited"
+    assert all(row.status == "candidate_unbound" for row in context.candidate_levers)
+    return problem, context
+
+
+def test_prompt_slice_uses_pack_candidate_levers_without_binding_them() -> None:
+    """N4 must prompt over all pack levers while preserving zero writability."""
+
+    problem, context = _historical_education_prompt_context()
+    assert context.intervention_substrate is None
+    assert all(row.status == "candidate_unbound" for row in context.candidate_levers)
 
     frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
     pack = frozen["pack"]
-    problem = DesignProblem.model_validate(frozen["smoke_problem"]["design_problem"])
     registry = SubstrateRegistry.model_validate(
         pack["owner_query_results"]["s0_registry"]["registry_payload"]
     )
@@ -98,20 +178,17 @@ def _education_cycle_context() -> tuple[DesignProblem, object]:
         substrate_registry=registry,
         selected_registry_entry_hashes=selected_hashes,
     )
-    context = second_domain_pack.project_second_domain_cycle_substrate_context(
-        frozen,
-        repo_root=REPO_ROOT,
-        design_problem=problem,
-        world_model_record=world,
-        intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
-    )
-    return problem, context
-
-
-def test_prompt_slice_uses_pack_candidate_levers_without_binding_them() -> None:
-    """N4 must prompt over all pack levers while preserving zero writability."""
-
-    problem, context = _education_cycle_context()
+    with pytest.raises(
+        ValueError,
+        match="cycle_substrate_pack_invalid:cycle_substrate_registry_owner_rederive_mismatch",
+    ):
+        second_domain_pack.project_second_domain_cycle_substrate_context(
+            frozen,
+            repo_root=REPO_ROOT,
+            design_problem=problem,
+            world_model_record=world,
+            intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
+        )
 
     result = dg.derive_lever_space_prompt_slice(
         problem,
@@ -145,7 +222,7 @@ def test_prompt_slice_uses_pack_candidate_levers_without_binding_them() -> None:
 def test_prompt_slice_rejects_context_for_another_design_problem() -> None:
     """A content-valid context is not a reusable hint for a changed problem."""
 
-    problem, context = _education_cycle_context()
+    problem, context = _historical_education_prompt_context()
     changed = problem.model_copy(
         update={"problem_statement": problem.problem_statement + " Changed."}
     )
@@ -807,8 +884,9 @@ async def test_terminal_critic_persistent_failure_stays_degraded(
 
 
 def test_cgf_binding_recovers_legacy_exact_match_rejection() -> None:
+    """Test CG binding mechanics with a unit-* reference, not production K_ref."""
     problem = _test_design_problem()
-    reference = build_credal_reference(REPO_ROOT)
+    reference = _unit_credal_reference()
     intervention = InterventionSpec(
         intervention_id="tax_credit_alias_probe",
         kind="tax_credit_rate",
@@ -864,7 +942,7 @@ def test_cgf_binding_recovers_legacy_exact_match_rejection() -> None:
 def test_content_bound_candidate_persists_real_l6_refusal_on_cgf_disposition() -> None:
     """The N4 owner records both its CG attempt and the real L6 refusal."""
 
-    problem, context = _education_cycle_context()
+    problem, context = _current_education_cycle_context()
     intervention = InterventionSpec(
         intervention_id="education_teaching_method_probe",
         kind="education_teaching_method",
@@ -885,7 +963,7 @@ def test_content_bound_candidate_persists_real_l6_refusal_on_cgf_disposition() -
         calls=(_llm_call(),),
         repo_root=REPO_ROOT,
         world_model_record_ref=context.world_model_record.world_model_record_id,
-        reference=build_credal_reference(REPO_ROOT),
+        reference=_unit_credal_reference(),
         cycle_substrate_context=context,
     )
 
@@ -961,7 +1039,7 @@ def test_candidate_lever_id_is_not_cg_relation_authority() -> None:
 def test_content_bound_candidate_resolves_candidate_lever_id_not_trinity_kind() -> None:
     """Resolve an exact candidate ref while leaving adaptive_agent as Trinity grammar."""
 
-    problem, context = _education_cycle_context()
+    problem, context = _current_education_cycle_context()
     intervention = InterventionSpec(
         intervention_id="education_teaching_method_adaptive_probe",
         kind="adaptive_agent",
@@ -989,7 +1067,7 @@ def test_content_bound_candidate_resolves_candidate_lever_id_not_trinity_kind() 
         calls=(_llm_call(),),
         repo_root=REPO_ROOT,
         world_model_record_ref=context.world_model_record.world_model_record_id,
-        reference=build_credal_reference(REPO_ROOT),
+        reference=_unit_credal_reference(),
         cycle_substrate_context=context,
     )
 
@@ -3051,8 +3129,9 @@ async def test_formalizer_preserves_candidate_grounding_axis_params() -> None:
 
 
 def test_novel_candidate_with_false_analog_evidence_routes_to_cg3() -> None:
+    """Exercise CG3 mechanics with a unit-* reference, not production K_ref."""
     problem = _test_design_problem()
-    reference = build_credal_reference(REPO_ROOT)
+    reference = _unit_credal_reference()
     intervention = InterventionSpec(
         intervention_id="household_transfer_tax_credit_like_probe",
         kind="household_transfer",
@@ -3090,7 +3169,13 @@ def test_novel_candidate_with_false_analog_evidence_routes_to_cg3() -> None:
 
 
 @pytest.mark.asyncio
-async def test_recorded_llm_organs_emit_diverse_cg3_dispositions_without_authority() -> None:
+async def test_recorded_llm_organs_emit_diverse_cg3_dispositions_without_authority(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Exercise recorded CG3 mechanics with an explicit unit-* reference."""
+    monkeypatch.setattr(
+        dg, "build_credal_reference", _unit_credal_reference_for_candidate_generation
+    )
     recording = _recordings()[0]
     result = await generate_design_candidates_under_a(
         contract._design_problem(recording),
@@ -3159,7 +3244,13 @@ def test_cg1_index_prewarm_builds_real_index_for_unit_reference() -> None:
 
 
 @pytest.mark.asyncio
-async def test_problem_variation_recordings_produce_different_candidate_sets() -> None:
+async def test_problem_variation_recordings_produce_different_candidate_sets(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Compare recorded CG3 candidate mechanics with a unit-* reference."""
+    monkeypatch.setattr(
+        dg, "build_credal_reference", _unit_credal_reference_for_candidate_generation
+    )
     recordings = _recordings()
     first = await generate_design_candidates_under_a(
         contract._design_problem(recordings[0]),
@@ -3358,8 +3449,8 @@ async def test_candidate_scenario_skips_unused_cg1_prewarm_but_grounded_lane_ref
 
 
 @pytest.mark.asyncio
-async def test_candidate_scenario_keeps_exact_registered_l2_vintage_unknown() -> None:
-    """The candidate source records the SKG owner's refusal without forwarding it."""
+async def test_lane0_candidate_scenario_does_not_claim_registered_l2_vintage() -> None:
+    """A lane0 fixture cannot be relabeled as the registered production vintage."""
 
     recording = copy.deepcopy(_recordings()[0])
     problem = contract._design_problem(recording)
@@ -3378,11 +3469,8 @@ async def test_candidate_scenario_keeps_exact_registered_l2_vintage_unknown() ->
         )
 
     assert isinstance(result, dg.N4CandidateScenarioProposalRun)
-    assert result.k_ref_limitation_code == "historical_l2_confidence_withheld"
-    assert result.l2_confidence_vintage is not None
-    assert result.l2_confidence_vintage.snapshot_sha256 == (
-        "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
-    )
+    assert result.k_ref_limitation_code == "full_credal_reference_not_established"
+    assert result.l2_confidence_vintage is None
     assert result.proposal.authority_purpose == "candidate_proposal"
     assert result.proposal.substrate_status == "unknown"
     assert result.proposal.n5_status == "not_run"
@@ -3465,19 +3553,27 @@ async def test_generation_does_not_close_caller_owned_gateway_client() -> None:
 
 
 @pytest.mark.asyncio
-async def test_gateway_only_model_is_accepted_from_live_catalog() -> None:
+async def test_gateway_catalog_only_model_reaches_candidate_proposal_lane() -> None:
+    """The recorded catalog accepts this ID for a candidate-only N4 proposal."""
     recording = _recordings()[0]
     gateway_only = "Future/Only-Gateway"
-    result = await generate_design_candidates_under_a(
+    result = await dg.generate_design_candidate_proposal_under_a(
         contract._design_problem(recording),
         model_id=gateway_only,
         llm_client=RecordedClientWithCatalog(recording, model_ids=[gateway_only]),
         repo_root=REPO_ROOT,
     )
 
-    assert result.status == "generated"
+    assert isinstance(result, dg.N4CandidateProposalSource)
+    assert result.authority_purpose == "candidate_proposal"
+    assert result.status == "candidate_limited"
     assert result.preflight.status == "supported"
+    assert gateway_only in result.preflight.live_model_ids
     assert result.model_id == gateway_only
+    assert result.n5_status == "not_run"
+    assert result.n8_status == "not_run"
+    assert result.n9_status == "not_run"
+    assert result.s8_status == "not_run"
 
 
 @pytest.mark.asyncio
@@ -3546,14 +3642,111 @@ async def test_degraded_organs_are_labeled_and_excluded(bad_role: str, reason: s
     assert result.degraded_artifacts[0].reason == reason
 
 
+def test_unit_credal_reference_factory_rejects_selected_wmr() -> None:
+    """The unit-* fixture must not stand in for an explicitly selected WMR."""
+    with pytest.raises(
+        AssertionError,
+        match=r"unit-\* reference cannot stand in for a selected WMR binding",
+    ):
+        _unit_credal_reference_for_candidate_generation(REPO_ROOT, world_model_record=object())
+
+
+def test_resolved_owner_atom_fake_surrogate_mechanics_refusal(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A valid owner-resolved atom reaches the surrogate resolver's typed refusal."""
+    from types import SimpleNamespace
+
+    from polisyos.runtime.quality import intervention_substrate as owner
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        intervention_atom_content_hash,
+    )
+    from polisyos.runtime.quality.world_model_record import ResolvedWorldModelAtomBinding
+
+    bundle = owner.load_l6_intervention_substrate(REPO_ROOT)
+    atom, binding = owner._resolve_owner_atom_world_binding(
+        bundle=bundle,
+        operator_kind="budget_allocation_multiplier",
+        raw_knob=bundle.knob_dictionary["budget_allocation_multiplier"],
+        parameter_value=1.25,
+    )
+    assert isinstance(binding, ResolvedWorldModelAtomBinding)
+    assert binding.world_model_record_id == atom.world_model_record_ref
+    assert tuple(slot.slot_id for slot in binding.target_slot_bindings) == atom.target_world_slots
+    assert intervention_atom_content_hash(atom) == atom.content_hash
+    candidate = SimpleNamespace(candidate_id="valid_owner_atom", atom=atom)
+    monkeypatch.setattr(dg, "_SEARCH_SURROGATE_OWNERS", ("polisyos.fake.DoesNotExist",))
+
+    with pytest.raises(DesignGenerationError) as error:
+        dg.rank_shadow_candidates_with_graph_causal_surrogate(
+            [candidate],
+            design_problem=_test_design_problem(),
+            repo_root=REPO_ROOT,
+        )
+
+    assert error.value.code == "surrogate_owner_ref_unresolved"
+    assert "polisyos.fake.DoesNotExist" in str(error.value)
+
+
 @pytest.mark.asyncio
 async def test_fake_surrogate_owner_ref_fails_closed(monkeypatch: pytest.MonkeyPatch) -> None:
-    recording = _recordings()[0]
+    """Exercise N4's actual candidate-to-ranker bridge with a bounded unit-* reference."""
+    from polisyos.runtime.quality.intervention_atom_binding import intervention_atom_content_hash
+
+    monkeypatch.setenv("POLISYOS_N4_TERMINAL_SALVAGE_BACKOFF_BASE_S", "0")
+    monkeypatch.setattr(
+        dg, "build_credal_reference", _unit_credal_reference_for_candidate_generation
+    )
+    monkeypatch.setattr(dg, "_SEARCH_SURROGATE_OWNERS", ("polisyos.fake.DoesNotExist",))
+
+    rank_inputs: list[Any] = []
+    actual_ranker = dg.rank_shadow_candidates_with_graph_causal_surrogate
+
+    def observe_then_call_actual_ranker(candidates: Any, **kwargs: Any) -> Any:
+        """Capture real N4 inputs, then run the unchanged owner resolver and ranker."""
+
+        rank_inputs.extend(candidates)
+        return actual_ranker(candidates, **kwargs)
+
     monkeypatch.setattr(
         dg,
-        "_SEARCH_SURROGATE_OWNERS",
-        ("polisyos.fake.DoesNotExist",),
+        "rank_shadow_candidates_with_graph_causal_surrogate",
+        observe_then_call_actual_ranker,
     )
+    recording = _recordings()[0]
+    result = await generate_design_candidates_under_a(
+        contract._design_problem(recording),
+        model_id=SUPPORTED_GENERATION_MODEL_IDS[1],
+        llm_client=TerminalCriticTransientClient(),
+        repo_root=REPO_ROOT,
+        min_diverse_candidates=1,
+    )
+
+    assert isinstance(result, dg.GenerationUnderAResult)
+    assert result.status == "generation_unavailable"
+    assert result.preflight.status == "supported"
+    assert len(rank_inputs) == 1
+    [candidate] = rank_inputs
+    assert isinstance(candidate, dg.ShadowGeneratedCandidate)
+    assert candidate.atom.status == "candidate_unverified"
+    assert intervention_atom_content_hash(candidate.atom) == candidate.atom.content_hash
+    assert len(result.degraded_artifacts) == 1
+    assert result.degraded_artifacts[0].organ == "surrogate"
+    assert result.degraded_artifacts[0].reason == (
+        "surrogate_owner_ref_unresolved: polisyos.fake.DoesNotExist"
+    )
+    assert result.candidates == ()
+    assert result.surrogate_rankings == ()
+    assert result.llm_calls
+
+
+@pytest.mark.asyncio
+async def test_registered_default_credal_refusal_preempts_surrogate_owner(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Retain the real default-source refusal separately from the unit-* route."""
+    recording = _recordings()[0]
+    monkeypatch.setattr(dg, "_SEARCH_SURROGATE_OWNERS", ("polisyos.fake.DoesNotExist",))
 
     result = await generate_design_candidates_under_a(
         contract._design_problem(recording),
@@ -3563,9 +3756,12 @@ async def test_fake_surrogate_owner_ref_fails_closed(monkeypatch: pytest.MonkeyP
     )
 
     assert result.status == "generation_unavailable"
-    assert result.candidates == ()
-    assert result.degraded_artifacts[0].organ == "surrogate"
-    assert "surrogate_owner_ref_unresolved" in result.degraded_artifacts[0].reason
+    assert result.preflight.status == "supported"
+    assert len(result.degraded_artifacts) == 1
+    assert result.degraded_artifacts[0].organ == "atom_binding"
+    assert result.degraded_artifacts[0].reason == "credal_reference_unavailable: ValueError"
+    assert "surrogate_owner_ref_unresolved" not in result.degraded_artifacts[0].reason
+    assert result.llm_calls
 
 
 def test_surrogate_score_below_certified_cannot_promote() -> None:
@@ -3660,7 +3856,7 @@ def test_candidate_proposal_link_requires_matching_revalidated_l6_context_bundle
     )
     from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
 
-    problem, context = _education_cycle_context()
+    problem, context = _current_education_cycle_context()
     context_bundle = context.intervention_substrate
     assert context_bundle is not None
     rule = CandidateScenarioSetToRule(

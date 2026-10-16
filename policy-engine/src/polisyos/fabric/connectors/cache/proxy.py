@@ -33,6 +33,8 @@ if TYPE_CHECKING:
 
     from .store import ConnectorCacheStore
 
+from ._store_models import CachedFetchResult, CacheFetchReceipt
+
 logger = get_logger(__name__)
 
 DataT = TypeVar("DataT")
@@ -142,9 +144,47 @@ class CachingConnectorProxy[DataT]:
         )
 
     async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult[DataT]:
+        receipt = await self._fetch_with_receipt(
+            handle,
+            request,
+            require_selected_profile=False,
+        )
+        return receipt.result
+
+    async def fetch_with_receipt(
+        self,
+        handle: ConnectionHandle,
+        request: FetchRequest,
+        *,
+        require_selected_profile: bool = False,
+    ) -> CacheFetchReceipt:
+        """Fetch while retaining the exact selected cache ref and lookup outcome."""
+        return await self._fetch_with_receipt(
+            handle,
+            request,
+            require_selected_profile=require_selected_profile,
+        )
+
+    async def _fetch_with_receipt(
+        self,
+        handle: ConnectionHandle,
+        request: FetchRequest,
+        *,
+        require_selected_profile: bool,
+    ) -> CacheFetchReceipt:
         start_time = time.perf_counter()
 
-        cached = self._cache.get(request, connector_id=self.connector_id)
+        cached = self._cache.get(
+            request,
+            connector_id=self.connector_id,
+            require_selected_profile=require_selected_profile,
+        )
+        if (
+            cached is not None
+            and require_selected_profile
+            and cached.metadata.payload_ref.manifest_profile_sha256 is None
+        ):
+            cached = None
         if cached:
             self._hits += 1
             latency_ms = (time.perf_counter() - start_time) * 1000
@@ -157,7 +197,11 @@ class CachingConnectorProxy[DataT]:
                 connector_id=self.connector_id,
             )
             self._record_metrics("hit", latency_ms / 1000)
-            return cached.result
+            return CacheFetchReceipt(
+                result=cached.result,
+                lookup_outcome="hit",
+                cache_result=cached,
+            )
 
         self._misses += 1
         logger.info(
@@ -166,8 +210,6 @@ class CachingConnectorProxy[DataT]:
             dataset_id=request.dataset_id,
             connector_id=self.connector_id,
         )
-        self._record_metrics("miss", None)
-
         fetch_start = time.perf_counter()
         result = await self._connector.fetch(handle, request)
         fetch_duration_ms = (time.perf_counter() - fetch_start) * 1000
@@ -179,9 +221,10 @@ class CachingConnectorProxy[DataT]:
             except Exception:
                 schema_hash = None
 
+        cache_result: CachedFetchResult | None = None
         try:
             connector_metadata = getattr(self._connector, "metadata", None)
-            self._cache.put(
+            metadata = self._cache.put(
                 request,
                 result,
                 connector_id=self.connector_id,
@@ -189,6 +232,7 @@ class CachingConnectorProxy[DataT]:
                 classification=getattr(connector_metadata, "data_classification", None),
                 column_classification=getattr(connector_metadata, "column_classification", None),
             )
+            cache_result = CachedFetchResult(result=result, metadata=metadata)
         except Exception as exc:
             logger.warning(
                 "Cache storage failed",
@@ -205,7 +249,11 @@ class CachingConnectorProxy[DataT]:
         )
         self._record_metrics("miss", total_latency_ms / 1000)
 
-        return result
+        return CacheFetchReceipt(
+            result=result,
+            lookup_outcome="miss",
+            cache_result=cache_result,
+        )
 
     @property
     def hit_rate(self) -> float:

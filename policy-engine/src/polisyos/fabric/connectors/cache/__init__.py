@@ -27,6 +27,7 @@ from .proxy import CachingConnectorProxy
 from .schema_aware import make_schema_hash_provider
 from .store import (
     CachedFetchResult,
+    CacheFetchReceipt,
     CacheMetadata,
     CacheStats,
     ConnectorCacheStore,
@@ -34,6 +35,7 @@ from .store import (
 )
 
 __all__ = [
+    "CacheFetchReceipt",
     "CacheMetadata",
     "CachePolicy",
     "CacheStats",

@@ -30,6 +30,7 @@ from ._store_models import (
     INDEX_SCHEMA_VERSION,
     CachedFetchResult,
     CacheEntry,
+    CacheFetchReceipt,
     CacheMetadata,
     CacheStats,
 )
@@ -42,6 +43,7 @@ __all__ = [
     "CACHE_SCHEMA_VERSION",
     "INDEX_SCHEMA_VERSION",
     "CacheEntry",
+    "CacheFetchReceipt",
     "CacheIndex",
     "CacheMetadata",
     "CacheStats",

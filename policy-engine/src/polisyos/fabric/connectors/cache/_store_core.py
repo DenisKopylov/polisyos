@@ -13,7 +13,14 @@ import time
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts import ArtifactID, PutOptions, RootedArtifactStore, SchemaInfo
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactRef,
+    PutOptions,
+    RootedArtifactStore,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.security import (
@@ -113,7 +120,11 @@ class ConnectorCacheStore:
     # ---------------------------------------------------------------------
 
     def get(
-        self, request: FetchRequest, *, connector_id: str | None = None
+        self,
+        request: FetchRequest,
+        *,
+        connector_id: str | None = None,
+        require_selected_profile: bool = False,
     ) -> CachedFetchResult | None:
         self._ensure_open()
         start = time.perf_counter()
@@ -153,6 +164,13 @@ class ConnectorCacheStore:
 
                 if metadata.is_stale:
                     status = "stale"
+                    return None
+
+                if (
+                    require_selected_profile
+                    and metadata.payload_ref.manifest_profile_sha256 is None
+                ):
+                    status = "miss"
                     return None
 
                 if not self._cas.has(metadata.payload_artifact_id):
@@ -291,7 +309,10 @@ class ConnectorCacheStore:
                         schema=SchemaInfo(name=CACHE_SCHEMA_NAME, version=CACHE_SCHEMA_VERSION),
                         governance=governance,
                     ),
+                    return_selected_profile=True,
                 )
+                if payload_ref.manifest_profile_sha256 is None:
+                    raise ValueError("connector_cache_payload_profile_unavailable")
             except Exception as exc:
                 logger.error("Cache payload store failed", error=str(exc))
                 self._record_metric("put", "error", connector_id)
@@ -308,6 +329,7 @@ class ConnectorCacheStore:
             metadata_artifact_id=None,
             payload_size_bytes=len(payload_bytes),
             payload_media_type=media_type,
+            payload_manifest_profile_sha256=payload_ref.manifest_profile_sha256,
             fetch_duration_ms=result.fetch_duration_ms,
             source_version=result.version,
             schema_hash=schema_hash,
@@ -348,6 +370,7 @@ class ConnectorCacheStore:
             policy_id=metadata.policy_id,
             payload_artifact_id=payload_ref.artifact_id,
             payload_media_type=media_type,
+            payload_manifest_profile_sha256=payload_ref.manifest_profile_sha256,
             payload_size_bytes=len(payload_bytes),
             metadata_artifact_id=metadata_ref.artifact_id if metadata_ref else None,
             fetch_duration_ms=result.fetch_duration_ms,
@@ -377,6 +400,51 @@ class ConnectorCacheStore:
 
         self._evict_if_needed(policy)
         return metadata
+
+    def put_derived_payload(
+        self,
+        result: FetchResult[Any],
+        *,
+        input_payload_ref: ArtifactRef,
+        classification: DataClassification | str | None = None,
+        column_classification: Mapping[str, DataClassification | str] | None = None,
+    ) -> ArtifactRef:
+        """Persist a transformed payload without replacing its raw cache entry."""
+        self._ensure_open()
+        if (
+            input_payload_ref.kind != CACHE_PAYLOAD_KIND
+            or input_payload_ref.manifest_profile_sha256 is None
+        ):
+            raise ValueError("derived_cache_payload_requires_selected_cache_input")
+        verification = self._cas.verify(input_payload_ref)
+        if not verification.ok:
+            raise ValueError("derived_cache_payload_input_verification_failed")
+
+        payload_bytes, media_type = ResultSerializer.serialize(result)
+        governance = resolve_artifact_governance(
+            scope=RetentionScope.CACHE,
+            classification=classification,
+            column_classification=column_classification,
+        )
+        payload_ref = self._cas.put_bytes(
+            payload_bytes,
+            opts=PutOptions(
+                kind=CACHE_PAYLOAD_KIND,
+                media_type=media_type,
+                schema=SchemaInfo(name=CACHE_SCHEMA_NAME, version=CACHE_SCHEMA_VERSION),
+                inputs=[
+                    input_ref_from_artifact_ref(
+                        input_payload_ref,
+                        role="connector_cache.raw_payload",
+                    )
+                ],
+                governance=governance,
+            ),
+            return_selected_profile=True,
+        )
+        if payload_ref.manifest_profile_sha256 is None:
+            raise ValueError("derived_cache_payload_profile_unavailable")
+        return payload_ref
 
     def invalidate(self, strategy: str | Any = "soft_mark", **filters: Any) -> int:
         self._ensure_open()

@@ -1835,15 +1835,40 @@ def admit_acquisition_with_semantic_epoch(
     source_manifest = artifact_store.get_manifest(source_artifact_id)
     source_payload = artifact_store.get_bytes(source_artifact_id)
     source_report = artifact_store.verify(source_artifact_id)
-    source_ref = ArtifactRef(
-        artifact_id=source_artifact_id,
-        kind=str(getattr(source_manifest, "kind", "")),
-        media_type=str(getattr(source_manifest, "media_type", "")),
-    )
+    if live_source_execution is None:
+        source_ref = ArtifactRef(
+            artifact_id=source_artifact_id,
+            kind=str(getattr(source_manifest, "kind", "")),
+            media_type=str(getattr(source_manifest, "media_type", "")),
+        )
+    else:
+        from polisyos.core.artifacts import (
+            artifact_manifest_profile_sha256,
+            validate_core_model_json_artifact,
+        )
+
+        live_snapshot = validate_core_model_json_artifact(
+            DataSnapshot,
+            artifact_store,
+            live_source_execution.data_snapshot_ref,
+        )
+        source_ref = live_snapshot.data_ref
     if (
         not bool(getattr(source_report, "ok", False))
         or f"sha256:{hashlib.sha256(source_payload).hexdigest()}" != str(source_artifact_id)
         or getattr(source_manifest, "artifact_id", None) != source_artifact_id
+        or source_ref.artifact_id != source_artifact_id
+        or source_ref.kind != str(getattr(source_manifest, "kind", ""))
+        or source_ref.media_type != str(getattr(source_manifest, "media_type", ""))
+        or (
+            live_source_execution is not None
+            and (
+                live_snapshot.evidence_ref != live_source_execution.evidence_bundle_ref
+                or source_ref.manifest_profile_sha256 is None
+                or source_ref.manifest_profile_sha256
+                != artifact_manifest_profile_sha256(source_manifest)
+            )
+        )
     ):
         raise ValueError("semantic_candidate_source_record_unverified")
     native_query = epoch_service.acquisition_owner_query(query=epoch_query)

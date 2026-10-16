@@ -1682,6 +1682,62 @@ class TestRegistryIntegration:
 
         assert metrics.calls == [("ok", "test.mock.mock_a@1.0.0")]
 
+    def test_cached_fetch_receipt_is_counted_once_by_registry_slo_wrapper(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+        tmp_path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        from datetime import timedelta
+
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.fabric.connectors.cache import ConnectorCacheStore, TTLPolicy
+
+        class _Metrics:
+            def __init__(self) -> None:
+                self.calls: list[tuple[str, str]] = []
+
+            def record_slo_connector_request(self, status: str, *, connector_id: str) -> None:
+                self.calls.append((status, connector_id))
+
+        metrics = _Metrics()
+        monkeypatch.setattr(
+            "polisyos.fabric.connectors._registry_lifecycle._default_metrics",
+            lambda: metrics,
+        )
+        cache = ConnectorCacheStore(
+            FileSystemCAS(tmp_path / "cas"),
+            TTLPolicy(ttl=timedelta(hours=1)),
+        )
+        registry.configure_cache(cache)
+        registry.register(MockConnectorA, config=sample_config)
+
+        async def _run() -> None:
+            from polisyos.fabric.connectors.cache import CacheFetchReceipt, CachingConnectorProxy
+
+            connector = registry.get("mock_a")
+            assert isinstance(connector, CachingConnectorProxy)
+            handle = await connector.connect(sample_config)
+            request = FetchRequest(dataset_id="dataset.receipt-slo")
+            await connector.fetch(handle, request)
+            receipt = await connector.fetch_with_receipt(
+                handle,
+                request,
+                require_selected_profile=True,
+            )
+            assert isinstance(receipt, CacheFetchReceipt)
+            assert receipt.lookup_outcome == "hit"
+            await connector.disconnect(handle)
+
+        asyncio.run(_run())
+        cache.close()
+
+        assert metrics.calls == [
+            ("ok", "test.mock.mock_a@1.0.0"),
+            ("ok", "test.mock.mock_a@1.0.0"),
+        ]
+
     def test_unregister_async_drains_owned_pool(
         self, registry: ConnectorRegistry, sample_config: ConnectionConfig
     ) -> None:

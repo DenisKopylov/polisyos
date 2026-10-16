@@ -63,10 +63,11 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from polisyos.core.artifacts.manifest import ArtifactRef
-    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.artifacts.store import FileSystemCAS, RootedArtifactStore
     from polisyos.core.contracts.fabric import EvidenceBundleRef
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors import RawHTTPResponseObserver
+    from polisyos.fabric.connectors.cache import CacheFetchReceipt
 
 logger = get_logger(__name__)
 TransformPipelineFactory = Callable[[], Any]
@@ -720,6 +721,109 @@ def _sync_fetch(
     return run_coro_sync(_do_fetch())
 
 
+def _sync_fetch_with_receipt(
+    registry: ConnectorRegistry,
+    connector_id: str,
+    connector: Any,
+    request: FetchRequest,
+    *,
+    connection_config: Any | None = None,
+    raw_http_response_observer: RawHTTPResponseObserver | None = None,
+    _live_acquire_permit: object | None = None,
+) -> tuple[FetchResult[Any], CacheFetchReceipt]:
+    """Fetch through the registry's cache proxy and retain its actual write receipt."""
+    from polisyos.fabric.connectors.cache import CacheFetchReceipt, CachingConnectorProxy
+
+    if not isinstance(connector, CachingConnectorProxy):
+        raise TypeError("connector_cache_receipt_requires_caching_proxy")
+
+    async def _do_fetch() -> tuple[FetchResult[Any], CacheFetchReceipt]:
+        config = connection_config
+        if config is None:
+            entry = registry.get_entry(connector_id)
+            if entry.default_config is None:
+                raise ValueError(f"No default_config registered for connector '{connector_id}'")
+            config = entry.default_config
+        if _live_acquire_permit is None:
+            handle = await registry.get_connection(connector_id, config)
+        else:
+            handle = await registry._get_connection_with_live_permit(
+                connector_id,
+                config,
+                dataset_id=request.dataset_id,
+                permit=_live_acquire_permit,
+            )
+        remove_observer: Callable[[Any], None] | None = None
+        try:
+            if raw_http_response_observer is not None:
+                from polisyos.fabric.connectors.sources.http_base import (
+                    _install_raw_http_response_observer,
+                    _remove_raw_http_response_observer,
+                )
+
+                _install_raw_http_response_observer(handle, raw_http_response_observer)
+                remove_observer = _remove_raw_http_response_observer
+            receipt = await connector.fetch_with_receipt(
+                handle,
+                request,
+                require_selected_profile=True,
+            )
+            if not isinstance(receipt, CacheFetchReceipt):
+                raise TypeError("connector_cache_fetch_receipt_invalid")
+            if receipt.lookup_outcome not in {"hit", "miss"}:
+                raise ValueError("connector_cache_fetch_receipt_outcome_invalid")
+            if receipt.lookup_outcome == "hit" and receipt.cache_result is None:
+                raise ValueError("connector_cache_hit_receipt_missing_payload")
+            if receipt.cache_result is not None:
+                metadata = receipt.cache_result.metadata
+                if (
+                    receipt.cache_result.result is not receipt.result
+                    or metadata.cache_key != request.cache_key
+                    or metadata.dataset_id != request.dataset_id
+                    or metadata.connector_id != connector.connector_id
+                ):
+                    raise ValueError("connector_cache_fetch_receipt_owner_mismatch")
+                if metadata.payload_ref.manifest_profile_sha256 is None:
+                    raise ValueError("connector_cache_fetch_receipt_profile_unavailable")
+            return receipt.result, receipt
+        finally:
+            try:
+                if remove_observer is not None:
+                    remove_observer(handle)
+            finally:
+                await registry.release_connection(connector_id, handle)
+
+    return run_coro_sync(_do_fetch())
+
+
+def _cache_payload_ref_matches_result(
+    cas_store: RootedArtifactStore,
+    payload_ref: ArtifactRef,
+    result: FetchResult[Any],
+) -> bool:
+    """Check whether a selected cache payload stores this exact serialized result."""
+    from polisyos.fabric.connectors.cache.store import ResultSerializer
+
+    if not _cache_payload_ref_is_verified(cas_store, payload_ref):
+        return False
+    result_bytes, media_type = ResultSerializer.serialize(result)
+    if payload_ref.media_type != media_type:
+        return False
+    return cas_store.get_bytes(payload_ref) == result_bytes
+
+
+def _cache_payload_ref_is_verified(
+    cas_store: RootedArtifactStore,
+    payload_ref: ArtifactRef,
+) -> bool:
+    """Require the selected cache view to resolve as an intact CAS artifact."""
+    from polisyos.fabric.connectors.cache.store import CACHE_PAYLOAD_KIND
+
+    if payload_ref.kind != CACHE_PAYLOAD_KIND or payload_ref.manifest_profile_sha256 is None:
+        return False
+    return cas_store.verify(payload_ref).ok
+
+
 def _manifest_fingerprint(spec: ConnectorManifestSpec) -> str:
     payload = spec.to_dict()
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -922,9 +1026,7 @@ def run_connectors_ingestion(
                 cache_registry,
                 namespace=(resolved_cache_namespace or "connector_cache"),
                 tenant_id=(
-                    resolved_sidecar_scope.tenant_id
-                    if resolved_sidecar_scope is not None
-                    else None
+                    resolved_sidecar_scope.tenant_id if resolved_sidecar_scope is not None else None
                 ),
                 metrics=resolved_dependencies.metrics,
                 tracer=resolved_dependencies.tracer,
@@ -949,6 +1051,7 @@ def run_connectors_ingestion(
         artifact_refs: list[ArtifactRef] = []
         fetch_activities: list[dict[str, Any]] = []
         transform_lineage_graphs: list[ProvenanceCoreGraph] = []
+        from polisyos.fabric.connectors.cache import CachingConnectorProxy
 
         for idx, ds_spec in enumerate(spec.datasets):
             connector_id = ds_spec.connector_id
@@ -976,15 +1079,27 @@ def run_connectors_ingestion(
                 page_size=ds_spec.page_size,
             )
 
-            result: FetchResult[Any] = _sync_fetch(
-                resolved_dependencies.registry,
-                connector_id,
-                connector,
-                request,
-                connection_config=connection_config,
-                raw_http_response_observer=raw_http_response_observer,
-                _live_acquire_permit=_live_acquire_permit,
-            )
+            fetch_receipt: CacheFetchReceipt | None = None
+            if isinstance(connector, CachingConnectorProxy):
+                result, fetch_receipt = _sync_fetch_with_receipt(
+                    resolved_dependencies.registry,
+                    connector_id,
+                    connector,
+                    request,
+                    connection_config=connection_config,
+                    raw_http_response_observer=raw_http_response_observer,
+                    _live_acquire_permit=_live_acquire_permit,
+                )
+            else:
+                result = _sync_fetch(
+                    resolved_dependencies.registry,
+                    connector_id,
+                    connector,
+                    request,
+                    connection_config=connection_config,
+                    raw_http_response_observer=raw_http_response_observer,
+                    _live_acquire_permit=_live_acquire_permit,
+                )
             if raw_result_sink is not None:
                 raw_result_sink(connector_id, dataset_id, request, result)
             result, transform_graph, transform_warnings, transform_quarantined = (
@@ -1032,16 +1147,57 @@ def run_connectors_ingestion(
             payload_ref: ArtifactRef | None = None
             if cache_store is not None:
                 connector_metadata = getattr(connector, "metadata", None)
-                metadata = cache_store.put(
-                    request,
-                    result,
-                    connector_id=connector_id,
-                    classification=getattr(connector_metadata, "data_classification", None),
-                    column_classification=getattr(
-                        connector_metadata, "column_classification", None
-                    ),
+                receipt_payload_ref = (
+                    fetch_receipt.payload_ref if fetch_receipt is not None else None
                 )
-                payload_ref = metadata.payload_ref
+                receipt_payload_verified = (
+                    receipt_payload_ref is not None
+                    and _cache_payload_ref_is_verified(cas_store, receipt_payload_ref)
+                )
+                if (
+                    fetch_receipt is not None
+                    and fetch_receipt.lookup_outcome == "hit"
+                    and not receipt_payload_verified
+                ):
+                    raise ValueError("connector_cache_hit_payload_unverified")
+
+                if receipt_payload_ref is not None and receipt_payload_verified:
+                    if _cache_payload_ref_matches_result(cas_store, receipt_payload_ref, result):
+                        payload_ref = receipt_payload_ref
+                    else:
+                        payload_ref = cache_store.put_derived_payload(
+                            result,
+                            input_payload_ref=receipt_payload_ref,
+                            classification=getattr(
+                                connector_metadata,
+                                "data_classification",
+                                None,
+                            ),
+                            column_classification=getattr(
+                                connector_metadata,
+                                "column_classification",
+                                None,
+                            ),
+                        )
+                else:
+                    metadata = cache_store.put(
+                        request,
+                        result,
+                        connector_id=connector_id,
+                        classification=getattr(
+                            connector_metadata,
+                            "data_classification",
+                            None,
+                        ),
+                        column_classification=getattr(
+                            connector_metadata,
+                            "column_classification",
+                            None,
+                        ),
+                    )
+                    payload_ref = metadata.payload_ref
+                if payload_ref is None:
+                    raise ValueError("connector_ingestion_payload_ref_unavailable")
                 artifact_refs.append(payload_ref)
 
             fetch_activities.append(
@@ -1150,7 +1306,11 @@ def run_connectors_ingestion(
             ],
             provenance_ref=provenance_ref,
         )
-        return persist_evidence_bundle(cas_store, evidence_bundle)
+        return persist_evidence_bundle(
+            cas_store,
+            evidence_bundle,
+            return_selected_profile=True,
+        )
 
 
 __all__ = [

@@ -125,10 +125,36 @@ def test_active_read_revalidates_current_source_authority_before_positive_use(
 def test_production_wrapper_activates_the_actual_signed_live_epoch_basis(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    from polisyos.core.artifacts import validate_core_model_json_artifact
+    from polisyos.core.contracts import DataSnapshot
+    from polisyos.core.contracts import epoch as epoch_contract
     from polisyos.runtime.quality import acquisition_executor
     from tests._helpers.acquisition_epoch_production import build_production_admission_case
 
     case = build_production_admission_case(tmp_path, monkeypatch)
+    assert case.negative.admitted_boundary_evidence_ref is not None
+    admitted = epoch_contract.AdmittedAcquisitionBoundaryEvidence.model_validate(
+        epoch_contract.load_verified_epoch_statement(
+            store=case.store,
+            ref=case.negative.admitted_boundary_evidence_ref,
+            expected_kind="epoch.admitted_acquisition_boundary_evidence",
+        )
+    )
+    candidate = epoch_contract.AcquisitionSemanticBoundaryCandidateStatement.model_validate(
+        epoch_contract.load_verified_epoch_statement(
+            store=case.store,
+            ref=admitted.semantic_candidate_ref,
+            expected_kind="epoch.acquisition_semantic_boundary_candidate",
+        )
+    )
+    source_snapshot = validate_core_model_json_artifact(
+        DataSnapshot,
+        case.store,
+        case.evidence.data_snapshot_ref,
+    )
+    assert candidate.source_record_ref == source_snapshot.data_ref
+    assert candidate.source_record_ref.manifest_profile_sha256 is not None
+
     activation = acquisition_executor.admit_acquisition_with_production_semantic_epoch(
         **case.call_args, epoch_deployment=case.deployment
     )

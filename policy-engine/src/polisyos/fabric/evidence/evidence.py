@@ -110,6 +110,7 @@ def load_provenance_graph(
         ValueError: If stable_id verification fails
     """
     from polisyos.core.artifacts import load_core_json_artifact
+
     data = load_core_json_artifact(store, ArtifactID.model_validate(ref.artifact_id))
     graph = ProvenanceCoreGraph.from_dict(data)
 
@@ -127,6 +128,7 @@ def persist_evidence_bundle(
     store: FileSystemCAS,
     bundle: EvidenceBundle,
     *,
+    return_selected_profile: bool = False,
     schema_name: str = "fabric.evidence_bundle",
     schema_version: str = "1.0",
     classification: DataClassification | str | None = None,
@@ -136,22 +138,41 @@ def persist_evidence_bundle(
 ) -> EvidenceBundleRef:
     """
     Persist an ``EvidenceBundle`` to CAS and return a strict ``EvidenceBundleRef``.
+
+    Args:
+        store: Artifact store receiving the bundle.
+        bundle: Evidence bundle to persist.
+        return_selected_profile: Include the exact profile selected by this write.
+        schema_name: Artifact schema name.
+        schema_version: Artifact schema version.
+        classification: Optional data classification for storage governance.
+        encrypted_at_rest: Whether storage encryption is enabled.
+        field_level_encrypted: Whether field-level encryption is enabled.
+        encryption_key_reference: Optional reference to the encryption key.
+
+    Returns:
+        EvidenceBundleRef: The persisted bundle reference.
     """
-    ref = store.put_json(
-        bundle.model_dump(),
-        opts=PutOptions(
-            kind="fabric.evidence_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name=schema_name, version=schema_version),
-            governance=resolve_artifact_governance(
-                scope=RetentionScope.EVIDENCE_BUNDLE,
-                classification=classification,
-                encrypted_at_rest=encrypted_at_rest,
-                field_level_encrypted=field_level_encrypted,
-                encryption_key_reference=encryption_key_reference,
-            ),
+    write_options = PutOptions(
+        kind="fabric.evidence_bundle",
+        media_type="application/json",
+        schema=SchemaInfo(name=schema_name, version=schema_version),
+        governance=resolve_artifact_governance(
+            scope=RetentionScope.EVIDENCE_BUNDLE,
+            classification=classification,
+            encrypted_at_rest=encrypted_at_rest,
+            field_level_encrypted=field_level_encrypted,
+            encryption_key_reference=encryption_key_reference,
         ),
     )
+    if return_selected_profile:
+        ref = store.put_json(
+            bundle.model_dump(),
+            opts=write_options,
+            return_selected_profile=True,
+        )
+    else:
+        ref = store.put_json(bundle.model_dump(), opts=write_options)
     return EvidenceBundleRef.model_validate(ref.model_dump())
 
 

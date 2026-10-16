@@ -67,6 +67,7 @@ class CacheIndex:
                     policy_id TEXT NOT NULL,
                     payload_artifact_id TEXT NOT NULL,
                     payload_media_type TEXT NOT NULL,
+                    payload_manifest_profile_sha256 TEXT,
                     payload_size_bytes INTEGER NOT NULL,
                     metadata_artifact_id TEXT,
                     fetch_duration_ms REAL NOT NULL,
@@ -83,6 +84,14 @@ class CacheIndex:
                 )
                 """
             )
+            columns = {
+                row["name"]
+                for row in self._conn.execute("PRAGMA table_info(cache_entries)").fetchall()
+            }
+            if "payload_manifest_profile_sha256" not in columns:
+                self._conn.execute(
+                    "ALTER TABLE cache_entries ADD COLUMN payload_manifest_profile_sha256 TEXT"
+                )
             self._conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_cache_dataset ON cache_entries(dataset_id)"
             )
@@ -105,7 +114,7 @@ class CacheIndex:
                 "CREATE INDEX IF NOT EXISTS idx_cache_dates ON cache_entries(date_start, date_end)"
             )
             self._conn.execute(
-                "INSERT OR IGNORE INTO cache_meta (key, value) VALUES (?, ?)",
+                "INSERT OR REPLACE INTO cache_meta (key, value) VALUES (?, ?)",
                 ("schema_version", str(INDEX_SCHEMA_VERSION)),
             )
 
@@ -158,11 +167,12 @@ class CacheIndex:
                 INSERT OR REPLACE INTO cache_entries (
                     cache_key, request_key, query_key, connector_id, dataset_id,
                     cached_at, expires_at, policy_id,
-                    payload_artifact_id, payload_media_type, payload_size_bytes,
+                    payload_artifact_id, payload_media_type, payload_manifest_profile_sha256,
+                    payload_size_bytes,
                     metadata_artifact_id, fetch_duration_ms, source_version, schema_hash,
                     is_stale, pinned, access_count, last_accessed_at,
                     date_start, date_end, as_of, request_json
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     entry.cache_key,
@@ -175,6 +185,7 @@ class CacheIndex:
                     entry.policy_id,
                     str(entry.payload_artifact_id),
                     entry.payload_media_type,
+                    entry.payload_manifest_profile_sha256,
                     int(entry.payload_size_bytes),
                     str(entry.metadata_artifact_id) if entry.metadata_artifact_id else None,
                     float(entry.fetch_duration_ms),
@@ -364,6 +375,7 @@ class CacheIndex:
             policy_id=row["policy_id"],
             payload_artifact_id=ArtifactID.model_validate(row["payload_artifact_id"]),
             payload_media_type=row["payload_media_type"],
+            payload_manifest_profile_sha256=row["payload_manifest_profile_sha256"],
             payload_size_bytes=int(row["payload_size_bytes"]),
             metadata_artifact_id=ArtifactID.model_validate(row["metadata_artifact_id"])
             if row["metadata_artifact_id"]

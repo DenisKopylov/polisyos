@@ -513,18 +513,30 @@ def _data_snapshot_manifest_inputs_match(
     """Reconcile every selected parent edge with its typed DataSnapshot field."""
     from polisyos.core.contracts import fabric as fabric_contracts
 
+    if selected_snapshot_ref.manifest_profile_sha256 is None:
+        return False
     manifest = store.get_manifest(selected_snapshot_ref)
+    if (
+        not store.verify(selected_snapshot_ref).ok
+        or artifacts.artifact_manifest_profile_sha256(manifest)
+        != selected_snapshot_ref.manifest_profile_sha256
+    ):
+        return False
     expected_edges: list[tuple[ArtifactRef, frozenset[str]]] = []
     for field_name in fabric_contracts.data_snapshot_reference_fields():
         owner_ref = getattr(snapshot, field_name)
         if owner_ref is None:
             continue
+        if owner_ref.manifest_profile_sha256 is None:
+            return False
         allowed_roles = fabric_contracts.data_snapshot_reference_input_roles(field_name)
         if not allowed_roles:
             return False
         expected_edges.append((owner_ref, allowed_roles))
 
     if len(manifest.inputs) != len(expected_edges):
+        return False
+    if any(input_ref.manifest_profile_sha256 is None for input_ref in manifest.inputs):
         return False
 
     unmatched_input_indexes = set(range(len(manifest.inputs)))
@@ -959,6 +971,15 @@ def _live_source_candidate_graph_matches(
         live = passport.live_source_execution
         if live is None:
             return False
+        if any(
+            ref.manifest_profile_sha256 is None
+            for ref in (
+                live.data_snapshot_ref,
+                live.evidence_bundle_ref,
+                candidate.source_record_ref,
+            )
+        ):
+            return False
         request_dataset_ids = live.authorization.request_variables
         if request_dataset_ids != (passport.registration.request_dataset_id,):
             return False
@@ -973,6 +994,8 @@ def _live_source_candidate_graph_matches(
             store, live.evidence_bundle_ref
         )
         bundle = contracts.EvidenceBundle.model_validate(bundle_mapping)
+        if any(source.manifest_profile_sha256 is None for source in bundle.sources):
+            return False
         selected_quality_ref, quality = _load_owner_projection_mapping(
             store, snapshot.quality_report_ref
         )
@@ -1015,6 +1038,7 @@ def _live_source_candidate_graph_matches(
                 and summary.assessment_status == "not_assessed"
                 and len(bundle.sources) == 1
                 and summary.source_refs == bundle.sources
+                and all(ref.manifest_profile_sha256 is not None for ref in summary.source_refs)
                 and _selected_cas_ref_matches_owner_projection(
                     selected_data_ref, summary.source_refs[0]
                 )

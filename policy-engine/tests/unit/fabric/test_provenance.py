@@ -400,6 +400,7 @@ class TestEvidenceBundleIntegration:
     """Tests for EvidenceBundle + Provenance integration."""
 
     def test_evidence_bundle_with_provenance(self, tmp_path: Path) -> None:
+        from polisyos.core.artifacts import artifact_manifest_profile_sha256
         from polisyos.core.artifacts.store import FileSystemCAS
         from polisyos.core.contracts.fabric import EvidenceStep
         from polisyos.fabric.evidence import (
@@ -432,6 +433,18 @@ class TestEvidenceBundleIntegration:
 
         bundle_ref = persist_evidence_bundle(cas_store, bundle)
         assert bundle_ref.artifact_id is not None
+        assert bundle_ref.manifest_profile_sha256 is None
+
+        selected_bundle_ref = persist_evidence_bundle(
+            cas_store,
+            bundle,
+            return_selected_profile=True,
+        )
+        selected_manifest = cas_store.get_manifest(selected_bundle_ref)
+        assert selected_bundle_ref.manifest_profile_sha256 == artifact_manifest_profile_sha256(
+            selected_manifest
+        )
+        assert cas_store.verify(selected_bundle_ref).ok is True
 
     def test_persist_evidence_bundle_fails_closed_without_required_encryption(
         self,

@@ -2056,7 +2056,7 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
     from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
     from polisyos.core.canon import CanonSpec, from_canonical_bytes
     from polisyos.core.contracts import DataSnapshot, RetrievalSummary
-    from polisyos.core.contracts.fabric import DataSnapshotRef
+    from polisyos.core.contracts.fabric import DataSnapshotRef, EvidenceBundle, EvidenceBundleRef
     from polisyos.data_forge.read_api import catalog as catalog_read_api
     from polisyos.fabric.data_plane.orchestrator import _build_snapshot_from_evidence_async
     from polisyos.runtime.quality.acquisition_executor import build_admission_passport
@@ -2086,24 +2086,58 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
     summary_ref = snapshot.quality_report_ref
     assert summary_ref is not None
     summary = RetrievalSummary.model_validate(from_canonical_bytes(store.get_bytes(summary_ref)))
+    snapshot_manifest = store.get_manifest(produced_snapshot_ref)
+    snapshot_refs = (snapshot.data_ref, snapshot.evidence_ref, summary_ref)
+    assert all(
+        ref is not None and ref.manifest_profile_sha256 is not None for ref in snapshot_refs
+    ), [(None if ref is None else (ref.kind, ref.manifest_profile_sha256)) for ref in snapshot_refs]
+    assert all(
+        input_ref.manifest_profile_sha256 is not None for input_ref in snapshot_manifest.inputs
+    )
 
     def _matches_with_quality_ref(
         quality_ref: ArtifactRef,
         *,
         snapshot_changes: dict[str, object] | None = None,
         manifest_inputs: list[object] | None = None,
+        live_bundle_ref: ArtifactRef | None = None,
+        live_snapshot_profileless: bool = False,
+        candidate_source_ref: ArtifactRef | None = None,
     ) -> bool:
+        from polisyos.core.contracts import fabric as fabric_contracts
+
+        changed_snapshot_updates = dict(snapshot_changes or {})
+        if live_bundle_ref is not None:
+            changed_snapshot_updates["evidence_ref"] = live_bundle_ref
         changed_snapshot = snapshot.model_copy(
-            update=dict(snapshot_changes or {}) | {"quality_report_ref": quality_ref}
+            update=changed_snapshot_updates | {"quality_report_ref": quality_ref}
         )
         if manifest_inputs is None:
-            assert changed_snapshot.data_ref is not None
-            assert changed_snapshot.evidence_ref is not None
-            manifest_inputs = [
-                input_ref_from_artifact_ref(changed_snapshot.evidence_ref, role="evidence_ref"),
-                input_ref_from_artifact_ref(changed_snapshot.data_ref, role="data_ref"),
-                input_ref_from_artifact_ref(quality_ref, role="quality_report_ref"),
-            ]
+            available_edges = list(store.get_manifest(produced_snapshot_ref).inputs)
+            manifest_inputs = []
+            for field_name in fabric_contracts.data_snapshot_reference_fields():
+                owner_ref = getattr(changed_snapshot, field_name)
+                if owner_ref is not None:
+                    roles = fabric_contracts.data_snapshot_reference_input_roles(field_name)
+                    original_ref = getattr(snapshot, field_name)
+                    matching_edges = [
+                        edge
+                        for edge in available_edges
+                        if original_ref is not None
+                        and edge.artifact_id == original_ref.artifact_id
+                        and edge.manifest_profile_sha256 == original_ref.manifest_profile_sha256
+                        and edge.role in roles
+                    ]
+                    if len(matching_edges) == 1:
+                        role = matching_edges[0].role
+                        available_edges.remove(matching_edges[0])
+                    elif original_ref is None and len(roles) == 1:
+                        role = next(iter(roles))
+                    else:
+                        return False
+                    manifest_inputs.append(input_ref_from_artifact_ref(owner_ref, role=role))
+            if available_edges:
+                return False
         selected_snapshot = store.put_json(
             changed_snapshot,
             PutOptions(
@@ -2118,6 +2152,15 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
         selected_snapshot_ref = DataSnapshotRef.model_validate(
             selected_snapshot.model_dump(mode="python")
         )
+        if changed_snapshot.evidence_ref is None:
+            return False
+        evidence_bundle_ref = EvidenceBundleRef.model_validate(
+            changed_snapshot.evidence_ref.model_dump(mode="python")
+        )
+        if live_snapshot_profileless:
+            selected_snapshot_ref = DataSnapshotRef.model_validate(
+                selected_snapshot_ref.model_dump(mode="json") | {"manifest_profile_sha256": None}
+            )
         proof = catalog_read_api.build_live_source_execution_evidence(
             authorization=live_evidence.authorization,
             family_receipt=live_evidence.family_receipt,
@@ -2125,7 +2168,7 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
             raw_evidence_ref=live_evidence.raw_evidence_ref,
             transport_trace=live_evidence.transport_trace,
             raw_artifact_id=live_evidence.raw_artifact_id,
-            evidence_bundle_ref=live_evidence.evidence_bundle_ref,
+            evidence_bundle_ref=evidence_bundle_ref,
             data_snapshot_ref=selected_snapshot_ref,
             normalized_data_artifact_id=live_evidence.normalized_data_artifact_id,
             variable_count=live_evidence.variable_count,
@@ -2145,13 +2188,82 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
             prepared_epoch=prepared,
             live_source_execution=proof,
         )
+        candidate_statement = candidate.statement
+        if candidate_source_ref is not None:
+            candidate_statement = candidate_statement.model_copy(
+                update={"source_record_ref": candidate_source_ref}
+            )
         return epoch._live_source_candidate_graph_matches(
             store,
-            candidate.statement,
+            candidate_statement,
             passport.model_dump(mode="json"),
         )
 
     assert _matches_with_quality_ref(summary_ref)
+
+    def _unprofiled(ref: ArtifactRef) -> ArtifactRef:
+        return ArtifactRef.model_validate(
+            ref.model_dump(mode="json") | {"manifest_profile_sha256": None}
+        )
+
+    assert snapshot.evidence_ref is not None
+    evidence_bundle = EvidenceBundle.model_validate(
+        from_canonical_bytes(store.get_bytes(snapshot.evidence_ref))
+    )
+    profileless_bundle = evidence_bundle.model_copy(
+        update={"sources": [_unprofiled(source_ref) for source_ref in evidence_bundle.sources]}
+    )
+    profileless_bundle_ref = store.put_json(
+        profileless_bundle,
+        PutOptions(
+            kind="fabric.evidence_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="fabric.evidence_bundle", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+    profileless_summary_ref = _unprofiled(summary_ref)
+    assert not _matches_with_quality_ref(profileless_summary_ref)
+    assert not _matches_with_quality_ref(
+        profileless_summary_ref,
+        snapshot_changes={
+            "data_ref": _unprofiled(snapshot.data_ref),
+            "evidence_ref": profileless_bundle_ref,
+        },
+    )
+    assert not _matches_with_quality_ref(
+        summary_ref,
+        live_bundle_ref=_unprofiled(live_evidence.evidence_bundle_ref),
+    )
+    assert not _matches_with_quality_ref(
+        summary_ref,
+        live_snapshot_profileless=True,
+    )
+    assert not _matches_with_quality_ref(
+        summary_ref,
+        candidate_source_ref=_unprofiled(candidate.statement.source_record_ref),
+    )
+
+    assert not _matches_with_quality_ref(
+        summary_ref,
+        snapshot_changes={
+            "data_ref": _unprofiled(snapshot.data_ref),
+            "evidence_ref": profileless_bundle_ref,
+        },
+        live_bundle_ref=profileless_bundle_ref,
+    )
+
+    schema_payload_ref = store.put_bytes(
+        b"opaque schema marker",
+        PutOptions(kind="fabric.acquisition.raw_evidence", media_type="application/json"),
+        return_selected_profile=True,
+    )
+    assert not _matches_with_quality_ref(
+        summary_ref,
+        snapshot_changes={"data_schema_ref": _unprofiled(schema_payload_ref)},
+    )
 
     forged_summary_label_ref = store.put_json(
         summary.model_copy(update={"source": "forged-descriptive-label"}),

@@ -67,6 +67,7 @@ def _make_evidence_bundle(store: FileSystemCAS) -> EvidenceBundleRef:
             schema=SchemaInfo(name="test.data", version="1.0"),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
     bundle = EvidenceBundle(
@@ -81,8 +82,9 @@ def _make_evidence_bundle(store: FileSystemCAS) -> EvidenceBundleRef:
             schema=SchemaInfo(name="fabric.EvidenceBundle", version="1.0"),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
-    return EvidenceBundleRef(artifact_id=ref.artifact_id)
+    return EvidenceBundleRef.model_validate(ref.model_dump(mode="python"))
 
 
 class TestIngestionResult:
@@ -186,6 +188,8 @@ class TestRunOrchestratedIngestion:
 
         assert result.evidence_bundle_ref == evidence_ref
         assert result.data_snapshot_ref is not None
+        assert evidence_ref.manifest_profile_sha256 is not None
+        assert result.data_snapshot_ref.manifest_profile_sha256 is not None
         assert result.datasets_fetched == 1
 
         # Verify the snapshot was persisted in CAS and is a valid DataSnapshot
@@ -196,9 +200,14 @@ class TestRunOrchestratedIngestion:
         )
         snapshot = DataSnapshot.model_validate(snapshot_payload)
         assert snapshot.evidence_ref == evidence_ref
+        assert snapshot.data_ref.manifest_profile_sha256 is not None
+        assert snapshot.evidence_ref.manifest_profile_sha256 is not None
         assert snapshot.quality_report_ref is not None
         assert snapshot.quality_report_ref.kind == RetrievalSummary.ARTIFACT_KIND
         assert snapshot.quality_report_ref.manifest_profile_sha256 is not None
+        snapshot_manifest = store.get_manifest(result.data_snapshot_ref)
+        assert len(snapshot_manifest.inputs) == 3
+        assert all(edge.manifest_profile_sha256 is not None for edge in snapshot_manifest.inputs)
         assert snapshot.stats["datasets_fetched"] == 1
         assert "fabric.data_plane.orchestrator" in snapshot.notes
         summary_payload = from_canonical_bytes(store.get_bytes(snapshot.quality_report_ref))

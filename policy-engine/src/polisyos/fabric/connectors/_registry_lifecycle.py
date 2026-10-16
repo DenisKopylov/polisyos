@@ -936,6 +936,7 @@ class RegistryLifecycleMixin:
                 if getattr(connector, "_slo_request_wrapped", False):
                     return connector
                 original_fetch = connector.fetch
+                original_fetch_with_receipt = getattr(connector, "fetch_with_receipt", None)
 
                 @wraps(original_fetch)
                 async def _wrapped_fetch(*args: Any, **kwargs: Any):
@@ -948,6 +949,26 @@ class RegistryLifecycleMixin:
                     return result
 
                 _set_dynamic_attribute(connector, "fetch", _wrapped_fetch)
+                if callable(original_fetch_with_receipt):
+
+                    @wraps(original_fetch_with_receipt)
+                    async def _wrapped_fetch_with_receipt(*args: Any, **kwargs: Any):
+                        try:
+                            result = await original_fetch_with_receipt(*args, **kwargs)
+                        except Exception:
+                            metrics.record_slo_connector_request(
+                                "error",
+                                connector_id=connector_id,
+                            )
+                            raise
+                        metrics.record_slo_connector_request("ok", connector_id=connector_id)
+                        return result
+
+                    _set_dynamic_attribute(
+                        connector,
+                        "fetch_with_receipt",
+                        _wrapped_fetch_with_receipt,
+                    )
                 _set_dynamic_attribute(connector, "_slo_request_wrapped", True)
         except Exception as exc:
             logger.warning(

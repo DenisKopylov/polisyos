@@ -12,9 +12,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.core.canon.canon_json import CanonSpec
@@ -28,6 +28,7 @@ __all__ = [
     "CACHE_SCHEMA_VERSION",
     "INDEX_SCHEMA_VERSION",
     "CacheEntry",
+    "CacheFetchReceipt",
     "CacheMetadata",
     "CacheStats",
     "CachedFetchResult",
@@ -53,7 +54,7 @@ CACHE_SCHEMA_NAME = "fabric.connector_cache"
 CACHE_SCHEMA_VERSION = "1.0"
 
 # SQLite schema version
-INDEX_SCHEMA_VERSION = 1
+INDEX_SCHEMA_VERSION = 2
 
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
@@ -172,6 +173,10 @@ class CacheMetadata(BaseModel):
     metadata_artifact_id: ArtifactID | None
     payload_size_bytes: int
     payload_media_type: str
+    payload_manifest_profile_sha256: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
 
     fetch_duration_ms: float
     source_version: DataVersion | None
@@ -197,6 +202,7 @@ class CacheMetadata(BaseModel):
             artifact_id=self.payload_artifact_id,
             kind=CACHE_PAYLOAD_KIND,
             media_type=self.payload_media_type,
+            manifest_profile_sha256=self.payload_manifest_profile_sha256,
         )
 
 
@@ -218,6 +224,10 @@ class CacheEntry(BaseModel):
 
     payload_artifact_id: ArtifactID
     payload_media_type: str
+    payload_manifest_profile_sha256: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     payload_size_bytes: int
     metadata_artifact_id: ArtifactID | None
 
@@ -265,6 +275,7 @@ class CacheEntry(BaseModel):
             metadata_artifact_id=self.metadata_artifact_id,
             payload_size_bytes=self.payload_size_bytes,
             payload_media_type=self.payload_media_type,
+            payload_manifest_profile_sha256=self.payload_manifest_profile_sha256,
             fetch_duration_ms=self.fetch_duration_ms,
             source_version=self.source_version,
             schema_hash=self.schema_hash,
@@ -281,6 +292,20 @@ class CachedFetchResult:
 
     result: FetchResult[Any]
     metadata: CacheMetadata
+
+
+@dataclass(frozen=True, slots=True)
+class CacheFetchReceipt:
+    """Bind one connector fetch result to its cache lookup and selected write."""
+
+    result: FetchResult[Any]
+    lookup_outcome: Literal["hit", "miss"]
+    cache_result: CachedFetchResult | None
+
+    @property
+    def payload_ref(self) -> ArtifactRef | None:
+        """Return the exact selected payload ref persisted by the cache writer."""
+        return self.cache_result.metadata.payload_ref if self.cache_result is not None else None
 
 
 class CacheStats(BaseModel):

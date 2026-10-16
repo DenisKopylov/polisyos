@@ -12,9 +12,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, ClassVar
 
+import pandas as pd
 import pytest
 
-from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle
+from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle, HealthStatus
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
@@ -174,6 +175,315 @@ class TestEndToEndConnectorFlow:
         store = FileSystemCAS(cas_root)
         artifact_manifest = store.get_manifest(ArtifactID.model_validate(evidence_ref.artifact_id))
         assert artifact_manifest.kind == "fabric.evidence_bundle"
+        assert evidence_ref.manifest_profile_sha256 is not None
+
+        from polisyos.core.canon import from_canonical_bytes
+        from polisyos.core.contracts.fabric import EvidenceBundle
+
+        evidence_bundle = EvidenceBundle.model_validate(
+            from_canonical_bytes(store.get_bytes(evidence_ref))
+        )
+        assert len(evidence_bundle.sources) == 1
+        source_ref = evidence_bundle.sources[0]
+        assert source_ref.kind == "connector_cache.payload"
+        assert source_ref.manifest_profile_sha256 is not None
+        assert store.verify(source_ref).ok is True
+
+    def test_reopened_cache_hit_reaches_selected_snapshot_source_predicate(
+        self,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Join SQLite cache reuse to the real evidence and snapshot producers."""
+        from datetime import timedelta
+
+        from polisyos.core.artifacts import FileSystemCAS, input_ref_from_artifact_ref
+        from polisyos.core.canon import from_canonical_bytes
+        from polisyos.core.contracts.fabric import DataSnapshot, EvidenceBundle, RetrievalSummary
+        from polisyos.fabric.connectors.cache import (
+            CachingConnectorProxy,
+            ConnectorCacheStore,
+            TTLPolicy,
+        )
+        from polisyos.fabric.connectors.registry import ConnectorRegistry
+        from polisyos.fabric.connectors.transform.pipeline import (
+            DataTransform,
+            TransformContext,
+            TransformLineage,
+            TransformPipeline,
+        )
+        from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
+        from polisyos.fabric.ingestion import ingestion as ingestion_module
+        from polisyos.fabric.ingestion import resolve_ingestion_dependencies
+        from polisyos.fabric.ingestion.ingestion_providers import (
+            resolve_ingestion_cache_namespace,
+            resolve_ingestion_sidecar_scope,
+        )
+        from polisyos.ir.connectors import FetchRequest
+        from polisyos.runtime.quality import semantic_epoch
+
+        class Metrics:
+            def __init__(self) -> None:
+                self.slo_calls: list[tuple[str, str]] = []
+
+            def record_slo_connector_request(self, status: str, *, connector_id: str) -> None:
+                self.slo_calls.append((status, connector_id))
+
+            def record_fabric_lineage_graph(self, **kwargs: object) -> None:
+                del kwargs
+
+        class AddAdjustedIncome(DataTransform):
+            @property
+            def name(self) -> str:
+                return "add_adjusted_income"
+
+            def apply(
+                self,
+                data: pd.DataFrame,
+                context: TransformContext,
+            ) -> tuple[pd.DataFrame, TransformLineage, list[str]]:
+                del context
+                started_at = datetime.now(UTC)
+                transformed = data.copy()
+                transformed["adjusted_income"] = transformed["income"] + 1
+                return (
+                    transformed,
+                    TransformLineage(
+                        stage_name=self.name,
+                        started_at=started_at,
+                        completed_at=datetime.now(UTC),
+                        input_row_count=len(data),
+                        output_row_count=len(transformed),
+                        parameters={},
+                    ),
+                    [],
+                )
+
+        def build_pipeline() -> TransformPipeline:
+            return TransformPipeline().add_stage(AddAdjustedIncome())
+
+        monkeypatch.setitem(
+            ingestion_module._TRANSFORM_PIPELINE_REGISTRY,
+            "r3-cache-derived-input",
+            build_pipeline,
+        )
+
+        class CountingConnector(MockIntegrationConnector):
+            connector_id: ClassVar[str] = "integration_mock"
+            capabilities: ClassVar[ConnectorCapability] = ConnectorCapability.FULL_FETCH
+            metadata: ClassVar[ConnectorMetadataSpec] = (
+                MockIntegrationConnector.metadata.model_copy(
+                    update={"capabilities": ConnectorCapability.FULL_FETCH.value}
+                )
+            )
+
+            def __init__(self) -> None:
+                super().__init__()
+                self.fetch_count = 0
+
+            async def fetch(self, handle, request):
+                self.fetch_count += 1
+                return await super().fetch(handle, request)
+
+            async def health_check(self, handle) -> HealthStatus:
+                del handle
+                return HealthStatus(healthy=True, message="controlled fixture is ready")
+
+        cas_root = tmp_path / "cas"
+        metrics = Metrics()
+        monkeypatch.setattr(
+            "polisyos.fabric.connectors._registry_lifecycle._default_metrics",
+            lambda: metrics,
+        )
+        monkeypatch.setattr(
+            "polisyos.fabric.connectors.cache.proxy.get_metrics",
+            lambda: metrics,
+        )
+        sidecar_scope = resolve_ingestion_sidecar_scope(cas_root)
+        cache_namespace = "e02-joined-cache-route"
+        resolved_namespace = resolve_ingestion_cache_namespace(
+            cache_namespace,
+            sidecar_scope=sidecar_scope,
+        )
+        connector = CountingConnector()
+        registry = ConnectorRegistry()
+        registry.register(
+            CountingConnector,
+            config=ConnectionConfig(url="http://localhost:9999/mock"),
+            factory=lambda: connector,
+        )
+        dependencies = resolve_ingestion_dependencies(
+            registry=registry,
+            metrics=metrics,  # type: ignore[arg-type]
+            store_factory=lambda root: FileSystemCAS(root),
+        )
+
+        def open_cache() -> ConnectorCacheStore:
+            return ConnectorCacheStore(
+                FileSystemCAS(sidecar_scope.base_root),
+                TTLPolicy(ttl=timedelta(hours=1)),
+                namespace=resolved_namespace,
+                metrics=metrics,  # type: ignore[arg-type]
+                tracer=dependencies.tracer,
+            )
+
+        cache = open_cache()
+        registry.configure_cache(cache)
+        manifest = {
+            "datasets": [
+                {
+                    "connector_id": "integration_mock",
+                    "dataset_id": "test.integration_mock.agents",
+                    "filters": {"step": ["0"]},
+                }
+            ],
+            "cache_policy": "ttl:3600",
+            "transform_dag": "r3-cache-derived-input",
+        }
+
+        def ingest():
+            return run_orchestrated_ingestion(
+                connector_manifest=manifest,
+                source="integration_test",
+                license_name="MIT",
+                cas_root=cas_root,
+                ingestion_dependencies=dependencies,
+                sidecar_scope=sidecar_scope,
+                cache_namespace=cache_namespace,
+            )
+
+        first = ingest()
+        assert first.evidence_bundle_ref is not None
+        assert first.data_snapshot_ref is not None
+        assert connector.fetch_count == 1
+        cache_key = FetchRequest(
+            dataset_id="test.integration_mock.agents",
+            filters=(("step", ("0",)),),
+        ).cache_key
+        first_metadata = cache.get_metadata(cache_key)
+        assert first_metadata is not None
+        assert first_metadata.payload_ref.manifest_profile_sha256 is not None
+        index_path = sidecar_scope.base_root / resolved_namespace / "cache_index.sqlite3"
+        assert index_path.is_file()
+        cache.close()
+
+        reopened_cache = open_cache()
+        registry.configure_cache(reopened_cache)
+        persisted_metadata = reopened_cache.get_metadata(cache_key)
+        assert persisted_metadata == first_metadata
+        second = ingest()
+
+        assert second.evidence_bundle_ref is not None
+        assert second.data_snapshot_ref is not None
+        assert second.evidence_bundle_ref.manifest_profile_sha256 is not None
+        assert second.data_snapshot_ref.manifest_profile_sha256 is not None
+        assert connector.fetch_count == 1
+        assert metrics.slo_calls == [
+            ("ok", "test.integration_mock@1.0.0"),
+            ("ok", "test.integration_mock@1.0.0"),
+        ]
+        active_proxy = registry.get("integration_mock")
+        assert isinstance(active_proxy, CachingConnectorProxy)
+        assert active_proxy.hit_rate == 1.0
+
+        store = FileSystemCAS(sidecar_scope.base_root)
+        evidence = EvidenceBundle.model_validate(
+            from_canonical_bytes(store.get_bytes(second.evidence_bundle_ref))
+        )
+        assert len(evidence.sources) == 1
+        cache_payload_ref = persisted_metadata.payload_ref
+        assert evidence.sources[0] != cache_payload_ref
+        assert evidence.sources[0].manifest_profile_sha256 is not None
+        assert store.get_manifest(evidence.sources[0]).inputs == [
+            input_ref_from_artifact_ref(
+                cache_payload_ref,
+                role="connector_cache.raw_payload",
+            )
+        ]
+        assert (
+            reopened_cache.get(
+                FetchRequest(
+                    dataset_id="test.integration_mock.agents",
+                    filters=(("step", ("0",)),),
+                ),
+                connector_id="integration_mock",
+            ).metadata.payload_ref
+            == cache_payload_ref
+        )
+
+        snapshot = DataSnapshot.model_validate(
+            from_canonical_bytes(store.get_bytes(second.data_snapshot_ref))
+        )
+        assert snapshot.data_ref == evidence.sources[0]
+        assert snapshot.evidence_ref == second.evidence_bundle_ref
+        assert snapshot.quality_report_ref is not None
+        assert snapshot.quality_report_ref.manifest_profile_sha256 is not None
+        summary = RetrievalSummary.model_validate(
+            from_canonical_bytes(store.get_bytes(snapshot.quality_report_ref))
+        )
+        assert summary.assessment_status == "not_assessed"
+        assert summary.source_refs == evidence.sources == [snapshot.data_ref]
+
+        # This shared profile predicate proves the persisted snapshot's typed
+        # owner refs match its actual selected parent-manifest edges. It does
+        # not assert a complete live-source or L5 admission.
+        assert semantic_epoch._data_snapshot_manifest_inputs_match(
+            store,
+            second.data_snapshot_ref,
+            snapshot,
+        )
+        stripped_owner = snapshot.data_ref.model_copy(update={"manifest_profile_sha256": None})
+        assert not semantic_epoch._data_snapshot_manifest_inputs_match(
+            store,
+            second.data_snapshot_ref,
+            snapshot.model_copy(update={"data_ref": stripped_owner}),
+        )
+
+        # The same selected cache source also remains valid when no transform
+        # is requested. This path must preserve the raw selected ref directly,
+        # without manufacturing a derived cache artifact or changing the index.
+        manifest.pop("transform_dag")
+        untransformed = ingest()
+        assert untransformed.evidence_bundle_ref is not None
+        assert untransformed.data_snapshot_ref is not None
+        assert connector.fetch_count == 1
+        assert metrics.slo_calls == [
+            ("ok", "test.integration_mock@1.0.0"),
+            ("ok", "test.integration_mock@1.0.0"),
+            ("ok", "test.integration_mock@1.0.0"),
+        ]
+        untransformed_evidence = EvidenceBundle.model_validate(
+            from_canonical_bytes(store.get_bytes(untransformed.evidence_bundle_ref))
+        )
+        assert untransformed_evidence.sources == [cache_payload_ref]
+        untransformed_snapshot = DataSnapshot.model_validate(
+            from_canonical_bytes(store.get_bytes(untransformed.data_snapshot_ref))
+        )
+        assert untransformed_snapshot.data_ref == cache_payload_ref
+        assert untransformed_snapshot.evidence_ref == untransformed.evidence_bundle_ref
+        assert untransformed_snapshot.quality_report_ref is not None
+        untransformed_summary = RetrievalSummary.model_validate(
+            from_canonical_bytes(store.get_bytes(untransformed_snapshot.quality_report_ref))
+        )
+        assert untransformed_summary.assessment_status == "not_assessed"
+        assert untransformed_summary.source_refs == [cache_payload_ref]
+        assert semantic_epoch._data_snapshot_manifest_inputs_match(
+            store,
+            untransformed.data_snapshot_ref,
+            untransformed_snapshot,
+        )
+        assert (
+            reopened_cache.get(
+                FetchRequest(
+                    dataset_id="test.integration_mock.agents",
+                    filters=(("step", ("0",)),),
+                ),
+                connector_id="integration_mock",
+            ).metadata.payload_ref
+            == cache_payload_ref
+        )
+        reopened_cache.close()
+        asyncio.run(registry.shutdown_async())
 
     def test_run_connectors_ingestion_uses_injected_registry_and_store_factory(
         self,

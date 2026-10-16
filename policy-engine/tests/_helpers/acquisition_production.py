@@ -19,11 +19,13 @@ import duckdb
 import pandas as pd
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactTenantContextInfo, SchemaInfo
+from polisyos.core.artifacts.manifest import (
+    ArtifactTenantContextInfo,
+    SchemaInfo,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
+from polisyos.core.contracts import DataSnapshotRef
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
     DEFAULT_ACQUISITION_AUTHORITY_PROVISION,
@@ -996,7 +998,7 @@ def _fetch_request_from_manifest(manifest: object) -> FetchRequest:
 
 
 class _OrchestratedWorldBankStub:
-    """Emulate only Fabric's observer/sink contract; never open a network socket."""
+    """Emulate the network boundary and use the real snapshot producer without sockets."""
 
     def __init__(
         self,
@@ -1119,6 +1121,7 @@ class _OrchestratedWorldBankStub:
                 media_type=media_type,
                 schema=SchemaInfo(name=CACHE_SCHEMA_NAME, version=CACHE_SCHEMA_VERSION),
             ),
+            return_selected_profile=True,
         )
         evidence_ref = persist_evidence_bundle(
             store,
@@ -1126,28 +1129,27 @@ class _OrchestratedWorldBankStub:
                 sources=[data_ref],
                 notes=["network-free orchestrated WDI test"],
             ),
+            return_selected_profile=True,
         )
-        snapshot = DataSnapshot(
-            data_ref=data_ref,
-            evidence_ref=evidence_ref,
-            stats={"datasets_fetched": 1, "source": "orchestrated_ingestion:test"},
-            notes=["fabric.data_plane.orchestrator", "datasets=1"],
+        from polisyos.common.async_tools import run_coro_sync
+        from polisyos.core.artifacts.async_store import ensure_async_artifact_store
+        from polisyos.fabric.data_plane.orchestrator import _build_snapshot_from_evidence_async
+
+        snapshot_ref = run_coro_sync(
+            _build_snapshot_from_evidence_async(
+                store=ensure_async_artifact_store(store),
+                evidence_ref=evidence_ref,
+                datasets_fetched=1,
+                source=str(kwargs["source"]),
+            )
         )
-        snapshot_artifact = store.put_json(
-            snapshot,
-            ArtifactWriteOptions(
-                kind="fabric.data_snapshot",
-                media_type="application/json",
-                schema=SchemaInfo(
-                    name="polisyos.core.DataSnapshot",
-                    version="0.2.0",
-                ),
-            ),
-            canon_spec=CanonSpec(forbid_floats=False),
-        )
+        if snapshot_ref is None:
+            raise AssertionError("real snapshot producer returned no snapshot")
         return IngestionResult(
             evidence_bundle_ref=evidence_ref,
-            data_snapshot_ref=DataSnapshotRef(artifact_id=snapshot_artifact.artifact_id),
+            data_snapshot_ref=DataSnapshotRef.model_validate(
+                snapshot_ref.model_dump(mode="python")
+            ),
             datasets_fetched=1,
         )
 

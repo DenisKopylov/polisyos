@@ -129,9 +129,118 @@ def test_put_get_roundtrip(cache):
 
     assert cached is not None
     pd.testing.assert_frame_equal(cached.result.data, df)
+    assert metadata.payload_ref.manifest_profile_sha256 is not None
+    assert cached.metadata.payload_ref == metadata.payload_ref
     assert metadata.payload_size_bytes != result.bytes_transferred
     data_bytes, _ = ResultSerializer.serialize(result)
     assert metadata.payload_size_bytes == len(data_bytes)
+
+
+def test_cache_selected_payload_profile_survives_index_reopen(tmp_path):
+    cas = FileSystemCAS(tmp_path / ".polisyos")
+    policy = TTLPolicy(ttl=timedelta(hours=1))
+    request = FetchRequest(dataset_id="test.profiled")
+
+    with ConnectorCacheStore(cas, policy) as cache:
+        written = cache.put(request, _make_result({"x": 1}), connector_id="test.connector")
+        assert written.payload_ref.manifest_profile_sha256 is not None
+
+    with ConnectorCacheStore(cas, policy) as reopened:
+        cached = reopened.get(request, connector_id="test.connector")
+
+    assert cached is not None
+    assert cached.metadata.payload_ref == written.payload_ref
+    report = cas.verify(cached.metadata.payload_ref)
+    assert report.ok is True
+
+
+def test_cache_index_v1_migration_keeps_legacy_profile_unknown(tmp_path):
+    import sqlite3
+
+    from polisyos.fabric.connectors.cache._store_index import CacheIndex
+    from polisyos.fabric.connectors.cache._store_models import INDEX_SCHEMA_VERSION
+
+    index_path = tmp_path / "cache_index.sqlite3"
+    legacy_id = "sha256:" + "0" * 64
+    with sqlite3.connect(index_path) as connection:
+        connection.execute("CREATE TABLE cache_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+        connection.execute("INSERT INTO cache_meta (key, value) VALUES ('schema_version', '1')")
+        connection.execute(
+            """
+            CREATE TABLE cache_entries (
+                cache_key TEXT PRIMARY KEY,
+                request_key TEXT NOT NULL,
+                query_key TEXT NOT NULL,
+                connector_id TEXT,
+                dataset_id TEXT NOT NULL,
+                cached_at REAL NOT NULL,
+                expires_at REAL,
+                policy_id TEXT NOT NULL,
+                payload_artifact_id TEXT NOT NULL,
+                payload_media_type TEXT NOT NULL,
+                payload_size_bytes INTEGER NOT NULL,
+                metadata_artifact_id TEXT,
+                fetch_duration_ms REAL NOT NULL,
+                source_version TEXT,
+                schema_hash TEXT,
+                is_stale INTEGER NOT NULL,
+                pinned INTEGER NOT NULL,
+                access_count INTEGER NOT NULL,
+                last_accessed_at REAL,
+                date_start REAL,
+                date_end REAL,
+                as_of REAL,
+                request_json TEXT NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO cache_entries (
+                cache_key, request_key, query_key, connector_id, dataset_id,
+                cached_at, expires_at, policy_id, payload_artifact_id, payload_media_type,
+                payload_size_bytes, metadata_artifact_id, fetch_duration_ms, source_version,
+                schema_hash, is_stale, pinned, access_count, last_accessed_at,
+                date_start, date_end, as_of, request_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                "legacy-cache-key",
+                "legacy-request-key",
+                "legacy-query-key",
+                "test.connector",
+                "test.legacy",
+                1.0,
+                None,
+                "ttl",
+                legacy_id,
+                "application/json",
+                2,
+                None,
+                1.0,
+                None,
+                None,
+                0,
+                0,
+                0,
+                None,
+                None,
+                None,
+                None,
+                "{}",
+            ),
+        )
+
+    with CacheIndex(index_path) as index:
+        legacy = index.get_entry("legacy-cache-key")
+        schema_version = index._conn.execute(
+            "SELECT value FROM cache_meta WHERE key = 'schema_version'"
+        ).fetchone()[0]
+
+    assert legacy is not None
+    assert legacy.payload_manifest_profile_sha256 is None
+    assert legacy.to_metadata().payload_ref.manifest_profile_sha256 is None
+    assert schema_version == str(INDEX_SCHEMA_VERSION)
 
 
 def test_cache_store_context_manager_closes_index(tmp_path):
@@ -403,6 +512,230 @@ def test_caching_connector_proxy(tmp_path):
         assert proxy.hit_rate == 0.5
 
     asyncio.run(_run())
+
+
+def test_caching_proxy_receipt_preserves_selected_profile_and_lookup_outcome(tmp_path):
+    class MockConnector:
+        connector_id = "test.mock"
+        capabilities = ConnectorCapability.FULL_FETCH
+        metadata = None
+
+        def __init__(self) -> None:
+            self.fetch_count = 0
+
+        async def fetch(self, handle, request):
+            del handle, request
+            self.fetch_count += 1
+            return _make_result({"count": self.fetch_count})
+
+    async def _run() -> None:
+        cache = ConnectorCacheStore(
+            FileSystemCAS(tmp_path / ".polisyos"),
+            TTLPolicy(ttl=timedelta(hours=1)),
+        )
+        connector = MockConnector()
+        proxy = CachingConnectorProxy(connector, cache, enable_prefetch=False)
+        request = FetchRequest(dataset_id="test.receipt")
+
+        miss = await proxy.fetch_with_receipt(None, request, require_selected_profile=True)
+        assert miss.lookup_outcome == "miss"
+        assert miss.cache_result is not None
+        assert miss.cache_result.result == miss.result
+        assert miss.payload_ref is not None
+        assert miss.payload_ref.manifest_profile_sha256 is not None
+
+        hit = await proxy.fetch_with_receipt(None, request, require_selected_profile=True)
+        assert hit.lookup_outcome == "hit"
+        assert hit.cache_result is not None
+        assert hit.cache_result.result == hit.result
+        assert hit.payload_ref == miss.payload_ref
+        assert connector.fetch_count == 1
+
+    asyncio.run(_run())
+
+
+def test_caching_proxy_receipt_does_not_claim_ref_after_cache_write_failure(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    class MockConnector:
+        connector_id = "test.mock"
+        capabilities = ConnectorCapability.FULL_FETCH
+        metadata = None
+
+        async def fetch(self, handle, request):
+            del handle, request
+            return _make_result({"value": "fetched"})
+
+    async def _run() -> None:
+        cache = ConnectorCacheStore(
+            FileSystemCAS(tmp_path / ".polisyos"),
+            TTLPolicy(ttl=timedelta(hours=1)),
+        )
+        proxy = CachingConnectorProxy(MockConnector(), cache, enable_prefetch=False)
+
+        def _fail_write(*args, **kwargs):
+            del args, kwargs
+            raise OSError("controlled cache write failure")
+
+        monkeypatch.setattr(cache, "put", _fail_write)
+        receipt = await proxy.fetch_with_receipt(
+            None,
+            FetchRequest(dataset_id="test.receipt.write-failure"),
+            require_selected_profile=True,
+        )
+
+        assert receipt.lookup_outcome == "miss"
+        assert receipt.result.data == {"value": "fetched"}
+        assert receipt.cache_result is None
+        assert receipt.payload_ref is None
+
+    asyncio.run(_run())
+
+
+def test_cache_receipt_profile_removal_refetches_without_reusing_cached_bytes(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.fabric.connectors.cache._store_models import CachedFetchResult
+
+    class MockConnector:
+        connector_id = "test.mock"
+        capabilities = ConnectorCapability.FULL_FETCH
+        metadata = None
+
+        def __init__(self) -> None:
+            self.fetch_count = 0
+
+        async def fetch(self, handle, request):
+            del handle, request
+            self.fetch_count += 1
+            return _make_result({"count": self.fetch_count})
+
+    async def _run() -> None:
+        cache = ConnectorCacheStore(
+            FileSystemCAS(tmp_path / ".polisyos"),
+            TTLPolicy(ttl=timedelta(hours=1)),
+        )
+        connector = MockConnector()
+        proxy = CachingConnectorProxy(connector, cache, enable_prefetch=False)
+        request = FetchRequest(dataset_id="test.receipt.profile-removal")
+        first = await proxy.fetch_with_receipt(None, request, require_selected_profile=True)
+        assert first.payload_ref is not None
+
+        cache._index._conn.execute(
+            "UPDATE cache_entries SET payload_manifest_profile_sha256 = NULL WHERE cache_key = ?",
+            (request.cache_key,),
+        )
+        legacy_read = cache.get(request, connector_id="test.mock")
+        assert legacy_read is not None
+        assert legacy_read.metadata.payload_ref.manifest_profile_sha256 is None
+        assert legacy_read.result.data == {"count": 1}
+        legacy_fetch = await proxy.fetch(None, request)
+        assert legacy_fetch.data == {"count": 1}
+        assert connector.fetch_count == 1
+
+        legacy_hit = await proxy.fetch_with_receipt(
+            None,
+            request,
+            require_selected_profile=True,
+        )
+        assert legacy_hit.lookup_outcome == "miss"
+        assert legacy_hit.result.data == {"count": 2}
+
+        original_get = cache.get
+
+        def _profileless_get(*args, **kwargs):
+            cached = original_get(*args, **kwargs)
+            if cached is None:
+                return None
+            metadata = cached.metadata.model_copy(update={"payload_manifest_profile_sha256": None})
+            return CachedFetchResult(result=cached.result, metadata=metadata)
+
+        monkeypatch.setattr(cache, "get", _profileless_get)
+        second = await proxy.fetch_with_receipt(None, request, require_selected_profile=True)
+
+        assert second.lookup_outcome == "miss"
+        assert second.payload_ref is not None
+        assert second.payload_ref.manifest_profile_sha256 is not None
+        assert second.result.data == {"count": 3}
+        assert connector.fetch_count == 3
+
+    asyncio.run(_run())
+
+
+def test_same_cache_payload_bytes_can_have_distinct_selected_profiles(tmp_path) -> None:
+    from polisyos.fabric.connectors.cache._store_models import CacheMetadata
+
+    cas = FileSystemCAS(tmp_path / ".polisyos")
+    cache = ConnectorCacheStore(cas, TTLPolicy(ttl=timedelta(hours=1)))
+    request = FetchRequest(dataset_id="test.same-body-selected-views")
+    result = _make_result({"x": 1})
+
+    public = cache.put(
+        request,
+        result,
+        connector_id="test.connector",
+        classification=DataClassification.PUBLIC,
+    )
+    restricted = cache.put(
+        request,
+        result,
+        connector_id="test.connector",
+        classification=DataClassification.INTERNAL,
+    )
+
+    assert isinstance(public, CacheMetadata)
+    assert isinstance(restricted, CacheMetadata)
+    assert public.payload_artifact_id == restricted.payload_artifact_id
+    assert public.payload_ref.manifest_profile_sha256 is not None
+    assert restricted.payload_ref.manifest_profile_sha256 is not None
+    assert (
+        public.payload_ref.manifest_profile_sha256 != restricted.payload_ref.manifest_profile_sha256
+    )
+    assert cas.verify(public.payload_ref).ok is True
+    assert cas.verify(restricted.payload_ref).ok is True
+    assert cas.get_bytes(public.payload_ref) == cas.get_bytes(restricted.payload_ref)
+
+
+def test_derived_cache_payload_keeps_raw_index_and_selected_input_edge(tmp_path) -> None:
+    from polisyos.core.artifacts import input_ref_from_artifact_ref
+    from polisyos.core.artifacts.manifest import ArtifactRef
+
+    cas = FileSystemCAS(tmp_path / ".polisyos")
+    cache = ConnectorCacheStore(cas, TTLPolicy(ttl=timedelta(hours=1)))
+    request = FetchRequest(dataset_id="test.derived-cache-payload")
+    raw_result = _make_result({"x": 1})
+    derived_result = raw_result.model_copy(update={"data": {"x": 2}, "row_count": 1})
+
+    raw_metadata = cache.put(request, raw_result, connector_id="test.connector")
+    derived_ref = cache.put_derived_payload(
+        derived_result,
+        input_payload_ref=raw_metadata.payload_ref,
+    )
+
+    manifest = cas.get_manifest(derived_ref)
+    cached = cache.get(request, connector_id="test.connector")
+
+    assert derived_ref.artifact_id != raw_metadata.payload_ref.artifact_id
+    assert derived_ref.manifest_profile_sha256 is not None
+    assert manifest.inputs == [
+        input_ref_from_artifact_ref(
+            raw_metadata.payload_ref,
+            role="connector_cache.raw_payload",
+        )
+    ]
+    assert cached is not None
+    assert cached.metadata.payload_ref == raw_metadata.payload_ref
+    assert cached.result.data == raw_result.data
+
+    profileless_input = ArtifactRef.model_validate(
+        raw_metadata.payload_ref.model_dump(mode="json") | {"manifest_profile_sha256": None}
+    )
+    foreign_kind_input = raw_metadata.payload_ref.model_copy(update={"kind": "foreign.payload"})
+    for invalid_input in (profileless_input, foreign_kind_input):
+        with pytest.raises(ValueError, match="derived_cache_payload_requires_selected_cache_input"):
+            cache.put_derived_payload(derived_result, input_payload_ref=invalid_input)
 
 
 def test_cache_components_use_injected_observability(

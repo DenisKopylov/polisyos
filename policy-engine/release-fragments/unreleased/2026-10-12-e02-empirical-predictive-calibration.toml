@@ -14,12 +14,12 @@ evidence = [
   "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
 ]
 compatibility = "The new POST/GET pair and versioned association are additive. Existing run records are not rewritten; GET returns not found when no association-ref event exists."
-change_class = "additive"
+change_class = "schema-openapi-abi; runtime-state-format"
 surface_classification = "public: POST and GET /api/v1/runs/{run_id}/predictive-calibration; generated OpenAPI/client and dashboard run overview."
 migration = "No row migration. Store initialization adds a purpose-neutral runtime_operation_intents table; association artifacts remain immutable and append-only events remain unchanged. Legacy events without recorded principal scope are retained but cannot be replayed automatically and require manual reconciliation."
 api = "ForecastOwner, the empirical evidence bridge, and S10 produce a candidate predictive diagnostic. New Core run finalization and recovery return and verify the exact selected CAS manifest profile through RUN_FINALIZED, completed-job progress, fresh RunIndex reads, and the predictive association. If a pending legacy journal already has one verified profileless terminal event, recovery preserves that exact ref and clears only the journal; it does not upgrade the old event or establish a selected profile. Conflicting owner, content, sidecar, or duplicate-terminal evidence fails closed and leaves the journal for reconciliation. The virtual candidate uses a permanent per-run POSIX file lease plus same-process thread coordination across normal finalization and journal recovery; completed legacy reads with no journal or prior lock do not create a lock file. Cross-process race and reopen tests are authored but UNRUN. Observed coverage remains separate from nominal confidence metadata, predictive intervals remain in the selected uncertainty bundle, and counterfactual credibility remains not_established."
 limitations = "The run-level candidate route is enabled by default through normal application/container configuration and can be disabled with allow_candidate_run_predictive_calibration_surface=false; this does not grant permission and is separate from the artifact-preview gate. Issuer, source-time currentness, population scope, and counterfactual credibility remain not_established. The proposed shared SQL owner admits one producer for an exact authenticated-principal/run/intent/body across application instances that share the database, and commits the association event with the completed exact-profile ref. Process-loss pending rows require manual reconciliation; legacy events without principal scope are refused for replay; external provider exactly-once is not claimed. SQLite route/process tests are authored but UNRUN pending the parent-controlled API slot, PostgreSQL concurrency is unverified, and canonical OpenAPI/generated-client regeneration is pending. This is not causal or publication authority."
-generated_client_compatibility = "Pending: add the request/response operations to the canonical runtime OpenAPI contract and regenerate the API client after the parent-controlled schema-generation slot."
+generated_client_compatibility = "requires_regeneration"
 public_surface_inventory_reviewed = true
 migration_docs = []
 runbook_docs = []
@@ -28,11 +28,24 @@ runbook_docs = []
 id = "runtime-run-predictive-calibration-association"
 change_class = "runtime-state-format"
 impact = "compatible"
-surface = "new run-scoped predictive-calibration POST/GET and immutable CAS association referenced by the existing diagnostic event log"
+surface = "internal: immutable run-scoped CAS association and diagnostic-event binding; GET reopens selected evidence and recomputes S10"
 owner = "team-runtime"
 version_owner = "team-runtime"
 deprecation_window = "not_applicable"
-release_note = "The additive run attachment stores selected profile refs and a limited predictive result; the read path reopens CAS and recomputes S10."
-generated_client_compatibility = "additive"
+release_note = "The immutable run association stores selected evidence refs and a limited result; the read path reopens CAS and recomputes S10."
+generated_client_compatibility = "not_applicable"
 migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "run-predictive-calibration-http-api"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: POST and GET /api/v1/runs/{run_id}/predictive-calibration request and response DTOs"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Add run-scoped predictive-calibration POST and GET responses for a limited predictive-only diagnostic; currentness, issuer, population, causal, and publication authority remain not_established."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = ["docs/reference/api/runs.md"]
 runbook_docs = []

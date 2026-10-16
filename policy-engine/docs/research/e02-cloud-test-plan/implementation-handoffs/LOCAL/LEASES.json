@@ -2592,5 +2592,39 @@
       },
       "outcome": "58PASS+10separatewholeLexPASS,0FAIL/ERROR/SKIP;4selectedcanonicalstrictMyPyPASS, notfullCoreRuntime; Ruff6check+formatPASS; Arrow22runtimeParquetroundtripPASS;uvpipcheckPASS;1699ownoriginsruntimewave/1712Lexwavezerooutside/missing/wrong."
     }
+  },
+  "coordination_epoch_20261016_release_metadata_r2_committed_boundary": {
+    "root_writer": true,
+    "slice_application_base": "1dd2dcec36c7b4210c41ff95142b0cd4506554a8",
+    "paths_postimage_pins": {
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-c07-c09-full-report-profile-lineage-v2.toml": "80a0dceaf3fbb97bf5c7f39734c92d92186e19891ab084339ed81bcdd803b199",
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-existing-facade-routing.toml": "384c6345acfd1e0960fb79ee6521e4d4d550c61ed4d57d3b99fee76481ff02cd",
+      "policy-engine/release-fragments/unreleased/2026-10-11-scientist-composition-loader-contract.toml": "d2cd13cf4d27aade76854ee93ecd8bdb6418b2f1189fc2ae03198821351d5144",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-b161-source-bound-risk-observation.toml": "2edc0a58567d6dfb658645dee623da3c1d0056ae81c67b0011e5867c2ba7c0be",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-b26-joint-interaction-uncertainty.toml": "ae469ef07200aea0cb46e97392c90f491ca642817be80463562d46b5ccc32000",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-empirical-predictive-calibration.toml": "15bd3b61e5de37dd1c9a8eebf494321438413cf5e1da96d8ceaf62b105189430",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-generation-source-read-provenance.toml": "12a0774ce8368e5176ea5d53ef87bad700f4d27df39dc60907aae903f073b529",
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-r3-pre-admission-attempt-owner.toml": "bfdc88e823b2735d10d3dc17c2fdb2135ab1917e07a6b8906b69107bbd68c33f",
+      "policy-engine/release-fragments/unreleased/2026-10-13-e02-core-canonical-json-writer-conformance.toml": "70428d051a6f95158d5a7616547c3ba691769f59eb01c40e6ca049922eab3ca1",
+      "policy-engine/release-fragments/unreleased/2026-10-14-b31-source-projection-owner-bridge.toml": "b33c734e897b912e039ef15800c5e1f603efc121cb8cf48e396b2df682561547",
+      "policy-engine/release-fragments/unreleased/2026-10-14-e02-acquisition-history-lineage-join.toml": "6766475d7e94fe7ca2b4a8f6ac9912041d3684604e2bacd8288b946cc7720c03",
+      "policy-engine/release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml": "c3dfa5cf1c35e85603a9b677325e38465586d2e698516c96e67758ac61a97c4e"
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-r2-application-20261016/application-readback.json",
+      "sha256": "bd831bdc2c1e6776e56d333ea1e6ba8a813626b3d037ffdbdd726304b969bbc6"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-surface-full-review-20261016-r2/metadata-corrections-r2/independent-delta-review-r3.json",
+      "sha256": "d54298ba3266a491590815e62eb90eebd168f6ca79721ee54e0e754978c4fbd9"
+    },
+    "current_owner_check": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-r2-current-owner-check-20261016/command-readback.json",
+      "sha256": "f1956b9b29fc0079364948c3065361b97b029e1501cd00a1c830162bc00b74c1",
+      "result": "FAIL11publicsurfacereviewerrors/267fragments, no waiver/noinherited claim. All12postimagesparse and exactboundedmetadatareviewpersists."
+    },
+    "held": "Fiveclassificationchoices/publicstaticandHTTPfacade decisions remain held. Every priorpublic_surface_inventory_reviewed flag preserved; no issuer/expiry/waiver change.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

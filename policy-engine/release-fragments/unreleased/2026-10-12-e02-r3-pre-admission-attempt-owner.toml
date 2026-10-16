@@ -44,7 +44,7 @@ version_owner = "team-polisyos"
 deprecation_window = "not_applicable"
 release_note = "Core contracts expose the typed actor-scoped pre-admission attempt history response."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/runtime/http/README.md"]
 runbook_docs = []
 
@@ -69,7 +69,7 @@ surface = "public_stable: @polisyos/runtime-api-client and runtime-dashboard gen
 owner = "team-frontend"
 version_owner = "team-frontend"
 deprecation_window = "not_applicable"
-release_note = "OpenAPI source adds the attempt-history route, owner binding, launch key contract, and typed producer-call state and no-call reason; generated API clients remain pending regeneration and consumer verification."
+release_note = "The checked-in generated Runtime API client and dashboard types include the attempt-history routes and required launch-key contract. Callers must supply Idempotency-Key and update consumers before relying on actor-scoped recovery; checked-in generation does not establish deployed-consumer adoption."
 generated_client_compatibility = "breaking_requires_consumer_action"
 migration_docs = ["src/polisyos/runtime/http/README.md"]
 runbook_docs = []

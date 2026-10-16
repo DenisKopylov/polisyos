@@ -12,11 +12,11 @@ evidence = [
   "tests/unit/remediation/test_frc_02_empirical_bridge.py",
   "tests/unit/runtime/http/test_artifact_inspector_service.py",
 ]
-compatibility = "BacktestOrchestrator.run retains its historical BacktestReport return shape; run_with_ref adds the exact persisted report ref. Selected-profile returns remain opt-in: store_method_artifact and the uncertainty persistence helper preserve profileless defaults for existing callers, while ForecastOwner opts in for its four generated report-basis artifacts. Empirical evidence schemas 1.0 and 1.1 remain readable with their historical ID/role edge semantics; new profile-bearing evidence uses schema 1.2."
-change_class = "internal-and-schema-versioned-artifact"
-surface_classification = "internal: forecast/calibration artifact lineage; existing runtime content preview remains default-off for predictive diagnostics"
+compatibility = "BacktestOrchestrator.run retains its historical BacktestReport return shape; run_with_ref returns the report together with its exact persisted report ref. Selected-profile returns remain opt-in: store_method_artifact and the uncertainty persistence helper preserve profileless defaults for existing callers, while ForecastOwner opts in for its four generated report-basis artifacts. Empirical evidence schemas 1.0 and 1.1 remain readable with their historical ID/role edge semantics; new profile-bearing evidence uses schema 1.2."
+change_class = "persisted-artifact-format; python-public-api"
+surface_classification = "internal: forecast/calibration artifact lineage; public_stable: polisyos.scientist.methods.backtesting.BacktestOrchestrator.run_with_ref; existing runtime content preview remains default-off for predictive diagnostics"
 migration = "New empirical-calibration evidence writes use schema 1.2. Existing 1.0/1.1 artifacts remain readable and are not rewritten."
-api = "The existing BacktestOrchestrator.run API is unchanged. The additive run_with_ref returns the typed BacktestReportRef emitted by persistence. Core/IR write methods add an opt-in return_selected_profile keyword to retain the profile computed inside the same write. No generated HTTP/OpenAPI contract changes."
+api = "The existing BacktestOrchestrator.run API is unchanged and returns BacktestReport. The additive run_with_ref returns tuple[BacktestReport, BacktestReportRef]: the report and the exact typed ref emitted by persistence. Core/IR write methods add an opt-in return_selected_profile keyword to retain the profile computed inside the same write. No generated HTTP/OpenAPI contract changes."
 limitations = "Exact profile lineage identifies CAS manifest views but does not prove complete or semantically adequate inputs, producer authority, S10 mapping, issuer/currentness, causal validity, or dashboard consumption. The predictive content sidecar continues to require the existing default-false server setting."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
@@ -25,7 +25,7 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "empirical-calibration-evidence-profile-lineage-v1-2"
-change_class = "internal-and-schema-versioned-artifact"
+change_class = "persisted-artifact-format"
 impact = "additive"
 surface = "internal: ir.empirical_calibration_evidence schema 1.2"
 owner = "team-polisyos"
@@ -34,4 +34,17 @@ deprecation_window = "not_applicable"
 release_note = "New empirical calibration evidence carries selected context manifest profiles and validates complete ID/role/profile input edges."
 generated_client_compatibility = "not_applicable"
 migration_docs = ["src/polisyos/calibration/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "backtest-orchestrator-run-with-ref"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.scientist.methods.backtesting.BacktestOrchestrator.run_with_ref"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Add run_with_ref as a stable facade method returning the tuple (BacktestReport, BacktestReportRef): the report and its exact persisted ref. The historical run method retains its BacktestReport return shape."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
 runbook_docs = []

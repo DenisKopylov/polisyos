@@ -4,13 +4,20 @@ type = "changed"
 component = "runtime"
 owner = "team-polisyos"
 summary = "GenerationSourceRepository retains a typed, non-persisted Core read result for its complete JSON reader class, and completed natural-language job progress and its completion event expose the full nested selected-profile read trace with reader-materialized and producer-attestation-not-established labels."
+evidence = [
+  "src/polisyos/runtime/quality/generation_source.py",
+  "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+  "tests/unit/runtime/quality/test_generation_source.py",
+  "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+]
+
 compatibility = "The completed job progress object gains an additive generation_source_read_provenance field when an N4 proposal or scenario source was consumed. Persisted source model bytes and hashes are unchanged."
-change_class = "schema-openapi-abi"
+change_class = "runtime-state-format"
 surface_classification = "public_stable: ControlJobResponse.progress for natural_language_run"
 migration = "No persisted source artifact migration is required. ControlJobResponse.progress remains an open JSON object; no OpenAPI shape or generated-client regeneration is required."
 api = "GET /api/v1/control/jobs/{job_id} exposes generation_source_read_provenance beside the selected candidate_proposal_ref for completed natural-language jobs that loaded a proposal or scenario source. The property includes the top-level canon_read_status and selected identity plus read_trace entries for every nested GenerationSourceRepository read; each entry carries selected identity, source_materialization=reader_materialized, and producer_attestation_status=not_established."
 limitations = "Reader profile status establishes only canonical-byte conformance; current GenerationSource writers now emit the matching profile and default reads refuse absence. No source-qualified historical eligibility or producer attestation is established. Runtime and API verification are UNRUN in the virtual packet."
-generated_client_compatibility = "open progress object; no schema regeneration"
+generated_client_compatibility = "declared_compatible"
 public_surface_inventory_reviewed = false
 migration_docs = ["docs/reference/api/control.md"]
 runbook_docs = []
@@ -24,6 +31,6 @@ owner = "team-polisyos"
 version_owner = "team-polisyos"
 deprecation_window = "not_applicable"
 release_note = "Completed natural-language job progress now retains the exact selected generation-source read status and explicitly distinguishes reader materialization from unestablished producer attestation."
-generated_client_compatibility = "open progress object; no schema regeneration"
+generated_client_compatibility = "declared_compatible"
 migration_docs = ["docs/reference/api/control.md"]
 runbook_docs = []

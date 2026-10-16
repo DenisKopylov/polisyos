@@ -12,10 +12,10 @@ evidence = [
   "tests/unit/scientist/policy_design/test_policy_verified_nodes.py",
 ]
 compatibility = "HTTP hybrid search still returns text results with search_mode=text and a typed vector_refusal_code when runtime material is unavailable or mismatched; direct entity, fact, and provision vector methods raise the typed refusal. hybrid_search_with_status adds a same-call result/status API while the legacy hybrid_search list return remains supported. Legacy generations remain readable and vector-refused. The registered Scientist search_legal_facts tool changes its JSON result from a top-level list to an object with results and retrieval status; direct Python KnowledgeToolkit.search_legal_facts calls remain list-returning."
-change_class = "python-public-api"
+change_class = "persisted-artifact-format; python-public-api"
 surface_classification = "public_stable: polisyos.lex.knowledge and polisyos.scientist; public_experimental: polisyos.data_forge.read_api.legal"
 migration = "Consumers of the registered Scientist search_legal_facts tool must read facts from results and retain search_mode, vector_refusal_code, and limitation_code. Direct Python callers of KnowledgeToolkit.search_legal_facts keep the list shape. New LegalCandidatePack artifacts use schema 1.1 and include a strict legal_retrieval_status list of per-query, per-route observed outcomes; old schema 1.0 packs remain readable and default to an empty list, which means not_recorded. Consumers must not infer vector admission from an empty list. Historical Legal generations, including runtime-material v1 bindings, remain readable and are vector-refused; rebuild them with the v2 owner binding before controlled vector admission."
-api = "The Legal read facade exposes a lazy LegalRuntimeMaterialOwner, checked handle, typed refusal, and rule-version constant. Legal batch generation and the shared fresh reader use the same versioned material binding; before and after each leased encode, the owner recomputes named parameters/buffers, module mode/configuration, tokenizer state, installed distributions, Python execution profile, source closure, callable fingerprint, and effective settings. Legal hybrid_search_with_status returns each result with its own typed status; the HTTP pipeline, registered Scientist tool, and retrieval audit preserve that same-call status, and the policy_verified candidate-pack producer carries each route outcome through query and recovery merges. The generic legacy state-dictionary identity remains unchanged and does not become runtime proof. This does not add authority semantics or a Scientist vector-positive claim."
+api = "The Legal read facade exposes a lazy LegalRuntimeMaterialOwner, checked handle, typed refusal, and rule-version constant. Legal batch generation and the shared fresh reader use the same versioned material binding; before and after each leased encode, the owner recomputes named parameters/buffers, module mode/configuration, tokenizer state, installed distributions, Python execution profile, source closure, callable fingerprint, and effective settings. Legal hybrid_search_with_status returns each result with its own typed status; the HTTP pipeline, registered Scientist tool, and retrieval audit preserve that same-call status, and the policy_verified candidate-pack producer carries each route outcome through query and recovery merges. The generic legacy state-dictionary identity remains unchanged and does not become runtime proof. The stable `polisyos.scientist.validation.policy_verified.LegalCandidatePack` model exposes the defaulted `legal_retrieval_status` field; its serialized schema-version compatibility is recorded separately below. This does not add authority semantics or a Scientist vector-positive claim."
 limitations = "This controlled local v2 profile is a source-owned candidate path, not production currentness. It does not establish L01/L02 production model selection, deployed runtime currentness, external reuse permission, G audience/status, or legal authority. Strict zero-copy identity accepts only CPU dense contiguous Torch tensors and C-contiguous NumPy arrays; other array-like state is refused without conversion. The bounded candidate assumes a trusted process: no concurrent external model/runtime mutation during a lease, and no mutation of callable globals or closure state while the profile is admitted. The handle lock serializes owner leases but does not make pre/post hashes atomic against mutation and restoration; untrusted in-process plugins are outside scope. The full-model zero-copy hash runs around every encode; operational latency awaits the root's single controlled native measurement. The existing policy_verified Scientist service remains text-only for owner-bound vectors. Model asset hashes and source labels alone are not authority or executable proof."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = false
@@ -41,13 +41,53 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "policy-verified-candidate-pack-retrieval-status"
-change_class = "python-public-api"
-impact = "additive"
-surface = "public stable: polisyos.scientist.validation.policy_verified.LegalCandidatePack"
+change_class = "persisted-artifact-format"
+impact = "compatible_with_migration"
+surface = "internal: persisted LegalCandidatePack schema 1.1; historical schema 1.0 remains readable"
 owner = "team-polisyos"
 version_owner = "team-polisyos"
 deprecation_window = "not_applicable"
 release_note = "New LegalCandidatePack artifacts use schema 1.1 and preserve strict per-query, per-route retrieval status. Historical schema 1.0 packs remain readable with legal_retrieval_status empty, which means not_recorded and must not be treated as vector admission."
 generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/scientist/agent/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "policy-verified-candidate-pack-retrieval-status-public-api"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.scientist.validation.policy_verified.LegalCandidatePack.legal_retrieval_status"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The stable LegalCandidatePack model exposes the defaulted legal_retrieval_status field for per-query and per-route retrieval outcomes. Omitting the field remains accepted by the typed model; the field records retrieval status, not legal authority."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/scientist/agent/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "legal-same-call-query-status-api"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.lex.knowledge.LegalKnowledgeGraph.hybrid_search_with_status"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Add a same-call typed retrieval-status method while retaining the legacy list-returning hybrid_search API. Retrieval status remains evidence of query outcome, not legal authority."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/lex/knowledge/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "legal-runtime-material-owner-api"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.data_forge.read_api.legal LegalRuntimeMaterialOwner and typed material refusal API"
+owner = "team-data-forge"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable"
+release_note = "Expose the versioned Legal runtime-material owner and typed refusal through the experimental Data Forge read facade. This local candidate contract does not establish production currentness or legal authority."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/data_forge/README.md"]
 runbook_docs = []

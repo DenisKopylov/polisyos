@@ -12,8 +12,8 @@ evidence = [
   "tests/unit/runtime/http/test_public_decision_verification.py",
 ]
 compatibility = "Supported Core values and their declared profile remain unchanged. Direct callers that supplied recognized but noncanonical typed-tag mappings now receive a typed refusal before Core writers can persist them. Public-decision finite floats retain Core typed encoding, while record datetimes remain typed; JSON-mode datetime strings can be byte-conformant but fail the strict record DTO."
-change_class = "Core canonical-encoding refusal and public-decision typed-record preservation"
-surface_classification = "Core canonical encoder and existing public-decision verification report writer; no generated DTO or schema change."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.canon.to_canonical_bytes; internal: public-decision verification report writer"
 migration = "No CAS history is rewritten. Existing JSON-mode datetime strings remain refused by the strict record DTO even when their bytes conform to Core. New public-decision writes retain typed aware datetimes; the verification report remains distinct from publication or decision authority."
 api = "to_canonical_bytes verifies every emitted Core byte string by exact decode/re-encode under the same CanonSpec, preserving CanonViolation handling and exposing the existing profile refusal code. Public-decision records pass typed models through that encoder so strict fresh readers recover aware datetimes; the filesystem issuance index remains ordinary JSON outside CAS."
 limitations = "The IR codec and arbitrary put_bytes payloads remain separate. Core CanonInfo does not identify a codec family, so generic put_bytes does not infer or parse JSON; in-repository Core-profile producers use the Core encoder or must use an explicitly declared Core JSON writer. No issuer, currentness, or decision authority is introduced."
@@ -24,8 +24,8 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "core-canonical-json-output-roundtrip"
-change_class = "behavioral-refusal-boundary"
-impact = "Reject nonconformant Core canonical output before it is persisted by Core-profile producers"
+change_class = "python-public-api"
+impact = "narrowing"
 surface = "polisyos.core.canon.to_canonical_bytes and existing public-decision verification report artifacts"
 owner = "team-runtime"
 version_owner = "team-runtime"

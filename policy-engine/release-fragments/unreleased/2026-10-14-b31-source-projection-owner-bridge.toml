@@ -10,12 +10,12 @@ evidence = [
 ]
 compatibility = "Additive public_experimental Python API. Existing RealValueOwnerGateway callers that omit source_projection_request retain the legacy no-assignment behavior; present null or malformed values are typed refusals. No report-field or ValueOwnerMethodRunBasisV2 shape change; the CausalMethod enum is additively extended with AIPW."
 change_class = "python-public-api"
-surface_classification = "public_experimental: polisyos.runtime.quality"
+surface_classification = "public_experimental: polisyos.runtime.quality; public_stable: polisyos.ir.CausalMethod.AIPW"
 migration = "Construct ValueOwnerSourceProjectionRequestV1 only when the caller has explicit selected active observation projections for the outcome, binary treatment, and covariate roles, a same-unit identity-scale ATE estimand, and finite outcome support in that declared unit. Pass the request on RealValueOwnerGateway; do not infer treatment or support from candidate metadata. Unsupported transforms, filters, time horizons, units, methods, or malformed selectors remain typed refusals."
 api = "Exports ValueOwnerSourceProjectionRequestV1 and ValueOwnerSourceVariableProjectionV1 from polisyos.runtime.quality. N8 persists role projections/profiles, immutable method intent, exact method input, actual AIPW/TMLE report, candidate Manski BoundsBundle, runner receipt, and run basis; the fresh consumer re-resolves and recomputes these sources before returning a search-only ValueOuterSet."
 limitations = "All outputs remain candidate-only. Treatment assignment, support validity, source-time currentness, causal identification, sampling assumptions, positivity, exchangeability, calibration, external data authority, and promotion are not established. Manski bounds use caller-declared support without unit conversion; the native statistical interval is not an identification interval. B31 remains open."
 generated_client_compatibility = "not_applicable"
-public_surface_inventory_reviewed = false
+public_surface_inventory_reviewed = true
 migration_docs = ["src/polisyos/runtime/quality/README.md"]
 runbook_docs = []
 
@@ -36,3 +36,16 @@ runbook_docs = []
 production_authority = "not_established"
 value_promotion = "not_established"
 open_findings = ["B31"]
+
+[[compatibility_change]]
+id = "ir-causal-method-aipw"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.ir.CausalMethod.AIPW"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The public IR CausalMethod enum adds AIPW for the candidate source-projection bridge; this method identifier does not establish causal authority or value promotion."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/ir/README.md"]
+runbook_docs = []

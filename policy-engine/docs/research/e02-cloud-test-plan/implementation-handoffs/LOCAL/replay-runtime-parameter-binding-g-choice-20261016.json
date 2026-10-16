@@ -1,0 +1,149 @@
+{
+  "record_type": "source_bound_G_decision_proposal",
+  "slice": "replay-runtime-parameter-origin-and-conditional-legacy",
+  "slice_base": {
+    "sha": "87755653cf08051b15726eb7e146eab136a051f6",
+    "tree": "2b63b96a403154337c9d44005c82eab20ea71071"
+  },
+  "delivered_decision_candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "f9285ae79321c277529f69bb7edb5e3959ff7040",
+    "tree": "50faec1f6b9c35cda11e3f1ac70c2f18066dced8",
+    "parents": [
+      "87755653cf08051b15726eb7e146eab136a051f6"
+    ],
+    "source_freeze": false,
+    "source_status": "Known dirty root-owned C05/C7/LA025 composition. This decision-only commit changes exactly the two tracked Markdown paths below."
+  },
+  "full_changed_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/replay-runtime-parameter-binding-r2-20261016.md",
+      "sha256": "a867a300e347933a315fd4c106444f90c1d143c45f4125b0b8e0db9fa50460ae",
+      "availability": "tracked decision commit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/replay-runtime-parameter-binding-r2-20261016.md",
+      "sha256": "8881e367167134fb8f018fc0ba29c3e745e310b4689420097e9bcb63f0a04927",
+      "availability": "tracked decision commit"
+    }
+  ],
+  "source_context": {
+    "source_pins_read_back": {
+      "policy-engine/src/polisyos/scientist/orchestration/workflows/policy_design.py": "08fb5983e97846e1a89f4e4d24cc481f476587db784ace9e6b02616a3ccd22e7",
+      "policy-engine/src/polisyos/scientist/orchestration/workflows/builder.py": "6e3ae8b0e45863b2696bbf99d1a2da297ffc6f134690b6bf7fb78b6bfe0e59b6",
+      "policy-engine/src/polisyos/scientist/policy_design/output.py": "4628161229a5e421ac66ea3b211d30fa986962100c836f86121db94ee06bbe82",
+      "policy-engine/src/polisyos/scientist/replay/deterministic.py": "c568fc6ff5a9dbba7aa75d59ab2972d63c90aeff49e0d994ce398f2350896481",
+      "policy-engine/src/polisyos/scientist/replay/verification.py": "9886120d2f42999b44c489022fce98eed79ea62d4b530f58d7a497cf312e65c6",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py": "13dbc590594ffd83aa64e85d9e47811f50941f31f818fc5e7eecca5571f11a1b",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py": "db79eb13739ba6de74f598cef179aa7e93711d348b5dd2eff501c2b2b7101983",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py": "bfb33e9cc4e90b042377e296aa094116de0e12f8c51b6025753ca5bd9cf5403b",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_request.py": "e0bd451b1d1d7de6c15bd4b5b27c232204c46a3b6d22c46d1c383605d4bcca73",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py": "037dc5d7d9a5274d3a6d140888aa705e5dbd502eb698f5086f78456170097597",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py": "00da9893b9c37c799a0bbfe8ea92647523da971ff22a96023583bd5ab612202d",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py": "8ea1c2ffa79fc90435cf00b92177141b44c4ed85bed3d04db244a0b021309c22",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py": "93184cf1661b0d456add2e293533d6abcb1fb600bf0dfb341fd5935740bd82b7",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": "3a257ef4eee0ca587f31c7b40428abed67d3f1d26c12ad17a886e765447bbf36",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py": "81fac102bce9779a74b5d469a02586e4a6b9e2cbc4b8958a50466305f547dd3e",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py": "9b340fd93ac3fb2276567aefa48ece515ed333004df2ca7c95d78e05cf2c1f16",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_abm_consistency.py": "8252dd6639055864ccdb79389154a9d8980b8549fd896f878667328ade9529da",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py": "41257b1023966d1b2926f7bb82c05686b3139a43b6a54da5a1606e7e3b2477a7",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/transport_resolution_inputs.py": "ea47483ffd9857f764302aa31a0bcf2fcc9a20b6cfd27b7e0752227db3c0d116",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_readiness.py": "8eb3796562358fd1a22a12163a28f3fdd8bd2addea8b6e95dab95dca2aa7e4dd",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py": "160ad7ea10b0172b51a73b9d39adc90855fe3f4dbde0b0771ed2658acff1a114",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/planning/build_execution_plan.py": "4cb9b8e46a7579584dc204ea71830c6fcecf619beb970e40458fbadcf05b7b4f",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_preflight.py": "bc919a9cd6fb5c85192c34772776757e84cd131d64faa8168ff267daa45ab54f",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py": "0025e9ce4012b8ca9afb713c7b5f2a8ec14b252fde29f57e13d2ec0ab301ccab",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py": "405d5e30aaf711c4d60ee3500bae68099b001b1db1a6f4f781ee0868c6c1ab14",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py": "3bc1fafd2e85bc8d0304d4e343287b210a04c2d528dfbc33f88fe2ad4bae0c3f",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/welfare_context.py": "765cead4895645f92e305310b55ff5ae0cd229ff8125edf7d174bd8ef95ef5af",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/welfare_ge.py": "3848f9ccf112860197ace267f5b576c89133196a4ac909939b57a3b21a5a3654",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/welfare_types.py": "1b6a432f5e07bb82efc091aa3a3cf81c1f91f5f6cf902e6830601e12b4644952",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/governance/governance_gate_requests.py": "4e81a5babdcf974480360d6dea2b9477c0a1e79dd9487e7752c69de3dfdd5e81",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_governance.py": "cae6de92e22d8d187b38e143e669a9bf656a98db3c4fd78708ba0a60199d7e23",
+      "policy-engine/src/polisyos/scientist/policy_design/phase3.py": "fe81e8486159e12dcd95173ccbceec66dfba31c0e956dee435ec525843e4e241"
+    },
+    "denominator_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-replay-profile-basis-20261016/independent-review-r7-final/replay-consumer-denominator-r2.json",
+      "sha256": "3ed3d2935e1c7ca415e3e86c48ced9bd6e70dc12501f162c441252c1ae0ef794",
+      "availability": "ignored RAW retained at this absolute candidate checkout; available locally for G"
+    },
+    "workflow_invocations": 37,
+    "mapped_builtins": 36,
+    "builtin_python_files": 102,
+    "kind": "source-derived AST/helper census; full dynamic route set UNRUN"
+  },
+  "decision": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/replay-runtime-parameter-binding-r2-20261016.md",
+    "sha256": "a867a300e347933a315fd4c106444f90c1d143c45f4125b0b8e0db9fa50460ae",
+    "availability": "tracked decision commit"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/replay-runtime-parameter-binding-r2-20261016.md",
+    "sha256": "8881e367167134fb8f018fc0ba29c3e745e310b4689420097e9bcb63f0a04927",
+    "availability": "tracked decision commit"
+  },
+  "original_RAW_logical_directory": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-runtime-params-binding-20261016",
+  "selected_inputs_and_backend": {
+    "input": "temporary synthetic CAS A/B artifacts with same payload/id and different selected profiles; no production payloads",
+    "backend": "own-worktree Python; real candidate resolver plus identity-comparison scratch prototype",
+    "profile": "controlled selected views, no live instance currentness claim"
+  },
+  "real_chain": {
+    "observed": "Bundle owner admits A; actual _resolve_candidate selects same-id/same-byte B from runtime params. Physical payload checks pass but profiles differ. This is a real consumer-boundary divergence.",
+    "not_established": "Original-run selected parameter path/role receipt, complete semantic replay and protected promotion outcome.",
+    "available_existing_owner": "RunProvenanceDAG can persist when wired, but ordinary builder discards it; static invocation params and dependency outputs do not record selected runtime state.params path/role. Extend/reuse candidate, not source evidence."
+  },
+  "source_bound_evidence": {
+    "candidate_consumer_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-replay-profile-basis-20261016/independent-review-r7-final/candidate-alias-consumer-probe-r2.stdout.txt",
+      "sha256": "8f63b4e18c48bd071cfefbece8e3c44c71c54c7aaa8ad375ba850f0727635102",
+      "availability": "ignored RAW retained at this absolute candidate checkout; available locally for G"
+    },
+    "raw_self_binding_falsifier": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-runtime-params-binding-20261016/independent-review-r1/raw-only-binding-origin-falsifier.stdout.txt",
+      "sha256": "66bec4461a3d800b3055e1ed17dc5ce230d7d39f61f82eebbc35544ab25ec955",
+      "availability": "ignored RAW retained at this absolute candidate checkout; available locally for G"
+    },
+    "corrected_prototype": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-runtime-params-binding-20261016/typed_path_binding_prototype_r5.py",
+      "sha256": "e0cbfd2825010ab608372b7453ef131a5f87497ae7aba5de37fa3ad02e9e4167",
+      "availability": "ignored RAW retained at this absolute candidate checkout; available locally for G"
+    },
+    "prototype_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-runtime-params-binding-20261016/prototype-r5.stdout.txt",
+      "sha256": "1a0edda2755ff539709fcd155f3ddd899f73fbd3360285eb8aa23caaad9f99b9",
+      "availability": "ignored RAW retained at this absolute candidate checkout; available locally for G"
+    },
+    "independent_rerun_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-c05-runtime-params-binding-20261016/independent-review-r2/prototype-r5-replay.stdout.txt",
+      "sha256": "1a0edda2755ff539709fcd155f3ddd899f73fbd3360285eb8aa23caaad9f99b9",
+      "availability": "ignored RAW retained at this absolute candidate checkout; available locally for G"
+    },
+    "full_commands_and_deciding_outputs": "See reviewed Markdown and exact RAW files; R5 rerun output byte-identical. No result upgraded from marker/import/constructor success."
+  },
+  "adversarial_controls": [
+    "Actual A vs B selected-profile alias; profileless default-view behavior at the real consumer.",
+    "R1 raw B parsed and labeled producer_typed accepted: falsifies original-selection provenance claim.",
+    "R5 A/A matches identity only; B/A nested/list substitutions refuse; B/B self-binding stays NOT_ESTABLISHED for source origin.",
+    "Existing artifact_snapshot passed report is still rejected by JudgeStack bounds/estimation gate; no blanket all-grade claim."
+  ],
+  "G_choices": [
+    "Ratify original intake/producer/run content-bound selection evidence requirement.",
+    "Choose reuse/extension of RunProvenanceDAG/run-event/node boundary or a versioned replay basis receipt, including all mandatory writer/state/schema/consumer companions.",
+    "Ratify conditional eligibility by actually consumed basis; preserve eligible legacy archive/snapshot and explicit typed-source routes."
+  ],
+  "proposal_fields": {
+    "status": "held_pending_specific_G_contract_choice",
+    "capability_labels": [
+      "bridge_missing",
+      "verification_missing"
+    ],
+    "finding_effect": "No individual finding closure proposed by this decision. Preserve all291 occurrence outcomes and original criteria; reconcile this limitation in the final source-bound proposal report.",
+    "semantic_replay": "UNRUN / NOT_ESTABLISHED where consumed params origin is unbound",
+    "formal_G_acceptance": null
+  },
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "After selected source contract: capture actual original-run selected A at the intake/consumer, persist exact run+invocation+JSON-pointer+role/full-ref edge, read it back at the real consumer; substituted same-byte B must refuse and raw-B self-binding must remain unestablished. Reconcile all37 routes, then frozen composed replay.",
+  "P40": "Same original selection-vs-owner input class, widened to actual consumed path set. Declared source-origin residual and falsifier replace per-alias patches."
+}

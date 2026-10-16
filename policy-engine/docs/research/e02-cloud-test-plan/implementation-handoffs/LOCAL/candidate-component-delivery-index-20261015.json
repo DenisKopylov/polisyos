@@ -2,10 +2,10 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "9d90c587560f49ca0966931477f322ac3139e1db",
-    "tree": "e2a143d61bc54ddb6116ee3bdf00926b72c9d458",
+    "head": "f9285ae79321c277529f69bb7edb5e3959ff7040",
+    "tree": "50faec1f6b9c35cda11e3f1ac70c2f18066dced8",
     "parents": [
-      "d826ed35a75b011be436063989c795b76941bd21"
+      "87755653cf08051b15726eb7e146eab136a051f6"
     ],
     "source_freeze": false,
     "dirty_active_source": "Known root-owned C05/C7/LA025 composition pending. V6 test/profile companions committedd826 with two cheap actual controls; full served replay UNRUN. Fabric R3 pool owner/lease repair and C7 durable MethodJob bridge are in RAW review/authoring."
@@ -355,6 +355,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v6-selected-overflow-source-and-profile-companions-20261016.json",
       "sha256": "b22d68d4e4c7c063f257cf1c1474a40078d7fd6a392c17d45e9fc61c278f583a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/replay-runtime-parameter-binding-r2-20261016.md",
+      "sha256": "a867a300e347933a315fd4c106444f90c1d143c45f4125b0b8e0db9fa50460ae"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/reviews/replay-runtime-parameter-binding-r2-20261016.md",
+      "sha256": "8881e367167134fb8f018fc0ba29c3e745e310b4689420097e9bcb63f0a04927"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/replay-runtime-parameter-binding-g-choice-20261016.json",
+      "sha256": "bc8f5ef3983c90a5ae3777a8b8cb2ccfa898f3c9dbfa4dcc8e7d60fb30600e83"
     }
   ],
   "canonical_denominator_recomputed": {

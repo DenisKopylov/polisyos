@@ -1,0 +1,354 @@
+{
+  "schema": "policyos.e02.local_delivery.v1",
+  "slice": "I4 real Legal embed-local producer and fresh HTTP vector consumer witness",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "e70766dc10916c230cf8f0f5d4a6f7373c341337",
+  "candidate_sha": "39ddaac9fb0d8216ce90b638de043cd85f661740",
+  "candidate_tree": "f67549e93b26190e3ff455144afe5de13b996f64",
+  "parents": [
+    "e70766dc10916c230cf8f0f5d4a6f7373c341337"
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "source_freeze": false,
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/tests/integration/data_forge_runtime/test_legal_runtime_material_entrypoints.py",
+      "sha256": "f1ef2fe5dd480e17d5952855221c49c429f066701fdea19d81d2c8e0a4cad144"
+    }
+  ],
+  "actual_preimage": "The test-only fixture delta is committed at the exact candidate above. Prior source SHA 4d55db3a4a547f95e306990ed31c83b2c792f3bb3d168a707355f7be6b22eb31; new test restores the exact source-bound fact_text in finally, reads it back, and performs a fresh GET. The earlier unrun handoff is preserved unchanged.",
+  "property": "On the current candidate, an actual local Legal encoder producer emits a selected two-member generation that is served by fresh HTTP GET/POST. Candidate-only vector retrieval and typed refusal controls remain distinct; test-fixture member mutation is restored before the sibling profileless refusal is evaluated.",
+  "real_chain": [
+    "Local `python -m polisyos.data_forge.domains.legal.batch embed-local` uses the exact offline cached encoder profile and emits generation d90936765b454ffd9ad0a3fa296b2341 with two candidate members and finite 2x1024 float32 fact vectors.",
+    "The produced generation and membership are selected through the live local profile GET; fresh GET returns the same generation ID and inventory count 2.",
+    "Fresh HTTP vector POST returns the source-bound candidate and the separate forged-quote fixture, both trust_tier=search_candidate; no authority is inferred from retrieval.",
+    "Stale intent, member drift, profileless owner, anonymous scope and wrong-profile startup controls exercise actual consumer refusals; after member mutation, exact data are restored/read back and the selected GET is refreshed before the sibling control."
+  ],
+  "selected_input_profile_backend": "Offline local cached profile intfloat/multilingual-e5-large@3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3 (revision 3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3); SentenceTransformers 2.7.0, CPU, dimension 1024. Manifest SHA 191a71ec41bc1a69665fffccb5fa7f1c30b3f94ccd60f71cc3ed1f074ecb98ca; nine named files / 2261765112 logical bytes. Assets were not copied or rehashed. Controlled synthetic Legal source remains candidate-only.",
+  "source_bound_commands_and_complete_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/run-outcome.json",
+      "sha256": "0fc0931589c7ebaa586d43d54872b80e29217ebe8f618d669e66d7efd6e0cc76"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/independent-review-r4.json",
+      "sha256": "e2792f0e99af6e4c1e676973a7a5aa12cc67bb361835d12f54d7139f8dace8b0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/run-contract.json",
+      "sha256": "e88795b91e5a9b70f5fad72e75ad33ae7b99632501338df8571fe48dec66b0f0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/pre-run-rebind.json",
+      "sha256": "4cc9cbc0bf133c0ce1169c216ebdf7552b6d6ba5221634aaca0faceb32a70fca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/profile-inputs.json",
+      "sha256": "f6314103ff9c9adbba673c82572801372bfa414b228e4d3b228f26fd6bf306ad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c12-real-encoder-profile/asset-file-manifest.txt",
+      "sha256": "191a71ec41bc1a69665fffccb5fa7f1c30b3f94ccd60f71cc3ed1f074ecb98ca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r3-head-2423b825-witness-20261016/run-outcome.json",
+      "sha256": "a59b874d1b8dbaba0d38f4696b1ff71ae891422d6b469a7a17faceb6c144d63c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-i4-isolation-application-20261016/i4-model-fixture-isolation-delivery-proposal-20261016.json",
+      "sha256": "61d4264bd6d4d91e1a6b59e218a67cbd24f430f0517c1e99bddb11c52b9d02d0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-i4-isolation-application-20261016/i4-model-fixture-isolation-source-readback.json",
+      "sha256": "2a981b144e4e81abb836d00814ec69a72b74705c689aef426e3ffe019d1a417c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/pytest.stdout.txt",
+      "sha256": "40bbf13498a147c8c3bfe58828a7b95060f7e686e2d9f515acf1a81c56bc4754"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/pytest.stderr.txt",
+      "sha256": "d3267b74da4fe063ace6cf8f43660f445237162f182edbe1b110533da6f2dd5d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/pytest.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/pytest.junit.xml",
+      "sha256": "0b416ddb2bb63fccbdbf4328b620d8d3974732888a53beb932ec7f4cf26288a0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/producer.process.json",
+      "sha256": "18e9faa33532f17d41ca4f0bf7c2253e86bcc34679e16e8d534c71e1075fd025"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/producer.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/producer.stderr.txt",
+      "sha256": "d4755c4748e7dd0f8452bbdafb314b4ec14cc6e78247eb4a6338df6d13b1a31e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/producer-output/manifests/embed_local.json",
+      "sha256": "b6435d43d6547cd68b3a6658e9284672b5c0dacf4c4bf13f595364dd26e8d371"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/producer-output/lex_knowledge_graph.duckdb",
+      "sha256": "e4c5873664c952116cdb1caef787931481ad144ba3c510496f04451686c1c00b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/producer-output/.legal_embedding_generations/lex_fact_embeddings/embedding_generations/d90936765b454ffd9ad0a3fa296b2341/embeddings.npz",
+      "sha256": "94818ad810ef3368281c2cd77b88c162032645de223b3e75d3ce015a20be2a4d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/producer-output/.legal_embedding_generations/lex_fact_embeddings/embedding_generations/d90936765b454ffd9ad0a3fa296b2341/basis.json",
+      "sha256": "e687a53efb41a20cb6181251ad5fa985cdc05a3bfa19b928ea70f8eaf2df0c0e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/producer-output/.legal_embedding_generations/lex_fact_embeddings/embedding_generations/d90936765b454ffd9ad0a3fa296b2341/ids.json",
+      "sha256": "15083bceab0ba845297982bd03151c37c09b30259bf45b4d8516054840742ffe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/producer-output/.legal_embedding_generations/lex_fact_embeddings/embedding_generations/d90936765b454ffd9ad0a3fa296b2341/index.hnsw",
+      "sha256": "c8a06a2ae701b9936ef5d2451b566b67865467039b1e4839a46eeb98b8c25e1e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/producer-output/.legal_embedding_generations/lex_fact_embeddings/embedding_generations/d90936765b454ffd9ad0a3fa296b2341/inventory.json",
+      "sha256": "37f56d0053fd00d938ee34b360f1b6f9ee47c3a061ac5db97ae2f9e7ab4bc898"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/selected-get.json",
+      "sha256": "778293f8743ba6f5ada78343cb54b5725b2b93681832edcbfcd66c853bd5eb33"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/matching-post.json",
+      "sha256": "aea4166665cc8c6d573254653194d14ff213d7c62c3a97a5555a465ad10739fd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/matching-candidate-results.json",
+      "sha256": "e71f3cdfa001369bf44a8d04a52dee3df181fede85e047894912b56ad56e37ce"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/stale-intent-post.json",
+      "sha256": "63405a8c6979a395eb9b3c6b36a4c09c146fb58257cd2d50f20edb417102cbf4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/selected-member-drift-post.json",
+      "sha256": "065f5af3a38a8edc2faeb28657978693f38e865f1a2348f51ee34a0b7714ee97"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/selected-get-after-member-drift-restore.json",
+      "sha256": "506169b33566fac1990b62cf0a6b9fc6cdfd34ebb6952bdf21817d7c4d67f05b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/removed-owner-post.json",
+      "sha256": "d55003750985e2131cb943e49411056a33e579e64a1c0bd42311df6ff64ea82a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/anonymous-search-profile.json",
+      "sha256": "dad18ba13f9868b0ca3c21930585f2f7f6066ff1640737a1342cd6a8aef3aa30"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/anonymous-search.json",
+      "sha256": "32adff00119fa93d0664d5b1031bcf3b34c27fafae7a87f42961943a0a887639"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/wrong-profile-server.process.json",
+      "sha256": "612d4b28bd7cab81f205cdfc8c57e8bcd0ffc844744ac84e2bd56ddc4ac853c5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/wrong-profile-server.stderr.txt",
+      "sha256": "1319f5b571689cce7cd87696f5936de7a58a9bddd1a6f5d23ea27b372663c159"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/launch-preflight-error.json",
+      "sha256": "4e69338bc13b00373c2ab2d97b34b8e61c820a005d15c09b678691915e56acf4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/launch-r4.sh",
+      "sha256": "65a50b7b2d2c2700f6709fe43f9ce3d441f2e36574ee3a189a679d7be1aae3eb"
+    }
+  ],
+  "commands": {
+    "full_pytest": {
+      "argv": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-s",
+        "--tb=long",
+        "-o",
+        "faulthandler_timeout=60",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/pytest.junit.xml",
+        "tests/integration/data_forge_runtime/test_legal_runtime_material_entrypoints.py::test_ordinary_legal_cli_generation_preserves_candidate_default_exclusion"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "environment": {
+        "POLISYOS_RUN_LEGAL_PROFILED_ENTRYPOINTS": "1",
+        "POLISYOS_I4_RECEIPT_DIR": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016",
+        "HF_HUB_OFFLINE": "1",
+        "TRANSFORMERS_OFFLINE": "1",
+        "TOKENIZERS_PARALLELISM": "false",
+        "OMP_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "PATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg08X9RUw:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS"
+      },
+      "exit_code": 0,
+      "duration_seconds": 166.27,
+      "result": "1 passed; no failures/errors/skips",
+      "output_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/pytest.stdout.txt",
+          "sha256": "40bbf13498a147c8c3bfe58828a7b95060f7e686e2d9f515acf1a81c56bc4754"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/pytest.stderr.txt",
+          "sha256": "d3267b74da4fe063ace6cf8f43660f445237162f182edbe1b110533da6f2dd5d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/pytest.exit",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/pytest.junit.xml",
+          "sha256": "0b416ddb2bb63fccbdbf4328b620d8d3974732888a53beb932ec7f4cf26288a0"
+        }
+      ]
+    },
+    "producer": {
+      "command": "python -m polisyos.data_forge.domains.legal.batch embed-local",
+      "return_code": 0,
+      "elapsed_seconds": 99.808257,
+      "generation_id": "d90936765b454ffd9ad0a3fa296b2341",
+      "process": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/producer.process.json",
+        "sha256": "18e9faa33532f17d41ca4f0bf7c2253e86bcc34679e16e8d534c71e1075fd025"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/producer.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/producer.stderr.txt",
+        "sha256": "d4755c4748e7dd0f8452bbdafb314b4ec14cc6e78247eb4a6338df6d13b1a31e"
+      }
+    },
+    "launch_preflight": {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/launch-preflight-error.json",
+        "sha256": "4e69338bc13b00373c2ab2d97b34b8e61c820a005d15c09b678691915e56acf4"
+      },
+      "result": "Initial shell wrapper had a misspelled stderr path and failed before Python started. Corrected wrapper is pinned and launched the one full test; this was not a second model attempt."
+    }
+  },
+  "source_runtime_frame": {
+    "pre_run_binding": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/pre-run-rebind.json",
+      "sha256": "4cc9cbc0bf133c0ce1169c216ebdf7552b6d6ba5221634aaca0faceb32a70fca"
+    },
+    "module_origin_count": 32,
+    "implementation_origins": 31,
+    "test_origins": 1,
+    "independent_recheck": "32/32 source hashes matched; scoped Git status clean; selected profile manifest hash matched.",
+    "candidate_test_sha256": "f1ef2fe5dd480e17d5952855221c49c429f066701fdea19d81d2c8e0a4cad144",
+    "review_current_head": "44f6f0afe6ecfddc15d88cf9d3530ac931b9495e; reviewer evaluated immutable I4 candidate frame 39dda, not a later candidate delta."
+  },
+  "verification": {
+    "actual_full_model_test": "PASS: 1 test in 166.27s on exact commit 39dda/tree f675; producer 99.808s, generation d909..., two members; full stdout/stderr/JUnit retained.",
+    "independent_review": "GO_SCOPED_WITNESS; independent read-only review matched the 32 source origins and profile manifest and reviewed the exact run outcome; no second model run.",
+    "producer_and_vectors": "Producer returned 0; generation d90936765b454ffd9ad0a3fa296b2341 has 2 members. Selected fact vectors are finite float32 with shape 2x1024; npz SHA 94818ad810ef3368281c2cd77b88c162032645de223b3e75d3ce015a20be2a4d.",
+    "consumer": "Fresh profile GET selected the emitted generation. Matching POST returned 2 candidate rows. The forged quote remained search_candidate; the property-removal falsifier raised the expected assertion.",
+    "faulthandler": "The configured 60-second stack capture logged the real subprocess waiting while embed-local ran; it completed in 99.808s and did not fail the test.",
+    "previous_wrapper": "An initial shell wrapper path typo failed before Python launch; it is retained and classified as setup-only. Corrected wrapper launched the single actual run.",
+    "old_r3": "Old R3 FAIL remains immutable and separately cited; R4 repaired the test state contamination and passes on the new source frame."
+  },
+  "adversarial_removal_controls": "The run exercised stale selected intent, selected-member mutation and exact restoration, profileless assets, anonymous GET/POST authorization, wrong-profile startup, and a remove-results/keep-vector-markers falsifier. Exact typed refusals and full outputs are preserved in run-outcome.json and refs above.",
+  "adversarial_control_details": [
+    {
+      "case": "stale intent",
+      "result": "query_profile_stale_or_mismatched; zero results; fresh GET retains original generation",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/stale-intent-post.json",
+        "sha256": "63405a8c6979a395eb9b3c6b36a4c09c146fb58257cd2d50f20edb417102cbf4"
+      }
+    },
+    {
+      "case": "selected member drift",
+      "result": "selected_generation_membership_mismatch; zero results; test restores exact fact text, reads it back, then fresh GET retains generation",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/selected-member-drift-post.json",
+        "sha256": "065f5af3a38a8edc2faeb28657978693f38e865f1a2348f51ee34a0b7714ee97"
+      },
+      "post_restore_get": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/selected-get-after-member-drift-restore.json",
+        "sha256": "506169b33566fac1990b62cf0a6b9fc6cdfd34ebb6952bdf21817d7c4d67f05b"
+      }
+    },
+    {
+      "case": "profileless owner",
+      "result": "query_encoder_assets_unavailable; zero results",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/removed-owner-post.json",
+        "sha256": "d55003750985e2131cb943e49411056a33e579e64a1c0bd42311df6ff64ea82a"
+      }
+    },
+    {
+      "case": "anonymous access",
+      "result": "GET and POST 401 missing_access_scope",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/anonymous-search-profile.json",
+          "sha256": "dad18ba13f9868b0ca3c21930585f2f7f6066ff1640737a1342cd6a8aef3aa30"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/anonymous-search.json",
+          "sha256": "32adff00119fa93d0664d5b1031bcf3b34c27fafae7a87f42961943a0a887639"
+        }
+      ]
+    },
+    {
+      "case": "wrong profile",
+      "result": "startup refuses with query_encoder_runtime_material_not_established",
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/attempt-r4-head-39ddaac9-witness-20261016/wrong-profile-server.stderr.txt",
+        "sha256": "1319f5b571689cce7cd87696f5936de7a58a9bddd1a6f5d23ea27b372663c159"
+      }
+    },
+    {
+      "case": "candidate-only control",
+      "result": "Both the real source-bound row and forged-quote row remain search_candidate; legal relation remains verification_missing."
+    }
+  ],
+  "limitations": [
+    "This is one controlled local source/profile producer→fresh HTTP vector-consumer witness, not a general retrieval-accuracy or production-readiness claim.",
+    "Legal-source relation status remains verification_missing; rows remain search_candidate. No law, issuer, legal entailment, institutional authority, custody, or live currentness is established.",
+    "Queued-worker, CAS/CatalogArtifact, UI/dashboard, and production consumer paths are not in this witness.",
+    "The old R3 failure is preserved; corrected R4 passing run is bound to its exact 39dda source and 32-origin frame.",
+    "No original finding occurrence is formally closed by the author; the full occurrence/property assessment and G adjudication remain separate."
+  ],
+  "capability_state": "verification_missing",
+  "proposals": [
+    {
+      "criterion_ids": [],
+      "outcome": "limited_local_witness_for_G_review",
+      "claim": "One actual real-model Legal embed-local producer → persisted generation → fresh selected HTTP GET/vector POST and typed controls passed independently on the exact local candidate frame.",
+      "boundary": "This bounded witness does not close the full original I4 occurrence or any legal-relation/authority claim; keep those findings open/held pending original-criterion mapping and G adjudication."
+    },
+    {
+      "criterion_ids": [],
+      "outcome": "held",
+      "claim": "Legal-source relation verification remains verification_missing; all retrieved rows remain candidate-only."
+    }
+  ],
+  "proposal_outcome": "Bounded actual producer/fresh HTTP vector-consumer witness delivered; original finding occurrence and full-property adjudication remain separate. No formal G closure.",
+  "next_check": "Root may copy this exact proposal to tracked name i4-real-producer-fresh-http-vector-delivery-20261016.json after the current native 54 check. G should adjudicate the original I4 occurrence against this limited source-bound receipt; retain the separate open/held legal relation, authority, custody, currentness, queued-worker, CAS/CatalogArtifact and UI claims."
+}

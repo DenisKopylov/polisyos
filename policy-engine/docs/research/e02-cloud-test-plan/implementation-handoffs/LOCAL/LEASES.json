@@ -1550,5 +1550,21 @@
     },
     "P40": "Same-class second escape requires structural whole quantity or explicit falsified residual; null/null profile equality cannot qualify protected claim.",
     "formal_G_closure_ids": []
+  },
+  "coordination_epoch_20261016_ed1_native_owner_rank": {
+    "as_of_candidate_commit": "ed1f3c1fc031a6a9a43703a66cb1b2b97e2081ca",
+    "root_commits": {
+      "be0bdb2bd2ac8d6a7dbb5eda6dbd25aac7516bf4": "API native sources/schema3;56actualtestsPASS/4unchangedgeneratedoutputs",
+      "ebb64c55baab29129cec167d9279a23ad5d98c3e": "CanonicalFoundryowner2;fourdigests-only/noissuerrenewal",
+      "ed1f3c1fc031a6a9a43703a66cb1b2b97e2081ca": "Normalrankcoverage4;8cyclecontrols/all4typedPASS;fullmodule12upstreamFAILretained"
+    },
+    "writers": "Root sole tracked-source and Git writer; macro producer/profile, LA025sharedbundle writer, B18observation reductions and confidence fixture investigations RAWonly.",
+    "known_forward_commits": "Agents consult raw/resume-parallel-coordination-20261015/root-owned-commits.json; exact disjoint source hashes remain valid across root journaled forwards.",
+    "source_freeze": false,
+    "compute": {
+      "mac_heavy_slots": 3,
+      "numerical_threads": 1
+    },
+    "formal_G_closure_ids": []
   }
 }

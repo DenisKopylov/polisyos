@@ -1,0 +1,95 @@
+{
+  "schema": "policyos.e02.G_decision_packet.v1",
+  "status": "proposed_for_G_not_adopted",
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "source_candidate": "ed1f3c1fc031a6a9a43703a66cb1b2b97e2081ca",
+  "scope": "B10 intentional non-ranking in candidate-scenario and nonbinding summaries/history; normal owner rank coverage separately repaired.",
+  "original_criterion": {
+    "criterion": "Unexplored alternatives must not receive invented zero scores.",
+    "lines": "313-323",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "source_commit": "198076863e143dea9f89f02734b13d50dae3eed5"
+  },
+  "pattern_pass": {
+    "P29": "candidate patch tests behavioral controller refusal and removal of a rank row while retaining candidates.",
+    "P37": "no declaration or caller boolean can supply a rank; rows are checked at DTO and generic intake.",
+    "P38": "missing rank was tested as numeric (0.0, 0.0), diverging from criterion at an unexplored candidate.",
+    "P40": "same class, full owner-rank quantity repaired in A; intentionally unranked route is a known bounded residual awaiting contract decision, not another patch round."
+  },
+  "bounded_residual_and_G_choice": {
+    "current_behavior": [
+      "The private N4 candidate-scenario result intentionally has one candidate and no surrogate ranking. The candidate patch keeps its route unranked rather than injecting an owner rank.",
+      "Nonbinding grounding dispositions are intentionally outside the owner rank denominator.",
+      "Both can still be projected through CandidateSummary, whose proxy_score and voi_estimate are required floats; current fallback currently stores 0.0 in that summary. A therefore closes normal owner rank omissions, not the distinct summary/history encoding for intentional non-ranking."
+    ],
+    "do_not_infer": "The RAW nullable prototype demonstrates representability only. It does not establish candidate-scenario N5 authority, allow N6 to calculate ROI with missing scores, or prove any live/production policy result.",
+    "minimum_G_choice": "For a persisted candidate-scenario candidate without an N4 owner ranking, may the system keep executing candidate-only N5 while ranking status and scores remain explicitly unknown, or must the route stop before N6? Do not convert absence into a numeric default.",
+    "proposed_options_for_G": [
+      {
+        "effect": "Keep A’s strict normal owner ranking coverage; preserve candidate-scenario routing as a declared residual and do not label its numeric placeholders a real ranking. This leaves B10 whole-criterion limited if the original criterion is applied to this route.",
+        "option": "reuse and bound"
+      },
+      {
+        "effect": "Introduce a discriminated ranking projection (`ranked` with finite numbers or `intentionally_unranked` with nulls plus a route reason). Route unranked candidate-scenario through an explicit candidate-only scheduler/summary path without passing zero to generic N6. Version current N6 history and C4 candidate_occurrence; preserve v1-v3 history and C4 v1 readers/writers exactly. Requires a G decision on intended N5 behavior for an unranked scenario.",
+        "option": "extend (recommended for preserving scenario N5)"
+      },
+      {
+        "effect": "Move ranking observation into one typed rank artifact/ref consumed by CandidateSummary, N6 scheduling, promotion/history; larger producer and surface migration than this E02 defect presently warrants.",
+        "option": "consolidate"
+      },
+      {
+        "effect": "Create a new ranking owner/system; rejected by reuse-first since rank owner already exists and missing rows can be checked at its DTO/intake boundaries.",
+        "option": "build new"
+      }
+    ],
+    "prototype": {
+      "output": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b10-rank-coverage-20261016/nullable-rank-proposal-prototype.stdout.txt",
+        "sha256": "6e1854ed0b763a6ebc9a2f7a05b26958961c74cce59aa19cc9b8ce2aa015bf0d"
+      },
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b10-rank-coverage-20261016/nullable-rank-proposal-prototype.py",
+      "result": "A RAW-only strict discriminated projection accepts a real ranked zero and an intentionally-unranked scenario with explicit null scores/reason; removal controls reject ranked-null and unranked-numeric pairs.",
+      "sha256": "d0d79affb2cb615ec66b37763f0dfe9566ced06e34ae9e4613108cc8415fd097"
+    },
+    "real_current_falsifiers": [
+      "CandidateSummary.model_validate rejects proxy_score=None and voi_estimate=None.",
+      "C4 candidate_occurrence v1 normalizes those exact paths as required binary64 values and refuses None.",
+      "FROZEN_N6_HISTORY_SCHEMA has only v1/v2/v3 CandidateSummary graphs; all wire field sets carry both score fields.",
+      "Promotion’s historical P0/P1/P2 summary profiles each require float for both fields."
+    ],
+    "versioned_impact_if_extend": [
+      "Current CandidateSummary fields in generation_cycle.py and every N6 emitter/consumer must adopt the discriminated rank projection.",
+      "GenerationCycleRun is v6; the new current run and frozen N6 history model graph require a new version, leaving existing serializers/readers unchanged.",
+      "CandidateOccurrence C4 profile v1 has required binary64 score paths; a new C4 profile/version is required for nullable discriminated rank data.",
+      "promotion_sequence historical P0/P1/P2 validators stay frozen; add a new profile only for the new run/profile.",
+      "Rebuild and verify generated public/schema/client surfaces only if a full source census proves they expose CandidateSummary rank fields."
+    ]
+  },
+  "source_census": {
+    "file_denominator": 5814,
+    "matched_files": 29,
+    "method": "AST over all Python files in policy-engine/src and policy-engine/tests; matches CandidateSummary and historical summary names, .proxy_score/.voi_estimate attributes, keywords, and string keys. This broad lexical denominator is not misrepresented as a precise consumer-only set.",
+    "report": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b10-rank-coverage-20261016/candidate-summary-ast-census.json",
+      "sha256": "fc334dcfe451329ce4b12124c5dd6bbe88eb5642faf6015aac02dde6d47a2907"
+    },
+    "script": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b10-rank-coverage-20261016/candidate-summary-ast-census.py",
+      "sha256": "8913facf2fab279e48b7a6f03f685aa5518a63f04c06b99709f76729a8be2185"
+    },
+    "typed_owners_and_formats": {
+      "C4 owner": "core/contracts/c4_persisted_profiles.py: candidate_occurrence v1; binary64_decimal_paths includes candidate_summary.proxy_score and voi_estimate",
+      "CandidateSummary fields": "generation_cycle.py: proxy_score: float, voi_estimate: float",
+      "current N6 run": "generation_cycle.py: GenerationCycleRun v1-v6; current v6",
+      "frozen N6 history": "_generation_cycle_history_schema.py: v1, v2, v3; fields stay frozen",
+      "promotion history": "promotion_sequence.py: _HistoricalCandidateSummaryP0/P1/P2 all float fields"
+    }
+  },
+  "historical_design_prototype": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b10-rank-coverage-20261016/b10-rank-contract-decision-prototype-20261016.json",
+    "sha256": "c153c312a5b0d1a82fb2a937507b117a636ca1c1c9848cef203fa21045dc7210"
+  },
+  "authority_time_status": "G chooses semantics/migration; no author adoption, external calibration, future receipt SHA or issuer fact supplied. Current versioned history remains readable.",
+  "next_check": "After G choice implement versioned representation + genuine no-score/observed-zero scheduling/roundtrip/history removal probes; independent code acceptance required."
+}

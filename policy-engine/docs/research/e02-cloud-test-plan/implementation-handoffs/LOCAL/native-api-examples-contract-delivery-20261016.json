@@ -1,0 +1,112 @@
+{
+  "schema": "policyos.e02.local_delivery.v1",
+  "slice": "Native API examples, transitive resolver checks and canonical consumers",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "44f6f0afe6ecfddc15d88cf9d3530ac931b9495e",
+  "candidate_sha": "be0bdb2bd2ac8d6a7dbb5eda6dbd25aac7516bf4",
+  "candidate_tree": "108c70ae6bea932a18eac4b1dbfae42d11903c2d",
+  "parents": [
+    "44f6f0afe6ecfddc15d88cf9d3530ac931b9495e"
+  ],
+  "source_freeze": false,
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+      "sha256": "2ec9d515f8f10c684b360993b07254f65e2d8d37757a6e8e8764d3f95ca7f697"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+      "sha256": "2b0e048f011778eef140a4086e8daad559e7e0e051247f83ecbbf7b949978d75"
+    },
+    {
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "sha256": "44c1787a6eb1195292e01d953633d3c94ce16820943b222c4b1e26347f18f95a"
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/types.ts",
+      "sha256": "9bbec9c49b9a546bf588510b7a641c0b06d7df557d000b9c1403009a16fd6dc2"
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "sha256": "a94f1998e20ace162590872974597a731deb4a826e41348e6f1930f3d411c0f0"
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "sha256": "2ffda975b9e0c7ced82e028148ebfa0baef7e4aa51f0b0c21c20b93050cd7841"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+      "sha256": "44c5e3cadd004106f2eda178d985287f6cea73085824d4a0f3fff8372f78a952"
+    }
+  ],
+  "property": "Actual app exports strict owner-bound historical examples with consistent read receipt and derived identities; source-derived API tests and registered generators agree with actual bytes.",
+  "real_chain": [
+    "Existing historical Atlas loader selected one measurement cell from complete172row table",
+    "Runtime formulas derive dependency, manifest, projection and replay bindings",
+    "Actual app exporter emits strict example with explicit unknown present availability",
+    "Registered schema/client/dashboard generators consume the actual snapshot",
+    "Actual native API suite executes56cases plus checker regenerates and comparesclients"
+  ],
+  "selected_input_profile_backend": "Own locked Python3.14 environment, installed corepack pnpm links; genuine historical Atlas source35c1... remains historical/current_availability_not_measured; controlledfixtures only.",
+  "verification": {
+    "pytest": {
+      "passed": 56,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "wall_seconds": 113.83
+    },
+    "runtime_contract": "PASS with client drift enabled",
+    "canonical_generators": "Actual export + client + dashboard PASS; four generated TS/JS outputs unchanged bytewise",
+    "canonical_Ruff": "Exact two source/test postimages check/format PASS",
+    "independent_review": "Bounded GO b873c667...; own exact3changedpaths/fourunchangedgeneratedoutputs reread from committedsource"
+  },
+  "source_bound_commands_and_complete_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-api-hardening-application-20261016/commands.json",
+      "sha256": "0d3901afe398361012ff994761f1e18ab577c9a032ab41346415e8276db72230"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-api-hardening-application-20261016/actual-native54.stdout.txt",
+      "sha256": "3d7c0e4610e5650e04fff19a1a081a8390748eaab31ca86f86650334bec6a4c5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-api-hardening-application-20261016/actual-native54.junit.xml",
+      "sha256": "c12519aa58820d0e0e0e122f6d8948ae247054aa531ccc966e7b624f3c607bc4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-api-hardening-application-20261016/applied-generated-source-frame.json",
+      "sha256": "2d10f6f387354855a0272ab830362ae8ab8eb4d0f69023f00306cb3f14ba9da3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-api-hardening-application-20261016/native-api-hardening-source-readback.json",
+      "sha256": "6c0f0c338612638863d05d16b5813b22a273bb1abe738baee5107df600747ba1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-hardening-independent-review-r2-20261016/r2-independent-review.json",
+      "sha256": "b873c66709f97f66ef05cc76e9f47ed1fd31ae2dddb03d23b7d4cbd71b806ab8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-hardening-repair-20261016/proposed-native-hardening-repair-r2-evidence-frame.json",
+      "sha256": "cb9f49c414c78de6f1d23538bb868a547ef503617e4e1628db0d4c774358d780"
+    }
+  ],
+  "adversarial_removal_controls": "Actual app exporter strict read-receipt removal and source-hash drift refusals; canonical generator missing legal-refusal-field drift rejects. Wrong sparse-overlay root error retained as classified harness failure; actual product root bound for correct replay.",
+  "consumer_surface": "Actual runtime OpenAPI, registered client/dashboard generators, native source route and strict DTO tests.",
+  "limitations": [
+    "This56-case slice does not establish global native green or policy authority.",
+    "Historical example receipt is not live production availability or custody.",
+    "Source/profile/backend freeze and full installed/Linux/browser/composed wave remain pending."
+  ],
+  "canonical_regenerated_unchanged": [
+    "policy-engine/packages/runtime-api-client/types.ts",
+    "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+    "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+    "policy-engine/apps/runtime-dashboard/src/api/types.ts"
+  ],
+  "proposal_outcome": "scoped_API_native_defects_repaired_and_verified",
+  "next_check": "Final canonical all-generated freshness/drift gates on complete source freeze."
+}

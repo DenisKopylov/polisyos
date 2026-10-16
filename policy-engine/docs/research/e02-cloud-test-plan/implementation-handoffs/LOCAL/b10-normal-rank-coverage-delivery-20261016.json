@@ -1,0 +1,99 @@
+{
+  "schema": "policyos.e02.local_delivery.v1",
+  "slice": "B10 normal owner rank coverage at typed N4 and generic N6 intake",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "ebb64c55baab29129cec167d9279a23ad5d98c3e",
+  "candidate_sha": "ed1f3c1fc031a6a9a43703a66cb1b2b97e2081ca",
+  "candidate_tree": "bd59c7c27985ceba6462cffdf8885f007d5fda99",
+  "parents": [
+    "ebb64c55baab29129cec167d9279a23ad5d98c3e"
+  ],
+  "source_freeze": false,
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+      "sha256": "fc55b1dd07e99489c0632acba08b72555de316aa6b3dea29f3c61ff520f84fef"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "sha256": "d435b4127a19ed433f155416f510b6476bd29c1d473b34006a7222ebc40a86ee"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_design_generation.py",
+      "sha256": "61d83843c404d73d5c1456ef96b4f203b3c1c9293bf38ad33bcf3fec1bbd273c"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "sha256": "45b0e662a0398f9f3af1aaed31c909c0c88844dd17bb5156e776cde613383360"
+    }
+  ],
+  "property": "Every ranking-eligible generated shadow-bound candidate has exactly one finite owner rank and VOI row before selection; absence is refused and an observed zero remains a distinct valid value.",
+  "real_chain": [
+    "Real N4 owner generated candidate set",
+    "Pydantic model_validate enforces exact unique ranking coverage",
+    "Generic generation-cycle intake repeats source-derived coverage before grounding/N6",
+    "Valid rank rows carry through existing candidate selection and controlled N5; missing/malformed/duplicate/foreign/nonfinite rows refuse before scheduling"
+  ],
+  "selected_input_profile_backend": "Own Python3.14; recorded controlled generation fixture; controlled N5 probe, no production ranking or admission claim.",
+  "source_bound_commands_and_complete_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-rank-coverage-application-20261016/application-checks.json",
+      "sha256": "331d5d24d5241078db7282b5ea6d158565d1a4b70e88133867f5801d11958040"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-rank-coverage-application-20261016/b10-rank-coverage-source-readback.json",
+      "sha256": "50c4b6752a6bdae2d6ea889ba333fa63fce489cef930acbb0ebe78b8e9607221"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-rank-coverage-application-20261016/b10-actual-module-replay-diagnostic-20261016.json",
+      "sha256": "00894d40ed27c95eed98162002029fe4e8f3a999f44ede1e5138fecb5c8eccd8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-rank-coverage-application-20261016/actual-design-generation-120s.run.json",
+      "sha256": "b65da4fedc110f66be2fafc09ad78da51cdc83f1349fc5760af8cba83270c597"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-rank-coverage-application-20261016/actual-design-generation-120s.stdout.txt",
+      "sha256": "1d8289f61515fbeb0c714e1b4f7fc14fd6d5fb5fded283cf730070ab681425cf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-rank-coverage-application-20261016/actual-design-generation-120s.junit.xml",
+      "sha256": "35c46010a8d58dae3af863df35ed9df0efd76226f87da6370d23b2cd5071c64d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-rank-coverage-application-20261016/actual-two-modules.run.json",
+      "sha256": "87bbc47fd75b15ad11c7eeca96c720bcde150ecc78aac235b5df356509de8f13"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-b10-rank-coverage-20261016/r3-model-validate-rank-tests-final-20261016/independent-review/independent-review-r3-20261016.json",
+      "sha256": "7af254768f082c76a646b9e434a0a85285633709f674702fc3010a7b3a2e6326"
+    }
+  ],
+  "verification": {
+    "Ruff": "Full4 check/format PASS",
+    "independent_R3": "GO exact4paths; actual model_validate4P, removing only validator decorator3FAIL/zeroPASS",
+    "actual_design_module": "120PASS/12FAIL/0SKIP; all4strict rank tests PASS;5owner-rederive+6confidence-vintage+1earlieratom preemption failures retained",
+    "actual_cycle_fast_controls": "8PASS",
+    "whole_combined_modules": "TIMEOUT240 incomplete; separatecycleTIMEOUT90 after23passes at postN9case; no OOM claim",
+    "P41": "not_established, no inherited label; own changed paths intersect full gate denominator"
+  },
+  "adversarial_removal_controls": "Independent removing model-validator registration preserves helper/markers and makes3actualvalidationcasesfail; explicit observedzero remains accepted; generic missing-row refusal precedesN6.",
+  "limitations": [
+    "WholeB10 remains limited: intentionally-unranked scenario/nonbinding dispositions still project numeric placeholders through versioned summary/history; see concrete G decision.",
+    "Diversity remains not established.",
+    "Six confidence-vintage upstream refusals and surrogate-test preemption need caller/input repair or justified bounded outcome; canonical owner update requires replay before attribution."
+  ],
+  "proposals": [
+    {
+      "id": "B10",
+      "outcome": "limited",
+      "boundary": "Normal owner rank omission repaired; whole original property not closed",
+      "decision_pointer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b10-unranked-scenario-history-contract-20261016.json"
+    }
+  ],
+  "proposal_outcome": "bounded_rank_coverage_repair_whole_B10_limited",
+  "next_check": "Resolve batched upstream inputs/companions and final real candidate selection/N5/fresh-consumer replay; G chooses versioned unranked/history semantics."
+}

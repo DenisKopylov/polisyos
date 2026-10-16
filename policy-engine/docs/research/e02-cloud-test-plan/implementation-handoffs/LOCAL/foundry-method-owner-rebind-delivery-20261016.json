@@ -1,0 +1,71 @@
+{
+  "schema": "policyos.e02.local_delivery.v1",
+  "slice": "Foundry canonical dependency owner source rebind",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "be0bdb2bd2ac8d6a7dbb5eda6dbd25aac7516bf4",
+  "candidate_sha": "ebb64c55baab29129cec167d9279a23ad5d98c3e",
+  "candidate_tree": "f3c55430ebef9c20d7c409054ca47c768b031728",
+  "parents": [
+    "be0bdb2bd2ac8d6a7dbb5eda6dbd25aac7516bf4"
+  ],
+  "source_freeze": false,
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/architecture/production_quality/method_catalog_dependency_profiles.toml",
+      "sha256": "146a8017f51cbd49593d9926137d90f91f3453b54b67589ddf6cdfbbb345693c"
+    },
+    {
+      "path": "policy-engine/architecture/production_quality/method_catalog_dependency_authority.toml",
+      "sha256": "14ca40c5232853fa74939e568cbad8096048048ac04dbb0c7f94cc20b2ed345f"
+    }
+  ],
+  "property": "Tracked method-owner declaration reconciles current pyproject/uv.lock bytes through existing typed digest domains and canonical generator.",
+  "real_chain": [
+    "Current locked dependency inputs",
+    "Canonical regenerate-owner recomputes declaration/artifact and semantic hashes",
+    "Existing purpose row points to that declaration",
+    "Owner check admits current bytes; corrupt pyprojectbytes refuse"
+  ],
+  "selected_input_profile_backend": "Existing n8-method-catalog-reconstruction-py314-uv0921-v1; purpose n8_method_catalog_reconstruction; source-derived owner bytes only.",
+  "source_bound_commands_and_complete_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-owner-reconciliation-20261016/before-check.run.json",
+      "sha256": "4be71419114a1981809d87ebb0b187c6014a52377b94e6efc952dda1017a52cf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-owner-reconciliation-20261016/before-check.stdout.txt",
+      "sha256": "00f4209b56c8c493fea83009e5f5cacdd6e8185afb86e59b334c1f8fd9003afa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-owner-reconciliation-20261016/owner-regeneration-commands.json",
+      "sha256": "7dc82a3dbe2541786f2bfd4e4152c0d4d3ca77dc5efd16768f329df3f8d6bab9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-owner-reconciliation-20261016/owner-generated-frame.json",
+      "sha256": "8ce1e2569a47ec79f634f8e73beccf7b54df54f39a7abf18fe4dba7af3a73a37"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-owner-reconciliation-20261016/owner-generated-delta.patch",
+      "sha256": "241bbe84a079b0592ab58965fc9fb31210dc8df8a39390f0226bd5989fbbf7a5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-owner-reconciliation-20261016/independent-review-r1/independent-generated-owner-delta-review-r1.json",
+      "sha256": "4c3d5fd1721dc8ef7e6b01db5ea838ff77d3468dd8701074e97d5a4e0f3930f2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-foundry-owner-reconciliation-20261016/foundry-owner-generated-source-readback.json",
+      "sha256": "625cbff9f65c01e580090d659299db1071bb54cd1d7d76185fc99557c4bbc23f"
+    }
+  ],
+  "verification": "Before check stale; canonical write then current exit0; corrupt-field drift rejected/exit1; independent typed recomputation GO.",
+  "adversarial_removal_controls": "Corrupt only in-memory tracked pyproject field while declarations remain: rejected tracked_dependency_bytes_stale.",
+  "limitations": [
+    "Only four derived digest fields changed. No issuer, expiry, purpose, resolver/extras/capabilities or production bytes changed.",
+    "Does not itself prove N4/generation success; five owner-rederive failures still require source-bound replay."
+  ],
+  "proposal_outcome": "canonical_owner_bytes_reconciled",
+  "next_check": "Re-run exact affected producer consumer cases at batched source/inputfreeze."
+}

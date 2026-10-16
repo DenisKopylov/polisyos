@@ -1,0 +1,192 @@
+{
+  "record_type": "bounded_tooling_delivery_proposal",
+  "slice_base": {
+    "sha": "e1015c4b36ddcbacf7f6351b4bbe265203001190",
+    "scanner_preimage_sha256": "3a89d0ce58153e539dd14cfb15c202d719bef037ab35721d9342f73549573c64"
+  },
+  "candidate": {
+    "sha": "08aa7da7d5eb3959171f463fcdb1abc0417381d4",
+    "tree": "b96e5f4b7c78699c7b1730f27ea09454df9f7b91",
+    "parents": [
+      "e1015c4b36ddcbacf7f6351b4bbe265203001190"
+    ]
+  },
+  "full_code_test_config_companion_footprint": {
+    "policy-engine/tools/quality/validation/decomposition_preflight.py": "ac336b411cadad2485b26fe75fe1eecad3631ee0c15db4801f60ecab67890956",
+    "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py": "8a3a5bd9740c04d9af9419aeb393d0408df588e18175028597a372f45f1238e2",
+    "policy-engine/tools/quality/validation/README.md": "fa1a8704950f575b2e9308715572467c46e366c24edfaf048ace692aff43dfb8",
+    "policy-engine/release-fragments/unreleased/2026-10-16-e02-dynamic-import-exact-mapping-lookup.toml": "ba3c9db2103ccc3657cefd96a7a3c435c09ad20dfb1b345e2f37e00aa532b990",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "929eae5d7eb26b8696d8afff8e5e60fcf7df71f55909f0d5cdb4d68bbd5d8860"
+  },
+  "selected_input_profile_backend": {
+    "backend": "own macOS CPython3.14.3 venv; JAX/BLAS CPU threads1",
+    "actual_source_paths": 3230,
+    "source_scopes": [
+      "src",
+      "tools",
+      "apps",
+      "packages"
+    ],
+    "source_file_type": ".py",
+    "all_command_pins": 3239,
+    "origin_context": {
+      "head": "08aa7da7d5eb3959171f463fcdb1abc0417381d4",
+      "tree": "b96e5f4b7c78699c7b1730f27ea09454df9f7b91",
+      "static_selected_python_files": 3230,
+      "exact_HEAD_blob_matches": 3228,
+      "known_owned_postimages": {
+        "policy-engine/src/polisyos/lex/__init__.py": "5e9e2b3659fa5494e2b93bbc47de4e554e576284ea0ea053e3163fa560dfbf94",
+        "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py": "a39d43b9bda4403f930c28927456c46081736760f65f9656eff2b8db7f4111cf"
+      },
+      "actual_imported_project_modules": 77,
+      "actual_canonical_scanner": true,
+      "outside_own_source": {},
+      "source_inputs_unchanged": true,
+      "no_bare_whole_commit_claim": true
+    }
+  },
+  "real_chain": [
+    "Static source AST resolves safe builtin hashable literal keys and recursive tuples, duplicate-key Python equality/last-write behavior and known unpack order.",
+    "Immutable map get/subscript uses exact key selection; selected module-string values produce a finite target inventory checked against the registered target/schema path.",
+    "Actual canonical tracked scanner is imported normally and exercised by the complete dynamic_import selected pytest set; no __file__ or module-provenance masking."
+  ],
+  "verification": {
+    "focused_author": "27PASS; removing exact comparison keeps markers and causes3 expected failures",
+    "independent": "59319 exactlookup oracle cases; scalar/nested stale-registry, aliases, unpack, unknown/unhashable refusal; max1024x1024 in1.176s",
+    "actual_whole_selected_mirrors": {
+      "cases": 142,
+      "pass": 134,
+      "fail": 8,
+      "error": 0,
+      "skip": 0,
+      "deselected": 98,
+      "wall_seconds": 60.663,
+      "pytest_seconds": 52.66,
+      "exit_code": 1,
+      "timed_out": false
+    },
+    "canonical_ruff": "source/test2 check+formatPASS",
+    "P41": "not_established; no inherited-red claim; code source is inside full input denominator"
+  },
+  "current_failures": [
+    {
+      "test": "test_dynamic_imports_gate_resolves_registered_targets",
+      "deciding_message": "AssertionError: [dynamic_imports_gate] dynamic import source inventory is incomplete :: src/polisyos/berl/persistence.py:79: guarded importer value escapes through a function annotation; value flow at this boundary is unsupported\nassert [Finding(gate...unsupported')] == []\n  \n  Left contains one more item: Finding(gate='dynamic_imports_gate', message='dynamic import source inventory is incomplete', detail='src/polisyos/ber...tence.py:79: guarded importer value escapes through a function annotation; value flow at this boundary is unsupported')\n  Use -v to get more diff"
+    },
+    {
+      "test": "test_dynamic_imports_gate_rejects_registry_and_target_corruption",
+      "deciding_message": "tools.quality.validation.decomposition_preflight.DynamicImportCollectionError: src/polisyos/berl/persistence.py:79: guarded importer value escapes through a function annotation; value flow at this boundary is unsupported"
+    },
+    {
+      "test": "test_dynamic_imports_gate_rejects_every_canonical_row_field_corruption",
+      "deciding_message": "tools.quality.validation.decomposition_preflight.DynamicImportCollectionError: src/polisyos/berl/persistence.py:79: guarded importer value escapes through a function annotation; value flow at this boundary is unsupported"
+    },
+    {
+      "test": "test_dynamic_imports_gate_rejects_every_stable_header_field_corruption",
+      "deciding_message": "tools.quality.validation.decomposition_preflight.DynamicImportCollectionError: src/polisyos/berl/persistence.py:79: guarded importer value escapes through a function annotation; value flow at this boundary is unsupported"
+    },
+    {
+      "test": "test_dynamic_imports_gate_distinguishes_absent_and_malformed_registry",
+      "deciding_message": "AssertionError: assert 'docs/researc.../dynamic.toml' == '/Users/denis.../dynamic.toml'\n  \n  - /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-exact-key-r4-actual-20261016/pytest-tmp/test_dynamic_imports_gate_dist0/dynamic.toml\n  ? ---------------------------------------------------------------------------------------\n  + docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-exact-key-r4-actual-20261016/pytest-tmp/test_dynamic_imports_gate_dist0/dynamic.toml"
+    },
+    {
+      "test": "test_dynamic_imports_gate_rejects_incomplete_and_open_row_schemas",
+      "deciding_message": "tools.quality.validation.decomposition_preflight.DynamicImportCollectionError: src/polisyos/berl/persistence.py:79: guarded importer value escapes through a function annotation; value flow at this boundary is unsupported"
+    },
+    {
+      "test": "test_dynamic_import_registry_mutation_or_unchecked_lookup_fails_closed[\\nfrom importlib import import_module\\nfrom types import MappingProxyType\\nROUTES = MappingProxyType({(\"catalog\", \"alpha\"): (\"polisyos.catalog\", \"alpha\")})\\ndef resolve(owner, name):\\n    binding_key = (owner, name)\\n    _, target_name = ROUTES[binding_key]\\n    return globals().get(target_name)(\"unguarded_registry_lookup\")\\n]",
+      "deciding_message": "assert False\n +  where False = any(<generator object test_dynamic_import_registry_mutation_or_unchecked_lookup_fails_closed.<locals>.<genexpr> at 0x131770860>)"
+    },
+    {
+      "test": "test_dynamic_import_resolves_immutable_mapping_pep562_facade_dispatch",
+      "deciding_message": "AssertionError: assert [Finding(gate...lementation')] == []\n  \n  Left contains one more item: Finding(gate='dynamic_imports_gate', message='allowed dynamic import target does not resolve', detail='src/polisyos/catalog/facade.py:11 -> polisyos.catalog.implementation')\n  Use -v to get more diff"
+    }
+  ],
+  "failure_boundaries": {
+    "five_repository_collection_cases": "Stop at BERL persistence.py:79 guarded importer escape through function annotation; IR importer purity/private immutable capture choice remains separate. Baseline similarity is not P41 inheritance.",
+    "three_additional_cases": "Missing-registry assertion assumes absolute temp path; unchecked tuple-map\u2192globals lookup refusal expectation is unmet; newly resolved PEP562 finite target is absent in fixture. Exact source-vs-fixture class/repair is being investigated, not waived."
+  },
+  "adversarial_controls": [
+    "Author exact comparator removal:24PASS3expectedFAIL while marker fields remain.",
+    "Independent scalar/int-vs-None and nestedtuple stale registries refuse after selected target changes.",
+    "Positive integer membership+lookup still refuses in both base and candidate; source analyzer reports incomplete inventory rather than stale green."
+  ],
+  "limitations": [
+    "Exact positive-membership refinement is a declared fail-closed residual; no further leaf repair or blanket membership claim.",
+    "Current142-case source gate FAIL8; no full R9 generator/registry-currentness/native green or E02 global freeze.",
+    "Dynamic/custom key equality and unresolved unpack remain unsupported; no issuer/review-owner/expiry renewal.",
+    "Known GL/Lex postimages are pinned; static3230 is3228commitmatches+2attributedownedpostimages, not a bare wholecommit."
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-exact-key-r4-application-20261016/application-readback.json",
+      "sha256": "6af71bd48d57f5f70a1476cc2eeb4f6dd2a0aa25dddcf3768b5c2d8fc9af0016"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-exact-key-r4-application-20261016/r9-exact-key-source-readback.json",
+      "sha256": "c0eb2b2df8b4335a511d06211a274c0d052b5cea42e55f3d82300ba0bca607a1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-source-binding-r4-20261016/candidate-manifest-r4.json",
+      "sha256": "2e928a14571d837cea71833a07d4a912f031f3f2427551dceee40141db78a127"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-source-binding-r4-20261016/candidate-manifest-r4-reference-correction-r4.json",
+      "sha256": "fed297c3c88b781bd3e5e56b8aeea14e4b89c75af5e70077dad4e4c59dbb65e2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-source-binding-r4-20261016/claim-correction-and-docs-addendum.json",
+      "sha256": "cec57addb0d18f74577cbda0643d813d21f57b9e5c714d08178714548e02bc4d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-source-binding-r4-independent-review-20261016/review.json",
+      "sha256": "3e7fe0a3ec9032972db5ae59a808dbf5cfcc64082a78abf8bd1b5cb4f046d6dc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-source-binding-r4-independent-review-20261016/delta-claim-review.json",
+      "sha256": "2d616ddd0b468e2cc0769378ee689504c0cc39c16222d5d501d6a8cf3abd27d7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-exact-key-r4-actual-20261016/request.json",
+      "sha256": "f452804cf7688d872c739d714fbae0afb3c71bb57375a24b7fd8856f5581dbee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-exact-key-r4-actual-20261016/actual-results.json",
+      "sha256": "a008e6b31258df98e00d7500efc50ff7d718fae54ea9f850b3b0a7f78f80a5db"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-exact-key-r4-actual-20261016/actual-module-origins.json",
+      "sha256": "c4a4da4d31a7f136862cda9eb9316335c2a325d0ce79187a7c79840defb0ac40"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-exact-key-r4-actual-20261016/source-context-readback.json",
+      "sha256": "2d32abe3e52a1f98e30cf94b4655ec54b2433573d9a698abca0f32ccf5107c15"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-exact-key-r4-actual-20261016/r9.junit.xml",
+      "sha256": "477f4bd955d77cbcedbac979dc5b3f36fdd8edf39f39a2b0e9dd7b7a277ec2df"
+    }
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P31",
+      "P35",
+      "P37",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "P40": "Whole safe literal get/subscript quantity; membership boundary explicitly limited with actual falsifier, and3 new full-module failures require classification before batched repair."
+  },
+  "source_freeze": false,
+  "closure_ids": [],
+  "proposal_fields": {
+    "component": "reviewed_exact_lookup_candidate",
+    "whole_selected_gate": "FAIL8",
+    "formal_G_closure": false,
+    "finding_ids": []
+  },
+  "next_check": "Classify/fix3 additional actual failures without weakening source/reflection guard; settle IR importer owner boundary, regenerate actual registry through owner after frozen contracts, then canonical full gate and field-corruption controls. Root continues independent source queue."
+}

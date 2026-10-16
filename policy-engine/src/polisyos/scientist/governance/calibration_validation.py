@@ -701,8 +701,18 @@ class CalibrationValidationRunner:
         self._leaderboard = leaderboard or CalibrationLeaderboard()
         self._lesson_publisher = lesson_publisher or CalibrationValidationLessonPublisher()
 
-    def run(self, bundle: CalibrationValidationRunnerInput) -> CalibrationValidationRunnerResult:
-        """Execute the full calibration validation stage for one candidate."""
+    def run(
+        self,
+        bundle: CalibrationValidationRunnerInput,
+        *,
+        return_selected_profile: bool = False,
+    ) -> CalibrationValidationRunnerResult:
+        """Execute calibration validation and persist its report.
+
+        Args:
+            bundle: Candidate and evidence inputs for this validation run.
+            return_selected_profile: Return the report write's selected profile.
+        """
 
         selected_roles = _selected_split_roles(bundle)
         selected_role_payload = _selected_split_role_payload(selected_roles)
@@ -728,7 +738,9 @@ class CalibrationValidationRunner:
                 bundle_input=bundle,
                 validation_bundle=blocked,
             )
-            blocked_ref = persist_calibration_validation_bundle(self._store, blocked)
+            blocked_ref = persist_calibration_validation_bundle(
+                self._store, blocked, return_selected_profile=return_selected_profile
+            )
             fresh = load_calibration_validation_bundle(self._store, blocked_ref)
             return CalibrationValidationRunnerResult(bundle_ref=blocked_ref, bundle=fresh)
 
@@ -769,7 +781,10 @@ class CalibrationValidationRunner:
                 },
             )
             ref = persist_calibration_validation_bundle(
-                self._store, diagnostic_bundle, inputs=artifact_inputs
+                self._store,
+                diagnostic_bundle,
+                inputs=artifact_inputs,
+                return_selected_profile=return_selected_profile,
             )
             fresh = load_calibration_validation_bundle(self._store, ref)
             return CalibrationValidationRunnerResult(bundle_ref=ref, bundle=fresh)
@@ -846,6 +861,7 @@ class CalibrationValidationRunner:
             self._store,
             validation_bundle,
             inputs=artifact_inputs,
+            return_selected_profile=return_selected_profile,
         )
         fresh = load_calibration_validation_bundle(self._store, bundle_ref)
         return CalibrationValidationRunnerResult(bundle_ref=bundle_ref, bundle=fresh)
@@ -972,7 +988,10 @@ class CalibrationValidationLessonPublisher:
         lesson_context = resolve_transfer_context(
             run_id=bundle_input.run_id, task_family="policy", domain="general"
         )
-        return registry.record_local(card, context=lesson_context)
+        published_ref: object = registry.record_local(card, context=lesson_context)
+        if not isinstance(published_ref, ArtifactRef):
+            raise TypeError("lesson registry record_local must return an ArtifactRef")
+        return published_ref
 
 
 def persist_calibration_validation_bundle(
@@ -980,6 +999,7 @@ def persist_calibration_validation_bundle(
     bundle: CalibrationValidationBundle,
     *,
     inputs: list[InputRef] | None = None,
+    return_selected_profile: bool = False,
 ) -> CalibrationValidationBundleRef:
     """Persist a calibration validation bundle to the artifact store.
 
@@ -987,6 +1007,7 @@ def persist_calibration_validation_bundle(
         store: CAS backend used for durable bundle storage.
         bundle: Validation payload to serialize.
         inputs: Optional provenance links to upstream candidate artifacts.
+        return_selected_profile: Return the exact profile selected by this write.
 
     Returns:
         Typed artifact ref for the stored bundle.
@@ -1015,6 +1036,7 @@ def persist_calibration_validation_bundle(
             inputs=resolved_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return CalibrationValidationBundleRef.model_validate(ref.model_dump())
 

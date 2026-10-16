@@ -289,10 +289,18 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
             baseline_metrics={"policy_value": 100.0, "coverage": 0.9},
             lesson_registry=registry,
             accountability_input=_accountability_input(),
-        )
+        ),
+        return_selected_profile=True,
     )
 
     assert result.bundle_ref.kind == "scientist.calibration_validation_bundle"
+    assert result.bundle_ref.manifest_profile_sha256 is not None
+    assert (
+        cas_store.get_manifest_by_profile(
+            str(result.bundle_ref.artifact_id), result.bundle_ref.manifest_profile_sha256
+        ).artifact_id
+        == result.bundle_ref.artifact_id
+    )
     assert result.bundle.status == "completed"
     assert result.bundle.backtest_matrix is not None
     assert result.bundle.stress_scenarios is not None
@@ -482,6 +490,7 @@ def test_s1_candidate_diagnostic_is_never_promotable_and_binds_inputs(tmp_path, 
         )
     )
     assert result.bundle.status == result.bundle.purpose == "candidate_diagnostic"
+    assert result.bundle_ref.manifest_profile_sha256 is None
     assert result.bundle.leaderboard_entry is None
     assert result.bundle.stress_scenarios is None
     assert result.bundle.lesson_card_ref is None

@@ -833,7 +833,7 @@ def _run_method_job(
 def run_job(
     spec: JobSpec,
     *,
-    backend: RunnerBackend | None = None,
+    backend: RunnerBackend | MethodBackend | None = None,
     registry_content: Any = None,
     base_state: Any = None,
     cas_root: Path | None = None,
@@ -847,6 +847,7 @@ def run_job(
     """Execute a job spec through the legacy program or Method flow.
 
     Args:
+        backend: A program RunnerBackend or method MethodBackend for the matching job kind.
         capture_dispatch_binding: Record the actual Method request and input-slot state in
             execution evidence. This call-level option is separate from scientific method
             parameters and does not change the JobSpec-derived JobKey.
@@ -879,6 +880,9 @@ def run_job(
             store_factory=store_factory,
             capture_dispatch_binding=capture_dispatch_binding,
         )
+
+    if isinstance(backend, MethodBackend):
+        raise TypeError("MethodBackend cannot execute a legacy-program JobSpec")
 
     legacy_backend = (
         backend

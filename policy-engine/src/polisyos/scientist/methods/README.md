@@ -39,4 +39,17 @@ uv run pytest tests/unit/scientist/methods -q
 
 ## Last Updated
 
-2026-05-05
+2026-10-16
+
+## Advanced C7 MethodJob lineage
+
+Each `C7PersistedArtifact` retains its selected `job_result_refs` alongside the
+method result and evidence references. The C7 adapters persist and read back the
+typed `JobSpec` before execution, then persist the typed `JobResult` with
+selected lineage edges to that request and its method result/evidence. A fresh
+reader can follow the bundle manifest to the job result, the exact request
+(including method parameters, seed, and selected input slots), and the method
+outputs. JSON-native method-state metadata is preserved in the selected input
+slots; unsupported values refuse serialization. The compute runner also refuses a
+MethodBackend for a legacy-program JobSpec. These internal replay links do not
+establish source-data custody, calibration, or method-validity authority.

@@ -11,12 +11,19 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.common.serialization import to_python_data
+from polisyos.core.artifacts import load_core_json_artifact
+from polisyos.core.artifacts.manifest import (
+    ArtifactRef,
+    SchemaInfo,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.foundry.data_plane import materialize_method_contract
 from polisyos.foundry.methods.catalog.ml.protocols import (
     ClusteringResult,
@@ -46,7 +53,12 @@ from polisyos.ir.observation.contract_compilers import (
     write_npz_payload,
     write_parquet_rows,
 )
-from polisyos.scientist.compute.runner import MethodBackend, MethodRuntimeProviders
+from polisyos.scientist.compute.job_spec import JobKey, JobResult, JobSpec
+from polisyos.scientist.compute.runner import (
+    MethodBackend,
+    MethodRuntimeProviders,
+    run_job,
+)
 
 if TYPE_CHECKING:
     from polisyos.ir.kernel.base import KernelModel
@@ -145,6 +157,7 @@ class C7PersistedArtifact:
     method_result_refs: tuple[ArtifactRef, ...] = ()
     method_evidence_refs: tuple[ArtifactRef, ...] = ()
     metadata: dict[str, Any] = field(default_factory=dict)
+    job_result_refs: tuple[ArtifactRef, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -219,13 +232,10 @@ def _numeric_feature_fields(
 
 
 def _rows_to_matrix(rows: Sequence[Mapping[str, Any]], fields: Sequence[str]) -> np.ndarray:
-    return cast(
-        "np.ndarray",
-        np.asarray(
-            [[_coerce_float(row.get(field)) for field in fields] for row in rows],
-            dtype=float,
-        ).astype(float, copy=False),
-    )
+    return np.asarray(
+        [[_coerce_float(row.get(field)) for field in fields] for row in rows],
+        dtype=float,
+    ).astype(float, copy=False)
 
 
 def _artifact_kind(artifact_name: str) -> str:
@@ -242,6 +252,7 @@ def _persist_bytes(
     schema_name: str,
     schema_version: str,
     inputs: Sequence[ArtifactRef] = (),
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
     return store.put_bytes(
         payload,
@@ -250,10 +261,11 @@ def _persist_bytes(
             media_type=media_type,
             schema=SchemaInfo(name=schema_name, version=schema_version),
             inputs=[
-                InputRef(artifact_id=ref.artifact_id, role=f"upstream:{index}")
+                input_ref_from_artifact_ref(ref, role=f"upstream:{index}")
                 for index, ref in enumerate(inputs)
             ],
         ),
+        return_selected_profile=return_selected_profile,
     )
 
 
@@ -262,17 +274,22 @@ def _persist_json_model(
     *,
     bundle: KernelModel,
     inputs: Sequence[ArtifactRef] = (),
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
+    artifact_name = getattr(bundle, "artifact_name", None)
+    if not isinstance(artifact_name, str) or not artifact_name.strip():
+        raise TypeError("C7 JSON bundle must expose a non-empty artifact_name")
     with TemporaryDirectory() as tmpdir:
-        path = write_json_bundle(bundle, Path(tmpdir) / bundle.artifact_name)
+        path = write_json_bundle(bundle, Path(tmpdir) / artifact_name)
         return _persist_bytes(
             store,
-            artifact_name=bundle.artifact_name,
+            artifact_name=artifact_name,
             media_type="application/json",
             payload=path.read_bytes(),
             schema_name=bundle.__class__.__name__,
             schema_version=str(getattr(bundle, "schema_version", "1.0")),
             inputs=inputs,
+            return_selected_profile=return_selected_profile,
         )
 
 
@@ -283,6 +300,7 @@ def _persist_npz_payload(
     payload: Mapping[str, Any],
     manifest: KernelModel,
     inputs: Sequence[ArtifactRef] = (),
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
     with TemporaryDirectory() as tmpdir:
         path = write_npz_payload(payload, Path(tmpdir) / artifact_name)
@@ -294,6 +312,7 @@ def _persist_npz_payload(
             schema_name=manifest.__class__.__name__,
             schema_version=str(getattr(manifest, "schema_version", "1.0")),
             inputs=inputs,
+            return_selected_profile=return_selected_profile,
         )
 
 
@@ -304,6 +323,7 @@ def _persist_parquet_rows_bundle(
     rows: Sequence[Mapping[str, Any]],
     manifest: KernelModel,
     inputs: Sequence[ArtifactRef] = (),
+    return_selected_profile: bool = False,
 ) -> ArtifactRef:
     with TemporaryDirectory() as tmpdir:
         path = write_parquet_rows(rows, Path(tmpdir) / artifact_name)
@@ -315,7 +335,207 @@ def _persist_parquet_rows_bundle(
             schema_name=manifest.__class__.__name__,
             schema_version=str(getattr(manifest, "schema_version", "1.0")),
             inputs=inputs,
+            return_selected_profile=return_selected_profile,
         )
+
+
+def _method_input_values(input_state: Any) -> dict[str, Any]:
+    """Serialize the complete runtime state as selected MethodJob slot values.
+
+    JSON-native metadata and explicit nulls are retained as ordinary state.
+    Unsupported values and non-string keys fail instead of being omitted or
+    coerced into a different field identity.
+    """
+    if isinstance(input_state, Mapping):
+        raw_values: Mapping[str, Any] = input_state
+    elif isinstance(input_state, SimpleNamespace):
+        raw_values = vars(input_state)
+    else:
+        model_dump = getattr(input_state, "model_dump", None)
+        if not callable(model_dump):
+            raise TypeError(f"unsupported C7 method input state: {type(input_state).__name__}")
+        raw_values = model_dump(
+            mode="python",
+            by_alias=True,
+            exclude_none=False,
+            exclude_unset=False,
+        )
+
+    active: set[int] = set()
+
+    def _validate_string_keys(value: Any) -> None:
+        object_id = id(value)
+        if isinstance(value, Mapping):
+            if object_id in active:
+                raise ValueError("C7 method input state cannot contain cycles")
+            active.add(object_id)
+            try:
+                for name, nested in value.items():
+                    if not isinstance(name, str) or not name:
+                        raise TypeError("C7 method input object keys must be non-empty strings")
+                    _validate_string_keys(nested)
+            finally:
+                active.remove(object_id)
+        elif isinstance(value, (list, tuple)):
+            if object_id in active:
+                raise ValueError("C7 method input state cannot contain cycles")
+            active.add(object_id)
+            try:
+                for nested in value:
+                    _validate_string_keys(nested)
+            finally:
+                active.remove(object_id)
+        else:
+            model_dump = getattr(value, "model_dump", None)
+            tolist = getattr(value, "tolist", None)
+            if callable(model_dump):
+                if object_id in active:
+                    raise ValueError("C7 method input state cannot contain cycles")
+                active.add(object_id)
+                try:
+                    _validate_string_keys(
+                        model_dump(
+                            mode="python",
+                            by_alias=True,
+                            exclude_none=False,
+                            exclude_unset=False,
+                        )
+                    )
+                finally:
+                    active.remove(object_id)
+            elif callable(tolist):
+                if object_id in active:
+                    raise ValueError("C7 method input state cannot contain cycles")
+                active.add(object_id)
+                try:
+                    _validate_string_keys(tolist())
+                finally:
+                    active.remove(object_id)
+
+    _validate_string_keys(raw_values)
+    normalized = to_python_data(raw_values, sort_keys=True, unsupported="error")
+    if not isinstance(normalized, Mapping):
+        raise TypeError("C7 method input state must serialize to a mapping")
+    return dict(normalized)
+
+
+def _persist_method_input_refs(
+    store: FileSystemCAS,
+    *,
+    method_fqn: str,
+    input_state: Any,
+) -> dict[str, ArtifactRef]:
+    """Persist every actual method-state field and return selected slot refs."""
+    method_schema_name = method_fqn.replace("@", ".")
+    refs: dict[str, ArtifactRef] = {}
+    for slot_name, value in sorted(_method_input_values(input_state).items()):
+        ref = store.put_json(
+            value,
+            PutOptions(
+                kind="scientist.method_input_slot",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name=(f"polisyos.scientist.MethodInput.{method_schema_name}.{slot_name}"),
+                    version="0.1.0",
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+            return_selected_profile=True,
+        )
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError(f"method input slot {slot_name!r} has no selected manifest profile")
+        refs[slot_name] = ref
+    return refs
+
+
+_METHOD_JOB_SPEC_KIND = "scientist.compute.job_spec"
+_METHOD_JOB_RESULT_KIND = "scientist.compute.job_result"
+_METHOD_JOB_SCHEMA_VERSION = "0.1.0"
+
+
+def _persist_selected_job_spec(
+    store: FileSystemCAS,
+    spec: JobSpec,
+) -> tuple[JobSpec, ArtifactRef]:
+    """Persist and reload the typed request that the MethodJob will execute."""
+    payload = to_python_data(spec.model_dump(mode="json"), sort_keys=True, unsupported="error")
+    if not isinstance(payload, Mapping):
+        raise TypeError("MethodJob request must serialize to a JSON object")
+    ref = store.put_json(
+        payload,
+        PutOptions(
+            kind=_METHOD_JOB_SPEC_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.compute.JobSpec",
+                version=_METHOD_JOB_SCHEMA_VERSION,
+            ),
+            inputs=[
+                input_ref_from_artifact_ref(ref, role=f"input:{slot}")
+                for slot, ref in sorted(spec.input_refs.items())
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+        return_selected_profile=True,
+    )
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("MethodJob request has no selected manifest profile")
+    selected_payload = load_core_json_artifact(store, ref)
+    if not isinstance(selected_payload, Mapping):
+        raise TypeError("selected MethodJob request is not a JSON object")
+    selected_spec = JobSpec.model_validate(selected_payload)
+    if selected_spec != spec:
+        raise ValueError("selected MethodJob request differs from the requested JobSpec")
+    return selected_spec, ref
+
+
+def _persist_selected_job_result(
+    store: FileSystemCAS,
+    *,
+    spec: JobSpec,
+    spec_ref: ArtifactRef,
+    result: JobResult,
+) -> ArtifactRef:
+    """Persist a typed result bound to its selected request and method outputs."""
+    if result.job_key != JobKey.from_spec(spec):
+        raise ValueError("MethodJob result key does not match its selected JobSpec")
+    if result.method_result_ref is None or result.method_evidence_ref is None:
+        raise ValueError("successful MethodJob result requires method result and evidence refs")
+    payload = to_python_data(result.model_dump(mode="python"), sort_keys=True, unsupported="error")
+    if not isinstance(payload, Mapping):
+        raise TypeError("MethodJob result must serialize to a JSON object")
+    ref = store.put_json(
+        payload,
+        PutOptions(
+            kind=_METHOD_JOB_RESULT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.compute.JobResult",
+                version=_METHOD_JOB_SCHEMA_VERSION,
+            ),
+            inputs=[
+                input_ref_from_artifact_ref(spec_ref, role="job_spec"),
+                input_ref_from_artifact_ref(result.method_result_ref, role="method_result"),
+                input_ref_from_artifact_ref(result.method_evidence_ref, role="method_evidence"),
+            ],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=True),
+        return_selected_profile=True,
+    )
+    if ref.manifest_profile_sha256 is None:
+        raise ValueError("MethodJob result has no selected manifest profile")
+    selected_payload = load_core_json_artifact(store, ref)
+    if not isinstance(selected_payload, Mapping):
+        raise TypeError("selected MethodJob result is not a JSON object")
+    selected_result = JobResult.model_validate(selected_payload)
+    selected_result_payload = to_python_data(
+        selected_result.model_dump(mode="python"), sort_keys=True, unsupported="error"
+    )
+    if selected_result_payload != payload:
+        raise ValueError("selected MethodJob result differs from the written JobResult")
+    if selected_result.job_key != JobKey.from_spec(spec):
+        raise ValueError("selected MethodJob result key does not match its selected JobSpec")
+    return ref
 
 
 class _AdvancedMethodBase:
@@ -326,10 +546,13 @@ class _AdvancedMethodBase:
         *,
         method_registry: MethodRegistry | None = None,
         method_registry_provider: Callable[[], MethodRegistry] | None = None,
+        return_selected_profile: bool = False,
     ) -> None:
         self.store = store
         self.backend = backend or MethodBackend()
+        self._return_selected_profile = return_selected_profile
         self._method_registry = method_registry
+        self._method_registry_provider: Callable[[], MethodRegistry] | None = None
         if method_registry_provider is not None:
             self._method_registry_provider = method_registry_provider
         elif method_registry is not None:
@@ -345,27 +568,54 @@ class _AdvancedMethodBase:
         method_params: Mapping[str, Any],
         seed: int,
         input_refs: Mapping[str, ArtifactRef] | None = None,
-    ) -> tuple[dict[str, Any], ArtifactRef, ArtifactRef]:
+    ) -> tuple[dict[str, Any], ArtifactRef, ArtifactRef, ArtifactRef]:
+        if input_refs:
+            raise ValueError(
+                "C7 method inputs must be derived from the executed state, not supplied refs"
+            )
         _ensure_method_module_loaded(
             method_fqn,
             registry=self._method_registry,
             registry_provider=self._method_registry_provider,
         )
-        execution = self.backend.run(
-            cas_root=self.store.root,
+        selected_input_refs = _persist_method_input_refs(
+            self.store,
             method_fqn=method_fqn,
-            method_version=None,
             input_state=input_state,
-            method_params=method_params,
-            seed=seed,
-            input_refs=input_refs,
         )
-        final_state = execution.final_state
+        spec = JobSpec(
+            job_kind="method",
+            method_fqn=method_fqn,
+            method_version=(method_fqn.rsplit("@", 1)[1] if "@" in method_fqn else None),
+            method_params=dict(to_python_data(method_params, sort_keys=True, unsupported="error")),
+            seed=seed,
+            input_refs=selected_input_refs,
+        )
+        selected_spec, spec_ref = _persist_selected_job_spec(self.store, spec)
+        job_result = run_job(
+            selected_spec,
+            backend=self.backend,
+            cas_root=self.store.root,
+            method_state=None,
+            capture_dispatch_binding=False,
+        )
+        if job_result.issues:
+            raise RuntimeError(f"C7 MethodJob failed for {method_fqn}: {job_result.issues}")
+        if job_result.method_result_ref is None or job_result.method_evidence_ref is None:
+            raise RuntimeError(f"C7 MethodJob produced no result/evidence refs for {method_fqn}")
+        job_result_ref = _persist_selected_job_result(
+            self.store,
+            spec=selected_spec,
+            spec_ref=spec_ref,
+            result=job_result,
+        )
+        final_state = job_result.final_state
         payload = dict(final_state) if isinstance(final_state, Mapping) else {"result": final_state}
         return (
             payload,
-            execution.exec_artifacts.result_ref,
-            execution.exec_artifacts.evidence_ref,
+            job_result.method_result_ref,
+            job_result.method_evidence_ref,
+            job_result_ref,
         )
 
 
@@ -440,7 +690,7 @@ class FactorModelEmbeddingBuilder(_AdvancedMethodBase):
             if inputs.temporal_embedding_mode == "dynamic"
             else "econometrics.factor.principal_components@1.0.0"
         )
-        result, method_result_ref, method_evidence_ref = self._run_method(
+        result, method_result_ref, method_evidence_ref, job_result_ref = self._run_method(
             method_fqn=method_fqn,
             input_state=SimpleNamespace(exog=matrix),
             method_params={"n_factors": n_factors},
@@ -496,7 +746,8 @@ class FactorModelEmbeddingBuilder(_AdvancedMethodBase):
                 "explained_variance_ratio": explained,
             },
             manifest=manifest,
-            inputs=(method_result_ref, method_evidence_ref),
+            inputs=(method_result_ref, method_evidence_ref, job_result_ref),
+            return_selected_profile=self._return_selected_profile,
         )
         return C7PersistedArtifact(
             artifact_name=manifest.artifact_name,
@@ -504,6 +755,7 @@ class FactorModelEmbeddingBuilder(_AdvancedMethodBase):
             manifest=manifest,
             method_result_refs=(method_result_ref,),
             method_evidence_refs=(method_evidence_ref,),
+            job_result_refs=(job_result_ref,),
             metadata={
                 "agent_count": int(agent_ids.shape[0]),
                 "feature_fields": list(feature_fields),
@@ -559,7 +811,7 @@ class CellPrototypeBuilder(_AdvancedMethodBase):
         )
         matrix = _rows_to_matrix(merged_rows, feature_fields)
         k = max(2, min(8, matrix.shape[0] - 1))
-        result, method_result_ref, method_evidence_ref = self._run_method(
+        result, method_result_ref, method_evidence_ref, job_result_ref = self._run_method(
             method_fqn="ml.clustering.kmeans@1.0.0",
             input_state=TabularData(features=matrix, feature_names=list(feature_fields)),
             method_params={"n_clusters": k, "random_state": inputs.seed},
@@ -600,7 +852,8 @@ class CellPrototypeBuilder(_AdvancedMethodBase):
                 "prototype_centers": np.asarray(clustering_result.centers, dtype=float),
             },
             manifest=manifest,
-            inputs=(method_result_ref, method_evidence_ref),
+            inputs=(method_result_ref, method_evidence_ref, job_result_ref),
+            return_selected_profile=self._return_selected_profile,
         )
         return C7PersistedArtifact(
             artifact_name=manifest.artifact_name,
@@ -608,6 +861,7 @@ class CellPrototypeBuilder(_AdvancedMethodBase):
             manifest=manifest,
             method_result_refs=(method_result_ref,),
             method_evidence_refs=(method_evidence_ref,),
+            job_result_refs=(job_result_ref,),
             metadata={"cell_count": int(cell_ids.shape[0]), "feature_fields": list(feature_fields)},
         )
 
@@ -642,7 +896,7 @@ class BilevelOptimizationAdapter(_AdvancedMethodBase):
             "delta_near_opt": float(inputs.bilevel_delta_near_opt),
             "certificate_mode": inputs.bilevel_certificate_mode,
         }
-        result, method_result_ref, method_evidence_ref = self._run_method(
+        result, method_result_ref, method_evidence_ref, job_result_ref = self._run_method(
             method_fqn=method_fqn,
             input_state={
                 "c_upper": c_upper,
@@ -674,7 +928,8 @@ class BilevelOptimizationAdapter(_AdvancedMethodBase):
         bundle_ref = _persist_json_model(
             self.store,
             bundle=bundle,
-            inputs=(method_result_ref, method_evidence_ref),
+            inputs=(method_result_ref, method_evidence_ref, job_result_ref),
+            return_selected_profile=self._return_selected_profile,
         )
         return C7PersistedArtifact(
             artifact_name=bundle.artifact_name,
@@ -682,6 +937,7 @@ class BilevelOptimizationAdapter(_AdvancedMethodBase):
             manifest=bundle,
             method_result_refs=(method_result_ref,),
             method_evidence_refs=(method_evidence_ref,),
+            job_result_refs=(job_result_ref,),
             metadata={"knob_names": knob_names},
         )
 
@@ -727,7 +983,7 @@ class HeckmanCorrectionAdapter(_AdvancedMethodBase):
             [1.0 if str(row["firm_id"]) in next_firms else 0.0 for row in current_rows],
             dtype=float,
         )
-        result, method_result_ref, method_evidence_ref = self._run_method(
+        result, method_result_ref, method_evidence_ref, job_result_ref = self._run_method(
             method_fqn="econometrics.selection.heckman@1.0.0",
             input_state={
                 "X_outcome": X_outcome,
@@ -797,7 +1053,8 @@ class HeckmanCorrectionAdapter(_AdvancedMethodBase):
             artifact_name=bundle.artifact_name,
             rows=rows,
             manifest=bundle,
-            inputs=(method_result_ref, method_evidence_ref),
+            inputs=(method_result_ref, method_evidence_ref, job_result_ref),
+            return_selected_profile=self._return_selected_profile,
         )
         return C7PersistedArtifact(
             artifact_name=bundle.artifact_name,
@@ -805,6 +1062,7 @@ class HeckmanCorrectionAdapter(_AdvancedMethodBase):
             manifest=bundle,
             method_result_refs=(method_result_ref,),
             method_evidence_refs=(method_evidence_ref,),
+            job_result_refs=(job_result_ref,),
             metadata={
                 "row_count": len(rows),
                 "current_period": current_period,
@@ -825,8 +1083,7 @@ def _materialize_survival_contract(
     )
     if not isinstance(materialized, SurvivalData):
         raise ValueError(
-            "C7 survival input must materialize SurvivalData, "
-            f"got {type(materialized).__name__}"
+            f"C7 survival input must materialize SurvivalData, got {type(materialized).__name__}"
         )
     return materialized
 
@@ -838,7 +1095,7 @@ class SurvivalModelAdapter(_AdvancedMethodBase):
         survival_contract = _materialize_survival_contract(inputs.survival_contract)
         if len(inputs.survival_row_metadata) != int(survival_contract.features.shape[0]):
             raise ValueError("survival_row_metadata must align with SurvivalData rows")
-        result, method_result_ref, method_evidence_ref = self._run_method(
+        result, method_result_ref, method_evidence_ref, job_result_ref = self._run_method(
             method_fqn="ml.survival.survival_analysis@1.0.0",
             input_state=survival_contract,
             method_params={},
@@ -884,7 +1141,8 @@ class SurvivalModelAdapter(_AdvancedMethodBase):
             artifact_name=bundle.artifact_name,
             rows=rows,
             manifest=bundle,
-            inputs=(method_result_ref, method_evidence_ref),
+            inputs=(method_result_ref, method_evidence_ref, job_result_ref),
+            return_selected_profile=self._return_selected_profile,
         )
         return C7PersistedArtifact(
             artifact_name=bundle.artifact_name,
@@ -892,6 +1150,7 @@ class SurvivalModelAdapter(_AdvancedMethodBase):
             manifest=bundle,
             method_result_refs=(method_result_ref,),
             method_evidence_refs=(method_evidence_ref,),
+            job_result_refs=(job_result_ref,),
             metadata={"row_count": len(rows), "firm_count": len(latest_hazard_by_firm)},
         )
 
@@ -908,6 +1167,7 @@ class SobolDiagnosticsAdapter(_AdvancedMethodBase):
         variance: list[float] = []
         method_result_refs: list[ArtifactRef] = []
         method_evidence_refs: list[ArtifactRef] = []
+        job_result_refs: list[ArtifactRef] = []
         for offset, target_name in enumerate(target_names):
             payload = dict(inputs.sobol_targets[target_name])
             candidate_ids = [str(item) for item in payload["source_combination_ids"]]
@@ -917,7 +1177,7 @@ class SobolDiagnosticsAdapter(_AdvancedMethodBase):
                 raise ValueError(
                     "all sobol targets must share the same source_combination_ids ordering"
                 )
-            result, method_result_ref, method_evidence_ref = self._run_method(
+            result, method_result_ref, method_evidence_ref, job_result_ref = self._run_method(
                 method_fqn="sensitivity.global.sobol_first_order@1.0.0",
                 input_state={
                     "outputs_a": np.asarray(payload["outputs_a"], dtype=float),
@@ -932,6 +1192,7 @@ class SobolDiagnosticsAdapter(_AdvancedMethodBase):
             variance.append(float(summary["variance"]))
             method_result_refs.append(method_result_ref)
             method_evidence_refs.append(method_evidence_ref)
+            job_result_refs.append(job_result_ref)
         bundle = SobolDiagnosticsBundle(
             target_names=target_names,
             source_combination_ids=source_combination_ids or [],
@@ -942,7 +1203,8 @@ class SobolDiagnosticsAdapter(_AdvancedMethodBase):
         bundle_ref = _persist_json_model(
             self.store,
             bundle=bundle,
-            inputs=(*method_result_refs, *method_evidence_refs),
+            inputs=(*method_result_refs, *method_evidence_refs, *job_result_refs),
+            return_selected_profile=self._return_selected_profile,
         )
         return C7PersistedArtifact(
             artifact_name=bundle.artifact_name,
@@ -950,6 +1212,7 @@ class SobolDiagnosticsAdapter(_AdvancedMethodBase):
             manifest=bundle,
             method_result_refs=tuple(method_result_refs),
             method_evidence_refs=tuple(method_evidence_refs),
+            job_result_refs=tuple(job_result_refs),
             metadata={
                 "target_count": len(target_names),
                 "source_combination_ids": list(source_combination_ids or []),
@@ -961,7 +1224,7 @@ class SpecificationCurveAdapter(_AdvancedMethodBase):
     """Persist specification-curve diagnostics for robustness reporting."""
 
     def run(self, inputs: C7AdvancedInputs) -> C7PersistedArtifact:
-        result, method_result_ref, method_evidence_ref = self._run_method(
+        result, method_result_ref, method_evidence_ref, job_result_ref = self._run_method(
             method_fqn="sensitivity.specification.specification_curve@1.0.0",
             input_state=inputs.specification_curve_input,
             method_params={},
@@ -978,7 +1241,8 @@ class SpecificationCurveAdapter(_AdvancedMethodBase):
         bundle_ref = _persist_json_model(
             self.store,
             bundle=bundle,
-            inputs=(method_result_ref, method_evidence_ref),
+            inputs=(method_result_ref, method_evidence_ref, job_result_ref),
+            return_selected_profile=self._return_selected_profile,
         )
         return C7PersistedArtifact(
             artifact_name=bundle.artifact_name,
@@ -986,6 +1250,7 @@ class SpecificationCurveAdapter(_AdvancedMethodBase):
             manifest=bundle,
             method_result_refs=(method_result_ref,),
             method_evidence_refs=(method_evidence_ref,),
+            job_result_refs=(job_result_ref,),
             metadata={"specification_count": len(bundle.specification_ids)},
         )
 
@@ -997,12 +1262,14 @@ def run_c7_advanced_suite(
     backend: MethodBackend | None = None,
     method_registry: MethodRegistry | None = None,
     method_runtime_providers: MethodRuntimeProviders | None = None,
+    return_selected_profile: bool = False,
 ) -> C7AdvancedSuiteResult:
     """Run the full C7 advanced-method bundle build in a fixed order.
 
     Args:
         store: CAS store used to persist all intermediate method outputs.
         inputs: Normalized C7 payload shared across advanced adapters.
+        return_selected_profile: Return the selected profile from each output write.
 
     Returns:
         A ``C7AdvancedSuiteResult`` containing bundle references for factor
@@ -1030,42 +1297,49 @@ def run_c7_advanced_suite(
         resolved_backend,
         method_registry=method_registry,
         method_registry_provider=registry_provider,
+        return_selected_profile=return_selected_profile,
     ).run(inputs)
     cell_prototypes = CellPrototypeBuilder(
         store,
         resolved_backend,
         method_registry=method_registry,
         method_registry_provider=registry_provider,
+        return_selected_profile=return_selected_profile,
     ).run(inputs)
     bilevel_problem = BilevelOptimizationAdapter(
         store,
         resolved_backend,
         method_registry=method_registry,
         method_registry_provider=registry_provider,
+        return_selected_profile=return_selected_profile,
     ).run(inputs)
     heckman_correction = HeckmanCorrectionAdapter(
         store,
         resolved_backend,
         method_registry=method_registry,
         method_registry_provider=registry_provider,
+        return_selected_profile=return_selected_profile,
     ).run(inputs)
     survival_hazards = SurvivalModelAdapter(
         store,
         resolved_backend,
         method_registry=method_registry,
         method_registry_provider=registry_provider,
+        return_selected_profile=return_selected_profile,
     ).run(inputs)
     sobol_diagnostics = SobolDiagnosticsAdapter(
         store,
         resolved_backend,
         method_registry=method_registry,
         method_registry_provider=registry_provider,
+        return_selected_profile=return_selected_profile,
     ).run(inputs)
     specification_curve = SpecificationCurveAdapter(
         store,
         resolved_backend,
         method_registry=method_registry,
         method_registry_provider=registry_provider,
+        return_selected_profile=return_selected_profile,
     ).run(inputs)
     return C7AdvancedSuiteResult(
         factor_embeddings=factor_embeddings,

@@ -1,0 +1,24 @@
+id = "2026-10-16-e02-c7-method-job-provenance"
+title = "Persist C7 MethodJob requests and results"
+type = "changed"
+component = "scientist-methods"
+owner = "team-policyos-runtime"
+summary = "C7 advanced adapters persist and read back typed MethodJob requests and results, expose selected JobResult refs, and the compute runner rejects a MethodBackend for a legacy-program request."
+evidence = [
+  "src/polisyos/scientist/methods/advanced.py",
+  "src/polisyos/scientist/compute/runner.py",
+  "tests/unit/scientist/compute/test_runner_polyglot.py",
+  "tests/unit/scientist/methods/test_advanced.py",
+  "tests/integration/test_c7_synthetic_full_pipeline.py",
+  "src/polisyos/scientist/methods/README.md",
+]
+compatibility = "Additive defaulted job_result_refs field at the end of C7PersistedArtifact; existing positional fields, return_selected_profile defaults, compute JobSpec/JobResult types, and other MethodJob callers remain unchanged."
+change_class = "python-public-api"
+surface_classification = "public_candidate: C7PersistedArtifact.job_result_refs"
+migration = "No migration. Existing C7 callers may follow job_result_refs to the typed JobResult and its selected JobSpec edge."
+api = "C7 stores the full JSON-native runtime input state in selected MethodJob slots, persists and reloads the typed JobSpec, invokes run_job(method_state=None), then stores a typed JobResult linked to the request, method result, and method evidence. C7 bundle manifests preserve selected profiles on all these edges. run_job rejects MethodBackend for a legacy-program JobSpec before legacy dispatch."
+limitations = "The bridge records the method-native request and output lineage only. It does not establish external source custody, currentness, calibration, or method-validity authority; the existing numeric-only dispatch-binding diagnostic remains optional and is not the provenance gate."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

@@ -7,7 +7,7 @@ from typing import Any
 
 import numpy as np
 
-from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.fabric import DataSnapshot, EvidenceBundle, EvidenceBundleRef
@@ -706,6 +706,7 @@ def persist_c7_synthetic_snapshot(
     store: FileSystemCAS,
     *,
     fixture: C7SyntheticFixture,
+    return_selected_profile: bool = False,
 ) -> tuple[dict[str, ArtifactRef], ArtifactRef, ArtifactRef]:
     source_refs: dict[str, ArtifactRef] = {}
     for name, path in fixture.parquet_paths.items():
@@ -716,6 +717,7 @@ def persist_c7_synthetic_snapshot(
                 media_type="application/parquet",
                 schema=SchemaInfo(name=f"c7.synthetic.{name}", version="1.0"),
             ),
+            return_selected_profile=return_selected_profile,
         )
     payload_ref = store.put_json(
         fixture.normalized_payload,
@@ -725,6 +727,19 @@ def persist_c7_synthetic_snapshot(
             schema=SchemaInfo(name="c7.synthetic.multiscale_payload", version="1.0"),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
+    )
+    evidence_inputs = (
+        [
+            InputRef(
+                artifact_id=ref.artifact_id,
+                role=f"source:{name}",
+                manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+            for name, ref in sorted(source_refs.items())
+        ]
+        if return_selected_profile
+        else []
     )
     evidence_ref = store.put_json(
         EvidenceBundle(
@@ -735,13 +750,15 @@ def persist_c7_synthetic_snapshot(
             kind="fabric.evidence_bundle",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.EvidenceBundle", version="1.0"),
+            inputs=evidence_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     snapshot_ref = store.put_json(
         DataSnapshot(
             data_ref=payload_ref,
-            evidence_ref=EvidenceBundleRef(artifact_id=evidence_ref.artifact_id),
+            evidence_ref=EvidenceBundleRef.model_validate(evidence_ref.model_dump(mode="python")),
             stats={
                 "agent_count": N_AGENTS,
                 "firm_count": N_FIRMS,
@@ -755,8 +772,25 @@ def persist_c7_synthetic_snapshot(
             kind="fabric.data_snapshot",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            inputs=(
+                [
+                    InputRef(
+                        artifact_id=payload_ref.artifact_id,
+                        role="data_ref",
+                        manifest_profile_sha256=payload_ref.manifest_profile_sha256,
+                    ),
+                    InputRef(
+                        artifact_id=evidence_ref.artifact_id,
+                        role="evidence_ref",
+                        manifest_profile_sha256=evidence_ref.manifest_profile_sha256,
+                    ),
+                ]
+                if return_selected_profile
+                else []
+            ),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
     return source_refs, payload_ref, snapshot_ref
 

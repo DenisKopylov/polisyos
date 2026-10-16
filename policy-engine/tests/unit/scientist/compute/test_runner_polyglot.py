@@ -27,8 +27,9 @@ from polisyos.foundry.methods import (
     Unit,
 )
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.scientist.compute.job_spec import JobKey, JobSpec
-from polisyos.scientist.compute.runner import run_job
+from polisyos.scientist.compute import runner as runner_module
+from polisyos.scientist.compute.job_spec import JobKey, JobResult, JobSpec
+from polisyos.scientist.compute.runner import MethodBackend, RunnerBackend, run_job
 from polisyos.scientist.methods.autotune import execution_work
 
 
@@ -100,6 +101,35 @@ def test_job_key_legacy_ignores_polyglot_fields():
     )
     assert JobKey.from_spec(spec_a) == JobKey.from_spec(spec_a)
     assert JobKey.from_spec(spec_a) != JobKey.from_spec(spec_b)
+
+
+def test_run_job_rejects_method_backend_for_legacy_job_spec(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _legacy_dispatch_is_a_bug(*args, **kwargs):
+        raise AssertionError("legacy runner was reached before backend type refusal")
+
+    monkeypatch.setattr(runner_module, "_run_legacy_job", _legacy_dispatch_is_a_bug)
+    with pytest.raises(TypeError, match="MethodBackend cannot execute a legacy-program JobSpec"):
+        run_job(JobSpec(job_kind="legacy_program"), backend=MethodBackend())
+
+
+def test_run_job_accepts_runner_backend_for_legacy_job_spec(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    spec = JobSpec(job_kind="legacy_program")
+    backend = RunnerBackend()
+    expected = JobResult(job_key=JobKey.from_spec(spec))
+    seen: dict[str, object] = {}
+
+    def _legacy_dispatch(spec_arg, *, backend, **kwargs):
+        seen["spec"] = spec_arg
+        seen["backend"] = backend
+        return expected
+
+    monkeypatch.setattr(runner_module, "_run_legacy_job", _legacy_dispatch)
+    assert run_job(spec, backend=backend) is expected
+    assert seen == {"spec": spec, "backend": backend}
 
 
 def test_run_job_method_flow(tmp_path):

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+from collections.abc import Mapping
 from dataclasses import replace
 
 import numpy as np
@@ -11,6 +12,10 @@ from _helpers.c7_synthetic_data import (
     build_c7_synthetic_fixture,
 )
 
+import polisyos.scientist.methods.advanced as advanced_module
+from polisyos.common.serialization import to_python_data
+from polisyos.core.artifacts import load_core_json_artifact
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog.ml.protocols import SurvivalData
@@ -25,7 +30,14 @@ from polisyos.ir.observation.contract_compilers import (
     load_npz_payload,
     load_parquet_rows,
 )
-from polisyos.scientist.compute.runner import MethodBackend, MethodRuntimeProviders
+from polisyos.scientist.compute.job_spec import JobKey, JobResult, JobSpec
+from polisyos.scientist.compute.runner import (
+    MethodBackend,
+    MethodRuntimeProviders,
+)
+from polisyos.scientist.compute.runner import (
+    run_job as execute_job,
+)
 from polisyos.scientist.methods.advanced import (
     BilevelOptimizationAdapter,
     CellPrototypeBuilder,
@@ -67,6 +79,8 @@ def test_factor_builder_supports_pca_and_dynamic_modes(tmp_path) -> None:
     )
 
     assert store.has(pca_result.bundle_ref.artifact_id)
+    assert pca_result.bundle_ref.manifest_profile_sha256 is None
+    assert dynamic_result.bundle_ref.manifest_profile_sha256 is None
     assert store.has(dynamic_result.bundle_ref.artifact_id)
     assert pca_result.method_result_refs
     assert dynamic_result.method_result_refs
@@ -235,6 +249,27 @@ def test_survival_adapter_materializes_compiled_ir_payload(tmp_path, monkeypatch
         b'{"evidence":true}',
         PutOptions(kind="scientist.method_evidence", media_type="application/json"),
     )
+    method_spec = JobSpec(
+        job_kind="method",
+        method_fqn="ml.survival.survival_analysis@1.0.0",
+        method_version="1.0.0",
+    )
+    job_result_ref = store.put_json(
+        JobResult(
+            job_key=JobKey.from_spec(method_spec),
+            method_result_ref=method_result_ref,
+            method_evidence_ref=method_evidence_ref,
+        ),
+        PutOptions(
+            kind="scientist.compute.job_result",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.compute.JobResult",
+                version="0.1.0",
+            ),
+        ),
+        return_selected_profile=True,
+    )
     observed_input: list[SurvivalData] = []
 
     def _run_method(**kwargs):
@@ -253,6 +288,7 @@ def test_survival_adapter_materializes_compiled_ir_payload(tmp_path, monkeypatch
             },
             method_result_ref,
             method_evidence_ref,
+            job_result_ref,
         )
 
     monkeypatch.setattr(adapter, "_run_method", _run_method)
@@ -260,7 +296,21 @@ def test_survival_adapter_materializes_compiled_ir_payload(tmp_path, monkeypatch
     result = adapter.run(fixture.advanced_inputs)
 
     assert isinstance(fixture.advanced_inputs.survival_contract, dict)
-    assert observed_input
+    assert len(observed_input) == 1
+    expected = fixture.advanced_inputs.survival_contract
+    materialized = observed_input[0]
+    np.testing.assert_array_equal(materialized.features, expected["features"])
+    np.testing.assert_array_equal(materialized.durations, expected["durations"])
+    np.testing.assert_array_equal(materialized.events, expected["events"])
+    assert materialized.feature_names == expected.get("feature_names")
+    assert materialized.metadata == expected.get("metadata", {})
+    assert result.job_result_refs == (job_result_ref,)
+    bundle_manifest = store.get_manifest(result.bundle_ref)
+    assert any(
+        edge.artifact_id == job_result_ref.artifact_id
+        and edge.manifest_profile_sha256 == job_result_ref.manifest_profile_sha256
+        for edge in bundle_manifest.inputs
+    )
     assert store.has(result.bundle_ref.artifact_id)
 
 
@@ -280,15 +330,134 @@ def test_survival_adapter_rejects_malformed_compiled_ir_payload(tmp_path) -> Non
         SurvivalModelAdapter(store).run(malformed_inputs)
 
 
+def test_method_input_snapshot_refuses_transplant_and_missing_profile(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / ".cas_method_input_controls")
+    adapter = FactorModelEmbeddingBuilder(store)
+    caller_state = {"exog": np.asarray([[1.0, 2.0], [3.0, 4.0]])}
+    unrelated_ref = store.put_json(
+        [[90, 91], [92, 93]],
+        PutOptions(
+            kind="scientist.method_input_slot",
+            media_type="application/json",
+            schema=SchemaInfo(name="candidate.transplanted.input", version="0.1.0"),
+        ),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="derived from the executed state"):
+        adapter._run_method(
+            method_fqn="econometrics.factor.principal_components@1.0.0",
+            input_state=caller_state,
+            method_params={"n_factors": 1},
+            seed=17,
+            input_refs={"exog": unrelated_ref},
+        )
+
+    json_native_state = {
+        "explicit_null": None,
+        "metadata": {"source_ids": ["source-a"], "context": {"epoch": 3}},
+    }
+    assert advanced_module._method_input_values(json_native_state) == json_native_state
+    refs = advanced_module._persist_method_input_refs(
+        store,
+        method_fqn="econometrics.factor.principal_components@1.0.0",
+        input_state=json_native_state,
+    )
+    assert set(refs) == set(json_native_state)
+    assert all(ref.manifest_profile_sha256 is not None for ref in refs.values())
+    assert {
+        slot: load_core_json_artifact(store, ref) for slot, ref in refs.items()
+    } == json_native_state
+    with pytest.raises(TypeError, match="keys must be non-empty strings"):
+        advanced_module._method_input_values({"metadata": {1: "not JSON object-key data"}})
+    with pytest.raises(TypeError, match="keys must be non-empty strings"):
+        advanced_module._method_input_values({"metadata": {1: "not JSON object-key data"}})
+    with pytest.raises(ValueError):
+        advanced_module._method_input_values({"unsupported": object()})
+
+    original_put_json = store.put_json
+
+    def _remove_selected_profile(*args, **kwargs):
+        ref = original_put_json(*args, **kwargs)
+        return ref.model_copy(update={"manifest_profile_sha256": None})
+
+    monkeypatch.setattr(store, "put_json", _remove_selected_profile)
+    with pytest.raises(ValueError, match="no selected manifest profile"):
+        advanced_module._persist_method_input_refs(
+            store,
+            method_fqn="econometrics.factor.principal_components@1.0.0",
+            input_state=caller_state,
+        )
+
+
 @pytest.mark.skipif(
     importlib.util.find_spec("lifelines") is None,
     reason="lifelines is required for survival C7 tests",
 )
-def test_run_c7_advanced_suite_persists_all_sidecar_artifacts(tmp_path) -> None:
+def test_run_c7_advanced_suite_persists_all_sidecar_artifacts(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     fixture = build_c7_synthetic_fixture(tmp_path)
     store = FileSystemCAS(tmp_path / ".cas_suite")
+    jobs: list[tuple[JobSpec, MethodBackend, JobResult]] = []
+    source_states: list[tuple[MethodBackend, str, object, dict, int]] = []
+    backend_inputs: list[tuple[str, dict]] = []
+    persisted_job_specs: list[JobSpec] = []
+    inside_job = False
+    original_run_job = execute_job
+    original_method_call = advanced_module._AdvancedMethodBase._run_method
+    original_backend_run = MethodBackend.run
+    original_core_json_load = advanced_module.load_core_json_artifact
 
-    result = run_c7_advanced_suite(store, inputs=fixture.advanced_inputs)
+    def _capture_core_json_load(store_arg, selector, **kwargs):
+        payload = original_core_json_load(store_arg, selector, **kwargs)
+        if getattr(selector, "kind", None) == "scientist.compute.job_spec":
+            persisted_job_specs.append(JobSpec.model_validate(payload))
+        return payload
+
+    def _capture_backend_run(self, *args, **kwargs):
+        if inside_job:
+            backend_inputs.append((kwargs["method_fqn"], dict(kwargs["input_state"])))
+        return original_backend_run(self, *args, **kwargs)
+
+    def _capture_run_job(spec: JobSpec, **kwargs):
+        nonlocal inside_job
+        assert persisted_job_specs, "run_job received a request without a selected CAS readback"
+        assert spec == persisted_job_specs.pop(0)
+        assert kwargs.get("method_state") is None
+        assert kwargs.get("capture_dispatch_binding") is False
+        backend = kwargs.get("backend")
+        assert isinstance(backend, MethodBackend)
+        inside_job = True
+        try:
+            result = original_run_job(spec, **kwargs)
+        finally:
+            inside_job = False
+        jobs.append((spec, backend, result))
+        return result
+
+    def _capture_source_state(self, **kwargs):
+        source_states.append(
+            (
+                self.backend,
+                kwargs["method_fqn"],
+                kwargs["input_state"],
+                dict(kwargs["method_params"]),
+                kwargs["seed"],
+            )
+        )
+        return original_method_call(self, **kwargs)
+
+    monkeypatch.setattr(advanced_module, "load_core_json_artifact", _capture_core_json_load)
+    monkeypatch.setattr(advanced_module, "run_job", _capture_run_job)
+    monkeypatch.setattr(MethodBackend, "run", _capture_backend_run)
+    monkeypatch.setattr(advanced_module._AdvancedMethodBase, "_run_method", _capture_source_state)
+    result = run_c7_advanced_suite(
+        store, inputs=fixture.advanced_inputs, return_selected_profile=True
+    )
 
     survival_rows = load_parquet_rows(
         _write_cas_artifact(
@@ -299,9 +468,214 @@ def test_run_c7_advanced_suite_persists_all_sidecar_artifacts(tmp_path) -> None:
     )
 
     assert len(result.bundle_refs()) == 7
+    persisted = [
+        result.factor_embeddings,
+        result.cell_prototypes,
+        result.bilevel_problem,
+        result.heckman_correction,
+        result.survival_hazards,
+        result.sobol_diagnostics,
+        result.specification_curve,
+    ]
+    assert all(artifact.job_result_refs for artifact in persisted)
+    assert len(jobs) == len(source_states) == len(backend_inputs) == 8
+    assert not persisted_job_specs
     for ref in result.bundle_refs().values():
         assert store.has(ref.artifact_id)
+        assert ref.manifest_profile_sha256 is not None
+        assert (
+            store.get_manifest_by_profile(
+                str(ref.artifact_id), ref.manifest_profile_sha256
+            ).artifact_id
+            == ref.artifact_id
+        )
+    for artifact in persisted:
+        assert artifact.bundle_ref.manifest_profile_sha256 is not None
+        bundle_manifest = store.get_manifest_by_profile(
+            str(artifact.bundle_ref.artifact_id),
+            artifact.bundle_ref.manifest_profile_sha256,
+        )
+        reader_job_result_refs = []
+        for edge in bundle_manifest.inputs:
+            child_manifest = store.get_manifest_by_profile(
+                str(edge.artifact_id), edge.manifest_profile_sha256
+            )
+            if child_manifest.kind == advanced_module._METHOD_JOB_RESULT_KIND:
+                reader_job_result_refs.append(
+                    ArtifactRef(
+                        artifact_id=edge.artifact_id,
+                        kind=child_manifest.kind,
+                        media_type=child_manifest.media_type,
+                        manifest_profile_sha256=edge.manifest_profile_sha256,
+                    )
+                )
+        assert tuple(reader_job_result_refs) == artifact.job_result_refs
+        expected_edges = [
+            (ref.artifact_id, ref.manifest_profile_sha256)
+            for ref in (
+                *artifact.method_result_refs,
+                *artifact.method_evidence_refs,
+                *artifact.job_result_refs,
+            )
+        ]
+        assert [
+            (edge.artifact_id, edge.manifest_profile_sha256) for edge in bundle_manifest.inputs
+        ] == expected_edges
+        assert all(profile is not None for _, profile in expected_edges)
+
+    flattened_refs = [
+        triple
+        for artifact in persisted
+        for triple in zip(
+            artifact.method_result_refs,
+            artifact.method_evidence_refs,
+            artifact.job_result_refs,
+            strict=True,
+        )
+    ]
+    for (method_result_ref, evidence_ref, job_result_ref), (
+        spec,
+        backend,
+        job_result,
+    ), source, observed in zip(flattened_refs, jobs, source_states, backend_inputs, strict=True):
+        assert job_result.issues == []
+        assert job_result.method_result_ref == method_result_ref
+        assert job_result.method_evidence_ref == evidence_ref
+        assert job_result_ref.manifest_profile_sha256 is not None
+        assert job_result.job_key == JobKey.from_spec(spec)
+        stored_job_result = JobResult.model_validate(load_core_json_artifact(store, job_result_ref))
+        assert to_python_data(
+            stored_job_result.model_dump(mode="python"), sort_keys=True, unsupported="error"
+        ) == to_python_data(
+            job_result.model_dump(mode="python"), sort_keys=True, unsupported="error"
+        )
+        assert to_python_data(
+            load_core_json_artifact(store, method_result_ref),
+            sort_keys=True,
+            unsupported="error",
+        ) == to_python_data(
+            stored_job_result.final_state,
+            sort_keys=True,
+            unsupported="error",
+        )
+        assert stored_job_result.job_key == JobKey.from_spec(spec)
+        job_result_manifest = store.get_manifest_by_profile(
+            str(job_result_ref.artifact_id), job_result_ref.manifest_profile_sha256
+        )
+        job_spec_edges = [edge for edge in job_result_manifest.inputs if edge.role == "job_spec"]
+        assert len(job_spec_edges) == 1
+        job_spec_edge = job_spec_edges[0]
+        job_spec_manifest = store.get_manifest_by_profile(
+            str(job_spec_edge.artifact_id), job_spec_edge.manifest_profile_sha256
+        )
+        stored_spec_ref = ArtifactRef(
+            artifact_id=job_spec_edge.artifact_id,
+            kind=job_spec_manifest.kind,
+            media_type=job_spec_manifest.media_type,
+            manifest_profile_sha256=job_spec_edge.manifest_profile_sha256,
+        )
+        stored_spec = JobSpec.model_validate(load_core_json_artifact(store, stored_spec_ref))
+        assert stored_spec == spec
+        assert stored_job_result.job_key == JobKey.from_spec(stored_spec)
+        assert {
+            (edge.role, str(edge.artifact_id), edge.manifest_profile_sha256)
+            for edge in job_result_manifest.inputs
+        } == {
+            ("job_spec", str(stored_spec_ref.artifact_id), stored_spec_ref.manifest_profile_sha256),
+            (
+                "method_result",
+                str(method_result_ref.artifact_id),
+                method_result_ref.manifest_profile_sha256,
+            ),
+            (
+                "method_evidence",
+                str(evidence_ref.artifact_id),
+                evidence_ref.manifest_profile_sha256,
+            ),
+        }
+        mutated_request = stored_spec.model_copy(update={"seed": stored_spec.seed + 1})
+        assert JobKey.from_spec(mutated_request) != stored_job_result.job_key
+        assert job_result_ref.manifest_profile_sha256 is not None
+        assert method_result_ref.manifest_profile_sha256 is not None
+        assert evidence_ref.manifest_profile_sha256 is not None
+        method_manifest = store.get_manifest_by_profile(
+            str(method_result_ref.artifact_id), method_result_ref.manifest_profile_sha256
+        )
+        assert {
+            (edge.role, str(edge.artifact_id), edge.manifest_profile_sha256)
+            for edge in method_manifest.inputs
+        } == {
+            (f"input:{slot}", str(ref.artifact_id), ref.manifest_profile_sha256)
+            for slot, ref in spec.input_refs.items()
+        }
+        evidence_manifest = store.get_manifest_by_profile(
+            str(evidence_ref.artifact_id), evidence_ref.manifest_profile_sha256
+        )
+        assert [
+            (edge.artifact_id, edge.manifest_profile_sha256) for edge in evidence_manifest.inputs
+        ] == [(method_result_ref.artifact_id, method_result_ref.manifest_profile_sha256)]
+        assert JobKey.from_spec(spec) == job_result.job_key
+        assert spec.method_version == spec.method_fqn.rsplit("@", 1)[1]
+        assert observed[0] == spec.method_fqn
+        source_state = source[2]
+        if isinstance(source_state, Mapping):
+            raw_source_state = source_state
+        else:
+            model_dump = getattr(source_state, "model_dump", None)
+            raw_source_state = (
+                model_dump(
+                    mode="python",
+                    by_alias=True,
+                    exclude_none=False,
+                    exclude_unset=False,
+                )
+                if callable(model_dump)
+                else vars(source_state)
+            )
+        expected_source_values = to_python_data(
+            raw_source_state, sort_keys=True, unsupported="error"
+        )
+        selected_values = {
+            slot: load_core_json_artifact(store, ref) for slot, ref in spec.input_refs.items()
+        }
+        assert selected_values == expected_source_values
+        assert observed[1] == selected_values
+        assert set(spec.input_refs) == set(expected_source_values)
+        assert all(ref.manifest_profile_sha256 is not None for ref in spec.input_refs.values())
+        assert spec.seed == source[4]
+        assert spec.method_params == to_python_data(source[3], sort_keys=True, unsupported="error")
+        backend, method_fqn, source_state, method_params, seed = source
+        if method_fqn == "ml.survival.survival_analysis@1.0.0":
+            assert source_state.metadata == {
+                "event_set_id": "c7_synthetic_firm_events",
+                "panel_id": "c7_synthetic_firm_panels",
+            }
+            assert selected_values["metadata"] == source_state.metadata
+            assert load_core_json_artifact(store, spec.input_refs["feature_names"]) == list(
+                source_state.feature_names
+            )
+        direct = backend.run(
+            cas_root=store.root,
+            method_fqn=method_fqn,
+            method_version=None,
+            input_state=source_state,
+            method_params=method_params,
+            seed=seed,
+        )
+        assert to_python_data(
+            direct.final_state, sort_keys=True, unsupported="error"
+        ) == to_python_data(job_result.final_state, sort_keys=True, unsupported="error")
+
     assert survival_rows
+    survival_contract = fixture.advanced_inputs.survival_contract
+    feature_names = (
+        survival_contract.feature_names
+        if isinstance(survival_contract, SurvivalData)
+        else survival_contract["feature_names"]
+    )
+    assert set(result.survival_hazards.manifest.contract_payload["coefficients"]) == set(
+        feature_names
+    )
     assert all(np.isfinite(float(row["risk_score"])) for row in survival_rows)
     assert {row["firm_id"] for row in survival_rows}
     assert result.survival_hazards.method_result_refs
@@ -351,3 +725,4 @@ def test_run_c7_advanced_suite_uses_injected_method_runtime_providers(
     assert len(result.bundle_refs()) == 7
     for ref in result.bundle_refs().values():
         assert store.has(ref.artifact_id)
+        assert ref.manifest_profile_sha256 is None

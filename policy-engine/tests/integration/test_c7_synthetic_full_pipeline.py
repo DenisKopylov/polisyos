@@ -15,7 +15,7 @@ from _helpers.c7_synthetic_data import (
 )
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.lex import ComplianceIssue
@@ -144,6 +144,7 @@ def _candidate_ref(store: FileSystemCAS) -> ArtifactRef:
         {"candidate_id": "c7_synthetic_candidate", "stage": "integration"},
         PutOptions(kind="scientist.policy_candidate_schema", media_type="application/json"),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 
@@ -154,8 +155,19 @@ def _evaluation_ref(store: FileSystemCAS, *, validation_bundle_ref: ArtifactRef)
             "validation_bundle_ref": str(validation_bundle_ref.artifact_id),
             "status": "completed",
         },
-        PutOptions(kind="scientist.policy_evaluation_vector", media_type="application/json"),
+        PutOptions(
+            kind="scientist.policy_evaluation_vector",
+            media_type="application/json",
+            inputs=[
+                InputRef(
+                    artifact_id=validation_bundle_ref.artifact_id,
+                    role="calibration_validation_bundle",
+                    manifest_profile_sha256=validation_bundle_ref.manifest_profile_sha256,
+                )
+            ],
+        ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 
@@ -315,13 +327,16 @@ def _interference_report() -> NetworkInterferenceReport:
 def _run_pipeline(tmp_path: Path) -> dict[str, object]:
     fixture = build_c7_synthetic_fixture(tmp_path)
     store = FileSystemCAS(tmp_path / ".cas")
-    source_refs, payload_ref, snapshot_ref = persist_c7_synthetic_snapshot(store, fixture=fixture)
+    source_refs, payload_ref, snapshot_ref = persist_c7_synthetic_snapshot(
+        store, fixture=fixture, return_selected_profile=True
+    )
     registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
     bindings = build_input_bindings(
         store,
         data_snapshot_ref=snapshot_ref,
         registry_bundle_ref=registry_bundle_ref,
         rules=None,
+        return_selected_profile=True,
     )
     bound_state = load_state_snapshot(store, snapshot_ref=bindings.bound_state_snapshot_ref)
 
@@ -347,7 +362,9 @@ def _run_pipeline(tmp_path: Path) -> dict[str, object]:
     )
 
     calibration = _run_measurement_aware_calibration(fixture.observation_panel)
-    advanced = run_c7_advanced_suite(store, inputs=fixture.advanced_inputs)
+    advanced = run_c7_advanced_suite(
+        store, inputs=fixture.advanced_inputs, return_selected_profile=True
+    )
 
     proxy_entries = ProxyIdentificationRunner(graph=fixture.proxy_map.graph).run(
         compiled.artifacts["proxy_measurement_data"].bundle,
@@ -547,44 +564,74 @@ def _run_pipeline(tmp_path: Path) -> dict[str, object]:
             strategic_summary=strategic_summary,
             baseline_metrics={"policy_value": 100.0, "coverage": 0.9},
             lesson_registry=lesson_registry,
-        )
+        ),
+        return_selected_profile=True,
     )
 
     evaluation_ref = _evaluation_ref(store, validation_bundle_ref=validation_result.bundle_ref)
-    replay_bundle_ref = persist_replayable_audit_bundle(
-        store,
-        ReplayableAuditBundle(
-            run_id="c7_synthetic_full",
-            candidate_ref=candidate_ref,
-            evaluation_ref=evaluation_ref,
-            readiness_ref=validation_result.bundle_ref,
-            execution_profile="integration",
-            runtime_input_refs={
-                "payload_ref": payload_ref,
-                "data_snapshot_ref": snapshot_ref,
-                "input_bindings_ref": bindings.input_bindings_ref,
-            },
-            runtime_artifacts_index={
-                **advanced.bundle_refs(),
-                "bound_state_snapshot_ref": bindings.bound_state_snapshot_ref,
-            },
-            runtime_reports_index={
-                "calibration_validation_bundle_ref": validation_result.bundle_ref
-            },
-            artifact_refs={
-                "source_agent_panel_ref": source_refs["agent_panel"],
-                "source_firm_panel_ref": source_refs["firm_panel"],
-            },
-            runtime_params_snapshot={"calibration_steps": 10, "seed": fixture.advanced_inputs.seed},
-            trace_notes=["c7 synthetic replay bundle"],
-        ),
+    replay_bundle = ReplayableAuditBundle(
+        run_id="c7_synthetic_full",
+        candidate_ref=candidate_ref,
+        evaluation_ref=evaluation_ref,
+        readiness_ref=validation_result.bundle_ref,
+        execution_profile="integration",
+        runtime_input_refs={
+            "payload_ref": payload_ref,
+            "data_snapshot_ref": snapshot_ref,
+            "input_bindings_ref": bindings.input_bindings_ref,
+        },
+        runtime_artifacts_index={
+            **advanced.bundle_refs(),
+            "bound_state_snapshot_ref": bindings.bound_state_snapshot_ref,
+        },
+        runtime_reports_index={"calibration_validation_bundle_ref": validation_result.bundle_ref},
+        artifact_refs={
+            "source_agent_panel_ref": source_refs["agent_panel"],
+            "source_firm_panel_ref": source_refs["firm_panel"],
+        },
+        runtime_params_snapshot={"calibration_steps": 10, "seed": fixture.advanced_inputs.seed},
+        trace_notes=["c7 synthetic replay bundle"],
     )
+    projected_refs = {
+        "candidate": candidate_ref,
+        "evaluation": evaluation_ref,
+        "readiness": validation_result.bundle_ref,
+        **{f"runtime_input:{name}": ref for name, ref in replay_bundle.runtime_input_refs.items()},
+        **{
+            f"runtime_artifact:{name}": ref
+            for name, ref in replay_bundle.runtime_artifacts_index.items()
+        },
+        **{
+            f"runtime_report:{name}": ref
+            for name, ref in replay_bundle.runtime_reports_index.items()
+        },
+        **{f"artifact_ref:{name}": ref for name, ref in replay_bundle.artifact_refs.items()},
+    }
+    assert len(projected_refs) == 17
+    for role, ref in projected_refs.items():
+        assert ref.manifest_profile_sha256 is not None, role
+        selected_manifest = store.get_manifest_by_profile(
+            str(ref.artifact_id), ref.manifest_profile_sha256
+        )
+        assert selected_manifest.artifact_id == ref.artifact_id, role
+        assert store.verify(ref).ok, role
+    replay_bundle_ref = persist_replayable_audit_bundle(store, replay_bundle)
+    replay_manifest = store.get_manifest(replay_bundle_ref)
+    for role, ref in projected_refs.items():
+        matching_edges = [edge for edge in replay_manifest.inputs if edge.role == role]
+        assert len(matching_edges) == 1, role
+        assert matching_edges[0].artifact_id == ref.artifact_id, role
+        assert matching_edges[0].manifest_profile_sha256 == ref.manifest_profile_sha256, role
     replay_measurement = measure_replayable_audit_bundle(store, replay_bundle_ref)
 
     return {
         "store": store,
         "fixture": fixture,
         "snapshot_ref": snapshot_ref,
+        "source_refs": source_refs,
+        "payload_ref": payload_ref,
+        "candidate_ref": candidate_ref,
+        "evaluation_ref": evaluation_ref,
         "bindings": bindings,
         "bound_state": bound_state,
         "compiled": compiled,
@@ -622,6 +669,22 @@ def test_c7_full_pipeline_synthetic_e2e(tmp_path) -> None:
     assert len(calibration["loss_history"]) == 10
     assert all(np.isfinite(loss) for loss in calibration["loss_history"])
     assert len(advanced.bundle_refs()) == 7
+    assert all(ref.manifest_profile_sha256 is not None for ref in advanced.bundle_refs().values())
+    advanced_artifacts = (
+        advanced.factor_embeddings,
+        advanced.cell_prototypes,
+        advanced.bilevel_problem,
+        advanced.heckman_correction,
+        advanced.survival_hazards,
+        advanced.sobol_diagnostics,
+        advanced.specification_curve,
+    )
+    assert sum(len(item.job_result_refs) for item in advanced_artifacts) == 8
+    assert all(
+        ref.manifest_profile_sha256 is not None
+        for item in advanced_artifacts
+        for ref in item.job_result_refs
+    )
     assert results["proxy_entries"]
     assert results["bounds_entries"][0].status == "ok"
     assert results["transport_entries"][0].status == "identified"
@@ -654,6 +717,7 @@ def test_c7_foundry_seed_state_roundtrip(tmp_path) -> None:
     fixture = build_c7_synthetic_fixture(tmp_path)
     store = FileSystemCAS(tmp_path / ".cas_seed")
     _, _, snapshot_ref = persist_c7_synthetic_snapshot(store, fixture=fixture)
+    assert snapshot_ref.manifest_profile_sha256 is None
     registry_bundle_ref = build_default_registry_bundle(store).bundle_ref
     bindings = build_input_bindings(
         store,

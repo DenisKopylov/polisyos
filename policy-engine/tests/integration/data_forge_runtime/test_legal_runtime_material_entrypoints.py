@@ -616,37 +616,69 @@ def test_ordinary_legal_cli_generation_preserves_candidate_default_exclusion(
         assert selected_after_stale["query_generation_intent"] == intents
 
         with duckdb.connect(str(db_path)) as connection:
-            connection.execute(
-                "UPDATE lex_facts SET fact_text = ? WHERE fact_id = ?",
-                [
-                    "Mutated selected Legal member for the typed drift control.",
-                    source_bound_fact_id,
-                ],
-            )
-        drift_text_graph = LegalKnowledgeGraph(db_path=db_path, index_dir=output_root)
+            selected_fact_row = connection.execute(
+                "SELECT fact_text FROM lex_facts WHERE fact_id = ?",
+                [source_bound_fact_id],
+            ).fetchone()
+            assert selected_fact_row is not None
+            assert isinstance(selected_fact_row[0], str)
+            original_selected_fact_text = selected_fact_row[0]
+            assert original_selected_fact_text == SOURCE_BOUND_CANDIDATE_TEXT
+
         try:
-            assert (
-                drift_text_graph.text_search(
-                    query,
-                    top_k=5,
-                    trust_tier="search_candidate",
-                    include_candidates=True,
+            with duckdb.connect(str(db_path)) as connection:
+                connection.execute(
+                    "UPDATE lex_facts SET fact_text = ? WHERE fact_id = ?",
+                    [
+                        "Mutated selected Legal member for the typed drift control.",
+                        source_bound_fact_id,
+                    ],
                 )
-                == []
+            drift_text_graph = LegalKnowledgeGraph(db_path=db_path, index_dir=output_root)
+            try:
+                assert (
+                    drift_text_graph.text_search(
+                        query,
+                        top_k=5,
+                        trust_tier="search_candidate",
+                        include_candidates=True,
+                    )
+                    == []
+                )
+            finally:
+                drift_text_graph.close()
+            member_drift = _http_json(
+                f"{base_url}/api/v1/control/lex/search",
+                request_body,
+            )
+            _write_json(receipt_root, "selected-member-drift-post.json", member_drift)
+            _assert_refused_text_fallback(
+                member_drift,
+                request_body=request_body,
+                expected_query_generation_intent=intents,
+                expected_vector_refusal_code="selected_generation_membership_mismatch",
             )
         finally:
-            drift_text_graph.close()
-        member_drift = _http_json(
-            f"{base_url}/api/v1/control/lex/search",
-            request_body,
+            with duckdb.connect(str(db_path)) as connection:
+                connection.execute(
+                    "UPDATE lex_facts SET fact_text = ? WHERE fact_id = ?",
+                    [original_selected_fact_text, source_bound_fact_id],
+                )
+
+        with duckdb.connect(str(db_path), read_only=True) as connection:
+            restored_fact_row = connection.execute(
+                "SELECT fact_text FROM lex_facts WHERE fact_id = ?",
+                [source_bound_fact_id],
+            ).fetchone()
+        assert restored_fact_row == (original_selected_fact_text,)
+        selected_after_member_restore = _http_json(f"{base_url}{profile_url}")
+        _write_json(
+            receipt_root,
+            "selected-get-after-member-drift-restore.json",
+            selected_after_member_restore,
         )
-        _write_json(receipt_root, "selected-member-drift-post.json", member_drift)
-        _assert_refused_text_fallback(
-            member_drift,
-            request_body=request_body,
-            expected_query_generation_intent=intents,
-            expected_vector_refusal_code="selected_generation_membership_mismatch",
-        )
+        assert selected_after_member_restore["status"] == "available"
+        assert selected_after_member_restore["query_generation_intent"] == intents
 
     with _runtime_server(
         python=python,

@@ -13,6 +13,7 @@ from datetime import UTC, date, datetime, timedelta
 import duckdb
 import pytest
 
+import polisyos.runtime.quality.capability_discovery as capability_discovery_module
 from polisyos.core import artifacts
 from polisyos.core.contracts.capability_discovery import (
     CapabilityDiscoveryRequest,
@@ -43,6 +44,7 @@ from polisyos.runtime.quality.capability_discovery import (
     CapabilityIndexOwnerReceipt,
     CapabilityProviderSearchResult,
     CapabilityProviderUnavailableError,
+    LexCandidateOwnerReceipt,
     LexCapabilityDiscoveryProvider,
     LexOwnerReceipt,
     ScientistRegistryOwnerReceipt,
@@ -51,7 +53,7 @@ from polisyos.runtime.quality.capability_discovery import (
 )
 from polisyos.runtime.quality.capability_index import (
     CapabilityIndexDiscoveryRow,
-    FreshnessEnvelope,
+    LegalNormCandidateEvidence,
     LegalNormOwnerTruth,
     ScientistCapabilityOwnerTruth,
 )
@@ -67,7 +69,9 @@ NOW = datetime(2026, 8, 25, 12, tzinfo=UTC)
 
 
 class _Provider(CapabilityDiscoveryProvider):
-    def __init__(self, result: CapabilityProviderSearchResult, calls: list[str]) -> None:
+    def __init__(
+        self, result: CapabilityProviderSearchResult, calls: list[str]
+    ) -> None:
         self._result = result
         self._calls = calls
 
@@ -75,7 +79,9 @@ class _Provider(CapabilityDiscoveryProvider):
     def resource_kind(self) -> str:
         return self._result.resource_kind
 
-    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
+    def search(
+        self, request: CapabilityDiscoveryRequest
+    ) -> CapabilityProviderSearchResult:
         self._calls.append(self.resource_kind)
         return self._result
 
@@ -85,7 +91,9 @@ class _UnavailableProvider(CapabilityDiscoveryProvider):
     def resource_kind(self) -> str:
         return "source"
 
-    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
+    def search(
+        self, request: CapabilityDiscoveryRequest
+    ) -> CapabilityProviderSearchResult:
         raise CapabilityProviderUnavailableError("connector_registry_outage")
 
 
@@ -154,13 +162,20 @@ def test_default_causal_method_index_provider_projects_owner_rows_without_execut
     assert isinstance(provider, CapabilityIndexCapabilityDiscoveryProvider)
     assert result.rows == expected
     assert result.owner_receipt.index_release_ref == capability_index.release_ref
-    assert result.owner_receipt.search_snapshot_digest == result.ledger.corpus_snapshot_hash
+    assert (
+        result.owner_receipt.search_snapshot_digest
+        == result.ledger.corpus_snapshot_hash
+    )
     assert result.owner_receipt.result_digest.startswith("sha256:")
     assert tuple(item.capability_ref for item in response.results) == tuple(
         row.capability_ref for row in expected
     )
-    assert {item.execution_result.state for item in response.results} == {"not_established"}
-    assert {item.authority_result.state for item in response.results} == {"bridge_missing"}
+    assert {item.execution_result.state for item in response.results} == {
+        "not_established"
+    }
+    assert {item.authority_result.state for item in response.results} == {
+        "bridge_missing"
+    }
     assert all(item.authoritative_for == () for item in response.results)
 
 
@@ -278,7 +293,9 @@ def test_owner_signed_capability_purpose_binding_joins_ds9_currentness(
         content_digest=content_digest,
         authority_purpose=authority_purpose,
         audience="REVIEWER",
-        context=context.model_copy(update={"binding_ref": str(unsigned_ref.artifact_id)}),
+        context=context.model_copy(
+            update={"binding_ref": str(unsigned_ref.artifact_id)}
+        ),
         observed_at=now + timedelta(minutes=1),
     )
     assert unsigned_result.state == "bridge_missing"
@@ -408,7 +425,9 @@ def test_all_layer3_providers_emit_real_rejections_and_incompleteness(
 
     gl_root = tmp_path / "gl"
     _write_minimal_legal_kg(gl_root)
-    gl_db_path = gl_root / "production_data/test_lex/finalize/lex_knowledge_graph.duckdb"
+    gl_db_path = (
+        gl_root / "production_data/test_lex/finalize/lex_knowledge_graph.duckdb"
+    )
     with duckdb.connect(str(gl_db_path)) as con:
         con.execute(
             """
@@ -488,7 +507,9 @@ def test_all_layer3_providers_emit_real_rejections_and_incompleteness(
 
     native_ledgers = (g2_ledger, g3_ledger, *gl_ledgers)
     assert len(native_ledgers) == 9
-    owner_frontiers = tuple(getattr(ledger, "owner_frontier", None) for ledger in native_ledgers)
+    owner_frontiers = tuple(
+        getattr(ledger, "owner_frontier", None) for ledger in native_ledgers
+    )
     assert all(frontier is not None for frontier in owner_frontiers)
     assert all(frontier.requested_count == 1 for frontier in owner_frontiers)
     assert all(frontier.rejected_candidates for frontier in owner_frontiers)
@@ -497,10 +518,20 @@ def test_all_layer3_providers_emit_real_rejections_and_incompleteness(
         == len(frontier.candidates) + len(frontier.rejected_candidates)
         for frontier in owner_frontiers
     )
-    assert sum(frontier.completeness_status == "budget_cutoff" for frontier in owner_frontiers) == 8
-    assert sum(
-        frontier.completeness_status == "complete_no_match" for frontier in owner_frontiers
-    ) == 1
+    assert (
+        sum(
+            frontier.completeness_status == "budget_cutoff"
+            for frontier in owner_frontiers
+        )
+        == 8
+    )
+    assert (
+        sum(
+            frontier.completeness_status == "complete_no_match"
+            for frontier in owner_frontiers
+        )
+        == 1
+    )
     assert all(
         frontier.incompleteness_reasons == ("owner_budget_cutoff",)
         for frontier in owner_frontiers
@@ -573,7 +604,9 @@ def test_agent_result_requires_exact_scientist_registry_owner_evidence() -> None
 
     valid_agent = _provider_result("agent", "capability:agent:scientist-node")
     mismatched = valid_agent.model_dump(mode="python")
-    mismatched["rows"][0]["owner_truth"]["registry_snapshot_digest"] = "sha256:" + "9" * 64
+    mismatched["rows"][0]["owner_truth"]["registry_snapshot_digest"] = (
+        "sha256:" + "9" * 64
+    )
     with pytest.raises(ValueError, match="typed registry snapshot"):
         CapabilityProviderSearchResult.model_validate(mismatched)
 
@@ -592,8 +625,10 @@ def test_current_scientist_registry_receipt_admits_candidate_discovery_only() ->
     assert item.authority_result.state == "bridge_missing"
 
 
-def test_lex_provider_uses_real_legal_owner_snapshot_and_admission_rows(tmp_path) -> None:
-    """A Lex provider must project the real admitted legal index rather than a test row."""
+def test_lex_provider_compatibility_route_delegates_to_candidate_inventory(
+    tmp_path,
+) -> None:
+    """The old provider entry point preserves candidate-only semantics."""
     capability_index = _fixture_capability_index(tmp_path)
     expected = next(
         row
@@ -617,14 +652,18 @@ def test_lex_provider_uses_real_legal_owner_snapshot_and_admission_rows(tmp_path
         request, meta=ApiMeta(request_id="http:lex-owner")
     )
 
-    assert tuple(row.capability_ref for row in result.rows) == (expected.capability_ref,)
+    assert tuple(row.capability_ref for row in result.rows) == (
+        expected.capability_ref,
+    )
     assert tuple(candidate.candidate_ref for candidate in result.ledger.candidates) == (
         expected.capability_ref,
     )
     assert result.ledger.rejected_candidates == ()
     assert result.completeness_status == "complete"
-    assert result.owner_receipt.lex_snapshot_ref == expected.snapshot_ref
-    assert result.owner_receipt.verifier_ref in result.owner_receipt.provenance_refs
+    assert type(expected.owner_truth) is LegalNormCandidateEvidence
+    assert type(result.owner_receipt) is LexCandidateOwnerReceipt
+    assert result.owner_receipt.source_relation_refusal_status == "verification_missing"
+    assert not hasattr(result.owner_receipt, "verifier_ref")
     assert response.results[0].capability_ref == expected.capability_ref
     assert response.results[0].resource_kind == "legal_norm"
     assert response.results[0].discovery_result.state == "discoverable"
@@ -656,10 +695,15 @@ def test_lex_provider_empty_query_searches_the_complete_owner_index(tmp_path) ->
         }
     )
 
-    result = LexCapabilityDiscoveryProvider(capability_index=capability_index).search(request)
+    result = LexCapabilityDiscoveryProvider(capability_index=capability_index).search(
+        request
+    )
 
     assert tuple(row.capability_ref for row in result.rows) == expected_refs
-    assert tuple(candidate.candidate_ref for candidate in result.ledger.candidates) == expected_refs
+    assert (
+        tuple(candidate.candidate_ref for candidate in result.ledger.candidates)
+        == expected_refs
+    )
     assert result.ledger.no_hit_frontier == ()
     assert result.completeness_status == "complete"
 
@@ -682,9 +726,9 @@ def test_lex_provider_rejects_unbound_match_all_proxy(tmp_path) -> None:
         CapabilityProviderUnavailableError,
         match="lex_owner_query_terms_missing",
     ):
-        LexCapabilityDiscoveryProvider(capability_index=_fixture_capability_index(tmp_path)).search(
-            request
-        )
+        LexCapabilityDiscoveryProvider(
+            capability_index=_fixture_capability_index(tmp_path)
+        ).search(request)
 
 
 def test_lex_provider_records_budget_rejection_and_no_hit_frontier(tmp_path) -> None:
@@ -707,47 +751,39 @@ def test_lex_provider_records_budget_rejection_and_no_hit_frontier(tmp_path) -> 
         }
     )
 
-    result = LexCapabilityDiscoveryProvider(capability_index=capability_index).search(request)
+    result = LexCapabilityDiscoveryProvider(capability_index=capability_index).search(
+        request
+    )
 
     assert result.rows == ()
     assert result.actual_cutoff == 0
     assert result.completeness_status == "budget_cutoff"
-    assert result.incompleteness_reasons == ("lex_owner_budget_cutoff",)
+    assert result.incompleteness_reasons == ("lex_candidate_search_budget_cutoff",)
     assert result.ledger.no_hit_frontier == ("legal_norm",)
-    assert tuple(candidate.candidate_ref for candidate in result.ledger.rejected_candidates) == (
-        legal_row.capability_ref,
+    assert tuple(
+        candidate.candidate_ref for candidate in result.ledger.rejected_candidates
+    ) == (legal_row.capability_ref,)
+    assert result.ledger.rejected_candidates[0].limitation_refs == (
+        "lex_candidate_budget_cutoff",
     )
-    assert result.ledger.rejected_candidates[0].limitation_refs == ("lex_owner_budget_cutoff",)
 
 
-def test_lex_provider_stale_snapshot_stays_a_typed_discovery_negative(tmp_path) -> None:
-    """A stale legal release cannot turn discoverable because its row still matches."""
+def test_lex_provider_stale_snapshot_stays_a_typed_discovery_negative(
+    tmp_path, monkeypatch
+) -> None:
+    """The legacy verified-owner route preserves stale negatives beside candidates."""
     capability_index = _fixture_capability_index(tmp_path)
-    legal = next(
-        capability
-        for capability in capability_index.capabilities
-        if "lex_norm" in capability.modality
+    candidate_rows = build_capability_discovery_snapshot(capability_index)
+    stale_row = _row("lex:verified-stale-sibling", "legal_norm").model_copy(
+        update={"producer_ref": capability_index.release_ref}
     )
-    stale_legal = legal.model_copy(
-        update={
-            "freshness_envelope": FreshnessEnvelope(
-                freshness_class="stale_legal_release",
-                source_release_ref=legal.freshness_envelope.source_release_ref,
-            )
-        }
+    stale_row = stale_row.model_copy(
+        update={"time": stale_row.time.model_copy(update={"freshness": "stale"})}
     )
-    stale_index = capability_index.model_copy(
-        update={
-            "capabilities": tuple(
-                stale_legal if capability.capability_id == legal.capability_id else capability
-                for capability in capability_index.capabilities
-            )
-        }
-    )
-    stale_row = next(
-        row
-        for row in build_capability_discovery_snapshot(stale_index)
-        if row.resource_kind == "legal_norm"
+    monkeypatch.setattr(
+        capability_discovery_module,
+        "build_capability_discovery_snapshot",
+        lambda _index: (stale_row, *candidate_rows),
     )
     request = _request(("legal_norm",)).model_copy(
         update={
@@ -761,7 +797,7 @@ def test_lex_provider_stale_snapshot_stays_a_typed_discovery_negative(tmp_path) 
     )
 
     response = _composer(
-        providers=(LexCapabilityDiscoveryProvider(capability_index=stale_index),)
+        providers=(LexCapabilityDiscoveryProvider(capability_index=capability_index),)
     ).search(request, meta=ApiMeta(request_id="http:lex-stale"))
 
     assert response.results[0].discovery_result.state == "index_stale"
@@ -779,7 +815,9 @@ def test_lex_provider_malformed_owner_index_is_typed_unavailable() -> None:
 
     assert response.results == ()
     assert response.frontier.completeness_status == "producer_unavailable"
-    assert response.frontier.incompleteness_reasons == ("legal_norm:lex_owner_index_invalid",)
+    assert response.frontier.incompleteness_reasons == (
+        "legal_norm:lex_owner_index_invalid",
+    )
 
 
 def test_mixed_status_provider_permutation_does_not_change_composed_packet() -> None:
@@ -820,7 +858,9 @@ def test_complete_federation_with_one_no_hit_and_one_hit_is_complete() -> None:
         incompleteness_reasons=(),
     )
 
-    response = _composer(providers=(_Provider(method, calls), _Provider(dataset, calls))).search(
+    response = _composer(
+        providers=(_Provider(method, calls), _Provider(dataset, calls))
+    ).search(
         _request(("method", "dataset")),
         meta=ApiMeta(request_id="http:mixed-complete"),
     )
@@ -882,10 +922,14 @@ def test_provider_outage_is_typed_instead_of_an_empty_success() -> None:
 
     assert response.results == ()
     assert response.frontier.completeness_status == "producer_unavailable"
-    assert response.frontier.incompleteness_reasons == ("source:connector_registry_outage",)
+    assert response.frontier.incompleteness_reasons == (
+        "source:connector_registry_outage",
+    )
 
 
-def test_selected_rejected_cutoff_index_freshness_and_incompleteness_are_owner_values() -> None:
+def test_selected_rejected_cutoff_index_freshness_and_incompleteness_are_owner_values() -> (
+    None
+):
     """The federation projects the actual owner ledger rather than rebuilding it."""
     calls: list[str] = []
     result = _provider_result(
@@ -903,9 +947,9 @@ def test_selected_rejected_cutoff_index_freshness_and_incompleteness_are_owner_v
     assert tuple(row.candidate_ref for row in response.frontier.candidates) == (
         "capability:dataset:selected",
     )
-    assert tuple(row.candidate_ref for row in response.frontier.rejected_candidates) == (
-        "capability:dataset:rejected",
-    )
+    assert tuple(
+        row.candidate_ref for row in response.frontier.rejected_candidates
+    ) == ("capability:dataset:rejected",)
     assert response.frontier.actual_cutoff == 1
     assert response.frontier.indexes_used == ("index:dataset:owner",)
     assert response.frontier.index_freshness == {
@@ -931,7 +975,9 @@ def test_replay_rebuilds_complete_frontier_and_binds_every_owner_field(capsys) -
     packet = json.loads(bytes.fromhex(payload_hex).decode("utf-8"))
 
     owner = packet["provider_results"][0]
-    assert owner["ledger"]["candidates"][0]["candidate_ref"] == ("capability:dataset:selected")
+    assert owner["ledger"]["candidates"][0]["candidate_ref"] == (
+        "capability:dataset:selected"
+    )
     assert owner["ledger"]["rejected_candidates"][0]["candidate_ref"] == (
         "capability:dataset:rejected"
     )
@@ -997,7 +1043,9 @@ def test_replay_rebuilds_complete_frontier_and_binds_every_owner_field(capsys) -
         for key in path[:-1]:
             target = target[key]
         target[path[-1]] = replacement
-        mutated_hex = json.dumps(mutated, sort_keys=True, separators=(",", ":")).encode().hex()
+        mutated_hex = (
+            json.dumps(mutated, sort_keys=True, separators=(",", ":")).encode().hex()
+        )
 
         try:
             main(["--replay-frontier", mutated_hex])
@@ -1006,7 +1054,9 @@ def test_replay_rebuilds_complete_frontier_and_binds_every_owner_field(capsys) -
         assert capsys.readouterr().out.strip() != baseline, label
 
 
-def _composer(*, providers: tuple[CapabilityDiscoveryProvider, ...]) -> CapabilityDiscoveryComposer:
+def _composer(
+    *, providers: tuple[CapabilityDiscoveryProvider, ...]
+) -> CapabilityDiscoveryComposer:
     policy = RuntimeExecutionPolicyResolver(
         default_profile="dev",
         worker_backend="embedded",
@@ -1021,7 +1071,9 @@ def _composer(*, providers: tuple[CapabilityDiscoveryProvider, ...]) -> Capabili
             conformance_verifier=None,
             policy_resolver=policy,
         ),
-        authority_resolver=CapabilityDiscoveryAuthorityResolver(production_approval_resolver=None),
+        authority_resolver=CapabilityDiscoveryAuthorityResolver(
+            production_approval_resolver=None
+        ),
         observed_at=lambda: NOW,
     )
 
@@ -1168,7 +1220,9 @@ def _provider_result(
     }
     if owner_kind in {"method", "dataset", "capability_index"}:
         receipt = CapabilityIndexOwnerReceipt(
-            resource_kind=(resource_kind if resource_kind in {"method", "dataset"} else "method"),
+            resource_kind=(
+                resource_kind if resource_kind in {"method", "dataset"} else "method"
+            ),
             index_release_ref=f"release:{resource_kind}:owner",
             **common,
         )

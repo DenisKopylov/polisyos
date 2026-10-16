@@ -11,6 +11,7 @@ import threading
 import time
 import uuid
 from collections import Counter
+from datetime import UTC, datetime
 from pathlib import Path
 
 import duckdb
@@ -18,11 +19,23 @@ import httpx
 import uvicorn
 from _helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
 
+from polisyos.core.contracts.capability_discovery import CapabilityDiscoveryRequest
+from polisyos.core.contracts.runtime import ApiMeta
+from polisyos.core.contracts.search import SearchRequest
 from polisyos.runtime.http.container import RuntimeContainerOverrides
+from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control_registry_providers import (
     resolve_control_registry_providers,
 )
-from polisyos.runtime.quality.capability_discovery import LexCapabilityDiscoveryProvider
+from polisyos.runtime.quality.capability_authority import (
+    CapabilityDiscoveryAuthorityResolver,
+)
+from polisyos.runtime.quality.capability_discovery import (
+    CapabilityDiscoveryComposer,
+    LexCandidateCapabilityDiscoveryProvider,
+    load_capability_index_release,
+)
+from polisyos.runtime.quality.capability_resolver import CapabilityExecutionResolver
 from polisyos.runtime.quality.capability_index_compiler import (
     CapabilityIndexCompilerConfig,
     build_capability_discovery_snapshot,
@@ -49,7 +62,7 @@ def test_new_legal_norm_owner_row_appears_without_frontend_code_change(
     tmp_path: Path,
 ) -> None:
     """Grow through Lex/CapabilityIndex and render without a frontend byte edit."""
-    product_root = Path(__file__).resolve().parents[3]
+    product_root = Path(os.environ["POLISYOS_PROTOTYPE_PRODUCT_ROOT"]).resolve()
     repository_root = Path(_git(product_root, "rev-parse", "--show-toplevel").strip())
     repository_prefix = _git(product_root, "rev-parse", "--show-prefix").strip()
     assert repository_prefix == "policy-engine/"
@@ -87,8 +100,14 @@ def test_new_legal_norm_owner_row_appears_without_frontend_code_change(
         metric,
     )
     generated_bytes = generated_ref.encode("utf-8")
-    assert all(generated_bytes not in payload for payload in frontend_before.bytes_by_path.values())
-    assert all(generated_bytes not in payload for payload in backend_before.bytes_by_path.values())
+    assert all(
+        generated_bytes not in payload
+        for payload in frontend_before.bytes_by_path.values()
+    )
+    assert all(
+        generated_bytes not in payload
+        for payload in backend_before.bytes_by_path.values()
+    )
 
     owner_root = tmp_path / "owner_data"
     lex_path = (
@@ -130,6 +149,54 @@ def test_new_legal_norm_owner_row_appears_without_frontend_code_change(
             canonical_status="canonicalized",
             hallucination_flags="not-json",
         )
+        _insert_legal_norm(
+            connection,
+            nonce=f"ambiguous_{nonce}",
+            metric=f"ambiguous_{nonce}",
+            threshold_id=f"threshold:ambiguous:{nonce}",
+            canonical_status="canonicalized",
+        )
+        connection.execute(
+            "INSERT INTO lex_normative_facts "
+            "SELECT * FROM lex_normative_facts WHERE fact_id = ?",
+            [f"fact:ds10:ambiguous_{nonce}"],
+        )
+        _insert_legal_norm(
+            connection,
+            nonce=f"stale_{nonce}",
+            metric=f"stale_{nonce}",
+            threshold_id=f"threshold:stale:{nonce}",
+            canonical_status="canonicalized",
+            effective_to="2026-01-01",
+        )
+        connection.execute(
+            """
+            INSERT INTO lex_rule_thresholds (
+                threshold_id, fact_id, metric, operator, value_decimal, value_text,
+                unit, applies_to, metadata, created_at
+            ) VALUES (?, ?, ?, '<=', '1', '1', 'unit', ?, '{}', current_timestamp)
+            """,
+            [
+                f"threshold:missing:{nonce}",
+                f"fact:missing:{nonce}",
+                f"missing_{nonce}",
+                nonce,
+            ],
+        )
+        connection.execute(
+            """
+            INSERT INTO lex_rule_thresholds (
+                threshold_id, fact_id, metric, operator, value_decimal, value_text,
+                unit, applies_to, metadata, created_at
+            ) VALUES (?, ?, ?, '<=', '1', '1', 'unit', ?, '{}', current_timestamp)
+            """,
+            [
+                f"threshold:zz-limit:{nonce}",
+                f"fact:limit:{nonce}",
+                f"limit_{nonce}",
+                nonce,
+            ],
+        )
 
     build = compile_capability_index(
         CapabilityIndexCompilerConfig(
@@ -137,18 +204,132 @@ def test_new_legal_norm_owner_row_appears_without_frontend_code_change(
             output_dir=tmp_path / "capability_index",
             mode="fixture",
             generated_at="2026-08-26T09:00:00+03:00",
+            max_lex_capabilities=7,
         )
     )
     assert build.capability_index is not None
+    candidate_snapshot = build.capability_index.metadata[
+        "legal_norm_candidate_index_snapshot"
+    ]
+    assert candidate_snapshot["source_candidate_count"] == 8
+    assert candidate_snapshot["selected_candidate_count"] == 2
+    records_by_threshold = {
+        record["threshold_id"]: record for record in candidate_snapshot["records"]
+    }
+    assert len(records_by_threshold) == 7
+    assert "threshold:zz-limit:" + nonce not in records_by_threshold
+    assert records_by_threshold[threshold_id]["selection_disposition"] == "eligible"
+    assert records_by_threshold[f"threshold:quarantined:{nonce}"][
+        "selection_reasons"
+    ] == ["source_canonical_status_not_admitted"]
+    assert (
+        records_by_threshold[f"threshold:malformed:{nonce}"][
+            "source_hallucination_flags_status"
+        ]
+        == "malformed"
+    )
+    assert (
+        "source_hallucination_flags_malformed"
+        in records_by_threshold[f"threshold:malformed:{nonce}"]["selection_reasons"]
+    )
+    assert records_by_threshold[f"threshold:stale:{nonce}"]["selection_reasons"] == [
+        "source_temporal_interval_expired"
+    ]
+    assert records_by_threshold[f"threshold:missing:{nonce}"][
+        "fact_binding_status"
+    ] == ("fact_missing")
+    ambiguous = records_by_threshold[f"threshold:ambiguous:{nonce}"]
+    assert ambiguous["fact_binding_status"] == "fact_ambiguous"
+    assert len(ambiguous["source_fact_refs"]) == 2
+    assert candidate_snapshot["completeness"] == "incomplete"
+    assert candidate_snapshot["incompleteness_reasons"] == [
+        "legal_candidate_budget_cutoff"
+    ]
+
+    complete_build = compile_capability_index(
+        CapabilityIndexCompilerConfig(
+            production_data_root=owner_root,
+            output_dir=tmp_path / "capability_index_complete",
+            mode="fixture",
+            generated_at="2026-08-26T09:00:00+03:00",
+            max_lex_capabilities=8,
+        )
+    )
+    assert complete_build.capability_index is not None
+    complete_snapshot = complete_build.capability_index.metadata[
+        "legal_norm_candidate_index_snapshot"
+    ]
+    assert complete_snapshot["source_candidate_count"] == 8
+    assert complete_snapshot["selected_candidate_count"] == 2
+    assert complete_snapshot["completeness"] == "complete"
+    complete_index = load_capability_index_release(complete_build.primary_duckdb_path)
+    complete_candidate_provider = LexCandidateCapabilityDiscoveryProvider(
+        capability_index_loader=lambda: complete_index
+    )
+    complete_request = CapabilityDiscoveryRequest(
+        search=SearchRequest(
+            request_id="search:ds10-free-growth-complete",
+            query_text=generated_ref,
+            construct_refs=(generated_ref,),
+            intent="capability_discovery",
+            required_layers=("L3",),
+            authority_purpose="review_capability_candidates",
+            allowed_modes=("exact", "lexical"),
+            budget={"top_k": 1},
+            rule_version="policyos.ds10.discovery.v1",
+        ),
+        resource_kinds=("legal_norm",),
+        audience="REVIEWER",
+    )
+    complete_composer = CapabilityDiscoveryComposer(
+        providers=(complete_candidate_provider,),
+        execution_resolver=CapabilityExecutionResolver(
+            operation_registry=None,
+            conformance_verifier=None,
+            policy_resolver=RuntimeExecutionPolicyResolver(
+                default_profile="dev",
+                worker_backend="embedded",
+                state_store_backend="sqlite",
+                sqlite_path=":memory:",
+                postgres_dsn=None,
+            ),
+        ),
+        authority_resolver=CapabilityDiscoveryAuthorityResolver(
+            production_approval_resolver=None
+        ),
+        observed_at=lambda: datetime(2026, 8, 26, 6, 0, tzinfo=UTC),
+    )
+    complete_response = complete_composer.search(
+        complete_request, meta=ApiMeta(request_id="http:ds10-free-growth-complete")
+    )
+    assert len(complete_response.results) == 1
+    assert complete_response.results[0].capability_ref == generated_ref
+    assert complete_response.results[0].discovery_result.state == "discoverable"
+    assert complete_response.results[0].execution_result.state == "not_established"
+    assert complete_response.results[0].authority_result.state == "bridge_missing"
+    assert complete_response.results[0].authoritative_for == ()
+
     owner_rows = build_capability_discovery_snapshot(build.capability_index)
     owner_refs = {row.capability_ref for row in owner_rows}
     assert generated_ref in owner_refs
     assert len(owner_rows) == 2
     assert not any("quarantined" in ref or "malformed" in ref for ref in owner_refs)
 
-    provider = LexCapabilityDiscoveryProvider(capability_index=build.capability_index)
+    loaded_index = load_capability_index_release(build.primary_duckdb_path)
+    assert (
+        loaded_index.metadata["legal_norm_candidate_index_snapshot"]
+        == candidate_snapshot
+    )
+    provider = LexCandidateCapabilityDiscoveryProvider(
+        capability_index_loader=lambda: loaded_index
+    )
+    registry = _EmptyRegistry()
     registry_providers = resolve_control_registry_providers(
-        capability_discovery_providers=(provider,)
+        connectors_factory=lambda: registry,
+        source_profiles_factory=lambda: registry,
+        binding_profiles_factory=lambda: registry,
+        model_profiles_factory=lambda: registry,
+        capability_discovery_providers=(provider,),
     )
     runtime_env = build_runtime_api_env(
         tmp_path / "runtime",
@@ -179,12 +360,26 @@ def test_new_legal_norm_owner_row_appears_without_frontend_code_change(
         packet = json.loads(response_bytes)
         assert [item["capability_ref"] for item in packet["results"]] == [generated_ref]
         item = packet["results"][0]
-        assert item["discovery_result"]["state"] == "discoverable"
+        assert item["discovery_result"]["state"] == "recall_unmeasured"
+        assert (
+            "legal_candidate_budget_cutoff" in item["discovery_result"]["reason_codes"]
+        )
         assert item["execution_result"]["state"] == "not_established"
         assert item["authority_result"]["state"] != "admitted_authority"
         assert "not_established" in item["authority_result"]["reason_codes"]
         assert packet["frontier"]["candidates"][0]["candidate_ref"] == generated_ref
         assert packet["frontier"]["rejected_candidates"]
+        limited_packet = json.loads(_post_search(base_url, generated_ref, top_k=0))
+        assert limited_packet["results"] == []
+        assert limited_packet["frontier"]["completeness_status"] == "recall_unmeasured"
+        assert (
+            "legal_candidate_budget_cutoff"
+            in limited_packet["frontier"]["incompleteness_reasons"]
+        )
+        assert (
+            "lex_candidate_search_budget_cutoff"
+            in limited_packet["frontier"]["incompleteness_reasons"]
+        )
 
         frontend_env = {
             **os.environ,
@@ -225,6 +420,20 @@ def test_new_legal_norm_owner_row_appears_without_frontend_code_change(
     assert frontend_after.digests == frontend_before.digests
 
 
+class _EmptyRegistry:
+    def query_entries(self, *args: object, **kwargs: object) -> list[object]:
+        return []
+
+    def get(self, profile_id: str) -> None:
+        return None
+
+    def list_all(self) -> list[object]:
+        return []
+
+    def list_by_family(self, connector_family: str) -> list[object]:
+        return []
+
+
 class _SourceSnapshot:
     def __init__(self, *, root: Path, paths: tuple[str, ...]) -> None:
         self.paths = paths
@@ -234,7 +443,11 @@ class _SourceSnapshot:
             for path, payload in self.bytes_by_path.items()
         }
         self.partition = dict(
-            sorted(Counter(Path(path).suffix or "<extensionless>" for path in paths).items())
+            sorted(
+                Counter(
+                    Path(path).suffix or "<extensionless>" for path in paths
+                ).items()
+            )
         )
 
 
@@ -294,6 +507,7 @@ def _insert_legal_norm(
     threshold_id: str,
     canonical_status: str,
     hallucination_flags: str = "{}",
+    effective_to: str | None = None,
 ) -> None:
     fact_id = f"fact:ds10:{nonce}"
     doc_id = f"doc:ds10:{nonce}"
@@ -321,7 +535,7 @@ def _insert_legal_norm(
             hallucination_flags_json, quality_band, doc_id, doc_reestr_code,
             doc_name, doc_type, doc_date_acc, doc_status, jurisdiction, top_domain,
             doc_family_id, version_id, provision_anchor, provision_citation,
-            effective_from, temporal_state, temporal_resolution_status,
+            effective_from, effective_to, temporal_state, temporal_resolution_status,
             temporal_source_scope, temporal_source_kind, temporal_confidence,
             temporal_provenance_json, extraction_source, gate_score,
             gate_reason_codes, metadata, created_at
@@ -332,7 +546,7 @@ def _insert_legal_norm(
             'threshold', 'article', 'legal_authority', false, false, true, true,
             0.99, '{}', 0.99, ?, 'high', ?, 'ds10', 'DS10 generated norm',
             'law', '2026-01-01', 'active', 'UA', 'policy', ?, ?, '1', 'Art. 1',
-            '2026-01-01', 'effective', 'resolved', 'document', 'explicit', 0.99,
+            '2026-01-01', ?, 'effective', 'resolved', 'document', 'explicit', 0.99,
             '{}', 'ds10_owner_index', 0.99, '[]', '{}', current_timestamp
         )
         """,
@@ -349,6 +563,7 @@ def _insert_legal_norm(
             doc_id,
             f"doc-family:{nonce}",
             f"version:{nonce}",
+            effective_to,
         ],
     )
     connection.execute(
@@ -374,7 +589,7 @@ def _insert_legal_norm(
     )
 
 
-def _post_search(base_url: str, capability_ref: str) -> bytes:
+def _post_search(base_url: str, capability_ref: str, *, top_k: int = 1) -> bytes:
     body = json.dumps(
         {
             "search": {
@@ -385,7 +600,7 @@ def _post_search(base_url: str, capability_ref: str) -> bytes:
                 "required_layers": ["L3"],
                 "authority_purpose": "review_capability_candidates",
                 "allowed_modes": ["exact", "lexical"],
-                "budget": {"top_k": 1},
+                "budget": {"top_k": top_k},
                 "rule_version": "policyos.ds10.discovery.v1",
             },
             "resource_kinds": ["legal_norm"],

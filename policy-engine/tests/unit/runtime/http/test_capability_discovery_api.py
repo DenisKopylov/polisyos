@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+import pytest
+from polisyos_tests_runtime_http_conftest import _runtime_api_request
+
+from polisyos.core.artifacts import ArtifactOwnershipError
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.capability_discovery import (
     CapabilityDiscoveryRequest,
@@ -181,7 +185,24 @@ def test_capability_search_persists_exact_returned_packet(
             json=_search_body(resource_kinds=["case"]),
         )
         assert len(persisted) == 1
-        persisted_packet = from_canonical_bytes(control._artifact_store.get_bytes(persisted[0][3]))
+        with pytest.raises(ArtifactOwnershipError, match="active owner"):
+            control._artifact_store.get_bytes(persisted[0][3])
+        with (
+            tenant_scope(
+                None,
+                tenant_id=runtime_api_env["tenant_b"],
+                cell_id=runtime_api_env["cell_a"],
+            ),
+            pytest.raises(ArtifactOwnershipError, match="not readable by tenant"),
+        ):
+            control._artifact_store.get_bytes(persisted[0][3])
+        persisted_packet = from_canonical_bytes(
+            _runtime_api_request(
+                runtime_api_env,
+                control._artifact_store.get_bytes,
+                persisted[0][3],
+            )
+        )
 
     assert response.status_code == 200
     payload, kind, schema_name, ref = persisted[0]
@@ -309,10 +330,14 @@ def test_case_provider_is_backed_by_canonical_global_index(runtime_api_env) -> N
         body["search"]["construct_refs"] = ["subsidy"]
         body["search"]["allowed_modes"] = ["lexical"]
         body["search"]["query_text"] = "subsidy"
-        vocabulary_hit = client.post("/api/v1/control/capabilities/search", json=body, headers=headers)
+        vocabulary_hit = client.post(
+            "/api/v1/control/capabilities/search", json=body, headers=headers
+        )
         body["search"]["query_text"] = "instrument_family_coverage"
         body["search"]["construct_refs"] = ["instrument_family_coverage"]
-        field_name_miss = client.post("/api/v1/control/capabilities/search", json=body, headers=headers)
+        field_name_miss = client.post(
+            "/api/v1/control/capabilities/search", json=body, headers=headers
+        )
         assert response.status_code == 200
         assert vocabulary_hit.status_code == field_name_miss.status_code == 200
         assert len(vocabulary_hit.json()["results"]) == 1
@@ -326,10 +351,10 @@ def test_case_provider_is_backed_by_canonical_global_index(runtime_api_env) -> N
         assert item.authority_result.state != "admitted_authority"
         assert item.execution_result.state != "executable"
         assert packet.frontier.completeness_status == "recall_unmeasured"
-        with tenant_scope(
-            None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell.cell_id
-        ):
-            index = from_canonical_bytes(context.store.get_bytes(item.discovery_result.snapshot_ref))
+        with tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell.cell_id):
+            index = from_canonical_bytes(
+                context.store.get_bytes(item.discovery_result.snapshot_ref)
+            )
         assert index["source_artifact_refs"] == [str(produced.binding_ref.artifact_id)]
         assert index["entries"][0]["run_id"] == "R_case_index_producer"
         assert index["authority_owner_ref"] is None

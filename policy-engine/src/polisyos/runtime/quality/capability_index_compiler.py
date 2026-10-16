@@ -19,14 +19,17 @@ from typing import Any, Literal
 import duckdb
 import pyarrow as pa
 import pyarrow.parquet as pq
+from pydantic import TypeAdapter
 
 from polisyos.core.contracts import (
     CapabilityFreshness,
     CapabilityResourceKind,
     CapabilityTimeSemantics,
 )
+from polisyos.data_forge.kernel.io.generation_basis import build_generation_basis
 from polisyos.data_forge.read_api.legal import (
     LEGAL_SOURCE_RELATION_REFUSAL,
+    LEGAL_SOURCE_RELATION_REFUSAL_CODE,
     LegalSourceRelationRefusal,
     current_legal_source_relation_disposition,
     require_legal_source_relation_verification,
@@ -43,6 +46,13 @@ from polisyos.runtime.quality.capability_index import (
     EvidenceCapability,
     FailureModeNode,
     FreshnessEnvelope,
+    _candidate_hallucination_flags_status,
+    _candidate_iso_date,
+    _legal_candidate_selection_reasons,
+    LegalNormCandidateEvidence,
+    LegalNormCandidateIndexSnapshot,
+    LegalNormCandidateSourceProfileAsset,
+    _legal_candidate_selection_digest,
     LegalNormOwnerTruth,
     QualityScore,
     RightsEnvelope,
@@ -62,8 +72,11 @@ CAPABILITY_INDEX_DCAT = "capability_index_v1.dcat.jsonld"
 CAPABILITY_INDEX_PROV = "capability_index_v1.prov.ttl"
 CAPABILITY_WHITE_SPACE_REPORT = "capability_white_space_report_v1.json"
 CAPABILITY_CONFLICT_REPORT = "capability_conflict_report_v1.json"
+_DATETIME_JSON_ADAPTER: TypeAdapter[datetime] = TypeAdapter(datetime)
 
-PHASE1_ARTIFACT_PROFILE_SCHEMA_VERSION = "policyos.capability_index.phase1_artifact_profile.v1"
+PHASE1_ARTIFACT_PROFILE_SCHEMA_VERSION = (
+    "policyos.capability_index.phase1_artifact_profile.v1"
+)
 CAPABILITY_INDEX_OUTPUT_FILENAMES = (
     CAPABILITY_INDEX_DUCKDB,
     CAPABILITY_INDEX_MANIFEST,
@@ -103,7 +116,9 @@ INPUT_GROUP_TO_SOURCE_LAYER: dict[str, str] = {
     "l6_foundry_method_contracts": "L6",
     "l7_curated_contracts": "L7",
 }
-SOURCE_LAYER_TO_INPUT_GROUP = {value: key for key, value in INPUT_GROUP_TO_SOURCE_LAYER.items()}
+SOURCE_LAYER_TO_INPUT_GROUP = {
+    value: key for key, value in INPUT_GROUP_TO_SOURCE_LAYER.items()
+}
 INPUT_GROUPS = tuple(INPUT_GROUP_TO_SOURCE_LAYER)
 INTERDEPENDENT_PANEL_GROUPS = frozenset(
     {
@@ -203,11 +218,15 @@ def compile_capability_index(
     production_data_root = config.production_data_root.resolve()
     output_dir = config.output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-    generated_at = config.generated_at or datetime.now(UTC).replace(microsecond=0).isoformat()
+    generated_at = (
+        config.generated_at or datetime.now(UTC).replace(microsecond=0).isoformat()
+    )
     release_snapshot_at = _release_snapshot_at(generated_at)
     input_fingerprints = discover_input_fingerprints(production_data_root)
     previous_manifest = (
-        _load_json(config.previous_manifest_path) if config.previous_manifest_path else None
+        _load_json(config.previous_manifest_path)
+        if config.previous_manifest_path
+        else None
     )
     incremental = _incremental_state(previous_manifest, input_fingerprints)
 
@@ -227,8 +246,12 @@ def compile_capability_index(
 
     rebuilt_labels = tuple(INPUT_GROUPS)
     if config.mode == "incremental" and previous_manifest:
-        rebuilt_labels = _incremental_rebuild_labels(incremental["changed_input_labels"])
-        previous_capabilities = _load_previous_capabilities(config.previous_manifest_path)
+        rebuilt_labels = _incremental_rebuild_labels(
+            incremental["changed_input_labels"]
+        )
+        previous_capabilities = _load_previous_capabilities(
+            config.previous_manifest_path
+        )
         rebuilt_capabilities = _compile_capabilities_for_input_labels(
             config,
             production_data_root,
@@ -254,7 +277,8 @@ def compile_capability_index(
         capabilities,
         has_lex_source=(
             "l3_lex_kg" in rebuilt_labels
-            or _find_first(production_data_root, "**/lex_knowledge_graph.duckdb") is not None
+            or _find_first(production_data_root, "**/lex_knowledge_graph.duckdb")
+            is not None
         ),
     )
 
@@ -291,7 +315,9 @@ def compile_capability_index(
         compiler_version=CAPABILITY_INDEX_COMPILER_VERSION,
         release_ref=CAPABILITY_INDEX_RELEASE_REF,
         mode=config.mode,
-        capabilities=tuple(sorted(capabilities, key=lambda capability: capability.capability_id)),
+        capabilities=tuple(
+            sorted(capabilities, key=lambda capability: capability.capability_id)
+        ),
         failure_modes=tuple(white_space),
         acquisition_strategies=tuple(acquisition_strategies),
         conflicts=tuple(conflicts),
@@ -304,11 +330,23 @@ def compile_capability_index(
             "legal_source_relation_refusal": (
                 legal_relation_refusal.to_payload() if legal_relation_refusal else None
             ),
+            "legal_norm_candidate_index_snapshot": _compile_legal_norm_candidate_snapshot(
+                production_data_root,
+                compiler_release_ref=(
+                    f"{CAPABILITY_INDEX_RELEASE_REF}@{CAPABILITY_INDEX_COMPILER_VERSION}"
+                ),
+                release_snapshot_at=release_snapshot_at,
+                candidate_limit=config.max_lex_capabilities,
+                source_root_ref=f"production-data:{production_data_root.name}",
+                source_profile=input_fingerprints["l3_lex_kg"],
+            ).model_dump(mode="json"),
         },
     )
 
     primary_duckdb_path = output_dir / CAPABILITY_INDEX_DUCKDB
-    table_row_counts = write_capability_index_duckdb(capability_index, primary_duckdb_path)
+    table_row_counts = write_capability_index_duckdb(
+        capability_index, primary_duckdb_path
+    )
     logical_digest = compute_logical_duckdb_digest(primary_duckdb_path)
     sha256_path = output_dir / CAPABILITY_INDEX_SHA256
     sha256_path.write_text(
@@ -375,6 +413,449 @@ def compile_capability_index(
     )
 
 
+def _compile_legal_norm_candidate_snapshot(
+    production_data_root: Path,
+    *,
+    compiler_release_ref: str,
+    release_snapshot_at: datetime,
+    candidate_limit: int,
+    source_root_ref: str,
+    source_profile: Mapping[str, Any],
+) -> LegalNormCandidateIndexSnapshot:
+    """Persist the complete bounded threshold selection with owner dispositions."""
+    path = _find_first(production_data_root, "**/lex_knowledge_graph.duckdb")
+    raw_profile_assets = source_profile.get("assets")
+    if not isinstance(raw_profile_assets, list):
+        raise ValueError("compiler L3 input profile assets are unavailable")
+    source_profile_assets = tuple(
+        LegalNormCandidateSourceProfileAsset.model_validate(asset)
+        for asset in raw_profile_assets
+    )
+    source_profile_digest = "sha256:" + _safe_text(source_profile.get("group_digest"))
+    if source_profile_digest == "sha256:":
+        raise ValueError("compiler L3 input profile digest is unavailable")
+    if source_profile.get("asset_count") != len(source_profile_assets):
+        raise ValueError("compiler L3 input profile denominator is inconsistent")
+    profile_paths = {asset.path for asset in source_profile_assets}
+    if path is None:
+        if profile_paths:
+            raise ValueError(
+                "compiler L3 profile selected a missing Legal source member"
+            )
+        return _build_legal_candidate_snapshot(
+            compiler_release_ref=compiler_release_ref,
+            source_release_ref="lex:source-unavailable",
+            source_path_ref="lex_knowledge_graph.duckdb",
+            source_root_ref=source_root_ref,
+            source_profile_digest=source_profile_digest,
+            source_profile_assets=source_profile_assets,
+            source_table_present=False,
+            source_candidate_count=None,
+            candidate_limit=candidate_limit,
+            records=(),
+            incompleteness_reasons=("legal_candidate_source_count_unavailable",),
+        )
+
+    selected_path_ref = _relative_path(path, production_data_root)
+    if selected_path_ref not in profile_paths:
+        raise ValueError(
+            "selected Legal source member is outside the compiler L3 profile"
+        )
+
+    with path.open("rb") as source_file:
+        source_digest = hashlib.sha256()
+        for chunk in iter(lambda: source_file.read(1024 * 1024), b""):
+            source_digest.update(chunk)
+    source_release_ref = f"{path.name}@sha256:{source_digest.hexdigest()}"
+
+    with duckdb.connect(str(path), read_only=True) as connection:
+        tables = set(_show_tables(connection))
+        if "lex_rule_thresholds" not in tables:
+            return _build_legal_candidate_snapshot(
+                compiler_release_ref=compiler_release_ref,
+                source_release_ref=source_release_ref,
+                source_path_ref=_relative_path(path, production_data_root),
+                source_root_ref=source_root_ref,
+                source_profile_digest=source_profile_digest,
+                source_profile_assets=source_profile_assets,
+                source_table_present=False,
+                source_candidate_count=None,
+                candidate_limit=candidate_limit,
+                records=(),
+                incompleteness_reasons=("legal_candidate_source_count_unavailable",),
+            )
+
+        source_count = int(
+            connection.execute("SELECT COUNT(*) FROM lex_rule_thresholds").fetchone()[0]
+        )
+        threshold_rows = connection.execute(
+            """
+            SELECT
+                threshold_id,
+                fact_id,
+                metric,
+                operator,
+                value_decimal,
+                value_text,
+                unit,
+                applies_to
+            FROM lex_rule_thresholds
+            ORDER BY threshold_id
+            LIMIT ?
+            """,
+            [candidate_limit],
+        ).fetchall()
+        threshold_columns = [str(column[0]) for column in connection.description]
+        rows = [
+            dict(zip(threshold_columns, values, strict=True))
+            for values in threshold_rows
+        ]
+
+        fact_table_available = False
+        fact_counts: dict[str, int] = {}
+        fact_rows_by_id: dict[str, list[dict[str, object]]] = defaultdict(list)
+        fact_ids = tuple(
+            sorted(
+                {
+                    str(row["fact_id"]).strip()
+                    for row in rows
+                    if row.get("fact_id") is not None and str(row["fact_id"]).strip()
+                }
+            )
+        )
+        if "lex_normative_facts" in tables:
+            fact_columns = {
+                str(column[0])
+                for column in connection.execute(
+                    "DESCRIBE lex_normative_facts"
+                ).fetchall()
+            }
+            if "fact_id" in fact_columns:
+                fact_table_available = True
+                if fact_ids:
+                    placeholders = ", ".join("?" for _ in fact_ids)
+                    fact_counts = {
+                        str(fact_id): int(count)
+                        for fact_id, count in connection.execute(
+                            "SELECT fact_id, COUNT(*) FROM lex_normative_facts "
+                            f"WHERE fact_id IN ({placeholders}) GROUP BY fact_id",
+                            list(fact_ids),
+                        ).fetchall()
+                    }
+                    fact_rows = connection.execute(
+                        "SELECT rowid AS __source_rowid__, * FROM lex_normative_facts "
+                        f"WHERE fact_id IN ({placeholders}) ORDER BY fact_id",
+                        list(fact_ids),
+                    ).fetchall()
+                    fact_row_columns = [
+                        str(column[0]) for column in connection.description
+                    ]
+                    for values in fact_rows:
+                        fact = dict(zip(fact_row_columns, values, strict=True))
+                        fact_id = _safe_text(fact.get("fact_id"))
+                        if fact_id:
+                            fact_rows_by_id[fact_id].append(fact)
+
+        audits_by_fact: dict[str, set[str]] = defaultdict(set)
+        if "lex_temporal_audit" in tables and fact_ids:
+            audit_columns = {
+                str(column[0])
+                for column in connection.execute(
+                    "DESCRIBE lex_temporal_audit"
+                ).fetchall()
+            }
+            if {"fact_id", "audit_id"} <= audit_columns:
+                placeholders = ", ".join("?" for _ in fact_ids)
+                for fact_id, audit_id in connection.execute(
+                    "SELECT fact_id, audit_id FROM lex_temporal_audit "
+                    f"WHERE fact_id IN ({placeholders}) ORDER BY fact_id, audit_id",
+                    list(fact_ids),
+                ).fetchall():
+                    normalized_fact = _safe_text(fact_id)
+                    normalized_audit = _safe_text(audit_id)
+                    if normalized_fact and normalized_audit:
+                        audits_by_fact[normalized_fact].add(normalized_audit)
+
+        document_ids = tuple(
+            sorted(
+                {
+                    _safe_text(fact.get("doc_id"))
+                    for fact_rows in fact_rows_by_id.values()
+                    for fact in fact_rows
+                    if fact_counts.get(_safe_text(fact.get("fact_id"))) == 1
+                    and _safe_text(fact.get("doc_id"))
+                }
+            )
+        )
+        references_by_document: dict[str, set[str]] = defaultdict(set)
+        if "lex_references" in tables and document_ids:
+            reference_columns = {
+                str(column[0])
+                for column in connection.execute("DESCRIBE lex_references").fetchall()
+            }
+            if {"doc_id", "reference_id"} <= reference_columns:
+                placeholders = ", ".join("?" for _ in document_ids)
+                for document_id, reference_id in connection.execute(
+                    "SELECT doc_id, reference_id FROM lex_references "
+                    f"WHERE doc_id IN ({placeholders}) ORDER BY doc_id, reference_id",
+                    list(document_ids),
+                ).fetchall():
+                    normalized_document = _safe_text(document_id)
+                    normalized_reference = _safe_text(reference_id)
+                    if normalized_document and normalized_reference:
+                        references_by_document[normalized_document].add(
+                            normalized_reference
+                        )
+
+    records: list[LegalNormCandidateEvidence] = []
+    invalid_row_count = 0
+    for row in rows:
+        threshold_id = _safe_text(row.get("threshold_id"))
+        fact_id = _safe_text(row.get("fact_id"))
+        if not threshold_id or not fact_id:
+            invalid_row_count += 1
+            continue
+        fact_count = fact_counts.get(fact_id)
+        fact_binding_status = (
+            "fact_table_unavailable"
+            if not fact_table_available
+            else (
+                "fact_missing"
+                if fact_count is None
+                else ("bound_one_fact" if fact_count == 1 else "fact_ambiguous")
+            )
+        )
+        fact_rows_for_id = fact_rows_by_id.get(fact_id, [])
+        fact = fact_rows_for_id[0] if fact_binding_status == "bound_one_fact" else {}
+        source_fact_refs = tuple(
+            sorted(
+                f"duckdb:{path.name}:lex_normative_facts:{fact_id}:rowid:{row['__source_rowid__']}"
+                for row in fact_rows_for_id
+            )
+        )
+        source_document_id = _optional_str(fact.get("doc_id"))
+        source_temporal_audit_refs = tuple(
+            sorted(
+                f"duckdb:{path.name}:lex_temporal_audit:{audit_id}"
+                for audit_id in audits_by_fact.get(fact_id, set())
+            )
+        )
+        source_reference_refs = tuple(
+            sorted(
+                f"duckdb:{path.name}:lex_references:{reference_id}"
+                for reference_id in references_by_document.get(
+                    source_document_id or "", set()
+                )
+            )
+        )
+        source_effective_from_raw = _optional_str(fact.get("effective_from"))
+        source_effective_to_raw = _optional_str(fact.get("effective_to"))
+        source_effective_from = _candidate_iso_date(source_effective_from_raw)
+        source_effective_to = _candidate_iso_date(source_effective_to_raw)
+        raw_hallucination_flags = fact.get("hallucination_flags_json")
+        source_hallucination_flags_json = (
+            raw_hallucination_flags
+            if isinstance(raw_hallucination_flags, str)
+            else None
+        )
+        source_hallucination_flags_status = _candidate_hallucination_flags_status(
+            source_hallucination_flags_json
+        )
+        source_fields = {
+            "fact_binding_status": fact_binding_status,
+            "source_document_id": source_document_id,
+            "source_provision_citation": _optional_str(fact.get("provision_citation")),
+            "source_jurisdiction": _optional_str(fact.get("jurisdiction")),
+            "source_grounding_status": _optional_str(fact.get("grounding_status")),
+            "source_canonical_status": _optional_str(fact.get("canonical_status")),
+            "source_reference_resolution_status": _optional_str(
+                fact.get("reference_resolution_status")
+            ),
+            "source_temporal_state": _optional_str(fact.get("temporal_state")),
+            "source_temporal_resolution_status": _optional_str(
+                fact.get("temporal_resolution_status")
+            ),
+            "source_effective_from": source_effective_from,
+            "source_effective_to": source_effective_to,
+            "source_effective_from_raw": source_effective_from_raw,
+            "source_effective_to_raw": source_effective_to_raw,
+            "source_hallucination_flags_status": source_hallucination_flags_status,
+            "source_temporal_audit_refs": source_temporal_audit_refs,
+            "source_reference_refs": source_reference_refs,
+            "selection_snapshot_at": release_snapshot_at,
+        }
+        row_reasons = _legal_candidate_selection_reasons(**source_fields)
+        disposition = "eligible" if not row_reasons else "excluded"
+        source_refs_set = {f"duckdb:{path.name}:lex_rule_thresholds:{threshold_id}"}
+        if fact_binding_status == "bound_one_fact":
+            source_refs_set.add(f"duckdb:{path.name}:lex_normative_facts:{fact_id}")
+        source_refs_set.update(source_fact_refs)
+        source_refs_set.update(source_temporal_audit_refs)
+        source_refs_set.update(source_reference_refs)
+        metric = _safe_text(row.get("metric") or "legal_threshold")
+        construct = _legal_construct(metric, row.get("applies_to"))
+        payload = {
+            "schema_version": "policyos.lex.legal_norm_candidate_evidence.v1",
+            "candidate_kind": "legal_threshold",
+            "candidate_ref": deterministic_capability_id(
+                construct, "lex_norm", threshold_id, metric
+            ),
+            "threshold_id": threshold_id,
+            "fact_id": fact_id,
+            "threshold": {
+                "metric": _safe_text(row.get("metric")),
+                "operator": _safe_text(row.get("operator")),
+                "value_decimal": (
+                    str(row["value_decimal"])
+                    if row.get("value_decimal") is not None
+                    else None
+                ),
+                "value_text": _optional_str(row.get("value_text")),
+                "unit": _optional_str(row.get("unit")),
+                "applies_to": _optional_str(row.get("applies_to")),
+            },
+            "source_release_ref": source_release_ref,
+            "source_trust_tier": _optional_str(fact.get("trust_tier")),
+            "source_document_id": source_document_id,
+            "source_document_status": _optional_str(fact.get("doc_status")),
+            "source_provision_citation": source_fields["source_provision_citation"],
+            "source_jurisdiction": source_fields["source_jurisdiction"],
+            "source_grounding_status": source_fields["source_grounding_status"],
+            "source_canonical_status": source_fields["source_canonical_status"],
+            "source_reference_resolution_status": source_fields[
+                "source_reference_resolution_status"
+            ],
+            "source_temporal_state": source_fields["source_temporal_state"],
+            "source_temporal_resolution_status": source_fields[
+                "source_temporal_resolution_status"
+            ],
+            "selection_snapshot_at": _DATETIME_JSON_ADAPTER.dump_python(
+                release_snapshot_at, mode="json"
+            ),
+            "source_effective_from_raw": source_effective_from_raw,
+            "source_effective_to_raw": source_effective_to_raw,
+            "source_effective_from": (
+                source_effective_from.isoformat()
+                if source_effective_from is not None
+                else None
+            ),
+            "source_effective_to": (
+                source_effective_to.isoformat()
+                if source_effective_to is not None
+                else None
+            ),
+            "source_hallucination_flags_json": source_hallucination_flags_json,
+            "source_hallucination_flags_status": source_hallucination_flags_status,
+            "source_fact_refs": source_fact_refs,
+            "source_temporal_audit_refs": source_temporal_audit_refs,
+            "source_reference_refs": source_reference_refs,
+            "fact_binding_status": fact_binding_status,
+            "selection_disposition": disposition,
+            "selection_reasons": row_reasons,
+            "source_asset_refs": tuple(sorted(source_refs_set)),
+            "trust_tier": "search_candidate",
+            "source_relation_refusal_code": LEGAL_SOURCE_RELATION_REFUSAL_CODE,
+            "source_relation_refusal_status": "verification_missing",
+        }
+        source_content_digest = "sha256:" + _sha256_json(payload)
+        record = LegalNormCandidateEvidence.model_validate_json(
+            _json_dumps({**payload, "source_content_digest": source_content_digest})
+        )
+        records.append(record)
+
+    incompleteness_reasons: set[str] = set()
+    if source_count > len(rows):
+        incompleteness_reasons.add("legal_candidate_budget_cutoff")
+    if invalid_row_count:
+        incompleteness_reasons.add("legal_candidate_row_identity_invalid")
+    if source_count == 0:
+        incompleteness_reasons.add("legal_candidate_source_empty_unmeasured")
+    return _build_legal_candidate_snapshot(
+        compiler_release_ref=compiler_release_ref,
+        source_release_ref=source_release_ref,
+        source_path_ref=_relative_path(path, production_data_root),
+        source_root_ref=source_root_ref,
+        source_profile_digest=source_profile_digest,
+        source_profile_assets=source_profile_assets,
+        source_table_present=True,
+        source_candidate_count=source_count,
+        candidate_limit=candidate_limit,
+        records=tuple(sorted(records, key=lambda record: record.candidate_ref)),
+        incompleteness_reasons=tuple(sorted(incompleteness_reasons)),
+    )
+
+
+def _build_legal_candidate_snapshot(
+    *,
+    compiler_release_ref: str,
+    source_release_ref: str,
+    source_path_ref: str,
+    source_root_ref: str,
+    source_profile_digest: str,
+    source_profile_assets: tuple[LegalNormCandidateSourceProfileAsset, ...],
+    source_table_present: bool,
+    source_candidate_count: int | None,
+    candidate_limit: int,
+    records: tuple[LegalNormCandidateEvidence, ...],
+    incompleteness_reasons: tuple[str, ...],
+) -> LegalNormCandidateIndexSnapshot:
+    """Build one strictly bound candidate inventory from the compiler selection."""
+    record_payloads = [record.model_dump(mode="json") for record in records]
+    candidate_set_digest = "sha256:" + _sha256_json(record_payloads)
+    generation_basis_digest = None
+    if records:
+        basis = build_generation_basis(
+            basis_kind="legal_threshold_candidate_index",
+            generator_rule_version="legal-threshold-candidate-selection.v1",
+            members=tuple(
+                (
+                    record.candidate_ref,
+                    _json_dumps(record.model_dump(mode="json")).encode("utf-8"),
+                )
+                for record in records
+            ),
+        )
+        generation_basis_digest = basis.basis_digest
+    complete = (
+        source_table_present
+        and source_candidate_count is not None
+        and source_candidate_count > 0
+        and source_candidate_count == len(records)
+        and len(records) <= candidate_limit
+        and not incompleteness_reasons
+    )
+    selection_digest = _legal_candidate_selection_digest(
+        source_root_ref=source_root_ref,
+        source_profile_digest=source_profile_digest,
+        source_path_ref=source_path_ref,
+        source_release_ref=source_release_ref,
+        selection_rule_version="lex_kg_first_sorted_path.v1",
+    )
+    return LegalNormCandidateIndexSnapshot(
+        compiler_release_ref=compiler_release_ref,
+        source_release_ref=source_release_ref,
+        source_path_ref=source_path_ref,
+        source_root_ref=source_root_ref,
+        source_profile_id="l3_lex_kg",
+        source_profile_digest=source_profile_digest,
+        source_profile_assets=source_profile_assets,
+        source_selection_rule_version="lex_kg_first_sorted_path.v1",
+        source_selection_digest=selection_digest,
+        source_table_present=source_table_present,
+        source_candidate_count=source_candidate_count,
+        candidate_limit=candidate_limit,
+        selected_candidate_count=sum(
+            record.selection_disposition == "eligible" for record in records
+        ),
+        candidate_set_digest=candidate_set_digest,
+        generation_basis_digest=generation_basis_digest,
+        completeness="complete" if complete else "incomplete",
+        incompleteness_reasons=incompleteness_reasons
+        or (() if complete else ("legal_candidate_inventory_incomplete",)),
+        records=records,
+    )
+
+
 def build_capability_discovery_snapshot(
     capability_index: CapabilityIndex,
 ) -> tuple[CapabilityIndexDiscoveryRow, ...]:
@@ -402,7 +883,8 @@ def build_capability_discovery_snapshot(
         digest = "sha256:" + _sha256_json(payload)
         source_refs = tuple(asset.ref for asset in capability.source_assets)
         freshness_ref = (
-            capability.freshness_envelope.source_release_ref or capability_index.release_ref
+            capability.freshness_envelope.source_release_ref
+            or capability_index.release_ref
         )
         rows.append(
             CapabilityIndexDiscoveryRow(
@@ -428,7 +910,9 @@ def build_capability_discovery_snapshot(
                 ),
                 freshness_ref=freshness_ref,
                 provenance_refs=(
-                    source_refs or capability.lineage_refs or (capability_index.release_ref,)
+                    source_refs
+                    or capability.lineage_refs
+                    or (capability_index.release_ref,)
                 ),
                 owner_truth=owner_truth,
                 may_not_use_for=tuple(
@@ -449,10 +933,82 @@ def build_capability_discovery_snapshot(
                 ),
             )
         )
+    candidate_snapshot_payload = capability_index.metadata.get(
+        "legal_norm_candidate_index_snapshot"
+    )
+    if isinstance(candidate_snapshot_payload, Mapping):
+        candidate_snapshot = LegalNormCandidateIndexSnapshot.model_validate_json(
+            json.dumps(candidate_snapshot_payload, ensure_ascii=False)
+        )
+        rows.extend(
+            _legal_candidate_discovery_rows(
+                capability_index,
+                candidate_snapshot,
+                observed_at=observed_at,
+            )
+        )
     return tuple(sorted(rows, key=lambda row: (row.resource_kind, row.capability_ref)))
 
 
-def _discovery_resource_kind(capability: EvidenceCapability) -> CapabilityResourceKind | None:
+def _legal_candidate_discovery_rows(
+    capability_index: CapabilityIndex,
+    snapshot: LegalNormCandidateIndexSnapshot,
+    *,
+    observed_at: datetime,
+) -> tuple[CapabilityIndexDiscoveryRow, ...]:
+    """Project candidate evidence without invoking or constructing LegalNormOwnerTruth."""
+    if snapshot.compiler_release_ref != (
+        f"{capability_index.release_ref}@{capability_index.compiler_version}"
+    ):
+        raise ValueError(
+            "Legal candidate snapshot belongs to a different index release"
+        )
+    result = []
+    for record in snapshot.records:
+        if record.selection_disposition != "eligible":
+            continue
+        payload = record.model_dump(mode="json")
+        digest = "sha256:" + _sha256_json(payload)
+        metric = record.threshold.metric.strip() or "legal_threshold"
+        result.append(
+            CapabilityIndexDiscoveryRow(
+                capability_ref=record.candidate_ref,
+                content_digest=digest,
+                resource_kind="legal_norm",
+                construct_refs=(f"construct:{metric}",),
+                label=f"Legal threshold candidate {record.threshold_id}",
+                description=(
+                    f"Unverified threshold candidate: {metric} "
+                    f"{record.threshold.operator} {record.threshold.value_decimal or record.threshold.value_text or ''}"
+                ).strip(),
+                producer_ref=capability_index.release_ref,
+                snapshot_ref=(
+                    f"{capability_index.release_ref}@"
+                    f"{capability_index.compiler_version}:legal-candidates"
+                ),
+                freshness_ref=record.source_release_ref,
+                provenance_refs=record.source_asset_refs,
+                owner_truth=record,
+                may_not_use_for=(
+                    "legal_source_relation_verification_not_established",
+                    "legal_authority",
+                    "execution_authority",
+                    "publication_authority",
+                ),
+                time=CapabilityTimeSemantics(
+                    observed_at=observed_at,
+                    valid_from=observed_at,
+                    valid_until=None,
+                    freshness="unknown",
+                ),
+            )
+        )
+    return tuple(result)
+
+
+def _discovery_resource_kind(
+    capability: EvidenceCapability,
+) -> CapabilityResourceKind | None:
     modalities = set(capability.modality)
     layers = {asset.source_layer for asset in capability.source_assets}
     if "foundry_method_contract" in modalities:
@@ -481,7 +1037,10 @@ def _legal_norm_owner_truth(
     *,
     release_snapshot_at: datetime,
 ) -> LegalNormOwnerTruth | None:
-    if "lex_norm" in capability.modality or capability.evidence_mode == "legal_threshold":
+    if (
+        "lex_norm" in capability.modality
+        or capability.evidence_mode == "legal_threshold"
+    ):
         return None
     payload = capability.metadata.get("legal_norm_owner_truth")
     if not isinstance(payload, Mapping):
@@ -510,19 +1069,23 @@ def validate_capability_authority(capability: EvidenceCapability) -> None:
     """Validate authority boundaries that must never be laundered."""
 
     if (
-        "lex_norm" in capability.modality or capability.evidence_mode == "legal_threshold"
+        "lex_norm" in capability.modality
+        or capability.evidence_mode == "legal_threshold"
     ) and capability_is_production_admissible(capability):
         require_legal_source_relation_verification()
 
     if (
         capability.evidence_mode in {"simulation_only", "candidate_unverified"}
-        or set(capability.modality) & {"simulation_state", "llm_candidate", "llm_critic_consensus"}
+        or set(capability.modality)
+        & {"simulation_state", "llm_candidate", "llm_critic_consensus"}
     ) and capability_is_production_admissible(capability):
         raise ValueError(
             f"{capability.evidence_mode} capability {capability.capability_id} "
             "cannot claim production authority"
         )
-    if capability.compatibility_only and capability_is_production_admissible(capability):
+    if capability.compatibility_only and capability_is_production_admissible(
+        capability
+    ):
         raise ValueError(
             f"compatibility_only capability {capability.capability_id} cannot claim "
             "production authority"
@@ -584,7 +1147,9 @@ def _compile_capabilities_for_input_labels(
             load_calibration_capabilities(production_data_root, calibration_context)
         )
     if "l6_foundry_method_contracts" in labels:
-        capabilities.extend(load_foundry_capabilities(production_data_root, foundry_context))
+        capabilities.extend(
+            load_foundry_capabilities(production_data_root, foundry_context)
+        )
     if "l7_curated_contracts" in labels:
         capabilities.extend(load_l7_curated_contract_capabilities(production_data_root))
     return tuple(capabilities)
@@ -693,7 +1258,9 @@ def discover_input_fingerprints(production_data_root: Path) -> dict[str, Any]:
             for path in root.glob(f"**/{name}")
         ]
         + _l5_derived_parquet_paths(root),
-        "l6_foundry_method_contracts": list(root.glob("**/observation_to_contract_manifest.json")),
+        "l6_foundry_method_contracts": list(
+            root.glob("**/observation_to_contract_manifest.json")
+        ),
         "l7_curated_contracts": [
             path
             for name in ("data_contracts.json", "source_bindings.json")
@@ -804,15 +1371,23 @@ def load_dataset_catalog_capabilities(
         dataset_ref = _safe_text(row.get("dataset_id") or row.get("id") or "dataset")
         metric_id = _safe_text(row.get("metric_id"))
         title = _safe_text(row.get("title"))
-        construct = _construct_from_text(" ".join(part for part in (metric_id, title) if part))
+        construct = _construct_from_text(
+            " ".join(part for part in (metric_id, title) if part)
+        )
         breakdown = {
-            "machine_readable": _score(row.get("quality_machine_readable_score"), default=0.5),
-            "parser_readiness": _score(row.get("quality_parser_support_score"), default=0.5),
+            "machine_readable": _score(
+                row.get("quality_machine_readable_score"), default=0.5
+            ),
+            "parser_readiness": _score(
+                row.get("quality_parser_support_score"), default=0.5
+            ),
             "freshness": _score(row.get("quality_freshness_score"), default=0.5),
             "execution_readiness": _score(
                 row.get("quality_execution_readiness_score"), default=0.5
             ),
-            "schema_profile_present": 1.0 if int(row.get("schema_profile_count") or 0) > 0 else 0.0,
+            "schema_profile_present": 1.0
+            if int(row.get("schema_profile_count") or 0) > 0
+            else 0.0,
             "variable_alignment_confidence": _score(
                 row.get("variable_alignment_confidence"), default=0.25
             ),
@@ -874,8 +1449,12 @@ def load_dataset_catalog_capabilities(
                         table="ds_distributions",
                         metadata={
                             "format": _optional_str(row.get("distribution_format")),
-                            "machine_readable": bool(row.get("distribution_machine_readable")),
-                            "parser_supported": bool(row.get("distribution_parser_supported")),
+                            "machine_readable": bool(
+                                row.get("distribution_machine_readable")
+                            ),
+                            "parser_supported": bool(
+                                row.get("distribution_parser_supported")
+                            ),
                         },
                     ),
                     CapabilitySourceAsset(
@@ -1059,7 +1638,9 @@ def load_scholar_capabilities(
                 modality=("scholar_claim",),
                 evidence_mode="scholarly_causal_support",
                 concept_spine_refs=(f"concept:{construct}", f"concept:{_slug(src)}"),
-                scope=CapabilityScope(geography="multi_context", entity_scope="construct_pair"),
+                scope=CapabilityScope(
+                    geography="multi_context", entity_scope="construct_pair"
+                ),
                 identification_mode="literature_supported",
                 trust_tier="academic_synthesis",
                 quality_score=QualityScore(
@@ -1067,7 +1648,9 @@ def load_scholar_capabilities(
                     breakdown=breakdown,
                 ),
                 source_assets=tuple(source_assets),
-                limitations=("Scholar support cannot satisfy direct runtime outcome observation.",),
+                limitations=(
+                    "Scholar support cannot satisfy direct runtime outcome observation.",
+                ),
                 authority_envelope=AuthorityEnvelope(
                     research="admissible",
                     governed_pilot="admissible_as_scholarly_support",
@@ -1235,7 +1818,9 @@ def load_lex_capabilities(
                     },
                 ),
                 source_assets=tuple(source_assets),
-                limitations=("Legal thresholds cannot satisfy empirical outcome evidence.",),
+                limitations=(
+                    "Legal thresholds cannot satisfy empirical outcome evidence.",
+                ),
                 authority_envelope=AuthorityEnvelope(
                     research="admissible",
                     governed_pilot="admissible_as_legal_authority",
@@ -1360,7 +1945,9 @@ def _release_snapshot_at(raw: str) -> datetime:
     try:
         snapshot = datetime.fromisoformat(raw.replace("Z", "+00:00"))
     except ValueError as exc:
-        raise ValueError("capability release snapshot must be an ISO-8601 datetime") from exc
+        raise ValueError(
+            "capability release snapshot must be an ISO-8601 datetime"
+        ) from exc
     if snapshot.tzinfo is None:
         raise ValueError("capability release snapshot must be timezone-aware")
     return snapshot
@@ -1370,9 +1957,15 @@ def load_calibration_registries(production_data_root: Path) -> CalibrationContex
     """Load L5 measurement, identification, schema-regime, and governance registries."""
 
     measurement_path = _find_first(production_data_root, "**/measurement_registry.json")
-    identification_path = _find_first(production_data_root, "**/identification_mode_registry.json")
-    schema_regime_path = _find_first(production_data_root, "**/schema_regime_registry.json")
-    governance_path = _find_first(production_data_root, "**/governance_pass_mapping_v1.json")
+    identification_path = _find_first(
+        production_data_root, "**/identification_mode_registry.json"
+    )
+    schema_regime_path = _find_first(
+        production_data_root, "**/schema_regime_registry.json"
+    )
+    governance_path = _find_first(
+        production_data_root, "**/governance_pass_mapping_v1.json"
+    )
     measurement = _load_json(measurement_path) if measurement_path else {}
     identification = _load_json(identification_path) if identification_path else {}
     schema_regime = _load_json(schema_regime_path) if schema_regime_path else {}
@@ -1401,7 +1994,9 @@ def load_calibration_registries(production_data_root: Path) -> CalibrationContex
         if isinstance(value, int | float)
     }
     selected_modes = {
-        str(key): str(value.get("selected_mode") or value.get("primary_mode") or "unknown")
+        str(key): str(
+            value.get("selected_mode") or value.get("primary_mode") or "unknown"
+        )
         for key, value in identification.items()
         if isinstance(value, Mapping)
     }
@@ -1412,7 +2007,9 @@ def load_calibration_registries(production_data_root: Path) -> CalibrationContex
     }
     regimes = schema_regime.get("regimes") or {}
     current_regime = (
-        "ukraine_schema_v2" if "ukraine_schema_v2" in regimes else next(iter(regimes), None)
+        "ukraine_schema_v2"
+        if "ukraine_schema_v2" in regimes
+        else next(iter(regimes), None)
     )
     return CalibrationContext(
         source_assets=tuple(source_assets),
@@ -1492,10 +2089,16 @@ def load_ukraine_panel_capabilities(
                     _source_asset_from_parquet(profile, role="normalized_panel"),
                     *calibration_context.source_assets,
                 ),
-                method_contract_targets=foundry_context.targets_by_family.get(source_family, ()),
-                limitations=("Panel profile uses Parquet metadata row counts, not full CI scans.",),
+                method_contract_targets=foundry_context.targets_by_family.get(
+                    source_family, ()
+                ),
+                limitations=(
+                    "Panel profile uses Parquet metadata row counts, not full CI scans.",
+                ),
                 authority_envelope=_authority_for_panel(coverage, source_family),
-                lineage_refs=(f"source_snapshot:{_release_ref_from_path(profile.path)}",),
+                lineage_refs=(
+                    f"source_snapshot:{_release_ref_from_path(profile.path)}",
+                ),
                 freshness_envelope=FreshnessEnvelope(
                     freshness_class="release_snapshot_metadata",
                     source_release_ref=_release_ref_from_path(profile.path),
@@ -1554,7 +2157,9 @@ def load_calibration_capabilities(
                     composite=_mean_score(
                         (
                             _score(coverage, default=0.5),
-                            1.0 if calibration_context.governance_passes.get(family) else 0.5,
+                            1.0
+                            if calibration_context.governance_passes.get(family)
+                            else 0.5,
                         )
                     ),
                     breakdown={
@@ -1601,7 +2206,9 @@ def load_foundry_method_contracts(production_data_root: Path) -> FoundryRouteCon
             continue
         family = _safe_text(route.get("family"))
         target = route.get("target_contract") or {}
-        contract_id = _safe_text(target.get("contract_id") if isinstance(target, Mapping) else "")
+        contract_id = _safe_text(
+            target.get("contract_id") if isinstance(target, Mapping) else ""
+        )
         if family and contract_id:
             targets_by_family[family] = tuple(
                 sorted({*targets_by_family.get(family, ()), contract_id})
@@ -1650,7 +2257,10 @@ def load_foundry_capabilities(
                 trust_tier="compiled_method_manifest",
                 quality_score=QualityScore(
                     composite=0.9,
-                    breakdown={"manifest_route_present": 1.0, "target_contract_present": 1.0},
+                    breakdown={
+                        "manifest_route_present": 1.0,
+                        "target_contract_present": 1.0,
+                    },
                 ),
                 source_assets=(
                     *foundry_context.source_assets,
@@ -1663,7 +2273,9 @@ def load_foundry_capabilities(
                     ),
                 ),
                 method_contract_targets=targets,
-                limitations=("Method contract routes do not satisfy empirical evidence alone.",),
+                limitations=(
+                    "Method contract routes do not satisfy empirical evidence alone.",
+                ),
                 authority_envelope=AuthorityEnvelope(
                     research="admissible",
                     governed_pilot="admissible_as_method_route",
@@ -1678,7 +2290,10 @@ def load_foundry_capabilities(
                     source_release_ref=production_data_root.name,
                 ),
                 rights_envelope=RightsEnvelope(access_class="internal_method_manifest"),
-                metadata={"input_groups": ("l6_foundry_method_contracts",), "family": family},
+                metadata={
+                    "input_groups": ("l6_foundry_method_contracts",),
+                    "family": family,
+                },
             )
         )
     return tuple(capabilities)
@@ -1697,7 +2312,9 @@ def load_l7_curated_contract_capabilities(
     for contract in payload.get("contracts") or ():
         if not isinstance(contract, Mapping):
             continue
-        metric_id = _safe_text(contract.get("metric_id") or contract.get("display_name"))
+        metric_id = _safe_text(
+            contract.get("metric_id") or contract.get("display_name")
+        )
         if not metric_id:
             continue
         construct = _construct_from_text(metric_id)
@@ -1713,7 +2330,8 @@ def load_l7_curated_contract_capabilities(
                 evidence_mode="compatibility_only",
                 concept_spine_refs=(f"concept:{construct}",),
                 scope=CapabilityScope(
-                    geography=_optional_str(contract.get("jurisdiction")) or "compatibility",
+                    geography=_optional_str(contract.get("jurisdiction"))
+                    or "compatibility",
                     entity_scope="legacy_metric_contract",
                 ),
                 identification_mode="legacy_contract",
@@ -1742,7 +2360,10 @@ def load_l7_curated_contract_capabilities(
                     governed_pilot="blocked_compatibility_only",
                     production="blocked_compatibility_only",
                     authoritative_for=("legacy_compatibility",),
-                    may_not_use_for=("production_data_authority", "sole_data_authority"),
+                    may_not_use_for=(
+                        "production_data_authority",
+                        "sole_data_authority",
+                    ),
                     authority_basis=("L7 curated data_contracts.json",),
                 ),
                 lineage_refs=(f"legacy_curated:{path.name}",),
@@ -1750,7 +2371,9 @@ def load_l7_curated_contract_capabilities(
                     freshness_class="legacy_fixture",
                     source_release_ref=_release_ref_from_path(path),
                 ),
-                rights_envelope=RightsEnvelope(access_class="legacy_compatibility_fixture"),
+                rights_envelope=RightsEnvelope(
+                    access_class="legacy_compatibility_fixture"
+                ),
                 may_not_use_for=("production_data_authority", "sole_data_authority"),
                 compatibility_only=True,
                 metadata={"input_groups": ("l7_curated_contracts",)},
@@ -1766,7 +2389,9 @@ def detect_same_construct_conflicts(
 
     grouped: dict[tuple[str, str], list[EvidenceCapability]] = defaultdict(list)
     for capability in capabilities:
-        grouped[(capability.construct_id, capability.scope.geography)].append(capability)
+        grouped[(capability.construct_id, capability.scope.geography)].append(
+            capability
+        )
     conflicts = []
     for (construct, geography), group in sorted(grouped.items()):
         if len(group) < 2:
@@ -1775,7 +2400,9 @@ def detect_same_construct_conflicts(
             "contested" in str(capability.metadata.get("resolution_status", ""))
             for capability in group
         )
-        forced = any(bool(capability.metadata.get("force_conflict")) for capability in group)
+        forced = any(
+            bool(capability.metadata.get("force_conflict")) for capability in group
+        )
         if forced:
             conflict_class = "authority"
         elif contested:
@@ -1785,7 +2412,9 @@ def detect_same_construct_conflicts(
         refs = tuple(sorted(capability.capability_id for capability in group))
         conflicts.append(
             CapabilityConflictRecord(
-                conflict_id=deterministic_record_id("conflict", construct, geography, *refs),
+                conflict_id=deterministic_record_id(
+                    "conflict", construct, geography, *refs
+                ),
                 construct_id=construct,
                 geography=geography,
                 conflict_class=conflict_class,
@@ -1793,7 +2422,9 @@ def detect_same_construct_conflicts(
                 capability_refs=refs,
                 evidence_refs=tuple(
                     sorted(
-                        asset.ref for capability in group for asset in capability.source_assets[:2]
+                        asset.ref
+                        for capability in group
+                        for asset in capability.source_assets[:2]
                     )
                 ),
             )
@@ -1809,7 +2440,8 @@ def build_white_space_nodes(
     production_covered = {
         capability.construct_id
         for capability in capabilities
-        if not capability.compatibility_only and capability_is_production_admissible(capability)
+        if not capability.compatibility_only
+        and capability_is_production_admissible(capability)
     }
     observed = {
         capability.construct_id
@@ -1929,7 +2561,9 @@ def _add_failure_node(
     severity: str,
     geography: str = "UA",
 ) -> None:
-    failure_id = deterministic_record_id("failure", status, gap_type, construct, geography)
+    failure_id = deterministic_record_id(
+        "failure", status, gap_type, construct, geography
+    )
     nodes[failure_id] = FailureModeNode(
         failure_id=failure_id,
         construct_id=construct,
@@ -1955,7 +2589,9 @@ def _strategy_refs_for_construct(construct: str, geography: str) -> tuple[str, .
     return (deterministic_record_id("acquisition", "close_gap", construct, geography),)
 
 
-def _strategies_for_failure_node(node: FailureModeNode) -> tuple[AcquisitionStrategy, ...]:
+def _strategies_for_failure_node(
+    node: FailureModeNode,
+) -> tuple[AcquisitionStrategy, ...]:
     strategy_id = deterministic_record_id(
         "acquisition", "close_gap", node.construct_id, node.geography
     )
@@ -1999,7 +2635,10 @@ def _capability_observes_construct(capability: EvidenceCapability) -> bool:
 
 
 def _construct_validity_below_production_floor(capability: EvidenceCapability) -> bool:
-    if capability.authority_envelope.production != "blocked_construct_validity_below_floor":
+    if (
+        capability.authority_envelope.production
+        != "blocked_construct_validity_below_floor"
+    ):
         return False
     value = capability.quality_score.breakdown.get(
         "construct_validity",
@@ -2024,7 +2663,11 @@ def _sample_size_below_floor(capability: EvidenceCapability) -> bool:
 def _freshness_gap(capability: EvidenceCapability) -> bool:
     freshness = capability.freshness_envelope.freshness_class.casefold()
     production_state = capability.authority_envelope.production.casefold()
-    return "stale" in freshness or "expired" in freshness or "freshness" in production_state
+    return (
+        "stale" in freshness
+        or "expired" in freshness
+        or "freshness" in production_state
+    )
 
 
 def _rights_gap(capability: EvidenceCapability) -> bool:
@@ -2042,7 +2685,8 @@ def _legal_authority_gap(capability: EvidenceCapability) -> bool:
     if "blocked" not in production:
         return False
     if any(
-        marker in production for marker in ("construct_validity", "freshness", "rights", "sample")
+        marker in production
+        for marker in ("construct_validity", "freshness", "rights", "sample")
     ):
         return False
     return "lex_norm" not in capability.modality
@@ -2202,10 +2846,11 @@ def write_capability_index_duckdb(
                         asset.role,
                     )
                 )
-        con.executemany(
-            "INSERT INTO capabilities VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            capability_rows,
-        )
+        if capability_rows:
+            con.executemany(
+                "INSERT INTO capabilities VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                capability_rows,
+            )
         if asset_rows:
             con.executemany(
                 "INSERT INTO source_assets VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -2226,7 +2871,9 @@ def write_capability_index_duckdb(
             for conflict in capability_index.conflicts
         ]
         if conflict_rows:
-            con.executemany("INSERT INTO conflicts VALUES (?, ?, ?, ?, ?)", conflict_rows)
+            con.executemany(
+                "INSERT INTO conflicts VALUES (?, ?, ?, ?, ?)", conflict_rows
+            )
         failure_rows = [
             (
                 node.failure_id,
@@ -2273,10 +2920,22 @@ def write_capability_index_duckdb(
             ("release_ref", _json_dumps(capability_index.release_ref)),
             ("mode", _json_dumps(capability_index.mode)),
         ]
-        legal_relation_refusal = capability_index.metadata.get("legal_source_relation_refusal")
+        legal_relation_refusal = capability_index.metadata.get(
+            "legal_source_relation_refusal"
+        )
         if isinstance(legal_relation_refusal, Mapping):
             metadata_rows.append(
                 ("legal_source_relation_refusal", _json_dumps(legal_relation_refusal))
+            )
+        legal_candidate_snapshot = capability_index.metadata.get(
+            "legal_norm_candidate_index_snapshot"
+        )
+        if isinstance(legal_candidate_snapshot, Mapping):
+            metadata_rows.append(
+                (
+                    "legal_norm_candidate_index_snapshot",
+                    _json_dumps(legal_candidate_snapshot),
+                )
             )
         con.executemany("INSERT INTO index_metadata VALUES (?, ?)", metadata_rows)
         return _duckdb_table_counts(con)
@@ -2334,7 +2993,9 @@ def build_summary(
         "performance_budget": dict(performance_budget),
         "incremental": dict(incremental),
     }
-    legal_relation_refusal = capability_index.metadata.get("legal_source_relation_refusal")
+    legal_relation_refusal = capability_index.metadata.get(
+        "legal_source_relation_refusal"
+    )
     if isinstance(legal_relation_refusal, Mapping):
         summary["legal_source_relation_refusal"] = dict(legal_relation_refusal)
     return summary
@@ -2386,13 +3047,17 @@ def build_manifest(
     }
 
 
-def build_conflict_report(conflicts: Sequence[CapabilityConflictRecord]) -> dict[str, Any]:
+def build_conflict_report(
+    conflicts: Sequence[CapabilityConflictRecord],
+) -> dict[str, Any]:
     """Build the conflict report, including empty reports."""
 
     return {
         "schema_version": "policyos.capability_conflict_report.v1",
         "conflicts": [conflict.model_dump(mode="json") for conflict in conflicts],
-        "w8e_conflict_records": [conflict.model_dump(mode="json") for conflict in conflicts],
+        "w8e_conflict_records": [
+            conflict.model_dump(mode="json") for conflict in conflicts
+        ],
     }
 
 
@@ -2447,7 +3112,9 @@ def build_prov_projection(capability_index: CapabilityIndex) -> str:
     for capability in capability_index.capabilities[:500]:
         lines.append(f"<urn:policyos:{capability.capability_id}> a prov:Entity ;")
         lines.append(f'  dct:title "{_ttl_escape(capability.construct_id)}" ;')
-        lines.append(f"  prov:wasDerivedFrom <urn:policyos:{capability_index.release_ref}> .")
+        lines.append(
+            f"  prov:wasDerivedFrom <urn:policyos:{capability_index.release_ref}> ."
+        )
         lines.append("")
     return "\n".join(lines)
 
@@ -2533,7 +3200,8 @@ def _copy_previous_incremental_outputs(
     )
     incremental: dict[str, object] = {
         "previous_manifest_ref": _relative_path(
-            Path(config.previous_manifest_path), Path(config.previous_manifest_path).parent
+            Path(config.previous_manifest_path),
+            Path(config.previous_manifest_path).parent,
         )
         if config.previous_manifest_path
         else None,
@@ -2592,7 +3260,8 @@ def _incremental_state(
     changed = [
         label
         for label, fingerprint in sorted(input_fingerprints.items())
-        if previous.get(label, {}).get("group_digest") != fingerprint.get("group_digest")
+        if previous.get(label, {}).get("group_digest")
+        != fingerprint.get("group_digest")
     ]
     return {
         "previous_manifest_ref": previous_manifest.get("outputs", {}).get("manifest"),
@@ -2623,7 +3292,9 @@ def _build_firm_fundamentals_capability(
         ("corrected_firm_panels", "bias_correction"),
     ):
         if family in by_family:
-            source_assets.append(_source_asset_from_parquet(by_family[family], role=role))
+            source_assets.append(
+                _source_asset_from_parquet(by_family[family], role=role)
+            )
     source_assets.extend(calibration_context.source_assets)
     method_targets = foundry_context.targets_by_family.get("firm_fundamentals", ())
     breakdown = {
@@ -2631,7 +3302,9 @@ def _build_firm_fundamentals_capability(
         "schema_profile_present": 1.0,
         "variable_alignment_confidence": 0.85,
         "freshness": 0.8,
-        "construct_validity": 0.65 if "survival_hazard_estimates" in by_family else 0.45,
+        "construct_validity": 0.65
+        if "survival_hazard_estimates" in by_family
+        else 0.45,
         "parser_readiness": 1.0,
     }
     return EvidenceCapability(
@@ -2683,7 +3356,11 @@ def _build_firm_fundamentals_capability(
             production="blocked_construct_validity_below_floor",
             authoritative_for=("firm_outcome_signal", "governed_pilot_data_evidence"),
             may_not_use_for=("production_closeout_without_construct_validity_review",),
-            authority_basis=("L4 Ukraine panels", "L5 calibration registries", "L6 Foundry route"),
+            authority_basis=(
+                "L4 Ukraine panels",
+                "L5 calibration registries",
+                "L6 Foundry route",
+            ),
         ),
         lineage_refs=(
             f"source_snapshot:{_release_ref_from_path(firm.path)}",
@@ -2792,7 +3469,9 @@ def _profile_ukraine_parquets(production_data_root: Path) -> tuple[ParquetProfil
     return tuple(profiles)
 
 
-def _source_asset_from_parquet(profile: ParquetProfile, *, role: str) -> CapabilitySourceAsset:
+def _source_asset_from_parquet(
+    profile: ParquetProfile, *, role: str
+) -> CapabilitySourceAsset:
     return CapabilitySourceAsset(
         ref=f"parquet:{profile.family}/{profile.path.stem}",
         source_layer=profile.source_layer,
@@ -2832,7 +3511,10 @@ def _duckdb_schema_count_digest(path: Path) -> str:
     with duckdb.connect(str(path), read_only=True) as con:
         payload = {}
         for table in sorted(_show_tables(con)):
-            columns = [row[1] for row in con.execute(f"PRAGMA table_info('{table}')").fetchall()]
+            columns = [
+                row[1]
+                for row in con.execute(f"PRAGMA table_info('{table}')").fetchall()
+            ]
             count_row = con.execute(f"SELECT count(*) FROM {table}").fetchone()
             if count_row is None:
                 raise RuntimeError(f"DuckDB count query returned no row for {table}.")
@@ -3130,7 +3812,10 @@ def _create_fixture_scholar_kg(root: Path) -> None:
 
 
 def _create_fixture_lex_kg(root: Path) -> None:
-    path = root / "lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb"
+    path = (
+        root
+        / "lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb"
+    )
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists():
         path.unlink()
@@ -3336,7 +4021,9 @@ def _create_fixture_calibration_registries(root: Path) -> None:
                 "firm_fundamentals": 0.8,
                 "logistics_friction": 0.7,
             },
-            "proxy_mappings": {"logistics_friction": ["regional_displacement_pressure"]},
+            "proxy_mappings": {
+                "logistics_friction": ["regional_displacement_pressure"]
+            },
             "trust_tiers": {"authoritative_partial_coverage": "fixture"},
         },
     )
@@ -3357,7 +4044,10 @@ def _create_fixture_calibration_registries(root: Path) -> None:
     )
     _write_json(
         base / "governance_pass_mapping_v1.json",
-        {"firm_fundamentals": ["refutation", "freshness"], "logistics_friction": ["freshness"]},
+        {
+            "firm_fundamentals": ["refutation", "freshness"],
+            "logistics_friction": ["freshness"],
+        },
     )
 
 
@@ -3391,7 +4081,10 @@ def _create_fixture_foundry_manifest(root: Path) -> None:
 
 
 def _create_fixture_l7_contracts(root: Path) -> None:
-    path = root / "canonical/local_data_20260501/policy_engine_data/curated/data_contracts.json"
+    path = (
+        root
+        / "canonical/local_data_20260501/policy_engine_data/curated/data_contracts.json"
+    )
     _write_json(
         path,
         {
@@ -3537,10 +4230,14 @@ def _dedupe_capabilities(
 
 
 def _authority_for_panel(coverage: float, source_family: str) -> AuthorityEnvelope:
-    production = "admissible" if coverage >= 0.9 else "blocked_construct_validity_below_floor"
+    production = (
+        "admissible" if coverage >= 0.9 else "blocked_construct_validity_below_floor"
+    )
     return AuthorityEnvelope(
         research="admissible",
-        governed_pilot="admissible_with_limitation" if coverage >= 0.5 else "blocked_low_coverage",
+        governed_pilot="admissible_with_limitation"
+        if coverage >= 0.5
+        else "blocked_low_coverage",
         production=production,
         authoritative_for=("data_evidence",),
         may_not_use_for=("production_closeout_without_review",)
@@ -3658,7 +4355,13 @@ def _release_ref_from_path(path: Path) -> str:
     parts = path.parts
     for part in parts:
         if part.startswith(
-            ("local_data_", "ukraine_server_support_", "datasets_full_", "policyos_", "lex-")
+            (
+                "local_data_",
+                "ukraine_server_support_",
+                "datasets_full_",
+                "policyos_",
+                "lex-",
+            )
         ):
             return part
     return path.parent.name
@@ -3683,7 +4386,9 @@ def _sha256_json(payload: Any) -> str:
 
 
 def _json_dumps(payload: Any) -> str:
-    return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return json.dumps(
+        payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
 
 
 def _load_json(path: Path | None) -> dict[str, Any]:

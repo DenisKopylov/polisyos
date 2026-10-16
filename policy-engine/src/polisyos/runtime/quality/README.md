@@ -962,3 +962,12 @@ resolver-boundary tests are consumer controls, not a producer-to-CAS-to-N6
 proof. Global K_ref remains owner-wide; context-bound candidate refusals use
 the existing N4 generation path. Frozen reference snapshots preserve their
 unhashable mapping and sequence protocols.
+
+
+## Legal threshold candidate discovery
+
+The compiler can retain a typed candidate inventory for rows selected from the existing `l3_lex_kg` profile. The snapshot binds the selected source root, profile asset set and digest, selected member, source release, rule version and record-generation basis. It carries owner-supplied fact, document, status, temporal, hallucination-flag and reference values for each admitted or excluded threshold row. Malformed or missing values, ambiguous facts, non-admitted statuses, stale intervals and budget cutoffs remain explicit exclusions or completeness limitations.
+
+The capability-search provider consumes the persisted snapshot through the existing provider registry and composer. A complete selected inventory may yield `discoverable` candidate rows; a budget-truncated inventory remains `recall_unmeasured`. Candidate discovery does not establish legal source relation, currentness, execution or authority: source relation remains `verification_missing`, the authority bridge remains missing, and `authoritative_for` remains empty. The pre-existing verified-owner path remains separate and requires its actual typed owner receipt.
+
+An empty capability index persists as zero rows. No row is synthesized to make an empty source look complete. The source-bound local handoff records the selected-input bounds and focused producer, HTTP, persistence, and consumer checks. Global E02 closeout and formal finding adjudication remain with G.

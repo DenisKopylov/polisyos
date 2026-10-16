@@ -1,0 +1,39 @@
+id = "2026-10-16-e02-legal-threshold-candidate-discovery-r2"
+title = "Retain source-bound Legal threshold candidates in capability discovery"
+type = "changed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Capability-index compilation retains the bounded selected Legal threshold row set, explicit owner dispositions, and source-profile bindings so the existing candidate provider and composer can discover eligible rows without promoting them to authority."
+evidence = [
+  "src/polisyos/runtime/quality/capability_index.py",
+  "src/polisyos/runtime/quality/capability_index_compiler.py",
+  "src/polisyos/runtime/quality/capability_discovery.py",
+  "src/polisyos/runtime/http/services/control_registry_providers.py",
+  "tests/unit/runtime/quality/test_capability_discovery.py",
+  "tests/unit/runtime/quality/test_capability_index_compiler.py",
+  "tests/integration/runtime/test_legal_candidate_discovery.py",
+  "tests/integration/runtime_frontend/test_capability_discovery_free_growth.py",
+]
+compatibility = "The existing capability-search response can include Legal threshold candidate rows when the selected index contains a complete, source-bound candidate inventory. A bounded selection that omits source rows reports recall_unmeasured; an adequate complete selection may report candidate discoverability. The response schema and frontend application source are unchanged. Candidate rows remain non-authoritative."
+change_class = "internal"
+surface_classification = "Existing capability-search API/dashboard behavior; additive candidate rows using the existing response contract. Public-surface inventory review is pending."
+migration = "Consumers should render candidate results as candidates and preserve the discovery completeness and authority/refusal fields. Do not infer verification or authority from a row's presence."
+api = "The existing capability-search endpoint and dashboard may display persisted Legal threshold candidates. Candidate owner evidence carries the source relation refusal verification_missing, and composer authority remains bridge_missing with authoritative_for empty."
+limitations = "Source currentness, independent claim-to-source relation verification, legal authority, and execution are not established. Controlled fixtures witness candidate discovery only. Local integration and verification do not constitute G acceptance or formal finding closure."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "candidate-only-legal-threshold-search-results"
+change_class = "internal"
+impact = "additive"
+surface = "Existing Runtime capability-search response; no DTO schema change"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "The existing capability-search route can expose source-bound Legal threshold candidates from the selected capability index. Completeness limits remain visible; a discovery result does not establish legal-source verification, currentness, execution, or authority."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

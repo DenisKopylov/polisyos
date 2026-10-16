@@ -2757,5 +2757,51 @@
     "limitations": "Source lineage repair only; original B190 permits executed-model/explicit dimensioned response; no invented production issuer requirement. Shared execute.api strict MyPy not established under current generated ignore_errors group. No full gate or formal closure claim.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261016_legal_discovery_source_and_http_owner_scope": {
+    "root_writer": "/root",
+    "base": "14adabe39cadea8dc169eff025e788ab6df4d145",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/quality/capability_index.py",
+      "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py",
+      "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+      "policy-engine/src/polisyos/runtime/http/services/control_registry_providers.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/tests/unit/runtime/quality/test_capability_discovery.py",
+      "policy-engine/tests/unit/runtime/quality/test_capability_index_compiler.py",
+      "policy-engine/tests/integration/runtime/test_legal_candidate_discovery.py",
+      "policy-engine/tests/integration/runtime_frontend/test_capability_discovery_free_growth.py",
+      "policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py",
+      "policy-engine/src/polisyos/runtime/quality/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-legal-threshold-candidate-discovery-r2.toml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate actual-source receipt and component index"
+    ],
+    "author_packets": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-discovery-candidate-bridge-r2-20261016/r3-format-20261016/r3-format-manifest.json",
+        "sha256": "2952482df20d04e1655b7049576e4307d880970ffd49a488bd7aa042d51e58d3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-discovery-artifact-owner-scope-r7-20261016/manifest.json",
+        "sha256": "923c484d412388813dc6d86b12b507470b21e2a7140e63e350899d4dce105d8b"
+      }
+    ],
+    "independent_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-discovery-r2-independent-review-20261016/review.md",
+        "sha256": "f7b22d577b728121665d38ee8a1f4dd24d1c3321bd2565355d9185069f1f21d3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-discovery-r6-r7-independent-review-20261016/review.md",
+        "sha256": "12f939af3dbe5be45290d9762587f0668b8156de79bcce7bfed3dbed5647316b"
+      }
+    ],
+    "P40": "Whole compiler-selected Legal inventory, persisted snapshot, default provider/composer and HTTP/dashboard consumers; candidate presence never legal source verification or authority. Empty index persists without invented row.",
+    "http_companion": "Existing fixture owner helper proves exact stored HTTP bytes while preserving unscoped and foreign-tenant denials; production CAS ownership guard unchanged.",
+    "readme_pre_sha256": "dc824558c4e375282a276166605f51c79506dc5f35425f4bc1095fc7ddc49803",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

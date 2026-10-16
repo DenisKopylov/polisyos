@@ -74,6 +74,10 @@ class _InvalidSensitivityMapping(ValueError):
     """A supplied sensitivity map cannot be interpreted against this run."""
 
 
+class _InvalidPropagationConfig(ValueError):
+    """A supplied propagation configuration cannot be admitted for this run."""
+
+
 class _PropagationFunction(Protocol):
     """Callable response carrying its resolved sensitivity map."""
 
@@ -131,6 +135,11 @@ class PropagateUncertaintyNode:
         except _InvalidSensitivityMapping as exc:
             return _sensitivity_mapping_failure(state, exc)
 
+        try:
+            config = _load_config(state)
+        except _InvalidPropagationConfig as exc:
+            return _propagation_config_failure(state, exc)
+
         sim_result_ref = state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
         if sim_result_ref is None:
             return NodeOutcome(
@@ -162,7 +171,6 @@ class PropagateUncertaintyNode:
                 events=[NodeEvent(level="info", message="No input uncertainty envelopes")],
             )
 
-        config = _load_config(state)
         dispatcher = PropagationDispatcher(config)
 
         nominal_params = {name: env.point_estimate for name, env in input_envelopes.items()}
@@ -322,6 +330,27 @@ class PropagateUncertaintyNode:
                 )
             ],
         )
+
+
+def _propagation_config_failure(
+    state: ExperimentState,
+    error: _InvalidPropagationConfig,
+) -> NodeOutcome:
+    """Return a typed refusal for malformed or invalid supplied config input."""
+    input_path = (
+        "params.propagation_config"
+        if "propagation_config" in state.params
+        else "params.propagation_*"
+    )
+    return NodeOutcome(
+        status="fail",
+        state=state,
+        error=NodeError(
+            code="propagation_config_invalid",
+            message=str(error),
+            details={"input": input_path},
+        ),
+    )
 
 
 def _sensitivity_mapping_failure(
@@ -575,15 +604,16 @@ def _mark_sensitivity_mapping(
 
 
 def _load_config(state: ExperimentState) -> PropagationConfig:
-    raw = state.params.get("propagation_config")
-    if isinstance(raw, dict):
+    if "propagation_config" in state.params:
+        raw = state.params["propagation_config"]
+        if not isinstance(raw, Mapping):
+            raise _InvalidPropagationConfig(
+                "params.propagation_config must be a mapping when provided"
+            )
         try:
             return PropagationConfig.model_validate(raw)
-        except _PROPAGATION_VALIDATION_ERRORS:
-            logger.debug(
-                "Invalid propagation_config override; falling back to defaults",
-                exc_info=True,
-            )
+        except _PROPAGATION_VALIDATION_ERRORS as exc:
+            raise _InvalidPropagationConfig("params.propagation_config is invalid") from exc
 
     overrides: dict[str, Any] = {}
     for field_name in PropagationConfig.model_fields:
@@ -591,7 +621,10 @@ def _load_config(state: ExperimentState) -> PropagationConfig:
         if prefixed in state.params:
             overrides[field_name] = state.params[prefixed]
     if overrides:
-        return PropagationConfig.model_validate(overrides)
+        try:
+            return PropagationConfig.model_validate(overrides)
+        except _PROPAGATION_VALIDATION_ERRORS as exc:
+            raise _InvalidPropagationConfig("params.propagation_* overrides are invalid") from exc
     return PropagationConfig()
 
 

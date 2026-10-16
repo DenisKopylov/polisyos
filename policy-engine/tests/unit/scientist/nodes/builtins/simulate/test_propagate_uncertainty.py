@@ -6,6 +6,10 @@ import jax
 import jax.numpy as jnp
 import pytest
 
+from polisyos.foundry.uncertainty.config import (
+    AdaptiveStoppingConfig,
+    PropagationConfig,
+)
 from polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty import (
     PropagateUncertaintyNode,
     _build_propagation_fn,
@@ -18,6 +22,44 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_SNAPSHOT_REF,
 )
 
+_CONFIG_FIELD_PATHS = [
+    *((field_name,) for field_name in PropagationConfig.model_fields),
+    *(("adaptive_stopping", field_name) for field_name in AdaptiveStoppingConfig.model_fields),
+]
+_PREFIXED_CONFIG_FIELD_PATHS = [
+    *((field_name,) for field_name in PropagationConfig.model_fields),
+    *(("adaptive_stopping", field_name) for field_name in AdaptiveStoppingConfig.model_fields),
+]
+
+
+def _invalid_config_payload(field_path: tuple[str, ...]) -> dict[str, object]:
+    payload: dict[str, object] = {}
+    cursor = payload
+    for field_name in field_path[:-1]:
+        child: dict[str, object] = {}
+        cursor[field_name] = child
+        cursor = child
+    cursor[field_path[-1]] = None
+    return payload
+
+
+def _invalid_prefixed_params(field_path: tuple[str, ...]) -> dict[str, object]:
+    value: object = None
+    for field_name in reversed(field_path[1:]):
+        value = {field_name: value}
+    return {f"propagation_{field_path[0]}": value}
+
+
+def _assert_config_refusal(execution_context, minimal_state, params: dict[str, object]) -> None:
+    state = minimal_state.model_copy(deep=True, update={"params": params})
+    outcome = PropagateUncertaintyNode().execute(execution_context, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert outcome.error.code == "propagation_config_invalid"
+    assert outcome.artifacts == []
+    assert outcome.state.artifacts_index == state.artifacts_index
+
 
 def test_skip_when_no_simulation_result_ref(execution_context, minimal_state):
     """No simulation_result_ref in artifacts_index -> skip."""
@@ -25,6 +67,83 @@ def test_skip_when_no_simulation_result_ref(execution_context, minimal_state):
     outcome = PropagateUncertaintyNode().execute(execution_context, state)
     assert outcome.status == "skip"
     assert any("No simulation_result_ref" in e.message for e in outcome.events)
+
+
+@pytest.mark.parametrize(
+    "field_path",
+    _CONFIG_FIELD_PATHS,
+    ids=lambda field_path: ".".join(field_path),
+)
+def test_invalid_value_for_each_declared_config_field_fails_before_skip(
+    execution_context, minimal_state, field_path: tuple[str, ...]
+) -> None:
+    _assert_config_refusal(
+        execution_context,
+        minimal_state,
+        {"propagation_config": _invalid_config_payload(field_path)},
+    )
+
+
+@pytest.mark.parametrize(
+    "field_path",
+    _PREFIXED_CONFIG_FIELD_PATHS,
+    ids=lambda field_path: ".".join(field_path),
+)
+def test_invalid_value_for_each_declared_prefixed_config_field_is_typed(
+    execution_context, minimal_state, field_path: tuple[str, ...]
+) -> None:
+    _assert_config_refusal(
+        execution_context,
+        minimal_state,
+        _invalid_prefixed_params(field_path),
+    )
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        pytest.param({"propagation_config": None}, id="present-null"),
+        pytest.param({"propagation_config": []}, id="wrong-sequence-shape"),
+        pytest.param({"propagation_config": "monte_carlo"}, id="wrong-scalar-shape"),
+        pytest.param(
+            {"propagation_config": {"adaptive_stopping": {"min_samples": 10}}},
+            id="present-invalid-adaptive-range",
+        ),
+        pytest.param({"propagation_config": {"unknown_field": 1}}, id="extra-field"),
+        pytest.param(
+            {
+                "propagation_config": {"adaptive_stopping": {"min_samples": 10}},
+                "propagation_mc_n_samples": 100,
+            },
+            id="invalid-nested-does-not-fall-through-to-prefix",
+        ),
+    ],
+)
+def test_invalid_present_config_is_typed_before_skip_or_artifact_write(
+    execution_context, minimal_state, params: dict[str, object]
+) -> None:
+    _assert_config_refusal(execution_context, minimal_state, params)
+
+
+def test_load_config_preserves_nested_precedence_and_defaults_only_on_absence(
+    minimal_state,
+) -> None:
+    absent = minimal_state.model_copy(update={"params": {}})
+    assert _load_config(absent) == PropagationConfig()
+
+    valid_nested = minimal_state.model_copy(
+        update={
+            "params": {
+                "propagation_config": {"mc_n_samples": 100, "mc_batch_size": 100},
+                "propagation_mc_n_samples": 200,
+            }
+        }
+    )
+    assert _load_config(valid_nested).mc_n_samples == 100
+    assert _load_config(valid_nested).mc_batch_size == 100
+
+    valid_prefix = minimal_state.model_copy(update={"params": {"propagation_mc_n_samples": 100}})
+    assert _load_config(valid_prefix).mc_n_samples == 100
 
 
 def test_raises_when_simulation_result_invalid(

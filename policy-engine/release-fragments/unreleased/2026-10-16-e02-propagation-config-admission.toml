@@ -1,0 +1,34 @@
+id = "2026-10-16-e02-propagation-config-admission"
+title = "Reject malformed supplied uncertainty-propagation configuration"
+type = "fixed"
+component = "scientist"
+owner = "team-scientist"
+summary = "PropagateUncertainty now returns its typed configuration refusal for malformed supplied nested or prefixed settings before skip or persistence paths, while true absence keeps existing defaults."
+evidence = [
+  "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+  "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+  "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+]
+compatibility = "Valid nested configuration and its existing precedence remain unchanged; absent configuration still uses the existing defaults. Present malformed configuration that previously could be treated as absent now fails through the existing typed node error. No artifact schema or public facade changes."
+change_class = "internal"
+surface_classification = "internal: Scientist PropagateUncertainty workflow-node input; no external API surface change."
+migration = "Correct malformed supplied propagation_config or propagation_* values. No stored-artifact migration is required."
+api = "Malformed present configuration fails before early skips or artifact writes. The change covers every declared PropagationConfig and AdaptiveStoppingConfig field in both nested and prefixed input forms; valid nested settings retain precedence."
+limitations = "This is configuration-admission behavior only. It does not establish a sampling law, input-to-draw identity, posterior/calibration authority, or unconditional interpretation of successful-only summaries. The B194 requested/attempted/succeeded/failed/unattempted criterion remains subject to independent G adjudication."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "propagation-config-present-input-admission"
+change_class = "internal"
+impact = "internal"
+surface = "internal: Scientist PropagateUncertainty workflow-node input"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "Malformed present propagation settings are refused with the node's typed error instead of being interpreted as absent configuration."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

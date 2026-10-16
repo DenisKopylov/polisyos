@@ -2952,4 +2952,29 @@
     "source_freeze": false,
     "closure_ids": []
   }
+,
+  "coordination_epoch_20261017_b65_telemetry_settlement_consumer_tests": {
+    "root_writer": "/root",
+    "base": "3b2bedd5b67aa8aa64f27647ae94f2a86986d926",
+    "mechanism_paths": [
+      "policy-engine/tests/unit/core/llm/test_traced_client_settlement.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate actual behavior receipt and component index"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b65-optional-metrics-settlement-companion-r2-20261017/manifest.json",
+      "sha256": "99ce1889e393dc2dfdbd06a81525bb67f36545379a75f664c5e8a0309e9b458f"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b65-optional-metrics-settlement-r2-independent-review-20261017/review.json",
+      "sha256": "7770a23bf43542ff5119f9fd72a053daab9eadad2b843a5ad9be26174a2973c8"
+    },
+    "P40": "Same optional-telemetry vs required-settlement class: actual provider errors, ledger reconciliation, cancellation, sibling isolation and real scheduling consumer. Five appended tests preserve exact original prefix; no production or scientific contract change.",
+    "historical_input_caveat": "Author input0fbd binding patch is retained historical invalid, not applied or accepted. Correct full291 successor uses aggregate3a2eb9 / correctedfe7584; B65 whole-property outcome stays limited.",
+    "nonblocking_debt": "Cancellation fixture waits for provider entry without its own timeout; root command has explicit bounded timeout.",
+    "source_freeze": false,
+    "closure_ids": []
+  }
 }

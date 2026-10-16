@@ -758,3 +758,684 @@ async def test_nested_settlement_refuses_response_bytes_outside_event_digest(
 
     with pytest.raises(LLMSettlementIntegrityError, match="producer_response_digest_mismatch"):
         await outer.generate(user="content binding")
+
+
+@pytest.mark.asyncio
+async def test_optional_metrics_failure_preserves_response_and_durable_budget_consumer(
+    tmp_path: Path,
+) -> None:
+    import hashlib
+
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        _build_control_nl_producer_budget_reconciler,
+    )
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+    from polisyos.scientist.methods.search.voi_scheduler import SimpleVOIScheduler
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+    )
+
+    response_content = "provider-response:b65-optional-metrics-failure"
+    response_cost = 0.02
+    ledger_path = tmp_path / "ledger.json"
+    middleware = _middleware(ledger_path)
+    binding = BudgetLedgerProducerRunBinding(
+        run_id="b65-metrics-run",
+        tenant_id="tenant-test",
+        cell_id="cell-test",
+        profile_id="dev",
+        control_job_id="b65-metrics-job",
+    )
+
+    class _ResponseProvider:
+        provider = "fixture"
+        model = "fixture-model"
+
+        def __init__(self) -> None:
+            self.calls = 0
+            self.response: GatewayLLMResponse | None = None
+
+        async def generate(self, *_args: object, **_kwargs: object) -> GatewayLLMResponse:
+            self.calls += 1
+            self.response = GatewayLLMResponse(
+                content=response_content,
+                usage=GatewayUsage(
+                    prompt_tokens=2,
+                    completion_tokens=3,
+                    cost_usd=response_cost,
+                ),
+                model=self.model,
+                provider=self.provider,
+                request_id="b65-provider-request",
+            )
+            return self.response
+
+    class _FailingMetrics:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def record_llm_call(self, **_kwargs: object) -> None:
+            self.calls += 1
+            raise RuntimeError("optional metrics sink unavailable")
+
+    class _RecordingSpan(_Span):
+        def __init__(self) -> None:
+            self.attributes: dict[str, object] = {}
+
+        def set_attribute(self, name: str, value: object) -> None:
+            self.attributes[name] = value
+
+    class _RecordingSpanContext:
+        def __init__(self, span: _RecordingSpan) -> None:
+            self.span = span
+
+        def __enter__(self) -> _RecordingSpan:
+            return self.span
+
+        def __exit__(self, *_args: object) -> None:
+            return None
+
+    class _RecordingTracer:
+        def __init__(self) -> None:
+            self.span = _RecordingSpan()
+
+        def start_as_current_span(self, *_args: object, **_kwargs: object) -> _RecordingSpanContext:
+            return _RecordingSpanContext(self.span)
+
+    provider = _ResponseProvider()
+    metrics = _FailingMetrics()
+    tracer = _RecordingTracer()
+    observer_event_ids: list[str] = []
+
+    def failing_observer(event: dict[str, object]) -> None:
+        event_id = event.get("event_id")
+        if isinstance(event_id, str):
+            observer_event_ids.append(event_id)
+        raise RuntimeError("optional observer unavailable")
+
+    client = TracedLLMClient(
+        provider,
+        model_name="fixture-model",
+        provider_name="fixture",
+        tracer=tracer,
+        metrics=metrics,
+        call_observer=failing_observer,
+        producer_settlement_store=middleware,
+        producer_budget_key=f"nl-run:{binding.run_id}",
+    )
+
+    with middleware.producer_run_binding_scope(binding):
+        response = await client.generate(user="policy question")
+
+    expected_response = provider.response
+    assert expected_response is not None
+    assert type(response) is LLMSettledResponse
+    assert response.response is expected_response
+    assert response.content == response_content
+    assert provider.calls == 1
+    assert metrics.calls == 1
+    assert tracer.span.attributes["polisyos.llm.metrics_status"] == "degraded"
+    event = response.settlement.event
+    assert event.response_digest == hashlib.sha256(response_content.encode("utf-8")).hexdigest()
+    assert event.cost_origin == "reported"
+    assert event.amount == Decimal(str(response_cost))
+    assert response.settlement.ack.status == "committed"
+    assert response.settlement.ack.durability == "ledger"
+    assert response.settlement.ack.receipts == (event.event_id,)
+    assert observer_event_ids == [event.event_id]
+
+    reopened = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    records = reopened.list_producer_events_for_run_safe(binding)
+    assert len(records) == 1
+    record = records[0]
+    assert record.event_id == event.event_id
+    assert record.payload_digest == event.payload_digest
+    assert record.run_binding == binding
+    assert record.status == "committed"
+    assert record.amount == event.amount
+
+    budget_state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("1"))})
+    reconciler = _build_control_nl_producer_budget_reconciler(
+        settlement_store=reopened,
+        producer_run_binding=binding,
+        budget_state=budget_state,
+    )
+    controller = GenerationCycleController(
+        model_id="b65-optional-metrics-consumer",
+        authority_scope="contract_testing",
+        voi_scheduler=SimpleVOIScheduler(
+            stage_costs={3: 0.01},
+            min_roi_threshold=0.0,
+        ),
+        _producer_budget_reconciler=reconciler,
+    )
+    controller._schedule_candidate_for_execution(
+        candidate_id="b65-settled-provider-response",
+        proxy_score=1.0,
+        voi_estimate=1.0,
+        budget_state=budget_state,
+    )
+    assert budget_state.spent["run"] == Decimal("0.02")
+
+
+@pytest.mark.asyncio
+async def test_unsettled_provider_response_blocks_budget_consumer_until_reconciliation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        _build_control_nl_producer_budget_reconciler,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        GenerationCycleError,
+    )
+    from polisyos.scientist.methods.search.voi_scheduler import SimpleVOIScheduler
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+    )
+
+    ledger_path = tmp_path / "ledger.json"
+    middleware = _middleware(ledger_path)
+    binding = BudgetLedgerProducerRunBinding(
+        run_id="b65-unsettled-run",
+        tenant_id="tenant-test",
+        cell_id="cell-test",
+        profile_id="dev",
+        control_job_id="b65-unsettled-job",
+    )
+    original_settle = middleware.settle_producer_event_safe
+
+    def fail_settlement(*_args: object, **_kwargs: object) -> None:
+        raise OSError("required producer settlement write unavailable")
+
+    monkeypatch.setattr(middleware, "settle_producer_event_safe", fail_settlement)
+    provider = _Provider(cost=0.02)
+    observed: list[dict[str, object]] = []
+    client = TracedLLMClient(
+        provider,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        metrics=_Metrics(),
+        call_observer=observed.append,
+        producer_settlement_store=middleware,
+        producer_budget_key=f"nl-run:{binding.run_id}",
+    )
+
+    with middleware.producer_run_binding_scope(binding):
+        response = await client.generate(user="policy question")
+
+    assert type(response) is LLMSettledResponse
+    assert response.content == "answer"
+    assert provider.calls == 1
+    event = response.settlement.event
+    assert event.cost_origin == "reported"
+    assert event.amount == Decimal("0.02")
+    assert response.settlement.ack.status == "unknown"
+    assert response.settlement.ack.durability == "none"
+    assert observed == []
+
+    reopened = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    pending = reopened.list_producer_events_for_run_safe(binding)
+    assert len(pending) == 1
+    assert pending[0].event_id == event.event_id
+    assert pending[0].request_digest == event.request_digest
+    assert pending[0].status == "pending"
+    assert pending[0].payload_digest is None
+    assert pending[0].amount is None
+
+    budget_state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("1"))})
+    reconciler = _build_control_nl_producer_budget_reconciler(
+        settlement_store=reopened,
+        producer_run_binding=binding,
+        budget_state=budget_state,
+    )
+    controller = GenerationCycleController(
+        model_id="b65-unsettled-provider-response",
+        authority_scope="contract_testing",
+        voi_scheduler=SimpleVOIScheduler(
+            stage_costs={3: 0.01},
+            min_roi_threshold=0.0,
+        ),
+        _producer_budget_reconciler=reconciler,
+    )
+    with pytest.raises(
+        GenerationCycleError,
+        match="control_nl_budget_producer_event_not_settled",
+    ):
+        controller._schedule_candidate_for_execution(
+            candidate_id="blocked-unsettled-provider-response",
+            proxy_score=1.0,
+            voi_estimate=1.0,
+            budget_state=budget_state,
+        )
+    assert budget_state.spent == {}
+
+    monkeypatch.setattr(middleware, "settle_producer_event_safe", original_settle)
+    settled = original_settle(
+        event.event_id,
+        event.request_digest,
+        event.payload_digest,
+        key=f"nl-run:{binding.run_id}",
+        model=event.model,
+        provider=event.provider,
+        amount=event.amount,
+        cost_origin=event.cost_origin,
+        origin_event_id=event.origin_event_id,
+    )
+    assert settled.status == "committed"
+    assert settled.payload_digest == event.payload_digest
+    controller._schedule_candidate_for_execution(
+        candidate_id="trusted-reconciled-provider-response",
+        proxy_score=1.0,
+        voi_estimate=1.0,
+        budget_state=budget_state,
+    )
+    assert budget_state.spent["run"] == Decimal("0.02")
+
+
+@pytest.mark.asyncio
+async def test_provider_error_metrics_failure_preserves_primary_error_and_sibling_budget_isolation(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        _build_control_nl_producer_budget_reconciler,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        GenerationCycleError,
+    )
+    from polisyos.scientist.methods.search.voi_scheduler import SimpleVOIScheduler
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+    )
+
+    class _ProviderFailureError(RuntimeError):
+        pass
+
+    provider_failure = _ProviderFailureError("unique-b65-provider-error-sentinel")
+
+    class _ConcurrentProvider:
+        provider = "fixture"
+        model = "fixture-model"
+
+        def __init__(self) -> None:
+            self.calls: dict[str, int] = {}
+            self.responses: dict[str, GatewayLLMResponse] = {}
+            self.started = 0
+            self.both_started = asyncio.Event()
+
+        async def generate(self, *_args: object, **kwargs: object) -> GatewayLLMResponse:
+            user = kwargs.get("user")
+            assert isinstance(user, str)
+            self.calls[user] = self.calls.get(user, 0) + 1
+            self.started += 1
+            if self.started == 2:
+                self.both_started.set()
+            await asyncio.wait_for(self.both_started.wait(), timeout=3)
+            if user == "b65-provider-error":
+                raise provider_failure
+            response = GatewayLLMResponse(
+                content="sibling-valid-provider-response",
+                usage=GatewayUsage(
+                    prompt_tokens=2,
+                    completion_tokens=3,
+                    cost_usd=0.03,
+                ),
+                model=self.model,
+                provider=self.provider,
+                request_id="b65-sibling-valid-request",
+            )
+            self.responses[user] = response
+            return response
+
+    class _ErrorMetricsFailure:
+        def __init__(self) -> None:
+            self.attempts: list[dict[str, object]] = []
+            self.successes: list[dict[str, object]] = []
+
+        def record_llm_call(self, **event: object) -> None:
+            self.attempts.append(dict(event))
+            if event.get("status") == "error":
+                raise RuntimeError("optional error metrics sink unavailable")
+            self.successes.append(dict(event))
+
+    ledger_path = tmp_path / "sibling-error-metrics.json"
+    middleware = _middleware(ledger_path)
+    failed_binding = BudgetLedgerProducerRunBinding(
+        run_id="b65-error-sibling-run",
+        tenant_id="tenant-test",
+        cell_id="cell-test",
+        profile_id="dev",
+        control_job_id="b65-error-sibling-job",
+    )
+    valid_binding = BudgetLedgerProducerRunBinding(
+        run_id="b65-valid-sibling-run",
+        tenant_id="tenant-test",
+        cell_id="cell-test",
+        profile_id="dev",
+        control_job_id="b65-valid-sibling-job",
+    )
+    provider = _ConcurrentProvider()
+    metrics = _ErrorMetricsFailure()
+    failed_observer_events: list[dict[str, object]] = []
+    valid_observer_events: list[dict[str, object]] = []
+    failed_client = TracedLLMClient(
+        provider,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        metrics=metrics,
+        call_observer=failed_observer_events.append,
+        producer_settlement_store=middleware,
+        producer_budget_key=f"nl-run:{failed_binding.run_id}",
+    )
+    valid_client = TracedLLMClient(
+        provider,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        metrics=metrics,
+        call_observer=valid_observer_events.append,
+        producer_settlement_store=middleware,
+        producer_budget_key=f"nl-run:{valid_binding.run_id}",
+    )
+
+    async def _invoke(
+        client: TracedLLMClient,
+        binding: BudgetLedgerProducerRunBinding,
+        user: str,
+    ) -> object:
+        with middleware.producer_run_binding_scope(binding):
+            return await client.generate(user=user)
+
+    failed_result, valid_result = await asyncio.gather(
+        _invoke(failed_client, failed_binding, "b65-provider-error"),
+        _invoke(valid_client, valid_binding, "b65-valid-sibling"),
+        return_exceptions=True,
+    )
+
+    assert provider.both_started.is_set()
+    assert provider.calls == {"b65-provider-error": 1, "b65-valid-sibling": 1}
+    assert failed_result is provider_failure
+    assert type(valid_result) is LLMSettledResponse
+    assert valid_result.response is provider.responses["b65-valid-sibling"]
+    assert [event.get("status") for event in metrics.attempts].count("error") == 1
+    assert [event.get("status") for event in metrics.attempts].count("success") == 1
+    assert len(metrics.successes) == 1
+    assert len(failed_observer_events) == 1
+    assert failed_observer_events[0]["status"] == "error"
+    assert failed_observer_events[0]["settlement_status"] == "unknown"
+    assert len(valid_observer_events) == 1
+    assert valid_observer_events[0]["settlement_status"] == "committed"
+
+    reopened = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    failed_records = reopened.list_producer_events_for_run_safe(failed_binding)
+    valid_records = reopened.list_producer_events_for_run_safe(valid_binding)
+    assert len(failed_records) == len(valid_records) == 1
+    failed_record = failed_records[0]
+    valid_record = valid_records[0]
+    assert failed_record.event_id != valid_record.event_id
+    assert failed_record.run_binding == failed_binding
+    assert failed_record.status == "unknown"
+    assert failed_record.cost_origin == "unknown"
+    assert failed_record.amount is None
+    assert failed_record.payload_digest is not None
+    assert valid_record.run_binding == valid_binding
+    assert valid_record.status == "committed"
+    assert valid_record.cost_origin == "reported"
+    assert valid_record.amount == Decimal("0.03")
+    assert valid_record.payload_digest == valid_result.settlement.event.payload_digest
+
+    failed_budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("1"))})
+    failed_reconciler = _build_control_nl_producer_budget_reconciler(
+        settlement_store=reopened,
+        producer_run_binding=failed_binding,
+        budget_state=failed_budget,
+    )
+    failed_controller = GenerationCycleController(
+        model_id="b65-error-sibling-consumer",
+        authority_scope="contract_testing",
+        voi_scheduler=SimpleVOIScheduler(stage_costs={3: 0.01}, min_roi_threshold=0.0),
+        _producer_budget_reconciler=failed_reconciler,
+    )
+    with pytest.raises(
+        GenerationCycleError,
+        match="control_nl_budget_producer_event_not_settled",
+    ):
+        failed_controller._schedule_candidate_for_execution(
+            candidate_id="blocked-provider-error-sibling",
+            proxy_score=1.0,
+            voi_estimate=1.0,
+            budget_state=failed_budget,
+        )
+    assert failed_budget.spent == {}
+
+    valid_budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("1"))})
+    valid_reconciler = _build_control_nl_producer_budget_reconciler(
+        settlement_store=reopened,
+        producer_run_binding=valid_binding,
+        budget_state=valid_budget,
+    )
+    valid_controller = GenerationCycleController(
+        model_id="b65-valid-sibling-consumer",
+        authority_scope="contract_testing",
+        voi_scheduler=SimpleVOIScheduler(stage_costs={3: 0.01}, min_roi_threshold=0.0),
+        _producer_budget_reconciler=valid_reconciler,
+    )
+    valid_controller._schedule_candidate_for_execution(
+        candidate_id="admitted-valid-sibling",
+        proxy_score=1.0,
+        voi_estimate=1.0,
+        budget_state=valid_budget,
+    )
+    assert valid_budget.spent["run"] == Decimal("0.03")
+
+
+@pytest.mark.asyncio
+async def test_required_accounting_error_is_not_replaced_by_configured_metrics_failure(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.llm.traced_client import LLMAccountingError
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+    )
+
+    accounting_failure = RuntimeError("unique-b65-required-accounting-sentinel")
+
+    class _CapturingProvider:
+        provider = "fixture"
+        model = "fixture-model"
+
+        def __init__(self) -> None:
+            self.calls = 0
+            self.response: GatewayLLMResponse | None = None
+
+        async def generate(self, *_args: object, **_kwargs: object) -> GatewayLLMResponse:
+            self.calls += 1
+            self.response = GatewayLLMResponse(
+                content="b65-accounting-failure-response",
+                usage=GatewayUsage(
+                    prompt_tokens=2,
+                    completion_tokens=3,
+                    cost_usd=0.04,
+                ),
+                model=self.model,
+                provider=self.provider,
+                request_id="b65-accounting-failure-request",
+            )
+            return self.response
+
+    class _MetricsThatWouldFail:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def record_llm_call(self, **_event: object) -> None:
+            self.calls += 1
+            raise RuntimeError("optional metrics sink unavailable")
+
+    def fail_required_accounting(_event: dict[str, object]) -> object:
+        raise accounting_failure
+
+    ledger_path = tmp_path / "accounting-error-metrics.json"
+    middleware = _middleware(ledger_path)
+    binding = BudgetLedgerProducerRunBinding(
+        run_id="b65-accounting-error-run",
+        tenant_id="tenant-test",
+        cell_id="cell-test",
+        profile_id="dev",
+        control_job_id="b65-accounting-error-job",
+    )
+    provider = _CapturingProvider()
+    metrics = _MetricsThatWouldFail()
+    client = TracedLLMClient(
+        provider,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        metrics=metrics,
+        required_accounting=fail_required_accounting,
+        producer_settlement_store=middleware,
+        producer_budget_key=f"nl-run:{binding.run_id}",
+    )
+
+    with middleware.producer_run_binding_scope(binding):
+        with pytest.raises(LLMAccountingError) as raised:
+            await client.generate(user="required accounting must remain primary")
+
+    assert raised.value.cause is accounting_failure
+    assert raised.value.__cause__ is accounting_failure
+    assert provider.calls == 1
+    assert provider.response is not None
+    assert raised.value.response is provider.response
+    assert raised.value.event["provider_call"] is True
+    assert raised.value.event["amount"] == Decimal("0.04")
+    # The typed accounting-error branch precedes optional metrics; its configured
+    # sink would raise if reached, but it must not replace the required failure.
+    assert metrics.calls == 0
+
+    reopened = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    records = reopened.list_producer_events_for_run_safe(binding)
+    assert len(records) == 1
+    record = records[0]
+    assert record.event_id == raised.value.event["event_id"]
+    assert record.run_binding == binding
+    assert record.status == "committed"
+    assert record.cost_origin == "reported"
+    assert record.amount == Decimal("0.04")
+    assert record.payload_digest is not None
+
+
+@pytest.mark.asyncio
+async def test_cancelled_provider_waiter_settles_real_cost_despite_observer_failure(
+    tmp_path: Path,
+) -> None:
+    import hashlib
+
+    from polisyos.runtime.http.services.control.run_lifecycle import (
+        _build_control_nl_producer_budget_reconciler,
+    )
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+    from polisyos.scientist.methods.search.voi_scheduler import SimpleVOIScheduler
+    from polisyos.scientist.orchestration.engine.budget_ledger import (
+        BudgetLedgerProducerRunBinding,
+    )
+
+    ledger_path = tmp_path / "cancelled-provider-observer.json"
+    middleware = _middleware(ledger_path)
+    binding = BudgetLedgerProducerRunBinding(
+        run_id="b65-cancelled-provider-run",
+        tenant_id="tenant-test",
+        cell_id="cell-test",
+        profile_id="dev",
+        control_job_id="b65-cancelled-provider-job",
+    )
+    provider = _Provider(cost=0.02, blocked=True)
+
+    class _MetricsThatWouldFail:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def record_llm_call(self, **_event: object) -> None:
+            self.calls += 1
+            raise RuntimeError("optional metrics sink unavailable")
+
+    metrics = _MetricsThatWouldFail()
+    observed: list[dict[str, object]] = []
+    observer_event_ids: list[str] = []
+
+    def failing_observer(event: dict[str, object]) -> None:
+        event_id = event.get("event_id")
+        if isinstance(event_id, str):
+            observer_event_ids.append(event_id)
+        observed.append(event)
+        raise RuntimeError("optional settlement observer unavailable")
+
+    client = TracedLLMClient(
+        provider,
+        model_name="fixture-model",
+        tracer=_Tracer(),
+        metrics=metrics,
+        call_observer=failing_observer,
+        producer_settlement_store=middleware,
+        producer_budget_key=f"nl-run:{binding.run_id}",
+    )
+
+    with middleware.producer_run_binding_scope(binding):
+        task = asyncio.create_task(client.generate(user="cancel after provider dispatch"))
+        await provider.entered.wait()
+        before_cancel = FileBudgetLedger(ledger_path).snapshot().producer_settlements
+        assert len(before_cancel) == 1
+        pending = next(iter(before_cancel.values()))
+        assert pending.status == "pending"
+        assert pending.run_binding == binding
+        assert pending.payload_digest is None
+        assert pending.amount is None
+
+        task.cancel()
+        await asyncio.sleep(0)
+        assert not task.done()
+        provider.release.set()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
+    assert provider.calls == 1
+    assert metrics.calls == 0
+    assert len(observed) == 1
+    event = observed[0]["producer_event"]
+    assert type(event) is LLMProducerEvent
+    assert observer_event_ids == [event.event_id]
+    assert event.cost_origin == "reported"
+    assert event.amount == Decimal("0.02")
+    assert event.response_digest == hashlib.sha256(b"answer").hexdigest()
+
+    reopened = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
+    records = reopened.list_producer_events_for_run_safe(binding)
+    assert len(records) == 1
+    record = records[0]
+    assert record.event_id == event.event_id
+    assert record.run_binding == binding
+    assert record.status == "committed"
+    assert record.cost_origin == "reported"
+    assert record.amount == Decimal("0.02")
+    assert record.payload_digest == event.payload_digest
+    ledger_snapshot = FileBudgetLedger(ledger_path).snapshot()
+    assert len(ledger_snapshot.spend_receipts) == 1
+    assert ledger_snapshot.state.spent["nl-run:" + binding.run_id] == Decimal("0.02")
+
+    budget_state = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("1"))})
+    reconciler = _build_control_nl_producer_budget_reconciler(
+        settlement_store=reopened,
+        producer_run_binding=binding,
+        budget_state=budget_state,
+    )
+    controller = GenerationCycleController(
+        model_id="b65-cancelled-provider-consumer",
+        authority_scope="contract_testing",
+        voi_scheduler=SimpleVOIScheduler(stage_costs={3: 0.01}, min_roi_threshold=0.0),
+        _producer_budget_reconciler=reconciler,
+    )
+    controller._schedule_candidate_for_execution(
+        candidate_id="admitted-after-cancelled-waiter-provider-return",
+        proxy_score=1.0,
+        voi_estimate=1.0,
+        budget_state=budget_state,
+    )
+    assert budget_state.spent["run"] == Decimal("0.02")

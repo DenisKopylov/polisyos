@@ -44,6 +44,11 @@ from polisyos.scientist.methods.discovery.active import (
     DisambiguationAction,
     DisambiguationTarget,
 )
+from polisyos.scientist.methods.search.registry_contracts import (
+    LessonRecordLocalCallable,
+    publish_lesson_card,
+    resolve_lesson_record_local,
+)
 
 
 class CalibrationPassResult(BaseModel):
@@ -111,7 +116,7 @@ class CalibrationGovernanceInput(BaseModel):
     artifacts_index: dict[str, ArtifactRef] = Field(default_factory=dict)
     params: dict[str, Any] = Field(default_factory=dict)
     selection_metadata: dict[str, Any] | None = None
-    lesson_registry: Any | None = None
+    lesson_registry: object | None = None
     active_disambiguation_input: ActiveDisambiguationPlannerInput | None = None
 
 
@@ -204,6 +209,8 @@ class LessonCardPublisher:
         self,
         bundle: CalibrationGovernanceInput,
         report: CalibrationGovernanceReport,
+        *,
+        record_local: LessonRecordLocalCallable | None = None,
     ) -> ArtifactRef | None:
         """Write a local lesson card when the bundle exposes a lesson registry."""
 
@@ -214,8 +221,10 @@ class LessonCardPublisher:
         )
         from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 
-        registry = bundle.lesson_registry
-        if registry is None or not hasattr(registry, "record_local"):
+        selected_record_local = record_local
+        if selected_record_local is None:
+            selected_record_local = resolve_lesson_record_local(bundle.lesson_registry)
+        if selected_record_local is None:
             return None
 
         verdict = report.resolved_verdict()
@@ -270,7 +279,7 @@ class LessonCardPublisher:
             trace_refs=list(report.metadata.get("execution_sequence", [])),
             metadata=metadata,
         )
-        return registry.record_local(card, context=lesson_context)
+        return publish_lesson_card(selected_record_local, card, context=lesson_context)
 
 
 class ActiveDisambiguationIntegration:
@@ -351,6 +360,7 @@ class CalibrationGovernanceRunner:
             actions.
         """
 
+        record_local = resolve_lesson_record_local(bundle.lesson_registry)
         families = _ordered_families(bundle.observation_families)
         execution_sequence: list[str] = []
         global_results, family_results, adversarial_results = [], [], []
@@ -441,7 +451,7 @@ class CalibrationGovernanceRunner:
             },
         )
         report = report.model_copy(update={"verdict": report.resolved_verdict()})
-        lesson_card_ref = self._lesson_publisher.publish(bundle, report)
+        lesson_card_ref = self._lesson_publisher.publish(bundle, report, record_local=record_local)
         if lesson_card_ref is not None:
             report = report.model_copy(update={"lesson_card_ref": lesson_card_ref})
         return report

@@ -25,6 +25,7 @@ before or after decision publication.
 - `ValidationProfile` re-exported through [`__init__.py`](__init__.py) from shared core governance profiles
 - Registry and pipeline surfaces in [`pass_registry.py`](pass_registry.py) and [`pipeline.py`](pipeline.py)
 - Calibration surfaces in [`calibration.py`](calibration.py), [`calibration_validation.py`](calibration_validation.py), and [`calibration_leaderboard.py`](calibration_leaderboard.py)
+- Both calibration runners treat lesson_registry=None as opt-out. A supplied registry must expose one callable record_local(card, *, context) writer that returns an ArtifactRef; both runners preserve their resolved TransferContext through publication.
 - Accountability/report surfaces in [`accountability.py`](accountability.py) and [`report.py`](report.py)
 - Stress and backtest surfaces in [`backtest_matrix.py`](backtest_matrix.py) and [`stress_scenarios.py`](stress_scenarios.py)
 - Continuous governance public contracts in [`continuous/`](continuous/) for monitor events, drift detectors, lifecycle bridges, decision validity reports, reissue packets, incidents, and withdrawals

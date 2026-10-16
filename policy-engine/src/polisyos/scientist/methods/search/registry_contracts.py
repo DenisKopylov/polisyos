@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.methods.autotune.models import (
@@ -10,6 +10,10 @@ from polisyos.scientist.methods.autotune.models import (
     PromotionDecision,
     PromotionPolicy,
 )
+
+if TYPE_CHECKING:
+    from polisyos.scientist.methods.search.lessons import LessonCard
+    from polisyos.scientist.methods.search.transfer_context import TransferContext
 
 
 class ChampionRegistryContract(Protocol):
@@ -43,13 +47,51 @@ class ParetoRegistryContract(Protocol):
 class LessonRegistryContract(Protocol):
     """Protocol for recording and retrieving reusable lessons from prior search runs."""
 
-    def record_local(self, card: Any, *, context: Any) -> Any: ...
+    def record_local(self, card: LessonCard, *, context: TransferContext) -> ArtifactRef: ...
 
     def query(self, query: Any) -> list[Any]: ...
 
     def query_with_transfer(self, query: Any, *, target_context: Any) -> list[Any]: ...
 
     def find_transfer_candidates(self, query: Any, *, target_context: Any) -> Any: ...
+
+
+@runtime_checkable
+class LessonRecordLocalCallable(Protocol):
+    """Callable boundary for the selected local lesson writer."""
+
+    def __call__(self, card: LessonCard, *, context: TransferContext) -> ArtifactRef: ...
+
+
+def resolve_lesson_record_local(
+    registry: object | None,
+) -> LessonRecordLocalCallable | None:
+    """Resolve the one writer used by a calibration run.
+
+    Only an absent registry is an opt-out. A supplied registry without a
+    callable writer is malformed and must fail before producer work starts.
+    """
+
+    if registry is None:
+        return None
+    record_local: object = getattr(registry, "record_local", None)
+    if not callable(record_local) or not isinstance(record_local, LessonRecordLocalCallable):
+        raise TypeError("lesson registry must provide a callable record_local")
+    return record_local
+
+
+def publish_lesson_card(
+    record_local: LessonRecordLocalCallable,
+    card: LessonCard,
+    *,
+    context: TransferContext,
+) -> ArtifactRef:
+    """Publish once through the selected writer and require its typed ref."""
+
+    published_ref: object = record_local(card, context=context)
+    if not isinstance(published_ref, ArtifactRef):
+        raise TypeError("lesson registry record_local must return an ArtifactRef")
+    return published_ref
 
 
 class BenchmarkRegistryContract(Protocol):
@@ -120,6 +162,9 @@ __all__ = [
     "BenchmarkRegistryContract",
     "ChampionRegistryContract",
     "DiscoveryHypothesisRegistryContract",
+    "LessonRecordLocalCallable",
     "LessonRegistryContract",
+    "publish_lesson_card",
+    "resolve_lesson_record_local",
     "ParetoRegistryContract",
 ]

@@ -42,11 +42,65 @@ from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
     HypothesisUtilityScore,
 )
-from polisyos.scientist.methods.search.lessons import LessonQuery, LessonRegistry, load_lesson_card
+from polisyos.scientist.methods.search.lessons import (
+    LessonCard,
+    LessonQuery,
+    LessonRegistry,
+    load_lesson_card,
+)
 from polisyos.scientist.methods.search.transfer_context import (
     TransferContext,
     TransferScopeRefusedError,
 )
+
+
+class _CountingLessonRegistry:
+    def __init__(self, registry: LessonRegistry) -> None:
+        self.registry = registry
+        self.resolutions = 0
+        self.calls = 0
+        self.context: TransferContext | None = None
+
+    @property
+    def record_local(self) -> object:
+        self.resolutions += 1
+        if self.resolutions > 1:
+            raise AssertionError("selected lesson writer was resolved more than once")
+
+        def record(
+            card: LessonCard,
+            *,
+            context: TransferContext,
+        ) -> ArtifactRef:
+            self.calls += 1
+            self.context = context
+            return self.registry.record_local(card, context=context)
+
+        return record
+
+
+class _MissingLessonRegistry:
+    pass
+
+
+class _NonCallableLessonRegistry:
+    record_local = 7
+
+
+class _WrongResultLessonRegistry:
+    def __init__(self, result: object) -> None:
+        self.result = result
+        self.calls = 0
+
+    def record_local(
+        self,
+        card: LessonCard,
+        *,
+        context: TransferContext,
+    ) -> object:
+        del card, context
+        self.calls += 1
+        return self.result
 
 
 def _persist_calibration_candidate(store: FileSystemCAS) -> ArtifactRef:
@@ -260,6 +314,7 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
 ) -> None:
     lesson_root = tmp_path / "registry" / "lessons"
     registry = LessonRegistry(root=lesson_root, store=cas_store)
+    selected_registry = _CountingLessonRegistry(registry)
     runner = CalibrationValidationRunner(cas_store)
     candidate_ref = _persist_calibration_candidate(cas_store)
     result = runner.run(
@@ -287,7 +342,7 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
                 "multiplicity_note": "disclosed",
             },
             baseline_metrics={"policy_value": 100.0, "coverage": 0.9},
-            lesson_registry=registry,
+            lesson_registry=selected_registry,
             accountability_input=_accountability_input(),
         ),
         return_selected_profile=True,
@@ -306,6 +361,12 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
     assert result.bundle.stress_scenarios is not None
     assert result.bundle.leaderboard_entry is not None
     assert result.bundle.lesson_card_ref is not None
+    assert selected_registry.resolutions == 1
+    assert selected_registry.calls == 1
+    assert selected_registry.context is not None
+    assert selected_registry.context.task_family == "policy"
+    assert selected_registry.context.domain == "general"
+    assert selected_registry.context.run_id == "R_c5b_full"
     assert result.bundle.governance_accountability_ref is not None
     assert result.bundle.governance_accountability_summary["risk_weighted_verdict"] == "human_gate"
     backtest_report_ref = result.bundle.backtest_report_ref
@@ -362,6 +423,52 @@ def test_calibration_validation_runner_executes_backtest_stress_leaderboard_and_
     assert any(hit.lesson_id == card.lesson_id and hit.domain == "general" for hit in hits)
 
 
+@pytest.mark.parametrize(
+    "registry",
+    [_MissingLessonRegistry(), _NonCallableLessonRegistry()],
+    ids=["missing-record-local", "noncallable-record-local"],
+)
+def test_calibration_validation_rejects_malformed_registry_before_producer_work(
+    registry: object,
+    cas_store: FileSystemCAS,
+) -> None:
+    candidate_ref = _persist_calibration_candidate(cas_store)
+    before = list(cas_store.iter_artifact_ids())
+
+    with pytest.raises(TypeError, match="lesson registry must provide a callable record_local"):
+        CalibrationValidationRunner(cas_store).run(
+            CalibrationValidationRunnerInput(
+                run_id="R_c5b_bad_registry",
+                candidate_ref=candidate_ref,
+                governance_report=_governance_report(),
+                lesson_registry=registry,
+            )
+        )
+
+    assert cas_store.iter_artifact_ids() == before
+
+
+@pytest.mark.parametrize("result_value", [None, "not-an-artifact-ref"], ids=["none", "string"])
+def test_calibration_validation_rejects_malformed_lesson_publication_result(
+    result_value: object,
+    cas_store: FileSystemCAS,
+) -> None:
+    candidate_ref = _persist_calibration_candidate(cas_store)
+    registry = _WrongResultLessonRegistry(result_value)
+
+    with pytest.raises(TypeError, match="lesson registry record_local must return an ArtifactRef"):
+        CalibrationValidationRunner(cas_store).run(
+            CalibrationValidationRunnerInput(
+                run_id="R_c5b_bad_publication",
+                candidate_ref=candidate_ref,
+                governance_report=_governance_report(),
+                lesson_registry=registry,
+            )
+        )
+
+    assert registry.calls == 1
+
+
 def test_calibration_validation_runner_blocks_eligibility_on_missing_transport_and_interference(
     tmp_path,
     cas_store,
@@ -378,6 +485,8 @@ def test_calibration_validation_runner_blocks_eligibility_on_missing_transport_a
         )
     )
 
+    assert result.bundle.status == "completed"
+    assert result.bundle.lesson_card_ref is None
     metrics = result.bundle.leaderboard_entry.metrics
     assert "missing_metric:transportability_score" in metrics.gap_flags
     assert "missing_metric:interference_fit" in metrics.gap_flags

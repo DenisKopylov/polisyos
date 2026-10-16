@@ -59,6 +59,11 @@ from polisyos.scientist.governance.stress_scenarios import (
     StressScenarioRunner,
 )
 from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
+from polisyos.scientist.methods.search.registry_contracts import (
+    LessonRecordLocalCallable,
+    publish_lesson_card,
+    resolve_lesson_record_local,
+)
 
 _S1_SOURCE_JSON_SNAPSHOT_ROLE_BY_CONTRACT = {
     "scientist.d3.household_candidate_basis": "household_source_basis",
@@ -348,7 +353,7 @@ class CalibrationValidationRunnerInput(BaseModel):
     scenario_metric_overrides: dict[StressScenarioKind, dict[str, float]] = Field(
         default_factory=dict
     )
-    lesson_registry: Any | None = None
+    lesson_registry: object | None = None
     accountability_input: GovernanceAccountabilityInput | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
     purpose: str = Field(default="promotion", pattern="^(promotion|candidate_diagnostic)$")
@@ -714,6 +719,7 @@ class CalibrationValidationRunner:
             return_selected_profile: Return the report write's selected profile.
         """
 
+        record_local = resolve_lesson_record_local(bundle.lesson_registry)
         selected_roles = _selected_split_roles(bundle)
         selected_role_payload = _selected_split_role_payload(selected_roles)
         if bool(bundle.governance_report.metadata.get("short_circuited")):
@@ -848,7 +854,9 @@ class CalibrationValidationRunner:
             leaderboard_entry=leaderboard_entry,
             metadata=dict(bundle.metadata),
         )
-        lesson_card_ref = self._lesson_publisher.publish(bundle, validation_bundle)
+        lesson_card_ref = self._lesson_publisher.publish(
+            bundle, validation_bundle, record_local=record_local
+        )
         if lesson_card_ref is not None:
             validation_bundle = validation_bundle.model_copy(
                 update={"lesson_card_ref": lesson_card_ref}
@@ -931,6 +939,8 @@ class CalibrationValidationLessonPublisher:
         self,
         bundle_input: CalibrationValidationRunnerInput,
         bundle: CalibrationValidationBundle,
+        *,
+        record_local: LessonRecordLocalCallable | None = None,
     ) -> ArtifactRef | None:
         from polisyos.scientist.methods.search.lessons import (
             LessonCard,
@@ -941,8 +951,10 @@ class CalibrationValidationLessonPublisher:
             resolve_transfer_context,
         )
 
-        registry = bundle_input.lesson_registry
-        if registry is None or not hasattr(registry, "record_local"):
+        selected_record_local = record_local
+        if selected_record_local is None:
+            selected_record_local = resolve_lesson_record_local(bundle_input.lesson_registry)
+        if selected_record_local is None:
             return None
 
         summary = bundle.readout_summary()
@@ -988,10 +1000,7 @@ class CalibrationValidationLessonPublisher:
         lesson_context = resolve_transfer_context(
             run_id=bundle_input.run_id, task_family="policy", domain="general"
         )
-        published_ref: object = registry.record_local(card, context=lesson_context)
-        if not isinstance(published_ref, ArtifactRef):
-            raise TypeError("lesson registry record_local must return an ArtifactRef")
-        return published_ref
+        return publish_lesson_card(selected_record_local, card, context=lesson_context)
 
 
 def persist_calibration_validation_bundle(

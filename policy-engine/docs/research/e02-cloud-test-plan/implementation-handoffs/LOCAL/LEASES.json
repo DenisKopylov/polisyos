@@ -227,7 +227,7 @@
         "tests/unit/data_forge/kernel/test_encoder_identity.py",
         "kernel README/release"
       ],
-      "scope": "Existing selected-ref/Core\u2192IR caller crosscut; immutable completed wrapper changes preserved across peer-owned files. Active new edits limited to B61 adapter/ref collector; peer-owned additional deltas sent to owner/root. Full completed crosscut footprint is supplied in ready manifest."
+      "scope": "Existing selected-ref/Core→IR caller crosscut; immutable completed wrapper changes preserved across peer-owned files. Active new edits limited to B61 adapter/ref collector; peer-owned additional deltas sent to owner/root. Full completed crosscut footprint is supplied in ready manifest."
     },
     "cas_contracts": {
       "mechanisms": [
@@ -1161,7 +1161,7 @@
       },
       "fabric_pool_cleanup_author": {
         "existing_scope": "Reopen prior8src9tests after actual4dependency classes bypass evidence573b738edc3a",
-        "boundary": "Whole67binding actual consumer reads/constructor routes, real owner constants rather than unused API copies. Shared ContextVar resolver invariant, no leaf globals; actual concurrent deterministic connector\u2192DuckDB counts/rows/cleanup control required for broader claim."
+        "boundary": "Whole67binding actual consumer reads/constructor routes, real owner constants rather than unused API copies. Shared ContextVar resolver invariant, no leaf globals; actual concurrent deterministic connector→DuckDB counts/rows/cleanup control required for broader claim."
       }
     },
     "frozen_review_ready": {
@@ -1790,52 +1790,52 @@
     "source_freeze": false,
     "formal_G_closure_ids": []
   },
-"coordination_epoch_20261016_whole_input_bindings": {
-  "observed_head": "7f5f0deb1d88f6f91d919e530f63d9d57c5ed8d6",
-  "root_is_sole_product_and_git_writer": true,
-  "agents": "RAW-only proposals or read-only reviews; no mutating git apply; no children",
-  "raw_author_paths": {
-    "s1_s3_semantic_failure_oracle": [
-      "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
-      "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
-      "release-fragments/unreleased/2026-10-16-e02-propagation-config-admission.toml"
+  "coordination_epoch_20261016_whole_input_bindings": {
+    "observed_head": "7f5f0deb1d88f6f91d919e530f63d9d57c5ed8d6",
+    "root_is_sole_product_and_git_writer": true,
+    "agents": "RAW-only proposals or read-only reviews; no mutating git apply; no children",
+    "raw_author_paths": {
+      "s1_s3_semantic_failure_oracle": [
+        "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+        "release-fragments/unreleased/2026-10-16-e02-propagation-config-admission.toml"
+      ],
+      "api_generated_actual_consumers_successor": [
+        "src/polisyos/scientist/methods/advanced.py",
+        "tests/unit/scientist/methods/test_advanced.py",
+        "tests/_helpers/c7_synthetic_data.py",
+        "tests/integration/test_c7_synthetic_full_pipeline.py"
+      ],
+      "fabric_pool_cleanup_author": "existing16-path cache selected-view lease plus shared actual-handle intent admission; additional persistence type companions require exact pre-pins",
+      "ir_governance_loop_types_author": "R7 six-path explicit replay basis candidate; full actual semantic-input binding research, no further source lease yet",
+      "b61_exact_writer_runtime_author": [
+        "tests/_helpers/generic_n4_served_replay.py",
+        "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "tests/_helpers/controlled_candidate_profile.py"
+      ]
+    },
+    "independent_reviews": {
+      "full_occurrence_property_audit_2": "B194 malformed config admission",
+      "native_c2_dead_override_author": "replay R7 delta and actual semantic consumer denominator",
+      "native_c2_independent_oracle": "R1 whole owner/config intent binding",
+      "ir_temporal_typed_author_r4": "R1 honest persistence API type companions",
+      "architecture_remaining_route_oracle": "C7 all7 method-native slot bridges",
+      "dynamic_import_binding_author": "Phase6 historical append preservation and legacy pointer resolution"
+    },
+    "root_reserved": [
+      "canonical generated/schema/public/API/lock outputs",
+      "all live source application, commits and candidate-only push",
+      "expensive composed replay after source/profile/input freeze"
     ],
-    "api_generated_actual_consumers_successor": [
-      "src/polisyos/scientist/methods/advanced.py",
-      "tests/unit/scientist/methods/test_advanced.py",
-      "tests/_helpers/c7_synthetic_data.py",
-      "tests/integration/test_c7_synthetic_full_pipeline.py"
-    ],
-    "fabric_pool_cleanup_author": "existing16-path cache selected-view lease plus shared actual-handle intent admission; additional persistence type companions require exact pre-pins",
-    "ir_governance_loop_types_author": "R7 six-path explicit replay basis candidate; full actual semantic-input binding research, no further source lease yet",
-    "b61_exact_writer_runtime_author": [
-      "tests/_helpers/generic_n4_served_replay.py",
-      "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
-      "tests/_helpers/controlled_candidate_profile.py"
-    ]
+    "P40": "Second same-class escape widens the full required quantity; declarations and input ref presence do not prove actual dispatched-state content binding.",
+    "compute": {
+      "mac_heavy_slots": 3,
+      "numerical_threads_per_process": 1,
+      "observed_free_disk_gib": 42
+    },
+    "source_freeze": false,
+    "formal_G_closure_ids": []
   },
-  "independent_reviews": {
-    "full_occurrence_property_audit_2": "B194 malformed config admission",
-    "native_c2_dead_override_author": "replay R7 delta and actual semantic consumer denominator",
-    "native_c2_independent_oracle": "R1 whole owner/config intent binding",
-    "ir_temporal_typed_author_r4": "R1 honest persistence API type companions",
-    "architecture_remaining_route_oracle": "C7 all7 method-native slot bridges",
-    "dynamic_import_binding_author": "Phase6 historical append preservation and legacy pointer resolution"
-  },
-  "root_reserved": [
-    "canonical generated/schema/public/API/lock outputs",
-    "all live source application, commits and candidate-only push",
-    "expensive composed replay after source/profile/input freeze"
-  ],
-  "P40": "Second same-class escape widens the full required quantity; declarations and input ref presence do not prove actual dispatched-state content binding.",
-  "compute": {
-    "mac_heavy_slots": 3,
-    "numerical_threads_per_process": 1,
-    "observed_free_disk_gib": 42
-  },
-  "source_freeze": false,
-  "formal_G_closure_ids": []
-},
   "coordination_epoch_20261016_pool_lease_and_durable_requests": {
     "observed_source_head": "9d90c587560f49ca0966931477f322ac3139e1db",
     "root_sole_live_source_and_git_writer": true,
@@ -2130,5 +2130,319 @@
     "bounded_result": "14 behavior PASS; canonical Ruff check20 and format20 PASS; complete2771/2480/291sourcePython census, 15 exact selected imports, 1457 own origins and no outside/missing/wrong module.",
     "limitations": "Canonical type/native/global/installed verification unclaimed. Static public inventory verification_missing under existing G choice315640. Exploratory bulkMyPy263diagnostics are not the canonical native verdict.",
     "formal_G_closure_ids": []
+  },
+  "coordination_epoch_20261016_fabric_r6_registration_origin": {
+    "observed_head": "2a496ab348ad3ad4b8c48ee45a5d8f4fb61354a9",
+    "root_sole_live_source_and_git_writer": true,
+    "author_candidate_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r6-registration-origin-binding-20261016/candidate-manifest-r6-final.json",
+      "sha256": "35ee6e6b905e0ceea23d6c1798663f3976627f1590056ced81d116e1b9bd287d"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-r6-registration-origin-review-20261016/r6-independent-assessment.json",
+      "sha256": "9199c2da9cee6976989f56e03c3c1595b34c78449d58eb181020b823dc8787e5"
+    },
+    "slice_base_commit": "30d769ac5e42459f344df1fb32a7010f6274dbfc",
+    "slice_base_tree": "c894cab53aaf97fec7c49873356c4e7142956890",
+    "full28_current_preimages": {
+      "policy-engine/src/polisyos/fabric/connectors/__init__.py": "2bd456876e3f75e12c51e40cc6c95506d331716556e314eb6a82795f5ce30dac",
+      "policy-engine/src/polisyos/fabric/connectors/base.py": "f5754ea9be67ab1a89effaaecc09dba68fd710d30c4809dbb8e3bcfae5805d99",
+      "policy-engine/src/polisyos/fabric/connectors/cache/__init__.py": "2fc64e477344afea5b4c184316fb0799d1b36c08c1d12f7f61444a18063bc3b5",
+      "policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py": "fcaa55d62f13b4d6fa68da75b0712f1815051af8edc37a45eb45faed269632b9",
+      "policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py": "50061675dbda50a3ac51d796c30ff9adc65be2b4df69ca5bf5a2dad4ee2697d3",
+      "policy-engine/src/polisyos/fabric/connectors/cache/_store_models.py": "8d6a05c8debb874386fa624303a82193709dadcaa734d97d4d184e7cd88ac916",
+      "policy-engine/src/polisyos/fabric/connectors/cache/proxy.py": "7b20ea115cc73afc72ab816ada0afd01c5aa9554f298547a3bb40189cb0f51dc",
+      "policy-engine/src/polisyos/fabric/connectors/cache/store.py": "cd8d83cfc0cf92338d8013487dc84dd24b5a201c99719a3a4f3ef8f6c07d9b1d",
+      "policy-engine/src/polisyos/fabric/connectors/pool.py": "e88d1c23d2d8538a8c7acea2d8e54d2bfd3f40214d7be5473361a76012f43d87",
+      "policy-engine/src/polisyos/fabric/connectors/profiles/resolver.py": "7df7feb14129eb11fea7d9467e36c9f2e27b821726a5453e9f947eca7b6c2bfc",
+      "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py": "ab7d8efcf593c8cc41bd22f18df5936781f566be5d1b522f51c05aef413b6913",
+      "policy-engine/src/polisyos/fabric/connectors/resilience/fallback.py": "c85fdb3889c1e6e933c4a5ebcea04bde74684b5c687ec849385aed86b9f1eb69",
+      "policy-engine/src/polisyos/fabric/data_plane/quarantine.py": "60413fc4e27ad3b92d2a2a81407f28ddccd3322ccb5dab3b7bf2421a5617596d",
+      "policy-engine/src/polisyos/fabric/evidence/evidence.py": "95d59fad3f8616d418a830b69eccf459479f48818fb45cc33571923f7aeb9b9c",
+      "policy-engine/src/polisyos/fabric/ingestion/ingestion.py": "247986c0a646fd17e17f540bd0e76f38481c6c38b4ab08041e8c10b768e4895e",
+      "policy-engine/tests/unit/fabric/connectors/profiles/test_source_profiles.py": "ce9c1d686aae6b7f3863d7c8cf027d31f483dc3015210a2f6028ec9461778c1d",
+      "policy-engine/tests/unit/fabric/connectors/test_cache_system.py": "9efabc52a7bdcf1cd72186a3960795e25c246aa0a6a9eb61a335006d78e50afd",
+      "policy-engine/tests/unit/fabric/connectors/test_integration.py": "523495c4ebf41b37c30c681ef3297ecbe16799f8c315d397b50d24e902182e56",
+      "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf",
+      "policy-engine/tests/unit/fabric/connectors/test_registry.py": "7fd158fe8f91b7f55b03574afd891884a82c73bcb3309cc8fad80c8ead9bd113",
+      "policy-engine/tests/unit/fabric/connectors/test_resilience.py": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+      "policy-engine/tests/unit/fabric/data_plane/test_quarantine.py": "d4e4fa7a316bae4d34f2b16404c731757cf0f970b83fef3121eb11c5c77f0c30",
+      "policy-engine/tests/unit/fabric/test_ingestion_quarantine.py": "d1de55665a82e14300bb64a746323d97b4258a536ebf22fb456516437e2ea374",
+      "policy-engine/tests/unit/fabric/test_provenance.py": "eeb03236c22396e26703d94ca2d3ff1f074d1d2fbf4ad67230ffded2d89e0491",
+      "policy-engine/src/polisyos/fabric/connectors/_registry_models.py": "4088dcf4657fe75b032bb2ebdc09c31cdc1835dabf31195a81abf8d05747b94c",
+      "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py": "35fcf6344b6b6cf69b7d58fb8af87d60754a2992bc456ec33c965310caab6e85",
+      "policy-engine/src/polisyos/fabric/data_plane/streaming.py": "429f8bdaccce5df6e817443e1fd739f6e8c4bc6b9607accc156a2a345468ade7",
+      "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py": "bb98b819370e7a3f2b533dcb9024933ec81ab4d0a219d44021508014dc36117c"
+    },
+    "reviewed28_postimages": {
+      "policy-engine/src/polisyos/fabric/connectors/__init__.py": "2bd456876e3f75e12c51e40cc6c95506d331716556e314eb6a82795f5ce30dac",
+      "policy-engine/src/polisyos/fabric/connectors/base.py": "a049411c6166dfa915b1b438e6dc6098ab472739effbb1da0679015e8113f260",
+      "policy-engine/src/polisyos/fabric/connectors/cache/__init__.py": "18217d6dbf70effd0b7d9dfa9be87a3013318765de48177d2b9734b49825fe26",
+      "policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py": "21237a71c899f5f699f10bd5ed6c3717fafd1619cb0ab207667f7e07741fad5f",
+      "policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py": "21d8837106a9e2524c1a3793a9c8fd23b4a966709f009b76d78e5d04da6105ce",
+      "policy-engine/src/polisyos/fabric/connectors/cache/_store_models.py": "035015949a9015e5b089154007338d4642be3c0e579f2403b41b216f36c0bdfd",
+      "policy-engine/src/polisyos/fabric/connectors/cache/proxy.py": "f90dc362eeac6e13638dc69f9ffa5ce74a410c389eca3fe76fa4f1d444560ec6",
+      "policy-engine/src/polisyos/fabric/connectors/cache/store.py": "f04397d64616aa8341b4e0d47ef56bec2bbe984d70eeac0bcecfa928f4f609ae",
+      "policy-engine/src/polisyos/fabric/connectors/pool.py": "7b43ae66ca6be2f182d11ef92e1948be7c2b89e16477fc5d6ca5f5e73f8da1d9",
+      "policy-engine/src/polisyos/fabric/connectors/profiles/resolver.py": "103ebf2a10333525e755eb43bcc1246ab853bb5b8b2ecd0c960fdbb5b55f81da",
+      "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py": "867c2b740c41fb63dc57cc8e7e402ada1cbe65e9c25ba61d612e6cc4aa703605",
+      "policy-engine/src/polisyos/fabric/connectors/resilience/fallback.py": "a3a14f593beb1ea949dc05dfb43766175c83f1e55196e42771564fee724eeeed",
+      "policy-engine/src/polisyos/fabric/data_plane/quarantine.py": "868f60006cfd9c96e8558eed6717f8b17ec4481cd63757310e2daed83c3b209a",
+      "policy-engine/src/polisyos/fabric/evidence/evidence.py": "587da32310105066f83b4fd7d13e6e97008576cf4fedecdaed6091e539eb4914",
+      "policy-engine/src/polisyos/fabric/ingestion/ingestion.py": "66ff2d5b89f4738c3b61812e5686bd8830be68a41ff39a87171fd34e3cb61229",
+      "policy-engine/tests/unit/fabric/connectors/profiles/test_source_profiles.py": "c5049159d44d67bebeb133687b68d53c098b259d9e10619831c34b44e6cd3dea",
+      "policy-engine/tests/unit/fabric/connectors/test_cache_system.py": "4fc8e8542b5ba0aedc6ff7bc9d07957e812fbfc65834bbfb214e58ff5f9203f7",
+      "policy-engine/tests/unit/fabric/connectors/test_integration.py": "9ae4638fc24b932ae8d8d786520cd337bc9311d4ab6b8e122cd2ec21ec5d2588",
+      "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py": "a03491cb02b1d6e5bb0eaef8f346c73efaa61fc4b6837ddc68e2080ab371e301",
+      "policy-engine/tests/unit/fabric/connectors/test_registry.py": "58305d56cd8ef459137c94f3f846e8c437b99deb5bc66710ded0589b344a5e18",
+      "policy-engine/tests/unit/fabric/connectors/test_resilience.py": "ff6cc803f7eb5ae7c000b53cee8c98fdfc2409c4388ef282f361213ba6830aa6",
+      "policy-engine/tests/unit/fabric/data_plane/test_quarantine.py": "d4e4fa7a316bae4d34f2b16404c731757cf0f970b83fef3121eb11c5c77f0c30",
+      "policy-engine/tests/unit/fabric/test_ingestion_quarantine.py": "d1de55665a82e14300bb64a746323d97b4258a536ebf22fb456516437e2ea374",
+      "policy-engine/tests/unit/fabric/test_provenance.py": "eeb03236c22396e26703d94ca2d3ff1f074d1d2fbf4ad67230ffded2d89e0491",
+      "policy-engine/src/polisyos/fabric/connectors/_registry_models.py": "a67c6bd429c7f94188188e9cea764d59acbe65b2d1128975c18e9650ea68fa74",
+      "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py": "2ae1e2cc04bf999e921d5935c7d2bf1b68734de50037b80e2b09826294061d1d",
+      "policy-engine/src/polisyos/fabric/data_plane/streaming.py": "c8d30d17a378fa82580bf66985b5e9483af4120a5305abb23d7afc95e754dae2",
+      "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py": "947969c9f31cb065bfa954d128b8eede598453600c3b51c5b31bfc23d01ad07f"
+    },
+    "ordinary_application_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r6-application-20261016/r6-reviewed-current-preimages.patch",
+      "sha256": "5bc3a5e6aea7cb070947f3e19746f8167449e29c471e3001505c53ba408ce328"
+    },
+    "property": "Private registration binds exact entry, class, factory, runtime owner, admitted instance and generation; get/pool/live-permit/stream paths use this origin and exact cleanup lease.",
+    "preserved_incident": "Two known original author postimages are explicit preimages, never reset/restored. All original base and incident receipts remain preserved.",
+    "P40": "Same registration-origin class one level deeper; covers central quantity across public fields and lifecycle, not one owner-ID string.",
+    "limitations": "Old generation idle pools retained until shutdown/capacity trimming; no immediate override retirement claim. Full Prepared B 13 and composed/native/installed wave pending; no external authority.",
+    "mandatory_documentation_companions": "Existing connectors README and new candidate release fragment under root authoring; full30source/test/doc footprint to be reconciled before source commit.",
+    "source_freeze": false,
+    "formal_G_closure_ids": []
+  },
+  "coordination_epoch_20261016_direct_write_attributed": {
+    "scope": "Nine assigned product paths attributed and preserved; no unknown writer remains in this incident.",
+    "root_only_product_writer": true,
+    "evidence": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owned-direct-write-attribution-20261016/attribution-resolved.json",
+      "sha256": "9ad828c19df8c93a8d2fc32972e64920ba653c193fc9e94221d5919b2e263d3f"
+    },
+    "files": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+        "head_sha256": "5e5f233e7baebf34c721308280fa2d612f26be65d9ffa4b18e8e89fd4b0aecec",
+        "live_sha256": "9d5aedfad51c83e666aa8fa263f6fdc49fd869d4a062ae2e18ee81e6a0a19213",
+        "regular_single_link": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py",
+        "head_sha256": "08c643a3fe711ecab8d47812e3edc9c50f522b77a116e514fe2c9e018464beab",
+        "live_sha256": "bde50e71fe8a4488b665d72cc6ce686c9587565f8af05e140834a1cb202c5356",
+        "regular_single_link": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/claim_registry.py",
+        "head_sha256": "b6edea161e379a32453e515b3ad561552f21f9137c9d8a7b94bc4a97c0ff149e",
+        "live_sha256": "a2f45ff090d7c0d954743cc2312f734325a85f64fc43516a20ea367e28daf512",
+        "regular_single_link": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/semantic_binding.py",
+        "head_sha256": "8362db35a4e4be7ecb76b2d14dc0ef1ffb9301574cd584b6e7d1837c2b8c97cd",
+        "live_sha256": "21a10b4e6d741df391dee0eeb11dcad326bb62b84fd2e4a3bbb909b0651c8597",
+        "regular_single_link": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_capability_index_compiler.py",
+        "head_sha256": "db63f081b4ad52ac498cfd2a73de2e56f26b057110affd7d56bfb6db253ff22e",
+        "live_sha256": "7941860966b98f493bbbb36123b873e73d863749efbc024da23077c3a902a9ef",
+        "regular_single_link": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_semantic_binding.py",
+        "head_sha256": "aba212ca51186948ddc0f1f9da23b21c6c5b737efbcf9c7fbaf1c03c8805ab82",
+        "live_sha256": "585b917ef2de616a0835c35124b3019eca1171942bbbc40c86617c2c88286eb0",
+        "regular_single_link": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/lex/__init__.py",
+        "head_sha256": "d2dcdde45c1b1b54fb5f8aa85db4036d9676aed1d1009ed0c2cfedd92271ae70",
+        "live_sha256": "5e9e2b3659fa5494e2b93bbc47de4e554e576284ea0ea053e3163fa560dfbf94",
+        "regular_single_link": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+        "head_sha256": "485eb76804be71a6915152ea6d99d30607c488ae4ad6a004b71265fa71ae2f49",
+        "live_sha256": "a39d43b9bda4403f930c28927456c46081736760f65f9656eff2b8db7f4111cf",
+        "regular_single_link": true
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py",
+        "head_sha256": "d191df90f3d39283d9edea342ec4433dbdb52911218b273cdee10cf343eb05da",
+        "live_sha256": "5bfb5a50539f7b9f6a954848af7645bef8da8f20095d3b48b30df7b51a07bd5c",
+        "regular_single_link": true
+      }
+    ],
+    "source_freeze": false
+  },
+  "coordination_epoch_20261016_calibration_registry_r2": {
+    "root_writer": true,
+    "mechanism_and_mandatory_companions": {
+      "postimages": [
+        {
+          "bytes": 5158,
+          "candidate_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-optional-registry-boundary-r2-20261016/candidate/policy-engine/src/polisyos/scientist/methods/search/registry_contracts.py",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/registry_contracts.py",
+          "sha256": "94b7f14a977e248d49219be785cc127a59a657852436ef824f186618ca7ccd3f"
+        },
+        {
+          "bytes": 30045,
+          "candidate_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-optional-registry-boundary-r2-20261016/candidate/policy-engine/src/polisyos/scientist/governance/calibration.py",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/scientist/governance/calibration.py",
+          "sha256": "0347ff547d74feadc0e88ce2d614c1b355762fec3dbbd474ff658d5d0e51b1fb"
+        },
+        {
+          "bytes": 53117,
+          "candidate_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-optional-registry-boundary-r2-20261016/candidate/policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+          "sha256": "cfbda4908356efc8621c5bd13735ad4237aecbfa576e497ba1e0ae94c1848e96"
+        },
+        {
+          "bytes": 7867,
+          "candidate_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-optional-registry-boundary-r2-20261016/candidate/policy-engine/tests/unit/scientist/governance/test_calibration.py",
+          "mode": "100644",
+          "path": "policy-engine/tests/unit/scientist/governance/test_calibration.py",
+          "sha256": "7b22a972ee3fb38774ff6ae594d46b1e5ded23ce794014000ae5064894cc2def"
+        },
+        {
+          "bytes": 26028,
+          "candidate_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-optional-registry-boundary-r2-20261016/candidate/policy-engine/tests/unit/scientist/governance/test_calibration_validation.py",
+          "mode": "100644",
+          "path": "policy-engine/tests/unit/scientist/governance/test_calibration_validation.py",
+          "sha256": "52085acc06a8386d014b760511886cd01831ebbbf6499385d5db7acdee89fd59"
+        },
+        {
+          "bytes": 5570,
+          "candidate_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-optional-registry-boundary-r2-20261016/candidate/policy-engine/src/polisyos/scientist/governance/README.md",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/scientist/governance/README.md",
+          "sha256": "cfd3d5bdcc99dbd5eb5745bf5e0e76c2787663178b33c41522d543b24a77fcf9"
+        },
+        {
+          "bytes": 1701,
+          "candidate_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-optional-registry-boundary-r2-20261016/candidate/policy-engine/release-fragments/unreleased/2026-10-16-e02-calibration-optional-registry-boundary.toml",
+          "mode": "100644",
+          "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-calibration-optional-registry-boundary.toml",
+          "sha256": "6505797705c9fee5b25febca6d22869405bd49e8893ccde25a0000dc04cf603d"
+        }
+      ],
+      "preimages": [
+        {
+          "git_blob": "41b7f70da7529926f8ce96117ae428a84b3fd955",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/scientist/methods/search/registry_contracts.py",
+          "sha256": "35c80783598f205d5a00a252354897160e0c29a97d5d6fdeb6e397a549c92f1e",
+          "state": "present"
+        },
+        {
+          "git_blob": "1991ba0149e9a07fbd47706191b3af2b2bb5e7d9",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/scientist/governance/calibration.py",
+          "sha256": "979c9c2b43ba7e8c5af4f7f55ad813df4e890197952bdab3c7b7902d62fe9d2d",
+          "state": "present"
+        },
+        {
+          "git_blob": "3b1d122ae86ed21eb7aa6996bdbd8d985fa31489",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+          "sha256": "74aaa333cc6ca7a5f41954fc20ccfc331e060b630b96b3df1e2644e9834e229c",
+          "state": "present"
+        },
+        {
+          "git_blob": null,
+          "mode": null,
+          "path": "policy-engine/tests/unit/scientist/governance/test_calibration.py",
+          "sha256": null,
+          "state": "absent"
+        },
+        {
+          "git_blob": "c745eae970e5843cd3ff69a5e94a08b1b8a5d782",
+          "mode": "100644",
+          "path": "policy-engine/tests/unit/scientist/governance/test_calibration_validation.py",
+          "sha256": "d01e2325db7d08da9ac87855bb20fe45fe21e7b97fa739145152a2e8251b9732",
+          "state": "present"
+        },
+        {
+          "git_blob": "c9bebffae7f0c56a6dc053e924f1988228e2f1e7",
+          "mode": "100644",
+          "path": "policy-engine/src/polisyos/scientist/governance/README.md",
+          "sha256": "d09d9276531a602042f7ccca1bb4d8ba292523fdd1989804936012c4fde82b5e",
+          "state": "present"
+        },
+        {
+          "git_blob": null,
+          "mode": null,
+          "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-calibration-optional-registry-boundary.toml",
+          "sha256": null,
+          "state": "absent"
+        }
+      ]
+    },
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-optional-registry-boundary-r2-20261016/manifest.json",
+      "sha256": "10c97fe19b954dd7c2210d74e5e613e875961e34767a30d0b4c0208bc0b39d21"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-registry-boundary-r2-independent-review-20261016/receipt.md",
+      "sha256": "e1f8e90e69a83b340d51ffc896cdf7ec75f11e4392807dbc173b2161ddbe97e0"
+    },
+    "property": "Supplied malformed optional registries refuse, captured callable writes once and returns ArtifactRef; both C5a/C5b preserve resolved TransferContext.",
+    "P40": "Same optional-writer boundary class; context drop restored at shared typed publication boundary.",
+    "source_freeze": false,
+    "formal_G_closure_ids": []
+  },
+  "coordination_epoch_20261016_calibration_registry_canonical_format": {
+    "root_writer": true,
+    "format_only_ast_equal": true,
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-canonical-format-20261016/manifest.json",
+      "sha256": "46a0455e5f4147ca8eac1b65cdaf779912f765ad56c385b11a8d969c680b01be"
+    },
+    "reason": "Actual canonical root format check found 3 formatting diffs. Preserve complete R2 semantics and recheck exact actual postimages.",
+    "paths": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/registry_contracts.py",
+        "preimage_sha256": "94b7f14a977e248d49219be785cc127a59a657852436ef824f186618ca7ccd3f",
+        "postimage_sha256": "fb3f8c48bff27e49ac1d6664a5ee0e5f341de2d734628fcfc6ac51755fcac946",
+        "candidate_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-canonical-format-20261016/registry_contracts.py",
+        "AST_equal": true,
+        "changed": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/governance/calibration.py",
+        "preimage_sha256": "0347ff547d74feadc0e88ce2d614c1b355762fec3dbbd474ff658d5d0e51b1fb",
+        "postimage_sha256": "112bfe9a2388c4807c599f6abb8d60e3f41c634be9157fef50f3ec17682c8314",
+        "candidate_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-canonical-format-20261016/calibration.py",
+        "AST_equal": true,
+        "changed": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/governance/calibration_validation.py",
+        "preimage_sha256": "cfbda4908356efc8621c5bd13735ad4237aecbfa576e497ba1e0ae94c1848e96",
+        "postimage_sha256": "eadac7310d6f47e6155ff9a96d21ffcdea0b3c63b35749d8d7bb112416cdd30a",
+        "candidate_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-canonical-format-20261016/calibration_validation.py",
+        "AST_equal": true,
+        "changed": true
+      }
+    ],
+    "source_freeze": false,
+    "independent_delta_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-registry-r2-format-delta-review-20261016/receipt.md",
+      "sha256": "2e2bb96fc9683c53c891d8860e71cfa629cccbc98147902f09a3306cbc217796"
+    },
+    "actual_formatted_replay": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/actual-results.json",
+      "sha256": "649cd297998dbc796afc5cebebfe5c40120c33a54b2d1f2591b4538a4d61c1a3"
+    },
+    "outcome": "14 PASS /0FAIL/0ERROR/0SKIP in full2affectedunitmodules; strict3sourceMyPyPASS; rootRuffcheck+format5PASS; 1114 own source origins with zero outside/missing/wrong. No fullnative/C7/global/sourcefreeze claim."
   }
 }

@@ -1,0 +1,24 @@
+id = "2026-10-16-e02-calibration-optional-registry-boundary"
+title = "Reject malformed optional calibration lesson registries"
+type = "changed"
+component = "scientist-governance"
+owner = "team-policyos-runtime"
+summary = "C5a and C5b now accept only an absent lesson registry as opt-out; a supplied registry must resolve one callable writer before producer work and publish a typed ArtifactRef."
+evidence = [
+  "src/polisyos/scientist/governance/calibration.py",
+  "src/polisyos/scientist/governance/calibration_validation.py",
+  "src/polisyos/scientist/methods/search/registry_contracts.py",
+  "tests/unit/scientist/governance/test_calibration.py",
+  "tests/unit/scientist/governance/test_calibration_validation.py",
+  "src/polisyos/scientist/governance/README.md",
+]
+compatibility = "None remains an explicit opt-out. Both C5a and C5b preserve the resolved TransferContext when invoking the selected record_local writer. Supplied registries with missing or non-callable record_local and non-ArtifactRef results now raise TypeError."
+change_class = "python-public-contract"
+surface_classification = "internal_runtime_contract"
+migration = "No migration. Correct malformed supplied registries to implement callable record_local and return ArtifactRef."
+api = "Calibration runners resolve and retain one writer at intake, then invoke it once at publication through the shared lesson registry contract."
+limitations = "The change validates registry intake and persisted lesson references only; it does not alter calibration, authority, currentness, or publication policy."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

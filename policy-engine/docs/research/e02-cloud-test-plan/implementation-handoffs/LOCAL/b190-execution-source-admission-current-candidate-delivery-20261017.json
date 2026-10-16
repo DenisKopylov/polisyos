@@ -1,0 +1,580 @@
+{
+  "schema": "policyos.e02.component_delivery_evidence_proposal.v1",
+  "record_type": "bounded source-and-runtime evidence receipt proposal; no G adjudication or formal closure",
+  "unit": "LOCAL",
+  "slice": "B190 actual execution-source admission and fresh response consumer",
+  "prepared_at_local_date": "2026-10-17",
+  "status": {
+    "global_source_freeze": false,
+    "formal_G_acceptance": null,
+    "closure_ids": [],
+    "formal_G_closure_ids": []
+  },
+  "original_criterion_binding": {
+    "finding_id": "B190",
+    "occurrence_id": "B190#1:B_r19:UQP-01:bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53",
+    "occurrence_index_pointer": "/occurrences/109",
+    "original_source": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "whole_document_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+    },
+    "criterion_span": {
+      "lines": [
+        4752,
+        4761
+      ],
+      "sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53"
+    },
+    "binding_correction": "bb28… is the exact span identity, not the whole B_r19 document digest. Both are kept distinct; the frozen prior manifest is not rewritten.",
+    "occurrence_index": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+      "sha256": "70673fe8c1e74b3d83627d883cda70e9dbc19401302d81458bba16dcc874a892"
+    },
+    "indexed_state_at_that_snapshot": {
+      "finding_status": "limited",
+      "review_status": "held",
+      "gate_state": "verification_missing",
+      "current_evidence": "current_candidate_UNRUN"
+    }
+  },
+  "bounded_property": "Admit a source-bound, model-executed response basis into the actual response-matrix reader with axis/unit/provenance semantics; preserve unknown or unsupported scope as limited and gate-ineligible.",
+  "source_commits": [
+    {
+      "sha": "14adabe39cadea8dc169eff025e788ab6df4d145",
+      "tree": "81d5a2eee2da77322422e2aa4ddec80c7a2d47cc",
+      "parents": [
+        "033ea7594187ce00916150bd767ebd81d19742cc"
+      ],
+      "subject": "fix(foundry): share exact execution source admission across replay consumers",
+      "changed_path_count": 10,
+      "changed_paths_sha256": {
+        "policy-engine/src/polisyos/foundry/execute/api.py": "764335d1a2b585d50f39a633a246ac0687e2f92463e2291eb6f2e6fe757a328e",
+        "policy-engine/src/polisyos/foundry/calibration/identifiability.py": "0f3a68855d5bdd65a47a03baa0d2a3fb77cd5453e1338c9c6a2fe08f4359ca0e",
+        "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py": "6fbd190741ebc7182e1dd629666130da56396e2386827e721be83312ef8c311d",
+        "policy-engine/src/polisyos/foundry/_quickstart.py": "9b7215b46cc926df088fddd451fd8c3444a13d1ef3b9450e0a4c0f0aeb41d8b4",
+        "policy-engine/tests/unit/foundry/runtime/test_executor_runtime_semantics.py": "0cea001effe6352f457dc6a4590b0631d7b09ac54f82075f2d0e61ada78b13cd",
+        "policy-engine/tests/unit/foundry/runtime/test_execute_feedback.py": "56641f0670184446d8c3f811ef704967b5420010edbf4248d0b7eef0961cefc9",
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py": "9afda2e8e5e08b238a56e719a582ff3c0d687b1a406e04d37acd7f79086e8818",
+        "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py": "004afb7d79ddcfc905951ff80f1c20e954156dda30326ae0898689404690bd1a",
+        "policy-engine/release-fragments/unreleased/2026-10-16-e02-execution-source-admission-replay.toml": "02d8bf6c8920e13c7a28515818bbf86565d9ca92806c62ecb686bc514c4b82d3",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "90c3fb9f4b805db7137eea25d887844c6f983fe4e264278f73d8edd2cf95dcd6"
+      },
+      "readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-source-adoption-20261016/b190-shared-source-readback.json",
+        "sha256": "d48347bad9bbe4da35d65fc0a62c3f627c19c65ffb05bb0385b67dfcc099173c"
+      }
+    },
+    {
+      "sha": "1229425d577e76f6af53ba34f416fda3fd25a829",
+      "tree": "feb86ccfcc1919e40ea1ff83d7e85698e793d4c5",
+      "parents": [
+        "c27ac9c23483041947766f515c0aa6024144d695"
+      ],
+      "subject": "test(foundry): verify fresh response reads through canonical imports",
+      "changed_path_count": 2,
+      "changed_paths_sha256": {
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py": "61fca944c68597d1d0423333913e9d3b8b5549a0d241d9765d4538994935a823",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "0467cd5b557a11bd0555c79b1d218464eb94201770c9dd8d0194042dde912a9d"
+      },
+      "readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-adoption-20261017/b190-child-origin-readback.json",
+        "sha256": "bcd81b69f276fdfcafb551b2cf098e23afdba83d38c38d6a878299bca812faa3"
+      }
+    }
+  ],
+  "verification_matrix": [
+    {
+      "question": "What did the pre-child composed four-suite replay establish?",
+      "evidence": {
+        "name": "pre-child four-suite canonical replay",
+        "command": {
+          "record": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/actual-four-suites.run.json",
+            "sha256": "abcd61e23a642d12aba80fa49005ed3e9d1da36621e55f1103e4c7901a0f606d"
+          },
+          "label": "actual-four-suites",
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "--import-mode=importlib",
+            "-q",
+            "-p",
+            "actual_origin",
+            "tests/unit/foundry/runtime/test_executor_runtime_semantics.py",
+            "tests/unit/foundry/runtime/test_execute_feedback.py",
+            "tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+            "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+            "--tb=short",
+            "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/pytest-tmp",
+            "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/b190.junit.xml"
+          ],
+          "timeout_seconds": 300,
+          "exit_code": 1,
+          "timed_out": false,
+          "seconds": 125.719,
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/actual-four-suites.stdout.txt",
+            "sha256": "26011509717337fbbb523b2736cf4f9cb229a2620cb421d012d7730336ac637c"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/actual-four-suites.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        "request": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/request.json",
+          "sha256": "936498bc799cb69625bc63399196f49dece2e2ad056b12aef7c13ab918ced7e5"
+        },
+        "request_expected_head": "14adabe39cadea8dc169eff025e788ab6df4d145",
+        "request_pin_count": 2780,
+        "request_source_freeze": "complete materialized src/polisyos .py pre/post pins plus affected tests and configs; no global E02 freeze",
+        "actual_results": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/actual-results.json",
+          "sha256": "b4e9663d090abf8877e086a027a7d084afb47eb7c5a3299d5ef125c10294545a"
+        },
+        "head_after": "14adabe39cadea8dc169eff025e788ab6df4d145",
+        "source_paths_unchanged_during_run": true,
+        "actual_module_origins": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/actual-module-origins.json",
+          "sha256": "db543da746f26ad9b8b52abd9ceb1ffed9e711517c4a54ec6800fa75695ff8d5"
+        },
+        "actual_origin_helper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/actual_origin.py",
+          "sha256": "e7855aacd754a7b2c9793c056ab26c03d48af2f45c3c38be5db67b6332c92d80"
+        },
+        "origin_summary": {
+          "observed_module_count": 1159,
+          "outside_or_unpinned_count": 0,
+          "required_missing": [],
+          "actual_canonical_source": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/b190.junit.xml",
+          "sha256": "ceba5d3f1ded7f529d651d6e2d27c568a43ee1a59ba6c9d6d1e9fabd22af7bd4"
+        },
+        "totals": {
+          "tests": 100,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0,
+          "warnings": 0
+        },
+        "failures": [
+          {
+            "classname": "tests.unit.foundry.calibration.test_identifiability_response_basis",
+            "name": "test_actual_fresh_child_reads_persisted_native_basis",
+            "message": "AssertionError: Traceback (most recent call last):\n    File \"<string>\", line 19, in <module>\n      from polisyos.foundry.calibration.identifiability import _load_execute_response_matrix, IdentifiabilityDiagnosticConfig\n    File \"/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/foundry/calibration/__init__.py\", line 30, in <module>\n      from .identifiability import (\n      ...<13 lines>...\n      )\n    File \"<frozen importlib._bootstrap>\", line 1371, in _find_and_load\n    File \"<frozen importlib._bootstrap>\", line 1342, in _find_and_load_unlocked\n    File \"<frozen importlib._bootstrap>\", line 938, in _load_unlocked\n    File \"<frozen importlib._bootstrap_external>\", line 755, in exec_module\n    File \"<frozen importlib._bootstrap_external>\", line 892, in get_code\n    File \"<frozen importlib._bootstrap_external>\", line 950, in get_data\n  FileNotFoundError: [Errno 2] No such file or directory: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/foundry/calibration/identifiability.py'\n  \nassert 1 == 0\n +  where 1 = CompletedProcess(args=['/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/b...dex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/unit/foundry/calibration/identifiability.py\\'\\n').returncode",
+            "detail_excerpt": "tests/unit/foundry/calibration/test_identifiability_response_basis.py:821: in test_actual_fresh_child_reads_persisted_native_basis\n    assert result.returncode == 0, result.stdout + result.stderr\nE   AssertionError: Traceback (most recent call last):\nE       File \"<string>\", line 19, in <module>\nE         from polisyos.foundry.calibration.identifiability import _load_execute_response_matrix, IdentifiabilityDiagnosticConfig\nE       File \"/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/foundry/calibration/__init__.py\", line 30, in <module>\nE         from .identifiability import (\nE         ...<13 lines>...\nE         )\nE       File \"<frozen importlib._bootstrap>\", line 1371, in _find_and_load\nE       File \"<frozen importlib._bootstrap>\", line 1342, in _find_and_load_unlocked\nE       File \"<frozen importlib._bootstrap>\", line 938, in _load_"
+          }
+        ],
+        "pytest_summary_line": "1 failed, 99 passed in 122.39s (0:02:02)",
+        "head_tree_origin_reconciliation": {
+          "method": "Read-only SHA-256 comparison of every actual observed module path/bytes to Git tree blobs at exact run head; no repository writes.",
+          "exact_run_head": "14adabe39cadea8dc169eff025e788ab6df4d145",
+          "observed_modules_matching_head": 1159,
+          "observed_modules_from_named_postimages": 0,
+          "observed_modules_not_in_exact_head_tree": 0,
+          "scope_note": "All 1,159 loaded module origins match this exact commit tree; this is scoped run provenance, not a global E02 source freeze."
+        },
+        "failure_classification": {
+          "test": "tests.unit.foundry.calibration.test_identifiability_response_basis::test_actual_fresh_child_reads_persisted_native_basis",
+          "observed": "Fresh child import raised FileNotFoundError for policy-engine/tests/unit/foundry/calibration/identifiability.py.",
+          "classification": "Unresolved test/import-harness failure for this pre-companion run; do not merge with the later focused pass or call it inherited."
+        }
+      },
+      "result": "Partial: 99 passed, 1 failed; full suite is not green."
+    },
+    {
+      "question": "Does the corrected fresh-child import execute canonical parent/child origins and recompute a response?",
+      "evidence": {
+        "name": "post-companion exact fresh-child canonical replay R2",
+        "command": {
+          "record": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-r2-20261017/actual-canonical-fresh-child.run.json",
+            "sha256": "7d35584864a19907e78b378e639e6bf8e8d493bf620ecaf69273e2ed54935eb4"
+          },
+          "label": "actual-canonical-fresh-child",
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "--import-mode=importlib",
+            "-q",
+            "-s",
+            "-p",
+            "actual_origin",
+            "tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_actual_fresh_child_reads_persisted_native_basis",
+            "--tb=short",
+            "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-r2-20261017/pytest-tmp",
+            "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-r2-20261017/b190-child.junit.xml"
+          ],
+          "timeout_seconds": 90,
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 16.798,
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-r2-20261017/actual-canonical-fresh-child.stdout.txt",
+            "sha256": "bc58ea4077ce44f3caebd011acc67718c427973ae9c5f8000e0399ec2926f79f"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-r2-20261017/actual-canonical-fresh-child.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        "request": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-r2-20261017/request.json",
+          "sha256": "40127f7df042b6839dd158881c0e3b56ae0b52e9e892209b63cc1f0c9864b9ab"
+        },
+        "request_expected_head": "1229425d577e76f6af53ba34f416fda3fd25a829",
+        "request_pin_count": 2775,
+        "request_source_freeze": "bounded actual fresh child test, allmaterializedpolisyos.py pre/post pinned; no global E02 freeze",
+        "actual_results": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-r2-20261017/actual-results.json",
+          "sha256": "17a4b2471b43c48a10da53be19a42eb8dc440cbd12e34f46022f8643a3e88dcd"
+        },
+        "head_after": "1229425d577e76f6af53ba34f416fda3fd25a829",
+        "source_paths_unchanged_during_run": true,
+        "actual_module_origins": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-r2-20261017/actual-module-origins.json",
+          "sha256": "5dc6fecb49756c802b13112778176550ea945439e940d956f92738ab9a4c9e7f"
+        },
+        "actual_origin_helper": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-r2-20261017/actual_origin.py",
+          "sha256": "e7855aacd754a7b2c9793c056ab26c03d48af2f45c3c38be5db67b6332c92d80"
+        },
+        "origin_summary": {
+          "observed_module_count": 966,
+          "outside_or_unpinned_count": 0,
+          "required_missing": [],
+          "actual_canonical_source": true
+        },
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-r2-20261017/b190-child.junit.xml",
+          "sha256": "f7af7077fcbeecdaec0cac564ceecf25f4ece547d61b1ce2df9644471e5d26a6"
+        },
+        "totals": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "warnings": 0
+        },
+        "failures": [],
+        "pytest_summary_line": "1 passed in 13.97s.",
+        "head_tree_origin_reconciliation": {
+          "method": "Read-only SHA-256 comparison of every actual observed module path/bytes to Git tree blobs at exact run head; no repository writes.",
+          "exact_run_head": "1229425d577e76f6af53ba34f416fda3fd25a829",
+          "observed_modules_matching_head": 966,
+          "observed_modules_from_named_postimages": 0,
+          "observed_modules_not_in_exact_head_tree": 0
+        },
+        "semantic_witness": {
+          "fresh_child_imports": [
+            "polisyos",
+            "polisyos.foundry",
+            "polisyos.foundry.calibration",
+            "polisyos.foundry.execute",
+            "polisyos.foundry.execute.api",
+            "polisyos.foundry.calibration.identifiability"
+          ],
+          "response_profile": "execute_scalar_state_response_v1",
+          "parameter": "tax.rate",
+          "jacobian": [
+            [
+              4.0000000000000036
+            ]
+          ],
+          "gate_eligible": false,
+          "interpretation": "Bounded actual executed-model witness with source origins; it does not assert policy gate eligibility or close the full B190 criterion."
+        }
+      },
+      "result": "Pass for this one bounded fresh-child test; response is gate-ineligible."
+    },
+    {
+      "question": "Is the composed 100-test suite green after the child-origin companion?",
+      "evidence": null,
+      "result": "UNRUN. Do not combine the pre-child 99+1 with the post-child focused 1-pass result."
+    }
+  ],
+  "verification_outputs": {
+    "ruff_check": {
+      "record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/canonical-ruff-check.run.json",
+        "sha256": "4196115d3863bdef03820e33f4aa6873a170ef68497b9a93b7012de91c7cbdd4"
+      },
+      "label": "canonical-ruff-check",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/src/polisyos/foundry/execute/api.py",
+        "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+        "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+        "policy-engine/src/polisyos/foundry/_quickstart.py",
+        "policy-engine/tests/unit/foundry/runtime/test_executor_runtime_semantics.py",
+        "policy-engine/tests/unit/foundry/runtime/test_execute_feedback.py",
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+        "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py"
+      ],
+      "timeout_seconds": 60,
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 0.084,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/canonical-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/canonical-ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "ruff_format_check": {
+      "record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/canonical-ruff-format.run.json",
+        "sha256": "9bfe25bb29bcd0110d77bbc0adb67a3862f915371a70578c8587a31b4f2655e2"
+      },
+      "label": "canonical-ruff-format",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/src/polisyos/foundry/execute/api.py",
+        "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+        "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+        "policy-engine/src/polisyos/foundry/_quickstart.py",
+        "policy-engine/tests/unit/foundry/runtime/test_executor_runtime_semantics.py",
+        "policy-engine/tests/unit/foundry/runtime/test_execute_feedback.py",
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+        "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py"
+      ],
+      "timeout_seconds": 60,
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 0.082,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/canonical-ruff-format.stdout.txt",
+        "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/canonical-ruff-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "selected_mypy": {
+      "record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/selected-mypy.run.json",
+        "sha256": "619158a9dea8f566f19a8efde10b4fa35b0ec917ce6173e89898e8f83399e591"
+      },
+      "label": "selected-mypy",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.devx.workspace.core_runtime_mypy",
+        "src/polisyos/foundry/calibration/identifiability.py",
+        "src/polisyos/scientist/methods/search/uncertainty.py"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 9.729,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/selected-mypy.stdout.txt",
+        "sha256": "d8bf72a33cee9a7f8fd1c0697b31fab9055a6b4cb0f2057a87ed0acd0904f5e6"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-actual-canonical-20261016/selected-mypy.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "post_companion_child_ruff_check": {
+      "record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/canonical-ruff-check.run.json",
+        "sha256": "aec79c4a0ab2dcda9a215fd8c395d148f5607d67743cb7aa88c85509b6b2672a"
+      },
+      "label": "canonical-ruff-check",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py"
+      ],
+      "timeout_seconds": 60,
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 0.087,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/canonical-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/canonical-ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "post_companion_child_ruff_format_check": {
+      "record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/canonical-ruff-format.run.json",
+        "sha256": "64ddd7be52b7183a869fa260befe0cc54b7c406b27041566f0da7f7ecd093d87"
+      },
+      "label": "canonical-ruff-format",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py"
+      ],
+      "timeout_seconds": 60,
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 0.047,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/canonical-ruff-format.stdout.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/canonical-ruff-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "historical_nonreceipt": {
+    "name": "first focused child-origin attempt (runner nonreceipt)",
+    "command": {
+      "record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/actual-canonical-fresh-child.run.json",
+        "sha256": "8b7f360ecd41a4bcfa84545c2c76db5ea798a188f6a2af5fb4abf3b31a4d0934"
+      },
+      "label": "actual-canonical-fresh-child",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-q",
+        "-s",
+        "-p",
+        "actual_origin",
+        "tests/unit/foundry/calibration/test_identifiability_response_basis.py::test_actual_fresh_child_reads_persisted_native_basis",
+        "--tb=short",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/pytest-tmp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/b190-child.junit.xml"
+      ],
+      "timeout_seconds": 90,
+      "exit_code": 1,
+      "timed_out": false,
+      "seconds": 18.327,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/actual-canonical-fresh-child.stdout.txt",
+        "sha256": "1160a4fc8bf5bcf6c19eef71ecb439cecbdde63fd23a503364f5389ff1302f31"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/actual-canonical-fresh-child.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/request.json",
+      "sha256": "0dc27e982b3ffb19ed52614855cd101a8dba31377ee2cc1fb4b730c292755354"
+    },
+    "request_expected_head": "1229425d577e76f6af53ba34f416fda3fd25a829",
+    "request_pin_count": 2775,
+    "request_source_freeze": "bounded actual fresh child test, allmaterializedpolisyos.py pre/post pinned; no global E02 freeze",
+    "actual_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/actual-results.json",
+      "sha256": "77d8939a58d25a4f8e736c4416c4e002115448a1a615106b6f862faa3b8ded40"
+    },
+    "head_after": "1229425d577e76f6af53ba34f416fda3fd25a829",
+    "source_paths_unchanged_during_run": true,
+    "actual_module_origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/actual-module-origins.json",
+      "sha256": "cd6249a086b7ada0884693b41b9b3429304bc5781fbc8b7db966d5bdbe49f479"
+    },
+    "actual_origin_helper": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/actual_origin.py",
+      "sha256": "e7855aacd754a7b2c9793c056ab26c03d48af2f45c3c38be5db67b6332c92d80"
+    },
+    "origin_summary": {
+      "observed_module_count": 966,
+      "outside_or_unpinned_count": 0,
+      "required_missing": [
+        "polisyos.foundry._quickstart"
+      ],
+      "actual_canonical_source": false
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b190-child-origin-actual-20261017/b190-child.junit.xml",
+      "sha256": "aa2dcc9e5ad45b76f6c45f8b1a4b42f90ad59826c257fafa1c3aa4636327201f"
+    },
+    "totals": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "warnings": 0
+    },
+    "failures": [],
+    "pytest_summary_line": "1 passed in 15.19s; top-level runner exit code is 1.",
+    "runner_nonreceipt_reason": {
+      "classification": "Harness nonreceipt, not a product failure: the origin plugin required an unentered quickstart module.",
+      "required_imports": [
+        "polisyos.foundry.execute.api",
+        "polisyos.foundry.calibration.identifiability",
+        "polisyos.foundry._quickstart"
+      ],
+      "required_missing": [
+        "polisyos.foundry._quickstart"
+      ],
+      "result": "The test child returned code 0, but the wrapper exited 1; the R2 request names the six imports actually exercised."
+    }
+  },
+  "independent_review_context": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-execution-basis-independent-review-20261016/review.md",
+      "sha256": "bc10374c23ad3270724152059c6980d6ff0c1358cfa477abdb589e6fa3f6b5af"
+    },
+    "prior_disposition": "HOLD for adoption as then described; bounded selected response_slots route passed, but reviewer found an unadmitted source-basis reference and a profileless sibling metric-summary replay path.",
+    "scope_note": "That review was against an earlier frozen candidate; this receipt does not claim an independent post-adoption semantic re-review or resolve every prior hold solely by adjacency."
+  },
+  "proposal_and_limits": {
+    "disposition": "Bounded actual-runtime evidence only; preserve the existing held/verification_missing state until root reconciles the pre-child failure and a full exact post-child composed replay.",
+    "no_external_issuer_requirement_added": true,
+    "not_established": [
+      "full B190 closure",
+      "global E02 source freeze",
+      "full post-child four-suite replay",
+      "policy authority or gate eligibility",
+      "production-node or full Monte Carlo report"
+    ],
+    "raw_evidence_availability": "Local ignored RAW only; not exported or committed by this preparation.",
+    "current_root_context_as_supplied_by_root": {
+      "head_prefix": "0f5e647",
+      "note": "Root reports 11 later path changes were refused elsewhere; they are outside these historical source cuts and are not adopted by this receipt."
+    }
+  },
+  "index_append_proposal": {
+    "target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+    "operation": "After review, append this receipt as a component receipt with its post-readback SHA; no index write is part of this preparation."
+  }
+}

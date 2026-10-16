@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "4648e3d184b67cb82108ca1bf1d0a10299fa2130",
-    "tree": "fb1249beeb1919d12520a2138ad7666d4cf180c8",
+    "head": "0f5e647063c8dd0b0b5fbc59b044ec9dc015484e",
+    "tree": "c049b298f20694781ded44fe977b6bfeefae9d06",
     "parents": [
-      "2449a9de36290d8f44f569a507afc35303d10be4"
+      "1229425d577e76f6af53ba34f416fda3fd25a829"
     ],
     "source_freeze": false,
-    "dirty_active_source": "R9 test companion4648 actual8PASS/Ruff2PASS and canonical77origins; full gate still unresolved. B19014ad actual99PASS1fresh-child-testFAIL (normal-import companion in review); Legal2449 source adopted, canonical root Ruff companion before actual replay; GL/N4/C05/refusal/LA036 ongoing. Known original GL/Lex postimages preserved."
+    "dirty_active_source": "B190 source14ad + child122 delivered with separate99PASS/1FAIL original and1PASS child receipts; post-child100-test composed waveUNRUN. Legal2449 + canonicalstylec27 actual52PASS/Ruff9PASS, strictMyPy33distinctdiagnostics across3modules remainsRED; no authority/currentness claim. Selected refusal0f5 actual165PASS/Ruff8, receipt pending; NLselected-CAS-inline precedence repair in RAW. GL/N4/C05/LA036/Legaltyping ongoing; knownoriginalGL/Lex postimages preserved."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -435,6 +435,14 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r9-behavioral-test-companion-current-candidate-delivery-20261017.json",
       "sha256": "556fd33c8e40624895acbdd16f98ebd2d88e8be60db3a9a42860dbc27f38e741"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b190-execution-source-admission-current-candidate-delivery-20261017.json",
+      "sha256": "ffe881fa79695b5b4abc97f54042b636b6b271bc5b7e28f3c4346b2b07dac8eb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/legal-discovery-current-candidate-delivery-20261017.json",
+      "sha256": "08507cecc675b9b2a1b5e0225b6486b8b7580d87c15d08406895787c5bcf230a"
     }
   ],
   "canonical_denominator_recomputed": {

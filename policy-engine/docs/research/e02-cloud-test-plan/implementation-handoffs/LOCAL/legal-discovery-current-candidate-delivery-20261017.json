@@ -1,0 +1,380 @@
+{
+  "schema": "policyos.e02.component_delivery_evidence_proposal.v1",
+  "record_type": "bounded source-and-runtime evidence receipt proposal; no G adjudication or formal closure",
+  "unit": "LOCAL",
+  "slice": "E02 Legal threshold candidate discovery and bounded serving consumers",
+  "prepared_at_local_date": "2026-10-17",
+  "status": {
+    "global_source_freeze": false,
+    "formal_G_acceptance": null,
+    "closure_ids": [],
+    "formal_G_closure_ids": []
+  },
+  "source_commits": [
+    {
+      "sha": "2449a9de36290d8f44f569a507afc35303d10be4",
+      "tree": "8cbcc28c194e447ae72a3f5b5ed3c595ee30d9c9",
+      "parents": [
+        "14adabe39cadea8dc169eff025e788ab6df4d145"
+      ],
+      "subject": "fix(runtime): wire source-bound Legal candidates through discovery consumers",
+      "changed_path_count": 12,
+      "changed_paths_sha256": {
+        "policy-engine/src/polisyos/runtime/quality/capability_index.py": "63d945092a3f91d1ac6940cf26aa4f86ffd2f0eedfe6e3dd614df40f65dc293f",
+        "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py": "72a28ef670fe3044b07c49f8fe7872ad57980b690669aec196322a7b8674601b",
+        "policy-engine/src/polisyos/runtime/quality/capability_discovery.py": "167e9e8c45b3fce7d3c3ef1a518967c403226a1a32f701e5ea7de368a7d9b8f0",
+        "policy-engine/src/polisyos/runtime/http/services/control_registry_providers.py": "00f3a2630d4243bc98a3467886daac2e48cae4529d38a9eff9459592e84494cb",
+        "policy-engine/tests/unit/runtime/quality/test_capability_discovery.py": "15fc7708fec18190476790a65d0c33b7d219e36d9381d5ceedcf2ed765975777",
+        "policy-engine/tests/unit/runtime/quality/test_capability_index_compiler.py": "5c2dab4953025b9be75d1e578a98f50dbcc29e3f9932c579e0bcc447293264f8",
+        "policy-engine/tests/integration/runtime/test_legal_candidate_discovery.py": "8072055b70d34d08caebf5578cab794d658aa1f7eb4746f0423dd47267c6b85b",
+        "policy-engine/tests/integration/runtime_frontend/test_capability_discovery_free_growth.py": "08a205033c930a7793eb9dba1216b5ad3cea8f608ab48771837251a9da38b7ab",
+        "policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py": "8d1ecc973a0b02942a0815368ce8f0b7b0c26046c59097d0928001902922d665",
+        "policy-engine/src/polisyos/runtime/quality/README.md": "dedbe59b8fcc7ffc6d65192562d1c6d3f6b61a993f54302e5a395dec30c68056",
+        "policy-engine/release-fragments/unreleased/2026-10-16-e02-legal-threshold-candidate-discovery-r2.toml": "009c381d5391d5f3ab69d5779411b787a4a1e6f0c2979182cab8b50ab2449f4e",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "9ec86cc004296ec60928312e5adf92f8152c7c456d2c74f85617e702a95b5612"
+      },
+      "readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-r3-r7-adoption-20261016/legal-discovery-source-readback.json",
+        "sha256": "183be07d3c6c4a7ee1a3cf0e0ae55b09b3ba3df4bd0d365d624a5873ed1102ec"
+      }
+    },
+    {
+      "sha": "c27ac9c23483041947766f515c0aa6024144d695",
+      "tree": "61ee58d33f7d7ec65e5061a1a8b332802b1352eb",
+      "parents": [
+        "c55325dbd1c62eceea8d4b88047c5f553edd4479"
+      ],
+      "subject": "style(runtime): apply canonical root Ruff policy to Legal discovery slice",
+      "changed_path_count": 9,
+      "changed_paths_sha256": {
+        "policy-engine/src/polisyos/runtime/quality/capability_index.py": "c15a8d919aa6b803649db6a77339b3b73b9f1544b070de229a65792e2f3675e5",
+        "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py": "117e957d35e92621c5283d48e90e94b5856c5a69e538db7c2c379a88bc849169",
+        "policy-engine/src/polisyos/runtime/quality/capability_discovery.py": "ecc598f29f4a221f9b2fc2a2eaa9a3384a8930454b0e5faa4266593aac9a6479",
+        "policy-engine/src/polisyos/runtime/http/services/control_registry_providers.py": "9865e36378dbc20c0125bc5eb30fcefc80b48485051648b69ea450ed4d30225f",
+        "policy-engine/tests/unit/runtime/quality/test_capability_discovery.py": "2e52c895655da8a09bc4898a62619eecf13118ac8d862a63943e4919d00e17c7",
+        "policy-engine/tests/unit/runtime/quality/test_capability_index_compiler.py": "77f10328b9b9405ae6f74655a99395fec0400b5c6a35802313ccd436c60ec8e3",
+        "policy-engine/tests/integration/runtime/test_legal_candidate_discovery.py": "be9e771f3c27f88aad753536dc079666d65db708632e7b33c76f571666331f8b",
+        "policy-engine/tests/integration/runtime_frontend/test_capability_discovery_free_growth.py": "41e75ae9f2e12e8495950ff8ca96f2ed2192cc7bd119c18d96c926a44cdc8ba8",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "899999e62a46912aaff67860505be3fbd13e55cc94a7db69f39ff3fb4add2099"
+      },
+      "readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-canonical-ruff-companion-20261017/legal-canonical-ruff-readback.json",
+        "sha256": "cffbf2a3812c00a3a99c7b88933bdd5705c29ee1803afd4f809f900009bc619a"
+      }
+    }
+  ],
+  "bounded_property": "Compile selected source-bound Legal threshold candidates into a persisted candidate-only snapshot, route them through the existing runtime owner/provider and search consumer, and preserve verification-missing/non-authoritative status when owner facts are absent or unsupported.",
+  "prior_independent_review": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-discovery-r2-independent-review-20261016/review.md",
+      "sha256": "f7b22d577b728121665d38ee8a1f4dd24d1c3321bd2565355d9185069f1f21d3"
+    },
+    "review_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-discovery-r2-independent-review-20261016/receipt.json",
+      "sha256": "8a68d600e6108f4cdb30e018111b8eb23fb3c2616d5d2c63f88598ef834e7577"
+    },
+    "candidate_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-discovery-candidate-bridge-r2-20261016/final-handoff-manifest.json",
+      "sha256": "463301d471d5bb3119c53aab6ba56d7bd52e53a2a80bb29403cd22859d326255"
+    },
+    "candidate_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-discovery-candidate-bridge-r2-20261016/candidate-final4.patch",
+      "sha256": "316c3c417bf3f4d7e914eb4d85bc072f5ae110eaf49b21684aa4cc7c843e11eb"
+    },
+    "candidate_patch_sha256_recorded_in_review": "316c3c417bf3f4d7e914eb4d85bc072f5ae110eaf49b21684aa4cc7c843e11eb",
+    "disposition": "GO for the local candidate integration step only; not G acceptance or formal E02 closure.",
+    "behavioral_evidence": [
+      {
+        "claim": "Candidate replay and mutation controls on the then-frozen R2/R3 candidate.",
+        "result": "43/43 candidate tests passed through an import-time candidate finder; review covers selected source rows, persisted reader recomputation, candidate/verified-owner separation, content/removal/context controls and zero-row persistence.",
+        "output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-discovery-r2-independent-review-20261016/evidence/candidate-43-import-finder-final-review.stdout.txt",
+          "sha256": "aa3942651decb2923a0db5afa43efc34aa9cfe90f58f6a963a3584df8ad985fa"
+        }
+      },
+      {
+        "claim": "Default runtime registration and actual HTTP route.",
+        "result": "One independently-authored controlled source-bound fixture passed without provider overrides through RuntimeContainer and POST /api/v1/control/capabilities/search; response stayed candidate-only with no authority.",
+        "output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-discovery-r2-independent-review-20261016/evidence/default-runtime-http-route-final-review.stdout.txt",
+          "sha256": "fc59053d7446540479fc5686745d074f1228693358ba5bbaf2722f43cfd892e5"
+        }
+      }
+    ],
+    "review_boundary": "The independent review predates adopted 2449/c27 source composition and is not inherited as current post-adoption acceptance. Current actual run below binds those adopted paths.",
+    "prior_adjacent_http_scope_note": "Earlier review recorded a 4/5 owner-context fixture red in its then-adjacent HTTP run and did not classify it as P41 inherited. The newer 52-test replay includes test_capability_search_persists_exact_returned_packet and that testcase passes; this does not imply production tenant-data coverage."
+  },
+  "actual_adopted_composition": {
+    "name": "canonical five-module Legal discovery/consumer replay",
+    "command": {
+      "record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/actual-five-modules-http-and-ui.run.json",
+        "sha256": "69ed41b630875c2a51f4cdcc6776eb409ede763ac72fc7277560c3c886e8c16a"
+      },
+      "label": "actual-five-modules-http-and-ui",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-q",
+        "-p",
+        "actual_origin",
+        "tests/unit/runtime/quality/test_capability_discovery.py",
+        "tests/unit/runtime/quality/test_capability_index_compiler.py",
+        "tests/integration/runtime/test_legal_candidate_discovery.py",
+        "tests/integration/runtime_frontend/test_capability_discovery_free_growth.py",
+        "tests/unit/runtime/http/test_capability_discovery_api.py",
+        "--tb=short",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/pytest-tmp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/legal.junit.xml"
+      ],
+      "timeout_seconds": 300,
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 80.314,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/actual-five-modules-http-and-ui.stdout.txt",
+        "sha256": "043a55abfcf386379329b76bb5e375ef7e760229afa3f7499a94a4dab15f0053"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/actual-five-modules-http-and-ui.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/request.json",
+      "sha256": "84b8c478214b248aab8086dce355f64eb84803b6694354ffa8c81c5d5c955cf8"
+    },
+    "request_expected_head": "c27ac9c23483041947766f515c0aa6024144d695",
+    "request_pin_count": 3983,
+    "request_source_freeze": "all materialized polisyos Python plus dashboard src, selected tests/configs; known GL/Lex postimages attributed; no global E02 freeze",
+    "actual_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/actual-results.json",
+      "sha256": "2c39c948b8c6c5f606d03b6b0319029d4d4eb77babad657ef4f6cc29aa4ce9be"
+    },
+    "head_after": "c27ac9c23483041947766f515c0aa6024144d695",
+    "source_paths_unchanged_during_run": true,
+    "actual_module_origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/actual-module-origins.json",
+      "sha256": "c580eeb17fbd75974a750f6972127940dcc5f0e057fdc8b2f9da2499c34d7f49"
+    },
+    "actual_origin_helper": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/actual_origin.py",
+      "sha256": "e7855aacd754a7b2c9793c056ab26c03d48af2f45c3c38be5db67b6332c92d80"
+    },
+    "origin_summary": {
+      "observed_module_count": 1758,
+      "outside_or_unpinned_count": 0,
+      "required_missing": [],
+      "actual_canonical_source": true
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/legal.junit.xml",
+      "sha256": "42e55bae7f8ff36d10d388d665ab26ec935fbd907b2fdb5cf9ba6d039bce239b"
+    },
+    "failures": [],
+    "pytest_summary_line": "52 passed, 2 warnings in 58.70s; wrapper elapsed 80.314s.",
+    "selected_source_denominators": {
+      "materialized_polisyos_python": 2771,
+      "dashboard_src_files": 1197,
+      "all_explicit_pins": 3983
+    },
+    "head_tree_origin_reconciliation": {
+      "method": "Read-only SHA-256 comparison of each actual observed module path/bytes to exact run-head Git tree plus commit-pinned lease postimage records; no repository writes.",
+      "exact_run_head": "c27ac9c23483041947766f515c0aa6024144d695",
+      "observed_modules_matching_head": 1756,
+      "observed_modules_from_named_owned_postimages": 2,
+      "observed_modules_not_in_exact_head_tree": 0,
+      "outside_or_unpinned_count": 0,
+      "required_missing_count": 0,
+      "actual_canonical_source": true,
+      "lease_snapshot": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "sha256_at_c27": "899999e62a46912aaff67860505be3fbd13e55cc94a7db69f39ff3fb4add2099",
+        "source": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-canonical-ruff-companion-20261017/legal-canonical-ruff-readback.json",
+          "sha256": "cffbf2a3812c00a3a99c7b88933bdd5705c29ee1803afd4f809f900009bc619a"
+        }
+      },
+      "named_postimages": [
+        {
+          "path": "policy-engine/src/polisyos/lex/__init__.py",
+          "observed_live_sha256": "5e9e2b3659fa5494e2b93bbc47de4e554e576284ea0ea053e3163fa560dfbf94",
+          "exact_head_blob_sha256": "d2dcdde45c1b1b54fb5f8aa85db4036d9676aed1d1009ed0c2cfedd92271ae70",
+          "lease_pointer": "/coordination_epoch_20261016_direct_write_attributed/files/6"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+          "observed_live_sha256": "a39d43b9bda4403f930c28927456c46081736760f65f9656eff2b8db7f4111cf",
+          "exact_head_blob_sha256": "485eb76804be71a6915152ea6d99d30607c488ae4ad6a004b71265fa71ae2f49",
+          "lease_pointer": "/coordination_epoch_20261016_direct_write_attributed/files/7"
+        }
+      ],
+      "scope_note": "The two postimages are exact path+byte records in the LEASES.json version pinned by c27; all other 1,756 observed module origins match c27. No bare-commit or global-freeze claim is made."
+    },
+    "junit_totals": {
+      "tests": 52,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "warnings": 0
+    },
+    "pytest_warning_count": 2,
+    "junit_totals_note": "JUnit suite/test/failure/error/skipped counts; pytest warning count is recorded separately from the captured pytest summary line."
+  },
+  "additional_quality_checks": {
+    "ruff_check": {
+      "record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/canonical-ruff-check.run.json",
+        "sha256": "cb390e7690bb2480ae020176a4dbae3e47e7149b3a147bf51309fae034597fc5"
+      },
+      "label": "canonical-ruff-check",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/src/polisyos/runtime/quality/capability_index.py",
+        "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py",
+        "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+        "policy-engine/src/polisyos/runtime/http/services/control_registry_providers.py",
+        "policy-engine/tests/unit/runtime/quality/test_capability_discovery.py",
+        "policy-engine/tests/unit/runtime/quality/test_capability_index_compiler.py",
+        "policy-engine/tests/integration/runtime/test_legal_candidate_discovery.py",
+        "policy-engine/tests/integration/runtime_frontend/test_capability_discovery_free_growth.py",
+        "policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py"
+      ],
+      "timeout_seconds": 60,
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 0.082,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/canonical-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/canonical-ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "ruff_format_check": {
+      "record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/canonical-ruff-format.run.json",
+        "sha256": "4503560f5238c9472fbd7f38af5165bb6d673ef696ee663d5ac0f18de00e3b0c"
+      },
+      "label": "canonical-ruff-format",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/src/polisyos/runtime/quality/capability_index.py",
+        "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py",
+        "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+        "policy-engine/src/polisyos/runtime/http/services/control_registry_providers.py",
+        "policy-engine/tests/unit/runtime/quality/test_capability_discovery.py",
+        "policy-engine/tests/unit/runtime/quality/test_capability_index_compiler.py",
+        "policy-engine/tests/integration/runtime/test_legal_candidate_discovery.py",
+        "policy-engine/tests/integration/runtime_frontend/test_capability_discovery_free_growth.py",
+        "policy-engine/tests/unit/runtime/http/test_capability_discovery_api.py"
+      ],
+      "timeout_seconds": 60,
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 0.086,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/canonical-ruff-format.stdout.txt",
+        "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/canonical-ruff-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "strict_mypy": {
+      "record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/selected-mypy.run.json",
+        "sha256": "da00fef03b04eebeb974f20c7663a4de1fe306f411a0b62edb0a467c5a54a5a7"
+      },
+      "label": "selected-mypy",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.devx.workspace.core_runtime_mypy",
+        "src/polisyos/runtime/quality/capability_index.py",
+        "src/polisyos/runtime/quality/capability_index_compiler.py",
+        "src/polisyos/runtime/quality/capability_discovery.py",
+        "src/polisyos/runtime/http/services/control_registry_providers.py"
+      ],
+      "timeout_seconds": 180,
+      "exit_code": 1,
+      "timed_out": false,
+      "seconds": 52.147,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/selected-mypy.stdout.txt",
+        "sha256": "e1a8e70c1f5de7da3b0abfb8c7f57cef15ade0780dc78d4a17f46345a9644cfa"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-discovery-actual-canonical-20261017/selected-mypy.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "diagnostic_counts_from_full_stdout": {
+        "raw_error_lines": 41,
+        "distinct_full_diagnostic_lines": 33,
+        "distinct_file_line_sites": 29,
+        "modules_with_errors": [
+          "src/polisyos/runtime/quality/capability_discovery.py",
+          "src/polisyos/runtime/quality/capability_index.py",
+          "src/polisyos/runtime/quality/capability_index_compiler.py"
+        ]
+      },
+      "interpretation": "The final per-file subsection says “Found 14 errors in 2 files (checked 1 source file)”; that is not the whole four-file invocation total. The same full stdout ends “Strict mypy failed for 3 file(s).”"
+    },
+    "strict_mypy_ownership": "Current strict-check red is recorded against the adopted Legal source slice. This receipt has no exact slice-base mypy replay/zero-intersection proof, so it does not label the red inherited or independently establish its introduction point (P41)."
+  },
+  "consumer_scope": {
+    "tested_chain": "HTTP -> CAS persistence/read -> fresh provider composition -> existing corepack pnpm Vitest DOM integration path.",
+    "not_established": [
+      "real browser automation",
+      "production Legal payload/currentness",
+      "issuer authority",
+      "positive legal authority",
+      "universal recall for arbitrary lex_fact_candidates"
+    ],
+    "fixture_scope": "Controlled synthetic Legal rows. Selected DuckDB is a read-only schema template; fixture generation copies empty table schemas only using SELECT * WHERE FALSE and does not read production rows.",
+    "selected_database_metadata_from_sealed_manifest": {
+      "path": "production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb",
+      "size_bytes": 19336278016,
+      "content_hash": null,
+      "role": "read-only schema template; test copies empty table schemas only via SELECT * WHERE FALSE, no production rows",
+      "manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-discovery-candidate-bridge-r2-20261016/final-handoff-manifest.json",
+        "sha256": "463301d471d5bb3119c53aab6ba56d7bd52e53a2a80bb29403cd22859d326255"
+      }
+    },
+    "owner_scope": "R7 owner-scope fixture rejects unscoped and foreign-owner access; a passing fixture proves that test boundary only, not production ownership custody."
+  },
+  "proposal_and_limits": {
+    "disposition": "Bounded component evidence supports local integration only. Keep formal status and all finding/occurrence history unchanged; no individual criterion ID is proposed because this receipt does not bind an exact Legal criterion span.",
+    "individual_ID_effect": "No individual ID proposed.",
+    "raw_evidence_availability": "Local ignored RAW only; not exported or committed by this preparation.",
+    "current_root_context_as_supplied_by_root": {
+      "head_prefix": "0f5e647",
+      "note": "Root reports 11 later path changes were refused elsewhere; they are outside these historical source cuts and are not adopted by this receipt."
+    },
+    "current_mypy_limitation": "Ruff and the 52-test replay pass; strict mypy fails. No type-pass or release-readiness claim is made. A separate typing author task is outside this receipt preparation.",
+    "production_database_boundary": "The frozen candidate manifest records a 19,336,278,016-byte DuckDB file with content_hash=null as a read-only schema template. No production row content or production-scale timing claim is made."
+  },
+  "index_append_proposal": {
+    "target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+    "operation": "After review, append this receipt as a component receipt with its post-readback SHA; no index write is part of this preparation."
+  }
+}

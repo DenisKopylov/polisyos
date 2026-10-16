@@ -1,0 +1,233 @@
+{
+  "record_type": "bounded_component_delivery_proposal",
+  "slice_bases": {
+    "runtime4": {
+      "sha": "2a496ab348ad3ad4b8c48ee45a5d8f4fb61354a9",
+      "tree": "b789f197fd5ed979f1d10852c2706d6a52334828"
+    },
+    "dev_typing_dependency": {
+      "sha": "47317575c39cef4f2db388beea400ee6405c9d75",
+      "manifest_lock_readme_bytes_unchanged_until_application": true
+    },
+    "actual_application_parent": "a06b4a8a3730470b49a47b22ba357d250ed11264"
+  },
+  "candidate": {
+    "sha": "ce2a88d4dbd842cb0ff74b2329c9d1780b656e9d",
+    "tree": "929d3e87a54ea257aa864fc88280c1bffc49cb4a",
+    "parents": [
+      "a06b4a8a3730470b49a47b22ba357d250ed11264"
+    ]
+  },
+  "full_code_test_config_companion_footprint": {
+    "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py": "bde50e71fe8a4488b665d72cc6ce686c9587565f8af05e140834a1cb202c5356",
+    "policy-engine/src/polisyos/runtime/quality/claim_registry.py": "a2f45ff090d7c0d954743cc2312f734325a85f64fc43516a20ea367e28daf512",
+    "policy-engine/src/polisyos/runtime/quality/semantic_binding.py": "21a10b4e6d741df391dee0eeb11dcad326bb62b84fd2e4a3bbb909b0651c8597",
+    "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py": "9d5aedfad51c83e666aa8fa263f6fdc49fd869d4a062ae2e18ee81e6a0a19213",
+    "policy-engine/tests/unit/runtime/quality/test_capability_index_compiler.py": "7941860966b98f493bbbb36123b873e73d863749efbc024da23077c3a902a9ef",
+    "policy-engine/tests/unit/runtime/quality/test_semantic_binding.py": "585b917ef2de616a0835c35124b3019eca1171942bbbc40c86617c2c88286eb0",
+    "policy-engine/src/polisyos/runtime/quality/README.md": "dc824558c4e375282a276166605f51c79506dc5f35425f4bc1095fc7ddc49803",
+    "policy-engine/release-fragments/unreleased/2026-10-16-e02-runtime-projection-typing-companions.toml": "4f97587a498a74531e29cb26e7fd659f453e9d06d015a4d52f440cd3af93a0ef",
+    "policy-engine/pyproject.toml": "2522afe7bbbe74b8df37dcf64cda247f244ef0ec073657bb5d9e1d7841b1efe7",
+    "policy-engine/uv.lock": "6b0157dd281cae2f1bb3c2af2bd2ea4353a99ca1fa2f0424df091f41fd0b8b9c",
+    "policy-engine/architecture/tooling/README.md": "dfe423330c64b38324620a42892f00c4da57949c0c48832ba00a63a569ad8302",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "a6de33992cd376821b5994fd67513ffc1c5ff2a46b594bf1ed812cadc12e62a2"
+  },
+  "selected_input_profile_backend": {
+    "python": "own macOS CPython3.14.3",
+    "lock_sha256": "6b0157dd281cae2f1bb3c2af2bd2ea4353a99ca1fa2f0424df091f41fd0b8b9c",
+    "pyarrow_runtime": "22.0.0",
+    "pyarrow_stubs": "20.0.0.20260819",
+    "stub_wheel_sha256": "297e60b6e5314739c082b4757d090d8be6047465510eb0684ca954ef7ea58be3",
+    "environment_records": {
+      "before": 252,
+      "after": 253,
+      "all_prior_distribution_versions_and_RECORD_hashes_equal": true,
+      "installed_only_verified_local_wheel_offline_no_deps": true
+    },
+    "lock_records": {
+      "before": 423,
+      "after": 424,
+      "old_nonroot_full_records_preserved": 422,
+      "root_records_changed_optional_metadata_only": 1,
+      "new_stub_record": 1,
+      "unique_package_names_before": 421,
+      "unique_package_names_after": 422,
+      "duplicate_pillow_and_regex_records_preserved": true
+    }
+  },
+  "real_chain": [
+    "Compiler actual fixture inputs produce persisted typed capability artifacts using declared construct_id with existing construct wire alias.",
+    "Semantic binding walks only concrete record variants that own binding_id; malformed present source facets raise typed SemanticBindingError rather than absence/default.",
+    "Actual ControlPlaneService MRO invokes Lex trigger, queued worker completion and durable admitted-scope diagnostic.",
+    "Whole existing Lex mixin module covers candidate/refusal/profile/GET paths separately.",
+    "Canonical per-file strict MyPy checks4selectedsource targets against actual DataForge/Lex facades and lockeddevstub profile.",
+    "Actual Arrow22 table\u2192Parquet\u2192metadata\u2192freshread equality and selected environment dependency check pass."
+  ],
+  "verification": {
+    "runtime_wave": {
+      "passed": 58,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "wall_seconds": 19.991,
+      "own_origins": 1699
+    },
+    "whole_lex_importer": {
+      "passed": 10,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "wall_seconds": 13.828,
+      "own_origins": 1712
+    },
+    "canonical_strict_mypy": {
+      "selected_files": 4,
+      "exit_code": 0,
+      "wall_seconds": 36.595,
+      "full_CoreRuntime_gate": false
+    },
+    "canonical_root_ruff": {
+      "files": 6,
+      "check": "PASS",
+      "format": "PASS"
+    },
+    "pyarrow_runtime_and_uv_pip_check": "PASS",
+    "loaded_source_contexts": {
+      "root-runtime4-pyarrow-profile-actual-20261016": {
+        "total_own_modules": 1699,
+        "matching_commit": 1698,
+        "owned_uncommitted_context": [
+          {
+            "module": "polisyos.lex",
+            "path": "policy-engine/src/polisyos/lex/__init__.py",
+            "sha256": "5e9e2b3659fa5494e2b93bbc47de4e554e576284ea0ea053e3163fa560dfbf94",
+            "committed_sha256": "d2dcdde45c1b1b54fb5f8aa85db4036d9676aed1d1009ed0c2cfedd92271ae70"
+          }
+        ],
+        "outside": {},
+        "missing_selected": [],
+        "wrong_selected": [],
+        "bare_whole_commit_replay": false
+      },
+      "root-runtime4-lex-importer-actual-20261016": {
+        "total_own_modules": 1712,
+        "matching_commit": 1711,
+        "owned_uncommitted_context": [
+          {
+            "module": "polisyos.lex",
+            "path": "policy-engine/src/polisyos/lex/__init__.py",
+            "sha256": "5e9e2b3659fa5494e2b93bbc47de4e554e576284ea0ea053e3163fa560dfbf94",
+            "committed_sha256": "d2dcdde45c1b1b54fb5f8aa85db4036d9676aed1d1009ed0c2cfedd92271ae70"
+          }
+        ],
+        "outside": {},
+        "missing_selected": [],
+        "wrong_selected": [],
+        "bare_whole_commit_replay": false
+      }
+    }
+  },
+  "adversarial_controls": [
+    "Malformed-present freshness/coverage/schema_compatibility values invoke real ledger builder and raise typed error; genuine missing fields remain absent.",
+    "Compiler declared constructors serialize by alias and roundtrip; realfixturecompiler produces persistedindex.",
+    "Original strictMyPy PyArrowuntyped/facade holes retained as historical diagnostics; selectedactualnew4sourcecommand green, no ignore/Any/baseline weakening.",
+    "Full-record multiset lock comparison preserves duplicates and all422oldnonrootrecords; initialrootname-keyedcountcheck superseded with retained root-checker error, not a product failure."
+  ],
+  "surface": "Existing internal runtime quality and Lex service paths; no DTO/wire/status enum/public facade names added. Selected stricttyping is not fullpublic inventory/native/installed acceptance.",
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-projection-typing-companions-20261016/immutable-manifest.json",
+      "sha256": "7d1239365555c1bd894978c2b6f1441bdbab4ec03db8a781b2ddf0596991dc36"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-typing-semantic-independent-oracle-20261016/runtime4-projection-candidate-review.md",
+      "sha256": "3aefc3d3d386c62c5991c96b175d7ae265dd941fd45eb5597850a0d53119be5a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime4-documentation-composition-r2-20261016/application-readback.json",
+      "sha256": "230218df52c8a03334418e969a2140c0633ba871ae9741a1e65351bb3924eb8d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pyarrow-typing-dependency-reuse-oracle-20261016/lock-candidate-r47317575.md",
+      "sha256": "93963d86d02309aca64d453ebde47a54befd7a4cb605956b9098fb3d09b09626"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pyarrow-dev-typing-lock-independent-review-20261016/review.md",
+      "sha256": "a070ae3a869dbc6769c7188492918fd700573e5681d7b0b14587a57adfefc559"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pyarrow-dev-typing-lock-independent-review-20261016/delta-review.md",
+      "sha256": "323e1c6916ca4a52f0fb225524ed09743d0e9ff913b227f48f87657424cafb22"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-pyarrow-dev-typing-application-20261016/full-lock-record-multiset-readback.json",
+      "sha256": "cb268ded00cd45fa8bb49180bb77569e2541821aa1b972f62f5a80a32faff19a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-pyarrow-dev-typing-application-20261016/application-readback.json",
+      "sha256": "f43734c7a4abbc817c892531be504799a0aff2af1060b6022beb8c67eddc8a28"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime4-pyarrow-profile-actual-20261016/request.json",
+      "sha256": "5c02be39b0fa1fb67bb467cd9d57046a298e822860123d74c2be6b28c4ea1299"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime4-pyarrow-profile-actual-20261016/actual-results.json",
+      "sha256": "d898d6a7f7a6a315d282980c50719cfdca8a755b79dde6d86fe0ac7d6cecc40a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime4-pyarrow-profile-actual-20261016/actual-loaded-source-origins.json",
+      "sha256": "e5e6ac15451ae0993a4263d732ec51f2bf7152c39eb69b2d6a63cb9dd8dc6f33"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime4-lex-importer-actual-20261016/request.json",
+      "sha256": "2cb18687deb0fa887bc790fbf3d5fe6cd494497932080b4673d2cc598e3cf7f3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime4-lex-importer-actual-20261016/actual-results.json",
+      "sha256": "9b7b665ed40b6255826290f44eaa84821a568e79942384a0fa9811afe04c7063"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime4-lex-importer-actual-20261016/actual-loaded-source-origins.json",
+      "sha256": "c9a635a1dee36a66d20106abf06d5d959575ae325543a7acd5f6aa0ee9ae8ed6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime4-pyarrow-code-boundary-20261016/runtime-projection-types-source-readback.json",
+      "sha256": "dc69bad08ebeb051ed135e7eb3329ffe9e83be467c0423cb5be6f49dc01d40cc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime4-pyarrow-code-boundary-20261016/loaded-context-vs-commit-readback.json",
+      "sha256": "5c5de91d8a31a69756ca7fcfafc41c42f61fbefe437070883df0848d086f25a5"
+    }
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P04",
+      "P05",
+      "P10",
+      "P29",
+      "P35",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "P40": "Typed constructor/record/facet/host boundaries repaired over declared class quantities; candidate/authority discovery conflation is separately owned and not leaf-waived.",
+    "P41": "Four current capability-discovery failures intersect3of6runtimefiles; not inherited. Fullfile/core/native greens not inferred from selected4MyPy."
+  },
+  "limitations": [
+    "Four current capability-discovery semantic failures remain a separate internal candidate/authority bridge repair, with sealed RAW prototype under independentreview; not classified inherited.",
+    "Malformed source-facet error identifies field but does not carry source_ref and aborts before ledger issue persistence; no richer provenance claim.",
+    "Third-party20seriesstubs bounded to exercisedArrow22calls; fullArrow22/Python3.14stubparity not_established.",
+    "Pyproject digest changed; mandatoryFoundry dependency-profile owner regeneration/check and corrupt-field drift remain before finalglobalfreeze.",
+    "One uncommitted attributed Lex facade postimage is explicit loadedcontext in bothwaves; no barewholecommitreplay.",
+    "Native20commands/Linux/wheel/rebuilt-sdist/TS/browser/finalcomposed/authentic/full291adjudication still separate."
+  ],
+  "source_freeze": false,
+  "closure_ids": [],
+  "proposal_fields": {
+    "component": "bounded_GO",
+    "finding_ids": [],
+    "formal_G_closure": false
+  },
+  "next_check": "Finish reviewed Legal candidate discovery, GL wholefacetbasis, N4 refusal-preservation and C05 durable selection source companions; canonical generation/drift and fullsource/input/backendfreeze; one composed/native/Linux/installed/authenticRO wave with individual291originalcriterion proposals."
+}

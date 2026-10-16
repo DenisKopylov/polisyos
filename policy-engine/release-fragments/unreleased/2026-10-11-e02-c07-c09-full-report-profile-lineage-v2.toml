@@ -5,6 +5,7 @@ component = "calibration"
 owner = "team-polisyos"
 summary = "ForecastOwner returns exact selected profiles from the same writes for all four generated report-basis artifacts, preserves selected input profiles through the report manifest, and the calibration bridge compares full selected-view edges."
 evidence = [
+  "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-inventory-two-row-local-review-attestation-20261016.json",
   "tests/unit/remediation/test_frc_02_owner.py",
   "tests/unit/foundry/methods/test_artifacts.py",
   "tests/unit/ir/test_forecasting_uncertainty.py",
@@ -17,7 +18,7 @@ change_class = "persisted-artifact-format; python-public-api"
 surface_classification = "internal: forecast/calibration artifact lineage; public_stable: polisyos.scientist.methods.backtesting.BacktestOrchestrator.run_with_ref; existing runtime content preview remains default-off for predictive diagnostics"
 migration = "New empirical-calibration evidence writes use schema 1.2. Existing 1.0/1.1 artifacts remain readable and are not rewritten."
 api = "The existing BacktestOrchestrator.run API is unchanged and returns BacktestReport. The additive run_with_ref returns tuple[BacktestReport, BacktestReportRef]: the report and the exact typed ref emitted by persistence. Core/IR write methods add an opt-in return_selected_profile keyword to retain the profile computed inside the same write. No generated HTTP/OpenAPI contract changes."
-limitations = "Exact profile lineage identifies CAS manifest views but does not prove complete or semantically adequate inputs, producer authority, S10 mapping, issuer/currentness, causal validity, or dashboard consumption. The predictive content sidecar continues to require the existing default-false server setting."
+limitations = "Exact profile lineage identifies CAS manifest views but does not prove complete or semantically adequate inputs, producer authority, S10 mapping, issuer/currentness, causal validity, or dashboard consumption. The predictive content sidecar continues to require the existing default-false server setting. The reviewed public route is limited to backtest-orchestrator-run-with-ref; it does not establish a complete polisyos.scientist.methods.backtesting export/member inventory or generated-inventory acceptance. See docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-inventory-two-row-local-review-attestation-20261016.json."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 migration_docs = ["docs/reference/api/artifacts.md", "src/polisyos/calibration/README.md"]

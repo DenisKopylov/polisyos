@@ -2674,5 +2674,27 @@
     "P40": "Wholecollectoradmission/returnquantity; typedstaledigest/count/name rejectionretained.",
     "mandatory_test_companion": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py",
     "canonical_replay": "InitialrootwrongPRODUCTcwd34PASS11FAILretained; FIFOcall2redundantunsupportedkwargs fixedindependentlyreviewed; canonicalbinderrequirescommittedhelper+OWNcwd. Fullpostcommitreplaypending; no inherited/nativegreen."
+  },
+  "coordination_epoch_20261016_release_two_row_scoped_attestation": {
+    "root_writer": "/root",
+    "base": "2defae2ec94ce16cbd0b191777732fac0ee3d8a2",
+    "mechanism_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-c07-c09-full-report-profile-lineage-v2.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-14-b31-source-projection-owner-bridge.toml"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-inventory-two-row-local-review-attestation-20261016.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate source/receipt delivery and component index"
+    ],
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release25-flag-provenance-independent-review-20261016/independent-review.json",
+      "sha256": "b12200fb9c269412c3161c91ed98252ee75b02e35e63756c698aec2360eb59fd"
+    },
+    "review_quantity": "Exactly backtest-orchestrator-run-with-ref and ir-causal-method-aipw; no complete module inventory or G acceptance.",
+    "flag_provenance_correction": "Release25 preserved all12 R2 application-preimage flags, but all12 application preimages differ from Gitparent0a72. Gitparent-to25 has5 flag-slot deltas, including new Legal row. Prior LEASES held sentence refers only to R2 patch preimages; it must not be read as preserving Gitparent flags.",
+    "no_flag_or_issuer_or_expiry_change": true,
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

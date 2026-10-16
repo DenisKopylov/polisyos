@@ -1,0 +1,103 @@
+{
+  "kind": "local-scoped-public-surface-review-attestation",
+  "date": "2026-10-16",
+  "status": "scoped_local_review_recorded; no G acceptance or formal closure",
+  "capture_head": "2defae2ec94ce16cbd0b191777732fac0ee3d8a2",
+  "reviewed_source_head": "25f7b0301c377d1b872a93854d233ce129fdabc8",
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release25-flag-provenance-independent-review-20261016/independent-review.json",
+    "sha256": "b12200fb9c269412c3161c91ed98252ee75b02e35e63756c698aec2360eb59fd"
+  },
+  "row_reviews": [
+    {
+      "compatibility_change_id": "backtest-orchestrator-run-with-ref",
+      "fragment": "policy-engine/release-fragments/unreleased/2026-10-11-e02-c07-c09-full-report-profile-lineage-v2.toml",
+      "bounded_result": "GO",
+      "review_scope": "The exact stable method route polisyos.scientist.methods.backtesting.BacktestOrchestrator.run_with_ref and return type tuple[BacktestReport, BacktestReportRef]. The historical run method remains BacktestReport. This is not a full module/member inventory claim.",
+      "owner_evidence": {
+        "source": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py@ba3f2770db6ff4190c845f2fe66930136863e5e9a68c0bd4602e9f488907e5cb",
+        "method_line": 476,
+        "signature": "run_with_ref(...) -> tuple[BacktestReport, BacktestReportRef]",
+        "backward_compatible_run_return": "run(...) -> BacktestReport",
+        "facade": "policy-engine/src/polisyos/scientist/methods/backtesting/__init__.py@ab32305ff929db821a069fd481a21e4bbda6215bd3ee448ef1d876bc7fd41559; imports BacktestOrchestrator and lists it in __all__"
+      },
+      "consumer_evidence": {
+        "existing_test": "policy-engine/tests/unit/scientist/nodes/test_decision_packet_node_v3.py@1d51d620cd01b52a64aae87372780fabe0fcc537e5cf642b631a8d7192867a86",
+        "test_nodeid": "test_s1_nested_backtest_diagnostic_surfaces_after_fresh_decision_packet_read",
+        "observed_behavior_in_source": "The test calls run_with_ref, uses the returned report_ref to reload the persisted report, and checks the returned report content.",
+        "executed_in_this_review": false
+      },
+      "named_independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-surface-full-review-20261016-r2/metadata-corrections-r2/independent-delta-review-r3.json@d54298ba3266a491590815e62eb90eebd168f6ca79721ee54e0e754978c4fbd9; corrections_reviewed explicitly records exact tuple return and exact owner-source SHA.",
+      "new_direct_probe": "Runtime import smoke verified the package facade object is identical to the canonical BacktestOrchestrator and that the facade __all__ contains it."
+    },
+    {
+      "compatibility_change_id": "ir-causal-method-aipw",
+      "fragment": "policy-engine/release-fragments/unreleased/2026-10-14-b31-source-projection-owner-bridge.toml",
+      "bounded_result": "GO",
+      "review_scope": "The exact additive stable enum member polisyos.ir.CausalMethod.AIPW for candidate method identification. It does not establish causal authority, value promotion, or a complete polisyos.ir member inventory.",
+      "owner_evidence": {
+        "source": "policy-engine/src/polisyos/ir/analytics/causal.py@8d9f455691fa394e6c36013821bd3f95be8bd93de2c2abaa898ddd1b28fb6264",
+        "member_line": 103,
+        "definition": "CausalMethod is a str Enum; AIPW = \"aipw\".",
+        "facade": "policy-engine/src/polisyos/ir/__init__.py@66e0a12531ac1e44e9ec71d67cc78c814f3a54ff72c12f0e736594261fd0472f; CausalMethod in __all__ and lazily maps to canonical owner."
+      },
+      "consumer_evidence": {
+        "existing_test": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_tmle_common_report.py@8d83dc23f00a31d0127ea871e481548255bb565ce7e64409ac9d5d8005050436",
+        "test_nodeid": "test_aipw_method_job_reopens_native_report_for_non_gating_candidate_projection",
+        "observed_behavior_in_source": "The test reopens the persisted method report and asserts report.method is CausalMethod.AIPW and gate_eligible is false; it imports the canonical analytics.causal owner directly.",
+        "executed_in_this_review": false
+      },
+      "new_direct_probe": "Runtime import smoke verified polisyos.ir.CausalMethod is the canonical class, AIPW.value == \"aipw\", and the facade __all__ contains CausalMethod.",
+      "authority_boundary": "Candidate-only; the current fragment states this identifier does not establish causal authority or value promotion, and B31 remains open.",
+      "not_in_oct15_row_reviews": true
+    }
+  ],
+  "direct_runtime_import_smoke": {
+    "cwd": "policy-engine",
+    "command": ".venv/bin/python -B - (inline read-only import assertions)",
+    "result": "PASS",
+    "stdout": "PASS: facade object identity, AIPW enum value, and facade __all__",
+    "effects": "No source/test/config changes; -B disabled bytecode writes.",
+    "separate_attempt": "A first invocation looked for .venv at repository root and did not run (path absent); the corrected product-root invocation above passed. This was a command-path error, not a product result.",
+    "captured_target_head": "25f7b0301c377d1b872a93854d233ce129fdabc8"
+  },
+  "prior_attestation": "release-inventory-local-review-attestation-20261015.json@0537b2da0a8c03455d3c7f529f443c76e46155465dc676f9a3bf455226e6a18c",
+  "scope_and_limits": [
+    "Exactly the two named compatibility rows. Existing consumer tests were inspected, not executed in this row review.",
+    "Does not assert complete module/member inventory, generated snapshot acceptance, native green, causal authority, integration publication, or formal G acceptance.",
+    "Historical Oct15 attestation is retained unchanged; the six other added R2 row reviews are outside this companion."
+  ],
+  "release_gate_at_review": {
+    "owner_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-r2-current-owner-check-20261016/owner-result.json@c7ab17c5a752746be8bf5e2d8a2a93b35da19326f800708ecfca76703ef76db1",
+    "status": "contract_errors",
+    "fragment_count": 267,
+    "structured_compatibility_change_count": 239,
+    "contract_error_count": 11,
+    "finding_count": 0,
+    "disposition": "Retain the 11 contract errors. This review does not change flags, mark G closure, or claim native/full-inventory acceptance.",
+    "earlier_composition_audit": {
+      "audit_frame_head": "a06b4a8a3730470b49a47b22ba357d250ed11264",
+      "status": "contract_errors",
+      "fragment_count": 266,
+      "structured_compatibility_change_count": 239,
+      "contract_error_count": 11,
+      "finding_count": 0,
+      "use_limit": "Earlier composition audit frame, not a rerun at release25 HEAD. Cite separately from the current release25 owner result of 267/239/11."
+    },
+    "p41_inheritance": "not_established in the earlier composition audit; this review does not reclassify the observed red as inherited."
+  },
+  "pattern_pass": {
+    "ids": [
+      "P03",
+      "P14",
+      "P35",
+      "P36",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "target": "Bind scoped local review to exact named API rows and preserve the native red and authority boundary."
+  },
+  "closure_ids": [],
+  "source_freeze": false
+}

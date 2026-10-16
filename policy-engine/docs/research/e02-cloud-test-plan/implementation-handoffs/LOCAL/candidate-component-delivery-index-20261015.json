@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "47317575c39cef4f2db388beea400ee6405c9d75",
-    "tree": "ecc66de3efce664bfb285a3b60ea88b39af4079b",
+    "head": "4304328bba40ed82503d068b8c23464e33b6b94c",
+    "tree": "055f80267a4e10511cddc24c3ef8801b3e36b6e4",
     "parents": [
-      "c20bf40b63d528f9de9a5088f1716be1da64c08b"
+      "91ef93c3ab42b69652d2985e6f6d034862d20272"
     ],
     "source_freeze": false,
-    "dirty_active_source": "Read_api source47317575 committed;3PASS/Ruff5PASS; actual358mappedtypepairs235equivalent123Any;191aliasremoval133semanticmismatches58Any. Nine attributed runtime/Lex paths remain frozen/live awaiting reviewed companion adoption. CredalR2 and GLR2 RAW; dev-only PyArrowstub locked candidate is being prepared. No final source/input/backend freeze."
+    "dirty_active_source": "Credal source4304328b committed5paths:102PASS/MyPy1/Ruff2;1474of1478ownoriginsmatchcommit+4namedownedpostimages. Runtime4source and GLR1 attributedpostimages remain frozen/live. GLR2independentHOLD on missingrequiredfacetmembership; R3wholebasisresearch. PyArrowdevstub3pathcandidate reviewed next. Legalcandidatediscovery/defaultN4refusalloss RAW prototypes inprogress; no source/input/backendfreeze."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -399,6 +399,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/read-api-typing-current-candidate-delivery-20261016.json",
       "sha256": "d8321400c63e33607c36d916395a0441e3261247e2f05218e2e33b697fcad9a3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/credal-refusal-consumer-current-candidate-delivery-20261016.json",
+      "sha256": "bb619e3f02d69b101d065fed29175c61c8efe5f553d6d9cb10ba498c76c634f9"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -434,7 +438,8 @@
     "Earlier LA038 and GuardedCore ad-hoc type reds remain historical diagnostic evidence, not inherited/current native results. Re-run the actual required gates with exact current input denominators; P41 inheritance is not asserted. Native owner source has20 subprocess checks plus11 preflights/conditional docs, not the stale17-row plan.",
     "External issuer/permission/custody/currentness, qualifying production workload, valid law/refinement/causal calibration are not created by local physical receipts. Authentic inputs remain read-only and concrete missing facts/choices are recorded individually.",
     "Canonical291 occurrences/282 IDs/127 bundles,198 historical proposed-closed IDs(202 occurrences),9 historical ledger closures and B198 stay preserved. Full current index remains provisional; no source/input/backend global freeze or formal G closure is asserted.",
-    "Read_api source47317575 repairs complete358mapped-name class across5facades:235typed-equivalent123Any;3actualbehaviorPASS/Ruff5PASS. Generic191alias removal preserves runtime markers/AST and yields133semantic type mismatches;58removed aliases remainAny. No fullpublicAPI/native/staticpurity/installed/findingclosure claim."
+    "Read_api source47317575 repairs complete358mapped-name class across5facades:235typed-equivalent123Any;3actualbehaviorPASS/Ruff5PASS. Generic191alias removal preserves runtime markers/AST and yields133semantic type mismatches;58removed aliases remainAny. No fullpublicAPI/native/staticpurity/installed/findingclosure claim.",
+    "Credal source4304328b typed-refusalconsumer5paths committed with102PASS0SKIP, canonicalMyPy1/Ruff2PASS.1478ownorigins=1474commit+4namedownedpostimages; no barewholecommitclaim. Full refusal staysincompleteedgeprovenance, boundedlift retainsstatus/completionreason/hash; resolverinjectiontest doesnotprove contextproducer/persistedN6. Nine heterogeneous rowtypingerrors repaired acrosswholefunction, normalized ASTequal. ActualN4/CAS/N6 companionpending."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "next_check": "Finish reviewed actual typing/candidate-discovery/GL/refusal-to-persisted-consumer companions; commit source boundaries and separate receipts; canonical regeneration/drift controls and full source/input/backend freeze; one actual composed/native/Linux/installed/authenticRO wave and full291proposal reconciliation. G remains independent codeacceptance/integration/adjudication."

@@ -1,0 +1,183 @@
+{
+  "record_type": "bounded_component_delivery_proposal",
+  "slice": "Credal typed union consumer and canonical row typing",
+  "slice_base": {
+    "sha": "2a496ab348ad3ad4b8c48ee45a5d8f4fb61354a9",
+    "tree": "b789f197fd5ed979f1d10852c2706d6a52334828",
+    "actual_application_parent": "91ef93c3ab42b69652d2985e6f6d034862d20272"
+  },
+  "candidate": {
+    "sha": "4304328bba40ed82503d068b8c23464e33b6b94c",
+    "tree": "055f80267a4e10511cddc24c3ef8801b3e36b6e4",
+    "parents": [
+      "91ef93c3ab42b69652d2985e6f6d034862d20272"
+    ]
+  },
+  "full_code_test_config_companion_footprint": {
+    "policy-engine/src/polisyos/runtime/quality/credal_reference.py": "a116b89caf68dc57de04968c47fa5ff3a76d3f9d22b548e4e0fd5f079132f6d6",
+    "policy-engine/tests/unit/runtime/quality/test_credal_reference.py": "3496eaa7a088faa04560938cbe0e03ab6df1394f881eb09a92b88811378a695c",
+    "policy-engine/src/polisyos/runtime/quality/README.md": "8b5d5832be23596b4602559f20302244214b7ed6cf78078bcc52d0c367e57cd7",
+    "policy-engine/release-fragments/unreleased/2026-10-16-e02-credal-refusal-consumer.toml": "04f868fdb3dd177abb09aae2e180113ad537c94974c76d82f1e0f3e61484e087",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "1f87eb412828f71d291e26bf9fcb32ae54836cf45912b52467b67cc5a4d22026"
+  },
+  "selected_input_profile_backend": {
+    "runtime": "own macOS Python3.14.3 existing .venv",
+    "lock_sha256": "9d200a0789f50fccb533ddbb66a39453b04de8f22e653d34a62c35125c20a120",
+    "new_pyarrow_stub_profile": false,
+    "inputs": "Full selected test module including existing read-only production_data fixtures; new typed-refusal tests inject at resolver boundary and construct in-memory reference. No authentic source currentness is asserted."
+  },
+  "chain": [
+    "Existing typed L6 resolution/refusal union",
+    "Credal consumer discriminates refusal before domain/slot reads",
+    "Both L6 operator/world-slot edges remain incomplete and retain full refusal payload",
+    "reference_lift exposes incomplete status, admissible-completion reason and edge content hash",
+    "Confirmed resolved path preserved; frozen mapping/sequence remain unhashable"
+  ],
+  "verification": {
+    "behavior": {
+      "passed": 102,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "wall_seconds": 32.294
+    },
+    "canonical_perfile_strict_mypy": {
+      "source_files": 1,
+      "result": "PASS"
+    },
+    "canonical_root_ruff": {
+      "check_files": 2,
+      "format_files": 2,
+      "result": "PASS"
+    },
+    "loaded_origins": {
+      "own_modules": 1478,
+      "matching_commit": 1474,
+      "owned_uncommitted_context": [
+        {
+          "module": "polisyos.lex",
+          "path": "policy-engine/src/polisyos/lex/__init__.py",
+          "sha256": "5e9e2b3659fa5494e2b93bbc47de4e554e576284ea0ea053e3163fa560dfbf94",
+          "commit_sha256": "d2dcdde45c1b1b54fb5f8aa85db4036d9676aed1d1009ed0c2cfedd92271ae70"
+        },
+        {
+          "module": "polisyos.runtime.quality.capability_index_compiler",
+          "path": "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py",
+          "sha256": "bde50e71fe8a4488b665d72cc6ce686c9587565f8af05e140834a1cb202c5356",
+          "commit_sha256": "08c643a3fe711ecab8d47812e3edc9c50f522b77a116e514fe2c9e018464beab"
+        },
+        {
+          "module": "polisyos.runtime.quality.claim_registry",
+          "path": "policy-engine/src/polisyos/runtime/quality/claim_registry.py",
+          "sha256": "a2f45ff090d7c0d954743cc2312f734325a85f64fc43516a20ea367e28daf512",
+          "commit_sha256": "b6edea161e379a32453e515b3ad561552f21f9137c9d8a7b94bc4a97c0ff149e"
+        },
+        {
+          "module": "polisyos.runtime.quality.semantic_binding",
+          "path": "policy-engine/src/polisyos/runtime/quality/semantic_binding.py",
+          "sha256": "21a10b4e6d741df391dee0eeb11dcad326bb62b84fd2e4a3bbb909b0651c8597",
+          "commit_sha256": "8362db35a4e4be7ecb76b2d14dc0ef1ffb9301574cd584b6e7d1837c2b8c97cd"
+        }
+      ],
+      "outside_missing_wrong": 0,
+      "bare_whole_commit_replay": false
+    },
+    "full_commands_and_deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-r2-typed-actual-20261016/request.json",
+        "sha256": "5de8aeee5fb897a2a2f8d915965c30ffc2bf86af47be610124255c686929d7ca"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-r2-typed-actual-20261016/actual-results.json",
+        "sha256": "26666482716cc0a1631b13dbab352a5eb62f53f5c3afda1d83dca2eef8594923"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-r2-typed-actual-20261016/actual-loaded-source-origins.json",
+        "sha256": "e18ce54011bcf16e25d83cb2239ae86f770d0642e295588a5f9b26e6200f56bb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-r2-code-boundary-20261016/loaded-context-vs-commit-readback.json",
+        "sha256": "7730b45e1f2a4faaac32be638602a993bdb07ea3ce01e66236028e98cf86099d"
+      }
+    ]
+  },
+  "adversarial_and_removal_controls": {
+    "refusal_on_original_preimage": "Expected AttributeError on resolution-only.domain retained in author manifest full stdout; typed refusal case now produces incomplete edges and preserves exact owner refusal payload.",
+    "hashability": "Real ABC Hashable false, __hash__ None, hash raises TypeError for mapping/sequence in baseline and candidate; R1 raising-method alternative rejected.",
+    "row_typing": "Nine actual canonical errors removed by disjoint per-owner local bindings across entire heterogeneous row function; independent normalized AST equivalence verifies no expression changes."
+  },
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/credal-reference-typed-branches-20261016-r2/manifest.json",
+      "sha256": "963314f75ec577ba9c4c73e2e38bda7c333c7020c7891d890ca69dbb2655b995"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-typing-semantic-independent-oracle-20261016/credal-r2-candidate-review.md",
+      "sha256": "699e36bb86e84ca903f1214cc5f0b94a91ec9b9515cef44d18de761b9d14d710"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-r2-canonical-format-20261016/manifest.json",
+      "sha256": "2554a57dac0487dd4512082b66aff74ce2d208e90002b2096accd02c10b3a25f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/credal-reference-row-loop-typing-20261016/manifest.json",
+      "sha256": "54a478191594491d4a39106d43fcf155f2f85325d310cf72456f5adbd2a926cc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-typing-semantic-independent-oracle-20261016/credal-r2-typed-loop-delta-review-20261016.md",
+      "sha256": "c1d928464d398e9dc413e24afde3894adee31c2a648b5453a5f35b326960087f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-r2-code-boundary-20261016/credal-refusal-source-readback.json",
+      "sha256": "6d2a32b433d8b27a51e4902e12fe9bb04ad3bcc7de9cda41c253b2691f4a53fd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-r2-typed-actual-20261016/request.json",
+      "sha256": "5de8aeee5fb897a2a2f8d915965c30ffc2bf86af47be610124255c686929d7ca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-r2-typed-actual-20261016/actual-results.json",
+      "sha256": "26666482716cc0a1631b13dbab352a5eb62f53f5c3afda1d83dca2eef8594923"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-r2-typed-actual-20261016/actual-loaded-source-origins.json",
+      "sha256": "e18ce54011bcf16e25d83cb2239ae86f770d0642e295588a5f9b26e6200f56bb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-r2-code-boundary-20261016/loaded-context-vs-commit-readback.json",
+      "sha256": "7730b45e1f2a4faaac32be638602a993bdb07ea3ce01e66236028e98cf86099d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/credal-context-bridge-reuse-oracle-20261016/evidence.md",
+      "sha256": "30444808e115d58972fd0c6f7452d1f4f39ba3664f41757045ad8eb003daa3a4"
+    }
+  ],
+  "surface": "Internal runtime quality consumer; existing Python object/ref lift and mirrored semantic controls. No supported facade/API/DTO/wire/status-enum addition.",
+  "pattern_pass": {
+    "ids": [
+      "P04",
+      "P05",
+      "P10",
+      "P29",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "P40": "Whole heterogeneous loop-variable quantity repaired; typed refusal consumer bounded separately from real producer orchestration.",
+    "P41": "No inheritance asserted for prior 9 errors or old49facade cascades; selected actual new perfile command is green."
+  },
+  "limitations": [
+    "Controlled new refusal test is consumer-path only: actual context-dependent producer\u2192persisted handoff\u2192fresh reader\u2192N6 is still a separate semantic_test_missing check.",
+    "Global owner-wide K_ref does not require caller context under original B15/B29; no context is threaded into all dictionary knobs.",
+    "Full native/CoreRuntime/installed/composed freeze checks remain UNRUN; four other owned source postimages are explicit run context.",
+    "No law, causal calibration, source custody/currentness or authority positive created."
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "component": "bounded_GO",
+    "finding_ids": [],
+    "formal_G_closure": false
+  },
+  "source_freeze": false,
+  "next_check": "Finish actual N4 default-diversity refusal persistence/N6 companion and independent reviews, canonical generation/check+drift, then final composed/native/Linux/installed/source-input-backend replay and individual original criteria proposals."
+}

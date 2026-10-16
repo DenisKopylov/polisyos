@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "f9285ae79321c277529f69bb7edb5e3959ff7040",
-    "tree": "50faec1f6b9c35cda11e3f1ac70c2f18066dced8",
+    "head": "c6c9bc0009d5c73949107d956a0995edf45d8b18",
+    "tree": "25fde5f874e21b9a8bc8af411b6c830b71372c8c",
     "parents": [
-      "87755653cf08051b15726eb7e146eab136a051f6"
+      "087880dd4f9680f80cdf9caf3a124dbc665d77c2"
     ],
     "source_freeze": false,
-    "dirty_active_source": "Known root-owned C05/C7/LA025 composition pending. V6 test/profile companions committedd826 with two cheap actual controls; full served replay UNRUN. Fabric R3 pool owner/lease repair and C7 durable MethodJob bridge are in RAW review/authoring."
+    "dirty_active_source": "C05 selected-consumer source49 committed087880d with releasec6c9bc;310actualPASS/MyPy28/Ruff51. Known root-owned C7/LA025/calibration/generated/release/test companions remain pending; FabricR4 and Legal facade RAW review."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -82,7 +82,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "2fc893ee1847fd605bf30c2ca2c81975486105cbfd3ae0378230a96c9e8649f8"
+      "sha256": "ef8f87579a01ef2b89d45e6023594e4d8eaa6d12cddc1180a27fc48873e6edc7"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
@@ -367,6 +367,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/replay-runtime-parameter-binding-g-choice-20261016.json",
       "sha256": "bc8f5ef3983c90a5ae3777a8b8cb2ccfa898f3c9dbfa4dcc8e7d60fb30600e83"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c05-selected-consumer-composition-delivery-20261016.json",
+      "sha256": "0443fc9e1178349c257e39ef47d451f4578da730d23af3767c536e787c5a6417"
     }
   ],
   "canonical_denominator_recomputed": {

@@ -1,0 +1,236 @@
+{
+  "record_type": "bounded_component_source_delivery_and_actual_receipt",
+  "slice": "C05-selected-profile-runtime-replay-consumer-composition",
+  "slice_base": {
+    "sha": "c54945410d973d41af2f8faf9f255b4fb9379373",
+    "tree": "5cf31e6d4f03d304de1413191b326bd1599b8b32",
+    "status": "Known root-owned pre-existing dirty composition. All deciding working-tree bytes are pinned by the request and were read back from delivered code commit."
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "087880dd4f9680f80cdf9caf3a124dbc665d77c2",
+    "tree": "e833bb67238fb259922609071b53ae6cfb72ad43",
+    "parents": [
+      "c54945410d973d41af2f8faf9f255b4fb9379373"
+    ],
+    "source_paths": 49
+  },
+  "release_companion": {
+    "sha": "c6c9bc0009d5c73949107d956a0995edf45d8b18",
+    "tree": "25fde5f874e21b9a8bc8af411b6c830b71372c8c",
+    "parents": [
+      "087880dd4f9680f80cdf9caf3a124dbc665d77c2"
+    ],
+    "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-c05-selected-consumer-composition.toml",
+    "sha256": "e9dc4f0cf86b7ed55a5f5cbfc25fe5ac85547e94f2fb040ffe0293c5cc0c52b1",
+    "public_surface_inventory_reviewed": false
+  },
+  "full_code_test_footprint": [
+    "policy-engine/src/polisyos/foundry/validation/phase2_closure.py",
+    "policy-engine/src/polisyos/scientist/methods/discovery/output.py",
+    "policy-engine/src/polisyos/scientist/methods/discovery/priors.py",
+    "policy-engine/src/polisyos/scientist/methods/discovery/schema.py",
+    "policy-engine/src/polisyos/scientist/methods/discovery/utility_judge.py",
+    "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+    "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+    "policy-engine/src/polisyos/scientist/methods/search/judge_stack.py",
+    "policy-engine/src/polisyos/scientist/methods/search/promotion_evidence.py",
+    "policy-engine/src/polisyos/scientist/methods/search/readiness.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/_decision_packet_contracts.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_benchmarks.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_reporting.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_evaluator.py",
+    "policy-engine/src/polisyos/scientist/policy_design/output.py",
+    "policy-engine/src/polisyos/scientist/policy_design/schema.py",
+    "policy-engine/src/polisyos/scientist/replay/deterministic.py",
+    "policy-engine/src/polisyos/scientist/replay/verification.py",
+    "policy-engine/tests/unit/foundry/validation/test_phase2_closure.py",
+    "policy-engine/tests/unit/foundry/validation/test_phase2_judge_stack.py",
+    "policy-engine/tests/unit/scientist/discovery/test_output.py",
+    "policy-engine/tests/unit/scientist/discovery/test_utility_judge.py",
+    "policy-engine/tests/unit/scientist/governance/test_governance_report_owner_admission.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_phase5_decision_packet_preflight.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_benchmarks.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_artifacts.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_replay_reissue.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_run_policy_blueprint_runtime.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_run_policy_promotion.py",
+    "policy-engine/tests/unit/scientist/replay/test_profileless_replay_basis.py",
+    "policy-engine/tests/unit/scientist/replay/test_runtime_replay_measurement.py",
+    "policy-engine/tests/unit/scientist/replay/test_verification_owner_admission.py",
+    "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+    "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+    "policy-engine/tests/unit/scientist/search/test_calibration_report.py",
+    "policy-engine/tests/unit/scientist/search/test_judge_stack_replay_verification_owner.py",
+    "policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+    "policy-engine/tests/unit/scientist/search/test_promotion_evidence.py"
+  ],
+  "unchanged_deciding_context_paths": [
+    "policy-engine/src/polisyos/scientist/governance/report.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_reporting.py"
+  ],
+  "full_deciding_input_bindings": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-final-actual-20261016/request.json",
+    "sha256": "3497b6db6ed7a392b99a823385f79032e8fab7ba3d7a6cf9f8bafed75afcb508"
+  },
+  "canonical_and_other_companions": {
+    "delivered": "The release companion above is source-reviewed and records strict consumer migration; public inventory review flag remains false.",
+    "pending": [
+      "Canonical generated schema/public/API inventories and corrupt-field validators after final contract selection.",
+      "Batched22 release-metadata corrections and actual generated/public-surface attestation.",
+      "Fabric R4, C7 durable request/result and Legal facade composition; final source/input/backend freeze."
+    ],
+    "not_delivered_by_this_receipt": "Native row-by-row/global/installed/Linux/served replay and authentic production closeout."
+  },
+  "selected_input_profile_backend": {
+    "input": "23 pinned test modules; per-test local CAS artifacts and selected views created through the actual writer. No production payloads.",
+    "profiles": "Selected artifact refs/physical integrity/lineage are asserted by the tests; this is not one frozen live serving profile.",
+    "backend": "macOS27.0.1 arm64, own .venv Python3.14.3; pytest9.0.2/pydantic2.12.5/mypy1.19.1/ruff0.14.10.",
+    "numerical_threads": 1,
+    "dependency_sources": {
+      "policy-engine/pyproject.toml": "841160aa331ba5610a1f161d4faaf18c3bcfd44d2181b3661de665a05a6745a0",
+      "policy-engine/uv.lock": "9d200a0789f50fccb533ddbb66a39453b04de8f22e653d34a62c35125c20a120"
+    }
+  },
+  "source_bound_commands_and_full_deciding_outputs": {
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-final-actual-20261016/request.json",
+      "sha256": "3497b6db6ed7a392b99a823385f79032e8fab7ba3d7a6cf9f8bafed75afcb508"
+    },
+    "actual_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-final-actual-20261016/actual-results.json",
+      "sha256": "315d6fea34f44887da8013dcad598442721a611d97fced3735a1489cdf2f2cb3"
+    },
+    "behavior_run": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-final-actual-20261016/actual-c05-macro-behavior.run.json",
+      "sha256": "6d24b2225227526001b07155e7a2c19d27a6ffbcc0703249580e688b0986828a"
+    },
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-final-actual-20261016/actual-c05-macro-behavior.stdout.txt",
+      "sha256": "9ae684813c87bbb940a1b67de6009fb4987e7a5d71baedf3e19cb0aef7cc3f9c"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-final-actual-20261016/actual-c05-macro-behavior.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-final-actual-20261016/macro.junit.xml",
+      "sha256": "17701b3185c118e2ae1c80f30df5b1c632d715d705efb492eb963886887ea809"
+    },
+    "loaded_source_origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-final-actual-20261016/actual-loaded-source-origins.json",
+      "sha256": "58ff4af648b70671517ad30d7c898885357236683f766cf4ca93b58f45a25751"
+    },
+    "type_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-final-actual-20261016/actual-c05-source-mypy.stdout.txt",
+      "sha256": "44323f12010ebbb5daa4cefef4cc4308006fe3b26ad3ced614a993eb79a8b535"
+    },
+    "type_run": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-final-actual-20261016/actual-c05-source-mypy.run.json",
+      "sha256": "1d0bc0780978a29b3b46eb7e4fb1687716fac1b10e64b3c17004f70aab6f1d5c"
+    },
+    "ruff_check_run": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-final-actual-20261016/canonical-root-ruff-check.run.json",
+      "sha256": "c7f04cee2a49ef9e99e80a8e95180e980cf35abd55dc3cdc7eacf855ec4c3f7c"
+    },
+    "ruff_format_run": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-final-actual-20261016/canonical-root-ruff-format.run.json",
+      "sha256": "1635081aefc067dd9a4e8703fe025fb496bbd96d6b175c11cc925efbc54432a1"
+    },
+    "availability": "Full deciding outputs retained under ignored raw at this candidate checkout; source cited from exact commits, not copied."
+  },
+  "results": {
+    "PASS": {
+      "pytest_cases": 310,
+      "selected_test_modules": 23,
+      "strict_mypy_source_files": 28,
+      "canonical_Ruff_paths": 51,
+      "canonical_format_paths": 51,
+      "own_loaded_modules": 1700,
+      "outside_missing_or_wrong_sources": 0
+    },
+    "FAIL": [],
+    "ERROR": [],
+    "SKIP": [],
+    "warnings": 4,
+    "UNRUN": [
+      "Full semantic workflow and downstream positive promotion.",
+      "Full native/Linux/installed/served/authentic composed wave."
+    ],
+    "previous_red_resolved": [
+      {
+        "scope": "Earlier same51 frame strictMyPy11 errors inL5",
+        "evidence": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-types-20261016/actual-c05-source-mypy.stdout.txt",
+          "sha256": "7d4f08fd49179f481b3b18a6db585eb92201ff12db4b4f5a732406480890430d"
+        },
+        "repair": "One whole-module typed repair; final strict28-source actual PASS. No inherited classification."
+      },
+      {
+        "scope": "Earlier one profileless reissue fixture refused before intended missing-blob path",
+        "repair": "Real writer-selected input, paired present/missing/restored CAS blob, separate actual profileless runner refusal."
+      }
+    ]
+  },
+  "real_chain": {
+    "producer": "Covered runtime evaluator, policy artifact/replay writers and reissue code preserve selected refs for the explicit typed basis.",
+    "artifact": "Actual local persisted replay bundle, evidence/report and selected manifests; projected input edges retain selected profiles.",
+    "bridge": "Outer replay-bundle admission checks expected kind, JSON media, owner schema, selected manifest and physical integrity; all9 explicit ref containers require selected identity/physical verification and exact projected edges.",
+    "consumer": "Covered JudgeStack/funnel/promotion-preflight/reissue consumers distinguish snapshot/unmeasured/failed/current evidence grades; reissue passes the fresh selected refs while preserving source state.",
+    "surface": "Existing Scientist replay facade and persisted artifacts. HTTP/browser/installed surfaces are separate required checks.",
+    "semantic_limits": "No expected semantic owner/schema is established for every nested role; extra nonprojected manifest edges are not all rejected. Original JSON-param selection evidence remains held in the separate G decision."
+  },
+  "adversarial_and_removal_controls": {
+    "fixture": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-full-macro-independent-review-20261016/reviewer-r3/independent-review-r3.json",
+      "sha256": "dcf33ce09ccc5902c8a66f1ae6a495c13ea51b3065081ee8aab3f183b66f9129"
+    },
+    "fixture_argv_correction": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-full-macro-independent-review-20261016/reviewer-r3/independent-review-r3-correction.json",
+      "sha256": "4a78827877ecbd3502920adf862a4b555dce3156201a516f84824f41d32b88a5"
+    },
+    "fixture_status_clarification": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-full-macro-independent-review-20261016/reviewer-r3/independent-review-r3-status-clarification.json",
+      "sha256": "03bcb6e6c226a7c85e270790db0fee085b355607a4058a936b871fba097eedba"
+    },
+    "L5_independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-l5-strict-types-r3-independent-review-20261016/independent-review-r1.json",
+      "sha256": "3e8e58b6ab7a5632f768e4988cf7321865c7630cac06ea168a1c763a2b7f5282"
+    },
+    "release_scope_delta_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-composition-release-proposal-20261016/r2-independent-review.json",
+      "sha256": "2d359af20e5d91cf12a613eac229fe4def4d9c22c491f6ed831120a713d5b58c"
+    },
+    "controls": "Selected-but-missing real blob produces integrity failure; intact control lacks that failure; restoring verifies. Profileless supplied input is refused before the promotion stub. R7 selected owner/profile/physical/edge controls remain bounded to unchanged R7 source. Final310 suite includes negative/mixed-outcome tests.",
+    "promotion_stub_limit": "Final promotion result is controlled in the reissue fixture; no downstream positive promotion established."
+  },
+  "decision_pointer": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/replay-runtime-parameter-binding-g-choice-20261016.json",
+    "sha256": "bc8f5ef3983c90a5ae3777a8b8cb2ccfa898f3c9dbfa4dcc8e7d60fb30600e83"
+  },
+  "proposal_fields": {
+    "outcome": "limited_component_proposal",
+    "individual_ID_effect": "No automatic closures. Reconcile this exact source/evidence within the individual282-ID/291-occurrence report after the full final freeze.",
+    "original_occurrence_report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+      "sha256": "70673fe8c1e74b3d83627d883cda70e9dbc19401302d81458bba16dcc874a892"
+    },
+    "formal_G_acceptance": null,
+    "historical_decisions": "All historical proposals/closures including B198 remain unchanged."
+  },
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "global_source_freeze": false,
+  "next_check": "Finish reviewed Fabric/C7/Legal and metadata companions, canonical regeneration/check+drift, complete source/input/backend freeze, then one composed native/served/Linux/installed/authentic wave and per-occurrence proposal reconciliation."
+}

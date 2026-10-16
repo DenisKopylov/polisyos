@@ -1912,5 +1912,78 @@
       "free_disk_gib_observed": 43
     },
     "P40": "Widen full pool-owned lease quantity, not a third consumer guard; known worked examples consume no new repair round. Keep unproved law/origin/authority as concrete G choices with falsifiers."
+  },
+  "coordination_epoch_20261016_type_and_public_facade_companions": {
+    "observed_source_head": "c54945410d973d41af2f8faf9f255b4fb9379373",
+    "root_sole_live_source_and_git_writer": true,
+    "raw_only_authors_preimages": {
+      "api_generated_actual_consumers_successor": {
+        "policy-engine/src/polisyos/scientist/methods/advanced.py": "68112a9f96ce7ad1c6c3bdf2a4adabb43a96400d2fc10fe46683b2bc0a29a822",
+        "policy-engine/tests/unit/scientist/methods/test_advanced.py": "2b5267124b43b10f0ae20bb8c0dd07319e22febef23f2aaedde16f0f61ca885e",
+        "policy-engine/tests/_helpers/c7_synthetic_data.py": "9e9ca782972e06661c851f0005db8781817aa1ede4353e950c64a16c68d00bfa",
+        "policy-engine/tests/integration/test_c7_synthetic_full_pipeline.py": "47485694186490457f6e48bb517c1d49d7ad19624bf14d4adc64c488e298db74",
+        "policy-engine/src/polisyos/scientist/methods/README.md": "e2c8d2421d54b4533f19bddcebc01165371e3effa640cda4c45d09620f7e976d",
+        "policy-engine/release-fragments/unreleased/2026-10-16-e02-c7-method-job-provenance.toml": null,
+        "policy-engine/src/polisyos/scientist/compute/runner.py": "1d8171b8bba800acba095fab87b5705f5604395e2eb62f4de59f98b080214b51",
+        "policy-engine/tests/unit/scientist/compute/test_runner_polyglot.py": "f2a53d8dc468f7843d44176252c089cfbb5ff709ad8f7cb477ef58c033f78594"
+      },
+      "v5_v6_join_systemic_oracle": {
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py": "34c16dd6454d9bb2c178b23395220c3fd8d09472a965b523f75c4fc1146916cd"
+      },
+      "ir_governance_loop_types_author": {
+        "policy-engine/src/polisyos/lex/__init__.py": "2e7753cbf36b578fd64d1dff6730c0ba619a1bc71cdf1d860bab785b830e625c",
+        "policy-engine/src/polisyos/lex/README.md": "3ab8ed99f566e026f57ad6e706b329553fa4f5c5cad324d5a5af37cd4bc7470a",
+        "policy-engine/tests/unit/lex/test_public_transport_facade.py": null,
+        "policy-engine/release-fragments/unreleased/2026-10-16-e02-transport-candidate-source-refusal.toml": null
+      }
+    },
+    "contracts": {
+      "C7": "Existing typed JobSpec/JobResult selected durability and full JSON native state; honest runner MethodBackend union and TypeError for non-method spec, preserve valid branches.",
+      "L5": "All11 strict MyPy errors in one source module, canonical enum, typed locals/signatures and redundant None guards; preserve runtime property.",
+      "Legal": "Wire existing transport group and typed refusal to already-supported polisyos.lex lazy facade. Six canonical aliases, no new law/positive verifier/entrypoint."
+    },
+    "independent_reviewers": {
+      "C7": "architecture_remaining_route_oracle",
+      "L5": "ir_small_analytics_types_author",
+      "Legal": "c05_c12_current_composition_oracle"
+    },
+    "root_reserved": [
+      "Full Fabric24 R3 integration after runtime/type independent reviews",
+      "Canonical generators and all release attestation flags",
+      "Actual composed/native/Linux/installed wave after full source/input/backend freeze"
+    ],
+    "compute": {
+      "heavy_slots": 3,
+      "numerical_threads": 1
+    },
+    "source_freeze": false,
+    "formal_G_closure_ids": [],
+    "P40": "Mechanism quantity includes whole C7 state/request/result chain, whole L5 type contract, and whole existing Legal transport public facade group. No per-name authority patches."
+  },
+  "coordination_epoch_20261016_c05_source_and_fabric26": {
+    "observed_head": "c6c9bc0009d5c73949107d956a0995edf45d8b18",
+    "root_sole_live_source_and_git_writer": true,
+    "C05_component_source": {
+      "code_sha": "087880dd4f9680f80cdf9caf3a124dbc665d77c2",
+      "tree": "e833bb67238fb259922609071b53ae6cfb72ad43",
+      "release_companion_sha": "c6c9bc0009d5c73949107d956a0995edf45d8b18",
+      "source_paths_49": 49,
+      "actual_51_input_bindings": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-macro-final-actual-20261016/request.json",
+        "sha256": "3497b6db6ed7a392b99a823385f79032e8fab7ba3d7a6cf9f8bafed75afcb508"
+      },
+      "global_source_freeze": false
+    },
+    "fabric_R4_mandatory_companion_extension": {
+      "raw_only_author": "fabric_pool_cleanup_author",
+      "full_R4_union_paths": 26,
+      "additional_preimages": {
+        "policy-engine/src/polisyos/fabric/data_plane/streaming.py": "429f8bdaccce5df6e817443e1fd739f6e8c4bc6b9607accc156a2a345468ade7",
+        "policy-engine/tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py": "bb98b819370e7a3f2b533dcb9024933ec81ab4d0a219d44021508014dc36117c"
+      },
+      "property": "Selected registry definition -> per-invocation factory -> handle -> exact lease -> release/cleanup/cache. Ordinary get(), normal/live-permit pool, and streaming creators all count. Missing/malformed/foreign factory identity refuses before connect/exposure."
+    },
+    "formal_G_closure_ids": [],
+    "source_freeze": false
   }
 }

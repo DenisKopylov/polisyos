@@ -79,7 +79,10 @@ from polisyos.scientist.policy_design.output import (
     _resolve_run_local_candidate_frontier_report_ref,
     load_policy_artifact_bundle,
 )
-from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
+from polisyos.scientist.policy_design.phase3 import (
+    _load_bound_candidate_source_state,
+    resolve_phase3_gate,
+)
 from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
     load_policy_candidate_schema,
@@ -125,6 +128,7 @@ _SPEC = NodeSpec(
         "params.policy_mode",
         "params.policy_candidate_schema",
         "params.policy_candidate_ref",
+        "params.policy_candidate_id",
         "params.policy_evaluation",
         "params.pareto_registry_snapshot",
         "params.policy_promotion_result",
@@ -558,14 +562,18 @@ def _resolve_candidate(
     ctx: ExecutionContext,
     state: ExperimentState,
 ) -> tuple[PolicyCandidateSchema | None, ArtifactRef | None]:
+    source_state = _load_bound_candidate_source_state(ctx, state)
+    if source_state is not None:
+        state = source_state
+    source_pointer = _candidate_source_pointer(state)
     payload = state.params.get("policy_candidate_schema")
-    if isinstance(payload, dict):
+    if source_pointer == "/params/policy_candidate_schema":
         return PolicyCandidateSchema.model_validate(payload), None
     ref = _maybe_artifact_ref(state.params.get("policy_candidate_ref"))
-    if ref is not None:
+    if source_pointer == "/params/policy_candidate_ref" and ref is not None:
         return load_policy_candidate_schema(ctx.store, ref), ref
     trinity_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
-    if trinity_ref is None:
+    if source_pointer is None or trinity_ref is None:
         return None, None
     bundle = load_trinity_bundle_artifact(_ensure_ir_artifact_store(ctx.store), trinity_ref)
     return (
@@ -576,6 +584,17 @@ def _resolve_candidate(
         ),
         trinity_ref,
     )
+
+
+def _candidate_source_pointer(state: ExperimentState) -> str | None:
+    """Return the canonical runtime-state pointer selected by source precedence."""
+    if isinstance(state.params.get("policy_candidate_schema"), dict):
+        return "/params/policy_candidate_schema"
+    if _maybe_artifact_ref(state.params.get("policy_candidate_ref")) is not None:
+        return "/params/policy_candidate_ref"
+    if state.inputs.get(INPUT_TRINITY_BUNDLE_REF) is not None:
+        return f"/inputs/{INPUT_TRINITY_BUNDLE_REF}"
+    return None
 
 
 def _resolve_readiness_contract(

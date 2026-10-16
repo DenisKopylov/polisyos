@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import tempfile
 import time
 from decimal import Decimal
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
@@ -14,6 +16,9 @@ from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run import context as run_context
+from polisyos.core.run.context import RunContext
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
@@ -28,14 +33,18 @@ from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation
 _FAKE_SHA = "sha256:" + "ab" * 32
 
 
+class _TemporaryFileSystemCAS(FileSystemCAS):
+    """Keep the legacy async fixture on the selected-profile store contract."""
+
+    def __init__(self) -> None:
+        self._temporary_directory = tempfile.TemporaryDirectory()
+        super().__init__(Path(self._temporary_directory.name) / "cas")
+
+
 def _make_ctx(*, metrics=None):
-    store = MagicMock()
-    store.put_json.return_value = ArtifactRef(
-        artifact_id=_FAKE_SHA,
-        kind="test",
-        media_type="application/json",
-    )
+    store = _TemporaryFileSystemCAS()
     run = MagicMock()
+    run.run_manifest.run_id = "async-test-run"
     run.trace_path = None
     run.finalize.return_value = ArtifactRef(
         artifact_id=_FAKE_SHA,
@@ -103,7 +112,9 @@ class _CacheTestNode:
         return NodeOutcome(status="ok", state=state)
 
 
-def _make_real_store_ctx(tmp_path):
+def _make_real_store_ctx(
+    tmp_path: Path,
+) -> tuple[FileSystemCAS, ExecutionContext]:
     store = FileSystemCAS(tmp_path / "cas")
     run = MagicMock()
     run.trace_path = None
@@ -120,9 +131,18 @@ def _make_real_store_ctx(tmp_path):
     return store, ctx
 
 
-def _artifact_id_strings(store) -> set[str]:
+def _artifact_id_strings(store: FileSystemCAS) -> set[str]:
     """Normalize immutable CAS identities without relying on RootModel hashing."""
     return {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
+
+
+def _artifact_ids_of_kind(store: FileSystemCAS, kind: str) -> set[str]:
+    """Select persisted artifacts by their manifest kind."""
+    return {
+        str(artifact_id)
+        for artifact_id in store.iter_artifact_ids()
+        if store.get_manifest(artifact_id).kind == kind
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -329,7 +349,9 @@ class TestAsyncWorkflowExecutor:
         assert metrics.record_workflow_completed.call_count == 1
 
     @pytest.mark.asyncio
-    async def test_async_executor_persists_via_async_artifact_store_adapter(self, monkeypatch):
+    async def test_async_executor_persists_via_async_artifact_store_adapter(
+        self, monkeypatch, tmp_path
+    ):
         state = ExperimentState(run_id="async-test-persist")
         node = _make_mock_node()
         node.execute.return_value = NodeOutcome(
@@ -349,22 +371,84 @@ class TestAsyncWorkflowExecutor:
         seen_kinds: list[str] = []
         original_put_json = AsyncArtifactStoreAdapter.put_json
 
-        async def _tracked_put_json(self, obj, opts, canon_spec=None):
+        async def _tracked_put_json(
+            self, obj, opts, canon_spec=None, *, return_selected_profile=False
+        ):
             seen_kinds.append(str(getattr(opts, "kind", "")))
-            return await original_put_json(self, obj, opts, canon_spec=canon_spec)
+            return await original_put_json(
+                self,
+                obj,
+                opts,
+                canon_spec=canon_spec,
+                return_selected_profile=return_selected_profile,
+            )
 
         monkeypatch.setattr(AsyncArtifactStoreAdapter, "put_json", _tracked_put_json)
 
-        ctx = _make_ctx()
+        _, ctx = _make_real_store_ctx(tmp_path)
         executor = AsyncWorkflowExecutor(ctx, registry)
         result = await executor.execute(workflow, state)
 
         assert result.report.status == "ok"
-        assert seen_kinds[:3] == [
+        assert seen_kinds[:4] == [
             "scientist.workflow_spec",
             "scientist.experiment_state",
-            "scientist.workflow_report",
+            "scientist.experiment_state",
+            "scientist.experiment_state",
         ]
+        assert "scientist.workflow_report" in seen_kinds
+
+    @pytest.mark.asyncio
+    async def test_async_executor_records_attempt_basis_for_fresh_owner_read(
+        self, tmp_path: Path
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store, return_selected_profile=True)
+        run = RunContext.start(
+            store=store,
+            registry_bundle=bundle.bundle_ref,
+            run_id="async-owner-attempt",
+        )
+        ctx = ExecutionContext(
+            store=store,
+            run=run,
+            logger=logging.getLogger("async_executor_owner_test"),
+        )
+        node_id = "test.async_owner_attempt@1.0.0"
+        node = _CacheTestNode(_cache_node_spec(node_id))
+        registry = NodeRegistry()
+        registry.register(node)
+        workflow = WorkflowSpec(
+            workflow_id="async_owner_attempt",
+            nodes=[NodeInvocation(alias="attempt", node_id=node_id)],
+        )
+        state = ExperimentState(run_id="async-owner-attempt", params={"seed": 1})
+
+        result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, state)
+
+        assert result.report.status == "ok"
+        trace_path = run.trace_path
+        assert trace_path is not None
+        attempts = run_context._read_runtime_invocation_attempts(
+            store, trace_path, run_id=state.run_id
+        )
+        assert len(attempts) == 1
+        attempt = attempts[0]
+        assert attempt.basis.node_alias == "attempt"
+        assert attempt.basis.component_id == node_id
+        assert attempt.basis.workflow_spec_ref.manifest_profile_sha256 is not None
+        assert attempt.basis.input_state_ref.manifest_profile_sha256 is not None
+        assert attempt.outcome is not None
+        assert attempt.outcome.status == "ok"
+        persisted_workflow = WorkflowSpec.model_validate_json(
+            store.get_bytes(attempt.basis.workflow_spec_ref)
+        )
+        persisted_input = ExperimentState.model_validate_json(
+            store.get_bytes(attempt.basis.input_state_ref)
+        )
+        assert persisted_workflow.workflow_id == workflow.workflow_id
+        assert persisted_input.run_id == state.run_id
+        assert persisted_input.params == {"seed": 1}
 
     @pytest.mark.asyncio
     async def test_no_metrics_no_crash(self):
@@ -573,13 +657,21 @@ class TestAsyncCacheBoundaries:
         put_phase: str | None = None
         phase_ticks = {"entry": 0}
 
-        def slow_put_json(*args, **kwargs):
+        def slow_put_json(
+            obj, opts, canon_spec=None, *, return_selected_profile=False
+        ):
             nonlocal put_calls, put_phase
-            put_calls += 1
-            put_phase = "entry"
-            phase_ticks["entry"] = 0
-            time.sleep(0.08)
-            return original_put_json(*args, **kwargs)
+            if str(getattr(opts, "kind", "")) == "scientist.node_cache_entry":
+                put_calls += 1
+                put_phase = "entry"
+                phase_ticks["entry"] = 0
+                time.sleep(0.08)
+            return original_put_json(
+                obj,
+                opts,
+                canon_spec=canon_spec,
+                return_selected_profile=return_selected_profile,
+            )
 
         monkeypatch.setattr(store, "put_json", slow_put_json)
         finished = asyncio.Event()
@@ -609,15 +701,23 @@ class TestAsyncCacheBoundaries:
         assert phase_ticks["entry"] > 0
 
         executor._cache.clear()
-        ids_before_failed_publication = _artifact_id_strings(store)
+        ids_before_failed_publication = _artifact_ids_of_kind(store, "scientist.node_cache_entry")
         calls = 0
 
-        def fail_entry_put(*args, **kwargs):
+        def fail_entry_put(
+            obj, opts, canon_spec=None, *, return_selected_profile=False
+        ):
             nonlocal calls
-            calls += 1
-            if calls == 1:
-                raise OSError("entry publication interrupted")
-            return original_put_json(*args, **kwargs)
+            if str(getattr(opts, "kind", "")) == "scientist.node_cache_entry":
+                calls += 1
+                if calls == 1:
+                    raise OSError("entry publication interrupted")
+            return original_put_json(
+                obj,
+                opts,
+                canon_spec=canon_spec,
+                return_selected_profile=return_selected_profile,
+            )
 
         monkeypatch.setattr(store, "put_json", fail_entry_put)
         outcome, _, cache_hit, _ = await executor._execute_node(
@@ -629,7 +729,7 @@ class TestAsyncCacheBoundaries:
         assert outcome.status == "ok"
         assert cache_hit is False
         assert executor._cache.size == 0
-        assert _artifact_id_strings(store) == ids_before_failed_publication
+        assert _artifact_ids_of_kind(store, "scientist.node_cache_entry") == ids_before_failed_publication
 
     @pytest.mark.asyncio
     async def test_failed_cache_entry_does_not_publish_partial_cas_artifacts(
@@ -645,17 +745,25 @@ class TestAsyncCacheBoundaries:
         executor._cache = NodeResultCache(store, run_id="async-cache-atomicity")
         invocation = NodeInvocation(alias="cached", node_id=node_id)
         workflow = WorkflowSpec(workflow_id="async_cache_atomicity", nodes=[invocation])
-        ids_before_failed_publication = _artifact_id_strings(store)
+        ids_before_failed_publication = _artifact_ids_of_kind(store, "scientist.node_cache_entry")
 
         original_put_json = store.put_json
         put_calls = 0
 
-        def fail_entry_put(*args, **kwargs):
+        def fail_entry_put(
+            obj, opts, canon_spec=None, *, return_selected_profile=False
+        ):
             nonlocal put_calls
-            put_calls += 1
-            if put_calls == 1:
-                raise OSError("entry publication interrupted")
-            return original_put_json(*args, **kwargs)
+            if str(getattr(opts, "kind", "")) == "scientist.node_cache_entry":
+                put_calls += 1
+                if put_calls == 1:
+                    raise OSError("entry publication interrupted")
+            return original_put_json(
+                obj,
+                opts,
+                canon_spec=canon_spec,
+                return_selected_profile=return_selected_profile,
+            )
 
         monkeypatch.setattr(store, "put_json", fail_entry_put)
         outcome, _, cache_hit, _ = await executor._execute_node(
@@ -669,7 +777,7 @@ class TestAsyncCacheBoundaries:
         assert cache_hit is False
         assert put_calls == 1
         assert executor._cache.size == 0
-        assert _artifact_id_strings(store) == ids_before_failed_publication
+        assert _artifact_ids_of_kind(store, "scientist.node_cache_entry") == ids_before_failed_publication
 
     @pytest.mark.asyncio
     async def test_incompatible_cached_replay_is_discarded_and_recomputed(self, tmp_path):

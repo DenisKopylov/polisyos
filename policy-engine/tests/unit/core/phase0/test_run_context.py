@@ -23,7 +23,7 @@ from polisyos.core.audit import AuditPackageAssembler
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.core.run import context as run_context
 from polisyos.core.run.context import RunContext
-from polisyos.core.run.manifest import RunOwnerSnapshot
+from polisyos.core.run.manifest import RunOwnerSnapshot, RunOwnerSnapshotV101
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.core.trace import RunTerminality, TraceRecord
@@ -1397,11 +1397,13 @@ def test_run_owner_snapshot_round_trips_through_core_canonical_codec(
     decoded = from_canonical_bytes(payload)
 
     assert isinstance(decoded, dict)
-    assert decoded["schema_version"] == "1.0.1"
+    assert decoded["schema_version"] == "1.0.2"
     assert "access_scope_sha256" in decoded
     assert decoded["access_scope_sha256"] is None
     assert "previous_snapshot_ref" in decoded
     assert decoded["previous_snapshot_ref"] is None
+    assert "runtime_invocation_tail_ref" in decoded
+    assert decoded["runtime_invocation_tail_ref"] is None
     assert isinstance(decoded["run_manifest"]["started_at"], datetime)
     snapshot = RunOwnerSnapshot.model_validate(decoded)
     assert snapshot.run_manifest.started_at == start.ts
@@ -1409,12 +1411,78 @@ def test_run_owner_snapshot_round_trips_through_core_canonical_codec(
 
     manifest = store.get_manifest(owner_ref)
     assert manifest.artifact_schema is not None
-    assert manifest.artifact_schema.version == "1.0.1"
+    assert manifest.artifact_schema.version == "1.0.2"
     assert manifest.canon is not None
     assert manifest.canon.exclude_none is False
     assert manifest.inputs[0].artifact_id == bundle_ref.artifact_id
     assert manifest.inputs[0].manifest_profile_sha256 == bundle_ref.manifest_profile_sha256
     assert store.verify(owner_ref).ok
+
+
+def test_legacy_v101_owner_bytes_remain_exact_and_read_as_unbound_history(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer: Any,
+    env_info: Any,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_owner_snapshot_legacy_v101_read"
+    run_dir = tmp_path / "runs" / run_id
+    run = RunContext.start(
+        store,
+        bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+    )
+    run.suspend_for_resume()
+
+    legacy_snapshot = RunOwnerSnapshotV101(
+        schema_version="1.0.1",
+        run_manifest=run.run_manifest.model_copy(deep=True),
+        access_scope_sha256=None,
+        previous_snapshot_ref=None,
+    )
+    old_wire = to_canonical_bytes(legacy_snapshot, CanonSpec(exclude_none=False))
+    legacy_ref = store.put_json(
+        legacy_snapshot,
+        run_context._run_owner_snapshot_write_options(legacy_snapshot),
+        canon_spec=CanonSpec(exclude_none=False),
+        return_selected_profile=True,
+    )
+    assert store.get_bytes(legacy_ref) == old_wire
+    assert store.verify(legacy_ref).ok
+    legacy_manifest = store.get_manifest(legacy_ref)
+    assert legacy_manifest.artifact_schema is not None
+    assert legacy_manifest.artifact_schema.version == "1.0.1"
+    decoded_legacy = run_context._validate_run_owner_snapshot_ref(
+        store,
+        legacy_ref,
+        require_registry_profile=False,
+    )
+    assert type(decoded_legacy) is RunOwnerSnapshotV101
+    assert decoded_legacy.schema_version == "1.0.1"
+    assert getattr(decoded_legacy, "runtime_invocation_tail_ref", None) is None
+
+    trace_path = run_dir / "trace.jsonl"
+    records = [
+        TraceRecord.model_validate_json(line)
+        for line in trace_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    assert records[0].event == "RUN_STARTED"
+    records[0].refs.outputs = [legacy_ref]
+    trace_path.write_text(
+        "\n".join(record.model_dump_json(exclude_none=True) for record in records) + "\n",
+        encoding="utf-8",
+    )
+
+    # Historical v1.0.1 owner chains remain readable, but an absent attempt tail
+    # does not become a positive selection binding.
+    assert run_context._read_runtime_invocation_attempts(
+        store, trace_path, run_id=run_id
+    ) == []
 
 
 @pytest.mark.parametrize(
@@ -2921,9 +2989,11 @@ def test_worker_merge_wins_run_state_lease_before_manifest_update(
         update.result(timeout=10)
 
     assert run.run_manifest.execution_profile == "parent-profile"
+    owner_snapshot_ref = run._owner_snapshot_ref
+    assert owner_snapshot_ref is not None
     current_snapshot = run_context._validate_run_owner_snapshot_ref(
         store,
-        run._owner_snapshot_ref,
+        owner_snapshot_ref,
         require_registry_profile=False,
     )
     assert current_snapshot.previous_snapshot_ref is not None
@@ -3290,3 +3360,107 @@ def test_worker_merge_readback_failure_preserves_receipt_for_exact_resume_recove
     assert resumed.run_manifest.execution_profile == "replayed-worker-profile"
     assert resumed._owner_snapshot_ref == records[0].refs.outputs[0]
     resumed.suspend_for_resume()
+
+
+def test_owner_snapshot_with_mislinked_present_invocation_tail_is_rejected(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer: Any,
+    env_info: Any,
+) -> None:
+    """A present but mislinked owner tail cannot fall back to earlier attempts."""
+    from uuid import uuid4
+
+    from polisyos.core.run.manifest import RunInvocationStarted
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+
+    bundle_ref = _bootstrap_registry_bundle(store, selected_profile=True)
+    run_id = "R_owner_snapshot_mislinked_present_invocation_tail"
+    run_dir = tmp_path / "runs" / run_id
+    run = RunContext.start(
+        store=store,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+        run_id=run_id,
+    )
+    component_id = "scientist.node_owner_tail_probe@1.0.0"
+    workflow = WorkflowSpec(
+        workflow_id="owner_tail_probe",
+        nodes=[NodeInvocation(alias="attempt", node_id=component_id)],
+    )
+    workflow_ref = store.put_json(
+        workflow.model_dump(),
+        PutOptions(
+            kind="scientist.workflow_spec",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.WorkflowSpec",
+                version="1.0",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    state = ExperimentState(run_id=run_id)
+    input_ref = store.put_json(
+        state.model_dump(),
+        PutOptions(
+            kind="scientist.experiment_state",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.orchestration.engine.ExperimentState",
+                version=state.schema_version,
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    run._record_runtime_invocation_started(
+        attempt_id=str(uuid4()),
+        attempt_number=1,
+        workflow_spec_ref=workflow_ref,
+        node_alias="attempt",
+        component_id=component_id,
+        input_state_ref=input_ref,
+    )
+    original_attempts = run.read_runtime_invocation_attempts()
+    assert len(original_attempts) == 1
+    original = original_attempts[0]
+
+    malformed = RunInvocationStarted(
+        run_id=run_id,
+        attempt_id=str(uuid4()),
+        attempt_number=2,
+        workflow_spec_ref=original.basis.workflow_spec_ref,
+        node_alias="attempt",
+        component_id=component_id,
+        input_state_ref=original.basis.input_state_ref,
+        # Deliberately drop the current owner tail: the schema and CAS bytes remain valid.
+        previous_record_ref=None,
+    )
+    malformed_ref = run_context._persist_run_invocation_record(
+        store, malformed, run_manifest=run.run_manifest
+    )
+    current_owner = run_context._validate_run_owner_snapshot_ref(
+        store,
+        run._owner_snapshot_ref,
+        require_registry_profile=False,
+    )
+    assert isinstance(current_owner, RunOwnerSnapshot)
+    bad_snapshot_ref = run_context._persist_run_owner_snapshot(
+        store,
+        run_manifest=run.run_manifest,
+        access_scope_sha256=current_owner.access_scope_sha256,
+        previous_snapshot_ref=run._owner_snapshot_ref,
+        runtime_invocation_tail_ref=malformed_ref,
+    )
+    run._emit_record("core", "RUN_CONTEXT_SNAPSHOT", outputs=[bad_snapshot_ref])
+
+    with pytest.raises(
+        run_context._FinalizeRecoveryError,
+        match="run_resume_invocation_tail_chain_invalid",
+    ):
+        run.read_runtime_invocation_attempts()

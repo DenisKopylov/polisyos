@@ -9,6 +9,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.skip_blockers import SKIP_BLOCKER_REQUIRED_FIELDS
 from polisyos.core.registry import build_default_registry_bundle
+from polisyos.core.run import context as run_context
 from polisyos.core.run.context import RunContext
 from polisyos.scientist.orchestration.engine.builtins import builtin_nodes
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
@@ -185,9 +186,9 @@ class FailingProvenanceDag:
         return {"records": []}
 
 
-def _ctx_and_registry(tmp_path):
+def _ctx_and_registry(tmp_path, *, return_selected_profile=False):
     store = FileSystemCAS(tmp_path)
-    bundle = build_default_registry_bundle(store)
+    bundle = build_default_registry_bundle(store, return_selected_profile=return_selected_profile)
     run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id="R_test")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("test"))
     registry = NodeRegistry()
@@ -197,7 +198,7 @@ def _ctx_and_registry(tmp_path):
 
 
 def test_executor_runs_dag_and_emits_trace(tmp_path):
-    store, bundle, ctx, registry = _ctx_and_registry(tmp_path)
+    store, bundle, ctx, registry = _ctx_and_registry(tmp_path, return_selected_profile=True)
 
     workflow = WorkflowSpec(
         workflow_id="engine_smoke",
@@ -238,6 +239,31 @@ def test_executor_runs_dag_and_emits_trace(tmp_path):
     node_events = [evt for evt in events if evt.get("phase", "").startswith("scientist.node.")]
     aliases = {evt["phase"].split(".")[-1] for evt in node_events}
     assert {"set", "emit", "noop"}.issubset(aliases)
+
+    # The public executor records its exact per-attempt basis through the run
+    # owner, and a fresh method call reloads that chain from the persisted trace.
+    attempts = run_context._read_runtime_invocation_attempts(
+        store, ctx.run.trace_path, run_id=state.run_id
+    )
+    assert {attempt.basis.node_alias for attempt in attempts} == {"set", "emit", "noop"}
+    invocations_by_alias = {inv.alias: inv for inv in workflow.nodes}
+    for attempt in attempts:
+        assert attempt.outcome is not None
+        assert attempt.outcome.status == "ok"
+        assert attempt.basis.workflow_spec_ref.manifest_profile_sha256 is not None
+        assert attempt.basis.input_state_ref.manifest_profile_sha256 is not None
+        persisted_workflow = WorkflowSpec.model_validate_json(
+            store.get_bytes(attempt.basis.workflow_spec_ref)
+        )
+        persisted_input = ExperimentState.model_validate_json(
+            store.get_bytes(attempt.basis.input_state_ref)
+        )
+        assert persisted_workflow.workflow_id == workflow.workflow_id
+        assert attempt.basis.node_alias in invocations_by_alias
+        assert attempt.basis.component_id == str(
+            invocations_by_alias[attempt.basis.node_alias].node_id
+        )
+        assert persisted_input.run_id == state.run_id
 
 
 def test_executor_emits_memory_authority_before_serious_run_nodes(tmp_path):

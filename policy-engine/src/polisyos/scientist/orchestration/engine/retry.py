@@ -30,7 +30,7 @@ import signal
 import sys
 import threading
 import time
-from collections.abc import Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from concurrent.futures import wait
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
@@ -402,6 +402,109 @@ _DEAD_LETTER_PERSIST_ERRORS = (
     ValidationError,
     ValueError,
 )
+
+
+class _InvocationAttemptPersistenceError(RuntimeError):
+    """An engine-owned attempt basis/outcome could not be persisted."""
+
+
+def _begin_invocation_attempt(
+    callback: Callable[[int, ExperimentState], str] | None,
+    *,
+    attempt_number: int,
+    state: ExperimentState,
+) -> str | None:
+    """Persist an exact attempt input before calling the node implementation."""
+    if callback is None:
+        return None
+    try:
+        attempt_id = callback(attempt_number, state)
+    except Exception as exc:
+        raise _InvocationAttemptPersistenceError(
+            "run_invocation_attempt_start_persistence_failed"
+        ) from exc
+    if not isinstance(attempt_id, str) or not attempt_id:
+        raise _InvocationAttemptPersistenceError("run_invocation_attempt_id_invalid")
+    return attempt_id
+
+
+def _attempt_context_for_engine_attempt(
+    ctx: ExecutionContext,
+    attempt_id: str | None,
+    callback: Callable[[str], ExecutionContext] | None,
+) -> ExecutionContext:
+    """Bind a node context to the exact owner attempt before producer code runs."""
+    if callback is None:
+        return ctx
+    if attempt_id is None:
+        raise _InvocationAttemptPersistenceError("run_invocation_attempt_context_id_missing")
+    try:
+        attempt_context = callback(attempt_id)
+    except Exception as exc:
+        raise _InvocationAttemptPersistenceError(
+            "run_invocation_attempt_context_binding_failed"
+        ) from exc
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext as ContextType
+
+    if not isinstance(attempt_context, ContextType):
+        raise _InvocationAttemptPersistenceError(
+            "run_invocation_attempt_context_type_invalid"
+        )
+    return attempt_context
+
+
+def _finish_invocation_attempt(
+    callback: Callable[[str, NodeOutcome | None], None] | None,
+    *,
+    attempt_id: str | None,
+    outcome: NodeOutcome | None,
+) -> None:
+    """Persist one returned outcome or an explicitly unknown execution result."""
+    if callback is None or attempt_id is None:
+        return
+    try:
+        callback(attempt_id, outcome)
+    except Exception as exc:
+        raise _InvocationAttemptPersistenceError(
+            "run_invocation_attempt_outcome_persistence_failed"
+        ) from exc
+
+
+async def _begin_invocation_attempt_async(
+    callback: Callable[[int, ExperimentState], Awaitable[str]] | None,
+    *,
+    attempt_number: int,
+    state: ExperimentState,
+) -> str | None:
+    """Persist an exact async attempt input before calling the node implementation."""
+    if callback is None:
+        return None
+    try:
+        attempt_id = await callback(attempt_number, state)
+    except Exception as exc:
+        raise _InvocationAttemptPersistenceError(
+            "run_invocation_attempt_start_persistence_failed"
+        ) from exc
+    if not isinstance(attempt_id, str) or not attempt_id:
+        raise _InvocationAttemptPersistenceError("run_invocation_attempt_id_invalid")
+    return attempt_id
+
+
+async def _finish_invocation_attempt_async(
+    callback: Callable[[str, NodeOutcome | None], Awaitable[None]] | None,
+    *,
+    attempt_id: str | None,
+    outcome: NodeOutcome | None,
+) -> None:
+    """Persist one async outcome or an explicitly unknown execution result."""
+    if callback is None or attempt_id is None:
+        return
+    try:
+        await callback(attempt_id, outcome)
+    except Exception as exc:
+        raise _InvocationAttemptPersistenceError(
+            "run_invocation_attempt_outcome_persistence_failed"
+        ) from exc
 
 
 # The typed engine store exposes these two persistence calls.  The ownership
@@ -1340,6 +1443,9 @@ def execute_with_retry_sync(
     liveness_config: BoundedLivenessConfig | Mapping[str, Any] | None = None,
     deadline_monotonic: float | None = None,
     dispatch_params: Mapping[str, Any] | None = None,
+    attempt_started: Callable[[int, ExperimentState], str] | None = None,
+    attempt_completed: Callable[[str, NodeOutcome | None], None] | None = None,
+    attempt_context: Callable[[str], ExecutionContext] | None = None,
 ) -> NodeOutcome:
     """Sync retry wrapper for ``WorkflowExecutor``.
 
@@ -1356,7 +1462,30 @@ def execute_with_retry_sync(
     )
     # Fast path — no retry, no timeout
     if retry_policy.max_retries == 0 and deadline is None and circuit_breaker is None:
-        return node.execute(ctx, state)
+        attempt_id = _begin_invocation_attempt(
+            attempt_started,
+            attempt_number=1,
+            state=state,
+        )
+        try:
+            attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
+            outcome_value = node.execute(attempt_ctx, state)
+            if not isinstance(outcome_value, NodeOutcome):
+                raise TypeError("node execution must return a NodeOutcome")
+            outcome = outcome_value
+        except BaseException:
+            _finish_invocation_attempt(
+                attempt_completed,
+                attempt_id=attempt_id,
+                outcome=None,
+            )
+            raise
+        _finish_invocation_attempt(
+            attempt_completed,
+            attempt_id=attempt_id,
+            outcome=outcome if isinstance(outcome, NodeOutcome) else None,
+        )
+        return outcome
 
     last_outcome: NodeOutcome | None = None
     failed_spend: dict[str, Decimal] = {}
@@ -1375,11 +1504,18 @@ def execute_with_retry_sync(
             )
 
         attempt_state = _fresh_retry_state(state, node) if retry_policy.max_retries > 0 else state
+        attempt_id = _begin_invocation_attempt(
+            attempt_started,
+            attempt_number=attempt + 1,
+            state=attempt_state,
+        )
+        attempt_recorded = False
         try:
+            attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
             if remaining is not None:
                 outcome = _execute_with_timeout_sync(
                     node,
-                    ctx,
+                    attempt_ctx,
                     attempt_state,
                     timeout_s=remaining,
                     deadline_monotonic=deadline,
@@ -1387,7 +1523,10 @@ def execute_with_retry_sync(
                     dispatch_params=dispatch_params,
                 )
             else:
-                outcome = node.execute(ctx, attempt_state)
+                outcome_value = node.execute(attempt_ctx, attempt_state)
+                if not isinstance(outcome_value, NodeOutcome):
+                    raise TypeError("node execution must return a NodeOutcome")
+                outcome = outcome_value
 
             try:
                 _remaining_deadline(deadline, execution_state="completed_publication_rejected")
@@ -1398,6 +1537,12 @@ def execute_with_retry_sync(
                 _merge_spend(outcome.state, failed_spend)
                 if circuit_breaker is not None:
                     circuit_breaker.record_success()
+                _finish_invocation_attempt(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=outcome,
+                )
+                attempt_recorded = True
                 return outcome
 
             # Node returned a "fail" outcome — check retry_on filter
@@ -1408,6 +1553,12 @@ def execute_with_retry_sync(
                 attempt_spend = _spend_delta(state, outcome.state)
                 _accumulate_spend(failed_spend, attempt_spend)
                 last_outcome = outcome
+                _finish_invocation_attempt(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=outcome,
+                )
+                attempt_recorded = True
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
                     "Retrying node %s (attempt %d/%d) after %.1fs",
@@ -1427,16 +1578,48 @@ def execute_with_retry_sync(
                 continue
 
             _merge_spend(outcome.state, failed_spend)
+            _finish_invocation_attempt(
+                attempt_completed,
+                attempt_id=attempt_id,
+                outcome=outcome,
+            )
+            attempt_recorded = True
             return outcome
 
         except NodeTimeoutError:
+            if not attempt_recorded:
+                _finish_invocation_attempt(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=None,
+                )
             _merge_spend(state, failed_spend)
             raise
         except CircuitBreakerOpenError:
+            if not attempt_recorded:
+                _finish_invocation_attempt(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=None,
+                )
             raise
         except KeyboardInterrupt:
+            if not attempt_recorded:
+                _finish_invocation_attempt(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=None,
+                )
+            raise
+        except _InvocationAttemptPersistenceError:
             raise
         except _RETRY_RUNTIME_ERRORS as exc:
+            if not attempt_recorded:
+                _finish_invocation_attempt(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=None,
+                )
             original_error = exc.error if isinstance(exc, _CompletedAttemptError) else exc
             captured_spend = (
                 exc.known_spend
@@ -2917,6 +3100,9 @@ async def execute_with_retry_async(
     liveness_config: BoundedLivenessConfig | Mapping[str, Any] | None = None,
     deadline_monotonic: float | None = None,
     dispatch_params: Mapping[str, Any] | None = None,
+    attempt_started: Callable[[int, ExperimentState], Awaitable[str]] | None = None,
+    attempt_completed: Callable[[str, NodeOutcome | None], Awaitable[None]] | None = None,
+    attempt_context: Callable[[str], ExecutionContext] | None = None,
 ) -> NodeOutcome:
     """Async retry wrapper for ``AsyncWorkflowExecutor``.
 
@@ -2938,14 +3124,17 @@ async def execute_with_retry_async(
         and any("execute_async" in getattr(klass, "__dict__", {}) for klass in type(node).__mro__)
     )
 
-    async def _invoke(attempt_state: ExperimentState) -> NodeOutcome:
+    async def _invoke(
+        attempt_state: ExperimentState,
+        attempt_ctx: ExecutionContext,
+    ) -> NodeOutcome:
         remaining = _remaining_deadline(deadline)
         if _has_async:
             if remaining is None:
-                return await node.execute_async(ctx, attempt_state)
+                return await node.execute_async(attempt_ctx, attempt_state)
             return await _execute_with_timeout_async(
                 node,
-                ctx,
+                attempt_ctx,
                 attempt_state,
                 timeout_s=remaining,
                 deadline_monotonic=deadline,
@@ -2954,7 +3143,7 @@ async def execute_with_retry_async(
             if _timeout_worker_start_method() is not None:
                 return await _execute_with_timeout_process_async(
                     node,
-                    ctx,
+                    attempt_ctx,
                     attempt_state,
                     timeout_s=remaining,
                     deadline_monotonic=deadline,
@@ -2965,7 +3154,7 @@ async def execute_with_retry_async(
                 raise _timeout_worker_unsupported("safe_process_start_method_unavailable")
             return await _execute_with_timeout_thread_async(
                 node,
-                ctx,
+                attempt_ctx,
                 attempt_state,
                 timeout_s=remaining,
                 deadline_monotonic=deadline,
@@ -2984,11 +3173,35 @@ async def execute_with_retry_async(
     if retry_policy.max_retries == 0 and deadline is None and circuit_breaker is None:
         if retry_stats is not None:
             retry_stats["attempts"] = 1
+        attempt_id = await _begin_invocation_attempt_async(
+            attempt_started,
+            attempt_number=1,
+            state=state,
+        )
         try:
-            return await _invoke(state)
+            attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
+            outcome = await _invoke(state, attempt_ctx)
         except _CompletedAttemptError as exc:
+            await _finish_invocation_attempt_async(
+                attempt_completed,
+                attempt_id=attempt_id,
+                outcome=None,
+            )
             _merge_spend(state, exc.known_spend)
             raise exc.error from None
+        except BaseException:
+            await _finish_invocation_attempt_async(
+                attempt_completed,
+                attempt_id=attempt_id,
+                outcome=None,
+            )
+            raise
+        await _finish_invocation_attempt_async(
+            attempt_completed,
+            attempt_id=attempt_id,
+            outcome=outcome if isinstance(outcome, NodeOutcome) else None,
+        )
+        return outcome
 
     last_outcome: NodeOutcome | None = None
     failed_spend: dict[str, Decimal] = {}
@@ -3007,8 +3220,15 @@ async def execute_with_retry_async(
             )
 
         attempt_state = _fresh_retry_state(state, node) if retry_policy.max_retries > 0 else state
+        attempt_id = await _begin_invocation_attempt_async(
+            attempt_started,
+            attempt_number=attempt + 1,
+            state=attempt_state,
+        )
+        attempt_recorded = False
         try:
-            outcome = await _invoke(attempt_state)
+            attempt_ctx = _attempt_context_for_engine_attempt(ctx, attempt_id, attempt_context)
+            outcome = await _invoke(attempt_state, attempt_ctx)
 
             try:
                 _remaining_deadline(deadline, execution_state="completed_publication_rejected")
@@ -3021,6 +3241,12 @@ async def execute_with_retry_async(
                     circuit_breaker.record_success()
                 if retry_stats is not None:
                     retry_stats["attempts"] = attempt + 1
+                await _finish_invocation_attempt_async(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=outcome,
+                )
+                attempt_recorded = True
                 return outcome
 
             if circuit_breaker is not None:
@@ -3030,6 +3256,12 @@ async def execute_with_retry_async(
                 attempt_spend = _spend_delta(state, outcome.state)
                 _accumulate_spend(failed_spend, attempt_spend)
                 last_outcome = outcome
+                await _finish_invocation_attempt_async(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=outcome,
+                )
+                attempt_recorded = True
                 delay = _backoff_delay(attempt, retry_policy)
                 _logger.info(
                     "Retrying node %s (attempt %d/%d) after %.1fs",
@@ -3051,17 +3283,49 @@ async def execute_with_retry_async(
             if retry_stats is not None:
                 retry_stats["attempts"] = attempt + 1
             _merge_spend(outcome.state, failed_spend)
+            await _finish_invocation_attempt_async(
+                attempt_completed,
+                attempt_id=attempt_id,
+                outcome=outcome,
+            )
+            attempt_recorded = True
             return outcome
 
         except NodeTimeoutError:
+            if not attempt_recorded:
+                await _finish_invocation_attempt_async(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=None,
+                )
             _merge_spend(state, failed_spend)
             raise
         except CircuitBreakerOpenError:
+            if not attempt_recorded:
+                await _finish_invocation_attempt_async(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=None,
+                )
             raise
         except asyncio.CancelledError:
+            if not attempt_recorded:
+                await _finish_invocation_attempt_async(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=None,
+                )
             _logger.info("Node %s cancelled during attempt %d", alias, attempt)
             raise
+        except _InvocationAttemptPersistenceError:
+            raise
         except _RETRY_RUNTIME_ERRORS as exc:
+            if not attempt_recorded:
+                await _finish_invocation_attempt_async(
+                    attempt_completed,
+                    attempt_id=attempt_id,
+                    outcome=None,
+                )
             original_error = exc.error if isinstance(exc, _CompletedAttemptError) else exc
             captured_spend = (
                 exc.known_spend

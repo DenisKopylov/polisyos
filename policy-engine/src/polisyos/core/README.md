@@ -165,3 +165,18 @@ compatibility callers.
 ## Exact E02 cross-package routes
 
 Core governance and LLM entrypoints are supported as narrow owner facades. The `core.artifacts`, `core.contracts`, and `core.security` facades expose only the exact DTOs, protocol, and wire constants required by typed consumers. Their exports preserve the defining object; public route availability does not grant caller authority or producer attestation. `Common.canonical_profile` remains storage-agnostic, while Core canonical tags and refusal identity stay Core-owned.
+
+## Run-owner invocation basis
+
+New run-owner snapshots use schema `1.0.2` and append an optional selected-profile
+tail for engine invocation records. Each start record binds one attempt to the
+full selected `WorkflowSpec` and `ExperimentState` refs; its completion record
+binds the returned status, outcome-state ref, and output refs. Snapshot schema
+`1.0.1` remains a separate read shape with its original bytes and hash, and a
+history without an invocation tail returns no positive source binding.
+
+`RunContext.read_runtime_invocation_attempts()` reads the current trace and
+owner chain again from CAS. Ordinary `RunContext.emit()` events cannot advance
+that chain. This is an execution-input record, not a sandbox or a claim about
+who authored the input before dispatch; callers without the owner-linked basis
+remain `not_established` for source origin.

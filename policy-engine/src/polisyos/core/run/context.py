@@ -37,7 +37,13 @@ from ..canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_
 from ..trace import RunTerminality
 from ..trace.record import TraceRecord, TraceRefs
 from ..trace.sink import BatchTraceSink, JsonlTraceSink, TraceSink
-from .manifest import RunManifest, RunOwnerSnapshot
+from .manifest import (
+    RunInvocationCompleted,
+    RunInvocationStarted,
+    RunManifest,
+    RunOwnerSnapshot,
+    RunOwnerSnapshotV101,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.security.access_scope import AccessScope
@@ -52,8 +58,13 @@ _RUN_FINALIZE_THREAD_LOCKS = tuple(threading.RLock() for _ in range(64))
 _RUN_ACTIVE_LOCK_NAME = ".run-active.lock"
 _RUN_OWNER_SNAPSHOT_KIND = "core.run_owner_snapshot"
 _RUN_OWNER_SNAPSHOT_SCHEMA = "polisyos.core.RunOwnerSnapshot"
-_RUN_OWNER_SNAPSHOT_SCHEMA_VERSION = "1.0.1"
+_RUN_OWNER_SNAPSHOT_SCHEMA_VERSION = "1.0.2"
+_RUN_OWNER_SNAPSHOT_LEGACY_SCHEMA_VERSION = "1.0.1"
 _RUN_OWNER_SNAPSHOT_CANON = CanonSpec(exclude_none=False)
+_RUN_INVOCATION_RECORD_KIND = "core.run_invocation_attempt"
+_RUN_INVOCATION_RECORD_SCHEMA = "polisyos.core.RunInvocationAttempt"
+_RUN_INVOCATION_RECORD_SCHEMA_VERSION = "1.0"
+_RUN_INVOCATION_RECORD_CANON = CanonSpec(exclude_none=False)
 _RUN_OWNER_SCOPE_CANON = CanonSpec(
     name="polisyos.core.run.owner-scope",
     version="1.0",
@@ -206,6 +217,86 @@ class _RunOwnerIdentity:
     cell_id: str | None
 
 
+@dataclass(frozen=True)
+class _RunInvocationAttempt:
+    """One validated start basis and its optional engine-observed completion."""
+
+    basis: RunInvocationStarted
+    basis_ref: ArtifactRef
+    outcome: RunInvocationCompleted | None
+    outcome_ref: ArtifactRef | None
+
+
+def _run_invocation_attempt_chain(
+    store: ArtifactStore,
+    *,
+    tail_ref: ArtifactRef | None,
+    run_manifest: RunManifest,
+) -> list[_RunInvocationAttempt]:
+    """Validate the complete owner-linked attempt sequence, rejecting forks/conflicts."""
+    if tail_ref is None:
+        return []
+
+    def _ref_key(ref: ArtifactRef) -> tuple[str, str | None]:
+        return str(ref.artifact_id), ref.manifest_profile_sha256
+
+    reverse_records: list[tuple[ArtifactRef, RunInvocationStarted | RunInvocationCompleted]] = []
+    seen_refs: set[tuple[str, str | None]] = set()
+    current_ref: ArtifactRef | None = tail_ref
+    while current_ref is not None:
+        current_key = _ref_key(current_ref)
+        if current_key in seen_refs:
+            raise _FinalizeRecoveryError("run_invocation_record_cycle")
+        seen_refs.add(current_key)
+        current_record = _load_run_invocation_record(
+            store,
+            current_ref,
+            run_manifest=run_manifest,
+        )
+        reverse_records.append((current_ref, current_record))
+        current_ref = current_record.previous_record_ref
+    records = list(reversed(reverse_records))
+    starts: dict[tuple[str, str | None], tuple[ArtifactRef, RunInvocationStarted]] = {}
+    completed_by_basis: dict[
+        tuple[str, str | None], tuple[ArtifactRef, RunInvocationCompleted]
+    ] = {}
+    attempts: set[str] = set()
+    prior_record_keys: set[tuple[str, str | None]] = set()
+    for index, (record_ref, record) in enumerate(records):
+        expected_previous = records[index - 1][0] if index else None
+        if record.previous_record_ref != expected_previous:
+            raise _FinalizeRecoveryError("run_invocation_record_chain_mismatch")
+        if isinstance(record, RunInvocationStarted):
+            record_key = _ref_key(record_ref)
+            if record.attempt_id in attempts or record.run_id != run_manifest.run_id:
+                raise _FinalizeRecoveryError("run_invocation_attempt_identity_conflict")
+            attempts.add(record.attempt_id)
+            starts[record_key] = (record_ref, record)
+        else:
+            basis_key = _ref_key(record.basis_ref)
+            basis_pair = starts.get(basis_key)
+            if (
+                basis_pair is None
+                or basis_key not in prior_record_keys
+                or record.attempt_id != basis_pair[1].attempt_id
+                or record.attempt_number != basis_pair[1].attempt_number
+                or record.run_id != basis_pair[1].run_id
+                or basis_key in completed_by_basis
+            ):
+                raise _FinalizeRecoveryError("run_invocation_attempt_completion_conflict")
+            completed_by_basis[basis_key] = (record_ref, record)
+        prior_record_keys.add(_ref_key(record_ref))
+    return [
+        _RunInvocationAttempt(
+            basis=basis,
+            basis_ref=basis_ref,
+            outcome=completed_by_basis.get(_ref_key(basis_ref), (None, None))[1],
+            outcome_ref=completed_by_basis.get(_ref_key(basis_ref), (None, None))[0],
+        )
+        for basis_ref, basis in starts.values()
+    ]
+
+
 class _AuditTraceSink(Protocol):
     """Trace sink protocol that also supports explicit shutdown."""
 
@@ -233,7 +324,7 @@ def _run_manifest_write_options(run_manifest: RunManifest) -> ArtifactWriteOptio
 
 
 def _run_owner_snapshot_write_options(
-    snapshot: RunOwnerSnapshot,
+    snapshot: RunOwnerSnapshot | RunOwnerSnapshotV101,
 ) -> ArtifactWriteOptions:
     tenant_context = _run_manifest_tenant_context(snapshot.run_manifest)
     inputs = [
@@ -251,13 +342,22 @@ def _run_owner_snapshot_write_options(
                 manifest_profile_sha256=(snapshot.previous_snapshot_ref.manifest_profile_sha256),
             )
         )
+    invocation_tail_ref = getattr(snapshot, "runtime_invocation_tail_ref", None)
+    if invocation_tail_ref is not None:
+        inputs.append(
+            InputRef(
+                artifact_id=invocation_tail_ref.artifact_id,
+                role="runtime_invocation_tail",
+                manifest_profile_sha256=invocation_tail_ref.manifest_profile_sha256,
+            )
+        )
     canon = _RUN_OWNER_SNAPSHOT_CANON
     return ArtifactWriteOptions(
         kind=_RUN_OWNER_SNAPSHOT_KIND,
         media_type="application/json",
         schema=SchemaInfo(
             name=_RUN_OWNER_SNAPSHOT_SCHEMA,
-            version=_RUN_OWNER_SNAPSHOT_SCHEMA_VERSION,
+            version=snapshot.schema_version,
         ),
         producer=snapshot.run_manifest.producer,
         env=snapshot.run_manifest.env,
@@ -329,18 +429,165 @@ def _access_scope_sha256(access_scope: AccessScope | None) -> str | None:
     )
 
 
+def _run_invocation_record_write_options(
+    record: RunInvocationStarted | RunInvocationCompleted,
+    *,
+    run_manifest: RunManifest,
+) -> ArtifactWriteOptions:
+    """Bind one invocation record to the exact full-profile owner edges."""
+    refs: list[tuple[ArtifactRef, str]] = []
+    if record.previous_record_ref is not None:
+        refs.append((record.previous_record_ref, "previous_invocation_record"))
+    if isinstance(record, RunInvocationStarted):
+        refs.extend(
+            [
+                (record.workflow_spec_ref, "workflow_spec"),
+                (record.input_state_ref, "input_state"),
+            ]
+        )
+    else:
+        refs.append((record.basis_ref, "attempt_basis"))
+        if record.outcome_state_ref is not None:
+            refs.append((record.outcome_state_ref, "outcome_state"))
+        refs.extend(
+            (ref, f"outcome_output_{index}")
+            for index, ref in enumerate(record.output_refs)
+        )
+    return ArtifactWriteOptions(
+        kind=_RUN_INVOCATION_RECORD_KIND,
+        media_type="application/json",
+        schema=SchemaInfo(
+            name=_RUN_INVOCATION_RECORD_SCHEMA,
+            version=_RUN_INVOCATION_RECORD_SCHEMA_VERSION,
+        ),
+        producer=run_manifest.producer,
+        env=run_manifest.env,
+        inputs=[
+            InputRef(
+                artifact_id=ref.artifact_id,
+                role=role,
+                manifest_profile_sha256=ref.manifest_profile_sha256,
+            )
+            for ref, role in refs
+        ],
+        canon=CanonInfo.from_spec(_RUN_INVOCATION_RECORD_CANON),
+        tenant_context=_run_manifest_tenant_context(run_manifest),
+    )
+
+
+def _persist_run_invocation_record(
+    store: ArtifactStore,
+    record: RunInvocationStarted | RunInvocationCompleted,
+    *,
+    run_manifest: RunManifest,
+) -> ArtifactRef:
+    """Persist one immutable attempt record with its selected manifest profile."""
+    _require_return_selected_profile_writer(store, "put_json")
+    ref = store.put_json(
+        record,
+        _run_invocation_record_write_options(record, run_manifest=run_manifest),
+        canon_spec=_RUN_INVOCATION_RECORD_CANON,
+        return_selected_profile=True,
+    )
+    if ref.manifest_profile_sha256 is None:
+        raise _FinalizeRecoveryError("run_invocation_record_profile_not_established")
+    return ref
+
+
+def _load_run_invocation_record(
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    *,
+    run_manifest: RunManifest,
+) -> RunInvocationStarted | RunInvocationCompleted:
+    """Read back and content-bind one engine attempt record."""
+    if (
+        ref.kind != _RUN_INVOCATION_RECORD_KIND
+        or ref.media_type != "application/json"
+        or ref.manifest_profile_sha256 is None
+    ):
+        raise _FinalizeRecoveryError("run_invocation_record_ref_invalid")
+    try:
+        verification = store.verify(ref)
+        if not verification.ok:
+            raise _FinalizeRecoveryError("run_invocation_record_cas_invalid")
+        payload = store.get_bytes(ref)
+        artifact_manifest = store.get_manifest(ref)
+        decoded = from_canonical_bytes(payload)
+        if not isinstance(decoded, dict):
+            raise _FinalizeRecoveryError("run_invocation_record_payload_invalid")
+        record_type = decoded.get("record_type")
+        record: RunInvocationStarted | RunInvocationCompleted
+        if record_type == "started":
+            record = RunInvocationStarted.model_validate(decoded)
+        elif record_type == "completed":
+            record = RunInvocationCompleted.model_validate(decoded)
+        else:
+            raise _FinalizeRecoveryError("run_invocation_record_type_invalid")
+        expected_bytes = to_canonical_bytes(record, _RUN_INVOCATION_RECORD_CANON)
+        if (
+            payload != expected_bytes
+            or content_hash(payload, prefix=True) != str(ref.artifact_id)
+            or content_hash(expected_bytes, prefix=True) != str(ref.artifact_id)
+            or record.run_id != run_manifest.run_id
+        ):
+            raise _FinalizeRecoveryError("run_invocation_record_content_mismatch")
+        options = _run_invocation_record_write_options(record, run_manifest=run_manifest)
+        profile_options = _owner_profile_options_for_persisted_manifest(
+            store,
+            ref=ref,
+            manifest=artifact_manifest,
+            options=options,
+            mismatch_code="run_invocation_record_tenant_context_mismatch",
+        )
+        ManifestLifecycle.validate_profile(
+            artifact_manifest,
+            data_size=len(payload),
+            opts=profile_options,
+        )
+        if artifact_manifest.inputs != profile_options.inputs:
+            raise _FinalizeRecoveryError("run_invocation_record_lineage_mismatch")
+        refs: list[ArtifactRef] = []
+        if record.previous_record_ref is not None:
+            refs.append(record.previous_record_ref)
+        if isinstance(record, RunInvocationStarted):
+            refs.extend([record.workflow_spec_ref, record.input_state_ref])
+        else:
+            refs.append(record.basis_ref)
+            if record.outcome_state_ref is not None:
+                refs.append(record.outcome_state_ref)
+            refs.extend(record.output_refs)
+        for linked_ref in refs:
+            linked_verification = store.verify(linked_ref)
+            if not linked_verification.ok:
+                raise _FinalizeRecoveryError("run_invocation_record_linked_cas_invalid")
+            linked_manifest = store.get_manifest(linked_ref)
+            if linked_ref.manifest_profile_sha256 is not None and (
+                ManifestLifecycle.profile_sha256(linked_manifest)
+                != linked_ref.manifest_profile_sha256
+            ):
+                raise _FinalizeRecoveryError("run_invocation_record_linked_profile_mismatch")
+    except _FinalizeRecoveryError:
+        raise
+    except (OSError, TypeError, ValueError, KeyError) as exc:
+        raise _FinalizeRecoveryError("run_invocation_record_unreadable") from exc
+    return record
+
+
 def _persist_run_owner_snapshot(
     store: ArtifactStore,
     *,
     run_manifest: RunManifest,
     access_scope_sha256: str | None,
     previous_snapshot_ref: ArtifactRef | None,
+    runtime_invocation_tail_ref: ArtifactRef | None = None,
 ) -> ArtifactRef:
     snapshot = RunOwnerSnapshot(
         schema_version=_RUN_OWNER_SNAPSHOT_SCHEMA_VERSION,
         run_manifest=run_manifest.model_copy(deep=True),
         access_scope_sha256=access_scope_sha256,
         previous_snapshot_ref=previous_snapshot_ref,
+        runtime_invocation_tail_ref=runtime_invocation_tail_ref,
     )
     options = _run_owner_snapshot_write_options(snapshot)
     snapshot_ref = store.put_json(
@@ -362,7 +609,7 @@ def _validate_run_owner_snapshot_ref(
     ref: ArtifactRef,
     *,
     require_registry_profile: bool = True,
-) -> RunOwnerSnapshot:
+) -> RunOwnerSnapshot | RunOwnerSnapshotV101:
     if (
         ref.kind != _RUN_OWNER_SNAPSHOT_KIND
         or ref.media_type != "application/json"
@@ -378,8 +625,15 @@ def _validate_run_owner_snapshot_ref(
         decoded = from_canonical_bytes(payload)
         if not isinstance(decoded, dict):
             raise _FinalizeRecoveryError("run_resume_owner_snapshot_payload_invalid")
+        snapshot: RunOwnerSnapshot | RunOwnerSnapshotV101
         try:
-            snapshot = RunOwnerSnapshot.model_validate(decoded)
+            snapshot_version = decoded.get("schema_version")
+            if snapshot_version == _RUN_OWNER_SNAPSHOT_LEGACY_SCHEMA_VERSION:
+                snapshot = RunOwnerSnapshotV101.model_validate(decoded)
+            elif snapshot_version == _RUN_OWNER_SNAPSHOT_SCHEMA_VERSION:
+                snapshot = RunOwnerSnapshot.model_validate(decoded)
+            else:
+                raise ValueError("run_owner_snapshot_schema_version_unsupported")
         except (TypeError, ValueError) as exc:
             raise _FinalizeRecoveryError("run_resume_owner_snapshot_schema_invalid") from exc
         expected_bytes = to_canonical_bytes(snapshot, _RUN_OWNER_SNAPSHOT_CANON)
@@ -404,6 +658,13 @@ def _validate_run_owner_snapshot_ref(
         )
         if artifact_manifest.inputs != profile_options.inputs:
             raise _FinalizeRecoveryError("run_resume_owner_snapshot_lineage_mismatch")
+        invocation_tail_ref = getattr(snapshot, "runtime_invocation_tail_ref", None)
+        if invocation_tail_ref is not None:
+            _load_run_invocation_record(
+                store,
+                invocation_tail_ref,
+                run_manifest=snapshot.run_manifest,
+            )
         registry_ref = snapshot.run_manifest.registry_bundle
         if require_registry_profile and registry_ref.manifest_profile_sha256 is None:
             raise _FinalizeRecoveryError("run_resume_registry_profile_not_established")
@@ -416,7 +677,11 @@ def _validate_run_owner_snapshot_ref(
         raise _FinalizeRecoveryError("run_resume_owner_snapshot_proof_unavailable") from exc
     manifest = snapshot.run_manifest
     if (
-        snapshot.schema_version != _RUN_OWNER_SNAPSHOT_SCHEMA_VERSION
+        snapshot.schema_version
+        not in {
+            _RUN_OWNER_SNAPSHOT_SCHEMA_VERSION,
+            _RUN_OWNER_SNAPSHOT_LEGACY_SCHEMA_VERSION,
+        }
         or manifest.status != "running"
         or manifest.finished_at is not None
         or manifest.trace_ref is not None
@@ -631,6 +896,17 @@ def _apply_worker_run_operation(
         or snapshot.access_scope_sha256 != access_scope_sha256
     ):
         raise _FinalizeRecoveryError("worker_merge_snapshot_operation_chain_mismatch")
+    current_snapshot = _validate_run_owner_snapshot_ref(
+        store,
+        owner_snapshot_ref,
+        require_registry_profile=False,
+    )
+    if getattr(snapshot, "runtime_invocation_tail_ref", None) != getattr(
+        current_snapshot,
+        "runtime_invocation_tail_ref",
+        None,
+    ):
+        raise _FinalizeRecoveryError("worker_merge_invocation_tail_update_forbidden")
     current = manifest.model_dump(mode="python", by_alias=True, exclude_none=False)
     updated = snapshot.run_manifest.model_dump(mode="python", by_alias=True, exclude_none=False)
     changed_fields = {name for name in current if current[name] != updated[name]}
@@ -645,7 +921,7 @@ def _run_owner_snapshot_chain(
     records: list[TraceRecord],
     started: TraceRecord,
     allow_incomplete_worker_invocation_id: str | None = None,
-) -> tuple[RunOwnerSnapshot, ArtifactRef, int]:
+) -> tuple[RunOwnerSnapshot | RunOwnerSnapshotV101, ArtifactRef, int]:
     if started.refs.inputs or len(started.refs.outputs) != 1:
         raise _FinalizeRecoveryError("run_resume_owner_snapshot_ref_invalid")
     owner_ref = started.refs.outputs[0]
@@ -694,6 +970,18 @@ def _run_owner_snapshot_chain(
             previous = next_snapshot.previous_snapshot_ref
             if previous != owner_ref:
                 raise _FinalizeRecoveryError("run_resume_owner_snapshot_chain_invalid")
+            previous_invocation_tail = getattr(snapshot, "runtime_invocation_tail_ref", None)
+            next_invocation_tail = getattr(next_snapshot, "runtime_invocation_tail_ref", None)
+            if next_invocation_tail != previous_invocation_tail:
+                if next_invocation_tail is None:
+                    raise _FinalizeRecoveryError("run_resume_invocation_tail_rewound")
+                next_invocation_record = _load_run_invocation_record(
+                    store,
+                    next_invocation_tail,
+                    run_manifest=next_snapshot.run_manifest,
+                )
+                if next_invocation_record.previous_record_ref != previous_invocation_tail:
+                    raise _FinalizeRecoveryError("run_resume_invocation_tail_chain_invalid")
             before = snapshot.run_manifest
             after = next_snapshot.run_manifest
             immutable_fields = (
@@ -1070,6 +1358,59 @@ def new_run_id() -> str:
     return "R_" + secrets.token_hex(8)
 
 
+def _read_runtime_invocation_attempts(
+    store: ArtifactStore,
+    trace_path: Path,
+    *,
+    run_id: str,
+) -> list[_RunInvocationAttempt]:
+    """Read attempt bases from a fresh CAS/trace view, without producer memory."""
+    trace_bytes = _read_run_trace_bytes(
+        trace_path,
+        failure_code="run_invocation_trace_unreadable",
+    )
+    try:
+        records = [
+            TraceRecord.model_validate_json(line)
+            for line in trace_bytes.decode("utf-8").splitlines()
+            if line.strip()
+        ]
+    except (TypeError, UnicodeError, ValueError) as exc:
+        raise _FinalizeRecoveryError("run_invocation_trace_invalid") from exc
+    starts = [
+        record
+        for record in records
+        if record.phase == "core" and record.event == "RUN_STARTED"
+    ]
+    if (
+        len(starts) != 1
+        or not records
+        or records[0] is not starts[0]
+        or starts[0].run_id != run_id
+        or starts[0].run_terminality is not RunTerminality.NON_TERMINAL
+    ):
+        raise _FinalizeRecoveryError("run_invocation_trace_owner_invalid")
+    started = starts[0]
+    for record in records:
+        if (
+            record.run_id != started.run_id
+            or record.tenant_id != started.tenant_id
+            or record.cell_id != started.cell_id
+        ):
+            raise _FinalizeRecoveryError("run_invocation_trace_scope_mismatch")
+    snapshot, _, _ = _run_owner_snapshot_chain(
+        store,
+        records=records,
+        started=started,
+    )
+    tail_ref = getattr(snapshot, "runtime_invocation_tail_ref", None)
+    return _run_invocation_attempt_chain(
+        store,
+        tail_ref=tail_ref,
+        run_manifest=snapshot.run_manifest,
+    )
+
+
 @dataclass
 class RunContext:
     """Run context public type."""
@@ -1084,6 +1425,7 @@ class RunContext:
     access_scope: AccessScope | None = None
     _active_lease: _RunExecutionLease | None = None
     _owner_snapshot_ref: ArtifactRef | None = None
+    _runtime_invocation_tail_ref: ArtifactRef | None = None
     _closed: bool = False
     _suspended: bool = False
     _worker_receipt_recovery_required: bool = False
@@ -1245,6 +1587,7 @@ class RunContext:
                 previous_snapshot_ref=None,
             )
             ctx._owner_snapshot_ref = owner_ref
+            ctx._runtime_invocation_tail_ref = None
             ctx._emit_record(
                 "core",
                 "RUN_STARTED",
@@ -1387,6 +1730,11 @@ class RunContext:
                 access_scope=access_scope,
                 _active_lease=active_lease,
                 _owner_snapshot_ref=owner_ref,
+                _runtime_invocation_tail_ref=getattr(
+                    snapshot,
+                    "runtime_invocation_tail_ref",
+                    None,
+                ),
             )
             ctx._emit_record(
                 "core",
@@ -1412,6 +1760,115 @@ class RunContext:
             tenant_id=self.tenant_id,
             cell_id=self.cell_id,
             writer=writer,
+        )
+
+    def _append_runtime_invocation_record(
+        self,
+        record: RunInvocationStarted | RunInvocationCompleted,
+    ) -> ArtifactRef:
+        """Append one internal executor record through the selected-profile owner chain."""
+        with self._parent_state_transition_lease():
+            if (
+                self._closed
+                or self._suspended
+                or self._active_lease is None
+                or self._owner_snapshot_ref is None
+            ):
+                raise _FinalizeRecoveryError("run_invocation_owner_not_active")
+            current_snapshot = _validate_run_owner_snapshot_ref(
+                self.store,
+                self._owner_snapshot_ref,
+                require_registry_profile=False,
+            )
+            current_tail = getattr(current_snapshot, "runtime_invocation_tail_ref", None)
+            if current_tail != self._runtime_invocation_tail_ref:
+                raise _FinalizeRecoveryError("run_invocation_owner_tail_stale")
+            if record.run_id != self.run_manifest.run_id:
+                raise _FinalizeRecoveryError("run_invocation_run_id_mismatch")
+            if record.previous_record_ref != current_tail:
+                record = record.model_copy(update={"previous_record_ref": current_tail})
+            if type(record) is RunInvocationCompleted:
+                basis = _load_run_invocation_record(
+                    self.store,
+                    record.basis_ref,
+                    run_manifest=self.run_manifest,
+                )
+                if (
+                    type(basis) is not RunInvocationStarted
+                    or basis.attempt_id != record.attempt_id
+                    or basis.attempt_number != record.attempt_number
+                    or basis.run_id != record.run_id
+                ):
+                    raise _FinalizeRecoveryError("run_invocation_completion_basis_mismatch")
+            record_ref = _persist_run_invocation_record(
+                self.store,
+                record,
+                run_manifest=self.run_manifest,
+            )
+            owner_ref = _persist_run_owner_snapshot(
+                self.store,
+                run_manifest=self.run_manifest,
+                access_scope_sha256=_access_scope_sha256(self.access_scope),
+                previous_snapshot_ref=self._owner_snapshot_ref,
+                runtime_invocation_tail_ref=record_ref,
+            )
+            self._emit_record(
+                "core",
+                "RUN_CONTEXT_SNAPSHOT",
+                outputs=[owner_ref],
+            )
+            self._owner_snapshot_ref = owner_ref
+            self._runtime_invocation_tail_ref = record_ref
+            return record_ref
+
+    def _record_runtime_invocation_started(
+        self,
+        *,
+        attempt_id: str,
+        attempt_number: int,
+        workflow_spec_ref: ArtifactRef,
+        node_alias: str,
+        component_id: str,
+        input_state_ref: ArtifactRef,
+    ) -> ArtifactRef:
+        """Record the exact state and workflow invocation before node execution."""
+        return self._append_runtime_invocation_record(
+            RunInvocationStarted(
+                run_id=self.run_manifest.run_id,
+                attempt_id=attempt_id,
+                attempt_number=attempt_number,
+                workflow_spec_ref=workflow_spec_ref,
+                node_alias=node_alias,
+                component_id=component_id,
+                input_state_ref=input_state_ref,
+                previous_record_ref=self._runtime_invocation_tail_ref,
+            )
+        )
+
+    def _record_runtime_invocation_completed(
+        self,
+        *,
+        attempt_id: str,
+        attempt_number: int,
+        basis_ref: ArtifactRef,
+        status: str,
+        outcome_state_ref: ArtifactRef | None,
+        output_refs: list[ArtifactRef],
+    ) -> ArtifactRef:
+        """Record the exact engine-observed attempt outcome and output references."""
+        if status not in {"ok", "fail", "skip", "unknown"}:
+            raise _FinalizeRecoveryError("run_invocation_outcome_status_invalid")
+        return self._append_runtime_invocation_record(
+            RunInvocationCompleted(
+                run_id=self.run_manifest.run_id,
+                attempt_id=attempt_id,
+                attempt_number=attempt_number,
+                basis_ref=basis_ref,
+                previous_record_ref=self._runtime_invocation_tail_ref,
+                status=status,
+                outcome_state_ref=outcome_state_ref,
+                output_refs=output_refs,
+            )
         )
 
     def update_manifest(self, **changes: object) -> None:
@@ -1440,6 +1897,7 @@ class RunContext:
                 run_manifest=updated,
                 access_scope_sha256=_access_scope_sha256(self.access_scope),
                 previous_snapshot_ref=self._owner_snapshot_ref,
+                runtime_invocation_tail_ref=self._runtime_invocation_tail_ref,
             )
             self._emit_record(
                 "core",
@@ -1485,6 +1943,8 @@ class RunContext:
         outputs: list[ArtifactRef] | None = None,
         metrics: dict[str, float | int] | None = None,
     ) -> None:
+        if event in {"RUN_STARTED", "RUN_FINALIZED", "RUN_CONTEXT_SNAPSHOT"}:
+            raise _FinalizeRecoveryError("run_context_owner_event_reserved")
         with self._parent_state_transition_lease(run_scoped=False):
             self._emit_record(
                 phase,
@@ -1493,6 +1953,22 @@ class RunContext:
                 outputs=outputs,
                 metrics=metrics,
             )
+
+    def read_runtime_invocation_attempts(self) -> list[_RunInvocationAttempt]:
+        """Fresh-read the guarded owner chain and its exact node-attempt bases.
+
+        This reports engine-observed execution inputs and outcomes only. A missing
+        chain, including a valid historical owner snapshot without the v1.0.2 tail,
+        returns no invocation binding; callers must preserve that as not established.
+        """
+        if self._trace_path is None:
+            return []
+        return _read_runtime_invocation_attempts(
+            self.store,
+            self._trace_path,
+            run_id=self.run_manifest.run_id,
+        )
+
 
     def merge_worker_events(
         self,
@@ -1749,6 +2225,16 @@ class RunContext:
         self._worker_receipt_recovery_invocation_id = None
         self.run_manifest = candidate_manifest
         self._owner_snapshot_ref = candidate_owner_ref
+        candidate_snapshot = _validate_run_owner_snapshot_ref(
+            self.store,
+            candidate_owner_ref,
+            require_registry_profile=False,
+        )
+        self._runtime_invocation_tail_ref = getattr(
+            candidate_snapshot,
+            "runtime_invocation_tail_ref",
+            None,
+        )
 
         for record in records_to_emit:
             if self._audit_sink is not None:

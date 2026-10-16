@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
@@ -21,6 +21,7 @@ from polisyos.core.run.context import RunContext
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.replay.backend import (
     list_dead_letters,
     load_dead_letter,
@@ -201,13 +202,14 @@ def test_replay_backend_helpers_accept_protocol_store_proxy(tmp_path) -> None:
 
 @pytest.mark.asyncio
 async def test_replay_dead_letter_reexecutes_node(tmp_path) -> None:
+    from polisyos.core.registry import build_default_registry_bundle
+
     store = FileSystemCAS(tmp_path)
     dead_ref = _put_dead_letter(store)
-    registry_bundle = ArtifactRef(
-        artifact_id="sha256:" + "d" * 64,
-        kind="core.registry_bundle",
-        media_type="application/json",
-    )
+    registry_bundle = build_default_registry_bundle(
+        store,
+        return_selected_profile=True,
+    ).bundle_ref
     run = RunContext.start(store=store, registry_bundle=registry_bundle, run_id="R_dead")
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("dead-letter"))
     state = ExperimentState(run_id="R_dead", params={"replayed": False})
@@ -237,3 +239,99 @@ async def test_replay_dead_letter_reexecutes_node(tmp_path) -> None:
 
     assert outcome.status == "ok"
     assert outcome.state.params["replayed"] is True
+
+
+def _candidate_schema_for_unbound_origin_test(
+    candidate_id: str,
+) -> PolicyCandidateSchema:
+    from polisyos.ir.governance.policy_spec import PolicySpec
+    from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.ir.trinity import TrinityBundle
+
+    bundle = TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="problem_unbound_origin_test",
+            domain=ProblemDomain.FISCAL,
+        ),
+        policy_spec=PolicySpec(policy_id="policy_unbound_origin_test"),
+        model_spec=ModelSpec(
+            model_id="model_unbound_origin_test",
+            data_snapshot_ref="sha256:" + "1" * 64,
+        ),
+    )
+    return PolicyCandidateSchema.from_trinity_bundle(bundle, candidate_id=candidate_id)
+
+
+@pytest.mark.asyncio
+async def test_dead_letter_replay_selects_candidate_without_claiming_owner_origin(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
+        _resolve_candidate,
+    )
+    from polisyos.scientist.policy_design.phase3 import _load_bound_candidate_source_state
+
+    store = FileSystemCAS(tmp_path)
+    dead_ref = _put_dead_letter(store, run_id="R_dead_unbound_origin")
+    registry_bundle = build_default_registry_bundle(
+        store,
+        return_selected_profile=True,
+    ).bundle_ref
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_bundle,
+        run_id="R_dead_unbound_origin",
+    )
+    ctx = ExecutionContext(
+        store=store,
+        run=run,
+        logger=logging.getLogger("dead-letter-unbound-origin"),
+    )
+    candidate = _candidate_schema_for_unbound_origin_test("candidate_replay_unbound")
+    state = ExperimentState(
+        run_id="R_dead_unbound_origin",
+        params={"policy_candidate_schema": candidate.model_dump(mode="json")},
+    )
+
+    class _CandidateConsumer:
+        def __init__(self) -> None:
+            self.spec = type(
+                "Spec",
+                (),
+                {"metadata": type("Metadata", (), {"component_id": "test.node@1.0.0"})()},
+            )()
+
+        def execute(
+            self, ctx: ExecutionContext, state: ExperimentState
+        ) -> NodeOutcome:
+            basis = _load_bound_candidate_source_state(ctx, state)
+            selected, selected_ref = _resolve_candidate(ctx, state)
+            assert selected is not None
+            assert selected_ref is None
+            return NodeOutcome(
+                status="ok",
+                state=state.model_copy(
+                    update={
+                        "params": {
+                            **state.params,
+                            "selected_candidate_id": selected.candidate_id,
+                            "owner_basis_present": basis is not None,
+                        }
+                    }
+                ),
+            )
+
+    outcome = await replay_dead_letter(
+        store,
+        dead_ref.artifact_id,
+        ctx=ctx,
+        state=state,
+        node=_CandidateConsumer(),
+    )
+
+    assert outcome.status == "ok"
+    assert outcome.state.params["selected_candidate_id"] == "candidate_replay_unbound"
+    assert outcome.state.params["owner_basis_present"] is False
+    assert run.read_runtime_invocation_attempts() == []

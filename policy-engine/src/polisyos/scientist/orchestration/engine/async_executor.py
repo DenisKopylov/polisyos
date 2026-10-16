@@ -14,8 +14,10 @@ import asyncio
 import threading
 import time
 from copy import deepcopy
+from dataclasses import replace
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
+from uuid import uuid4
 
 from pydantic import BaseModel, ValidationError
 
@@ -41,6 +43,7 @@ from polisyos.scientist.orchestration.engine.condition import (
     ConditionSyntaxError,
     evaluate_condition,
 )
+from polisyos.scientist.orchestration.engine.context import _EngineInvocationBinding
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.errors import (
     NodeTimeoutError,
@@ -174,6 +177,8 @@ class AsyncWorkflowExecutor:
         self._workflow_publication_operation: str | None = None
         self._workflow_task: asyncio.Task[Any] | None = None
         self._workflow_cancelling = 0
+        self._workflow_spec_ref: ArtifactRef | None = None
+        self._workflow_spec_payload: str | None = None
         self._budget_middleware = budget_middleware
         self._merge_conflict_policy = merge_conflict_policy
         self._compensation_hook = compensation_hook
@@ -287,7 +292,11 @@ class AsyncWorkflowExecutor:
             )
 
         initial_state = snapshot_state(state)
-        workflow_ref = await self._persist_workflow_spec(workflow)
+        workflow_ref = await self._persist_workflow_spec(
+            workflow, return_selected_profile=True
+        )
+        self._workflow_spec_ref = workflow_ref
+        self._workflow_spec_payload = workflow.model_dump_json()
         self._ctx.run.add_input(workflow_ref)
         state_input_ref = await self._persist_state(initial_state)
         self._ctx.run.add_input(state_input_ref)
@@ -1938,6 +1947,90 @@ class AsyncWorkflowExecutor:
                 if cache_deadline is not None
                 else None
             )
+            attempt_basis_refs: dict[str, tuple[ArtifactRef, int]] = {}
+            workflow_payload = workflow.model_dump_json()
+            workflow_spec_ref = self._workflow_spec_ref
+            if (
+                workflow_spec_ref is None
+                or self._workflow_spec_payload != workflow_payload
+            ):
+                workflow_spec_ref = await self._persist_workflow_spec(
+                    workflow,
+                    return_selected_profile=True,
+                )
+                self._workflow_spec_ref = workflow_spec_ref
+                self._workflow_spec_payload = workflow_payload
+                self._ctx.run.add_input(workflow_spec_ref)
+
+            async def record_attempt_started(
+                attempt_number: int,
+                attempt_state: ExperimentState,
+            ) -> str:
+                attempt_id = str(uuid4())
+                input_state_ref = await self._persist_state(
+                    attempt_state,
+                    return_selected_profile=True,
+                )
+                basis_ref = self._ctx.run._record_runtime_invocation_started(
+                    attempt_id=attempt_id,
+                    attempt_number=attempt_number,
+                    workflow_spec_ref=workflow_spec_ref,
+                    node_alias=alias,
+                    component_id=node_id,
+                    input_state_ref=input_state_ref,
+                )
+                attempt_basis_refs[attempt_id] = (basis_ref, attempt_number)
+                return attempt_id
+
+            async def record_attempt_completed(
+                attempt_id: str,
+                attempt_outcome: NodeOutcome | None,
+            ) -> None:
+                basis = attempt_basis_refs.pop(attempt_id, None)
+                if basis is None:
+                    raise ValueError("run_invocation_attempt_basis_missing")
+                basis_ref, attempt_number = basis
+                outcome_state_ref = (
+                    await self._persist_state(
+                        attempt_outcome.state,
+                        return_selected_profile=True,
+                    )
+                    if attempt_outcome is not None
+                    else None
+                )
+                self._ctx.run._record_runtime_invocation_completed(
+                    attempt_id=attempt_id,
+                    attempt_number=attempt_number,
+                    basis_ref=basis_ref,
+                    status=(
+                        attempt_outcome.status if attempt_outcome is not None else "unknown"
+                    ),
+                    outcome_state_ref=outcome_state_ref,
+                    output_refs=(
+                        list(attempt_outcome.artifacts)
+                        if attempt_outcome is not None
+                        else []
+                    ),
+                )
+
+            def bind_attempt_context(
+                attempt_id: str,
+                *,
+                attempt_bases: dict[str, tuple[ArtifactRef, int]] = attempt_basis_refs,
+                selected_run_id: str = self._ctx.run.run_manifest.run_id,
+            ) -> ExecutionContext:
+                attempt_basis = attempt_bases.get(attempt_id)
+                if attempt_basis is None:
+                    raise ValueError("run_invocation_attempt_context_basis_missing")
+                return replace(
+                    self._ctx,
+                    _engine_invocation=_EngineInvocationBinding(
+                        run_id=selected_run_id,
+                        attempt_id=attempt_id,
+                        basis_ref=attempt_basis[0],
+                    ),
+                )
+
             try:
                 raw_outcome = await execute_with_retry_async(
                     node,
@@ -1949,6 +2042,9 @@ class AsyncWorkflowExecutor:
                     alias=alias,
                     retry_stats=retry_stats,
                     dispatch_params=inv.params or {},
+                    attempt_started=record_attempt_started,
+                    attempt_completed=record_attempt_completed,
+                    attempt_context=bind_attempt_context,
                 )
                 outcome = NodeOutcome.model_validate(raw_outcome)
                 self._guard_workflow_admission(operation=f"node.{alias}", execution_state="unknown")
@@ -2440,6 +2536,7 @@ class AsyncWorkflowExecutor:
         opts: ArtifactWriteOptions,
         *,
         canon_spec: CanonSpec | None = None,
+        return_selected_profile: bool = False,
     ) -> ArtifactRef:
         """Bound immutable writes and fence executor-local ref admission.
 
@@ -2455,7 +2552,12 @@ class AsyncWorkflowExecutor:
         self._guard_workflow_admission(operation=opts.kind, execution_state="not_admitted")
         try:
             remaining = self._remaining_deadline_seconds(self._workflow_deadline)
-            pending = self._async_store.put_json(obj, opts, canon_spec=canon_spec)
+            pending = self._async_store.put_json(
+                obj,
+                opts,
+                canon_spec=canon_spec,
+                return_selected_profile=return_selected_profile,
+            )
             if self._workflow_deadline is None:
                 ref = await pending
             else:
@@ -2471,7 +2573,12 @@ class AsyncWorkflowExecutor:
         self._guard_workflow_admission(operation=opts.kind, execution_state="unknown")
         return ref
 
-    async def _persist_workflow_spec(self, workflow: WorkflowSpec) -> ArtifactRef:
+    async def _persist_workflow_spec(
+        self,
+        workflow: WorkflowSpec,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
         return await self._put_workflow_artifact(
             workflow.model_dump(),
             ArtifactWriteOptions(
@@ -2483,9 +2590,15 @@ class AsyncWorkflowExecutor:
                 ),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=return_selected_profile,
         )
 
-    async def _persist_state(self, state: ExperimentState) -> ArtifactRef:
+    async def _persist_state(
+        self,
+        state: ExperimentState,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
         return await self._put_workflow_artifact(
             state.model_dump(),
             ArtifactWriteOptions(
@@ -2497,6 +2610,7 @@ class AsyncWorkflowExecutor:
                 ),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=return_selected_profile,
         )
 
     async def _persist_report(self, report: WorkflowReport) -> ArtifactRef:

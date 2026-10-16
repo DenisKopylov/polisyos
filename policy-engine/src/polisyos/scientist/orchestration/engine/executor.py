@@ -11,6 +11,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
+from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
@@ -39,6 +40,7 @@ from polisyos.scientist.orchestration.engine.condition import (
     ConditionSyntaxError,
     evaluate_condition,
 )
+from polisyos.scientist.orchestration.engine.context import _EngineInvocationBinding
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.errors import (
     CycleDetectedError,
@@ -1005,7 +1007,7 @@ class WorkflowExecutor:
         state = self._ensure_memory_authority_for_serious_output(state)
 
         initial_state = snapshot_state(state)
-        workflow_ref = self._persist_workflow_spec(workflow)
+        workflow_ref = self._persist_workflow_spec(workflow, return_selected_profile=True)
         self._ctx.run.add_input(workflow_ref)
         state_input_ref = self._persist_state(initial_state)
         self._ctx.run.add_input(state_input_ref)
@@ -1522,6 +1524,85 @@ class WorkflowExecutor:
                         "polisyos.node.state_branch.isolated_paths",
                         ",".join(branched_state.journal.isolated_paths),
                     )
+                    attempt_basis_refs: dict[str, tuple[ArtifactRef, int]] = {}
+
+                    def record_attempt_started(
+                        attempt_number: int,
+                        attempt_state: ExperimentState,
+                        *,
+                        selected_alias: str = alias,
+                        selected_component_id: str = node_id,
+                        selected_workflow_ref: ArtifactRef = workflow_ref,
+                        attempt_bases: dict[str, tuple[ArtifactRef, int]] = attempt_basis_refs,
+                    ) -> str:
+                        attempt_id = str(uuid4())
+                        input_state_ref = self._persist_state(
+                            attempt_state,
+                            return_selected_profile=True,
+                        )
+                        basis_ref = self._ctx.run._record_runtime_invocation_started(
+                            attempt_id=attempt_id,
+                            attempt_number=attempt_number,
+                            workflow_spec_ref=selected_workflow_ref,
+                            node_alias=selected_alias,
+                            component_id=selected_component_id,
+                            input_state_ref=input_state_ref,
+                        )
+                        attempt_bases[attempt_id] = (basis_ref, attempt_number)
+                        return attempt_id
+
+                    def record_attempt_completed(
+                        attempt_id: str,
+                        attempt_outcome: NodeOutcome | None,
+                        *,
+                        attempt_bases: dict[str, tuple[ArtifactRef, int]] = attempt_basis_refs,
+                    ) -> None:
+                        basis = attempt_bases.pop(attempt_id, None)
+                        if basis is None:
+                            raise ValueError("run_invocation_attempt_basis_missing")
+                        basis_ref, attempt_number = basis
+                        outcome_state_ref = (
+                            self._persist_state(
+                                attempt_outcome.state,
+                                return_selected_profile=True,
+                            )
+                            if attempt_outcome is not None
+                            else None
+                        )
+                        self._ctx.run._record_runtime_invocation_completed(
+                            attempt_id=attempt_id,
+                            attempt_number=attempt_number,
+                            basis_ref=basis_ref,
+                            status=(
+                                attempt_outcome.status if attempt_outcome is not None else "unknown"
+                            ),
+                            outcome_state_ref=outcome_state_ref,
+                            output_refs=(
+                                list(attempt_outcome.artifacts)
+                                if attempt_outcome is not None
+                                else []
+                            ),
+                        )
+
+                    def bind_attempt_context(
+                        attempt_id: str,
+                        *,
+                        selected_context: ExecutionContext = node_context,
+                        attempt_bases: dict[str, tuple[ArtifactRef, int]] = attempt_basis_refs,
+                        selected_run_id: str = self._ctx.run.run_manifest.run_id,
+                    ) -> ExecutionContext:
+                        attempt_basis = attempt_bases.get(attempt_id)
+                        if attempt_basis is None:
+                            raise ValueError("run_invocation_attempt_context_basis_missing")
+                        return replace(
+                            selected_context,
+                            _engine_invocation=_EngineInvocationBinding(
+                                run_id=selected_run_id,
+                                attempt_id=attempt_id,
+                                basis_ref=attempt_basis[0],
+                            ),
+                        )
+
                     try:
                         if prepared_read is not None:
                             query_execution_marker = prepared_read.query_execution_marker()
@@ -1533,6 +1614,9 @@ class WorkflowExecutor:
                             timeout_s=inv.timeout_s,
                             alias=alias,
                             dispatch_params=inv.params or {},
+                            attempt_started=record_attempt_started,
+                            attempt_completed=record_attempt_completed,
+                            attempt_context=bind_attempt_context,
                         )
                         outcome = NodeOutcome.model_validate(raw_outcome)
                     except NodeTimeoutError as exc:
@@ -2023,7 +2107,12 @@ class WorkflowExecutor:
 
         return WorkflowExecutionResult(state=final_state, report=report, run_ref=run_ref)
 
-    def _persist_workflow_spec(self, workflow: WorkflowSpec) -> ArtifactRef:
+    def _persist_workflow_spec(
+        self,
+        workflow: WorkflowSpec,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
         return self._ctx.store.put_json(
             workflow.model_dump(),
             PutOptions(
@@ -2035,9 +2124,15 @@ class WorkflowExecutor:
                 ),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=return_selected_profile,
         )
 
-    def _persist_state(self, state: ExperimentState) -> ArtifactRef:
+    def _persist_state(
+        self,
+        state: ExperimentState,
+        *,
+        return_selected_profile: bool = False,
+    ) -> ArtifactRef:
         return self._ctx.store.put_json(
             state.model_dump(),
             PutOptions(
@@ -2049,6 +2144,7 @@ class WorkflowExecutor:
                 ),
             ),
             canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=return_selected_profile,
         )
 
     def _persist_report(self, report: WorkflowReport) -> ArtifactRef:

@@ -1,0 +1,41 @@
+id = "2026-10-16-e02-c05-runtime-parameter-origin-trace"
+title = "Bind policy candidate source selection to engine invocation input"
+type = "fixed"
+component = "scientist-runtime"
+owner = "team-policyos-runtime"
+summary = "Sync and async node attempts persist selected-profile input and outcome refs in the run-owner chain; shared policy-design and Phase 3 resolvers recompute the candidate source branch from that input, and existing consumer cache keys now include every candidate selector."
+evidence = [
+  "src/polisyos/core/run/manifest.py",
+  "src/polisyos/core/run/context.py",
+  "src/polisyos/scientist/orchestration/engine/context.py",
+  "src/polisyos/scientist/orchestration/engine/retry.py",
+  "src/polisyos/scientist/orchestration/engine/executor.py",
+  "src/polisyos/scientist/orchestration/engine/async_executor.py",
+  "src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+  "src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+  "src/polisyos/scientist/nodes/builtins/decide/run_translator_compliance.py",
+  "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+  "src/polisyos/scientist/policy_design/phase3.py",
+  "tests/unit/scientist/nodes/test_build_policy_output_bundle.py",
+  "tests/unit/scientist/policy_design/test_phase3_decision_layer.py",
+  "tests/unit/core/phase0/test_run_context.py",
+  "tests/unit/scientist/replay/test_replay_backend.py",
+  "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+]
+compatibility = "Internal execution metadata only. New owner snapshots use schema 1.0.2; schema 1.0.1 retains a separate exact read shape. Callers without an owner-linked attempt retain historical candidate resolution but have no positive source binding."
+change_class = "internal"
+surface_classification = "internal: run-owner invocation records and the shared policy candidate source resolver; no public API or status semantics are added."
+migration = "No historical data rewrite. Existing histories without an invocation tail continue to read with source origin not_established."
+api = "A fresh owner-chain read validates the selected workflow node and state refs, compares the source-selecting fields with the current state, and recomputes the canonical source branch. Ordinary trace events cannot replace the owner-linked input basis. Existing cache keys for all four resolver-owning nodes include inline schema, candidate ref, candidate ID, and Trinity inputs."
+limitations = "This demonstrates engine-observed input selection only. On the public output-bundle path, the accepted bundle and twelve related builder artifacts carry one typed candidate InputRef with the complete selected manifest profile; this producer-declared lineage does not prove semantic use, so output-subject consumption remains not_established. Cache hits remain reuse and create no new invocation basis; missing historical basis is not_established. The direct dead-letter replay and node-worker retry entrypoints can resolve candidates but have no engine-issued invocation binding, so source origin there remains not_established; positive binding requires a selected-profile workflow/state basis owned by those callers and the existing owner-issued attempt callback. This does not establish authorship before dispatch, admissibility, authority, currentness, publication, or external custody. Arbitrary in-process Python can call private methods, so the owner chain is not a sandbox."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/README.md", "src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []
+
+[status]
+source_origin_for_history_without_basis = "not_established"
+phase3_source_binding = "bounded_owner_input_recomputation"
+alternate_retry_callers_without_owner_binding = "not_established"
+output_subject_join = "typed_candidate_input_lineage_only_semantic_use_not_established"
+production_authority = "not_established"

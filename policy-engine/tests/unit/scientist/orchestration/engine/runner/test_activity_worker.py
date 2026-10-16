@@ -58,6 +58,7 @@ from polisyos.scientist.orchestration.engine.protocol import (
     NodeOutcome,
     NodeSpec,
 )
+from polisyos.scientist.orchestration.engine.registry import NodeRegistry
 from polisyos.scientist.orchestration.engine.retry import (
     RetryPolicy,
     _AttemptAuthority,
@@ -91,6 +92,7 @@ from polisyos.scientist.orchestration.engine.state_branching import (
     mutation_journal_for_state,
 )
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
+from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 
 def test_build_worker_context_reconstructs_run_and_registry_bundle(tmp_path: Path) -> None:
@@ -1401,3 +1403,104 @@ def test_worker_rejects_invalid_or_colluding_scope_before_merge(
 
     assert worker_store_build_calls == 0
     assert protected_merge_calls == 0
+
+
+def _worker_unbound_origin_candidate(
+    candidate_id: str,
+) -> PolicyCandidateSchema:
+    from polisyos.ir.governance.policy_spec import PolicySpec
+    from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.ir.trinity import TrinityBundle
+
+    bundle = TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="problem_worker_unbound_origin",
+            domain=ProblemDomain.FISCAL,
+        ),
+        policy_spec=PolicySpec(policy_id="policy_worker_unbound_origin"),
+        model_spec=ModelSpec(
+            model_id="model_worker_unbound_origin",
+            data_snapshot_ref="sha256:" + "1" * 64,
+        ),
+    )
+    return PolicyCandidateSchema.from_trinity_bundle(bundle, candidate_id=candidate_id)
+
+
+def test_unbound_worker_retry_consumes_candidate_without_owner_origin(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
+        _resolve_candidate,
+    )
+    from polisyos.scientist.policy_design.phase3 import _load_bound_candidate_source_state
+
+    candidate = _worker_unbound_origin_candidate("candidate_worker_unbound")
+
+    class UnboundCandidateWorkerNode:
+        _spec = NodeSpec(
+            metadata=_meta("scientist.node_unbound_candidate@1.0.0", "UnboundCandidate"),
+            state_reads=["params"],
+            state_writes=["params"],
+        )
+
+        @property
+        def spec(self) -> NodeSpec:
+            return self._spec
+
+        def execute(
+            self, ctx: ExecutionContext, state: ExperimentState
+        ) -> NodeOutcome:
+            basis = _load_bound_candidate_source_state(ctx, state)
+            selected, selected_ref = _resolve_candidate(ctx, state)
+            assert selected is not None
+            assert selected_ref is None
+            next_state = state.model_copy(deep=True)
+            next_state.params.update(
+                {
+                    "selected_candidate_id": selected.candidate_id,
+                    "owner_basis_present": basis is not None,
+                    "owner_attempt_count": len(ctx.run.read_runtime_invocation_attempts()),
+                }
+            )
+            return NodeOutcome(status="ok", state=next_state)
+
+    def _discover_nodes(registry: NodeRegistry, **kwargs: object) -> None:
+        del kwargs
+        registry.register(UnboundCandidateWorkerNode())
+
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.engine.registry.discover_nodes",
+        _discover_nodes,
+    )
+    state = ExperimentState(
+        run_id="R_worker_unbound_candidate_origin",
+        params={"policy_candidate_schema": candidate.model_dump(mode="json")},
+    )
+    worker_store = FileSystemCAS(tmp_path)
+    registry_bundle = build_default_registry_bundle(
+        worker_store,
+        return_selected_profile=True,
+    ).bundle_ref
+    result = asyncio.run(
+        run_node_in_worker(
+            {
+                "node_id": "scientist.node_unbound_candidate@1.0.0",
+                "alias": "candidate",
+                "params": {},
+                "state_bytes": serialize_state(state),
+                "context_meta": {
+                    "run_id": state.run_id,
+                    "store_config": {"backend": "filesystem", "root": str(tmp_path)},
+                    "registry_bundle_ref": registry_bundle.model_dump(mode="json"),
+                },
+            }
+        )
+    )
+    outcome = deserialize_outcome(result)
+
+    assert outcome.status == "ok"
+    assert outcome.state.params["selected_candidate_id"] == "candidate_worker_unbound"
+    assert outcome.state.params["owner_basis_present"] is False
+    assert outcome.state.params["owner_attempt_count"] == 0

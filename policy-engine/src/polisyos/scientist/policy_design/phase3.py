@@ -11,6 +11,7 @@ from polisyos.common._selected_artifact_intake import read_optional_selected_art
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
+from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.foundry import SimulationResult
 from polisyos.core.contracts.ic_verification import (
     ICVerificationCertificateRef,
@@ -64,7 +65,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_WELFARE_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.context import (
+    ExecutionContext,
+    _load_engine_owned_invocation_input_state,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.schema import (
     PolicyCandidateSchema,
@@ -606,6 +610,10 @@ def _resolve_candidate(
 ) -> PolicyCandidateSchema | None:
     from polisyos.core.artifacts import load_core_json_artifact
 
+    source_state = _load_bound_candidate_source_state(ctx, state)
+    if source_state is not None:
+        state = source_state
+
     payload = state.params.get("policy_candidate_schema")
     if payload is not None:
         return read_optional_selected_artifact(
@@ -640,6 +648,50 @@ def _resolve_candidate(
         ),
         refusal_code="phase3_selected_trinity_candidate_unreadable",
         expected_errors=(AttributeError, OSError, RuntimeError, TypeError, ValueError),
+    )
+
+
+def _load_bound_candidate_source_state(
+    ctx: ExecutionContext,
+    state: ExperimentState,
+) -> ExperimentState | None:
+    """Recompute the Phase 3 candidate source from its owner-linked input.
+
+    Historical calls without an engine binding keep existing behavior and remain
+    ``not_established`` for source origin. A present binding resolves only after
+    the current candidate-selecting fields match the exact persisted input state.
+    """
+    basis_state = _load_engine_owned_invocation_input_state(ctx, state)
+    if basis_state is None:
+        return None
+    if not _candidate_source_inputs_equal(state, basis_state):
+        raise ValueError("runtime_candidate_input_state_basis_mismatch")
+    return basis_state
+
+
+def _candidate_source_inputs_equal(
+    current: ExperimentState,
+    basis: ExperimentState,
+) -> bool:
+    """Compare every state field that can change candidate-source selection."""
+    current_values = (
+        current.params.get("policy_candidate_schema"),
+        current.params.get("policy_candidate_ref"),
+        current.params.get("policy_candidate_id"),
+        current.params.get("workflow_id"),
+        current.inputs.get(INPUT_TRINITY_BUNDLE_REF),
+    )
+    basis_values = (
+        basis.params.get("policy_candidate_schema"),
+        basis.params.get("policy_candidate_ref"),
+        basis.params.get("policy_candidate_id"),
+        basis.params.get("workflow_id"),
+        basis.inputs.get(INPUT_TRINITY_BUNDLE_REF),
+    )
+    spec = CanonSpec(forbid_floats=False)
+    return all(
+        to_canonical_bytes(current_value, spec) == to_canonical_bytes(basis_value, spec)
+        for current_value, basis_value in zip(current_values, basis_values, strict=True)
     )
 
 

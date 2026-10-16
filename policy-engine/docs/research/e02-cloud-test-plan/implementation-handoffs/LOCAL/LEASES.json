@@ -3127,5 +3127,48 @@
     "retention": "Priorownedgenerateddiff482980B preservedignoredRAW; all3outputs canonicalowner changed including generated-artifacts.md, no deepimportbaseline updated.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_c05_durable_invocation_origin": {
+    "root_writer": "/root",
+    "base": "de132f6a02e243a0fd6d2e53c166653b204b38d0",
+    "mechanism_and_companion_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-c05-runtime-parameter-origin-trace.toml",
+      "policy-engine/src/polisyos/core/README.md",
+      "policy-engine/src/polisyos/core/run/context.py",
+      "policy-engine/src/polisyos/core/run/manifest.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_translator_compliance.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "policy-engine/src/polisyos/scientist/policy_design/phase3.py",
+      "policy-engine/tests/unit/core/phase0/test_run_context.py",
+      "policy-engine/tests/unit/scientist/nodes/test_build_policy_output_bundle.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_v0.py",
+      "policy-engine/tests/unit/scientist/replay/test_replay_backend.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate actual232affectedcases/strictscope/nativeconsumer receipt and component index"
+    ],
+    "adoption_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-current-canonical-patch-20261017/manifest.json",
+      "sha256": "b65f58ecea378bdce5f336db505bbbb9dc6cb909672025bdffdecd09646d5721"
+    },
+    "independent_semantic_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-phase3-runtime-parameter-origin-r3-review-20261017/receipt.json",
+      "sha256": "9a8824f51d0ee36b04bb907aca058ae427e4654a601cab7ec56724157d73fbaa"
+    },
+    "independent_packaging_delta": "runtime_projection_typing_companion_author independently verified21pre/post hashes and20effectivepatchoutputs, actualgitapply0, no-opcommoncanonicalomitted. Source/testsemanticsidenticaltoauthorpostimages; currentde132changesonlygeneratedoutputs/lease since2383base.",
+    "P40": "Shared owner-bound attempt tail/runtime source selection, sync/async/retry+cache callers, 13selectedcandidateInputRefs. No payload semantic-use authority inferred. Bounded defaultMacsyncworks withoutdeadline; explicittimedspawnunsupported failsbeforeentry, notpositive.",
+    "author_metadata_erratum": "Sealedddfd closure_ids containsauthorlabel; rootformalclosurefields empty, proposal label separate inb65. Strict19pathMyPy424diagnostics non-green, notP41inherited.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

@@ -48,6 +48,10 @@ _SPEC = NodeSpec(
     state_reads=[
         "params.workflow_id",
         "params.policy_mode",
+        "params.policy_candidate_schema",
+        "params.policy_candidate_ref",
+        "params.policy_candidate_id",
+        "inputs",
         "params.policy_brief",
         "params.policy_promotion_result",
         f"artifacts_index.{ARTIFACT_DECISION_READINESS_CONTRACT_REF}",

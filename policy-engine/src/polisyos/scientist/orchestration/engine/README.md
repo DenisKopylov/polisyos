@@ -436,4 +436,51 @@ source authenticity or scientific output validity.
 
 - Last updated: 2026-10-13
 
-## Cross-package Budget Runtime Facade\n\nRuntime consumers import the existing budget contracts through the `polisyos.scientist.orchestration.engine` facade: `BudgetLimit`, `BudgetMiddleware`, `FileBudgetLedger`, `BudgetLedgerProducerRecord`, and `BudgetLedgerProducerRunBinding`. These are same-object exports from the budget owners; run binding and persisted producer records still determine attribution and settlement semantics.
+## Cross-package Budget Runtime Facade
+
+Runtime consumers import the existing budget contracts through the `polisyos.scientist.orchestration.engine` facade: `BudgetLimit`, `BudgetMiddleware`, `FileBudgetLedger`, `BudgetLedgerProducerRecord`, and `BudgetLedgerProducerRunBinding`. These are same-object exports from the budget owners; run binding and persisted producer records still determine attribution and settlement semantics.
+
+## Runtime candidate source basis
+
+The synchronous and asynchronous executors persist the selected-profile
+workflow and input state before each uncached attempt, then append its
+engine-observed outcome. The shared policy-candidate resolver and Phase 3
+resolver use the matching owner-linked attempt: they fresh-read the owner chain
+and CAS, check the workflow-node binding, compare every source-selecting field,
+and recompute the canonical source branch. Ordinary
+`RUNTIME_PARAMETER_SELECTED` trace events cannot replace that basis. Phase 3
+keeps its typed refusal behavior when a selected value is malformed or unreadable.
+
+The existing cache-key declarations for output-bundle construction, policy
+translation, translator compliance, and the blueprint runtime now include the
+selector fields those resolvers read: inline schema, artifact ref, candidate ID,
+and Trinity inputs. A change from candidate A to B therefore misses the old
+cache entry; repeating B can still reuse its cached result. A cache hit remains
+cache reuse and creates no new invocation basis. Cancelled and timed-out attempts
+retain their persisted input but have an `unknown` outcome, so they do not satisfy
+a successful-completion check.
+
+On the public bundle-builder path, the accepted output bundle and its twelve
+related builder artifacts each retain one typed `InputRef(role="candidate")`
+with the complete selected candidate ref, including the manifest profile. This
+is producer-declared artifact lineage; it does not prove the heterogeneous
+outputs semantically used that candidate. The output-subject join remains
+`not_established`. Histories without an owner-linked attempt also remain
+`not_established`; no historical data is rewritten.
+
+These bindings show the candidate source branch observed by the engine. They do
+not prove who authored state before dispatch, candidate trustworthiness or
+admissibility, authority, currentness, publication, or external custody. A node
+running arbitrary in-process Python can call private methods, so this mechanism
+is not a sandbox or external custody boundary.
+
+The direct retry entrypoints `replay_dead_letter(...)` and `run_node_in_worker(...)`
+also run the shared candidate resolver. Their current retry calls do not receive
+an engine-issued invocation binding. Public-path tests confirm they can select
+an inline candidate while the fresh owner-chain reader finds no attempt basis;
+those paths therefore remain `not_established` for source origin. A follow-up
+that needs
+positive origin there must have each owning caller persist the selected-profile
+workflow/state refs and pass its owner-issued per-attempt binding through the
+existing run-owner chain. Trace labels or worker dispatch identifiers alone do
+not supply that basis.

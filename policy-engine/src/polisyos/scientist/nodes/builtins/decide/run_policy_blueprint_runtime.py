@@ -258,6 +258,7 @@ _SPEC = NodeSpec(
         "params.strategic_payoff_tables",
         "params.macro_strategic_payoff_tables",
         "params.performative_loop_spec",
+        "inputs",
         "inputs.promotion_evidence_bundle_ref",
         "inputs.prior_knowledge_bundle_ref",
         "inputs.calibration_report_ref",

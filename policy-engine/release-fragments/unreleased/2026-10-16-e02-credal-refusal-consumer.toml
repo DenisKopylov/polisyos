@@ -1,0 +1,16 @@
+id = "2026-10-16-e02-credal-refusal-consumer"
+title = "Keep typed intervention refusals incomplete in the credal consumer"
+type = "fixed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Discriminate typed L6 refusals before resolution-only field reads, retaining full owner payloads in incomplete edge provenance and bounded reference projections."
+evidence = ["tests/unit/runtime/quality/test_credal_reference.py"]
+compatibility = "Existing resolved edges, owner-wide reference scope, and snapshot unhashability are preserved. No status promotion or context-to-global-reference routing is introduced."
+change_class = "internal"
+surface_classification = "internal runtime quality consumer; no supported facade export changes"
+migration = "No caller migration; typed owner refusals now project incomplete edges rather than raising resolution-only attribute errors."
+limitations = "Consumer controls only; real producer-to-persisted-artifact-to-N6 and final native/installed/composed verification remain separate. No law, custody, currentness, or causal authority is established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

@@ -22,7 +22,7 @@ from datetime import UTC, date, datetime
 from functools import lru_cache
 from pathlib import Path
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, SupportsFloat, SupportsIndex
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -34,6 +34,7 @@ from polisyos.data_forge.read_api.legal import (
 )
 from polisyos.pdc import SkgCausalPriorRef, gy_content_hash
 from polisyos.runtime.quality.intervention_substrate import (
+    InterventionLeverRefusal,
     InterventionSubstrateError,
     _production_composed_world_model_record,
     load_l6_intervention_substrate,
@@ -55,10 +56,10 @@ if TYPE_CHECKING:
         PreparedSKGCredalSourceRows,
         PreparedSKGRead,
     )
+    from polisyos.pdc import WorldModelRecord
     from polisyos.runtime.quality.intervention_substrate import (
         InterventionSubstrateBundle,
     )
-    from polisyos.runtime.quality.world_model_record import WorldModelRecord
 
 CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION = "policyos.runtime.grounding_credal_reference.v2"
 CREDAL_REFERENCE_SCHEMA_VERSION = "policyos.runtime.grounding_credal_reference.v3"
@@ -276,8 +277,10 @@ def _freeze_reference_text(value: str) -> str:
 def _freeze_reference_mapping_key(key: object) -> str | int | float | bool | None:
     """Copy every JSON-supported mapping-key subclass to a builtin scalar."""
 
-    if key is None or type(key) in (bool, int, float, str):
-        return key
+    if key is None:
+        return None
+    if type(key) is bool:
+        return bool(key)
     if isinstance(key, str):
         return str.__str__(key)
     if isinstance(key, int):
@@ -291,7 +294,6 @@ class _FrozenReferenceList(tuple[Any, ...]):
     """Tuple-backed list snapshot with the source list's value equality."""
 
     __slots__ = ()
-    __hash__ = None
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, list):
@@ -308,8 +310,6 @@ class _FrozenReferenceMapping(Mapping[Any, Any]):
 
     _view: Mapping[Any, Any]
     _wire_json: str
-
-    __hash__ = None
 
     def __getitem__(self, key: object) -> object:
         return self._view[key]
@@ -1340,18 +1340,28 @@ def build_grounding_backend_availability() -> GroundingBackendAvailability:
             "enable when CG1 first-pass FTS+alignment recall leaves a measured semantic-analog tail"
         ),
     }
+    required_backend_status: Literal["available", "unavailable"] = (
+        "available" if solver.get("available") else "unavailable"
+    )
     fields = {
         "ann": ann,
         "dense": dense,
         "milp_fallback": milp,
         "numeric_scaling": NUMERIC_SCALING,
-        "required_backend_status": "available" if solver.get("available") else "unavailable",
+        "required_backend_status": required_backend_status,
         "schema_version": GROUNDING_BACKEND_AVAILABILITY_SCHEMA_VERSION,
         "solver": solver,
         "sparse": sparse,
     }
     return GroundingBackendAvailability(
-        **fields,
+        schema_version=GROUNDING_BACKEND_AVAILABILITY_SCHEMA_VERSION,
+        solver=solver,
+        milp_fallback=milp,
+        sparse=sparse,
+        ann=ann,
+        dense=dense,
+        numeric_scaling=NUMERIC_SCALING,
+        required_backend_status=required_backend_status,
         content_hash=gy_content_hash(fields),
     )
 
@@ -1359,13 +1369,16 @@ def build_grounding_backend_availability() -> GroundingBackendAvailability:
 def essential_edge_scope_definition() -> dict[str, Any]:
     """Return the explicit CG0 essential-edge scope criterion and decisions."""
 
-    return _json_ready(
+    payload = _json_ready(
         {
             "criterion": ESSENTIAL_EDGE_SCOPE_CRITERION,
             "included_edge_classes": list(_INCLUDED_EDGE_CLASSES),
             "excluded_edge_classes": list(_EXCLUDED_EDGE_CLASSES),
         }
     )
+    if not isinstance(payload, dict):
+        raise TypeError("credal_reference_essential_edge_scope_invalid")
+    return payload
 
 
 def edge_payload_sample(
@@ -1560,17 +1573,21 @@ def _iter_l2_source_edges(
     if str(rows.version_id) != version:
         raise ValueError("credal_reference_skg_version_changed_during_read")
     variables = rows.variables
-    variable_names = {str(row.canonical_name) for row in variables if row.canonical_name}
-    approved_variables = {
-        str(row.canonical_name)
-        for row in variables
-        if row.canonical_name and bool(row.is_approved_canonical)
+    variable_names = {
+        str(variable_row.canonical_name)
+        for variable_row in variables
+        if variable_row.canonical_name
     }
-    for row in variables:
-        yield _derive_l2_variable_edge(row, version=version)
-    for row in variables:
+    approved_variables = {
+        str(variable_row.canonical_name)
+        for variable_row in variables
+        if variable_row.canonical_name and bool(variable_row.is_approved_canonical)
+    }
+    for variable_row in variables:
+        yield _derive_l2_variable_edge(variable_row, version=version)
+    for variable_row in variables:
         parent_edge = _derive_l2_variable_hierarchy_edge(
-            row,
+            variable_row,
             version=version,
             variable_names=variable_names,
             approved_variables=approved_variables,
@@ -1578,14 +1595,14 @@ def _iter_l2_source_edges(
         if parent_edge is not None:
             yield parent_edge
 
-    for row in rows.variable_synonyms:
+    for synonym_row in rows.variable_synonyms:
         yield derive_variable_alignment_edge(
             {
-                "approved": row.approved,
-                "canonical_name": row.canonical_name,
-                "confidence": row.confidence,
-                "method": row.method,
-                "synonym": row.synonym,
+                "approved": synonym_row.approved,
+                "canonical_name": synonym_row.canonical_name,
+                "confidence": synonym_row.confidence,
+                "method": synonym_row.method,
+                "synonym": synonym_row.synonym,
             },
             provenance_version=version,
         )
@@ -1597,26 +1614,26 @@ def _iter_l2_source_edges(
     )
 
     contested_edges, contested_claims = _l2_contested_memberships(rows.contested_edges)
-    for row in rows.causal_edges:
+    for causal_row in rows.causal_edges:
         yield _derive_l2_causal_edge(
-            row,
+            causal_row,
             version=version,
             variable_names=variable_names,
             approved_variables=approved_variables,
             contested_edges=contested_edges,
         )
 
-    for row in rows.family_edges:
+    for family_row in rows.family_edges:
         yield _derive_l2_family_edge(
-            row,
+            family_row,
             version=version,
             variable_names=variable_names,
             contested_edges=contested_edges,
         )
 
-    for row in rows.moderation_edges:
+    for moderation_row in rows.moderation_edges:
         yield _derive_l2_moderation_edge(
-            row,
+            moderation_row,
             version=version,
             variable_names=variable_names,
         )
@@ -1629,8 +1646,8 @@ def _iter_l2_source_edges(
             contested_claims=contested_claims,
         )
 
-    for row in rows.contested_edges:
-        yield _derive_l2_contested_edge(row[:12], version=version)
+    for contested_row in rows.contested_edges:
+        yield _derive_l2_contested_edge(contested_row[:12], version=version)
 
 
 def _derive_l2_variable_edge(row: Sequence[Any], *, version: str) -> CredalReferenceEdge:
@@ -2225,49 +2242,46 @@ def _derive_l2_causal_claim(
     blocker_list = list(claim_result.publish_blockers)
     trust = _float(claim_result.trust_score)
     tier = int(claim_result.design_quality_tier or 99)
+    signals: dict[str, object] = {
+        "candidate_layer": str(claim_result.candidate_layer or ""),
+        "claim_in_contested_membership": claim in contested_claims,
+        "design_quality_tier": tier,
+        "publish_blockers": blocker_list,
+        "strong_design_evidence": bool(claim_result.strong_design_evidence),
+        "trust_score": trust,
+        "claim_vocabulary": {
+            "design_family_hint": (
+                claim_result.design_family_hint.value
+                if claim_result.design_family_hint is not None
+                else None
+            ),
+            "design_family_hint_status": claim_result.design_family_hint_status.value,
+            "evidence_strength": (
+                claim_result.evidence_strength.value
+                if claim_result.evidence_strength is not None
+                else None
+            ),
+            "evidence_strength_status": claim_result.evidence_strength_status.value,
+            "claim_extraction_confidence": claim_result.claim_extraction_confidence,
+            "claim_extraction_confidence_status": (
+                claim_result.claim_extraction_confidence_status.value
+            ),
+            "source_basis": (
+                claim_result.source_basis.value if claim_result.source_basis is not None else None
+            ),
+            "source_basis_status": claim_result.source_basis_status.value,
+            "legacy_strength_label": claim_result.legacy_strength_label,
+            "limitations": [item.value for item in claim_result.limitations],
+            "projection_binding": claim_result.projection_binding.model_dump(mode="json"),
+        },
+    }
     provenance = {
         "owner": "L2",
         "source": "ac_causal_claims",
         "version": version,
-        "signals": {
-            "candidate_layer": str(claim_result.candidate_layer or ""),
-            "claim_in_contested_membership": claim in contested_claims,
-            "design_quality_tier": tier,
-            "publish_blockers": blocker_list,
-            "strong_design_evidence": bool(claim_result.strong_design_evidence),
-            "trust_score": trust,
-            "claim_vocabulary": {
-                "design_family_hint": (
-                    claim_result.design_family_hint.value
-                    if claim_result.design_family_hint is not None
-                    else None
-                ),
-                "design_family_hint_status": claim_result.design_family_hint_status.value,
-                "evidence_strength": (
-                    claim_result.evidence_strength.value
-                    if claim_result.evidence_strength is not None
-                    else None
-                ),
-                "evidence_strength_status": claim_result.evidence_strength_status.value,
-                "claim_extraction_confidence": claim_result.claim_extraction_confidence,
-                "claim_extraction_confidence_status": (
-                    claim_result.claim_extraction_confidence_status.value
-                ),
-                "source_basis": (
-                    claim_result.source_basis.value
-                    if claim_result.source_basis is not None
-                    else None
-                ),
-                "source_basis_status": claim_result.source_basis_status.value,
-                "legacy_strength_label": claim_result.legacy_strength_label,
-                "limitations": [item.value for item in claim_result.limitations],
-                "projection_binding": claim_result.projection_binding.model_dump(mode="json"),
-            },
-        },
+        "signals": signals,
     }
-    provenance["signals"]["legal_source_relation_refusal"] = (
-        LEGAL_SOURCE_RELATION_REFUSAL.to_payload()
-    )
+    signals["legal_source_relation_refusal"] = LEGAL_SOURCE_RELATION_REFUSAL.to_payload()
     value = {
         "cause": cause_text,
         "direction": str(claim_result.direction or ""),
@@ -2419,10 +2433,10 @@ def _iter_l3_edges(repo_root: Path, *, as_of: str) -> Iterable[CredalReferenceEd
     db_path = repo_root / DEFAULT_L3_LEX_KG_PATH
     con = duckdb.connect(str(db_path), read_only=True)
     try:
-        version = str(
-            con.execute("SELECT MAX(effective_from) FROM lex_amendments").fetchone()[0]
-            or db_path.parent.name
-        )
+        version_row = con.execute("SELECT MAX(effective_from) FROM lex_amendments").fetchone()
+        if version_row is None:
+            raise RuntimeError("credal_reference_l3_version_row_missing")
+        version = str(version_row[0] or db_path.parent.name)
         threshold_rows = con.execute(
             """
             SELECT t.threshold_id, t.fact_id, t.metric, t.operator, t.value_decimal,
@@ -2848,6 +2862,26 @@ def _iter_l6_edges(
                 provenance,
             )
             continue
+        if isinstance(resolved, InterventionLeverRefusal):
+            refusal_provenance = {
+                **provenance,
+                "resolution_refusal": resolved.model_dump(mode="json"),
+            }
+            yield _edge(
+                "L6_KNOB_OPERATOR",
+                str(knob_id),
+                "incomplete",
+                _incomplete_completions(resolved.reason_code),
+                refusal_provenance,
+            )
+            yield _edge(
+                "L6_KNOB_WORLD_SLOT",
+                str(knob_id),
+                "incomplete",
+                _incomplete_completions(resolved.reason_code),
+                refusal_provenance,
+            )
+            continue
         yield _confirmed_edge(
             "L6_KNOB_OPERATOR",
             str(knob_id),
@@ -2892,8 +2926,9 @@ def _iter_l6_edges(
         for knob_id in knob_ids:
             raw_knob = _mapping(bundle.knob_dictionary.get(knob_id))
             mapping_value: dict[str, Any] = {"knob_id": knob_id}
+            reason: str
             try:
-                resolved = resolve_law_bound_lever(
+                law_resolution = resolve_law_bound_lever(
                     bundle,
                     law_token=str(law_token),
                     knob_id=knob_id,
@@ -2908,11 +2943,12 @@ def _iter_l6_edges(
                 reason = exc.code
                 resolutions.append({"knob_id": knob_id, "status": "blocked", "reason": reason})
             else:
-                reason = resolved.mapping_reason_code
+                reason = law_resolution.mapping_reason_code
                 mapping_value.update(
-                    provision_ref=resolved.provision_ref, threshold_id=resolved.threshold_id
+                    provision_ref=law_resolution.provision_ref,
+                    threshold_id=law_resolution.threshold_id,
                 )
-                resolutions.append(resolved.model_dump(mode="json"))
+                resolutions.append(law_resolution.model_dump(mode="json"))
             # Preserve every declared association, including unresolved ones. Empty
             # completions erase the dependency before the existing CG1 status gate.
             completions.append(AdmissibleCompletion("may_exist", mapping_value, reason))
@@ -3396,12 +3432,19 @@ def _split_blockers(value: object) -> list[str]:
 
 
 def _float(value: object, *, default: float = 0.0) -> float:
-    try:
-        if value is None:
-            return default
-        return float(value)
-    except (TypeError, ValueError):
+    if value is None:
         return default
+    if isinstance(value, str | bytes | bytearray):
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return default
+    if isinstance(value, SupportsFloat | SupportsIndex):
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return default
+    return default
 
 
 def _threshold_scale(unit: object) -> str | None:

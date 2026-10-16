@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections import UserDict
-from collections.abc import Iterator
+from collections.abc import Hashable, Iterator
 from dataclasses import replace
 from pathlib import Path
 from types import MappingProxyType
@@ -2842,3 +2842,189 @@ def test_empty_selected_catalog_profile_survives_replay_and_present_source_never
         match="credal_reference_data_forge_catalog_read_failed",
     ):
         _build_n4_reference_from_selected_catalog(monkeypatch, root, missing_table_source)
+
+
+@pytest.mark.parametrize(
+    ("case", "expected_status", "expected_reason"),
+    [
+        ("resolved", "confirmed", None),
+        ("refused_candidate_unbound", "incomplete", "knob_operator_unresolved"),
+        ("refused_acquisition_required", "incomplete", "knob_operator_unresolved"),
+        ("malformed", "incomplete", "knob_domain_type_missing"),
+    ],
+)
+def test_l6_intervention_result_union_preserves_typed_edge_and_bounded_lift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    case: str,
+    expected_status: str,
+    expected_reason: str | None,
+) -> None:
+    """Keep typed refusals on edges while exposing only their bounded lift."""
+
+    from types import SimpleNamespace
+
+    from polisyos.lex import knowledge
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality import credal_reference as owner
+    from polisyos.runtime.quality import intervention_substrate as substrate
+
+    knob_entry: dict[str, str | int | float] = {"min": 0.0, "max": 1.0}
+    if case != "malformed":
+        knob_entry["type"] = "float"
+    knob_dictionary = {"fixture_knob": knob_entry}
+    source_refs = {"intervention_knob_dictionary": "fixture://l6/knobs"}
+    source_hashes = {"intervention_knob_dictionary": gy_content_hash(knob_dictionary)}
+    bundle_fields = {
+        "schema_version": substrate.INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+        "knob_dictionary": knob_dictionary,
+        "lex_intervention_map": {},
+        "observation_manifest": {},
+        "policy_scenario_templates": {},
+        "slot_family_manifest": {},
+        "world_mechanism_manifest": {},
+        "lex_authority_manifest": {},
+        "owner_authority_manifest": {},
+        "source_refs": source_refs,
+        "source_content_hashes": source_hashes,
+    }
+    bundle = substrate.InterventionSubstrateBundle(
+        **bundle_fields,
+        content_hash=gy_content_hash(bundle_fields),
+    )
+
+    class UnusedLegalStore:
+        def __init__(self, *_args: object, **_kwargs: object) -> None:
+            pass
+
+    monkeypatch.setattr(knowledge, "LegalKnowledgeStore", UnusedLegalStore)
+    monkeypatch.setattr(owner, "DEFAULT_L3_LEX_KG_PATH", Path("fixture/lex.duckdb"))
+    monkeypatch.setattr(owner, "load_l6_intervention_substrate", lambda _root: bundle)
+    monkeypatch.setattr(owner, "_iter_l6_observation_route_edges", lambda *_args, **_kwargs: ())
+    world_model_record = SimpleNamespace(world_model_record_id="wmr:controlled")
+
+    refusal = None
+    if case == "resolved":
+
+        def owner_binding(*_args: object, **_kwargs: object) -> tuple[object, object]:
+            atom = SimpleNamespace(
+                atom_id="atom:fixture",
+                content_hash="sha256:" + "a" * 64,
+            )
+
+            class SlotBinding:
+                slot_id = "government.balance"
+
+                def model_dump(self, *, mode: str) -> dict[str, str]:
+                    assert mode == "json"
+                    return {"slot_id": self.slot_id}
+
+            slot_binding = SlotBinding()
+            world_binding = SimpleNamespace(
+                world_model_record_id=world_model_record.world_model_record_id,
+                world_model_record_content_hash="sha256:" + "b" * 64,
+                target_slot_bindings=(slot_binding,),
+            )
+            return atom, world_binding
+
+        monkeypatch.setattr(substrate, "_resolve_owner_atom_world_binding", owner_binding)
+    elif case.startswith("refused_"):
+        status = case.removeprefix("refused_")
+        refusal_fields = {
+            "schema_version": substrate.INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+            "status": status,
+            "operator_kind": "fixture_knob",
+            "instrument": "fixture.instrument",
+            "lever_id": "fixture_knob",
+            "reason_code": "knob_operator_unresolved",
+            "candidate_entry_content_hash": "sha256:" + "c" * 64,
+            "selected_registry_entry_hash": "sha256:" + "d" * 64,
+            "substrate_input_content_hash": "sha256:" + "e" * 64,
+            "context_binding_hash": "sha256:" + "f" * 64,
+            "substrate_registry_content_hash": "sha256:" + "1" * 64,
+            "world_model_record_content_hash": "sha256:" + "2" * 64,
+            "source_refs": ("fixture://candidate/lever",),
+        }
+        refusal = substrate.InterventionLeverRefusal.model_validate(
+            {**refusal_fields, "content_hash": gy_content_hash(refusal_fields)}
+        )
+        monkeypatch.setattr(owner, "resolve_intervention_lever", lambda *_args, **_kwargs: refusal)
+
+    edges = tuple(owner._iter_l6_edges(tmp_path, world_model_record=world_model_record))
+    assert {edge.modality for edge in edges} == {"L6_KNOB_OPERATOR", "L6_KNOB_WORLD_SLOT"}
+    assert {edge.status for edge in edges} == {expected_status}
+
+    edge_index = {edge.key: edge for edge in edges}
+    component_versions = owner._component_versions(
+        edge_index,
+        world_model_record_hash="controlled-wmr-v1",
+    )
+    reference_hash = owner._reference_hash(
+        component_versions=component_versions,
+        edge_index=edge_index,
+        as_of="2026-10-16",
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+    )
+    reference = CredalReference(
+        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
+        reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
+        reference_hash=reference_hash,
+        as_of="2026-10-16",
+        component_versions=component_versions,
+        essential_edges=edge_index,
+    )
+    scope = tuple(edge.key for edge in edges)
+    projection = reference.reference_lift(scope)
+    assert {item["status"] for item in projection.values()} == {expected_status}
+    assert reference.all_essential_confirmed(scope) is (expected_status == "confirmed")
+
+    if refusal is not None:
+        expected_refusal = refusal.model_dump(mode="json")
+        for edge in edges:
+            assert edge.provenance["resolution_refusal"] == expected_refusal
+            lifted = projection[f"{edge.modality}::{edge.edge_id}"]
+            assert lifted["status"] == "incomplete"
+            assert lifted["content_hash"] == edge.content_hash
+            assert refusal.reason_code in {
+                completion["reason"] for completion in lifted["admissible_completions"]
+            }
+            assert "resolution_refusal" not in lifted
+            assert "source_refs" not in lifted
+    elif expected_reason is not None:
+        assert all(
+            any(completion.reason == expected_reason for completion in edge.admissible_completions)
+            for edge in edges
+        )
+        assert all("resolution_refusal" not in edge.provenance for edge in edges)
+    else:
+        assert all("resolution_refusal" not in edge.provenance for edge in edges)
+
+
+def test_frozen_reference_snapshots_preserve_unhashable_protocol() -> None:
+    from polisyos.runtime.quality.credal_reference import _freeze_reference_payload
+
+    list_snapshot = _freeze_reference_payload(["candidate"])
+    public_mapping_snapshot = CredalReferenceEdge(
+        modality="L6_KNOB_OPERATOR",
+        edge_id="fixture_knob",
+        status="incomplete",
+        admissible_completions=(),
+        provenance={"candidate_values": ["candidate"]},
+    ).provenance
+    public_nested_list = public_mapping_snapshot["candidate_values"]
+
+    for snapshot in (list_snapshot, public_mapping_snapshot, public_nested_list):
+        assert type(snapshot).__hash__ is None
+        assert not isinstance(snapshot, Hashable)
+        with pytest.raises(TypeError, match="unhashable type"):
+            hash(snapshot)
+
+
+def test_float_projection_preserves_supported_numeric_inputs() -> None:
+    from decimal import Decimal
+
+    from polisyos.runtime.quality.credal_reference import _float
+
+    assert _float("1.25") == 1.25
+    assert _float(Decimal("2.5")) == 2.5
+    assert _float(object(), default=3.75) == 3.75

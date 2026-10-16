@@ -946,3 +946,13 @@ must be true, activation must be pending or active, and the receipt operational 
 owner-row epoch; duplicate stamp and passport carriers are also reconciled before the first CAS write.
 This establishes source-projection consistency only; external authority, causal identification,
 assignment, units, calibration, and publication remain not established.
+
+Credal reference consumer boundary: a typed `InterventionLeverRefusal` is an
+incomplete L6 operator and world-slot edge, with the complete owner refusal
+preserved in edge provenance. It is never read as a resolved domain or slot.
+The bounded `reference_lift` carries the incomplete status, admissible-completion reason, and edge
+content hash; it does not expose the full refusal or confer authority. The
+resolver-boundary tests are consumer controls, not a producer-to-CAS-to-N6
+proof. Global K_ref remains owner-wide; context-bound candidate refusals use
+the existing N4 generation path. Frozen reference snapshots preserve their
+unhashable mapping and sequence protocols.

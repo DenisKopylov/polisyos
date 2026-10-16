@@ -8,7 +8,7 @@ from datetime import UTC, datetime
 from enum import Enum
 from math import isfinite
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, Protocol, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, Literal, Protocol, TypeVar
 
 from pydantic import (
     ConfigDict,
@@ -33,24 +33,12 @@ from polisyos.core.canon.canon_json import CanonSpec
 from polisyos.core.contracts import DataSnapshot
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Mapping
+    from collections.abc import Mapping
+
+    from pydantic import BaseModel as _PydanticBaseModel
+    from pydantic import model_validator
 
     from polisyos.core.artifacts.protocol import ArtifactStore
-
-    _ValidatorFunc = TypeVar("_ValidatorFunc", bound=Callable[..., object])
-
-    class _PydanticBaseModel:
-        model_config: ClassVar[ConfigDict]
-
-        def __init__(self, /, **data: object) -> None: ...
-
-        @classmethod
-        def model_validate(cls, obj: object) -> Self: ...
-
-        @classmethod
-        def model_validate_json(cls, json_data: str) -> Self: ...
-
-    def model_validator(*, mode: str) -> Callable[[_ValidatorFunc], _ValidatorFunc]: ...
 else:
     from pydantic import BaseModel as _PydanticBaseModel
     from pydantic import model_validator
@@ -799,11 +787,11 @@ def load_json_artifact(store: ArtifactStore, ref: ArtifactRef | str) -> object:
     return load_core_json_artifact(store, selector)
 
 
-def load_model_artifact(
+def load_model_artifact[PydanticModelT: _PydanticBaseModel](
     store: ArtifactStore,
     ref: ArtifactRef | str,
-    model_cls: type[_PydanticBaseModel],
-) -> _PydanticBaseModel:
+    model_cls: type[PydanticModelT],
+) -> PydanticModelT:
     """Load model artifact."""
     payload = load_json_artifact(store, ref)
     return model_cls.model_validate(payload)

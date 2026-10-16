@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from math import isfinite
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -15,7 +15,7 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.methods.autotune.models import (
@@ -29,6 +29,9 @@ from polisyos.scientist.methods.autotune.models import (
 )
 from polisyos.scientist.methods.search.adversarial import load_platform_meta_evaluation_report
 from polisyos.scientist.replay.verification import load_replay_verification_report
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
 
 PROMOTION_EVIDENCE_BUNDLE_SCHEMA_NAME = "polisyos.scientist.search.PromotionEvidenceBundle"
 
@@ -127,7 +130,7 @@ class PromotionEvidenceBundle(BaseModel):
         self,
         *,
         run_id: str,
-        store: FileSystemCAS,
+        store: CoreJSONArtifactStore,
         expected_loop_id: str | None = None,
         expected_refs: Mapping[str, ArtifactRef | list[ArtifactRef] | None] | None = None,
         source_basis_by_role: Mapping[str, _BenchmarkEvaluationSourceBasis] | None = None,
@@ -275,20 +278,18 @@ class PromotionEvidenceBundle(BaseModel):
                 raise ValueError(
                     "PromotionEvidenceBundle replay_verification_ref has unexpected kind."
                 )
-            replay_report = load_replay_verification_report(store, self.replay_verification_ref)
-            if (
-                self.replay_bundle_ref is not None
-                and replay_report.replay_bundle_ref.artifact_id
-                != self.replay_bundle_ref.artifact_id
-            ):
+            if self.replay_bundle_ref is None:
                 raise ValueError(
-                    "PromotionEvidenceBundle replay_verification_ref is stale for the current replay bundle."
+                    "PromotionEvidenceBundle replay_verification_ref requires replay_bundle_ref context."
                 )
-            report_run_id = str(replay_report.run_id).strip()
-            if report_run_id and report_run_id != run_id:
-                raise ValueError(
-                    "PromotionEvidenceBundle replay_verification_ref belongs to another run."
-                )
+            load_replay_verification_report(
+                store,
+                self.replay_verification_ref,
+                expected_run_id=run_id,
+                expected_replay_bundle_ref=self.replay_bundle_ref,
+                expected_candidate_ref=self.candidate_ref,
+                expected_evaluation_ref=self.evaluation_ref,
+            )
         if self.calibration_report_ref is not None:
             manifest = _require_manifest(
                 store, self.calibration_report_ref, role="calibration_report_ref"
@@ -332,7 +333,7 @@ def _assert_expected_refs(
 
 
 def _require_manifest(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     ref: ArtifactRef,
     *,
     role: str,
@@ -344,7 +345,7 @@ def _require_manifest(
 
 
 def _validate_benchmark_ref(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     ref: ArtifactRef,
     *,
     role: str,
@@ -389,7 +390,7 @@ def _validate_benchmark_ref(
 
 
 def _validate_benchmark_source_basis(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     role: str,
     refs: tuple[ArtifactRef, ...],
@@ -459,7 +460,7 @@ def _validate_benchmark_source_basis(
 
 
 def _validate_phase_d4_benchmark_source(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     refs: tuple[ArtifactRef, ...],
     stress_report_ref: ArtifactRef,
@@ -511,7 +512,7 @@ def _validate_phase_d4_benchmark_source(
 
 
 def _validate_policy_runtime_selection_projection(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     ref: ArtifactRef,
     expected: BenchmarkEvaluation,
@@ -550,7 +551,7 @@ def _validate_policy_runtime_selection_projection(
 
 
 def _validate_method_job_benchmark_ref(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     ref: ArtifactRef,
     role: str,
@@ -646,7 +647,7 @@ def _validate_method_job_benchmark_ref(
 
 
 def _assert_method_job_evaluation_matches_source(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     evaluation: BenchmarkEvaluation,
     packet: Any,
@@ -763,7 +764,7 @@ def _source_guardrails(value: Any) -> dict[str, bool]:
 
 
 def _assert_exact_evaluation_inputs(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     *,
     ref: ArtifactRef,
     expected: Mapping[str, ArtifactRef],
@@ -790,12 +791,32 @@ def _assert_exact_evaluation_inputs(
 
 
 def persist_promotion_evidence_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     bundle: PromotionEvidenceBundle,
     *,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
     """Persist promotion evidence bundle helper."""
+    projected_inputs = _promotion_evidence_input_refs(bundle)
+    projected_by_role = {item.role: item for item in projected_inputs}
+    supplied_by_role: dict[str, InputRef] = {}
+    for item in inputs or []:
+        if item.role in supplied_by_role:
+            raise ValueError(f"PromotionEvidenceBundle {item.role} input is duplicated.")
+        projected = projected_by_role.get(item.role)
+        if projected is not None:
+            if item.artifact_id != projected.artifact_id or (
+                item.manifest_profile_sha256 is not None
+                and item.manifest_profile_sha256 != projected.manifest_profile_sha256
+            ):
+                raise ValueError(f"PromotionEvidenceBundle {item.role} input profile mismatches.")
+            supplied_by_role[item.role] = projected
+        else:
+            supplied_by_role[item.role] = item
+    persisted_inputs = list(projected_inputs)
+    persisted_inputs.extend(
+        item for role, item in supplied_by_role.items() if role not in projected_by_role
+    )
     return store.put_json(
         bundle,
         PutOptions(
@@ -805,14 +826,42 @@ def persist_promotion_evidence_bundle(
                 name=PROMOTION_EVIDENCE_BUNDLE_SCHEMA_NAME,
                 version=bundle.schema_version,
             ),
-            inputs=list(inputs or []),
+            inputs=persisted_inputs,
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
 
 
+def _promotion_evidence_input_refs(bundle: PromotionEvidenceBundle) -> list[InputRef]:
+    """Project every persisted artifact reference into an exact selected-view edge."""
+    references: list[InputRef] = []
+    for role, ref in (
+        ("candidate", bundle.candidate_ref),
+        ("evaluation", bundle.evaluation_ref),
+        ("selection_evaluation", bundle.selection_evaluation_ref),
+        ("hidden_holdout_evaluation", bundle.hidden_holdout_evaluation_ref),
+        ("adversarial_meta_evaluation", bundle.adversarial_meta_evaluation_ref),
+        ("replay_bundle", bundle.replay_bundle_ref),
+        ("replay_verification", bundle.replay_verification_ref),
+        ("calibration_report", bundle.calibration_report_ref),
+        ("governance_report", bundle.governance_report_ref),
+        ("stress_test_report", bundle.stress_test_report_ref),
+    ):
+        if ref is not None:
+            references.append(input_ref_from_artifact_ref(ref, role=role))
+    references.extend(
+        input_ref_from_artifact_ref(ref, role=f"rotating_challenge_evaluation:{index}")
+        for index, ref in enumerate(bundle.rotating_challenge_evaluation_refs)
+    )
+    roles = [item.role for item in references]
+    if len(roles) != len(set(roles)):
+        raise ValueError("PromotionEvidenceBundle projected input roles are duplicated.")
+    return references
+
+
 def load_promotion_evidence_bundle(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     ref: ArtifactRef,
 ) -> PromotionEvidenceBundle:
     """Load promotion evidence bundle."""

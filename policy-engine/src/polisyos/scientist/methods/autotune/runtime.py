@@ -5,12 +5,20 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass
 from math import isclose, isfinite
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Generic, Literal, Protocol, TypeGuard, TypeVar
 from uuid import uuid4
 
 from pydantic import BaseModel, ValidationError
 
-from polisyos.core.artifacts import ArtifactWriteOptions, validate_core_model_json_artifact
+from polisyos.core.artifacts import (
+    ArtifactWriteOptions,
+    resolve_manifest_by_profile,
+    validate_core_model_json_artifact,
+)
+from polisyos.core.artifacts.backends.config import (
+    with_ambient_ownership_enforcement_if_supported,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
@@ -19,14 +27,17 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.protocol import (
+    CoreJSONArtifactStore,
+    matches_runtime_protocol_definition,
+)
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.core.contracts import DataSnapshot
 from polisyos.scientist.compute.job_spec import JobKey, JobSpec
+from polisyos.scientist.methods.search.contracts import SearchResult
 from polisyos.scientist.methods.search.controller import (
     SearchConfig,
     SearchController,
-    SearchResult,
     TracedLLMCandidateGenerator,
 )
 from polisyos.scientist.methods.search.objective import (
@@ -39,6 +50,7 @@ from polisyos.scientist.methods.search.stopping import MaxIterations
 from .models import (
     _BENCHMARK_EVALUATION_SCHEMA_NAME,
     BayesianSourceProfile,
+    BenchmarkedEvaluator,
     BenchmarkEvaluation,
     BenchmarkSplit,
     BenchmarkSuite,
@@ -70,6 +82,9 @@ from .registry import (
 )
 
 if TYPE_CHECKING:
+    from typing import TypeGuard
+
+    from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.scientist.orchestration.engine.budget_ledger import (
         BudgetLedgerProducerRunBinding,
     )
@@ -79,6 +94,36 @@ if TYPE_CHECKING:
 
     from .execution_work import MethodJobExecutionWorkPacket
 
+
+def _is_core_json_artifact_store(value: object) -> TypeGuard[CoreJSONArtifactStore]:
+    """Narrow a handle after deriving its full Core JSON Protocol shape."""
+    return matches_runtime_protocol_definition(value, CoreJSONArtifactStore)
+
+
+def _default_core_json_store() -> CoreJSONArtifactStore:
+    """Require the configured default backend to support semantic Core JSON reads."""
+    store = default_store()
+    if not _is_core_json_artifact_store(store):
+        raise TypeError("core_json_artifact_store_unavailable")
+    return store
+
+
+class _RootedCoreJSONArtifactStore(CoreJSONArtifactStore, Protocol):
+    """Core JSON store that exposes the explicit local execution root."""
+
+    @property
+    def root(self) -> Path:
+        """Return the filesystem root used by the MethodJob runner."""
+        ...
+
+
+def _is_rooted_core_json_artifact_store(
+    value: object,
+) -> TypeGuard[_RootedCoreJSONArtifactStore]:
+    """Narrow only a selected-profile Core JSON store with a root boundary."""
+    return matches_runtime_protocol_definition(value, _RootedCoreJSONArtifactStore)
+
+
 ModelT = TypeVar("ModelT", bound=MutationArtifact)
 
 
@@ -86,13 +131,13 @@ def seed_loop_baseline(
     *,
     loop_id: str,
     baseline: MutationArtifact,
-    store: FileSystemCAS | None = None,
+    store: CoreJSONArtifactStore | None = None,
     registry: ChampionRegistry | None = None,
     suite_version: str = "1.0",
     metadata: dict[str, Any] | None = None,
 ) -> ChampionPointer:
     """Seed loop baseline helper."""
-    active_store = store or default_store()
+    active_store = store if store is not None else _default_core_json_store()
     active_registry = registry or ChampionRegistry(store=active_store)
     candidate_ref = persist_mutation_artifact(active_store, baseline)
     evaluation = BenchmarkEvaluation(
@@ -128,14 +173,14 @@ class ChampionBackedRuntimeLoader(Generic[ModelT]):
         loop_id: str,
         model_cls: type[ModelT],
         baseline_factory: Any,
-        store: FileSystemCAS | None = None,
+        store: CoreJSONArtifactStore | None = None,
         registry: ChampionRegistry | None = None,
         suite_version: str = "1.0",
     ) -> None:
         self._loop_id = loop_id
         self._model_cls = model_cls
         self._baseline_factory = baseline_factory
-        self._store = store or default_store()
+        self._store = store if store is not None else _default_core_json_store()
         self._registry = registry or ChampionRegistry(store=self._store)
         self._suite_version = suite_version
 
@@ -154,7 +199,7 @@ class ChampionBackedRuntimeLoader(Generic[ModelT]):
         if champion is None:
             champion = self.ensure_baseline(context)
         payload = load_model_artifact(self._store, champion.candidate_ref, self._model_cls)
-        return cast("ModelT", payload)
+        return payload
 
 
 class _AutotuneObjective(BaseObjective):
@@ -315,15 +360,23 @@ class MethodJobBenchmarkEvaluator:
         store = context.get("store")
         policy = context.get("policy")
         loop_id = context.get("loop_id")
-        if store is None or not callable(getattr(store, "get_bytes", None)):
-            raise TypeError("MethodJobBenchmarkEvaluator requires the active artifact store")
+        if not _is_rooted_core_json_artifact_store(store):
+            raise TypeError(
+                "MethodJobBenchmarkEvaluator requires a root-backed Core JSON artifact store"
+            )
+        store = with_ambient_ownership_enforcement_if_supported(store)
+        if not _is_rooted_core_json_artifact_store(store):
+            raise TypeError(
+                "MethodJobBenchmarkEvaluator requires a tenant-safe root-backed Core JSON store"
+            )
         if not isinstance(policy, PromotionPolicy):
             raise TypeError("MethodJobBenchmarkEvaluator requires the active PromotionPolicy")
         if not isinstance(loop_id, str) or not loop_id:
             raise TypeError("MethodJobBenchmarkEvaluator requires the active loop_id")
-        cas_root = getattr(store, "root", None)
-        if cas_root is None:
+        cas_root = store.root
+        if not isinstance(cas_root, Path):
             raise TypeError("MethodJobBenchmarkEvaluator requires a filesystem CAS root")
+        cas_root = cas_root.resolve()
 
         candidate = load_json_artifact(store, candidate_ref)
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
@@ -557,10 +610,18 @@ class MethodJobBenchmarkEvaluator:
                     "search_parameter_values": search_parameter_values,
                 }
             )
+
+        def same_root_store_factory(requested_root: Path) -> ArtifactStore:
+            """Keep MethodJob reads and writes on the exact admitted store handle."""
+            if requested_root.resolve() != cas_root:
+                raise ValueError("methodjob_store_root_mismatch")
+            return store
+
         job_result = run_job(
             spec,
             cas_root=cas_root,
             method_state=method_state,
+            store_factory=same_root_store_factory,
             capture_dispatch_binding=True,
         )
 
@@ -589,7 +650,7 @@ class MethodJobBenchmarkEvaluator:
                 refs=refs,
             )
 
-        fresh_reader = FileSystemCAS(cas_root)
+        fresh_reader = store
         output = load_json_artifact(fresh_reader, job_result.method_result_ref)
         if not isinstance(output, Mapping):
             return self._empty_evaluation(
@@ -838,7 +899,7 @@ class MethodJobBenchmarkEvaluator:
     def _persist_execution_work_packet(
         self,
         *,
-        store: FileSystemCAS,
+        store: CoreJSONArtifactStore,
         candidate: Mapping[str, Any],
         candidate_ref: ArtifactRef,
         suite_ref: ArtifactRef,
@@ -871,10 +932,11 @@ class MethodJobBenchmarkEvaluator:
         run_id = context.get("run_id")
         evaluation_id = context.get("evaluation_id")
         attempt_id = context.get("evaluation_attempt_id")
-        if not all(
-            isinstance(value, str) and value.strip()
-            for value in (run_id, evaluation_id, attempt_id)
-        ):
+        if not isinstance(run_id, str) or not run_id.strip():
+            return None, "unavailable", "run_evaluation_attempt_identity_unavailable"
+        if not isinstance(evaluation_id, str) or not evaluation_id.strip():
+            return None, "unavailable", "run_evaluation_attempt_identity_unavailable"
+        if not isinstance(attempt_id, str) or not attempt_id.strip():
             return None, "unavailable", "run_evaluation_attempt_identity_unavailable"
 
         raw_result = method_output.get("result")
@@ -988,7 +1050,7 @@ def _source_sample_count(
 
 
 def read_method_job_execution_work_packet(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     ref: ArtifactRef,
 ) -> MethodJobExecutionWorkPacket:
     """Fresh-read and reconcile a diagnostic work packet against source CAS artifacts."""
@@ -1228,7 +1290,7 @@ def read_method_job_execution_work_packet(
 
 def _search_work_packet_admission_failure(
     *,
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     evaluation: BenchmarkEvaluation,
     evaluator: MethodJobBenchmarkEvaluator | None,
     candidate_ref: ArtifactRef,
@@ -1496,40 +1558,60 @@ def _build_search_parameter_profile(
         for search_name, method_name in sorted(bindings.items()):
             bound = bounds_by_name[search_name]
             parameter = parameters.get(method_name)
-            dtype = getattr(getattr(bound, "dtype", None), "value", None)
+            raw_dtype = getattr(getattr(bound, "dtype", None), "value", None)
             lower = getattr(bound, "lower", None)
             upper = getattr(bound, "upper", None)
-            if (
-                parameter is None
-                or parameter.is_static
-                or type(parameter.default) not in {int, float}
-                or type(lower) not in {int, float}
-                or type(upper) not in {int, float}
-                or not isfinite(float(lower))
-                or not isfinite(float(upper))
-                or lower >= upper
-                or getattr(bound, "categories", None) is not None
-            ):
+            if parameter is None or parameter.is_static:
                 return None
             if type(parameter.default) is int:
+                integer_parameter = True
+            elif type(parameter.default) is float:
+                integer_parameter = False
+            else:
+                return None
+            if type(lower) is int:
+                lower_value: int | float = lower
+            elif type(lower) is float:
+                lower_value = lower
+            else:
+                return None
+            if type(upper) is int:
+                upper_value: int | float = upper
+            elif type(upper) is float:
+                upper_value = upper
+            else:
+                return None
+            if not isfinite(float(lower_value)) or not isfinite(float(upper_value)):
+                return None
+            if lower_value >= upper_value or getattr(bound, "categories", None) is not None:
+                return None
+            if raw_dtype == "integer":
+                dtype: Literal["integer", "continuous", "log_continuous"] = "integer"
+            elif raw_dtype == "continuous":
+                dtype = "continuous"
+            elif raw_dtype == "log_continuous":
+                dtype = "log_continuous"
+            else:
+                return None
+            if integer_parameter:
                 if (
                     dtype != "integer"
-                    or not float(lower).is_integer()
-                    or not float(upper).is_integer()
+                    or not float(lower_value).is_integer()
+                    or not float(upper_value).is_integer()
                 ):
                     return None
             elif dtype not in {"continuous", "log_continuous"}:
                 return None
             declared_lower, declared_upper = parameter.bounds
-            if (declared_lower is not None and lower < declared_lower) or (
-                declared_upper is not None and upper > declared_upper
+            if (declared_lower is not None and lower_value < declared_lower) or (
+                declared_upper is not None and upper_value > declared_upper
             ):
                 return None
             profile_bounds.append(
                 SearchGPFitBound(
                     name=search_name,
-                    lower=float(lower),
-                    upper=float(upper),
+                    lower=float(lower_value),
+                    upper=float(upper_value),
                     dtype=dtype,
                     log_scale=bool(getattr(bound, "log_scale", False)),
                     categories=None,
@@ -1542,7 +1624,7 @@ def _build_search_parameter_profile(
 
 def _build_search_method_run_profile(
     *,
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     generator: Any,
     spec: SearchLoopSpec,
     suite_ref: ArtifactRef,
@@ -1562,6 +1644,9 @@ def _build_search_method_run_profile(
         or not isinstance(context_fingerprint, str)
         or not context_fingerprint
     ):
+        return None
+    split = _search_method_split_label(evaluator._split)
+    if split is None:
         return None
     search_space_fingerprint = search_space._native.sobol_space_fingerprint()
     objective_fingerprint = objective_fn()
@@ -1654,7 +1739,7 @@ def _build_search_method_run_profile(
             method_seed=method_seed,
             primary_metric=spec.promotion_policy.primary_metric,
             direction=spec.promotion_policy.direction.value,
-            split=evaluator._split.value,
+            split=split,
             unit=spec.promotion_policy.unit,
             search_space_fingerprint=search_space_fingerprint,
             context_fingerprint=context_fingerprint,
@@ -1665,7 +1750,7 @@ def _build_search_method_run_profile(
 
 
 def _persist_search_benchmark_evaluation(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     evaluation: BenchmarkEvaluation,
     *,
     suite_ref: ArtifactRef,
@@ -1693,7 +1778,7 @@ def _persist_search_benchmark_evaluation(
 
 def _verify_search_source_profile_receipt(
     *,
-    store: Any,
+    store: CoreJSONArtifactStore,
     evaluation_ref: Any,
     expected_receipt: Any = None,
     expected_profile: Any = None,
@@ -1709,11 +1794,9 @@ def _verify_search_source_profile_receipt(
     """Fresh-read the complete candidate-grade Search → MethodJob → CAS source chain."""
     from polisyos.core.artifacts import load_core_json_artifact
 
-    if not isinstance(store, FileSystemCAS):
-        return None
     try:
         exact_evaluation_ref = ArtifactRef.model_validate(evaluation_ref)
-        reader = FileSystemCAS(store.root)
+        reader = store
         evaluation_manifest = reader.get_manifest(exact_evaluation_ref)
         if not _search_source_manifest_schema_matches(
             evaluation_manifest,
@@ -2133,7 +2216,7 @@ def _verify_search_source_profile_receipt(
 
 def _method_request_matches_search_run_profile(
     *,
-    reader: FileSystemCAS,
+    reader: CoreJSONArtifactStore,
     evaluation: BenchmarkEvaluation,
     receipt: Mapping[str, Any],
     run_profile: SearchMethodRunProfile,
@@ -2223,7 +2306,7 @@ def _method_request_matches_search_run_profile(
 
 def _recompute_search_gp_fit_basis(
     *,
-    reader: FileSystemCAS,
+    reader: CoreJSONArtifactStore,
     evaluation_ref: ArtifactRef,
     evaluation_manifest: ArtifactManifest,
     evaluation: BenchmarkEvaluation,
@@ -2461,23 +2544,32 @@ def _recompute_search_gp_fit_basis(
             params=dict(proposal_params),
             evaluations=acquisition_evaluations,
         )
+        predicted_mean = prediction["predicted_mean"]
+        predicted_std = prediction["predicted_std"]
+        acquisition_value = prediction["acquisition_value"]
+        if not isinstance(predicted_mean, (int, float)):
+            return False
+        if not isinstance(predicted_std, (int, float)):
+            return False
+        if not isinstance(acquisition_value, (int, float)):
+            return False
         return (
             proposal_uncertainty.acquisition_type == prediction["acquisition_type"]
             and isclose(
                 proposal_uncertainty.predicted_mean,
-                prediction["predicted_mean"],
+                predicted_mean,
                 rel_tol=1e-10,
                 abs_tol=1e-12,
             )
             and isclose(
                 proposal_uncertainty.predicted_std,
-                prediction["predicted_std"],
+                predicted_std,
                 rel_tol=1e-10,
                 abs_tol=1e-12,
             )
             and isclose(
                 proposal_uncertainty.acquisition_value,
-                prediction["acquisition_value"],
+                acquisition_value,
                 rel_tol=1e-10,
                 abs_tol=1e-12,
             )
@@ -2486,16 +2578,81 @@ def _recompute_search_gp_fit_basis(
         return False
 
 
+def _is_method_job_benchmark_evaluator(
+    evaluator: BenchmarkedEvaluator,
+) -> TypeGuard[MethodJobBenchmarkEvaluator]:
+    """Narrow an evaluator without admitting subclasses to protected provenance paths."""
+    return type(evaluator) is MethodJobBenchmarkEvaluator
+
+
+def _search_method_split_label(
+    split: BenchmarkSplit,
+) -> Literal["selection", "holdout"] | None:
+    """Return the profile schema's supported split label, preserving unsupported state."""
+    if split is BenchmarkSplit.SELECTION:
+        return "selection"
+    if split is BenchmarkSplit.HOLDOUT:
+        return "holdout"
+    return None
+
+
+def _complete_search_gp_uncertainty_profile_fields(
+    profile: BayesianSourceProfile,
+) -> tuple[str, str, str, str, int, str, str]:
+    """Require every source fact used by a persisted native-GP uncertainty receipt."""
+    optimizer_fqn = profile.optimizer_fqn
+    if not isinstance(optimizer_fqn, str) or not optimizer_fqn.strip():
+        raise ValueError("native GP optimizer identity is incomplete")
+    optimizer_config_fingerprint = profile.optimizer_config_fingerprint
+    if (
+        not isinstance(optimizer_config_fingerprint, str)
+        or not optimizer_config_fingerprint.strip()
+    ):
+        raise ValueError("native GP optimizer configuration is incomplete")
+    search_space_fingerprint = profile.search_space_fingerprint
+    if not isinstance(search_space_fingerprint, str) or not search_space_fingerprint.strip():
+        raise ValueError("native GP search space is incomplete")
+    training_corpus_fingerprint = profile.training_corpus_fingerprint
+    if not isinstance(training_corpus_fingerprint, str) or not training_corpus_fingerprint.strip():
+        raise ValueError("native GP training corpus is incomplete")
+    training_observation_count = profile.training_observation_count
+    if (
+        isinstance(training_observation_count, bool)
+        or not isinstance(training_observation_count, int)
+        or training_observation_count < 1
+    ):
+        raise ValueError("native GP training observation count is incomplete")
+    context_fingerprint = profile.context_fingerprint
+    if not isinstance(context_fingerprint, str) or not context_fingerprint.strip():
+        raise ValueError("native GP context fingerprint is incomplete")
+    objective_fingerprint = profile.objective_fingerprint
+    if not isinstance(objective_fingerprint, str) or not objective_fingerprint.strip():
+        raise ValueError("native GP objective fingerprint is incomplete")
+    return (
+        optimizer_fqn,
+        optimizer_config_fingerprint,
+        search_space_fingerprint,
+        training_corpus_fingerprint,
+        training_observation_count,
+        context_fingerprint,
+        objective_fingerprint,
+    )
+
+
 class SearchLoopRunner:
     """Search loop runner public type."""
 
     def __init__(
         self,
         *,
-        store: FileSystemCAS | None = None,
+        store: CoreJSONArtifactStore | None = None,
         registry: ChampionRegistry | None = None,
     ) -> None:
-        self._store = store or default_store()
+        selected_store = store if store is not None else _default_core_json_store()
+        normalized_store = with_ambient_ownership_enforcement_if_supported(selected_store)
+        if not _is_core_json_artifact_store(normalized_store):
+            raise TypeError("SearchLoopRunner requires a tenant-safe Core JSON artifact store")
+        self._store = normalized_store
         self._registry = registry or ChampionRegistry(store=self._store)
 
     def run(
@@ -2518,11 +2675,10 @@ class SearchLoopRunner:
         if generator is None:
             raise ValueError(f"Search loop '{spec.loop_id}' is missing a candidate generator")
         if spec.loop_id == "claim_adjudication":
-            if suite_ref.manifest_profile_sha256 is None:
+            suite_profile = suite_ref.manifest_profile_sha256
+            if suite_profile is None:
                 raise ValueError("claim_adjudication_selected_profile_required:benchmark_suite")
-            self._store.get_manifest_by_profile(
-                suite_ref.artifact_id, suite_ref.manifest_profile_sha256
-            )
+            resolve_manifest_by_profile(self._store, suite_ref.artifact_id, suite_profile)
         if (producer_settlement_store is None) != (producer_run_binding is None):
             raise ValueError("durable producer budget requires both owner and run binding")
         if producer_settlement_store is not None:
@@ -2648,11 +2804,16 @@ class SearchLoopRunner:
             spec.benchmark_evaluator,
             MethodJobBenchmarkEvaluator,
         )
+        method_job_evaluator: MethodJobBenchmarkEvaluator | None = None
+        method_split: Literal["selection", "holdout"] | None = None
+        if _is_method_job_benchmark_evaluator(spec.benchmark_evaluator):
+            method_job_evaluator = spec.benchmark_evaluator
+            method_split = _search_method_split_label(method_job_evaluator._split)
         if claim_selected_profile and suite_ref.manifest_profile_sha256 is None:
             raise ValueError("claim_adjudication_selected_profile_required:benchmark_suite")
         candidate_ref = persist_mutation_artifact(
             self._store,
-            cast("MutationArtifact", candidate),
+            candidate,
             inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
             return_selected_profile=claim_selected_profile or method_job_selected_profile,
         )
@@ -2685,9 +2846,8 @@ class SearchLoopRunner:
         proposal_receipt: dict[str, Any] | None = None
         from .bayesian_generator import BayesianCandidateGenerator
 
-        if (
-            type(generator) is BayesianCandidateGenerator
-            and type(spec.benchmark_evaluator) is MethodJobBenchmarkEvaluator
+        if type(generator) is BayesianCandidateGenerator and _is_method_job_benchmark_evaluator(
+            spec.benchmark_evaluator
         ):
             proposal_receipt = BayesianCandidateGenerator._consume_issued_source_profile(
                 generator, candidate_payload
@@ -2701,6 +2861,8 @@ class SearchLoopRunner:
             and evaluation.method_result_ref is not None
             and evaluation.method_evidence_ref is not None
             and evaluation.method_job_key is not None
+            and method_job_evaluator is not None
+            and method_split is not None
         ):
             request_basis = evaluation.metadata.get("method_request_basis")
             objective_fingerprint = _search_source_fingerprint(
@@ -2710,7 +2872,7 @@ class SearchLoopRunner:
                     "scalarization": "finite_scalar_score_minimize",
                 }
             )
-            method_evaluator = spec.benchmark_evaluator
+            method_evaluator = method_job_evaluator
             metric_value = evaluation.primary_value(
                 split=method_evaluator._split,
                 metric=spec.promotion_policy.primary_metric,
@@ -2748,7 +2910,7 @@ class SearchLoopRunner:
                     "method_job_key": evaluation.method_job_key,
                     "metric": spec.promotion_policy.primary_metric,
                     "direction": spec.promotion_policy.direction.value,
-                    "split": method_evaluator._split.value,
+                    "split": method_split,
                     "unit": spec.promotion_policy.unit,
                     "scalar_score": scalar_score,
                 }
@@ -2765,8 +2927,25 @@ class SearchLoopRunner:
                         fit_basis, SearchGPFitBasis
                     ):
                         raise ValueError("native GP proposal lacks its typed uncertainty basis")
+                    (
+                        optimizer_fqn,
+                        optimizer_config_fingerprint,
+                        search_space_fingerprint,
+                        training_corpus_fingerprint,
+                        training_observation_count,
+                        context_fingerprint,
+                        objective_fingerprint,
+                    ) = _complete_search_gp_uncertainty_profile_fields(source_profile)
+                    method_request_basis_sha256 = _search_source_fingerprint(dict(request_basis))
+                    if method_request_basis_sha256 is None:
+                        raise ValueError("method request basis is not fingerprintable")
+                    proposal_params_sha256 = _search_source_fingerprint(
+                        dict(proposal_receipt["params"])
+                    )
+                    if proposal_params_sha256 is None:
+                        raise ValueError("proposal parameters are not fingerprintable")
                     proposal_uncertainty = SearchGPProposalUncertainty(
-                        producer_optimizer_fqn=source_profile.optimizer_fqn,
+                        producer_optimizer_fqn=optimizer_fqn,
                         proposal_id=proposal_receipt["proposal_id"],
                         candidate_ref=candidate_ref,
                         suite_ref=suite_ref,
@@ -2775,23 +2954,21 @@ class SearchLoopRunner:
                         method_job_key=evaluation.method_job_key,
                         metric=spec.promotion_policy.primary_metric,
                         direction=spec.promotion_policy.direction.value,
-                        split=method_evaluator._split.value,
+                        split=method_split,
                         unit=spec.promotion_policy.unit,
-                        method_request_basis_sha256=_search_source_fingerprint(dict(request_basis)),
-                        proposal_params_sha256=_search_source_fingerprint(
-                            dict(proposal_receipt["params"])
-                        ),
+                        method_request_basis_sha256=method_request_basis_sha256,
+                        proposal_params_sha256=proposal_params_sha256,
                         source_profile_sha256=receipt["profile_sha256"],
                         fit_basis_ref=fit_basis_ref,
                         fit_backend=fit_basis.fit_backend,
                         fitted_model_state_fingerprint=(fit_basis.fitted_model_state_fingerprint),
-                        optimizer_config_fingerprint=(source_profile.optimizer_config_fingerprint),
-                        search_space_fingerprint=source_profile.search_space_fingerprint,
-                        training_corpus_fingerprint=(source_profile.training_corpus_fingerprint),
-                        training_observation_count=(source_profile.training_observation_count),
+                        optimizer_config_fingerprint=optimizer_config_fingerprint,
+                        search_space_fingerprint=search_space_fingerprint,
+                        training_corpus_fingerprint=training_corpus_fingerprint,
+                        training_observation_count=training_observation_count,
                         acquisition_evaluation_count=(fit_basis.acquisition_observation_count),
-                        context_fingerprint=source_profile.context_fingerprint,
-                        objective_fingerprint=source_profile.objective_fingerprint,
+                        context_fingerprint=context_fingerprint,
+                        objective_fingerprint=objective_fingerprint,
                         acquisition_type=raw_prediction["acquisition_type"],
                         predicted_mean=raw_prediction["predicted_mean"],
                         predicted_std=raw_prediction["predicted_std"],

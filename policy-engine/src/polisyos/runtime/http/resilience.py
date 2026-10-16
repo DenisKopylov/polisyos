@@ -274,6 +274,16 @@ class GuardedDependencyProxy:
 
         return self._guard.run(operation)
 
+    def with_ambient_ownership_enforcement(self) -> GuardedDependencyProxy:
+        """Retain this runtime guard while selecting a tenant-enforced store view."""
+        enforcer = getattr(self._target, "with_ambient_ownership_enforcement", None)
+        if not callable(enforcer):
+            return self
+        enforced_target = self._guard.run(enforcer)
+        if enforced_target is self._target:
+            return self
+        return GuardedDependencyProxy(target=enforced_target, guard=self._guard)
+
     def __getattr__(self, name: str) -> Any:
         if name == "close":
             return self.close
@@ -310,9 +320,7 @@ class _GuardedStoreSignatureVerifier:
         strict_identity: bool | None = None,
     ) -> SignatureVerificationResult:
         store = cast("SignatureVerifyingArtifactStore", self.guarded_store)
-        return store.verify_signature(
-            artifact_id, verifier, strict_identity=strict_identity
-        )
+        return store.verify_signature(artifact_id, verifier, strict_identity=strict_identity)
 
 
 def build_guarded_signature_verifier(

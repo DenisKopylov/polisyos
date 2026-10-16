@@ -200,12 +200,23 @@ def _pointer_hash(pointer: dict[str, Any]) -> str:
 
 
 def require_selected_artifact_ref(
-    ref: artifacts.ArtifactRef, *, field: str
+    ref: artifacts.ArtifactRef | None | str, *, field: str
 ) -> artifacts.ArtifactRef:
     """Refuse an authority input whose selected manifest view is unknown."""
+    if not isinstance(ref, artifacts.ArtifactRef):
+        raise ValueError(f"claim_adjudication_selected_profile_required:{field}")
     if ref.manifest_profile_sha256 is None:
         raise ValueError(f"claim_adjudication_selected_profile_missing:{field}")
     return ref
+
+
+def _require_selected_profile_sha256(ref: artifacts.ArtifactRef, *, field: str) -> str:
+    """Return the exact selected-profile key after the shared typed refusal."""
+    selected_ref = require_selected_artifact_ref(ref, field=field)
+    profile = selected_ref.manifest_profile_sha256
+    if profile is None:
+        raise ValueError(f"claim_adjudication_selected_profile_missing:{field}")
+    return profile
 
 
 def same_selected_artifact_ref(left: artifacts.ArtifactRef, right: artifacts.ArtifactRef) -> bool:
@@ -216,14 +227,14 @@ def same_selected_artifact_ref(left: artifacts.ArtifactRef, right: artifacts.Art
 
 
 def selected_artifact_ref_for_input(
-    store: artifacts.FileSystemCAS,
+    store: artifacts.CoreJSONArtifactStore,
     item: artifacts.InputRef,
 ) -> artifacts.ArtifactRef:
     """Resolve a manifest edge only by its declared selected profile."""
     profile = item.manifest_profile_sha256
     if profile is None:
         raise ValueError("claim_adjudication_lineage_profile_missing")
-    manifest = store.get_manifest_by_profile(item.artifact_id, profile)
+    manifest = artifacts.resolve_manifest_by_profile(store, item.artifact_id, profile)
     ref = artifacts.artifact_ref_for_manifest(manifest)
     if ref.manifest_profile_sha256 != profile or ref.artifact_id != item.artifact_id:
         raise ValueError("claim_adjudication_lineage_profile_mismatch")
@@ -231,7 +242,7 @@ def selected_artifact_ref_for_input(
 
 
 def _selected_role_ref(
-    store: artifacts.FileSystemCAS,
+    store: artifacts.CoreJSONArtifactStore,
     inputs: tuple[artifacts.InputRef, ...] | list[artifacts.InputRef],
     role: str,
 ) -> artifacts.ArtifactRef:
@@ -277,7 +288,7 @@ class _ClaimChampionEnvelope(_Strict):
 def _validate_predecessor(
     basis: _PromotionBasis,
     *,
-    store: artifacts.FileSystemCAS | None = None,
+    store: artifacts.CoreJSONArtifactStore | None = None,
 ) -> dict[str, Any] | None:
     if basis.previous_pointer is None:
         return None
@@ -328,7 +339,8 @@ def _validate_predecessor(
         suite_ref = require_selected_artifact_ref(suite_ref, field="predecessor_benchmark_suite")
 
         def selected_manifest(ref: artifacts.ArtifactRef) -> artifacts.ArtifactManifest:
-            manifest = store.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
+            profile_sha256 = _require_selected_profile_sha256(ref, field="predecessor_ref")
+            manifest = artifacts.resolve_manifest_by_profile(store, ref.artifact_id, profile_sha256)
             resolved_ref = artifacts.artifact_ref_for_manifest(manifest)
             if not same_selected_artifact_ref(resolved_ref, ref):
                 raise ValueError("claim_adjudication_predecessor_selected_ref_mismatch")
@@ -470,7 +482,7 @@ def read_claim_promotion_predecessor(
     registry_root: Path,
     current_pointer: dict[str, Any],
     *,
-    store: artifacts.FileSystemCAS | None = None,
+    store: artifacts.CoreJSONArtifactStore | None = None,
 ) -> dict[str, Any] | None:
     """Read one predecessor as history or resolve it for protected use."""
     stored_pointer, embedded_basis = _read_claim_champion_document(registry_root)
@@ -500,7 +512,7 @@ class ClaimAdjudicationVerifier:
     def __init__(
         self,
         *,
-        store: artifacts.FileSystemCAS,
+        store: artifacts.CoreJSONArtifactStore,
         registry_root: Path,
         appointments: tuple[ClaimEvaluatorAppointment, ...] = (),
     ) -> None:
@@ -565,7 +577,9 @@ class ClaimAdjudicationVerifier:
         self, ref: artifacts.ArtifactRef
     ) -> tuple[dict[str, Any], ClaimAdjudicationRules]:
         require_selected_artifact_ref(ref, field="candidate")
-        manifest = self._store.get_manifest_by_profile(ref.artifact_id, ref.manifest_profile_sha256)
+        manifest = artifacts.resolve_manifest_by_profile(
+            self._store, ref.artifact_id, _require_selected_profile_sha256(ref, field="candidate")
+        )
         resolved = artifacts.artifact_ref_for_manifest(manifest)
         if not same_selected_artifact_ref(resolved, ref):
             raise ValueError("claim_adjudication_candidate_profile_mismatch")
@@ -692,16 +706,20 @@ class ClaimAdjudicationVerifier:
         ):
             raise ValueError("claim_adjudication_champion_binding_mismatch")
 
-        candidate_manifest = self._store.get_manifest_by_profile(
+        candidate_manifest = artifacts.resolve_manifest_by_profile(
+            self._store,
             receipt.candidate_ref.artifact_id,
-            receipt.candidate_ref.manifest_profile_sha256,
+            _require_selected_profile_sha256(receipt.candidate_ref, field="candidate"),
         )
-        evaluation_manifest = self._store.get_manifest_by_profile(
+        evaluation_manifest = artifacts.resolve_manifest_by_profile(
+            self._store,
             receipt.evaluation_ref.artifact_id,
-            receipt.evaluation_ref.manifest_profile_sha256,
+            _require_selected_profile_sha256(receipt.evaluation_ref, field="evaluation"),
         )
-        suite_manifest = self._store.get_manifest_by_profile(
-            suite_ref.artifact_id, suite_ref.manifest_profile_sha256
+        suite_manifest = artifacts.resolve_manifest_by_profile(
+            self._store,
+            suite_ref.artifact_id,
+            _require_selected_profile_sha256(suite_ref, field="benchmark_suite"),
         )
         if (
             suite_manifest.kind != "scientist.autotune.claim_adjudication.suite"

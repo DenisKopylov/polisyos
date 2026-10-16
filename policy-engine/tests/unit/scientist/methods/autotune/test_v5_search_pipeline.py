@@ -2,11 +2,18 @@ from __future__ import annotations
 
 import os
 from dataclasses import replace
+from pathlib import Path
 from typing import Any, ClassVar
 
 import pytest
 from pydantic import ConfigDict, Field
 
+from polisyos.core.artifacts import (
+    ArtifactID,
+    ArtifactManifest,
+    CoreJSONArtifactStore,
+    VerificationReport,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,
@@ -61,6 +68,7 @@ from polisyos.scientist.methods.autotune.runtime import (
     PydanticMutationCodec,
     SequenceCandidateGenerator,
     _build_search_method_run_profile,
+    _default_core_json_store,
     _method_request_matches_search_run_profile,
     _persist_search_benchmark_evaluation,
     _search_source_fingerprint,
@@ -658,7 +666,9 @@ def test_method_job_evaluator_uses_real_runner_and_returns_cas_provenance(tmp_pa
     assert evidence["may_not_use_for"] == ["governance_admissibility", "method_validity"]
 
 
-def test_search_parameter_binding_reaches_real_methodjob_and_fresh_receipt(tmp_path) -> None:
+def test_search_parameter_binding_reaches_real_methodjob_and_fresh_receipt(
+    tmp_path, monkeypatch
+) -> None:
     _register_method()
     store = FileSystemCAS(tmp_path / "cas")
     suite_ref = persist_benchmark_suite(
@@ -701,7 +711,83 @@ def test_search_parameter_binding_reaches_real_methodjob_and_fresh_receipt(tmp_p
     assert stage_b is not None
     fresh_reader = FileSystemCAS(tmp_path / "cas")
     evaluation_ref = _selected_evaluation_ref(stage_b)
-    evaluation = load_model_artifact(fresh_reader, evaluation_ref, BenchmarkEvaluation)
+
+    class _NonFilesystemStoreBase:
+        """Delegate CAS operations without exposing a filesystem root."""
+
+        def __init__(self, delegate: FileSystemCAS, *, deny_raw: bool = False) -> None:
+            self._delegate = delegate
+            self._deny_raw = deny_raw
+            self.root_accesses = 0
+            self.raw_reads = 0
+
+        @property
+        def root(self) -> Path:
+            self.root_accesses += 1
+            raise AssertionError("Core JSON consumer accessed a filesystem root")
+
+        def has(self, artifact_id: ArtifactID | ArtifactRef) -> bool:
+            return self._delegate.has(artifact_id)
+
+        def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes:
+            return self._delegate.get_bytes(artifact_id)
+
+        def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest:
+            return self._delegate.get_manifest(artifact_id)
+
+        def put_bytes(
+            self,
+            data: bytes,
+            opts: ArtifactWriteOptions,
+            *,
+            return_selected_profile: bool = False,
+        ) -> ArtifactRef:
+            return self._delegate.put_bytes(
+                data, opts, return_selected_profile=return_selected_profile
+            )
+
+        def put_json(
+            self,
+            obj: object,
+            opts: ArtifactWriteOptions,
+            canon_spec: CanonSpec | None = None,
+            *,
+            return_selected_profile: bool = False,
+        ) -> ArtifactRef:
+            return self._delegate.put_json(
+                obj,
+                opts,
+                canon_spec=canon_spec,
+                return_selected_profile=return_selected_profile,
+            )
+
+        def verify(self, artifact_id: ArtifactID | ArtifactRef) -> VerificationReport:
+            return self._delegate.verify(artifact_id)
+
+        def iter_artifact_ids(self) -> list[ArtifactID]:
+            return self._delegate.iter_artifact_ids()
+
+        def get_manifest_by_profile(
+            self, artifact_id: ArtifactID | str, manifest_profile_sha256: str
+        ) -> ArtifactManifest:
+            return self._delegate.get_manifest_by_profile(artifact_id, manifest_profile_sha256)
+
+    class _NonFilesystemCoreJSONStore(_NonFilesystemStoreBase):
+        def get_raw_manifest_bytes(
+            self,
+            artifact_id: ArtifactID | ArtifactRef | str,
+            *,
+            manifest_profile_sha256: str | None = None,
+        ) -> bytes:
+            self.raw_reads += 1
+            if self._deny_raw:
+                raise PermissionError("controlled raw-manifest read denial")
+            return self._delegate.get_raw_manifest_bytes(
+                artifact_id, manifest_profile_sha256=manifest_profile_sha256
+            )
+
+    profile_reader: CoreJSONArtifactStore = _NonFilesystemCoreJSONStore(fresh_reader)
+    evaluation = load_model_artifact(profile_reader, evaluation_ref, BenchmarkEvaluation)
     assert isinstance(evaluation, BenchmarkEvaluation)
     assert evaluation.method_result_ref is not None
     request_basis = evaluation.metadata["method_request_basis"]
@@ -711,13 +797,96 @@ def test_search_parameter_binding_reaches_real_methodjob_and_fresh_receipt(tmp_p
         "method_offset": "offset"
     }
     assert request_basis["job_spec"]["method_params"]["offset"] == candidate["method_offset"]
-    method_result = load_json_artifact(fresh_reader, evaluation.method_result_ref)
+    method_result = load_json_artifact(profile_reader, evaluation.method_result_ref)
     assert method_result == {"score": candidate["value"] + candidate["method_offset"]}
     verified = _verify_search_source_profile_receipt(
-        store=fresh_reader,
+        store=profile_reader,
         evaluation_ref=evaluation_ref,
     )
     assert verified is not None
+    assert profile_reader.root_accesses == 0
+    assert profile_reader.raw_reads > 0
+
+    wrong_profile_ref = evaluation_ref.model_copy(
+        update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+    )
+    assert (
+        _verify_search_source_profile_receipt(
+            store=profile_reader, evaluation_ref=wrong_profile_ref
+        )
+        is None
+    )
+
+    actual_manifest = fresh_reader.get_manifest(evaluation_ref)
+    assert actual_manifest.artifact_schema is not None
+    alternate_profile_ref = fresh_reader.put_bytes(
+        fresh_reader.get_bytes(evaluation_ref),
+        ArtifactWriteOptions(
+            kind=actual_manifest.kind,
+            media_type=actual_manifest.media_type,
+            schema=SchemaInfo(
+                name="tests.foreign.BenchmarkEvaluation",
+                version=actual_manifest.artifact_schema.version,
+            ),
+            producer=actual_manifest.producer,
+            env=actual_manifest.env,
+            inputs=actual_manifest.inputs,
+            canon=actual_manifest.canon,
+            governance=actual_manifest.governance,
+            tenant_context=actual_manifest.tenant_context,
+            same_input_closure=actual_manifest.same_input_closure,
+            authority=actual_manifest.authority,
+            warnings=actual_manifest.warnings,
+        ),
+        return_selected_profile=True,
+    )
+    assert alternate_profile_ref.artifact_id == evaluation_ref.artifact_id
+    assert alternate_profile_ref.manifest_profile_sha256 is not None
+    assert alternate_profile_ref.manifest_profile_sha256 != evaluation_ref.manifest_profile_sha256
+    assert (
+        _verify_search_source_profile_receipt(
+            store=_NonFilesystemCoreJSONStore(fresh_reader),
+            evaluation_ref=alternate_profile_ref,
+        )
+        is None
+    )
+    assert (
+        _verify_search_source_profile_receipt(
+            store=_NonFilesystemCoreJSONStore(fresh_reader),
+            evaluation_ref=evaluation_ref,
+        )
+        is not None
+    )
+
+    missing_raw_reader = _NonFilesystemStoreBase(fresh_reader)
+    monkeypatch.setattr(
+        "polisyos.scientist.methods.autotune.runtime.default_store",
+        lambda: missing_raw_reader,
+    )
+    with pytest.raises(TypeError, match="core_json_artifact_store_unavailable"):
+        _default_core_json_store()
+    assert (
+        _verify_search_source_profile_receipt(
+            store=missing_raw_reader, evaluation_ref=evaluation_ref
+        )
+        is None
+    )
+    assert missing_raw_reader.root_accesses == 0
+
+    denied_raw_reader = _NonFilesystemCoreJSONStore(fresh_reader, deny_raw=True)
+    monkeypatch.setattr(
+        "polisyos.scientist.methods.autotune.runtime.default_store",
+        lambda: denied_raw_reader,
+    )
+    assert _default_core_json_store() is denied_raw_reader
+    assert (
+        _verify_search_source_profile_receipt(
+            store=denied_raw_reader, evaluation_ref=evaluation_ref
+        )
+        is None
+    )
+    assert denied_raw_reader.raw_reads > 0
+    assert denied_raw_reader.root_accesses == 0
     assert generator._search_method_run_profile is not None
     assert generator._search_method_run_profile.schema_version == "2"
     assert generator._search_method_run_profile.method_signature_abi_digest
@@ -1907,3 +2076,437 @@ def test_missing_primary_metric_is_not_promoted_as_zero(tmp_path) -> None:
     assert evaluation.selection_metrics == {}
     assert evaluation.promotable is False
     assert evaluation.status == "metric_unavailable"
+
+
+def _guarded_methodjob_evaluator(
+    tmp_path: Path,
+    *,
+    deny_operations: frozenset[str] = frozenset(),
+    deny_kinds: frozenset[str] = frozenset(),
+) -> tuple[MethodJobBenchmarkEvaluator, ArtifactRef, ArtifactRef, object, object]:
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+
+    class _GuardedMethodJobCAS(FileSystemCAS):
+        def __init__(
+            self, root: Path, *, denied: frozenset[str], denied_kinds: frozenset[str]
+        ) -> None:
+            self.denied_operations = denied
+            self.denied_kinds = denied_kinds
+            self.operations: list[dict[str, str | None]] = []
+            self.denials: list[dict[str, str | None]] = []
+            super().__init__(root, ownership_enforced=True, ownership_requires_scope=False)
+
+        @staticmethod
+        def _is_protected_kind(kind: str) -> bool:
+            return (
+                kind.startswith("scientist.method_result.") or kind == "scientist.method_evidence"
+            )
+
+        def _record(
+            self,
+            operation: str,
+            kind: str,
+            artifact: object,
+            manifest_profile_sha256: str | None = None,
+        ) -> dict[str, str | None]:
+            entry: dict[str, str | None] = {
+                "operation": operation,
+                "kind": kind,
+                "artifact": str(getattr(artifact, "artifact_id", artifact)),
+                "manifest_profile_sha256": manifest_profile_sha256,
+            }
+            self.operations.append(entry)
+            if (
+                self._is_protected_kind(kind)
+                and operation in self.denied_operations
+                and (not self.denied_kinds or kind in self.denied_kinds)
+            ):
+                self.denials.append(entry)
+                raise PermissionError("controlled MethodJob artifact operation denied")
+            return entry
+
+        def _bind_successful_write(
+            self, entry: dict[str, str | None], operation: str, ref: ArtifactRef
+        ) -> None:
+            if entry["operation"] != operation:
+                raise AssertionError("guarded artifact write trace lost operation ordering")
+            entry["artifact"] = str(ref.artifact_id)
+            entry["manifest_profile_sha256"] = ref.manifest_profile_sha256
+
+        def get_manifest(self, artifact_id: ArtifactID | ArtifactRef) -> ArtifactManifest:
+            manifest = FileSystemCAS.get_manifest(self, artifact_id)
+            self._record(
+                "get_manifest",
+                manifest.kind,
+                artifact_id,
+                getattr(artifact_id, "manifest_profile_sha256", None),
+            )
+            return manifest
+
+        def get_manifest_by_profile(
+            self, artifact_id: ArtifactID | str, manifest_profile_sha256: str
+        ) -> ArtifactManifest:
+            manifest = FileSystemCAS.get_manifest_by_profile(
+                self, artifact_id, manifest_profile_sha256
+            )
+            self._record(
+                "get_manifest_by_profile", manifest.kind, artifact_id, manifest_profile_sha256
+            )
+            return manifest
+
+        def get_bytes(self, artifact_id: ArtifactID | ArtifactRef) -> bytes:
+            manifest = FileSystemCAS.get_manifest(self, artifact_id)
+            self._record(
+                "get_bytes",
+                manifest.kind,
+                artifact_id,
+                getattr(artifact_id, "manifest_profile_sha256", None),
+            )
+            return FileSystemCAS.get_bytes(self, artifact_id)
+
+        def get_raw_manifest_bytes(
+            self,
+            artifact_id: ArtifactID | ArtifactRef | str,
+            *,
+            manifest_profile_sha256: str | None = None,
+        ) -> bytes:
+            if manifest_profile_sha256 is None:
+                manifest = FileSystemCAS.get_manifest(self, artifact_id)
+                selected_profile = getattr(artifact_id, "manifest_profile_sha256", None)
+            else:
+                manifest = FileSystemCAS.get_manifest_by_profile(
+                    self, artifact_id, manifest_profile_sha256
+                )
+                selected_profile = manifest_profile_sha256
+            self._record("get_raw_manifest_bytes", manifest.kind, artifact_id, selected_profile)
+            return FileSystemCAS.get_raw_manifest_bytes(
+                self,
+                artifact_id,
+                manifest_profile_sha256=manifest_profile_sha256,
+            )
+
+        def put_json(
+            self,
+            obj: object,
+            opts: ArtifactWriteOptions,
+            canon_spec: CanonSpec | None = None,
+            *,
+            return_selected_profile: bool = False,
+        ) -> ArtifactRef:
+            entry = self._record("put_json", opts.kind, opts.kind)
+            ref = FileSystemCAS.put_json(
+                self,
+                obj,
+                opts,
+                canon_spec=canon_spec,
+                return_selected_profile=return_selected_profile,
+            )
+            self._bind_successful_write(entry, "put_json", ref)
+            return ref
+
+        def put_bytes(
+            self,
+            data: bytes,
+            opts: ArtifactWriteOptions,
+            *,
+            return_selected_profile: bool = False,
+        ) -> ArtifactRef:
+            entry = self._record("put_bytes", opts.kind, opts.kind)
+            ref = FileSystemCAS.put_bytes(
+                self,
+                data,
+                opts,
+                return_selected_profile=return_selected_profile,
+            )
+            self._bind_successful_write(entry, "put_bytes", ref)
+            return ref
+
+    _register_method()
+    root = tmp_path / "cas"
+    writer = FileSystemCAS(root)
+    suite_ref = persist_benchmark_suite(
+        writer,
+        BenchmarkSuite(suite_id="v5_suite", kind="method_job"),
+    )
+    candidate_ref = persist_mutation_artifact(
+        writer,
+        _V5Mutation(value=0.25),
+        inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+        return_selected_profile=True,
+    )
+    guarded_target = _GuardedMethodJobCAS(root, denied=deny_operations, denied_kinds=deny_kinds)
+    guarded_store = guard_runtime_cas(guarded_target)
+    evaluator = MethodJobBenchmarkEvaluator(
+        method_fqn=_V5ScoreMethod.signature.fqn,
+        method_version=_V5ScoreMethod.signature.version,
+        candidate_input_bindings={"value": "value"},
+        split=BenchmarkSplit.SELECTION,
+    )
+    return evaluator, candidate_ref, suite_ref, guarded_store, guarded_target
+
+
+def test_methodjob_evaluator_keeps_one_rooted_guarded_store_for_runner_and_fresh_reads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import polisyos.scientist.compute.runner as compute_runner
+
+    evaluator, candidate_ref, suite_ref, store, target = _guarded_methodjob_evaluator(tmp_path)
+    assert candidate_ref.manifest_profile_sha256 is not None
+    assert suite_ref.manifest_profile_sha256 is not None
+    original_run_job = compute_runner.run_job
+    factory_returns: list[bool] = []
+
+    def check_factory_then_run(spec: JobSpec, **kwargs: Any) -> Any:
+        factory = kwargs.get("store_factory")
+        assert callable(factory)
+        root = kwargs["cas_root"]
+        with pytest.raises(ValueError, match="methodjob_store_root_mismatch"):
+            factory(tmp_path / "foreign-root")
+
+        def tracked_factory(requested_root: Path) -> object:
+            actual_store = factory(requested_root)
+            factory_returns.append(actual_store is store)
+            return actual_store
+
+        kwargs["store_factory"] = tracked_factory
+        return original_run_job(spec, **kwargs)
+
+    fresh_reader_roots: list[Path] = []
+
+    def reject_fresh_reader(instance: FileSystemCAS, root: Path) -> None:
+        del instance
+        fresh_reader_roots.append(root)
+        raise AssertionError("MethodJob evaluator reconstructed a fresh filesystem reader")
+
+    step_calls: list[bool] = []
+    original_step = _V5ScoreMethod.pure_step
+
+    def observed_step(state: Any, params: dict[str, Any]) -> dict[str, float]:
+        step_calls.append(True)
+        return original_step(state, params)
+
+    monkeypatch.setattr(_V5ScoreMethod, "pure_step", staticmethod(observed_step))
+    monkeypatch.setattr(compute_runner, "run_job", check_factory_then_run)
+    monkeypatch.setattr(FileSystemCAS, "__init__", reject_fresh_reader)
+    evaluation = evaluator.evaluate(
+        candidate_ref,
+        suite_ref,
+        {"store": store, "policy": _policy(), "loop_id": "v5_search"},
+    )
+
+    assert len(factory_returns) >= 2
+    assert all(factory_returns)
+    assert step_calls == [True]
+    assert fresh_reader_roots == []
+    assert evaluation.selection_metrics == {"score": 0.25}
+    assert evaluation.method_result_ref is not None
+    assert evaluation.method_evidence_ref is not None
+    selected_refs = (
+        candidate_ref,
+        suite_ref,
+        evaluation.method_result_ref,
+        evaluation.method_evidence_ref,
+    )
+    assert all(ref.manifest_profile_sha256 is not None for ref in selected_refs)
+
+    def has_exact_view(event: dict[str, str | None], ref: ArtifactRef) -> bool:
+        return (
+            event["artifact"] == str(ref.artifact_id)
+            and event["manifest_profile_sha256"] == ref.manifest_profile_sha256
+        )
+
+    for ref in (candidate_ref, suite_ref):
+        assert any(
+            event["operation"] == "get_bytes" and has_exact_view(event, ref)
+            for event in target.operations
+        )
+    for ref in (evaluation.method_result_ref, evaluation.method_evidence_ref):
+        assert any(
+            event["operation"] == "put_json"
+            and event["kind"] == ref.kind
+            and has_exact_view(event, ref)
+            for event in target.operations
+        )
+        assert any(
+            event["operation"] == "get_bytes" and has_exact_view(event, ref)
+            for event in target.operations
+        )
+
+
+@pytest.mark.parametrize(
+    "denied_kind",
+    ["scientist.method_result.tests.scientist", "scientist.method_evidence"],
+)
+def test_methodjob_evaluator_refuses_same_handle_protected_read_denial(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, denied_kind: str
+) -> None:
+    evaluator, candidate_ref, suite_ref, store, target = _guarded_methodjob_evaluator(
+        tmp_path,
+        deny_operations=frozenset(
+            {"get_manifest", "get_manifest_by_profile", "get_bytes", "get_raw_manifest_bytes"}
+        ),
+        deny_kinds=frozenset({denied_kind}),
+    )
+    fresh_reader_roots: list[Path] = []
+
+    def reject_fresh_reader(instance: FileSystemCAS, root: Path) -> None:
+        del instance
+        fresh_reader_roots.append(root)
+        raise AssertionError("MethodJob evaluator reconstructed a fresh filesystem reader")
+
+    monkeypatch.setattr(FileSystemCAS, "__init__", reject_fresh_reader)
+    with pytest.raises(PermissionError, match="controlled MethodJob artifact operation denied"):
+        evaluator.evaluate(
+            candidate_ref,
+            suite_ref,
+            {"store": store, "policy": _policy(), "loop_id": "v5_search"},
+        )
+    assert fresh_reader_roots == []
+    assert target.denials
+    assert target.denials[0]["operation"].startswith("get_")
+    assert target.denials[0]["kind"] == denied_kind
+
+
+@pytest.mark.parametrize(
+    "denied_kind",
+    ["scientist.method_result.tests.scientist", "scientist.method_evidence"],
+)
+def test_methodjob_evaluator_does_not_measure_after_same_handle_protected_write_denial(
+    tmp_path: Path, denied_kind: str
+) -> None:
+    evaluator, candidate_ref, suite_ref, store, target = _guarded_methodjob_evaluator(
+        tmp_path,
+        deny_operations=frozenset({"put_json"}),
+        deny_kinds=frozenset({denied_kind}),
+    )
+    evaluation = evaluator.evaluate(
+        candidate_ref,
+        suite_ref,
+        {"store": store, "policy": _policy(), "loop_id": "v5_search"},
+    )
+    assert evaluation.status == "method_job_failed"
+    assert not (
+        evaluation.method_result_ref is not None and evaluation.method_evidence_ref is not None
+    )
+    assert target.denials
+    assert target.denials[0]["operation"] == "put_json"
+    assert target.denials[0]["kind"] == denied_kind
+
+
+def test_methodjob_evaluator_preserves_ambient_tenant_ownership(tmp_path: Path) -> None:
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    _register_method()
+    root = tmp_path / "tenant-cas"
+    owner_store = FileSystemCAS(root).with_ambient_ownership_enforcement()
+    with tenant_scope(None, tenant_id="tenant-a"):
+        suite_ref = persist_benchmark_suite(
+            owner_store,
+            BenchmarkSuite(suite_id="tenant_owned_suite", kind="method_job"),
+        )
+        candidate_ref = persist_mutation_artifact(
+            owner_store,
+            _V5Mutation(value=0.25),
+            inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+            return_selected_profile=True,
+        )
+
+    evaluator = MethodJobBenchmarkEvaluator(
+        method_fqn=_V5ScoreMethod.signature.fqn,
+        method_version=_V5ScoreMethod.signature.version,
+        candidate_input_bindings={"value": "value"},
+        split=BenchmarkSplit.SELECTION,
+    )
+    context = {
+        "store": FileSystemCAS(root),
+        "policy": _policy(),
+        "loop_id": "v5_search",
+    }
+    with tenant_scope(None, tenant_id="tenant-a"):
+        allowed = evaluator.evaluate(candidate_ref, suite_ref, context)
+    assert allowed.selection_metrics == {"score": 0.25}
+
+    with tenant_scope(None, tenant_id="tenant-b"):
+        with pytest.raises(ArtifactOwnershipError):
+            evaluator.evaluate(candidate_ref, suite_ref, context)
+
+
+def test_search_loop_runner_normalizes_plain_store_for_tenant_scope(tmp_path: Path) -> None:
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.artifacts.store import PutOptions
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    root = tmp_path / "runner-tenant-cas"
+    ambient_store = FileSystemCAS(root).with_ambient_ownership_enforcement()
+    with tenant_scope(None, tenant_id="tenant-a"):
+        artifact_ref = ambient_store.put_bytes(
+            b"search runner tenant artifact",
+            PutOptions(kind="test.search_runner_tenant", media_type="text/plain"),
+        )
+
+    runner = SearchLoopRunner(store=FileSystemCAS(root))
+    with tenant_scope(None, tenant_id="tenant-b"):
+        with pytest.raises(ArtifactOwnershipError):
+            runner._store.get_bytes(artifact_ref)
+
+
+def test_methodjob_evaluator_retains_existing_owned_guarded_handle(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import polisyos.scientist.compute.runner as compute_runner
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+
+    _register_method()
+    root = tmp_path / "owned-guarded-cas"
+    owner_store = FileSystemCAS(root).with_ambient_ownership_enforcement()
+    with tenant_scope(None, tenant_id="tenant-a"):
+        suite_ref = persist_benchmark_suite(
+            owner_store,
+            BenchmarkSuite(suite_id="owned_guarded_suite", kind="method_job"),
+        )
+        candidate_ref = persist_mutation_artifact(
+            owner_store,
+            _V5Mutation(value=0.25),
+            inputs=[InputRef(artifact_id=suite_ref.artifact_id, role="benchmark_suite")],
+            return_selected_profile=True,
+        )
+    guarded_owner_store = guard_runtime_cas(owner_store)
+    evaluator = MethodJobBenchmarkEvaluator(
+        method_fqn=_V5ScoreMethod.signature.fqn,
+        method_version=_V5ScoreMethod.signature.version,
+        candidate_input_bindings={"value": "value"},
+        split=BenchmarkSplit.SELECTION,
+    )
+    original_run_job = compute_runner.run_job
+    factory_returns_exact_handle: list[bool] = []
+
+    def tracked_run_job(spec: JobSpec, **kwargs: Any) -> Any:
+        factory = kwargs["store_factory"]
+        assert callable(factory)
+
+        def observed_factory(requested_root: Path) -> object:
+            active = factory(requested_root)
+            factory_returns_exact_handle.append(active is guarded_owner_store)
+            return active
+
+        kwargs["store_factory"] = observed_factory
+        return original_run_job(spec, **kwargs)
+
+    monkeypatch.setattr(compute_runner, "run_job", tracked_run_job)
+    context = {
+        "store": guarded_owner_store,
+        "policy": _policy(),
+        "loop_id": "v5_search",
+    }
+    with tenant_scope(None, tenant_id="tenant-a"):
+        allowed = evaluator.evaluate(candidate_ref, suite_ref, context)
+    assert allowed.selection_metrics == {"score": 0.25}
+    assert factory_returns_exact_handle
+    assert all(factory_returns_exact_handle)
+
+    with tenant_scope(None, tenant_id="tenant-b"):
+        with pytest.raises(ArtifactOwnershipError):
+            evaluator.evaluate(candidate_ref, suite_ref, context)

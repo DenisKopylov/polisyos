@@ -40,6 +40,7 @@ from polisyos.ir.analytics.literature import (
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from polisyos.core.artifacts.protocol import CoreJSONArtifactStore
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 
 _INPUT_KIND = "data_forge.academic.claim_adjudication.input_batch"
@@ -204,7 +205,7 @@ def _strict_lineage(inputs: tuple[InputRef, ...] | list[InputRef]) -> dict[str, 
 
 
 def _strict_selected_lineage(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     inputs: tuple[InputRef, ...] | list[InputRef],
 ) -> dict[str, ArtifactRef]:
     """Resolve each unique result edge by the profile selected at production."""
@@ -279,7 +280,7 @@ def produce_claim_adjudication_input(
 
 
 def validate_claim_adjudication_input_batch(
-    store: FileSystemCAS,
+    store: CoreJSONArtifactStore,
     ref: ArtifactRef,
 ) -> ClaimAdjudicationInputBatch:
     """Load one raw batch through its exact selected source lineage."""
@@ -442,25 +443,28 @@ def materialize_claim_adjudication_result(
         config.claim_adjudications_path,
         "".join(f"{line}\n" for line in lines),
     )
+    published_count = sum(result.publishable_edge for result in batch.results)
     report = {
         "schema_version": "1.0",
         "authority_source": receipt_id,
         "rule_version": batch.rule_version,
         "claims": len(batch.results),
-        "published": sum(result.publishable_edge for result in batch.results),
+        "published": published_count,
         "authoritative_for": list(batch.authoritative_for),
         "may_not_use_for": list(batch.may_not_use_for),
     }
     atomic_write_json(config.claim_consensus_report_path, report)
     metrics: dict[str, int | float] = {
         "claims": len(batch.results),
-        "published": int(report["published"]),
+        "published": published_count,
     }
+    manifest_metrics: dict[str, object] = {}
+    manifest_metrics.update(metrics)
     write_stage_manifest(
         manifest_path=config.manifests_dir / "claim_adjudicate.json",
         stage="claim_adjudicate",
         status="ok",
-        metrics=metrics,
+        metrics=manifest_metrics,
         artifacts=[
             config.claim_adjudication_input_ref_path,
             config.claim_adjudication_result_ref_path,

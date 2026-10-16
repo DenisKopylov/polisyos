@@ -83,14 +83,44 @@ __all__.extend(
 )
 
 if TYPE_CHECKING:
+    from .execution_plan import (
+        CapabilityAwareExecutionPlanCandidateGenerator as CapabilityAwareExecutionPlanCandidateGenerator,
+    )
+    from .execution_plan import (
+        build_execution_plan_generation_context as build_execution_plan_generation_context,
+    )
+    from .execution_plan import (
+        suggest_execution_plan_topology_mutations as suggest_execution_plan_topology_mutations,
+    )
+    from .execution_work import (
+        MethodDispatchBinding as MethodDispatchBinding,
+    )
+    from .execution_work import (
+        MethodJobExecutionWorkPacket as MethodJobExecutionWorkPacket,
+    )
+    from .execution_work import (
+        persist_method_job_execution_work_packet as persist_method_job_execution_work_packet,
+    )
     from .runtime import (
-        ChampionBackedRuntimeLoader,
-        MethodJobBenchmarkEvaluator,
-        PydanticMutationCodec,
-        SearchLoopRunner,
-        SequenceCandidateGenerator,
-        read_method_job_execution_work_packet,
-        seed_loop_baseline,
+        ChampionBackedRuntimeLoader as ChampionBackedRuntimeLoader,
+    )
+    from .runtime import (
+        MethodJobBenchmarkEvaluator as MethodJobBenchmarkEvaluator,
+    )
+    from .runtime import (
+        PydanticMutationCodec as PydanticMutationCodec,
+    )
+    from .runtime import (
+        SearchLoopRunner as SearchLoopRunner,
+    )
+    from .runtime import (
+        SequenceCandidateGenerator as SequenceCandidateGenerator,
+    )
+    from .runtime import (
+        read_method_job_execution_work_packet as read_method_job_execution_work_packet,
+    )
+    from .runtime import (
+        seed_loop_baseline as seed_loop_baseline,
     )
 
 _OPTIONAL_LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -163,9 +193,13 @@ def __getattr__(name: str) -> Any:
 
 try:
     from .execution_plan import (
-        CapabilityAwareExecutionPlanCandidateGenerator,
-        build_execution_plan_generation_context,
-        suggest_execution_plan_topology_mutations,
+        CapabilityAwareExecutionPlanCandidateGenerator as CapabilityAwareExecutionPlanCandidateGenerator,
+    )
+    from .execution_plan import (
+        build_execution_plan_generation_context as build_execution_plan_generation_context,
+    )
+    from .execution_plan import (
+        suggest_execution_plan_topology_mutations as suggest_execution_plan_topology_mutations,
     )
 
     __all__.extend(

@@ -7,6 +7,15 @@ from typing import TYPE_CHECKING
 from ._lazy import lazy_dir, load_lazy_export
 
 if TYPE_CHECKING:
+    from polisyos.data_forge.domains.academic.batch.claim_adjudication_policy import (
+        claim_promotion_policy as claim_promotion_policy,
+    )
+    from polisyos.data_forge.domains.academic.batch.claim_adjudication_policy import (
+        metric_is_improved as metric_is_improved,
+    )
+    from polisyos.data_forge.domains.academic.batch.claim_adjudication_verifier import (
+        read_claim_promotion_predecessor as read_claim_promotion_predecessor,
+    )
     from polisyos.data_forge.domains.academic.openalex.client import (
         OpenAlexClient as OpenAlexClient,
     )

@@ -102,6 +102,7 @@ def test_runtime_executor_submit_failure_retires_closed_lease() -> None:
     with pytest.raises(CircuitLeaseError):
         breaker.record_success(lease)
 
+
 def test_nested_guarded_operation_keeps_one_worker_and_context() -> None:
     guard = build_runtime_control_store_guard()
     caller = threading.get_ident()
@@ -188,3 +189,35 @@ def test_nested_dependency_failure_counts_once_even_when_recovered(caught: bool)
         assert outcomes == ["failure"]
     finally:
         guard.close()
+
+
+def test_guarded_store_ambient_enforcement_retains_runtime_guard(tmp_path) -> None:
+    from polisyos.core.artifacts.backends.config import (
+        with_ambient_ownership_enforcement_if_supported,
+    )
+    from polisyos.core.artifacts.ownership import ArtifactOwnershipError
+    from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.resilience import GuardedDependencyProxy, guard_runtime_cas
+
+    raw_store = FileSystemCAS(tmp_path / "guarded-cas")
+    guarded_store = guard_runtime_cas(raw_store)
+    active_store = with_ambient_ownership_enforcement_if_supported(guarded_store)
+
+    assert isinstance(active_store, GuardedDependencyProxy)
+    assert active_store is not guarded_store
+    assert active_store._guard is guarded_store._guard
+    with tenant_scope(None, tenant_id="tenant-a"):
+        artifact_ref = active_store.put_bytes(
+            b"tenant-a guard-bound artifact",
+            PutOptions(kind="test.guard_bound_custody", media_type="text/plain"),
+        )
+        assert active_store.get_bytes(artifact_ref) == b"tenant-a guard-bound artifact"
+    with tenant_scope(None, tenant_id="tenant-b"):
+        with pytest.raises(ArtifactOwnershipError):
+            active_store.get_bytes(artifact_ref)
+        assert raw_store.get_bytes(artifact_ref) == b"tenant-a guard-bound artifact"
+
+    ambient_store = FileSystemCAS(tmp_path / "idempotent-cas").with_ambient_ownership_enforcement()
+    ambient_guard = guard_runtime_cas(ambient_store)
+    assert with_ambient_ownership_enforcement_if_supported(ambient_guard) is ambient_guard

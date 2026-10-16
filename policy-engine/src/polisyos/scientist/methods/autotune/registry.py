@@ -21,7 +21,6 @@ from polisyos.core.artifacts.manifest import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts import DataSnapshot
 from polisyos.data_forge.read_api import academic
 from polisyos.foundry.methods import MethodNotFoundError, MethodRegistry, MethodSignature
@@ -46,7 +45,7 @@ from .models import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts.protocol import CoreJSONArtifactStore
 
 claim_promotion_policy = academic.claim_promotion_policy
 metric_is_improved = academic.metric_is_improved
@@ -54,7 +53,7 @@ read_claim_promotion_predecessor = academic.read_claim_promotion_predecessor
 
 
 def _methodjob_suite_source_data_ref(
-    store: ArtifactStore,
+    store: CoreJSONArtifactStore,
     suite_ref: ArtifactRef,
     suite: BenchmarkSuite,
 ) -> ArtifactRef | None:
@@ -175,7 +174,7 @@ def _methodjob_execution_provenance_failure(
 
 def _methodjob_source_admission_failure(
     *,
-    store: ArtifactStore,
+    store: CoreJSONArtifactStore,
     candidate_ref: ArtifactRef,
     evaluation_ref: ArtifactRef | None,
     evaluation: BenchmarkEvaluation,
@@ -536,7 +535,7 @@ class ChampionRegistry:
         self,
         root: Path | None = None,
         *,
-        store: FileSystemCAS,
+        store: CoreJSONArtifactStore,
     ) -> None:
         self._root = (root or default_search_registry_root()).resolve()
         self._store = store

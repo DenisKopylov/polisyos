@@ -43,3 +43,36 @@ live dependency-profile and authority rows through the existing
 `foundry sync-dependency-profile regenerate-owner` command, check them, and run
 the corrupt-field drift check. Historical frozen evidence retains its original
 identity. The physical 300-line gate measures size, not configuration complexity.
+
+## PyArrow stubs for strict typing
+
+The `lint` optional dependency pins `pyarrow-stubs==20.0.0.20260819` for strict Mypy checks of
+the runtime quality compiler. This third-party stub release declares `pyarrow>=20`; the current
+lock selects PyArrow 22.0.0, so it meets the published lower bound. This is bounded evidence for
+the repository's exercised PyArrow calls, not a claim of full PyArrow 22 API parity. The stub
+project publishes a 20-series and does not state PyArrow 22 / Python 3.14 conformance. The pinned
+wheel SHA-256 is `297e60b6e5314739c082b4757d090d8be6047465510eb0684ca954ef7ea58be3`. The local
+research receipt retains the metadata and call-surface probes.
+
+For a fresh contributor environment, run the baseline recipe from `policy-engine/`:
+
+```sh
+uv sync --frozen --extra lint --extra test --extra runtime
+```
+
+For an existing E02 environment, preserve its complete selected extras and backend recipe;
+`--frozen` fixes the lock but an exact `uv sync` removes unselected dependencies. An environment
+that uses `ml` must retain that extra as well. To add only this locked stub wheel to an existing
+environment, verify its SHA-256 above and use the already downloaded local wheel:
+
+```sh
+uv pip install --offline --python .venv/bin/python --no-deps /absolute/path/to/pyarrow_stubs-20.0.0.20260819-py3-none-any.whl
+.venv/bin/python -m tools.devx.workspace.core_runtime_mypy \
+  src/polisyos/runtime/quality/capability_index_compiler.py
+```
+
+This narrow installation preserves the existing runtime and backend distributions.
+The Core Runtime helper uses the generated project MyPy policy and checks each file separately.
+
+The dependency is development tooling only. It does not change PyArrow's runtime import path,
+Parquet serialization behavior, or any scientific/runtime contract.

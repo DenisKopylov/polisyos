@@ -12,6 +12,7 @@ from collections import Counter, defaultdict
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
+from decimal import Decimal
 from pathlib import Path
 from typing import Any, Literal
 
@@ -19,6 +20,11 @@ import duckdb
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from polisyos.core.contracts import (
+    CapabilityFreshness,
+    CapabilityResourceKind,
+    CapabilityTimeSemantics,
+)
 from polisyos.data_forge.read_api.legal import (
     LEGAL_SOURCE_RELATION_REFUSAL,
     LegalSourceRelationRefusal,
@@ -435,18 +441,18 @@ def build_capability_discovery_snapshot(
                         )
                     )
                 ),
-                time={
-                    "observed_at": observed_at,
-                    "valid_from": observed_at,
-                    "valid_until": None,
-                    "freshness": _discovery_freshness(capability),
-                },
+                time=CapabilityTimeSemantics(
+                    observed_at=observed_at,
+                    valid_from=observed_at,
+                    valid_until=None,
+                    freshness=_discovery_freshness(capability),
+                ),
             )
         )
     return tuple(sorted(rows, key=lambda row: (row.resource_kind, row.capability_ref)))
 
 
-def _discovery_resource_kind(capability: EvidenceCapability) -> str | None:
+def _discovery_resource_kind(capability: EvidenceCapability) -> CapabilityResourceKind | None:
     modalities = set(capability.modality)
     layers = {asset.source_layer for asset in capability.source_assets}
     if "foundry_method_contract" in modalities:
@@ -458,7 +464,7 @@ def _discovery_resource_kind(capability: EvidenceCapability) -> str | None:
     return None
 
 
-def _discovery_freshness(capability: EvidenceCapability) -> str:
+def _discovery_freshness(capability: EvidenceCapability) -> CapabilityFreshness:
     freshness = capability.freshness_envelope.freshness_class.casefold()
     if "stale" in freshness or capability.capability_lifecycle.state in {
         "deprecated",
@@ -820,7 +826,7 @@ def load_dataset_catalog_capabilities(
                     dataset_ref,
                     metric_id or title or "dataset",
                 ),
-                construct=construct,
+                construct_id=construct,
                 modality=("fabric_data",),
                 evidence_mode="observed"
                 if row.get("has_proxy_alignment") != 1
@@ -1049,7 +1055,7 @@ def load_scholar_capabilities(
                     dst,
                     edge_id,
                 ),
-                construct=construct,
+                construct_id=construct,
                 modality=("scholar_claim",),
                 evidence_mode="scholarly_causal_support",
                 concept_spine_refs=(f"concept:{construct}", f"concept:{_slug(src)}"),
@@ -1207,7 +1213,7 @@ def load_lex_capabilities(
         capabilities.append(
             EvidenceCapability(
                 capability_id=capability_id,
-                construct=construct,
+                construct_id=construct,
                 modality=("lex_norm",),
                 evidence_mode="legal_threshold",
                 concept_spine_refs=(f"concept:{construct}",),
@@ -1280,16 +1286,15 @@ def _build_legal_norm_owner_truth(
     effective_from = _iso_date(row.get("effective_from"))
     effective_to_raw = _optional_str(row.get("effective_to"))
     effective_to = _iso_date(effective_to_raw) if effective_to_raw else None
-    required = (
-        fact_id,
-        document_ref,
-        citation,
-        jurisdiction,
-        audit_id,
-        reference_id,
-        effective_from,
-    )
-    if any(value is None for value in required):
+    if (
+        fact_id is None
+        or document_ref is None
+        or citation is None
+        or jurisdiction is None
+        or audit_id is None
+        or reference_id is None
+        or effective_from is None
+    ):
         return None
     if _optional_str(row.get("grounding_status")) != "grounded":
         return None
@@ -1463,7 +1468,7 @@ def load_ukraine_panel_capabilities(
                     profile.family,
                     profile.path.stem,
                 ),
-                construct=construct,
+                construct_id=construct,
                 modality=("fabric_data",),
                 evidence_mode="observed"
                 if coverage >= 0.75
@@ -1531,7 +1536,7 @@ def load_calibration_capabilities(
                     "calibration",
                     family,
                 ),
-                construct=construct,
+                construct_id=construct,
                 modality=("fabric_data", "runtime_calibration"),
                 evidence_mode="context_only",
                 concept_spine_refs=(f"concept:{construct}",),
@@ -1634,7 +1639,7 @@ def load_foundry_capabilities(
                     family,
                     *targets,
                 ),
-                construct=construct,
+                construct_id=construct,
                 modality=("foundry_method_contract",),
                 evidence_mode="method_contract_route",
                 concept_spine_refs=(f"concept:{construct}",),
@@ -1703,7 +1708,7 @@ def load_l7_curated_contract_capabilities(
                     "compatibility_only",
                     metric_id,
                 ),
-                construct=construct,
+                construct_id=construct,
                 modality=("fabric_data", "compatibility_only"),
                 evidence_mode="compatibility_only",
                 concept_spine_refs=(f"concept:{construct}",),
@@ -1781,7 +1786,7 @@ def detect_same_construct_conflicts(
         conflicts.append(
             CapabilityConflictRecord(
                 conflict_id=deterministic_record_id("conflict", construct, geography, *refs),
-                construct=construct,
+                construct_id=construct,
                 geography=geography,
                 conflict_class=conflict_class,
                 conflict_resolution_route="scope_split_or_review",
@@ -1927,7 +1932,7 @@ def _add_failure_node(
     failure_id = deterministic_record_id("failure", status, gap_type, construct, geography)
     nodes[failure_id] = FailureModeNode(
         failure_id=failure_id,
-        construct=construct,
+        construct_id=construct,
         geography=geography,
         cause_class=cause_class,
         severity=severity,
@@ -2526,7 +2531,7 @@ def _copy_previous_incremental_outputs(
         output_dir,
         filenames=CAPABILITY_INDEX_SIGNED_SIZE_FILENAMES,
     )
-    incremental = {
+    incremental: dict[str, object] = {
         "previous_manifest_ref": _relative_path(
             Path(config.previous_manifest_path), Path(config.previous_manifest_path).parent
         )
@@ -2637,7 +2642,7 @@ def _build_firm_fundamentals_capability(
             "firm_fundamentals",
             "survival_hazard_estimates",
         ),
-        construct=construct,
+        construct_id=construct,
         modality=("fabric_data", "derived"),
         evidence_mode="derived_administrative_with_proxy_validation",
         concept_spine_refs=(f"concept:{construct}", "concept:registered_firm"),
@@ -2726,7 +2731,7 @@ def _build_fixture_conflicting_capability(
             "fabric_data",
             "fixture_conflict",
         ),
-        construct=construct,
+        construct_id=construct,
         modality=("fabric_data",),
         evidence_mode="context_only",
         concept_spine_refs=(f"concept:{construct}",),
@@ -2828,7 +2833,10 @@ def _duckdb_schema_count_digest(path: Path) -> str:
         payload = {}
         for table in sorted(_show_tables(con)):
             columns = [row[1] for row in con.execute(f"PRAGMA table_info('{table}')").fetchall()]
-            count = con.execute(f"SELECT count(*) FROM {table}").fetchone()[0]
+            count_row = con.execute(f"SELECT count(*) FROM {table}").fetchone()
+            if count_row is None:
+                raise RuntimeError(f"DuckDB count query returned no row for {table}.")
+            count = count_row[0]
             payload[table] = {"columns": columns, "row_count": int(count)}
     return _sha256_json(payload)
 
@@ -3468,10 +3476,13 @@ def _fetch_dicts(
 
 
 def _duckdb_table_counts(con: duckdb.DuckDBPyConnection) -> dict[str, int]:
-    return {
-        table: int(con.execute(f"SELECT count(*) FROM {table}").fetchone()[0])
-        for table in sorted(_show_tables(con))
-    }
+    counts: dict[str, int] = {}
+    for table in sorted(_show_tables(con)):
+        count_row = con.execute(f"SELECT count(*) FROM {table}").fetchone()
+        if count_row is None:
+            raise RuntimeError(f"DuckDB count query returned no row for {table}.")
+        counts[table] = int(count_row[0])
+    return counts
 
 
 def _capability_floor_report(
@@ -3605,7 +3616,7 @@ def _coverage_geography(value: object) -> str:
 
 
 def _score(value: object, *, default: float) -> float:
-    if value is None:
+    if not isinstance(value, (str, int, float, Decimal)):
         return default
     try:
         numeric = float(value)
@@ -3678,7 +3689,15 @@ def _json_dumps(payload: Any) -> str:
 def _load_json(path: Path | None) -> dict[str, Any]:
     if path is None:
         return {}
-    return json.loads(path.read_text(encoding="utf-8"))
+    decoded = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(decoded, dict):
+        raise ValueError(f"Expected a JSON object in {path}.")
+    payload: dict[str, Any] = {}
+    for key, value in decoded.items():
+        if not isinstance(key, str):
+            raise ValueError(f"Expected string object keys in {path}.")
+        payload[key] = value
+    return payload
 
 
 def _write_json(path: Path, payload: Mapping[str, Any]) -> None:

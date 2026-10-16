@@ -1,0 +1,23 @@
+id = "2026-10-16-e02-runtime-projection-typing-companions"
+title = "Tighten runtime projection typing and malformed source-facet handling"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Runtime projection consumers now use the canonical typed record branches, explicit host protocol, and declared DTO field names. Semantic binding rejects malformed present source-facet values instead of treating them as absent."
+evidence = [
+  "src/polisyos/runtime/quality/capability_index_compiler.py",
+  "src/polisyos/runtime/quality/claim_registry.py",
+  "src/polisyos/runtime/quality/semantic_binding.py",
+  "src/polisyos/runtime/http/services/control/lex_pipeline.py",
+  "tests/unit/runtime/quality/test_capability_index_compiler.py",
+  "tests/unit/runtime/quality/test_semantic_binding.py",
+]
+compatibility = "Capability DTO schema and by-alias wire keys remain unchanged; internal constructors use the declared construct_id field. Absent source facets retain their existing empty interpretation. A present freshness, coverage, or schema_compatibility value must be a string-keyed mapping and otherwise raises semantic_fabric_source_facet_mapping_malformed. No HTTP, generated-client, persisted-schema, status-enum, or normal lifecycle transition changes."
+change_class = "internal"
+surface_classification = "internal: no HTTP, OpenAPI, generated-client, or public-facade surface change."
+migration = "Callers that supply freshness, coverage, or schema_compatibility must send a string-keyed object; omit a facet when it is genuinely absent."
+limitations = "This is a type-boundary and fail-closed input-integrity repair. It adds no capability, authority, or status semantics. Full Core Runtime, native, and composed checks remain required; the four Legal candidate-discovery source-relation failures are separately tracked."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

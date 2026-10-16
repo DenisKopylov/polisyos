@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
+from functools import partial
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Final, Literal
 
 from pydantic import (
     BaseModel,
@@ -29,7 +30,9 @@ from polisyos.runtime.quality.candidate_firewall import (
 SEMANTIC_BINDING_SCHEMA_VERSION = "policyos.semantic_binding_ledger.v1"
 PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION = "policyos.producer_spine_context.v1"
 GY_SEMANTIC_BENCHMARK_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.semantic_benchmark.v1"
-GY_SEMANTIC_BENCHMARK_RUN_V1 = "policyos.policy_design_case.layer3_gy.semantic_benchmark_run.v1"
+GY_SEMANTIC_BENCHMARK_RUN_V1: Final = (
+    "policyos.policy_design_case.layer3_gy.semantic_benchmark_run.v1"
+)
 GY_SEMANTIC_BENCHMARK_RUN_V2 = "policyos.policy_design_case.layer3_gy.semantic_benchmark_run.v2"
 PRODUCER_SPINE_CONSUMER_COMPONENTS = (
     "lex",
@@ -159,6 +162,8 @@ class SemanticBenchmarkRun(BaseModel):
     ) -> dict[str, Any]:
         """Keep legacy v1 payload shape exact while v2 carries query diagnostics."""
         payload = handler(self)
+        if not isinstance(payload, dict):
+            raise TypeError("semantic benchmark serializer must return an object")
         if self.schema_version == GY_SEMANTIC_BENCHMARK_RUN_V1:
             payload.pop("schema_version", None)
             payload.pop("query_statuses", None)
@@ -946,6 +951,15 @@ class ClaimBindingRecord(ProducerSpineBindingFields):
             *self.residual_uncertainty_ids,
         ]
         return tuple(dict.fromkeys(ids))
+
+
+_ProducerSpineBindingRecord = (
+    LexBindingRecord
+    | FabricBindingRecord
+    | ScholarBindingRecord
+    | FoundryBindingRecord
+    | ClaimBindingRecord
+)
 
 
 class SemanticBindingLedger(BaseModel):
@@ -2183,7 +2197,7 @@ def _build_foundry_record(
         ),
         "runtime_assumption_gates": _mapping_tuple_from(foundry_report, "runtime_assumption_gates")
         or tuple(
-            gate
+            dict(gate)
             for row in selected_rows
             for gate in _rows_from(row.get("runtime_assumption_gates"))
         ),
@@ -2834,7 +2848,7 @@ def _fabric_lineage_issues(ledger: SemanticBindingLedger) -> list[SemanticBindin
             facet = facets_by_source.get(source_ref)
             affected_claim = _first_claim_requiring(
                 (*ledger.scientist, *ledger.final_compiler),
-                lambda claim, ref=source_ref: ref in claim.required_data_refs,
+                partial(_claim_requires_data_ref, source_ref=source_ref),
             )
             if facet is None:
                 issues.append(
@@ -3480,7 +3494,7 @@ def _producer_semantic_dimension_mismatch_issues(
     ledger: SemanticBindingLedger,
     *,
     component: str,
-    binding: ProducerSpineBindingFields,
+    binding: _ProducerSpineBindingRecord,
     affected_claim: str | None,
 ) -> list[SemanticBindingIssue]:
     if ledger.spine_context is None:
@@ -3557,7 +3571,7 @@ def _unexpected_semantic_refs(
     return tuple(value for value in producer_values if value.casefold() not in expected)
 
 
-def _field_ref_matches_any(column_ref: str, field_refs: Sequence[str]) -> bool:
+def _field_ref_matches_any(column_ref: str, field_refs: Iterable[str]) -> bool:
     column = column_ref.casefold()
     for field_ref in field_refs:
         normalized = field_ref.casefold()
@@ -3583,7 +3597,7 @@ def _affected_claim_for_producer_binding(
     ledger: SemanticBindingLedger,
     *,
     component: str,
-    binding: ProducerSpineBindingFields,
+    binding: _ProducerSpineBindingRecord,
 ) -> str | None:
     if isinstance(binding, ClaimBindingRecord):
         return _first_optional_ref(binding.claim_ids)
@@ -3618,6 +3632,10 @@ def _affected_claim_for_producer_binding(
             lambda claim: bool(refs.intersection(claim.required_method_refs)),
         )
     return None
+
+
+def _claim_requires_data_ref(claim: ClaimBindingRecord, *, source_ref: str) -> bool:
+    return source_ref in claim.required_data_refs
 
 
 def _first_claim_requiring(
@@ -3688,7 +3706,7 @@ def _producer_claim_spine_mismatch_issues(
     *,
     claim_binding: ClaimBindingRecord,
     producer_component: str,
-    producer_binding: ProducerSpineBindingFields,
+    producer_binding: _ProducerSpineBindingRecord,
     evidence_ref: str,
 ) -> list[SemanticBindingIssue]:
     issues: list[SemanticBindingIssue] = []
@@ -3738,17 +3756,19 @@ def _generic_collapse_issues(ledger: SemanticBindingLedger) -> list[SemanticBind
     generic_refs: list[str] = []
     if _is_generic_text(ledger.intent.dataset):
         generic_refs.append(ledger.intent.dataset)
-    for binding in ledger.fabric:
+    for fabric_binding in ledger.fabric:
         generic_refs.extend(
-            ref for ref in binding.selected_dataset_source_refs if _is_generic_text(ref)
+            ref for ref in fabric_binding.selected_dataset_source_refs if _is_generic_text(ref)
         )
         generic_refs.extend(
             metric.metric_id
-            for metric in binding.metric_bindings
+            for metric in fabric_binding.metric_bindings
             if _is_generic_text(metric.metric_id)
         )
-    for binding in ledger.foundry:
-        generic_refs.extend(ref for ref in binding.selected_method_refs if _is_generic_method(ref))
+    for foundry_binding in ledger.foundry:
+        generic_refs.extend(
+            ref for ref in foundry_binding.selected_method_refs if _is_generic_method(ref)
+        )
     lex_generic_no_law = any(
         lex.no_norm_blocker_refs
         and not lex.selected_norm_refs
@@ -4152,8 +4172,8 @@ def _concept_spine_semantic_refs(
 
 def _producer_spine_records(
     ledger: SemanticBindingLedger,
-) -> tuple[tuple[str, ProducerSpineBindingFields], ...]:
-    records: list[tuple[str, ProducerSpineBindingFields]] = []
+) -> tuple[tuple[str, _ProducerSpineBindingRecord], ...]:
+    records: list[tuple[str, _ProducerSpineBindingRecord]] = []
     records.extend(("lex", binding) for binding in ledger.lex)
     records.extend(("fabric", binding) for binding in ledger.fabric)
     records.extend(("scholar", binding) for binding in ledger.scholar)
@@ -4255,10 +4275,10 @@ def _refs_from_value(value: object) -> tuple[str, ...]:
             refs.extend(_refs_from_value(item))
         return tuple(dict.fromkeys(refs))
     if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
-        refs: list[str] = []
+        sequence_refs: list[str] = []
         for item in value:
-            refs.extend(_refs_from_value(item))
-        return tuple(dict.fromkeys(refs))
+            sequence_refs.extend(_refs_from_value(item))
+        return tuple(dict.fromkeys(sequence_refs))
     text = _optional_text(value)
     return (text,) if text else ()
 
@@ -4575,6 +4595,18 @@ def _source_rows_by_ref(fabric_report: Mapping[str, Any]) -> dict[str, Mapping[s
     return rows
 
 
+def _source_facet_mapping(row: Mapping[str, Any], field_name: str) -> Mapping[str, Any]:
+    if field_name not in row:
+        return {}
+    value = row[field_name]
+    if not isinstance(value, Mapping) or any(not isinstance(key, str) for key in value):
+        raise SemanticBindingError(
+            "semantic_fabric_source_facet_mapping_malformed",
+            f"{field_name} must be an object with string keys when supplied.",
+        )
+    return value
+
+
 def _source_facet_from_row(
     *,
     row: Mapping[str, Any],
@@ -4582,13 +4614,9 @@ def _source_facet_from_row(
     rejected: Sequence[str],
     data_forge_snapshot_refs: Sequence[str],
 ) -> dict[str, Any]:
-    freshness = row.get("freshness") if isinstance(row.get("freshness"), Mapping) else {}
-    coverage = row.get("coverage") if isinstance(row.get("coverage"), Mapping) else {}
-    schema_compatibility = (
-        row.get("schema_compatibility")
-        if isinstance(row.get("schema_compatibility"), Mapping)
-        else {}
-    )
+    freshness = _source_facet_mapping(row, "freshness")
+    coverage = _source_facet_mapping(row, "coverage")
+    schema_compatibility = _source_facet_mapping(row, "schema_compatibility")
     return {
         "source_ref": source_ref,
         "source_family": _first_text(
@@ -4765,9 +4793,12 @@ def _sample_power_status(row: Mapping[str, Any]) -> str:
         return "unknown"
     sample_size = diagnostics.get("sample_size")
     minimum = diagnostics.get("min_required_sample_size")
+    numeric_values = (str, int, float)
+    if not isinstance(sample_size, numeric_values) or not isinstance(minimum, numeric_values):
+        return "unknown"
     try:
         return "adequate" if float(sample_size) >= float(minimum) else "inadequate"
-    except (TypeError, ValueError):
+    except (OverflowError, TypeError, ValueError):
         return "unknown"
 
 

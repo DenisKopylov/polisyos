@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from copy import deepcopy
 
+import pytest
+
 from polisyos.runtime.quality.semantic_binding import (
     GY_SEMANTIC_BENCHMARK_RUN_V2,
     PRODUCER_SPINE_CONSUMER_COMPONENTS,
@@ -11,6 +13,7 @@ from polisyos.runtime.quality.semantic_binding import (
     SemanticAdequacyGate,
     SemanticBenchmarkQueryStatus,
     SemanticBenchmarkRun,
+    SemanticBindingError,
     SemanticBindingLedger,
     build_producer_spine_read_context,
     build_semantic_binding_ledger,
@@ -589,6 +592,24 @@ def test_semantic_binding_blocks_unverified_candidate_in_legal_read_path() -> No
 
     assert evaluation.status == "fail"
     assert "candidate_firewall_candidate_unverified" in {issue.code for issue in evaluation.issues}
+
+
+@pytest.mark.parametrize("field_name", ["freshness", "coverage", "schema_compatibility"])
+def test_semantic_binding_rejects_malformed_present_source_facet_mapping(
+    field_name: str,
+) -> None:
+    evidence = complete_quality_evidence()
+    fabric = deepcopy(evidence["fabric_retrieval_trace"])
+    assert isinstance(fabric, dict)
+    candidates = fabric["candidate_sources"]
+    assert isinstance(candidates, list) and isinstance(candidates[0], dict)
+    candidates[0][field_name] = "malformed-present-value"
+
+    with pytest.raises(SemanticBindingError) as raised:
+        build_semantic_binding_ledger(fabric_retrieval_trace=fabric)
+
+    assert raised.value.code == "semantic_fabric_source_facet_mapping_malformed"
+    assert field_name in str(raised.value)
 
 
 def test_semantic_binding_builder_preserves_runtime_report_refs() -> None:

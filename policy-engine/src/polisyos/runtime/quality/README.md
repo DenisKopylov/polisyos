@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-10-14
+- Last updated: 2026-10-16
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 the canonical quality-report role/file/ref map lives in `report_registry.py` so refs, scorecards, and canary assembly share one intake set.
@@ -11,6 +11,12 @@ This package may orchestrate producer-backed signals, but it does not make LLM
 output, corpus stubs, simulations, or historical priors into current evidence
 authority by itself. Those paths remain candidates, caps, context, or replay
 inputs until a producer-owned capability admits them.
+
+## Runtime projection input boundaries
+
+- `capability_index_compiler.py` passes the model field `construct_id` to Pydantic constructors. Its existing `construct` alias remains the serialized key when payloads are dumped by alias.
+- `semantic_binding.py` reads `binding_id` only from the binding-record variants that own it. On selected/candidate source rows, missing `freshness`, `coverage`, or `schema_compatibility` remains absent; a supplied facet must be a string-keyed mapping or the builder raises `semantic_fabric_source_facet_mapping_malformed`.
+- `lex_pipeline.py` describes the host methods supplied by the existing ControlPlaneService composition. It adds no separate service or lifecycle path.
 
 BERL warrant-reliability accepts an optional Core CAS store and resolves the exact selected
 `ExplanationBundleRef` before admission. The BERL producer returns the manifest profile selected

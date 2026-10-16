@@ -379,7 +379,7 @@ def normalize_runtime_claim_registry(
 
     status = _status_from_issues(issues)
     registry_ref = _text(payload.get(REPORT_REF_KEY) or payload.get("registry_ref"))
-    summary = {
+    summary: dict[str, object] = {
         "claim_count": len(rows),
         "major_claim_count": len(major_claim_ids),
         "entry_count": len(rows),
@@ -514,11 +514,8 @@ def apply_runtime_claim_registry_to_claim(
     if entry.get("method_output_refs"):
         merged["method_refs"] = _as_refs(entry.get("method_output_refs"))
 
-    evidence_graph = (
-        dict(merged.get("evidence_graph"))
-        if isinstance(merged.get("evidence_graph"), Mapping)
-        else {}
-    )
+    evidence_graph_value = merged.get("evidence_graph")
+    evidence_graph = dict(evidence_graph_value) if isinstance(evidence_graph_value, Mapping) else {}
     for key in (
         "portfolio_refs",
         "independence_refs",
@@ -1255,10 +1252,10 @@ def _as_refs(value: object) -> list[str]:
                 refs.extend(_as_refs(item))
         return _dedupe(refs)
     if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
-        refs: list[str] = []
+        sequence_refs: list[str] = []
         for item in value:
-            refs.extend(_as_refs(item))
-        return _dedupe(refs)
+            sequence_refs.extend(_as_refs(item))
+        return _dedupe(sequence_refs)
     return []
 
 

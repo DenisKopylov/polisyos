@@ -2554,5 +2554,43 @@
       "sha256": "26666482716cc0a1631b13dbab352a5eb62f53f5c3afda1d83dca2eef8594923",
       "outcome": "102PASS0FAIL/ERROR/SKIP, canonical perfile sourceMyPyPASS, canonicalRuffcheck+format2PASS;1478ownmoduleoriginszerooutside/missing/wrong. Controlledconsumeronly; fullnative/composed/installedUNRUN."
     }
+  },
+  "coordination_epoch_20261016_pyarrow_dev_typing": {
+    "root_writer": true,
+    "readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-pyarrow-dev-typing-application-20261016/application-readback.json",
+    "sha256": "f43734c7a4abbc817c892531be504799a0aff2af1060b6022beb8c67eddc8a28",
+    "paths": [
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock",
+      "policy-engine/architecture/tooling/README.md"
+    ],
+    "environment_change": "Only hash-verified235949Bstubwheel installed offline/no-deps; all existing distribution version/RECORD rows unchanged.",
+    "required_generated_companions": "Foundry dependency-profile owner regeneration/check+corrupt-field drift batched after final contract/source choices, before finalsourcefreeze.",
+    "source_freeze": false,
+    "closure_ids": [],
+    "final_independent_delta_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/pyarrow-dev-typing-lock-independent-review-20261016/delta-review.md",
+      "sha256": "323e1c6916ca4a52f0fb225524ed09743d0e9ff913b227f48f87657424cafb22"
+    }
+  },
+  "coordination_epoch_20261016_runtime4_projection_types": {
+    "root_writer": true,
+    "readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime4-documentation-composition-r2-20261016/application-readback.json",
+    "sha256": "230218df52c8a03334418e969a2140c0633ba871ae9741a1e65351bb3924eb8d",
+    "independent_review_sha256": "3aefc3d3d386c62c5991c96b175d7ae265dd941fd45eb5597850a0d53119be5a",
+    "known_discovery_red": "4 semantic failures realinternalcandidate/authorityconflation; noP41inherited claim. SeparateRAWdiscoverycandidatebeingreviewed.",
+    "source_freeze": false,
+    "closure_ids": [],
+    "actual_current_verification": {
+      "runtime58": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime4-pyarrow-profile-actual-20261016/actual-results.json",
+        "sha256": "d898d6a7f7a6a315d282980c50719cfdca8a755b79dde6d86fe0ac7d6cecc40a"
+      },
+      "wholeLex10": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime4-lex-importer-actual-20261016/actual-results.json",
+        "sha256": "9b7b665ed40b6255826290f44eaa84821a568e79942384a0fa9811afe04c7063"
+      },
+      "outcome": "58PASS+10separatewholeLexPASS,0FAIL/ERROR/SKIP;4selectedcanonicalstrictMyPyPASS, notfullCoreRuntime; Ruff6check+formatPASS; Arrow22runtimeParquetroundtripPASS;uvpipcheckPASS;1699ownoriginsruntimewave/1712Lexwavezerooutside/missing/wrong."
+    }
   }
 }

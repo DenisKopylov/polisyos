@@ -478,7 +478,7 @@ def test_unverified_lex_capability_cannot_claim_production_admissibility(
 def test_capability_construct_alias_preserves_artifact_schema() -> None:
     capability = EvidenceCapability(
         capability_id="capability:test_alias",
-        construct="firm_survival",
+        construct_id="firm_survival",
         modality=("fabric_data",),
         evidence_mode="observed",
         concept_spine_refs=("concept:firm_survival",),
@@ -496,7 +496,7 @@ def test_capability_construct_alias_preserves_artifact_schema() -> None:
     )
     failure = FailureModeNode(
         failure_id="failure:test_alias",
-        construct="credit_program_enrollment",
+        construct_id="credit_program_enrollment",
         geography="UA",
         cause_class="data_source_unavailable",
         severity="blocking_production",
@@ -505,7 +505,7 @@ def test_capability_construct_alias_preserves_artifact_schema() -> None:
     )
     conflict = CapabilityConflictRecord(
         conflict_id="conflict:test_alias",
-        construct="firm_survival",
+        construct_id="firm_survival",
         geography="UA",
         conflict_class="empirical",
         conflict_resolution_route="new_evidence",
@@ -515,13 +515,27 @@ def test_capability_construct_alias_preserves_artifact_schema() -> None:
     assert capability.construct_id == "firm_survival"
     assert failure.construct_id == "credit_program_enrollment"
     assert conflict.construct_id == "firm_survival"
-    for payload in (
-        capability.model_dump(mode="json"),
-        failure.model_dump(mode="json"),
-        conflict.model_dump(mode="json"),
-    ):
+    models = (capability, failure, conflict)
+    for model in models:
+        payload = model.model_dump(mode="json", by_alias=True)
         assert "construct" in payload
         assert "construct_id" not in payload
+    assert (
+        EvidenceCapability.model_validate_json(
+            capability.model_dump_json(by_alias=True)
+        ).construct_id
+        == capability.construct_id
+    )
+    assert (
+        FailureModeNode.model_validate_json(failure.model_dump_json(by_alias=True)).construct_id
+        == failure.construct_id
+    )
+    assert (
+        CapabilityConflictRecord.model_validate_json(
+            conflict.model_dump_json(by_alias=True)
+        ).construct_id
+        == conflict.construct_id
+    )
 
 
 def test_fixture_build_is_deterministic_except_manifest_generated_at(tmp_path: Path) -> None:

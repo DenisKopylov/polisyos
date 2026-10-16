@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import uuid
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol
 
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.control import (
@@ -32,11 +32,72 @@ from .lex_search_profile import (
 from .lex_search_projection import LexSearchResponse, LexSearchResultItem
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from polisyos.core.contracts.control import ExecutionProfile, PolicyFlags
     from polisyos.lex.knowledge import LegalQueryProfile
     from polisyos.runtime.http.container import LegalQueryEncoderProvider
-    from polisyos.runtime.http.execution_policy import RuntimePrincipal
+    from polisyos.runtime.http.execution_policy import (
+        ResolvedExecutionPolicy,
+        RuntimePrincipal,
+    )
 
-    from ..control_plane_store import ControlJobExecutionScope, ControlJobRecord
+    from ..control_plane_store import (
+        ControlJobExecutionScope,
+        ControlJobRecord,
+        ControlPlaneStore,
+    )
+
+
+class _LexPipelineHost(Protocol):
+    """Structural host contract supplied by the composed control-plane service."""
+
+    _control_store: ControlPlaneStore
+
+    def _resolve_execution_policy(
+        self,
+        *,
+        requested_profile: ExecutionProfile | None,
+        policy_flags: PolicyFlags,
+        principal: RuntimePrincipal | None,
+    ) -> ResolvedExecutionPolicy: ...
+
+    def _enqueue_job(
+        self,
+        *,
+        job_id: str,
+        job_kind: str,
+        run_id: str | None,
+        pipeline_id: str | None,
+        payload: dict[str, Any],
+        policy: ResolvedExecutionPolicy,
+        request_id: str | None = None,
+    ) -> ControlJobRecord: ...
+
+    def _collect_lex_progress(
+        self,
+        *,
+        output_dir: Path | None,
+        state: str,
+        existing: dict[str, Any] | None = None,
+    ) -> dict[str, Any]: ...
+
+    def _emit_runtime_diagnostic_event(
+        self,
+        *,
+        job_id: str,
+        run_id: str | None,
+        execution_profile: str,
+        phase: str,
+        event_type: str,
+        state_before: str | None = None,
+        state_after: str | None = None,
+        payload: Mapping[str, Any] | None = None,
+        event_payload: Mapping[str, Any] | None = None,
+        artifact_refs: list[str] | tuple[str, ...] | None = None,
+        execution_scope: ControlJobExecutionScope,
+    ) -> object: ...
+
 
 logger = get_logger(__name__)
 
@@ -105,7 +166,7 @@ class LexPipelineMixin:
         self._legal_query_encoder_provider = provider
 
     def trigger_lex_pipeline(
-        self,
+        self: _LexPipelineHost,
         request: LexTriggerRequest,
         *,
         request_id: str | None = None,
@@ -173,7 +234,7 @@ class LexPipelineMixin:
         )
 
     def _run_lex_pipeline_job(
-        self,
+        self: _LexPipelineHost,
         *,
         job: ControlJobRecord,
         payload: dict[str, Any],
@@ -242,7 +303,7 @@ class LexPipelineMixin:
         )
 
     def get_lex_pipeline_status(
-        self,
+        self: _LexPipelineHost,
         pipeline_id: str,
         *,
         request_id: str | None = None,

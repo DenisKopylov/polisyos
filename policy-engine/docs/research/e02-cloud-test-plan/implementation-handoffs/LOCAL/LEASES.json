@@ -3036,5 +3036,26 @@
     "attributed_preexisting_companion": "Compiler test d987 own author guard preserved; live hunk attribution recorded, tool path cause not established.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_v5_typed_store_factory_test_companion": {
+    "root_writer": "/root",
+    "base": "94c4d233ee6d0566254ca98c9e4a56cc9d814f90",
+    "mechanism_paths": [
+      "policy-engine/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate actual V5/B157 affected-command receipt and component index"
+    ],
+    "author_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-r3-store-factory-fixture-companion-20261017/candidate.patch",
+      "sha256": "4c5dea85b5438fe28d2869bfdeb1de701885cbffe3fa8d8663ddb4ecc4eb2644"
+    },
+    "independent_review": "Root read complete two-wrapper diff and exact runner typed StoreFactory signature. Both supplied factory and capture_dispatch_binding forwarded without swallowing kwargs; swapped-X input and assertions retained; complete selected caller census two stale/four wrappers.",
+    "canonical_ruff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-fixture-canonical-ruff-20261017/verification.json@e3b84df4aba6bcaa9b133c651518ac720797a84044f2eff933bf162fda0a50e9",
+    "direct_live_write_attribution": "Author full_id_property_partition_3 confirmed tools.apply_patch mistakenly targeted exact authorized live test rather than RAW. Exact same postimage/diff preserved in raw/incidents/v5-store-factory-direct-test-attribution-20261017. No reset/restore or unrelated edit.",
+    "P40": "Same fixture/caller signature class widened to both typed forwarding wrappers; runtime/scientific code unchanged. R3 ten PASS/one TypeError retained, no blanket inherited classification.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

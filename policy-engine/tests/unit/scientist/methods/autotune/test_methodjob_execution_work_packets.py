@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import copy
 import os
+from collections.abc import Callable
+from pathlib import Path
 from typing import Any, Literal
 
 import numpy as np
@@ -13,6 +15,7 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, fingerprint
@@ -733,13 +736,21 @@ def test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness
     assert isinstance(source_data, dict)
     run_job = compute_runner.run_job
 
-    def _swap_dispatched_x(spec, *, cas_root, method_state, capture_dispatch_binding=False):
+    def _swap_dispatched_x(
+        spec,
+        *,
+        cas_root,
+        method_state,
+        store_factory: Callable[[Path], ArtifactStore] | None = None,
+        capture_dispatch_binding=False,
+    ):
         swapped_state = dict(method_state)
         swapped_state["X"] = source_data["X_alternative"]
         return run_job(
             spec,
             cas_root=cas_root,
             method_state=swapped_state,
+            store_factory=store_factory,
             capture_dispatch_binding=capture_dispatch_binding,
         )
 
@@ -792,13 +803,21 @@ def test_search_loop_rejects_score_after_source_bound_dispatch_swap(
     assert isinstance(source_data, dict)
     run_job = compute_runner.run_job
 
-    def _swap_dispatched_x(spec, *, cas_root, method_state, capture_dispatch_binding=False):
+    def _swap_dispatched_x(
+        spec,
+        *,
+        cas_root,
+        method_state,
+        store_factory: Callable[[Path], ArtifactStore] | None = None,
+        capture_dispatch_binding=False,
+    ):
         swapped_state = dict(method_state)
         swapped_state["X"] = source_data["X_alternative"]
         return run_job(
             spec,
             cas_root=cas_root,
             method_state=swapped_state,
+            store_factory=store_factory,
             capture_dispatch_binding=capture_dispatch_binding,
         )
 

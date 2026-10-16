@@ -2803,5 +2803,28 @@
     "readme_pre_sha256": "dc824558c4e375282a276166605f51c79506dc5f35425f4bc1095fc7ddc49803",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_r9_behavioral_test_companion": {
+    "root_writer": "/root",
+    "base": "2449a9de36290d8f44f569a507afc35303d10be4",
+    "mechanism_paths": [
+      "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate current-source receipt and component index"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-exact-key-r4-test-companion-20261016/candidate-manifest-r3.json",
+      "sha256": "dc2eaa49f6630da202585582f9a78c3233cb22b3963ad8ae9868f55e134a36ba"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-exact-key-r4-test-companion-independent-review-20261016/delta-review.json",
+      "sha256": "6e400c849e553ae68d7c4da961c0d590ab99761576b2ef62ab01944e60fdeb2f"
+    },
+    "P40": "Actual importer and non-importer controls, canonical registry presence/removal, real fresh-child find_spec; scanner and immutable tuple/mutation guards preserved.",
+    "limitations": "Prior actual134PASS8FAIL remains; these three test assumptions repaired only. Five IR facade collector errors need generic source binding repair; no inherited/full-gate claim.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

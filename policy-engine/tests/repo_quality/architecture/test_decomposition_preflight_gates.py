@@ -225,11 +225,40 @@ def test_dynamic_imports_gate_rejects_every_stable_header_field_corruption(
         ), field
 
 
+def _assert_diagnostic_identifies_path(
+    detail: str,
+    expected_path: Path,
+    repo_root: Path,
+    *,
+    expected_relative: bool,
+) -> str:
+    """Check reported path identity without calling the formatter under test."""
+    rendered_path, separator, suffix = detail.partition(": ")
+    assert rendered_path
+    observed = Path(rendered_path)
+    assert observed.is_absolute() is (not expected_relative)
+    if not observed.is_absolute():
+        observed = repo_root / observed
+    assert observed.resolve() == expected_path.resolve()
+    return suffix if separator else ""
+
+
+@pytest.mark.parametrize(
+    "relative_to_repo",
+    [True, False],
+    ids=["inside-selected-root", "outside-selected-root"],
+)
 def test_dynamic_imports_gate_distinguishes_absent_and_malformed_registry(
+    relative_to_repo: bool,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    registry_path = tmp_path / "dynamic.toml"
+    repo_root = tmp_path / "selected-repository"
+    inside_path = repo_root / "architecture/imports/dynamic.toml"
+    outside_path = tmp_path / "outside/architecture/imports/dynamic.toml"
+    registry_path = inside_path if relative_to_repo else outside_path
+    registry_path.parent.mkdir(parents=True)
+    monkeypatch.setattr(preflight, "REPO_ROOT", repo_root)
     monkeypatch.setattr(preflight, "DYNAMIC_IMPORTS_PATH", registry_path)
     monkeypatch.setattr(preflight, "collect_dynamic_imports", lambda: [])
 
@@ -237,16 +266,25 @@ def test_dynamic_imports_gate_distinguishes_absent_and_malformed_registry(
     assert [finding.message for finding in missing_findings] == [
         "dynamic import registry is missing"
     ]
-    assert missing_findings[0].detail == registry_path.as_posix()
+    _assert_diagnostic_identifies_path(
+        missing_findings[0].detail,
+        registry_path,
+        repo_root,
+        expected_relative=relative_to_repo,
+    )
 
     registry_path.mkdir()
     unreadable_findings = preflight.validate_dynamic_imports()
     assert [finding.message for finding in unreadable_findings] == [
         "dynamic import registry cannot be read"
     ]
-    assert unreadable_findings[0].detail.startswith(
-        f"{registry_path.as_posix()}: IsADirectoryError:"
+    unreadable_suffix = _assert_diagnostic_identifies_path(
+        unreadable_findings[0].detail,
+        registry_path,
+        repo_root,
+        expected_relative=relative_to_repo,
     )
+    assert unreadable_suffix.startswith("IsADirectoryError:")
     registry_path.rmdir()
 
     registry_path.write_text("[dynamic_imports\n", encoding="utf-8")
@@ -254,7 +292,13 @@ def test_dynamic_imports_gate_distinguishes_absent_and_malformed_registry(
     assert [finding.message for finding in malformed_findings] == [
         "dynamic import registry is malformed"
     ]
-    assert malformed_findings[0].detail.startswith(f"{registry_path.as_posix()}:")
+    malformed_suffix = _assert_diagnostic_identifies_path(
+        malformed_findings[0].detail,
+        registry_path,
+        repo_root,
+        expected_relative=relative_to_repo,
+    )
+    assert malformed_suffix
 
     registry_path.write_text("[unrelated]\nvalue = 1\n", encoding="utf-8")
     missing_header_findings = preflight.validate_dynamic_imports()
@@ -4921,15 +4965,6 @@ def resolve(owner, name):
         """
 from importlib import import_module
 from types import MappingProxyType
-ROUTES = MappingProxyType({("catalog", "alpha"): ("polisyos.catalog", "alpha")})
-def resolve(owner, name):
-    binding_key = (owner, name)
-    _, target_name = ROUTES[binding_key]
-    return globals().get(target_name)("unguarded_registry_lookup")
-""",
-        """
-from importlib import import_module
-from types import MappingProxyType
 mutable_routes = {("catalog", "loader"): ("polisyos.catalog", "import_module")}
 ROUTES = MappingProxyType(mutable_routes)
 def resolve(owner, name):
@@ -4940,8 +4975,9 @@ def resolve(owner, name):
     raise LookupError(binding_key)
 """,
     ],
+    ids=["immutable-mapping-mutation", "mutable-backing-map"],
 )
-def test_dynamic_import_registry_mutation_or_unchecked_lookup_fails_closed(
+def test_dynamic_import_registry_mutation_and_mutable_backing_fail_closed(
     source: str,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -4952,6 +4988,89 @@ def test_dynamic_import_registry_mutation_or_unchecked_lookup_fails_closed(
         finding.message == "dynamic import source inventory is incomplete"
         and "importer provenance" in finding.detail
         for finding in findings
+    )
+
+
+def test_dynamic_import_nonimporter_globals_lookup_is_an_explicit_no_import_control(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = """
+from importlib import import_module
+from types import MappingProxyType
+ROUTES = MappingProxyType({("catalog", "alpha"): ("polisyos.catalog", "alpha")})
+def resolve(owner, name):
+    binding_key = (owner, name)
+    _, target_name = ROUTES[binding_key]
+    return globals().get(target_name)("unguarded_registry_lookup")
+"""
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+
+    assert preflight.collect_dynamic_imports() == []
+    assert preflight.validate_dynamic_imports() == []
+
+    namespace = runpy.run_path(str(tmp_path / "src" / "dynamic_fixture.py"))
+    import_calls: list[str] = []
+
+    def import_trap(target: str) -> object:
+        import_calls.append(target)
+        return object()
+
+    namespace["resolve"].__globals__["import_module"] = import_trap
+    assert "alpha" not in namespace
+    with pytest.raises(TypeError):
+        namespace["resolve"]("catalog", "alpha")
+    assert import_calls == []
+
+
+def test_dynamic_import_unchecked_lookup_of_importer_requires_canonical_registry_row(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = """
+from importlib import import_module
+from types import MappingProxyType
+ROUTES = MappingProxyType({("catalog", "loader"): ("polisyos.catalog", "import_module")})
+def resolve(owner, name):
+    binding_key = (owner, name)
+    _, target_name = ROUTES[binding_key]
+    return globals().get(target_name)("unchecked_registry_lookup")
+"""
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+
+    entries = preflight.collect_dynamic_imports()
+    assert [entry["pattern"] for entry in entries] == ["unchecked_registry_lookup"]
+
+    namespace = runpy.run_path(str(tmp_path / "src" / "dynamic_fixture.py"))
+    import_calls: list[str] = []
+    expected_result = object()
+
+    def import_trap(target: str) -> object:
+        import_calls.append(target)
+        return expected_result
+
+    namespace["resolve"].__globals__["import_module"] = import_trap
+    assert namespace["resolve"]("catalog", "loader") is expected_result
+    assert import_calls == ["unchecked_registry_lookup"]
+
+    missing_row_findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import call is not registered"
+        and "unchecked_registry_lookup" in finding.detail
+        for finding in missing_row_findings
+    )
+
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    removed_row_findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "dynamic import call is not registered"
+        and "unchecked_registry_lookup" in finding.detail
+        for finding in removed_row_findings
     )
 
 
@@ -5164,7 +5283,9 @@ public_builder()
 """,
         },
     )
-    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+    source_root = tmp_path / "src"
+    for package_dir in (source_root / "polisyos", source_root / "polisyos/catalog"):
+        (package_dir / "__init__.py").write_text("", encoding="utf-8")
 
     entries = preflight.collect_dynamic_imports()
     assert len(entries) == 1
@@ -5172,7 +5293,60 @@ public_builder()
     assert entries[0]["call"] == "importlib.import_module"
     assert entries[0]["pattern"] == "module_name"
     registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
-    assert preflight.validate_dynamic_imports() == []
+
+    child_probe = """import importlib.util
+import json
+import sys
+from pathlib import Path
+from tools.quality.validation import decomposition_preflight as preflight
+root = Path(sys.argv[1])
+preflight.REPO_ROOT = root
+preflight.SRC_ROOT = root / "src"
+preflight.DYNAMIC_IMPORTS_PATH = root / "architecture/imports/dynamic.toml"
+target = "polisyos.catalog.implementation"
+try:
+    spec = importlib.util.find_spec(target)
+except (ImportError, ModuleNotFoundError, ValueError):
+    spec = None
+findings = preflight.validate_dynamic_imports()
+print(json.dumps({
+    "target_origin": None if spec is None else spec.origin,
+    "findings": [{"message": finding.message, "detail": finding.detail} for finding in findings],
+}, sort_keys=True))
+"""
+    base_environment = os.environ.copy()
+
+    def run_fresh_runtime_validator(*, target_on_pythonpath: bool) -> dict[str, object]:
+        environment = base_environment.copy()
+        pythonpath = [str(source_root)] if target_on_pythonpath else []
+        if environment.get("PYTHONPATH"):
+            pythonpath.append(environment["PYTHONPATH"])
+        environment["PYTHONPATH"] = os.pathsep.join(pythonpath)
+        completed = subprocess.run(
+            [sys.executable, "-c", child_probe, str(tmp_path)],
+            cwd=REPO_ROOT,
+            env=environment,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        result = json.loads(completed.stdout)
+        assert isinstance(result, dict)
+        return result
+
+    target_path = source_root / "polisyos/catalog/implementation.py"
+    positive = run_fresh_runtime_validator(target_on_pythonpath=True)
+    assert target_path.is_file()
+    assert positive["target_origin"] == str(target_path)
+    assert positive["findings"] == []
+
+    negative = run_fresh_runtime_validator(target_on_pythonpath=False)
+    assert target_path.is_file()
+    assert negative["target_origin"] is None
+    assert any(
+        finding["message"] == "allowed dynamic import target does not resolve"
+        for finding in negative["findings"]
+    ), negative
 
 
 def test_dynamic_import_pep562_map_preserves_importer_capability_provenance(

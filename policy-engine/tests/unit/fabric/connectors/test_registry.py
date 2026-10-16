@@ -7,6 +7,7 @@ import threading
 from collections.abc import AsyncIterator
 from contextlib import suppress
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any, ClassVar
 
 import pytest
@@ -28,10 +29,12 @@ from polisyos.fabric.connectors.pool import (
     PoolConfig,
     PoolExhaustedError,
 )
+from polisyos.fabric.connectors.profiles.models import SourceProfile
 from polisyos.fabric.connectors.registry import (
     AmbiguousConnectorError,
     ConnectorAlreadyRegisteredError,
     ConnectorConfigError,
+    ConnectorEntry,
     ConnectorNotFoundError,
     ConnectorPreferences,
     ConnectorRegistry,
@@ -42,6 +45,10 @@ from polisyos.fabric.connectors.types import (
     FreshnessResult,
     FreshnessStatus,
     ValidationResult,
+)
+from polisyos.fabric.data_plane.evidence_journal import (
+    AppendOnlyEvidenceJournal,
+    build_live_execution_authorization,
 )
 from polisyos.ir.connectors import (
     ConnectorCapability,
@@ -1714,7 +1721,10 @@ class TestRegistryIntegration:
         registry.register(MockConnectorA, config=sample_config)
 
         async def _run() -> None:
-            from polisyos.fabric.connectors.cache import CacheFetchReceipt, CachingConnectorProxy
+            from polisyos.fabric.connectors.cache import (
+                CacheFetchReceipt,
+                CachingConnectorProxy,
+            )
 
             connector = registry.get("mock_a")
             assert isinstance(connector, CachingConnectorProxy)
@@ -1728,6 +1738,10 @@ class TestRegistryIntegration:
             )
             assert isinstance(receipt, CacheFetchReceipt)
             assert receipt.lookup_outcome == "hit"
+            assert receipt.cache_result is not None
+            assert receipt.cache_result.metadata.cache_key.startswith(
+                "fabric.connector_cache.selected-source.v1:"
+            )
             await connector.disconnect(handle)
 
         asyncio.run(_run())
@@ -1737,6 +1751,427 @@ class TestRegistryIntegration:
             ("ok", "test.mock.mock_a@1.0.0"),
             ("ok", "test.mock.mock_a@1.0.0"),
         ]
+
+    def test_cached_wrapper_tracks_replacement_registration_for_fetch(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+        tmp_path: Path,
+    ) -> None:
+        """A cached proxy follows same-owner replacement and fetches through it."""
+        from datetime import timedelta
+
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.fabric.connectors.cache import (
+            CachingConnectorProxy,
+            ConnectorCacheStore,
+            TTLPolicy,
+        )
+
+        calls: list[str] = []
+
+        class Original(MockConnectorA):
+            producer_label: ClassVar[str] = "original"
+
+            async def fetch(
+                self,
+                handle: ConnectionHandle,
+                request: FetchRequest,
+            ) -> FetchResult[list[dict]]:
+                calls.append(self.producer_label)
+                result = await super().fetch(handle, request)
+                result.data[:] = [{"producer": self.producer_label}]
+                return result
+
+        class Replacement(Original):
+            producer_label: ClassVar[str] = "replacement"
+
+        cache = ConnectorCacheStore(
+            FileSystemCAS(tmp_path / "cas"),
+            TTLPolicy(ttl=timedelta(hours=1)),
+        )
+        registry.configure_cache(cache)
+        registry.register(Original, config=sample_config)
+        first = registry.get("mock_a")
+        assert isinstance(first, CachingConnectorProxy)
+
+        registry.register(Replacement, config=sample_config, override=True)
+        current = registry.get("mock_a")
+        assert isinstance(current, CachingConnectorProxy)
+        assert current is not first
+
+        async def _fetch() -> list[dict]:
+            handle = await current.connect(sample_config)
+            result = await current.fetch(
+                handle,
+                FetchRequest(dataset_id="registry.override.never-fetched"),
+            )
+            await current.disconnect(handle)
+            return result.data
+
+        try:
+            assert asyncio.run(_fetch()) == [{"producer": "replacement"}]
+        finally:
+            cache.close()
+
+        assert calls == ["replacement"]
+
+    def test_contract_wrapper_tracks_replacement_registration_for_fetch(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """A contract proxy follows same-owner replacement and validates its fetch."""
+        from polisyos.fabric.connectors.contracts import (
+            ConnectorSchemaContract,
+            ContractRegistry,
+            ContractValidatingProxy,
+            DataSchema,
+            FieldSpec,
+            SchemaType,
+            SchemaVersion,
+        )
+
+        schema = DataSchema(
+            schema_id="test.registry.registration_origin",
+            version=SchemaVersion(1, 0, 0),
+            fields=(FieldSpec(name="producer", data_type=SchemaType.STRING, nullable=False),),
+            primary_key=("producer",),
+            required_completeness=0.0,
+        )
+        contracts = ContractRegistry()
+        contracts.register(
+            ConnectorSchemaContract(
+                contract_id="test.registry.registration_origin",
+                connector_id="mock_a",
+                dataset_id="registry.override.contract",
+                schema=schema,
+                min_completeness=0.0,
+                created_by="tests",
+            )
+        )
+        registry.configure_contracts(contracts)
+        calls: list[str] = []
+
+        class Original(MockConnectorA):
+            producer_label: ClassVar[str] = "original"
+
+            async def fetch(
+                self,
+                handle: ConnectionHandle,
+                request: FetchRequest,
+            ) -> FetchResult[list[dict]]:
+                calls.append(self.producer_label)
+                result = await super().fetch(handle, request)
+                return result.model_copy(
+                    update={
+                        "data": [{"producer": self.producer_label}],
+                        "schema_id": schema.schema_id,
+                        "schema_version": str(schema.version),
+                    }
+                )
+
+        class Replacement(Original):
+            producer_label: ClassVar[str] = "replacement"
+
+        registry.register(Original, config=sample_config)
+        first = registry.get("mock_a", enable_cache=False)
+        assert isinstance(first, ContractValidatingProxy)
+
+        registry.register(Replacement, config=sample_config, override=True)
+        current = registry.get("mock_a", enable_cache=False)
+        assert isinstance(current, ContractValidatingProxy)
+        assert current is not first
+
+        async def _fetch() -> list[dict]:
+            handle = await current.connect(sample_config)
+            result = await current.fetch(
+                handle,
+                FetchRequest(dataset_id="registry.override.contract"),
+            )
+            await current.disconnect(handle)
+            return result.data
+
+        assert asyncio.run(_fetch()) == [{"producer": "replacement"}]
+        assert calls == ["replacement"]
+
+    @pytest.mark.parametrize(
+        ("surface_path", "enable_cache"),
+        [
+            ("cache_import_failure", True),
+            ("cache_wrapper_failure", True),
+            ("normal_cache", True),
+            ("no_cache", False),
+            ("contract_wrapper", False),
+        ],
+    )
+    def test_get_finalizes_every_surface_after_registration_override(
+        self,
+        surface_path: str,
+        enable_cache: bool,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Every optional surface path rejects an in-flight superseded get."""
+        import builtins
+        from datetime import timedelta
+
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.fabric.connectors.cache import ConnectorCacheStore, TTLPolicy
+        from polisyos.fabric.connectors.contracts import (
+            ConnectorSchemaContract,
+            ContractRegistry,
+            DataSchema,
+            FieldSpec,
+            SchemaType,
+            SchemaVersion,
+        )
+
+        dataset_id = "registry.override.finalization"
+        contract_schema = DataSchema(
+            schema_id="test.registry.finalized_surface",
+            version=SchemaVersion(1, 0, 0),
+            fields=(FieldSpec(name="producer", data_type=SchemaType.STRING, nullable=False),),
+            primary_key=("producer",),
+            required_completeness=0.0,
+        )
+        if surface_path == "contract_wrapper":
+            contracts = ContractRegistry()
+            contracts.register(
+                ConnectorSchemaContract(
+                    contract_id="test.registry.finalized_surface",
+                    connector_id="mock_a",
+                    dataset_id=dataset_id,
+                    schema=contract_schema,
+                    min_completeness=0.0,
+                    created_by="tests",
+                )
+            )
+            registry.configure_contracts(contracts)
+
+        if surface_path != "contract_wrapper":
+            cache = ConnectorCacheStore(
+                FileSystemCAS(tmp_path / "cas"),
+                TTLPolicy(ttl=timedelta(hours=1)),
+            )
+            registry.configure_cache(cache)
+        else:
+            cache = None
+
+        calls: list[str] = []
+
+        class Original(MockConnectorA):
+            producer_label: ClassVar[str] = "original"
+
+            async def fetch(
+                self,
+                handle: ConnectionHandle,
+                request: FetchRequest,
+            ) -> FetchResult[list[dict]]:
+                calls.append(self.producer_label)
+                result = await super().fetch(handle, request)
+                data = [{"producer": self.producer_label}]
+                if surface_path == "contract_wrapper":
+                    return result.model_copy(
+                        update={
+                            "data": data,
+                            "schema_id": contract_schema.schema_id,
+                            "schema_version": str(contract_schema.version),
+                        }
+                    )
+                result.data[:] = data
+                return result
+
+        class Replacement(Original):
+            producer_label: ClassVar[str] = "replacement"
+
+        registry.register(Original, config=sample_config)
+        if surface_path == "cache_import_failure":
+            original_import = builtins.__import__
+
+            def fail_optional_cache_proxy(
+                name: str,
+                globals: dict[str, object] | None = None,
+                locals: dict[str, object] | None = None,
+                fromlist: tuple[str, ...] = (),
+                level: int = 0,
+            ):
+                if name == "polisyos.fabric.connectors.cache.proxy":
+                    raise ModuleNotFoundError("simulated optional cache proxy failure")
+                return original_import(name, globals, locals, fromlist, level)
+
+            monkeypatch.setattr(builtins, "__import__", fail_optional_cache_proxy)
+        elif surface_path == "cache_wrapper_failure":
+            monkeypatch.setattr(
+                registry,
+                "_build_schema_hash_provider",
+                lambda **_kwargs: (_ for _ in ()).throw(
+                    RuntimeError("simulated cache wrapper failure")
+                ),
+            )
+
+        started = threading.Event()
+        resume = threading.Event()
+        results: list[SourceConnectorValue[Any]] = []
+        errors: list[BaseException] = []
+
+        def pause_before_surface_return(
+            connector: SourceConnectorValue[Any],
+            *,
+            connector_id: str,
+        ) -> SourceConnectorValue[Any]:
+            started.set()
+            assert resume.wait(timeout=5)
+            return connector
+
+        monkeypatch.setattr(registry, "_apply_slo_metrics_wrapper", pause_before_surface_return)
+
+        def get_stale_registration() -> None:
+            try:
+                results.append(registry.get("mock_a", enable_cache=enable_cache))
+            except BaseException as exc:  # Captured for an assertion in the test thread.
+                errors.append(exc)
+
+        worker = threading.Thread(target=get_stale_registration)
+        worker.start()
+        try:
+            assert started.wait(timeout=5)
+            registry.register(Replacement, config=sample_config, override=True)
+            resume.set()
+            worker.join(timeout=5)
+            assert not worker.is_alive()
+            if results:
+                assert errors == []
+            else:
+                assert len(errors) == 1 and isinstance(errors[0], ConnectorConfigError)
+        finally:
+            resume.set()
+            worker.join(timeout=5)
+            if surface_path == "cache_import_failure":
+                monkeypatch.setattr(builtins, "__import__", original_import)
+            if surface_path == "cache_wrapper_failure":
+                monkeypatch.setattr(
+                    registry,
+                    "_build_schema_hash_provider",
+                    ConnectorRegistry._build_schema_hash_provider.__get__(registry),
+                )
+            monkeypatch.setattr(
+                registry,
+                "_apply_slo_metrics_wrapper",
+                ConnectorRegistry._apply_slo_metrics_wrapper.__get__(registry),
+            )
+
+        try:
+            current = registry.get("mock_a", enable_cache=enable_cache)
+
+            async def fetch_surface(
+                connector: SourceConnectorValue[Any],
+                request_id: str,
+            ) -> list[dict]:
+                handle = await connector.connect(sample_config)
+                result = await connector.fetch(
+                    handle,
+                    FetchRequest(dataset_id=request_id),
+                )
+                await connector.disconnect(handle)
+                return result.data
+
+            stale_data = (
+                asyncio.run(fetch_surface(results[0], f"{dataset_id}.stale")) if results else None
+            )
+            current_data = asyncio.run(fetch_surface(current, dataset_id))
+            assert stale_data is None or stale_data == [{"producer": "replacement"}], {
+                "surface_path": surface_path,
+                "stale_fetch_data": stale_data,
+            }
+            assert current_data == [{"producer": "replacement"}]
+            assert results == []
+            assert calls == ["replacement"]
+        finally:
+            if cache is not None:
+                cache.close()
+
+    def test_stale_inflight_get_cannot_backfill_replaced_registration_wrapper(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """A delayed get cannot repopulate the derived-wrapper cache after override."""
+        from datetime import timedelta
+
+        from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.fabric.connectors.cache import ConnectorCacheStore, TTLPolicy
+
+        class Original(MockConnectorA):
+            pass
+
+        class Replacement(MockConnectorA):
+            pass
+
+        cache = ConnectorCacheStore(
+            FileSystemCAS(tmp_path / "cas"),
+            TTLPolicy(ttl=timedelta(hours=1)),
+        )
+        registry.configure_cache(cache)
+        registry.register(Original, config=sample_config)
+        registry.get("mock_a")
+
+        started = threading.Event()
+        resume = threading.Event()
+        results: list[SourceConnectorValue[Any]] = []
+        errors: list[BaseException] = []
+        original_apply = registry._apply_slo_metrics_wrapper
+
+        def _pause_before_wrapper_emission(
+            connector: SourceConnectorValue[Any],
+            *,
+            connector_id: str,
+        ) -> SourceConnectorValue[Any]:
+            started.set()
+            assert resume.wait(timeout=5)
+            return original_apply(connector, connector_id=connector_id)
+
+        monkeypatch.setattr(
+            registry,
+            "_apply_slo_metrics_wrapper",
+            _pause_before_wrapper_emission,
+        )
+
+        def _get_stale_registration() -> None:
+            try:
+                results.append(registry.get("mock_a"))
+            except BaseException as exc:  # Captured for an assertion in the test thread.
+                errors.append(exc)
+
+        worker = threading.Thread(target=_get_stale_registration)
+        worker.start()
+        assert started.wait(timeout=5)
+        registry.register(Replacement, config=sample_config, override=True)
+        resume.set()
+        worker.join(timeout=5)
+
+        try:
+            assert not worker.is_alive()
+            assert results == []
+            assert len(errors) == 1 and isinstance(errors[0], ConnectorConfigError)
+            entry = registry.get_entry("mock_a")
+            assert not registry._cache_wrappers
+            monkeypatch.setattr(
+                registry,
+                "_apply_slo_metrics_wrapper",
+                original_apply,
+            )
+            current = registry.get("mock_a")
+            assert current is not None
+            binding = registry._registered_owner_bindings[id(entry)]
+            assert set(registry._cache_wrappers) == {(entry.fqid, binding.registration_generation)}
+        finally:
+            resume.set()
+            cache.close()
 
     def test_unregister_async_drains_owned_pool(
         self, registry: ConnectorRegistry, sample_config: ConnectionConfig
@@ -1854,3 +2289,621 @@ class TestRegistryIntegration:
         assert "mock_a" in registry
         assert "test.mock.mock_a@1.0.0" in registry
         assert "nonexistent" not in registry
+
+    def test_registration_owner_binding_tracks_replacement_and_unregistration(
+        self, registry: ConnectorRegistry
+    ) -> None:
+        """Private owner state follows exact entries through registry lifecycle."""
+
+        class ReplacementRuntimeOwner(MockConnectorA):
+            connector_id: ClassVar[str] = "mock_a.replacement"
+
+        registry.register(MockConnectorA)
+        first_entry = registry.get_entry("mock_a")
+        first_instance = registry.get("mock_a", enable_cache=False)
+        first_binding = registry._registered_owner_bindings[id(first_entry)]
+        assert first_binding.entry is first_entry
+        assert first_binding.runtime_connector_id == "mock_a"
+        assert first_binding.connector_class is MockConnectorA
+        assert first_binding.factory is first_entry.factory
+        assert first_binding.instance is first_instance
+        first_generation = first_binding.registration_generation
+
+        registry.register(ReplacementRuntimeOwner, override=True)
+        replacement = registry.get_entry("mock_a")
+        assert replacement is not first_entry
+        assert id(first_entry) not in registry._registered_owner_bindings
+        replacement_binding = registry._registered_owner_bindings[id(replacement)]
+        assert replacement_binding.entry is replacement
+        assert replacement_binding.runtime_connector_id == "mock_a.replacement"
+        assert replacement_binding.connector_class is ReplacementRuntimeOwner
+        assert replacement_binding.factory is replacement.factory
+        assert replacement_binding.instance is None
+        assert replacement_binding.registration_generation > first_generation
+        assert registry.get("mock_a").connector_id == "mock_a.replacement"
+
+        stale_binding = registry._registered_owner_bindings[id(replacement)]
+        assert registry.unregister("mock_a")
+        assert dict(registry._registered_owner_bindings) == {}
+        registry.register(MockConnectorA)
+        reregistered = registry.get_entry("mock_a")
+        assert reregistered is not replacement
+        assert id(replacement) not in registry._registered_owner_bindings
+        assert registry._registered_owner_bindings[id(reregistered)] is not stale_binding
+        assert (
+            registry._registered_owner_bindings[id(reregistered)].runtime_connector_id == "mock_a"
+        )
+        assert (
+            registry._registered_owner_bindings[id(reregistered)].registration_generation
+            > replacement_binding.registration_generation
+        )
+
+    def test_override_changes_pool_owner_for_normal_and_live_permit_routes(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+        tmp_path: Path,
+    ) -> None:
+        """A new registration gets a new pool while old handles keep their owner."""
+
+        class OriginalRuntimeOwner(MockConnectorA):
+            connector_id: ClassVar[str] = "mock_a"
+            disconnect_calls: ClassVar[int] = 0
+
+            async def disconnect(self, handle: ConnectionHandle) -> None:
+                type(self).disconnect_calls += 1
+
+        class ReplacementRuntimeOwner(OriginalRuntimeOwner):
+            connector_id: ClassVar[str] = "mock_a.replacement"
+            disconnect_calls: ClassVar[int] = 0
+
+        attempt_id = "registration-override"
+        dataset_id = "override-dataset"
+        request = {
+            "connector_id": "mock_a",
+            "profile_id": "mock_a_profile",
+            "request_dataset_id": dataset_id,
+            "variable_id": dataset_id,
+            "schema_contract": {"columns": ["id", "value"]},
+        }
+        schema_contract = request["schema_contract"]
+        source_profile = SourceProfile(
+            profile_id="mock_a_profile",
+            display_name="Mock A",
+            connector_family="mock_a",
+            base_url="https://api.example.com/v1",
+            timeout_seconds=30,
+            rate_limit_rps=2.0,
+            requests_per_hour=120,
+        )
+        family_receipt = {
+            "connector_id": "mock_a",
+            "protocol_conformant": True,
+            "harness_checks_passed": ("core_methods_are_async", "protocol_compliance"),
+            "harness_check_failures": (),
+            "safe_dry_run_passed": True,
+            "simulator_intercepted": True,
+            "network_escape_attempt_count": 0,
+            "dry_run_attempts": (
+                {
+                    "attempt_id": attempt_id,
+                    "profile_id": "mock_a_profile",
+                    "request_dataset_id": dataset_id,
+                    "outcome": "replay_fixture_missing_after_interception",
+                    "transport_intercepted": True,
+                },
+            ),
+        }
+        baseline_sha256 = "sha256:" + "f" * 64
+        authorization = build_live_execution_authorization(
+            attempt_id=attempt_id,
+            connector_id="mock_a",
+            request_dataset_id=dataset_id,
+            request=request,
+            schema_contract=schema_contract,
+            source_profile=source_profile,
+            baseline_sha256=baseline_sha256,
+            family_receipt=family_receipt,
+            max_response_bytes=65_536,
+            max_decompressed_bytes=65_536,
+        )
+        journal = AppendOnlyEvidenceJournal(tmp_path / "registration-override.jsonl")
+        request_ref = journal.append_request(attempt_id=attempt_id, request=request)
+
+        async def exercise() -> None:
+            registry.register(OriginalRuntimeOwner, config=sample_config)
+            original_pool, original_key = await registry._resolve_connection_pool(
+                "mock_a", sample_config
+            )
+            original_handle = await registry.get_connection("mock_a", sample_config)
+            assert original_handle.connector_id == "mock_a"
+            assert original_handle.get_state("__polisyos_connector_pool_key") == original_key
+            assert original_pool._in_use[original_handle.session_id].connector.__class__ is (
+                OriginalRuntimeOwner
+            )
+
+            registry.register(ReplacementRuntimeOwner, config=sample_config, override=True)
+            replacement_pool, replacement_key = await registry._resolve_connection_pool(
+                "mock_a", sample_config
+            )
+            assert replacement_pool is not original_pool
+            assert replacement_key != original_key
+
+            replacement_handle = await registry.get_connection("mock_a", sample_config)
+            with journal.live_acquire_permit_scope(
+                authorization=authorization,
+                request_ref=request_ref,
+                connector_id="mock_a",
+                request_dataset_id=dataset_id,
+                request=request,
+                schema_contract=schema_contract,
+                source_profile=source_profile,
+                baseline_sha256=baseline_sha256,
+                family_receipt=family_receipt,
+                timeout_cap_seconds=15.0,
+                heartbeat_cap_seconds=5.0,
+                max_response_bytes=65_536,
+                max_decompressed_bytes=65_536,
+            ) as permit:
+                live_permit_handle = await registry._get_connection_with_live_permit(
+                    "mock_a",
+                    sample_config,
+                    dataset_id=dataset_id,
+                    permit=permit,
+                )
+            assert replacement_handle.connector_id == "mock_a.replacement"
+            assert live_permit_handle.connector_id == "mock_a.replacement"
+            assert original_pool.get_stats().in_use_connections == 1
+            assert replacement_pool.get_stats().in_use_connections == 2
+            assert original_pool._semaphore._value == original_pool._config.max_size - 1
+            assert replacement_pool._semaphore._value == replacement_pool._config.max_size - 2
+
+            await registry.release_connection("mock_a", original_handle)
+            assert original_pool.get_stats().in_use_connections == 0
+            assert original_pool.get_stats().idle_connections == 1
+            assert replacement_pool.get_stats().in_use_connections == 2
+            assert original_pool._semaphore._value == original_pool._config.max_size
+            assert replacement_pool._semaphore._value == replacement_pool._config.max_size - 2
+
+            await registry.release_connection("mock_a", replacement_handle)
+            await registry.release_connection("mock_a", live_permit_handle)
+            assert replacement_pool.get_stats().in_use_connections == 0
+            assert replacement_pool._semaphore._value == replacement_pool._config.max_size
+
+            await registry.shutdown_async()
+            assert OriginalRuntimeOwner.disconnect_calls == 1
+            assert ReplacementRuntimeOwner.disconnect_calls == 2
+
+        asyncio.run(exercise())
+
+    def test_registered_factory_owner_is_bound_before_lazy_instance_or_pool_use(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """An injected factory cannot replace the selected registered owner."""
+
+        class ForeignFactoryConnector(MockConnectorA):
+            connector_id: ClassVar[str] = "foreign.owner"
+
+            def __init__(self) -> None:
+                self.connect_calls = 0
+
+            async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+                self.connect_calls += 1
+                return await super().connect(config)
+
+        connector = ForeignFactoryConnector()
+        factory_calls = 0
+
+        def factory() -> ForeignFactoryConnector:
+            nonlocal factory_calls
+            factory_calls += 1
+            return connector
+
+        registry.register(MockConnectorA, config=sample_config, factory=factory)
+        entry = registry.get_entry("mock_a")
+        assert factory_calls == 0
+
+        try:
+            with pytest.raises(ConnectorConfigError, match="factory owner"):
+                registry.get("mock_a")
+
+            assert entry.instance is None
+            assert entry.loaded is False
+            assert factory_calls == 1
+            assert connector.connect_calls == 0
+
+            async def check_pool_route() -> None:
+                with pytest.raises(ConnectorConfigError, match="factory owner"):
+                    await registry.get_connection("mock_a", sample_config)
+
+                assert connector.connect_calls == 0
+                assert factory_calls == 2
+                assert all(
+                    pool.get_stats().total_connections == 0
+                    and pool.get_stats().in_use_connections == 0
+                    and pool._semaphore._value == pool._config.max_size
+                    for pool in registry._connection_pools.values()
+                )
+
+            asyncio.run(check_pool_route())
+        finally:
+            asyncio.run(registry.shutdown_async())
+
+    def test_registered_di_factory_remains_the_admitted_factory(
+        self, registry: ConnectorRegistry
+    ) -> None:
+        """The registration-time DI callable remains valid and is cached privately."""
+        connector = MockConnectorA()
+        factory_calls = 0
+
+        def factory() -> MockConnectorA:
+            nonlocal factory_calls
+            factory_calls += 1
+            return connector
+
+        registry.register(MockConnectorA, factory=factory)
+        entry = registry.get_entry("mock_a")
+
+        first = registry.get("mock_a", enable_cache=False)
+        second = registry.get("mock_a", enable_cache=False)
+
+        assert first is connector
+        assert second is connector
+        assert factory_calls == 1
+        binding = registry._registered_owner_bindings[id(entry)]
+        assert binding.instance is connector
+        assert entry.instance is connector
+        assert entry.loaded is True
+
+    def test_connector_entry_preserves_legacy_positional_constructor(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """Registry-owned identity state leaves the entry positional API unchanged."""
+        registry.register(MockConnectorA, config=sample_config)
+        entry = registry.get_entry("mock_a")
+
+        legacy = ConnectorEntry(
+            entry.metadata,
+            entry.capabilities,
+            entry.connector_class,
+            entry.factory,
+            sample_config,
+        )
+
+        assert legacy.default_config is sample_config
+        assert legacy.runtime_connector_id is None
+
+    def test_public_entry_factory_and_class_mutation_cannot_redefine_registration(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """Mutable public entry fields cannot substitute a same-owner producer."""
+
+        class SameOwnerReplacement(MockConnectorA):
+            connect_calls = 0
+
+            async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+                type(self).connect_calls += 1
+                return await super().connect(config)
+
+        replacement = SameOwnerReplacement()
+        replacement_factory_calls = 0
+
+        def replacement_factory() -> SameOwnerReplacement:
+            nonlocal replacement_factory_calls
+            replacement_factory_calls += 1
+            return replacement
+
+        registry.register(MockConnectorA, config=sample_config)
+        entry = registry.get_entry("mock_a")
+        original_factory = entry.factory
+        entry.factory = replacement_factory
+        try:
+            with pytest.raises(ConnectorConfigError, match="factory differs"):
+                registry.get("mock_a")
+
+            async def check_pool_routes() -> None:
+                with pytest.raises(ConnectorConfigError, match="factory differs"):
+                    await registry.get_connection("mock_a", sample_config)
+
+                with pytest.raises(ConnectorConfigError, match="factory differs"):
+                    await registry._get_connection_with_live_permit(
+                        "mock_a",
+                        sample_config,
+                        dataset_id="factory-mutation",
+                        permit=object(),
+                    )
+
+            asyncio.run(check_pool_routes())
+            assert replacement_factory_calls == 0
+            assert SameOwnerReplacement.connect_calls == 0
+            assert entry.instance is None
+            assert entry.loaded is False
+        finally:
+            entry.factory = original_factory
+            asyncio.run(registry.shutdown_async())
+
+    def test_public_entry_class_instance_and_loaded_mutations_fail_closed(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """A mutable entry cannot self-admit its factory, class, or instance."""
+
+        class SameOwnerReplacement(MockConnectorA):
+            connect_calls = 0
+
+            async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+                type(self).connect_calls += 1
+                return await super().connect(config)
+
+        registry.register(MockConnectorA, config=sample_config)
+        entry = registry.get_entry("mock_a")
+        assert registry.get_entry("mock_a") is entry
+        original_class = entry.connector_class
+
+        entry.runtime_connector_id = "mock_b"
+        with pytest.raises(ConnectorConfigError, match="runtime owner differs"):
+            registry.get("mock_a")
+        entry.runtime_connector_id = "mock_a"
+        entry.connector_class = SameOwnerReplacement
+        with pytest.raises(ConnectorConfigError, match="connector class differs"):
+            registry.get("mock_a")
+        entry.connector_class = original_class
+
+        injected = SameOwnerReplacement()
+        entry.instance = injected
+        entry.loaded = True
+        with pytest.raises(ConnectorConfigError, match="admitted instance differs"):
+            registry.get("mock_a")
+        assert injected.connect_calls == 0
+        assert SameOwnerReplacement.connect_calls == 0
+
+        entry.instance = None
+        entry.loaded = True
+        with pytest.raises(ConnectorConfigError, match="loaded state differs"):
+            registry.get("mock_a")
+        assert SameOwnerReplacement.connect_calls == 0
+
+        entry.loaded = False
+        admitted = registry.get("mock_a", enable_cache=False)
+        assert isinstance(admitted, MockConnectorA)
+        entry.instance = injected
+        with pytest.raises(ConnectorConfigError, match="admitted instance differs"):
+            registry.get("mock_a", enable_cache=False)
+        assert injected.connect_calls == 0
+        assert SameOwnerReplacement.connect_calls == 0
+
+    def test_registry_reset_discards_registration_bindings(self) -> None:
+        """Reset clears private registration provenance along with registry entries."""
+        registry = ConnectorRegistry.get_instance(bootstrap=False)
+        registry.register(MockConnectorA)
+        entry = registry.get_entry("mock_a")
+        assert registry._registered_owner_bindings[id(entry)].entry is entry
+
+        ConnectorRegistry.reset_instance()
+
+        assert registry._registered_owner_bindings == {}
+        assert registry._connectors.get(entry.fqid) is None
+
+    def test_selected_runtime_owner_is_snapshotted_before_class_mutation(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """Changing a connector class after registration cannot change its owner."""
+
+        class MutableOwnerConnector(MockConnectorA):
+            connector_id: ClassVar[str] = "mock_a"
+
+        factory_calls = 0
+        connect_calls = 0
+
+        class CountingMutableOwnerConnector(MutableOwnerConnector):
+            connector_id: ClassVar[str] = "mock_a"
+
+            async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+                nonlocal connect_calls
+                connect_calls += 1
+                return await super().connect(config)
+
+        def factory() -> CountingMutableOwnerConnector:
+            nonlocal factory_calls
+            factory_calls += 1
+            return CountingMutableOwnerConnector()
+
+        registry.register(
+            CountingMutableOwnerConnector,
+            config=sample_config,
+            factory=factory,
+        )
+        entry = registry.get_entry("mock_a")
+        assert factory_calls == 0
+
+        original_id = CountingMutableOwnerConnector.connector_id
+        CountingMutableOwnerConnector.connector_id = "foreign.owner"
+        try:
+            with pytest.raises(ConnectorConfigError, match="factory owner"):
+                registry.get("mock_a")
+
+            assert entry.runtime_connector_id == "mock_a"
+            assert entry.instance is None
+            assert entry.loaded is False
+            assert factory_calls == 1
+            assert connect_calls == 0
+
+            async def check_pool_route() -> None:
+                with pytest.raises(ConnectorConfigError, match="factory owner"):
+                    await registry.get_connection("mock_a", sample_config)
+
+                assert factory_calls == 2
+                assert connect_calls == 0
+                assert all(
+                    pool.get_stats().total_connections == 0
+                    and pool.get_stats().in_use_connections == 0
+                    and pool._semaphore._value == pool._config.max_size
+                    for pool in registry._connection_pools.values()
+                )
+
+            asyncio.run(check_pool_route())
+        finally:
+            CountingMutableOwnerConnector.connector_id = original_id
+            asyncio.run(registry.shutdown_async())
+
+    def test_registry_release_uses_exact_handle_owner_after_identity_and_route_mutation(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+        alt_config: ConnectionConfig,
+    ) -> None:
+        """A corrupted handle is retired by its actual pool, regardless of caller labels."""
+
+        async def _run() -> None:
+            registry.register(MockConnectorA, config=sample_config)
+            handle = await registry.get_connection("mock_a")
+            pool = next(iter(registry._connection_pools.values()))
+
+            object.__setattr__(handle, "connector_id", "foreign.connector")
+            object.__setattr__(handle, "session_id", "foreign-session")
+            object.__setattr__(handle, "config", alt_config)
+            handle.set_state("__polisyos_connector_pool_key", ("wrong", "route", 999))
+            admitted_state = handle._state
+            object.__setattr__(handle, "_state", object())
+
+            await registry.release_connection("unregistered.caller", handle)
+
+            assert handle.connector_id == "mock_a"
+            assert handle.session_id != "foreign-session"
+            assert handle.config == sample_config
+            assert handle._state is admitted_state
+            stats = pool.get_stats()
+            assert stats.in_use_connections == 0
+            assert stats.total_closes == 1
+            assert pool._pending_cleanup == {}
+            assert pool._semaphore._value == pool._config.max_size
+
+        asyncio.run(_run())
+
+    def test_registry_release_does_not_accept_a_same_session_clone(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+    ) -> None:
+        """Session ID equality cannot release a different handle object."""
+
+        async def _run() -> None:
+            registry.register(MockConnectorA, config=sample_config)
+            handle = await registry.get_connection("mock_a")
+            pool = next(iter(registry._connection_pools.values()))
+            clone = ConnectionHandle(
+                connector_id=handle.connector_id,
+                config=handle.config,
+                created_at=handle.created_at,
+                session_id=handle.session_id,
+            )
+
+            await registry.release_connection("mock_a", clone)
+            assert pool.get_stats().in_use_connections == 1
+            assert pool._semaphore._value == pool._config.max_size - 1
+
+            await registry.release_connection("mock_a", handle)
+            assert pool.get_stats().in_use_connections == 0
+            assert pool._semaphore._value == pool._config.max_size
+
+        asyncio.run(_run())
+
+    def test_registry_release_tries_all_pool_owners_after_route_mutation(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+        alt_config: ConnectionConfig,
+    ) -> None:
+        """A wrong but well-shaped pool route only changes lookup order."""
+
+        async def _run() -> None:
+            registry.register(MockConnectorA, config=sample_config)
+            first = await registry.get_connection("mock_a", config=sample_config)
+            first_key = first.get_state("__polisyos_connector_pool_key")
+            second = await registry.get_connection("mock_a", config=alt_config)
+            second_key = second.get_state("__polisyos_connector_pool_key")
+            pools = dict(registry._connection_pools.items())
+            first_pool = pools[first_key]
+            second_pool = pools[second_key]
+            first.set_state("__polisyos_connector_pool_key", second_key)
+
+            await registry.release_connection("mock_a", first)
+            assert first_pool.get_stats().in_use_connections == 0
+            assert second_pool.get_stats().in_use_connections == 1
+
+            await registry.release_connection("mock_a", second)
+            assert second_pool.get_stats().in_use_connections == 0
+
+        asyncio.run(_run())
+
+    @pytest.mark.parametrize("mutate_route", [False, True])
+    def test_registry_release_routes_to_owner_loop_with_or_without_pool_tag(
+        self,
+        registry: ConnectorRegistry,
+        sample_config: ConnectionConfig,
+        mutate_route: bool,
+    ) -> None:
+        """Exact lease ownership remains releasable from another live event loop."""
+        registry.register(MockConnectorA, config=sample_config)
+        acquired = threading.Event()
+        allow_owner_loop_exit = threading.Event()
+        handles: list[ConnectionHandle] = []
+        errors: list[BaseException] = []
+
+        def _owner_worker() -> None:
+            async def _run_owner_loop() -> None:
+                handle = await registry.get_connection("mock_a")
+                handles.append(handle)
+                acquired.set()
+                await asyncio.to_thread(allow_owner_loop_exit.wait)
+
+            try:
+                asyncio.run(_run_owner_loop())
+            except BaseException as exc:  # pragma: no cover - asserted below.
+                errors.append(exc)
+
+        owner = threading.Thread(target=_owner_worker)
+        owner.start()
+        released = threading.Event()
+        releaser: threading.Thread | None = None
+        try:
+            assert acquired.wait(timeout=5)
+            handle = handles[0]
+            pool = next(iter(registry._connection_pools.values()))
+            if mutate_route:
+                handle.pop_state("__polisyos_connector_pool_key")
+
+            def _release_worker() -> None:
+                async def _run_release_loop() -> None:
+                    await registry.release_connection("mock_a", handle)
+
+                try:
+                    asyncio.run(_run_release_loop())
+                except BaseException as exc:  # pragma: no cover - asserted below.
+                    errors.append(exc)
+                finally:
+                    released.set()
+
+            releaser = threading.Thread(target=_release_worker)
+            releaser.start()
+            assert released.wait(timeout=5)
+            assert pool.get_stats().in_use_connections == 0
+            assert pool.get_stats().total_releases == 1
+        finally:
+            allow_owner_loop_exit.set()
+            if releaser is not None:
+                releaser.join(timeout=5)
+            owner.join(timeout=5)
+
+        assert not owner.is_alive()
+        assert releaser is None or not releaser.is_alive()
+        assert errors == []

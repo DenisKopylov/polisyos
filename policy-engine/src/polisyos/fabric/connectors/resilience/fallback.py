@@ -20,7 +20,12 @@ from opentelemetry.trace import Status, StatusCode, Tracer
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
-from polisyos.fabric.connectors.base import FetchResult, ResilienceInfo
+from polisyos.fabric.connectors.base import (
+    ConnectionHandle,
+    FetchRequest,
+    FetchResult,
+    ResilienceInfo,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -42,21 +47,52 @@ def _utc_now() -> datetime:
     return datetime.now(UTC)
 
 
-def _extract_request(args: tuple[Any, ...], kwargs: dict[str, Any]) -> Any | None:
-    if "request" in kwargs:
-        return kwargs["request"]
-    for arg in args:
-        if hasattr(arg, "cache_key") and hasattr(arg, "dataset_id"):
-            return arg
-    return None
+def _extract_request(args: tuple[Any, ...], kwargs: dict[str, Any]) -> FetchRequest | None:
+    request = kwargs.get("request")
+    if isinstance(request, FetchRequest):
+        return request
+    return next((arg for arg in args if isinstance(arg, FetchRequest)), None)
 
 
-def _extract_handle(args: tuple[Any, ...], kwargs: dict[str, Any]) -> Any | None:
-    if "handle" in kwargs:
-        return kwargs["handle"]
-    for arg in args:
-        if hasattr(arg, "connector_id") and hasattr(arg, "config"):
-            return arg
+def _extract_handle(args: tuple[Any, ...], kwargs: dict[str, Any]) -> ConnectionHandle | None:
+    handle = kwargs.get("handle")
+    if isinstance(handle, ConnectionHandle):
+        return handle
+    return next((arg for arg in args if isinstance(arg, ConnectionHandle)), None)
+
+
+def _callable_chain_contains(candidate: object, target: object) -> bool:
+    pending = [candidate]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        if current is target:
+            return True
+        identity = id(current)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        if isinstance(current, (classmethod, staticmethod)):
+            pending.append(current.__func__)
+            continue
+        wrapped = getattr(current, "__wrapped__", None)
+        if wrapped is not None:
+            pending.append(wrapped)
+    return False
+
+
+def _callable_owner(func: Callable[..., Awaitable[Any]], args: tuple[Any, ...]) -> object | None:
+    bound_owner = getattr(func, "__self__", None)
+    if bound_owner is not None:
+        return bound_owner
+    if not args:
+        return None
+    candidate = args[0]
+    for owner_type in type(candidate).__mro__:
+        if any(
+            _callable_chain_contains(descriptor, func) for descriptor in vars(owner_type).values()
+        ):
+            return candidate
     return None
 
 
@@ -208,22 +244,46 @@ class CacheFallback[DataT]:
 
         request = _extract_request(args, kwargs)
         if request is None:
-            logger.debug("Cache fallback: No request found in args")
+            logger.debug("Cache fallback: No typed fetch request found in args")
             return None
 
         handle = _extract_handle(args, kwargs)
-        connector_id = getattr(handle, "connector_id", None) if handle else None
+        owner = _callable_owner(func, args)
+        if handle is None or owner is None:
+            logger.debug("Cache fallback: No source owner bound to the primary callable")
+            return None
+        connector_id = getattr(owner, "connector_id", None)
+        if not isinstance(connector_id, str) or not connector_id:
+            logger.debug("Cache fallback: Primary callable owner has no connector identity")
+            return None
+        from polisyos.fabric.connectors.cache import capture_cache_source_intent
+
+        try:
+            selected_intent = capture_cache_source_intent(
+                handle,
+                request,
+                expected_connector_id=connector_id,
+            )
+        except (TypeError, ValueError):
+            logger.debug("Cache fallback: Handle is not admitted for the primary owner")
+            return None
+        source_config = handle.config
 
         cached = None
         try:
             if hasattr(self.cache_store, "get_any"):
                 cached = self.cache_store.get_any(
                     request,
-                    connector_id=connector_id,
+                    connector_id=selected_intent.connector_id,
                     max_staleness_seconds=self.max_staleness_seconds,
+                    source_config=source_config,
                 )
             elif hasattr(self.cache_store, "get"):
-                cached = self.cache_store.get(request, connector_id=connector_id)
+                cached = self.cache_store.get(
+                    request,
+                    connector_id=selected_intent.connector_id,
+                    source_config=source_config,
+                )
         except Exception as cache_error:
             logger.warning(
                 "Cache fallback failed",

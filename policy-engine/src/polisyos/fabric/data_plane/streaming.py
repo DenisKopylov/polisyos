@@ -476,6 +476,11 @@ class StreamingSourceSession:
         registry: ConnectorRegistry | None = None,
         registry_provider: ConnectorRegistryProvider | None = None,
     ) -> StreamingSourceSession:
+        from polisyos.fabric.connectors.registry_core_parts import (
+            create_selected_connector,
+            selected_connector_owner_id,
+        )
+
         resolved_registry = _resolve_connector_registry(
             registry=registry,
             registry_provider=registry_provider,
@@ -484,11 +489,15 @@ class StreamingSourceSession:
         config = normalize_connection_config(connection_config) or entry.default_config
         if config is None:
             raise ValueError(f"No connection config available for {connector_id!r}")
+        selected_owner_id = selected_connector_owner_id(resolved_registry, entry)
         pool = ConnectionPool(
-            connector_factory=entry.factory,
+            connector_factory=lambda: create_selected_connector(
+                resolved_registry, entry, selected_owner_id
+            ),
             config=config,
             pool_config=PoolConfig(max_size=max(1, int(config.max_connections or 1))),
             pool_id=f"stream-{connector_id}-{dataset_id}",
+            expected_connector_id=selected_owner_id,
         )
         session = cls(
             connector_id=connector_id,

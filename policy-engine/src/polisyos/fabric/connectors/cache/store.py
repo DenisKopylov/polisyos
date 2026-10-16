@@ -20,7 +20,7 @@ Implementation is split across private sub-modules for maintainability:
 - ``_store_core``           -- main ConnectorCacheStore class
 """
 
-from ._store_core import ConnectorCacheStore
+from ._store_core import ConnectorCacheStore, verify_selected_cache_payload_ref
 from ._store_index import CacheIndex
 from ._store_models import (
     CACHE_METADATA_KIND,
@@ -32,7 +32,9 @@ from ._store_models import (
     CacheEntry,
     CacheFetchReceipt,
     CacheMetadata,
+    CacheSourceIntent,
     CacheStats,
+    capture_cache_source_intent,
 )
 from ._store_serialization import ResultSerializer
 
@@ -46,8 +48,11 @@ __all__ = [
     "CacheFetchReceipt",
     "CacheIndex",
     "CacheMetadata",
+    "CacheSourceIntent",
     "CacheStats",
     "CachedFetchResult",
     "ConnectorCacheStore",
     "ResultSerializer",
+    "capture_cache_source_intent",
+    "verify_selected_cache_payload_ref",
 ]

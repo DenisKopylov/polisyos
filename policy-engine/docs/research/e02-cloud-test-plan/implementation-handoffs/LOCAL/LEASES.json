@@ -2444,5 +2444,40 @@
       "sha256": "649cd297998dbc796afc5cebebfe5c40120c33a54b2d1f2591b4538a4d61c1a3"
     },
     "outcome": "14 PASS /0FAIL/0ERROR/0SKIP in full2affectedunitmodules; strict3sourceMyPyPASS; rootRuffcheck+format5PASS; 1114 own source origins with zero outside/missing/wrong. No fullnative/C7/global/sourcefreeze claim."
+  },
+  "coordination_epoch_20261016_fabric_r8_central_get_finalization": {
+    "root_writer": true,
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-application-20261016/application-readback.json",
+      "sha256": "fd71cde169813fd53f2333f2fe817c18702b12c2ac60eb93b8d2ea98c96c6ee8"
+    },
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-r8-central-finalization-review-20261016/assessment.json",
+      "sha256": "87d15f00c4812f160f55349fd6f015fa455edd9062931a8542a5cca654700a77"
+    },
+    "quantity": "Full28 selected source/test paths from original30d slice plus2 mandatoryREADME/release; R6→R8actual3pathpatch, existingR6live24sourcechanges retained. One successful publicget return finalizes all wrapping/fallbacks; cache/contract wrappers generation scoped.",
+    "P40": "Same registration-origin class; R6 stale wrappers and R7 fallback escape are historical, R8 widens central emission, not another leaf check.",
+    "limits": "Previously issued handles/active old pool leases keep exact cleanup ownership; no immediate retirement claim. PreparedB13/native/installed/global replay pending.",
+    "source_freeze": false,
+    "formal_G_closure_ids": []
+  },
+  "coordination_epoch_20261016_fabric_r8_explicit_optional_binding": {
+    "root_writer": true,
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-explicit-optional-binding-20261016/manifest.json",
+      "sha256": "d540ec2042f2b26dbbfd01106ccac6a14c45e8acf51c0294901d2cd2c45993ca"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-r8-explicit-none-review-20261016/assessment.json",
+      "sha256": "75d3b3ff43417f10f6c548a4a02462aa10da0cd9084017aee9edfbd3e72a5460"
+    },
+    "property": "Explicit current-is-None branch narrows optional private binding without changing valid generation/owner admission.",
+    "runtime_red": "none: pre-companion342PASS; actualBased18oneOptionalMemberAccesserror required this static-narrowing companion.",
+    "source_freeze": false,
+    "post_companion_actual_replay": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/actual-results.json",
+      "sha256": "02f171508c59bc6dc6061d06ed7ae4f2222fde297b104eb0e9baa004339df1ef",
+      "outcome": "342PASS/0FAIL/0ERROR/0SKIP in full11affectedtestmodules; Based18zero errors161warnings; canonicalRuffcheck+format29PASS;1739ownsourceorigins0outside/missing/wrong. FullPreparedB13/native/installed/E02composedUNRUN."
+    }
   }
 }

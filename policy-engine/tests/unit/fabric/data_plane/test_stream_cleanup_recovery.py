@@ -8,7 +8,7 @@ import json
 import threading
 from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import pytest
 
@@ -24,7 +24,7 @@ from polisyos.fabric.connectors.base import (
     SourceConnectorValue,
 )
 from polisyos.fabric.connectors.pool import ConnectionPool, PoolConfig
-from polisyos.fabric.connectors.registry import ConnectorRegistry
+from polisyos.fabric.connectors.registry import ConnectorConfigError, ConnectorRegistry
 from polisyos.fabric.connectors.sources.event_stream import EventStreamConnector
 from polisyos.fabric.connectors.types import DataChunk
 from polisyos.fabric.data_plane.cursor_store import CursorStore, CursorStoreError
@@ -114,6 +114,147 @@ class _DisconnectOnceEventStream(EventStreamConnector):
         self.stream_reads += 1
         async for chunk in super().fetch_stream(handle, request):
             yield chunk
+
+
+@pytest.mark.asyncio
+async def test_stream_pool_factory_must_match_selected_registry_owner(tmp_path: Path) -> None:
+    """Streaming uses the selected class owner when admitting a factory result."""
+
+    class ForeignOwnerEventStream(EventStreamConnector):
+        connector_id = "foreign.stream"
+
+        def __init__(self) -> None:
+            self.connect_handles: list[ConnectionHandle] = []
+
+        async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+            handle = await super().connect(config)
+            self.connect_handles.append(handle)
+            return handle
+
+    source_path = tmp_path / "foreign-owner.jsonl"
+    source_path.write_text('{"_message_id":"event-a","value":1}\n', encoding="utf-8")
+    config = ConnectionConfig(url=source_path.as_uri(), max_connections=1)
+    connector = ForeignOwnerEventStream()
+    registry = ConnectorRegistry()
+    registry.register(EventStreamConnector, config=config, factory=lambda: connector)
+    session: StreamingSourceSession | None = None
+
+    try:
+        with pytest.raises(ConnectorConfigError, match="factory owner"):
+            session = await StreamingSourceSession.create(
+                connector_id="stream.jsonl",
+                dataset_id="foreign-factory-owner",
+                connection_config=config,
+                registry=registry,
+            )
+
+        assert connector.connect_handles == []
+        assert registry._stream_owner_leases == {}
+        assert registry._pending_startup_cleanup == {}
+    finally:
+        if session is not None and not session.pool.is_closed:
+            await session.close()
+        await registry.shutdown_async()
+
+
+@pytest.mark.asyncio
+async def test_stream_rejects_public_factory_replacement_before_pool_admission(
+    tmp_path: Path,
+) -> None:
+    """Streaming resolves its factory from the immutable registration origin."""
+
+    source_path = tmp_path / "factory-replaced.jsonl"
+    source_path.write_text('{"_message_id":"event-a","value":1}\n', encoding="utf-8")
+    config = ConnectionConfig(url=source_path.as_uri(), max_connections=1)
+    registry = ConnectorRegistry()
+    registry.register(EventStreamConnector, config=config)
+    entry = registry.get_entry("stream.jsonl")
+    connect_calls = 0
+    factory_calls = 0
+
+    class SameOwnerReplacement(EventStreamConnector):
+        async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+            nonlocal connect_calls
+            connect_calls += 1
+            return await super().connect(config)
+
+    replacement = SameOwnerReplacement()
+
+    def replacement_factory() -> SameOwnerReplacement:
+        nonlocal factory_calls
+        factory_calls += 1
+        return replacement
+
+    original_factory = entry.factory
+    entry.factory = replacement_factory
+    try:
+        with pytest.raises(ConnectorConfigError, match="factory differs"):
+            await StreamingSourceSession.create(
+                connector_id="stream.jsonl",
+                dataset_id="factory-replaced",
+                connection_config=config,
+                registry=registry,
+            )
+
+        assert factory_calls == 0
+        assert connect_calls == 0
+        assert registry._stream_owner_leases == {}
+        assert registry._pending_startup_cleanup == {}
+    finally:
+        entry.factory = original_factory
+        await registry.shutdown_async()
+
+
+@pytest.mark.asyncio
+async def test_stream_uses_registration_time_runtime_owner_snapshot(tmp_path: Path) -> None:
+    """A class owner mutation after registration cannot reroute stream admission."""
+
+    class MutableOwnerEventStream(EventStreamConnector):
+        connector_id: ClassVar[str] = "stream.jsonl"
+
+        def __init__(self) -> None:
+            self.connect_handles: list[ConnectionHandle] = []
+
+        async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+            handle = await super().connect(config)
+            self.connect_handles.append(handle)
+            return handle
+
+    source_path = tmp_path / "mutated-owner.jsonl"
+    source_path.write_text('{"_message_id":"event-a","value":1}\n', encoding="utf-8")
+    config = ConnectionConfig(url=source_path.as_uri(), max_connections=1)
+    connector = MutableOwnerEventStream()
+    factory_calls = 0
+
+    def factory() -> MutableOwnerEventStream:
+        nonlocal factory_calls
+        factory_calls += 1
+        return connector
+
+    registry = ConnectorRegistry()
+    registry.register(MutableOwnerEventStream, config=config, factory=factory)
+    entry = registry.get_entry("stream.jsonl")
+    assert factory_calls == 0
+
+    original_id = MutableOwnerEventStream.connector_id
+    MutableOwnerEventStream.connector_id = "foreign.stream"
+    try:
+        with pytest.raises(ConnectorConfigError, match="factory owner"):
+            await StreamingSourceSession.create(
+                connector_id="stream.jsonl",
+                dataset_id="mutated-selected-owner",
+                connection_config=config,
+                registry=registry,
+            )
+
+        assert entry.runtime_connector_id == "stream.jsonl"
+        assert factory_calls == 1
+        assert connector.connect_handles == []
+        assert registry._stream_owner_leases == {}
+        assert registry._pending_startup_cleanup == {}
+    finally:
+        MutableOwnerEventStream.connector_id = original_id
+        await registry.shutdown_async()
 
 
 class _GatedStreamStartup(_DisconnectOnceEventStream):

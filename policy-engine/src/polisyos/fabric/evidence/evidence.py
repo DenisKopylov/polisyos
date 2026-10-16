@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from polisyos.core.artifacts import ArtifactStore
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -62,7 +63,7 @@ def build_evidence_bundle(
 
 
 def persist_provenance_graph(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     graph: ProvenanceCoreGraph,
     *,
     schema_name: str = "fabric.provenance_graph",
@@ -125,7 +126,7 @@ def load_provenance_graph(
 
 
 def persist_evidence_bundle(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     bundle: EvidenceBundle,
     *,
     return_selected_profile: bool = False,

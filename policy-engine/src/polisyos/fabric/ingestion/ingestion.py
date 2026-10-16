@@ -62,8 +62,8 @@ from polisyos.ir.connectors import FetchRequest, FetchResult
 if TYPE_CHECKING:
     from collections.abc import Mapping
 
+    from polisyos.core.artifacts import RootedArtifactStore
     from polisyos.core.artifacts.manifest import ArtifactRef
-    from polisyos.core.artifacts.store import FileSystemCAS, RootedArtifactStore
     from polisyos.core.contracts.fabric import EvidenceBundleRef
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors import RawHTTPResponseObserver
@@ -406,7 +406,7 @@ def _pipeline_supports_row_isolation(pipeline: Any) -> bool:
 
 def _persist_quarantine_entry(
     *,
-    cas_store: FileSystemCAS | None,
+    cas_store: RootedArtifactStore | None,
     source: str,
     reason: str,
     severity: str,
@@ -438,7 +438,9 @@ def _persist_quarantine_entry(
     return str(ref.artifact_id)
 
 
-def _rows_from_payload(payload: Any) -> tuple[list[Any] | None, str | None, list[str] | None]:
+def _rows_from_payload(
+    payload: Any,
+) -> tuple[list[Any] | None, str | None, list[str] | None]:
     if _is_dataframe_like(payload):
         rows = cast("Any", payload).to_dict(orient="records")
         columns = [str(col) for col in cast("Any", payload).columns]
@@ -474,7 +476,7 @@ def _sanitize_fetch_result(
     *,
     connector_id: str,
     dataset_id: str,
-    cas_store: FileSystemCAS | None = None,
+    cas_store: RootedArtifactStore | None = None,
 ) -> tuple[FetchResult[Any], list[str], int]:
     rows, payload_kind, columns = _rows_from_payload(result.data)
     if rows is None or payload_kind is None:
@@ -557,7 +559,7 @@ def _apply_transform_pipeline(
     *,
     connector_id: str,
     dataset_id: str,
-    cas_store: FileSystemCAS | None = None,
+    cas_store: RootedArtifactStore | None = None,
 ) -> tuple[FetchResult[Any], ProvenanceCoreGraph | None, list[str], int]:
     if pipeline is None:
         return result, None, [], 0
@@ -728,14 +730,22 @@ def _sync_fetch_with_receipt(
     request: FetchRequest,
     *,
     connection_config: Any | None = None,
+    cas_store: RootedArtifactStore | None = None,
     raw_http_response_observer: RawHTTPResponseObserver | None = None,
     _live_acquire_permit: object | None = None,
 ) -> tuple[FetchResult[Any], CacheFetchReceipt]:
     """Fetch through the registry's cache proxy and retain its actual write receipt."""
-    from polisyos.fabric.connectors.cache import CacheFetchReceipt, CachingConnectorProxy
+    from polisyos.fabric.connectors.cache import (
+        CacheFetchReceipt,
+        CachingConnectorProxy,
+        capture_cache_source_intent,
+        verify_selected_cache_payload_ref,
+    )
 
     if not isinstance(connector, CachingConnectorProxy):
         raise TypeError("connector_cache_receipt_requires_caching_proxy")
+    if connector.connector_id != connector_id:
+        raise ValueError("connector_cache_fetch_receipt_owner_mismatch")
 
     async def _do_fetch() -> tuple[FetchResult[Any], CacheFetchReceipt]:
         config = connection_config
@@ -755,6 +765,11 @@ def _sync_fetch_with_receipt(
             )
         remove_observer: Callable[[Any], None] | None = None
         try:
+            selected_intent = capture_cache_source_intent(
+                handle,
+                request,
+                expected_connector_id=connector_id,
+            )
             if raw_http_response_observer is not None:
                 from polisyos.fabric.connectors.sources.http_base import (
                     _install_raw_http_response_observer,
@@ -772,19 +787,35 @@ def _sync_fetch_with_receipt(
                 raise TypeError("connector_cache_fetch_receipt_invalid")
             if receipt.lookup_outcome not in {"hit", "miss"}:
                 raise ValueError("connector_cache_fetch_receipt_outcome_invalid")
+            if receipt.selected_intent != selected_intent:
+                raise ValueError("connector_cache_fetch_receipt_owner_mismatch")
             if receipt.lookup_outcome == "hit" and receipt.cache_result is None:
                 raise ValueError("connector_cache_hit_receipt_missing_payload")
             if receipt.cache_result is not None:
+                if cas_store is None:
+                    raise ValueError("connector_cache_receipt_store_unavailable")
                 metadata = receipt.cache_result.metadata
+                expected_source_scope = handle.config.cache_scope_fingerprint
+                payload_ref = receipt.payload_ref
                 if (
                     receipt.cache_result.result is not receipt.result
-                    or metadata.cache_key != request.cache_key
+                    or metadata.request_key != request.request_key
+                    or metadata.source_scope_fingerprint != expected_source_scope
                     or metadata.dataset_id != request.dataset_id
                     or metadata.connector_id != connector.connector_id
                 ):
                     raise ValueError("connector_cache_fetch_receipt_owner_mismatch")
-                if metadata.payload_ref.manifest_profile_sha256 is None:
-                    raise ValueError("connector_cache_fetch_receipt_profile_unavailable")
+                if payload_ref is None or payload_ref != metadata.payload_ref:
+                    raise ValueError("connector_cache_fetch_receipt_ref_binding_mismatch")
+                if cas_store is None or not verify_selected_cache_payload_ref(
+                    cas_store,
+                    payload_ref,
+                    connector_id=connector.connector_id,
+                    request=request,
+                    source_config=handle.config,
+                    result=receipt.result,
+                ):
+                    raise ValueError("connector_cache_fetch_receipt_payload_binding_invalid")
             return receipt.result, receipt
         finally:
             try:
@@ -797,14 +828,14 @@ def _sync_fetch_with_receipt(
 
 
 def _cache_payload_ref_matches_result(
-    cas_store: RootedArtifactStore,
+    cas_store: RootedArtifactStore | None,
     payload_ref: ArtifactRef,
     result: FetchResult[Any],
 ) -> bool:
     """Check whether a selected cache payload stores this exact serialized result."""
     from polisyos.fabric.connectors.cache.store import ResultSerializer
 
-    if not _cache_payload_ref_is_verified(cas_store, payload_ref):
+    if cas_store is None or not _cache_payload_ref_is_verified(cas_store, payload_ref):
         return False
     result_bytes, media_type = ResultSerializer.serialize(result)
     if payload_ref.media_type != media_type:
@@ -813,12 +844,14 @@ def _cache_payload_ref_matches_result(
 
 
 def _cache_payload_ref_is_verified(
-    cas_store: RootedArtifactStore,
+    cas_store: RootedArtifactStore | None,
     payload_ref: ArtifactRef,
 ) -> bool:
     """Require the selected cache view to resolve as an intact CAS artifact."""
     from polisyos.fabric.connectors.cache.store import CACHE_PAYLOAD_KIND
 
+    if cas_store is None:
+        return False
     if payload_ref.kind != CACHE_PAYLOAD_KIND or payload_ref.manifest_profile_sha256 is None:
         return False
     return cas_store.verify(payload_ref).ok
@@ -1067,6 +1100,17 @@ def run_connectors_ingestion(
             )
 
             connector = resolved_dependencies.registry.get(connector_id)
+            from polisyos.fabric.connectors.base import ConnectionConfig
+
+            selected_connection_config = connection_config
+            if selected_connection_config is None:
+                registry_entry = resolved_dependencies.registry.get_entry(connector_id)
+                selected_connection_config = registry_entry.default_config
+                if selected_connection_config is None:
+                    raise ValueError(f"No default_config registered for connector '{connector_id}'")
+            if not isinstance(selected_connection_config, ConnectionConfig):
+                raise TypeError("connector_ingestion_selected_connection_config_invalid")
+
             filter_tuple = tuple((k, tuple(v)) for k, v in sorted(filters.items()))
             request = FetchRequest(
                 dataset_id=dataset_id,
@@ -1086,7 +1130,8 @@ def run_connectors_ingestion(
                     connector_id,
                     connector,
                     request,
-                    connection_config=connection_config,
+                    connection_config=selected_connection_config,
+                    cas_store=cas_store,
                     raw_http_response_observer=raw_http_response_observer,
                     _live_acquire_permit=_live_acquire_permit,
                 )
@@ -1096,7 +1141,7 @@ def run_connectors_ingestion(
                     connector_id,
                     connector,
                     request,
-                    connection_config=connection_config,
+                    connection_config=selected_connection_config,
                     raw_http_response_observer=raw_http_response_observer,
                     _live_acquire_permit=_live_acquire_permit,
                 )
@@ -1184,6 +1229,7 @@ def run_connectors_ingestion(
                         request,
                         result,
                         connector_id=connector_id,
+                        source_config=selected_connection_config,
                         classification=getattr(
                             connector_metadata,
                             "data_classification",
@@ -1238,7 +1284,10 @@ def run_connectors_ingestion(
                                 f"connector.transform:{connector_id}:{dataset_id}",
                                 transform_quarantined,
                             ),
-                            (f"connector.fetch:{connector_id}:{dataset_id}", fetch_quarantined),
+                            (
+                                f"connector.fetch:{connector_id}:{dataset_id}",
+                                fetch_quarantined,
+                            ),
                         )
                         if count > 0
                     ),

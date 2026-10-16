@@ -12,13 +12,18 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.core.canon.canon_json import CanonSpec
-from polisyos.fabric.connectors.base import FetchRequest, FetchResult
+from polisyos.fabric.connectors.base import (
+    ConnectionConfig,
+    ConnectionHandle,
+    FetchRequest,
+    FetchResult,
+)
 from polisyos.ir.connectors import DataVersion, QualityTier
 
 __all__ = [
@@ -30,6 +35,7 @@ __all__ = [
     "CacheEntry",
     "CacheFetchReceipt",
     "CacheMetadata",
+    "CacheSourceIntent",
     "CacheStats",
     "CachedFetchResult",
     "_canon_spec_allow_floats",
@@ -39,6 +45,7 @@ __all__ = [
     "_ts_to_dt",
     "_utc_now",
     "canon_spec_allow_floats",
+    "capture_cache_source_intent",
     "dt_to_ts",
     "payload_to_request",
     "request_to_payload",
@@ -54,7 +61,58 @@ CACHE_SCHEMA_NAME = "fabric.connector_cache"
 CACHE_SCHEMA_VERSION = "1.0"
 
 # SQLite schema version
-INDEX_SCHEMA_VERSION = 2
+INDEX_SCHEMA_VERSION = 3
+
+_SOURCE_INTENT_KIND = "fabric.connector_cache.selected_source_intent"
+_SOURCE_INTENT_ROLE = "fabric.connector_cache.selected_source_intent"
+_SOURCE_INTENT_SCHEMA = "fabric.connector_cache.selected_source_intent"
+_SOURCE_INTENT_VERSION = "1.0"
+_SOURCE_INTENT_CONTRACT = "fabric.connector_cache.selected_source_intent.v1"
+
+
+class CacheSourceIntent(BaseModel):
+    """Bind one selected cache payload to its immutable source/request intent."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(frozen=True, extra="forbid", strict=True)
+
+    contract: Literal["fabric.connector_cache.selected_source_intent.v1"]
+    connector_id: str = Field(min_length=1)
+    dataset_id: str = Field(min_length=1)
+    request_key: str = Field(min_length=1)
+    source_scope_fingerprint: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+def capture_cache_source_intent(
+    handle: ConnectionHandle,
+    request: FetchRequest,
+    *,
+    expected_connector_id: str,
+) -> CacheSourceIntent:
+    """Capture the exact owner, request, and effective config selected for a fetch.
+
+    The result is a frozen in-memory snapshot of already typed request and handle
+    inputs. It contains only the effective configuration digest, never credentials
+    or raw endpoint settings.
+    """
+    if not isinstance(handle, ConnectionHandle):
+        raise TypeError("selected_source_cache_requires_connection_handle")
+    if not isinstance(request, FetchRequest):
+        raise TypeError("selected_source_cache_requires_fetch_request")
+    if not isinstance(handle.config, ConnectionConfig):
+        raise TypeError("selected_source_cache_requires_connection_config")
+    if (
+        not isinstance(expected_connector_id, str)
+        or not expected_connector_id
+        or handle.connector_id != expected_connector_id
+    ):
+        raise ValueError("connector_cache_handle_owner_mismatch")
+    return CacheSourceIntent(
+        contract=_SOURCE_INTENT_CONTRACT,
+        connector_id=expected_connector_id,
+        dataset_id=request.dataset_id,
+        request_key=request.request_key,
+        source_scope_fingerprint=handle.config.cache_scope_fingerprint,
+    )
 
 
 # ── Helpers ─────────────────────────────────────────────────────────────────
@@ -162,6 +220,11 @@ class CacheMetadata(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     cache_key: str
+    request_key: str | None = None
+    source_scope_fingerprint: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     cached_at: datetime
     expires_at: datetime | None
     policy_id: str
@@ -213,6 +276,10 @@ class CacheEntry(BaseModel):
 
     cache_key: str
     request_key: str
+    source_scope_fingerprint: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     query_key: str
 
     connector_id: str | None
@@ -266,6 +333,8 @@ class CacheEntry(BaseModel):
     def to_metadata(self) -> CacheMetadata:
         return CacheMetadata(
             cache_key=self.cache_key,
+            request_key=self.request_key,
+            source_scope_fingerprint=self.source_scope_fingerprint,
             cached_at=self.cached_at,
             expires_at=self.expires_at,
             policy_id=self.policy_id,
@@ -301,6 +370,7 @@ class CacheFetchReceipt:
     result: FetchResult[Any]
     lookup_outcome: Literal["hit", "miss"]
     cache_result: CachedFetchResult | None
+    selected_intent: CacheSourceIntent | None = None
 
     @property
     def payload_ref(self) -> ArtifactRef | None:

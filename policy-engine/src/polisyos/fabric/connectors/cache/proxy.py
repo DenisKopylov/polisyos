@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
 from polisyos.fabric.connectors._async_iterators import resolve_async_iterator
+from polisyos.fabric.connectors.base import ConnectionHandle
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable
@@ -16,7 +17,6 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.base import (
         AsyncFetchLease,
         ConnectionConfig,
-        ConnectionHandle,
         DatasetCapabilitySnapshot,
         DatasetDescriptor,
         FetchRequest,
@@ -33,7 +33,11 @@ if TYPE_CHECKING:
 
     from .store import ConnectorCacheStore
 
-from ._store_models import CachedFetchResult, CacheFetchReceipt
+from ._store_models import (
+    CachedFetchResult,
+    CacheFetchReceipt,
+    capture_cache_source_intent,
+)
 
 logger = get_logger(__name__)
 
@@ -173,15 +177,22 @@ class CachingConnectorProxy[DataT]:
         require_selected_profile: bool,
     ) -> CacheFetchReceipt:
         start_time = time.perf_counter()
-
+        selected_intent = capture_cache_source_intent(
+            handle,
+            request,
+            expected_connector_id=self.connector_id,
+        )
+        connector_id = selected_intent.connector_id
+        source_config = handle.config
         cached = self._cache.get(
             request,
-            connector_id=self.connector_id,
+            connector_id=connector_id,
             require_selected_profile=require_selected_profile,
+            source_config=source_config,
         )
         if (
             cached is not None
-            and require_selected_profile
+            and (require_selected_profile or source_config is not None)
             and cached.metadata.payload_ref.manifest_profile_sha256 is None
         ):
             cached = None
@@ -194,13 +205,14 @@ class CachingConnectorProxy[DataT]:
                 cache_key=request.cache_key[:16],
                 dataset_id=request.dataset_id,
                 latency_ms=latency_ms,
-                connector_id=self.connector_id,
+                connector_id=connector_id,
             )
             self._record_metrics("hit", latency_ms / 1000)
             return CacheFetchReceipt(
                 result=cached.result,
                 lookup_outcome="hit",
                 cache_result=cached,
+                selected_intent=selected_intent,
             )
 
         self._misses += 1
@@ -208,7 +220,7 @@ class CachingConnectorProxy[DataT]:
             "Cache MISS",
             cache_key=request.cache_key[:16],
             dataset_id=request.dataset_id,
-            connector_id=self.connector_id,
+            connector_id=connector_id,
         )
         fetch_start = time.perf_counter()
         result = await self._connector.fetch(handle, request)
@@ -227,7 +239,8 @@ class CachingConnectorProxy[DataT]:
             metadata = self._cache.put(
                 request,
                 result,
-                connector_id=self.connector_id,
+                connector_id=connector_id,
+                source_config=source_config,
                 schema_hash=schema_hash,
                 classification=getattr(connector_metadata, "data_classification", None),
                 column_classification=getattr(connector_metadata, "column_classification", None),
@@ -253,6 +266,7 @@ class CachingConnectorProxy[DataT]:
             result=result,
             lookup_outcome="miss",
             cache_result=cache_result,
+            selected_intent=selected_intent,
         )
 
     @property

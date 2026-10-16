@@ -50,9 +50,10 @@ def _default_metrics() -> MetricsRegistry:
 
 @runtime_checkable
 class IndexedArtifactStore(Protocol):
-    """Artifact store protocol that also exposes a mutable local root path."""
+    """Artifact store protocol with read access to its local root path."""
 
-    root: Path
+    @property
+    def root(self) -> Path: ...
 
     def has(self, artifact_id: ArtifactID) -> bool: ...
 

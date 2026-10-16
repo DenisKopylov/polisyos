@@ -15,7 +15,11 @@ from typing import Any, ClassVar
 import pandas as pd
 import pytest
 
-from polisyos.fabric.connectors.base import ConnectionConfig, ConnectionHandle, HealthStatus
+from polisyos.fabric.connectors.base import (
+    ConnectionConfig,
+    ConnectionHandle,
+    HealthStatus,
+)
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
@@ -34,9 +38,27 @@ _FIXED_VERSION = DataVersion(
 )
 
 _MOCK_DATA = [
-    {"agent_id": "a001", "age": 30, "income": 50000.0, "savings": 10000.0, "is_employed": True},
-    {"agent_id": "a002", "age": 25, "income": 40000.0, "savings": 5000.0, "is_employed": True},
-    {"agent_id": "a003", "age": 45, "income": 80000.0, "savings": 30000.0, "is_employed": False},
+    {
+        "agent_id": "a001",
+        "age": 30,
+        "income": 50000.0,
+        "savings": 10000.0,
+        "is_employed": True,
+    },
+    {
+        "agent_id": "a002",
+        "age": 25,
+        "income": 40000.0,
+        "savings": 5000.0,
+        "is_employed": True,
+    },
+    {
+        "agent_id": "a003",
+        "age": 45,
+        "income": 80000.0,
+        "savings": 30000.0,
+        "is_employed": False,
+    },
 ]
 
 
@@ -199,7 +221,11 @@ class TestEndToEndConnectorFlow:
 
         from polisyos.core.artifacts import FileSystemCAS, input_ref_from_artifact_ref
         from polisyos.core.canon import from_canonical_bytes
-        from polisyos.core.contracts.fabric import DataSnapshot, EvidenceBundle, RetrievalSummary
+        from polisyos.core.contracts.fabric import (
+            DataSnapshot,
+            EvidenceBundle,
+            RetrievalSummary,
+        )
         from polisyos.fabric.connectors.cache import (
             CachingConnectorProxy,
             ConnectorCacheStore,
@@ -356,11 +382,7 @@ class TestEndToEndConnectorFlow:
         assert first.evidence_bundle_ref is not None
         assert first.data_snapshot_ref is not None
         assert connector.fetch_count == 1
-        cache_key = FetchRequest(
-            dataset_id="test.integration_mock.agents",
-            filters=(("step", ("0",)),),
-        ).cache_key
-        first_metadata = cache.get_metadata(cache_key)
+        first_metadata = cache.get_latest_metadata("test.integration_mock.agents")
         assert first_metadata is not None
         assert first_metadata.payload_ref.manifest_profile_sha256 is not None
         index_path = sidecar_scope.base_root / resolved_namespace / "cache_index.sqlite3"
@@ -369,7 +391,7 @@ class TestEndToEndConnectorFlow:
 
         reopened_cache = open_cache()
         registry.configure_cache(reopened_cache)
-        persisted_metadata = reopened_cache.get_metadata(cache_key)
+        persisted_metadata = reopened_cache.get_latest_metadata("test.integration_mock.agents")
         assert persisted_metadata == first_metadata
         second = ingest()
 
@@ -392,6 +414,7 @@ class TestEndToEndConnectorFlow:
         )
         assert len(evidence.sources) == 1
         cache_payload_ref = persisted_metadata.payload_ref
+        assert cache_payload_ref is not None
         assert evidence.sources[0] != cache_payload_ref
         assert evidence.sources[0].manifest_profile_sha256 is not None
         assert store.get_manifest(evidence.sources[0]).inputs == [
@@ -400,16 +423,9 @@ class TestEndToEndConnectorFlow:
                 role="connector_cache.raw_payload",
             )
         ]
-        assert (
-            reopened_cache.get(
-                FetchRequest(
-                    dataset_id="test.integration_mock.agents",
-                    filters=(("step", ("0",)),),
-                ),
-                connector_id="integration_mock",
-            ).metadata.payload_ref
-            == cache_payload_ref
-        )
+        reopened_latest = reopened_cache.get_latest_metadata("test.integration_mock.agents")
+        assert reopened_latest is not None
+        assert reopened_latest.payload_ref == cache_payload_ref
 
         snapshot = DataSnapshot.model_validate(
             from_canonical_bytes(store.get_bytes(second.data_snapshot_ref))
@@ -472,16 +488,219 @@ class TestEndToEndConnectorFlow:
             untransformed.data_snapshot_ref,
             untransformed_snapshot,
         )
-        assert (
-            reopened_cache.get(
-                FetchRequest(
-                    dataset_id="test.integration_mock.agents",
-                    filters=(("step", ("0",)),),
-                ),
-                connector_id="integration_mock",
-            ).metadata.payload_ref
-            == cache_payload_ref
+
+        # The ingestion receipt consumer must bind the actual request, selected
+        # source intent, and exact CAS ref before allowing a cache hit to flow on.
+        from polisyos.fabric.connectors.cache import (
+            CachedFetchResult,
+            CacheFetchReceipt,
         )
+
+        selected_request = FetchRequest(
+            dataset_id="test.integration_mock.agents",
+            filters=(("step", ("0",)),),
+        )
+        selected_config = ConnectionConfig(url="http://localhost:9999/mock")
+        active_proxy = registry.get("integration_mock")
+        assert isinstance(active_proxy, CachingConnectorProxy)
+        original_fetch_with_receipt = active_proxy.fetch_with_receipt
+
+        # The receipt carries the exact handle/request/config admission used by the cache path.
+
+        receipt_result, admitted_receipt = ingestion_module._sync_fetch_with_receipt(
+            registry,
+            "integration_mock",
+            active_proxy,
+            selected_request,
+            connection_config=selected_config,
+            cas_store=store,
+        )
+        assert admitted_receipt.result is receipt_result
+        admitted_intent = admitted_receipt.selected_intent
+        assert admitted_intent is not None
+        assert admitted_intent.connector_id == active_proxy.connector_id
+        assert admitted_intent.dataset_id == selected_request.dataset_id
+        assert admitted_intent.request_key == selected_request.request_key
+        assert admitted_intent.source_scope_fingerprint == selected_config.cache_scope_fingerprint
+
+        async def _missing_selected_intent(
+            handle,
+            request,
+            *,
+            require_selected_profile: bool = False,
+        ) -> CacheFetchReceipt:
+            receipt = await original_fetch_with_receipt(
+                handle,
+                request,
+                require_selected_profile=require_selected_profile,
+            )
+            return CacheFetchReceipt(
+                result=receipt.result,
+                lookup_outcome=receipt.lookup_outcome,
+                cache_result=receipt.cache_result,
+                selected_intent=None,
+            )
+
+        with monkeypatch.context() as scoped_patch:
+            scoped_patch.setattr(active_proxy, "fetch_with_receipt", _missing_selected_intent)
+            with pytest.raises(
+                ValueError,
+                match="connector_cache_fetch_receipt_owner_mismatch",
+            ):
+                ingestion_module._sync_fetch_with_receipt(
+                    registry,
+                    "integration_mock",
+                    active_proxy,
+                    selected_request,
+                    connection_config=selected_config,
+                    cas_store=store,
+                )
+
+        async def _foreign_owner_fetch_with_receipt(
+            handle,
+            request,
+            *,
+            require_selected_profile: bool = False,
+        ) -> CacheFetchReceipt:
+            receipt = await original_fetch_with_receipt(
+                handle,
+                request,
+                require_selected_profile=require_selected_profile,
+            )
+            assert receipt.selected_intent is not None
+            return CacheFetchReceipt(
+                result=receipt.result,
+                lookup_outcome=receipt.lookup_outcome,
+                cache_result=receipt.cache_result,
+                selected_intent=receipt.selected_intent.model_copy(
+                    update={"connector_id": "foreign.connector"}
+                ),
+            )
+
+        with monkeypatch.context() as scoped_patch:
+            scoped_patch.setattr(
+                active_proxy,
+                "fetch_with_receipt",
+                _foreign_owner_fetch_with_receipt,
+            )
+            with pytest.raises(
+                ValueError,
+                match="connector_cache_fetch_receipt_owner_mismatch",
+            ):
+                ingestion_module._sync_fetch_with_receipt(
+                    registry,
+                    "integration_mock",
+                    active_proxy,
+                    selected_request,
+                    connection_config=selected_config,
+                    cas_store=store,
+                )
+
+        malformed_receipts: tuple[tuple[dict[str, str | None], str], ...] = (
+            (
+                {"source_scope_fingerprint": "sha256:" + "0" * 64},
+                "connector_cache_fetch_receipt_owner_mismatch",
+            ),
+            ({"request_key": None}, "connector_cache_fetch_receipt_owner_mismatch"),
+            (
+                {"payload_manifest_profile_sha256": "sha256:" + "0" * 64},
+                "connector_cache_fetch_receipt_payload_binding_invalid",
+            ),
+        )
+        for update, expected_error in malformed_receipts:
+
+            async def _malformed_fetch_with_receipt(
+                handle,
+                request,
+                *,
+                require_selected_profile: bool = False,
+                receipt_update: dict[str, str | None] = update,
+            ) -> CacheFetchReceipt:
+                receipt = await original_fetch_with_receipt(
+                    handle,
+                    request,
+                    require_selected_profile=require_selected_profile,
+                )
+                assert receipt.cache_result is not None
+                metadata = receipt.cache_result.metadata.model_copy(update=receipt_update)
+                return CacheFetchReceipt(
+                    result=receipt.result,
+                    lookup_outcome=receipt.lookup_outcome,
+                    cache_result=CachedFetchResult(result=receipt.result, metadata=metadata),
+                    selected_intent=receipt.selected_intent,
+                )
+
+            with monkeypatch.context() as scoped_patch:
+                scoped_patch.setattr(
+                    active_proxy,
+                    "fetch_with_receipt",
+                    _malformed_fetch_with_receipt,
+                )
+                with pytest.raises(ValueError, match=expected_error):
+                    ingestion_module._sync_fetch_with_receipt(
+                        registry,
+                        "integration_mock",
+                        active_proxy,
+                        selected_request,
+                        connection_config=selected_config,
+                        cas_store=store,
+                    )
+
+        async def _mismatched_payload_fetch_with_receipt(
+            handle,
+            request,
+            *,
+            require_selected_profile: bool = False,
+        ) -> CacheFetchReceipt:
+            receipt = await original_fetch_with_receipt(
+                handle,
+                request,
+                require_selected_profile=require_selected_profile,
+            )
+            assert receipt.cache_result is not None
+            forged_result = receipt.result.model_copy(
+                update={"data": [{"agent_id": "foreign-bytes"}] * receipt.result.row_count}
+            )
+            return CacheFetchReceipt(
+                result=forged_result,
+                lookup_outcome=receipt.lookup_outcome,
+                cache_result=CachedFetchResult(
+                    result=forged_result,
+                    metadata=receipt.cache_result.metadata,
+                ),
+                selected_intent=receipt.selected_intent,
+            )
+
+        with monkeypatch.context() as scoped_patch:
+            scoped_patch.setattr(
+                active_proxy,
+                "fetch_with_receipt",
+                _mismatched_payload_fetch_with_receipt,
+            )
+            with pytest.raises(
+                ValueError,
+                match="connector_cache_fetch_receipt_payload_binding_invalid",
+            ):
+                ingestion_module._sync_fetch_with_receipt(
+                    registry,
+                    "integration_mock",
+                    active_proxy,
+                    selected_request,
+                    connection_config=selected_config,
+                    cas_store=store,
+                )
+        assert connector.fetch_count == 1
+
+        reopened_selected = reopened_cache.get(
+            FetchRequest(
+                dataset_id="test.integration_mock.agents",
+                filters=(("step", ("0",)),),
+            ),
+            connector_id="integration_mock",
+            source_config=ConnectionConfig(url="http://localhost:9999/mock"),
+        )
+        assert reopened_selected is not None
+        assert reopened_selected.metadata.payload_ref == cache_payload_ref
         reopened_cache.close()
         asyncio.run(registry.shutdown_async())
 
@@ -736,3 +955,102 @@ class TestLintConnectors:
         )
         assert result.returncode == 1, f"Expected 1, got {result.returncode}:\n{result.stdout}"
         assert "Law A" in result.stdout
+
+
+def test_receipt_intent_rejection_releases_real_registry_pool_handle(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Release a real pooled handle when selected-owner admission rejects it."""
+    from datetime import timedelta
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.fabric.connectors.cache import ConnectorCacheStore, TTLPolicy
+    from polisyos.fabric.connectors.registry import ConnectorRegistry
+    from polisyos.fabric.ingestion.ingestion import _sync_fetch_with_receipt
+
+    connector_id = "test.integration_mock"
+    request = FetchRequest(dataset_id="test.integration_mock.agents")
+    config = ConnectionConfig(url="fixture://owner-unwind", max_connections=1)
+
+    class TrackingConnector(MockIntegrationConnector):
+        capabilities: ClassVar[ConnectorCapability] = ConnectorCapability.FULL_FETCH
+
+        def __init__(self) -> None:
+            super().__init__()
+            self.fetch_count = 0
+            self.disconnect_count = 0
+
+        async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult:
+            self.fetch_count += 1
+            return await super().fetch(handle, request)
+
+        async def disconnect(self, handle: ConnectionHandle) -> None:
+            self.disconnect_count += 1
+            await super().disconnect(handle)
+
+        async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
+            del handle
+            return HealthStatus(healthy=True, message="controlled fixture is ready")
+
+    async def _run() -> None:
+        connector = TrackingConnector()
+        registry = ConnectorRegistry()
+        registered_id = registry.register(
+            TrackingConnector,
+            config=config,
+            factory=lambda: connector,
+        )
+        assert registered_id.startswith(f"{connector_id}@")
+        cas = FileSystemCAS(tmp_path / "cas")
+        cache = ConnectorCacheStore(
+            cas,
+            TTLPolicy(ttl=timedelta(hours=1)),
+            namespace="selected-owner-unwind",
+        )
+        registry.configure_cache(cache)
+        proxy = registry.get(connector_id)
+        original_get_connection = registry.get_connection
+        acquired_handles: list[ConnectionHandle] = []
+
+        async def _return_foreign_identity(
+            requested_connector_id: str,
+            selected_config: ConnectionConfig | None = None,
+        ) -> ConnectionHandle:
+            handle = await original_get_connection(requested_connector_id, selected_config)
+            acquired_handles.append(handle)
+            object.__setattr__(handle, "connector_id", "foreign.connector")
+            return handle
+
+        monkeypatch.setattr(registry, "get_connection", _return_foreign_identity)
+        try:
+            with pytest.raises(ValueError, match="connector_cache_handle_owner_mismatch"):
+                _sync_fetch_with_receipt(
+                    registry,
+                    connector_id,
+                    proxy,
+                    request,
+                    connection_config=config,
+                    cas_store=cas,
+                )
+
+            assert len(acquired_handles) == 1
+            assert connector.fetch_count == 0
+            assert cache.get_latest_metadata(request.dataset_id) is None
+            assert registry.metrics.pool_acquires_total == 1
+            assert registry.metrics.pool_releases_total == 1
+
+            assert connector.disconnect_count == 1
+            monkeypatch.setattr(registry, "get_connection", original_get_connection)
+            replacement_handle = await original_get_connection(connector_id, config)
+            assert replacement_handle is not acquired_handles[0]
+            assert replacement_handle.connector_id == connector_id
+            await registry.release_connection(connector_id, replacement_handle)
+            assert registry.metrics.pool_releases_total == 2
+        finally:
+            await registry.unregister_async(connector_id)
+            cache.close()
+
+        assert connector.disconnect_count == 2
+
+    asyncio.run(_run())

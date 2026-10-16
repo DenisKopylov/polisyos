@@ -7,6 +7,9 @@ behavior for that source profile.
 
 from __future__ import annotations
 
+import hashlib
+import json
+
 from polisyos.fabric.connectors.base import ConnectionConfig
 
 from .models import SourceExecutionPolicy, SourceProfile
@@ -19,6 +22,14 @@ def resolve_connection_config(profile: SourceProfile) -> ConnectionConfig:
     connectors need at connection time. Capability hints and async/backfill preferences remain in
     ``SourceExecutionPolicy``.
     """
+    canonical_profile = json.dumps(
+        profile.model_dump(mode="json"),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+    profile_fingerprint = f"sha256:{hashlib.sha256(canonical_profile.encode('utf-8')).hexdigest()}"
     return ConnectionConfig(
         url=profile.base_url,
         headers=dict(profile.headers),
@@ -26,6 +37,7 @@ def resolve_connection_config(profile: SourceProfile) -> ConnectionConfig:
         timeout_seconds=profile.timeout_seconds,
         max_retries=profile.max_retries,
         rate_limit_rps=profile.rate_limit_rps,
+        source_profile_fingerprint=profile_fingerprint,
     )
 
 

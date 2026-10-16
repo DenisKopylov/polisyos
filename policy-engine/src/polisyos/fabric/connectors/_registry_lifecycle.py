@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 from _thread import RLock as RLockType
 from collections import OrderedDict
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import Future
 from functools import wraps
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from polisyos.common.logger import get_logger
@@ -18,7 +20,10 @@ from polisyos.fabric.connectors._registry_errors import (
     ConnectorConfigError,
     ConnectorNotFoundError,
 )
-from polisyos.fabric.connectors._registry_models import ConnectorEntry
+from polisyos.fabric.connectors._registry_models import (
+    ConnectorEntry,
+    _ConnectorRegistrationBinding,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
@@ -94,6 +99,7 @@ class _RegistryLifecycleState(Protocol):
 
     _instance_lock: RLockType
     _connectors: GenericRegistry[str, ConnectorEntry]
+    _registered_owner_bindings: Mapping[int, _ConnectorRegistrationBinding]
     _connection_pools: OrderedDict[tuple[str, str, int], ConnectionPool[SourceConnectorValue[Any]]]
     _pending_startup_cleanup: dict[int, tuple[str, ConnectionPool[SourceConnectorValue[Any]]]]
     _stream_owner_leases: dict[tuple[str, str, str], _StreamOwnerLease]
@@ -102,10 +108,10 @@ class _RegistryLifecycleState(Protocol):
     _bootstrapped: bool
     _cache_store: ConnectorCacheStore | None
     _enable_caching: bool
-    _cache_wrappers: dict[str, SourceConnectorInstance[Any]]
+    _cache_wrappers: dict[tuple[str, int], SourceConnectorInstance[Any]]
     _contract_registry: ContractRegistry | None
     _contract_validation_mode: Literal["strict", "warn", "disabled"]
-    _contract_wrappers: dict[str, SourceConnectorInstance[Any]]
+    _contract_wrappers: dict[tuple[str, int], SourceConnectorInstance[Any]]
     _schema_invalidation_callback_registered: bool
 
     def _resolve_id(self, connector_id: str, version: str | None = None) -> str: ...
@@ -145,6 +151,12 @@ class _RegistryLifecycleState(Protocol):
     ) -> tuple[str | None, list[ConnectionPool[SourceConnectorValue[Any]]]]: ...
 
     def _release_stream_owner_for_pool(self, pool: _CloseablePool) -> None: ...
+
+    def _assert_current_registration(
+        self,
+        entry: ConnectorEntry,
+        binding: _ConnectorRegistrationBinding,
+    ) -> None: ...
 
     def _ensure_schema_invalidation_callback(self) -> None: ...
 
@@ -215,6 +227,17 @@ def _increment_registration_count(state: _RegistryLifecycleState) -> None:
     state._registration_count += 1
 
 
+def _invalidate_registration_wrappers_locked(
+    state: _RegistryLifecycleState,
+    fqid: str,
+) -> None:
+    """Drop every derived wrapper for one FQID while holding the registry lock."""
+    for wrappers in (state._cache_wrappers, state._contract_wrappers):
+        for key in tuple(wrappers):
+            if key[0] == fqid:
+                wrappers.pop(key, None)
+
+
 class RegistryLifecycleMixin:
     """Mixin providing bootstrap, registration, unregistration, and wrapper methods."""
 
@@ -252,6 +275,46 @@ class RegistryLifecycleMixin:
                 self._cache_wrappers.clear()
             _set_schema_callback_registered(self, False)
             self._ensure_schema_invalidation_callback()
+
+    def _assert_current_registration(
+        self: _RegistryLifecycleState,
+        entry: ConnectorEntry,
+        binding: _ConnectorRegistrationBinding,
+    ) -> None:
+        """Require the expected private origin and mutable entry view to remain current."""
+        with self._instance_lock:
+            current = self._registered_owner_bindings.get(id(entry))
+            if (
+                current is None
+                or current is not binding
+                or current.entry is not entry
+                or self._connectors.get(entry.fqid) is not entry
+            ):
+                raise ConnectorConfigError(
+                    connector_id=entry.fqid,
+                    reason="Connector registration changed while deriving its runtime surface",
+                )
+
+            if entry.runtime_connector_id != binding.runtime_connector_id:
+                detail = "runtime owner"
+            elif entry.connector_class is not binding.connector_class:
+                detail = "connector class"
+            elif entry.factory is not binding.factory:
+                detail = "factory"
+            elif entry.instance is not binding.instance:
+                detail = "admitted instance"
+            elif entry.loaded is not (binding.instance is not None):
+                detail = "loaded state"
+            else:
+                return
+
+            raise ConnectorConfigError(
+                connector_id=entry.fqid,
+                reason=(
+                    f"Connector entry {detail} differs from its registry-owned registration binding; "
+                    "re-register to replace the selected connector"
+                ),
+            )
 
     def validate_fetch_result(
         self: _RegistryLifecycleState,
@@ -665,6 +728,10 @@ class RegistryLifecycleMixin:
             if entry is None:
                 return None, []
 
+            owner_bindings = dict(self._registered_owner_bindings)
+            owner_bindings.pop(id(entry), None)
+            self._registered_owner_bindings = MappingProxyType(owner_bindings)
+
             keys_to_remove = [key for key in self._connection_pools if key[0] == fqid]
             for key in keys_to_remove:
                 pool = self._connection_pools.pop(key)
@@ -679,8 +746,7 @@ class RegistryLifecycleMixin:
 
             entry.instance = None
             entry.loaded = False
-            self._cache_wrappers.pop(fqid, None)
-            self._contract_wrappers.pop(fqid, None)
+            _invalidate_registration_wrappers_locked(self, fqid)
             logger.info("Unregistered connector", connector_id=fqid)
 
         return fqid, pools_to_close
@@ -723,10 +789,21 @@ class RegistryLifecycleMixin:
         fqid = meta.fully_qualified_id
         caps = connector_class.capabilities
 
+        from polisyos.fabric.connectors.base import validate_connector_owner_id
+
+        try:
+            runtime_connector_id = validate_connector_owner_id(connector_class.connector_id)
+        except (AttributeError, ValueError) as exc:
+            raise ConnectorConfigError(
+                connector_id=fqid,
+                reason=f"Invalid runtime connector owner: {exc}",
+            ) from exc
+
         connector_factory = factory or (lambda cls=connector_class: cls())
 
         with self._instance_lock:
-            if self._connectors.get(fqid) is not None and not override:
+            previous_entry = self._connectors.get(fqid)
+            if previous_entry is not None and not override:
                 raise ConnectorAlreadyRegisteredError(fqid)
 
             # Validate config if provided
@@ -754,11 +831,24 @@ class RegistryLifecycleMixin:
                 capabilities=caps,
                 connector_class=connector_class,
                 factory=connector_factory,
+                runtime_connector_id=runtime_connector_id,
                 default_config=config,
                 loaded=False,
             )
 
             self._connectors.register(entry, override=override)
+            _invalidate_registration_wrappers_locked(self, fqid)
+            owner_bindings = dict(self._registered_owner_bindings)
+            if previous_entry is not None:
+                owner_bindings.pop(id(previous_entry), None)
+            owner_bindings[id(entry)] = _ConnectorRegistrationBinding(
+                entry=entry,
+                runtime_connector_id=runtime_connector_id,
+                connector_class=connector_class,
+                factory=connector_factory,
+                registration_generation=self._registration_count + 1,
+            )
+            self._registered_owner_bindings = MappingProxyType(owner_bindings)
             _increment_registration_count(self)
 
             logger.info(
@@ -954,7 +1044,10 @@ class RegistryLifecycleMixin:
                     @wraps(original_fetch_with_receipt)
                     async def _wrapped_fetch_with_receipt(*args: Any, **kwargs: Any):
                         try:
-                            result = await original_fetch_with_receipt(*args, **kwargs)
+                            receipt_result = original_fetch_with_receipt(*args, **kwargs)
+                            if not inspect.isawaitable(receipt_result):
+                                raise TypeError("fetch_with_receipt() must return an awaitable")
+                            result = await receipt_result
                         except Exception:
                             metrics.record_slo_connector_request(
                                 "error",
@@ -984,7 +1077,10 @@ class RegistryLifecycleMixin:
         connector: SourceConnectorValue[Any],
         *,
         fqid: str,
+        entry: ConnectorEntry,
+        binding: _ConnectorRegistrationBinding,
     ) -> SourceConnectorValue[Any]:
+        self._assert_current_registration(entry, binding)
         if self._contract_registry is None or self._contract_validation_mode == "disabled":
             return connector
         try:
@@ -997,15 +1093,19 @@ class RegistryLifecycleMixin:
             from polisyos.fabric.connectors.contracts import ContractValidatingProxy
 
             with self._instance_lock:
-                wrapped = self._contract_wrappers.get(fqid)
+                self._assert_current_registration(entry, binding)
+                wrapper_key = (fqid, binding.registration_generation)
+                wrapped = self._contract_wrappers.get(wrapper_key)
                 if wrapped is None:
                     wrapped = ContractValidatingProxy(
                         connector,
                         self._contract_registry,
                         mode=self._contract_validation_mode,
                     )
-                    self._contract_wrappers[fqid] = wrapped
+                    self._contract_wrappers[wrapper_key] = wrapped
                 return wrapped
+        except ConnectorConfigError:
+            raise
         except Exception as exc:
             logger.warning(
                 "Failed to wrap connector with contract validator",

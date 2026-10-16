@@ -29,15 +29,19 @@ from .store import (
     CachedFetchResult,
     CacheFetchReceipt,
     CacheMetadata,
+    CacheSourceIntent,
     CacheStats,
     ConnectorCacheStore,
     ResultSerializer,
+    capture_cache_source_intent,
+    verify_selected_cache_payload_ref,
 )
 
 __all__ = [
     "CacheFetchReceipt",
     "CacheMetadata",
     "CachePolicy",
+    "CacheSourceIntent",
     "CacheStats",
     "CachedFetchResult",
     "CachingConnectorProxy",
@@ -57,5 +61,7 @@ __all__ = [
     "StaticDataPolicy",
     "TTLPolicy",
     "VolatileDataPolicy",
+    "capture_cache_source_intent",
     "make_schema_hash_provider",
+    "verify_selected_cache_payload_ref",
 ]

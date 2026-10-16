@@ -12,7 +12,7 @@ import sqlite3
 import threading
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 from polisyos.core.artifacts import ArtifactID
 from polisyos.ir.connectors import DataVersion
@@ -28,6 +28,17 @@ from ._store_models import (
 __all__ = [
     "CacheIndex",
 ]
+
+
+class _StringKeyedValueReader(Protocol):
+    def __getitem__(self, key: str, /) -> object: ...
+
+
+def _optional_text_column(row: _StringKeyedValueReader, column: str) -> str | None:
+    value = row[column]
+    if value is None or isinstance(value, str):
+        return value
+    raise TypeError(f"cache index column {column!r} must contain text or null")
 
 
 class CacheIndex:
@@ -59,6 +70,7 @@ class CacheIndex:
                 CREATE TABLE IF NOT EXISTS cache_entries (
                     cache_key TEXT PRIMARY KEY,
                     request_key TEXT NOT NULL,
+                    source_scope_fingerprint TEXT,
                     query_key TEXT NOT NULL,
                     connector_id TEXT,
                     dataset_id TEXT NOT NULL,
@@ -91,6 +103,10 @@ class CacheIndex:
             if "payload_manifest_profile_sha256" not in columns:
                 self._conn.execute(
                     "ALTER TABLE cache_entries ADD COLUMN payload_manifest_profile_sha256 TEXT"
+                )
+            if "source_scope_fingerprint" not in columns:
+                self._conn.execute(
+                    "ALTER TABLE cache_entries ADD COLUMN source_scope_fingerprint TEXT"
                 )
             self._conn.execute(
                 "CREATE INDEX IF NOT EXISTS idx_cache_dataset ON cache_entries(dataset_id)"
@@ -165,18 +181,19 @@ class CacheIndex:
             self._conn.execute(
                 """
                 INSERT OR REPLACE INTO cache_entries (
-                    cache_key, request_key, query_key, connector_id, dataset_id,
+                    cache_key, request_key, source_scope_fingerprint, query_key, connector_id, dataset_id,
                     cached_at, expires_at, policy_id,
                     payload_artifact_id, payload_media_type, payload_manifest_profile_sha256,
                     payload_size_bytes,
                     metadata_artifact_id, fetch_duration_ms, source_version, schema_hash,
                     is_stale, pinned, access_count, last_accessed_at,
                     date_start, date_end, as_of, request_json
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     entry.cache_key,
                     entry.request_key,
+                    entry.source_scope_fingerprint,
                     entry.query_key,
                     entry.connector_id,
                     entry.dataset_id,
@@ -367,6 +384,7 @@ class CacheIndex:
         return CacheEntry(
             cache_key=row["cache_key"],
             request_key=row["request_key"],
+            source_scope_fingerprint=_optional_text_column(row, "source_scope_fingerprint"),
             query_key=row["query_key"],
             connector_id=row["connector_id"],
             dataset_id=row["dataset_id"],

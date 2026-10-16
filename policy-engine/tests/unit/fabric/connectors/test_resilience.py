@@ -9,7 +9,12 @@ from types import SimpleNamespace
 import pytest
 
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
-from polisyos.fabric.connectors.base import FetchRequest, FetchResult
+from polisyos.fabric.connectors.base import (
+    ConnectionConfig,
+    ConnectionHandle,
+    FetchRequest,
+    FetchResult,
+)
 from polisyos.fabric.connectors.resilience import (
     AdaptiveRateLimiter,
     BoundedResourceRegistry,
@@ -130,7 +135,9 @@ async def test_retry_non_retryable_error() -> None:
 async def test_retry_respects_request_retryable_false() -> None:
     policy = RetryPolicy(max_attempts=3, base_delay=0.01)
     request = FetchRequest(dataset_id="test.dataset", retryable=False)
-    handle = SimpleNamespace(connector_id="test", config=SimpleNamespace())
+    handle = ConnectionHandle(
+        connector_id="test", config=ConnectionConfig(url="fixture://fallback")
+    )
     call_count = 0
 
     async def always_fail(_handle, _request) -> str:
@@ -295,7 +302,9 @@ async def test_circuit_breaker_uses_injected_metrics_and_tracer(
 
 
 @pytest.mark.asyncio
-async def test_adaptive_rate_limiter_retry_after_cooldown(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_adaptive_rate_limiter_retry_after_cooldown(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     import polisyos.fabric.connectors.resilience.rate_limiter as rl
 
     class FakeClock:
@@ -469,7 +478,9 @@ def test_circuit_breaker_emits_transition_spans(in_memory_exporter) -> None:
 
 
 @pytest.mark.asyncio
-async def test_rate_limiter_stress_never_goes_negative(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_rate_limiter_stress_never_goes_negative(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     import polisyos.fabric.connectors.resilience.rate_limiter as rl
 
     class FakeClock:
@@ -546,8 +557,15 @@ async def test_cache_fallback_uses_request_and_sets_resilience() -> None:
         def __init__(self) -> None:
             self.seen = None
 
-        def get_any(self, request, *, connector_id=None, max_staleness_seconds=None):
-            self.seen = (request, connector_id, max_staleness_seconds)
+        def get_any(
+            self,
+            request,
+            *,
+            connector_id=None,
+            max_staleness_seconds=None,
+            source_config=None,
+        ):
+            self.seen = (request, connector_id, max_staleness_seconds, source_config)
             return SimpleNamespace(
                 result=fetch_result,
                 metadata=SimpleNamespace(cached_at=datetime.now(UTC)),
@@ -556,15 +574,20 @@ async def test_cache_fallback_uses_request_and_sets_resilience() -> None:
     cache = DummyCache()
     fallback = CacheFallback(cache_store=cache, max_staleness_seconds=60.0)
     request = FetchRequest(dataset_id="test.dataset")
-    handle = SimpleNamespace(connector_id="test", config=SimpleNamespace())
+    handle = ConnectionHandle(
+        connector_id="test", config=ConnectionConfig(url="fixture://fallback")
+    )
 
-    async def primary(_handle, _request):
-        raise ConnectionError("boom")
+    class PrimaryConnector:
+        connector_id = "test"
 
+        async def fetch(self, _handle, _request):
+            raise ConnectionError("boom")
+
+    primary = PrimaryConnector()
     result = await fallback.handle_failure(
         ConnectionError("boom"),
-        primary,
-        object(),
+        primary.fetch,
         handle,
         request,
     )
@@ -576,6 +599,7 @@ async def test_cache_fallback_uses_request_and_sets_resilience() -> None:
     assert cache.seen is not None
     assert cache.seen[0] == request
     assert cache.seen[1] == "test"
+    assert cache.seen[3] == handle.config
 
 
 @pytest.mark.asyncio

@@ -201,6 +201,35 @@ class TestResolveConnectionConfig:
         assert config.timeout_seconds == 45
         assert config.max_retries == 5
         assert config.auth_method is None
+        assert config.source_profile_fingerprint is not None
+        assert config.cache_scope_fingerprint.startswith("sha256:")
+
+    def test_same_profile_id_with_changed_material_has_distinct_cache_identity(self):
+        original = SourceProfile(
+            profile_id="stable_id",
+            display_name="Stable",
+            connector_family="fixture",
+            base_url="fixture://source-a",
+            headers={"Authorization": "secret-a"},
+        )
+        changed = original.model_copy(
+            update={
+                "base_url": "fixture://source-b",
+                "headers": {"Authorization": "secret-b"},
+            }
+        )
+
+        first = resolve_connection_config(original)
+        second = resolve_connection_config(changed)
+
+        assert first.source_profile_fingerprint != second.source_profile_fingerprint
+        assert first.cache_scope_fingerprint != second.cache_scope_fingerprint
+        assert "secret-a" not in str(first.to_dict(redact=True))
+        assert "secret-b" not in str(second.to_dict(redact=True))
+        assert (
+            first.to_dict(redact=True)["source_profile_fingerprint"]
+            == first.source_profile_fingerprint
+        )
 
     def test_profile_with_headers(self):
         profile = SourceProfile(

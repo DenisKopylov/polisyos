@@ -40,6 +40,9 @@ class ConnectorEntry:
     capabilities: ConnectorCapability
     connector_class: type[SourceConnector[Any]]
     factory: Callable[[], SourceConnectorValue[Any]]
+    # Retained as a mutable display snapshot for the public entry shape.
+    # Admission uses ConnectorRegistry's private registration binding instead.
+    runtime_connector_id: str | None = field(default=None, kw_only=True)
     default_config: ConnectionConfig | None = None
 
     # Runtime state (updated by registry operations)
@@ -67,6 +70,18 @@ class ConnectorEntry:
     def short_id(self) -> str:
         """Short connector ID without version."""
         return f"{self.metadata.namespace}.{self.metadata.connector_id}"
+
+
+@dataclass(frozen=True)
+class _ConnectorRegistrationBinding:
+    """Private authority record for one exact registry registration."""
+
+    entry: ConnectorEntry
+    runtime_connector_id: str
+    connector_class: type[SourceConnector[Any]]
+    factory: Callable[[], SourceConnectorValue[Any]]
+    registration_generation: int
+    instance: SourceConnectorValue[Any] | None = None
 
 
 @dataclass

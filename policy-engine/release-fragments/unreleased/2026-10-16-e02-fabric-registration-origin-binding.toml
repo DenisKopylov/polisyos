@@ -1,0 +1,31 @@
+id = "2026-10-16-e02-fabric-registration-origin-binding"
+title = "Bind connector admission and cleanup to the registered producer"
+type = "changed"
+component = "fabric"
+owner = "team-polisyos"
+summary = "Registry lookup, ordinary and live-permit pools, and streaming bind producer selection to the exact registration; overrides select a new generation while old handles retain their cleanup owner."
+evidence = ["tests/unit/fabric/connectors/test_registry.py", "tests/unit/fabric/connectors/test_pool_e02.py", "tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py", "tests/unit/fabric/data_plane/test_e02_c_streaming_oracle.py"]
+compatibility = "Registration-time factory injection and the ConnectorEntry positional constructor remain supported. Mutating an entry's selected factory, class, runtime owner, admitted instance, or loaded flag after registration is refused with ConnectorConfigError; re-register with override=True to select a replacement."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.fabric.connectors ConnectorRegistry and connection lifecycle"
+migration = "Use register(..., factory=...) for dependency injection, register(..., override=True) for producer replacement, and set_default_config() for the default connection configuration. Release existing handles through their registry owner."
+api = "The existing registry captures registration origin and generation across lookup, pool, and stream paths. Selected runtime owner and exact physical handle ownership remain distinct from connector metadata IDs and mutable handle route tags."
+limitations = "Candidate only. An old generation pool can remain registry-owned and idle until shutdown or capacity trimming; immediate retirement at override is not claimed. Local registration and cleanup do not establish external custody, permission, production currentness, or data authority. Full Prepared B thirteen-contour, composed native, and installed-consumer verification remain separately required."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/fabric/connectors/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "fabric-registered-producer-admission"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.fabric.connectors ConnectorRegistry lookup and acquisition"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Post-registration producer substitution is refused immediately; select replacements with register(..., override=True)."
+release_note = "Connector entry runtime state cannot replace the registration-selected producer; new acquisitions use the replacement generation while active older handles retain their original cleanup owner."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/fabric/connectors/README.md"]
+runbook_docs = []

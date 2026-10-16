@@ -7,10 +7,11 @@ import json
 import threading
 import weakref
 from collections import OrderedDict
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from concurrent.futures import Future
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from packaging.version import parse as parse_version
@@ -42,6 +43,7 @@ from polisyos.fabric.connectors._registry_models import (
     ConnectorPreferences,
     RegistryMetrics,
     RegistryStats,
+    _ConnectorRegistrationBinding,
 )
 from polisyos.ir.connectors import ConnectorCapability, ConnectorMetadataSpec, TrustLevel
 
@@ -73,6 +75,102 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 MAX_CONNECTION_POOLS = 512
 _POOL_KEY_STATE_KEY = "__polisyos_connector_pool_key"
+
+
+def _registration_binding_for_entry(
+    registry: ConnectorRegistry,
+    entry: ConnectorEntry,
+) -> _ConnectorRegistrationBinding:
+    """Resolve and verify the private registration record for one live entry."""
+    with registry._instance_lock:
+        binding = registry._registered_owner_bindings.get(id(entry))
+        if (
+            binding is None
+            or binding.entry is not entry
+            or registry._connectors.get(entry.fqid) is not entry
+        ):
+            raise ConnectorConfigError(
+                connector_id=entry.fqid,
+                reason="Connector entry has no live registry-owned registration binding",
+            )
+
+        if entry.runtime_connector_id != binding.runtime_connector_id:
+            detail = "runtime owner"
+        elif entry.connector_class is not binding.connector_class:
+            detail = "connector class"
+        elif entry.factory is not binding.factory:
+            detail = "factory"
+        elif entry.instance is not binding.instance:
+            detail = "admitted instance"
+        elif entry.loaded is not (binding.instance is not None):
+            detail = "loaded state"
+        else:
+            return binding
+
+    raise ConnectorConfigError(
+        connector_id=entry.fqid,
+        reason=(
+            f"Connector entry {detail} differs from its registry-owned registration binding; "
+            "re-register to replace the selected connector"
+        ),
+    )
+
+
+def selected_connector_owner_id(
+    registry: ConnectorRegistry,
+    entry: ConnectorEntry,
+) -> str:
+    """Resolve the immutable runtime identity captured for this registration."""
+    from polisyos.fabric.connectors.base import validate_connector_owner_id
+
+    binding = _registration_binding_for_entry(registry, entry)
+    try:
+        return validate_connector_owner_id(binding.runtime_connector_id)
+    except ValueError as exc:
+        raise ConnectorConfigError(
+            connector_id=entry.fqid,
+            reason="Connector entry has no valid registry-owned runtime owner",
+        ) from exc
+
+
+def require_selected_connector_owner(
+    entry: ConnectorEntry,
+    connector: SourceConnectorValue[Any],
+    selected_owner_id: str,
+    *,
+    source: str,
+) -> SourceConnectorValue[Any]:
+    """Require a factory or cached instance to retain the selected class owner."""
+    from polisyos.fabric.connectors.base import require_connector_owner
+
+    try:
+        require_connector_owner(connector, selected_owner_id)
+    except ValueError as exc:
+        raise ConnectorConfigError(
+            connector_id=entry.fqid,
+            reason=f"{source} owner does not match selected connector class: {exc}",
+        ) from exc
+    return connector
+
+
+def create_selected_connector(
+    registry: ConnectorRegistry,
+    entry: ConnectorEntry,
+    selected_owner_id: str,
+) -> SourceConnectorValue[Any]:
+    """Invoke only the factory captured for this exact registration."""
+    binding = _registration_binding_for_entry(registry, entry)
+    if binding.runtime_connector_id != selected_owner_id:
+        raise ConnectorConfigError(
+            connector_id=entry.fqid,
+            reason="Selected connector owner no longer matches its registration binding",
+        )
+    return require_selected_connector_owner(
+        entry,
+        binding.factory(),
+        binding.runtime_connector_id,
+        source="factory",
+    )
 
 
 @dataclass(eq=False)
@@ -124,6 +222,9 @@ class ConnectorRegistry(RegistryLifecycleMixin):
 
         Note: Use get_instance() instead of direct instantiation.
         """
+        self._registered_owner_bindings: Mapping[int, _ConnectorRegistrationBinding] = (
+            MappingProxyType({})
+        )
         self._connectors = GenericRegistry[str, ConnectorEntry](
             key_fn=lambda entry: entry.fqid,
             indexers={
@@ -175,10 +276,10 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         # Optional caching integration
         self._cache_store: ConnectorCacheStore | None = None
         self._enable_caching = True
-        self._cache_wrappers: dict[str, SourceConnectorInstance[Any]] = {}
+        self._cache_wrappers: dict[tuple[str, int], SourceConnectorInstance[Any]] = {}
         self._contract_registry: ContractRegistry | None = None
         self._contract_validation_mode: Literal["strict", "warn", "disabled"] = "warn"
-        self._contract_wrappers: dict[str, SourceConnectorInstance[Any]] = {}
+        self._contract_wrappers: dict[tuple[str, int], SourceConnectorInstance[Any]] = {}
         self._schema_invalidation_callback_registered = False
         self._bootstrap_contract_registry()
 
@@ -235,6 +336,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
                 "event loop is running; call await registry.shutdown_async() first."
             )
         instance._connectors.clear()
+        instance._registered_owner_bindings = MappingProxyType({})
         instance._connection_pools.clear()
 
         try:
@@ -283,47 +385,129 @@ class ConnectorRegistry(RegistryLifecycleMixin):
                 available=list(self._connectors.keys()),
             )
 
-        if entry.instance is None:
+        binding = _registration_binding_for_entry(self, entry)
+
+        if binding.instance is None:
             with entry._instance_lock:
-                if entry.instance is None:
-                    entry.instance = entry.factory()
-                    entry.loaded = True
+                binding = _registration_binding_for_entry(self, entry)
+                if binding.instance is None:
+                    selected_owner_id = binding.runtime_connector_id
+                    admitted_instance = create_selected_connector(self, entry, selected_owner_id)
+                    with self._instance_lock:
+                        current_binding = self._registered_owner_bindings.get(id(entry))
+                        if (
+                            current_binding is None
+                            or current_binding is not binding
+                            or current_binding.entry is not entry
+                            or self._connectors.get(fqid) is not entry
+                        ):
+                            raise ConnectorConfigError(
+                                connector_id=fqid,
+                                reason="Connector registration changed during lazy admission",
+                            )
+                        _registration_binding_for_entry(self, entry)
+                        admitted_binding = _ConnectorRegistrationBinding(
+                            entry=entry,
+                            runtime_connector_id=binding.runtime_connector_id,
+                            connector_class=binding.connector_class,
+                            factory=binding.factory,
+                            registration_generation=binding.registration_generation,
+                            instance=admitted_instance,
+                        )
+                        owner_bindings = dict(self._registered_owner_bindings)
+                        owner_bindings[id(entry)] = admitted_binding
+                        self._registered_owner_bindings = MappingProxyType(owner_bindings)
+                        entry.instance = admitted_instance
+                        entry.loaded = True
+                        binding = admitted_binding
+
+        selected_owner_id = binding.runtime_connector_id
+        connector = binding.instance
+        if connector is None:
+            raise ConnectorConfigError(
+                connector_id=fqid,
+                reason="Registered connector has no registry-admitted instance",
+            )
+        connector = require_selected_connector_owner(
+            entry,
+            connector,
+            selected_owner_id,
+            source="registered instance",
+        )
 
         with self._instance_lock:
             self._get_count += 1
 
-        connector = entry.instance
         connector = self._apply_resilience_if_configured(connector, entry)
-        connector = self._apply_contract_validation_wrapper(connector, fqid=fqid)
+        connector = self._apply_contract_validation_wrapper(
+            connector,
+            fqid=fqid,
+            entry=entry,
+            binding=binding,
+        )
+        connector = require_selected_connector_owner(
+            entry,
+            connector,
+            selected_owner_id,
+            source="wrapped connector",
+        )
+        self._assert_current_registration(entry, binding)
 
+        surface = connector
         if self._enable_caching and enable_cache and self._cache_store is not None:
             try:
                 from polisyos.fabric.connectors.cache.proxy import CachingConnectorProxy
-
-                if isinstance(connector, CachingConnectorProxy):
-                    return connector
-
-                with self._instance_lock:
-                    cached = self._cache_wrappers.get(fqid)
-                    if cached is None:
-                        cached = CachingConnectorProxy(
-                            connector,
-                            self._cache_store,
-                            schema_hash_provider=self._build_schema_hash_provider(
-                                connector_short_id=entry.short_id
-                            ),
-                        )
-                        self._cache_wrappers[fqid] = cached
-                return self._apply_slo_metrics_wrapper(cached, connector_id=fqid)
             except Exception:
                 logger.debug(
-                    "Failed to create caching proxy for connector %s, using unwrapped",
+                    "Failed to load caching proxy for connector %s, using unwrapped",
                     fqid,
                     exc_info=True,
                 )
-                return self._apply_slo_metrics_wrapper(connector, connector_id=fqid)
+                surface = self._apply_slo_metrics_wrapper(connector, connector_id=fqid)
+            else:
+                if isinstance(connector, CachingConnectorProxy):
+                    surface = connector
+                else:
+                    try:
+                        with self._instance_lock:
+                            self._assert_current_registration(entry, binding)
+                            wrapper_key = (fqid, binding.registration_generation)
+                            cached = self._cache_wrappers.get(wrapper_key)
+                            if cached is None:
+                                cached = CachingConnectorProxy(
+                                    connector,
+                                    self._cache_store,
+                                    schema_hash_provider=self._build_schema_hash_provider(
+                                        connector_short_id=entry.short_id
+                                    ),
+                                )
+                                self._cache_wrappers[wrapper_key] = cached
+                        surface = self._apply_slo_metrics_wrapper(
+                            cached,
+                            connector_id=fqid,
+                        )
+                    except Exception:
+                        logger.debug(
+                            "Failed to create caching proxy for connector %s, using unwrapped",
+                            fqid,
+                            exc_info=True,
+                        )
+                        surface = self._apply_slo_metrics_wrapper(
+                            connector,
+                            connector_id=fqid,
+                        )
+        else:
+            surface = self._apply_slo_metrics_wrapper(connector, connector_id=fqid)
 
-        return self._apply_slo_metrics_wrapper(connector, connector_id=fqid)
+        # All successful get() surfaces, including optional-wrapper fallbacks,
+        # linearize here against the exact registration selected above.
+        self._assert_current_registration(entry, binding)
+        return require_selected_connector_owner(
+            entry,
+            surface,
+            selected_owner_id,
+            source="connector surface",
+        )
 
     def get_metadata(self, connector_id: str) -> ConnectorMetadataSpec:
         """
@@ -756,6 +940,9 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         if entry is None:
             raise ConnectorNotFoundError(connector_id)
 
+        binding = _registration_binding_for_entry(self, entry)
+        selected_owner_id = selected_connector_owner_id(self, entry)
+
         effective_config = config or entry.default_config
         if effective_config is None:
             raise ConnectorConfigError(
@@ -764,9 +951,10 @@ class ConnectorRegistry(RegistryLifecycleMixin):
             )
 
         fingerprint = self._config_fingerprint(effective_config)
+        registration_fingerprint = f"{fingerprint}:registration:{binding.registration_generation}"
         with self._instance_lock:
             pool_scope = self._current_pool_scope_locked()
-        pool_key = (fqid, fingerprint, pool_scope)
+        pool_key = (fqid, registration_fingerprint, pool_scope)
         with self._instance_lock:
             pool = self._get_connection_pool_locked(pool_key)
 
@@ -790,7 +978,10 @@ class ConnectorRegistry(RegistryLifecycleMixin):
                             breaker = circuit
                         elif circuit is not None:
                             breaker = CircuitBreaker(
-                                circuit_id=f"pool:{fqid}:{fingerprint[:8]}",
+                                circuit_id=(
+                                    f"pool:{fqid}:{fingerprint[:8]}:"
+                                    f"registration:{binding.registration_generation}"
+                                ),
                                 config=circuit,
                             )
             except Exception as exc:
@@ -802,11 +993,15 @@ class ConnectorRegistry(RegistryLifecycleMixin):
                 )
 
             new_pool = ConnectionPool(
-                connector_factory=entry.factory,
+                connector_factory=lambda: create_selected_connector(self, entry, selected_owner_id),
                 config=effective_config,
                 pool_config=pool_config,
-                pool_id=f"pool-{fqid}-{fingerprint[:8]}-loop{pool_scope}",
+                pool_id=(
+                    f"pool-{fqid}-{fingerprint[:8]}-"
+                    f"registration{binding.registration_generation}-loop{pool_scope}"
+                ),
                 circuit_breaker=breaker,
+                expected_connector_id=selected_owner_id,
             )
             evicted_pools: list[ConnectionPool[SourceConnectorValue[Any]]] = []
             with self._instance_lock:
@@ -819,43 +1014,71 @@ class ConnectorRegistry(RegistryLifecycleMixin):
 
         return pool, pool_key
 
+    def _release_pool_candidates(
+        self, handle: ConnectionHandle
+    ) -> list[ConnectionPool[SourceConnectorValue[Any]]]:
+        """Return active and retained pools, using the handle route only for ordering."""
+        candidates: list[ConnectionPool[SourceConnectorValue[Any]]] = []
+        seen: set[int] = set()
+
+        def add(pool: ConnectionPool[SourceConnectorValue[Any]] | None) -> None:
+            if pool is None or id(pool) in seen:
+                return
+            seen.add(id(pool))
+            candidates.append(pool)
+
+        # The route tag is only a candidate-order hint. Read it outside the
+        # registry lock and let malformed/replaced state fall through to the
+        # exact-handle owner scan below.
+        try:
+            stored_pool_key = handle.get_state(_POOL_KEY_STATE_KEY)
+        except Exception:
+            stored_pool_key = None
+
+        with self._instance_lock:
+            if (
+                isinstance(stored_pool_key, tuple)
+                and len(stored_pool_key) == 3
+                and isinstance(stored_pool_key[0], str)
+                and isinstance(stored_pool_key[1], str)
+                and type(stored_pool_key[2]) is int
+            ):
+                add(
+                    self._connection_pools.get(
+                        (stored_pool_key[0], stored_pool_key[1], stored_pool_key[2])
+                    )
+                )
+
+            for pool in self._connection_pools.values():
+                add(pool)
+            for _fqid, pool in self._pending_startup_cleanup.values():
+                add(pool)
+            for lease in self._stream_owner_leases.values():
+                add(lease.pool)
+
+        return candidates
+
     async def release_connection(
         self,
         connector_id: str,
         handle: ConnectionHandle,
     ) -> None:
-        """Release a connection back to the pool."""
-        fqid = self._resolve_id(connector_id)
-        fingerprint = self._config_fingerprint(handle.config)
-        stored_pool_key = handle.get_state(_POOL_KEY_STATE_KEY)
-        if (
-            isinstance(stored_pool_key, tuple)
-            and len(stored_pool_key) == 3
-            and stored_pool_key[0] == fqid
-            and stored_pool_key[1] == fingerprint
-            and isinstance(stored_pool_key[2], int)
-        ):
-            pool_key = stored_pool_key
-        else:
-            with self._instance_lock:
-                pool_key = (fqid, fingerprint, self._current_pool_scope_locked())
+        """Release by the exact live pool owner, not caller-mutable handle metadata."""
+        for pool in self._release_pool_candidates(handle):
+            if not await pool._release_owned_handle(handle):
+                continue
 
-        with self._instance_lock:
-            pool = self._get_connection_pool_locked(pool_key)
-
-        if pool is not None:
-            await pool.release(handle)
-            evicted_pools: list[ConnectionPool[SourceConnectorValue[Any]]] = []
             with self._instance_lock:
                 evicted_pools = self._trim_connection_pools_locked()
             for evicted_pool in evicted_pools:
                 await evicted_pool.close_all()
-        else:
-            logger.warning(
-                "Connection pool not found for release",
-                connector_id=fqid,
-                session_id=handle.session_id,
-            )
+            return
+
+        logger.warning(
+            "Connection pool owner not found for exact handle",
+            connector_id=connector_id,
+            session_id=handle.session_id,
+        )
 
     def _config_fingerprint(self, config: ConnectionConfig) -> str:
         """Compute stable fingerprint for connection config."""

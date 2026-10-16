@@ -7,6 +7,9 @@ profile resolvers pass immutable ``ConnectionConfig`` / ``ConnectionHandle`` obj
 
 from __future__ import annotations
 
+import hashlib
+import json
+import re
 import threading
 from collections.abc import AsyncIterator, Awaitable, Iterable, Mapping
 from dataclasses import dataclass, field
@@ -127,10 +130,32 @@ class ConnectionConfig:
     # SSL/TLS settings
     verify_ssl: bool = True
     ca_bundle_path: str | None = None
+    source_profile_fingerprint: str | None = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "headers", _freeze_nested(dict(self.headers)))
         object.__setattr__(self, "auth_credentials", _freeze_nested(dict(self.auth_credentials)))
+        if self.source_profile_fingerprint is not None and (
+            not isinstance(self.source_profile_fingerprint, str)
+            or re.fullmatch(r"sha256:[0-9a-f]{64}", self.source_profile_fingerprint) is None
+        ):
+            raise ValueError("source_profile_fingerprint must be sha256:<64 lowercase hex>")
+
+    @property
+    def cache_scope_fingerprint(self) -> str:
+        """Return a stable digest of this effective source configuration for cache isolation.
+
+        The digest includes the source-profile fingerprint and the effective connection settings.
+        It is safe to persist as a cache key component; the underlying settings are never returned.
+        """
+        canonical = json.dumps(
+            self.to_dict(redact=False),
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+        return f"sha256:{hashlib.sha256(canonical.encode('utf-8')).hexdigest()}"
 
     def redacted(self) -> ConnectionConfig:
         """Return config with sensitive fields redacted for logging."""
@@ -199,6 +224,7 @@ class ConnectionConfig:
             keepalive_seconds=self.keepalive_seconds,
             verify_ssl=self.verify_ssl,
             ca_bundle_path=self.ca_bundle_path,
+            source_profile_fingerprint=self.source_profile_fingerprint,
         )
 
     def to_dict(self, redact: bool = True) -> dict[str, Any]:
@@ -217,6 +243,7 @@ class ConnectionConfig:
             "keepalive_seconds": config.keepalive_seconds,
             "verify_ssl": config.verify_ssl,
             "ca_bundle_path": config.ca_bundle_path,
+            "source_profile_fingerprint": config.source_profile_fingerprint,
         }
 
 
@@ -484,6 +511,27 @@ class SourceConnector(_SourceConnectorOperations[DataT], Protocol[DataT]):
 
 
 type SourceConnectorValue[DataT] = SourceConnector[DataT] | SourceConnectorInstance[DataT]
+
+
+def validate_connector_owner_id(connector_id: object) -> str:
+    """Return a nonblank connector owner ID or reject malformed runtime values."""
+    if not isinstance(connector_id, str) or not connector_id.strip():
+        raise ValueError("connector_owner_id_missing_or_invalid")
+    return connector_id
+
+
+def require_connector_owner(
+    connector: SourceConnectorValue[Any],
+    expected_connector_id: str | None = None,
+) -> str:
+    """Read a connector's typed owner and optionally bind it to a selected owner."""
+    try:
+        connector_id = validate_connector_owner_id(connector.connector_id)
+    except AttributeError as exc:
+        raise ValueError("connector_owner_id_missing_or_invalid") from exc
+    if expected_connector_id is not None and connector_id != expected_connector_id:
+        raise ValueError("connector_owner_id_mismatch")
+    return connector_id
 
 
 # ============================================================================

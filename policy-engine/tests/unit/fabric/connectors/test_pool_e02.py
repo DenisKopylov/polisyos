@@ -21,6 +21,7 @@ class _GatedConnector:
         self.release = asyncio.Event()
         self.cancelled = asyncio.Event()
         self.disconnects = 0
+        self.disconnect_handles: list[ConnectionHandle] = []
         self.connects = 0
 
     async def _gate(self, phase: str) -> None:
@@ -46,6 +47,7 @@ class _GatedConnector:
 
     async def disconnect(self, handle: ConnectionHandle) -> None:
         self.disconnects += 1
+        self.disconnect_handles.append(handle)
 
 
 def _pool(connector: _GatedConnector, *, timeout: float = 0.03) -> ConnectionPool:
@@ -316,3 +318,186 @@ async def test_preexisting_cancellation_count_is_not_a_new_pool_cancellation() -
     assert pool.get_stats().in_use_connections == 1
     await pool.release(handle)
     await pool.close_all()
+
+
+@pytest.mark.asyncio
+async def test_connection_pool_factory_owner_is_checked_before_publication() -> None:
+    class WrongOwnerConnector(_GatedConnector):
+        async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+            self.connects += 1
+            await self._gate("connect")
+            return ConnectionHandle(connector_id="foreign.owner", config=config)
+
+    connector = WrongOwnerConnector("none")
+    pool = _pool(connector)
+    with pytest.raises(ValueError, match="connection_pool_factory_handle_admission_mismatch"):
+        await pool.acquire()
+
+    stats = pool.get_stats()
+    assert connector.disconnects == 1
+    assert stats.total_connections == 0
+    assert stats.in_use_connections == 0
+    assert stats.idle_connections == 0
+    assert pool._semaphore._value == 1
+    await pool.close_all()
+
+
+@pytest.mark.asyncio
+async def test_selected_pool_owner_is_checked_before_connect() -> None:
+    connector = _GatedConnector("none")
+    pool = ConnectionPool(
+        connector_factory=lambda: connector,
+        config=ConnectionConfig(url="synthetic://selected-owner"),
+        pool_config=PoolConfig(max_size=1),
+        expected_connector_id="selected.owner",
+    )
+
+    with pytest.raises(ValueError, match="connector_owner_id_mismatch"):
+        await pool.acquire()
+
+    stats = pool.get_stats()
+    assert connector.connects == 0
+    assert stats.total_connections == 0
+    assert stats.in_use_connections == 0
+    assert pool._semaphore._value == pool._config.max_size
+    await pool.close_all()
+
+
+@pytest.mark.asyncio
+async def test_blank_factory_owner_is_rejected_before_connect() -> None:
+    class BlankOwnerConnector(_GatedConnector):
+        connector_id = "   "
+
+    connector = BlankOwnerConnector("none")
+    pool = ConnectionPool(
+        connector_factory=lambda: connector,
+        config=ConnectionConfig(url="synthetic://blank-owner"),
+        pool_config=PoolConfig(max_size=1),
+    )
+
+    with pytest.raises(ValueError, match="connector_owner_id_missing_or_invalid"):
+        await pool.acquire()
+
+    assert connector.connects == 0
+    assert pool.get_stats().total_connections == 0
+    assert pool._semaphore._value == pool._config.max_size
+    await pool.close_all()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("field", "replacement"),
+    [
+        ("connector_id", "foreign.owner"),
+        ("session_id", "foreign-session"),
+        ("config", ConnectionConfig(url="synthetic://changed")),
+        ("created_at", None),
+        ("_state", object()),
+    ],
+)
+async def test_release_retires_handle_when_admitted_owner_fields_change(
+    field: str,
+    replacement: object,
+) -> None:
+    connector = _GatedConnector("none")
+    pool = _pool(connector)
+    handle = await pool.acquire()
+    admitted_config = handle.config
+    admitted_created_at = handle.created_at
+    admitted_state = handle._state
+
+    if field == "created_at":
+        replacement = admitted_created_at.replace(year=admitted_created_at.year - 1)
+    object.__setattr__(handle, field, replacement)
+    release_result = await pool.release(handle)
+
+    stats = pool.get_stats()
+    assert release_result is None
+    assert connector.disconnects == 1
+    assert connector.disconnect_handles == [handle]
+    assert handle.connector_id == connector.connector_id
+    assert handle.session_id != "foreign-session"
+    assert handle.config == admitted_config
+    assert handle.created_at == admitted_created_at
+    assert handle._state is admitted_state
+    assert stats.in_use_connections == 0
+    assert stats.idle_connections == 0
+    assert len(pool._pending_cleanup) == 0
+    assert pool._semaphore._value == 1
+    await pool.close_all()
+
+
+@pytest.mark.asyncio
+async def test_release_rejects_same_session_clone_without_releasing_real_lease() -> None:
+    connector = _GatedConnector("none")
+    config = ConnectionConfig(url="synthetic://e02", max_connections=2)
+    pool = ConnectionPool(
+        lambda: connector,
+        config,
+        PoolConfig(max_size=2, acquire_timeout_seconds=0.15),
+    )
+    first = await pool.acquire()
+    second = await pool.acquire()
+    clone = ConnectionHandle(
+        connector_id=first.connector_id,
+        config=first.config,
+        session_id=first.session_id,
+    )
+
+    await pool.release(clone)
+
+    assert pool.get_stats().in_use_connections == 2
+    assert pool.get_stats().total_releases == 0
+    assert pool._semaphore._value == 0
+    assert connector.disconnects == 0
+    await pool.release(first)
+    await pool.release(second)
+    await pool.close_all()
+    assert connector.disconnects == 2
+
+
+@pytest.mark.asyncio
+async def test_idle_handle_mutation_is_retired_before_reacquire() -> None:
+    connector = _GatedConnector("none")
+    pool = _pool(connector)
+    original = await pool.acquire()
+    await pool.release(original)
+    object.__setattr__(original, "connector_id", "foreign.owner")
+
+    replacement = await pool.acquire()
+
+    assert replacement is not original
+    assert replacement.connector_id == connector.connector_id
+    assert connector.disconnects == 1
+    assert pool.get_stats().in_use_connections == 1
+    await pool.release(replacement)
+    await pool.close_all()
+    assert connector.disconnects == 2
+
+
+@pytest.mark.asyncio
+async def test_changed_handle_cleanup_failure_retains_owner_and_permit() -> None:
+    connector = _GatedConnector("none")
+    original_disconnect = connector.disconnect
+
+    async def disconnect_once_fails(handle: ConnectionHandle) -> None:
+        if connector.disconnects == 0:
+            connector.disconnects += 1
+            raise RuntimeError("controlled disconnect failure")
+        await original_disconnect(handle)
+
+    connector.disconnect = disconnect_once_fails
+    pool = _pool(connector)
+    handle = await pool.acquire()
+    object.__setattr__(handle, "connector_id", "foreign.owner")
+
+    with pytest.raises(RuntimeError, match="Connection cleanup is pending"):
+        await pool.release(handle)
+
+    assert pool.get_stats().in_use_connections == 0
+    assert len(pool._pending_cleanup) == 1
+    assert pool._semaphore._value == 0
+    await pool.close_all()
+    assert len(pool._pending_cleanup) == 0
+    assert pool._semaphore._value == 1
+    assert connector.disconnects == 2

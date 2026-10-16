@@ -4,7 +4,7 @@
 contract, and resilience layer for fetching external data sources safely and
 deterministically.
 
-Last updated: 2026-04-17.
+Last updated: 2026-10-16.
 
 ## Purpose
 
@@ -106,6 +106,25 @@ transitions keep their capacity reservation until physical cleanup succeeds.
 `close_all()` retries retained owners and refuses to report a completed drain
 until physical cleanup succeeds. Circuit/live journal permissions are independent
 of this admission budget and do not establish external data authority.
+
+## Registration and handle ownership
+
+Registration selects a connector definition and factory separately from its
+metadata ID. The registry captures their origin, the runtime owner ID, and a
+registration generation. Lookup, ordinary and live-permit acquisition, and
+stream creation use that same selection. A registration-time dependency-injection
+factory remains supported. Replacing the public entry's factory, class, runtime
+owner, admitted instance, or loaded flag does not admit a replacement producer;
+use `register(..., override=True)` instead. `get_entry()` remains available for
+runtime health and failure state, and `set_default_config()` sets the default
+connection configuration.
+
+An override selects a new generation pool for new acquisitions. Active handles
+from the old generation keep their original pool and cleanup owner; a handle's
+route tag only orders the search for its exact owner. After the last release,
+an old generation pool may remain idle until shutdown or capacity trimming.
+Registration and physical cleanup do not establish source custody, permission,
+currentness, or the authority of the fetched data.
 
 ## Reference Docs
 

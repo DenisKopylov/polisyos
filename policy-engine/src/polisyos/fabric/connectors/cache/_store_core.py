@@ -8,9 +8,11 @@ eviction, invalidation tracking, and indexed metadata queries.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import threading
 import time
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import (
@@ -31,6 +33,11 @@ from polisyos.fabric.security import (
 
 from ._store_index import CacheIndex
 from ._store_models import (
+    _SOURCE_INTENT_CONTRACT,
+    _SOURCE_INTENT_KIND,
+    _SOURCE_INTENT_ROLE,
+    _SOURCE_INTENT_SCHEMA,
+    _SOURCE_INTENT_VERSION,
     CACHE_METADATA_KIND,
     CACHE_PAYLOAD_KIND,
     CACHE_SCHEMA_NAME,
@@ -38,6 +45,7 @@ from ._store_models import (
     CachedFetchResult,
     CacheEntry,
     CacheMetadata,
+    CacheSourceIntent,
     CacheStats,
     canon_spec_allow_floats,
     dt_to_ts,
@@ -53,13 +61,134 @@ if TYPE_CHECKING:
     from types import TracebackType
 
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
-    from polisyos.fabric.connectors.base import FetchRequest, FetchResult
+    from polisyos.fabric.connectors.base import (
+        ConnectionConfig,
+        FetchRequest,
+        FetchResult,
+    )
 
 __all__ = [
     "ConnectorCacheStore",
+    "verify_selected_cache_payload_ref",
 ]
 
 logger = get_logger(__name__)
+
+_SELECTED_CACHE_KEY_PREFIX = "fabric.connector_cache.selected-source.v1:"
+ResultDataT = TypeVar("ResultDataT")
+
+
+def verify_selected_cache_payload_ref(
+    cas_store: RootedArtifactStore,
+    payload_ref: ArtifactRef,
+    *,
+    connector_id: str,
+    request: FetchRequest,
+    source_config: ConnectionConfig,
+    result: FetchResult[ResultDataT] | None = None,
+) -> bool:
+    """Verify that an exact CAS payload ref carries the selected source intent.
+
+    The cache index is an accelerator and may be stale or corrupted. A selected
+    cache hit is admitted only when the payload manifest carries one exact
+    source-intent edge whose immutable CAS content matches the current request
+    and effective connection configuration. When ``result`` is supplied, its
+    serialized bytes must also equal the bytes addressed by ``payload_ref``.
+    """
+    try:
+        if (
+            not connector_id
+            or payload_ref.kind != CACHE_PAYLOAD_KIND
+            or payload_ref.manifest_profile_sha256 is None
+            or not cas_store.verify(payload_ref).ok
+        ):
+            return False
+
+        payload_manifest = cas_store.get_manifest(payload_ref)
+        payload_schema = payload_manifest.artifact_schema
+        if (
+            payload_manifest.artifact_id != payload_ref.artifact_id
+            or payload_manifest.kind != CACHE_PAYLOAD_KIND
+            or payload_manifest.media_type != payload_ref.media_type
+            or payload_schema is None
+            or payload_schema.name != CACHE_SCHEMA_NAME
+            or payload_schema.version != CACHE_SCHEMA_VERSION
+        ):
+            return False
+
+        intent_edges = [
+            edge for edge in payload_manifest.inputs if edge.role == _SOURCE_INTENT_ROLE
+        ]
+        if len(intent_edges) != 1:
+            return False
+        intent_edge = intent_edges[0]
+        if intent_edge.manifest_profile_sha256 is None:
+            return False
+
+        intent_ref = ArtifactRef(
+            artifact_id=intent_edge.artifact_id,
+            kind=_SOURCE_INTENT_KIND,
+            media_type="application/json",
+            manifest_profile_sha256=intent_edge.manifest_profile_sha256,
+        )
+        if not cas_store.verify(intent_ref).ok:
+            return False
+        intent_manifest = cas_store.get_manifest(intent_ref)
+        intent_schema = intent_manifest.artifact_schema
+        if (
+            intent_manifest.artifact_id != intent_ref.artifact_id
+            or intent_manifest.kind != _SOURCE_INTENT_KIND
+            or intent_manifest.media_type != intent_ref.media_type
+            or intent_schema is None
+            or intent_schema.name != _SOURCE_INTENT_SCHEMA
+            or intent_schema.version != _SOURCE_INTENT_VERSION
+        ):
+            return False
+        intent = CacheSourceIntent.model_validate_json(cas_store.get_bytes(intent_ref))
+        if (
+            intent.contract != _SOURCE_INTENT_CONTRACT
+            or intent.connector_id != connector_id
+            or intent.dataset_id != request.dataset_id
+            or intent.request_key != request.request_key
+            or intent.source_scope_fingerprint != source_config.cache_scope_fingerprint
+        ):
+            return False
+
+        if result is not None:
+            result_bytes, media_type = ResultSerializer.serialize(result)
+            if (
+                payload_ref.media_type != media_type
+                or cas_store.get_bytes(payload_ref) != result_bytes
+            ):
+                return False
+        return True
+    except Exception:
+        return False
+
+
+def _cache_key_for_request(
+    request: FetchRequest,
+    connector_id: str | None,
+    source_config: ConnectionConfig | None,
+) -> str:
+    """Build a versioned key for selected source calls; preserve direct legacy API keys."""
+    if source_config is None:
+        return request.cache_key
+    if not connector_id:
+        raise ValueError("selected_source_cache_requires_connector_id")
+    material = json.dumps(
+        {
+            "connector_id": connector_id,
+            "request_key": request.cache_key,
+            "source_scope_fingerprint": source_config.cache_scope_fingerprint,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+    digest = hashlib.sha256(material.encode("utf-8")).hexdigest()
+    return f"{_SELECTED_CACHE_KEY_PREFIX}{digest}"
 
 
 def _default_metrics() -> MetricsRegistry:
@@ -125,10 +254,12 @@ class ConnectorCacheStore:
         *,
         connector_id: str | None = None,
         require_selected_profile: bool = False,
+        source_config: ConnectionConfig | None = None,
     ) -> CachedFetchResult | None:
         self._ensure_open()
         start = time.perf_counter()
-        cache_key = request.cache_key
+        cache_key = _cache_key_for_request(request, connector_id, source_config)
+        require_selected_profile = require_selected_profile or source_config is not None
         metric_connector = connector_id
         status = "miss"
 
@@ -157,6 +288,15 @@ class ConnectorCacheStore:
                     return None
 
                 metadata = entry.to_metadata()
+                if source_config is not None and (
+                    metadata.request_key != request.request_key
+                    or metadata.source_scope_fingerprint != source_config.cache_scope_fingerprint
+                    or metadata.connector_id != connector_id
+                    or metadata.dataset_id != request.dataset_id
+                ):
+                    self._index.delete_entry(cache_key)
+                    status = "miss"
+                    return None
 
                 if not policy.is_valid(metadata):
                     status = "stale"
@@ -170,17 +310,34 @@ class ConnectorCacheStore:
                     require_selected_profile
                     and metadata.payload_ref.manifest_profile_sha256 is None
                 ):
+                    self._index.delete_entry(cache_key)
                     status = "miss"
                     return None
 
-                if not self._cas.has(metadata.payload_artifact_id):
-                    logger.warning("Cache payload missing in CAS", cache_key=cache_key)
-                    self._index.delete_entry(cache_key)
-                    return None
-
                 try:
-                    payload_bytes = self._cas.get_bytes(metadata.payload_artifact_id)
+                    if metadata.payload_ref.manifest_profile_sha256 is not None:
+                        verification = self._cas.verify(metadata.payload_ref)
+                        if not verification.ok:
+                            self._index.delete_entry(cache_key)
+                            status = "miss"
+                            return None
+                    if not self._cas.has(metadata.payload_ref):
+                        logger.warning("Cache payload missing in CAS", cache_key=cache_key)
+                        self._index.delete_entry(cache_key)
+                        return None
+                    payload_bytes = self._cas.get_bytes(metadata.payload_ref)
                     result = ResultSerializer.deserialize(payload_bytes)
+                    if source_config is not None and not verify_selected_cache_payload_ref(
+                        self._cas,
+                        metadata.payload_ref,
+                        connector_id=connector_id or "",
+                        request=request,
+                        source_config=source_config,
+                        result=result,
+                    ):
+                        self._index.delete_entry(cache_key)
+                        status = "miss"
+                        return None
                 except Exception as exc:
                     logger.warning("Cache payload load failed", cache_key=cache_key, error=str(exc))
                     self._index.delete_entry(cache_key)
@@ -204,6 +361,7 @@ class ConnectorCacheStore:
         *,
         connector_id: str | None = None,
         max_staleness_seconds: float | None = None,
+        source_config: ConnectionConfig | None = None,
     ) -> CachedFetchResult | None:
         self._ensure_open()
         """
@@ -212,7 +370,7 @@ class ConnectorCacheStore:
         This is intended for resilience fallbacks where stale data is acceptable.
         """
         start = time.perf_counter()
-        cache_key = request.cache_key
+        cache_key = _cache_key_for_request(request, connector_id, source_config)
         metric_connector = connector_id
         status = "miss"
 
@@ -236,6 +394,15 @@ class ConnectorCacheStore:
 
                 metric_connector = connector_id or entry.connector_id
                 metadata = entry.to_metadata()
+                if source_config is not None and (
+                    metadata.request_key != request.request_key
+                    or metadata.source_scope_fingerprint != source_config.cache_scope_fingerprint
+                    or metadata.connector_id != connector_id
+                    or metadata.dataset_id != request.dataset_id
+                ):
+                    self._index.delete_entry(cache_key)
+                    status = "miss"
+                    return None
 
                 if max_staleness_seconds is not None:
                     age_seconds = (utc_now() - metadata.cached_at).total_seconds()
@@ -243,14 +410,38 @@ class ConnectorCacheStore:
                         status = "stale"
                         return None
 
-                if not self._cas.has(metadata.payload_artifact_id):
-                    logger.warning("Cache payload missing in CAS", cache_key=cache_key)
+                if (
+                    source_config is not None
+                    and metadata.payload_ref.manifest_profile_sha256 is None
+                ):
                     self._index.delete_entry(cache_key)
+                    status = "miss"
                     return None
 
                 try:
-                    payload_bytes = self._cas.get_bytes(metadata.payload_artifact_id)
+                    if metadata.payload_ref.manifest_profile_sha256 is not None:
+                        verification = self._cas.verify(metadata.payload_ref)
+                        if not verification.ok:
+                            self._index.delete_entry(cache_key)
+                            status = "miss"
+                            return None
+                    if not self._cas.has(metadata.payload_ref):
+                        logger.warning("Cache payload missing in CAS", cache_key=cache_key)
+                        self._index.delete_entry(cache_key)
+                        return None
+                    payload_bytes = self._cas.get_bytes(metadata.payload_ref)
                     result = ResultSerializer.deserialize(payload_bytes)
+                    if source_config is not None and not verify_selected_cache_payload_ref(
+                        self._cas,
+                        metadata.payload_ref,
+                        connector_id=connector_id or "",
+                        request=request,
+                        source_config=source_config,
+                        result=result,
+                    ):
+                        self._index.delete_entry(cache_key)
+                        status = "miss"
+                        return None
                 except Exception as exc:
                     logger.warning("Cache payload load failed", cache_key=cache_key, error=str(exc))
                     self._index.delete_entry(cache_key)
@@ -274,6 +465,7 @@ class ConnectorCacheStore:
         result: FetchResult[Any],
         *,
         connector_id: str | None = None,
+        source_config: ConnectionConfig | None = None,
         schema_hash: str | None = None,
         classification: DataClassification | str | None = None,
         column_classification: Mapping[str, DataClassification | str] | None = None,
@@ -283,7 +475,7 @@ class ConnectorCacheStore:
     ) -> CacheMetadata:
         self._ensure_open()
         start = time.perf_counter()
-        cache_key = request.cache_key
+        cache_key = _cache_key_for_request(request, connector_id, source_config)
         with self._tracer.start_as_current_span(
             FABRIC_TRACE_NAMES["cache_put"],
             attributes={"cache.operation": "put", "cache.namespace": self._namespace},
@@ -301,12 +493,45 @@ class ConnectorCacheStore:
                     field_level_encrypted=field_level_encrypted,
                     encryption_key_reference=encryption_key_reference,
                 )
+                source_intent_ref = None
+                if source_config is not None:
+                    if not connector_id:
+                        raise ValueError("selected_source_cache_requires_connector_id")
+                    source_intent = CacheSourceIntent(
+                        contract=_SOURCE_INTENT_CONTRACT,
+                        connector_id=connector_id,
+                        dataset_id=request.dataset_id,
+                        request_key=request.request_key,
+                        source_scope_fingerprint=source_config.cache_scope_fingerprint,
+                    )
+                    source_intent_ref = self._cas.put_json(
+                        source_intent.model_dump(mode="json"),
+                        opts=PutOptions(
+                            kind=_SOURCE_INTENT_KIND,
+                            media_type="application/json",
+                            schema=SchemaInfo(
+                                name=_SOURCE_INTENT_SCHEMA,
+                                version=_SOURCE_INTENT_VERSION,
+                            ),
+                            governance=governance,
+                        ),
+                        return_selected_profile=True,
+                    )
                 payload_ref = self._cas.put_bytes(
                     payload_bytes,
                     opts=PutOptions(
                         kind=CACHE_PAYLOAD_KIND,
                         media_type=media_type,
                         schema=SchemaInfo(name=CACHE_SCHEMA_NAME, version=CACHE_SCHEMA_VERSION),
+                        inputs=(
+                            [
+                                input_ref_from_artifact_ref(
+                                    source_intent_ref, role=_SOURCE_INTENT_ROLE
+                                )
+                            ]
+                            if source_intent_ref is not None
+                            else None
+                        ),
                         governance=governance,
                     ),
                     return_selected_profile=True,
@@ -320,6 +545,10 @@ class ConnectorCacheStore:
 
         metadata = CacheMetadata(
             cache_key=cache_key,
+            request_key=request.request_key,
+            source_scope_fingerprint=(
+                source_config.cache_scope_fingerprint if source_config is not None else None
+            ),
             cached_at=utc_now(),
             expires_at=expires_at,
             policy_id=policy.policy_id,
@@ -362,6 +591,9 @@ class ConnectorCacheStore:
         entry = CacheEntry(
             cache_key=cache_key,
             request_key=request.request_key,
+            source_scope_fingerprint=(
+                source_config.cache_scope_fingerprint if source_config is not None else None
+            ),
             query_key=request.query_key,
             connector_id=connector_id,
             dataset_id=request.dataset_id,

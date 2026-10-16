@@ -1,18 +1,23 @@
 import asyncio
 import time
+from collections.abc import Sized
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
+from pathlib import Path
 from types import SimpleNamespace
+from typing import ClassVar, TypeVar
 
 import pandas as pd
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.fabric.connectors.base import (
+    BaseConnector,
     ConnectionConfig,
     ConnectionHandle,
     FetchRequest,
     FetchResult,
+    HealthStatus,
 )
 from polisyos.fabric.connectors.cache import (
     CachingConnectorProxy,
@@ -27,14 +32,17 @@ from polisyos.fabric.connectors.cache import (
     TTLPolicy,
 )
 from polisyos.fabric.connectors.cache.store import ResultSerializer
+from polisyos.fabric.connectors.resilience import CacheFallback, with_fallback
 from polisyos.fabric.connectors.types import FreshnessResult, FreshnessStatus
 from polisyos.fabric.security import ArtifactGovernanceError, DataClassification
 from polisyos.ir.connectors import (
     ConnectorCapability,
+    ConnectorMetadataSpec,
     DataVersion,
     PIIDetectedEntity,
     PIIScanSummary,
     QualityTier,
+    TrustLevel,
     VersionStrategy,
 )
 
@@ -47,10 +55,13 @@ def _make_version() -> DataVersion:
     )
 
 
-def _make_result(data, *, bytes_transferred: int = 0) -> FetchResult:
-    return FetchResult(
+ResultData = TypeVar("ResultData")
+
+
+def _make_result(data: ResultData, *, bytes_transferred: int = 0) -> FetchResult[ResultData]:
+    return FetchResult[ResultData](
         data=data,
-        row_count=len(data) if hasattr(data, "__len__") else 1,
+        row_count=len(data) if isinstance(data, Sized) else 1,
         schema_id="test.schema",
         schema_version="1.0",
         version=_make_version(),
@@ -59,6 +70,49 @@ def _make_result(data, *, bytes_transferred: int = 0) -> FetchResult:
         quality_tier=QualityTier.SILVER,
         bytes_transferred=bytes_transferred,
     )
+
+
+class _ProfiledSourceConnector(BaseConnector[dict[str, object]]):
+    connector_id: ClassVar[str] = "test_profiled"
+    capabilities: ClassVar[ConnectorCapability] = ConnectorCapability.FULL_FETCH
+    metadata: ClassVar[ConnectorMetadataSpec] = ConnectorMetadataSpec(
+        connector_id="test_profiled",
+        version="1.0.0",
+        namespace="test",
+        source_name="Profiled cache fixture",
+        source_organization="PolicyOS tests",
+        trust_level=TrustLevel.HIGH,
+        quality_tier=QualityTier.GOLD,
+        capabilities=ConnectorCapability.FULL_FETCH.value,
+    )
+
+    def __init__(self, *, url_field_name: str = "url") -> None:
+        self.url_field_name = url_field_name
+        self.urls: list[str] = []
+        self.fetch_count = 0
+
+    async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+        return self._create_handle(config)
+
+    async def disconnect(self, handle: ConnectionHandle) -> None:
+        del handle
+
+    async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
+        del handle
+        return HealthStatus(healthy=True)
+
+    async def fetch(
+        self, handle: ConnectionHandle, request: FetchRequest
+    ) -> FetchResult[dict[str, object]]:
+        del request
+        self.fetch_count += 1
+        url = handle.config.url
+        self.urls.append(url)
+        data: dict[str, object] = {
+            self.url_field_name: url,
+            "fetch_number": self.fetch_count,
+        }
+        return _make_result(data)
 
 
 class _CounterStub:
@@ -239,6 +293,7 @@ def test_cache_index_v1_migration_keeps_legacy_profile_unknown(tmp_path):
 
     assert legacy is not None
     assert legacy.payload_manifest_profile_sha256 is None
+    assert legacy.source_scope_fingerprint is None
     assert legacy.to_metadata().payload_ref.manifest_profile_sha256 is None
     assert schema_version == str(INDEX_SCHEMA_VERSION)
 
@@ -448,7 +503,9 @@ def test_cache_put_records_governance_manifest(tmp_path) -> None:
     assert metadata_manifest.governance.encryption.mode == "none"
 
 
-def test_cache_put_fails_closed_when_policy_requires_field_level_encryption(tmp_path) -> None:
+def test_cache_put_fails_closed_when_policy_requires_field_level_encryption(
+    tmp_path,
+) -> None:
     cas = FileSystemCAS(tmp_path / ".polisyos")
     cache = ConnectorCacheStore(cas, TTLPolicy(ttl=timedelta(hours=1)))
     request = FetchRequest(dataset_id="test.pii")
@@ -505,11 +562,578 @@ def test_caching_connector_proxy(tmp_path):
         proxy = CachingConnectorProxy(connector, cache_store)
 
         request = FetchRequest(dataset_id="test.dataset")
-        await proxy.fetch(None, request)
-        await proxy.fetch(None, request)
+        handle = ConnectionHandle(
+            connector_id=connector.connector_id,
+            config=ConnectionConfig(url="fixture://cache-test"),
+        )
+        await proxy.fetch(handle, request)
+        await proxy.fetch(handle, request)
 
         assert connector.fetch_count == 1
         assert proxy.hit_rate == 0.5
+
+    asyncio.run(_run())
+
+
+def test_selected_source_cache_scope_separates_profiles_and_same_id_mutation(tmp_path):
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+
+    def _profile(profile_id: str, url: str, token: str) -> SourceProfile:
+        return SourceProfile(
+            profile_id=profile_id,
+            display_name=profile_id,
+            connector_family="fixture",
+            base_url=url,
+            headers={"Authorization": token},
+        )
+
+    async def _run() -> None:
+        cas = FileSystemCAS(tmp_path / ".polisyos")
+        cache = ConnectorCacheStore(cas, TTLPolicy(ttl=timedelta(hours=1)))
+        connector = _ProfiledSourceConnector(url_field_name="source_url")
+        proxy = CachingConnectorProxy(connector, cache, enable_prefetch=False)
+        request = FetchRequest(dataset_id="test.selected-profile-source")
+        profiles = (
+            _profile("source_a", "fixture://source-a", "secret-a"),
+            _profile("source_b", "fixture://source-b", "secret-b"),
+            _profile("source_a", "fixture://source-c", "secret-c"),
+        )
+        handles = tuple(
+            ConnectionHandle(
+                connector_id=connector.connector_id,
+                config=resolve_connection_config(profile),
+            )
+            for profile in profiles
+        )
+
+        first = await proxy.fetch_with_receipt(handles[0], request, require_selected_profile=True)
+        second = await proxy.fetch_with_receipt(handles[1], request, require_selected_profile=True)
+        changed_same_id = await proxy.fetch_with_receipt(
+            handles[2], request, require_selected_profile=True
+        )
+        second_hit = await proxy.fetch_with_receipt(
+            handles[1], request, require_selected_profile=True
+        )
+
+        assert [first.result.data["source_url"], second.result.data["source_url"]] == [
+            "fixture://source-a",
+            "fixture://source-b",
+        ]
+        assert changed_same_id.result.data["source_url"] == "fixture://source-c"
+        assert [
+            first.lookup_outcome,
+            second.lookup_outcome,
+            changed_same_id.lookup_outcome,
+        ] == [
+            "miss",
+            "miss",
+            "miss",
+        ]
+        assert second_hit.lookup_outcome == "hit"
+        second_hit_cache = second_hit.cache_result
+        assert second_hit_cache is not None
+        assert second_hit_cache.metadata.request_key == request.request_key
+        assert (
+            second_hit_cache.metadata.source_scope_fingerprint
+            == handles[1].config.cache_scope_fingerprint
+        )
+        first_cache = first.cache_result
+        second_cache = second.cache_result
+        changed_same_id_cache = changed_same_id.cache_result
+        assert first_cache is not None
+        assert second_cache is not None
+        assert changed_same_id_cache is not None
+        assert len(connector.urls) == 3
+        assert (
+            len(
+                {
+                    first_cache.metadata.cache_key,
+                    second_cache.metadata.cache_key,
+                    changed_same_id_cache.metadata.cache_key,
+                }
+            )
+            == 3
+        )
+        assert all(
+            receipt.payload_ref is not None and receipt.payload_ref.manifest_profile_sha256
+            for receipt in (first, second, changed_same_id, second_hit)
+        )
+        cache.close()
+
+        reopened = ConnectorCacheStore(cas, TTLPolicy(ttl=timedelta(hours=1)))
+        reopened_proxy = CachingConnectorProxy(connector, reopened, enable_prefetch=False)
+        reopened_hit = await reopened_proxy.fetch_with_receipt(
+            handles[1], request, require_selected_profile=True
+        )
+        assert reopened_hit.lookup_outcome == "hit"
+        assert reopened_hit.result.data["source_url"] == "fixture://source-b"
+        assert len(connector.urls) == 3
+        reopened.close()
+
+    asyncio.run(_run())
+
+
+def test_proxy_rejects_foreign_handle_owner_before_cached_selected_view(tmp_path):
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+
+    async def _run() -> None:
+        cas = FileSystemCAS(tmp_path / ".polisyos")
+        cache = ConnectorCacheStore(cas, TTLPolicy(ttl=timedelta(hours=1)))
+        connector = _ProfiledSourceConnector()
+        proxy = CachingConnectorProxy(connector, cache, enable_prefetch=False)
+        profile = SourceProfile(
+            profile_id="source_b",
+            display_name="Source B",
+            connector_family="fixture",
+            base_url="fixture://source-b",
+        )
+        config = resolve_connection_config(profile)
+        request = FetchRequest(dataset_id="test.foreign-cache-owner-hit")
+        owned_handle = ConnectionHandle(connector_id=connector.connector_id, config=config)
+        foreign_handle = ConnectionHandle(connector_id="foreign.connector", config=config)
+
+        seeded = await proxy.fetch_with_receipt(
+            owned_handle, request, require_selected_profile=True
+        )
+        assert seeded.lookup_outcome == "miss"
+        assert seeded.result.data["url"] == "fixture://source-b"
+        before = cache.stats()
+        fetch_count = connector.fetch_count
+
+        with pytest.raises(ValueError, match="connector_cache_handle_owner_mismatch"):
+            await proxy.fetch_with_receipt(foreign_handle, request, require_selected_profile=True)
+
+        assert connector.fetch_count == fetch_count
+        assert cache.stats().total_entries == before.total_entries
+        assert cache.hit_rate == before.hit_rate
+        hit = await proxy.fetch_with_receipt(owned_handle, request, require_selected_profile=True)
+        assert hit.lookup_outcome == "hit"
+        assert hit.result.data["url"] == "fixture://source-b"
+        assert connector.fetch_count == fetch_count
+        cache.close()
+
+    asyncio.run(_run())
+
+
+def test_proxy_rejects_foreign_handle_owner_before_fetch_or_cache_write(tmp_path):
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+
+    async def _run() -> None:
+        cas = FileSystemCAS(tmp_path / ".polisyos")
+        cache = ConnectorCacheStore(cas, TTLPolicy(ttl=timedelta(hours=1)))
+        connector = _ProfiledSourceConnector()
+        proxy = CachingConnectorProxy(connector, cache, enable_prefetch=False)
+        profile = SourceProfile(
+            profile_id="source_changed",
+            display_name="Changed source",
+            connector_family="fixture",
+            base_url="fixture://source-changed",
+        )
+        foreign_handle = ConnectionHandle(
+            connector_id="foreign.connector",
+            config=resolve_connection_config(profile),
+        )
+        request = FetchRequest(dataset_id="test.foreign-cache-owner-miss")
+        before = cache.stats()
+
+        with pytest.raises(ValueError, match="connector_cache_handle_owner_mismatch"):
+            await proxy.fetch_with_receipt(foreign_handle, request, require_selected_profile=True)
+
+        assert connector.fetch_count == 0
+        assert cache.stats().total_entries == before.total_entries == 0
+        assert cache.hit_rate == before.hit_rate == 0.0
+        cache.close()
+
+    asyncio.run(_run())
+
+
+def test_cache_fallback_binds_stale_view_to_callable_owner(tmp_path):
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+
+    class ForeignProfiledSourceConnector(_ProfiledSourceConnector):
+        connector_id: ClassVar[str] = "foreign.connector"
+
+    async def _run() -> None:
+        cas = FileSystemCAS(tmp_path / ".polisyos")
+        cache = ConnectorCacheStore(cas, TTLPolicy(ttl=timedelta(hours=1)))
+        owner_connector = _ProfiledSourceConnector()
+        foreign_connector = ForeignProfiledSourceConnector()
+        owner_proxy = CachingConnectorProxy(owner_connector, cache, enable_prefetch=False)
+        foreign_proxy = CachingConnectorProxy(foreign_connector, cache, enable_prefetch=False)
+        profile = SourceProfile(
+            profile_id="source_b",
+            display_name="Source B",
+            connector_family="fixture",
+            base_url="fixture://source-b",
+        )
+        config = resolve_connection_config(profile)
+        request = FetchRequest(dataset_id="test.fallback-handle-owner")
+        owner_handle = ConnectionHandle(
+            connector_id=owner_connector.connector_id,
+            config=config,
+        )
+        foreign_handle = ConnectionHandle(
+            connector_id=foreign_connector.connector_id,
+            config=config,
+        )
+        owner_seed = await owner_proxy.fetch_with_receipt(
+            owner_handle, request, require_selected_profile=True
+        )
+        foreign_seed = await foreign_proxy.fetch_with_receipt(
+            foreign_handle, request, require_selected_profile=True
+        )
+        assert owner_seed.result.data["url"] == foreign_seed.result.data["url"]
+        assert owner_seed.cache_result is not None
+        assert foreign_seed.cache_result is not None
+        fallback = CacheFallback(cache_store=cache)
+        error = ConnectionError("controlled primary failure")
+        before = cache.stats()
+        owner_fetch_count = owner_connector.fetch_count
+        foreign_fetch_count = foreign_connector.fetch_count
+
+        rejected = await fallback.handle_failure(
+            error, owner_connector.fetch, foreign_handle, request
+        )
+        assert rejected is None
+        assert owner_connector.fetch_count == owner_fetch_count
+        assert foreign_connector.fetch_count == foreign_fetch_count
+        assert cache.stats().total_entries == before.total_entries == 2
+        assert cache.hit_rate == before.hit_rate
+
+        accepted = await fallback.handle_failure(
+            error, owner_connector.fetch, owner_handle, request
+        )
+        assert accepted is not None
+        assert accepted.data["url"] == "fixture://source-b"
+        assert accepted.resilience is not None
+        assert accepted.resilience.fallback_used is True
+        assert owner_connector.fetch_count == owner_fetch_count
+        assert foreign_connector.fetch_count == foreign_fetch_count
+
+        class DecoratedFailingOwner:
+            connector_id = owner_connector.connector_id
+
+            @with_fallback([fallback])
+            async def fetch(self, handle: ConnectionHandle, request: FetchRequest):
+                del handle, request
+                raise ConnectionError("decorated primary failure")
+
+        decorated_result = await DecoratedFailingOwner().fetch(owner_handle, request)
+        assert decorated_result.data["url"] == "fixture://source-b"
+        cache.close()
+
+    asyncio.run(_run())
+
+
+def test_selected_cache_rejects_scope_and_exact_manifest_mismatches_and_repairs(tmp_path):
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+
+    async def _run() -> None:
+        cas = FileSystemCAS(tmp_path / ".polisyos")
+        cache = ConnectorCacheStore(cas, TTLPolicy(ttl=timedelta(hours=1)))
+        connector = _ProfiledSourceConnector()
+        proxy = CachingConnectorProxy(connector, cache, enable_prefetch=False)
+        profile = SourceProfile(
+            profile_id="selected",
+            display_name="Selected",
+            connector_family="fixture",
+            base_url="fixture://selected",
+        )
+        handle = ConnectionHandle(
+            connector_id=connector.connector_id,
+            config=resolve_connection_config(profile),
+        )
+        foreign_profile = SourceProfile(
+            profile_id="foreign",
+            display_name="Foreign",
+            connector_family="fixture",
+            base_url="fixture://foreign",
+        )
+        foreign_handle = ConnectionHandle(
+            connector_id=connector.connector_id,
+            config=resolve_connection_config(foreign_profile),
+        )
+        request = FetchRequest(dataset_id="test.selected-exact-ref")
+        first = await proxy.fetch_with_receipt(handle, request)
+        assert first.lookup_outcome == "miss"
+        assert first.cache_result is not None
+        foreign = await proxy.fetch_with_receipt(foreign_handle, request)
+        assert foreign.lookup_outcome == "miss"
+        assert foreign.cache_result is not None
+        foreign_ref = foreign.cache_result.metadata.payload_ref
+
+        # Keep B's valid cache key, request key, and selected scope while
+        # transplanting a valid A payload ref. CAS integrity alone cannot
+        # prove that these bytes belong to B's selected source intent.
+        cache_key = first.cache_result.metadata.cache_key
+        cache._index._conn.execute(
+            """UPDATE cache_entries
+               SET payload_artifact_id = ?, payload_media_type = ?,
+                   payload_manifest_profile_sha256 = ?, payload_size_bytes = ?
+               WHERE cache_key = ?""",
+            (
+                str(foreign_ref.artifact_id),
+                foreign_ref.media_type,
+                foreign_ref.manifest_profile_sha256,
+                len(cas.get_bytes(foreign_ref)),
+                cache_key,
+            ),
+        )
+        foreign_transplant = await proxy.fetch_with_receipt(handle, request)
+        assert foreign_transplant.lookup_outcome == "miss"
+        assert foreign_transplant.result.data["url"] == "fixture://selected"
+        assert connector.fetch_count == 3
+
+        foreign_transplant_cache = foreign_transplant.cache_result
+        assert foreign_transplant_cache is not None
+        cache_key = foreign_transplant_cache.metadata.cache_key
+        wrong_scope = "sha256:" + "f" * 64
+        cache._index._conn.execute(
+            "UPDATE cache_entries SET source_scope_fingerprint = ? WHERE cache_key = ?",
+            (wrong_scope, cache_key),
+        )
+
+        scope_repaired = await proxy.fetch_with_receipt(handle, request)
+        assert scope_repaired.lookup_outcome == "miss"
+        assert scope_repaired.result.data == {"url": "fixture://selected", "fetch_number": 4}
+        assert scope_repaired.cache_result is not None
+        assert (
+            scope_repaired.cache_result.metadata.source_scope_fingerprint
+            == handle.config.cache_scope_fingerprint
+        )
+
+        wrong_profile = "sha256:" + "0" * 64
+        cache._index._conn.execute(
+            "UPDATE cache_entries SET payload_manifest_profile_sha256 = ? WHERE cache_key = ?",
+            (wrong_profile, scope_repaired.cache_result.metadata.cache_key),
+        )
+        repaired = await proxy.fetch_with_receipt(handle, request)
+
+        assert repaired.lookup_outcome == "miss"
+        assert repaired.result.data == {"url": "fixture://selected", "fetch_number": 5}
+        repaired_cache = repaired.cache_result
+        assert repaired_cache is not None
+        repaired_ref = repaired.payload_ref
+        assert repaired_ref is not None
+        assert repaired_ref == repaired_cache.metadata.payload_ref
+        assert repaired_ref.manifest_profile_sha256 != wrong_profile
+        assert connector.fetch_count == 5
+        assert cas.verify(repaired_ref).ok is True
+        cache.close()
+
+    asyncio.run(_run())
+
+
+def test_selected_cache_rejects_wrong_payload_and_intent_schemas(tmp_path: Path):
+    from polisyos.core.artifacts import (
+        ArtifactRef,
+        PutOptions,
+        SchemaInfo,
+        input_ref_from_artifact_ref,
+    )
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+
+    async def _run() -> None:
+        for wrong_schema_target in ("payload", "intent"):
+            cas = FileSystemCAS(tmp_path / wrong_schema_target / ".polisyos")
+            cache = ConnectorCacheStore(cas, TTLPolicy(ttl=timedelta(hours=1)))
+            connector = _ProfiledSourceConnector()
+            proxy = CachingConnectorProxy(connector, cache, enable_prefetch=False)
+            request = FetchRequest(dataset_id=f"test.wrong-{wrong_schema_target}-schema")
+            profile = SourceProfile(
+                profile_id="schema_selected",
+                display_name="Selected",
+                connector_family="fixture",
+                base_url="fixture://schema-selected",
+            )
+            handle = ConnectionHandle(
+                connector_id=connector.connector_id,
+                config=resolve_connection_config(profile),
+            )
+            original = await proxy.fetch_with_receipt(handle, request)
+            assert original.lookup_outcome == "miss"
+            assert original.cache_result is not None
+            original_ref = original.cache_result.metadata.payload_ref
+            manifest = cas.get_manifest(original_ref)
+            original_bytes = cas.get_bytes(original_ref)
+
+            wrong_schema = SchemaInfo(name="fixture.foreign_schema", version="0")
+            if wrong_schema_target == "payload":
+                forged_ref = cas.put_bytes(
+                    original_bytes,
+                    opts=PutOptions(
+                        kind=original_ref.kind,
+                        media_type=original_ref.media_type,
+                        schema=wrong_schema,
+                        inputs=manifest.inputs,
+                    ),
+                    return_selected_profile=True,
+                )
+            else:
+                intent_edge = next(
+                    edge
+                    for edge in manifest.inputs
+                    if edge.role == "fabric.connector_cache.selected_source_intent"
+                )
+                intent_ref = ArtifactRef(
+                    artifact_id=intent_edge.artifact_id,
+                    kind="fabric.connector_cache.selected_source_intent",
+                    media_type="application/json",
+                    manifest_profile_sha256=intent_edge.manifest_profile_sha256,
+                )
+                wrong_intent_ref = cas.put_bytes(
+                    cas.get_bytes(intent_ref),
+                    opts=PutOptions(
+                        kind=intent_ref.kind,
+                        media_type=intent_ref.media_type,
+                        schema=wrong_schema,
+                    ),
+                    return_selected_profile=True,
+                )
+                wrong_intent_edge = input_ref_from_artifact_ref(
+                    wrong_intent_ref,
+                    role="fabric.connector_cache.selected_source_intent",
+                )
+                valid_payload_schema = manifest.artifact_schema
+                assert valid_payload_schema is not None
+                forged_ref = cas.put_bytes(
+                    original_bytes,
+                    opts=PutOptions(
+                        kind=original_ref.kind,
+                        media_type=original_ref.media_type,
+                        schema=valid_payload_schema,
+                        inputs=[wrong_intent_edge],
+                    ),
+                    return_selected_profile=True,
+                )
+
+            assert cas.verify(forged_ref).ok
+            _ = cache._index._conn.execute(
+                """UPDATE cache_entries
+                   SET payload_artifact_id = ?, payload_media_type = ?,
+                       payload_manifest_profile_sha256 = ?, payload_size_bytes = ?
+                   WHERE cache_key = ?""",
+                (
+                    str(forged_ref.artifact_id),
+                    forged_ref.media_type,
+                    forged_ref.manifest_profile_sha256,
+                    len(cas.get_bytes(forged_ref)),
+                    original.cache_result.metadata.cache_key,
+                ),
+            )
+
+            repaired = await proxy.fetch_with_receipt(handle, request)
+            assert repaired.lookup_outcome == "miss"
+            assert connector.urls == ["fixture://schema-selected"] * 2
+            assert connector.fetch_count == 2
+            cache.close()
+
+    asyncio.run(_run())
+
+
+def test_cache_fallback_uses_selected_source_scope(tmp_path):
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+
+    async def _run() -> None:
+        cache = ConnectorCacheStore(
+            FileSystemCAS(tmp_path / ".polisyos"),
+            TTLPolicy(ttl=timedelta(hours=1)),
+        )
+        connector = _ProfiledSourceConnector()
+        proxy = CachingConnectorProxy(connector, cache, enable_prefetch=False)
+        request = FetchRequest(dataset_id="test.selected-fallback-scope")
+        profile_a = SourceProfile(
+            profile_id="fallback_a",
+            display_name="A",
+            connector_family="fixture",
+            base_url="fixture://fallback-a",
+        )
+        profile_b = SourceProfile(
+            profile_id="fallback_b",
+            display_name="B",
+            connector_family="fixture",
+            base_url="fixture://fallback-b",
+        )
+        handle_a = ConnectionHandle(
+            connector_id=connector.connector_id,
+            config=resolve_connection_config(profile_a),
+        )
+        handle_b = ConnectionHandle(
+            connector_id=connector.connector_id,
+            config=resolve_connection_config(profile_b),
+        )
+        await proxy.fetch(handle_a, request)
+        cached_a = cache.get(
+            request,
+            connector_id=connector.connector_id,
+            source_config=handle_a.config,
+        )
+        assert cached_a is not None
+        fallback = CacheFallback(cache_store=cache)
+
+        class FailingOwner:
+            connector_id = connector.connector_id
+
+            async def fetch(self, _handle, _request):
+                raise ConnectionError("controlled failure")
+
+        failed = FailingOwner()
+        untyped_handle = SimpleNamespace(
+            connector_id=connector.connector_id,
+            config=handle_a.config,
+        )
+        legacy_absent = await fallback.handle_failure(
+            ConnectionError("controlled failure"), failed.fetch, untyped_handle, request
+        )
+        assert legacy_absent is None
+
+        absent = await fallback.handle_failure(
+            ConnectionError("controlled failure"), failed.fetch, handle_b, request
+        )
+        assert absent is None
+        await proxy.fetch(handle_b, request)
+        cached_b = cache.get(
+            request,
+            connector_id=connector.connector_id,
+            source_config=handle_b.config,
+        )
+        assert cached_b is not None
+        foreign_ref = cached_a.metadata.payload_ref
+        cache._index._conn.execute(
+            """UPDATE cache_entries
+               SET payload_artifact_id = ?, payload_media_type = ?,
+                   payload_manifest_profile_sha256 = ?, payload_size_bytes = ?
+               WHERE cache_key = ?""",
+            (
+                str(foreign_ref.artifact_id),
+                foreign_ref.media_type,
+                foreign_ref.manifest_profile_sha256,
+                len(cache._cas.get_bytes(foreign_ref)),
+                cached_b.metadata.cache_key,
+            ),
+        )
+        transplanted_b = await fallback.handle_failure(
+            ConnectionError("controlled failure"), failed.fetch, handle_b, request
+        )
+        assert transplanted_b is None
+
+        await proxy.fetch(handle_b, request)
+        selected_b = await fallback.handle_failure(
+            ConnectionError("controlled failure"), failed.fetch, handle_b, request
+        )
+        assert selected_b is not None
+        assert selected_b.data["url"] == "fixture://fallback-b"
+        assert selected_b.data["fetch_number"] == 3
+        assert selected_b.resilience is not None
+        assert selected_b.resilience.fallback_used is True
+        cache.close()
 
     asyncio.run(_run())
 
@@ -536,15 +1160,19 @@ def test_caching_proxy_receipt_preserves_selected_profile_and_lookup_outcome(tmp
         connector = MockConnector()
         proxy = CachingConnectorProxy(connector, cache, enable_prefetch=False)
         request = FetchRequest(dataset_id="test.receipt")
+        handle = ConnectionHandle(
+            connector_id=connector.connector_id,
+            config=ConnectionConfig(url="fixture://receipt"),
+        )
 
-        miss = await proxy.fetch_with_receipt(None, request, require_selected_profile=True)
+        miss = await proxy.fetch_with_receipt(handle, request, require_selected_profile=True)
         assert miss.lookup_outcome == "miss"
         assert miss.cache_result is not None
         assert miss.cache_result.result == miss.result
         assert miss.payload_ref is not None
         assert miss.payload_ref.manifest_profile_sha256 is not None
 
-        hit = await proxy.fetch_with_receipt(None, request, require_selected_profile=True)
+        hit = await proxy.fetch_with_receipt(handle, request, require_selected_profile=True)
         assert hit.lookup_outcome == "hit"
         assert hit.cache_result is not None
         assert hit.cache_result.result == hit.result
@@ -579,8 +1207,12 @@ def test_caching_proxy_receipt_does_not_claim_ref_after_cache_write_failure(
             raise OSError("controlled cache write failure")
 
         monkeypatch.setattr(cache, "put", _fail_write)
+        handle = ConnectionHandle(
+            connector_id="test.mock",
+            config=ConnectionConfig(url="fixture://write-failure"),
+        )
         receipt = await proxy.fetch_with_receipt(
-            None,
+            handle,
             FetchRequest(dataset_id="test.receipt.write-failure"),
             require_selected_profile=True,
         )
@@ -620,27 +1252,35 @@ def test_cache_receipt_profile_removal_refetches_without_reusing_cached_bytes(
         connector = MockConnector()
         proxy = CachingConnectorProxy(connector, cache, enable_prefetch=False)
         request = FetchRequest(dataset_id="test.receipt.profile-removal")
-        first = await proxy.fetch_with_receipt(None, request, require_selected_profile=True)
+        handle = ConnectionHandle(
+            connector_id=connector.connector_id,
+            config=ConnectionConfig(url="fixture://profile-removal"),
+        )
+        first = await proxy.fetch_with_receipt(handle, request, require_selected_profile=True)
         assert first.payload_ref is not None
+        assert first.cache_result is not None
 
         cache._index._conn.execute(
             "UPDATE cache_entries SET payload_manifest_profile_sha256 = NULL WHERE cache_key = ?",
-            (request.cache_key,),
+            (first.cache_result.metadata.cache_key,),
         )
-        legacy_read = cache.get(request, connector_id="test.mock")
-        assert legacy_read is not None
-        assert legacy_read.metadata.payload_ref.manifest_profile_sha256 is None
-        assert legacy_read.result.data == {"count": 1}
-        legacy_fetch = await proxy.fetch(None, request)
-        assert legacy_fetch.data == {"count": 1}
-        assert connector.fetch_count == 1
+        assert cache.get(request, connector_id="test.mock") is None
+        legacy_read = cache.get(
+            request,
+            connector_id="test.mock",
+            source_config=handle.config,
+        )
+        assert legacy_read is None
+        legacy_fetch = await proxy.fetch(handle, request)
+        assert legacy_fetch.data == {"count": 2}
+        assert connector.fetch_count == 2
 
         legacy_hit = await proxy.fetch_with_receipt(
-            None,
+            handle,
             request,
             require_selected_profile=True,
         )
-        assert legacy_hit.lookup_outcome == "miss"
+        assert legacy_hit.lookup_outcome == "hit"
         assert legacy_hit.result.data == {"count": 2}
 
         original_get = cache.get
@@ -653,7 +1293,7 @@ def test_cache_receipt_profile_removal_refetches_without_reusing_cached_bytes(
             return CachedFetchResult(result=cached.result, metadata=metadata)
 
         monkeypatch.setattr(cache, "get", _profileless_get)
-        second = await proxy.fetch_with_receipt(None, request, require_selected_profile=True)
+        second = await proxy.fetch_with_receipt(handle, request, require_selected_profile=True)
 
         assert second.lookup_outcome == "miss"
         assert second.payload_ref is not None
@@ -698,7 +1338,9 @@ def test_same_cache_payload_bytes_can_have_distinct_selected_profiles(tmp_path) 
     assert cas.get_bytes(public.payload_ref) == cas.get_bytes(restricted.payload_ref)
 
 
-def test_derived_cache_payload_keeps_raw_index_and_selected_input_edge(tmp_path) -> None:
+def test_derived_cache_payload_keeps_raw_index_and_selected_input_edge(
+    tmp_path,
+) -> None:
     from polisyos.core.artifacts import input_ref_from_artifact_ref
     from polisyos.core.artifacts.manifest import ArtifactRef
 
@@ -803,8 +1445,12 @@ def test_cache_components_use_injected_observability(
             metrics=metrics,
         )
         request = FetchRequest(dataset_id="test.dataset")
-        await proxy.fetch(None, request)
-        await proxy.fetch(None, request)
+        handle = ConnectionHandle(
+            connector_id="test.mock",
+            config=ConnectionConfig(url="fixture://metrics"),
+        )
+        await proxy.fetch(handle, request)
+        await proxy.fetch(handle, request)
 
         scheduler = PrefetchScheduler(
             cache_store,

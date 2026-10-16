@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "62387b970a57be86ec22adc4deacca86ac8b9a46",
-    "tree": "3f70f63c3981c829fb8877eb3941c992f600e8cd",
+    "head": "d826ed35a75b011be436063989c795b76941bd21",
+    "tree": "db6b2ec1a6cb099bc98a0f19b56d160a6f0302c2",
     "parents": [
-      "43e105149ebebf2b8a9a441e21b5a782478761fd"
+      "c1f82fc8cdccdc3c6eb537473ad2883de7b4867f"
     ],
     "source_freeze": false,
-    "dirty_active_source": "Known root-owned C05/C7 and LA025 source. B194 config intake source62387b9 committed; R7 replay basis applied with actual-subject residual. Fabric R2, C7 transitive inputs and V6 remain active."
+    "dirty_active_source": "Known root-owned C05/C7/LA025 composition pending. V6 test/profile companions committedd826 with two cheap actual controls; full served replay UNRUN. Fabric R3 pool owner/lease repair and C7 durable MethodJob bridge are in RAW review/authoring."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -351,6 +351,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b194-propagation-config-admission-delivery-20261016.json",
       "sha256": "64f1323b0148b6f4be50a695bf3a3495a8a4af4097eda86c7a3275fa85c96574"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v6-selected-overflow-source-and-profile-companions-20261016.json",
+      "sha256": "b22d68d4e4c7c063f257cf1c1474a40078d7fd6a392c17d45e9fc61c278f583a"
     }
   ],
   "canonical_denominator_recomputed": {

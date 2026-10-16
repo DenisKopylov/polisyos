@@ -1,0 +1,114 @@
+{
+  "record_type": "implementation_and_cheap_control_delivery_pending_composed_served_replay",
+  "slice_base": {
+    "sha": "c1f82fc8cdccdc3c6eb537473ad2883de7b4867f",
+    "tree": "f4659a48eb46416b6667272eeb96bcd357992efa"
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "d826ed35a75b011be436063989c795b76941bd21",
+    "tree": "db6b2ec1a6cb099bc98a0f19b56d160a6f0302c2",
+    "parents": [
+      "c1f82fc8cdccdc3c6eb537473ad2883de7b4867f"
+    ],
+    "complete_code_test_companion_footprint": [
+      {
+        "path": "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+        "sha256": "2c8291dab57cfb14a136b69bac32d2bdb891c0938161504ad9116c20b598e798"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+        "sha256": "0233802ba16ef18b5624d108a0a224f808320149044997523ea9bc8e6759d4a1"
+      },
+      {
+        "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "sha256": "638fc931592aa0b62bdbed7a521a3d85a0f3fb405b045a40298f1967e442a3e7"
+      }
+    ]
+  },
+  "author_role": "Local E02 author; G retains independent code acceptance, integration publication and formal finding adjudication",
+  "scope": "Test/profile companions only. Source/input identity and ordinary served-path witness must be established by the pending composed run.",
+  "pattern_pass": {
+    "patterns": [
+      "P01",
+      "P10",
+      "P12",
+      "P29",
+      "P31",
+      "P32",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "property": "Actual selected typed NCM input can yield non-finite outcome for one child while finite sibling N5 results persist and resolve through a fresh GET.",
+    "fixture_repairs": "One canonical DataSnapshot writer preserves its selected source payload, exact data_ref lineage and declared canon; capture metadata controls ordinary N4 retry window; synthetic third candidate ParameterSpec retains the correct intervention identity.",
+    "grade_boundary": "Typed simulation_blocked/value_blocked sibling with no result is distinct from thrown-child-exception failed_branches behavior. Neither establishes publication authority or production currentness."
+  },
+  "implementation": {
+    "controlled_snapshot": "Writes selected payload+DataSnapshot once with existing typed schema/canon and exact selected input edge; removes raw rewrite losing declared canon.",
+    "ordinary_retry": "Validates both capture retry counts before environment mutation; malformed/present metadata refuses and genuine absence preserves existing environment.",
+    "profile": "Per-child finite typed SCM overrides target_baseline=0, outcome_baseline=1.7e308, outcome_per_target_unit=1e308, noise=0; existing typed candidate NCM encoder/engine retains scientific contract.",
+    "new_served_test": "Ordinary POST\u2192real worker\u2192N5\u2192N6\u2192fresh GET; expected one simulation_blocked/value_blocked child and two resolved joint_simulated peers; old exception control preserved."
+  },
+  "independent_review": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-profile-n5-overflow-profiled-prototype-20261016/independent-review-r4-20261016/review-r4.json",
+      "sha256": "ff2a4001f4587e24899a6729ae1ecd855eab81bcbd00e5b048ac0e0feb134aad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-profile-n5-overflow-profiled-prototype-20261016/independent-review-r4-20261016/composition-addendum-r1.json",
+      "sha256": "c6deb461df3e0277ed578ea3256ff52fbe96cba447aca08329da6fb73f6e1e24"
+    }
+  ],
+  "source_bound_cheap_verification": {
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v6-r4-cheap-actual-20261016/request.json",
+      "sha256": "f3bd30b12e5d929a65a75fdc9433ea3ed886eaf59d8fb46646cfb7229d5f2c78"
+    },
+    "complete_deciding_commands_outputs": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v6-r4-cheap-actual-20261016/actual-results.json",
+      "sha256": "a6cfdac7e7fc40498117b952702837424def878a5a9fd007726cc3a76c6a69c4"
+    },
+    "JUnit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v6-r4-cheap-actual-20261016/behavior.junit.xml",
+      "sha256": "cf414173e10056d3ff4556c23d9dbcbe7a2d08ec43798b3bd2e985327dae9b54"
+    },
+    "origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v6-r4-cheap-actual-20261016/actual-loaded-source-origins.json",
+      "sha256": "b2dad39a43953931d1c0d9414e3448202e8db09c593e3e566e8cc8f232554804"
+    },
+    "tests": 2,
+    "pass": 2,
+    "fail": 0,
+    "error": 0,
+    "skip": 0,
+    "process_seconds": 10.973,
+    "canonical_ruff": "Root workspace_root.toml check and format --check:3PASS each.",
+    "controls": "Actual selected profile/canon/edge refusal controls and capture-backed retry/malformed metadata atomicity.",
+    "parent_profile_preflight": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-profile-n5-overflow-profiled-prototype-20261016/r4-candidate/profile-preflight-r5.stdout.json",
+      "sha256": "cbdb24abac63b640d782875fbe073096273262e41a3a01e2f408b07052a9a26d"
+    },
+    "preflight_boundary": "Typed parent profile+realNCM overflow/finite-peer only; child admission and served path UNRUN."
+  },
+  "composed_execution_request": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v6-profile-n5-overflow-profiled-prototype-20261016/r4-execution-request-r1/root-execution-request-r4.json",
+    "sha256": "1bec931f2ba6f91cf461006310ff5c1ad70d88fdf7fd34393e02650a6b363c53"
+  },
+  "selected_input_backend": {
+    "source": "Controlled synthetic local SKG and pinned recorded N4 capture; no production data or external authority.",
+    "backend": "Own existing macOS .venv, JAX CPU, one numerical thread, temporary local SQLite/CAS, ephemeral loopback gateway; no dependency reinstall."
+  },
+  "remaining_verification": {
+    "ordinary_POST_N5_N6_fresh_GET": "UNRUN; after composed source/input/profile freeze, one 720s supervised run.",
+    "actual_child_profile_identity": "UNRUN; must retain actual runtime-generated refs, not substitute parent preflight profile.",
+    "full_B13_failure_survival_adjudication": "UNRUN/HOLD; this selected blocked-sibling witness alone does not prove thrown later-stage failure or partial checkpoint behavior.",
+    "native_wheel_sdist_Linux": "UNRUN on final E02 freeze."
+  },
+  "proposals": [],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "source_freeze": false,
+  "retention": "Complete deciding outputs and controlled CAS/input data remain ignored RAW on this candidate host; code is cited by commit/path/hash, no duplicate source dumps."
+}

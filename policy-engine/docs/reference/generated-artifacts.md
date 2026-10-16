@@ -29,7 +29,7 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Runtime dashboard contract fixtures` | `generated_committed` | `committed` | `manual_review` | `team-polisyos` | `apps/runtime-dashboard/src/test/contracts/fixtures` |
 | `Benchmark reports and bundle stats` | `generated_ignored` | `mixed` | `manual_review` | `team-polisyos` | `benchmarks/_reports`<br/>`_build/apps/runtime-dashboard/dist/bundle-stats.json` |
 | `Audit and evidence artifacts` | `generated_ignored` | `mixed` | `manual_review` | `team-polisyos` | `docs/archive/reports`<br/>`_build/apps/runtime-dashboard/audit/pnpm-audit-report.json`<br/>`_build/apps/runtime-dashboard/audit/pnpm-audit-summary.md` |
-| `Public surface inventory` | `generated_committed` | `committed` | `automated` | `team-architecture` | `architecture/public_surface/inventory.json`<br/>`architecture/public_surface`<br/>`docs/reference/public-surface.md` |
+| `Public surface inventory` | `generated_committed` | `committed` | `automated` | `team-architecture` | `architecture/public_surface/inventory.json`<br/>`architecture/public_surface`<br/>`docs/reference/public-surface.md`<br/>`docs/reference/generated-artifacts.md` |
 | `Architecture package contract aggregate mirrors` | `generated_committed` | `committed` | `automated_report_only` | `team-architecture` | `architecture/packages/boundaries.toml`<br/>`architecture/packages/layout.toml`<br/>`architecture/public_surface/contract.toml`<br/>`architecture/tests/topology.toml` |
 | `Architecture report-only contract reports` | `generated_ignored` | `local_ignored` | `ignored_by_policy` | `team-architecture` | `_build/reports/architecture` |
 | `Architecture import-boundary and dependency-graph reports` | `generated_ignored` | `local_ignored` | `ignored_by_policy` | `team-architecture` | `_build/reports/architecture/import-boundary-report.json`<br/>`_build/reports/architecture/dependency-graph-report.json`<br/>`_build/reports/architecture/dynamic-import-registry-report.json`<br/>`_build/reports/architecture/phase6-1-package-import-gates.json` |
@@ -954,6 +954,7 @@ corepack pnpm --filter @polisyos/runtime-dashboard run audit:ci
   - `architecture/public_surface/inventory.json`
   - `architecture/public_surface`
   - `docs/reference/public-surface.md`
+  - `docs/reference/generated-artifacts.md`
 
 Canonical regeneration commands:
 

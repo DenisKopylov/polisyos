@@ -3101,5 +3101,31 @@
     "initial_actual": "GL3be full125PASS/1426actualorigins/strictGL1MyPyPASS/Ruffcheck3PASS, format1failsLexalone; retained notinherited.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_current_committed_public_inventory": {
+    "root_writer": "/root",
+    "base": "2383a8b9d69028f97d683ef2784d5483ad3a302f",
+    "generated_output_paths": [
+      "policy-engine/architecture/public_surface/inventory.json",
+      "policy-engine/docs/reference/public-surface.md",
+      "policy-engine/docs/reference/generated-artifacts.md"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate generator/freshness/row-scope delivery receipt and later native gate"
+    ],
+    "canonical_generator": "OWN .venv/bin/python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline; actual0/18.956s/2777inputs stable, no uv sync/environment mutation.",
+    "actual_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-public-inventory-current-generation-20261017/actual-results.json",
+      "sha256": "78443cf1bfad0ff132972a2dbc301ccb154703a6f63b6ee6c3d84ec6783d3820"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/public-inventory-regeneration-independent-review-20261017-r1/review.json",
+      "sha256": "a208d5375b566b2e17ca8945ec6e248fee9797c7516a649a74db7c4ab85aa129"
+    },
+    "P35_P37_P38": "Full20package67declaredentrypoint snapshot rederived; all67 exportresolution records incomplete/export_countnull/known0. Correct declaredscope inventory, not runtime API completeness/owneridentity/Gacceptance. Localrowscopereview can followexactcommitteddigest; no blindtrueflag/blanketapproval.",
+    "retention": "Priorownedgenerateddiff482980B preservedignoredRAW; all3outputs canonicalowner changed including generated-artifacts.md, no deepimportbaseline updated.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

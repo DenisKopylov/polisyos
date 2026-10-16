@@ -1,0 +1,165 @@
+{
+  "schema": "policyos.e02.local_delivery.v1",
+  "slice": "R3 typed selected-profile cache fetch receipt",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_application_base": "8e87c9ba7432f38e9a5f35fa345c39a5414280b9",
+    "candidate": "74af20dcda1cc1035d19f96eb9c9e77ce2754984",
+    "tree": "aad852148abd9715d29c1773d7eda59249775c0d",
+    "parents": [
+      "8e87c9ba7432f38e9a5f35fa345c39a5414280b9"
+    ],
+    "all_changed_bytes_read_from_commit": true,
+    "global_source_freeze": false
+  },
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py",
+      "sha256": "fcaa55d62f13b4d6fa68da75b0712f1815051af8edc37a45eb45faed269632b9",
+      "category": "python_source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_models.py",
+      "sha256": "8d6a05c8debb874386fa624303a82193709dadcaa734d97d4d184e7cd88ac916",
+      "category": "python_source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py",
+      "sha256": "50061675dbda50a3ac51d796c30ff9adc65be2b4df69ca5bf5a2dad4ee2697d3",
+      "category": "python_source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/evidence/evidence.py",
+      "sha256": "95d59fad3f8616d418a830b69eccf459479f48818fb45cc33571923f7aeb9b9c",
+      "category": "python_source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/ingestion/ingestion.py",
+      "sha256": "247986c0a646fd17e17f540bd0e76f38481c6c38b4ab08041e8c10b768e4895e",
+      "category": "python_source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+      "sha256": "fbc6e82997229a18b5d28f34426cf3930e63449ef67a750a116d26017c576577",
+      "category": "python_source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+      "sha256": "378709393f2bd4bbf63a7a3f4aebce5b5835d15dcf65e533554a96adb62abc91",
+      "category": "python_source"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/acquisition_production.py",
+      "sha256": "2d2cbf2806a9bfe15843a1a73bad300daea878a555c9b06d47353a98eee3f6b8",
+      "category": "test_support"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_cache_system.py",
+      "sha256": "9efabc52a7bdcf1cd72186a3960795e25c246aa0a6a9eb61a335006d78e50afd",
+      "category": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_integration.py",
+      "sha256": "523495c4ebf41b37c30c681ef3297ecbe16799f8c315d397b50d24e902182e56",
+      "category": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_orchestrator.py",
+      "sha256": "28f9d34d923355aadcb6967807183794c61dd71db98824bff055effb4906fac2",
+      "category": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/test_provenance.py",
+      "sha256": "eeb03236c22396e26703d94ca2d3ff1f074d1d2fbf4ad67230ffded2d89e0491",
+      "category": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+      "sha256": "619210d26c31435fef2ebe6fa8c5a39bb68275051e68a18f50abb0d81839f7ac",
+      "category": "test"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py",
+      "sha256": "c1f2e8d11624f8075d647d3aa3e184c22c9b84e207a7b2a6edc3d11995d3e8d0",
+      "category": "test"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/proxy.py",
+      "sha256": "7b20ea115cc73afc72ab816ada0afd01c5aa9554f298547a3bb40189cb0f51dc",
+      "category": "python_source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/__init__.py",
+      "sha256": "2fc64e477344afea5b4c184316fb0799d1b36c08c1d12f7f61444a18063bc3b5",
+      "category": "python_source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/cache/store.py",
+      "sha256": "cd8d83cfc0cf92338d8013487dc84dd24b5a201c99719a3a4f3ef8f6c07d9b1d",
+      "category": "python_source"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+      "sha256": "6cab5975b94dc4d0dac35314a0a42bcec81155b02c0a0e59e7d2c59fcdd949cf",
+      "category": "python_source"
+    },
+    {
+      "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+      "sha256": "7fd158fe8f91b7f55b03574afd891884a82c73bcb3309cc8fad80c8ead9bd113",
+      "category": "test"
+    }
+  ],
+  "selected_input_profile_backend": "Own Python3.14.3/.venv, controlled ConnectorRegistry + actual CachingConnectorProxy + reopened SQLite CacheIndex + local guarded FileSystemCAS; no production mutation.",
+  "real_chain": "Connector fetch/cache producer -> selected cache artifact/profile -> typed CacheFetchReceipt -> registry SLO wrapper -> ingestion preserving raw ref or derived exact input edge -> evidence/DataSnapshot selected parent predicate -> acquisition admission consumer.",
+  "property": "A cache hit with identical serialized FetchResult bytes cannot launder absent selected-profile metadata; ordinary historical cache reads remain available, active selected receipt refetches or refuses. Transform writes retain the genuine selected raw input edge.",
+  "predicate_basis": "independently_reconciled",
+  "commands_and_complete_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-fetch-receipt-bridge-20261016/cache-fetch-receipt-source-freeze-r4.json",
+      "sha256": "79d75b07e9ffc1c0a3c7a936edd142d6b34ff4599e45925939ea0f7019eda890"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r3-cache-fetch-receipt-bridge-20261016.json",
+      "sha256": "3b33d915e17496638ed30d846e2aba2b6cf38108dd596f49c821cc97d400293c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-cache-fetch-receipt-bridge-20261016-independent-review/independent-delta-review.json",
+      "sha256": "9ea5f67c9da26890bac7d90a97ff85474c0388c986e96d5a655d110428725df3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/r3-typed-cache-fetch-receipt-source-20261016-readback.json",
+      "sha256": "890f6b07465adba6606f341672f2324bfd51cae406f277566f0098e3139f4c70"
+    }
+  ],
+  "verification": {
+    "author_composed": "114 passed / 0 fail / 0 skip, retained at exact source bytes on earlier ancestor frame; complete command/stdout/JUnit in author manifest.",
+    "independent_fresh": "3 passed / 0 fail / 0 skip: metadata removal with equal payload bytes, actual reopened cache-to-snapshot route and registry SLO; full outputs/origins pre/post in independent manifest.",
+    "root_readback": "All19 changed paths re-read from74af source commit and matched frozen postimages; exact footprint checked.",
+    "native_and_installed": "UNRUN"
+  },
+  "adversarial_removal_controls": {
+    "controlled_only": true,
+    "implementation": "ConnectorCacheStore.get(require_selected_profile=True) rejects profileless index metadata before loading CAS bytes. CachingConnectorProxy validates the selected ref again, reports hit only for a returned selected cache result, otherwise invokes the connector and reports miss. The synchronous ingestion caller requires the typed receipt, verifies it, and either carries the exact selected raw payload ref or writes a derived payload with that ref as input. Registry lifecycle wraps sync fetch and receipt fetch with SLO accounting.",
+    "p38_divergence": "A byte-only hit check would accept a profileless cache entry when result bytes happen to match. The observed control strips only selected-profile metadata while retaining stored payload, confirms ordinary legacy fetch still serves it, then proves selected receipt returns miss and fetch count advances; a profileless typed metadata view wrapping the same cached result is also refused and refetched.",
+    "p40_bucket": "Same profileless-cache-hit class as the prior R3 finding, reviewed at the expanded full cache->registry->ingestion->snapshot path. This is not a new class; all changed mechanism paths and the actual caller route were included. No residual escape found within this route.",
+    "production_authority_or_currentness_claim": false,
+    "property": "Only a cache value whose selected, content-bound manifest profile survives the actual lookup may be reported as a selected-profile cache hit and bridged into ingestion/snapshot lineage. A profileless legacy entry, including one whose payload bytes equal a selected value, must become a miss and be refetched; the refetch result stays a miss even when persisted with a newly selected profile.",
+    "route_witness": "Controlled actual ConnectorRegistry + CachingConnectorProxy + reopened SQLite CacheIndex/FileSystemCAS + run_orchestrated_ingestion -> EvidenceBundle/RetrievalSummary/DataSnapshot source-edge predicate; no synthetic reconstruction of the selected ref in the consumer path."
+  },
+  "limitations": [
+    "L5 epoch_scope_unresolved and source/issuer/row binding remain held; cache proof does not create custody/currentness or trusted production workload.",
+    "Independent proof bound Core store70784f5 additive inventory overlay; subsequent authorized local no-redef rename belongs to separate CAS six-path source. Final affected dependency rebind remains required.",
+    "Async fetch/poll/stream pass-through behavior is unchanged and not claimed cacheable by this sync receipt.",
+    "No whole-capability closure, final native green or installed/backend closeout is asserted."
+  ],
+  "proposals": [
+    {
+      "finding_or_route": "R3 selected cache-profile propagation subproperty",
+      "outcome": "bounded_component_delivered_whole_property_limited",
+      "formal": false
+    }
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "next_check": "Bind exact original occurrences, finish remaining source batches and independent reviews, freeze full source/input/backend, run composed/native/installed/authentic checks."
+}

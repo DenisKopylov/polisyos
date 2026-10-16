@@ -1,0 +1,450 @@
+{
+  "adjudication": {
+    "closure_ids": [],
+    "historical_holds": [
+      {
+        "finding": "profileless cache metadata with identical FetchResult bytes was accepted by the joined test path; this delta adds a typed cache receipt and honest refetch control",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-ingestion-orchestrator-join-20261016/independent-r3-delta-20261016/independent-delta-review.json",
+        "sha256": "de5f59999acfff0d6f4ea10a75841b5c3b5fce0529952a1edeb6ea0be7353ca8"
+      },
+      {
+        "finding": "profileless owner and edge admission hold remains historical for its exact source frame; not erased by this receipt/cache work",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-summary-consumer-repair-20261015/independent-r3-review-r2.json",
+        "sha256": "f9de12528595cbaa1841012322e42071263b79b58c2d52df319404c778860af9"
+      },
+      "The existing native wrapper positive remains FAIL/held at epoch_scope_unresolved for the separate L5 owner-relation edge. This focused cache route is not a whole live-source/native admission PASS."
+    ],
+    "note": "No formal G closures or criterion-level proposal IDs are asserted by this author handoff. Root/G must bind the slice to its exact canonical finding occurrences and adjudicate independently.",
+    "proposal_ids": []
+  },
+  "formal_g_adjudication": "Independent review, integration publication, and formal finding adjudication remain outstanding.",
+  "implementation_boundary": {
+    "caller_census": {
+      "async_facades": {
+        "methods": [
+          "fetch_async",
+          "poll_async_fetch",
+          "fetch_stream"
+        ],
+        "note": "Definitions are unchanged pass-throughs; receipt API is sync fetch only. This slice adds no async cache lifecycle.",
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/proxy.py"
+      },
+      "direct_product_writer_reader_routes": [
+        {
+          "methods": [
+            "fetch",
+            "fetch_with_receipt"
+          ],
+          "note": "Both share _fetch_with_receipt; ordinary fetch returns only FetchResult; selected-profile receipt retains the exact cache writer/read metadata.",
+          "path": "policy-engine/src/polisyos/fabric/connectors/cache/proxy.py"
+        },
+        {
+          "method": "_sync_fetch_with_receipt",
+          "note": "Only active production caller of fetch_with_receipt; the main ingestion loop branches on actual CachingConnectorProxy, then verifies the receipt ref and exact serialized result before choosing raw, derived, or fallback writer output.",
+          "path": "policy-engine/src/polisyos/fabric/ingestion/ingestion.py"
+        },
+        {
+          "method": "_apply_slo_metrics_wrapper",
+          "note": "Wraps the receipt method separately so each receipt operation records one SLO result; composed test asserts exact count.",
+          "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py"
+        }
+      ],
+      "resilience": {
+        "note": "Registry applies configured resilience to the connector before wrapping it in CachingConnectorProxy; cache-miss receipt route delegates to that wrapped connector.fetch.",
+        "path": "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py"
+      },
+      "tests": [
+        "policy-engine/tests/unit/fabric/connectors/test_cache_system.py",
+        "policy-engine/tests/unit/fabric/connectors/test_registry.py",
+        "policy-engine/tests/unit/fabric/connectors/test_integration.py"
+      ]
+    },
+    "profileless_compatibility": "Ordinary fetch/read retains historical profileless row behavior. A selected-profile-required read treats an old profileless entry as a miss and refetches without rewriting that historic row as producer-attested.",
+    "slo_and_other_methods": "Registry SLO wrapper observes fetch_with_receipt once per operation. Existing fetch_async/poll_async_fetch/fetch_stream proxy methods are unchanged and remain connector pass-through; no async-cache lifecycle was introduced.",
+    "surfaces": "The new receipt is an additive internal cache package facade export; no release fragment or generated inventory edit was made because the nested cache path is internal by the current public-surface contract.",
+    "transformation": "When transformed output differs from cache receipt bytes, write a selected derived CAS payload with exact selected raw cache ref as connector_cache.raw_payload input; keep SQLite cache index pointed at raw source. With no transform, preserve the raw selected ref directly.",
+    "typed_receipt": "CacheFetchReceipt carries the exact FetchResult, hit/miss outcome, and original CachedFetchResult metadata/payload ref. A failed cache write returns miss with cache_result/payload_ref absent."
+  },
+  "next_independent_check": {
+    "held_capability": "Re-run the original native wrapper only after the existing L5 b35 owner-relation criterion has its required source/issuer/row binding; this receipt does not upgrade that held positive.",
+    "review": "Review the exact 19-path changed union at the frozen source hashes and the cited unchanged producers/consumer dependencies; run the profileless-same-bytes counterfactual against actual fetch receipt and verify it cannot become an admitted selected ref."
+  },
+  "real_chain": "Controlled mock connector registered in actual ConnectorRegistry, real CachingConnectorProxy and SQLite CacheIndex over FileSystemCAS, actual run_orchestrated_ingestion -> evidence bundle -> RetrievalSummary/DataSnapshot -> shared selected source parent-profile predicate.",
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "semantic_controls": [
+    "SQLite selected-profile metadata removed while payload bytes remain unchanged: normal fetch still serves legacy hit; selected receipt fetch returns miss/refetch and increments connector count.",
+    "An adversarial cache getter returns the same result bytes with a profileless typed metadata view: selected fetch refuses hit and refetches.",
+    "Cache writer exception returns an unqualified result receipt with no cache payload ref.",
+    "Public and INTERNAL selections over identical serialized bytes retain two distinct selected profile refs, both CAS-verifiable.",
+    "Transformed result links exact raw selected ref, and cache index remains raw; untransformed route uses that raw ref directly.",
+    "Removing selected profile from DataSnapshot owner ref leaves CAS bytes intact but the selected parent-edge predicate rejects."
+  ],
+  "slice_id": "r3-profiled-cache-fetch-receipt-and-joined-route-20261016",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate_path_integrity": "All 19 changed-path SHA-256 values are byte-identical to r3 and were re-read after the four root commits; the five recorded unchanged producer/consumer dependencies are also unchanged.",
+    "head": "4380f4e0ca42a3508800e2d0df6e4c8fbd470433",
+    "parents": [
+      "462b9caeabe96eec6159ca35ab361b7b6dd0b27f"
+    ],
+    "previous_source_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "8a1cce6b33c8fcb631f8e30ff3e1afab5908b306",
+      "parents": [
+        "e4488f8f43e69372b8ff1b0200dba56cfc176768"
+      ],
+      "tree": "9f142c88d5a9d4418951197e9e3864b82ed257e1",
+      "worktree": "shared dirty E02 candidate; all path bytes are SHA-bound; no staging or commit by this worker"
+    },
+    "root_commit_delta_since_r3": [
+      "56a87ad (B16)",
+      "12bcba3 (B148)",
+      "462b9ca (C07)",
+      "4380f4e (Q2)"
+    ],
+    "tree": "81d2e0740f12789680b758e5d8e7eb604ad695ce",
+    "worktree": "Shared dirty E02 candidate. This handoff binds only the listed 19 path bytes; other E02 changes in the worktree belong to their separate source slices.",
+    "path_readback": {
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-fetch-receipt-bridge-20261016/cache-fetch-receipt-source-freeze-r4.json",
+      "manifest_sha256": "79d75b07e9ffc1c0a3c7a936edd142d6b34ff4599e45925939ea0f7019eda890",
+      "candidate_paths_verified": 19,
+      "all_candidate_path_hashes_match": true,
+      "unchanged_route_dependencies_verified": 5,
+      "all_unchanged_route_dependency_hashes_match": true
+    }
+  },
+  "source_freeze": {
+    "revision": "r4",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-fetch-receipt-bridge-20261016/cache-fetch-receipt-source-freeze-r4.json",
+    "sha256": "79d75b07e9ffc1c0a3c7a936edd142d6b34ff4599e45925939ea0f7019eda890",
+    "changed_path_count": 19,
+    "changed_path_classes": {
+      "config_schema_resource_paths": 0,
+      "documentation_or_release_paths": 0,
+      "python_source_paths": 11,
+      "test_paths": 7,
+      "test_support_paths": 1
+    },
+    "status": "source_frozen_pending_independent_delta_review"
+  },
+  "source_profile_backend": {
+    "external_install": false,
+    "production_mutation": false,
+    "profile": "local policy-engine/.venv",
+    "python": "Python 3.14.3"
+  },
+  "source_test_config_companion_footprint": {
+    "counts": {
+      "config_schema_resource_paths": 0,
+      "documentation_or_release_paths": 0,
+      "python_source_paths": 11,
+      "test_paths": 7,
+      "test_support_paths": 1
+    },
+    "path_count": 19,
+    "paths": [
+      {
+        "base_at_current_head_sha256": "3adf0142b2baae9bc24e71963c132bec2d959d7bdb77fd6381042d7f7bc364fe",
+        "candidate_sha256": "fcaa55d62f13b4d6fa68da75b0712f1815051af8edc37a45eb45faed269632b9",
+        "category": "python_source",
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py",
+        "r1_candidate_sha256": "50ea4020b6ce29f6e0867ecccc7c496158cdd56c0eb07a0a91fba11a2f836d00",
+        "r1_pre_task_sha256": "3adf0142b2baae9bc24e71963c132bec2d959d7bdb77fd6381042d7f7bc364fe"
+      },
+      {
+        "base_at_current_head_sha256": "2bdb0a6d58b2cc599b2b9aada50910d14a55014183fb53fe26abf4932104bb51",
+        "candidate_sha256": "8d6a05c8debb874386fa624303a82193709dadcaa734d97d4d184e7cd88ac916",
+        "category": "python_source",
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_models.py",
+        "r1_candidate_sha256": "a8d757eec6ce5d5cb7f89dabd2471170b49149d517f29995ca002dc9e1bc58cd",
+        "r1_pre_task_sha256": "2bdb0a6d58b2cc599b2b9aada50910d14a55014183fb53fe26abf4932104bb51"
+      },
+      {
+        "base_at_current_head_sha256": "a23985a9e12e8fad8049a629d0326957818c398247562b8cbc74d668e4d908a0",
+        "candidate_sha256": "50061675dbda50a3ac51d796c30ff9adc65be2b4df69ca5bf5a2dad4ee2697d3",
+        "category": "python_source",
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py",
+        "r1_candidate_sha256": "50061675dbda50a3ac51d796c30ff9adc65be2b4df69ca5bf5a2dad4ee2697d3",
+        "r1_pre_task_sha256": "a23985a9e12e8fad8049a629d0326957818c398247562b8cbc74d668e4d908a0"
+      },
+      {
+        "base_at_current_head_sha256": "e179fdefed5107bda92cf2fa3b659f7efaac18c1fee22cde76e0ea8c06a9a672",
+        "candidate_sha256": "95d59fad3f8616d418a830b69eccf459479f48818fb45cc33571923f7aeb9b9c",
+        "category": "python_source",
+        "path": "policy-engine/src/polisyos/fabric/evidence/evidence.py",
+        "r1_candidate_sha256": "95d59fad3f8616d418a830b69eccf459479f48818fb45cc33571923f7aeb9b9c",
+        "r1_pre_task_sha256": "e179fdefed5107bda92cf2fa3b659f7efaac18c1fee22cde76e0ea8c06a9a672"
+      },
+      {
+        "base_at_current_head_sha256": "8508d91dcf2bf6412d638c76cfc290fad38cb8cae11e36f1675e8b6874e29bf9",
+        "candidate_sha256": "247986c0a646fd17e17f540bd0e76f38481c6c38b4ab08041e8c10b768e4895e",
+        "category": "python_source",
+        "path": "policy-engine/src/polisyos/fabric/ingestion/ingestion.py",
+        "r1_candidate_sha256": "ebf0302d4a1d2ec86ec0c66b7cd5cefbb702e9e1a4df60bb20fb403648788409",
+        "r1_pre_task_sha256": "8508d91dcf2bf6412d638c76cfc290fad38cb8cae11e36f1675e8b6874e29bf9"
+      },
+      {
+        "base_at_current_head_sha256": "85b4ef6d740edad25853fbe9f1b62a9e84efe727056aa2e5ea0b095efc1eab7f",
+        "candidate_sha256": "fbc6e82997229a18b5d28f34426cf3930e63449ef67a750a116d26017c576577",
+        "category": "python_source",
+        "path": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py",
+        "r1_candidate_sha256": "fbc6e82997229a18b5d28f34426cf3930e63449ef67a750a116d26017c576577",
+        "r1_pre_task_sha256": "85b4ef6d740edad25853fbe9f1b62a9e84efe727056aa2e5ea0b095efc1eab7f"
+      },
+      {
+        "base_at_current_head_sha256": "2cfaf497064a9a63ba5d684b5777e9eee972d9c6a39df4a353f8db8faaf40941",
+        "candidate_sha256": "378709393f2bd4bbf63a7a3f4aebce5b5835d15dcf65e533554a96adb62abc91",
+        "category": "python_source",
+        "path": "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+        "r1_candidate_sha256": "378709393f2bd4bbf63a7a3f4aebce5b5835d15dcf65e533554a96adb62abc91",
+        "r1_pre_task_sha256": "2cfaf497064a9a63ba5d684b5777e9eee972d9c6a39df4a353f8db8faaf40941"
+      },
+      {
+        "base_at_current_head_sha256": "93452c23deffbadf852773cf6f1f436317702f46d0e2725ff371e8aed4aff637",
+        "candidate_sha256": "2d2cbf2806a9bfe15843a1a73bad300daea878a555c9b06d47353a98eee3f6b8",
+        "category": "test_support",
+        "path": "policy-engine/tests/_helpers/acquisition_production.py",
+        "r1_candidate_sha256": "2d2cbf2806a9bfe15843a1a73bad300daea878a555c9b06d47353a98eee3f6b8",
+        "r1_pre_task_sha256": "93452c23deffbadf852773cf6f1f436317702f46d0e2725ff371e8aed4aff637"
+      },
+      {
+        "base_at_current_head_sha256": "04cecacb8e7c99b3cd732d347d5084a398cc3336e1e4dc24d9e01c4e3f8726ee",
+        "candidate_sha256": "9efabc52a7bdcf1cd72186a3960795e25c246aa0a6a9eb61a335006d78e50afd",
+        "category": "test",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_cache_system.py",
+        "r1_candidate_sha256": "d8fc96a8cabb2c4c6458a14c0c81625e8ae4565e5881c830fed4d0b5f843fcbe",
+        "r1_pre_task_sha256": "04cecacb8e7c99b3cd732d347d5084a398cc3336e1e4dc24d9e01c4e3f8726ee"
+      },
+      {
+        "base_at_current_head_sha256": "d735d8289db37ff417ca92d98023a4c34b2da768f7e4938f000380aac1382015",
+        "candidate_sha256": "523495c4ebf41b37c30c681ef3297ecbe16799f8c315d397b50d24e902182e56",
+        "category": "test",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_integration.py",
+        "r1_candidate_sha256": "8113450486601878f0d392614f64a3832eeb459c02268b0cc7a46e5faab313a0",
+        "r1_pre_task_sha256": "d735d8289db37ff417ca92d98023a4c34b2da768f7e4938f000380aac1382015"
+      },
+      {
+        "base_at_current_head_sha256": "1c93ed65ca7685b9f68d194422b8325fd46e3c0656f5c608054b8466d26a18e6",
+        "candidate_sha256": "28f9d34d923355aadcb6967807183794c61dd71db98824bff055effb4906fac2",
+        "category": "test",
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_orchestrator.py",
+        "r1_candidate_sha256": "28f9d34d923355aadcb6967807183794c61dd71db98824bff055effb4906fac2",
+        "r1_pre_task_sha256": "1c93ed65ca7685b9f68d194422b8325fd46e3c0656f5c608054b8466d26a18e6"
+      },
+      {
+        "base_at_current_head_sha256": "9b0530a51356340ee8901dadce4142a29d3dee55f4ad07c14adb09757c6b9d54",
+        "candidate_sha256": "eeb03236c22396e26703d94ca2d3ff1f074d1d2fbf4ad67230ffded2d89e0491",
+        "category": "test",
+        "path": "policy-engine/tests/unit/fabric/test_provenance.py",
+        "r1_candidate_sha256": "eeb03236c22396e26703d94ca2d3ff1f074d1d2fbf4ad67230ffded2d89e0491",
+        "r1_pre_task_sha256": "9b0530a51356340ee8901dadce4142a29d3dee55f4ad07c14adb09757c6b9d54"
+      },
+      {
+        "base_at_current_head_sha256": "392994818a004f5460dff81052dc5b927146d6ca7c7ce8e752d59ff0aee25d81",
+        "candidate_sha256": "619210d26c31435fef2ebe6fa8c5a39bb68275051e68a18f50abb0d81839f7ac",
+        "category": "test",
+        "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+        "r1_candidate_sha256": "619210d26c31435fef2ebe6fa8c5a39bb68275051e68a18f50abb0d81839f7ac",
+        "r1_pre_task_sha256": "392994818a004f5460dff81052dc5b927146d6ca7c7ce8e752d59ff0aee25d81"
+      },
+      {
+        "base_at_current_head_sha256": "a1aae58c5be480778ecbf66c1ac47eaf64173e7ebab63592c71ecb6770ee7fa8",
+        "candidate_sha256": "c1f2e8d11624f8075d647d3aa3e184c22c9b84e207a7b2a6edc3d11995d3e8d0",
+        "category": "test",
+        "path": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py",
+        "r1_candidate_sha256": "c1f2e8d11624f8075d647d3aa3e184c22c9b84e207a7b2a6edc3d11995d3e8d0",
+        "r1_pre_task_sha256": "a1aae58c5be480778ecbf66c1ac47eaf64173e7ebab63592c71ecb6770ee7fa8"
+      },
+      {
+        "base_at_current_head_sha256": "fe8608ce99061b7e26be28aa951aacf9e1d81339f92377c5a085bf033b769581",
+        "candidate_sha256": "7b20ea115cc73afc72ab816ada0afd01c5aa9554f298547a3bb40189cb0f51dc",
+        "category": "python_source",
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/proxy.py"
+      },
+      {
+        "base_at_current_head_sha256": "80aa15aa9437636acc25c8cdccbce899a7b18e600ceacda58f5c7fd667ad5ca9",
+        "candidate_sha256": "2fc64e477344afea5b4c184316fb0799d1b36c08c1d12f7f61444a18063bc3b5",
+        "category": "python_source",
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/__init__.py"
+      },
+      {
+        "base_at_current_head_sha256": "e5f782ee3cf9fab3b175bbc24d70d2db069095e2a3fdecd590d31d859d36b1bd",
+        "candidate_sha256": "cd8d83cfc0cf92338d8013487dc84dd24b5a201c99719a3a4f3ef8f6c07d9b1d",
+        "category": "python_source",
+        "path": "policy-engine/src/polisyos/fabric/connectors/cache/store.py"
+      },
+      {
+        "base_at_current_head_sha256": "d03db212c434d9924a9dfdde8e1c863d21e19783a215c466e634148ce671fc01",
+        "candidate_sha256": "6cab5975b94dc4d0dac35314a0a42bcec81155b02c0a0e59e7d2c59fcdd949cf",
+        "category": "python_source",
+        "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py"
+      },
+      {
+        "base_at_current_head_sha256": "04186d84582fc88aeefe55e0fb6e28461c5fcd256fcd9210c48a09a4e3fd7a65",
+        "candidate_sha256": "7fd158fe8f91b7f55b03574afd891884a82c73bcb3309cc8fad80c8ead9bd113",
+        "category": "test",
+        "path": "policy-engine/tests/unit/fabric/connectors/test_registry.py"
+      }
+    ],
+    "public_api_note": "Cache receipt is exported through the existing package aggregator but this nested cache package is not listed as a supported public-stable/public-experimental entrypoint in public_surface/contract.toml; generated inventory/reference files were not edited here. Root may decide whether final generated regeneration is needed.",
+    "unchanged_route_dependencies": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/epoch.py",
+        "sha256": "64528b1c015d8311b790eaabd5b570db05e5a8935e80bfe625fc569568e2276a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+        "sha256": "73cc21fa3bbe601c4cf15809d053a9a78b940fd60f81c5ab428417c456c61279"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py",
+        "sha256": "ab7d8efcf593c8cc41bd22f18df5936781f566be5d1b522f51c05aef413b6913"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+        "sha256": "23ec9fefcb00ff912198f00bc75fcf65313f4198f87cf09f261e368842ab5178"
+      }
+    ]
+  },
+  "status": "candidate-source-frozen-pending-independent-delta-review",
+  "verification": {
+    "backend": {
+      "external_install": false,
+      "production_mutation": false,
+      "profile": "local policy-engine/.venv",
+      "python": "Python 3.14.3"
+    },
+    "caller_census": {
+      "command": "rg -n \"fetch_with_receipt|CacheFetchReceipt|require_selected_profile\" src/polisyos tests/unit/fabric/connectors",
+      "exit_code": 0,
+      "scope": "Complete product source and focused connector tests; unrelated calibration/core require_selected_profile hits are not cache receipt callers."
+    },
+    "composed_focused_suite": {
+      "command": "cd policy-engine && PYTHONPATH=src .venv/bin/python -m pytest -o addopts='' -q tests/unit/fabric/connectors/test_cache_system.py tests/unit/fabric/connectors/test_registry.py tests/unit/fabric/connectors/test_integration.py --junitxml=docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-fetch-receipt-bridge-20261016/composed-final4.xml",
+      "count_source": "JUnit XML suite counters plus retained pytest summary, not progress dots",
+      "exit_code": 0,
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-fetch-receipt-bridge-20261016/composed-final4.xml",
+        "sha256": "32371c2c81c1766bc9116e9a532f05ce4f97b5e8b5bd13ce50f506c43540a8e5"
+      },
+      "junit_counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 114
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-fetch-receipt-bridge-20261016/composed-final4.log",
+        "sha256": "f29a578e008aff8ec78c453e5b78b6620ecf0c45b452a353b05e5811e76a9c95"
+      },
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "8a1cce6b33c8fcb631f8e30ff3e1afab5908b306",
+        "parents": [
+          "e4488f8f43e69372b8ff1b0200dba56cfc176768"
+        ],
+        "tree": "9f142c88d5a9d4418951197e9e3864b82ed257e1",
+        "worktree": "shared dirty E02 candidate; all path bytes are SHA-bound; no staging or commit by this worker"
+      },
+      "source_frame_note": "The 114-case composed output was captured at this prior candidate frame. R4 subsequently re-read all 19 changed paths and all five named unchanged route dependencies; every SHA-256 is unchanged."
+    },
+    "git_diff_check": {
+      "command": "git diff --check -- src/polisyos/fabric/connectors/cache/_store_core.py src/polisyos/fabric/connectors/cache/_store_models.py src/polisyos/fabric/connectors/cache/_store_index.py src/polisyos/fabric/evidence/evidence.py src/polisyos/fabric/ingestion/ingestion.py src/polisyos/runtime/quality/semantic_epoch.py src/polisyos/runtime/quality/acquisition_executor.py tests/_helpers/acquisition_production.py tests/unit/fabric/connectors/test_cache_system.py tests/unit/fabric/connectors/test_integration.py tests/unit/fabric/data_plane/test_orchestrator.py tests/unit/fabric/test_provenance.py tests/unit/runtime/quality/test_semantic_epoch.py tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py src/polisyos/fabric/connectors/cache/proxy.py src/polisyos/fabric/connectors/cache/__init__.py src/polisyos/fabric/connectors/cache/store.py src/polisyos/fabric/connectors/_registry_lifecycle.py tests/unit/fabric/connectors/test_registry.py",
+      "exit_code": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-fetch-receipt-bridge-20261016/git-diff-check-union-final.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "native_full_union": "UNRUN: this leaf’s focused receipt/cache slice does not replace root’s composed native/source-wide gates.",
+    "ruff_check": {
+      "command": ".venv/bin/python -m ruff check src/polisyos/fabric/connectors/cache/_store_core.py src/polisyos/fabric/connectors/cache/_store_models.py src/polisyos/fabric/connectors/cache/_store_index.py src/polisyos/fabric/evidence/evidence.py src/polisyos/fabric/ingestion/ingestion.py src/polisyos/runtime/quality/semantic_epoch.py src/polisyos/runtime/quality/acquisition_executor.py tests/_helpers/acquisition_production.py tests/unit/fabric/connectors/test_cache_system.py tests/unit/fabric/connectors/test_integration.py tests/unit/fabric/data_plane/test_orchestrator.py tests/unit/fabric/test_provenance.py tests/unit/runtime/quality/test_semantic_epoch.py tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py src/polisyos/fabric/connectors/cache/proxy.py src/polisyos/fabric/connectors/cache/__init__.py src/polisyos/fabric/connectors/cache/store.py src/polisyos/fabric/connectors/_registry_lifecycle.py tests/unit/fabric/connectors/test_registry.py",
+      "exit_code": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-fetch-receipt-bridge-20261016/ruff-check-union-final.log",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      }
+    },
+    "ruff_format_check": {
+      "command": ".venv/bin/python -m ruff format --check src/polisyos/fabric/connectors/cache/_store_core.py src/polisyos/fabric/connectors/cache/_store_models.py src/polisyos/fabric/connectors/cache/_store_index.py src/polisyos/fabric/evidence/evidence.py src/polisyos/fabric/ingestion/ingestion.py src/polisyos/runtime/quality/semantic_epoch.py src/polisyos/runtime/quality/acquisition_executor.py tests/_helpers/acquisition_production.py tests/unit/fabric/connectors/test_cache_system.py tests/unit/fabric/connectors/test_integration.py tests/unit/fabric/data_plane/test_orchestrator.py tests/unit/fabric/test_provenance.py tests/unit/runtime/quality/test_semantic_epoch.py tests/unit/runtime/quality/test_semantic_epoch_native_qualification.py src/polisyos/fabric/connectors/cache/proxy.py src/polisyos/fabric/connectors/cache/__init__.py src/polisyos/fabric/connectors/cache/store.py src/polisyos/fabric/connectors/_registry_lifecycle.py tests/unit/fabric/connectors/test_registry.py",
+      "exit_code": 0,
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-fetch-receipt-bridge-20261016/ruff-format-union-final.log",
+        "sha256": "a0a0f191878d553ae2b88299d5ead34d7a6367937ff1bd9e304fb73059c83f8a"
+      }
+    },
+    "source_freeze_readback": {
+      "current_head": "4380f4e0ca42a3508800e2d0df6e4c8fbd470433",
+      "current_tree": "81d2e0740f12789680b758e5d8e7eb604ad695ce",
+      "current_parents": [
+        "462b9caeabe96eec6159ca35ab361b7b6dd0b27f"
+      ],
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-fetch-receipt-bridge-20261016/cache-fetch-receipt-source-freeze-r4.json",
+      "manifest_sha256": "79d75b07e9ffc1c0a3c7a936edd142d6b34ff4599e45925939ea0f7019eda890",
+      "path_count": 19,
+      "all_path_hashes_match": true,
+      "root_commit_delta_since_previous_test_frame": [
+        "56a87ad (B16)",
+        "12bcba3 (B148)",
+        "462b9ca (C07)",
+        "4380f4e (Q2)"
+      ]
+    },
+    "independent_delta_review": {
+      "status": "pending",
+      "reviewer": "Native V19 independent reviewer",
+      "review_binding": "Use the exact R4 source-freeze path and SHA-256 above; review the complete 19-path candidate union and unchanged dependencies."
+    }
+  },
+  "source_frame_supersession": {
+    "current_r3_sha256": "ab02abb16fe9383d927a64e80502a69b9d09c83d2015d9115fedd84c19f33768",
+    "new_file_supersedes": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-fetch-receipt-bridge-20261016/cache-fetch-receipt-source-freeze-r3.json",
+    "previous_digest_retention": "The earlier announced 2a1485... bytes were overwritten before the no-overwrite instruction arrived and are not retained as a file. Current r3 is ab02abb...; its edits after 2a1485... were metadata/caller-census/dependency corrections only. All 19 code/test bytes are unchanged.",
+    "previously_announced_r3_sha256": "2a1485e61328a86e2c37b2ba7baa914800e5b22e43655da6ef19460febea03cb",
+    "successor_reason": "The four root commits advanced HEAD after r3. This new filename binds the same 19 candidate code/test bytes to the current branch/HEAD/tree/parents and current readback."
+  },
+  "scope_and_history": {
+    "held_l5_boundary": "The existing native wrapper positive remains FAIL/held at epoch_scope_unresolved for the separate L5 owner-relation edge. This focused cache route is not a whole live-source/native admission PASS.",
+    "joined_r1_source_freeze": {
+      "head": "938c0c1a8465510b3872ef395f7324f16209c2c5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-profiled-live-fabric-20261015/source-freeze-r1.json",
+      "path_count": 14,
+      "sha256": "19761284689fe76cd884c21d59d1b8ed64362835e1d2b2b26c1db1394db22720"
+    },
+    "joined_route_r2_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-ingestion-orchestrator-join-20261016/joined-cache-ingestion-orchestrator-source-freeze-r2.json",
+      "scope": "test-only joined reopened SQLite cache → actual evidence/snapshot route; superseded as source freeze by this expanded delta",
+      "sha256": "07be8289b4a9a76ab9c56dc59e65e361ece266f79789c0127672041695ba45ad"
+    },
+    "old_r3_hold": {
+      "finding": "profileless cache metadata with identical FetchResult bytes was accepted by the joined test path; this delta adds a typed cache receipt and honest refetch control",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-ingestion-orchestrator-join-20261016/independent-r3-delta-20261016/independent-delta-review.json",
+      "sha256": "de5f59999acfff0d6f4ea10a75841b5c3b5fce0529952a1edeb6ea0be7353ca8"
+    },
+    "prior_active_graph_hold": {
+      "finding": "profileless owner and edge admission hold remains historical for its exact source frame; not erased by this receipt/cache work",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric-summary-consumer-repair-20261015/independent-r3-review-r2.json",
+      "sha256": "f9de12528595cbaa1841012322e42071263b79b58c2d52df319404c778860af9"
+    }
+  },
+  "p40": {
+    "classification": "same selected-profile/cache qualification class, one level deeper",
+    "repair_scope": "Widened the one receipt boundary across actual cache fetch, SQLite hit/reopen, ingestion, evidence, snapshot, live profile predicate, and acquisition executor. The independent same-bytes/profile-stripped case is refused or honestly refetched at cache receipt admission; the mechanism was not repaired as a leaf-only test patch.",
+    "falsifier": "Remove selected profile metadata while preserving exact cached FetchResult bytes, then exercise a fresh cache read. A green selected-profile hit would falsify the receipt boundary."
+  },
+  "supersedes": {
+    "prior_handoff_draft": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-fetch-receipt-bridge-20261016/author-handoff-draft-r3.json",
+    "prior_draft_sha256": "f4d3394998e88c8f9a5c7ed022ccc5f0daccd1edebe22b7cbc3a61a5fca53bda",
+    "prior_r3_source_freeze": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-cache-fetch-receipt-bridge-20261016/cache-fetch-receipt-source-freeze-r3.json",
+    "prior_r3_current_sha256": "ab02abb16fe9383d927a64e80502a69b9d09c83d2015d9115fedd84c19f33768",
+    "reason": "Bind unchanged candidate paths to the current root HEAD/tree/parents and provide the exact source frame for independent review. No source/test path changed."
+  },
+  "tracked_handoff": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r3-cache-fetch-receipt-bridge-20261016.json",
+    "role": "author handoff for independent review; not a code commit or formal G finding receipt"
+  }
+}

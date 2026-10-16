@@ -2,10 +2,10 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "4380f4e0ca42a3508800e2d0df6e4c8fbd470433",
-    "tree": "81d2e0740f12789680b758e5d8e7eb604ad695ce",
+    "head": "74af20dcda1cc1035d19f96eb9c9e77ce2754984",
+    "tree": "aad852148abd9715d29c1773d7eda59249775c0d",
     "parents": [
-      "462b9caeabe96eec6159ca35ab361b7b6dd0b27f"
+      "8e87c9ba7432f38e9a5f35fa345c39a5414280b9"
     ],
     "source_freeze": false,
     "dirty_active_source": "Disjoint author work remains outside committed component boundaries. Exact final source/input/backend composition is not yet frozen."
@@ -235,6 +235,14 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/core-security-dynamic-import-finite-target-registration-20261016.json",
       "sha256": "97ed27bc29b4f7d31e953f5db2f763ca080024c3471b85c9a6f6f9adb1a68764"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r3-cache-fetch-receipt-bridge-20261016.json",
+      "sha256": "3b33d915e17496638ed30d846e2aba2b6cf38108dd596f49c821cc97d400293c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r3-typed-cache-fetch-receipt-delivery-20261016.json",
+      "sha256": "a31ad4ebc83f167af258b692152c8190b7ee2a92551b3603a5d9c5f57e288676"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -264,7 +272,7 @@
     "Grounding quote-span subproperty independently bounded GO; actual persisted normative SPO still lacks independent relation evidence, and trust markers skew the raw quality denominator. Relation/status and full-denominator repairs active; encoder wave remains UNRUN.",
     "GuardedCore19-path reviewed union delivered in18changed-path source commit; independent22+4cases and wrong-profile control pass. Ad-hoc type63errors/12warnings remains red, native/installed UNRUN, no P41inheritance asserted.",
     "External institutional issuer/custody/currentness, qualifying production workload, law/refinement and causal calibration are not created by these physical receipts.",
-    "Selected acquisition source checkpoint9ba4d7 is delivered with a later independent R3 active profileless-admission HOLD. No whole-profile or formal closure; targeted whole-admission repair is next."
+    "Selected acquisition source9ba4d7 is extended by74af20dc typed cache receipt19-path source with independent3-case GO. L5 epoch_scope_unresolved remains held; final native/currentness/whole-property checks remain UNRUN."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "next_check": "Finish executable producer/caller companion queue, independent delta reviews, commit source boundaries, explicit source/input/backend freeze, canonical regeneration/drift controls, one composed replay and authentic read-only closeout. G remains final code acceptance/integration publisher/finding adjudicator."

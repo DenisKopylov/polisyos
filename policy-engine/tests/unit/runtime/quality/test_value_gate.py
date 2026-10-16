@@ -1536,6 +1536,7 @@ def test_n8_catalog_provenance_reissue_refuses_unrelated_ambient_drift() -> None
 
     recorded = _catalog_provenance_comparison_fixture()
     live_manifest_content = {
+        "schema_version": "policyos.component_discovery_manifest.v1",
         "entry_points": copy.deepcopy(recorded["ambient_discovery"]["entry_points"]),
         "hidden_policy": "stable",
     }
@@ -1890,7 +1891,7 @@ def test_n8_source_flip_runner_requires_semantic_red_and_restores_bytes(
         probe_command=(
             sys.executable,
             "-c",
-            "print('MUTATION_RED:source_flip_unit_semantic_red'); "
+            "import sys; print('MUTATION_RED:source_flip_unit_semantic_red'); "
             "print('retained stderr', file=sys.stderr); raise SystemExit(1)",
         ),
         expected_red_patterns=("MUTATION_RED:source_flip_unit_semantic_red",),
@@ -3535,10 +3536,34 @@ def test_real_education_owner_shape_selects_before_unbound_estimand_refusal() ->
 @pytest.mark.parametrize("mutation", ["blocker", "claim_ref"])
 def test_value_world_knowledge_gap_must_match_blocker_and_candidate(
     mutation: str,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     problem = _avg_income_problem()
     candidate = _avg_income_candidate()
-    simulation = _simulation(_world_record(), candidate_id="candidate_avg_income_real")
+    world = _world_record()
+    profile = _controlled_avg_income_owner_profile()
+
+    def load_controlled_profile(
+        _gateway: RealValueOwnerGateway,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: object,
+    ) -> ValueDataProfile:
+        assert candidate is candidate_arg
+        assert problem is problem_arg
+        assert world_record is world_arg
+        return profile
+
+    candidate_arg = candidate
+    problem_arg = problem
+    world_arg = world
+    monkeypatch.setattr(
+        RealValueOwnerGateway,
+        "load_value_data_profile",
+        load_controlled_profile,
+    )
+    simulation = _simulation(world, candidate_id="candidate_avg_income_real")
     canonical = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
             candidate=candidate,
@@ -3552,6 +3577,9 @@ def test_value_world_knowledge_gap_must_match_blocker_and_candidate(
         problem=problem,
         cycle_index=0,
     )
+    assert canonical.status == "value_blocked"
+    assert canonical.authority_blockers == ("treatment_assignment_not_owner_derived",)
+    assert canonical.acquisition_requirement is not None
     payload = canonical.model_dump(mode="python")
     if mutation == "blocker":
         payload["authority_blockers"] = ("unrelated_value_blocker",)

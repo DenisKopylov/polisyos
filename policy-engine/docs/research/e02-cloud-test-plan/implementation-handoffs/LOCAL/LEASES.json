@@ -2626,5 +2626,28 @@
     "held": "Fiveclassificationchoices/publicstaticandHTTPfacade decisions remain held. Every priorpublic_surface_inventory_reviewed flag preserved; no issuer/expiry/waiver change.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261016_foundry_current_lock_owner_regeneration": {
+    "root_writer": "/root",
+    "base": "25f7b0301c377d1b872a93854d233ce129fdabc8",
+    "mechanism_paths": [
+      "policy-engine/architecture/production_quality/method_catalog_dependency_profiles.toml",
+      "policy-engine/architecture/production_quality/method_catalog_dependency_authority.toml"
+    ],
+    "mandatory_companions": [
+      "LOCAL/LEASES.json",
+      "separate source-bound delivery receipt and index"
+    ],
+    "input_closure": {
+      "policy-engine/architecture/production_quality/method_catalog_dependency_profiles.toml": "813531330a3d5dbba43786432850d173005ef308552694ad67d1b4f56ed4e40a",
+      "policy-engine/architecture/production_quality/method_catalog_dependency_authority.toml": "53de2721f302acf85034975ec073fd2b2824128ec89792ed67481927dae6cabf",
+      "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml": "186078f2cd5c24cdef007449109d5667f60f4f7949c9b663026e5658e538bb5b",
+      "policy-engine/pyproject.toml": "2522afe7bbbe74b8df37dcf64cda247f244ef0ec073657bb5d9e1d7841b1efe7",
+      "policy-engine/uv.lock": "6b0157dd281cae2f1bb3c2af2bd2ea4353a99ca1fa2f0424df091f41fd0b8b9c",
+      "policy-engine/src/polisyos/foundry/methods/catalog/dependency_profile.py": "d8a7c3ee2e55f1ca93ae04f12e0073f26f2a5b45042acdaaf60e3502c2a88f8c",
+      "policy-engine/src/polisyos/foundry/methods/catalog/dependency_evidence.py": "dc408f79d6c04a783391419775404cdc41715f9905da7fb6140db73b6fcf39ad",
+      "policy-engine/tools/devx/foundry/sync_dependency_profile.py": "00fc919cb8136c2dd492b64da2b08111e9ff0db4fa5b22937377ae293dfc442f"
+    },
+    "verification": "Actual canonicalwrite/check0; corruptfieldcontrol1expected. Independentsevenchecks/current8pins reviewed; noinstalled/runtime/native/globalacceptance."
   }
 }

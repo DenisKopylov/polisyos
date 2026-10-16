@@ -1,0 +1,33 @@
+{
+  "G_decision": "pending_root",
+  "checked_scope": {
+    "census": "Recursive file census confined to the named producer packet; 296 files inspected for exact SHA-256 match and literal occurrence of the old pin.",
+    "exact_hash_match_found": false,
+    "literal_pin_found": false,
+    "old_expected_sha256": "d2a935996b845c097c3b2d7e133ffb1685b2e6fd661da867e55686f99a2b8807",
+    "producer_packet": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-candidate-source-profile-author-r5-20261017/",
+    "qualification": "The old d2a935… note content is not revalidatable from the searched producer packet. This is a bounded retention finding; no claim is made about copies outside that packet.",
+    "same_named_current_note": {
+      "bytes": 7548,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-candidate-source-profile-author-r5-20261017/source-basis-decision.md",
+      "sha256": "38d245029bff0c6ff7b0699a799022bbb661d1af658d056b94d6f5bac14b14ca"
+    }
+  },
+  "decision_effect": "No change to G options, recommendation, scope, status, authority/time semantics, or closure claims. Root may cite this erratum beside the root-delivery packet.",
+  "formal_closures": [],
+  "global_closure": false,
+  "impact": {
+    "root_delivery_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-kref-empty-source-basis-contract-decision-20261017-root-delivery/decision.json",
+      "qualification": "The adaptation pins the current 38d245… note and independently cites the exact source-cut census, R5 fixture manifest f0161138…, bounded K_ref receipt f62e990c…, R5b mini-freeze f4d3d964…, and new consumer freeze db4c6018…. Its G recommendation is bounded and remains pending root decision.",
+      "sha256": "0115f1c3abf86ef69983f8c10054a7489cb7d5ea0366c347cedf0fef52ec089f"
+    },
+    "sealed_prior_packet": {
+      "action": "unchanged; its historical reference remains as written and is not revalidated by this erratum",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-kref-empty-source-basis-contract-decision-20261017.json",
+      "sha256": "031cfa5e20f1fc80e25ec471b71a85b5bb33f47743896ed4fff44555560e3ba9"
+    }
+  },
+  "purpose": "Record a bounded retention gap discovered after the root-delivery packet was sealed. This does not alter either sealed packet.",
+  "schema": "policyos.research.n4_kref_root_delivery_provenance_erratum.v1"
+}

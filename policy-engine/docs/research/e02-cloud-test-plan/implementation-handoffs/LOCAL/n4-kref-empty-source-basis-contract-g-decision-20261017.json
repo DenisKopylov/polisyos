@@ -1,0 +1,232 @@
+{
+  "bounded_conclusion": "Recommend choice B for root consideration, but keep G_decision pending. The R5 v4 fixture establishes bounded candidate plumbing and the new R5 public refusal replay establishes consumer refusal preservation; neither establishes a full L1-L6 source basis, a K_ref v4 contract, or formal E02 closure.",
+  "consumer_chain_delta": {
+    "deciding_run": {
+      "controls": [
+        "foreign DesignProblem context mismatch",
+        "foreign refusal context binding",
+        "malformed refusal",
+        "marker-only V1 result",
+        "missing versus malformed-present handoff",
+        "partial terminal assembly preserves refusal/context/K_ref"
+      ],
+      "elapsed_seconds": 11.534761791815981,
+      "exit_code": 0,
+      "latest_run": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-generation-refusal-consumer-author-r1-20261017/receipts/consumer-v4-public-n4-r5/latest-run.json",
+        "sha256": "bfba8ac9771c19a190d5b87d2bb0a493d4aa06b7f4b7f6ef8f446edfdaef16d7"
+      },
+      "observed": "Public N4 produced a candidate_unbound/knob_operator_unresolved refusal; a V2 GenerationSourceHandoff was saved to FileSystemCAS, writer discarded, then a fresh N6 repository loaded the exact GenerationUnderAResultV2. N6 used _disposition_candidates and JointSimulationPort and stopped at simulation_blocked/joint_simulation_intervention_atoms_missing while retaining the limited context WMR and refusal/source/context bindings.",
+      "origin_manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-generation-refusal-consumer-author-r1-20261017/receipts/consumer-v4-public-n4-r5/source-origin-manifest.json",
+        "sha256": "653aa06f07dd52af863f29333d7f3e912b76dc76415d7ba5b2bb8b6a43781494"
+      },
+      "receipt_id": "consumer-v4-public-n4-r5",
+      "result_roundtrip": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-generation-refusal-consumer-author-r1-20261017/receipts/consumer-v4-public-n4-r5/generation-result-roundtrip.json",
+        "sha256": "610490be295ff9bf2c4205d47f21dd3092d4e017b6e010ef7a05ffa12c29acde"
+      },
+      "test": "test_public_n4_refusal_survives_terminal_cas_readback_into_n6"
+    },
+    "delta_scope": "This is new consumer-chain evidence relative to the earlier source-basis packet. It is a refusal-preservation witness only; it exercises K_ref v3, does not establish L3/L6 completeness, does not validate a K_ref v4 profile, and does not claim a successful simulation or meaningful child.",
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-generation-refusal-consumer-author-r1-20261017/receipts/consumer-final-freeze-r1.json",
+      "sha256": "db4c601850a8ebfbd2b2355faa83edf2842f90f07b290c07ae7143c65f0db725",
+      "source_basis": "K_ref v3, 8 synthetic L2 edges, 0 L3 rows, one incomplete fixture-only L6 edge; source_basis_complete=false",
+      "status": "candidate_only_pending_independent_review_and_root_adoption"
+    }
+  },
+  "decision_state": {
+    "bounded_recommendation": "owner_bound_candidate_profile_for_present_empty_sources",
+    "formal_closures": [],
+    "formal_e02_closure": false,
+    "global_closure": false,
+    "scope": "K_ref L3/L6 selected-source identity and candidate limitation semantics only",
+    "status": "G_decision_pending_root"
+  },
+  "owner_profile_and_bounded_fixture": {
+    "bounded_public_kref_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-candidate-source-profile-author-r5-20261017/receipts/public-kref-bounded.json",
+      "sha256": "f62e990c5548f9930f50c9f6949d4c07f25393e0eae0acd9dc601555d745bb59"
+    },
+    "fixture_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-candidate-source-profile-author-r5-20261017/fixture-verified-v4-manifest.json",
+      "sha256": "f0161138cbd57a62e2fcdcae029a904256326526847ed6b6d81d275d9ad73cfc"
+    },
+    "profile_decision_note": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-candidate-source-profile-author-r5-20261017/source-basis-decision.md",
+      "sha256": "38d245029bff0c6ff7b0699a799022bbb661d1af658d056b94d6f5bac14b14ca"
+    },
+    "r5b_registry_prototype": {
+      "canonical_source_path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "canonical_source_sha256": "904e88b350cfdae482c792ea64e86528241ed1affdbf2ad5acc33d4d02eb0170",
+      "mini_freeze_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-candidate-source-profile-author-r5-20261017/receipts/r5b/mini-freeze.json",
+      "mini_freeze_sha256": "f4d3d96492a103fe62387279c9cf2d6b243ca2dd0aed9738cf834a4a4c23d505",
+      "prototype_source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-candidate-source-profile-author-r5-20261017/prototype/src/polisyos/runtime/quality/substrate_registry.py",
+      "prototype_source_sha256": "485bcf22c9b75f153b0186cec703f017229e212db981c085b280efa3e8a4c6db",
+      "qualification": "The RAW prototype hash is distinct from the canonical source pin; it is not an adopted source change."
+    },
+    "result": "Actual build_credal_reference returned K_ref v3 with 8 synthetic candidate L2 edges, zero L3 normative edges, and one incomplete fixture-only L6 edge. full_kref_source_basis_established=false. This is bounded plumbing only; source authenticity/currentness and full source basis are not established."
+  },
+  "packet_kind": "read_only_independent_g_decision_adaptation",
+  "packet_schema": "policyos.research.n4_kref_empty_source_basis_contract_decision.root_delivery.v1",
+  "prior_oracle_correction": {
+    "correction": "The earlier AST extraction of _component_versions/_reference_hash established only that direct K_ref component identity lacks direct L3/L6 source-profile inputs when no corresponding edges are emitted. It was structural, not a full-runtime hash-collision probe. Production L4 WMR can transitively bind coarse L3 registry data and nonempty L6 entries; K_ref does not reconcile those WMR entries with its direct L3/L6 reads. No full hash collision is claimed.",
+    "prior_delta": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-kref-full-source-basis-independent-delta-20261017/README.md@65b36dea12d4675de2f37f3769427fb263128f23696f1c26d8949712070e4c55"
+  },
+  "provenance": {
+    "adapted_from_sealed_packet": {
+      "handling": "retained unchanged; this file is a separate postimage",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-kref-empty-source-basis-contract-decision-20261017.json",
+      "sha256": "031cfa5e20f1fc80e25ec471b71a85b5bb33f47743896ed4fff44555560e3ba9"
+    },
+    "current_readback": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "94c4d233ee6d0566254ca98c9e4a56cc9d814f90",
+      "qualification": "The eight selected source files below hash identically at source cut and current HEAD. This does not assert a whole-tree diff classification.",
+      "tree": "56b3702a9c44cdb8c6714d5bcafe4091b06a20ec"
+    },
+    "source_cut": {
+      "commit": "514fc9ca4a9bdadd7c617cdb5cc0b8c10e592a76",
+      "parent": "6c983e5516853d14c9da69d79f03c5eb61d840fe",
+      "subject": "docs(e02): bind native, settlement and full-occurrence proposal deliveries",
+      "tree": "9bf4ca31e5d82a26e88c1a17910d892a31e28a4e"
+    }
+  },
+  "reuse_first_and_pattern_pass": {
+    "P40": "Same whole-source-basis class one level deeper. Widen the profile to the complete selected L3/L6 query and bundle quantity; no per-table ladder.",
+    "not_sufficient_as_is": [
+      "WorldModelLimitations.unavailable_data is an unbound string tuple",
+      "OpenWorldRisk.DeclaredScopeComponent.source_status is caller-declared",
+      "coarse WMR L3 counts/version and nonempty-only L6 registry entries do not bind all direct K_ref query results"
+    ],
+    "patterns": [
+      "P01",
+      "P02",
+      "P04",
+      "P05",
+      "P08",
+      "P10",
+      "P14",
+      "P15",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P39",
+      "P40"
+    ],
+    "remaining_capability_labels": [
+      "producer_missing for complete L1/L2/L3/L4-WMR/L6 source basis",
+      "artifact_missing for K_ref v4 owner source profile",
+      "consumer_missing for typed v4 N6 replay",
+      "semantic_test_missing for the v4 present-empty and malformed/missing adversarial chain"
+    ],
+    "reuse": [
+      "CredalReferenceCatalogSourceProfile and CredalReferenceSourceProfile",
+      "CandidateCycleSubstrateSourceProfile v2 and owner recomputation for its current context scope",
+      "canonical L1/L2/L3/L6 owners",
+      "SubstrateRegistryRef/resolved entries and WMR content identity as selector/custody anchors",
+      "CAS ArtifactRef and current K_ref refusal statuses"
+    ]
+  },
+  "root_decision": {
+    "choice_A_require_positive_owner_rows": {
+      "meaning": "Do not emit an available K_ref for a source class unless existing canonical owners return qualifying nonempty L3 and L6 facts; empty selected results must remain unavailable/refused.",
+      "minimum_input": "A same-root, owner-produced L3 source whose existing query emits a genuine typed candidate edge and a selected L6 source whose existing loader/validators emit a genuine eligible candidate edge, with WMR resolved entries pointing to those same selected owner outputs. Row presence alone cannot satisfy the criterion.",
+      "next_check": "Define the existing-owner qualification criterion and run one bounded controlled positive through K_ref, public N4, CAS and fresh N6. Verify its statuses remain candidate/contested as supplied by current owners and no confirmation is inferred from presence. No such full positive is established by the cited fixture; do not synthesize law/issuer facts."
+    },
+    "choice_B_owner_bound_present_empty_profile": {
+      "meaning": "Allow successful empty owner reads as candidate inputs only when their owner-recomputed source profile is content-bound in K_ref and carried as a typed limitation; this is the bounded recommendation.",
+      "minimum_input": "Same selected root and WMR/context; a schema-complete L3 source on which every contracted query successfully returns zero rows; and a canonical-loader-valid selected L6 artifact/bundle whose admitted rows yield zero selected K_ref edges (empty JSON objects only if existing L6 validation already accepts them). The profile records selected owner/ref, query and schema versions, complete query/table denominator, recomputed status/counts/result digests, profile hash in K_ref identity, candidate authority band, source authenticity/currentness not_established, and read time separate from semantic hash.",
+      "next_check": "Add K_ref v4 profile admission with the existing owner rederiving it; selector/profile identity change must change the K_ref input hash. Persist the typed payload through public N4→CAS→fresh N6 and assert the present_empty limitation plus protected non-confirmed/out_of_scope/incomplete result survive. Remove only owner rederivation while preserving marker fields and require the test to fail. Separately show missing or malformed selected sources still error/refuse rather than becoming empty."
+    },
+    "migration_and_semantics": {
+      "K_ref": "Version the changed nested contract as v4 and bind profile hashes into reference identity. Preserve v1-v3 bytes and hashes; classify legacy unprofiled L3/L6 basis as not_established for current protected claims, not as empty.",
+      "N6": "Extend strict _CredalReferenceReplayRecord and fresh reader to accept the typed K_ref v4 profile before producer adoption. Keep GenerationSourceHandoff v1 bytes if it remains an opaque nested payload envelope; version that envelope separately if its typed wire fields change.",
+      "authority_time_and_scope": "Candidate-only profile; source truth, legal coverage, currentness, freshness, qualification, ratification and issuer are not_established. No new law, issuer, threshold, refinement or authority fact. Legal as_of is distinct from owner read time; no status promotion. Protected scoped claims remain non-confirmed and carry a typed limitation.",
+      "missing_or_malformed": "Current fail-closed build errors stay distinct from present_empty. A durable public terminal source-refusal capability is a separate producer/artifact/bridge/consumer/surface/semantic-test decision; this packet claims no such public artifact."
+    }
+  },
+  "runtime_binding_finding": {
+    "kref": {
+      "direct_inputs": "L1 catalog profile plus explicit L1/L2 profile hashes; L3/L6 component identity is derived from emitted edges.",
+      "l3_gap": "If the selected L3 query emits zero normative edges, no L3 component key is emitted. The current direct K_ref read has no owner-recomputed L3 profile/query-result digest.",
+      "l6_gap": "The selected L6 bundle content hash is attached to emitted edge provenance; if no edge emits, that hash is absent from direct component_versions.",
+      "reader_versions": "v1-v3",
+      "schema": "policyos.runtime.grounding_credal_reference.v3"
+    },
+    "pipeline": {
+      "L1": "Selected catalog owner and row profile.",
+      "L2": "WMR-selected SKG URI/version, prepared owner read, source generation and byte digest.",
+      "L3": "Canonical Lex DuckDB queries over thresholds, normative-ready facts, amendments and reference edges; source schema/query results lack a K_ref-bound profile.",
+      "L4_WMR": "Production DataState builder uses L1 catalog, three normalized datasets, two calibration datasets, L5 registry inputs, DataForge/Foundry bindings and selected L2 source; controlled K_ref tests passing an explicit WMR do not establish this production builder path.",
+      "L6": "Loader requires knob dictionary, Lex intervention map and observation-contract manifest JSON objects, with optional selected bundle objects; zero emitted edges currently drop the direct K_ref L6 component hash."
+    },
+    "wmr": {
+      "existing_binding": "WorldModelRecord hashes its SubstrateRegistryRef content hash and resolved entry hashes; production DataState construction builds that registry from the same repo root.",
+      "l3_extent": "The registry snapshot records repo-relative path, MAX(effective_from) fallback version, and row counts for its listed tables. It omits lex_reference_edges and does not hash the complete K_ref L3 query results.",
+      "l6_extent": "Registry payload hashes are retained only for L6 artifacts with observation_count > 0; empty artifacts are skipped.",
+      "reconciliation": "K_ref direct reads are not reconciled against the selected WMR resolved entries. These are partial/coarse bindings, not proof of an actual equal-hash/different-source collision."
+    }
+  },
+  "source_census": {
+    "collision": "world_model_record.py resolves to two paths; both are included below.",
+    "file_type_denominator": 2772,
+    "method": "Enumerated every tracked path from git ls-tree -r --name-only 514fc9ca4a9bdadd7c617cdb5cc0b8c10e592a76 -- policy-engine/src; selected the complete .py file set, then resolved each requested basename against that set.",
+    "pins": [
+      {
+        "bytes": 129997,
+        "current_HEAD_same": true,
+        "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+        "sha256": "a116b89caf68dc57de04968c47fa5ff3a76d3f9d22b548e4e0fd5f079132f6d6"
+      },
+      {
+        "bytes": 88712,
+        "current_HEAD_same": true,
+        "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+        "sha256": "904e88b350cfdae482c792ea64e86528241ed1affdbf2ad5acc33d4d02eb0170"
+      },
+      {
+        "bytes": 19974,
+        "current_HEAD_same": true,
+        "path": "policy-engine/src/polisyos/pdc/_impl/world_model_record.py",
+        "sha256": "ad1f1a0034aac25a10e240eeb859f993c675fcefb7b5d4055cadd090942f5d41"
+      },
+      {
+        "bytes": 62858,
+        "current_HEAD_same": true,
+        "path": "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+        "sha256": "f8c1993e702cab9f46d19f31a538618713ab047e9b12b9c31b61991243ca43a9"
+      },
+      {
+        "bytes": 89908,
+        "current_HEAD_same": true,
+        "path": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+        "sha256": "92a4f9eeb246b4048f40f27e200a62d616f1db8598bd4b52dc9a36aab354a064"
+      },
+      {
+        "bytes": 174905,
+        "current_HEAD_same": true,
+        "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+        "sha256": "a1afc568776795d0f1c018c1beb255d7e7dfdcbf856eb383fe7b61e51cb8d643"
+      },
+      {
+        "bytes": 205174,
+        "current_HEAD_same": true,
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_source.py",
+        "sha256": "f3fedd9d10473bb2a0358e5fcfd5ef09ac9788b6f36dd90641ae1db5db44223e"
+      },
+      {
+        "bytes": 307232,
+        "current_HEAD_same": true,
+        "path": "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "sha256": "fc2465ca502504194846fd2393d4d117254b5b8fee3b3218eb19fb9a7f7a5dbf"
+      }
+    ],
+    "requested_basename_keys": 7,
+    "resolved_paths": 8,
+    "set": "policy-engine/src/**/*.py",
+    "sha_semantics": "SHA-256 of file bytes read from the exact source-cut Git tree, not Git blob IDs."
+  }
+}

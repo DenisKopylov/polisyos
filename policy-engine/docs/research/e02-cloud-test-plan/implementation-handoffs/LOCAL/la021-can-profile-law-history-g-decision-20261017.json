@@ -1,0 +1,280 @@
+{
+  "capability_state": "Current bounded writer/reader/API behavior is implemented and exercised; complete LA-021 capability acceptance remains open for G profile-law choice, history rollout input, producer attestation, full golden corpus, and external/install checks.",
+  "created_utc_date": "2026-10-17",
+  "current_contract_facts": {
+    "identity": {
+      "core_decoder_tags": [
+        "array_digest",
+        "bytes",
+        "bytes_hex",
+        "date",
+        "datetime",
+        "decimal",
+        "float",
+        "float_hex"
+      ],
+      "core_default": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0"
+      },
+      "exception_identity_distinct": true,
+      "ir_decoder_tags": [
+        "bytes",
+        "date",
+        "datetime",
+        "decimal",
+        "float"
+      ],
+      "ir_default": {
+        "name": "polisyos.canon.json",
+        "version": "0.2.0"
+      },
+      "metadata_contains_tag_allowlist": false
+    },
+    "mapping_options": {
+      "all_12_fields": [
+        "kind",
+        "media_type",
+        "schema",
+        "producer",
+        "env",
+        "inputs",
+        "canon",
+        "governance",
+        "tenant_context",
+        "same_input_closure",
+        "authority",
+        "warnings"
+      ],
+      "behavior": "real FileSystemCAS write, exact selected manifest ref, manifest/bytes reopen, all 12 field comparisons",
+      "no_open_mapping_defect_reproduced": true,
+      "status": "current_whole_field_contract_passes",
+      "three_input_forms": [
+        "typed options",
+        "Mapping of typed models",
+        "Mapping of plain maps"
+      ]
+    },
+    "persisted_discriminator": {
+      "artifact_kind": "la021.core-only-tag",
+      "evidence_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/contract_probe.stdout.json",
+        "sha256": "e422af7725fbaf3e68f05717303294a3a4dd8ab32d904992895d7884b8a3228c"
+      },
+      "other_tag_controls": {
+        "finding": "Both facades low-level decode different tag sets; public Core encode conformance refuses float_hex and bytes_hex, so only array_digest is demonstrated as Core-public-writable.",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/decoder_profile_probe.stdout.json",
+        "sha256": "177cf56c8695ac8128ed7da6e841c0733a232becae6698750294249058dbfd2c"
+      },
+      "owner_path": "FileSystemCAS.put_json -> persisted manifest/bytes -> fresh IR reader",
+      "payload_bytes": "{\"digest\":{\"_type\":\"array_digest\",\"digest\":\"abc\",\"dtype\":\"f64\",\"shape\":[2]}}",
+      "qualification": "The output retains the actual persisted payload and Core/IR read result but not the temporary CAS artifact ref/ID. This is a persisted live discriminator, not a stable deployed artifact identifier.",
+      "result": "Core public encoder persists this array_digest witness under its default CanonInfo; the fresh IR reader refuses with CanonViolation: Unknown canonical _type: array_digest."
+    },
+    "producer_attestation": {
+      "distinction": "ProducerInfo labels, CanonInfo, and a digest of the selected manifest view do not authenticate the producing event.",
+      "if_required": "consume an already-owned external typed producer/verification fact that is resolved, provenance-verified, and content-bound; do not self-label or add a new authority field here.",
+      "status": "not_established"
+    },
+    "profileless_history": {
+      "current_semantic_defaults": "Core refuses absent profile; IR refuses unsupported/missing profile; Core opt-in yields candidate-only and value access still refuses; semantic HTTP refuses while raw content/download preserves exact bytes.",
+      "do_not": "infer historical absence from repository data, fill profile from reader default, synthesize historical producer attestation, or rewrite identifiers.",
+      "history_inventory": "not_established; no deployed/historical CAS census or qualifying production blob was available."
+    }
+  },
+  "evidence": {
+    "bounded_scope_not_run": [
+      "full LA-021 golden historical corpus",
+      "G-level end-to-end acceptance",
+      "remote S3/GCS services",
+      "wheel/sdist install verification",
+      "deployed historical-CAS inventory"
+    ],
+    "runtime_origin": {
+      "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/import-origin-readback.stdout.json",
+      "python": "3.14.3",
+      "result": "22 relevant modules imported from OWN src with source hashes.",
+      "sha256": "78cbd19ff34f8bb36ad131ef08da3e698fc1e48c6cbfd17ff4ec4ef0abe11435"
+    },
+    "source_inventory": {
+      "denominator": "2,772 source Python files and 3,050 test files; complete AST walk, zero parse errors.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/source_inventory.json",
+      "sha256": "9fe3c99940859475b91b33efb5660c5844d970e82eb4aaac63e419836dbed77f"
+    },
+    "tests": [
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/pytest-tmp",
+          "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_mapping_write_options_preserve_every_core_option_field",
+          "tests/unit/core/artifacts/test_ir_adapter.py::test_current_core_native_tags_round_trip_through_fresh_profiled_ir_reader",
+          "tests/unit/core/artifacts/test_ir_adapter.py::test_profileless_historical_cas_artifact_is_refused_before_bytes",
+          "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_rejects_raw_numeric_float_under_forbid_floats_profile",
+          "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_malformed_raw_profile_before_payload_bytes",
+          "tests/unit/core/artifacts/test_ir_adapter.py::test_core_put_json_preserves_array_digest_mapping_but_raw_ir_reader_refuses_it",
+          "tests/unit/core/artifacts/test_core_json_producer_conformance.py",
+          "tests/unit/core/artifacts/test_selected_profile_core_json.py::test_core_json_missing_profile_is_refused_before_selected_semantics",
+          "tests/unit/core/artifacts/test_selected_profile_core_json.py::test_core_unknown_profile_remains_an_exact_raw_only_candidate",
+          "tests/unit/core/artifacts/test_selected_profile_core_json.py::test_core_json_facade_returns_only_profile_conformant_selected_values",
+          "tests/unit/common/test_canonical_profile.py",
+          "tests/unit/ir/test_canon_hash_parity.py",
+          "tests/unit/runtime/http/test_declared_profile_api_refusal.py::test_semantic_views_refuse_selected_profile_mismatch_and_raw_accept_preserves_bytes"
+        ],
+        "cases_passed": 35,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "env": {
+          "MKL_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "src"
+        },
+        "explicit_selector_count": 13,
+        "id": "LA021-current-core-ir-and-mapping-controls",
+        "note": "The authoritative exact invocation/selector list is the original manifest and investigation report. Pytest parametrization and the full producer-conformance module yield 35 passing cases. The original run warns about an unknown cache_dir config option.",
+        "output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/targeted-tests.stdout.txt",
+          "sha256": "07f90dbdb240068b55e04f8a5b08b65d79641ddffa50b5458a8a8781fc431054"
+        }
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/pytest-tmp-profileless",
+          "tests/unit/runtime/http/test_declared_profile_api_refusal.py::test_inspector_refusal_family_preserves_raw_and_non_json_semantics",
+          "tests/unit/runtime/http/test_declared_profile_api_refusal.py::test_raw_artifact_responses_keep_exact_bytes_when_profile_is_incomplete",
+          "tests/unit/runtime/http/test_declared_profile_refusal.py::test_raw_sidecar_reader_refuses_profileless_current_sidecar_by_default",
+          "tests/unit/core/artifacts/test_ir_adapter.py::test_actual_persisted_mismatched_profile_refuses_before_bytes",
+          "tests/unit/core/artifacts/test_ir_adapter.py::test_raw_core_bypass_with_shaped_profile_cannot_authorize_core_only_tag"
+        ],
+        "cases_passed": 6,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "env": {
+          "MKL_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "src"
+        },
+        "explicit_selector_count": 5,
+        "id": "LA021-profileless-and-raw-api-controls",
+        "note": "Five explicit selectors produced six passing cases. The original run warns about an unknown cache_dir config option.",
+        "output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/profileless-api-tests.stdout.txt",
+          "sha256": "6e459c16ab2f2e60078584eb089e83da3c5ce23753275c30fb2b7565e6673f77"
+        }
+      }
+    ]
+  },
+  "formal_closure_ids": [],
+  "g_decisions_requested": [
+    {
+      "decision_id": "LA-021-1",
+      "option_a": {
+        "choice": "Affirm facade-contextual tag law under the shared identity",
+        "cost": "Lowest migration cost and preserves existing defaults/addresses; requires G to state clearly that tag acceptance is not encoded in CanonInfo and that cross-facade semantic reads may fail closed. Same profile label otherwise risks consumers inferring equivalent accepted payload sets."
+      },
+      "option_b": {
+        "choice": "Require explicit distinct tag-profile identity/version",
+        "cost": "Makes accepted tag law selectable and auditable; requires a profile design, golden corpus, explicit compatibility readers/writers, and migration treatment for existing refs/bytes. Preserve old addresses during transition; no default rewrite."
+      },
+      "question": "Does the shared polisyos.canon.json@0.2.0 identity describe codec settings while tag acceptance remains explicitly facade-contextual, or must Core and IR tag laws be distinguished by an explicit profile identity/version?",
+      "recommendation_while_pending": "Keep current strict Core/IR readers and existing refusal. Do not widen IR, rename/version profiles, or rewrite identifiers until G chooses. Use raw retrieval only where bytes are needed without claiming semantic conformance."
+    },
+    {
+      "decision_id": "LA-021-2",
+      "minimal_named_input_to_decide": "At least one owner-identified deployed profileless JSON artifact: exact store/namespace and artifact ID; raw bytes and sidecar/manifest digests; its actual semantic consumer and whether service is required; producer/rule provenance sufficient to test whether the historic encoding rule can be independently reconstructed; and the affected audience/status/time semantics. This one record is a falsifier/input, not a corpus completeness or rollout-cost estimate.",
+      "next_expansion_if_rollout_is_chosen": "Only after that named discriminator establishes impact, obtain an owner-qualified corpus denominator and reader set to price a migration; no broad payload census is requested by this packet.",
+      "question": "Should profileless historical JSON remain semantically refused, or is there a named owner-supported compatibility/migration route?",
+      "recommendation_while_pending": "Retain strict semantic refusal and explicit exact-byte raw retrieval. No default-based profile fill or bulk rewrite."
+    }
+  ],
+  "global_acceptance": false,
+  "original_criterion": {
+    "complete_reported_span_pinned": true,
+    "criterion_requirements": [
+      "Treat duplicate implementation and accepted-format divergence as confirmed legacy; inspect the named IR and Core canonical codecs plus Core hashing.",
+      "Recognize that Core supports float_hex, bytes_hex, and array_digest beyond IR while both declare polisyos.canon.json@0.2.0; the ten ordinary-value match is not full equivalence and does not imply historical IR must accept Core-only tags.",
+      "Preserve persisted bytes, strict/depth behavior, Decimal, dates, bytes, float policy, hashing variants and warnings; distinguish common mechanics from the intentionally narrower IR profile; preserve distinct exception identities as migration obligations.",
+      "Prefer shared common canonical/hash primitives while keeping Core and IR facades and permitted profiles; do not add direct Core-to-IR import dependency or merge common.serialization.JsonDataVisitor into strict canonical identity.",
+      "Migrate using a golden byte corpus and explicit profile/version compatibility, preserving current addresses during transition; do not rewrite CAS IDs, silently widen historic decoding, or make Core the sole correct profile.",
+      "Acceptance includes old payload round trips, byte/hash identity, exception types, numeric/date/null/typed tags, depth errors, and imports; the local ten-value sample is only characterization.",
+      "No specific damaged production artifact is established. Grounds are E45–E48/E64 and P06–P10."
+    ],
+    "id": "LA-021",
+    "source": {
+      "lines_inclusive": [
+        990,
+        1021
+      ],
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+    }
+  },
+  "packet_id": "LA-021-CAN-codec-law-history-rollout-20261017",
+  "pattern_pass": {
+    "finding": "Maintain owner/facade boundaries, explicit replayable profile law, fail-closed consumer semantics, and complete measured denominators; do not convert uncertainty about migration law into code defaults.",
+    "ids": [
+      "P06",
+      "P07",
+      "P10",
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "p41": "not_claimed"
+  },
+  "prior_g_admission": {
+    "accepted_scope": "bounded strict presented-profile IR read; explicitly not full Core/IR conformance, history rollout, or producer attestation",
+    "accepted_unit": "C06-CAN",
+    "admission": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/ADMISSION.json",
+      "sha256": "15cdf71665d265ec9d8f4309c4dea572d71a6ac11e55680ce18017c3ddc0c639"
+    },
+    "formal_closure_ids": [],
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/reviews/review-C06-CAN.md",
+      "sha256": "dd5bfcd3cbfc8b50f32d12d4bd6c7ee9a52cc38e90e15846a0d7760f7cabe9ac"
+    },
+    "stale_note_correction": "The admission says “Core Mapping options warning/authority loss companion queued.” That note is stale for current OWN: the whole-field adapter guard and persisted CAS Mapping test pass for typed options, Mapping-of-models, and Mapping-of-plain-maps. This current evidence does not broaden G accepted scope or establish G acceptance."
+  },
+  "proposal_ids": [],
+  "proposals": [],
+  "schema": "polisyos.e02.la021-g-decision-packet.v1",
+  "scope": "LA-021 canonical codec tag-law/profile identity and profileless-history rollout; current OWN contract evidence only",
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "514fc9ca4a9bdadd7c617cdb5cc0b8c10e592a76",
+    "original_evidence_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/manifest.json",
+      "sha256": "a8627e6e2f35e279d748d91aeb44c510406465bec75ff87a931c8c1218dd97f5"
+    },
+    "original_investigation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/investigation.md",
+      "sha256": "edaf07b14de5a6490aadf5293bfed8fa57f02c7566c254caf789d49298365178"
+    },
+    "own_worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "source_pin_file": {
+      "current_mismatches": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/source-pins.json",
+      "pinned_paths": 48,
+      "sha256": "ca78bd0a95092b6f7596283893b2d636ded0b1ad531829f66130fa0d4c6d51cd"
+    },
+    "tree": "9bf4ca31e5d82a26e88c1a17910d892a31e28a4e"
+  },
+  "status": "decision_request_only"
+}

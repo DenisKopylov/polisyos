@@ -227,7 +227,7 @@
         "tests/unit/data_forge/kernel/test_encoder_identity.py",
         "kernel README/release"
       ],
-      "scope": "Existing selected-ref/Core→IR caller crosscut; immutable completed wrapper changes preserved across peer-owned files. Active new edits limited to B61 adapter/ref collector; peer-owned additional deltas sent to owner/root. Full completed crosscut footprint is supplied in ready manifest."
+      "scope": "Existing selected-ref/Core\u2192IR caller crosscut; immutable completed wrapper changes preserved across peer-owned files. Active new edits limited to B61 adapter/ref collector; peer-owned additional deltas sent to owner/root. Full completed crosscut footprint is supplied in ready manifest."
     },
     "cas_contracts": {
       "mechanisms": [
@@ -904,8 +904,7 @@
     "baseline_incident": "User approved exact one-file recovery; baseline now HEAD bytes. Ad-hoc BasedPyright must pass --baselinemode lock and check before/after hash. Maintained read-only discard wrappers unchanged.",
     "root_reserved": "LEASES; generated/schema/config/lock publication; sequential epoch codec companion; exact source/input/backend freeze; receipts/proposals and remote readback.",
     "authority": "No new formal G closures. Independent component GO and author proposals do not adjudicate canonical 282 IDs /291 occurrences; history including B198 preserved."
-  }
-,
+  },
   "coordination_epoch_20261015_7b23055a": {
     "as_of_candidate_commit": "7b23055ad0457ac312296e35e08d46731461335a",
     "supersedes_prior_current_labels": "Earlier epochs remain historical. Exact current author freezes and the following disjoint leases govern subsequent writes.",
@@ -1162,7 +1161,7 @@
       },
       "fabric_pool_cleanup_author": {
         "existing_scope": "Reopen prior8src9tests after actual4dependency classes bypass evidence573b738edc3a",
-        "boundary": "Whole67binding actual consumer reads/constructor routes, real owner constants rather than unused API copies. Shared ContextVar resolver invariant, no leaf globals; actual concurrent deterministic connector→DuckDB counts/rows/cleanup control required for broader claim."
+        "boundary": "Whole67binding actual consumer reads/constructor routes, real owner constants rather than unused API copies. Shared ContextVar resolver invariant, no leaf globals; actual concurrent deterministic connector\u2192DuckDB counts/rows/cleanup control required for broader claim."
       }
     },
     "frozen_review_ready": {
@@ -1492,6 +1491,30 @@
       "slot_3": "root integration when explicitly scheduled"
     },
     "P40": "Second escape of a class requires widened invariant or tested bounded residual; no keyword/leaf patch ladder.",
+    "formal_G_closure_ids": []
+  },
+  "coordination_epoch_20261016_n4_and_c05_join": {
+    "as_of_candidate_commit": "6e01d306ff90880cd9edecdd547c0285082776d4",
+    "root_only": "Exact staging/commits/push, receipt/index metadata and all public/generated/schema/lock outputs; journal-listed disjoint advances preserve active leases.",
+    "root_delivered_paths": [
+      "apps/runtime-dashboard/scripts/fixture_support/catalog_profile_source_fixture.py",
+      "tests/_helpers/generic_n4_served_replay.py"
+    ],
+    "c05_RAW_only_patch_scope": [
+      "src/polisyos/scientist/methods/autotune/runtime.py",
+      "src/polisyos/runtime/resilience.py",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+      "tests/unit/runtime/test_resilience_guards.py",
+      "Other four pure-read owner paths exactly as r9 successor manifest; root applies all eight atomically after independent review."
+    ],
+    "typing_RAW_only": "v5_v6_join_systemic_oracle; models and lazy facade TYPE_CHECKING companions; narrow two claim_adjudicator corrections pass to C05 sole owner before r9 freeze. No tracked writes.",
+    "CAN_writer": "Existing complete 65-path union and role-based GL delta; immutable successor manifest and independent review required. Brief tracked writer barrier for root commit hooks.",
+    "compute": {
+      "heavy_mac_slots": 3,
+      "numerical_threads_per_process": 1,
+      "disk_available_gib_observed": 45
+    },
+    "P40": "Same-class second escape widens the invariant or declares and falsifies a bounded residual; no keyword leaf ladder.",
     "formal_G_closure_ids": []
   }
 }

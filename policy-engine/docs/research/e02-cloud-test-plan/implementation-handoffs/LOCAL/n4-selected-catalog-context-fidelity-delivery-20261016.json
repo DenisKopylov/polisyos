@@ -1,0 +1,66 @@
+{
+  "schema": "policyos.e02.local_delivery.v1",
+  "slice": "N4 selected serving Catalog context fidelity",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "e989262626b89d89c770bb2c0092289b4066bbde",
+  "candidate_sha": "6e01d306ff90880cd9edecdd547c0285082776d4",
+  "candidate_tree": "6da2afdd202a144ed579c33d0f5f6867f16c2c22",
+  "parents": [
+    "e989262626b89d89c770bb2c0092289b4066bbde"
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "source_freeze": false,
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+      "sha256": "4653716746b5baf41b14a63301226455ba64291fe47fc669b76f929463ed249a"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/scripts/fixture_support/catalog_profile_source_fixture.py",
+      "sha256": "124d0a4655edf42c2f9f03a07de9244715f4c8aba9902345715563d42da8c976"
+    }
+  ],
+  "property": "The source-bound browser fixture passes its actual CatalogServingSourcePaths into N4 and checks the returned K_ref selected owner/profile/basis and resolved database path; missing K_ref remains refusal with producer diagnostics.",
+  "real_chain": [
+    "Controlled fixture resolves local serving Catalog profile",
+    "Existing catalog source context wraps actual generic N4 producer",
+    "K_ref carries selected source identity into fixture setup",
+    "Browser source-bound fixture reads that same K_ref before browser admission"
+  ],
+  "selected_input_profile_backend": "Own Python3.14 environment; controlled local prod_full Catalog path and portable N4 fixtures. Production data remain read-only. No live currentness claim.",
+  "source_bound_commands_and_complete_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/n4-selected-catalog-context-fidelity-source-20261016-readback.json",
+      "sha256": "ccb8abf4bd2a3c0db44b3b81ad47532b9e07a649042fef584a39f42a44f2cd60"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-context-application-20261016/application-and-checks.json",
+      "sha256": "1c70ab136c6559da5533afdeb75eec1a5f4a982d69e5ee7bad166bc5e3023194"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-source-context-preflight-20261016/n4-source-context-diagnosis.json",
+      "sha256": "3b24f75fa9ebac470a31b752ddd84bceb7adffcdbde1e1cefd55d5bc84ee9dba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-source-context-preflight-20261016/independent-review.json",
+      "sha256": "35d9739b4549daca82cba6cf7af221310e5c7bf75c47e055b1ebbd031255b476"
+    }
+  ],
+  "verification": {
+    "canonical_Ruff": "check and format PASS for exact two committed postimages",
+    "independent_review": "Bounded GO; three existing source-context tests PASS and a small actual K_ref builder distinguishes wrong profile on identical database path. Reviewer did not execute the patched helper or full N4.",
+    "prior_unscoped_N4": "Actual unscoped preflight produced K_ref; this falsifies missing context as sufficient explanation of the earlier None. It is a diagnostic witness on pre-patch source, not receipt for patched helper.",
+    "full_patched_N4_browser": "UNRUN until final source/input/backend freeze"
+  },
+  "adversarial_removal_controls": "Independent same-database/wrong-profile discriminator establishes context identity matters; no full helper call-removal control yet.",
+  "limitations": [
+    "Earlier source-bound browser setup failed before Chromium with missing credal_reference; original cause remains not_attributed.",
+    "This patch is source-context fidelity, not a demonstrated fix for the prior failure.",
+    "K_ref provenance does not create institutional currentness or legal authority."
+  ],
+  "capability_state": "verification_missing",
+  "proposal_outcome": "context_fidelity_companion_delivered_full_consumer_unrun",
+  "next_check": "Bind final source/profile/backend; run actual patched N4 fixture and source-bound browser once with retained producer diagnostics, plus meaningful-child criteria."
+}

@@ -103,7 +103,7 @@ legal corpus or graph artifacts.
 
 - Last updated: 2026-08-27
 - Files: 10 top-level Python files plus 5 tracked subpackages
-- Exports: 51 names in the lazy facade `__all__`
+- Exports: 61 total names in the current lazy facade `__all__`.
 - Notable delta: Lex owns the semantic legal benchmark; Data Forge publishes
   query fixtures through its read API and no longer imports Lex benchmark
   consumers.
@@ -112,4 +112,17 @@ legal corpus or graph artifacts.
 comparison remains distinct from `normpack/legal_authority.py` competence and from legal benchmark
 readiness: W5-K06 scope, vacant holder and unsigned trust checks prevent equivalence issuance.
 
-## Typed Legal Constraint Facade\n\nThe stable root facade exports `ConstraintSeverity`, `LegalConstraint`, `LegalToDAGMapping`, and `LegalToDAGMappingType` from the existing legal constraint owner. These types preserve legal provenance and typed mapping outcomes; a mapped DAG reference alone does not attest law currentness, issuer authority, or legal sufficiency.
+### Legal transport and source-refusal facade
+
+The stable `polisyos.lex` root facade lazily re-exports `LegalConstraintBridge`,
+`LegalConstraintSet`, `is_transport_blocked`, and
+`evaluate_transport_constraints` from their canonical Lex owners. It also exposes
+`LegalSourceRelationRefusal` and
+`LegalSourceRelationVerificationMissingError` from the existing Data Forge legal
+source-relation contract. These are aliases to the canonical objects, not parallel
+contracts.
+
+`evaluate_transport_constraints()` currently propagates the typed
+`verification_missing` refusal before reading the legal graph. Callers must retain
+that status rather than interpreting it as an empty constraint set, a permission,
+or a positive legal finding. The facade does not establish a legal conclusion.

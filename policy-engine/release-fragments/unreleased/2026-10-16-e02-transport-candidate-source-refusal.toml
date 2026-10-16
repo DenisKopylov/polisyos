@@ -1,0 +1,49 @@
+id = "2026-10-16-e02-transport-candidate-source-refusal"
+title = "Keep Legal transport constraints candidate-only without source-relation verification"
+type = "fixed"
+component = "lex"
+owner = "team-polisyos"
+summary = "The Legal transport bridge now refuses to classify candidate facts or missing database rows as transport constraints until claim-to-source verification is independently established."
+evidence = [
+  "src/polisyos/data_forge/domains/legal/source_relation.py",
+  "src/polisyos/lex/legal_evaluation/transport_constraints.py",
+  "src/polisyos/lex/__init__.py",
+  "src/polisyos/lex/README.md",
+  "tests/unit/lex/test_public_transport_facade.py",
+  "tests/unit/lex/legal_evaluation/test_transport_constraints.py",
+  "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/legal-source-relation-and-candidate-serving-20261015.json",
+  "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/legal-source-relation-candidate-api-delivery-20261016.json",
+]
+compatibility = "LegalConstraintBridge.get_constraints_for_policy raises LegalSourceRelationVerificationMissingError with status=verification_missing before reading the Legal KG. Callers must propagate this typed refusal and must not interpret it as an empty constraint set, a permission, or a positive legal finding."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.lex (supported root facade; exact export inventory remains pending owner review)"
+migration = "Direct callers that previously consumed heuristic LegalConstraintSet values must handle the typed verification-missing refusal and keep the transport/legal status unresolved."
+api = "The shared source-relation contract carries trust_tier=search_candidate and a typed legal_source_relation_verification_not_established refusal. LegalConstraintBridge invokes that gate before any database lookup, so both a populated candidate-fact database and a missing database produce a refusal rather than a constraint or an unblocked result."
+limitations = "No law, issuer, permission, source custody, relation verifier, currentness, or positive/negative transport conclusion is established. The current implementation has no admitted positive verifier path. The two focused controls exercise candidate facts and absent storage only; they do not establish the whole Lex, API, or policy-design capability."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+
+[[compatibility_change]]
+id = "e02-legal-transport-source-relation-refusal"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "Direct LegalConstraintBridge.get_constraints_for_policy callers using the existing canonical API"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Direct callers must handle LegalSourceRelationVerificationMissingError(status=verification_missing); candidate legal facts and absent rows do not establish transport permission or a legal constraint."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+
+
+[[compatibility_change]]
+id = "e02-legal-transport-root-facade-aliases"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public stable: polisyos.lex root lazy facade (six aliases to canonical symbols)"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The polisyos.lex root facade exposes the existing transport bridge, result set, blocking helper, evaluator, and source-relation refusal types as lazy aliases to their canonical owners."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false

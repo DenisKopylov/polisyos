@@ -22,9 +22,13 @@ __all__ = [
     "InterventionKnobDictionaryEntry",
     "InterventionKnobSpec",
     "LegalConstraint",
+    "LegalConstraintBridge",
+    "LegalConstraintSet",
     "LegalEvaluationRequest",
     "LegalKnowledgeGraph",
     "LegalReportRef",
+    "LegalSourceRelationRefusal",
+    "LegalSourceRelationVerificationMissingError",
     "LegalToDAGMapping",
     "LegalToDAGMappingType",
     "LexBenchmarkOutcome",
@@ -62,6 +66,8 @@ __all__ = [
     "build_normative_applicability_report",
     "diff_norm_packs",
     "evaluate_legality",
+    "evaluate_transport_constraints",
+    "is_transport_blocked",
     "lex_evidence_from_fabric_decision_data",
     "propose_changes",
     "resolve_active_version",
@@ -81,6 +87,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.lex.legal_evaluation.transport_constraints",
         "LegalConstraint",
     ),
+    "LegalConstraintBridge": (
+        "polisyos.lex.legal_evaluation.transport_constraints",
+        "LegalConstraintBridge",
+    ),
+    "LegalConstraintSet": (
+        "polisyos.lex.legal_evaluation.transport_constraints",
+        "LegalConstraintSet",
+    ),
     "LegalToDAGMapping": (
         "polisyos.lex.legal_evaluation.transport_constraints",
         "LegalToDAGMapping",
@@ -88,6 +102,18 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "LegalToDAGMappingType": (
         "polisyos.lex.legal_evaluation.transport_constraints",
         "LegalToDAGMappingType",
+    ),
+    "LegalSourceRelationRefusal": (
+        "polisyos.data_forge.domains.legal.source_relation",
+        "LegalSourceRelationRefusal",
+    ),
+    "LegalSourceRelationVerificationMissingError": (
+        "polisyos.data_forge.domains.legal.source_relation",
+        "LegalSourceRelationVerificationMissingError",
+    ),
+    "is_transport_blocked": (
+        "polisyos.lex.legal_evaluation.transport_constraints",
+        "is_transport_blocked",
     ),
     # api
     "assemble_norm_pack": ("polisyos.lex.api", "assemble_norm_pack"),
@@ -104,6 +130,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "build_normative_applicability_report",
     ),
     "evaluate_legality": ("polisyos.lex.api", "evaluate_legality"),
+    "evaluate_transport_constraints": (
+        "polisyos.lex.api",
+        "evaluate_transport_constraints",
+    ),
     "propose_changes": ("polisyos.lex.api", "propose_changes"),
     "resolve_active_version": ("polisyos.lex.api", "resolve_active_version"),
     "LexBenchmarkOutcome": (

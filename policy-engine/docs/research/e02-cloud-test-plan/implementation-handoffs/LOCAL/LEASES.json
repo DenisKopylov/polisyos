@@ -2696,5 +2696,35 @@
     "no_flag_or_issuer_or_expiry_change": true,
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261016_r9_exact_literal_get_subscript": {
+    "root_writer": "/root",
+    "base": "e1015c4b36ddcbacf7f6351b4bbe265203001190",
+    "mechanism_paths": [
+      "policy-engine/tools/quality/validation/decomposition_preflight.py",
+      "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+      "policy-engine/tools/quality/validation/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-dynamic-import-exact-mapping-lookup.toml"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate source-bound actual receipt and index"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-source-binding-r4-20261016/candidate-manifest-r4.json",
+      "sha256": "2e928a14571d837cea71833a07d4a912f031f3f2427551dceee40141db78a127"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-source-binding-r4-independent-review-20261016/review.json",
+      "sha256": "3e7fe0a3ec9032972db5ae59a808dbf5cfcc64082a78abf8bd1b5cb4f046d6dc"
+    },
+    "claim_delta_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-security-source-binding-r4-independent-review-20261016/delta-claim-review.json",
+      "sha256": "2d616ddd0b468e2cc0769378ee689504c0cc39c16222d5d501d6a8cf3abd27d7"
+    },
+    "P40": "Exact builtin-literal get/subscript source binding widened generically; positive-membership exact integer path remains explicit fail-closed residual, probed pre/post; no further leaf patch.",
+    "compatibility": "No supported API/registry schema/issuer/review-expiry change. Tuple-route importer provenance and string membership retained.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

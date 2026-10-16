@@ -3969,6 +3969,119 @@ def _dynamic_import_fixture(
     return registry_path
 
 
+def test_dynamic_imports_gate_derives_targets_from_immutable_finite_mapping(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = """\
+from importlib import import_module
+from types import MappingProxyType
+
+_EXPORTS = MappingProxyType({
+    "one": ("polisyos.demo.alpha", "Alpha"),
+    "two": ("polisyos.demo.beta", "Beta"),
+})
+
+def __getattr__(name):
+    target = _EXPORTS.get(name)
+    if target is None:
+        raise AttributeError(name)
+    module_name, attr_name = target
+    module = import_module(module_name)
+    return getattr(module, attr_name)
+"""
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    source_path = tmp_path / "src" / "dynamic_fixture.py"
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert len(entries) == 1
+    entry = entries[0]
+    assert entry["allowed_targets"] == [
+        "polisyos.demo.alpha",
+        "polisyos.demo.beta",
+    ]
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    source_path.write_text(
+        source.replace('"polisyos.demo.beta"', '"polisyos.demo.gamma"'),
+        encoding="utf-8",
+    )
+    assert preflight.validate_dynamic_imports()
+
+    # Keep all registry and facade markers while deleting the runtime importer.
+    source_path.write_text(
+        source.replace("    module = import_module(module_name)\n", ""),
+        encoding="utf-8",
+    )
+    findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "registered dynamic import call no longer exists" for finding in findings
+    )
+
+
+def test_dynamic_imports_gate_leaves_mutable_unknown_maps_open(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    tmp_path.mkdir(exist_ok=True)
+    source = """\
+from importlib import import_module
+
+_EXPORTS = {
+    "one": ("polisyos.demo.alpha", "Alpha"),
+    "two": ("polisyos.demo.beta", "Beta"),
+}
+
+def __getattr__(name):
+    target = _EXPORTS.get(name)
+    if target is None:
+        raise AttributeError(name)
+    module_name, attr_name = target
+    return import_module(module_name)
+"""
+    _dynamic_import_fixture(tmp_path, monkeypatch, source)
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert len(entries) == 1
+    assert entries[0]["allowed_targets"] == []
+
+
+def test_dynamic_imports_gate_derives_all_core_security_finite_targets() -> None:
+    source_path = REPO_ROOT / "src" / "polisyos" / "core" / "security" / "__init__.py"
+    tree = ast.parse(source_path.read_text(encoding="utf-8"), filename=str(source_path))
+    export_assignment = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.AnnAssign)
+        and isinstance(node.target, ast.Name)
+        and node.target.id == "_EXPORTS"
+    )
+    exports = ast.literal_eval(export_assignment.value.args[0])
+    expected = sorted({module for module, _attribute in exports.values()})
+
+    source_paths = preflight._dynamic_source_paths("src", "tools", "apps", "packages")
+    source_bindings = preflight._DynamicImportSourceBindings(source_paths)
+    scanner = preflight._DynamicImportSourceScanner(
+        source_path,
+        relative_path="src/polisyos/core/security/__init__.py",
+        source_bindings=source_bindings,
+    )
+    entries = scanner.scan(tree)
+    rows = [
+        entry
+        for entry in entries
+        if entry["source_file"] == "src/polisyos/core/security/__init__.py"
+        and entry["call"] == "importlib.import_module"
+    ]
+
+    assert len(rows) == 1
+    assert rows[0]["allowed_targets"] == expected
+
+
 def _dynamic_import_validator_refusal(
     source: str,
     tmp_path: Path,
@@ -5714,3 +5827,366 @@ def test_dynamic_import_match_capture_refuses_cross_scope_guarded_rebind(
         and "cross-scope" in finding.detail
         for finding in findings
     )
+
+
+def _immutable_import_map_source(map_body: str) -> str:
+    return f"""\
+from importlib import import_module
+from types import MappingProxyType
+
+_EXPORTS = MappingProxyType({{
+{map_body}
+}})
+
+def __getattr__(name):
+    target = _EXPORTS.get(name)
+    if target is None:
+        raise AttributeError(name)
+    module_name, attr_name = target
+    return import_module(module_name)
+"""
+
+
+def test_dynamic_imports_gate_uses_effective_duplicate_literal_value(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = _immutable_import_map_source(
+        '    "same": ("polisyos.demo.alpha", "Alpha"),\n    "same": ("polisyos.demo.beta", "Beta"),'
+    )
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    source_path = tmp_path / "src" / "dynamic_fixture.py"
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert len(entries) == 1
+    assert entries[0]["allowed_targets"] == ["polisyos.demo.beta"]
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    reordered = _immutable_import_map_source(
+        '    "same": ("polisyos.demo.beta", "Beta"),\n    "same": ("polisyos.demo.alpha", "Alpha"),'
+    )
+    source_path.write_text(reordered, encoding="utf-8")
+    findings = preflight.validate_dynamic_imports()
+    assert findings
+    assert entries[0]["allowed_targets"] == ["polisyos.demo.beta"]
+
+
+def test_dynamic_imports_gate_folds_known_unpack_before_duplicate_key(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = """\
+from importlib import import_module
+from types import MappingProxyType
+
+_EXPORTS = MappingProxyType({
+    **{"same": ("polisyos.demo.alpha", "Alpha")},
+    "same": ("polisyos.demo.beta", "Beta"),
+})
+
+def __getattr__(name):
+    target = _EXPORTS.get(name)
+    if target is None:
+        raise AttributeError(name)
+    module_name, attr_name = target
+    return import_module(module_name)
+"""
+    _dynamic_import_fixture(tmp_path, monkeypatch, source)
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert len(entries) == 1
+    assert entries[0]["allowed_targets"] == ["polisyos.demo.beta"]
+
+
+@pytest.mark.parametrize(
+    ("map_body", "expected_targets"),
+    [
+        (
+            '    1: ("polisyos.demo.numeric", "Hidden"),\n'
+            '    "named": ("polisyos.demo.visible", "Visible"),',
+            ["polisyos.demo.numeric", "polisyos.demo.visible"],
+        ),
+        (
+            '    1: ("polisyos.demo.numeric", "Hidden"),\n    "named": (42, "Visible"),',
+            [],
+        ),
+    ],
+)
+def test_dynamic_imports_gate_finite_targets_require_string_module_values(
+    map_body: str,
+    expected_targets: list[str],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = _immutable_import_map_source(map_body)
+    _dynamic_import_fixture(tmp_path, monkeypatch, source)
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert len(entries) == 1
+    assert entries[0]["allowed_targets"] == expected_targets
+
+
+@pytest.mark.parametrize(
+    "map_body",
+    [
+        '    **external_exports,\n    "same": ("polisyos.demo.alpha", "Alpha"),',
+        '    "same": ("polisyos.demo.alpha", "Alpha"),\n    computed_name: ("polisyos.demo.beta", "Beta"),',
+        '    ["not_hashable"]: ("polisyos.demo.alpha", "Alpha"),',
+    ],
+)
+def test_dynamic_imports_gate_refuses_nonprovable_immutable_map_keys(
+    map_body: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = _immutable_import_map_source(map_body)
+    _dynamic_import_fixture(tmp_path, monkeypatch, source)
+
+    with pytest.raises(preflight.DynamicImportCollectionError):
+        preflight.collect_dynamic_imports()
+
+
+@pytest.mark.parametrize(
+    ("first_key", "last_key", "lookup_key", "first_target", "last_target", "expects_importer"),
+    [
+        ("True", "1", "1", "ordinary_loader", "import_module", True),
+        ("1", "True", "1", "import_module", "ordinary_loader", False),
+        ("1", "1.0", "1.0", "ordinary_loader", "import_module", True),
+        ("1.0", "1", "1", "import_module", "ordinary_loader", False),
+        ('"1"', "1", '"1"', "ordinary_loader", "import_module", False),
+        ("1", '"1"', '"1"', "import_module", "ordinary_loader", False),
+        (
+            '("catalog", True)',
+            '("catalog", 1)',
+            '("catalog", 1)',
+            "ordinary_loader",
+            "import_module",
+            True,
+        ),
+        (
+            '("catalog", 1)',
+            '("catalog", True)',
+            '("catalog", 1)',
+            "import_module",
+            "ordinary_loader",
+            False,
+        ),
+    ],
+)
+def test_dynamic_import_mapping_normalizer_uses_python_hashable_key_collisions(
+    first_key: str,
+    last_key: str,
+    lookup_key: str,
+    first_target: str,
+    last_target: str,
+    expects_importer: bool,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = f"""\
+from importlib import import_module
+from types import MappingProxyType
+
+ROUTES = MappingProxyType({{
+    {first_key}: {first_target!r},
+    {last_key}: {last_target!r},
+}})
+def ordinary_loader(name):
+    return name
+route_key = {lookup_key}
+target_name = ROUTES[route_key]
+globals().get(target_name)(\"python_hashable_collision_import\")
+"""
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+
+    entries = preflight.collect_dynamic_imports()
+
+    if expects_importer:
+        assert [entry["pattern"] for entry in entries] == ["python_hashable_collision_import"]
+        registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+        assert preflight.validate_dynamic_imports() == []
+    else:
+        assert entries == []
+
+
+@pytest.mark.parametrize(
+    ("mapping_body", "expects_importer"),
+    [
+        (
+            '\n    **{True: "ordinary_loader"},\n    1: "import_module",',
+            True,
+        ),
+        (
+            '\n    1: "import_module",\n    **{True: "ordinary_loader"},',
+            False,
+        ),
+    ],
+)
+def test_dynamic_import_mapping_normalizer_folds_python_key_collisions_across_unpack(
+    mapping_body: str,
+    expects_importer: bool,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = f"""\
+from importlib import import_module
+from types import MappingProxyType
+
+ROUTES = MappingProxyType({{{mapping_body}
+}})
+def ordinary_loader(name):
+    return name
+target_name = ROUTES[1]
+globals().get(target_name)(\"python_hashable_unpack_collision\")
+"""
+    _dynamic_import_fixture(tmp_path, monkeypatch, source)
+
+    entries = preflight.collect_dynamic_imports()
+
+    if expects_importer:
+        assert [entry["pattern"] for entry in entries] == ["python_hashable_unpack_collision"]
+    else:
+        assert entries == []
+
+
+def test_dynamic_import_mapping_normalizer_does_not_treat_unhashable_keys_as_absent(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = """\
+from importlib import import_module
+from types import MappingProxyType
+
+ROUTES = MappingProxyType({["not_hashable"]: "import_module"})
+globals().get(ROUTES[["not_hashable"]])("unhashable_mapping_key")
+"""
+    _dynamic_import_fixture(tmp_path, monkeypatch, source)
+
+    with pytest.raises(preflight.DynamicImportCollectionError):
+        preflight.collect_dynamic_imports()
+
+
+def test_dynamic_mapping_lookup_exact_literal_crossproduct_matches_python_dict() -> None:
+    """Exact literal lookup agrees with Python dict selection across the bounded key domain."""
+    literal_values: tuple[object, ...] = (
+        None,
+        False,
+        True,
+        0,
+        1,
+        -1,
+        0.0,
+        -0.0,
+        1.0,
+        0j,
+        1 + 0j,
+        "",
+        "catalog",
+        b"catalog",
+        Ellipsis,
+        ("catalog", True),
+        ("catalog", 1),
+        ("catalog", 2),
+        ("catalog", 1.0),
+        ("other", 1),
+    )
+    importer = preflight._DynamicImportBinding("callable", "polisyos.demo.importer", guarded=True)
+    ordinary = preflight._DynamicImportBinding("callable", "ordinary_loader")
+    default = preflight._DynamicImportBinding("callable", "ordinary_default")
+
+    def key_binding(value: object) -> preflight._DynamicImportBinding:
+        assert preflight._dynamic_value_is_safe_hashable_literal(value)
+        return preflight._DynamicImportBinding("other", literal_key=value, literal_key_known=True)
+
+    comparisons = 0
+    for first_value in literal_values:
+        for second_value in literal_values:
+            for query_value in literal_values:
+                source_mapping = preflight._dynamic_mapping_binding(
+                    (key_binding(first_value), key_binding(second_value)),
+                    (ordinary, importer),
+                    guarded=True,
+                )
+                immutable_mapping = preflight._dynamic_immutable_literal_mapping_binding(
+                    source_mapping
+                )
+                assert immutable_mapping.kind == "mapping"
+                expected = {first_value: ordinary, second_value: importer}.get(query_value, default)
+                actual = preflight._dynamic_mapping_lookup(
+                    immutable_mapping, key_binding(query_value), default=default
+                )
+                assert actual == expected, (
+                    f"source lookup differed from Python dict for {first_value!r}, "
+                    f"{second_value!r}, query {query_value!r}: "
+                    f"expected {expected.name}, got {actual.name}"
+                )
+                comparisons += 1
+    assert comparisons == len(literal_values) ** 3
+
+    abstract_mapping = preflight._dynamic_immutable_literal_mapping_binding(
+        preflight._dynamic_mapping_binding(
+            (key_binding(None), key_binding(1)),
+            (ordinary, importer),
+            guarded=True,
+        )
+    )
+    abstract_result = preflight._dynamic_mapping_lookup(
+        abstract_mapping, preflight._DYNAMIC_UNKNOWN, default=default
+    )
+    assert abstract_result.kind == "union"
+    assert set(preflight._dynamic_binding_alternatives(abstract_result) or ()) == {
+        ordinary,
+        importer,
+        default,
+    }
+
+
+@pytest.mark.parametrize(
+    ("initial_body", "changed_body", "lookup"),
+    [
+        (
+            "1: import_module, None: ordinary_loader,",
+            "1: ordinary_loader, None: import_module,",
+            "1",
+        ),
+        (
+            "('catalog', 1): import_module, ('catalog', 2): ordinary_loader,",
+            "('catalog', 1): ordinary_loader, ('catalog', 2): import_module,",
+            "('catalog', 1)",
+        ),
+    ],
+)
+def test_dynamic_imports_gate_rejects_stale_registry_after_exact_lookup_changes(
+    initial_body: str,
+    changed_body: str,
+    lookup: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def source_for(mapping_body: str) -> str:
+        return (
+            "from importlib import import_module\n"
+            "from types import MappingProxyType\n\n"
+            "def ordinary_loader(name):\n    return name\n\n"
+            f"ROUTES = MappingProxyType({{{mapping_body}}})\n"
+            f"selected = ROUTES.get({lookup}, ordinary_loader)\n"
+            "selected('polisyos.demo.selected')\n"
+        )
+
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source_for(initial_body))
+    source_path = tmp_path / "src" / "dynamic_fixture.py"
+    entries = preflight.collect_dynamic_imports()
+    assert len(entries) == 1
+    assert entries[0]["allowed_targets"] == ["polisyos.demo.selected"]
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    source_path.write_text(source_for(changed_body), encoding="utf-8")
+    findings = preflight.validate_dynamic_imports()
+    assert findings, "a stale registry must fail after the exact selected value changes"

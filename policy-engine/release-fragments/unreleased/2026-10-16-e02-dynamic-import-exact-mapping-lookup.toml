@@ -1,0 +1,19 @@
+id = "2026-10-16-e02-dynamic-import-exact-mapping-lookup"
+title = "Resolve exact literal keys when validating dynamic import sources"
+type = "fixed"
+component = "tooling"
+owner = "team-polisyos"
+summary = "The dynamic import source analyzer now resolves exact builtin literal keys used by .get(...) and subscription against immutable source-owned mappings using Python's key equality semantics. Nonmatching exact keys no longer add importer targets, so a changed effective lookup makes a stale dynamic-import registry fail validation."
+evidence = [
+  "tools/quality/validation/decomposition_preflight.py",
+  "tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+]
+compatibility = "The source analyzer still avoids importing or executing inventoried modules. Existing tuple-key route maps, duplicate-key last-value behavior, known literal unpacking, and imported importer provenance remain supported. Mapping membership is a separate source-analysis path and is not broadened by this change; the probed exact-integer-membership guard followed by lookup remains fail-closed. Unknown or non-hashable source keys remain ambiguous; no public API or registry schema changes are proposed."
+change_class = "internal"
+surface_classification = "internal: dynamic import architecture inventory and validation"
+migration = "No caller migration is required. Existing dynamic import rows and their review metadata remain source-owned; this change does not renew an owner, issuer, or review expiry."
+limitations = "The exact .get/subscript proof is bounded to builtin hashable literals and recursive tuples accepted by the static source resolver. Mapping membership retains its separate current behavior; unsupported exact membership cases remain fail-closed. Arbitrary dynamic expressions, custom hash/equality behavior, and unresolved unpack remain unsupported. Full R9 regeneration and the current five independent importer purity findings remain separately classified."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["tools/quality/validation/README.md"]
+runbook_docs = []

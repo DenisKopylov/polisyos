@@ -503,7 +503,12 @@ def _literal_string(node: ast.AST | None) -> str | None:
     return None
 
 
-def _call_pattern(node: ast.Call, *, call_name: str | None = None) -> tuple[str, str, list[str]]:
+def _call_pattern(
+    node: ast.Call,
+    *,
+    call_name: str | None = None,
+    first_argument_binding: _DynamicImportBinding | None = None,
+) -> tuple[str, str, list[str]]:
     call_name = call_name or _imported_module_name(node.func)
     first_arg = _literal_string(node.args[0]) if node.args else None
     keyword_group = next(
@@ -520,6 +525,21 @@ def _call_pattern(node: ast.Call, *, call_name: str | None = None) -> tuple[str,
         except Exception:
             pattern = "<dynamic>"
     allowed_targets = _allowed_targets_for_pattern(call_name, pattern)
+    if not allowed_targets and first_argument_binding is not None:
+        alternatives = _dynamic_binding_alternatives(first_argument_binding)
+        if alternatives is not None and alternatives:
+            values: list[str] = []
+            for item in alternatives:
+                if (
+                    item.kind != "string"
+                    or item.name is None
+                    or not item.name.startswith("polisyos.")
+                ):
+                    values = []
+                    break
+                values.append(item.name.split(":", 1)[0])
+            if values:
+                allowed_targets = sorted(set(values))
     return call_name, pattern, allowed_targets
 
 
@@ -624,6 +644,8 @@ class _DynamicImportBinding:
     component_names: tuple[str | None, ...] | None = None
     origin_name: str | None = None
     immutable: bool = False
+    literal_key: object | None = None
+    literal_key_known: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -703,7 +725,12 @@ def _dynamic_builtin_binding(name: str) -> _DynamicImportBinding:
 
 
 def _dynamic_string_binding(value: str) -> _DynamicImportBinding:
-    return _DynamicImportBinding("string", value)
+    return _DynamicImportBinding(
+        "string",
+        value,
+        literal_key=value,
+        literal_key_known=True,
+    )
 
 
 def _dynamic_builtin_namespace_binding() -> _DynamicImportBinding:
@@ -792,13 +819,18 @@ def _dynamic_mapping_lookup(
         return _DYNAMIC_AMBIGUOUS if mapping.guarded else _DYNAMIC_UNKNOWN
     candidates = _dynamic_binding_alternatives(key)
     if candidates is None:
-        return _DYNAMIC_AMBIGUOUS if mapping.guarded else _DYNAMIC_UNKNOWN
+        if not mapping.immutable or mapping.values is None:
+            return _DYNAMIC_AMBIGUOUS if mapping.guarded else _DYNAMIC_UNKNOWN
+        possible_values = list(mapping.values)
+        if default.kind != "other":
+            possible_values.append(default)
+        return _dynamic_union_binding(possible_values)
     possible_values: list[_DynamicImportBinding] = []
     has_unmatched_candidate = False
     for candidate_key in candidates:
         matched = False
         for index, registered_key in enumerate(mapping.items):
-            if _dynamic_bindings_may_equal(candidate_key, registered_key):
+            if _dynamic_mapping_keys_may_match(candidate_key, registered_key):
                 possible_values.append(mapping.values[index])
                 matched = True
         if not matched or not _dynamic_binding_is_exact(candidate_key):
@@ -909,9 +941,7 @@ def _join_dynamic_bindings(
         return _DynamicImportBinding("ambiguous", next(iter(guarded_names)), guarded=True)
     if any(binding.guarded or binding.kind == "ambiguous" for binding in bindings):
         return _DYNAMIC_AMBIGUOUS
-    if all(binding.kind == "string" and binding.name is not None for binding in bindings):
-        return _dynamic_union_binding(bindings)
-    return _DYNAMIC_UNKNOWN
+    return _dynamic_union_binding(bindings)
 
 
 def _dynamic_sequence_binding(
@@ -1048,40 +1078,68 @@ def _dynamic_bindings_may_equal(
     return left.kind == "other"
 
 
+def _dynamic_value_is_safe_hashable_literal(value: object) -> bool:
+    """Return whether value is a closed builtin hashable literal, without user code."""
+    scalar_types = (str, bytes, int, float, complex, bool, type(None))
+    if type(value) is tuple:
+        if not all(_dynamic_value_is_safe_hashable_literal(item) for item in value):
+            return False
+    elif type(value) not in scalar_types and value is not Ellipsis:
+        return False
+    try:
+        hash(value)
+    except TypeError:
+        return False
+    return True
+
+
+def _dynamic_ast_literal_key_value(node: ast.AST) -> tuple[bool, object | None]:
+    """Read one exact builtin hashable literal from AST without evaluating source."""
+    try:
+        value: object = ast.literal_eval(node)
+    except (MemoryError, RecursionError, SyntaxError, TypeError, ValueError):
+        return False, None
+    if not _dynamic_value_is_safe_hashable_literal(value):
+        return False, None
+    return True, value
+
+
+def _dynamic_binding_literal_key_value(
+    binding: _DynamicImportBinding,
+) -> tuple[bool, object | None]:
+    """Return an exact literal key carried by an abstract source binding."""
+    if binding.literal_key_known:
+        if _dynamic_value_is_safe_hashable_literal(binding.literal_key):
+            return True, binding.literal_key
+        return False, None
+    if binding.kind == "string" and binding.name is not None:
+        return True, binding.name
+    return False, None
+
+
 def _dynamic_key_is_exact(binding: _DynamicImportBinding) -> bool:
-    """Return whether a finite registry key has a fully known value."""
-    if binding.kind == "string":
-        return binding.name is not None
-    if binding.kind == "sequence":
-        return binding.items is not None and all(
-            _dynamic_key_is_exact(item) for item in binding.items
-        )
-    if binding.kind == "union":
-        return binding.items is not None and all(
-            _dynamic_key_is_exact(item) for item in binding.items
-        )
-    return False
+    """Return whether a finite registry key has a fully known hashable value."""
+    return _dynamic_binding_literal_key_value(binding)[0]
 
 
 def _dynamic_keys_equal_exact(
     left: _DynamicImportBinding,
     right: _DynamicImportBinding,
 ) -> bool:
-    """Compare two exact finite keys without treating unknown as equal."""
-    if not _dynamic_key_is_exact(left) or not _dynamic_key_is_exact(right):
-        return False
-    if left.kind != right.kind:
-        return False
-    if left.kind == "string":
-        return left.name == right.name
-    if left.kind == "sequence":
-        assert left.items is not None
-        assert right.items is not None
-        return len(left.items) == len(right.items) and all(
-            _dynamic_keys_equal_exact(left_item, right_item)
-            for left_item, right_item in zip(left.items, right.items, strict=True)
-        )
-    return False
+    """Compare exact finite keys using Python's builtin value equality semantics."""
+    left_known, left_value = _dynamic_binding_literal_key_value(left)
+    right_known, right_value = _dynamic_binding_literal_key_value(right)
+    return left_known and right_known and left_value == right_value
+
+
+def _dynamic_mapping_keys_may_match(
+    left: _DynamicImportBinding,
+    right: _DynamicImportBinding,
+) -> bool:
+    """Match exact mapping keys precisely and retain conservative abstract matching."""
+    if _dynamic_key_is_exact(left) and _dynamic_key_is_exact(right):
+        return _dynamic_keys_equal_exact(left, right)
+    return _dynamic_bindings_may_equal(left, right)
 
 
 def _dynamic_mapping_binding(
@@ -1109,6 +1167,46 @@ def _dynamic_mapping_binding(
         items=materialized_keys,
         values=materialized_values,
         immutable=immutable,
+    )
+
+
+def _dynamic_immutable_literal_mapping_binding(
+    mapping: _DynamicImportBinding,
+) -> _DynamicImportBinding:
+    """Normalize a source-exact immutable mapping with Python literal-key semantics.
+
+    This generic transfer preserves importer provenance for all closed builtin
+    hashable literal keys, including tuples and Python-equal numeric keys. It does
+    not itself authorize a finite import target; that remains a separate consumer
+    decision based on the selected string module values. Unknown keys and unpacks
+    stay ambiguous rather than contributing a partial mapping.
+    """
+    if mapping.kind != "mapping" or mapping.items is None or mapping.values is None:
+        return _DYNAMIC_AMBIGUOUS
+    if len(mapping.items) != len(mapping.values):
+        return _DYNAMIC_AMBIGUOUS
+
+    effective_keys: list[_DynamicImportBinding] = []
+    effective_values: list[_DynamicImportBinding] = []
+    key_indexes: dict[object, int] = {}
+    for key, value in zip(mapping.items, mapping.values, strict=True):
+        key_known, key_value = _dynamic_binding_literal_key_value(key)
+        if not key_known:
+            return _DYNAMIC_AMBIGUOUS
+        if key_value in key_indexes:
+            # Python dict equality lets True/1 and equal tuple components collide.
+            # Updating a key replaces its value while retaining the first key's
+            # object and insertion position.
+            effective_values[key_indexes[key_value]] = value
+        else:
+            key_indexes[key_value] = len(effective_keys)
+            effective_keys.append(key)
+            effective_values.append(value)
+    return _dynamic_mapping_binding(
+        effective_keys,
+        effective_values,
+        guarded=mapping.guarded,
+        immutable=True,
     )
 
 
@@ -2450,7 +2548,22 @@ class _DynamicImportSourceScanner:
         if isinstance(node, ast.Constant):
             if isinstance(node.value, str):
                 return _dynamic_string_binding(node.value)
+            literal_key_known, literal_key = _dynamic_ast_literal_key_value(node)
+            if literal_key_known:
+                return replace(
+                    _DYNAMIC_OTHER,
+                    literal_key=literal_key,
+                    literal_key_known=True,
+                )
             return _DYNAMIC_OTHER
+        if isinstance(node, (ast.UnaryOp, ast.BinOp)):
+            literal_key_known, literal_key = _dynamic_ast_literal_key_value(node)
+            if literal_key_known:
+                return replace(
+                    _DYNAMIC_OTHER,
+                    literal_key=literal_key,
+                    literal_key_known=True,
+                )
         if isinstance(node, ast.Name):
             return self._lookup(node.id, environment)
         if isinstance(node, ast.Attribute):
@@ -2521,12 +2634,28 @@ class _DynamicImportSourceScanner:
                 if isinstance(node, ast.Tuple)
                 else None
             )
-            return _dynamic_sequence_binding(
+            sequence = _dynamic_sequence_binding(
                 items if shape_known else None,
                 kind=kind,
                 guarded=guarded,
                 component_names=component_names,
             )
+            if isinstance(node, ast.Tuple) and shape_known:
+                literal_items: list[object] = []
+                for item in items:
+                    literal_known, literal_value = _dynamic_binding_literal_key_value(item)
+                    if not literal_known:
+                        break
+                    literal_items.append(literal_value)
+                else:
+                    literal_key = tuple(literal_items)
+                    if _dynamic_value_is_safe_hashable_literal(literal_key):
+                        sequence = replace(
+                            sequence,
+                            literal_key=literal_key,
+                            literal_key_known=True,
+                        )
+            return sequence
         if isinstance(node, ast.Dict):
             keys: list[_DynamicImportBinding] = []
             values: list[_DynamicImportBinding] = []
@@ -2559,6 +2688,13 @@ class _DynamicImportSourceScanner:
                     scope_info,
                     comprehension_outer=comprehension_outer,
                 )
+                literal_key_known, literal_key = _dynamic_ast_literal_key_value(key_node)
+                if literal_key_known:
+                    key = replace(
+                        key,
+                        literal_key=literal_key,
+                        literal_key_known=True,
+                    )
                 keys.append(key)
                 values.append(value)
                 guarded = guarded or key.guarded or key.kind == "ambiguous"
@@ -2576,7 +2712,6 @@ class _DynamicImportSourceScanner:
                 scope_info,
                 comprehension_outer=comprehension_outer,
             )
-            self._record_call(node, callee)
             argument_bindings = [
                 self._expression_binding(
                     argument,
@@ -2597,6 +2732,7 @@ class _DynamicImportSourceScanner:
                 )
                 for keyword in node.keywords
             )
+            self._record_call(node, callee, argument_bindings)
             if callee.kind == "callable" and callee.name == "types.MappingProxyType":
                 if len(argument_bindings) != 1 or node.keywords:
                     if any(
@@ -2609,11 +2745,11 @@ class _DynamicImportSourceScanner:
                         )
                     return _DYNAMIC_UNKNOWN
                 mapping = argument_bindings[0]
-                if mapping.kind != "mapping" or mapping.items is None or mapping.values is None:
-                    return _DYNAMIC_AMBIGUOUS if mapping.guarded else _DYNAMIC_UNKNOWN
+                if mapping.kind != "mapping":
+                    return _DYNAMIC_AMBIGUOUS
                 if not isinstance(node.args[0], ast.Dict) and not mapping.immutable:
                     return _DYNAMIC_AMBIGUOUS if mapping.guarded else _DYNAMIC_UNKNOWN
-                return replace(mapping, immutable=True)
+                return _dynamic_immutable_literal_mapping_binding(mapping)
             if callee.kind == "callable" and callee.name == "builtins.getattr":
                 if len(argument_bindings) < 2:
                     return _DYNAMIC_AMBIGUOUS
@@ -2718,7 +2854,7 @@ class _DynamicImportSourceScanner:
                 receiver = callee.receiver
                 if receiver is None or not argument_bindings:
                     return _DYNAMIC_AMBIGUOUS
-                default = argument_bindings[1] if len(argument_bindings) > 1 else _DYNAMIC_OTHER
+                default = argument_bindings[1] if len(argument_bindings) > 1 else _DYNAMIC_NONE
                 reflected = _dynamic_mapping_lookup(receiver, argument_bindings[0], default=default)
                 if reflected.kind == "ambiguous":
                     raise DynamicImportCollectionError(
@@ -3243,6 +3379,39 @@ class _DynamicImportSourceScanner:
             )
         return None
 
+    def _refine_none_check_branch(
+        self,
+        test: ast.expr,
+        environment: Mapping[str, _DynamicImportBinding],
+        *,
+        truthy: bool,
+    ) -> dict[str, _DynamicImportBinding]:
+        if isinstance(test, ast.UnaryOp) and isinstance(test.op, ast.Not):
+            return self._refine_none_check_branch(test.operand, environment, truthy=not truthy)
+        if not (
+            isinstance(test, ast.Compare)
+            and len(test.ops) == len(test.comparators) == 1
+            and isinstance(test.ops[0], (ast.Is, ast.IsNot, ast.Eq, ast.NotEq))
+        ):
+            return dict(environment)
+        left, right = test.left, test.comparators[0]
+        if isinstance(left, ast.Constant) and left.value is None and isinstance(right, ast.Name):
+            name = right.id
+        elif isinstance(right, ast.Constant) and right.value is None and isinstance(left, ast.Name):
+            name = left.id
+        else:
+            return dict(environment)
+        is_none_branch = truthy if isinstance(test.ops[0], (ast.Is, ast.Eq)) else not truthy
+        alternatives = _dynamic_binding_alternatives(environment.get(name, _DYNAMIC_UNKNOWN))
+        if alternatives is None:
+            return dict(environment)
+        selected = tuple(item for item in alternatives if (item.kind == "none") is is_none_branch)
+        if not selected:
+            return dict(environment)
+        refined = dict(environment)
+        refined[name] = _dynamic_union_binding(selected)
+        return refined
+
     def _refine_mapping_membership_branch(
         self,
         test: ast.expr,
@@ -3335,6 +3504,15 @@ class _DynamicImportSourceScanner:
             return
         if isinstance(target, (ast.Tuple, ast.List)):
             items = value.items if value.kind in {"sequence", "mapping"} else None
+            if value.kind == "union" and value.items is not None:
+                alternatives = value.items
+                if all(item.kind == "sequence" and item.items is not None for item in alternatives):
+                    sequences = [item.items for item in alternatives if item.items is not None]
+                    if sequences and len({len(items) for items in sequences}) == 1:
+                        items = tuple(
+                            _dynamic_union_binding(tuple(sequence[index] for sequence in sequences))
+                            for index in range(len(sequences[0]))
+                        )
             star_positions = [
                 index
                 for index, element in enumerate(target.elts)
@@ -3436,7 +3614,12 @@ class _DynamicImportSourceScanner:
                     f"{self.relative_path}:{line}: cross-scope write changes guarded importer binding {name!r}"
                 )
 
-    def _record_call(self, node: ast.Call, binding: _DynamicImportBinding) -> None:
+    def _record_call(
+        self,
+        node: ast.Call,
+        binding: _DynamicImportBinding,
+        argument_bindings: Sequence[_DynamicImportBinding] = (),
+    ) -> None:
         if binding.kind == "callable" and binding.name in DYNAMIC_CALL_NAMES:
             resolved_call = str(binding.name)
         elif binding.kind == "callable" and binding.name in {
@@ -3468,7 +3651,12 @@ class _DynamicImportSourceScanner:
         else:
             return
 
-        resolved_call, pattern, allowed_targets = _call_pattern(node, call_name=resolved_call)
+        first_argument_binding = argument_bindings[0] if argument_bindings else None
+        resolved_call, pattern, allowed_targets = _call_pattern(
+            node,
+            call_name=resolved_call,
+            first_argument_binding=first_argument_binding,
+        )
         identity = f"{self.relative_path}:{node.lineno}:{resolved_call}:{pattern}"
         self.entries.append(
             {
@@ -3654,17 +3842,25 @@ class _DynamicImportSourceScanner:
             return environment
         if isinstance(node, ast.If):
             self._expression_binding(node.test, environment, pending, scope_info)
+            body_environment = self._refine_none_check_branch(node.test, environment, truthy=True)
+            body_environment = self._refine_mapping_membership_branch(
+                node.test, body_environment, truthy=True
+            )
             body = self._scan_statements(
                 node.body,
-                self._refine_mapping_membership_branch(node.test, environment, truthy=True),
+                body_environment,
                 local_names,
                 scope_info,
                 pending,
                 closure_env,
             )
+            else_environment = self._refine_none_check_branch(node.test, environment, truthy=False)
+            else_environment = self._refine_mapping_membership_branch(
+                node.test, else_environment, truthy=False
+            )
             otherwise = self._scan_statements(
                 node.orelse,
-                self._refine_mapping_membership_branch(node.test, environment, truthy=False),
+                else_environment,
                 local_names,
                 scope_info,
                 pending,

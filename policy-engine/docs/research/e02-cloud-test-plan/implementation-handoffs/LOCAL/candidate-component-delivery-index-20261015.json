@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "7f5f0deb1d88f6f91d919e530f63d9d57c5ed8d6",
-    "tree": "1578d484f7eb9a52b7018551cc3dd431be9d63be",
+    "head": "62387b970a57be86ec22adc4deacca86ac8b9a46",
+    "tree": "3f70f63c3981c829fb8877eb3941c992f600e8cd",
     "parents": [
-      "9c6ca54d2fee716655a4538e7088494ec4b91775"
+      "43e105149ebebf2b8a9a441e21b5a782478761fd"
     ],
     "source_freeze": false,
-    "dirty_active_source": "Known root-owned C05/C7, LA025 and B194 source. R7 replay and Fabric R2/V6 companions remain active; source/input/backend freeze is pending."
+    "dirty_active_source": "Known root-owned C05/C7 and LA025 source. B194 config intake source62387b9 committed; R7 replay basis applied with actual-subject residual. Fabric R2, C7 transitive inputs and V6 remain active."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -347,6 +347,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase6-immutable-source-binding-author-20261015.json",
       "sha256": "d91d74552f5b2c7914f3b157d000bc5f426c5189082bf3e338fd9afbb85b468e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b194-propagation-config-admission-delivery-20261016.json",
+      "sha256": "1dd8974a7d9810c95f60f8e9d74435404376d1429253274a1720c3b30ccfc270"
     }
   ],
   "canonical_denominator_recomputed": {

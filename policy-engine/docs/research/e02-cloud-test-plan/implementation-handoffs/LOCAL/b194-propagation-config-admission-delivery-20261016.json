@@ -1,0 +1,174 @@
+{
+  "record_type": "bounded_implementation_delivery_for_independent_G_acceptance",
+  "slice": "b194-propagation-config-admission",
+  "author_role": "Local E02 author; G retains independent code acceptance, integration publication and formal finding adjudication",
+  "slice_base": {
+    "sha": "43e105149ebebf2b8a9a441e21b5a782478761fd",
+    "tree": "69af09057ee17c0be64283c42b4fee37a6782e3c"
+  },
+  "candidate": {
+    "sha": "62387b970a57be86ec22adc4deacca86ac8b9a46",
+    "tree": "3f70f63c3981c829fb8877eb3941c992f600e8cd",
+    "parents": [
+      "43e105149ebebf2b8a9a441e21b5a782478761fd"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "complete_changed_path_count": 3,
+    "footprint": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-propagation-config-admission.toml",
+        "sha256": "5e2853c95d5ea895cb1dfa90da6d264a1462341e31374983186340bbb7e5cee1",
+        "bytes": 2462
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "sha256": "df08c6a05c6e08d38d24af8bdc7764bfda20b6a7e3e8403113663a182456e067",
+        "bytes": 26385
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+        "sha256": "226ff91fa7ab0e23715f34a04233a4f56a6bafb8c6bfea4b597d952636320c05",
+        "bytes": 11009
+      }
+    ]
+  },
+  "source_freeze": {
+    "global": false,
+    "slice_source_test_release_pins": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-propagation-config-admission.toml",
+        "sha256": "5e2853c95d5ea895cb1dfa90da6d264a1462341e31374983186340bbb7e5cee1",
+        "bytes": 2462
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+        "sha256": "df08c6a05c6e08d38d24af8bdc7764bfda20b6a7e3e8403113663a182456e067",
+        "bytes": 26385
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_uncertainty.py",
+        "sha256": "226ff91fa7ab0e23715f34a04233a4f56a6bafb8c6bfea4b597d952636320c05",
+        "bytes": 11009
+      }
+    ],
+    "reason": "Other explicitly leased E02 compositions remain pending; this is a committed bounded source boundary."
+  },
+  "pattern_pass": {
+    "patterns": [
+      "P29",
+      "P31",
+      "P32",
+      "P33",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "property": "Malformed explicitly supplied propagation config must fail before skip/write; only true absence selects defaults.",
+    "prior_divergence": "Invalid nested adaptive min_samples=10 was swallowed; the actual node executed defaults instead of the intended 100-draw request.",
+    "mechanism": "Presence-aware validation using the existing PropagationConfig/AdaptiveStoppingConfig models; typed NodeError propagation_config_invalid; validate before no-input/no-simulation skips.",
+    "negative_denominator": "All 14 current config fields plus five nested adaptive fields in nested and prefixed forms; null/shape/extra/mixed controls. Tests derive field sets from actual models."
+  },
+  "real_chain": {
+    "negative": "Malformed params \u2192 PropagateUncertaintyNode configuration admission \u2192 NodeOutcome(status=fail, NodeError.code=propagation_config_invalid) \u2192 no artifact writes or simulation replacement.",
+    "positive": "Controlled 150-request/100-attempt producer \u2192 selected FileSystemCAS report and SimulationResult \u2192 fresh normative arbitration consumer \u2192 PARTIAL, omits workers_uncertainty binding; rights audit UNEVALUATED.",
+    "surface": "Typed workflow NodeOutcome/error and persisted propagation-report/fresh normative-consumer behavior; no new public facade/API/schema."
+  },
+  "selected_input_profile_backend": {
+    "production_input": null,
+    "input": "Controlled synthetic fixtures only; no external source-law/custody/currentness/permission assertions.",
+    "backend": "Own existing macOS .venv Python3.14.3, JAX CPU, temporary FileSystemCAS; one numerical thread.",
+    "positive_draw_counts": {
+      "requested": 150,
+      "attempted": 100,
+      "successful": 50,
+      "failed": 50,
+      "unattempted": 50
+    }
+  },
+  "source_bound_verification": {
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-config-final-actual-20261016/request.json",
+      "sha256": "f4a3b5ecf62a28475f1777c682d483a62f6e7f9137c687056c908839c743e26b"
+    },
+    "complete_commands_and_deciding_outputs": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-config-final-actual-20261016/actual-results.json",
+      "sha256": "af82002231e2fdf99a405817e3e8c53dbf370f2183a36e9045a41975f87473f5"
+    },
+    "loaded_source_origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-config-final-actual-20261016/actual-loaded-source-origins.json",
+      "sha256": "3de77ec707540d79b0f64dd26c6c90d299f466eef66bba144881b38a92112bf9"
+    },
+    "behavior": {
+      "tests": 56,
+      "pass": 56,
+      "fail": 0,
+      "error": 0,
+      "skip": 0,
+      "JUnit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-config-final-actual-20261016/behavior.junit.xml",
+        "sha256": "4b1158c27eb275540b4e9a4c1d95c6fd11d1cde24b13e77d25f9376d77ee1089"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-config-final-actual-20261016/actual-b194-behavior.stdout.txt",
+        "sha256": "4c3e9d452e91b24e3f2e3450388b13b90d11bf6fcfb2230b2c7ff9140bf7c4a0"
+      },
+      "seconds": 10.939,
+      "own_source_modules": 834,
+      "outside_or_missing_or_wrong_selected_source": 0
+    },
+    "typing": "Strict MyPy changed production file PASS; exact command/output pinned in actual-results.",
+    "canonical_ruff": "Repo-root workspace_root.toml: check PASS and format --check PASS for both changed Python paths.",
+    "full_native_and_architecture_and_installed": "UNRUN for final whole E02 freeze; these focused results are not native closeout."
+  },
+  "independent_review": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b194-config-admission-independent-review-20261016/review.json",
+      "sha256": "bca27d4bb7a7907385bb3be3e0bf3e2313c3f0f4cc1f48c5bb168e344fed033a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b194-config-admission-independent-review-20261016/review-r4.json",
+      "sha256": "71401c2b3512d14b3ddeb3ebca7403198d5a1d8506589f958c24ab68774d3549"
+    }
+  ],
+  "adversarial_property_removal": {
+    "claim": "Exact preimage implementation with candidate test markers retained fails all44 invalid-input assertions (0ERROR/0SKIP); candidate passes them.",
+    "report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-s1-s2-s3-gap-discriminators-20261016/b194-config-admission-candidate-r3-20261016/b194-config-admission-final-candidate-r3.json",
+      "sha256": "127000f2f0dc10e3a64544627bc6e55994576eb1f9f5e5d00b7a75391fb2bbc7"
+    },
+    "format_delta": "R4 is AST-identical to R3; independent delta review pins exact hashes. Final actual-byte replay is additionally56PASS."
+  },
+  "criterion_currentness_research": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b194-original-criterion-current-research-r1-20261016/b194-original-criterion-current-research-r1.json",
+    "sha256": "86584ab91275a7cdcb6dd2f5f3ff37e9da2f88dd4aae44dbc468c4cd37e747ce"
+  },
+  "proposal_fields": [
+    {
+      "finding_id": "B194",
+      "occurrence_key": "B194#1:B_r19:UQP-03:47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+      "outcome": "limited",
+      "scope": "The configuration-admission defect is repaired. Complete draw identity and unconditional success-only sampling semantics are not established by this slice.",
+      "individual_evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-config-final-actual-20261016/actual-results.json",
+          "sha256": "af82002231e2fdf99a405817e3e8c53dbf370f2183a36e9045a41975f87473f5"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b194-original-criterion-current-research-r1-20261016/b194-original-criterion-current-research-r1.json",
+          "sha256": "86584ab91275a7cdcb6dd2f5f3ff37e9da2f88dd4aae44dbc468c4cd37e747ce"
+        }
+      ],
+      "next_check": "Retain this committed intake behavior in composed replay; reconcile the complete original B194 requested/draw identity/failure/retry criterion with source-qualified ledger/verifier and owner-supplied missing-mass basis or a concrete G scope decision.",
+      "G_adjudication": null
+    }
+  ],
+  "limits": [
+    "No source-law, successful-draw input/output ledger, verifier issuer or causal calibration is manufactured.",
+    "Whole B194 criterion remains held/limited author proposal; successful task/test does not close an occurrence.",
+    "P41 inherited red is not claimed; full native and installed consumers remain pending."
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "retention": "Complete deciding outputs and removal logs remain ignored RAW on this candidate host; tracked source is cited by exact commit/path/hash."
+}

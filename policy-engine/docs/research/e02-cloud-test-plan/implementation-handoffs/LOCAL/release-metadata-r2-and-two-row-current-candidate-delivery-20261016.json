@@ -1,0 +1,200 @@
+{
+  "record_type": "bounded_release_metadata_delivery_proposal",
+  "slice_base": {
+    "sha": "0a72e04ea8afa7f6682d45a4dfc2184b73787abe",
+    "R2_application_base": "1dd2dcec36c7b4210c41ff95142b0cd4506554a8",
+    "distinction": "Application preimages included attributed prior dirty changes; they are not the Git parent."
+  },
+  "candidate": {
+    "sha": "252310b172469f2544cf5c9af61c8ea0f2b14b3c",
+    "tree": "12b3a97f6bd55f6186526eb23bf152b7afb1675f",
+    "parents": [
+      "2defae2ec94ce16cbd0b191777732fac0ee3d8a2"
+    ]
+  },
+  "implementation_commits": [
+    {
+      "sha": "25f7b0301c377d1b872a93854d233ce129fdabc8",
+      "tree": "bc8b2a3c7df4590bbf1ac37a3977c69536f80926",
+      "parents": [
+        "0a72e04ea8afa7f6682d45a4dfc2184b73787abe"
+      ],
+      "full_code_test_config_companion_footprint": {
+        "policy-engine/release-fragments/unreleased/2026-10-11-e02-c07-c09-full-report-profile-lineage-v2.toml": "80a0dceaf3fbb97bf5c7f39734c92d92186e19891ab084339ed81bcdd803b199",
+        "policy-engine/release-fragments/unreleased/2026-10-11-e02-existing-facade-routing.toml": "384c6345acfd1e0960fb79ee6521e4d4d550c61ed4d57d3b99fee76481ff02cd",
+        "policy-engine/release-fragments/unreleased/2026-10-11-scientist-composition-loader-contract.toml": "d2cd13cf4d27aade76854ee93ecd8bdb6418b2f1189fc2ae03198821351d5144",
+        "policy-engine/release-fragments/unreleased/2026-10-12-e02-b161-source-bound-risk-observation.toml": "2edc0a58567d6dfb658645dee623da3c1d0056ae81c67b0011e5867c2ba7c0be",
+        "policy-engine/release-fragments/unreleased/2026-10-12-e02-b26-joint-interaction-uncertainty.toml": "ae469ef07200aea0cb46e97392c90f491ca642817be80463562d46b5ccc32000",
+        "policy-engine/release-fragments/unreleased/2026-10-12-e02-empirical-predictive-calibration.toml": "15bd3b61e5de37dd1c9a8eebf494321438413cf5e1da96d8ceaf62b105189430",
+        "policy-engine/release-fragments/unreleased/2026-10-12-e02-generation-source-read-provenance.toml": "12a0774ce8368e5176ea5d53ef87bad700f4d27df39dc60907aae903f073b529",
+        "policy-engine/release-fragments/unreleased/2026-10-12-e02-r3-pre-admission-attempt-owner.toml": "bfdc88e823b2735d10d3dc17c2fdb2135ab1917e07a6b8906b69107bbd68c33f",
+        "policy-engine/release-fragments/unreleased/2026-10-13-e02-core-canonical-json-writer-conformance.toml": "70428d051a6f95158d5a7616547c3ba691769f59eb01c40e6ca049922eab3ca1",
+        "policy-engine/release-fragments/unreleased/2026-10-14-b31-source-projection-owner-bridge.toml": "b33c734e897b912e039ef15800c5e1f603efc121cb8cf48e396b2df682561547",
+        "policy-engine/release-fragments/unreleased/2026-10-14-e02-acquisition-history-lineage-join.toml": "6766475d7e94fe7ca2b4a8f6ac9912041d3684604e2bacd8288b946cc7720c03",
+        "policy-engine/release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml": "c3dfa5cf1c35e85603a9b677325e38465586d2e698516c96e67758ac61a97c4e",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "e0f46f2334a001d0b99880f4d97043a607c1d86b09ce5d77cbd0098340fdf040"
+      }
+    },
+    {
+      "sha": "252310b172469f2544cf5c9af61c8ea0f2b14b3c",
+      "tree": "12b3a97f6bd55f6186526eb23bf152b7afb1675f",
+      "parents": [
+        "2defae2ec94ce16cbd0b191777732fac0ee3d8a2"
+      ],
+      "full_code_test_config_companion_footprint": {
+        "policy-engine/release-fragments/unreleased/2026-10-11-e02-c07-c09-full-report-profile-lineage-v2.toml": "9f00d61252b0216bedcf72d8ded3427b781ce7e2128ac1dc900a08976c6effa8",
+        "policy-engine/release-fragments/unreleased/2026-10-14-b31-source-projection-owner-bridge.toml": "a7f3bfc8175c6a472aabaa2be7066f9c2fa3573f2875fb04c6822fbfc65eeea9",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-inventory-two-row-local-review-attestation-20261016.json": "db90d5f8267f3745ce318b4a15c3f9aa27b554f868039bf5e05f16692357cc4d",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "eb6630eff51725cbe16fb0614c6ea0d632cde39fbab1da76cb6defeaf28b910f"
+      }
+    }
+  ],
+  "real_chain": [
+    "Scoped owner/facade/compatibility-row research corrects12 release fragments, with tests/config/runtime bytes unchanged by the metadata source commits.",
+    "Independent row review and actual import smoke bind the additive backtest tuple-return route and IR AIPW enum member to two named rows.",
+    "A new tracked attestation and2 evidence/limitation pointers preserve historical Oct15 review while explicitly limiting complete-inventory and authority claims.",
+    "Actual native owner CLI parses all267 selected TOML fragments/239 structured rows and still rejects11 public-surface contract errors."
+  ],
+  "flag_provenance": {
+    "R2_application_preimages_count": 12,
+    "R2_patch_preserves_application_preimage_flags": true,
+    "application_preimages_equal_Gitparent": 0,
+    "Gitparent_to_release25_flag_slots_changed": 5,
+    "changes": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-11-e02-existing-facade-routing.toml",
+        "flag_changes": {
+          "public_surface_inventory_reviewed": {
+            "parent": false,
+            "candidate": true
+          }
+        }
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-11-scientist-composition-loader-contract.toml",
+        "flag_changes": {
+          "public_surface_inventory_reviewed": {
+            "parent": false,
+            "candidate": true
+          }
+        }
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-12-e02-r3-pre-admission-attempt-owner.toml",
+        "flag_changes": {
+          "compatibility_change/1/public_surface_inventory_reviewed": {
+            "parent": false,
+            "candidate": true
+          }
+        }
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-14-b31-source-projection-owner-bridge.toml",
+        "flag_changes": {
+          "public_surface_inventory_reviewed": {
+            "parent": false,
+            "candidate": true
+          }
+        }
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml",
+        "flag_changes": {
+          "compatibility_change/1/public_surface_inventory_reviewed": {
+            "parent": "absent",
+            "candidate": true
+          }
+        }
+      }
+    ],
+    "new_companion_changes_flags": false,
+    "interpretation": "True means linked row-scoped local API review; it does not establish complete module inventory, generated snapshot acceptance, native green, or G acceptance."
+  },
+  "verification": {
+    "native_owner_status": "FAIL",
+    "exit_code": 1,
+    "fragments": 267,
+    "structured_rows": 239,
+    "contract_errors": 11,
+    "unchanged_exact_contract_errors_after_companion": true,
+    "selected270pins_unchanged_during_command": true,
+    "input_scope_limitation": "270 explicitly pinned fragment/checker/inventory/contract files are not a claim of the entire native command import/read/environment denominator. P41 inheritance is not established.",
+    "TOML_roundtrip_semantics": "Only evidence and limitations change in the2 final fragments; all other parsed values equal.",
+    "review_tests": "Existing named consumer tests source-inspected; runtime facade identity/enum/__all__ smoke passed in independent packet. No new capability/runtime test claim.",
+    "source_commit_readback": "Exact SHA/tree/parent/path/hash re-read from both ordinary commits."
+  },
+  "selected_input_profile_backend": {
+    "backend": "own macOS Python environment; actual uv run --offline --no-sync owner CLI",
+    "inputs": "Current selected release fragments and current dirty-attributed public inventory snapshot; no production payload."
+  },
+  "adversarial_and_boundary_controls": [
+    "Previous exact owner red retained; no flags/issuer/expiry waived to force green.",
+    "Git-parent flags compared independently from R2 application preimages;5 deltas recorded rather than hidden by patch-local preservation.",
+    "Two-row review does not adjudicate6 other newly added row reviews or5 held ABI/classification choices."
+  ],
+  "limitations": [
+    "Native public surface remains11 errors; canonical regeneration/static-purity/G315 decision pending.",
+    "Registered Catalog/tool envelope, nullable C05 contract, Foundry public member, runtime HTTP facade and Legal tool envelope choices remain held individually.",
+    "No source/input/backend global freeze, installed or composed/native global acceptance, issuer/currentness or G closure."
+  ],
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-metadata-r2-code-boundary-20261016/release-metadata-source-readback.json",
+      "sha256": "882c58d7c0b8856830130552db22f0a44001f8c154663cd931df2f4ac5e420a3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-two-row-attestation-20261016/release-two-row-source-readback.json",
+      "sha256": "db995a77c039305543a6314b46b4431f54029b0c564c4120ad59064a9f05aa89"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-two-row-attestation-20261016/application-readback.json",
+      "sha256": "5466d46ddd475d14a919f5a3866617b18243237793c926ab950e015ad3c95cfd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-two-row-attestation-20261016/owner-command-readback.json",
+      "sha256": "601b84fa8ce45a0156e1606adcd79c694c5434d59514e2b7c4929a00672ecc5f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-two-row-attestation-20261016/owner-result.json",
+      "sha256": "c7ab17c5a752746be8bf5e2d8a2a93b35da19326f800708ecfca76703ef76db1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-release-r2-receipt-boundary-20261016/parent-application-flag-distinction-readback.json",
+      "sha256": "8d7c3576ccfd644f43b5d3cbead4e7e7586e4bb7a56a2989afaea5f13691120c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release25-flag-provenance-independent-review-20261016/independent-review.json",
+      "sha256": "b12200fb9c269412c3161c91ed98252ee75b02e35e63756c698aec2360eb59fd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-inventory-two-row-local-review-attestation-20261016.json",
+      "sha256": "db90d5f8267f3745ce318b4a15c3f9aa27b554f868039bf5e05f16692357cc4d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/release-fragment-surface-full-review-20261016-r2/metadata-corrections-r2/independent-delta-review-r3.json",
+      "sha256": "d54298ba3266a491590815e62eb90eebd168f6ca79721ee54e0e754978c4fbd9"
+    }
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P03",
+      "P14",
+      "P35",
+      "P36",
+      "P37",
+      "P38",
+      "P39",
+      "P41"
+    ],
+    "correct_pattern": "Scoped row review bound to exact implementation identities; native and authority predicates stay unestablished where evidence is missing."
+  },
+  "source_freeze": false,
+  "closure_ids": [],
+  "proposal_fields": {
+    "component": "bounded_metadata_GO",
+    "native_owner": "FAIL11",
+    "formal_G_closure": false,
+    "finding_ids": []
+  },
+  "next_check": "Complete reviewed companion source; resolve named ABI/static inventory choices, regenerate through canonical owners, freeze source/profile/input/backend and run actual native plus composed/installed consumers."
+}

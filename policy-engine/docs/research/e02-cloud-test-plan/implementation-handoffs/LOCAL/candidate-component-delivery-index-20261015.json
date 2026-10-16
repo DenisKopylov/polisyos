@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "9eab0b7ec534f65f964ad77baae868b39edd39fb",
-    "tree": "5c3967ca7ee50b26d240bce527df23d723342db7",
+    "head": "252310b172469f2544cf5c9af61c8ea0f2b14b3c",
+    "tree": "12b3a97f6bd55f6186526eb23bf152b7afb1675f",
     "parents": [
-      "a1b9d7437942bc2f7e6b50644ec2345fb86a3d80"
+      "2defae2ec94ce16cbd0b191777732fac0ee3d8a2"
     ],
     "source_freeze": false,
-    "dirty_active_source": "Q2helper9eab physicalcataloginputadmission+FIFOcaller committed3paths. Actualselftest60drift13envPASS/RuffPASS; canonicalwholeharness42PASS3FAIL4subtests: manifeststaletestsource+DoWhyworker guards. GLR4/C05durablebasis/B190owneradmission/R9literalkey/N4controlledcontext/refusaldisposition/Legaldiscovery RAWauthors/reviews ongoing. Full291currentpropertyreconciliation fourdirectreaders."
+    "dirty_active_source": "Release25metadata+252310b two-row scoped attestation delivered; native267TOML/239rows remains11FAIL unchanged. GLR4/C05immutablebasis/B190owneradmission/R9literalmap/N4candidateprofile/refusaldisposition/Legaldiscovery RAWauthors/reviews ongoing. Finalsourcefreeze false."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -419,6 +419,14 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-source-audit-r3-current-candidate-delivery-20261016.json",
       "sha256": "a367ec2ab3f47e4c7da80fb53caa81b48116dfe3f76e2a62c2436799e1952cb8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-inventory-two-row-local-review-attestation-20261016.json",
+      "sha256": "db90d5f8267f3745ce318b4a15c3f9aa27b554f868039bf5e05f16692357cc4d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-metadata-r2-and-two-row-current-candidate-delivery-20261016.json",
+      "sha256": "73424d91a2ae197fa942eb57c517f74ae77d9639bd0ff8452a22b51ad523cd86"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -459,7 +467,8 @@
     "Runtimeprojection+devtyping sourcece2a88d4 committed12paths;58PASS+10separateLexPASS, canonicalstrictselectedMyPy4PASS(notfullCoreRuntime), Ruff6PASS, Arrow22runtimeprobe/uvpipcheckPASS. Old252distributionrecordsretained; onlyverifiedstubinstalled, lock423\u2192424fullrecords preserves422nonrootold inclduplicatenames. Fullsourcecontext1699/1712hasoneattributedLexpostimage, nobarewholecommit. Four discoveryreds realinternalnotinherited; GLfullrequiredmembership/N4refusal/C05origin/R9sourcehelpers workpending. Pyprojectchanged: Foundryownerprofilegen/check/drift mandatorybeforefreeze.",
     "Foundry current-lock source47a6 regenerates exactlytwoownerTOMLs fromfull8inputclosure. Rootactualwrite/checkPASSandcorruptfieldexpectedrefusal; independent7checksreplayed. This removes ownerdigest staleness caused by lintlockchange, but doesnotestablish installedresolver/runtime/N8sourcefreeze/nativegreen.",
     "B61adjacent positivefixture companion sourceb35: actualwholeexistingpreparedreadcachemodule19PASS0SKIP/Ruff1PASS;1558ownorigins1557commitmatches+oneownedLexpostimage. Existingcompiler mockretained, separaterealcompilerwitnessnotreplayed. NoPreparedB13/B61wholeclosure; earlier33timeouttextisnotcurrentfiledenominator.",
-    "Q2source9eab: actualcanonicalhelper60drift+13envcontrolsPASS/RuffPASS. Whole45itemharness42PASS3FAIL+4subtests, blockedbycurrentmanifestpublicexporttesthashandDoWhyworkerbytes; no nativegreen/inheritedclassification. SourcegateinvocationrequiresOWNcwdandcommittedhelper. Actualinstalledconsumerread/atomicchildidentitynotestablished; finalmanifestregenandfullinstalledwavepending."
+    "Q2source9eab: actualcanonicalhelper60drift+13envcontrolsPASS/RuffPASS. Whole45itemharness42PASS3FAIL+4subtests, blockedbycurrentmanifestpublicexporttesthashandDoWhyworkerbytes; no nativegreen/inheritedclassification. SourcegateinvocationrequiresOWNcwdandcommittedhelper. Actualinstalledconsumerread/atomicchildidentitynotestablished; finalmanifestregenandfullinstalledwavepending.",
+    "Release metadata source25f7 plus scoped2rowattestation252310b delivered; all12 R2applicationflags preserved but5 Gitparentflag slots changed and provenance recorded. Nativeactual267fragments/239structuredrows remains11publicsurfaceerrors unchanged; nofullinventory/native/Gacceptance."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "next_check": "Finish reviewed actual typing/candidate-discovery/GL/refusal-to-persisted-consumer companions; commit source boundaries and separate receipts; canonical regeneration/drift controls and full source/input/backend freeze; one actual composed/native/Linux/installed/authenticRO wave and full291proposal reconciliation. G remains independent codeacceptance/integration/adjudication."

@@ -11,6 +11,120 @@ from ._lazy import lazy_dir, load_lazy_export
 if TYPE_CHECKING:
     import duckdb
 
+    from polisyos.data_forge.domains.legal import (
+        LEGAL_BATCH_RUNTIME_MODULE as LEGAL_BATCH_RUNTIME_MODULE,
+    )
+    from polisyos.data_forge.domains.legal import (
+        LegalShadowArtifact as LegalShadowArtifact,
+    )
+    from polisyos.data_forge.domains.legal import (
+        LegalShadowBundle as LegalShadowBundle,
+    )
+    from polisyos.data_forge.domains.legal import (
+        LegalShadowDiff as LegalShadowDiff,
+    )
+    from polisyos.data_forge.domains.legal import (
+        LegalStageManifest as LegalStageManifest,
+    )
+    from polisyos.data_forge.domains.legal import (
+        compare_lex_shadow_bundles as compare_lex_shadow_bundles,
+    )
+    from polisyos.data_forge.domains.legal import (
+        load_lex_shadow_bundle as load_lex_shadow_bundle,
+    )
+    from polisyos.data_forge.domains.legal.batch.amendment_metrics import (
+        collect_amendment_quality_metrics as collect_amendment_quality_metrics,
+    )
+    from polisyos.data_forge.domains.legal.batch.benchmark_fixtures import (
+        LegalSearchBenchmarkCase as LegalSearchBenchmarkCase,
+    )
+    from polisyos.data_forge.domains.legal.batch.benchmark_fixtures import (
+        legal_search_benchmark_cases as legal_search_benchmark_cases,
+    )
+    from polisyos.data_forge.domains.legal.batch.claim_bridge import (
+        export_normative_claim_sets as export_normative_claim_sets,
+    )
+    from polisyos.data_forge.domains.legal.batch.config import (
+        BatchConfig as BatchConfig,
+    )
+    from polisyos.data_forge.domains.legal.batch.pipeline import (
+        run_batch_pipeline as run_batch_pipeline,
+    )
+    from polisyos.data_forge.domains.legal.batch.progress import (
+        ProgressTracker as ProgressTracker,
+    )
+    from polisyos.data_forge.domains.legal.batch.spo_client import (
+        GonkaClientPool as GonkaClientPool,
+    )
+    from polisyos.data_forge.domains.legal.batch.spo_prompts import (
+        SPO_LIGHT_BATCH_SYSTEM_PROMPT as SPO_LIGHT_BATCH_SYSTEM_PROMPT,
+    )
+    from polisyos.data_forge.domains.legal.batch.spo_prompts import (
+        SPO_LIGHT_SYSTEM_PROMPT as SPO_LIGHT_SYSTEM_PROMPT,
+    )
+    from polisyos.data_forge.domains.legal.batch.spo_prompts import (
+        build_spo_light_batch_user_prompt as build_spo_light_batch_user_prompt,
+    )
+    from polisyos.data_forge.domains.legal.batch.spo_prompts import (
+        build_spo_light_user_prompt as build_spo_light_user_prompt,
+    )
+    from polisyos.data_forge.domains.legal.batch.spo_utils import (
+        _group_items_by_request_budget as _group_items_by_request_budget,
+    )
+    from polisyos.data_forge.domains.legal.batch.xml_parser import (
+        NPADocument as NPADocument,
+    )
+    from polisyos.data_forge.domains.legal.batch.xml_parser import (
+        iter_documents as iter_documents,
+    )
+    from polisyos.data_forge.domains.legal.corpus.index import (
+        DocSourcePropsV1 as DocSourcePropsV1,
+    )
+    from polisyos.data_forge.domains.legal.corpus.index import (
+        ProvisionEntryV1 as ProvisionEntryV1,
+    )
+    from polisyos.data_forge.domains.legal.corpus.index import (
+        ProvisionIndexV1 as ProvisionIndexV1,
+    )
+    from polisyos.data_forge.domains.legal.corpus.index import (
+        VersionEntryV1 as VersionEntryV1,
+    )
+    from polisyos.data_forge.domains.legal.corpus.index import (
+        VersionIndexV1 as VersionIndexV1,
+    )
+    from polisyos.data_forge.domains.legal.corpus.index import (
+        load_doc_source_props as load_doc_source_props,
+    )
+    from polisyos.data_forge.domains.legal.corpus.index import (
+        load_provision_index as load_provision_index,
+    )
+    from polisyos.data_forge.domains.legal.corpus.index import (
+        load_version_index as load_version_index,
+    )
+    from polisyos.data_forge.domains.legal.corpus.versioning import (
+        resolve_active_version as resolve_active_version,
+    )
+    from polisyos.data_forge.domains.legal.embedding_projection import (
+        LEGAL_EMBEDDING_PROJECTION_RULE_VERSION as LEGAL_EMBEDDING_PROJECTION_RULE_VERSION,
+    )
+    from polisyos.data_forge.domains.legal.embedding_projection import (
+        entity_embedding_text as entity_embedding_text,
+    )
+    from polisyos.data_forge.domains.legal.embedding_projection import (
+        fact_embedding_text as fact_embedding_text,
+    )
+    from polisyos.data_forge.domains.legal.embedding_projection import (
+        provision_embedding_text as provision_embedding_text,
+    )
+    from polisyos.data_forge.domains.legal.runtime_material import (
+        LEGAL_RUNTIME_MATERIAL_RULE_VERSION as LEGAL_RUNTIME_MATERIAL_RULE_VERSION,
+    )
+    from polisyos.data_forge.domains.legal.runtime_material import (
+        LegalRuntimeMaterialError as LegalRuntimeMaterialError,
+    )
+    from polisyos.data_forge.domains.legal.runtime_material import (
+        LegalRuntimeMaterialHandle as LegalRuntimeMaterialHandle,
+    )
     from polisyos.data_forge.domains.legal.runtime_material import (
         LegalRuntimeMaterialOwner as LegalRuntimeMaterialOwner,
     )
@@ -46,6 +160,30 @@ if TYPE_CHECKING:
     )
     from polisyos.data_forge.domains.legal.source_relation import (
         require_legal_source_relation_verification as require_legal_source_relation_verification,
+    )
+    from polisyos.data_forge.kernel.embeddings import (
+        EmbeddingGenerationRef as EmbeddingGenerationRef,
+    )
+    from polisyos.data_forge.kernel.embeddings import (
+        derive_encoder_identity as derive_encoder_identity,
+    )
+    from polisyos.data_forge.kernel.embeddings import (
+        embedding_generation_matches_encoder as embedding_generation_matches_encoder,
+    )
+    from polisyos.data_forge.kernel.embeddings import (
+        hnsw_index_matches_vectors as hnsw_index_matches_vectors,
+    )
+    from polisyos.data_forge.kernel.embeddings import (
+        legal_embedding_generator_rule_version as legal_embedding_generator_rule_version,
+    )
+    from polisyos.data_forge.kernel.embeddings import (
+        resolve_embedding_generation as resolve_embedding_generation,
+    )
+    from polisyos.data_forge.kernel.io.generation_basis import (
+        GenerationIdentity as GenerationIdentity,
+    )
+    from polisyos.data_forge.kernel.io.generation_basis import (
+        generation_basis_matches_members as generation_basis_matches_members,
     )
 
 _LEGAL_DOMAIN = "polisyos.data_forge.domains.legal"

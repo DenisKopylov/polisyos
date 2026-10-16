@@ -20,14 +20,156 @@ from pydantic import (
 from typing_extensions import TypeForm  # noqa: TC002
 
 from polisyos.core import artifacts as core_artifacts
-from polisyos.data_forge._ukraine_release_contracts import D5ReleaseHandoffRequest
+from polisyos.data_forge._ukraine_release_contracts import (
+    D5ReleaseHandoffRequest as D5ReleaseHandoffRequest,
+)
 
 from ._lazy import lazy_dir, load_lazy_export
 
 if TYPE_CHECKING:
     import numpy.typing as npt
 
-    from polisyos.data_forge.domains.ukraine import UkraineDemographyArtifacts
+    from polisyos.data_forge.domains.ukraine import (
+        UKRAINE_ASSET_GROUP as UKRAINE_ASSET_GROUP,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY as UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UKRAINE_DEMOGRAPHY_PRIORS_KEY as UKRAINE_DEMOGRAPHY_PRIORS_KEY,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY as UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UKRAINE_DEMOGRAPHY_TARGETS_KEY as UKRAINE_DEMOGRAPHY_TARGETS_KEY,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UKRAINE_NORMALIZED_SOURCES_KEY as UKRAINE_NORMALIZED_SOURCES_KEY,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UKRAINE_RAW_SOURCES_KEY as UKRAINE_RAW_SOURCES_KEY,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UKRAINE_READINESS_KEY as UKRAINE_READINESS_KEY,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UKRAINE_SOURCE_CONFIG_KEY as UKRAINE_SOURCE_CONFIG_KEY,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UKRAINE_STATIC_AGING_INPUTS_KEY as UKRAINE_STATIC_AGING_INPUTS_KEY,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        DemographyRoleProjection as DemographyRoleProjection,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        DemographySourceEvidence as DemographySourceEvidence,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        DemographySourceRequest as DemographySourceRequest,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        HistoricalLayoutRequest as HistoricalLayoutRequest,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        InventorySourceRequest as InventorySourceRequest,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        SourceResolutionRefusalError as SourceResolutionRefusalError,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UkraineDemographyArtifacts as UkraineDemographyArtifacts,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UkraineLexPreShardDiff as UkraineLexPreShardDiff,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UkraineLexPreShardSummary as UkraineLexPreShardSummary,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UkraineLexShardEntry as UkraineLexShardEntry,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UkraineLexShardPassSummary as UkraineLexShardPassSummary,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UkraineReadinessSummary as UkraineReadinessSummary,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UkraineShadowArtifact as UkraineShadowArtifact,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UkraineShadowBundle as UkraineShadowBundle,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UkraineShadowDiff as UkraineShadowDiff,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        UkraineSourceSummary as UkraineSourceSummary,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        compare_lex_pre_shard_summaries as compare_lex_pre_shard_summaries,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        compare_ukraine_shadow_bundles as compare_ukraine_shadow_bundles,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        infer_lex_snapshot_label as infer_lex_snapshot_label,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        lex_pre_shard_index as lex_pre_shard_index,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        lex_pre_shard_pass_name as lex_pre_shard_pass_name,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        load_demography_artifacts as load_demography_artifacts,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        load_donor_pool as load_donor_pool,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        load_lex_pre_shard_summary as load_lex_pre_shard_summary,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        load_reconciled_targets as load_reconciled_targets,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        load_transition_priors as load_transition_priors,
+    )
+    from polisyos.data_forge.domains.ukraine import (
+        load_ukraine_shadow_bundle as load_ukraine_shadow_bundle,
+    )
+    from polisyos.data_forge.domains.ukraine.builders.demography import (
+        build_household_diagnostic_panel as build_household_diagnostic_panel,
+    )
+    from polisyos.data_forge.domains.ukraine.contracts import (
+        RealBacktestBundleContract as RealBacktestBundleContract,
+    )
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        ArtifactRecord as ArtifactRecord,
+    )
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        CalibrationBundleManifest as CalibrationBundleManifest,
+    )
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        HouseholdDiagnosticPanelBasis as HouseholdDiagnosticPanelBasis,
+    )
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        NormalizedArtifactManifest as NormalizedArtifactManifest,
+    )
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        ReleaseManifest as ReleaseManifest,
+    )
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        SourceSnapshotManifest as SourceSnapshotManifest,
+    )
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        directory_tree_entries as directory_tree_entries,
+    )
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        load_manifest as load_manifest,
+    )
 
 _UKRAINE_DOMAIN = "polisyos.data_forge.domains.ukraine"
 REAL_BACKTEST_BUNDLE_CONTRACT_FQN = (
@@ -714,7 +856,6 @@ def load_verified_stage_artifacts(
         UkraineStageArtifactVerificationError: If any admission check fails.
     """
     from polisyos.data_forge.domains.ukraine.manifests import (
-        ArtifactRecord,
         BuildRunManifest,
     )
 
@@ -904,7 +1045,7 @@ def load_verified_release_artifacts(
         D5ReleaseContentRef,
         D5ReleaseHandoffRequest,
     )
-    from polisyos.data_forge.domains.ukraine.manifests import ArtifactRecord, ReleaseManifest
+    from polisyos.data_forge.domains.ukraine.manifests import ReleaseManifest
 
     required_evidence = {
         "cell_registry",

@@ -2479,5 +2479,42 @@
       "sha256": "02f171508c59bc6dc6061d06ed7ae4f2222fde297b104eb0e9baa004339df1ef",
       "outcome": "342PASS/0FAIL/0ERROR/0SKIP in full11affectedtestmodules; Based18zero errors161warnings; canonicalRuffcheck+format29PASS;1739ownsourceorigins0outside/missing/wrong. FullPreparedB13/native/installed/E02composedUNRUN."
     }
+  },
+  "coordination_epoch_20261016_read_api_complete_static_bindings": {
+    "root_writer": true,
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-read-api-typing-r2-application-20261016/application-readback.json",
+      "sha256": "32c8b68cc6ba0b962b2c34e1f7c54bc4650ad6f5a508da321c4c34c385d9af1c"
+    },
+    "whole_quantity": "Five actual_EXPORTS maps358entries;191newtype-onlybindingsin4sourcefiles plus1explicitruntimeD5selfalias; catalog146unchangedcontrol.235typedequivalent,123Any/unestablished.",
+    "compatibility": "Runtime _EXPORTS/__all__/canonicalowners unchanged; exactly2annotation-onlyArtifactRecordlocalimportsremoved and D5same-owner selfalias normalizes same runtime AST. No authority or source-law verification is created.",
+    "mandatory_companions": "One mirrored3-testmodule; root actualall-mapMyPy/removal/coldidentity/realorigins andRuff5; publicnativegenerationG315640stillheld. Static-onlybindingsdo not change runtime wire/schema/public names.",
+    "source_freeze": false,
+    "closure_ids": [],
+    "post_adoption_deciding_evidence": {
+      "actual3tests_ruff5": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-read-api-typing-r2-formatted-actual-20261016/actual-results.json",
+        "sha256": "5eb3afc6970a364cf9e7230f0f5f02996bbf3b3481686b0aa98085b3e523bccd"
+      },
+      "actual_allmap_positive_and_removal": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/public-facade-typing-post-adoption-controls-20261016/control-evidence-r1.json",
+        "sha256": "24e35524585de1ff84e33210e334e3d433cf291d9f6534a6f3af7a2bf74c92fb"
+      },
+      "root_semantic_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-read-api-typing-semantic-control-readback-20261016/readback.json",
+        "sha256": "fd328db73a0b616cc2d0efe286c0d5d4c29adf6052afecb5833fedaf9697d52f"
+      },
+      "outcome": "Positive235exacttypeequal+123Any/unestablished/358pairs;191newaliasesderivedremoved,133previouslytypedlosttypeequality while58newAnyunestablished. MyPyprocess0bothruns; semanticverifier0positive/1negative. RuntimeAST/maps/all/publicD5binding retained."
+    }
+  },
+  "coordination_epoch_20261016_read_api_test_canonical_format": {
+    "root_writer": true,
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-read-api-typing-test-canonical-format-20261016/manifest.json",
+      "sha256": "b5458df939ff54cac39f47428fd1b60b6d4f91a6b03c7233f53a913690caabac"
+    },
+    "AST_equal": true,
+    "source_static_consumer_inputs_unchanged": true,
+    "source_freeze": false
   }
 }

@@ -17,6 +17,15 @@ from .surfaces import (
 if TYPE_CHECKING:
     from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
     from polisyos.data_forge.kernel.snapshot import finalize_snapshot
+    from polisyos.data_forge.read_api.compliance import (
+        build_privacy_compliance_report as build_privacy_compliance_report,
+    )
+    from polisyos.data_forge.read_api.compliance import (
+        normalize_privacy_compliance_report as normalize_privacy_compliance_report,
+    )
+    from polisyos.data_forge.read_api.provenance import (
+        OfficialSnapshotAnswer as OfficialSnapshotAnswer,
+    )
 
 _SURFACE_NAMES = frozenset(available_surfaces())
 _EXPORTS = {

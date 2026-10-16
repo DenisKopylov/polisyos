@@ -221,3 +221,60 @@ def test_coupled_smm_serializes_selected_repeat_denominators(
     assert output["comparison_basis"] == "required_moments_only"
     assert output["optional_moment_status"] == "diagnostic_only"
     assert selected["diagnostic_only_moments"] == ("diagnostic_only_signal",)
+
+
+def test_coupled_smm_blocks_unobserved_wait_but_keeps_observed_zero_count() -> None:
+    from polisyos.foundry.methods.catalog.simulation.coupled import CoupledSMMEstimator
+
+    state = {
+        "initial_income": np.asarray([0.0, 0.0]),
+        "initial_savings": np.asarray([0.0, 0.0]),
+        "is_employed": np.asarray([0.0, 0.0]),
+        "risk_aversion": np.asarray([0.1, 0.9]),
+        "observed_moments": np.asarray([0.0]),
+    }
+    common = {
+        "service_rate_grid": (1.0,),
+        "benefit_amount_grid": (0.0,),
+        "capacity": 10,
+        "seeds": (0,),
+    }
+    missing_wait = CoupledSMMEstimator.pure_step(
+        state, {**common, "moment_names": ("mean_wait",), "n_steps": 1}
+    )["result"]
+    assert missing_wait["status"] == "blocked"
+    assert missing_wait["comparison_status"] == "no_comparable"
+    assert missing_wait["best_params"] is None
+    assert missing_wait["evaluated"][0]["missing_moments"] == ("mean_wait",)
+
+    observed_zero_count = CoupledSMMEstimator.pure_step(
+        state, {**common, "moment_names": ("completed_count",), "n_steps": 1}
+    )["result"]
+    assert observed_zero_count["status"] == "ready"
+    assert observed_zero_count["best_loss"] == 0.0
+    assert observed_zero_count["fitted_summary"]["completed_count"] == 0.0
+
+
+def test_coupled_queue_mle_method_requires_exposure_and_preserves_zero_arrivals() -> None:
+    from polisyos.foundry.methods.catalog.simulation.coupled import CoupledQueueMLEEstimator
+
+    with pytest.raises(ValueError, match="event_log must not be empty"):
+        CoupledQueueMLEEstimator.pure_step(
+            {
+                "event_times": np.asarray([], dtype=np.float64),
+                "event_kind_codes": np.asarray([], dtype=np.int64),
+            },
+            {},
+        )
+
+    result = CoupledQueueMLEEstimator.pure_step(
+        {
+            "event_times": np.asarray([0.0, 1.0]),
+            "event_kind_codes": np.asarray([2, 3]),
+            "event_entity_codes": np.asarray([0, 0]),
+        },
+        {},
+    )["result"]
+    assert result["observation_window"] == 1.0
+    assert result["n_arrivals"] == 0
+    assert result["arrival_rate"] == 0.0

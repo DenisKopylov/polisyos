@@ -157,3 +157,104 @@ def test_smm_missing_required_moment_cannot_win_with_complete_optional_diagnosti
     assert missing["loss"] == float("inf")
     assert missing["missing_moments"] == ("hard",)
     assert missing["moment_counts"] == {"easy": 3, "hard": 0, "optional": 3}
+
+
+def test_empty_and_partial_sample_moments_are_absent_but_explicit_zero_is_observed() -> None:
+    from jax import numpy as jnp
+
+    from polisyos.foundry.contracts.state import GlobalState, QueueRuntimeState
+    from polisyos.foundry.coupling.estimation import extract_coupled_summary
+    from polisyos.foundry.coupling.executor import CoupledRuntimeState
+
+    empty_queue = QueueRuntimeState.empty(1)
+    empty_runtime = CoupledRuntimeState.initialize(GlobalState.empty(1, 0), queue_state=empty_queue)
+    summary = extract_coupled_summary(empty_runtime, [])
+    assert "mean_wait" not in summary
+    assert "p90_wait" not in summary
+    assert "mean_queue_length" not in summary
+    assert summary["completed_count"] == 0.0
+    assert summary["final_mean_savings"] == 0.0
+
+    partial_summary = extract_coupled_summary(
+        empty_runtime,
+        [{"queue/queue_length": 0.0}, {}],
+    )
+    assert "mean_queue_length" not in partial_summary
+
+    zero_wait_queue = empty_queue.replace(
+        queued_at=jnp.asarray([0.0]),
+        completed_at=jnp.asarray([0.0]),
+        completed_count=jnp.asarray(1),
+    )
+    zero_wait_runtime = CoupledRuntimeState.initialize(
+        GlobalState.empty(1, 0), queue_state=zero_wait_queue
+    )
+    zero_summary = extract_coupled_summary(zero_wait_runtime, [{"queue/queue_length": 0.0}])
+    assert zero_summary["mean_wait"] == 0.0
+    assert zero_summary["p90_wait"] == 0.0
+    assert zero_summary["mean_queue_length"] == 0.0
+
+
+def test_summary_refuses_present_nonfinite_samples_and_omits_empty_population_means() -> None:
+    from polisyos.foundry.contracts.state import GlobalState, QueueRuntimeState
+    from polisyos.foundry.coupling.estimation import extract_coupled_summary
+    from polisyos.foundry.coupling.executor import CoupledRuntimeState
+
+    runtime = CoupledRuntimeState.initialize(
+        GlobalState.empty(1, 0), queue_state=QueueRuntimeState.empty(1)
+    )
+    with pytest.raises(ValueError, match="finite"):
+        extract_coupled_summary(runtime, [{"queue/queue_length": np.nan}])
+    with pytest.raises(ValueError, match="finite"):
+        extract_coupled_summary(runtime, [{"queue/queue_length": np.nan}, {}])
+
+    empty_population = CoupledRuntimeState.initialize(
+        GlobalState.empty(0, 0), queue_state=QueueRuntimeState.empty(0)
+    )
+    empty_summary = extract_coupled_summary(empty_population, [])
+    assert "final_mean_savings" not in empty_summary
+    assert "final_mean_income" not in empty_summary
+
+
+def test_partial_queue_samples_do_not_hide_malformed_present_values() -> None:
+    from polisyos.foundry.contracts.state import GlobalState, QueueRuntimeState
+    from polisyos.foundry.coupling.estimation import extract_coupled_summary
+    from polisyos.foundry.coupling.executor import CoupledRuntimeState
+
+    runtime = CoupledRuntimeState.initialize(
+        GlobalState.empty(1, 0), queue_state=QueueRuntimeState.empty(1)
+    )
+    with pytest.raises(ValueError, match="finite"):
+        extract_coupled_summary(runtime, [{"queue/queue_length": np.nan}, {}])
+    with pytest.raises(ValueError, match="numeric"):
+        extract_coupled_summary(runtime, [{"queue/queue_length": "not-a-number"}, {}])
+
+
+def test_queue_mle_requires_positive_exposure_and_preserves_observed_zero_arrivals() -> None:
+    with pytest.raises(ValueError, match="event_log must not be empty"):
+        estimate_queue_mle([])
+    with pytest.raises(ValueError, match="positive observation window"):
+        estimate_queue_mle([{"time": 1.0, "kind": "service_complete"}])
+
+    estimate = estimate_queue_mle(
+        [
+            {"time": 0.0, "kind": "service_start", "entity_id": "agent-0"},
+            {"time": 1.0, "kind": "service_complete", "entity_id": "agent-0"},
+        ]
+    )
+    assert estimate.observation_window == 1.0
+    assert estimate.n_arrivals == 0
+    assert estimate.arrival_rate == 0.0
+
+
+def test_particle_filter_requires_observations_and_preserves_observed_zero() -> None:
+    with pytest.raises(ValueError, match="observed_queue_lengths must not be empty"):
+        filter_queue_counts([], arrival_rate=0.0, service_rate=0.0)
+
+    filtered = filter_queue_counts(
+        [0.0], arrival_rate=0.0, service_rate=0.0, n_particles=32, seed=7
+    )
+    assert len(filtered.filtered_mean) == 1
+    assert np.isfinite(filtered.log_likelihood)
+    with pytest.raises(ValueError, match="finite"):
+        filter_queue_counts([np.nan], arrival_rate=0.0, service_rate=0.0)

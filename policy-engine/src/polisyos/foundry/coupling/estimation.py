@@ -9,6 +9,7 @@ from math import sqrt
 from typing import Any, Literal
 
 import numpy as np
+import numpy.typing as npt
 
 from polisyos.foundry.coupling.executor import CoupledRuntimeState
 
@@ -69,6 +70,45 @@ class PairedMonteCarloResult:
     n_replications: int
 
 
+def _observed_series(
+    values: npt.ArrayLike,
+    *,
+    name: str,
+) -> np.ndarray | None:
+    """Return a finite one-dimensional observation series, or ``None`` if empty.
+
+    Missing samples stay absent. A supplied malformed or non-finite series is
+    rejected so it cannot be treated as an empty sample by a downstream reducer.
+    """
+    try:
+        samples = np.asarray(values, dtype=np.float64)
+    except (OverflowError, TypeError, ValueError) as error:
+        raise ValueError(f"{name} observations must be numeric") from error
+    if samples.ndim != 1:
+        raise ValueError(f"{name} observations must be one-dimensional")
+    if samples.size == 0:
+        return None
+    if not np.all(np.isfinite(samples)):
+        raise ValueError(f"{name} observations must be finite")
+    return samples
+
+
+def _reduce_observed_series(
+    values: npt.ArrayLike,
+    *,
+    name: str,
+    reducer: Callable[[np.ndarray], Any],
+) -> float | None:
+    """Reduce a complete finite sample series while preserving absence."""
+    samples = _observed_series(values, name=name)
+    if samples is None:
+        return None
+    result = float(reducer(samples))
+    if not np.isfinite(result):
+        raise ValueError(f"{name} reduction must be finite")
+    return result
+
+
 def estimate_queue_mle(
     event_log: Sequence[Mapping[str, Any]],
     *,
@@ -79,19 +119,19 @@ def estimate_queue_mle(
 ) -> QueueMLEEstimate:
     """Estimate local queue rates from arrival/start/complete/abandon event logs."""
     if not event_log:
-        return QueueMLEEstimate(
-            arrival_rate=0.0,
-            service_rate=0.0,
-            abandonment_rate=0.0,
-            observation_window=0.0,
-            n_arrivals=0,
-            n_service_completions=0,
-            n_abandonments=0,
-            routing_probabilities={},
-        )
-    ordered = sorted(event_log, key=lambda row: float(row[time_key]))
-    times = np.asarray([float(row[time_key]) for row in ordered], dtype=np.float64)
-    observation_window = max(float(times[-1] - times[0]), 1e-9)
+        raise ValueError("event_log must not be empty")
+    event_times = _observed_series(
+        [row[time_key] for row in event_log],
+        name="event_log times",
+    )
+    if event_times is None:
+        raise ValueError("event_log must not be empty")
+    order = np.argsort(event_times, kind="stable")
+    ordered = [event_log[int(index)] for index in order]
+    times = event_times[order]
+    observation_window = float(times[-1] - times[0])
+    if not np.isfinite(observation_window) or observation_window <= 0.0:
+        raise ValueError("event_log must span a finite positive observation window")
     kinds = [str(row.get(kind_key, "")) for row in ordered]
     n_arrivals = sum(kind in {"arrival", "claim_arrival", "queue_admit"} for kind in kinds)
     n_completed = sum(kind in {"service_complete", "eligibility_confirmed"} for kind in kinds)
@@ -103,7 +143,10 @@ def estimate_queue_mle(
         kind = str(row.get(kind_key, ""))
         entity = str(row.get(entity_key, ""))
         if "service_duration" in row:
-            durations.append(max(float(row["service_duration"]), 0.0))
+            duration_samples = _observed_series([row["service_duration"]], name="service_duration")
+            if duration_samples is None:
+                raise ValueError("service_duration must contain a value")
+            durations.append(max(float(duration_samples[0]), 0.0))
             continue
         if kind == "service_start" and entity:
             starts_by_entity[entity] = float(row[time_key])
@@ -112,7 +155,10 @@ def estimate_queue_mle(
 
     arrival_rate = float(n_arrivals / observation_window)
     if durations:
-        mean_duration = max(float(np.mean(durations)), 1e-9)
+        duration_samples = _observed_series(durations, name="service durations")
+        if duration_samples is None:
+            raise ValueError("service durations must contain observations")
+        mean_duration = max(float(np.mean(duration_samples)), 1e-9)
         service_rate = 1.0 / mean_duration
     else:
         service_rate = float(n_completed / observation_window)
@@ -147,26 +193,48 @@ def extract_coupled_summary(
     """Extract stable summary moments from a coupled simulation run."""
     state = runtime.global_state
     queue = runtime.queue_state
-    completed_at = np.asarray(queue.completed_at, dtype=np.float64)
-    queued_at = np.asarray(queue.queued_at, dtype=np.float64)
-    completed_mask = completed_at >= 0.0
-    waits = completed_at[completed_mask] - queued_at[completed_mask]
-    queue_path = np.asarray(
-        [float(item.get("queue/queue_length", np.nan)) for item in metrics],
-        dtype=np.float64,
-    )
-    queue_path = queue_path[np.isfinite(queue_path)]
-    return {
+    completed_at = _observed_series(queue.completed_at, name="completed_at")
+    queued_at = _observed_series(queue.queued_at, name="queued_at")
+    completed_size = 0 if completed_at is None else completed_at.size
+    queued_size = 0 if queued_at is None else queued_at.size
+    if completed_size != queued_size:
+        raise ValueError("completed_at and queued_at observations must have matching sizes")
+    waits = np.asarray([], dtype=np.float64)
+    if completed_at is not None and queued_at is not None:
+        completed_mask = completed_at >= 0.0
+        waits = completed_at[completed_mask] - queued_at[completed_mask]
+
+    if any(not isinstance(item, Mapping) for item in metrics):
+        raise ValueError("coupled metric observations must be mappings")
+    queue_path: list[Any] = []
+    queue_path_complete = bool(metrics)
+    for item in metrics:
+        if "queue/queue_length" in item:
+            queue_path.append(item["queue/queue_length"])
+        else:
+            queue_path_complete = False
+    if not queue_path_complete:
+        _observed_series(queue_path, name="mean_queue_length")
+        queue_path = []
+
+    summary = {
         "final_queue_length": float(np.asarray(queue.queue_length).item()),
         "admitted_count": float(np.asarray(queue.admitted_count).item()),
         "completed_count": float(np.asarray(queue.completed_count).item()),
         "rejected_count": float(np.asarray(queue.rejected_count).item()),
-        "mean_wait": float(np.mean(waits)) if waits.size else 0.0,
-        "p90_wait": float(np.quantile(waits, 0.90)) if waits.size else 0.0,
-        "mean_queue_length": float(np.mean(queue_path)) if queue_path.size else 0.0,
-        "final_mean_savings": float(np.mean(np.asarray(state.agents.savings))),
-        "final_mean_income": float(np.mean(np.asarray(state.agents.income))),
     }
+    moment_samples: tuple[tuple[str, npt.ArrayLike, Callable[[np.ndarray], Any]], ...] = (
+        ("mean_wait", waits, np.mean),
+        ("p90_wait", waits, lambda samples: np.quantile(samples, 0.90)),
+        ("mean_queue_length", queue_path, np.mean),
+        ("final_mean_savings", state.agents.savings, np.mean),
+        ("final_mean_income", state.agents.income, np.mean),
+    )
+    for name, samples, reducer in moment_samples:
+        value = _reduce_observed_series(samples, name=name, reducer=reducer)
+        if value is not None:
+            summary[name] = value
+    return summary
 
 
 def summary_distance(
@@ -183,16 +251,14 @@ def summary_distance(
     from the moments that happen to overlap.
     """
 
-    required = tuple(observed.keys()) if required_moment_names is None else tuple(
-        required_moment_names
+    required = (
+        tuple(observed.keys()) if required_moment_names is None else tuple(required_moment_names)
     )
     if not required:
         raise ValueError("required_moment_names must not be empty")
     if len(set(required)) != len(required):
         raise ValueError("required_moment_names must be unique")
-    missing = tuple(
-        name for name in required if name not in simulated or name not in observed
-    )
+    missing = tuple(name for name in required if name not in simulated or name not in observed)
     if missing:
         raise ValueError(f"required summary moments missing: {', '.join(missing)}")
 
@@ -241,8 +307,7 @@ def calibrate_coupled_smm(
     if any(name not in observed_summary for name in required):
         missing_observed = tuple(name for name in required if name not in observed_summary)
         raise ValueError(
-            "required summary moments missing from observed summary: "
-            + ", ".join(missing_observed)
+            "required summary moments missing from observed summary: " + ", ".join(missing_observed)
         )
 
     evaluated: list[dict[str, Any]] = []
@@ -265,9 +330,7 @@ def calibrate_coupled_smm(
         diagnostic_only_moments = tuple(
             name for name in returned_moment_names if name not in required
         )
-        missing_moments = tuple(
-            name for name in required if moment_counts[name] != len(summaries)
-        )
+        missing_moments = tuple(name for name in required if moment_counts[name] != len(summaries))
         if missing_moments:
             loss = float("inf")
         else:
@@ -301,9 +364,7 @@ def calibrate_coupled_smm(
     comparison_status: Literal["comparable", "no_comparable"] = (
         "comparable" if best_params is not None else "no_comparable"
     )
-    status: Literal["ready", "blocked"] = (
-        "ready" if best_params is not None else "blocked"
-    )
+    status: Literal["ready", "blocked"] = "ready" if best_params is not None else "blocked"
     return SMMResult(
         best_params=best_params,
         best_loss=best_loss,
@@ -330,13 +391,13 @@ def filter_queue_counts(
     seed: int = 0,
 ) -> ParticleFilterResult:
     """Bootstrap particle filter for hidden queue length under Poisson flows."""
-    observations = np.asarray(observed_queue_lengths, dtype=np.float64)
-    if observations.ndim != 1:
-        raise ValueError("observed_queue_lengths must be a 1D sequence")
+    observations = _observed_series(observed_queue_lengths, name="observed_queue_lengths")
+    if observations is None:
+        raise ValueError("observed_queue_lengths must not be empty")
     n_particles = max(int(n_particles), 1)
     observation_std = max(float(observation_std), 1e-9)
     rng = np.random.default_rng(seed)
-    particles = np.full(n_particles, max(float(observations[0]) if observations.size else 0.0, 0.0))
+    particles = np.full(n_particles, max(float(observations[0]), 0.0))
     weights = np.full(n_particles, 1.0 / n_particles)
     means: list[float] = []
     stds: list[float] = []

@@ -2856,5 +2856,28 @@
     "prior_nonreceipt": "R3 pyproject Ruff checks did not establish mandatory workspace_root check/format. Source2449 was committed before this fix; complete output retained and no native green claimed.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_b190_canonical_fresh_child_test": {
+    "root_writer": "/root",
+    "base": "c27ac9c23483041947766f515c0aa6024144d695",
+    "mechanism_paths": [
+      "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate source14ad plus companion actual receipt/index"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-child-import-origin-r1-20261016/freeze-manifest.json",
+      "sha256": "bb066681aa91b7bd7dae57bd73107feead4cf2ae934c9c682d1315a86f4b101c"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-child-import-origin-r1-independent-review-20261017/review.json",
+      "sha256": "08f736b54a92d6648a72b7f5223dfbc185488f72721f769b5430f75c84d3c4aa"
+    },
+    "P40": "Four-test-file delta audit found RAW staging loader only here. Fresh child now normal imports, six package/API __file__/spec/origin/byte bindings; persisted response matrix semantic checks retained.",
+    "verification_context": "Actual source14ad four-suite99PASS1FAIL125.719s retained, Ruff8PASS selectedMyPy2PASS. Author fixed freshchild1PASS18.047s on actualOWN; root canonical companion replay pending; no unioned100PASS claim.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

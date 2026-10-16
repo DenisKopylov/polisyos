@@ -767,6 +767,8 @@ def test_native_state_response_resource_scaling_keeps_declared_units(tmp_path):
 
 
 def test_actual_fresh_child_reads_persisted_native_basis(response_case):
+    import hashlib
+    import importlib
     import json
     import os
     import subprocess
@@ -774,31 +776,65 @@ def test_actual_fresh_child_reads_persisted_native_basis(response_case):
     from pathlib import Path
 
     path, _, source, parameter, matrix = response_case
-    raw_root = Path(__file__).resolve().parent
+    module_names = (
+        "polisyos",
+        "polisyos.foundry",
+        "polisyos.foundry.calibration",
+        "polisyos.foundry.execute",
+        "polisyos.foundry.execute.api",
+        "polisyos.foundry.calibration.identifiability",
+    )
+    package = importlib.import_module("polisyos")
+    package_root = Path(package.__file__).resolve().parent
+    expected_sources = {}
+    for module_name in module_names:
+        module = importlib.import_module(module_name)
+        module_spec = module.__spec__
+        assert module_spec is not None
+        assert module_spec.origin is not None
+        module_path = Path(module.__file__).resolve()
+        spec_path = Path(module_spec.origin).resolve()
+        assert module_path == spec_path
+        assert module_path.is_file()
+        assert module_path.is_relative_to(package_root)
+        expected_sources[module_name] = {
+            "origin": str(module_path),
+            "sha256": hashlib.sha256(module_path.read_bytes()).hexdigest(),
+        }
+
     request = json.dumps(
         {
             "cas": str(path / "cas"),
             "source": source.model_dump(mode="json"),
             "matrix": matrix.model_dump(mode="json"),
             "parameter": parameter,
-            "raw_root": str(raw_root),
+            "expected_sources": expected_sources,
         }
     )
     child = r"""
-import hashlib, importlib.abc, importlib.util, json, pathlib, sys
+import hashlib, importlib, json, pathlib, sys
 request=json.loads(sys.argv[1])
-raw=pathlib.Path(request['raw_root'])
-modules={
-    'polisyos.foundry.execute.api': raw/'execute_api.py',
-    'polisyos.foundry.calibration.identifiability': raw/'identifiability.py',
-}
-class CandidateFinder(importlib.abc.MetaPathFinder):
-    def find_spec(self, fullname, path=None, target=None):
-        candidate=modules.get(fullname)
-        if candidate is None:
-            return None
-        return importlib.util.spec_from_file_location(fullname, candidate)
-sys.meta_path.insert(0, CandidateFinder())
+expected=request['expected_sources']
+origins={}
+spec_origins={}
+hashes={}
+for name, binding in expected.items():
+    module=importlib.import_module(name)
+    module_spec=module.__spec__
+    if module_spec is None or module_spec.origin is None:
+        raise AssertionError(f'{name} has no concrete import origin')
+    origin=pathlib.Path(module.__file__).resolve()
+    spec_origin=pathlib.Path(module_spec.origin).resolve()
+    if origin != spec_origin:
+        raise AssertionError(f'{name} __file__ and spec origin differ: {origin} != {spec_origin}')
+    digest=hashlib.sha256(origin.read_bytes()).hexdigest()
+    if str(origin) != binding['origin']:
+        raise AssertionError(f'{name} origin differs: {origin} != {binding["origin"]}')
+    if digest != binding['sha256']:
+        raise AssertionError(f'{name} bytes differ: {digest} != {binding["sha256"]}')
+    origins[name]=str(origin)
+    spec_origins[name]=str(spec_origin)
+    hashes[name]=digest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.foundry import SimulationResultRef
@@ -807,9 +843,9 @@ payload=_load_execute_response_matrix(FileSystemCAS(request['cas']), ArtifactRef
     source_ref=SimulationResultRef.model_validate(request['source']), response_slots={'balance':'government.balance'},
     parameter_center={request['parameter']:0.5}, config=IdentifiabilityDiagnosticConfig(
     simulation_reps=2,bootstrap_reps=0,profile_grid_size=0,seed=29,finite_diff_rel_step=0.01))
-origins={name: str(pathlib.Path(sys.modules[name].__file__).resolve()) for name in modules if name in sys.modules}
-hashes={name: hashlib.sha256(pathlib.Path(origin).read_bytes()).hexdigest() for name,origin in origins.items()}
-print(json.dumps({'jacobian':payload['jacobian'],'profile':payload['response_basis']['profile'],'gate_eligible':payload['response_basis']['gate_eligible'],'origins':origins,'sha256':hashes,'executable':str(pathlib.Path(sys.executable).absolute())}))
+print(json.dumps({'jacobian':payload['jacobian'],'profile':payload['response_basis']['profile'],
+    'gate_eligible':payload['response_basis']['gate_eligible'],'origins':origins,
+    'spec_origins':spec_origins,'sha256':hashes,'executable':str(pathlib.Path(sys.executable).absolute())}))
 """
     result = subprocess.run(
         [sys.executable, "-c", child, request],
@@ -823,17 +859,11 @@ print(json.dumps({'jacobian':payload['jacobian'],'profile':payload['response_bas
     assert answer["jacobian"][0][0] == pytest.approx(4.0, rel=2e-5)
     assert answer["gate_eligible"] is False
     assert answer["executable"] == str(Path(sys.executable).absolute())
-    expected_origins = {
-        "polisyos.foundry.execute.api": str((raw_root / "execute_api.py").resolve()),
-        "polisyos.foundry.calibration.identifiability": str(
-            (raw_root / "identifiability.py").resolve()
-        ),
-    }
+    expected_origins = {name: binding["origin"] for name, binding in expected_sources.items()}
+    expected_hashes = {name: binding["sha256"] for name, binding in expected_sources.items()}
     assert answer["origins"] == expected_origins
-    assert set(answer["sha256"].values()) == {
-        __import__("hashlib").sha256(Path(origin).read_bytes()).hexdigest()
-        for origin in expected_origins.values()
-    }
+    assert answer["spec_origins"] == expected_origins
+    assert answer["sha256"] == expected_hashes
     print("FRESH_CHILD_REQUEST=" + request)
     print(
         "FRESH_CHILD_RESULT="

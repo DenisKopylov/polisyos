@@ -1,0 +1,212 @@
+{
+  "artifact": "Legal R4 strict-typing companion delivery receipt proposal",
+  "complete_source_origin_gate": {
+    "R1_disposition": "Preserve as exit 1: pytest itself reports 73 passed, but the actual-origin admission hook rejected one imported module because the old request source denominator did not pin it. This is a harness input-set defect, not a green receipt.",
+    "R1_origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-20261017/actual-module-origins.json",
+      "sha256": "10cd87abcfa1a5a8d862b36287bf69cd73e09b21352f09cc203ce0c30907235a"
+    },
+    "R1_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-20261017/request.json",
+      "sha256": "2a8bf7c55eac62c92fd408371bfb5f1d1c40b27984f6ef9a66e9499076e94569"
+    },
+    "R1_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-20261017/actual-results.json",
+      "sha256": "a779652af4b83feb5626203a0b4e1a4c77fd0ddb529ca9fb59f866c0e954fb64"
+    },
+    "R1_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-20261017/actual-five-modules-http-and-ui.stdout.txt",
+      "sha256": "f78cd89db694a9c995cb5c94f57fa3f2fe5eab1f765f288789eb4e07bf703e0c"
+    },
+    "R2_actual_origin": {
+      "canonical_source": true,
+      "observations_match_R1": true,
+      "observed": 1759,
+      "outside_or_unpinned": 0,
+      "required_missing": 0
+    },
+    "R2_full_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-r2-20261017/actual-five-modules-http-and-ui.stdout.txt",
+        "sha256": "ea83fcbcafe7657da7b8671c1b134b7dbf0efe89512462a56306f585516c4432"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-r2-20261017/actual-five-modules-http-and-ui.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-r2-20261017/legal.junit.xml",
+        "sha256": "33485f85cb90827353859612c397471e940311a081d28feea58cb53cf00b5de9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-r2-20261017/actual-five-modules-http-and-ui.run.json",
+        "sha256": "b371828b46925f8de0867e2b23cfd8c5a10ea9ebce0220cae2e5ae1bafba4ce3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-r2-20261017/actual_origin.py",
+        "sha256": "e7855aacd754a7b2c9793c056ab26c03d48af2f45c3c38be5db67b6332c92d80"
+      }
+    ],
+    "R2_origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-r2-20261017/actual-module-origins.json",
+      "sha256": "378114ce32bdf8c81f94be01ee199749701099e9a609ef77d01bfc215c87e233"
+    },
+    "R2_pytest": {
+      "exit_code": 0,
+      "junit": {
+        "errors": "0",
+        "failures": "0",
+        "seconds": "46.927",
+        "skipped": "0",
+        "tests": "73"
+      },
+      "runner_wall_seconds": 61.176,
+      "summary": "73 passed, 2 warnings. This invocation is 73 tests total; do not add the earlier separate 52-test run."
+    },
+    "R2_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-r2-20261017/request.json",
+      "sha256": "f17e4ea589b9634e3d5863838ad6967c7765d39ad482adffe7fde11e3c8d6a76"
+    },
+    "R2_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-r2-20261017/actual-results.json",
+      "sha256": "d157743176ff9f10c81b21101bbc83231d42ef14097f3c63e15f8505a6860d06"
+    },
+    "R2_source_inventory": {
+      "added_path_sha256": "ae7db1ee9255d13dba678296a46befa7d478279ba07365d3a65b50bc3c746021",
+      "exact_added_path": "policy-engine/src/polisyos/common/_selected_artifact_intake.py",
+      "independently_walked_and_all_file_hashes_match_request": true,
+      "other_explicit_test_config_pins": 10,
+      "pathset_sha256": "43e8906c8ad709dcc0fffdf6b46e6187cd867ec2b2b877ab7774f8f26e0f6991",
+      "prior_inventory_count": 2771,
+      "regular_non_symlink_files": 2772,
+      "root": "policy-engine/src",
+      "suffix": ".py",
+      "total_request_pins": 2782
+    }
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-candidate-typed-boundary-independent-review-20261017/review.json",
+      "result": "Initial HOLD: import ordering and malformed mapping KeyError.",
+      "sha256": "789005c8011e0614406893f2a023af885aee6c9d854d3e9df3398c69faacf5b1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-candidate-typed-boundary-r4-independent-review-20261017/review.json",
+      "result": "GO bounded for root canonical adoption/runtime replay; no formal closure.",
+      "sha256": "d75c42216c16ebb3ca782db747025994cdc5b4515d3d73889b9e807710445dc3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-discovery-r2-independent-review-20261016/review.md",
+      "result": "Prior candidate bridge GO only; no formal E02 closure.",
+      "sha256": "f7b22d577b728121665d38ee8a1f4dd24d1c3321bd2565355d9185069f1f21d3"
+    }
+  ],
+  "provenance": {
+    "R4_candidate_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-candidate-typed-boundary-r4-semantic-author-20261017/patch.diff",
+      "sha256": "bda6d5c5ed3a56958498ce21518186052cff2eb0fc8f218709a0253747af165a"
+    },
+    "R4_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-candidate-typed-boundary-r4-semantic-author-20261017/manifest.json",
+      "sha256": "26a34ad6686394b97e7521b2971c72134f389d154d44fcae5b6cfaf2a4345b23"
+    },
+    "runtime_test_head": {
+      "basis": "R2 current source pins show no source path changes across this descendant test head; runtime request also verifies sources stayed unchanged during pytest.",
+      "commit": "6e872ffca70f3af171f9ee054ff6bd8e6ffed510",
+      "parent": "94c4d233ee6d0566254ca98c9e4a56cc9d814f90",
+      "tree": "13494270cede0e77ce6be99eaf63d48fca84da75"
+    },
+    "source_commit": {
+      "commit": "94c4d233ee6d0566254ca98c9e4a56cc9d814f90",
+      "parent": "514fc9ca4a9bdadd7c617cdb5cc0b8c10e592a76",
+      "tree": "56b3702a9c44cdb8c6714d5bcafe4091b06a20ec"
+    },
+    "source_pathset_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-candidate-typed-boundary-r4-semantic-author-20261017/raw/source-pathset-completeness-receipt-proposal.json",
+      "sha256": "5b983f652b58215eea51c97d346e6e5494f119e89ac570385ef1db270e782727"
+    }
+  },
+  "scope": "Bounded typed candidate source-profile validation plus selected canonical runtime replay. Root may copy this proposal into its own receipt after review. No whole E02, production, or legal-authority claim.",
+  "selected_source_gates_at_94c4": {
+    "P38_scope": "The MyPy wrapper output says \u201cfull core-runtime surface,\u201d while the exact argv checks four source files. Evidence supports those four files only.",
+    "actual_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-20261017/actual-results.json",
+      "sha256": "a779652af4b83feb5626203a0b4e1a4c77fd0ddb529ca9fb59f866c0e954fb64"
+    },
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-20261017/request.json",
+      "sha256": "2a8bf7c55eac62c92fd408371bfb5f1d1c40b27984f6ef9a66e9499076e94569"
+    },
+    "ruff": {
+      "check_exit": 0,
+      "check_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-20261017/canonical-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "config": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "config_sha256": "88de6836be7f506b77ea23206e1165f0ef6a6e0b3c945d58e817da0730776feb",
+      "distinct_files": 9,
+      "format_exit": 0,
+      "format_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-20261017/canonical-ruff-format.stdout.txt",
+        "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8"
+      }
+    },
+    "strict_mypy": {
+      "argv_targets": [
+        "src/polisyos/runtime/quality/capability_index.py",
+        "src/polisyos/runtime/quality/capability_index_compiler.py",
+        "src/polisyos/runtime/quality/capability_discovery.py",
+        "src/polisyos/runtime/http/services/control_registry_providers.py"
+      ],
+      "exit": 0,
+      "seconds": 33.674,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-r4-actual-canonical-20261017/selected-mypy.stdout.txt",
+        "sha256": "ee4f11cd74ba0ea6d4b49aef0035fc5d6d53c97960ae30ba56f1c2bee7d3d608"
+      },
+      "wrapper": "policy-engine/tools/devx/workspace/core_runtime_mypy.py",
+      "wrapper_sha256": "3f6f921d127d17670db9080612d1c3723ad87ede33fffde30d8e467abd979954"
+    }
+  },
+  "semantic_boundary": {
+    "authoritative_for": [],
+    "capability_state": [
+      "candidate_only",
+      "bridge_missing",
+      "verification_missing"
+    ],
+    "execution_established": false,
+    "focused_author_test": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-candidate-typed-boundary-r4-semantic-author-20261017/raw/source-profile-guard-focused-tests-final.json",
+      "result": "12 passed; overlay test evidence, not canonical replay.",
+      "sha256": "f3d30232603c18f26176ca1d1b2590cdcfaccf221caff3745e8285e3f7d15095"
+    },
+    "formal_G_closures": [],
+    "owner_schema": {
+      "path": "policy-engine/src/polisyos/fabric/connectors/profiles/models.py",
+      "sha256": "cd1278772bb443d2a8b4b2e37e0d8c1e8fd3a32c4e6007cc92d0b5c0209b809a"
+    },
+    "repair": "Validate the complete registry mapping against the existing strict SourceProfile DTO; malformed/missing/nested values and serializer KeyError become typed CapabilityProviderUnavailableError. Valid custom Mapping is covered; secret header values are not persisted."
+  },
+  "separate_context_and_limits": {
+    "frontend_vitest_context": {
+      "note": "Different head and uncommitted source; its own limits exclude a real browser and production serving. R4 pytest contains a frontend integration test but no browser/Vitest/prod run.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source41-frontend-typecheck-and-vitest-result-r1569-20261014.json",
+      "sha256": "464b77367ccfa19f765169bdd061c5fb4257cc76fc8ef34b10e1d41f1a610e32"
+    },
+    "not_accepted_here": [
+      "formal G/LA closure",
+      "whole Legal/E02 or production currentness",
+      "browser/UI Vitest validation",
+      "downstream GL admission",
+      "release ABI acceptance"
+    ],
+    "source52_53_context": {
+      "note": "Separate CAN/CAS candidate context with source-frame limitations and zero formal G closures; not added to this test count.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source52-53.json",
+      "sha256": "f622306c2e7d754fb1568f59d20972495fed6dc7690b69b57516dfd211f41487"
+    }
+  },
+  "status": "proposed_for_root_owned_receipt; no formal G closure"
+}

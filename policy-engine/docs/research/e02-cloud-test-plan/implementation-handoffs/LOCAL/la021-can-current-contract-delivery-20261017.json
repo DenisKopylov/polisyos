@@ -1,0 +1,145 @@
+{
+  "adaptation_after_parent_commits": {
+    "current_readback": "Reconciled after root advance: branch head 94c4d233ee6d0566254ca98c9e4a56cc9d814f90/tree 56b3702a9c44cdb8c6714d5bcafe4091b06a20ec, with journaled parent 514fc9ca4a9bdadd7c617cdb5cc0b8c10e592a76. The six committed paths and the current working tree have zero intersection/mismatches with all 48 source pins. Original test runs remain bound to the 514fc9 source cut; no current-head test rerun is claimed.",
+    "not_proved": "This receipt is not a full historical corpus, external backend, installed distribution, G acceptance, or LA-021 closure receipt.",
+    "rule": "For a later branch cut, re-read branch/HEAD/tree and recompute the exact 48 source-pins.json hashes plus import origins. If any pinned source/test/config input changed, bind the new exact cut and rerun only affected property tests; do not claim this receipt automatically validates newer bytes. If only unrelated files/commits changed and all relevant pinned inputs and OWN module origins are identical, the current source-disjoint comparison can support qualified carry-forward, but it is not a fresh test run. No P41 inheritance claim is made here."
+  },
+  "bounded_inputs": {
+    "current_pin_result": "All 48 pinned paths rehashed against OWN at this source cut; zero mismatches.",
+    "source_inventory": {
+      "ast_parse_errors": 0,
+      "full_regular_nonsymlink_ast_walk": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/source_inventory.json",
+      "sha256": "9fe3c99940859475b91b33efb5660c5844d970e82eb4aaac63e419836dbed77f",
+      "source_python_files": 2772,
+      "test_python_files": 3050
+    },
+    "source_pin_file": {
+      "current_mismatches": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/source-pins.json",
+      "pinned_paths": 48,
+      "sha256": "ca78bd0a95092b6f7596283893b2d636ded0b1ad531829f66130fa0d4c6d51cd"
+    }
+  },
+  "created_utc_date": "2026-10-17",
+  "current_branch_reconciliation": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit_paths_since_evidence_cut": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+      "policy-engine/src/polisyos/runtime/quality/capability_index.py",
+      "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py",
+      "policy-engine/tests/unit/runtime/quality/test_capability_discovery.py",
+      "policy-engine/tests/unit/runtime/quality/test_capability_index_compiler.py"
+    ],
+    "committed_path_delta_count": 6,
+    "current_head": "94c4d233ee6d0566254ca98c9e4a56cc9d814f90",
+    "current_tree": "56b3702a9c44cdb8c6714d5bcafe4091b06a20ec",
+    "current_working_tree_pin_mismatches": 0,
+    "interpretation": "The original probes and test runs remain exactly bound to source cut 514fc9c/tree 9bf4ca3. The committed 94c4d23 delta and current working tree do not change any of the 48 pinned inputs, so this is a source-disjoint comparison that root may use for a qualified carry-forward. It is not a fresh test execution at 94c4d23 and does not make a P41 inheritance or LA-021 acceptance claim.",
+    "parent_of_current_head": "514fc9ca4a9bdadd7c617cdb5cc0b8c10e592a76",
+    "pinned_input_intersection": [],
+    "pinned_paths_rechecked_against_current_head": 48,
+    "pinned_paths_rechecked_against_current_working_tree": 48,
+    "root_commit_journal": {
+      "entry": "known_commits[sha=94c4d233ee6d0566254ca98c9e4a56cc9d814f90]",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-parallel-coordination-20261015/root-owned-commits.json",
+      "sha256": "2b6f68504bf568b6ee86b34ab904ea55750c9b3447b2785585219ad35228d524"
+    },
+    "test_replay_at_current_head_or_dirty_worktree": false
+  },
+  "decision_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/g-decision-la021-can-20261017.json",
+    "sha256": "5bd9cb1d5144e6d00f2d0dd17a4dacaef2f08256ee7feccfccac9aeed88699ee"
+  },
+  "delivery_boundary": {
+    "formal_closure_ids": [],
+    "global_acceptance": false,
+    "product_source_tests_generated_outputs_environment_git_state_changed": false,
+    "proposal_ids": [],
+    "tests_rerun_for_these_two_records": false,
+    "this_receipt_and_g_decision_are_new_raw_files_only": true
+  },
+  "original_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/manifest.json",
+    "sha256": "a8627e6e2f35e279d748d91aeb44c510406465bec75ff87a931c8c1218dd97f5"
+  },
+  "original_manifest_immutable": true,
+  "receipt_id": "LA-021-CAN-source-bound-delivery-20261017",
+  "receipts": {
+    "probes": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/contract_probe.stdout.json",
+        "script": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/contract_probe.py",
+          "sha256": "5d68514add18411210b4bd4f5f0642d91106962160749a523523d218323a8931"
+        },
+        "sha256": "e422af7725fbaf3e68f05717303294a3a4dd8ab32d904992895d7884b8a3228c",
+        "what_it_proves": "Own Core write / persisted manifest / fresh IR refusal for array_digest; Mapping options roundtrip; raw-byte/profile mismatch; profileless refusal and candidate-only value behavior."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/decoder_profile_probe.stdout.json",
+        "script": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/decoder_profile_probe.py",
+          "sha256": "9a3231a6d251cfd7f6a70d587a67484b730328a1b029ca061b108147467561ea"
+        },
+        "sha256": "177cf56c8695ac8128ed7da6e841c0733a232becae6698750294249058dbfd2c",
+        "what_it_proves": "Current low-level Core/IR decoder differences for float_hex, bytes_hex, array_digest; does not by itself prove public writer acceptance or deployment."
+      }
+    ],
+    "runtime_origin": {
+      "all_under_own_src": true,
+      "literal_interpreter": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "modules": 22,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/import-origin-readback.stdout.json",
+      "script": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/import-origin-readback.py",
+        "sha256": "3ec407c93ce39bfc6fabda5172922f7c9a55039d78d72144c7e87b54a0f1890a"
+      },
+      "sha256": "78cbd19ff34f8bb36ad131ef08da3e698fc1e48c6cbfd17ff4ec4ef0abe11435",
+      "version": "3.14.3"
+    },
+    "tests": [
+      {
+        "cases": 35,
+        "command_definition": "Exact argv, cwd, environment, and selectors are in G-decision packet tests[0] and original manifest tests[0]; includes whole named Core conformance test module plus individually selected controls.",
+        "id": "typed-mapping-profile-and-tag",
+        "output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/targeted-tests.stdout.txt",
+          "sha256": "07f90dbdb240068b55e04f8a5b08b65d79641ddffa50b5458a8a8781fc431054"
+        }
+      },
+      {
+        "cases": 6,
+        "command_definition": "Exact argv, cwd, environment, and selectors are in G-decision packet tests[1] and original manifest tests[1].",
+        "id": "profileless-raw-and-api",
+        "output": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/profileless-api-tests.stdout.txt",
+          "sha256": "6e459c16ab2f2e60078584eb089e83da3c5ce23753275c30fb2b7565e6673f77"
+        }
+      }
+    ]
+  },
+  "schema": "polisyos.e02.la021-source-bound-delivery-receipt.v1",
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "514fc9ca4a9bdadd7c617cdb5cc0b8c10e592a76",
+    "original_evidence_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/manifest.json",
+      "sha256": "a8627e6e2f35e279d748d91aeb44c510406465bec75ff87a931c8c1218dd97f5"
+    },
+    "original_investigation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/investigation.md",
+      "sha256": "edaf07b14de5a6490aadf5293bfed8fa57f02c7566c254caf789d49298365178"
+    },
+    "own_worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "source_pin_file": {
+      "current_mismatches": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/source-pins.json",
+      "pinned_paths": 48,
+      "sha256": "ca78bd0a95092b6f7596283893b2d636ded0b1ad531829f66130fa0d4c6d51cd"
+    },
+    "tree": "9bf4ca31e5d82a26e88c1a17910d892a31e28a4e"
+  },
+  "status": "bounded_read_only_delivery_prep"
+}

@@ -2,18 +2,30 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "6c983e5516853d14c9da69d79f03c5eb61d840fe",
-    "tree": "dbb2252bd8cf564a42fcad78d21672a837d2a784",
+    "head": "9e752c894684a21923312992c4dd6f8350270cc1",
+    "tree": "a4cdfb4abeeb8b5390504c34855b5648ffb3c8e9",
     "parents": [
-      "ad514e3e4639652f4e06156ed9b0310f709a7961"
+      "3be84f9dade4ca557279a14c09f1d7e03c4574b3"
     ],
     "source_freeze": false,
-    "dirty_active_source": "Nativeguardad514 fullmodule65PASS/Ruff2PASS/83canonicalorigins; actualreleaseowner271TOML240rows14publicreviewerrors remainsRED. B65source5dae actual25PASS/Ruff1PASS/1485ownorigins. Full291proposal6c983 structurallyindependentlyverified withallhistory preserved, nofreshfull-propertyclosures. NLtypedselectorR4/Legaltyping/GL/N4/C05/LA036 inRAW; knownGL/Lex/inventory and attributedLegaltestd987 preserved, no globalfreeze. V5nativeGPandDRindividualPASS, lightselectorERRORrepair inprogress."
+    "dirty_active_source": "Legal94c4 actual73PASS/Ruff9PASS/strict4sourceMyPyPASS; complete2772src R2 binds1759origins, oldoriginexit1 retained. V5test6e872 actual13PASS/nativeDR40/80/80,1231origins; priornativeGP1PASS separate. CAN actual35+6 and law/history decision, Krefdecision+retentionerratum delivered28ba. GL3be actual125PASS/1426origins/GL1strictMyPyPASS; Lexoneblankline9e752 independentlyASTequal734528, actualRuff3check/formatPASS afterinitialLexformat1. BERL/NL/C05/N4/scanner pending reviewed source/mandatory repairs; generatedinventorydirty. No global freeze.",
+    "mutable_coordination_observations": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-parallel-coordination-20261015/root-owned-commits.json",
+        "historical_sha256": "2b6f68504bf568b6ee86b34ab904ea55750c9b3447b2785585219ad35228d524",
+        "current_sha256": "86bfb41604ba49282a39c569e1f616f19a9da25089a35ea250ae0d1ed75a6a4f",
+        "scope": "Mutable root coordination observation at stated earlier frame, not runtime input/current byte claim; historical snapshot not asserted available."
+      }
+    ]
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
-    "receipt": "raw/root-resume-admission-rebind-20261016/admission-rebind.json",
-    "meaning": "Published G checkpoint read only; not authorship and not automatic acceptance of later changes."
+    "tree": "c3a38aecbab5af06c8aed1ae27d535c7e2dc8eca",
+    "parents": [
+      "78be3aff64185e2de24abe710523e14491e36ba6"
+    ],
+    "receipt": "raw/root-g-published-readback-20261017/readback.json",
+    "meaning": "Fetched G unchanged; read-only, not authorship or automatic acceptance. Own28ba exactremote/tree/10changedpaths verified separately."
   },
   "component_receipts_and_decision_packets": [
     {
@@ -82,7 +94,11 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5"
+      "sha256": "b1de22b77e7c5f8d9e2f6384779c83af35fd73baa9d01ab12a3577911c3446fb",
+      "source_commit": "9e752c894684a21923312992c4dd6f8350270cc1",
+      "record_type": "committed_coordination_snapshot",
+      "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
+      "qualification": "Use path bytes at source_commit. Earlier unqualified live-path digest is historical, not current or runtime deciding evidence; mutable lease advances must not silently reuse it."
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
@@ -467,6 +483,30 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r9-ir-facade-source-map-contract-decision-20261017.json",
       "sha256": "6880ca143c50da445961d6efeebc28584b765e10acc203f8933b14b75cedc099"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/legal-r4-typed-owner-current-candidate-delivery-20261017.json",
+      "sha256": "4789b1a0a5403732f957289ab17544ae0c05d1256507ddb92097fd833e5053de"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/v5-work-packet-current-candidate-delivery-20261017.json",
+      "sha256": "50d4637fdca98f516285fd3702b407d30a35aa6a964b1c3e776786b02bb1a6d1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-can-current-contract-delivery-20261017.json",
+      "sha256": "6f500f9f8d7fd7ef14c36ce61cd5d8d9a0d8491ed2e85ded9a3990ada7f38ace"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-can-profile-law-history-g-decision-20261017.json",
+      "sha256": "5bd9cb1d5144e6d00f2d0dd17a4dacaef2f08256ee7feccfccac9aeed88699ee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-kref-empty-source-basis-contract-g-decision-20261017.json",
+      "sha256": "0115f1c3abf86ef69983f8c10054a7489cb7d5ea0366c347cedf0fef52ec089f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-kref-source-note-retention-erratum-20261017.json",
+      "sha256": "31a34d93049efe359758b779e11d05933e08b3453c2c654dd8d0e9a8f4898b96"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -497,20 +537,22 @@
     "Q2 source4380f4e supplies the owner-derived11-resource contract and focused source tests, but two DoWhy bindings and later source pins need fresh source audit. The actual final source/input/backend and primary/supplemental installed denominator must be recomputed; old135+6 is not an immutable new count. Native/Linux/wheel/rebuilt-sdist execution remains UNRUN on final composition.",
     "Canonical release scan254TOMLs/221 structured rows with2 ABI errors was a historical local frame. Metadata12 corrections are now applied, and later fragments/rows changed the denominator. Re-run the actual owner scan after generation/review; HTTP facade and registered-tool ABI choices remain distinct G decisions, not native green.",
     "Selected acquisition9ba4d7 plus74af20dc cache-receipt source is bounded; L5 epoch_scope_unresolved, soundness/estimand relationships, final currentness and original whole-property checks remain limited or held.",
-    "V5 GP/Search current joined consumer and B157 workload replay remain UNRUN; the new request rebinds current source and cannot inherit earlier unpinned constructor/GP success. V6 typed NCM overflow source/test is delivered, but the costly actual served N4/N5/N6/freshGET wave is still UNRUN; thrown sibling-stage failure is a separate B13 property.",
+    "V5 GP/Search has separate source-qualified nativeGP1PASS and current13-case light/two-swap/nativeDR PASS at6e872 with complete2772-source prebinding. FinalcomposedV5 whole-property/qualifying production workload remain unestablished; oldselectorERROR/10PASS1TypeError stay separate. V6 typed NCM overflow source/test is delivered, but the costly actual served N4/N5/N6/freshGET wave is still UNRUN; thrown sibling-stage failure is a separate B13 property.",
     "R9dynamic-import mapping source2b9f7177 retains5 failing mirrors at its earlier source frame; source-bound dashboard hook/browser evidence does not establish full frozen browser/client/installed behavior. CAN bounded late-refusal source9c6, C10/C11 and G-base101PASS/7SKIP do not close their entire original criteria.",
     "Earlier LA038 and GuardedCore ad-hoc type reds remain historical diagnostic evidence, not inherited/current native results. Re-run the actual required gates with exact current input denominators; P41 inheritance is not asserted. Native owner source has20 subprocess checks plus11 preflights/conditional docs, not the stale17-row plan.",
     "External issuer/permission/custody/currentness, qualifying production workload, valid law/refinement/causal calibration are not created by local physical receipts. Authentic inputs remain read-only and concrete missing facts/choices are recorded individually.",
     "Canonical291 occurrences/282 IDs/127 bundles,198 historical proposed-closed IDs(202 occurrences),9 historical ledger closures and B198 stay preserved. Full current index remains provisional; no source/input/backend global freeze or formal G closure is asserted.",
     "Read_api source47317575 repairs complete358mapped-name class across5facades:235typed-equivalent123Any;3actualbehaviorPASS/Ruff5PASS. Generic191alias removal preserves runtime markers/AST and yields133semantic type mismatches;58removed aliases remainAny. No fullpublicAPI/native/staticpurity/installed/findingclosure claim.",
     "Credal source4304328b typed-refusalconsumer5paths committed with102PASS0SKIP, canonicalMyPy1/Ruff2PASS.1478ownorigins=1474commit+4namedownedpostimages; no barewholecommitclaim. Full refusal staysincompleteedgeprovenance, boundedlift retainsstatus/completionreason/hash; resolverinjectiontest doesnotprove contextproducer/persistedN6. Nine heterogeneous rowtypingerrors repaired acrosswholefunction, normalized ASTequal. ActualN4/CAS/N6 companionpending.",
-    "Runtimeprojection+devtyping sourcece2a88d4 committed12paths;58PASS+10separateLexPASS, canonicalstrictselectedMyPy4PASS(notfullCoreRuntime), Ruff6PASS, Arrow22runtimeprobe/uvpipcheckPASS. Old252distributionrecordsretained; onlyverifiedstubinstalled, lock423\u2192424fullrecords preserves422nonrootold inclduplicatenames. Fullsourcecontext1699/1712hasoneattributedLexpostimage, nobarewholecommit. Four discoveryreds realinternalnotinherited; GLfullrequiredmembership/N4refusal/C05origin/R9sourcehelpers workpending. Pyprojectchanged: Foundryownerprofilegen/check/drift mandatorybeforefreeze.",
+    "Runtimeprojection+devtyping sourcece2a88d4 committed12paths;58PASS+10separateLexPASS, canonicalstrictselectedMyPy4PASS(notfullCoreRuntime), Ruff6PASS, Arrow22runtimeprobe/uvpipcheckPASS. Old252distributionrecordsretained; onlyverifiedstubinstalled, lock423→424fullrecords preserves422nonrootold inclduplicatenames. Fullsourcecontext1699/1712hasoneattributedLexpostimage, nobarewholecommit. Four discoveryreds realinternalnotinherited; GLfullrequiredmembership/N4refusal/C05origin/R9sourcehelpers workpending. Pyprojectchanged: Foundryownerprofilegen/check/drift mandatorybeforefreeze.",
     "Foundry current-lock source47a6 regenerates exactlytwoownerTOMLs fromfull8inputclosure. Rootactualwrite/checkPASSandcorruptfieldexpectedrefusal; independent7checksreplayed. This removes ownerdigest staleness caused by lintlockchange, but doesnotestablish installedresolver/runtime/N8sourcefreeze/nativegreen.",
     "B61adjacent positivefixture companion sourceb35: actualwholeexistingpreparedreadcachemodule19PASS0SKIP/Ruff1PASS;1558ownorigins1557commitmatches+oneownedLexpostimage. Existingcompiler mockretained, separaterealcompilerwitnessnotreplayed. NoPreparedB13/B61wholeclosure; earlier33timeouttextisnotcurrentfiledenominator.",
     "Q2source9eab: actualcanonicalhelper60drift+13envcontrolsPASS/RuffPASS. Whole45itemharness42PASS3FAIL+4subtests, blockedbycurrentmanifestpublicexporttesthashandDoWhyworkerbytes; no nativegreen/inheritedclassification. SourcegateinvocationrequiresOWNcwdandcommittedhelper. Actualinstalledconsumerread/atomicchildidentitynotestablished; finalmanifestregenandfullinstalledwavepending.",
     "Release metadata source25f7 plus scoped2rowattestation252310b delivered; all12 R2applicationflags preserved but5 Gitparentflag slots changed and provenance recorded. Nativeactual267fragments/239structuredrows remains11publicsurfaceerrors unchanged; nofullinventory/native/Gacceptance.",
-    "R9exactliteral get/subscript source08aa actual142selectedmirrors=134PASS8FAIL0SKIP; canonicalorigin77ownmodules,3230staticPython inputs3228commitmatches+2ownedGL/Lexpostimages,3239pinsunchanged/Ruff2PASS.59319independentoracle+markerretainingremoval controls do not waive fullnativefailures or membershipresidual."
+    "R9exactliteral get/subscript source08aa actual142selectedmirrors=134PASS8FAIL0SKIP; canonicalorigin77ownmodules,3230staticPython inputs3228commitmatches+2ownedGL/Lexpostimages,3239pinsunchanged/Ruff2PASS.59319independentoracle+markerretainingremoval controls do not waive fullnativefailures or membershipresidual.",
+    "LegalR4 actual73-case canonical replay and selected4-source typing verified at6e872; no browser/production or completeTypeScriptconsumer input freeze. Firstsource admission error corrected as harness-owned, not inherited. GL3be full125PASS plus oneblankline Lexformat delta9e752 and independentASTproof734528 are separate frames; nofulllegalbundlepositive.",
+    "N4 RAWrefusalconsumer reaches publicN4→V2GenerationSourceCAS→freshN6 preservinglimitedWMR atmissingatoms. Independent62ebbHOLD: canonicaltestpatch mismatch, tool-onlyproducerbridge, actualV5CASowner untested and staledocs are repairedtogether. No simulation/meaningfulchildren/fullKrefsource/authority closure; CAN/Kreflawchoices remainGpending."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
-  "next_check": "Finish reviewed actual typing/candidate-discovery/GL/refusal-to-persisted-consumer companions; commit source boundaries and separate receipts; canonical regeneration/drift controls and full source/input/backend freeze; one actual composed/native/Linux/installed/authenticRO wave and full291proposal reconciliation. G remains independent codeacceptance/integration/adjudication."
+  "next_check": "Finish reviewed BERL/GL/NL/C05/N4/scanner source, portablecanonicaltests and actualproducerbridges; affectedpathverification then canonicalregen/drift/nativeSOTA, explicit source/input/backendfreeze, one composed/PreparedB13/Linux/installed/browser/authenticRO wave, finalfull291 individualproposals. G alone acceptance/integration/adjudication."
 }

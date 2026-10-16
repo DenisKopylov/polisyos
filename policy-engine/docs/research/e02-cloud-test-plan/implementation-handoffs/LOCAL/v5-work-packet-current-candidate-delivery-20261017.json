@@ -1,0 +1,585 @@
+{
+  "actual_execution": {
+    "case_count": 13,
+    "exit_code": 0,
+    "junit": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "suite_time_seconds": 3.215,
+      "tests": 13,
+      "timestamp": "2026-10-17T01:32:59.407134+03:00"
+    },
+    "label": "actual-light-plus-two-swap-and-native-dr",
+    "measured_wall_seconds": 12.262,
+    "pytest_stdout_summary": "13 passed, 15 warnings in 3.31s",
+    "selected_groups": [
+      "10 original R3 light-control selectors (11 parameter cases)",
+      "test_search_loop_rejects_score_after_source_bound_dispatch_swap",
+      "test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4"
+    ],
+    "selector_names": [
+      "tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_injected_optimizer_is_not_admitted_as_native_gp_profile",
+      "tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_injected_optimizer_without_effective_corpus_keeps_training_unknown",
+      "tests/unit/scientist/search/strategies/test_bayesian.py::test_warm_start_rejections_survive_public_state_artifact_without_entering_corpus",
+      "tests/unit/scientist/search/strategies/test_bayesian.py::test_canonical_warm_start_rejects_raw_native_profile_before_context_admission",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_method_job_evaluator_uses_real_runner_and_returns_cas_provenance",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_search_runner_preserves_bayesian_payload_and_fresh_reads_job_chain",
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness",
+      "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py::test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations",
+      "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py::test_work_packet_consumer_rejects_wrong_run_or_draw_binding",
+      "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py::test_policy_runtime_reports_work_packet_unavailable_without_run_binding",
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_search_loop_rejects_score_after_source_bound_dispatch_swap",
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4"
+    ],
+    "selectors_count": 12,
+    "status": "PASS for this exact 13-case command",
+    "timed_out": false,
+    "timeout_seconds": 180,
+    "workers": 1
+  },
+  "actual_source_frame": {
+    "commit": "6e872ffca70f3af171f9ee054ff6bd8e6ffed510",
+    "current_source_file_pins_verified_against_request": [
+      {
+        "bytes": 56802,
+        "matches_request_pin": true,
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+        "sha256": "dd8f05e590f53da00e933ce34cbeeb94b42b343942a20a88f19e030c4b52c673"
+      },
+      {
+        "bytes": 35584,
+        "matches_request_pin": true,
+        "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+        "sha256": "fbd80ae9ffd1af8fc343388664bb843def3c0fdec0ed601fecf26095948d56b7"
+      },
+      {
+        "bytes": 142162,
+        "matches_request_pin": true,
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "sha256": "e1130d8bcf2dd5b98f1213c9b60a47552bcb794cf939d5da27204b0e2b6574ae"
+      },
+      {
+        "bytes": 43884,
+        "matches_request_pin": true,
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/advanced_designs.py",
+        "sha256": "db5cb8d4a15db4d040ee172f5995e4d48b4f118316a5f4b638800209a88971f3"
+      }
+    ],
+    "full_request_pin_count": 2782,
+    "head_after": "6e872ffca70f3af171f9ee054ff6bd8e6ffed510",
+    "mutable_coordination_journal_is_runtime_input": false,
+    "python_source_universe": {
+      "derived_from_current_tree": true,
+      "journal_is_runtime_input": false,
+      "regular_non_symlink_files": 2772,
+      "root": "policy-engine/src",
+      "source_pathset_sha256": "43e8906c8ad709dcc0fffdf6b46e6187cd867ec2b2b877ab7774f8f26e0f6991",
+      "suffix": ".py"
+    },
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "same_head_before_after": true,
+    "source_paths_unchanged": true
+  },
+  "controlled_inputs_and_outputs": {
+    "actual_results_environment": {
+      "JAX_PLATFORMS": "cpu",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:.",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "complete_raw_cas": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/pytest-tmp/test_native_source_bound_metho0/cas/",
+    "full_outputs": {
+      "actual-light-plus-two-swap-and-native-dr.run.json": {
+        "bytes": 3208,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/actual-light-plus-two-swap-and-native-dr.run.json",
+        "sha256": "6be7f3e51f59f27c05cbcb649cdc9ae09e92854f6d79b7d1c3c7e2208d97233f"
+      },
+      "actual-light-plus-two-swap-and-native-dr.stderr.txt": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/actual-light-plus-two-swap-and-native-dr.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "actual-light-plus-two-swap-and-native-dr.stdout.txt": {
+        "bytes": 3304,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/actual-light-plus-two-swap-and-native-dr.stdout.txt",
+        "sha256": "46edff24b47272b456e0c8fde4f6156917c069d1ae2ff5de47a0edc8e76c2fc7"
+      },
+      "actual-module-origins.json": {
+        "bytes": 365531,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/actual-module-origins.json",
+        "sha256": "1795d2d8e8a288eb4bed4755254cbd7d60ae2e71e9027fecba746954a1116c68"
+      },
+      "actual-results.json": {
+        "bytes": 3856,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/actual-results.json",
+        "sha256": "d8aa848c9e34da767d44f5682075d8d2da868e7eb789ee812e517ef6891d509e"
+      },
+      "v5.junit.xml": {
+        "bytes": 2621,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/v5.junit.xml",
+        "sha256": "535c37231931d49f662a9023cf71f45c00471264abed07ecf9519f4552950240"
+      }
+    },
+    "full_request": {
+      "bytes": 397602,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/request.json",
+      "sha256": "efa4e8df259be8e7f7524e4106c2cd56ccbc18c94c0ebb2c5a6985643d52e5a1"
+    },
+    "module_origin_check": {
+      "actual_canonical_source": true,
+      "imported_owned_modules": 1231,
+      "outside_or_unpinned": 0,
+      "receipt": {
+        "bytes": 365531,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/actual-module-origins.json",
+        "sha256": "1795d2d8e8a288eb4bed4755254cbd7d60ae2e71e9027fecba746954a1116c68"
+      },
+      "required_missing": 0
+    },
+    "origin_capture_plugin": {
+      "bytes": 1111,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/actual_origin.py",
+      "sha256": "e7855aacd754a7b2c9793c056ab26c03d48af2f45c3c38be5db67b6332c92d80"
+    },
+    "requested_env_overrides": {
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "POLISYOS_RUN_NATIVE_GP_HEAVY": "0",
+      "POLISYOS_RUN_NATIVE_METHODJOB_WORK": "1",
+      "SCIENTIST_TORCH_NUM_INTEROP_THREADS": "1",
+      "SCIENTIST_TORCH_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": null
+    },
+    "source_set_pin_count": 2782,
+    "timeout_seconds": 180,
+    "worker_count": 1
+  },
+  "created_utc": "2026-10-16T22:43:26.964759+00:00",
+  "cross_run_separation": {
+    "aggregation_rule": "This 13-case result is independently tied to source commit 6e872ff… and its own 2,782 path pins. Prior GP, prior DR, and R3 light runs remain separate evidence; no union-of-source-freeze or aggregate acceptance claim.",
+    "older_stale_selector_event": "Not represented or reclassified by this receipt; keep its original harness record separate.",
+    "prior_receipts": {
+      "prior_native_gp": {
+        "cases": "1/1",
+        "elapsed_seconds": 12.089554,
+        "interpretation": "Prior standalone GP/Search execution on an earlier source frame; separate evidence, not rerun or unioned into this current-source run.",
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-current-composed-actual-replay-20261017-p3/native_gp_search/junit.xml",
+          "sha256": "4f24029678acc8ee6a4c6f48d9bd76f2a4435777e4e46dda6e7b1d5d79488a84"
+        },
+        "metadata": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-current-composed-actual-replay-20261017-p3/native_gp_search/metadata.json",
+          "sha256": "9c6f765b47f482e2b1b034b14afd80ee45a233d64027013f7a85fbc0a7cfdcde"
+        },
+        "postrun_origin": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-current-composed-actual-replay-20261017-p3/native_gp_search/postrun-origin.json",
+          "sha256": "01ac32bed56c8ccb1a6b130f77de9fe22939ec26c1cbcc69170eddbea4017aca"
+        },
+        "status": "PASS"
+      },
+      "prior_native_methodjob_dr": {
+        "cases": "1/1",
+        "elapsed_seconds": 7.917929,
+        "interpretation": "Prior standalone native DR MethodJob run before the fixture companion, separate historical evidence.",
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-current-composed-actual-replay-20261017-p3/native_b157_dr/junit.xml",
+          "sha256": "403d30b1677359e8fa9e23fa416c8345f4681605055722ea15bd2eb7cbaffb57"
+        },
+        "metadata": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-current-composed-actual-replay-20261017-p3/native_b157_dr/metadata.json",
+          "sha256": "fa59ea5892dade1b1050a065322dae7facee91895860482a4b9caca785aa11f0"
+        },
+        "postrun_origin": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-current-composed-actual-replay-20261017-p3/native_b157_dr/postrun-origin.json",
+          "sha256": "7f6818e376d1e48c152339bc5bba2b1af8c80cf8a489a180de0958ed4c491a4b"
+        },
+        "status": "PASS"
+      },
+      "prior_r3_light": {
+        "cases": "10 passed / 1 failed",
+        "elapsed_seconds": 9.626596,
+        "interpretation": "Retained historic run; one wrapper TypeError made its final swapped-input falsifier a nonreceipt. Do not recast all 11 cases as nonreceipts; 10 passed remain historical passes.",
+        "junit": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-current-composed-actual-replay-20261017-p3/r3-light-controls-20261017/junit.xml",
+          "sha256": "32eca2f9027c3c17cd3931aa529f394edb0aef1b363b3387a84f6bebbbeb76c7"
+        },
+        "metadata": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-current-composed-actual-replay-20261017-p3/r3-light-controls-20261017/metadata.json",
+          "sha256": "32d1f4dbbc5b11423638e343d0d101b08f22cf8fabd58fb303ef997c0a7717d7"
+        },
+        "status": "FAIL"
+      }
+    }
+  },
+  "mutation_and_negative_controls": {
+    "caller_input_mutation": "Native 40/80/80 test asserts caller_context equals its deep-copied pre-run value.",
+    "candidate_authority": "All three native evaluations assert not promotable; persisted candidate remains diagnostic_only.",
+    "receipt_case_names": [
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_source_bound_methodjob_work_packet_supports_same_input_l3_to_l4_witness",
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_search_loop_rejects_score_after_source_bound_dispatch_swap",
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4"
+    ],
+    "source_swap_mutation": "Both swapped-input negative tests remain selected and passed: altered X is X_alternative (X+0.25); malformed dispatch/work packet is rejected with method_work_packet_dispatch_binding_mismatch; SearchLoop test confirms rejected ATE does not enter simulation results or promotion."
+  },
+  "native_methodjob_chain": {
+    "direct_l4_and_chained_l4_same_job_key": true,
+    "direct_l4_and_chained_l4_same_profile_fingerprint": true,
+    "direct_l4_result_artifact_equals_chained_l4_result_artifact": "sha256:cf09ec54a648dc7625e67f711af5f8a7bfd180b02ea5a33e44e76de1b51ccc02",
+    "effective_config_l4": {
+      "bootstrap_draws": 80,
+      "crossfit_folds": 2,
+      "feature_importance_mode": "permutation",
+      "inference_backend": "bootstrap_eif",
+      "n_repeats": 1,
+      "nuisance_model_family": "lightweight",
+      "outcome_scaling": "raw+standardized",
+      "propensity_clipping": {
+        "_type": "float",
+        "repr": "0.01"
+      },
+      "propensity_trimming": {
+        "_type": "float",
+        "repr": "0.02"
+      },
+      "random_seed_manifest": []
+    },
+    "limits": "Candidate-grade diagnostic execution; all L4 work complete, zero failed/unattempted draws. This is not policy-effect validity, promotion authority, or final acceptance.",
+    "method_results": [
+      {
+        "artifact_id": "sha256:cf09ec54a648dc7625e67f711af5f8a7bfd180b02ea5a33e44e76de1b51ccc02",
+        "ate": {
+          "_type": "float",
+          "repr": "0.4477818481218982"
+        },
+        "bootstrap_execution": {
+          "attempted_draw_count": 80,
+          "completed_draw_count": 80,
+          "draw_execution_status": "complete",
+          "failed_draw_count": 0,
+          "requested_draw_count": 80,
+          "schema_version": "1.0",
+          "unattempted_draw_count": 0,
+          "work_unit": "bootstrap_replicate"
+        },
+        "manifest": {
+          "bytes": 1397,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/pytest-tmp/test_native_source_bound_metho0/cas/artifacts/sha256/cf/09/cf09ec54a648dc7625e67f711af5f8a7bfd180b02ea5a33e44e76de1b51ccc02.manifest.json",
+          "sha256": "6251ba5c45558ec013d2f08037d81c152fe7a0d3aa1ef4edb4c0c8788ba531b6"
+        },
+        "payload_sha256": "cf09ec54a648dc7625e67f711af5f8a7bfd180b02ea5a33e44e76de1b51ccc02",
+        "role": "L4_direct_and_chained_result"
+      },
+      {
+        "artifact_id": "sha256:450e1dea6790dc2a0a12dfddb94cca418ffc42f94ed28d869cc7546726bc274c",
+        "ate": {
+          "_type": "float",
+          "repr": "0.4477818481218982"
+        },
+        "bootstrap_execution": {
+          "attempted_draw_count": 40,
+          "completed_draw_count": 40,
+          "draw_execution_status": "complete",
+          "failed_draw_count": 0,
+          "requested_draw_count": 40,
+          "schema_version": "1.0",
+          "unattempted_draw_count": 0,
+          "work_unit": "bootstrap_replicate"
+        },
+        "manifest": {
+          "bytes": 1397,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/pytest-tmp/test_native_source_bound_metho0/cas/artifacts/sha256/45/0e/450e1dea6790dc2a0a12dfddb94cca418ffc42f94ed28d869cc7546726bc274c.manifest.json",
+          "sha256": "d12b44adc7e2973ddf08cb775d0e59ca64fc104ae2b7ed8e11fbb73e027fd1c5"
+        },
+        "payload_sha256": "450e1dea6790dc2a0a12dfddb94cca418ffc42f94ed28d869cc7546726bc274c",
+        "role": "L3_40_result"
+      }
+    ],
+    "method_seed": 17,
+    "same_l4_ate": {
+      "_type": "float",
+      "repr": "0.4477818481218982"
+    },
+    "selector": "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4",
+    "semantics": "Unpatched DRLearnerEstimator producer: actual direct L4=80 and L3=40→L4=80 executions, persisted work packets/result/evidence, fresh reader; caller context remains unchanged. The configured nuisance family is lightweight (explicit), with inference_backend=bootstrap_eif; this is not represented as a default competitive-family run.",
+    "shared_evaluation_id": "same-original-request",
+    "shared_run_id": "b157-controlled-run",
+    "stage_packets": [
+      {
+        "artifact_id": "sha256:0224a905c23f4ac0a8bd52ad0b325fd3abce66226b5de3f5e26090632b7fe669",
+        "attempt_id": "native-direct-l4-attempt",
+        "bootstrap_execution": {
+          "attempted_draw_count": 80,
+          "completed_draw_count": 80,
+          "draw_execution_status": "complete",
+          "failed_draw_count": 0,
+          "requested_draw_count": 80,
+          "schema_version": "1.0",
+          "unattempted_draw_count": 0,
+          "work_unit": "bootstrap_replicate"
+        },
+        "effective_method_config": {
+          "bootstrap_draws": 80,
+          "crossfit_folds": 2,
+          "feature_importance_mode": "permutation",
+          "inference_backend": "bootstrap_eif",
+          "n_repeats": 1,
+          "nuisance_model_family": "lightweight",
+          "outcome_scaling": "raw+standardized",
+          "propensity_clipping": {
+            "_type": "float",
+            "repr": "0.01"
+          },
+          "propensity_trimming": {
+            "_type": "float",
+            "repr": "0.02"
+          },
+          "random_seed_manifest": []
+        },
+        "evaluation_id": "same-original-request",
+        "manifest": {
+          "bytes": 1949,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/pytest-tmp/test_native_source_bound_metho0/cas/artifacts/sha256/02/24/0224a905c23f4ac0a8bd52ad0b325fd3abce66226b5de3f5e26090632b7fe669.manifest.json",
+          "sha256": "c698b0200e021702a6bb3f5d8b9cb331d5274f89a356b57c7422ffa0bedcdedc"
+        },
+        "method_job_key": "job:8b42d6308cae088875f854a5cec2c3cbd3236cb507e2253677a25da8bc4e24a4",
+        "method_profile_fingerprint": "4f195391a87954552ffde016b68ce13393c06bd3bd343c6a846f19be73528df5",
+        "payload_sha256": "0224a905c23f4ac0a8bd52ad0b325fd3abce66226b5de3f5e26090632b7fe669",
+        "run_id": "b157-controlled-run",
+        "sample_count": 40,
+        "seed": 17,
+        "stage": "direct_l4_80"
+      },
+      {
+        "artifact_id": "sha256:6676ba3a96356023f969359fd301867e9f53a7af949d675ce379ea35b592cb01",
+        "attempt_id": "native-chain-l3-attempt",
+        "bootstrap_execution": {
+          "attempted_draw_count": 40,
+          "completed_draw_count": 40,
+          "draw_execution_status": "complete",
+          "failed_draw_count": 0,
+          "requested_draw_count": 40,
+          "schema_version": "1.0",
+          "unattempted_draw_count": 0,
+          "work_unit": "bootstrap_replicate"
+        },
+        "effective_method_config": {
+          "bootstrap_draws": 40,
+          "crossfit_folds": 2,
+          "feature_importance_mode": "permutation",
+          "inference_backend": "bootstrap_eif",
+          "n_repeats": 1,
+          "nuisance_model_family": "lightweight",
+          "outcome_scaling": "raw+standardized",
+          "propensity_clipping": {
+            "_type": "float",
+            "repr": "0.01"
+          },
+          "propensity_trimming": {
+            "_type": "float",
+            "repr": "0.02"
+          },
+          "random_seed_manifest": []
+        },
+        "evaluation_id": "same-original-request",
+        "manifest": {
+          "bytes": 1949,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/pytest-tmp/test_native_source_bound_metho0/cas/artifacts/sha256/66/76/6676ba3a96356023f969359fd301867e9f53a7af949d675ce379ea35b592cb01.manifest.json",
+          "sha256": "99b5c5b12acf7b69dd3609eb7d243f8ff3943907ce12108b8e0ec16a0b0816e0"
+        },
+        "method_job_key": "job:7f616857e4c95d696699ecb2030b349cc2609c84122a493664fc5c0ae74c2004",
+        "method_profile_fingerprint": "757671b77593c31e1122a5f61cca8d4b0acb4add93c91c95cc8d68aa4597606a",
+        "payload_sha256": "6676ba3a96356023f969359fd301867e9f53a7af949d675ce379ea35b592cb01",
+        "run_id": "b157-controlled-run",
+        "sample_count": 40,
+        "seed": 17,
+        "stage": "chained_l3_40"
+      },
+      {
+        "artifact_id": "sha256:a120df21fa4980925a70459081f4f87fb689f23ea366d925cc7e012aed0aa0f0",
+        "attempt_id": "native-chain-l4-attempt",
+        "bootstrap_execution": {
+          "attempted_draw_count": 80,
+          "completed_draw_count": 80,
+          "draw_execution_status": "complete",
+          "failed_draw_count": 0,
+          "requested_draw_count": 80,
+          "schema_version": "1.0",
+          "unattempted_draw_count": 0,
+          "work_unit": "bootstrap_replicate"
+        },
+        "effective_method_config": {
+          "bootstrap_draws": 80,
+          "crossfit_folds": 2,
+          "feature_importance_mode": "permutation",
+          "inference_backend": "bootstrap_eif",
+          "n_repeats": 1,
+          "nuisance_model_family": "lightweight",
+          "outcome_scaling": "raw+standardized",
+          "propensity_clipping": {
+            "_type": "float",
+            "repr": "0.01"
+          },
+          "propensity_trimming": {
+            "_type": "float",
+            "repr": "0.02"
+          },
+          "random_seed_manifest": []
+        },
+        "evaluation_id": "same-original-request",
+        "manifest": {
+          "bytes": 1949,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/pytest-tmp/test_native_source_bound_metho0/cas/artifacts/sha256/a1/20/a120df21fa4980925a70459081f4f87fb689f23ea366d925cc7e012aed0aa0f0.manifest.json",
+          "sha256": "4ecae78f190cd83951ae169e268492f85ab44b3d6dff84a2a4fd0c7901ae9eef"
+        },
+        "method_job_key": "job:8b42d6308cae088875f854a5cec2c3cbd3236cb507e2253677a25da8bc4e24a4",
+        "method_profile_fingerprint": "4f195391a87954552ffde016b68ce13393c06bd3bd343c6a846f19be73528df5",
+        "payload_sha256": "a120df21fa4980925a70459081f4f87fb689f23ea366d925cc7e012aed0aa0f0",
+        "run_id": "b157-controlled-run",
+        "sample_count": 40,
+        "seed": 17,
+        "stage": "chained_l4_80"
+      }
+    ]
+  },
+  "purpose": "Compact index to the root-owned actual V5 work-packet replay receipt; source and runtime are unchanged from the run. This is evidence indexing only, not formal G acceptance or final freeze.",
+  "runner_interface": {
+    "evaluator_call_source": {
+      "bytes": 142162,
+      "matches_request_pin": true,
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "sha256": "e1130d8bcf2dd5b98f1213c9b60a47552bcb794cf939d5da27204b0e2b6574ae"
+    },
+    "method_source": {
+      "bytes": 43884,
+      "matches_request_pin": true,
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/advanced_designs.py",
+      "sha256": "db5cb8d4a15db4d040ee172f5995e4d48b4f118316a5f4b638800209a88971f3"
+    },
+    "run_job_signature_source": {
+      "bytes": 35584,
+      "matches_request_pin": true,
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "sha256": "fbd80ae9ffd1af8fc343388664bb843def3c0fdec0ed601fecf26095948d56b7"
+    },
+    "selected_method_producer": "actual DRLearnerEstimator source below; packet manifest producer method_job_work_observer v1.2",
+    "signature_fact": "run_job has typed keyword-only store_factory: Callable[[Path], ArtifactStore] | None and capture_dispatch_binding; current evaluator passes same_root_store_factory and enables capture_dispatch_binding"
+  },
+  "schema": "root-v5-work-packet-current-actual-summary/v1",
+  "synthetic_model_input": {
+    "artifacts": [
+      {
+        "artifact_id": "sha256:3c8b2befa0bc462d12ea52493a2d6d11e07ace26e3b67baafce02adc6b693385",
+        "kind": "scientist.autotune.b157_diagnostic.candidate",
+        "manifest": {
+          "bytes": 982,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/pytest-tmp/test_native_source_bound_metho0/cas/artifacts/sha256/3c/8b/3c8b2befa0bc462d12ea52493a2d6d11e07ace26e3b67baafce02adc6b693385.manifest.json",
+          "sha256": "8b4c2f6e5c8700ed7b0347918188a0a0531cee3184e2e1ba09b70bec00663d60"
+        },
+        "role": "candidate_diagnostic_only",
+        "schema": {
+          "name": "polisyos.scientist.methods.autotune._DiagnosticCausalCandidate",
+          "version": "1.0"
+        }
+      },
+      {
+        "artifact_id": "sha256:af2d7e90cad13204edbc81471fee70b7e20f8712a919f4847409b7313569f5dd",
+        "kind": "scientist.autotune.method_job.suite",
+        "manifest": {
+          "bytes": 957,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/pytest-tmp/test_native_source_bound_metho0/cas/artifacts/sha256/af/2d/af2d7e90cad13204edbc81471fee70b7e20f8712a919f4847409b7313569f5dd.manifest.json",
+          "sha256": "ade2273c815b3bf3cd3620ec1787dbd36143d762002b51f4f78270ec00fbf3ee"
+        },
+        "role": "benchmark_suite",
+        "schema": {
+          "name": "polisyos.scientist.methods.autotune.BenchmarkSuite",
+          "version": "2.0"
+        }
+      },
+      {
+        "artifact_id": "sha256:68ca6d79f8c11ce6b2c4ce74ea9545edbcf73eb1d606eba96fce924be2f99273",
+        "kind": "fabric.data_snapshot",
+        "manifest": {
+          "bytes": 820,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/pytest-tmp/test_native_source_bound_metho0/cas/artifacts/sha256/68/ca/68ca6d79f8c11ce6b2c4ce74ea9545edbcf73eb1d606eba96fce924be2f99273.manifest.json",
+          "sha256": "332c73c5d12f8c7f84dc3e0eed8712aebfbf61821952e623cb5a7e4e8feed9a6"
+        },
+        "role": "data_snapshot",
+        "schema": {
+          "name": "polisyos.core.DataSnapshot",
+          "version": "0.2.0"
+        }
+      },
+      {
+        "artifact_id": "sha256:4f4a9d9a233f9b39db8810747b543d5400751d7c0b0cb22ca3918579fd4a9057",
+        "kind": "scientist.method_dataset",
+        "manifest": {
+          "bytes": 609,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/pytest-tmp/test_native_source_bound_metho0/cas/artifacts/sha256/4f/4a/4f4a9d9a233f9b39db8810747b543d5400751d7c0b0cb22ca3918579fd4a9057.manifest.json",
+          "sha256": "db2c0b8d20b87eaf1b897b87d626db6a03ae5a1351e0ac63841ab69bfc7d135b"
+        },
+        "role": "data",
+        "schema": {
+          "name": "tests.MethodDataset",
+          "version": "1.0"
+        }
+      }
+    ],
+    "caller_context": "same native diagnostic causal request; estimator=dr_learner; n_bootstrap=80; bound input source=the-bound-dataset",
+    "candidate": "b157_diagnostic; candidate_status=diagnostic_only",
+    "constructor": "_persist_source_inputs",
+    "dataset_artifact_id": "sha256:4f4a9d9a233f9b39db8810747b543d5400751d7c0b0cb22ca3918579fd4a9057",
+    "dataset_size": 40,
+    "features": "X = linspace(-1, 1, 40).reshape(40, 1); adversarial X_alternative = X + 0.25",
+    "outcome": "1.0 + X[:,0] + 0.4 * treatment",
+    "snapshot_artifact_id": "sha256:68ca6d79f8c11ce6b2c4ce74ea9545edbcf73eb1d606eba96fce924be2f99273",
+    "source_test_module": {
+      "bytes": 56802,
+      "matches_request_pin": true,
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+      "sha256": "dd8f05e590f53da00e933ce34cbeeb94b42b343942a20a88f19e030c4b52c673"
+    },
+    "suite": "b157_source_bound v2.0 / method_job",
+    "treatment": "[0, 1] repeated 20 times"
+  },
+  "revision": 2,
+  "erratum": {
+    "supersedes": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-work-packet-actual-20261017/actual-summary-r1.json",
+      "sha256": "f36d605c1a3744804d85a25204cc3d112e3f3b33362c81847908af20eacc6d11"
+    },
+    "classification": "copy_typo_established",
+    "scope": "Only the nested historical prior_native_methodjob_dr.metadata sha256 in R1 was wrong. R2 corrects that reference; the prior run and current 13-case run evidence are unchanged.",
+    "complete_recursive_path_sha256_walk_of_r1": {
+      "scope": "Every object in the complete parsed R1 JSON value; count one object whenever it has string fields path and sha256.",
+      "algorithm": "Recursive walk over all dict values and list elements; resolve each path relative to the owned worktree root unless absolute; SHA-256 the referenced bytes.",
+      "references_checked": 34,
+      "matching": 33,
+      "mismatching": 1,
+      "missing_or_unreadable": 0,
+      "sole_mismatch_json_pointer": "$.cross_run_separation.prior_receipts.prior_native_methodjob_dr.metadata",
+      "sole_mismatch_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-current-composed-actual-replay-20261017-p3/native_b157_dr/metadata.json",
+      "r1_recorded_sha256": "fa59ea5892dadee2b1b034b14afd80ee45a233d64027013f7a85fbc0a7cfdcde",
+      "bytes_sha256": "fa59ea5892dade1b1050a065322dae7facee91895860482a4b9caca785aa11f0"
+    },
+    "independent_historical_run_binding": {
+      "execution_report": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-current-composed-actual-replay-20261017-p3/execution-report.json",
+        "sha256": "ff6143c502e7860fd7e7d4a1049b5f6e10de33fd3368091ff9d3eb5491bb3a7a"
+      },
+      "execution_report_metadata_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v5-current-composed-actual-replay-20261017-p3/native_b157_dr/metadata.json",
+      "execution_report_metadata_sha256": "fa59ea5892dade1b1050a065322dae7facee91895860482a4b9caca785aa11f0",
+      "metadata_mtime_utc": "2026-10-16T21:55:28.267017+00:00",
+      "command_end_utc": "2026-10-16T21:55:28.211227+00:00",
+      "r1_created_utc": "2026-10-16T22:38:57.032881+00:00",
+      "basis": "The historical execution-report independently pins this exact metadata path and corrected content hash. The metadata bytes hash to that value; their mtime follows the recorded command end by about 56 ms and predates R1 creation. This establishes a copy/transcription typo in R1; the audit found no evidence of an evidence overwrite."
+    },
+    "historical_source_qualification": "Historical native GP, native DR, and R3 light artifacts remain evidence from their separately identified runs. This erratum does not rebind their source frames, aggregate them with the current run, or reinterpret prior outcomes."
+  }
+}

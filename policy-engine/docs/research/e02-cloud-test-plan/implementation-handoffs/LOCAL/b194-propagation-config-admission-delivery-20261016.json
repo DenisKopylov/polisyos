@@ -70,7 +70,7 @@
   },
   "real_chain": {
     "negative": "Malformed params \u2192 PropagateUncertaintyNode configuration admission \u2192 NodeOutcome(status=fail, NodeError.code=propagation_config_invalid) \u2192 no artifact writes or simulation replacement.",
-    "positive": "Controlled 150-request/100-attempt producer \u2192 selected FileSystemCAS report and SimulationResult \u2192 fresh normative arbitration consumer \u2192 PARTIAL, omits workers_uncertainty binding; rights audit UNEVALUATED.",
+    "positive": "Controlled 150-request/100-attempt producer \u2192 FileSystemCAS report and SimulationResult \u2192 fresh normative arbitration consumer \u2192 PARTIAL, omits workers_uncertainty binding; rights audit UNEVALUATED.",
     "surface": "Typed workflow NodeOutcome/error and persisted propagation-report/fresh normative-consumer behavior; no new public facade/API/schema."
   },
   "selected_input_profile_backend": {
@@ -170,5 +170,17 @@
   "closure_ids": [],
   "formal_G_closure_ids": [],
   "G_acceptance": null,
-  "retention": "Complete deciding outputs and removal logs remain ignored RAW on this candidate host; tracked source is cited by exact commit/path/hash."
+  "retention": "Complete deciding outputs and removal logs remain ignored RAW on this candidate host; tracked source is cited by exact commit/path/hash.",
+  "profile_receipt_scope_correction": {
+    "prior_receipt_commit": "16cd2a8b551aee3eb8a1f6d0a9a242f2c575aa4b",
+    "prior_receipt_sha256": "1dd8974a7d9810c95f60f8e9d74435404376d1429253274a1720c3b30ccfc270",
+    "corrected_pointer": "/real_chain/positive",
+    "correction": "Removed an unsupported selected-profile qualifier. This controlled witness reloads the propagation report by ArtifactID; _persist_report and _persist_config do not request selected-profile refs. It proves the bounded persisted count/status path only.",
+    "selected_profile_chain": "not_established by this witness; no currentness or selected-view admission claim",
+    "source_pointers": [
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py@df08c6a05c6e08d38d24af8bdc7764bfda20b6a7e3e8403113663a182456e067",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-s1-s2-s3-gap-discriminators-20261016/test_b194_unattempted_bridge_r2.py@53d1782a192e70d92a58c65c4d18e06ec40bb025684b8f61f44bd3f0474da12a"
+    ],
+    "formal_closures_unchanged": true
+  }
 }

@@ -138,8 +138,7 @@ evidence = ["tests/example.py"]
     schema_errors = [
         item
         for item in report["contract_errors"]
-        if item["check"] == "fragment-schema"
-        and item["subject"].endswith("unsupported-type.toml")
+        if item["check"] == "fragment-schema" and item["subject"].endswith("unsupported-type.toml")
     ]
     assert any(
         item["message"] == "unsupported fragment type" and item["detail"] == "internal"
@@ -149,9 +148,7 @@ evidence = ["tests/example.py"]
     loaded = load_fragments(fragments)
     with pytest.raises(ValueError, match=r"unsupported fragment type `internal`") as error:
         render_release_notes("0.0.0", loaded, "2026-10-11")
-    assert error.value.args == (
-        f"{fragment_path}: unsupported fragment type `internal`",
-    )
+    assert error.value.args == (f"{fragment_path}: unsupported fragment type `internal`",)
 
 
 def test_phase5_10_checker_rejects_whitespace_root_fields_and_malformed_evidence(
@@ -161,14 +158,14 @@ def test_phase5_10_checker_rejects_whitespace_root_fields_and_malformed_evidence
     fragments.mkdir()
     fragment_path = fragments / "whitespace-root-fields.toml"
     fragment_path.write_text(
-        '''
+        """
 id = "  "
 title = "\\t"
 type = " "
 owner = "  "
 summary = "\\t"
 evidence = "tests/example.py"
-''',
+""",
         encoding="utf-8",
     )
 
@@ -223,9 +220,7 @@ generated_client_compatibility = "additive-optional-field"
 
     report = gates.build_report(repo_root=REPO_ROOT, fragments_dir=fragments)
     enum_errors = [
-        item
-        for item in report["contract_errors"]
-        if item["check"] == "generated-client-enum"
+        item for item in report["contract_errors"] if item["check"] == "generated-client-enum"
     ]
     assert len(enum_errors) == 2, enum_errors
     assert {item["detail"] for item in enum_errors} == {
@@ -244,9 +239,7 @@ def test_phase5_10_checker_matches_policy_types_to_real_renderer(
     report = gates.build_report(repo_root=REPO_ROOT, fragments_dir=fragments)
 
     contract_errors = [
-        item
-        for item in report["contract_errors"]
-        if item["check"] == "fragment-schema-policy"
+        item for item in report["contract_errors"] if item["check"] == "fragment-schema-policy"
     ]
     assert len(contract_errors) == 1, contract_errors
     assert contract_errors[0]["message"] == (
@@ -387,6 +380,7 @@ def _path_or_glob_exists(path: str) -> bool:
     if any(char in path for char in "*?["):
         return bool(list(REPO_ROOT.glob(path)))
     return (REPO_ROOT / path).exists()
+
 
 def _write_public_surface_inventory_fixture(root: Path) -> None:
     from tools.devx.architecture import guardrails as public_surface_guardrails
@@ -540,8 +534,9 @@ def test_phase5_10_public_surface_report_reconciles_complete_declaration_sets(
     assert denominator["contract_package_model_field_slots_present"] == (
         denominator["contract_package_model_field_slots_expected"] - 1
     )  # The canonical parser supplies the omitted optional `notes` default.
-    assert denominator["inventory_package_schema_field_slots_present"] == (
-        denominator["inventory_package_schema_field_slots_expected"]
+    assert (
+        denominator["inventory_package_schema_field_slots_present"]
+        == (denominator["inventory_package_schema_field_slots_expected"])
     )
     assert denominator["contract_supported_entrypoints"] == 2
     assert denominator["inventory_supported_entrypoints"] == 2
@@ -555,6 +550,29 @@ def test_phase5_10_public_surface_report_reconciles_complete_declaration_sets(
     } <= set(inputs)
     assert any(path.endswith("tools/devx/architecture/guardrails.py") for path in inputs)
     assert all(item["status"] == "read" and len(item["sha256"]) == 64 for item in inputs.values())
+
+
+def test_phase5_10_public_surface_unavailable_canonical_renderer_fails_closed(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _write_public_surface_inventory_fixture(tmp_path)
+
+    def unavailable_canonical_renderer() -> tuple[object, dict[str, str], dict[str, Any]]:
+        raise ModuleNotFoundError("No module named 'polisyos.common.markdown'")
+
+    monkeypatch.setattr(gates, "_canonical_public_surface_context", unavailable_canonical_renderer)
+    report = _run_public_surface_report(tmp_path, monkeypatch)
+
+    unavailable_errors = [
+        error
+        for error in report["contract_errors"]
+        if error["subject"] == "tools/devx/architecture/guardrails.py"
+        and error["message"] == "canonical public-surface model or renderer is unavailable"
+    ]
+    evidence = report["public_surface_inventory_evidence"]
+    assert len(unavailable_errors) == 1
+    assert evidence["complete_verdict"] is False
+    assert evidence["predicate_status"] == "not_established"
 
 
 def test_phase5_10_public_surface_route_removal_fails_with_inventory_markers_retained(
@@ -651,7 +669,6 @@ def test_phase5_10_public_surface_malformed_route_rows_fail_closed(
     assert evidence["predicate_status"] == "not_established"
 
 
-
 @pytest.mark.parametrize(
     ("contract_field", "inventory_field"),
     list(gates._canonical_public_surface_context()[1].items()),
@@ -668,13 +685,16 @@ def test_phase5_10_public_surface_schema_field_removal_fails_closed_with_markers
     contract_text = contract_path.read_text(encoding="utf-8")
     if contract_field == "notes":
         contract_text = contract_text.replace(
-            'major_subsystem = false\n',
+            "major_subsystem = false\n",
             'major_subsystem = false\nnotes = "Fixture note."\n',
         )
     contract_line_prefix = f"{contract_field} = "
-    contract_text = "\n".join(
-        line for line in contract_text.splitlines() if not line.startswith(contract_line_prefix)
-    ) + "\n"
+    contract_text = (
+        "\n".join(
+            line for line in contract_text.splitlines() if not line.startswith(contract_line_prefix)
+        )
+        + "\n"
+    )
     contract_path.write_text(contract_text, encoding="utf-8")
     inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
     inventory_package = inventory["packages"][0]
@@ -699,10 +719,10 @@ def _canonical_inventory_schema_fields() -> list[tuple[str, str]]:
     entrypoint = package["entrypoints"][0]
     family = schema["generated_artifact_families"][0]
     return [
-        *(('root', name) for name in schema),
-        *(('package', name) for name in package),
-        *(('entrypoint', name) for name in entrypoint),
-        *(('family', name) for name in family),
+        *(("root", name) for name in schema),
+        *(("package", name) for name in package),
+        *(("entrypoint", name) for name in entrypoint),
+        *(("family", name) for name in family),
     ]
 
 

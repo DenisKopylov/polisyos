@@ -2977,4 +2977,36 @@
     "source_freeze": false,
     "closure_ids": []
   }
+,
+  "coordination_epoch_20261017_native_release_canonical_schema_availability": {
+    "root_writer": "/root",
+    "base": "5a7570b14bfb8928d5912401ab111054543e0df7",
+    "mechanism_paths": [
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase5_10_compatibility_release_gates.py",
+      "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate actual native checker receipt and component index"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-release-internal-rule-repair-r3b-20261017/manifest.json",
+      "sha256": "0e0351028d6e5dacff84461b785b089c172ce4f96fcd0164841ee0eddbc3f50d"
+    },
+    "independent_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-release-internal-rule-independent-review-20261017/review.json",
+        "sha256": "d56054dfa0f2322dcb4336861882f257896ec9e7e3889dc0f01799b964b9166a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-release-internal-rule-r3-independent-review-20261017/review.json",
+        "sha256": "66a52e3efb3df7a9981d621e514e2094c2cc57b0242e7d8375ba619ad9bdd34b"
+      }
+    ],
+    "P40": "Generic canonical-schema availability: unavailable renderer or required internal_rule schema remains not_established plus contract error, no empty schema indexing; corrupt present internal rule remains mismatch. Existing public inventory declarations are not runtime-export proof.",
+    "format_companion": "R3 preserves whole test AST, ordered comments, TypeIgnore and import aliases; canonical root Ruff check+format both paths pass. R2 test format red retained, not P41-inherited.",
+    "actual_before": "Supported5dae owner run271fragments240rows14public-surface-reviewerrors exit1. Does not prove native green; independent14row review ongoing.",
+    "source_freeze": false,
+    "closure_ids": []
+  }
 }

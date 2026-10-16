@@ -639,9 +639,18 @@ def _validate_public_surface(
         )
     elif type(inventory.get("version")) is not int or inventory.get("version") != expected_version:
         add_error(inventory_subject, "inventory version differs from canonical renderer")
+    expected_internal_rule = payload_schema.get("internal_rule")
+    if public_surface_source is not None and type(expected_internal_rule) is not str:
+        mark_unestablished(
+            inventory_subject, "canonical renderer did not establish inventory internal_rule"
+        )
     if type(inventory.get("internal_rule")) is not str:
         mark_unestablished(inventory_subject, "inventory internal_rule must be a string")
-    elif inventory.get("internal_rule") != payload_schema["internal_rule"]:
+    elif (
+        public_surface_source is not None
+        and type(expected_internal_rule) is str
+        and inventory.get("internal_rule") != expected_internal_rule
+    ):
         add_error(inventory_subject, "inventory internal rule differs from canonical renderer")
 
     for module, inventory_package in inventory_package_by_module.items():

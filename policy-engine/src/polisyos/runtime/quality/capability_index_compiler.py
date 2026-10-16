@@ -56,6 +56,8 @@ from polisyos.runtime.quality.capability_index import (
     _candidate_iso_date,
     _legal_candidate_selection_digest,
     _legal_candidate_selection_reasons,
+    _LegalNormCandidateFactBindingStatus,
+    _LegalNormCandidateSelectionBasis,
     capability_is_production_admissible,
 )
 from polisyos.runtime.quality.capability_white_space import (
@@ -463,9 +465,8 @@ def _compile_legal_norm_candidate_snapshot(
                 incompleteness_reasons=("legal_candidate_source_count_unavailable",),
             )
 
-        source_count = int(
-            connection.execute("SELECT COUNT(*) FROM lex_rule_thresholds").fetchone()[0]
-        )
+        source_count_row = connection.execute("SELECT COUNT(*) FROM lex_rule_thresholds").fetchone()
+        source_count = _legal_candidate_source_count_from_row(source_count_row)
         threshold_rows = connection.execute(
             """
             SELECT
@@ -583,7 +584,7 @@ def _compile_legal_norm_candidate_snapshot(
             invalid_row_count += 1
             continue
         fact_count = fact_counts.get(fact_id)
-        fact_binding_status = (
+        fact_binding_status: _LegalNormCandidateFactBindingStatus = (
             "fact_table_unavailable"
             if not fact_table_available
             else (
@@ -624,7 +625,7 @@ def _compile_legal_norm_candidate_snapshot(
         source_hallucination_flags_status = _candidate_hallucination_flags_status(
             source_hallucination_flags_json
         )
-        source_fields = {
+        source_fields: _LegalNormCandidateSelectionBasis = {
             "fact_binding_status": fact_binding_status,
             "source_document_id": source_document_id,
             "source_provision_citation": _optional_str(fact.get("provision_citation")),
@@ -647,7 +648,7 @@ def _compile_legal_norm_candidate_snapshot(
             "source_reference_refs": source_reference_refs,
             "selection_snapshot_at": release_snapshot_at,
         }
-        row_reasons = _legal_candidate_selection_reasons(**source_fields)
+        row_reasons = _legal_candidate_selection_reasons(source_fields)
         disposition = "eligible" if not row_reasons else "excluded"
         source_refs_set = {f"duckdb:{path.name}:lex_rule_thresholds:{threshold_id}"}
         if fact_binding_status == "bound_one_fact":
@@ -738,6 +739,16 @@ def _compile_legal_norm_candidate_snapshot(
         records=tuple(sorted(records, key=lambda record: record.candidate_ref)),
         incompleteness_reasons=tuple(sorted(incompleteness_reasons)),
     )
+
+
+def _legal_candidate_source_count_from_row(row: tuple[object, ...] | None) -> int:
+    """Require DuckDB's aggregate query to return one non-negative integer count."""
+    if row is None or len(row) != 1:
+        raise ValueError("legal_candidate_source_count_result_invalid")
+    source_count = row[0]
+    if isinstance(source_count, bool) or not isinstance(source_count, int) or source_count < 0:
+        raise ValueError("legal_candidate_source_count_result_invalid")
+    return source_count
 
 
 def _build_legal_candidate_snapshot(

@@ -11,7 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 from datetime import UTC, date, datetime
-from typing import Any, Literal
+from typing import Any, Final, Literal, TypedDict, TypeGuard, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -30,12 +30,24 @@ from polisyos.data_forge.domains.legal.source_relation import (
 )
 from polisyos.data_forge.kernel.io.generation_basis import build_generation_basis
 
-CAPABILITY_INDEX_SCHEMA_VERSION = "policyos.evidence_capability_index.v1"
-EVIDENCE_CAPABILITY_SCHEMA_VERSION = "policyos.evidence_capability.v1"
-CAPABILITY_SOURCE_ASSET_SCHEMA_VERSION = "policyos.capability_source_asset.v1"
-CAPABILITY_FAILURE_MODE_SCHEMA_VERSION = "policyos.capability_failure_mode.v1"
-ACQUISITION_STRATEGY_SCHEMA_VERSION = "policyos.capability_acquisition_strategy.v1"
-CONFLICT_RECORD_SCHEMA_VERSION = "policyos.runtime.construct_conflict_record.v1"
+CAPABILITY_INDEX_SCHEMA_VERSION: Final[Literal["policyos.evidence_capability_index.v1"]] = (
+    "policyos.evidence_capability_index.v1"
+)
+EVIDENCE_CAPABILITY_SCHEMA_VERSION: Final[Literal["policyos.evidence_capability.v1"]] = (
+    "policyos.evidence_capability.v1"
+)
+CAPABILITY_SOURCE_ASSET_SCHEMA_VERSION: Final[Literal["policyos.capability_source_asset.v1"]] = (
+    "policyos.capability_source_asset.v1"
+)
+CAPABILITY_FAILURE_MODE_SCHEMA_VERSION: Final[Literal["policyos.capability_failure_mode.v1"]] = (
+    "policyos.capability_failure_mode.v1"
+)
+ACQUISITION_STRATEGY_SCHEMA_VERSION: Final[
+    Literal["policyos.capability_acquisition_strategy.v1"]
+] = "policyos.capability_acquisition_strategy.v1"
+CONFLICT_RECORD_SCHEMA_VERSION: Final[Literal["policyos.runtime.construct_conflict_record.v1"]] = (
+    "policyos.runtime.construct_conflict_record.v1"
+)
 
 PRODUCTION_ADMISSIBLE_STATES = frozenset(
     {
@@ -532,6 +544,11 @@ class LegalNormOwnerTruth(BaseModel):
         return self
 
 
+_LegalNormCandidateFactBindingStatus = Literal[
+    "bound_one_fact", "fact_missing", "fact_ambiguous", "fact_table_unavailable"
+]
+_LegalNormCandidateHallucinationFlagsStatus = Literal["clear", "non_empty", "malformed", "missing"]
+
 LegalNormCandidateSelectionReason = Literal[
     "legal_candidate_fact_missing",
     "legal_candidate_fact_ambiguous",
@@ -550,6 +567,35 @@ LegalNormCandidateSelectionReason = Literal[
     "source_hallucination_flags_malformed",
     "source_hallucination_flags_not_clear",
 ]
+
+
+def _is_legal_norm_candidate_selection_reason(
+    value: str,
+) -> TypeGuard[LegalNormCandidateSelectionReason]:
+    """Narrow serialized selection-reason text to the closed reason vocabulary."""
+    return value in get_args(LegalNormCandidateSelectionReason)
+
+
+class _LegalNormCandidateSelectionBasis(TypedDict):
+    """Owner fields needed to recompute candidate selection reasons."""
+
+    fact_binding_status: _LegalNormCandidateFactBindingStatus
+    source_document_id: str | None
+    source_provision_citation: str | None
+    source_jurisdiction: str | None
+    source_grounding_status: str | None
+    source_canonical_status: str | None
+    source_reference_resolution_status: str | None
+    source_temporal_state: str | None
+    source_temporal_resolution_status: str | None
+    source_effective_from: date | None
+    source_effective_to: date | None
+    source_effective_from_raw: str | None
+    source_effective_to_raw: str | None
+    source_hallucination_flags_status: _LegalNormCandidateHallucinationFlagsStatus
+    source_temporal_audit_refs: tuple[str, ...]
+    source_reference_refs: tuple[str, ...]
+    selection_snapshot_at: datetime
 
 
 class LegalNormCandidateEvidence(BaseModel):
@@ -582,13 +628,11 @@ class LegalNormCandidateEvidence(BaseModel):
     source_effective_from: date | None = None
     source_effective_to: date | None = None
     source_hallucination_flags_json: str | None = None
-    source_hallucination_flags_status: Literal["clear", "non_empty", "malformed", "missing"]
+    source_hallucination_flags_status: _LegalNormCandidateHallucinationFlagsStatus
     source_fact_refs: tuple[str, ...] = ()
     source_temporal_audit_refs: tuple[str, ...] = ()
     source_reference_refs: tuple[str, ...] = ()
-    fact_binding_status: Literal[
-        "bound_one_fact", "fact_missing", "fact_ambiguous", "fact_table_unavailable"
-    ]
+    fact_binding_status: _LegalNormCandidateFactBindingStatus
     selection_disposition: Literal["eligible", "excluded"]
     selection_reasons: tuple[LegalNormCandidateSelectionReason, ...] = ()
     source_asset_refs: tuple[str, ...] = Field(min_length=1)
@@ -641,10 +685,16 @@ class LegalNormCandidateEvidence(BaseModel):
     def _selection_reasons_are_canonical(
         cls, value: object
     ) -> tuple[LegalNormCandidateSelectionReason, ...]:
-        reasons = _text_tuple(value)
-        if reasons != tuple(sorted(set(reasons))):
+        raw_reasons = _text_tuple(value)
+        reasons: list[LegalNormCandidateSelectionReason] = []
+        for reason in raw_reasons:
+            if not _is_legal_norm_candidate_selection_reason(reason):
+                raise ValueError("Legal candidate selection reasons contain an unknown value")
+            reasons.append(reason)
+        canonical_reasons: tuple[LegalNormCandidateSelectionReason, ...] = (*reasons,)
+        if canonical_reasons != tuple(sorted(set(canonical_reasons))):
             raise ValueError("Legal candidate selection reasons must be unique and sorted")
-        return reasons
+        return canonical_reasons
 
     @model_validator(mode="after")
     def _source_content_is_bound_without_authority(self) -> LegalNormCandidateEvidence:
@@ -681,23 +731,25 @@ class LegalNormCandidateEvidence(BaseModel):
         if self.source_effective_to != _candidate_iso_date(self.source_effective_to_raw):
             raise ValueError("candidate effective-to date must derive from source value")
         expected_reasons = _legal_candidate_selection_reasons(
-            fact_binding_status=self.fact_binding_status,
-            source_document_id=self.source_document_id,
-            source_provision_citation=self.source_provision_citation,
-            source_jurisdiction=self.source_jurisdiction,
-            source_grounding_status=self.source_grounding_status,
-            source_canonical_status=self.source_canonical_status,
-            source_reference_resolution_status=self.source_reference_resolution_status,
-            source_temporal_state=self.source_temporal_state,
-            source_temporal_resolution_status=self.source_temporal_resolution_status,
-            source_effective_from=self.source_effective_from,
-            source_effective_to=self.source_effective_to,
-            source_effective_from_raw=self.source_effective_from_raw,
-            source_effective_to_raw=self.source_effective_to_raw,
-            source_hallucination_flags_status=self.source_hallucination_flags_status,
-            source_temporal_audit_refs=self.source_temporal_audit_refs,
-            source_reference_refs=self.source_reference_refs,
-            selection_snapshot_at=self.selection_snapshot_at,
+            {
+                "fact_binding_status": self.fact_binding_status,
+                "source_document_id": self.source_document_id,
+                "source_provision_citation": self.source_provision_citation,
+                "source_jurisdiction": self.source_jurisdiction,
+                "source_grounding_status": self.source_grounding_status,
+                "source_canonical_status": self.source_canonical_status,
+                "source_reference_resolution_status": self.source_reference_resolution_status,
+                "source_temporal_state": self.source_temporal_state,
+                "source_temporal_resolution_status": self.source_temporal_resolution_status,
+                "source_effective_from": self.source_effective_from,
+                "source_effective_to": self.source_effective_to,
+                "source_effective_from_raw": self.source_effective_from_raw,
+                "source_effective_to_raw": self.source_effective_to_raw,
+                "source_hallucination_flags_status": self.source_hallucination_flags_status,
+                "source_temporal_audit_refs": self.source_temporal_audit_refs,
+                "source_reference_refs": self.source_reference_refs,
+                "selection_snapshot_at": self.selection_snapshot_at,
+            }
         )
         if self.selection_reasons != expected_reasons:
             raise ValueError("candidate selection reasons must derive from owner source fields")
@@ -714,7 +766,7 @@ class LegalNormCandidateEvidence(BaseModel):
 
 def _candidate_hallucination_flags_status(
     raw: str | None,
-) -> Literal["clear", "non_empty", "malformed", "missing"]:
+) -> _LegalNormCandidateHallucinationFlagsStatus:
     """Classify the source-owned hallucination flags without treating malformed as clear."""
     if raw is None or not raw.strip():
         return "missing"
@@ -738,34 +790,33 @@ def _candidate_iso_date(raw: str | None) -> date | None:
 
 
 def _legal_candidate_selection_reasons(
-    *,
-    fact_binding_status: str,
-    source_document_id: str | None,
-    source_provision_citation: str | None,
-    source_jurisdiction: str | None,
-    source_grounding_status: str | None,
-    source_canonical_status: str | None,
-    source_reference_resolution_status: str | None,
-    source_temporal_state: str | None,
-    source_temporal_resolution_status: str | None,
-    source_effective_from: date | None,
-    source_effective_to: date | None,
-    source_effective_from_raw: str | None,
-    source_effective_to_raw: str | None,
-    source_hallucination_flags_status: str,
-    source_temporal_audit_refs: tuple[str, ...],
-    source_reference_refs: tuple[str, ...],
-    selection_snapshot_at: datetime,
+    basis: _LegalNormCandidateSelectionBasis,
 ) -> tuple[LegalNormCandidateSelectionReason, ...]:
     """Recompute candidate-only owner disposition from persisted source states."""
+    fact_binding_status = basis["fact_binding_status"]
+    source_document_id = basis["source_document_id"]
+    source_provision_citation = basis["source_provision_citation"]
+    source_jurisdiction = basis["source_jurisdiction"]
+    source_grounding_status = basis["source_grounding_status"]
+    source_canonical_status = basis["source_canonical_status"]
+    source_reference_resolution_status = basis["source_reference_resolution_status"]
+    source_temporal_state = basis["source_temporal_state"]
+    source_temporal_resolution_status = basis["source_temporal_resolution_status"]
+    source_effective_from = basis["source_effective_from"]
+    source_effective_to = basis["source_effective_to"]
+    source_effective_from_raw = basis["source_effective_from_raw"]
+    source_effective_to_raw = basis["source_effective_to_raw"]
+    source_hallucination_flags_status = basis["source_hallucination_flags_status"]
+    source_temporal_audit_refs = basis["source_temporal_audit_refs"]
+    source_reference_refs = basis["source_reference_refs"]
+    selection_snapshot_at = basis["selection_snapshot_at"]
     reasons: set[LegalNormCandidateSelectionReason] = set()
-    fact_reason = {
-        "fact_missing": "legal_candidate_fact_missing",
-        "fact_ambiguous": "legal_candidate_fact_ambiguous",
-        "fact_table_unavailable": "legal_candidate_fact_binding_unavailable",
-    }.get(fact_binding_status)
-    if fact_reason is not None:
-        reasons.add(fact_reason)
+    if fact_binding_status == "fact_missing":
+        reasons.add("legal_candidate_fact_missing")
+    elif fact_binding_status == "fact_ambiguous":
+        reasons.add("legal_candidate_fact_ambiguous")
+    elif fact_binding_status == "fact_table_unavailable":
+        reasons.add("legal_candidate_fact_binding_unavailable")
     if not source_document_id or not source_provision_citation or not source_jurisdiction:
         reasons.add("owner_required_source_fields_missing")
     if source_grounding_status != "grounded":
@@ -779,11 +830,10 @@ def _legal_candidate_selection_reasons(
     if source_temporal_resolution_status != "resolved":
         reasons.add("source_temporal_resolution_status_not_resolved")
     if source_effective_from is None:
-        reasons.add(
-            "source_effective_date_malformed"
-            if source_effective_from_raw and source_effective_from_raw.strip()
-            else "owner_required_source_fields_missing"
-        )
+        if source_effective_from_raw and source_effective_from_raw.strip():
+            reasons.add("source_effective_date_malformed")
+        else:
+            reasons.add("owner_required_source_fields_missing")
     elif source_effective_from > selection_snapshot_at.astimezone(UTC).date():
         reasons.add("source_temporal_interval_not_yet_effective")
     if source_effective_to_raw and source_effective_to is None:
@@ -801,7 +851,13 @@ def _legal_candidate_selection_reasons(
         reasons.add("source_hallucination_flags_not_clear")
     if not source_temporal_audit_refs or not source_reference_refs:
         reasons.add("owner_required_source_fields_missing")
-    return tuple(sorted(reasons))
+    ordered_reasons: list[LegalNormCandidateSelectionReason] = []
+    for reason in sorted(reasons):
+        if not _is_legal_norm_candidate_selection_reason(reason):
+            raise AssertionError("recomputed Legal candidate reason escaped its Literal type")
+        ordered_reasons.append(reason)
+    selection_reasons: tuple[LegalNormCandidateSelectionReason, ...] = (*ordered_reasons,)
+    return selection_reasons
 
 
 class LegalNormCandidateSourceProfileAsset(BaseModel):

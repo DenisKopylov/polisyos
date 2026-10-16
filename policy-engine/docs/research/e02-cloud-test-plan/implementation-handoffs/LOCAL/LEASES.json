@@ -227,7 +227,7 @@
         "tests/unit/data_forge/kernel/test_encoder_identity.py",
         "kernel README/release"
       ],
-      "scope": "Existing selected-ref/Core\u2192IR caller crosscut; immutable completed wrapper changes preserved across peer-owned files. Active new edits limited to B61 adapter/ref collector; peer-owned additional deltas sent to owner/root. Full completed crosscut footprint is supplied in ready manifest."
+      "scope": "Existing selected-ref/Core→IR caller crosscut; immutable completed wrapper changes preserved across peer-owned files. Active new edits limited to B61 adapter/ref collector; peer-owned additional deltas sent to owner/root. Full completed crosscut footprint is supplied in ready manifest."
     },
     "cas_contracts": {
       "mechanisms": [
@@ -1161,7 +1161,7 @@
       },
       "fabric_pool_cleanup_author": {
         "existing_scope": "Reopen prior8src9tests after actual4dependency classes bypass evidence573b738edc3a",
-        "boundary": "Whole67binding actual consumer reads/constructor routes, real owner constants rather than unused API copies. Shared ContextVar resolver invariant, no leaf globals; actual concurrent deterministic connector\u2192DuckDB counts/rows/cleanup control required for broader claim."
+        "boundary": "Whole67binding actual consumer reads/constructor routes, real owner constants rather than unused API copies. Shared ContextVar resolver invariant, no leaf globals; actual concurrent deterministic connector→DuckDB counts/rows/cleanup control required for broader claim."
       }
     },
     "frozen_review_ready": {
@@ -2455,7 +2455,7 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-r8-central-finalization-review-20261016/assessment.json",
       "sha256": "87d15f00c4812f160f55349fd6f015fa455edd9062931a8542a5cca654700a77"
     },
-    "quantity": "Full28 selected source/test paths from original30d slice plus2 mandatoryREADME/release; R6\u2192R8actual3pathpatch, existingR6live24sourcechanges retained. One successful publicget return finalizes all wrapping/fallbacks; cache/contract wrappers generation scoped.",
+    "quantity": "Full28 selected source/test paths from original30d slice plus2 mandatoryREADME/release; R6→R8actual3pathpatch, existingR6live24sourcechanges retained. One successful publicget return finalizes all wrapping/fallbacks; cache/contract wrappers generation scoped.",
     "P40": "Same registration-origin class; R6 stale wrappers and R7 fallback escape are historical, R8 widens central emission, not another leaf check.",
     "limits": "Previously issued handles/active old pool leases keep exact cleanup ownership; no immediate retirement claim. PreparedB13/native/installed/global replay pending.",
     "source_freeze": false,
@@ -2666,7 +2666,7 @@
     "base": "a1b9d7437942bc2f7e6b50644ec2345fb86a3d80",
     "mechanism_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
     "candidate_sha256": "578fbd8bb5196e286370cfb2d988a57f5bb5befc11c6b9105bc80399731b6727",
-    "review": "IndependentR2HOLD\u2192generic3collectorpre/postR3boundedGO+ASTequivalentformatGO; actualhistoricalFcatalogreader668d451. Noatomicchildconsumption/native/installedclaim.",
+    "review": "IndependentR2HOLD→generic3collectorpre/postR3boundedGO+ASTequivalentformatGO; actualhistoricalFcatalogreader668d451. Noatomicchildconsumption/native/installedclaim.",
     "mandatory_companions": [
       "LEASES.json",
       "source-bound receipt/index"
@@ -2921,8 +2921,7 @@
     "claim_boundary": "34census rows preserved; actualAUTHNLroute/fullchangedmoduleMyPy pending rootcanonicalreplay. No formalclosures/authoritypromotion.",
     "source_freeze": false,
     "closure_ids": []
-  }
-,
+  },
   "coordination_epoch_20261017_remaining_ten_release_metadata_r2": {
     "root_writer": "/root",
     "base": "79051bd7a7d7a8849bf2198402cf246a41a893a2",
@@ -2951,8 +2950,7 @@
     "native_status": "Canonical owner structural validation retained; actual current complete native gate not green. 271 fragments/240rows/11publicreviewerrs is a separate earlier own-venv frame, not this candidate replay.",
     "source_freeze": false,
     "closure_ids": []
-  }
-,
+  },
   "coordination_epoch_20261017_b65_telemetry_settlement_consumer_tests": {
     "root_writer": "/root",
     "base": "3b2bedd5b67aa8aa64f27647ae94f2a86986d926",
@@ -2976,8 +2974,7 @@
     "nonblocking_debt": "Cancellation fixture waits for provider entry without its own timeout; root command has explicit bounded timeout.",
     "source_freeze": false,
     "closure_ids": []
-  }
-,
+  },
   "coordination_epoch_20261017_native_release_canonical_schema_availability": {
     "root_writer": "/root",
     "base": "5a7570b14bfb8928d5912401ab111054543e0df7",
@@ -3006,6 +3003,37 @@
     "P40": "Generic canonical-schema availability: unavailable renderer or required internal_rule schema remains not_established plus contract error, no empty schema indexing; corrupt present internal rule remains mismatch. Existing public inventory declarations are not runtime-export proof.",
     "format_companion": "R3 preserves whole test AST, ordered comments, TypeIgnore and import aliases; canonical root Ruff check+format both paths pass. R2 test format red retained, not P41-inherited.",
     "actual_before": "Supported5dae owner run271fragments240rows14public-surface-reviewerrors exit1. Does not prove native green; independent14row review ongoing.",
+    "source_freeze": false,
+    "closure_ids": []
+  },
+  "coordination_epoch_20261017_legal_r4_complete_owner_schema_and_typing": {
+    "root_writer": "/root",
+    "base": "514fc9ca4a9bdadd7c617cdb5cc0b8c10e592a76",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+      "policy-engine/src/polisyos/runtime/quality/capability_index.py",
+      "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py",
+      "policy-engine/tests/unit/runtime/quality/test_capability_discovery.py",
+      "policy-engine/tests/unit/runtime/quality/test_capability_index_compiler.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate canonical behavior/typecheck receipt and component index"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-candidate-typed-boundary-r4-semantic-author-20261017/manifest.json",
+      "sha256": "26a34ad6686394b97e7521b2971c72134f389d154d44fcae5b6cfaf2a4345b23"
+    },
+    "canonical_style_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-typed-r4-canonical-style-20261017/manifest.json",
+      "sha256": "901ec9f409406dc9aa5e262ece0af2fc5577a8ed71bbf5ca57d83f8f679240af"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-candidate-typed-boundary-r4-independent-review-20261017/review.json",
+      "sha256": "d75c42216c16ebb3ca782db747025994cdc5b4515d3d73889b9e807710445dc3"
+    },
+    "P40": "Same consumed-profile schema class widened to complete owner SourceProfile validation, typed malformed refusal, secret-free projection; no defaults or absence substitution. Typed selection vocabulary/aggregate rows checked against actual source model. Canonical style preserves non-import AST and all import bindings.",
+    "attributed_preexisting_companion": "Compiler test d987 own author guard preserved; live hunk attribution recorded, tool path cause not established.",
     "source_freeze": false,
     "closure_ids": []
   }

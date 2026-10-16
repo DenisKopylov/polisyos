@@ -9,6 +9,7 @@ import json
 import shlex
 import subprocess
 from datetime import UTC, date, datetime, timedelta
+from types import MappingProxyType
 
 import duckdb
 import pytest
@@ -66,6 +67,191 @@ from polisyos.runtime.quality.capability_index_compiler import (
 from polisyos.runtime.quality.capability_resolver import CapabilityExecutionResolver
 
 NOW = datetime(2026, 8, 25, 12, tzinfo=UTC)
+
+
+def test_scientist_node_registry_rejects_untyped_specs() -> None:
+    """The persisted registry projection accepts only canonical NodeSpec records."""
+
+    class _MalformedNodeRegistry:
+        def list(self) -> list[object]:
+            return [object()]
+
+    with pytest.raises(
+        CapabilityProviderUnavailableError,
+        match="scientist_node_registry_invalid",
+    ):
+        capability_discovery_module._scientist_node_specs(_MalformedNodeRegistry())
+
+
+def _valid_custom_source_profile_payload() -> dict[str, object]:
+    """Build one complete owner-schema payload for custom-registry tests."""
+    return {
+        "profile_id": "custom_source",
+        "display_name": "Custom source",
+        "description": "A source profile supplied through a custom registry.",
+        "connector_family": "sdmx",
+        "base_url": "https://example.invalid/api",
+        "headers": {"Authorization": "secret-token"},
+        "dataset_discovery_hints": ["employment"],
+    }
+
+
+def test_source_profile_projection_rejects_non_object_dump() -> None:
+    """A malformed registry record cannot enter the persisted source snapshot."""
+
+    class _MalformedSourceProfile:
+        def model_dump(self, *, mode: str) -> object:
+            assert mode == "json"
+            return []
+
+    with pytest.raises(
+        CapabilityProviderUnavailableError,
+        match="source_profile_registry_entry_invalid",
+    ):
+        capability_discovery_module._source_profile_registry_capability_record(
+            _MalformedSourceProfile(), connector_namespaces=set()
+        )
+
+
+@pytest.mark.parametrize(
+    "missing_field", ["profile_id", "display_name", "connector_family", "base_url"]
+)
+def test_source_profile_projection_rejects_missing_consumed_fields(
+    missing_field: str,
+) -> None:
+    """The owner schema rejects a partial dump before projection indexes fields."""
+    payload = _valid_custom_source_profile_payload()
+    del payload[missing_field]
+
+    class _IncompleteSourceProfile:
+        def model_dump(self, *, mode: str) -> object:
+            assert mode == "json"
+            return payload
+
+    with pytest.raises(
+        CapabilityProviderUnavailableError,
+        match="source_profile_registry_entry_invalid",
+    ):
+        capability_discovery_module._source_profile_registry_capability_record(
+            _IncompleteSourceProfile(), connector_namespaces={"sdmx"}
+        )
+
+
+@pytest.mark.parametrize(
+    ("invalid_field", "invalid_value"),
+    [
+        ("headers", {"Authorization": 7}),
+        ("headers", None),
+        ("dataset_discovery_hints", ["employment", 7]),
+        ("unexpected_extension", "present-but-not-in-owner-schema"),
+    ],
+)
+def test_source_profile_projection_rejects_ill_typed_owner_values(
+    invalid_field: str,
+    invalid_value: object,
+) -> None:
+    """Nested owner fields must validate against the complete SourceProfile schema."""
+    payload = _valid_custom_source_profile_payload()
+    payload[invalid_field] = invalid_value
+
+    class _MalformedNestedSourceProfile:
+        def model_dump(self, *, mode: str) -> object:
+            assert mode == "json"
+            return payload
+
+    with pytest.raises(
+        CapabilityProviderUnavailableError,
+        match="source_profile_registry_entry_invalid",
+    ):
+        capability_discovery_module._source_profile_registry_capability_record(
+            _MalformedNestedSourceProfile(), connector_namespaces={"sdmx"}
+        )
+
+
+def test_source_profile_projection_wraps_model_dump_key_error() -> None:
+    """A broken owner dumper remains a typed provider failure."""
+
+    class _KeyErrorSourceProfile:
+        def model_dump(self, *, mode: str) -> object:
+            assert mode == "json"
+            raise KeyError("profile_id")
+
+    with pytest.raises(
+        CapabilityProviderUnavailableError,
+        match="source_profile_registry_entry_invalid",
+    ):
+        capability_discovery_module._source_profile_registry_capability_record(
+            _KeyErrorSourceProfile(), connector_namespaces={"sdmx"}
+        )
+
+
+def test_source_profile_provider_reports_partial_registry_dump_as_typed_failure(
+    tmp_path,
+) -> None:
+    """A partial custom registry record cannot escape as KeyError or untyped data."""
+    payload = _valid_custom_source_profile_payload()
+    del payload["profile_id"]
+
+    class _PartialSourceProfile:
+        def model_dump(self, *, mode: str) -> object:
+            assert mode == "json"
+            return payload
+
+    class _ConnectorRegistry:
+        def query_entries(self) -> tuple[object, ...]:
+            return ()
+
+    class _PartialSourceProfileRegistry:
+        def list_all(self) -> tuple[object, ...]:
+            return (_PartialSourceProfile(),)
+
+    store = artifacts.FileSystemCAS(tmp_path / "source-profile-cas")
+    provider = capability_discovery_module.ConnectorSourceProfileSnapshotProducer(
+        connectors=_ConnectorRegistry(),
+        source_profiles=_PartialSourceProfileRegistry(),
+        observed_at=lambda: NOW,
+    )
+    provider.bind_artifact_store(store)
+
+    with pytest.raises(
+        CapabilityProviderUnavailableError,
+        match="source_profile_registry_entry_invalid",
+    ):
+        provider.search(_request(("source",)))
+
+
+def test_source_profile_provider_persists_a_valid_custom_mapping_profile(
+    tmp_path,
+) -> None:
+    """A valid Mapping from a custom registry crosses the existing owner schema."""
+
+    class _ConnectorRegistry:
+        def query_entries(self) -> tuple[object, ...]:
+            return ()
+
+    class _MappingSourceProfileRegistry:
+        def list_all(self) -> tuple[object, ...]:
+            return (MappingProxyType(_valid_custom_source_profile_payload()),)
+
+    store = artifacts.FileSystemCAS(tmp_path / "source-profile-cas")
+    provider = capability_discovery_module.ConnectorSourceProfileSnapshotProducer(
+        connectors=_ConnectorRegistry(),
+        source_profiles=_MappingSourceProfileRegistry(),
+        observed_at=lambda: NOW,
+    )
+    provider.bind_artifact_store(store)
+
+    snapshot = provider._resolve_snapshot()
+
+    assert tuple(row.capability_ref for row in snapshot.rows) == ("source-profile:custom_source",)
+    assert store.has(snapshot.profile_snapshot_ref)
+    serialized = store.get_bytes(snapshot.profile_snapshot_ref)
+    profile_snapshot = json.loads(serialized)
+    profile_definition = profile_snapshot["profiles"][0]["definition"]
+    assert profile_definition["header_names"] == ["Authorization"]
+    assert profile_definition["headers_digest"].startswith("sha256:")
+    assert "headers" not in profile_definition
+    assert "secret-token" not in serialized.decode()
 
 
 class _Provider(CapabilityDiscoveryProvider):

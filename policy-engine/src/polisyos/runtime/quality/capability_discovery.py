@@ -16,7 +16,7 @@ import threading
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Protocol
+from typing import TYPE_CHECKING, Final, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -57,7 +57,7 @@ from polisyos.runtime.quality.capability_index_compiler import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Mapping, Sequence
+    from collections.abc import Callable, Iterable, Mapping, Sequence
 
     from polisyos.core import contracts as core_contracts
     from polisyos.runtime.quality.capability_authority import (
@@ -65,21 +65,34 @@ if TYPE_CHECKING:
         CapabilityDiscoveryAuthorityResolver,
     )
     from polisyos.runtime.quality.capability_resolver import CapabilityExecutionResolver
+    from polisyos.scientist.agent.tools.registry import ToolRegistry
+    from polisyos.scientist.orchestration.engine.protocol import NodeSpec
 
 CAPABILITY_DISCOVERY_RULE_VERSION = "policyos.ds10.discovery.v1"
 CAPABILITY_PROVIDER_REGISTRY_INDEX_REF = "runtime-quality:capability-provider-registry"
 LEX_CAPABILITY_DISCOVERY_PROVIDER_REF = "runtime-quality:lex-capability-discovery-provider"
-SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF = (
-    "runtime-quality:scientist-registry-capability-discovery-provider"
-)
-CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF = (
-    "runtime-quality:connector-source-profile-snapshot-producer"
-)
+SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF: Final[
+    Literal["runtime-quality:scientist-registry-capability-discovery-provider"]
+] = "runtime-quality:scientist-registry-capability-discovery-provider"
+CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF: Final[
+    Literal["runtime-quality:connector-source-profile-snapshot-producer"]
+] = "runtime-quality:connector-source-profile-snapshot-producer"
 LEX_LEGAL_NORM_ADMISSION_VERIFIER_REF = (
     "runtime-quality:capability-index-compiler:legal-norm-owner-truth"
 )
 CAPABILITY_INDEX_PATH_ENV = "POLISYOS_CAPABILITY_INDEX_PATH"
 ADAPTER_CAPABILITY_DISCOVERY_PROVIDER_REF = VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF
+
+_ScientistRegistryKind = Literal["node_registry", "tool_registry"]
+_ScientistRegistrySchemaVersion = Literal[
+    "scientist.node_registry.v1", "scientist.tool_registry.v1"
+]
+_SCIENTIST_REGISTRY_SCHEMA_BY_KIND: dict[
+    _ScientistRegistryKind, _ScientistRegistrySchemaVersion
+] = {
+    "node_registry": "scientist.node_registry.v1",
+    "tool_registry": "scientist.tool_registry.v1",
+}
 
 _COMPLETENESS_PRIORITY: dict[SearchCompletenessStatus, int] = {
     "producer_missing": 0,
@@ -317,8 +330,8 @@ class ScientistRegistrySnapshot(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    schema_version: Literal["scientist.node_registry.v1", "scientist.tool_registry.v1"]
-    registry_kind: Literal["node_registry", "tool_registry"]
+    schema_version: _ScientistRegistrySchemaVersion
+    registry_kind: _ScientistRegistryKind
     producer_ref: Literal["runtime-quality:scientist-registry-capability-discovery-provider"] = (
         SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF
     )
@@ -499,15 +512,21 @@ class CapabilityProviderSearchResult(BaseModel):
                     raise ValueError(
                         "legal_norm results require an admitted Lex or candidate inventory receipt"
                     )
-                receipt_type = type(self.owner_receipt)
+                if type(self.owner_receipt) is LexOwnerReceipt:
+                    receipt_type = LexOwnerReceipt
+                else:
+                    receipt_type = LexCandidateOwnerReceipt
             else:
-                receipt_type = {
+                receipt_types_by_resource: dict[
+                    CapabilityResourceKind, type[_CapabilityOwnerReceipt]
+                ] = {
                     "method": CapabilityIndexOwnerReceipt,
                     "dataset": CapabilityIndexOwnerReceipt,
                     "source": SourceProfileOwnerReceipt,
                     "agent": ScientistRegistryOwnerReceipt,
                     "case": GlobalCaseIndexOwnerReceipt,
-                }.get(self.resource_kind)
+                }
+                receipt_type = receipt_types_by_resource.get(self.resource_kind)
                 if receipt_type is None or type(self.owner_receipt) is not receipt_type:
                     expected = (
                         receipt_type.__name__ if receipt_type is not None else "no owner receipt"
@@ -1607,7 +1626,11 @@ def load_capability_index_release(path: str | Path) -> CapabilityIndex:
         signature = manifest.get("signature")
         outputs = manifest.get("outputs")
         release_refs = manifest.get("release_refs")
-        if not all(isinstance(value, dict) for value in (signature, outputs, release_refs)):
+        if (
+            not isinstance(signature, dict)
+            or not isinstance(outputs, dict)
+            or not isinstance(release_refs, dict)
+        ):
             raise ValueError("CapabilityIndex manifest bindings are malformed")
         if outputs.get("primary_duckdb") != release_path.name:
             raise ValueError("CapabilityIndex manifest does not bind the configured DuckDB")
@@ -1760,7 +1783,7 @@ def _capability_index_completeness(
     budget_cutoff: bool,
 ) -> tuple[SearchCompletenessStatus, tuple[str, ...]]:
     if stale:
-        reasons = (f"{resource_kind}_capability_index_snapshot_stale",)
+        reasons: tuple[str, ...] = (f"{resource_kind}_capability_index_snapshot_stale",)
         if budget_cutoff:
             reasons += (f"{resource_kind}_capability_index_budget_cutoff",)
         return "index_stale", reasons
@@ -2197,7 +2220,7 @@ def _lex_completeness(
 ) -> tuple[SearchCompletenessStatus, tuple[str, ...]]:
     """Preserve stale and bounded owner-index negatives in priority order."""
     if stale:
-        reasons = ("lex_owner_snapshot_stale",)
+        reasons: tuple[str, ...] = ("lex_owner_snapshot_stale",)
         if budget_cutoff:
             reasons += ("lex_owner_budget_cutoff",)
         return "index_stale", reasons
@@ -2355,21 +2378,51 @@ def _source_profile_registry_capability_record(
     *,
     connector_namespaces: set[str],
 ) -> SourceProfileRegistryCapabilityRecord:
-    """Project one profile without persisting raw authentication header values."""
-    model_dump = getattr(profile, "model_dump", None)
-    if not callable(model_dump):
-        raise CapabilityProviderUnavailableError("source_profile_registry_entry_invalid")
-    definition = model_dump(mode="json")
-    headers = definition.pop("headers", None)
-    if not isinstance(headers, dict):
-        raise CapabilityProviderUnavailableError("source_profile_registry_entry_invalid")
-    definition["header_names"] = sorted(str(name) for name in headers)
-    definition["headers_digest"] = "sha256:" + _digest(headers)
-    connector_family = str(profile.connector_family)
+    """Project one schema-validated owner profile without persisting header values."""
+    from collections.abc import Mapping
+
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+
+    try:
+        if isinstance(profile, Mapping):
+            raw_definition = profile
+        else:
+            model_dump = getattr(profile, "model_dump", None)
+            if not callable(model_dump):
+                raise CapabilityProviderUnavailableError("source_profile_registry_entry_invalid")
+            raw_definition = model_dump(mode="json")
+        if not isinstance(raw_definition, Mapping):
+            raise CapabilityProviderUnavailableError("source_profile_registry_entry_invalid")
+
+        profile_payload: dict[str, object] = {}
+        for key, value in raw_definition.items():
+            if not isinstance(key, str):
+                raise CapabilityProviderUnavailableError("source_profile_registry_entry_invalid")
+            profile_payload[key] = value
+        source_profile = SourceProfile.model_validate(profile_payload, strict=True)
+        raw_definition_payload: object = source_profile.model_dump(
+            mode="json",
+            exclude={"headers"},
+        )
+        if not isinstance(raw_definition_payload, dict):
+            raise CapabilityProviderUnavailableError("source_profile_registry_entry_invalid")
+        definition: dict[str, object] = {}
+        for key, value in raw_definition_payload.items():
+            if not isinstance(key, str):
+                raise CapabilityProviderUnavailableError("source_profile_registry_entry_invalid")
+            definition[key] = value
+        definition["header_names"] = sorted(source_profile.headers)
+        definition["headers_digest"] = "sha256:" + _digest(source_profile.headers)
+    except CapabilityProviderUnavailableError:
+        raise
+    except (AttributeError, KeyError, TypeError, ValueError) as exc:
+        raise CapabilityProviderUnavailableError("source_profile_registry_entry_invalid") from exc
+
+    connector_family = source_profile.connector_family
     return SourceProfileRegistryCapabilityRecord(
-        profile_id=str(profile.profile_id),
-        display_name=str(profile.display_name),
-        description=str(profile.description),
+        profile_id=source_profile.profile_id,
+        display_name=source_profile.display_name,
+        description=source_profile.description,
         connector_family=connector_family,
         connector_available=connector_family in connector_namespaces,
         definition=definition,
@@ -2461,22 +2514,21 @@ def _build_scientist_discovery_snapshot(
 
     node_registry, node_reasons = _unpack_scientist_registry_source(node_registry_source)
     tool_registry, tool_reasons = _unpack_scientist_registry_source(tool_registry_source)
-    if not callable(getattr(node_registry, "list", None)):
-        raise CapabilityProviderUnavailableError("scientist_node_registry_invalid")
+    node_specs = _scientist_node_specs(node_registry)
     if not isinstance(tool_registry, ToolRegistry):
         raise CapabilityProviderUnavailableError("scientist_tool_registry_invalid")
     if observed_at.tzinfo is None:
         raise CapabilityProviderUnavailableError("scientist_registry_observed_at_naive")
     entries_by_kind = {
-        "node_registry": _scientist_node_records(node_registry),
+        "node_registry": _scientist_node_records(node_specs),
         "tool_registry": _scientist_tool_records(tool_registry),
     }
-    schema_by_kind = {
-        "node_registry": "scientist.node_registry.v1",
-        "tool_registry": "scientist.tool_registry.v1",
-    }
-    persisted: dict[str, tuple[str, str]] = {}
-    for registry_kind in ("node_registry", "tool_registry"):
+    schema_by_kind: dict[_ScientistRegistryKind, _ScientistRegistrySchemaVersion] = (
+        _SCIENTIST_REGISTRY_SCHEMA_BY_KIND
+    )
+    persisted: dict[_ScientistRegistryKind, tuple[str, str]] = {}
+    registry_kinds: tuple[_ScientistRegistryKind, ...] = ("node_registry", "tool_registry")
+    for registry_kind in registry_kinds:
         schema_version = schema_by_kind[registry_kind]
         snapshot = ScientistRegistrySnapshot(
             schema_version=schema_version,
@@ -2553,12 +2605,31 @@ def _unpack_scientist_registry_source(source: object) -> tuple[object, tuple[str
     return registry, tuple(raw_reasons)
 
 
+def _scientist_node_specs(registry: object) -> tuple[NodeSpec, ...]:
+    """Read and validate public NodeSpec records from one registry snapshot."""
+    from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+
+    list_specs = getattr(registry, "list", None)
+    if not callable(list_specs):
+        raise CapabilityProviderUnavailableError("scientist_node_registry_invalid")
+    try:
+        raw_specs = list(list_specs())
+    except TypeError as exc:
+        raise CapabilityProviderUnavailableError("scientist_node_registry_invalid") from exc
+    specs: list[NodeSpec] = []
+    for raw_spec in raw_specs:
+        if not isinstance(raw_spec, NodeSpec):
+            raise CapabilityProviderUnavailableError("scientist_node_registry_invalid")
+        specs.append(raw_spec)
+    return tuple(specs)
+
+
 def _scientist_node_records(
-    registry: object,
+    specs: Sequence[NodeSpec],
 ) -> tuple[ScientistRegistryCapabilityRecord, ...]:
     """Canonical-sort public NodeSpec projections without retaining executable Nodes."""
-    records = []
-    for spec in registry.list():
+    records: list[ScientistRegistryCapabilityRecord] = []
+    for spec in specs:
         entry_ref = str(spec.metadata.component_id)
         records.append(
             ScientistRegistryCapabilityRecord(
@@ -2585,7 +2656,7 @@ def _scientist_node_records(
 
 
 def _scientist_tool_records(
-    registry: object,
+    registry: ToolRegistry,
 ) -> tuple[ScientistRegistryCapabilityRecord, ...]:
     """Canonical-sort public ToolDefinitions without reading registry handlers."""
     records = []
@@ -2627,10 +2698,7 @@ def _scientist_registry_row(
     owner_truth = ScientistCapabilityOwnerTruth(
         capability_ref=entry.capability_ref,
         registry_kind=entry.registry_kind,
-        registry_schema_ref={
-            "node_registry": "scientist.node_registry.v1",
-            "tool_registry": "scientist.tool_registry.v1",
-        }[entry.registry_kind],
+        registry_schema_ref=_SCIENTIST_REGISTRY_SCHEMA_BY_KIND[entry.registry_kind],
         registry_entry_ref=entry.registry_entry_ref,
         registry_snapshot_ref=registry_snapshot_ref,
         registry_snapshot_digest=registry_snapshot_digest,
@@ -2720,7 +2788,7 @@ def _scientist_completeness(
     return "complete", ()
 
 
-def _sorted_text(values: Sequence[object]) -> tuple[str, ...]:
+def _sorted_text(values: Iterable[object]) -> tuple[str, ...]:
     """Return a canonical non-empty-aware text projection without inventing meaning."""
     return tuple(sorted({str(value).strip() for value in values if str(value).strip()}))
 
@@ -3114,7 +3182,7 @@ def _replay_frontier(payload_hex: str) -> tuple[dict[str, object], str]:
     )
     missing_reasons = _replay_reason_tuple(packet["missing_reasons"])
     unavailable_reasons = _replay_reason_tuple(packet["unavailable_reasons"])
-    canonical_packet = {
+    canonical_packet: dict[str, object] = {
         "request": request.model_dump(mode="json"),
         "provider_results": [result.model_dump(mode="json") for result in provider_results],
         "missing_reasons": list(missing_reasons),

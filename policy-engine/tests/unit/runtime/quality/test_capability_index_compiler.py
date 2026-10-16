@@ -4,12 +4,14 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from typing import get_args
 
 import duckdb
 import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
+import polisyos.runtime.quality.capability_index as capability_index
 import polisyos.runtime.quality.capability_index_compiler as compiler
 from polisyos.data_forge.domains.academic.knowledge import skg_versioning
 from polisyos.data_forge.domains.legal.source_relation import (
@@ -23,6 +25,7 @@ from polisyos.runtime.quality.capability_index import (
     FailureModeNode,
     FreshnessEnvelope,
     LegalNormCandidateEvidence,
+    LegalNormCandidateSelectionReason,
     QualityScore,
     RightsEnvelope,
 )
@@ -33,6 +36,32 @@ from polisyos.runtime.quality.capability_index_compiler import (
     create_capability_index_fixture_inputs,
     validate_capability_authority,
 )
+
+
+def test_legal_candidate_reason_guard_tracks_literal_vocabulary() -> None:
+    """Serialized reason validation follows the typed vocabulary automatically."""
+    reasons = get_args(LegalNormCandidateSelectionReason)
+    assert reasons
+    assert all(
+        capability_index._is_legal_norm_candidate_selection_reason(reason) for reason in reasons
+    )
+    assert not capability_index._is_legal_norm_candidate_selection_reason(
+        "legal_candidate_reason_unknown"
+    )
+
+
+@pytest.mark.parametrize("row", [None, (), (7, 8), ("7",), (-1,), (True,)])
+def test_legal_candidate_source_count_rejects_malformed_aggregate_rows(
+    row: tuple[object, ...] | None,
+) -> None:
+    """The Legal count boundary fails closed unless DuckDB returns one valid count."""
+    with pytest.raises(ValueError, match="legal_candidate_source_count_result_invalid"):
+        compiler._legal_candidate_source_count_from_row(row)
+
+
+def test_legal_candidate_source_count_accepts_one_nonnegative_integer() -> None:
+    """The Legal aggregate count is preserved exactly when its row is well-shaped."""
+    assert compiler._legal_candidate_source_count_from_row((7,)) == 7
 
 
 def test_scholar_compiler_consumes_bound_layer_vintage_before_forwarding_confidence(

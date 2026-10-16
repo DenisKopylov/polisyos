@@ -2038,6 +2038,140 @@ def _resolve_selected_materialization_ref(
     return selected_ref
 
 
+def _validate_producer_selected_ref_membership(
+    variants: Sequence[Mapping[str, Any]],
+    producer_selected_refs: Mapping[str, ArtifactRef],
+    *,
+    refusal_code: str,
+) -> None:
+    """Require every producer-selected ref to belong to one current variant."""
+
+    variant_counts: dict[str, int] = {}
+    for variant in variants:
+        variant_id_value = variant.get("model_variant_id")
+        variant_id = str(variant_id_value).strip() if variant_id_value is not None else ""
+        if variant_id:
+            variant_counts[variant_id] = variant_counts.get(variant_id, 0) + 1
+    if any(
+        not isinstance(variant_id, str)
+        or not variant_id.strip()
+        or variant_counts.get(variant_id) != 1
+        for variant_id in producer_selected_refs
+    ):
+        raise CanonicalProfileRefusalError(refusal_code)
+
+
+def _selected_producer_artifact_ref_for_variant(
+    variant: Mapping[str, Any],
+    *,
+    producer_selected_refs: Mapping[str, ArtifactRef],
+    typed_key: str,
+    legacy_key: str,
+    expected_kind: str,
+    refusal_code: str,
+    resolve_ref: Callable[[object], ArtifactRef],
+) -> ArtifactRef | None:
+    """Resolve a variant edge from its producer-owned selected ref."""
+
+    variant_id_value = variant.get("model_variant_id")
+    variant_id = str(variant_id_value).strip() if variant_id_value is not None else ""
+    producer_ref = producer_selected_refs.get(variant_id) if variant_id else None
+    typed_present = typed_key in variant
+    legacy_present = legacy_key in variant
+
+    if producer_ref is not None:
+        if (
+            producer_ref.kind != expected_kind
+            or producer_ref.media_type != "application/json"
+            or producer_ref.manifest_profile_sha256 is None
+        ):
+            raise CanonicalProfileRefusalError(refusal_code)
+
+        if typed_present:
+            raw_typed_ref = variant[typed_key]
+            artifact_id = _artifact_id_from_ref_payload(raw_typed_ref)
+            if artifact_id is None:
+                raise CanonicalProfileRefusalError(refusal_code)
+            try:
+                typed_ref = _artifact_ref_from_ref_payload(
+                    raw_typed_ref,
+                    artifact_id=artifact_id,
+                    kind=expected_kind,
+                )
+            except (TypeError, ValueError) as exc:
+                raise CanonicalProfileRefusalError(refusal_code) from exc
+            if typed_ref != producer_ref:
+                raise CanonicalProfileRefusalError(refusal_code)
+
+        if legacy_present:
+            raw_legacy_ref = variant[legacy_key]
+            if (
+                not isinstance(raw_legacy_ref, str)
+                or not raw_legacy_ref.strip()
+                or raw_legacy_ref.strip() != str(producer_ref.artifact_id)
+            ):
+                raise CanonicalProfileRefusalError(refusal_code)
+        elif not typed_present:
+            raise CanonicalProfileRefusalError(refusal_code)
+
+        # The current-run producer map already binds the exact selected profile.
+        # Reconcile projections here, but leave manifest/payload intake to the
+        # semantic consumer so unreadable selected evidence retains its refusal.
+        return producer_ref
+
+    if typed_present:
+        raise CanonicalProfileRefusalError(refusal_code)
+    if not legacy_present:
+        return None
+
+    raw_legacy_ref = variant[legacy_key]
+    artifact_id = _artifact_id_from_ref_payload(raw_legacy_ref)
+    if artifact_id is None and isinstance(raw_legacy_ref, str):
+        artifact_id = raw_legacy_ref.strip()
+    if not artifact_id:
+        raise CanonicalProfileRefusalError(refusal_code)
+    if any(
+        str(other_ref.artifact_id) == artifact_id
+        for other_variant_id, other_ref in producer_selected_refs.items()
+        if other_variant_id != variant_id
+    ):
+        raise CanonicalProfileRefusalError(refusal_code)
+
+    try:
+        selected_ref = resolve_ref(raw_legacy_ref)
+    except CanonicalProfileRefusalError:
+        raise
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise CanonicalProfileRefusalError(refusal_code) from exc
+    if (
+        str(selected_ref.artifact_id) != artifact_id
+        or selected_ref.kind != expected_kind
+        or selected_ref.media_type != "application/json"
+        or selected_ref.manifest_profile_sha256 is None
+    ):
+        raise CanonicalProfileRefusalError(refusal_code)
+    return selected_ref
+
+
+def _selected_final_policy_claims_ref_for_variant(
+    variant: Mapping[str, Any],
+    *,
+    producer_selected_refs: Mapping[str, ArtifactRef],
+    resolve_legacy_ref: Callable[[object], ArtifactRef],
+) -> ArtifactRef | None:
+    """Bind claims lineage to the ref selected by the variant producer."""
+
+    return _selected_producer_artifact_ref_for_variant(
+        variant,
+        producer_selected_refs=producer_selected_refs,
+        typed_key="final_policy_claims_selected_ref",
+        legacy_key="final_policy_claims_ref",
+        expected_kind="scientist.final_policy_claims",
+        refusal_code="nl_final_policy_claims_ref_invalid",
+        resolve_ref=resolve_legacy_ref,
+    )
+
+
 def _foundry_method_report_ref_from_state_payload(
     value: Mapping[str, Any],
 ) -> str | None:
@@ -2749,37 +2883,125 @@ class NaturalLanguageRunMixin:
                 except (TypeError, ValueError):
                     return None
 
+            def _final_policy_claims_ref_for_variant(
+                variant: Mapping[str, Any],
+            ) -> ArtifactRef | None:
+                return _selected_final_policy_claims_ref_for_variant(
+                    variant,
+                    producer_selected_refs=selected_final_policy_claims_refs_by_variant,
+                    resolve_legacy_ref=lambda selected: _selected_materialization_ref(
+                        selected,
+                        "scientist.final_policy_claims",
+                    ),
+                )
+
+            def _trinity_bundle_ref_for_variant(
+                variant: Mapping[str, Any],
+            ) -> ArtifactRef | None:
+                return _selected_producer_artifact_ref_for_variant(
+                    variant,
+                    producer_selected_refs=selected_trinity_refs_by_variant,
+                    typed_key="trinity_bundle_selected_ref",
+                    legacy_key="trinity_bundle_ref",
+                    expected_kind="ir.trinity_bundle",
+                    refusal_code="auto_materialization_selected_ref_not_established",
+                    resolve_ref=lambda selected: _selected_materialization_ref(
+                        selected,
+                        "ir.trinity_bundle",
+                    ),
+                )
+
+            def _selected_variant_artifact_refs(
+                variant: Mapping[str, Any],
+            ) -> tuple[ArtifactRef | None, ArtifactRef | None]:
+                """Collect exact producer-owned Trinity and claims refs for one variant."""
+
+                return (
+                    _trinity_bundle_ref_for_variant(variant),
+                    _final_policy_claims_ref_for_variant(variant),
+                )
+
+            def _validate_selected_variant_artifact_refs(
+                variants: Sequence[Mapping[str, Any]],
+            ) -> None:
+                """Validate producer-map membership and every current variant projection."""
+
+                _validate_producer_selected_ref_membership(
+                    variants,
+                    selected_trinity_refs_by_variant,
+                    refusal_code="auto_materialization_selected_ref_not_established",
+                )
+                _validate_producer_selected_ref_membership(
+                    variants,
+                    selected_final_policy_claims_refs_by_variant,
+                    refusal_code="nl_final_policy_claims_ref_invalid",
+                )
+                for variant in variants:
+                    _selected_variant_artifact_refs(variant)
+
+            def _final_policy_claims_report_input_ref(
+                *,
+                role: str,
+                variant: Mapping[str, Any],
+            ) -> InputRef | None:
+                selected_ref = _final_policy_claims_ref_for_variant(variant)
+                if selected_ref is None:
+                    return None
+                return input_ref_from_artifact_ref(selected_ref, role=role)
+
+            def _trinity_bundle_input_ref(
+                *,
+                role: str,
+                variant: Mapping[str, Any],
+            ) -> InputRef | None:
+                selected_ref = _trinity_bundle_ref_for_variant(variant)
+                if selected_ref is None:
+                    return None
+                return input_ref_from_artifact_ref(selected_ref, role=role)
+
             def _final_policy_claims_report_from_variant(
                 variant: Mapping[str, Any],
             ) -> dict[str, Any]:
                 report = variant.get("final_policy_claims")
-                if isinstance(report, Mapping):
-                    return _require_final_claims_report_shape(
-                        report,
-                        refusal_code="nl_final_policy_claims_inline_payload_empty",
-                    )
-                if report is not None:
-                    raise CanonicalProfileRefusalError(
-                        "nl_final_policy_claims_inline_payload_invalid"
-                    )
-                selected_ref = variant.get("final_policy_claims_ref")
+                selected_ref = _final_policy_claims_ref_for_variant(variant)
                 if selected_ref is None:
+                    if isinstance(report, Mapping):
+                        return _require_final_claims_report_shape(
+                            report,
+                            refusal_code="nl_final_policy_claims_inline_payload_empty",
+                        )
+                    if report is not None:
+                        raise CanonicalProfileRefusalError(
+                            "nl_final_policy_claims_inline_payload_invalid"
+                        )
                     return {}
-                artifact_id = _artifact_id_from_ref_payload(selected_ref)
-                if artifact_id is None and isinstance(selected_ref, str):
-                    artifact_id = selected_ref.strip()
-                if not artifact_id:
-                    raise CanonicalProfileRefusalError("nl_final_policy_claims_ref_invalid")
+
                 payload = read_optional_selected_artifact(
-                    artifact_id,
-                    lambda selected: read_core_json_artifact(store, selected).value,
+                    selected_ref,
+                    lambda selected: read_core_json_artifact(
+                        store,
+                        _selected_materialization_ref(
+                            selected,
+                            "scientist.final_policy_claims",
+                        ),
+                    ).value,
                     refusal_code="nl_final_policy_claims_selected_unreadable",
                     expected_errors=(OSError, RuntimeError, TypeError, ValueError),
                 )
-                return _require_final_claims_report_shape(
+                selected_report = _require_final_claims_report_shape(
                     payload,
                     refusal_code="nl_final_policy_claims_selected_payload_invalid",
                 )
+                if report is not None:
+                    inline_report = _require_final_claims_report_shape(
+                        report,
+                        refusal_code="nl_final_policy_claims_inline_payload_invalid",
+                    )
+                    if inline_report != selected_report:
+                        raise CanonicalProfileRefusalError(
+                            "nl_final_policy_claims_selected_inline_mismatch"
+                        )
+                return selected_report
 
             def _claims_from_final_report(
                 report: Mapping[str, Any],
@@ -3054,6 +3276,8 @@ class NaturalLanguageRunMixin:
                 "fabric_retrieval_trace_ref": "fabric.retrieval_trace",
             }
             selected_materialization_refs: dict[str, list[ArtifactRef]] = {}
+            selected_trinity_refs_by_variant: dict[str, ArtifactRef] = {}
+            selected_final_policy_claims_refs_by_variant: dict[str, ArtifactRef] = {}
             frozen_materialization_input_bases: dict[
                 tuple[str, str | None, str | None, str],
                 tuple[tuple[InputRef, ...], frozenset[str]],
@@ -5784,7 +6008,7 @@ class NaturalLanguageRunMixin:
                 data_context_payload["production_data_evidence_context"] = evidence_context
                 return refs, data_context_payload, evidence_context
 
-            async def _store_bundle(bundle: object) -> str:
+            async def _store_bundle(bundle: object) -> ArtifactRef:
                 ref = await async_store.put_json(
                     bundle,
                     ArtifactWriteOptions(
@@ -5799,15 +6023,15 @@ class NaturalLanguageRunMixin:
                     return_selected_profile=True,
                 )
                 _remember_selected_materialization_ref(ref)
-                return str(ref.artifact_id)
+                return ref
 
             async def _store_final_policy_claims_report(
                 report: dict[str, Any],
                 *,
-                trinity_bundle_ref: str | None,
-            ) -> str:
+                trinity_bundle_ref: ArtifactRef | None,
+            ) -> ArtifactRef:
                 inputs = []
-                if isinstance(trinity_bundle_ref, str) and trinity_bundle_ref:
+                if trinity_bundle_ref is not None:
                     selected_trinity_ref = _selected_materialization_ref(
                         trinity_bundle_ref,
                         "ir.trinity_bundle",
@@ -5830,8 +6054,10 @@ class NaturalLanguageRunMixin:
                         inputs=inputs,
                     ),
                     canon_spec=CanonSpec(forbid_floats=False),
+                    return_selected_profile=True,
                 )
-                return str(ref.artifact_id)
+                _remember_selected_materialization_ref(ref)
+                return ref
 
             async def _run_variant(model_name: str | None, variant_index: int) -> dict[str, Any]:
                 nonlocal current_capability_manifest_ref
@@ -7125,7 +7351,9 @@ class NaturalLanguageRunMixin:
                 if llm_client is None and model_name:
                     status = "fallback_mock"
 
-                trinity_ref_str = await _store_bundle(trinity_bundle)
+                trinity_selected_ref = await _store_bundle(trinity_bundle)
+                trinity_ref_str = str(trinity_selected_ref.artifact_id)
+                selected_trinity_refs_by_variant[variant_id] = trinity_selected_ref
                 final_policy_claims_report = build_final_policy_claims_report(
                     draft=draft,
                     trinity_bundle=trinity_bundle,
@@ -7133,9 +7361,13 @@ class NaturalLanguageRunMixin:
                 final_policy_claims_report = _merge_context_norm_refs_into_final_claims(
                     final_policy_claims_report
                 )
-                final_policy_claims_ref_str = await _store_final_policy_claims_report(
+                final_policy_claims_selected_ref = await _store_final_policy_claims_report(
                     final_policy_claims_report,
-                    trinity_bundle_ref=trinity_ref_str,
+                    trinity_bundle_ref=trinity_selected_ref,
+                )
+                final_policy_claims_ref_str = str(final_policy_claims_selected_ref.artifact_id)
+                selected_final_policy_claims_refs_by_variant[variant_id] = (
+                    final_policy_claims_selected_ref
                 )
                 claim_extraction_status = str(
                     final_policy_claims_report.get("extraction_status") or ""
@@ -7196,7 +7428,11 @@ class NaturalLanguageRunMixin:
                         if usage["cost_delta_usd"] is not None
                         else None,
                         "trinity_bundle_ref": trinity_ref_str,
+                        "trinity_bundle_selected_ref": trinity_selected_ref.model_dump(mode="json"),
                         "final_policy_claims_ref": final_policy_claims_ref_str,
+                        "final_policy_claims_selected_ref": (
+                            final_policy_claims_selected_ref.model_dump(mode="json")
+                        ),
                         "final_policy_claims": final_policy_claims_report,
                         "final_policy_claims_summary": dict(
                             final_policy_claims_report.get("summary") or {}
@@ -7279,7 +7515,11 @@ class NaturalLanguageRunMixin:
                         else None
                     ),
                     "trinity_bundle_ref": trinity_ref_str,
+                    "trinity_bundle_selected_ref": trinity_selected_ref.model_dump(mode="json"),
                     "final_policy_claims_ref": final_policy_claims_ref_str,
+                    "final_policy_claims_selected_ref": final_policy_claims_selected_ref.model_dump(
+                        mode="json"
+                    ),
                     "final_policy_claims": final_policy_claims_report,
                     "final_policy_claims_summary": dict(
                         final_policy_claims_report.get("summary") or {}
@@ -7441,6 +7681,8 @@ class NaturalLanguageRunMixin:
                 ]
                 variants = await asyncio.gather(*tasks)
 
+            _validate_selected_variant_artifact_refs(variants)
+
             for item in variants:
                 variant_id_value = str(
                     item.get("model_variant_id") or item.get("model") or "unknown_variant"
@@ -7556,13 +7798,19 @@ class NaturalLanguageRunMixin:
                     details={"model": selected_variant.get("model")},
                 )
 
-            selected_ref = selected_variant.get("trinity_bundle_ref")
-            if not isinstance(selected_ref, str):
+            selected_ref = _trinity_bundle_ref_for_variant(selected_variant)
+            if selected_ref is None:
                 selected_bundle = selected_variant.get("_bundle")
                 if selected_bundle is None:
                     raise RuntimeError("No valid model variant produced a Trinity bundle")
                 selected_ref = await _store_bundle(selected_bundle)
-                selected_variant["trinity_bundle_ref"] = selected_ref
+                selected_variant["trinity_bundle_ref"] = str(selected_ref.artifact_id)
+                selected_variant["trinity_bundle_selected_ref"] = selected_ref.model_dump(
+                    mode="json"
+                )
+                selected_trinity_refs_by_variant[selected_variant_id] = selected_ref
+
+            _validate_selected_variant_artifact_refs(variants)
 
             adjudication_payload = build_model_variant_adjudication(
                 variants=variants,
@@ -7570,15 +7818,20 @@ class NaturalLanguageRunMixin:
             )
             adjudication_inputs: list[InputRef] = []
             for variant_index, variant in enumerate(variants):
-                for ref_key, kind in (
+                for ref_key, _kind in (
                     ("trinity_bundle_ref", "ir.trinity_bundle"),
                     ("final_policy_claims_ref", "scientist.final_policy_claims"),
                 ):
-                    ref_input = _quality_report_input_ref(
-                        role=f"variant_{variant_index + 1}_{ref_key}",
-                        ref_value=variant.get(ref_key),
-                        kind=kind,
-                    )
+                    if ref_key == "final_policy_claims_ref":
+                        ref_input = _final_policy_claims_report_input_ref(
+                            role=f"variant_{variant_index + 1}_{ref_key}",
+                            variant=variant,
+                        )
+                    else:
+                        ref_input = _trinity_bundle_input_ref(
+                            role=f"variant_{variant_index + 1}_{ref_key}",
+                            variant=variant,
+                        )
                     if ref_input is not None:
                         adjudication_inputs.append(ref_input)
             adjudication_ref = await async_store.put_json(
@@ -7653,6 +7906,9 @@ class NaturalLanguageRunMixin:
 
             if _is_serious_execution_profile(execution_profile):
                 for variant in variants:
+                    selected_trinity_ref, selected_claims_ref = _selected_variant_artifact_refs(
+                        variant
+                    )
                     variant_input_refs = [
                         value
                         for value in (
@@ -7666,8 +7922,12 @@ class NaturalLanguageRunMixin:
                     variant_output_refs = [
                         value
                         for value in (
-                            variant.get("trinity_bundle_ref"),
-                            variant.get("final_policy_claims_ref"),
+                            str(selected_trinity_ref.artifact_id)
+                            if selected_trinity_ref is not None
+                            else None,
+                            str(selected_claims_ref.artifact_id)
+                            if selected_claims_ref is not None
+                            else None,
                             variant.get("llm_model_adjudication_ref"),
                         )
                         if isinstance(value, str) and value
@@ -7676,8 +7936,12 @@ class NaturalLanguageRunMixin:
                         value
                         for value in (
                             variant.get("llm_model_adjudication_ref"),
-                            variant.get("final_policy_claims_ref"),
-                            variant.get("trinity_bundle_ref"),
+                            str(selected_claims_ref.artifact_id)
+                            if selected_claims_ref is not None
+                            else None,
+                            str(selected_trinity_ref.artifact_id)
+                            if selected_trinity_ref is not None
+                            else None,
                         )
                         if isinstance(value, str) and value
                     ]
@@ -7690,15 +7954,44 @@ class NaturalLanguageRunMixin:
                         authority_handoff_refs=handoff_refs,
                     )
                     ledger_inputs: list[InputRef] = []
-                    for index, ref_value in enumerate(
-                        [*variant_input_refs, *variant_output_refs],
-                        start=1,
-                    ):
-                        ref_input = _quality_report_input_ref(
-                            role=f"prompt_tool_ledger_input_{index}",
-                            ref_value=ref_value,
-                            kind="runtime.prompt_tool_parser_material",
-                        )
+                    ledger_input_specs = (
+                        ("execution_plan_ref", "scientist.execution_plan"),
+                        ("method_catalog_snapshot_ref", "foundry.method_catalog_snapshot"),
+                        ("preflight_report_ref", "scientist.preflight_report"),
+                        ("evaluator_report_ref", "scientist.evaluator_report"),
+                        ("trinity_bundle_ref", "ir.trinity_bundle"),
+                        ("final_policy_claims_ref", "scientist.final_policy_claims"),
+                        ("llm_model_adjudication_ref", "scientist.llm_model_adjudication"),
+                    )
+                    for ref_key, kind in ledger_input_specs:
+                        role = f"variant_{ref_key.removesuffix('_ref')}"
+                        if ref_key == "trinity_bundle_ref":
+                            ref_input = (
+                                input_ref_from_artifact_ref(
+                                    selected_trinity_ref,
+                                    role=role,
+                                )
+                                if selected_trinity_ref is not None
+                                else None
+                            )
+                        elif ref_key == "final_policy_claims_ref":
+                            ref_input = (
+                                input_ref_from_artifact_ref(
+                                    selected_claims_ref,
+                                    role=role,
+                                )
+                                if selected_claims_ref is not None
+                                else None
+                            )
+                        else:
+                            ref_value = variant.get(ref_key)
+                            if not isinstance(ref_value, str) or not ref_value:
+                                continue
+                            ref_input = _quality_report_input_ref(
+                                role=role,
+                                ref_value=ref_value,
+                                kind=kind,
+                            )
                         if ref_input is not None:
                             ledger_inputs.append(ref_input)
                     ledger_ref = await async_store.put_json(
@@ -8122,7 +8415,7 @@ class NaturalLanguageRunMixin:
 
             # 8. Build state and run workflow
             inputs: dict[str, Any] = {
-                "trinity_bundle_ref": _make_artifact_ref(selected_ref, kind="ir.trinity_bundle"),
+                "trinity_bundle_ref": selected_ref,
             }
 
             # Add data source if provided
@@ -8302,6 +8595,9 @@ class NaturalLanguageRunMixin:
                             else None
                         ),
                         "final_policy_claims_ref": selected_variant.get("final_policy_claims_ref"),
+                        "final_policy_claims_selected_ref": selected_variant.get(
+                            "final_policy_claims_selected_ref"
+                        ),
                         "final_policy_claims_summary": dict(
                             selected_variant.get("final_policy_claims_summary") or {}
                         ),
@@ -8344,13 +8640,12 @@ class NaturalLanguageRunMixin:
                     },
                 }
             )
-            final_policy_claims_ref_value = selected_variant.get("final_policy_claims_ref")
-            if isinstance(final_policy_claims_ref_value, str) and final_policy_claims_ref_value:
+            final_policy_claims_selected_ref = _final_policy_claims_ref_for_variant(
+                selected_variant
+            )
+            if final_policy_claims_selected_ref is not None:
                 artifacts_index = dict(state_payload.get("artifacts_index") or {})
-                artifacts_index["final_policy_claims"] = _make_artifact_ref(
-                    final_policy_claims_ref_value,
-                    kind="scientist.final_policy_claims",
-                )
+                artifacts_index["final_policy_claims"] = final_policy_claims_selected_ref
                 state_payload["artifacts_index"] = artifacts_index
             if isinstance(current_capability_manifest_ref, str) and current_capability_manifest_ref:
                 state_payload["capability_manifest_ref"] = _make_artifact_ref(
@@ -8622,13 +8917,24 @@ class NaturalLanguageRunMixin:
                         and "final_policy_claims" in deterministic_evidence
                     ):
                         final_claims_report = dict(deterministic_evidence["final_policy_claims"])
+                        selected_trinity_ref = _trinity_bundle_ref_for_variant(selected_variant)
                         final_claims_ref = await _store_final_policy_claims_report(
                             final_claims_report,
-                            trinity_bundle_ref=selected_variant.get("trinity_bundle_ref")
-                            if isinstance(selected_variant.get("trinity_bundle_ref"), str)
-                            else None,
+                            trinity_bundle_ref=selected_trinity_ref,
                         )
-                        selected_variant["final_policy_claims_ref"] = final_claims_ref
+                        selected_variant["final_policy_claims_ref"] = str(
+                            final_claims_ref.artifact_id
+                        )
+                        selected_variant["final_policy_claims_selected_ref"] = (
+                            final_claims_ref.model_dump(mode="json")
+                        )
+                        selected_variant_id_for_claims = str(
+                            selected_variant.get("model_variant_id") or ""
+                        )
+                        if selected_variant_id_for_claims:
+                            selected_final_policy_claims_refs_by_variant[
+                                selected_variant_id_for_claims
+                            ] = final_claims_ref
                         selected_variant["final_policy_claims"] = final_claims_report
                         selected_variant["final_policy_claims_summary"] = dict(
                             final_claims_report.get("summary") or {}
@@ -8668,7 +8974,13 @@ class NaturalLanguageRunMixin:
                                 "status": variant.get("status"),
                                 "verdict": variant.get("verdict"),
                                 "trinity_bundle_ref": variant.get("trinity_bundle_ref"),
+                                "trinity_bundle_selected_ref": variant.get(
+                                    "trinity_bundle_selected_ref"
+                                ),
                                 "final_policy_claims_ref": variant.get("final_policy_claims_ref"),
+                                "final_policy_claims_selected_ref": variant.get(
+                                    "final_policy_claims_selected_ref"
+                                ),
                                 "llm_model_adjudication_ref": variant.get(
                                     "llm_model_adjudication_ref"
                                 ),
@@ -8696,10 +9008,9 @@ class NaturalLanguageRunMixin:
                     citation_inputs = [
                         ref
                         for ref in (
-                            _quality_report_input_ref(
+                            _final_policy_claims_report_input_ref(
                                 role="final_policy_claims",
-                                ref_value=selected_variant.get("final_policy_claims_ref"),
-                                kind="scientist.final_policy_claims",
+                                variant=selected_variant,
                             ),
                             _quality_report_input_ref(
                                 role="normative_applicability_report",
@@ -8811,10 +9122,9 @@ class NaturalLanguageRunMixin:
                     claim_registry_inputs = [
                         ref
                         for ref in (
-                            _quality_report_input_ref(
+                            _final_policy_claims_report_input_ref(
                                 role="final_policy_claims",
-                                ref_value=selected_variant.get("final_policy_claims_ref"),
-                                kind="scientist.final_policy_claims",
+                                variant=selected_variant,
                             ),
                             _quality_report_input_ref(
                                 role="normative_applicability_report",
@@ -8902,10 +9212,9 @@ class NaturalLanguageRunMixin:
                     grounding_inputs = [
                         ref
                         for ref in (
-                            _quality_report_input_ref(
+                            _final_policy_claims_report_input_ref(
                                 role="final_policy_claims",
-                                ref_value=selected_variant.get("final_policy_claims_ref"),
-                                kind="scientist.final_policy_claims",
+                                variant=selected_variant,
                             ),
                             _quality_report_input_ref(
                                 role="normative_applicability_report",
@@ -8984,10 +9293,9 @@ class NaturalLanguageRunMixin:
                     conflict_inputs = [
                         ref
                         for ref in (
-                            _quality_report_input_ref(
+                            _final_policy_claims_report_input_ref(
                                 role="final_policy_claims",
-                                ref_value=selected_variant.get("final_policy_claims_ref"),
-                                kind="scientist.final_policy_claims",
+                                variant=selected_variant,
                             ),
                             _quality_report_input_ref(
                                 role="normative_applicability_report",
@@ -9121,10 +9429,9 @@ class NaturalLanguageRunMixin:
                         input_refs=[
                             ref
                             for ref in (
-                                _quality_report_input_ref(
+                                _final_policy_claims_report_input_ref(
                                     role="final_policy_claims",
-                                    ref_value=selected_variant.get("final_policy_claims_ref"),
-                                    kind="scientist.final_policy_claims",
+                                    variant=selected_variant,
                                 ),
                                 _quality_report_input_ref(
                                     role="policy_grounding_matrix",
@@ -9534,8 +9841,14 @@ class NaturalLanguageRunMixin:
                                 "quarantined": False,
                                 "raw_evidence": {
                                     "trinity_bundle_ref": variant.get("trinity_bundle_ref"),
+                                    "trinity_bundle_selected_ref": variant.get(
+                                        "trinity_bundle_selected_ref"
+                                    ),
                                     "final_policy_claims_ref": variant.get(
                                         "final_policy_claims_ref"
+                                    ),
+                                    "final_policy_claims_selected_ref": variant.get(
+                                        "final_policy_claims_selected_ref"
                                     ),
                                 },
                             }
@@ -9598,6 +9911,19 @@ class NaturalLanguageRunMixin:
                             "runtime_quality_evidence": dict(runtime_quality_evidence),
                         }
                     )
+                    selected_final_claims_ref = _final_policy_claims_ref_for_variant(
+                        selected_variant
+                    )
+                    if selected_final_claims_ref is not None:
+                        state_params["final_policy_claims_ref"] = str(
+                            selected_final_claims_ref.artifact_id
+                        )
+                        state_params["final_policy_claims_selected_ref"] = (
+                            selected_final_claims_ref.model_dump(mode="json")
+                        )
+                        selected_artifacts_index = dict(state_payload.get("artifacts_index") or {})
+                        selected_artifacts_index["final_policy_claims"] = selected_final_claims_ref
+                        state_payload["artifacts_index"] = selected_artifacts_index
                     state_payload["params"] = state_params
                     state_reports_index = dict(state_payload.get("reports_index") or {})
                     state_reports_index.update(

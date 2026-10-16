@@ -3170,5 +3170,31 @@
     "author_metadata_erratum": "Sealedddfd closure_ids containsauthorlabel; rootformalclosurefields empty, proposal label separate inb65. Strict19pathMyPy424diagnostics non-green, notP41inherited.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_nl_selected_producer_profile_lineage_r7": {
+    "root_writer": "/root",
+    "base": "e4acf238044aef266d0fbdf73eddc813e218a187",
+    "mechanism_and_companion_paths": [
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "policy-engine/src/polisyos/runtime/http/services/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-selected-artifact-refusal-disposition.toml"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate fullNL/refusalmodule actualproof/typecheck/receipt/index"
+    ],
+    "adoption": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-selected-profile-r7-adoption-20261017/adoption.json",
+      "sha256": "94f8e97be4deaba7b80482a0d26fbaedd3d57bd8429d8f08b921b62ef9557266"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/selected-artifact-profile-ledger-r7-independent-review-20261017/review.json",
+      "sha256": "18a09f62c1b58f512181268b3ba7a5defd065ed4db5047072587d7dcd4152820"
+    },
+    "P40": "Same selected-profile-lineage class widenedto producer-ownedmap/dependencycollector allvariants then pureidentityvssemanticread phase separation. No perleafcodealias/silentdroppededge; optionalgenuineabsence notmalformed. Preserve unreadablecitation/grounding failure lifecycle.",
+    "scope": "Knowncurrentrunlineage notsemantic/legal/currentnesspromotion; ledgerpayloadlegacyIDstrings unqualified, exactdurableInputRefs carryprofiles. No-maplegacyexactCoreprofile resolution retained.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

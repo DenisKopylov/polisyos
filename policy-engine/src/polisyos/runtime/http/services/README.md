@@ -22,6 +22,11 @@ projections. Route handlers should stay thin and delegate behavior here.
 - **Artifact inspection** - renders CAS manifest/content/schema/lineage views with redaction hooks.
 - **Lineage traversal** - builds lineage graphs and completeness summaries.
 - **Control-plane orchestration** - launches or reissues runs and bridges into `scientist`, `fabric`, and `lex`.
+- **Selected NL final claims** - a selected CAS reference is resolved through its exact
+  producer-selected Core profile before the inline report is admitted. When both are present,
+  the consumer requires their decoded reports to agree; a malformed, unreadable, or conflicting
+  selected reference becomes a typed refusal that blocks citation/grounding admission. An
+  inline-only report remains supported only when the variant has no selected reference.
 - **Control-job diagnostic binding** - admission diagnostics bind only to the persisted
   `job_created` record and carry no worker attempt; running, completed, and failed diagnostics
   bind to the exact persisted lifecycle event, its row time and raw-payload digest, and the job's
@@ -252,3 +257,32 @@ The shared runtime operation owner uses the purpose-neutral `run_operation_idemp
 
 
 R3 pre-admission is a route-owned consumer of the same SQL claim table. Its typed attempt row is a read projection; the original authenticated scope and immutable request digest bind the route identity, while append-only observation rows bind provider settlement references and admitted/refused/cancelled/failed outcomes. Initial shared claim and attempt projection commit atomically. R3 duplicate route requests cannot bypass the owner through the generic `X-Idempotency-Key` response cache; rate limiting and mutation audit still apply. Legacy Forecast rows alone receive `run` scope migration from stored `run_id`; unknown scope rows fail closed.
+
+## Selected final-policy-claims lineage
+
+Natural-language model variants retain the producer-selected `ArtifactRef` for their Trinity
+bundle and final-policy-claims artifact alongside the legacy artifact-ID fields. The claims
+artifact manifest is written with the exact selected Trinity profile as its input. The citation,
+grounding, claim-registry, conflict, security, and adjudication report inputs carry the selected
+claims profile through `InputRef`, so equal payload bytes from different variant lineages do not
+collapse to an ambiguous artifact ID.
+
+The current run binds each variant to the exact `ArtifactRef` returned by that variant's
+producer, keyed by its immutable `model_variant_id`. It validates every legacy or typed projection
+that is present against that map before downstream consumer manifests are written. A valid typed
+projection can carry the edge when the legacy ID projection is absent; a matching legacy ID can
+carry it when the typed projection is absent. If both projections are absent while the producer
+map contains an artifact, or any supplied projection is malformed or disagrees, the selected edge
+is refused. When the producer map has no entry and neither projection is supplied, the dependency
+is genuinely absent; a stray typed projection is refused and legacy-only history still requires
+Core to resolve one exact profile. An inline report is compared with the selected persisted report
+before it is consumed. These refs identify selected stored views; they do not establish citation
+quality or policy authority.
+
+Each serious-run prompt/tool ledger is emitted for one model variant. Its CAS manifest records
+same-variant producer-selected Trinity and final-policy-claims refs as `InputRef` edges derived from
+the producer map, retaining each selected manifest profile even when sibling variants share an
+artifact ID. The existing ledger payload keeps its strict v1 ID-string fields for rendered inputs,
+outputs, and authority handoffs. The scorecard validates that payload and its runtime ledger ref; it
+does not resolve those nested strings against the ledger manifest. Do not treat those legacy strings
+or the ledger's reported handoff status as independent profile-qualified authority evidence.

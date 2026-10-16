@@ -5052,3 +5052,657 @@ def test_empty_selected_final_claims_payload_is_not_absence() -> None:
     assert grounding["status"] == "fail"
     assert "policy_claim_extraction_failed" in {issue["code"] for issue in grounding["issues"]}
     assert "no_policy_claims" in {issue["code"] for issue in grounding["issues"]}
+
+
+@pytest.mark.parametrize(
+    ("selected_fault", "expected_refusal"),
+    [
+        ("malformed_payload", "nl_final_policy_claims_selected_payload_invalid"),
+        ("unreadable", "nl_final_policy_claims_selected_unreadable"),
+        ("profile_mismatch", "nl_final_policy_claims_selected_unreadable"),
+        ("inline_conflict", "nl_final_policy_claims_selected_inline_mismatch"),
+    ],
+)
+def test_nl_pipeline_selected_final_claims_refusal_blocks_grounding_with_inline_report_present(
+    selected_fault: str,
+    expected_refusal: str,
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """A bad selected CAS view cannot be laundered by a valid inline sibling."""
+    captured: dict[str, Any] = {}
+    selected_cas: dict[str, Any] = {}
+
+    def _capture_state(payload: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
+        captured["payload"] = payload
+        captured["kwargs"] = kwargs
+        return {"run_id": payload["run_id"], "reports_index": {}}
+
+    original_put_json = FileSystemCAS.put_json
+    original_get_bytes = FileSystemCAS.get_bytes
+
+    def _persist_selected_fault(
+        self: FileSystemCAS,
+        obj: object,
+        opts: ArtifactWriteOptions,
+        canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
+    ) -> Any:
+        inline_ref = original_put_json(
+            self,
+            obj,
+            opts,
+            canon_spec=canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
+        if opts.kind != "scientist.final_policy_claims":
+            return inline_ref
+        assert isinstance(obj, dict)
+        selected_cas["store"] = self
+        selected_cas["inline"] = dict(obj)
+        if selected_fault == "malformed_payload":
+            malformed = {**dict(obj), "claims": [None]}
+            selected_ref = original_put_json(
+                self,
+                malformed,
+                opts,
+                canon_spec=canon_spec,
+                return_selected_profile=return_selected_profile,
+            )
+            selected_cas["payload"] = malformed
+        elif selected_fault == "profile_mismatch":
+            selected_ref = inline_ref.model_copy(
+                update={"manifest_profile_sha256": "sha256:" + "0" * 64}
+            )
+            selected_cas["payload"] = dict(obj)
+        elif selected_fault == "inline_conflict":
+            stored_report = dict(obj)
+            assert stored_report.get("claims")
+            inline_claims = [dict(claim) for claim in obj.get("claims", [])]
+            inline_claims[0]["text"] = "The inline projection conflicts with the selected report."
+            obj["claims"] = inline_claims
+            selected_cas["inline"] = dict(obj)
+            selected_cas["payload"] = stored_report
+            selected_ref = inline_ref
+        else:
+            selected_ref = inline_ref
+            selected_cas["payload"] = dict(obj)
+        selected_cas["ref"] = selected_ref
+        return selected_ref
+
+    def _get_selected_fault(
+        self: FileSystemCAS,
+        artifact_id: ArtifactID | str,
+    ) -> bytes:
+        selected_ref = selected_cas.get("ref")
+        if selected_ref is not None and str(artifact_id) == str(selected_ref.artifact_id):
+            selected_cas["read_attempted"] = True
+            if selected_fault == "unreadable":
+                raise OSError("injected selected final-claims read failure")
+        return original_get_bytes(self, artifact_id)
+
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
+    _forbid_real_gateway_network(monkeypatch)
+    monkeypatch.setattr("polisyos.fabric.retrieval.RetrievalService", _FakeRetrievalService)
+    monkeypatch.setattr("polisyos.scientist.api.run_experiment", _capture_state)
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.catalog.ensure_all_methods_registered",
+        lambda: None,
+    )
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.build_method_catalog_snapshot",
+        lambda *, run_id=None: MethodCatalogSnapshot(
+            snapshot_id=f"test-catalog-{run_id or 'run'}",
+            run_id=run_id,
+        ),
+    )
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.persist_method_catalog_snapshot",
+        lambda _store, _snapshot: MethodCatalogSnapshotRef(artifact_id="sha256:" + "e" * 64),
+    )
+    monkeypatch.setattr(FileSystemCAS, "put_json", _persist_selected_fault)
+    monkeypatch.setattr(FileSystemCAS, "get_bytes", _get_selected_fault)
+
+    service = ControlPlaneService(
+        cas_root=tmp_path / "cas",
+        core_runs_root=tmp_path / "runs",
+        policy_resolver=RuntimeExecutionPolicyResolver(
+            default_profile="research",
+            worker_backend="external",
+            state_store_backend="sqlite",
+            sqlite_path=str(tmp_path / "control-nl-selected-claims.sqlite3"),
+            postgres_dsn=None,
+        ),
+        registry_providers=_registry_providers(),
+    )
+
+    try:
+        result = service._execute_nl_pipeline(
+            run_id=f"R_nl_selected_claims_{selected_fault}_with_inline",
+            nl_request="Evaluate Ukraine MSME support and retain the selected evidence basis.",
+            context=_normative_context(),
+            domain_hint="Ukraine wartime MSME support policy",
+            data_source=None,
+            max_iterations=1,
+            llm_models=["simulated-qwen"],
+            max_parallel_models=1,
+            run_budget_usd=None,
+            per_model_budget_usd=None,
+            checkpoint_policy="strict",
+            execution_plan_ref=None,
+            execution_plan_payload=None,
+            stop_criteria_payload={},
+            governance_constraints_payload=[],
+            expected_outputs_payload=[],
+            execution_profile="research",
+            allow_mock_fallback=False,
+            provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
+        )
+        citation = from_canonical_bytes(
+            service._artifact_store.get_bytes(
+                ArtifactID(result["citation_faithfulness_report_ref"])
+            )
+        )
+        grounding = from_canonical_bytes(
+            service._artifact_store.get_bytes(ArtifactID(result["policy_grounding_matrix_ref"]))
+        )
+        if selected_fault != "unreadable":
+            selected_payload = from_canonical_bytes(
+                original_get_bytes(
+                    selected_cas["store"],
+                    ArtifactID(str(selected_cas["ref"].artifact_id)),
+                )
+            )
+        else:
+            selected_payload = None
+    finally:
+        service.close()
+
+    params = captured["payload"]["params"]
+    selected_variant = next(
+        item for item in params["llm_model_variants"] if item.get("selected_for_workflow")
+    )
+    assert selected_variant["final_policy_claims_ref"] == str(selected_cas["ref"].artifact_id)
+    assert selected_variant["final_policy_claims"] == selected_cas["inline"]
+    assert selected_variant["final_policy_claims"]["claims"]
+    if selected_fault == "malformed_payload":
+        assert selected_payload == selected_cas["payload"]
+        assert selected_payload["claims"] == [None]
+        assert selected_variant["final_policy_claims"] != selected_payload
+    elif selected_fault == "unreadable":
+        assert selected_payload is None
+    elif selected_fault == "profile_mismatch":
+        assert selected_payload == selected_cas["inline"]
+        assert selected_cas["ref"].manifest_profile_sha256 == "sha256:" + "0" * 64
+    else:
+        assert selected_payload == selected_cas["payload"]
+        assert selected_payload != selected_variant["final_policy_claims"]
+    assert citation["status"] == "fail"
+    assert citation["blocking_issue_count"] == 1
+    assert citation["issues"][0]["code"] == "selected_final_policy_claims_unavailable"
+    assert expected_refusal in citation["issues"][0]["message"]
+    assert grounding["citation_faithfulness"]["status"] == "fail"
+    if selected_fault in {"malformed_payload", "unreadable"}:
+        assert selected_cas["read_attempted"]
+
+
+def test_final_claims_variant_selector_is_producer_owned_and_profile_exact(
+    tmp_path: Path,
+) -> None:
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        _resolve_selected_materialization_ref,
+        _selected_final_policy_claims_ref_for_variant,
+        _validate_producer_selected_ref_membership,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    opts = ArtifactWriteOptions(
+        kind="scientist.final_policy_claims",
+        media_type="application/json",
+        schema=SchemaInfo(name="polisyos.scientist.FinalPolicyClaims", version="1.0"),
+        producer=ProducerInfo(component="polisyos.tests.selected_claims", version="1.0"),
+    )
+    payload = {
+        "schema_version": "policyos.scientist.final_policy_claims.v1",
+        "extraction_status": "pass",
+        "human_review_required": False,
+        "claims": [{"claim_id": "same", "text": "same payload"}],
+    }
+    canonical_view = store.put_json(
+        payload,
+        opts,
+        CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    ascii_view = store.put_json(
+        payload,
+        opts,
+        CanonSpec(forbid_floats=False, ensure_ascii=True),
+        return_selected_profile=True,
+    )
+    assert canonical_view.artifact_id == ascii_view.artifact_id
+    assert canonical_view.manifest_profile_sha256 != ascii_view.manifest_profile_sha256
+    variant_views = {
+        "variant_a": canonical_view,
+        "variant_b": ascii_view,
+    }
+    candidates = {str(canonical_view.artifact_id): [canonical_view, ascii_view]}
+    legacy_resolver_calls: list[object] = []
+
+    def _legacy_resolver(value: object) -> ArtifactRef:
+        legacy_resolver_calls.append(value)
+        return _resolve_selected_materialization_ref(
+            store,
+            value,
+            candidates,
+            kind="scientist.final_policy_claims",
+        )
+
+    variant_a = {
+        "model_variant_id": "variant_a",
+        "final_policy_claims_ref": str(canonical_view.artifact_id),
+        "final_policy_claims_selected_ref": canonical_view.model_dump(mode="json"),
+    }
+    assert (
+        _selected_final_policy_claims_ref_for_variant(
+            variant_a,
+            producer_selected_refs=variant_views,
+            resolve_legacy_ref=_legacy_resolver,
+        )
+        == canonical_view
+    )
+
+    typed_only = {
+        "model_variant_id": "variant_a",
+        "final_policy_claims_selected_ref": canonical_view.model_dump(mode="json"),
+    }
+    assert (
+        _selected_final_policy_claims_ref_for_variant(
+            typed_only,
+            producer_selected_refs=variant_views,
+            resolve_legacy_ref=_legacy_resolver,
+        )
+        == canonical_view
+    )
+    legacy_only = {
+        "model_variant_id": "variant_b",
+        "final_policy_claims_ref": str(ascii_view.artifact_id),
+    }
+    assert (
+        _selected_final_policy_claims_ref_for_variant(
+            legacy_only,
+            producer_selected_refs=variant_views,
+            resolve_legacy_ref=_legacy_resolver,
+        )
+        == ascii_view
+    )
+    _validate_producer_selected_ref_membership(
+        [variant_a, legacy_only],
+        variant_views,
+        refusal_code="nl_final_policy_claims_ref_invalid",
+    )
+    for inconsistent_variants in (
+        [{"model_variant_id": "unowned_variant"}],
+        [variant_a, {**variant_a}],
+    ):
+        with pytest.raises(CanonicalProfileRefusalError):
+            _validate_producer_selected_ref_membership(
+                inconsistent_variants,
+                variant_views,
+                refusal_code="nl_final_policy_claims_ref_invalid",
+            )
+    for malformed_projection in (
+        {"model_variant_id": "variant_a"},
+        {"model_variant_id": "variant_a", "final_policy_claims_ref": ""},
+        {"model_variant_id": "variant_a", "final_policy_claims_ref": []},
+        {"model_variant_id": "variant_a", "final_policy_claims_ref": None},
+        {"model_variant_id": "variant_a", "final_policy_claims_selected_ref": None},
+    ):
+        with pytest.raises(CanonicalProfileRefusalError):
+            _selected_final_policy_claims_ref_for_variant(
+                malformed_projection,
+                producer_selected_refs=variant_views,
+                resolve_legacy_ref=_legacy_resolver,
+            )
+
+    wrong_owner_legacy_only = {
+        "model_variant_id": "unowned_variant",
+        "final_policy_claims_ref": str(canonical_view.artifact_id),
+    }
+    with pytest.raises(CanonicalProfileRefusalError):
+        _selected_final_policy_claims_ref_for_variant(
+            wrong_owner_legacy_only,
+            producer_selected_refs=variant_views,
+            resolve_legacy_ref=_legacy_resolver,
+        )
+
+    wrong_sibling = {
+        **variant_a,
+        "final_policy_claims_selected_ref": ascii_view.model_dump(mode="json"),
+    }
+    malformed_selector = {
+        **variant_a,
+        "final_policy_claims_selected_ref": {
+            **canonical_view.model_dump(mode="json"),
+            "manifest_profile_sha256": "sha256:malformed",
+        },
+    }
+    removed_selector = {
+        "model_variant_id": "variant_a",
+        "final_policy_claims_ref": str(canonical_view.artifact_id),
+    }
+    self_attested_selector = {
+        **variant_a,
+        "model_variant_id": "legacy_unowned",
+    }
+    for adversarial in (
+        wrong_sibling,
+        malformed_selector,
+        self_attested_selector,
+    ):
+        with pytest.raises(CanonicalProfileRefusalError):
+            _selected_final_policy_claims_ref_for_variant(
+                adversarial,
+                producer_selected_refs=variant_views,
+                resolve_legacy_ref=_legacy_resolver,
+            )
+
+    legacy_ambiguous = {
+        "model_variant_id": "legacy_variant",
+        "final_policy_claims_ref": str(canonical_view.artifact_id),
+    }
+    with pytest.raises(CanonicalProfileRefusalError):
+        _selected_final_policy_claims_ref_for_variant(
+            legacy_ambiguous,
+            producer_selected_refs={},
+            resolve_legacy_ref=_legacy_resolver,
+        )
+
+    assert (
+        _selected_final_policy_claims_ref_for_variant(
+            removed_selector,
+            producer_selected_refs=variant_views,
+            resolve_legacy_ref=_legacy_resolver,
+        )
+        == canonical_view
+    )
+    assert legacy_resolver_calls == []
+
+    unique_candidates = {str(canonical_view.artifact_id): [canonical_view]}
+    unique_legacy_ref = _selected_final_policy_claims_ref_for_variant(
+        legacy_ambiguous,
+        producer_selected_refs={},
+        resolve_legacy_ref=lambda value: _resolve_selected_materialization_ref(
+            store,
+            value,
+            unique_candidates,
+            kind="scientist.final_policy_claims",
+        ),
+    )
+    assert unique_legacy_ref == canonical_view
+    assert (
+        _selected_final_policy_claims_ref_for_variant(
+            {"model_variant_id": "legacy_inline_only"},
+            producer_selected_refs={},
+            resolve_legacy_ref=_legacy_resolver,
+        )
+        is None
+    )
+
+
+def test_nl_pipeline_carries_same_payload_variant_profiles_into_selected_citation_consumer(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    """Keep map-owned CAS edges after legacy projection removal."""
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo
+    from polisyos.scientist.agent.protocols import DraftResult
+
+    captured: dict[str, Any] = {}
+    trinity_write_count = 0
+
+    def _capture_state(payload: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
+        captured["payload"] = payload
+        captured["kwargs"] = kwargs
+        return {"run_id": payload["run_id"], "reports_index": {}}
+
+    from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent
+    from polisyos.scientist.agent.formalizer import build_final_policy_claims_report
+
+    async def _same_draft(
+        self: LLMDrafterAgent,
+        problem_frame: object,
+        *,
+        data_context: dict[str, Any] | None = None,
+        hints: list[str] | None = None,
+        prior_drafts: list[Any] | None = None,
+    ) -> DraftResult:
+        del self, problem_frame, data_context, hints, prior_drafts
+        return DraftResult(
+            draft_id="r4_shared_variant_draft",
+            problem_frame_ref="sha256:" + "1" * 64,
+            narrative="Target wartime credit support to eligible MSMEs.",
+            rationale="Shared deterministic test draft.",
+            claim_supports=[
+                {
+                    "claim_id": "r4_shared_claim",
+                    "claim_family": "recommendation",
+                    "major": True,
+                    "text": "Target wartime credit support to eligible MSMEs.",
+                    "policy_action": "targeted_credit_support",
+                    "norm_refs": ["norm.ua.credit_eligibility"],
+                }
+            ],
+        )
+
+    def _stable_final_claims_report(
+        *,
+        draft: DraftResult,
+        trinity_bundle: object = None,
+    ) -> dict[str, Any]:
+        report = build_final_policy_claims_report(draft=draft, trinity_bundle=trinity_bundle)
+        report["created_at"] = "2026-01-01T00:00:00+00:00"
+        return report
+
+    original_put_json = FileSystemCAS.put_json
+
+    def _write_distinct_trinity_views(
+        self: FileSystemCAS,
+        obj: object,
+        opts: ArtifactWriteOptions,
+        canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
+    ) -> Any:
+        nonlocal trinity_write_count
+        if opts.kind == "ir.trinity_bundle":
+            trinity_write_count += 1
+            opts = replace(
+                opts,
+                producer=ProducerInfo(
+                    component="polisyos.tests.nl_variant_lineage",
+                    version=f"profile-{trinity_write_count}",
+                ),
+            )
+        return original_put_json(
+            self,
+            obj,
+            opts,
+            canon_spec=canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
+
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
+    _forbid_real_gateway_network(monkeypatch)
+    monkeypatch.setattr("polisyos.fabric.retrieval.RetrievalService", _FakeRetrievalService)
+    monkeypatch.setattr("polisyos.scientist.api.run_experiment", _capture_state)
+    monkeypatch.setattr(LLMDrafterAgent, "draft_policy", _same_draft)
+    monkeypatch.setattr(
+        "polisyos.scientist.agent.formalizer.build_final_policy_claims_report",
+        _stable_final_claims_report,
+    )
+    monkeypatch.setattr(FileSystemCAS, "put_json", _write_distinct_trinity_views)
+    import asyncio
+
+    original_gather = asyncio.gather
+
+    async def _drop_legacy_claim_projections(*awaitables: Any, **kwargs: Any) -> Any:
+        variants = await original_gather(*awaitables, **kwargs)
+        for variant in variants:
+            variant.pop("final_policy_claims_ref", None)
+            variant.pop("trinity_bundle_ref", None)
+        return variants
+
+    monkeypatch.setattr(asyncio, "gather", _drop_legacy_claim_projections)
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.catalog.ensure_all_methods_registered",
+        lambda: None,
+    )
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.build_method_catalog_snapshot",
+        lambda *, run_id=None: MethodCatalogSnapshot(
+            snapshot_id=f"test-catalog-{run_id or 'run'}",
+            run_id=run_id,
+        ),
+    )
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.persist_method_catalog_snapshot",
+        lambda _store, _snapshot: MethodCatalogSnapshotRef(artifact_id="sha256:" + "a" * 64),
+    )
+
+    service = ControlPlaneService(
+        cas_root=tmp_path / "cas",
+        core_runs_root=tmp_path / "runs",
+        policy_resolver=RuntimeExecutionPolicyResolver(
+            default_profile="research",
+            worker_backend="external",
+            state_store_backend="sqlite",
+            sqlite_path=str(tmp_path / "control-nl-variant-profiles.sqlite3"),
+            postgres_dsn=None,
+        ),
+        registry_providers=_registry_providers(),
+    )
+    try:
+        result = service._execute_nl_pipeline(
+            run_id="R_nl_selected_claims_variant_profiles",
+            nl_request="Compare two deterministic variants with the same policy claims.",
+            context=_normative_context(),
+            domain_hint="Ukraine wartime MSME support policy",
+            data_source=None,
+            max_iterations=1,
+            llm_models=["simulated-qwen", "simulated-llama"],
+            max_parallel_models=1,
+            run_budget_usd=None,
+            per_model_budget_usd=None,
+            checkpoint_policy="strict",
+            execution_plan_ref=None,
+            execution_plan_payload=None,
+            stop_criteria_payload={},
+            governance_constraints_payload=[],
+            expected_outputs_payload=[],
+            execution_profile="research",
+            allow_mock_fallback=False,
+            provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
+        )
+        payload = captured["payload"]
+        assert captured["kwargs"]["store"] is service._artifact_store
+        variants = payload["params"]["llm_model_variants"]
+        assert len(variants) == 2
+        selected_variant_id = payload["params"]["llm_selected_variant_id"]
+        selected_variant = next(
+            variant for variant in variants if variant["model_variant_id"] == selected_variant_id
+        )
+        selected_ref = ArtifactRef.model_validate(
+            selected_variant["final_policy_claims_selected_ref"]
+        )
+        sibling = next(variant for variant in variants if variant is not selected_variant)
+        sibling_ref = ArtifactRef.model_validate(sibling["final_policy_claims_selected_ref"])
+        assert selected_ref.artifact_id == sibling_ref.artifact_id
+        assert selected_ref.manifest_profile_sha256 is not None
+        assert sibling_ref.manifest_profile_sha256 is not None
+        assert selected_ref.manifest_profile_sha256 != sibling_ref.manifest_profile_sha256
+        selected_trinity_ref = ArtifactRef.model_validate(
+            selected_variant["trinity_bundle_selected_ref"]
+        )
+        sibling_trinity_ref = ArtifactRef.model_validate(sibling["trinity_bundle_selected_ref"])
+        if selected_trinity_ref.artifact_id == sibling_trinity_ref.artifact_id:
+            assert selected_trinity_ref.manifest_profile_sha256 is not None
+            assert sibling_trinity_ref.manifest_profile_sha256 is not None
+            assert (
+                selected_trinity_ref.manifest_profile_sha256
+                != sibling_trinity_ref.manifest_profile_sha256
+            )
+        for variant in variants:
+            assert "final_policy_claims_ref" not in variant
+            assert "trinity_bundle_ref" not in variant
+        assert selected_variant["final_policy_claims"] == sibling["final_policy_claims"]
+
+        for variant in variants:
+            variant_claims_ref = ArtifactRef.model_validate(
+                variant["final_policy_claims_selected_ref"]
+            )
+            variant_trinity_ref = ArtifactRef.model_validate(variant["trinity_bundle_selected_ref"])
+            ledger_ref = ArtifactID(variant["prompt_tool_ledger_ref"])
+            ledger_manifest = service._artifact_store.get_manifest(ledger_ref)
+            ledger_inputs = {item.role: item for item in ledger_manifest.inputs}
+            for role, selected_view in (
+                ("variant_final_policy_claims", variant_claims_ref),
+                ("variant_trinity_bundle", variant_trinity_ref),
+            ):
+                assert role in ledger_inputs
+                assert ledger_inputs[role].artifact_id == selected_view.artifact_id
+                assert (
+                    ledger_inputs[role].manifest_profile_sha256
+                    == selected_view.manifest_profile_sha256
+                )
+            ledger_payload = variant["prompt_tool_ledger"]
+            assert ledger_payload["model_variant_id"] == variant["model_variant_id"]
+            ledger_step = ledger_payload["steps"][0]
+            assert str(variant_claims_ref.artifact_id) in ledger_step["output_refs"]
+            assert str(variant_trinity_ref.artifact_id) in ledger_step["output_refs"]
+            assert all(isinstance(ref, str) for ref in ledger_step["output_refs"])
+            assert all(
+                isinstance(handoff["handoff_ref"], str)
+                for handoff in ledger_step["authority_handoff_refs"]
+            )
+
+        sibling_ledger_ref = ArtifactID(sibling["prompt_tool_ledger_ref"])
+        sibling_ledger = service._artifact_store.get_manifest(sibling_ledger_ref)
+        sibling_claims_edge = next(
+            item for item in sibling_ledger.inputs if item.role == "variant_final_policy_claims"
+        )
+        assert sibling_claims_edge.artifact_id == selected_ref.artifact_id
+        assert sibling_claims_edge.manifest_profile_sha256 == sibling_ref.manifest_profile_sha256
+        assert sibling_claims_edge.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
+
+        indexed_ref = ArtifactRef.model_validate(payload["artifacts_index"]["final_policy_claims"])
+        assert indexed_ref == selected_ref
+        citation_ref = result["citation_faithfulness_report_ref"]
+        citation_manifest = service._artifact_store.get_manifest(ArtifactID(citation_ref))
+        citation_inputs = [
+            item for item in citation_manifest.inputs if item.role == "final_policy_claims"
+        ]
+        assert len(citation_inputs) == 1
+        assert citation_inputs[0].artifact_id == selected_ref.artifact_id
+        assert citation_inputs[0].manifest_profile_sha256 == selected_ref.manifest_profile_sha256
+
+        grounding_payload = from_canonical_bytes(
+            service._artifact_store.get_bytes(ArtifactID(result["policy_grounding_matrix_ref"]))
+        )
+        selected_grounding_variant = next(
+            variant
+            for variant in grounding_payload["model_variants"]
+            if variant["model_variant_id"] == selected_variant_id
+        )
+        assert (
+            ArtifactRef.model_validate(
+                selected_grounding_variant["final_policy_claims_selected_ref"]
+            )
+            == selected_ref
+        )
+    finally:
+        service.close()

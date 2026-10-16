@@ -15,6 +15,10 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.core.contracts import (
+    CapabilityResourceKind,
+    CapabilityTimeSemantics,
+)
 from polisyos.data_forge.domains.legal.contracts import (
     ThresholdAtom as LegalThresholdAtom,
 )
@@ -25,10 +29,6 @@ from polisyos.data_forge.domains.legal.source_relation import (
     LegalSourceRelationStatus,
 )
 from polisyos.data_forge.kernel.io.generation_basis import build_generation_basis
-from polisyos.core.contracts import (
-    CapabilityResourceKind,
-    CapabilityTimeSemantics,
-)
 
 CAPABILITY_INDEX_SCHEMA_VERSION = "policyos.evidence_capability_index.v1"
 EVIDENCE_CAPABILITY_SCHEMA_VERSION = "policyos.evidence_capability.v1"
@@ -135,9 +135,7 @@ class AuthorityEnvelope(BaseModel):
     def _strip_required_text(cls, value: str) -> str:
         return _required_text(value)
 
-    @field_validator(
-        "authoritative_for", "may_not_use_for", "authority_basis", mode="before"
-    )
+    @field_validator("authoritative_for", "may_not_use_for", "authority_basis", mode="before")
     @classmethod
     def _coerce_tuple_text(cls, value: object) -> tuple[str, ...]:
         return _text_tuple(value)
@@ -207,9 +205,7 @@ class QualityScore(BaseModel):
             normalized_key = _required_text(str(key))
             numeric = float(score)
             if numeric < 0.0 or numeric > 1.0:
-                raise ValueError(
-                    f"quality breakdown score out of range: {normalized_key}"
-                )
+                raise ValueError(f"quality breakdown score out of range: {normalized_key}")
             clean[normalized_key] = numeric
         return clean
 
@@ -341,27 +337,17 @@ class AcquisitionStrategy(BaseModel):
         if owner_team is None:
             raise ValueError("acquisition strategies require a non-legal owner team")
         legal_counsel_owner = self.legal_counsel_owner or _first_legal_owner(self.owner)
-        if (
-            _government_data_involved(self.authority_class)
-            and legal_counsel_owner is None
-        ):
-            raise ValueError(
-                "government acquisition strategies require legal counsel owner"
-            )
+        if _government_data_involved(self.authority_class) and legal_counsel_owner is None:
+            raise ValueError("government acquisition strategies require legal counsel owner")
         production_state = self.resulting_authority_envelope.get("production")
-        if (
-            production_state == "admissible"
-            and not self.requires_construct_validity_review
-        ):
+        if production_state == "admissible" and not self.requires_construct_validity_review:
             raise ValueError(
                 "production admissible acquisition strategies require "
                 "requires_construct_validity_review"
             )
         object.__setattr__(self, "owner_team", owner_team)
         object.__setattr__(self, "legal_counsel_owner", legal_counsel_owner)
-        object.__setattr__(
-            self, "escalation_owner", self.escalation_owner or owner_team
-        )
+        object.__setattr__(self, "escalation_owner", self.escalation_owner or owner_team)
         return self
 
 
@@ -376,9 +362,7 @@ class EvidenceCapability(BaseModel):
         strict=True,
     )
 
-    schema_version: Literal["policyos.evidence_capability.v1"] = (
-        EVIDENCE_CAPABILITY_SCHEMA_VERSION
-    )
+    schema_version: Literal["policyos.evidence_capability.v1"] = EVIDENCE_CAPABILITY_SCHEMA_VERSION
     capability_id: str = Field(min_length=1)
     construct_id: str = Field(alias="construct", min_length=1)
     modality: tuple[str, ...] = Field(min_length=1)
@@ -396,9 +380,7 @@ class EvidenceCapability(BaseModel):
     lineage_refs: tuple[str, ...] = Field(default=())
     freshness_envelope: FreshnessEnvelope
     rights_envelope: RightsEnvelope
-    capability_lifecycle: CapabilityLifecycle = Field(
-        default_factory=CapabilityLifecycle
-    )
+    capability_lifecycle: CapabilityLifecycle = Field(default_factory=CapabilityLifecycle)
     conflict_summary: dict[str, Any] = Field(default_factory=dict)
     may_not_use_for: tuple[str, ...] = Field(default=())
     compatibility_only: bool = False
@@ -520,9 +502,7 @@ class LegalNormOwnerTruth(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    schema_version: Literal["policyos.lex.legal_norm_truth.v1"] = (
-        "policyos.lex.legal_norm_truth.v1"
-    )
+    schema_version: Literal["policyos.lex.legal_norm_truth.v1"] = "policyos.lex.legal_norm_truth.v1"
     legal_norm_ref: str = Field(min_length=1)
     normative_fact_ref: str = Field(min_length=1)
     source_document_ref: str = Field(min_length=1)
@@ -602,9 +582,7 @@ class LegalNormCandidateEvidence(BaseModel):
     source_effective_from: date | None = None
     source_effective_to: date | None = None
     source_hallucination_flags_json: str | None = None
-    source_hallucination_flags_status: Literal[
-        "clear", "non_empty", "malformed", "missing"
-    ]
+    source_hallucination_flags_status: Literal["clear", "non_empty", "malformed", "missing"]
     source_fact_refs: tuple[str, ...] = ()
     source_temporal_audit_refs: tuple[str, ...] = ()
     source_reference_refs: tuple[str, ...] = ()
@@ -665,73 +643,43 @@ class LegalNormCandidateEvidence(BaseModel):
     ) -> tuple[LegalNormCandidateSelectionReason, ...]:
         reasons = _text_tuple(value)
         if reasons != tuple(sorted(set(reasons))):
-            raise ValueError(
-                "Legal candidate selection reasons must be unique and sorted"
-            )
+            raise ValueError("Legal candidate selection reasons must be unique and sorted")
         return reasons
 
     @model_validator(mode="after")
     def _source_content_is_bound_without_authority(self) -> LegalNormCandidateEvidence:
         if self.source_relation_refusal_code != LEGAL_SOURCE_RELATION_REFUSAL_CODE:
-            raise ValueError(
-                "legal candidate must carry the current source-relation refusal"
-            )
+            raise ValueError("legal candidate must carry the current source-relation refusal")
         if self.source_relation_refusal_status != "verification_missing":
             raise ValueError("legal candidate relation status must remain unverified")
         if (self.selection_disposition == "eligible") != (not self.selection_reasons):
-            raise ValueError(
-                "candidate selection disposition must match its owner reasons"
-            )
+            raise ValueError("candidate selection disposition must match its owner reasons")
         if (self.fact_binding_status == "bound_one_fact") != (
             "legal_candidate_fact_binding_unavailable" not in self.selection_reasons
             and "legal_candidate_fact_missing" not in self.selection_reasons
             and "legal_candidate_fact_ambiguous" not in self.selection_reasons
         ):
-            raise ValueError(
-                "candidate fact-binding status and selection reasons disagree"
-            )
-        if (
-            self.fact_binding_status == "bound_one_fact"
-            and len(self.source_fact_refs) != 1
-        ):
-            raise ValueError(
-                "one-to-one fact binding must carry exactly one source fact ref"
-            )
-        if (
-            self.fact_binding_status == "fact_ambiguous"
-            and len(self.source_fact_refs) < 2
-        ):
-            raise ValueError(
-                "ambiguous fact binding must carry every matching source fact ref"
-            )
+            raise ValueError("candidate fact-binding status and selection reasons disagree")
+        if self.fact_binding_status == "bound_one_fact" and len(self.source_fact_refs) != 1:
+            raise ValueError("one-to-one fact binding must carry exactly one source fact ref")
+        if self.fact_binding_status == "fact_ambiguous" and len(self.source_fact_refs) < 2:
+            raise ValueError("ambiguous fact binding must carry every matching source fact ref")
         if (
             self.fact_binding_status in {"fact_missing", "fact_table_unavailable"}
             and self.source_fact_refs
         ):
-            raise ValueError(
-                "missing or unavailable fact bindings cannot carry source fact refs"
-            )
+            raise ValueError("missing or unavailable fact bindings cannot carry source fact refs")
         if self.selection_snapshot_at.tzinfo is None:
             raise ValueError("candidate selection snapshot time must be timezone-aware")
         expected_flags_status = _candidate_hallucination_flags_status(
             self.source_hallucination_flags_json
         )
         if self.source_hallucination_flags_status != expected_flags_status:
-            raise ValueError(
-                "candidate hallucination status must derive from source flag bytes"
-            )
-        if self.source_effective_from != _candidate_iso_date(
-            self.source_effective_from_raw
-        ):
-            raise ValueError(
-                "candidate effective-from date must derive from source value"
-            )
-        if self.source_effective_to != _candidate_iso_date(
-            self.source_effective_to_raw
-        ):
-            raise ValueError(
-                "candidate effective-to date must derive from source value"
-            )
+            raise ValueError("candidate hallucination status must derive from source flag bytes")
+        if self.source_effective_from != _candidate_iso_date(self.source_effective_from_raw):
+            raise ValueError("candidate effective-from date must derive from source value")
+        if self.source_effective_to != _candidate_iso_date(self.source_effective_to_raw):
+            raise ValueError("candidate effective-to date must derive from source value")
         expected_reasons = _legal_candidate_selection_reasons(
             fact_binding_status=self.fact_binding_status,
             source_document_id=self.source_document_id,
@@ -752,9 +700,7 @@ class LegalNormCandidateEvidence(BaseModel):
             selection_snapshot_at=self.selection_snapshot_at,
         )
         if self.selection_reasons != expected_reasons:
-            raise ValueError(
-                "candidate selection reasons must derive from owner source fields"
-            )
+            raise ValueError("candidate selection reasons must derive from owner source fields")
         expected = _legal_candidate_content_digest(
             self.model_dump(mode="json", exclude={"source_content_digest"})
         )
@@ -820,11 +766,7 @@ def _legal_candidate_selection_reasons(
     }.get(fact_binding_status)
     if fact_reason is not None:
         reasons.add(fact_reason)
-    if (
-        not source_document_id
-        or not source_provision_citation
-        or not source_jurisdiction
-    ):
+    if not source_document_id or not source_provision_citation or not source_jurisdiction:
         reasons.add("owner_required_source_fields_missing")
     if source_grounding_status != "grounded":
         reasons.add("source_grounding_status_not_admitted")
@@ -930,9 +872,7 @@ class LegalNormCandidateIndexSnapshot(BaseModel):
     candidate_limit: int = Field(ge=0)
     selected_candidate_count: int = Field(ge=0)
     candidate_set_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    generation_basis_digest: str | None = Field(
-        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
-    )
+    generation_basis_digest: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
     selection_rule_version: Literal["legal-threshold-candidate-selection.v1"] = (
         "legal-threshold-candidate-selection.v1"
     )
@@ -962,16 +902,12 @@ class LegalNormCandidateIndexSnapshot(BaseModel):
         self,
     ) -> LegalNormCandidateIndexSnapshot:
         if self.source_relation_refusal_code != LEGAL_SOURCE_RELATION_REFUSAL_CODE:
-            raise ValueError(
-                "candidate index must retain the Legal source-relation refusal"
-            )
+            raise ValueError("candidate index must retain the Legal source-relation refusal")
         if self.source_relation_refusal_status != "verification_missing":
             raise ValueError("candidate index cannot claim relation verification")
         profile_paths = tuple(asset.path for asset in self.source_profile_assets)
         if profile_paths != tuple(sorted(set(profile_paths))):
-            raise ValueError(
-                "Legal L3 source-profile members must be unique and sorted"
-            )
+            raise ValueError("Legal L3 source-profile members must be unique and sorted")
         expected_profile_digest = _legal_candidate_content_digest(
             [asset.model_dump(mode="json") for asset in self.source_profile_assets]
         )
@@ -983,9 +919,7 @@ class LegalNormCandidateIndexSnapshot(BaseModel):
                     "selected Legal source path must be the compiler's first sorted member"
                 )
         elif self.source_path_ref != "lex_knowledge_graph.duckdb":
-            raise ValueError(
-                "missing Legal source may use only the explicit unavailable path ref"
-            )
+            raise ValueError("missing Legal source may use only the explicit unavailable path ref")
         expected_selection_digest = _legal_candidate_selection_digest(
             source_root_ref=self.source_root_ref,
             source_profile_digest=self.source_profile_digest,
@@ -994,18 +928,14 @@ class LegalNormCandidateIndexSnapshot(BaseModel):
             selection_rule_version=self.source_selection_rule_version,
         )
         if self.source_selection_digest != expected_selection_digest:
-            raise ValueError(
-                "Legal selected root/profile/source selection digest is invalid"
-            )
+            raise ValueError("Legal selected root/profile/source selection digest is invalid")
         refs = tuple(record.candidate_ref for record in self.records)
         if refs != tuple(sorted(set(refs))):
             raise ValueError("Legal candidate records must be unique and sorted")
         if self.selected_candidate_count != sum(
             record.selection_disposition == "eligible" for record in self.records
         ):
-            raise ValueError(
-                "selected candidate count must match eligible persisted records"
-            )
+            raise ValueError("selected candidate count must match eligible persisted records")
         if self.selected_candidate_count > self.candidate_limit:
             raise ValueError(
                 "persisted candidate members cannot exceed the declared selection limit"
@@ -1013,9 +943,7 @@ class LegalNormCandidateIndexSnapshot(BaseModel):
         record_payloads = [record.model_dump(mode="json") for record in self.records]
         expected_set_digest = _legal_candidate_content_digest(record_payloads)
         if self.candidate_set_digest != expected_set_digest:
-            raise ValueError(
-                "candidate-set digest does not bind the persisted Legal records"
-            )
+            raise ValueError("candidate-set digest does not bind the persisted Legal records")
         if self.records:
             members = tuple(
                 (
@@ -1035,28 +963,14 @@ class LegalNormCandidateIndexSnapshot(BaseModel):
                 members=members,
             )
             if self.generation_basis_digest != expected_basis.basis_digest:
-                raise ValueError(
-                    "candidate generation basis does not bind member bytes"
-                )
+                raise ValueError("candidate generation basis does not bind member bytes")
         elif self.generation_basis_digest is not None:
-            raise ValueError(
-                "empty Legal candidate sets cannot declare generation members"
-            )
+            raise ValueError("empty Legal candidate sets cannot declare generation members")
         if self.source_candidate_count is None:
-            if (
-                "legal_candidate_source_count_unavailable"
-                not in self.incompleteness_reasons
-            ):
-                raise ValueError(
-                    "unknown Legal source count requires an incompleteness reason"
-                )
-        elif (
-            self.source_candidate_count != len(self.records)
-            and not self.incompleteness_reasons
-        ):
-            raise ValueError(
-                "candidate/source count mismatch requires an incompleteness reason"
-            )
+            if "legal_candidate_source_count_unavailable" not in self.incompleteness_reasons:
+                raise ValueError("unknown Legal source count requires an incompleteness reason")
+        elif self.source_candidate_count != len(self.records) and not self.incompleteness_reasons:
+            raise ValueError("candidate/source count mismatch requires an incompleteness reason")
         expected_complete = (
             self.source_table_present
             and self.source_candidate_count is not None
@@ -1066,13 +980,9 @@ class LegalNormCandidateIndexSnapshot(BaseModel):
             and not self.incompleteness_reasons
         )
         if (self.completeness == "complete") != expected_complete:
-            raise ValueError(
-                "candidate completeness must derive from the full source denominator"
-            )
+            raise ValueError("candidate completeness must derive from the full source denominator")
         if self.completeness == "complete" and self.incompleteness_reasons:
-            raise ValueError(
-                "complete candidate snapshots cannot carry incompleteness reasons"
-            )
+            raise ValueError("complete candidate snapshots cannot carry incompleteness reasons")
         if self.completeness == "incomplete" and not self.incompleteness_reasons:
             raise ValueError("incomplete candidate snapshots require typed reasons")
         return self
@@ -1139,10 +1049,7 @@ class CapabilityIndexDiscoveryRow(BaseModel):
     freshness_ref: str = Field(min_length=1)
     provenance_refs: tuple[str, ...] = Field(min_length=1)
     owner_truth: (
-        LegalNormOwnerTruth
-        | LegalNormCandidateEvidence
-        | ScientistCapabilityOwnerTruth
-        | None
+        LegalNormOwnerTruth | LegalNormCandidateEvidence | ScientistCapabilityOwnerTruth | None
     ) = None
     may_not_use_for: tuple[str, ...] = Field(default=())
     time: CapabilityTimeSemantics
@@ -1153,25 +1060,15 @@ class CapabilityIndexDiscoveryRow(BaseModel):
             if type(self.owner_truth) is LegalNormOwnerTruth:
                 if self.owner_truth.legal_norm_ref != self.capability_ref:
                     raise ValueError("Lex owner truth must bind capability_ref")
-                if not set(self.owner_truth.provenance_refs) <= set(
-                    self.provenance_refs
-                ):
-                    raise ValueError(
-                        "Lex owner truth provenance must be carried by the row"
-                    )
+                if not set(self.owner_truth.provenance_refs) <= set(self.provenance_refs):
+                    raise ValueError("Lex owner truth provenance must be carried by the row")
             elif type(self.owner_truth) is LegalNormCandidateEvidence:
                 if self.owner_truth.candidate_ref != self.capability_ref:
                     raise ValueError("Lex candidate evidence must bind capability_ref")
                 if self.owner_truth.source_release_ref != self.freshness_ref:
-                    raise ValueError(
-                        "Lex candidate evidence must bind its source freshness ref"
-                    )
-                if not set(self.owner_truth.source_asset_refs) <= set(
-                    self.provenance_refs
-                ):
-                    raise ValueError(
-                        "Lex candidate source refs must be carried by the row"
-                    )
+                    raise ValueError("Lex candidate evidence must bind its source freshness ref")
+                if not set(self.owner_truth.source_asset_refs) <= set(self.provenance_refs):
+                    raise ValueError("Lex candidate source refs must be carried by the row")
             else:
                 raise ValueError(
                     "legal_norm rows require LegalNormOwnerTruth or candidate-only evidence"
@@ -1182,9 +1079,7 @@ class CapabilityIndexDiscoveryRow(BaseModel):
             if self.owner_truth.capability_ref != self.capability_ref:
                 raise ValueError("Scientist owner truth must bind capability_ref")
             if not set(self.owner_truth.provenance_refs) <= set(self.provenance_refs):
-                raise ValueError(
-                    "Scientist owner truth provenance must be carried by the row"
-                )
+                raise ValueError("Scientist owner truth provenance must be carried by the row")
         elif self.owner_truth is not None:
             raise ValueError("owner_truth is only valid for legal_norm or agent rows")
         return self
@@ -1238,6 +1133,5 @@ def _first_legal_owner(owner: tuple[str, ...]) -> str | None:
 def _government_data_involved(authority_class: str) -> bool:
     normalized = authority_class.casefold()
     return any(
-        marker in normalized
-        for marker in ("government", "official", "registry", "administrative")
+        marker in normalized for marker in ("government", "official", "registry", "administrative")
     )

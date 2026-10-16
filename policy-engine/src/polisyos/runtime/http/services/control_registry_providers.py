@@ -122,9 +122,7 @@ def resolve_control_registry_providers(
     )
     if connectors is None:
         connectors = (
-            connectors_factory()
-            if connectors_factory is not None
-            else _default_connectors()
+            connectors_factory() if connectors_factory is not None else _default_connectors()
         )
     if source_profiles is None:
         source_profiles = (
@@ -151,10 +149,7 @@ def resolve_control_registry_providers(
             gy_catalog_graph = _default_gy_catalog_graph()
     resolved_discovery_providers = capability_discovery_providers
     if not registry_factory_overridden:
-        if not any(
-            provider.resource_kind == "case"
-            for provider in resolved_discovery_providers
-        ):
+        if not any(provider.resource_kind == "case" for provider in resolved_discovery_providers):
             from polisyos.runtime.quality.capability_discovery import (
                 GlobalCaseIndexCapabilityDiscoveryProvider,
             )
@@ -164,8 +159,7 @@ def resolve_control_registry_providers(
                 GlobalCaseIndexCapabilityDiscoveryProvider(),
             )
         if not any(
-            provider.resource_kind == "legal_norm"
-            for provider in resolved_discovery_providers
+            provider.resource_kind == "legal_norm" for provider in resolved_discovery_providers
         ):
             from polisyos.runtime.quality.capability_discovery import (
                 LexCandidateCapabilityDiscoveryProvider,
@@ -178,26 +172,17 @@ def resolve_control_registry_providers(
                     capability_index_loader=load_default_capability_index_release,
                 ),
             )
-        if not any(
-            provider.resource_kind == "method"
-            for provider in resolved_discovery_providers
-        ):
+        if not any(provider.resource_kind == "method" for provider in resolved_discovery_providers):
             resolved_discovery_providers = (
                 *resolved_discovery_providers,
                 _default_causal_method_capability_discovery_provider(),
             )
-        if not any(
-            provider.resource_kind == "agent"
-            for provider in resolved_discovery_providers
-        ):
+        if not any(provider.resource_kind == "agent" for provider in resolved_discovery_providers):
             resolved_discovery_providers = (
                 *resolved_discovery_providers,
                 _default_scientist_capability_discovery_provider(),
             )
-        if not any(
-            provider.resource_kind == "source"
-            for provider in resolved_discovery_providers
-        ):
+        if not any(provider.resource_kind == "source" for provider in resolved_discovery_providers):
             resolved_discovery_providers = (
                 *resolved_discovery_providers,
                 _default_source_capability_discovery_provider(
@@ -285,9 +270,7 @@ def _default_scientist_capability_discovery_provider() -> CapabilityDiscoveryPro
     )
 
 
-def _default_causal_method_capability_discovery_provider() -> (
-    CapabilityDiscoveryProvider
-):
+def _default_causal_method_capability_discovery_provider() -> CapabilityDiscoveryProvider:
     """Install the persisted release-index bridge without compiling on a request."""
     from polisyos.runtime.quality.capability_discovery import (
         CapabilityIndexCapabilityDiscoveryProvider,

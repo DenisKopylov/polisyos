@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import json
 from copy import deepcopy
 from datetime import UTC, date, datetime
-import json
 from pathlib import Path
 
 import pytest
@@ -85,9 +85,7 @@ def test_selected_legal_candidate_persists_and_composes_without_authority(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Run compiler → persisted read → default provider → composer and falsifiers."""
-    production_data = create_capability_index_fixture_inputs(
-        tmp_path / "production_data"
-    )
+    production_data = create_capability_index_fixture_inputs(tmp_path / "production_data")
     build = compile_capability_index(
         CapabilityIndexCompilerConfig(
             production_data_root=production_data,
@@ -121,9 +119,7 @@ def test_selected_legal_candidate_persists_and_composes_without_authority(
         gy_catalog_graph=object(),
     )
     legal = tuple(
-        p
-        for p in bundle.capability_discovery_providers
-        if p.resource_kind == "legal_norm"
+        p for p in bundle.capability_discovery_providers if p.resource_kind == "legal_norm"
     )
     assert len(legal) == 1
     assert type(legal[0]) is LexCandidateCapabilityDiscoveryProvider
@@ -134,13 +130,8 @@ def test_selected_legal_candidate_persists_and_composes_without_authority(
     assert type(provider_result.rows[0].owner_truth) is LegalNormCandidateEvidence
     assert type(provider_result.owner_receipt) is LexCandidateOwnerReceipt
     assert not hasattr(provider_result.owner_receipt, "verifier_ref")
-    assert (
-        provider_result.owner_receipt.source_relation_refusal_status
-        == "verification_missing"
-    )
-    assert provider_result.owner_receipt.candidate_inventory_digest.startswith(
-        "sha256:"
-    )
+    assert provider_result.owner_receipt.source_relation_refusal_status == "verification_missing"
+    assert provider_result.owner_receipt.candidate_inventory_digest.startswith("sha256:")
 
     policy = RuntimeExecutionPolicyResolver(
         default_profile="dev",
@@ -156,9 +147,7 @@ def test_selected_legal_candidate_persists_and_composes_without_authority(
             conformance_verifier=None,
             policy_resolver=policy,
         ),
-        authority_resolver=CapabilityDiscoveryAuthorityResolver(
-            production_approval_resolver=None
-        ),
+        authority_resolver=CapabilityDiscoveryAuthorityResolver(production_approval_resolver=None),
         observed_at=lambda: datetime(2026, 8, 25, tzinfo=UTC),
     )
     response = composer.search(request, meta=ApiMeta(request_id="http:legal-candidate"))
@@ -184,9 +173,9 @@ def test_selected_legal_candidate_persists_and_composes_without_authority(
             }
         )
         with pytest.raises(CapabilityProviderUnavailableError) as raised:
-            LexCandidateCapabilityDiscoveryProvider(
-                capability_index_loader=lambda: damaged
-            ).search(request)
+            LexCandidateCapabilityDiscoveryProvider(capability_index_loader=lambda: damaged).search(
+                request
+            )
         assert raised.value.reason_code == "lex_candidate_inventory_invalid"
 
     changed_bytes = deepcopy(snapshot)
@@ -231,9 +220,7 @@ def test_selected_legal_candidate_persists_and_composes_without_authority(
     payload["selection_disposition"] = "excluded"
     payload["selection_reasons"] = ("legal_candidate_fact_missing",)
     payload["source_asset_refs"] = tuple(
-        ref
-        for ref in payload["source_asset_refs"]
-        if ":lex_normative_facts:" not in ref
+        ref for ref in payload["source_asset_refs"] if ":lex_normative_facts:" not in ref
     )
     # Build a valid candidate row whose fact binding is explicitly incomplete.
     from polisyos.runtime.quality.capability_index import (
@@ -281,9 +268,7 @@ def test_selected_legal_candidate_persists_and_composes_without_authority(
         capability_index_loader=lambda: index_with_candidate_snapshot(incomplete)
     ).search(request)
     assert fact_limited.completeness_status == "recall_unmeasured"
-    assert fact_limited.incompleteness_reasons == (
-        "legal_candidate_fact_binding_incomplete",
-    )
+    assert fact_limited.incompleteness_reasons == ("legal_candidate_fact_binding_incomplete",)
     assert fact_limited.rows == ()
     assert fact_limited.evaluated_count == 0
 
@@ -300,9 +285,7 @@ def test_selected_legal_candidate_persists_and_composes_without_authority(
     budget_request = request.model_copy(
         update={"search": request.search.model_copy(update={"budget": {"top_k": 0}})}
     )
-    assert (
-        candidate_provider.search(budget_request).completeness_status == "budget_cutoff"
-    )
+    assert candidate_provider.search(budget_request).completeness_status == "budget_cutoff"
 
     # This synthetic typed sibling exercises the existing verified-owner consumer
     # beside a real persisted candidate row; it does not attest source currentness.
@@ -352,12 +335,8 @@ def test_selected_legal_candidate_persists_and_composes_without_authority(
         "build_capability_discovery_snapshot",
         lambda _index: (*candidate_rows, verified_row),
     )
-    verified_owner_result = LexCapabilityDiscoveryProvider(
-        capability_index=loaded
-    ).search(request)
-    assert tuple(row.capability_ref for row in verified_owner_result.rows) == (
-        verified_ref,
-    )
+    verified_owner_result = LexCapabilityDiscoveryProvider(capability_index=loaded).search(request)
+    assert tuple(row.capability_ref for row in verified_owner_result.rows) == (verified_ref,)
     assert type(verified_owner_result.rows[0].owner_truth) is LegalNormOwnerTruth
     assert type(verified_owner_result.owner_receipt) is LexOwnerReceipt
     assert verified_owner_result.owner_receipt.verifier_ref

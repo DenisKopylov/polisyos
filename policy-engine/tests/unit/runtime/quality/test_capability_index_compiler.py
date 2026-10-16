@@ -51,9 +51,7 @@ def test_scholar_compiler_consumes_bound_layer_vintage_before_forwarding_confide
     unregistered = compiler.load_scholar_capabilities(tmp_path, max_capabilities=1)
     assert unregistered[0].quality_score.breakdown["causal_edge_confidence"] == 0.82
 
-    monkeypatch.setattr(
-        skg_versioning, "_HISTORICAL_SNAPSHOT_SHA256", digest, raising=False
-    )
+    monkeypatch.setattr(skg_versioning, "_HISTORICAL_SNAPSHOT_SHA256", digest, raising=False)
     with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
         compiler.load_scholar_capabilities(tmp_path, max_capabilities=1)
 
@@ -75,25 +73,19 @@ def test_discovery_snapshot_projects_owner_kinds_and_never_world_agents(
 
     assert {row.resource_kind for row in rows} >= {"method", "dataset"}
     assert all(row.resource_kind != "agent" for row in rows)
-    assert all(
-        "agent_registry" not in ref for row in rows for ref in row.provenance_refs
-    )
+    assert all("agent_registry" not in ref for row in rows for ref in row.provenance_refs)
     legal_rows = tuple(row for row in rows if row.resource_kind == "legal_norm")
     assert len(legal_rows) == 1
     assert type(legal_rows[0].owner_truth) is LegalNormCandidateEvidence
     assert legal_rows[0].owner_truth.trust_tier == "search_candidate"
-    assert (
-        legal_rows[0].owner_truth.source_relation_refusal_status
-        == "verification_missing"
-    )
+    assert legal_rows[0].owner_truth.source_relation_refusal_status == "verification_missing"
     assert not legal_rows[0].owner_truth.selection_reasons
     assert result.capability_index.metadata["legal_source_relation_refusal"] == {
         "code": "legal_source_relation_verification_not_established",
         "status": "verification_missing",
     }
     assert not any(
-        "lex_norm" in capability.modality
-        or capability.evidence_mode == "legal_threshold"
+        "lex_norm" in capability.modality or capability.evidence_mode == "legal_threshold"
         for capability in result.capability_index.capabilities
     )
 
@@ -102,18 +94,14 @@ def test_discovery_snapshot_projects_owner_kinds_and_never_world_agents(
         for capability in result.capability_index.capabilities
         if "foundry_method_contract" in capability.modality
     )
-    no_source_method = method.model_copy(
-        update={"source_assets": (), "lineage_refs": ()}
-    )
+    no_source_method = method.model_copy(update={"source_assets": (), "lineage_refs": ()})
     fallback_index = result.capability_index.model_copy(
         update={"capabilities": (no_source_method,)}
     )
 
     fallback_rows = build_capability_discovery_snapshot(fallback_index)
 
-    fallback_method = next(
-        row for row in fallback_rows if row.resource_kind == "method"
-    )
+    fallback_method = next(row for row in fallback_rows if row.resource_kind == "method")
     assert fallback_method.provenance_refs == (result.capability_index.release_ref,)
     assert any(
         row.resource_kind == "legal_norm"
@@ -180,16 +168,14 @@ def test_lex_authority_projection_is_withheld_at_release_snapshots_without_relat
         and (effective_to is None or effective_to >= "2026-05-25")
     )
     assert bool(legal_rows) is expected_eligible
-    assert all(
-        type(row.owner_truth) is LegalNormCandidateEvidence for row in legal_rows
-    )
+    assert all(type(row.owner_truth) is LegalNormCandidateEvidence for row in legal_rows)
     assert all(
         row.owner_truth.source_relation_refusal_status == "verification_missing"
         for row in legal_rows
     )
-    assert result.capability_index.metadata["legal_source_relation_refusal"][
-        "status"
-    ] == ("verification_missing")
+    assert result.capability_index.metadata["legal_source_relation_refusal"]["status"] == (
+        "verification_missing"
+    )
 
 
 def test_capability_release_snapshot_requires_timezone_for_temporal_truth(
@@ -278,9 +264,7 @@ def test_fixture_compiler_promotes_l1_l7_assets_into_authority_scoped_index(
             ORDER BY capability_id
             """
         ).fetchall()
-        assert firm_rows, (
-            "firm_fundamentals must promote into a firm-outcome capability"
-        )
+        assert firm_rows, "firm_fundamentals must promote into a firm-outcome capability"
         assert any("firm_fundamentals_annual" in row[1] for row in firm_rows)
         assert any("survival_hazard_estimates" in row[1] for row in firm_rows)
         assert any("foundry.ml.survival_data.v1" in row[2] for row in firm_rows)
@@ -354,8 +338,7 @@ def test_ukraine_panel_profiler_excludes_curated_and_simulation_parquets(
 ) -> None:
     input_root = create_capability_index_fixture_inputs(tmp_path / "production_data")
     _write_test_parquet(
-        input_root
-        / "canonical/local_data_20260501/policy_engine_data/curated/agents.parquet",
+        input_root / "canonical/local_data_20260501/policy_engine_data/curated/agents.parquet",
         {"agent_id": [1], "salary": [10.0]},
     )
     _write_test_parquet(
@@ -405,8 +388,7 @@ def test_incremental_l7_change_rebuilds_only_l7_assets(
         )
     )
     contracts_path = (
-        input_root
-        / "canonical/local_data_20260501/policy_engine_data/curated/data_contracts.json"
+        input_root / "canonical/local_data_20260501/policy_engine_data/curated/data_contracts.json"
     )
     payload = json.loads(contracts_path.read_text())
     payload["contracts"].append(
@@ -419,13 +401,9 @@ def test_incremental_l7_change_rebuilds_only_l7_assets(
     contracts_path.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
 
     def _unexpected_loader(*_args: object, **_kwargs: object) -> tuple[object, ...]:
-        raise AssertionError(
-            "unchanged heavy loader called during L7-only incremental build"
-        )
+        raise AssertionError("unchanged heavy loader called during L7-only incremental build")
 
-    monkeypatch.setattr(
-        compiler, "load_dataset_catalog_capabilities", _unexpected_loader
-    )
+    monkeypatch.setattr(compiler, "load_dataset_catalog_capabilities", _unexpected_loader)
     monkeypatch.setattr(compiler, "load_scholar_capabilities", _unexpected_loader)
     monkeypatch.setattr(compiler, "load_lex_capabilities", _unexpected_loader)
 
@@ -439,12 +417,8 @@ def test_incremental_l7_change_rebuilds_only_l7_assets(
         )
     )
 
-    assert second.summary["incremental"]["changed_input_labels"] == [
-        "l7_curated_contracts"
-    ]
-    assert second.summary["incremental"]["rebuilt_input_labels"] == [
-        "l7_curated_contracts"
-    ]
+    assert second.summary["incremental"]["changed_input_labels"] == ["l7_curated_contracts"]
+    assert second.summary["incremental"]["rebuilt_input_labels"] == ["l7_curated_contracts"]
     assert second.summary["incremental"]["reused_previous_index"] is False
     with duckdb.connect(str(second.primary_duckdb_path), read_only=True) as con:
         assert (
@@ -574,9 +548,7 @@ def test_capability_construct_alias_preserves_artifact_schema() -> None:
         == capability.construct_id
     )
     assert (
-        FailureModeNode.model_validate_json(
-            failure.model_dump_json(by_alias=True)
-        ).construct_id
+        FailureModeNode.model_validate_json(failure.model_dump_json(by_alias=True)).construct_id
         == failure.construct_id
     )
     assert (
@@ -609,9 +581,9 @@ def test_fixture_build_is_deterministic_for_identical_release_snapshot(
     )
 
     assert first.sha256_path.read_text() == second.sha256_path.read_text()
-    assert _manifest_without_generated_at(
-        first.manifest_path
-    ) == _manifest_without_generated_at(second.manifest_path)
+    assert _manifest_without_generated_at(first.manifest_path) == _manifest_without_generated_at(
+        second.manifest_path
+    )
 
 
 def test_same_construct_conflicts_are_materialized(tmp_path: Path) -> None:
@@ -662,9 +634,7 @@ def test_empty_capability_index_persists_zero_capabilities(tmp_path: Path) -> No
     row_counts = compiler.write_capability_index_duckdb(empty_index, output_path)
 
     with duckdb.connect(str(output_path), read_only=True) as connection:
-        stored_rows = int(
-            connection.execute("SELECT COUNT(*) FROM capabilities").fetchone()[0]
-        )
+        stored_rows = int(connection.execute("SELECT COUNT(*) FROM capabilities").fetchone()[0])
         stored_release = connection.execute(
             "SELECT value_json FROM index_metadata WHERE key = 'release_ref'"
         ).fetchone()[0]

@@ -68,9 +68,7 @@ if TYPE_CHECKING:
 
 CAPABILITY_DISCOVERY_RULE_VERSION = "policyos.ds10.discovery.v1"
 CAPABILITY_PROVIDER_REGISTRY_INDEX_REF = "runtime-quality:capability-provider-registry"
-LEX_CAPABILITY_DISCOVERY_PROVIDER_REF = (
-    "runtime-quality:lex-capability-discovery-provider"
-)
+LEX_CAPABILITY_DISCOVERY_PROVIDER_REF = "runtime-quality:lex-capability-discovery-provider"
 SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF = (
     "runtime-quality:scientist-registry-capability-discovery-provider"
 )
@@ -119,9 +117,7 @@ class _CapabilityOwnerReceipt(BaseModel):
     def _owner_and_snapshot_are_in_provenance(self) -> _CapabilityOwnerReceipt:
         required = {self.owner_producer_ref, self.search_snapshot_ref}
         if not required <= set(self.provenance_refs):
-            raise ValueError(
-                "owner receipt provenance must include producer and search snapshot"
-            )
+            raise ValueError("owner receipt provenance must include producer and search snapshot")
         return self
 
 
@@ -180,18 +176,14 @@ class SourceProfileOwnerReceipt(_CapabilityOwnerReceipt):
             }
         )
         if self.search_snapshot_digest != expected:
-            raise ValueError(
-                "source search snapshot must bind profile and connector snapshots"
-            )
+            raise ValueError("source search snapshot must bind profile and connector snapshots")
         return self
 
 
 class LexOwnerReceipt(_CapabilityOwnerReceipt):
     """Rich Lex owner snapshot and verifier receipt."""
 
-    schema_version: Literal["policyos.lex_owner_receipt.v1"] = (
-        "policyos.lex_owner_receipt.v1"
-    )
+    schema_version: Literal["policyos.lex_owner_receipt.v1"] = "policyos.lex_owner_receipt.v1"
     owner_type: Literal["lex_knowledge_graph"] = "lex_knowledge_graph"
     resource_kind: Literal["legal_norm"] = "legal_norm"
     lex_snapshot_ref: str = Field(min_length=1)
@@ -221,12 +213,10 @@ class LexCandidateOwnerReceipt(_CapabilityOwnerReceipt):
     candidate_inventory_ref: str = Field(min_length=1)
     candidate_inventory_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     candidate_set_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    source_relation_refusal_code: Literal[
+    source_relation_refusal_code: Literal["legal_source_relation_verification_not_established"] = (
         "legal_source_relation_verification_not_established"
-    ] = "legal_source_relation_verification_not_established"
-    source_relation_refusal_status: Literal["verification_missing"] = (
-        "verification_missing"
     )
+    source_relation_refusal_status: Literal["verification_missing"] = "verification_missing"
 
     @model_validator(mode="after")
     def _candidate_inventory_is_bound_without_authority(
@@ -238,9 +228,7 @@ class LexCandidateOwnerReceipt(_CapabilityOwnerReceipt):
         ):
             raise ValueError("Legal candidate receipt must bind its searched inventory")
         if self.candidate_inventory_ref not in self.provenance_refs:
-            raise ValueError(
-                "Legal candidate inventory ref must be carried in provenance"
-            )
+            raise ValueError("Legal candidate inventory ref must be carried in provenance")
         return self
 
 
@@ -250,9 +238,7 @@ class ScientistRegistryOwnerReceipt(_CapabilityOwnerReceipt):
     schema_version: Literal["policyos.scientist_registry_owner_receipt.v1"] = (
         "policyos.scientist_registry_owner_receipt.v1"
     )
-    owner_type: Literal["scientist_node_tool_registries"] = (
-        "scientist_node_tool_registries"
-    )
+    owner_type: Literal["scientist_node_tool_registries"] = "scientist_node_tool_registries"
     resource_kind: Literal["agent"] = "agent"
     node_registry_snapshot_ref: str = Field(min_length=1)
     node_registry_snapshot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -265,9 +251,7 @@ class ScientistRegistryOwnerReceipt(_CapabilityOwnerReceipt):
     ) -> ScientistRegistryOwnerReceipt:
         required = {self.node_registry_snapshot_ref, self.tool_registry_snapshot_ref}
         if not required <= set(self.provenance_refs):
-            raise ValueError(
-                "Scientist registry snapshots must be carried in provenance"
-            )
+            raise ValueError("Scientist registry snapshots must be carried in provenance")
         expected = "sha256:" + _digest(
             {
                 "node_registry_snapshot_ref": self.node_registry_snapshot_ref,
@@ -277,9 +261,7 @@ class ScientistRegistryOwnerReceipt(_CapabilityOwnerReceipt):
             }
         )
         if self.search_snapshot_digest != expected:
-            raise ValueError(
-                "Scientist search snapshot must bind NodeRegistry and ToolRegistry"
-            )
+            raise ValueError("Scientist search snapshot must bind NodeRegistry and ToolRegistry")
         return self
 
 
@@ -304,9 +286,7 @@ class AdapterCapabilityOwnerReceipt(_CapabilityOwnerReceipt):
             self.admission_snapshot_ref != self.search_snapshot_ref
             or self.admission_snapshot_digest != self.search_snapshot_digest
         ):
-            raise ValueError(
-                "adapter owner receipt must bind the searched admission snapshot"
-            )
+            raise ValueError("adapter owner receipt must bind the searched admission snapshot")
         required = {
             self.admission_snapshot_ref,
             *self.passport_refs,
@@ -314,9 +294,7 @@ class AdapterCapabilityOwnerReceipt(_CapabilityOwnerReceipt):
             *self.currentness_receipt_refs,
         }
         if not required <= set(self.provenance_refs):
-            raise ValueError(
-                "adapter owner receipt must carry every verified admission artifact"
-            )
+            raise ValueError("adapter owner receipt must carry every verified admission artifact")
         return self
 
 
@@ -341,9 +319,9 @@ class ScientistRegistrySnapshot(BaseModel):
 
     schema_version: Literal["scientist.node_registry.v1", "scientist.tool_registry.v1"]
     registry_kind: Literal["node_registry", "tool_registry"]
-    producer_ref: Literal[
-        "runtime-quality:scientist-registry-capability-discovery-provider"
-    ] = SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF
+    producer_ref: Literal["runtime-quality:scientist-registry-capability-discovery-provider"] = (
+        SCIENTIST_CAPABILITY_DISCOVERY_PROVIDER_REF
+    )
     entries: tuple[ScientistRegistryCapabilityRecord, ...]
 
     @model_validator(mode="after")
@@ -353,13 +331,9 @@ class ScientistRegistrySnapshot(BaseModel):
             "tool_registry": "scientist.tool_registry.v1",
         }[self.registry_kind]
         if self.schema_version != expected:
-            raise ValueError(
-                "Scientist registry snapshot schema does not match registry_kind"
-            )
+            raise ValueError("Scientist registry snapshot schema does not match registry_kind")
         if any(entry.registry_kind != self.registry_kind for entry in self.entries):
-            raise ValueError(
-                "Scientist registry snapshot entries do not match registry_kind"
-            )
+            raise ValueError("Scientist registry snapshot entries do not match registry_kind")
         return self
 
 
@@ -405,12 +379,10 @@ class ConnectorRegistryCapabilitySnapshot(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
-    schema_version: Literal["fabric.connector_registry.v1"] = (
-        "fabric.connector_registry.v1"
+    schema_version: Literal["fabric.connector_registry.v1"] = "fabric.connector_registry.v1"
+    producer_ref: Literal["runtime-quality:connector-source-profile-snapshot-producer"] = (
+        CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF
     )
-    producer_ref: Literal[
-        "runtime-quality:connector-source-profile-snapshot-producer"
-    ] = CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF
     observed_at: datetime
     entries: tuple[ConnectorRegistryCapabilityRecord, ...]
 
@@ -432,9 +404,9 @@ class SourceProfileRegistryCapabilitySnapshot(BaseModel):
     schema_version: Literal["fabric.source_profile_registry.v1"] = (
         "fabric.source_profile_registry.v1"
     )
-    producer_ref: Literal[
-        "runtime-quality:connector-source-profile-snapshot-producer"
-    ] = CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF
+    producer_ref: Literal["runtime-quality:connector-source-profile-snapshot-producer"] = (
+        CONNECTOR_SOURCE_PROFILE_SNAPSHOT_PRODUCER_REF
+    )
     observed_at: datetime
     profiles: tuple[SourceProfileRegistryCapabilityRecord, ...]
 
@@ -443,14 +415,10 @@ class SourceProfileRegistryCapabilitySnapshot(BaseModel):
         self,
     ) -> SourceProfileRegistryCapabilitySnapshot:
         if self.observed_at.tzinfo is None:
-            raise ValueError(
-                "source-profile snapshot observed_at must be timezone-aware"
-            )
+            raise ValueError("source-profile snapshot observed_at must be timezone-aware")
         ids = tuple(profile.profile_id for profile in self.profiles)
         if ids != tuple(sorted(ids)) or len(ids) != len(set(ids)):
-            raise ValueError(
-                "source-profile snapshot entries must be unique and ordered"
-            )
+            raise ValueError("source-profile snapshot entries must be unique and ordered")
         return self
 
 
@@ -510,26 +478,18 @@ class CapabilityProviderSearchResult(BaseModel):
 
     @model_validator(mode="after")
     def _rows_are_the_ordered_owner_selection(self) -> CapabilityProviderSearchResult:
-        selected = tuple(
-            candidate.candidate_ref for candidate in self.ledger.candidates
-        )
+        selected = tuple(candidate.candidate_ref for candidate in self.ledger.candidates)
         row_refs = tuple(row.capability_ref for row in self.rows)
         if selected != row_refs:
-            raise ValueError(
-                "provider rows must preserve owner SearchLedger candidate order"
-            )
+            raise ValueError("provider rows must preserve owner SearchLedger candidate order")
         if any(row.resource_kind != self.resource_kind for row in self.rows):
             raise ValueError("provider rows must match the provider resource kind")
         if any(row.producer_ref != self.producer_ref for row in self.rows):
             raise ValueError("provider row producer_ref must match the owner result")
         if type(self.owner_receipt) is AdapterCapabilityOwnerReceipt:
             if self.resource_kind not in {"method", "dataset", "source"}:
-                raise ValueError(
-                    "adapter admission cannot stand in for owner-truth resource kinds"
-                )
-            receipt_type: type[_CapabilityOwnerReceipt] | None = (
-                AdapterCapabilityOwnerReceipt
-            )
+                raise ValueError("adapter admission cannot stand in for owner-truth resource kinds")
+            receipt_type: type[_CapabilityOwnerReceipt] | None = AdapterCapabilityOwnerReceipt
         else:
             if self.resource_kind == "legal_norm":
                 if type(self.owner_receipt) not in {
@@ -550,39 +510,27 @@ class CapabilityProviderSearchResult(BaseModel):
                 }.get(self.resource_kind)
                 if receipt_type is None or type(self.owner_receipt) is not receipt_type:
                     expected = (
-                        receipt_type.__name__
-                        if receipt_type is not None
-                        else "no owner receipt"
+                        receipt_type.__name__ if receipt_type is not None else "no owner receipt"
                     )
                     raise ValueError(f"{self.resource_kind} results require {expected}")
         if self.owner_receipt.owner_producer_ref != self.producer_ref:
             raise ValueError("owner receipt must bind producer_ref")
         if self.owner_receipt.resource_kind != self.resource_kind:
             raise ValueError("owner receipt must bind resource_kind")
-        if (
-            self.owner_receipt.search_snapshot_digest
-            != self.ledger.corpus_snapshot_hash
-        ):
+        if self.owner_receipt.search_snapshot_digest != self.ledger.corpus_snapshot_hash:
             raise ValueError("owner receipt must bind the searched corpus snapshot")
-        if any(
-            row.snapshot_ref != self.owner_receipt.search_snapshot_ref
-            for row in self.rows
-        ):
+        if any(row.snapshot_ref != self.owner_receipt.search_snapshot_ref for row in self.rows):
             raise ValueError("owner receipt must bind every selected row snapshot")
         receipt_provenance = set(self.owner_receipt.provenance_refs)
         if any(not set(row.provenance_refs) <= receipt_provenance for row in self.rows):
-            raise ValueError(
-                "selected row provenance must be covered by its owner receipt"
-            )
+            raise ValueError("selected row provenance must be covered by its owner receipt")
         if type(self.owner_receipt) is ScientistRegistryOwnerReceipt:
             for row in self.rows:
                 truth = row.owner_truth
                 if type(truth) is not ScientistCapabilityOwnerTruth:
                     raise ValueError("agent rows require ScientistCapabilityOwnerTruth")
                 if not set(truth.provenance_refs) <= receipt_provenance:
-                    raise ValueError(
-                        "Scientist entry provenance must be covered by owner receipt"
-                    )
+                    raise ValueError("Scientist entry provenance must be covered by owner receipt")
                 expected_snapshot = {
                     "node_registry": (
                         self.owner_receipt.node_registry_snapshot_ref,
@@ -597,29 +545,21 @@ class CapabilityProviderSearchResult(BaseModel):
                     truth.registry_snapshot_ref,
                     truth.registry_snapshot_digest,
                 ) != expected_snapshot:
-                    raise ValueError(
-                        "Scientist entry must bind its typed registry snapshot"
-                    )
+                    raise ValueError("Scientist entry must bind its typed registry snapshot")
         if self.evaluated_count < len(self.ledger.candidates) + len(
             self.ledger.rejected_candidates
         ):
-            raise ValueError(
-                "evaluated_count must cover selected and rejected owner rows"
-            )
+            raise ValueError("evaluated_count must cover selected and rejected owner rows")
         complete = self.completeness_status in {"complete", "complete_no_match"}
         if complete and self.incompleteness_reasons:
-            raise ValueError(
-                "complete provider results cannot carry incompleteness reasons"
-            )
+            raise ValueError("complete provider results cannot carry incompleteness reasons")
         if not complete and not self.incompleteness_reasons:
             raise ValueError("incomplete provider results require typed reasons")
         expected_digest = "sha256:" + _digest(
             self.model_dump(mode="json", exclude={"owner_receipt"})
         )
         if self.owner_receipt.result_digest != expected_digest:
-            raise ValueError(
-                "owner receipt result_digest does not bind provider result content"
-            )
+            raise ValueError("owner receipt result_digest does not bind provider result content")
         return self
 
 
@@ -656,9 +596,7 @@ class GlobalCaseIndexCapabilityDiscoveryProvider:
             raise RuntimeError("case index artifact store is already bound")
         self._store = store
 
-    def search(
-        self, request: CapabilityDiscoveryRequest
-    ) -> CapabilityProviderSearchResult:
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
         """Persist a fresh index and owner receipt, then return candidate-only rows."""
         from polisyos.runtime.quality.global_case_index import (
             GLOBAL_CASE_INDEX_PRODUCER_REF,
@@ -668,9 +606,7 @@ class GlobalCaseIndexCapabilityDiscoveryProvider:
 
         store = self._store
         if store is None:
-            raise CapabilityProviderUnavailableError(
-                "case_index_artifact_store_unbound"
-            )
+            raise CapabilityProviderUnavailableError("case_index_artifact_store_unbound")
         try:
             ref, snapshot = GlobalCaseIndexProducer(store).produce()
         except GlobalCaseIndexError as exc:
@@ -715,33 +651,25 @@ class GlobalCaseIndexCapabilityDiscoveryProvider:
             for entry in snapshot.entries
         )
         terms = _owner_search_terms(request)
-        matches = tuple(
-            row for row in rows if not terms or _row_match_count(row, terms)
-        )
+        matches = tuple(row for row in rows if not terms or _row_match_count(row, terms))
         limit = _owner_search_limit(request, fallback=len(matches))
         selected = matches[:limit]
         selected_refs = {row.capability_ref for row in selected}
         cutoff = len(matches) > limit
-        status: SearchCompletenessStatus = (
-            "budget_cutoff" if cutoff else "recall_unmeasured"
-        )
+        status: SearchCompletenessStatus = "budget_cutoff" if cutoff else "recall_unmeasured"
         reasons = (
             *snapshot.limitation_codes,
             *(("case_index_budget_cutoff",) if cutoff else ()),
         )
 
-        def candidate(
-            row: CapabilityIndexDiscoveryRow, *, rejected: bool
-        ) -> SearchCandidate:
+        def candidate(row: CapabilityIndexDiscoveryRow, *, rejected: bool) -> SearchCandidate:
             return SearchCandidate(
                 candidate_ref=row.capability_ref,
                 source_layer="GlobalCaseIndex",
                 match_mode="lexical" if terms else "exact",
                 score=1.0 if not terms else float(bool(_row_match_count(row, terms))),
                 evidence_refs=row.provenance_refs,
-                limitation_refs=("not_selected",)
-                if rejected
-                else snapshot.limitation_codes,
+                limitation_refs=("not_selected",) if rejected else snapshot.limitation_codes,
                 authority_boundary={"authoritative_for": []},
                 may_not_use_for=row.may_not_use_for,
             )
@@ -824,38 +752,23 @@ class AdapterCapabilityDiscoveryProvider:
 
     def __init__(self, *, admissions: Sequence[VerifiedAdapterAdmission]) -> None:
         if not admissions:
-            raise ValueError(
-                "adapter capability discovery requires verified admissions"
-            )
-        if any(
-            type(admission) is not VerifiedAdapterAdmission for admission in admissions
-        ):
-            raise TypeError(
-                "adapter capability discovery accepts only verified admissions"
-            )
+            raise ValueError("adapter capability discovery requires verified admissions")
+        if any(type(admission) is not VerifiedAdapterAdmission for admission in admissions):
+            raise TypeError("adapter capability discovery accepts only verified admissions")
         kinds = {admission.resource_kind for admission in admissions}
         if len(kinds) != 1:
-            raise ValueError(
-                "one adapter provider may own only one capability resource kind"
-            )
+            raise ValueError("one adapter provider may own only one capability resource kind")
         refs = [admission.capability_ref for admission in admissions]
         if len(refs) != len(set(refs)):
             raise ValueError("adapter capability refs must be unique within a provider")
-        self._admissions = tuple(
-            sorted(admissions, key=lambda item: item.capability_ref)
-        )
+        self._admissions = tuple(sorted(admissions, key=lambda item: item.capability_ref))
         self._resource_kind = self._admissions[0].resource_kind
-        snapshot_payload = [
-            admission.model_dump(mode="json") for admission in self._admissions
-        ]
+        snapshot_payload = [admission.model_dump(mode="json") for admission in self._admissions]
         self._snapshot_digest = "sha256:" + _digest(snapshot_payload)
-        self._snapshot_ref = (
-            "adapter-admission-snapshot:"
-            + self._snapshot_digest.removeprefix("sha256:")
+        self._snapshot_ref = "adapter-admission-snapshot:" + self._snapshot_digest.removeprefix(
+            "sha256:"
         )
-        self._rows = tuple(
-            self._discovery_row(admission) for admission in self._admissions
-        )
+        self._rows = tuple(self._discovery_row(admission) for admission in self._admissions)
 
     @property
     def resource_kind(self) -> AdapterCapabilityResourceKind:
@@ -863,9 +776,7 @@ class AdapterCapabilityDiscoveryProvider:
 
         return self._resource_kind
 
-    def search(
-        self, request: CapabilityDiscoveryRequest
-    ) -> CapabilityProviderSearchResult:
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
         """Return purpose-bound rows with all producer receipts content-bound."""
 
         terms = _owner_search_terms(request)
@@ -885,9 +796,7 @@ class AdapterCapabilityDiscoveryProvider:
         )
         selected_refs = {row.capability_ref for row in selected_rows}
         matching_refs = {row.capability_ref for row in matches}
-        admission_by_ref = {
-            admission.capability_ref: admission for admission in self._admissions
-        }
+        admission_by_ref = {admission.capability_ref: admission for admission in self._admissions}
         selected = tuple(self._candidate(row, terms) for row in selected_rows)
         rejected = tuple(
             self._candidate(
@@ -895,8 +804,7 @@ class AdapterCapabilityDiscoveryProvider:
                 terms,
                 limitation=(
                     "adapter_capability_purpose_mismatch"
-                    if admission_by_ref[row.capability_ref].capability_purpose
-                    != purpose
+                    if admission_by_ref[row.capability_ref].capability_purpose != purpose
                     else (
                         "adapter_capability_budget_cutoff"
                         if row.capability_ref in matching_refs
@@ -913,9 +821,7 @@ class AdapterCapabilityDiscoveryProvider:
             if budget_cutoff
             else ("complete" if selected_rows else "complete_no_match")
         )
-        incompleteness_reasons = (
-            ("adapter_capability_budget_cutoff",) if budget_cutoff else ()
-        )
+        incompleteness_reasons = ("adapter_capability_budget_cutoff",) if budget_cutoff else ()
         ledger = SearchLedger(
             request_ref=request.search.request_id,
             query_plan={
@@ -930,9 +836,7 @@ class AdapterCapabilityDiscoveryProvider:
             corpus_snapshot_hash=self._snapshot_digest,
             corpus_kind="canonical",
             indexes_used=("verified_adapter_admission_registry",),
-            index_version_refs=tuple(
-                admission.passport_ref for admission in self._admissions
-            ),
+            index_version_refs=tuple(admission.passport_ref for admission in self._admissions),
             index_freshness={
                 "verified_adapter_admission_registry": {
                     "state": "current",
@@ -949,8 +853,7 @@ class AdapterCapabilityDiscoveryProvider:
                 "reason_codes": list(incompleteness_reasons),
             },
             replay_key=(
-                "verified-adapter-admission:"
-                + self._snapshot_digest.removeprefix("sha256:")
+                "verified-adapter-admission:" + self._snapshot_digest.removeprefix("sha256:")
             ),
             replay_command="capability-discovery:verified-adapter-admission",
             replay_expected_output_hash=self._snapshot_digest,
@@ -1003,12 +906,8 @@ class AdapterCapabilityDiscoveryProvider:
             capability_purposes=tuple(
                 sorted({admission.capability_purpose for admission in self._admissions})
             ),
-            passport_refs=tuple(
-                admission.passport_ref for admission in self._admissions
-            ),
-            evidence_receipt_refs=tuple(
-                admission.evidence_ref for admission in self._admissions
-            ),
+            passport_refs=tuple(admission.passport_ref for admission in self._admissions),
+            evidence_receipt_refs=tuple(admission.evidence_ref for admission in self._admissions),
             currentness_receipt_refs=tuple(
                 admission.currentness_ref for admission in self._admissions
             ),
@@ -1116,14 +1015,10 @@ class ConnectorSourceProfileSnapshotProducer:
         if any(not callable(getattr(store, method, None)) for method in required):
             raise TypeError("source-profile discovery requires an ArtifactStore")
         if self._artifact_store is not None and self._artifact_store is not store:
-            raise RuntimeError(
-                "source-profile discovery artifact store is already bound"
-            )
+            raise RuntimeError("source-profile discovery artifact store is already bound")
         self._artifact_store = store
 
-    def search(
-        self, request: CapabilityDiscoveryRequest
-    ) -> CapabilityProviderSearchResult:
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
         """Return a content-bound ledger over the persisted paired snapshot."""
         snapshot = self._resolve_snapshot()
         terms = _owner_search_terms(request)
@@ -1141,9 +1036,7 @@ class ConnectorSourceProfileSnapshotProducer:
         )
         selected_refs = {row.capability_ref for row in selected_rows}
         matching_refs = {row.capability_ref for row in matches}
-        selected = tuple(
-            _source_profile_search_candidate(row, terms) for row in selected_rows
-        )
+        selected = tuple(_source_profile_search_candidate(row, terms) for row in selected_rows)
         rejected = tuple(
             _source_profile_search_candidate(
                 row,
@@ -1241,9 +1134,7 @@ class ConnectorSourceProfileSnapshotProducer:
         result = CapabilityProviderSearchResult(**payload, owner_receipt=receipt)
         store = self._artifact_store
         if store is None:  # pragma: no cover - guarded by _resolve_snapshot
-            raise CapabilityProviderUnavailableError(
-                "source_profile_artifact_store_unbound"
-            )
+            raise CapabilityProviderUnavailableError("source_profile_artifact_store_unbound")
         try:
             store.put_json(
                 receipt.model_dump(mode="json"),
@@ -1283,9 +1174,7 @@ class ConnectorSourceProfileSnapshotProducer:
                 return cached
             store = self._artifact_store
             if store is None:
-                raise CapabilityProviderUnavailableError(
-                    "source_profile_artifact_store_unbound"
-                )
+                raise CapabilityProviderUnavailableError("source_profile_artifact_store_unbound")
             try:
                 cached = _build_source_profile_discovery_snapshot(
                     store,
@@ -1345,9 +1234,7 @@ class ScientistRegistryCapabilityDiscoveryProvider:
             raise RuntimeError("Scientist discovery artifact store is already bound")
         self._artifact_store = store
 
-    def search(
-        self, request: CapabilityDiscoveryRequest
-    ) -> CapabilityProviderSearchResult:
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
         """Return a content-bound owner ledger over the cached registry snapshot."""
         snapshot = self._resolve_snapshot()
         terms = _scientist_search_terms(request)
@@ -1365,9 +1252,7 @@ class ScientistRegistryCapabilityDiscoveryProvider:
         )
         selected_refs = {row.capability_ref for row in selected_rows}
         matching_refs = {row.capability_ref for row in matches}
-        selected = tuple(
-            _scientist_search_candidate(row, terms) for row in selected_rows
-        )
+        selected = tuple(_scientist_search_candidate(row, terms) for row in selected_rows)
         rejected = tuple(
             _scientist_search_candidate(
                 row,
@@ -1500,9 +1385,7 @@ class ScientistRegistryCapabilityDiscoveryProvider:
                 return cached
             store = self._artifact_store
             if store is None:
-                raise CapabilityProviderUnavailableError(
-                    "scientist_artifact_store_unbound"
-                )
+                raise CapabilityProviderUnavailableError("scientist_artifact_store_unbound")
             try:
                 cached = _build_scientist_discovery_snapshot(
                     store,
@@ -1550,9 +1433,7 @@ class CapabilityIndexCapabilityDiscoveryProvider:
         """Return the one release-index kind served by this provider."""
         return self._resource_kind
 
-    def search(
-        self, request: CapabilityDiscoveryRequest
-    ) -> CapabilityProviderSearchResult:
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
         """Return owner-indexed rows and a receipt bound to the persisted release."""
         capability_index = self._resolve_capability_index()
         rows = tuple(
@@ -1570,11 +1451,7 @@ class CapabilityIndexCapabilityDiscoveryProvider:
             }
         )
         terms = _capability_index_search_terms(request)
-        matches = (
-            list(rows)
-            if not terms
-            else [row for row in rows if _row_match_count(row, terms)]
-        )
+        matches = list(rows) if not terms else [row for row in rows if _row_match_count(row, terms)]
         limit = _capability_index_search_limit(request, fallback=len(matches))
         selected_rows = tuple(
             sorted(
@@ -1584,9 +1461,7 @@ class CapabilityIndexCapabilityDiscoveryProvider:
         )
         selected_refs = {row.capability_ref for row in selected_rows}
         matching_refs = {row.capability_ref for row in matches}
-        selected = tuple(
-            _capability_index_search_candidate(row, terms) for row in selected_rows
-        )
+        selected = tuple(_capability_index_search_candidate(row, terms) for row in selected_rows)
         rejected = tuple(
             _capability_index_search_candidate(
                 row,
@@ -1641,8 +1516,7 @@ class CapabilityIndexCapabilityDiscoveryProvider:
                 "reason_codes": list(incompleteness_reasons),
             },
             replay_key=(
-                f"capability-index-{self.resource_kind}:"
-                + snapshot_digest.removeprefix("sha256:")
+                f"capability-index-{self.resource_kind}:" + snapshot_digest.removeprefix("sha256:")
             ),
             replay_command="capability-discovery:persisted-capability-index",
             replay_expected_output_hash=snapshot_digest,
@@ -1689,9 +1563,7 @@ class CapabilityIndexCapabilityDiscoveryProvider:
         cached = self._capability_index
         if cached is not None:
             if type(cached) is not CapabilityIndex:
-                raise CapabilityProviderUnavailableError(
-                    "capability_index_release_invalid"
-                )
+                raise CapabilityProviderUnavailableError("capability_index_release_invalid")
             return cached
         with self._index_lock:
             cached = self._capability_index
@@ -1699,9 +1571,7 @@ class CapabilityIndexCapabilityDiscoveryProvider:
                 return cached
             loader = self._capability_index_loader
             if loader is None:  # pragma: no cover - constructor invariant
-                raise CapabilityProviderUnavailableError(
-                    "capability_index_loader_missing"
-                )
+                raise CapabilityProviderUnavailableError("capability_index_loader_missing")
             try:
                 cached = loader()
             except CapabilityProviderUnavailableError:
@@ -1711,9 +1581,7 @@ class CapabilityIndexCapabilityDiscoveryProvider:
                     "capability_index_release_invalid"
                 ) from exc
             if type(cached) is not CapabilityIndex:
-                raise CapabilityProviderUnavailableError(
-                    "capability_index_release_invalid"
-                )
+                raise CapabilityProviderUnavailableError("capability_index_release_invalid")
             self._capability_index = cached
             return cached
 
@@ -1722,9 +1590,7 @@ def load_default_capability_index_release() -> CapabilityIndex:
     """Load the configured persisted CapabilityIndex without compiling it."""
     configured = os.environ.get(CAPABILITY_INDEX_PATH_ENV)
     if configured is None or not configured.strip():
-        raise CapabilityProviderUnavailableError(
-            "capability_index_release_path_unconfigured"
-        )
+        raise CapabilityProviderUnavailableError("capability_index_release_path_unconfigured")
     return load_capability_index_release(configured)
 
 
@@ -1741,19 +1607,13 @@ def load_capability_index_release(path: str | Path) -> CapabilityIndex:
         signature = manifest.get("signature")
         outputs = manifest.get("outputs")
         release_refs = manifest.get("release_refs")
-        if not all(
-            isinstance(value, dict) for value in (signature, outputs, release_refs)
-        ):
+        if not all(isinstance(value, dict) for value in (signature, outputs, release_refs)):
             raise ValueError("CapabilityIndex manifest bindings are malformed")
         if outputs.get("primary_duckdb") != release_path.name:
-            raise ValueError(
-                "CapabilityIndex manifest does not bind the configured DuckDB"
-            )
+            raise ValueError("CapabilityIndex manifest does not bind the configured DuckDB")
         logical_digest = compute_logical_duckdb_digest(release_path)
         if signature.get("digest") != logical_digest:
-            raise ValueError(
-                "CapabilityIndex logical digest does not match its manifest"
-            )
+            raise ValueError("CapabilityIndex logical digest does not match its manifest")
 
         import duckdb
 
@@ -1792,9 +1652,7 @@ def load_capability_index_release(path: str | Path) -> CapabilityIndex:
         if release_refs.get("capability_index_ref") != release_ref:
             raise ValueError("CapabilityIndex manifest and store release refs differ")
         if manifest.get("compiler_version") != metadata.get("compiler_version"):
-            raise ValueError(
-                "CapabilityIndex manifest and store compiler versions differ"
-            )
+            raise ValueError("CapabilityIndex manifest and store compiler versions differ")
         if manifest.get("mode") != metadata.get("mode"):
             raise ValueError("CapabilityIndex manifest and store modes differ")
         return CapabilityIndex(
@@ -1826,9 +1684,7 @@ def load_capability_index_release(path: str | Path) -> CapabilityIndex:
     except CapabilityProviderUnavailableError:
         raise
     except (KeyError, OSError, TypeError, ValueError) as exc:
-        raise CapabilityProviderUnavailableError(
-            "capability_index_release_invalid"
-        ) from exc
+        raise CapabilityProviderUnavailableError("capability_index_release_invalid") from exc
 
 
 def _capability_index_snapshot_ref(
@@ -1854,9 +1710,7 @@ def _capability_index_search_terms(
         return ()
     terms = re.findall(
         r"[\w]+",
-        " ".join(
-            (request.search.query_text, *request.search.construct_refs)
-        ).casefold(),
+        " ".join((request.search.query_text, *request.search.construct_refs)).casefold(),
     )
     normalized = tuple(dict.fromkeys(term for term in terms if term))
     if not normalized:
@@ -1871,9 +1725,7 @@ def _capability_index_search_limit(
 ) -> int:
     raw_limit = request.search.budget.get("top_k", fallback)
     if isinstance(raw_limit, bool) or not isinstance(raw_limit, int) or raw_limit < 0:
-        raise CapabilityProviderUnavailableError(
-            "capability_index_query_budget_invalid"
-        )
+        raise CapabilityProviderUnavailableError("capability_index_query_budget_invalid")
     return raw_limit
 
 
@@ -1927,9 +1779,7 @@ LEX_CANDIDATE_CAPABILITY_DISCOVERY_PROVIDER_REF = (
 class LexCandidateCapabilityDiscoveryProvider:
     """Search persisted Lex threshold candidates while retaining their refusal."""
 
-    def __init__(
-        self, *, capability_index_loader: Callable[[], CapabilityIndex]
-    ) -> None:
+    def __init__(self, *, capability_index_loader: Callable[[], CapabilityIndex]) -> None:
         self._capability_index_loader = capability_index_loader
 
     @property
@@ -1937,9 +1787,7 @@ class LexCandidateCapabilityDiscoveryProvider:
         """Return the owner kind served by this candidate provider."""
         return "legal_norm"
 
-    def search(
-        self, request: CapabilityDiscoveryRequest
-    ) -> CapabilityProviderSearchResult:
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
         """Return candidate rows only when the persisted inventory is well-bound."""
         capability_index = self._capability_index_loader()
         if type(capability_index) is not CapabilityIndex:
@@ -1959,31 +1807,23 @@ class LexCandidateCapabilityDiscoveryProvider:
                 == "policyos.lex.legal_norm_candidate_evidence.v1"
             )
         except (KeyError, AttributeError, TypeError, ValueError) as exc:
-            raise CapabilityProviderUnavailableError(
-                "lex_candidate_inventory_invalid"
-            ) from exc
-        expected_release = (
-            f"{capability_index.release_ref}@{capability_index.compiler_version}"
-        )
+            raise CapabilityProviderUnavailableError("lex_candidate_inventory_invalid") from exc
+        expected_release = f"{capability_index.release_ref}@{capability_index.compiler_version}"
         if snapshot.compiler_release_ref != expected_release:
             raise CapabilityProviderUnavailableError("lex_candidate_inventory_foreign")
         eligible_records = tuple(
-            record
-            for record in snapshot.records
-            if record.selection_disposition == "eligible"
+            record for record in snapshot.records if record.selection_disposition == "eligible"
         )
         if len(rows) != snapshot.selected_candidate_count:
-            raise CapabilityProviderUnavailableError(
-                "lex_candidate_inventory_projection_mismatch"
-            )
+            raise CapabilityProviderUnavailableError("lex_candidate_inventory_projection_mismatch")
         if tuple(row.capability_ref for row in rows) != tuple(
             record.candidate_ref for record in eligible_records
         ):
-            raise CapabilityProviderUnavailableError(
-                "lex_candidate_inventory_member_mismatch"
-            )
+            raise CapabilityProviderUnavailableError("lex_candidate_inventory_member_mismatch")
 
-        snapshot_ref = f"{capability_index.release_ref}@{capability_index.compiler_version}:legal-candidates"
+        snapshot_ref = (
+            f"{capability_index.release_ref}@{capability_index.compiler_version}:legal-candidates"
+        )
         snapshot_digest = "sha256:" + _digest(
             {
                 "snapshot_ref": snapshot_ref,
@@ -1992,11 +1832,7 @@ class LexCandidateCapabilityDiscoveryProvider:
             }
         )
         terms = _owner_search_terms(request)
-        matches = (
-            list(rows)
-            if not terms
-            else [row for row in rows if _row_match_count(row, terms)]
-        )
+        matches = list(rows) if not terms else [row for row in rows if _row_match_count(row, terms)]
         limit = _owner_search_limit(request, fallback=len(matches))
         selected_rows = tuple(
             sorted(
@@ -2006,9 +1842,7 @@ class LexCandidateCapabilityDiscoveryProvider:
         )
         selected_refs = {row.capability_ref for row in selected_rows}
         matching_refs = {row.capability_ref for row in matches}
-        selected = tuple(
-            _lex_candidate_search_candidate(row, terms) for row in selected_rows
-        )
+        selected = tuple(_lex_candidate_search_candidate(row, terms) for row in selected_rows)
         rejected = tuple(
             _lex_candidate_search_candidate(
                 row,
@@ -2029,11 +1863,7 @@ class LexCandidateCapabilityDiscoveryProvider:
                 sorted(
                     {
                         *snapshot.incompleteness_reasons,
-                        *(
-                            ("lex_candidate_search_budget_cutoff",)
-                            if budget_cutoff
-                            else ()
-                        ),
+                        *(("lex_candidate_search_budget_cutoff",) if budget_cutoff else ()),
                     }
                 )
             )
@@ -2075,8 +1905,7 @@ class LexCandidateCapabilityDiscoveryProvider:
                 "status": completeness_status,
                 "reason_codes": list(reasons),
             },
-            replay_key="lex-legal-candidate-index:"
-            + snapshot_digest.removeprefix("sha256:"),
+            replay_key="lex-legal-candidate-index:" + snapshot_digest.removeprefix("sha256:"),
             replay_command="capability-discovery:lex-legal-candidate-index",
             replay_expected_output_hash=snapshot_digest,
         )
@@ -2137,9 +1966,7 @@ def _lex_candidate_search_candidate(
         match_mode="lexical",
         score=_row_match_count(row, terms) / len(terms) if terms else 1.0,
         evidence_refs=row.provenance_refs,
-        limitation_refs=(
-            limitation or "legal_source_relation_verification_not_established",
-        ),
+        limitation_refs=(limitation or "legal_source_relation_verification_not_established",),
         authority_boundary={
             "authoritative_for": [],
             "source_relation_status": "verification_missing",
@@ -2164,15 +1991,10 @@ class LexCapabilityDiscoveryProvider:
         """Return the single owner kind served by this provider."""
         return "legal_norm"
 
-    def search(
-        self, request: CapabilityDiscoveryRequest
-    ) -> CapabilityProviderSearchResult:
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
         """Return a content-bound Lex ledger for the requested legal-norm query."""
         rows = self._owner_rows()
-        if (
-            not rows
-            and "legal_norm_candidate_index_snapshot" in self._capability_index.metadata
-        ):
+        if not rows and "legal_norm_candidate_index_snapshot" in self._capability_index.metadata:
             return LexCandidateCapabilityDiscoveryProvider(
                 capability_index_loader=lambda: self._capability_index
             ).search(request)
@@ -2184,11 +2006,7 @@ class LexCapabilityDiscoveryProvider:
             }
         )
         terms = _owner_search_terms(request)
-        matches = (
-            list(rows)
-            if not terms
-            else [row for row in rows if _row_match_count(row, terms)]
-        )
+        matches = list(rows) if not terms else [row for row in rows if _row_match_count(row, terms)]
         limit = _owner_search_limit(request, fallback=len(matches))
         selected_rows = tuple(
             sorted(
@@ -2239,8 +2057,7 @@ class LexCapabilityDiscoveryProvider:
             rejected_candidates=rejected,
             no_hit_frontier=() if selected_rows else (self.resource_kind,),
             incompleteness={"status": completeness_status},
-            replay_key="lex-capability-discovery:"
-            + snapshot_digest.removeprefix("sha256:"),
+            replay_key="lex-capability-discovery:" + snapshot_digest.removeprefix("sha256:"),
             replay_command="capability-discovery:lex-owner-snapshot",
             replay_expected_output_hash=snapshot_digest,
         )
@@ -2298,14 +2115,11 @@ class LexCapabilityDiscoveryProvider:
         except (AttributeError, TypeError, ValueError) as exc:
             raise CapabilityProviderUnavailableError("lex_owner_index_invalid") from exc
         if any(
-            type(row.owner_truth)
-            not in {LegalNormOwnerTruth, LegalNormCandidateEvidence}
+            type(row.owner_truth) not in {LegalNormOwnerTruth, LegalNormCandidateEvidence}
             for row in rows
         ):
             raise CapabilityProviderUnavailableError("lex_owner_truth_invalid")
-        return tuple(
-            row for row in rows if type(row.owner_truth) is LegalNormOwnerTruth
-        )
+        return tuple(row for row in rows if type(row.owner_truth) is LegalNormOwnerTruth)
 
 
 def _lex_snapshot_ref(rows: tuple[CapabilityIndexDiscoveryRow, ...]) -> str:
@@ -2327,9 +2141,7 @@ def _owner_search_terms(request: CapabilityDiscoveryRequest) -> tuple[str, ...]:
         return ()
     terms = re.findall(
         r"[\w]+",
-        " ".join(
-            (request.search.query_text, *request.search.construct_refs)
-        ).casefold(),
+        " ".join((request.search.query_text, *request.search.construct_refs)).casefold(),
     )
     normalized = tuple(dict.fromkeys(term for term in terms if term))
     if not normalized:
@@ -2473,8 +2285,7 @@ def _build_source_profile_discovery_snapshot(
     }
     search_snapshot_digest = "sha256:" + _digest(combined)
     search_snapshot_ref = (
-        "connector-source-profile-snapshot:"
-        + search_snapshot_digest.removeprefix("sha256:")
+        "connector-source-profile-snapshot:" + search_snapshot_digest.removeprefix("sha256:")
     )
     time = CapabilityTimeSemantics(
         observed_at=observed_at,
@@ -2547,15 +2358,11 @@ def _source_profile_registry_capability_record(
     """Project one profile without persisting raw authentication header values."""
     model_dump = getattr(profile, "model_dump", None)
     if not callable(model_dump):
-        raise CapabilityProviderUnavailableError(
-            "source_profile_registry_entry_invalid"
-        )
+        raise CapabilityProviderUnavailableError("source_profile_registry_entry_invalid")
     definition = model_dump(mode="json")
     headers = definition.pop("headers", None)
     if not isinstance(headers, dict):
-        raise CapabilityProviderUnavailableError(
-            "source_profile_registry_entry_invalid"
-        )
+        raise CapabilityProviderUnavailableError("source_profile_registry_entry_invalid")
     definition["header_names"] = sorted(str(name) for name in headers)
     definition["headers_digest"] = "sha256:" + _digest(headers)
     connector_family = str(profile.connector_family)
@@ -2652,12 +2459,8 @@ def _build_scientist_discovery_snapshot(
     """Project public registry contracts, persist them separately, and join owner rows."""
     from polisyos.scientist import ToolRegistry
 
-    node_registry, node_reasons = _unpack_scientist_registry_source(
-        node_registry_source
-    )
-    tool_registry, tool_reasons = _unpack_scientist_registry_source(
-        tool_registry_source
-    )
+    node_registry, node_reasons = _unpack_scientist_registry_source(node_registry_source)
+    tool_registry, tool_reasons = _unpack_scientist_registry_source(tool_registry_source)
     if not callable(getattr(node_registry, "list", None)):
         raise CapabilityProviderUnavailableError("scientist_node_registry_invalid")
     if not isinstance(tool_registry, ToolRegistry):
@@ -2702,8 +2505,8 @@ def _build_scientist_discovery_snapshot(
         "tool_registry_snapshot_digest": tool_snapshot_digest,
     }
     search_snapshot_digest = "sha256:" + _digest(combined)
-    search_snapshot_ref = (
-        "scientist-registry-snapshot:" + search_snapshot_digest.removeprefix("sha256:")
+    search_snapshot_ref = "scientist-registry-snapshot:" + search_snapshot_digest.removeprefix(
+        "sha256:"
     )
     time = CapabilityTimeSemantics(
         observed_at=observed_at,
@@ -2794,8 +2597,7 @@ def _scientist_tool_records(
                 registry_kind="tool_registry",
                 registry_entry_ref=definition.name,
                 display_name=definition.name.replace("_", " "),
-                description=definition.description
-                or f"Scientist tool {definition.name}",
+                description=definition.description or f"Scientist tool {definition.name}",
                 construct_refs=_sorted_text(
                     (
                         f"scientist-tool:{definition.name}",
@@ -2864,15 +2666,11 @@ def _scientist_search_terms(request: CapabilityDiscoveryRequest) -> tuple[str, .
         return ()
     terms = re.findall(
         r"[\w]+",
-        " ".join(
-            (request.search.query_text, *request.search.construct_refs)
-        ).casefold(),
+        " ".join((request.search.query_text, *request.search.construct_refs)).casefold(),
     )
     normalized = tuple(dict.fromkeys(term for term in terms if term))
     if not normalized:
-        raise CapabilityProviderUnavailableError(
-            "scientist_registry_query_terms_missing"
-        )
+        raise CapabilityProviderUnavailableError("scientist_registry_query_terms_missing")
     return normalized
 
 
@@ -2940,9 +2738,7 @@ class CapabilityDiscoveryComposer:
     ) -> None:
         provider_map = {provider.resource_kind: provider for provider in providers}
         if len(provider_map) != len(providers):
-            raise ValueError(
-                "capability discovery providers must be unique by resource kind"
-            )
+            raise ValueError("capability discovery providers must be unique by resource kind")
         self._providers = provider_map
         self._execution_resolver = execution_resolver
         self._authority_resolver = authority_resolver
@@ -2974,9 +2770,7 @@ class CapabilityDiscoveryComposer:
             if result.resource_kind != resource_kind:
                 raise ValueError("provider returned a different resource kind")
             if result.ledger.request_ref != request.search.request_id:
-                raise ValueError(
-                    "provider ledger request_ref does not bind the request"
-                )
+                raise ValueError("provider ledger request_ref does not bind the request")
             provider_results.append(result)
 
         frontier = _compose_frontier(
@@ -3034,9 +2828,7 @@ class CapabilityDiscoveryComposer:
         if row.time.freshness == "stale":
             discovery_state = "index_stale"
             discovery_reasons = tuple(
-                dict.fromkeys(
-                    (*provider_result.incompleteness_reasons, "index_snapshot_stale")
-                )
+                dict.fromkeys((*provider_result.incompleteness_reasons, "index_snapshot_stale"))
             )
         elif provider_result.completeness_status in {"complete", "complete_no_match"}:
             discovery_state = "discoverable"
@@ -3068,9 +2860,7 @@ class CapabilityDiscoveryComposer:
             observed_at=observed_at,
         )
         authoritative_for = (
-            (request.search.authority_purpose,)
-            if authority.state == "admitted_authority"
-            else ()
+            (request.search.authority_purpose,) if authority.state == "admitted_authority" else ()
         )
         return CapabilityDiscoveryItem(
             capability_ref=row.capability_ref,
@@ -3115,9 +2905,7 @@ def _compose_frontier(
 ) -> SearchFrontier:
     replay_packet = {
         "request": request.model_dump(mode="json"),
-        "provider_results": [
-            result.model_dump(mode="json") for result in provider_results
-        ],
+        "provider_results": [result.model_dump(mode="json") for result in provider_results],
         "missing_reasons": list(missing_reasons),
         "unavailable_reasons": list(unavailable_reasons),
     }
@@ -3157,12 +2945,8 @@ def _project_frontier(
         unavailable_reasons=unavailable_reasons,
     )
     ledgers = tuple(result.ledger for result in provider_results)
-    candidates = tuple(
-        candidate for ledger in ledgers for candidate in ledger.candidates
-    )
-    rejected = tuple(
-        candidate for ledger in ledgers for candidate in ledger.rejected_candidates
-    )
+    candidates = tuple(candidate for ledger in ledgers for candidate in ledger.candidates)
+    rejected = tuple(candidate for ledger in ledgers for candidate in ledger.rejected_candidates)
     if len({candidate.candidate_ref for candidate in candidates}) != len(candidates):
         raise ValueError("provider candidate refs must be unique across the federation")
     indexes = tuple(
@@ -3172,14 +2956,10 @@ def _project_frontier(
         dict.fromkeys(ref for ledger in ledgers for ref in ledger.index_version_refs)
     )
     index_freshness = {
-        key: value
-        for ledger in ledgers
-        for key, value in ledger.index_freshness.items()
+        key: value for ledger in ledgers for key, value in ledger.index_freshness.items()
     }
     provider_failure_reasons = (*missing_reasons, *unavailable_reasons)
-    if provider_failure_reasons and indexes == (
-        CAPABILITY_PROVIDER_REGISTRY_INDEX_REF,
-    ):
+    if provider_failure_reasons and indexes == (CAPABILITY_PROVIDER_REGISTRY_INDEX_REF,):
         index_freshness[CAPABILITY_PROVIDER_REGISTRY_INDEX_REF] = {
             "state": "incomplete",
             "reason_codes": list(provider_failure_reasons),
@@ -3223,9 +3003,7 @@ def _project_frontier(
     )
     snapshot_hash = "sha256:" + _digest(replay_packet)
     cutoffs = tuple(
-        result.actual_cutoff
-        for result in provider_results
-        if result.actual_cutoff is not None
+        result.actual_cutoff for result in provider_results if result.actual_cutoff is not None
     )
     return {
         "request_ref": request.search.request_id,
@@ -3272,25 +3050,16 @@ def _validate_federation_inputs(
     result_kinds = tuple(result.resource_kind for result in provider_results)
     if len(set(result_kinds)) != len(result_kinds):
         raise ValueError("replayed provider results must be unique by resource kind")
-    requested_order = tuple(
-        kind for kind in request.resource_kinds if kind in result_kinds
-    )
+    requested_order = tuple(kind for kind in request.resource_kinds if kind in result_kinds)
     if result_kinds != requested_order:
         raise ValueError("provider results must preserve requested resource-kind order")
-    if any(
-        result.ledger.request_ref != request.search.request_id
-        for result in provider_results
-    ):
+    if any(result.ledger.request_ref != request.search.request_id for result in provider_results):
         raise ValueError("provider ledger request_ref does not bind the request")
     missing_kinds = tuple(reason.partition(":")[0] for reason in missing_reasons)
-    unavailable_kinds = tuple(
-        reason.partition(":")[0] for reason in unavailable_reasons
-    )
+    unavailable_kinds = tuple(reason.partition(":")[0] for reason in unavailable_reasons)
     all_kinds = (*result_kinds, *missing_kinds, *unavailable_kinds)
     if len(set(all_kinds)) != len(all_kinds):
-        raise ValueError(
-            "each requested resource kind requires exactly one producer disposition"
-        )
+        raise ValueError("each requested resource kind requires exactly one producer disposition")
     if set(all_kinds) != set(request.resource_kinds):
         raise ValueError("replay packet must account for every requested resource kind")
 
@@ -3301,9 +3070,7 @@ def _response_time(
 ) -> dict[str, object]:
     freshness = "unknown"
     if rows:
-        freshness = (
-            "stale" if any(row.time.freshness == "stale" for row in rows) else "current"
-        )
+        freshness = "stale" if any(row.time.freshness == "stale" for row in rows) else "current"
     return {
         "observed_at": observed_at,
         "valid_from": observed_at,
@@ -3342,18 +3109,14 @@ def _replay_frontier(payload_hex: str) -> tuple[dict[str, object], str]:
     if not isinstance(raw_results, list):
         raise ValueError("provider_results must be a list")
     provider_results = tuple(
-        CapabilityProviderSearchResult.model_validate_json(
-            json.dumps(item, ensure_ascii=False)
-        )
+        CapabilityProviderSearchResult.model_validate_json(json.dumps(item, ensure_ascii=False))
         for item in raw_results
     )
     missing_reasons = _replay_reason_tuple(packet["missing_reasons"])
     unavailable_reasons = _replay_reason_tuple(packet["unavailable_reasons"])
     canonical_packet = {
         "request": request.model_dump(mode="json"),
-        "provider_results": [
-            result.model_dump(mode="json") for result in provider_results
-        ],
+        "provider_results": [result.model_dump(mode="json") for result in provider_results],
         "missing_reasons": list(missing_reasons),
         "unavailable_reasons": list(unavailable_reasons),
     }
@@ -3377,9 +3140,7 @@ def _replay_frontier(payload_hex: str) -> tuple[dict[str, object], str]:
 
 
 def _replay_reason_tuple(raw: object) -> tuple[str, ...]:
-    if not isinstance(raw, list) or any(
-        not isinstance(item, str) or not item for item in raw
-    ):
+    if not isinstance(raw, list) or any(not isinstance(item, str) or not item for item in raw):
         raise ValueError("replay reason fields must be lists of non-empty strings")
     return tuple(raw)
 

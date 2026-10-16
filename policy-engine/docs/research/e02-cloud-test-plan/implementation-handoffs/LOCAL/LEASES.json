@@ -2826,5 +2826,35 @@
     "limitations": "Prior actual134PASS8FAIL remains; these three test assumptions repaired only. Five IR facade collector errors need generic source binding repair; no inherited/full-gate claim.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_legal_canonical_root_ruff_companion": {
+    "root_writer": "/root",
+    "base": "c55325dbd1c62eceea8d4b88047c5f553edd4479",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/quality/capability_index.py",
+      "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py",
+      "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+      "policy-engine/src/polisyos/runtime/http/services/control_registry_providers.py",
+      "policy-engine/tests/unit/runtime/quality/test_capability_discovery.py",
+      "policy-engine/tests/unit/runtime/quality/test_capability_index_compiler.py",
+      "policy-engine/tests/integration/runtime/test_legal_candidate_discovery.py",
+      "policy-engine/tests/integration/runtime_frontend/test_capability_discovery_free_growth.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "source2449 docs/release already included; separate actual-source receipt/index"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-canonical-ruff-companion-20261017/manifest.json",
+      "sha256": "c242d8df17f52d61fd601e06af0c76ec7114b8e717dc70d208a3b32df8161d0d"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-canonical-ruff-companion-independent-review-r3-20261017/review.json",
+      "sha256": "b14e7850ab05b1605f9c9159955b7a5168f19c43ba51c0ee8bfbe1e33acc1482"
+    },
+    "P40": "Repair canonical root configuration mismatch across all9 Legal source/test inputs;8format/importpostimages+1unchanged, no behavior/authority/schema delta. Non-import executable AST, import binding multiset, ordered comments/type-ignore tags retained.",
+    "prior_nonreceipt": "R3 pyproject Ruff checks did not establish mandatory workspace_root check/format. Source2449 was committed before this fix; complete output retained and no native green claimed.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

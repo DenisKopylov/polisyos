@@ -558,6 +558,117 @@ def _validate_controlled_skg_source(
     return selected_source
 
 
+def _persist_controlled_data_snapshot(
+    *,
+    artifact_store: ArtifactStore,
+    payload_ref: Any,
+    snapshot_id: str,
+) -> Any:
+    """Persist one controlled snapshot with its exact canonical source lineage."""
+    from polisyos.core.artifacts import (
+        CanonInfo,
+        PutOptions,
+        SchemaInfo,
+        input_ref_from_artifact_ref,
+    )
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts import DataSnapshot
+
+    canon_spec = CanonSpec(forbid_floats=False)
+    expected_canon = CanonInfo.from_spec(canon_spec)
+    expected_schema = SchemaInfo(
+        name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+        version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+    )
+    payload_input = input_ref_from_artifact_ref(payload_ref, role="data_ref")
+    payload_profile = getattr(payload_ref, "manifest_profile_sha256", None)
+    if type(payload_profile) is not str or not payload_profile.startswith("sha256:"):
+        raise ValueError("controlled_data_snapshot_payload_profile_missing")
+
+    snapshot = DataSnapshot(
+        data_ref=payload_ref,
+        stats={"snapshot_id": snapshot_id},
+        notes=["snapshot_id:" + snapshot_id, "controlled_candidate_only"],
+    )
+    selected_ref = artifact_store.put_json(
+        snapshot,
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=expected_schema,
+            inputs=[payload_input],
+            canon=expected_canon,
+        ),
+        canon_spec=canon_spec,
+        return_selected_profile=True,
+    )
+    selected_profile = getattr(selected_ref, "manifest_profile_sha256", None)
+    if type(selected_profile) is not str or not selected_profile.startswith("sha256:"):
+        raise ValueError("controlled_data_snapshot_selected_profile_missing")
+    _read_controlled_data_snapshot_source(
+        artifact_store=artifact_store,
+        snapshot_ref=selected_ref,
+        payload_ref=payload_ref,
+        expected_canon=expected_canon,
+        expected_schema=expected_schema,
+    )
+    return selected_ref
+
+
+def _read_controlled_data_snapshot_source(
+    *,
+    artifact_store: ArtifactStore,
+    snapshot_ref: Any,
+    payload_ref: Any,
+    expected_canon: Any | None = None,
+    expected_schema: Any | None = None,
+) -> Any:
+    """Read one exact typed snapshot view and verify its selected manifest inputs."""
+    from polisyos.core.artifacts import (
+        CanonInfo,
+        SchemaInfo,
+        input_ref_from_artifact_ref,
+        load_core_json_artifact,
+    )
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts import DataSnapshot
+
+    selected_profile = getattr(snapshot_ref, "manifest_profile_sha256", None)
+    if type(selected_profile) is not str or not selected_profile.startswith("sha256:"):
+        raise ValueError("controlled_data_snapshot_selected_profile_missing")
+
+    canon = expected_canon or CanonInfo.from_spec(CanonSpec(forbid_floats=False))
+    schema = expected_schema or SchemaInfo(
+        name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+        version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+    )
+    value = DataSnapshot.model_validate(load_core_json_artifact(artifact_store, snapshot_ref))
+    manifest = artifact_store.get_manifest(snapshot_ref)
+    if manifest.canon != canon:
+        raise ValueError("controlled_data_snapshot_canon_profile_mismatch")
+    if manifest.artifact_schema != schema:
+        raise ValueError("controlled_data_snapshot_schema_mismatch")
+    expected_input = input_ref_from_artifact_ref(payload_ref, role="data_ref")
+    if manifest.inputs != [expected_input]:
+        raise ValueError("controlled_data_snapshot_input_binding_mismatch")
+
+    observed_payload_ref = (
+        str(value.data_ref.artifact_id),
+        value.data_ref.kind,
+        value.data_ref.media_type,
+        value.data_ref.manifest_profile_sha256,
+    )
+    expected_payload_ref = (
+        str(payload_ref.artifact_id),
+        payload_ref.kind,
+        payload_ref.media_type,
+        payload_ref.manifest_profile_sha256,
+    )
+    if observed_payload_ref != expected_payload_ref:
+        raise ValueError("controlled_data_snapshot_payload_view_mismatch")
+    return value
+
+
 def _materialize_controlled_world_model_record(
     *,
     source_world_model_record: Any,
@@ -582,13 +693,8 @@ def _materialize_controlled_world_model_record(
         raise ValueError("controlled_selected_skg_source_path_mismatch")
     _validate_controlled_skg_source(selected_skg_source)
 
-    from polisyos.core.artifacts import (
-        ArtifactRef,
-        PutOptions,
-        input_ref_from_artifact_ref,
-    )
+    from polisyos.core.artifacts import ArtifactRef, PutOptions
     from polisyos.core.canon import CanonSpec
-    from polisyos.core.contracts import DataSnapshot
     from polisyos.core.registry import build_default_registry_bundle
     from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
     from polisyos.data_forge.kernel.snapshot import finalize_snapshot
@@ -705,6 +811,7 @@ def _materialize_controlled_world_model_record(
     from polisyos.core.security.tenant_context import tenant_scope
 
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        canon_spec = CanonSpec(forbid_floats=False)
         payload_ref = artifact_store.put_json(
             {
                 "agents": {
@@ -719,29 +826,14 @@ def _materialize_controlled_world_model_record(
                 "tax_rate": 0.0,
             },
             PutOptions(kind="fabric.world_payload", media_type="application/json"),
-            canon_spec=CanonSpec(forbid_floats=False),
+            canon_spec=canon_spec,
+            return_selected_profile=True,
         )
-        data_snapshot_ref = artifact_store.put_json(
-            DataSnapshot(
-                data_ref=payload_ref,
-                stats={"snapshot_id": snapshot_id},
-                notes=["snapshot_id:" + snapshot_id, "controlled_candidate_only"],
-            ),
-            PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-            canon_spec=CanonSpec(forbid_floats=False),
+        data_snapshot_ref = _persist_controlled_data_snapshot(
+            artifact_store=artifact_store,
+            payload_ref=payload_ref,
+            snapshot_id=snapshot_id,
         )
-        # Preserve the DataSnapshot's typed payload relationship in its own manifest.
-        snapshot_manifest = artifact_store.get_manifest(data_snapshot_ref)
-        if not snapshot_manifest.inputs:
-            data_snapshot_ref = artifact_store.put_bytes(
-                artifact_store.get_bytes(data_snapshot_ref),
-                PutOptions(
-                    kind=snapshot_manifest.kind,
-                    media_type=snapshot_manifest.media_type,
-                    schema=snapshot_manifest.artifact_schema,
-                    inputs=(input_ref_from_artifact_ref(payload_ref, role="input.data_ref"),),
-                ),
-            )
         registry_bundle = build_default_registry_bundle(artifact_store)
 
     model_spec = ModelSpec(

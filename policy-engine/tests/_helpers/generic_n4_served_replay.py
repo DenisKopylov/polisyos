@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import dataclasses
 import json
+import math
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
@@ -35,6 +36,77 @@ _ORIGINAL_SECOND_CAPTURE_RECORDING_ID = "gy_n4_replay_20260704_095710_425807_7bf
 _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH = (
     "sha256:107f896fb1fd1c37170b74c88726c07169277d05d3ec5459ceb360919e692cb1"
 )
+_CANDIDATE_SCM_OVERRIDE_FIELDS = frozenset(
+    {
+        "target_baseline",
+        "outcome_baseline",
+        "outcome_per_target_unit",
+        "outcome_noise_stddev",
+    }
+)
+
+
+def _validated_candidate_scm_overrides(
+    overrides: object,
+) -> dict[str, float]:
+    """Validate finite candidate-model parameters before fixture side effects."""
+    if type(overrides) is not dict:
+        raise TypeError("controlled_candidate_scm_overrides_untyped")
+    unknown = set(overrides) - _CANDIDATE_SCM_OVERRIDE_FIELDS
+    if unknown:
+        raise ValueError("controlled_candidate_scm_override_field_unsupported")
+    if any(type(value) is not float or not math.isfinite(value) for value in overrides.values()):
+        raise ValueError("controlled_candidate_scm_override_not_finite_float")
+    return dict(overrides)
+
+
+def _validated_candidate_scm_overrides_by_child(
+    overrides: object,
+    *,
+    child_count: int,
+) -> dict[int, dict[str, float]]:
+    """Validate the exact N4 child indices and typed candidate-model override rows."""
+    if overrides is None:
+        return {}
+    if type(overrides) is not dict:
+        raise TypeError("controlled_candidate_scm_child_overrides_untyped")
+    result: dict[int, dict[str, float]] = {}
+    for index, fields in overrides.items():
+        if type(index) is not int or index < 0 or index >= child_count:
+            raise ValueError("controlled_candidate_scm_child_index_out_of_range")
+        result[index] = _validated_candidate_scm_overrides(fields)
+    return result
+
+
+def _source_recorded_n4_retry_inputs(recording: dict[str, Any]) -> dict[str, int]:
+    """Read the retry settings needed to align the recorded N4 response window."""
+    capture_summary = recording.get("capture_summary")
+    if not isinstance(capture_summary, dict):
+        raise ValueError("controlled_n4_recorded_runtime_config_missing")
+    runtime_config = capture_summary.get("effective_runtime_config")
+    if not isinstance(runtime_config, dict):
+        raise ValueError("controlled_n4_recorded_runtime_config_missing")
+    fields = {
+        "POLISYOS_DRAFTER_PASS_RETRY_COUNT": "drafter_pass_retry_count",
+        "POLISYOS_FORMALIZER_LLM_RETRIES": "formalizer_retry_count",
+    }
+    values: dict[str, int] = {}
+    for environment_name, field_name in fields.items():
+        value = runtime_config.get(field_name)
+        if type(value) is not int or value < 0:
+            raise ValueError("controlled_n4_recorded_runtime_config_invalid:" + field_name)
+        values[environment_name] = value
+    return values
+
+
+def _bind_source_recorded_n4_retry_inputs(
+    recording: dict[str, Any], monkeypatch: Any
+) -> dict[str, int]:
+    """Use capture-bound retry counts rather than ambient replay defaults."""
+    values = _source_recorded_n4_retry_inputs(recording)
+    for environment_name, value in values.items():
+        monkeypatch.setenv(environment_name, str(value))
+    return values
 
 
 @dataclass(frozen=True)
@@ -153,7 +225,10 @@ def _original_second_capture_expected_output(
     ):
         raise RuntimeError("original_second_capture_expected_source_mismatch")
     candidate_groups_by_proposal = {
-        "gy_n4.industrial_retention_tax_credit": ("tax_relief_rate", ("global.tax_rate",)),
+        "gy_n4.industrial_retention_tax_credit": (
+            "tax_relief_rate",
+            ("global.tax_rate",),
+        ),
         "gy_n4.procurement_distress_backstop": (
             "procurement_shock_intensity",
             ("cells.distress_score",),
@@ -245,7 +320,11 @@ def _assert_original_second_capture_generation_result(
     observed_candidates = _original_second_capture_candidate_semantics(result)
     candidate_groups_by_id = {
         candidate_id: (operator_kind, tuple(sorted(targets)))
-        for candidate_id, (_atom_ref, operator_kind, targets) in observed_candidates.items()
+        for candidate_id, (
+            _atom_ref,
+            operator_kind,
+            targets,
+        ) in observed_candidates.items()
     }
     observed_groups_by_proposal: dict[str, tuple[str, tuple[str, ...]]] = {}
     for proposal_id, candidate_id in disposition_candidate_ids_by_proposal.items():
@@ -402,13 +481,17 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
         third = [row for row in interventions if row.get("kind") == "credit_guarantee"]
         if len(third) != 1:
             raise AssertionError("controlled_recording_third_candidate_missing")
+        source_intervention_id = third[0].get("intervention_id")
+        synthetic_intervention_id = f"synthetic_labor_market_retention_{response_index}"
+        if not isinstance(source_intervention_id, str) or not source_intervention_id:
+            raise AssertionError("controlled_recording_third_candidate_identity_missing")
         third[0].update(
             {
                 "description": (
                     "A synthetic labor-market retention candidate adapted to the "
                     "parent's already-declared lever."
                 ),
-                "intervention_id": f"synthetic_labor_market_retention_{response_index}",
+                "intervention_id": synthetic_intervention_id,
                 "kind": "labor_market",
                 "name": "Synthetic labor-market employment-retention candidate",
                 "notes": [
@@ -434,6 +517,33 @@ def _three_child_recording(recording: dict[str, Any], *, outcome_variable: str) 
         payload["policy_spec"]["description"] = (
             "Synthetic three-intervention candidate combining tax relief, procurement "
             "stabilization, and the already-declared labor-market retention lever."
+        )
+        parameters = payload["policy_spec"].get("parameters")
+        if not isinstance(parameters, list):
+            raise AssertionError("controlled_recording_parameters_not_list")
+        if not any(
+            isinstance(parameter, dict)
+            and parameter.get("intervention_id") == source_intervention_id
+            for parameter in parameters
+        ):
+            raise AssertionError("controlled_recording_third_parameter_missing")
+        payload["policy_spec"]["parameters"] = [
+            parameter
+            for parameter in parameters
+            if not (
+                isinstance(parameter, dict)
+                and parameter.get("intervention_id") == source_intervention_id
+            )
+        ]
+        payload["policy_spec"]["parameters"].append(
+            {
+                "default_value": "0.5",
+                "intervention_id": synthetic_intervention_id,
+                "max_value": "1.0",
+                "min_value": "0.0",
+                "param_id": "employment_threshold",
+                "param_path": "employment_threshold",
+            }
         )
         model_spec = payload.get("model_spec")
         if isinstance(model_spec, dict):
@@ -565,7 +675,9 @@ def _persist_compiled_run_with_incomplete_child_set(
     return incomplete_compiled_ref, incomplete_set_ref
 
 
-def _seed_controlled_selected_skg_source(tmp_path: Path) -> ControlledSKGSourceSelection:
+def _seed_controlled_selected_skg_source(
+    tmp_path: Path,
+) -> ControlledSKGSourceSelection:
     """Create a synthetic SKG snapshot and return its owner-resolved versioned ref."""
     source_root = tmp_path / "controlled-candidate-source"
     source_root.mkdir(parents=True, exist_ok=True)
@@ -681,7 +793,9 @@ def _bind_profile_to_selected_skg_snapshot(
 ) -> tuple[Any, Any]:
     """Rehash the typed candidate profile around the exact owner-selected SKG source."""
     from polisyos.pdc import gy_content_hash, world_model_record_content_hash
-    from polisyos.runtime.quality.candidate_simulation import candidate_simulation_profile_ref
+    from polisyos.runtime.quality.candidate_simulation import (
+        candidate_simulation_profile_ref,
+    )
 
     world = base_profile.context_inputs.world_model_record
     selected_prior = world.skg_causal_prior_ref.model_copy(
@@ -757,6 +871,7 @@ def _generic_profile_for_selection(
     selected_skg_source: ControlledSKGSourceSelection,
     tenant_id: str,
     cell_id: str,
+    candidate_scm_overrides: dict[str, float] | None = None,
 ):
     """Build a typed candidate-only profile and persist its exact WMRv2/NCM basis."""
     from polisyos.core.artifacts import ensure_ir_artifact_store
@@ -782,10 +897,19 @@ def _generic_profile_for_selection(
         persist_world_model_record,
     )
 
+    overrides = (
+        {}
+        if candidate_scm_overrides is None
+        else _validated_candidate_scm_overrides(candidate_scm_overrides)
+    )
     outcome_variable = base_declaration.outcome_variable
     baseline_state = {key: float(value) for key, value in base_profile.n5.baseline_state.items()}
     baseline_state.setdefault(target_world_slot, 0.0)
     baseline_state.setdefault(outcome_variable, 0.0)
+    if "target_baseline" in overrides:
+        baseline_state[target_world_slot] = overrides["target_baseline"]
+    if "outcome_baseline" in overrides:
+        baseline_state[outcome_variable] = overrides["outcome_baseline"]
     rule = CandidateScenarioSetToRule(
         operator_kind=operator_kind,
         parameter_id="controlled_value",
@@ -822,6 +946,9 @@ def _generic_profile_for_selection(
             "outcome_baseline": baseline_state[outcome_variable],
         }
     )
+    for field_name in ("outcome_per_target_unit", "outcome_noise_stddev"):
+        if field_name in overrides:
+            declaration_fields[field_name] = overrides[field_name]
     declaration = _hashed_model(
         type(base_declaration),
         declaration_fields,
@@ -911,6 +1038,7 @@ async def prepare_generic_n4_served_replay(
     runtime_api_context: Any | None = None,
     catalog_serving_source: CatalogServingSourcePaths | None = None,
     phase_callback: Any | None = None,
+    candidate_scm_overrides_by_child_index: dict[int, dict[str, float]] | None = None,
 ) -> PreparedGenericN4ServedReplay:
     """Derive a source-bound N4 child family and all typed profiles for a served app.
 
@@ -934,7 +1062,9 @@ async def prepare_generic_n4_served_replay(
         cycle_job_profile_selection_ref,
         generic_n4_child_profile_selection_ref,
     )
-    from polisyos.runtime.quality.design_generation import derive_n4_candidate_child_problems
+    from polisyos.runtime.quality.design_generation import (
+        derive_n4_candidate_child_problems,
+    )
     from polisyos.runtime.quality.generation_cycle import N4GenerationPort
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationProfileV1,
@@ -943,7 +1073,14 @@ async def prepare_generic_n4_served_replay(
         persist_substrate_registry,
         run_catalog_source_awaitable,
     )
-    from tests.unit.runtime.http.test_control_job_execution_intent import _valid_intake_for_mode
+    from tests.unit.runtime.http.test_control_job_execution_intent import (
+        _valid_intake_for_mode,
+    )
+
+    candidate_scm_overrides = _validated_candidate_scm_overrides_by_child(
+        candidate_scm_overrides_by_child_index,
+        child_count=child_count,
+    )
 
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
@@ -991,6 +1128,7 @@ async def prepare_generic_n4_served_replay(
             raise ValueError("controlled_n4_child_count_unsupported")
     else:
         raise ValueError("controlled_n4_recording_mode_unsupported")
+    _bind_source_recorded_n4_retry_inputs(source_recording, monkeypatch)
     source_recording_snapshot = copy.deepcopy(source_recording)
     source_recording_id = str(source_recording["recording_id"])
     source_recording_content_hash = str(source_recording["recording_content_hash"])
@@ -1077,7 +1215,8 @@ async def prepare_generic_n4_served_replay(
     _emit_served_phase(phase_callback, "fixture.n4_port.complete")
     selected_reference = organ_run.credal_reference
     if selected_reference is None:
-        lever_slice = getattr(organ_run, "lever_space_prompt_slice", None)
+        n4_result = getattr(organ_run, "result", None)
+        lever_slice = getattr(n4_result, "lever_space_prompt_slice", None)
         failure_reason = getattr(lever_slice, "failure_reason", None)
         failure_exception_class = (
             failure_reason.partition(":")[2]
@@ -1085,10 +1224,31 @@ async def prepare_generic_n4_served_replay(
             and failure_reason.startswith("credal_reference_unavailable:")
             else None
         )
+        degraded_artifacts = tuple(
+            {
+                "organ": getattr(item, "organ", None),
+                "reason": getattr(item, "reason", None),
+            }
+            for item in (getattr(n4_result, "degraded_artifacts", ()) or ())
+        )
+        replayed_calls = tuple(
+            {
+                "call_index": getattr(item, "call_index", None),
+                "role_hint": getattr(item, "role_hint", None),
+                "status": getattr(item, "status", None),
+                "model_id": getattr(item, "model_id", None),
+                "error_type": getattr(item, "error_type", None),
+                "error_status": getattr(item, "error_status", None),
+            }
+            for item in (getattr(n4_result, "llm_calls", ()) or ())
+        )
         raise AssertionError(
             "controlled_n4_selected_credal_reference_missing:"
+            f"result_status={getattr(n4_result, 'status', None)!r}; "
             f"failure_reason={failure_reason!r}; "
-            f"failure_exception_class={failure_exception_class!r}"
+            f"failure_exception_class={failure_exception_class!r}; "
+            f"degraded_artifacts={degraded_artifacts!r}; "
+            f"replayed_calls={replayed_calls!r}"
         )
     selected_source_ref = base_inputs.world_model_record.skg_causal_prior_ref
     selected_source_profile = credal_reference_l2_source_profile(selected_reference)
@@ -1198,6 +1358,7 @@ async def prepare_generic_n4_served_replay(
                 selected_skg_source=selected_skg_source,
                 tenant_id=tenant_id,
                 cell_id=cell_id,
+                candidate_scm_overrides=candidate_scm_overrides.get(index),
             )
         )
         source_identity_checkpoints.append(
@@ -1387,7 +1548,10 @@ async def run_n4_control_worker_and_get(
         )
         get_response = client.get(f"/api/v1/runs/{run_id}")
         _emit_served_phase(
-            phase_callback, "sibling.fresh_run_get.complete", job_id=job_id, run_id=run_id
+            phase_callback,
+            "sibling.fresh_run_get.complete",
+            job_id=job_id,
+            run_id=run_id,
         )
         if get_response.status_code != 200:
             raise AssertionError(f"n4_fresh_run_get_failed:{get_response.text}")
@@ -1529,11 +1693,17 @@ async def run_n4_control_worker_and_get(
                 try:
                     blob_path.write_bytes(b"controlled-corrupt-result")
                     _emit_served_phase(
-                        phase_callback, "sibling.corrupt_get.start", job_id=job_id, run_id=run_id
+                        phase_callback,
+                        "sibling.corrupt_get.start",
+                        job_id=job_id,
+                        run_id=run_id,
                     )
                     corrupt_response = client.get(f"/api/v1/runs/{run_id}")
                     _emit_served_phase(
-                        phase_callback, "sibling.corrupt_get.complete", job_id=job_id, run_id=run_id
+                        phase_callback,
+                        "sibling.corrupt_get.complete",
+                        job_id=job_id,
+                        run_id=run_id,
                     )
                     if corrupt_response.status_code != 200:
                         raise AssertionError("n4_corrupt_result_get_http_failure")
@@ -1553,11 +1723,17 @@ async def run_n4_control_worker_and_get(
                     blob_path.write_bytes(original_blob)
 
             _emit_served_phase(
-                phase_callback, "sibling.restored_get.start", job_id=job_id, run_id=run_id
+                phase_callback,
+                "sibling.restored_get.start",
+                job_id=job_id,
+                run_id=run_id,
             )
             restored_response = client.get(f"/api/v1/runs/{run_id}")
             _emit_served_phase(
-                phase_callback, "sibling.restored_get.complete", job_id=job_id, run_id=run_id
+                phase_callback,
+                "sibling.restored_get.complete",
+                job_id=job_id,
+                run_id=run_id,
             )
             if restored_response.status_code != 200:
                 raise AssertionError("n4_restored_result_get_http_failure")
@@ -1574,7 +1750,10 @@ async def run_n4_control_worker_and_get(
             blob_path.unlink()
             try:
                 _emit_served_phase(
-                    phase_callback, "sibling.removed_result_get.start", job_id=job_id, run_id=run_id
+                    phase_callback,
+                    "sibling.removed_result_get.start",
+                    job_id=job_id,
+                    run_id=run_id,
                 )
                 removed_response = client.get(f"/api/v1/runs/{run_id}")
                 _emit_served_phase(

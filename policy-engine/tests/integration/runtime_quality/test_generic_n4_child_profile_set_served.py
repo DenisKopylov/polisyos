@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import json
+import os
 import shutil
 import uuid
 from dataclasses import replace
@@ -9,8 +11,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
-REPO_ROOT = Path(__file__).resolve().parents[3]
 
 from tests._helpers.generic_n4_served_replay import (
     _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH,
@@ -23,6 +23,8 @@ from tests._helpers.generic_n4_served_replay import (
     run_n4_budget_stop_worker_and_get,
     run_n4_control_worker_and_get,
 )
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 @pytest.fixture
@@ -39,6 +41,129 @@ def controlled_candidate_gateway(monkeypatch: pytest.MonkeyPatch):
     with ControlledCandidateGateway() as gateway:
         monkeypatch.setenv("POLISYOS_LLM_GATEWAY_BASE_URL", gateway.base_url)
         yield gateway
+
+
+@pytest.mark.asyncio
+async def test_recorded_n4_formalizer_uses_source_capture_retry_window(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A local response replay must consume its recorded retry window, not ambient defaults."""
+    from polisyos.runtime.quality.design_generation import (
+        RecordingLLMClient,
+        _n4_multipass_config,
+    )
+    from polisyos.scientist.agent.formalizer import (
+        LLMFormalizerAgent,
+        trinity_bundle_formalizer_generator_path,
+    )
+    from polisyos.scientist.agent.protocols import DraftResult
+    from tests._helpers.controlled_candidate_profile import (
+        _controlled_procurement_recording,
+        _current_compiler_problem,
+    )
+    from tests._helpers.generic_n4_served_replay import (
+        _bind_source_recorded_n4_retry_inputs,
+        _three_child_recording,
+    )
+    from tools.quality.validation import (
+        check_layer3_gy_design_generation_contract as n4_contract,
+    )
+
+    source = next(
+        item
+        for item in n4_contract._load_recordings(REPO_ROOT)
+        if item.get("recording_id") == _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
+    )
+    source_problem = _current_compiler_problem(source)
+    controlled = _controlled_procurement_recording(
+        source,
+        outcome_variable=source_problem.outcome_of_interest.target_variable,
+    )
+    replay = _three_child_recording(
+        controlled,
+        outcome_variable=source_problem.outcome_of_interest.target_variable,
+    )
+    monkeypatch.delenv("POLISYOS_DRAFTER_PASS_RETRY_COUNT", raising=False)
+    default_drafter_retries = _n4_multipass_config().pass_retry_count
+    assert default_drafter_retries == 2
+    monkeypatch.setenv("POLISYOS_FORMALIZER_LLM_RETRIES", "2")
+    retry_inputs = _bind_source_recorded_n4_retry_inputs(source, monkeypatch)
+    assert retry_inputs == {
+        "POLISYOS_DRAFTER_PASS_RETRY_COUNT": 3,
+        "POLISYOS_FORMALIZER_LLM_RETRIES": 5,
+    }
+    assert (
+        _n4_multipass_config().pass_retry_count == retry_inputs["POLISYOS_DRAFTER_PASS_RETRY_COUNT"]
+    )
+
+    malformed_capture = copy.deepcopy(source)
+    del malformed_capture["capture_summary"]["effective_runtime_config"]["formalizer_retry_count"]
+    env_sentinels = {
+        "POLISYOS_DRAFTER_PASS_RETRY_COUNT": "sentinel-drafter-retries",
+        "POLISYOS_FORMALIZER_LLM_RETRIES": "sentinel-formalizer-retries",
+        "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "sentinel-gateway-retries",
+    }
+    for name, value in env_sentinels.items():
+        monkeypatch.setenv(name, value)
+    with pytest.raises(
+        ValueError,
+        match="controlled_n4_recorded_runtime_config_invalid:formalizer_retry_count",
+    ):
+        _bind_source_recorded_n4_retry_inputs(malformed_capture, monkeypatch)
+    assert {name: os.environ.get(name) for name in env_sentinels} == env_sentinels
+
+    absent_capture = copy.deepcopy(source)
+    absent_capture.pop("capture_summary")
+    with pytest.raises(
+        ValueError,
+        match="controlled_n4_recorded_runtime_config_missing",
+    ):
+        _bind_source_recorded_n4_retry_inputs(absent_capture, monkeypatch)
+    assert {name: os.environ.get(name) for name in env_sentinels} == env_sentinels
+
+    model_id = str(replay["model_id"])
+    draft = DraftResult(**json.loads(replay["responses"][0]["raw_response"]))
+    formalizer_rows = replay["responses"][4:9]
+
+    async def formalize(retry_count: int) -> tuple[str, tuple[Any, ...]]:
+        client = RecordingLLMClient(
+            n4_contract.RecordedGenerationReplayClient(
+                {"model_id": model_id, "responses": copy.deepcopy(formalizer_rows)}
+            ),
+            model_id=model_id,
+        )
+        agent = LLMFormalizerAgent(
+            client,
+            model_name=model_id,
+            enable_response_healing=True,
+        )
+        agent.MAX_RETRIES = retry_count
+        bundle = await agent.formalize(draft)
+        return (
+            trinity_bundle_formalizer_generator_path(bundle, recorded_calls=client.calls),
+            tuple(client.calls),
+        )
+
+    unbound_path, unbound_calls = await formalize(2)
+    assert unbound_path == "path_unrecorded"
+    assert len(unbound_calls) == 3
+    assert unbound_calls[-1].error_type == "RecordedGatewayError"
+    assert unbound_calls[-1].error_status == 502
+    bound_path, bound_calls = await formalize(retry_inputs["POLISYOS_FORMALIZER_LLM_RETRIES"])
+    assert bound_path == "model_generated"
+    assert [call.role_hint for call in bound_calls] == ["formalizer"] * 5
+    assert [call.status for call in bound_calls] == [
+        "success",
+        "success",
+        "error",
+        "success",
+        "success",
+    ]
+    assert bound_calls[2].model_id == model_id
+    assert bound_calls[2].error_status == 502
+    assert bound_calls[2].error_message == (
+        "Failed LLM gateway call to https://proxy.gonka.gg/v1/chat/completions"
+    )
 
 
 @pytest.fixture
@@ -96,7 +221,10 @@ def test_two_child_recording_lineage_tracks_selected_recorded_source() -> None:
         _controlled_procurement_recording,
         _current_compiler_problem,
     )
-    from tests._helpers.generic_n4_served_replay import _RECORDING_ID, _two_child_recording
+    from tests._helpers.generic_n4_served_replay import (
+        _RECORDING_ID,
+        _two_child_recording,
+    )
     from tools.quality.validation import (
         check_layer3_gy_design_generation_contract as n4_contract,
     )
@@ -139,7 +267,9 @@ def test_original_capture_uses_a_complete_controlled_parent_scope() -> None:
     """Resolve the full controlled parent without claiming the recording had one."""
     from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
     from polisyos.pdc import gy_content_hash
-    from polisyos.runtime.quality.design_problem import DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION
+    from polisyos.runtime.quality.design_problem import (
+        DESIGN_PROBLEM_CURRENT_SCHEMA_VERSION,
+    )
     from tests._helpers.controlled_candidate_profile import (
         _current_compiler_problem,
         _resolve_controlled_parent_slot,
@@ -377,7 +507,9 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
 
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
-    from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+    from polisyos.runtime.http.services.control import (
+        generation_cycle as generation_cycle_service,
+    )
     from polisyos.runtime.quality.cycle_substrate import (
         cycle_job_design_problem_ref,
         cycle_job_profile_selection_ref,
@@ -388,7 +520,9 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
         derive_n4_candidate_child_problems,
     )
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
-    from polisyos.runtime.quality.intervention_atom_binding import intervention_atom_content_hash
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        intervention_atom_content_hash,
+    )
     from tests._helpers.control_worker import dispatch_one_control_job
     from tests.unit.runtime.http.test_nl_pipeline_materialization import (
         _DeterministicSpanSupportClient,
@@ -771,7 +905,9 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.dependencies import build_runtime_api_context
-    from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+    from polisyos.runtime.http.services.control import (
+        generation_cycle as generation_cycle_service,
+    )
     from polisyos.runtime.quality.credal_reference import (
         build_credal_reference,
         credal_reference_l2_source_profile,
@@ -857,7 +993,6 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
         _validate_controlled_skg_source(changed_source)
     assert hashlib.sha256(changed_copy.read_bytes()).hexdigest() == changed_copy_sha
 
-    runtime_api_context = prepared.runtime_api_context
     assert prepared.recording["recording_source"] == (
         "synthetic_three_child_overlay_of_recorded_capture"
     )
@@ -1490,8 +1625,12 @@ async def test_n6_voi_reconciles_real_gateway_settlements_and_refuses_unknown_co
         BudgetLedgerProducerRunBinding,
         FileBudgetLedger,
     )
-    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
-    from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
+    from polisyos.scientist.orchestration.engine.budget_middleware import (
+        BudgetMiddleware,
+    )
+    from polisyos.scientist.orchestration.llm.factory import (
+        create_traced_gateway_client,
+    )
     from tests._helpers.controlled_candidate_profile import _current_compiler_problem
     from tools.quality.validation import (
         check_layer3_gy_design_generation_contract as n4_contract,
@@ -1766,7 +1905,9 @@ async def test_actual_n5_writer_removal_keeps_refs_and_fresh_get_limits(
     from fastapi.testclient import TestClient
 
     from polisyos.runtime.http.app import create_runtime_api_app
-    from polisyos.runtime.http.services.control import generation_cycle as generation_cycle_service
+    from polisyos.runtime.http.services.control import (
+        generation_cycle as generation_cycle_service,
+    )
     from tests._helpers.generic_n4_served_replay import (
         prepare_generic_n4_served_replay,
         run_n4_control_worker_and_get,
@@ -2050,8 +2191,300 @@ async def test_served_n6_uses_later_real_n4_spend_and_keeps_first_n5(
             assert record.amount == event.amount
         assert all(record.amount is not None for record in records)
         actual_spend = sum(
-            (record.amount for record in records if record.amount is not None), Decimal(0)
+            (record.amount for record in records if record.amount is not None),
+            Decimal(0),
         )
         assert actual_spend == preflight_cost + Decimal(2) * one_n4_cost
         assert actual_spend > budget_limit
     served_worker_phase_probe("testclient_lifespan.shutdown.complete")
+
+
+@pytest.mark.integration
+def test_controlled_candidate_snapshot_requires_selected_profile_and_input_lineage(
+    tmp_path: Path,
+) -> None:
+    """Read back the exact fixture view and reject marker-preserving removals."""
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.artifacts import (
+        CanonInfo,
+        FileSystemCAS,
+        PutOptions,
+        SchemaInfo,
+    )
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts import DataSnapshot
+    from tests._helpers.controlled_candidate_profile import (
+        _persist_controlled_data_snapshot,
+        _read_controlled_data_snapshot_source,
+    )
+
+    store = FileSystemCAS(tmp_path / "controlled-candidate-cas")
+    canon_spec = CanonSpec(forbid_floats=False)
+    payload_ref = store.put_json(
+        {"cells": {"distress_score": [0.0]}},
+        PutOptions(kind="fabric.world_payload", media_type="application/json"),
+        canon_spec=canon_spec,
+        return_selected_profile=True,
+    )
+    snapshot_ref = _persist_controlled_data_snapshot(
+        artifact_store=store,
+        payload_ref=payload_ref,
+        snapshot_id="controlled-profile-admission",
+    )
+    snapshot = _read_controlled_data_snapshot_source(
+        artifact_store=store,
+        snapshot_ref=snapshot_ref,
+        payload_ref=payload_ref,
+    )
+    manifest = store.get_manifest(snapshot_ref)
+    expected_schema = SchemaInfo(
+        name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+        version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+    )
+    expected_canon = CanonInfo.from_spec(canon_spec)
+
+    assert isinstance(snapshot, DataSnapshot)
+    assert snapshot.data_ref == payload_ref
+    assert snapshot_ref.manifest_profile_sha256 is not None
+    assert manifest.artifact_schema == expected_schema
+    assert manifest.canon == expected_canon
+    assert len(manifest.inputs) == 1
+    assert manifest.inputs[0].role == "data_ref"
+    assert manifest.inputs[0].artifact_id == payload_ref.artifact_id
+    assert manifest.inputs[0].manifest_profile_sha256 == payload_ref.manifest_profile_sha256
+
+    profileless_ref = snapshot_ref.model_copy(update={"manifest_profile_sha256": None})
+    with pytest.raises(ValueError, match="controlled_data_snapshot_selected_profile_missing"):
+        _read_controlled_data_snapshot_source(
+            artifact_store=store,
+            snapshot_ref=profileless_ref,
+            payload_ref=payload_ref,
+        )
+
+    snapshot_bytes = store.get_bytes(snapshot_ref)
+    missing_canon_ref = store.put_bytes(
+        snapshot_bytes,
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            inputs=manifest.inputs,
+        ),
+        return_selected_profile=True,
+    )
+    with pytest.raises(CanonicalProfileRefusalError, match="canon_profile_absent"):
+        _read_controlled_data_snapshot_source(
+            artifact_store=store,
+            snapshot_ref=missing_canon_ref,
+            payload_ref=payload_ref,
+        )
+
+    missing_input_ref = store.put_bytes(
+        snapshot_bytes,
+        PutOptions(
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            schema=manifest.artifact_schema,
+            canon=manifest.canon,
+        ),
+        return_selected_profile=True,
+    )
+    with pytest.raises(ValueError, match="controlled_data_snapshot_input_binding_mismatch"):
+        _read_controlled_data_snapshot_source(
+            artifact_store=store,
+            snapshot_ref=missing_input_ref,
+            payload_ref=payload_ref,
+        )
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_served_selected_ncm_refusal_preserves_successful_n4_sibling(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    served_worker_phase_probe: Any,
+) -> None:
+    """A selected NCM overflow stays visible beside persisted finite siblings."""
+    pytest.importorskip("fastapi.testclient")
+    from fastapi.testclient import TestClient
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.services.control import (
+        generation_cycle as generation_cycle_service,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationN5InputV1,
+        parse_generic_cycle_simulation_n5_execution,
+    )
+    from tests._helpers.control_worker import dispatch_one_control_job
+    from tests._helpers.generic_n4_served_replay import prepare_generic_n4_served_replay
+    from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+        _DeterministicSpanSupportClient,
+    )
+
+    tenant_id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    cell_id = "cell-v6-selected-ncm-refusal"
+    selected_overflow_model = {
+        "target_baseline": 0.0,
+        "outcome_baseline": 1.7e308,
+        "outcome_per_target_unit": 1.0e308,
+        "outcome_noise_stddev": 0.0,
+    }
+    served_worker_phase_probe("fixture_prepare.start")
+    prepared = await prepare_generic_n4_served_replay(
+        tmp_path=tmp_path,
+        controlled_candidate_gateway=controlled_candidate_gateway,
+        monkeypatch=monkeypatch,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        child_count=3,
+        candidate_scm_overrides_by_child_index={1: selected_overflow_model},
+        phase_callback=served_worker_phase_probe,
+    )
+    prepared = replace(prepared, request_json={**prepared.request_json, "max_iterations": 1})
+    served_worker_phase_probe("fixture_prepare.complete")
+
+    assert prepared.recording["recording_source"] == (
+        "synthetic_three_child_overlay_of_recorded_capture"
+    )
+    assert prepared.source_recording_content_hash == _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH
+    assert len(prepared.children) == len(prepared.generic_child_profiles) == 3
+    assert tuple(profile.profile_selection_ref for profile in prepared.generic_child_profiles) == (
+        *prepared.child_keys,
+    )
+    overflow_profile = prepared.generic_child_profiles[1]
+    assert overflow_profile.profile_id == "v6-n4-child-1"
+    assert overflow_profile.profile_selection_ref == prepared.child_keys[1]
+    assert overflow_profile.context_inputs.world_model_record.skg_causal_prior_ref == (
+        prepared.selected_source_ref
+    )
+    assert overflow_profile.limitations == (
+        "controlled_inputs_only",
+        "currentness_not_established",
+        "n5_simulation_not_world_evidence",
+        "n9_not_admitted",
+        "s8_blocked",
+        "source_truth_not_established",
+    )
+
+    original_compiler = generation_cycle_service.build_design_problem_from_nl_request
+
+    async def run_real_compiler(**kwargs: Any):
+        kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+        return await original_compiler(**kwargs)
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        run_real_compiler,
+    )
+    served_worker_phase_probe("app_create.start")
+    app = create_runtime_api_app(**prepared.app_kwargs)
+    served_worker_phase_probe("app_create.complete")
+
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": uuid.uuid4().hex},
+            json=prepared.request_json,
+        )
+        assert response.status_code == 200, response.text
+        accepted = response.json()
+        assert accepted.get("status") == "accepted"
+        service = app.state._control_service
+        dispatched = dispatch_one_control_job(
+            store=service._control_store,
+            handler=service._process_control_job,
+            expected_job_id=accepted["job_id"],
+        )
+        assert dispatched == accepted["job_id"]
+        job = service._control_store.get_job(accepted["job_id"])
+        assert job is not None and job.state == "completed"
+        run_id = str(job.progress["core_run_id"])
+
+        # This is a separate HTTP consumer read after the worker persisted the run.
+        get_response = client.get(f"/api/v1/runs/{run_id}")
+        assert get_response.status_code == 200, get_response.text
+        run_payload = get_response.json()["run"]
+
+    projection = run_payload["generic_cycle_simulation"]
+    assert projection["artifact_status"] == "resolved"
+    assert projection["child_profile_status"] == "resolved"
+    assert projection["publication_authority"] is False
+    assert projection["currentness_status"] == "not_established"
+    bindings_by_selection = {
+        row["profile_selection_ref"]: row for row in projection["child_profile_bindings"]
+    }
+    assert set(bindings_by_selection) == set(prepared.child_keys)
+    assert all(
+        row["historical_binding_status"] == "resolved" for row in bindings_by_selection.values()
+    )
+
+    observations_by_selection = {
+        row["profile_selection_ref"]: row for row in projection["n5_observations"]
+    }
+    assert set(observations_by_selection) == set(prepared.child_keys)
+    blocked = observations_by_selection[overflow_profile.profile_selection_ref]
+    assert blocked["status"] == "simulation_blocked"
+    assert blocked["simulation_result_ref"] is None
+    assert blocked["n5_execution_ref"] is not None
+    assert blocked["n8_status"] == "value_blocked"
+    assert "ncm_outcome_non_finite" in blocked["authority_blockers"]
+    assert "ncm_outcome_non_finite" in blocked["n8_authority_blockers"]
+
+    peers = [
+        row
+        for key, row in observations_by_selection.items()
+        if key != overflow_profile.profile_selection_ref
+    ]
+    assert len(peers) == 2
+    assert all(row["status"] == "joint_simulated" for row in peers)
+    assert all(row["simulation_result_ref"] is not None for row in peers)
+    assert all(row["simulation_result_body_status"] == "resolved" for row in peers)
+
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        blocked_input = GenericCycleSimulationN5InputV1.model_validate(
+            load_core_json_artifact(
+                prepared.runtime_api_context.store,
+                ArtifactRef.model_validate(blocked["n5_input_ref"]),
+            )
+        )
+        blocked_execution = parse_generic_cycle_simulation_n5_execution(
+            load_core_json_artifact(
+                prepared.runtime_api_context.store,
+                ArtifactRef.model_validate(blocked["n5_execution_ref"]),
+            )
+        )
+        peer_inputs = tuple(
+            GenericCycleSimulationN5InputV1.model_validate(
+                load_core_json_artifact(
+                    prepared.runtime_api_context.store,
+                    ArtifactRef.model_validate(row["n5_input_ref"]),
+                )
+            )
+            for row in peers
+        )
+    assert blocked_input.profile == overflow_profile
+    assert blocked_input.child_selection is not None
+    assert blocked_input.child_selection.profile_selection_ref == prepared.child_keys[1]
+    assert blocked_execution.status == "simulation_blocked"
+    assert blocked_execution.limitation_code == "ncm_outcome_non_finite"
+    assert blocked_execution.result_ref is None
+    peer_inputs_by_selection = {item.profile.profile_selection_ref: item for item in peer_inputs}
+    assert set(peer_inputs_by_selection) == {
+        prepared.child_keys[0],
+        prepared.child_keys[2],
+    }
+    assert all(
+        peer_inputs_by_selection[prepared.child_keys[index]].profile
+        == prepared.generic_child_profiles[index]
+        for index in (0, 2)
+    )
+
+    checkpoint = projection["recursive_cycle_checkpoint"]
+    assert checkpoint["publication_authority"] is False
+    assert checkpoint["failed_branches"] == []

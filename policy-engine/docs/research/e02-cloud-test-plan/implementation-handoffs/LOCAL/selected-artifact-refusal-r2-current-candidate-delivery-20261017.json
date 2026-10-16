@@ -1,0 +1,306 @@
+{
+  "schema": "policyos.e02.selected_artifact_refusal_r2_adopted_actual_receipt.v1",
+  "record_type": "raw_delivery_receipt_proposal",
+  "prepared_at_local_date": "2026-10-17",
+  "unit": "selected-artifact refusal disposition R2",
+  "decision_scope": "bounded evidence for the exact R2 candidate composition and the actual run below; not formal G acceptance or slice closure",
+  "status": {
+    "global_source_freeze": false,
+    "formal_G_acceptance": null,
+    "closure_ids": [],
+    "formal_G_closure_ids": [],
+    "whole_nl_selected_malformed_integration": "UNRUN"
+  },
+  "property_and_limits": {
+    "bounded_property": "A present selected artifact that fails serialization/schema validation must remain a typed refusal; genuine absence retains the declared fallback behavior. The focused actual run proves only the cases represented by its four executed unit modules.",
+    "actual_run_boundary": "The four-module pytest run includes the NL materialization unit module, but is not the separately required whole-NL selected-malformed integration witness.",
+    "pending_finding_from_root_context": {
+      "finding": "A later R3 trace reports inline-field precedence can shadow the explicit CAS reference in _final_policy_claims_report_from_variant; an R3 repair is in progress.",
+      "source_of_this_status": "Root-provided task context; not inferred from this R2 actual run.",
+      "execution_status": "UNRUN; this test file is a pending candidate, not pass evidence.",
+      "pending_author_work": "Unfrozen R3 work is not evidence. Its eventual sealed proposal and consumer run require a separate identity; no mutable candidate-test byte pin is relied on here."
+    },
+    "not_established": [
+      "whole-NL selected-malformed integration behavior",
+      "full selected-refusal criterion closure",
+      "formal G acceptance",
+      "global E02 source freeze",
+      "myPy cleanliness or attribution of the observed mypy red"
+    ]
+  },
+  "candidate_and_review_history": {
+    "r2_candidate_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/selected-artifact-refusal-disposition-author-r2-20261016/candidate-freeze-r2.json",
+      "sha256": "c49cc6109d7881cf851cba7acb5d58b70680a721429e41d611dc4a79d773e34f"
+    },
+    "r2_patch_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/selected-artifact-refusal-disposition-author-r2-20261016/patch-file-manifest-r2.json",
+      "sha256": "ce3fa800dfcb2fd0622f01ef35f379d79212e10ccd75386937a12bbb68fae57e"
+    },
+    "r2_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/selected-artifact-refusal-disposition-author-r2-20261016/candidate-r2.patch",
+      "sha256": "f01c3d6aae0bd4c379f30bfc45f015266b633abc22ed6dfe385e9935499e8f1f"
+    },
+    "candidate_slice_base": {
+      "commit": "033ea7594187ce00916150bd767ebd81d19742cc",
+      "tree": "5b4ee123914988b3cd06cd7723e85fe00c341476",
+      "candidate_path_count": 10
+    },
+    "independent_r2_review": {
+      "review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/selected-artifact-refusal-r2-independent-review-20261017/review.json",
+        "sha256": "14abc44c659b11d9f67e96331e47e2d8da2001b05409360615c9804500275f8e"
+      },
+      "decision": "GO for root to compose this exact R2 candidate after checking current target preimages; this does not accept the wider slice or close findings.",
+      "bounded_behavioral_replay": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/selected-artifact-refusal-r2-independent-review-20261017/targeted-phase3-output.txt",
+        "sha256": "8b6e9c4914f5bf815739bad78e0678e0ff154f77fe44e1b29aa608a1352d6802"
+      },
+      "scope_note": "The prior R2 reviewer expressly approved only root composition of the exact candidate after checking target preimages; the review did not accept the wider slice or close findings."
+    }
+  },
+  "adopted_source_commit": {
+    "sha": "0f5e647063c8dd0b0b5fbc59b044ec9dc015484e",
+    "tree": "c049b298f20694781ded44fe977b6bfeefae9d06",
+    "parents": [
+      "1229425d577e76f6af53ba34f416fda3fd25a829"
+    ],
+    "subject": "fix(runtime): preserve selected artifact refusals across consumer intake",
+    "path_count": 11,
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-adoption-20261017/selected-refusal-source-readback.json",
+      "sha256": "e717e3cc811aa0c2e8b5ac8c5bf968e510892421ba392768cad59616265321cc"
+    },
+    "changed_paths_sha256": {
+      "policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py": "46a202784523c8aecc1c53f2a8bab13f810374733703f29955bbb9af68e68536",
+      "policy-engine/src/polisyos/scientist/policy_design/phase3.py": "47e9d19f19c0fa606234d8c2a7aa7c5ee728f6d93e26e1686d78ea7d2e9dc1a4",
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py": "5bed415293691ab06f576f858a59a6b39dc1c24993a1a67f1c44f6869beb81e0",
+      "policy-engine/tests/unit/common/test_canonical_profile.py": "edea3b782e302de0cbd6902550dae5bd72dfdc7bf908d14e0ffcf5e1e5d9c79d",
+      "policy-engine/tests/unit/ir/analytics/test_simulation_proof_bridge.py": "29e2ed6de4d48a4c0db865110ac03415818363871c15b0389903c3c94f218fc9",
+      "policy-engine/tests/unit/scientist/policy_design/test_phase3_decision_layer.py": "0f427ac4590e47721835d33c9db399ba9a62109290736aa2899cc29a6cb75ba0",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py": "5e9dba7fad9b6c7d42294f37ea7fb9b52cf779627742a45ff14b1af142064bb6",
+      "policy-engine/src/polisyos/common/README.md": "ba828982ffae5302f47ad544c0c17d60e2788b9d7dd5f11a32bd653016da3575",
+      "policy-engine/src/polisyos/common/_selected_artifact_intake.py": "ae7db1ee9255d13dba678296a46befa7d478279ba07365d3a65b50bc3c746021",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-selected-artifact-refusal-disposition.toml": "2298216d4f6404e3bba2ddf1ea14b94b5ca1ccbdf52391bb7fc2d5a4820c8b5e",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "02037a3669c02328a22d9f819315141829e47a03858d8e89bff004fdf20919f3"
+    },
+    "scope_note": "This exact committed cut is 11 paths, including its release fragment and LEASES snapshot. It is a bounded slice, not a global E02 freeze."
+  },
+  "root_style_companion": {
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-adoption-20261017/one-line-companion-readback.json",
+      "sha256": "287eb3bbc774b9b861cad2ac2e0ad5b5cd4e60aa1d70821885d4ac61af1ad90c"
+    },
+    "patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-adoption-20261017/one-blank-line-import-companion.patch",
+      "sha256": "1ebcb183d8bc1e2a5cec058188c65b11cbce3480e166f581dc1d01bc16ca9f6c"
+    },
+    "changed_path": "policy-engine/tests/unit/common/test_canonical_profile.py",
+    "pre_companion_sha256": "2dde3c5a2cd4fe30a7ff34b4e9a476c298484100ca6e521cacfbb7a90eac5900",
+    "adopted_sha256": "edea3b782e302de0cbd6902550dae5bd72dfdc7bf908d14e0ffcf5e1e5d9c79d",
+    "full_module_ast_equal": true,
+    "delta": "Remove sole blank line separating same-package function-local imports. No other source/test bytes changed from exact reviewedR2postimages.",
+    "ruff_check_exit_code": 0,
+    "ruff_format_check_exit_code": 0
+  },
+  "actual_run": {
+    "source_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/request.json",
+      "sha256": "31491db9e0a422dcba4279259306553a7e7c5a6c6f44107d7d98a3b343deaa01"
+    },
+    "expected_head": "0f5e647063c8dd0b0b5fbc59b044ec9dc015484e",
+    "head_after": "0f5e647063c8dd0b0b5fbc59b044ec9dc015484e",
+    "source_paths_unchanged": true,
+    "request_frozen_path_pin_count": 2784,
+    "declared_scope": "allmaterializedsrcpolisyos.py andfourchangedtests/configs, twoattributedGL/Lexpostimages; slice only notglobalE02",
+    "actual_import_origins": {
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/actual-module-origins.json",
+        "sha256": "6bae04e8a5e38ba292f5bb50d5c7e4f075acfcbd0df9564ed41ca790542b7a02"
+      },
+      "helper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/actual_origin.py",
+        "sha256": "e7855aacd754a7b2c9793c056ab26c03d48af2f45c3c38be5db67b6332c92d80"
+      },
+      "observed_module_count": 1801,
+      "matched_exact_request_path_hashes": 1801,
+      "outside_or_unpinned_count": 0,
+      "required_missing": [],
+      "actual_canonical_source": true,
+      "method_note": "Compared each observed module origin path and SHA-256 against the exact path/hash map in the cited frozen request; no copy of the derived map is stored here."
+    },
+    "pytest": {
+      "run_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/actual-four-modules-including-nl.run.json",
+        "sha256": "069800a2271e6701854df1a6953d48dc51a1a1f5ced4ed61de6f6f23e027c2fe"
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "-q",
+        "-p",
+        "actual_origin",
+        "tests/unit/common/test_canonical_profile.py",
+        "tests/unit/ir/analytics/test_simulation_proof_bridge.py",
+        "tests/unit/scientist/policy_design/test_phase3_decision_layer.py",
+        "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+        "--tb=short",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/pytest-tmp",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/refusal.junit.xml"
+      ],
+      "timeout_seconds": 420,
+      "exit_code": 0,
+      "timed_out": false,
+      "wrapper_seconds": 240.296,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/actual-four-modules-including-nl.stdout.txt",
+        "sha256": "060490b586d3845706355ddad465cfb5ea419eb6ebe47c8acb714054d95f4988"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/actual-four-modules-including-nl.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/refusal.junit.xml",
+        "sha256": "d90139be4fed20cd45fbdd14fc3a93a914b8da475a3519af44761bed8ff1fe72"
+      },
+      "junit_totals": {
+        "tests": 165,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "pytest_summary_line": "165 passed in 222.11s (0:03:42)",
+      "actual_results": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/actual-results.json",
+        "sha256": "573563d37bd6923ff59ca2e21d25b6630db3bcf48aa5a56c3332bd8487c592d9"
+      }
+    }
+  },
+  "quality_checks": {
+    "canonical_ruff_check": {
+      "run_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/canonical-ruff-check.run.json",
+        "sha256": "3b108dd7d67cf1540bf0cb065a3974a2abfafe5b8013fc2e42ff24421654d71c"
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "--config",
+        "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py",
+        "policy-engine/src/polisyos/scientist/policy_design/phase3.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+        "policy-engine/tests/unit/common/test_canonical_profile.py",
+        "policy-engine/tests/unit/ir/analytics/test_simulation_proof_bridge.py",
+        "policy-engine/tests/unit/scientist/policy_design/test_phase3_decision_layer.py",
+        "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+        "policy-engine/src/polisyos/common/_selected_artifact_intake.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.135,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/canonical-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/canonical-ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "scope": "8 source/test paths"
+    },
+    "canonical_ruff_format_check": {
+      "run_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/canonical-ruff-format.run.json",
+        "sha256": "c0561d0a2813d0f8e85219a8f465f3ea612ce4d09cfdef0a02cda1bf132fa6b0"
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "--config",
+        "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py",
+        "policy-engine/src/polisyos/scientist/policy_design/phase3.py",
+        "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+        "policy-engine/tests/unit/common/test_canonical_profile.py",
+        "policy-engine/tests/unit/ir/analytics/test_simulation_proof_bridge.py",
+        "policy-engine/tests/unit/scientist/policy_design/test_phase3_decision_layer.py",
+        "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+        "policy-engine/src/polisyos/common/_selected_artifact_intake.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.084,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/canonical-ruff-format.stdout.txt",
+        "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/canonical-ruff-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "scope": "8 source/test paths"
+    },
+    "strict_mypy": {
+      "run_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/selected-four-source-mypy.run.json",
+        "sha256": "97a75c03d87b6f4c3c7cf10fcbf44f33eef9f9917af1506f39dfaa14fb6e94f9"
+      },
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.devx.workspace.core_runtime_mypy",
+        "src/polisyos/ir/analytics/simulation_proof_bridge.py",
+        "src/polisyos/scientist/policy_design/phase3.py",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+        "src/polisyos/common/_selected_artifact_intake.py"
+      ],
+      "exit_code": 1,
+      "timed_out": false,
+      "seconds": 164.947,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/selected-four-source-mypy.stdout.txt",
+        "sha256": "3bb926b30369da22886ce77174151b11cd341093d60e06d13315799983a53a82"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-selected-refusal-r2-actual-canonical-20261017/selected-four-source-mypy.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "failed_source_subruns": 3,
+      "printed_error_diagnostic_line_occurrences": 398,
+      "counting_rule": "Raw lines containing \"error:\" from the complete stdout, including repeated/transitive diagnostics; not unique errors and not a source-ownership count.",
+      "subrun_summaries": [
+        {
+          "printed_error_count": 14,
+          "files_reported": 5
+        },
+        {
+          "printed_error_count": 304,
+          "files_reported": 53
+        },
+        {
+          "printed_error_count": 80,
+          "files_reported": 18
+        }
+      ],
+      "P41_ownership": "not_established: this receipt has no exact slice-base replay and zero-input-intersection proof; do not call the red inherited or introduced here."
+    }
+  },
+  "proposal_and_limits": {
+    "disposition": "Record the adopted R2 source cut as a bounded implementation with actual four-module behavior and quality outputs. Preserve the whole-NL selected-malformed integration as UNRUN and keep all formal state unchanged.",
+    "no_public_release_or_authority_claim": true,
+    "raw_evidence_availability": "Local RAW artifacts only; this preparation neither exports nor commits them.",
+    "index_append_proposal": {
+      "target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "operation": "After root review, append this receipt path and its post-readback SHA as one component receipt; this preparation does not edit the index."
+    }
+  }
+}

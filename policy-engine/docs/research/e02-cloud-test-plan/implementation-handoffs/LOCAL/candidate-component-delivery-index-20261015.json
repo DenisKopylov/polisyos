@@ -443,6 +443,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/legal-discovery-current-candidate-delivery-20261017.json",
       "sha256": "08507cecc675b9b2a1b5e0225b6486b8b7580d87c15d08406895787c5bcf230a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/selected-artifact-refusal-r2-current-candidate-delivery-20261017.json",
+      "sha256": "d861a9a40f38ac8802b57ab13b3a490bbadfdde6e4dcddb68f22dc697e954a8c"
     }
   ],
   "canonical_denominator_recomputed": {

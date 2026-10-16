@@ -1,0 +1,154 @@
+{
+  "record_type": "bounded_tooling_delivery_proposal",
+  "slice_base": {
+    "sha": "a1b9d7437942bc2f7e6b50644ec2345fb86a3d80",
+    "author_helper_preimage_sha256": "332325706b178eebbfdb14f21da6b7ceb0a229c75c54fab7fd362e14a06a3155"
+  },
+  "candidate": {
+    "sha": "9eab0b7ec534f65f964ad77baae868b39edd39fb",
+    "tree": "5c3967ca7ee50b26d240bce527df23d723342db7",
+    "parents": [
+      "a1b9d7437942bc2f7e6b50644ec2345fb86a3d80"
+    ]
+  },
+  "full_code_test_config_companion_footprint": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py": "578fbd8bb5196e286370cfb2d988a57f5bb5befc11c6b9105bc80399731b6727",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/test_timeout_driver.py": "3ca426f68b2ee730265ec30bab2bf983a1be1f50ce7d11f1698b7742940ff17a",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "4922a2c9e89aa5cddcec869359bbb46637c858738d9e3174f14d587eca19c493"
+  },
+  "selected_input_profile_backend": {
+    "backend": "own macOS CPython3.14.3 venv",
+    "cwd": "own repository root",
+    "TMPDIR": "/private/tmp",
+    "pinned_paths": 51,
+    "selected_resource_set": "11 force-include assets, including4 catalog resources; finalsourcebytes manifest refresh stillpending",
+    "actual_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-source-audit-r3-canonical-actual-20261016/request.json"
+  },
+  "real_chain": [
+    "Frozen run.py resource roots + complete owner asset rows derive catalog expectation.",
+    "Safe physical read reconciles expected bytes at creation and before/after every normal-return collector invocation;3callers share one mechanism.",
+    "Stale historical count/hash/name remains rejected by check; prepare proposes only recomputed selected denominator.",
+    "Existing fixed Git/Python subprocess wrapper captures text; FIFO test removes redundant unsupported kwargs and reaches actual nonregular-file sidecar control."
+  ],
+  "verification": {
+    "actual_helper_CLI": {
+      "status": "pass",
+      "drift_controls": 60,
+      "environment_controls": 13,
+      "no_product_source_or_collection_or_build": true
+    },
+    "whole_harness": {
+      "pytest_items": 45,
+      "passed": 42,
+      "failed": 3,
+      "errors": 0,
+      "skipped": 0,
+      "additional_subtests_passed": 4,
+      "wall_seconds": 8.132,
+      "JUnit_tests_attribute_includes_subtests": 49,
+      "failures": [
+        {
+          "test": "test_removed_current_id_with_stale_manifest_digest_is_rejected",
+          "deciding_message": "q2_primary_runner_for_binding.WaveFailure: current primary suite source changed; reconcile ID manifest first: tests/repo_quality/architecture/test_public_surface_export_resolution.py expected=5bc483ddc2ff56b75d5b5766ead17b34b92adb5e10bb1777fe1baa52e77085c5 actual=c2e8500bd394c18437dd1e086f8842f96c2dba4e48901347de2878af8cd0ec58"
+        },
+        {
+          "test": "test_all_source_manifest_count_guards_reject_numeric_aliases",
+          "deciding_message": "q2_primary_runner_under_test.WaveFailure: frozen asset differs from candidate baseline; reconcile first: workers/dowhy-014/worker.py expected={'bytes': 10652, 'sha256': '27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253'} actual={'bytes': 10644, 'sha256': '1e5d09d5956fd2bff6e79efb38b53d065e91dbf6aa54c76fefc72576dc54a97d'}"
+        },
+        {
+          "test": "test_audit_status_and_supplemental_count_guards_reject_aliases",
+          "deciding_message": "q2_primary_runner_under_test.WaveFailure: frozen asset differs from candidate baseline; reconcile first: workers/dowhy-014/worker.py expected={'bytes': 10652, 'sha256': '27ca68b50842b8bf1b6396e5862cf4052c10d8d3359b60b65237d62551cde253'} actual={'bytes': 10644, 'sha256': '1e5d09d5956fd2bff6e79efb38b53d065e91dbf6aa54c76fefc72576dc54a97d'}"
+        }
+      ]
+    },
+    "canonical_ruff": {
+      "helper_check": "PASS",
+      "helper_format": "PASS",
+      "companion_independent_check_and_format": "PASS"
+    },
+    "source_input_bytes_unchanged": true,
+    "actual_product_modules_loaded": 0,
+    "P41": "not_established; no inherited gate classification"
+  },
+  "adversarial_controls": [
+    "60generic drift/marker controls and13environment reconciliation controls in actual selftest, plus separately retained6physical-input controls. Counts are scoped, not finding closures.",
+    "Independent AST/fixture-byte-equivalent format review; tuple/map semantics unchanged by format.",
+    "Current whole-harness blockers are real stale manifest guards: public-surface test-source hash and DoWhy worker bytes. Their intended downstream numeric/removal controls remain unrun until canonical manifest refresh."
+  ],
+  "surface": "Existing tracked Q2 source-audit and test harness under historical raw paths; no runtime/API/production-data change.",
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-source-audit-r3-code-boundary-20261016/q2-source-audit-source-readback.json",
+      "sha256": "32282fbbfc42c90352c8f7413ba0ff00097fae5d81e3769b0f6001d97f14ff48"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-source-audit-r3-code-boundary-20261016/known-staging-failure-readback.json",
+      "sha256": "4bc65bebdac04da4a93a7918caea519daf8f23200ce3fe1deab520d10ce7f293"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-source-audit-input-admission-r3-independent-review-20261016/independent-r3-delta-review.json",
+      "sha256": "63289de41bed2db824c416a093f96bef289c102ec9f58c6ca6d1c58ec3cefe9e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-source-audit-input-admission-r3-format-delta-independent-review-20261016/independent-format-delta-review.json",
+      "sha256": "aeab279c51648d7188bcf98961254015d367d396b2a52555cfa962a1cf06dc57"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-runner-call-companion-independent-review-20261016/independent-review.json",
+      "sha256": "a6bcd6875b8cba0b3f86fe33ea3266fbad08f26cd9b42330e1df0afb1e7f8bff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/q2-catalog-consumer-read-identity-20261016/consumer-read-identity.json",
+      "sha256": "aa94ca11df9846aa91d6c2e2907694d4891e9f825629079258aea89e8f746d8b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-source-audit-r3-canonical-actual-20261016/request.json",
+      "sha256": "d47954461880b5ec1d3efaa69faf3c4e25d1d6b60f7bf70a1cc39279a74346fe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-source-audit-r3-canonical-actual-20261016/actual-results.json",
+      "sha256": "7d06125e336da5cbf1eeca8a311c21c4dfd577c4d2b9e941aae3affefb3965fe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-source-audit-r3-canonical-actual-20261016/actual-loaded-source-origins.json",
+      "sha256": "c5db631b9928da2d83dbaedeec09dd455d93f50034aae1a82dfe954b62e5372c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-source-audit-r3-canonical-actual-20261016/known-source-delta-readback.json",
+      "sha256": "fffc8aa5cc3677a39b0b90f9c3bf841106a27d3fd5549385c200ce5c93378aea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-source-audit-input-admission-r3-20261016/physical-read-controls.json",
+      "sha256": "ffdbedaca40aa1ed35affbc797d65dccfc931668dceb6b1e656c487ae01f1aca"
+    }
+  ],
+  "limitations": [
+    "Whole harness remains FAIL42PASS3FAIL; no native/composed/installed acceptance.",
+    "Physical boundary reads do not prove atomic consumption against concurrent mutate-and-restore; isolated run has one writer. Current installed-child behavior remains unrun.",
+    "Canonical fullsource prepare/check, full selected primary/supplemental denominator, stale2DoWhy bindings and later source pins must be regenerated at finalsourcefreeze.",
+    "Prior wrongPRODUCTcwd attempt34PASS11FAIL retained; source binding is satisfied by ordinary sourcecommit, never guard bypass.",
+    "Git add ignored-parent warning returned1 after exactly3existingtracked paths staged; byte/index readback resumed ordinarycommit. No force add/raw dump/history/index reset."
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P35",
+      "P37",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "P40": "Generic physical admission/return over all3collector paths; no per-site whitelist or atomicity claim.",
+    "P39": "Two executableharness files+lease are whole mechanism and mandatorycompanion, receipt/index separate."
+  },
+  "source_freeze": false,
+  "closure_ids": [],
+  "proposal_fields": {
+    "component": "bounded_helper_GO",
+    "whole_harness": "FAIL_pending_canonical_manifest",
+    "finding_ids": [],
+    "formal_G_closure": false
+  },
+  "next_check": "Finish reviewed source companions; canonicalsource/input/backendfreeze\u2192owner-derived manifest prepare\u2192independentreview\u2192ordinarycommit\u2192exactcheck and all45harnessitems\u2192actual source/wheel/rebuilt-sdist/Linux consumers. No stale count treated immutable."
+}

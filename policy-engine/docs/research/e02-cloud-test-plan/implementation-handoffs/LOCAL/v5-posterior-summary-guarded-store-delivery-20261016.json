@@ -1,0 +1,72 @@
+{
+  "schema": "policyos.e02.local_delivery.v1",
+  "slice": "V5 actual typed IR posterior persistence and fixture writer contract",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_application_base": {
+    "commit": "2b9f7177e3569b618724ae162220e3ca543922f3",
+    "tree": "04f0eaa9b28277f144fdd7b93fa04b1fd1922b75",
+    "parents": [
+      "dc62cf5262a53eae6f3f40dd19ace130d17035f5"
+    ]
+  },
+  "source_candidate": {
+    "commit": "8f43f5035940adee323914cd7bb5868b1b975ac9",
+    "tree": "9b26224ef38a0dede6d673f1a1aa33319c4524e4",
+    "parents": [
+      "2b9f7177e3569b618724ae162220e3ca543922f3"
+    ]
+  },
+  "all_committed_footprint_bytes_read_back": true,
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "sha256": "1d8171b8bba800acba095fab87b5705f5604395e2eb62f4de59f98b080214b51"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/compute/test_runner_posterior_summary.py",
+      "sha256": "e7ac8fd5d71cc4902ed815b631e6da1726d2f6a90e2e1f9c73ced196bdc7dfc7"
+    }
+  ],
+  "selected_input_profile_backend": "Own .venv Python3.14.3 and controlled source-bound fixtures; browser Chromium on named fixture ports, where specifically cited; no live production authority/currentness.",
+  "real_chain_and_consumer": "Realrun_job dispatch -> owner MethodResult/Evidence -> existingensure_ir_artifact_store retaining guardedCorehandle -> realIRPosteriorSummary writer -> selectedprofileconsumer; sameexistingwriteroption forwardedbytestproxy.",
+  "source_bound_commands_complete_outputs_and_independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-v5-runner-independent-review-20261016/independent-review.json",
+      "sha256": "5d83e3bf4ddae2981cbae2c71a848f5cab3b9a20e23ed2128566f4b3fe0c7774"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-runner-patch-application-20261016/application-and-static.json",
+      "sha256": "63db70e947b9baef63df5b591bfa1a296e778d835f26122c5ff671bd6feda733"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-runner-patch-application-20261016/actual-compute-result.json",
+      "sha256": "3a4b4206485436ce567b5ca1a634b1c17a8eee33a40fa561387fd919b767fc1f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-runner-patch-application-20261016/actual-mypy-result.json",
+      "sha256": "a89abaed1f0401b9bdef12c4c02c8c866b64492bcde3ef638b3c64b660eda418"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/v5-typed-posterior-summary-store-source-20261016-readback.json",
+      "sha256": "65e297966973c197e7a5b7001c0114226fadb5c9e2660c3919cb25bf64880cab"
+    }
+  ],
+  "verification": {
+    "independent": "21compute casesPASS;5selected-profile/CoreCanon/guardadapter controlsPASS; scopedMyPyonefilePASS.",
+    "root_actual_composition": "21PASS5.78s;3nonfinite-output warnings retained; actual scopedMyPyonefilePASS36.504s; canonicalROOTRuffcheck/formatPASS.",
+    "format_binding": "Finalrunner1d817... isASTidenticaltoreviewed98cc... postimage; only canonicalformatchanged. Fixtureexacte7ac... reproduced.",
+    "full_native": "UNRUN"
+  },
+  "limitations": [
+    "Originaltestpatchheaders pointedtoRAWcandidate; initial apply--check failed withoutchangingtargets. Headersnormalizedonly; exact reviewedtestpostimage verified.",
+    "Supplementalformatter used PRODUCTpyproject.toml; canonicalROOTworkspace_root.toml wasgreenonbaseandfinal. No inherited-format waiver.",
+    "MethodJob evaluator reconstruction/tenant-default repairs are separate pending composedC05 patch; this runner delivery does not claim that fix.",
+    "Execution provenance and calibration authority remain candidate/notestablished."
+  ],
+  "source_freeze": false,
+  "proposal_outcome": "bounded_component_delivered_whole_property_limited_or_held",
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "next_check": "Finish remaining source/input/profile composition and independent reviews, canonical regeneration, required native/composed/installed/authentic wave; preserve original occurrence-level residuals for G."
+}

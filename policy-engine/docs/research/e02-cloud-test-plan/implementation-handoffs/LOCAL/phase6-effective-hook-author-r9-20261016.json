@@ -1,0 +1,141 @@
+{
+  "schema_version": "policyos.e02.local-implementation-handoff.v1",
+  "record_type": "local_candidate_handoff",
+  "slice_id": "phase6-effective-hook-binding-r9-20261016",
+  "status": "candidate_source_frozen_pending_independent_delta_review",
+  "author_role": "local scanner author; not G code acceptor, integration publisher, or finding adjudicator",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base": {
+    "head": "ec6919274a43e3a34edfb08ecd3917a10b446104",
+    "tree": "532e9c2f1d0ca7a7b260e3b6b2ddf9e5d530c2fc",
+    "parents": [
+      "74af20dcda1cc1035d19f96eb9c9e77ce2754984"
+    ],
+    "source_preimage": {
+      "r8_handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase6-effective-hook-author-r8-20261016.json@3da9d0c2ba087887820ccc8d62af6c6972c6bbc1f777ca54a1d6cfe317da920d",
+      "r8_source_freeze": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-map-membership-scanner-20261015/r8/source-freeze.json@4eb684b69f195dfa3cb5e5ef0b68cc1a537b693ebd86ab57b81aec8dbcdfdb81",
+      "note": "The scanner candidate is cumulative with R8. The recorded Git HEAD is the known root-owned append chain; R8 candidate bytes were uncommitted and are explicitly cited as the source preimage rather than described as committed in HEAD."
+    }
+  },
+  "candidate": {
+    "commit": null,
+    "tree": null,
+    "identity": "Exact source snapshot in source_freeze; no future receipt SHA is asserted.",
+    "root_commits": true,
+    "source_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-effective-hook-author-20261016/r9/source-freeze.json",
+      "sha256": "3109f9a5703559a99ca9a7382833d92092c96cc55201471d27a4a79179913b57"
+    }
+  },
+  "superseded_snapshot": {
+    "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase6-effective-hook-author-r8-20261016.json@3da9d0c2ba087887820ccc8d62af6c6972c6bbc1f777ca54a1d6cfe317da920d",
+    "source_freeze": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-map-membership-scanner-20261015/r8/source-freeze.json@4eb684b69f195dfa3cb5e5ef0b68cc1a537b693ebd86ab57b81aec8dbcdfdb81",
+    "disposition": "Preserve R8 immutable historical snapshot. R9 widens the same effective namespace-effect class after the independent locals() falsifier; it does not rewrite R8."
+  },
+  "code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+      "sha256": "3a89d0ce58153e539dd14cfb15c202d719bef037ab35721d9342f73549573c64",
+      "role": "candidate scanner; bounded source-owned importer analysis and effective PEP 562 namespace-effect proof"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+      "sha256": "a048bd9aabf337fa5760f54039faab679635060ab0af095d0976788a8f341a3d",
+      "role": "candidate architecture tests; real subprocess outcomes, removal controls, and fail-closed unsupported namespace forms"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/security/__init__.py",
+      "sha256": "4eb58e401bef9021eecfd5c123d1b8e281599a88459a741fee64d442c39556d0",
+      "role": "candidate source companion unchanged during R9; read-only in this slice"
+    },
+    {
+      "path": "policy-engine/tests/unit/core/security/test_facade.py",
+      "sha256": "05aa61eac6c6d139d3a45d352610dbc637075e7d65578cc5dc7bf0bebb2ba6bb",
+      "role": "candidate test companion unchanged during R9; read-only in this slice"
+    }
+  ],
+  "implementation_and_consumer": {
+    "property": "For a dynamic import through a PEP 562 facade, analyze the effective callable Python installs after initialization; if a source-visible namespace effect can replace the hook, do not treat the raw function definition as authoritative.",
+    "candidate_behavior": "A bounded AST-only namespace-effect analysis resolves typed globals/locals/vars builtins and aliases, tracks namespace aliases, and identifies hook-key writes through mapping subscripts and known mutators. Module namespace exposure through vars(module), module.__dict__, and getattr(module, \"__dict__\") is recognized; unsupported namespace effects or escapes remain ambiguous and fail closed. Analyzed source is never executed by the collector.",
+    "actual_consumer": "tools.quality.validation.decomposition_preflight.collect_dynamic_imports and validate_dynamic_imports, exercised by tests/repo_quality/architecture/test_decomposition_preflight_gates.py.",
+    "surface": "architecture/imports/dynamic.toml inventory validation. R9 adds no row, import authority, or formal finding closure."
+  },
+  "input_profile_environment": {
+    "source": "Selected repository source plus controlled temporary fixtures; no production inputs or credentials.",
+    "python": "CPython 3.14.3",
+    "backend": "none",
+    "runtime_profile": "Darwin; pytest subprocess imports exercise actual Python PEP 562 behavior."
+  },
+  "verification": {
+    "reflective_hook_matrix": {
+      "command": ".venv/bin/python -m pytest -vv -rA tests/repo_quality/architecture/test_decomposition_preflight_gates.py -k reflectively_rebound_pep562_hook",
+      "result": "16 passed, 200 deselected in 0.58s",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-effective-hook-author-20261016/r9/reflective-hook-r2.stdout.txt@d66a63b4045015d6791cdda63b39791f458af4455805a02911ab323bc2aed364",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-effective-hook-author-20261016/r9/reflective-hook-r2.junit.xml@97a2e9500fa7b5da8310eb439bad65d69947e5773c840420ac6258bae56caaf1"
+    },
+    "current_dynamic_import_mirror": {
+      "command": ".venv/bin/python -m pytest -q tests/repo_quality/architecture/test_decomposition_preflight_gates.py -k dynamic_import --tb=short",
+      "result": "114 passed, 5 failed, 0 skipped/errors; 119 selected; 59.508s, derived from the complete JUnit counts. Current result is red; no inherited classification is asserted.",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-effective-hook-author-20261016/r9/dynamic-import-r2.stdout.txt@70cebddde9c5b89a272457e4c8286e4476799d974a80cd8eb0fd3a35783f920b",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-effective-hook-author-20261016/r9/dynamic-import-r2.junit.xml@771760959c5b11cf85b953967bf14ff92e8d20db04ce726e1595c341617f3486"
+    },
+    "ruff_check": {
+      "command": ".venv/bin/python -m ruff check tools/quality/validation/decomposition_preflight.py tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+      "result": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-effective-hook-author-20261016/r9/ruff-check-r2.stdout.txt@82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "ruff_format": {
+      "command": ".venv/bin/python -m ruff format --check tools/quality/validation/decomposition_preflight.py tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+      "result": "PASS; both files already formatted",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-effective-hook-author-20261016/r9/ruff-format-r2.stdout.txt@3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    "diff_check": {
+      "command": "git diff --check -- tools/quality/validation/decomposition_preflight.py tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+      "result": "PASS; no whitespace diagnostics"
+    }
+  },
+  "adversarial_and_removal_controls": [
+    "The R8 direct and aliased builtins.locals() falsifier was replayed: actual subprocess imports json while R8 collector and validator return empty/green. Exact rerun output: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase6-effective-hook-author-20261016/r9/locals-repro.stdout.txt@824fe95a3cf1e158f5bb4f183bb1203223c85edc9384d5372065249a34df11fc.",
+    "Sixteen parameterized real-import tests prove runtime hook replacement and require collector refusal across direct globals/locals/vars, imported builtin aliases, builtins-module alias, namespace alias chains, vars(module), module.__dict__, getattr(module, \"__dict__\"), locals().update, and an external namespace-mutator call.",
+    "Ten supported global/local/vars namespace-write cases include a removal control preserving facade/import markers while deleting only the consumer call; collection and validation then become empty.",
+    "Six unsupported module-dictionary or external mutation shapes fail closed. No removal control is claimed for those shapes because the broader AST walker refuses them independently of the consumer call.",
+    "Existing positive immutable-map routes and the existing exact refusal cases are included in the 119-case mirror; five unrelated-to-this-namespace-proof results still fail at the source-owned analytics facade annotation route described below."
+  ],
+  "typed_residuals": [
+    {
+      "capability_state": "verification_missing",
+      "area": "Source-owned analytics PEP 562 helper call",
+      "evidence": "Five current mirror cases fail while resolving ExplanationBundleRef imported through polisyos.ir.analytics.__getattr__. The bounded source resolver cannot prove the resolve_lazy_export helper call and refuses at src/polisyos/berl/persistence.py:79. Exact current caller/facade/helper hashes are in the source_freeze.",
+      "next_check": "Use a bounded generic source-owned function/effect adapter for the requested export key or retain the unresolved refusal. Do not whitelist this facade/helper by name or execute source. Re-run the 119-case slice only after an independently reviewed source-bound delta."
+    },
+    {
+      "capability_state": "not_established",
+      "area": "CoreSecurity dynamic import source route",
+      "evidence": "The CoreSecurity candidate source/tests are unchanged during R9, but the current full dynamic import mirror is red and this R9 slice does not establish the production validator target set for its source-owned registry.",
+      "next_check": "After the current mirror blocker is handled, prove source-derived target binding at the actual dynamic import sink; do not hand-edit dynamic.toml or infer authority from facade labels."
+    },
+    {
+      "capability_state": "not_established",
+      "area": "Unmodeled Python namespace effects and full Phase 6 source denominator",
+      "evidence": "This source grammar is bounded, and the full current Phase 6/native source gate was not run. Unsupported or external runtime effects are not proven absent.",
+      "next_check": "Independent delta review first; then reconcile the current full source denominator and run the agreed native gate after shared freeze."
+    }
+  ],
+  "decision_pointer": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/phase6-dynamic-target-precision-20261015.json@e82fec4f8d5cf8603dcb322e931a50dd09a2132e260c473d4d9ef60948b7cf29",
+  "proposal_fields": {
+    "closure_ids": [],
+    "formal_closure_claimed": false,
+    "proposed_status": "bounded effective-hook candidate pending independent R9 review; current dynamic-import slice remains red",
+    "proposals": [
+      {
+        "criterion": "P37/P38/P40 effective PEP 562 namespace binding",
+        "claim": "R9 proposes a bounded source-analysis repair only; no formal E02 finding is closed and no global Phase 6 green result is claimed."
+      }
+    ]
+  },
+  "limitations": [
+    "Candidate source is uncommitted in a shared dirty worktree; root remains the sole committer. This handoff binds only the four exact source/test paths above.",
+    "The five current full-slice failures are not classified as inherited: no exact base replay for this complete 119-case source set is included.",
+    "No import authority, issuer, dynamic registry row, production currentness, or formal closure is created by this slice."
+  ]
+}

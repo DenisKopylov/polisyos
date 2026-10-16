@@ -1,0 +1,101 @@
+{
+  "schema": "policyos.e02.local_delivery.v1",
+  "slice": "Typed Legal refusal and candidate utility across actual dashboard hook/page",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_application_base": {
+    "commit": "8f43f5035940adee323914cd7bb5868b1b975ac9",
+    "tree": "9b26224ef38a0dede6d673f1a1aa33319c4524e4",
+    "parents": [
+      "2b9f7177e3569b618724ae162220e3ca543922f3"
+    ]
+  },
+  "source_candidate": {
+    "commit": "a2da042999a57c0f544366e3d708c90bca128715",
+    "tree": "fbf540257280df00201665c96da24f9893ff92a9",
+    "parents": [
+      "8f43f5035940adee323914cd7bb5868b1b975ac9"
+    ]
+  },
+  "all_committed_footprint_bytes_read_back": true,
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+      "sha256": "1676b44ccacb9cfbd758d28de2ae01e3dddecb5074b8ab9f8d7dd8972be00742"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+      "sha256": "24794bb42121ce68c3cb0c0bc3b935a880635f1ab22337167bd7cf57f791550c"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.tsx",
+      "sha256": "0bd2a50eb679b65496e47353d5b469cabb3558e638917c4732cb1ac3933b8964"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.test.tsx",
+      "sha256": "5852cbeca0e9a223826862fa1f657959694dbb141136838779883e1c1d0c76d7"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts",
+      "sha256": "687235954e812a8b5a0586f640d4b9a7cd4e72576c59ab21426ecf6700d54b79"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/e2e/journeys/knowledge-flow.spec.ts",
+      "sha256": "40478c5c8d63ae75d3845b2f3c3dc3b7b3327f7e6ff7f7252af9e612346869e4"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "sha256": "66de9f1e794e37bfc2da32efc2186d84a2bad62ce45f695ce217f0a054c6e005"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "sha256": "ed90e180e9c807ffe96bb5e37c50130ac44533769cd19974eff12cbfbb25744e"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+      "sha256": "c7f22eb8a29e94a4dfc700cd7b3eac953b6f41484854088a398d7666474212c1"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/frontend/test_fixture_runtime_bound_paper.py",
+      "sha256": "faee344db5a011ad35b849d93bc5820e4a03d59f4071680f54e4e8f51639dac3"
+    }
+  ],
+  "selected_input_profile_backend": "Own .venv Python3.14.3 and controlled source-bound fixtures; browser Chromium on named fixture ports, where specifically cited; no live production authority/currentness.",
+  "real_chain_and_consumer": "StrictbackendDTO -> actualZodnestedrefusal -> useLexSearchhook -> nonemptycandidatepage+typedverification_missingalert -> CSVsuppression / JSONcontext; fixturemetadatausesexistingPydanticJSONencoderforrealArtifactRef.",
+  "source_bound_commands_complete_outputs_and_independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/frontend-legal-refusal-browser-r3.json",
+      "sha256": "932c8a3056af6b01c513fe1caf34355a1a7e3936e7525032b8939ab4b44d654f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/independent-review-r3.json",
+      "sha256": "302de0318963e909f97b8411a1623467807d27aad49f22b23fe0b537a7f12023"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/knowledge-flow-ui-receipt.json",
+      "sha256": "9d395620f014743c1370e3823b33a08011d05777018cf41a78658996c5d0d079"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/frontend-legal-refusal-consumer-source-20261016-readback.json",
+      "sha256": "be50f1e440082f9ada695f0f58ca02f4b7e2b089fb3b31fcb4cc6fb4d72c8fa9"
+    }
+  ],
+  "verification": {
+    "actual_configured_Chromium": "knowledgeflow1PASS18.3s; realhook parses interceptedcompletecandidate response; candidate+refusalvisible andCSVabsent.",
+    "focused": "161VitestPASS;5fixture-serverpytestPASS; ESLint/Prettier/diffPASS; independentserializer2PASS.",
+    "JSON_export": "Refusal+meta/mode/results retained verifiedbypageunitusingmockedhook; notclaimedactualhookPlaywrightJSONdownloadproof.",
+    "generated_TS": "2TS2339 remain untilcanonicalOpenAPI/clientregen; nottypegreen.",
+    "locale_parity": "FAIL/ERROR/P41notestablished; LocaleProvider8PASS isdistinct."
+  },
+  "limitations": [
+    "Schema-validliteralfixture isnotdynamicallygeneratedfromschema; refusalnestedZodobjectisstrict, top-levelZodobjectisnotstrict. BackendpublicDTOisstrict.",
+    "PassedbrowserinterceptsAPI; actualsource-boundproducerbrowserfailedbeforeChromiumonN4selectedcredalref. LaterdirectN4preflightpassedwithcurrentcredealcode; historicalcauseunattributed, fulljourneyUNRUN.",
+    "Initialannouncedr2@72b20 bytesnotretainedaftermetadatacorrection; currentr2a017preserved. Onlyimmutable r3@932c8a usedfordelivery; source10hashesunchanged.",
+    "Selectedliveproductionroot/profile/context and externallegalrelationauthority notestablished."
+  ],
+  "source_freeze": false,
+  "proposal_outcome": "bounded_component_delivered_whole_property_limited_or_held",
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "next_check": "Finish remaining source/input/profile composition and independent reviews, canonical regeneration, required native/composed/installed/authentic wave; preserve original occurrence-level residuals for G."
+}

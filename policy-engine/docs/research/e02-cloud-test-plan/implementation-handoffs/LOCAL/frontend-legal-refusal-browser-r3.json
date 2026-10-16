@@ -1,0 +1,544 @@
+{
+  "kind": "local-implementation-handoff",
+  "schema_version": 1,
+  "handoff_id": "frontend-legal-refusal-browser-r3",
+  "created_at_utc": "2026-10-16T05:40:29.204974+00:00",
+  "author_lane": "/root/api_generated_actual_consumers_successor",
+  "review_status": "awaiting independent delta review; author is not G",
+  "source_freeze_id": "sha256:bdbfc2e060d437902ca36e0c7078b12cdf173d328db4b66e21955f2c372d0ddb",
+  "slice_base": {
+    "commit": "4380f4e0ca42a3508800e2d0df6e4c8fbd470433",
+    "tree": "81d2e0740f12789680b758e5d8e7eb604ad695ce",
+    "branch": "codex/e02-unified-local-20261009",
+    "prior_freeze_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/source-freeze.json",
+    "prior_freeze_sha256": "f6522d48ac1e61738c54a7cbadc39390dafddc164499dbc6f0b79ff7066f48c0"
+  },
+  "candidate_entry": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "dc62cf5262a53eae6f3f40dd19ace130d17035f5",
+    "tree": "63af756551d266ef9c25a50ae3de743a671e195c",
+    "parents": [
+      "0e6fa9b84663e2019338514cc57e8a59ba9ff962"
+    ],
+    "worktree_overlay": true,
+    "candidate_commit_sha": null,
+    "note": "Candidate bytes are the exact 10 path hashes below layered over this HEAD; the HEAD tree is not represented as containing these uncommitted paths. No future commit SHA is claimed."
+  },
+  "footprint": {
+    "changed_path_count": 10,
+    "changed_paths": [
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+        "base_sha256": "df374ee208aaa023355fcbaa4875967bdee7bdf2b788fc3219073b922802a2bb",
+        "base_bytes": 187234,
+        "candidate_sha256": "1676b44ccacb9cfbd758d28de2ae01e3dddecb5074b8ab9f8d7dd8972be00742",
+        "candidate_bytes": 187500
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+        "base_sha256": "eb0b23ca057a4b0fcf13168f5548f2ae967953d6143342f1018cfdd324471b63",
+        "base_bytes": 134995,
+        "candidate_sha256": "24794bb42121ce68c3cb0c0bc3b935a880635f1ab22337167bd7cf57f791550c",
+        "candidate_bytes": 136428
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.tsx",
+        "base_sha256": "a8493f4b4f0320fc941f48bb7a75d651513243f8dc4c95b7f052af4af07bc27b",
+        "base_bytes": 29230,
+        "candidate_sha256": "0bd2a50eb679b65496e47353d5b469cabb3558e638917c4732cb1ac3933b8964",
+        "candidate_bytes": 30655
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.test.tsx",
+        "base_sha256": "0780244a53a874a8ef901f78cb03dd821e0c91005228fd9a970209f5d97ebf9e",
+        "base_bytes": 11733,
+        "candidate_sha256": "5852cbeca0e9a223826862fa1f657959694dbb141136838779883e1c1d0c76d7",
+        "candidate_bytes": 15919
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts",
+        "base_sha256": "d2a68beab160698b090d97e7eaf6b4631c428168dbc833ffe463db0a5dfbde1f",
+        "base_bytes": 40158,
+        "candidate_sha256": "687235954e812a8b5a0586f640d4b9a7cd4e72576c59ab21426ecf6700d54b79",
+        "candidate_bytes": 40569
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/e2e/journeys/knowledge-flow.spec.ts",
+        "base_sha256": "23d8ed7912ea1cc74a8144d1d35428e4f29610b90c7009c7a22476c9980beb3b",
+        "base_bytes": 2348,
+        "candidate_sha256": "40478c5c8d63ae75d3845b2f3c3dc3b7b3327f7e6ff7f7252af9e612346869e4",
+        "candidate_bytes": 4982
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+        "base_sha256": "f220f4d6a5e3466a0f0c9da6a6ee222602f8d287770294e7c0783f9e6f5b70d9",
+        "base_bytes": 164587,
+        "candidate_sha256": "66de9f1e794e37bfc2da32efc2186d84a2bad62ce45f695ce217f0a054c6e005",
+        "candidate_bytes": 164839
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+        "base_sha256": "23f0519b2d24e9a0c1aea1f0b7e6bebd0f8298bd9f4e5daebb28b566ecef9d07",
+        "base_bytes": 216252,
+        "candidate_sha256": "ed90e180e9c807ffe96bb5e37c50130ac44533769cd19974eff12cbfbb25744e",
+        "candidate_bytes": 216657
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+        "base_sha256": "87b39c9f8c0be64f38bf49334e7bae6bc8c26459691a1a3cc47133e822d5e00f",
+        "base_bytes": 9378,
+        "candidate_sha256": "c7f22eb8a29e94a4dfc700cd7b3eac953b6f41484854088a398d7666474212c1",
+        "candidate_bytes": 9645
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/frontend/test_fixture_runtime_bound_paper.py",
+        "base_sha256": "818ce928bf891837a17315701124226747245d135234bd43a6d43a4c572762ec",
+        "base_bytes": 5748,
+        "candidate_sha256": "faee344db5a011ad35b849d93bc5820e4a03d59f4071680f54e4e8f51639dac3",
+        "candidate_bytes": 7254
+      }
+    ],
+    "mandatory_companions": [
+      "strict API validator and validator tests",
+      "Lex knowledge page and page tests",
+      "two Playwright journeys",
+      "EN/UK message catalogs",
+      "fixture runtime API serializer and mirrored repository-quality test"
+    ]
+  },
+  "read_only_boundary_inputs": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+      "sha256": "28bb132891e7df3aa1d7522a3473213ba8b1fa2f5570c81ec82980daa085b56a",
+      "bytes": 898788
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/hooks/useLexSearch.ts",
+      "sha256": "30315c42ec81d5d7da84c57b4050211b73714a1ae4d46ef1708678fe2a028165",
+      "bytes": 996
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/test/contracts/runtimeContractFixtures.ts",
+      "sha256": "9ea1d52eb9df0747906ea3d7e84d66923776073ccfe124e42cb01d45449237cf",
+      "bytes": 11818
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/e2e/helpers/runtime-dashboard.ts",
+      "sha256": "c1cbe7ca10aa5e178064cb08c20d84fa4d0729c88d850a91dea2c92f260f0829",
+      "bytes": 15171
+    },
+    {
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "sha256": "1c74b62ada5bfe6173e2686bbe6730e0fe3ec0e52e85a2c7f06c345c1d43ca3a",
+      "bytes": 3077770
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/types.ts",
+      "sha256": "829c26bb4ecc8a1f13fd5fe7b363fe57673a981d608562195d7280ece484c229",
+      "bytes": 1075853
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "sha256": "2a0e20954de3152543370899361f6fd8d5dc523356095b38dc5c94219c9eaf3b",
+      "bytes": 116244
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "sha256": "2ffda975b9e0c7ced82e028148ebfa0baef7e4aa51f0b0c21c20b93050cd7841",
+      "bytes": 33172
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+      "sha256": "6155ccb5ad614245d730f1d724f2163d131a17b93b3c12f573eff534ba5870f2",
+      "bytes": 18350
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_projection.py",
+      "sha256": "3261b35be786c64272fc8f6ca1ed5eb87a8a54f1ea5991d5d5f8d372f23d983c",
+      "bytes": 1029
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/scripts/fixture_support/catalog_profile_source_fixture.py",
+      "sha256": "cf6ca4b5c444cca3c37e2b682ac1144829676048ac862e8725a47e4775782661",
+      "bytes": 31309
+    },
+    {
+      "path": "policy-engine/tests/_helpers/runtime_http.py",
+      "sha256": "77a5e5822074e81c2ee74d69044589c86daa8a97c2bb743be77a1b5d7eb9913a",
+      "bytes": 86676
+    },
+    {
+      "path": "policy-engine/tests/_helpers/runtime_api/legal_search_profile_fixture.py",
+      "sha256": "5022d6b024cab46095b71dcb4cf18ea0d3627ca264f99b883bafc869cc2de9d4",
+      "bytes": 4715
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+      "bytes": 13401
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/package.json",
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "bytes": 11599
+    },
+    {
+      "path": "policy-engine/pnpm-lock.yaml",
+      "sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+      "bytes": 482583
+    }
+  ],
+  "profile_and_runtime": {
+    "profile": "local generated fixture runtime, default configured dashboard profile; no production payload or authority input",
+    "backend": "fixture runtime started by Playwright config; knowledge-flow search POST is intercepted in the browser test and returns a schema-parsed candidate response",
+    "selected_response_facts": {
+      "search_mode": "vector",
+      "vector_refusal_code": null,
+      "legal_relation_refusal": {
+        "code": "legal_source_relation_verification_not_established",
+        "status": "verification_missing"
+      },
+      "result_trust_tier": "search_candidate",
+      "result_grounding_status": "missing_quote",
+      "row_count": 1
+    },
+    "fixture_runtime_metadata": {
+      "path": "policy-engine/_build/apps/runtime-dashboard/.tmp/fixture-runtime.json",
+      "sha256": "7b40479f506f11d46edfb6b84f8e0674cb484a2f88db1e21636368644c32f9c8",
+      "registry_bundle_ref": {
+        "kind": "core.registry_bundle",
+        "media_type": "application/json",
+        "artifact_id": "sha256:32a37f444b0833ab853051f73b91a44ffc92c5eee4729640e33392fc575e456f"
+      }
+    }
+  },
+  "implementation_summary": [
+    "The frontend schema and page preserve the typed Legal verification_missing refusal while allowing nonempty search_candidate rows to remain visible; export is suppressed for this refusal.",
+    "The Playwright knowledge-flow fixture now validates the complete mocked wire response with the actual lexSearchResponseSchema, and a malformed present refusal status is rejected by that schema.",
+    "Fixture server metadata encoding now handles nested Pydantic/Core ArtifactRef values with the typed JSON encoder and refuses unsupported objects; the mirror test exercises an actual registry_bundle_ref and an unknown-object negative control.",
+    "EN/UK strings were added for the refusal UI. Catalog/provider coverage passes narrowly, while the broad locale inventory gate remains red."
+  ],
+  "verification": [
+    {
+      "command": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "playwright",
+        "test",
+        "e2e/journeys/knowledge-flow.spec.ts",
+        "--project=chromium"
+      ],
+      "cwd": "policy-engine/apps/runtime-dashboard",
+      "exit_code": 0,
+      "result": "1 passed (18.3s)",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/knowledge-flow-final.stdout.txt",
+        "sha256": "cdc787382b31967cbcbf2e6033759050d71f9dcdfdd064270fb4f40cb6933fd4",
+        "bytes": 10121
+      }
+    },
+    {
+      "command": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "src/api/validators.test.ts",
+        "src/features/lex/routes/LexKnowledgeGraphPage.test.tsx"
+      ],
+      "cwd": "policy-engine/apps/runtime-dashboard",
+      "exit_code": 0,
+      "result": "2 files / 161 tests passed",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/ui-contract-and-page-final.stdout.txt",
+        "sha256": "09eddfa2203a74dcf2045e559c3991e37274068e0a85a522ab83a37e03a9075c",
+        "bytes": 301
+      }
+    },
+    {
+      "command": [
+        "uv",
+        "run",
+        "--offline",
+        "--extra",
+        "runtime-http",
+        "--extra",
+        "test",
+        "pytest",
+        "-q",
+        "tests/repo_quality/frontend/test_fixture_runtime_bound_paper.py"
+      ],
+      "cwd": "policy-engine",
+      "exit_code": 0,
+      "result": "5 passed",
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/fixture-bound-paper-final.command.json",
+        "sha256": "b33c571cce25833b22125a5b3061ad9e20aa75b7f1f8465705229726bc142354",
+        "bytes": 2405
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/fixture-bound-paper-final.stdout.txt",
+        "sha256": "4d2df7a96ce4a667da3ccf295f2d16c728a65ed0e861a3baa919f7bb469b02b5",
+        "bytes": 80
+      }
+    },
+    {
+      "command": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "eslint",
+        "e2e/journeys/knowledge-flow.spec.ts",
+        "--max-warnings=0"
+      ],
+      "cwd": "policy-engine/apps/runtime-dashboard",
+      "exit_code": 0,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/knowledge-flow-eslint-final.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "command": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "prettier",
+        "--check",
+        "e2e/journeys/knowledge-flow.spec.ts"
+      ],
+      "cwd": "policy-engine/apps/runtime-dashboard",
+      "exit_code": 0,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/knowledge-flow-prettier-final.stdout.txt",
+        "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+        "bytes": 66
+      }
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": ".",
+      "exit_code": 0,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/independent-diff-check.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "command": [
+        "corepack",
+        "pnpm",
+        "exec",
+        "tsc",
+        "-p",
+        "tsconfig.app.json",
+        "--noEmit"
+      ],
+      "cwd": "policy-engine/apps/runtime-dashboard",
+      "exit_code": 2,
+      "result": "two TS2339 diagnostics: generated LexSearchResponse has no legal_relation_refusal at LexKnowledgeGraphPage.tsx:160 and :723",
+      "command_record": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/tsc-app-final.command.json",
+        "sha256": "1b194a8ad85caa879870301a4e73abf805d7278d190a922509623c25dba4f4b2",
+        "bytes": 402
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/tsc-app-final.stdout.txt",
+        "sha256": "c6e14ea1c8955147ca5711463d6d91cbf7dc8adf909ac914760661a46f187f46",
+        "bytes": 908
+      }
+    },
+    {
+      "command": [
+        "corepack",
+        "pnpm",
+        "--filter",
+        "@polisyos/runtime-dashboard",
+        "exec",
+        "vitest",
+        "run",
+        "src/shared/i18n/LocaleProvider.test.tsx",
+        "--reporter=dot"
+      ],
+      "cwd": "policy-engine",
+      "exit_code": 0,
+      "result": "1 file, 8 tests passed",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/independent-locale-provider-vitest.stdout.txt",
+        "sha256": "dbccc277100fb8ded642b1934dabdad133b31eef93e7a31468dc0f2f7ab78e38",
+        "bytes": 313
+      },
+      "provenance": "independent reviewer on the prior eight-path frame; narrow provider test only"
+    },
+    {
+      "command": [
+        "corepack",
+        "pnpm",
+        "--filter",
+        "@polisyos/runtime-dashboard",
+        "exec",
+        "vitest",
+        "run",
+        "src/shared/i18n/LocaleProvider.test.tsx",
+        "src/shared/i18n/parity.test.ts",
+        "--reporter=dot"
+      ],
+      "cwd": "policy-engine",
+      "exit_code": 1,
+      "result": "46 passed, 10 failed in parity.test.ts; broad locale inventory remains red",
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/independent-locale-vitest.stdout.txt",
+        "sha256": "f87f72458a0a91a1c3a42a040742abf70b7cb4c8bd34560480246199645df05d",
+        "bytes": 10615
+      }
+    }
+  ],
+  "separate_source_bound_attempt": {
+    "command_record": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/playwright-source-bound.command.json",
+      "sha256": "b5b133f8ff0ab49490780c2d9734857750638cf0a5216250a67fc5d51a4f785c",
+      "bytes": 5512
+    },
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/playwright-source-bound.stdout.txt",
+      "sha256": "39972a72dff0d728110d581ae471d57c5448aec843a34524fadab46d24a94310",
+      "bytes": 74
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/playwright-source-bound.stderr.txt",
+      "sha256": "5e08bb96604af42d95045eaf6da85b424a88ad42104b8f05d2b36352779e3c28",
+      "bytes": 5278
+    },
+    "exit_code": 1,
+    "timed_out": false,
+    "timeout_seconds": 660,
+    "result": "webServer/fixture setup stopped before Chromium at controlled_n4_selected_credal_reference_missing; no Legal UI assertion ran",
+    "source_integrity": "The attempt observed lex_pipeline.py changing from 670ef9e904e27c74f6286eab51076550c8eae4d5e9974930644582ff9d266d5c to 3c125d9f73391d813483efe4386e4245a7c9525d29162232fc99b998ba2cdb51 during the run. This lane made no change to lex_pipeline.py; do not attribute this source-bound failure to this UI patch or treat it as replay against the current input."
+  },
+  "previous_independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/independent-review.json",
+    "sha256": "57ffa42b9728fb6ac3061026544401df88601c92007804706fe2fe16a961baa8",
+    "status": "HOLD on the old eight-path freeze",
+    "r2_delta_addresses": [
+      "31-field-invalid Playwright mock: replaced with actual-schema-parsed response and refusal/malformed-present controls",
+      "ArtifactRef metadata serialization failure: typed JSON encoding and actual nested-ref serializer coverage"
+    ],
+    "verified_frozen_owner_outputs": [
+      {
+        "property": "backend Legal refusal DTO strictness",
+        "command": [
+          ".venv/bin/python",
+          "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/independent-backend-dto-probe.py"
+        ],
+        "cwd": "policy-engine",
+        "exit_code": 0,
+        "result": "exact refusal accepted; wrong code/status, nested extra and top-level extra rejected",
+        "script": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/independent-backend-dto-probe.py",
+          "sha256": "82230fbaadcc063aa9ff01e5c798ec409a942e5c3bcefee7970304c53f33c687",
+          "bytes": 1920
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/independent-backend-dto-probe.stdout.txt",
+          "sha256": "b6e6d6586e1753bb9c3e9ad35be9595fb878c5bce3ba6df05580590279294748",
+          "bytes": 318
+        },
+        "provenance": "independent reviewer on prior eight-path frame; not a current producer/browser receipt"
+      }
+    ]
+  },
+  "remaining_holds": [
+    {
+      "property": "generated frontend DTO consistency",
+      "state": "HOLD",
+      "evidence": "The generated OpenAPI and client type artifacts are read-only inputs and still omit legal_relation_refusal. App tsc exits 2 with two TS2339 diagnostics. Root generator owns canonical regeneration and installed-client proof."
+    },
+    {
+      "property": "real producer→HTTP→browser Legal response",
+      "state": "HOLD",
+      "evidence": "The successful Playwright response is intercepted test data; the source-bound browser attempt failed before Chromium on a separate generic N4 selected-credal setup boundary, during which lex_pipeline.py changed by another owner. No live producer response is proven."
+    },
+    {
+      "property": "locale inventory/parity",
+      "state": "HOLD",
+      "evidence": "The broad parity suite has 10 failures and expected inventory 2963 disagrees with 3075 current keys; attribution is not established (P41). LocaleProvider-only 8 tests pass."
+    },
+    {
+      "property": "external legal authority/currentness",
+      "state": "not_established",
+      "evidence": "Fixture response is explicitly verification_missing/search_candidate and makes no legal-source verification, issuer, custody, or currentness claim."
+    }
+  ],
+  "capability_state": {
+    "producer": "mocked in browser witness; real producer path not established",
+    "artifact": "typed Legal refusal represented in response, persisted/current artifact source not demonstrated by this UI slice",
+    "bridge": "frontend hook schema-parses response; refusal remains typed through page",
+    "consumer": "dashboard page displays rows and refusal; disables CSV export",
+    "verification": "Vitest, Playwright mock witness, serializer mirror tests pass; generated TypeScript gate and source-bound browser remain held",
+    "surface": "dashboard UI exercised under configured Chromium mock response",
+    "semantic_test": "malformed present refusal rejected; mock result/refusal rendering exercised",
+    "authority": "not_established"
+  },
+  "pattern_pass": {
+    "ids": [
+      "P04",
+      "P05",
+      "P12",
+      "P29",
+      "P32",
+      "P33",
+      "P38"
+    ],
+    "anti_pattern_found": "The original Playwright response fixture omitted required wire fields, while the real hook rejects it; the fixture runtime serializer also failed on a nested ArtifactRef. Generated DTO was stale relative to runtime response semantics.",
+    "target": "Use the actual strict response schema for the mock, typed runtime serialization for fixture metadata, and preserve refusal/status semantics at the visible consumer.",
+    "residual": "The producer-side generated contract and source-bound live consumer journey remain outside this author slice and are explicit holds."
+  },
+  "closure_ids": [],
+  "formal_closure_claim": false,
+  "next_checks_for_root_and_G": [
+    "Independently review this 10-path successor freeze and the addressed fixture findings.",
+    "Regenerate canonical OpenAPI and all owned client/dashboard artifacts from the runtime contract, then rerun tsc and drift/corruption controls.",
+    "Once N4 fixture bridge is fixed and source freeze is stable, rerun the actual source-bound browser journey; keep the mocked journey distinct.",
+    "Reconcile the complete locale key inventory at its source of truth and rerun broad parity.",
+    "Do not adjudicate external legal authority from candidate fixture rows."
+  ],
+  "evidence_index": {
+    "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016",
+    "knowledge_flow_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/knowledge-flow-ui-receipt.json",
+      "sha256": "9d395620f014743c1370e3823b33a08011d05777018cf41a78658996c5d0d079",
+      "bytes": 7762
+    },
+    "prior_source_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-legal-refusal-browser-20261016/source-freeze.json",
+      "sha256": "f6522d48ac1e61738c54a7cbadc39390dafddc164499dbc6f0b79ff7066f48c0",
+      "bytes": 11510
+    },
+    "commands_and_outputs": "See verification and separate_source_bound_attempt; raw files are retained under ignored raw/ and cited by path and SHA."
+  },
+  "successor_history": {
+    "supersedes_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/frontend-legal-refusal-browser-r2.json",
+    "r2_digest_history": [
+      {
+        "sha256": "72b20f23f75435f8efdb8955452cc0ba31e53c3ff0f5c5f8ed9ddd0795c68884",
+        "status": "initially read back and reported before a command-metadata correction"
+      },
+      {
+        "sha256": "a0175a427f18402bac11ce71f953c763b1cce6e7f36912878e51629a765edb37",
+        "status": "later metadata-corrected r2 content observed and preserved in the r2 path"
+      }
+    ],
+    "earlier_bytes_availability": "The initial 72b20f... byte sequence is not retained. This r3 does not claim to recover or reproduce those bytes; it records only the previously observed digest. The current a017... r2 bytes are preserved unchanged.",
+    "source_scope_change": false,
+    "source_freeze_id_unchanged": true,
+    "note": "Use this r3 metadata envelope for independent review and root delivery. It corrects provenance/versioning only; all 10 source path hashes and boundary inputs remain those bound by source_freeze_id."
+  }
+}

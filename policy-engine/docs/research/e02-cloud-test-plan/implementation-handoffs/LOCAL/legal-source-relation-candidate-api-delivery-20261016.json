@@ -1,0 +1,456 @@
+{
+  "schema": "policyos.e02.local_delivery.v1",
+  "slice": "Legal source-relation candidate boundary and canonical API consumers",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "9bad326a227416baefdec42f9261212b7ebab7e1",
+  "candidate_sha": "a4db107f72e2622699c6883a89e9e9352c541588",
+  "candidate_tree": "ef3cd66a67cf5752833748c25c01228112442401",
+  "parents": [
+    "9bad326a227416baefdec42f9261212b7ebab7e1"
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "source_freeze": false,
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "sha256": "f6c8da89b5e59150507c42acf1c4ac28bc1970674ec4112c1939bfc69a3b0889",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/control.py",
+      "sha256": "2cb22126210c204fb77be7c253d16052bd815363a389d13e37b94d92a5282fc5",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/claim_bridge.py",
+      "sha256": "bfb55c5501fad42548fea74fd80ff3195a02f841021937167d06ad51643f9c22",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/cli.py",
+      "sha256": "fd0008b8bef75e017d630e0a23a3f40f170df7aeaeb4d8c2ee3496c4850c154f",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/graph_builder.py",
+      "sha256": "75ce4dbe405c68ccb52c23a73030552750928e23fb4f9234ec0a919757d95d36",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/pipeline.py",
+      "sha256": "7b2edd2ac39df21eeb2670786af81d52dece7850c5b18c531daab660be1852ff",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/postprocess.py",
+      "sha256": "18c4ef7cc14991484df65359700ffe06f77803dd9a71f63f5d4ecc5d562e6bf2",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/publish.py",
+      "sha256": "c4a3c6ee0b05747cd56f5180d227107ff68c7bb85ed81efa4fbc7b3388b6a525",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/quality_report.py",
+      "sha256": "20b601ef0c9745e74c09195ffcb0f9f7ada962f32241a3efbf52c5bb78283f83",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/batch/smoke.py",
+      "sha256": "da99255d5bae45d42257903097750bb3c92d1857afd3c0e74a563586387c3d9a",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/contracts.py",
+      "sha256": "6906740493238f352412cfbc46ff26cbfc1605fcfdd380226a9b2fcf59a15c96",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/shadow.py",
+      "sha256": "41e74c35872ae8b4fcf4f0d0094db8870372ff9a594ce4badb7a3c174e6e1b44",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/legal/source_relation.py",
+      "sha256": "2f90f3859175981ae5d75665079abb2c2dbb7732bd6873365ae53facb88dbddf",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/legal.py",
+      "sha256": "b7ee1d202f2fb84a917ded9b2bab97920be8af313ae42ac1d52b43cd9725740b",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/benchmark.py",
+      "sha256": "24328c22c2a81f5830fdb44fe6acbc3f0f85145948fc094274bf552aea50678b",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+      "sha256": "c3101da98a096a478d86c03d3ea0d02cdf61ce94bfd00ed0283ba31e68bfc6ac",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/legal_evaluation/transport_constraints.py",
+      "sha256": "c0e0d88a028e82f31b4b670b75684e8d5ce59f5be84bbdba242c72cff4145c27",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/normpack/applicability_report.py",
+      "sha256": "99d1eb6db665cfa71192ead16954ccc0ca39d3c8b6bcbc949cb24d10d9b9fcc2",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/lex/normpack/legal_authority.py",
+      "sha256": "fc940c5c1bbe7659ebb0a740a08151ddc304e5d567705ecc3909368e07c70ad5",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py",
+      "sha256": "6155ccb5ad614245d730f1d724f2163d131a17b93b3c12f573eff534ba5870f2",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/lex_search_projection.py",
+      "sha256": "3261b35be786c64272fc8f6ca1ed5eb87a8a54f1ea5991d5d5f8d372f23d983c",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "sha256": "a6b106281c26bbbc41999331236c6be83415bb9c39d3a8f788b3ac879fb2f47a",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/assurance_case.py",
+      "sha256": "e09f0862811f9f79f82d256fdb11bbee77cc15d8376462eaf98f3a3ec1e5940b",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/capability_index_compiler.py",
+      "sha256": "31b22372e4b5d95d3605f6b301065a5f34b379695b9fa35c588ad4d523f2c430",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/claim_registry.py",
+      "sha256": "bdb1af65c81aa6b1dae0436e588e64292773157212f2aff0efaee7c5b1c214c8",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+      "sha256": "ee23d9e8224d34def7889f4ccec9a8fa89b97b9cbddb577fb75d42dc250e3ef5",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/producer_pipeline.py",
+      "sha256": "c2a630707cd26b0c2de19fffecb78160eb56d29adcf3e0a86cbee0b5a5daee44",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+      "sha256": "c724558d1e29d8fe34920a52c8371115040a5f2a08e698ac27edebf506b74859",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py",
+      "sha256": "718f4d03b560f4dbbff8b13c303e2c8cbee390d839e81523fd34fa26c1960625",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/scorecard.py",
+      "sha256": "014f6a122b4905adc9eb56ddbb99afa5d8b94908851053e552335ef8ed2d4058",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/semantic_binding.py",
+      "sha256": "a544e5b1fdcee7550c085a0ecaedf057c13af265463c80683dfcadc8166cb326",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/cross_graph/compiler.py",
+      "sha256": "fd918fc74c60f55779cc2d3181e91855eec44f616d1c9d99132694f328212dc3",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+      "sha256": "41257b1023966d1b2926f7bb82c05686b3139a43b6a54da5a1606e7e3b2477a7",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/integration/data_forge_runtime/test_legal_grounding_query_consumers.py",
+      "sha256": "396f2521f227f3f99f15f3661af07e2127fe2c7fbcd6fe0d2c6b2917c7ccbad2",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/integration/data_forge_runtime/test_legal_runtime_material_entrypoints.py",
+      "sha256": "c2e8a2066818a8924d8de89e81267e49448032aa7ae80cab8f3b75add78f8a86",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/integration/data_forge_runtime/test_legal_source_relation_authority_surfaces.py",
+      "sha256": "d8898c8857adf07034ad7652022098bf120fe92a17b4b7c4e687fd86bf9b0102",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/legal_batch/test_claim_bridge.py",
+      "sha256": "b54f4408c88cf86b8c2f678f2351a102553b366aa396cd776aa0851c15d76401",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/legal_batch/test_cli_smoke.py",
+      "sha256": "0fdb529d495e9be67f4d5c1a3f815e9c5fe9ef630027618a63bb961475687436",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/legal_batch/test_graph_builder_grounding_boundary.py",
+      "sha256": "67427a3528724b58bd9a4bc57839bd2dc4447c5940a533090aa144baf29c0c3d",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/legal_batch/test_graph_builder_partitions.py",
+      "sha256": "3458cf5a512d47d37107962c521247c8013016420918a075484336760e400e56",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/legal_batch/test_pipeline_spo_routing.py",
+      "sha256": "bddad9b8dd948846377a47deada245ddfe467cea03066639f141980c96e5b850",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/legal_batch/test_postprocess_grounding.py",
+      "sha256": "43851f6b55a5a13944ecb5a963a882f466a9e920ee33996f9b66047522ac6659",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/legal_batch/test_publish_bundle.py",
+      "sha256": "3fcf68f83f5ee1ac6eb09ae1c97e2dd56df099bbc265b2b3ac4103b1196d6979",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/legal_batch/test_quality_report.py",
+      "sha256": "73a7974498a06bb899d68454e153ac5e97e7a8fc3f353e0daa20e39109ba2db9",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/legal_batch/test_quality_report_gate_metrics.py",
+      "sha256": "1c60f98b2f20dc989549e8de2d6d0d18d93c18444da33c241ee984b9ec02facf",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/legal_batch/test_smoke.py",
+      "sha256": "d75960c5dc4ec9524e32a9d079d8cf348c2f2cc7682393482bc651a2612753ca",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/test_phase0b_legal_shadow.py",
+      "sha256": "8485eabe41713de704386105ddb1c74061d709b818f002dcfd27699a9773a5cc",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/lex/test_api_transport_constraints.py",
+      "sha256": "d7660a5b394da60ea76c86bd5494b3ea643bda01f07d7522448235f6c38ebeb5",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/lex/test_benchmark.py",
+      "sha256": "1987fad0916318cf7f93e74c0dd33e856a35c5750a09208c6c9af7ffb1933f8c",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/lex/test_knowledge_store_filters.py",
+      "sha256": "eb6209ac3f0cd2e58255453c23ba572d27e6b064260aa08bb9b9f18cd1240261",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/lex/test_legal_authority_adapter.py",
+      "sha256": "c86d7b7faf5e348bbdd151681ce600ad66c3040a8d4d5a396feb5d8a37fbed6b",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/lex/test_normative_applicability_report.py",
+      "sha256": "e8a678b4014ae3cb858d46f46415ed6935f5b68a1c7b4ca83869f4d5216a7138",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/services/test_lex_pipeline.py",
+      "sha256": "7ef8ab0ff0b3ac296f97c39dfc7a382bb05dd817aa70ed8114f6a3760178f3e7",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "sha256": "0a900361a8d81b06663e838d880a1ea897ea945a7a5426801f20cf6d7b12028f",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_assurance_case.py",
+      "sha256": "beebbbe9fc232193bac34706c3451646eca06dce8898410034eb75083367249e",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_capability_index_compiler.py",
+      "sha256": "db63f081b4ad52ac498cfd2a73de2e56f26b057110affd7d56bfb6db253ff22e",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_claim_registry.py",
+      "sha256": "66febb544cef9d30a3861ed5d552119a832f7c532a9412c5422b35ab8990b352",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+      "sha256": "d4b701402e2d58436551b736d83316d347ff236de49446040aba65e4ade182ae",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_producer_pipeline.py",
+      "sha256": "397240bbe68aea8b54e016affe2026affed674c702f3153d5192f513375eddad",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py",
+      "sha256": "d191df90f3d39283d9edea342ec4433dbdb52911218b273cdee10cf343eb05da",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_proving_ground_proof_carrying_analytics_search.py",
+      "sha256": "72f956ab898444b34025b975e6c112bf145d9b1478d6dd2925eb50491ef7343c",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_scorecard.py",
+      "sha256": "01a1f32046fa901a5eea90c3fff7ee7c9f45205dbdc34cebebd291282dc678de",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_semantic_binding.py",
+      "sha256": "aba212ca51186948ddc0f1f9da23b21c6c5b737efbcf9c7fbaf1c03c8805ab82",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/cross_graph/test_compiler.py",
+      "sha256": "a6ba884ec9b82d02378558a5355f520d166eabbfcbc38d62659e71c82cabd3b5",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/causal/test_resolve_transport.py",
+      "sha256": "3258e6386c46059e3fe358b416fd1376ad7e8545b2dda409cd89c29da3f8ac09",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/README.md",
+      "sha256": "1d63568e8f0f58706f7e2c9d848a26be743dc0cc842677045d4c5af738342040",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-legal-source-relation-refusal.toml",
+      "sha256": "e6f06b177c56531142f4c8f4581bd3fb32f8dd2f09f0ef7c634d77dfcbc8e2e8",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "sha256": "3d4f10f79d89f01cf2e7e7201c31f4af888fb48ceda2f3a7a472b06707c69841",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/types.ts",
+      "sha256": "9bbec9c49b9a546bf588510b7a641c0b06d7df557d000b9c1403009a16fd6dc2",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "sha256": "a94f1998e20ace162590872974597a731deb4a826e41348e6f1930f3d411c0f0",
+      "changed_in_candidate": true
+    },
+    {
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "sha256": "2ffda975b9e0c7ced82e028148ebfa0baef7e4aa51f0b0c21c20b93050cd7841",
+      "changed_in_candidate": false
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+      "sha256": "44c5e3cadd004106f2eda178d985287f6cea73085824d4a0f3fff8372f78a952",
+      "changed_in_candidate": true
+    }
+  ],
+  "source_bound_commands_and_complete_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-relation-api-source-20261016/source-frame.json",
+      "sha256": "66207f38ce1adf6e3fb3c4f5b4eaa408acbcdd4bf74ccfefea8fcfefce4d21b6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/legal-relation-candidate-api-source-20261016-readback.json",
+      "sha256": "7a63f5a5aacf0f6cfb19658a47c9f32983466e6ea0bd17725805dfb1fe0b311c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-legal-source-relation-20261015/current-focused-run-20261016/legal-gl-i4-successor-union-r3-20261016.json",
+      "sha256": "92982cb855904332ce7b93bda4224618809646e71cac9e9cff2527c14fa9814b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-legal-source-relation-20261015/gl-r2-independent-review-9ee77b5d/independent-review-r2.json",
+      "sha256": "26066efb619552078ac64aa9d13ae01eff8d92f8343ee3939cb81a707110a46e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/i4-c12-model-witness-ready-20261016/review-r3-run-contract.json",
+      "sha256": "5ed3ba44bcd6f3751b4b7fdc1c87f2de634807da79e678c125d75b3557d50aaf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-lex-openapi-generation-9bad-20261016/five-path-generation-freeze-r2.json",
+      "sha256": "fb1c7dd151b087a3dfd09e9dd477e2f072df40dbc323e3b80c24e31ccfdca97b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-companion-independent-9bad-20261016/independent-review.json",
+      "sha256": "cb31bbc3c570fefe6c242976cb3e4b57507ad45b801ac152b32e9d0e74ca0971"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-companion-independent-9bad-20261016/independent-review-addendum.json",
+      "sha256": "fbc9c93af67fde66343f51f7fd2de3bf28069968f15c8310a759839725235545"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-companion-independent-9bad-20261016/review-qualification-correction.json",
+      "sha256": "617102d0a54a7ff2d0b17ad4bc2e73ee78e2a3c06c6b006c53ab4ad779ec4adf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/api-companion-independent-9bad-20261016/canonical-reproduction/independent-byte-reproduction.json",
+      "sha256": "e53b61218fa8581de040b5be370c4b0d8098d7b684b248cf161f611ca603c083"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-resume-admission-rebind-20261016/admission-rebind.json",
+      "sha256": "2f14a25713da71aec582695e27883eb1e3d656b1886f91eca2b39b9a9ace971f"
+    }
+  ],
+  "selected_input_profile_backend": "Own Python3.14 and source origins; controlled source-bound Legal fixture and existing cached C12 encoder profile, asset manifest SHA191a71ec41bc1a69665fffccb5fa7f1c30b3f94ccd60f71cc3ed1f074ecb98ca. Actual cached-model replay has separate explicit profile/input contract and is running; not counted as PASS here.",
+  "real_chain": [
+    "Legal quote/graph producers retain unverified SPO as search_candidate",
+    "Shared source-relation disposition carries typed verification_missing",
+    "Graph/read facade/transport/GL intake and emission refuse unverified normative authority",
+    "Actual HTTP candidate result DTO preserves candidate/source fields and refusal",
+    "Canonical OpenAPI and generated client/dashboard types carry optional nullable strict refusal"
+  ],
+  "adversarial_removal_controls": [
+    "Typed, model_dump Mapping, malformed row Mapping and direct malformed Mapping in every nonempty GL authority-record role refuse.",
+    "Persisted authority validator recomputes refusal after report markers are removed.",
+    "Empty candidate/provision roles retain candidate utility.",
+    "Corrupted OpenAPI refusal field is rejected by registered drift check.",
+    "I4 model replay adds source-row-positive/text-zero, stale intent plus fresh GET, member drift and profileless owner controls; their runtime outcomes remain pending."
+  ],
+  "verification": {
+    "independent_GL": "59PASS; all65 canonicalRuffcheck/formatPASS; 15/15 source-derived public authority-record callers guarded.",
+    "I4_test_docs_review": "GO for r3 exact67paths; opt-in collection1SKIP is not runtime evidence.",
+    "canonical_generation": "All5 outputs reproduced byte-for-byte independently and by author; canonicalRuntimeApiClient.js unchanged relative to base, other71scopedpaths committed.",
+    "client_dashboard": "Independent client37PASS/dashboard161PASS; both TS typechecks PASS; registered check_runtime_api_contract PASS.",
+    "OpenAPI_hardening_suite": "49PASS/5FAIL. Two stale generator-test assumptions; resolver-route count, acquisition default annotation and CycleBoard read_receipt example remain actual native-gate work. P41 attribution not_established; no global native-green claim.",
+    "G3": "Actual producer adapter keeps guarded Core store, but prior8failed positive tests reached absent genuine G2/S10 support. No fake search hits or law are created.",
+    "model_witness": "RUNNING separately on committed source; not PASS, not included in source acceptance."
+  },
+  "limitations": [
+    "Independent claim-to-source entailment/law verifier is absent; no legal authority, issuer, custody or live production currentness claimed.",
+    "Reference-only empty public projection can pass while containing zero selected/threshold/mandate authority refs; that is not legal admission.",
+    "Confidence-ledger example values are source-derived exporter values; this review did not establish their fixture provenance or currentness.",
+    "No ordinary queued-worker/CAS/CatalogArtifact completion follows from the direct Legal CLI/HTTP witness.",
+    "Full native/installed/Linux/composed runtime wave remains pending final source/input/backend freeze."
+  ],
+  "proposal_outcome": "bounded_source_and_generated_consumer_repair_delivered; original whole-property proposals require individual criterion joins and pending actual model receipt",
+  "next_check": "Finish current cached-model witness; repair five OpenAPI hardening failures through canonical owner/test contracts; compose remaining C05/rank/lineage fixes then final broad wave."
+}

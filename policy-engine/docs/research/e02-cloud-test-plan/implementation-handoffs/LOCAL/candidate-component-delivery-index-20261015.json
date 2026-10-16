@@ -2,10 +2,10 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "6e01d306ff90880cd9edecdd547c0285082776d4",
-    "tree": "6da2afdd202a144ed579c33d0f5f6867f16c2c22",
+    "head": "a4db107f72e2622699c6883a89e9e9352c541588",
+    "tree": "ef3cd66a67cf5752833748c25c01228112442401",
     "parents": [
-      "e989262626b89d89c770bb2c0092289b4066bbde"
+      "9bad326a227416baefdec42f9261212b7ebab7e1"
     ],
     "source_freeze": false,
     "dirty_active_source": "Disjoint author work remains outside committed component boundaries. Exact final source/input/backend composition is not yet frozen."
@@ -82,7 +82,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "9d53824639490d17629cefae12863fd2df4ba315f866a72e2ba31cdf3e09a28f"
+      "sha256": "85d1b1fd6f9ec0e9bb5a5eca4bf56d6266861e87d75a729073b0eb570970ab71"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
@@ -279,6 +279,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-selected-catalog-context-fidelity-delivery-20261016.json",
       "sha256": "88bc18c5f40ad3d6c3584b4aff452f5655b5815b60586839e6995b6d70af0614"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/legal-source-relation-candidate-api-delivery-20261016.json",
+      "sha256": "c90e404f97a7040f4d2b761651c147be0bf5ae4be7a207e333f038cb62931b11"
     }
   ],
   "canonical_denominator_recomputed": {

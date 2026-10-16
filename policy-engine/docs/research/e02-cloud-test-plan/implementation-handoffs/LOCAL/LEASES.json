@@ -1516,5 +1516,16 @@
     },
     "P40": "Same-class second escape widens the invariant or declares and falsifies a bounded residual; no keyword leaf ladder.",
     "formal_G_closure_ids": []
+  },
+  "coordination_epoch_20261016_a4db_model_freeze": {
+    "as_of_candidate_commit": "a4db107f72e2622699c6883a89e9e9352c541588",
+    "source_paths": "Full72 scoped path@sha in raw/root-legal-relation-api-source-20261016/source-frame.json;71changed/oneunchanged generatedJS.",
+    "model_run": "Root GO for one I4 actual cached-model CLI to fresh HTTP vector witness under review-r3-run-contract5ed3ba44; product source writes held until completion. RAW/readonly/docs work and root ordinary Git publication continue.",
+    "source_writers": "All other source authors RAW-only: C05 joined11 and method typing; macro selected-profile lineage; B10 rank absence; OpenAPI hardening companions. No overlapping tracked writes.",
+    "compute": {
+      "heavy_mac_slots": 3,
+      "numerical_threads_per_process": 1
+    },
+    "formal_G_closure_ids": []
   }
 }

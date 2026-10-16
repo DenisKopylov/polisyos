@@ -10,17 +10,22 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, SupportsFloat, SupportsIndex
 
 import duckdb
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.core.contracts import SearchCandidate, SearchFrontier
 from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
     load_layer3_gx_data_home,
 )
+
+if TYPE_CHECKING:
+    from polisyos.legal_requirement import LegalAuthorityRequirementSpec
+    from polisyos.lex import LexProvisionMappingRegistry
 
 LAYER3_GL_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
 LAYER3_GL_RULE_VERSION = "policyos.layer3.gl.legal_mandate_search.v1"
@@ -135,6 +140,18 @@ AUTHORITY_FACET_NATIVE_COLUMNS: tuple[str, ...] = (
     "fiscal_authority",
     "fiscal_authority_ref",
     "budget_authority",
+)
+_GL_REQUIRED_AUTHORITY_FACET_NAMES: tuple[str, ...] = (
+    "authority_types",
+    "competent_actor_ref",
+    "instrument_types",
+    "implementation_authority_ref",
+    "fiscal_authority_ref",
+    "source_authority",
+    "hierarchy",
+    "conflict_supersession_preemption",
+    "fallback",
+    "legal_effective_window",
 )
 COMPANION_FILE_PATHS: tuple[Path, ...] = (
     Path("production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/qc_report.json"),
@@ -935,6 +952,428 @@ class Layer3GLBundle(_GLModel):
     readiness_manifest: Layer3GLReadinessManifest
 
 
+@dataclass(frozen=True)
+class _GLRequirementIdentity:
+    """Compiler-owned claim and requirement identity verified against its artifact."""
+
+    binding: Layer3GLLegalRequirementBinding
+    claim_id: str
+    claim_ref: str
+    requirement_ref: str
+    legal_requirement_artifact_ref: str
+    jurisdiction: str | None
+    legal_as_of: str | None
+
+
+@dataclass(frozen=True)
+class _GLSelectedSubjectIdentity:
+    """Source-derived identity join for one selected GL candidate subject."""
+
+    requirement: _GLRequirementIdentity
+    candidate: Mapping[str, Any]
+    row_ref: str
+    source_table: str
+    candidate_binding_ref: str
+    request_refs: tuple[str, ...]
+    request_provenance_refs: tuple[str, ...]
+    owner_ledgers: tuple[Layer3GLLegalSearchLedger, ...]
+    search_ledger_refs: tuple[str, ...]
+    query_trace_refs: tuple[str, ...]
+    legal_kg_snapshot_ref: str
+    authority_facet_binding_refs: tuple[str, ...]
+    norm_id: str
+
+
+def _recompute_gl_requirement_binding_projection(
+    repo_root: Path,
+    supplied: Sequence[Layer3GLLegalRequirementBinding],
+) -> tuple[Layer3GLLegalRequirementBinding, ...] | None:
+    """Recompute the canonical owner projection and match every typed binding field."""
+
+    if not supplied or not all(
+        isinstance(binding, Layer3GLLegalRequirementBinding) for binding in supplied
+    ):
+        return None
+    try:
+        expected = build_gl_legal_requirement_bindings(repo_root)
+        supplied_payload = tuple(binding.model_dump(mode="json") for binding in supplied)
+        expected_payload = tuple(binding.model_dump(mode="json") for binding in expected)
+    except (TypeError, ValueError, ValidationError):
+        return None
+    if len(supplied_payload) != len(expected_payload) or supplied_payload != expected_payload:
+        return None
+    return expected
+
+
+def _resolve_gl_requirement_identity(
+    binding: Layer3GLLegalRequirementBinding,
+) -> _GLRequirementIdentity | None:
+    """Resolve compiler identity only when the persisted typed artifact agrees."""
+
+    from polisyos.legal_requirement import (
+        LegalAuthorityRequirementArtifact,
+        LegalAuthorityRequirementSpec,
+    )
+
+    try:
+        artifact = LegalAuthorityRequirementArtifact.model_validate(binding.requirement_artifact)
+        spec = LegalAuthorityRequirementSpec.model_validate(binding.requirement_spec)
+    except (TypeError, ValueError, ValidationError):
+        return None
+    artifact_payload = artifact.model_dump(mode="json")
+    spec_payload = spec.model_dump(mode="json")
+    artifact_specs = tuple(
+        candidate.model_dump(mode="json")
+        for candidate in artifact.requirements
+        if candidate.requirement_id == spec.requirement_id
+    )
+    if len(artifact_specs) != 1 or not _gl_json_content_equal(artifact_specs[0], spec_payload):
+        return None
+    artifact_ref = _repo_artifact_ref(GL_LEGAL_REQUIREMENT_ARTIFACT_PATH, artifact_payload)
+    legal_as_of = spec.temporal_competence_window.legal_as_of
+    if (
+        binding.claim_id != spec.claim_id
+        or binding.claim_ref != spec.claim_ref
+        or binding.requirement_ref != spec.requirement_id
+        or binding.legal_requirement_artifact_ref != artifact_ref
+        or binding.producer_artifact_ref != artifact_ref
+        or binding.jurisdiction != spec.jurisdiction
+        or binding.legal_as_of != legal_as_of
+    ):
+        return None
+    return _GLRequirementIdentity(
+        binding=binding,
+        claim_id=spec.claim_id,
+        claim_ref=spec.claim_ref,
+        requirement_ref=spec.requirement_id,
+        legal_requirement_artifact_ref=artifact_ref,
+        jurisdiction=spec.jurisdiction,
+        legal_as_of=legal_as_of,
+    )
+
+
+def _resolve_gl_selected_subject_identity(
+    *,
+    repo_root: Path,
+    row_ref: object,
+    ledgers: Sequence[Layer3GLLegalSearchLedger],
+    legal_requirement_bindings: Sequence[Layer3GLLegalRequirementBinding],
+) -> _GLSelectedSubjectIdentity | None:
+    """Recompute one claim/requirement/ledger/selected-row identity join."""
+
+    if not isinstance(row_ref, str) or not row_ref:
+        return None
+    canonical_requirements = _recompute_gl_requirement_binding_projection(
+        repo_root,
+        legal_requirement_bindings,
+    )
+    if canonical_requirements is None:
+        return None
+    owner_rows: list[tuple[Layer3GLLegalSearchLedger, Mapping[str, Any]]] = []
+    for ledger in ledgers:
+        if row_ref not in ledger.selected_row_refs:
+            continue
+        matches = tuple(row for row in ledger.candidate_rows if row.get("row_ref") == row_ref)
+        if len(matches) != 1:
+            return None
+        owner_rows.append((ledger, matches[0]))
+    if not owner_rows:
+        return None
+    source_candidate = owner_rows[0][1]
+    source_table = source_candidate.get("source_table")
+    source_identity_keys = (
+        "row_ref",
+        "source_table",
+        "doc_id",
+        "fact_id",
+        "threshold_id",
+        "jurisdiction",
+    )
+    if (
+        not isinstance(source_candidate.get("row_ref"), str)
+        or not isinstance(source_table, str)
+        or not source_table
+        or any(
+            not isinstance(row.get(key), str) or not row.get(key)
+            for _, row in owner_rows
+            for key in source_identity_keys
+            if row.get(key) is not None
+        )
+        or any(
+            source_candidate.get(key) is not None
+            and row.get(key) is not None
+            and source_candidate.get(key) != row.get(key)
+            for _, row in owner_rows[1:]
+            for key in source_identity_keys
+        )
+    ):
+        return None
+
+    valid_requirements = tuple(
+        identity
+        for binding in canonical_requirements
+        if (identity := _resolve_gl_requirement_identity(binding)) is not None
+    )
+    owner_ledgers: list[Layer3GLLegalSearchLedger] = []
+    request_refs: list[str] = []
+    request_requirement_aliases: list[str] = []
+    requirement_identities: list[_GLRequirementIdentity] = []
+    for ledger, row in owner_rows:
+        request_ref = ledger.request_ref
+        ledger_claim_id = ledger.claim_id
+        ledger_requirement_alias = ledger.requirement_ref
+        owner_frontier = ledger.owner_frontier
+        if (
+            not isinstance(request_ref, str)
+            or not request_ref
+            or not isinstance(ledger.ledger_id, str)
+            or not ledger.ledger_id
+            or not isinstance(ledger_claim_id, str)
+            or not ledger_claim_id
+            or not isinstance(ledger_requirement_alias, str)
+            or not ledger_requirement_alias
+            or row.get("row_ref") != row_ref
+            or row.get("source_table") != source_table
+            or (
+                owner_frontier is not None
+                and (
+                    owner_frontier.request_ref != request_ref
+                    or owner_frontier.query_plan.get("jurisdiction") != ledger.jurisdiction
+                    or owner_frontier.query_plan.get("legal_as_of") != ledger.legal_as_of
+                )
+            )
+        ):
+            return None
+        matching_requirements = tuple(
+            identity
+            for identity in valid_requirements
+            if identity.claim_ref == ledger_claim_id
+            and identity.jurisdiction == ledger.jurisdiction
+            and identity.legal_as_of == ledger.legal_as_of
+        )
+        if len(matching_requirements) != 1:
+            return None
+        if (
+            "jurisdiction" in row
+            and row.get("jurisdiction") != matching_requirements[0].jurisdiction
+        ):
+            return None
+        if not isinstance(ledger.filters, Mapping):
+            return None
+        if (
+            ledger.filters.get("jurisdiction") is not None
+            and ledger.filters.get("jurisdiction") != ledger.jurisdiction
+        ) or (
+            ledger.filters.get("legal_as_of") is not None
+            and ledger.filters.get("legal_as_of") != ledger.legal_as_of
+        ):
+            return None
+        owner_ledgers.append(ledger)
+        request_refs.append(request_ref)
+        request_requirement_aliases.append(ledger_requirement_alias)
+        requirement_identities.append(matching_requirements[0])
+
+    if len(set(request_refs)) != 1 or len(set(request_requirement_aliases)) != 1:
+        return None
+    first_requirement = requirement_identities[0]
+    if any(
+        (
+            item.claim_id,
+            item.claim_ref,
+            item.requirement_ref,
+            item.legal_requirement_artifact_ref,
+            item.jurisdiction,
+            item.legal_as_of,
+        )
+        != (
+            first_requirement.claim_id,
+            first_requirement.claim_ref,
+            first_requirement.requirement_ref,
+            first_requirement.legal_requirement_artifact_ref,
+            first_requirement.jurisdiction,
+            first_requirement.legal_as_of,
+        )
+        for item in requirement_identities[1:]
+    ):
+        return None
+    snapshots = tuple(dict.fromkeys(ledger.legal_kg_snapshot_ref for ledger in owner_ledgers))
+    if len(snapshots) != 1 or not isinstance(snapshots[0], str) or not snapshots[0]:
+        return None
+    query_trace_refs = tuple(
+        dict.fromkeys(ref for ledger in owner_ledgers for ref in ledger.query_trace_refs)
+    )
+    if not query_trace_refs or any(not isinstance(ref, str) or not ref for ref in query_trace_refs):
+        return None
+    binding_ref = f"gl-norm-candidate:{_stable_id(row_ref)}"
+    facet_refs = tuple(
+        f"gl-authority-facet:{_stable_id(binding_ref, facet_name)}"
+        for facet_name in _GL_REQUIRED_AUTHORITY_FACET_NAMES
+    )
+    return _GLSelectedSubjectIdentity(
+        requirement=first_requirement,
+        candidate=dict(source_candidate),
+        row_ref=row_ref,
+        source_table=source_table,
+        candidate_binding_ref=binding_ref,
+        request_refs=tuple(dict.fromkeys(request_refs)),
+        request_provenance_refs=tuple(dict.fromkeys((*request_refs, *request_requirement_aliases))),
+        owner_ledgers=tuple(owner_ledgers),
+        search_ledger_refs=tuple(ledger.ledger_id for ledger in owner_ledgers),
+        query_trace_refs=query_trace_refs,
+        legal_kg_snapshot_ref=snapshots[0],
+        authority_facet_binding_refs=facet_refs,
+        norm_id=f"gl-norm:{_stable_id(row_ref)}",
+    )
+
+
+def _gl_subject_common_fields(
+    identity: _GLSelectedSubjectIdentity,
+    *,
+    authority_facet_binding_refs: tuple[str, ...] | None = None,
+) -> dict[str, object]:
+    """Return existing common DTO fields from one resolved subject identity."""
+
+    return {
+        "claim_id": identity.requirement.claim_id,
+        "requirement_ref": identity.requirement.requirement_ref,
+        "legal_requirement_artifact_ref": identity.requirement.legal_requirement_artifact_ref,
+        "provenance_refs": identity.request_provenance_refs,
+        "jurisdiction": identity.requirement.jurisdiction,
+        "legal_as_of": identity.requirement.legal_as_of,
+        "legal_kg_snapshot_ref": identity.legal_kg_snapshot_ref,
+        "query_trace_refs": identity.query_trace_refs,
+        "search_ledger_refs": identity.search_ledger_refs,
+        "authority_facet_binding_refs": (
+            identity.authority_facet_binding_refs
+            if authority_facet_binding_refs is None
+            else authority_facet_binding_refs
+        ),
+    }
+
+
+def _gl_facet_matches_selected_subject(
+    binding: Layer3GLAuthorityFacetBinding,
+    identity: _GLSelectedSubjectIdentity,
+) -> bool:
+    return (
+        binding.candidate_binding_ref == identity.candidate_binding_ref
+        and binding.kg_row_ref == identity.row_ref
+        and binding.source_table == identity.source_table
+        and binding.source_row_refs == (identity.row_ref,)
+        and binding.claim_id == identity.requirement.claim_id
+        and binding.requirement_ref == identity.requirement.requirement_ref
+        and binding.legal_requirement_artifact_ref
+        == identity.requirement.legal_requirement_artifact_ref
+        and binding.provenance_refs == identity.request_provenance_refs
+        and binding.jurisdiction == identity.requirement.jurisdiction
+        and binding.legal_as_of == identity.requirement.legal_as_of
+        and binding.legal_kg_snapshot_ref == identity.legal_kg_snapshot_ref
+        and binding.query_trace_refs == identity.query_trace_refs
+        and binding.search_ledger_refs == identity.search_ledger_refs
+        and binding.authority_facet_binding_refs == identity.authority_facet_binding_refs
+    )
+
+
+def _gl_candidate_matches_selected_subject(
+    binding: Layer3GLNormCandidateBinding,
+    identity: _GLSelectedSubjectIdentity,
+    authority_facet_bindings: Sequence[Layer3GLAuthorityFacetBinding],
+) -> bool:
+    """Recompute candidate and facet admission at persisted and adapter boundaries."""
+
+    common_identity_matches = (
+        binding.binding_id == identity.candidate_binding_ref
+        and binding.kg_row_ref == identity.row_ref
+        and binding.source_table == identity.source_table
+        and binding.source_row_refs == (identity.row_ref,)
+        and binding.claim_id == identity.requirement.claim_id
+        and binding.requirement_ref == identity.requirement.requirement_ref
+        and binding.legal_requirement_artifact_ref
+        == identity.requirement.legal_requirement_artifact_ref
+        and binding.provenance_refs == identity.request_provenance_refs
+        and binding.jurisdiction == identity.requirement.jurisdiction
+        and binding.legal_as_of == identity.requirement.legal_as_of
+        and binding.legal_kg_snapshot_ref == identity.legal_kg_snapshot_ref
+        and binding.query_trace_refs == identity.query_trace_refs
+        and binding.search_ledger_refs == identity.search_ledger_refs
+        and binding.authority_facet_binding_refs == identity.authority_facet_binding_refs
+    )
+    if not common_identity_matches:
+        return False
+    if binding.status == "blocked":
+        return binding.candidate_norm == {}
+    if binding.status == "context_only":
+        if binding.candidate_norm_status != "context_only" or not binding.context_only:
+            return False
+    elif binding.status == "pass":
+        if binding.candidate_norm_status != "admitted_candidate" or binding.context_only:
+            return False
+    else:
+        return False
+    facet_refs, facets, refusal_code, _missing = _admit_gl_candidate_facets(
+        candidate=identity.candidate,
+        requirement=identity.requirement.binding,
+        identity=identity,
+        authority_facet_bindings=authority_facet_bindings,
+    )
+    if refusal_code is not None or facet_refs != identity.authority_facet_binding_refs:
+        return False
+    for facet in authority_facet_bindings:
+        if facet.candidate_binding_ref == identity.candidate_binding_ref and not (
+            _gl_facet_matches_selected_subject(facet, identity)
+        ):
+            return False
+    is_threshold = (
+        identity.candidate.get("candidate_path") == "threshold_metric_operator_value_unit"
+    )
+    try:
+        expected_norm = (
+            _threshold_candidate_norm_from_facets(
+                candidate=identity.candidate,
+                requirement=identity.requirement.binding,
+                facets=facets,
+                authority_facet_binding_refs=facet_refs,
+                ledgers=identity.owner_ledgers,
+            )
+            if is_threshold
+            else _candidate_norm_from_facets(
+                candidate=identity.candidate,
+                requirement=identity.requirement.binding,
+                facets=facets,
+                authority_facet_binding_refs=facet_refs,
+                ledgers=identity.owner_ledgers,
+            )
+        )
+    except (TypeError, ValueError):
+        return False
+    return (
+        binding.candidate_norm.get("norm_id") == identity.norm_id
+        and binding.candidate_norm.get("source_provenance_ref") == identity.row_ref
+        and _gl_json_content_equal(binding.candidate_norm, expected_norm)
+    )
+
+
+def _gl_json_content_equal(left: object, right: object) -> bool:
+    return json.dumps(_dump_model(left), sort_keys=True, default=str) == json.dumps(
+        _dump_model(right), sort_keys=True, default=str
+    )
+
+
+def _validated_gl_models(
+    value: object,
+    model_type: type[BaseModel],
+) -> tuple[BaseModel, ...] | None:
+    if not isinstance(value, Sequence) or isinstance(value, str | bytes | bytearray | Mapping):
+        return None
+    models: list[BaseModel] = []
+    try:
+        for item in value:
+            models.append(model_type.model_validate(item))
+    except (TypeError, ValueError, ValidationError):
+        return None
+    return tuple(models)
+
+
 def build_layer3_gl_bundle(repo_root: Path) -> Layer3GLBundle:
     """Build a GL bundle with Task 1 canonical search-route artifacts."""
 
@@ -958,7 +1397,9 @@ def build_layer3_gl_bundle(repo_root: Path) -> Layer3GLBundle:
     )
     legal_authority_report = build_gl_legal_authority_report_binding(
         root,
+        ledgers=ledgers,
         legal_requirement_bindings=legal_requirement_bindings,
+        authority_facet_bindings=authority_facet_bindings,
         norm_candidate_bindings=norm_candidate_bindings,
     )
     threshold_authority_records = build_gl_threshold_authority_records(
@@ -1221,12 +1662,14 @@ def validate_layer3_gl_bundle(
 ) -> Layer3GLValidationReport:
     """Validate a GL bundle or fixture payload with fail-closed issue codes."""
 
-    _ = repo_root
-    payload = _dump_model(persisted)
+    root = Path(repo_root)
+    payload: Mapping[str, Any] = (
+        persisted.model_dump(mode="json") if isinstance(persisted, Layer3GLBundle) else persisted
+    )
     issues: list[Layer3GLValidationIssue] = []
     _validate_task1_route(payload, issues)
     _validate_search_recall_freshness(payload, issues)
-    _validate_authority_firewalls(payload, issues)
+    _validate_authority_firewalls(payload, issues, repo_root=root)
     _validate_consumer_gates(payload, issues)
     issues = _dedupe_issues(issues)
     summary = dict(_mapping(payload.get("readiness_manifest")))
@@ -1296,9 +1739,10 @@ def _cached_coverage(repo_root: str) -> Layer3GLL3LegalKgCoverageReport:
     table_counts: dict[str, int] = {}
     for table in REQUIRED_KG_COLUMNS:
         if table in visible_tables:
-            table_counts[table] = int(
-                con.execute(f"select count(*) from {table}").fetchone()[0]  # noqa: S608
-            )
+            count_row = con.execute(f"select count(*) from {table}").fetchone()  # noqa: S608
+            if count_row is None:
+                raise RuntimeError(f"count query returned no row for required table {table!r}")
+            table_counts[table] = int(count_row[0])
     native_authority_columns = {
         column
         for columns in columns_by_table.values()
@@ -1663,9 +2107,13 @@ def build_gl_legal_requirement_bindings(
     from polisyos.lex import build_legal_authority_requirement_artifact
 
     _ = repo_root
-    resolved_target = dict(target_context or _default_target_context())
-    resolved_claims = tuple(claims or _default_recommendation_claims())
-    fallback_config = dict(jurisdiction_fallback_config or _default_jurisdiction_fallback_config())
+    resolved_target = dict(_default_target_context() if target_context is None else target_context)
+    resolved_claims = tuple(_default_recommendation_claims() if claims is None else claims)
+    fallback_config = dict(
+        _default_jurisdiction_fallback_config()
+        if jurisdiction_fallback_config is None
+        else jurisdiction_fallback_config
+    )
     artifact = build_legal_authority_requirement_artifact(
         run_id=str(resolved_target["run_id"]),
         target_context=resolved_target,
@@ -1693,17 +2141,58 @@ def build_gl_authority_facet_bindings(
 ) -> tuple[Layer3GLAuthorityFacetBinding, ...]:
     """Derive explicit authority-facet records from KG rows and governed config."""
 
-    _ = repo_root
     candidate = _primary_norm_candidate_row(ledgers)
-    requirement = legal_requirement_bindings[0] if legal_requirement_bindings else None
-    if candidate is None or requirement is None:
+    if candidate is None or not legal_requirement_bindings:
         return ()
+    canonical_requirements = _recompute_gl_requirement_binding_projection(
+        Path(repo_root),
+        legal_requirement_bindings,
+    )
+    if canonical_requirements is None and not all(
+        isinstance(binding, Layer3GLLegalRequirementBinding)
+        for binding in legal_requirement_bindings
+    ):
+        return ()
+    requirement_projection_reconciled = canonical_requirements is not None
+    if canonical_requirements is not None:
+        legal_requirement_bindings = canonical_requirements
+    requirement = legal_requirement_bindings[0]
+
+    def retain_blocked_projection(
+        facets: tuple[Layer3GLAuthorityFacetBinding, ...],
+    ) -> tuple[Layer3GLAuthorityFacetBinding, ...]:
+        if requirement_projection_reconciled:
+            return facets
+        refusal_code = "layer3_gl_authority_facet_binding_semantic_loss"
+        return tuple(
+            facet.model_copy(
+                update={
+                    "status": "blocked",
+                    "validation_status": "blocked",
+                    "semantic_loss_status": "requirement_binding_projection_unreconciled",
+                    "blocker_refs": tuple(
+                        dict.fromkeys((*facet.blocker_refs, f"gl-blocker:{refusal_code}"))
+                    ),
+                    "issue_codes": tuple(dict.fromkeys((*facet.issue_codes, refusal_code))),
+                }
+            )
+            for facet in facets
+        )
+
+    candidate_identity = _resolve_gl_selected_subject_identity(
+        repo_root=Path(repo_root),
+        row_ref=candidate.get("row_ref"),
+        ledgers=ledgers,
+        legal_requirement_bindings=legal_requirement_bindings,
+    )
+    if candidate_identity is not None:
+        requirement = candidate_identity.requirement.binding
     row_ref = str(candidate.get("row_ref") or "")
     binding_ref = f"gl-norm-candidate:{_stable_id(row_ref)}"
     source_table = str(candidate.get("source_table") or "lex_normative_ready_facts")
     source_row_refs = (row_ref,)
     authority_types = tuple(requirement.authority_types)
-    context_facets = (
+    context_facets: tuple[Layer3GLAuthorityFacetBinding, ...] = (
         _facet_binding(
             binding_ref=binding_ref,
             row_ref=row_ref,
@@ -1812,41 +2301,18 @@ def build_gl_authority_facet_bindings(
             validation_status="pass",
             semantic_loss_status="governed_config_only",
         ),
-        _facet_binding(
+        _gl_fallback_policy_facet_binding(
             binding_ref=binding_ref,
             row_ref=row_ref,
             source_table=source_table,
-            facet_name="fallback",
-            facet_value=requirement.fallback_policy,
-            facet_source="governed_config",
-            facet_status="present",
-            source_column_refs=(),
-            source_row_refs=source_row_refs,
-            derivation_rule_ref=GL_JURISDICTION_FALLBACK_CONFIG_REF,
-            validation_status="pass",
-            semantic_loss_status="governed_config_only",
+            requirement=requirement,
         ),
-        _facet_binding(
+        _gl_legal_effective_window_facet_binding(
             binding_ref=binding_ref,
             row_ref=row_ref,
             source_table=source_table,
-            facet_name="legal_effective_window",
-            facet_value={
-                "start": candidate.get("effective_from"),
-                "end": candidate.get("effective_to"),
-                "legal_as_of": requirement.legal_as_of,
-            },
-            facet_source="lex_explicit",
-            facet_status="present",
-            source_column_refs=(
-                f"{source_table}.effective_from",
-                f"{source_table}.effective_to",
-                f"{source_table}.temporal_resolution_status",
-            ),
-            source_row_refs=source_row_refs,
-            derivation_rule_ref="lex-explicit:temporal-window.v1",
-            validation_status="pass",
-            semantic_loss_status="lossless",
+            candidate=candidate,
+            requirement=requirement,
         ),
         _facet_binding(
             binding_ref=binding_ref,
@@ -1867,16 +2333,68 @@ def build_gl_authority_facet_bindings(
             semantic_loss_status="governed_config_only",
         ),
     )
+    context_facets = _complete_gl_authority_facet_membership(
+        binding_ref=binding_ref,
+        row_ref=row_ref,
+        source_table=source_table,
+        facets=context_facets,
+    )
+    if candidate_identity is not None:
+        context_facets = tuple(
+            facet.model_copy(update=_gl_subject_common_fields(candidate_identity))
+            for facet in context_facets
+        )
     threshold = _threshold_candidate_row(ledgers)
     if threshold is None:
-        return context_facets
+        return retain_blocked_projection(context_facets)
+    threshold_identity = _resolve_gl_selected_subject_identity(
+        repo_root=Path(repo_root),
+        row_ref=threshold.get("row_ref"),
+        ledgers=ledgers,
+        legal_requirement_bindings=legal_requirement_bindings,
+    )
+    threshold_requirement = (
+        threshold_identity.requirement.binding if threshold_identity is not None else requirement
+    )
     threshold_row_ref = str(threshold.get("row_ref") or "")
+    threshold_source_table_value = threshold.get("source_table")
+    threshold_source_table = (
+        threshold_source_table_value
+        if isinstance(threshold_source_table_value, str)
+        else "lex_rule_thresholds"
+    )
     threshold_binding_ref = f"gl-norm-candidate:{_stable_id(threshold_row_ref)}"
-    threshold_facets = _threshold_authority_facet_bindings(
+    threshold_facets = (
+        *_threshold_authority_facet_bindings(
+            binding_ref=threshold_binding_ref,
+            row_ref=threshold_row_ref,
+        ),
+        _gl_fallback_policy_facet_binding(
+            binding_ref=threshold_binding_ref,
+            row_ref=threshold_row_ref,
+            source_table=threshold_source_table,
+            requirement=threshold_requirement,
+        ),
+        _gl_legal_effective_window_facet_binding(
+            binding_ref=threshold_binding_ref,
+            row_ref=threshold_row_ref,
+            source_table=threshold_source_table,
+            candidate=threshold,
+            requirement=threshold_requirement,
+        ),
+    )
+    threshold_facets = _complete_gl_authority_facet_membership(
         binding_ref=threshold_binding_ref,
         row_ref=threshold_row_ref,
+        source_table=threshold_source_table,
+        facets=threshold_facets,
     )
-    return (*threshold_facets, *context_facets)
+    if threshold_identity is not None:
+        threshold_facets = tuple(
+            facet.model_copy(update=_gl_subject_common_fields(threshold_identity))
+            for facet in threshold_facets
+        )
+    return retain_blocked_projection((*threshold_facets, *context_facets))
 
 
 def build_gl_norm_candidate_bindings(
@@ -1888,89 +2406,338 @@ def build_gl_norm_candidate_bindings(
 ) -> tuple[Layer3GLNormCandidateBinding, ...]:
     """Convert KG ledger rows into GL candidate norms for Lex adapters."""
 
-    _ = repo_root
     candidate = _primary_norm_candidate_row(ledgers)
-    requirement = legal_requirement_bindings[0] if legal_requirement_bindings else None
-    if candidate is None or requirement is None or not authority_facet_bindings:
+    if candidate is None or not legal_requirement_bindings:
         return ()
-    row_ref = str(candidate.get("row_ref") or "")
-    binding_id = f"gl-norm-candidate:{_stable_id(row_ref)}"
-    binding_refs = _facet_refs_for_candidate(authority_facet_bindings, binding_id)
-    facets = _facets_by_name_for_candidate(authority_facet_bindings, binding_id)
-    context_candidate_norm = _candidate_norm_from_facets(
-        candidate=candidate,
-        requirement=requirement,
-        facets=facets,
-        authority_facet_binding_refs=binding_refs,
-        ledgers=ledgers,
-    )
-    bindings: list[Layer3GLNormCandidateBinding] = [
-        Layer3GLNormCandidateBinding(
-            binding_id=binding_id,
-            status="context_only",
-            kg_row_ref=row_ref,
-            source_table=str(candidate.get("source_table") or ""),
-            source_row_refs=(row_ref,),
-            authority_facets_source="gl_authority_facet_bindings",
-            authority_facet_binding_refs=binding_refs,
-            candidate_norm_status="context_only",
-            context_only=True,
-            blocker_refs=("gl-blocker:compiler-default-authority-type-not-lex",),
-            candidate_norm=context_candidate_norm,
-            legal_kg_snapshot_ref=_first_ledger_snapshot(ledgers),
-            query_trace_refs=tuple(context_candidate_norm.get("query_trace_refs", ())),
-            claim_id=requirement.claim_id,
-            requirement_ref=requirement.requirement_ref,
-            jurisdiction=requirement.jurisdiction,
-            legal_as_of=requirement.legal_as_of,
-        ),
-    ]
+
+    selected_rows: list[tuple[Mapping[str, Any], bool]] = [(candidate, False)]
     threshold = _threshold_candidate_row(ledgers)
     if threshold is not None:
-        threshold_row_ref = str(threshold.get("row_ref") or "")
-        threshold_binding_id = f"gl-norm-candidate:{_stable_id(threshold_row_ref)}"
-        threshold_facet_refs = _facet_refs_for_candidate(
-            authority_facet_bindings,
-            threshold_binding_id,
-        )
-        threshold_facets = _facets_by_name_for_candidate(
-            authority_facet_bindings,
-            threshold_binding_id,
-        )
-        admitted_candidate_norm = _threshold_candidate_norm_from_facets(
-            candidate=threshold,
-            requirement=requirement,
-            facets=threshold_facets,
-            authority_facet_binding_refs=threshold_facet_refs,
+        selected_rows.append((threshold, True))
+
+    bindings: list[Layer3GLNormCandidateBinding] = []
+    for row, is_threshold in selected_rows:
+        identity = _resolve_gl_selected_subject_identity(
+            repo_root=Path(repo_root),
+            row_ref=row.get("row_ref"),
             ledgers=ledgers,
+            legal_requirement_bindings=legal_requirement_bindings,
         )
-        bindings.append(
-            Layer3GLNormCandidateBinding(
-                binding_id=threshold_binding_id,
-                status="pass",
-                kg_row_ref=threshold_row_ref,
-                source_table=str(threshold.get("source_table") or ""),
-                source_row_refs=(threshold_row_ref,),
-                authority_facets_source="gl_authority_facet_bindings",
-                authority_facet_binding_refs=threshold_facet_refs,
-                candidate_norm_status="admitted_candidate",
-                context_only=False,
-                candidate_norm=admitted_candidate_norm,
-                legal_kg_snapshot_ref=_first_ledger_snapshot(ledgers),
-                query_trace_refs=tuple(admitted_candidate_norm.get("query_trace_refs", ())),
-                claim_id=requirement.claim_id,
-                requirement_ref=requirement.requirement_ref,
-                jurisdiction=requirement.jurisdiction,
-                legal_as_of=requirement.legal_as_of,
+        requirement = (
+            identity.requirement.binding if identity is not None else legal_requirement_bindings[0]
+        )
+        facet_refs, facets, refusal_code, missing_facet_names = _admit_gl_candidate_facets(
+            candidate=row,
+            requirement=requirement,
+            identity=identity,
+            authority_facet_bindings=authority_facet_bindings,
+        )
+        raw_row_ref = row.get("row_ref")
+        row_ref = raw_row_ref if isinstance(raw_row_ref, str) else ""
+        binding_id = f"gl-norm-candidate:{_stable_id(row_ref)}"
+        source_table_value = row.get("source_table")
+        source_table = source_table_value if isinstance(source_table_value, str) else None
+        base_blockers = (
+            () if is_threshold else ("gl-blocker:compiler-default-authority-type-not-lex",)
+        )
+        if identity is None and refusal_code is None:
+            refusal_code = "layer3_gl_authority_facet_binding_semantic_loss"
+
+        if refusal_code is not None:
+            issue_codes = tuple(
+                dict.fromkeys(
+                    (
+                        refusal_code,
+                        *_gl_required_facet_missing_issue_codes(missing_facet_names),
+                    )
+                )
             )
+            refusal_blocker_refs = tuple(f"gl-blocker:{code}" for code in issue_codes)
+            bindings.append(
+                Layer3GLNormCandidateBinding(
+                    binding_id=binding_id,
+                    status="blocked",
+                    kg_row_ref=row_ref or None,
+                    source_table=source_table,
+                    source_row_refs=(row_ref,) if row_ref else (),
+                    authority_facets_source="gl_authority_facet_bindings",
+                    authority_facet_binding_refs=facet_refs,
+                    candidate_norm_status="blocked",
+                    context_only=True,
+                    blocker_refs=(*base_blockers, *refusal_blocker_refs),
+                    candidate_norm={},
+                    legal_kg_snapshot_ref=(
+                        identity.legal_kg_snapshot_ref if identity is not None else None
+                    ),
+                    query_trace_refs=(identity.query_trace_refs if identity is not None else ()),
+                    search_ledger_refs=(
+                        identity.search_ledger_refs if identity is not None else ()
+                    ),
+                    provenance_refs=(
+                        identity.request_provenance_refs if identity is not None else ()
+                    ),
+                    legal_requirement_artifact_ref=requirement.legal_requirement_artifact_ref,
+                    claim_id=requirement.claim_id,
+                    requirement_ref=requirement.requirement_ref,
+                    jurisdiction=requirement.jurisdiction,
+                    legal_as_of=requirement.legal_as_of,
+                    issue_codes=issue_codes,
+                )
+            )
+            continue
+
+        if identity is None:
+            continue
+
+        try:
+            candidate_norm = (
+                _threshold_candidate_norm_from_facets(
+                    candidate=row,
+                    requirement=requirement,
+                    facets=facets,
+                    authority_facet_binding_refs=facet_refs,
+                    ledgers=identity.owner_ledgers,
+                )
+                if is_threshold
+                else _candidate_norm_from_facets(
+                    candidate=row,
+                    requirement=requirement,
+                    facets=facets,
+                    authority_facet_binding_refs=facet_refs,
+                    ledgers=identity.owner_ledgers,
+                )
+            )
+        except (TypeError, ValueError):
+            # Malformed-present values are not absence. Preserve the typed
+            # refusal on the candidate boundary instead of leaking a raw error.
+            refusal_code = "layer3_gl_authority_facet_binding_semantic_loss"
+            bindings.append(
+                Layer3GLNormCandidateBinding(
+                    binding_id=binding_id,
+                    status="blocked",
+                    kg_row_ref=row_ref or None,
+                    source_table=source_table,
+                    source_row_refs=(row_ref,) if row_ref else (),
+                    authority_facets_source="gl_authority_facet_bindings",
+                    authority_facet_binding_refs=facet_refs,
+                    candidate_norm_status="blocked",
+                    context_only=True,
+                    blocker_refs=(*base_blockers, f"gl-blocker:{refusal_code}"),
+                    candidate_norm={},
+                    legal_kg_snapshot_ref=identity.legal_kg_snapshot_ref,
+                    query_trace_refs=identity.query_trace_refs,
+                    search_ledger_refs=identity.search_ledger_refs,
+                    provenance_refs=identity.request_provenance_refs,
+                    legal_requirement_artifact_ref=identity.requirement.legal_requirement_artifact_ref,
+                    claim_id=requirement.claim_id,
+                    requirement_ref=requirement.requirement_ref,
+                    jurisdiction=requirement.jurisdiction,
+                    legal_as_of=requirement.legal_as_of,
+                    issue_codes=(refusal_code,),
+                )
+            )
+            continue
+
+        candidate_binding = Layer3GLNormCandidateBinding(
+            binding_id=binding_id,
+            status="pass" if is_threshold else "context_only",
+            kg_row_ref=row_ref,
+            source_table=source_table,
+            source_row_refs=(row_ref,),
+            authority_facets_source="gl_authority_facet_bindings",
+            authority_facet_binding_refs=facet_refs,
+            candidate_norm_status=("admitted_candidate" if is_threshold else "context_only"),
+            context_only=not is_threshold,
+            blocker_refs=base_blockers,
+            candidate_norm=candidate_norm,
+            legal_kg_snapshot_ref=identity.legal_kg_snapshot_ref,
+            query_trace_refs=identity.query_trace_refs,
+            search_ledger_refs=identity.search_ledger_refs,
+            provenance_refs=identity.request_provenance_refs,
+            legal_requirement_artifact_ref=identity.requirement.legal_requirement_artifact_ref,
+            claim_id=identity.requirement.claim_id,
+            requirement_ref=identity.requirement.requirement_ref,
+            jurisdiction=identity.requirement.jurisdiction,
+            legal_as_of=identity.requirement.legal_as_of,
         )
+        if not _gl_candidate_matches_selected_subject(
+            candidate_binding,
+            identity,
+            authority_facet_bindings,
+        ):
+            refusal_code = "layer3_gl_authority_facet_binding_semantic_loss"
+            bindings.append(
+                candidate_binding.model_copy(
+                    update={
+                        "status": "blocked",
+                        "candidate_norm_status": "blocked",
+                        "context_only": True,
+                        "blocker_refs": (*base_blockers, f"gl-blocker:{refusal_code}"),
+                        "candidate_norm": {},
+                        "issue_codes": (refusal_code,),
+                    }
+                )
+            )
+        else:
+            bindings.append(candidate_binding)
     return tuple(bindings)
+
+
+def _admit_gl_candidate_facets(
+    *,
+    candidate: Mapping[str, Any],
+    requirement: Layer3GLLegalRequirementBinding,
+    identity: _GLSelectedSubjectIdentity | None,
+    authority_facet_bindings: Sequence[Layer3GLAuthorityFacetBinding],
+) -> tuple[
+    tuple[str, ...],
+    dict[str, Layer3GLAuthorityFacetBinding],
+    str | None,
+    tuple[str, ...],
+]:
+    """Admit one owner-complete facet set only when row and claim subjects agree."""
+
+    raw_row_ref = candidate.get("row_ref")
+    row_ref = raw_row_ref if isinstance(raw_row_ref, str) else str(raw_row_ref or "")
+    binding_ref = f"gl-norm-candidate:{_stable_id(row_ref)}"
+    raw_source_table = candidate.get("source_table")
+    source_table = raw_source_table if isinstance(raw_source_table, str) else ""
+    first_refusal: str | None = None
+
+    def refuse(code: str) -> None:
+        nonlocal first_refusal
+        if first_refusal is None or (
+            first_refusal == "layer3_gl_authority_facet_binding_missing"
+            and code == "layer3_gl_authority_facet_binding_semantic_loss"
+        ):
+            first_refusal = code
+
+    if (
+        not row_ref
+        or not isinstance(raw_row_ref, str)
+        or not source_table
+        or not isinstance(raw_source_table, str)
+        or identity is None
+        or identity.row_ref != row_ref
+        or identity.source_table != source_table
+        or identity.requirement.binding != requirement
+    ):
+        refuse("layer3_gl_authority_facet_binding_semantic_loss")
+
+    associated_refs: list[str] = []
+    observed_facet_names: set[str] = set()
+    missing_facet_names: list[str] = []
+    facets_by_name: dict[str, Layer3GLAuthorityFacetBinding] = {}
+    for binding in authority_facet_bindings:
+        facet_name = binding.facet_name
+        source_row_refs = binding.source_row_refs
+        source_contains_row = (
+            row_ref in source_row_refs
+            if isinstance(source_row_refs, (tuple, list, set, frozenset, str))
+            else False
+        )
+        canonical_binding_id = (
+            f"gl-authority-facet:{_stable_id(binding_ref, facet_name)}"
+            if isinstance(facet_name, str) and facet_name
+            else None
+        )
+        associated = (
+            binding.candidate_binding_ref == binding_ref
+            or binding.kg_row_ref == row_ref
+            or source_contains_row
+            or binding.binding_id == canonical_binding_id
+        )
+        if not associated:
+            continue
+
+        if isinstance(binding.binding_id, str) and binding.binding_id:
+            associated_refs.append(binding.binding_id)
+        if isinstance(facet_name, str) and facet_name:
+            observed_facet_names.add(facet_name)
+        if (
+            identity is None
+            and facet_name in _GL_REQUIRED_AUTHORITY_FACET_NAMES
+            and binding.binding_id == canonical_binding_id
+            and binding.candidate_binding_ref == binding_ref
+            and binding.kg_row_ref == row_ref
+            and binding.source_table == source_table
+            and isinstance(source_row_refs, tuple)
+            and source_row_refs == (row_ref,)
+            and binding.facet_status == "missing"
+        ):
+            missing_facet_names.append(facet_name)
+        if (
+            not isinstance(binding.binding_id, str)
+            or not binding.binding_id
+            or binding.binding_id != canonical_binding_id
+            or not isinstance(binding.candidate_binding_ref, str)
+            or binding.candidate_binding_ref != binding_ref
+            or not isinstance(binding.kg_row_ref, str)
+            or binding.kg_row_ref != row_ref
+            or not isinstance(binding.source_table, str)
+            or binding.source_table != source_table
+            or not isinstance(source_row_refs, tuple)
+            or source_row_refs != (row_ref,)
+            or not isinstance(facet_name, str)
+            or not facet_name
+            or identity is None
+            or not _gl_facet_matches_selected_subject(binding, identity)
+        ):
+            refuse("layer3_gl_authority_facet_binding_semantic_loss")
+            continue
+        if binding.facet_status == "missing" or binding.facet_source == "missing":
+            if facet_name in _GL_REQUIRED_AUTHORITY_FACET_NAMES:
+                missing_facet_names.append(facet_name)
+            refuse("layer3_gl_authority_facet_binding_missing")
+            continue
+        if binding.facet_status not in {"present", "context_only"}:
+            refuse("layer3_gl_authority_facet_binding_semantic_loss")
+            continue
+        if binding.status not in {"pass", "context_only"}:
+            refuse("layer3_gl_authority_facet_binding_semantic_loss")
+            continue
+        if binding.validation_status not in {"pass", "context_only"}:
+            refuse("layer3_gl_authority_facet_binding_semantic_loss")
+            continue
+        if binding.facet_value is None:
+            refuse("layer3_gl_authority_facet_binding_semantic_loss")
+            continue
+        if not _gl_candidate_facet_value_shape_is_valid(binding):
+            refuse("layer3_gl_authority_facet_binding_semantic_loss")
+            continue
+        if facet_name in facets_by_name:
+            refuse("layer3_gl_authority_facet_binding_semantic_loss")
+            continue
+        facets_by_name[facet_name] = binding
+
+    for facet_name in _GL_REQUIRED_AUTHORITY_FACET_NAMES:
+        if facet_name not in observed_facet_names:
+            missing_facet_names.append(facet_name)
+            refuse("layer3_gl_authority_facet_binding_missing")
+    if not associated_refs and first_refusal is None:
+        refuse("layer3_gl_authority_facet_binding_missing")
+    associated_ref_set = set(associated_refs)
+    ordered_refs = tuple(
+        f"gl-authority-facet:{_stable_id(binding_ref, facet_name)}"
+        for facet_name in _GL_REQUIRED_AUTHORITY_FACET_NAMES
+        if f"gl-authority-facet:{_stable_id(binding_ref, facet_name)}" in associated_ref_set
+    )
+    if associated_ref_set != set(ordered_refs):
+        refuse("layer3_gl_authority_facet_binding_semantic_loss")
+    return (
+        ordered_refs,
+        facets_by_name,
+        first_refusal,
+        tuple(dict.fromkeys(missing_facet_names)),
+    )
 
 
 def build_gl_legal_authority_report_binding(
     repo_root: Path,
     *,
+    ledgers: Sequence[Layer3GLLegalSearchLedger] = (),
     legal_requirement_bindings: Sequence[Layer3GLLegalRequirementBinding] = (),
+    authority_facet_bindings: Sequence[Layer3GLAuthorityFacetBinding] = (),
     norm_candidate_bindings: Sequence[Layer3GLNormCandidateBinding] = (),
 ) -> Layer3GLLegalAuthorityReportBinding:
     """Call Lex legal authority/applicability adapters through GL bindings."""
@@ -1980,12 +2747,23 @@ def build_gl_legal_authority_report_binding(
         build_normative_applicability_report,
     )
 
-    _ = repo_root
     if not legal_requirement_bindings:
         return Layer3GLLegalAuthorityReportBinding(
             status="not_implemented",
             issue_codes=("layer3_gl_legal_requirement_binding_missing",),
         )
+    canonical_requirements = _recompute_gl_requirement_binding_projection(
+        Path(repo_root),
+        legal_requirement_bindings,
+    )
+    if canonical_requirements is None:
+        refusal_code = "layer3_gl_authority_facet_binding_semantic_loss"
+        return Layer3GLLegalAuthorityReportBinding(
+            status="fail",
+            blocker_refs=(refusal_code,),
+            issue_codes=(refusal_code,),
+        )
+    legal_requirement_bindings = canonical_requirements
     requirement_specs = tuple(binding.requirement_spec for binding in legal_requirement_bindings)
     requirement_refs = tuple(
         binding.requirement_ref or "" for binding in legal_requirement_bindings
@@ -1995,7 +2773,45 @@ def build_gl_legal_authority_report_binding(
     ].legal_requirement_artifact_ref or _repo_artifact_ref(
         GL_LEGAL_REQUIREMENT_ARTIFACT_PATH, requirement_specs
     )
-    candidate_norms = tuple(binding.candidate_norm for binding in norm_candidate_bindings)
+    candidate_issue_codes: list[str] = []
+    candidate_norms_list: list[dict[str, Any]] = []
+    for binding in norm_candidate_bindings:
+        identity = _resolve_gl_selected_subject_identity(
+            repo_root=Path(repo_root),
+            row_ref=binding.kg_row_ref,
+            ledgers=ledgers,
+            legal_requirement_bindings=legal_requirement_bindings,
+        )
+        if identity is None or not _gl_candidate_matches_selected_subject(
+            binding,
+            identity,
+            authority_facet_bindings,
+        ):
+            candidate_issue_codes.append("layer3_gl_authority_facet_binding_semantic_loss")
+            continue
+        candidate_issue_codes.extend(
+            code
+            for code in binding.issue_codes
+            if code
+            in {
+                "layer3_gl_authority_facet_binding_missing",
+                "layer3_gl_authority_facet_binding_semantic_loss",
+                "layer3_gl_jurisdiction_fallback_policy_missing",
+                "layer3_gl_norm_temporal_window_missing",
+                "layer3_gl_norm_source_authority_missing",
+            }
+        )
+        if binding.status != "blocked" and not any(
+            code
+            in {
+                "layer3_gl_authority_facet_binding_missing",
+                "layer3_gl_authority_facet_binding_semantic_loss",
+            }
+            for code in binding.issue_codes
+        ):
+            candidate_norms_list.append(binding.candidate_norm)
+    candidate_facet_issue_codes = tuple(dict.fromkeys(candidate_issue_codes))
+    candidate_norms = tuple(candidate_norms_list)
     target_context = _default_target_context()
     claims = _default_recommendation_claims()
     fallback_config = _default_jurisdiction_fallback_config()
@@ -2029,6 +2845,10 @@ def build_gl_legal_authority_report_binding(
             "requirement_refs": requirement_refs,
         },
     )
+    adapter_issue_codes = tuple(
+        str(code) for code in _tuple(adapter_report.get("issue_codes")) if code
+    )
+    report_issue_codes = tuple(dict.fromkeys((*adapter_issue_codes, *candidate_facet_issue_codes)))
     return Layer3GLLegalAuthorityReportBinding(
         status=str(adapter_report.get("status") or "fail"),
         producer_artifact_ref=producer_ref,
@@ -2041,7 +2861,7 @@ def build_gl_legal_authority_report_binding(
         if adapter_report.get("status") != "pass"
         else adapter_record_refs,
         adapter_legal_authority_record_refs=adapter_record_refs,
-        blocker_refs=tuple(str(code) for code in _tuple(adapter_report.get("issue_codes"))),
+        blocker_refs=tuple(dict.fromkeys((*adapter_issue_codes, *candidate_facet_issue_codes))),
         used_internal_requirement_compile=False,
         explicit_gl_requirement_spec_refs=requirement_refs,
         candidate_source="gl_norm_candidate_bindings",
@@ -2057,7 +2877,7 @@ def build_gl_legal_authority_report_binding(
         applicability_report=applicability_report,
         adapter_candidate_norm_count=len(candidate_norms),
         applicability_status=str(applicability_report.get("status") or "unknown"),
-        issue_codes=tuple(str(code) for code in _tuple(adapter_report.get("issue_codes"))),
+        issue_codes=report_issue_codes,
         claim_id=legal_requirement_bindings[0].claim_id,
         requirement_ref=legal_requirement_bindings[0].requirement_ref,
         jurisdiction=legal_requirement_bindings[0].jurisdiction,
@@ -2067,7 +2887,7 @@ def build_gl_legal_authority_report_binding(
 
 def _legal_requirement_binding_from_spec(
     *,
-    requirement: object,
+    requirement: LegalAuthorityRequirementSpec,
     requirement_artifact: Mapping[str, Any],
     requirement_artifact_ref: str,
     source_claim: Mapping[str, Any],
@@ -2117,13 +2937,15 @@ def _legal_requirement_binding_from_spec(
             str(item) for item in _tuple(spec.get("required_fiscal_authority_refs"))
         ),
         fallback_policy=dict(_mapping(spec.get("fallback_policy"))),
-        jurisdiction=str(spec.get("jurisdiction") or ""),
-        authority_profile_ref=str(spec.get("authority_profile_ref") or ""),
+        jurisdiction=_optional_text(spec.get("jurisdiction")),
+        authority_profile_ref=_optional_text(spec.get("authority_profile_ref")),
         facet_refs=tuple(str(item) for item in _tuple(spec.get("facet_refs"))),
         obligation_refs=tuple(str(item) for item in _tuple(spec.get("obligation_refs"))),
         concept_spine_refs=tuple(str(item) for item in _tuple(spec.get("concept_spine_refs"))),
         rule_version_ref=str(spec.get("rule_version_ref") or ""),
-        legal_as_of=str(_mapping(spec.get("temporal_competence_window")).get("legal_as_of") or ""),
+        legal_as_of=_optional_text(
+            _mapping(spec.get("temporal_competence_window")).get("legal_as_of")
+        ),
         effective_from=_optional_text(
             _mapping(spec.get("temporal_competence_window")).get("start")
         ),
@@ -2145,7 +2967,7 @@ def _facet_binding(
     facet_status: str,
     source_column_refs: tuple[str, ...],
     source_row_refs: tuple[str, ...],
-    derivation_rule_ref: str,
+    derivation_rule_ref: str | None,
     validation_status: str,
     semantic_loss_status: str,
     derived_from_compiler_default: bool = False,
@@ -2171,6 +2993,226 @@ def _facet_binding(
         blocker_refs=blocker_refs,
         limitation_refs=limitation_refs,
         legal_kg_snapshot_ref=None,
+    )
+
+
+def _gl_required_facet_missing_issue_codes(
+    facet_names: Sequence[str],
+) -> tuple[str, ...]:
+    """Return existing issue codes for absent members of the owner-defined set."""
+
+    if not facet_names:
+        return ()
+    codes = ["layer3_gl_authority_facet_binding_missing"]
+    issue_by_facet = {
+        "fallback": "layer3_gl_jurisdiction_fallback_policy_missing",
+        "legal_effective_window": "layer3_gl_norm_temporal_window_missing",
+        "source_authority": "layer3_gl_norm_source_authority_missing",
+    }
+    codes.extend(issue_by_facet[name] for name in facet_names if name in issue_by_facet)
+    return tuple(dict.fromkeys(codes))
+
+
+def _missing_gl_authority_facet_binding(
+    *,
+    binding_ref: str,
+    row_ref: str,
+    source_table: str,
+    facet_name: str,
+    source_column_refs: tuple[str, ...] = (),
+    derivation_rule_ref: str | None = None,
+    semantic_loss_status: str = "missing_required_facet",
+) -> Layer3GLAuthorityFacetBinding:
+    """Record a required facet whose source value is unavailable."""
+
+    binding = _facet_binding(
+        binding_ref=binding_ref,
+        row_ref=row_ref,
+        source_table=source_table,
+        facet_name=facet_name,
+        facet_value=None,
+        facet_source="missing",
+        facet_status="missing",
+        source_column_refs=source_column_refs,
+        source_row_refs=(row_ref,),
+        derivation_rule_ref=derivation_rule_ref,
+        validation_status="blocked",
+        semantic_loss_status=semantic_loss_status,
+        blocker_refs=("gl-blocker:layer3_gl_authority_facet_binding_missing",),
+    )
+    return binding.model_copy(
+        update={"issue_codes": _gl_required_facet_missing_issue_codes((facet_name,))}
+    )
+
+
+def _complete_gl_authority_facet_membership(
+    *,
+    binding_ref: str,
+    row_ref: str,
+    source_table: str,
+    facets: Sequence[Layer3GLAuthorityFacetBinding],
+) -> tuple[Layer3GLAuthorityFacetBinding, ...]:
+    """Represent every owner-required member, including unavailable source values."""
+
+    observed = {facet.facet_name for facet in facets if facet.candidate_binding_ref == binding_ref}
+    missing = tuple(
+        facet_name
+        for facet_name in _GL_REQUIRED_AUTHORITY_FACET_NAMES
+        if facet_name not in observed
+    )
+    return (
+        *facets,
+        *(
+            _missing_gl_authority_facet_binding(
+                binding_ref=binding_ref,
+                row_ref=row_ref,
+                source_table=source_table,
+                facet_name=facet_name,
+            )
+            for facet_name in missing
+        ),
+    )
+
+
+def _gl_legal_effective_window_facet_binding(
+    *,
+    binding_ref: str,
+    row_ref: str,
+    source_table: str,
+    candidate: Mapping[str, Any],
+    requirement: Layer3GLLegalRequirementBinding,
+) -> Layer3GLAuthorityFacetBinding:
+    """Bind the row's effective window without filling source gaps from a requirement."""
+
+    facet_name = "legal_effective_window"
+    has_start = "effective_from" in candidate
+    has_end = "effective_to" in candidate
+    if not has_start and not has_end:
+        return _missing_gl_authority_facet_binding(
+            binding_ref=binding_ref,
+            row_ref=row_ref,
+            source_table=source_table,
+            facet_name=facet_name,
+        )
+
+    effective_from = candidate.get("effective_from")
+    effective_to = candidate.get("effective_to")
+    value = {
+        "start": effective_from,
+        "end": effective_to,
+        "legal_as_of": requirement.legal_as_of,
+    }
+    source_column_refs = tuple(
+        f"{source_table}.{column}"
+        for column, present in (
+            ("effective_from", has_start),
+            ("effective_to", has_end),
+            ("temporal_resolution_status", "temporal_resolution_status" in candidate),
+        )
+        if present
+    )
+    start_absent = not has_start or effective_from is None
+    end_absent = not has_end or effective_to is None
+    if start_absent and end_absent:
+        return _missing_gl_authority_facet_binding(
+            binding_ref=binding_ref,
+            row_ref=row_ref,
+            source_table=source_table,
+            facet_name=facet_name,
+            source_column_refs=source_column_refs,
+            derivation_rule_ref="lex-explicit:temporal-window.v1",
+            semantic_loss_status="source_temporal_window_unavailable",
+        )
+    malformed_or_incomplete = (
+        start_absent
+        or end_absent
+        or not isinstance(effective_from, str)
+        or not isinstance(effective_to, str)
+        or not effective_from.strip()
+        or not effective_to.strip()
+    )
+    return _facet_binding(
+        binding_ref=binding_ref,
+        row_ref=row_ref,
+        source_table=source_table,
+        facet_name=facet_name,
+        facet_value=value,
+        facet_source="lex_explicit",
+        facet_status="present",
+        source_column_refs=source_column_refs,
+        source_row_refs=(row_ref,),
+        derivation_rule_ref="lex-explicit:temporal-window.v1",
+        validation_status="blocked" if malformed_or_incomplete else "pass",
+        semantic_loss_status=(
+            "incomplete_or_malformed_source_temporal_window"
+            if malformed_or_incomplete
+            else "lossless"
+        ),
+    )
+
+
+def _gl_fallback_policy_facet_binding(
+    *,
+    binding_ref: str,
+    row_ref: str,
+    source_table: str,
+    requirement: Layer3GLLegalRequirementBinding,
+) -> Layer3GLAuthorityFacetBinding:
+    """Bind only the fallback configuration already present on this requirement."""
+
+    policy_value = requirement.fallback_policy
+    if not isinstance(policy_value, Mapping):
+        return _facet_binding(
+            binding_ref=binding_ref,
+            row_ref=row_ref,
+            source_table=source_table,
+            facet_name="fallback",
+            facet_value=policy_value,
+            facet_source="governed_config",
+            facet_status="present",
+            source_column_refs=(),
+            source_row_refs=(row_ref,),
+            derivation_rule_ref=None,
+            validation_status="blocked",
+            semantic_loss_status="malformed_present_fallback_config",
+        )
+    policy = policy_value
+    if not policy:
+        return _missing_gl_authority_facet_binding(
+            binding_ref=binding_ref,
+            row_ref=row_ref,
+            source_table=source_table,
+            facet_name="fallback",
+        )
+    config_ref = policy.get("config_ref")
+    if not isinstance(config_ref, str) or not config_ref.strip():
+        return _facet_binding(
+            binding_ref=binding_ref,
+            row_ref=row_ref,
+            source_table=source_table,
+            facet_name="fallback",
+            facet_value=policy,
+            facet_source="governed_config",
+            facet_status="present",
+            source_column_refs=(),
+            source_row_refs=(row_ref,),
+            derivation_rule_ref=None,
+            validation_status="blocked",
+            semantic_loss_status="malformed_present_fallback_config",
+        )
+    return _facet_binding(
+        binding_ref=binding_ref,
+        row_ref=row_ref,
+        source_table=source_table,
+        facet_name="fallback",
+        facet_value=policy,
+        facet_source="governed_config",
+        facet_status="present",
+        source_column_refs=(),
+        source_row_refs=(row_ref,),
+        derivation_rule_ref=GL_JURISDICTION_FALLBACK_CONFIG_REF,
+        validation_status="pass",
+        semantic_loss_status="governed_config_only",
     )
 
 
@@ -2326,6 +3368,72 @@ def _facets_by_name_for_candidate(
     }
 
 
+def _gl_candidate_facet_value_shape_is_valid(
+    binding: Layer3GLAuthorityFacetBinding,
+) -> bool:
+    """Check existing GL facet value shapes before any candidate projection."""
+
+    return _gl_facet_value_shape_is_valid(binding.facet_name, binding.facet_value)
+
+
+def _gl_facet_value_shape_is_valid(facet_name: object, value: object) -> bool:
+    """Validate a facet value from either a model or persisted payload."""
+
+    if not isinstance(facet_name, str):
+        return False
+    if facet_name in {
+        "source_authority",
+        "competent_actor_ref",
+        "implementation_authority_ref",
+        "fiscal_authority_ref",
+    }:
+        return isinstance(value, str) and bool(value.strip())
+    if facet_name in {"authority_types", "instrument_types"}:
+        return isinstance(value, (tuple, list)) and all(isinstance(item, str) for item in value)
+    if facet_name not in {
+        "hierarchy",
+        "conflict_supersession_preemption",
+        "fallback",
+        "legal_effective_window",
+    }:
+        return True
+    if not isinstance(value, Mapping) or any(not isinstance(key, str) for key in value):
+        return False
+    if facet_name == "hierarchy":
+        authority_level = value.get("authority_level")
+        hierarchy_depth = value.get("hierarchy_depth")
+        return (
+            "authority_level" in value
+            and isinstance(authority_level, str)
+            and "hierarchy_depth" in value
+            and isinstance(hierarchy_depth, int)
+            and not isinstance(hierarchy_depth, bool)
+        )
+    if facet_name == "conflict_supersession_preemption":
+        return all(
+            field_name in value and isinstance(value[field_name], str)
+            for field_name in (
+                "conflict_state",
+                "supersession_state",
+                "preemption_state",
+            )
+        )
+    if facet_name == "fallback":
+        config_ref = value.get("config_ref")
+        return isinstance(config_ref, str) and bool(config_ref.strip())
+    start = value.get("start")
+    end = value.get("end")
+    legal_as_of = value.get("legal_as_of")
+    return (
+        isinstance(start, str)
+        and bool(start.strip())
+        and isinstance(end, str)
+        and bool(end.strip())
+        and isinstance(legal_as_of, str)
+        and bool(legal_as_of.strip())
+    )
+
+
 def _candidate_norm_from_facets(
     *,
     candidate: Mapping[str, Any],
@@ -2336,23 +3444,27 @@ def _candidate_norm_from_facets(
 ) -> dict[str, Any]:
     row_ref = str(candidate.get("row_ref") or "")
     doc_id = str(candidate.get("doc_id") or _stable_id(row_ref))
-    effective_from = _optional_text(candidate.get("effective_from")) or requirement.effective_from
-    effective_to = _optional_text(candidate.get("effective_to")) or requirement.effective_to
+    source_window = _authority_facet_mapping(facets, "legal_effective_window")
+    effective_from = _authority_facet_text(source_window, "start", "")
+    effective_to = _authority_facet_text(source_window, "end", "")
     authority_type_facet = facets.get("authority_types")
     authority_types = (
         tuple(str(item) for item in _tuple(authority_type_facet.facet_value))
         if authority_type_facet and authority_type_facet.facet_source != "compiler_default"
         else ()
     )
-    hierarchy = _mapping(facets.get("hierarchy").facet_value if facets.get("hierarchy") else {})
-    conflict = _mapping(
-        facets.get("conflict_supersession_preemption").facet_value
-        if facets.get("conflict_supersession_preemption")
-        else {}
+    hierarchy = _authority_facet_mapping(facets, "hierarchy")
+    conflict = _authority_facet_mapping(facets, "conflict_supersession_preemption")
+    authority_level = _authority_facet_text(hierarchy, "authority_level", "national")
+    hierarchy_depth = _authority_facet_depth(
+        hierarchy,
+        "hierarchy_depth",
+        requirement.required_hierarchy_depth,
     )
+    fallback = _authority_facet_mapping(facets, "fallback")
     return {
         "norm_id": f"gl-norm:{_stable_id(row_ref)}",
-        "norm_version_ref": f"{doc_id}@{effective_from or requirement.legal_as_of or 'unknown'}",
+        "norm_version_ref": f"{doc_id}@{effective_from}",
         "source_provenance_ref": row_ref,
         "jurisdiction": candidate.get("jurisdiction") or requirement.jurisdiction,
         "policy_domain": candidate.get("top_domain") or "economic_policy",
@@ -2366,8 +3478,8 @@ def _candidate_norm_from_facets(
         "reference_resolution_status": candidate.get("reference_resolution_status"),
         "temporal_status": candidate.get("temporal_resolution_status"),
         "source_authority": _facet_value(facets, "source_authority", ""),
-        "authority_level": hierarchy.get("authority_level") or "national",
-        "hierarchy_depth": hierarchy.get("hierarchy_depth") or requirement.required_hierarchy_depth,
+        "authority_level": authority_level,
+        "hierarchy_depth": hierarchy_depth,
         "authority_types": list(authority_types),
         "compiler_default_authority_types": list(requirement.authority_types),
         "authority_type_source": requirement.authority_type_source,
@@ -2375,10 +3487,18 @@ def _candidate_norm_from_facets(
         "instrument_types": list(_tuple(_facet_value(facets, "instrument_types", ()))),
         "implementation_authority_ref": _facet_value(facets, "implementation_authority_ref", ""),
         "fiscal_authority_ref": _facet_value(facets, "fiscal_authority_ref", ""),
-        "fallback_policy_ref": _mapping(_facet_value(facets, "fallback", {})).get("config_ref"),
-        "conflict_state": conflict.get("conflict_state", "clear"),
-        "supersession_state": conflict.get("supersession_state", "not_assessed"),
-        "preemption_state": conflict.get("preemption_state", "not_assessed"),
+        "fallback_policy_ref": _authority_facet_optional_text(fallback, "config_ref", None),
+        "conflict_state": _authority_facet_optional_text(conflict, "conflict_state", "clear"),
+        "supersession_state": _authority_facet_optional_text(
+            conflict,
+            "supersession_state",
+            "not_assessed",
+        ),
+        "preemption_state": _authority_facet_optional_text(
+            conflict,
+            "preemption_state",
+            "not_assessed",
+        ),
         "authority_position": "context_only_until_lex_explicit_authority_type",
         "threshold_ids": tuple(
             str(candidate.get("threshold_id")) for _ in (0,) if candidate.get("threshold_id")
@@ -2401,14 +3521,13 @@ def _threshold_candidate_norm_from_facets(
 ) -> dict[str, Any]:
     row_ref = str(candidate.get("row_ref") or "")
     fact_id = str(candidate.get("fact_id") or _stable_id(row_ref, "fact"))
-    effective_from = requirement.effective_from or requirement.legal_as_of or "2022-03-01"
-    effective_to = requirement.effective_to or "2022-12-31"
-    hierarchy = _mapping(facets.get("hierarchy").facet_value if facets.get("hierarchy") else {})
-    conflict = _mapping(
-        facets.get("conflict_supersession_preemption").facet_value
-        if facets.get("conflict_supersession_preemption")
-        else {}
-    )
+    source_window = _authority_facet_mapping(facets, "legal_effective_window")
+    effective_from = _authority_facet_text(source_window, "start", "")
+    effective_to = _authority_facet_text(source_window, "end", "")
+    hierarchy = _authority_facet_mapping(facets, "hierarchy")
+    conflict = _authority_facet_mapping(facets, "conflict_supersession_preemption")
+    authority_level = _authority_facet_text(hierarchy, "authority_level", "national")
+    hierarchy_depth = _authority_facet_depth(hierarchy, "hierarchy_depth", 2)
     authority_types = tuple(
         str(item) for item in _tuple(_facet_value(facets, "authority_types", ()))
     )
@@ -2427,20 +3546,28 @@ def _threshold_candidate_norm_from_facets(
         "grounding_status": "kg_threshold_hydrated",
         "canonical_status": "canonicalized",
         "reference_resolution_status": "not_applicable",
-        "temporal_status": "resolved_by_claim_competence_window",
-        "temporal_resolution_status": "resolved_by_claim_competence_window",
+        "temporal_status": candidate.get("temporal_resolution_status"),
+        "temporal_resolution_status": candidate.get("temporal_resolution_status"),
         "source_authority": _facet_value(facets, "source_authority", ""),
-        "authority_level": hierarchy.get("authority_level") or "national",
-        "hierarchy_depth": hierarchy.get("hierarchy_depth") or 2,
+        "authority_level": authority_level,
+        "hierarchy_depth": hierarchy_depth,
         "authority_types": list(authority_types),
         "authority_type_source": "governed_config_threshold_profile",
         "competent_actor_ref": _facet_value(facets, "competent_actor_ref", ""),
         "instrument_types": list(_tuple(_facet_value(facets, "instrument_types", ()))),
         "implementation_authority_ref": _facet_value(facets, "implementation_authority_ref", ""),
         "fiscal_authority_ref": _facet_value(facets, "fiscal_authority_ref", ""),
-        "conflict_state": conflict.get("conflict_state", "clear"),
-        "supersession_state": conflict.get("supersession_state", "current"),
-        "preemption_state": conflict.get("preemption_state", "not_assessed"),
+        "conflict_state": _authority_facet_optional_text(conflict, "conflict_state", "clear"),
+        "supersession_state": _authority_facet_optional_text(
+            conflict,
+            "supersession_state",
+            "current",
+        ),
+        "preemption_state": _authority_facet_optional_text(
+            conflict,
+            "preemption_state",
+            "not_assessed",
+        ),
         "authority_position": "claim_level_candidate_for_legal_authority_adapter",
         "threshold_ids": tuple(
             str(candidate.get("threshold_id")) for _ in (0,) if candidate.get("threshold_id")
@@ -2464,6 +3591,65 @@ def _facet_value(
     if binding is None:
         return default
     return binding.facet_value if binding.facet_value is not None else default
+
+
+def _authority_facet_mapping(
+    facets: Mapping[str, Layer3GLAuthorityFacetBinding],
+    facet_name: str,
+) -> Mapping[str, object]:
+    """Return a typed mapping facet, rejecting malformed values instead of erasing them."""
+
+    binding = facets.get(facet_name)
+    if binding is None or binding.facet_value is None:
+        return {}
+    value: object = binding.facet_value
+    if not isinstance(value, Mapping):
+        raise TypeError(f"GL authority facet {facet_name!r} must be a mapping when present")
+    normalized: dict[str, object] = {}
+    for key, item in value.items():
+        if not isinstance(key, str):
+            raise TypeError(f"GL authority facet {facet_name!r} must use text keys")
+        normalized[key] = item
+    return normalized
+
+
+def _authority_facet_text(
+    values: Mapping[str, object],
+    field_name: str,
+    default: str,
+) -> str:
+    if field_name not in values:
+        return default
+    value = values[field_name]
+    if not isinstance(value, str):
+        raise TypeError(f"GL authority facet field {field_name!r} must be text when present")
+    return value
+
+
+def _authority_facet_optional_text(
+    values: Mapping[str, object],
+    field_name: str,
+    default: str | None,
+) -> str | None:
+    if field_name not in values:
+        return default
+    value = values[field_name]
+    if not isinstance(value, str):
+        raise TypeError(f"GL authority facet field {field_name!r} must be text when present")
+    return value
+
+
+def _authority_facet_depth(
+    values: Mapping[str, object],
+    field_name: str,
+    default: int | None,
+) -> int | None:
+    if field_name not in values:
+        return default
+    value = values[field_name]
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise TypeError(f"GL authority facet field {field_name!r} must be an integer when present")
+    return value
 
 
 def _primary_norm_candidate_row(
@@ -2579,6 +3765,8 @@ def _first_text(value: object) -> str:
 
 def _optional_float(value: object) -> float | None:
     if value in (None, ""):
+        return None
+    if not isinstance(value, (SupportsFloat, SupportsIndex, str, bytes, bytearray)):
         return None
     try:
         return float(value)
@@ -2937,12 +4125,17 @@ def build_gl_lex_intervention_map_bindings(
     legal_authority_report: Layer3GLLegalAuthorityReportBinding | None = None,
     norm_candidate_bindings: Sequence[Layer3GLNormCandidateBinding] = (),
     threshold_authority_records: Sequence[Layer3GLThresholdAuthorityRecord] = (),
-    mapping_registry: object | None = None,
+    mapping_registry: LexProvisionMappingRegistry | None = None,
     production_mapping_row_count: int | None = None,
 ) -> tuple[Layer3GLLexInterventionMapBinding, ...]:
     """Build Lex intervention-map handoff bindings without legal-authority laundering."""
 
     _ = repo_root
+    if mapping_registry is not None:
+        from polisyos.lex import LexProvisionMappingRegistry
+
+        if not isinstance(mapping_registry, LexProvisionMappingRegistry):
+            raise TypeError("mapping_registry must be a LexProvisionMappingRegistry")
     _require_gl_source_relation_verification_if_authority_projection(
         legal_authority_report,
         threshold_authority_records,
@@ -3072,12 +4265,10 @@ def _lex_intervention_registry_for_provision(
     provision_ref: str,
     legal_authority_report: Layer3GLLegalAuthorityReportBinding,
     threshold_record: Layer3GLThresholdAuthorityRecord | None,
-    mapping_registry: object | None,
-) -> tuple[object, bool]:
-    if mapping_registry is not None:
-        get_mapping = getattr(mapping_registry, "get_mapping", None)
-        if callable(get_mapping) and get_mapping(provision_ref) is not None:
-            return mapping_registry, False
+    mapping_registry: LexProvisionMappingRegistry | None,
+) -> tuple[LexProvisionMappingRegistry, bool]:
+    if mapping_registry is not None and mapping_registry.get_mapping(provision_ref) is not None:
+        return mapping_registry, False
     return (
         _synthetic_lex_intervention_registry(
             provision_ref=provision_ref,
@@ -3093,7 +4284,7 @@ def _synthetic_lex_intervention_registry(
     provision_ref: str,
     legal_authority_report: Layer3GLLegalAuthorityReportBinding,
     threshold_record: Layer3GLThresholdAuthorityRecord | None,
-) -> object:
+) -> LexProvisionMappingRegistry:
     from polisyos.lex import (
         InterventionKnobDictionaryEntry,
         LexInterventionMapEntry,
@@ -3258,22 +4449,37 @@ def _require_gl_source_relation_verification_if_authority_projection(
         require_legal_source_relation_verification()
 
 
-def _gl_legal_refs_from_mandates(records: Sequence[object]) -> tuple[str, ...]:
+def _validated_mandate_records(
+    records: Sequence[Layer3GLMandateAuthorityRecord | Mapping[str, Any]],
+) -> tuple[Layer3GLMandateAuthorityRecord, ...]:
+    """Resolve serialized mandate records through their strict runtime contract."""
+
+    return tuple(
+        record
+        if isinstance(record, Layer3GLMandateAuthorityRecord)
+        else Layer3GLMandateAuthorityRecord.model_validate(record)
+        for record in records
+    )
+
+
+def _gl_legal_refs_from_mandates(
+    records: Sequence[Layer3GLMandateAuthorityRecord | Mapping[str, Any]],
+) -> tuple[str, ...]:
     return tuple(
         dict.fromkeys(
             ref
-            for record in records
-            for ref in _tuple(_mapping(_dump_model(record)).get("legal_authority_record_refs"))
+            for record in _validated_mandate_records(records)
+            for ref in record.legal_authority_record_refs
         )
     )
 
 
-def _gl_mandate_limitations(records: Sequence[object]) -> tuple[str, ...]:
+def _gl_mandate_limitations(
+    records: Sequence[Layer3GLMandateAuthorityRecord | Mapping[str, Any]],
+) -> tuple[str, ...]:
     refs = tuple(
         dict.fromkeys(
-            ref
-            for record in records
-            for ref in _tuple(_mapping(_dump_model(record)).get("limitation_refs"))
+            ref for record in _validated_mandate_records(records) for ref in record.limitation_refs
         )
     )
     return refs or ("gl-limitation:s6-evaluation-required",)
@@ -5003,6 +6209,8 @@ def _validate_task1_route(
 def _validate_authority_firewalls(
     payload: Mapping[str, Any],
     issues: list[Layer3GLValidationIssue],
+    *,
+    repo_root: Path,
 ) -> None:
     report = _mapping(payload.get("legal_authority_report"))
     selected_norm_refs = _tuple(report.get("selected_norm_refs"))
@@ -5096,9 +6304,9 @@ def _validate_authority_firewalls(
                 "GL closure requires typed norm-candidate bindings from KG rows.",
             )
         )
-    _validate_legal_requirement_bindings(payload, issues)
+    _validate_legal_requirement_bindings(payload, issues, repo_root=repo_root)
     _validate_threshold_records(payload, issues)
-    _validate_authority_facet_records(payload, issues)
+    _validate_authority_facet_records(payload, issues, repo_root=repo_root)
     _validate_intervention_map_records(payload, issues)
     _validate_mandate_records(payload, issues)
     _validate_temporal_competence_records(payload, issues)
@@ -5107,9 +6315,11 @@ def _validate_authority_firewalls(
 def _validate_legal_requirement_bindings(
     payload: Mapping[str, Any],
     issues: list[Layer3GLValidationIssue],
+    *,
+    repo_root: Path,
 ) -> None:
-    bindings = _sequence_of_mappings(payload.get("legal_requirement_bindings"))
-    if not bindings:
+    raw_bindings = payload.get("legal_requirement_bindings")
+    if raw_bindings is None or raw_bindings == [] or raw_bindings == ():
         issues.append(
             _issue(
                 "layer3_gl_legal_requirement_binding_missing",
@@ -5118,6 +6328,46 @@ def _validate_legal_requirement_bindings(
             )
         )
         return
+    binding_models = _validated_gl_models(
+        raw_bindings,
+        Layer3GLLegalRequirementBinding,
+    )
+    if binding_models is None or not all(
+        isinstance(binding, Layer3GLLegalRequirementBinding) for binding in binding_models
+    ):
+        issues.append(
+            _issue(
+                "layer3_gl_authority_facet_binding_semantic_loss",
+                "$.legal_requirement_bindings",
+                "Present requirement bindings must be typed before owner-projection "
+                "reconciliation.",
+            )
+        )
+        return
+    typed_bindings = tuple(
+        binding
+        for binding in binding_models
+        if isinstance(binding, Layer3GLLegalRequirementBinding)
+    )
+    if not typed_bindings:
+        issues.append(
+            _issue(
+                "layer3_gl_legal_requirement_binding_missing",
+                "$.legal_requirement_bindings",
+                "GL requires persisted legal requirement bindings.",
+            )
+        )
+        return
+    if _recompute_gl_requirement_binding_projection(repo_root, typed_bindings) is None:
+        issues.append(
+            _issue(
+                "layer3_gl_authority_facet_binding_semantic_loss",
+                "$.legal_requirement_bindings",
+                "Persisted requirement bindings must match the complete canonical "
+                "compiler projection.",
+            )
+        )
+    bindings = tuple(binding.model_dump(mode="json") for binding in typed_bindings)
     for index, binding in enumerate(bindings):
         if not binding.get("producer_artifact_ref") and not binding.get(
             "legal_requirement_artifact_ref"
@@ -5137,15 +6387,38 @@ def _validate_legal_requirement_bindings(
                     "Mandatory legal requirements need authority types.",
                 )
             )
-        fallback_policy = _mapping(binding.get("fallback_policy"))
-        if binding.get("mandatory") and not fallback_policy.get("config_ref"):
-            issues.append(
-                _issue(
-                    "layer3_gl_jurisdiction_fallback_policy_missing",
-                    f"$.legal_requirement_bindings[{index}].fallback_policy",
-                    "GL legal requirements need an explicit jurisdiction fallback policy.",
+        raw_fallback_policy = binding.get("fallback_policy")
+        fallback_policy = _mapping(raw_fallback_policy)
+        if binding.get("mandatory"):
+            fallback_path = f"$.legal_requirement_bindings[{index}].fallback_policy"
+            if not isinstance(raw_fallback_policy, Mapping):
+                issues.append(
+                    _issue(
+                        "layer3_gl_authority_facet_binding_semantic_loss",
+                        fallback_path,
+                        "A present fallback policy must remain a mapping with its typed "
+                        "config ref.",
+                    )
                 )
-            )
+            elif "config_ref" not in fallback_policy:
+                issues.append(
+                    _issue(
+                        "layer3_gl_jurisdiction_fallback_policy_missing",
+                        fallback_path,
+                        "GL legal requirements need an explicit jurisdiction fallback policy.",
+                    )
+                )
+            elif (
+                not isinstance(fallback_policy.get("config_ref"), str)
+                or not fallback_policy["config_ref"].strip()
+            ):
+                issues.append(
+                    _issue(
+                        "layer3_gl_authority_facet_binding_semantic_loss",
+                        fallback_path,
+                        "A present fallback policy config ref must be a non-empty string.",
+                    )
+                )
 
 
 def _validate_threshold_records(
@@ -5181,9 +6454,201 @@ def _validate_threshold_records(
             )
 
 
+def _validate_gl_candidate_facet_membership(
+    *,
+    index: int,
+    candidate: Mapping[str, Any],
+    authority_facet_bindings: Sequence[Mapping[str, Any]],
+    issues: list[Layer3GLValidationIssue],
+) -> None:
+    """Reconcile the complete required facet set with this candidate subject."""
+
+    binding_ref = candidate.get("binding_id")
+    row_ref = candidate.get("kg_row_ref")
+    source_table = candidate.get("source_table")
+    if not isinstance(binding_ref, str) or not binding_ref:
+        issues.append(
+            _issue(
+                "layer3_gl_authority_facet_binding_semantic_loss",
+                f"$.norm_candidate_bindings[{index}].binding_id",
+                "Candidate facet membership requires its source binding identity.",
+            )
+        )
+        return
+    if not isinstance(row_ref, str) or not row_ref:
+        issues.append(
+            _issue(
+                "layer3_gl_authority_facet_binding_semantic_loss",
+                f"$.norm_candidate_bindings[{index}].kg_row_ref",
+                "Candidate facet membership requires its KG row identity.",
+            )
+        )
+        return
+    if not isinstance(source_table, str) or not source_table:
+        issues.append(
+            _issue(
+                "layer3_gl_authority_facet_binding_semantic_loss",
+                f"$.norm_candidate_bindings[{index}].source_table",
+                "Candidate facet membership requires its source table.",
+            )
+        )
+        return
+
+    raw_candidate_refs = candidate.get("authority_facet_binding_refs")
+    if not isinstance(raw_candidate_refs, (tuple, list)) or isinstance(
+        raw_candidate_refs, str | bytes
+    ):
+        issues.append(
+            _issue(
+                "layer3_gl_authority_facet_binding_semantic_loss",
+                f"$.norm_candidate_bindings[{index}].authority_facet_binding_refs",
+                "Candidate facet refs must be a typed sequence.",
+            )
+        )
+        raw_candidate_refs = ()
+    candidate_refs = tuple(ref for ref in raw_candidate_refs if isinstance(ref, str) and ref)
+    if len(candidate_refs) != len(raw_candidate_refs) or len(set(candidate_refs)) != len(
+        candidate_refs
+    ):
+        issues.append(
+            _issue(
+                "layer3_gl_authority_facet_binding_semantic_loss",
+                f"$.norm_candidate_bindings[{index}].authority_facet_binding_refs",
+                "Candidate facet refs must be unique non-empty text values.",
+            )
+        )
+    referenced_ids = set(candidate_refs)
+    related: list[tuple[int, Mapping[str, Any]]] = []
+    for facet_index, facet in enumerate(authority_facet_bindings):
+        raw_source_rows = facet.get("source_row_refs")
+        source_contains_row = (
+            row_ref in raw_source_rows
+            if isinstance(raw_source_rows, (tuple, list, set, frozenset))
+            else False
+        )
+        raw_binding_id = facet.get("binding_id")
+        binding_ref_matches = isinstance(raw_binding_id, str) and raw_binding_id in referenced_ids
+        is_related = (
+            facet.get("candidate_binding_ref") == binding_ref
+            or facet.get("kg_row_ref") == row_ref
+            or source_contains_row
+            or binding_ref_matches
+        )
+        if is_related:
+            related.append((facet_index, facet))
+
+    observed_names: set[str] = set()
+    counts: dict[str, int] = {}
+    found_ids: set[str] = set()
+    for facet_index, facet in related:
+        raw_name = facet.get("facet_name")
+        if not isinstance(raw_name, str) or not raw_name:
+            issues.append(
+                _issue(
+                    "layer3_gl_authority_facet_binding_semantic_loss",
+                    f"$.authority_facet_bindings[{facet_index}].facet_name",
+                    "Candidate-associated facet rows require a typed facet name.",
+                )
+            )
+            continue
+        if raw_name not in _GL_REQUIRED_AUTHORITY_FACET_NAMES:
+            continue
+        observed_names.add(raw_name)
+        counts[raw_name] = counts.get(raw_name, 0) + 1
+        raw_id = facet.get("binding_id")
+        if isinstance(raw_id, str) and raw_id:
+            found_ids.add(raw_id)
+        raw_source_rows = facet.get("source_row_refs")
+        valid_source_rows = (
+            isinstance(raw_source_rows, (tuple, list))
+            and not isinstance(raw_source_rows, str | bytes)
+            and tuple(raw_source_rows) == (row_ref,)
+        )
+        canonical_id = f"gl-authority-facet:{_stable_id(binding_ref, raw_name)}"
+        if (
+            raw_id != canonical_id
+            or facet.get("candidate_binding_ref") != binding_ref
+            or facet.get("kg_row_ref") != row_ref
+            or facet.get("source_table") != source_table
+            or not valid_source_rows
+            or raw_id not in referenced_ids
+        ):
+            issues.append(
+                _issue(
+                    "layer3_gl_authority_facet_binding_semantic_loss",
+                    f"$.authority_facet_bindings[{facet_index}]",
+                    "Candidate facet membership must preserve the exact subject, row, "
+                    "source table, source-row set, and candidate reference.",
+                )
+            )
+        status = facet.get("facet_status")
+        source = facet.get("facet_source")
+        validation = facet.get("validation_status")
+        if status == "missing" or source == "missing":
+            for code in _gl_required_facet_missing_issue_codes((raw_name,)):
+                issues.append(
+                    _issue(
+                        code,
+                        f"$.authority_facet_bindings[{facet_index}]",
+                        f"Required facet {raw_name!r} is explicitly unavailable.",
+                    )
+                )
+        elif (
+            status not in {"present", "context_only"}
+            or facet.get("status") not in {"pass", "context_only"}
+            or validation not in {"pass", "context_only"}
+            or facet.get("facet_value") is None
+        ):
+            issues.append(
+                _issue(
+                    "layer3_gl_authority_facet_binding_semantic_loss",
+                    f"$.authority_facet_bindings[{facet_index}].facet_value",
+                    f"Required facet {raw_name!r} is present but invalid or unvalidated.",
+                )
+            )
+        elif not _gl_facet_value_shape_is_valid(raw_name, facet.get("facet_value")):
+            issues.append(
+                _issue(
+                    "layer3_gl_authority_facet_binding_semantic_loss",
+                    f"$.authority_facet_bindings[{facet_index}].facet_value",
+                    f"Required facet {raw_name!r} has a malformed value shape.",
+                )
+            )
+
+    for ref in candidate_refs:
+        if ref not in found_ids:
+            issues.append(
+                _issue(
+                    "layer3_gl_authority_facet_binding_semantic_loss",
+                    f"$.norm_candidate_bindings[{index}].authority_facet_binding_refs",
+                    "Candidate facet refs must resolve to source-bound facet records.",
+                )
+            )
+    for facet_name in _GL_REQUIRED_AUTHORITY_FACET_NAMES:
+        if facet_name not in observed_names:
+            for code in _gl_required_facet_missing_issue_codes((facet_name,)):
+                issues.append(
+                    _issue(
+                        code,
+                        f"$.norm_candidate_bindings[{index}].authority_facet_binding_refs",
+                        f"Candidate subject is missing required facet membership {facet_name!r}.",
+                    )
+                )
+        elif counts.get(facet_name, 0) != 1:
+            issues.append(
+                _issue(
+                    "layer3_gl_authority_facet_binding_semantic_loss",
+                    f"$.norm_candidate_bindings[{index}].authority_facet_binding_refs",
+                    f"Candidate subject must have one {facet_name!r} facet record.",
+                )
+            )
+
+
 def _validate_authority_facet_records(
     payload: Mapping[str, Any],
     issues: list[Layer3GLValidationIssue],
+    *,
+    repo_root: Path,
 ) -> None:
     authority_facet_bindings = _sequence_of_mappings(payload.get("authority_facet_bindings"))
     for index, candidate in enumerate(
@@ -5205,6 +6670,30 @@ def _validate_authority_facet_records(
                     "The production KG authority facets cannot be assumed without GL bindings.",
                 )
             )
+        candidate_issue_codes = candidate.get("issue_codes", ())
+        if isinstance(candidate_issue_codes, (tuple, list)):
+            for code in candidate_issue_codes:
+                if isinstance(code, str) and code in {
+                    "layer3_gl_authority_facet_binding_missing",
+                    "layer3_gl_authority_facet_binding_semantic_loss",
+                    "layer3_gl_jurisdiction_fallback_policy_missing",
+                    "layer3_gl_norm_temporal_window_missing",
+                    "layer3_gl_norm_source_authority_missing",
+                }:
+                    issues.append(
+                        _issue(
+                            str(code),
+                            f"$.norm_candidate_bindings[{index}].issue_codes",
+                            "Candidate facet origin, required membership, or shape "
+                            "was not admitted; the candidate was withheld before projection.",
+                        )
+                    )
+        _validate_gl_candidate_facet_membership(
+            index=index,
+            candidate=candidate,
+            authority_facet_bindings=authority_facet_bindings,
+            issues=issues,
+        )
     for index, requirement in enumerate(
         _sequence_of_mappings(payload.get("legal_requirement_bindings"))
     ):
@@ -5251,6 +6740,106 @@ def _validate_authority_facet_records(
                     "layer3_gl_authority_facet_binding_semantic_loss",
                     f"$.authority_facet_bindings[{index}]",
                     "Required actor/instrument facets must fail closed when missing.",
+                )
+            )
+    _validate_gl_selected_subject_identity(payload, issues, repo_root=repo_root)
+
+
+def _validate_gl_selected_subject_identity(
+    payload: Mapping[str, Any],
+    issues: list[Layer3GLValidationIssue],
+    *,
+    repo_root: Path,
+) -> None:
+    """Recompute candidate identity from typed persisted owner artifacts."""
+
+    candidate_models = _validated_gl_models(
+        payload.get("norm_candidate_bindings"),
+        Layer3GLNormCandidateBinding,
+    )
+    ledger_models = _validated_gl_models(
+        payload.get("l3_legal_kg_search_ledgers"),
+        Layer3GLLegalSearchLedger,
+    )
+    requirement_models = _validated_gl_models(
+        payload.get("legal_requirement_bindings"),
+        Layer3GLLegalRequirementBinding,
+    )
+    facet_models = _validated_gl_models(
+        payload.get("authority_facet_bindings"),
+        Layer3GLAuthorityFacetBinding,
+    )
+    if candidate_models is None or not all(
+        isinstance(candidate, Layer3GLNormCandidateBinding) for candidate in candidate_models
+    ):
+        issues.append(
+            _issue(
+                "layer3_gl_authority_facet_binding_semantic_loss",
+                "$.norm_candidate_bindings",
+                "Persisted candidates must be typed before identity reconciliation.",
+            )
+        )
+        return
+    candidates = tuple(
+        candidate
+        for candidate in candidate_models
+        if isinstance(candidate, Layer3GLNormCandidateBinding)
+    )
+    ledgers = (
+        tuple(ledger for ledger in ledger_models if isinstance(ledger, Layer3GLLegalSearchLedger))
+        if ledger_models is not None
+        and all(isinstance(ledger, Layer3GLLegalSearchLedger) for ledger in ledger_models)
+        else None
+    )
+    requirements = (
+        tuple(
+            requirement
+            for requirement in requirement_models
+            if isinstance(requirement, Layer3GLLegalRequirementBinding)
+        )
+        if requirement_models is not None
+        and all(
+            isinstance(requirement, Layer3GLLegalRequirementBinding)
+            for requirement in requirement_models
+        )
+        else None
+    )
+    facets = (
+        tuple(facet for facet in facet_models if isinstance(facet, Layer3GLAuthorityFacetBinding))
+        if facet_models is not None
+        and all(isinstance(facet, Layer3GLAuthorityFacetBinding) for facet in facet_models)
+        else None
+    )
+    source_sequences_valid = all(value is not None for value in (ledgers, requirements, facets))
+    for index, candidate in enumerate(candidates):
+        if not source_sequences_valid:
+            issues.append(
+                _issue(
+                    "layer3_gl_authority_facet_binding_semantic_loss",
+                    f"$.norm_candidate_bindings[{index}]",
+                    "Claim, requirement, ledger, and facet sources must be typed before admission.",
+                )
+            )
+            continue
+        if ledgers is None or requirements is None or facets is None:
+            continue
+        identity = _resolve_gl_selected_subject_identity(
+            repo_root=repo_root,
+            row_ref=candidate.kg_row_ref,
+            ledgers=ledgers,
+            legal_requirement_bindings=requirements,
+        )
+        if identity is None or not _gl_candidate_matches_selected_subject(
+            candidate,
+            identity,
+            facets,
+        ):
+            issues.append(
+                _issue(
+                    "layer3_gl_authority_facet_binding_semantic_loss",
+                    f"$.norm_candidate_bindings[{index}]",
+                    "Candidate claim, requirement, selected row, facets, and norm must resolve "
+                    "to one source-derived subject.",
                 )
             )
 

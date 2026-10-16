@@ -971,3 +971,29 @@ The compiler can retain a typed candidate inventory for rows selected from the e
 The capability-search provider consumes the persisted snapshot through the existing provider registry and composer. A complete selected inventory may yield `discoverable` candidate rows; a budget-truncated inventory remains `recall_unmeasured`. Candidate discovery does not establish legal source relation, currentness, execution or authority: source relation remains `verification_missing`, the authority bridge remains missing, and `authoritative_for` remains empty. The pre-existing verified-owner path remains separate and requires its actual typed owner receipt.
 
 An empty capability index persists as zero rows. No row is synthesized to make an empty source look complete. The source-bound local handoff records the selected-input bounds and focused producer, HTTP, persistence, and consumer checks. Global E02 closeout and formal finding adjudication remain with G.
+
+## GL complete requirement projection admission
+
+Before GL derives any Task 3 facet or sends a candidate to either Lex adapter,
+it recomputes the current canonical requirement binding from the existing
+compiler and compares the complete typed binding projection. The comparison
+covers every model field rather than a maintained list of identity fields. A
+mismatch leaves the supplied ten-facet set and values visible as blocked typed
+evidence, adds the existing
+`layer3_gl_authority_facet_binding_semantic_loss` issue, and emits no candidate
+norm for Lex. This includes a forged outer fallback ref beside an unchanged
+compiled spec and artifact.
+
+The downstream consumer can recompute only the standard GL request inputs. The
+persisted artifact contains compiled specs and claim refs, not the original
+claim payload needed to replay arbitrary custom inputs. A custom binding
+produced by `build_gl_legal_requirement_bindings(claims=...)` is therefore
+refused at downstream admission; it is neither treated as absent nor replaced
+with a default. The smallest missing capability is an owner-resolvable,
+content-bound source-input basis at the shared producer/consumer boundary.
+Custom-request admission and a public full-bundle positive are not claimed.
+
+Facet truth, candidate status, source refs, authority limits, and source time
+remain load-bearing. This identity check establishes candidate binding
+consistency only; it establishes neither legal authority nor law truth and
+introduces no legal rule, permission criterion, or public schema field.

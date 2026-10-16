@@ -3057,5 +3057,30 @@
     "P40": "Same fixture/caller signature class widened to both typed forwarding wrappers; runtime/scientific code unchanged. R3 ten PASS/one TypeError retained, no blanket inherited classification.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_gl_r5_r7_complete_projection_canonical_tests": {
+    "root_writer": "/root",
+    "base": "28ba9342111b778e3b9534b66038ca3d9dc2facd",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
+      "policy-engine/tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py",
+      "policy-engine/src/polisyos/lex/__init__.py",
+      "policy-engine/src/polisyos/runtime/quality/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-gl-candidate-facet-origin-refusal.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-gl-selected-subject-identity-join.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-gl-full-requirement-projection-reconciliation.toml"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate canonical fullmodule/typecheck/CLI receipt and component index"
+    ],
+    "adoption": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-gl-r5-r7-adoption-20261017/adoption.json",
+      "sha256": "6d29e214377876ad55a3551dcd77b712716cdb4eb51f484c81cdf426fe96c1ab"
+    },
+    "P40": "Same projection-identity class widened to every typed binding field. Same RAW-layout test class audited across all45newhelpers; finaltest writes only pytesttmp_path, no parent artifact path. Known malformed present input retained blocked, never absence/default.",
+    "scope": "Canonical projection consistency/refusal, not valid fullbundle positive/claim truth/issuer/source_relation verification.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

@@ -9,6 +9,7 @@ eagerly importing DuckDB, Foundry, or Scientist dependencies. Treat symbols expo
 from __future__ import annotations
 
 import importlib
+from typing import TYPE_CHECKING
 
 __all__ = [
     "ActiveVersionResult",
@@ -226,6 +227,191 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "diff_norm_packs": ("polisyos.lex.simulator", "diff_norm_packs"),
 }
 
+
+if TYPE_CHECKING:
+    from polisyos.core.contracts.lex import (
+        ChangeProposalRef as ChangeProposalRef,
+    )
+    from polisyos.core.contracts.lex import (
+        LegalEvaluationRequest as LegalEvaluationRequest,
+    )
+    from polisyos.core.contracts.lex import (
+        LegalReportRef as LegalReportRef,
+    )
+    from polisyos.data_forge.read_api.legal import (
+        LegalSourceRelationRefusal as LegalSourceRelationRefusal,
+    )
+    from polisyos.data_forge.read_api.legal import (
+        LegalSourceRelationVerificationMissingError as LegalSourceRelationVerificationMissingError,
+    )
+    from polisyos.lex.api import (
+        assemble_norm_pack as assemble_norm_pack,
+    )
+    from polisyos.lex.api import (
+        evaluate_legality as evaluate_legality,
+    )
+    from polisyos.lex.api import (
+        evaluate_transport_constraints as evaluate_transport_constraints,
+    )
+    from polisyos.lex.api import (
+        propose_changes as propose_changes,
+    )
+    from polisyos.lex.api import (
+        resolve_active_version as resolve_active_version,
+    )
+    from polisyos.lex.errors import (
+        LexError as LexError,
+    )
+    from polisyos.lex.errors import (
+        LexIndexError as LexIndexError,
+    )
+    from polisyos.lex.errors import (
+        LexIngestError as LexIngestError,
+    )
+    from polisyos.lex.errors import (
+        LexNotReadyError as LexNotReadyError,
+    )
+    from polisyos.lex.errors import (
+        LexStructureError as LexStructureError,
+    )
+    from polisyos.lex.errors import (
+        LexValidationError as LexValidationError,
+    )
+    from polisyos.lex.errors import (
+        LexVersioningError as LexVersioningError,
+    )
+    from polisyos.lex.intervention_artifacts import (
+        InterventionKnobDictionaryEntry as InterventionKnobDictionaryEntry,
+    )
+    from polisyos.lex.intervention_artifacts import (
+        LexInterventionMapEntry as LexInterventionMapEntry,
+    )
+    from polisyos.lex.intervention_artifacts import (
+        LexPolicyBundleInput as LexPolicyBundleInput,
+    )
+    from polisyos.lex.intervention_artifacts import (
+        LexProvisionMappingRegistry as LexProvisionMappingRegistry,
+    )
+    from polisyos.lex.intervention_artifacts import (
+        ProvisionProgramCrosswalkEntry as ProvisionProgramCrosswalkEntry,
+    )
+    from polisyos.lex.interventions import (
+        HierarchicalPolicySearchPlan as HierarchicalPolicySearchPlan,
+    )
+    from polisyos.lex.interventions import (
+        InterventionKnobSpec as InterventionKnobSpec,
+    )
+    from polisyos.lex.interventions import (
+        LexInterventionCompiler as LexInterventionCompiler,
+    )
+    from polisyos.lex.interventions import (
+        LexProvisionDirective as LexProvisionDirective,
+    )
+    from polisyos.lex.interventions import (
+        StrategicResponseRegistryEntry as StrategicResponseRegistryEntry,
+    )
+    from polisyos.lex.interventions import (
+        StrategicResponseSpecRegistry as StrategicResponseSpecRegistry,
+    )
+    from polisyos.lex.interventions import (
+        TemporalInterventionSequencer as TemporalInterventionSequencer,
+    )
+    from polisyos.lex.interventions import (
+        TemporalInterventionStepInput as TemporalInterventionStepInput,
+    )
+    from polisyos.lex.knowledge.benchmark import (
+        LexBenchmarkOutcome as LexBenchmarkOutcome,
+    )
+    from polisyos.lex.knowledge.benchmark import (
+        run_legal_benchmark as run_legal_benchmark,
+    )
+    from polisyos.lex.knowledge.search import (
+        LegalKnowledgeGraph as LegalKnowledgeGraph,
+    )
+    from polisyos.lex.legal_evaluation.transport_constraints import (
+        ConstraintSeverity as ConstraintSeverity,
+    )
+    from polisyos.lex.legal_evaluation.transport_constraints import (
+        LegalConstraint as LegalConstraint,
+    )
+    from polisyos.lex.legal_evaluation.transport_constraints import (
+        LegalConstraintBridge as LegalConstraintBridge,
+    )
+    from polisyos.lex.legal_evaluation.transport_constraints import (
+        LegalConstraintSet as LegalConstraintSet,
+    )
+    from polisyos.lex.legal_evaluation.transport_constraints import (
+        LegalToDAGMapping as LegalToDAGMapping,
+    )
+    from polisyos.lex.legal_evaluation.transport_constraints import (
+        LegalToDAGMappingType as LegalToDAGMappingType,
+    )
+    from polisyos.lex.legal_evaluation.transport_constraints import (
+        is_transport_blocked as is_transport_blocked,
+    )
+    from polisyos.lex.normpack import (
+        build_legal_authority_report as build_legal_authority_report,
+    )
+    from polisyos.lex.normpack import (
+        build_legal_authority_requirement_artifact as build_legal_authority_requirement_artifact,
+    )
+    from polisyos.lex.normpack.applicability_report import (
+        build_normative_applicability_report as build_normative_applicability_report,
+    )
+    from polisyos.lex.provenance import (
+        LexFabricEvidencePath as LexFabricEvidencePath,
+    )
+    from polisyos.lex.provenance import (
+        lex_evidence_from_fabric_decision_data as lex_evidence_from_fabric_decision_data,
+    )
+    from polisyos.lex.simulator import (
+        AffectedKPI as AffectedKPI,
+    )
+    from polisyos.lex.simulator import (
+        ComplianceDelta as ComplianceDelta,
+    )
+    from polisyos.lex.simulator import (
+        ComplianceTransition as ComplianceTransition,
+    )
+    from polisyos.lex.simulator import (
+        MutationIntent as MutationIntent,
+    )
+    from polisyos.lex.simulator import (
+        NormChange as NormChange,
+    )
+    from polisyos.lex.simulator import (
+        NormChangeType as NormChangeType,
+    )
+    from polisyos.lex.simulator import (
+        NormDiff as NormDiff,
+    )
+    from polisyos.lex.simulator import (
+        NormImpactAnalyzer as NormImpactAnalyzer,
+    )
+    from polisyos.lex.simulator import (
+        NormImpactReport as NormImpactReport,
+    )
+    from polisyos.lex.simulator import (
+        NormPackMutator as NormPackMutator,
+    )
+    from polisyos.lex.simulator import (
+        diff_norm_packs as diff_norm_packs,
+    )
+    from polisyos.lex.types import (
+        ActiveVersionResult as ActiveVersionResult,
+    )
+    from polisyos.lex.types import (
+        ActiveVersionStrategy as ActiveVersionStrategy,
+    )
+    from polisyos.lex.types import (
+        NormPackBudgets as NormPackBudgets,
+    )
+    from polisyos.lex.types import (
+        NormPackBuildRequest as NormPackBuildRequest,
+    )
+    from polisyos.lex.types import (
+        NormPackBuildResult as NormPackBuildResult,
+    )
 
 def __getattr__(name: str) -> object:
     """Load a public Lex symbol on first access.

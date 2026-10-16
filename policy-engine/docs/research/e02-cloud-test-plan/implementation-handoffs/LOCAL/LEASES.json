@@ -1835,5 +1835,82 @@
   },
   "source_freeze": false,
   "formal_G_closure_ids": []
-}
+},
+  "coordination_epoch_20261016_pool_lease_and_durable_requests": {
+    "observed_source_head": "9d90c587560f49ca0966931477f322ac3139e1db",
+    "root_sole_live_source_and_git_writer": true,
+    "raw_only_writers": {
+      "fabric_pool_cleanup_author": {
+        "paths_preimage_sha256": {
+          "policy-engine/src/polisyos/fabric/connectors/__init__.py": "2bd456876e3f75e12c51e40cc6c95506d331716556e314eb6a82795f5ce30dac",
+          "policy-engine/src/polisyos/fabric/connectors/base.py": "f5754ea9be67ab1a89effaaecc09dba68fd710d30c4809dbb8e3bcfae5805d99",
+          "policy-engine/src/polisyos/fabric/connectors/cache/__init__.py": "2fc64e477344afea5b4c184316fb0799d1b36c08c1d12f7f61444a18063bc3b5",
+          "policy-engine/src/polisyos/fabric/connectors/cache/_store_core.py": "fcaa55d62f13b4d6fa68da75b0712f1815051af8edc37a45eb45faed269632b9",
+          "policy-engine/src/polisyos/fabric/connectors/cache/_store_index.py": "50061675dbda50a3ac51d796c30ff9adc65be2b4df69ca5bf5a2dad4ee2697d3",
+          "policy-engine/src/polisyos/fabric/connectors/cache/_store_models.py": "8d6a05c8debb874386fa624303a82193709dadcaa734d97d4d184e7cd88ac916",
+          "policy-engine/src/polisyos/fabric/connectors/cache/proxy.py": "7b20ea115cc73afc72ab816ada0afd01c5aa9554f298547a3bb40189cb0f51dc",
+          "policy-engine/src/polisyos/fabric/connectors/cache/store.py": "cd8d83cfc0cf92338d8013487dc84dd24b5a201c99719a3a4f3ef8f6c07d9b1d",
+          "policy-engine/src/polisyos/fabric/connectors/pool.py": "e88d1c23d2d8538a8c7acea2d8e54d2bfd3f40214d7be5473361a76012f43d87",
+          "policy-engine/src/polisyos/fabric/connectors/profiles/resolver.py": "7df7feb14129eb11fea7d9467e36c9f2e27b821726a5453e9f947eca7b6c2bfc",
+          "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py": "ab7d8efcf593c8cc41bd22f18df5936781f566be5d1b522f51c05aef413b6913",
+          "policy-engine/src/polisyos/fabric/connectors/resilience/fallback.py": "c85fdb3889c1e6e933c4a5ebcea04bde74684b5c687ec849385aed86b9f1eb69",
+          "policy-engine/src/polisyos/fabric/data_plane/quarantine.py": "60413fc4e27ad3b92d2a2a81407f28ddccd3322ccb5dab3b7bf2421a5617596d",
+          "policy-engine/src/polisyos/fabric/evidence/evidence.py": "95d59fad3f8616d418a830b69eccf459479f48818fb45cc33571923f7aeb9b9c",
+          "policy-engine/src/polisyos/fabric/ingestion/ingestion.py": "247986c0a646fd17e17f540bd0e76f38481c6c38b4ab08041e8c10b768e4895e",
+          "policy-engine/tests/unit/fabric/connectors/profiles/test_source_profiles.py": "ce9c1d686aae6b7f3863d7c8cf027d31f483dc3015210a2f6028ec9461778c1d",
+          "policy-engine/tests/unit/fabric/connectors/test_cache_system.py": "9efabc52a7bdcf1cd72186a3960795e25c246aa0a6a9eb61a335006d78e50afd",
+          "policy-engine/tests/unit/fabric/connectors/test_integration.py": "523495c4ebf41b37c30c681ef3297ecbe16799f8c315d397b50d24e902182e56",
+          "policy-engine/tests/unit/fabric/connectors/test_pool_e02.py": "a9ec798fc3e2e36c2e99c171526c3fa7a00027947f3f8776513de8b717bb11bf",
+          "policy-engine/tests/unit/fabric/connectors/test_registry.py": "7fd158fe8f91b7f55b03574afd891884a82c73bcb3309cc8fad80c8ead9bd113",
+          "policy-engine/tests/unit/fabric/connectors/test_resilience.py": "66a7b774c2e7250d15e8dbc55b065d65f9498d11539b70c2de7090fb8ccc4c73",
+          "policy-engine/tests/unit/fabric/data_plane/test_quarantine.py": "d4e4fa7a316bae4d34f2b16404c731757cf0f970b83fef3121eb11c5c77f0c30",
+          "policy-engine/tests/unit/fabric/test_ingestion_quarantine.py": "d1de55665a82e14300bb64a746323d97b4258a536ebf22fb456516437e2ea374",
+          "policy-engine/tests/unit/fabric/test_provenance.py": "eeb03236c22396e26703d94ca2d3ff1f074d1d2fbf4ad67230ffded2d89e0491"
+        },
+        "property": "One exact pool-owned handle/config/session snapshot at create/release/reuse and registry release routing, plus immediate post-acquisition try/finally. Preserve physical pending cleanup ownership and public release return ABI."
+      },
+      "api_generated_actual_consumers_successor": {
+        "paths": [
+          "policy-engine/src/polisyos/scientist/methods/advanced.py",
+          "policy-engine/tests/unit/scientist/methods/test_advanced.py",
+          "policy-engine/tests/_helpers/c7_synthetic_data.py",
+          "policy-engine/tests/integration/test_c7_synthetic_full_pipeline.py",
+          "policy-engine/src/polisyos/scientist/methods/README.md",
+          "policy-engine/release-fragments/unreleased/2026-10-16-e02-c7-method-job-provenance.toml"
+        ],
+        "property": "All7 full native states including JSON metadata use selected CAS loader; persist existing typed JobSpec/JobResult as a durable request/result chain. Numeric diagnostic limitation cannot become input admission."
+      },
+      "ir_observation_loop_types_author": {
+        "paths": [
+          "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_replay_reissue.py"
+        ],
+        "property": "Keep profileless refusal distinct from selected-but-unavailable material failed-report/reissue; preserve stage assertions."
+      }
+    },
+    "reviews": {
+      "native_c2_independent_oracle": "Pool/cache/registry lifetime and selected owner/config/session whole quantity",
+      "ir_temporal_typed_author_r4": "Honest rooted protocols and explicit native source type denominator",
+      "architecture_remaining_route_oracle": "C7 durable method input/request/result chain",
+      "full_occurrence_property_audit_2": "Whole current C05 macro and fixture delta",
+      "native_c2_dead_override_author": "Replay-param proposal origin falsifier; no blanket semantic ban without actual scoped decision"
+    },
+    "research_no_product_lease": {
+      "ir_governance_loop_types_author": "Versioned replay param path bindings decision/prototype only",
+      "q2_linux_installed_plan_oracle": "RAW transport refusal release and exact22 fragment review matrix; no live flags"
+    },
+    "root_reserved": [
+      "Sequential application of reviewed immutable patches and exact ordinary commits",
+      "Canonical generators, schema/public/API/inventory and lock companions",
+      "Current public-surface attestation after actual source/inventory review",
+      "Complete source/input/backend freeze before expensive composed wave"
+    ],
+    "source_freeze": false,
+    "formal_G_closure_ids": [],
+    "compute": {
+      "heavy_slots": 3,
+      "numerical_threads": 1,
+      "free_disk_gib_observed": 43
+    },
+    "P40": "Widen full pool-owned lease quantity, not a third consumer guard; known worked examples consume no new repair round. Keep unproved law/origin/authority as concrete G choices with falsifiers."
+  }
 }

@@ -9,17 +9,16 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
-from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import (
     CompileRequest,
     ExecPlan,
     ExecuteRequest,
     FoundryExecConfig,
-    FoundryInputBindings,
-    FoundryInputBindingsRef,
+    FoundryExecutionInputBasis,
     Metrics,
     ProgramGraph,
     SimulationResult,
@@ -33,17 +32,63 @@ from polisyos.foundry.calibration.identifiability import (
 )
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.data_plane.bindings import build_input_bindings
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import load_state_snapshot, put_state_snapshot
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.scientist.policy_design.schema import (
+    PolicyCandidateSchema,
+    persist_policy_candidate_schema,
+)
 
 
-def _native_fixture(tmp_path, *, reported_income=(2.0, 2.0), store=None):
+def _native_fixture(
+    tmp_path,
+    *,
+    reported_income=(2.0, 2.0),
+    store=None,
+    return_selected_profile=True,
+    feedback=False,
+):
     store = FileSystemCAS(tmp_path / "cas") if store is None else store
-    registry = build_default_registry_bundle(store)
+    registry = build_default_registry_bundle(store, return_selected_profile=True)
+    state = GlobalState.empty(n_agents=2, n_firms=1)
+    state = state.replace(
+        agents=state.agents.replace(
+            active=jnp.asarray([True, True]),
+            income=jnp.asarray([10.0, 10.0]),
+            reported_income=jnp.asarray(reported_income),
+        ),
+        government_balance=jnp.asarray(-2.0),
+        tax_rate=jnp.asarray(0.125),
+    )
+    snapshot = put_state_snapshot(store, state=state, step=0, return_selected_profile=True)
+    state_ref = StateSnapshotRef.model_validate(snapshot.model_dump(mode="python"))
+    data_snapshot_payload_ref = store.put_json(
+        DataSnapshot(data_ref=state_ref),
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[input_ref_from_artifact_ref(state_ref, role="data_ref")],
+        ),
+        return_selected_profile=True,
+    )
+    data_snapshot_ref = DataSnapshotRef.model_validate(
+        data_snapshot_payload_ref.model_dump(mode="python")
+    )
+    bindings_result = build_input_bindings(
+        store,
+        data_snapshot_ref=data_snapshot_ref,
+        registry_bundle_ref=registry.bundle_ref,
+        return_selected_profile=True,
+    )
     policy = TrinityBundle(
         problem_frame=ProblemFrame(problem_id="response", domain=ProblemDomain.FISCAL),
         policy_spec=PolicySpec(
@@ -65,17 +110,36 @@ def _native_fixture(tmp_path, *, reported_income=(2.0, 2.0), store=None):
         ),
         model_spec=ModelSpec(
             model_id="response",
-            data_snapshot_ref="sha256:" + "0" * 64,
+            data_snapshot_ref=str(data_snapshot_ref.artifact_id),
             registry_bundle_ref=str(registry.bundle_ref.artifact_id),
         ),
+    )
+    candidate = PolicyCandidateSchema.from_trinity_bundle(
+        policy,
+        candidate_id="response_fixture_candidate",
+        metadata={"evidence_grade": "candidate", "purpose": "controlled fixture"},
+    )
+    candidate_ref = persist_policy_candidate_schema(
+        store,
+        candidate,
+        inputs=[
+            input_ref_from_artifact_ref(data_snapshot_ref, role="world_model_data_snapshot"),
+            input_ref_from_artifact_ref(registry.bundle_ref, role="world_model_registry"),
+        ],
+        return_selected_profile=True,
     )
     policy_ref = store.put_json(
         policy,
         PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=policy.schema_version),
+            kind=TrinityBundle.ARTIFACT_KIND,
+            media_type=TrinityBundle.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=TrinityBundle.ARTIFACT_SCHEMA_NAME,
+                version=TrinityBundle.ARTIFACT_SCHEMA_VERSION,
+            ),
+            inputs=[input_ref_from_artifact_ref(candidate_ref, role="policy_candidate")],
         ),
+        return_selected_profile=True,
     )
     compiled = compile_foundry(
         store,
@@ -83,47 +147,31 @@ def _native_fixture(tmp_path, *, reported_income=(2.0, 2.0), store=None):
             input_kind="trinity",
             policy_ref=policy_ref,
             registry_bundle_ref=registry.bundle_ref,
+            return_selected_profile=True,
         ),
     )
     assert compiled.ok
+    feedback_config_ref = None
+    if feedback:
+        from polisyos.foundry._quickstart import prepare_trivial_feedback_config
+
+        feedback_config_ref = prepare_trivial_feedback_config(
+            store,
+            exec_plan_ref=compiled.exec_plan_ref,
+            return_selected_profile=True,
+        )
     plan = ExecPlan.model_validate(from_canonical_bytes(store.get_bytes(compiled.exec_plan_ref)))
     program = ProgramGraph.model_validate(from_canonical_bytes(store.get_bytes(plan.program_ref)))
     tax_node = next(node for node in program.nodes if node.mechanism_type == "income_tax")
-    state = GlobalState.empty(n_agents=2, n_firms=1)
-    state = state.replace(
-        agents=state.agents.replace(
-            active=jnp.asarray([True, True]),
-            income=jnp.asarray([10.0, 10.0]),
-            reported_income=jnp.asarray(reported_income),
-        ),
-        government_balance=jnp.asarray(-2.0),
-        tax_rate=jnp.asarray(0.125),
-    )
-    snapshot = put_state_snapshot(store, state=state, step=0)
-    state_ref = StateSnapshotRef(artifact_id=snapshot.artifact_id)
-    data_ref = store.put_json(
-        DataSnapshot(data_ref=state_ref),
-        PutOptions(
-            kind="fabric.data_snapshot",
-            media_type="application/json",
-        ),
-    )
-    bindings = store.put_json(
-        FoundryInputBindings(
-            data_snapshot_ref=data_ref,
-            registry_bundle_ref=registry.bundle_ref,
-            rules=[],
-            bound_state_snapshot_ref=state_ref,
-        ),
-        PutOptions(kind="foundry.input_bindings", media_type="application/json"),
-    )
     result = execute_foundry(
         store,
         ExecuteRequest(
             exec_plan_ref=compiled.exec_plan_ref,
-            input_bindings_ref=FoundryInputBindingsRef(artifact_id=bindings.artifact_id),
+            input_bindings_ref=bindings_result.input_bindings_ref,
             registry_bundle_ref=registry.bundle_ref,
+            feedback_config_ref=feedback_config_ref,
             exec_config=FoundryExecConfig(seed=29),
+            return_selected_profile=return_selected_profile,
         ),
     )
     assert result.ok
@@ -131,7 +179,10 @@ def _native_fixture(tmp_path, *, reported_income=(2.0, 2.0), store=None):
         from_canonical_bytes(store.get_bytes(result.simulation_result_ref))
     )
     poststate = load_state_snapshot(store, snapshot_ref=simulation.state_snapshot_ref)
-    assert float(poststate.government_balance) == pytest.approx(sum(reported_income) / 2 - 2)
+    if feedback:
+        assert np.isfinite(float(poststate.government_balance))
+    else:
+        assert float(poststate.government_balance) == pytest.approx(sum(reported_income) / 2 - 2)
     return store, result.simulation_result_ref, f"{tax_node.node_id}.rate"
 
 
@@ -165,6 +216,244 @@ def test_native_zero_baseline_has_dimensioned_nonzero_response(tmp_path):
     variance = Fraction(4) ** 2 * Fraction(1, 16)
     assert variance == 1
     assert payload["response_basis"]["gate_eligible"] is False
+
+
+def test_explicit_profileless_execute_optout_remains_legacy(tmp_path):
+    store, source, parameter = _native_fixture(tmp_path, return_selected_profile=False)
+    source_payload = SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(source)))
+    assert source.manifest_profile_sha256 is None
+    assert source_payload.schema_version == SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION
+    assert source_payload.execution_input_basis_ref is None
+
+    from polisyos.foundry.execute.api import _admit_execution_source
+
+    assert _admit_execution_source(store, source).mode == "legacy_profileless"
+
+    diagnostic = _diagnostic(store, source, parameter)
+    assert diagnostic.sensitivity_matrix_ref is not None
+    payload = from_canonical_bytes(store.get_bytes(diagnostic.sensitivity_matrix_ref))
+    assert payload["response_basis"]["gate_eligible"] is False
+    for replay in payload["response_basis"]["replays"]:
+        request = ExecuteRequest.model_validate(
+            from_canonical_bytes(store.get_bytes(replay["request"]["ref"]))
+        )
+        assert request.return_selected_profile is False
+    with pytest.raises(ValueError, match="basis differs"):
+        _load_execute_response_matrix(
+            store,
+            diagnostic.sensitivity_matrix_ref,
+            source_ref=source,
+            response_slots={"balance": "government.balance"},
+            parameter_center={parameter: 0.5},
+            config=IdentifiabilityDiagnosticConfig(
+                simulation_reps=2,
+                bootstrap_reps=0,
+                profile_grid_size=0,
+                seed=29,
+                finite_diff_rel_step=0.01,
+            ),
+        )
+
+
+def test_selected_summary_and_state_routes_replay_the_admitted_request(tmp_path, monkeypatch):
+    from polisyos.foundry.calibration.identifiability import (
+        _build_execute_summary_evaluator,
+        _ExecuteResponseEvaluator,
+    )
+    from polisyos.foundry.execute.api import _admit_execution_source, execute
+
+    store, source, parameter = _native_fixture(tmp_path)
+    source_payload = SimulationResult.model_validate(from_canonical_bytes(store.get_bytes(source)))
+    assert _admit_execution_source(store, source).mode == "single_step_basis"
+    requests = []
+
+    def capture_execute(store_arg, request):
+        requests.append(request)
+        return execute(store_arg, request)
+
+    monkeypatch.setattr("polisyos.foundry.execute.api.execute", capture_execute)
+    summary = _build_execute_summary_evaluator(
+        store,
+        simulation_result_ref=source,
+        simulation_result=source_payload,
+    )
+    summary({parameter: 0.5}, 41)
+    response = _ExecuteResponseEvaluator(
+        store,
+        source,
+        {"balance": "government.balance"},
+        {parameter: 0.5},
+        ("balance",),
+        IdentifiabilityDiagnosticConfig(
+            simulation_reps=1,
+            bootstrap_reps=0,
+            profile_grid_size=0,
+            seed=41,
+            finite_diff_rel_step=0.01,
+        ),
+    )
+    response({parameter: 0.5}, 41)
+
+    assert len(requests) == 2
+    assert all(request.return_selected_profile is True for request in requests), [
+        request.model_dump(mode="json") for request in requests
+    ]
+    assert all("return_selected_profile" in request.model_fields_set for request in requests)
+    assert all(request.exec_plan_ref == source_payload.exec_plan_ref for request in requests)
+    assert all(request.input_bindings_ref == requests[0].input_bindings_ref for request in requests)
+
+
+def test_uncertainty_basis_inventory_delegates_to_foundry_source_owner(tmp_path):
+    from polisyos.foundry.execute.api import (
+        _admit_execution_source,
+        _execution_input_basis_inventory,
+    )
+    from polisyos.scientist.methods.search.uncertainty import _source_inventory_for_basis
+
+    store, source, _ = _native_fixture(tmp_path)
+    admitted = _admit_execution_source(store, source)
+    assert admitted.basis is not None
+    assert _source_inventory_for_basis(store, admitted.basis) == (
+        _execution_input_basis_inventory(store, admitted.basis)
+    )
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected_error"),
+    [
+        ("profileless_ref", "execution_source_basis_selected_profile_missing"),
+        ("missing_edge", "execution_source_requires_one_execution_input_basis_edge"),
+        ("mismatched_edge", "execution_source_basis_ref_differs_from_exact_result_edge"),
+        (
+            "explicit_optout",
+            "execution_source_basis_request_did_not_explicitly_select_profiles",
+        ),
+    ],
+)
+def test_selected_source_admission_rejects_present_malformed_basis_before_state_load(
+    response_case, monkeypatch, mutation, expected_error
+):
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.foundry.calibration.identifiability import _response_context
+
+    _, store, source, parameter, _ = response_case
+    source_payload = from_canonical_bytes(store.get_bytes(source))
+    source_manifest = store.get_manifest(source)
+    inputs = list(source_manifest.inputs)
+    if mutation == "profileless_ref":
+        source_payload["execution_input_basis_ref"]["manifest_profile_sha256"] = None
+        inputs = [
+            item.model_copy(update={"manifest_profile_sha256": None})
+            if item.role == "execution_input_basis"
+            else item
+            for item in inputs
+        ]
+    elif mutation == "missing_edge":
+        inputs = [item for item in inputs if item.role != "execution_input_basis"]
+    elif mutation == "mismatched_edge":
+        inputs = [
+            item.model_copy(update={"manifest_profile_sha256": "sha256:" + "0" * 64})
+            if item.role == "execution_input_basis"
+            else item
+            for item in inputs
+        ]
+    elif mutation == "explicit_optout":
+        basis_ref = ArtifactRef.model_validate(source_payload["execution_input_basis_ref"])
+        basis_manifest = store.get_manifest(basis_ref)
+        basis = FoundryExecutionInputBasis.model_validate(
+            from_canonical_bytes(store.get_bytes(basis_ref))
+        )
+        request = basis.request.model_copy(update={"return_selected_profile": False})
+        changed_basis = basis.model_copy(update={"request": request})
+        new_basis_ref = store.put_json(
+            changed_basis,
+            PutOptions(
+                kind=basis_ref.kind,
+                media_type=basis_ref.media_type,
+                schema=basis_manifest.artifact_schema,
+                inputs=basis_manifest.inputs,
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+            return_selected_profile=True,
+        )
+        source_payload["execution_input_basis_ref"] = new_basis_ref.model_dump(mode="json")
+        inputs = [
+            input_ref_from_artifact_ref(new_basis_ref, role="execution_input_basis")
+            if item.role == "execution_input_basis"
+            else item
+            for item in inputs
+        ]
+    malformed_ref = store.put_json(
+        source_payload,
+        PutOptions(
+            kind=source_manifest.kind,
+            media_type=source_manifest.media_type,
+            schema=source_manifest.artifact_schema,
+            inputs=inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+
+    def no_state(*args, **kwargs):
+        pytest.fail("malformed selected source reached state loading")
+
+    monkeypatch.setattr("polisyos.foundry.execute.executor.load_state_snapshot", no_state)
+    with pytest.raises(ValueError, match=expected_error):
+        _response_context(
+            store,
+            malformed_ref,
+            {"balance": "government.balance"},
+            {parameter: 0.5},
+            ("balance",),
+            IdentifiabilityDiagnosticConfig(
+                simulation_reps=1,
+                bootstrap_reps=0,
+                profile_grid_size=0,
+                seed=41,
+                finite_diff_rel_step=0.01,
+            ),
+        )
+
+
+def test_feedback_selected_source_is_typed_uncomposed_refusal(tmp_path, monkeypatch):
+    from polisyos.foundry.calibration.identifiability import (
+        _build_execute_summary_evaluator,
+        _response_context,
+    )
+    from polisyos.foundry.execute.api import _admit_execution_source
+
+    store, source, parameter = _native_fixture(tmp_path, feedback=True)
+    admitted = _admit_execution_source(store, source)
+    assert admitted.mode == "feedback_uncomposed"
+    assert admitted.basis is None
+    assert admitted.simulation_result.execution_source_status == "feedback_uncomposed"
+
+    def no_replay(*args, **kwargs):
+        pytest.fail("feedback_uncomposed source was downgraded to a replay")
+
+    monkeypatch.setattr("polisyos.foundry.execute.api.execute", no_replay)
+    with pytest.raises(ValueError, match=f"feedback_uncomposed source {source.artifact_id}"):
+        _build_execute_summary_evaluator(
+            store,
+            simulation_result_ref=source,
+            simulation_result=admitted.simulation_result,
+        )
+    with pytest.raises(ValueError, match=f"feedback_uncomposed source {source.artifact_id}"):
+        _response_context(
+            store,
+            source,
+            {"balance": "government.balance"},
+            {parameter: 0.5},
+            ("balance",),
+            IdentifiabilityDiagnosticConfig(
+                simulation_reps=1,
+                bootstrap_reps=0,
+                profile_grid_size=0,
+                seed=41,
+                finite_diff_rel_step=0.01,
+            ),
+        )
 
 
 def test_metric_name_collision_does_not_bind_counter_to_response_unit(tmp_path):
@@ -482,28 +771,45 @@ def test_actual_fresh_child_reads_persisted_native_basis(response_case):
     import os
     import subprocess
     import sys
+    from pathlib import Path
 
     path, _, source, parameter, matrix = response_case
+    raw_root = Path(__file__).resolve().parent
     request = json.dumps(
         {
             "cas": str(path / "cas"),
             "source": source.model_dump(mode="json"),
             "matrix": matrix.model_dump(mode="json"),
             "parameter": parameter,
+            "raw_root": str(raw_root),
         }
     )
     child = r"""
-import json, sys
+import hashlib, importlib.abc, importlib.util, json, pathlib, sys
+request=json.loads(sys.argv[1])
+raw=pathlib.Path(request['raw_root'])
+modules={
+    'polisyos.foundry.execute.api': raw/'execute_api.py',
+    'polisyos.foundry.calibration.identifiability': raw/'identifiability.py',
+}
+class CandidateFinder(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname, path=None, target=None):
+        candidate=modules.get(fullname)
+        if candidate is None:
+            return None
+        return importlib.util.spec_from_file_location(fullname, candidate)
+sys.meta_path.insert(0, CandidateFinder())
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.foundry import SimulationResultRef
 from polisyos.foundry.calibration.identifiability import _load_execute_response_matrix, IdentifiabilityDiagnosticConfig
-request=json.loads(sys.argv[1])
 payload=_load_execute_response_matrix(FileSystemCAS(request['cas']), ArtifactRef.model_validate(request['matrix']),
     source_ref=SimulationResultRef.model_validate(request['source']), response_slots={'balance':'government.balance'},
     parameter_center={request['parameter']:0.5}, config=IdentifiabilityDiagnosticConfig(
     simulation_reps=2,bootstrap_reps=0,profile_grid_size=0,seed=29,finite_diff_rel_step=0.01))
-print(json.dumps({'jacobian':payload['jacobian'],'profile':payload['response_basis']['profile'],'gate_eligible':payload['response_basis']['gate_eligible']}))
+origins={name: str(pathlib.Path(sys.modules[name].__file__).resolve()) for name in modules if name in sys.modules}
+hashes={name: hashlib.sha256(pathlib.Path(origin).read_bytes()).hexdigest() for name,origin in origins.items()}
+print(json.dumps({'jacobian':payload['jacobian'],'profile':payload['response_basis']['profile'],'gate_eligible':payload['response_basis']['gate_eligible'],'origins':origins,'sha256':hashes,'executable':str(pathlib.Path(sys.executable).absolute())}))
 """
     result = subprocess.run(
         [sys.executable, "-c", child, request],
@@ -516,6 +822,18 @@ print(json.dumps({'jacobian':payload['jacobian'],'profile':payload['response_bas
     answer = json.loads(result.stdout.strip().splitlines()[-1])
     assert answer["jacobian"][0][0] == pytest.approx(4.0, rel=2e-5)
     assert answer["gate_eligible"] is False
+    assert answer["executable"] == str(Path(sys.executable).absolute())
+    expected_origins = {
+        "polisyos.foundry.execute.api": str((raw_root / "execute_api.py").resolve()),
+        "polisyos.foundry.calibration.identifiability": str(
+            (raw_root / "identifiability.py").resolve()
+        ),
+    }
+    assert answer["origins"] == expected_origins
+    assert set(answer["sha256"].values()) == {
+        __import__("hashlib").sha256(Path(origin).read_bytes()).hexdigest()
+        for origin in expected_origins.values()
+    }
     print("FRESH_CHILD_REQUEST=" + request)
     print(
         "FRESH_CHILD_RESULT="
@@ -598,6 +916,84 @@ def test_actual_altered_source_bytes_refuse_before_state_load(response_case, tmp
         )
 
 
+def test_selected_replay_basis_view_cannot_be_downgraded(response_case, monkeypatch):
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.canon import CanonSpec
+    from polisyos.foundry.calibration.identifiability import (
+        _response_basis_inputs,
+        _response_identity,
+        _ResponseBasis,
+    )
+
+    _, store, source, parameter, matrix = response_case
+    payload = from_canonical_bytes(store.get_bytes(matrix))
+    basis = _ResponseBasis.model_validate(payload["response_basis"])
+    record = basis.replays[-1]
+    result_ref = ArtifactRef.model_validate(record.result.ref.model_dump(mode="python"))
+    result_payload = from_canonical_bytes(store.get_bytes(result_ref))
+    result_payload["execution_input_basis_ref"]["manifest_profile_sha256"] = None
+    result_manifest = store.get_manifest(result_ref)
+    inputs = [
+        item.model_copy(update={"manifest_profile_sha256": None})
+        if item.role == "execution_input_basis"
+        else item
+        for item in result_manifest.inputs
+    ]
+    downgraded_result_ref = store.put_json(
+        result_payload,
+        PutOptions(
+            kind=result_ref.kind,
+            media_type=result_ref.media_type,
+            schema=result_manifest.artifact_schema,
+            inputs=inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
+    )
+    replacement = record.model_copy(
+        update={"result": _response_identity(store, downgraded_result_ref)}
+    )
+    changed_basis = basis.model_copy(
+        update={
+            "replays": tuple(
+                replacement if replay == record else replay for replay in basis.replays
+            )
+        }
+    )
+    changed_payload = dict(payload)
+    changed_payload["response_basis"] = changed_basis.model_dump(mode="json")
+    changed_matrix_ref = store.put_json(
+        changed_payload,
+        PutOptions(
+            kind=matrix.kind,
+            media_type=matrix.media_type,
+            schema=store.get_manifest(matrix).artifact_schema,
+            inputs=_response_basis_inputs(changed_basis),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+    )
+
+    def no_state(*args, **kwargs):
+        pytest.fail("downgraded execution-basis selected view reached state loading")
+
+    monkeypatch.setattr("polisyos.foundry.execute.executor.load_state_snapshot", no_state)
+    with pytest.raises(ValueError, match="execution_source_basis_selected_profile_missing"):
+        _load_execute_response_matrix(
+            store,
+            changed_matrix_ref,
+            source_ref=source,
+            response_slots={"balance": "government.balance"},
+            parameter_center={parameter: 0.5},
+            config=IdentifiabilityDiagnosticConfig(
+                simulation_reps=2,
+                bootstrap_reps=0,
+                profile_grid_size=0,
+                seed=29,
+                finite_diff_rel_step=0.01,
+            ),
+        )
+
+
 @pytest.mark.parametrize("mutation", ["missing", "wrong", "duplicate", "extra"])
 def test_actual_replay_manifest_lineage_is_verified(response_case, monkeypatch, mutation):
     from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
@@ -654,7 +1050,13 @@ def test_actual_replay_manifest_lineage_is_verified(response_case, monkeypatch, 
         pytest.fail("forged native replay lineage reached state load")
 
     monkeypatch.setattr("polisyos.foundry.execute.executor.load_state_snapshot", no_state)
-    with pytest.raises(ValueError, match="lineage mismatch"):
+    expected_errors = {
+        "missing": "execution_source_requires_one_edge:input.input_bindings_ref",
+        "wrong": "execution_source_edge_profile_missing:input.input_bindings_ref",
+        "duplicate": "execution_source_simulation_result_duplicate_input_role",
+        "extra": "lineage mismatch",
+    }
+    with pytest.raises(ValueError, match=expected_errors[mutation]):
         _read(response_case, matrix=corrupt_matrix)
 
 

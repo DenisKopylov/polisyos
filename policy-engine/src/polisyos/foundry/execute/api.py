@@ -11,14 +11,17 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from typing import Literal
 
 import numpy as np
 from pydantic import BaseModel
 
 from polisyos.core.artifacts import (
+    ArtifactStore,
     RegistryBundlePayload,
     ensure_ir_artifact_store,
     resolve_manifest_by_profile,
+    validate_core_model_json_artifact,
 )
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
@@ -30,6 +33,7 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     DerivedArtifact,
     EquilibriumMultiplicityReport,
@@ -49,8 +53,10 @@ from polisyos.core.contracts.foundry import (
     FeedbackStateSnapshot,
     FeedbackTrace,
     FeedbackTraceRef,
+    FoundryExecConfig,
     FoundryExecutionInputBasis,
     FoundryExecutionInputBasisRef,
+    FoundryInputBindings,
     FoundryInputBindingsRef,
     Metrics,
     MetricsRef,
@@ -59,6 +65,7 @@ from polisyos.core.contracts.foundry import (
     ProgramGraph,
     SimulationResult,
     SimulationResultRef,
+    StateDelta,
     StateSnapshotRef,
     WelfareBoundReportRef,
 )
@@ -118,7 +125,20 @@ class _FeedbackExecutionEvaluation:
     final_state: GlobalState
 
 
-def _selected_manifest(store: FileSystemCAS, ref: ArtifactRef) -> ArtifactManifest:
+@dataclass(frozen=True)
+class _AdmittedExecutionSource:
+    """Typed execution-source mode and exact owner artifacts admitted from CAS."""
+
+    mode: Literal["legacy_profileless", "single_step_basis", "feedback_uncomposed"]
+    simulation_result_ref: SimulationResultRef
+    simulation_result: SimulationResult
+    simulation_manifest: ArtifactManifest
+    basis_ref: FoundryExecutionInputBasisRef | None = None
+    basis: FoundryExecutionInputBasis | None = None
+    basis_manifest: ArtifactManifest | None = None
+
+
+def _selected_manifest(store: ArtifactStore, ref: ArtifactRef) -> ArtifactManifest:
     """Resolve one exact selected manifest and verify its payload bytes."""
     if ref.manifest_profile_sha256 is None:
         raise ValueError("execution_source_selected_profile_missing")
@@ -131,7 +151,7 @@ def _selected_manifest(store: FileSystemCAS, ref: ArtifactRef) -> ArtifactManife
 
 
 def _selected_ref_from_edge(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     parent_ref: ArtifactRef,
     role: str,
     *,
@@ -159,7 +179,7 @@ def _selected_ref_from_edge(
 
 
 def _execution_source_inventory(
-    store: FileSystemCAS,
+    store: ArtifactStore,
     sources: list[tuple[str, ArtifactRef]],
 ) -> list[InputRef]:
     """Inventory exact selected source manifests and each complete direct edge set."""
@@ -181,6 +201,506 @@ def _execution_source_inventory(
                 )
             )
     return inventory
+
+
+def _execution_input_basis_sources(
+    basis: FoundryExecutionInputBasis,
+) -> list[tuple[str, ArtifactRef]]:
+    """Enumerate the source refs owned by a Foundry execution-input basis."""
+    sources: list[tuple[str, ArtifactRef]] = [
+        ("exec_plan", basis.exec_plan_ref),
+        ("program_graph", basis.program_graph_ref),
+        ("trinity_bundle", basis.trinity_bundle_ref),
+        ("candidate", basis.candidate_ref),
+        ("candidate_data_snapshot", basis.candidate_data_snapshot_ref),
+        ("candidate_registry_bundle", basis.candidate_registry_bundle_ref),
+        ("input_bindings", basis.input_bindings_ref),
+        ("actual_data_snapshot", basis.data_snapshot_ref),
+        ("bound_state_snapshot", basis.bound_state_snapshot_ref),
+        ("base_state_snapshot", basis.base_state_snapshot_ref),
+        ("binding_registry_bundle", basis.binding_registry_ref),
+        ("compile_registry_bundle", basis.compile_registry_ref),
+        ("runtime_registry_bundle", basis.runtime_registry_ref),
+    ]
+    for role, payload in (
+        ("binding", basis.binding_registry_members),
+        ("compile", basis.compile_registry_members),
+        ("runtime", basis.runtime_registry_members),
+    ):
+        for member_role, member_ref in payload.model_dump(mode="python").items():
+            if member_ref is not None:
+                sources.append(
+                    (
+                        f"{role}_registry_member.{member_role}",
+                        ArtifactRef.model_validate(member_ref),
+                    )
+                )
+    if basis.parameter_override_bundle_ref is not None:
+        sources.append(("parameter_override_bundle", basis.parameter_override_bundle_ref))
+    if basis.observed_range_bundle_ref is not None:
+        sources.append(("observed_range_bundle", basis.observed_range_bundle_ref))
+    if basis.request.feedback_config_ref is not None:
+        sources.append(("feedback_config", basis.request.feedback_config_ref))
+    return sources
+
+
+def _execution_input_basis_inventory(
+    store: ArtifactStore,
+    basis: FoundryExecutionInputBasis,
+) -> list[InputRef]:
+    """Recompute the exact basis inventory through the executor's source reader."""
+    return _execution_source_inventory(store, _execution_input_basis_sources(basis))
+
+
+def _execution_input_inventory_key(items: list[InputRef]) -> list[tuple[str, str, str | None]]:
+    return sorted(
+        (str(item.artifact_id), item.role, item.manifest_profile_sha256) for item in items
+    )
+
+
+def _execution_ref_key(ref: ArtifactRef) -> tuple[str, str, str, str | None]:
+    return (
+        str(ref.artifact_id),
+        ref.kind,
+        ref.media_type,
+        ref.manifest_profile_sha256,
+    )
+
+
+def _require_execution_edge_ref(
+    store: ArtifactStore,
+    parent_ref: ArtifactRef,
+    role: str,
+    expected_ref: ArtifactRef,
+    *,
+    expected_kind: str,
+) -> ArtifactRef:
+    """Resolve one exact selected parent edge and compare its complete child identity."""
+    selected_ref = _selected_ref_from_edge(
+        store,
+        parent_ref,
+        role,
+        expected_kind=expected_kind,
+    )
+    if _execution_ref_key(selected_ref) != _execution_ref_key(expected_ref):
+        raise ValueError(f"execution_source_edge_payload_disagrees:{role}")
+    return selected_ref
+
+
+def _verify_execution_data_snapshot_edges(
+    store: ArtifactStore,
+    ref: ArtifactRef,
+    snapshot: DataSnapshot,
+) -> None:
+    """Reconcile the selected DataSnapshot fields with their exact CAS edges."""
+    manifest = _selected_manifest(store, ref)
+    for role, raw_ref in (
+        ("data_ref", snapshot.data_ref),
+        ("uncertainty_envelope_ref", snapshot.uncertainty_envelope_ref),
+    ):
+        edges = [edge for edge in manifest.inputs if edge.role == role]
+        if raw_ref is None:
+            if edges:
+                raise ValueError(f"execution_source_data_snapshot_unexpected_edge:{role}")
+            continue
+        if len(edges) != 1 or edges[0].manifest_profile_sha256 is None:
+            raise ValueError(f"execution_source_data_snapshot_requires_selected_edge:{role}")
+        _require_execution_edge_ref(
+            store,
+            ref,
+            role,
+            raw_ref,
+            expected_kind=raw_ref.kind,
+        )
+
+
+def _admit_execution_source(
+    store: ArtifactStore,
+    simulation_result_ref: SimulationResultRef,
+) -> _AdmittedExecutionSource:
+    """Admit a result's explicit source mode and, when selected, its exact basis.
+
+    The reference field alone does not select replay behavior. Only an exact
+    single-step basis whose owner request, source-result edges, and complete CAS
+    source inventory agree can select profiled replay. Legacy and feedback modes
+    remain distinct, explicit outcomes.
+    """
+    if simulation_result_ref.manifest_profile_sha256 is None:
+        simulation_manifest = store.get_manifest(simulation_result_ref)
+        if not store.verify(simulation_result_ref).ok:
+            raise ValueError("execution_source_manifest_integrity_failure")
+    else:
+        simulation_manifest = _selected_manifest(store, simulation_result_ref)
+    if simulation_manifest.kind != SimulationResult.ARTIFACT_KIND:
+        raise ValueError("execution_source_simulation_result_kind_mismatch")
+    simulation_result = validate_core_model_json_artifact(
+        SimulationResult, store, simulation_result_ref
+    )
+    roles = [item.role for item in simulation_manifest.inputs]
+    if len(roles) != len(set(roles)):
+        raise ValueError("execution_source_simulation_result_duplicate_input_role")
+    basis_edges = [
+        item for item in simulation_manifest.inputs if item.role == "execution_input_basis"
+    ]
+
+    if (
+        simulation_result.schema_version == SimulationResult.LEGACY_ARTIFACT_SCHEMA_VERSION
+        and simulation_result.execution_source_status == "not_recorded"
+        and simulation_result.execution_input_basis_ref is None
+    ):
+        if basis_edges:
+            raise ValueError("execution_source_legacy_result_has_basis_edge")
+        return _AdmittedExecutionSource(
+            mode="legacy_profileless",
+            simulation_result_ref=simulation_result_ref,
+            simulation_result=simulation_result,
+            simulation_manifest=simulation_manifest,
+        )
+
+    if simulation_result_ref.manifest_profile_sha256 is None:
+        raise ValueError("execution_source_selected_profile_missing")
+
+    if (
+        simulation_result.schema_version == SimulationResult.ARTIFACT_SCHEMA_VERSION
+        and simulation_result.execution_source_status == "feedback_uncomposed"
+        and simulation_result.execution_input_basis_ref is None
+        and simulation_result.feedback_result_ref is not None
+    ):
+        if basis_edges:
+            raise ValueError("execution_source_feedback_result_has_basis_edge")
+        feedback_ref = simulation_result.feedback_result_ref
+        if feedback_ref.manifest_profile_sha256 is None:
+            raise ValueError("execution_source_feedback_result_profile_missing")
+        _require_execution_edge_ref(
+            store,
+            simulation_result_ref,
+            "artifact.feedback_result_ref",
+            feedback_ref,
+            expected_kind="foundry.feedback_result",
+        )
+        validate_core_model_json_artifact(FeedbackSolveResult, store, feedback_ref)
+        feedback_config_ref = _selected_ref_from_edge(
+            store,
+            simulation_result_ref,
+            "input.feedback_config_ref",
+            expected_kind=FeedbackConfig.ARTIFACT_KIND,
+        )
+        feedback_config = validate_core_model_json_artifact(
+            FeedbackConfig, store, feedback_config_ref
+        )
+        if feedback_config.mode != "fixed_point":
+            raise ValueError("execution_source_feedback_config_does_not_match_refusal_mode")
+        return _AdmittedExecutionSource(
+            mode="feedback_uncomposed",
+            simulation_result_ref=simulation_result_ref,
+            simulation_result=simulation_result,
+            simulation_manifest=simulation_manifest,
+        )
+
+    if (
+        simulation_result.schema_version != SimulationResult.ARTIFACT_SCHEMA_VERSION
+        or simulation_result.execution_source_status != "single_step_basis"
+        or simulation_result.execution_input_basis_ref is None
+        or simulation_result.feedback_result_ref is not None
+    ):
+        raise ValueError("execution_source_status_has_no_admitted_mode")
+
+    basis_ref = simulation_result.execution_input_basis_ref
+    if basis_ref.manifest_profile_sha256 is None:
+        raise ValueError("execution_source_basis_selected_profile_missing")
+    if len(basis_edges) != 1:
+        raise ValueError("execution_source_requires_one_execution_input_basis_edge")
+    basis_edge = basis_edges[0]
+    if (
+        basis_edge.artifact_id != basis_ref.artifact_id
+        or basis_edge.manifest_profile_sha256 != basis_ref.manifest_profile_sha256
+    ):
+        raise ValueError("execution_source_basis_ref_differs_from_exact_result_edge")
+    basis_manifest = _selected_manifest(store, basis_ref)
+    expected_basis_schema = SchemaInfo(
+        name=FoundryExecutionInputBasis.ARTIFACT_SCHEMA_NAME,
+        version=FoundryExecutionInputBasis.ARTIFACT_SCHEMA_VERSION,
+    )
+    if basis_manifest.artifact_schema != expected_basis_schema:
+        raise ValueError("execution_source_basis_schema_mismatch")
+    basis = validate_core_model_json_artifact(FoundryExecutionInputBasis, store, basis_ref)
+
+    fields_set = basis.request_fields_set
+    if fields_set != tuple(sorted(set(fields_set))) or set(fields_set) - set(
+        ExecuteRequest.model_fields
+    ):
+        raise ValueError("execution_source_basis_request_fields_set_invalid")
+    if (
+        basis.request.return_selected_profile is not True
+        or "return_selected_profile" not in fields_set
+    ):
+        raise ValueError("execution_source_basis_request_did_not_explicitly_select_profiles")
+    config_fields_set = basis.request_exec_config_fields_set
+    if config_fields_set != tuple(sorted(set(config_fields_set))) or set(config_fields_set) - set(
+        FoundryExecConfig.model_fields
+    ):
+        raise ValueError("execution_source_basis_exec_config_fields_set_invalid")
+
+    if (
+        _execution_ref_key(basis.exec_plan_ref)
+        != _execution_ref_key(simulation_result.exec_plan_ref)
+        or _execution_ref_key(basis.request.exec_plan_ref)
+        != _execution_ref_key(basis.exec_plan_ref)
+        or _execution_ref_key(basis.request.input_bindings_ref)
+        != _execution_ref_key(basis.input_bindings_ref)
+        or basis.request.registry_bundle_ref is None
+        or _execution_ref_key(basis.request.registry_bundle_ref)
+        != _execution_ref_key(basis.runtime_registry_ref)
+        or (basis.request.parameter_override_bundle_ref is None)
+        != (basis.parameter_override_bundle_ref is None)
+        or (
+            basis.request.parameter_override_bundle_ref is not None
+            and basis.parameter_override_bundle_ref is not None
+            and _execution_ref_key(basis.request.parameter_override_bundle_ref)
+            != _execution_ref_key(basis.parameter_override_bundle_ref)
+        )
+        or (basis.request.observed_range_bundle_ref is None)
+        != (basis.observed_range_bundle_ref is None)
+        or (
+            basis.request.observed_range_bundle_ref is not None
+            and basis.observed_range_bundle_ref is not None
+            and _execution_ref_key(basis.request.observed_range_bundle_ref)
+            != _execution_ref_key(basis.observed_range_bundle_ref)
+        )
+    ):
+        raise ValueError("execution_source_basis_request_refs_disagree")
+
+    source_plan_ref = _selected_ref_from_edge(
+        store,
+        simulation_result_ref,
+        "exec_plan",
+        expected_kind=ExecPlan.ARTIFACT_KIND,
+    )
+    source_bindings_ref = _selected_ref_from_edge(
+        store,
+        simulation_result_ref,
+        "input.input_bindings_ref",
+        expected_kind="foundry.input_bindings",
+    )
+    if _execution_ref_key(source_plan_ref) != _execution_ref_key(
+        basis.exec_plan_ref
+    ) or _execution_ref_key(source_bindings_ref) != _execution_ref_key(
+        basis.request.input_bindings_ref
+    ):
+        raise ValueError("execution_source_basis_request_does_not_match_result_inputs")
+
+    override_edges = [
+        item for item in simulation_manifest.inputs if item.role == "parameter_override_bundle"
+    ]
+    if basis.request.parameter_override_bundle_ref is None:
+        if override_edges:
+            raise ValueError("execution_source_unrequested_parameter_override_edge")
+    else:
+        if len(override_edges) != 1:
+            raise ValueError("execution_source_requires_one_parameter_override_edge")
+        source_override_ref = _selected_ref_from_edge(
+            store,
+            simulation_result_ref,
+            "parameter_override_bundle",
+            expected_kind=ParameterOverrideBundle.ARTIFACT_KIND,
+        )
+        if _execution_ref_key(source_override_ref) != _execution_ref_key(
+            basis.request.parameter_override_bundle_ref
+        ):
+            raise ValueError("execution_source_basis_override_differs_from_result_input")
+
+    exec_plan = validate_core_model_json_artifact(ExecPlan, store, basis.exec_plan_ref)
+    if _execution_ref_key(exec_plan.program_ref) != _execution_ref_key(basis.program_graph_ref):
+        raise ValueError("execution_source_basis_graph_differs_from_exec_plan")
+    _require_execution_edge_ref(
+        store,
+        basis.exec_plan_ref,
+        "program_graph",
+        basis.program_graph_ref,
+        expected_kind=ProgramGraph.ARTIFACT_KIND,
+    )
+    graph = validate_core_model_json_artifact(ProgramGraph, store, basis.program_graph_ref)
+    if _execution_ref_key(graph.ir_ref) != _execution_ref_key(basis.trinity_bundle_ref):
+        raise ValueError("execution_source_basis_trinity_differs_from_program_graph")
+    _require_execution_edge_ref(
+        store,
+        basis.program_graph_ref,
+        "ir",
+        basis.trinity_bundle_ref,
+        expected_kind=basis.trinity_bundle_ref.kind,
+    )
+    _require_execution_edge_ref(
+        store,
+        basis.program_graph_ref,
+        "registry_bundle",
+        basis.compile_registry_ref,
+        expected_kind="core.registry_bundle",
+    )
+
+    _require_execution_edge_ref(
+        store,
+        basis.trinity_bundle_ref,
+        "policy_candidate",
+        basis.candidate_ref,
+        expected_kind="scientist.policy_design.candidate",
+    )
+
+    bindings = validate_core_model_json_artifact(
+        FoundryInputBindings, store, basis.input_bindings_ref
+    )
+    if bindings.bound_state_snapshot_ref is None or (
+        _execution_ref_key(bindings.data_snapshot_ref)
+        != _execution_ref_key(basis.data_snapshot_ref)
+        or _execution_ref_key(bindings.bound_state_snapshot_ref)
+        != _execution_ref_key(basis.bound_state_snapshot_ref)
+        or _execution_ref_key(bindings.registry_bundle_ref)
+        != _execution_ref_key(basis.binding_registry_ref)
+        or _execution_ref_key(basis.base_state_snapshot_ref)
+        != _execution_ref_key(bindings.bound_state_snapshot_ref)
+    ):
+        raise ValueError("execution_source_basis_bindings_disagree")
+    _require_execution_edge_ref(
+        store,
+        basis.input_bindings_ref,
+        "input.data_snapshot_ref",
+        basis.data_snapshot_ref,
+        expected_kind=DataSnapshot.ARTIFACT_KIND,
+    )
+    _require_execution_edge_ref(
+        store,
+        basis.input_bindings_ref,
+        "input.registry_bundle_ref",
+        basis.binding_registry_ref,
+        expected_kind="core.registry_bundle",
+    )
+    _require_execution_edge_ref(
+        store,
+        basis.input_bindings_ref,
+        "artifact.bound_state_snapshot_ref",
+        basis.bound_state_snapshot_ref,
+        expected_kind="foundry.state_snapshot",
+    )
+    _require_execution_edge_ref(
+        store,
+        simulation_result_ref,
+        "input.data_snapshot_ref",
+        bindings.data_snapshot_ref,
+        expected_kind=DataSnapshot.ARTIFACT_KIND,
+    )
+    _require_execution_edge_ref(
+        store,
+        simulation_result_ref,
+        "input.bound_state_snapshot_ref",
+        bindings.bound_state_snapshot_ref,
+        expected_kind="foundry.state_snapshot",
+    )
+    for registry_ref, declared_members in (
+        (basis.binding_registry_ref, basis.binding_registry_members),
+        (basis.compile_registry_ref, basis.compile_registry_members),
+        (basis.runtime_registry_ref, basis.runtime_registry_members),
+    ):
+        if load_registry_bundle_payload(store, registry_ref) != declared_members:
+            raise ValueError("execution_source_basis_registry_members_disagree")
+
+    if basis.request.feedback_config_ref is not None:
+        feedback_config = validate_core_model_json_artifact(
+            FeedbackConfig, store, basis.request.feedback_config_ref
+        )
+        if feedback_config.mode != "off":
+            raise ValueError("execution_source_feedback_basis_uncomposed")
+
+    configured = FoundryExecConfig.model_construct(
+        _fields_set=set(basis.request_exec_config_fields_set),
+        **basis.request.exec_config.model_dump(mode="python"),
+    )
+    posture = resolve_execution_posture(exec_plan, configured)
+    effective_posture = {
+        "effective_seed": posture.seed,
+        "effective_seed_source": posture.seed_source,
+        "effective_mode": posture.mode,
+        "effective_max_steps": posture.max_steps,
+        "effective_determinism_tier": posture.determinism_tier,
+        "effective_nan_guard_enabled": posture.nan_guard_enabled,
+        "effective_jit": posture.jit,
+        "effective_capture_env": posture.capture_env,
+    }
+    if any(getattr(basis, key) != value for key, value in effective_posture.items()):
+        raise ValueError("execution_source_basis_effective_posture_does_not_recompute")
+
+    if basis.data_snapshot_ref.manifest_profile_sha256 is None:
+        raise ValueError("execution_source_data_snapshot_profile_missing")
+    data_snapshot = validate_core_model_json_artifact(DataSnapshot, store, basis.data_snapshot_ref)
+    _verify_execution_data_snapshot_edges(store, basis.data_snapshot_ref, data_snapshot)
+    if data_snapshot.data_ref.manifest_profile_sha256 is None:
+        raise ValueError("execution_source_data_snapshot_state_profile_missing")
+
+    if basis.parameter_override_bundle_ref is None:
+        expected_overrides = None
+    else:
+        override_payload = validate_core_model_json_artifact(
+            ParameterOverrideBundle, store, basis.parameter_override_bundle_ref
+        )
+        expected_overrides = {
+            str(node_id): dict(values)
+            for node_id, values in override_payload.overrides.items()
+            if isinstance(values, dict)
+        }
+    if basis.parameter_overrides != expected_overrides:
+        raise ValueError("execution_source_basis_parameter_overrides_disagree")
+
+    metrics_ref = simulation_result.metrics_ref
+    if metrics_ref is None:
+        raise ValueError("execution_source_result_missing:metrics")
+    for role, output_ref in (
+        ("metrics", simulation_result.metrics_ref),
+        ("state_snapshot", simulation_result.state_snapshot_ref),
+    ):
+        if output_ref is None:
+            raise ValueError(f"execution_source_result_missing:{role}")
+        _require_execution_edge_ref(
+            store,
+            simulation_result_ref,
+            role,
+            output_ref,
+            expected_kind=output_ref.kind,
+        )
+    state_delta_ref = _selected_ref_from_edge(
+        store,
+        simulation_result_ref,
+        "state_delta",
+        expected_kind=StateDelta.ARTIFACT_KIND,
+    )
+    state_delta = validate_core_model_json_artifact(StateDelta, store, state_delta_ref)
+    if _execution_ref_key(state_delta.base_ref) != _execution_ref_key(
+        basis.base_state_snapshot_ref
+    ):
+        raise ValueError("execution_source_state_delta_base_differs_from_basis")
+    for parent_ref in (metrics_ref, state_delta_ref):
+        _require_execution_edge_ref(
+            store,
+            parent_ref,
+            "execution_input_basis",
+            basis_ref,
+            expected_kind=FoundryExecutionInputBasis.ARTIFACT_KIND,
+        )
+    metrics = validate_core_model_json_artifact(Metrics, store, metrics_ref)
+    if metrics.values.get("step") != basis.effective_step:
+        raise ValueError("execution_source_metrics_step_differs_from_basis")
+
+    expected_inventory = _execution_input_basis_inventory(store, basis)
+    if _execution_input_inventory_key(basis_manifest.inputs) != _execution_input_inventory_key(
+        expected_inventory
+    ):
+        raise ValueError("execution_source_basis_manifest_does_not_bind_complete_source_graph")
+    return _AdmittedExecutionSource(
+        mode="single_step_basis",
+        simulation_result_ref=simulation_result_ref,
+        simulation_result=simulation_result,
+        simulation_manifest=simulation_manifest,
+        basis_ref=basis_ref,
+        basis=basis,
+        basis_manifest=basis_manifest,
+    )
 
 
 def _build_execution_input_basis(

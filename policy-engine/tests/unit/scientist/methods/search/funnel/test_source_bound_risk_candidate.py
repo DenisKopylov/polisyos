@@ -310,7 +310,6 @@ def _build_foundry_source(root: Path) -> _FoundrySource:
     )
     data_snapshot = DataSnapshot(
         data_ref=state_snapshot_ref,
-        uncertainty_envelope_ref=input_envelope_ref,
         notes=["candidate-only fixture; units and risk interpretation are not established"],
     )
     raw_data_snapshot_ref = _cas_put_json(
@@ -325,7 +324,6 @@ def _build_foundry_source(root: Path) -> _FoundrySource:
         return_selected_profile=True,
         inputs=[
             _input_edge(state_snapshot_ref, role="data_ref"),
-            _input_edge(input_envelope_ref, role="uncertainty_envelope_ref"),
         ],
     )
     produced_data_snapshot_ref = _producer_output_ref(
@@ -748,8 +746,8 @@ def _assert_actual_source_lineage(
     )
     assert _ref_key(candidate_snapshot.data_ref) == _ref_key(source.candidate_state_snapshot_ref)
     assert _ref_key(execution_snapshot.data_ref) == _ref_key(source.state_snapshot_ref)
-    assert candidate_snapshot.uncertainty_envelope_ref is not None
-    assert execution_snapshot.uncertainty_envelope_ref == source.input_envelope_ref
+    assert candidate_snapshot.uncertainty_envelope_ref is None
+    assert execution_snapshot.uncertainty_envelope_ref is None
     assert _ref_key(bindings.data_snapshot_ref) == _ref_key(source.data_snapshot_ref)
     assert _ref_key(bindings.registry_bundle_ref) == _ref_key(source.registry_bundle_ref)
     assert _ref_key(bindings.bound_state_snapshot_ref) == _ref_key(source.bound_state_snapshot_ref)
@@ -784,14 +782,12 @@ def _assert_actual_source_lineage(
             source.candidate_data_snapshot_ref,
             {
                 "data_ref": source.candidate_state_snapshot_ref,
-                "uncertainty_envelope_ref": source.input_envelope_ref,
             },
         ),
         (
             source.data_snapshot_ref,
             {
                 "data_ref": source.state_snapshot_ref,
-                "uncertainty_envelope_ref": source.input_envelope_ref,
             },
         ),
         (
@@ -878,6 +874,7 @@ def _assert_actual_source_lineage(
                 "simulation_result": source.simulation_result_ref,
                 "metrics": source.metrics_ref,
                 "execution_input_basis": source.execution_input_basis_ref,
+                "pe_uncertainty.applied_nodes": source.input_envelope_ref,
             },
         ),
     )
@@ -902,17 +899,13 @@ def _build_foreign_execution(source: _FoundrySource) -> _FoundrySource:
     raw_data_ref = store.put_json(
         DataSnapshot(
             data_ref=foreign_state_ref,
-            uncertainty_envelope_ref=source.input_envelope_ref,
             notes=["valid foreign DataSnapshot wrapper for candidate-source mismatch control"],
         ),
         PutOptions(
             kind="fabric.data_snapshot",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
-            inputs=[
-                _input_edge(foreign_state_ref, role="data_ref"),
-                _input_edge(source.input_envelope_ref, role="uncertainty_envelope_ref"),
-            ],
+            inputs=[_input_edge(foreign_state_ref, role="data_ref")],
         ),
         return_selected_profile=True,
     )
@@ -968,14 +961,18 @@ def _build_foreign_execution(source: _FoundrySource) -> _FoundrySource:
 
 def _build_feedback_uncomposed_execution(source: _FoundrySource) -> _FoundrySource:
     store = source.store
-    feedback_ref = prepare_trivial_feedback_config(store, exec_plan_ref=source.exec_plan_ref)
+    feedback_ref = prepare_trivial_feedback_config(
+        store,
+        exec_plan_ref=source.exec_plan_ref,
+        return_selected_profile=True,
+    )
     execution = execute_foundry(
         store,
         ExecuteRequest(
             exec_plan_ref=source.exec_plan_ref,
             input_bindings_ref=source.input_bindings_ref,
             registry_bundle_ref=source.registry_bundle_ref,
-            feedback_config_ref=FeedbackConfigRef(artifact_id=feedback_ref.artifact_id),
+            feedback_config_ref=feedback_ref,
             return_selected_profile=True,
         ),
     )
@@ -1058,6 +1055,13 @@ def _build_same_id_different_profile_execution(
         != source.data_snapshot_ref.manifest_profile_sha256
     )
 
+    if mismatch_data_ref_edge:
+        # Preserve the real execution/basis and introduce only a consumer-side
+        # source snapshot whose persisted edge disagrees with its typed ref.
+        # The canonical binding owner already rejects this selected snapshot,
+        # so do not claim a second execution was produced from it.
+        return replace(source, data_snapshot_ref=alternate_snapshot_ref)
+
     binding_build = build_input_bindings(
         store,
         data_snapshot_ref=alternate_snapshot_ref,
@@ -1128,6 +1132,9 @@ def _source_fixture(
                 "policy_ref": source.candidate_ref.model_dump(mode="json"),
                 "metric_order": ["applied_nodes", "op_nodes"],
                 "weights": [2.0, 0.25],
+                "input_envelopes": {
+                    "applied_nodes": source.input_envelope_ref.model_dump(mode="json")
+                },
                 "welfare_social_weight_manifest": {
                     "ref": "swr://b161/source-bound-context@1.0.0#weights",
                     "method_fqn": "policy.welfare.state_dependent_inverse_social_weights@1.0.0",
@@ -1155,6 +1162,7 @@ def _source_fixture(
     assert ArtifactRef.model_validate(bundle.policy_ref.model_dump(mode="python")) == (
         source.candidate_ref
     )
+    assert bundle.pe_uncertainty_refs["applied_nodes"] == source.input_envelope_ref
     persisted_result_ref = maybe_artifact_ref(
         node_outcome.state.artifacts_index.get(ARTIFACT_SIMULATION_RESULT_REF)
     )
@@ -2045,8 +2053,11 @@ def test_missing_execution_basis_edge_is_not_rescued_by_source_markers(source_bu
     _, simulation_manifest = _selected_manifest(store, simulation_ref)
     assert any(edge.role == "execution_input_basis" for edge in simulation_manifest.inputs)
     assert simulation_manifest.artifact_schema is not None
+    simulation_payload = _get_json_artifact(store, simulation_ref)
+    assert isinstance(simulation_payload, Mapping)
+    assert simulation_manifest.canon is not None
     marker_only_simulation_ref = store.put_json(
-        simulation,
+        simulation_payload,
         PutOptions(
             kind=simulation_manifest.kind,
             media_type=simulation_manifest.media_type,
@@ -2055,6 +2066,7 @@ def test_missing_execution_basis_edge_is_not_rescued_by_source_markers(source_bu
                 edge for edge in simulation_manifest.inputs if edge.role != "execution_input_basis"
             ],
         ),
+        canon_spec=CanonSpec(**simulation_manifest.canon.model_dump(mode="python")),
         return_selected_profile=True,
     )
     assert marker_only_simulation_ref.artifact_id == simulation_ref.artifact_id
@@ -2203,20 +2215,24 @@ def test_same_snapshot_bytes_with_a_different_selected_profile_stays_candidate_o
     )
 
 
-def test_manifest_data_ref_disagreement_is_withheld_with_markers_intact(foundry_source) -> None:
+def test_manifest_data_ref_disagreement_is_rejected_before_execution(foundry_source) -> None:
     misbound_source = _build_same_id_different_profile_execution(
         foundry_source, mismatch_data_ref_edge=True
     )
-    store, candidate_ref, welfare_ref = _source_fixture(
-        misbound_source, run_id="R_b161_mismatched_data_ref_edge", verify_source_lineage=False
-    )
-    _assert_real_mixed_nested_monte_carlo_source(store, welfare_ref)
-    outcome = _funnel_outcome(store, candidate_ref, welfare_ref)
-    assert all(ref.kind != _SOURCE_KIND for ref in outcome.audit_refs)
-    assert outcome.current_uncertainty_envelope is None
-    assert all(
-        estimate.level == 1.0 for estimate in outcome.uncertainty_envelope.uncertainties.values()
-    )
+    assert misbound_source.simulation_result_ref == foundry_source.simulation_result_ref
+    assert misbound_source.execution_input_basis_ref == foundry_source.execution_input_basis_ref
+    assert misbound_source.data_snapshot_ref != foundry_source.data_snapshot_ref
+
+    with pytest.raises(
+        ValueError,
+        match="DataSnapshot selected nested reference lineage is not established: data_ref",
+    ):
+        build_input_bindings(
+            misbound_source.store,
+            data_snapshot_ref=misbound_source.data_snapshot_ref,
+            registry_bundle_ref=misbound_source.registry_bundle_ref,
+            return_selected_profile=True,
+        )
 
 
 def test_nonconformant_selected_core_profile_is_withheld_with_source_markers_intact(

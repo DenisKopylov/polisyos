@@ -14,8 +14,6 @@ from polisyos.core.contracts.foundry import (
     FeedbackConfigRef,
     FeedbackConvergenceCertificate,
     FeedbackSolveResult,
-    FoundryInputBindings,
-    FoundryInputBindingsRef,
     ObservedRange,
     ObservedRangeBundle,
     SimulationResult,
@@ -25,6 +23,7 @@ from polisyos.core.registry import build_default_registry_bundle, load_registry_
 from polisyos.foundry._quickstart import prepare_trivial_feedback_config
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
+from polisyos.foundry.data_plane import build_input_bindings
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.foundry.welfare.bounds import (
@@ -101,17 +100,21 @@ def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:
     state_snapshot_ref = StateSnapshotRef(artifact_id=snapshot_ref.artifact_id)
     data_snapshot_ref = store.put_json(
         DataSnapshot(data_ref=state_snapshot_ref),
-        PutOptions(kind="fabric.data_snapshot", media_type="application/json"),
-    )
-    input_bindings_ref = store.put_json(
-        FoundryInputBindings(
-            data_snapshot_ref=data_snapshot_ref,
-            registry_bundle_ref=bundle.bundle_ref,
-            rules=[],
-            bound_state_snapshot_ref=state_snapshot_ref,
+        PutOptions(
+            kind=DataSnapshot.ARTIFACT_KIND,
+            media_type=DataSnapshot.ARTIFACT_MEDIA_TYPE,
+            schema=SchemaInfo(
+                name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+            ),
         ),
-        PutOptions(kind="foundry.input_bindings", media_type="application/json"),
     )
+    binding_build = build_input_bindings(
+        store,
+        data_snapshot_ref=data_snapshot_ref,
+        registry_bundle_ref=bundle.bundle_ref,
+    )
+    input_bindings_ref = binding_build.input_bindings_ref
     feedback_config_ref = prepare_trivial_feedback_config(
         store,
         exec_plan_ref=compile_result.exec_plan_ref,
@@ -129,7 +132,7 @@ def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:
         store,
         ExecuteRequest(
             exec_plan_ref=compile_result.exec_plan_ref,
-            input_bindings_ref=FoundryInputBindingsRef(artifact_id=input_bindings_ref.artifact_id),
+            input_bindings_ref=input_bindings_ref,
             registry_bundle_ref=bundle.bundle_ref,
             feedback_config_ref=FeedbackConfigRef(artifact_id=feedback_config_ref.artifact_id),
             observed_range_bundle_ref=observed_range_bundle_ref,
@@ -206,7 +209,7 @@ def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:
         store,
         ExecuteRequest(
             exec_plan_ref=compile_result.exec_plan_ref,
-            input_bindings_ref=FoundryInputBindingsRef(artifact_id=input_bindings_ref.artifact_id),
+            input_bindings_ref=input_bindings_ref,
             registry_bundle_ref=bundle.bundle_ref,
             feedback_config_ref=FeedbackConfigRef(artifact_id=multiplicity_config_ref.artifact_id),
         ),
@@ -265,7 +268,7 @@ def test_execute_supports_feedback_fixed_point_mode(tmp_path) -> None:
         store,
         ExecuteRequest(
             exec_plan_ref=compile_result.exec_plan_ref,
-            input_bindings_ref=FoundryInputBindingsRef(artifact_id=input_bindings_ref.artifact_id),
+            input_bindings_ref=input_bindings_ref,
             registry_bundle_ref=bundle.bundle_ref,
             feedback_config_ref=FeedbackConfigRef(artifact_id=failure_config_ref.artifact_id),
         ),

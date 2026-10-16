@@ -2726,5 +2726,36 @@
     "compatibility": "No supported API/registry schema/issuer/review-expiry change. Tuple-route importer provenance and string membership retained.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261016_b190_shared_execution_source_admission": {
+    "root_writer": "/root",
+    "base": "033ea7594187ce00916150bd767ebd81d19742cc",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/foundry/execute/api.py",
+      "policy-engine/src/polisyos/foundry/calibration/identifiability.py",
+      "policy-engine/src/polisyos/scientist/methods/search/uncertainty.py",
+      "policy-engine/src/polisyos/foundry/_quickstart.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/tests/unit/foundry/runtime/test_executor_runtime_semantics.py",
+      "policy-engine/tests/unit/foundry/runtime/test_execute_feedback.py",
+      "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+      "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-execution-source-admission-replay.toml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate current-source receipt and component index"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/s1-s2-s3-current-semantic-route-oracle-20261016/r2-source-admission/freeze-manifest.json",
+      "sha256": "70e08b623087b3aea75a79928b06778ecd59b0a19a0fb2f1355582566b90d5ff"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b190-r2-owner-admission-independent-review-20261016/review.md",
+      "sha256": "199cd54ef3ac2b224a25f03d12fa23c316ac7cfbbb5c3f3434ba17c96953c034"
+    },
+    "P40": "One Foundry owner resolves exact source mode, profiles, request, parent edges and complete basis inventory; summary/state identifiability and source-bound uncertainty share admission. No per-selector reference-presence promotion.",
+    "limitations": "Source lineage repair only; original B190 permits executed-model/explicit dimensioned response; no invented production issuer requirement. Shared execute.api strict MyPy not established under current generated ignore_errors group. No full gate or formal closure claim.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

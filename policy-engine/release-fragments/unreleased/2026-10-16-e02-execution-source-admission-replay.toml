@@ -1,0 +1,21 @@
+id = "2026-10-16-e02-execution-source-admission-replay"
+title = "Use one admitted execution source across replay consumers"
+type = "changed"
+component = "foundry"
+owner = "team-policyos-foundry"
+summary = "Identifiability and source-bound uncertainty replay now use the Foundry execution owner's typed source admission, preserving the selected basis and explicit source mode through fresh reads."
+evidence = [
+  "src/polisyos/foundry/execute/api.py",
+  "src/polisyos/foundry/calibration/identifiability.py",
+  "src/polisyos/scientist/methods/search/uncertainty.py",
+]
+compatibility = "Selected-profile sources retain their exact request and manifest-edge lineage; explicit profileless sources remain on the legacy path, and uncomposed feedback remains a typed limited/refusal outcome. No selected profile is inferred from a reader default."
+change_class = "internal"
+surface_classification = "internal: Foundry execution-source admission and replay consumers; no public API or artifact schema is introduced."
+migration = "No migration. Existing profileless requests retain their legacy shape and behavior."
+api = "No Python or persisted schema fields are added. Replay consumers delegate selected-source admission and its typed inventory to the Foundry execution owner."
+limitations = "This verifies source/request lineage only. It does not establish an authentic source-owned response Jacobian or law, policy admissibility, gate eligibility, or authority; diagnostic output remains candidate-grade."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

@@ -25,19 +25,15 @@ from polisyos.core.artifacts import (
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import (
     DataSnapshot,
-    ExecPlan,
-    FeedbackConfig,
-    FoundryExecConfig,
     FoundryExecutionInputBasis,
     FoundryExecutionInputBasisRef,
-    FoundryInputBindings,
-    Metrics,
-    ParameterOverrideBundle,
-    ProgramGraph,
     SimulationResult,
-    StateDelta,
+    SimulationResultRef,
 )
-from polisyos.foundry.execute import resolve_execution_posture
+from polisyos.foundry.execute.api import (
+    _admit_execution_source,
+    _execution_input_basis_inventory,
+)
 from polisyos.foundry.uncertainty import PropagationConfig
 from polisyos.ir import TrinityBundle, UncertaintyType
 from polisyos.ir.analytics.welfare import (
@@ -806,56 +802,7 @@ def _source_inventory_for_basis(
     basis: FoundryExecutionInputBasis,
 ) -> list[InputRef]:
     """Recompute the exact basis manifest inputs from its typed refs and their parents."""
-    sources: list[tuple[str, ArtifactRef | ArtifactRefModel]] = [
-        ("exec_plan", basis.exec_plan_ref),
-        ("program_graph", basis.program_graph_ref),
-        ("trinity_bundle", basis.trinity_bundle_ref),
-        ("candidate", basis.candidate_ref),
-        ("candidate_data_snapshot", basis.candidate_data_snapshot_ref),
-        ("candidate_registry_bundle", basis.candidate_registry_bundle_ref),
-        ("input_bindings", basis.input_bindings_ref),
-        ("actual_data_snapshot", basis.data_snapshot_ref),
-        ("bound_state_snapshot", basis.bound_state_snapshot_ref),
-        ("base_state_snapshot", basis.base_state_snapshot_ref),
-        ("binding_registry_bundle", basis.binding_registry_ref),
-        ("compile_registry_bundle", basis.compile_registry_ref),
-        ("runtime_registry_bundle", basis.runtime_registry_ref),
-    ]
-    for role, payload in (
-        ("binding", basis.binding_registry_members),
-        ("compile", basis.compile_registry_members),
-        ("runtime", basis.runtime_registry_members),
-    ):
-        for member_role, member_ref in payload.model_dump(mode="python").items():
-            if member_ref is not None:
-                sources.append(
-                    (
-                        f"{role}_registry_member.{member_role}",
-                        ArtifactRef.model_validate(member_ref),
-                    )
-                )
-    if basis.parameter_override_bundle_ref is not None:
-        sources.append(("parameter_override_bundle", basis.parameter_override_bundle_ref))
-    if basis.observed_range_bundle_ref is not None:
-        sources.append(("observed_range_bundle", basis.observed_range_bundle_ref))
-    if basis.request.feedback_config_ref is not None:
-        sources.append(("feedback_config", basis.request.feedback_config_ref))
-
-    inventory: list[InputRef] = []
-    for source_role, raw_ref in sources:
-        ref = _source_core_ref(raw_ref)
-        manifest = _source_manifest(store, ref)
-        inventory.append(input_ref_from_artifact_ref(ref, role=f"basis.source.{source_role}"))
-        for edge in manifest.inputs:
-            resolved_ref, _ = _source_manifest_for_edge(store, edge, require_selected=True)
-            inventory.append(
-                InputRef(
-                    artifact_id=resolved_ref.artifact_id,
-                    role=f"basis.edge.{source_role}.{edge.role}",
-                    manifest_profile_sha256=resolved_ref.manifest_profile_sha256,
-                )
-            )
-    return inventory
+    return _execution_input_basis_inventory(store, basis)
 
 
 def _source_inventory_key(items: list[InputRef]) -> list[tuple[str, str, str | None]]:
@@ -876,213 +823,143 @@ def _recompute_execution_source(
     ArtifactRef,
     ArtifactManifest,
 ]:
-    """Resolve every source boundary from the stored WelfareBundle to the Foundry call."""
+    """Join the admitted Foundry source basis to its welfare candidate context."""
     simulation_edge = _source_input_by_role(welfare_manifest, "simulation_result")
-    simulation_ref, simulation_manifest = _source_manifest_for_edge(
+    simulation_ref, _simulation_manifest = _source_manifest_for_edge(
         store,
         simulation_edge,
         require_selected=True,
         expected_model=SimulationResult,
     )
-    if simulation_manifest.artifact_schema != _source_model_schema(SimulationResult):
-        raise ValueError("source-bound risk simulation result schema mismatch")
-    simulation_result = _source_typed_json_model(store, SimulationResult, simulation_ref)
-    if simulation_result.execution_source_status == "feedback_uncomposed":
-        raise ValueError("source-bound risk feedback execution basis is uncomposed")
-    if (
-        simulation_result.execution_source_status != "single_step_basis"
-        or simulation_result.execution_input_basis_ref is None
-        or simulation_result.feedback_result_ref is not None
-    ):
-        raise ValueError("source-bound risk single-step execution basis is missing")
-    basis_ref = _source_core_ref(simulation_result.execution_input_basis_ref)
-    basis_manifest = _source_child_manifest(
-        store, simulation_manifest, role="execution_input_basis", ref=basis_ref
-    )
-    if basis_manifest.artifact_schema != _source_model_schema(FoundryExecutionInputBasis):
-        raise ValueError("source-bound risk execution basis schema mismatch")
-    basis = _source_typed_json_model(store, FoundryExecutionInputBasis, basis_ref)
-    if basis.request.return_selected_profile is not True:
-        raise ValueError("source-bound risk execution basis was not produced with selected refs")
-    if (
-        not _source_refs_equal(
-            _source_core_ref(basis.exec_plan_ref),
-            _source_core_ref(simulation_result.exec_plan_ref),
-        )
-        or not _source_refs_equal(
-            _source_core_ref(basis.request.exec_plan_ref),
-            _source_core_ref(basis.exec_plan_ref),
-        )
-        or not _source_refs_equal(
-            _source_core_ref(basis.request.input_bindings_ref),
-            _source_core_ref(basis.input_bindings_ref),
-        )
-        or not _source_refs_equal(
-            _source_core_ref(basis.request.registry_bundle_ref),
-            _source_core_ref(basis.runtime_registry_ref),
-        )
-        or not _source_refs_equal(_source_core_ref(basis.candidate_ref), candidate_ref)
-    ):
-        raise ValueError("source-bound risk execution basis request refs disagree")
-    # The ProgramGraph ref is reached from the actual ExecPlan payload, not inferred from IDs.
-    exec_plan = _source_typed_json_model(store, ExecPlan, basis.exec_plan_ref)
-    graph_ref = _source_core_ref(exec_plan.program_ref)
-    if not _source_refs_equal(graph_ref, _source_core_ref(basis.program_graph_ref)):
-        raise ValueError("source-bound risk execution basis graph differs from ExecPlan")
-    graph = _source_typed_json_model(store, ProgramGraph, graph_ref)
-    exec_plan_manifest = _source_manifest(store, basis.exec_plan_ref)
-    graph_manifest = _source_manifest(store, graph_ref)
-    trinity_ref = _source_core_ref(basis.trinity_bundle_ref)
-    if not _source_refs_equal(_source_core_ref(graph.ir_ref), trinity_ref):
-        raise ValueError(
+    reason_mapping = {
+        "execution_source_status_has_no_admitted_mode": (
+            "source-bound risk single-step execution basis is missing"
+        ),
+        "execution_source_basis_selected_profile_missing": (
+            "source-bound risk selected execution basis profile is missing"
+        ),
+        "execution_source_requires_one_execution_input_basis_edge": (
+            "source-bound risk requires one execution_input_basis lineage edge"
+        ),
+        "execution_source_basis_ref_differs_from_exact_result_edge": (
+            "source-bound risk execution_input_basis edge differs from typed basis ref"
+        ),
+        "execution_source_basis_schema_mismatch": (
+            "source-bound risk execution basis schema mismatch"
+        ),
+        "execution_source_basis_request_did_not_explicitly_select_profiles": (
+            "source-bound risk execution basis was not produced with selected refs"
+        ),
+        "execution_source_basis_request_fields_set_invalid": (
+            "source-bound risk request fields-set contains unknown fields"
+        ),
+        "execution_source_basis_exec_config_fields_set_invalid": (
+            "source-bound risk execution-config fields-set contains unknown fields"
+        ),
+        "execution_source_basis_request_refs_disagree": (
+            "source-bound risk execution basis request refs disagree"
+        ),
+        "execution_source_basis_request_does_not_match_result_inputs": (
+            "source-bound risk execution basis request refs disagree"
+        ),
+        "execution_source_basis_manifest_does_not_bind_complete_source_graph": (
+            "source-bound risk basis manifest does not bind its complete source graph"
+        ),
+        "execution_source_basis_graph_differs_from_exec_plan": (
+            "source-bound risk execution basis graph differs from ExecPlan"
+        ),
+        "execution_source_basis_trinity_differs_from_program_graph": (
             "source-bound risk execution basis Trinity source differs from ProgramGraph"
-        )
-    if not _source_refs_equal(
-        _source_ref_from_parent_edge(
-            store,
-            exec_plan_manifest,
-            "program_graph",
-            expected_kind="foundry.program_graph",
         ),
-        graph_ref,
-    ):
-        raise ValueError("source-bound risk ExecPlan manifest names another ProgramGraph")
-    if not _source_refs_equal(
-        _source_ref_from_parent_edge(
-            store, graph_manifest, "ir", expected_kind="ir.trinity_bundle"
+        "execution_source_edge_payload_disagrees:program_graph": (
+            "source-bound risk ExecPlan manifest names another ProgramGraph"
         ),
-        trinity_ref,
-    ):
-        raise ValueError("source-bound risk ProgramGraph manifest names another Trinity source")
-    compile_registry_from_graph = _source_ref_from_parent_edge(
-        store, graph_manifest, "registry_bundle", expected_kind="core.registry_bundle"
-    )
-    if not _source_refs_equal(
-        compile_registry_from_graph, _source_core_ref(basis.compile_registry_ref)
-    ):
-        raise ValueError("source-bound risk compile registry differs from ProgramGraph")
-    trinity_manifest = _source_manifest(store, trinity_ref)
-    trinity_candidate_ref = _source_ref_from_parent_edge(
-        store,
-        trinity_manifest,
-        "policy_candidate",
-        expected_kind="scientist.policy_design.candidate",
-    )
-    if not _source_refs_equal(trinity_candidate_ref, candidate_ref):
-        raise ValueError("source-bound risk Trinity source names another candidate")
-    trinity = _source_typed_json_model(store, TrinityBundle, trinity_ref)
-    bindings = _source_typed_json_model(store, FoundryInputBindings, basis.input_bindings_ref)
-    binding_manifest = _source_manifest(store, basis.input_bindings_ref)
-    if (
-        not _source_refs_equal(
-            _source_core_ref(bindings.data_snapshot_ref),
-            _source_core_ref(basis.data_snapshot_ref),
-        )
-        or not _source_refs_equal(
-            _source_core_ref(bindings.bound_state_snapshot_ref),
-            _source_core_ref(basis.bound_state_snapshot_ref),
-        )
-        or not _source_refs_equal(
-            _source_core_ref(bindings.registry_bundle_ref),
-            _source_core_ref(basis.binding_registry_ref),
-        )
-        or not _source_refs_equal(
-            _source_ref_from_parent_edge(
-                store,
-                binding_manifest,
-                "input.data_snapshot_ref",
-                expected_kind="fabric.data_snapshot",
-            ),
-            _source_core_ref(basis.data_snapshot_ref),
-        )
-        or not _source_refs_equal(
-            _source_ref_from_parent_edge(
-                store,
-                binding_manifest,
-                "input.registry_bundle_ref",
-                expected_kind="core.registry_bundle",
-            ),
-            _source_core_ref(basis.binding_registry_ref),
-        )
-        or not _source_refs_equal(
-            _source_ref_from_parent_edge(
-                store,
-                binding_manifest,
-                "artifact.bound_state_snapshot_ref",
-                expected_kind="foundry.state_snapshot",
-            ),
-            _source_core_ref(basis.bound_state_snapshot_ref),
-        )
-    ):
-        raise ValueError("source-bound risk execution basis bindings disagree")
-    for registry_ref, declared_members in (
-        (basis.binding_registry_ref, basis.binding_registry_members),
-        (basis.compile_registry_ref, basis.compile_registry_members),
-        (basis.runtime_registry_ref, basis.runtime_registry_members),
-    ):
-        actual_members = core_registry.load_registry_bundle_payload(store, registry_ref)
-        if actual_members != declared_members:
-            raise ValueError(
-                "source-bound risk registry bundle payload differs from selected members"
-            )
-    if not _source_refs_equal(
-        _source_core_ref(basis.runtime_registry_ref),
-        _source_core_ref(basis.request.registry_bundle_ref),
-    ):
-        raise ValueError("source-bound risk runtime registry differs from ExecuteRequest")
-    if set(basis.request_fields_set) - set(basis.request.model_fields):
-        raise ValueError("source-bound risk request fields-set contains unknown fields")
-    if "return_selected_profile" not in basis.request_fields_set:
-        raise ValueError("source-bound risk request did not explicitly request selected profiles")
-    if set(basis.request_exec_config_fields_set) - set(basis.request.exec_config.model_fields):
-        raise ValueError("source-bound risk execution-config fields-set contains unknown fields")
-    if basis.request.feedback_config_ref is not None:
-        feedback_config = _source_typed_json_model(
-            store, FeedbackConfig, basis.request.feedback_config_ref
-        )
-        if feedback_config.mode != "off":
-            raise ValueError("source-bound risk feedback execution basis is uncomposed")
-    config_values = basis.request.exec_config.model_dump(mode="python")
-    configured = FoundryExecConfig.model_construct(
-        _fields_set=set(basis.request_exec_config_fields_set), **config_values
-    )
-    posture = resolve_execution_posture(exec_plan, configured)
-    effective_posture = {
-        "effective_seed": posture.seed,
-        "effective_seed_source": posture.seed_source,
-        "effective_mode": posture.mode,
-        "effective_max_steps": posture.max_steps,
-        "effective_determinism_tier": posture.determinism_tier,
-        "effective_nan_guard_enabled": posture.nan_guard_enabled,
-        "effective_jit": posture.jit,
-        "effective_capture_env": posture.capture_env,
+        "execution_source_edge_payload_disagrees:ir": (
+            "source-bound risk ProgramGraph manifest names another Trinity source"
+        ),
+        "execution_source_edge_payload_disagrees:registry_bundle": (
+            "source-bound risk compile registry differs from ProgramGraph"
+        ),
+        "execution_source_edge_payload_disagrees:policy_candidate": (
+            "source-bound risk Trinity source names another candidate"
+        ),
+        "execution_source_basis_bindings_disagree": (
+            "source-bound risk execution basis bindings disagree"
+        ),
+        "execution_source_edge_payload_disagrees:input.data_snapshot_ref": (
+            "source-bound risk execution basis bindings disagree"
+        ),
+        "execution_source_edge_payload_disagrees:input.registry_bundle_ref": (
+            "source-bound risk execution basis bindings disagree"
+        ),
+        "execution_source_edge_payload_disagrees:artifact.bound_state_snapshot_ref": (
+            "source-bound risk execution basis bindings disagree"
+        ),
+        "execution_source_edge_payload_disagrees:input.input_bindings_ref": (
+            "source-bound risk execution basis request refs disagree"
+        ),
+        "execution_source_edge_payload_disagrees:input.bound_state_snapshot_ref": (
+            "source-bound risk execution basis bindings disagree"
+        ),
+        "execution_source_basis_registry_members_disagree": (
+            "source-bound risk registry bundle payload differs from selected members"
+        ),
+        "execution_source_feedback_basis_uncomposed": (
+            "source-bound risk feedback execution basis is uncomposed"
+        ),
+        "execution_source_basis_effective_posture_does_not_recompute": (
+            "source-bound risk effective execution posture does not recompute"
+        ),
+        "execution_source_data_snapshot_profile_missing": (
+            "source-bound risk actual DataSnapshot selected profile is missing"
+        ),
+        "execution_source_data_snapshot_state_profile_missing": (
+            "source-bound risk DataSnapshot state source profile is missing"
+        ),
+        "execution_source_data_snapshot_requires_selected_edge:data_ref": (
+            "source-bound risk DataSnapshot data_ref edge differs from payload"
+        ),
+        "execution_source_data_snapshot_unexpected_edge:data_ref": (
+            "source-bound risk DataSnapshot has unexpected data_ref edge"
+        ),
+        "execution_source_basis_parameter_overrides_disagree": (
+            "source-bound risk parameter overrides differ from selected source"
+        ),
+        "execution_source_state_delta_base_differs_from_basis": (
+            "source-bound risk StateDelta base differs from observed execution basis"
+        ),
+        "execution_source_metrics_step_differs_from_basis": (
+            "source-bound risk effective step differs from executed metrics"
+        ),
     }
-    if any(getattr(basis, key) != value for key, value in effective_posture.items()):
-        raise ValueError("source-bound risk effective execution posture does not recompute")
-    if _source_core_ref(basis.data_snapshot_ref).manifest_profile_sha256 is None:
-        raise ValueError("source-bound risk actual DataSnapshot selected profile is missing")
-    actual_snapshot_payload = _source_typed_json_model(store, DataSnapshot, basis.data_snapshot_ref)
-    _verify_data_snapshot_source_edges(store, basis.data_snapshot_ref, actual_snapshot_payload)
-    if _source_core_ref(actual_snapshot_payload.data_ref).manifest_profile_sha256 is None:
-        raise ValueError("source-bound risk DataSnapshot state source profile is missing")
-    if basis.parameter_override_bundle_ref is None:
-        expected_overrides = None
-    else:
-        override_payload = _source_typed_json_model(
-            store, ParameterOverrideBundle, basis.parameter_override_bundle_ref
-        )
-        expected_overrides = {
-            str(node_id): dict(values)
-            for node_id, values in override_payload.overrides.items()
-            if isinstance(values, dict)
-        }
-    if basis.parameter_overrides != expected_overrides:
-        raise ValueError("source-bound risk parameter overrides differ from selected source")
+    typed_simulation_ref = SimulationResultRef.model_validate(
+        simulation_ref.model_dump(mode="python")
+    )
+    try:
+        source_context = _admit_execution_source(store, typed_simulation_ref)
+    except ValueError as exc:
+        mapped_reason = reason_mapping.get(str(exc))
+        if mapped_reason is None:
+            raise
+        raise ValueError(mapped_reason) from exc
+    if source_context.mode == "feedback_uncomposed":
+        raise ValueError("source-bound risk feedback execution basis is uncomposed")
+    if source_context.mode != "single_step_basis":
+        raise ValueError("source-bound risk single-step execution basis is missing")
+    simulation_manifest = source_context.simulation_manifest
+    basis_ref = source_context.basis_ref
+    basis = source_context.basis
+    basis_manifest = source_context.basis_manifest
+    if basis_ref is None or basis is None or basis_manifest is None:
+        raise ValueError("source-bound risk single-step execution basis is missing")
+    if not _source_refs_equal(_source_core_ref(basis.candidate_ref), candidate_ref):
+        raise ValueError("source-bound risk execution basis request refs disagree")
 
     candidate_manifest = _source_manifest(store, candidate_ref)
     candidate_payload = _source_typed_json_model(
         store, PolicyCandidateSchema, candidate_ref
     ).model_dump(mode="json")
+    trinity = _source_typed_json_model(store, TrinityBundle, basis.trinity_bundle_ref)
     if not isinstance(candidate_payload, Mapping) or not isinstance(
         candidate_payload.get("trinity_bundle"), Mapping
     ):
@@ -1119,54 +996,7 @@ def _recompute_execution_source(
         _source_core_ref(basis.candidate_registry_bundle_ref), candidate_registry_ref
     ):
         raise ValueError("source-bound risk basis candidate registry differs from candidate edge")
-    if not _source_refs_equal(
-        _source_core_ref(basis.data_snapshot_ref),
-        _source_core_ref(bindings.data_snapshot_ref),
-    ):
-        raise ValueError("source-bound risk runtime DataSnapshot differs from bindings")
-    for role, ref in (
-        ("metrics", simulation_result.metrics_ref),
-        ("state_snapshot", simulation_result.state_snapshot_ref),
-    ):
-        if ref is None:
-            raise ValueError(f"source-bound risk SimulationResult is missing {role}")
-        _source_child_manifest(store, simulation_manifest, role=role, ref=_source_core_ref(ref))
-    delta_edge = _source_input_by_role(simulation_manifest, "state_delta")
-    delta_ref, delta_manifest = _source_manifest_for_edge(
-        store,
-        delta_edge,
-        require_selected=True,
-        expected_model=StateDelta,
-    )
-    delta = _source_typed_json_model(store, StateDelta, delta_ref)
-    if not _source_refs_equal(
-        _source_core_ref(delta.base_ref),
-        _source_core_ref(basis.base_state_snapshot_ref),
-    ):
-        raise ValueError("source-bound risk StateDelta base differs from observed execution basis")
-    if not _source_refs_equal(
-        _source_ref_from_parent_edge(
-            store, simulation_manifest, "exec_plan", expected_kind="foundry.exec_plan"
-        ),
-        _source_core_ref(basis.exec_plan_ref),
-    ):
-        raise ValueError("source-bound risk SimulationResult ExecPlan differs from basis")
-    metrics_ref = _source_core_ref(simulation_result.metrics_ref)
-    metrics_manifest = _source_manifest(store, metrics_ref)
-    for parent_role, parent_manifest in (
-        ("metrics", metrics_manifest),
-        ("state_delta", delta_manifest),
-    ):
-        basis_edge = _source_input_by_role(parent_manifest, "execution_input_basis")
-        if not _source_ref_matches_edge(basis_ref, basis_edge):
-            raise ValueError(f"source-bound risk {parent_role} is detached from execution basis")
-    metrics = _source_typed_json_model(store, Metrics, metrics_ref)
-    if metrics.values.get("step") != basis.effective_step:
-        raise ValueError("source-bound risk effective step differs from executed metrics")
 
-    expected_inventory = _source_inventory_for_basis(store, basis)
-    if _source_inventory_key(basis_manifest.inputs) != _source_inventory_key(expected_inventory):
-        raise ValueError("source-bound risk basis manifest does not bind its complete source graph")
     actual_candidate_data_relation = _source_identity_relation(
         candidate_data_ref, basis.data_snapshot_ref
     )

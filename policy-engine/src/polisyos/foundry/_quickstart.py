@@ -246,6 +246,7 @@ def prepare_trivial_feedback_config(
     store: FileSystemCAS,
     *,
     exec_plan_ref: ArtifactRef,
+    return_selected_profile: bool = False,
 ) -> FeedbackConfigRef:
     """Persist a minimal feedback config that endogenizes the income-tax rate."""
     from polisyos.core.artifacts import validate_core_model_json_artifact
@@ -306,8 +307,9 @@ def prepare_trivial_feedback_config(
             inputs=[InputRef(artifact_id=exec_plan_ref.artifact_id, role="exec_plan")],
         ),
         canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=return_selected_profile,
     )
-    return FeedbackConfigRef(artifact_id=ref.artifact_id)
+    return FeedbackConfigRef.model_validate(ref.model_dump(mode="python"))
 
 
 def prepare_trivial_multiplicity_config(

@@ -68,7 +68,22 @@ def _dummy_ir_ref() -> ArtifactRef:
 
 
 def _put_json(store: FileSystemCAS, payload, *, kind: str):
-    return store.put_json(payload, PutOptions(kind=kind, media_type="application/json"))
+    payload_type = type(payload)
+    owner_kind = getattr(payload_type, "ARTIFACT_KIND", kind)
+    if owner_kind != kind:
+        raise ValueError(f"fixture kind {kind!r} differs from typed owner {owner_kind!r}")
+    schema_name = getattr(payload_type, "ARTIFACT_SCHEMA_NAME", None)
+    schema_version = getattr(payload_type, "ARTIFACT_SCHEMA_VERSION", None)
+    schema = (
+        None
+        if schema_name is None or schema_version is None
+        else SchemaInfo(name=schema_name, version=schema_version)
+    )
+    media_type = getattr(payload_type, "ARTIFACT_MEDIA_TYPE", "application/json")
+    return store.put_json(
+        payload,
+        PutOptions(kind=kind, media_type=media_type, schema=schema),
+    )
 
 
 def _put_graph_and_plan(

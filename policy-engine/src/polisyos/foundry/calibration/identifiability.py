@@ -49,6 +49,7 @@ from polisyos.ir.registry.refs import ABMResultRef
 
 if TYPE_CHECKING:
     from polisyos.foundry.calibration.hessian import HessianResult
+    from polisyos.foundry.execute.api import _AdmittedExecutionSource
 else:  # pragma: no cover - import guard for environments without JAX
     HessianResult = Any
 
@@ -1355,38 +1356,81 @@ def _build_execute_summary_evaluator(
     simulation_result_ref: SimulationResultRef,
     simulation_result: SimulationResult,
 ) -> SummaryEvaluator:
-    manifest = store.get_manifest(simulation_result_ref)
-    input_bindings_input = _find_input(manifest.inputs, "input.input_bindings_ref")
-    if input_bindings_input is None:
-        raise ValueError("simulation result manifest has no input.input_bindings_ref")
+    from polisyos.foundry.execute.api import _admit_execution_source
 
-    bindings_ref = FoundryInputBindingsRef(artifact_id=input_bindings_input.artifact_id)
-    bindings = _load_model(store, bindings_ref, FoundryInputBindings)
-    feedback_config_input = _find_input(manifest.inputs, "input.feedback_config_ref")
-    feedback_config_ref = (
-        None
-        if feedback_config_input is None
-        else FeedbackConfigRef(artifact_id=feedback_config_input.artifact_id)
-    )
+    source_context = _admit_execution_source(store, simulation_result_ref)
+    source = source_context.simulation_result
+    if source.model_dump(mode="json") != simulation_result.model_dump(mode="json"):
+        raise ValueError("execute-backed source object differs from its admitted CAS view")
+    if source_context.mode == "single_step_basis":
+        source_mode: Literal["legacy_profileless", "single_step_basis"] = "single_step_basis"
+        if source_context.basis is None:
+            raise ValueError("selected execution source admission has no typed input basis")
+        base_request = source_context.basis.request
+    elif source_context.mode == "legacy_profileless":
+        source_mode = "legacy_profileless"
+        manifest = source_context.simulation_manifest
+        binding_edges = [
+            item for item in manifest.inputs if item.role == "input.input_bindings_ref"
+        ]
+        if len(binding_edges) != 1:
+            raise ValueError("simulation result manifest requires one input.input_bindings_ref")
+        bindings_ref = FoundryInputBindingsRef.model_validate(
+            _response_input_ref(store, binding_edges[0]).model_dump(mode="python")
+        )
+        bindings = _load_model(store, bindings_ref, FoundryInputBindings)
+        feedback_edges = [
+            item for item in manifest.inputs if item.role == "input.feedback_config_ref"
+        ]
+        if len(feedback_edges) > 1:
+            raise ValueError("simulation result manifest has duplicate feedback config inputs")
+        feedback_config_ref = (
+            None
+            if not feedback_edges
+            else FeedbackConfigRef.model_validate(
+                _response_input_ref(store, feedback_edges[0]).model_dump(mode="python")
+            )
+        )
+        base_request = ExecuteRequest(
+            exec_plan_ref=source.exec_plan_ref,
+            input_bindings_ref=bindings_ref,
+            registry_bundle_ref=bindings.registry_bundle_ref,
+            feedback_config_ref=feedback_config_ref,
+            return_selected_profile=False,
+        )
+    else:
+        raise ValueError(
+            "execute-backed identifiability does not replay feedback_uncomposed source "
+            f"{simulation_result_ref.artifact_id}"
+        )
 
     def evaluate(theta: Mapping[str, float], seed: int | None) -> Mapping[str, float]:
-        bundle_ref = _persist_flat_parameter_overrides(store, theta)
         from polisyos.foundry.execute.api import execute
 
-        result = execute(
+        selected = source_mode == "single_step_basis"
+        bundle_ref = _persist_flat_parameter_overrides(
             store,
-            ExecuteRequest(
-                exec_plan_ref=simulation_result.exec_plan_ref,
-                input_bindings_ref=bindings_ref,
-                registry_bundle_ref=bindings.registry_bundle_ref,
-                feedback_config_ref=feedback_config_ref,
-                parameter_override_bundle_ref=bundle_ref,
-                exec_config=FoundryExecConfig(seed=0 if seed is None else int(seed)),
-            ),
+            theta,
+            return_selected_profile=selected,
         )
+        request = _execution_replay_request(
+            base_request,
+            parameter_override_bundle_ref=bundle_ref,
+            seed=seed,
+            return_selected_profile=selected,
+        )
+        result = execute(store, request)
         if not result.ok or result.simulation_result_ref is None:
             raise RuntimeError(f"execute-backed diagnostic replay failed: {result.notes}")
-        replay_simulation = _load_model(store, result.simulation_result_ref, SimulationResult)
+        replay_context = _require_execution_replay_result(
+            store,
+            result.simulation_result_ref,
+            request=request,
+            expected_mode=source_mode,
+        )
+        replay_simulation = replay_context.simulation_result
+        if replay_simulation.metrics_ref is None:
+            raise ValueError("execute-backed diagnostic replay has no Metrics result")
         metrics = _load_model(store, replay_simulation.metrics_ref, Metrics)
         return {
             str(key): float(value)
@@ -1397,6 +1441,46 @@ def _build_execute_summary_evaluator(
     return evaluate
 
 
+def _execution_replay_request(
+    base_request: ExecuteRequest,
+    *,
+    parameter_override_bundle_ref: ParameterOverrideBundleRef,
+    seed: int | None,
+    return_selected_profile: bool,
+) -> ExecuteRequest:
+    """Preserve the admitted request and change only replay override, seed, and mode."""
+    return base_request.model_copy(
+        update={
+            "parameter_override_bundle_ref": parameter_override_bundle_ref,
+            "exec_config": base_request.exec_config.model_copy(
+                update={"seed": 0 if seed is None else int(seed)}
+            ),
+            "return_selected_profile": return_selected_profile,
+        }
+    )
+
+
+def _require_execution_replay_result(
+    store: FileSystemCAS,
+    simulation_result_ref: SimulationResultRef,
+    *,
+    request: ExecuteRequest,
+    expected_mode: Literal["legacy_profileless", "single_step_basis"],
+) -> _AdmittedExecutionSource:
+    """Read a child result through the Foundry owner and bind it to the sent request."""
+    from polisyos.foundry.execute.api import _admit_execution_source
+
+    child = _admit_execution_source(store, simulation_result_ref)
+    if child.mode != expected_mode:
+        raise ValueError("execute-backed replay result mode differs from its admitted request")
+    if expected_mode == "single_step_basis" and (
+        child.basis is None
+        or child.basis.request.model_dump(mode="json") != request.model_dump(mode="json")
+    ):
+        raise ValueError("execute-backed replay result basis differs from its sent request")
+    return child
+
+
 def _find_input(inputs: Sequence[InputRef], role: str) -> InputRef | None:
     return next((item for item in inputs if item.role == role), None)
 
@@ -1404,6 +1488,8 @@ def _find_input(inputs: Sequence[InputRef], role: str) -> InputRef | None:
 def _persist_flat_parameter_overrides(
     store: FileSystemCAS,
     theta: Mapping[str, float],
+    *,
+    return_selected_profile: bool = False,
 ) -> ParameterOverrideBundleRef:
     overrides: dict[str, dict[str, float]] = {}
     for key, value in theta.items():
@@ -1413,6 +1499,8 @@ def _persist_flat_parameter_overrides(
             )
         node_id, param_name = key.split(".", 1)
         overrides.setdefault(node_id, {})[param_name] = float(value)
+    if type(return_selected_profile) is not bool:
+        raise TypeError("return_selected_profile must be a bool")
     ref = store.put_json(
         ParameterOverrideBundle(
             overrides=overrides,
@@ -1425,8 +1513,9 @@ def _persist_flat_parameter_overrides(
             schema=SchemaInfo(name="polisyos.core.ParameterOverrideBundle", version="1.0"),
         ),
         canon_spec=CanonSpec(forbid_floats=False, forbid_nan_inf=False),
+        return_selected_profile=return_selected_profile,
     )
-    return ParameterOverrideBundleRef(artifact_id=ref.artifact_id)
+    return ParameterOverrideBundleRef.model_validate(ref.model_dump(mode="python"))
 
 
 def _load_model[ModelT: BaseModel](
@@ -1546,9 +1635,16 @@ def _response_context(
     center: Mapping[str, float],
     names: tuple[str, ...],
     config: IdentifiabilityDiagnosticConfig,
-) -> tuple[_ResponseBasis, SimulationResult, FoundryInputBindingsRef, FeedbackConfigRef | None]:
+) -> tuple[
+    _ResponseBasis,
+    SimulationResult,
+    FoundryInputBindingsRef,
+    FeedbackConfigRef | None,
+    Literal["legacy_profileless", "single_step_basis"],
+    ExecuteRequest,
+]:
     from polisyos.core import registry as core_registry
-    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.foundry.execute.api import _admit_execution_source
 
     if config.bootstrap_reps or config.profile_grid_size or not config.persist_sensitivity_matrix:
         raise ValueError("state response basis requires a persisted local Jacobian-only profile")
@@ -1558,32 +1654,57 @@ def _response_context(
         raise ValueError("response slots must match the unique ordered moment axis")
     if not center or len(set(center)) != len(center):
         raise ValueError("response parameter axis must be nonempty and unique")
-    source = _load_model(store, source_ref, SimulationResult)
-    manifest = store.get_manifest(source_ref)
-    roles = [item.role for item in manifest.inputs]
-    if len(set(roles)) != len(roles):
-        raise ValueError("duplicate source input role in response basis")
-    item = _find_input(manifest.inputs, "input.input_bindings_ref")
-    if item is None:
-        raise ValueError("response source has no input bindings")
+    source_context = _admit_execution_source(store, source_ref)
+    if source_context.mode == "feedback_uncomposed":
+        raise ValueError(
+            "state response cannot replay feedback_uncomposed source "
+            f"{source_ref.artifact_id}; its source basis is not composed"
+        )
+    source = source_context.simulation_result
+    manifest = source_context.simulation_manifest
+    if source_context.mode == "single_step_basis":
+        if source_context.basis is None:
+            raise ValueError("selected response source has no admitted execution basis")
+        base_request = source_context.basis.request
+    else:
+        binding_edges = [
+            item for item in manifest.inputs if item.role == "input.input_bindings_ref"
+        ]
+        if len(binding_edges) != 1:
+            raise ValueError("response source requires one input bindings edge")
+        bindings_ref = FoundryInputBindingsRef.model_validate(
+            _response_input_ref(store, binding_edges[0]).model_dump(mode="python")
+        )
+        feedback_edges = [
+            item for item in manifest.inputs if item.role == "input.feedback_config_ref"
+        ]
+        if len(feedback_edges) > 1:
+            raise ValueError("response source has duplicate feedback config edges")
+        feedback_ref = (
+            None
+            if not feedback_edges
+            else FeedbackConfigRef.model_validate(
+                _response_input_ref(store, feedback_edges[0]).model_dump(mode="python")
+            )
+        )
+        legacy_bindings = _load_model(store, bindings_ref, FoundryInputBindings)
+        base_request = ExecuteRequest(
+            exec_plan_ref=source.exec_plan_ref,
+            input_bindings_ref=bindings_ref,
+            registry_bundle_ref=legacy_bindings.registry_bundle_ref,
+            feedback_config_ref=feedback_ref,
+            return_selected_profile=False,
+        )
     bindings_ref = FoundryInputBindingsRef.model_validate(
-        _response_input_ref(store, item).model_dump(mode="python")
+        base_request.input_bindings_ref.model_dump(mode="python")
     )
     bindings = _load_model(store, bindings_ref, FoundryInputBindings)
-    feedback = _find_input(manifest.inputs, "input.feedback_config_ref")
-    feedback_ref = (
-        None
-        if feedback is None
-        else FeedbackConfigRef.model_validate(
-            _response_input_ref(store, feedback).model_dump(mode="python")
-        )
-    )
+    feedback_ref = base_request.feedback_config_ref
+    registry_ref = base_request.registry_bundle_ref or bindings.registry_bundle_ref
     plan = _load_model(store, source.exec_plan_ref, ExecPlan)
     program = _load_model(store, plan.program_ref, ProgramGraph)
-    registry = core_registry.load_registry_bundle_content(store, bindings.registry_bundle_ref)
-    registry_payload = core_registry.load_registry_bundle_payload(
-        store, bindings.registry_bundle_ref
-    )
+    registry = core_registry.load_registry_bundle_content(store, registry_ref)
+    registry_payload = core_registry.load_registry_bundle_payload(store, registry_ref)
     if registry.units_registry is None:
         raise ValueError("state response requires a units registry")
     refs: dict[str, ArtifactRef] = {
@@ -1592,7 +1713,7 @@ def _response_context(
         "program": plan.program_ref,
         "model": program.ir_ref,
         "bindings": bindings_ref,
-        "registry": bindings.registry_bundle_ref,
+        "registry": registry_ref,
         "data": bindings.data_snapshot_ref,
     }
     for optional_name, optional_ref in (
@@ -1655,10 +1776,13 @@ def _response_context(
             state_paths=paths,
             center=dict(center),
             config=config,
+            execution_config=base_request.exec_config,
         ),
         source,
         bindings_ref,
         feedback_ref,
+        source_context.mode,
+        base_request,
     )
 
 
@@ -1727,22 +1851,28 @@ class _ExecuteResponseEvaluator:
         config: IdentifiabilityDiagnosticConfig,
     ) -> None:
         self.store = store
-        self.context, self.source, self.bindings_ref, self.feedback_ref = _response_context(
-            store, source_ref, slots, center, names, config
-        )
+        (
+            self.context,
+            self.source,
+            self.bindings_ref,
+            self.feedback_ref,
+            self.source_mode,
+            self.source_request,
+        ) = _response_context(store, source_ref, slots, center, names, config)
         self.records: list[_ResponseReplay] = []
 
     def __call__(self, theta: Mapping[str, float], seed: int | None) -> Mapping[str, float]:
         from polisyos.foundry.execute.api import execute
 
-        override = _persist_flat_parameter_overrides(self.store, theta)
-        request = ExecuteRequest(
-            exec_plan_ref=self.source.exec_plan_ref,
-            input_bindings_ref=self.bindings_ref,
-            registry_bundle_ref=self.context.source_inputs["registry"].ref,
-            feedback_config_ref=self.feedback_ref,
+        selected_source = self.source_mode == "single_step_basis"
+        override = _persist_flat_parameter_overrides(
+            self.store, theta, return_selected_profile=selected_source
+        )
+        request = _execution_replay_request(
+            self.source_request,
             parameter_override_bundle_ref=override,
-            exec_config=FoundryExecConfig(seed=0 if seed is None else int(seed)),
+            seed=seed,
+            return_selected_profile=selected_source,
         )
         request_ref = self.store.put_json(
             request,
@@ -1761,6 +1891,17 @@ class _ExecuteResponseEvaluator:
         result = execute(self.store, request)
         if not result.ok or result.simulation_result_ref is None:
             raise ValueError(f"state response execute failed: {result.notes}")
+        replay_context = _require_execution_replay_result(
+            self.store,
+            result.simulation_result_ref,
+            request=request,
+            expected_mode=self.source_mode,
+        )
+        raw_replay = _load_model(self.store, result.simulation_result_ref, SimulationResult)
+        if raw_replay.model_dump(mode="json") != replay_context.simulation_result.model_dump(
+            mode="json"
+        ):
+            raise ValueError("state response replay differs from its admitted source view")
         replay = _response_replay(self.store, result.simulation_result_ref)
         values = _response_state_values(self.store, replay, self.context.state_paths)
         self.records.append(
@@ -1813,9 +1954,16 @@ def _load_execute_response_matrix(
     payload = load_core_json_artifact(store, matrix_ref)
     if not isinstance(payload, dict) or any(not isinstance(key, str) for key in payload):
         raise ValueError("response matrix payload must be an object with string keys")
-    typed_payload: dict[str, object] = {key: value for key, value in payload.items()}
+    typed_payload: dict[str, object] = dict(payload)
     basis = _ResponseBasis.model_validate(typed_payload.get("response_basis"))
-    expected, source, bindings_ref, feedback_ref = _response_context(
+    (
+        expected,
+        source,
+        _bindings_ref,
+        feedback_ref,
+        source_mode,
+        source_request,
+    ) = _response_context(
         store,
         source_ref,
         response_slots,
@@ -1873,15 +2021,13 @@ def _load_execute_response_matrix(
         ) != record.request.model_dump(mode="json"):
             raise ValueError("response replay request identity mismatch")
         request = ExecuteRequest.model_validate(load_core_json_artifact(store, record.request.ref))
-        expected_request = ExecuteRequest(
-            exec_plan_ref=source.exec_plan_ref,
-            input_bindings_ref=bindings_ref,
-            registry_bundle_ref=expected.source_inputs["registry"].ref,
-            feedback_config_ref=feedback_ref,
+        expected_request = _execution_replay_request(
+            source_request,
             parameter_override_bundle_ref=ParameterOverrideBundleRef.model_validate(
                 record.override.ref.model_dump(mode="python")
             ),
-            exec_config=expected.execution_config.model_copy(update={"seed": seed}),
+            seed=seed,
+            return_selected_profile=source_mode == "single_step_basis",
         )
         if request.model_dump(mode="json") != expected_request.model_dump(mode="json"):
             raise ValueError("response replay request/config differs from its declared basis")
@@ -1889,13 +2035,29 @@ def _load_execute_response_matrix(
         if _flatten_parameter_overrides(override.overrides) != theta:
             raise ValueError("response replay override differs from finite-difference point")
         manifest = store.get_manifest(record.result.ref)
+        replay_context = _require_execution_replay_result(
+            store,
+            SimulationResultRef.model_validate(record.result.ref.model_dump(mode="python")),
+            request=request,
+            expected_mode=source_mode,
+        )
+        raw_replay = _load_model(store, record.result.ref, SimulationResult)
+        if raw_replay.model_dump(mode="json") != replay_context.simulation_result.model_dump(
+            mode="json"
+        ):
+            raise ValueError("response replay differs from its admitted Foundry result")
+        replay = _response_replay(store, record.result.ref)
+        expected_basis_ref = replay_context.basis_ref
         output_roles = {"metrics", "state_delta", "state_snapshot"}
+        replay_owned_roles = output_roles | {"parameter_override_bundle", "execution_input_basis"}
         required = {
             item.role: _response_input_ref(store, item)
             for item in store.get_manifest(source_ref).inputs
-            if item.role not in output_roles | {"parameter_override_bundle"}
+            if item.role not in replay_owned_roles
         }
         required["parameter_override_bundle"] = record.override.ref
+        if expected_basis_ref is not None:
+            required["execution_input_basis"] = expected_basis_ref
         if len(manifest.inputs) != len(required) + len(output_roles):
             raise ValueError("response replay lineage mismatch: input roster")
         if feedback_ref is not None:
@@ -1904,7 +2066,6 @@ def _load_execute_response_matrix(
             matches = [item for item in manifest.inputs if item.role == role]
             if matches != [input_ref_from_artifact_ref(ref, role=role)]:
                 raise ValueError(f"response replay lineage mismatch: {role}")
-        replay = _response_replay(store, record.result.ref)
         if replay.exec_plan_ref != source.exec_plan_ref:
             raise ValueError("response replay has a different execution plan")
         for role, output_ref in (

@@ -1,0 +1,157 @@
+{
+  "record_type": "E02 bounded component source/input/execution delivery",
+  "source": {
+    "sha": "c91f5b39a94fe631574a5e1e5265b92ccd25968c",
+    "tree": "a30730f0c6cd2cdc5fec3fc6b98b5366bdab1da4",
+    "parents": [
+      "876bbe4ea29e0c369c99bd5afb8fc2cb5633684c"
+    ],
+    "subject": "fix(fabric): bind connector surfaces to registration generation"
+  },
+  "slice_base": {
+    "commit": "30d769ac5e42459f344df1fb32a7010f6274dbfc",
+    "tree": "c894cab53aaf97fec7c49873356c4e7142956890"
+  },
+  "full_code_test_config_companion_footprint": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-code-boundary-20261016/fabric-registration-source-readback.json",
+    "sha256": "5c65a4c845d79f67f886135ce8f24ef19ad5e466bfe50af20a288c3729c85985"
+  },
+  "selected_full30_source_test_documentation_inputs": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-application-20261016/application-readback.json",
+    "sha256": "fd71cde169813fd53f2333f2fe817c18702b12c2ac60eb93b8d2ea98c96c6ee8"
+  },
+  "actual_source_input_profile_backend": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/request.json",
+    "sha256": "fca65708ba367e0c930df05b8cfcfedadc618dbf6a6fe8c3016efa895944ed5a"
+  },
+  "command_and_complete_deciding_outputs": {
+    "results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/actual-results.json",
+      "sha256": "02f171508c59bc6dc6061d06ed7ae4f2222fde297b104eb0e9baa004339df1ef"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/behavior.junit.xml",
+      "sha256": "877af1584b8cf12efb0ad6dcfce7a54238d4722dd722ae516d463f494969f10c"
+    },
+    "outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/actual-behavior.run.json",
+        "sha256": "e259f41cab7cc4f1c4253c633b3a5e7aedc6e10097f5797299b47501a0a22770"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/actual-behavior.stdout.txt",
+        "sha256": "0841ba5eace4b0f8b764f4c2f37484194cdda5d8fa4f745a2c9b389f07621fd3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/actual-behavior.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/source-basedpyright.run.json",
+        "sha256": "36adb8ce9a88bdb62e09b40814a0384f57dd3fb42e10b2d2f2c7990d38c345cf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/source-basedpyright.stdout.txt",
+        "sha256": "bb6f83cf874f888bca0254b244521820e5166839d906967e2b28b558e3e95582"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/source-basedpyright.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/canonical-root-ruff-check.run.json",
+        "sha256": "6db181e7bf7633175ba83fb438dd5db9708b284744d96c54c26d139660669b67"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/canonical-root-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/canonical-root-ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/canonical-root-ruff-format.run.json",
+        "sha256": "443d68f4103ea64b4d528b58fd143767f51b84f6c22c7efc2bc5f5e1ccb183ff"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/canonical-root-ruff-format.stdout.txt",
+        "sha256": "dde85ab0ab657507e2a1c53a7cfe26e5ab8acfd4abe3547bac113731d2477097"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-none-fixed-actual-20261016/canonical-root-ruff-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "execution_result": {
+    "full_affected_test_modules": 11,
+    "PASS": 342,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "pytest_process_seconds": 35.531,
+    "basedpyright": {
+      "source_files": 18,
+      "errors": 0,
+      "warnings": 161,
+      "baseline_mode": "discard",
+      "seconds": 2.569
+    },
+    "canonical_root_ruff": {
+      "check_paths": 29,
+      "format_paths": 29,
+      "exit_codes": [
+        0,
+        0
+      ]
+    },
+    "source_modules": 1739,
+    "outside_or_missing_or_wrong_selected_origins": 0
+  },
+  "runtime_context_recipe": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-code-boundary-20261016/loaded-context-vs-commit-readback.json",
+    "sha256": "3a10c2cd9ad05d936150ed11e47dc063f68edd6ef2c829ab109721b30e59a169"
+  },
+  "real_chain": "Exact registration entry/class/factory/runtime-owner → immutable private binding + admitted instance + generation → generation-scoped contract/cache wrappers → single public get finalization after all wrapper/fallback paths → actual cached-miss producer fetch; normal/live-permit/private-stream pool ownership carries the exact cleanup handle.",
+  "semantic_and_adversarial_evidence": {
+    "independent_r8_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-r8-central-finalization-review-20261016/assessment.json",
+      "sha256": "87d15f00c4812f160f55349fd6f015fa455edd9062931a8542a5cca654700a77"
+    },
+    "independent_explicit_optional_binding_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-r8-explicit-none-review-20261016/assessment.json",
+      "sha256": "75d3b3ff43417f10f6c548a4a02462aa10da0cd9084017aee9edfbd3e72a5460"
+    },
+    "r8_author_frozen_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r8-central-get-finalization-20261016/candidate-manifest-r8-final.json",
+      "sha256": "6367ea6f270b07819ff0cb7b04d8aebb25e3b1489e20a006ab507b6b9799e163"
+    },
+    "root_full28_slice_base_blob_reconciliation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-adoption-preparation-20261016/preparation.json",
+      "sha256": "f2e6127136dee5b5bbe4fcfca3caa53f9ffcece7438ffa94f43ae765f66588e9"
+    },
+    "explicit_none_type_companion": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-r8-explicit-optional-binding-20261016/manifest.json",
+      "sha256": "d540ec2042f2b26dbbfd01106ccac6a14c45e8acf51c0294901d2cd2c45993ca"
+    },
+    "controls": "Independent7tests exercise five public get wrapper/fallback races, stale in-flight wrapper-cache backfill and normal/live-permit replacement ownership. Marker-retaining frozenR7 fallback emitsOriginal onactualfetch; exactR8 refusesstaleget and subsequentactualfetch usesReplacement. Public mutable factory/class/owner/instance/loaded view is checked against private binding, not an owner-ID string proxy."
+  },
+  "profile": "LocalmacOS/Python3.14.3 locked existingvenv, filesystemCAS/caches and deterministic real connector fixtures; numericalthreads1. No productionpayload/currentness/issuer input.",
+  "P40": "Same registration-origin class widened centrally: R6 caches and R7 fallback escapes retained as historical failing witnesses. R8 has one public successful get emission boundary; no per-site check ladder.",
+  "limitations": [
+    "This is not the PreparedB defining-baseline/all13affected-contour receipt; old0bf334run and this342case11module run are distinct. FullPreparedB13 remains pending.",
+    "Previously issued handles and active old-generation pool leases retain cleanup ownership; idle old pools may remain untilshutdown/capacitytrim. No immediate override retirement claim.",
+    "Post-freeze nativeSOTA/generated/client/browser/Linux/installedwheel/rebuiltsdist and composedE02 checks remain pending. Public inventory reviewflag staysfalse.",
+    "161 BasedPyrightwarnings are retained, not waived or converted to errors=warnings. NoP41inherited assertion.",
+    "Attributed runtime/Lex source postimages beyond commitc91 are enumerated by complete loaded-origin reconciliation in the context recipe; no bare whole-commit/global-freeze claim.",
+    "No external authority/custody/permission/law/currentness or original whole-property closure is established."
+  ],
+  "closure_ids": [],
+  "proposals": {
+    "component_outcome": "limited_verified_registration_origin_engineering",
+    "original_occurrence_ids": [],
+    "next_check": "Freeze final reviewed composition and selected inputs/backends, then actual PreparedB definingbaseline+all13 contours, composed/native/Linux/wheel/rebuilt-sdist consumers."
+  },
+  "source_freeze": false
+}

@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "45eee2ce51ce306c1133807d3b10c93ac124600a",
-    "tree": "fc3178babb4c160e8e675c932cdac4ed488ec59b",
+    "head": "c91f5b39a94fe631574a5e1e5265b92ccd25968c",
+    "tree": "a30730f0c6cd2cdc5fec3fc6b98b5366bdab1da4",
     "parents": [
-      "2a496ab348ad3ad4b8c48ee45a5d8f4fb61354a9"
+      "876bbe4ea29e0c369c99bd5afb8fc2cb5633684c"
     ],
     "source_freeze": false,
-    "dirty_active_source": "FabricR6 physically applied; R7 independent HOLD for remaining fallback emission escape, R8 central emission repair in RAW. Nine attributed assigned runtime/Lex edits remain uncommitted and independently reviewed. DataForge read_api static companions in RAW. Canonical schema/public/OpenAPI/client/release/native/installed work remains pending."
+    "dirty_active_source": "FabricR8source27committed with full11module342PASS/Based18zeroerrors161warnings/Ruff29PASS. Four read_api staticfacades and newtest are now applied; actual3PASS and rootRuff5PASS, independent all-map235typed-equivalent/123Any and191alias-deletion controls finishing. Nine attributed runtime/Lex paths remain frozen/live for reviewed source companions; credalR2 and GLR2 remain RAW. PyArrow lint-extra pin proposal is researched; canonical/native/composed/installed wave still pending."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -391,6 +391,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/calibration-registry-context-current-candidate-delivery-20261016.json",
       "sha256": "3c7f0a738aedf2e1426eb735ff571424de2e29d2180f81552e6db13f4f6105db"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/fabric-registration-origin-current-candidate-delivery-20261016.json",
+      "sha256": "5e1f93bbd2486179968457d13e41950d41557308a9b135ab197febae4dddfc72"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -415,7 +419,7 @@
     "C7 source1dd2dcec is delivered with actual34PASS/0SKIP including3 enabled integration cases, MyPy3/Ruff8. The new current actual-r2 producer CAS was read by independent process65312:71 selected refs,7 bundles,8 MethodJobs,32 input slots and unchanged317-file store. Observed backend dispatch kwargs/source panel/calibration/authority remain not_established; older reader7043 is historical only. Calibration source45eee2ce subsequently changed one selected C7 producer dependency: this remains a historical witness, not current composed-source proof.",
     "LA025source648605de delivers the shared KnowledgeBundle owner writer/facade and API/node consumers. Actual26PASS, strictMyPy3/Ruff8 and new-process metadata checks preserve both synthetic non-default and public-web license labels. No rights, source authority, relevance or production currentness is established; public inventory flag remains false.",
     "Legal sourcea4db/root468 and read-facade route2a are delivered. Route component14PASS/Ruff20 preserves11 canonical identities and typed verification_missing refusal. It is exact2a+two named historical Fabric context postimages, not bare whole2a replay; full2771-file AST census was not per-file hash-bound. Canonical typing/native/installed/global checks and static public inventory choice315640 remain pending. No law/currentness/authority positive.",
-    "Fabric R6 integrated11-test-module replay334PASS/Based18zero errors/Ruff29 is a historical component witness; it does not cover PreparedB13 or cached wrapper registration origin. R7 fixes generation-cache late backfill but independent review finds same-class cache-import-failure fallback emits old producer after override. R8 must centralize all get emission; README/release claims remain held until reviewed and actual replay.",
+    "FabricR8sourcec91f5b39 with explicitNone typing companion is committed27paths (full28 source/test inputs+2docs,24of28changed). Actual342PASS/0SKIP across11affectedmodules, Based18zeroerrors161warnings, canonicalRuff29PASS and1739ownmoduleorigins. Runtime context reconciles1734commitmatches+5namedownedpostimages; no barewholecommitfreeze. R6stale-cache andR7fallback actualfetch escapes remain historical negative controls; R8 has one publicget finalization for allwrapping/fallbacks. Oldactivehandles cleanup remainsgenerationowned; idleoldpoolsretireonshutdown/captrim. FullPreparedB13/composed/native/installed pending.",
     "C5a/C5b shared registry boundary source45eee2ce is committed with exact8pathreadback. Full2affectedunitmodules14PASS, strictsourceMyPy3PASS, canonicalRuff5PASS,1114ownorigins. Both runners capture selected callable and forward resolved TransferContext to actual LessonRegistry/CAS/fresh query. Test-MyPy8diagnostic residual and C5b tenant/time assertion bounds remain explicit; old C7source1dd/fresh reader now historical until final successor replay.",
     "Public-surface runtime evidence is bounded to its exact names and mappings. Static-purity versus runtime completeness remains G decision315640; unknown exports are not empty, flags are not blanket-promoted, canonical inventory/docs require regeneration and current native check. No waiver is issued.",
     "Q2 source4380f4e supplies the owner-derived11-resource contract and focused source tests, but two DoWhy bindings and later source pins need fresh source audit. The actual final source/input/backend and primary/supplemental installed denominator must be recomputed; old135+6 is not an immutable new count. Native/Linux/wheel/rebuilt-sdist execution remains UNRUN on final composition.",
@@ -428,5 +432,5 @@
     "Canonical291 occurrences/282 IDs/127 bundles,198 historical proposed-closed IDs(202 occurrences),9 historical ledger closures and B198 stay preserved. Full current index remains provisional; no source/input/backend global freeze or formal G closure is asserted."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
-  "next_check": "Finish executable producer/caller companion queue, independent delta reviews, commit source boundaries, explicit source/input/backend freeze, canonical regeneration/drift controls, one composed replay and authentic read-only closeout. G remains final code acceptance/integration publisher/finding adjudicator."
+  "next_check": "Finish reviewed actual typing/candidate-discovery/GL/refusal-to-persisted-consumer companions; commit source boundaries and separate receipts; canonical regeneration/drift controls and full source/input/backend freeze; one actual composed/native/Linux/installed/authenticRO wave and full291proposal reconciliation. G remains independent codeacceptance/integration/adjudication."
 }

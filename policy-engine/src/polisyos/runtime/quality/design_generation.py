@@ -15,6 +15,7 @@ import asyncio
 import importlib
 import inspect
 import json
+import math
 import os
 import re
 import time
@@ -364,6 +365,8 @@ class SurrogateRanking(_StrictModel):
     def _below_certified_cannot_promote(self) -> SurrogateRanking:
         if self.trust_level != "certified" and self.promotion_allowed:
             raise ValueError("surrogate_below_certified_promoted")
+        if not math.isfinite(self.score) or not math.isfinite(self.voi_estimate):
+            raise ValueError("surrogate_ranking_non_finite")
         return self
 
 
@@ -622,6 +625,17 @@ class GenerationUnderAResult(_StrictModel):
             }
             if bound_ids != disposition_ids:
                 raise ValueError("shadow_candidate_dispositions_mismatch")
+            candidate_ids = tuple(candidate.candidate_id for candidate in self.candidates)
+            if len(candidate_ids) != len(bound_ids):
+                raise ValueError("generated_candidate_id_duplicate")
+            ranking_ids = tuple(row.candidate_id for row in self.surrogate_rankings)
+            if len(ranking_ids) != len(set(ranking_ids)):
+                raise ValueError("surrogate_ranking_duplicate_candidate_id")
+            ranking_id_set = set(ranking_ids)
+            if bound_ids - ranking_id_set:
+                raise ValueError("surrogate_ranking_coverage_incomplete")
+            if ranking_id_set - bound_ids:
+                raise ValueError("surrogate_ranking_foreign_candidate")
         return self
 
     def as_organ_run(

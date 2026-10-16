@@ -4029,3 +4029,57 @@ async def test_unrecorded_formalizer_path_salvages_only_from_matching_retry(
     assert formalizer.attempts == 1
     assert returned == bundle
     assert path == "model_generated", f"formalizer_{path}"
+
+
+def _generated_result_payload_for_rank_validation() -> dict[str, Any]:
+    contract_payload = json.loads((REPO_ROOT / contract.OUTPUT_PATH).read_text(encoding="utf-8"))
+    return copy.deepcopy(
+        next(
+            result
+            for result in contract_payload["generation_results"]
+            if result.get("status") == "generated" and result.get("candidates")
+        )
+    )
+
+
+@pytest.mark.parametrize(
+    ("mutation", "error_code"),
+    [
+        ("missing", "surrogate_ranking_coverage_incomplete"),
+        ("duplicate", "surrogate_ranking_duplicate_candidate_id"),
+        ("foreign", "surrogate_ranking_foreign_candidate"),
+    ],
+)
+def test_generated_n4_result_requires_exact_unique_ranking_coverage(
+    mutation: str, error_code: str
+) -> None:
+    payload = _generated_result_payload_for_rank_validation()
+    rankings = payload["surrogate_rankings"]
+    if mutation == "missing":
+        rankings.pop()
+    elif mutation == "duplicate":
+        rankings.append(copy.deepcopy(rankings[0]))
+    else:
+        foreign = copy.deepcopy(rankings[0])
+        foreign["candidate_id"] = "candidate_foreign_rank_coverage"
+        rankings.append(foreign)
+
+    with pytest.raises(ValueError, match=error_code):
+        dg.GenerationUnderAResult.model_validate(payload)
+
+
+def test_generated_n4_result_preserves_explicit_zero_ranking() -> None:
+    payload = _generated_result_payload_for_rank_validation()
+    for ranking in payload["surrogate_rankings"]:
+        ranking["score"] = 0.0
+        ranking["voi_estimate"] = 0.0
+
+    result = dg.GenerationUnderAResult.model_validate(payload)
+    candidate_ids = {candidate.candidate_id for candidate in result.candidates}
+    rankings_by_candidate = {
+        ranking.candidate_id: (ranking.score, ranking.voi_estimate)
+        for ranking in result.surrogate_rankings
+    }
+
+    assert candidate_ids == set(rankings_by_candidate)
+    assert set(rankings_by_candidate.values()) == {(0.0, 0.0)}

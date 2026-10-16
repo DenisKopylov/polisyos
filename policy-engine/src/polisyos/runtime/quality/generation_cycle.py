@@ -15116,12 +15116,69 @@ def _grammar_fallback_result(
 
 
 def _ranking_by_candidate(result: object) -> dict[str, tuple[float, float]]:
+    """Validate one normal N4 ranking denominator before N6 may select from it.
+
+    Candidate-scenario proposals intentionally have no surrogate ranking. Their
+    existing nonnumeric route remains a separately bounded DTO/history issue.
+    """
+
+    if type(result) is _N4CandidateScenarioGenerationResult:
+        return {}
+    raw_candidates = _object_get(result, "candidates", ())
+    if raw_candidates is None:
+        raw_candidates = ()
+    if not isinstance(raw_candidates, Sequence) or isinstance(
+        raw_candidates, str | bytes | bytearray
+    ):
+        raise GenerationCycleError("n4_candidate_denominator_malformed")
+    candidate_ids = tuple(_object_get(candidate, "candidate_id") for candidate in raw_candidates)
+    if any(not isinstance(candidate_id, str) or not candidate_id for candidate_id in candidate_ids):
+        raise GenerationCycleError("n4_candidate_id_malformed")
+    expected_ids = set(candidate_ids)
+    if len(expected_ids) != len(candidate_ids):
+        raise GenerationCycleError("n4_candidate_id_duplicate")
+    if candidate_ids and _object_get(result, "status") != "generated":
+        raise GenerationCycleError("n4_ranked_candidate_result_not_generated")
+
+    raw_rankings = _object_get(result, "surrogate_rankings", ())
+    if raw_rankings is None:
+        raw_rankings = ()
+    if not isinstance(raw_rankings, Sequence) or isinstance(raw_rankings, str | bytes | bytearray):
+        raise GenerationCycleError("n4_surrogate_rankings_malformed")
     rankings: dict[str, tuple[float, float]] = {}
-    for ranking in getattr(result, "surrogate_rankings", ()) or ():
-        rankings[str(getattr(ranking, "candidate_id", ""))] = (
-            float(getattr(ranking, "score", 0.0) or 0.0),
-            float(getattr(ranking, "voi_estimate", 0.0) or 0.0),
-        )
+    for ranking in raw_rankings:
+        candidate_id = _object_get(ranking, "candidate_id")
+        score = _object_get(ranking, "score")
+        voi_estimate = _object_get(ranking, "voi_estimate")
+        if not isinstance(candidate_id, str) or not candidate_id:
+            raise GenerationCycleError("n4_surrogate_ranking_malformed")
+        if candidate_id in rankings:
+            raise GenerationCycleError("n4_surrogate_ranking_duplicate")
+        if (
+            isinstance(score, bool)
+            or not isinstance(score, int | float)
+            or isinstance(voi_estimate, bool)
+            or not isinstance(voi_estimate, int | float)
+        ):
+            raise GenerationCycleError("n4_surrogate_ranking_malformed")
+        try:
+            score_value = float(score)
+            voi_value = float(voi_estimate)
+        except (OverflowError, TypeError, ValueError) as exc:
+            raise GenerationCycleError("n4_surrogate_ranking_malformed") from exc
+        if not math.isfinite(score_value) or not math.isfinite(voi_value):
+            raise GenerationCycleError("n4_surrogate_ranking_non_finite")
+        if not 0.0 <= score_value <= 1.0:
+            raise GenerationCycleError("n4_surrogate_ranking_score_out_of_range")
+        if voi_value < 0.0:
+            raise GenerationCycleError("n4_surrogate_ranking_voi_negative")
+        rankings[candidate_id] = (score_value, voi_value)
+
+    ranking_ids = set(rankings)
+    if expected_ids - ranking_ids:
+        raise GenerationCycleError("n4_surrogate_ranking_coverage_incomplete")
+    if ranking_ids - expected_ids:
+        raise GenerationCycleError("n4_surrogate_ranking_foreign_candidate")
     return rankings
 
 

@@ -10926,3 +10926,99 @@ def test_n7_measurement_root_requires_exact_selected_manifest_profile(
             acquisition_receipt=object(),
             active_requirement_ref="active-n7",
         )
+
+
+@pytest.mark.asyncio
+async def test_n4_generic_ingress_refuses_missing_rank_before_grounding() -> None:
+    class _UnrankedOwnerPort:
+        async def __call__(self, problem: DesignProblem, *, cycle_index: int) -> object:
+            del problem, cycle_index
+            candidate = _Candidate(
+                candidate_id="candidate_unranked_owner",
+                atom=_Atom("candidate_unranked_owner", "sha256:" + "4" * 64),
+                diversity_key=("grant", "firms", "unranked", "controlled"),
+            )
+            return _GenerationResult(
+                status="generated", candidates=(candidate,), surrogate_rankings=()
+            )
+
+    controller = GenerationCycleController(
+        generation_port=_UnrankedOwnerPort(),
+        authority_scope="contract_testing",
+        repo_root=REPO_ROOT,
+    )
+
+    with pytest.raises(GenerationCycleError, match="n4_surrogate_ranking_coverage_incomplete"):
+        await controller._generate_node(
+            {"problem": _problem("n4_unranked_owner_rank"), "cycle_index": 0}
+        )
+
+
+def test_n4_generic_rank_ingress_preserves_explicit_zero() -> None:
+    result = SimpleNamespace(
+        status="generated",
+        candidates=(SimpleNamespace(candidate_id="candidate_zero_rank"),),
+        surrogate_rankings=(
+            _Ranking(candidate_id="candidate_zero_rank", score=0.0, voi_estimate=0.0),
+        ),
+    )
+
+    assert generation_cycle_module._ranking_by_candidate(result) == {
+        "candidate_zero_rank": (0.0, 0.0)
+    }
+
+
+@pytest.mark.parametrize(
+    ("rankings", "error_code"),
+    [
+        (
+            (
+                SimpleNamespace(
+                    candidate_id="candidate_ranked",
+                    score=float("nan"),
+                    voi_estimate=0.1,
+                ),
+            ),
+            "n4_surrogate_ranking_non_finite",
+        ),
+        (
+            (
+                SimpleNamespace(candidate_id="candidate_ranked", score=0.1, voi_estimate=0.2),
+                SimpleNamespace(candidate_id="candidate_ranked", score=0.3, voi_estimate=0.4),
+            ),
+            "n4_surrogate_ranking_duplicate",
+        ),
+        (
+            (
+                SimpleNamespace(candidate_id="candidate_ranked", score=0.1, voi_estimate=0.2),
+                SimpleNamespace(candidate_id="candidate_foreign", score=0.3, voi_estimate=0.4),
+            ),
+            "n4_surrogate_ranking_foreign_candidate",
+        ),
+        (
+            (SimpleNamespace(candidate_id="candidate_ranked", score=None, voi_estimate=0.1),),
+            "n4_surrogate_ranking_malformed",
+        ),
+        ((), "n4_surrogate_ranking_coverage_incomplete"),
+    ],
+)
+def test_n4_generic_rank_ingress_rejects_malformed_or_incomplete_rows(
+    rankings: tuple[object, ...], error_code: str
+) -> None:
+    result = SimpleNamespace(
+        status="generated",
+        candidates=(SimpleNamespace(candidate_id="candidate_ranked"),),
+        surrogate_rankings=rankings,
+    )
+
+    with pytest.raises(GenerationCycleError, match=error_code):
+        generation_cycle_module._ranking_by_candidate(result)
+
+
+def test_n4_candidate_scenario_route_remains_explicitly_unranked() -> None:
+    result = generation_cycle_module._N4CandidateScenarioGenerationResult(
+        status="generated",
+        candidates=(SimpleNamespace(candidate_id="candidate_scenario"),),
+    )
+
+    assert generation_cycle_module._ranking_by_candidate(result) == {}

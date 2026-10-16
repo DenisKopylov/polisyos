@@ -1,0 +1,146 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "LOCAL",
+  "slice": "B18 coupled missing-observation reducers",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "2ab42f9a40e5a737ffe30934d401bb8c9fcec5bb",
+  "candidate_sha": "b7b04d1680a6fe77d35b589c88f1845786dcc316",
+  "candidate_tree_sha": "f615bdf6ef0896137f60728478d74e2066af90fa",
+  "parents": [
+    "2ab42f9a40e5a737ffe30934d401bb8c9fcec5bb"
+  ],
+  "implementation_commits": [
+    "b7b04d1680a6fe77d35b589c88f1845786dcc316"
+  ],
+  "source_freeze": false,
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "G_acceptance": null,
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/coupling/estimation.py",
+      "sha256": "5b1def0424a30640175cb9602d77ab3d28870eb6da1f39df9799c1e1aeb9e584"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/coupling/test_estimation.py",
+      "sha256": "1f01107d6aecef17b150694493463894da7fe7077e42b17366dc74c70a8a893a"
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/simulation/test_coupled_policy.py",
+      "sha256": "fb06425cfb4f57e80ab6d32e8d17c7946c1ca0e044200de6b9aa9b1246b41ebe"
+    }
+  ],
+  "selected_input_profile_backend": {
+    "python": "Own locked CPython 3.14 environment",
+    "backend": "Real CPU JAX and NumPy; one numerical thread per process",
+    "inputs": "Controlled queue/coupled simulation states and numeric series; no production, scientific calibration or issuer claim"
+  },
+  "property": {
+    "statement": "A missing required numerical observation never becomes a positive numeric result; an observed zero stays zero; supplied malformed/nonfinite samples refuse.",
+    "real_chain": [
+      "Real coupled JAX state and queue/event observations",
+      "Shared finite one-dimensional observation parser/reducer",
+      "Coupled summary omits unobserved or incomplete sample moments",
+      "Actual CoupledSMMEstimator consumes declared required moments and returns blocked/no_comparable for absent wait",
+      "Actual CoupledQueueMLEEstimator refuses empty/zero-exposure event logs; positive-duration observed zero arrivals remains zero"
+    ],
+    "consumer_surface": "Existing Foundry method result and queue/particle-filter APIs; full current N5/HTTP composed verification remains separately pending.",
+    "adversarial_controls": [
+      "Real one-step JAX run without completed waits is blocked rather than ready at zero loss",
+      "Explicit observed zero completed count is ready and retained as 0",
+      "Missing and partial metric series remain absent",
+      "NaN/inf, malformed numeric values and wrong dimensions refuse",
+      "Empty/zero-span QueueMLE and empty particle-filter observations refuse"
+    ],
+    "removal_or_baseline_control": "Independent source review records all seven new semantic regression tests red against the unchanged base; this is a scoped behavior discriminator, not a global marker-verifier claim."
+  },
+  "verification": {
+    "actual_pre_annotation_full_mirrored_modules": {
+      "passed": 20,
+      "failed": 0,
+      "scope": "Same semantic implementation before reviewed annotation-only delta"
+    },
+    "actual_post_annotation": {
+      "real_JAX_method_cases": 2,
+      "passed": 2,
+      "mypy_source_files": 1,
+      "mypy": "PASS",
+      "canonical_Ruff_check_and_format": "PASS",
+      "loaded_own_source_modules": 775,
+      "outside_own_source": 0
+    },
+    "independent_semantic_review": "GO exact three-path candidate",
+    "independent_annotation_delta_review": "GO; AST behavior equality after removing only type annotations/import"
+  },
+  "source_bound_commands_and_full_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b18-la025-actual-application-20261016/actual-composed-results.json",
+      "sha256": "4a6ac99e3352da713ab087211774350cb64d8464ba1cc3502a21eac5f6b9133c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b18-la025-actual-application-20261016/actual-b18-tests.stdout.txt",
+      "sha256": "c66ef7936b32d2201bf6eb901cf69cbc8e71996669c38afe1f70ad40098e04a3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b18-la025-actual-application-20261016/actual-b18-tests.junit.xml",
+      "sha256": "372d848cb2e8263fc1f1f47e971e8341bbd29c670241f2bcac533db5325abc0e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b18-typed-final-check-20261016/request.json",
+      "sha256": "756bb15c1e5d094c5ade417f6590ae9c0f267835fb7e015f0af7241ec5249f89"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b18-typed-final-check-20261016/actual-results.json",
+      "sha256": "171a320a3ab1eec3b8428b1e31774c66506d895273d0da2ef04a0ef69101bd60"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b18-typed-final-check-20261016/actual-jax-methods.stdout.txt",
+      "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b18-typed-final-check-20261016/actual-jax-methods.junit.xml",
+      "sha256": "0fae3ec9e20d2953cb57ff35d6ab136f2a085a005dc81d5c97de5e22a589bb28"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b18-typed-final-check-20261016/actual-mypy.stdout.txt",
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b18-typed-final-check-20261016/actual-loaded-source-origins.json",
+      "sha256": "00e59d78bfd058f4b0d7b91e31479933439493268918649bb58c4969066a4bad"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b18-typed-final-check-20261016/b18-source-readback.json",
+      "sha256": "6aebffa62acd55d5e312ea3f9f81ccf2585729e2cbc8f6298dad489bec986024"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b18-residual-20261016/independent-review-r1-20261016/independent-assessment.json",
+      "sha256": "37d05e1f680b5acbc96cfb496c9024577138f7ffba67941d51e50cd0803f41b5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b18-residual-20261016/independent-type-r2-20261016/assessment.json",
+      "sha256": "e517ac6d6e35044dfa9f8ae687cdcb5fbe19709e35952ec0442f9c6c87523d01"
+    }
+  ],
+  "raw_availability": "Ignored raw outputs are retained on the shared local host at exact path@sha; they are not shipped as source copies. G must read those bytes or repeat the exact checks before accepting dependent claims.",
+  "proposal_fields": {
+    "finding_ids": [
+      "B18"
+    ],
+    "original_occurrence": "B18#1:B_r19:SIM-02:7a231693e1ff776923bcae7ffaf37eafcdec6e7738a8f2f22f4e853cb7826dd2",
+    "original_criterion_document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "original_criterion_lines": [
+      411,
+      424
+    ],
+    "proposal": "limited: source reduction defects repaired and scoped consumers verified; no formal G closure or composed N5/HTTP assertion"
+  },
+  "P40": "Same absence-to-number class widened across current coupled-summary, QueueMLE and particle-filter reducers. No per-metric zero-default repair list.",
+  "P41": "No inherited-red claim; earlier four-source MyPy red preserved, B18-only delta now green; LA025 diagnostics are separately owned fixes.",
+  "limitations": [
+    "The current QueueMLE ABI has no eventless positive-duration observation-window input; accepting such an interval needs an explicit owner contract, not an invented exposure.",
+    "Empty filter observations refuse because its current result has no typed absence/status; no posterior is fabricated.",
+    "Final native/installed/Linux/source/input/backend freeze and composed N5/HTTP replay remain UNRUN."
+  ],
+  "next_check": "Freeze the final composed sources and replay original NCM/coupled output consumers plus native/installed routes; independently adjudicate each original B18 condition."
+}

@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "ed1f3c1fc031a6a9a43703a66cb1b2b97e2081ca",
-    "tree": "bd59c7c27985ceba6462cffdf8885f007d5fda99",
+    "head": "52e16a793af9ad8b9c1e75206e3316a4a78f3308",
+    "tree": "adbb36aba4f8d7e0e4f774ed311b5960b7745d75",
     "parents": [
-      "ebb64c55baab29129cec167d9279a23ad5d98c3e"
+      "b7b04d1680a6fe77d35b589c88f1845786dcc316"
     ],
     "source_freeze": false,
-    "dirty_active_source": "Root-owned macro composition and source2writers pending; finalwave notadmitted."
+    "dirty_active_source": "Owned C05/replay/root/L5 and LA025 companions pending; Fabricprofile-keyrepair and V6authenticfailurefixtureRAW; finalwave notadmitted."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -82,7 +82,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "cb609cd3c0d288463d56bd314e080c491321274540d929cabd8e8cac10c3cb26"
+      "sha256": "1bf5541e6f64682b2436d1de1675c9286f35ebbe7002c0743753e97e7b06371b"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
@@ -311,6 +311,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/b10-unranked-scenario-history-contract-20261016.json",
       "sha256": "ad29e5139c691dc8f621f514a6afa0ec0f849133264f4b38c18bc2583a035815"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b18-observed-numeric-reducers-delivery-20261016.json",
+      "sha256": "24254b17c2c4d9054cb2ffcd1dd8d1dbdc3cbd0d43a781f8978624b97bfce27f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full291-current-evidence-index-delivery-20261016.json",
+      "sha256": "b78ceb20f37addde7718bdd321e66583649d37399ec2615ba811d7cbfb6b7158"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+      "sha256": "70673fe8c1e74b3d83627d883cda70e9dbc19401302d81458bba16dcc874a892"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -342,7 +354,8 @@
     "External institutional issuer/custody/currentness, qualifying production workload, law/refinement and causal calibration are not created by these physical receipts.",
     "Selected acquisition source9ba4d7 is extended by74af20dc typed cache receipt19-path source with independent3-case GO. L5 epoch_scope_unresolved remains held; final native/currentness/whole-property checks remain UNRUN.",
     "C05 manifest-only inventory1214187d and N8 defining harness0e6fa9b8 delivered with independent bounded reviews. Selected-profile NL POST/freshGET returns honest blocked outcome; current GL legal report/bundle self-attestation escape is under repair, and model-gated nonempty candidate serving remains UNRUN.",
-    "R9source2b9f7177 andV5compute8f43f503 delivered with boundedindependentGO;119dynamic-import mirror still5FAIL. Dashboard10pathsa2da042 deliveredwith actualmockedAPIhookbrowserPASS; canonicalgeneratedDTO2TS2339/localepairity andsourceboundfullbrowser remain open. CAN65GL/I4 andC05r8guarded/pure-read union pending review/integration."
+    "R9source2b9f7177 andV5compute8f43f503 delivered with boundedindependentGO;119dynamic-import mirror still5FAIL. Dashboard10pathsa2da042 deliveredwith actualmockedAPIhookbrowserPASS; canonicalgeneratedDTO2TS2339/localepairity andsourceboundfullbrowser remain open. CAN65GL/I4 andC05r8guarded/pure-read union pending review/integration.",
+    "2026-10-16 successor: B18missing reducers and full291index committed separately. R7 remains provisional and preserves earlier row evidence; latest L5/replay/Fabric/root guards need new exactsource receipts. No source/input/backend freeze, no globalnative/installedcloseout, and no formal G closure."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "next_check": "Finish executable producer/caller companion queue, independent delta reviews, commit source boundaries, explicit source/input/backend freeze, canonical regeneration/drift controls, one composed replay and authentic read-only closeout. G remains final code acceptance/integration publisher/finding adjudicator."

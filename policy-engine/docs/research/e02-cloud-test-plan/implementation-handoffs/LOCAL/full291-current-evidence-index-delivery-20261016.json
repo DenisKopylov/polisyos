@@ -1,0 +1,137 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "LOCAL",
+  "slice": "Complete original-occurrence evidence and next-check index R7",
+  "branch": "codex/e02-unified-local-20261009",
+  "slice_base_sha": "b7b04d1680a6fe77d35b589c88f1845786dcc316",
+  "candidate_sha": "52e16a793af9ad8b9c1e75206e3316a4a78f3308",
+  "candidate_tree_sha": "adbb36aba4f8d7e0e4f774ed311b5960b7745d75",
+  "parents": [
+    "b7b04d1680a6fe77d35b589c88f1845786dcc316"
+  ],
+  "implementation_commits": [
+    "52e16a793af9ad8b9c1e75206e3316a4a78f3308"
+  ],
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "source_freeze": false,
+  "G_acceptance": null,
+  "full_code_test_config_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+      "sha256": "70673fe8c1e74b3d83627d883cda70e9dbc19401302d81458bba16dcc874a892"
+    }
+  ],
+  "denominator": {
+    "occurrences": 291,
+    "unique_finding_ids": 282,
+    "bundles": 127,
+    "tasks": {
+      "definitions": 26,
+      "tasks_with_finding_routes": 23,
+      "occurrence_task_routes": 331
+    },
+    "upstream_imported_route_rows_not_occurrences": 2524,
+    "original_criteria": {
+      "source_documents": 2,
+      "all_291_spans_rehashed": true,
+      "documents": [
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+          "line_count": 5545
+        },
+        {
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+          "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+          "line_count": 4425
+        }
+      ]
+    },
+    "history": {
+      "author_proposed_closed_unique_ids": 198,
+      "author_proposed_closed_occurrences": 202,
+      "formal_G_closure": false,
+      "historical_ledger_closed_occurrences": 9,
+      "B198": {
+        "occurrence_key": "B198#1:B_r19:CAL-06:2cbd889b85b881ae22f7f99c28e68c82200022c7dfa01cbb150ecf895a30672b",
+        "author_proposal": "closed",
+        "historical_ledger_status": "closed",
+        "formal_G_status": "not_adjudicated",
+        "current_whole_property_status": "UNRUN at its earlier candidate frame"
+      }
+    },
+    "repeated_finding_ids": [
+      {
+        "id": "LA-015",
+        "occurrences": 2
+      },
+      {
+        "id": "LA-016",
+        "occurrences": 2
+      },
+      {
+        "id": "LA-023",
+        "occurrences": 2
+      },
+      {
+        "id": "LA-031",
+        "occurrences": 3
+      },
+      {
+        "id": "LA-038",
+        "occurrences": 2
+      },
+      {
+        "id": "LA-039",
+        "occurrences": 2
+      },
+      {
+        "id": "LA-046",
+        "occurrences": 2
+      },
+      {
+        "id": "LA-051",
+        "occurrences": 2
+      }
+    ],
+    "route_rows_are_not_occurrences_or_closures": true
+  },
+  "property": "Each canonical occurrence keeps its own criterion span, history, current proposal/evidence boundary and resolved original-criterion next-check. Shared routes and test counts never create extra closures.",
+  "verification": {
+    "independent_review": "GO for pointer/row conservation only",
+    "strict_RFC6901_citations_resolved": 1820,
+    "path_hash_references_checked": 84,
+    "unique_path_hash_pairs": 82,
+    "original_criterion_next_checks_bound": 291,
+    "original_spans_rehashed": 291
+  },
+  "commands_and_full_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-full291-r7-review-20261016/independent-review-r7.json",
+      "sha256": "ec8333b3669f90df84bda1dfe9b7995a5bb7d233f8f2e6d58cebcb92f182ad4d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-full291-r7-review-20261016/verify_r7.py",
+      "sha256": "2c1bc8383fc013544282c03226b7e6bdabaf41ac7715041353147121411e1898"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-full291-r7-review-20261016/verify_r7.stdout.txt",
+      "sha256": "c01b8c4cc56e66b42bdae67da9c089a9c61b74ae4887ae568a44fd174c9e9948"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-full291-r7-delivery-20261016/full291-index-readback.json",
+      "sha256": "9024c4146870c35428778c1b6de3180d4ecde85c4f151dd33c91d498a4f1d16c"
+    }
+  ],
+  "proposal_fields": {
+    "all_statuses": "Author proposals only; historical closures retained separately; per-row source frames differ and are explicit.",
+    "current_source_updates": "Later B18, L5, Fabric and replay repairs require new row-specific reconciliation; R7 does not silently inherit them."
+  },
+  "limitations": [
+    "This validates report integrity and all 291 exact bindings, not all underlying policy capabilities.",
+    "Full deciding raw sources remain on local shared host; if unavailable to G the dependent evidence is not established.",
+    "Final source/input/backend freeze and global closeout are pending."
+  ],
+  "next_check": "At final source freeze bind new implementation/consumer evidence per occurrence; retain repeated occurrences and original history; G independently adjudicates."
+}

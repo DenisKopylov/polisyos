@@ -38,6 +38,7 @@ from polisyos.ir.kernel.metrics import (
     build_production_metric_taxonomy,
     canonicalize_metric_id_with_diagnostics,
 )
+from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
 from polisyos.runtime.http.services.control.artifacts import (
     _make_artifact_ref,
     _resolve_curated_dir,
@@ -2986,7 +2987,13 @@ class NaturalLanguageRunMixin:
                         ),
                     ).value,
                     refusal_code="nl_final_policy_claims_selected_unreadable",
-                    expected_errors=(OSError, RuntimeError, TypeError, ValueError),
+                    expected_errors=(
+                        OSError,
+                        RuntimeDependencyUnavailableError,
+                        RuntimeError,
+                        TypeError,
+                        ValueError,
+                    ),
                 )
                 selected_report = _require_final_claims_report_shape(
                     payload,

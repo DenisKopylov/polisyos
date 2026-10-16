@@ -5136,7 +5136,14 @@ def test_nl_pipeline_selected_final_claims_refusal_blocks_grounding_with_inline_
         artifact_id: ArtifactID | str,
     ) -> bytes:
         selected_ref = selected_cas.get("ref")
-        if selected_ref is not None and str(artifact_id) == str(selected_ref.artifact_id):
+        requested_artifact_id = getattr(artifact_id, "artifact_id", artifact_id)
+        requested_profile = getattr(artifact_id, "manifest_profile_sha256", None)
+        selected_profile = getattr(selected_ref, "manifest_profile_sha256", None)
+        if (
+            selected_ref is not None
+            and str(requested_artifact_id) == str(selected_ref.artifact_id)
+            and (requested_profile is None or requested_profile == selected_profile)
+        ):
             selected_cas["read_attempted"] = True
             if selected_fault == "unreadable":
                 raise OSError("injected selected final-claims read failure")
@@ -5410,6 +5417,8 @@ def test_final_claims_variant_selector_is_producer_owned_and_profile_exact(
                 resolve_legacy_ref=_legacy_resolver,
             )
 
+    assert legacy_resolver_calls == []
+
     legacy_ambiguous = {
         "model_variant_id": "legacy_variant",
         "final_policy_claims_ref": str(canonical_view.artifact_id),
@@ -5420,7 +5429,9 @@ def test_final_claims_variant_selector_is_producer_owned_and_profile_exact(
             producer_selected_refs={},
             resolve_legacy_ref=_legacy_resolver,
         )
+    assert legacy_resolver_calls == [str(canonical_view.artifact_id)]
 
+    calls_before_selected_map_ref = list(legacy_resolver_calls)
     assert (
         _selected_final_policy_claims_ref_for_variant(
             removed_selector,
@@ -5429,7 +5440,7 @@ def test_final_claims_variant_selector_is_producer_owned_and_profile_exact(
         )
         == canonical_view
     )
-    assert legacy_resolver_calls == []
+    assert legacy_resolver_calls == calls_before_selected_map_ref
 
     unique_candidates = {str(canonical_view.artifact_id): [canonical_view]}
     unique_legacy_ref = _selected_final_policy_claims_ref_for_variant(

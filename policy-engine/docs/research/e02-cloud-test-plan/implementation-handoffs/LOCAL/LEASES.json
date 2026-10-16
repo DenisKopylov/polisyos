@@ -3255,5 +3255,23 @@
     "mandatory_companions": [
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
     ]
+  },
+  "coordination_epoch_20261017_nl_guarded_selected_unreadable_read_disposition": {
+    "source_base": "6edb6077a8d4e2c5a082cb99a9f82491ef728555",
+    "root_is_only_canonical_writer": true,
+    "scope": [
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py"
+    ],
+    "authors": [
+      "legal_candidate_typing_author",
+      "selected_artifact_refusal_disposition_author"
+    ],
+    "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/nl-pipeline-typed-boundary-independent-review-r2-20261017/review.json@sha256:75b5c8b86143ed88d10d6dc8e46e5af70a8e8c8601d203aa0e5e120738066f16",
+    "property": "Supported guarded CAS unreadability becomes existing typed selected-unreadable refusal persisted by semantic consumers; valid producer-selected profile remains unchanged",
+    "full_NL_type_debt": "113 source diagnostics pending separate RAW author; not inherited",
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ]
   }
 }

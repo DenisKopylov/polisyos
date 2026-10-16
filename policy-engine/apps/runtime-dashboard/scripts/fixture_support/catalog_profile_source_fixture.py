@@ -409,6 +409,13 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
             cas_root=cas_root,
             core_runs_root=cas_root / "runs",
         )
+        from polisyos.runtime.quality.substrate_registry import resolve_catalog_serving_source
+
+        selected_catalog_serving_source = resolve_catalog_serving_source(
+            policy_engine_root,
+            selection=None,
+            requested_profile=_CATALOG_PROFILE,
+        )
         v6_monkeypatch = pytest.MonkeyPatch()
         try:
             prepared_v6 = asyncio.run(
@@ -420,6 +427,7 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
                     cell_id=_CELL_ID,
                     recording_id=_SOURCE_RECORDING_ID,
                     runtime_api_context=runtime_api_context,
+                    catalog_serving_source=selected_catalog_serving_source,
                 )
             )
             if prepared_v6.runtime_api_context is not runtime_api_context:

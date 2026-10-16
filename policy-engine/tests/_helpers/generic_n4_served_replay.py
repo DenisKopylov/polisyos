@@ -15,6 +15,7 @@ import pytest
 
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
 from tests._helpers.controlled_candidate_profile import (
     ControlledSKGSourceSelection,
     _capture_controlled_skg_source,
@@ -908,6 +909,7 @@ async def prepare_generic_n4_served_replay(
         "controlled_overlay"
     ),
     runtime_api_context: Any | None = None,
+    catalog_serving_source: CatalogServingSourcePaths | None = None,
     phase_callback: Any | None = None,
 ) -> PreparedGenericN4ServedReplay:
     """Derive a source-bound N4 child family and all typed profiles for a served app.
@@ -923,6 +925,7 @@ async def prepare_generic_n4_served_replay(
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.dependencies import build_runtime_api_context
     from polisyos.runtime.quality.credal_reference import (
+        credal_reference_data_forge_catalog_source_profile,
         credal_reference_l2_source_profile,
     )
     from polisyos.runtime.quality.cycle_substrate import (
@@ -936,7 +939,10 @@ async def prepare_generic_n4_served_replay(
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationProfileV1,
     )
-    from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
+    from polisyos.runtime.quality.substrate_registry import (
+        persist_substrate_registry,
+        run_catalog_source_awaitable,
+    )
     from tests.unit.runtime.http.test_control_job_execution_intent import _valid_intake_for_mode
 
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
@@ -1054,18 +1060,36 @@ async def prepare_generic_n4_served_replay(
         substrate_input_content_hash=base_inputs.substrate_input_content_hash,
     )
     _emit_served_phase(phase_callback, "fixture.n4_port.start")
-    organ_run = await N4GenerationPort(
+    n4_port = N4GenerationPort(
         model_id=model_id,
         llm_client=n4_contract.RecordedGenerationReplayClient(
             copy.deepcopy(recording) if recording_mode == "original_second_capture" else recording
         ),
         repo_root=REPO_ROOT,
         cycle_substrate_context=preflight_context,
-    )(recorded_problem, cycle_index=0)
+    )
+    n4_awaitable = n4_port(recorded_problem, cycle_index=0)
+    organ_run = (
+        await run_catalog_source_awaitable(catalog_serving_source, n4_awaitable)
+        if catalog_serving_source is not None
+        else await n4_awaitable
+    )
     _emit_served_phase(phase_callback, "fixture.n4_port.complete")
     selected_reference = organ_run.credal_reference
     if selected_reference is None:
-        raise AssertionError("controlled_n4_selected_credal_reference_missing")
+        lever_slice = getattr(organ_run, "lever_space_prompt_slice", None)
+        failure_reason = getattr(lever_slice, "failure_reason", None)
+        failure_exception_class = (
+            failure_reason.partition(":")[2]
+            if isinstance(failure_reason, str)
+            and failure_reason.startswith("credal_reference_unavailable:")
+            else None
+        )
+        raise AssertionError(
+            "controlled_n4_selected_credal_reference_missing:"
+            f"failure_reason={failure_reason!r}; "
+            f"failure_exception_class={failure_exception_class!r}"
+        )
     selected_source_ref = base_inputs.world_model_record.skg_causal_prior_ref
     selected_source_profile = credal_reference_l2_source_profile(selected_reference)
     if selected_source_profile is None:
@@ -1077,6 +1101,20 @@ async def prepare_generic_n4_served_replay(
         or selected_source_profile.currentness_status != "not_established"
     ):
         raise AssertionError("controlled_n4_selected_skg_source_binding_mismatch")
+    if catalog_serving_source is not None:
+        catalog_source_profile = credal_reference_data_forge_catalog_source_profile(
+            selected_reference
+        )
+        if (
+            catalog_source_profile is None
+            or catalog_source_profile.selection_owner != "catalog_serving_source_paths"
+            or catalog_source_profile.catalog_run_profile
+            != catalog_serving_source.catalog_run_profile
+            or catalog_source_profile.selection_basis != catalog_serving_source.selection_basis
+            or Path(catalog_source_profile.source_database_path).resolve()
+            != catalog_serving_source.database_path.resolve()
+        ):
+            raise AssertionError("controlled_n4_selected_catalog_source_binding_mismatch")
 
     generation_result = getattr(organ_run, "result", None)
     if generation_result is None:

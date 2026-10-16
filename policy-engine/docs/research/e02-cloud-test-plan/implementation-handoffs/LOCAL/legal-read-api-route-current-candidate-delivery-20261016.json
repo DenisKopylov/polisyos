@@ -1,0 +1,405 @@
+{
+  "record_type": "E02 bounded component source/input/execution delivery",
+  "source": {
+    "id": "legal-read-api-source-route",
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "2a496ab348ad3ad4b8c48ee45a5d8f4fb61354a9",
+    "tree": "b789f197fd5ed979f1d10852c2706d6a52334828",
+    "parents": [
+      "e942139dd4e98ef88b2321e19a2e34cfc262f29f"
+    ],
+    "subject": "fix(data-forge): route legal source contracts through read facade",
+    "changed_path_count": 20
+  },
+  "slice_base": {
+    "commit": "e942139dd4e98ef88b2321e19a2e34cfc262f29f",
+    "tree": "704d84ee97eda8e43b4aab320393ce628ecf8730"
+  },
+  "full_code_test_config_companion_footprint": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-code-boundary-20261016/legal-read-api-source-readback.json",
+    "sha256": "9f76f90e92463c4e7ffff369dc60e473efcd7571f13b61f129c74cfa0ee60140",
+    "bytes": 4671,
+    "regular_file": true
+  },
+  "selected_input_footprint": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/request.json",
+    "sha256": "99ef01ebe14023740c0c764af0ff61a306ee032fd132bafc4f03dd825d7bb538",
+    "bytes": 10782,
+    "regular_file": true
+  },
+  "actual_commands_and_full_outputs": {
+    "results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/actual-results.json",
+      "sha256": "2b7877b2a6cb0cc302efc08ef1668ba0fe74e9ba5bbfc17957a4d9c0b9a2d74c",
+      "bytes": 7917,
+      "regular_file": true
+    },
+    "outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/actual-behavior.run.json",
+        "sha256": "5d18990188a2ed2a0e311d5ba8c6c0780ffb3f82cd49315b2c4b8b9aea7d94a8",
+        "bytes": 1928,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/actual-behavior.stdout.txt",
+        "sha256": "ea0ff3583705c1455369b78be13f1753ec86fbf047ca78f796a53302fd78b1a1",
+        "bytes": 1829,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/actual-behavior.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/behavior.junit.xml",
+        "sha256": "a1b06b4a8eb2df4a9e824a4b51a481ba3b6849f55bde9bb8e10b3ab52488fdf6",
+        "bytes": 2686,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/actual-loaded-source-origins.json",
+        "sha256": "36a7f48246afa23000ec6a734f8ce4e7f0ff01568709e42a04976b754fa6490d",
+        "bytes": 323306,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/canonical-root-ruff-check.run.json",
+        "sha256": "4bbc05f7a8f1d5c1fe47edb964b4ead83b3a3fb61d9f2b1ab412391a67f6dd45",
+        "bytes": 2496,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/canonical-root-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/canonical-root-ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/canonical-root-ruff-format.run.json",
+        "sha256": "a0b20ccdd3451e7e59b70ce4b241fd42b2d7c2bba344138d8d9ba0dd51d19933",
+        "bytes": 2515,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/canonical-root-ruff-format.stdout.txt",
+        "sha256": "793e2905062e677bc49a961cd9fd445b511f01c6196d6dfc46ac854a2639a903",
+        "bytes": 27,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/canonical-root-ruff-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/actual-results.json",
+        "sha256": "2b7877b2a6cb0cc302efc08ef1668ba0fe74e9ba5bbfc17957a4d9c0b9a2d74c",
+        "bytes": 7917,
+        "regular_file": true
+      }
+    ],
+    "custom_harnesses": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-actual-replay-20261016/root_frozen_source_origins_v2.py",
+        "sha256": "de7e2efd49d9cde9f85a25b3c1488280f06b8130fee629e28dc67c4e4c570c7b",
+        "bytes": 1949,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-actual-replay-20261016/run_request.py",
+        "sha256": "833767aebb9519f464a3c34867a69bfced525d355c0b584340cd4e6bccf474d8",
+        "bytes": 3130,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-actual-20261016/root_legal_routes.py",
+        "sha256": "0f2b386504f690ff2c40daf0f16ed7b245d0fcfec55b6ffacda574b9c91f9f02",
+        "bytes": 1619,
+        "regular_file": true
+      }
+    ]
+  },
+  "execution_profile": {
+    "request_environment": {
+      "PYTHONPATH": "src:.:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-actual-replay-20261016:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-actual-20261016",
+      "E02_REPLAY_REQUEST": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/request.json"
+    },
+    "actual_results_environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:.",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "JAX_PLATFORMS": "cpu"
+    },
+    "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "workers": 1,
+    "dependency_lock": {
+      "path": "policy-engine/uv.lock",
+      "sha256": "9d200a0789f50fccb533ddbb66a39453b04de8f22e653d34a62c35125c20a120",
+      "worktree_matches_commit_at_draft": true
+    },
+    "fresh_reprovision_of_venv": "not claimed; replay used the existing local .venv",
+    "external_production_or_legal_input": "none; this is a source and test route receipt, not an external authority witness"
+  },
+  "runtime_context": {
+    "readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-code-boundary-20261016/loaded-context-vs-commit-readback.json",
+      "sha256": "09032c919bf061187a6666667f8de8a808b28938f258252a8856369c34a18098",
+      "bytes": 1591,
+      "regular_file": true
+    },
+    "origin_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/actual-loaded-source-origins.json",
+      "sha256": "36a7f48246afa23000ec6a734f8ce4e7f0ff01568709e42a04976b754fa6490d",
+      "bytes": 323306,
+      "regular_file": true
+    },
+    "loaded_regular_project_modules": 1457,
+    "exact_component_commit_matches": 1455,
+    "not_a_bare_component_tree_run": true,
+    "historical_context_differences": [
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "loaded_execution_sha256": "35fcf6344b6b6cf69b7d58fb8af87d60754a2992bc456ec33c965310caab6e85",
+        "component_commit_sha256": "6cab5975b94dc4d0dac35314a0a42bcec81155b02c0a0e59e7d2c59fcdd949cf",
+        "component_commit_blob": "8067892ca8e133e0cd79965042d6abc08d161555",
+        "exact_historical_context_copy": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-register-snapshot-live-attribution-20261016/_registry_lifecycle.py",
+          "sha256": "35fcf6344b6b6cf69b7d58fb8af87d60754a2992bc456ec33c965310caab6e85",
+          "bytes": 41438,
+          "regular_file": true
+        }
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/connectors/_registry_models.py",
+        "loaded_execution_sha256": "4088dcf4657fe75b032bb2ebdc09c31cdc1835dabf31195a81abf8d05747b94c",
+        "component_commit_sha256": "19130e6738d9d08dc7e308993f37df2de387072734be5b54d38d25a2821773fb",
+        "component_commit_blob": "e95a2a668ed9e5fb29b4b28758088036c23ee818",
+        "exact_historical_context_copy": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-register-snapshot-live-attribution-20261016/_registry_models.py",
+          "sha256": "4088dcf4657fe75b032bb2ebdc09c31cdc1835dabf31195a81abf8d05747b94c",
+          "bytes": 3750,
+          "regular_file": true
+        }
+      }
+    ],
+    "attribution_receipts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-register-snapshot-live-attribution-20261016/attribution-resolved.json",
+        "sha256": "7a4a0ba1cd11a2a6b002ea3bdea8132c55da10e94b9808d006340111bb919b7e",
+        "bytes": 2891,
+        "regular_file": true
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-register-snapshot-live-attribution-20261016/known-G-and-production-no-alias-readback.json",
+        "sha256": "6fe2ec43c0884dbade5168e2a939e76de9af6096a7407bb89043cc4473447186",
+        "bytes": 2064,
+        "regular_file": true
+      }
+    ],
+    "meaning": "The exact Legal component commit plus the two exact R4 Fabric historical module postimages reconstructs the observed loaded module context. The postimages were supplied as regular RAW snapshots and are not silently attributed to the Legal commit."
+  },
+  "whole_source_ast_census": {
+    "result": {
+      "file_type": "src/polisyos/**/*.py",
+      "total": 2771,
+      "outside_data_forge": 2480,
+      "inside_data_forge": 291,
+      "forbidden_direct_imports": []
+    },
+    "full_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/actual-behavior.stdout.txt",
+      "sha256": "ea0ff3583705c1455369b78be13f1753ec86fbf047ca78f796a53302fd78b1a1",
+      "bytes": 1829,
+      "regular_file": true
+    },
+    "classification": "recomputed at execution over the full working-tree denominator; the scan did not retain per-file hashes for all 2771 Python inputs, so exact whole-tree-to-commit binding is not established",
+    "global_source_freeze": false
+  },
+  "source_chain": "Existing legal source_relation owner → Data Forge read_api.legal exact aliases → 13 outside-DataForge consumers plus Lex lazy aliases; candidate/refusal operation and canonical object identities are preserved. No normative verifier is created.",
+  "result": "14 PASS /0FAIL/0ERROR/0SKIP; canonical Ruff check/format20 paths PASS. Actual15 selected source module paths and1457 observed own modules verified; exact runtime context is commit2a plus2 explicitly pinned historical Fabric postimages.",
+  "semantic_controls": {
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-read-api-review-20261016-r2/review.md",
+      "sha256": "183bde38038629fa978089e1a02b0b101e40f347522359f22d44bb12051f6719",
+      "bytes": 6750,
+      "regular_file": true
+    },
+    "marker_retaining_refusal_noop": {
+      "plugin": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-read-api-review-20261016-r2/refusal_noop_plugin.py",
+        "sha256": "375689f8fc6c0a0e66a5ce79679226bebb9c853c093d6972c56c7649b15618d8",
+        "bytes": 1106,
+        "regular_file": true
+      },
+      "full_deciding_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-read-api-review-20261016-r2/refusal-noop-control.stdout.txt",
+        "sha256": "156695e0cc23e18be11a3645fa2d6fbff2f291e3b984b63b51987a4aac511e2f",
+        "bytes": 2081,
+        "regular_file": true
+      },
+      "result": "expected failure: the exact current pytest.raises refusal test reports DID NOT RAISE after replacing the live refusal operation by a no-op while exports/status/candidate markers remain",
+      "scope": "proves the public source-relation refusal operation is exercised; does not prove legal verification exists"
+    },
+    "lazy_export_identity_witness": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-read-api-review-20261016-r2/lazy-import.stdout.txt",
+      "sha256": "a0c2291f116b62ed8ef9c4938e4933255b32b20772175d72432bea1d516720ee",
+      "bytes": 124,
+      "regular_file": true
+    }
+  },
+  "predicate_qualifications": [
+    {
+      "predicate": "All 11 canonical source-relation exports are reachable through read_api.legal and retain canonical object identity; both Lex lazy aliases resolve to the same facade objects.",
+      "classification": "recomputed",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/actual-behavior.stdout.txt",
+        "sha256": "ea0ff3583705c1455369b78be13f1753ec86fbf047ca78f796a53302fd78b1a1",
+        "bytes": 1829,
+        "regular_file": true
+      }
+    },
+    {
+      "predicate": "The fail-closed refusal operation is behaviorally necessary; a marker-preserving no-op falsifies the test.",
+      "classification": "recomputed",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-read-api-review-20261016-r2/refusal-noop-control.stdout.txt",
+        "sha256": "156695e0cc23e18be11a3645fa2d6fbff2f291e3b984b63b51987a4aac511e2f",
+        "bytes": 2081,
+        "regular_file": true
+      }
+    },
+    {
+      "predicate": "All selected runtime source module origins map to the intended local source paths; 1455 loaded modules match commit bytes and the two differences map to exact R4 snapshots.",
+      "classification": "independently_reconciled",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-code-boundary-20261016/loaded-context-vs-commit-readback.json",
+        "sha256": "09032c919bf061187a6666667f8de8a808b28938f258252a8856369c34a18098",
+        "bytes": 1591,
+        "regular_file": true
+      }
+    },
+    {
+      "predicate": "The full source import AST census is bound to the exact component commit tree.",
+      "classification": "not_established",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/actual-behavior.stdout.txt",
+        "sha256": "ea0ff3583705c1455369b78be13f1753ec86fbf047ca78f796a53302fd78b1a1",
+        "bytes": 1829,
+        "regular_file": true
+      }
+    },
+    {
+      "predicate": "Static public-surface inventory resolves the 11 exports.",
+      "classification": "not_established",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
+        "sha256": "315640c92dbd8f0a2356c8aca0918ed03499c6e078184bcded6570017a1145c1",
+        "bytes": 11918,
+        "regular_file": true
+      }
+    },
+    {
+      "predicate": "An independent legal source-relation verifier, issuer, custody, currentness, or legal-validity fact exists.",
+      "classification": "not_established",
+      "evidence": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-lint-fixed-actual-20261016/actual-behavior.stdout.txt",
+        "sha256": "ea0ff3583705c1455369b78be13f1753ec86fbf047ca78f796a53302fd78b1a1",
+        "bytes": 1829,
+        "regular_file": true
+      }
+    }
+  ],
+  "limitations": {
+    "public_surface_static_inventory": {
+      "status": "verification_missing; keep flags false; existing G semantics decision only",
+      "decision": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
+        "sha256": "315640c92dbd8f0a2356c8aca0918ed03499c6e078184bcded6570017a1145c1",
+        "bytes": 11918,
+        "regular_file": true
+      }
+    },
+    "typecheck": {
+      "status": "diagnostic_nonreceipt",
+      "classification": "not a native type-gate FAIL and not a green receipt",
+      "summary": "Earlier bulk invocation used --config-file mypy.ini, exited 1 with 263 diagnostics across 14 of 15 selected source files. Root type oracle identifies this as noncanonical because it omits the generated historical override set.",
+      "run": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-actual-20261016/source-mypy.run.json",
+        "sha256": "6bedc7f46612589bea42250e61a86a51827c2735df2dd72a8e1e419786cde184",
+        "bytes": 1891,
+        "regular_file": true
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-actual-20261016/source-mypy.stdout.txt",
+        "sha256": "7f6e533cb87c35e867198315d65be5ea3b54cc7cb442fd8d3e8dd48c2962fcc4",
+        "bytes": 45491,
+        "regular_file": true
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-legal-read-api-actual-20261016/source-mypy.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0,
+        "regular_file": true
+      },
+      "incorrectly_selected_config": {
+        "path": "policy-engine/mypy.ini",
+        "sha256": "fb1ae483c1d597920e8418e908d95061010ccddcac4fe88d7a9c96144a646538",
+        "worktree_matches_commit_at_draft": true
+      },
+      "policy": {
+        "path": "policy-engine/architecture/tooling/tool_config_split.toml",
+        "sha256": "97e8feca4374ac11b657168ca57f527c63ddbcae33eee6bb405ca61de3b761f4",
+        "worktree_matches_commit_at_draft": true
+      },
+      "governed_generated_config": {
+        "path": "policy-engine/architecture/tooling/mypy/generated.ini",
+        "sha256": "7861f98c2ab1c264740af40fcaa3c52ee632e26e01015ff9dfb9a585a800982a",
+        "worktree_matches_commit_at_draft": true
+      },
+      "native_core_driver": {
+        "path": "policy-engine/tools/devx/workspace/core_runtime_mypy.py",
+        "sha256": "3f6f921d127d17670db9080612d1c3723ad87ede33fffde30d8e467abd979954",
+        "worktree_matches_commit_at_draft": true
+      },
+      "canonical_type_gate_status": "UNRUN / not_established for this component receipt"
+    },
+    "native_sota_public_surface_row": "UNRUN by this component receipt",
+    "installed_wheel_and_rebuilt_sdist_consumers": "UNRUN",
+    "global_e02_source_input_backend_freeze": "UNRUN / false",
+    "G_code_acceptance_and_integration_publication": "none",
+    "formal_finding_adjudication": "none"
+  },
+  "source_freeze": false,
+  "input_backend_freeze": false,
+  "proposal": {
+    "scope": "route-only proposal for the existing Legal source-relation contracts through the existing Data Forge read facade; no claim that source verification or legal authority is established",
+    "original_criterion_mappings": {
+      "mapped_count": 0,
+      "ids": [],
+      "unreconciled_scope_label": "Legal468",
+      "note": "No original finding/occurrence mapping was evidenced in this component receipt; no IDs or closures are invented."
+    },
+    "closure_ids": [],
+    "g_acceptance": "none; independent G review remains required"
+  },
+  "closure_ids": [],
+  "independent_receipt_completeness_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/legal-read-api-current-receipt-draft-20261016/receipt-draft.json",
+    "sha256": "72af9752b25a55ffb8497882540f1c3f91c99638368c5e0767b2d98406be4558"
+  },
+  "remaining_check": "Complete reviewed typing/producer companions, canonical regeneration and validators with corrupt-field controls; freeze final source/input/backend; execute actual native/composed/Linux/wheel/rebuilt-sdist consumers; G independent acceptance/adjudication."
+}

@@ -1,0 +1,166 @@
+{
+  "record_type": "E02 bounded component source/input/execution delivery",
+  "source": {
+    "sha": "45eee2ce51ce306c1133807d3b10c93ac124600a",
+    "tree": "fc3178babb4c160e8e675c932cdac4ed488ec59b",
+    "parents": [
+      "2a496ab348ad3ad4b8c48ee45a5d8f4fb61354a9"
+    ],
+    "subject": "fix(scientist): bind calibration lesson publication context"
+  },
+  "slice_base": {
+    "commit": "e942139dd4e98ef88b2321e19a2e34cfc262f29f",
+    "tree": "704d84ee97eda8e43b4aab320393ce628ecf8730",
+    "adoption_parent": "2a496ab348ad3ad4b8c48ee45a5d8f4fb61354a9"
+  },
+  "full_code_test_config_companion_footprint": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-code-boundary-20261016/calibration-registry-source-readback.json",
+    "sha256": "df444cdbe4320627043e1b8f632e917ee8303bf00e73979e129e46c18e323443"
+  },
+  "input_profile_backend": {
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/request.json",
+      "sha256": "63119fbf2190a00a4e3bd60b8b05008cf20cf4c4b52b3955ed31606bbbc50799"
+    },
+    "profile": "Local macOS Python3.14.3 existing locked .venv; filesystem CAS and real LessonRegistry, synthetic declared-unscoped TransferContext; numerical threads1. No production/rights/currentness/issuer inputs.",
+    "environment": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:.",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "JAX_PLATFORMS": "cpu"
+    }
+  },
+  "actual_result": {
+    "full_affected_test_modules": 2,
+    "tests": 14,
+    "PASS": 14,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "pytest_process_seconds": 7.797,
+    "strict_source_mypy": {
+      "files": 3,
+      "exit_code": 0,
+      "seconds": 5.451
+    },
+    "canonical_ruff": {
+      "check_paths": 5,
+      "format_paths": 5,
+      "exit_codes": [
+        0,
+        0
+      ]
+    },
+    "outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/actual-behavior.run.json",
+        "sha256": "f1b8394fd256dd6371b2eeb42d8dcfd0a59cf304fe85b58270939c7fbfed8bf6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/actual-behavior.stdout.txt",
+        "sha256": "4e3fa1a1b992dce9a34fb21b84bdf9fb36518d027deed66822f807c018f3c104"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/actual-behavior.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/selected-source-strict-mypy.run.json",
+        "sha256": "06146d9452d27d109e3acc964bd523f34d712cb7055575e000e27ecd1f501744"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/selected-source-strict-mypy.stdout.txt",
+        "sha256": "8228fcc5ce46d42d01caf3cd941f4e9c5f2bcc372bb5b147a2f0572d2dd675a8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/selected-source-strict-mypy.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/canonical-root-ruff-check.run.json",
+        "sha256": "06fa7f4ebaadb6e4b903a85fdd1052ddcf5e5932fd84b80ca4c58d41791cbfc4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/canonical-root-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/canonical-root-ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/canonical-root-ruff-format.run.json",
+        "sha256": "8b3b8691254163717a48675d1360de345d9aa9d8425ff280cd5026e4099b729e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/canonical-root-ruff-format.stdout.txt",
+        "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/canonical-root-ruff-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/actual-results.json",
+        "sha256": "649cd297998dbc796afc5cebebfe5c40120c33a54b2d1f2591b4538a4d61c1a3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-formatted-actual-20261016/behavior.junit.xml",
+        "sha256": "213bd296ee0696f101d3865f9b2c0fbfb08f91ff5ce3d18955240957184d2be8"
+      }
+    ]
+  },
+  "source_origin_context": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-code-boundary-20261016/loaded-context-vs-commit-readback.json",
+    "sha256": "769175d19eeb4e1608963776ac9e3f455b8083fbf7c7ed0f5eeba3391aa8ef11"
+  },
+  "chain": "Actual C5a/C5b public runner input → resolve one optional registry callable before producer work → capture typed writer → forward resolved TransferContext → real LessonRegistry record_local → typed ArtifactRef + persisted CAS/index → fresh registry query consumer. Non-None malformed supplied input is refused, not treated as absent.",
+  "adversarial_and_removal_controls": {
+    "author_exact_r2_package": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-optional-registry-boundary-r2-20261016/manifest.json",
+      "sha256": "10c97fe19b954dd7c2210d74e5e613e875961e34767a30d0b4c0208bc0b39d21"
+    },
+    "malformed_intake_and_return_full_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-optional-registry-boundary-r2-20261016/evidence/removal-probe-marker-retained.txt",
+      "sha256": "859bed076ba9930bf41c9cf2982307175f28e018e8020cd15eeaf51c4af03edb"
+    },
+    "context_drop_full_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-registry-boundary-r2-independent-review-20261016/evidence/pytest-context-drop-mutant.txt",
+      "sha256": "7f863986abb6ad0052a45bcfbb75268262c67ccd5e8c8caa5eb866e8280f7c5d"
+    },
+    "expected_behavior": "Intake-removal and context-drop mutants fail while labels/exports remain; absence alone is allowed. Context-positive C5a uses fixed nondefault scope/time and actual fresh CAS registry; C5b pins run/task/domain and catches missing context."
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-registry-boundary-r2-independent-review-20261016/receipt.md",
+      "sha256": "e1f8e90e69a83b340d51ffc896cdf7ec75f11e4392807dbc173b2161ddbe97e0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/calibration-registry-r2-format-delta-review-20261016/receipt.md",
+      "sha256": "2e2bb96fc9683c53c891d8860e71cfa629cccbc98147902f09a3306cbc217796"
+    }
+  ],
+  "canonical_format_companion": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-calibration-registry-r2-canonical-format-20261016/manifest.json",
+    "sha256": "46a0455e5f4147ca8eac1b65cdaf779912f765ad56c385b11a8d969c680b01be"
+  },
+  "P40": "Shared optional writer class; R1 accidentally dropped C5a context. R2 restores context across both runners and typed publication boundary. R1 remains historical, never claimed compatible.",
+  "limitations": [
+    "C5b test does not independently pin tenant/status/timestamp to a separate fixed witness; existing context construction is preserved.",
+    "Selected validation-test MyPy probe retains8 diagnostics; this is not reported green or inherited underP41 because the modified test intersects its input set. Full native type gate remains pending.",
+    "The runtime loaded context includes other attributed uncommitted source companions; full source/input/backend freeze is not established.",
+    "Calibration_validation source changed after old C7source1dd receipt. That receipt/fresh reader remains historical; run final same-source composed producer/fresh-consumer replay before any current C7 claim.",
+    "No external authority, causal calibration adequacy, issuer/currentness or formal original-property closure follows from this engineering witness."
+  ],
+  "proposals": {
+    "component_outcome": "limited_verified_engineering_boundary",
+    "original_occurrence_ids": [],
+    "next_check": "Final composed C7/current consumer and actual native/installed profile checks after source/input/backend freeze."
+  },
+  "source_freeze": false,
+  "closure_ids": []
+}

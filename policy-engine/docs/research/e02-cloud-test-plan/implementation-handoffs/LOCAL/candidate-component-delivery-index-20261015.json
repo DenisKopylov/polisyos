@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "648605de2ddc6fe78774495d56a8eb66f84064ce",
-    "tree": "84d989248593cbc24b8f39c9ba39a62567c224ba",
+    "head": "45eee2ce51ce306c1133807d3b10c93ac124600a",
+    "tree": "fc3178babb4c160e8e675c932cdac4ed488ec59b",
     "parents": [
-      "15becce142b2a557a076df71a6d9b75807d908d3"
+      "2a496ab348ad3ad4b8c48ee45a5d8f4fb61354a9"
     ],
     "source_freeze": false,
-    "dirty_active_source": "C05(087/releasec6), Legal468, C7source1dd and LA025source648 committed with exact component receipts; FabricR6/LegalreadAPI18/C5a-C5b registry-boundary RAW repairs/reviews remain active. Known Fabric2 write-through bytes preserved. Canonical schema/public/OpenAPI/client/release companions still pending."
+    "dirty_active_source": "FabricR6 physically applied; R7 independent HOLD for remaining fallback emission escape, R8 central emission repair in RAW. Nine attributed assigned runtime/Lex edits remain uncommitted and independently reviewed. DataForge read_api static companions in RAW. Canonical schema/public/OpenAPI/client/release/native/installed work remains pending."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -383,6 +383,14 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la025-shared-writer-current-consumer-delivery-20261016.json",
       "sha256": "77dffbddd3485d5be95282601e4b2e81f9ef773c7f87cd0d78f3531e52069eec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/legal-read-api-route-current-candidate-delivery-20261016.json",
+      "sha256": "0911c4be4b9f44e8e63a679e920c7a24345d0d48ef394f23231d22f3c78eabb6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/calibration-registry-context-current-candidate-delivery-20261016.json",
+      "sha256": "3c7f0a738aedf2e1426eb735ff571424de2e29d2180f81552e6db13f4f6105db"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -404,11 +412,11 @@
   "known_current_composition_limits": [
     "Every receipt remains bound to its own source/property/input/profile/backend slice. Later deltas require affected re-verification; no task PASS grants whole-property or formal closure.",
     "C05 selected-consumer composition source49 committed087880dd with releasec6c9bc and receipt0443fc9e: actual310PASS, strictMyPy28 and canonicalRuff51. This covers the declared selected outer basis and enumerated reference containers, not every nested semantic owner or full positive promotion. Runtime parameter origin/binding decisionbc8f remains held for G.",
-    "C7 source1dd2dcec is delivered with actual34PASS/0SKIP including3 enabled integration cases, MyPy3/Ruff8. The new current actual-r2 producer CAS was read by independent process65312:71 selected refs,7 bundles,8 MethodJobs,32 input slots and unchanged317-file store. Observed backend dispatch kwargs/source panel/calibration/authority remain not_established; older reader7043 is historical only.",
+    "C7 source1dd2dcec is delivered with actual34PASS/0SKIP including3 enabled integration cases, MyPy3/Ruff8. The new current actual-r2 producer CAS was read by independent process65312:71 selected refs,7 bundles,8 MethodJobs,32 input slots and unchanged317-file store. Observed backend dispatch kwargs/source panel/calibration/authority remain not_established; older reader7043 is historical only. Calibration source45eee2ce subsequently changed one selected C7 producer dependency: this remains a historical witness, not current composed-source proof.",
     "LA025source648605de delivers the shared KnowledgeBundle owner writer/facade and API/node consumers. Actual26PASS, strictMyPy3/Ruff8 and new-process metadata checks preserve both synthetic non-default and public-web license labels. No rights, source authority, relevance or production currentness is established; public inventory flag remains false.",
-    "Legal sourcea4db and root facade468 propagate typed verification_missing refusal; candidate and absent DB controls pass7 tests. No independent normative SPO relation verifier or law/currentness positive exists. Necessary DataForge read-API route companion18 paths remains RAW/unapplied; its static inventory is unresolved under decision315640.",
-    "Fabric R5 is independently HOLD for one registration-origin class: mutable factory/same-owner instance and stale pool after override can bypass the string owner snapshot. R6 widens one private registration/admitted-instance binding and lifecycle. Its author205 focusedPASS is not an integrated PreparedB defining/all13-contour replay; full replay remains UNRUN. The two earlier accidental live companion writes are preserved and attributed, not reverted.",
-    "C5a/C5b supplied LessonRegistry intake has a confirmed malformed-input bug: non-None receiver missing record_local is silently treated as absent. A common intake/output repair across both runners is RAW/in progress; preserve C7source1dd behavior as historical until successor verification.",
+    "Legal sourcea4db/root468 and read-facade route2a are delivered. Route component14PASS/Ruff20 preserves11 canonical identities and typed verification_missing refusal. It is exact2a+two named historical Fabric context postimages, not bare whole2a replay; full2771-file AST census was not per-file hash-bound. Canonical typing/native/installed/global checks and static public inventory choice315640 remain pending. No law/currentness/authority positive.",
+    "Fabric R6 integrated11-test-module replay334PASS/Based18zero errors/Ruff29 is a historical component witness; it does not cover PreparedB13 or cached wrapper registration origin. R7 fixes generation-cache late backfill but independent review finds same-class cache-import-failure fallback emits old producer after override. R8 must centralize all get emission; README/release claims remain held until reviewed and actual replay.",
+    "C5a/C5b shared registry boundary source45eee2ce is committed with exact8pathreadback. Full2affectedunitmodules14PASS, strictsourceMyPy3PASS, canonicalRuff5PASS,1114ownorigins. Both runners capture selected callable and forward resolved TransferContext to actual LessonRegistry/CAS/fresh query. Test-MyPy8diagnostic residual and C5b tenant/time assertion bounds remain explicit; old C7source1dd/fresh reader now historical until final successor replay.",
     "Public-surface runtime evidence is bounded to its exact names and mappings. Static-purity versus runtime completeness remains G decision315640; unknown exports are not empty, flags are not blanket-promoted, canonical inventory/docs require regeneration and current native check. No waiver is issued.",
     "Q2 source4380f4e supplies the owner-derived11-resource contract and focused source tests, but two DoWhy bindings and later source pins need fresh source audit. The actual final source/input/backend and primary/supplemental installed denominator must be recomputed; old135+6 is not an immutable new count. Native/Linux/wheel/rebuilt-sdist execution remains UNRUN on final composition.",
     "Canonical release scan254TOMLs/221 structured rows with2 ABI errors was a historical local frame. Metadata12 corrections are now applied, and later fragments/rows changed the denominator. Re-run the actual owner scan after generation/review; HTTP facade and registered-tool ABI choices remain distinct G decisions, not native green.",

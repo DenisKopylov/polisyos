@@ -10,8 +10,8 @@ evidence = [
   "src/polisyos/runtime/quality/README.md",
 ]
 compatibility = "Candidate claim, requirement, source-row, ledger, provenance, and facet mismatches now produce the existing typed semantic-loss issue at production, persisted validation, and adapter admission. The request-level ledger claim_id is reconciled to the compiler claim_ref; the ledger request_ref and request-level requirement_ref alias stay in existing provenance_refs and remain distinct from compiler claim_id and requirement_ref. Candidate status, facet truth, authority limits, and source time retain their existing values."
-change_class = "python-public-api"
-surface_classification = "public_experimental: polisyos.runtime.quality.proving_ground.legal_mandate_search"
+change_class = "internal"
+surface_classification = "internal: polisyos.runtime.quality.proving_ground.legal_mandate_search"
 migration = "Consumers of build_gl_norm_candidate_bindings should retain candidate status and issue_codes and must not send blocked candidates to Lex adapters. No new schema fields or generated client changes are introduced."
 api = "One private typed expected identity is recomputed from the validated compiler artifact/spec, matching requirement binding, selected ledger owner(s), and exact selected row. The producer uses it before norm projection; persisted bundle validation resolves the same relation from typed payload artifacts; build_gl_legal_authority_report_binding rechecks it before both Lex adapters. Candidate claim_id and compiler requirement_ref must match the compiled spec, while source ledger claim_id must match that spec's claim_ref. The compiler requirement_ref is never substituted for the request alias. Existing identity, provenance, status, issue, and authority-boundary fields are reused; no public identity fields are added."
 limitations = "This join establishes source identity consistency only; it proves neither legal authority nor law truth and does not change candidate-only posture. A context candidate stays context_only. Missing source windows, malformed-present values, facet status, and authority limits retain their existing distinctions. No law, issuer, permission rule, refinement criterion, date, or new authority is introduced. The generated public-surface inventory remains unreviewed and was not regenerated."
@@ -22,9 +22,9 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "gl-selected-subject-identity-join"
-change_class = "python-public-api"
+change_class = "internal"
 impact = "breaking"
-surface = "public_experimental: polisyos.runtime.quality.proving_ground.legal_mandate_search"
+surface = "internal: polisyos.runtime.quality.proving_ground.legal_mandate_search"
 owner = "team-polisyos"
 version_owner = "team-polisyos"
 deprecation_window = "not_applicable"

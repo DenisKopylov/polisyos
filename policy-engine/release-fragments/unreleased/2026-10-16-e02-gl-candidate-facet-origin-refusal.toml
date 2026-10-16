@@ -10,8 +10,8 @@ evidence = [
   "src/polisyos/runtime/quality/README.md",
 ]
 compatibility = "Incomplete candidate facet sets, absent source windows, malformed-present values, and mismatched facet origins now block the affected candidate before Lex projection using existing typed issues. A complete context candidate remains context_only. Requirement competence dates and legal_as_of never fill source-row effective dates."
-change_class = "python-public-api"
-surface_classification = "public_experimental: polisyos.runtime.quality.proving_ground.legal_mandate_search"
+change_class = "internal"
+surface_classification = "internal: polisyos.runtime.quality.proving_ground.legal_mandate_search"
 migration = "Consumers of build_gl_norm_candidate_bindings should retain candidate status and issue_codes, and must not treat blocked candidates as adapter inputs. No new schema fields or generated client changes are introduced."
 api = "This fragment records the Task 3 ten-name facet-basis and source-window change: builder admission checks one row-bound member per required name against candidate ref, KG row, source table, source-row refs, and canonical facet ID. The R3 persisted validator checks complete facet membership but does not yet reconcile the candidate claim_id and compiler requirement_ref to the selected compiled requirement. That deeper source-derived identity join is described in the distinct e02-gl-selected-subject-identity-join fragment. Existing Layer3GLNormCandidateBinding and Layer3GLValidationIssue contracts are retained; no public schema fields are added."
 limitations = "A complete context candidate remains context_only, and candidate consistency does not prove legal authority or law truth. This facet/window change invents no dates, legal rule, authority source, or refinement criterion. The selected normative fact has a blank present window and is blocked as semantic loss; the selected threshold row has no selected source window columns and stays blocked as missing. No generated public-surface inventory was regenerated or marked reviewed in this candidate packet."
@@ -22,9 +22,9 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "gl-candidate-facet-origin-refusal"
-change_class = "python-public-api"
+change_class = "internal"
 impact = "breaking"
-surface = "public_experimental: polisyos.runtime.quality.proving_ground.legal_mandate_search"
+surface = "internal: polisyos.runtime.quality.proving_ground.legal_mandate_search"
 owner = "team-polisyos"
 version_owner = "team-polisyos"
 deprecation_window = "not_applicable"

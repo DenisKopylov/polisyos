@@ -3273,5 +3273,20 @@
     "mandatory_companions": [
       "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
     ]
+  },
+  "coordination_epoch_20261017_gl_actual_internal_child_scope": {
+    "source_base": "81139f95c3c52b7a1aebeb80d5779881465a0bf1",
+    "root_is_only_canonical_writer": true,
+    "scope": [
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-gl-candidate-facet-origin-refusal.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-gl-selected-subject-identity-join.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-gl-full-requirement-projection-reconciliation.toml"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ],
+    "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/gl-public-surface-scope-independent-review-20261017-r1/review.json@sha256:57bf7f3b1dac1a9395c63e6c15d983492397bf9b232c2def13b74129fcda7acd",
+    "property": "Existing public contract internal_rule: unlisted GL child module is internal; supported runtime.quality root has no GL imports/exports. No reviewed flags flipped; legal/custom/G authority unresolved.",
+    "actual_runtime_review_denominator": "970 root exports;75 child exports;34 exported Pydantic models, no export/field/schema deltas"
   }
 }

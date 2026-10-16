@@ -10,8 +10,8 @@ evidence = [
   "src/polisyos/runtime/quality/README.md",
 ]
 compatibility = "All fields of the typed requirement binding are compared through full model projections; no independent list of identity fields is used. The check preserves existing candidate status and issue fields, and does not change runtime schema or Lex facade exports. An explicit malformed fallback value is retained as blocked facet evidence rather than substituted or passed to an adapter."
-change_class = "python-public-api"
-surface_classification = "public_experimental: polisyos.runtime.quality.proving_ground.legal_mandate_search"
+change_class = "internal"
+surface_classification = "internal: polisyos.runtime.quality.proving_ground.legal_mandate_search"
 migration = "Consumers must preserve the existing blocked candidate status and issue_codes. Custom claims can still be compiled by build_gl_legal_requirement_bindings, but this downstream boundary refuses them because the persisted artifact contains claim refs and compiled specs, not a replayable source-claim payload. No custom-request admission is claimed."
 api = "The producer, persisted validator, and public Lex bridge reuse one private recomputation helper that calls the existing canonical GL requirement compiler and compares every typed binding field by JSON-mode model projection. A source projection mismatch blocks the complete owner-defined facet set while retaining its supplied values, membership, source refs, and status distinctions; the candidate norm is empty and neither Lex adapter receives it."
 limitations = "This establishes agreement with the current canonical default request projection, not legal authority, law truth, or a refinement rule. Custom claim inputs are a declared bounded limitation: the compiler artifact stores source_claim_refs but not the original claim payload needed to reproduce every input-derived requirement. The smallest missing capability is an owner-resolvable, content-bound source-input basis at the shared consumer boundary. Candidate-only posture, fallback policy semantics, effective-window source rules, and authority limits are unchanged."
@@ -22,9 +22,9 @@ runbook_docs = []
 
 [[compatibility_change]]
 id = "gl-full-requirement-projection-reconciliation"
-change_class = "python-public-api"
+change_class = "internal"
 impact = "breaking"
-surface = "public_experimental: polisyos.runtime.quality.proving_ground.legal_mandate_search"
+surface = "internal: polisyos.runtime.quality.proving_ground.legal_mandate_search"
 owner = "team-polisyos"
 version_owner = "team-polisyos"
 deprecation_window = "not_applicable"

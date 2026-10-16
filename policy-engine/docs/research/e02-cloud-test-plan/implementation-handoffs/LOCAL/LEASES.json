@@ -1695,5 +1695,100 @@
     },
     "source_freeze": false,
     "formal_G_closure_ids": []
+  },
+  "coordination_epoch_20261016_c7_consumer_cache_batch": {
+    "as_of_candidate_commit": "8b4f369da96418b49bce9b5b18e6a93900941942",
+    "as_of_tree": "049eea924dd68c7bbc38faba0d95f0e431eb8e9c",
+    "root_sole_tracked_source_and_git_writer": true,
+    "raw_rule": "Direct agents author or review exact named RAW candidates only. No product edits or mutating git apply anywhere; --check permitted. Root applies reviewed exact preimages sequentially.",
+    "root_applied_pending_source": {
+      "c7_producer_profiles": {
+        "manifest": "raw/resume-c05-replay-profile-basis-20261016/c7-producer-profile-companion-r2/manifest.json",
+        "sha256": "773135537bd64819df777ef59474f33ae4dc4ef535668f4d618e77c6b63ec27a",
+        "independent_review_sha256": "c30dc5e70e260a8e11dc5269e8344e5056466e2f26b147e757e2c66d78d05385",
+        "application_sha256": "f37cc26320d44ee54969b7a7dcf5bfac3fd4637db9dc0a8100b72690bf68f6a6",
+        "boundary": "six actual source/test paths; runtime replay pending; 17 direct roles, not transitive profile closure"
+      }
+    },
+    "raw_candidate_owners": {
+      "ir_small_analytics_types_author": [
+        "scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "mirrored benchmark test"
+      ],
+      "ir_governance_loop_types_author": [
+        "scientist/replay/verification.py",
+        "scientist/replay/deterministic.py",
+        "scientist/policy_design/output.py",
+        "three mirrored replay tests"
+      ],
+      "ir_observation_loop_types_author": [
+        "scientist/nodes/builtins/decide/policy_runtime_support.py",
+        "scientist/nodes/builtins/decide/run_policy_promotion.py",
+        "test_policy_runtime_support.py",
+        "test_run_policy_blueprint_runtime.py",
+        "new test_run_policy_promotion.py"
+      ],
+      "v3_acquisition_actual_post_author": [
+        "scientist/nodes/builtins/data/enrich_knowledge.py",
+        "tests/unit/scientist/nodes/test_enrich_knowledge_node_freshness.py",
+        "mandatory Scholar facade typing only if pre-pinned"
+      ],
+      "c05_c12_current_composition_oracle": [
+        "runtime/http/services/lineage.py",
+        "tests/unit/runtime/http/test_declared_profile_refusal.py",
+        "tests/unit/runtime/http/test_declared_profile_api_refusal.py"
+      ],
+      "fabric_pool_cleanup_author": [
+        "fabric/connectors/profiles/resolver.py",
+        "fabric/connectors/base.py",
+        "fabric/cache/proxy.py",
+        "fabric/cache/_store_core.py",
+        "fabric/cache/_store_models.py",
+        "fabric/cache/_store_index.py",
+        "fabric/cache/store.py",
+        "fabric/cache/__init__.py",
+        "fabric/resilience/fallback.py",
+        "fabric/connectors/__init__.py",
+        "fabric/ingestion/ingestion.py",
+        "tests/unit/fabric/test_cache_system.py",
+        "tests/unit/fabric/test_source_profiles.py",
+        "tests/unit/fabric/test_resilience.py",
+        "tests/unit/fabric/test_registry.py",
+        "tests/unit/fabric/test_integration.py",
+        "mandatory common intent verifier companion must be pre-pinned"
+      ],
+      "r3_r4_monetary_workload_oracle": [
+        "tests/unit/runtime/quality/test_design_generation.py"
+      ],
+      "b61_exact_writer_runtime_author": [
+        "tests/_helpers/generic_n4_served_replay.py",
+        "tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py"
+      ],
+      "api_generated_actual_consumers_successor": [
+        "C7 API/doc/release mandatory companion RAW only; generated outputs root reserved"
+      ]
+    },
+    "read_only_reviews": {
+      "dynamic_import_binding_author": "CAN shared source-contract refusal",
+      "native_c2_independent_oracle": "canonical reader narrowing then Fabric complete intent/payload admission",
+      "native_c2_dead_override_author": "complete replay basis consumer",
+      "architecture_remaining_route_oracle": "C7 producer profile composition",
+      "ir_temporal_typed_author_r4": "whole pending runtime support plus root/numeric successor",
+      "native_v19_secure_writer_author": "B10 original assertion conservation and R6"
+    },
+    "root_reserved": [
+      "all canonical generated/schema/public/API/lock outputs",
+      "exact staged boundaries and ordinary candidate-only publication",
+      "complete frozen composition and proposal reconciliation"
+    ],
+    "P40": "Second same-class escape widens the mechanism to the required quantity or records a tested bounded residual; no instance repair ladder.",
+    "compute": {
+      "mac_heavy_slots": 3,
+      "numerical_threads_per_process": 1,
+      "disk_available_gib_observed": 43
+    },
+    "source_freeze": false,
+    "formal_G_closure_ids": []
   }
+
 }

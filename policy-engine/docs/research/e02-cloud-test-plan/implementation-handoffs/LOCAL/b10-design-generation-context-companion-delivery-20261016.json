@@ -1,0 +1,113 @@
+{
+  "schema": "policyos.e02.local_implementation_handoff.v1",
+  "slice": "B10 design-generation current/historical context test companion",
+  "slice_base": {
+    "sha": "8b4f369da96418b49bce9b5b18e6a93900941942",
+    "tree": "049eea924dd68c7bbc38faba0d95f0e431eb8e9c"
+  },
+  "candidate": {
+    "sha": "b0864610c166cf974d832bd178d1bb197c82a5d5",
+    "tree": "f1d332bec0a49e1b81d5602db03b5daccac5164b",
+    "parents": [
+      "8b4f369da96418b49bce9b5b18e6a93900941942"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "changed_paths_sha256": {
+      "policy-engine/tests/unit/runtime/quality/test_design_generation.py": "288ce45ce5bae465d2bfd0c6594c16406bc125540420775e9fa149713c3717c2"
+    },
+    "remote_status": "not yet pushed at receipt creation; later ordinary candidate push readback required"
+  },
+  "change": "Separate frozen historical prompt vocabulary, current L1/L2/S0/L6 candidate context and unit credal mechanics; preserve actual default-source refusal and empty candidate/ranking output assertions. The selected-WMR unit fixture refuses instead of impersonating a production reference.",
+  "mechanism_and_mandatory_companions": [
+    "policy-engine/tests/unit/runtime/quality/test_design_generation.py"
+  ],
+  "selected_input_profile_backend": "Controlled current education-domain L1/L2/S0/L6 and separate pinned historical replay; bounded unit-* references only where selected WMR is absent. Existing locked candidate Python3.14, one numerical thread. No external truth or currentness is created.",
+  "real_chain": "Controlled N4 design/candidate producer through actual credal reference and real surrogate ranker, including typed unavailability/refusal and empty result projection; current context resolves owner atom/target-slot bindings. This is not the served full workflow.",
+  "verification": {
+    "full_actual_module": {
+      "tests": 135,
+      "passed": 135,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "process_seconds": 70.845,
+      "junit_seconds": 66.789
+    },
+    "loaded_own_source_modules": 1498,
+    "outside_own_source_count": 0,
+    "missing_selected_source_paths": [],
+    "source_frame": "Run began on 8b4 with applied exact test and pending source composition, pinned by request and complete loaded-module origins. It is byte-bound evidence, not a clean whole-tree replay of b086.",
+    "outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-r6-actual-module-20261016/request.json",
+        "sha256": "9e2ddd8f346b46a2b3c7ddebc218ac71213368594954c882d1c93ba6804a0b8c",
+        "availability": "retained ignored RAW on this local candidate host"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-r6-actual-module-20261016/application-readback.json",
+        "sha256": "309ae3d64559dfd568ebe5955c50d19f509af8a0e546e06ba0887fe45bf5b322",
+        "availability": "retained ignored RAW on this local candidate host"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-r6-actual-module-20261016/actual-results.json",
+        "sha256": "58a34c678f36538bc1ef590f5837215140f7be710394633ccc3307270da91c58",
+        "availability": "retained ignored RAW on this local candidate host"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-r6-actual-module-20261016/full-actual-test-design-generation.stdout.txt",
+        "sha256": "f2a2851fd07d932c49660c7f57aef37289927105e202692b6b4a7a987b70a9ff",
+        "availability": "retained ignored RAW on this local candidate host"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-r6-actual-module-20261016/full-actual-test-design-generation.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "availability": "retained ignored RAW on this local candidate host"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-r6-actual-module-20261016/full-module.junit.xml",
+        "sha256": "3c1825bc3cd4f2bd6c725065e14a50f176deeb5108479d48bfb7a0ff50b0362b",
+        "availability": "retained ignored RAW on this local candidate host"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-r6-actual-module-20261016/actual-loaded-source-origins.json",
+        "sha256": "bd690127ccd8ea5c4ff5e73a0fab7adaea27f716f7462c6ca3e2028345bd4908",
+        "availability": "retained ignored RAW on this local candidate host"
+      }
+    ],
+    "native_ruff": "Canonical repository-root Ruff on exact candidate filename passed before application; stdout retained beside application.",
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-rank-coverage-application-20261016/independent-review-r6/review-r6-final-r2.json",
+      "sha256": "3d69432adc6572c6803926e3e48ba03cc67c14d2e984c6d766761897220c1bb7",
+      "result": "GO bounded, 17 independently replayed changed selectors; real root apply --directory check corrects author no-op product-CWD check"
+    },
+    "assertion_conservation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b10-rank-coverage-application-20261016/r6-original-assertion-mapping.json",
+      "sha256": "8d412c10755df1effda03fdbe0739114a43068e5aac823a345f989edf45b6f70"
+    }
+  },
+  "adversarial_controls": [
+    "Default current source refuses without production credal binding",
+    "A selected non-None WMR cannot use the unit reference factory",
+    "Refused real ranker returns both candidates=() and surrogate_rankings=()",
+    "Current owner-derived atom and target-slot binding is separate from frozen historical prompt vocabulary"
+  ],
+  "consumer_and_surface": "Actual N4 design-generation result and ranker consumer tests; served POST/N5/N6/GET and browser remain separate routes.",
+  "limitations": [
+    "Unit fixtures establish candidate mechanics only, not production K_ref confidence/currentness or external issuer authority.",
+    "The complete 208-case generation-cycle route and final composed source/native/installed waves remain required.",
+    "No loaded Python module changed before this receipt was written; the complete source/input freeze and final composed verification remain separate checks."
+  ],
+  "later_working_source_delta_paths_since_run": [],
+  "proposal_fields": {
+    "B10": {
+      "state": "limited",
+      "next_check": "Composed frozen N4/ranker/child routes and the recorded unranked Scenario/currentness decision; no test pass auto-closes whole B10."
+    }
+  },
+  "closure_ids": [],
+  "formal_G_closure_ids": [],
+  "historical_closures": "unchanged",
+  "G_checkpoint_observed": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+  "G_acceptance_of_this_candidate": null,
+  "source_freeze": false
+}

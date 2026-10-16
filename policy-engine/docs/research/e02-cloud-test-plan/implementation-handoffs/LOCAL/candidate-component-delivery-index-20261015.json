@@ -2,13 +2,13 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "fba8e987aa6bb0c202dd968ced50d921f27949d0",
-    "tree": "57405fb6bcd986bec5aef46fc5a70d144442b1b2",
+    "head": "b0864610c166cf974d832bd178d1bb197c82a5d5",
+    "tree": "f1d332bec0a49e1b81d5602db03b5daccac5164b",
     "parents": [
-      "30d769ac5e42459f344df1fb32a7010f6274dbfc"
+      "8b4f369da96418b49bce9b5b18e6a93900941942"
     ],
     "source_freeze": false,
-    "dirty_active_source": "Knownroot-ownedmacro+LA025overlays; selectedprofile/replay/C7writer,root/unknowncost,Fabric cache andV6companions stillactive."
+    "dirty_active_source": "Known root-owned C05/C7 and LA025 source; reviewed CAN and PBE readers applied. Fabric cache, replay-basis, runtime-support and V6 companions still active."
   },
   "G_checkpoint_last_remote_verified": {
     "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
@@ -82,7 +82,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "1bf5541e6f64682b2436d1de1675c9286f35ebbe7002c0743753e97e7b06371b"
+      "sha256": "09deb14e948be6186f37950bc9fd776ce8a58312288f475ba587491ca3d6ed8f"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
@@ -331,6 +331,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full291-reference-drift-controls-delivery-20261016.json",
       "sha256": "555f06fa55d95336b40080071a37984dc5548345c4903089079a235d87928e8f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b10-design-generation-context-companion-delivery-20261016.json",
+      "sha256": "0701ec6a3db8b989bfe4c8cddcbe6e24de96b05a35101b2617e2d2608a432542"
     }
   ],
   "canonical_denominator_recomputed": {

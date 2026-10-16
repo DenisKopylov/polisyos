@@ -413,6 +413,7 @@ if TYPE_CHECKING:
         NormPackBuildResult as NormPackBuildResult,
     )
 
+
 def __getattr__(name: str) -> object:
     """Load a public Lex symbol on first access.
 

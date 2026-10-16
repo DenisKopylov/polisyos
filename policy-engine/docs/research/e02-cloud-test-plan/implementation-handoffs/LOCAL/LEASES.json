@@ -3082,5 +3082,24 @@
     "scope": "Canonical projection consistency/refusal, not valid fullbundle positive/claim truth/issuer/source_relation verification.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_lex_canonical_root_format": {
+    "root_writer": "/root",
+    "base": "3be84f9dade4ca557279a14c09f1d7e03c4574b3",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/lex/__init__.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate actualGL/format delta receipt"
+    ],
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-lex-canonical-format-companion-20261017/manifest.json",
+      "sha256": "bd356ec62433aca98ee6a56d93c8eaaa2d8b10b834276fef4ca6bd143a8d96fc"
+    },
+    "independent_review": "core_literal_map_r3_independent_review GO; one blank line only, wholeAST/7comments/64importnodes/61exports+61LazyImportspairs equal, no typeignore/noqa. Sealed review follow-up pending path, message retained.",
+    "initial_actual": "GL3be full125PASS/1426actualorigins/strictGL1MyPyPASS/Ruffcheck3PASS, format1failsLexalone; retained notinherited.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

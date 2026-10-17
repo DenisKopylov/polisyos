@@ -28,6 +28,7 @@ from polisyos.runtime.quality.agent_action_authority import (
 )
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from tests._helpers import acquisition_chain
+from tests._helpers import acquisition_served_history as served_fixture
 from tests._helpers.acquisition_chain import make_wdi_port_case
 from tests._helpers.acquisition_human_decision import persist_signed, prepare_human_decision
 from tests._helpers.acquisition_production import (
@@ -36,7 +37,6 @@ from tests._helpers.acquisition_production import (
     persist_wdi_route,
     resolve_completed_wdi_route,
 )
-from tests.integration.core_runtime import test_acquisition_authority_served as served_fixture
 from tests.unit.runtime.quality.test_agent_action_authority import _mandate_authority_evidence
 
 RUN_ID = "run-runtime-mirror-acquisition-route"

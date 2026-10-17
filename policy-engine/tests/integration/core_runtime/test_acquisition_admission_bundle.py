@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from hashlib import sha256
 from pathlib import Path
 
@@ -20,7 +20,6 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.security.identity import PolicyOSRole
 from polisyos.pdc import (
-    AuthorityBoundary,
     OperationClass,
     OperationContract,
     OperationInvocationRecord,
@@ -53,7 +52,6 @@ from polisyos.runtime.http.services.control.artifacts import write_runtime_autho
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality.agent_action_authority import (
     ACQUISITION_ACTION_KIND,
-    AGENT_ACTION_AUTHORITY_RULE_VERSION,
     DELEGATION_CONTRACT_ARTIFACT_KIND,
     AgentActionAuthorityGateway,
     AgentActionAuthorityRefused,
@@ -69,13 +67,9 @@ from polisyos.runtime.quality.authority import GovernanceMetadata
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
-    DelegatedActionEnvelope,
-    DelegationContract,
-    build_decision_rights_matrix,
-    build_delegation_contract,
-    build_governance_decision_class_registry,
 )
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+from tests._helpers.acquisition_served_history import _contract
 
 NOW = datetime(2026, 8, 30, 12, tzinfo=UTC)
 TENANT_ID = "tenant-acquisition"
@@ -163,16 +157,6 @@ def _independent_resource_digest(selectors: tuple[tuple[str, str], ...]) -> str:
 RESOURCE_DIGEST = "sha256:9474372986dd62a9d754a235da9be00dcc68c344ce7935bf6f8a6a05fb8e77c0"
 
 
-def _boundary(*, authoritative_for: str, source: str) -> AuthorityBoundary:
-    return AuthorityBoundary(
-        authoritative_for=[authoritative_for],
-        may_not_use_for=["claim_evidence", "publication_authority", "promotion_authority"],
-        source_authority=source,
-        posture="governed",
-        rule_version_refs=[AGENT_ACTION_AUTHORITY_RULE_VERSION],
-    )
-
-
 def _operation() -> OperationContract:
     return OperationContract(
         operation_id=ACQUISITION_ACTION_KIND,
@@ -242,55 +226,6 @@ def _proof(
         bound_resource=resource,
         _seal=_BOUND_ACTION_PERMISSION_SEAL,
     )
-
-
-def _contract() -> DelegationContract:
-    registry = build_governance_decision_class_registry(
-        "case-acquisition", AGENT_ACTION_AUTHORITY_RULE_VERSION
-    )
-    matrix = build_decision_rights_matrix(
-        "case-acquisition", registry, AGENT_ACTION_AUTHORITY_RULE_VERSION
-    )
-    legacy = build_delegation_contract(
-        case_id="case-acquisition",
-        matrix=matrix,
-        governance_decision_classes=registry,
-        s6_mandate_record_ref="pdc://acquisition/mandate",
-        s6_mandate_firewall_disposition="pass",
-        rule_version_ref=AGENT_ACTION_AUTHORITY_RULE_VERSION,
-    ).model_dump(mode="json")
-    envelope = DelegatedActionEnvelope(
-        envelope_id="envelope-acquisition",
-        envelope_ref="pdc://acquisition/envelope",
-        case_id="case-acquisition",
-        mandate_owner_ref=MANDATE_OWNER_REF,
-        owner_role="mandate_owner",
-        action_kind=ACQUISITION_ACTION_KIND,
-        operation_id=ACQUISITION_ACTION_KIND,
-        operation_version="v1",
-        required_permission=RuntimePermission.EVIDENCE_ACQUIRE,
-        authorized_subject="user:acquisition-operator",
-        authorized_runtime_roles=(PolicyOSRole.ANALYST,),
-        required_tenant_id=TENANT_ID,
-        required_resource_digest=RESOURCE_DIGEST,
-        valid_from=NOW - timedelta(minutes=5),
-        valid_until=NOW + timedelta(hours=1),
-        status="active",
-        issuance_decision_ref="pdc://acquisition/issuance",
-        provenance_refs=("pdc://acquisition/mandate-owner",),
-        rule_version_ref=AGENT_ACTION_AUTHORITY_RULE_VERSION,
-        authority_boundary=_boundary(
-            authoritative_for="agent_action_envelope", source="human_governance"
-        ),
-    )
-    legacy.update(
-        {
-            "schema_version": LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
-            "mandate_owner_ref": MANDATE_OWNER_REF,
-            "action_envelopes": [envelope.model_dump(mode="json")],
-        }
-    )
-    return DelegationContract.model_validate(legacy)
 
 
 def _write_context() -> AgentActionAuthorityWriteContext:
@@ -388,7 +323,9 @@ def _persist_signed(
     return str(result.cas_ref.artifact_id)
 
 
-def _harness(tmp_path: Path) -> tuple[FileSystemCAS, RuntimeDiagnosticEventLog, RuntimeIdempotencyStore]:
+def _harness(
+    tmp_path: Path,
+) -> tuple[FileSystemCAS, RuntimeDiagnosticEventLog, RuntimeIdempotencyStore]:
     store = FileSystemCAS(tmp_path / "cas").for_tenant(TENANT_ID, cell_id=CELL_ID)
     control_store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "control.sqlite3")
     return (
@@ -689,11 +626,14 @@ def test_ephemeral_signer_produces_reconciled_bundle_for_gateway(tmp_path: Path)
     invocation_hash = agent_action_content_hash(invocation)
     assert ACQUISITION_REQUEST.human_decision_record_ref is None
     assert tuple(AcquisitionRouteMutationRequest.model_fields) == ACQUISITION_SELECTOR_FIELDS
-    assert tuple(
-        field_name
-        for field_name, field in AcquisitionRouteMutationRequest.model_fields.items()
-        if field.is_required()
-    ) == ACQUISITION_REQUIRED_SELECTOR_FIELDS
+    assert (
+        tuple(
+            field_name
+            for field_name, field in AcquisitionRouteMutationRequest.model_fields.items()
+            if field.is_required()
+        )
+        == ACQUISITION_REQUIRED_SELECTOR_FIELDS
+    )
     assert (
         ("human_decision_record_ref", '{"present":false}'),
         ("idempotency_key", '"idempotency-acquisition"'),
@@ -739,16 +679,19 @@ def test_ephemeral_signer_produces_reconciled_bundle_for_gateway(tmp_path: Path)
         receipt.bundle,
         receipt.artifact_ref,
     )
-    with agent_action_authority_scope(gateway_without_contract), pytest.raises(
-        AgentActionAuthorityRefused
-    ) as no_contract_exc_info:
+    with (
+        agent_action_authority_scope(gateway_without_contract),
+        pytest.raises(AgentActionAuthorityRefused) as no_contract_exc_info,
+    ):
         dispatch_agent_external_action(
             bound_permission=gateway_without_contract.bound_permission,
             operation=operation,
             invocation=invocation,
             intent=intent,
         )
-    assert "delegation_contract_not_persisted" in no_contract_exc_info.value.decision.refusal_reasons
+    assert (
+        "delegation_contract_not_persisted" in no_contract_exc_info.value.decision.refusal_reasons
+    )
     assert effects == []
     assert gateway_without_contract.resolve_admission_bundle(invocation_hash) == (
         receipt.bundle,
@@ -768,7 +711,10 @@ def test_ephemeral_signer_produces_reconciled_bundle_for_gateway(tmp_path: Path)
 
     assert resolved_ref == receipt.artifact_ref
     assert resolved == receipt.bundle
-    with agent_action_authority_scope(gateway), pytest.raises(AgentActionAuthorityRefused) as exc_info:
+    with (
+        agent_action_authority_scope(gateway),
+        pytest.raises(AgentActionAuthorityRefused) as exc_info,
+    ):
         dispatch_agent_external_action(
             bound_permission=gateway.bound_permission,
             operation=operation,
@@ -777,7 +723,10 @@ def test_ephemeral_signer_produces_reconciled_bundle_for_gateway(tmp_path: Path)
         )
     assert "current_mandate_authority_not_established" in exc_info.value.decision.refusal_reasons
     assert effects == []
-    assert gateway.resolve_admission_bundle(invocation_hash) == (receipt.bundle, receipt.artifact_ref)
+    assert gateway.resolve_admission_bundle(invocation_hash) == (
+        receipt.bundle,
+        receipt.artifact_ref,
+    )
 
 
 def test_untrusted_signed_bundle_is_refused_without_effect(tmp_path: Path) -> None:

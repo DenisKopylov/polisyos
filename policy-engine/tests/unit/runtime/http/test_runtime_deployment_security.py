@@ -9,6 +9,8 @@ from typing import Any, cast
 
 import pytest
 
+from tests._helpers.runtime_http import deployment_security_config_mapping as _config_mapping
+
 
 def _deployment_security_module() -> Any:
     from polisyos.runtime.http import deployment_security
@@ -63,74 +65,6 @@ def test_epoch_privileged_source_ports_are_captured_and_attested(tmp_path: Path)
     issuance.resolve_verified_inputs = lambda **kwargs: None
     with pytest.raises(TypeError, match="factory attestation is invalid"):
         security.require_factory_produced_deployment_security(runtime)
-
-
-def _config_mapping(tmp_path: Path) -> dict[str, object]:
-    registry_path = tmp_path / "cells.json"
-    registry_path.write_text(
-        """{
-  "cells": [{
-    "cell_id": "018f47a0-0000-7000-8000-000000000001",
-    "tier": "shared",
-    "region": "eu-central-1",
-    "max_tenants": 10
-  }],
-  "tenants": [{
-    "tenant_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-    "name": "Tenant A",
-    "tier": "shared",
-    "region": "eu-central-1",
-    "cell_id": "018f47a0-0000-7000-8000-000000000001"
-  }]
-}
-""",
-        encoding="utf-8",
-    )
-    return {
-        "identity_verifier": {
-            "issuer": "https://idp.example",
-            "audience": "polisyos-runtime",
-            "algorithms": ["RS256"],
-            "jwks_uri": "https://idp.example/.well-known/jwks.json",
-            "allowed_key_ids": ["identity-2026-07"],
-            "revoked_key_ids": [],
-            "jwks_cache_ttl_seconds": 300,
-            "provenance": {
-                "source": "deployment_environment",
-                "reference": "POLISYOS_RUNTIME_IDENTITY_VERIFIER",
-            },
-        },
-        "step_up_verifier": {
-            "issuer": "https://step-up.example",
-            "audience": "polisyos-runtime-step-up",
-            "algorithms": ["RS256"],
-            "jwks_uri": "https://step-up.example/.well-known/jwks.json",
-            "allowed_key_ids": ["step-up-2026-07"],
-            "revoked_key_ids": [],
-            "maximum_age_seconds": 300,
-            "clock_skew_seconds": 30,
-            "provenance": {
-                "source": "deployment_environment",
-                "reference": "POLISYOS_RUNTIME_STEP_UP_VERIFIER",
-            },
-        },
-        "cell_registry_path": str(registry_path),
-        "opa": {
-            "url": "http://opa.example:8181",
-            "policy_path": "polisyos/authz/decision",
-            "timeout_seconds": 2.0,
-        },
-        "service_principals": [
-            {
-                "issuer": "https://idp.example",
-                "audience": "polisyos-runtime",
-                "subject": "runtime-canary",
-                "tenant_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-                "cell_id": "018f47a0-0000-7000-8000-000000000001",
-                "permissions": ["runs.launch", "runs.view"],
-            }
-        ],
-    }
 
 
 def _config_mapping_with_human_decision_custody(
@@ -1377,7 +1311,11 @@ def test_service_principal_grant_reaches_opa_and_blocks_sibling_mutation(
     }
 
     with client:
-        allowed = client.post("/api/v1/control/runs/nl", headers={**(headers), "Idempotency-Key": "test-r216-e0d6e53e610149439dbac3577dade2c8"}, json={})
+        allowed = client.post(
+            "/api/v1/control/runs/nl",
+            headers={**(headers), "Idempotency-Key": "test-r216-e0d6e53e610149439dbac3577dade2c8"},
+            json={},
+        )
         safe_read = client.get("/api/v1/control/jobs/missing", headers=headers)
         denied = client.post("/api/v1/control/data/ingest", headers=headers, json={})
 

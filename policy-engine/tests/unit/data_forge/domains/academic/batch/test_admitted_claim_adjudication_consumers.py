@@ -42,8 +42,11 @@ from polisyos.ir.analytics.literature import (
 from polisyos.scientist.methods.autotune import (
     ChampionRegistry,
 )
-
-from ._claim_evidence import evidence_fixture, persist_batch, selected_manifest_view
+from tests._helpers.academic_claim_evidence import (
+    evidence_fixture,
+    persist_batch,
+    selected_manifest_view,
+)
 
 
 def _write_jsonl(path, rows) -> None:  # type: ignore[no-untyped-def]

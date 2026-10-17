@@ -1047,7 +1047,7 @@ async def test_active_dataforge_row_builds_limited_candidate_world_with_source_t
     )
     from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
     from polisyos.runtime.quality.world_model_record import build_world_model_record
-    from tests.unit.runtime.quality import test_world_model_record as wmr_fixture
+    from tests._helpers import world_model_record as wmr_fixture
 
     admitted = await _admit_served_wdi_projection(tmp_path, monkeypatch, request)
     served = admitted.served

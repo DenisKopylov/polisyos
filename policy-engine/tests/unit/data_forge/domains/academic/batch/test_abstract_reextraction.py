@@ -329,7 +329,7 @@ def test_signed_synthetic_graph_reassembly_preserves_source_limit_into_cg2(tmp_p
     )
     from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
     from polisyos.scientist.methods.autotune import ChampionRegistry
-    from tests.unit.data_forge.domains.academic.batch._claim_evidence import (
+    from tests._helpers.academic_claim_evidence import (
         evidence_fixture,
         persist_batch,
     )

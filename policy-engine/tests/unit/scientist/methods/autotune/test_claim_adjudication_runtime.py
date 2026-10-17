@@ -55,7 +55,7 @@ from polisyos.scientist.methods.autotune.claim_adjudication_runtime import (
     ClaimAdjudicationRuntime,
     assert_claim_adjudication_authority_purpose,
 )
-from tests.unit.data_forge.domains.academic.batch._claim_evidence import (
+from tests._helpers.academic_claim_evidence import (
     evidence_fixture,
     tamper_pointer,
 )

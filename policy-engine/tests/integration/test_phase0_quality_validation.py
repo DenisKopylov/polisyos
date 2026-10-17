@@ -33,7 +33,7 @@ from polisyos.fabric.connectors.sources.wvs import WVSConnector
 from polisyos.lex.api import evaluate_transport_constraints
 from polisyos.lex.legal_evaluation.transport_constraints import is_transport_blocked
 from polisyos.scientist.methods.autotune import ChampionRegistry
-from tests.unit.data_forge.domains.academic.batch._claim_evidence import (
+from tests._helpers.academic_claim_evidence import (
     evidence_fixture,
     persist_batch,
 )

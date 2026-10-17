@@ -241,7 +241,7 @@ def _fixture_article() -> ArticleExtractionResult:
 
 
 def _verified_synthetic_claim_rows(root: Path) -> tuple[WorkRecord, tuple[object, ...]]:
-    from tests.unit.data_forge.domains.academic.batch._claim_evidence import (
+    from tests._helpers.academic_claim_evidence import (
         evidence_fixture,
         persist_batch,
     )

@@ -2955,7 +2955,7 @@ def _owner_program_graph_n5_witness(
     from polisyos.runtime.http.resilience import guard_runtime_cas
     from polisyos.runtime.quality.generation_cycle import load_joint_simulation_result
     from polisyos.runtime.quality.world_model_record import build_world_model_record
-    from tests.unit.runtime.quality import test_world_model_record as world_fixture
+    from tests._helpers import world_model_record as world_fixture
     from tests.unit.runtime.quality.test_joint_simulation_horizon import _program_graph_plan
 
     case_root = tmp_path / "owner-program-graph-world"

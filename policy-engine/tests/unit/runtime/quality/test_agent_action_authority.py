@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import importlib
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch
@@ -65,12 +65,16 @@ from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from polisyos.scientist.agent.tools.registry import ToolRegistry
 from polisyos.scientist.agent.tools.schema import ToolDefinition
+from tests._helpers.acquisition_human_decision import (
+    MANDATE_AUTHORITY_IDENTITY,
+    MANDATE_OWNER_REF,
+    NOW,
+    RULE_VERSION_REF,
+    _authority_module,
+    _mandate_authority_evidence,
+)
 
-NOW = datetime(2026, 8, 19, 12, tzinfo=UTC)
 CASE_ID = "gy-pa2-case"
-RULE_VERSION_REF = "policyos.gy.pa2.agent-action-authority.v1"
-MANDATE_OWNER_REF = "principal://mandate-owner/gy-pa2"
-MANDATE_AUTHORITY_IDENTITY = "service://institutional-mandate-registry"
 ADMISSION_PRODUCER_IDENTITY = "service://runtime/agent-action-admission"
 DIGEST = "sha256:" + "a" * 64
 
@@ -79,10 +83,6 @@ DIGEST = "sha256:" + "a" * 64
 def _freeze_agent_action_live_clock(monkeypatch: pytest.MonkeyPatch) -> None:
     authority = _authority_module()
     monkeypatch.setattr(authority, "_utcnow", lambda: NOW)
-
-
-def _authority_module() -> Any:
-    return importlib.import_module("polisyos.runtime.quality.agent_action_authority")
 
 
 def _delegation_module() -> Any:
@@ -265,34 +265,6 @@ def _contract(*envelopes: object) -> DelegationContract:
         }
     )
     return DelegationContract.model_validate(payload)
-
-
-def _mandate_authority_evidence(
-    *,
-    owner_ref: str = MANDATE_OWNER_REF,
-    purpose: str = "agent_action_delegation",
-    current: bool = True,
-    effective_from: datetime = NOW - timedelta(hours=1),
-    effective_until: datetime = NOW + timedelta(hours=2),
-    revoked_at: datetime | None = None,
-    rule_version_ref: str = RULE_VERSION_REF,
-    signer_identity: str = MANDATE_AUTHORITY_IDENTITY,
-) -> object:
-    authority = _authority_module()
-    return authority.CurrentMandateOwnerEvidence(
-        evidence_id="mandate-authority.gy-pa2",
-        evidence_ref="institution://mandate-authority/gy-pa2",
-        mandate_owner_ref=owner_ref,
-        authority_purpose=purpose,
-        current=current,
-        effective_from=effective_from,
-        effective_until=effective_until,
-        revoked_at=revoked_at,
-        delegation_rule_version_ref=rule_version_ref,
-        evidence_signer_identity=signer_identity,
-        verifier_provenance="independently_reconciled",
-        provenance_refs=("institution://mandate-registry/snapshot/gy-pa2",),
-    )
 
 
 @dataclass
@@ -2859,9 +2831,7 @@ def test_owner_resolution_failure_preempts_valid_contract_and_binds_replay_refs(
     assert effects == []
 
     persisted = gateway.persist_decision(decision)
-    loaded = gateway.load_persisted_decision(
-        str(persisted.write_result.cas_ref.artifact_id)
-    )
+    loaded = gateway.load_persisted_decision(str(persisted.write_result.cas_ref.artifact_id))
     assert loaded.decision == decision
     manifest = harness.store.get_manifest(persisted.write_result.cas_ref.artifact_id)
     assert contract_ref in {str(row.artifact_id) for row in manifest.inputs}
@@ -2914,17 +2884,13 @@ def test_falsy_owner_resolution_failure_mapping_is_copied_and_persisted(
     assert len(gateway._owner_resolution_failures) == 1
     supplied.clear()
 
-    decision = _produce(
-        gateway=gateway, operation=operation, invocation=invocation, intent=intent
-    )
+    decision = _produce(gateway=gateway, operation=operation, invocation=invocation, intent=intent)
     assert decision.outcome == "refused"
     assert "acquisition_mandate_trust_role_mismatch" in decision.refusal_reasons
     assert "delegation_contract_not_persisted" not in decision.refusal_reasons
     assert contract_ref in decision.replay_input_refs
     persisted = gateway.persist_decision(decision)
-    loaded = gateway.load_persisted_decision(
-        str(persisted.write_result.cas_ref.artifact_id)
-    )
+    loaded = gateway.load_persisted_decision(str(persisted.write_result.cas_ref.artifact_id))
     assert "acquisition_mandate_trust_role_mismatch" in loaded.decision.refusal_reasons
     assert contract_ref in loaded.decision.replay_input_refs
     assert effects == []
@@ -2948,6 +2914,7 @@ def test_non_mapping_owner_resolution_failure_values_are_rejected(
             bindings=(_binding(operation, []),),
             owner_resolution_failures_override=malformed,
         )
+
 
 @pytest.mark.parametrize("invalid_entry", ["resource_key", "failure_value"])
 def test_falsy_owner_resolution_failure_mapping_validates_all_entries(
@@ -3048,9 +3015,7 @@ def test_whole_cas_failure_keeps_dependency_error_and_releases_dispatch_reservat
         owner_resolution_refusal_code="acquisition_mandate_trust_role_mismatch",
         artifact_store_override=unavailable,
     )
-    with pytest.raises(
-        OSError, match="synthetic whole-CAS existence dependency failure"
-    ):
+    with pytest.raises(OSError, match="synthetic whole-CAS existence dependency failure"):
         _dispatch(
             gateway=gateway,
             operation=operation,
@@ -3091,9 +3056,7 @@ def test_whole_cas_source_read_failure_releases_dispatch_reservation(
         artifact_store_override=unavailable,
     )
     assert gateway._artifact_store is unavailable
-    with pytest.raises(
-        OSError, match="authority_source_read_unavailable"
-    ) as source_error:
+    with pytest.raises(OSError, match="authority_source_read_unavailable") as source_error:
         gateway.resolve_delegation_contract(DIGEST)
     assert "synthetic" not in str(source_error.value)
     with pytest.raises(OSError, match="authority_source_read_unavailable"):

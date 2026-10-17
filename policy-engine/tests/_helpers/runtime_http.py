@@ -8,10 +8,13 @@ from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager, suppress
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from threading import Thread
 from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
 import pytest
+from jwt.algorithms import RSAAlgorithm
 
 try:  # pragma: no cover - optional dependency guard
     from fastapi.testclient import TestClient
@@ -2285,3 +2288,134 @@ def _valid_intake_for_mode(mode: str) -> EvaluationAttemptIntake:
             "mode_resolution": resolve_evaluation_mode(mode),
         }
     )
+
+
+class LocalJWKSStub:
+    """Serve one RSA public key through a real JWKS retrieval path."""
+
+    def __init__(
+        self,
+        private_key: Any,
+        *,
+        key_id: str = "identity-2026-07",
+        on_request: Callable[[], None] | None = None,
+    ) -> None:
+        public_jwk = RSAAlgorithm.to_jwk(
+            private_key.public_key(),
+            as_dict=True,
+        )
+        public_jwk.update({"alg": "RS256", "kid": key_id, "use": "sig"})
+        self._payload = {"keys": [public_jwk]}
+        self._on_request = on_request
+        self._server: ThreadingHTTPServer | None = None
+        self._thread: Thread | None = None
+
+    def start(self) -> str:
+        """Start the loopback JWKS endpoint and return its document URI."""
+        payload = self._payload
+        on_request = self._on_request
+
+        class _Handler(BaseHTTPRequestHandler):
+            def do_GET(self) -> None:  # noqa: N802 - stdlib handler contract
+                if self.path != "/.well-known/jwks.json":
+                    self.send_error(404)
+                    return
+                if on_request is not None:
+                    on_request()
+                response = json.dumps(payload).encode("utf-8")
+                self.send_response(200)
+                self.send_header("content-type", "application/json")
+                self.send_header("content-length", str(len(response)))
+                self.end_headers()
+                self.wfile.write(response)
+
+            def log_message(self, format: str, *args: object) -> None:
+                del format, args
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
+        thread = Thread(
+            target=server.serve_forever,
+            name="ds20-local-jwks",
+            daemon=True,
+        )
+        thread.start()
+        self._server = server
+        self._thread = thread
+        host, port = cast("tuple[str, int]", server.server_address)
+        return f"http://{host}:{port}/.well-known/jwks.json"
+
+    def close(self) -> None:
+        """Stop the endpoint and release its listening socket."""
+        if self._server is not None:
+            self._server.shutdown()
+            self._server.server_close()
+        if self._thread is not None:
+            self._thread.join(timeout=5)
+
+
+def deployment_security_config_mapping(tmp_path: Path) -> dict[str, object]:
+    registry_path = tmp_path / "cells.json"
+    registry_path.write_text(
+        """{
+  "cells": [{
+    "cell_id": "018f47a0-0000-7000-8000-000000000001",
+    "tier": "shared",
+    "region": "eu-central-1",
+    "max_tenants": 10
+  }],
+  "tenants": [{
+    "tenant_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    "name": "Tenant A",
+    "tier": "shared",
+    "region": "eu-central-1",
+    "cell_id": "018f47a0-0000-7000-8000-000000000001"
+  }]
+}
+""",
+        encoding="utf-8",
+    )
+    return {
+        "identity_verifier": {
+            "issuer": "https://idp.example",
+            "audience": "polisyos-runtime",
+            "algorithms": ["RS256"],
+            "jwks_uri": "https://idp.example/.well-known/jwks.json",
+            "allowed_key_ids": ["identity-2026-07"],
+            "revoked_key_ids": [],
+            "jwks_cache_ttl_seconds": 300,
+            "provenance": {
+                "source": "deployment_environment",
+                "reference": "POLISYOS_RUNTIME_IDENTITY_VERIFIER",
+            },
+        },
+        "step_up_verifier": {
+            "issuer": "https://step-up.example",
+            "audience": "polisyos-runtime-step-up",
+            "algorithms": ["RS256"],
+            "jwks_uri": "https://step-up.example/.well-known/jwks.json",
+            "allowed_key_ids": ["step-up-2026-07"],
+            "revoked_key_ids": [],
+            "maximum_age_seconds": 300,
+            "clock_skew_seconds": 30,
+            "provenance": {
+                "source": "deployment_environment",
+                "reference": "POLISYOS_RUNTIME_STEP_UP_VERIFIER",
+            },
+        },
+        "cell_registry_path": str(registry_path),
+        "opa": {
+            "url": "http://opa.example:8181",
+            "policy_path": "polisyos/authz/decision",
+            "timeout_seconds": 2.0,
+        },
+        "service_principals": [
+            {
+                "issuer": "https://idp.example",
+                "audience": "polisyos-runtime",
+                "subject": "runtime-canary",
+                "tenant_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                "cell_id": "018f47a0-0000-7000-8000-000000000001",
+                "permissions": ["runs.launch", "runs.view"],
+            }
+        ],
+    }

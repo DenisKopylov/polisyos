@@ -822,16 +822,16 @@ def _real_acq01_route(
         BranchMode,
         build_world_model_record,
     )
-    from tests.unit.fabric.test_retrieval_fetch_custody import (
-        build_worldbank_fetch_owner,
-    )
-    from tests.unit.runtime.quality.test_world_model_record import (
+    from tests._helpers.world_model_record import (
         _fabric_ref,
         _model_spec,
         _skg_ref,
         _substrate_registry,
         _write_data_forge_binding,
         _write_fabric_world_snapshot,
+    )
+    from tests.unit.fabric.test_retrieval_fetch_custody import (
+        build_worldbank_fetch_owner,
     )
 
     data_spec = _fixture_data_requirement_spec().model_copy(
@@ -1099,7 +1099,7 @@ def _real_acq01_before_context(
 ) -> Any:
     """Build the content-bound pre-acquisition context from existing owners."""
 
-    from tests.unit.runtime.quality.test_world_model_record import (
+    from tests._helpers.world_model_record import (
         _build_record,
         _substrate_registry,
     )

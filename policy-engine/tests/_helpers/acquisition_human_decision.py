@@ -1,8 +1,10 @@
 """Sign external reviewer evidence around an untouched production PA2 refusal."""
 
+import importlib
 from collections import Counter
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 from polisyos.core import artifacts, canon
 from polisyos.pdc import AuthorityBoundary
@@ -21,6 +23,43 @@ from polisyos.runtime.quality.agent_action_authority import (
 )
 from polisyos.runtime.quality.authority import GovernanceMetadata
 from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import DelegationContract
+
+NOW = datetime(2026, 8, 19, 12, tzinfo=UTC)
+RULE_VERSION_REF = "policyos.gy.pa2.agent-action-authority.v1"
+MANDATE_OWNER_REF = "principal://mandate-owner/gy-pa2"
+MANDATE_AUTHORITY_IDENTITY = "service://institutional-mandate-registry"
+
+
+def _authority_module() -> Any:
+    return importlib.import_module("polisyos.runtime.quality.agent_action_authority")
+
+
+def _mandate_authority_evidence(
+    *,
+    owner_ref: str = MANDATE_OWNER_REF,
+    purpose: str = "agent_action_delegation",
+    current: bool = True,
+    effective_from: datetime = NOW - timedelta(hours=1),
+    effective_until: datetime = NOW + timedelta(hours=2),
+    revoked_at: datetime | None = None,
+    rule_version_ref: str = RULE_VERSION_REF,
+    signer_identity: str = MANDATE_AUTHORITY_IDENTITY,
+) -> object:
+    authority = _authority_module()
+    return authority.CurrentMandateOwnerEvidence(
+        evidence_id="mandate-authority.gy-pa2",
+        evidence_ref="institution://mandate-authority/gy-pa2",
+        mandate_owner_ref=owner_ref,
+        authority_purpose=purpose,
+        current=current,
+        effective_from=effective_from,
+        effective_until=effective_until,
+        revoked_at=revoked_at,
+        delegation_rule_version_ref=rule_version_ref,
+        evidence_signer_identity=signer_identity,
+        verifier_provenance="independently_reconciled",
+        provenance_refs=("institution://mandate-registry/snapshot/gy-pa2",),
+    )
 
 
 def persist_signed(

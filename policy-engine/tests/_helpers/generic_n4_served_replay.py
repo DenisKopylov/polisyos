@@ -909,9 +909,7 @@ async def prepare_generic_n4_served_replay(
         persist_substrate_registry,
         run_catalog_source_awaitable,
     )
-    from tests.unit.runtime.http.test_control_job_execution_intent import (
-        _valid_intake_for_mode,
-    )
+    from tests._helpers.runtime_http import _valid_intake_for_mode
 
     candidate_scm_overrides = _validated_candidate_scm_overrides_by_child(
         candidate_scm_overrides_by_child_index,

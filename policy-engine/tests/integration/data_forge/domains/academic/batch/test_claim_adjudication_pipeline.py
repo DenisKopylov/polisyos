@@ -19,7 +19,7 @@ from polisyos.data_forge.domains.academic.batch.conflict_resolve import run_conf
 from polisyos.data_forge.domains.academic.batch.graph_builder import build_graph
 from polisyos.scientist.methods.autotune import ChampionRegistry
 from polisyos.scientist.methods.autotune.claim_adjudication_runtime import ClaimAdjudicationRuntime
-from tests.unit.data_forge.domains.academic.batch._claim_evidence import evidence_fixture
+from tests._helpers.academic_claim_evidence import evidence_fixture
 from tests.unit.data_forge.domains.academic.batch.test_admitted_claim_adjudication_consumers import (
     _fixture_article,
     _write_jsonl,

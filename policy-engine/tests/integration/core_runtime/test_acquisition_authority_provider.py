@@ -17,6 +17,8 @@ from polisyos.runtime.quality import agent_action_authority as authority
 from tests.integration.core_runtime import test_acquisition_admission_bundle as fixtures
 from tests.unit.runtime.http.test_runtime_deployment_security import _config_mapping
 
+pytest_plugins = ("tests._helpers.acquisition_served_history",)
+
 
 def _closure():
     return SimpleNamespace(
@@ -75,14 +77,14 @@ def test_empty_deployment_provider_persists_real_refusal(tmp_path, monkeypatch):
     assert effects == []
 
 
-def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp_path, monkeypatch):
+def test_real_worker_replay_refuses_absent_decision_verification_appointment(
+    tmp_path, monkeypatch, served_recorded_candidate_gateway
+):
     """An actual approved job cannot switch to unsigned legacy replay at restart."""
     from polisyos.runtime.http.services.acquisition_authority_provider import (
         ProductionAcquisitionAuthorityProvider,
     )
-    from tests.integration.core_runtime.test_acquisition_authority_served import (
-        test_served_acquisition_selects_committed_human_authority_and_reopens_worker,
-    )
+    from tests._helpers.acquisition_served_history import _produce_served_acquisition_history
 
     original = ProductionAcquisitionAuthorityProvider.for_job
     observed: list[str] = []
@@ -136,9 +138,7 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
 
         def appointment_summary(deployment_config) -> dict[str, object]:
             authority_config = deployment_config.acquisition_authority
-            appointment = (
-                authority_config.decision_signer if authority_config is not None else None
-            )
+            appointment = authority_config.decision_signer if authority_config is not None else None
             return {
                 "decision_signer_appointed": appointment is not None,
                 "decision_signer_identity": (
@@ -276,9 +276,7 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
                 def read(store, artifact_ref, *args, **kwargs):
                     attempt: dict[str, object] = {
                         "operation": method_name,
-                        "artifact_id": str(
-                            getattr(artifact_ref, "artifact_id", artifact_ref)
-                        ),
+                        "artifact_id": str(getattr(artifact_ref, "artifact_id", artifact_ref)),
                         "manifest_profile_sha256": getattr(
                             artifact_ref, "manifest_profile_sha256", None
                         ),
@@ -329,19 +327,17 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
                                 for path in paths
                             }
                             attempt["files_after"] = after_files
-                            attempt["files_unchanged"] = (
-                                attempt["files_before"] == after_files
-                            )
+                            attempt["files_unchanged"] = attempt["files_before"] == after_files
                         raise
                     attempt["status"] = "read"
                     if paths:
                         after_files = {
                             str(path): file_receipt(
                                 path,
-                                optional_signature=(method_name == "get_signature"
-                                and value is None)
-                                or (method_name == "verify_signature"
-                                and path == paths[-1]),
+                                optional_signature=(
+                                    method_name == "get_signature" and value is None
+                                )
+                                or (method_name == "verify_signature" and path == paths[-1]),
                             )
                             for path in paths
                         }
@@ -428,8 +424,7 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
             assert all(callable(getattr(store_type, name, None)) for name in read_methods)
             assert all(callable(getattr(store_type, name, None)) for name in write_methods)
             assert all(
-                callable(getattr(store_type, name, None))
-                for name in forbidden_inventory_methods
+                callable(getattr(store_type, name, None)) for name in forbidden_inventory_methods
             )
             for method_name in read_methods:
                 phase_patch.setattr(
@@ -506,16 +501,12 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
                     complete = (
                         all(attempt["status"] == "read" for attempt in actual_reads)
                         and all("path_binding" not in attempt for attempt in actual_reads)
-                        and all(
-                            attempt.get("files_unchanged", True) for attempt in actual_reads
-                        )
+                        and all(attempt.get("files_unchanged", True) for attempt in actual_reads)
                         and all(
                             attempt.get("returned_content_matches_artifact_id", True)
                             for attempt in actual_reads
                         )
-                        and all(
-                            attempt.get("verified", True) for attempt in actual_reads
-                        )
+                        and all(attempt.get("verified", True) for attempt in actual_reads)
                         and all(
                             attempt.get("signature_status", "valid") == "valid"
                             for attempt in actual_reads
@@ -525,9 +516,7 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
                         and unexpected is None
                     )
                     if phase == "removed":
-                        assert {"get_bytes", "get_manifest"}.issubset(
-                            decision_read_operations
-                        )
+                        assert {"get_bytes", "get_manifest"}.issubset(decision_read_operations)
                         assert any(
                             attempt["operation"] == "has"
                             and attempt["artifact_id"] == decision_artifact_id
@@ -588,9 +577,7 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
         return verified_gateway
 
     monkeypatch.setattr(ProductionAcquisitionAuthorityProvider, "for_job", check_replay)
-    test_served_acquisition_selects_committed_human_authority_and_reopens_worker(
-        tmp_path, monkeypatch
-    )
+    _produce_served_acquisition_history(tmp_path, monkeypatch, served_recorded_candidate_gateway)
     assert observed
 
 
@@ -664,9 +651,7 @@ def _provider_with_selected_slot(
         signer_identity=_OWNER_IDENTITY,
     )
     evidence_signer = owner if wrong_currentness_role else current_signer
-    evidence_identity = (
-        _OWNER_IDENTITY if wrong_currentness_role else _CURRENTNESS_IDENTITY
-    )
+    evidence_identity = _OWNER_IDENTITY if wrong_currentness_role else _CURRENTNESS_IDENTITY
     evidence = CurrentMandateOwnerEvidence(
         evidence_id="mandate-authority.provider-refusal-test",
         evidence_ref="institution://test-only/provider-refusal-head",
@@ -786,9 +771,7 @@ def _persist_provider_refusal(provider, store, monkeypatch):
         bound_permission=proof,
         effect_handler=effects.append,
     )
-    operation, invocation, intent = AcquisitionActionService._action_tuple(
-        closure, request
-    )
+    operation, invocation, intent = AcquisitionActionService._action_tuple(closure, request)
     with authority.agent_action_authority_scope(gateway):
         decision = authority.produce_agent_action_authority_decision(
             bound_permission=proof,
@@ -797,9 +780,7 @@ def _persist_provider_refusal(provider, store, monkeypatch):
             intent=intent,
         )
         persisted = gateway.persist_decision(decision)
-    loaded = gateway.load_persisted_decision(
-        str(persisted.write_result.cas_ref.artifact_id)
-    )
+    loaded = gateway.load_persisted_decision(str(persisted.write_result.cas_ref.artifact_id))
     assert effects == []
     return (
         decision,
@@ -812,8 +793,8 @@ def test_provider_persists_exact_currentness_refusal_for_configured_noncurrent_s
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    store, _, _, _, provider, contract_ref, current_ref, _ = (
-        _provider_with_selected_slot(tmp_path, current=False)
+    store, _, _, _, provider, contract_ref, current_ref, _ = _provider_with_selected_slot(
+        tmp_path, current=False
     )
     decision, loaded, manifest = _persist_provider_refusal(provider, store, monkeypatch)
     assert decision.outcome == "refused"
@@ -832,8 +813,8 @@ def test_provider_persists_exact_refusal_for_valid_but_wrong_role_currentness(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    store, _, _, deployment, provider, contract_ref, current_ref, _ = (
-        _provider_with_selected_slot(tmp_path, wrong_currentness_role=True)
+    store, _, _, deployment, provider, contract_ref, current_ref, _ = _provider_with_selected_slot(
+        tmp_path, wrong_currentness_role=True
     )
     signature = store.verify_signature(
         current_ref,
@@ -857,8 +838,8 @@ def test_missing_selected_information_ref_persists_item_local_refusal_without_fa
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    store, _, _, _, provider, contract_ref, current_ref, missing_ref = (
-        _provider_with_selected_slot(tmp_path, information="missing")
+    store, _, _, _, provider, contract_ref, current_ref, missing_ref = _provider_with_selected_slot(
+        tmp_path, information="missing"
     )
     assert missing_ref is not None
     before = {str(value) for value in store.iter_artifact_ids()}

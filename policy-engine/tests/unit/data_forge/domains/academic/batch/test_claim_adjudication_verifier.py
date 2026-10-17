@@ -34,19 +34,18 @@ from polisyos.scientist.methods.autotune import (
     persist_mutation_artifact,
 )
 from polisyos.scientist.methods.autotune.claim_adjudication_runtime import ClaimAdjudicationRuntime
-from tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime import (
-    _article,
-    _FakeClient,
-    _input_ref,
-)
-
-from ._claim_evidence import (
+from tests._helpers.academic_claim_evidence import (
     evidence_fixture,
     persist_batch,
     put,
     selected_manifest_view,
     signed_receipt,
     tamper_pointer,
+)
+from tests.unit.scientist.methods.autotune.test_claim_adjudication_runtime import (
+    _article,
+    _FakeClient,
+    _input_ref,
 )
 
 

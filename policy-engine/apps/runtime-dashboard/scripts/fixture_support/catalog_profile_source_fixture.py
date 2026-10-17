@@ -483,7 +483,7 @@ def source_bound_catalog_profile_fixture(tmp_root: Path) -> Iterator[dict[str, o
         serving_runtime_api_context.run_index.refresh(force=True)
         if serving_runtime_api_context.run_index.get_run(v7_receipt.run_id) is None:
             raise RuntimeError("source_bound_v7_reopened_run_index_missing")
-        from tests._helpers.same_candidate_history_fixture import (
+        from tests._helpers.acquisition_served_history import (
             build_same_candidate_history_fixture,
         )
 

@@ -2878,7 +2878,21 @@ def test_candidate_treatment_assignment_is_not_owner_world_knowledge(
     assert loaded_candidates == [base, candidate, base, candidate]
 
 
-def test_shaped_owner_assignment_attestation_is_not_authority() -> None:
+def test_shaped_owner_assignment_attestation_is_not_authority(tmp_path: Path) -> None:
+    from dataclasses import replace
+
+    import duckdb
+
+    from polisyos.data_forge.read_api.catalog import (
+        build_slice0_fixture_catalog_graph,
+        default_acquisition_overlay_path,
+    )
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourcePaths,
+        catalog_serving_source_scope,
+        default_substrate_catalog_paths,
+    )
+
     problem = _avg_income_problem()
     base = _avg_income_candidate()
     shaped_atom = SimpleNamespace(
@@ -2900,35 +2914,84 @@ def test_shaped_owner_assignment_attestation_is_not_authority() -> None:
         treatment_assignment_content_hash=_hash("9"),
     )
 
-    gateway = RealValueOwnerGateway(repo_root=Path.cwd())
-    shaped = gateway.load_value_data_profile(
-        candidate=candidate,
-        problem=problem,
-        world_record=_world_record(),
+    repo_root = tmp_path / "shaped-owner-source"
+    catalog = build_slice0_fixture_catalog_graph(repo_root / "catalog")
+    catalog.close()
+    substrate_paths = replace(
+        default_substrate_catalog_paths(repo_root),
+        l1_dcat_path=repo_root / "catalog/catalog.duckdb",
     )
-    canonical = gateway.load_value_data_profile(
-        candidate=_avg_income_candidate(),
-        problem=problem,
-        world_record=_world_record(),
+    with duckdb.connect(str(substrate_paths.l1_dcat_path)) as connection:
+        connection.executemany(
+            """
+            INSERT INTO ds_observations (
+                observation_id, dataset_id, raw_variable, canonical_var,
+                country_code, year, survey_year, wave, value, condition_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                (
+                    f"shaped-owner-avg-income-{index}",
+                    "acquisition.local.avg_income",
+                    "avg_income",
+                    "avg_income",
+                    "UA",
+                    1800 + index,
+                    None,
+                    None,
+                    float(index % 2),
+                    '{"unit":"synthetic index"}',
+                )
+                for index in range(8)
+            ],
+        )
+    overlay_path = default_acquisition_overlay_path(repo_root)
+    catalog_source = CatalogServingSourcePaths(
+        repo_root=repo_root,
+        snapshot_root=substrate_paths.l1_dcat_path.parent,
+        database_path=substrate_paths.l1_dcat_path,
+        index_dir=repo_root / "index",
+        overlay_path=overlay_path,
+        catalog_run_profile=None,
+        selection_basis="explicit_path_candidate_only",
+        substrate_paths=substrate_paths,
     )
+    gateway = RealValueOwnerGateway(
+        repo_root=repo_root,
+        catalog_overlay_path=overlay_path,
+        catalog_serving_source=catalog_source,
+    )
+    with catalog_serving_source_scope(catalog_source):
+        shaped = gateway.load_value_data_profile(
+            candidate=candidate,
+            problem=problem,
+            world_record=_world_record(),
+        )
+        canonical = gateway.load_value_data_profile(
+            candidate=_avg_income_candidate(),
+            problem=problem,
+            world_record=_world_record(),
+        )
 
     assert shaped == canonical
     assert shaped.treatment_assignment_status == "owner_assignment_unresolved"
 
     simulation = _simulation(_world_record(), candidate_id=base.candidate_id)
-    observation = FoundryValuePort(
+    port = FoundryValuePort(
         evaluation_context=_simulation_execution_context(
             candidate=candidate,
             simulation=simulation,
             problem=problem,
         ),
-        repo_root=Path.cwd(),
-    )(
-        candidate=candidate,
-        simulation=simulation,
-        problem=problem,
-        cycle_index=0,
+        owner_gateway=gateway,
     )
+    with catalog_serving_source_scope(catalog_source):
+        observation = port(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=0,
+        )
 
     assert observation.authority_blockers == ("treatment_assignment_not_owner_derived",)
     assert observation.acquisition_requirement is not None

@@ -3420,5 +3420,26 @@
     "known_retained_inprogress_work": "NativeSOTA2pathpartialedits attributedtoauthor andpreserved byroot, disjoint from15C05paths, no recovery/rollback. Fullmanifest/patch inLOCAL/raw/incidents/native-sota-test-write-20261017/attributed-two-paths.json; authorcontinuesRAWonly, rootwillcompleteafterindependentreview.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_n8_shaped_assignment_fixture": {
+    "owner": "root",
+    "base": "56d3e38b97c6962c07630631a60333fbfa461902",
+    "mode": "root-serial guarded exactpatch after differentauthor independentreview",
+    "mechanism_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate source-bound canonical selector receipt"
+    ],
+    "property": "Synthetic temporary8rowCatalog includes explicitdeclaredmeasurementunit so realValueOwnerGateway/FoundryValuePort reach assignmentforgeryauthorityrefusal rather thanfail atmissingunit. Productsource unchanged.",
+    "input_scope": "Synthetic fixture, candidate_only; no productiondata/custody/currentnessauthority",
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n8-shaped-owner-assignment-independent-review-20261017/review.json",
+      "sha256": "5f57a39251fcdcaecc1a3380e1a3bc520f7b85832dfea17b3a9b6200e1885cc8"
+    },
+    "P40": "Fixture reachability correction, no productionsemanticrepair or broaderN8closure. Unitremoval failsactualCatalogloader.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

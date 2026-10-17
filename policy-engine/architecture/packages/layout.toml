@@ -70,3 +70,27 @@ path = "src/polisyos/runtime/replay.py"
 owner = "team-runtime"
 sunset = "2026-07-31"
 reason = "Runtime replay facade remains root-level while replay state migration policy is exercised."
+
+[[package]]
+name = "berl"
+current_status = "active"
+
+[[package]]
+name = "calibration"
+current_status = "resolved"
+
+[[package]]
+name = "ddm"
+current_status = "resolved"
+
+[[package]]
+name = "foundry"
+current_status = "resolved_root_facade"
+
+[[package]]
+name = "ir"
+current_status = "resolved_root_facade"
+
+[[package]]
+name = "scientist"
+current_status = "resolved_root_facade"

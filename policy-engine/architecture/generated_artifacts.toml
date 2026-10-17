@@ -1058,7 +1058,7 @@ generator = "canonical generator declared in regenerate_commands"
 verifier = "verifier declared by check_command, drift_gate, workflow, or manual review policy"
 promotion_target = "registered committed outputs listed in outputs"
 stale_output_behavior = "warn"
-source_of_truth = "architecture/packages/*.toml"
+source_of_truth = "primary package contracts in architecture/packages/*.toml; registered family outputs are excluded"
 outputs = [
   "architecture/packages/boundaries.toml",
   "architecture/packages/layout.toml",
@@ -1067,12 +1067,23 @@ outputs = [
 ]
 regenerate_commands = [
   "mirror package-contract changes into legacy aggregate TOML until the aggregate generator replaces hand-edits",
-  "uv run python tools/quality/validation/architecture_report_only_contracts.py --report package-mirrors --fail-on-contract-errors",
+  "uv run python tools/quality/validation/architecture_report_only_contracts.py --report package-mirrors --fail-on-package-mirror-errors",
 ]
 commit_policy = "committed"
 freshness_rule = "Update or generate aggregate mirrors whenever a package contract changes package boundaries, layout, public surface, or test expectations."
 drift_gate = "automated_report_only"
 workflow = "tools/quality/validation/architecture_report_only_contracts.py"
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/architecture_report_only_contracts.py",
+  "--repo-root",
+  ".",
+  "--report",
+  "package-mirrors",
+  "--fail-on-package-mirror-errors",
+]
 
 [[family]]
 id = "architecture-report-only-contract-reports"

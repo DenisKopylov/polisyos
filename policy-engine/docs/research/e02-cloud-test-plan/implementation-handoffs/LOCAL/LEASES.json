@@ -6099,5 +6099,37 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_package_source_admission_r8": {
+    "slice_base": "5fac0a69cff3ea31f4872523ab0f1c55d3cc505d",
+    "canonical_writer": "root only; exact reviewed patch via git apply",
+    "mechanism_and_mandatory_test_config_release_paths": [
+      "policy-engine/tools/quality/validation/architecture_report_only_contracts.py",
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+      "policy-engine/architecture/generated_artifacts.toml",
+      "policy-engine/architecture/packages/boundaries.toml",
+      "policy-engine/architecture/packages/layout.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-declared-component-source-admission.toml"
+    ],
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-package-mirror-full-property-r8-resolved-source-root-20261017/implementation-readback-r8.json",
+      "sha256": "295170a3e417a3d888a58276f8e5e817003549e3e81bfc023e2f925741947a97"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-package-mirror-r8-independent-review-r1-20261018/review-r8.json",
+      "sha256": "2df7372bd87d680b4a526c1a439c8b0136c98ffd6d669bd271dc5ff510f89900"
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-package-source-r8-adoption-20261018/source-application.json",
+      "sha256": "487dd0c141bdbde7707911b63318a020f4298a48fad439121e122d805b577e81"
+    },
+    "property": "Admit source-contained component index and complete typed route basis before inferring route presence or absence. Invalid, unavailable or unadmitted source retains unresolved occurrences.",
+    "P40": "Same source admission and whole-basis completeness class; R7 outside-symlink falsifier now refused with canonical resolver. No blanket symlink ban.",
+    "remaining": "Package mirror field deltas, native expiry findings, RuntimeQuality non-module fields and full native gate remain separate and unclosed.",
+    "next_check": "Actual canonical targeted source-admission behavior and actual native report; source-bound canonical regeneration/check/drift after final source/profile freeze.",
+    "runtime_status": "UNRUN on committed composed source",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

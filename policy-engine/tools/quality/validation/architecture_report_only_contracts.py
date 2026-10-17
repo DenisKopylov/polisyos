@@ -8,14 +8,15 @@ import datetime as dt
 import fnmatch
 import json
 import re
+import stat
 import sys
 import tomllib
 from collections import defaultdict
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any
+from pathlib import Path, PurePosixPath
+from typing import Any, Literal
 
-from tools.lib.fs import write_scoped_report_text
+from tools.lib.fs import AdmittedPathError, resolve_admitted_path, write_scoped_report_text
 from tools.lib.imports import repo_root_from
 from tools.quality.lint import lint_imports
 
@@ -42,6 +43,30 @@ REPORTS = {
     "phase6-1",
     "static-analysis-overrides",
 }
+PACKAGE_MIRROR_FAMILY_ID = "architecture-package-contract-aggregates"
+PACKAGE_MIRROR_OUTPUTS = {
+    "boundaries": "architecture/packages/boundaries.toml",
+    "layout": "architecture/packages/layout.toml",
+    "public_surface": "architecture/public_surface/contract.toml",
+    "test_topology": "architecture/tests/topology.toml",
+}
+PACKAGE_MIRROR_SOURCE_OF_TRUTH = (
+    "primary package contracts in architecture/packages/*.toml; "
+    "registered family outputs are excluded"
+)
+PACKAGE_MIRROR_CHECK_COMMAND = (
+    "uv",
+    "run",
+    "python",
+    "tools/quality/validation/architecture_report_only_contracts.py",
+    "--repo-root",
+    ".",
+    "--report",
+    "package-mirrors",
+    "--fail-on-package-mirror-errors",
+)
+_MISSING_VALUE = object()
+_MirrorFieldDomain = Literal["string", "boolean", "string_list", "table"]
 REQUIRED_PACKAGE_TABLES = (
     "package",
     "layout",
@@ -75,6 +100,12 @@ class Finding:
         }
 
 
+@dataclass(frozen=True)
+class _PackageMirrorFamilyAdmission:
+    rows: tuple[dict[str, Any], ...]
+    findings: tuple[Finding, ...]
+
+
 def build_report(
     repo_root: Path = REPO_ROOT,
     *,
@@ -88,6 +119,9 @@ def build_report(
     contract_errors: list[Finding] = []
     import_boundary_summary: dict[str, Any] | None = None
     package_boundary_summary: dict[str, Any] | None = None
+    package_contract_findings: list[Finding] | None = None
+    package_mirror_summary: dict[str, Any] | None = None
+    legacy_operability_route_summary: dict[str, Any] | None = None
 
     def selected(name: str) -> bool:
         return report in {"all", name}
@@ -95,12 +129,30 @@ def build_report(
     def selected_any(*names: str) -> bool:
         return report == "all" or report in set(names)
 
+    family_admission = _admit_package_mirror_family_registry(repo_root)
     if selected("packages"):
-        contract_errors.extend(_validate_package_contracts(repo_root))
+        package_contract_findings = _validate_package_contracts(
+            repo_root, family_admission=family_admission
+        )
+        contract_errors.extend(package_contract_findings)
+        if not selected("package-mirrors"):
+            contract_errors.extend(
+                _family_registry_findings(family_admission, check="package-mirror")
+            )
     if selected("package-mirrors"):
-        if not selected("packages"):
-            contract_errors.extend(_validate_package_contracts(repo_root))
-        contract_errors.extend(_validate_package_mirrors(repo_root))
+        if package_contract_findings is None:
+            package_contract_findings = _validate_package_contracts(
+                repo_root, family_admission=family_admission
+            )
+            contract_errors.extend(package_contract_findings)
+        mirror_findings, package_mirror_summary = _validate_package_mirror_projection(
+            repo_root, family_admission=family_admission
+        )
+        contract_errors.extend(mirror_findings)
+        scoped_errors = mirror_findings
+        package_mirror_summary["status"] = "passed" if not scoped_errors else "failed"
+        package_mirror_summary["error_count"] = len(scoped_errors)
+        package_mirror_summary["errors"] = [finding.as_dict() for finding in scoped_errors]
     if selected("module-size"):
         module_size_findings = _validate_module_size_budget(repo_root)
         contract_errors.extend(
@@ -108,7 +160,9 @@ def build_report(
         )
         findings.extend(finding for finding in module_size_findings if finding.severity != "error")
     if selected("generated-artifacts"):
-        contract_errors.extend(_validate_generated_artifact_contracts(repo_root))
+        contract_errors.extend(
+            _validate_generated_artifact_contracts(repo_root, family_admission=family_admission)
+        )
     if selected("extension-points"):
         contract_errors.extend(_validate_extension_points_contract(repo_root))
     if selected("runbook-coverage"):
@@ -137,6 +191,11 @@ def build_report(
                 allowed_header_statuses=("report_only", "contract_only"),
             )
         )
+    if selected_any("runbook-coverage", "component-observability"):
+        route_findings, legacy_operability_route_summary = _validate_legacy_operability_routes(
+            repo_root
+        )
+        contract_errors.extend(route_findings)
     if selected("runtime-state-layout"):
         contract_errors.extend(
             _validate_list_contract(
@@ -219,7 +278,13 @@ def build_report(
     }:
         contract_errors.extend(gate_errors)
 
-    summary = _summary(repo_root)
+    summary = _summary(repo_root, family_admission=family_admission)
+    if legacy_operability_route_summary is not None:
+        summary["legacy_operability_routes"] = legacy_operability_route_summary
+    if package_mirror_summary is not None:
+        summary.setdefault("generated_family_checks", {})[PACKAGE_MIRROR_FAMILY_ID] = (
+            package_mirror_summary
+        )
     if selected_any("dependency-graph", "phase6-1") and import_boundary_summary is not None:
         summary["import_boundary"] = import_boundary_summary
         summary["package_boundary"] = package_boundary_summary or {}
@@ -257,6 +322,76 @@ def _read_toml(path: Path) -> dict[str, Any]:
     return tomllib.loads(path.read_text(encoding="utf-8"))
 
 
+def _admit_package_mirror_family_registry(
+    repo_root: Path,
+) -> _PackageMirrorFamilyAdmission:
+    family_path = "architecture/generated_artifacts.toml"
+    family_document = _read_toml(repo_root / family_path)
+    if type(family_document) is not dict:
+        return _PackageMirrorFamilyAdmission(
+            (),
+            (
+                Finding(
+                    "package-mirror",
+                    "error",
+                    family_path,
+                    "generated-artifact family registry must be a table",
+                ),
+            ),
+        )
+    family_rows = family_document.get("family", _MISSING_VALUE)
+    if type(family_rows) is not list:
+        return _PackageMirrorFamilyAdmission(
+            (),
+            (
+                Finding(
+                    "package-mirror",
+                    "error",
+                    family_path,
+                    "family registry rows must be an array",
+                ),
+            ),
+        )
+
+    from tools.devx.architecture.guardrails import (
+        GeneratedArtifactManifestSchemaError,
+        _validate_generated_artifact_toml_data,
+    )
+
+    try:
+        _validate_generated_artifact_toml_data(family_document)
+    except GeneratedArtifactManifestSchemaError:
+        admitted_rows: list[dict[str, Any]] = []
+        findings: list[Finding] = []
+        for index, family_row in enumerate(family_rows):
+            try:
+                _validate_generated_artifact_toml_data({"family": [family_row]})
+            except GeneratedArtifactManifestSchemaError as error:
+                findings.append(
+                    Finding(
+                        "package-mirror",
+                        "error",
+                        family_path,
+                        "family registry row does not satisfy generated-artifact schema",
+                        f"index={index} {error}",
+                    )
+                )
+            else:
+                admitted_rows.append(family_row)
+        return _PackageMirrorFamilyAdmission(tuple(admitted_rows), tuple(findings))
+
+    return _PackageMirrorFamilyAdmission(tuple(family_rows), ())
+
+
+def _family_registry_findings(
+    admission: _PackageMirrorFamilyAdmission, *, check: str
+) -> list[Finding]:
+    return [
+        Finding(check, finding.severity, finding.subject, finding.message, finding.detail)
+        for finding in admission.findings
+    ]
+
+
 def _relative(path: Path, repo_root: Path) -> str:
     try:
         return path.relative_to(repo_root).as_posix()
@@ -264,17 +399,53 @@ def _relative(path: Path, repo_root: Path) -> str:
         return path.as_posix()
 
 
-def _package_contract_paths(repo_root: Path) -> list[Path]:
-    aggregate_stems = {"boundaries", "layout"}
+def _package_mirror_family(
+    family_admission: _PackageMirrorFamilyAdmission,
+) -> dict[str, Any] | None:
+    matches = [
+        family_row
+        for family_row in family_admission.rows
+        if family_row.get("id") == PACKAGE_MIRROR_FAMILY_ID
+    ]
+    return matches[0] if len(matches) == 1 else None
+
+
+def _package_mirror_output_paths(
+    family_admission: _PackageMirrorFamilyAdmission,
+) -> set[str]:
+    family = _package_mirror_family(family_admission)
+    if family is None:
+        return set(PACKAGE_MIRROR_OUTPUTS.values())
+    outputs = family.get("outputs", _MISSING_VALUE)
+    if type(outputs) is not list or any(type(output) is not str for output in outputs):
+        return set(PACKAGE_MIRROR_OUTPUTS.values())
+    return set(outputs)
+
+
+def _package_contract_paths(
+    repo_root: Path,
+    *,
+    family_admission: _PackageMirrorFamilyAdmission | None = None,
+) -> list[Path]:
+    admission = family_admission or _admit_package_mirror_family_registry(repo_root)
+    registered_outputs = _package_mirror_output_paths(admission)
+    package_root = repo_root / "architecture" / "packages"
     return sorted(
         path
-        for path in (repo_root / "architecture" / "packages").glob("*.toml")
-        if path.stem not in aggregate_stems
+        for path in package_root.glob("*.toml")
+        if _relative(path, repo_root) not in registered_outputs
     )
 
 
-def _load_package_contracts(repo_root: Path) -> list[tuple[Path, dict[str, Any]]]:
-    return [(path, _read_toml(path)) for path in _package_contract_paths(repo_root)]
+def _load_package_contracts(
+    repo_root: Path,
+    *,
+    family_admission: _PackageMirrorFamilyAdmission | None = None,
+) -> list[tuple[Path, dict[str, Any]]]:
+    return [
+        (path, _read_toml(path))
+        for path in _package_contract_paths(repo_root, family_admission=family_admission)
+    ]
 
 
 def _aggregate_package_modules(repo_root: Path) -> list[str]:
@@ -298,11 +469,15 @@ def _aggregate_package_modules(repo_root: Path) -> list[str]:
     return sorted(modules)
 
 
-def _validate_package_contracts(repo_root: Path) -> list[Finding]:
+def _validate_package_contracts(
+    repo_root: Path,
+    *,
+    family_admission: _PackageMirrorFamilyAdmission | None = None,
+) -> list[Finding]:
     errors: list[Finding] = []
     expected_modules = set(_aggregate_package_modules(repo_root))
     primary_contracts_by_module: dict[str, list[str]] = {}
-    for path, data in _load_package_contracts(repo_root):
+    for path, data in _load_package_contracts(repo_root, family_admission=family_admission):
         subject = _relative(path, repo_root)
         missing_tables = [table for table in REQUIRED_PACKAGE_TABLES if table not in data]
         for table in missing_tables:
@@ -529,221 +704,880 @@ def _valid_future_or_today(raw: str) -> bool:
 
 
 def _validate_package_mirrors(repo_root: Path) -> list[Finding]:
-    errors: list[Finding] = []
-    boundaries = {
-        str(item.get("module")): item
-        for item in _read_toml(repo_root / "architecture" / "packages" / "boundaries.toml").get(
-            "package", []
+    findings, _ = _validate_package_mirror_projection(repo_root)
+    return findings
+
+
+def _validate_package_mirror_projection(
+    repo_root: Path,
+    *,
+    family_admission: _PackageMirrorFamilyAdmission | None = None,
+) -> tuple[list[Finding], dict[str, Any]]:
+    admission = family_admission or _admit_package_mirror_family_registry(repo_root)
+    errors = _family_registry_findings(admission, check="package-mirror")
+    family_path = "architecture/generated_artifacts.toml"
+    family_matches = [
+        family_row
+        for family_row in admission.rows
+        if family_row.get("id") == PACKAGE_MIRROR_FAMILY_ID
+    ]
+    family = family_matches[0] if len(family_matches) == 1 else {}
+    if len(family_matches) != 1:
+        errors.append(
+            Finding(
+                "package-mirror",
+                "error",
+                family_path,
+                "package-mirror family must be registered exactly once",
+                f"matches={len(family_matches)}",
+            )
         )
-    }
-    public_surface = {
-        str(item.get("module")): item
-        for item in _read_toml(repo_root / "architecture" / "public_surface" / "contract.toml").get(
-            "package", []
+    raw_outputs = family.get("outputs", _MISSING_VALUE)
+    outputs = (
+        [value for value in raw_outputs if type(value) is str] if type(raw_outputs) is list else []
+    )
+    output_set = set(outputs)
+    expected_outputs = set(PACKAGE_MIRROR_OUTPUTS.values())
+    if type(raw_outputs) is not list or len(outputs) != len(raw_outputs):
+        errors.append(
+            Finding(
+                "package-mirror",
+                "error",
+                family_path,
+                "package-mirror outputs must be a list of repository-relative paths",
+            )
         )
-    }
-    layout = {
-        str(item.get("name")): item
-        for item in _read_toml(repo_root / "architecture" / "packages" / "layout.toml").get(
-            "package", []
+    if len(outputs) != len(output_set):
+        errors.append(
+            Finding(
+                "package-mirror",
+                "error",
+                family_path,
+                "package-mirror outputs contain duplicate paths",
+            )
         )
-    }
-    test_topology = {
-        str(item.get("name")): item
-        for item in _read_toml(repo_root / "architecture" / "tests" / "topology.toml").get(
-            "package", []
+    if output_set != expected_outputs:
+        errors.append(
+            Finding(
+                "package-mirror",
+                "error",
+                family_path,
+                "registered outputs differ from the package projection schema",
+                f"missing={sorted(expected_outputs - output_set)!r} "
+                f"extra={sorted(output_set - expected_outputs)!r}",
+            )
         )
-    }
-    for path, data in _load_package_contracts(repo_root):
+    for output in outputs:
+        path = PurePosixPath(output)
+        if path.is_absolute() or any(part in {".", ".."} for part in path.parts):
+            errors.append(
+                Finding(
+                    "package-mirror",
+                    "error",
+                    family_path,
+                    "output path is not repository-relative and traversal-free",
+                    output,
+                )
+            )
+    source_basis = family.get("source_of_truth", _MISSING_VALUE)
+    if type(source_basis) is not str or source_basis != PACKAGE_MIRROR_SOURCE_OF_TRUTH:
+        errors.append(
+            Finding(
+                "package-mirror",
+                "error",
+                family_path,
+                "source basis must exclude registered family outputs",
+                f"type={_mirror_value_type(source_basis)} value={source_basis!r}",
+            )
+        )
+    command = family.get("check_command", _MISSING_VALUE)
+    if type(command) is not list or command != list(PACKAGE_MIRROR_CHECK_COMMAND):
+        errors.append(
+            Finding(
+                "package-mirror",
+                "error",
+                family_path,
+                "family check_command must match the canonical verifier route",
+                f"expected={list(PACKAGE_MIRROR_CHECK_COMMAND)!r} observed={command!r}",
+            )
+        )
+
+    source_contracts = _load_package_contracts(repo_root, family_admission=admission)
+    primary = [
+        (p, d)
+        for p, d in source_contracts
+        if isinstance(d.get("package"), dict) and d["package"].get("primary_contract") is True
+    ]
+    by_module: dict[str, tuple[Path, dict[str, Any]]] = {}
+    by_name: dict[str, tuple[Path, dict[str, Any]]] = {}
+    for path, data in primary:
+        package = data["package"]
+        raw_module = package.get("module", _MISSING_VALUE)
+        raw_name = package.get("name", _MISSING_VALUE)
         subject = _relative(path, repo_root)
-        package = data.get("package", {})
-        module = str(package.get("module", ""))
-        name = str(package.get("name", ""))
-        boundary = boundaries.get(module)
-        if boundary is None:
-            errors.append(
-                Finding(
-                    "package-mirror",
-                    "error",
-                    subject,
-                    "package is not mirrored in package_boundaries.toml",
-                    module,
-                )
-            )
-        else:
-            expected = data.get("boundaries", {})
-            _compare_scalar(
-                errors,
-                subject,
-                "package_boundaries.owner",
-                expected=str(package.get("owner", "")),
-                observed=str(boundary.get("owner", "")),
-            )
-            _compare_scalar(
-                errors,
-                subject,
-                "package_boundaries.public_facade",
-                expected=str(expected.get("public_facade", "")),
-                observed=str(boundary.get("public_facade", "")),
-            )
-            _compare_list(
-                errors,
-                subject,
-                "package_boundaries.allowed_dependencies",
-                expected=expected.get("allowed_dependencies", []),
-                observed=boundary.get("allowed_dependencies", []),
-            )
-            _compare_list(
-                errors,
-                subject,
-                "package_boundaries.forbidden_dependencies",
-                expected=expected.get("forbidden_dependencies", []),
-                observed=boundary.get("forbidden_dependencies", []),
-            )
-            _compare_optional_scalar(
-                errors,
-                subject,
-                "package_boundaries.compatibility_shim",
-                expected=expected.get("compatibility_shim"),
-                observed=boundary.get("compatibility_shim"),
-            )
-            _compare_optional_scalar(
-                errors,
-                subject,
-                "package_boundaries.shim_id",
-                expected=expected.get("shim_id"),
-                observed=boundary.get("shim_id"),
-            )
-            _compare_optional_list(
-                errors,
-                subject,
-                "package_boundaries.runtime_allowed_submodules",
-                expected=expected.get("runtime_allowed_submodules"),
-                observed=boundary.get("runtime_allowed_submodules"),
-            )
-        surface = public_surface.get(module)
-        if surface is None:
-            errors.append(
-                Finding(
-                    "package-mirror",
-                    "error",
-                    subject,
-                    "package is not mirrored in public_surface.toml",
-                    module,
-                )
-            )
-        else:
-            expected_surface = data.get("public_surface", {})
-            for field in (
-                "classification",
-                "facade_mode",
-                "reference_doc",
-                "major_subsystem",
-                "notes",
-            ):
-                _compare_scalar(
-                    errors,
-                    subject,
-                    f"public_surface.{field}",
-                    expected=str(expected_surface.get(field, "")),
-                    observed=str(surface.get(field, "")),
-                )
-            _compare_scalar(
-                errors,
-                subject,
-                "public_surface.owner",
-                expected=str(expected_surface.get("registry_owner", "")),
-                observed=str(surface.get("owner", "")),
-            )
-            _compare_scalar(
-                errors,
-                subject,
-                "public_surface.readme",
-                expected=str(data.get("layout", {}).get("readme", "")),
-                observed=str(surface.get("readme", "")),
-            )
-            _compare_list(
-                errors,
-                subject,
-                "public_surface.supported_entrypoints",
-                expected=expected_surface.get("supported_entrypoints", []),
-                observed=surface.get("supported_entrypoints", []),
-            )
-        legacy_layout_mirror = str(data.get("layout", {}).get("legacy_layout_mirror", ""))
-        if legacy_layout_mirror:
-            layout_entry = layout.get(name)
-            if layout_entry is None:
+        identity_is_valid = True
+        for field, value in (("package.module", raw_module), ("package.name", raw_name)):
+            if type(value) is not str or not value.strip() or value != value.strip():
                 errors.append(
                     Finding(
                         "package-mirror",
                         "error",
                         subject,
-                        "package is not mirrored in package_layout.toml",
-                        name,
+                        f"{field} has malformed source value",
+                        f"expected non-empty trimmed string; got {_mirror_value_type(value)}",
+                    )
+                )
+                identity_is_valid = False
+        if not identity_is_valid:
+            continue
+        module, name = raw_module, raw_name
+        if module in by_module:
+            errors.append(
+                Finding(
+                    "package-mirror",
+                    "error",
+                    subject,
+                    "primary contracts duplicate package.module",
+                    module,
+                )
+            )
+        else:
+            by_module[module] = (path, data)
+        if name in by_name:
+            errors.append(
+                Finding(
+                    "package-mirror",
+                    "error",
+                    subject,
+                    "primary contracts duplicate package.name",
+                    name,
+                )
+            )
+        else:
+            by_name[name] = (path, data)
+    if not primary:
+        errors.append(
+            Finding(
+                "package-mirror",
+                "error",
+                "architecture/packages",
+                "no primary package source contracts were discovered",
+            )
+        )
+
+    def projection(relative: str) -> dict[str, Any]:
+        try:
+            return _read_toml(repo_root / relative)
+        except (OSError, tomllib.TOMLDecodeError) as exc:
+            errors.append(
+                Finding(
+                    "package-mirror",
+                    "error",
+                    relative,
+                    "package projection is missing or malformed",
+                    str(exc),
+                )
+            )
+            return {}
+
+    def rows_index(rows: object, identity: str, subject: str) -> dict[str, dict[str, Any]]:
+        if not isinstance(rows, list):
+            errors.append(
+                Finding("package-mirror", "error", subject, "projection rows must be an array")
+            )
+            return {}
+        result: dict[str, dict[str, Any]] = {}
+        for row in rows:
+            if not isinstance(row, dict):
+                errors.append(
+                    Finding("package-mirror", "error", subject, "projection row must be a table")
+                )
+                continue
+            raw_key = row.get(identity, _MISSING_VALUE)
+            if type(raw_key) is not str:
+                errors.append(
+                    Finding(
+                        "package-mirror",
+                        "error",
+                        subject,
+                        f"projection row `{identity}` has malformed identity value",
+                        f"expected string; got {_mirror_value_type(raw_key)}",
+                    )
+                )
+                continue
+            key = raw_key
+            if not key.strip() or key != key.strip():
+                errors.append(
+                    Finding(
+                        "package-mirror", "error", subject, f"projection row lacks `{identity}`"
+                    )
+                )
+            elif key in result:
+                errors.append(
+                    Finding(
+                        "package-mirror",
+                        "error",
+                        subject,
+                        f"projection rows duplicate `{identity}`",
+                        key,
                     )
                 )
             else:
-                _compare_scalar(
-                    errors,
+                result[key] = row
+        return result
+
+    def source_table(data: dict[str, Any], table: str, subject: str) -> dict[str, Any]:
+        value = data.get(table, _MISSING_VALUE)
+        if type(value) is dict:
+            return value
+        _record_malformed_mirror_value(
+            errors,
+            subject,
+            table,
+            value,
+            domain="table",
+            side="source",
+        )
+        return {}
+
+    def check_set(label: str, expected: set[str], observed: set[str], subject: str) -> None:
+        for item in sorted(expected - observed):
+            errors.append(
+                Finding(
+                    "package-mirror",
+                    "error",
                     subject,
-                    "package_layout.current_status",
-                    expected=str(data.get("layout", {}).get("legacy_layout_status", "")),
-                    observed=str(layout_entry.get("current_status", "")),
+                    f"{label} is missing a source-derived row",
+                    item,
                 )
-        topology_entry = test_topology.get(name)
-        if topology_entry is not None:
-            expected_tests = data.get("tests", {})
+            )
+        for item in sorted(observed - expected):
+            errors.append(
+                Finding(
+                    "package-mirror",
+                    "error",
+                    label,
+                    "projection row has no matching source declaration",
+                    item,
+                )
+            )
+
+    expected_modules = set(by_module)
+    boundary_path = PACKAGE_MIRROR_OUTPUTS["boundaries"]
+    boundaries = rows_index(projection(boundary_path).get("package"), "module", boundary_path)
+    check_set("package boundaries", expected_modules, set(boundaries), boundary_path)
+    for module, (path, data) in by_module.items():
+        row = boundaries.get(module)
+        if row is None:
+            continue
+        subject = _relative(path, repo_root)
+        package = source_table(data, "package", subject)
+        source = source_table(data, "boundaries", subject)
+        for field, expected in (
+            ("owner", package.get("owner", _MISSING_VALUE)),
+            ("public_facade", source.get("public_facade", _MISSING_VALUE)),
+        ):
+            _compare_scalar(
+                errors,
+                subject,
+                f"package_boundaries.{field}",
+                expected=expected,
+                observed=row.get(field, _MISSING_VALUE),
+            )
+        for field in ("allowed_dependencies", "forbidden_dependencies"):
+            _compare_list(
+                errors,
+                subject,
+                f"package_boundaries.{field}",
+                expected=source.get(field, _MISSING_VALUE),
+                observed=row.get(field, _MISSING_VALUE),
+            )
+        for field in ("compatibility_shim", "shim_id"):
+            _compare_optional_scalar(
+                errors,
+                subject,
+                f"package_boundaries.{field}",
+                expected=source.get(field),
+                observed=row.get(field),
+            )
+        _compare_optional_list(
+            errors,
+            subject,
+            "package_boundaries.runtime_allowed_submodules",
+            expected=source.get("runtime_allowed_submodules"),
+            observed=row.get("runtime_allowed_submodules"),
+        )
+
+    public_path = PACKAGE_MIRROR_OUTPUTS["public_surface"]
+    public_rows = rows_index(projection(public_path).get("package"), "module", public_path)
+    public_sources: dict[str, tuple[Path, dict[str, Any]]] = {}
+    declared_entrypoints: set[str] = set()
+    for source_path, source_data in source_contracts:
+        source_subject = _relative(source_path, repo_root)
+        source_package = source_table(source_data, "package", source_subject)
+        source_surface = source_table(source_data, "public_surface", source_subject)
+        source_module = source_package.get("module", _MISSING_VALUE)
+        if (
+            type(source_module) is not str
+            or not source_module.strip()
+            or source_module != source_module.strip()
+        ):
+            continue
+        if source_module in public_sources:
+            errors.append(
+                Finding(
+                    "package-mirror",
+                    "error",
+                    _relative(source_path, repo_root),
+                    "public surface source contracts duplicate package.module",
+                    source_module,
+                )
+            )
+            continue
+        public_sources[source_module] = (source_path, source_data)
+        raw_entrypoints = source_surface.get("supported_entrypoints", _MISSING_VALUE)
+        if type(raw_entrypoints) is list:
+            declared_entrypoints.update(
+                entry for entry in raw_entrypoints if type(entry) is str and entry
+            )
+
+    public_source_modules = set(public_sources)
+    check_set(
+        "public surface",
+        public_source_modules,
+        public_source_modules & set(public_rows),
+        public_path,
+    )
+    unmapped_public_surface_rows: dict[str, dict[str, Any]] = {}
+    for extra in sorted(set(public_rows) - public_source_modules):
+        row = public_rows[extra]
+        unverified_fields = sorted(field for field in row if field != "module")
+        parent_entrypoint_declared = extra in declared_entrypoints
+        unmapped_public_surface_rows[extra] = {
+            "status": "not_established",
+            "parent_entrypoint_declared": parent_entrypoint_declared,
+            "unverified_fields": unverified_fields,
+        }
+        errors.append(
+            Finding(
+                "package-mirror",
+                "error",
+                public_path,
+                "public surface row has no complete source contract",
+                f"module={extra!r} status=not_established "
+                f"parent_entrypoint_declared={parent_entrypoint_declared} "
+                f"unverified_fields={unverified_fields!r}",
+            )
+        )
+
+    for module, (path, data) in public_sources.items():
+        row = public_rows.get(module)
+        if row is None:
+            continue
+        surface = source_table(data, "public_surface", _relative(path, repo_root))
+        layout = source_table(data, "layout", _relative(path, repo_root))
+        source_values = (
+            ("classification", surface.get("classification", _MISSING_VALUE)),
+            ("facade_mode", surface.get("facade_mode", _MISSING_VALUE)),
+            ("owner", surface.get("registry_owner", _MISSING_VALUE)),
+            ("readme", layout.get("readme", _MISSING_VALUE)),
+            ("reference_doc", surface.get("reference_doc", _MISSING_VALUE)),
+            ("notes", surface.get("notes", _MISSING_VALUE)),
+        )
+        for field, expected in source_values:
+            _compare_scalar(
+                errors,
+                _relative(path, repo_root),
+                f"public_surface.{field}",
+                expected=expected,
+                observed=row.get(field, _MISSING_VALUE),
+            )
+        _compare_boolean(
+            errors,
+            _relative(path, repo_root),
+            "public_surface.major_subsystem",
+            expected=surface.get("major_subsystem", _MISSING_VALUE),
+            observed=row.get("major_subsystem", _MISSING_VALUE),
+        )
+        _compare_list(
+            errors,
+            _relative(path, repo_root),
+            "public_surface.supported_entrypoints",
+            expected=surface.get("supported_entrypoints", _MISSING_VALUE),
+            observed=row.get("supported_entrypoints", _MISSING_VALUE),
+        )
+
+    layout_path = PACKAGE_MIRROR_OUTPUTS["layout"]
+    layout_rows = rows_index(projection(layout_path).get("package"), "name", layout_path)
+    expected_layout: dict[str, tuple[Path, dict[str, Any]]] = {}
+    for path, data in primary:
+        layout = source_table(data, "layout", _relative(path, repo_root))
+        mirror_value = layout.get("legacy_layout_mirror", _MISSING_VALUE)
+        if type(mirror_value) is not str:
+            _record_malformed_mirror_value(
+                errors,
+                _relative(path, repo_root),
+                "layout.legacy_layout_mirror",
+                mirror_value,
+                domain="string",
+                side="source",
+            )
+            continue
+        mirror = mirror_value
+        if mirror != mirror.strip():
+            errors.append(
+                Finding(
+                    "package-mirror",
+                    "error",
+                    _relative(path, repo_root),
+                    "layout.legacy_layout_mirror has malformed source value",
+                    "expected an exact unpadded repository-relative path",
+                )
+            )
+        if mirror and mirror not in output_set:
+            errors.append(
+                Finding(
+                    "package-mirror",
+                    "error",
+                    _relative(path, repo_root),
+                    "layout mirror path is not registered by its generated family",
+                    mirror,
+                )
+            )
+        if mirror == layout_path:
+            package = source_table(data, "package", _relative(path, repo_root))
+            name = package.get("name", _MISSING_VALUE)
+            if type(name) is str and name.strip() and name == name.strip():
+                expected_layout[name] = (path, data)
+            else:
+                _record_malformed_mirror_value(
+                    errors,
+                    _relative(path, repo_root),
+                    "package.name",
+                    name,
+                    domain="string",
+                    side="source",
+                )
+    check_set("package layout", set(expected_layout), set(layout_rows), layout_path)
+    for name, (path, data) in expected_layout.items():
+        row = layout_rows.get(name)
+        if row is not None:
+            _compare_scalar(
+                errors,
+                _relative(path, repo_root),
+                "package_layout.current_status",
+                expected=data.get("layout", {}).get("legacy_layout_status", _MISSING_VALUE),
+                observed=row.get("current_status", _MISSING_VALUE),
+            )
+
+    topology_path = PACKAGE_MIRROR_OUTPUTS["test_topology"]
+    topology = projection(topology_path)
+    topology_rows = rows_index(topology.get("package"), "name", topology_path)
+    exception_rows = rows_index(
+        topology.get("source_package_exception"),
+        "name",
+        f"{topology_path}#source_package_exception",
+    )
+    dispositions = {"direct": 0, "explicit_source_exception": 0, "nested_coverage": 0}
+    for name in sorted(set(topology_rows) - set(by_name) - set(exception_rows)):
+        errors.append(
+            Finding(
+                "package-mirror",
+                "error",
+                topology_path,
+                "topology row has neither a primary source contract nor explicit source exception",
+                name,
+            )
+        )
+    for name in sorted(set(by_name) & set(exception_rows) & set(topology_rows)):
+        errors.append(
+            Finding(
+                "package-mirror",
+                "error",
+                topology_path,
+                "primary package is both a direct topology row and source exception",
+                name,
+            )
+        )
+
+    def strict_descendant(parent: object, child: object) -> bool:
+        if type(parent) is not str or type(child) is not str:
+            return False
+        p, c = PurePosixPath(parent), PurePosixPath(child)
+        if (
+            p.is_absolute()
+            or c.is_absolute()
+            or any(part in {".", ".."} for part in p.parts + c.parts)
+        ):
+            return False
+        try:
+            relative = c.relative_to(p)
+        except ValueError:
+            return False
+        return bool(relative.parts)
+
+    def nearest_topology_ancestor(data: dict[str, Any]) -> tuple[str, Path, dict[str, Any]] | None:
+        package = data.get("package")
+        if not isinstance(package, dict):
+            return None
+        module = package.get("module", _MISSING_VALUE)
+        if type(module) is not str:
+            return None
+        candidates: list[tuple[str, Path, dict[str, Any]]] = []
+        for candidate_module, (path, candidate) in by_module.items():
+            candidate_package = candidate.get("package")
+            candidate_name = (
+                candidate_package.get("name", _MISSING_VALUE)
+                if isinstance(candidate_package, dict)
+                else _MISSING_VALUE
+            )
+            if (
+                module.startswith(candidate_module + ".")
+                and type(candidate_name) is str
+                and candidate_name in topology_rows
+            ):
+                candidates.append((candidate_module, path, candidate))
+        return max(candidates, key=lambda item: len(item[0].split("."))) if candidates else None
+
+    for name, (path, data) in by_name.items():
+        subject = _relative(path, repo_root)
+        row = topology_rows.get(name)
+        if row is not None:
+            dispositions["direct"] += 1
+            tests = source_table(data, "tests", subject)
+            layout = source_table(data, "layout", subject)
+            _compare_scalar(
+                errors,
+                subject,
+                "test_topology.source_path",
+                expected=layout.get("source_root", _MISSING_VALUE),
+                observed=row.get("source_path", _MISSING_VALUE),
+            )
             _compare_list(
                 errors,
                 subject,
                 "test_topology.unit_path",
-                expected=expected_tests.get("unit_roots", []),
-                observed=[topology_entry.get("unit_path", "")],
+                expected=tests.get("unit_roots", _MISSING_VALUE),
+                observed=[row.get("unit_path", _MISSING_VALUE)],
             )
-            topology_integration = topology_entry.get("integration", {})
-            integration_required = bool(topology_integration.get("required", False))
+            for kind in ("integration", "property"):
+                source_required = tests.get(f"{kind}_required", _MISSING_VALUE)
+                observed_table = row.get(kind, _MISSING_VALUE)
+                if type(observed_table) is not dict:
+                    _record_malformed_mirror_value(
+                        errors,
+                        subject,
+                        f"test_topology.{kind}",
+                        observed_table,
+                        domain="table",
+                        side="projection",
+                    )
+                    observed_required = _MISSING_VALUE
+                    observed_path = _MISSING_VALUE
+                else:
+                    observed_required = observed_table.get("required", _MISSING_VALUE)
+                    observed_path = observed_table.get("path", _MISSING_VALUE)
+                _compare_boolean(
+                    errors,
+                    subject,
+                    f"test_topology.{kind}.required",
+                    expected=source_required,
+                    observed=observed_required,
+                )
+                if type(source_required) is bool and type(observed_required) is bool:
+                    source_roots = tests.get(f"{kind}_roots", _MISSING_VALUE)
+                    if source_required is False and source_roots is _MISSING_VALUE:
+                        source_roots = []
+                    if observed_required is False and observed_path is _MISSING_VALUE:
+                        observed_roots = []
+                    else:
+                        observed_roots = [observed_path]
+                    _compare_list(
+                        errors,
+                        subject,
+                        f"test_topology.{kind}.path",
+                        expected=source_roots,
+                        observed=observed_roots,
+                    )
+            continue
+        exception = exception_rows.get(name)
+        if exception is not None:
+            dispositions["explicit_source_exception"] += 1
+            layout = source_table(data, "layout", subject)
             _compare_scalar(
                 errors,
                 subject,
-                "test_topology.integration.required",
-                expected=str(expected_tests.get("integration_required", "")),
-                observed=str(integration_required),
+                "test_topology.source_package_exception.source_path",
+                expected=layout.get("source_root", _MISSING_VALUE),
+                observed=exception.get("source_path", _MISSING_VALUE),
             )
-            _compare_list(
+            continue
+        ancestor = nearest_topology_ancestor(data)
+        if ancestor is None:
+            errors.append(
+                Finding(
+                    "package-mirror",
+                    "error",
+                    subject,
+                    "package has no direct topology row, exact source exception, "
+                    "or structural parent",
+                    name,
+                )
+            )
+            continue
+        _, _, ancestor_data = ancestor
+        ancestor_name = ancestor_data["package"]["name"]
+        ancestor_row = topology_rows[ancestor_name]
+        child_layout = source_table(data, "layout", subject)
+        parent_layout = source_table(ancestor_data, "layout", _relative(ancestor[1], repo_root))
+        child_source = child_layout.get("source_root", _MISSING_VALUE)
+        parent_source = parent_layout.get("source_root", _MISSING_VALUE)
+        _validate_mirror_value(
+            errors,
+            subject,
+            "layout.source_root",
+            child_source,
+            domain="string",
+            side="source",
+        )
+        _validate_mirror_value(
+            errors,
+            _relative(ancestor[1], repo_root),
+            "layout.source_root",
+            parent_source,
+            domain="string",
+            side="source",
+        )
+        if not strict_descendant(parent_source, child_source):
+            errors.append(
+                Finding(
+                    "package-mirror",
+                    "error",
+                    subject,
+                    "nested source is not strictly contained by its nearest module ancestor",
+                    f"parent={parent_source!r} child={child_source!r}",
+                )
+            )
+        child_tests = source_table(data, "tests", subject)
+        unit_roots = child_tests.get("unit_roots", _MISSING_VALUE)
+        parent_unit = ancestor_row.get("unit_path", _MISSING_VALUE)
+        source_roots_valid = _validate_mirror_value(
+            errors, subject, "tests.unit_roots", unit_roots, domain="string_list", side="source"
+        )
+        parent_unit_valid = _validate_mirror_value(
+            errors,
+            _relative(ancestor[1], repo_root),
+            "test_topology.unit_path",
+            parent_unit,
+            domain="string",
+            side="projection",
+        )
+        if (
+            not source_roots_valid
+            or not parent_unit_valid
+            or not unit_roots
+            or not all(strict_descendant(parent_unit, child) for child in unit_roots)
+        ):
+            errors.append(
+                Finding(
+                    "package-mirror",
+                    "error",
+                    subject,
+                    "nested unit roots are not strictly covered by nearest ancestor topology",
+                    f"parent={parent_unit!r} children={unit_roots!r}",
+                )
+            )
+        for kind in ("integration", "property"):
+            child_required = child_tests.get(f"{kind}_required", _MISSING_VALUE)
+            if not _validate_mirror_value(
                 errors,
                 subject,
-                "test_topology.integration.path",
-                expected=expected_tests.get("integration_roots", []),
-                observed=[topology_integration.get("path", "")] if integration_required else [],
-            )
-            topology_property = topology_entry.get("property", {})
-            property_required = bool(topology_property.get("required", False))
-            _compare_scalar(
+                f"tests.{kind}_required",
+                child_required,
+                domain="boolean",
+                side="source",
+            ):
+                continue
+            child_roots = child_tests.get(f"{kind}_roots", _MISSING_VALUE)
+            if child_required is False and child_roots is _MISSING_VALUE:
+                child_roots = []
+            child_roots_valid = _validate_mirror_value(
                 errors,
                 subject,
-                "test_topology.property.required",
-                expected=str(expected_tests.get("property_required", "")),
-                observed=str(property_required),
+                f"tests.{kind}_roots",
+                child_roots,
+                domain="string_list",
+                side="source",
             )
-            _compare_list(
+            if not child_required:
+                continue
+            parent_table = ancestor_row.get(kind, _MISSING_VALUE)
+            if not _validate_mirror_value(
                 errors,
-                subject,
-                "test_topology.property.path",
-                expected=expected_tests.get("property_roots", []),
-                observed=[topology_property.get("path", "")] if property_required else [],
+                _relative(ancestor[1], repo_root),
+                f"test_topology.{kind}",
+                parent_table,
+                domain="table",
+                side="projection",
+            ):
+                continue
+            parent_required = parent_table.get("required", _MISSING_VALUE)
+            parent_required_valid = _validate_mirror_value(
+                errors,
+                _relative(ancestor[1], repo_root),
+                f"test_topology.{kind}.required",
+                parent_required,
+                domain="boolean",
+                side="projection",
             )
-    return errors
+            parent_root = parent_table.get("path", _MISSING_VALUE)
+            parent_root_valid = _validate_mirror_value(
+                errors,
+                _relative(ancestor[1], repo_root),
+                f"test_topology.{kind}.path",
+                parent_root,
+                domain="string",
+                side="projection",
+            )
+            if (
+                not child_roots_valid
+                or not parent_required_valid
+                or not parent_root_valid
+                or parent_required is not True
+                or not child_roots
+                or not all(strict_descendant(parent_root, child) for child in child_roots)
+            ):
+                errors.append(
+                    Finding(
+                        "package-mirror",
+                        "error",
+                        subject,
+                        f"nested {kind} roots are not covered by nearest ancestor topology",
+                        f"parent={parent_root!r} children={child_roots!r}",
+                    )
+                )
+        dispositions["nested_coverage"] += 1
+
+    summary = {
+        "family_id": PACKAGE_MIRROR_FAMILY_ID,
+        "source_contract_file_count": len(source_contracts),
+        "primary_source_contract_count": len(primary),
+        "projection_row_counts": {
+            "boundaries": len(boundaries),
+            "public_surface": len(public_rows),
+            "layout": len(layout_rows),
+            "topology": len(topology_rows),
+        },
+        "topology_source_dispositions": dispositions,
+        "unmapped_public_surface_rows": unmapped_public_surface_rows,
+        "registered_output_count": len(output_set),
+    }
+    return errors, summary
 
 
-def _compare_scalar(
+def _mirror_value_type(value: object) -> str:
+    if value is _MISSING_VALUE:
+        return "missing"
+    if type(value) is list:
+        item_types = sorted({type(item).__name__ for item in value})
+        return f"list[{', '.join(item_types)}]"
+    return type(value).__name__
+
+
+def _mirror_value_matches_domain(
+    value: object,
+    domain: _MirrorFieldDomain,
+    *,
+    optional: bool = False,
+) -> bool:
+    if optional and value is None:
+        return True
+    if domain == "string":
+        return type(value) is str
+    if domain == "boolean":
+        return type(value) is bool
+    if domain == "string_list":
+        return type(value) is list and all(type(item) is str for item in value)
+    if domain == "table":
+        return type(value) is dict
+    return False
+
+
+def _validate_mirror_value(
+    findings: list[Finding],
+    subject: str,
+    field: str,
+    value: object,
+    *,
+    domain: _MirrorFieldDomain,
+    side: str,
+    optional: bool = False,
+) -> bool:
+    if _mirror_value_matches_domain(value, domain, optional=optional):
+        return True
+    optional_suffix = " or absent" if optional else ""
+    findings.append(
+        Finding(
+            "package-mirror",
+            "error",
+            subject,
+            f"{field} has malformed {side} value",
+            f"expected {domain}{optional_suffix}; got {_mirror_value_type(value)}",
+        )
+    )
+    return False
+
+
+def _record_malformed_mirror_value(
+    findings: list[Finding],
+    subject: str,
+    field: str,
+    value: object,
+    *,
+    domain: _MirrorFieldDomain,
+    side: str,
+    optional: bool = False,
+) -> None:
+    _validate_mirror_value(
+        findings,
+        subject,
+        field,
+        value,
+        domain=domain,
+        side=side,
+        optional=optional,
+    )
+
+
+def _compare_typed_value(
     findings: list[Finding],
     subject: str,
     field: str,
     *,
-    expected: str,
-    observed: str,
+    expected: object,
+    observed: object,
+    domain: _MirrorFieldDomain,
+    optional: bool = False,
 ) -> None:
-    if expected != observed:
+    expected_valid = _validate_mirror_value(
+        findings,
+        subject,
+        field,
+        expected,
+        domain=domain,
+        side="source",
+        optional=optional,
+    )
+    observed_valid = _validate_mirror_value(
+        findings,
+        subject,
+        field,
+        observed,
+        domain=domain,
+        side="projection",
+        optional=optional,
+    )
+    if expected_valid and observed_valid and expected != observed:
         findings.append(
             Finding(
                 "package-mirror",
@@ -755,6 +1589,42 @@ def _compare_scalar(
         )
 
 
+def _compare_scalar(
+    findings: list[Finding],
+    subject: str,
+    field: str,
+    *,
+    expected: object,
+    observed: object,
+) -> None:
+    _compare_typed_value(
+        findings,
+        subject,
+        field,
+        expected=expected,
+        observed=observed,
+        domain="string",
+    )
+
+
+def _compare_boolean(
+    findings: list[Finding],
+    subject: str,
+    field: str,
+    *,
+    expected: object,
+    observed: object,
+) -> None:
+    _compare_typed_value(
+        findings,
+        subject,
+        field,
+        expected=expected,
+        observed=observed,
+        domain="boolean",
+    )
+
+
 def _compare_list(
     findings: list[Finding],
     subject: str,
@@ -763,18 +1633,14 @@ def _compare_list(
     expected: object,
     observed: object,
 ) -> None:
-    expected_list = [str(item) for item in expected] if isinstance(expected, list) else []
-    observed_list = [str(item) for item in observed] if isinstance(observed, list) else []
-    if expected_list != observed_list:
-        findings.append(
-            Finding(
-                "package-mirror",
-                "error",
-                subject,
-                f"{field} drift",
-                f"expected={expected_list!r} observed={observed_list!r}",
-            )
-        )
+    _compare_typed_value(
+        findings,
+        subject,
+        field,
+        expected=expected,
+        observed=observed,
+        domain="string_list",
+    )
 
 
 def _compare_optional_scalar(
@@ -785,14 +1651,14 @@ def _compare_optional_scalar(
     expected: object,
     observed: object,
 ) -> None:
-    if expected is None and observed is None:
-        return
-    _compare_scalar(
+    _compare_typed_value(
         findings,
         subject,
         field,
-        expected=str(expected),
-        observed=str(observed),
+        expected=expected,
+        observed=observed,
+        domain="string",
+        optional=True,
     )
 
 
@@ -804,9 +1670,15 @@ def _compare_optional_list(
     expected: object,
     observed: object,
 ) -> None:
-    if expected is None and observed is None:
-        return
-    _compare_list(findings, subject, field, expected=expected or [], observed=observed or [])
+    _compare_typed_value(
+        findings,
+        subject,
+        field,
+        expected=expected,
+        observed=observed,
+        domain="string_list",
+        optional=True,
+    )
 
 
 def _validate_module_size_budget(repo_root: Path) -> list[Finding]:
@@ -1205,13 +2077,17 @@ def _count_lines(path: Path) -> int:
         return sum(1 for line in handle if line.strip() and not line.lstrip().startswith("#"))
 
 
-def _validate_generated_artifact_contracts(repo_root: Path) -> list[Finding]:
+def _validate_generated_artifact_contracts(
+    repo_root: Path,
+    *,
+    family_admission: _PackageMirrorFamilyAdmission | None = None,
+) -> list[Finding]:
     relative_path = "architecture/generated_artifacts.toml"
     path = repo_root / relative_path
     if not path.exists():
         return [Finding("generated-artifacts", "error", relative_path, "contract file is missing")]
-    data = _read_toml(path)
-    errors: list[Finding] = []
+    admission = family_admission or _admit_package_mirror_family_registry(repo_root)
+    errors: list[Finding] = _family_registry_findings(admission, check="generated-artifacts")
     allowed_lifecycles = {
         "source_committed",
         "generated_committed",
@@ -1235,7 +2111,7 @@ def _validate_generated_artifact_contracts(repo_root: Path) -> list[Finding]:
         "promotion_target",
         "stale_output_behavior",
     )
-    for family in data.get("family", []):
+    for family in admission.rows:
         subject = str(family.get("id") or "family")
         for field in required_fields:
             if family.get(field) in (None, "", []):
@@ -1360,6 +2236,478 @@ def _validate_list_contract(
                         )
                     )
     return errors
+
+
+def _read_declared_active_component_index(
+    repo_root: Path,
+    relative_path: str,
+) -> tuple[dict[str, Any] | None, Finding | None]:
+    """Read the declared active index through one typed, root-bound byte snapshot.
+
+    Args:
+        repo_root: Product root containing the declared component index.
+        relative_path: Validated repository-relative index path.
+
+    Returns:
+        The parsed index and no finding, or no index and one typed input finding.
+    """
+    path = repo_root / Path(*PurePosixPath(relative_path).parts)
+    try:
+        resolved_path = resolve_admitted_path(path, repo_root)
+    except AdmittedPathError as error:
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index resolves outside repository root",
+            f"error={type(error).__name__}",
+        )
+    except FileNotFoundError as error:
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index file is missing",
+            f"error={type(error).__name__}",
+        )
+    except PermissionError as error:
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index is not readable",
+            f"error={type(error).__name__}",
+        )
+    except (OSError, RuntimeError) as error:
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index could not be resolved",
+            f"error={type(error).__name__}",
+        )
+
+    try:
+        file_stat = resolved_path.stat()
+    except FileNotFoundError as error:
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index file is missing",
+            f"error={type(error).__name__}",
+        )
+    except PermissionError as error:
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index is not readable",
+            f"error={type(error).__name__}",
+        )
+    except OSError as error:
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index could not be inspected",
+            f"error={type(error).__name__}",
+        )
+
+    if not stat.S_ISREG(file_stat.st_mode):
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index is not a regular file",
+        )
+
+    try:
+        return _read_toml(resolved_path), None
+    except FileNotFoundError as error:
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index file is missing",
+            f"error={type(error).__name__}",
+        )
+    except IsADirectoryError as error:
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index is not a regular file",
+            f"error={type(error).__name__}",
+        )
+    except PermissionError as error:
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index is not readable",
+            f"error={type(error).__name__}",
+        )
+    except UnicodeDecodeError as error:
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index is not valid UTF-8",
+            f"error={type(error).__name__}",
+        )
+    except tomllib.TOMLDecodeError as error:
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index is not valid TOML",
+            f"error={type(error).__name__}",
+        )
+    except OSError as error:
+        return None, Finding(
+            "operability-route",
+            "error",
+            relative_path,
+            "declared active component index could not be read",
+            f"error={type(error).__name__}",
+        )
+
+
+def _validate_legacy_operability_routes(
+    repo_root: Path,
+) -> tuple[list[Finding], dict[str, Any]]:
+    """Reconcile every legacy runbook/SLO occurrence with the active component index.
+
+    Args:
+        repo_root: Product root containing the legacy declarations and active component index.
+
+    Returns:
+        Route findings and a report-only summary preserving each source occurrence.
+    """
+    source_specs = (
+        (
+            "architecture/runbook_coverage.toml",
+            "coverage",
+            ("runbooks", "slo_files"),
+        ),
+        (
+            "architecture/component_observability.toml",
+            "component",
+            ("slo_files",),
+        ),
+    )
+    findings: list[Finding] = []
+    route_map: dict[str, list[dict[str, str]]] = {}
+    source_documents = {
+        source_path: _read_toml(repo_root / source_path) for source_path, _, _ in source_specs
+    }
+    runbook_source_path = "architecture/runbook_coverage.toml"
+    runbook_header = source_documents[runbook_source_path].get("runbook_coverage", _MISSING_VALUE)
+    active_index_path = runbook_source_path
+    active_components: Any = []
+    route_index_available = False
+    if type(runbook_header) is not dict:
+        findings.append(
+            Finding(
+                "operability-route",
+                "error",
+                runbook_source_path,
+                "runbook coverage must name its active component index",
+            )
+        )
+    else:
+        declared_index = runbook_header.get("component_index", _MISSING_VALUE)
+        if type(declared_index) is not str or not declared_index:
+            findings.append(
+                Finding(
+                    "operability-route",
+                    "error",
+                    runbook_source_path,
+                    "runbook coverage component_index must be a nonempty repository-relative path",
+                )
+            )
+        else:
+            index_relative = PurePosixPath(declared_index)
+            if "\x00" in declared_index:
+                findings.append(
+                    Finding(
+                        "operability-route",
+                        "error",
+                        runbook_source_path,
+                        "runbook coverage component_index must not contain NUL",
+                        repr(declared_index),
+                    )
+                )
+            elif index_relative.is_absolute() or ".." in index_relative.parts:
+                findings.append(
+                    Finding(
+                        "operability-route",
+                        "error",
+                        runbook_source_path,
+                        "runbook coverage component_index must stay within the repository",
+                        declared_index,
+                    )
+                )
+            else:
+                active_index_path = index_relative.as_posix()
+                active_index, index_finding = _read_declared_active_component_index(
+                    repo_root, active_index_path
+                )
+                if index_finding is not None:
+                    findings.append(index_finding)
+                elif active_index is not None:
+                    active_components = active_index.get("component", _MISSING_VALUE)
+                    if type(active_components) is list:
+                        route_index_available = True
+                    else:
+                        findings.append(
+                            Finding(
+                                "operability-route",
+                                "error",
+                                active_index_path,
+                                "active component registry must contain a component array",
+                            )
+                        )
+                        active_components = []
+
+    registry_validation_start = len(findings)
+    for index, component in enumerate(active_components):
+        if type(component) is not dict:
+            findings.append(
+                Finding(
+                    "operability-route",
+                    "error",
+                    active_index_path,
+                    "active component registry row must be a table",
+                    f"index={index}",
+                )
+            )
+            continue
+        component_id = component.get("id")
+        owner = component.get("owner")
+        if type(component_id) is not str or not component_id:
+            findings.append(
+                Finding(
+                    "operability-route",
+                    "error",
+                    active_index_path,
+                    "active route row must declare a string component id",
+                    f"index={index}",
+                )
+            )
+            continue
+        if type(owner) is not str or not owner:
+            findings.append(
+                Finding(
+                    "operability-route",
+                    "error",
+                    active_index_path,
+                    "active route row must declare a string owner",
+                    f"component={component_id}",
+                )
+            )
+            continue
+
+        for field in ("runbooks", "slo_file", "legacy_slo_files"):
+            raw_paths = component.get(field, _MISSING_VALUE)
+            if raw_paths is _MISSING_VALUE:
+                if field == "legacy_slo_files":
+                    continue
+                expected = "a string" if field == "slo_file" else "an array"
+                findings.append(
+                    Finding(
+                        "operability-route",
+                        "error",
+                        active_index_path,
+                        f"active route row must declare `{field}` {expected}",
+                        f"component={component_id}",
+                    )
+                )
+                continue
+            if field == "slo_file":
+                if type(raw_paths) is not str or not raw_paths:
+                    findings.append(
+                        Finding(
+                            "operability-route",
+                            "error",
+                            active_index_path,
+                            "active route field `slo_file` must be a nonempty string",
+                            f"component={component_id}",
+                        )
+                    )
+                    continue
+                paths = [raw_paths]
+            elif type(raw_paths) is list:
+                paths = raw_paths
+                if field == "runbooks" and not paths:
+                    findings.append(
+                        Finding(
+                            "operability-route",
+                            "error",
+                            active_index_path,
+                            "active route field `runbooks` must be a nonempty array",
+                            f"component={component_id}",
+                        )
+                    )
+                    continue
+            else:
+                findings.append(
+                    Finding(
+                        "operability-route",
+                        "error",
+                        active_index_path,
+                        f"active route field `{field}` must be an array",
+                        f"component={component_id}",
+                    )
+                )
+                continue
+            for path_index, path in enumerate(paths):
+                if type(path) is not str or not path:
+                    findings.append(
+                        Finding(
+                            "operability-route",
+                            "error",
+                            active_index_path,
+                            f"active route field `{field}` must contain nonempty strings",
+                            f"component={component_id} index={path_index}",
+                        )
+                    )
+                    continue
+                route_map.setdefault(path, []).append({"component": component_id, "owner": owner})
+
+    if len(findings) > registry_validation_start:
+        # A partial route map cannot establish absence for any legacy reference.
+        route_index_available = False
+
+    occurrences: list[dict[str, Any]] = []
+    for source_path, entry_table, fields in source_specs:
+        contract = _read_toml(repo_root / source_path)
+        rows = contract.get(entry_table, _MISSING_VALUE)
+        if type(rows) is not list:
+            findings.append(
+                Finding(
+                    "operability-route",
+                    "error",
+                    source_path,
+                    f"legacy route source must contain a `{entry_table}` array",
+                )
+            )
+            continue
+        for row_index, row in enumerate(rows):
+            if type(row) is not dict:
+                findings.append(
+                    Finding(
+                        "operability-route",
+                        "error",
+                        source_path,
+                        "legacy route source row must be a table",
+                        f"index={row_index}",
+                    )
+                )
+                continue
+            row_id = row.get("id", row.get("component", _MISSING_VALUE))
+            if type(row_id) is not str or not row_id:
+                row_id = f"{entry_table}[{row_index}]"
+            for field in fields:
+                raw_paths = row.get(field, _MISSING_VALUE)
+                if raw_paths is _MISSING_VALUE:
+                    continue
+                if type(raw_paths) is not list:
+                    findings.append(
+                        Finding(
+                            "operability-route",
+                            "error",
+                            source_path,
+                            f"legacy route field `{field}` must be an array",
+                            f"row={row_id}",
+                        )
+                    )
+                    continue
+                for path_index, path in enumerate(raw_paths):
+                    if type(path) is not str or not path:
+                        findings.append(
+                            Finding(
+                                "operability-route",
+                                "error",
+                                source_path,
+                                f"legacy route field `{field}` must contain nonempty strings",
+                                f"row={row_id} index={path_index}",
+                            )
+                        )
+                        continue
+                    active_routes = (
+                        sorted(
+                            route_map.get(path, []),
+                            key=lambda item: (item["component"], item["owner"]),
+                        )
+                        if route_index_available
+                        else None
+                    )
+                    routed = bool(active_routes) if route_index_available else None
+                    occurrence = {
+                        "source_file": source_path,
+                        "source_row": row_id,
+                        "field": field,
+                        "path": path,
+                        "active_routes": active_routes,
+                        "routed": routed,
+                    }
+                    occurrences.append(occurrence)
+                    if routed is False:
+                        findings.append(
+                            Finding(
+                                "operability-route",
+                                "error",
+                                path,
+                                "legacy operational reference has no active component route",
+                                f"source={source_path} row={row_id} field={field}",
+                            )
+                        )
+
+    by_source: dict[str, dict[str, dict[str, int]]] = {}
+    for source_path, _, fields in source_specs:
+        by_source[source_path] = {}
+        for field in fields:
+            field_occurrences = [
+                occurrence
+                for occurrence in occurrences
+                if occurrence["source_file"] == source_path and occurrence["field"] == field
+            ]
+            routed_count = sum(
+                1 for occurrence in field_occurrences if occurrence["routed"] is True
+            )
+            unrouted_count = sum(
+                1 for occurrence in field_occurrences if occurrence["routed"] is False
+            )
+            unresolved_count = sum(
+                1 for occurrence in field_occurrences if occurrence["routed"] is None
+            )
+            by_source[source_path][field] = {
+                "occurrence_count": len(field_occurrences),
+                "routed_occurrence_count": routed_count,
+                "unrouted_occurrence_count": unrouted_count,
+            }
+            if unresolved_count:
+                by_source[source_path][field]["unresolved_occurrence_count"] = unresolved_count
+
+    unrouted = [occurrence for occurrence in occurrences if occurrence["routed"] is False]
+    unresolved = [occurrence for occurrence in occurrences if occurrence["routed"] is None]
+    summary = {
+        "status": "failed" if findings else "passed",
+        "occurrence_count": len(occurrences),
+        "routed_occurrence_count": sum(
+            1 for occurrence in occurrences if occurrence["routed"] is True
+        ),
+        "unrouted_occurrence_count": len(unrouted),
+        "by_source": by_source,
+        "missing_occurrences": unrouted,
+        "occurrences": occurrences,
+    }
+    if not route_index_available:
+        summary["route_index_available"] = False
+        summary["unresolved_occurrences"] = unresolved
+    return findings, summary
 
 
 def _validate_extension_points_contract(repo_root: Path) -> list[Finding]:
@@ -2970,10 +4318,14 @@ def _path_pattern_exists(repo_root: Path, pattern: str) -> bool:
     return (repo_root / path).exists()
 
 
-def _summary(repo_root: Path) -> dict[str, Any]:
+def _summary(
+    repo_root: Path,
+    *,
+    family_admission: _PackageMirrorFamilyAdmission | None = None,
+) -> dict[str, Any]:
     from tools.ops_runners.reports import dead_overrides
 
-    packages = _load_package_contracts(repo_root)
+    packages = _load_package_contracts(repo_root, family_admission=family_admission)
     gates = _read_toml(repo_root / "architecture" / "gates" / "report_only.toml").get("gate", [])
     module_budget = _read_toml(repo_root / "architecture" / "module_size_budget.toml")
     return {
@@ -3031,6 +4383,13 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="Return non-zero when the report-only contracts are malformed.",
     )
     parser.add_argument(
+        "--fail-on-package-mirror-errors",
+        action="store_true",
+        help=(
+            "Return non-zero when the registered package mirror family fails source reconciliation."
+        ),
+    )
+    parser.add_argument(
         "--enforce-import-boundary-deltas",
         action="store_true",
         help=(
@@ -3060,9 +4419,15 @@ def run_cli(argv: list[str] | None = None) -> int:
             atomic=False,
         )
     else:
-        print(json.dumps(payload, indent=2, sort_keys=True))
+        sys.stdout.write(json.dumps(payload, indent=2, sort_keys=True) + "\n")
     if args.fail_on_contract_errors and payload["contract_error_count"]:
         return 1
+    if args.fail_on_package_mirror_errors:
+        family_check = (
+            payload["summary"].get("generated_family_checks", {}).get(PACKAGE_MIRROR_FAMILY_ID)
+        )
+        if family_check is None or family_check.get("error_count", 1):
+            return 1
     return 0
 
 

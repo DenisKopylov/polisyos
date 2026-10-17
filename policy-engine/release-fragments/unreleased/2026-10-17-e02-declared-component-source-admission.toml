@@ -1,0 +1,20 @@
+id = "2026-10-17-e02-declared-component-source-admission"
+title = "Fail closed when the declared component index cannot be admitted"
+type = "changed"
+component = "tooling"
+owner = "team-devx"
+summary = "The report-only architecture checker keeps the route basis unresolved and emits typed failure findings when the declared active component index resolves outside the repository, cannot be read or parsed, or has invalid component rows or route fields."
+evidence = [
+  "tools/quality/validation/architecture_report_only_contracts.py",
+  "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+]
+compatibility = "Valid component-index reports retain their existing route and status behavior, including symlinks whose resolved target stays within the repository. When the declared target or any required route row cannot be admitted, the internal JSON report marks the entire route basis unavailable and preserves each legacy reference as unresolved instead of reporting it as definitely un-routed."
+change_class = "internal"
+surface_classification = "internal: report-only architecture-gate diagnostics"
+migration = "No change is required for a valid index. Keep the resolved target inside the repository and correct the declared relative path, file type, encoding, TOML, required component row fields, or read permissions, then rerun the architecture report."
+api = "Only the internal report summary gains route_index_available=false and unresolved_occurrences when the declared component index cannot be admitted. No public API, persisted artifact, or authority schema changes."
+limitations = "This diagnostic does not establish that unresolved routes are absent, nor does it promote or authorize any route. The report remains failed until the declared index can be admitted."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

@@ -610,6 +610,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase-canary-source-basis-g-decision-20261017.md",
       "sha256": "6007bedc4e3d76281c0b58c6149640f8b085ebe4e04666f9c4e468f3fc8f0079"
+    },
+    {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/quality17-scoped-readers-typed-boundaries-20261017.json",
+          "sha256": "0d0442eba128b339091151bbca37a9edd5c0b5597cfff4136a9fac0ae7c37d76"
     }
   ],
   "canonical_denominator_recomputed": {

@@ -1,0 +1,270 @@
+{
+  "record_type": "candidate_implementation_handoff",
+  "slice": "quality17-scoped-readers-typed-boundaries-20261017",
+  "author_role": "local_candidate_author_not_G",
+  "candidate_branch": "codex/e02-unified-local-20261009",
+  "slice_base": {
+    "sha": "cf6a076a8415dc4092cfd3d4e9c8862f81c15a9a",
+    "tree": "66ae2554aad8ea526d9406bb6abb5aa1d5ad6c82"
+  },
+  "candidate": {
+    "sha": "9feed8f0f5edac8c9884f703a1eb10aa107c0b14",
+    "tree": "eba4bba04c16a329854deebf0e7dca4ed7adb9ac",
+    "parents": [
+      "cf6a076a8415dc4092cfd3d4e9c8862f81c15a9a"
+    ],
+    "source_bytes_read_back_from_branch": true,
+    "full_footprint_sha256": {
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": "6c93a554162c731650887ce4be8bec3bbf37482af258b3e3f62ecfcf02d4d0b8",
+      "policy-engine/src/polisyos/runtime/quality/generic_simulation_admission.py": "04c88d60470e24af59979d42d305020f50179022a94ae34a5c319d88e5e8a8a8",
+      "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py": "1dee5070c4b3cbcdf2dca53dac30d854c940509b205e5ff8f7a49984f5074912",
+      "policy-engine/src/polisyos/ir/analytics/ncm.py": "10424b06697b2d598d34a0aaa79172e7acecdd258a71752ea0e0d9be5e9b75dd",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "d982101d0224d5db46fe6619ae783d92dea672708d5cb0a478248b822146dd4f",
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py": "b976af0fdc182f2108b7d1a7483e3e3a8cb66bace844a4e918f6266c5b1a906b",
+      "policy-engine/tests/unit/remediation/test_acq_01.py": "0eabe8a8538bf01bc0f35debe31c5620e5fd82442f87d70fbc5a830063497936",
+      "policy-engine/tests/unit/runtime/quality/test_acquisition_owner_store_requirement.py": "c88ea89b9dcf3d94ce8db52bebba16361fcbcc31c29509343b436838f5d380e4",
+      "policy-engine/tests/unit/runtime/quality/test_generic_n5_v3_binding.py": "b760385b75382f784921b1ec6faaa8cd2aa655f95118923e1e1dace6e8855e54",
+      "policy-engine/tests/unit/runtime/quality/test_opaque_owner_payload.py": "515b5e0e394fe404d147fb67269366a3c3765d4593e35610460d311f668eb0d3",
+      "policy-engine/tests/unit/ir/analytics/test_ncm.py": "32ee0ca9d49e4d2adeeb7e3e7ea5bc315ffbe3393ab2ccafc947edb7b1d00af1",
+      "policy-engine/tests/unit/runtime/quality/test_candidate_simulation_request_type_boundary.py": "5fa020ec3c6750609be277c64db3859cb957c9c9d1bb8fa4f734b055df8cdc55",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-runtime-quality-scoped-readers-and-typed-boundaries.toml": "58bab0936f63a1159f51e6aa7257e3453fb25a916df2fdceae6b8a647448b9f6",
+      "policy-engine/src/polisyos/runtime/quality/README.md": "e0ef4b7402f176f180e37a5249fd09173a880731ba2f5f433a0e9d31ffac5dbb",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-n8-bounds-candidate-serving.toml": "6b265f18d7b6ee8e4d086ad8f617b1c32c52233d85c3db307c64f7ae8d7b680f",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "ea5abd6b50c99e7dba5b0d94c6a7bb5cc7cb3b07ea3a4730d922da9c50d40099",
+      "policy-engine/tests/repo_quality/test_chronology_terminal_state.py": "eaa01560f0ae0a1189392f5c59aac48428f5dc15685079b61c773ac44925acbd"
+    }
+  },
+  "code_and_companion_scope": [
+    "scope-qualified GenerationSourceRepository keyword calls in three N5 loaders",
+    "CoreJSON/IR reader protocol admission before store reads; canonical owner type imports",
+    "typed OPAQUE owner responses and versioned joint request intake",
+    "candidate-only N8 bounds remain MANSKI/ASSUMPTION_ONLY and fail production Value admission",
+    "chronology terminal-state repository test uses actual persisted owner/query and qualification consumer before N9",
+    "mirrored tests, README, release fragments and explicit path lease"
+  ],
+  "selected_input_profile_backend": {
+    "recipe": "existing locked product .venv; canonical source and pytest.ini; no new environment",
+    "command_environment": {
+      "E02_REPLAY_REQUEST": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-r3-20261017/request.json",
+      "PYTHONPATH": "src:.:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-r3-20261017",
+      "PYTEST_ADDOPTS": "",
+      "PYTEST_PLUGINS": ""
+    },
+    "numerical_threads": 1,
+    "source_inputs_pinned": 68,
+    "observed_product_modules_pinned_at_end": 1559,
+    "input_authority": "controlled source-bound fixtures, not production currentness or authority"
+  },
+  "verification": {
+    "normal_composed_behavior": {
+      "PASS": 35,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "passed_phases": 105,
+      "pytest_command_seconds": 399.464,
+      "peak_process_tree_rss_bytes": 3611131904,
+      "collection_call_junit_identities_reconciled": true,
+      "full_command": [
+        {
+          "acceptance": "Exactly all 35 collected canonical cases have passed setup/call/teardown and JUnit outcomes; no source-origin or frozen-input drift.",
+          "argv": [
+            "/usr/bin/time",
+            "-l",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "--import-mode=importlib",
+            "--strict-markers",
+            "-ra",
+            "-vv",
+            "--tb=short",
+            "-p",
+            "no:cacheprovider",
+            "-p",
+            "root_quality17_source_origins",
+            "--basetemp",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-r3-20261017/runtime/main-pytest-basetemp",
+            "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_selected_state_blob_view",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_requires_core_json_reader_before_store_reads",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_generic_n5_consumers_replay_scoped_source_before_using_candidate",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_core_generation_controller_cannot_bypass_epoch_gate",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_n9_route_rejects_marker_only_replay_without_fresh_gate_qualification",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_n9_route_rejects_service_without_configure_delegation",
+            "tests/unit/runtime/quality/test_generic_n5_v3_binding.py::test_generic_n5_execution_replay_loads_the_actual_source_in_scope",
+            "tests/unit/remediation/test_acq_01.py::test_n7_core_json_readers_preserve_base_store_refusal_boundary",
+            "tests/unit/remediation/test_acq_01.py::test_n7_acq01_reentry_rejects_self_labeled_grounding_mapping",
+            "tests/unit/remediation/test_acq_01.py::test_n7_acq01_route_requires_controller_selected_store",
+            "tests/unit/runtime/quality/test_acquisition_owner_store_requirement.py::test_runtime_hint_gateway_must_implement_acquisition_owner_protocol",
+            "tests/unit/runtime/quality/test_opaque_owner_payload.py::test_l1_profile_uses_real_passport_and_rejects_present_invalid_owner",
+            "tests/unit/runtime/quality/test_opaque_owner_payload.py::test_source_intent_and_hte_consumer_use_canonical_estimand_and_preserve_limits",
+            "tests/unit/runtime/quality/test_opaque_owner_payload.py::test_foundry_value_port_decodes_real_and_present_invalid_selection_payloads_without_fit",
+            "tests/unit/runtime/quality/test_candidate_simulation_request_type_boundary.py::test_candidate_request_keeps_versioned_n4_candidate_boundary",
+            "tests/unit/ir/analytics/test_ncm.py::test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view",
+            "tests/repo_quality/test_chronology_terminal_state.py",
+            "--junitxml",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-r3-20261017/main.junit.xml"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+          "expected_cases_by_ast_literal_parametrize": 35,
+          "expected_exit_code": 0,
+          "label": "quality17-composed-behavior",
+          "source_origin_plugin": "root_quality17_source_origins",
+          "timeout_seconds": 510
+        }
+      ],
+      "full_deciding_outputs": {
+        "request.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-r3-20261017/request.json",
+          "sha256": "64e5dc2f554a1b256c4b234c0d3e6e805dc65cac597623d287e36a61837c8b30"
+        },
+        "actual-results.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-r3-20261017/actual-results.json",
+          "sha256": "39d7254af3671813a7fdbfc46ddf8c04680baf04dbdb95b29bef2ac6f23a997b"
+        },
+        "main.junit.xml": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-r3-20261017/main.junit.xml",
+          "sha256": "c181eb313185d62fffa0f8e699b0d5164e941ab4ea68606552fc05bb9512d0f9"
+        },
+        "quality17-composed-behavior.stdout.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-r3-20261017/quality17-composed-behavior.stdout.txt",
+          "sha256": "3583fd8389ac0d3fbe18f95ff977b43dcba73b623c67d4cdc6ff2b5ab5cb4fa9"
+        },
+        "quality17-composed-behavior.stderr.txt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-r3-20261017/quality17-composed-behavior.stderr.txt",
+          "sha256": "ba509a2a34ac59e8cfb4a1c2cb52322b48d0b3438ad9703ed82b4130809e21b4"
+        },
+        "actual-loaded-source-origins.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-r3-20261017/actual-loaded-source-origins.json",
+          "sha256": "776d112291b436d9fc622931e5fd2e30926f7ed09c53799bd1d2120cc330acaf"
+        },
+        "actual-execution-phases.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-r3-20261017/actual-execution-phases.json",
+          "sha256": "c0306756316f9f2004ea534bb1b047f0db7ce83a6b5d38241d84bfb7eb0ff48c"
+        },
+        "supervisor-result.json": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-r3-20261017/supervisor-result.json",
+          "sha256": "c31c5e1cb3fb1cfb130a06b2b0d2329bd3a9f0fb5f36cde8ce3f7fee114322aa"
+        }
+      }
+    },
+    "ruff": {
+      "check": 0,
+      "format_check": 0,
+      "python_file_denominator": 13,
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-canonical-ruff-r2-20261017/actual-results.json",
+        "sha256": "6929561e86e132f18612ac2d3af9f5719b1561d8a9939e100ba2b3310add5d71"
+      }
+    },
+    "remove_property_keep_markers": {
+      "pytest_exit": 1,
+      "expected_property_red": true,
+      "actual_counters": {
+        "manifest_reads": 2,
+        "payload_reads": 0,
+        "verify_calls": 0
+      },
+      "same_store_object_in_mutant_method": true,
+      "runner_pin_count": 91,
+      "outer_pin_count": 92,
+      "actual_origins": 1476,
+      "origin_errors": [],
+      "peak_rss_bytes": 1135034368,
+      "seconds": 34.498
+    }
+  },
+  "real_chain": [
+    {
+      "property": "N5 store reader admission",
+      "chain": "configured graph/plan refs → actual scoped repository/IR Core JSON read → selected N5 owner; base-only store refused before reads",
+      "negative": "one guard removed, markers retained; exact same facade reached two manifest reads and later refusal; test call failed while setup/teardown passed"
+    },
+    {
+      "property": "N8 candidate bounds lineage",
+      "chain": "persisted AIPW/TMLE source bounds → fresh reader → Value owner Counter lineage check → production Value admission refusal",
+      "negative": "remove actual method-request edge while references/markers remain: both actual consumers reject; bypass predicate reaches sentinel"
+    },
+    {
+      "property": "chronology terminal qualification",
+      "chain": "owner query persisted/reloaded → fresh qualification consumer → policy_admission_missing → N9 not invoked",
+      "boundary": "negative authority admission and source-bound lifecycle witness; not a positive N9 publication"
+    }
+  ],
+  "consumer_surface_limits": [
+    "Selected typed runtime/IR consumers verified. Full ordinary POST → meaningful N4 children → N5 CAS → fresh GET remains pending.",
+    "N7 remote S3/GCS, complete N9, full simulation and empirical calibration are not established by this slice.",
+    "Ruff is selected scope only. Native architecture/type/SOTA/package/Linux/browser gates remain unrun or separately held; no inherited classification.",
+    "Actual V3 cross-context SKG consumer probe is separate and has not passed; no custody/auth/currentness promoted.",
+    "All original 282 findings / 291 occurrences require full-property rebind; this slice does not close rows automatically."
+  ],
+  "references": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-implementation-boundary-20261017/quality17-implementation-readback.json",
+      "sha256": "41918ed0e31b9d47b33c6574c3c6e94bd7c899c35e2f6e30739d50edbb476c5d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-implementation-boundary-20261017/verification-readback.json",
+      "sha256": "3337d8119ffee8564f94865e6aa14933b64fdb8b5e638b28ad4eda4b436a109c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-r3-20261017/postrun-analysis-r1.json",
+      "sha256": "04e56bc561e82c186e049a8477994ed9cf929c651e56fcfc19841c3d4d1c5b34"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-canonical-ruff-r2-20261017/actual-results.json",
+      "sha256": "6929561e86e132f18612ac2d3af9f5719b1561d8a9939e100ba2b3310add5d71"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/quality-source-composition-author-r1-20261017/composition-manifest.json",
+      "sha256": "8bba0fbeb3c8f0bbef057bb2926e7d0f28fe30a113aa97f9489a71f8e4c03940"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/quality-source-composition-independent-review-r1-20261017/review.json",
+      "sha256": "875c98a6bfe5d66da4fa8e3a58d589476dc165610b003f53b7658725466a6ae4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/opaque-owner-runtime-admission-independent-review-r1-20261017/review.json",
+      "sha256": "19e21774cf1ba9a8a5b70ebfe901491530b0fc45c0ffcfbdff46e7a09aa71baa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n8-bounds-lineage-negative-control-r1-20261017/independent-review-r1.json",
+      "sha256": "db2c7df46d197c8dbd7583b88bdaf6ef5bb30e2ba1eb461790e4ecf0090c231f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n8-bounds-lineage-negative-control-r1-20261017/receipts/persisted-consumer-replay-r3-run-receipt.json",
+      "sha256": "b1740028f43e5c17113e0321cc3b6118e3b25b3f81537e9c83f3a09a307d9b7e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-store-guard-root-r4-20261017/request.json",
+      "sha256": "a392a5a43cc78270976827585ae26c858e897c53aea4f0b577484ea291333f2d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-store-guard-root-r4-20261017/actual-results.json",
+      "sha256": "fcb8b505396127f9d8e4abd56be5e635d122e653388a3743d2a15c126682da4f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-store-guard-root-r4-20261017/receipts/current-source-origins.json",
+      "sha256": "891ec92152a8d48285f997595122e9de6280227ca4faa38b8590affa5f448232"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-store-guard-root-r4-20261017/receipts/property-removal.junit.xml",
+      "sha256": "bab980320332ba1750d9077716e6585a0a1fb0eee6ac00e28e6d86df902236b4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-store-guard-root-r4-20261017/supervisor-result.json",
+      "sha256": "bf6c26e9f040992a2505b13abd3b79631c648c4bde4b253a26678eaae6080b08"
+    }
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "status": "bounded implemented candidate; selected behaviors verified; independent G acceptance pending",
+    "formal_closures_proposed": [],
+    "whole_property_finding_adjudication": "deferred to per-occurrence current-source proposal report, preserving historical decisions including B198"
+  },
+  "global_source_input_backend_freeze": false,
+  "next_check": "Adopt independently reviewed serving and native companions, canonical regeneration, actual served and installed consumers, Linux/authentic inputs, then complete per-ID closeout proposal for G."
+}

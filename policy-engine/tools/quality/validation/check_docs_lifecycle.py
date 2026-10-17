@@ -609,6 +609,8 @@ def _iter_reference_scan_files(repo_root: Path) -> Iterable[Path]:
 
 
 def _reference_scan_text(relative: Path, text: str) -> str:
+    if relative.suffix.lower() == ".json" and not text.strip():
+        raise json.JSONDecodeError("empty JSON document", text, 0)
     return reference_scan_text(relative, text)
 
 

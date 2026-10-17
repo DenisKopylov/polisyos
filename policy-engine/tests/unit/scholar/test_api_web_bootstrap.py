@@ -22,8 +22,13 @@ from polisyos.core.canon import content_hash, from_canonical_bytes
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent
 from polisyos.fabric.claims.persist import load_doc_meta
 from polisyos.ir.world.ids import doc_version_id_from_raw_artifact
+from polisyos.scholar import (
+    EnrichmentReportV1,
+    EnrichResultV1,
+    KnowledgeBundlePayloadV1,
+    ScholarAcquireError,
+)
 from polisyos.scholar.api import _source_spec_from_snapshot, enrich_topic
-from polisyos.scholar.errors import ScholarAcquireError
 from polisyos.scholar.search.cache import UrlFetchCache
 from polisyos.scholar.search.fetcher import source_id_from_url
 from polisyos.scholar.search.models import (
@@ -44,11 +49,6 @@ from polisyos.scholar.search.providers import (
 from polisyos.scholar.search.scoring import build_source_metadata
 from polisyos.scholar.search.security import sanitize_untrusted_text
 from polisyos.scholar.search.service import ScholarDeepSearchService
-from polisyos.scholar.types import (
-    EnrichmentReportV1,
-    EnrichResultV1,
-    KnowledgeBundlePayloadV1,
-)
 
 
 def _assert_expected_validation_error(

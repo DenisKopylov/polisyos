@@ -120,6 +120,8 @@ packages/*/node_modules/
 !src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files/*.csv
 !tests/_data/data_forge/non_lex_split/**/*.duckdb
 !tests/_data/checkpoint_compat/**/*.pkl
+# Historical BERL compatibility witness; the test verifies its exact 492-byte hash.
+!tests/fixtures/berl/legacy_pre_move_fqns.pkl
 
 # Local audit bundles and accidental shell redirection artifacts
 *.polisyos-audit.tar.gz

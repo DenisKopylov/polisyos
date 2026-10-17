@@ -1,12 +1,19 @@
 from __future__ import annotations
 
+import importlib
+import sys
+
 import pytest
 
-from polisyos.foundry._registry import MECHANISM_REGISTRY, get_mechanism_descriptor
 from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
+    MECHANISM_REGISTRY,
+    create_mechanism_from_spec,
+    get_mechanism_descriptor,
+)
 from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.selection.registry import MethodRegistry, get_registry_audit_log
 
 
 @pytest.fixture(autouse=True)
@@ -37,6 +44,35 @@ def test_mechanism_registry_is_backed_by_unified_method_catalog() -> None:
     descriptor = get_mechanism_descriptor("income_tax")
     assert descriptor.method_fqn == "mechanism.runtime.income_tax@1.0.0"
     assert descriptor.mechanism_class_path == "polisyos.foundry.execute.mechanisms:IncomeTax"
+
+
+def test_extension_registry_resolves_runtime_exports_by_identity() -> None:
+    extension_registry = importlib.import_module("polisyos.foundry.extensions.registry")
+    assert extension_registry.get_mechanism_descriptor is get_mechanism_descriptor
+    assert "get_registry_audit_log" in extension_registry.__all__
+    assert extension_registry.get_registry_audit_log is get_registry_audit_log
+
+
+def test_private_root_registry_module_import_is_rejected(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module_name = "polisyos.foundry._registry"
+    monkeypatch.delitem(sys.modules, module_name, raising=False)
+
+    with pytest.raises(ModuleNotFoundError) as error:
+        importlib.import_module(module_name)
+
+    assert error.value.name == module_name
+
+
+def test_registry_factory_instantiates_registered_mechanism_class() -> None:
+    descriptor = get_mechanism_descriptor("income_tax")
+    mechanism = create_mechanism_from_spec("income_tax", {"rate": 0.2}, n_agents=3)
+    module_name, class_name = descriptor.mechanism_class_path.split(":")
+    expected_class = getattr(importlib.import_module(module_name), class_name)
+
+    assert type(mechanism) is expected_class
+    assert mechanism.fidelity == descriptor.hybrid_default
 
 
 def test_mechanism_runtime_method_dispatches_patch_payload() -> None:

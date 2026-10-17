@@ -60,6 +60,7 @@ def test_train_with_labor_market_disabled_is_typed_bridge_pending(
 def test_cmd_train_reports_unsupported_labor_market_profile_as_bridge_pending(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """CLI exposes an unsupported labor-market profile without fake metrics."""
 
@@ -83,7 +84,29 @@ def test_cmd_train_reports_unsupported_labor_market_profile_as_bridge_pending(
         encoding="utf-8",
     )
     output_dir = tmp_path / "output"
+    original_train = PolisySimulator.train
+    observed_results: list[TrainingResult] = []
 
+    def observe_train_result(
+        simulator: PolisySimulator,
+        n_episodes: int = 100,
+        training_config=None,
+        seed: int = 42,
+        output_dir: Path | None = None,
+        artifact_store=None,
+    ) -> TrainingResult:
+        result = original_train(
+            simulator,
+            n_episodes=n_episodes,
+            training_config=training_config,
+            seed=seed,
+            output_dir=output_dir,
+            artifact_store=artifact_store,
+        )
+        observed_results.append(result)
+        return result
+
+    monkeypatch.setattr(PolisySimulator, "train", observe_train_result)
     cmd_train(
         argparse.Namespace(
             config=config_path,
@@ -94,7 +117,20 @@ def test_cmd_train_reports_unsupported_labor_market_profile_as_bridge_pending(
     )
 
     output = capsys.readouterr().out
+    assert len(observed_results) == 1
+    result = observed_results[0]
+    assert result.status == "bridge_pending"
+    assert result.reason is not None
+    assert result.reason.status == "bridge_pending"
+    assert result.reason.code == "training_composite_profile_unsupported"
+    assert result.trained_policy is None
+    assert result.loss_history == []
+    assert result.artifact is None
+    assert result.artifact_refs is None
     assert "Training complete!" not in output
+    assert "PPO loss:" not in output
     assert "Final loss:" not in output
+    assert "Artifact:" not in output
     assert "bridge_pending" in output
     assert "training_composite_profile_unsupported" in output
+    assert not output_dir.exists()

@@ -17,7 +17,7 @@ DEFAULT_SCOPE = (
 )
 
 CURATED_EXTRA_SCOPE = (
-    "src/polisyos/scholar/freshness.py",
+    "src/polisyos/scholar/orchestrator/freshness.py",
     "src/polisyos/scholar/orchestrator/bundle.py",
     "src/polisyos/scholar/api.py",
     "src/polisyos/scientist/api.py",

@@ -16,10 +16,14 @@ from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
     ArtifactWriteOptions,
-    FileSystemCAS,
     ProducerInfo,
     SchemaInfo,
     input_ref_from_artifact_ref,
+)
+from polisyos.core.artifacts.protocol import (
+    CoreJSONArtifactStore,
+    _require_return_selected_profile_writer,
+    matches_runtime_protocol_definition,
 )
 from polisyos.core.canon import CanonSpec, fingerprint
 from polisyos.scientist.methods.search.strategies.space import (
@@ -232,7 +236,7 @@ class BayesianCandidateGenerator:
         self._warm_start_context_fingerprint: str | None = None
         self._warm_start_accepted_count = 0
         self._search_run_context_fingerprint: str | None = None
-        self._source_store: Any | None = None
+        self._source_store: CoreJSONArtifactStore | None = None
         self._issued_source_profiles: dict[
             str,
             tuple[
@@ -576,10 +580,11 @@ class BayesianCandidateGenerator:
     def _persist_gp_fit_basis(self, profile: BayesianSourceProfile) -> ArtifactRef | None:
         """Persist the selected, complete rows required for a fresh native GP refit."""
         optimizer = self._optimizer
+        source_store = self._source_store
         if (
             not profile.warm_start_eligible
-            or self._source_store is None
-            or not isinstance(self._source_store, FileSystemCAS)
+            or source_store is None
+            or not matches_runtime_protocol_definition(source_store, CoreJSONArtifactStore)
             or self._search_method_run_profile is None
             or optimizer is None
         ):
@@ -613,6 +618,9 @@ class BayesianCandidateGenerator:
         if not isinstance(model_state_fingerprint, str) or len(model_state_fingerprint) != 64:
             return None
         try:
+            # Refuse a writer that cannot return the exact manifest profile before
+            # building or attempting to persist the selected fit basis.
+            _require_return_selected_profile_writer(source_store, "put_json")
             fit_config_payload = asdict(optimizer._config)
             fit_config_payload["acquisition"] = getattr(
                 fit_config_payload.get("acquisition"),
@@ -649,7 +657,7 @@ class BayesianCandidateGenerator:
                 proposal_source=profile.proposal_source,
                 profile=profile,
             )
-            basis_ref = self._source_store.put_json(
+            basis_ref = source_store.put_json(
                 basis,
                 ArtifactWriteOptions(
                     kind="scientist.autotune.search_gp_fit_basis",
@@ -675,6 +683,8 @@ class BayesianCandidateGenerator:
                 return_selected_profile=True,
             )
         except (OSError, RuntimeError, TypeError, ValueError, ValidationError):
+            return None
+        if basis_ref.manifest_profile_sha256 is None:
             return None
         return basis_ref
 
@@ -705,7 +715,7 @@ class BayesianCandidateGenerator:
                 objective_fingerprint=objective_fingerprint,
             )
 
-    def _configure_source_store(self, store: Any) -> None:
+    def _configure_source_store(self, store: CoreJSONArtifactStore) -> None:
         """Bind the CAS used by this runtime for fresh-read source verification."""
         self._source_store = store
 

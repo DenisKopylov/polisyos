@@ -1498,6 +1498,7 @@ def test_cli_reports_optimizer_loss_and_artifact_without_reward_alias(
 
     original_train = PolisySimulator.train
     training_calls: list[str] = []
+    observed_results: list[TrainingResult] = []
     training_seed = 7
 
     def train_supported_profile(
@@ -1513,7 +1514,7 @@ def test_cli_reports_optimizer_loss_and_artifact_without_reward_alias(
             simulator.initialize(training_seed)
         _set_supported_nonnegative_active_wealth(simulator, 1_000_000.0)
         training_calls.append("real_train")
-        return original_train(
+        result = original_train(
             simulator,
             n_episodes=n_episodes,
             training_config=training_config or _small_config(),
@@ -1521,6 +1522,8 @@ def test_cli_reports_optimizer_loss_and_artifact_without_reward_alias(
             output_dir=output_dir,
             artifact_store=artifact_store,
         )
+        observed_results.append(result)
+        return result
 
     monkeypatch.setattr(PolisySimulator, "train", train_supported_profile)
     config_path = tmp_path / "config.json"
@@ -1539,7 +1542,16 @@ def test_cli_reports_optimizer_loss_and_artifact_without_reward_alias(
 
     output = capsys.readouterr().out
     assert "Training complete!" in output
-    assert "PPO loss:" in output
     assert "Final loss:" not in output
-    assert "Artifact:" in output
     assert training_calls == ["real_train"]
+    assert len(observed_results) == 1
+    result = observed_results[0]
+    assert result.status == "trained"
+    assert result.reason is None
+    assert result.trained_policy is not None
+    assert result.artifact is not None
+    assert result.artifact_refs is not None
+    assert result.loss_history
+    assert result.artifact.metrics.final_loss == result.loss_history[-1]
+    assert f"  PPO loss: {result.loss_history[-1]:.4f}" in output
+    assert f"  Artifact: {result.artifact.artifact_id}" in output

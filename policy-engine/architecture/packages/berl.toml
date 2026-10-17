@@ -26,6 +26,8 @@ implementation_roots = [
   "src/polisyos/berl/benchmarks",
   "src/polisyos/berl/contracts",
   "src/polisyos/berl/metrics",
+  "src/polisyos/berl/perturbations",
+  "src/polisyos/berl/service",
 ]
 legacy_layout_mirror = "architecture/packages/layout.toml"
 legacy_layout_status = "active"

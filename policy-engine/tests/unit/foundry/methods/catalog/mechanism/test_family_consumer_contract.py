@@ -13,11 +13,6 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.foundry import PatchOp
 from polisyos.core.contracts.ic_verification import ICVerificationRequest
-from polisyos.foundry._registry import (
-    MissingRuntimeMechanismSupportError,
-    get_mechanism_descriptor,
-    has_runtime_mechanism_support,
-)
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute._internal.models import get_state_path, put_tensor
 from polisyos.foundry.execute._internal.ops import apply_ops_to_state
@@ -28,7 +23,12 @@ from polisyos.foundry.methods.catalog.mechanism.families import (
     get_mechanism_family_spec,
     mechanism_family_catalog,
 )
-from polisyos.foundry.methods.registry import MethodRegistry
+from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
+    MissingRuntimeMechanismSupportError,
+    get_mechanism_descriptor,
+    has_runtime_mechanism_support,
+)
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.ir.analytics import mechanism_design as certificates
 from polisyos.ir.governance.game_design import (
     BayesianTypeSpec,

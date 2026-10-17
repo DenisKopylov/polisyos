@@ -1,0 +1,37 @@
+id = "2026-10-17-e02-foundry-runtime-registry-route"
+title = "Reuse the mechanism catalog as Foundry's runtime registry owner"
+type = "changed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Mechanism runtime descriptors use the existing method-catalog owner and canonical MethodRegistry; all inventoried repository callers migrate and the unlisted private root module is removed."
+evidence = [
+  "src/polisyos/foundry/_registry.py",
+  "src/polisyos/foundry/methods/catalog/mechanism/runtime_registry.py",
+  "src/polisyos/foundry/extensions/registry.py",
+  "tests/unit/foundry/methods/test_foundry_v2_unified_runtime.py",
+  "docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+]
+compatibility = "The supported polisyos.foundry facade, method exports, schema, and runtime method contracts are unchanged. The removed old FQN is internal by the public-surface contract; external private imports and persisted old-reader pickle stores are not inventoried."
+change_class = "internal"
+surface_classification = "internal: polisyos.foundry._registry; supported Foundry facade unchanged"
+migration = "In-repository call sites move to polisyos.foundry.methods.catalog.mechanism.runtime_registry. The retired private FQN is not retained or registered as a shim."
+api = "No supported public entrypoint, export, schema, or runtime method contract changes. `get_registry_audit_log` remains exported by the canonical selection registry and its extension-registry binding is retained."
+limitations = "External deep-import and persisted-pickle populations remain unestablished; no absence claim is made. The Layer3 GY confidence-ledger output still requires its official regeneration/check after adoption."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/plans/active/DECOMPOSITION_BLUEPRINT.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "foundry-mechanism-runtime-registry-private-path"
+change_class = "internal"
+impact = "internal"
+surface = "internal: polisyos.foundry._registry"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable: the unlisted private path has no public compatibility window"
+release_note = "Tracked repository callers migrate to the existing catalog owner; the former private module is removed without an unregistered shim. External use remains unestablished."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/plans/active/DECOMPOSITION_BLUEPRINT.md"]
+runbook_docs = []

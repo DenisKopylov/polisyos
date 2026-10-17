@@ -903,8 +903,8 @@
                 "path": "src/polisyos/core/artifacts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 8683,
-                "sha256": "6d56dcd7042227ce00d617b0698eae26c263eaef72934dda06d911575b4aefae"
+                "bytes": 8704,
+                "sha256": "7d9622f4c1a0383befaa12fdc906f25c2e1adb10703e93d24d7936ebf0f430d8"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -1279,8 +1279,8 @@
                 "path": "src/polisyos/core/contracts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 67881,
-                "sha256": "f6c8da89b5e59150507c42acf1c4ac28bc1970674ec4112c1939bfc69a3b0889"
+                "bytes": 68139,
+                "sha256": "08067d0f203f67ed5fc979275ea1981ae210b6f51db36befcee952b0ae58ab44"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -4639,7 +4639,7 @@
       "has___dir__": true,
       "source_file": "src/polisyos/foundry/__init__.py",
       "summary": "Expose the stable Foundry compile/execute entrypoints behind lazy imports.",
-      "notes": "Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml.",
+      "notes": "Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages. Import compatibility applies only to paths with explicit architecture/shims.toml records; unlisted private FQNs remain internal by default.",
       "entrypoints": [
         {
           "module": "polisyos.foundry",
@@ -8628,8 +8628,8 @@
                 "path": "src/polisyos/scholar/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 5492,
-                "sha256": "5ec6466b0163b2f80914ff8bc66b25a32688a0b568e68953b24a0da25aebeddd"
+                "bytes": 5801,
+                "sha256": "11c8d9c8ea001f37f2ec8a801b96bb83a00e9e462bfefee7c3b9a0c04a71370d"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -8745,8 +8745,8 @@
                 "path": "src/polisyos/data_forge/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 7232,
-                "sha256": "4b1cc9a946fef60bbf204bee0ddf8e56132f267b484a5888a5ac33e451270e54"
+                "bytes": 7221,
+                "sha256": "47f02fae2cc5cbacbe7158b7dff70a5b573e09d1e6bb26390e0582b9d20c90b0"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -8879,8 +8879,8 @@
                 "path": "src/polisyos/data_forge/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 7232,
-                "sha256": "4b1cc9a946fef60bbf204bee0ddf8e56132f267b484a5888a5ac33e451270e54"
+                "bytes": 7221,
+                "sha256": "47f02fae2cc5cbacbe7158b7dff70a5b573e09d1e6bb26390e0582b9d20c90b0"
               }
             ],
             "unresolved_by_construction": [
@@ -8970,8 +8970,8 @@
                 "path": "src/polisyos/data_forge/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 7232,
-                "sha256": "4b1cc9a946fef60bbf204bee0ddf8e56132f267b484a5888a5ac33e451270e54"
+                "bytes": 7221,
+                "sha256": "47f02fae2cc5cbacbe7158b7dff70a5b573e09d1e6bb26390e0582b9d20c90b0"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/__init__.py",
@@ -9156,8 +9156,8 @@
                 "path": "src/polisyos/data_forge/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 7232,
-                "sha256": "4b1cc9a946fef60bbf204bee0ddf8e56132f267b484a5888a5ac33e451270e54"
+                "bytes": 7221,
+                "sha256": "47f02fae2cc5cbacbe7158b7dff70a5b573e09d1e6bb26390e0582b9d20c90b0"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/__init__.py",
@@ -9240,8 +9240,8 @@
                 "path": "src/polisyos/data_forge/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 7232,
-                "sha256": "4b1cc9a946fef60bbf204bee0ddf8e56132f267b484a5888a5ac33e451270e54"
+                "bytes": 7221,
+                "sha256": "47f02fae2cc5cbacbe7158b7dff70a5b573e09d1e6bb26390e0582b9d20c90b0"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/__init__.py",
@@ -9324,8 +9324,8 @@
                 "path": "src/polisyos/data_forge/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 7232,
-                "sha256": "4b1cc9a946fef60bbf204bee0ddf8e56132f267b484a5888a5ac33e451270e54"
+                "bytes": 7221,
+                "sha256": "47f02fae2cc5cbacbe7158b7dff70a5b573e09d1e6bb26390e0582b9d20c90b0"
               },
               {
                 "path": "src/polisyos/data_forge/read_api/__init__.py",

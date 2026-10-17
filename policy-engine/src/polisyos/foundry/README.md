@@ -48,6 +48,8 @@ agent-sim tooling.
 
 - [methods/README.md](methods/README.md) for the reusable method ABI, registry,
   dispatch, and catalog surfaces.
+- [methods/catalog/mechanism/README.md](methods/catalog/mechanism/README.md)
+  for runtime mechanism descriptors derived from the canonical MethodRegistry.
 
 - [calibration/README.md](calibration/README.md) for measurement-aware fit
   loops and uncertainty hand-off.
@@ -103,6 +105,9 @@ no evidence, authority, or institutional claims.
 The stable package facade is intentionally small. If a workflow needs lower
 level helpers, start from the subpackage README for that area instead of
 deep-importing ad hoc internals.
+
+The former private `polisyos.foundry._registry` module is removed; mechanism
+runtime descriptors belong to the catalog owner linked above.
 
 ## Candidate-only welfare execution-source identity (B161)
 

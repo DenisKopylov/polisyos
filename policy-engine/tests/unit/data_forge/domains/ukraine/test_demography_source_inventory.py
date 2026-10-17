@@ -56,6 +56,7 @@ from polisyos.data_forge.read_api.ukraine import (
     load_reconciled_targets,
     load_transition_priors,
     load_verified_stage_artifacts,
+    load_verified_stage_json_output,
 )
 from polisyos.foundry.methods.catalog.simulation.demography import (
     StaticAgingSimulationEstimator,
@@ -875,3 +876,128 @@ def test_inventory_facts_cannot_claim_independent_provenance() -> None:
     """The input DTO has no caller-controlled authority or currentness upgrade."""
     with pytest.raises(ValidationError):
         SourceFact(value="fixture:profile", provenance="independently_reconciled")
+
+
+def test_selected_inventory_member_loss_and_corruption_refuse_without_defaults(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    """Every selected CAS member is required by a fresh candidate consumer."""
+    manifest_path, build_root, store = _make_candidate(
+        tmp_path,
+        monkeypatch,
+        member_overrides={"targets": {"entrant_state_totals": [1.0, 1.0]}},
+    )
+    receipt = load_verified_stage_artifacts(
+        manifest_path,
+        store=store,
+        allowed_root=build_root,
+        expected_stage=StageId.DEMOGRAPHY_SOURCE_INVENTORY.value,
+        required_outputs=("inventory.json",),
+    )
+    inventory_snapshot = load_verified_stage_json_output(
+        store,
+        receipt,
+        "inventory.json",
+        model_type=DemographyInventoryEnvelope,
+        consumer_contract="demography_inventory.candidate_envelope",
+    )
+    envelope = inventory_snapshot.value_for_candidate()
+    selected_members = envelope.members
+    assert selected_members
+    assert envelope.evidence_band == "candidate_only"
+    source_receipt = envelope.source_stage_receipt
+    assert {member.source_output_name for member in selected_members} == set(source_receipt.outputs)
+    for member in selected_members:
+        assert source_receipt.outputs[member.source_output_name].content_ref == member.content_ref
+
+    inventory_manifest_file = manifest_path.read_bytes()
+    inventory_manifest_blob = store.get_bytes(receipt.manifest_ref)
+    inventory_path = Path(receipt.outputs["inventory.json"].source_path)
+    inventory_file = inventory_path.read_bytes()
+    inventory_ref = receipt.outputs["inventory.json"].content_ref
+    inventory_blob = store.get_bytes(inventory_ref)
+    source_manifest_path = Path(source_receipt.manifest_source_path)
+    source_manifest_file = source_manifest_path.read_bytes()
+    source_manifest_blob = store.get_bytes(source_receipt.manifest_ref)
+
+    artifacts = load_demography_candidate_artifacts(
+        manifest_path,
+        store=store,
+        allowed_root=build_root,
+    )
+    assert artifacts.source_evidence.source_status == "candidate_only"
+    assert artifacts.source_evidence.source_authority_provenance == "not_established"
+    assert artifacts.source_evidence.source_currentness_provenance == "not_established"
+    state = build_static_aging_state(
+        base_weights=np.array([1.0, 2.0]),
+        origin_state_index=np.array([0, 1]),
+        artifacts=artifacts,
+        microsim_calibration_report={
+            "decision": "pass",
+            "can_run_microsim": True,
+            "compatibility_status": "compatible",
+        },
+    )
+    assert np.array_equal(state["target_state_totals"], np.array([10.0, 20.0]))
+    assert np.array_equal(state["entrant_state_totals"], np.array([1.0, 1.0]))
+    assert np.array_equal(
+        state["transition_prior_matrix"],
+        np.array([[0.8, 0.2], [0.1, 0.9]]),
+    )
+    assert np.array_equal(state["donor_record_index"], np.array([101, 102]))
+    result = StaticAgingSimulationEstimator.pure_step(state, {})["result"]
+    assert np.allclose(result.aged_state_totals, np.array([10.0, 20.0]))
+    assert np.array_equal(result.entrant_record_index, np.array([101, 102]))
+    assert np.array_equal(result.entrant_state_index, np.array([0, 1]))
+    assert np.allclose(result.entrant_weights, np.array([1.0, 1.0]))
+    assert result.diagnostics["demography_source_evidence"]["source_status"] == "candidate_only"
+
+    quarantine_root = tmp_path / "cas-member-quarantine"
+    for member_index, member in enumerate(selected_members):
+        blob_path, member_manifest_path = store._paths(member.content_ref.artifact_id)
+        member_manifest_file = member_manifest_path.read_bytes()
+        member_source_path = Path(source_receipt.outputs[member.source_output_name].source_path)
+        member_source_file = member_source_path.read_bytes()
+        original_blob = store.get_bytes(member.content_ref)
+        assert blob_path.read_bytes() == original_blob
+        for damage_mode in ("missing", "corrupt"):
+            quarantine_root.mkdir(parents=True, exist_ok=True)
+            suffix = f"member-{member_index}-{member.content_ref.artifact_id.hex}"
+            original_quarantine = quarantine_root / f"{suffix}-{damage_mode}-original.blob"
+            assert not original_quarantine.exists()
+            blob_path.replace(original_quarantine)
+            try:
+                if damage_mode == "missing":
+                    assert not blob_path.exists()
+                else:
+                    damaged_blob = bytes([original_blob[0] ^ 1]) + original_blob[1:]
+                    blob_path.write_bytes(damaged_blob)
+                    assert blob_path.read_bytes() != original_blob
+
+                with pytest.raises(SourceResolutionRefusalError) as exc_info:
+                    load_demography_candidate_artifacts(
+                        manifest_path,
+                        store=store,
+                        allowed_root=build_root,
+                    )
+
+                assert exc_info.value.code == "source_member_profile_or_payload_refused"
+                assert manifest_path.read_bytes() == inventory_manifest_file
+                assert store.get_bytes(receipt.manifest_ref) == inventory_manifest_blob
+                assert inventory_path.read_bytes() == inventory_file
+                assert store.get_bytes(inventory_ref) == inventory_blob
+                assert source_manifest_path.read_bytes() == source_manifest_file
+                assert store.get_bytes(source_receipt.manifest_ref) == source_manifest_blob
+                assert member_manifest_path.read_bytes() == member_manifest_file
+                assert member_source_path.read_bytes() == member_source_file
+            finally:
+                if blob_path.exists():
+                    damaged_quarantine = (
+                        quarantine_root / f"{suffix}-{damage_mode}-replacement.blob"
+                    )
+                    assert not damaged_quarantine.exists()
+                    blob_path.replace(damaged_quarantine)
+                blob_path.write_bytes(original_quarantine.read_bytes())
+
+            assert store.get_bytes(member.content_ref) == original_blob

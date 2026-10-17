@@ -1,60 +1,20 @@
 {
   "benchmarks": {
-    "benchmark_importing_tests": [
-      "tests/performance/test_benchmark_phase15_contract.py",
-      "tests/performance/test_benchmark_runtime_pipeline.py",
-      "tests/performance/test_causal_frontier_sae_benchmark.py",
-      "tests/performance/test_local_real_benchmark_pack.py",
-      "tests/performance/test_synthetic_world_seed_benchmark.py",
-      "tests/repo_quality/tools/test_foundry_phase0_closure.py",
-      "tests/repo_quality/tools/test_phase4_consolidation.py",
-      "tests/unit/foundry/benchmarks/test_compositional_causality_benchmark.py"
-    ],
-    "benchmark_marker_tests": [
-      "tests/performance/test_runtime_hot_paths.py",
-      "tests/performance/test_scientist_runtime_paths.py",
-      "tests/unit/foundry/benchmarks/test_chain_perf.py",
-      "tests/unit/foundry/benchmarks/test_compositional_causality_benchmark.py",
-      "tests/unit/foundry/benchmarks/test_demographic_consistency_perf.py",
-      "tests/unit/foundry/benchmarks/test_foundry_release_gate.py",
-      "tests/unit/foundry/benchmarks/test_method_perf.py",
-      "tests/unit/foundry/benchmarks/test_registry_perf.py",
-      "tests/unit/foundry/benchmarks/test_ws5_jax_perf.py",
-      "tests/unit/ir/test_phase3_benchmarks.py"
-    ],
+    "benchmark_importing_tests": [],
+    "benchmark_marker_tests": [],
     "benchmark_root": {
-      "conftest_files": [
-        "benchmarks/conftest.py",
-        "benchmarks/foundry/conftest.py"
-      ],
+      "conftest_files": [],
       "exists": true,
-      "init_file_count": 28,
+      "init_file_count": 0,
       "path": "benchmarks",
-      "py_file_count": 147,
-      "test_file_count": 11
+      "py_file_count": 0,
+      "test_file_count": 0
     },
-    "performance_marker_tests": [
-      "tests/performance/test_runtime_hot_paths.py",
-      "tests/performance/test_scientist_runtime_paths.py",
-      "tests/unit/foundry/benchmarks/test_compositional_causality_benchmark.py",
-      "tests/unit/foundry/benchmarks/test_foundry_release_gate.py",
-      "tests/unit/ir/test_phase3_benchmarks.py"
-    ],
+    "performance_marker_tests": [],
     "performance_tests": {
-      "files": [
-        "tests/performance/test_benchmark_phase15_cli.py",
-        "tests/performance/test_benchmark_phase15_contract.py",
-        "tests/performance/test_benchmark_runtime_pipeline.py",
-        "tests/performance/test_causal_frontier_sae_benchmark.py",
-        "tests/performance/test_extended_benchmark_stack.py",
-        "tests/performance/test_local_real_benchmark_pack.py",
-        "tests/performance/test_overhead.py",
-        "tests/performance/test_runtime_hot_paths.py",
-        "tests/performance/test_scientist_runtime_paths.py",
-        "tests/performance/test_synthetic_world_seed_benchmark.py"
-      ],
+      "files": [],
       "path": "tests/performance",
-      "test_file_count": 10
+      "test_file_count": 0
     },
     "pytest_configuration": {
       "benchmark_storage": "file://./_cache/benchmarks",
@@ -64,11 +24,11 @@
     },
     "report_directories": [
       {
-        "exists": true,
+        "exists": false,
         "path": "_cache/benchmarks"
       },
       {
-        "exists": true,
+        "exists": false,
         "path": "benchmarks/_reports"
       },
       {
@@ -92,211 +52,177 @@
     "suite_directories": [
       {
         "entrypoint_like_files": [],
-        "fixture_dir_count": 0,
-        "path": "benchmarks/_reports",
-        "py_file_count": 0
-      },
-      {
-        "entrypoint_like_files": [],
         "fixture_dir_count": 1,
         "path": "benchmarks/abstraction",
-        "py_file_count": 3
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/advanced",
-        "py_file_count": 3
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/adversarial",
-        "py_file_count": 2
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/capability_wins",
-        "py_file_count": 14
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/comparators",
-        "py_file_count": 5
+        "py_file_count": 0
       },
       {
-        "entrypoint_like_files": [
-          "benchmarks/composition/compositional_causality_benchmark.py"
-        ],
+        "entrypoint_like_files": [],
         "fixture_dir_count": 1,
         "path": "benchmarks/composition",
-        "py_file_count": 4
+        "py_file_count": 0
       },
       {
-        "entrypoint_like_files": [
-          "benchmarks/discovery/causalbench_benchmark.py",
-          "benchmarks/discovery/causeme_benchmark.py",
-          "benchmarks/discovery/sachs_benchmark.py",
-          "benchmarks/discovery/tuebingen_benchmark.py"
-        ],
+        "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/discovery",
-        "py_file_count": 5
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 1,
         "path": "benchmarks/distributional",
-        "py_file_count": 6
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/econometrics",
-        "py_file_count": 1
+        "py_file_count": 0
       },
       {
-        "entrypoint_like_files": [
-          "benchmarks/estimation/acic_benchmark.py",
-          "benchmarks/estimation/lbidd_benchmark.py",
-          "benchmarks/estimation/realcause_benchmark.py"
-        ],
+        "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/estimation",
-        "py_file_count": 5
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/foundry",
-        "py_file_count": 10
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 1,
         "path": "benchmarks/governance",
-        "py_file_count": 4
+        "py_file_count": 0
       },
       {
-        "entrypoint_like_files": [
-          "benchmarks/honest_comparison/run_honest_benchmark.py"
-        ],
+        "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/honest_comparison",
-        "py_file_count": 19
+        "py_file_count": 0
       },
       {
-        "entrypoint_like_files": [
-          "benchmarks/hte/interpretable_hte_benchmark.py"
-        ],
+        "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/hte",
-        "py_file_count": 2
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 1,
         "path": "benchmarks/interaction",
-        "py_file_count": 3
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/interference",
-        "py_file_count": 3
+        "py_file_count": 0
       },
       {
-        "entrypoint_like_files": [
-          "benchmarks/missing/mgraph_benchmark.py"
-        ],
+        "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/missing",
-        "py_file_count": 2
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/natural_experiments",
-        "py_file_count": 2
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/network",
-        "py_file_count": 3
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/ops",
-        "py_file_count": 7
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 1,
         "path": "benchmarks/proof_closure",
-        "py_file_count": 4
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/reproducibility",
-        "py_file_count": 4
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/spatial",
-        "py_file_count": 1
+        "py_file_count": 0
       },
       {
         "entrypoint_like_files": [],
         "fixture_dir_count": 1,
         "path": "benchmarks/strategic",
-        "py_file_count": 3
+        "py_file_count": 0
       },
       {
-        "entrypoint_like_files": [
-          "benchmarks/survey/causal_frontier_sae_benchmark.py"
-        ],
+        "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/survey",
-        "py_file_count": 2
+        "py_file_count": 0
       },
       {
-        "entrypoint_like_files": [
-          "benchmarks/symbolic/run_symbolic_benchmark.py"
-        ],
+        "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/symbolic",
-        "py_file_count": 2
+        "py_file_count": 0
       },
       {
-        "entrypoint_like_files": [
-          "benchmarks/synthetic_world/phase0_seed_benchmark.py"
-        ],
+        "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/synthetic_world",
-        "py_file_count": 1
+        "py_file_count": 0
       },
       {
-        "entrypoint_like_files": [
-          "benchmarks/temporal/temporal_gold_benchmark.py",
-          "benchmarks/temporal/temporal_hidden_benchmark.py"
-        ],
+        "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/temporal",
-        "py_file_count": 7
+        "py_file_count": 0
       },
       {
-        "entrypoint_like_files": [
-          "benchmarks/transport/transport_benchmark.py"
-        ],
+        "entrypoint_like_files": [],
         "fixture_dir_count": 0,
         "path": "benchmarks/transport",
-        "py_file_count": 2
+        "py_file_count": 0
       }
     ]
   },
@@ -304,226 +230,191 @@
     "data_like_directories": [
       {
         "exists": true,
-        "extension_counts": {
-          ".json": 1
-        },
-        "file_count": 1,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "benchmarks/abstraction/fixtures",
         "python_file_count": 0,
         "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".json": 1
-        },
-        "file_count": 1,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "benchmarks/composition/fixtures",
         "python_file_count": 0,
         "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".json": 1
-        },
-        "file_count": 1,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "benchmarks/distributional/fixtures",
         "python_file_count": 0,
         "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".json": 1
-        },
-        "file_count": 1,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "benchmarks/governance/fixtures",
         "python_file_count": 0,
         "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".json": 1
-        },
-        "file_count": 1,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "benchmarks/interaction/fixtures",
         "python_file_count": 0,
         "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".json": 1
-        },
-        "file_count": 1,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "benchmarks/proof_closure/fixtures",
         "python_file_count": 0,
         "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".json": 1
-        },
-        "file_count": 1,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "benchmarks/strategic/fixtures",
         "python_file_count": 0,
         "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".csv": 15
-        },
-        "file_count": 15,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "src/polisyos/data_forge/domains/catalog/fixtures",
         "python_file_count": 0,
         "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".py": 3
-        },
-        "file_count": 3,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "src/polisyos/ir/data",
-        "python_file_count": 3,
+        "python_file_count": 0,
         "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".py": 4
-        },
-        "file_count": 4,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "src/polisyos/scientist/nodes/builtins/data",
-        "python_file_count": 4,
+        "python_file_count": 0,
         "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".duckdb": 4,
-          ".json": 93,
-          ".md": 7,
-          ".pkl": 2
-        },
-        "file_count": 106,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "tests/_data",
         "python_file_count": 0,
         "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".json": 4,
-          ".md": 3,
-          ".yaml": 11,
-          "<none>": 1
-        },
-        "file_count": 19,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "tests/_golden",
         "python_file_count": 0,
         "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".json": 142,
-          ".md": 7
-        },
-        "file_count": 149,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "tests/fixtures",
         "python_file_count": 0,
         "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".py": 3
-        },
-        "file_count": 3,
+        "extension_counts": {},
+        "file_count": 0,
+        "path": "tests/repo_quality/tools/fixtures",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "tests/unit/ir/data",
-        "python_file_count": 3,
-        "test_file_count": 2
+        "python_file_count": 0,
+        "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".py": 2
-        },
-        "file_count": 2,
+        "extension_counts": {},
+        "file_count": 0,
+        "path": "tests/unit/runtime/quality/fixtures",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "tests/unit/scientist/nodes/builtins/data",
-        "python_file_count": 2,
-        "test_file_count": 1
+        "python_file_count": 0,
+        "test_file_count": 0
       },
       {
         "exists": true,
-        "extension_counts": {
-          ".json": 8
-        },
-        "file_count": 8,
+        "extension_counts": {},
+        "file_count": 0,
+        "path": "tests/unit/scientist/orchestration/engine/fixtures",
+        "python_file_count": 0,
+        "test_file_count": 0
+      },
+      {
+        "exists": true,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "tests/unit/security/fixtures",
         "python_file_count": 0,
         "test_file_count": 0
       }
     ],
-    "data_like_directory_count": 16,
-    "pytest_collectable_tests_under_data_like_dirs": [
-      "tests/unit/ir/data/test_harmonizer.py",
-      "tests/unit/ir/data/test_versioning.py",
-      "tests/unit/scientist/nodes/builtins/data/test_build_data_snapshot.py"
-    ],
+    "data_like_directory_count": 19,
+    "pytest_collectable_tests_under_data_like_dirs": [],
     "roots": {
       "tests/_data": {
         "exists": true,
-        "extension_counts": {
-          ".duckdb": 4,
-          ".json": 93,
-          ".md": 7,
-          ".pkl": 2
-        },
-        "file_count": 106,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "tests/_data",
         "python_file_count": 0,
         "test_file_count": 0
       },
       "tests/_golden": {
         "exists": true,
-        "extension_counts": {
-          ".json": 4,
-          ".md": 3,
-          ".yaml": 11,
-          "<none>": 1
-        },
-        "file_count": 19,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "tests/_golden",
         "python_file_count": 0,
         "test_file_count": 0
       },
       "tests/_helpers": {
         "exists": true,
-        "extension_counts": {
-          ".md": 2,
-          ".py": 11
-        },
-        "file_count": 13,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "tests/_helpers",
-        "python_file_count": 11,
+        "python_file_count": 0,
         "test_file_count": 0
       },
       "tests/contract": {
         "exists": true,
-        "extension_counts": {
-          ".md": 1,
-          ".py": 21
-        },
-        "file_count": 22,
+        "extension_counts": {},
+        "file_count": 0,
         "path": "tests/contract",
-        "python_file_count": 21,
-        "test_file_count": 20
+        "python_file_count": 0,
+        "test_file_count": 0
       }
     }
   },
@@ -553,22 +444,6 @@
         "target_package": "obligation_rules",
         "target_path": "src/polisyos/obligation_rules/catalog.py",
         "type": "feature_flagged_semantic_fallback"
-      },
-      {
-        "adr": null,
-        "has_issue_or_adr_reference": true,
-        "id": "product-jax-bootstrap-to-workspace-vendor",
-        "issue": "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline",
-        "owner": "team-devx",
-        "reference": "docs/plans/accepted/REPOSITORY_SOTA_PHASE_0_CONTRACTS.md#shim-normalization-baseline",
-        "source_exists": true,
-        "source_package": null,
-        "source_path": "jax_bootstrap.py",
-        "sunset_date": "2026-08-01",
-        "target_exists": true,
-        "target_package": "common",
-        "target_path": "src/polisyos/common/jax_env.py",
-        "type": "wrapper_only"
       },
       {
         "adr": null,
@@ -623,30 +498,9 @@
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.6012,
-        "loose_name_mirrored_source_count": 104,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/ir/_internal/validation.py",
-          "src/polisyos/ir/analytics/_truthfulness.py",
-          "src/polisyos/ir/analytics/abm_bridge.py",
-          "src/polisyos/ir/analytics/abstraction.py",
-          "src/polisyos/ir/analytics/actual_causality.py",
-          "src/polisyos/ir/analytics/administrative_missingness.py",
-          "src/polisyos/ir/analytics/alignment_certification.py",
-          "src/polisyos/ir/analytics/applicability.py",
-          "src/polisyos/ir/analytics/backtest.py",
-          "src/polisyos/ir/analytics/calibration.py",
-          "src/polisyos/ir/analytics/calibration_diagnostics.py",
-          "src/polisyos/ir/analytics/causal.py",
-          "src/polisyos/ir/analytics/causal_capabilities.py",
-          "src/polisyos/ir/analytics/causal_discovery.py",
-          "src/polisyos/ir/analytics/causal_ensemble.py",
-          "src/polisyos/ir/analytics/causal_graph.py",
-          "src/polisyos/ir/analytics/causal_graph_kuzu.py",
-          "src/polisyos/ir/analytics/causal_queries.py",
-          "src/polisyos/ir/analytics/causal_rl.py",
-          "src/polisyos/ir/analytics/causal_run_snapshot.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "ir",
         "package_local_data_dir_count": 2,
         "package_local_data_dirs": [
@@ -655,44 +509,23 @@
         ],
         "property_exists": true,
         "property_path": "tests/property/ir",
-        "property_test_file_count": 1,
+        "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 173,
+        "source_module_count": 0,
         "source_path": "src/polisyos/ir",
-        "strict_mirrored_source_count": 22,
-        "strict_module_mirror_ratio": 0.1272,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/ir",
-        "unit_test_file_count": 163,
-        "unit_test_to_source_ratio": 0.9422
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.4824,
-        "loose_name_mirrored_source_count": 82,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/core/artifacts/_atomic_write.py",
-          "src/polisyos/core/artifacts/_env_capture.py",
-          "src/polisyos/core/artifacts/_env_comparison.py",
-          "src/polisyos/core/artifacts/_env_models.py",
-          "src/polisyos/core/artifacts/_env_utils.py",
-          "src/polisyos/core/artifacts/_integrity_ops.py",
-          "src/polisyos/core/artifacts/_layout.py",
-          "src/polisyos/core/artifacts/_manifest_lifecycle.py",
-          "src/polisyos/core/artifacts/_signature_ops.py",
-          "src/polisyos/core/artifacts/_transfer_ops.py",
-          "src/polisyos/core/artifacts/environment.py",
-          "src/polisyos/core/artifacts/environment_parts.py",
-          "src/polisyos/core/artifacts/graph.py",
-          "src/polisyos/core/artifacts/ids.py",
-          "src/polisyos/core/artifacts/manifest.py",
-          "src/polisyos/core/artifacts/ownership.py",
-          "src/polisyos/core/artifacts/protocol.py",
-          "src/polisyos/core/artifacts/registry.py",
-          "src/polisyos/core/artifacts/signing.py",
-          "src/polisyos/core/artifacts/store.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "core",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -700,259 +533,137 @@
         "property_path": "tests/property/core",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 170,
+        "source_module_count": 0,
         "source_path": "src/polisyos/core",
-        "strict_mirrored_source_count": 25,
-        "strict_module_mirror_ratio": 0.1471,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/core",
-        "unit_test_file_count": 104,
-        "unit_test_to_source_ratio": 0.6118
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.502,
-        "loose_name_mirrored_source_count": 126,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/fabric/_adapters/observability.py",
-          "src/polisyos/fabric/_internal/compatibility.py",
-          "src/polisyos/fabric/_internal/registry.py",
-          "src/polisyos/fabric/api.py",
-          "src/polisyos/fabric/catalog/binding.py",
-          "src/polisyos/fabric/catalog/contract.py",
-          "src/polisyos/fabric/catalog/discovery.py",
-          "src/polisyos/fabric/catalog/providers.py",
-          "src/polisyos/fabric/catalog/registry.py",
-          "src/polisyos/fabric/catalog/resolver_fast_lane.py",
-          "src/polisyos/fabric/catalog/search.py",
-          "src/polisyos/fabric/catalog/semantic.py",
-          "src/polisyos/fabric/catalog/source_bindings.py",
-          "src/polisyos/fabric/catalog/source_selection_audit.py",
-          "src/polisyos/fabric/catalog/validate.py",
-          "src/polisyos/fabric/claims/backends/explicit_lines_v1.py",
-          "src/polisyos/fabric/claims/backends/lex_norm_regex_v1.py",
-          "src/polisyos/fabric/claims/backends/regex_numeric_v1.py",
-          "src/polisyos/fabric/claims/canonicalize.py",
-          "src/polisyos/fabric/claims/citations.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "fabric",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
         "property_exists": true,
         "property_path": "tests/property/fabric",
-        "property_test_file_count": 1,
+        "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 251,
+        "source_module_count": 0,
         "source_path": "src/polisyos/fabric",
-        "strict_mirrored_source_count": 18,
-        "strict_module_mirror_ratio": 0.0717,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/fabric",
-        "unit_test_file_count": 166,
-        "unit_test_to_source_ratio": 0.6614
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
-        "integration_path": null,
+        "integration_path": "tests/integration/foundry",
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.7176,
-        "loose_name_mirrored_source_count": 376,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/foundry/_internal/utils.py",
-          "src/polisyos/foundry/_quickstart.py",
-          "src/polisyos/foundry/_registry.py",
-          "src/polisyos/foundry/agent_sim/actor_critic.py",
-          "src/polisyos/foundry/agent_sim/agent_metrics.py",
-          "src/polisyos/foundry/agent_sim/agents.py",
-          "src/polisyos/foundry/agent_sim/analysis.py",
-          "src/polisyos/foundry/agent_sim/artifact.py",
-          "src/polisyos/foundry/agent_sim/credit_assignment.py",
-          "src/polisyos/foundry/agent_sim/dashboard.py",
-          "src/polisyos/foundry/agent_sim/demographics.py",
-          "src/polisyos/foundry/agent_sim/distribution_executor.py",
-          "src/polisyos/foundry/agent_sim/distribution_mechanisms.py",
-          "src/polisyos/foundry/agent_sim/experiment.py",
-          "src/polisyos/foundry/agent_sim/government_policy.py",
-          "src/polisyos/foundry/agent_sim/graph_executor.py",
-          "src/polisyos/foundry/agent_sim/graph_observations.py",
-          "src/polisyos/foundry/agent_sim/graphs.py",
-          "src/polisyos/foundry/agent_sim/mechanism.py",
-          "src/polisyos/foundry/agent_sim/metrics.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "foundry",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
         "property_exists": true,
         "property_path": "tests/property/foundry",
-        "property_test_file_count": 28,
+        "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 524,
+        "source_module_count": 0,
         "source_path": "src/polisyos/foundry",
-        "strict_mirrored_source_count": 185,
-        "strict_module_mirror_ratio": 0.3531,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/foundry",
-        "unit_test_file_count": 473,
-        "unit_test_to_source_ratio": 0.9027
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": "tests/integration/scientist",
-        "integration_test_file_count": 3,
-        "loose_name_mirror_ratio": 0.7099,
-        "loose_name_mirrored_source_count": 367,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/scientist/_adapters/observability.py",
-          "src/polisyos/scientist/_internal/compat.py",
-          "src/polisyos/scientist/_internal/shims.py",
-          "src/polisyos/scientist/agent/_drafter_formatting.py",
-          "src/polisyos/scientist/agent/_drafter_llm.py",
-          "src/polisyos/scientist/agent/_drafter_orchestrator.py",
-          "src/polisyos/scientist/agent/_drafter_parsing.py",
-          "src/polisyos/scientist/agent/_drafter_passes.py",
-          "src/polisyos/scientist/agent/_llm_timeouts.py",
-          "src/polisyos/scientist/agent/base.py",
-          "src/polisyos/scientist/agent/constraint_context.py",
-          "src/polisyos/scientist/agent/critic.py",
-          "src/polisyos/scientist/agent/drafter.py",
-          "src/polisyos/scientist/agent/drafter_clients.py",
-          "src/polisyos/scientist/agent/drafter_multipass.py",
-          "src/polisyos/scientist/agent/drafter_multipass_parts.py",
-          "src/polisyos/scientist/agent/fabric.py",
-          "src/polisyos/scientist/agent/failure_card.py",
-          "src/polisyos/scientist/agent/feasibility.py",
-          "src/polisyos/scientist/agent/feasibility_duckdb.py"
-        ],
+        "integration_test_file_count": 0,
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "scientist",
-        "package_local_data_dir_count": 2,
+        "package_local_data_dir_count": 3,
         "package_local_data_dirs": [
           "src/polisyos/scientist/nodes/builtins/data",
-          "tests/unit/scientist/nodes/builtins/data"
+          "tests/unit/scientist/nodes/builtins/data",
+          "tests/unit/scientist/orchestration/engine/fixtures"
         ],
         "property_exists": true,
         "property_path": "tests/property/scientist",
-        "property_test_file_count": 5,
+        "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 517,
+        "source_module_count": 0,
         "source_path": "src/polisyos/scientist",
-        "strict_mirrored_source_count": 213,
-        "strict_module_mirror_ratio": 0.412,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/scientist",
-        "unit_test_file_count": 495,
-        "unit_test_to_source_ratio": 0.9574
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
-        "integration_path": null,
+        "integration_path": "tests/integration/runtime",
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.6766,
-        "loose_name_mirrored_source_count": 113,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/runtime/api.py",
-          "src/polisyos/runtime/extensions/api.py",
-          "src/polisyos/runtime/http/_openapi_contract_helpers.py",
-          "src/polisyos/runtime/http/access_audit.py",
-          "src/polisyos/runtime/http/app.py",
-          "src/polisyos/runtime/http/authz_middleware.py",
-          "src/polisyos/runtime/http/cell_router_middleware.py",
-          "src/polisyos/runtime/http/compliance.py",
-          "src/polisyos/runtime/http/container.py",
-          "src/polisyos/runtime/http/csrf.py",
-          "src/polisyos/runtime/http/dependencies.py",
-          "src/polisyos/runtime/http/dev_identity_middleware.py",
-          "src/polisyos/runtime/http/errors.py",
-          "src/polisyos/runtime/http/execution_policy.py",
-          "src/polisyos/runtime/http/fail_closed_middleware.py",
-          "src/polisyos/runtime/http/jwt_auth_middleware.py",
-          "src/polisyos/runtime/http/mutation_policy.py",
-          "src/polisyos/runtime/http/openapi_contract.py",
-          "src/polisyos/runtime/http/resilience.py",
-          "src/polisyos/runtime/http/response_policies.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "runtime",
-        "package_local_data_dir_count": 0,
-        "package_local_data_dirs": [],
+        "package_local_data_dir_count": 1,
+        "package_local_data_dirs": [
+          "tests/unit/runtime/quality/fixtures"
+        ],
         "property_exists": true,
         "property_path": "tests/property/runtime",
-        "property_test_file_count": 1,
+        "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 167,
+        "source_module_count": 0,
         "source_path": "src/polisyos/runtime",
-        "strict_mirrored_source_count": 65,
-        "strict_module_mirror_ratio": 0.3892,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/runtime",
-        "unit_test_file_count": 187,
-        "unit_test_to_source_ratio": 1.1198
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.4412,
-        "loose_name_mirrored_source_count": 15,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/lex/api.py",
-          "src/polisyos/lex/artifacts.py",
-          "src/polisyos/lex/errors.py",
-          "src/polisyos/lex/extensions/api.py",
-          "src/polisyos/lex/factlog.py",
-          "src/polisyos/lex/knowledge/search.py",
-          "src/polisyos/lex/knowledge/store.py",
-          "src/polisyos/lex/knowledge/types.py",
-          "src/polisyos/lex/legal_evaluation/backends/simple_v1.py",
-          "src/polisyos/lex/legal_evaluation/change_proposals.py",
-          "src/polisyos/lex/legal_evaluation/context_builder.py",
-          "src/polisyos/lex/legal_evaluation/evaluate.py",
-          "src/polisyos/lex/legal_evaluation/evaluator_registry.py",
-          "src/polisyos/lex/normpack/applicability.py",
-          "src/polisyos/lex/normpack/applicability_report.py",
-          "src/polisyos/lex/normpack/assemble_pack.py",
-          "src/polisyos/lex/normpack/conflict_check.py",
-          "src/polisyos/lex/normpack/extract_norm_claims.py",
-          "src/polisyos/lex/normpack/legal_authority.py",
-          "src/polisyos/lex/normpack/policies.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "lex",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
         "property_exists": true,
         "property_path": "tests/property/lex",
-        "property_test_file_count": 1,
+        "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 34,
+        "source_module_count": 0,
         "source_path": "src/polisyos/lex",
-        "strict_mirrored_source_count": 7,
-        "strict_module_mirror_ratio": 0.2059,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/lex",
-        "unit_test_file_count": 20,
-        "unit_test_to_source_ratio": 0.5882
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.4783,
-        "loose_name_mirrored_source_count": 11,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/scholar/_impl/evidence.py",
-          "src/polisyos/scholar/api.py",
-          "src/polisyos/scholar/discover/http_fetch.py",
-          "src/polisyos/scholar/discover/local_files.py",
-          "src/polisyos/scholar/discover/manual.py",
-          "src/polisyos/scholar/errors.py",
-          "src/polisyos/scholar/freshness_store.py",
-          "src/polisyos/scholar/orchestrator/bundle.py",
-          "src/polisyos/scholar/orchestrator/enrich.py",
-          "src/polisyos/scholar/policies.py",
-          "src/polisyos/scholar/provenance.py",
-          "src/polisyos/scholar/search/cache.py",
-          "src/polisyos/scholar/search/fetcher.py",
-          "src/polisyos/scholar/search/jobs.py",
-          "src/polisyos/scholar/search/models.py",
-          "src/polisyos/scholar/search/scoring.py",
-          "src/polisyos/scholar/search/security.py",
-          "src/polisyos/scholar/search/service.py",
-          "src/polisyos/scholar/types.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "scholar",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -960,42 +671,21 @@
         "property_path": "tests/property/scholar",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 23,
+        "source_module_count": 0,
         "source_path": "src/polisyos/scholar",
-        "strict_mirrored_source_count": 4,
-        "strict_module_mirror_ratio": 0.1739,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/scholar",
-        "unit_test_file_count": 15,
-        "unit_test_to_source_ratio": 0.6522
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.3846,
-        "loose_name_mirrored_source_count": 10,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/berl/adapters/_linear.py",
-          "src/polisyos/berl/adapters/_utils.py",
-          "src/polisyos/berl/adapters/ale.py",
-          "src/polisyos/berl/adapters/ebm.py",
-          "src/polisyos/berl/adapters/gradients.py",
-          "src/polisyos/berl/adapters/lime.py",
-          "src/polisyos/berl/adapters/permutation.py",
-          "src/polisyos/berl/adapters/protocol.py",
-          "src/polisyos/berl/adapters/shap_kernel.py",
-          "src/polisyos/berl/adapters/shap_tree.py",
-          "src/polisyos/berl/benchmarks/correlation_sweep.py",
-          "src/polisyos/berl/benchmarks/interaction_tests.py",
-          "src/polisyos/berl/benchmarks/policy_tabular_suite.py",
-          "src/polisyos/berl/benchmarks/release_report.py",
-          "src/polisyos/berl/benchmarks/synthetic_redundancy.py",
-          "src/polisyos/berl/contracts/display_policy.py",
-          "src/polisyos/berl/contracts/explanation_bundle.py",
-          "src/polisyos/berl/contracts/schema.py",
-          "src/polisyos/berl/contracts/validation_rules.py",
-          "src/polisyos/berl/metrics/analytical.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "berl",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -1003,34 +693,21 @@
         "property_path": "tests/property/berl",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 26,
+        "source_module_count": 0,
         "source_path": "src/polisyos/berl",
-        "strict_mirrored_source_count": 1,
-        "strict_module_mirror_ratio": 0.0385,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/berl",
-        "unit_test_file_count": 14,
-        "unit_test_to_source_ratio": 0.5385
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.6667,
-        "loose_name_mirrored_source_count": 8,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/ddm/calibration/audit.py",
-          "src/polisyos/ddm/calibration/calibrate.py",
-          "src/polisyos/ddm/calibration/multiple_testing.py",
-          "src/polisyos/ddm/detectors/data_quality_monitor.py",
-          "src/polisyos/ddm/detectors/performance_estimator.py",
-          "src/polisyos/ddm/detectors/realized_performance_monitor.py",
-          "src/polisyos/ddm/detectors/track_2_2_shift_adapter.py",
-          "src/polisyos/ddm/integration/events.py",
-          "src/polisyos/ddm/integration/incident.py",
-          "src/polisyos/ddm/integration/model_registry.py",
-          "src/polisyos/ddm/integration/monitor.py",
-          "src/polisyos/ddm/readiness/readiness_mapper.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "ddm",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -1038,42 +715,21 @@
         "property_path": "tests/property/ddm",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 12,
+        "source_module_count": 0,
         "source_path": "src/polisyos/ddm",
         "strict_mirrored_source_count": 0,
-        "strict_module_mirror_ratio": 0.0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/ddm",
-        "unit_test_file_count": 14,
-        "unit_test_to_source_ratio": 1.1667
+        "unit_test_file_count": 5,
+        "unit_test_to_source_ratio": null
       },
       {
-        "integration_path": null,
+        "integration_path": "tests/integration/data_forge",
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.6123,
-        "loose_name_mirrored_source_count": 139,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/data_forge/_impl/compliance.py",
-          "src/polisyos/data_forge/_impl/provenance_manifest.py",
-          "src/polisyos/data_forge/_version.py",
-          "src/polisyos/data_forge/domains/academic/assets.py",
-          "src/polisyos/data_forge/domains/academic/batch/article_extractor.py",
-          "src/polisyos/data_forge/domains/academic/batch/claim_ids.py",
-          "src/polisyos/data_forge/domains/academic/batch/config.py",
-          "src/polisyos/data_forge/domains/academic/batch/dedup.py",
-          "src/polisyos/data_forge/domains/academic/batch/demand_harvest.py",
-          "src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py",
-          "src/polisyos/data_forge/domains/academic/batch/embedder.py",
-          "src/polisyos/data_forge/domains/academic/batch/harvester.py",
-          "src/polisyos/data_forge/domains/academic/batch/llm_extractor.py",
-          "src/polisyos/data_forge/domains/academic/batch/numeric_extract.py",
-          "src/polisyos/data_forge/domains/academic/batch/pipeline.py",
-          "src/polisyos/data_forge/domains/academic/batch/prompts/boundary_conditions.py",
-          "src/polisyos/data_forge/domains/academic/batch/prompts/causal_claims.py",
-          "src/polisyos/data_forge/domains/academic/batch/prompts/claim_adjudication.py",
-          "src/polisyos/data_forge/domains/academic/batch/prompts/context_extraction.py",
-          "src/polisyos/data_forge/domains/academic/batch/prompts/empirical_parameters.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "data_forge",
         "package_local_data_dir_count": 1,
         "package_local_data_dirs": [
@@ -1081,26 +737,23 @@
         ],
         "property_exists": true,
         "property_path": "tests/property/data_forge",
-        "property_test_file_count": 1,
+        "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 227,
+        "source_module_count": 0,
         "source_path": "src/polisyos/data_forge",
-        "strict_mirrored_source_count": 52,
-        "strict_module_mirror_ratio": 0.2291,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/data_forge",
-        "unit_test_file_count": 154,
-        "unit_test_to_source_ratio": 0.6784
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.7143,
-        "loose_name_mirrored_source_count": 5,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/calibration/_sklearn_compat.py",
-          "src/polisyos/calibration/curve.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "calibration",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -1108,54 +761,43 @@
         "property_path": "tests/property/calibration",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 7,
+        "source_module_count": 0,
         "source_path": "src/polisyos/calibration",
-        "strict_mirrored_source_count": 5,
-        "strict_module_mirror_ratio": 0.7143,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/calibration",
-        "unit_test_file_count": 5,
-        "unit_test_to_source_ratio": 0.7143
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.7778,
-        "loose_name_mirrored_source_count": 7,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/common/config.py",
-          "src/polisyos/common/env_parsing.py",
-          "src/polisyos/common/jax_env.py",
-          "src/polisyos/common/migrations/base.py",
-          "src/polisyos/common/migrations/manifest.py",
-          "src/polisyos/common/serialization.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "common",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
         "property_exists": true,
         "property_path": "tests/property/common",
-        "property_test_file_count": 1,
+        "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 9,
+        "source_module_count": 0,
         "source_path": "src/polisyos/common",
-        "strict_mirrored_source_count": 3,
-        "strict_module_mirror_ratio": 0.3333,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/common",
-        "unit_test_file_count": 10,
-        "unit_test_to_source_ratio": 1.1111
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 1.0,
-        "loose_name_mirrored_source_count": 3,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/corpus/_impl/annotations.py",
-          "src/polisyos/corpus/_impl/expert_adjudication.py",
-          "src/polisyos/corpus/_impl/loaders.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "corpus",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -1163,23 +805,21 @@
         "property_path": "tests/property/corpus",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 3,
+        "source_module_count": 0,
         "source_path": "src/polisyos/corpus",
         "strict_mirrored_source_count": 0,
-        "strict_module_mirror_ratio": 0.0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/corpus",
-        "unit_test_file_count": 3,
-        "unit_test_to_source_ratio": 1.0
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.5,
-        "loose_name_mirrored_source_count": 1,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/data_requirement/_impl/models.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "data_requirement",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -1187,23 +827,21 @@
         "property_path": "tests/property/data_requirement",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 2,
+        "source_module_count": 0,
         "source_path": "src/polisyos/data_requirement",
-        "strict_mirrored_source_count": 1,
-        "strict_module_mirror_ratio": 0.5,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/data_requirement",
-        "unit_test_file_count": 1,
-        "unit_test_to_source_ratio": 0.5
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.6667,
-        "loose_name_mirrored_source_count": 2,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/evidence/claims/claim_registry.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "evidence",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -1211,24 +849,21 @@
         "property_path": "tests/property/evidence",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 3,
+        "source_module_count": 0,
         "source_path": "src/polisyos/evidence",
-        "strict_mirrored_source_count": 2,
-        "strict_module_mirror_ratio": 0.6667,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/evidence",
-        "unit_test_file_count": 2,
-        "unit_test_to_source_ratio": 0.6667
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.5,
-        "loose_name_mirrored_source_count": 1,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/legal_requirement/_impl/compiler.py",
-          "src/polisyos/legal_requirement/_impl/models.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "legal_requirement",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -1236,24 +871,21 @@
         "property_path": "tests/property/legal_requirement",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 2,
+        "source_module_count": 0,
         "source_path": "src/polisyos/legal_requirement",
         "strict_mirrored_source_count": 0,
-        "strict_module_mirror_ratio": 0.0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/legal_requirement",
-        "unit_test_file_count": 1,
-        "unit_test_to_source_ratio": 0.5
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.5,
-        "loose_name_mirrored_source_count": 1,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/method_requirement/_impl/compiler.py",
-          "src/polisyos/method_requirement/_impl/models.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "method_requirement",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -1261,24 +893,21 @@
         "property_path": "tests/property/method_requirement",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 2,
+        "source_module_count": 0,
         "source_path": "src/polisyos/method_requirement",
         "strict_mirrored_source_count": 0,
-        "strict_module_mirror_ratio": 0.0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/method_requirement",
-        "unit_test_file_count": 1,
-        "unit_test_to_source_ratio": 0.5
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.5,
-        "loose_name_mirrored_source_count": 1,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/obligation_graph/_impl/compiler.py",
-          "src/polisyos/obligation_graph/_impl/models.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "obligation_graph",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -1286,20 +915,20 @@
         "property_path": "tests/property/obligation_graph",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 2,
+        "source_module_count": 0,
         "source_path": "src/polisyos/obligation_graph",
         "strict_mirrored_source_count": 0,
-        "strict_module_mirror_ratio": 0.0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/obligation_graph",
-        "unit_test_file_count": 1,
-        "unit_test_to_source_ratio": 0.5
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 1.0,
-        "loose_name_mirrored_source_count": 1,
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
         "missing_strict_mirror_sample": [],
         "package": "obligation_rules",
         "package_local_data_dir_count": 0,
@@ -1308,14 +937,14 @@
         "property_path": "tests/property/obligation_rules",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 1,
+        "source_module_count": 0,
         "source_path": "src/polisyos/obligation_rules",
-        "strict_mirrored_source_count": 1,
-        "strict_module_mirror_ratio": 1.0,
+        "strict_mirrored_source_count": 0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/obligation_rules",
-        "unit_test_file_count": 1,
-        "unit_test_to_source_ratio": 1.0
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
@@ -1336,19 +965,15 @@
         "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/participation_requirement",
-        "unit_test_file_count": 1,
+        "unit_test_file_count": 0,
         "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.0,
+        "loose_name_mirror_ratio": null,
         "loose_name_mirrored_source_count": 0,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/pdc/_impl/compiler.py",
-          "src/polisyos/pdc/_impl/layer2_design_search.py",
-          "src/polisyos/pdc/_impl/layer2_readiness.py"
-        ],
+        "missing_strict_mirror_sample": [],
         "package": "pdc",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -1356,29 +981,21 @@
         "property_path": "tests/property/pdc",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 3,
+        "source_module_count": 0,
         "source_path": "src/polisyos/pdc",
         "strict_mirrored_source_count": 0,
-        "strict_module_mirror_ratio": 0.0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/pdc",
-        "unit_test_file_count": 3,
-        "unit_test_to_source_ratio": 1.0
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.0,
+        "loose_name_mirror_ratio": null,
         "loose_name_mirrored_source_count": 0,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/policy_grammar/_impl/artifacts.py",
-          "src/polisyos/policy_grammar/_impl/authority.py",
-          "src/polisyos/policy_grammar/_impl/compiler.py",
-          "src/polisyos/policy_grammar/_impl/consumer.py",
-          "src/polisyos/policy_grammar/_impl/facets.py",
-          "src/polisyos/policy_grammar/_impl/normalizer.py",
-          "src/polisyos/policy_grammar/_impl/schema.py"
-        ],
+        "missing_strict_mirror_sample": [],
         "package": "policy_grammar",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -1386,23 +1003,21 @@
         "property_path": "tests/property/policy_grammar",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 7,
+        "source_module_count": 0,
         "source_path": "src/polisyos/policy_grammar",
         "strict_mirrored_source_count": 0,
-        "strict_module_mirror_ratio": 0.0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/policy_grammar",
-        "unit_test_file_count": 1,
-        "unit_test_to_source_ratio": 0.1429
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.0,
+        "loose_name_mirror_ratio": null,
         "loose_name_mirrored_source_count": 0,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/schemas/abi_models.py"
-        ],
+        "missing_strict_mirror_sample": [],
         "package": "schemas",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -1410,23 +1025,21 @@
         "property_path": "tests/property/schemas",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 1,
+        "source_module_count": 0,
         "source_path": "src/polisyos/schemas",
         "strict_mirrored_source_count": 0,
-        "strict_module_mirror_ratio": 0.0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": false,
         "unit_path": "tests/unit/schemas",
         "unit_test_file_count": 0,
-        "unit_test_to_source_ratio": 0.0
+        "unit_test_to_source_ratio": null
       },
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 1.0,
-        "loose_name_mirrored_source_count": 1,
-        "missing_strict_mirror_sample": [
-          "src/polisyos/scholar_requirement/_impl/compiler.py"
-        ],
+        "loose_name_mirror_ratio": null,
+        "loose_name_mirrored_source_count": 0,
+        "missing_strict_mirror_sample": [],
         "package": "scholar_requirement",
         "package_local_data_dir_count": 0,
         "package_local_data_dirs": [],
@@ -1434,14 +1047,14 @@
         "property_path": "tests/property/scholar_requirement",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 1,
+        "source_module_count": 0,
         "source_path": "src/polisyos/scholar_requirement",
         "strict_mirrored_source_count": 0,
-        "strict_module_mirror_ratio": 0.0,
+        "strict_module_mirror_ratio": null,
         "unit_exists": true,
         "unit_path": "tests/unit/scholar_requirement",
-        "unit_test_file_count": 1,
-        "unit_test_to_source_ratio": 1.0
+        "unit_test_file_count": 0,
+        "unit_test_to_source_ratio": null
       }
     ],
     "tracked_packages": [
@@ -1467,11 +1080,11 @@
       {
         "data_contract_heavy": true,
         "exists": true,
-        "hypothesis_file_count": 1,
+        "hypothesis_file_count": 0,
         "package": "ir",
         "property_path": "tests/property/ir",
-        "property_test_file_count": 1,
-        "property_to_source_ratio": 0.0058
+        "property_test_file_count": 0,
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1480,52 +1093,52 @@
         "package": "core",
         "property_path": "tests/property/core",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": true,
         "exists": true,
-        "hypothesis_file_count": 1,
+        "hypothesis_file_count": 0,
         "package": "fabric",
         "property_path": "tests/property/fabric",
-        "property_test_file_count": 1,
-        "property_to_source_ratio": 0.004
+        "property_test_file_count": 0,
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
         "exists": true,
-        "hypothesis_file_count": 28,
+        "hypothesis_file_count": 0,
         "package": "foundry",
         "property_path": "tests/property/foundry",
-        "property_test_file_count": 28,
-        "property_to_source_ratio": 0.0534
+        "property_test_file_count": 0,
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
         "exists": true,
-        "hypothesis_file_count": 5,
+        "hypothesis_file_count": 0,
         "package": "scientist",
         "property_path": "tests/property/scientist",
-        "property_test_file_count": 5,
-        "property_to_source_ratio": 0.0097
+        "property_test_file_count": 0,
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": true,
         "exists": true,
-        "hypothesis_file_count": 1,
+        "hypothesis_file_count": 0,
         "package": "runtime",
         "property_path": "tests/property/runtime",
-        "property_test_file_count": 1,
-        "property_to_source_ratio": 0.006
+        "property_test_file_count": 0,
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": true,
         "exists": true,
-        "hypothesis_file_count": 1,
+        "hypothesis_file_count": 0,
         "package": "lex",
         "property_path": "tests/property/lex",
-        "property_test_file_count": 1,
-        "property_to_source_ratio": 0.0294
+        "property_test_file_count": 0,
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1534,7 +1147,7 @@
         "package": "scholar",
         "property_path": "tests/property/scholar",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1543,7 +1156,7 @@
         "package": "berl",
         "property_path": "tests/property/berl",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1552,16 +1165,16 @@
         "package": "ddm",
         "property_path": "tests/property/ddm",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": true,
         "exists": true,
-        "hypothesis_file_count": 1,
+        "hypothesis_file_count": 0,
         "package": "data_forge",
         "property_path": "tests/property/data_forge",
-        "property_test_file_count": 1,
-        "property_to_source_ratio": 0.0044
+        "property_test_file_count": 0,
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1570,16 +1183,16 @@
         "package": "calibration",
         "property_path": "tests/property/calibration",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
         "exists": true,
-        "hypothesis_file_count": 1,
+        "hypothesis_file_count": 0,
         "package": "common",
         "property_path": "tests/property/common",
-        "property_test_file_count": 1,
-        "property_to_source_ratio": 0.1111
+        "property_test_file_count": 0,
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1588,7 +1201,7 @@
         "package": "corpus",
         "property_path": "tests/property/corpus",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1597,7 +1210,7 @@
         "package": "data_requirement",
         "property_path": "tests/property/data_requirement",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1606,7 +1219,7 @@
         "package": "evidence",
         "property_path": "tests/property/evidence",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1615,7 +1228,7 @@
         "package": "legal_requirement",
         "property_path": "tests/property/legal_requirement",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1624,7 +1237,7 @@
         "package": "method_requirement",
         "property_path": "tests/property/method_requirement",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1633,7 +1246,7 @@
         "package": "obligation_graph",
         "property_path": "tests/property/obligation_graph",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1642,7 +1255,7 @@
         "package": "obligation_rules",
         "property_path": "tests/property/obligation_rules",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1660,7 +1273,7 @@
         "package": "pdc",
         "property_path": "tests/property/pdc",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1669,7 +1282,7 @@
         "package": "policy_grammar",
         "property_path": "tests/property/policy_grammar",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1678,7 +1291,7 @@
         "package": "schemas",
         "property_path": "tests/property/schemas",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       },
       {
         "data_contract_heavy": false,
@@ -1687,115 +1300,24 @@
         "package": "scholar_requirement",
         "property_path": "tests/property/scholar_requirement",
         "property_test_file_count": 0,
-        "property_to_source_ratio": 0.0
+        "property_to_source_ratio": null
       }
     ],
-    "hypothesis_usage_files": [
-      "tests/conftest.py",
-      "tests/integration/test_c7_synthetic_full_pipeline.py",
-      "tests/property/common/test_serialization_properties.py",
-      "tests/property/data_forge/test_merkle_properties.py",
-      "tests/property/fabric/test_numeric_parsing_properties.py",
-      "tests/property/foundry/data_plane/test_bindings_properties.py",
-      "tests/property/foundry/methods/catalog/bayesian/test_bayesian_gp_properties.py",
-      "tests/property/foundry/methods/catalog/bayesian/test_bayesian_properties.py",
-      "tests/property/foundry/methods/catalog/causal/test_causal_properties.py",
-      "tests/property/foundry/methods/catalog/causal/test_did_properties.py",
-      "tests/property/foundry/methods/catalog/causal/test_transport_properties.py",
-      "tests/property/foundry/methods/catalog/distributional/test_distributional_properties.py",
-      "tests/property/foundry/methods/catalog/distributional/test_mobility_properties.py",
-      "tests/property/foundry/methods/catalog/econometrics/test_econometrics_properties.py",
-      "tests/property/foundry/methods/catalog/econometrics/test_iv_properties.py",
-      "tests/property/foundry/methods/catalog/forecasting/test_forecasting_properties.py",
-      "tests/property/foundry/methods/catalog/mechanism/test_mechanism_properties.py",
-      "tests/property/foundry/methods/catalog/microsim/test_microsim_properties.py",
-      "tests/property/foundry/methods/catalog/ml/test_ml_properties.py",
-      "tests/property/foundry/methods/catalog/network/test_network_properties.py",
-      "tests/property/foundry/methods/catalog/optimization/test_lp_properties.py",
-      "tests/property/foundry/methods/catalog/optimization/test_optimization_properties.py",
-      "tests/property/foundry/methods/catalog/policy/test_policy_properties.py",
-      "tests/property/foundry/methods/catalog/sensitivity/test_sensitivity_extended_properties.py",
-      "tests/property/foundry/methods/catalog/sensitivity/test_sensitivity_properties.py",
-      "tests/property/foundry/methods/catalog/simulation/test_simulation_extended_properties.py",
-      "tests/property/foundry/methods/catalog/simulation/test_simulation_properties.py",
-      "tests/property/foundry/methods/catalog/spatial/test_spatial_properties.py",
-      "tests/property/foundry/methods/catalog/survey/test_survey_design_properties.py",
-      "tests/property/foundry/methods/catalog/survey/test_survey_properties.py",
-      "tests/property/foundry/methods/catalog/validation/test_validation_properties.py",
-      "tests/property/foundry/test_constraints_properties.py",
-      "tests/property/foundry/test_slot_schema_properties.py",
-      "tests/property/ir/test_phase3_properties.py",
-      "tests/property/lex/test_common_properties.py",
-      "tests/property/runtime/http/test_access_invariants_properties.py",
-      "tests/property/scientist/engine/test_property_budget.py",
-      "tests/property/scientist/engine/test_property_checkpoint.py",
-      "tests/property/scientist/engine/test_property_condition.py",
-      "tests/property/scientist/engine/test_property_idempotency.py",
-      "tests/property/scientist/engine/test_property_state.py",
-      "tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py",
-      "tests/repo_quality/conftest.py",
-      "tests/repo_quality/tools/test_diagnostics_phase3.py",
-      "tests/repo_quality/tools/test_i7bis_universal_compilation_integration_realism_check.py",
-      "tests/repo_quality/tools/test_lint_imports_phase3.py",
-      "tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py",
-      "tests/repo_quality/tools/test_policy_design_case_layer2_s4_epistemic_regime.py",
-      "tests/repo_quality/tools/test_policy_design_case_layer2_s5_coupling_composition.py",
-      "tests/repo_quality/tools/test_policy_design_case_layer2_s6_blind_spot_firewalls.py",
-      "tests/repo_quality/tools/test_policy_design_case_layer2_s7_delegation.py",
-      "tests/repo_quality/tools/test_policy_design_case_layer2_s8_value_choice.py",
-      "tests/repo_quality/tools/test_policy_design_case_local_validation_ladder.py",
-      "tests/repo_quality/tools/test_universal_compilation_smoke.py",
-      "tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py",
-      "tests/repo_quality/tools/test_w12e_bundle_replay_inspection.py",
-      "tests/unit/fabric/connectors/test_transform_pipeline.py",
-      "tests/unit/fabric/test_schema_semantic_correctness_phase3.py",
-      "tests/unit/foundry/analysis/test_merge_determinism.py",
-      "tests/unit/foundry/methods/testing/strategies.py",
-      "tests/unit/ir/analytics/test_latent_bridge_synthesis.py",
-      "tests/unit/ir/analytics/test_metric_validation_report.py",
-      "tests/unit/ir/analytics/test_phase1_closure_contracts.py",
-      "tests/unit/ir/test_frontier_causal_contracts.py",
-      "tests/unit/ir/test_phase3_fuzz.py",
-      "tests/unit/participation_requirement/test_compiler.py",
-      "tests/unit/runtime/quality/test_candidate_firewall.py",
-      "tests/unit/runtime/quality/test_capability_authority.py",
-      "tests/unit/runtime/quality/test_capability_resolver.py",
-      "tests/unit/runtime/quality/test_claim_registry.py",
-      "tests/unit/runtime/quality/test_hypothesis_ledger.py",
-      "tests/unit/runtime/quality/test_hypothesis_ledger_candidate_firewall.py",
-      "tests/unit/runtime/quality/test_multiverse_specification_curve.py",
-      "tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py",
-      "tests/unit/runtime/quality/test_public_export.py",
-      "tests/unit/runtime/quality/test_scorecard.py",
-      "tests/unit/runtime/quality/test_semantic_binding.py",
-      "tests/unit/scientist/discovery/test_active.py",
-      "tests/unit/scientist/discovery/test_aggregator.py",
-      "tests/unit/scientist/discovery/test_output.py",
-      "tests/unit/scientist/discovery/test_portfolio.py",
-      "tests/unit/scientist/discovery/test_priors.py",
-      "tests/unit/scientist/discovery/test_schema.py",
-      "tests/unit/scientist/discovery/test_stability.py",
-      "tests/unit/scientist/discovery/test_utility_judge.py",
-      "tests/unit/scientist/discovery/test_workers.py",
-      "tests/unit/scientist/evidence/provenance/test_provenance_completeness.py",
-      "tests/unit/scientist/evidence/test_evidence_sources_direct.py",
-      "tests/unit/scientist/governance/test_calibration_governance.py",
-      "tests/unit/scientist/governance/test_calibration_leaderboard.py",
-      "tests/unit/scientist/governance/test_calibration_validation.py",
-      "tests/unit/scientist/methods/causal/test_latent_separation.py",
-      "tests/unit/scientist/nodes/builtins/decide/test_build_decision_packet_metric_validation.py",
-      "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support.py",
-      "tests/unit/scientist/nodes/builtins/planning/test_draft_policy_options.py",
-      "tests/unit/scientist/nodes/builtins/planning/test_run_discovery_blueprint_runtime.py",
-      "tests/unit/scientist/nodes/test_decision_packet_node_v3.py",
-      "tests/unit/scientist/policy_design/test_formulator.py"
-    ],
+    "hypothesis_usage_files": [],
     "missing_any_property_packages": [
+      "ir",
       "core",
+      "fabric",
+      "foundry",
+      "scientist",
+      "runtime",
+      "lex",
       "scholar",
       "berl",
       "ddm",
+      "data_forge",
       "calibration",
+      "common",
       "corpus",
       "data_requirement",
       "evidence",
@@ -1809,10 +1331,16 @@
       "schemas",
       "scholar_requirement"
     ],
-    "missing_data_contract_heavy_packages": [],
+    "missing_data_contract_heavy_packages": [
+      "ir",
+      "fabric",
+      "runtime",
+      "lex",
+      "data_forge"
+    ],
     "property_root": "tests/property",
-    "total_hypothesis_usage_files": 98,
-    "total_property_test_files": 39
+    "total_hypothesis_usage_files": 0,
+    "total_property_test_files": 0
   },
   "pytest": {
     "addopts": "-ra -q --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
@@ -1827,7 +1355,7 @@
       {
         "autouse_fixture_count": 0,
         "depth": 2,
-        "fixture_count": 3,
+        "fixture_count": 0,
         "path": "benchmarks/conftest.py"
       },
       {
@@ -1851,7 +1379,7 @@
       {
         "autouse_fixture_count": 1,
         "depth": 5,
-        "fixture_count": 2,
+        "fixture_count": 3,
         "path": "tests/property/foundry/methods/conftest.py"
       },
       {
@@ -2049,19 +1577,19 @@
       {
         "exists": true,
         "has_conftest": true,
-        "init_file_count": 28,
+        "init_file_count": 0,
         "path": "benchmarks"
       },
       {
         "exists": true,
         "has_conftest": false,
-        "init_file_count": 38,
+        "init_file_count": 0,
         "path": "tools"
       },
       {
         "exists": true,
         "has_conftest": true,
-        "init_file_count": 66,
+        "init_file_count": 0,
         "path": "tests"
       },
       {
@@ -2089,193 +1617,207 @@
   },
   "ratchet_starting_points": [
     {
-      "mirror_floor": 0.1272,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "ir",
-      "property_file_floor": 1,
-      "unit_test_file_floor": 163
+      "property_file_floor": 0,
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.1471,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "core",
       "property_file_floor": 0,
-      "unit_test_file_floor": 104
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.0717,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "fabric",
-      "property_file_floor": 1,
-      "unit_test_file_floor": 166
+      "property_file_floor": 0,
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.3531,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "foundry",
-      "property_file_floor": 28,
-      "unit_test_file_floor": 473
+      "property_file_floor": 0,
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.412,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "scientist",
-      "property_file_floor": 5,
-      "unit_test_file_floor": 495
+      "property_file_floor": 0,
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.3892,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "runtime",
-      "property_file_floor": 1,
-      "unit_test_file_floor": 187
+      "property_file_floor": 0,
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.2059,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "lex",
-      "property_file_floor": 1,
-      "unit_test_file_floor": 20
+      "property_file_floor": 0,
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.1739,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "scholar",
       "property_file_floor": 0,
-      "unit_test_file_floor": 15
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.0385,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "berl",
       "property_file_floor": 0,
-      "unit_test_file_floor": 14
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.0,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "ddm",
-      "property_file_floor": 0,
-      "unit_test_file_floor": 14
-    },
-    {
-      "mirror_floor": 0.2291,
-      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
-      "package": "data_forge",
-      "property_file_floor": 1,
-      "unit_test_file_floor": 154
-    },
-    {
-      "mirror_floor": 0.7143,
-      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
-      "package": "calibration",
       "property_file_floor": 0,
       "unit_test_file_floor": 5
     },
     {
-      "mirror_floor": 0.3333,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
-      "package": "common",
-      "property_file_floor": 1,
-      "unit_test_file_floor": 10
+      "package": "data_forge",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.0,
+      "mirror_floor": null,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "calibration",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 0
+    },
+    {
+      "mirror_floor": null,
+      "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
+      "package": "common",
+      "property_file_floor": 0,
+      "unit_test_file_floor": 0
+    },
+    {
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "corpus",
       "property_file_floor": 0,
-      "unit_test_file_floor": 3
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.5,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "data_requirement",
       "property_file_floor": 0,
-      "unit_test_file_floor": 1
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.6667,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "evidence",
       "property_file_floor": 0,
-      "unit_test_file_floor": 2
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.0,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "legal_requirement",
       "property_file_floor": 0,
-      "unit_test_file_floor": 1
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.0,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "method_requirement",
       "property_file_floor": 0,
-      "unit_test_file_floor": 1
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.0,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "obligation_graph",
       "property_file_floor": 0,
-      "unit_test_file_floor": 1
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 1.0,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "obligation_rules",
       "property_file_floor": 0,
-      "unit_test_file_floor": 1
+      "unit_test_file_floor": 0
     },
     {
       "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "participation_requirement",
       "property_file_floor": 0,
-      "unit_test_file_floor": 1
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.0,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "pdc",
       "property_file_floor": 0,
-      "unit_test_file_floor": 3
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.0,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "policy_grammar",
       "property_file_floor": 0,
-      "unit_test_file_floor": 1
+      "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.0,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "schemas",
       "property_file_floor": 0,
       "unit_test_file_floor": 0
     },
     {
-      "mirror_floor": 0.0,
+      "mirror_floor": null,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "scholar_requirement",
       "property_file_floor": 0,
-      "unit_test_file_floor": 1
+      "unit_test_file_floor": 0
     }
   ],
   "schema_version": "repository.verification_inventory.v2",
   "summary": {
-    "benchmark_py_file_count": 147,
-    "data_contract_heavy_packages_missing_property_tests": [],
-    "data_like_directory_count": 16,
+    "benchmark_py_file_count": 0,
+    "data_contract_heavy_packages_missing_property_tests": [
+      "ir",
+      "fabric",
+      "runtime",
+      "lex",
+      "data_forge"
+    ],
+    "data_like_directory_count": 19,
     "package_count": 25,
     "packages_missing_property_tests": [
+      "ir",
       "core",
+      "fabric",
+      "foundry",
+      "scientist",
+      "runtime",
+      "lex",
       "scholar",
       "berl",
       "ddm",
+      "data_forge",
       "calibration",
+      "common",
       "corpus",
       "data_requirement",
       "evidence",
@@ -2289,16 +1831,16 @@
       "schemas",
       "scholar_requirement"
     ],
-    "performance_test_file_count": 10,
-    "pytest_collectable_data_like_tests": 3,
+    "performance_test_file_count": 0,
+    "pytest_collectable_data_like_tests": 0,
     "pytest_conftest_count": 30,
     "pytest_duplicate_fixture_name_count": 3,
-    "source_module_count": 2167,
-    "strict_mirror_ratio_max": 1.0,
-    "strict_mirror_ratio_min": 0.0,
-    "strict_mirror_ratio_weighted": 0.2787,
+    "source_module_count": 0,
+    "strict_mirror_ratio_max": null,
+    "strict_mirror_ratio_min": null,
+    "strict_mirror_ratio_weighted": null,
     "tracked_package_count": 12,
-    "unit_test_file_count": 1836
+    "unit_test_file_count": 5
   },
   "test_role_inventory": {
     "classification": {
@@ -2323,73 +1865,73 @@
         "conftest_count": 24,
         "exists": true,
         "path": "tests/unit",
-        "python_file_count": 1932,
+        "python_file_count": 5,
         "role": "product_behavior",
-        "test_file_count": 1842
+        "test_file_count": 5
       },
       {
         "conftest_count": 0,
         "exists": true,
         "path": "tests/integration",
-        "python_file_count": 15,
+        "python_file_count": 0,
         "role": "product_behavior",
-        "test_file_count": 15
+        "test_file_count": 0
       },
       {
         "conftest_count": 1,
         "exists": true,
         "path": "tests/property",
-        "python_file_count": 40,
+        "python_file_count": 0,
         "role": "product_behavior",
-        "test_file_count": 39
+        "test_file_count": 0
       },
       {
         "conftest_count": 0,
         "exists": true,
         "path": "tests/performance",
-        "python_file_count": 10,
+        "python_file_count": 0,
         "role": "product_behavior",
-        "test_file_count": 10
+        "test_file_count": 0
       },
       {
         "conftest_count": 0,
         "exists": true,
         "path": "tests/e2e",
-        "python_file_count": 2,
+        "python_file_count": 0,
         "role": "product_behavior",
-        "test_file_count": 1
+        "test_file_count": 0
       },
       {
         "conftest_count": 1,
         "exists": true,
         "path": "tests/contract",
-        "python_file_count": 21,
+        "python_file_count": 0,
         "role": "product_contract",
-        "test_file_count": 20
+        "test_file_count": 0
       },
       {
         "conftest_count": 0,
         "exists": true,
         "path": "tests/repo_quality/architecture",
-        "python_file_count": 43,
+        "python_file_count": 0,
         "role": "repository_quality",
-        "test_file_count": 43
+        "test_file_count": 0
       },
       {
         "conftest_count": 0,
         "exists": true,
         "path": "tests/repo_quality/lint",
-        "python_file_count": 1,
+        "python_file_count": 0,
         "role": "repository_quality",
-        "test_file_count": 1
+        "test_file_count": 0
       },
       {
         "conftest_count": 0,
         "exists": true,
         "path": "tests/repo_quality/tools",
-        "python_file_count": 165,
+        "python_file_count": 1,
         "role": "repository_quality",
-        "test_file_count": 165
+        "test_file_count": 1
       }
     ]
   }

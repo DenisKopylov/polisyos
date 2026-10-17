@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from tools.lib.document_references import reference_scan_text
 from tools.quality.validation import check_docs_lifecycle as lifecycle
 
 OLD_DASHBOARD = "frontend" + "/runtime-dashboard"
@@ -300,12 +301,20 @@ def test_generated_ledger_role_does_not_exempt_an_actual_plan(tmp_path: Path) ->
     ]
 
 
-def test_malformed_evidence_json_does_not_disappear(tmp_path: Path) -> None:
+@pytest.mark.parametrize("text", ["", "{bad"], ids=["empty", "malformed"])
+def test_empty_or_malformed_evidence_json_is_ambiguous_for_lifecycle(
+    tmp_path: Path, text: str
+) -> None:
     relative = "docs/superpowers/journals/new.json"
-    _write(tmp_path, relative, "{bad")
+    _write(tmp_path, relative, text)
     assert [finding.check for finding in lifecycle.check_removed_stub_references(tmp_path)] == [
         "reference_scan_ambiguous"
     ]
+
+
+@pytest.mark.parametrize("text", ["", " \t\r\n"], ids=["empty", "whitespace"])
+def test_empty_json_reference_input_has_no_reference_text(text: str) -> None:
+    assert reference_scan_text(Path("architecture/capture.json"), text) == ""
 
 
 def test_generated_aggregate_without_its_producer_is_ambiguous(tmp_path: Path) -> None:

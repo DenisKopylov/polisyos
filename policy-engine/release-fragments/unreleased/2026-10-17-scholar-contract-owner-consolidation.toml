@@ -1,0 +1,54 @@
+id = "2026-10-17-scholar-contract-owner-consolidation"
+title = "Place persisted Scholar payloads in the canonical contract owner"
+type = "changed"
+component = "scholar"
+owner = "team-scholar"
+summary = "The existing Scholar root facade continues exporting the same 30 names while persisted bundle, report and result DTOs are defined and re-exported by the existing core.contracts.scholar ABI owner."
+evidence = [
+  "src/polisyos/core/contracts/scholar.py",
+  "src/polisyos/scholar/__init__.py",
+  "src/polisyos/scholar/orchestrator/README.md",
+  "tests/unit/scholar/test_root_layout_migration.py",
+  "architecture/public_surface/contract.toml",
+  "src/polisyos/scholar/README.md",
+  "src/polisyos/core/contracts/README.md",
+]
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.contracts; public_experimental: polisyos.scholar"
+compatibility = "The candidate preserves all 30 documented polisyos.scholar root exports and object bindings, and adds the DTOs to the existing polisyos.core.contracts facade. Persisted Scholar payload fields, strict extra-field refusal, artifact kind/media type, schema names, and schema versions stay unchanged. The 13 former class-definition FQNs under the six private Scholar deep modules are retired and unsupported, with no compatibility modules at those paths. External use of old FQNs, including stored pickles, remains not_established; this is not an assertion that such external use is absent."
+api = "KnowledgeBundlePayloadV1, EnrichmentReportV1, and EnrichResultV1 are defined by core.contracts.scholar and available through polisyos.core.contracts and the existing polisyos.scholar root facade."
+limitations = """
+The `polisyos.scholar` facade preserves all 30 documented root export names and object bindings, but the 13 root-exported class objects below have changed Python `__module__` definition identities:
+  `ScholarError`: `polisyos.scholar.errors.ScholarError` -> `polisyos.scholar.orchestrator.errors.ScholarError`
+  `ScholarValidationError`: `polisyos.scholar.errors.ScholarValidationError` -> `polisyos.scholar.orchestrator.errors.ScholarValidationError`
+  `ScholarDiscoverError`: `polisyos.scholar.errors.ScholarDiscoverError` -> `polisyos.scholar.orchestrator.errors.ScholarDiscoverError`
+  `ScholarAcquireError`: `polisyos.scholar.errors.ScholarAcquireError` -> `polisyos.scholar.orchestrator.errors.ScholarAcquireError`
+  `ScholarDocsError`: `polisyos.scholar.errors.ScholarDocsError` -> `polisyos.scholar.orchestrator.errors.ScholarDocsError`
+  `ScholarClaimsError`: `polisyos.scholar.errors.ScholarClaimsError` -> `polisyos.scholar.orchestrator.errors.ScholarClaimsError`
+  `ScholarReconcileError`: `polisyos.scholar.errors.ScholarReconcileError` -> `polisyos.scholar.orchestrator.errors.ScholarReconcileError`
+  `ScholarBundleError`: `polisyos.scholar.errors.ScholarBundleError` -> `polisyos.scholar.orchestrator.errors.ScholarBundleError`
+  `ScholarPolicy`: `polisyos.scholar.policies.ScholarPolicy` -> `polisyos.scholar.orchestrator.policies.ScholarPolicy`
+  `ScholarFabricCitation`: `polisyos.scholar.provenance.ScholarFabricCitation` -> `polisyos.scholar.orchestrator.provenance.ScholarFabricCitation`
+  `KnowledgeBundlePayloadV1`: `polisyos.scholar.types.KnowledgeBundlePayloadV1` -> `polisyos.core.contracts.scholar.KnowledgeBundlePayloadV1`
+  `EnrichmentReportV1`: `polisyos.scholar.types.EnrichmentReportV1` -> `polisyos.core.contracts.scholar.EnrichmentReportV1`
+  `EnrichResultV1`: `polisyos.scholar.types.EnrichResultV1` -> `polisyos.core.contracts.scholar.EnrichResultV1`
+The six former deep-module paths are retired and unsupported; no compatibility modules remain at those paths. This does not establish whether external consumers or stored pickle payloads use any old fully qualified name. External old-FQN use remains `not_established`; no external consumer or stored-payload census was performed. The persisted payload/report/result compatibility surface remains versioned JSON, with fields, kind, media type, schema names, and schema versions unchanged."""
+migration = "Import persisted/report/result DTOs and supported Scholar exports from polisyos.scholar or polisyos.core.contracts as appropriate. The six former Scholar deep modules and their 13 class-definition FQNs are retired and unsupported; no old-path import shim is provided. External old-FQN pickle use remains not_established. If an owner establishes an admitted pickle consumer, treat that as a separate compatibility requirement and review a bounded migration before adoption."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scholar/README.md", "src/polisyos/core/contracts/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "scholar-contract-owner-consolidation"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.contracts"
+owner = "team-scholar"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The existing Scholar persisted payload, report and result DTOs now share the canonical core.contracts.scholar module and facade."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/scholar/README.md", "src/polisyos/core/contracts/README.md"]
+runbook_docs = []

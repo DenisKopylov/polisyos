@@ -881,14 +881,14 @@ notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
 id = "dynamic-5523a8ac19e0"
-pattern = "polisyos.foundry._registry"
+pattern = "polisyos.foundry.methods.catalog.mechanism.runtime_registry"
 source_file = "src/polisyos/foundry/extensions/registry.py"
 line = 238
 call = "importlib.import_module"
 owner = "team-foundry"
-target = "polisyos.foundry._registry"
+target = "polisyos.foundry.methods.catalog.mechanism.runtime_registry"
 verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
-allowed_targets = ["polisyos.foundry._registry"]
+allowed_targets = ["polisyos.foundry.methods.catalog.mechanism.runtime_registry"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]

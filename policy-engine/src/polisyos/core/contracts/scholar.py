@@ -7,6 +7,7 @@ Defines the minimal ABI boundary between Scholar and other modules.
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Literal
@@ -245,12 +246,77 @@ class KnowledgeBundle(BaseModel):
     freshness: FreshnessMetadata = Field(default_factory=FreshnessMetadata)
 
 
+class KnowledgeBundlePayloadV1(BaseModel):
+    """Persist the Scholar bundle graph used by downstream evidence consumers."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["1.0"] = "1.0"
+    bundle_id: str
+    intent: dict[str, Any] = Field(default_factory=dict)
+
+    doc_meta_artifact_ids: list[str] = Field(default_factory=list)
+    doc_version_ids: list[str] = Field(default_factory=list)
+    doc_source_ids: list[str] = Field(default_factory=list)
+
+    claim_ids: list[str] = Field(default_factory=list)
+    claim_set_artifact_ids: list[str] = Field(default_factory=list)
+
+    conflict_set_ids: list[str] = Field(default_factory=list)
+    conflict_set_artifact_ids: list[str] = Field(default_factory=list)
+    conflict_resolution_artifact_ids: list[str] = Field(default_factory=list)
+
+    trust_assessment_ids: list[str] = Field(default_factory=list)
+    trust_assessment_artifact_ids_by_id: dict[str, str] = Field(default_factory=dict)
+
+    quality_report_ids: list[str] = Field(default_factory=list)
+    quality_report_artifact_ids: list[str] = Field(default_factory=list)
+    web_evidence: dict[str, Any] = Field(default_factory=dict)
+
+    policy_ids_used: dict[str, str] = Field(default_factory=dict)
+    created_by: dict[str, str] = Field(default_factory=dict)
+    summary: dict[str, int | str | bool] = Field(default_factory=dict)
+    freshness: FreshnessMetadata = Field(default_factory=FreshnessMetadata)
+
+
+class EnrichmentReportV1(BaseModel):
+    """Summarize one Scholar enrichment run for operator/debug surfaces."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["1.0"] = "1.0"
+    bundle_artifact_id: str
+    bundle_id: str
+
+    docs: dict[str, Any] = Field(default_factory=dict)
+    claims: dict[str, Any] = Field(default_factory=dict)
+    conflicts: dict[str, Any] = Field(default_factory=dict)
+    trust: dict[str, Any] = Field(default_factory=dict)
+    quality: dict[str, Any] = Field(default_factory=dict)
+    web_evidence: dict[str, Any] = Field(default_factory=dict)
+    artifacts: dict[str, Any] = Field(default_factory=dict)
+    notes: list[str] = Field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class EnrichResultV1:
+    """Return a persisted bundle reference and its in-memory report metadata."""
+
+    knowledge_bundle_ref: KnowledgeBundleRef
+    bundle_id: str
+    report: EnrichmentReportV1
+    report_ref: EnrichmentReportRef | None = None
+
+
 __all__ = [
     "BudgetsV1",
+    "EnrichResultV1",
     "EnrichmentReportRef",
+    "EnrichmentReportV1",
     "FreshnessMetadata",
     "FreshnessStatus",
     "KnowledgeBundle",
+    "KnowledgeBundlePayloadV1",
     "KnowledgeBundleRef",
     "ResearchIntent",
     "ResearchIntentRef",

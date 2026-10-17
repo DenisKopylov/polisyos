@@ -20,19 +20,40 @@ It authorizes no physical `.py` moves in `src/polisyos/scientist/` or
 - Current audited counts are 12 Scientist non-facade root modules and 28 Foundry
   non-facade root modules. These counts supersede older draft text that mentioned
   17/22 modules.
-- Every old source FQN gets a targeted Python re-export shim; star imports in shims
-  are forbidden by ADR-0144.
+- Old source FQNs retained as compatibility shims use targeted Python re-exports;
+  star imports in shims are forbidden by ADR-0144. The supported-surface contract
+  and explicit compatibility map determine whether a prior FQN is retained.
 - Shim sunset arithmetic: max(60 days, 2 x max workflow lifetime) = 1170 days.
   Draft sunset date for Phase 5/6 shims: created + 1170 days.
+
+## E02 Candidate Route Update (2026-10-17)
+
+`polisyos.foundry._registry` is not a supported public entrypoint under the
+current `architecture/public_surface/contract.toml` internal-by-default rule
+and is absent from the Foundry supported-entrypoint list and
+`architecture/shims.toml`. This route places runtime mechanism descriptors in
+the existing `methods.catalog.mechanism.runtime_registry` owner, migrates the
+14 census-bound in-repository references, and removes the old private module
+instead of retaining an unregistered re-export. The supported Foundry facade
+exports, `methods.selection.registry.__all__` (including
+`get_registry_audit_log`), and the extension-registry binding remain unchanged.
+The focused test imports the retired FQN in a clean module-cache state and
+requires `ModuleNotFoundError` for that exact name.
+
+The source-bound census does not observe external imports or persisted external
+pickle stores. Their populations remain `not_established`; this route makes no
+claim that external uses do not exist. It creates no shim registration or
+compatibility sunset date for this private path. Existing unrelated shim and
+exception rows remain unchanged.
 
 ## Move Map
 
 | Source FQN | Target FQN | Type | Reasoning |
 | --- | --- | --- | --- |
 | `polisyos.foundry._quickstart` | `polisyos.foundry._internal.quickstart` | internal | Default internal bucket. |
-| `polisyos.foundry._registry` | `polisyos.foundry._internal.registry` | internal | Default internal bucket. |
+| `polisyos.foundry._registry` | `polisyos.foundry.methods.catalog.mechanism.runtime_registry` | internal | The unlisted private FQN is retired after repository references migrate to the existing mechanism-catalog owner; external use remains unestablished. |
 
-## External Importers
+## Repository Import References
 
 ### `polisyos.foundry._quickstart`
 - `src/polisyos/foundry/README.md:97` (literal_fqn)
@@ -43,22 +64,39 @@ It authorizes no physical `.py` moves in `src/polisyos/scientist/` or
 - `tools/ops_runners/experiments/run_msme_e2e_showcase.py:1380` (literal_fqn)
 - `tools/ops_runners/experiments/run_msme_grand_tournament_v2.py:1627` (literal_fqn)
 
-### `polisyos.foundry._registry`
-- `src/polisyos/foundry/calibration/pure_executor.py:23` (literal_fqn)
-- `src/polisyos/foundry/compile/_lowering.py:17` (literal_fqn)
-- `src/polisyos/foundry/execute/_internal/graph/__init__.py:35` (literal_fqn)
-- `src/polisyos/foundry/execute/api.py:50` (literal_fqn)
-- `src/polisyos/foundry/extensions/registry.py:147` (literal_fqn)
-- `src/polisyos/foundry/methods/catalog/mechanism/runtime.py:131` (literal_fqn)
-- `tests/unit/foundry/methods/test_foundry_v2_unified_runtime.py:4` (literal_fqn)
-- `tools/research/demos/run_mechanism_design.py:34` (literal_fqn)
+### `polisyos.foundry._registry` (retired private path)
+
+The source-bound census records 14 in-repository references across 14 Python
+paths; its denominators are 25,391 tracked product paths (7,643 tracked Python
+paths) and 6,288 maintained application Python files in `apps/`, `src/`,
+`tests/`, and `tools/`. The candidate migrates these call sites to the canonical
+mechanism catalog owner:
+- `src/polisyos/foundry/calibration/pure_executor.py:26`
+- `src/polisyos/foundry/compile/_lowering.py:21`
+- `src/polisyos/foundry/execute/_internal/graph/__init__.py:65`
+- `src/polisyos/foundry/execute/api.py:106`
+- `src/polisyos/foundry/extensions/registry.py:238`
+- `src/polisyos/foundry/methods/catalog/mechanism/runtime.py:131`
+- `tests/unit/foundry/execute/mechanisms/test_fiscal_labor_replay.py:11`
+- `tests/unit/foundry/execute/mechanisms/test_fiscal_precision.py:11`
+- `tests/unit/foundry/methods/catalog/mechanism/test_family_consumer_contract.py:11`
+- `tests/unit/foundry/methods/test_foundry_v2_unified_runtime.py:6`
+- `tests/unit/foundry/plugins/test_economic_profile_consumers.py:9`
+- `tests/unit/foundry/plugins/test_economic_profiles.py:12`
+- `tests/unit/remediation/test_fry_03.py:86`
+- `tools/research/demos/run_mechanism_design.py:35`
+
+This is a repository-scoped inventory, not evidence about external adoption.
 
 ## Planned Re-export Shims
 
 | Shim FQN | Target FQN | Shape | Draft sunset |
 | --- | --- | --- | --- |
 | `polisyos.foundry._quickstart` | `polisyos.foundry._internal.quickstart` | targeted names only | created + 1170 days |
-| `polisyos.foundry._registry` | `polisyos.foundry._internal.registry` | targeted names only | created + 1170 days |
+
+The `_registry` FQN is intentionally absent from this compatibility table: it is
+unlisted/internal under the current public-surface contract and is removed after
+the enumerated repository references migrate. No external non-use claim is made.
 
 ## Pydantic Models And Runtime API Schema Usage
 

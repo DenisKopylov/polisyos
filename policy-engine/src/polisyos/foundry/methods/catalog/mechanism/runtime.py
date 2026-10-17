@@ -41,14 +41,10 @@ RUNTIME_MECHANISM_METHOD_AUTHORITY_SCOPE: dict[str, tuple[str, ...] | str] = {
         "uncertainty_interval",
     ),
 }
-_RUNTIME_METHOD_FAMILY = str(
-    RUNTIME_MECHANISM_METHOD_AUTHORITY_SCOPE["method_family"]
-)
+_RUNTIME_METHOD_FAMILY = str(RUNTIME_MECHANISM_METHOD_AUTHORITY_SCOPE["method_family"])
 _RUNTIME_METHOD_NOT_SUFFICIENT_FOR = tuple(
     str(item)
-    for item in RUNTIME_MECHANISM_METHOD_AUTHORITY_SCOPE[
-        "not_sufficient_for_method_obligations"
-    ]
+    for item in RUNTIME_MECHANISM_METHOD_AUTHORITY_SCOPE["not_sufficient_for_method_obligations"]
 )
 
 
@@ -128,7 +124,9 @@ def _apply_runtime_mechanism(
     mechanism_params = {key: params.get(key) for key in param_keys if key in params}
     import jax
 
-    from polisyos.foundry._registry import create_mechanism_from_spec
+    from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
+        create_mechanism_from_spec,
+    )
 
     mechanism = create_mechanism_from_spec(
         mechanism_type,
@@ -304,7 +302,9 @@ class LaborMarketMechanismMethod:
         _RUNTIME_METHOD_NOT_SUFFICIENT_FOR
     )
     runtime_mechanism_type: ClassVar[str] = "labor_market"
-    runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.execute.mechanisms:LaborMarketMechanism"
+    runtime_mechanism_class_path: ClassVar[str] = (
+        "polisyos.foundry.execute.mechanisms:LaborMarketMechanism"
+    )
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = (
         RuntimeFidelityLevel.SURROGATE_FLUID,
         RuntimeFidelityLevel.RELAXED_DISCRETE,
@@ -373,9 +373,7 @@ class QueueMechanismMethod:
         _RUNTIME_METHOD_NOT_SUFFICIENT_FOR
     )
     runtime_mechanism_type: ClassVar[str] = "queue"
-    runtime_mechanism_class_path: ClassVar[str] = (
-        "polisyos.foundry.execute.queue:QueueMechanism"
-    )
+    runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.execute.queue:QueueMechanism"
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = (
         RuntimeFidelityLevel.SURROGATE_FLUID,
         RuntimeFidelityLevel.RELAXED_DISCRETE,

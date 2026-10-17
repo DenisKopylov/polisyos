@@ -34,15 +34,6 @@ reason = "Renewed 2026-09-07 on a deliberately short horizon. Lex keeps several 
 match = { package = "lex", message = "Top-level package has too many root .py files." }
 
 [[exception]]
-id = "loose-root-scholar-follow-up"
-gate = "loose_files_gate"
-owner = "team-scholar"
-sunset = "2026-10-15"
-issue = "docs/plans/active/DEBT-REGISTER.md#structure-remediation-exceptions-all-thirteen-expired"
-reason = "Renewed 2026-09-07 on a deliberately short horizon, for the same reason as the Lex entry: the scholar root-module cleanup is described as a package-local follow-up, and measurement on 2026-09-07 found no plan carrying it. The date is short so the ownership gap is closed by decision."
-match = { package = "scholar", message = "Top-level package has too many root .py files." }
-
-[[exception]]
 id = "release-ledger-root-governance-data"
 gate = "build_output_gate"
 owner = "team-release"

@@ -43,6 +43,8 @@ typed discovery, versioning, dispatch, and evidence.
   observability, and monitoring helpers.
 
 - [catalog/README.md](catalog/README.md) for the domain-family tree.
+- [catalog/mechanism/README.md](catalog/mechanism/README.md) for the
+  runtime mechanism descriptor projection and its canonical registry owner.
 - [catalog/AUTHORING.md](catalog/AUTHORING.md) and
   [catalog/NAMING.md](catalog/NAMING.md) for method authoring conventions.
 
@@ -197,6 +199,11 @@ Catalog-family tests should mirror the package layout under
   compatibility until the relevant sunset is reached.
 - Deprecated method IDs or renamed modules require compatibility tests plus a
   release note before the old surface is removed.
+- The former `polisyos.foundry._registry` path is unlisted and internal under
+  the public-surface contract, so the module is removed after repository imports
+  migrate to `catalog/mechanism/runtime_registry.py`. This is not a supported
+  external entrypoint; external deep-import and persisted-pickle populations
+  remain unestablished.
 
 ## Reference Docs
 

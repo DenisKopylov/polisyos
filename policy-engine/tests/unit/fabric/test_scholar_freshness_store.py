@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
-from polisyos.scholar.freshness_store import FreshnessStateStore
+from polisyos.scholar.orchestrator.freshness_store import FreshnessStateStore
 
 
 def test_state_store_roundtrip(tmp_path) -> None:

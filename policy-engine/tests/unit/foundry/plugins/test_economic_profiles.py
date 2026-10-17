@@ -10,13 +10,15 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from polisyos.foundry._registry import create_mechanism_from_spec
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.executor import apply_patch_map
 from polisyos.foundry.methods.catalog.mechanism.runtime import (
     IncomeTaxMechanismMethod,
     LaborMarketMechanismMethod,
     TaxSubsidyMechanismMethod,
+)
+from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
+    create_mechanism_from_spec,
 )
 from polisyos.foundry.methods.loss import policy_loss_fn
 from polisyos.foundry.plugins.economics import EconomicsPlugin, EconomicState
@@ -92,7 +94,10 @@ def test_registered_fiscal_producer_full_patch_reaches_state_consumer(
 ) -> None:
     state, key = _state(), jax.random.PRNGKey(27)
     mechanism = create_mechanism_from_spec(kind, {"rate": 0.25}, 4, 1)
-    emit = lambda value, seed: mechanism.emit_patches(value, seed, target_mask=_TARGET)
+
+    def emit(value, seed):
+        return mechanism.emit_patches(value, seed, target_mask=_TARGET)
+
     if compiled:
         emit = jax.jit(emit)
     patch, next_key = emit(state, key)
@@ -133,7 +138,10 @@ def test_registered_labor_full_patch_has_independent_extreme_probability_oracle(
     mechanism = create_mechanism_from_spec(
         "labor_market", {"employment_threshold": threshold}, 4, 1
     )
-    emit = lambda value, seed: mechanism.emit_patches(value, seed, target_mask=_TARGET)
+
+    def emit(value, seed):
+        return mechanism.emit_patches(value, seed, target_mask=_TARGET)
+
     if compiled:
         emit = jax.jit(emit)
     patch, next_key = emit(state, key)

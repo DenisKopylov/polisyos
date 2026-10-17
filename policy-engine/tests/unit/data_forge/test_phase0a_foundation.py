@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from importlib.metadata import version as distribution_version
+
 import pytest
 
 from polisyos.data_forge import __version__, read_api
@@ -41,6 +43,10 @@ def test_public_surface_imports_runtime_safe_read_api_modules() -> None:
     assert __version__
     assert set(read_api.available_surfaces()) == {"academic", "catalog", "legal", "ukraine"}
     assert {"academic", "catalog", "legal", "surfaces", "ukraine"}.issubset(read_api.__all__)
+
+
+def test_version_matches_installed_distribution_metadata() -> None:
+    assert __version__ == distribution_version("policy-engine")
 
 
 def test_asset_decorator_and_planner_return_dependency_order() -> None:

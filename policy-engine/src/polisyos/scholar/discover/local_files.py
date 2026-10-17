@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from polisyos.fabric.docs import DocSourceSpec
-from polisyos.scholar.errors import ScholarAcquireError, ScholarValidationError
-from polisyos.scholar.types import AcquireResult
+from polisyos.scholar.orchestrator.errors import ScholarAcquireError, ScholarValidationError
+from polisyos.scholar.orchestrator.types import AcquireResult
 
 if TYPE_CHECKING:
     from polisyos.core.contracts.scholar import SourceSpec

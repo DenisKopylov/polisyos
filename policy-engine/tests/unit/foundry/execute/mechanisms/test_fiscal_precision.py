@@ -9,7 +9,6 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 
-from polisyos.foundry._registry import create_mechanism_from_spec
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.executor import apply_patch_map
 from polisyos.foundry.execute.mechanisms.fiscal import (
@@ -17,6 +16,9 @@ from polisyos.foundry.execute.mechanisms.fiscal import (
     TaxSubsidy,
     _validate_rate,
     compute_tax,
+)
+from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
+    create_mechanism_from_spec,
 )
 from polisyos.ir.kernel.merge_rules import DEFAULT_MERGE_RULE_REGISTRY
 from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY

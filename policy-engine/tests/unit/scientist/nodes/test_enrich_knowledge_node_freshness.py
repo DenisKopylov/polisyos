@@ -17,6 +17,8 @@ from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonViolation
 from polisyos.core.contracts.scholar import (
+    EnrichmentReportV1,
+    KnowledgeBundlePayloadV1,
     KnowledgeBundleRef,
     ResearchIntent,
     ResearchIntentRef,
@@ -28,10 +30,9 @@ from polisyos.fabric.claims.persist import load_doc_meta
 from polisyos.runtime.http.resilience import guard_runtime_cas
 from polisyos.scholar import persist_knowledge_bundle_payload
 from polisyos.scholar.api import ScholarService
-from polisyos.scholar.freshness import build_freshness_metadata
-from polisyos.scholar.freshness_store import FreshnessStateStore
 from polisyos.scholar.orchestrator.bundle import persist_bundle_and_event
-from polisyos.scholar.types import EnrichmentReportV1, KnowledgeBundlePayloadV1
+from polisyos.scholar.orchestrator.freshness import build_freshness_metadata
+from polisyos.scholar.orchestrator.freshness_store import FreshnessStateStore
 from polisyos.scientist.nodes.builtins.data.enrich_knowledge import EnrichKnowledgeNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_KNOWLEDGE_BUNDLE_REF,

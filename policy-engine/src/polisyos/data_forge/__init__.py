@@ -5,7 +5,8 @@ from __future__ import annotations
 from importlib import import_module
 
 from . import read_api
-from ._version import __version__
+
+__version__ = "0.1.0"
 
 _EXPORTS = {
     "ArtifactRef": ("polisyos.data_forge.kernel.artifacts", "ArtifactRef"),

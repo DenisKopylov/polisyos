@@ -12,13 +12,18 @@ import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent, SourceSpec
+from polisyos.core.contracts.scholar import (
+    EnrichmentReportV1,
+    EnrichResultV1,
+    KnowledgeBundleRef,
+    ResearchIntent,
+    SourceSpec,
+)
 from polisyos.scholar.api import enrich_topic
 from polisyos.scholar.discover.http_fetch import fetch_url
-from polisyos.scholar.errors import ScholarAcquireError
+from polisyos.scholar.orchestrator.errors import ScholarAcquireError
 from polisyos.scholar.search.cache import UrlFetchCache
 from polisyos.scholar.search.models import FetchResult, SearchConstraints, SourceMetadata
-from polisyos.scholar.types import EnrichmentReportV1, EnrichResultV1
 
 SOURCE_URL = "https://agency.gov/reports/employment"
 FINAL_URL = "https://agency.gov/reports/employment-2026"
@@ -383,7 +388,9 @@ def test_cache_refresh_keeps_v1_and_exposes_v2_as_distinct_cas_lineage(tmp_path)
     assert cache.get(SOURCE_URL).artifact_id == second.artifact_id
 
 
-def test_manual_url_seed_keeps_scl01_raw_transport_and_mime(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_manual_url_seed_keeps_scl01_raw_transport_and_mime(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(
         "polisyos.scholar.discover.transport.urllib.request.build_opener",
         lambda *handlers: _FakeOpener(SNAPSHOT_V1),

@@ -14,8 +14,8 @@ if TYPE_CHECKING:
     from collections.abc import Mapping
 
     from polisyos.core.observability import MetricsRegistry
-    from polisyos.scholar.freshness_store import FreshnessRuntimeState
-    from polisyos.scholar.policies import ScholarPolicy
+    from polisyos.scholar.orchestrator.freshness_store import FreshnessRuntimeState
+    from polisyos.scholar.orchestrator.policies import ScholarPolicy
 
 _DEFAULT_STALENESS_DAYS = 30
 _DEFAULT_EXPIRY_DAYS = 90

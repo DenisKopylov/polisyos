@@ -46,14 +46,7 @@ DEFAULT_HOOK_BOUNDARY_FILES = (
     / "http"
     / "services"
     / "control_registry_providers.py",
-    REPO_ROOT
-    / "src"
-    / "polisyos"
-    / "runtime"
-    / "http"
-    / "services"
-    / "control"
-    / "__init__.py",
+    REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control" / "__init__.py",
     REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "cell_router_middleware.py",
     REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "jwt_auth_middleware.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "catalog" / "providers.py",
@@ -98,12 +91,15 @@ DEFAULT_HOOK_BOUNDARY_FILES = (
     / "orchestration"
     / "engine"
     / "operational_monitoring.py",
-    REPO_ROOT / "src" / "polisyos" / "scientist" / "orchestration"
-    / "engine" / "metrics_otel.py",
-    REPO_ROOT / "src" / "polisyos" / "scientist" / "orchestration"
-    / "engine" / "metrics.py",
-    REPO_ROOT / "src" / "polisyos" / "scientist" / "orchestration"
-    / "engine" / "error_semantics.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "orchestration" / "engine" / "metrics_otel.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "orchestration" / "engine" / "metrics.py",
+    REPO_ROOT
+    / "src"
+    / "polisyos"
+    / "scientist"
+    / "orchestration"
+    / "engine"
+    / "error_semantics.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "governance" / "pipeline.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "orchestration" / "llm" / "budget_enforcer.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "compute" / "runner.py",
@@ -123,7 +119,7 @@ DEFAULT_HOOK_BOUNDARY_FILES = (
     REPO_ROOT / "src" / "polisyos" / "scientist" / "agent" / "_drafter_passes.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "agent" / "_drafter_orchestrator.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "methods" / "search" / "controller.py",
-    REPO_ROOT / "src" / "polisyos" / "scholar" / "freshness.py",
+    REPO_ROOT / "src" / "polisyos" / "scholar" / "orchestrator" / "freshness.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "data_plane" / "quarantine.py",
 )
 
@@ -336,9 +332,7 @@ def test_boundary_default_hooks_remain_isolated_to_default_helpers() -> None:
 
 
 def test_runtime_control_hot_path_uses_shared_executor_bridge_not_asyncio_to_thread() -> None:
-    control_package = (
-        REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control"
-    )
+    control_package = REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control"
     violations = [
         path.relative_to(REPO_ROOT).as_posix()
         for path in sorted(control_package.rglob("*.py"))
@@ -347,8 +341,7 @@ def test_runtime_control_hot_path_uses_shared_executor_bridge_not_asyncio_to_thr
 
     assert not violations, (
         "runtime control hot paths should reuse run_blocking_async/shared executor "
-        "rather than ad hoc asyncio.to_thread offloads: "
-        + ", ".join(violations)
+        "rather than ad hoc asyncio.to_thread offloads: " + ", ".join(violations)
     )
 
 

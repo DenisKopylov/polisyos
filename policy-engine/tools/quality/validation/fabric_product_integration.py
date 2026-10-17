@@ -103,7 +103,7 @@ PRODUCT_ADAPTERS: tuple[dict[str, str | tuple[str, ...]], ...] = (
     },
     {
         "id": "scholar.fabric_citation",
-        "path": "src/polisyos/scholar/provenance.py",
+        "path": "src/polisyos/scholar/orchestrator/provenance.py",
         "tokens": (
             "ScholarFabricCitation",
             "scholar_citation_from_fabric_decision_data",
@@ -327,13 +327,7 @@ def _scientist_rows(repo_root: Path) -> list[dict[str, Any]]:
         repo_root / "src" / "polisyos" / "scientist" / "governance" / "pass_registry.py"
     )
     readiness_text = _read(
-        repo_root
-        / "src"
-        / "polisyos"
-        / "scientist"
-        / "methods"
-        / "search"
-        / "readiness.py"
+        repo_root / "src" / "polisyos" / "scientist" / "methods" / "search" / "readiness.py"
     )
     governance_tests_text = _read(
         repo_root / "tests" / "unit" / "scientist" / "governance" / "test_fabric_trust_gate_pass.py"

@@ -992,6 +992,7 @@ def _materialize_controlled_world_model_record(
     selected_skg_source: ControlledSKGSourceSelection,
     tenant_id: str,
     cell_id: str,
+    ncm_view_refs: Sequence[Any] = (),
 ) -> Any:
     """Return the exact WMR from its owner build result for existing callers."""
 
@@ -1006,6 +1007,7 @@ def _materialize_controlled_world_model_record(
         selected_skg_source=selected_skg_source,
         tenant_id=tenant_id,
         cell_id=cell_id,
+        ncm_view_refs=ncm_view_refs,
     )
     return built.record
 

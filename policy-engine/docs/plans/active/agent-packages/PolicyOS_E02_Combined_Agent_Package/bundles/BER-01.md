@@ -35,7 +35,7 @@ policy-engine/src/polisyos/berl/adapters/shap_tree.py
 policy-engine/src/polisyos/berl/contracts/explanation_bundle.py
 policy-engine/src/polisyos/berl/contracts/explanation_bundle.schema.json
 policy-engine/src/polisyos/berl/contracts/schema.py
-policy-engine/src/polisyos/berl/service.py
+policy-engine/src/polisyos/berl/service/__init__.py
 ```
 
 **Читать как соседние контракты:**
@@ -107,9 +107,9 @@ policy-engine/src/polisyos/berl/adapters/_utils.py
 
 **Точная область:**
 
-`src/polisyos/berl/service.py#default_adapters`
+`src/polisyos/berl/service/__init__.py#default_adapters`
 
-`src/polisyos/berl/service.py#ExplanationOrchestrator.explain/_build_disagreement`
+`src/polisyos/berl/service/__init__.py#ExplanationOrchestrator.explain/_build_disagreement`
 
 `src/polisyos/berl/adapters/shap_kernel.py`
 

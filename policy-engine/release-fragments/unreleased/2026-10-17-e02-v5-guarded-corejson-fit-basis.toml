@@ -1,0 +1,33 @@
+id = "2026-10-17-e02-v5-guarded-corejson-fit-basis"
+title = "Persist native GP fit bases through admitted CoreJSON stores"
+type = "fixed"
+component = "scientist"
+owner = "team-scientist"
+summary = "Native Bayesian Search persists the candidate-only GP fit basis through the exact CoreJSON store admitted by SearchLoopRunner when the writer returns its selected manifest profile. Fresh admission remains bound to the complete Search-to-MethodJob profile, including context, so an otherwise identical source fit basis is not reused when one policy-context value changes."
+evidence = [
+  "src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+  "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+]
+compatibility = "No public API, artifact schema, or canonicalization-law change is introduced. The fit-basis artifact remains candidate-only. A store that lacks the CoreJSON contract, selected-profile writer support, or a returned selected profile still produces no fit basis and cannot admit warm-start data. Existing artifacts are not rewritten."
+change_class = "internal"
+surface_classification = "internal: Scientist Bayesian Search GP fit-basis producer; no public API, artifact schema, or canonicalization-law change"
+migration = "No stored-artifact migration or backfill is required. Previously omitted fit-basis artifacts remain absent; later eligible candidate runs can persist through an admitted CoreJSON wrapper."
+api = "The existing producer reuses the exact CoreJSON handle admitted by SearchLoopRunner, preflights the selected-profile write contract, and requires a non-null selected manifest profile. Fresh admission validates and recomputes the candidate-only fit-basis chain against the complete target Search-to-MethodJob profile, including its context fingerprint."
+limitations = "The earlier generic guarded-store probe demonstrated selected-profile CoreJSON write/read behavior but did not execute the native fit-basis producer. The full V5 test module with its existing native-GP selection enabled, including the same-eligible-source changed-context refusal control, remains pending and has not been run for this candidate. This change establishes no optimizer authority, policy validity, public API completeness, or G acceptance."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "v5-guarded-corejson-native-gp-fit-basis"
+change_class = "internal"
+impact = "internal"
+surface = "internal: native GP fit-basis persistence through an admitted CoreJSON artifact store"
+owner = "team-scientist"
+version_owner = "team-scientist"
+deprecation_window = "not_applicable"
+release_note = "The native GP fit-basis producer uses the CoreJSON store already admitted by SearchLoopRunner and retains a basis only when its selected-profile write succeeds. Fresh warm-start admission remains bound to the full target run profile, including context; missing writer capability, denied writes, or a changed target context do not admit a basis."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

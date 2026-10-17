@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
-import polisyos.scholar.freshness as freshness_module
-from polisyos.scholar.freshness import (
+import polisyos.scholar.orchestrator.freshness as freshness_module
+from polisyos.scholar.orchestrator.freshness import (
     FreshnessPolicy,
     build_freshness_metadata,
     timed_freshness_check,

@@ -37,9 +37,11 @@ from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import CompileRequest, ExecPlan, ProgramGraph
 from polisyos.core.registry import build_default_registry_bundle
-from polisyos.foundry._registry import create_mechanism_from_spec
 from polisyos.foundry.agent_sim.agents import AgentPolicy
 from polisyos.foundry.compile.api import compile as compile_foundry
+from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
+    create_mechanism_from_spec,
+)
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec

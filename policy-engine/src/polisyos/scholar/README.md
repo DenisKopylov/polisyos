@@ -38,7 +38,7 @@ staying CAS-first and freshness-aware.
 - `persist_knowledge_bundle_payload` for persisting that typed payload through the canonical Scholar CAS writer.
 - error types: `ScholarError`, `ScholarValidationError`, `ScholarDiscoverError`, `ScholarAcquireError`, `ScholarDocsError`, `ScholarClaimsError`, `ScholarReconcileError`, `ScholarBundleError`
 
-The canonical bundle writer preserves the existing `scholar.knowledge_bundle` kind, JSON media type, schema, and declared input references. It admits finite floating-point fields in `KnowledgeBundlePayloadV1`; non-finite values remain refused. Persisting a bundle does not establish source licensing, currentness, or evidentiary quality.
+The canonical bundle writer preserves the existing `scholar.knowledge_bundle` kind, JSON media type, schema, and declared input references. It admits finite floating-point fields in `KnowledgeBundlePayloadV1`; non-finite values remain refused. Persisting a bundle does not establish source licensing, currentness, or evidentiary quality. Scholar bundle and report persistence uses the versioned JSON artifact contract; Python object pickling is outside the documented persistence boundary.
 
 ## Deep-Research Artifact Compatibility
 
@@ -58,8 +58,24 @@ global search exhaustion, or absence of relevant knowledge.
 
 ## Current State
 
-- Last updated: 2026-10-10
-- The package tree remains organized around `discover/` and `orchestrator/`, with freshness helpers living at the top level.
-- Package exports continue to provide the scholar service facade and the staged error types.
+- Last updated: 2026-10-17
+- Discovery remains under `discover/`; enrichment policies, freshness evaluation/state, staged errors, and pipeline support DTOs are owned by `orchestrator/`.
+- Persisted Scholar bundle/report contracts are defined in `core.contracts.scholar` and re-exported from this facade.
 
-## Evidence Validation Facade\n\nThe root facade exports `SourceSnippet`, `WebEvidenceBundle`, `validate_source_snippet_spans`, and `validate_web_evidence_source_binding`. The same Scholar validators remain the evidence-admissibility predicates used by Scientist consumers; moving their imports does not replace exact source-byte and span verification with shape checks.
+## Evidence Validation Facade
+
+The root facade exports `SourceSnippet`, `WebEvidenceBundle`, `validate_source_snippet_spans`, and `validate_web_evidence_source_binding`. The same Scholar validators remain the evidence-admissibility predicates used by Scientist consumers; moving their imports does not replace exact source-byte and span verification with shape checks.
+
+## Python Import Compatibility
+
+The supported Python entrypoint is `polisyos.scholar`; its existing 30 root exports retain
+their names and object bindings. The six former private module paths
+(`polisyos.scholar.errors`, `.freshness`, `.freshness_store`, `.policies`, `.provenance`, and
+`.types`) and their 13 class-definition FQNs are retired and unsupported. No compatibility
+modules remain at those paths. The moved class identities are `ScholarError`,
+`ScholarValidationError`, `ScholarDiscoverError`, `ScholarAcquireError`, `ScholarDocsError`,
+`ScholarClaimsError`, `ScholarReconcileError`, `ScholarBundleError`, `ScholarPolicy`,
+`ScholarFabricCitation`, `KnowledgeBundlePayloadV1`, `EnrichmentReportV1`, and `EnrichResultV1`.
+This does not establish whether external stored pickles or consumers use an old FQN; that remains
+`not_established`. The persisted compatibility surface remains the versioned JSON artifact
+contract, whose fields, kind, media type, and schema version are unchanged.

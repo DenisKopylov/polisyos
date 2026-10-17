@@ -1,4 +1,4 @@
-"""Public foundry registry module API."""
+"""Mechanism runtime descriptors derived from the canonical MethodRegistry."""
 
 import importlib
 import inspect
@@ -209,7 +209,12 @@ def _coerce_runtime_fidelity(
 def _coerce_params(value: Any) -> Any:
     from decimal import Decimal, InvalidOperation
 
-    from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
+    from polisyos.ir.kernel.values import (
+        CountValue,
+        DurationValue,
+        MoneyValue,
+        RateValue,
+    )
 
     if isinstance(value, RateValue):
         return float(value.as_ratio())
@@ -255,8 +260,10 @@ def _extract_intervention_fields(intervention: Any) -> tuple[str, dict[str, Any]
 
 def _runtime_registry_descriptors() -> dict[str, MechanismRuntimeDescriptor]:
     from polisyos.foundry.methods.base import MethodKind
-    from polisyos.foundry.methods.catalog.mechanism import ensure_mechanism_methods_registered
-    from polisyos.foundry.methods.registry import MethodRegistry
+    from polisyos.foundry.methods.catalog.mechanism import (
+        ensure_mechanism_methods_registered,
+    )
+    from polisyos.foundry.methods.selection.registry import MethodRegistry
 
     registry = MethodRegistry.get_instance()
     ensure_mechanism_methods_registered(registry)

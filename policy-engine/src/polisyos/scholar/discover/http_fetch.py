@@ -7,10 +7,10 @@ from urllib.error import HTTPError, URLError
 
 from polisyos.fabric.docs import DocSourceSpec
 from polisyos.scholar.discover.transport import RawFetchSizeError, fetch_raw
-from polisyos.scholar.errors import ScholarAcquireError, ScholarValidationError
+from polisyos.scholar.orchestrator.errors import ScholarAcquireError, ScholarValidationError
+from polisyos.scholar.orchestrator.types import AcquireResult
 from polisyos.scholar.search.models import SearchConstraints
 from polisyos.scholar.search.security import validate_content_type, validate_fetch_url
-from polisyos.scholar.types import AcquireResult
 
 if TYPE_CHECKING:
     from polisyos.core.contracts.scholar import SourceSpec

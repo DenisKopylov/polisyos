@@ -74,7 +74,6 @@ from polisyos.core.registry import (
     load_registry_bundle_content,
     load_registry_bundle_payload,
 )
-from polisyos.foundry._registry import MissingRuntimeMechanismSupportError
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.data_plane import (
     extract_feedback_diagnostics,
@@ -103,6 +102,9 @@ from polisyos.foundry.feedback import (
     prepare_feedback_config,
     snapshot_from_vector,
     solve_fixed_point,
+)
+from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
+    MissingRuntimeMechanismSupportError,
 )
 from polisyos.ir import TrinityBundle
 from polisyos.ir.trinity.loaders import load_trinity_bundle_artifact

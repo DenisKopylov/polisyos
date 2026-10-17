@@ -34,7 +34,6 @@ from polisyos.core.contracts.foundry import (
     ProgramGraph,
     StateDelta,
 )
-from polisyos.foundry._registry import create_mechanism_from_spec
 from polisyos.foundry.agent_sim.agents import AdaptiveAgentMechanism
 from polisyos.foundry.compile.randomization import (
     TREASURY_SALTS_PROFILE,
@@ -63,6 +62,9 @@ from polisyos.foundry.execute._internal.patching import apply_patch_map
 from polisyos.foundry.execute.patch_vm import merge_patch_records
 from polisyos.foundry.methods.backends.circuit_breaker import BackendCircuitOpenError
 from polisyos.foundry.methods.backends.dispatch import BackendNotAvailableError
+from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
+    create_mechanism_from_spec,
+)
 from polisyos.foundry.methods.exceptions import (
     BackendAdaptationError,
     ContractViolationError,

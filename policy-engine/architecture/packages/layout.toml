@@ -49,18 +49,6 @@ sunset = "2026-07-31"
 reason = "Legacy IR trinity shell package is time-boxed until Wave 3 semantic grouping."
 
 [[root_file_exception]]
-path = "src/polisyos/berl/perturbations.py"
-owner = "team-scientist"
-sunset = "2026-07-31"
-reason = "BERL support package retains root perturbation facade while Scientist reliability implementation boundaries settle."
-
-[[root_file_exception]]
-path = "src/polisyos/berl/service.py"
-owner = "team-scientist"
-sunset = "2026-07-31"
-reason = "BERL service facade remains root-level until the reliability service contract moves under a canonical subpackage."
-
-[[root_file_exception]]
 path = "src/polisyos/common/async_tools.py"
 owner = "team-core"
 sunset = "2026-07-31"
@@ -98,12 +86,6 @@ sunset = "2026-07-31"
 reason = "Timestamp helpers remain root-level shared utility facade during common package consolidation."
 
 [[root_file_exception]]
-path = "src/polisyos/data_forge/_version.py"
-owner = "team-data-forge"
-sunset = "2026-07-31"
-reason = "Data Forge version metadata is retained as root package metadata, not implementation."
-
-[[root_file_exception]]
 path = "src/polisyos/data_forge/errors.py"
 owner = "team-data-forge"
 sunset = "2026-07-31"
@@ -114,12 +96,6 @@ path = "src/polisyos/foundry/_quickstart.py"
 owner = "team-foundry"
 sunset = "2026-07-31"
 reason = "Foundry quickstart facade is blueprint-approved root helper pending extension example migration."
-
-[[root_file_exception]]
-path = "src/polisyos/foundry/_registry.py"
-owner = "team-foundry"
-sunset = "2026-07-31"
-reason = "Foundry registry facade is blueprint-approved root helper pending method registry consolidation."
 
 [[root_file_exception]]
 path = "src/polisyos/lex/artifacts.py"
@@ -174,88 +150,3 @@ path = "src/polisyos/runtime/replay.py"
 owner = "team-runtime"
 sunset = "2026-07-31"
 reason = "Runtime replay facade remains root-level while replay state migration policy is exercised."
-
-[[root_file_exception]]
-path = "src/polisyos/scholar/errors.py"
-owner = "team-scholar"
-sunset = "2026-07-31"
-reason = "Scholar public error types remain root-level during Scholar package grouping."
-
-[[root_file_exception]]
-path = "src/polisyos/scholar/freshness.py"
-owner = "team-scholar"
-sunset = "2026-07-31"
-reason = "Scholar freshness facade remains root-level until freshness implementation moves under a canonical subpackage."
-
-[[root_file_exception]]
-path = "src/polisyos/scholar/freshness_store.py"
-owner = "team-scholar"
-sunset = "2026-07-31"
-reason = "Scholar freshness store facade remains root-level while storage ownership is finalized."
-
-[[root_file_exception]]
-path = "src/polisyos/scholar/policies.py"
-owner = "team-scholar"
-sunset = "2026-07-31"
-reason = "Scholar policy helpers remain root-level while policy surfaces are grouped."
-
-[[root_file_exception]]
-path = "src/polisyos/scholar/provenance.py"
-owner = "team-scholar"
-sunset = "2026-07-31"
-reason = "Scholar provenance helpers remain root-level until provenance adapters are grouped."
-
-[[root_file_exception]]
-path = "src/polisyos/scholar/types.py"
-owner = "team-scholar"
-sunset = "2026-07-31"
-reason = "Scholar public types remain root-level until type taxonomy consolidation."
-
-[[package]]
-name = "ir"
-owner = "team-ir"
-target_phase = "3.2"
-current_status = "resolved_root_facade"
-notes = "Phase 3.2 grouped IR shell packages under model_layer, loading, and registry while analytics and schemas remain their canonical package homes. Root .py is limited to __init__.py and api.py."
-
-[[package]]
-name = "scientist"
-owner = "team-scientist"
-target_phase = "5"
-current_status = "resolved_root_facade"
-notes = "Phase 2.1 moved Scientist root implementation modules into semantic packages. The remaining root modules are registered python_reexport shims backed by the import compatibility map."
-
-[[package]]
-name = "foundry"
-owner = "team-foundry"
-target_phase = "6"
-current_status = "resolved_root_facade"
-notes = "Phase 6 moved accepted DECOMPOSITION_BLUEPRINT modules into execute, runtime, methods, validation, contracts, mechanisms, agent_sim, welfare, and _internal. Root .py is limited to facade plus blueprint-approved internal _quickstart/_registry modules."
-
-[[package]]
-name = "ddm"
-owner = "team-architecture"
-target_phase = "4A"
-current_status = "resolved"
-notes = "Canonical unversioned Drift-and-Degradation Monitor package."
-
-[[package]]
-name = "calibration"
-owner = "team-architecture"
-target_phase = "3B/4A"
-current_status = "resolved"
-notes = "Canonical shared diagnostics/recalibration home per ADR-RSR-0139."
-
-[[package]]
-name = "packs"
-owner = "team-architecture"
-target_phase = "4A"
-current_status = "removed"
-notes = "Empty placeholder namespace deleted by Phase 4A; future extension namespaces require a new ADR."
-
-[[package]]
-name = "berl"
-owner = "team-architecture"
-target_phase = "4A"
-current_status = "active"
-notes = "Active Scientist support package for explanation reliability validation; not legacy."

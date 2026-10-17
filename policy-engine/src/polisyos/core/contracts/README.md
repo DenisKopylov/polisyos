@@ -54,6 +54,8 @@ complete declared surface.
 Main ref families:
 
 - `fabric.py`, `foundry.py`, `scientist.py`, `scholar.py`
+- `scholar.py` owns the persisted Scholar knowledge-bundle payload, enrichment report, and enrichment result DTOs alongside request/ref/freshness contracts.
+  The Scholar root facade re-exports the three persisted/report DTOs. Former deep-module class FQNs are retired and unsupported; this does not establish whether external old-FQN pickle use exists. The persisted JSON contract remains unchanged.
 - `trinity.py`, `compiler.py`, `lex.py`, `execution_plan.py`
 - `foundry.py` includes the opt-in source-basis artifact/ref alongside existing compile and execute DTOs.
 - `runtime.py`, `control.py`, `cursor.py`

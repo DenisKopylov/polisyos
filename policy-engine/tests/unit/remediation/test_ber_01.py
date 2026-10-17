@@ -31,6 +31,7 @@ from polisyos.berl.service import (
     _BUILTIN_EFFECTIVE_METHODS,
     ExplanationOrchestrator,
     ExplanationRequest,
+    _effective_request_key,
     _freeze,
     _freeze_immutable_configuration,
     default_adapters,
@@ -630,6 +631,60 @@ def test_orchestrator_cache_key_includes_model_background_and_adapter_parameters
     assert "exponential" in str(changed_parameter_method.params["diagnostic"])
 
 
+def test_effective_request_key_partitions_changed_input_vectors() -> None:
+    request = _request(
+        methods=("kernel_shap",),
+        feature_dependence_policy="marginal_interventional",
+    )
+    changed_request = replace(request, x={"x1": 4.0, "x2": 2.0})
+    adapter = default_adapters()["kernel_shap"]
+    assert isinstance(adapter, KernelSHAPAdapter)
+    model = _CountingModel()
+    context = ExplanationContext(
+        feature_names=request.feature_names,
+        output_scale=request.output_scale,
+        perturbation_distribution=request.perturbation_policy,
+        feature_dependence_policy=request.feature_dependence_policy,
+        confidence=request.confidence,
+        random_seed=request.random_seed,
+        params={
+            **dict(request.adapter_params),
+            "background_rows": tuple(request.background_rows),
+            "lime_radius": request.perturbation_radius,
+        },
+    )
+
+    base_key = _effective_request_key(
+        model=model,
+        request=request,
+        context=context,
+        adapter=adapter,
+        effective_method_id="kernel_shap",
+    )
+    changed_key = _effective_request_key(
+        model=model,
+        request=changed_request,
+        context=context,
+        adapter=adapter,
+        effective_method_id="kernel_shap",
+    )
+
+    assert base_key is not None
+    assert changed_key is not None
+    assert base_key != changed_key
+
+    orchestrator = ExplanationOrchestrator()
+    base_bundle = orchestrator.explain(model, request)
+    changed_bundle = orchestrator.explain(model, changed_request)
+    base_attributions = tuple(
+        (item.feature, item.value) for item in base_bundle.methods[0].attributions
+    )
+    changed_attributions = tuple(
+        (item.feature, item.value) for item in changed_bundle.methods[0].attributions
+    )
+    assert base_attributions != changed_attributions
+
+
 def test_kernel_shap_preserves_feature_count_and_empty_background_guards() -> None:
     adapter = KernelSHAPAdapter()
     with pytest.raises(ValueError, match="exponential"):
@@ -787,6 +842,19 @@ def test_tree_and_kernel_aliases_preserve_request_but_compare_one_profile(
     assert (
         aliases_bundle.disagreement.methods_compared
         == comparison_bundle.disagreement.methods_compared
+    )
+    effective_alias_results = [
+        method
+        for method in aliases_bundle.methods
+        if method.method_id in {"kernel_shap", "kernel_shap_marginal", "tree_shap"}
+    ]
+    assert len(effective_alias_results) == 4
+    expected_attributions = tuple(
+        (item.feature, item.value) for item in effective_alias_results[0].attributions
+    )
+    assert all(
+        tuple((item.feature, item.value) for item in method.attributions) == expected_attributions
+        for method in effective_alias_results[1:]
     )
     assert len(aliases_model.calls) == len(comparison_model.calls)
     assert all(

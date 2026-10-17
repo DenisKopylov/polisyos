@@ -126,9 +126,9 @@ def bootstrap_foundry_method_registry(
 
 
 @contextmanager
-def controlled_builtin_foundry_method_registry_scope() -> (
-    Iterator[tuple[MethodRegistry, FoundryExtensionRegistryReport]]
-):
+def controlled_builtin_foundry_method_registry_scope() -> Iterator[
+    tuple[MethodRegistry, FoundryExtensionRegistryReport]
+]:
     """Yield a fresh registry whose governed basis is bound builtins only.
 
     Raises:
@@ -146,9 +146,7 @@ def controlled_builtin_foundry_method_registry_scope() -> (
                 require_bound_discovery_manifest=True,
             )
         if not report.success:
-            raise UnboundFoundryDiscoveryInputError(
-                "controlled_foundry_registry_bootstrap_failed"
-            )
+            raise UnboundFoundryDiscoveryInputError("controlled_foundry_registry_bootstrap_failed")
         yield registry, report
 
 
@@ -235,7 +233,10 @@ def __getattr__(name: str) -> object:
         raise AttributeError(
             f"module 'polisyos.foundry.extensions.registry' has no attribute {name!r}"
         )
-    value = getattr(importlib.import_module("polisyos.foundry._registry"), name)
+    value = getattr(
+        importlib.import_module("polisyos.foundry.methods.catalog.mechanism.runtime_registry"),
+        name,
+    )
     globals()[name] = value
     return value
 

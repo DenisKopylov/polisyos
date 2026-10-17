@@ -23,7 +23,6 @@ from polisyos.core.contracts.foundry import (
     StateSnapshotRef,
 )
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
-from polisyos.foundry._registry import create_mechanism_from_spec, get_mechanism_descriptor
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.api import execute as execute_foundry
@@ -31,6 +30,10 @@ from polisyos.foundry.execute.executor import (
     apply_patch_map,
     load_state_snapshot,
     put_state_snapshot,
+)
+from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
+    create_mechanism_from_spec,
+    get_mechanism_descriptor,
 )
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame

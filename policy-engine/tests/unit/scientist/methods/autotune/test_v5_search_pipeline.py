@@ -1543,7 +1543,11 @@ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path)
     )
     source_context = {"policy_context": {"year": 2032, "unit": "dimensionless"}}
     original_context = {"policy_context": dict(source_context["policy_context"])}
-    source_result = SearchLoopRunner(store=store, registry=registry).run(
+    from polisyos.runtime.http.resilience import guard_runtime_cas
+
+    guarded_store = guard_runtime_cas(store)
+    runner = SearchLoopRunner(store=guarded_store, registry=registry)
+    source_result = runner.run(
         spec,
         suite_ref=suite_ref,
         context=source_context,
@@ -1551,6 +1555,7 @@ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path)
     )
 
     assert source_context == original_context
+    assert generator._source_store is runner._store
     assert generator._optimizer._model is not None
     assert source_result.history[-1].candidate["_strategy_metadata"]["source"] == (
         "bayesian_acquisition"
@@ -2032,6 +2037,71 @@ def test_fitted_native_gp_profile_round_trips_into_same_context_search(tmp_path)
     assert target_evaluation.search_source_profile.context_fingerprint == (
         source_profile.context_fingerprint
     )
+
+    # Reuse the same eligible source evaluation and CAS receipt, changing only one
+    # load-bearing context value on a fresh target generator.
+    native_source_evaluations = [
+        evaluation
+        for evaluation in transferred_profiles
+        if evaluation.candidate_id in fitted_source_ids
+    ]
+    assert len(native_source_evaluations) == 1
+    native_source_evaluation = native_source_evaluations[0]
+    assert native_source_evaluation.metadata["search_source_evaluation_ref"] == (
+        source_evaluation_ref.model_dump(mode="json")
+    )
+    assert native_source_evaluation.metadata["search_source_profile_receipt"] == source_receipt
+    assert native_source_evaluation.metadata["warm_start_compatibility"] == (
+        source_profile.model_dump(mode="json", exclude_none=True)
+    )
+    assert (
+        ArtifactRef.model_validate(
+            native_source_evaluation.metadata["search_source_profile_receipt"]["fit_basis_ref"]
+        )
+        == fit_basis_ref
+    )
+
+    changed_context = {"policy_context": {**original_context["policy_context"], "year": 2033}}
+    assert changed_context["policy_context"]["unit"] == original_context["policy_context"]["unit"]
+    assert changed_context["policy_context"]["year"] != original_context["policy_context"]["year"]
+    changed_context_generator = BayesianCandidateGenerator(
+        SearchSpace(bounds=[{"name": "value", "lower": 0.0, "upper": 1.0}]),
+        n_initial=3,
+        seed=37,
+    )
+    changed_context_generator._optimizer._config.num_restarts = 1
+    changed_context_generator._optimizer._config.raw_samples = 16
+    changed_context_generator.set_search_run_context(changed_context)
+    changed_context_generator._configure_source_store(runner._store)
+    assert changed_context_generator._source_store is runner._store
+    changed_context_spec = replace(spec, candidate_generator=changed_context_generator)
+    changed_context_profile = _build_search_method_run_profile(
+        store=runner._store,
+        generator=changed_context_generator,
+        spec=changed_context_spec,
+        suite_ref=suite_ref,
+        context=changed_context,
+    )
+    assert changed_context_profile is not None
+    assert changed_context_profile.context_fingerprint != fit_basis.run_profile.context_fingerprint
+    assert (
+        changed_context_profile.model_copy(
+            update={"context_fingerprint": fit_basis.run_profile.context_fingerprint}
+        )
+        == fit_basis.run_profile
+    )
+    changed_context_generator.set_search_method_run_profile(changed_context_profile)
+
+    changed_context_generator.warm_start_for_context(
+        native_source_evaluations,
+        context=changed_context,
+    )
+    assert changed_context_generator._warm_start_accepted_count == 0
+    assert not changed_context_generator._optimizer._warm_evals
+    assert changed_context_generator._optimizer._model is None
+    assert changed_context_generator._warm_start_rejections == [
+        {"reason": "source profile receipt or CAS chain invalid"}
+    ]
 
 
 def test_missing_primary_metric_is_not_promoted_as_zero(tmp_path) -> None:

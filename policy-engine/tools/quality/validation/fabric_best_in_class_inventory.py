@@ -1306,7 +1306,12 @@ def _paths(repo_root: Path) -> dict[str, Path]:
         / "methods"
         / "search"
         / "readiness.py",
-        "scholar_provenance": repo_root / "src" / "polisyos" / "scholar" / "provenance.py",
+        "scholar_provenance": repo_root
+        / "src"
+        / "polisyos"
+        / "scholar"
+        / "orchestrator"
+        / "provenance.py",
         "lex_provenance": repo_root / "src" / "polisyos" / "lex" / "provenance.py",
         "foundry_calibration_fabric": repo_root
         / "src"

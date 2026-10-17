@@ -69,10 +69,12 @@ async def test_real_leaf_result_survives_later_independent_sibling_failure(
             "joint_simulation_baseline_state": {"firm_survival": 0.0},
         }
         successful_problem, successful_context, successful_candidate = (
-            _owner_n5_case_with_selected_ncm_ref(ncm_ref, runtime_hints=hints)
+            _owner_n5_case_with_selected_ncm_ref(
+                ncm_ref, artifact_store=store, tmp_path=tmp_path, runtime_hints=hints
+            )
         )
         failing_problem, failing_context, failing_candidate = _owner_n5_case_with_selected_ncm_ref(
-            ncm_ref, runtime_hints=hints
+            ncm_ref, artifact_store=store, tmp_path=tmp_path, runtime_hints=hints
         )
         root_problem = _problem("recursive_sibling_failure_root")
         branch_problem = _problem("recursive_sibling_failure_branch")

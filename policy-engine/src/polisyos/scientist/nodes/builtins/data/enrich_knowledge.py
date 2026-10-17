@@ -12,17 +12,17 @@ from pydantic import ValidationError
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.contracts.scholar import (
     FreshnessStatus,
+    KnowledgeBundlePayloadV1,
     KnowledgeBundleRef,
     ResearchIntent,
     ResearchIntentRef,
 )
-from polisyos.scholar.freshness import (
+from polisyos.scholar.orchestrator.freshness import (
     FreshnessPolicy,
     build_freshness_metadata,
     timed_freshness_check,
 )
-from polisyos.scholar.freshness_store import FreshnessStateStore
-from polisyos.scholar.types import KnowledgeBundlePayloadV1
+from polisyos.scholar.orchestrator.freshness_store import FreshnessStateStore
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_KNOWLEDGE_BUNDLE_REF,
@@ -41,7 +41,7 @@ from polisyos.scientist.orchestration.engine.protocol import (
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 if TYPE_CHECKING:
-    from polisyos.scholar.freshness import FreshnessCheckResult
+    from polisyos.scholar.orchestrator.freshness import FreshnessCheckResult
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.state import ExperimentState
 

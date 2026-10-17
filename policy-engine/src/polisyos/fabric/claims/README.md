@@ -47,7 +47,7 @@ before downstream Scholar or Lex flows consume them.
   artifact helpers in `polisyos.core.artifacts`.
 
 - Depended on by: `polisyos.scholar.orchestrator.enrich`,
-  `polisyos.scholar.policies`, `polisyos.data_forge.domains.legal.batch.claim_bridge`, and the
+  `polisyos.scholar` (the `ScholarPolicy` facade export), `polisyos.data_forge.domains.legal.batch.claim_bridge`, and the
   `polisyos.lex.normpack.*` claim-normalization flows.
 
 ## Common Commands

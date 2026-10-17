@@ -114,7 +114,7 @@
       "validator": "tools/quality/validation/fabric_product_integration.py"
     },
     "public_facade_exports": {
-      "export_count": 41,
+      "export_count": 44,
       "exports": [
         "AccessRef",
         "AuthoredText",
@@ -126,6 +126,7 @@
         "FabricDecisionDataResponse",
         "FabricFetchReceipt",
         "FieldSpec",
+        "IngestionStoreBindingError",
         "LineageRef",
         "ProcessingGuarantee",
         "ProcessingGuaranteeContract",
@@ -136,6 +137,7 @@
         "SourceContract",
         "SourceContractRef",
         "TemporalRef",
+        "TenantSidecarScope",
         "TypedGap",
         "UnitRef",
         "WorldQueryError",
@@ -149,6 +151,7 @@
         "fabric_fact_to_quantity_value",
         "fabric_get_data",
         "file_lock",
+        "project_data_requirement_to_catalog_needs",
         "query_claims",
         "query_events",
         "query_world_table",
@@ -451,12 +454,12 @@
         "status": "present"
       },
       {
-        "characters": 11040,
+        "characters": 11177,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "pyproject.toml",
         "status": "read",
-        "text_sha256": "92850014b496849fb6d20851f52af31fd986e289bae45edcff0c15fb0489c65d"
+        "text_sha256": "2522afe7bbbe74b8df37dcf64cda247f244ef0ec073657bb5d9e1d7841b1efe7"
       },
       {
         "operation": "is_file",
@@ -497,12 +500,12 @@
         "status": "present"
       },
       {
-        "characters": 19819,
+        "characters": 23494,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/connectors/base.py",
         "status": "read",
-        "text_sha256": "b5ac7224955922b7712604f7be929a734cd1a4fc2381d2fc62db9152595493c5"
+        "text_sha256": "a049411c6166dfa915b1b438e6dc6098ab472739effbb1da0679015e8113f260"
       },
       {
         "operation": "is_file",
@@ -1374,12 +1377,12 @@
         "status": "present"
       },
       {
-        "characters": 12109,
+        "characters": 12730,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/__init__.py",
         "status": "read",
-        "text_sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3"
+        "text_sha256": "93b5764232d4b1fdaea6efe4b55a4a42850e28e709a2ce4cca95ac061141b713"
       },
       {
         "operation": "is_file",
@@ -2214,12 +2217,12 @@
         "status": "present"
       },
       {
-        "characters": 3063552,
+        "characters": 3079413,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "schemas/runtime_api_v1.openapi.json",
         "status": "read",
-        "text_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a"
+        "text_sha256": "44c1787a6eb1195292e01d953633d3c94ce16820943b222c4b1e26347f18f95a"
       },
       {
         "operation": "is_file",
@@ -2228,26 +2231,12 @@
         "status": "present"
       },
       {
-        "characters": 3063552,
+        "characters": 3079413,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "schemas/runtime_api_v1.openapi.json",
         "status": "read",
-        "text_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a"
-      },
-      {
-        "operation": "is_file",
-        "path": "schemas/runtime_api_v1.openapi.json",
-        "result": true,
-        "status": "present"
-      },
-      {
-        "characters": 3063552,
-        "encoding": "utf-8",
-        "operation": "read_text",
-        "path": "schemas/runtime_api_v1.openapi.json",
-        "status": "read",
-        "text_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a"
+        "text_sha256": "44c1787a6eb1195292e01d953633d3c94ce16820943b222c4b1e26347f18f95a"
       },
       {
         "operation": "is_file",
@@ -2256,12 +2245,12 @@
         "status": "present"
       },
       {
-        "characters": 3063552,
+        "characters": 3079413,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "schemas/runtime_api_v1.openapi.json",
         "status": "read",
-        "text_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a"
+        "text_sha256": "44c1787a6eb1195292e01d953633d3c94ce16820943b222c4b1e26347f18f95a"
       },
       {
         "operation": "is_file",
@@ -2270,12 +2259,26 @@
         "status": "present"
       },
       {
-        "characters": 3063552,
+        "characters": 3079413,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "schemas/runtime_api_v1.openapi.json",
         "status": "read",
-        "text_sha256": "9cc0498ac6c7d4599ec4da84ef5eeb11f6a94ccaac9ef1e7f5db83f1416f121a"
+        "text_sha256": "44c1787a6eb1195292e01d953633d3c94ce16820943b222c4b1e26347f18f95a"
+      },
+      {
+        "operation": "is_file",
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 3079413,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "schemas/runtime_api_v1.openapi.json",
+        "status": "read",
+        "text_sha256": "44c1787a6eb1195292e01d953633d3c94ce16820943b222c4b1e26347f18f95a"
       },
       {
         "operation": "is_file",
@@ -2284,12 +2287,12 @@
         "status": "present"
       },
       {
-        "characters": 115383,
+        "characters": 116347,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
         "status": "read",
-        "text_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27"
+        "text_sha256": "a94f1998e20ace162590872974597a731deb4a826e41348e6f1930f3d411c0f0"
       },
       {
         "operation": "is_file",
@@ -2298,12 +2301,12 @@
         "status": "present"
       },
       {
-        "characters": 115383,
+        "characters": 116347,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
         "status": "read",
-        "text_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27"
+        "text_sha256": "a94f1998e20ace162590872974597a731deb4a826e41348e6f1930f3d411c0f0"
       },
       {
         "operation": "is_file",
@@ -2312,12 +2315,12 @@
         "status": "present"
       },
       {
-        "characters": 115383,
+        "characters": 116347,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
         "status": "read",
-        "text_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27"
+        "text_sha256": "a94f1998e20ace162590872974597a731deb4a826e41348e6f1930f3d411c0f0"
       },
       {
         "operation": "is_file",
@@ -2326,12 +2329,12 @@
         "status": "present"
       },
       {
-        "characters": 115383,
+        "characters": 116347,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
         "status": "read",
-        "text_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27"
+        "text_sha256": "a94f1998e20ace162590872974597a731deb4a826e41348e6f1930f3d411c0f0"
       },
       {
         "operation": "is_file",
@@ -2340,12 +2343,12 @@
         "status": "present"
       },
       {
-        "characters": 115383,
+        "characters": 116347,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
         "status": "read",
-        "text_sha256": "f5126895d3b40d4174e61a936452baa53e41e8427ecf4c58a4b3761f96259c27"
+        "text_sha256": "a94f1998e20ace162590872974597a731deb4a826e41348e6f1930f3d411c0f0"
       },
       {
         "operation": "is_file",
@@ -2522,12 +2525,12 @@
         "status": "present"
       },
       {
-        "characters": 179146,
+        "characters": 187500,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "apps/runtime-dashboard/src/api/validators.ts",
         "status": "read",
-        "text_sha256": "6da5405959bb931c053a1485a79ff71dbb5bb4819972fced8e6161004361c9ba"
+        "text_sha256": "1676b44ccacb9cfbd758d28de2ae01e3dddecb5074b8ab9f8d7dd8972be00742"
       },
       {
         "operation": "is_file",
@@ -2584,12 +2587,12 @@
         "status": "present"
       },
       {
-        "characters": 44813,
+        "characters": 46100,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/scientist/methods/search/readiness.py",
         "status": "read",
-        "text_sha256": "72d04a89b19896fbe4f69a1727d211a1bd9a319f6c5d0df6d509b2ec56318feb"
+        "text_sha256": "fbc1df0d1adb6803cd1b50c63cda4e1242e49ba561053f0282c494dcd4be96fd"
       },
       {
         "operation": "is_file",
@@ -2599,7 +2602,7 @@
       },
       {
         "operation": "is_file",
-        "path": "src/polisyos/scholar/provenance.py",
+        "path": "src/polisyos/scholar/orchestrator/provenance.py",
         "result": true,
         "status": "present"
       },
@@ -2637,7 +2640,7 @@
       },
       {
         "operation": "is_file",
-        "path": "src/polisyos/scholar/provenance.py",
+        "path": "src/polisyos/scholar/orchestrator/provenance.py",
         "result": true,
         "status": "present"
       },
@@ -2645,7 +2648,7 @@
         "characters": 1929,
         "encoding": "utf-8",
         "operation": "read_text",
-        "path": "src/polisyos/scholar/provenance.py",
+        "path": "src/polisyos/scholar/orchestrator/provenance.py",
         "status": "read",
         "text_sha256": "ded997402f3a3a237008551b445d21bed317d6c9b059bf7f2afaa933c48642c9"
       },
@@ -3001,12 +3004,12 @@
         "status": "present"
       },
       {
-        "characters": 119041,
+        "characters": 128504,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/data_plane/streaming.py",
         "status": "read",
-        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+        "text_sha256": "c8d30d17a378fa82580bf66985b5e9483af4120a5305abb23d7afc95e754dae2"
       },
       {
         "operation": "is_file",
@@ -3015,12 +3018,12 @@
         "status": "present"
       },
       {
-        "characters": 119041,
+        "characters": 128504,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/data_plane/streaming.py",
         "status": "read",
-        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+        "text_sha256": "c8d30d17a378fa82580bf66985b5e9483af4120a5305abb23d7afc95e754dae2"
       },
       {
         "operation": "is_file",
@@ -3029,12 +3032,12 @@
         "status": "present"
       },
       {
-        "characters": 119041,
+        "characters": 128504,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/data_plane/streaming.py",
         "status": "read",
-        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+        "text_sha256": "c8d30d17a378fa82580bf66985b5e9483af4120a5305abb23d7afc95e754dae2"
       },
       {
         "operation": "is_file",
@@ -3043,12 +3046,12 @@
         "status": "present"
       },
       {
-        "characters": 119041,
+        "characters": 128504,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/data_plane/streaming.py",
         "status": "read",
-        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+        "text_sha256": "c8d30d17a378fa82580bf66985b5e9483af4120a5305abb23d7afc95e754dae2"
       },
       {
         "operation": "is_file",
@@ -3057,12 +3060,12 @@
         "status": "present"
       },
       {
-        "characters": 119041,
+        "characters": 128504,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/data_plane/streaming.py",
         "status": "read",
-        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+        "text_sha256": "c8d30d17a378fa82580bf66985b5e9483af4120a5305abb23d7afc95e754dae2"
       },
       {
         "operation": "is_file",
@@ -3071,12 +3074,12 @@
         "status": "present"
       },
       {
-        "characters": 119041,
+        "characters": 128504,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/data_plane/streaming.py",
         "status": "read",
-        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+        "text_sha256": "c8d30d17a378fa82580bf66985b5e9483af4120a5305abb23d7afc95e754dae2"
       },
       {
         "operation": "is_file",
@@ -3085,18 +3088,12 @@
         "status": "present"
       },
       {
-        "characters": 119041,
+        "characters": 128504,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/data_plane/streaming.py",
         "status": "read",
-        "text_sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
-      },
-      {
-        "operation": "is_file",
-        "path": "src/polisyos/fabric/data_plane/orchestrator.py",
-        "result": true,
-        "status": "present"
+        "text_sha256": "c8d30d17a378fa82580bf66985b5e9483af4120a5305abb23d7afc95e754dae2"
       },
       {
         "operation": "is_file",
@@ -3105,12 +3102,18 @@
         "status": "present"
       },
       {
-        "characters": 29919,
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/data_plane/orchestrator.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 30273,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/data_plane/orchestrator.py",
         "status": "read",
-        "text_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7"
+        "text_sha256": "23ec9fefcb00ff912198f00bc75fcf65313f4198f87cf09f261e368842ab5178"
       },
       {
         "operation": "is_file",
@@ -3119,12 +3122,12 @@
         "status": "present"
       },
       {
-        "characters": 29919,
+        "characters": 30273,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/data_plane/orchestrator.py",
         "status": "read",
-        "text_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7"
+        "text_sha256": "23ec9fefcb00ff912198f00bc75fcf65313f4198f87cf09f261e368842ab5178"
       },
       {
         "operation": "is_file",
@@ -3139,12 +3142,12 @@
         "status": "present"
       },
       {
-        "characters": 29919,
+        "characters": 30273,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/data_plane/orchestrator.py",
         "status": "read",
-        "text_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7"
+        "text_sha256": "23ec9fefcb00ff912198f00bc75fcf65313f4198f87cf09f261e368842ab5178"
       },
       {
         "operation": "is_file",
@@ -3153,12 +3156,12 @@
         "status": "present"
       },
       {
-        "characters": 29919,
+        "characters": 30273,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/data_plane/orchestrator.py",
         "status": "read",
-        "text_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7"
+        "text_sha256": "23ec9fefcb00ff912198f00bc75fcf65313f4198f87cf09f261e368842ab5178"
       },
       {
         "operation": "is_file",
@@ -4479,12 +4482,12 @@
         "status": "present"
       },
       {
-        "characters": 33518,
+        "characters": 35772,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/ir/connectors/__init__.py",
         "status": "read",
-        "text_sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3"
+        "text_sha256": "0dd3e001be9f544b9b35aae8cc403a115130b7ca6977036b3d28c784f69bcea3"
       },
       {
         "operation": "is_file",
@@ -4493,12 +4496,12 @@
         "status": "present"
       },
       {
-        "characters": 33518,
+        "characters": 35772,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/ir/connectors/__init__.py",
         "status": "read",
-        "text_sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3"
+        "text_sha256": "0dd3e001be9f544b9b35aae8cc403a115130b7ca6977036b3d28c784f69bcea3"
       },
       {
         "operation": "is_file",
@@ -4507,12 +4510,12 @@
         "status": "present"
       },
       {
-        "characters": 33518,
+        "characters": 35772,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/ir/connectors/__init__.py",
         "status": "read",
-        "text_sha256": "73ac4426d8bc2cf07de492c45533e14c4bb5d5ab430a7aefb6dde446fa886ac3"
+        "text_sha256": "0dd3e001be9f544b9b35aae8cc403a115130b7ca6977036b3d28c784f69bcea3"
       },
       {
         "operation": "is_file",
@@ -4775,12 +4778,12 @@
         "status": "present"
       },
       {
-        "characters": 6284,
+        "characters": 9003,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/entity_resolution/store.py",
         "status": "read",
-        "text_sha256": "77379b283f58bc6e0f6e371d491f486b1996e185f1a85ff530ffca9cc19b8cbb"
+        "text_sha256": "d69cc9c99a0e74ea550206d4c4f97962c3adfd1b3e5dde736d4b6c426f8cfd37"
       },
       {
         "operation": "is_file",
@@ -4789,26 +4792,12 @@
         "status": "present"
       },
       {
-        "characters": 6284,
+        "characters": 9003,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/entity_resolution/store.py",
         "status": "read",
-        "text_sha256": "77379b283f58bc6e0f6e371d491f486b1996e185f1a85ff530ffca9cc19b8cbb"
-      },
-      {
-        "operation": "is_file",
-        "path": "src/polisyos/fabric/entity_resolution/models.py",
-        "result": true,
-        "status": "present"
-      },
-      {
-        "characters": 3731,
-        "encoding": "utf-8",
-        "operation": "read_text",
-        "path": "src/polisyos/fabric/entity_resolution/models.py",
-        "status": "read",
-        "text_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40"
+        "text_sha256": "d69cc9c99a0e74ea550206d4c4f97962c3adfd1b3e5dde736d4b6c426f8cfd37"
       },
       {
         "operation": "is_file",
@@ -4826,17 +4815,17 @@
       },
       {
         "operation": "is_file",
-        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
         "result": true,
         "status": "present"
       },
       {
-        "characters": 6284,
+        "characters": 3731,
         "encoding": "utf-8",
         "operation": "read_text",
-        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "path": "src/polisyos/fabric/entity_resolution/models.py",
         "status": "read",
-        "text_sha256": "77379b283f58bc6e0f6e371d491f486b1996e185f1a85ff530ffca9cc19b8cbb"
+        "text_sha256": "df5af3cb5913b6d1716edf1a6349d2f7087fa642c5b3b25df796295fc0e52b40"
       },
       {
         "operation": "is_file",
@@ -4845,12 +4834,26 @@
         "status": "present"
       },
       {
-        "characters": 6284,
+        "characters": 9003,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/entity_resolution/store.py",
         "status": "read",
-        "text_sha256": "77379b283f58bc6e0f6e371d491f486b1996e185f1a85ff530ffca9cc19b8cbb"
+        "text_sha256": "d69cc9c99a0e74ea550206d4c4f97962c3adfd1b3e5dde736d4b6c426f8cfd37"
+      },
+      {
+        "operation": "is_file",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "result": true,
+        "status": "present"
+      },
+      {
+        "characters": 9003,
+        "encoding": "utf-8",
+        "operation": "read_text",
+        "path": "src/polisyos/fabric/entity_resolution/store.py",
+        "status": "read",
+        "text_sha256": "d69cc9c99a0e74ea550206d4c4f97962c3adfd1b3e5dde736d4b6c426f8cfd37"
       },
       {
         "operation": "is_file",
@@ -4971,12 +4974,12 @@
         "status": "present"
       },
       {
-        "characters": 44813,
+        "characters": 46100,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/scientist/methods/search/readiness.py",
         "status": "read",
-        "text_sha256": "72d04a89b19896fbe4f69a1727d211a1bd9a319f6c5d0df6d509b2ec56318feb"
+        "text_sha256": "fbc1df0d1adb6803cd1b50c63cda4e1242e49ba561053f0282c494dcd4be96fd"
       },
       {
         "operation": "is_file",
@@ -4994,7 +4997,7 @@
       },
       {
         "operation": "is_file",
-        "path": "src/polisyos/scholar/provenance.py",
+        "path": "src/polisyos/scholar/orchestrator/provenance.py",
         "result": true,
         "status": "present"
       },
@@ -5002,7 +5005,7 @@
         "characters": 1929,
         "encoding": "utf-8",
         "operation": "read_text",
-        "path": "src/polisyos/scholar/provenance.py",
+        "path": "src/polisyos/scholar/orchestrator/provenance.py",
         "status": "read",
         "text_sha256": "ded997402f3a3a237008551b445d21bed317d6c9b059bf7f2afaa933c48642c9"
       },
@@ -5097,12 +5100,12 @@
         "status": "present"
       },
       {
-        "characters": 12109,
+        "characters": 12730,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/__init__.py",
         "status": "read",
-        "text_sha256": "2bd8701c7440b97d241a087ec3300c22fbef86b31bf36149ce6cd85e35812ae3"
+        "text_sha256": "93b5764232d4b1fdaea6efe4b55a4a42850e28e709a2ce4cca95ac061141b713"
       },
       {
         "operation": "is_file",
@@ -5219,12 +5222,12 @@
         "status": "present"
       },
       {
-        "characters": 29919,
+        "characters": 30273,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/data_plane/orchestrator.py",
         "status": "read",
-        "text_sha256": "f993d9e0feb26d46c96a109f2b33978a9c0df1e8657fe9779fc26d97776de9a7"
+        "text_sha256": "23ec9fefcb00ff912198f00bc75fcf65313f4198f87cf09f261e368842ab5178"
       },
       {
         "operation": "is_file",
@@ -5499,12 +5502,12 @@
         "status": "present"
       },
       {
-        "characters": 6284,
+        "characters": 9003,
         "encoding": "utf-8",
         "operation": "read_text",
         "path": "src/polisyos/fabric/entity_resolution/store.py",
         "status": "read",
-        "text_sha256": "77379b283f58bc6e0f6e371d491f486b1996e185f1a85ff530ffca9cc19b8cbb"
+        "text_sha256": "d69cc9c99a0e74ea550206d4c4f97962c3adfd1b3e5dde736d4b6c426f8cfd37"
       },
       {
         "operation": "is_file",
@@ -7212,7 +7215,7 @@
         "src/polisyos/foundry/calibration/fabric_quality.py",
         "src/polisyos/foundry/uncertainty/fabric_quality.py",
         "src/polisyos/lex/provenance.py",
-        "src/polisyos/scholar/provenance.py"
+        "src/polisyos/scholar/orchestrator/provenance.py"
       ],
       "status": "implemented",
       "tests": [
@@ -7258,7 +7261,7 @@
         "docs/reference/fabric/index.md"
       ],
       "evidence": {
-        "export_count": 41,
+        "export_count": 44,
         "exports": [
           "AccessRef",
           "AuthoredText",
@@ -7270,6 +7273,7 @@
           "FabricDecisionDataResponse",
           "FabricFetchReceipt",
           "FieldSpec",
+          "IngestionStoreBindingError",
           "LineageRef",
           "ProcessingGuarantee",
           "ProcessingGuaranteeContract",
@@ -7280,6 +7284,7 @@
           "SourceContract",
           "SourceContractRef",
           "TemporalRef",
+          "TenantSidecarScope",
           "TypedGap",
           "UnitRef",
           "WorldQueryError",
@@ -7293,6 +7298,7 @@
           "fabric_fact_to_quantity_value",
           "fabric_get_data",
           "file_lock",
+          "project_data_requirement_to_catalog_needs",
           "query_claims",
           "query_events",
           "query_world_table",

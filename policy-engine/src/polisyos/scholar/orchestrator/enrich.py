@@ -16,7 +16,14 @@ from polisyos.core.components import (
     ENTRY_POINT_GROUP_SCHOLAR_EXTRACTORS,
 )
 from polisyos.core.components.bootstrap import build_components_index
-from polisyos.core.contracts.scholar import BudgetsV1, ResearchIntent, SourceSpec, ThresholdsV1
+from polisyos.core.contracts.scholar import (
+    BudgetsV1,
+    EnrichmentReportV1,
+    EnrichResultV1,
+    ResearchIntent,
+    SourceSpec,
+    ThresholdsV1,
+)
 from polisyos.fabric.claims import extract_claims_from_doc, normalize_claims, resolve_conflicts
 from polisyos.fabric.claims.errors import ClaimPipelineError
 from polisyos.fabric.claims.extractor_registry import (
@@ -40,7 +47,12 @@ from polisyos.fabric.docs.errors import DocPipelineError
 from polisyos.fabric.storage import DuckDBStorageAdapter, StoragePort
 from polisyos.ir.world.trust import TrustAssessment, TrustTier
 from polisyos.scholar.discover import fetch_url, normalize_seed_sources, read_local_file
-from polisyos.scholar.errors import (
+from polisyos.scholar.orchestrator.bundle import (
+    build_knowledge_bundle_payload,
+    compute_bundle_id,
+    persist_bundle_and_event,
+)
+from polisyos.scholar.orchestrator.errors import (
     ScholarAcquireError,
     ScholarBundleError,
     ScholarClaimsError,
@@ -50,19 +62,12 @@ from polisyos.scholar.errors import (
     ScholarReconcileError,
     ScholarValidationError,
 )
-from polisyos.scholar.freshness import build_freshness_metadata
-from polisyos.scholar.orchestrator.bundle import (
-    build_knowledge_bundle_payload,
-    compute_bundle_id,
-    persist_bundle_and_event,
-)
-from polisyos.scholar.policies import ScholarPolicy
-from polisyos.scholar.types import (
+from polisyos.scholar.orchestrator.freshness import build_freshness_metadata
+from polisyos.scholar.orchestrator.policies import ScholarPolicy
+from polisyos.scholar.orchestrator.types import (
     AcquireResult,
     ClaimsPipelineRefs,
     DocPipelineRefs,
-    EnrichmentReportV1,
-    EnrichResultV1,
     ReconcileRefs,
 )
 

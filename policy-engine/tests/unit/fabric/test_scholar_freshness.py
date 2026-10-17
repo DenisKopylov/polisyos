@@ -2,15 +2,18 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
-from polisyos.core.contracts.scholar import FreshnessMetadata, FreshnessStatus
-from polisyos.scholar.freshness import (
+from polisyos.core.contracts.scholar import (
+    FreshnessMetadata,
+    FreshnessStatus,
+    KnowledgeBundlePayloadV1,
+)
+from polisyos.scholar.orchestrator.freshness import (
     FreshnessPolicy,
     build_freshness_metadata,
     resolve_domain_thresholds,
 )
-from polisyos.scholar.freshness_store import FreshnessRuntimeState
-from polisyos.scholar.policies import ScholarPolicy
-from polisyos.scholar.types import KnowledgeBundlePayloadV1
+from polisyos.scholar.orchestrator.freshness_store import FreshnessRuntimeState
+from polisyos.scholar.orchestrator.policies import ScholarPolicy
 
 
 def test_freshness_status_transitions() -> None:

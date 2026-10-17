@@ -63,10 +63,7 @@ def test_inventory_reports_all_last_mile_findings_with_gate_fields() -> None:
 
 
 def test_inventory_captures_phase_0_1_last_mile_regressions() -> None:
-    by_id = {
-        finding["finding_id"]: finding
-        for finding in _inventory()["findings"]
-    }
+    by_id = {finding["finding_id"]: finding for finding in _inventory()["findings"]}
 
     scientist_loose = by_id["LM-001"]
     assert scientist_loose["kind"] == "package_root_loose_python"
@@ -89,8 +86,7 @@ def test_inventory_captures_phase_0_1_last_mile_regressions() -> None:
     ]
 
     semantic_pairs = {
-        tuple(pair["paths"])
-        for pair in by_id["LM-005"]["metadata"]["semantic_pairs"]
+        tuple(pair["paths"]) for pair in by_id["LM-005"]["metadata"]["semantic_pairs"]
     }
     assert semantic_pairs == set()
     assert by_id["LM-005"]["current_status"] == "not_observed"
@@ -105,10 +101,7 @@ def test_inventory_captures_phase_0_1_last_mile_regressions() -> None:
 
 
 def test_inventory_records_sunset_metadata_and_schema_residue() -> None:
-    by_id = {
-        finding["finding_id"]: finding
-        for finding in _inventory()["findings"]
-    }
+    by_id = {finding["finding_id"]: finding for finding in _inventory()["findings"]}
 
     for finding_id in ("LM-006", "LM-010"):
         finding = by_id[finding_id]
@@ -159,9 +152,9 @@ def test_inventory_excludes_generated_and_ignored_paths_from_product_findings() 
     for finding in _inventory()["findings"]:
         if finding["kind"] in allowed_generated_kinds:
             continue
-        assert not any(
-            path.startswith(generated_prefixes) for path in finding["paths"]
-        ), finding["finding_id"]
+        assert not any(path.startswith(generated_prefixes) for path in finding["paths"]), finding[
+            "finding_id"
+        ]
 
 
 def test_inventory_keeps_local_ignored_residue_out_of_committed_baseline(
@@ -212,8 +205,7 @@ def test_json_output_cli_and_committed_baseline_are_machine_readable(tmp_path: P
     generated = json.loads(output_path.read_text(encoding="utf-8"))
     baseline = json.loads(
         (
-            REPO_ROOT
-            / "architecture/baselines/repository_best_in_class_last_mile/inventory.json"
+            REPO_ROOT / "architecture/baselines/repository_best_in_class_last_mile/inventory.json"
         ).read_text(encoding="utf-8")
     )
     assert generated == baseline
@@ -309,19 +301,31 @@ def test_selected_repository_owns_phase0_4_writes(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     last_mile = _module()
-    sections = (
-        "name_collisions", "cross_cutting_concerns", "scientist_parallel_implementations"
-    )
+    sections = ("name_collisions", "cross_cutting_concerns", "scientist_parallel_implementations")
     current = {section: {"fixture": section} for section in sections}
     monkeypatch.setattr(last_mile, "collect_inventory", lambda *args, **kwargs: current)
     monkeypatch.setattr(last_mile, "validate_inventory", lambda _inventory: [])
-    assert last_mile.main([
-        "--repo-root", str(tmp_path), "--write-phase0-4-baselines"
-    ]) == 0
+    assert last_mile.main(["--repo-root", str(tmp_path), "--write-phase0-4-baselines"]) == 0
     baseline_dir = tmp_path / "architecture/baselines/repository_best_in_class_last_mile"
     for section in sections:
         assert json.loads((baseline_dir / f"{section}.json").read_text()) == current[section]
     assert "Wrote Phase 0.4" in capsys.readouterr().out
+
+
+def test_empty_tracked_json_capture_has_no_frontend_references(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    last_mile = _module()
+    documents = {
+        "docs/live.md": f"Use {LEGACY_DASHBOARD_PATH}.\n",
+        "docs/worker-capture.json": "",
+    }
+    for relative, text in documents.items():
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    monkeypatch.setattr(last_mile, "_tracked_paths", lambda _root: set(documents))
+    assert last_mile._collect_frontend_mentions(tmp_path) == ["docs/live.md"]
 
 
 def test_new_journal_evidence_does_not_become_a_live_frontend_reference(
@@ -333,9 +337,9 @@ def test_new_journal_evidence_does_not_become_a_live_frontend_reference(
         "docs/superpowers/journals/new-independent-observation.md": (
             f"Observed {LEGACY_DASHBOARD_PATH} at the recorded commit.\n"
         ),
-        "docs/superpowers/journals/new-independent-observation.json": json.dumps({
-            "observed_reference": LEGACY_DASHBOARD_PATH
-        }),
+        "docs/superpowers/journals/new-independent-observation.json": json.dumps(
+            {"observed_reference": LEGACY_DASHBOARD_PATH}
+        ),
     }
     for relative, text in documents.items():
         path = tmp_path / relative
@@ -370,9 +374,20 @@ def _inventory_station(tmp_path: Path) -> Path:
         path.write_text(text, encoding="utf-8")
     subprocess.run(["git", "add", "."], cwd=root, check=True)
     subprocess.run(
-        ["git", "-c", "core.hooksPath=/dev/null", "-c", "user.name=Inventory probe",
-         "-c", "user.email=probe@example.invalid", "commit", "-qm", "inventory fixture"],
-        cwd=root, check=True,
+        [
+            "git",
+            "-c",
+            "core.hooksPath=/dev/null",
+            "-c",
+            "user.name=Inventory probe",
+            "-c",
+            "user.email=probe@example.invalid",
+            "commit",
+            "-qm",
+            "inventory fixture",
+        ],
+        cwd=root,
+        check=True,
     )
     return product
 
@@ -385,14 +400,16 @@ def test_inventory_all_scans_ignore_station_debris_and_keep_tracked_additions(
     clean = tmp_path / "clean"
     subprocess.run(
         ["git", "worktree", "add", "--detach", str(clean), "HEAD"],
-        cwd=product, check=True, capture_output=True,
+        cwd=product,
+        check=True,
+        capture_output=True,
     )
     before = last_mile.collect_inventory(clean / "policy-engine")
     debris = {
         "architecture/local-station-gate.toml": "",
         "architecture/gates/local.toml": "",
         "architecture/local-concern.toml": "",
-        "architecture/packages/layout.toml": '[single_file_shell_package_policy]\nmax_python_files=8\n',
+        "architecture/packages/layout.toml": "[single_file_shell_package_policy]\nmax_python_files=8\n",
         "architecture/name_registry.toml": '[[shared_name]]\nname="evidence"\n',
         "architecture/policies/cross_cutting_concerns.toml": '[[concern]]\nname="security"\n',
         "architecture/module_size_budget.toml": '[[budget]]\npath="local.py"\ncurrent_lines=9\ntarget_lines=1\n',
@@ -480,5 +497,6 @@ def test_inventory_keeps_tracked_symlink_identity_lexical(tmp_path: Path) -> Non
     subprocess.run(["git", "add", "src"], cwd=product, check=True)
     payload = _module().collect_inventory(product)
     assert next(row["paths"] for row in payload["findings"] if row["finding_id"] == "LM-001") == [
-        "src/polisyos/scientist/alias.py", "src/polisyos/scientist/api.py"
+        "src/polisyos/scientist/alias.py",
+        "src/polisyos/scientist/api.py",
     ]

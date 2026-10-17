@@ -8,7 +8,6 @@ from typing import Any, Literal
 
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
-    InputRef,
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
@@ -19,7 +18,10 @@ from polisyos.core.contracts.foundry import (
     LoweredIRRef,
     LoweredMechanism,
 )
-from polisyos.foundry._registry import has_runtime_mechanism_support, resolve_runtime_fidelity
+from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
+    has_runtime_mechanism_support,
+    resolve_runtime_fidelity,
+)
 from polisyos.ir.governance.policy_spec import InterventionSpec, MechanismBinding, ParameterSpec
 from polisyos.ir.governance.policy_spec import PolicySpec as PolicySpecModel
 from polisyos.ir.governance.problem_frame import ProblemFrame as ProblemFrameModel

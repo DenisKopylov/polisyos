@@ -33,7 +33,7 @@ Phase 0 is report-only: `--check` fails only when the committed manifest or repo
 Scope: `Manifest derivation records explicit filesystem reads, file/directory probes, and selected Python glob results.`
 Selector: `Connector export inventory is bounded to literal names in src/polisyos/fabric/connectors/sources/__init__.py::__all__.`
 Explicit filesystem operations: 777; complete verdict: `false`; unresolved boundary classes: 3.
-Receipt SHA-256: `440f779c869d3bc9bb72e164f1eba6392243d79c0966f4ad962c24eaefda1b34`.
+Receipt SHA-256: `a60436f058290efce79b726be18145280bfcc76247dc0a08067094d3e9a6c668`.
 The full path, operation, status, selector, and content-hash receipt is in `tools/quality/validation/fabric_best_in_class_manifest.json` under `input_receipt`; the Markdown view binds it without duplicating its records.
 
 ## Coverage Report
@@ -53,7 +53,7 @@ The full path, operation, status, selector, and content-hash receipt is in `tool
 | `decision_data_envelope` | `implemented` | `status`=`implemented`; `decision_data_module`=true; `trust_envelope_schema`=true; `coverage_report`=true |
 | `discovery_intelligence` | `implemented` | `status`=`implemented`; `semantic_catalog`=true; `source_contract_v2_count`=20; `eval_case_count`=4 |
 | `product_api_integration` | `missing` | `status`=`missing`; `runtime_endpoints`=5; `frontend_fixture_count`=12; `required_frontend_fixture_count`=12 |
-| `public_facade_exports` | `implemented` | `status`=`implemented`; `export_count`=41; `exports`=41; `tests`=3 |
+| `public_facade_exports` | `implemented` | `status`=`implemented`; `export_count`=44; `exports`=44; `tests`=3 |
 
 ## Tests By Plane
 
@@ -142,7 +142,7 @@ The full path, operation, status, selector, and content-hash receipt is in `tool
 | `trust.openlineage_export` | `implemented` | `P2` | OpenLineage export | `export_openlineage_json`=true | - |
 | `trust.product_evidence_adapters` | `implemented` | `P2` | Scholar, Lex, and Foundry Fabric evidence adapters | `fabric_evidence_path`=true; `scholar`=true; `lex`=true; `foundry_calibration`=true | - |
 | `trust.prov_export` | `implemented` | `P2` | W3C PROV export | `prov_o_export`=true; `prov_json_export`=true | - |
-| `trust.public_facade_exports` | `implemented` | `P2` | Stable public facade exports | `export_count`=41; `exports`=41 | - |
+| `trust.public_facade_exports` | `implemented` | `P2` | Stable public facade exports | `export_count`=44; `exports`=44 | - |
 | `trust.runtime_fabric_product_api` | `implemented` | `P1` | Runtime Fabric product API endpoints | `operation_ids`=5; `route`=true; `service`=true; `openapi`=true | - |
 | `trust.runtime_lineage_adapter` | `implemented` | `P1` | Runtime lineage API adapter | `route`=true; `service`=true | - |
 | `trust.scientist_fabric_trust_governance` | `implemented` | `P1` | Scientist readiness cap from Fabric trust metadata | `pass`=true; `readiness_cap`=true | - |

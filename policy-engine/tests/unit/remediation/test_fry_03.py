@@ -83,7 +83,10 @@ def test_relocated_exports_are_the_same_live_fiscal_and_labor_classes() -> None:
 def test_registry_and_spec_creation_resolve_the_canonical_kernel_owner() -> None:
     """Method descriptors and spec creation must load the new execution owner."""
     package = _canonical_package()
-    from polisyos.foundry._registry import create_mechanism_from_spec, get_mechanism_descriptor
+    from polisyos.foundry.methods.catalog.mechanism.runtime_registry import (
+        create_mechanism_from_spec,
+        get_mechanism_descriptor,
+    )
 
     expected = {
         "income_tax": ("polisyos.foundry.execute.mechanisms:IncomeTax", package.IncomeTax),
@@ -101,11 +104,10 @@ def test_registry_and_spec_creation_resolve_the_canonical_kernel_owner() -> None
     assert type(create_mechanism_from_spec("income_tax", {"rate": 0.2}, 4, 2)) is (
         package.IncomeTax
     )
-    assert type(
-        create_mechanism_from_spec(
-            "labor_market", {"employment_threshold": 0.5}, 4, 2
-        )
-    ) is package.LaborMarketMechanism
+    assert (
+        type(create_mechanism_from_spec("labor_market", {"employment_threshold": 0.5}, 4, 2))
+        is package.LaborMarketMechanism
+    )
 
 
 def test_relocated_fiscal_kernels_preserve_patch_maps_and_prng_keys() -> None:

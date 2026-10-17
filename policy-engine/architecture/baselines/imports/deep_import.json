@@ -13180,49 +13180,7 @@
       "source_module": "polisyos.scholar.discover.manual",
       "source_root": "scholar",
       "source_file": "src/polisyos/scholar/discover/manual.py",
-      "target_module": "polisyos.core.canon",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scholar.discover.manual",
-      "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/discover/manual.py",
       "target_module": "polisyos.core.contracts.scholar",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scholar.errors",
-      "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/errors.py",
-      "target_module": "polisyos.core.errors",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scholar.freshness",
-      "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/freshness.py",
-      "target_module": "polisyos.core.contracts.scholar",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scholar.freshness_store",
-      "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/freshness_store.py",
-      "target_module": "polisyos.common.logger",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.scholar.freshness_store",
-      "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/freshness_store.py",
-      "target_module": "polisyos.common.timestamps",
-      "target_root": "common"
-    },
-    {
-      "source_module": "polisyos.scholar.freshness_store",
-      "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/freshness_store.py",
-      "target_module": "polisyos.core.canon",
       "target_root": "core"
     },
     {
@@ -13299,13 +13257,6 @@
       "source_module": "polisyos.scholar.orchestrator.enrich",
       "source_root": "scholar",
       "source_file": "src/polisyos/scholar/orchestrator/enrich.py",
-      "target_module": "polisyos.core.components",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scholar.orchestrator.enrich",
-      "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/orchestrator/enrich.py",
       "target_module": "polisyos.core.components.bootstrap",
       "target_root": "core"
     },
@@ -13373,31 +13324,73 @@
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.scholar.policies",
+      "source_module": "polisyos.scholar.orchestrator.errors",
       "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/policies.py",
+      "source_file": "src/polisyos/scholar/orchestrator/errors.py",
+      "target_module": "polisyos.core.errors",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.scholar.orchestrator.freshness",
+      "source_root": "scholar",
+      "source_file": "src/polisyos/scholar/orchestrator/freshness.py",
+      "target_module": "polisyos.core.contracts.scholar",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.scholar.orchestrator.freshness_store",
+      "source_root": "scholar",
+      "source_file": "src/polisyos/scholar/orchestrator/freshness_store.py",
+      "target_module": "polisyos.common.logger",
+      "target_root": "common"
+    },
+    {
+      "source_module": "polisyos.scholar.orchestrator.freshness_store",
+      "source_root": "scholar",
+      "source_file": "src/polisyos/scholar/orchestrator/freshness_store.py",
+      "target_module": "polisyos.common.timestamps",
+      "target_root": "common"
+    },
+    {
+      "source_module": "polisyos.scholar.orchestrator.policies",
+      "source_root": "scholar",
+      "source_file": "src/polisyos/scholar/orchestrator/policies.py",
       "target_module": "polisyos.fabric.claims",
       "target_root": "fabric"
     },
     {
-      "source_module": "polisyos.scholar.policies",
+      "source_module": "polisyos.scholar.orchestrator.policies",
       "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/policies.py",
+      "source_file": "src/polisyos/scholar/orchestrator/policies.py",
       "target_module": "polisyos.fabric.docs",
       "target_root": "fabric"
     },
     {
-      "source_module": "polisyos.scholar.policies",
+      "source_module": "polisyos.scholar.orchestrator.policies",
       "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/policies.py",
+      "source_file": "src/polisyos/scholar/orchestrator/policies.py",
       "target_module": "polisyos.ir.world.trust",
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.scholar.provenance",
+      "source_module": "polisyos.scholar.orchestrator.provenance",
       "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/provenance.py",
+      "source_file": "src/polisyos/scholar/orchestrator/provenance.py",
       "target_module": "polisyos.fabric.product_integration",
+      "target_root": "fabric"
+    },
+    {
+      "source_module": "polisyos.scholar.orchestrator.types",
+      "source_root": "scholar",
+      "source_file": "src/polisyos/scholar/orchestrator/types.py",
+      "target_module": "polisyos.core.contracts.scholar",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.scholar.orchestrator.types",
+      "source_root": "scholar",
+      "source_file": "src/polisyos/scholar/orchestrator/types.py",
+      "target_module": "polisyos.fabric.docs",
       "target_root": "fabric"
     },
     {
@@ -13539,20 +13532,6 @@
       "source_file": "src/polisyos/scholar/search/service.py",
       "target_module": "polisyos.core.contracts.scholar",
       "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scholar.types",
-      "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/types.py",
-      "target_module": "polisyos.core.contracts.scholar",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scholar.types",
-      "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/types.py",
-      "target_module": "polisyos.fabric.docs",
-      "target_root": "fabric"
     },
     {
       "source_module": "polisyos.scientist.adapters.fabric_bridge",
@@ -19662,34 +19641,6 @@
       "source_module": "polisyos.scientist.nodes.builtins.data.enrich_knowledge",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
-      "target_module": "polisyos.core.artifacts.manifest",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.nodes.builtins.data.enrich_knowledge",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
-      "target_module": "polisyos.core.artifacts.store",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.nodes.builtins.data.enrich_knowledge",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
-      "target_module": "polisyos.core.canon",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.nodes.builtins.data.enrich_knowledge",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
-      "target_module": "polisyos.core.components",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.nodes.builtins.data.enrich_knowledge",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
       "target_module": "polisyos.core.contracts.scholar",
       "target_root": "core"
     },
@@ -19697,21 +19648,14 @@
       "source_module": "polisyos.scientist.nodes.builtins.data.enrich_knowledge",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
-      "target_module": "polisyos.scholar.freshness",
+      "target_module": "polisyos.scholar.orchestrator.freshness",
       "target_root": "scholar"
     },
     {
       "source_module": "polisyos.scientist.nodes.builtins.data.enrich_knowledge",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
-      "target_module": "polisyos.scholar.freshness_store",
-      "target_root": "scholar"
-    },
-    {
-      "source_module": "polisyos.scientist.nodes.builtins.data.enrich_knowledge",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
-      "target_module": "polisyos.scholar.types",
+      "target_module": "polisyos.scholar.orchestrator.freshness_store",
       "target_root": "scholar"
     },
     {

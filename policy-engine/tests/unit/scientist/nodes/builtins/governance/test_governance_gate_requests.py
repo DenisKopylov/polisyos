@@ -18,7 +18,7 @@ from polisyos.core.contracts.foundry import (
     StateSnapshot,
     StateSnapshotRef,
 )
-from polisyos.core.contracts.scholar import ResearchIntent
+from polisyos.core.contracts.scholar import KnowledgeBundlePayloadV1, ResearchIntent
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.ir.governance.gate import GateContext, GatePriority, GateRequest
@@ -27,7 +27,6 @@ from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.loading.norm_pack import NormPack
 from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scholar.types import KnowledgeBundlePayloadV1
 from polisyos.scientist.nodes.builtins.governance.governance_gate_requests import (
     _create_gate_request,
     _ensure_human_review_gate_request,

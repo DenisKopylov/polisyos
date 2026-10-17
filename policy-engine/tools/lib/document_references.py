@@ -73,6 +73,8 @@ def _archive_table_text(text: str) -> str:
 
 
 def _archive_map_text(text: str) -> str:
+    if not text.strip():
+        return ""
     payload = json.loads(text)
     if not isinstance(payload, dict):
         return text
@@ -109,7 +111,9 @@ def reference_scan_text(relative: Path, text: str) -> str:
 
     Returns:
         Text with established historical and archive-member roles removed. Unknown
-        roles remain live; malformed JSON raises rather than becoming empty evidence.
+        roles remain live. Empty JSON text contains no path references; non-empty
+        malformed JSON raises. Consumers that require valid JSON must report an
+        empty document as ambiguous before using this reference-only result.
     """
     suffix = relative.suffix.lower()
     if relative.parts[:3] == _JOURNAL_ROOT and suffix in {".md", ".json"}:

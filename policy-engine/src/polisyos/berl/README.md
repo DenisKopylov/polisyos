@@ -9,6 +9,11 @@ diagnostics.
 The package root is an experimental public facade. Treat subpackages as
 implementation detail unless they are exported from `polisyos.berl`.
 
+The `service` and `perturbations` subpackages own internal implementation modules.
+Their package-level module names remain importable for the current BERL service
+objects and historical serialized class identities; they are not additional
+supported entrypoints. The supported public API remains `polisyos.berl`.
+
 BERL is active Scientist support infrastructure, not a legacy package. Its
 current consumers include Scientist validation/preflight and Runtime
 warrant-reliability validation, which revalidate explanation-reliability evidence. Do not mark this package

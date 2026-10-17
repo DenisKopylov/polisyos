@@ -11,6 +11,10 @@ data preparation and governed artifact publication.
 - `polisyos.data_forge.read_api`
 - `polisyos.data_forge.read_api.legal`
 
+The public __version__ value is owned by the package root and tested against
+the installed policy-engine distribution metadata; no private version module
+is part of the supported import surface.
+
 The top-level package lazily exports build-time contracts for asset identity,
 `ArtifactRef` governance, schema registry access, snapshot transactions,
 quality checks, provenance manifests, and golden/differential migration tests.

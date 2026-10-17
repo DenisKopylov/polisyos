@@ -11,7 +11,9 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scholar import (
     EnrichmentReportRef,
+    EnrichmentReportV1,
     FreshnessMetadata,
+    KnowledgeBundlePayloadV1,
     KnowledgeBundleRef,
 )
 from polisyos.fabric.world import (
@@ -29,7 +31,6 @@ from polisyos.ir.world.event import (
     WorldObjectRef,
 )
 from polisyos.ir.world.ids import stable_world_id_from_canon
-from polisyos.scholar.types import EnrichmentReportV1, KnowledgeBundlePayloadV1
 
 if TYPE_CHECKING:
     from pathlib import Path

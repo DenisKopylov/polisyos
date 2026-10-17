@@ -2823,7 +2823,7 @@ Export total is unknown; the static reader cannot resolve the extension.
 - Owner: `team-polisyos`
 - README: `src/polisyos/foundry/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml.
+- Notes: Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages. Import compatibility applies only to paths with explicit architecture/shims.toml records; unlisted private FQNs remain internal by default.
 - Summary: Expose the stable Foundry compile/execute entrypoints behind lazy imports.
 
 ### Resolved supported entrypoints

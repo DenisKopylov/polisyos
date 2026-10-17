@@ -12,8 +12,8 @@ from polisyos.common.async_tools import run_coro_sync
 from polisyos.core.artifacts import ArtifactID, ArtifactRef
 from polisyos.core.canon import content_hash
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent, SourceSpec
-from polisyos.scholar.errors import ScholarAcquireError
 from polisyos.scholar.orchestrator.enrich import enrich_topic as _enrich_topic
+from polisyos.scholar.orchestrator.errors import ScholarAcquireError
 from polisyos.scholar.search.jobs import DeepResearchJobManager
 from polisyos.scholar.search.service import ScholarDeepSearchService
 from polisyos.scholar.search.source_binding import validate_web_evidence_source_binding
@@ -23,8 +23,9 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.contracts.scholar import EnrichResultV1
     from polisyos.fabric.storage import StoragePort
-    from polisyos.scholar.policies import ScholarPolicy
+    from polisyos.scholar.orchestrator.policies import ScholarPolicy
     from polisyos.scholar.search.models import (
         QueryGraph,
         ResearchBrief,
@@ -33,7 +34,6 @@ if TYPE_CHECKING:
         SearchConstraints,
         WebEvidenceBundle,
     )
-    from polisyos.scholar.types import EnrichResultV1
     from polisyos.scholar_requirement import ScholarSupportRequirementSpec
 
 

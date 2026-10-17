@@ -3607,5 +3607,34 @@
     },
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_acquisition_config_provider_behavioral_mirrors": {
+    "owner": "root",
+    "base": "2b8060d8acd60eb93533a8f7f443002800ed00fc",
+    "mechanism_paths": [
+      "policy-engine/tests/unit/runtime/http/services/test_acquisition_authority_configuration.py",
+      "policy-engine/tests/unit/runtime/http/services/test_acquisition_authority_provider.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate canonical four-case source-bound receipt"
+    ],
+    "author_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-acquisition-config-provider-author-r2-20261017/r2-manifest.json",
+      "sha256": "a1058dd82f6789ba659d3f4ccdfdf41cce3f15adec60e61ede68871762e10d9a"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-acquisition-config-provider-independent-review-r2-20261017/review.json",
+      "sha256": "6de1f3fe2036a51b6ed749965944cd85b784a723eaeb94aff99d8cb19a5d5bf9"
+    },
+    "property": "Four distinct configured signing roles map to exact generated identities; shared owner/currentness key and revoked admission key reject. Signed current=false CAS fixture is refused before admission/effect and decision survives a fresh read.",
+    "P40": "Exact entire four-key identity map replaces a partial assertion; provider source-cause loss remains a separately reproduced whole typed-intake issue under repair.",
+    "limitations": [
+      "Generated fixture keys/evidence are synthetic, no external institution/custody/currentness claim.",
+      "Current provider persists generic missing-contract/admission causes; typed original-cause companion is still under construction.",
+      "Filename mirror ratio and unit success do not establish whole protected-route closure."
+    ],
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

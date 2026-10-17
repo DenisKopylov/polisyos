@@ -1,0 +1,101 @@
+{
+  "schema": "polisyos.e02.acquisition-source-bound-receipt-candidate.v1",
+  "artifact_role": "RAW-only proposal for parent-owned canonical receipt; not root acceptance or closure",
+  "status": "proposal_only",
+  "slice": "typed owner-resolution refusal cause preserved through runtime decision, persistence, and fresh read",
+  "source_identity": {
+    "commit": "7043dad951b33d73548e57944ee1350d72a2bd1a",
+    "tree": "16c7552e3f0a281e8d1c29d1179690993efef30a",
+    "parent": "5a0ffe9ade252d74183060a561d0c3aac41f9f22",
+    "subject": "fix(runtime): preserve acquisition owner refusal causes through persistence",
+    "readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-provider-refusal-cause-canonical-adoption-20261017/acquisition-typed-refusal-cause-readback.json@sha256:fda586d66f98be078537eae95459d2a2b81cec6728ddc01bbe6845b7cb283438",
+    "footprint": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/acquisition_authority_provider.py",
+        "role": "runtime provider",
+        "sha256": "d83142484a4a46457d937fcfb9383a509780e73ef5f26418094deac7be43b21c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/agent_action_authority.py",
+        "role": "typed authority carrier/validation",
+        "sha256": "06dd7880d13aa791ef185b319c0dca255220b16bd8155ffca8605fff6df2f458"
+      },
+      {
+        "path": "policy-engine/tests/integration/core_runtime/test_acquisition_authority_provider.py",
+        "role": "integration regression",
+        "sha256": "fa3a760bc76c9abeab3cbf6d55c61290ce1d87070b4235e5eac0d62f37c44950"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_agent_action_authority.py",
+        "role": "unit regression",
+        "sha256": "4cb640ed74a56be27329770392071faa8b7e439764e594f3d5876b8f03bf0e45"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/services/test_acquisition_authority_provider.py",
+        "role": "provider unit regression",
+        "sha256": "1b711595c2a300ec6846a0b36985f30d401a5efc97caecafde02efec672386ef"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-17-acquisition-provider-refusal-cause.toml",
+        "role": "release companion",
+        "sha256": "726f548eda62891b46f7f3a5be6c70ec45087d9067de7aecc45f257d62340489"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/README.md",
+        "role": "service contract companion",
+        "sha256": "90a5931534cfa8aee7ddb0dee84250b0f1d7eb475bca06cf6b5c348990945644"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "role": "mandatory lease companion",
+        "sha256": "e9e77acec5bcbc30509c73cd4a2bf4614dac7d69defe50d1617ba428683bbd30"
+      }
+    ],
+    "footprint_count": 8,
+    "mechanism_and_tests": 5,
+    "mandatory_companions": 3
+  },
+  "replay": {
+    "request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-provider-refusal-cause-canonical-adoption-20261017/request.json@sha256:58b296fab607e4bfb31f6ec98752d354b2e09782c9f0f15ee8c51e4e9e535e4a",
+    "actual_results": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-provider-refusal-cause-canonical-adoption-20261017/actual-results.json@sha256:d7e90083776cfc564adba0b8e9618b59e0de3a030368d8fdb4d7294ea1c53d7e",
+    "head_before_and_after": "5a0ffe9ade252d74183060a561d0c3aac41f9f22",
+    "selected_request_path_hashes": 7846,
+    "source_paths_unchanged": true,
+    "candidate_postimages_match_committed_readback": true,
+    "frame_limit": "Selected request path pins, not a whole Git-tree or repository freeze; fixture/source inputs are synthetic."
+  },
+  "deciding_checks": {
+    "focused_pytest": {
+      "result": "PASS, 20 tests, 0 failures/errors/skips; command wall 33.555 s (JUnit time 14.099 s).",
+      "request_argv": "Use exact command in request.json; selected three files and owner-resolution/refusal/persistence cases by -k.",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-provider-refusal-cause-canonical-adoption-20261017/junit.xml@sha256:7fdb740e8f37d405e4451c1f35d9f93cbc1f56db046eef0a96a9fc4718450e5f",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-provider-refusal-cause-canonical-adoption-20261017/canonical-acquisition-refusal20.stdout.txt@sha256:c66ef7936b32d2201bf6eb901cf69cbc8e71996669c38afe1f70ad40098e04a3",
+      "run_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-provider-refusal-cause-canonical-adoption-20261017/canonical-acquisition-refusal20.run.json@sha256:0f6fa6bcef62569c66233b0d2cf2027aa1db9b2be0ce712c26b9532dbd784b62"
+    },
+    "canonical_ruff_check": {
+      "result": "PASS, exit 0, 0.184 s across five source/test paths.",
+      "run_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-provider-refusal-cause-canonical-adoption-20261017/canonical-acquisition-refusal-ruff.run.json@sha256:be601c83fc4ed85e06b97c1bd14f4e23d1ee746696b5d210ba256fd179990a60",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-provider-refusal-cause-canonical-adoption-20261017/canonical-acquisition-refusal-ruff.stdout.txt@sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "formatting_residual": {
+      "state": "Four of five independent R2 candidate format checks exited 1. The canonical adoption replay did not run a format check; this remains deferred to the final formatting batch, is neither inherited nor waived.",
+      "evidence": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-provider-refusal-cause-independent-review-r2-20261017/ruff-independent.json@sha256:8dc97a3f6d0adad22f0aea82e1a6e464ef4fd8a658af0939d10c72bc92148502",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-provider-refusal-cause-independent-review-r2-20261017/review.json@sha256:4adf198be729388003cd8df4e2fb147575a851c3dc6bf135ef53317ec5fce8b7"
+    }
+  },
+  "independent_review": {
+    "r2_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-provider-refusal-cause-independent-review-r2-20261017/review.json@sha256:4adf198be729388003cd8df4e2fb147575a851c3dc6bf135ef53317ec5fce8b7",
+    "r2_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-provider-refusal-cause-author-r2-20261017/r2-review-manifest.json@sha256:6c570708432cc340b80cef3cc98a8b69a18f9474a42bb9d287efb37eb05d07a1",
+    "verdict": "go_for_bounded_delta_with_formatting_caveat; separate independent candidate run passed 20 cases.",
+    "finding": "R1-INTAKE-01 truthiness fallback erased a nonempty falsy Mapping and admitted falsy non-mappings. R2 uses {} only for None; every non-None value is generically validated and copied into MappingProxyType. Independent dispatch/persistence probe retained the typed refusal reason and CAS replay ref after fresh load, with zero effects. Removal-keep-markers control went red on six boundary cases.",
+    "limits": "Review was delta-only, not final source freeze or G acceptance; synthetic fixtures do not establish external institutional currentness/custody; separate admission-producer persistence boundary is unchanged/out of scope."
+  },
+  "environment": {
+    "python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "selected_environment_capture": "Actual-results records selected fields passed to Popen; inherited unspecified process variables were not captured."
+  },
+  "formal_closure_ids": [],
+  "closure_proposals": [],
+  "global_freeze_claim": false,
+  "g_acceptance_claim": false
+}

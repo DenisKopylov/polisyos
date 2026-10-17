@@ -1,0 +1,79 @@
+{
+  "schema": "polisyos.e02.acquisition-route-bundle-source-bound-receipt-candidate.v1",
+  "artifact_role": "RAW-only proposal for parent-owned canonical receipt; not root acceptance or closure",
+  "status": "proposal_only",
+  "slice": "protected acquisition HTTP route and durable admission bundle tests",
+  "source_identity": {
+    "commit": "736104d0144b75272c06f34e6eb185545ece1fed",
+    "tree": "dbc3a57aad7c7f0de6f0abef3b6581d8e0c0a9ff",
+    "parent": "7043dad951b33d73548e57944ee1350d72a2bd1a",
+    "subject": "test(runtime): exercise protected acquisition routes and durable bundles",
+    "readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-route-bundle-canonical-style-delta-20261017/acquisition-route-bundle-physical-style-readback.json@sha256:8d75da43f4ee8131c5e601626bf86f9b3d6a75ec515f2c7e5e3599658b7a13a3",
+    "footprint": [
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_acquisitions.py",
+        "role": "protected route integration-style unit test",
+        "sha256": "a065d761a68def2a73344a09074459061fa5e65b444b712e746251d63db36e27"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/services/test_acquisition_admission_bundle.py",
+        "role": "durable signed bundle producer test",
+        "sha256": "583f2e1721cdbbe61019526e1a4e0561e6b743ded887c5e75c5e333a9ec63762"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "role": "mandatory lease companion",
+        "sha256": "21e54a00a343a96f51383ff95c2c890dacb3da9d757cdb8986a76c4223bcd3b7"
+      }
+    ],
+    "footprint_count": 3,
+    "mechanism_paths": 2,
+    "mandatory_companions": 1
+  },
+  "behavior_replay": {
+    "request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-route-bundle-canonical-adoption-20261017/request.json@sha256:285aa18e0afb050612fdcf21ee12f522ce2ad0a2f1ac083937475e0bef825c4c",
+    "actual_results": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-route-bundle-canonical-adoption-20261017/actual-results.json@sha256:5822a077c2add733a5c16b7edf83376423d6850d9e609a77ed678e064f81d23a",
+    "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-route-bundle-canonical-adoption-20261017/junit.xml@sha256:74b42fb5607436d58ec580170d4305723ac791fb81d66d741247922a190c2800",
+    "run_head": "7043dad951b33d73548e57944ee1350d72a2bd1a",
+    "result": "PASS, two selected tests, 0 failures/errors/skips; command wall 56.675 s (JUnit time 34.680 s).",
+    "source_state": "Tests ran on exact pre-format test bytes pinned by the request: test_acquisitions.py@a9a81feb3fe456f962fa83283944e87e381e7fe0e504d5d03314b1f0325150b9 and test_acquisition_admission_bundle.py@8d65f48f5e0a71b62400c144f31a9d3f48c2fb897a1a419a8008b1ba622da6d6. These files were in the run frame before commit 736104.",
+    "source_paths_unchanged_during_run": true
+  },
+  "semantic_scope": {
+    "protected_route": "The selected route test begins with a human_decision_missing refusal, obtains and posts an ordinary human approval, then exercises the protected execute POST. It reads back a persisted job in pending state and an allowed decision bound to the human record and selected resource digest, with durable event reconciliation passing. The configured WDI execution port is replaced by a local synthetic fixture; the pending job is not executed by a worker.",
+    "admission_bundle": "The producer test writes and reopens the signed event-bound bundle, verifies signature identity and durable reconciliation, then rejects a changed resource digest without changing event inventory or bundle refs.",
+    "limits": "Local/synthetic state proves route binding and persistence only; no external WDI effect, production-world currentness, external institutional authority, or worker execution is established."
+  },
+  "review_and_style_sequence": {
+    "r2_behavior_review": {
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-acquisition-route-bundle-independent-review-r2-20261017/review.json@sha256:ee5cd9b568c4b06afcac592607edfa7586ce36d75cd4a89228b7c412efaddabd",
+      "verdict": "GO for narrowly scoped route/bundle test delta; that review predates and explicitly leaves the full pair unexecuted after its assertion. The subsequent parent-owned two-test replay above is the actual execution evidence.",
+      "formal_closure_ids": []
+    },
+    "initial_ruff_red": {
+      "result": "The pre-style two-file check exited 1 with two I001 import-separation diagnostics, one per file.",
+      "actual_results": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-route-bundle-canonical-adoption-20261017/actual-results.json@sha256:5822a077c2add733a5c16b7edf83376423d6850d9e609a77ed678e064f81d23a",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-route-bundle-canonical-adoption-20261017/canonical-acquisition-route-bundle-ruff.stdout.txt@sha256:4580df37d5eb5f39a5a7ac7076e2149cc936888aba46c6540cc9bc4a1ee527d2"
+    },
+    "format_delta": {
+      "request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-route-bundle-canonical-style-delta-20261017/request.json@sha256:9355e724fe72f4b26ed129936b2362c1adc2354d02060c22321101f07b735f72",
+      "actual_results": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-route-bundle-canonical-style-delta-20261017/actual-results.json@sha256:b053e03f34cccb7dfe3a01d9ad3e856422b18a3ec2873aae25d190ab1fe6c977",
+      "applied_delta": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-route-bundle-canonical-style-delta-20261017/applied-delta.json@sha256:0bf93f3d45641570b873c7db84f984ec83db41c28c9c11163448c74414943085",
+      "delta_patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-route-bundle-canonical-style-delta-20261017/ruff-diff.stdout.patch@sha256:1347fa5bc60e1d121c3e4b28ae3f10cb489189324a5ef8387e6b80465b50ebea",
+      "result": "One blank separator added to each test import block; exact runtime import/body ASTs equal. Final canonical Ruff check PASS in 0.082 s and format check PASS in 0.091 s on those final postimages.",
+      "ruff_run": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-route-bundle-canonical-style-delta-20261017/canonical-acquisition-route-bundle-ruff.run.json@sha256:d9a32a9913519c04973ff13ccdd36012c052a74286a80da3a4463bb7639cb187",
+      "format_run": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-route-bundle-canonical-style-delta-20261017/canonical-acquisition-route-bundle-format.run.json@sha256:39f32db38da9a94900292d450f71c4a09e32f08b0918c1d83b5b33ef303d3b66",
+      "independent_style_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-acquisition-route-bundle-independent-review-canonical-style-delta-20261017/review.json@sha256:33b029415b15c72b8dfbc7fd2fb3893a33594cb2aa0e0ae282e0d515844d15fc",
+      "test_rerun_after_format": false,
+      "test_claim": "The two PASS tests apply to exact pre-format bytes only; final committed byte delta is style-only and AST-identical, but no full pytest claim is made on the final post-format bytes."
+    }
+  },
+  "environment": {
+    "python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "selected_environment_capture": "Actual-results records selected fields passed to Popen; inherited unspecified process variables were not captured."
+  },
+  "formal_closure_ids": [],
+  "closure_proposals": [],
+  "global_freeze_claim": false,
+  "g_acceptance_claim": false
+}

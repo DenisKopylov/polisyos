@@ -1,0 +1,105 @@
+{
+  "schema": "polisyos.e02.native-source-bound-adoption-receipt-candidate.v1",
+  "artifact_role": "RAW-only proposal for root canonical receipt; this file does not itself record root acceptance or closure",
+  "status": "proposal_only",
+  "source_identity": {
+    "commit": "5a0ffe9ade252d74183060a561d0c3aac41f9f22",
+    "tree": "9260530c2d410d45fd525d19b9c54b9df6cb8e05",
+    "parent": "e253dee3efdf6e453f8758e9453e5649335b2728",
+    "subject": "fix(devx): verify executable gate routes with bounded source context",
+    "commit_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r6-route-verifier-adoption-20261017/native-r6-finite-route-profile-readback.json@sha256:3a50b1204e95055de19ebfd2cde9906f46f9dc07fb9ef912de968ae997bf572c",
+    "candidate_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r6-candidate-20261017/freeze-manifest.json@sha256:a0c91d42e0f19ecb85fb0cf5624d07fc3f25ab80d6106cc41cb46212ef650635",
+    "cumulative_candidate_patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r6-candidate-20261017/candidate-from-clean-native-preimages.patch@sha256:2f887a55fc87547178025926f66310dfadd82baaf66ee85e311a8a740cf8226b",
+    "footprint": [
+      {
+        "path": "policy-engine/tools/devx/workspace/repository_sota_closeout.py",
+        "role": "mechanism",
+        "sha256": "930b82d161b28e280fd71c7b2bcb774ac524ee996400f05810ec5db5a26b4b6b"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+        "role": "mechanism and behavioral controls",
+        "sha256": "1ed93edfed1087ca9c212833864936d2070e62b6df63dd589ea4dc7501b28813"
+      },
+      {
+        "path": "policy-engine/docs/plans/README.md",
+        "role": "mandatory documentation companion",
+        "sha256": "cf51091543ac39e15921fc6363c2f98613877d1d0e28b15b7b045c95ca995489"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "role": "mandatory lease companion",
+        "sha256": "16e5fd2dd976d679d4479a180fb9f973ae88004f45e15ab8e960bcf1e78b0062"
+      }
+    ],
+    "footprint_count": 4,
+    "mechanism_paths": 2,
+    "mandatory_companions": 2
+  },
+  "replay_frame": {
+    "request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r6-route-verifier-adoption-20261017/request.json@sha256:feda94f33dc7f2888f31058a80aaeb60527bd8d611543465dc794a843c867e47",
+    "actual_results": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r6-route-verifier-adoption-20261017/actual-results.json@sha256:6b11dc2562e20c7bca23f35d27c54e87f118a21111ee33142d676c2f1b736fdd",
+    "precommit_head": "e253dee3efdf6e453f8758e9453e5649335b2728",
+    "candidate_postimages_present_at_replay": true,
+    "postimages_match_committed_readback": true,
+    "source_paths_unchanged_during_run": true,
+    "request_path_hash_count": 7845,
+    "input_frame_note": "The request explicitly includes known pending N8 source/test bytes in its frame. This is not an N8 success claim, full Git-tree freeze, or repository-wide freeze.",
+    "environment_capture": "Actual-results records the exact selected environment fields passed to Popen; inherited unspecified process variables were not captured."
+  },
+  "deciding_outputs": {
+    "focused_replay": {
+      "command_record": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r6-route-verifier-adoption-20261017/canonical-native-route-behavior.run.json@sha256:062e6322013e3604e5d562f8cc68b31ad92deb2e61e64573d0c6070eb2696861",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r6-route-verifier-adoption-20261017/canonical-native-route-behavior.stdout.txt@sha256:6f56d1941d6e6b217f191c1435e40069b1de98bcedb6de4d8fbdfa8e8f0263a2",
+      "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r6-route-verifier-adoption-20261017/junit.xml@sha256:4aa6404d15c8027f85f461222f1cc8aa8943182ed750a813a056cdcbe2e7323a",
+      "result": "PASS: 132 tests, 0 failures, 0 errors, 0 skipped; actual-results command wall time 2.709 s.",
+      "selection": "phase5_wiring or phase5_last_mile or phase5_python_dispatchers or phase5_closeout_dispatch or phase5_release_owner or phase5_ci_precommit_docs_and_command_registry_are_wired",
+      "selection_note": "Includes the named docs/command discovery control; it is a distinct root replay from the independent 131-dot R6 replay and counts must not be merged or attributed to the reviewer."
+    },
+    "ruff_check": {
+      "run": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r6-route-verifier-adoption-20261017/canonical-native-route-ruff.run.json@sha256:ec32193aa165ff21c36f1426423d80fb6997f5b6b121a4de0abd5d1913207dc3",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r6-route-verifier-adoption-20261017/canonical-native-route-ruff.stdout.txt@sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "result": "PASS, exit 0, 0.078 s; canonical workspace-root config and two mechanism paths."
+    },
+    "ruff_format": {
+      "run": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r6-route-verifier-adoption-20261017/canonical-native-route-format.run.json@sha256:98c2246af72473c7a1fb14a6da1f1bc5ffd5ce7b42296eb41faca6d543de332e",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r6-route-verifier-adoption-20261017/canonical-native-route-format.stdout.txt@sha256:3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+      "result": "PASS, exit 0, 0.077 s; canonical workspace-root config and two mechanism paths."
+    },
+    "plans_docs_style": {
+      "run": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r6-route-verifier-adoption-20261017/canonical-plans-closeout-docs-style.run.json@sha256:0b94bfbe00faec18f09829a12c720d28defe1ebd2629510dd2fd30aede1c448e",
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r6-route-verifier-adoption-20261017/canonical-plans-closeout-docs-style.stdout.txt@sha256:9f20018092b692d805a0ac39fea73f43a59bf7d63b2eef63cac2567764cff8ef",
+      "result": "PASS, exit 0, 2.289 s; exact workspace command `python -m tools.cli workspace docs-style docs/plans/README.md`."
+    }
+  },
+  "independent_reviews": {
+    "r6_mechanism": {
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r6-independent-review-20261017/review.json@sha256:a07745c06beba308197fc88e679a75656ca5ee1bccee0d194c8c100c00492ad7",
+      "focused_replay": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r6-independent-review-20261017/focused-r6-replay.json@sha256:fa1258a590c97a06644e7709266241b249b86e5d67185c1e8c8531ceaabecb90",
+      "verdict": "GO for bounded two-path source/test candidate; separate replay exit 0 with 131 progress dots.",
+      "scope": "Independent source/test mechanism review; not full native SOTA, GitHub runner, external checkout/action execution, full target test file, or formal closure.",
+      "p40": "SAME P38/P40 source-checkout-root / route-context class widened to the complete finite checkout-input mapping; no new class."
+    },
+    "documentation_companion": {
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-closeout-plans-r2-independent-review-20261017/review.json@sha256:a547ae589b068bfa8ed455b4ebd8e96af01af5f89ffcd36d98488725d69d01bb",
+      "candidate_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-closeout-plans-doc-companion-r2-20261017/manifest.json@sha256:a4d37b1b2f7c108eceefbd686c117b305606249f8aeb91ef964c8933c41d7264",
+      "verdict": "GO for R2 documentation companion; scoped to command discovery, documented trigger/link correctness, native-success caveat, and R1 erratum. It explicitly did not run full native closeout."
+    }
+  },
+  "property_and_residual": {
+    "property": "A declared executable gate and release-owner command are checked against the checkout location implied by the complete preceding checkout-input map and the effective workflow/job/step working directory.",
+    "r6_mechanism": "Generic input-map normalization casefolds string keys, rejects normalized collisions/non-string keys/non-mappings/unadmitted inputs, validates the finite path and fetch-depth profile, and supplies the same result to source-route and release-owner checks.",
+    "r5_divergence_closed": "Runner-normalized PATH was treated as absent by the R5 case-sensitive path lookup, allowing a false-green route. R6 derives the root from the complete input mapping and its behavioral control rejects that route.",
+    "profile_boundary": "The reviewed finite profile admits only literal non-empty workspace-relative path and non-negative exact-int or ASCII-decimal fetch-depth; omitted blocks retain defaults and explicit malformed values are not default-substituted. The candidate pins the current 20 declared checkout input identifiers and rejects every other current or future unknown input.",
+    "not_established": [
+      "GitHub runner execution, actual GITHUB_WORKSPACE and resulting checkout tree",
+      "executed checkout action, action side effects, workflow trigger/reachability, and exact deployed runner/action binaries",
+      "full native SOTA wave and full target test file; prior R5 full-file reds remain unclassified and neither inherited nor cleared"
+    ],
+    "smallest_boundary_capability": "A runner-bound receipt tied to workflow SHA, action commit, actual runner context, and resulting checkout tree."
+  },
+  "formal_closure_ids": [],
+  "closure_proposals": [],
+  "global_freeze_claim": false,
+  "g_acceptance_claim": false
+}

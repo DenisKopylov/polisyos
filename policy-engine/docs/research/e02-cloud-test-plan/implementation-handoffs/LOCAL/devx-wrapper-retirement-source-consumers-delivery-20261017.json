@@ -1,0 +1,480 @@
+{
+  "schema": "polisyos.e02.local_component_handoff.v1",
+  "status": "proposal_for_independent_G_review",
+  "slice": "devx-wrapper-retirement-and-shared-source-census",
+  "slice_base": {
+    "commit": "e253dee3efdf6e453f8758e9453e5649335b2728",
+    "tree": "0859a2a209df11f66fb25648177771a5e1cb9427"
+  },
+  "actual_run_entry": {
+    "commit": "736104d0144b75272c06f34e6eb185545ece1fed",
+    "tree": "dbc3a57aad7c7f0de6f0abef3b6581d8e0c0a9ff"
+  },
+  "candidate": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "25595f3fff3265d3002bee87046e3c685b3f800b",
+    "tree": "4f7dd39f235906fdabefc935fc96052d2a569a8c",
+    "parents": [
+      "736104d0144b75272c06f34e6eb185545ece1fed"
+    ]
+  },
+  "full_footprint": {
+    "paths": [
+      "policy-engine/.pre-commit-config.yaml",
+      "policy-engine/architecture/policies/directory_health.toml",
+      "policy-engine/architecture/shims.toml",
+      "policy-engine/architecture/tooling/ruff/per-file-ignores/90-repository-tools.toml",
+      "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "policy-engine/architecture/topology.toml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/install.sh",
+      "policy-engine/jax_bootstrap.py",
+      "policy-engine/migrate.py",
+      "policy-engine/ops/ci/templates/workflows/causal-phases.yml",
+      "policy-engine/release-fragments/unreleased/2026-10-17-devx-wrapper-retirement.toml",
+      "policy-engine/ruff.generated.toml",
+      "policy-engine/tests/repo_quality/test_chronology_terminal_state.py",
+      "policy-engine/tests/repo_quality/tools/test_source_census_roles.py",
+      "policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "policy-engine/tests/unit/remediation/test_mig_01.py",
+      "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+      "policy-engine/tools/quality/validation/source_census_roles.py",
+      "policy-engine/tools/research/benchmarks/jax/bench_domain.py"
+    ],
+    "source_sha256": {
+      "policy-engine/.pre-commit-config.yaml": "24d45418b17aa6469b867ce26a5f39ef8e58fc281858bb7f1b0bb3b005b456c6",
+      "policy-engine/architecture/policies/directory_health.toml": "76a09051dffb6206f05dcc589af76e2e01a079216664998667ce106d376f839f",
+      "policy-engine/architecture/shims.toml": "ff9e4a377a05a791f8f8e1b849586ee38c04b2c3fa08ca48e21d86a97303abfa",
+      "policy-engine/architecture/tooling/ruff/per-file-ignores/90-repository-tools.toml": "cba9c3a0a6920eb5c060478a5e0519312534d2700e235ef65ea7f45bb9e89ad5",
+      "policy-engine/architecture/tooling/ruff/workspace_root.toml": "fc61b6b903a2a2076b05e05e1d603f49c609242d8b06e008fc4bb534ee02382a",
+      "policy-engine/architecture/topology.toml": "d40d3cda1e0e40c09750c3a8abaf1ce254ebbe852f78c6d8b10b6f4c16ac47fd",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "6cc686eff5ddc189713d880067d52710174db57623d7ceba6713c3c498bb0445",
+      "policy-engine/ops/ci/templates/workflows/causal-phases.yml": "f607c3c54ecf3f53ac6f97a3a1e4d133895bcbb5eb2cbcae19dfd95026908cf5",
+      "policy-engine/release-fragments/unreleased/2026-10-17-devx-wrapper-retirement.toml": "c3642715daa885d423382ad8165f7060c58fbf328d8c2e1945464096aa3b1e94",
+      "policy-engine/ruff.generated.toml": "2f90cb036faec76318f4737d407f18e70995dd734d18d7f503c99cbe3d0a2b1d",
+      "policy-engine/tests/repo_quality/test_chronology_terminal_state.py": "3b45ffe818b8a45ed5df0a8dd376653b0f93f980345cd984096892d6686dee4d",
+      "policy-engine/tests/repo_quality/tools/test_source_census_roles.py": "95ab890a3b625f69f41b5f9737bacf000f0f6b67cf17b9922fdd5d8b6f585bd8",
+      "policy-engine/tests/unit/remediation/test_hyg_04.py": "e6f9b00a2f4f72783fc13bcd80ce93a9254c52365f85b0a47e90513095a4cc42",
+      "policy-engine/tests/unit/remediation/test_mig_01.py": "fd97164d0568a3beebb780526c50375c73bcb68c6c61a373c7fda9e0d2ebde46",
+      "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py": "8e0c433528f1496257f8eb88cc664ec1b1b3658ca62429f39725f5c2dcc9505e",
+      "policy-engine/tools/devx/workspace/_repo_hygiene.py": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd",
+      "policy-engine/tools/quality/validation/source_census_roles.py": "390bb53fe5c8f1ec6bb09f066c103764e4a8f27875279f0219d0dc3f6d636d7e",
+      "policy-engine/tools/research/benchmarks/jax/bench_domain.py": "cf2757e5cda4651b858bca7f50102395213a620bc4603e2d3e8d98b15bfb6570"
+    },
+    "deletions": {
+      "policy-engine/install.sh": {
+        "native_trash_path": "/Users/deniskopylov/.Trash/install.sh",
+        "native_trash_sha256": "6c1767b0ccf64ad9da471dcaddd31d993c8cbe202bd50531b35609ede3b80acf",
+        "preimage_git_blob": "bc98084810fad84e07386b4a0801d303abc0f051",
+        "preimage_sha256": "6c1767b0ccf64ad9da471dcaddd31d993c8cbe202bd50531b35609ede3b80acf"
+      },
+      "policy-engine/jax_bootstrap.py": {
+        "native_trash_path": "/Users/deniskopylov/.Trash/jax_bootstrap.py",
+        "native_trash_sha256": "a310ba39e82c2e338cde1b454f053b62b8bfc6fb741e8c4e748b36ee6071b5ce",
+        "preimage_git_blob": "5c745cb42864e3fcf8e409c544525fcc458b5b50",
+        "preimage_sha256": "a310ba39e82c2e338cde1b454f053b62b8bfc6fb741e8c4e748b36ee6071b5ce"
+      },
+      "policy-engine/migrate.py": {
+        "native_trash_path": "/Users/deniskopylov/.Trash/migrate.py",
+        "native_trash_sha256": "13ccbfc0f4146ffbfc359f00b5308a3734322c332c3a77ef72e4c466afdc15c4",
+        "preimage_git_blob": "373f139c1fb919989a0b86645de576ebcd093c48",
+        "preimage_sha256": "13ccbfc0f4146ffbfc359f00b5308a3734322c332c3a77ef72e4c466afdc15c4"
+      }
+    },
+    "proposal_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/proposal-manifest-r4-style-r2.json",
+      "sha256": "df7acb42ba7fb07b35307a166f3ab926dd2303a845d760ce0f940e8000fb6a7e"
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/devx-wrapper-retirement-20261017-attempt-4-readback.json",
+      "sha256": "1cb8b4918d373d01f753b812da3e649463cb1fdbc5f789c5b23bfdac86567fa8"
+    }
+  },
+  "selected_input_profile_backend": {
+    "profile": "source-bound local macOS .venv; controlled portable Git/caller/epoch fixtures",
+    "scientific_fits": "not required or established in this slice",
+    "source_frame_paths": 7856,
+    "source_frame_differences_from_candidate_tree": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "actual_sha256": "e0ef4b7402f176f180e37a5249fd09173a880731ba2f5f433a0e9d31ffac5dbb",
+        "candidate_tree_blob": "f45ce86852882b3c3a6e39ad15e1e9a27b67d13c",
+        "actual_git_blob": "850cbee32619eb4fd6dfb823be0da67e42de7fd6",
+        "scope": "explicit actual-run overlay; not claimed as committed DevX bytes"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "actual_sha256": "87779ee4162ea5739979f1d41f6dbb6e9488179fcba7262ee1cef355b9145d2a",
+        "candidate_tree_blob": "0dc32e3ffc02217d7428864cea2dc9be37253e1d",
+        "actual_git_blob": "367f43f36360e790f04ed6459aebb74c4aa1e29e",
+        "scope": "explicit actual-run overlay; not claimed as committed DevX bytes"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+        "actual_sha256": "2fedf912961aa858603c6608ce1199c1adccdbbed811a1e9129f5182f71b0044",
+        "candidate_tree_blob": "f6fa6829fd75b763022aeb3cb4aeb8f2a4e1a07d",
+        "actual_git_blob": "a11c2e34f014cfb9104568dc2a0351a8ed3f5426",
+        "scope": "explicit actual-run overlay; not claimed as committed DevX bytes"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-17-e02-n8-bounds-candidate-serving.toml",
+        "actual_sha256": "6b265f18d7b6ee8e4d086ad8f617b1c32c52233d85c3db307c64f7ae8d7b680f",
+        "candidate_tree_blob": null,
+        "actual_git_blob": "1c9f978ad166ced0f3f765d6ea34105c3c48cd09",
+        "scope": "explicit actual-run overlay; not claimed as committed DevX bytes"
+      }
+    ],
+    "environment": "exact selected runtime environment is in each actual-results; unspecified inherited variables were not captured"
+  },
+  "real_chain": [
+    "Wrapper retirement selects canonical owners and updates callers/config/generator inputs; original wrapper bytes remain in native Trash.",
+    "Three-loader caller grammar walks its complete selected corpus with typed negative/ambiguity controls; heap/key/cross-file/reflection callers remain a declared bounded residual.",
+    "Shared selector independently enumerates Git and physical Python/stub sets, retaining indexed ignored source; two real consumers classify all selected paths and parse only production-capable source.",
+    "Missing physical indexed source is a behavioral falsifier; runtime recursive/epoch controls exercise actual refusal paths."
+  ],
+  "actual_runs": [
+    {
+      "run": "actual-composed-replay-r4",
+      "results": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/actual-results.json",
+        "sha256": "94ddbccb09ad88b61ecc0198a36da97fde3aa7b6aac54ea1b6a93d744db205bb"
+      },
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/request.json",
+        "sha256": "59e70dc3aa0af5542b273fca733c1fdf8854a9304eab106ae9f6752d1317ab34"
+      },
+      "commands": [
+        {
+          "label": "canonical-wrapper-behavior",
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "tests/repo_quality/tools/test_source_census_roles.py",
+            "tests/repo_quality/test_chronology_terminal_state.py",
+            "tests/unit/remediation/test_hyg_04.py",
+            "tests/unit/remediation/test_mig_01.py",
+            "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+            "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/test-state",
+            "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/junit.xml"
+          ],
+          "timeout_seconds": 600,
+          "exit_code": 1,
+          "timed_out": false,
+          "seconds": 119.828,
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/canonical-wrapper-behavior.stdout.txt",
+            "sha256": "a43ce2ed55d67f04938eed08d7f884a0e168dceec3de1a6c5dadc59857a4185d"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/canonical-wrapper-behavior.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "label": "canonical-wrapper-ruff",
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "ruff",
+            "check",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/tests/repo_quality/test_chronology_terminal_state.py",
+            "policy-engine/tests/unit/remediation/test_hyg_04.py",
+            "policy-engine/tests/unit/remediation/test_mig_01.py",
+            "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+            "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+            "policy-engine/tools/research/benchmarks/jax/bench_domain.py",
+            "policy-engine/tools/quality/validation/source_census_roles.py",
+            "policy-engine/tests/repo_quality/tools/test_source_census_roles.py"
+          ],
+          "timeout_seconds": 60,
+          "exit_code": 1,
+          "timed_out": false,
+          "seconds": 0.138,
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/canonical-wrapper-ruff.stdout.txt",
+            "sha256": "244d237cc84266a6ba1c26b5a017621d76617ed02abcb972d316ca198e235afa"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/canonical-wrapper-ruff.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "label": "canonical-wrapper-format",
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/tests/repo_quality/test_chronology_terminal_state.py",
+            "policy-engine/tests/unit/remediation/test_hyg_04.py",
+            "policy-engine/tests/unit/remediation/test_mig_01.py",
+            "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+            "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+            "policy-engine/tools/research/benchmarks/jax/bench_domain.py",
+            "policy-engine/tools/quality/validation/source_census_roles.py",
+            "policy-engine/tests/repo_quality/tools/test_source_census_roles.py"
+          ],
+          "timeout_seconds": 60,
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 0.142,
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/canonical-wrapper-format.stdout.txt",
+            "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/canonical-wrapper-format.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "label": "canonical-generated-tool-configs",
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "tools.cli",
+            "workspace",
+            "tool-configs",
+            "--check"
+          ],
+          "timeout_seconds": 240,
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 4.308,
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/canonical-generated-tool-configs.stdout.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/canonical-generated-tool-configs.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "label": "native-trash-and-exact-staged-footprint",
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/commit_boundary_devx_retirement_r4_bound.py",
+            "--check",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/commit-request-r4-r3.json"
+          ],
+          "timeout_seconds": 60,
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 1.286,
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/native-trash-and-exact-staged-footprint.stdout.txt",
+            "sha256": "426f59f3fc02073479a386253dd1bf59788c5267b002fed92776ab517788d2ff"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4/native-trash-and-exact-staged-footprint.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ]
+    },
+    {
+      "run": "actual-composed-replay-r4-style-r2",
+      "results": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4-style-r2/actual-results.json",
+        "sha256": "851afff216160320e51a8783a37c10e8161e10c585ef23e00cbe7ddd6d5f3287"
+      },
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4-style-r2/request.json",
+        "sha256": "eb7b4a70521afec1d956e16582e0c6f92a5a4e93d61c8c05e0686c20666e8bef"
+      },
+      "commands": [
+        {
+          "label": "canonical-wrapper-behavior",
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-q",
+            "tests/repo_quality/test_chronology_terminal_state.py",
+            "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+            "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4-style-r2/test-state",
+            "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4-style-r2/junit.xml"
+          ],
+          "timeout_seconds": 600,
+          "exit_code": 1,
+          "timed_out": false,
+          "seconds": 87.497,
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4-style-r2/canonical-wrapper-behavior.stdout.txt",
+            "sha256": "af8d617599ce22fb0515d3f3186c8b74319d1e5e80b8159b08adaf933a0de01a"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4-style-r2/canonical-wrapper-behavior.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "label": "canonical-wrapper-ruff",
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "ruff",
+            "check",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/tests/repo_quality/test_chronology_terminal_state.py",
+            "policy-engine/tests/unit/remediation/test_hyg_04.py",
+            "policy-engine/tests/unit/remediation/test_mig_01.py",
+            "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+            "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+            "policy-engine/tools/research/benchmarks/jax/bench_domain.py",
+            "policy-engine/tools/quality/validation/source_census_roles.py",
+            "policy-engine/tests/repo_quality/tools/test_source_census_roles.py"
+          ],
+          "timeout_seconds": 60,
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 0.148,
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4-style-r2/canonical-wrapper-ruff.stdout.txt",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4-style-r2/canonical-wrapper-ruff.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "label": "canonical-wrapper-format",
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/tests/repo_quality/test_chronology_terminal_state.py",
+            "policy-engine/tests/unit/remediation/test_hyg_04.py",
+            "policy-engine/tests/unit/remediation/test_mig_01.py",
+            "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+            "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+            "policy-engine/tools/research/benchmarks/jax/bench_domain.py",
+            "policy-engine/tools/quality/validation/source_census_roles.py",
+            "policy-engine/tests/repo_quality/tools/test_source_census_roles.py"
+          ],
+          "timeout_seconds": 60,
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 0.146,
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4-style-r2/canonical-wrapper-format.stdout.txt",
+            "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4-style-r2/canonical-wrapper-format.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        },
+        {
+          "label": "native-trash-and-exact-staged-footprint",
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/commit_boundary_devx_retirement_r4_style_r2.py",
+            "--check",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/commit-request-r4-style-r2.json"
+          ],
+          "timeout_seconds": 60,
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 1.331,
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4-style-r2/native-trash-and-exact-staged-footprint.stdout.txt",
+            "sha256": "527d0a6e0f4d92111c40c876266669b1be716ad4eb4c00de2c8fedc9d142bddc"
+          },
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/actual-composed-replay-r4-style-r2/native-trash-and-exact-staged-footprint.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        }
+      ]
+    }
+  ],
+  "results_summary": {
+    "before_import_sort": {
+      "tests": 86,
+      "pass": 85,
+      "fail": 1,
+      "error": 0,
+      "skip": 0,
+      "seconds": 119.828
+    },
+    "after_import_sort_affected_modules": {
+      "tests": 43,
+      "pass": 42,
+      "fail": 1,
+      "error": 0,
+      "skip": 0,
+      "seconds": 87.497
+    },
+    "cross_run_counts_are_not_added": true,
+    "remaining_failure": "test_cluster4_terminal_labels_match_source_derived_chain: old all-family/N9 AST proxy; separate actual-property repair and runtime controls remain pending",
+    "ruff_and_format_after_sort": "both actual exit0 over8files",
+    "generated_tool_configs_check": "actual exit0 on unchanged current config inputs",
+    "staged_trash_guard": "actual exit0 exact21paths before ordinary commit",
+    "all18_hook_selection": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-hook-selector-proof-r4-20261017/actual-current-all-18-hook-selector-proof.json",
+      "sha256": "50a61a76a3c3ee539c434eb45908b2687d6c44800f717bad971c083f613d1b13"
+    },
+    "commit_hook_scope": "Actual repository lefthook ran with four no-matching-files skips; this does not establish the 18 Python pre-commit hooks or full native green."
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-census-roles-independent-review-r2-20261017/review.json",
+      "sha256": "792b709dd8b0dcfe1c216d17dcb93dc549cfbed5af23e28eec77fe17fe2902cf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-census-roles-ruff-sort-delta-r2-20261017/review.json",
+      "sha256": "0f8f48e8c47297734cb5ed333a28eab000803e31d2c14e9cbddc163c58e0d578"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/r4-helper-template-independent-review-20261017/review.json",
+      "sha256": "971f2b4f943d56c715c355a0ace76807b6d326c4c9fb2fc439dce2e27419bcd3"
+    }
+  ],
+  "commit_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/devx-wrapper-retirement-20261017-attempt-4-commit.stdout.txt",
+      "sha256": "6513bd35f2433975aabd6af64b010d2f546de6113598fe182aeff4113b7603fa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/devx-wrapper-retirement-20261017-attempt-4-commit.stderr.txt",
+      "sha256": "eabbadc79772ad3fdfb0c8ceb93a31bf0a4df98e3557efbb259780e6ee41ec29"
+    }
+  ],
+  "limitations": [
+    "Chronology semantic/topology oracle remains owned-red; not established inherited. Historical cluster2/4 ledger unchanged.",
+    "The final two-module replay follows an import-sort-only delta. The earlier86-test replay is kept in its own exact source frame.",
+    "Full native SOTA/backend/installed-wheel/Linux authentic closeout remain unrun for the final E02 composition.",
+    "Actual-run overlays are explicitly listed above; the DevX implementation commit is not a complete E02 source freeze.",
+    "No external law, custody, permission, production workload or currentness is established by this tooling slice."
+  ],
+  "next_check": "Review and run the actual N9 persisted-query/fresh-requalification/removal oracle; compose all pending quality/native/source-profile changes, then freeze source/input/backend and execute final native and consumer waves.",
+  "closure_ids": [],
+  "closure_proposals": [],
+  "formal_G_acceptance": false,
+  "source_freeze": false
+}

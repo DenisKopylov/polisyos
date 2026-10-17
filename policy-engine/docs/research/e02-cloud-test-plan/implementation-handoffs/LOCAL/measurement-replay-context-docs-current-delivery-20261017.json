@@ -1,0 +1,236 @@
+{
+  "actual_docs_style_gate": {
+    "actual_results": {
+      "bytes": 2024,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-measurement-replay-context-docs-adoption-20261017/actual-results.json",
+      "sha256": "186ea489c5d64c4420650a0d26e101da4379421f4fd93ab91438eee61224bd94"
+    },
+    "command": {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "tools.cli",
+        "workspace",
+        "docs-style",
+        "docs/how-to/author-measurement-instruments.md",
+        "docs/reference/policy-design-case-failure-patterns.md"
+      ],
+      "cwd_recorded": null,
+      "exit_code": 0,
+      "label": "canonical-measurement-docs-style",
+      "outer_seconds": 9.831,
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-measurement-replay-context-docs-adoption-20261017/canonical-measurement-docs-style.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 165,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-measurement-replay-context-docs-adoption-20261017/canonical-measurement-docs-style.stdout.txt",
+        "sha256": "9f20018092b692d805a0ac39fea73f43a59bf7d63b2eef63cac2567764cff8ef"
+      },
+      "timed_out": false,
+      "timeout_seconds": 180
+    },
+    "environment_capture_limit": "exact selected fields from mapping passed to Popen; inherited unspecified process variables are not captured",
+    "request": {
+      "bytes": 1183,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-measurement-replay-context-docs-adoption-20261017/request.json",
+      "sha256": "3356aabdbca3a0e1ec597501dbb4242b24687ccafb8e699f08fa6aaa6e9d4a30"
+    },
+    "run_record": {
+      "bytes": 1031,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-measurement-replay-context-docs-adoption-20261017/canonical-measurement-docs-style.run.json",
+      "sha256": "ed05ec29e59d3d564dbf43ae266158cf43e5d39e6a86de9d644b3a07f0a7907d"
+    },
+    "scope": "Documentation-only exact2file style gate; no runtime/native mechanism acceptance.",
+    "selected_environment": {
+      "JAX_PLATFORMS": "cpu",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:.",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "source_paths_unchanged": true
+  },
+  "candidate_id": "measurement-replay-context-docs-source-bound-20261017",
+  "claim": "Two documentation pages now require replay context and executed-byte provenance to be bound together when interpreting checker results. This is diagnostic guidance only; it does not certify a runtime or native gate.",
+  "closure_ids": [],
+  "context_evidence": {
+    "author_manifest": {
+      "bytes": 1348,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/measurement-replay-context-docs-companion-r1-20261017/manifest.json",
+      "sha256": "96e92b1b06c1fe100dd95de53b3682aa4d26bd69b51aceeb2171de9e81718e3d"
+    },
+    "context_artifacts": {
+      "canonical_ruff_results": {
+        "bytes": 3807,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r4-ruff-erratum-20261017/canonical-ruff-results.json",
+        "sha256": "472e8849422b3d8fac506007a15177ec50e40366cfffdefc3313492fd12d983d"
+      },
+      "canonical_ruff_runner": {
+        "bytes": 3584,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r4-ruff-erratum-20261017/run_canonical_ruff.py",
+        "sha256": "91767cddf61a72bdb5d93fbabab669d772a6750045262a546306865531e10078"
+      },
+      "focused_route_ownership_output": {
+        "bytes": 1218,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r4-candidate-20261017/validation/focused-route-ownership-tests.txt",
+        "sha256": "b30d600fccd300bf25a5563883089fa6de4241d5c2858cd7b84ad7429323f520"
+      },
+      "independent_canonical_ruff_crosscheck": {
+        "bytes": 1469,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r4-configured-ruff-crosscheck-20261017/results.json",
+        "sha256": "1b9f75d6fcc69b52be9a3aa627c24a99241eee053cf5ef17f793c788413caca2"
+      },
+      "original_noncanonical_diagnostic_output": {
+        "bytes": 25272,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r4-candidate-20261017/validation/ruff-check-candidate.json.txt",
+        "sha256": "9ed9b2f5190dc52b7499a1e22138d7ae298377758d1cbbac5ca5a1f1d11bb686"
+      },
+      "runtime_candidate_source": {
+        "bytes": 107927,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r4-candidate-20261017/policy-engine/tools/devx/workspace/repository_sota_closeout.py",
+        "sha256": "ef5d501182a6d75a9d390b935eeb05f9accf935ff6d49d4d31f52536158c3d10"
+      },
+      "runtime_candidate_test": {
+        "bytes": 82030,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r4-candidate-20261017/policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+        "sha256": "ea320fd9ba017ac7eae334a98161e8e61ee863be81f2bc5e9cb62841e590bb9b"
+      }
+    },
+    "findings": [],
+    "independent_review": {
+      "bytes": 4372,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/measurement-replay-context-docs-independent-review-r1-20261017/review.json",
+      "sha256": "9d3861ef42a94bf83df4dfe338556849073ba65ccce674f9894ac345fc46a87c"
+    },
+    "module_origin": {
+      "classification": {
+        "erratum_required_to_limit_59_test_claim": false,
+        "full_native_wave": "UNRUN; not replayed.",
+        "p30_source_origin": "The original runner receipt does not show the mechanism hash and module.__file__ is intentionally canonicalized, which makes passive provenance ambiguous. The RAW loader code plus instrumented replay now independently establish exact candidate bytes; this is resolved evidence ambiguity, not a remaining false-origin result.",
+        "p38_p40_route_finding": "The independently confirmed direct falsifier still returns safe for a missing explicit working-directory. It remains the same route-context P38/P40 HOLD recorded in the frozen review."
+      },
+      "finding": "An instrumented 59-test replay confirms the RAW loader compiled the exact frozen source bytes despite canonicalized module.__file__. A separate direct-path process entrypoint still returns safe=True for a missing explicit working directory; the existing P38/P40 route-context result remains HOLD.",
+      "full_native_wave": "UNRUN; not replayed.",
+      "selected_tests": 59
+    },
+    "pattern_bucket": "Same checker/source-context proxy class one level deeper, covered by the existing P38/P41 repair: bind the execution context and loaded bytes together. This doc delta widens guidance to both checker selection and loader identity; no further mechanism is claimed.",
+    "pinned_context_inputs": [
+      {
+        "bytes": 10353,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r4-ruff-erratum-20261017/erratum.json",
+        "sha256": "3442f271a79261447ce72a7e4399229256fa95a428f73e8c917d30f72a36711e"
+      },
+      {
+        "bytes": 7634,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r4-independent-review-20261017/runtime-origin-qualification.json",
+        "sha256": "b00a35678faa7bf80b6c491cdb0b199ed3847b01d7376e3fb11c3fc27040d5ad"
+      }
+    ],
+    "review_verdict": "GO for the bounded documentation repair; no runtime/native gate is certified and closure_ids remain empty.",
+    "ruff_context": {
+      "canonical_recipe_summary": {
+        "cache": "disabled via --no-cache",
+        "candidate_byte_hashes": [
+          "ef5d501182a6d75a9d390b935eeb05f9accf935ff6d49d4d31f52536158c3d10",
+          "ea320fd9ba017ac7eae334a98161e8e61ee863be81f2bc5e9cb62841e590bb9b"
+        ],
+        "config": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "diagnostic_counts": [
+          0,
+          0
+        ],
+        "exit_codes": [
+          0,
+          0
+        ],
+        "logical_filenames": [
+          "policy-engine/tools/devx/workspace/repository_sota_closeout.py",
+          "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py"
+        ],
+        "version": "ruff 0.14.10"
+      },
+      "decision": "The earlier 16-unique-finding Ruff comparison is nondeciding because it linted physical RAW mirror paths under PRODUCT/ruff.toml from PRODUCT cwd. Under the canonical workspace-root config and canonical logical filenames, both exact frozen R4 postimages produce zero diagnostics. This does not change the four full-test-file failures or establish native full-green.",
+      "original_context": "The validation runner set cwd=PRODUCT and --config=PRODUCT/ruff.toml, then passed absolute files under the R4 LOCAL/raw candidate mirror. That did not use the workspace-root Ruff profile or the canonical repository-relative file identity. Its test-path ignores are keyed under policy-engine/tests/** and therefore do not apply to the physical LOCAL/raw mirror path. The R3-to-R4 Ruff delta used the same noncanonical pair and is also nondeciding.",
+      "original_run_classification": "nondeciding configuration/context error; not a product Ruff failure",
+      "scope_note": "The 16 unique path/code/message findings came from 36 diagnostic entries under PRODUCT cwd + PRODUCT/ruff.toml + physical RAW paths. The erratum reran the same candidate bytes with workspace-root config, OWN cwd, and canonical logical filenames and found zero diagnostics. It leaves four full-test-file failures unchanged; no native full-green claim."
+    },
+    "tests_run_by_review": false
+  },
+  "documentation_delta": [
+    {
+      "change": "Adds replay-context guidance binding checker version, resolved config, cwd, logical filename, and loader-executed byte hash/logical module/test/replacement scope. module.__file__ alone is not compiled-byte identity.",
+      "path": "policy-engine/docs/how-to/author-measurement-instruments.md",
+      "postimage_sha256": "aff79970df5d0ba029e4fd3bc519e91210a4cbb4c4e6d36efd2cfee1f57d49dc",
+      "preimage_sha256": "87df802eace9fd7c84985d15d839f416b0e7dff0e9d3cb4bd8b4e5c1445e7efb"
+    },
+    {
+      "change": "Adds a maintenance rule for checking canonical checker context and executed bytes, retaining original outputs, and creating a separate source-qualified receipt.",
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "postimage_sha256": "d04b0364b80536add000ac36d50354d0c0073ee13f2dfa1d398b52ae4dc4b938",
+      "preimage_sha256": "474f1d6a756f033f3500ba934095623d8a547265c08343ea5d28e08873362858"
+    }
+  ],
+  "limits": [
+    "Documentation-only two-file repair with the lease journal as mandatory companion; no product source/test edits.",
+    "The selected docs-style gate passed in 9.831s; independent review was wording-only and ran no tests. No Ruff or native gate is claimed for this delivery.",
+    "The documents provide guidance only. The direct missing-working-directory falsifier remains HOLD; full native wave remains UNRUN.",
+    "Review scope was the two deltas and two pinned inputs, not a complete source census. The noncanonical Ruff diagnostics are not canonical product-failure evidence; the separate four full-test-file failures remain."
+  ],
+  "present_HEAD_claim": null,
+  "proposals": [],
+  "schema": "policyos.source-bound-documentation-receipt-candidate.v1",
+  "source_application": {
+    "commit_request": {
+      "bytes": 671,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-measurement-replay-context-docs-adoption-20261017/commit-request.json",
+      "sha256": "98efafd58fd71285b91c04ec94fb6f706b183121bde501ab97bde7b73ed0bd26"
+    },
+    "commit_stderr": {
+      "bytes": 653,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-measurement-replay-context-docs-adoption-20261017/measurement-replay-context-docs-commit.stderr.txt",
+      "sha256": "dc84df66bee2f55adc925a49eccb1de1734d43ccf746c9ea3acc35be31aff16f"
+    },
+    "commit_stdout": {
+      "bytes": 154,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-measurement-replay-context-docs-adoption-20261017/measurement-replay-context-docs-commit.stdout.txt",
+      "sha256": "97d8b2edaea5d9238a2cad6bf44ae376604c6dad78e97542cb9048231ad550be"
+    },
+    "readback": {
+      "bytes": 991,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-measurement-replay-context-docs-adoption-20261017/measurement-replay-context-docs-readback.json",
+      "sha256": "c92f02baa4dc4b817d5be9b1a7c65c006aa8ed88049570eaf93d108e68aee91d"
+    }
+  },
+  "source_checkpoint": {
+    "commit": "e253dee3efdf6e453f8758e9453e5649335b2728",
+    "execution_relation": "The canonical docs-style command ran at the expected parent HEAD. Request, commit request, and commit readback carry identical three-path maps; all blobs match git show at this source commit. No present-HEAD claim is made.",
+    "footprint": [
+      {
+        "path": "policy-engine/docs/how-to/author-measurement-instruments.md",
+        "revision": "e253dee3efdf6e453f8758e9453e5649335b2728",
+        "sha256": "aff79970df5d0ba029e4fd3bc519e91210a4cbb4c4e6d36efd2cfee1f57d49dc"
+      },
+      {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "revision": "e253dee3efdf6e453f8758e9453e5649335b2728",
+        "sha256": "d04b0364b80536add000ac36d50354d0c0073ee13f2dfa1d398b52ae4dc4b938"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "revision": "e253dee3efdf6e453f8758e9453e5649335b2728",
+        "sha256": "eb168d0878aeef2c4be6e498cba0a729fe5712e447216f5d6938d94af7e96dad"
+      }
+    ],
+    "parent": "217833e737ebc127077c40bbf5d48bdbcb151dcb",
+    "subject": "docs(quality): bind candidate replays to checker context and loaded bytes",
+    "tree": "0859a2a209df11f66fb25648177771a5e1cb9427"
+  },
+  "status": "RAW_ONLY_PROPOSAL_FOR_ROOT_RECEIPT_COMMIT"
+}

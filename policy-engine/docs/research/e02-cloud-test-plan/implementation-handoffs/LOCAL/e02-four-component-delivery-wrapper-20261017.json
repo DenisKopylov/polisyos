@@ -1,0 +1,199 @@
+{
+  "artifact_role": "compact source-bound delivery proposal for independent G review",
+  "components": [
+    {
+      "bounded_result_and_limits": {
+        "limits": [
+          "Documentation-only two-file repair with the lease journal as mandatory companion; no product source/test edits.",
+          "The selected docs-style gate passed in 9.831s; independent review was wording-only and ran no tests. No Ruff or native gate is claimed for this delivery.",
+          "The documents provide guidance only. The direct missing-working-directory falsifier remains HOLD; full native wave remains UNRUN.",
+          "Review scope was the two deltas and two pinned inputs, not a complete source census. The noncanonical Ruff diagnostics are not canonical product-failure evidence; the separate four full-test-file failures remain.",
+          "exact selected fields from mapping passed to Popen; inherited unspecified process variables are not captured"
+        ],
+        "result": "Canonical docs-style PASS in 9.831 s on two selected docs files."
+      },
+      "closure_proposals": [],
+      "component_id": "measurement",
+      "formal_closure_ids": [],
+      "g_acceptance_claim": false,
+      "global_freeze_claim": false,
+      "implementation": {
+        "commit": "e253dee3efdf6e453f8758e9453e5649335b2728",
+        "parent": "217833e737ebc127077c40bbf5d48bdbcb151dcb",
+        "subject": "docs(quality): bind candidate replays to checker context and loaded bytes",
+        "tree": "0859a2a209df11f66fb25648177771a5e1cb9427"
+      },
+      "proposed_tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/measurement-replay-context-docs-current-delivery-20261017.json",
+      "raw_payload": {
+        "bytes": 15279,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-measurement-replay-context-docs-receipt-candidate-20261017/candidate.json",
+        "sha256": "e2cff4aaf1d28716eed34020220c50b17b5a0113403b1e5cfa1174f7db0818b7"
+      },
+      "source_candidate_status": "RAW_ONLY_PROPOSAL_FOR_ROOT_RECEIPT_COMMIT",
+      "source_status_is_historical_not_root_acceptance": true
+    },
+    {
+      "bounded_result_and_limits": {
+        "docs_style": "PASS, exit 0, 2.289 s; exact workspace command `python -m tools.cli workspace docs-style docs/plans/README.md`.",
+        "focused_replay": "PASS: 132 tests, 0 failures, 0 errors, 0 skipped; actual-results command wall time 2.709 s.",
+        "format": "PASS, exit 0, 0.077 s; canonical workspace-root config and two mechanism paths.",
+        "limits": [
+          "GitHub runner execution, actual GITHUB_WORKSPACE and resulting checkout tree",
+          "executed checkout action, action side effects, workflow trigger/reachability, and exact deployed runner/action binaries",
+          "full native SOTA wave and full target test file; prior R5 full-file reds remain unclassified and neither inherited nor cleared",
+          "Prior R5 full target-file reds remain unclassified: neither inherited nor cleared."
+        ],
+        "ruff": "PASS, exit 0, 0.078 s; canonical workspace-root config and two mechanism paths."
+      },
+      "closure_proposals": [],
+      "component_id": "native",
+      "formal_closure_ids": [],
+      "g_acceptance_claim": false,
+      "global_freeze_claim": false,
+      "implementation": {
+        "commit": "5a0ffe9ade252d74183060a561d0c3aac41f9f22",
+        "parent": "e253dee3efdf6e453f8758e9453e5649335b2728",
+        "subject": "fix(devx): verify executable gate routes with bounded source context",
+        "tree": "9260530c2d410d45fd525d19b9c54b9df6cb8e05"
+      },
+      "proposed_tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-r6-route-verifier-current-delivery-20261017.json",
+      "raw_payload": {
+        "bytes": 10340,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-r6-canonical-adoption-receipt-20261017/candidate.json",
+        "sha256": "deb0db7104ae9b6d1afa9ef25d37183bf742f034d5c87b6f918e3ed002fd2824"
+      },
+      "source_candidate_status": "proposal_only",
+      "source_status_is_historical_not_root_acceptance": true
+    },
+    {
+      "bounded_result_and_limits": {
+        "focused_replay": "PASS, 20 tests, 0 failures/errors/skips; command wall 33.555 s (JUnit time 14.099 s).",
+        "formatting_residual": "Four of five independent R2 candidate format checks exited 1. The canonical adoption replay did not run a format check; this remains deferred to the final formatting batch, is neither inherited nor waived.",
+        "limits": [
+          "Review was delta-only, not final source freeze or G acceptance; synthetic fixtures do not establish external institutional currentness/custody; separate admission-producer persistence boundary is unchanged/out of scope.",
+          "Selected request path pins, not a whole Git-tree or repository freeze; fixture/source inputs are synthetic."
+        ],
+        "ruff": "PASS, exit 0, 0.184 s across five source/test paths."
+      },
+      "closure_proposals": [],
+      "component_id": "provider",
+      "formal_closure_ids": [],
+      "g_acceptance_claim": false,
+      "global_freeze_claim": false,
+      "implementation": {
+        "commit": "7043dad951b33d73548e57944ee1350d72a2bd1a",
+        "parent": "5a0ffe9ade252d74183060a561d0c3aac41f9f22",
+        "subject": "fix(runtime): preserve acquisition owner refusal causes through persistence",
+        "tree": "16c7552e3f0a281e8d1c29d1179690993efef30a"
+      },
+      "proposed_tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/acquisition-provider-refusal-cause-current-delivery-20261017.json",
+      "raw_payload": {
+        "bytes": 8132,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-two-source-bound-receipts-20261017/provider-refusal-cause.json",
+        "sha256": "5f9f15a32070662b7c6c70feb29fd8e035fe07f40406b593fdc86fc771d1432d"
+      },
+      "source_candidate_status": "proposal_only",
+      "source_status_is_historical_not_root_acceptance": true
+    },
+    {
+      "bounded_result_and_limits": {
+        "final_style": "One blank separator added to each test import block; exact runtime import/body ASTs equal. Final canonical Ruff check PASS in 0.082 s and format check PASS in 0.091 s on those final postimages.",
+        "focused_replay": "PASS, two selected tests, 0 failures/errors/skips; command wall 56.675 s (JUnit time 34.680 s).",
+        "limits": [
+          "Local/synthetic state proves route binding and persistence only; no external WDI effect, production-world currentness, external institutional authority, or worker execution is established.",
+          "Tests ran on exact pre-format test bytes pinned by the request: test_acquisitions.py@a9a81feb3fe456f962fa83283944e87e381e7fe0e504d5d03314b1f0325150b9 and test_acquisition_admission_bundle.py@8d65f48f5e0a71b62400c144f31a9d3f48c2fb897a1a419a8008b1ba622da6d6. These files were in the run frame before commit 736104."
+        ],
+        "test_bytes": "PASS is for pre-format test bytes only; final style-only postimages were not rerun, although the style delta is reported AST-identical."
+      },
+      "closure_proposals": [],
+      "component_id": "route",
+      "formal_closure_ids": [],
+      "g_acceptance_claim": false,
+      "global_freeze_claim": false,
+      "implementation": {
+        "commit": "736104d0144b75272c06f34e6eb185545ece1fed",
+        "parent": "7043dad951b33d73548e57944ee1350d72a2bd1a",
+        "subject": "test(runtime): exercise protected acquisition routes and durable bundles",
+        "tree": "dbc3a57aad7c7f0de6f0abef3b6581d8e0c0a9ff"
+      },
+      "proposed_tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/acquisition-route-bundle-current-delivery-20261017.json",
+      "raw_payload": {
+        "bytes": 8111,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-two-source-bound-receipts-20261017/route-bundle.json",
+        "sha256": "d8901bd27e49d92dcf6df8588c948a2bdb133141a5899acc5602837bbab2a99a"
+      },
+      "source_candidate_status": "proposal_only",
+      "source_status_is_historical_not_root_acceptance": true
+    }
+  ],
+  "delivery_order": [
+    "Commit wrapper without a self-hash or predicted future HEAD.",
+    "Copy the four immutable RAW receipt payloads byte-for-byte to the listed tracked paths and copy the G packet byte-for-byte to its target.",
+    "After delivery files are committed, read actual branch HEAD/tree/parents and build the six-row index successor; never guess a future SHA."
+  ],
+  "historical_denominator_and_decisions": {
+    "B198": "Historical decision retained; current candidate original criterion still not formally adjudicated.",
+    "all_primary_and_companion_bundles": 127,
+    "formal_g_closure_ids": [],
+    "historical_author_proposed_closed": {
+      "finding_ids": 198,
+      "formal_G_closure": false,
+      "occurrences": 202
+    },
+    "historical_ledger_closed_occurrences": 9,
+    "original_occurrences": 291,
+    "preserve_every_existing_index_row_and_historical_field": true,
+    "unique_original_finding_ids": 282
+  },
+  "non_claims": [
+    "No formal E02 closure or G acceptance.",
+    "Component statuses are supplier history, not parent acceptance.",
+    "No aggregation of unrelated test/review counts.",
+    "No source freeze or package-wide inventory completeness."
+  ],
+  "phase_g_choice_packet": {
+    "bounded_conclusion": "Run and tenant mismatch rejection is already required by the accepted readiness boundary; no new G permission is needed for that routine invariant. G is needed to define the role/source of PhaseBarrierRecord.profile and select the live-lease versus post-completion owner path. Until a serious consumer receives an owner-bound expected tuple, its gate must fail closed; declared record fields remain candidate diagnostics.",
+    "copy_bytes_exactly": true,
+    "decision_status": "G_decision_pending_root",
+    "exact_raw_candidate": {
+      "bytes": 18349,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase-barrier-g-decision-delivery-candidate-r2-20261017/phase-barrier-owner-source-profile-g-decision-20261017.json.candidate",
+      "sha256": "623e35b7573f92101b0909c4fdfea9d6700662aca9cb364f0b5cd11784380064"
+    },
+    "formal_closure_ids": [],
+    "formal_e02_closure": false,
+    "formal_g_acceptance": false,
+    "limits": [
+      "G must choose PhaseBarrierRecord.profile role/source and active-lease versus post-completion owner path.",
+      "No implementation route, G acceptance, formal closure, backend identity, or post-completion currentness is established."
+    ],
+    "proposed_tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase-barrier-owner-source-profile-g-decision-20261017.json",
+    "scope": "PhaseBarrierRecord whole-subject binding and owner-source/profile/time composition only",
+    "source_declared_product_relative_target": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase-barrier-owner-source-profile-g-decision-20261017.json"
+  },
+  "schema": "polisyos.e02.four_component_source_bound_delivery_wrapper.v2",
+  "source_frame_policy": {
+    "current_candidate_head": "not asserted; the index builder reads actual branch HEAD/tree/parents at application time",
+    "last_known_remote_candidate": {
+      "meaning": "Previously verified remote checkpoint; newer local source commits above await their next ordinary push.",
+      "remote_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-7bb3468f52e6-20261015/remote-readback.json",
+        "sha256": "ec50d0c31369e72b8e819f174083f72ad8d12e48b3a13896003f75ed7b6ccd45"
+      },
+      "sha": "7bb3468f52e605f807145ca7f5ad75d1cf758d30",
+      "tree": "e5508267eaa6670106638c9e9b832b2564b5c22b"
+    },
+    "last_verified_g_checkpoint": {
+      "meaning": "Fetched G unchanged; read-only, not authorship or automatic acceptance. Own28ba exactremote/tree/10changedpaths verified separately.",
+      "parents": [
+        "78be3aff64185e2de24abe710523e14491e36ba6"
+      ],
+      "receipt": "raw/root-g-published-readback-20261017/readback.json",
+      "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+      "tree": "c3a38aecbab5af06c8aed1ae27d535c7e2dc8eca"
+    },
+    "source_freeze": false
+  },
+  "status": "proposal_for_independent_G_review",
+  "tracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-four-component-delivery-wrapper-20261017.json"
+}

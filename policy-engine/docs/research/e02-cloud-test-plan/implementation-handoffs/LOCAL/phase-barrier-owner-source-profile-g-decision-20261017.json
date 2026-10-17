@@ -1,0 +1,299 @@
+{
+  "authorities": [
+    {
+      "decision_refs": [
+        "D3",
+        "D6",
+        "D7",
+        "D10",
+        "D11",
+        "D12"
+      ],
+      "operational_use": "D3 binds requested profile, tenant, run and time into intent; D6-D7 require closed same-input graph and verified scorecard identity; D10-D12 require barriers and forbid downstream authority over missing/failed/skipped/disallowed evidence.",
+      "sha256": "b63dbb1df266ef4c63c1ed6754e81b8ea7e381eb4dcceafd9f77d9aad4ca96df",
+      "source": "docs/adr/0148-serious-run-state-machine-and-phase-barriers.md"
+    },
+    {
+      "decision_refs": [
+        "D2",
+        "D4",
+        "D5",
+        "D7",
+        "D10"
+      ],
+      "operational_use": "D2 requires identity/provenance checks; D4 explicitly fails readiness for mismatched, stale, cross-run and cross-tenant authority; D5 rejects inline/unverified progress as approval truth; D7 includes non-overridable cross-tenant and unverifiable identity blockers.",
+      "sha256": "50b988ea920e6aed5ca6968de4d4f713f9cd5c69ad391df3cf6afca6dd0d1d58",
+      "source": "docs/adr/0150-scorecard-readiness-approval-projection-boundaries.md"
+    }
+  ],
+  "bounded_conclusion": "Run and tenant mismatch rejection is already required by the accepted readiness boundary; no new G permission is needed for that routine invariant. G is needed to define the role/source of PhaseBarrierRecord.profile and select the live-lease versus post-completion owner path. Until a serious consumer receives an owner-bound expected tuple, its gate must fail closed; declared record fields remain candidate diagnostics.",
+  "decision_state": {
+    "closure_ids": [],
+    "formal_e02_closure": false,
+    "formal_e02_finding_ids": [],
+    "formal_g_acceptance": false,
+    "formal_proposal_ids": [],
+    "global_closure": false,
+    "scope": "PhaseBarrierRecord whole-subject binding and owner-source/profile/time composition only",
+    "status": "G_decision_pending_root"
+  },
+  "evidence": [
+    {
+      "command": "PYTHONPATH=src:tests UV_NO_SYNC=1 uv run --no-sync pytest -vv -q docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-lease-barrier-author-r2-20261017/test_job_attempt_publication.py docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-lease-barrier-author-r2-20261017/test_phase_barriers.py",
+      "cwd": "policy-engine",
+      "id": "foreign_identity_false_pass",
+      "output": {
+        "bytes": 5731,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-lease-barrier-author-r2-20261017/pre-fix-focused-pytest.txt",
+        "sha256": "5517a22b769b25d91954261eea22071d05a7197e2ab9bf602192e10643ab6d31"
+      },
+      "result": "5 passed, 2 failed; foreign-run and foreign-tenant mismatch tests expose accepted false passes before a source fix."
+    },
+    {
+      "command": "PYTHONPATH=src:tests UV_NO_SYNC=1 uv run --no-sync pytest -vv -q tests/unit/runtime/http/test_control_plane_store.py -k 'execution_admission_uses_event_and_allows_fenced_pointer_refresh or keeps_scope_less_legacy_unknown'",
+      "cwd": "policy-engine",
+      "id": "control_store_owner_admission",
+      "output": {
+        "bytes": 967,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-lease-barrier-author-r2-20261017/control-store-owner-prototype-pytest.txt",
+        "sha256": "3abf611034ddc2f3b5f9395a91dbc64fcd76dfeec3f1a593cb6b71a37381db58"
+      },
+      "result": "2 passed: creation event/outbox/current lease establish owner scope; scope-less legacy remains not_established."
+    },
+    {
+      "command": "PYTHONPATH=src:tests UV_NO_SYNC=1 uv run --no-sync pytest -vv -q tests/unit/runtime/http/test_control_job_execution_intent.py -k 'capability_manifest_binding_is_type_strict_and_role_exact'",
+      "cwd": "policy-engine",
+      "id": "selected_manifest_profile_binding",
+      "output": {
+        "bytes": 965,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-lease-barrier-author-r2-20261017/capability-manifest-owner-prototype-pytest.txt",
+        "sha256": "d179c80c79434f0e54f2956c286b092a657ba115467886ac458ea7728917c32a"
+      },
+      "result": "1 passed: selected manifest binding checks requested/effective policy profile and actor scope. The R2 packet notes no dedicated manifest-profile mutation control."
+    }
+  ],
+  "g_choice": {
+    "not_recommended": "Build a new authority issuer/service: duplicates the existing control owner and adds a second authority plane (P13/P27).",
+    "options": [
+      {
+        "id": "A_active_lease_owner_context",
+        "impact": "Smallest path if the actual scorecard consumer runs during the active lease. Establishes owner run/tenant and policy-profile facts available from the admitted job/manifest, not actual backend identity.",
+        "mechanism": "Reuse ControlStore.current_execution_job_admission plus the separately resolved/validated selected capability manifest at the existing ControlPlaneService._process_control_job execution path. Pass a neutral typed expected subject to one whole-set quality identity check before latest/status selection.",
+        "migration": "Keep existing unbound V1 barrier records diagnostic-only; require fresh owner-bound records for serious pass. Preserve requested/effective profiles independently. Do not infer owner scope from payload/progress.",
+        "reuse_extend_consolidate_build": "reuse owner admission and manifest validation; extend the neutral quality boundary and bridge; do not add a second issuer/service.",
+        "time_limit": "Admission is current-lease-bound. This option does not establish post-completion freshness."
+      },
+      {
+        "id": "B_persisted_post_completion_receipt",
+        "impact": "Supports later readiness/scorecard reads; requires receipt producer, schema/version, persisted readback, consumer, migration and stale/reissue behavior.",
+        "mechanism": "If the actual consumer reads after lease completion, persist a versioned, immutable owner receipt binding run/tenant/profile-role to creation/admission evidence, selected manifest, and required completion/reconciliation source; readers resolve and content-bind those refs.",
+        "migration": "Treat legacy V1 records without reconciled source as historical/diagnostic; do not backfill scope from inline fields. Version the receipt rather than rewriting old bytes.",
+        "reuse_extend_consolidate_build": "reuse control owner and event/manifest sources; extend the persisted artifact and bridge. Avoid a new authority service.",
+        "time_limit": "Bind creation/admission and completion observation times separately from barrier.created_at and scorecard read time; define staleness/reissue."
+      },
+      {
+        "id": "C_candidate_only_until_bridge",
+        "impact": "Safely closes the known false-pass as an authority result without inventing producer facts, but serious pass remains unavailable until A or B is wired.",
+        "mechanism": "Check all declared tuples for internal/mixed-set mismatch before latest/status selection, expose the mismatch diagnostically, and fail the serious gate whenever owner tuple/profile role is not established.",
+        "migration": "Existing records remain inspectable but cannot grandfather authority in the absence of owner-bound identity.",
+        "reuse_extend_consolidate_build": "reuse existing typed fail gate; extend one whole-set invariant. No new status or artifact family.",
+        "time_limit": "No currentness claim; declared timestamps/fields remain candidate-grade."
+      }
+    ],
+    "profile_facts": {
+      "actual_backend": "Not established by the job effective policy profile or by PhaseBarrierRecord.profile/producer self-label. No such claim is proposed.",
+      "barrier_field": "Currently a non-empty string; no source rule assigns it to one of the above roles.",
+      "effective_policy_profile": "ControlJobRecord and validated selected manifest retain effective_execution_profile separately and the manifest binding is checked against the job row.",
+      "requested_profile": "ADR-0148 D3 places requested profile in intent binding. ControlJobRecord and the selected manifest retain requested_execution_profile separately."
+    },
+    "question": "What does PhaseBarrierRecord.profile bind: requested policy profile, effective policy execution profile, or actual backend/profile used; and does the scorecard consumer run while the owner admission lease is active or after completion?"
+  },
+  "minimum_input_and_next_check": {
+    "acceptance_limit": "This candidate does not establish an implementation route, a phase-barrier producer, currentness, backend identity, G acceptance, or E02 closure.",
+    "falsifier": [
+      "Use the real owner route and persisted readback; do not construct a DTO/token as a substitute.",
+      "Prove matching positive and reject foreign run, foreign tenant, wrong profile, mixed tuple, foreign latest duplicate, malformed-present record, and sibling RunStateMachine consumer.",
+      "Remove/corrupt creation event or outbox and mutate selected-manifest profile binding while leaving record declarations unchanged; serious gate must not stay green.",
+      "Preserve legacy scope-less admission as not_established.",
+      "For post-lease reads, prove fresh receipt resolve/content binding, completion reconciliation, stale/reissue behavior and consumer/API readback.",
+      "A declared-field comparison may remain diagnostic, but removal of owner rederivation must not leave the serious authority gate green."
+    ],
+    "minimum_g_input": [
+      "Identify the actual scorecard/readiness consumer and whether it runs before or after the active lease.",
+      "Choose the exact semantic role of PhaseBarrierRecord.profile; preserve requested/effective policy profiles separately and explicitly leave actual backend unclaimed.",
+      "Name the owner-derived source for each tuple component and the time point at which the source is valid."
+    ]
+  },
+  "packet_kind": "read_only_g_choice_handoff_candidate",
+  "packet_schema": "policyos.research.phase_barrier_owner_source_profile_g_decision.delivery_candidate.v1",
+  "pattern_ids": [
+    "P01",
+    "P02",
+    "P04",
+    "P05",
+    "P07",
+    "P08",
+    "P13",
+    "P27",
+    "P31",
+    "P32",
+    "P35",
+    "P36",
+    "P37",
+    "P38",
+    "P40"
+  ],
+  "predicate_provenance": {
+    "active_owner_run_tenant": "independently_reconciled only through live job row plus persisted creation event/outbox checks; unknown legacy scope stays not_established.",
+    "actual_backend_identity": "not_established.",
+    "barrier_run_tenant_profile_and_producer_fields": "consumer_asserted when read only from the record/payload; self-label or matching shape is not producer/owner proof.",
+    "policy_profiles": "requested/effective policy profile can be independently reconciled against the job and selected manifest in the active owner path; which role PhaseBarrierRecord.profile represents remains not_established until G.",
+    "post_completion_owner_scope": "not_established without a persisted source-bound receipt/reconciliation path."
+  },
+  "property_and_current_gap": {
+    "capability_labels": {
+      "contract_present": true,
+      "missing_capability_labels": [
+        "implemented_but_not_orchestrated",
+        "verification_missing",
+        "producer_missing",
+        "bridge_missing"
+      ],
+      "semantic_tests_present_but_failing": true
+    },
+    "current_behavior": "latest_barrier_record selects by barrier_id only. The scorecard parser reads records from quality_evidence, job/run payloads and nested progress; status helper receives no expected subject. RunStateMachine also checks barrier status without comparing each record to its snapshot subject.",
+    "divergent_case": "R2 foreign-run and foreign-tenant records parse, persist/reload and satisfy the serious scorecard gate; the deciding focused suite reports 5 passed and 2 failed on these expected false-pass detections. A foreign latest/duplicate can mask a matching record unless the whole candidate set is reconciled first.",
+    "property": "Every candidate record for the selected serious barrier matches one independently reconciled (run_id, tenant_id, profile-role) before any latest/status selection.",
+    "source_census": {
+      "denominator": "2,772 files under src/polisyos/**/*.py at the R2 source frame",
+      "output": {
+        "bytes": 934,
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-lease-barrier-author-r2-20261017/source-census.txt",
+        "sha256": "1e84b36c765aa0cf6d88d10c17be0dcf91d1043263de0132e8ea26f21b359919"
+      },
+      "qualification": "R2 pinned census only; not rerun for this handoff.",
+      "result": "zero AST calls to build_quality_scorecard, PhaseBarrierRecord factories, PhaseBarrierLedger construction, or RunStateMachine construction"
+    }
+  },
+  "provenance": {
+    "independent_review": {
+      "handling": "retained unchanged",
+      "manifest_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-scope-decision-independent-review-r1-20261017/manifest.json",
+      "manifest_sha256": "08064c86afa6a680a7bd1e30986b2eae8cf97cd9683441d381388724c4b330d8",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-scope-decision-independent-review-r1-20261017/phase-barrier-scope-decision-independent-review-r1.md",
+      "sha256": "ee47937e8a6f25f2c6d58f9b22e91eaca570e005142b9a12b7aa472337ed80b3"
+    },
+    "original_r2_packet": {
+      "handling": "retained unchanged",
+      "manifest_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-lease-barrier-author-r2-20261017/manifest.json",
+      "manifest_sha256": "d0054358d2275efc0797f20e9f5883b44550af7605d6ec7ac57df8a7df00924c",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-lease-barrier-author-r2-20261017/phase-barrier-scope-g-choice-r2.md",
+      "sha256": "c15289efb156c4481b3147a12ba104177ca150a1c3b37240f5bf3ef6ddf6f605"
+    },
+    "r2_source_pins_read_back": [
+      {
+        "bytes": 16840,
+        "matches_r2_pin": true,
+        "path": "src/polisyos/runtime/quality/phase_barriers.py",
+        "sha256": "1dd848c9aa47627f512dbcaee4df49814033e779d325e28dedad14ff713998ac"
+      },
+      {
+        "bytes": 387984,
+        "matches_r2_pin": true,
+        "path": "src/polisyos/runtime/quality/scorecard.py",
+        "sha256": "014f6a122b4905adc9eb56ddbb99afa5d8b94908851053e552335ef8ed2d4058"
+      },
+      {
+        "bytes": 17703,
+        "matches_r2_pin": true,
+        "path": "src/polisyos/runtime/quality/run_state.py",
+        "sha256": "0dce5214041e2d50ec5514dd499df15a61eb4ea69a53c70b358a8bdee58ed6bb"
+      },
+      {
+        "bytes": 112878,
+        "matches_r2_pin": true,
+        "path": "tests/unit/runtime/quality/test_scorecard.py",
+        "sha256": "01a1f32046fa901a5eea90c3fff7ee7c9f45205dbdc34cebebd291282dc678de"
+      },
+      {
+        "bytes": 5755,
+        "matches_r2_pin": true,
+        "path": "tests/unit/runtime/quality/test_run_state.py",
+        "sha256": "677815e725062723fc18ae3fb9bc00884d9dcdb5e316b9a736f306343398e513"
+      },
+      {
+        "bytes": 136786,
+        "matches_r2_pin": true,
+        "path": "tests/unit/runtime/http/test_control_plane_store.py",
+        "sha256": "586fdab9ad4e39f59e937b6806d669af38af0a20a4d1f7c23bfbea5fe5610286"
+      },
+      {
+        "bytes": 93610,
+        "matches_r2_pin": true,
+        "path": "tests/unit/runtime/http/test_control_job_execution_intent.py",
+        "sha256": "03f9ee4881d5137396897b72f7e6b17f1ff2b14acf3a6d50f1a1cff797eafb2c"
+      },
+      {
+        "bytes": 311445,
+        "matches_r2_pin": true,
+        "path": "src/polisyos/runtime/http/services/control_plane_store.py",
+        "sha256": "e0e44945ad4df27b17e7debcacb992045878f2caec909489e22624852e74308a"
+      },
+      {
+        "bytes": 40759,
+        "matches_r2_pin": true,
+        "path": "src/polisyos/runtime/http/services/control/job_scope_admission.py",
+        "sha256": "89d9b550638b8d10e66c4955490b7b8cf1678c7b7bfb3c6c855e7510531eb230"
+      },
+      {
+        "bytes": 252026,
+        "matches_r2_pin": true,
+        "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "sha256": "1e2902b6f12de0e6211640f0725bdfff1a2b20a8e031c2ef83d416c30961d220"
+      },
+      {
+        "bytes": 4930,
+        "matches_r2_pin": true,
+        "path": "docs/adr/0148-serious-run-state-machine-and-phase-barriers.md",
+        "sha256": "b63dbb1df266ef4c63c1ed6754e81b8ea7e381eb4dcceafd9f77d9aad4ca96df"
+      },
+      {
+        "bytes": 5100,
+        "matches_r2_pin": true,
+        "path": "docs/adr/0150-scorecard-readiness-approval-projection-boundaries.md",
+        "sha256": "50b988ea920e6aed5ca6968de4d4f713f9cd5c69ad391df3cf6afca6dd0d1d58"
+      },
+      {
+        "bytes": 3465,
+        "matches_r2_pin": true,
+        "path": "architecture/imports/policy.toml",
+        "sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d"
+      },
+      {
+        "bytes": 20873,
+        "matches_r2_pin": true,
+        "path": "architecture/public_surface/contract.toml",
+        "sha256": "87f24939839c452064f752c2031ddaae473c82b96484105d4818e690d0338e9f"
+      },
+      {
+        "bytes": 121282,
+        "matches_r2_pin": true,
+        "path": "src/polisyos/runtime/quality/policy_design_case.py",
+        "sha256": "93f8360c196dee6e904bc06f3d3400a34760cf8cd13bc094f48774086ac502ce"
+      }
+    ],
+    "source_readback": {
+      "all_r2_source_pins_match": true,
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "217833e737ebc127077c40bbf5d48bdbcb151dcb",
+      "qualification": "Only the listed R2 pins were read back; no whole-tree delta classification is asserted.",
+      "source_pin_count": 15,
+      "tree": "84f5b6b1ab498f1919165a9d0fe7d3a4b10eab24"
+    }
+  },
+  "target": {
+    "eventual_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase-barrier-owner-source-profile-g-decision-20261017.json",
+    "this_file_is_raw_candidate_only": true,
+    "written_by_root_only": true
+  }
+}

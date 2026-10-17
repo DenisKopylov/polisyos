@@ -4276,5 +4276,31 @@
       "Served N4/N5 actual replay remains UNRUN. R1mirror divergence and R2HOLD retained as provenance."
     ],
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_b194_adaptive_persisted_fresh_consumer_r6": {
+    "canonical_writer": "root",
+    "slice_base": "c231e763d62999a0f2a6d1ab56579be22a65d17e",
+    "mechanism_paths": [
+      "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate actual runtime receipt"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b194-adaptive-unattempted-fresh-consumer-r6-20261017/proposal-manifest.json",
+      "sha256": "2ad548df3b21982394670b04ce1a898111ac680524f23bb85499b5eb337cdda4"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b194-adaptive-unattempted-fresh-consumer-independent-review-r6-20261017/assessment.json",
+      "sha256": "5ff096a3f5f3c62a77ec5498469b25eb30e0c8f1817e185a8ed73c1c1c75e376"
+    },
+    "incident_qualification": "Reviewer accidentally applied exactly intended test postimage; stopped/reported, original and delta preserved, fresh independent source/content review GO before root actual tests. Root adopts exact reviewed bytes without rollback/self-repair.",
+    "property": "Adaptive attempted/success/failure/unattempted partition plus exact failure input identities persists through CAS to fresh normative consumer; successful-only heuristic remains non-gating.",
+    "limitations": [
+      "Successful-draw identity ledger completeness and trusted source-law/missing-mass basis not_established.",
+      "B194 whole-property proposal held; no formal closure."
+    ],
+    "closure_ids": []
   }
 }

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import logging
+import struct
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -1626,6 +1628,148 @@ def test_b194_exact_symmetric_partial_draws_reach_fresh_normative_consumer(
     result = load_normative_arbitration_result(_ensure_ir_artifact_store(store), result_ref)
     assert result.model_completeness is NormativeModelCompleteness.PARTIAL
     assert any("propagation_metric_output_incomplete" in warning for warning in result.warnings)
+    proposal = next(
+        item for item in result.option_matrix if item.option is ArbitrationOption.PROPOSAL
+    )
+    assert "workers_uncertainty" not in proposal.binding_values
+    assert result.rights_audit[0].status is NormativeAuditStatus.UNEVALUATED
+
+
+def test_b194_adaptive_stop_with_partial_draws_reaches_fresh_normative_consumer(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, ctx, state = _build_node_context(
+        tmp_path,
+        run_id="R_b194_adaptive_partial_normative",
+        metric_values={"y": 0},
+        propagation_config={
+            "preferred_method": "monte_carlo",
+            "mc_n_samples": 150,
+            "mc_batch_size": 100,
+            "mc_min_valid_samples": 50,
+            "adaptive_stopping": {
+                "enabled": True,
+                "min_samples": 50,
+                "max_samples": 150,
+                "ci_half_width_target": 1_000_000.0,
+                "check_interval": 100,
+            },
+            "compute_sensitivity": False,
+        },
+        propagation_sensitivity={"y": {"x": 1.0}},
+    )
+    draws = np.asarray([-1.0] * 50 + [1.0] * 50 + [0.5] * 50, dtype=np.float64)
+    offset = [0]
+
+    def fixed_samples(_rng, _envelope, n: int) -> np.ndarray:
+        start = offset[0]
+        selected = draws[start : start + n]
+        assert selected.shape == (n,)
+        offset[0] += n
+        return selected
+
+    # The explicit row sequence, not a selected seed, is the discriminator.
+    monkeypatch.setattr(MonteCarloPropagator, "_sample_from_envelope", staticmethod(fixed_samples))
+
+    def build_failing_fn(params, *, base_metric_values, nominal_params):
+        del params, base_metric_values, nominal_params
+
+        def fn(**current_params):
+            x = float(current_params["x"])
+            if x < 0.0:
+                raise RuntimeError("input-dependent solver refusal")
+            return {"y": x}
+
+        fn._sensitivity_map = {"y": {"x": 1.0}}
+        return fn, {"x"}
+
+    monkeypatch.setattr(node_module, "_build_propagation_fn", build_failing_fn)
+    produced = PropagateUncertaintyNode().execute(ctx, state)
+    assert produced.status == "ok"
+    assert offset == [100]
+
+    simulation_ref = produced.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]
+    simulation = SimulationResult.model_validate(
+        from_canonical_bytes(store.get_bytes(simulation_ref.artifact_id))
+    )
+    assert simulation.propagation_report_ref is not None
+    envelope = load_uncertainty_envelope(
+        _ensure_ir_artifact_store(store), simulation.uncertainty_envelopes["y"]
+    )
+    report = from_canonical_bytes(store.get_bytes(simulation.propagation_report_ref.artifact_id))
+    ledger = report["draw_outcome_provenance"]
+    failures = ledger["failure_records"]
+    assert (
+        ledger["requested_draw_count"],
+        ledger["attempted_draw_count"],
+        ledger["successful_draw_count"],
+        len(failures),
+        ledger["unattempted_draw_count"],
+        ledger["outcome_denominator_complete"],
+    ) == (150, 100, 50, 50, 50, False)
+    assert ledger["attempted_draw_count"] == (ledger["successful_draw_count"] + len(failures))
+    assert ledger["requested_draw_count"] == (
+        ledger["attempted_draw_count"] + ledger["unattempted_draw_count"]
+    )
+    assert ledger["input_identity_status"] == "content_hashed"
+    draw_recipe = ledger["sampling_recipe"]
+    assert draw_recipe["input_param_names"] == ["x"]
+    assert draw_recipe["config"]["mc_n_samples"] == 150
+    assert draw_recipe["config"]["mc_batch_size"] == 100
+    assert draw_recipe["config"]["adaptive_stopping"]["max_samples"] == 150
+    assert draw_recipe["config"]["adaptive_stopping"]["check_interval"] == 100
+    assert tuple(row["draw_index"] for row in failures) == tuple(range(50))
+    expected_failure_input_sha256 = hashlib.sha256(b"x\x00" + struct.pack(">d", -1.0)).hexdigest()
+    assert (
+        tuple(row["sampled_input_sha256"] for row in failures)
+        == (expected_failure_input_sha256,) * 50
+    )
+    assert all(
+        row["output_outcomes"]
+        == [
+            {
+                "output_metric_id": "y",
+                "outcome_code": "simulation_exception",
+                "error_type": "RuntimeError",
+            }
+        ]
+        for row in failures
+    )
+    assert report["incomplete_output_metric_ids"] == ["y"]
+    diagnostic = next(row for row in report["diagnostics"] if row["metric_id"] == "y")[
+        "diagnostics"
+    ]
+    assert diagnostic["output_coverage_complete"] is False
+
+    assert envelope.point_estimate == pytest.approx(1.0)
+    assert envelope.sample_size == 50
+    assert envelope.distribution_payload is not None
+    assert envelope.distribution_payload.samples == pytest.approx((1.0,) * 50)
+    assert envelope.gate_eligible is False
+    assert envelope.interval_semantics is IntervalSemantics.HEURISTIC_RANGE
+    assert envelope.is_heuristic_ci is True
+    assert envelope.confidence_level is None
+    assert envelope.metadata["candidate_only"] is True
+    assert envelope.metadata["distribution_sample_semantics"] == (
+        "successful_draws_only_conditional_on_execution"
+    )
+    assert envelope.metadata["draw_outcome_status"] == "adaptively_stopped"
+    assert envelope.metadata["draw_unattempted_count"] == 50
+
+    trinity_ref = _persist_uncertainty_normative_frame(store)
+    fresh_state = ExperimentState(
+        run_id="R_b194_adaptive_partial_normative",
+        inputs={INPUT_TRINITY_BUNDLE_REF: trinity_ref},
+        artifacts_index={ARTIFACT_SIMULATION_RESULT_REF: simulation_ref},
+    )
+    consumed = RunNormativeArbitrationNode().execute(ctx, fresh_state)
+    assert consumed.status == "ok"
+    result_ref = consumed.state.artifacts_index[ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF]
+    result = load_normative_arbitration_result(_ensure_ir_artifact_store(store), result_ref)
+    assert result.model_completeness is NormativeModelCompleteness.PARTIAL
+    assert any("propagation_metric_output_incomplete" in w for w in result.warnings)
+    assert any("propagation_metric_output_coverage_incomplete" in w for w in result.warnings)
     proposal = next(
         item for item in result.option_matrix if item.option is ArbitrationOption.PROPOSAL
     )

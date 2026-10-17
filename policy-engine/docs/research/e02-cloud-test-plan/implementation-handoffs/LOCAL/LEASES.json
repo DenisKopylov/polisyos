@@ -3477,5 +3477,62 @@
     "native_SOTA": "NativewiringR2HOLDretainedseparate; known2McompletionongoingRAW, no fullnativegreen/issuerexpiryrenewal.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_nl_cas_failure_and_typed_host_composition": {
+    "owner": "root",
+    "base": "7390d65a0fedd672ee5913040c004a1a5bd45988",
+    "earlier_exact_source_base": "718a54bc686e725f58a122d0c39b84a7c4737c52",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/job_attempt_publication.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline_testing.py",
+      "policy-engine/src/polisyos/scholar/__init__.py",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+      "policy-engine/src/polisyos/runtime/http/services/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-selected-artifact-refusal-disposition.toml"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate canonical67test +5source strict/sourceinputreceipt; modernPOSTselectedclaims remains semantic_test_missing"
+    ],
+    "suppliers": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/nl-pipeline-typed-boundary-author-r4-20261017/raw/manifest.json",
+        "sha256": "ecf8d4c6e2424a5f56d6099d17a198f8d98f5328f798e5cdadef585cd4fd9fb9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/nl-pipeline-typed-boundary-author-r5-20261017/raw/manifest.json",
+        "sha256": "210e5847c7c156b424400ad93a2514bedc85ae7050d75a5f9cf8566097a5246c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/nl-cas-failure-docs-companion-independent-review-r1-20261017/manifest.json",
+        "sha256": "33b6855bd2cc778733182a199214eb9d9080d1a2bccfacff6b5579705668625d"
+      }
+    ],
+    "independent_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/nl-pipeline-typed-boundary-independent-review-r3-corrected-20261017/review.json",
+        "sha256": "ddbab07155123336f04f248e6747536f102a887cae23a05455f604106311f2f9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/nl-cas-failure-docs-companion-independent-review-r1-20261017/review.json",
+        "sha256": "6d030d95d9da09ccb0e1e3a9a53d9e789b08e96f5f915f7a20af60af652e4b08"
+      }
+    ],
+    "root_document_review": "Evaluated correctedpostimages independently: legacy/private selectedfinalclaims separatefromtestedordinaryPOSTworkerCASdependencyfailure; retryabletrue notautomaticretry. DocsoriginalambiguityHOLD preserved. ServicesREADME exactcurrentpreimageunchanged, N4frozenpatchexcludesthispath, sequentialcomposition safe.",
+    "property": "Missing/corrupt/item-local-selectedreadrefuses withoutinlinefallback. SharedCASoutage remainsRuntimeDependencyError andexistingtypedjobfailureprojection/freshGET. Typedhost/Unpack/genericref/capturestep boundaries removeactualselectedtypingerrors withoutAny/cast/ignore/baselineweaken; duplicateunusednestedauthoritywriters removed in favor oflivecanonical writer.",
+    "P40": "SharedCASerrorvsselecteditemrefusal wholequantity widened; existinglegacyconsumer boundarydeclared. No modernrouteauthority/provenance claim.",
+    "limitations": [
+      "Five selectedsources strictPASS only, nofull556runtime green.",
+      "Modern selectedfinalclaims caller notestablished; ordinaryPOSTcase coversgenericCASoutagepublication only.",
+      "Fullnative/installed/browser/Linux replays notclaimed."
+    ],
+    "known_retained_inprogress": {
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py": "75c6d9deee0efb7e52d327aacc235b904c49a47dcebf9f5289c216623ee611af",
+      "policy-engine/tools/devx/workspace/repository_sota_closeout.py": "d9bc12df949fc935a31fe91e64f378eddebe6e3800cc3326c1ab09fa1299e994"
+    },
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

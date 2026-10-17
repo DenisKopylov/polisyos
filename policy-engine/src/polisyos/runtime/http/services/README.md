@@ -22,11 +22,15 @@ projections. Route handlers should stay thin and delegate behavior here.
 - **Artifact inspection** - renders CAS manifest/content/schema/lineage views with redaction hooks.
 - **Lineage traversal** - builds lineage graphs and completeness summaries.
 - **Control-plane orchestration** - launches or reissues runs and bridges into `scientist`, `fabric`, and `lex`.
-- **Selected NL final claims** - a selected CAS reference is resolved through its exact
-  producer-selected Core profile before the inline report is admitted. When both are present,
-  the consumer requires their decoded reports to agree; a malformed, unreadable, or conflicting
-  selected reference becomes a typed refusal that blocks citation/grounding admission. An
-  inline-only report remains supported only when the variant has no selected reference.
+- **Legacy/private selected NL final claims** - in the legacy `_execute_nl_pipeline` path, a
+  selected CAS reference is resolved through its exact producer-selected Core profile before the
+  inline report is admitted. When both are present, the private consumer requires their decoded
+  reports to agree; a missing, corrupt, malformed, or item-level refused selected reference
+  becomes a typed refusal that blocks citation/grounding admission. An inline-only report remains
+  supported only when the variant has no selected reference. This private-path description does
+  not establish consumption by the ordinary `/runs/nl` route. Separately, the tested normal
+  POST/worker job boundary projects a shared CAS availability failure as a dependency failure; it
+  is not treated as selected-artifact absence.
 - **Control-job diagnostic binding** - admission diagnostics bind only to the persisted
   `job_created` record and carry no worker attempt; running, completed, and failed diagnostics
   bind to the exact persisted lifecycle event, its row time and raw-payload digest, and the job's

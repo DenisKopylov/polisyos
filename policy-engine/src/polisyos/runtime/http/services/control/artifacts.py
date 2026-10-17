@@ -7,7 +7,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, NotRequired, TypedDict, Unpack
 from uuid import NAMESPACE_URL, uuid5
 
 from polisyos.core import artifacts as core_artifacts
@@ -122,6 +122,48 @@ class AuthorityArtifactIdentityContext:
     manifest_canon: core_artifacts.CanonInfo | None = None
 
 
+class _AuthorityArtifactWriteFields(TypedDict):
+    """Typed keyword boundary for runtime authority artifact writes."""
+
+    evidence_id: str
+    evidence_class: str
+    authority_role: str
+    provenance_kind: str
+    owner: str
+    reader_contract: str
+    reader_contract_version: str
+    tenant_id: str
+    cell_id: str | None
+    run_id: str
+    job_id: str
+    trace_id: str
+    span_id: str
+    parent_span_id: str | None
+    requested_execution_profile: str | None
+    effective_execution_profile: str
+    phase: str
+    generated_at: str
+    as_of_time: str
+    same_input_closure: SameInputClosure | Mapping[str, object]
+    input_refs: list[str] | tuple[str, ...] | None
+    effective_mode_ref: str
+    validation_status: str
+    blocking_status: str
+    governance: GovernanceMetadata | Mapping[str, object]
+    degradation_ledger_ref: NotRequired[str | None]
+    schema_compatibility_ref: NotRequired[str | None]
+    semantic_binding_ref: NotRequired[str | None]
+    attestation_ref: NotRequired[str | None]
+    redaction_policy_ref: NotRequired[str | None]
+    event_id: NotRequired[str | None]
+    event_source: NotRequired[str]
+    event_type: NotRequired[str]
+    event_subject: NotRequired[str | None]
+    state_before: NotRequired[str | None]
+    state_after: NotRequired[str | None]
+    canon_spec: NotRequired[CanonSpec | None]
+
+
 def _make_artifact_ref(
     ref_str: str,
     *,
@@ -131,13 +173,13 @@ def _make_artifact_ref(
     return _contracts._make_artifact_ref(ref_str, kind=kind, media_type=media_type)
 
 
-def _typed_artifact_ref(
+def _typed_artifact_ref[ArtifactRefModelT: ArtifactRef](
     ref_str: str,
     *,
     kind: str,
-    ref_type: type[ArtifactRef],
+    ref_type: type[ArtifactRefModelT],
     media_type: str = "application/json",
-) -> ArtifactRef:
+) -> ArtifactRefModelT:
     return ref_type.model_validate(
         _make_artifact_ref(ref_str, kind=kind, media_type=media_type).model_dump(mode="json")
     )
@@ -567,7 +609,7 @@ def write_runtime_authority_artifact(
     event_log: RuntimeDiagnosticEventLog,
     payload: object,
     opts: ArtifactWriteOptions,
-    **authority_fields: object,
+    **authority_fields: Unpack[_AuthorityArtifactWriteFields],
 ) -> AuthorityArtifactWriteResult:
     """Write a runtime authority artifact and append its event to the durable log."""
 
@@ -1384,7 +1426,8 @@ def _assert_authority_manifest_linkage(
 def _nested_get(payload: object, key: str) -> object | None:
     if isinstance(payload, Mapping):
         if key in payload:
-            return payload[key]
+            matched_value: object = payload[key]
+            return matched_value
         for value in payload.values():
             found = _nested_get(value, key)
             if found is not None:
@@ -1426,7 +1469,7 @@ def _resolve_curated_dir() -> Path:
             "policy-engine/production_data/canonical/local_data_20260501/policy_engine_data/curated"
         ),
     )
-    candidates = legacy_candidates
+    candidates: tuple[Path, ...] = legacy_candidates
     if manifest_candidate is not None:
         candidates = (manifest_candidate, *legacy_candidates)
     for candidate in candidates:

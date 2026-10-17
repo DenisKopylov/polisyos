@@ -11,8 +11,12 @@ from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts import (
+    AUTHORITY_ENVELOPE_ARTIFACT_KIND,
+    artifact_manifest_profile_sha256,
+)
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
@@ -38,6 +42,7 @@ from polisyos.runtime.http.services.control_registry_providers import ControlReg
 from polisyos.runtime.quality.assurance_case import PolicyDesignCaseAuthorityError
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.design_problem import DesignProblem, DesignProblemAuthorityError
+from polisyos.runtime.quality.diagnostic_events import DIAGNOSTIC_EVENT_ARTIFACT_KIND
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayToolCall
 from polisyos.scientist.orchestration.llm.simulated_gateway import SimulatedGatewayLLMClient
 from polisyos.scientist.validation.policy_grounding import build_policy_grounding_matrix_report
@@ -2707,13 +2712,13 @@ def test_serious_nl_pipeline_phase_24_persists_runtime_quality_refs_fail_closed(
         params = captured["payload"]["params"]
         details = record.progress["details"] if record is not None else {}
 
+        fresh_store = FileSystemCAS(tmp_path / "cas")
         for report_key, ref_key in _PHASE_24_REQUIRED_RUNTIME_REFS.items():
             ref = result[ref_key]
             assert ref.startswith("sha256:")
             assert params["runtime_quality_refs"][ref_key] == ref
             assert details["runtime_quality_refs"][ref_key] == ref
 
-            report = from_canonical_bytes(service._artifact_store.get_bytes(ArtifactID(ref)))
             evidence = params["runtime_quality_evidence"][report_key]
             progress_evidence = details["runtime_quality_evidence"][report_key]
             assert evidence[ref_key] == ref
@@ -2721,20 +2726,101 @@ def test_serious_nl_pipeline_phase_24_persists_runtime_quality_refs_fail_closed(
             assert evidence["authority_envelope_ref"].startswith("sha256:")
             assert evidence["runtime_event_ref"].startswith("sha256:")
 
-            envelope = from_canonical_bytes(
-                service._artifact_store.get_bytes(ArtifactID(evidence["authority_envelope_ref"]))
+            selected_report_ref = ArtifactRef.model_validate(
+                evidence["runtime_quality_artifact_refs"][ref_key]
             )
-            manifest = service._artifact_store.get_manifest(ArtifactID(ref))
+            assert str(selected_report_ref.artifact_id) == ref
+            assert selected_report_ref.manifest_profile_sha256 is not None
+            report_manifest = fresh_store.get_manifest(selected_report_ref)
+            assert (
+                artifact_manifest_profile_sha256(report_manifest)
+                == selected_report_ref.manifest_profile_sha256
+            )
+            report = from_canonical_bytes(fresh_store.get_bytes(selected_report_ref))
+
+            assert report_manifest.authority is not None
+            authority_links = report_manifest.authority
+            assert authority_links.authority_envelope_ref == evidence["authority_envelope_ref"]
+            assert authority_links.diagnostic_event_ref == evidence["runtime_event_ref"]
+            assert authority_links.authority_envelope_manifest_profile_sha256 is not None
+            assert authority_links.diagnostic_event_manifest_profile_sha256 is not None
+            assert (
+                authority_links.diagnostic_event_manifest_profile_sha256
+                == evidence["runtime_event_manifest_profile_sha256"]
+            )
+            envelope_ref = ArtifactRef(
+                artifact_id=ArtifactID(authority_links.authority_envelope_ref),
+                kind=AUTHORITY_ENVELOPE_ARTIFACT_KIND,
+                media_type="application/json",
+                manifest_profile_sha256=(
+                    authority_links.authority_envelope_manifest_profile_sha256
+                ),
+            )
+            event_ref = ArtifactRef(
+                artifact_id=ArtifactID(authority_links.diagnostic_event_ref),
+                kind=DIAGNOSTIC_EVENT_ARTIFACT_KIND,
+                media_type="application/json",
+                manifest_profile_sha256=(authority_links.diagnostic_event_manifest_profile_sha256),
+            )
+            envelope_manifest = fresh_store.get_manifest(envelope_ref)
+            event_manifest = fresh_store.get_manifest(event_ref)
+            assert (
+                artifact_manifest_profile_sha256(envelope_manifest)
+                == envelope_ref.manifest_profile_sha256
+            )
+            assert (
+                artifact_manifest_profile_sha256(event_manifest)
+                == event_ref.manifest_profile_sha256
+            )
+            assert envelope_manifest.inputs == report_manifest.inputs
+            assert event_manifest.inputs == report_manifest.inputs
+            for input_ref in report_manifest.inputs:
+                if input_ref.manifest_profile_sha256 is not None:
+                    input_manifest = fresh_store.get_manifest_by_profile(
+                        input_ref.artifact_id,
+                        input_ref.manifest_profile_sha256,
+                    )
+                    assert (
+                        artifact_manifest_profile_sha256(input_manifest)
+                        == input_ref.manifest_profile_sha256
+                    )
+
+            envelope = from_canonical_bytes(fresh_store.get_bytes(envelope_ref))
+            event_payload = from_canonical_bytes(fresh_store.get_bytes(event_ref))
+            input_ids = [str(item.artifact_id) for item in report_manifest.inputs]
+            assert envelope["input_refs"] == input_ids
+            assert event_payload["input_refs"] == input_ids
+            assert report_manifest.same_input_closure is not None
+            assert envelope["same_input_closure"]["closure_sha256"] == (
+                report_manifest.same_input_closure.closure_sha256
+            )
+            assert envelope["same_input_closure"]["evidence_input_refs"] == input_ids
+            assert event_manifest.same_input_closure == report_manifest.same_input_closure
+            assert envelope_manifest.same_input_closure == report_manifest.same_input_closure
             assert envelope["authority_role"] == "producer_authority"
             assert envelope["provenance_kind"] == "runtime_emitted"
+            assert envelope["artifact_kind"] == report_manifest.kind
+            assert envelope["governance"]["classification"] == "runtime_quality_evidence"
+            assert envelope["governance"]["authority_boundary"] == "runtime_control_plane"
             assert envelope["artifact_ref"] == ref
             assert envelope["cas_ref"] == ref
             assert envelope["run_id"] == run_id
             assert envelope["job_id"] == job_id
-            assert manifest.authority is not None
-            assert manifest.authority.authority_envelope_ref == evidence["authority_envelope_ref"]
-            assert manifest.authority.diagnostic_event_ref == evidence["runtime_event_ref"]
-            assert manifest.authority.payload_sha256 == manifest.integrity.sha256
+            assert authority_links.payload_sha256 == report_manifest.integrity.sha256
+            normalized_status = str(report.get("status") or "").strip().casefold()
+            expected_validation_status = (
+                "pass"
+                if normalized_status in {"pass", "passed", "ok", "match", "complete"}
+                else "blocked"
+                if normalized_status in {"blocked", "block"}
+                else "not_applicable"
+                if normalized_status in {"not_applicable", "n/a", "na", "skipped"}
+                else "fail"
+            )
+            assert envelope["validation_status"] == expected_validation_status
+            assert envelope["blocking_status"] == (
+                "non_blocking" if expected_validation_status == "pass" else "blocking"
+            )
             reconciliation = reconcile_authority_ref(
                 artifact_store=service._artifact_store,
                 event_log=service._diagnostic_event_log,
@@ -5058,18 +5144,22 @@ def test_empty_selected_final_claims_payload_is_not_absence() -> None:
     ("selected_fault", "expected_refusal"),
     [
         ("malformed_payload", "nl_final_policy_claims_selected_payload_invalid"),
-        ("unreadable", "nl_final_policy_claims_selected_unreadable"),
+        ("missing_blob", "nl_final_policy_claims_selected_unreadable"),
+        ("integrity_mismatch", "nl_final_policy_claims_selected_unreadable"),
         ("profile_mismatch", "nl_final_policy_claims_selected_unreadable"),
         ("inline_conflict", "nl_final_policy_claims_selected_inline_mismatch"),
+        ("backend_outage", None),
     ],
 )
-def test_nl_pipeline_selected_final_claims_refusal_blocks_grounding_with_inline_report_present(
+def test_nl_pipeline_selected_final_claims_faults_block_inline_fallback_or_propagate_outage(
     selected_fault: str,
-    expected_refusal: str,
+    expected_refusal: str | None,
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    """A bad selected CAS view cannot be laundered by a valid inline sibling."""
+    """Item-local faults refuse evidence; shared CAS outage escapes without result writes."""
+    from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
+
     captured: dict[str, Any] = {}
     selected_cas: dict[str, Any] = {}
 
@@ -5089,6 +5179,8 @@ def test_nl_pipeline_selected_final_claims_refusal_blocks_grounding_with_inline_
         *,
         return_selected_profile: bool = False,
     ) -> Any:
+        if selected_cas.get("read_attempted"):
+            selected_cas.setdefault("post_read_put_kinds", []).append(opts.kind)
         inline_ref = original_put_json(
             self,
             obj,
@@ -5129,6 +5221,15 @@ def test_nl_pipeline_selected_final_claims_refusal_blocks_grounding_with_inline_
             selected_ref = inline_ref
             selected_cas["payload"] = dict(obj)
         selected_cas["ref"] = selected_ref
+        if selected_fault in {"missing_blob", "integrity_mismatch"}:
+            blob_path, _ = self._paths(ArtifactID(str(selected_ref.artifact_id)))
+            selected_cas["blob_path"] = blob_path
+            if selected_fault == "missing_blob":
+                backup_path = blob_path.with_name(blob_path.name + ".selected-missing-backup")
+                assert not backup_path.exists()
+                selected_cas["blob_backup_path"] = backup_path
+            else:
+                selected_cas["original_blob"] = blob_path.read_bytes()
         return selected_ref
 
     def _get_selected_fault(
@@ -5145,9 +5246,36 @@ def test_nl_pipeline_selected_final_claims_refusal_blocks_grounding_with_inline_
             and (requested_profile is None or requested_profile == selected_profile)
         ):
             selected_cas["read_attempted"] = True
-            if selected_fault == "unreadable":
-                raise OSError("injected selected final-claims read failure")
-        return original_get_bytes(self, artifact_id)
+            if selected_fault == "backend_outage":
+                raise OSError("injected whole-CAS outage")
+            blob_path = selected_cas.get("blob_path")
+            if selected_fault == "missing_blob" and isinstance(blob_path, Path):
+                blob_path.replace(selected_cas["blob_backup_path"])
+            elif selected_fault == "integrity_mismatch" and isinstance(blob_path, Path):
+                blob_path.write_bytes(b"corrupted isolated selected final-claims fixture")
+        try:
+            return original_get_bytes(self, artifact_id)
+        except (OSError, ValueError) as exc:
+            if selected_cas.get("read_attempted"):
+                selected_cas["selected_read_exception"] = type(exc).__name__
+                if selected_fault == "missing_blob":
+                    selected_cas["missing_blob_observed"] = not selected_cas["blob_path"].exists()
+            raise
+        finally:
+            if selected_fault == "missing_blob":
+                backup_path = selected_cas.get("blob_backup_path")
+                blob_path = selected_cas.get("blob_path")
+                if (
+                    isinstance(backup_path, Path)
+                    and isinstance(blob_path, Path)
+                    and backup_path.exists()
+                ):
+                    backup_path.replace(blob_path)
+            elif selected_fault == "integrity_mismatch":
+                blob_path = selected_cas.get("blob_path")
+                original_blob = selected_cas.get("original_blob")
+                if isinstance(blob_path, Path) and isinstance(original_blob, bytes):
+                    blob_path.write_bytes(original_blob)
 
     monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
     _forbid_real_gateway_network(monkeypatch)
@@ -5183,48 +5311,73 @@ def test_nl_pipeline_selected_final_claims_refusal_blocks_grounding_with_inline_
         ),
         registry_providers=_registry_providers(),
     )
-
+    result: dict[str, Any] | None = None
+    citation: dict[str, Any] | None = None
+    grounding: dict[str, Any] | None = None
+    selected_payload: dict[str, Any] | None = None
+    outage: RuntimeDependencyUnavailableError | None = None
     try:
-        result = service._execute_nl_pipeline(
-            run_id=f"R_nl_selected_claims_{selected_fault}_with_inline",
-            nl_request="Evaluate Ukraine MSME support and retain the selected evidence basis.",
-            context=_normative_context(),
-            domain_hint="Ukraine wartime MSME support policy",
-            data_source=None,
-            max_iterations=1,
-            llm_models=["simulated-qwen"],
-            max_parallel_models=1,
-            run_budget_usd=None,
-            per_model_budget_usd=None,
-            checkpoint_policy="strict",
-            execution_plan_ref=None,
-            execution_plan_payload=None,
-            stop_criteria_payload={},
-            governance_constraints_payload=[],
-            expected_outputs_payload=[],
-            execution_profile="research",
-            allow_mock_fallback=False,
-            provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
-        )
-        citation = from_canonical_bytes(
-            service._artifact_store.get_bytes(
-                ArtifactID(result["citation_faithfulness_report_ref"])
-            )
-        )
-        grounding = from_canonical_bytes(
-            service._artifact_store.get_bytes(ArtifactID(result["policy_grounding_matrix_ref"]))
-        )
-        if selected_fault != "unreadable":
-            selected_payload = from_canonical_bytes(
-                original_get_bytes(
-                    selected_cas["store"],
-                    ArtifactID(str(selected_cas["ref"].artifact_id)),
+        kwargs = {
+            "run_id": f"R_nl_selected_claims_{selected_fault}_with_inline",
+            "nl_request": "Evaluate Ukraine MSME support and retain the selected evidence basis.",
+            "context": _normative_context(),
+            "domain_hint": "Ukraine wartime MSME support policy",
+            "data_source": None,
+            "max_iterations": 1,
+            "llm_models": ["simulated-qwen"],
+            "max_parallel_models": 1,
+            "run_budget_usd": None,
+            "per_model_budget_usd": None,
+            "checkpoint_policy": "strict",
+            "execution_plan_ref": None,
+            "execution_plan_payload": None,
+            "stop_criteria_payload": {},
+            "governance_constraints_payload": [],
+            "expected_outputs_payload": [],
+            "execution_profile": "research",
+            "allow_mock_fallback": False,
+            "provider_preflight_payload": {"status": "skipped", "reason": "simulation_mode"},
+        }
+        if selected_fault == "backend_outage":
+            with pytest.raises(RuntimeDependencyUnavailableError) as exc_info:
+                service._execute_nl_pipeline(**kwargs)
+            outage = exc_info.value
+        else:
+            result = service._execute_nl_pipeline(**kwargs)
+            citation = from_canonical_bytes(
+                service._artifact_store.get_bytes(
+                    ArtifactID(result["citation_faithfulness_report_ref"])
                 )
             )
-        else:
-            selected_payload = None
+            grounding = from_canonical_bytes(
+                service._artifact_store.get_bytes(ArtifactID(result["policy_grounding_matrix_ref"]))
+            )
+            if selected_fault in {"malformed_payload", "profile_mismatch", "inline_conflict"}:
+                selected_payload = from_canonical_bytes(
+                    original_get_bytes(
+                        selected_cas["store"],
+                        ArtifactID(str(selected_cas["ref"].artifact_id)),
+                    )
+                )
     finally:
         service.close()
+        backup_path = selected_cas.get("blob_backup_path")
+        blob_path = selected_cas.get("blob_path")
+        if isinstance(backup_path, Path) and isinstance(blob_path, Path) and backup_path.exists():
+            backup_path.replace(blob_path)
+        original_blob = selected_cas.get("original_blob")
+        if isinstance(original_blob, bytes) and isinstance(blob_path, Path):
+            blob_path.write_bytes(original_blob)
+
+    if selected_fault == "backend_outage":
+        assert outage is not None
+        assert outage.code == "content_addressed_storage_unavailable"
+        assert outage.dependency == "content_addressed_storage"
+        assert outage.retry_state == "retryable"
+        assert selected_cas["read_attempted"]
+        assert selected_cas.get("post_read_put_kinds", []) == []
+        assert selected_cas["inline"]["claims"]
+        return
 
     params = captured["payload"]["params"]
     selected_variant = next(
@@ -5233,11 +5386,25 @@ def test_nl_pipeline_selected_final_claims_refusal_blocks_grounding_with_inline_
     assert selected_variant["final_policy_claims_ref"] == str(selected_cas["ref"].artifact_id)
     assert selected_variant["final_policy_claims"] == selected_cas["inline"]
     assert selected_variant["final_policy_claims"]["claims"]
+    if selected_fault != "profile_mismatch":
+        assert selected_cas["read_attempted"]
+
+    assert expected_refusal is not None
+    assert result is not None
+    assert citation is not None
+    assert grounding is not None
+
     if selected_fault == "malformed_payload":
         assert selected_payload == selected_cas["payload"]
         assert selected_payload["claims"] == [None]
         assert selected_variant["final_policy_claims"] != selected_payload
-    elif selected_fault == "unreadable":
+    elif selected_fault == "missing_blob":
+        assert selected_cas["selected_read_exception"] == "FileNotFoundError"
+        assert selected_payload is None
+        assert selected_cas["missing_blob_observed"]
+        assert selected_cas["blob_path"].is_file()
+    elif selected_fault == "integrity_mismatch":
+        assert selected_cas["selected_read_exception"] == "ArtifactIntegrityError"
         assert selected_payload is None
     elif selected_fault == "profile_mismatch":
         assert selected_payload == selected_cas["inline"]
@@ -5250,15 +5417,93 @@ def test_nl_pipeline_selected_final_claims_refusal_blocks_grounding_with_inline_
     assert citation["issues"][0]["code"] == "selected_final_policy_claims_unavailable"
     assert expected_refusal in citation["issues"][0]["message"]
     assert grounding["citation_faithfulness"]["status"] == "fail"
-    if selected_fault in {"malformed_payload", "unreadable"}:
-        assert selected_cas["read_attempted"]
+
+
+def test_runtime_dependency_outage_persists_typed_failure_through_control_job_api(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Persist a shared-CAS outage via the normal launch, worker, store, and status read."""
+    import uuid
+
+    from tests._helpers.control_worker import (
+        dispatch_one_control_job,
+        stop_embedded_control_worker,
+    )
+    from tests._helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
+
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
+    _forbid_real_gateway_network(monkeypatch)
+    env = build_runtime_api_env(tmp_path, include_test_client=True)
+    app = env["app"]
+    client = env["client"]
+    service = app.state._control_service
+    store = service._control_store
+    try:
+        stop_embedded_control_worker(service)
+        launch_response = client.post(
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": uuid.uuid4().hex},
+            json={
+                "request": "Analyze a small-business liquidity support policy.",
+                "llm_model": "simulated-qwen",
+                "max_iterations": 1,
+            },
+        )
+        assert launch_response.status_code == 200, launch_response.text
+        job_id = str(launch_response.json()["job_id"])
+        queued = store.get_job(job_id)
+        assert queued is not None
+        assert queued.state == "pending"
+        assert queued.attempt == 0
+        assert queued.payload_ref is not None
+
+        def _raise_whole_cas_outage(
+            self: FileSystemCAS,
+            artifact_id: ArtifactID | str,
+        ) -> bytes:
+            del self, artifact_id
+            raise OSError("injected whole-CAS worker outage")
+
+        monkeypatch.setattr(FileSystemCAS, "get_bytes", _raise_whole_cas_outage)
+        dispatched = dispatch_one_control_job(
+            store=store,
+            handler=service._process_control_job,
+            expected_job_id=job_id,
+        )
+        assert dispatched == job_id
+
+        failed = store.get_job(job_id)
+        assert failed is not None
+        assert failed.state == "failed"
+        assert failed.attempt == 1
+        assert failed.finished_at is not None
+        failure = failed.progress["failure"]
+        assert failure["code"] == "content_addressed_storage_unavailable"
+        assert failure["layer"] == "content_addressed_storage"
+        assert failure["phase"] == "job_execution"
+        assert failure["retryable"] is True
+        assert failure["run_id"] == failed.run_id
+        assert failure["job_id"] == job_id
+        dead_letter = next(item for item in store.list_dead_letter_jobs() if item.job_id == job_id)
+        assert dead_letter.attempt == 1
+
+        status_response = client.get(f"/api/v1/control/jobs/{job_id}")
+        assert status_response.status_code == 200, status_response.text
+        served = status_response.json()
+        assert served["state"] == "failed"
+        assert served["failure"]["code"] == "content_addressed_storage_unavailable"
+        assert served["failure"]["layer"] == "content_addressed_storage"
+        assert served["failure"]["retryable"] is True
+    finally:
+        close_runtime_api_env(env)
 
 
 def test_final_claims_variant_selector_is_producer_owned_and_profile_exact(
     tmp_path: Path,
 ) -> None:
     from polisyos.common.canonical_profile import CanonicalProfileRefusalError
-    from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo
+    from polisyos.core.artifacts.manifest import ProducerInfo
     from polisyos.runtime.http.services.control.nl_pipeline import (
         _resolve_selected_materialization_ref,
         _selected_final_policy_claims_ref_for_variant,

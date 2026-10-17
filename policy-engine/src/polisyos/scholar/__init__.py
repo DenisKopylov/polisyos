@@ -47,6 +47,9 @@ __all__ = [
 ]
 
 if TYPE_CHECKING:
+    from polisyos.scholar._impl.spine import (
+        build_scholar_spine_evidence_binding as build_scholar_spine_evidence_binding,
+    )
     from polisyos.scholar.orchestrator.bundle import (
         persist_knowledge_bundle_payload as persist_knowledge_bundle_payload,
     )

@@ -2,7 +2,16 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
+
+if TYPE_CHECKING:
+    from polisyos.scientist.agent.protocols import (
+        CriticAgent,
+        DataNeedExtractorAgent,
+        DrafterAgent,
+        FormalizerAgent,
+        PIAgent,
+    )
 
 from pydantic import BaseModel, ConfigDict
 
@@ -19,7 +28,9 @@ class NLContractTestingAuthorityStamp(BaseModel):
     )
 
 
-def build_nl_contract_testing_agents() -> tuple[object, object, object, object, object]:
+def build_nl_contract_testing_agents() -> tuple[
+    PIAgent, DataNeedExtractorAgent, DrafterAgent, FormalizerAgent, CriticAgent
+]:
     """Construct the former mock agent set only for the explicit test lane."""
 
     from polisyos.scientist.agent.critic import MockCriticAgent

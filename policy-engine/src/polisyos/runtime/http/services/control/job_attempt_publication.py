@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -12,6 +12,7 @@ from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.canon import content_hash as canonical_content_hash
 from polisyos.core.canon import to_canonical_bytes
 from polisyos.core.contracts import NaturalLanguageRunRequest
+from polisyos.runtime.http.errors import RuntimeDependencyError
 from polisyos.runtime.http.services.adapters.core_run import (
     derive_control_job_core_run_id,
     derive_core_run_dir,
@@ -36,8 +37,13 @@ from ..control_plane_store import (
 )
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from polisyos.common.logger import _CompatLogger
+    from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.runtime.quality.agent_action_authority import AgentActionPermissionSnapshot
+
+    from ..control_plane_store import ControlPlaneStore
 import hashlib
 import json
 
@@ -581,10 +587,56 @@ def _validate_nl_snapshot_payload_fields(
             raise ValueError("nl_authorized_request_payload_mismatch")
 
 
+class _ControlJobAttemptPublicationHost(Protocol):
+    """Typed receiver contract shared with the composed ControlPlaneService owner."""
+
+    _artifact_store: ArtifactStore
+    _control_store: ControlPlaneStore
+    _core_runs_root: Path
+
+    def _require_current_generation_job_attempt(self, job: ControlJobRecord) -> None: ...
+
+    def _finish_generation_run_context(
+        self,
+        *,
+        job: ControlJobRecord,
+        execution_scope: ControlJobExecutionScope,
+        core_run_id: str,
+        context: run.RunContext,
+        outputs: list[ArtifactRef],
+        status: str,
+        errors: list[dict[str, object]] | None = None,
+    ) -> ArtifactRef: ...
+
+    def _core_run_progress_fields(
+        self, *, job: ControlJobRecord, core_run_id: str, manifest_ref: ArtifactRef
+    ) -> dict[str, object]: ...
+
+    def _execution_scope_payload(self, scope: ControlJobExecutionScope) -> dict[str, Any]: ...
+
+    def _emit_runtime_diagnostic_event(
+        self,
+        *,
+        job_id: str,
+        run_id: str | None,
+        execution_profile: str,
+        phase: str,
+        event_type: str,
+        state_before: str | None = None,
+        state_after: str | None = None,
+        payload: Mapping[str, Any] | None = None,
+        event_payload: Mapping[str, Any] | None = None,
+        blocking_status: str | None = None,
+        execution_scope: ControlJobExecutionScope,
+    ) -> object: ...
+
+
 class ControlJobAttemptPublicationMixin:
     """Own one control-job lifecycle facet without changing service entrypoints."""
 
-    def _require_current_generation_job_attempt(self, job: ControlJobRecord) -> None:
+    def _require_current_generation_job_attempt(
+        self: _ControlJobAttemptPublicationHost, job: ControlJobRecord
+    ) -> None:
         """Require the same live control-job lease immediately before Core writes."""
         current = self._control_store.current_execution_job_record()
         if (
@@ -599,7 +651,7 @@ class ControlJobAttemptPublicationMixin:
             raise ControlJobLeaseLostError("control_job_core_run_attempt_lease_lost")
 
     def _start_generation_run_context(
-        self,
+        self: _ControlJobAttemptPublicationHost,
         *,
         job: ControlJobRecord,
         execution_scope: ControlJobExecutionScope,
@@ -648,7 +700,7 @@ class ControlJobAttemptPublicationMixin:
         return core_run_id, context
 
     def _finish_generation_run_context(
-        self,
+        self: _ControlJobAttemptPublicationHost,
         *,
         job: ControlJobRecord,
         execution_scope: ControlJobExecutionScope,
@@ -710,7 +762,7 @@ class ControlJobAttemptPublicationMixin:
         }
 
     def _publish_generation_run(
-        self,
+        self: _ControlJobAttemptPublicationHost,
         *,
         job: ControlJobRecord,
         payload: Mapping[str, Any],
@@ -738,7 +790,7 @@ class ControlJobAttemptPublicationMixin:
         )
         if not outputs or any(not isinstance(ref, ArtifactRef) for ref in outputs):
             raise ValueError("control_job_core_run_exact_outputs_not_established")
-        exact_outputs = cast("list[ArtifactRef]", outputs)
+        exact_outputs = outputs
         if run_context is not None:
             return self._finish_generation_run_context(
                 job=job,
@@ -761,7 +813,7 @@ class ControlJobAttemptPublicationMixin:
         return terminal.manifest_ref
 
     def _require_nl_job_execution_intent_binding(
-        self,
+        self: _ControlJobAttemptPublicationHost,
         *,
         job: ControlJobRecord,
         admission: ControlJobExecutionAdmission,
@@ -937,7 +989,7 @@ class ControlJobAttemptPublicationMixin:
             raise RuntimeError(failure_code) from exc
 
     def _fail_control_job_attempt(
-        self,
+        self: _ControlJobAttemptPublicationHost,
         *,
         job: ControlJobRecord,
         execution_scope: ControlJobExecutionScope,
@@ -949,7 +1001,6 @@ class ControlJobAttemptPublicationMixin:
         logger: _CompatLogger,
     ) -> None:
         """Finalize any open Core attempt and persist the job's failure state."""
-        failure_core_progress: dict[str, object] = {}
         failure_core_progress: dict[str, object] = {}
         if (
             core_run_context is not None
@@ -977,9 +1028,25 @@ class ControlJobAttemptPublicationMixin:
                     core_run_id,
                     finalize_exc,
                 )
-        progress = (
-            dict(exc.progress) if isinstance(exc, _WorkflowExecutionNonAuthorityError) else None
-        )
+        if isinstance(exc, _WorkflowExecutionNonAuthorityError):
+            progress = dict(exc.progress)
+        elif isinstance(exc, RuntimeDependencyError):
+            failure_phase = "job_execution"
+            progress = {
+                "state": "failed",
+                "phase": failure_phase,
+                "failure": {
+                    "code": exc.code,
+                    "layer": exc.dependency,
+                    "phase": failure_phase,
+                    "message": exc.detail,
+                    "retryable": exc.retry_state == "retryable",
+                    "run_id": job.run_id,
+                    "job_id": job.job_id,
+                },
+            }
+        else:
+            progress = None
         if failure_core_progress:
             progress = dict(progress or {})
             progress.update(

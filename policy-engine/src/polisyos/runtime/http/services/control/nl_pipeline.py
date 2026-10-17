@@ -13,7 +13,7 @@ from copy import deepcopy
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -38,7 +38,6 @@ from polisyos.ir.kernel.metrics import (
     build_production_metric_taxonomy,
     canonicalize_metric_id_with_diagnostics,
 )
-from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
 from polisyos.runtime.http.services.control.artifacts import (
     _make_artifact_ref,
     _resolve_curated_dir,
@@ -103,6 +102,7 @@ from .._control_contracts import (
 )
 
 logger = get_logger(__name__)
+_StepResult = TypeVar("_StepResult")
 _CURRENT_NL_STEP_ID: contextvars.ContextVar[str | None] = contextvars.ContextVar(
     "polisyos_current_nl_step_id", default=None
 )
@@ -174,7 +174,23 @@ def _cost_number(value: object) -> float | None:
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
+    from polisyos.core.contracts import CatalogRunProfile
+    from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+    from polisyos.fabric.retrieval.providers import RetrievalProviders
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality.epoch_certificate_issuance import (
+        DecisionPacketEpochIssuanceOwner,
+    )
+    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+    from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
+    from polisyos.scientist.agent.protocols import (
+        CriticAgent,
+        DataNeedExtractorAgent,
+        DrafterAgent,
+        FormalizerAgent,
+        PIAgent,
+    )
     from polisyos.scientist.orchestration.engine import BudgetMiddleware
 
 
@@ -586,8 +602,10 @@ def _inline_json_schema_refs(schema: Mapping[str, Any]) -> dict[str, Any]:
                 if key not in {"$ref", "$defs", "definitions"}
             }
             if siblings and isinstance(resolved, dict):
-                merged = {**resolved, **_inline(siblings, seen)}
-                return merged
+                inlined_siblings = _inline(siblings, seen)
+                if not isinstance(inlined_siblings, dict):
+                    raise ValueError("json_schema_inline_siblings_not_object")
+                return {**resolved, **inlined_siblings}
             return resolved
         return {
             str(key): _inline(item, seen)
@@ -1371,6 +1389,12 @@ def _variant_failure_reason(variant: Mapping[str, Any]) -> str | None:
     return None
 
 
+def _mapping_rows(rows: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
+    """Copy a JSON row sequence into the mutable owner contract shape."""
+
+    return list(rows)
+
+
 def _json_safe_payload(value: object) -> object:
     if isinstance(value, Mapping):
         return {str(key): _json_safe_payload(item) for key, item in value.items()}
@@ -1626,7 +1650,7 @@ def _persisted_runtime_quality_publication_times(
     writer, which reconciles the complete manifest, envelope, attestation, and event.
     A request with an explicit different as-of time cannot reuse the old publication.
     """
-    from polisyos.core.artifacts.manifest import ArtifactID
+    from polisyos.core.artifacts.ids import ArtifactID
     from polisyos.core.canon import from_canonical_bytes
     from polisyos.runtime.quality.authority import EvidenceAuthorityEnvelope
 
@@ -1898,7 +1922,7 @@ def _artifact_ref_from_ref_payload(
 
 
 def _resolve_selected_materialization_ref(
-    store: object,
+    store: ArtifactStore,
     value: object,
     selected_materialization_refs: Mapping[str, list[ArtifactRef]],
     *,
@@ -2223,6 +2247,19 @@ def _serialize_critique_report(critique: object) -> dict[str, Any]:
 class NaturalLanguageRunMixin:
     """Natural-language runtime path split out of ControlPlaneService."""
 
+    if TYPE_CHECKING:
+        _artifact_store: ArtifactStore
+        _async_artifact_store: AsyncArtifactStore
+        _catalog_run_profile: CatalogRunProfile | None
+        _catalog_serving_source: CatalogServingSourcePaths
+        _control_store: ControlPlaneStore
+        _diagnostic_event_log: RuntimeDiagnosticEventLog
+        _epoch_certificate_issuance_owner: DecisionPacketEpochIssuanceOwner | None
+        _metrics: MetricsRegistry
+        _tracer: PolicyOSTracer
+
+        def _build_retrieval_providers(self) -> RetrievalProviders: ...
+
     def _execute_nl_pipeline(
         self,
         run_id: str,
@@ -2374,7 +2411,10 @@ class NaturalLanguageRunMixin:
         capability_manifest_ref: str | None = None,
         capability_manifest_updater: Callable[[list[str]], str] | None = None,
         provider_preflight_payload: dict[str, Any] | None = None,
-        contract_testing_agent_factory: Callable[[], tuple[object, ...]] | None = None,
+        contract_testing_agent_factory: Callable[
+            [], tuple[PIAgent, DataNeedExtractorAgent, DrafterAgent, FormalizerAgent, CriticAgent]
+        ]
+        | None = None,
     ) -> dict[str, Any]:
         """Shared implementation used by the fenced production and contract-test routers."""
         from polisyos.common.async_tools import run_coro_sync
@@ -2638,7 +2678,7 @@ class NaturalLanguageRunMixin:
                     snapshot["provider_preflight"] = _progress_json(provider_preflight_payload)
                 if runtime_quality_refs:
                     snapshot["runtime_quality_refs"] = _progress_json(runtime_quality_refs)
-                    snapshot.update(_progress_json(runtime_quality_refs))
+                    snapshot.update(runtime_quality_refs)
                 if runtime_quality_artifact_refs:
                     snapshot["runtime_quality_artifact_refs"] = _progress_json(
                         runtime_quality_artifact_refs
@@ -2989,7 +3029,6 @@ class NaturalLanguageRunMixin:
                     refusal_code="nl_final_policy_claims_selected_unreadable",
                     expected_errors=(
                         OSError,
-                        RuntimeDependencyUnavailableError,
                         RuntimeError,
                         TypeError,
                         ValueError,
@@ -3376,11 +3415,10 @@ class NaturalLanguageRunMixin:
                 quality_report_value = frozen_refs.get("quality_report_ref")
                 selected_quality_ref = None
                 if quality_report_value is not None:
+                    nested_quality_ref = nested_snapshot_refs.get("quality_report_ref")
                     selected_quality_ref = _selected_materialization_ref(
                         quality_report_value,
-                        nested_snapshot_refs.get("quality_report_ref").kind
-                        if nested_snapshot_refs.get("quality_report_ref") is not None
-                        else None,
+                        nested_quality_ref.kind if nested_quality_ref is not None else None,
                     )
                 snapshot_quality_ref = nested_snapshot_refs.get("quality_report_ref")
                 if snapshot_quality_ref is not None:
@@ -3880,8 +3918,8 @@ class NaturalLanguageRunMixin:
                     else _build_production_data_fabric_trace(
                         query_intent=query_intent,
                         evidence_context=evidence_context,
-                        data_needs=data_needs_payload,
-                        fetch_plans=fetch_plans_payload,
+                        data_needs=_mapping_rows(data_needs_payload),
+                        fetch_plans=_mapping_rows(fetch_plans_payload),
                         retrieval_telemetry=retrieval_telemetry,
                         materialization_refs=materialization_refs,
                         canary_kind=execution_profile or "production",
@@ -3955,8 +3993,10 @@ class NaturalLanguageRunMixin:
                     else _build_production_data_quality_report(
                         evidence_context=evidence_context,
                         materialization_refs=materialization_refs,
-                        data_needs=data_needs_payload,
-                        claims=claims_payload,
+                        data_needs=_mapping_rows(data_needs_payload),
+                        claims=(
+                            _mapping_rows(claims_payload) if claims_payload is not None else None
+                        ),
                     )
                 )
                 return await _persist_and_publish_runtime_quality_payload(
@@ -4335,211 +4375,6 @@ class NaturalLanguageRunMixin:
                     inputs=list(input_refs or []),
                 )
 
-            async def _persist_runtime_quality_diagnostic_event(
-                *,
-                report_key: str,
-                ref_key: str,
-                ref_value: str,
-                artifact_kind: str,
-                phase: str,
-                input_refs: tuple[str, ...],
-            ) -> tuple[str, dict[str, Any]]:
-                nonlocal diagnostic_event_log_ref
-
-                from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
-
-                now = datetime.now(UTC).replace(microsecond=0)
-                event = DiagnosticEvent(
-                    event_id=(f"{run_id}:{report_key}:{ref_value.removeprefix('sha256:')[:16]}"),
-                    event_source="polisyos.runtime.http.nl_pipeline",
-                    event_type="polisyos.runtime.diagnostic.cas_write.v1",
-                    event_time=now,
-                    event_subject=f"runtime_quality_ref#{ref_key}",
-                    schema_name="polisyos.runtime.quality.diagnostic_event",
-                    schema_version="1.0",
-                    trace_id=_runtime_quality_trace_id(),
-                    span_id=f"{report_key}:cas_write",
-                    parent_span_id=None,
-                    run_id=run_id,
-                    job_id=_runtime_quality_job_id(),
-                    tenant_id=_runtime_quality_identity_value("tenant_id", "tenant-default"),
-                    cell_id=_runtime_quality_identity_value("cell_id", "cell-default"),
-                    producer_component=f"polisyos.runtime.quality.{report_key}",
-                    producer_version="2026.05.15+hds-phase2.4",
-                    execution_profile=_runtime_quality_profile(),
-                    phase=phase,
-                    state_before=None,
-                    state_after="quality_evidence_persisted",
-                    payload_ref=ref_value,
-                    artifact_refs=(ref_value,),
-                    input_refs=input_refs,
-                    blocking_status=None,
-                    redaction_policy_ref=None,
-                    duplicate_of=None,
-                    dedupe_key=f"{run_id}:{report_key}:{ref_value}",
-                    sampling_decision="always_record",
-                    sampling_rate=1.0,
-                ).model_dump(mode="json")
-                event_ref = await async_store.put_json(
-                    event,
-                    ArtifactWriteOptions(
-                        kind="runtime.diagnostic_event",
-                        media_type="application/json",
-                        schema=SchemaInfo(
-                            name="polisyos.runtime.quality.DiagnosticEvent",
-                            version="1.0",
-                        ),
-                        input_refs=[
-                            InputRef(
-                                artifact_id=_make_artifact_ref(
-                                    ref_value,
-                                    kind=artifact_kind,
-                                ).artifact_id,
-                                role=ref_key.removesuffix("_ref"),
-                            )
-                        ],
-                    ),
-                    canon_spec=CanonSpec(forbid_floats=False),
-                )
-                event_ref_str = str(event_ref.artifact_id)
-                summary = {
-                    "event_name": f"{report_key}.persisted",
-                    "event_type": event["event_type"],
-                    "runtime_event_ref": event_ref_str,
-                    "artifact_ref": ref_value,
-                    "runtime_cas_ref": ref_value,
-                    "artifact_refs": [ref_value],
-                    "payload_ref": ref_value,
-                    "ref_key": ref_key,
-                    "report_key": report_key,
-                    "sampling": {"decision": "always_record", "rate": 1.0},
-                }
-                _record_runtime_quality_diagnostic_event(summary)
-                log_ref = await async_store.put_json(
-                    {
-                        "schema_version": "policyos.runtime.diagnostic_event_log.v1",
-                        "run_id": run_id,
-                        "job_id": _runtime_quality_job_id(),
-                        "events": list(runtime_quality_diagnostic_events),
-                    },
-                    ArtifactWriteOptions(
-                        kind="runtime.diagnostic_event_log",
-                        media_type="application/json",
-                        schema=SchemaInfo(
-                            name="polisyos.runtime.quality.DiagnosticEventLog",
-                            version="1.0",
-                        ),
-                    ),
-                    canon_spec=CanonSpec(forbid_floats=False),
-                )
-                diagnostic_event_log_ref = str(log_ref.artifact_id)
-                return event_ref_str, summary
-
-            async def _persist_runtime_quality_authority_envelope(
-                *,
-                report_key: str,
-                ref_key: str,
-                ref_value: str,
-                artifact_kind: str,
-                report_payload: Mapping[str, Any],
-                runtime_event_ref: str,
-                phase: str,
-                input_refs: tuple[str, ...],
-                schema_name: str,
-                schema_version: str,
-            ) -> tuple[str, dict[str, Any]]:
-                from polisyos.runtime.quality.authority import EvidenceAuthorityEnvelope
-
-                now = datetime.now(UTC).replace(microsecond=0).isoformat()
-                same_input_closure = _runtime_quality_same_input_closure(
-                    input_refs=input_refs,
-                )
-                envelope = EvidenceAuthorityEnvelope.model_validate(
-                    {
-                        "evidence_id": f"runtime_quality_ref#{ref_key}",
-                        "artifact_ref": ref_value,
-                        "artifact_kind": artifact_kind,
-                        "evidence_class": "authority_bearing",
-                        "authority_role": "producer_authority",
-                        "provenance_kind": "runtime_emitted",
-                        "producer_component": f"polisyos.runtime.quality.{report_key}",
-                        "producer_version": "2026.05.15+hds-phase2.4",
-                        "owner": "team-runtime",
-                        "runtime_event_ref": runtime_event_ref,
-                        "cas_ref": ref_value,
-                        "payload_sha256": _runtime_quality_payload_sha256(report_payload),
-                        "schema_name": schema_name,
-                        "schema_version": schema_version,
-                        "reader_contract": f"runtime_quality.{report_key}.v1",
-                        "reader_contract_version": "1.0",
-                        "tenant_id": _runtime_quality_identity_value(
-                            "tenant_id",
-                            "tenant-default",
-                        ),
-                        "cell_id": _runtime_quality_identity_value(
-                            "cell_id",
-                            "cell-default",
-                        ),
-                        "run_id": run_id,
-                        "job_id": _runtime_quality_job_id(),
-                        "trace_id": _runtime_quality_trace_id(),
-                        "span_id": f"{report_key}:authority",
-                        "parent_span_id": f"{report_key}:cas_write",
-                        "requested_execution_profile": _runtime_quality_profile(),
-                        "effective_execution_profile": _runtime_quality_profile(),
-                        "phase": phase,
-                        "state_before": None,
-                        "state_after": "quality_evidence_persisted",
-                        "generated_at": now,
-                        "as_of_time": str(context.get("as_of") or now),
-                        "same_input_closure": same_input_closure,
-                        "input_refs": input_refs,
-                        "output_refs": (ref_value,),
-                        "effective_mode_ref": f"runtime-mode:{_runtime_quality_profile()}",
-                        "degradation_ledger_ref": None,
-                        "schema_compatibility_ref": None,
-                        "semantic_binding_ref": _runtime_quality_semantic_binding_ref(
-                            report_payload=report_payload,
-                        ),
-                        "attestation_ref": None,
-                        "redaction_policy_ref": None,
-                        "duplicate_of": None,
-                        "validation_status": _runtime_quality_validation_status(report_payload),
-                        "blocking_status": _runtime_quality_blocking_status(report_payload),
-                        "governance": {
-                            "classification": "runtime_quality_evidence",
-                            "authority_boundary": "runtime_control_plane",
-                            "pii": "redacted_or_absent",
-                            "retention_policy": "runtime_quality_retention",
-                            "review_status": "machine_checked",
-                            "override_policy": "no_silent_override",
-                            "approval_policy": "scorecard_readiness_required",
-                        },
-                    }
-                ).model_dump(mode="json")
-                envelope_ref = await async_store.put_json(
-                    envelope,
-                    ArtifactWriteOptions(
-                        kind="runtime.quality_authority_envelope",
-                        media_type="application/json",
-                        schema=SchemaInfo(
-                            name="polisyos.runtime.quality.EvidenceAuthorityEnvelope",
-                            version="1.0",
-                        ),
-                        input_refs=[
-                            InputRef(
-                                artifact_id=_make_artifact_ref(
-                                    ref_value,
-                                    kind=artifact_kind,
-                                ).artifact_id,
-                                role=ref_key.removesuffix("_ref"),
-                            )
-                        ],
-                    ),
-                    canon_spec=CanonSpec(forbid_floats=False),
-                )
-                return str(envelope_ref.artifact_id), envelope
-
             async def _publish_runtime_quality_report(
                 *,
                 report_key: str,
@@ -4875,10 +4710,13 @@ class NaturalLanguageRunMixin:
                         fallback=nl_request,
                     )
                     or nl_request,
-                    desired_outcome=_intent_context_text(
-                        "desired_outcome",
-                        "query_outcome",
-                        "outcome",
+                    desired_outcome=(
+                        _intent_context_text(
+                            "desired_outcome",
+                            "query_outcome",
+                            "outcome",
+                        )
+                        or ""
                     ),
                     proposed_intervention=_intent_context_text(
                         "proposed_intervention",
@@ -4887,15 +4725,12 @@ class NaturalLanguageRunMixin:
                         fallback=domain_hint or "independent policy analysis",
                     )
                     or "independent policy analysis",
-                    jurisdiction=_intent_context_text(
-                        "jurisdiction",
+                    jurisdiction=_intent_context_text("jurisdiction") or "",
+                    target_population=(
+                        _intent_context_text("target_population", "population") or ""
                     ),
-                    target_population=_intent_context_text(
-                        "target_population",
-                        "population",
-                    ),
-                    policy_time=policy_time,
-                    data_time=data_time,
+                    policy_time=policy_time or "",
+                    data_time=data_time or "",
                     requester_preferred_conclusion=_clean_runtime_text(
                         context.get("requester_preferred_conclusion")
                     ),
@@ -5681,17 +5516,18 @@ class NaturalLanguageRunMixin:
                 if not isinstance(bundles, Mapping) or not bundles:
                     raise RuntimeError("production_data_bundles_missing")
 
-                data_context_payload = {
-                    "metrics": [
-                        {
-                            "metric_id": item.get("metric"),
-                            "geography": item.get("geography"),
-                            "granularity": item.get("granularity"),
-                            "purpose": item.get("purpose"),
-                            "source_lane": "production_data_manifest",
-                        }
-                        for item in data_needs_payload
-                    ],
+                metrics_payload: list[dict[str, Any]] = [
+                    {
+                        "metric_id": item.get("metric"),
+                        "geography": item.get("geography"),
+                        "granularity": item.get("granularity"),
+                        "purpose": item.get("purpose"),
+                        "source_lane": "production_data_manifest",
+                    }
+                    for item in data_needs_payload
+                ]
+                data_context_payload: dict[str, Any] = {
+                    "metrics": metrics_payload,
                     "metadata_docs_fetched": int(
                         retrieval_telemetry.get("metadata_docs_fetched") or 0
                     ),
@@ -5725,7 +5561,7 @@ class NaturalLanguageRunMixin:
                     source="production_data_manifest",
                     source_refs=[payload_ref],
                     observed_counts={
-                        "metrics": len(data_context_payload["metrics"]),
+                        "metrics": len(metrics_payload),
                         "bundles": len(bundles),
                         "fetch_plans": len(fetch_plans_payload),
                         "data_needs": len(data_needs_payload),
@@ -5753,7 +5589,7 @@ class NaturalLanguageRunMixin:
                     data_ref=payload_ref,
                     quality_report_ref=quality_ref,
                     stats={
-                        "metric_count": len(data_context_payload["metrics"]),
+                        "metric_count": len(metrics_payload),
                         "bundle_count": len(bundles),
                         "fetch_plan_count": len(fetch_plans_payload),
                     },
@@ -6236,11 +6072,11 @@ class NaturalLanguageRunMixin:
                     *,
                     agent: str,
                     action: str,
-                    coro: Awaitable[object],
+                    coro: Awaitable[_StepResult],
                     summary: str | None = None,
                     status: str = "ok",
                     details: dict[str, Any] | None = None,
-                ) -> object:
+                ) -> _StepResult:
                     step_id = f"{action}:{len(steps) + 1}"
                     step_token = _CURRENT_NL_STEP_ID.set(step_id)
                     started = _now_ms()
@@ -7751,7 +7587,7 @@ class NaturalLanguageRunMixin:
                 if non_failed:
                     selected_variant = non_failed[0]
             if selected_variant is None:
-                failure = _model_variants_failure_envelope(variants)
+                failure = _model_variants_failure_envelope(_mapping_rows(variants))
                 _emit_job_progress(
                     phase="model_variants_failed",
                     state="failed",
@@ -7820,7 +7656,7 @@ class NaturalLanguageRunMixin:
             _validate_selected_variant_artifact_refs(variants)
 
             adjudication_payload = build_model_variant_adjudication(
-                variants=variants,
+                variants=_mapping_rows(variants),
                 selected_variant=selected_variant,
             )
             adjudication_inputs: list[InputRef] = []
@@ -8063,6 +7899,8 @@ class NaturalLanguageRunMixin:
                 ]
                 auto_refs = selected_variant.get("auto_data_source_refs")
                 if isinstance(auto_refs, Mapping):
+                    auto_refs = dict(auto_refs)
+                    selected_variant["auto_data_source_refs"] = auto_refs
                     try:
                         final_claims_report_for_data_quality = (
                             _final_policy_claims_report_from_variant(selected_variant)
@@ -8460,10 +8298,12 @@ class NaturalLanguageRunMixin:
                     production_quality_ref_str,
                     kind="runtime.production_data_quality_report",
                 ).model_dump(mode="json")
-            normative_ref_str = runtime_quality_refs.get("normative_applicability_report_ref")
-            if normative_ref_str:
+            normative_report_ref_from_runtime = runtime_quality_refs.get(
+                "normative_applicability_report_ref"
+            )
+            if normative_report_ref_from_runtime:
                 reports_index["normative_applicability_report_ref"] = _make_artifact_ref(
-                    normative_ref_str,
+                    normative_report_ref_from_runtime,
                     kind="lex.normative_applicability_report",
                 ).model_dump(mode="json")
             privacy_compliance_ref_str = runtime_quality_refs.get("privacy_compliance_report_ref")
@@ -8493,7 +8333,7 @@ class NaturalLanguageRunMixin:
             runtime_quality_cost_usage = _sum_call_events(runtime_quality_cost_events)
             run_cost_components = [_cost_number(item.get("cost_usd")) for item in variants]
             run_cost_components.append(_cost_number(runtime_quality_cost_usage["cost_usd"]))
-            state_payload = _canonicalize_numeric_payload(
+            state_payload_value = _canonicalize_numeric_payload(
                 {
                     "run_id": run_id,
                     "inputs": inputs,
@@ -8544,7 +8384,9 @@ class NaturalLanguageRunMixin:
                             else None
                         ),
                         "nl_preflight_cost_events": list(runtime_quality_cost_events),
-                        "run_performance_summary": _build_run_performance_summary(variants),
+                        "run_performance_summary": _build_run_performance_summary(
+                            _mapping_rows(variants)
+                        ),
                         "metric_taxonomy_evidence": dict(metric_taxonomy_evidence),
                         "metric_taxonomy_diagnostics": list(metric_taxonomy_diagnostics),
                         "llm_model_variants": [
@@ -8647,6 +8489,9 @@ class NaturalLanguageRunMixin:
                     },
                 }
             )
+            if not isinstance(state_payload_value, dict):
+                raise TypeError("nl_experiment_state_payload_invalid")
+            state_payload: dict[str, Any] = state_payload_value
             final_policy_claims_selected_ref = _final_policy_claims_ref_for_variant(
                 selected_variant
             )

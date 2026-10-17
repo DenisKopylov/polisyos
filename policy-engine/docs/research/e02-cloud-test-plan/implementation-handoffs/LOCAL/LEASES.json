@@ -3304,5 +3304,29 @@
     "property": "Complete persistedrecursive3node tree/root+2 genuine meaningfulchildren and fullsourcebudget, checkpointNone for completeRun; original positivebudgetstop remainsopen/notestablished, no newruntimePASS.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_r9_complete_source_effect_origins_r6": {
+    "source_base": "8c903c0dfb1af72f3b79bcb49cb28e2999bcd459",
+    "root_is_only_canonical_writer": true,
+    "scope": [
+      "policy-engine/tools/quality/validation/decomposition_preflight.py",
+      "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate complete selected-source canonical collection/registry drift/removal replay and receipt after source freeze"
+    ],
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dynamic-import-module-flow-r1-20261017/candidate-round-6-origin-union/candidate-manifest-r6.json",
+      "sha256": "3e79ac518c16307e148c54172a9c75fb5478adec00afe87dba7b66ed9f4e21e8"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dynamic-import-module-flow-r1-independent-review-r6-origin-union-3e79ac51-20261017/review.json",
+      "sha256": "6f5edfcb8330861624bd25c48951ea07ad00595c41eba4703c21fbfa68e0d887"
+    },
+    "property": "Invocation-local complete selected source context, generic within-file binding effects and foreign source-origin set difference invalidate TYPE_CHECKING pruning. Same-file lexical order retained; no global stale cache.",
+    "P40": "Same class deeper: widened from per-file to complete source-effects quantity; R4/R5 HOLDs retained. Unselected external runtime mutation remains not_established; unreachable selected effects conservatively overcounted.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

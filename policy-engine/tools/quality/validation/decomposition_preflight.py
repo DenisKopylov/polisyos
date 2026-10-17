@@ -666,6 +666,42 @@ _DYNAMIC_UNKNOWN = _DynamicImportBinding("unknown")
 _DYNAMIC_OTHER = _DynamicImportBinding("other")
 _DYNAMIC_AMBIGUOUS = _DynamicImportBinding("ambiguous", guarded=True)
 _DYNAMIC_NONE = _DynamicImportBinding("none")
+_DYNAMIC_TYPE_CHECKING_MODULE_ORIGIN = "typing-type-checking-module"
+_DYNAMIC_TYPE_CHECKING_VALUE_ORIGIN = "typing-type-checking-value"
+_DYNAMIC_TYPE_CHECKING_MODULES = frozenset({"typing", "typing_extensions"})
+
+
+def _dynamic_type_checking_module_binding(module: str) -> _DynamicImportBinding:
+    return _DynamicImportBinding("module", module, origin_name=_DYNAMIC_TYPE_CHECKING_MODULE_ORIGIN)
+
+
+def _dynamic_type_checking_value_binding(module: str) -> _DynamicImportBinding:
+    return _DynamicImportBinding(
+        "boolean",
+        boolean=False,
+        origin_name=f"{_DYNAMIC_TYPE_CHECKING_VALUE_ORIGIN}:{module}",
+    )
+
+
+def _dynamic_type_checking_kind(binding: _DynamicImportBinding) -> str | None:
+    if (
+        binding.kind == "boolean"
+        and binding.boolean is False
+        and binding.origin_name is not None
+        and binding.origin_name.startswith(f"{_DYNAMIC_TYPE_CHECKING_VALUE_ORIGIN}:")
+    ):
+        return "type_checking"
+    if (
+        binding.kind == "module"
+        and binding.name in _DYNAMIC_TYPE_CHECKING_MODULES
+        and binding.origin_name == _DYNAMIC_TYPE_CHECKING_MODULE_ORIGIN
+    ):
+        return "typing_module"
+    return None
+
+
+def _dynamic_type_checking_module_owner(binding: _DynamicImportBinding) -> str | None:
+    return binding.name if _dynamic_type_checking_kind(binding) == "typing_module" else None
 
 
 def _dynamic_call_name(name: str) -> str:
@@ -678,6 +714,11 @@ def _dynamic_call_name(name: str) -> str:
 
 def _dynamic_binding_for_import(module: str, name: str | None = None) -> _DynamicImportBinding:
     imported = module if name is None else f"{module}.{name}"
+    if module in _DYNAMIC_TYPE_CHECKING_MODULES:
+        if name is None:
+            return _dynamic_type_checking_module_binding(module)
+        if name == "TYPE_CHECKING":
+            return _dynamic_type_checking_value_binding(module)
     canonical = _dynamic_call_name(imported)
     if module == "builtins" and name is not None:
         return _dynamic_builtin_binding(name)
@@ -1210,14 +1251,65 @@ def _dynamic_immutable_literal_mapping_binding(
     )
 
 
+@dataclass(frozen=True)
+class _DynamicImportSourceMember:
+    """One selected source file and its exact parsed input bytes."""
+
+    path: Path
+    relative_path: str
+    content_sha256: str
+    tree: ast.Module
+
+
+@dataclass(frozen=True)
+class _DynamicImportSourceContext:
+    """Invocation-local identity and effects for a complete selected source set."""
+
+    identity: str
+    members: tuple[_DynamicImportSourceMember, ...]
+    type_checking_effects: tuple[tuple[str, frozenset[str]], ...] | None = None
+
+
+def _dynamic_read_source_context(paths: Sequence[Path]) -> _DynamicImportSourceContext:
+    """Read and parse every selected source member once for this collector call."""
+    members: list[_DynamicImportSourceMember] = []
+    identity = hashlib.sha256()
+    for path in paths:
+        relative_path = _dynamic_source_label(path)
+        try:
+            content = path.read_bytes()
+            source = content.decode("utf-8")
+            tree = ast.parse(source, filename=str(path))
+        except (OSError, SyntaxError, UnicodeError, ValueError, RecursionError) as error:
+            raise DynamicImportCollectionError(
+                f"{relative_path}: {type(error).__name__}: {error}"
+            ) from error
+        digest = hashlib.sha256(content).hexdigest()
+        identity.update(relative_path.encode("utf-8"))
+        identity.update(b"\0")
+        identity.update(bytes.fromhex(digest))
+        members.append(_DynamicImportSourceMember(path, relative_path, digest, tree))
+    return _DynamicImportSourceContext(identity.hexdigest(), tuple(members))
+
+
 class _DynamicImportSourceBindings:
     """Resolve bounded source-owned exports without importing or executing source."""
 
-    def __init__(self, source_paths: Sequence[Path]) -> None:
+    def __init__(
+        self,
+        source_paths: Sequence[Path],
+        *,
+        source_context: _DynamicImportSourceContext | None = None,
+    ) -> None:
         self.module_paths: dict[str, Path] = {}
         self.ambiguous_modules: set[str] = set()
         self.trees: dict[str, ast.Module | None] = {}
         self.environments: dict[str, dict[str, _DynamicImportBinding] | None] = {}
+        self.source_trees_by_path = (
+            {member.path: member.tree for member in source_context.members}
+            if source_context is not None
+            else {}
+        )
         source_root = SRC_ROOT.resolve()
         for path in source_paths:
             try:
@@ -1276,6 +1368,10 @@ class _DynamicImportSourceBindings:
         if path is None or module in self.ambiguous_modules:
             self.trees[module] = None
             return None
+        if path in self.source_trees_by_path:
+            tree = self.source_trees_by_path[path]
+            self.trees[module] = tree
+            return tree
         try:
             source = path.read_text(encoding="utf-8")
             tree = ast.parse(source, filename=_dynamic_source_label(path))
@@ -2001,10 +2097,13 @@ class _DynamicImportSourceBindings:
                 return _dynamic_builtin_binding(node.id)
             return _DYNAMIC_AMBIGUOUS
         if isinstance(node, ast.Attribute):
-            return _dynamic_attribute_binding(
-                self._expression_binding(node.value, environment, module, stack),
-                node.attr,
-            )
+            base = self._expression_binding(node.value, environment, module, stack)
+            if (
+                node.attr == "TYPE_CHECKING"
+                and _dynamic_type_checking_kind(base) == "typing_module"
+            ):
+                return _dynamic_type_checking_value_binding(str(base.name))
+            return _dynamic_attribute_binding(base, node.attr)
         if isinstance(node, ast.Tuple | ast.List | ast.Set):
             if any(isinstance(item, ast.Starred) for item in node.elts):
                 return _DYNAMIC_AMBIGUOUS
@@ -2346,6 +2445,425 @@ def _dynamic_source_label(path: Path) -> str:
     return lexical_path.as_posix()
 
 
+def _dynamic_scope_cross_writes(
+    scope: ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef,
+) -> tuple[set[str], set[str]]:
+    """Return possible global/nonlocal writes across one deferred scope tree."""
+    global_writes: set[str] = set()
+    nonlocal_writes: set[str] = set()
+    scope_types = (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+
+    def own_writes(statements: Sequence[ast.stmt]) -> tuple[set[str], set[str]]:
+        collector = _DynamicImportScopeNames()
+        for statement in statements:
+            collector.visit(statement)
+        return collector.names & collector.globals, collector.names & collector.nonlocals
+
+    def nested_scopes(
+        statements: Sequence[ast.stmt],
+    ) -> list[ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef]:
+        found: list[ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef] = []
+        stack: list[ast.AST] = list(reversed(statements))
+        while stack:
+            node = stack.pop()
+            if isinstance(node, scope_types):
+                found.append(node)
+                continue
+            stack.extend(reversed(list(ast.iter_child_nodes(node))))
+        return found
+
+    pending = [scope]
+    while pending:
+        current = pending.pop()
+        own_global, own_nonlocal = own_writes(current.body)
+        global_writes.update(own_global)
+        nonlocal_writes.update(own_nonlocal)
+        pending.extend(nested_scopes(current.body))
+    return global_writes, nonlocal_writes
+
+
+def _dynamic_sys_modules_mapping(
+    node: ast.AST,
+    environment: Mapping[str, _DynamicImportBinding],
+) -> bool:
+    if isinstance(node, ast.Name):
+        binding = environment.get(node.id)
+        return binding is not None and binding.origin_name == "sys.modules"
+    if (
+        isinstance(node, ast.Attribute)
+        and node.attr == "modules"
+        and isinstance(node.value, ast.Name)
+    ):
+        binding = environment.get(node.value.id)
+        return binding is not None and binding.kind == "module" and binding.name == "sys"
+    return False
+
+
+def _dynamic_sys_modules_write_owners(
+    node: ast.AST,
+    environment: Mapping[str, _DynamicImportBinding],
+) -> set[str]:
+    if not isinstance(node, ast.Subscript) or not _dynamic_sys_modules_mapping(
+        node.value, environment
+    ):
+        return set()
+    key_known, key_value = _dynamic_ast_literal_key_value(node.slice)
+    if key_known and isinstance(key_value, str) and key_value in _DYNAMIC_TYPE_CHECKING_MODULES:
+        return {key_value}
+    return set(_DYNAMIC_TYPE_CHECKING_MODULES)
+
+
+def _dynamic_module_object_owners(
+    node: ast.AST,
+    environment: Mapping[str, _DynamicImportBinding],
+) -> set[str]:
+    """Find source-bound typing modules that an expression can carry or expose."""
+    if isinstance(node, ast.Name):
+        binding = environment.get(node.id)
+        owner = _dynamic_type_checking_module_owner(binding) if binding is not None else None
+        return {owner} if owner in _DYNAMIC_TYPE_CHECKING_MODULES else set()
+    if isinstance(node, ast.Attribute):
+        if node.attr == "__dict__":
+            return _dynamic_module_object_owners(node.value, environment)
+        return set()
+    if isinstance(node, ast.Call):
+        owners: set[str] = set()
+        if isinstance(node.func, ast.Attribute):
+            owners.update(_dynamic_module_object_owners(node.func.value, environment))
+        for argument in (*node.args, *(keyword.value for keyword in node.keywords)):
+            owners.update(_dynamic_module_object_owners(argument, environment))
+        return owners
+    if isinstance(node, ast.Subscript):
+        if _dynamic_sys_modules_mapping(node.value, environment):
+            key_known, key_value = _dynamic_ast_literal_key_value(node.slice)
+            if (
+                key_known
+                and isinstance(key_value, str)
+                and key_value in _DYNAMIC_TYPE_CHECKING_MODULES
+            ):
+                return {key_value}
+            return set(_DYNAMIC_TYPE_CHECKING_MODULES)
+        return _dynamic_module_object_owners(node.value, environment)
+    if isinstance(node, ast.Lambda):
+        parameters = {
+            argument.arg
+            for argument in (
+                *node.args.posonlyargs,
+                *node.args.args,
+                *node.args.kwonlyargs,
+                *((node.args.vararg,) if node.args.vararg else ()),
+                *((node.args.kwarg,) if node.args.kwarg else ()),
+            )
+        }
+        outer = {name: value for name, value in environment.items() if name not in parameters}
+        return _dynamic_module_object_owners(node.body, outer)
+    owners: set[str] = set()
+    for child in ast.iter_child_nodes(node):
+        if isinstance(child, ast.expr):
+            owners.update(_dynamic_module_object_owners(child, environment))
+    return owners
+
+
+def _dynamic_scope_statement_nodes(statements: Sequence[ast.stmt]) -> tuple[ast.stmt, ...]:
+    """Walk one lexical block while leaving nested scopes for their own summary."""
+    found: list[ast.stmt] = []
+
+    def visit(node: ast.AST) -> None:
+        for child in ast.iter_child_nodes(node):
+            if isinstance(child, ast.stmt):
+                found.append(child)
+                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                    continue
+            visit(child)
+
+    for statement in statements:
+        found.append(statement)
+        if not isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            visit(statement)
+    return tuple(found)
+
+
+def _dynamic_scope_module_environment(
+    scope: ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef,
+    outer: Mapping[str, _DynamicImportBinding],
+) -> tuple[dict[str, _DynamicImportBinding], tuple[ast.stmt, ...]]:
+    """Resolve only source-owned typing module aliases in one lexical scope."""
+    statements = _dynamic_scope_statement_nodes(scope.body)
+    environment = dict(outer)
+    local_names, global_names, nonlocal_names = _scope_local_bindings(scope.body)
+    if isinstance(scope, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        arguments = scope.args
+        parameter_names = {
+            argument.arg
+            for argument in (
+                *arguments.posonlyargs,
+                *arguments.args,
+                *arguments.kwonlyargs,
+                *((arguments.vararg,) if arguments.vararg else ()),
+                *((arguments.kwarg,) if arguments.kwarg else ()),
+            )
+        }
+        local_names.update(parameter_names)
+    for name in local_names - global_names - nonlocal_names:
+        environment[name] = _DYNAMIC_UNKNOWN
+
+    for statement in statements:
+        if isinstance(statement, ast.Import):
+            for imported in statement.names:
+                bound = imported.asname or imported.name.split(".", 1)[0]
+                module = imported.name if imported.asname else imported.name.split(".", 1)[0]
+                environment[bound] = _dynamic_binding_for_import(module)
+        elif isinstance(statement, ast.ImportFrom):
+            module = ("." * statement.level) + (statement.module or "")
+            for imported in statement.names:
+                if imported.name == "*":
+                    continue
+                bound = imported.asname or imported.name
+                environment[bound] = _dynamic_binding_for_import(module, imported.name)
+        elif isinstance(statement, ast.Assign):
+            value: _DynamicImportBinding | None = None
+            if isinstance(statement.value, ast.Name):
+                value = environment.get(statement.value.id)
+                if value is None:
+                    value = (
+                        _dynamic_builtin_dual_namespace_binding()
+                        if statement.value.id == "__builtins__"
+                        else _dynamic_builtin_binding(statement.value.id)
+                    )
+            elif (
+                isinstance(statement.value, ast.Attribute)
+                and statement.value.attr == "modules"
+                and isinstance(statement.value.value, ast.Name)
+            ):
+                owner = environment.get(statement.value.value.id)
+                if owner is not None and owner.kind == "module" and owner.name == "sys":
+                    value = _dynamic_sys_modules_binding()
+            for target in statement.targets:
+                if isinstance(target, ast.Name) and value is not None:
+                    environment[target.id] = value
+        elif isinstance(statement, ast.AnnAssign) and isinstance(statement.target, ast.Name):
+            if isinstance(statement.value, ast.Name):
+                value = environment.get(statement.value.id)
+                if value is None:
+                    value = _dynamic_builtin_binding(statement.value.id)
+                environment[statement.target.id] = value
+            elif statement.value is not None:
+                environment[statement.target.id] = _DYNAMIC_UNKNOWN
+    return environment, statements
+
+
+def _dynamic_statement_expression_roots(node: ast.stmt) -> tuple[ast.AST, ...]:
+    """Return expressions evaluated by a statement, excluding nested bodies."""
+    roots: list[ast.AST] = []
+    if isinstance(node, ast.Assign):
+        roots.extend(node.targets)
+        roots.append(node.value)
+    elif isinstance(node, ast.AnnAssign):
+        roots.append(node.target)
+        roots.append(node.annotation)
+        if node.value is not None:
+            roots.append(node.value)
+    elif isinstance(node, ast.AugAssign):
+        roots.extend((node.target, node.value))
+    elif isinstance(node, ast.Delete):
+        roots.extend(node.targets)
+    elif isinstance(node, ast.Expr):
+        roots.append(node.value)
+    elif isinstance(node, ast.If):
+        roots.append(node.test)
+    elif isinstance(node, (ast.For, ast.AsyncFor)):
+        roots.extend((node.target, node.iter))
+    elif isinstance(node, ast.While):
+        roots.append(node.test)
+    elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        roots.extend(node.decorator_list)
+        roots.extend(node.args.defaults)
+        roots.extend(value for value in node.args.kw_defaults if value is not None)
+        roots.extend(
+            node.args.args[i].annotation
+            for i in range(len(node.args.args))
+            if node.args.args[i].annotation is not None
+        )
+        roots.extend(
+            argument.annotation
+            for argument in (*node.args.posonlyargs, *node.args.kwonlyargs)
+            if argument.annotation is not None
+        )
+        roots.extend(
+            argument.annotation
+            for argument in (node.args.vararg, node.args.kwarg)
+            if argument is not None and argument.annotation is not None
+        )
+        if node.returns is not None:
+            roots.append(node.returns)
+    elif isinstance(node, ast.ClassDef):
+        roots.extend((*node.decorator_list, *node.bases))
+        roots.extend(keyword.value for keyword in node.keywords)
+    elif isinstance(node, ast.Return) and node.value is not None:
+        roots.append(node.value)
+    elif isinstance(node, ast.Raise):
+        roots.extend(value for value in (node.exc, node.cause) if value is not None)
+    elif isinstance(node, ast.Assert):
+        roots.append(node.test)
+        if node.msg is not None:
+            roots.append(node.msg)
+    elif isinstance(node, (ast.With, ast.AsyncWith)):
+        for item in node.items:
+            roots.append(item.context_expr)
+            if item.optional_vars is not None:
+                roots.append(item.optional_vars)
+    elif isinstance(node, ast.Match):
+        roots.append(node.subject)
+        roots.extend(case.guard for case in node.cases if case.guard is not None)
+    return tuple(roots)
+
+
+def _dynamic_type_checking_module_effects(
+    node: ast.stmt,
+    environment: Mapping[str, _DynamicImportBinding],
+) -> set[str]:
+    """Find source-visible mutation or escape of a proven typing module object."""
+    invalidated: set[str] = set()
+    for root in _dynamic_statement_expression_roots(node):
+        for child in ast.walk(root):
+            if isinstance(child, ast.Attribute) and (
+                child.attr == "__dict__" or isinstance(child.ctx, (ast.Store, ast.Del))
+            ):
+                invalidated.update(_dynamic_module_object_owners(child.value, environment))
+            elif isinstance(child, ast.Subscript) and isinstance(child.ctx, (ast.Store, ast.Del)):
+                invalidated.update(_dynamic_sys_modules_write_owners(child, environment))
+            elif isinstance(child, ast.Call):
+                if isinstance(child.func, ast.Attribute):
+                    invalidated.update(
+                        set(_DYNAMIC_TYPE_CHECKING_MODULES)
+                        if _dynamic_sys_modules_mapping(child.func.value, environment)
+                        else set()
+                    )
+                for argument in (*child.args, *(keyword.value for keyword in child.keywords)):
+                    if _dynamic_sys_modules_mapping(argument, environment):
+                        invalidated.update(_DYNAMIC_TYPE_CHECKING_MODULES)
+                callee: _DynamicImportBinding | None = None
+                if isinstance(child.func, ast.Name):
+                    callee = environment.get(child.func.id)
+                    if callee is None:
+                        callee = _dynamic_builtin_binding(child.func.id)
+                elif isinstance(child.func, ast.Attribute) and isinstance(
+                    child.func.value, ast.Name
+                ):
+                    base = environment.get(child.func.value.id)
+                    if base is not None and base.kind == "module" and base.name == "builtins":
+                        callee = _dynamic_builtin_binding(child.func.attr)
+                if callee is not None and callee.name in {
+                    "builtins.eval",
+                    "builtins.exec",
+                    "builtins.globals",
+                    "builtins.locals",
+                    "builtins.vars",
+                }:
+                    invalidated.update(
+                        owner
+                        for binding in environment.values()
+                        if (owner := _dynamic_type_checking_module_owner(binding)) is not None
+                    )
+                invalidated.update(_dynamic_module_object_owners(child, environment))
+            elif isinstance(child, (ast.Yield, ast.YieldFrom)) and child.value is not None:
+                invalidated.update(_dynamic_module_object_owners(child.value, environment))
+
+    if isinstance(node, (ast.Assign, ast.AnnAssign, ast.AugAssign)):
+        value = node.value
+        if value is not None:
+            owners = _dynamic_module_object_owners(value, environment)
+            targets = node.targets if isinstance(node, ast.Assign) else (node.target,)
+            if owners and (
+                not isinstance(value, ast.Name)
+                or any(not isinstance(target, ast.Name) for target in targets)
+            ):
+                invalidated.update(owners)
+    elif isinstance(node, ast.Return) and node.value is not None:
+        invalidated.update(_dynamic_module_object_owners(node.value, environment))
+    return invalidated
+
+
+def _dynamic_reflection_callee(
+    node: ast.Call,
+    environment: Mapping[str, _DynamicImportBinding],
+) -> _DynamicImportBinding | None:
+    if isinstance(node.func, ast.Name):
+        binding = environment.get(node.func.id)
+        return binding if binding is not None else _dynamic_builtin_binding(node.func.id)
+    if isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name):
+        base = environment.get(node.func.value.id)
+        if base is not None and base.kind == "module" and base.name == "builtins":
+            return _dynamic_builtin_binding(node.func.attr)
+    return None
+
+
+def _dynamic_type_checking_namespace_reflection(
+    node: ast.stmt,
+    environment: Mapping[str, _DynamicImportBinding],
+) -> bool:
+    """Detect source-bound builtins that can rewrite or expose namespace bindings."""
+    reflective_names = {
+        "builtins.eval",
+        "builtins.exec",
+        "builtins.globals",
+        "builtins.locals",
+        "builtins.vars",
+    }
+    for root in _dynamic_statement_expression_roots(node):
+        for child in ast.walk(root):
+            if isinstance(child, ast.Name) and child.id == "__builtins__":
+                binding = environment.get(child.id, _dynamic_builtin_dual_namespace_binding())
+                if binding.kind == "namespace" and binding.name == "builtins":
+                    return True
+            if isinstance(child, ast.Attribute) and child.attr == "__dict__":
+                if isinstance(child.value, ast.Name):
+                    binding = environment.get(child.value.id)
+                    if (
+                        binding is not None
+                        and binding.kind == "module"
+                        and binding.name == "builtins"
+                    ):
+                        return True
+            if isinstance(child, ast.Call):
+                callee = _dynamic_reflection_callee(child, environment)
+                if callee is not None and callee.name in reflective_names:
+                    return True
+    return False
+
+
+def _dynamic_deferred_scope_namespace_reflection(
+    scope: ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef,
+    outer: Mapping[str, _DynamicImportBinding],
+) -> bool:
+    environment, statements = _dynamic_scope_module_environment(scope, outer)
+    for statement in statements:
+        if _dynamic_type_checking_namespace_reflection(statement, environment):
+            return True
+        if isinstance(
+            statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+        ) and _dynamic_deferred_scope_namespace_reflection(statement, environment):
+            return True
+    return False
+
+
+def _dynamic_deferred_scope_module_effects(
+    scope: ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef,
+    outer: Mapping[str, _DynamicImportBinding],
+) -> set[str]:
+    """Summarize module-object effects throughout deferred lexical scopes."""
+    environment, statements = _dynamic_scope_module_environment(scope, outer)
+    invalidated: set[str] = set()
+    nested: list[ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef] = []
+    for statement in statements:
+        invalidated.update(_dynamic_type_checking_module_effects(statement, environment))
+        if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            nested.append(statement)
+    for child in nested:
+        invalidated.update(_dynamic_deferred_scope_module_effects(child, environment))
+    return invalidated
+
+
 class _DynamicImportSourceScanner:
     """Collect dynamic calls with statically proven importer provenance.
 
@@ -2362,12 +2880,28 @@ class _DynamicImportSourceScanner:
         *,
         relative_path: str | None = None,
         source_bindings: _DynamicImportSourceBindings | None = None,
+        source_context: _DynamicImportSourceContext | None = None,
     ) -> None:
         self.source_path = source_path
         self.relative_path = relative_path or _dynamic_source_label(source_path)
         self.entries: list[dict[str, Any]] = []
         self.sink_sites: list[_DynamicImportSite] = []
         self._module_environment: dict[str, _DynamicImportBinding] = {}
+        self.source_context = source_context
+        self._type_checking_invalidated_modules: set[str] = set()
+        if source_context is None or source_context.type_checking_effects is None:
+            # A one-file scan has not established the shared singleton's
+            # complete source-visible effects, so TYPE_CHECKING is not authority.
+            self._type_checking_invalidated_modules.update(_DYNAMIC_TYPE_CHECKING_MODULES)
+        else:
+            self._type_checking_invalidated_modules.update(
+                module
+                for module, source_paths in source_context.type_checking_effects
+                if source_paths - {self.relative_path}
+            )
+        self._type_checking_namespace_unknown = False
+        self._module_scope_info: Mapping[str, set[str]] = {}
+        self._module_possible_rebindings: set[str] = set()
         self.source_bindings = source_bindings
         try:
             source_path.resolve().relative_to(SRC_ROOT.resolve())
@@ -2386,8 +2920,14 @@ class _DynamicImportSourceScanner:
         locals_, _, _ = _scope_local_bindings(tree.body)
         environment = {name: self._unknown_binding(name) for name in locals_}
         self._module_environment = environment
+        module_scope_info: dict[str, set[str]] = {
+            "globals": set(),
+            "nonlocals": set(),
+            "_effectful": set(),
+        }
+        self._module_scope_info = module_scope_info
         pending: list[_PendingDynamicImportScope] = []
-        self._scan_statements(tree.body, environment, locals_, {}, pending, {})
+        self._scan_statements(tree.body, environment, locals_, module_scope_info, pending, {})
         for deferred in pending:
             scope = deferred.node
             # Module names are globals resolved at call time, not closure cells.
@@ -2401,6 +2941,86 @@ class _DynamicImportSourceScanner:
             elif isinstance(scope, ast.TypeAlias):
                 self._scan_type_parameter_fields(scope, environment, pending)
         return self.entries
+
+    def _invalidate_type_checking_modules(
+        self,
+        modules: set[str],
+        environment: dict[str, _DynamicImportBinding],
+    ) -> None:
+        if not modules:
+            return
+        self._type_checking_invalidated_modules.update(modules)
+        for target_environment in (environment, self._module_environment):
+            for name, binding in tuple(target_environment.items()):
+                if _dynamic_type_checking_module_owner(binding) in modules:
+                    target_environment[name] = self._unknown_binding(name)
+
+    def _invalidate_type_checking_namespace_bindings(
+        self,
+        environment: dict[str, _DynamicImportBinding],
+    ) -> None:
+        self._type_checking_namespace_unknown = True
+        self._type_checking_invalidated_modules.update(_DYNAMIC_TYPE_CHECKING_MODULES)
+        for target_environment in (environment, self._module_environment):
+            for name, binding in tuple(target_environment.items()):
+                if _dynamic_type_checking_kind(binding) is not None:
+                    target_environment[name] = self._unknown_binding(name)
+
+    def _type_checking_bindings(
+        self, environment: Mapping[str, _DynamicImportBinding]
+    ) -> dict[str, str]:
+        return {
+            name: kind
+            for name, binding in environment.items()
+            if (kind := _dynamic_type_checking_kind(binding)) is not None
+        }
+
+    def _bind_name(
+        self,
+        name: str,
+        value: _DynamicImportBinding,
+        environment: dict[str, _DynamicImportBinding],
+        scope_info: Mapping[str, set[str]],
+    ) -> None:
+        if _dynamic_type_checking_kind(value) is not None:
+            effectful = scope_info.get("_effectful", set())
+            module_target = scope_info is self._module_scope_info or name in scope_info.get(
+                "globals", set()
+            )
+            if name in effectful or (module_target and name in self._module_possible_rebindings):
+                value = self._unknown_binding(name)
+        environment[name] = value
+
+    def _register_deferred_scope_effects(
+        self,
+        global_writes: set[str],
+        nonlocal_writes: set[str],
+        environment: dict[str, _DynamicImportBinding],
+        scope_info: Mapping[str, set[str]],
+        closure_env: Mapping[str, _DynamicImportBinding],
+    ) -> None:
+        """Make any cross-scope rebinding of a proven TYPE_CHECKING value unknown."""
+        self._module_possible_rebindings.update(global_writes)
+        for name in global_writes:
+            module_value = self._module_environment.get(name, self._unknown_binding(name))
+            if _dynamic_type_checking_kind(module_value) is not None:
+                self._module_environment[name] = self._unknown_binding(name)
+                if scope_info is self._module_scope_info or name in scope_info.get(
+                    "globals", set()
+                ):
+                    environment[name] = self._unknown_binding(name)
+
+        effectful = scope_info.get("_effectful")
+        if isinstance(effectful, set):
+            effectful.update(nonlocal_writes)
+        nonlocal_environment = closure_env if "_class" in scope_info else environment
+        for name in nonlocal_writes:
+            value = nonlocal_environment.get(name, self._unknown_binding(name))
+            if _dynamic_type_checking_kind(value) is not None:
+                if isinstance(nonlocal_environment, dict):
+                    nonlocal_environment[name] = self._unknown_binding(name)
+                if "_class" not in scope_info and name in environment:
+                    environment[name] = self._unknown_binding(name)
 
     @staticmethod
     def _unknown_binding(_name: str) -> _DynamicImportBinding:
@@ -2574,6 +3194,17 @@ class _DynamicImportSourceScanner:
                 scope_info,
                 comprehension_outer=comprehension_outer,
             )
+            if (
+                node.attr == "TYPE_CHECKING"
+                and _dynamic_type_checking_kind(base) == "typing_module"
+            ):
+                owner = _dynamic_type_checking_module_owner(base)
+                if (
+                    self._type_checking_namespace_unknown
+                    or owner in self._type_checking_invalidated_modules
+                ):
+                    return self._unknown_binding(node.attr)
+                return _dynamic_type_checking_value_binding(str(owner))
             return _dynamic_attribute_binding(base, node.attr)
         if isinstance(node, (ast.Tuple, ast.List, ast.Set)):
             items: list[_DynamicImportBinding] = []
@@ -3496,11 +4127,12 @@ class _DynamicImportSourceScanner:
         scope_info: Mapping[str, set[str]],
     ) -> None:
         if isinstance(target, ast.Name):
-            environment[target.id] = (
+            assigned = (
                 self._unknown_binding(target.id)
                 if value.kind == "unknown" and not value.guarded
                 else value
             )
+            self._bind_name(target.id, assigned, environment, scope_info)
             return
         if isinstance(target, (ast.Tuple, ast.List)):
             items = value.items if value.kind in {"sequence", "mapping"} else None
@@ -3696,6 +4328,11 @@ class _DynamicImportSourceScanner:
             ):
                 return self._unknown_binding(bound_name)
             return value
+        if module in _DYNAMIC_TYPE_CHECKING_MODULES and (
+            self._type_checking_namespace_unknown
+            or module in self._type_checking_invalidated_modules
+        ):
+            return self._unknown_binding(bound_name)
         if module.startswith("."):
             if (
                 bound_name in _DYNAMIC_IMPORT_GUARDED_ROOTS
@@ -3720,7 +4357,22 @@ class _DynamicImportSourceScanner:
         pending: list[_PendingDynamicImportScope],
         closure_env: Mapping[str, _DynamicImportBinding],
     ) -> dict[str, _DynamicImportBinding]:
+        if _dynamic_type_checking_namespace_reflection(node, environment):
+            self._invalidate_type_checking_namespace_bindings(environment)
+        self._invalidate_type_checking_modules(
+            _dynamic_type_checking_module_effects(node, environment), environment
+        )
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            if _dynamic_deferred_scope_namespace_reflection(node, environment):
+                self._invalidate_type_checking_namespace_bindings(environment)
+            self._invalidate_type_checking_modules(
+                _dynamic_deferred_scope_module_effects(node, environment), environment
+            )
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            global_writes, nonlocal_writes = _dynamic_scope_cross_writes(node)
+            self._register_deferred_scope_effects(
+                global_writes, nonlocal_writes, environment, scope_info, closure_env
+            )
             for expression in node.decorator_list:
                 binding = self._expression_binding(expression, environment, pending, scope_info)
                 self._reject_guarded_escape(binding, expression, "a function decorator")
@@ -3752,6 +4404,10 @@ class _DynamicImportSourceScanner:
             pending.append(_PendingDynamicImportScope(node, environment.copy()))
             return environment
         if isinstance(node, ast.ClassDef):
+            global_writes, nonlocal_writes = _dynamic_scope_cross_writes(node)
+            self._register_deferred_scope_effects(
+                global_writes, nonlocal_writes, environment, scope_info, closure_env
+            )
             for expression in (*node.decorator_list, *node.bases):
                 binding = self._expression_binding(expression, environment, pending, scope_info)
                 self._reject_guarded_escape(binding, expression, "a class definition")
@@ -3773,7 +4429,13 @@ class _DynamicImportSourceScanner:
                     scope_info,
                     node.lineno,
                 )
-                environment[bound_name] = value
+                self._assign_target(
+                    ast.Name(id=bound_name, ctx=ast.Store()),
+                    value,
+                    environment,
+                    pending,
+                    scope_info,
+                )
             return environment
         if isinstance(node, ast.ImportFrom):
             if any(alias.name == "*" for alias in node.names):
@@ -3794,7 +4456,13 @@ class _DynamicImportSourceScanner:
                     scope_info,
                     node.lineno,
                 )
-                environment[bound_name] = value
+                self._assign_target(
+                    ast.Name(id=bound_name, ctx=ast.Store()),
+                    value,
+                    environment,
+                    pending,
+                    scope_info,
+                )
             return environment
         if isinstance(node, ast.Assign):
             value = self._expression_binding(node.value, environment, pending, scope_info)
@@ -3842,6 +4510,19 @@ class _DynamicImportSourceScanner:
             return environment
         if isinstance(node, ast.If):
             self._expression_binding(node.test, environment, pending, scope_info)
+            runtime_type_checking_branch = _type_checking_runtime_branch(
+                node.test, bindings=self._type_checking_bindings(environment)
+            )
+            if runtime_type_checking_branch is not None:
+                selected = node.body if runtime_type_checking_branch else node.orelse
+                return self._scan_statements(
+                    selected,
+                    environment,
+                    local_names,
+                    scope_info,
+                    pending,
+                    closure_env,
+                )
             body_environment = self._refine_none_check_branch(node.test, environment, truthy=True)
             body_environment = self._refine_mapping_membership_branch(
                 node.test, body_environment, truthy=True
@@ -4169,6 +4850,8 @@ class _DynamicImportSourceScanner:
             environment = self._process_statement(
                 statement, environment, local_names, scope_info, pending, closure_env
             )
+            if scope_info is self._module_scope_info:
+                self._module_environment = environment
         return environment
 
     def _scan_function(
@@ -4191,6 +4874,11 @@ class _DynamicImportSourceScanner:
                 pending,
             )
         environment = inherited
+        scope_info: dict[str, set[str]] = {
+            "globals": global_names,
+            "nonlocals": nonlocal_names,
+            "_effectful": set(),
+        }
         for name in global_names:
             environment[name] = self._lookup(name, module_env)
         for name in nonlocal_names:
@@ -4219,7 +4907,7 @@ class _DynamicImportSourceScanner:
                 body_nodes,
                 environment,
                 local_names,
-                {"globals": global_names, "nonlocals": nonlocal_names},
+                scope_info,
                 pending,
                 parent_env,
             )
@@ -4257,11 +4945,17 @@ class _DynamicImportSourceScanner:
         self._scan_type_parameter_fields(node, environment, pending)
         for name in local_names:
             environment[name] = self._unknown_binding(name)
+        class_scope_info: dict[str, set[str]] = {
+            "globals": global_names,
+            "nonlocals": nonlocal_names,
+            "_effectful": set(),
+            "_class": set(),
+        }
         class_environment = self._scan_statements(
             node.body,
             environment,
             local_names,
-            {"globals": global_names, "nonlocals": nonlocal_names},
+            class_scope_info,
             pending,
             closure_env,
         )
@@ -4299,25 +4993,47 @@ class _DynamicImportSourceScanner:
 
 
 def collect_dynamic_imports() -> list[dict[str, Any]]:
-    entries: list[dict[str, Any]] = []
     paths = _dynamic_source_paths("src", "tools", "apps", "packages")
-    source_bindings = _DynamicImportSourceBindings(paths)
-    for path in paths:
-        relative_path = _dynamic_source_label(path)
-        try:
-            source = path.read_text(encoding="utf-8")
-            tree = ast.parse(source, filename=str(path))
-        except (OSError, SyntaxError, UnicodeError) as error:
-            raise DynamicImportCollectionError(
-                f"{relative_path}: {type(error).__name__}: {error}"
-            ) from error
-        entries.extend(
-            _DynamicImportSourceScanner(
-                path,
-                relative_path=relative_path,
-                source_bindings=source_bindings,
-            ).scan(tree)
+    # This invocation owns one complete, byte-pinned source context. There is no
+    # cross-call cache: any member or path-set change is reread before pruning.
+    source_context = _dynamic_read_source_context(paths)
+    source_bindings = _DynamicImportSourceBindings(paths, source_context=source_context)
+    local_context = replace(source_context, type_checking_effects=())
+    first_entries: list[dict[str, Any]] = []
+    shared_effect_sources: dict[str, set[str]] = {}
+    for member in source_context.members:
+        scanner = _DynamicImportSourceScanner(
+            member.path,
+            relative_path=member.relative_path,
+            source_bindings=source_bindings,
+            source_context=local_context,
         )
+        first_entries.extend(scanner.scan(member.tree))
+        for module in scanner._type_checking_invalidated_modules:
+            shared_effect_sources.setdefault(module, set()).add(member.relative_path)
+
+    if not shared_effect_sources:
+        entries = first_entries
+    else:
+        # A different selected source module may change the process-shared
+        # typing module before this module evaluates its guard. Keep effect
+        # origins so a same-file, later mutation does not rewrite an earlier
+        # scalar snapshot; do not guess cross-module reachability or ordering.
+        effects = tuple(
+            (module, frozenset(source_paths))
+            for module, source_paths in sorted(shared_effect_sources.items())
+        )
+        complete_context = replace(source_context, type_checking_effects=effects)
+        entries = []
+        for member in source_context.members:
+            entries.extend(
+                _DynamicImportSourceScanner(
+                    member.path,
+                    relative_path=member.relative_path,
+                    source_bindings=source_bindings,
+                    source_context=complete_context,
+                ).scan(member.tree)
+            )
     return sorted(entries, key=lambda item: (item["source_file"], item["line"], item["pattern"]))
 
 

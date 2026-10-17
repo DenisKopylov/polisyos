@@ -6364,3 +6364,536 @@ def test_dynamic_imports_gate_rejects_stale_registry_after_exact_lookup_changes(
     source_path.write_text(source_for(changed_body), encoding="utf-8")
     findings = preflight.validate_dynamic_imports()
     assert findings, "a stale registry must fail after the exact selected value changes"
+
+
+@pytest.mark.parametrize(
+    ("mutation_scope", "expected_pattern", "removed_write"),
+    [
+        (
+            "def rebind():\n    global typing_alias\n    typing_alias = RuntimeOn\nrebind()\n",
+            "polisyos.fixture_only",
+            "    typing_alias = RuntimeOn\n",
+        ),
+        (
+            "class RebindNow: \n    global typing_alias\n    typing_alias = RuntimeOn\n",
+            "polisyos.fixture_only",
+            "    typing_alias = RuntimeOn\n",
+        ),
+        (
+            "class Deferred: \n    def rebind(self):\n        global typing_alias\n        typing_alias = RuntimeOn\n",
+            "polisyos.fixture_only",
+            "        typing_alias = RuntimeOn\n",
+        ),
+        (
+            'def outer():\n    local_alias = typing_alias\n    def rebind():\n        nonlocal local_alias\n        local_alias = RuntimeOn\n    rebind()\n    if local_alias.TYPE_CHECKING:\n        from importlib import import_module as nested_loader\n        nested_loader("polisyos.fixture_nested")\nouter()\n',
+            "polisyos.fixture_nested",
+            "        local_alias = RuntimeOn\n",
+        ),
+        (
+            "def outer():\n    def inner():\n        global typing_alias\n        typing_alias = RuntimeOn\n    inner()\nouter()\n",
+            "polisyos.fixture_only",
+            "        typing_alias = RuntimeOn\n",
+        ),
+    ],
+    ids=(
+        "function-global",
+        "class-global",
+        "deferred-method-global",
+        "closure-nonlocal",
+        "nested-deferred-global",
+    ),
+)
+def test_dynamic_import_type_checking_does_not_prune_scope_rebinding(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutation_scope: str,
+    expected_pattern: str,
+    removed_write: str,
+) -> None:
+    source = (
+        "import typing as typing_alias\n"
+        "class RuntimeOn:\n    TYPE_CHECKING = True\n"
+        "from importlib import import_module as source_loader\n"
+        f"{mutation_scope}"
+        "if typing_alias.TYPE_CHECKING:\n"
+        '    source_loader("polisyos.fixture_only")\n'
+    )
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert any(entry["pattern"] == expected_pattern for entry in entries)
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    source_path = tmp_path / "src" / "dynamic_fixture.py"
+    indent = removed_write[: len(removed_write) - len(removed_write.lstrip())]
+    source_path.write_text(source.replace(removed_write, f"{indent}pass\n"), encoding="utf-8")
+    findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "registered dynamic import call no longer exists" for finding in findings
+    )
+
+
+def test_dynamic_import_type_checking_scalar_snapshot_remains_prunable(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = """\
+import typing as typing_alias
+TYPE_ONLY = typing_alias.TYPE_CHECKING
+typing_alias.TYPE_CHECKING = True
+from importlib import import_module as source_loader
+if TYPE_ONLY:
+    source_loader("polisyos.snapshot_only")
+"""
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+
+    assert preflight.collect_dynamic_imports() == []
+    assert preflight.validate_dynamic_imports() == []
+
+
+def test_dynamic_import_type_checking_imported_value_is_pruned_only_with_source_origin(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    registry_path = _dynamic_import_fixture(
+        tmp_path,
+        monkeypatch,
+        "from typing import TYPE_CHECKING as TYPE_ONLY\n"
+        "from importlib import import_module as loader\n"
+        'if TYPE_ONLY:\n    loader("polisyos.type_only")\n',
+    )
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+
+    assert preflight.collect_dynamic_imports() == []
+    assert preflight.validate_dynamic_imports() == []
+
+
+def test_dynamic_import_type_checking_lookalike_is_not_pruned(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = (
+        "TYPE_CHECKING = True\n"
+        "from importlib import import_module as loader\n"
+        'if TYPE_CHECKING:\n    loader("polisyos.runtime_branch")\n'
+    )
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+    entries = preflight.collect_dynamic_imports()
+
+    assert [entry["pattern"] for entry in entries] == ["polisyos.runtime_branch"]
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+
+@pytest.mark.parametrize(
+    ("effect", "expected_pattern"),
+    [
+        ("typing_alias.TYPE_CHECKING = True\n", "polisyos.fixture_only"),
+        (
+            "module_alias = typing_alias\nmodule_alias.TYPE_CHECKING = True\n",
+            "polisyos.fixture_only",
+        ),
+        (
+            "def mutate(module):\n    module.TYPE_CHECKING = True\nmutate(typing_alias)\n",
+            "polisyos.fixture_only",
+        ),
+        (
+            "module_box = [typing_alias]\nmutate(module_box)\n",
+            "polisyos.fixture_only",
+        ),
+        (
+            'typing_alias.__dict__["TYPE_CHECKING"] = True\n',
+            "polisyos.fixture_only",
+        ),
+        (
+            'globals()["typing_alias"] = RuntimeOn\n',
+            "polisyos.fixture_only",
+        ),
+        (
+            'import sys as system\nsystem.modules["typing"].TYPE_CHECKING = True\n',
+            "polisyos.fixture_only",
+        ),
+        (
+            'import sys as system\nsystem.modules["typing"] = RuntimeOn\n',
+            "polisyos.fixture_only",
+        ),
+        (
+            'import sys as system\nsys_modules = system.modules\nsys_modules["typing"] = RuntimeOn\n',
+            "polisyos.fixture_only",
+        ),
+    ],
+    ids=(
+        "direct-attribute-write",
+        "alias-attribute-write",
+        "deferred-mutator",
+        "container-escape",
+        "module-dict-write",
+        "global-namespace-write",
+        "sys-modules-attribute-write",
+        "sys-modules-rebind",
+        "aliased-sys-modules-rebind",
+    ),
+)
+def test_dynamic_import_type_checking_module_effects_are_not_pruned(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    effect: str,
+    expected_pattern: str,
+) -> None:
+    source = (
+        "import typing as typing_alias\n"
+        "from importlib import import_module as source_loader\n"
+        f"{effect}"
+        "if typing_alias.TYPE_CHECKING:\n"
+        '    source_loader("polisyos.fixture_only")\n'
+    )
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert [entry["pattern"] for entry in entries] == [expected_pattern]
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    source_path = tmp_path / "src" / "dynamic_fixture.py"
+    source_path.write_text(source.replace(effect, "", 1), encoding="utf-8")
+    findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "registered dynamic import call no longer exists" for finding in findings
+    )
+
+
+def test_dynamic_import_type_checking_scalar_reflection_does_not_prune(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = (
+        "from typing import TYPE_CHECKING as TYPE_ONLY\n"
+        "from importlib import import_module as source_loader\n"
+        'globals()["TYPE_ONLY"] = True\n'
+        "if TYPE_ONLY:\n"
+        '    source_loader("polisyos.reflected_binding")\n'
+    )
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert [entry["pattern"] for entry in entries] == ["polisyos.reflected_binding"]
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    source_path = tmp_path / "src" / "dynamic_fixture.py"
+    source_path.write_text(
+        source.replace('globals()["TYPE_ONLY"] = True\n', "", 1), encoding="utf-8"
+    )
+    assert any(
+        finding.message == "registered dynamic import call no longer exists"
+        for finding in preflight.validate_dynamic_imports()
+    )
+
+
+def test_dynamic_import_type_checking_builtins_namespace_access_does_not_prune(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = (
+        "from typing import TYPE_CHECKING as TYPE_ONLY\n"
+        "from importlib import import_module as source_loader\n"
+        '__builtins__["globals"]()["TYPE_ONLY"] = True\n'
+        "if TYPE_ONLY:\n"
+        '    source_loader("polisyos.builtins_reflection")\n'
+    )
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+    entries = preflight.collect_dynamic_imports()
+    assert [entry["pattern"] for entry in entries] == ["polisyos.builtins_reflection"]
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+
+def test_dynamic_import_type_checking_reflection_builtin_shadow_is_not_authority(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = (
+        "def globals():\n    return {}\n"
+        "import typing as typing_alias\n"
+        "from importlib import import_module as source_loader\n"
+        "globals()\n"
+        "if typing_alias.TYPE_CHECKING:\n"
+        '    source_loader("polisyos.type_only")\n'
+    )
+    _dynamic_import_fixture(tmp_path, monkeypatch, source)
+
+    assert preflight.collect_dynamic_imports() == []
+
+
+@pytest.mark.parametrize(
+    ("mutation", "removed_line"),
+    [
+        (
+            "def rebind():\n    global TYPE_ONLY\n    TYPE_ONLY = RuntimeOn\nrebind()\n",
+            "    TYPE_ONLY = RuntimeOn\n",
+        ),
+        (
+            'def outer():\n    local_flag = TYPE_ONLY\n    def rebind():\n        nonlocal local_flag\n        local_flag = RuntimeOn\n    rebind()\n    if local_flag:\n        source_loader("polisyos.closure_scalar")\nouter()\n',
+            "        local_flag = RuntimeOn\n",
+        ),
+    ],
+    ids=("global-scalar-write", "nonlocal-scalar-write"),
+)
+def test_dynamic_import_type_checking_scalar_cross_scope_writes_are_not_pruned(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: str,
+    removed_line: str,
+) -> None:
+    module = "polisyos.closure_scalar" if "local_flag" in mutation else "polisyos.global_scalar"
+    source = (
+        "from typing import TYPE_CHECKING as TYPE_ONLY\n"
+        "class RuntimeOn:\n    TYPE_CHECKING = True\n"
+        "from importlib import import_module as source_loader\n"
+        f"{mutation}"
+    )
+    if "local_flag" not in mutation:
+        source += f"if TYPE_ONLY:\n    source_loader({module!r})\n"
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert [entry["pattern"] for entry in entries] == [module]
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    source_path = tmp_path / "src" / "dynamic_fixture.py"
+    source_path.write_text(source.replace(removed_line, "", 1), encoding="utf-8")
+    assert any(
+        finding.message == "registered dynamic import call no longer exists"
+        for finding in preflight.validate_dynamic_imports()
+    )
+
+
+@pytest.mark.parametrize(
+    ("foreign_count", "local_effect_after_guard", "expected_importer"),
+    [
+        (0, False, False),
+        (0, True, False),
+        (1, False, True),
+        (1, True, True),
+        (2, False, True),
+        (2, True, True),
+    ],
+    ids=(
+        "no-effects",
+        "local-only",
+        "foreign-only",
+        "local-and-foreign",
+        "multiple-foreign",
+        "local-and-multiple-foreign",
+    ),
+)
+def test_dynamic_import_type_checking_source_effect_origin_union(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    foreign_count: int,
+    local_effect_after_guard: bool,
+    expected_importer: bool,
+) -> None:
+    source = (
+        "import typing as typing_alias\n"
+        "import importlib as importlib_alias\n"
+        "if typing_alias.TYPE_CHECKING:\n"
+        '    importlib_alias.import_module("polisyos.origin_union")\n'
+    )
+    if local_effect_after_guard:
+        source += "typing_alias.TYPE_CHECKING = True\n"
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    for index in range(foreign_count):
+        (tmp_path / "src" / f"foreign_mutator_{index}.py").write_text(
+            "import typing as typing_alias\ntyping_alias.TYPE_CHECKING = True\n",
+            encoding="utf-8",
+        )
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+
+    entries = preflight.collect_dynamic_imports()
+
+    if expected_importer:
+        assert [entry["pattern"] for entry in entries] == ["polisyos.origin_union"]
+    else:
+        assert entries == []
+
+
+def test_dynamic_import_type_checking_origin_union_removal_keeps_registry_markers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = (
+        "import typing as typing_alias\n"
+        "import importlib as importlib_alias\n"
+        "if typing_alias.TYPE_CHECKING:\n"
+        '    importlib_alias.import_module("polisyos.origin_union_removal")\n'
+        "typing_alias.TYPE_CHECKING = True\n"
+    )
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    mutators = [tmp_path / "src" / f"foreign_{index}.py" for index in range(2)]
+    for mutator in mutators:
+        mutator.write_text(
+            "import typing as typing_alias\ntyping_alias.TYPE_CHECKING = True\n",
+            encoding="utf-8",
+        )
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+
+    entries = preflight.collect_dynamic_imports()
+    assert [entry["pattern"] for entry in entries] == ["polisyos.origin_union_removal"]
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    registered_bytes = registry_path.read_bytes()
+    assert preflight.validate_dynamic_imports() == []
+
+    mutators[0].write_text("import typing as typing_alias\n", encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+    assert registry_path.read_bytes() == registered_bytes
+
+    mutators[1].write_text("import typing as typing_alias\n", encoding="utf-8")
+    findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "registered dynamic import call no longer exists" for finding in findings
+    )
+    assert registry_path.read_bytes() == registered_bytes
+
+
+def test_dynamic_import_type_checking_foreign_first_runtime_witness(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import importlib
+    import typing
+
+    mutator_source = "import typing as typing_alias\ntyping_alias.TYPE_CHECKING = True\n"
+    consumer_source = (
+        "import typing as typing_alias\n"
+        "import importlib as importlib_alias\n"
+        "if typing_alias.TYPE_CHECKING:\n"
+        '    importlib_alias.import_module("polisyos.foreign_first_runtime")\n'
+    )
+    _dynamic_import_fixture(tmp_path, monkeypatch, consumer_source)
+    consumer_path = tmp_path / "src" / "dynamic_fixture.py"
+    consumer_path.write_text(consumer_source, encoding="utf-8")
+    mutator_path = tmp_path / "src" / "foreign_runtime_mutator.py"
+    mutator_path.write_text(mutator_source, encoding="utf-8")
+    calls: list[str] = []
+    with monkeypatch.context() as runtime_patch:
+        runtime_patch.setattr(typing, "TYPE_CHECKING", False)
+        runtime_patch.setattr(importlib, "import_module", calls.append)
+        runpy.run_path(str(mutator_path))
+        runpy.run_path(str(consumer_path))
+        assert typing.TYPE_CHECKING is True
+        assert calls == ["polisyos.foreign_first_runtime"]
+
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+    entries = preflight.collect_dynamic_imports()
+    assert [entry["pattern"] for entry in entries] == ["polisyos.foreign_first_runtime"]
+
+
+@pytest.mark.parametrize("module_name", ["typing", "typing_extensions"])
+def test_dynamic_import_type_checking_effect_summary_spans_source_set_and_refreshes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    module_name: str,
+) -> None:
+    guarded_source = (
+        f"import {module_name} as typing_alias\n"
+        "import importlib as importlib_alias\n"
+        "if typing_alias.TYPE_CHECKING:\n"
+        '    importlib_alias.import_module("polisyos.cross_module_only")\n'
+    )
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, guarded_source)
+    mutation_path = tmp_path / "src" / "unreachable_mutator.py"
+    mutation_path.write_text(
+        f"import {module_name} as typing_alias\ntyping_alias.TYPE_CHECKING = True\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(preflight.importlib.util, "find_spec", lambda _module: object())
+
+    entries = preflight.collect_dynamic_imports()
+
+    assert [entry["pattern"] for entry in entries] == ["polisyos.cross_module_only"]
+    # The guard consumer does not import the mutator. The whole selected set
+    # deliberately overcounts a possible shared-singleton effect rather than
+    # silently assuming that module is unreachable.
+    assert "unreachable_mutator" not in guarded_source
+    registry_path.write_text(preflight.render_dynamic_imports_toml(entries), encoding="utf-8")
+    assert preflight.validate_dynamic_imports() == []
+
+    mutation_path.write_text(f"import {module_name} as typing_alias\n", encoding="utf-8")
+    findings = preflight.validate_dynamic_imports()
+    assert any(
+        finding.message == "registered dynamic import call no longer exists" for finding in findings
+    )
+
+
+def test_dynamic_import_type_checking_complete_source_set_without_effect_still_prunes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = (
+        "from typing import TYPE_CHECKING as TYPE_ONLY\n"
+        "from importlib import import_module as loader\n"
+        'if TYPE_ONLY:\n    loader("polisyos.type_only_sibling")\n'
+    )
+    registry_path = _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    (tmp_path / "src" / "unrelated.py").write_text(
+        "from typing import TYPE_CHECKING as TYPE_ONLY\nSNAPSHOT = TYPE_ONLY\n",
+        encoding="utf-8",
+    )
+    registry_path.write_text(preflight.render_dynamic_imports_toml([]), encoding="utf-8")
+
+    assert preflight.collect_dynamic_imports() == []
+    assert preflight.validate_dynamic_imports() == []
+
+
+def test_dynamic_import_type_checking_without_complete_source_context_does_not_prune(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = (
+        "import typing as typing_alias\n"
+        "import importlib as importlib_alias\n"
+        "if typing_alias.TYPE_CHECKING:\n"
+        '    importlib_alias.import_module("polisyos.context_missing")\n'
+    )
+    _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    source_path = tmp_path / "src" / "dynamic_fixture.py"
+    scanner = preflight._DynamicImportSourceScanner(source_path)
+
+    entries = scanner.scan(preflight.ast.parse(source, filename=str(source_path)))
+
+    assert [entry["pattern"] for entry in entries] == ["polisyos.context_missing"]
+
+
+def test_dynamic_import_type_checking_source_effect_keeps_ordinary_if_inventory(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = (
+        "import typing as typing_alias\n"
+        "import importlib as importlib_alias\n"
+        "if False:\n"
+        '    importlib_alias.import_module("polisyos.literal_false_only")\n'
+    )
+    _dynamic_import_fixture(tmp_path, monkeypatch, source)
+    (tmp_path / "src" / "unrelated_mutator.py").write_text(
+        "import typing as typing_alias\ntyping_alias.TYPE_CHECKING = True\n",
+        encoding="utf-8",
+    )
+
+    assert [entry["pattern"] for entry in preflight.collect_dynamic_imports()] == [
+        "polisyos.literal_false_only"
+    ]

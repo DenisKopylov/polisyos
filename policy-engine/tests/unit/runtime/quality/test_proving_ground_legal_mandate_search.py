@@ -545,7 +545,7 @@ def test_layer3_gl_dependency_audit_substrates_are_available_for_task0() -> None
             "build_legal_authority_report",
             "build_normative_applicability_report",
         ),
-        "polisyos.lex.intervention_artifacts": "LexProvisionMappingRegistry",
+        "polisyos.lex.interventions.artifacts": "LexProvisionMappingRegistry",
         "polisyos.runtime.quality.claim_registry": None,
         "polisyos.runtime.quality.semantic_binding": None,
         "polisyos.runtime.quality.design_axes.blind_spot_firewalls": "MandateSourceRecord",

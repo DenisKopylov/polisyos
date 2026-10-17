@@ -3,7 +3,7 @@
 Related reference: [Configuration](configuration.md), [Environment Matrix](environment-matrix.md), [Security Model](../explanation/security-model.md), [Key Rotation](../key-rotation.md).
 
 Owner: `@runtime-owners`
-Source of truth: `docs/reference/configuration.md`, `src/polisyos/common/config.py`, `src/polisyos/core/security/settings.py`, `policy-engine/.env.example`, and `apps/runtime-dashboard/.env.example`
+Source of truth: `docs/reference/configuration.md`, `src/polisyos/common/config/__init__.py`, `src/polisyos/core/security/settings.py`, `policy-engine/.env.example`, and `apps/runtime-dashboard/.env.example`
 
 This page governs environment-variable taxonomy, example profile composition,
 and secret handling for PolicyOS.

@@ -28,7 +28,7 @@ EXPECTED_MUTATIONS = {
 
 
 _CG1_SOURCE_MODULES = (
-    "src/polisyos/common/config.py",
+    "src/polisyos/common/config/__init__.py",
     "src/polisyos/data_forge/read_api/academic.py",
     "src/polisyos/pdc/__init__.py",
     "src/polisyos/runtime/quality/credal_reference.py",
@@ -50,6 +50,7 @@ _GROUNDING_CHECK_UNRESOLVED_BY_CONSTRUCTION = (
     "Runtime-selected import origins, dynamic imports, third-party package code, and native solver/database libraries are not individually inventoried here; the frozen loaded-origin receipt owns that measurement.",
     "The full production_data file/row population read through canonical owners is not walked by this checker; owner epochs, references, and content hashes remain the evidence for those inputs.",
 )
+
 
 def declared_outputs() -> list[str]:
     """Return generated artifacts owned by this validator."""
@@ -837,10 +838,9 @@ def _probe_issues(probe_id: str, probe: dict[str, Any]) -> list[dict[str, Any]]:
         ):
             issues.append({"code": "cg1_unknown_solver_attempt_provenance_incomplete"})
         invoked_ids = probe.get("solver_invocation_hypothesis_ids") or []
-        if (
-            not all(isinstance(value, str) for value in [*attempt_ids, *invoked_ids])
-            or sorted(attempt_ids) != sorted(invoked_ids)
-        ):
+        if not all(isinstance(value, str) for value in [*attempt_ids, *invoked_ids]) or sorted(
+            attempt_ids
+        ) != sorted(invoked_ids):
             issues.append({"code": "cg1_unknown_solver_attempt_denominator_mismatch"})
         if probe_id == "unknown_solver_quarantine":
             if probe.get("candidate_atom_count", 0) <= 0:
@@ -1219,10 +1219,10 @@ def _false_analog_case_evidence(certificate: Any, expected_axis: str) -> dict[st
                     "critical_contradictions": sorted(contradictions),
                 }
             )
-        if (
-            expected_axis in contradictions
-            and result.get("selected_relation") in {"exact", "certified-specialization"}
-        ):
+        if expected_axis in contradictions and result.get("selected_relation") in {
+            "exact",
+            "certified-specialization",
+        }:
             bad_safe_results.append(str(result.get("atom_id")))
     return {
         "false_analog_result_count": len(false_results),
@@ -1565,8 +1565,6 @@ def _json_stable(payload: dict[str, Any]) -> dict[str, Any]:
     return _copy(payload)
 
 
-
-
 class _InvalidInspectionVerdictError(Exception):
     """Raised when an inspection did not return a typed pass/fail result."""
 
@@ -1680,6 +1678,8 @@ def _print_instrumented_report(
                 print(f"{issue.get('code')}: {issue}")
             else:
                 print(f"inspection_issue: {issue}")
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the CGF GY-CG1 grounding relation contract validator."""
 

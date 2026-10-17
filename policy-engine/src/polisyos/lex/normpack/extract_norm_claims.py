@@ -9,6 +9,7 @@ from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
+from polisyos.common.text import collapse_ws
 from polisyos.fabric.claims import ClaimNormalizeOptions, normalize_claims
 from polisyos.fabric.claims.backends import resolve_extractor
 from polisyos.fabric.claims.canonicalize import canonical_unit, canonicalize_id
@@ -36,7 +37,6 @@ from polisyos.ir.world.event import (
     WorldObjectRef,
 )
 from polisyos.ir.world.ids import claim_id_from_payload
-from polisyos.lex.common import collapse_ws
 from polisyos.lex.normpack.policies import NORM_CLAIM_EXTRACT_PIPELINE_ID, NORM_CLAIM_SET_KIND
 
 if TYPE_CHECKING:

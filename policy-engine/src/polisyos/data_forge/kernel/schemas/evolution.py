@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import Field
 
-from polisyos.data_forge.errors import DataForgeValidationError, SchemaCompatibilityError
+from polisyos.data_forge.kernel import DataForgeValidationError, SchemaCompatibilityError
 from polisyos.data_forge.kernel._base import DataForgeModel
 
 if TYPE_CHECKING:

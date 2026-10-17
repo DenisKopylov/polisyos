@@ -24,7 +24,7 @@ from polisyos.ir.loading.norm_pack import NormPack
 from polisyos.ir.world.claim import Claim, ClaimSourceKind
 from polisyos.lex.api import assemble_norm_pack
 from polisyos.lex.normpack.assemble_pack import claims_to_norm_rules
-from polisyos.lex.types import NormPackBuildRequest
+from polisyos.lex.normpack.types import NormPackBuildRequest
 
 
 def _ua_source(*, official_id: str, effective_from: str) -> LegalDocSource:

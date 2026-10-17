@@ -187,7 +187,7 @@ Scope correction from this code pass:
 | S4 regime/commitment input | `src/polisyos/runtime/quality/design_axes/epistemic_regime.py`, `src/polisyos/runtime/quality/case_lifecycle.py` |
 | Foundry coupling seed | `src/polisyos/foundry/coupling/des_kernel.py` |
 | Foundry dynamics seeds | `src/polisyos/foundry/methods/catalog/causal/dynamic_graph_dscm.py`, `src/polisyos/foundry/methods/catalog/simulation/dynamics.py` |
-| Design-composition seeds | `src/polisyos/ir/loading/portfolio.py`, `src/polisyos/lex/intervention_artifacts.py` |
+| Design-composition seeds | `src/polisyos/ir/loading/portfolio.py`, `src/polisyos/lex/interventions/artifacts.py` |
 | Canonical corpus route | `tools/quality/validation/run_universal_outcome_corpus.py` |
 
 ## Files

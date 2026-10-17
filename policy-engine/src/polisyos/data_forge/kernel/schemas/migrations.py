@@ -8,7 +8,7 @@ from dataclasses import dataclass, field
 
 from pydantic import Field
 
-from polisyos.data_forge.errors import DataForgeValidationError
+from polisyos.data_forge.kernel import DataForgeValidationError
 from polisyos.data_forge.kernel._base import DataForgeModel
 
 SchemaMigration = Callable[[dict[str, object]], dict[str, object]]

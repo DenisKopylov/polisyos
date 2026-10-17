@@ -153,7 +153,7 @@ def _native_fixture(
     assert compiled.ok
     feedback_config_ref = None
     if feedback:
-        from polisyos.foundry._quickstart import prepare_trivial_feedback_config
+        from polisyos.foundry._internal.quickstart import prepare_trivial_feedback_config
 
         feedback_config_ref = prepare_trivial_feedback_config(
             store,

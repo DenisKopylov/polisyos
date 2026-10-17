@@ -20,7 +20,15 @@ layout_owner = "team-core"
 source_root = "src/polisyos/common"
 readme = "src/polisyos/common/README.md"
 root_facade_policy = "root package is a lazy public facade over shared helpers and migration primitives"
-implementation_roots = ["src/polisyos/common/migrations"]
+implementation_roots = [
+  "src/polisyos/common/async_tools",
+  "src/polisyos/common/config",
+  "src/polisyos/common/jax_env",
+  "src/polisyos/common/logger",
+  "src/polisyos/common/migrations",
+  "src/polisyos/common/serialization",
+  "src/polisyos/common/timestamps",
+]
 legacy_layout_mirror = ""
 
 [boundaries]

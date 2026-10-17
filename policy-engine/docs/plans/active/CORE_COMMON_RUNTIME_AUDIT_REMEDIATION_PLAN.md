@@ -215,7 +215,7 @@ multi-layer auth, tenant routing, OPA и зрелый контрактный с�
 
 **Основные поверхности:**
 
-- `common/timestamps.py`
+- `common/timestamps/__init__.py`
 - `core/security/tee.py`
 - `core/security/slsa/fulcio.py`
 - `core/security/quota_enforcer.py`
@@ -263,8 +263,8 @@ multi-layer auth, tenant routing, OPA и зрелый контрактный с�
 
 **Основные поверхности:**
 
-- `common/logger.py`
-- `common/async_tools.py`
+- `common/logger/__init__.py`
+- `common/async_tools/__init__.py`
 - `core/pipeline/dag.py`
 - `core/governance/legal/backends/expr_ast.py`
 - `core/trace/sink.py`
@@ -312,7 +312,7 @@ multi-layer auth, tenant routing, OPA и зрелый контрактный с�
 - `runtime/http/errors.py`
 - `runtime/http/routes/control.py`
 - `core/security/authz.py`
-- `common/serialization.py`
+- `common/serialization/__init__.py`
 - `core/artifacts/caching_store.py`
 - `core/observability/_metrics_registry_base.py`
 - `runtime/http/services/control_plane_store.py`
@@ -473,7 +473,7 @@ multi-layer auth, tenant routing, OPA и зрелый контрактный с�
 
 - `core/artifacts/store.py`
 - `core/artifacts/backends/**`
-- `common/serialization.py`
+- `common/serialization/__init__.py`
 - `common/migrations/**`
 - `runtime/api.py`
 
@@ -512,7 +512,7 @@ multi-layer auth, tenant routing, OPA и зрелый контрактный с�
 
 - `runtime` index/timeline services
 - lineage traversal surfaces
-- `common/async_tools.py`
+- `common/async_tools/__init__.py`
 - `core/governance/legal/backends/expr_ast.py`
 - metrics helper hot paths
 
@@ -548,7 +548,7 @@ multi-layer auth, tenant routing, OPA и зрелый контрактный с�
 **Основные поверхности:**
 
 - `runtime/http/app.py`
-- `common/config.py`
+- `common/config/__init__.py`
 - singleton/global registries under `common` and `core`
 - governance and policy backends
 
@@ -556,7 +556,7 @@ multi-layer auth, tenant routing, OPA и зрелый контрактный с�
 
 1. Ввести минимальный typed DI/lifecycle container для runtime services:
    startup, shutdown, health state, dependency graph, test overrides.
-2. Убрать `common/config.py` import-time side effects: env mutation, logging
+2. Убрать `common/config/__init__.py` import-time side effects: env mutation, logging
    bootstrap и глобальные toggles должны происходить в явном bootstrap step.
 3. Закрыть `C4`: единый registry env vars с ownership, defaults, validation,
    conflict detection и reference docs.

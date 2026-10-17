@@ -48,7 +48,7 @@ from polisyos.core.contracts.foundry import (
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
 from polisyos.data_forge.domains.ukraine.builders.io import _cas_put_json
-from polisyos.foundry._quickstart import prepare_trivial_feedback_config
+from polisyos.foundry._internal.quickstart import prepare_trivial_feedback_config
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.data_plane import build_input_bindings, load_input_bindings

@@ -50,3 +50,9 @@
   runtime closeout can inspect official snapshot/release identity, hashes,
   corpus identity, creation time, builder revision, transform lineage, quality
   gates, and claim requirement bindings.
+
+- Generic Data Forge failures (`DataForgeError`, `DataForgeValidationError`,
+  `SchemaCompatibilityError`, and `SnapshotCommitError`) are owned by this
+  kernel package. Legal corpus exception semantics stay with
+  `domains/legal/contracts.py`; generic artifact readers default to the kernel
+  validation error and domain callers select their own error class explicitly.

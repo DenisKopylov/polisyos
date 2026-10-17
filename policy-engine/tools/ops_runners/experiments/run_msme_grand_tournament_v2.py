@@ -1623,7 +1623,7 @@ def run_t7_shortlist_compatibility(ctx: dict[str, Any]) -> dict[str, Any]:
     )
     quickstart_results = {}
     try:
-        from polisyos.foundry._quickstart import (
+        from polisyos.foundry._internal.quickstart import (
             run_feedback_compile_execute,
             run_feedback_multiplicity_demo,
             run_trivial_compile_execute,

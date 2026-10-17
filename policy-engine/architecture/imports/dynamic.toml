@@ -232,15 +232,15 @@ allowed_targets = ["polisyos.lex.api"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-71be1301be26"
-pattern = "polisyos.lex.types"
+id = "dynamic-5c5e2cfa92e2"
+pattern = "polisyos.lex.normpack.types"
 source_file = "src/polisyos/core/components/_cli_lex.py"
 line = 32
 call = "importlib.import_module"
 owner = "team-architecture"
-target = "polisyos.lex.types"
+target = "polisyos.lex.normpack.types"
 verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
-allowed_targets = ["polisyos.lex.types"]
+allowed_targets = ["polisyos.lex.normpack.types"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
@@ -1576,15 +1576,15 @@ allowed_targets = ["polisyos.foundry.extensions.registry"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-2d3738c90955"
-pattern = "polisyos.lex.intervention_artifacts"
+id = "dynamic-3cfd50cb2fe5"
+pattern = "polisyos.lex.interventions.artifacts"
 source_file = "src/polisyos/runtime/quality/intervention_substrate.py"
-line = 3882
+line = 4045
 call = "importlib.import_module"
 owner = "team-architecture"
-target = "polisyos.lex.intervention_artifacts"
+target = "polisyos.lex.interventions.artifacts"
 verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
-allowed_targets = ["polisyos.lex.intervention_artifacts"]
+allowed_targets = ["polisyos.lex.interventions.artifacts"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]

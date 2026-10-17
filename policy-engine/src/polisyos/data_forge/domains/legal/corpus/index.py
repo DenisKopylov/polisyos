@@ -8,7 +8,7 @@ from pydantic import BeforeValidator, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.data_forge.errors import LexIndexError
+from polisyos.data_forge.domains.legal.contracts import LexIndexError
 from polisyos.data_forge.kernel.artifacts import load_json_artifact
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN, KernelModel, reject_floats_deep
 

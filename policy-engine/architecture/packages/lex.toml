@@ -21,10 +21,13 @@ source_root = "src/polisyos/lex"
 readme = "src/polisyos/lex/README.md"
 root_facade_policy = "top-level package is a lazy runtime facade; offline corpus/domain build work belongs to Data Forge"
 implementation_roots = [
+  "src/polisyos/lex/exception_taxonomy",
   "src/polisyos/lex/extensions",
+  "src/polisyos/lex/interventions",
   "src/polisyos/lex/knowledge",
   "src/polisyos/lex/legal_evaluation",
   "src/polisyos/lex/normpack",
+  "src/polisyos/lex/provenance",
   "src/polisyos/lex/simulator",
 ]
 legacy_layout_mirror = ""

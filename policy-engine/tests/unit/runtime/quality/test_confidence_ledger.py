@@ -6117,6 +6117,218 @@ def test_loaded_deployment_identity_absence_is_a_typed_verdict(
     assert observation.reason_code == "canonical_loaded_runtime_mismatch"
 
 
+def test_import_time_identity_failure_is_sticky_and_blocks_authority(
+    tmp_path: Path,
+) -> None:
+    """A typed first-capture failure stays unavailable across consumers and source repair."""
+
+    repo_root = tmp_path / "isolated-import-failure-repo"
+    shutil.copytree(
+        REPO_ROOT / "src",
+        repo_root / "src",
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+    )
+    shutil.copytree(
+        REPO_ROOT / "architecture",
+        repo_root / "architecture",
+        ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+    )
+    for relative in (Path("pyproject.toml"), Path("uv.lock")):
+        (repo_root / relative).write_bytes((REPO_ROOT / relative).read_bytes())
+
+    script = r"""
+import importlib
+import json
+import sys
+from pathlib import Path
+
+repo_root = Path.cwd().resolve()
+facade_path = repo_root / "src/polisyos/fabric/__init__.py"
+original_facade = facade_path.read_bytes()
+source = original_facade.decode("utf-8")
+original_row = '    "atomic_write_json": ("polisyos.fabric.io.atomic", "atomic_write_json"),'
+changed_row = '    "atomic_write_json": ("polisyos.fabric.io.atomic", "atomic_write_json_changed"),'
+assert source.count(original_row) == 1
+
+# Load the real lazy facade first, then change its selected source binding. The
+# confidence-ledger owner must turn the resulting typed source/runtime mismatch
+# into an unavailable snapshot while allowing its candidate module to import.
+import polisyos.fabric
+facade_path.write_text(source.replace(original_row, changed_row, 1), encoding="utf-8")
+from polisyos.runtime.quality import confidence_ledger as ledger
+
+assert ledger._IMPORT_TIME_LOADED_CODE_CONSISTENT is False
+failure = ledger._IMPORT_TIME_DEPLOYMENT_IDENTITY_FAILURE
+assert isinstance(failure, tuple) and len(failure) == 2
+assert failure[0] == "canonical_loaded_runtime_mismatch"
+assert isinstance(failure[1], str) and failure[1]
+observation = ledger.capture_loaded_deployment_identity()
+assert observation.status == "not_established"
+assert observation.deployment_identity is None
+assert observation.reason_code == "canonical_loaded_runtime_mismatch"
+
+# Repair the source bytes after the failed import. The immutable first-capture
+# outcome must remain unavailable, without calling any resolver again.
+facade_path.write_bytes(original_facade)
+forbidden_calls = []
+def forbidden(name):
+    def fail(*args, **kwargs):
+        forbidden_calls.append(name)
+        raise AssertionError("unavailable_snapshot_must_not_retry:" + name)
+    return fail
+
+for name in (
+    "_resolve_authority_import_closure",
+    "_stable_deployment_snapshot",
+    "_import_authority_closure_modules",
+    "_source_facade_runtime_projection",
+    "_loaded_code_manifest",
+    "_deployment_baseline",
+    "_deployment_quick_fence",
+    "_assert_loaded_runtime_matches_import_baseline",
+    "_assert_ledger_artifact_contracts_current",
+    "load_confidence_ledger_registry",
+    "build_artifact_store",
+):
+    setattr(ledger, name, forbidden(name))
+
+def assert_unavailable(call):
+    try:
+        call()
+    except ledger.ConfidenceLedgerError as exc:
+        assert exc.code == "canonical_loaded_runtime_mismatch"
+        assert failure[0] in exc.detail and failure[1] in exc.detail
+    else:
+        raise AssertionError("unavailable_import_snapshot_admitted_authority")
+
+scope = ledger.ConfidenceRiskBudgetScope(
+    scope_owner_ref="polisyos.runtime.quality.promotion_sequence",
+    authority_purpose="n9_promotion",
+    owner_scope_key="design-problem:sticky-import-failure",
+    owner_projection_hash="sha256:" + "1" * 64,
+    epoch_ref=None,
+    model_ref=None,
+    rule_ref="policyos.layer3.gy.n9.v1",
+    schema_ref="policyos.runtime.design_problem.v1",
+)
+state_root = repo_root / ".isolated-sticky-import-failure-state"
+assert_unavailable(lambda: ledger.ConfidenceLedgerSession.from_repo(repo_root, risk_scope=scope))
+assert_unavailable(
+    lambda: ledger.ConfidenceLedgerSession(
+        registry=None,
+        risk_scope=scope,
+        schedule_profile_id=None,
+        artifact_store=None,
+        state_root=state_root / "normal",
+        certificate_resolver=None,
+        certificate_verifier=None,
+    )
+)
+assert_unavailable(
+    lambda: ledger.ConfidenceLedgerSession._for_verification(
+        repo_root,
+        risk_scope=scope,
+        artifact_store=None,
+        state_root=state_root / "verification",
+    )
+)
+
+# A direct private canonical initializer cannot bypass the common snapshot gate.
+private = object.__new__(ledger.ConfidenceLedgerSession)
+assert_unavailable(
+    lambda: private._initialize(
+        registry=None,
+        risk_scope=scope,
+        schedule_profile_id=None,
+        artifact_store=None,
+        state_root=state_root / "direct",
+        certificate_resolver=None,
+        certificate_verifier=None,
+        authority_provenance="canonical_repo",
+        authority_repo_root=repo_root,
+        deployment_identity="sha256:" + "2" * 64,
+        deployment_quick_fence=(),
+    )
+)
+assert not (state_root / "normal").exists()
+assert not (state_root / "verification").exists()
+assert not (state_root / "direct").exists()
+assert not (repo_root / ".polisyos/cas").exists()
+assert not (repo_root / ".polisyos/runtime/confidence_ledger").exists()
+
+# Even a field-forged object cannot project authority while the source snapshot
+# remains unavailable.
+forged = object.__new__(ledger.ConfidenceLedgerSession)
+object.__setattr__(forged, "_authority_repo_root", repo_root)
+assert forged.is_authority_session is False
+
+from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
+port = CanonicalN9PromotionPort(repo_root=repo_root)
+refusal = port.deployment_identity_refusal("sha256:" + "3" * 64)
+assert refusal == "confidence_ledger_refused:canonical_loaded_runtime_mismatch"
+assert ledger.capture_loaded_deployment_identity().status == "not_established"
+assert forbidden_calls == []
+
+# Removal control: the failure markers remain, but re-raising the original
+# typed error makes the candidate import fail instead of yielding a held state.
+ledger_path = repo_root / "src/polisyos/runtime/quality/confidence_ledger.py"
+ledger_source = ledger_path.read_text(encoding="utf-8")
+marker = "    except ConfidenceLedgerError as exc:\n        # A failed first capture is terminal for this process."
+assert ledger_source.count(marker) == 1
+mutant = ledger_source.replace(
+    marker,
+    "    except ConfidenceLedgerError as exc:\n        raise\n        # A failed first capture is terminal for this process.",
+    1,
+)
+assert "_IMPORT_TIME_LOADED_CODE_CONSISTENT = False" in mutant
+assert "_IMPORT_TIME_DEPLOYMENT_IDENTITY_FAILURE" in mutant
+ledger_path.write_text(mutant, encoding="utf-8")
+facade_path.write_text(source.replace(original_row, changed_row, 1), encoding="utf-8")
+try:
+    importlib.reload(ledger)
+except Exception as exc:
+    assert type(exc).__name__ == "ConfidenceLedgerError"
+    assert getattr(exc, "code", None) == "canonical_loaded_runtime_mismatch"
+else:
+    raise AssertionError("removing_import_failure_boundary_still_imported")
+
+print(json.dumps({
+    "candidate_imported": True,
+    "failure_code": failure[0],
+    "failure_detail": failure[1],
+    "identity_status_after_source_restore": observation.status,
+    "n9_refusal": refusal,
+    "blocked_entrypoints": ["from_repo", "constructor", "_for_verification", "_initialize"],
+    "side_effect_calls": forbidden_calls,
+    "removal_control": "typed import failure propagates",
+}, sort_keys=True))
+"""
+    environment = os.environ.copy()
+    prior_pythonpath = environment.get("PYTHONPATH")
+    environment["PYTHONPATH"] = os.pathsep.join(
+        value for value in (str(repo_root / "src"), prior_pythonpath) if value
+    )
+    completed = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=repo_root,
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=45,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    result = json.loads(completed.stdout.strip().splitlines()[-1])
+    assert result["candidate_imported"] is True
+    assert result["failure_code"] == "canonical_loaded_runtime_mismatch"
+    assert result["identity_status_after_source_restore"] == "not_established"
+    assert result["n9_refusal"] == "confidence_ledger_refused:canonical_loaded_runtime_mismatch"
+    assert result["side_effect_calls"] == []
+    assert result["removal_control"] == "typed import failure propagates"
+    print(json.dumps(result, sort_keys=True))
+
+
 def test_canonical_from_repo_rejects_runtime_contract_mutation_before_cas(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

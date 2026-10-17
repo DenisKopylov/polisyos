@@ -14,7 +14,7 @@ from polisyos.common.canonical_profile import CanonicalProfileRefusalError
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import ExecPlanRef, Metrics, MetricsRef, SimulationResult
-from polisyos.foundry._quickstart import build_trivial_trinity_bundle
+from polisyos.foundry._internal.quickstart import build_trivial_trinity_bundle
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.testing.golden_yaml import GoldenRegistry

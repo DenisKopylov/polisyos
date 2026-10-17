@@ -18,7 +18,7 @@ from polisyos.core.contracts.lex import (
     LegalReportRef,
 )
 from polisyos.data_forge.read_api import legal as legal_read_api
-from polisyos.lex.errors import translate_policy_error
+from polisyos.lex.exception_taxonomy import translate_policy_error
 from polisyos.lex.legal_evaluation.change_proposals import (
     propose_changes_impl as _propose_changes_impl,
 )
@@ -31,7 +31,7 @@ from polisyos.lex.legal_evaluation.transport_constraints import (
     LegalConstraintSet,
 )
 from polisyos.lex.normpack.assemble_pack import assemble_norm_pack as _assemble_norm_pack
-from polisyos.lex.types import (
+from polisyos.lex.normpack.types import (
     ActiveVersionResult,
     ActiveVersionStrategy,
     NormPackBuildRequest,
@@ -169,7 +169,7 @@ def evaluate_legality(
         components_index=components_index,
     )
     if bootstrap_report.errors:
-        from polisyos.lex.errors import LexValidationError
+        from polisyos.lex.exception_taxonomy import LexValidationError
 
         raise LexValidationError(
             "lex evaluator bootstrap failed",

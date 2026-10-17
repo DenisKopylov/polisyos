@@ -1,0 +1,17 @@
+id = "lex-native-owner-consolidation"
+title = "Retire Lex compatibility modules into native owners"
+type = "changed"
+component = "lex"
+owner = "team-policyos-lex"
+summary = "Move Lex implementation out of expired root-level compatibility modules into NormPack, intervention, provenance and Lex-owned exception-taxonomy owners while preserving the 61-name root facade and its object identities."
+surface_classification = "internal: polisyos.lex implementation modules"
+compatibility = "The polisyos.lex root facade and its 61 exports remain stable. Former direct module paths are internal and removed; moved classes have their natural new Python module names. Repository census does not establish external historical pickle-global populations."
+migration = "Import NormPack readers and types from polisyos.lex.normpack, interventions from polisyos.lex.interventions, provenance adapters from polisyos.lex.provenance, and Lex exceptions from polisyos.lex.exception_taxonomy. NormPack consumers use polisyos.fabric.world.load_world_facts directly."
+limitations = "No source authority, currentness, legal conclusion, or external pickle compatibility is inferred by relocating implementation ownership."
+# Evidence paths below are R4 candidate-overlay files; their exact bytes are pinned by
+# lex-native-routine-owner-candidate-r4-20261017/manifest.json (sha256:
+# 18ba32da31d5ad739dadeee6b2c095b665622e89d7031be9ffdd337441fc8512). The selected
+# candidate-lex-tests-r3 command included all seven paths and passed 30 tests; its
+# result is validation-results-r4.json (sha256: 37ae1d635acb1b747d58a5c1d26e276e30ede95726a2090fff766c1191f4bc88).
+evidence = ["tests/unit/lex/test_api_contract.py", "tests/unit/lex/normpack/test_artifact_readers.py", "tests/unit/lex/exception_taxonomy/test_errors.py", "tests/unit/lex/interventions/test_compiler.py", "tests/unit/lex/interventions/test_artifacts.py", "tests/unit/lex/provenance/test_adapter.py", "tests/unit/lex/normpack/test_fabric_world_reader.py"]
+migration_docs = ["docs/reference/lex/index.md", "src/polisyos/lex/README.md"]

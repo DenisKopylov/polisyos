@@ -1,0 +1,26 @@
+id = "2026-10-17-e02-common-package-consolidation"
+title = "Keep Common helper imports while consolidating package ownership"
+type = "changed"
+component = "common"
+owner = "team-core"
+summary = "Move six shared Common helpers into substantive same-name packages while preserving their existing import paths, class identity, and runtime behavior."
+evidence = [
+  "src/polisyos/common/README.md",
+  "tests/unit/common/test_package_rehome.py",
+  "tests/unit/common/test_async_tools.py",
+  "tests/unit/common/test_config_bootstrap.py",
+  "tests/unit/common/test_fast_json_serialization.py",
+  "tests/unit/common/test_timestamps.py",
+  "tests/unit/common/test_logger.py",
+  "docs/reference/public-surface.md",
+]
+compatibility = "Existing common import names and class FQNs remain available. Original classes stay defined in their same-name package owners, preserving natural __module__, class-body inspect.getsource(), and class-object pickle lookup. Module origin and package search-location metadata change; external reliance on physical file paths is not established."
+change_class = "internal"
+surface_classification = "internal: Common module topology; supported polisyos.common and polisyos.common.config import names are preserved"
+migration = "No import migration is required for supported imports. Consumers that inspect module file paths should rely on the supported import contract; class inspection continues to return the defining class body from its owner package."
+api = "No public function signatures or supported import names intentionally change."
+limitations = "The public-surface inventory remains unresolved, generated-owner replay is pending, and the R2 candidate adds a focused class-reflection/export test but has not rerun the Common behavior wave; no full native closeout is claimed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/public-surface.md"]
+runbook_docs = []

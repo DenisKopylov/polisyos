@@ -12,7 +12,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal, NoReturn
 
-from polisyos.data_forge.errors import LexNotReadyError
+from polisyos.data_forge.domains.legal.contracts import LexNotReadyError
 
 LegalSourceRelationStatus = Literal["verification_missing"]
 LegalSourceRelationRefusalCode = Literal["legal_source_relation_verification_not_established"]

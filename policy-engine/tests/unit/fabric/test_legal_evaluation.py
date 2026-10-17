@@ -27,7 +27,7 @@ from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.api import evaluate_legality
-from polisyos.lex.errors import LexValidationError
+from polisyos.lex.exception_taxonomy import LexValidationError
 from polisyos.lex.legal_evaluation.backends.simple_v1 import evaluate_rule_simple_v1
 from polisyos.lex.legal_evaluation.context_builder import (
     LegalContextBuilder,

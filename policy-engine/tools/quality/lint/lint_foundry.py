@@ -74,7 +74,7 @@ ZONE_MAP: dict[str, str] = {
     "methods/selection/": "infra",
     "agents.py": "infra",
     "quickstart.py": "infra",
-    "_quickstart.py": "infra",
+    "_internal/quickstart.py": "infra",
     "methods/base.py": "infra",
     "methods/discovery.py": "infra",
     "methods/_artifacts_fingerprint.py": "infra",

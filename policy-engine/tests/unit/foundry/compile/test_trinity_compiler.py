@@ -121,7 +121,7 @@ def test_compile_rejects_trinity_payload_version_drift(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.foundry._quickstart import build_trivial_trinity_bundle
+    from polisyos.foundry._internal.quickstart import build_trivial_trinity_bundle
     from polisyos.foundry.compile import trinity_compiler
 
     store = FileSystemCAS(tmp_path / "cas")

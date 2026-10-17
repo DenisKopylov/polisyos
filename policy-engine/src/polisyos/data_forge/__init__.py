@@ -15,9 +15,9 @@ _EXPORTS = {
     "AssetKey": ("polisyos.data_forge.kernel.pipeline", "AssetKey"),
     "AssetSpec": ("polisyos.data_forge.kernel.pipeline", "AssetSpec"),
     "CompatibilityMode": ("polisyos.data_forge.kernel.schemas", "CompatibilityMode"),
-    "DataForgeError": ("polisyos.data_forge.errors", "DataForgeError"),
+    "DataForgeError": ("polisyos.data_forge.kernel", "DataForgeError"),
     "DataForgeValidationError": (
-        "polisyos.data_forge.errors",
+        "polisyos.data_forge.kernel",
         "DataForgeValidationError",
     ),
     "DifferentialComparison": (
@@ -60,12 +60,12 @@ _EXPORTS = {
     "QCReport": ("polisyos.data_forge.kernel.quality", "QCReport"),
     "RetentionClass": ("polisyos.data_forge.kernel.artifacts", "RetentionClass"),
     "SchemaCompatibilityError": (
-        "polisyos.data_forge.errors",
+        "polisyos.data_forge.kernel",
         "SchemaCompatibilityError",
     ),
     "SchemaRegistry": ("polisyos.data_forge.kernel.schemas", "SchemaRegistry"),
     "SchemaVersion": ("polisyos.data_forge.kernel.schemas", "SchemaVersion"),
-    "SnapshotCommitError": ("polisyos.data_forge.errors", "SnapshotCommitError"),
+    "SnapshotCommitError": ("polisyos.data_forge.kernel", "SnapshotCommitError"),
     "SnapshotClaimRequirementBinding": (
         "polisyos.data_forge._impl.provenance_manifest",
         "SnapshotClaimRequirementBinding",

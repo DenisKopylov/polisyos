@@ -1,5 +1,6 @@
 "src/polisyos/common/*" = ["T201"] # Разрешаем print в утилитах для отладки
-"src/polisyos/common/serialization.py" = ["ANN401"]
+"src/polisyos/common/serialization/__init__.py" = ["ANN401"]
+"src/polisyos/common/serialization/_strict_json.py" = ["ANN401"]
 "src/polisyos/core/artifacts/backends/caching_store.py" = ["ANN401", "TC001"]
 "src/polisyos/core/security/authz.py" = ["ANN401", "TC001"]
 "src/polisyos/ir/observation/governance.py" = ["S106"]

@@ -15,7 +15,7 @@ from polisyos.core.contracts.foundry import SimulationResultRef
 from polisyos.core.contracts.lex import LegalEvaluationRequest
 from polisyos.core.contracts.trinity import ModelSpecRef, PolicySpecRef, TrinityBundleRef
 from polisyos.lex.api import assemble_norm_pack, evaluate_legality
-from polisyos.lex.types import NormPackBuildRequest
+from polisyos.lex.normpack.types import NormPackBuildRequest
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_MODEL_SPEC_REF,
@@ -126,6 +126,7 @@ def _read_compliance_grade(
     report_ref: ArtifactRef,
 ) -> tuple[str | None, dict[str, object] | None]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     try:
         payload = load_core_json_artifact(ctx.store, report_ref)
     except _LEGAL_CHECK_READ_ERRORS as exc:

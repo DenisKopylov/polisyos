@@ -19,7 +19,7 @@ from polisyos.data_forge.read_api.legal import (
 from polisyos.lex.api import assemble_norm_pack, evaluate_transport_constraints
 from polisyos.lex.knowledge.search import LegalKnowledgeGraph
 from polisyos.lex.knowledge.store import LegalQueryProfileError
-from polisyos.lex.types import NormPackBuildRequest
+from polisyos.lex.normpack.types import NormPackBuildRequest
 
 
 class LexBenchmarkConfig(Protocol):

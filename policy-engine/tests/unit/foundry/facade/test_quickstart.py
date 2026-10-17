@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import sys
+from dataclasses import fields
 
 import pytest
 
@@ -22,7 +23,7 @@ from polisyos.core.contracts.foundry import (
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.foundry import compile as compile_foundry
 from polisyos.foundry import compile_program, execute
-from polisyos.foundry._quickstart import (
+from polisyos.foundry._internal.quickstart import (
     prepare_trivial_input_bindings,
     run_feedback_compile_execute,
     run_feedback_multiplicity_demo,
@@ -85,7 +86,7 @@ def test_run_feedback_compile_execute(tmp_path) -> None:
 def test_feedback_quickstart_reports_missing_exec_plan_without_loading_none(
     runner, tmp_path, monkeypatch
 ) -> None:
-    import polisyos.foundry._quickstart as quickstart
+    import polisyos.foundry._internal.quickstart as quickstart
 
     report_ref = ArtifactRef(
         artifact_id="sha256:" + "a" * 64,
@@ -237,10 +238,43 @@ def test_quickstart_feedback_loader_rejects_program_version_drift(tmp_path) -> N
         ),
     )
 
-    from polisyos.foundry._quickstart import prepare_trivial_feedback_config
+    from polisyos.foundry._internal.quickstart import prepare_trivial_feedback_config
 
     with pytest.raises(
         CanonicalProfileRefusalError,
         match="canon_profile_typed_artifact_schema_version_mismatch",
     ):
         prepare_trivial_feedback_config(store, exec_plan_ref=plan_ref)
+
+
+def test_quickstart_owner_preserves_result_shape_and_retires_old_import(monkeypatch) -> None:
+    old_module_name = "polisyos.foundry._quickstart"
+    new_module_name = "polisyos.foundry._internal.quickstart"
+    monkeypatch.delitem(sys.modules, old_module_name, raising=False)
+    foundry = importlib.import_module("polisyos.foundry")
+    monkeypatch.delattr(foundry, "_quickstart", raising=False)
+
+    with pytest.raises(ModuleNotFoundError) as error:
+        importlib.import_module(old_module_name)
+    assert error.value.name == old_module_name
+
+    quickstart = importlib.import_module(new_module_name)
+    assert quickstart.__name__ == new_module_name
+    assert quickstart.QuickstartRunResult.__module__ == new_module_name
+    assert quickstart.FeedbackQuickstartRunResult.__module__ == new_module_name
+    assert tuple(field.name for field in fields(quickstart.QuickstartRunResult)) == (
+        "compile_ok",
+        "execute_ok",
+        "exec_plan_artifact_id",
+        "simulation_result_artifact_id",
+    )
+    assert tuple(field.name for field in fields(quickstart.FeedbackQuickstartRunResult)) == (
+        "compile_ok",
+        "execute_ok",
+        "exec_plan_artifact_id",
+        "simulation_result_artifact_id",
+        "feedback_result_artifact_id",
+        "feedback_convergence_certificate_artifact_id",
+        "equilibrium_multiplicity_report_artifact_id",
+    )
+    assert "quickstart" not in foundry.__all__

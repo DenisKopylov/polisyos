@@ -55,6 +55,17 @@ policy-engine/src/polisyos/fabric/world/__init__.py
 
 **Передача:** source ID/phase и исход каждого; base/patch; exact writes; equivalent versus intended delta; actual commands/exit/log; native/fixture/deferred; reviewer; path-map/caller/lifecycle/activation остатки. Ни partial LA, ни explicit limitation не превращаются в full implemented capability.
 
+## Candidate owner map (review pending; LA statuses unchanged)
+
+The current RAW candidate relocates Lex implementation to `lex/normpack`,
+`lex/interventions`, `lex/provenance`, and the Lex-owned
+`lex/exception_taxonomy`; NormPack uses `polisyos.fabric.world.load_world_facts`
+directly. The complete active source census and focused behavioral witness are
+retained with the candidate packet. These proposed changes do not close LA-008,
+LA-009, or LA-018 and do not establish the external status of former deep import
+paths or historical pickle globals. Review must preserve the root `polisyos.lex`
+facade identities and record any external compatibility obligation separately.
+
 ## Исходное решение LA-008
 
 Источник LA_r09, строки 281–307; полный текст, не только выполняемая здесь фаза.
@@ -180,4 +191,3 @@ README описывает `polisyos.evidence` как внутреннего вл
 Ограничение контроля: реализации portfolio и все runtime bridges здесь не прочитаны. README и exports не являются доказательством end-to-end корректности или полномочий этих записей. Новые функции/owners в этом аудите не назначаются.
 
 <!-- SOURCE_END LK:LK18 -->
-

@@ -16,7 +16,7 @@ evidence = [
   "src/polisyos/foundry/execute/_internal/graph/__init__.py",
   "src/polisyos/data_forge/domains/ukraine/builders/io.py",
   "src/polisyos/data_forge/domains/ukraine/builders/sources.py",
-  "src/polisyos/foundry/_quickstart.py",
+  "src/polisyos/foundry/_internal/quickstart.py",
   "src/polisyos/scientist/governance/blueprint_release.py",
   "src/polisyos/foundry/validation/release_acceptance.py",
   "tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",

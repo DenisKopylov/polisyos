@@ -17,9 +17,9 @@ agent-sim tooling.
 
 ## Where to Start
 
-- [quickstart/__init__.py](quickstart/__init__.py) for the public quickstart
-  import path and [_quickstart.py](_quickstart.py) for the smallest
-  compile/execute path that writes real CAS artifacts.
+- [_internal/quickstart.py](_internal/quickstart.py) for an internal
+  docs/test helper that writes real CAS artifacts; it is not a supported
+  public import path.
 
 - [compile/api.py](compile/api.py) for the public `compile()` contract and
   failure semantics.
@@ -197,7 +197,7 @@ Smoke-tested on 2026-04-17:
 ```bash
 uv run python - <<'PY'
 from tempfile import TemporaryDirectory
-from polisyos.foundry._quickstart import run_trivial_compile_execute
+from polisyos.foundry._internal.quickstart import run_trivial_compile_execute
 
 with TemporaryDirectory(prefix="foundry-docs-") as tmp:
     result = run_trivial_compile_execute(cas_root=tmp)

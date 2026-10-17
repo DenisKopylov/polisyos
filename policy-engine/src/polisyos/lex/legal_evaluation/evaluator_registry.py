@@ -21,7 +21,7 @@ from polisyos.core.components import (
 from polisyos.core.components.ids import SemVer
 from polisyos.core.contracts.lex import ChangeProposalRef, LegalEvaluationRequest, LegalReportRef
 from polisyos.core.registry.generic import GenericRegistry
-from polisyos.lex.errors import LexValidationError
+from polisyos.lex.exception_taxonomy import LexValidationError
 
 LexEvaluatorFn = Callable[
     [FileSystemCAS, Path, LegalEvaluationRequest, str | None],

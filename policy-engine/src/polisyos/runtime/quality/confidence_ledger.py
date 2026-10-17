@@ -1492,6 +1492,8 @@ class ConfidenceLedgerSession:
         deployment_identity: str,
         deployment_quick_fence: _DeploymentQuickFence | None,
     ) -> None:
+        if authority_provenance == "canonical_repo":
+            _require_import_time_identity_snapshot()
         _assert_ledger_artifact_contracts_current()
         object.__setattr__(self, "_session_sealed", False)
         self._registry = registry
@@ -1578,6 +1580,7 @@ class ConfidenceLedgerSession:
     ) -> ConfidenceLedgerSession:
         """Open an isolated non-authority session for tests and frozen recomputation."""
 
+        _require_import_time_identity_snapshot()
         root = Path(repo_root).resolve()
         if root != _loaded_policy_engine_root():
             raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
@@ -1613,6 +1616,7 @@ class ConfidenceLedgerSession:
         root = self._authority_repo_root
         return bool(
             type(self) is ConfidenceLedgerSession
+            and _IMPORT_TIME_LOADED_CODE_CONSISTENT is True
             and self._authority_provenance == "canonical_repo"
             and root is not None
             and self._certificate_resolver is None
@@ -5652,6 +5656,7 @@ def _assert_loaded_runtime_matches_import_baseline(
 ) -> None:
     """Reject authority if disk or runtime differs from the importing process."""
 
+    _require_import_time_identity_snapshot()
     _assert_ledger_artifact_contracts_current()
     facade_projection, supplemental_closure = _source_facade_runtime_projection(
         repo_root,
@@ -5686,6 +5691,7 @@ def _admit_loaded_runtime(
 ) -> tuple[str, _DeploymentQuickFence, str]:
     """Freeze and admit one complete runtime deployment identity."""
 
+    _require_import_time_identity_snapshot()
     deployment_baseline, deployment_quick_fence = _stable_deployment_snapshot(repo_root)
     _assert_loaded_runtime_matches_import_baseline(
         repo_root,
@@ -5696,6 +5702,19 @@ def _admit_loaded_runtime(
         deployment_quick_fence,
         _deployment_identity_from_baseline(deployment_baseline),
     )
+
+
+def _require_import_time_identity_snapshot() -> None:
+    """Refuse authority when import-time identity was not captured successfully."""
+
+    if not _IMPORT_TIME_LOADED_CODE_CONSISTENT:
+        failure = _IMPORT_TIME_DEPLOYMENT_IDENTITY_FAILURE
+        detail = (
+            f"{failure[0]}: {failure[1]}"
+            if failure is not None
+            else "import-time identity snapshot is unavailable"
+        )
+        raise ConfidenceLedgerError(_IMPORT_TIME_DEPLOYMENT_IDENTITY_REASON, detail)
 
 
 def _deployment_baseline(repo_root: Path) -> str:
@@ -10903,54 +10922,68 @@ def _assert_ledger_artifact_contracts_current(
 
 
 _IMPORT_TIME_DEPLOYMENT_IDENTITY_REASON = "canonical_loaded_runtime_mismatch"
+_IMPORT_TIME_DEPLOYMENT_IDENTITY_FAILURE: tuple[str, str] | None = None
+_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE: tuple[tuple[str, str], ...] = ()
+_IMPORT_TIME_DEPLOYMENT_BASELINE: str | None = None
+_IMPORT_TIME_DEPLOYMENT_QUICK_FENCE: _DeploymentQuickFence = ()
 _IMPORT_TIME_FACADE_RUNTIME_PROJECTION = ""
+_IMPORT_TIME_FACADE_SUPPLEMENTAL_CLOSURE: tuple[tuple[str, str], ...] = ()
 _IMPORT_TIME_RUNTIME_CODE_CLOSURE: tuple[tuple[str, str], ...] = ()
+_IMPORT_TIME_LOADED_CODE_MANIFEST = ""
+_IMPORT_TIME_LOADED_CODE_CONSISTENT = False
 _IMPORT_TIME_OWNER_ROOT = _loaded_policy_engine_root()
 if (
     (_IMPORT_TIME_OWNER_ROOT / "pyproject.toml").is_file()
     and (_IMPORT_TIME_OWNER_ROOT / "uv.lock").is_file()
     and (_IMPORT_TIME_OWNER_ROOT / "src" / "polisyos").is_dir()
 ):
-    _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE = _resolve_authority_import_closure(
-        _IMPORT_TIME_OWNER_ROOT,
-        __name__,
-    )
-    (
-        _IMPORT_TIME_DEPLOYMENT_BASELINE,
-        _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE,
-    ) = _stable_deployment_snapshot(_IMPORT_TIME_OWNER_ROOT)
-    _import_authority_closure_modules(_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE)
-    (
-        _IMPORT_TIME_FACADE_RUNTIME_PROJECTION,
-        _IMPORT_TIME_FACADE_SUPPLEMENTAL_CLOSURE,
-    ) = _source_facade_runtime_projection(
-        _IMPORT_TIME_OWNER_ROOT,
-        _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
-    )
-    _IMPORT_TIME_RUNTIME_CODE_CLOSURE = _combined_runtime_code_closure(
-        _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
-        _IMPORT_TIME_FACADE_SUPPLEMENTAL_CLOSURE,
-    )
-    (
-        _IMPORT_TIME_LOADED_CODE_MANIFEST,
-        _IMPORT_TIME_LOADED_CODE_CONSISTENT,
-    ) = _loaded_code_manifest(
-        _IMPORT_TIME_OWNER_ROOT,
-        _IMPORT_TIME_RUNTIME_CODE_CLOSURE,
-    )
-    if _deployment_quick_fence(_IMPORT_TIME_OWNER_ROOT) != _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE:
-        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    try:
+        authority_import_closure = _resolve_authority_import_closure(
+            _IMPORT_TIME_OWNER_ROOT,
+            __name__,
+        )
+        deployment_baseline, deployment_quick_fence = _stable_deployment_snapshot(
+            _IMPORT_TIME_OWNER_ROOT
+        )
+        _import_authority_closure_modules(authority_import_closure)
+        facade_runtime_projection, facade_supplemental_closure = _source_facade_runtime_projection(
+            _IMPORT_TIME_OWNER_ROOT,
+            authority_import_closure,
+        )
+        runtime_code_closure = _combined_runtime_code_closure(
+            authority_import_closure,
+            facade_supplemental_closure,
+        )
+        loaded_code_manifest, loaded_code_consistent = _loaded_code_manifest(
+            _IMPORT_TIME_OWNER_ROOT,
+            runtime_code_closure,
+        )
+        if not loaded_code_consistent:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                "loaded authority code does not match its import-time source",
+            )
+        if _deployment_quick_fence(_IMPORT_TIME_OWNER_ROOT) != deployment_quick_fence:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    except ConfidenceLedgerError as exc:
+        # A failed first capture is terminal for this process. Preserve its typed
+        # cause for diagnostics, and leave every authority-bearing snapshot field
+        # in the same unavailable state; later source changes cannot upgrade it.
+        _IMPORT_TIME_DEPLOYMENT_IDENTITY_FAILURE = (exc.code, exc.detail)
+    else:
+        _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE = authority_import_closure
+        _IMPORT_TIME_DEPLOYMENT_BASELINE = deployment_baseline
+        _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE = deployment_quick_fence
+        _IMPORT_TIME_FACADE_RUNTIME_PROJECTION = facade_runtime_projection
+        _IMPORT_TIME_FACADE_SUPPLEMENTAL_CLOSURE = facade_supplemental_closure
+        _IMPORT_TIME_RUNTIME_CODE_CLOSURE = runtime_code_closure
+        _IMPORT_TIME_LOADED_CODE_MANIFEST = loaded_code_manifest
+        # Publish this admission predicate last so reentrant imports cannot see a
+        # partially captured snapshot as established.
+        _IMPORT_TIME_LOADED_CODE_CONSISTENT = loaded_code_consistent
 else:
     # An installed package lacks the source checkout's canonical lock/build
     # inputs until the confidence-ledger build issuer is appointed and wired.
     # Do not synthesize currentness; history-only callers may still use the
     # dedicated replay path when their import graph permits it.
-    _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE = ()
-    _IMPORT_TIME_DEPLOYMENT_BASELINE = None
-    _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE = ()
-    _IMPORT_TIME_FACADE_RUNTIME_PROJECTION = ""
-    _IMPORT_TIME_FACADE_SUPPLEMENTAL_CLOSURE = ()
-    _IMPORT_TIME_RUNTIME_CODE_CLOSURE = ()
-    _IMPORT_TIME_LOADED_CODE_MANIFEST = ""
-    _IMPORT_TIME_LOADED_CODE_CONSISTENT = False
     _IMPORT_TIME_DEPLOYMENT_IDENTITY_REASON = "packaged_deployment_identity_issuer_unavailable"

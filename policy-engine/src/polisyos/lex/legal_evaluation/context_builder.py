@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
+from polisyos.common.text import collapse_ws
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.foundry import Metrics, SimulationResult
 from polisyos.ir.governance.policy_spec import ParameterSpec, PolicySpec
 from polisyos.ir.loading.norm_pack import NormPack, NormRule
-from polisyos.lex.common import collapse_ws
-from polisyos.lex.errors import LexNotReadyError, LexValidationError
+from polisyos.lex.exception_taxonomy import LexNotReadyError, LexValidationError
 from polisyos.lex.normpack.applicability import applies_to_context
 
 if TYPE_CHECKING:
@@ -98,6 +98,7 @@ def _load_model_from_cas(
     role: str,
 ) -> PolicySpec | SimulationResult | Metrics | NormPack:
     from polisyos.core.artifacts import load_core_json_artifact
+
     try:
         payload = load_core_json_artifact(cas, ArtifactID.model_validate(artifact_id))
     except FileNotFoundError as exc:

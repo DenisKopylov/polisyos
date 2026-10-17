@@ -2,11 +2,11 @@
 
 Related explanation: [Lex Pipeline](../../explanation/lex-pipeline.md).
 
-Freshness: 2026-10-14
+Freshness: 2026-10-17
 Owner: `@lex-owners` for runtime version reads, NormPack assembly, and legal assessment; `@data-forge-owners` for corpus ingest, structure, and version-index production.
-Source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
-Source of truth: `src/polisyos/lex/api.py`, `src/polisyos/lex/types.py`, `src/polisyos/lex/normpack/**`, `src/polisyos/lex/legal_evaluation/**`, `src/polisyos/data_forge/domains/legal/corpus/versioning.py`, `src/polisyos/core/contracts/epoch.py`, and the named tests below.
-Evidence level: source and named test behavior were inspected at the source pin; tests were inspected, not run for this documentation refresh. Test fixtures establish only the paths they exercise, not official-source completeness or issuer authentication.
+Historical source pin: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` for existing assembly/evaluation owners and pre-candidate test bytes; it predates the candidate NormPack type owner and the separately bound test postimage below.
+Source of truth: `src/polisyos/lex/api.py`, `src/polisyos/lex/normpack/types.py`, `src/polisyos/lex/normpack/**`, `src/polisyos/lex/legal_evaluation/**`, `src/polisyos/data_forge/domains/legal/corpus/versioning.py`, `src/polisyos/core/contracts/epoch.py`, and the named tests below.
+Evidence level: existing assembly/evaluation owners and named tests were inspected at the historical source pin; the candidate NormPack type owner is bound by its postimage hash below. Tests were inspected, not run for this documentation refresh. Test fixtures establish only the paths they exercise, not official-source completeness or issuer authentication.
 
 Lex starts from published Data Forge corpus artifacts. Its public `resolve_active_version()` adapts the Data Forge read API; `assemble_norm_pack()` then selects versions and provisions, extracts claims with the source-pinned `lex.norm_extractor.regex_v1` default or consumes explicit claim-set artifacts, and persists the resulting `NormPack` with world provenance. These extracted or supplied claims are inputs to a derived snapshot, not legal findings. Corpus byte ingestion, structure extraction, batch graph construction, and version-index production belong to Data Forge, not the runtime Lex assembly path.
 
@@ -56,9 +56,9 @@ A `NormPack` is PolicyOS's derived, date-scoped snapshot from supplied corpus an
 
 ::: polisyos.lex.api
 
-::: polisyos.lex.types
+::: polisyos.lex.normpack.types
 
-::: polisyos.lex.errors
+::: polisyos.lex.exception_taxonomy
 
 ::: polisyos.lex.simulator.mutator
 
@@ -69,6 +69,10 @@ A `NormPack` is PolicyOS's derived, date-scoped snapshot from supplied corpus an
 The former `polisyos.lex.simulator.diff`, `report`, and `engine` modules are compatibility facades. Canonical owners are `polisyos.lex.normpack.diff`, `polisyos.lex.legal_evaluation.impact_diff`, and the current evaluator/API modules; see `src/polisyos/lex/simulator/` before extending a facade.
 
 ## Code-inspected evidence
+
+- Candidate owner source inspected in the R4 overlay (file hash, not a Git revision): `src/polisyos/lex/normpack/types.py` — `sha256:c565bdb422f9ea87b491fb78cdc3959d91fc821b912a7907f436630b17f11517`.
+- Candidate test-file reference: `tests/unit/fabric/test_normpack.py` — R4 modified postimage `sha256:bd1d986d94d52a08982b3f321bbb4344418dba8276b363c41526c8cadb07904f`. The R4 focused test command did not select this file, so the cited fixture behavior is not reported as an R4 execution result.
+- Candidate package-owner map referenced below: `src/polisyos/lex/README.md` — R4 postimage `sha256:d351b71bca8456c079ace8f8131ecf7d6cf810935ce86fab69dfb7423e4e710d`.
 
 - Selection, extraction, applicability, and assembly: `src/polisyos/data_forge/domains/legal/corpus/versioning.py`, `src/polisyos/lex/normpack/select_sources.py`, `src/polisyos/lex/normpack/extract_norm_claims.py`, `src/polisyos/lex/normpack/applicability.py`, `src/polisyos/lex/normpack/assemble_pack.py`, `tests/unit/fabric/test_lex_corpus.py::test_lex_resolve_active_version_is_deterministic`, `tests/unit/fabric/test_lex_corpus.py::test_lex_resolve_active_version_does_not_fallback_to_published_at_only`, `tests/unit/lex/test_normative_applicability_report.py`, and `tests/unit/fabric/test_normpack.py::test_normpack_phase17_end_to_end`.
 - Claim-scoped legal assessment and its runtime consumers: `src/polisyos/lex/normpack/legal_authority.py`, `src/polisyos/runtime/quality/semantic_binding.py`, `tests/unit/lex/test_legal_authority_adapter.py`, and `tests/unit/runtime/quality/test_lex_legal_authority_surface.py`.

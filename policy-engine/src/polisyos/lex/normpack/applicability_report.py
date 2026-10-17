@@ -11,10 +11,10 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from datetime import date
 
+from polisyos.common.timestamps import parse_iso_date
 from polisyos.data_forge.read_api.legal import (
     current_legal_source_relation_disposition,
 )
-from polisyos.lex.common import parse_iso_date
 from polisyos.lex.normpack.legal_authority import build_legal_authority_report
 from polisyos.lex.normpack.query_normalization import (
     legal_requirements_from_query_normalization_report,

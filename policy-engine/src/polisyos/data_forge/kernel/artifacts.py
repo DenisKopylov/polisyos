@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, TypeVar
 from pydantic import Field, field_validator
 
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.data_forge.errors import LexValidationError
+from polisyos.data_forge.kernel import DataForgeValidationError
 from polisyos.fabric.world import validate_doc_meta_ids
 from polisyos.ir.world.doc import DocMeta
 
@@ -88,13 +88,14 @@ def load_json_artifact[E: Exception](
     cas: FileSystemCAS,
     artifact_id: str,
     *,
-    error_cls: type[_E] = LexValidationError,
+    error_cls: type[_E] = DataForgeValidationError,
     payload_label: str = "artifact",
     wrap_read_errors: bool = False,
     read_error_prefix: str | None = None,
 ) -> dict:
     """Load a JSON-object artifact with caller-selected error semantics."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     try:
         aid = ArtifactID.model_validate(artifact_id)
         payload = load_core_json_artifact(cas, aid)
@@ -112,7 +113,7 @@ def load_doc_meta_artifact[E: Exception](
     cas: FileSystemCAS,
     artifact_id: str,
     *,
-    error_cls: type[_E] = LexValidationError,
+    error_cls: type[_E] = DataForgeValidationError,
     payload_label: str = "artifact",
     wrap_read_errors: bool = False,
     read_error_prefix: str | None = None,

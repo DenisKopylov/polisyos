@@ -36,7 +36,7 @@ from polisyos.ir.world.event import (
     WorldObjectRef,
 )
 from polisyos.ir.world.ids import artifact_id_to_world_id
-from polisyos.lex.errors import LexNotReadyError, LexValidationError
+from polisyos.lex.exception_taxonomy import LexNotReadyError, LexValidationError
 from polisyos.lex.legal_evaluation.backends.simple_v1 import (
     RuleFinding,
     evaluate_rule_simple_v1,

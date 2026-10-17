@@ -50,7 +50,7 @@ from polisyos.ir.analytics.strategic import (
 from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.ir.governance.policy_spec import CompiledLexIntervention
 from polisyos.ir.registry.refs import ArtifactRefModel
-from polisyos.lex.intervention_artifacts import LexPolicyBundleInput
+from polisyos.lex.interventions.artifacts import LexPolicyBundleInput
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ABSTRACTION_CERTIFICATE_REF,
     ARTIFACT_CAUSAL_REPORT_REF,

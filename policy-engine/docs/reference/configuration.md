@@ -4,7 +4,7 @@ Related explanation: [Security Model](../explanation/security-model.md).
 
 Freshness: 2026-04-17
 Owner: `@runtime-owners`
-Source of truth: `src/polisyos/common/config.py`, `src/polisyos/core/security/settings.py`, `src/polisyos/core/artifacts/backends/config.py`, `src/polisyos/runtime/http/{app.py,execution_policy.py,resilience.py,response_policies.py,mutation_policy.py,routes/runs.py}`
+Source of truth: `src/polisyos/common/config/__init__.py`, `src/polisyos/core/security/settings.py`, `src/polisyos/core/artifacts/backends/config.py`, `src/polisyos/runtime/http/{app.py,execution_policy.py,resilience.py,response_policies.py,mutation_policy.py,routes/runs.py}`
 Validation:
 
 - `uv run pytest -q tests/unit/common/test_config_bootstrap.py tests/unit/runtime/http/test_api_maturity.py tests/unit/runtime/http/test_runtime_api_authz.py tests/unit/runtime/http/test_runtime_api_write_path_hardening.py`

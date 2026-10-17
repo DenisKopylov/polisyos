@@ -13,11 +13,13 @@ from typing import TYPE_CHECKING, Any
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.legal.contracts import (
     LegalDocSource,
+    LexError,
+    LexIngestError,
     LexIngestOptions,
     LexIngestResult,
+    LexValidationError,
     WorldEventRefLike,
 )
-from polisyos.data_forge.errors import LexError, LexIngestError, LexValidationError
 from polisyos.data_forge.kernel.artifacts import load_doc_meta_artifact
 from polisyos.fabric.docs import (
     DocSourceSpec,
@@ -197,6 +199,7 @@ def ingest_legal_doc_bytes(
         meta_before = load_doc_meta_artifact(
             cas,
             current_meta_artifact_id,
+            error_cls=LexValidationError,
             validate_ids=True,
         )
         merged_props = _merge_lex_props(

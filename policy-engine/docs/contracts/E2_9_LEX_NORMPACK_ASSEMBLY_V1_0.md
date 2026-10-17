@@ -125,13 +125,13 @@ To satisfy the “separate `extractor_id`” requirement and ensure correct trus
 
 ### 3.1. Where to define it
 
-Add to `policy-engine/src/polisyos/lex/types.py`:
+Define in `policy-engine/src/polisyos/lex/normpack/types.py`:
 
 - `NormPackBudgets`
 - `NormPackBuildRequest`
 - `NormPackBuildResult` (output contract)
 
-> Important: `lex/types.py` is already the location for public Lex contracts (Phase 16).
+> NormPack request/result contracts belong to the NormPack owner; the stable `polisyos.lex` facade re-exports its supported names.
 
 ### 3.2. Fields and semantics
 
@@ -783,7 +783,7 @@ Contains:
   - implements Step 1.2 (all documents vs. whitelist)
 - `select_active_doc_versions(...)`:
   - implements Step 1.4 (primary `resolve_active_version` + fallback)
-- output type `SelectedDocVersion` (or import from `lex.types`)
+- output type `SelectedDocVersion` (or import from `polisyos.lex.normpack.types`)
 
 ### 7.3. `polisyos/lex/normpack/extract_norm_claims.py`
 
@@ -950,11 +950,19 @@ Phase 17 is considered complete when:
 
 3. The required Phase 17 tests exist (unit + integration); see §8.
 
-## D1-L4 Validation Links
+## D1-L4 Historical Plan Links
 
-| Link type           | Current anchor                                                                                                                                                                    |
+| Link type           | Anchor as recorded in this dated plan                                                                                                                                           |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Source plan phase   | D1-L4 Phase 0 norm/citation determinism and Phase 5 governance contract handoff                                                                                                   |
 | Contract tests      | `tests/contract/test_applicability_contract.py`, `tests/unit/fabric/test_normpack.py`, `tests/unit/fabric/test_conflicts.py`                                                      |
 | Schema snapshots    | `schemas/snapshots/ir/norm_pack.schema.json`, `schemas/snapshots/ir/norm_ref.schema.json`, `schemas/snapshots/ir/norm_rule.schema.json`, `schemas/snapshots/ir/claim.schema.json` |
 | Generated reference | [IR Schema Catalog](../reference/ir/schema-catalog.md), [JSON Schema Catalog](../reference/schemas.md)                                                                            |
+
+The table is a historical plan-link inventory, not a current test-execution receipt. The exact test-file bindings are:
+
+- `tests/contract/test_applicability_contract.py` — current-base file SHA-256 `91c8d621560258f7d77e2950a68b509403ac824082a4d52efc3d314656b32820` at HEAD `901f90e7c622b5c850bad1fe3dddf9bb4694501c`.
+- `tests/unit/fabric/test_normpack.py` — historical `bafca83bff9ff49eef1466bc491a8420b5cd1dbb` bytes SHA-256 `0f645bc86c821f655079be4cbdc4b305acbb8fb58e4d8e61fab6bce8224bc8c6`; R4 modified candidate postimage SHA-256 `bd1d986d94d52a08982b3f321bbb4344418dba8276b363c41526c8cadb07904f`. The R4 focused candidate test command did not select this module, so it is not reported as an R4 execution result.
+- `tests/unit/fabric/test_conflicts.py` — current-base file SHA-256 `0ce5ea319c8efeb1f69b0cbaa81bfa9d1eed9303ce4ecbb79f91ec54531113bf` at HEAD `901f90e7c622b5c850bad1fe3dddf9bb4694501c`.
+
+The `tests/unit/fabric/test_normpack_phase17.py` filename in §8 is a dated plan target absent from the current base and R4 candidate overlay. This document does not claim that target ran or exists as a current module.

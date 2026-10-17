@@ -345,7 +345,9 @@ def test_docstring_filter_scopes_subjects_to_requested_prefixes(tmp_path: Path) 
         pragma_allowed=False,
     )
     non_matching = DocstringSubject(
-        ref=TargetRef(module="polisyos.foundry._quickstart", qualname="QuickstartRunResult"),
+        ref=TargetRef(
+            module="polisyos.foundry._internal.quickstart", qualname="QuickstartRunResult"
+        ),
         file_path=tmp_path / "foundry.py",
         lineno=1,
         kind="class",

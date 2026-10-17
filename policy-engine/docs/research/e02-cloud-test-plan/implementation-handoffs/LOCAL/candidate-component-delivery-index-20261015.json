@@ -4,7 +4,9 @@
     "branch": "codex/e02-unified-local-20261009",
     "head": "a63fb11be8907375163915932b3cdd8f340291c0",
     "tree": "a605a8fddc85d1b00335e69d5f61c906c9c57c99",
-    "parents": ["25595f3fff3265d3002bee87046e3c685b3f800b"],
+    "parents": [
+      "25595f3fff3265d3002bee87046e3c685b3f800b"
+    ],
     "source_freeze": false,
     "dirty_active_source": "Observed at index application; git status reports 2400 changed/untracked paths; source_freeze=false.",
     "published_candidate_last_verified": {
@@ -93,11 +95,11 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "4f84dbaa9924c860470fcfba7a8a631955559478416009d3d7570109a5f206f4",
-      "source_commit": "8932ed41bba94d724eae178c316baf59f5dbeebd",
-      "record_type": "committed_coordination_snapshot",
+      "sha256": "17d23c374a2af7630c052f27866623ec52bffdf1c241bf721913bf417fb30616",
+      "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
-      "qualification": "Coordination snapshot bytes read at exact B194 source boundary after independent review and actual module verification. Historical source checkpoints remain qualified; future lease changes require a new pointer."
+      "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
+      "historical_original_source_commit": "8932ed41bba94d724eae178c316baf59f5dbeebd"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/public-surface-static-purity-vs-runtime-verification-20261015.json",
@@ -612,8 +614,8 @@
       "sha256": "6007bedc4e3d76281c0b58c6149640f8b085ebe4e04666f9c4e468f3fc8f0079"
     },
     {
-          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/quality17-scoped-readers-typed-boundaries-20261017.json",
-          "sha256": "0d0442eba128b339091151bbca37a9edd5c0b5597cfff4136a9fac0ae7c37d76"
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/quality17-scoped-readers-typed-boundaries-20261017.json",
+      "sha256": "0d0442eba128b339091151bbca37a9edd5c0b5597cfff4136a9fac0ae7c37d76"
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/runtime-source-root-composition-r11-20261017.json",

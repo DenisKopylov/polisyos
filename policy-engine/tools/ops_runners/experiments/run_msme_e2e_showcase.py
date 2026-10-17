@@ -770,7 +770,7 @@ def run_s3_foundry_compile_execute(ctx: dict[str, Any]) -> dict[str, Any]:
     started = utc_now()
     results: dict[str, Any] = {}
     try:
-        from polisyos.foundry._quickstart import (
+        from polisyos.foundry._internal.quickstart import (
             run_feedback_compile_execute,
             run_feedback_multiplicity_demo,
             run_trivial_compile_execute,
@@ -1377,7 +1377,7 @@ def preflight(ctx: dict[str, Any]) -> dict[str, Any]:
         "numpy",
         "polisyos",
         "polisyos.fabric.evidence.decision_data",
-        "polisyos.foundry._quickstart",
+        "polisyos.foundry._internal.quickstart",
     ]
     for module in modules:
         try:

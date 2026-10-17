@@ -3,7 +3,7 @@
 `polisyos.data_forge` is the experimental build-time facade for asset-centric
 data preparation and governed artifact publication.
 
-- Last updated: 2026-10-16
+- Last updated: 2026-10-17
 
 ## Public Surface
 
@@ -59,6 +59,16 @@ candidate rows with the typed `legal_relation_refusal` status
 entailment, legal validity, issuer authority, custody, or currentness. Existing
 graphs are not rewritten in place; rebuild them through the ordinary producer
 or graph builder to recompute candidate tiers.
+
+## Exception ownership
+
+The four generic exceptions exported from `polisyos.data_forge` are defined by the
+Data Forge kernel in `kernel/__init__.py`. Legal corpus exceptions are defined with
+the legal domain contracts in `domains/legal/contracts.py`; they remain distinct
+from the runtime Lex exception classes. The internal `polisyos.data_forge.errors`
+module has been removed after migrating repository consumers. Import the generic
+names from the public Data Forge root and legal corpus names from the legal
+contract owner. Previously pickled exception objects name their original module. No package-level pickle compatibility promise is declared for this unlisted module; deployments that persist such objects need an explicit migration or compatibility decision before adopting this move.
 
 ## Role
 

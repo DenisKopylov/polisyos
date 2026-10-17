@@ -22,7 +22,7 @@ depends_on:
   - src/polisyos/lex/normpack/legal_authority.py
   - src/polisyos/lex/normpack/applicability_report.py
   - src/polisyos/legal_requirement/
-  - src/polisyos/lex/intervention_artifacts.py
+  - src/polisyos/lex/interventions/artifacts.py
   - src/polisyos/runtime/quality/claim_registry.py
   - src/polisyos/runtime/quality/semantic_binding.py
   - src/polisyos/runtime/quality/argument_graph.py
@@ -159,17 +159,21 @@ The primary existing substrates are:
   - GL may reuse this wrapper only after GL has already built canonical
     L3 Legal KG candidate bindings. Its internal fallback KG helper is a
     broad text/read-API candidate route, not a GL closure route.
-- `src/polisyos/lex/intervention_artifacts.py`
+- `src/polisyos/lex/interventions/artifacts.py`
   - Existing `LexProvisionMappingRegistry`, `LexInterventionMapEntry`,
     intervention knob dictionary, and provision-program crosswalk loaders.
   - These map validated provisions to executable intervention directives, but
     they do not create legal authority.
-- `src/polisyos/lex/interventions.py`
+- `src/polisyos/lex/interventions/compiler.py`
   - Existing compiler from provision directives into IR intervention artifacts.
   - It imports heavier Foundry/Scientist dependencies at module load. GL should
-    use `lex.intervention_artifacts` for readiness and lazy-load
-    `lex.interventions` only in execution paths that actually compile an
-    intervention.
+    use `polisyos.lex.interventions.artifacts` for readiness and lazy-load
+    `polisyos.lex.interventions` only in execution paths that actually compile
+    an intervention.
+  - In the R4 candidate overlay, the two owner files referenced above are
+    `artifacts.py` (`sha256:565135daaaddbf4d3cad03c6eb1af92481cbd656df21f081a39dcb7dcb68ae86`)
+    and `compiler.py` (`sha256:8afbe3f6e55575e0efb98584560d8a95fa51a5b609245fd90ff439f3c048aa47`).
+    These are candidate file hashes, not historical Git revisions or test-run claims.
 - `src/polisyos/runtime/quality/claim_registry.py` and
   `src/polisyos/runtime/quality/semantic_binding.py`
   - Existing consumers for `selected_norm_refs`, `legal_authority_record_refs`,

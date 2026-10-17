@@ -9,7 +9,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.lex import ChangeProposalRef, LegalReportRef
-from polisyos.lex.errors import LexNotReadyError, LexValidationError
+from polisyos.lex.exception_taxonomy import LexNotReadyError, LexValidationError
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -225,6 +225,7 @@ def propose_changes_impl(
 ) -> list[ChangeProposalRef]:
     """Load a legal report artifact and persist any policy or instrumentation proposals it implies."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     del fact_log_root
     del segment_name
 

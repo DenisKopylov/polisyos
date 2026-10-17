@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, Any, Literal
 
-from polisyos.lex.common import collapse_ws
+from polisyos.common.text import collapse_ws
 
 if TYPE_CHECKING:
     from polisyos.ir.loading.norm_pack import NormRule

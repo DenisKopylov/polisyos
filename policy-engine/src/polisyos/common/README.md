@@ -10,29 +10,20 @@ migration primitives. Keep domain logic out of this package.
 ## Where to Start
 
 - `src/polisyos/common/__init__.py` for the lazy facade contract.
-- `src/polisyos/common/serialization.py` for canonical JSON helpers and
-  round-trip guarantees. Its strict UTF-8 JSON-object decoder is the shared
-  persisted-record intake primitive. It refuses malformed/non-object input, non-finite or
-  overflowing numbers, and duplicate object keys at any depth. Valid JSON null and booleans remain
-  values for the owning typed consumer to validate.
-  It also owns extraction of syntactically valid JSON
-  from LLM response text. Extraction produces a candidate value; downstream
-  schema, grounding and authority checks remain mandatory. The former
-  unregistered `common/llm_json.py` implementation is consolidated here.
-
-- `src/polisyos/common/timestamps.py` for aware-UTC parsing and formatting.
-- `src/polisyos/common/async_tools.py` for sync/async bridge utilities and the
-  shared executor.
-
-- `src/polisyos/common/config.py` and `src/polisyos/common/jax_env.py` for
-  early-process bootstrap behavior.
-
-- `src/polisyos/common/migrations/README.md` for package-local artifact
-  migrations.
-
-- The environment parsing helpers are private to `config.py`; security and
-  bootstrap consumers share those functions rather than importing a separate
-  parser module. They remain outside the Common facade exports.
+- `src/polisyos/common/serialization/__init__.py` owns canonical JSON conversion, LLM-response
+  extraction, and the public strict object decoder. Its `_strict_json.py` child owns duplicate-key,
+  non-finite, and overflowing-number rejection for persisted object intake.
+- `src/polisyos/common/timestamps/__init__.py` owns aware-UTC parsing and formatting;
+  `_ordering.py` owns latest-fact selection.
+- `src/polisyos/common/async_tools/__init__.py` owns the sync/async bridge API, shared worker
+  admission, and Future lifecycle classes. Keep those class bodies in this owner so reflection and
+  pickle lookup resolve the real definitions.
+- `src/polisyos/common/config/__init__.py` owns process configuration and private environment
+  parsing. `_logging.py` installs sinks only when explicit bootstrap calls it.
+- `src/polisyos/common/jax_env/__init__.py` applies the safe backend defaults; `_policy.py` is the
+  private pure backend-selection predicate.
+- `src/polisyos/common/logger/__init__.py` owns the logger adapter classes and trace-context behavior.
+- `src/polisyos/common/migrations/README.md` documents package-local artifact migrations.
 
 ## Internal Markdown table syntax
 
@@ -62,26 +53,27 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
   `async_tools`, `config`, `jax_env`, `logger`, `migrations`,
   `serialization`, `timestamps`.
 
-- Internal-but-frequently-touched helper: `env_parsing.py`; do not treat it as
+- Private environment parser functions remain in `config/__init__.py`; do not treat them as
   stable public surface without updating the facade and
   [Public Surface](../../../docs/reference/public-surface.md).
 
 ## Internal Layout
 
 - `__init__.py` owns the public lazy facade.
-- `serialization.py`, `timestamps.py`, and `async_tools.py` are the shared
-  helper surfaces used across packages. `canonical_profile.py` is a supported, storage-agnostic helper: it parses the exact raw selected manifest, distinguishes
-  a missing declaration from malformed-present data, and applies caller-supplied
-  codecs to verify declared payload bytes. The caller keeps its own typed tags and
-  exceptions. The internal `common/_selected_artifact_intake.py` wrapper preserves
-  `None` only for a missing selector; once selected, expected storage, decoding,
-  and validation failures or a reader-returned `None` become an owner-coded
-  `CanonicalProfileRefusalError`, while unexpected exceptions propagate unchanged.
-  It is not exported by either Common facade or the supported profile module.
-  The intake wrapper establishes no writer identity or producer authority.
-- `config.py` and `jax_env.py` are early-process bootstrap helpers; keep
-  domain behavior out of them. The private environment parsers live with the
-  existing process-config owner.
+- The six stable helper module identities are implemented as same-name packages. Their package
+  initializers preserve existing public module paths and define every pre-existing class at its natural
+  owner FQN, so `__module__`, `inspect.getsource`, and class-object pickle lookup resolve to the class
+  body. Cohesive children hold only extracted helper concerns: logging sinks, JAX backend selection,
+  strict JSON intake, and latest-fact ordering. New helpers stay private when they were not old module
+  bindings.
+- `canonical_profile.py` is a supported, storage-agnostic helper: it parses the exact raw selected
+  manifest, distinguishes a missing declaration from malformed-present data, and applies
+  caller-supplied codecs to verify declared payload bytes. The caller keeps its own typed tags and
+  exceptions. The internal `common/_selected_artifact_intake.py` wrapper preserves `None` only for a
+  missing selector; once selected, expected storage, decoding, and validation failures or a
+  reader-returned `None` become an owner-coded `CanonicalProfileRefusalError`, while unexpected
+  exceptions propagate unchanged. It is not exported by either Common facade or the supported
+  profile module. The intake wrapper establishes no writer identity or producer authority.
 - `migrations/` owns package-local migration manifest helpers.
 
 ## Extension Points
@@ -118,8 +110,8 @@ Common migration imports stay Fabric-neutral.
 
 Run commands from the repository root `policy-engine/`.
 
-- Smoke-tested:
-  `uv run pytest -q tests/unit/common/test_async_tools.py tests/unit/common/test_config_bootstrap.py tests/unit/common/test_fast_json_serialization.py tests/unit/common/test_serialization_properties.py tests/unit/common/test_timestamps.py tests/unit/common/test_migrations_purity.py`
+- Focused Common behavior tests:
+  `uv run pytest -q tests/unit/common/test_package_rehome.py tests/unit/common/test_async_tools.py tests/unit/common/test_config_bootstrap.py tests/unit/common/test_fast_json_serialization.py tests/property/common/test_serialization_properties.py tests/unit/common/test_logger.py tests/unit/common/test_timestamps.py tests/unit/common/test_migrations_purity.py`
 
 - Conceptual release gate: `uv run python tools/devx/workspace/core_runtime_mypy.py`
 - Conceptual release gate:
@@ -127,7 +119,7 @@ Run commands from the repository root `policy-engine/`.
 
 ## Shared executor ownership
 
-`async_tools.py` returns a `concurrent.futures.Future` compatible proxy. A job
+`async_tools/__init__.py` returns a `concurrent.futures.Future` compatible proxy. A job
 retains its logical reservation while its worker wrapper or synchronous done
 callbacks run, even after `result()` becomes available. Physical workers are
 counted separately. Direct nested submissions from that executor's worker or
@@ -181,4 +173,4 @@ public-surface refresh, and compatibility note.
 - [Core / Common / Runtime Audit Remediation Plan](../../../docs/plans/active/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md)
 - [Common migrations](migrations/README.md)
 
-- Last updated: 2026-10-09
+- Last updated: 2026-10-17

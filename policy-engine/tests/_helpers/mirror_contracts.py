@@ -30,6 +30,10 @@ def _module_ast(path: Path) -> ast.Module:
 def assert_source_stem_has_static_contract(package: str, stem: str) -> None:
     """Assert source modules sharing a stem are real contract-bearing modules."""
     matching_paths = tuple(path for path in _source_modules(package) if path.stem == stem)
+    package_root = REPO_ROOT / "src" / "polisyos" / package
+    package_initializer = package_root / stem / "__init__.py"
+    if package_initializer.is_file():
+        matching_paths = (*matching_paths, package_initializer)
     assert matching_paths, f"no source modules named {stem!r} found in {package!r}"
 
     for path in matching_paths:

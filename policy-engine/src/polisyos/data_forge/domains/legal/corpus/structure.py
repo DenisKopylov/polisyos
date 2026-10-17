@@ -12,17 +12,18 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal
 
-from polisyos.data_forge.domains.legal.contracts import LexStructureOptions, LexStructureResult
+from polisyos.data_forge.domains.legal.contracts import (
+    LexError,
+    LexNotReadyError,
+    LexStructureError,
+    LexStructureOptions,
+    LexStructureResult,
+    LexValidationError,
+)
 from polisyos.data_forge.domains.legal.corpus.index import (
     ProvisionEntryV1,
     ProvisionIndexV1,
     persist_provision_index,
-)
-from polisyos.data_forge.errors import (
-    LexError,
-    LexNotReadyError,
-    LexStructureError,
-    LexValidationError,
 )
 from polisyos.data_forge.kernel.artifacts import load_doc_meta_artifact, load_json_artifact
 from polisyos.fabric.world import (
@@ -119,7 +120,7 @@ def _ruleset_for(jurisdiction: str) -> _Ruleset:
     if jurisdiction == "UA":
         return _Ruleset(
             jurisdiction="UA",
-            article_re=re.compile('^\\s*Статт(?:я|\u0456)\\s+(\\d+)\\b'),
+            article_re=re.compile("^\\s*Статт(?:я|\u0456)\\s+(\\d+)\\b"),
             part_re=re.compile(r"^\s*Частин(?:а|и)\s+(\d+)\b"),
         )
     if jurisdiction == "RU":
@@ -518,6 +519,7 @@ def build_legal_structure(
         meta_before = load_doc_meta_artifact(
             cas,
             doc_meta_artifact_id,
+            error_cls=LexValidationError,
             validate_ids=True,
         )
         if meta_before.normalized_ref is None:
@@ -527,7 +529,9 @@ def build_legal_structure(
                 doc_version_id=meta_before.doc_version_id,
             )
 
-        normalized_payload = load_json_artifact(cas, meta_before.normalized_ref)
+        normalized_payload = load_json_artifact(
+            cas, meta_before.normalized_ref, error_cls=LexValidationError
+        )
         text = normalized_payload.get("text")
         if not isinstance(text, str):
             raise LexValidationError("normalized artifact missing text")

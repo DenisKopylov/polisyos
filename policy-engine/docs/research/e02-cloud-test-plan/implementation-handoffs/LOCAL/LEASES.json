@@ -227,7 +227,7 @@
         "tests/unit/data_forge/kernel/test_encoder_identity.py",
         "kernel README/release"
       ],
-      "scope": "Existing selected-ref/Core\u2192IR caller crosscut; immutable completed wrapper changes preserved across peer-owned files. Active new edits limited to B61 adapter/ref collector; peer-owned additional deltas sent to owner/root. Full completed crosscut footprint is supplied in ready manifest."
+      "scope": "Existing selected-ref/Core→IR caller crosscut; immutable completed wrapper changes preserved across peer-owned files. Active new edits limited to B61 adapter/ref collector; peer-owned additional deltas sent to owner/root. Full completed crosscut footprint is supplied in ready manifest."
     },
     "cas_contracts": {
       "mechanisms": [
@@ -1161,7 +1161,7 @@
       },
       "fabric_pool_cleanup_author": {
         "existing_scope": "Reopen prior8src9tests after actual4dependency classes bypass evidence573b738edc3a",
-        "boundary": "Whole67binding actual consumer reads/constructor routes, real owner constants rather than unused API copies. Shared ContextVar resolver invariant, no leaf globals; actual concurrent deterministic connector\u2192DuckDB counts/rows/cleanup control required for broader claim."
+        "boundary": "Whole67binding actual consumer reads/constructor routes, real owner constants rather than unused API copies. Shared ContextVar resolver invariant, no leaf globals; actual concurrent deterministic connector→DuckDB counts/rows/cleanup control required for broader claim."
       }
     },
     "frozen_review_ready": {
@@ -2455,7 +2455,7 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-r8-central-finalization-review-20261016/assessment.json",
       "sha256": "87d15f00c4812f160f55349fd6f015fa455edd9062931a8542a5cca654700a77"
     },
-    "quantity": "Full28 selected source/test paths from original30d slice plus2 mandatoryREADME/release; R6\u2192R8actual3pathpatch, existingR6live24sourcechanges retained. One successful publicget return finalizes all wrapping/fallbacks; cache/contract wrappers generation scoped.",
+    "quantity": "Full28 selected source/test paths from original30d slice plus2 mandatoryREADME/release; R6→R8actual3pathpatch, existingR6live24sourcechanges retained. One successful publicget return finalizes all wrapping/fallbacks; cache/contract wrappers generation scoped.",
     "P40": "Same registration-origin class; R6 stale wrappers and R7 fallback escape are historical, R8 widens central emission, not another leaf check.",
     "limits": "Previously issued handles/active old pool leases keep exact cleanup ownership; no immediate retirement claim. PreparedB13/native/installed/global replay pending.",
     "source_freeze": false,
@@ -2666,7 +2666,7 @@
     "base": "a1b9d7437942bc2f7e6b50644ec2345fb86a3d80",
     "mechanism_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
     "candidate_sha256": "578fbd8bb5196e286370cfb2d988a57f5bb5befc11c6b9105bc80399731b6727",
-    "review": "IndependentR2HOLD\u2192generic3collectorpre/postR3boundedGO+ASTequivalentformatGO; actualhistoricalFcatalogreader668d451. Noatomicchildconsumption/native/installedclaim.",
+    "review": "IndependentR2HOLD→generic3collectorpre/postR3boundedGO+ASTequivalentformatGO; actualhistoricalFcatalogreader668d451. Noatomicchildconsumption/native/installedclaim.",
     "mandatory_companions": [
       "LEASES.json",
       "source-bound receipt/index"
@@ -3550,7 +3550,7 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-expired-debt-audit-independent-review-20261017-r2/review.json",
       "sha256": "c1e1910f0f8dd1dcad987fbd5b4ca12c1fe826fc14aa0e5d0ed674d8b5bf6c71"
     },
-    "native_expiry_boundary": "Frozenfullcensus35rowinstances,31phase6.5\u219230 forcausalonly; full35\u219234 proposedremainingrows. Noexpirydate/issuerchanged,nootherrowsclosed. Fullnative lateractualreplayrequired.",
+    "native_expiry_boundary": "Frozenfullcensus35rowinstances,31phase6.5→30 forcausalonly; full35→34 proposedremainingrows. Noexpirydate/issuerchanged,nootherrowsclosed. Fullnative lateractualreplayrequired.",
     "bounded_last_mile": "First-levelcollector doesnotpolice nestedcausal; all-depthnamegatepositive/removebothnegative isdiscriminator.",
     "P41": "Noinheritedredclassification, known2nativepartialownsfullgatefailure untilcompletion.",
     "source_freeze": false,
@@ -3723,8 +3723,7 @@
     ],
     "source_freeze": false,
     "closure_ids": []
-  }
-,
+  },
   "coordination_epoch_20261017_native_r6_source_route_profile": {
     "source_base_commit": "e253dee3efdf6e453f8758e9453e5649335b2728",
     "root_is_only_canonical_writer": true,
@@ -4007,8 +4006,7 @@
     },
     "scope": "server composition root through real startup consumer; full N4/V2/V5 and K_ref authority unestablished",
     "closure_ids": []
-  }
-,
+  },
   "coordination_epoch_20261017_native_composed_runtime_common_calibration_r1": {
     "source_base_commit": "767b9a032b1af80eb5a21e760cf3063d567be31a",
     "source_base_tree": "96dc44e9b56e3656f9f16612b9938af3505a26a4",
@@ -4603,6 +4601,371 @@
     "limits": [
       "Candidate authority_status remains limited and all source-time/measurement/causal-coupling blockers remain.",
       "Other source cut N11 f539 currently has collection ERROR at Fabric.atomic_write_json; not inherited or green."
+    ],
+    "closure_ids": []
+  },
+  "coordination_epoch_20261017_native166_reviewed_owner_composition": {
+    "slice_base": "3c1c1f9ae155d3b0539b4c9ccdf11b3d195cfaf5",
+    "canonical_writer": "root only; direct agents RAW-only; no children",
+    "mechanism_paths": [
+      "policy-engine/apps/runtime-dashboard/scripts/fixture_support/catalog_profile_source_fixture.py",
+      "policy-engine/architecture/generated_artifacts.toml",
+      "policy-engine/architecture/imports/dynamic.toml",
+      "policy-engine/architecture/packages/common.toml",
+      "policy-engine/architecture/packages/layout.toml",
+      "policy-engine/architecture/packages/lex.toml",
+      "policy-engine/architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json",
+      "policy-engine/architecture/tooling/mypy/overrides/30-lex-scholar-data-forge-legal.ini",
+      "policy-engine/architecture/tooling/ruff/per-file-ignores/80-runtime-core-ir.toml",
+      "policy-engine/docs/contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md",
+      "policy-engine/docs/how-to/configure-lex-pipeline.md",
+      "policy-engine/docs/plans/active/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md",
+      "policy-engine/docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md",
+      "policy-engine/docs/plans/active/DECOMPOSITION_BLUEPRINT.md",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/HYG-02.md",
+      "policy-engine/docs/plans/active/layer2-slices/S5-coupling-composition-algebra.md",
+      "policy-engine/docs/plans/active/layer2-slices/S6-blind-spot-fail-closed-producers.md",
+      "policy-engine/docs/plans/active/layer3-slices/GL-legal-mandate-search-engine.md",
+      "policy-engine/docs/reference/api/index.md",
+      "policy-engine/docs/reference/configuration-env-registry.md",
+      "policy-engine/docs/reference/configuration-profiles.md",
+      "policy-engine/docs/reference/configuration.md",
+      "policy-engine/docs/reference/lex/index.md",
+      "policy-engine/docs/reference/lex/interventions.md",
+      "policy-engine/docs/reference/lex/normpack.md",
+      "policy-engine/docs/reference/logging.md",
+      "policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/law_owner_discovery.py",
+      "policy-engine/docs/tutorials/getting-started.md",
+      "policy-engine/ops/ci/templates/workflows/arch.yml",
+      "policy-engine/ops/ci/templates/workflows/mutation.yml",
+      "policy-engine/release-fragments/unreleased/2026-10-13-e02-b161-s1-r26-kind-media-source-identity.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-17-data-forge-exception-owners.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-common-package-consolidation.toml",
+      "policy-engine/release-fragments/unreleased/lex-native-owner-consolidation.toml",
+      "policy-engine/src/polisyos/common/README.md",
+      "policy-engine/src/polisyos/common/async_tools.py",
+      "policy-engine/src/polisyos/common/async_tools/__init__.py",
+      "policy-engine/src/polisyos/common/config.py",
+      "policy-engine/src/polisyos/common/config/__init__.py",
+      "policy-engine/src/polisyos/common/config/_logging.py",
+      "policy-engine/src/polisyos/common/jax_env.py",
+      "policy-engine/src/polisyos/common/jax_env/__init__.py",
+      "policy-engine/src/polisyos/common/jax_env/_policy.py",
+      "policy-engine/src/polisyos/common/logger.py",
+      "policy-engine/src/polisyos/common/logger/__init__.py",
+      "policy-engine/src/polisyos/common/serialization.py",
+      "policy-engine/src/polisyos/common/serialization/__init__.py",
+      "policy-engine/src/polisyos/common/serialization/_strict_json.py",
+      "policy-engine/src/polisyos/common/text.py",
+      "policy-engine/src/polisyos/common/timestamps.py",
+      "policy-engine/src/polisyos/common/timestamps/__init__.py",
+      "policy-engine/src/polisyos/common/timestamps/_ordering.py",
+      "policy-engine/src/polisyos/core/components/_cli_lex.py",
+      "policy-engine/src/polisyos/data_forge/README.md",
+      "policy-engine/src/polisyos/data_forge/__init__.py",
+      "policy-engine/src/polisyos/data_forge/domains/legal/contracts.py",
+      "policy-engine/src/polisyos/data_forge/domains/legal/corpus/README.md",
+      "policy-engine/src/polisyos/data_forge/domains/legal/corpus/index.py",
+      "policy-engine/src/polisyos/data_forge/domains/legal/corpus/ingest.py",
+      "policy-engine/src/polisyos/data_forge/domains/legal/corpus/structure.py",
+      "policy-engine/src/polisyos/data_forge/domains/legal/corpus/versioning.py",
+      "policy-engine/src/polisyos/data_forge/domains/legal/source_relation.py",
+      "policy-engine/src/polisyos/data_forge/errors.py",
+      "policy-engine/src/polisyos/data_forge/kernel/README.md",
+      "policy-engine/src/polisyos/data_forge/kernel/__init__.py",
+      "policy-engine/src/polisyos/data_forge/kernel/artifacts.py",
+      "policy-engine/src/polisyos/data_forge/kernel/pipeline/materialize.py",
+      "policy-engine/src/polisyos/data_forge/kernel/schemas/evolution.py",
+      "policy-engine/src/polisyos/data_forge/kernel/schemas/migrations.py",
+      "policy-engine/src/polisyos/data_forge/kernel/schemas/registry.py",
+      "policy-engine/src/polisyos/data_forge/kernel/snapshot/time_travel.py",
+      "policy-engine/src/polisyos/foundry/README.md",
+      "policy-engine/src/polisyos/foundry/_internal/quickstart.py",
+      "policy-engine/src/polisyos/foundry/_quickstart.py",
+      "policy-engine/src/polisyos/lex/README.md",
+      "policy-engine/src/polisyos/lex/__init__.py",
+      "policy-engine/src/polisyos/lex/api.py",
+      "policy-engine/src/polisyos/lex/artifacts.py",
+      "policy-engine/src/polisyos/lex/common.py",
+      "policy-engine/src/polisyos/lex/errors.py",
+      "policy-engine/src/polisyos/lex/exception_taxonomy/__init__.py",
+      "policy-engine/src/polisyos/lex/factlog.py",
+      "policy-engine/src/polisyos/lex/intervention_artifacts.py",
+      "policy-engine/src/polisyos/lex/interventions.py",
+      "policy-engine/src/polisyos/lex/interventions/__init__.py",
+      "policy-engine/src/polisyos/lex/interventions/artifacts.py",
+      "policy-engine/src/polisyos/lex/interventions/compiler.py",
+      "policy-engine/src/polisyos/lex/interventions/sequencing.py",
+      "policy-engine/src/polisyos/lex/interventions/strategic_response.py",
+      "policy-engine/src/polisyos/lex/knowledge/benchmark.py",
+      "policy-engine/src/polisyos/lex/legal_evaluation/backends/simple_v1.py",
+      "policy-engine/src/polisyos/lex/legal_evaluation/change_proposals.py",
+      "policy-engine/src/polisyos/lex/legal_evaluation/context_builder.py",
+      "policy-engine/src/polisyos/lex/legal_evaluation/evaluate.py",
+      "policy-engine/src/polisyos/lex/legal_evaluation/evaluator_registry.py",
+      "policy-engine/src/polisyos/lex/normpack/__init__.py",
+      "policy-engine/src/polisyos/lex/normpack/applicability_report.py",
+      "policy-engine/src/polisyos/lex/normpack/artifact_readers.py",
+      "policy-engine/src/polisyos/lex/normpack/assemble_pack.py",
+      "policy-engine/src/polisyos/lex/normpack/extract_norm_claims.py",
+      "policy-engine/src/polisyos/lex/normpack/legal_authority.py",
+      "policy-engine/src/polisyos/lex/normpack/select_sources.py",
+      "policy-engine/src/polisyos/lex/normpack/types.py",
+      "policy-engine/src/polisyos/lex/provenance.py",
+      "policy-engine/src/polisyos/lex/provenance/__init__.py",
+      "policy-engine/src/polisyos/lex/provenance/adapter.py",
+      "policy-engine/src/polisyos/lex/types.py",
+      "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+      "policy-engine/src/polisyos/scientist/cross_graph/compiler.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/governance/legal_check.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "policy-engine/tests/_helpers/mirror_contracts.py",
+      "policy-engine/tests/integration/runtime_quality/test_workflow_post_data_view_profile_binding.py",
+      "policy-engine/tests/property/lex/test_common_properties.py",
+      "policy-engine/tests/repo_quality/tools/test_docs_gate.py",
+      "policy-engine/tests/unit/common/test_lex_text.py",
+      "policy-engine/tests/unit/common/test_package_rehome.py",
+      "policy-engine/tests/unit/data_forge/legal_batch/test_lex_shared_contract_relocation.py",
+      "policy-engine/tests/unit/data_forge/test_exception_ownership.py",
+      "policy-engine/tests/unit/data_forge/test_phase0a_foundation.py",
+      "policy-engine/tests/unit/data_forge/test_phase7_schema_quality_observability.py",
+      "policy-engine/tests/unit/fabric/test_legal_evaluation.py",
+      "policy-engine/tests/unit/fabric/test_normpack.py",
+      "policy-engine/tests/unit/foundry/calibration/test_identifiability_response_basis.py",
+      "policy-engine/tests/unit/foundry/compile/test_trinity_compiler.py",
+      "policy-engine/tests/unit/foundry/facade/test_quickstart.py",
+      "policy-engine/tests/unit/foundry/hygiene/test_purity_boundaries.py",
+      "policy-engine/tests/unit/foundry/mirror_contracts/test__quickstart.py",
+      "policy-engine/tests/unit/foundry/mirror_contracts/test_internal_quickstart.py",
+      "policy-engine/tests/unit/foundry/runtime/test_execute_feedback.py",
+      "policy-engine/tests/unit/foundry/validation/test_release_gate.py",
+      "policy-engine/tests/unit/lex/exception_taxonomy/test_errors.py",
+      "policy-engine/tests/unit/lex/interventions/test_artifacts.py",
+      "policy-engine/tests/unit/lex/interventions/test_compiler.py",
+      "policy-engine/tests/unit/lex/mirror_contracts/README.md",
+      "policy-engine/tests/unit/lex/mirror_contracts/test_api.py",
+      "policy-engine/tests/unit/lex/mirror_contracts/test_artifacts.py",
+      "policy-engine/tests/unit/lex/mirror_contracts/test_errors.py",
+      "policy-engine/tests/unit/lex/mirror_contracts/test_factlog.py",
+      "policy-engine/tests/unit/lex/mirror_contracts/test_types.py",
+      "policy-engine/tests/unit/lex/normpack/test_artifact_readers.py",
+      "policy-engine/tests/unit/lex/normpack/test_fabric_world_reader.py",
+      "policy-engine/tests/unit/lex/normpack/test_types.py",
+      "policy-engine/tests/unit/lex/provenance/test_adapter.py",
+      "policy-engine/tests/unit/lex/test_api_contract.py",
+      "policy-engine/tests/unit/lex/test_common.py",
+      "policy-engine/tests/unit/lex/test_fabric_provenance.py",
+      "policy-engine/tests/unit/lex/test_intervention_artifacts.py",
+      "policy-engine/tests/unit/lex/test_interventions.py",
+      "policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "policy-engine/tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py",
+      "policy-engine/tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py",
+      "policy-engine/tools/ops_runners/experiments/run_msme_e2e_showcase.py",
+      "policy-engine/tools/ops_runners/experiments/run_msme_grand_tournament_v2.py",
+      "policy-engine/tools/quality/lint/lint_foundry.py",
+      "policy-engine/tools/quality/testing/mutation.py",
+      "policy-engine/tools/quality/validation/check_grounding_bind_contract.py",
+      "policy-engine/tools/quality/validation/check_grounding_relation_contract.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "pending_owner_generated_companions": [
+      {
+        "owner": "tool-config split",
+        "path": "policy-engine/mypy.ini",
+        "command": "uv run polisyos-tools workspace tool-configs"
+      },
+      {
+        "owner": "tool-config split",
+        "path": "policy-engine/architecture/tooling/mypy/generated.ini",
+        "command": "uv run polisyos-tools workspace tool-configs"
+      },
+      {
+        "owner": "tool-config split",
+        "path": "policy-engine/ruff.toml",
+        "command": "uv run polisyos-tools workspace tool-configs"
+      },
+      {
+        "owner": "tool-config split",
+        "path": "policy-engine/ruff.generated.toml",
+        "command": "uv run polisyos-tools workspace tool-configs"
+      },
+      {
+        "owner": "tool-config split",
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "command": "uv run polisyos-tools workspace tool-configs"
+      },
+      {
+        "owner": "tool-config split",
+        "path": "policy-engine/mkdocs.yml",
+        "command": "uv run polisyos-tools workspace tool-configs"
+      },
+      {
+        "owner": "tool-config split",
+        "path": "policy-engine/architecture/tooling/mkdocs/generated.yml",
+        "command": "uv run polisyos-tools workspace tool-configs"
+      },
+      {
+        "owner": "architecture guardrails sync",
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "command": "uv run python tools/devx/architecture/guardrails.py sync --public-json <RAW>/generated/public_surface/inventory.json --public-md <RAW>/generated/docs/public-surface.md --generated-md <RAW>/generated/docs/generated-artifacts.md --deep-import-baseline <RAW>/generated/imports/deep_import.json"
+      },
+      {
+        "owner": "architecture guardrails sync",
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "command": "uv run python tools/devx/architecture/guardrails.py sync --public-json <RAW>/generated/public_surface/inventory.json --public-md <RAW>/generated/docs/public-surface.md --generated-md <RAW>/generated/docs/generated-artifacts.md --deep-import-baseline <RAW>/generated/imports/deep_import.json"
+      },
+      {
+        "owner": "architecture guardrails sync",
+        "path": "policy-engine/docs/reference/generated-artifacts.md",
+        "command": "uv run python tools/devx/architecture/guardrails.py sync --public-json <RAW>/generated/public_surface/inventory.json --public-md <RAW>/generated/docs/public-surface.md --generated-md <RAW>/generated/docs/generated-artifacts.md --deep-import-baseline <RAW>/generated/imports/deep_import.json"
+      },
+      {
+        "owner": "architecture guardrails sync",
+        "path": "policy-engine/architecture/baselines/imports/deep_import.json",
+        "command": "uv run python tools/devx/architecture/guardrails.py sync --public-json <RAW>/generated/public_surface/inventory.json --public-md <RAW>/generated/docs/public-surface.md --generated-md <RAW>/generated/docs/generated-artifacts.md --deep-import-baseline <RAW>/generated/imports/deep_import.json"
+      }
+    ],
+    "selected_composition": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-composition-final-r2-20261017/manifest.json",
+      "sha256": "46043de693f68dc08a3898179a6f6ff66c3bcc58fa676b70d502dc61585be589"
+    },
+    "independent_aggregate_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native166-final-independent-aggregate-review-r1-20261017/review.json",
+      "sha256": "005945b0b1389883beafd7674f167d4bbd00139f5447cfa3762085d651b61fdc"
+    },
+    "property": "Common/DF/Foundry/Lex physical owner consolidation with stable public facades, composed tests and explicit private/pickle migration limits; 16 migrated source-root exceptions removed, RuntimeReplay1 and three IR shell exceptions retained.",
+    "P40_bucket": "One composed owner/layout/companion mechanism; no per-file waiver or expiry renewal.",
+    "verification": "Canonical source adoption only. Official owner generation, canonical affected-path Ruff, importer/unit/native/composed gates remain pending at this source boundary.",
+    "retirement": "27 candidate-owned files go through Foundation Native Trash with exact source/destination hash and permission readback; no permanent deletion.",
+    "limits": [
+      "This source boundary establishes no native green or finding closure.",
+      "Existing N11 f539 import-time facade classifier regression is ours and remains under repair; it may block runtime-based consumers."
+    ],
+    "closure_ids": []
+  },
+  "coordination_epoch_20261017_native166_canonical_ruff_companions": {
+    "slice_base": "3c1c1f9ae155d3b0539b4c9ccdf11b3d195cfaf5",
+    "canonical_writer": "root only; agents RAW-only",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/lex/__init__.py",
+      "policy-engine/src/polisyos/lex/api.py",
+      "policy-engine/src/polisyos/lex/exception_taxonomy/__init__.py",
+      "policy-engine/src/polisyos/lex/interventions/artifacts.py",
+      "policy-engine/src/polisyos/lex/interventions/compiler.py",
+      "policy-engine/src/polisyos/lex/interventions/sequencing.py",
+      "policy-engine/src/polisyos/lex/interventions/strategic_response.py",
+      "policy-engine/src/polisyos/lex/knowledge/benchmark.py",
+      "policy-engine/src/polisyos/lex/legal_evaluation/change_proposals.py",
+      "policy-engine/src/polisyos/lex/legal_evaluation/context_builder.py",
+      "policy-engine/src/polisyos/lex/legal_evaluation/evaluate.py",
+      "policy-engine/src/polisyos/lex/legal_evaluation/evaluator_registry.py",
+      "policy-engine/src/polisyos/lex/normpack/artifact_readers.py",
+      "policy-engine/src/polisyos/lex/normpack/assemble_pack.py",
+      "policy-engine/src/polisyos/lex/normpack/extract_norm_claims.py",
+      "policy-engine/src/polisyos/lex/normpack/select_sources.py",
+      "policy-engine/src/polisyos/scientist/cross_graph/compiler.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/governance/legal_check.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "policy-engine/tests/property/lex/test_common_properties.py",
+      "policy-engine/tests/repo_quality/tools/test_docs_gate.py",
+      "policy-engine/tests/unit/common/test_lex_text.py",
+      "policy-engine/tests/unit/data_forge/legal_batch/test_lex_shared_contract_relocation.py",
+      "policy-engine/tests/unit/fabric/test_legal_evaluation.py",
+      "policy-engine/tests/unit/fabric/test_normpack.py",
+      "policy-engine/tests/unit/foundry/hygiene/test_purity_boundaries.py",
+      "policy-engine/tests/unit/lex/exception_taxonomy/test_errors.py",
+      "policy-engine/tests/unit/lex/interventions/test_artifacts.py",
+      "policy-engine/tests/unit/lex/interventions/test_compiler.py",
+      "policy-engine/tests/unit/lex/normpack/test_artifact_readers.py",
+      "policy-engine/tests/unit/lex/normpack/test_types.py",
+      "policy-engine/tests/unit/lex/test_api_contract.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "candidate_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-ruff-companions-r4-20261017/proposal-manifest.json",
+      "sha256": "f5df8c39d9c4564f7216bd16c353acee9e20787c4d94981b47143a4ed7bd7439"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-ruff-companions-independent-review-r1-20261017/review.json",
+      "sha256": "cdb33a263149ee103cdec031c7dae484e578d1e181a3b37a0cf0cf66e3f6b45e"
+    },
+    "actual_ruff_denominator": {
+      "native_plan_python_paths": 94,
+      "authored_lint_and_format_paths": 93,
+      "excluded_historical_journal": "policy-engine/docs/superpowers/journals/gy-phase5-evidence/shared/law_owner_discovery.py",
+      "scope": "Existing authored/evidence/current_python_files selectors and root extend-exclude; earlier94explicitfile invocation forcedoneout-of-scopejournalin. Its23diagnostics remain recorded, never claimed green."
+    },
+    "property": "Preserve non-import AST and import bindings; add the missing defining StrategicResponseChannel type import and actual get_type_hints/unknown-kind behavior control. Format and import sorting apply only required canonical companions.",
+    "P40_bucket": "Whole canonical matcher and moved-module companion class, not blanket ignore or per-finding waiver.",
+    "commit_hold": "N166-F1 same-source default-root dynamic report/two bindings still pending; this source application is not Native acceptance.",
+    "closure_ids": []
+  },
+  "coordination_epoch_20261017_minimal_import_time_identity_failure_boundary": {
+    "slice_base": "3c1c1f9ae155d3b0539b4c9ccdf11b3d195cfaf5",
+    "canonical_writer": "root only; agents RAW-only",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "candidate_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-calibration-import-failure-boundary-r7-minimal-20261017/candidate-manifest.json",
+      "sha256": "d98edfc2864d93bbbc0b843456ed7dc86b8ec91d374e621645484a08cdaaeec4"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-calibration-import-failure-boundary-independent-review-r7-20261017/review.json",
+      "sha256": "99647f9b9d9c459a247f8147eacf65d88a9d920d8752c0a8f3d24260bc507a78"
+    },
+    "property": "A typed import-time identity failure freezes the existing unavailable state, permits candidate imports, and refuses authority before recapture, registry/CAS/state effects and final authority projection. Successful snapshot timing and packaged issuer refusal remain unchanged.",
+    "P40_bucket": {
+      "bucket": "same import-closure failure class widened from candidate import to all authority admission/emission entry paths; no per-module repair",
+      "falsifier": "After typed first-capture failure, candidate import must remain possible but any recapture, established identity, session side effect, or N9 promotion refusal loss is a failure.",
+      "residual": "This does not repair source-derived closure correctness or produce an authentic positive when the snapshot is unavailable."
+    },
+    "verification": "Author isolated focused test and static checks only. Canonical owner/served/N6 positive-path controls and full N11 closure remain pending.",
+    "closure_ids": []
+  },
+  "coordination_epoch_20261017_native166_exact_binding_source_boundary": {
+    "slice_base": "3c1c1f9ae155d3b0539b4c9ccdf11b3d195cfaf5",
+    "canonical_writer": "root only; agents RAW-only",
+    "mechanism_paths": [
+      "policy-engine/architecture/imports/dynamic.toml"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "proposal": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native166-f1-two-row-registry-companion-proposal-r1-20261017/proposal.json",
+      "sha256": "f9c40786a7f6b43fa604e792710469fc355bc9af72161171f1e6fc15a83599e2"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native166-f1-two-row-registry-companion-independent-review-r1-20261017/review.json",
+      "sha256": "9195330e40bbe4c2170591c132b8e090f99f00930afc2e49372ca3ce721ae3b3"
+    },
+    "actual_canonical_binding_and_removal_controls": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-f1-registry-source-application-r1-20261017/actual-two-bindings-result.json",
+      "sha256": "c6d25222e5d94db38e3ad3e7e9c50ad370d6a781785c9e231d3c217aa56250da"
+    },
+    "disposition": "N166-F1 bounded source-adoption condition satisfied: two exact canonical source-scanner rows equal the applied registry, both targets resolve to own source, missing-row and target-drift controls fail through the actual registry validator. Full source inventory/native acceptance remains HOLD; this is not a closure.",
+    "companion_preservation": "Only two generated IDs and one line changed. Owner, targets, verifier, review dates, whitelist and historical records unchanged.",
+    "remaining_verification": [
+      "Full dynamic collector and missing Foundry registry row",
+      "15 expired report-only gate row dispositions and actual native SOTA checks",
+      "Fresh composed guardrails generation; deep-import candidate baseline is held for actual new dependencies, never blindly adopted",
+      "Full owner/importer/composed/served/Linux/installed/browser/authentic validation",
+      "Successful N11 source closure identity remains not_established; minimal failure boundary permits candidate import and refuses authority"
     ],
     "closure_ids": []
   }

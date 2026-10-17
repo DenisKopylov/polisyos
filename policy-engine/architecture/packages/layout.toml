@@ -48,102 +48,22 @@ owner = "team-ir"
 sunset = "2026-07-31"
 reason = "Legacy IR trinity shell package is time-boxed until Wave 3 semantic grouping."
 
-[[root_file_exception]]
-path = "src/polisyos/common/async_tools.py"
-owner = "team-core"
-sunset = "2026-07-31"
-reason = "Common async helpers are stable shared facades pending a common utilities grouping decision."
-
-[[root_file_exception]]
-path = "src/polisyos/common/config.py"
-owner = "team-core"
-sunset = "2026-07-31"
-reason = "Common config remains root-level because multiple packages consume it as shared public utility surface."
 
 
-[[root_file_exception]]
-path = "src/polisyos/common/jax_env.py"
-owner = "team-core"
-sunset = "2026-07-31"
-reason = "JAX environment helper is a shared facade during numerical-runtime import cleanup."
 
-[[root_file_exception]]
-path = "src/polisyos/common/logger.py"
-owner = "team-core"
-sunset = "2026-07-31"
-reason = "Common logger remains a root-level compatibility facade for package-wide logging setup."
 
-[[root_file_exception]]
-path = "src/polisyos/common/serialization.py"
-owner = "team-core"
-sunset = "2026-07-31"
-reason = "Serialization helpers remain root-level until common IO utilities get a canonical subpackage."
 
-[[root_file_exception]]
-path = "src/polisyos/common/timestamps.py"
-owner = "team-core"
-sunset = "2026-07-31"
-reason = "Timestamp helpers remain root-level shared utility facade during common package consolidation."
 
-[[root_file_exception]]
-path = "src/polisyos/data_forge/errors.py"
-owner = "team-data-forge"
-sunset = "2026-07-31"
-reason = "Data Forge public error types remain root-level until error taxonomy consumers migrate."
 
-[[root_file_exception]]
-path = "src/polisyos/foundry/_quickstart.py"
-owner = "team-foundry"
-sunset = "2026-07-31"
-reason = "Foundry quickstart facade is blueprint-approved root helper pending extension example migration."
 
-[[root_file_exception]]
-path = "src/polisyos/lex/artifacts.py"
-owner = "team-lex"
-sunset = "2026-07-31"
-reason = "Lex artifact public helpers remain root-level during normpack and factlog grouping."
 
-[[root_file_exception]]
-path = "src/polisyos/lex/common.py"
-owner = "team-lex"
-sunset = "2026-07-31"
-reason = "Lex common helpers remain a compatibility facade until package-local utilities are grouped."
 
-[[root_file_exception]]
-path = "src/polisyos/lex/errors.py"
-owner = "team-lex"
-sunset = "2026-07-31"
-reason = "Lex public error types remain root-level until canonical error taxonomy migration."
 
-[[root_file_exception]]
-path = "src/polisyos/lex/factlog.py"
-owner = "team-lex"
-sunset = "2026-07-31"
-reason = "Factlog remains root-level as a public Lex facade until factlog package extraction."
 
-[[root_file_exception]]
-path = "src/polisyos/lex/intervention_artifacts.py"
-owner = "team-lex"
-sunset = "2026-07-31"
-reason = "Intervention artifact facade remains root-level until intervention outputs are grouped."
 
-[[root_file_exception]]
-path = "src/polisyos/lex/interventions.py"
-owner = "team-lex"
-sunset = "2026-07-31"
-reason = "Lex interventions facade remains root-level during intervention package consolidation."
 
-[[root_file_exception]]
-path = "src/polisyos/lex/provenance.py"
-owner = "team-lex"
-sunset = "2026-07-31"
-reason = "Lex provenance helpers remain root-level until provenance adapters are grouped."
 
-[[root_file_exception]]
-path = "src/polisyos/lex/types.py"
-owner = "team-lex"
-sunset = "2026-07-31"
-reason = "Lex public types remain root-level until the type taxonomy is consolidated."
+
 
 [[root_file_exception]]
 path = "src/polisyos/runtime/replay.py"

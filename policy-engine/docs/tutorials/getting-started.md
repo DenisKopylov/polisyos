@@ -3,7 +3,7 @@
 English edition: 2026-10-14 (translation only; not a source-freshness or execution claim).
 Owner: `@docs-owners`
 Source of truth: `pyproject.toml`, `.python-version`, `.nvmrc`, `package.json`,
-`tools/devx/workspace/{_common,bootstrap,doctor}.py`, `src/polisyos/foundry/_quickstart.py`,
+`tools/devx/workspace/{_common,bootstrap,doctor}.py`, `src/polisyos/foundry/_internal/quickstart.py`,
 `src/polisyos/ir/__init__.py`, `src/polisyos/foundry/__init__.py`,
 `docs/reference/policy-design-case-failure-patterns.md`.
 Source snapshot: `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`;
@@ -97,7 +97,7 @@ described in the
 ```python
 from pathlib import Path
 
-from polisyos.foundry._quickstart import run_trivial_compile_execute
+from polisyos.foundry._internal.quickstart import run_trivial_compile_execute
 
 cas_root = Path(".polisyos/quickstart-cas")
 result = run_trivial_compile_execute(cas_root=cas_root)

@@ -4042,7 +4042,7 @@ def _law_token_from_owner_entry(entry: Mapping[str, Any]) -> str:
 def _lex_owner_registry(
     bundle: InterventionSubstrateBundle,
 ) -> _LexProvisionMappingRegistryProtocol:
-    lex_artifacts = importlib.import_module("polisyos.lex.intervention_artifacts")
+    lex_artifacts = importlib.import_module("polisyos.lex.interventions.artifacts")
     slot_registry = _owner_slot_registry(bundle)
     mechanism_registry = _owner_mechanism_registry(bundle, slot_registry=slot_registry)
     intervention_entries: list[dict[str, Any]] = []

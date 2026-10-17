@@ -5,7 +5,7 @@ from importlib.metadata import version as distribution_version
 import pytest
 
 from polisyos.data_forge import __version__, read_api
-from polisyos.data_forge.errors import DataForgeValidationError
+from polisyos.data_forge.kernel import DataForgeValidationError
 from polisyos.data_forge.kernel.artifacts import (
     ArtifactRef,
     PIILevel,

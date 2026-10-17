@@ -43,26 +43,67 @@ requires `ModuleNotFoundError` for that exact name.
 The source-bound census does not observe external imports or persisted external
 pickle stores. Their populations remain `not_established`; this route makes no
 claim that external uses do not exist. It creates no shim registration or
-compatibility sunset date for this private path. Existing unrelated shim and
-exception rows remain unchanged.
+compatibility sunset date for this private path.
+
+The _quickstart route treats the old module as an unlisted internal helper, not a
+supported facade entrypoint. The routine candidate moves the complete existing
+implementation verbatim into the already-owned
+polisyos.foundry._internal.quickstart, migrates every current repository
+importer, and deletes the old module without a compatibility shim or new
+facade export. Compile/execute behavior, CAS artifact contracts, CPU-first JAX
+defaults, and result field names stay the same; the dataclass __module__
+identity naturally follows the new owner. External imports and persisted
+pickles remain not_established, so this route makes no compatibility claim.
+Pattern pass: P06/P28/P31/P40; target is one existing owner with complete caller
+migration, and acceptance requires actual CAS-path tests plus old-import removal.
 
 ## Move Map
 
-| Source FQN | Target FQN | Type | Reasoning |
+| Source identity | Target FQN | Type | Reasoning |
 | --- | --- | --- | --- |
-| `polisyos.foundry._quickstart` | `polisyos.foundry._internal.quickstart` | internal | Default internal bucket. |
+| Pre-move `polisyos.foundry._quickstart` at the pinned baseline below | `polisyos.foundry._internal.quickstart` | internal | Existing owner; migrate the measured repository callers and remove the old module without a shim. The source FQN is retained here as a dated migration input, not a current import route. |
 | `polisyos.foundry._registry` | `polisyos.foundry.methods.catalog.mechanism.runtime_registry` | internal | The unlisted private FQN is retired after repository references migrate to the existing mechanism-catalog owner; external use remains unestablished. |
 
 ## Repository Import References
 
-### `polisyos.foundry._quickstart`
-- `src/polisyos/foundry/README.md:97` (literal_fqn)
-- `tests/repo_quality/tools/test_docs_gate.py:279` (literal_fqn)
-- `tests/unit/foundry/facade/test_quickstart.py:8` (literal_fqn)
-- `tests/unit/foundry/runtime/test_execute_feedback.py:25` (literal_fqn)
-- `tools/ops_runners/experiments/run_msme_e2e_showcase.py:774` (literal_fqn)
-- `tools/ops_runners/experiments/run_msme_e2e_showcase.py:1380` (literal_fqn)
-- `tools/ops_runners/experiments/run_msme_grand_tournament_v2.py:1627` (literal_fqn)
+The candidate distinguishes active target references from historical source references. The target references below are expected in the R3 postimages after root adoption; they do not establish that the runtime or generated inventories have already been adopted.
+
+### Candidate target imports after the move (R3 postimages)
+
+Direct importing modules routed to `polisyos.foundry._internal.quickstart`:
+- `apps/runtime-dashboard/scripts/fixture_support/catalog_profile_source_fixture.py:254`
+- `tests/integration/runtime_quality/test_workflow_post_data_view_profile_binding.py:32`
+- `tests/unit/foundry/calibration/test_identifiability_response_basis.py:156`
+- `tests/unit/foundry/compile/test_trinity_compiler.py:124`
+- `tests/unit/foundry/facade/test_quickstart.py:26, 89, 241`
+- `tests/unit/foundry/runtime/test_execute_feedback.py:23`
+- `tests/unit/foundry/validation/test_release_gate.py:17`
+- `tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py:51`
+- `tools/ops_runners/experiments/run_msme_e2e_showcase.py:773, 1380`
+- `tools/ops_runners/experiments/run_msme_grand_tournament_v2.py:1626`
+
+Other active target references in the candidate postimages:
+- `src/polisyos/foundry/README.md:200`
+- `tests/repo_quality/tools/test_docs_gate.py:348`
+- `docs/tutorials/getting-started.md:100`
+
+### Historical pre-move references (Git baseline only)
+
+The old module identity and the following locations are a snapshot of the pre-move repository state, not a list of current imports. The Git anchor is commit `3d07f60e617e20814e7d5ba049a0b66d6db78974` (tree `02d8efdf9682035544a12492c99074c1c2bef529`, committed `2026-10-17T17:53:12+03:00`). At that revision `src/polisyos/foundry/_quickstart.py` existed with content SHA-256 `9b7215b46cc926df088fddd451fd8c3444a13d1ef3b9450e0a4c0f0aeb41d8b4`. The baseline Git path, not the spelling of the old FQN alone, anchors this record.
+
+Direct importing modules in the corrected pre-move census were:
+- `apps/runtime-dashboard/scripts/fixture_support/catalog_profile_source_fixture.py:254`
+- `tests/integration/runtime_quality/test_workflow_post_data_view_profile_binding.py:32`
+- `tests/unit/foundry/calibration/test_identifiability_response_basis.py:156`
+- `tests/unit/foundry/compile/test_trinity_compiler.py:124`
+- `tests/unit/foundry/facade/test_quickstart.py:25, 88, 240`
+- `tests/unit/foundry/runtime/test_execute_feedback.py:23`
+- `tests/unit/foundry/validation/test_release_gate.py:17`
+- `tests/unit/scientist/methods/search/funnel/test_source_bound_risk_candidate.py:51`
+- `tools/ops_runners/experiments/run_msme_e2e_showcase.py:773, 1380`
+- `tools/ops_runners/experiments/run_msme_grand_tournament_v2.py:1626`
+
+The corrected baseline census covers 12,963 eligible current files and 50 hit files; it is the authority for the historical/current role partition. The R3 manifest's `historical_records_preserved` list is not exhaustive: the corrected census additionally classifies `docs/archive/reports/MSME_POLICYOS_FINAL_EXPERIMENT_SUITE_2026-05-01.md` and `docs/archive/reports/REPOSITORY_BEST_IN_CLASS_PHASE_0_5_SOURCE_COMPLEXITY_INVENTORY.md` as historical records, and both remain unchanged. Do not infer a complete archive-history list from the R3 manifest or treat a matching string by itself as an active import.
 
 ### `polisyos.foundry._registry` (retired private path)
 
@@ -92,11 +133,11 @@ This is a repository-scoped inventory, not evidence about external adoption.
 
 | Shim FQN | Target FQN | Shape | Draft sunset |
 | --- | --- | --- | --- |
-| `polisyos.foundry._quickstart` | `polisyos.foundry._internal.quickstart` | targeted names only | created + 1170 days |
 
-The `_registry` FQN is intentionally absent from this compatibility table: it is
-unlisted/internal under the current public-surface contract and is removed after
-the enumerated repository references migrate. No external non-use claim is made.
+The `_quickstart` and `_registry` FQNs are intentionally absent from this
+compatibility table: both are internal under the current public-surface contract
+and are removed after their enumerated repository references migrate. No
+external non-use claim is made.
 
 ## Pydantic Models And Runtime API Schema Usage
 

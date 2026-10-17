@@ -1,15 +1,18 @@
 # Configure the Lex Pipeline
 
 Related explanation: [Lex Pipeline](../explanation/lex-pipeline.md). Related reference: [Lex](../reference/lex/index.md).
-Evidence: `tests/unit/lex/**`, [Lex contracts](../contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md), [Lex legal evaluation contract](../contracts/E2_10_LEX_LEGAL_EVALUATION_V1_0.md).
+Test path scope: `tests/unit/lex/**` (discovery scope, not a claim that every module in the tree was executed); [Lex contracts](../contracts/E2_9_LEX_NORMPACK_ASSEMBLY_V1_0.md), [Lex legal evaluation contract](../contracts/E2_10_LEX_LEGAL_EVALUATION_V1_0.md).
 
-Source review: snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
-(2026-10-14); reviewed `src/polisyos/data_forge/domains/legal/corpus/`,
-`src/polisyos/data_forge/domains/legal/contracts.py`, `src/polisyos/lex/api.py`,
-`src/polisyos/lex/types.py`, `src/polisyos/runtime/http/routes/control.py`, and
-`src/polisyos/runtime/http/services/control/lex_pipeline.py`. Commands, HTTP
-requests, and tests were not run as part of this review; this does not establish
-a working runtime or external configuration.
+Historical source review: snapshot `bafca83bff9ff49eef1466bc491a8420b5cd1dbb`
+(2026-10-14); reviewed the then-existing Data Forge corpus and contract paths,
+`src/polisyos/lex/api.py`, and the runtime control route and service. It predates
+the candidate NormPack type owner documented below.
+Candidate owner source inspected in the R4 overlay: `src/polisyos/lex/normpack/types.py`
+at `sha256:c565bdb422f9ea87b491fb78cdc3959d91fc821b912a7907f436630b17f11517`.
+This is a candidate postimage, not a path claimed to exist at the historical
+source pin. Commands, HTTP requests, and tests were not run as part of this
+documentation review; this does not establish a working runtime or external
+configuration.
 
 > This page is for engineers and operators who need to assemble a reliable Lex
 > ingestion path rather than call a single helper once.
@@ -176,7 +179,7 @@ When versioning is ready, move on to the policy-facing artifact:
 
 ```python
 from polisyos.lex.api import assemble_norm_pack
-from polisyos.lex.types import NormPackBuildRequest
+from polisyos.lex.normpack.types import NormPackBuildRequest
 
 norm_result = assemble_norm_pack(
     cas=cas,

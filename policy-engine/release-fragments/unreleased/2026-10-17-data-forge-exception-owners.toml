@@ -1,0 +1,16 @@
+id = "2026-10-17-data-forge-exception-owners"
+title = "Place Data Forge exceptions with their kernel and legal owners"
+type = "changed"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "The generic Data Forge exceptions now belong to the existing kernel package, and legal corpus exceptions belong to the legal contract owner; kernel artifact loaders default to the generic validation error while legal callers select their existing legal error semantics."
+evidence = ["tests/unit/data_forge/test_exception_ownership.py", "tests/unit/data_forge/legal_batch/test_lex_shared_contract_relocation.py", "tests/unit/lex/mirror_contracts/test_api.py"]
+compatibility = "The supported polisyos.data_forge root exports and class names remain unchanged. The unlisted internal polisyos.data_forge.errors module is removed; source consumers must import generic errors from polisyos.data_forge or polisyos.data_forge.kernel and legal corpus errors from polisyos.data_forge.domains.legal.contracts. Historical pickle payloads refer to the old module global. No package-level compatibility promise is declared for this unlisted module; deployments persisting these payloads need a migration or compatibility decision. Runtime Lex error classes remain separate and unchanged."
+change_class = "internal"
+surface_classification = "internal: Data Forge exception owner relocation; public polisyos.data_forge generic exception names remain unchanged"
+migration = "Import generic Data Forge exceptions from polisyos.data_forge or polisyos.data_forge.kernel. Import Data Forge legal corpus errors from polisyos.data_forge.domains.legal.contracts. Do not use the retired polisyos.data_forge.errors module path."
+api = "Moves generic exception class definitions to the existing kernel package and Data Forge-owned Lex corpus exceptions to the existing legal contracts module. The shared artifact loader defaults to DataForgeValidationError, and legal corpus callers pass LexValidationError explicitly."
+limitations = "This does not merge Data Forge legal errors with the runtime Lex taxonomy, add a shared errors module, change legal error codes or metadata, or resolve deployment-specific historical pickle compatibility. The package-layout registry and generated import/public-surface inventories require root-owner regeneration before adoption."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/data_forge/README.md", "docs/plans/active/DATA_FORGE_CONSOLIDATION_PLAN.md"]
+runbook_docs = []

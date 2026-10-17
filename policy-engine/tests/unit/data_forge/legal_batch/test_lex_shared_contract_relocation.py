@@ -11,10 +11,12 @@ import pytest
 
 from polisyos.core.errors import ErrorCategory
 from polisyos.data_forge.domains.legal.contracts import ActiveVersionResult as DataForgeResult
-from polisyos.data_forge.errors import LexValidationError as DataForgeValidationError
+from polisyos.data_forge.domains.legal.contracts import (
+    LexValidationError as DataForgeLexValidationError,
+)
 from polisyos.lex import api
-from polisyos.lex.errors import LexValidationError
-from polisyos.lex.types import ActiveVersionResult, ActiveVersionStrategy
+from polisyos.lex.exception_taxonomy import LexValidationError
+from polisyos.lex.normpack.types import ActiveVersionResult, ActiveVersionStrategy
 
 
 def test_lex_runtime_contract_modules_import_without_data_forge_compatibility_edges() -> None:
@@ -36,9 +38,9 @@ def guarded_import(name, *args, **kwargs):
     return original_import(name, *args, **kwargs)
 
 builtins.__import__ = guarded_import
-import polisyos.lex.artifacts
-import polisyos.lex.errors
-import polisyos.lex.types
+import polisyos.lex.normpack.artifact_readers
+import polisyos.lex.exception_taxonomy
+import polisyos.lex.normpack.types
 """
     project_root = Path(__file__).resolve().parents[4]
     environment = dict(os.environ, PYTHONPATH=str(project_root / "src"))
@@ -89,7 +91,7 @@ def test_resolve_active_version_translates_data_forge_policy_error_to_lex_error(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Data Forge failure semantics cross the read boundary as Lex-local errors."""
-    produced_error = DataForgeValidationError(
+    produced_error = DataForgeLexValidationError(
         "version index doc_source_id mismatch",
         doc_source_id="ua:law:123",
         doc_version_id="ua:law:123:v2",

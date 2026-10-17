@@ -14,7 +14,7 @@ import pytest
 
 import polisyos.data_forge as data_forge
 import polisyos.data_forge.kernel.schemas as canonical_schemas
-from polisyos.data_forge.errors import SchemaCompatibilityError
+from polisyos.data_forge.kernel import SchemaCompatibilityError
 from polisyos.data_forge.kernel.schemas import (
     CompatibilityMode,
     SchemaChangeKind,
@@ -1188,22 +1188,19 @@ def test_dfk_01_census_decodes_valid_junit_and_manifested_source_snapshot(
     assert completed.returncode == 0, completed.stderr
     assert receipt["result"] == "complete_for_selected_local_text_inputs"
     assert any(
-        hit["path"] == report_path
-        and hit["evidence_kind"] == "serialized_or_text_reference"
+        hit["path"] == report_path and hit["evidence_kind"] == "serialized_or_text_reference"
         for hit in receipt["matches"]
     )
     excerpt_import = next(
         hit
         for hit in receipt["matches"]
-        if hit["path"] == excerpt_path
-        and hit["target"] == "polisyos.foundry.domain.schema"
+        if hit["path"] == excerpt_path and hit["target"] == "polisyos.foundry.domain.schema"
     )
     assert excerpt_import["line"] == 2
     legacy_import = next(
         hit
         for hit in receipt["matches"]
-        if hit["path"] == legacy_excerpt_path
-        and hit["target"] == "polisyos.foundry.domain.schema"
+        if hit["path"] == legacy_excerpt_path and hit["target"] == "polisyos.foundry.domain.schema"
     )
     assert legacy_import["line"] == 2
     assert receipt["source_normalizations"]["gzip_text_inputs"] == [
@@ -1216,9 +1213,7 @@ def test_dfk_01_census_decodes_valid_junit_and_manifested_source_snapshot(
             "decoded_sha256": hashlib.sha256(report).hexdigest(),
         }
     ]
-    normalization = receipt["source_normalizations"][
-        "indented_evidence_python_excerpts"
-    ]
+    normalization = receipt["source_normalizations"]["indented_evidence_python_excerpts"]
     assert len(normalization) == 4
     normalization_by_path = {item["path"]: item for item in normalization}
     assert set(normalization_by_path) == {
@@ -1309,9 +1304,7 @@ def test_dfk_01_census_rejects_untyped_compressed_and_python_archive_inputs(
     runtime_source = "    from polisyos.foundry.domain import schema\n"
     runtime_source_sha256 = hashlib.sha256(runtime_source.encode("utf-8")).hexdigest()
     runtime_postimage = "    from polisyos.foundry.domain import schema\n"
-    runtime_postimage_sha256 = hashlib.sha256(
-        runtime_postimage.encode("utf-8")
-    ).hexdigest()
+    runtime_postimage_sha256 = hashlib.sha256(runtime_postimage.encode("utf-8")).hexdigest()
     runtime_manifest_path = "src/polisyos/evidence/removal-manifest.json"
     runtime_manifest = {
         "schema": "ORCH04-B114-matched-property-removal-v1",
@@ -1381,9 +1374,7 @@ def test_dfk_01_census_rejects_untyped_compressed_and_python_archive_inputs(
     }
     files: dict[str, str | bytes] = {
         "reports/corrupt.junit.xml": b"\x1f\x8bnot-a-gzip-stream",
-        "reports/malformed.junit.xml": gzip.compress(
-            b"<testsuites><testsuite>", mtime=0
-        ),
+        "reports/malformed.junit.xml": gzip.compress(b"<testsuites><testsuite>", mtime=0),
         "reports/non-utf8.junit.xml": gzip.compress(b"\xff", mtime=0),
         "reports/non-junit.junit.xml": gzip.compress(b"<not-junit/>", mtime=0),
         "reports/compressed.xml": gzip.compress(b"<testsuites/>", mtime=0),
@@ -1510,8 +1501,7 @@ def test_dfk_01_census_rejects_untyped_compressed_and_python_archive_inputs(
     assert receipt["result"] == "partial_unsupported_or_ambiguous"
     unsupported = receipt["unsupported_or_ambiguous_inputs"]
     assert any(
-        item["path"] == "reports/corrupt.junit.xml"
-        and item["class"] == "invalid_gzip_text"
+        item["path"] == "reports/corrupt.junit.xml" and item["class"] == "invalid_gzip_text"
         for item in unsupported
     )
     assert any(
@@ -1530,14 +1520,11 @@ def test_dfk_01_census_rejects_untyped_compressed_and_python_archive_inputs(
         for item in unsupported
     )
     assert any(
-        item["path"] == "reports/compressed.xml"
-        and item["class"] == "compressed_text_wrong_suffix"
+        item["path"] == "reports/compressed.xml" and item["class"] == "compressed_text_wrong_suffix"
         for item in unsupported
     )
     syntax_details = [
-        item["detail"]
-        for item in unsupported
-        if item["class"] == "unsupported_syntax_or_ast"
+        item["detail"] for item in unsupported if item["class"] == "unsupported_syntax_or_ast"
     ]
     assert any(runtime_source_path in detail for detail in syntax_details)
     assert any(runtime_postimage_path in detail for detail in syntax_details)
@@ -1555,9 +1542,7 @@ def test_dfk_01_census_rejects_untyped_compressed_and_python_archive_inputs(
     assert read_paths == selected_paths
     assert pair_cases["missing-mate"]["postimage_path"] not in read_paths
     assert pair_cases["corrupt-mate"]["postimage_path"] in read_paths
-    assert any(
-        "src/polisyos/foundry/domain/broken.py" in detail for detail in syntax_details
-    )
+    assert any("src/polisyos/foundry/domain/broken.py" in detail for detail in syntax_details)
     assert receipt["source_normalizations"]["gzip_text_inputs"] == []
     assert receipt["source_normalizations"]["indented_evidence_python_excerpts"] == []
 

@@ -13,6 +13,8 @@ from dataclasses import asdict
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
+from polisyos.common.text import collapse_ws
+from polisyos.common.timestamps import parse_iso_date
 from polisyos.core import errors as core_errors
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
@@ -58,8 +60,11 @@ from polisyos.ir.world.ids import (
     stable_world_id_from_canon,
 )
 from polisyos.ir.world.trust import TrustAssessment
-from polisyos.lex.common import collapse_ws, parse_iso_date
-from polisyos.lex.errors import LexNotReadyError, LexValidationError, translate_policy_error
+from polisyos.lex.exception_taxonomy import (
+    LexNotReadyError,
+    LexValidationError,
+    translate_policy_error,
+)
 from polisyos.lex.normpack.applicability import applicability_key, build_norm_applicability
 from polisyos.lex.normpack.extract_norm_claims import ProvisionSelection, extract_norm_claims
 from polisyos.lex.normpack.policies import (
@@ -83,7 +88,7 @@ from polisyos.lex.normpack.select_sources import (
     select_active_doc_versions,
     select_doc_sources,
 )
-from polisyos.lex.types import (
+from polisyos.lex.normpack.types import (
     NormPackBudgets,
     NormPackBuildRequest,
     NormPackBuildResult,

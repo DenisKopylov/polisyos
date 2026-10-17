@@ -43,7 +43,7 @@ RELATION_OUTCOME_SET = {
 
 
 _CG2_SOURCE_MODULES = (
-    "src/polisyos/common/config.py",
+    "src/polisyos/common/config/__init__.py",
     "src/polisyos/core/artifacts/backends/config.py",
     "src/polisyos/core/artifacts/store.py",
     "src/polisyos/data_forge/read_api/academic.py",
@@ -67,6 +67,7 @@ _CG2_DIRECT_ARTIFACT_INPUTS = (
     "architecture/policy_design_case/grounding_bind_contract.json (read in --check; write target in --write)",
     "production_data L1-L7 artifacts through existing CG0/credal-reference owners",
 )
+
 
 def declared_outputs() -> list[str]:
     """Return generated artifacts owned by this validator."""
@@ -398,15 +399,11 @@ def corrupt_field_drift_check(repo_root: Path | None = None) -> dict[str, Any]:
     corrupted["probes"]["historical_cg1_solver_currentness"]["revalidation"][
         "currentness_reasons"
     ] = []
-    corrupted["probes"]["historical_cg1_solver_currentness"]["revalidation"][
-        "status"
-    ] = "passed"
+    corrupted["probes"]["historical_cg1_solver_currentness"]["revalidation"]["status"] = "passed"
     corrupted["probes"]["historical_cg1_solver_currentness"]["revalidation"][
         "currentness_reasons"
     ] = []
-    corrupted["probes"]["historical_cg1_solver_currentness"]["revalidation"][
-        "status"
-    ] = "passed"
+    corrupted["probes"]["historical_cg1_solver_currentness"]["revalidation"]["status"] = "passed"
     report = validate_payload(corrupted)
     return {
         "status": "pass" if report["status"] == "fail" else "fail",
@@ -429,7 +426,9 @@ def _core_issues(
 
     issues: list[dict[str, Any]] = [
         {"code": code}
-        for code in grounding_proof_world_input_evidence_issues(payload.get("proof_world_input", {}))
+        for code in grounding_proof_world_input_evidence_issues(
+            payload.get("proof_world_input", {})
+        )
     ]
     if payload.get("schema_version") != SCHEMA_VERSION:
         issues.append({"code": "grounding_bind_schema_mismatch"})
@@ -642,8 +641,7 @@ def _core_issues(
         not isinstance(authority, dict)
         or authority.get("certificate_promotable_field") != "advisory_not_authority"
         or authority.get("production_owned_store") != "empty_none_wired_no_caller_population_path"
-        or authority.get("consumer_enforcement_status")
-        != "n4_shadow_chain_and_n9_owner_resolver"
+        or authority.get("consumer_enforcement_status") != "n4_shadow_chain_and_n9_owner_resolver"
     ):
         issues.append({"code": "grounding_bind_promotability_authority_scope_missing"})
     robust = _probe(probes, "robust_multi_safe_real_exercise")

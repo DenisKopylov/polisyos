@@ -119,11 +119,13 @@ SCIENTIST_TARGETS: dict[str, MutationTarget] = {
 CORE_RUNTIME_TARGETS: dict[str, MutationTarget] = {
     "subset": MutationTarget(
         paths=(
-            "src/polisyos/common/serialization.py "
+            "src/polisyos/common/serialization/__init__.py "
+            "src/polisyos/common/serialization/_strict_json.py "
             "src/polisyos/core/security/authz.py "
             "src/polisyos/runtime/http/dependencies.py"
         ),
         tests=(
+            "tests/unit/common/test_fast_json_serialization.py "
             "tests/property/common/test_serialization_properties.py "
             "tests/property/runtime/http/test_access_invariants_properties.py "
             "tests/unit/runtime/http/test_runtime_api_authz.py"

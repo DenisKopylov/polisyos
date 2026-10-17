@@ -29,7 +29,7 @@ def _validate_output_extension(output_path: str | None, output_format: str) -> N
 
 def _cmd_lex_normpack_build(args: Any) -> int:
     lex_api = importlib.import_module("polisyos.lex.api")
-    lex_types = importlib.import_module("polisyos.lex.types")
+    lex_types = importlib.import_module("polisyos.lex.normpack.types")
     assemble_norm_pack = lex_api.assemble_norm_pack
     NormPackBuildRequest = lex_types.NormPackBuildRequest
 

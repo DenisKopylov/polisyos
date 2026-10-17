@@ -12,7 +12,7 @@
       "polisyos.ir.linker.link_trinity"
     ],
     "legal_owner": [
-      "polisyos.lex.intervention_artifacts.LexProvisionMappingRegistry",
+      "polisyos.lex.interventions.artifacts.LexProvisionMappingRegistry",
       "polisyos.lex.knowledge.store.LegalKnowledgeStore"
     ],
     "review_note": "Tracked owner bindings mirror the L6 production schema for attribution. Runtime resolution validates these bindings against the live production knob/lex/manifest files and owner APIs; no caller-supplied slot or provision authority is accepted."

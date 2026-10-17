@@ -146,24 +146,24 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "run_legal_benchmark",
     ),
     # errors
-    "LexError": ("polisyos.lex.errors", "LexError"),
-    "LexIndexError": ("polisyos.lex.errors", "LexIndexError"),
-    "LexIngestError": ("polisyos.lex.errors", "LexIngestError"),
-    "LexNotReadyError": ("polisyos.lex.errors", "LexNotReadyError"),
-    "LexStructureError": ("polisyos.lex.errors", "LexStructureError"),
-    "LexValidationError": ("polisyos.lex.errors", "LexValidationError"),
-    "LexVersioningError": ("polisyos.lex.errors", "LexVersioningError"),
+    "LexError": ("polisyos.lex.exception_taxonomy", "LexError"),
+    "LexIndexError": ("polisyos.lex.exception_taxonomy", "LexIndexError"),
+    "LexIngestError": ("polisyos.lex.exception_taxonomy", "LexIngestError"),
+    "LexNotReadyError": ("polisyos.lex.exception_taxonomy", "LexNotReadyError"),
+    "LexStructureError": ("polisyos.lex.exception_taxonomy", "LexStructureError"),
+    "LexValidationError": ("polisyos.lex.exception_taxonomy", "LexValidationError"),
+    "LexVersioningError": ("polisyos.lex.exception_taxonomy", "LexVersioningError"),
     "LexFabricEvidencePath": ("polisyos.lex.provenance", "LexFabricEvidencePath"),
     "lex_evidence_from_fabric_decision_data": (
         "polisyos.lex.provenance",
         "lex_evidence_from_fabric_decision_data",
     ),
     # types
-    "ActiveVersionResult": ("polisyos.lex.types", "ActiveVersionResult"),
-    "ActiveVersionStrategy": ("polisyos.lex.types", "ActiveVersionStrategy"),
-    "NormPackBudgets": ("polisyos.lex.types", "NormPackBudgets"),
-    "NormPackBuildRequest": ("polisyos.lex.types", "NormPackBuildRequest"),
-    "NormPackBuildResult": ("polisyos.lex.types", "NormPackBuildResult"),
+    "ActiveVersionResult": ("polisyos.lex.normpack.types", "ActiveVersionResult"),
+    "ActiveVersionStrategy": ("polisyos.lex.normpack.types", "ActiveVersionStrategy"),
+    "NormPackBudgets": ("polisyos.lex.normpack.types", "NormPackBudgets"),
+    "NormPackBuildRequest": ("polisyos.lex.normpack.types", "NormPackBuildRequest"),
+    "NormPackBuildResult": ("polisyos.lex.normpack.types", "NormPackBuildResult"),
     # knowledge
     "LegalKnowledgeGraph": ("polisyos.lex.knowledge.search", "LegalKnowledgeGraph"),
     # interventions
@@ -172,12 +172,12 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "HierarchicalPolicySearchPlan",
     ),
     "InterventionKnobDictionaryEntry": (
-        "polisyos.lex.intervention_artifacts",
+        "polisyos.lex.interventions.artifacts",
         "InterventionKnobDictionaryEntry",
     ),
     "InterventionKnobSpec": ("polisyos.lex.interventions", "InterventionKnobSpec"),
     "LexInterventionMapEntry": (
-        "polisyos.lex.intervention_artifacts",
+        "polisyos.lex.interventions.artifacts",
         "LexInterventionMapEntry",
     ),
     "LexInterventionCompiler": (
@@ -185,16 +185,16 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "LexInterventionCompiler",
     ),
     "LexPolicyBundleInput": (
-        "polisyos.lex.intervention_artifacts",
+        "polisyos.lex.interventions.artifacts",
         "LexPolicyBundleInput",
     ),
     "LexProvisionDirective": ("polisyos.lex.interventions", "LexProvisionDirective"),
     "LexProvisionMappingRegistry": (
-        "polisyos.lex.intervention_artifacts",
+        "polisyos.lex.interventions.artifacts",
         "LexProvisionMappingRegistry",
     ),
     "ProvisionProgramCrosswalkEntry": (
-        "polisyos.lex.intervention_artifacts",
+        "polisyos.lex.interventions.artifacts",
         "ProvisionProgramCrosswalkEntry",
     ),
     "StrategicResponseRegistryEntry": (
@@ -259,41 +259,26 @@ if TYPE_CHECKING:
     from polisyos.lex.api import (
         resolve_active_version as resolve_active_version,
     )
-    from polisyos.lex.errors import (
+    from polisyos.lex.exception_taxonomy import (
         LexError as LexError,
     )
-    from polisyos.lex.errors import (
+    from polisyos.lex.exception_taxonomy import (
         LexIndexError as LexIndexError,
     )
-    from polisyos.lex.errors import (
+    from polisyos.lex.exception_taxonomy import (
         LexIngestError as LexIngestError,
     )
-    from polisyos.lex.errors import (
+    from polisyos.lex.exception_taxonomy import (
         LexNotReadyError as LexNotReadyError,
     )
-    from polisyos.lex.errors import (
+    from polisyos.lex.exception_taxonomy import (
         LexStructureError as LexStructureError,
     )
-    from polisyos.lex.errors import (
+    from polisyos.lex.exception_taxonomy import (
         LexValidationError as LexValidationError,
     )
-    from polisyos.lex.errors import (
+    from polisyos.lex.exception_taxonomy import (
         LexVersioningError as LexVersioningError,
-    )
-    from polisyos.lex.intervention_artifacts import (
-        InterventionKnobDictionaryEntry as InterventionKnobDictionaryEntry,
-    )
-    from polisyos.lex.intervention_artifacts import (
-        LexInterventionMapEntry as LexInterventionMapEntry,
-    )
-    from polisyos.lex.intervention_artifacts import (
-        LexPolicyBundleInput as LexPolicyBundleInput,
-    )
-    from polisyos.lex.intervention_artifacts import (
-        LexProvisionMappingRegistry as LexProvisionMappingRegistry,
-    )
-    from polisyos.lex.intervention_artifacts import (
-        ProvisionProgramCrosswalkEntry as ProvisionProgramCrosswalkEntry,
     )
     from polisyos.lex.interventions import (
         HierarchicalPolicySearchPlan as HierarchicalPolicySearchPlan,
@@ -318,6 +303,21 @@ if TYPE_CHECKING:
     )
     from polisyos.lex.interventions import (
         TemporalInterventionStepInput as TemporalInterventionStepInput,
+    )
+    from polisyos.lex.interventions.artifacts import (
+        InterventionKnobDictionaryEntry as InterventionKnobDictionaryEntry,
+    )
+    from polisyos.lex.interventions.artifacts import (
+        LexInterventionMapEntry as LexInterventionMapEntry,
+    )
+    from polisyos.lex.interventions.artifacts import (
+        LexPolicyBundleInput as LexPolicyBundleInput,
+    )
+    from polisyos.lex.interventions.artifacts import (
+        LexProvisionMappingRegistry as LexProvisionMappingRegistry,
+    )
+    from polisyos.lex.interventions.artifacts import (
+        ProvisionProgramCrosswalkEntry as ProvisionProgramCrosswalkEntry,
     )
     from polisyos.lex.knowledge.benchmark import (
         LexBenchmarkOutcome as LexBenchmarkOutcome,
@@ -358,6 +358,21 @@ if TYPE_CHECKING:
     from polisyos.lex.normpack.applicability_report import (
         build_normative_applicability_report as build_normative_applicability_report,
     )
+    from polisyos.lex.normpack.types import (
+        ActiveVersionResult as ActiveVersionResult,
+    )
+    from polisyos.lex.normpack.types import (
+        ActiveVersionStrategy as ActiveVersionStrategy,
+    )
+    from polisyos.lex.normpack.types import (
+        NormPackBudgets as NormPackBudgets,
+    )
+    from polisyos.lex.normpack.types import (
+        NormPackBuildRequest as NormPackBuildRequest,
+    )
+    from polisyos.lex.normpack.types import (
+        NormPackBuildResult as NormPackBuildResult,
+    )
     from polisyos.lex.provenance import (
         LexFabricEvidencePath as LexFabricEvidencePath,
     )
@@ -396,21 +411,6 @@ if TYPE_CHECKING:
     )
     from polisyos.lex.simulator import (
         diff_norm_packs as diff_norm_packs,
-    )
-    from polisyos.lex.types import (
-        ActiveVersionResult as ActiveVersionResult,
-    )
-    from polisyos.lex.types import (
-        ActiveVersionStrategy as ActiveVersionStrategy,
-    )
-    from polisyos.lex.types import (
-        NormPackBudgets as NormPackBudgets,
-    )
-    from polisyos.lex.types import (
-        NormPackBuildRequest as NormPackBuildRequest,
-    )
-    from polisyos.lex.types import (
-        NormPackBuildResult as NormPackBuildResult,
     )
 
 

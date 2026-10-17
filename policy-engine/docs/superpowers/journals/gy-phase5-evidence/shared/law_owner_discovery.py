@@ -7,9 +7,9 @@ import hashlib
 import inspect
 import json
 import os
-from pathlib import Path
 import re
 import subprocess
+from pathlib import Path
 
 
 def main() -> None:
@@ -67,7 +67,11 @@ def main() -> None:
     assert identity_set == rg_identities
 
     import duckdb
-    from polisyos.lex.intervention_artifacts import LexInterventionMapEntry, LexProvisionMappingRegistry
+    from polisyos.lex.interventions.artifacts import (
+        LexInterventionMapEntry,
+        LexProvisionMappingRegistry,
+    )
+
     from polisyos.lex.interventions import LexInterventionCompiler
     from polisyos.lex.legal_evaluation.transport_constraints import LegalConstraintBridge
     from polisyos.lex.normpack.legal_authority import build_legal_authority_report

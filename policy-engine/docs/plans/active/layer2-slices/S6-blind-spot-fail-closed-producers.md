@@ -219,7 +219,7 @@ Scope correction from this code pass:
 | Aggregation seed | `src/polisyos/runtime/quality/concept_spine.py` |
 | Capacity/feasibility seeds | `src/polisyos/runtime/quality/institutional_provenance.py`, `src/polisyos/scientist/policy_design/output.py`, `src/polisyos/scientist/agent/feasibility.py` |
 | Mandate/legitimacy seeds | `src/polisyos/participation_requirement/`, `src/polisyos/runtime/quality/consultation.py`, `src/polisyos/lex/` |
-| Strategic-response seeds | `src/polisyos/lex/interventions.py`, `src/polisyos/scientist/methods/causal/readiness.py`, `src/polisyos/foundry/methods/catalog/causal/strategic.py`, `src/polisyos/foundry/methods/catalog/causal/policy_learning.py`, `src/polisyos/foundry/methods/catalog/causal/dtr.py`, `src/polisyos/ir/analytics/strategic.py`, `src/polisyos/scientist/policy_design/adversary.py` |
+| Strategic-response seeds | `src/polisyos/lex/interventions/strategic_response.py`, `src/polisyos/scientist/methods/causal/readiness.py`, `src/polisyos/foundry/methods/catalog/causal/strategic.py`, `src/polisyos/foundry/methods/catalog/causal/policy_learning.py`, `src/polisyos/foundry/methods/catalog/causal/dtr.py`, `src/polisyos/ir/analytics/strategic.py`, `src/polisyos/scientist/policy_design/adversary.py` |
 | Canonical corpus route | `tools/quality/validation/run_universal_outcome_corpus.py` |
 
 ## Files

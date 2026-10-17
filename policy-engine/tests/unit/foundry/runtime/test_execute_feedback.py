@@ -20,7 +20,7 @@ from polisyos.core.contracts.foundry import (
     StateSnapshotRef,
 )
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
-from polisyos.foundry._quickstart import prepare_trivial_feedback_config
+from polisyos.foundry._internal.quickstart import prepare_trivial_feedback_config
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.data_plane import build_input_bindings

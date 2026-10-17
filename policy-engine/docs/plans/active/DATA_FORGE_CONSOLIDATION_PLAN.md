@@ -68,8 +68,9 @@ schema/quality/observability work are implemented. Phase 8 physically removed
 As of 2026-04-29, the repository already contains an additive Data Forge
 baseline:
 
-- `src/polisyos/data_forge/_version.py`, `errors.py`, `py.typed`, and public
-  package/read_api facades.
+- `src/polisyos/data_forge/_version.py`, `py.typed`, and public package/read_api
+  facades. Generic exception ownership is in `kernel/__init__.py`; legal corpus
+  exception ownership is in `domains/legal/contracts.py`.
 - `kernel/*` skeleton for asset contracts, materialization metadata,
   partitions, config contracts, schema registry/evolution/migration stubs,
   ArtifactRef governance, hashing, snapshot transactions/Merkle/finalize
@@ -113,8 +114,10 @@ baseline:
   read-API-only consumer contracts are covered by targeted tests.
 
 Legacy production/domain entrypoints remain live until their explicit migration
-phase. The implemented Phase 1 through Phase 4 work preserved compatibility
-imports.
+phase. Phases 1 through 4 preserved compatibility imports during their declared
+migration work. The unlisted deep module `polisyos.data_forge.errors` was removed
+after repository consumers migrated; the supported `polisyos.data_forge` root
+continues to export the same generic exception names. Moving these classes changes their pickle module globals. No package-level pickle compatibility promise is declared for the unlisted internal module. Deployments that persist such exception objects need an explicit migration or compatibility decision before adopting this move.
 
 ## Target Layout
 
@@ -122,7 +125,6 @@ imports.
 src/polisyos/data_forge/
 |-- __init__.py
 |-- _version.py
-|-- errors.py
 |-- kernel/
 |   |-- pipeline/
 |   |-- io/

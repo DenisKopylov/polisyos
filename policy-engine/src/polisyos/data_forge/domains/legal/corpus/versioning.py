@@ -15,8 +15,12 @@ from polisyos.common.timestamps import latest_object_by_subject, parse_iso_date
 from polisyos.data_forge.domains.legal.contracts import (
     ActiveVersionResult,
     ActiveVersionStrategy,
+    LexError,
+    LexNotReadyError,
+    LexValidationError,
     LexVersionIndexOptions,
     LexVersionIndexResult,
+    LexVersioningError,
 )
 from polisyos.data_forge.domains.legal.corpus.index import (
     DocSourcePropsV1,
@@ -26,12 +30,6 @@ from polisyos.data_forge.domains.legal.corpus.index import (
     load_version_index,
     persist_doc_source_props,
     persist_version_index,
-)
-from polisyos.data_forge.errors import (
-    LexError,
-    LexNotReadyError,
-    LexValidationError,
-    LexVersioningError,
 )
 from polisyos.data_forge.kernel.artifacts import load_doc_meta_artifact
 from polisyos.fabric.world import (
@@ -181,7 +179,7 @@ def build_version_index(
                 quality_issues.append(f"missing_meta_artifact:{doc_version_id}")
                 continue
 
-            meta = load_doc_meta_artifact(cas, meta_artifact_id)
+            meta = load_doc_meta_artifact(cas, meta_artifact_id, error_cls=LexValidationError)
             lex_props = meta.props.get("lex") if isinstance(meta.props, dict) else None
             if not isinstance(lex_props, dict):
                 lex_props = {}

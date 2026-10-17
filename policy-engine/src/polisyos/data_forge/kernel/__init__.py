@@ -1,9 +1,31 @@
-"""Internal Data Forge kernel contracts.
+"""Internal Data Forge kernel contracts and generic exception types.
 
 The kernel is intentionally not a runtime public surface. Runtime packages should
-consume `polisyos.data_forge.read_api` instead.
+consume ``polisyos.data_forge.read_api`` instead.
 """
 
 from __future__ import annotations
 
-__all__: list[str] = []
+
+class DataForgeError(Exception):
+    """Base exception for Data Forge foundation code."""
+
+
+class DataForgeValidationError(DataForgeError, ValueError):
+    """Raised when a Data Forge contract is malformed."""
+
+
+class SchemaCompatibilityError(DataForgeValidationError):
+    """Raised when a schema change lacks an allowed evolution rule."""
+
+
+class SnapshotCommitError(DataForgeError):
+    """Raised when a snapshot transaction cannot be safely committed."""
+
+
+__all__ = [
+    "DataForgeError",
+    "DataForgeValidationError",
+    "SchemaCompatibilityError",
+    "SnapshotCommitError",
+]

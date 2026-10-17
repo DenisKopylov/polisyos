@@ -5,6 +5,13 @@ pipelines: document ingestion, structure extraction, and version-aware indexes
 through which `normpack` and `legal_evaluation` resolve the active document
 version instead of selecting one ad hoc by date or ID.
 
+## Error ownership
+
+Legal corpus workflows use the Data Forge legal exception hierarchy defined in
+`../contracts.py`. These classes retain their existing stage, category, and
+source/version metadata behavior, and remain separate from the runtime Lex
+exception hierarchy.
+
 ## Role in the system
 
 - **Depends on:** `polisyos.fabric.docs`, `polisyos.fabric.world`, `polisyos.core.artifacts`, `polisyos.ir.world`

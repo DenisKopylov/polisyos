@@ -22,7 +22,7 @@ typed runtime/evaluation contracts.
 
 - **Compliance path** — `read_api.legal -> normpack -> legal_evaluation -> simulator` produces legal evaluations and change proposals.
 - **Knowledge path** — the Data Forge legal batch publishes the DuckDB/HNSW graph, and `lex.knowledge` reads it without write-side logic.
-- **Intervention mapping** — `interventions.py` and `intervention_artifacts.py` compile provision directives into neutral IR intervention contracts, temporal sequences, and strategic-response specs; Scientist owns policy-search and DTR execution bridges.
+- **Intervention mapping** — `interventions/compiler.py`, `interventions/sequencing.py`, and `interventions/artifacts.py` compile provision directives into neutral IR intervention contracts, temporal sequences, and strategic-response specs; Scientist owns policy-search and DTR execution bridges.
 - **Version-aware reads** — `resolve_active_version()` reads Data Forge version-index artifacts through `polisyos.data_forge.read_api.legal`.
 - **Component-driven extensibility** — providers, evaluators, and extractors are loaded through registries/entry points rather than hard-coded into orchestration.
 - **Artifact-first execution** — key outputs are persisted as `lex.*` artifacts and world events with provenance.
@@ -49,7 +49,7 @@ Full reference: [docs/reference/lex/](../../../docs/reference/lex/index.md)
 - `knowledge/` owns read-only access to Data Forge legal graph artifacts.
 - `knowledge/benchmark.py` owns NormPack, transport, graph, and legal-quality readiness;
   Scientist retrieval diagnostics cannot override this receipt.
-- `interventions.py` and `intervention_artifacts.py` own provision-to-policy
+- `interventions/compiler.py`, `interventions/sequencing.py`, and `interventions/artifacts.py` own provision-to-policy
   intervention mapping.
 - Offline legal batch and corpus write paths belong to
   `polisyos.data_forge.domains.legal`, not this package.
@@ -68,7 +68,7 @@ Full reference: [docs/reference/lex/](../../../docs/reference/lex/index.md)
 - Public facade / supported imports: `src/polisyos/lex/__init__.py` and `docs/reference/public-surface.md`
 - Offline corpus / versioning path: `src/polisyos/data_forge/domains/legal/corpus/`
 - NormPack / legality path: `src/polisyos/lex/normpack/` and `src/polisyos/lex/legal_evaluation/`
-- Intervention mapping: `src/polisyos/lex/interventions.py` and `src/polisyos/lex/intervention_artifacts.py`
+- Intervention mapping: `src/polisyos/lex/interventions/compiler.py`, `src/polisyos/lex/interventions/sequencing.py`, and `src/polisyos/lex/interventions/artifacts.py`
 
 ## Tests
 
@@ -92,8 +92,8 @@ legal corpus or graph artifacts.
 
 ## Known Shims/Deprecations
 
-- No active package-local Lex import shims are registered in
-  [architecture/shims.toml](../../../architecture/shims.toml) as of 2026-05-06.
+- `polisyos.lex.factlog` has been removed; NormPack imports `load_world_facts` from
+  `polisyos.fabric.world` directly.
 - The legacy `polisyos.norm_pack_providers` extension group is compatibility
   support for `polisyos.lex_normpacks`; new providers should use the Lex group.
 - Offline legal preprocessing imports must stay in Data Forge; do not
@@ -101,8 +101,8 @@ legal corpus or graph artifacts.
 
 ## Current State
 
-- Last updated: 2026-08-27
-- Files: 10 top-level Python files plus 5 tracked subpackages
+- Last updated: 2026-10-17
+- Files: 2 top-level Python facade modules plus 8 implementation packages
 - Exports: 61 total names in the current lazy facade `__all__`.
 - Notable delta: Lex owns the semantic legal benchmark; Data Forge publishes
   query fixtures through its read API and no longer imports Lex benchmark
@@ -126,3 +126,15 @@ contracts.
 `verification_missing` refusal before reading the legal graph. Callers must retain
 that status rather than interpreting it as an empty constraint set, a permission,
 or a positive legal finding. The facade does not establish a legal conclusion.
+
+
+## Internal module identity
+
+The supported import surface remains polisyos.lex and polisyos.lex.knowledge.
+Implementation owners now live under normpack, interventions, provenance, and
+exception_taxonomy; direct former module paths such as polisyos.lex.types,
+polisyos.lex.errors, and polisyos.lex.intervention_artifacts are internal migration
+paths and are not compatibility shims. Root-facade exports preserve object identity.
+The natural Python module names of moved implementation classes change, so new pickle
+globals use their new owner path. Historical external pickle populations were not
+established by the repository census.

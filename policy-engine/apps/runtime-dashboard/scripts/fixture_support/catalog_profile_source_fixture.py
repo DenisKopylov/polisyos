@@ -251,7 +251,7 @@ def _seed_profiled_workflow_data_view_request(
     from polisyos.fabric.connectors.base import ConnectionConfig
     from polisyos.fabric.connectors.registry import ConnectorRegistry
     from polisyos.fabric.connectors.sources.sql_query import SQLQueryConnector
-    from polisyos.foundry._quickstart import (
+    from polisyos.foundry._internal.quickstart import (
         build_trivial_trinity_bundle,
         put_trivial_trinity_bundle,
     )

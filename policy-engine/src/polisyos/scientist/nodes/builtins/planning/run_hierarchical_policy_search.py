@@ -25,8 +25,8 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.contracts.trinity import TrinityBundleRef
 from polisyos.data_forge.read_api.academic import SKGQuery
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.lex.intervention_artifacts import LexPolicyBundleInput
 from polisyos.lex.interventions import HierarchicalPolicySearchPlan
+from polisyos.lex.interventions.artifacts import LexPolicyBundleInput
 from polisyos.pdc import WorldModelRecord
 from polisyos.scientist.evidence.sources import normalize_evidence_sources_config
 from polisyos.scientist.methods.search.contracts import (

@@ -1,0 +1,336 @@
+{
+  "record_type": "source_bound_author_proposal_handoff",
+  "delivery_context": {
+    "branch": "codex/e02-unified-local-20261009",
+    "receipt_commit_base": "f9250d61b8b28b920fe6587cbb4366ec55af2fdd",
+    "source_candidate": "d3318348be5d5c820b4e7445074390cf68193711",
+    "source_tree": "a5c7c74d91c0fe31ad24567339bda65edf7cb134",
+    "source_parents": [
+      "7390d65a0fedd672ee5913040c004a1a5bd45988"
+    ],
+    "origin_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-n8-sourcebound-receipts-20261017/nl-r5-canonical-67p-receipt-candidate.json",
+      "sha256": "128b8c8ccc74b8a9809ec69aee56766a620d947c51f87310f57d3652b5743f99"
+    },
+    "origin_packet_state": "The embedded proposal is preserved at its preparation/source observation frame. RAW-only and current-state wording inside it describe that earlier frame; this tracked wrapper delivers it without claiming G acceptance.",
+    "later_deltas": "Core metadata/README source contract alignment is separately committed7390; NL67/N8one canonical replay atd331 follows56C05. Source-framefootprints andhistoricalLEASES are read withgit show atnamedcommit, notcurrentLEASES.",
+    "current_native_partial_state": {
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py": "75c6d9deee0efb7e52d327aacc235b904c49a47dcebf9f5289c216623ee611af",
+      "policy-engine/tools/devx/workspace/repository_sota_closeout.py": "d9bc12df949fc935a31fe91e64f378eddebe6e3800cc3326c1ab09fa1299e994"
+    },
+    "raw_availability": "Retained on this same local machine at exactpath@sha; rawoutputs ignored, no remote availability claim.",
+    "formal_G_acceptance": null,
+    "source_freeze": false,
+    "closure_ids": [],
+    "proposal_ID_status_changes": []
+  },
+  "proposal_packet": {
+    "P40": {
+      "bounded_residuals": [
+        "Modern POST consumption of selected-final-claims remains not_established / semantic_test_missing.",
+        "No automatic retry is established by retryable=true.",
+        "No full 556-source runtime typing, full native, installed, browser, Linux, full backend, CI parity, or release ABI claim."
+      ],
+      "bucket": "Same whole-CAS-error versus selected-item-refusal class widened to the complete shared failure quantity.",
+      "falsifier": "Keep item-local malformed/missing/integrity/profile/inline cases failing closed, and make whole-store get_bytes OSError remain a dependency failure that persists on ordinary POST and reads back through fresh GET."
+    },
+    "canonical_replay": {
+      "actual_head_after": "d3318348be5d5c820b4e7445074390cf68193711",
+      "actual_results": {
+        "bytes": 5072,
+        "kind": "actual-results",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/actual-results.json",
+        "sha256": "b5117501a6815c82b143eb5f3791f87690fd370ba275300bebde1e284633653f"
+      },
+      "configuration": {
+        "core_runtime_mypy_frontend": {
+          "kind": "strict-mypy-frontend",
+          "path": "policy-engine/tools/devx/workspace/core_runtime_mypy.py",
+          "sha256": "3f6f921d127d17670db9080612d1c3723ad87ede33fffde30d8e467abd979954"
+        },
+        "pyproject": {
+          "kind": "project-test-config",
+          "path": "policy-engine/pyproject.toml",
+          "sha256": "2522afe7bbbe74b8df37dcf64cda247f244ef0ec073657bb5d9e1d7841b1efe7"
+        },
+        "pytest_default_addopts": "-ra -q --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+        "pytest_ini": {
+          "kind": "pytest-config",
+          "path": "policy-engine/pytest.ini",
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+        },
+        "serialized_mypy_wrapper": {
+          "bytes": 357,
+          "kind": "cache-serialization-wrapper",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-actual-replay-20261016/serialized_mypy.py",
+          "sha256": "d3f9a07e5cbb7acf187aea6f9dfcdef890acba7ba2c7453356c7781836ae320e"
+        }
+      },
+      "environment_capture": {
+        "capture_note": "Actual runner records selected fields from the mapping passed to Popen; inherited unspecified process variables are not captured.",
+        "selected_fields": {
+          "JAX_PLATFORMS": "cpu",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "src:.",
+          "VECLIB_MAXIMUM_THREADS": "1"
+        }
+      },
+      "known_in_progress_native_inputs": [
+        {
+          "kind": "known-native-in-progress-input",
+          "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+          "sha256": "75c6d9deee0efb7e52d327aacc235b904c49a47dcebf9f5289c216623ee611af"
+        },
+        {
+          "kind": "known-native-in-progress-input",
+          "path": "policy-engine/tools/devx/workspace/repository_sota_closeout.py",
+          "sha256": "d9bc12df949fc935a31fe91e64f378eddebe6e3800cc3326c1ab09fa1299e994"
+        }
+      ],
+      "pinned_input_interpretation": "Full maintained selected input map from the request, not a full Git-tree freeze. It includes two known in-progress native inputs at their exact hashes below.",
+      "pinned_input_path_count": 7842,
+      "request": {
+        "bytes": 1151677,
+        "kind": "actual-run-request",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/request.json",
+        "sha256": "41875f5994d534b550c5df33fb7a439c9cbc71edbd3db231b4672b279eafffcc"
+      },
+      "request_environment_override": {},
+      "request_expected_head": "d3318348be5d5c820b4e7445074390cf68193711",
+      "request_workers": 2,
+      "runs": [
+        {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "pytest",
+            "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+            "-q",
+            "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/nl-junit.xml"
+          ],
+          "exit_code": 0,
+          "junit": {
+            "kind": "complete-junit",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/nl-junit.xml",
+            "sha256": "ab66cc6fa843ee80504f38c3750b90f0c76136ce3b71b3b16dc60c455c7562d3"
+          },
+          "label": "actual-nl-materialization-module",
+          "outer_seconds": 202.017,
+          "result": "67 passed, 0 skipped, 0 failures, 0 errors; JUnit test execution time 185.279s.",
+          "run_record": {
+            "kind": "complete-run-record",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/actual-nl-materialization-module.run.json",
+            "sha256": "9bcdc266d0b56079f941a5519d3b98dd7711ebdbdc20569f840d513cf8f7698f"
+          },
+          "stderr": {
+            "kind": "complete-stderr",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/actual-nl-materialization-module.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "kind": "complete-stdout",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/actual-nl-materialization-module.stdout.txt",
+            "sha256": "e8ca89320215100aa98af0253237bf6f46c62048fbacd0ca2bf547d0f2ee2c58"
+          },
+          "timed_out": false,
+          "timeout_seconds": 720
+        },
+        {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-actual-replay-20261016/serialized_mypy.py",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "tools.devx.workspace.core_runtime_mypy",
+            "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+            "src/polisyos/runtime/http/services/control/nl_pipeline_testing.py",
+            "src/polisyos/runtime/http/services/control/artifacts.py",
+            "src/polisyos/runtime/http/services/control/job_attempt_publication.py",
+            "src/polisyos/scholar/__init__.py"
+          ],
+          "exit_code": 0,
+          "label": "actual-five-selected-source-strict",
+          "outer_seconds": 40.899,
+          "result": "Strict MyPy passed for the five argv-selected sources only.",
+          "run_record": {
+            "kind": "complete-run-record",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/actual-five-selected-source-strict.run.json",
+            "sha256": "765d9c941d8922e8ce2eaffde0a7311c11a0b6a541bd5c27b0ec6d5de1992942"
+          },
+          "selected_source_count": 5,
+          "selected_sources": [
+            "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+            "src/polisyos/runtime/http/services/control/nl_pipeline_testing.py",
+            "src/polisyos/runtime/http/services/control/artifacts.py",
+            "src/polisyos/runtime/http/services/control/job_attempt_publication.py",
+            "src/polisyos/scholar/__init__.py"
+          ],
+          "stderr": {
+            "kind": "complete-stderr",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/actual-five-selected-source-strict.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "kind": "complete-stdout",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/actual-five-selected-source-strict.stdout.txt",
+            "sha256": "bcf5b692bc11048b8dfeb189dbecbe20ca2ff8f33f75981c6523c8b278c241f0"
+          },
+          "stdout_scope_correction": "The tool stdout says “full core-runtime surface”; the argv contains exactly five selected files. This receipt claims only those five, not 556 files or whole-runtime typing.",
+          "timed_out": false,
+          "timeout_seconds": 420
+        }
+      ],
+      "source_hashes_in_selected_input_map": {
+        "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py": "a62ab28fb50f7003c9757785752bc242115b8fbf96b2b7ea0b5856c5bcddfa06",
+        "policy-engine/src/polisyos/runtime/http/services/control/job_attempt_publication.py": "c5c09cbd30ccad0b72cd158586b3393a4eddaae9ea81d745f3ab7cd5b1ff8e80",
+        "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py": "adf617e5fa82d2ac9861ec1c789834c51a6003de9599c9712cff8ac43361f652",
+        "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline_testing.py": "acc825fcfd348d5d76972cde8d93d02a046eb027f11b96e80ee9a3724c9abfbc",
+        "policy-engine/src/polisyos/scholar/__init__.py": "c32f1bf9c1bf63f9ac11b94d7e6e46d87cb54d112a1ebc92f5985bca7644b292",
+        "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py": "0f57ceedfb1f419145c529b954688bf1717d5252fdac211f30b0bffb9f69bdd4",
+        "policy-engine/tests/unit/runtime/quality/test_value_gate.py": "2d607020d98170721ee476067038b8bc20bddfcec5b3decd5379b92173a1c188"
+      },
+      "source_paths_unchanged_during_runs": true
+    },
+    "governance_boundary": {
+      "capability_boundary": "Ordinary whole-CAS dependency-failure publication is behaviorally tested. Modern selected-final-claims bridge remains semantic_test_missing.",
+      "finding_id_links_or_status_changes": [],
+      "formal_G_acceptance": "not established",
+      "formal_closure_ids": [],
+      "full_291_item_audit": "Remains the authoritative preliminary audit; this receipt does not auto-close it.",
+      "source_freeze": false
+    },
+    "property_and_scope": {
+      "modern_route_boundary": "Selected-final-claims consumption through the default modern POST route remains not established / semantic_test_missing. Corrected README labels that consumer legacy/private and keeps the ordinary outage statement separate.",
+      "profile_backend_chain": "The tested ordinary path is NL POST -> worker attempt -> CAS-backed artifact read/publication -> persisted control-job failure -> normal fresh GET. Same-payload variant profiles are carried into the selected citation consumer. This does not establish that the ordinary modern /runs/nl route consumes legacy selected-final-claims.",
+      "selected_item_path": "Malformed payload, missing blob, integrity mismatch, profile mismatch, and inline conflict remain typed selected-refusal outcomes; inline candidate content does not restore successful grounding. These selected-final-claims fault tests exercise the private _execute_nl_pipeline consumer.",
+      "typed_failure": "A whole content-addressed-store get_bytes OSError stays RuntimeDependencyUnavailableError (a RuntimeDependencyError subclass that derives directly from Exception, not RuntimeError), not selected-item absence/refusal. The selected-refusal expected_errors tuple excludes it, so it propagates to job_attempt_publication. In the ordinary NL POST worker test, one attempt persists failed state, dead-letter attempt 1, code content_addressed_storage_unavailable, layer content_addressed_storage, phase job_execution, retryable=true; fresh GET observes that persisted state. No scheduled retry/requeue is claimed."
+    },
+    "receipt_claim": "Canonical NL module replay and strict MyPy on five selected sources are recorded at d331 with stable 7,842-path input pins and complete deciding output references. The result is bounded to those tests and files.",
+    "receipt_id": "nl-r5-canonical-67p-20261017",
+    "review_evidence": {
+      "corrected_docs": {
+        "correction_diff": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/nl-cas-failure-docs-companion-independent-review-r1-20261017/correction.diff",
+          "sha256": "abac9f984fe89db0dd39669514346b4127d7a8ba4bbda9ef49253c65dcdf1d95"
+        },
+        "correction_manifest": {
+          "kind": "corrected-docs-companion-manifest",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/nl-cas-failure-docs-companion-independent-review-r1-20261017/manifest.json",
+          "sha256": "33b6855bd2cc778733182a199214eb9d9080d1a2bccfacff6b5579705668625d"
+        },
+        "original_wording_review": {
+          "kind": "review-with-HOLD-on-original-wording",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/nl-cas-failure-docs-companion-independent-review-r1-20261017/review.json",
+          "sha256": "6d030d95d9da09ccb0e1e3a9a53d9e789b08e96f5f915f7a20af60af652e4b08"
+        },
+        "review_state": "The reviewer held the original README/release wording and prepared a minimal scope correction. The committed README and release postimages match the correction manifest; the source lease records root evaluation. This is not represented as an independent GO on the original wording.",
+        "reviewed_postimages": [
+          {
+            "matches_source_commit": true,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/nl-cas-failure-docs-companion-independent-review-r1-20261017/postimages/services-README.md",
+            "sha256": "42cb3e99b1bc0d5eb60ab7ae200d359e8de5ad9127f60a2007cb268356bb282c"
+          },
+          {
+            "matches_source_commit": true,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/nl-cas-failure-docs-companion-independent-review-r1-20261017/postimages/selected-artifact-refusal-release.toml",
+            "sha256": "8cfa59195d316c4fe5e5267fbd4d9321d6be64e0348215b50bcbc9a19c20209f"
+          }
+        ]
+      },
+      "source_review": {
+        "decision": "GO for root-controlled adoption and post-adoption source-bound replay; zero blocking findings; no formal closure claimed.",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/nl-pipeline-typed-boundary-independent-review-r3-corrected-20261017/review.json",
+        "reviewed_postimages_match_commit": true,
+        "reviewed_verdict_scope": "Six-file candidate and exercised legacy/CAS/API paths. Modern POST selected-final-claims, complete runtime typing, full backend/CI, browser/UI, and release ABI remain outside closure.",
+        "sha256": "ddbab07155123336f04f248e6747536f102a887cae23a05455f604106311f2f9"
+      }
+    },
+    "schema": "policyos.e02.sourcebound-receipt-proposal.v1",
+    "source_frame": {
+      "commit_footprint": [
+        {
+          "bytes": 256199,
+          "kind": "mandatory-lease-companion",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+          "sha256": "4df31b244be9f65fb60ee24a693a7a85d425f24673d3f4ed2b2e8040283770c6"
+        },
+        {
+          "bytes": 5054,
+          "kind": "corrected-release-fragment",
+          "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-selected-artifact-refusal-disposition.toml",
+          "sha256": "8cfa59195d316c4fe5e5267fbd4d9321d6be64e0348215b50bcbc9a19c20209f"
+        },
+        {
+          "bytes": 21271,
+          "kind": "corrected-services-documentation",
+          "path": "policy-engine/src/polisyos/runtime/http/services/README.md",
+          "sha256": "42cb3e99b1bc0d5eb60ab7ae200d359e8de5ad9127f60a2007cb268356bb282c"
+        },
+        {
+          "bytes": 58728,
+          "kind": "implementation-source",
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/artifacts.py",
+          "sha256": "a62ab28fb50f7003c9757785752bc242115b8fbf96b2b7ea0b5856c5bcddfa06"
+        },
+        {
+          "bytes": 46751,
+          "kind": "implementation-source",
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/job_attempt_publication.py",
+          "sha256": "c5c09cbd30ccad0b72cd158586b3393a4eddaae9ea81d745f3ab7cd5b1ff8e80"
+        },
+        {
+          "bytes": 486087,
+          "kind": "implementation-source",
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+          "sha256": "adf617e5fa82d2ac9861ec1c789834c51a6003de9599c9712cff8ac43361f652"
+        },
+        {
+          "bytes": 1646,
+          "kind": "implementation-source",
+          "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline_testing.py",
+          "sha256": "acc825fcfd348d5d76972cde8d93d02a046eb027f11b96e80ee9a3724c9abfbc"
+        },
+        {
+          "bytes": 5631,
+          "kind": "implementation-source",
+          "path": "policy-engine/src/polisyos/scholar/__init__.py",
+          "sha256": "c32f1bf9c1bf63f9ac11b94d7e6e46d87cb54d112a1ebc92f5985bca7644b292"
+        },
+        {
+          "bytes": 244324,
+          "kind": "behavioral-test",
+          "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+          "sha256": "0f57ceedfb1f419145c529b954688bf1717d5252fdac211f30b0bffb9f69bdd4"
+        }
+      ],
+      "lease_binding": {
+        "P40": "Same whole-CAS-error versus selected-item-refusal class widened to the whole quantity; the legacy/private consumer boundary remains declared.",
+        "closure_ids": [],
+        "entry": "coordination_epoch_20261017_nl_cas_failure_and_typed_host_composition",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "postimage_sha256": "4df31b244be9f65fb60ee24a693a7a85d425f24673d3f4ed2b2e8040283770c6",
+        "root_document_review": "Lease records the corrected legacy/private selected-final-claims wording separately from the tested ordinary POST/worker CAS-outage path; retryable=true is not automatic retry.",
+        "source_base": "7390d65a0fedd672ee5913040c004a1a5bd45988",
+        "source_freeze": false
+      },
+      "source_commit": {
+        "parent": "7390d65a0fedd672ee5913040c004a1a5bd45988",
+        "sha": "d3318348be5d5c820b4e7445074390cf68193711",
+        "subject": "fix(runtime): preserve CAS dependency failures across typed NL publication",
+        "tree": "a5c7c74d91c0fe31ad24567339bda65edf7cb134"
+      },
+      "upstream_N8_fixture_commit": {
+        "ancestry": "Verified ancestor of d3318348be5d5c820b4e7445074390cf68193711; the N8 test postimage is also present in the canonical request path pins.",
+        "parent": "56d3e38b97c6962c07630631a60333fbfa461902",
+        "sha": "c8717465e5d04efb907f5789b19cd1ce35f343e6",
+        "tree": "05dbf237306d913d2c2b158232499de3b7b05344"
+      },
+      "workspace": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+    },
+    "status": "RAW_ONLY_RECEIPT_PROPOSAL"
+  }
+}

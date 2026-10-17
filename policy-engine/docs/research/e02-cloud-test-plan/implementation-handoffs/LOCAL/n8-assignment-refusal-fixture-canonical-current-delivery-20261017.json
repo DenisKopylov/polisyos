@@ -1,0 +1,243 @@
+{
+  "record_type": "source_bound_author_proposal_handoff",
+  "delivery_context": {
+    "branch": "codex/e02-unified-local-20261009",
+    "receipt_commit_base": "f9250d61b8b28b920fe6587cbb4366ec55af2fdd",
+    "source_candidate": "c8717465e5d04efb907f5789b19cd1ce35f343e6",
+    "source_tree": "05dbf237306d913d2c2b158232499de3b7b05344",
+    "source_parents": [
+      "56d3e38b97c6962c07630631a60333fbfa461902"
+    ],
+    "origin_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-n8-sourcebound-receipts-20261017/n8-synthetic-assignment-1p-receipt-candidate.json",
+      "sha256": "b461cccedbf844ac9df77d11935870c24c2eb7fbccb4ef6e6939a74ea7371693"
+    },
+    "origin_packet_state": "The embedded proposal is preserved at its preparation/source observation frame. RAW-only and current-state wording inside it describe that earlier frame; this tracked wrapper delivers it without claiming G acceptance.",
+    "later_deltas": "Core metadata/README source contract alignment is separately committed7390; NL67/N8one canonical replay atd331 follows56C05. Source-framefootprints andhistoricalLEASES are read withgit show atnamedcommit, notcurrentLEASES.",
+    "current_native_partial_state": {
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py": "75c6d9deee0efb7e52d327aacc235b904c49a47dcebf9f5289c216623ee611af",
+      "policy-engine/tools/devx/workspace/repository_sota_closeout.py": "d9bc12df949fc935a31fe91e64f378eddebe6e3800cc3326c1ab09fa1299e994"
+    },
+    "raw_availability": "Retained on this same local machine at exactpath@sha; rawoutputs ignored, no remote availability claim.",
+    "formal_G_acceptance": null,
+    "source_freeze": false,
+    "closure_ids": [],
+    "proposal_ID_status_changes": []
+  },
+  "proposal_packet": {
+    "P40": {
+      "bounded_residuals": [
+        "Only the named selector and its unit-removal control were run; no full module or suite replay.",
+        "No production/live catalog, external issuer, permission, authority, currentness, broader N8 soundness, or capability claim."
+      ],
+      "bucket": "Fixture reachability correction only; same N8 assignment-authority test class, with no production semantic repair.",
+      "falsifier": "Remove the explicit unit literal while retaining the selector assertions; actual Catalog loader must refuse with value_owner_measurement_unit_missing instead of allowing a fixture to pass without reaching the target guard."
+    },
+    "canonical_replay": {
+      "actual_head_after": "d3318348be5d5c820b4e7445074390cf68193711",
+      "actual_results": {
+        "bytes": 5072,
+        "kind": "actual-results",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/actual-results.json",
+        "sha256": "b5117501a6815c82b143eb5f3791f87690fd370ba275300bebde1e284633653f"
+      },
+      "effective_pytest_configuration": {
+        "canonical_invocation_note": "Fresh deciding command leaves pytest.ini defaults intact; no -o addopts= override.",
+        "default_addopts": "-ra -q --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+        "path": "policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      "environment_capture": {
+        "capture_note": "Actual runner records selected fields from the mapping passed to Popen; inherited unspecified process variables are not captured.",
+        "selected_fields": {
+          "JAX_PLATFORMS": "cpu",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "src:.",
+          "VECLIB_MAXIMUM_THREADS": "1"
+        }
+      },
+      "request": {
+        "bytes": 1151677,
+        "kind": "actual-run-request",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/request.json",
+        "sha256": "41875f5994d534b550c5df33fb7a439c9cbc71edbd3db231b4672b279eafffcc"
+      },
+      "request_expected_head": "d3318348be5d5c820b4e7445074390cf68193711",
+      "request_pinned_input_path_count": 7842,
+      "request_test_postimage_sha256": "2d607020d98170721ee476067038b8bc20bddfcec5b3decd5379b92173a1c188",
+      "run": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "tests/unit/runtime/quality/test_value_gate.py::test_shaped_owner_assignment_attestation_is_not_authority",
+          "-q",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/n8-junit.xml"
+        ],
+        "exit_code": 0,
+        "junit": {
+          "kind": "complete-junit",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/n8-junit.xml",
+          "sha256": "e9342ee0f86b17117c734f1088ecf7e6e3d65caa09dc00f9146c4fb3518db5b9"
+        },
+        "label": "actual-shaped-assignment-selector",
+        "outer_seconds": 50.827,
+        "result": "1 passed, 0 skipped, 0 failures, 0 errors; JUnit test time 45.378s.",
+        "run_record": {
+          "kind": "complete-run-record",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/actual-shaped-assignment-selector.run.json",
+          "sha256": "7001cec4ddabcd13607adc4c60e5001f1c3a4685d7315863ebb7f5975b225173"
+        },
+        "stderr": {
+          "kind": "complete-stderr",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/actual-shaped-assignment-selector.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "kind": "complete-stdout",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nl-r5-n8-canonical-replay-20261017/actual-shaped-assignment-selector.stdout.txt",
+          "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+        },
+        "timed_out": false,
+        "timeout_seconds": 180
+      },
+      "source_paths_unchanged_during_runs": true
+    },
+    "governance_boundary": {
+      "finding_id_links_or_status_changes": [],
+      "formal_G_acceptance": "not established",
+      "formal_closure_ids": [],
+      "full_291_item_audit": "Remains the authoritative preliminary audit; this receipt does not auto-close it.",
+      "source_freeze": false
+    },
+    "independent_review": {
+      "focused_candidate_output": {
+        "kind": "candidate-selector-output",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n8-shaped-owner-assignment-independent-review-20261017/candidate-selector.stdout.txt",
+        "sha256": "c075a897c2c6eded5ac21745610b4adf6660b6010c41ad53b107e94bf7f70e25"
+      },
+      "review": {
+        "canonical_candidate_sha256": "2d607020d98170721ee476067038b8bc20bddfcec5b3decd5379b92173a1c188",
+        "canonical_ruff_check_and_format": "PASS under workspace-root config; review-only run, separate from the actual canonical selector command.",
+        "decision": "GO_SCOPED_TEST_ONLY",
+        "formal_closure_ids": [],
+        "global_source_freeze": false,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n8-shaped-owner-assignment-independent-review-20261017/review.json",
+        "sha256": "5f57a39251fcdcaecc1a3380e1a3bc520f7b85832dfea17b3a9b6200e1885cc8"
+      },
+      "review_run_records": [
+        {
+          "kind": "review-selector-run-record",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n8-shaped-owner-assignment-independent-review-20261017/independent-selector-run.json",
+          "sha256": "9cd7698de6b961973a9a3ee03ecf22951c2ea814d515d4fd1a919b0c5bed43f3"
+        },
+        {
+          "kind": "canonical-ruff-run-record",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n8-shaped-owner-assignment-independent-review-20261017/independent-ruff-run.json",
+          "sha256": "bddf51edcda526b31b768b042fbc0db44be3d1b3455ccaeb5eee2d524bf08c1e"
+        }
+      ],
+      "review_runner": {
+        "kind": "independent-review-runner",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n8-shaped-owner-assignment-independent-review-20261017/review_runner.py",
+        "sha256": "35847e00b69a3ac085a58a8698b7784acdd172e13a6f4652872f070eaa6bb862"
+      },
+      "unit_removal_output": {
+        "kind": "expected-failing-removal-control-output",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n8-shaped-owner-assignment-independent-review-20261017/removal-selector.stdout.txt",
+        "sha256": "b9e000d608852b1b4499b990659e3b01fdfb0b4bd92ebd2f6c12ebddfd903f38"
+      }
+    },
+    "preserved_non_deciding_harness_error": {
+      "actual_head_after": "c8717465e5d04efb907f5789b19cd1ce35f343e6",
+      "actual_results": {
+        "bytes": 2248,
+        "kind": "prior-nondeciding-results",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n8-shaped-owner-canonical-selector-20261017/actual-results.json",
+        "sha256": "acda0ef5f9f5346dcb7eecba02a4e5bde47456d867fd3d1d2625d87d46dc2a62"
+      },
+      "argv_override": "-o addopts=",
+      "classification": "Nondeciding harness collection error: the -o addopts= override removed pytest.ini’s --import-mode=importlib, causing a relative-import-with-no-known-parent-package error before collection. Not a product failure and not a product green; the later deciding canonical invocation preserves defaults and passes.",
+      "exit_code": 4,
+      "junit": {
+        "kind": "collection-error-junit",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n8-shaped-owner-canonical-selector-20261017/junit.xml",
+        "sha256": "7d626609b050da99eb2d17a0efec6a303c87bbce140ad9f5711f46f2e967857c"
+      },
+      "request": {
+        "bytes": 1149814,
+        "kind": "prior-nondeciding-request",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n8-shaped-owner-canonical-selector-20261017/request.json",
+        "sha256": "2ac1c9293f780e92718c972f800c733548fe81d3f0c6e3c88f07751c8682646a"
+      },
+      "request_expected_head": "c8717465e5d04efb907f5789b19cd1ce35f343e6",
+      "request_pinned_path_count": 7840,
+      "run_record": {
+        "kind": "prior-nondeciding-run-record",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n8-shaped-owner-canonical-selector-20261017/actual-shaped-assignment-selector.run.json",
+        "sha256": "4ad7df269db25f9988d3b61e7bf4aca90d3f778596df8b6cf197b9ee8e0460a7"
+      },
+      "stderr": {
+        "kind": "no-collectors-stderr",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n8-shaped-owner-canonical-selector-20261017/actual-shaped-assignment-selector.stderr.txt",
+        "sha256": "d7d0869e26a6bb8c41ea6c54636e962587ca33c892135740f9fec639b2a478da"
+      },
+      "stdout": {
+        "kind": "collection-error-stdout",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n8-shaped-owner-canonical-selector-20261017/actual-shaped-assignment-selector.stdout.txt",
+        "sha256": "fab78207aaf6378cfc49a7b9899e432bb267ad317edb043c91498aaa63651307"
+      },
+      "test_source_sha256": "2d607020d98170721ee476067038b8bc20bddfcec5b3decd5379b92173a1c188"
+    },
+    "property_and_scope": {
+      "boundary": "One test-only fixture correction. No product source, live catalog, production data, external issuer, permission, authority, currentness, or broader N8 soundness is established.",
+      "fixture": "A synthetic temporary eight-row Catalog includes an explicit declared measurement unit so the real ValueOwnerGateway/FoundryValuePort path reaches the assignment-forgery authority refusal instead of failing earlier at missing-unit validation.",
+      "negative_control": "Independent reviewer removed only condition_json.unit while retaining the assertions; real path then refused with value_owner_measurement_unit_missing. This demonstrates the fixture unit is required to reach the target guard."
+    },
+    "receipt_claim": "The exact synthetic eight-row fixture test passed once on the canonical workspace after the corrected default pytest configuration was retained. Reviewer removal control demonstrates that the declared unit is required to reach the intended guard.",
+    "receipt_id": "n8-synthetic-assignment-selector-canonical-1p-20261017",
+    "schema": "policyos.e02.sourcebound-receipt-proposal.v1",
+    "source_frame": {
+      "ancestry_to_nl_replay": {
+        "ancestry_verified": true,
+        "descendant_run_head": "d3318348be5d5c820b4e7445074390cf68193711",
+        "test_postimage_present_at_run_head": "2d607020d98170721ee476067038b8bc20bddfcec5b3decd5379b92173a1c188"
+      },
+      "commit_footprint": [
+        {
+          "bytes": 249673,
+          "kind": "mandatory-lease-companion",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+          "sha256": "d77fde8c5f3682cfb31cbacb693c3350389075b969399fc0590f81dc7b90923a"
+        },
+        {
+          "bytes": 261043,
+          "kind": "synthetic-fixture-test",
+          "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+          "sha256": "2d607020d98170721ee476067038b8bc20bddfcec5b3decd5379b92173a1c188"
+        }
+      ],
+      "lease_binding": {
+        "P40": "Fixture reachability correction only; no production semantic repair or broader N8 closure.",
+        "closure_ids": [],
+        "entry": "coordination_epoch_20261017_n8_shaped_assignment_fixture",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "postimage_sha256": "d77fde8c5f3682cfb31cbacb693c3350389075b969399fc0590f81dc7b90923a",
+        "source_base": "56d3e38b97c6962c07630631a60333fbfa461902",
+        "source_freeze": false
+      },
+      "source_commit": {
+        "parent": "56d3e38b97c6962c07630631a60333fbfa461902",
+        "sha": "c8717465e5d04efb907f5789b19cd1ce35f343e6",
+        "subject": "test(runtime): reach assignment authority guard with a unit-declared fixture",
+        "tree": "05dbf237306d913d2c2b158232499de3b7b05344"
+      },
+      "workspace": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+    },
+    "status": "RAW_ONLY_RECEIPT_PROPOSAL"
+  }
+}

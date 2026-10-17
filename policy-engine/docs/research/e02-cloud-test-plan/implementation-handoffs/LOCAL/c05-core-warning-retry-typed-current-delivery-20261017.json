@@ -1,0 +1,149 @@
+{
+  "record_type": "source_bound_author_proposal_handoff",
+  "delivery_context": {
+    "branch": "codex/e02-unified-local-20261009",
+    "receipt_commit_base": "f9250d61b8b28b920fe6587cbb4366ec55af2fdd",
+    "source_candidate": "56d3e38b97c6962c07630631a60333fbfa461902",
+    "source_tree": "980fe04acda379c0209234798b160a713113a46f",
+    "source_parents": [
+      "4c52b30a1b0c69bdb439c931dcebde94151ff508"
+    ],
+    "origin_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-delivery-receipt-preparation-20261017/c05-core-warning-retry-typed-composition-receipt-proposal.json",
+      "sha256": "345d6d6e57b565badbe48a381c94c98b21b62f40b84d58fd5826abc966c1c221"
+    },
+    "origin_packet_state": "The embedded proposal is preserved at its preparation/source observation frame. RAW-only and current-state wording inside it describe that earlier frame; this tracked wrapper delivers it without claiming G acceptance.",
+    "later_deltas": "Core metadata/README source contract alignment is separately committed7390; NL67/N8one canonical replay atd331 follows56C05. Source-framefootprints andhistoricalLEASES are read withgit show atnamedcommit, notcurrentLEASES.",
+    "current_native_partial_state": {
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py": "75c6d9deee0efb7e52d327aacc235b904c49a47dcebf9f5289c216623ee611af",
+      "policy-engine/tools/devx/workspace/repository_sota_closeout.py": "d9bc12df949fc935a31fe91e64f378eddebe6e3800cc3326c1ab09fa1299e994"
+    },
+    "raw_availability": "Retained on this same local machine at exactpath@sha; rawoutputs ignored, no remote availability claim.",
+    "formal_G_acceptance": null,
+    "source_freeze": false,
+    "closure_ids": [],
+    "proposal_ID_status_changes": []
+  },
+  "proposal_packet": {
+    "schema": "policyos.local-delivery-receipt-proposal/v1",
+    "artifact_kind": "delivery_receipt_proposal",
+    "status": "proposed_for_root_readback",
+    "scope": "C05 typed-warning, retry-boundary, and style-companion composition adopted in one commit; this packet records scoped evidence and limitations, not global completion or formal acceptance.",
+    "source": {
+      "repository_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "branch": "codex/e02-unified-local-20261009",
+      "commit": "56d3e38b97c6962c07630631a60333fbfa461902",
+      "tree": "980fe04acda379c0209234798b160a713113a46f",
+      "parent": "4c52b30a1b0c69bdb439c931dcebde94151ff508",
+      "subject": "fix(runtime): preserve typed warnings and parent lease ownership across workers",
+      "footprint": {
+        "committed_paths": 16,
+        "non_lease_paths": 15,
+        "lease_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "readback": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-core-warning-retry-typed-composition-adoption-20261017/c05-core-warning-retry-typed-composition-readback.json",
+          "sha256": "6cd8aefb2d30c3aa314487aed9d7c25fbc8d149f183edbf4a7087f23bbfe2d2b"
+        },
+        "verification": "Read-only comparison: git diff-tree changed-path set equals the readback's 16 paths; SHA-256 of each commit blob matches the readback source_sha256 map; all 16 current working-tree files also match those hashes."
+      },
+      "working_tree": "Not clean. The only tracked modifications observed outside this 16-path commit are policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py and policy-engine/tools/devx/workspace/repository_sota_closeout.py, both recorded as retained native partials in the adoption manifest. Their status is not attributed to C05."
+    },
+    "changes_in_scope": [
+      "RunContext.emit adds an optional typed warnings argument using existing WarningRecord values and the existing TraceRecord.warnings serialization slot; no TraceRecord field/schema, phase, event, metrics, or authority/status semantics are claimed to change.",
+      "Retry and process-lease ownership changes are included in the adopted footprint; style-only companions are separately identified in the adoption manifest.",
+      "I1 catalog CODE-supplier counts and the runtime semantic-use/subject-join counts are separate sets; this receipt does not equate them or claim a closure from the matching count."
+    ],
+    "verification": {
+      "ruff": {
+        "scope": "13 changed Python paths listed in the adoption manifest; workspace_root Ruff config",
+        "check": {
+          "exit_code": 0,
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-core-warning-retry-typed-composition-adoption-20261017/check.stdout.txt",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+          },
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "format_check": {
+          "exit_code": 0,
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-core-warning-retry-typed-composition-adoption-20261017/format.stdout.txt",
+            "sha256": "04eb0d6e6734823dcd2b2b704729e976f683df7a8f334da7216520ef1cb319bf"
+          },
+          "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "strict_mypy": {
+        "scope": "12 explicitly selected source targets only; canonical post-adoption invocation via python -m tools.devx.workspace.core_runtime_mypy, serialized one-worker runner, 35.752 seconds, exit 0, no timeout.",
+        "targets": [
+          "src/polisyos/core/run/context.py",
+          "src/polisyos/core/run/manifest.py",
+          "src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+          "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+          "src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+          "src/polisyos/scientist/nodes/builtins/decide/run_translator_compliance.py",
+          "src/polisyos/scientist/orchestration/engine/async_executor.py",
+          "src/polisyos/scientist/orchestration/engine/context.py",
+          "src/polisyos/scientist/orchestration/engine/executor.py",
+          "src/polisyos/scientist/orchestration/engine/retry.py",
+          "src/polisyos/scientist/policy_design/phase3.py",
+          "src/polisyos/core/artifacts/__init__.py"
+        ],
+        "request": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-composed-twelve-source-strict-20261017/request.json",
+          "sha256": "4c0878c43299ec2ffacb59d844c58cb4c0cdcbc952f16ce12b6446e0b114bd17"
+        },
+        "input_pin_check": "3,001 path pins: 3,000 tracked paths' SHA-256 values match blobs at the adopted commit; the remaining RAW serialized_mypy.py path matches its request pin on disk. The actual-results record reports source_paths_unchanged=true and head_after=56d3e38b97c6962c07630631a60333fbfa461902.",
+        "run_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-composed-twelve-source-strict-20261017/actual-twelve-source-strict.run.json",
+          "sha256": "56434ec62b3dcf22ec44d0ea153d13aee54ff44fb538bfb0ff97d40bf4283db5"
+        },
+        "result_record": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-composed-twelve-source-strict-20261017/actual-results.json",
+          "sha256": "6e38b444f061a725682906fb1ecd67a738dcf9e51ce10b495abaabceaa88f7b4"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-composed-twelve-source-strict-20261017/actual-twelve-source-strict.stdout.txt",
+          "sha256": "0c35697e3416366d62f25375b9577694a2dacfa9695d20f1c6235d6eaddc3d7e"
+        },
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "scope_correction": "The stdout's final sentence calls this the full core-runtime surface. The recorded argv and request name exactly 12 explicit source targets; this receipt claims success only for those 12. It is not a full package/core-runtime typing proof."
+      }
+    },
+    "independent_review_refs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-core-async-executor-independent-review-r2-20261017/review.json",
+        "sha256": "bbdb00db5012421068ace91742afb011ceb44b987cc5ed0c7a0d78df4016e596"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/retry-typed-timeout-boundary-r2-20261017/independent-review/partition-2-review.md",
+        "sha256": "1bec1ea2e5b4636b8d314cb84e593af4515ed860f60510980085556d375a74b5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-canonical-style-independent-review-20261017-r1/review.json",
+        "sha256": "c1809157342ea71a2aadbf38c6efa3609a1faf22731634c426c5fca1d34290a6"
+      }
+    ],
+    "public_surface_and_residuals": {
+      "release_fragment": {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-17-e02-core-run-trace-warning-forwarding.toml",
+        "sha256": "1ca6e706578d8a2a772b57716fe0f81ebb14d5aca61708a39b09da91df61cc82"
+      },
+      "api_scope": "The fragment identifies the optional RunContext.emit warnings parameter as python-public-api and public_stable; public_surface_inventory_reviewed=false remains explicit. No generated DTO/client or inventory-level review is claimed by this receipt.",
+      "tests_and_runtime": "No canonical post-adoption full affected-test suite, actual consumer run, or six-case physical Linux fork matrix is attested here; these remain pending after final freeze. Candidate-overlay runs and the historical pre-adoption 232-pass result are not counted as post-56d evidence.",
+      "fork_boundary": "The code/release claim is limited to refusing terminal finalize/suspend from a fork child that inherited the active parent lease while allowing ordinary staged worker activity. It is not a sandbox against arbitrary private-state access. A read-only search found no register_at_fork occurrence in policy-engine/src/polisyos/core or policy-engine/src/polisyos/scientist/orchestration/engine; process-local at-fork reinitialization remains an unimplemented candidate capability, and the physical Linux falsifier is pending.",
+      "retained_native_partial": "The two unrelated tracked files listed under source.working_tree remain outside this C05 receipt and are not inherited as C05 evidence."
+    },
+    "governance_state": {
+      "source_freeze": false,
+      "closure_ids": [],
+      "formal_g_acceptance": false,
+      "whole_component_release_acceptance": false
+    },
+    "actions_not_performed": [
+      "No tests or type checks were run by this receipt preparer.",
+      "No source, test, lease, index, environment, or Git state was modified; only this RAW proposal is newly written.",
+      "No result from a candidate overlay was combined with the post-adoption checks."
+    ]
+  }
+}

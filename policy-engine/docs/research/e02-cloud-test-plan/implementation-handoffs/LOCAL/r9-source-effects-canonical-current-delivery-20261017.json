@@ -1,0 +1,223 @@
+{
+  "record_type": "source_bound_author_proposal_handoff",
+  "delivery_context": {
+    "branch": "codex/e02-unified-local-20261009",
+    "receipt_commit_base": "f9250d61b8b28b920fe6587cbb4366ec55af2fdd",
+    "source_candidate": "f05f9c898a1097d74d7581b0d951d64d8f49ba01",
+    "source_tree": "e28e5189de36b065bef5947fd12c250b78be81ce",
+    "source_parents": [
+      "8c903c0dfb1af72f3b79bcb49cb28e2999bcd459"
+    ],
+    "origin_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ui-r9-sourcebound-receipts-20261017/r9-canonical-35p-receipt-candidate.json",
+      "sha256": "19ffa6cad5a0486938e2efe4d23347cb36b6c70279d6bbc11311f1de13de4ec0"
+    },
+    "origin_packet_state": "The embedded proposal is preserved at its preparation/source observation frame. RAW-only and current-state wording inside it describe that earlier frame; this tracked wrapper delivers it without claiming G acceptance.",
+    "later_deltas": "Core metadata/README source contract alignment is separately committed7390; NL67/N8one canonical replay atd331 follows56C05. Source-framefootprints andhistoricalLEASES are read withgit show atnamedcommit, notcurrentLEASES.",
+    "current_native_partial_state": {
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py": "75c6d9deee0efb7e52d327aacc235b904c49a47dcebf9f5289c216623ee611af",
+      "policy-engine/tools/devx/workspace/repository_sota_closeout.py": "d9bc12df949fc935a31fe91e64f378eddebe6e3800cc3326c1ab09fa1299e994"
+    },
+    "raw_availability": "Retained on this same local machine at exactpath@sha; rawoutputs ignored, no remote availability claim.",
+    "formal_G_acceptance": null,
+    "source_freeze": false,
+    "closure_ids": [],
+    "proposal_ID_status_changes": []
+  },
+  "proposal_packet": {
+    "P40": {
+      "bucket": "Same shared-module-effect class, deeper finding; the mechanism widens to the complete selected-source origin set.",
+      "limitations": [
+        "Effects outside the selected source set, including arbitrary external runtime monkeypatches, remain not_established.",
+        "Unreachable or later-loaded selected modules are conservatively overcounted; reachability and import order are not modeled."
+      ],
+      "mechanism": "For each origin set, subtract the current path; any remaining origin is foreign and invalidates TYPE_CHECKING pruning. Six partitions include local-only, foreign-only, mixed local+foreign, multiple-foreign, and local+multiple-foreign."
+    },
+    "disposition": {
+      "external_runtime_mutation_residual": "not_established",
+      "formal_G_acceptance": "not established",
+      "formal_closure_ids": [],
+      "full_selected_source_replay": "UNRUN",
+      "global_source_freeze": false,
+      "receipt_claim": "Actual canonical-worktree focused R9 run passed 35 tests with 242 deselected and is bound by exact source/test pins, actual module-origin evidence, command output, and JUnit; this is not the full selected-source gate or formal closure."
+    },
+    "future_checks": {
+      "full_selected_source_replay": "UNRUN; after source freeze, run one canonical full selected-source replay and preserve complete path-set identity and deciding output.",
+      "prior_denominator_context": "The independent R6 review reports a prior complete selected-source denominator of 3,231 paths; it explicitly says that denominator has not been replayed against R6. Do not call it this run’s denominator.",
+      "source_freeze_required": true
+    },
+    "independent_review": {
+      "manifest": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dynamic-import-module-flow-r1-20261017/candidate-round-6-origin-union/candidate-manifest-r6.json",
+        "sha256": "3e79ac518c16307e148c54172a9c75fb5478adec00afe87dba7b66ed9f4e21e8"
+      },
+      "outputs": {
+        "combined_origin_runtime_probe": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dynamic-import-module-flow-r1-independent-review-r6-origin-union-3e79ac51-20261017/combined-origin-runtime-probe.json",
+          "sha256": "5648ef2c1cf2ec6bf9bf96ed4e42f4374a278c91485588e848de6c75f52b7942"
+        },
+        "focused_candidate_suite": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dynamic-import-module-flow-r1-independent-review-r6-origin-union-3e79ac51-20261017/focused-r6-independent.stdout.txt",
+          "result": "35 passed, 242 deselected in 0.83s; independent R6 review replay, separate from canonical actual-results.",
+          "sha256": "a3cd243c3ec2c17e4e1f457b00d510fc24ac3b0ac977e6735f93420efe6da9f2"
+        },
+        "independent_runner_environment": "PYTHONPATH=.; PYTHONDONTWRITEBYTECODE=1; PYTEST_ADDOPTS=-p no:cacheprovider",
+        "r5_prechange_property_control": {
+          "expected_result": "3 failures, 5 passes, 269 deselected; the failed controls are combined local+foreign, local+multiple-foreign, and marker-preserving removal of the last foreign effect.",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dynamic-import-module-flow-r1-independent-review-r6-origin-union-3e79ac51-20261017/r5-prechange-controls-independent.stdout.txt",
+          "sha256": "09b9a22e55e3859e9bde2a74c16cdebdf817f4df9623b0e521dd1e8dc526ea14"
+        },
+        "ruff_receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dynamic-import-module-flow-r1-20261017/candidate-round-6-origin-union/ruff-final-r6.json",
+          "result": "Canonical workspace-root Ruff check and format idempotence passed for both candidate files.",
+          "sha256": "927588eea5e0f28799f5408db1c140b607673d915ac4da5bf932d43dbc1a4603"
+        }
+      },
+      "review": {
+        "decision": "BOUNDED_GO_FOR_ADOPTION",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/dynamic-import-module-flow-r1-independent-review-r6-origin-union-3e79ac51-20261017/review.json",
+        "postimages_match_source_commit": true,
+        "review_preimage_head": "80323ccce6e8f94ded7c33a816404f986bac88bc",
+        "review_preimage_relation_note": "This receipt binds by exact reviewed postimage SHA equality; it does not claim the independent review preimage was the final source commit parent.",
+        "reviewed_focused_suite": "35 passed, 242 deselected; separate independent review run, not added to the canonical actual run count.",
+        "sha256": "6f5edfcb8330861624bd25c48951ea07ad00595c41eba4703c21fbfa68e0d887"
+      }
+    },
+    "property": "A foreign effect from any other selected source file on the shared typing.TYPE_CHECKING module object prevents guarded-import pruning, even when the consumer itself also has an effect. Same-file lexical order remains; the source-origin summary is invocation-local.",
+    "receipt_id": "dynamic-import-type-checking-r9-canonical-35p-20261017",
+    "remote_observation": {
+      "interpretation": "Read-only remote pointer observation; the ref did not contain either slice commit by ancestry test at observation time. This does not represent G acceptance or formal closure.",
+      "local_head_observed": "56d3e38b97c6962c07630631a60333fbfa461902",
+      "observed_sha": "80323ccce6e8f94ded7c33a816404f986bac88bc",
+      "ref": "refs/heads/codex/e02-unified-local-20261009",
+      "remote": "origin",
+      "source_commits_are_ancestors_of_local_head": true,
+      "source_commits_are_ancestors_of_observed_remote_ref": false
+    },
+    "schema": "policyos.e02.sourcebound-receipt-proposal.v1",
+    "source_bound_verification": {
+      "actual_head_after": "4c52b30a1b0c69bdb439c931dcebde94151ff508",
+      "actual_results": {
+        "kind": "actual-results",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-r6-canonical-focused-20261017/actual-results.json",
+        "sha256": "cee8771fc5eeae2a05dfd2ee02ceca9ec35825c203ef6bcbaed43bcb0a0d0ac0"
+      },
+      "environment": {
+        "capture_note": "The runner records the selected environment mapping passed to Popen; inherited unspecified process variables are not captured.",
+        "captured_selected_fields": {
+          "JAX_PLATFORMS": "cpu",
+          "MKL_NUM_THREADS": "1",
+          "NUMEXPR_NUM_THREADS": "1",
+          "OMP_NUM_THREADS": "1",
+          "OPENBLAS_NUM_THREADS": "1",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-r6-canonical-focused-20261017",
+          "VECLIB_MAXIMUM_THREADS": "1"
+        },
+        "python": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python"
+      },
+      "request": {
+        "kind": "actual-run-request",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-r6-canonical-focused-20261017/request.json",
+        "sha256": "ac0775543ced7e7cd05c64f8a722b2aac4cdc6e693b1f8734ee96dcedd019e75"
+      },
+      "request_expected_head": "4c52b30a1b0c69bdb439c931dcebde94151ff508",
+      "run": {
+        "actual_module_origin": {
+          "finding": "Normal pytest import of the canonical implementation file; no finder/loader/sys.modules source substitution in this plugin; source SHA equals the implementation commit path pin.",
+          "plugin": {
+            "kind": "pytest-origin-snapshot-plugin",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-r6-canonical-focused-20261017/r9_origin_snapshot.py",
+            "sha256": "8c57dfc724ca543cfb611a69422ccc4329cb353e2f60c02e7307a6e8caa24c6e"
+          },
+          "result": {
+            "kind": "actual-module-origin",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-r6-canonical-focused-20261017/actual-normal-import-origin.json",
+            "sha256": "3d2d171f982158438bde7a822f1211729f442bcab8b646280b365aee4f2688ab"
+          }
+        },
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+          "-q",
+          "-o",
+          "addopts=",
+          "-k",
+          "dynamic_import_type_checking",
+          "-p",
+          "r9_origin_snapshot",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-r6-canonical-focused-20261017/junit.xml"
+        ],
+        "exit_code": 0,
+        "junit": {
+          "kind": "complete-junit",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-r6-canonical-focused-20261017/junit.xml",
+          "sha256": "3c0fc41ea51e10071e7b1d720e27d01d0d7856174e19a0bb459e321e2473e49e"
+        },
+        "label": "actual-r9-type-checking-focused",
+        "result": "35 passed, 242 deselected in 0.41s; JUnit reports 35 tests, 0 failures, 0 errors, 0 skipped.",
+        "run_record": {
+          "kind": "complete-run-record",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-r6-canonical-focused-20261017/actual-r9-type-checking-focused.run.json",
+          "sha256": "83a8fa6b2636f64623834ebf95dd97980e3cc64370fdb3afed9a6c04c7c64035"
+        },
+        "seconds": 1.697,
+        "stderr": {
+          "kind": "complete-stderr",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-r6-canonical-focused-20261017/actual-r9-type-checking-focused.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "kind": "complete-stdout",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r9-r6-canonical-focused-20261017/actual-r9-type-checking-focused.stdout.txt",
+          "sha256": "8671d5c19b0187fc4971ba3f9923eec53c08e1867428870b1bbb5cdd1f46ac6c"
+        },
+        "timed_out": false,
+        "timeout_seconds": 180
+      },
+      "source_paths_unchanged_during_run": true,
+      "target_path_binding": "Both source/test hashes in request.paths_sha256 equal the source commit postimages listed above. The actual module-origin plugin also reports the implementation file from the canonical workspace path and its exact committed SHA."
+    },
+    "source_frame": {
+      "commit_footprint": [
+        {
+          "bytes": 241233,
+          "kind": "mandatory-lease-companion",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+          "sha256": "02c1e9658ab979b84673bc231f8881a4290a88c21ca0fed8667dd439897292d8"
+        },
+        {
+          "bytes": 257813,
+          "kind": "test-source",
+          "path": "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+          "sha256": "235bb6ccb05009d2cb03e7e3d57f15b1d98b62903817fe91c93e958bb4edbe91"
+        },
+        {
+          "bytes": 459051,
+          "kind": "implementation-source",
+          "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+          "sha256": "3e121e19341953667b15bbb585447ba23c5207559afc8f3e4350aadd3d94323c"
+        }
+      ],
+      "lease_binding": {
+        "closure_ids": [],
+        "entry": "coordination_epoch_20261017_r9_complete_source_effect_origins_r6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "postimage_sha256": "02c1e9658ab979b84673bc231f8881a4290a88c21ca0fed8667dd439897292d8",
+        "source_base": "8c903c0dfb1af72f3b79bcb49cb28e2999bcd459",
+        "source_freeze": false
+      },
+      "slice_base": "8c903c0dfb1af72f3b79bcb49cb28e2999bcd459",
+      "source_commit": {
+        "parent": "8c903c0dfb1af72f3b79bcb49cb28e2999bcd459",
+        "sha": "f05f9c898a1097d74d7581b0d951d64d8f49ba01",
+        "subject": "fix(tooling): bind import pruning to complete selected source effects",
+        "tree": "e28e5189de36b065bef5947fd12c250b78be81ce"
+      },
+      "workspace": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos"
+    },
+    "status": "RAW_ONLY_RECEIPT_PROPOSAL"
+  }
+}

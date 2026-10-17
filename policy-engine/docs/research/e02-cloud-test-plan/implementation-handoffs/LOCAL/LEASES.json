@@ -3555,5 +3555,24 @@
     "P41": "Noinheritedredclassification, known2nativepartialownsfullgatefailure untilcompletion.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_six_source_bound_receipt_delivery": {
+    "owner": "root",
+    "base": "f9250d61b8b28b920fe6587cbb4366ec55af2fdd",
+    "mechanism_paths": [],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-compatibility-gl-internal-row-current-delivery-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c05-core-warning-retry-typed-current-delivery-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/generic-cycle-terminal-ui-canonical-current-delivery-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/r9-source-effects-canonical-current-delivery-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/nl-cas-failure-typed-canonical-current-delivery-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n8-assignment-refusal-fixture-canonical-current-delivery-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ],
+    "scope": "Separate receipt-only commit after sourceimplementation commits; exactsource treeparentsfootprints andactualdecidingoutputs, noauthorIDstatuspromotion/nativegreen/Gacceptance.",
+    "revalidated_RAW_reference_count": 85,
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

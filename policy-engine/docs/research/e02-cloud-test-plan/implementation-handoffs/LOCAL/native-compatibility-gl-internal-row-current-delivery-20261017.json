@@ -1,0 +1,395 @@
+{
+  "record_type": "source_bound_author_proposal_handoff",
+  "delivery_context": {
+    "branch": "codex/e02-unified-local-20261009",
+    "receipt_commit_base": "f9250d61b8b28b920fe6587cbb4366ec55af2fdd",
+    "source_candidate": "80323ccce6e8f94ded7c33a816404f986bac88bc",
+    "source_tree": "c08c31aaa77929c4401c3f586e96d4eb2ff581f2",
+    "source_parents": [
+      "81139f95c3c52b7a1aebeb80d5779881465a0bf1"
+    ],
+    "origin_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-compatibility-after-gl-scope-correction-delivery-proposal-20261017/receipt-candidate.json",
+      "sha256": "3409aefc8fa620a94475cb59ac322817bccef4452d43c00773d7e15d0174d73e"
+    },
+    "origin_packet_state": "The embedded proposal is preserved at its preparation/source observation frame. RAW-only and current-state wording inside it describe that earlier frame; this tracked wrapper delivers it without claiming G acceptance.",
+    "later_deltas": "Core metadata/README source contract alignment is separately committed7390; NL67/N8one canonical replay atd331 follows56C05. Source-framefootprints andhistoricalLEASES are read withgit show atnamedcommit, notcurrentLEASES.",
+    "current_native_partial_state": {
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py": "75c6d9deee0efb7e52d327aacc235b904c49a47dcebf9f5289c216623ee611af",
+      "policy-engine/tools/devx/workspace/repository_sota_closeout.py": "d9bc12df949fc935a31fe91e64f378eddebe6e3800cc3326c1ab09fa1299e994"
+    },
+    "raw_availability": "Retained on this same local machine at exactpath@sha; rawoutputs ignored, no remote availability claim.",
+    "formal_G_acceptance": null,
+    "source_freeze": false,
+    "closure_ids": [],
+    "proposal_ID_status_changes": []
+  },
+  "proposal_packet": {
+    "GL3_independent_scope_review": {
+      "boundary": "Only three unlisted GL child paths under the manifest internal_rule are reclassified internal. The public_experimental runtime.quality root remains incomplete/unresolved; this review does not attest package-wide exports or set a public inventory review flag.",
+      "candidate_patch": {
+        "bytes": 8576,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/gl-public-surface-scope-independent-review-20261017-r1/candidate.patch",
+        "sha256": "a1e2f5764ba783f48bb53b1d4b819b00ecd319654723d12d2e8220ed4a2c12c8"
+      },
+      "current_reviewed_GL_postimages": [
+        {
+          "bytes": 3375,
+          "classification": "internal under the manifest internal_rule",
+          "inventory_review_flag_set": false,
+          "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-gl-candidate-facet-origin-refusal.toml",
+          "sha256": "df89e5f844c0490ac9c5a71ae1d733d5b28ecb30e3f88e718ce556d9a1da2bda"
+        },
+        {
+          "bytes": 3641,
+          "classification": "internal under the manifest internal_rule",
+          "inventory_review_flag_set": false,
+          "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-gl-selected-subject-identity-join.toml",
+          "sha256": "e79be007c4bd69690a92f8397a096aab0de0d45b687cb7eee09b65b2a21015ed"
+        },
+        {
+          "bytes": 3447,
+          "classification": "internal under the manifest internal_rule",
+          "inventory_review_flag_set": false,
+          "path": "policy-engine/release-fragments/unreleased/2026-10-17-e02-gl-full-requirement-projection-reconciliation.toml",
+          "sha256": "5943af371c416478dba71339e7de9cf7dd2c6a1b316d23439d45e4a4cd720799"
+        }
+      ],
+      "pinned_review_source_inputs": {
+        "complete_pin_list_in_review": true,
+        "count": 10,
+        "matching_current_HEAD": 10
+      },
+      "prior_native_result_not_used_for_arithmetic": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-compatibility-after-scoped-review-20261017/actual-results.json@caa9909c355eeb4c6815e455b58fa74595069624ee8fcd65f366aa1cb573e744",
+      "review": {
+        "bytes": 13672,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/gl-public-surface-scope-independent-review-20261017-r1/review.json",
+        "sha256": "57bf7f3b1dac1a9395c63e6c15d983492397bf9b232c2def13b74129fcda7acd"
+      },
+      "review_base_commit": "718a54bc686e725f58a122d0c39b84a7c4737c52",
+      "review_base_tree": "4d4f5ff7169de2b073712bcf2d2d21ea6ca1144e",
+      "review_disposition": "GO_INTERNAL_RECLASSIFICATION_FOR_THREE_GL_FRAGMENTS; NO_PUBLIC_INVENTORY_REVIEW_FLAG",
+      "review_scope": "Only the three GL release-fragment classifications against the existing package public-surface contract and current supported runtime.quality facade. This is not a finding that the entire runtime.quality package is internal or a full package export review."
+    },
+    "actual_native_compatibility_run": {
+      "actual_environment_capture": "exact selected fields from mapping passed to Popen; inherited unspecified process variables are not captured",
+      "actual_results": {
+        "bytes": 2407,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-compatibility-after-gl-scope-correction-20261017/actual-results.json",
+        "sha256": "ea9279b4af578928f882154c97c995b8d83bcbf60e37e175a2426026539463b6"
+      },
+      "complete_input_pin_reconciliation": {
+        "actual_results_source_paths_unchanged": true,
+        "current_rehash": {
+          "mismatch": 0,
+          "missing": 0,
+          "nonregular": 0,
+          "outside_resolved_root": 0,
+          "result": "4,831/4,831 request path hashes remain stable at HEAD 803; all resolve inside OWN as regular non-symlink files",
+          "symlink": 0
+        },
+        "file_type_denominator": {
+          ".blob": 11,
+          ".csv": 15,
+          ".cypher": 2,
+          ".example": 1,
+          ".ini": 9,
+          ".json": 561,
+          ".jsonl": 1,
+          ".lock": 1,
+          ".md": 325,
+          ".mjs": 4,
+          ".py": 3239,
+          ".pyi": 5,
+          ".rego": 23,
+          ".retired": 1,
+          ".sh": 40,
+          ".sql": 6,
+          ".tf": 1,
+          ".tmpl": 7,
+          ".toml": 442,
+          ".tpl": 1,
+          ".ts": 12,
+          ".txt": 5,
+          ".typed": 2,
+          ".yaml": 66,
+          ".yml": 51
+        },
+        "path_map_count": 4831,
+        "request_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-compatibility-after-gl-scope-correction-20261017/request.json",
+        "request_sha256": "4dc267f71d7459579003b35b55e4715735cb37091d2fc145f538ccd8f2155b51",
+        "sum": 4831
+      },
+      "denominator_policy": "Counts are from this current 276-fragment / 244-structured-change output only. Do not subtract or net against an older native-run denominator cited by the GL review; it is a different run/source state.",
+      "elapsed_seconds": 0.258,
+      "exact_argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "tools/ops_runners/release/check_compatibility_release_gates.py",
+        "--repo-root",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "--policy",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/gates/compatibility_release.toml",
+        "--fail-on-contract-errors"
+      ],
+      "native_public_surface_evidence": {
+        "canonical_schema_source": "tools/devx/architecture/guardrails.py",
+        "complete_verdict": true,
+        "denominator": {
+          "canonical_package_model_fields_per_row": 9,
+          "contract_generated_artifact_families": 13,
+          "contract_package_model_field_slots_expected": 180,
+          "contract_package_model_field_slots_present": 180,
+          "contract_package_rows": 20,
+          "contract_supported_entrypoints": 67,
+          "generated_artifact_family_schema_fields_per_row": 5,
+          "inventory_entrypoint_rows": 67,
+          "inventory_entrypoint_schema_field_slots_expected": 670,
+          "inventory_entrypoint_schema_field_slots_present": 670,
+          "inventory_entrypoint_schema_fields_per_row": 10,
+          "inventory_generated_artifact_families": 13,
+          "inventory_generated_artifact_family_schema_field_slots_expected": 65,
+          "inventory_generated_artifact_family_schema_field_slots_present": 65,
+          "inventory_package_rows": 20,
+          "inventory_package_schema_field_slots_expected": 360,
+          "inventory_package_schema_field_slots_present": 360,
+          "inventory_package_schema_fields_per_row": 18,
+          "inventory_supported_entrypoints": 67
+        },
+        "interpretation": "Static inventory consistency for this checker only. The reviewed flag is consumer_asserted; owner identity is not established; runtime export resolution is not established by this checker. No full public API export completeness claim.",
+        "predicate_basis": {
+          "generated_artifact_family_parity": "recomputed",
+          "inventory_review_owner_identity": "not_established",
+          "inventory_schema_presence_and_types": "recomputed",
+          "package_metadata_and_set_parity": "recomputed",
+          "public_surface_inventory_reviewed_flag": "consumer_asserted",
+          "runtime_export_resolution": "not_established_by_this_checker",
+          "supported_entrypoint_set_parity": "recomputed"
+        },
+        "predicate_status": "consistent",
+        "runtime_quality_row_limit": {
+          "classification": "public_experimental",
+          "entrypoint_complete": false,
+          "exports_scope": "No names proven by bounded parser; not an empty runtime namespace.",
+          "facade_mode_observed": "unresolved_exports"
+        }
+      },
+      "remaining_contract_errors": [
+        {
+          "check": "public-surface-review",
+          "message": "python public API change requires public_surface_inventory_reviewed=true",
+          "severity": "error",
+          "subject": "release-fragments/unreleased/2026-10-09-e02-c12-catalog-search-status.toml:catalog-result-search-status-fields-and-atomic-tool-envelope"
+        },
+        {
+          "check": "public-surface-review",
+          "message": "python public API change requires public_surface_inventory_reviewed=true",
+          "severity": "error",
+          "subject": "release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml:scientist-legal-tool-status-envelope"
+        },
+        {
+          "check": "public-surface-review",
+          "message": "python public API change requires public_surface_inventory_reviewed=true",
+          "severity": "error",
+          "subject": "release-fragments/unreleased/2026-10-14-lex-runtime-material-binding-candidate.toml:legal-runtime-material-owner-api"
+        }
+      ],
+      "request": {
+        "bytes": 702622,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-compatibility-after-gl-scope-correction-20261017/request.json",
+        "sha256": "4dc267f71d7459579003b35b55e4715735cb37091d2fc145f538ccd8f2155b51"
+      },
+      "result_counts": {
+        "contract_errors": 3,
+        "findings": 0,
+        "release_fragments": 276,
+        "structured_compatibility_changes": 244,
+        "summary": {
+          "compatibility_surfaces": 5,
+          "generated_families": 6,
+          "promotion_checks": 4
+        }
+      },
+      "run_id": "root-native-compatibility-after-gl-scope-correction-20261017",
+      "run_record": {
+        "bytes": 1242,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-compatibility-after-gl-scope-correction-20261017/actual-native-compatibility-owner.run.json",
+        "sha256": "d54e5ef293c6eb676d410ab094e80639323d2a19b3b7c0613e2e41a872d883d0"
+      },
+      "scope": "Actual native compatibility owner after GL3 existing-internal-rule correction. Inputs: all tracked files below src/tools/architecture/release/release-fragments/ops, pyproject+uv.lock, plus prior named contract/document inputs. Not global source/input freeze or G acceptance.",
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-compatibility-after-gl-scope-correction-20261017/actual-native-compatibility-owner.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 5029,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-compatibility-after-gl-scope-correction-20261017/actual-native-compatibility-owner.stdout.txt",
+        "sha256": "89676e4124d66a24201894cfdf6fe216fbe6a83ec4b7c6c3328284c8046dad62"
+      },
+      "timed_out": false,
+      "timeout_seconds": 180
+    },
+    "artifact_status": "RAW-only tracked-style receipt candidate; root may wrap it in a separate tracked receipt.",
+    "created_at_utc": "2026-10-16T23:58:07.309905+00:00",
+    "limits": [
+      "No claim that the native compatibility gate is green; three contract errors remain.",
+      "No full runtime-export or package-wide public API completeness claim; runtime.quality inventory remains unresolved/incomplete.",
+      "The GL3 review covers only three GL child-path classifications; its 10 pinned source inputs were rehashed and matched at HEAD 803.",
+      "The three G packets record requested/open decisions; no G acceptance, formal closure, policy/legal authority, or global source freeze is established.",
+      "No tests were rerun while preparing this receipt; execution evidence is the exact retained actual run above."
+    ],
+    "outcome": {
+      "G_acceptance_status": "not accepted / not established",
+      "closure_ids": [],
+      "contract_errors": 3,
+      "findings": 0,
+      "formal_G_acceptance": null,
+      "global_source_freeze": false,
+      "interpretation": "Not green. The validator ran in report_only mode with --fail-on-contract-errors; exit 1 corresponds to the three retained contract errors below.",
+      "native_compatibility_exit_code": 1,
+      "native_compatibility_status": "contract_errors",
+      "source_freeze": false
+    },
+    "own_remote_delivery": {
+      "G_remote_observation": {
+        "G_authored_or_pushed": false,
+        "formal_G_acceptance": null,
+        "ref": "refs/heads/codex/e02-integration",
+        "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e"
+      },
+      "push_record": {
+        "bytes": 336,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-80323ccce6e8-20261015/push.json",
+        "sha256": "73f1364061c0a129b1db4cd4444aeab8ead4f06cda3098c1eb509f0aedfe1b3a"
+      },
+      "push_stderr": {
+        "bytes": 114,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-80323ccce6e8-20261015/push.stderr.txt",
+        "sha256": "3fb0512e531b9eb2458865f3842c7ceaf3ab344d664b94f4e947961818087449"
+      },
+      "push_stdout": {
+        "bytes": 486,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-80323ccce6e8-20261015/push.stdout.txt",
+        "sha256": "cde68f234ee34df91115802584939ec0aa51d846708f535cab233a91aab1db18"
+      },
+      "remote_readback": {
+        "bytes": 6143,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-80323ccce6e8-20261015/remote-readback.json",
+        "sha256": "c113a6dc8e0d8b1d518ceb3214e965eed304434047e5baf3c512788f6c748389"
+      },
+      "remote_readback_result": {
+        "branch": "codex/e02-unified-local-20261009",
+        "changed_path_count": 25,
+        "changed_path_mismatches": 0,
+        "changed_paths_content_match": 25,
+        "parents": [
+          "81139f95c3c52b7a1aebeb80d5779881465a0bf1"
+        ],
+        "previous_remote": "ec8c7a046dc9fa9120bf2c3857dbd95e5c2b3ee7",
+        "remote_sha": "80323ccce6e8f94ded7c33a816404f986bac88bc",
+        "remote_tree": "c08c31aaa77929c4401c3f586e96d4eb2ff581f2",
+        "source_freeze": false
+      },
+      "remote_refs_record": {
+        "bytes": 377,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-80323ccce6e8-20261015/remote-refs.json",
+        "sha256": "9ce484bc622ffe9873b72b711ea7fa6dac7db8a742ad390c403b0adc39de70b7"
+      },
+      "remote_refs_stdout": {
+        "bytes": 159,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-80323ccce6e8-20261015/remote-refs.stdout.txt",
+        "sha256": "5d3ef3e0402c71de29eb79b8347e187d649e3ca6d848c6eb6ddecce43a4903b0"
+      }
+    },
+    "proposal_id": "native-compatibility-after-gl3-scope-correction-own-delivery-20261017",
+    "published_G_decision_packets": {
+      "authority_boundary": "Published decision packets, not G acceptance. Their statuses remain open/required.",
+      "count": 3,
+      "packets": [
+        {
+          "included_in_own_remote_readback": true,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/gl-custom-claims-input-basis-g-decision-20261017.md",
+          "sha256": "bb7ff62d710c19728bb48e32159f320b45445368dd04bb92f747edab890bd8cd",
+          "status": "G decision open",
+          "tracked_in_parent_811": true,
+          "unchanged_in_803": true
+        },
+        {
+          "included_in_own_remote_readback": true,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/legal-runtime-material-handle-finite-surface-g-decision-20261017.md",
+          "sha256": "081171d73fd7df5c3e51613aeed452787c526d4555b587585b1861ae9635019e",
+          "status": "decision required",
+          "tracked_in_parent_811": true,
+          "unchanged_in_803": true
+        },
+        {
+          "included_in_own_remote_readback": true,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/registered-tool-json-output-abi-g-decision-20261017.json",
+          "sha256": "dccc08bc53c1b43286f632252de7232b192b1daf3753608b2dac5c6120a4bf24",
+          "status": "G_CHOICE_REQUIRED",
+          "tracked_in_parent_811": true,
+          "unchanged_in_803": true
+        }
+      ],
+      "quantity_denominator": "Three named packet files; all were already tracked in parent 811, unchanged at 803, and match own remote-readback pins."
+    },
+    "schema": "policyos.local.native_compatibility_delivery_receipt_proposal.v1",
+    "source_slice": {
+      "branch": "codex/e02-unified-local-20261009",
+      "commit": "80323ccce6e8f94ded7c33a816404f986bac88bc",
+      "commit_specific_changed_paths": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+          "postimage": {
+            "bytes": 238207,
+            "sha256": "7033d3b8122639cf15dbd6b5f896581abbf0be5b515038a1db5ad1433a2d0de6"
+          },
+          "preimage": {
+            "bytes": 236939,
+            "sha256": "d18710f675751466baa98176ed7ecb4e0bcfab8d1a678be64dcfa6f9ad5ab169"
+          }
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-gl-candidate-facet-origin-refusal.toml",
+          "postimage": {
+            "bytes": 3375,
+            "sha256": "df89e5f844c0490ac9c5a71ae1d733d5b28ecb30e3f88e718ce556d9a1da2bda"
+          },
+          "preimage": {
+            "bytes": 3415,
+            "sha256": "2d72847473dc7b52320bcf80b9c158bd46c20a926a0851b8517bf5ab7c41436d"
+          }
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-16-e02-gl-selected-subject-identity-join.toml",
+          "postimage": {
+            "bytes": 3641,
+            "sha256": "e79be007c4bd69690a92f8397a096aab0de0d45b687cb7eee09b65b2a21015ed"
+          },
+          "preimage": {
+            "bytes": 3681,
+            "sha256": "4d8bb64ff1d4646b5e4133c11dfb0152ac695cdd35556c8170d6314771b7d3c6"
+          }
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-17-e02-gl-full-requirement-projection-reconciliation.toml",
+          "postimage": {
+            "bytes": 3447,
+            "sha256": "5943af371c416478dba71339e7de9cf7dd2c6a1b316d23439d45e4a4cd720799"
+          },
+          "preimage": {
+            "bytes": 3487,
+            "sha256": "45510add39754008110f757b5d81aff940445f3ae2c989c03c8259fac5948879"
+          }
+        }
+      ],
+      "commit_specific_path_count": 4,
+      "interpretation": "This commit contains the three reviewed GL fragment metadata postimages plus the coordination LEASES update; separate from the 25-path own-remote branch delta.",
+      "parent_tree": "023d79e155e236d9131dfdf4a6e2087de3aa980d",
+      "parents": [
+        "81139f95c3c52b7a1aebeb80d5779881465a0bf1"
+      ],
+      "tree": "c08c31aaa77929c4401c3f586e96d4eb2ff581f2"
+    }
+  }
+}

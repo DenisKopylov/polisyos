@@ -4523,5 +4523,29 @@
       }
     ],
     "limits": "No product guard or scientific tolerance changed; selected focused runtime replay remains UNRUN at this implementation boundary. Full E02 source/input/backend freeze and G closure remain pending."
+  },
+  "coordination_epoch_20261017_scl04_producer_license_and_structured_refusal": {
+    "slice_base": "c365a2074a1d8d92ff0bb8c10228a58838e4835e",
+    "canonical_writer": "root only; agents RAW-only",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/scholar/search/scoring.py",
+      "policy-engine/tests/unit/remediation/test_scl_03.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scl03-fixture-binding-correction-r4-20261017/candidate-manifest.json",
+      "sha256": "35a185dd3125616f0629aa0ff0c380a1fe2649016424245cf38217f4405b696b"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scl03-fixture-binding-independent-review-r4-20261017/review.json",
+      "sha256": "c593143fd1f3f5dbcc47aa6c330d444c1ff2755b7bcfbb7090bc882b320f1c71"
+    },
+    "property": "Forward existing typed FetchResult.license through canonical metadata builder; structured refusal controls across missing/denied/digest-mismatched raw snapshots.",
+    "P40_bucket": "Same producer-to-consumer conformance class; no warning-token gates, no license authority inferred.",
+    "acceptance": "Canonical 9-case SCL plus 17 Scholar importer/API replay remains UNRUN at source boundary.",
+    "closure_ids": []
   }
 }

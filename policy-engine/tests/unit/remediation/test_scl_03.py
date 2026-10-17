@@ -243,8 +243,17 @@ def _assert_gap_without_url_fallback(
     *,
     cas: FileSystemCAS,
     source: SourceMetadata,
+    expected_violation: Literal["source_artifact_unavailable", "source_artifact_digest_mismatch"],
 ) -> None:
     called = False
+    assert source.content_sha256 is not None
+    _assert_redirected_source_identity(source, source.content_sha256)
+    assert source.license == "CC-BY-4.0"
+    assert source.fetch_profile == FETCH_PROFILE
+    bundle = _bundle(source)
+    assert len(bundle.sources) == 1
+    assert len(bundle.snippets) == 1
+    assert bundle.snippets[0].source_id == bundle.sources[0].source_id
 
     def _unexpected_enrich(**_kwargs: object) -> EnrichResultV1:
         nonlocal called
@@ -252,8 +261,8 @@ def _assert_gap_without_url_fallback(
         raise AssertionError("raw snapshot gap must not fall back to a second URL fetch")
 
     monkeypatch.setattr("polisyos.scholar.api._enrich_topic", _unexpected_enrich)
-    service = _FixtureSearchService(_bundle(source), cas=cas)
-    with pytest.raises(Exception) as caught:
+    service = _FixtureSearchService(bundle, cas=cas)
+    with pytest.raises(ScholarAcquireError) as caught:
         enrich_topic(
             cas=cas,
             fact_log_root=cas.root / "facts",
@@ -262,19 +271,11 @@ def _assert_gap_without_url_fallback(
         )
 
     assert called is False
-    assert not isinstance(caught.value, AssertionError)
-    message = str(caught.value).lower()
+    violations = caught.value.details.get("violations", ())
+    assert isinstance(violations, list)
     assert any(
-        token in message
-        for token in (
-            "access",
-            "artifact",
-            "cas",
-            "digest",
-            "missing",
-            "raw",
-            "snapshot",
-        )
+        isinstance(violation, str) and violation.startswith(f"{expected_violation}:")
+        for violation in violations
     )
 
 
@@ -395,7 +396,12 @@ def test_missing_raw_snapshot_does_not_reconstruct_from_fragments(
     )
     source = _source(missing_fetch)
 
-    _assert_gap_without_url_fallback(monkeypatch, cas=cas, source=source)
+    _assert_gap_without_url_fallback(
+        monkeypatch,
+        cas=cas,
+        source=source,
+        expected_violation="source_artifact_unavailable",
+    )
 
 
 def test_denied_raw_snapshot_fails_closed(
@@ -410,7 +416,12 @@ def test_denied_raw_snapshot_fails_closed(
         raise PermissionError("fixture access denied")
 
     monkeypatch.setattr(cas, "get_bytes", _deny)
-    _assert_gap_without_url_fallback(monkeypatch, cas=cas, source=source)
+    _assert_gap_without_url_fallback(
+        monkeypatch,
+        cas=cas,
+        source=source,
+        expected_violation="source_artifact_unavailable",
+    )
 
 
 def test_mismatched_raw_snapshot_digest_fails_closed(
@@ -422,7 +433,12 @@ def test_mismatched_raw_snapshot_digest_fails_closed(
     mismatched_fetch = fetch.model_copy(update={"content_sha256": SNAPSHOT_V2_SHA256})
     source = _source(mismatched_fetch)
 
-    _assert_gap_without_url_fallback(monkeypatch, cas=cas, source=source)
+    _assert_gap_without_url_fallback(
+        monkeypatch,
+        cas=cas,
+        source=source,
+        expected_violation="source_artifact_digest_mismatch",
+    )
 
 
 def test_cache_refresh_keeps_v1_and_exposes_v2_as_distinct_cas_lineage(tmp_path) -> None:

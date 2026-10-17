@@ -91,6 +91,7 @@ def build_source_metadata(
         fetch_status=fetch.status,
         content_type=fetch.content_type,
         content_sha256=fetch.content_sha256,
+        license=fetch.license,
         artifact_id=fetch.artifact_id,
         raw_artifact_ref=fetch.raw_artifact_ref,
         byte_size=fetch.byte_size,

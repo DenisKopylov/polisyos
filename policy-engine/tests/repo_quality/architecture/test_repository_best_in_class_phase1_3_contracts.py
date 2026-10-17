@@ -127,30 +127,99 @@ def test_phase1_3_report_only_gates_have_owners_evidence_and_no_fail_closed_mode
         for source in gate["source_contracts"]:
             assert _path_pattern_exists(source), (gate["id"], source)
 
-    expiry_findings = [
+    invalid_date_findings = [
         item
         for item in phase1_3._validate_report_only_gates(REPO_ROOT)
-        if item.message == "target_fail_closed_not_before must be today or future"
+        if item.message == "target_fail_closed_not_before must be a valid ISO date string"
     ]
-    assert {item.subject: item.detail for item in expiry_findings} == dict.fromkeys(
-        {
-            "package-contract-schema",
-            "debt-ledger-reconciliation",
-            "compatibility-release-gates",
-            "package-aggregate-mirror",
-            "module-size-budget",
-            "extension-points",
-            "runbook-coverage",
-            "component-observability",
-            "runtime-state-layout",
-            "test-ratchets",
-            "directory-contracts",
-            "directory-hygiene-assets",
-            "static-analysis-overrides",
-            "dead-static-analysis-overrides",
-        },
-        "2026-10-01",
+    assert invalid_date_findings == []
+
+
+@pytest.mark.parametrize(
+    ("date_line", "expected_detail"),
+    [
+        ('target_fail_closed_not_before = "not-a-date"', "not-a-date"),
+        (None, "<missing>"),
+        ("target_fail_closed_not_before = 2026-10-18", "2026-10-18"),
+    ],
+    ids=("malformed", "missing", "toml-date-object"),
+)
+def test_report_only_gate_rejects_invalid_not_before_date_types(
+    tmp_path: Path,
+    date_line: str | None,
+    expected_detail: str,
+) -> None:
+    repo = tmp_path / "repo"
+    gate_path = repo / "architecture" / "gates" / "report_only.toml"
+    gate_path.parent.mkdir(parents=True)
+    (repo / "evidence.md").write_text("evidence\n", encoding="utf-8")
+    (repo / "source.toml").write_text("[source]\n", encoding="utf-8")
+    date_field = f"{date_line}\n" if date_line else ""
+    gate_path.write_text(
+        '[report_only_gates]\nstatus = "report_only"\n\n'
+        '[[gate]]\nid = "fixture"\nowner = "team-test"\n'
+        'mode = "report_only"\ncommand = "fixture check"\n'
+        'evidence = "evidence.md"\nsource_contracts = ["source.toml"]\n'
+        f"{date_field}",
+        encoding="utf-8",
     )
+
+    findings = phase1_3._validate_report_only_gates(repo)
+
+    assert [(item.message, item.detail) for item in findings] == [
+        ("target_fail_closed_not_before must be a valid ISO date string", expected_detail)
+    ]
+    assert _read_toml(gate_path)["gate"][0]["mode"] == "report_only"
+
+
+def test_report_only_gate_accepts_elapsed_eligibility_date_without_mode_promotion(
+    tmp_path: Path,
+) -> None:
+    repo = tmp_path / "repo"
+    gate_path = repo / "architecture" / "gates" / "report_only.toml"
+    gate_path.parent.mkdir(parents=True)
+    (repo / "evidence.md").write_text("evidence\n", encoding="utf-8")
+    (repo / "source.toml").write_text("[source]\n", encoding="utf-8")
+    gate_path.write_text(
+        '[report_only_gates]\nstatus = "report_only"\n\n'
+        '[[gate]]\nid = "fixture"\nowner = "team-test"\n'
+        'mode = "report_only"\ncommand = "fixture check"\n'
+        'evidence = "evidence.md"\nsource_contracts = ["source.toml"]\n'
+        'target_fail_closed_not_before = "2000-01-01"\n',
+        encoding="utf-8",
+    )
+
+    assert phase1_3._validate_report_only_gates(repo) == []
+    gate = _read_toml(gate_path)["gate"][0]
+    assert gate["target_fail_closed_not_before"] == "2000-01-01"
+    assert gate["mode"] == "report_only"
+
+
+def test_validation_tooling_extraction_target_remains_an_expiry() -> None:
+    data = _read_toml(REPO_ROOT / "architecture" / "module_size_budget.toml")
+    header = data["validation_tooling_size_budget"]
+    budget = next(
+        row
+        for row in data["budget"]
+        if row["path"] == "tools/quality/validation/architecture_report_only_contracts.py"
+    )
+    budget = {**budget, "target_date": (dt.date.today() - dt.timedelta(days=1)).isoformat()}
+
+    findings = phase1_3._validate_validation_tooling_budget_entry(
+        REPO_ROOT,
+        budget,
+        validation_header=header,
+        validation_scope=header["scope"],
+    )
+
+    expired = [
+        item
+        for item in findings
+        if item.message == "validation tooling extraction target date must be today or future"
+    ]
+    assert [(item.subject, item.detail) for item in expired] == [
+        (budget["path"], budget["target_date"])
+    ]
 
 
 def test_phase1_3_requested_contract_surfaces_are_drafted_or_expanded() -> None:
@@ -221,7 +290,7 @@ def test_phase1_3_module_size_budget_sets_defaults_and_shrinking_god_module_budg
     assert header["status"] == "report_only"
     assert header["default_warning_lines"] == 1000
     assert header["default_fail_closed_target_lines"] == 2500
-    assert _date(header["fail_closed_not_before"]) >= dt.date.today()
+    assert _date(header["fail_closed_not_before"]).isoformat() == header["fail_closed_not_before"]
 
     budgets = payload["budget"]
     assert len(budgets) >= 10
@@ -270,31 +339,13 @@ def test_phase1_3_report_only_validator_scopes_package_mirror_property(tmp_path:
     )
     assert any(item["check"] == "report-only-gates" for item in packages_report["contract_errors"])
     assert packages_report["summary"]["package_contract_count"] >= 16
-    report_gate_expiry_errors = [
+    invalid_gate_dates = [
         item
         for item in packages_report["contract_errors"]
         if item["check"] == "report-only-gates"
-        and item["message"] == "target_fail_closed_not_before must be today or future"
+        and item["message"] == "target_fail_closed_not_before must be a valid ISO date string"
     ]
-    assert {item["subject"]: item["detail"] for item in report_gate_expiry_errors} == dict.fromkeys(
-        {
-            "package-contract-schema",
-            "debt-ledger-reconciliation",
-            "compatibility-release-gates",
-            "package-aggregate-mirror",
-            "module-size-budget",
-            "extension-points",
-            "runbook-coverage",
-            "component-observability",
-            "runtime-state-layout",
-            "test-ratchets",
-            "directory-contracts",
-            "directory-hygiene-assets",
-            "static-analysis-overrides",
-            "dead-static-analysis-overrides",
-        },
-        "2026-10-01",
-    )
+    assert invalid_gate_dates == []
     assert packages_report["summary"]["report_only_gate_count"] == 14
 
     mirror_report = phase1_3.build_report(REPO_ROOT, report="package-mirrors")
@@ -1064,13 +1115,13 @@ def test_legacy_operability_route_join_catches_removed_route_and_preserves_phase
         "docs/runbooks/retained-artifact-recovery.md",
         "ops/observability/slo/schema_drift.yaml",
     }
-    expiry_errors = [
+    invalid_gate_dates = [
         item
         for item in cli_report["contract_errors"]
         if item["check"] == "report-only-gates"
-        and item["message"] == "target_fail_closed_not_before must be today or future"
+        and item["message"] == "target_fail_closed_not_before must be a valid ISO date string"
     ]
-    assert len(expiry_errors) == 14
+    assert invalid_gate_dates == []
 
 
 def test_legacy_operability_route_join_reads_index_named_by_contract(

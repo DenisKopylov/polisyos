@@ -696,6 +696,16 @@ def _validate_package_extension_points(
             )
 
 
+def _valid_iso_date(raw: object) -> bool:
+    if not isinstance(raw, str):
+        return False
+    try:
+        parsed = dt.date.fromisoformat(raw)
+    except ValueError:
+        return False
+    return parsed.isoformat() == raw
+
+
 def _valid_future_or_today(raw: str) -> bool:
     try:
         return dt.date.fromisoformat(raw) >= dt.date.today()
@@ -4295,15 +4305,15 @@ def _validate_report_only_gates(repo_root: Path) -> list[Finding]:
                         str(source),
                     )
                 )
-        raw_date = str(gate.get("target_fail_closed_not_before", ""))
-        if raw_date and not _valid_future_or_today(raw_date):
+        raw_date = gate.get("target_fail_closed_not_before", _MISSING_VALUE)
+        if not _valid_iso_date(raw_date):
             errors.append(
                 Finding(
                     "report-only-gates",
                     "error",
                     gate_id,
-                    "target_fail_closed_not_before must be today or future",
-                    raw_date,
+                    "target_fail_closed_not_before must be a valid ISO date string",
+                    "<missing>" if raw_date is _MISSING_VALUE else str(raw_date),
                 )
             )
     return errors

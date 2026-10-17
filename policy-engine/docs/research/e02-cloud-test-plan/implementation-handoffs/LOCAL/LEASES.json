@@ -6609,5 +6609,56 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_not_before_date_role_r2": {
+    "slice_base": "681531183338e703e94c640f7794abfc2586959b",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tools/quality/validation/architecture_report_only_contracts.py": {
+        "preimage_sha256": "0dc3b05d81a7e42b072fd4254b68d60a60244337d4a12d8c9fcc3fda0eda5e70",
+        "postimage_sha256": "e6de2b42f97ee17259191c003bc0345e3b72a0923b7ba28930601dfd57bce01c",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/module-size-time-role-repair-r2-20261018/postimages/policy-engine/tools/quality/validation/architecture_report_only_contracts.py"
+      },
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py": {
+        "preimage_sha256": "ce801e84d7c2e459a828a29fe8bffd640b908089b5cc9543daf6a95df6f84469",
+        "postimage_sha256": "4545e31bef382a669f04c9c7c5f4c89a4fda5aecdf070a7ac018003da881420b",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/module-size-time-role-repair-r2-20261018/postimages/policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/source-application.json",
+      "sha256": "1ca76cdf5d4f7efb90667209c403e4c4ac83232ec5a29296c024fec55167bd4a"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/module-size-time-role-repair-r2-20261018/manifest.json",
+        "sha256": "3850151520eec6304c4e20f92c0ed384158e90cb0b60931578948e70a98e85a0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/module-size-time-role-independent-review-r2-delta-20261018/review.json",
+        "sha256": "016466a4e01cf0b2c4036954e7aa09953d2216cb0adbaccda032650e0068864c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/module-size-time-role-repair-r1-20261018/control-r2/receipt.json",
+        "sha256": "9c56b579923b31dd96c04124a386e8411e078816bf201465504885758278534e"
+      }
+    ],
+    "P40": "Same P08/P38 time-role class fixed for all14 report-only gate predicates and module header tests, not date or waiver updates.",
+    "bounded_proof": "Independent R2 delta review, exact checker in-memory controls and all14 gate rows reconciled; actual current CLI/pytest still pending.",
+    "limitations": [
+      "No source TOML/date/status/baseline/floor/waiver/issuer changed.",
+      "Candidate report remains contract_errors with77 genuine errors after14 false eligibility-date errors disappear; ordinary exit0 without fail flag is not native green."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Actual canonical changed module plus fail-on-contract-errors module-size report; continue whole source factoring or named external issuer choices for genuine debt.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }
